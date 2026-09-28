@@ -31,14 +31,17 @@ func NewBalanceDruid(character *core.Character, options *proto.Player) *BalanceD
 		Druid:   druid.New(character, druid.Moonkin, selfBuffs, options.TalentsString),
 		Options: balanceOptions.Options,
 	}
+	if !moonkin.Talents.MoonkinForm {
+		moonkin.StartingForm = druid.Humanoid
+	}
 
 	moonkin.SelfBuffs.InnervateTarget = &proto.UnitReference{}
 	if balanceOptions.Options.ClassOptions.InnervateTarget != nil {
 		moonkin.SelfBuffs.InnervateTarget = balanceOptions.Options.ClassOptions.InnervateTarget
 	}
 
-	moonkin.RegisterMoonkinFormSpell()
 	moonkin.RegisterMoonkinFormAura()
+	moonkin.RegisterMoonkinFormSpell()
 
 	return moonkin
 }
@@ -66,4 +69,7 @@ func (moonkin *BalanceDruid) ApplyTalents() {
 
 func (moonkin *BalanceDruid) Reset(sim *core.Simulation) {
 	moonkin.Druid.Reset(sim)
+	if moonkin.MoonkinFormAura != nil {
+		moonkin.MoonkinFormAura.Activate(sim)
+	}
 }

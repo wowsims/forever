@@ -1,53 +1,35 @@
 package druid
 
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
 // Package-level state the commented-out implementations used:
 // var faerieFireFeralRank = spellData.FaerieFireFeral.ByID(27011)
 
 var faerieFireRank = spellData.FaerieFire.Highest()
 
-// TODO: To be implemented.
 func (druid *Druid) registerFaerieFireSpell() {
-	panic("To be implemented")
+	druid.FaerieFireAuras = druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		// The druid's own copy of the debuff; the game files have no talent that raises it.
+		return buffs.NewSpellDataFaerieFireAura(target, true, 0)
+	})
 
-	// The TBC implementation, kept for the port:
-	// auras := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-	// 	// The druid's own copy of the aura; the game files have no Improved Faerie
-	// 	// Fire node, so there are no talent points to pass.
-	// 	return buffs.NewSpellDataFaerieFireAura(target, true, 0)
-	// })
-	//
-	// druid.FaerieFire = druid.RegisterSpell(core.SpellConfig{
-	// 	ClassSpellMask:  DruidSpellFaerieFire,
-	// 	ActionID:        core.ActionID{SpellID: faerieFireRank.ID},
-	// 	CastRequirement: faerieFireRank.CastRequirement(),
-	// 	SpellSchool:     faerieFireRank.SpellSchool(),
-	// 	DefenseType:     faerieFireRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskSpellDamage,
-	// 	Flags:           core.SpellFlagAPL,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(faerieFireRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: faerieFireRank.GCD(),
-	// 		},
-	// 	},
-	//
-	// 	ThreatMultiplier: 1,
-	// 	FlatThreatBonus:  132,
-	// 	MaxRange:         float64(faerieFireRank.MaxRange),
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
-	//
-	// 		if result.Landed() {
-	// 			auras.Get(target).Activate(sim)
-	// 		}
-	// 	},
-	//
-	// 	RelatedAuraArrays: auras.ToMap(),
-	// })
+	config := spelldata.SpellConfig(&druid.Unit, faerieFireRank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = DruidSpellFaerieFire
+	config.FlatThreatBonus = 132 // The game files state no threat for Faerie Fire.
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
+		if result.Landed() {
+			druid.FaerieFireAuras.Get(target).Activate(sim)
+		}
+	}
+	config.RelatedAuraArrays = druid.FaerieFireAuras.ToMap()
+
+	druid.FaerieFire = druid.RegisterSpell(config)
 }
 
 // TODO: uncalled -- Forever drops the Faerie Fire (Feral) talent; re-gate before wiring

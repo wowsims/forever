@@ -3,6 +3,7 @@ package druid
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 type DruidForm uint8
@@ -51,7 +52,7 @@ func (druid *Druid) ClearForm(sim *core.Simulation) {
 		druid.CatFormAura.Deactivate(sim)
 	} else if druid.InForm(Bear) {
 		druid.BearFormAura.Deactivate(sim)
-	} else if druid.InForm(Moonkin) {
+	} else if druid.InForm(Moonkin) && druid.MoonkinFormAura != nil {
 		druid.MoonkinFormAura.Deactivate(sim)
 	}
 
@@ -347,79 +348,53 @@ func (druid *Druid) registerBearFormSpell() {
 	// })
 }
 
-// TODO: To be implemented. Not verified against Forever.
-func (druid *Druid) RegisterMoonkinFormAura() {
-	panic("To be implemented")
+var moonkinFormRank = spellData.MoonkinForm.Highest()
 
-	// The TBC implementation, kept for the port:
-	// if !druid.Talents.MoonkinForm {
-	// return
-	// }
-	//
-	// druid.MoonkinFormAura = druid.RegisterAura(core.Aura{
-	// Label:      "Moonkin Form",
-	// ActionID:   core.ActionID{SpellID: 24858},
-	// Duration:   core.NeverExpires,
-	// BuildPhase: core.Ternary(druid.StartingForm.Matches(Moonkin), core.CharacterBuildPhaseBase, core.CharacterBuildPhaseNone),
-	// OnGain: func(aura *core.Aura, sim *core.Simulation) {
-	// if !druid.Env.MeasuringStats && druid.form != Moonkin {
-	// druid.ClearForm(sim)
-	// }
-	//
-	// druid.ApplyDynamicEquipScaling(sim, stats.Armor, 4)
-	//
-	// druid.setForm(Moonkin)
-	// druid.SetCurrentPowerBar(core.ManaBar)
-	// },
-	// OnExpire: func(aura *core.Aura, sim *core.Simulation) {
-	// druid.RemoveDynamicEquipScaling(sim, stats.Armor, 4)
-	// druid.setForm(Humanoid)
-	// },
-	// })
-	//
-	// manaMetrics := druid.NewManaMetrics(core.ActionID{SpellID: 33926 /* Elune's Touch */})
-	//
-	// // Elune's Touch is assumed to have a PPM of 15.
-	// // Mana gained is 30% of melee attack power.
-	//
-	// druid.MakeProcTriggerAura(core.ProcTrigger{
-	// Name:               "Elune's Touch",
-	// DPM:                druid.NewStaticLegacyPPMManager(15, core.ProcMaskMeleeWhiteHit),
-	// RequireDamageDealt: true,
-	// Outcome:            core.OutcomeLanded,
-	// Callback:           core.CallbackOnSpellHitDealt,
-	// Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// druid.AddMana(sim, float64(stats.AttackPower)*0.3, manaMetrics)
-	// },
-	// })
+// Moonkin Form (Passive), which states the form's armor from items. The party crit of Moonkin Aura
+// 24907 is the raid buff AddPartyBuffs turns on.
+var moonkinFormPassive = spellData.MoonkinFormTriggered.ByID(24905)
+
+func (druid *Druid) RegisterMoonkinFormAura() {
+	if !druid.Talents.MoonkinForm {
+		return
+	}
+
+	druid.MoonkinFormAura = druid.RegisterAura(core.Aura{
+		Label:      "Moonkin Form",
+		ActionID:   core.ActionID{SpellID: moonkinFormRank.ID},
+		Duration:   core.NeverExpires,
+		BuildPhase: core.Ternary(druid.StartingForm.Matches(Moonkin), core.CharacterBuildPhaseBase, core.CharacterBuildPhaseNone),
+		OnGain: func(aura *core.Aura, sim *core.Simulation) {
+			if !druid.Env.MeasuringStats && druid.form != Moonkin && druid.form != Humanoid {
+				druid.ClearForm(sim)
+			}
+			druid.setForm(Moonkin)
+			druid.SetCurrentPowerBar(core.ManaBar)
+		},
+		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
+			druid.setForm(Humanoid)
+		},
+	})
+
+	// The row's second effect, A_MOD_BONUS_ARMOR_PCT, has no sim kind and is reported as skipped.
+	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, moonkinFormPassive)
 }
 
-// TODO: To be implemented. Not verified against Forever.
 func (druid *Druid) RegisterMoonkinFormSpell() {
-	panic("To be implemented")
+	if !druid.Talents.MoonkinForm {
+		return
+	}
 
-	// The TBC implementation, kept for the port:
-	// if !druid.Talents.MoonkinForm {
-	// return
-	// }
-	//
-	// druid.MoonkinForm = druid.RegisterSpell(core.SpellConfig{
-	// ActionID:        core.ActionID{SpellID: 24858},
-	// CastRequirement: spellData.MoonkinForm.Highest().CastRequirement(),
-	// Flags:           core.SpellFlagNoOnCastComplete | core.SpellFlagAPL,
-	//
-	// ManaCost: core.ManaCostOptions{
-	// BaseCostPercent: 9.3,
-	// },
-	// Cast: core.CastConfig{
-	// DefaultCast: core.Cast{
-	// GCD: core.GCDDefault,
-	// },
-	// IgnoreHaste: true,
-	// },
-	//
-	// ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// druid.MoonkinFormAura.Activate(sim)
-	// },
-	// })
+	config := spelldata.SpellConfig(&druid.Unit, moonkinFormRank,
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagAPL))
+	config.Cast.IgnoreHaste = true
+	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
+		return !druid.MoonkinFormAura.IsActive()
+	}
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		druid.MoonkinFormAura.Activate(sim)
+	}
+	config.RelatedSelfBuff = druid.MoonkinFormAura
+
+	druid.MoonkinForm = druid.RegisterSpell(config)
 }

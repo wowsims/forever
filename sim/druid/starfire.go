@@ -1,6 +1,7 @@
 package druid
 
 import (
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -8,42 +9,15 @@ import (
 // moves down rather than naming a rank the table does not hold.
 var StarfireRankMap = spelldata.Ranked(spellData.Starfire.Rank(6).ID, spellData.Starfire.Rank(7).ID)
 
-// TODO: To be implemented.
 func (druid *Druid) registerStarfireSpell(rankConfig *spelldata.Spell) {
-	panic("To be implemented")
+	damage := rankConfig.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	// spell := druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: rankConfig.ID},
-	// 	CastRequirement: rankConfig.CastRequirement(),
-	// 	SpellSchool:     core.SpellSchoolArcane,
-	// 	DefenseType:     core.DefenseTypeMagic,
-	// 	ProcMask:        core.ProcMaskSpellDamage,
-	// 	ClassSpellMask:  DruidSpellStarfire,
-	// 	Flags:           core.SpellFlagAPL,
-	// 	Rank:            rankConfig.RankNumber(),
-	// 	MaxRange:        float64(rankConfig.MaxRange),
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(rankConfig.Cost()),
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      rankConfig.GCD(),
-	// 			CastTime: rankConfig.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	BonusCoefficient: rankConfig.DamageEffect().Coeff(),
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := rankConfig.DamageEffect().Average(core.CharacterLevel)
-	// 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMagicHitAndCrit)
-	// 	},
-	// })
-	//
-	// druid.Starfire = append(druid.Starfire, spell)
+	config := spelldata.SpellConfig(&druid.Unit, rankConfig, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = DruidSpellStarfire
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealDamage(sim, target, damage.Roll(sim, core.CharacterLevel), spell.OutcomeMagicHitAndCrit)
+	}
+
+	druid.Starfire = append(druid.Starfire, druid.RegisterSpell(config))
 }
