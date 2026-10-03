@@ -94,6 +94,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		1727, // Sword of Decay
+		[
+			"Reduces target enemy's attack power by 84 for 30s.", // 13528 - https://www.wowhead.com/forever/spell=13528
+		]
+	],
+	[
 		2000, // Archeus
 		[
 			"Blasts a target for 85 Arcane damage.", // 18091 - https://www.wowhead.com/forever/spell=18091
@@ -175,6 +181,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		3416, // Martyr's Chain
 		[
 			"Dying inflicts 420 Holy damage to all enemies within 15 yds.", // 1292746 - https://www.wowhead.com/forever/spell=1292746
+		]
+	],
+	[
+		3456, // Dog Whistle
+		[
+			"", // 1293501 - https://www.wowhead.com/forever/spell=1293501
 		]
 	],
 	[
@@ -484,6 +496,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		7710, // Loksey's Training Stick
+		[
+			"Discipline the target, dealing 91 Physical damage. Canines and Hyenas are Stunned and sit for 3s.", // 1293482 - https://www.wowhead.com/forever/spell=1293482
+		]
+	],
+	[
 		7726, // Aegis of the Scarlet Commander
 		[
 			"Deals 14 Holy damage every time you block.", // 1293539 - https://www.wowhead.com/forever/spell=1293539
@@ -499,6 +517,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		7734, // Six Demon Bag
 		[
 			"Blasts enemies in front of you with the power of wind, fire, all that kind of thing!", // 14537 - https://www.wowhead.com/forever/spell=14537
+		]
+	],
+	[
+		7753, // Bloodspiller
+		[
+			"Wounds the target causing them to bleed for 250 damage over 10s.", // 18200 - https://www.wowhead.com/forever/spell=18200
 		]
 	],
 	[
@@ -565,6 +589,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9453, // Toxic Revenger
 		[
 			"Deals 14 Nature damage every 3.0 sec to any enemy in an 8 yard radius around the caster for 12s.", // 11790 - https://www.wowhead.com/forever/spell=11790
+		]
+	],
+	[
+		9485, // Vibroblade
+		[
+			"Punctures target's armor, lowering it by 100.", // 1293005 - https://www.wowhead.com/forever/spell=1293005
 		]
 	],
 	[
@@ -2420,6 +2450,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		274290, // Painwalker Buckler
 		[
 			"17% chance when struck in combat to gain 12 mana per 5 sec for 10s.", // 1293700 - https://www.wowhead.com/forever/spell=1293700
+		]
+	],
+	[
+		274293, // Spellsever Crossbow
+		[
+			"Launch a magic severing bolt at the target, dealing 36 Physical damage and interrupting the spell being cast for 5s.", // 1293714 - https://www.wowhead.com/forever/spell=1293714
 		]
 	],
 	[
