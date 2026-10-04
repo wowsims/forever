@@ -1,24 +1,17 @@
 import { PseudoStat, Stat } from '@generated/proto/common';
-import { UnitStat } from '@sim/proto/stats';
+import { SCHOOL_HIT_PERCENT_PSEUDO_STATS, UnitStat } from '@sim/proto/stats';
 import type { StatTooltipContent } from '@sim/spec_config';
 import type { ReactNode } from 'react';
 
 /** The stats the optimizer offers a cap for. Held as UnitStats because several are pseudo-stats. */
 export const INCLUDED_STATS: UnitStat[] = [
-	UnitStat.fromStat(Stat.StatSpellHitRating),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentArcane),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFrost),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentHoly),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentNature),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow),
-	UnitStat.fromPseudoStat(PseudoStat.PseudoStatReducedCritTakenPercent),
-	UnitStat.fromStat(Stat.StatSpellCritRating),
-	UnitStat.fromStat(Stat.StatSpellHasteRating),
-	UnitStat.fromStat(Stat.StatMeleeHitRating),
+	UnitStat.fromStat(Stat.StatHitRating),
 	UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent),
-	UnitStat.fromStat(Stat.StatMeleeCritRating),
-	UnitStat.fromStat(Stat.StatMeleeHasteRating),
+	UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent),
+	...SCHOOL_HIT_PERCENT_PSEUDO_STATS.map(pseudoStat => UnitStat.fromPseudoStat(pseudoStat)),
+	UnitStat.fromPseudoStat(PseudoStat.PseudoStatReducedCritTakenPercent),
+	UnitStat.fromStat(Stat.StatCritRating),
+	UnitStat.fromStat(Stat.StatHasteRating),
 	UnitStat.fromStat(Stat.StatExpertiseRating),
 	UnitStat.fromPseudoStat(PseudoStat.PseudoStatExpertisePercent),
 	UnitStat.fromStat(Stat.StatArmorPenetration),
@@ -30,12 +23,7 @@ export const INCLUDED_STATS: UnitStat[] = [
 export const isIncludedStat = (unitStat: UnitStat): boolean => INCLUDED_STATS.some(included => included.equals(unitStat));
 
 const DEFAULT_STAT_TOOLTIPS: Partial<Record<Stat, ReactNode>> = {
-	[Stat.StatMeleeHasteRating]: (
-		<>
-			Final percentage value <strong>including</strong> all buffs/gear.
-		</>
-	),
-	[Stat.StatSpellHasteRating]: (
+	[Stat.StatHasteRating]: (
 		<>
 			Final percentage value <strong>including</strong> all buffs/gear.
 		</>

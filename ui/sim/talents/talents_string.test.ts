@@ -1,5 +1,6 @@
 import { MageTalents } from '@generated/proto/mage';
-import { talentStringToProto } from '@sim/talents/factory';
+import { Mage } from '@sim/player/specs/mage';
+import { playerTalentStringToProto } from '@sim/talents/factory';
 import { mageTalentsConfig } from '@sim/talents/mage';
 import { describe, expect, it } from 'vitest';
 
@@ -81,14 +82,12 @@ describe('talents string codec', () => {
 	it('reads a build longer than the tree without throwing', () => {
 		// Arcane holds 18 talents: pad to 18 before overflowing, or the digits land inside the tree.
 		const overlong = MAGE_DEFAULT.replace('2552252231221', '2552252231221' + '0'.repeat(5) + '555555');
-		expect(() => talentStringToProto(MageTalents.create(), overlong, mageTalentsConfig)).not.toThrow();
-		expect(talentStringToProto(MageTalents.create(), overlong, mageTalentsConfig)).toEqual(
-			talentStringToProto(MageTalents.create(), MAGE_DEFAULT, mageTalentsConfig),
-		);
+		expect(() => playerTalentStringToProto(Mage, overlong)).not.toThrow();
+		expect(playerTalentStringToProto(Mage, overlong)).toEqual(playerTalentStringToProto(Mage, MAGE_DEFAULT));
 	});
 
 	it('reads a build shorter than the tree, and an empty one', () => {
-		expect(() => talentStringToProto(MageTalents.create(), '25', mageTalentsConfig)).not.toThrow();
-		expect(talentStringToProto(MageTalents.create(), '', mageTalentsConfig)).toEqual(MageTalents.create());
+		expect(() => playerTalentStringToProto(Mage, '25')).not.toThrow();
+		expect(playerTalentStringToProto(Mage, '')).toEqual(MageTalents.create());
 	});
 });

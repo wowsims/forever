@@ -1,5 +1,5 @@
 import { PseudoStat, Stat } from '@generated/proto/common';
-import { UnitStat } from '@sim/proto/stats';
+import { SCHOOL_HIT_PERCENT_PSEUDO_STATS, UnitStat } from '@sim/proto/stats';
 
 export type EpStatSet = {
 	epStats: Stat[];
@@ -12,14 +12,11 @@ const EP_PSEUDO_STATS = [
 	PseudoStat.PseudoStatRangedDps,
 	PseudoStat.PseudoStatMeleeHitPercent,
 	PseudoStat.PseudoStatSpellHitPercent,
-	PseudoStat.PseudoStatSchoolHitPercentArcane,
-	PseudoStat.PseudoStatSchoolHitPercentFire,
-	PseudoStat.PseudoStatSchoolHitPercentFrost,
-	PseudoStat.PseudoStatSchoolHitPercentHoly,
-	PseudoStat.PseudoStatSchoolHitPercentNature,
-	PseudoStat.PseudoStatSchoolHitPercentShadow,
+	...SCHOOL_HIT_PERCENT_PSEUDO_STATS,
 	PseudoStat.PseudoStatMeleeCritPercent,
 	PseudoStat.PseudoStatSpellCritPercent,
+	PseudoStat.PseudoStatRangedHitPercent,
+	PseudoStat.PseudoStatRangedCritPercent,
 	PseudoStat.PseudoStatExpertisePercent,
 ];
 

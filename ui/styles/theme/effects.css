@@ -3,6 +3,7 @@
 
 	--animate-shimmer: loading-shimmer 6s linear infinite;
 	--animate-skeleton: character-stats-skeleton-shimmer 1.2s ease-in-out infinite;
+	--animate-spin: spin 0.75s linear infinite;
 
 	--shadow-focus-primary: 0 0 0 0.25rem rgb(49 132 253 / 0.5);
 	--shadow-focus-secondary: 0 0 0 0.25rem rgb(130 138 144 / 0.5);
@@ -14,15 +15,21 @@
 	--shadow-focus-outline-light: 0 0 0 0.25rem rgb(248 249 250 / 0.5);
 	--shadow-focus-outline-cancel: 0 0 0 0.25rem rgb(230 128 102 / 0.5);
 
-	--radius-xs: 3px;
-	--radius-sm: 4px;
-	--radius-md: 0.375rem;
+	--radius-xs: --spacing(1);
+	--radius-sm: --spacing(2);
+	--radius-md: --spacing(4);
+	--radius-lg: --spacing(6);
 
 	--shadow-focus-ring: 0 0 0 0.25rem rgb(13 110 253 / 0.25);
 	--shadow-popup: 0 0.5rem 1rem rgb(0 0 0 / 0.15);
 	--shadow-talent-tree: inset 0 0 3.5rem 1rem var(--color-black);
 
-	--background-image-skeleton: linear-gradient(90deg, --alpha(var(--color-white) / 8%) 25%, rgb(255 255 255 / 18%) 50%, --alpha(var(--color-white) / 8%) 75%);
+	--background-image-skeleton: linear-gradient(
+		90deg,
+		--alpha(var(--color-white) / 8%) 25%,
+		--alpha(var(--color-white) / 18%) 50%,
+		--alpha(var(--color-white) / 8%) 75%
+	);
 	--background-image-select-chevron: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 	--background-image-landing: url('/forever/assets/img/tbc.jpg');
 
@@ -35,6 +42,8 @@
 }
 
 @theme static inline {
+	--drop-shadow-glow-danger: 0 0 0.5rem var(--color-danger), 0 0 0.5rem var(--color-danger);
+	--drop-shadow-glow-link: 0 0 0.5rem var(--color-link);
 	--shadow-focus-theme: 0 0 0 0.25rem color-mix(in srgb, var(--color-primary) 50%, transparent);
 	--shadow-glow-8: 0 0 8px;
 	--shadow-glow-10: 0 0 10px;

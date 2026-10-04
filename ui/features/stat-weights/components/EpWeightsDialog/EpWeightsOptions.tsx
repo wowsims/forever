@@ -1,52 +1,34 @@
 import i18n from '@i18n/config';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { EnumPicker } from '@ui-kit/EnumPicker';
+import { ChoiceField } from '@ui-kit/ChoiceField';
 
 import { StatsType } from './types';
 
 export interface EpWeightsOptionsProps {
-	options: { statsType: number; showAllStats: boolean };
+	statsType: StatsType;
+	showAllStats: boolean;
 	onStatsTypeChange: (statsType: StatsType) => void;
 	onShowAllStatsChange: (showAllStats: boolean) => void;
 }
 
-const STATS_TYPES: StatsType[] = [StatsType.Ep, StatsType.Weight];
-
-/** Both values are UI-local and read back off `options`, which the dialog owns because this body unmounts on close: `useInput` re-reads its source synchronously on its own write, which is before a `useState` has committed. */
-export const EpWeightsOptions = ({ options, onStatsTypeChange, onShowAllStatsChange }: EpWeightsOptionsProps) => (
-	<div className="-mx-3 mb-3 flex flex-wrap">
-		<div className="w-full px-3 sm:w-1/4">
-			<EnumPicker
-				modObject={options}
-				ariaLabel={i18n.t('sidebar.buttons.stat_weights.modal.stats_type')}
-				config={{
-					id: 'ep-type-select',
-					values: [
-						{ name: i18n.t('sidebar.buttons.stat_weights.modal.ep'), value: 0 },
-						{ name: i18n.t('sidebar.buttons.stat_weights.modal.weights'), value: 1 },
-					],
-					getValue: subject => subject.statsType,
-					setValue: (subject, newValue) => {
-						subject.statsType = newValue;
-						onStatsTypeChange(STATS_TYPES[newValue]);
-					},
-				}}
-			/>
-		</div>
-		<div className="w-full px-3 sm:w-1/4">
-			<BooleanPicker
-				modObject={options}
-				config={{
-					id: 'ep-show-all-stats',
-					label: i18n.t('sidebar.buttons.stat_weights.modal.show_all_stats'),
-					layout: 'inline',
-					getValue: subject => subject.showAllStats,
-					setValue: (subject, newValue) => {
-						subject.showAllStats = newValue;
-						onShowAllStatsChange(newValue);
-					},
-				}}
-			/>
-		</div>
+export const EpWeightsOptions = ({ statsType, showAllStats, onStatsTypeChange, onShowAllStatsChange }: EpWeightsOptionsProps) => (
+	<div className="mb-2 grid gap-x-4 sm:grid-cols-4">
+		<ChoiceField
+			id="ep-type-select"
+			ariaLabel={i18n.t('sidebar.buttons.stat_weights.modal.stats_type')}
+			options={[
+				{ value: StatsType.Ep, label: i18n.t('sidebar.buttons.stat_weights.modal.ep') },
+				{ value: StatsType.Weight, label: i18n.t('sidebar.buttons.stat_weights.modal.weights') },
+			]}
+			value={statsType}
+			onChange={onStatsTypeChange}
+		/>
+		<BooleanPicker
+			id="ep-show-all-stats"
+			label={i18n.t('sidebar.buttons.stat_weights.modal.show_all_stats')}
+			layout="inline"
+			value={showAllStats}
+			onChange={onShowAllStatsChange}
+		/>
 	</div>
 );

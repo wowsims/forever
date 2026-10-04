@@ -1,36 +1,28 @@
-import type { ActionId } from '@sim/proto/action_id';
-import { externalRel } from '@sim/utils/links';
-import { useActionId } from '@ui-kit/hooks/useActionId';
+import type { ResolvedIcon } from '@ui-kit/Field/types';
+import { IconSwatch } from '@ui-kit/IconSwatch';
 import clsx from 'clsx';
-
-import { wowheadAnchorProps } from '../utils/wowhead';
+import type { MouseEventHandler } from 'react';
 
 export interface ImprovedAnchorProps {
-	actionId: ActionId;
+	icon: ResolvedIcon;
 	testId: string;
 	active: boolean;
-	/** Which bottom corner of the icon the badge sits in: the two improved badges share the overlay and must not stack. */
+	disabled?: boolean;
+	/** Which bottom corner of the icon the badge sits in: the two improved badges share the box and must not stack. */
 	corner: 'left' | 'right';
+	onActivate: () => void;
+	onContextMenu: MouseEventHandler;
+	onMouseDown: MouseEventHandler;
 }
 
-export const ImprovedAnchor = ({ actionId, testId, active, corner }: ImprovedAnchorProps) => {
-	const { iconUrl, href } = useActionId(actionId);
-	return (
-		<a
-			className={clsx(
-				'ui-icon-picker-swatch pointer-events-auto absolute bottom-0 size-5 min-w-5',
-				corner === 'left' ? 'left-0' : 'right-0',
-				active ? 'filter-none' : 'border-gray-600 grayscale',
-			)}
-			data-testid={testId}
-			data-active={active ? '' : undefined}
-			{...wowheadAnchorProps()}
-			href={href || undefined}
-			rel={externalRel(href, undefined)}
-			style={iconUrl ? { backgroundImage: `url('${iconUrl}')` } : undefined}
-			// The glyph is a background image, so until it resolves the badge is a bare grey square; it stays
-			// hidden for exactly that window.
-			hidden={!iconUrl}
-		/>
-	);
-};
+export const ImprovedAnchor = ({ icon, testId, active, disabled, corner, ...events }: ImprovedAnchorProps) => (
+	<IconSwatch
+		icon={icon}
+		href={icon.href}
+		active={active}
+		disabled={disabled}
+		testId={testId}
+		className={clsx('absolute bottom-0 size-4 min-w-4', corner === 'left' ? 'left-px' : 'right-0', !active && 'border-gray-600 grayscale')}
+		{...events}
+	/>
+);

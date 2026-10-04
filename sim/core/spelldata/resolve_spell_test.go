@@ -439,3 +439,32 @@ func TestSpellConfigProcLeavesTheRotation(t *testing.T) {
 		t.Errorf("flags = %v, want %v", config.Flags, want)
 	}
 }
+
+// SpellEquippedItems and the not-in-combat attribute go into the cast requirement: Spearing Strike
+// 1310222's two-handers in the main hand, Shield Bash 1672's shield, Charge 11578's out of combat.
+// Armor that is not a shield asks nothing of a cast.
+func TestSpellConfigCastRequirementFromEquipment(t *testing.T) {
+	twoHanders := int32(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_2H |
+		dbcenums.ITEM_SUBCLASS_BIT_WEAPON_POLEARM | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_STAFF)
+	withRows(t, []Spell{
+		{ID: 2, Name: "Leather", EquipClass: dbcenums.ITEM_CLASS_ARMOR, EquipSubclass: 0x4},
+		{ID: 1672, Name: "Shield Bash", EquipClass: dbcenums.ITEM_CLASS_ARMOR, EquipSubclass: dbcenums.ITEM_SUBCLASS_BIT_ARMOR_SHIELD},
+		{ID: 11578, Name: "Charge", Attr: [17]uint32{dbcenums.ATTR_INDEX_BASE: dbcenums.ATTR_NOT_IN_COMBAT}},
+		{ID: 1310222, Name: "Spearing Strike", EquipClass: dbcenums.ITEM_CLASS_WEAPON, EquipSubclass: twoHanders,
+			Attr: [17]uint32{dbcenums.ATTR_INDEX_EX_3: dbcenums.ATTR_EX_3_REQ_MAIN_HAND}},
+	})
+
+	for _, c := range []struct {
+		id   int32
+		want core.CastRequirement
+	}{
+		{1310222, core.CastRequirement{Weapon: core.EquipRequirement{SubclassMask: twoHanders, Hand: core.ProcMaskMeleeMH}}},
+		{1672, core.CastRequirement{Shield: true}},
+		{11578, core.CastRequirement{NotInCombat: true}},
+		{2, core.CastRequirement{}},
+	} {
+		if got := SpellConfig(testUnit(), Find(c.id)).CastRequirement; got != c.want {
+			t.Errorf("%s's cast requirement = %+v, want %+v", Find(c.id).Name, got, c.want)
+		}
+	}
+}

@@ -14,7 +14,7 @@ export interface RowItemTooltipProps {
 export const RowItemTooltip = ({ item }: RowItemTooltipProps) => {
 	switch (item.kind) {
 		case 'cast':
-			return <CastTooltip log={item.log} />;
+			return <CastTooltip log={item.log} stack={item.stack} />;
 		case 'delay':
 			return <DelayTooltip log={item.log} />;
 		case 'gcdSegment':

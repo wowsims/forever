@@ -174,8 +174,30 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	}
 
 	aura := character.GetOrRegisterAura(config)
+	if crit := critEffects(buff); consumable.Type == proto.ConsumableType_ConsumableTypeElixir && len(crit) > 0 {
+		spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(elixirCritCategory, false))
+		spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...))
+		return aura
+	}
 	spelldata.ParseEffects(character, aura, buff, spelldata.ExclusivePerStat(core.Ternary(scroll, core.StatBuffCategory, "")))
 	return aura
+}
+
+// The category every elixir's crit bids in: only the strongest applies however many elixirs are up,
+// while the stat each states beside it stacks with the others'.
+const elixirCritCategory = "ElixirCrit"
+
+// The positions, counted from 1, of the row's crit chance effects on the user.
+func critEffects(s *spelldata.Spell) []int32 {
+	var positions []int32
+	for i := range s.Effects {
+		e := &s.Effects[i]
+		if LandsOnTheUser(e) && slices.Contains([]dbcenums.EffectAuraType{dbcenums.A_MOD_CRIT_PCT, dbcenums.A_MOD_WEAPON_CRIT_PERCENT,
+			dbcenums.A_MOD_SPELL_CRIT_CHANCE}, e.Aura) {
+			positions = append(positions, int32(i+1))
+		}
+	}
+	return positions
 }
 
 // The item used from the bar on its own cooldown and the category cooldown it shares, with the cast

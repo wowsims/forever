@@ -110,10 +110,10 @@ function isGeneratedFile(relPath) {
 // list: any tight `wordClassName=`/`wordClassNames=` occurrence (JSX attributes and
 // destructured prop defaults are written without spaces around `=`; a plain `const x = …`
 // assignment has spaces and so is not matched), plus className itself.
-// Tooltip/Popover pass a bare Tailwind class string through `width`/`maxWidth` props
-// (see ui/ui-kit/Tooltip/Tooltip.tsx, ui/ui-kit/Popover/Popover.tsx); those names don't
-// follow the `*ClassName(s)` convention CLASS_ATTR_RE derives, so they're listed explicitly.
-const KNOWN_CLASS_PROPS = ['width', 'maxWidth'];
+// Tooltip's `maxWidth` also takes a bare Tailwind class string, alongside its `'default'`/`'none'`
+// modes (see ui/ui-kit/Tooltip/Tooltip.tsx); that name doesn't follow the `*ClassName(s)`
+// convention CLASS_ATTR_RE derives, so it's listed explicitly.
+const KNOWN_CLASS_PROPS = ['maxWidth'];
 
 export function deriveClassAttrs(root) {
 	const skipDirs = new Set([path.join(root, 'ui/generated'), path.join(root, 'node_modules')]);
@@ -141,9 +141,9 @@ function collectFromScript(text, relPath, classAttrs) {
 	const attrPattern = new RegExp(`\\b(${classAttrs.join('|')})\\s*=\\s*(\\{([^{}]|\\{[^{}]*\\})*\\}|"[^"]*"|'[^']*')`, 'g');
 	let m;
 	while ((m = attrPattern.exec(text))) {
-		// A KNOWN_CLASS_PROPS name (width/maxWidth) also occurs as an ordinary destructured
-		// parameter default (`{ ..., maxWidth = 'default', ... }`), which isn't a JSX attribute
-		// at all; those are always preceded by `,` or `{`, which a real JSX attribute never is.
+		// A KNOWN_CLASS_PROPS name (maxWidth) also occurs as an ordinary destructured parameter
+		// default (`{ ..., maxWidth = 'default', ... }`), which isn't a JSX attribute at all;
+		// those are always preceded by `,` or `{`, which a real JSX attribute never is.
 		if (KNOWN_CLASS_PROPS.includes(m[1])) {
 			const before = text.slice(0, m.index).trimEnd();
 			if (before.endsWith(',') || before.endsWith('{')) continue;
@@ -152,9 +152,6 @@ function collectFromScript(text, relPath, classAttrs) {
 		const index = m.index + m[0].indexOf(raw);
 		if (raw.startsWith('"') || raw.startsWith("'")) {
 			const body = raw.slice(1, -1);
-			// `width` is also the native <img>/<video> pixel attribute (width="15"), which
-			// isn't a Tailwind class at all; a plain integer is never a class token.
-			if (KNOWN_CLASS_PROPS.includes(m[1]) && /^\d+$/.test(body)) continue;
 			for (const token of splitClassString(body)) found.push({ token, index });
 			continue;
 		}
@@ -175,6 +172,12 @@ function collectFromScript(text, relPath, classAttrs) {
 			} else {
 				for (const token of splitClassString(body)) found.push({ token, index });
 			}
+		} else {
+			// An array literal (`className={['a', cond && 'b']}`) or a ternary
+			// (`className={cond ? 'a' : 'b'}`) isn't a bare string or a clsx() call, but still carries
+			// its class tokens as ordinary string/template literals; a bare identifier reference (a
+			// `Record` class map, a variable) has none, so this is a no-op for it.
+			collectStringLiteralsFrom(inner, index, found);
 		}
 	}
 
@@ -194,7 +197,13 @@ function collectFromScript(text, relPath, classAttrs) {
 		}
 
 		collectFromClassDecls(text, found);
+	}
 
+	// Unlike clsx(...)/*Class(es) above, this is object-literal config data (`extraClassNames:
+	// [...]`, `iconGroupClassName: '...'`), the only shape `ui/specs/**` input configs use to
+	// carry a class -- it must run there too, or a retired token flowing through a spec's
+	// config is never seen.
+	if (!isGeneratedFile(relPath)) {
 		const propPattern = /\b(className|\w+ClassName|extraClassNames)\s*:\s*(\[[^\]]*\]|["'`][^"'`]*["'`])/g;
 		while ((m = propPattern.exec(text))) {
 			const raw = m[2];
@@ -211,6 +220,33 @@ function collectFromScript(text, relPath, classAttrs) {
 	return found.map(({ token, index }) => ({ token, line: lineAt(text, index) }));
 }
 
+// A string immediately followed by `]` is either the last element of an array literal
+// (`['a', 'b']`, `['threat-metrics']`) or a computed member/index key (`obj['key']`,
+// `SIZE_CLASS[props.size ?? 'default']`) -- both look identical from the closing bracket
+// alone. The two shapes differ in what sits right before the *enclosing* `[`, found by
+// walking left from the string and balancing any nested `()`/`[]`/`{}` in between (so an
+// expression like `?? 'default'` inside the brackets doesn't hide the enclosing bracket): an
+// array literal's `[` follows `=`, `(`, `,`, another `[`, or the start of the snippet, while a
+// computed-member `[` follows the identifier (or `]`/`)` for chained access) it indexes into.
+function isComputedMemberKey(before) {
+	let depth = 0;
+	for (let i = before.length - 1; i >= 0; i--) {
+		const ch = before[i];
+		if (ch === ')' || ch === ']' || ch === '}') depth++;
+		else if (ch === '(' || ch === '[' || ch === '{') {
+			if (depth > 0) {
+				depth--;
+				continue;
+			}
+			if (ch !== '[') return false;
+			const beforeBracket = before.slice(0, i).trimEnd();
+			const charBeforeBracket = beforeBracket[beforeBracket.length - 1];
+			return !!charBeforeBracket && /[\w$\])]/.test(charBeforeBracket);
+		}
+	}
+	return false;
+}
+
 // Pulls plain string-literal and static template-literal tokens out of an arbitrary JS
 // expression snippet (used for clsx(...) args and array literals). Skips identifiers,
 // numbers and any template literal containing an interpolation as a whole class list --
@@ -225,7 +261,7 @@ function collectStringLiteralsFrom(snippet, offset, found) {
 		const after = snippet.slice(m.index + full.length);
 		if (/(===|!==|==|!=)\s*$/.test(before)) continue; // comparison operand, not a rendered class
 		if (/^\s*(===|!==|==|!=)/.test(after)) continue; // comparison operand, not a rendered class
-		if (/^\s*\]/.test(after)) continue; // computed member/index literal, not a rendered class
+		if (/^\s*\]/.test(after) && isComputedMemberKey(before)) continue; // obj['key'] / arr[i]['key'], not a rendered class
 		if (quote === '`') {
 			for (const part of staticPartsOfTemplate(body)) {
 				for (const token of splitClassString(part)) found.push({ token, index });
@@ -331,7 +367,7 @@ export async function findNonCanonical(root, opts = {}) {
 	const uniqueTokens = [...new Set(occurrences.map(occ => occ.token))];
 	const canonicalByToken = new Map();
 	for (const token of uniqueTokens) {
-		const [canonical] = designSystem.canonicalizeCandidates([token], { rem: 16 });
+		const [canonical] = designSystem.canonicalizeCandidates([token], { rem: 14 });
 		canonicalByToken.set(token, canonical);
 	}
 
@@ -352,6 +388,62 @@ export async function findNonCanonical(root, opts = {}) {
 export function findVarInClass(root) {
 	const occurrences = collectTokens(root);
 	const results = occurrences.filter(occ => occ.token.includes('var(')).map(occ => ({ file: occ.file, line: occ.line, token: occ.token }));
+	results.sort((a, b) => (a.file === b.file ? a.line - b.line : a.file < b.file ? -1 : 1));
+	return results;
+}
+
+// The spacing scale here runs even steps plus 1: 1, 2, 4, 6, 8, 10, 12, 16, ... (sub-step
+// hairlines are written `px`). A spacing-scale
+// utility resolves through designSystem.candidatesToCss() to `calc(var(--spacing) * n)`
+// (bare `var(--spacing)` for n === 1, no calc at all for n === 0) regardless of which
+// property it lands on, so reading that shape back out -- rather than a hand-maintained
+// list of `p`/`w`/`inset`/... prefixes -- is what tells a spacing step apart from
+// `grid-cols-3`, `z-10`, `text-3xl` or a fraction/`-px`/`-full`/`-(--var)` token, none of
+// which ever render that shape. The same rule applies to a bare `--spacing(n)` theme-token
+// or arbitrary-property value, which candidatesToCss() never sees because it isn't a class
+// token, so that shape is matched directly off the file text instead.
+const SPACING_CALC_RE = /calc\(var\(--spacing\)\s*\*\s*(-?[\d.]+)\)/;
+const SPACING_FN_RE = /--spacing\((-?[\d.]+)\)/g;
+
+function isUnevenSpacingStep(raw) {
+	const n = parseFloat(raw);
+	if (Math.abs(n) === 1) return false;
+	return !(Number.isInteger(n) && n % 2 === 0);
+}
+
+export async function findUnevenSpacing(root, opts = {}) {
+	const cssPath = opts.css || findDefaultCss(root);
+	const designSystem = await loadDesignSystemCached(cssPath);
+
+	const occurrences = collectTokens(root);
+	const uniqueTokens = [...new Set(occurrences.map(occ => occ.token))];
+	const stepByToken = new Map();
+	for (const token of uniqueTokens) {
+		const [css] = designSystem.candidatesToCss([token]);
+		if (!css) continue;
+		const m = SPACING_CALC_RE.exec(css);
+		if (m) stepByToken.set(token, m[1]);
+	}
+
+	const results = [];
+	for (const occ of occurrences) {
+		const step = stepByToken.get(occ.token);
+		if (step !== undefined && isUnevenSpacingStep(step)) results.push({ file: occ.file, line: occ.line, token: occ.token });
+	}
+
+	const skipDirs = new Set([path.join(root, 'ui/generated'), path.join(root, 'node_modules')]);
+	const files = [...walk(path.join(root, 'ui'), ['.css'], skipDirs), ...walk(path.join(root, 'ui'), ['.ts', '.tsx'], skipDirs)];
+	for (const file of files) {
+		const relPath = path.relative(root, file);
+		if (isGeneratedFile(relPath)) continue;
+		const text = fs.readFileSync(file, 'utf8');
+		SPACING_FN_RE.lastIndex = 0;
+		let m;
+		while ((m = SPACING_FN_RE.exec(text))) {
+			if (isUnevenSpacingStep(m[1])) results.push({ file: relPath, line: lineAt(text, m.index), token: `--spacing(${m[1]})` });
+		}
+	}
+
 	results.sort((a, b) => (a.file === b.file ? a.line - b.line : a.file < b.file ? -1 : 1));
 	return results;
 }

@@ -1,53 +1,64 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import { DEFINITIONS, iconDefinition } from './definitions';
 import { Icon } from './Icon';
+import type { IconName } from './types';
 
-const el = (c: HTMLElement) => c.querySelector('i')!;
+const el = (c: HTMLElement) => c.querySelector('svg')!;
 
 describe('Icon', () => {
-	it('renders one style class and one glyph class', () => {
-		const { container } = render(<Icon name="times" />);
-		expect(el(container).className).toBe('fas fa-times');
+	it('draws the glyph of the style it is given', () => {
+		const path = (c: HTMLElement) => el(c).querySelector('path')!.getAttribute('d');
+		const solid = path(render(<Icon name="circle-question" />).container);
+		const regular = path(render(<Icon name="circle-question" style="regular" />).container);
+		expect(regular).not.toBe(solid);
+		expect(path(render(<Icon name="circle-question" style="base" />).container)).toBe(solid);
+		expect(el(render(<Icon name="github" style="brands" />).container).dataset.prefix).toBe('fab');
 	});
 
-	it('maps a style to its family class, so `fas` and `fa-solid` cannot diverge', () => {
-		expect(el(render(<Icon name="circle-question" style="regular" />).container).className).toBe('far fa-circle-question');
-		expect(el(render(<Icon name="github" style="brands" />).container).className).toBe('fab fa-github');
+	it('falls back to solid for a name FontAwesome Free has no regular glyph for', () => {
+		expect(iconDefinition('ban', 'regular')).toBe(iconDefinition('ban', 'solid'));
+		expect(iconDefinition('star', 'regular')).not.toBe(iconDefinition('star', 'solid'));
 	});
 
-	it('resolves FontAwesome 5 aliases to the canonical name', () => {
-		// Both spellings were live in the tree at once; they must now render the same glyph class.
-		expect(el(render(<Icon name="exclamation-triangle" />).container).className).toContain('fa-triangle-exclamation');
-		expect(el(render(<Icon name="triangle-exclamation" />).container).className).toContain('fa-triangle-exclamation');
-		expect(el(render(<Icon name="question-circle" />).container).className).toContain('fa-circle-question');
-		// `rotate-left` is its own glyph (\f2ea), not a spelling of `arrow-rotate-left` (\f0e2).
-		expect(el(render(<Icon name="rotate-left" />).container).className).toContain('fa-rotate-left');
-		expect(el(render(<Icon name="arrow-rotate-left" />).container).className).toContain('fa-arrow-rotate-left');
+	it('keeps rotate-left and arrow-rotate-left as distinct glyphs', () => {
+		expect(iconDefinition('rotate-left', 'solid').icon[3]).toBe('f2ea');
+		expect(iconDefinition('arrow-rotate-left', 'solid').icon[3]).toBe('f0e2');
 	});
 
-	it('emits exactly one glyph class', () => {
-		// The toast close button carried both `fa-times` and its variant icon, leaving the rendered
-		// glyph to stylesheet order.
-		const classes = el(render(<Icon name="times" size="xl" spin />).container).className.split(' ');
-		const glyphs = classes.filter(c => c.startsWith('fa-') && !['fa-xl', 'fa-spin'].includes(c));
-		expect(glyphs).toEqual(['fa-times']);
+	it.each(Object.keys(DEFINITIONS) as IconName[])('renders %s from a definition, canonically named', name => {
+		const definition = iconDefinition(name, 'solid');
+		expect(definition).toBeDefined();
+		expect(definition.iconName).toBe(name);
+		expect(el(render(<Icon name={name} />).container).dataset.icon).toBe(name);
 	});
 
-	it('adds size and spin as classes', () => {
-		expect(el(render(<Icon name="spinner" size="2xl" spin />).container).className).toBe('fas fa-spinner fa-2xl fa-spin');
+	it('marks the size as data-size', () => {
+		expect(el(render(<Icon name="spinner" size="2xl" />).container).dataset.size).toBe('2xl');
+		expect(el(render(<Icon name="spinner" />).container).hasAttribute('data-size')).toBe(false);
+	});
+
+	it('takes its test id from testId', () => {
+		const { getByTestId } = render(<Icon name="gear" testId="settings-icon" />);
+		expect(getByTestId('settings-icon').tagName.toLowerCase()).toBe('svg');
+	});
+
+	it('keeps a data-testid passed as an attribute when it has no testId', () => {
+		const { getByTestId } = render(<Icon name="gear" data-testid="gem-marker" />);
+		expect(getByTestId('gem-marker').tagName.toLowerCase()).toBe('svg');
 	});
 
 	it('is hidden from assistive tech unless it carries a title', () => {
-		expect(el(render(<Icon name="times" />).container).getAttribute('aria-hidden')).toBe('true');
-		const titled = el(render(<Icon name="times" title="Close" />).container);
-		expect(titled.getAttribute('aria-hidden')).toBeNull();
-		expect(titled.getAttribute('title')).toBe('Close');
+		expect(el(render(<Icon name="xmark" />).container).getAttribute('aria-hidden')).toBe('true');
+		const titled = el(render(<Icon name="xmark" title="Close" />).container);
+		expect(titled.getAttribute('aria-hidden')).toBe('false');
+		expect(titled.getAttribute('aria-label')).toBe('Close');
 	});
 
-	// character_stats.tsx anchors a tooltip on the <i> itself; a dropped attribute fails silently.
+	// character_stats.tsx anchors a tooltip on the icon itself; a dropped attribute fails silently.
 	it('passes an unknown attribute through, so it can anchor its own tooltip', () => {
 		const { container } = render(<Icon name="circle-question" data-tooltip-id="bonus-str" />);
-		expect(container.querySelector('i')!.dataset.tooltipId).toBe('bonus-str');
+		expect(el(container).dataset.tooltipId).toBe('bonus-str');
 	});
 });

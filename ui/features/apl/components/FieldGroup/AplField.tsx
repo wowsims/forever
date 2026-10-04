@@ -2,20 +2,19 @@ import { ActionPicker } from '@features/apl/components/ActionPicker';
 import { ValuePicker } from '@features/apl/components/ValuePicker';
 import { useApl } from '@features/apl/context/AplContext';
 import type { AplFieldSpec } from '@features/apl/model/field_specs';
+import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
+import { ConnectedNumberField, ConnectedStringField } from '@features/inputs/components/ConnectedTextField';
 import type { Player } from '@sim/player/player';
-import { AdaptiveStringPicker } from '@ui-kit/AdaptiveStringPicker';
-import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { NumberPicker } from '@ui-kit/NumberPicker';
 import { useId } from 'react';
 
+import { ActionFieldList } from './fields/ActionFieldList';
 import { ActionIdField } from './fields/ActionIdField';
-import { ActionListField } from './fields/ActionListField';
 import { EnumField } from './fields/EnumField';
 import { GroupVariablesField } from './fields/GroupVariablesField';
 import { PlaceholderNameField } from './fields/PlaceholderNameField';
 import { RotationNameField } from './fields/RotationNameField';
 import { UnitField } from './fields/UnitField';
-import { ValueListField } from './fields/ValueListField';
+import { ValueFieldList } from './fields/ValueFieldList';
 import { fieldInputConfig } from './utils';
 
 export interface AplFieldProps {
@@ -45,11 +44,11 @@ export const AplField = ({ player, spec, getParentValue }: AplFieldProps) => {
 
 	switch (spec.kind) {
 		case 'boolean':
-			return <BooleanPicker modObject={player} config={config} />;
+			return <ConnectedBooleanPicker modObject={player} config={config} />;
 		case 'number':
-			return <NumberPicker modObject={player} config={{ ...config, float: spec.float }} />;
+			return <ConnectedNumberField modObject={player} config={{ ...config, float: spec.float }} />;
 		case 'string':
-			return <AdaptiveStringPicker modObject={player} config={config} />;
+			return <ConnectedStringField modObject={player} config={config} />;
 		case 'enum':
 			return <EnumField player={player} config={config} table={spec.table} />;
 		case 'actionId':
@@ -74,10 +73,10 @@ export const AplField = ({ player, spec, getParentValue }: AplFieldProps) => {
 		case 'value':
 			return <ValuePicker player={player} config={config} />;
 		case 'valueList':
-			return <ValueListField player={player} config={config} />;
+			return <ValueFieldList player={player} config={config} />;
 		case 'action':
 			return <ActionPicker player={player} config={config} />;
 		case 'actionList':
-			return <ActionListField player={player} config={config} />;
+			return <ActionFieldList player={player} config={config} />;
 	}
 };

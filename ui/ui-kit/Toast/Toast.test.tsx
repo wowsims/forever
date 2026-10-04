@@ -25,15 +25,14 @@ describe('Toast', () => {
 		expect(toast.getAttribute('aria-describedby')).toBe(within(toast).getByTestId('sim-toast-body').id);
 	});
 
-	it('takes the title and the caller class from the options', () => {
+	it('takes the title from the options', () => {
 		render(<ToastArea manager={toastManager} />);
 		act(() => {
-			toastManager.add({ variant: 'warning', body: 'Download it', title: 'Native sim', className: 'toast-notice-native-download' });
+			toastManager.add({ variant: 'warning', body: 'Download it', title: 'Native sim' });
 		});
 
 		const toast = within(standardViewport()).getByTestId('sim-toast');
 		expect(toast.getAttribute('data-variant')).toBe('warning');
-		expect(toast.classList.contains('toast-notice-native-download')).toBe(true);
 		expect(within(toast).getByTestId('sim-toast-title').textContent).toBe('Native sim');
 	});
 
@@ -77,13 +76,13 @@ describe('Toast', () => {
 
 	it('gives a second area its own manager and keeps the two apart', () => {
 		const noticeManager = createToastManager();
-		const host = document.createElement('div');
-		document.body.appendChild(host);
 
 		render(
 			<>
 				<ToastArea manager={toastManager} />
-				<ToastArea manager={noticeManager} container={host} inline />
+				<div data-testid="notice-host">
+					<ToastArea manager={noticeManager} inline />
+				</div>
 			</>,
 		);
 		act(() => {
@@ -92,14 +91,33 @@ describe('Toast', () => {
 		});
 
 		const standard = standardViewport();
-		const notice = within(host).getByTestId('sim-toast-viewport');
+		const notice = within(screen.getByTestId('notice-host')).getByTestId('sim-toast-viewport');
 
 		expect(within(standard).getByText('standard body')).toBeTruthy();
 		expect(within(standard).queryByText('notice body')).toBeNull();
 		expect(within(notice).getByText('notice body')).toBeTruthy();
 		expect(within(notice).queryByText('standard body')).toBeNull();
+	});
 
-		host.remove();
+	it('renders an inline area in place, not through a portal, and shows and closes its toasts there', async () => {
+		const manager = createToastManager();
+		const { container } = render(
+			<div data-testid="toast-host">
+				<ToastArea manager={manager} inline testId="in-place-area" />
+			</div>,
+		);
+		const area = screen.getByTestId('in-place-area');
+		expect(within(screen.getByTestId('toast-host')).getByTestId('in-place-area')).toBe(area);
+		expect(container.querySelector('[data-testid="sim-toast-portal"]')).toBeNull();
+
+		let id = '';
+		act(() => {
+			id = manager.add({ variant: 'info', body: 'in place body', canClose: true });
+		});
+		expect(within(area).getByText('in place body')).toBeTruthy();
+
+		act(() => manager.close(id));
+		await waitFor(() => expect(within(area).queryByText('in place body')).toBeNull());
 	});
 
 	it('renders no close button when canClose is false, and closes on it when it is true', async () => {
@@ -129,12 +147,14 @@ describe('Toast', () => {
 			toastManager.add({ variant: 'error', body: 'boom' });
 		});
 
-		const icon = screen.getByRole('button', { name: 'Close' }).querySelector('i')!;
-		expect(Array.from(icon.classList)).toEqual(['fas', 'fa-times', 'fa-lg']);
+		const close = screen.getByRole('button', { name: 'Close' }).querySelectorAll('svg');
+		expect(close).toHaveLength(1);
+		expect(close[0].getAttribute('data-icon')).toBe('xmark');
+		expect(close[0].getAttribute('data-size')).toBe('lg');
 		const icon2xl = within(standardViewport()).getByTestId('sim-toast-icon');
-		expect(icon2xl.classList.contains('fas')).toBe(true);
-		expect(icon2xl.classList.contains('fa-circle-exclamation')).toBe(true);
-		expect(icon2xl.classList.contains('fa-2xl')).toBe(true);
+		expect(icon2xl.getAttribute('data-prefix')).toBe('fas');
+		expect(icon2xl.getAttribute('data-icon')).toBe('circle-exclamation');
+		expect(icon2xl.getAttribute('data-size')).toBe('2xl');
 	});
 
 	// The negative half is the control: without it the positive half passes even if no timer ever runs.
@@ -161,10 +181,8 @@ describe('Toast', () => {
 	// to take the toasts with it, for any caller whose cleanup runs from a ref callback.
 	it('removes its toasts from the document when the area unmounts', () => {
 		const manager = createToastManager();
-		const host = document.createElement('div');
-		document.body.appendChild(host);
 
-		const { unmount } = render(<ToastArea manager={manager} container={host} inline />);
+		const { unmount } = render(<ToastArea manager={manager} />);
 		act(() => {
 			manager.add({ variant: 'warning', body: 'orphan', autohide: false });
 		});
@@ -174,8 +192,6 @@ describe('Toast', () => {
 
 		expect(screen.queryAllByTestId('sim-toast')).toHaveLength(0);
 		expect(screen.queryAllByTestId('sim-toast-viewport')).toHaveLength(0);
-		expect(host.childElementCount).toBe(0);
-
-		host.remove();
+		expect(screen.queryAllByTestId('sim-toast-portal')).toHaveLength(0);
 	});
 });

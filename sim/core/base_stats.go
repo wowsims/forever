@@ -12,36 +12,23 @@ type BaseStatsKey struct {
 
 var BaseStats = map[BaseStatsKey]stats.Stats{}
 
-// TODO: These are LEVEL 70 attributes, but CharacterLevel is now 60. Changing the
-// level constant does not rescale them -- unlike the ratings/crit/mana in
-// base_stats_auto_gen.go, nothing regenerates these two maps, so a level-60
-// character currently runs on level-70 str/agi/sta/int/spi. Needs a level-60
-// source. Until then every sim number that depends on base attributes is wrong,
-// and the .results files bake that in.
+// ClassBaseStats holds the level 60 base attributes of each class: health,
+// the five primary attributes and the flat attack power before any stat
+// converts into it. The game files carry no table for these.
 //
-// The game files are NOT that source, verified against build 1.60.1.69913 by extracting
-// every candidate table: CharBaseInfo is race x class validity only; ChrClasses has
-// AttackPowerPerStrength/Agility but no attributes; ChrRaces has no stat columns;
-// RaceStat (new in 1.60.1) is one row per race and every value is 0; and
-// PlayerExpectedStat carries BaseMana/CritPerAgility/SpellCritPerIntellect but no
-// attributes. So these two maps have to stay log-fitted -- Classic-era WCL combatant
-// info fitted the same way as the rows below, or a server emulator's player_levelstats.
+// Health is the class base; the character adds 10 health per Stamina point
+// beyond the first 20.
 //
 // ClassBaseStats + RaceOffsets hold TRUE pre-racial base attributes: the
 // multiplier racials (The Human Spirit ×1.05 spirit, applied via MultiplyStat
 // in racials.go) are NOT included here.
 // A naked character sheet shows floor(base × racial), e.g. human paladin
-// spirit 89 shows as 93; multipliers (racial, Kings, %-stat talents) stack
+// spirit 75 shows as 78; multipliers (racial, Kings, %-stat talents) stack
 // multiplicatively on the unfloored value with a single floor at the end.
 //
 // The game keeps one attribute row per race and class, but that table is a
 // class row plus a race offset that is the same for every class, so the two
-// maps below reproduce it exactly. Values come from WCL TBC-anniversary
-// combatant info (Hyjal, 2026-09-18/19: 256 players across seven classes,
-// each fitted through ComputeStats with the race, buffs, talents and
-// consumables enumerated; warrior and rogue rows are unchanged). The hunter
-// row was previously a wowhead-era guess; 38 hunters pin it, with strength
-// verified on players without Strength of Earth or Kings.
+// maps below reproduce it exactly.
 
 // Base Spell Crit is calculated by
 //   1. Take as-shown value (troll shaman have 3.5%)
@@ -50,7 +37,7 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 //   4. 2.169*22.08 (rating per crit percent) = 47.89 crit rating.
 //
 // TODO: the 22.08 in step 4 is the level-70 crit rating per percent. At level 60
-// it is 14 (see SpellCritRatingPerCritPercent in base_stats_auto_gen.go), so this
+// it is 14 (see CritRatingPerCritPercent in base_stats_auto_gen.go), so this
 // worked example no longer reproduces the numbers above it.
 
 // Base mana can be looked up here: https://wowwiki-archive.fandom.com/wiki/Base_mana
@@ -132,85 +119,106 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 var ClassBaseStats = map[proto.Class]stats.Stats{
 	proto.Class_ClassUnknown: {},
 	proto.Class_ClassWarrior: {
-		stats.Health:      4264,
-		stats.Agility:     96,
-		stats.Strength:    145,
-		stats.Intellect:   33,
-		stats.Spirit:      51,
-		stats.Stamina:     133,
-		stats.AttackPower: float64(CharacterLevel)*3.0 - 20,
+		stats.Health:      1689,
+		stats.Agility:     80,
+		stats.Strength:    120,
+		stats.Intellect:   30,
+		stats.Spirit:      45,
+		stats.Stamina:     110,
+		stats.AttackPower: 160,
 	},
 	proto.Class_ClassPaladin: {
-		stats.Health:      3197,
-		stats.Agility:     77,
-		stats.Strength:    126,
-		stats.Intellect:   83,
-		stats.Spirit:      89,
-		stats.Stamina:     120,
-		stats.AttackPower: float64(CharacterLevel)*3.0 - 20,
+		stats.Health:      1381,
+		stats.Agility:     65,
+		stats.Strength:    105,
+		stats.Intellect:   70,
+		stats.Spirit:      75,
+		stats.Stamina:     100,
+		stats.AttackPower: 160,
 	},
 	proto.Class_ClassHunter: {
-		stats.Health:            3388,
-		stats.Agility:           151,
-		stats.Strength:          64,
-		stats.Intellect:         77,
-		stats.Spirit:            83,
-		stats.Stamina:           108,
-		stats.AttackPower:       float64(CharacterLevel)*2.0 - 20,
-		stats.RangedAttackPower: float64(CharacterLevel)*2.0 - 20,
+		stats.Health:            1467,
+		stats.Agility:           125,
+		stats.Strength:          55,
+		stats.Intellect:         65,
+		stats.Spirit:            70,
+		stats.Stamina:           90,
+		stats.AttackPower:       100,
+		stats.RangedAttackPower: 110, // Level×2 − 10, before 2 per Agility.
 	},
 	proto.Class_ClassRogue: {
-		stats.Health:      3524,
-		stats.Agility:     158,
-		stats.Strength:    95,
-		stats.Intellect:   39,
-		stats.Spirit:      58,
-		stats.Stamina:     89,
-		stats.AttackPower: float64(CharacterLevel)*2.0 - 20,
+		stats.Health:      1523,
+		stats.Agility:     130,
+		stats.Strength:    80,
+		stats.Intellect:   35,
+		stats.Spirit:      50,
+		stats.Stamina:     75,
+		stats.AttackPower: 100,
 	},
 	proto.Class_ClassPriest: {
-		stats.Health:    3211,
-		stats.Agility:   45,
-		stats.Strength:  39,
-		stats.Intellect: 145,
-		stats.Spirit:    151,
-		stats.Stamina:   58,
+		stats.Health:      1397,
+		stats.Agility:     40,
+		stats.Strength:    35,
+		stats.Intellect:   120,
+		stats.Spirit:      125,
+		stats.Stamina:     50,
+		stats.AttackPower: -10,
 	},
 	proto.Class_ClassShaman: {
-		stats.Health:      2979,
-		stats.Agility:     64,
-		stats.Strength:    102,
-		stats.Intellect:   108,
-		stats.Spirit:      120,
-		stats.Stamina:     114,
-		stats.AttackPower: float64(CharacterLevel) * 2.0,
+		stats.Health:      1280,
+		stats.Agility:     55,
+		stats.Strength:    85,
+		stats.Intellect:   90,
+		stats.Spirit:      100,
+		stats.Stamina:     95,
+		stats.AttackPower: 100,
 	},
 	proto.Class_ClassMage: {
-		stats.Health:    3213,
-		stats.Agility:   39,
-		stats.Strength:  33,
-		stats.Intellect: 151,
-		stats.Spirit:    145,
-		stats.Stamina:   51,
+		stats.Health:      1370,
+		stats.Agility:     35,
+		stats.Strength:    30,
+		stats.Intellect:   125,
+		stats.Spirit:      120,
+		stats.Stamina:     45,
+		stats.AttackPower: -10,
 	},
 	proto.Class_ClassWarlock: {
-		stats.Health:      3310,
-		stats.Agility:     58,
-		stats.Strength:    51,
-		stats.Intellect:   133,
-		stats.Spirit:      139,
-		stats.Stamina:     76,
+		stats.Health:      1414,
+		stats.Agility:     50,
+		stats.Strength:    45,
+		stats.Intellect:   110,
+		stats.Spirit:      115,
+		stats.Stamina:     65,
 		stats.AttackPower: -10,
 	},
 	proto.Class_ClassDruid: {
-		stats.Health:      3434,
-		stats.Agility:     70,
-		stats.Strength:    76,
-		stats.Intellect:   120,
-		stats.Spirit:      133,
-		stats.Stamina:     83,
+		stats.Health:      1483,
+		stats.Agility:     60,
+		stats.Strength:    65,
+		stats.Intellect:   100,
+		stats.Spirit:      110,
+		stats.Stamina:     70,
 		stats.AttackPower: -20,
 	},
+}
+
+// ClassBaseDodge is each class's dodge chance before Agility; a class missing here has none.
+var ClassBaseDodge = map[proto.Class]float64{
+	proto.Class_ClassPaladin: 0.007,
+	proto.Class_ClassPriest:  0.03,
+	proto.Class_ClassShaman:  0.017,
+	proto.Class_ClassMage:    0.032,
+	proto.Class_ClassWarlock: 0.02,
+	proto.Class_ClassDruid:   0.009,
+}
+
+// Dodge percent per point of Agility at level 60: the game files' crit per Agility
+// (PlayerExpectedStat), which rogues and hunters get twice over.
+func dodgePerAgility(class proto.Class) float64 {
+	if class == proto.Class_ClassRogue || class == proto.Class_ClassHunter {
+		return 2 * CritPerAgiMaxLevel[class]
+	}
+	return CritPerAgiMaxLevel[class]
 }
 
 // The LEVEL 60 rows of GameTables/SpellScaling.txt. Only tools/tooltip reads this

@@ -1,7 +1,7 @@
+import { useActionId } from '@sim/hooks/useActionId';
+import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
 import type { ActionId } from '@sim/proto/action_id';
-import { externalRel } from '@sim/utils/links';
-import { useActionId } from '@ui-kit/hooks/useActionId';
-import { useActionIdWowheadDataset } from '@ui-kit/hooks/useActionIdWowheadDataset';
+import { WowheadIcon } from '@ui-kit/WowheadIcon';
 
 export interface ActionIdIconProps {
 	actionId: ActionId;
@@ -14,14 +14,5 @@ export const ActionIdIcon = ({ actionId, useBuffAura }: ActionIdIconProps) => {
 	const { iconUrl, href } = useActionId(actionId);
 	const wowheadProps = useActionIdWowheadDataset(actionId, useBuffAura);
 
-	return (
-		<a
-			className="mr-1 inline-block size-4 bg-cover"
-			data-whtticon="false"
-			href={href || undefined}
-			rel={externalRel(href, undefined)}
-			style={iconUrl ? { backgroundImage: `url('${iconUrl}')` } : undefined}
-			{...wowheadProps}
-		/>
-	);
+	return <WowheadIcon className="mr-1 size-4" href={href || undefined} iconUrl={iconUrl || undefined} {...wowheadProps} />;
 };

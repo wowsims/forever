@@ -12,7 +12,6 @@ import (
 //   Judgement of the Crusader: missing rank 1 of 6
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
-//   Champion of the Light: effect 1 of spell 1311084 has no rank curve and is held at its base points
 //   Illumination: effect 2, 3 of spell 20210 has no rank curve and is held at its base points
 //   Sacred Arbiter: effect 0 of spell 1311087 has no rank curve and is held at its base points
 //   Twist of Light: effect 0 of spell 1310735 has no rank curve and is held at its base points

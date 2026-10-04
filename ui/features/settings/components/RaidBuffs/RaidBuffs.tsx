@@ -1,9 +1,9 @@
+import { ConnectedMultiIconPicker } from '@features/inputs/components/ConnectedMultiIconPicker';
 import { clearMultiIconInputs } from '@features/settings/model/multi_icon';
 import type { IconPickerStatOption, RenderableStatOptions } from '@features/settings/model/stat_options';
 import i18n from '@i18n/config';
 import { usePlayer, useSim } from '@sim/context/SimHostContext';
 import { subscribeSimChange } from '@sim/state/subscriptions';
-import { MultiIconPicker } from '@ui-kit/MultiIconPicker';
 import { useMemo } from 'react';
 
 import { StatOptionIcons } from '../StatOptionIcons';
@@ -26,7 +26,12 @@ export const RaidBuffs = ({ options, miscOptions }: RaidBuffsProps) => {
 		<>
 			<StatOptionIcons options={options} />
 			{miscOptions.length > 0 && (
-				<MultiIconPicker modObject={player} config={miscConfig} subscribe={subscribe} onClear={() => clearMultiIconInputs(player, miscConfig)} />
+				<ConnectedMultiIconPicker
+					modObject={player}
+					config={miscConfig}
+					subscribe={subscribe}
+					onClear={() => clearMultiIconInputs(player, miscConfig)}
+				/>
 			)}
 		</>
 	);

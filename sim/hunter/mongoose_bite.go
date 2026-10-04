@@ -2,11 +2,11 @@ package hunter
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 var mongooseBiteRank = spellData.MongooseBite.Highest()
-var mongooseBiteBonusDamage = mongooseBiteRank.DamageEffect().Average(core.CharacterLevel)
 
 // The window a dodge opens: the aura Defensive State fires on the dodge.
 var mongooseBiteWindow = spellData.DefensiveStateTriggered.Highest()
@@ -33,7 +33,7 @@ func (hunter *Hunter) registerMongooseBite() {
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := mongooseBiteBonusDamage + hunter.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
+		baseDamage := mongooseBiteRank.WeaponStrike(sim, spell, hunter.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		hunter.MongooseBiteAura.Deactivate(sim)
 	}
@@ -54,7 +54,7 @@ func (hunter *Hunter) registerExposePrey() {
 		})
 	trigger.Name = "Expose Prey - Trigger"
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-		return result.Target.HasActiveAuraWithTag("HuntersMark")
+		return result.Target.HasActiveAuraWithTag(buffs.HuntersMarkCategory)
 	}
 
 	hunter.MakeProcTriggerAura(trigger)

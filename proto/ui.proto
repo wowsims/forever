@@ -20,6 +20,7 @@ message UIDatabase {
 
 	repeated UIZone zones = 8;
 	repeated UINPC npcs = 9;
+	repeated UIFaction factions = 16;
 
 	// Entities for which we just need a name/icon.
 	repeated IconData item_icons = 4;
@@ -42,6 +43,10 @@ message UINPC {
 	int32 id = 1;
 	string name = 2;
 	int32 zone_id = 3;
+}
+message UIFaction {
+	int32 id = 1;
+	string name = 2;
 }
 
 // Contains all information about an Item needed by the UI.
@@ -141,21 +146,6 @@ enum RepLevel {
 	RepLevelExalted 	= 8;
 }
 
-// Use the faction ID for the field index
-enum RepFaction {
-	RepFactionUnknown = 0;
-	RepFactionTheConsortium = 933;
-	RepFactionTheMagHar = 941;
-	RepFactionCenarionExpedition = 942;
-	RepFactionHonorHold = 946;
-	RepFactionThrallmar = 947;
-	RepFactionSporeggar = 970;
-	RepFactionKurenai = 978;
-	RepFactionAshtongueDeathsworn = 1012;
-	RepFactionNetherwing = 1015;
-	RepFactionOgriLa = 1038;
-}
-
 message UIItemSource {
 	oneof source {
 		CraftedSource crafted = 1;
@@ -186,7 +176,7 @@ message SoldBySource {
 	int32 zone_id = 3;
 }
 message RepSource {
-	RepFaction rep_faction_id = 1;
+	int32 rep_faction_id = 1; // Faction.ID in the game files; UIDatabase.factions carries its name.
 	RepLevel rep_level = 2;
 	Faction faction_id = 3;
 }
@@ -213,6 +203,7 @@ message UIEnchant {
 
 	ItemQuality quality = 9;
 	int32 phase = 10;
+	int32 lvl = 17; // The item level of an item that carries the enchant or its spell; 0 when every such item is level 1.
 
 	// Classes that are allowed to use the enchant. Empty indicates no special class restrictions.
 	repeated Class class_allowlist = 11;
@@ -259,18 +250,17 @@ enum SourceFilterOption {
 
 enum RaidFilterOption {
 	RaidUnknown = 0;
-	RaidKara = 1;
-	RaidGruul = 2;
-	RaidMag = 3;
-	RaidTK = 4;
-	RaidSSC = 5;
-	RaidMH = 6;
-	RaidBT = 7;
-	RaidZA = 8;
-	RaidSWP = 9;
+	reserved 1 to 9;
+	RaidMC = 10;
+	RaidOny = 11;
+	RaidBWL = 12;
+	RaidZG = 13;
+	RaidAQ20 = 14;
+	RaidAQ40 = 15;
+	RaidNaxx = 16;
 }
 
-// NextIndex: 24
+// NextIndex: 26
 message DatabaseFilters {
 	repeated ArmorType armor_types = 1;
 	repeated WeaponType weapon_types = 2;
@@ -280,6 +270,9 @@ message DatabaseFilters {
 	UIItem.FactionRestriction faction_restriction = 19;
 	int32 min_ilvl = 20;
 	int32 max_ilvl = 21;
+	// The consumable pickers hide a consumable below the level set for its ConsumableType (keyed by
+	// ConsumableType; Consumable.lvl). A type with no entry takes Sim.DEFAULT_MIN_CONSUMABLE_LVL.
+	map<int32, int32> min_consumable_lvl = 24;
 
 	double min_mh_weapon_speed = 4;
 	double max_mh_weapon_speed = 5;
@@ -291,6 +284,8 @@ message DatabaseFilters {
 	bool one_handed_weapons = 6;
 	bool two_handed_weapons = 7;
 	bool matching_gems_only = 8;
+	// The enchant picker also lists enchants worth nothing to the spec's stat weights.
+	bool show_all_enchants = 25;
 
 	// Item IDs for favorited items.
 	repeated int32 favorite_items = 11;
@@ -386,6 +381,18 @@ message SavedRotation {
 
 message SavedEPWeights {
 	UnitStats ep_weights = 1;
+}
+
+// The checked presets are unioned per slot into BulkSettings.enchants.
+message BulkEnchantPreset {
+	string name = 1;
+	repeated BulkEnchantSlotOptions slots = 2;
+	bool checked = 3;
+}
+
+// Local storage data for the bulk sim's enchant presets.
+message BulkEnchantPresets {
+	repeated BulkEnchantPreset presets = 1;
 }
 
 // Local storage data for a saved encounter.

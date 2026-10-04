@@ -1,16 +1,5 @@
-import {
-	APLActionGuardianHotwDpsRotation_Strategy as HotwStrategy,
-	APLActionItemSwap_SwapSet as ItemSwapSet,
-	APLValueAutoAttackType,
-	APLValueAutoSwingTime_SwingType as AutoSwingType,
-	APLValueCompare_ComparisonOperator as ComparisonOperator,
-	APLValueEclipsePhase,
-	APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold,
-	APLValueMath_MathOperator as MathOperator,
-} from '@generated/proto/apl';
-import { ActionID, Stat } from '@generated/proto/common';
-import { ShamanTotems_TotemType as TotemType } from '@generated/proto/shaman';
-import { WarlockOptions_CurseOptions as CurseOptions } from '@generated/proto/warlock';
+import { APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold } from '@generated/proto/apl';
+import { ActionID, AreaType, Stat } from '@generated/proto/common';
 import { getEnumValues } from '@sim/utils/collections';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -18,6 +7,7 @@ import {
 	actionFieldConfig,
 	actionIdFieldConfig,
 	actionListFieldConfig,
+	areaTypeFieldConfig,
 	autoSwingTypeFieldConfig,
 	autoTypeFieldConfig,
 	booleanFieldConfig,
@@ -27,11 +17,11 @@ import {
 	executePhaseThresholdFieldConfig,
 	groupNameFieldConfig,
 	groupReferenceVariablesFieldConfig,
-	hotwStrategyFieldConfig,
 	itemSwapSetFieldConfig,
 	makeUseDotBaseValueCheckbox,
 	mathOperatorFieldConfig,
 	minIcdInput,
+	mobTypeFieldConfig,
 	numberFieldConfig,
 	placeholderNameFieldConfig,
 	reactionTimeCheckbox,
@@ -48,10 +38,9 @@ import { newKindImpl, resolveField } from './field_specs';
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 describe('resolveField kinds', () => {
-	it('resolves the nine fixed-enum descriptor types to kind enum', () => {
+	it('resolves the fixed-enum descriptor types to kind enum', () => {
 		const descriptors = [
 			eclipseTypeFieldConfig('f'),
-			hotwStrategyFieldConfig('f'),
 			curseTypeFieldConfig('f'),
 			autoTypeFieldConfig('f'),
 			autoSwingTypeFieldConfig('f'),
@@ -61,6 +50,8 @@ describe('resolveField kinds', () => {
 			mathOperatorFieldConfig('f'),
 			executePhaseThresholdFieldConfig('f'),
 			totemTypeFieldConfig('f'),
+			mobTypeFieldConfig('f'),
+			areaTypeFieldConfig('f'),
 		];
 		for (const descriptor of descriptors) {
 			expect(resolveField(descriptor).kind).toBe('enum');
@@ -127,23 +118,6 @@ describe('resolveField newValue defaults', () => {
 		expect(typeof action.uuid.value).toBe('string');
 		expect(value.uuid.value).not.toBe(action.uuid.value);
 	});
-
-	it('defaults eclipseType to LunarPhase', () => {
-		expect(resolveField(eclipseTypeFieldConfig('f')).newValue()).toBe(APLValueEclipsePhase.LunarPhase);
-	});
-
-	it('defaults the remaining enum kinds to their documented member', () => {
-		expect(resolveField(hotwStrategyFieldConfig('f')).newValue()).toBe(HotwStrategy.Caster);
-		expect(resolveField(curseTypeFieldConfig('f')).newValue()).toBe(CurseOptions.Agony);
-		expect(resolveField(autoTypeFieldConfig('f')).newValue()).toBe(APLValueAutoAttackType.AnyAuto);
-		expect(resolveField(autoSwingTypeFieldConfig('f')).newValue()).toBe(AutoSwingType.MainHand);
-		expect(resolveField(statTypeFieldConfig('f')).newValue()).toBe(0);
-		expect(resolveField(itemSwapSetFieldConfig('f')).newValue()).toBe(ItemSwapSet.Swap1);
-		expect(resolveField(comparisonOperatorFieldConfig('f')).newValue()).toBe(ComparisonOperator.OpEq);
-		expect(resolveField(mathOperatorFieldConfig('f')).newValue()).toBe(MathOperator.OpAdd);
-		expect(resolveField(executePhaseThresholdFieldConfig('f')).newValue()).toBe(ExecutePhaseThreshold.E20);
-		expect(resolveField(totemTypeFieldConfig('f')).newValue()).toBe(TotemType.Water);
-	});
 });
 
 describe('resolveField label precedence', () => {
@@ -198,5 +172,13 @@ describe('newKindImpl', () => {
 		const spellId = ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 1 } });
 		const impl = newKindImpl({ newValue: () => ({ spellId }), fields: [actionIdFieldConfig('spellId', 'castable_spells')] })();
 		expect(impl).toEqual({ spellId });
+	});
+
+	it('sets unset enum fields to the default their picker writes', () => {
+		const impl = newKindImpl({
+			newValue: () => ({ areaType: AreaType.AreaTypeUnknown, threshold: ExecutePhaseThreshold.Unknown }),
+			fields: [areaTypeFieldConfig('areaType'), executePhaseThresholdFieldConfig('threshold')],
+		})();
+		expect(impl).toEqual({ areaType: AreaType.AreaTypeForestGrassland, threshold: ExecutePhaseThreshold.E20 });
 	});
 });

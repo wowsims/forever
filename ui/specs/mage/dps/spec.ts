@@ -30,9 +30,9 @@ export default defineSpec<Spec.SpecMage>({
 		Stat.StatFrostDamage,
 		Stat.StatFireDamage,
 		Stat.StatSpellPiercing,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellCritRating,
-		Stat.StatSpellHasteRating,
+		Stat.StatHitRating,
+		Stat.StatCritRating,
+		Stat.StatHasteRating,
 		Stat.StatMana,
 		Stat.StatMP5,
 	],
@@ -84,9 +84,9 @@ export default defineSpec<Spec.SpecMage>({
 		Stat.StatFrostDamage,
 		Stat.StatFireDamage,
 		Stat.StatArcaneDamage,
-		Stat.StatSpellCritRating,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellHasteRating,
+		Stat.StatCritRating,
+		Stat.StatHitRating,
+		Stat.StatHasteRating,
 	],
 
 	defaults: {
@@ -95,7 +95,7 @@ export default defineSpec<Spec.SpecMage>({
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
-			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentArcane, 16);
+			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentArcane, 17);
 		})(),
 		// Default consumes settings.
 		consumables: DefaultConsumables,

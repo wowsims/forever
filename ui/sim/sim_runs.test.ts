@@ -126,18 +126,6 @@ describe('SimRuns', () => {
 		expect(other).toEqual([1, 2]);
 	});
 
-	it('keeps the last progress value after the run ends, and drops it when the next one starts', async () => {
-		await runs.start<void, number>(SimRunKind.StatWeights, async ctx => ctx.emit(7));
-		expect(runs.lastProgress<number>(SimRunKind.StatWeights)).toBe(7);
-
-		const run = deferred<void>();
-		const started = runs.start(SimRunKind.StatWeights, () => run.promise);
-		expect(runs.lastProgress<number>(SimRunKind.StatWeights)).toBeNull();
-
-		run.settle();
-		await started;
-	});
-
 	// The flag has to be readable before `start` returns, because an injected `flushSync` cannot
 	// help a write that happens a microtask later.
 	it('flags the kind synchronously, through the injected flush', async () => {

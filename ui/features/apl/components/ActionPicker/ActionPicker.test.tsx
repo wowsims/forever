@@ -1,6 +1,7 @@
+import { AplProvider } from '@features/apl/context/AplContext';
 import { actionKindOptions } from '@features/apl/model/kind_options';
-import { makePlayer } from '@features/apl/testing';
 import { APLAction, APLRotation } from '@generated/proto/apl';
+import { makePlayer } from '@testing/apl/player';
 import { act, render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -16,7 +17,7 @@ const source = vi.hoisted(() => {
 	};
 });
 
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
+vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 let rotation: APLRotation;
@@ -47,18 +48,6 @@ beforeEach(() => {
 });
 
 describe('ActionPicker', () => {
-	it('renders the condition, then the kind picker and its fields, in that order', () => {
-		setup(APLAction.create({ action: { oneofKind: 'resetSequence', resetSequence: { sequenceName: 'seq' } } }));
-		render(<ActionPicker player={player as never} config={configForRoot() as never} />);
-
-		const root = roots()[0];
-		expect(root.children[0].getAttribute('data-testid')).toBe('apl-action-condition');
-
-		const actionContainer = root.children[1];
-		expect(actionContainer.children[0].getAttribute('data-testid')).toBe('dropdown-picker-root');
-		expect(actionContainer.children[1].getAttribute('data-testid')).toBe('apl-picker-builder-root');
-	});
-
 	it('carries the kind as data-kind on the field group container', () => {
 		setup(APLAction.create({ action: { oneofKind: 'resetSequence', resetSequence: { sequenceName: 'seq' } } }));
 		render(<ActionPicker player={player as never} config={configForRoot() as never} />);
@@ -90,7 +79,7 @@ describe('ActionPicker', () => {
 	});
 
 	// The action half of the value/action cycle: ActionPicker -> FieldGroup -> AplField ->
-	// ActionListField -> ActionPicker (again), for a sequence's own action list. Importing
+	// ActionFieldList -> ActionPicker (again), for a sequence's own action list. Importing
 	// ActionPicker cold, first, after a module registry reset is what makes the cycle observable.
 	it('resolves the action tree’s own module cycle when ActionPicker is imported cold, first', async () => {
 		vi.resetModules();
@@ -105,6 +94,48 @@ describe('ActionPicker', () => {
 
 		expect(roots()).toHaveLength(2);
 	}, 30000);
+
+	it('renders no condition picker in the pre-pull list', () => {
+		setup(APLAction.create({ action: { oneofKind: 'resetSequence', resetSequence: { sequenceName: 'seq' } } }));
+		render(
+			<AplProvider isPrepull>
+				<ActionPicker player={player as never} config={configForRoot() as never} />
+			</AplProvider>,
+		);
+
+		expect(roots()).toHaveLength(1);
+		expect(document.querySelector('[data-testid="apl-action-condition"]')).toBeNull();
+	});
+
+	it('keeps a schedule’s own condition and renders none for the action it schedules', async () => {
+		setup(
+			APLAction.create({
+				action: { oneofKind: 'schedule', schedule: { schedule: '0s', innerAction: { action: { oneofKind: 'castSpell', castSpell: {} } } } },
+			}),
+		);
+		render(<ActionPicker player={player as never} config={configForRoot() as never} />);
+		await act(async () => {});
+
+		const [outer, inner] = roots();
+		expect(inner).toBeDefined();
+		expect(outer.children[0].getAttribute('data-testid')).toBe('apl-action-condition');
+		expect(inner.querySelector('[data-testid="apl-action-condition"]')).toBeNull();
+		expect(document.querySelectorAll('[data-testid="apl-action-condition"]')).toHaveLength(1);
+	});
+
+	it('renders no condition for the actions of a sequence', async () => {
+		setup(
+			APLAction.create({
+				action: { oneofKind: 'sequence', sequence: { name: 'opener', actions: [{ action: { oneofKind: 'castSpell', castSpell: {} } }] } },
+			}),
+		);
+		render(<ActionPicker player={player as never} config={configForRoot() as never} />);
+		await act(async () => {});
+
+		expect(roots()).toHaveLength(2);
+		expect(document.querySelectorAll('[data-testid="apl-action-condition"]')).toHaveLength(1);
+		expect(roots()[0].children[0].getAttribute('data-testid')).toBe('apl-action-condition');
+	});
 
 	// The value picker prepends an explicit `undefined`-valued entry; the action picker has no
 	// reachable "no kind" option at all.

@@ -28,7 +28,7 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 		return buffs.NewSpellDataJudgementOfLightAuraRank(target, &paladin.Unit, buffs.JudgementRank{
 			SpellID: judgementID,
 			Rank:    rank.RankNumber(),
-			Value:   healRank.HealEffect().Average(core.CharacterLevel),
+			Value:   healRank.HealEffect().Average(),
 		})
 	})
 
@@ -53,7 +53,7 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 	})
 
 	procRank := rank.Refs()[0]
-	heal := procRank.HealEffect().Average(core.CharacterLevel)
+	heal := procRank.HealEffect().Average()
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
 		ActionID:       core.ActionID{SpellID: procRank.ID},
 		SpellSchool:    core.SpellSchoolHoly,

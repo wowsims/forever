@@ -34,12 +34,12 @@ func NewGeneratedDebuffTestTarget() *Unit {
 	return target
 }
 
-func ApplyBuffEffects(agent Agent, raid *proto.RaidBuffs, party *proto.PartyBuffs, individual *proto.IndividualBuffs) {
-	applyBuffEffects(agent, raid, party, individual)
+func ApplyBuffEffects(char *Character, raid *proto.RaidBuffs, party *proto.PartyBuffs, individual *proto.IndividualBuffs) {
+	registeredBuffs().ApplyBuffs(char, raid, party, individual)
 }
 
 func ApplyDebuffEffects(target *Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
-	applyDebuffEffects(target, 0, debuffs, raid)
+	registeredBuffs().ApplyDebuffs(target, debuffs, raid)
 }
 
 func (character *Character) ApplyBuildPhaseAuras(phase CharacterBuildPhase) {
@@ -52,4 +52,23 @@ func (unit *Unit) SetStats(s stats.Stats) {
 
 func (category *ExclusiveCategory) Effects() []*ExclusiveEffect {
 	return category.effects
+}
+
+// Narrows the loaded consumables to these ids until the returned function restores the rest, for a
+// test that runs the sim on the consumables a browser request carries.
+func KeepOnlyConsumables(ids []int32) (restore func()) {
+	dbMu.Lock()
+	defer dbMu.Unlock()
+	all := consumablesByID
+	consumablesByID = make(map[int32]Consumable, len(ids))
+	for _, id := range ids {
+		if consumable, ok := all[id]; ok {
+			consumablesByID[id] = consumable
+		}
+	}
+	return func() {
+		dbMu.Lock()
+		consumablesByID = all
+		dbMu.Unlock()
+	}
 }

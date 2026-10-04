@@ -8,10 +8,10 @@ import { sanitizeId } from '@sim/utils/format';
 import { mod } from '@sim/utils/math';
 import { Dialog } from '@ui-kit/Dialog';
 import { HelpText } from '@ui-kit/FormControl';
-import { Icon } from '@ui-kit/Icon';
+import { Notice } from '@ui-kit/Notice';
 import { TabNav } from '@ui-kit/TabNav';
 import clsx from 'clsx';
-import { type KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { SelectorModalState } from '../../hooks/useSelectorModal';
 import { ALL_ITEM_SLOTS, createGearData } from '../../model/gear_data';
@@ -24,6 +24,99 @@ import { buildSelectorTabs, eligibilityFor } from './utils';
 
 const DEFAULT_MODAL_ID = 'gear-picker-selector-modal';
 
+export interface SelectorModalViewTab {
+	label: SelectorModalTabs;
+	/** A gem tab shows its socket in place of a text label. */
+	gemIcon?: ReactNode;
+	pane: ReactNode;
+}
+
+export interface SelectorModalViewProps {
+	/** Prefixes the pane and tab ids. */
+	id: string;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
+	rail?: ReactNode;
+	title: string;
+	tabs: ReadonlyArray<SelectorModalViewTab>;
+	activeTab: SelectorModalTabs | null;
+	onSelectTab: (tab: SelectorModalTabs) => void;
+	/** Keys the panes, so each request mounts fresh ones. No panes render without one. */
+	sequence?: number;
+}
+
+export const SelectorModalView = ({ id, open, onOpenChange, onKeyDown, rail, title, tabs, activeTab, onSelectTab, sequence }: SelectorModalViewProps) => {
+	const paneId = (label: SelectorModalTabs) => sanitizeId(`${id}-${label}`);
+	const tabId = (label: SelectorModalTabs) => `${paneId(label)}-tab`;
+
+	return (
+		// `Tabs.Root` has to be a React ancestor of both the strip and the panes, and the dialog takes
+		// them as two separate props. `display: contents` keeps the element it renders out of the layout.
+		<Tabs.Root className="contents" data-testid="selector-modal-tabs-root" value={activeTab} onValueChange={next => onSelectTab(next as SelectorModalTabs)}>
+			<Dialog
+				open={open}
+				onOpenChange={onOpenChange}
+				testId="selector-modal"
+				size="xl"
+				maxWidthClassName="max-w-selector-modal-w"
+				headerFlush
+				onKeyDown={onKeyDown}
+				headerChildren={
+					<>
+						{rail}
+						<div className="flex flex-col">
+							<h6 className="mb-0" data-testid="selector-modal-title">
+								{title}
+							</h6>
+							<TabNav
+								bordered={false}
+								testId="selector-modal-tabs"
+								tabs={tabs.map(tab => ({
+									id: tab.label,
+									label: tab.gemIcon ?? getTranslatedTabLabel(tab.label),
+									tabId: tabId(tab.label),
+									ariaControls: paneId(tab.label),
+									dataLabel: tab.label,
+									buttonClassName: clsx(
+										tab.gemIcon !== undefined &&
+											'-mr-2 ml-2 flex items-center p-0 px-2 py-2 opacity-70 transition-opacity duration-150 ease-in-out hover:opacity-100 data-active:opacity-100',
+									),
+								}))}
+							/>
+						</div>
+					</>
+				}>
+				<div className="flex flex-col">
+					{sequence !== undefined &&
+						tabs.map(tab => (
+							// `active` comes from the selection, not from the panel's transition status: this strip has
+							// never staged `show` a frame behind `active`, and a panel reopened while it is still fading
+							// out reports `ending` for one frame after it is open again.
+							<Tabs.Panel
+								key={`${sequence}-${tab.label}`}
+								value={tab.label}
+								id={paneId(tab.label)}
+								keepMounted
+								className={clsx('p-0 fade-in-out', tab.label !== activeTab && 'opacity-0')}
+								data-testid="selector-modal-tab-pane"
+								data-active={tab.label === activeTab ? '' : undefined}>
+								{tab.pane}
+							</Tabs.Panel>
+						))}
+				</div>
+				<HelpText as="div">
+					<Notice level="warning" testId="selector-modal-missing-gear">
+						{i18n.t('gear_tab.gear_picker.missing_gear_message.title')}
+						<br />
+						{i18n.t('gear_tab.gear_picker.missing_gear_message.description')}
+					</Notice>
+				</HelpText>
+			</Dialog>
+		</Tabs.Root>
+	);
+};
+
 export interface SelectorModalProps {
 	state: SelectorModalState;
 	/** Prefixes the pane and tab ids, so two instances on one page can be told apart. */
@@ -35,8 +128,6 @@ export interface SelectorModalProps {
 export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: SelectorModalProps) => {
 	const host = useSimHost();
 	const player = host.player;
-	const paneId = (label: SelectorModalTabs) => sanitizeId(`${id}-${label}`);
-	const tabId = (label: SelectorModalTabs) => `${paneId(label)}-tab`;
 
 	const { open, request } = state;
 	const [selected, setSelected] = useState<{ sequence: number; tab: SelectorModalTabs } | null>(null);
@@ -94,79 +185,21 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 	};
 
 	return (
-		// `Tabs.Root` has to be a React ancestor of both the strip and the panes, and the dialog takes
-		// them as two separate props. `display: contents` keeps the element it renders out of the layout.
-		<Tabs.Root
-			className="contents"
-			data-testid="selector-modal-tabs-root"
-			value={activeTab?.label ?? null}
-			onValueChange={next => request && setSelected({ sequence: request.sequence, tab: next as SelectorModalTabs })}>
-			<Dialog
-				open={open}
-				onOpenChange={state.setOpen}
-				testId="selector-modal"
-				size="xl"
-				maxWidth="max-w-selector-modal-w"
-				headerFlush
-				onKeyDown={onRailKeyDown}
-				headerChildren={
-					<>
-						{rail && <SlotRail gear={gear} currentSlot={slot} onOpen={openSlot} />}
-						<div>
-							<h6 className="mb-0" data-testid="selector-modal-title">
-								{slot !== null ? (translateSlotName(slot) ?? '') : ''}
-							</h6>
-							<TabNav
-								bordered={false}
-								testId="selector-modal-tabs"
-								tabs={tabs.map(tab => ({
-									id: tab.label,
-									label:
-										tab.socketIdx === undefined ? (
-											getTranslatedTabLabel(tab.label)
-										) : (
-											<TabGemIcon socketColor={tab.socketColor} gem={equippedItem?.gems[tab.socketIdx] ?? null} />
-										),
-									tabId: tabId(tab.label),
-									ariaControls: paneId(tab.label),
-									dataLabel: tab.label,
-									buttonClassName: clsx(
-										tab.socketIdx !== undefined &&
-											'-mr-2 ml-2 flex items-center p-0 px-2 py-2 opacity-70 transition-opacity duration-150 ease-in-out hover:opacity-100 data-active:opacity-100',
-									),
-								}))}
-							/>
-						</div>
-					</>
-				}>
-				<div>
-					{request &&
-						slot !== null &&
-						tabs.map(tab => (
-							// `active` comes from the selection, not from the panel's transition status: this strip has
-							// never staged `show` a frame behind `active`, and a panel reopened while it is still fading
-							// out reports `ending` for one frame after it is open again.
-							<Tabs.Panel
-								key={`${request.sequence}-${tab.label}`}
-								value={tab.label}
-								id={paneId(tab.label)}
-								keepMounted
-								className={clsx('p-0 fade-in-out', tab.label !== activeTab?.label && 'opacity-0')}
-								data-testid="selector-modal-tab-pane"
-								data-active={tab.label === activeTab?.label ? '' : undefined}>
-								<ItemList tab={tab} slot={slot} equippedItem={equippedItem} />
-							</Tabs.Panel>
-						))}
-				</div>
-				<HelpText as="div" className="flex items-center">
-					<Icon name="circle-exclamation" size="xl" className="mr-2" />
-					<span>
-						{i18n.t('gear_tab.gear_picker.missing_gear_message.title')}
-						<br />
-						{i18n.t('gear_tab.gear_picker.missing_gear_message.description')}
-					</span>
-				</HelpText>
-			</Dialog>
-		</Tabs.Root>
+		<SelectorModalView
+			id={id}
+			open={open}
+			onOpenChange={state.setOpen}
+			onKeyDown={onRailKeyDown}
+			rail={rail && <SlotRail gear={gear} currentSlot={slot} onOpen={openSlot} />}
+			title={slot !== null ? (translateSlotName(slot) ?? '') : ''}
+			tabs={tabs.map(tab => ({
+				label: tab.label,
+				gemIcon: tab.socketIdx === undefined ? undefined : <TabGemIcon socketColor={tab.socketColor} gem={equippedItem?.gems[tab.socketIdx] ?? null} />,
+				pane: slot !== null && <ItemList tab={tab} slot={slot} equippedItem={equippedItem} />,
+			}))}
+			activeTab={activeTab?.label ?? null}
+			onSelectTab={next => request && setSelected({ sequence: request.sequence, tab: next })}
+			sequence={request?.sequence}
+		/>
 	);
 };

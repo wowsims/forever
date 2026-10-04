@@ -6,6 +6,7 @@ import { SavedTalents } from '@generated/proto/ui';
 import * as Mechanics from '@sim/constants/mechanics';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
@@ -28,15 +29,13 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 		Stat.StatAgility,
 		Stat.StatIntellect,
 		Stat.StatAttackPower,
-		Stat.StatMeleeHitRating,
-		Stat.StatMeleeCritRating,
-		Stat.StatMeleeHasteRating,
+		Stat.StatHitRating,
+		Stat.StatCritRating,
+		Stat.StatHasteRating,
 		Stat.StatExpertiseRating,
 		Stat.StatArmorPenetration,
 		Stat.StatSpellDamage,
 		Stat.StatNatureDamage,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellCritRating,
 	],
 	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatOffHandDps],
 	// Reference stat against which to calculate EP.
@@ -64,6 +63,8 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 		[
 			PseudoStat.PseudoStatMeleeHitPercent,
 			PseudoStat.PseudoStatMeleeCritPercent,
+			PseudoStat.PseudoStatOffHandHitPercent,
+			PseudoStat.PseudoStatOffHandCritPercent,
 			PseudoStat.PseudoStatMeleeHastePercent,
 			PseudoStat.PseudoStatSpellHitPercent,
 			PseudoStat.PseudoStatSpellCritPercent,
@@ -71,6 +72,7 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 			PseudoStat.PseudoStatExpertisePercent,
 		],
 	),
+	displayWeaponSkillGroups: [WeaponSkillGroup.Melee],
 
 	defaults: {
 		// Default equipped gear.
@@ -83,9 +85,9 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 		})(),
 		softCapBreakpoints: (() => {
 			const meleeHitSoftCapConfig = StatCap.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, {
-				breakpoints: [9, 20, 28],
+				breakpoints: [8, 20, 27],
 				capType: StatCapType.TypeSoftCap,
-				postCapEPs: [1.9 * Mechanics.PHYSICAL_HIT_RATING_PER_HIT_PERCENT, 1.73 * Mechanics.PHYSICAL_HIT_RATING_PER_HIT_PERCENT, 0],
+				postCapEPs: [1.9 * Mechanics.HIT_RATING_PER_HIT_PERCENT, 1.73 * Mechanics.HIT_RATING_PER_HIT_PERCENT, 0],
 			});
 
 			return [meleeHitSoftCapConfig];

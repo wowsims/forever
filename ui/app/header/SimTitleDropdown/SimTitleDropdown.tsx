@@ -1,4 +1,3 @@
-import { Menu as BaseMenu } from '@base-ui/react/menu';
 import type { Class } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translatePlayerClass, translatePlayerSpec, translateStatus } from '@i18n/localization';
@@ -7,7 +6,8 @@ import type { PlayerClass } from '@sim/player/player_class';
 import type { PlayerSpec } from '@sim/player/player_spec';
 import { PlayerSpecs } from '@sim/player/specs/index';
 import { textClassNameForClass, textClassNameForSpec } from '@sim/proto/utils';
-import { Menu } from '@ui-kit/Menu';
+import { Button } from '@ui-kit/Button';
+import { Menu, MenuLinkItem } from '@ui-kit/Menu';
 import { SimLinkContent } from '@ui-kit/SimLinkContent';
 import clsx from 'clsx';
 
@@ -26,7 +26,7 @@ const ClassSubmenu = ({ playerClass }: { playerClass: PlayerClass<Class> }) => (
 		submenu
 		surface="plain"
 		trigger={<SimLinkContent iconPath={playerClass.getIcon('large')} title={translatePlayerClass(playerClass)} />}
-		triggerRender={<button type="button" />}
+		triggerRender={<Button variant="unstyled" />}
 		triggerProps={{ className: clsx(SIM_LINK_CLASSES, textClassNameForClass(playerClass)), 'data-testid': 'sim-link' }}
 		side="right"
 		align="start"
@@ -35,25 +35,26 @@ const ClassSubmenu = ({ playerClass }: { playerClass: PlayerClass<Class> }) => (
 		positionerProps={{ 'data-testid': 'sim-title-positioner' }}
 		popupProps={{ 'data-testid': 'sim-title-popup' }}>
 		{Object.values(playerClass.specs).map(spec => (
-			<li key={spec.simLink} role="none">
-				<BaseMenu.LinkItem
-					href={new URL(spec.simLink, window.location.href).toString()}
-					className={clsx(SIM_LINK_CLASSES, textClassNameForSpec(spec))}
-					data-testid="sim-link">
-					<SimLinkContent
-						iconPath={spec.getIcon('large')}
-						label={translatePlayerClass(PlayerSpecs.getPlayerClass(spec))}
-						title={translatePlayerSpec(spec)}
-						status={launchLabel(spec.launch)}
-					/>
-				</BaseMenu.LinkItem>
-			</li>
+			<MenuLinkItem
+				key={spec.simLink}
+				layout="block"
+				bare
+				href={new URL(spec.simLink, window.location.href).toString()}
+				className={clsx(SIM_LINK_CLASSES, textClassNameForSpec(spec))}
+				testId="sim-link">
+				<SimLinkContent
+					iconPath={spec.getIcon('large')}
+					label={translatePlayerClass(PlayerSpecs.getPlayerClass(spec))}
+					title={translatePlayerSpec(spec)}
+					status={launchLabel(spec.launch)}
+				/>
+			</MenuLinkItem>
 		))}
 	</Menu>
 );
 
 export const SimTitleDropdown = ({ currentSpec }: SimTitleDropdownProps) => (
-	<div className="h-sim-header-minus" data-testid="sim-title-dropdown-root">
+	<div className="z-sim-title h-sim-header-plus border-b border-b-border pb-px max-lg:sticky max-lg:-top-px" data-testid="sim-title-dropdown-root">
 		<div className="relative h-full" data-testid="sim-link-dropdown">
 			<Menu
 				surface="plain"

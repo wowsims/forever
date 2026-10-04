@@ -6,7 +6,7 @@ import (
 )
 
 var pummelRank = spellData.Pummel.ByID(6554)
-var pummelBaseDamage = pummelRank.DamageEffect().Average(core.CharacterLevel)
+var pummelBaseDamage = pummelRank.DamageEffect().Average()
 
 func (warrior *Warrior) registerPummel() {
 	config := spelldata.SpellConfig(&warrior.Unit, pummelRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))

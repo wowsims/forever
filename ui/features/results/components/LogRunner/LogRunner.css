@@ -4,7 +4,7 @@
 	}
 
 	.ui-floating-action-bar-root {
-		@apply sticky bottom-0 z-4 mt-3 -mb-page box-border flex h-floating-action-bar items-center border-0 border-border;
+		@apply sticky bottom-0 z-4 mt-2 -mb-page box-border flex h-floating-action-bar items-center border-0 border-border;
 		@apply data-stuck:border data-stuck:bg-background data-stuck:p-2;
 	}
 

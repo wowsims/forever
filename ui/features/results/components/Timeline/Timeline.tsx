@@ -1,8 +1,8 @@
 import i18n from '@i18n/config';
 import type { UnitMetrics } from '@sim/proto/sim_result';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { noticeIconClass } from '@ui-kit/NoticeLevel';
-import clsx from 'clsx';
+import { Icon } from '@ui-kit/Icon';
+import { NOTICE_COLOR } from '@ui-kit/Notice';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSimResult } from '../../hooks/useSimResult';
@@ -10,7 +10,7 @@ import { buildRotationModel } from '../../model/timeline/rotation';
 import { chartSpec } from './chart/build';
 import { TimelineChart } from './chart/TimelineChart';
 import { ChartViewPicker } from './ChartViewPicker';
-import { RotationView } from './rotation/RotationView';
+import { RotationTrack } from './rotation/RotationTrack';
 import type { ChartView } from './utils';
 import { resultKey } from './utils';
 
@@ -18,8 +18,6 @@ export interface TimelineProps {
 	/** The timeline tab is open. While it is not, a finished run is held rather than drawn. */
 	active: boolean;
 }
-
-const WARNING_ICON = noticeIconClass('warning');
 
 export const Timeline = ({ active }: TimelineProps) => {
 	const live = useSimResult();
@@ -68,22 +66,19 @@ export const Timeline = ({ active }: TimelineProps) => {
 			<div className="flex flex-wrap items-start gap-2">
 				<div className="flex flex-col max-lg:shrink max-lg:grow max-lg:basis-full">
 					<p>
-						<i className={clsx(WARNING_ICON, 'fa-xl mr-2')} />
+						<Icon name="triangle-exclamation" style="base" size="xl" className={`${NOTICE_COLOR.warning} mr-2`} />
 						{i18n.t('results_tab.details.timeline.disclaimer')}
 					</p>
 					<p>{i18n.t('results_tab.details.timeline.note')}</p>
 				</div>
-				<div className="ml-auto flex shrink-0 items-center gap-3 self-start">
+				<div className="ml-auto flex shrink-0 items-center gap-2 self-start">
 					<BooleanPicker
-						modObject={null}
-						config={{
-							id: 'timeline-show-gcd',
-							label: i18n.t('results_tab.details.timeline.show_gcd'),
-							layout: 'inline',
-							extraClassNames: ['w-auto', 'whitespace-nowrap'],
-							value: showGcd,
-							onChange: setShowGcd,
-						}}
+						id="timeline-show-gcd"
+						label={i18n.t('results_tab.details.timeline.show_gcd')}
+						layout="inline"
+						className={['w-auto', 'whitespace-nowrap']}
+						value={showGcd}
+						onChange={setShowGcd}
 					/>
 					<ChartViewPicker value={view} onChange={setView} className="w-auto shrink-0" />
 				</div>
@@ -94,10 +89,8 @@ export const Timeline = ({ active }: TimelineProps) => {
 						<TimelineChart spec={spec} />
 					</div>
 				) : (
-					<div data-testid="rotation-plot">
-						<div className="m-auto">
-							<RotationView model={model} active={active} />
-						</div>
+					<div className="m-auto" data-testid="rotation-plot">
+						<RotationTrack model={model} active={active} />
 					</div>
 				)}
 			</div>

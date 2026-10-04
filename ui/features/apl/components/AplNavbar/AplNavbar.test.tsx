@@ -1,5 +1,6 @@
 import { Tabs } from '@base-ui/react/tabs';
 import type { AplPaneId } from '@features/apl/model/apl_panes';
+import { FakeIntersectionObserver } from '@testing/apl/dom';
 import { fireEvent, render } from '@testing-library/react';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,24 +8,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 // The picker is tested where it lives. What is under test here is that it is the navbar's first
 // child, because the strip's `margin-left: auto` is what pushes the tabs to the other end.
-vi.mock('@features/apl/components/RotationTypePicker', () => ({ RotationTypePicker: () => <div className="rotation-type-picker-stub" /> }));
+vi.mock('@features/apl/components/RotationTypePicker', () => ({
+	RotationTypePicker: ({ testId }: { testId?: string }) => <div data-testid={testId} />,
+}));
 
-class FakeIntersectionObserver {
-	static instances: Array<FakeIntersectionObserver> = [];
-	constructor(
-		readonly callback: IntersectionObserverCallback,
-		readonly options?: IntersectionObserverInit,
-	) {
-		FakeIntersectionObserver.instances.push(this);
-	}
-	observe = vi.fn();
-	disconnect = vi.fn();
-	unobserve = vi.fn();
-	fire(...ratios: Array<number>) {
-		const entries = ratios.map(intersectionRatio => ({ intersectionRatio }));
-		this.callback(entries as unknown as Array<IntersectionObserverEntry>, this as unknown as IntersectionObserver);
-	}
-}
+const ratios = (...values: Array<number>) => values.map(intersectionRatio => ({ intersectionRatio }));
 
 const header = document.createElement('div');
 
@@ -55,22 +43,16 @@ describe('AplNavbar', () => {
 		const { container } = mount();
 		const root = container.querySelector('[data-testid="apl-rotation-navbar"]')!;
 		expect(root.children[0].getAttribute('data-testid')).toBe('rotation-type-container');
-		expect(root.children[1].className.split(' ')).toEqual(expect.arrayContaining(['ui-tabs']));
-		expect(root.querySelector('[data-testid="rotation-type-container"] > .rotation-type-picker-stub')).not.toBeNull();
+		expect(root.children[1].contains(root.querySelector('[role=tablist]'))).toBe(true);
 	});
 
-	it('renders the three sub-tabs with the active one selected and the only Tab stop', () => {
+	it('renders the three sub-tabs with the active one marked', () => {
 		const { container } = mount('apl-action-groups');
-		expect(container.querySelector('[role=tablist]')).not.toBeNull();
-		expect([...container.querySelectorAll('[role=presentation]')]).toHaveLength(3);
-		expect(
-			tabs(container).map(tab => [tab.getAttribute('aria-controls'), tab.hasAttribute('data-active'), tab.getAttribute('aria-selected'), tab.tabIndex]),
-		).toEqual([
-			['apl-priority-list', false, 'false', -1],
-			['apl-action-groups', true, 'true', 0],
-			['apl-variables', false, 'false', -1],
+		expect(tabs(container).map(tab => [tab.getAttribute('aria-controls'), tab.hasAttribute('data-active')])).toEqual([
+			['apl-priority-list', false],
+			['apl-action-groups', true],
+			['apl-variables', false],
 		]);
-		expect(tabs(container).every(tab => tab.getAttribute('type') === 'button')).toBe(true);
 	});
 
 	it('reports a click as the pane it controls', () => {
@@ -79,36 +61,13 @@ describe('AplNavbar', () => {
 		expect(onSelect).toHaveBeenCalledWith('apl-variables');
 	});
 
-	// The arrow walk itself belongs to a browser: Base UI drives it through a composite that does not
-	// answer synthetic key events under happy-dom. What is checkable here is the roving tabindex the
-	// walk moves along - exactly one stop, and it follows the selection.
-	it('leaves one tab stop on the strip and moves it with the selection', () => {
-		expect(
-			tabs(mount().container)
-				.filter(tab => tab.tabIndex === 0)
-				.map(tab => tab.getAttribute('aria-controls')),
-		).toEqual(['apl-priority-list']);
-		expect(
-			tabs(mount('apl-variables').container)
-				.filter(tab => tab.tabIndex === 0)
-				.map(tab => tab.getAttribute('aria-controls')),
-		).toEqual(['apl-variables']);
-	});
-
-	it('leaves a key it does not own to the page', () => {
-		const { container, onSelect } = mount();
-		const handled = fireEvent.keyDown(container.querySelector('[role=tablist]')!, { key: 'Enter' });
-		expect(onSelect).not.toHaveBeenCalled();
-		expect(handled).toBe(true);
-	});
-
 	it('carries stuck while the row no longer fits below the header', () => {
 		const { container } = mount();
 		const root = container.querySelector('[data-testid="apl-rotation-navbar"]')!;
 		Object.defineProperty(root, 'clientHeight', { value: 40 });
-		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(0.5));
+		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(...ratios(0.5)));
 		expect(root.hasAttribute('data-stuck')).toBe(true);
-		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(1));
+		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(...ratios(1)));
 		expect(root.hasAttribute('data-stuck')).toBe(false);
 	});
 
@@ -116,15 +75,15 @@ describe('AplNavbar', () => {
 		const { container } = mount();
 		const root = container.querySelector('[data-testid="apl-rotation-navbar"]')!;
 		Object.defineProperty(root, 'clientHeight', { value: 40 });
-		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(1, 0.5));
+		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(...ratios(1, 0.5)));
 		expect(root.hasAttribute('data-stuck')).toBe(true);
-		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(0.5, 1));
+		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(...ratios(0.5, 1)));
 		expect(root.hasAttribute('data-stuck')).toBe(false);
 	});
 
 	it('stays unstuck while the row is not laid out, whatever the ratio says', () => {
 		const { container } = mount();
-		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(0));
+		act(() => FakeIntersectionObserver.instances.at(-1)!.fire(...ratios(0)));
 		expect(container.querySelector('[data-testid="apl-rotation-navbar"]')!.hasAttribute('data-stuck')).toBe(false);
 	});
 

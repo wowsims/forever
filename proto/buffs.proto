@@ -6,25 +6,24 @@ option go_package = "./proto";
 import "common.proto";
 
 // Buffs that affect the entire raid.
-// Next index: 14
+// Next index: 13
 message RaidBuffs {
 	bool arcane_brilliance = 1;
 	bool prayer_of_spirit = 2;
 	bool gift_of_the_wild = 3;
-	bool thorns = 4;
-	bool prayer_of_fortitude = 5;
-	bool prayer_of_shadow_protection = 6;
-	bool fire_resistance_aura = 7;
-	bool frost_resistance_aura = 8;
-	bool shadow_resistance_aura = 9;
-	bool fire_resistance_totem = 10;
-	bool frost_resistance_totem = 11;
-	bool nature_resistance_totem = 12;
-	bool aspect_of_the_wild = 13;
+	bool prayer_of_fortitude = 4;
+	bool prayer_of_shadow_protection = 5;
+	bool fire_resistance_aura = 6;
+	bool frost_resistance_aura = 7;
+	bool shadow_resistance_aura = 8;
+	bool fire_resistance_totem = 9;
+	bool frost_resistance_totem = 10;
+	bool nature_resistance_totem = 11;
+	bool aspect_of_the_wild = 12;
 }
 
 // Buffs that affect a single party.
-// Next index: 23
+// Next index: 22
 message PartyBuffs {
 	bool blood_pact = 1;
 	TristateEffect battle_shout = 2;
@@ -44,14 +43,13 @@ message PartyBuffs {
 	bool windfury_totem = 16;
 	int32 atiesh_druid = 17;
 	int32 atiesh_priest = 18;
-	bool totem_twisting = 19;
-	TristateEffect stoneskin_totem = 20;
-	bool furious_howl = 21;
-	bool flametongue_totem = 22;
+	TristateEffect stoneskin_totem = 19;
+	bool furious_howl = 20;
+	bool flametongue_totem = 21;
 }
 
 // These are usually individual actions taken by other Characters.
-// Next index: 8
+// Next index: 9
 message IndividualBuffs {
 	bool greater_blessing_of_kings = 1;
 	bool greater_blessing_of_might = 2;
@@ -60,6 +58,7 @@ message IndividualBuffs {
 	bool greater_blessing_of_light = 5;
 	int32 innervates = 6;
 	int32 power_infusions = 7;
+	bool thorns = 8;
 }
 
 // Next index: 23

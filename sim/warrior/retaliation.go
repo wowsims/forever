@@ -7,16 +7,14 @@ import (
 
 var retaliationRank = spellData.Retaliation.Highest()
 var retaliationHit = spellData.RetaliationTriggered.Highest()
-var retaliationHitBaseDamage = retaliationHit.DamageEffect().Average(core.CharacterLevel)
+var retaliationHitBaseDamage = retaliationHit.DamageEffect().Average()
 
 func (warrior *Warrior) registerRetaliation() {
 	// The aura casts the counterattack, but it does not take spelldata.Proc(): that marks the spell
 	// passive, and the metrics aggregator counts no cast for a passive spell, while the sim reports
 	// every counterattack as a cast.
-	hitConfig := spelldata.SpellConfig(&warrior.Unit, retaliationHit, spelldata.Flags(core.SpellFlagMeleeMetrics))
-	hitConfig.ProcMask = core.ProcMaskMeleeMH
-	hitConfig.DamageMultiplier = 1
-	hitConfig.ThreatMultiplier = 1
+	hitConfig := spelldata.SpellConfig(&warrior.Unit, retaliationHit,
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 
 	hitConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := retaliationHitBaseDamage + warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
@@ -25,14 +23,14 @@ func (warrior *Warrior) registerRetaliation() {
 
 	attackSpell := warrior.RegisterSpell(hitConfig)
 
-	auraConfig := spelldata.AuraConfig(retaliationRank)
-	auraConfig.OnSpellHitTaken = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if spell.ProcMask.Matches(core.ProcMaskMelee) && result.Landed() && result.Damage > 0 {
+	aura := warrior.RegisterAura(spelldata.AuraConfig(retaliationRank))
+	trigger := spelldata.ProcTrigger(&warrior.Character, retaliationRank,
+		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			attackSpell.Cast(sim, spell.Unit)
 			aura.RemoveStack(sim)
-		}
-	}
-	aura := warrior.RegisterAura(auraConfig)
+		})
+	trigger.TriggerImmediately = true
+	aura.AttachProcTrigger(trigger)
 
 	config := spelldata.SpellConfig(&warrior.Unit, retaliationRank)
 

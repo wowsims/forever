@@ -95,34 +95,17 @@ export class ActionId {
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeRage];
 				break;
 			case OtherAction.OtherActionAttack:
-				name = 'Attack';
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_sword_04.jpg';
+				// A name handed in is a filled one: an extra attack's, from the spell that tagged it.
+				if (name) break;
+				name = 'Attack';
 				if (this.tag == 1) {
 					name += ' (Main Hand)';
 				} else if (this.tag == 2) {
 					name += ' (Off Hand)';
-				} else if (this.tag == 11815) {
-					name += ' (Hand of Justice)';
-				} else if (this.tag == 12281) {
-					name += ' (Sword Specialization)';
-				} else if (this.tag == 25584) {
+				} else if (this.tag == 10610) {
+					// Windfury Totem's swings, tagged with 10610, the spell that grants them.
 					name += ' (Windfury)';
-				} else if (this.tag == 20182) {
-					name += ' (Reckoning)';
-				} else if (this.tag == 31332) {
-					name += ' (Blinkstrike)';
-				} else if (this.tag == 17257) {
-					name += ' (Magtheridon)';
-				} else if (this.tag == 21213) {
-					name += ' (Morrogrim Tidewalker)';
-				} else if (this.tag == 21213 + 18943) {
-					name += ' (Morrogrim Tidewalker) - Thrash';
-				} else if (this.tag == 21216) {
-					name += ' (Hydross the Unstable) - Frost';
-				} else if (this.tag == 21216 + 1) {
-					name += ' (Hydross the Unstable) - Nature';
-				} else if (this.tag == 17968) {
-					name += ' (Archimonde)';
 				} else if (this.tag == 99999) {
 					name += ' (Boss)';
 				} else if (this.tag == 99998) {
@@ -233,13 +216,37 @@ export class ActionId {
 	static makeNpcUrl(id: number): string {
 		return wowheadEntityUrl('npc', id);
 	}
+	static makeFactionUrl(id: number): string {
+		return wowheadEntityUrl('faction', id);
+	}
 	static makeZoneUrl(id: number): string {
 		return wowheadEntityUrl('zone', id);
+	}
+
+	// An extra attack is a main-hand swing tagged with the spell that granted it, so its name comes
+	// from that spell rather than from a list kept by hand. A tag no spell answers keeps the bare name,
+	// and is remembered so it is not asked for again on every fill.
+	private static readonly extraAttackNames = new Map<number, Promise<string>>();
+	private async fillExtraAttack(): Promise<ActionId> {
+		let spellName = ActionId.extraAttackNames.get(this.tag);
+		if (!spellName) {
+			spellName = Database.getSpellIconData(this.tag).then(
+				data => data.name,
+				() => '',
+			);
+			ActionId.extraAttackNames.set(this.tag, spellName);
+		}
+		const name = await spellName;
+		if (!name) return this;
+		return new ActionId({ otherId: this.otherId, tag: this.tag, name: `Attack (${name})`, iconUrl: this.iconUrl });
 	}
 
 	// Returns an ActionId with the name and iconUrl fields filled.
 	// playerIndex is the optional index of the player to whom this ID corresponds.
 	async fill(playerIndex?: number): Promise<ActionId> {
+		if (this.otherId == OtherAction.OtherActionAttack && this.name == 'Attack' && this.tag > 2) {
+			return this.fillExtraAttack();
+		}
 		if (this.name || this.iconUrl) {
 			return this;
 		}
@@ -328,31 +335,16 @@ export class ActionId {
 					name += ` (${tag} CP)`;
 				}
 				break;
-			case 'Deadly Poison VII':
 			case 'Wound Poison':
-			case 'Instant Poison VII':
 				if (tag == 1) {
 					name += ' (Shiv)';
 				}
 				break;
-			case 'Shadow Blades':
-				if (tag == 1) {
-					name = 'Shadow Blade';
-				} else if (tag == 2) {
-					name = 'Shadow Blade Off-hand';
-				}
-				break;
 			case 'Bladestorm':
-			case 'Killing Spree':
 				if (tag == 1) {
 					name += ' (Main Hand)';
 				} else if (tag == 2) {
 					name += ' (Off Hand)';
-				}
-				break;
-			case 'Tricks of the Trade':
-				if (tag == 1) {
-					name += ' (Not Self)';
 				}
 				break;
 			case 'Mutilate':
@@ -364,9 +356,7 @@ export class ActionId {
 					name += ' (Off Hand)';
 				}
 				break;
-			case 'Wind Lash':
 			case 'Stormstrike':
-			case 'Stormblast':
 				if (tag == 0) {
 					name += ' (Cast)';
 				} else if (tag == 1) {
@@ -414,11 +404,6 @@ export class ActionId {
 					name += ' (Wasted)';
 				}
 				break;
-			case 'Windfury Totem Effect':
-				if (tag == 1) {
-					name += ' (Party Weapon Buff)';
-				}
-				break;
 			case 'Moonfire':
 			case 'Sunfire':
 				if (tag == 1) {
@@ -427,9 +412,7 @@ export class ActionId {
 				break;
 			// For targetted buffs, tag is the source player's raid index or -1 if none.
 			case 'Innervate':
-			case 'Focus Magic':
 			case 'Mana Tide Totem':
-			case 'Stormlash Totem':
 			case 'Unholy Frenzy':
 			case 'Power Infusion':
 				if (tag != -1) {
@@ -445,13 +428,6 @@ export class ActionId {
 			case 'Berserking':
 				if (tag > 0) {
 					name += ` (${10 + (tag - 1) * 5}%)`;
-				}
-				break;
-			case 'Elemental Mastery':
-				if (this.spellId === 64701) {
-					name = `${name} (Buff)`;
-				} else {
-					name = `${name} (Instant)`;
 				}
 				break;
 			case 'Whirlwind':
@@ -484,27 +460,6 @@ export class ActionId {
 			case 'Improved Overpower':
 				name += ` (${tag}/2)`;
 				break;
-			case 'Seed of Corruption':
-				if (tag == 0) {
-					name += ' (DoT)';
-				} else if (tag == 1) {
-					name += ' (Instant)';
-				} else if (tag == 2) {
-					name += ' (Explosion)';
-				}
-				break;
-			case 'Improved Corruption and Immolate':
-				if (this.spellId === 37380) {
-					name = 'T4 4PC';
-				} else if (this.spellId === 37384) {
-					name = 'T5 4PC';
-				}
-				break;
-			case 'Improved Shadow Bolt and Incinerate':
-				if (this.spellId === 38393) {
-					name = 'T6 4PC';
-				}
-				break;
 			case 'Thunderfury':
 				if (tag == 1) {
 					name += ' (ST)';
@@ -532,23 +487,10 @@ export class ActionId {
 				if (tag == 1) {
 					name += ' (Mana Restore)';
 				}
-			case 'Steady Focus':
-				if (tag == 2) {
-					name += ' (pre)';
-				}
 				break;
 			case 'Immolate':
 				if (tag == 1) {
 					name += ' (DoT)';
-				}
-				break;
-			case 'Enchant Weapon - Mongoose':
-				if (tag == 1) {
-					name += ' (Main Hand)';
-				} else if (tag == 2) {
-					name += ' (Off Hand)';
-				} else if (tag == 3) {
-					name += ' (Spell)';
 				}
 				break;
 			case 'Vampiric Touch':
@@ -558,7 +500,6 @@ export class ActionId {
 				}
 
 				break;
-			case 'Agony':
 			case 'Unstable Affliction':
 			case 'Corruption':
 				if (tag == 1) {
@@ -680,6 +621,20 @@ export class ActionId {
 			iconUrl: this.iconUrl,
 			randomSuffixId: this.randomSuffixId,
 			rank: this.rank,
+		});
+	}
+
+	withoutRank(): ActionId {
+		return new ActionId({
+			itemId: this.itemId,
+			spellId: this.spellId,
+			otherId: this.otherId,
+			tag: this.tag,
+			baseName: this.baseName,
+			name: this.nameWithoutRank,
+			iconUrl: this.iconUrl,
+			randomSuffixId: this.randomSuffixId,
+			definitionId: this.definitionId,
 		});
 	}
 
@@ -829,20 +784,9 @@ export class ActionId {
 type ActionIdOverride = { itemId?: number; spellId?: number };
 
 // Some items/spells have weird icons, so use this to show a different icon instead.
-const spellIdIconOverrides: Map<string, ActionIdOverride> = new Map([
-	[JSON.stringify({ spellId: 37212 }), { itemId: 29035 }], // Improved Wrath of Air Totem
-	[JSON.stringify({ spellId: 37223 }), { itemId: 29040 }], // Improved Strength of Earth Totem
-	[JSON.stringify({ spellId: 37447 }), { itemId: 30720 }], // Serpent-Coil Braid
-]);
+const spellIdIconOverrides: Map<string, ActionIdOverride> = new Map();
 
 const spellIdTooltipOverrides: Map<string, ActionIdOverride> = new Map([
-	[JSON.stringify({ spellId: 2818, tag: 2 }), { spellId: 113780 }], // Rogue - Deadly Poison - Hit
-
-	// Off-Hand attacks
-	[JSON.stringify({ spellId: 1329, tag: 2 }), { spellId: 27576 }], // Rogue - Mutilate Off-Hand
-	[JSON.stringify({ spellId: 17364, tag: 2 }), { spellId: 32176 }], // Shaman - Stormstrike Off-Hand
-	[JSON.stringify({ spellId: 1680, tag: 2 }), { spellId: 44949 }], // Warrior - Whirlwind Off-Hand
-
 	// Warrior
 	[JSON.stringify({ spellId: 12723, tag: 1 }), { spellId: 26654 }], // Sweeping Strikes (Normalized)
 ]);
@@ -850,102 +794,49 @@ const spellIdTooltipOverrides: Map<string, ActionIdOverride> = new Map([
 export const defaultTargetIcon = 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_metamorphosis.jpg';
 
 const petNameToActionId: Record<string, ActionId> = {
-	'Ancient Guardian': ActionId.fromSpellId(86698),
-	'Army of the Dead': ActionId.fromSpellId(42650),
-	Bloodworm: ActionId.fromSpellId(50452),
-	'Dire Beast Pet': ActionId.fromSpellId(120679),
-	Stampede: ActionId.fromSpellId(121818),
-	'Fallen Zandalari': ActionId.fromSpellId(138342),
-	'Flame Orb': ActionId.fromSpellId(82731),
-	'Frozen Orb': ActionId.fromSpellId(84721),
-	Gargoyle: ActionId.fromSpellId(49206),
-	Ghoul: ActionId.fromSpellId(46584),
-	'Greater Earth Elemental': ActionId.fromSpellId(2062),
-	'Greater Fire Elemental': ActionId.fromSpellId(2894),
-	'Primal Earth Elemental': ActionId.fromSpellId(2062),
-	'Primal Fire Elemental': ActionId.fromSpellId(2894),
-	'Mirror Image': ActionId.fromSpellId(55342),
 	Shadowfiend: ActionId.fromSpellId(34433),
-	Mindbender: ActionId.fromSpellId(123040),
-	'Spirit Wolf 1': ActionId.fromSpellId(51533),
-	'Spirit Wolf 2': ActionId.fromSpellId(51533),
-	Valkyr: ActionId.fromSpellId(71844),
-	'Tentacle of the Old Ones': ActionId.fromSpellId(107818),
-	Treant: ActionId.fromSpellId(33831),
-	'Water Elemental': ActionId.fromSpellId(31687),
 	Felhunter: ActionId.fromSpellId(691),
 	Imp: ActionId.fromSpellId(688),
 	Succubus: ActionId.fromSpellId(712),
 	Voidwalker: ActionId.fromSpellId(697),
 	Doomguard: ActionId.fromSpellId(18540),
 	Infernal: ActionId.fromSpellId(1122),
-	'Fel Imp': ActionId.fromSpellId(112866),
-	Shivarra: ActionId.fromSpellId(112868),
-	Observer: ActionId.fromSpellId(112869),
-	Voidlord: ActionId.fromSpellId(112867),
-	Terrorguard: ActionId.fromSpellId(112927),
-	Abyssal: ActionId.fromSpellId(112921),
-	'Grimoire: Imp': ActionId.fromSpellId(111859),
-	'Grimoire: Voidwalker': ActionId.fromSpellId(111895),
-	'Grimoire: Felhunter': ActionId.fromSpellId(111897),
-	'Grimoire: Succubus': ActionId.fromSpellId(111896),
-	Felguard: ActionId.fromSpellId(30146),
-	'Wild Imp': ActionId.fromSpellId(114592),
-	'Grimoire: Felguard': ActionId.fromSpellId(111898),
-	Wrathguard: ActionId.fromSpellId(112870),
-	'Xuen, The White Tiger': ActionId.fromSpellId(123904),
-	'Earth Spirit': ActionId.fromSpellId(138121),
-	'Storm Spirit': ActionId.fromSpellId(138122),
-	'Fire Spirit': ActionId.fromSpellId(138123),
+};
+
+// The owner's spell a pet is summoned by, for a pet the results list under that spell.
+export const petNameToSummonSpell: Record<string, string> = {
+	'Hawk 1': 'Summon Hawk',
+	'Hawk 2': 'Summon Hawk',
 };
 
 // https://wowhead.com/forever/hunter-pets
 const petNameToIcon: Record<string, string> = {
+	'Hawk 1': 'https://wow.zamimg.com/images/wow/icons/medium/spell_nature_ravenform.jpg',
+	'Hawk 2': 'https://wow.zamimg.com/images/wow/icons/medium/spell_nature_ravenform.jpg',
 	Bat: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_bat.jpg',
 	Bear: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_bear.jpg',
 	'Bird of Prey': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_owl.jpg',
 	Boar: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_boar.jpg',
-	'Burning Treant': 'https://wow.zamimg.com/images/wow/icons/large/ability_druid_forceofnature.jpg',
 	'Carrion Bird': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_vulture.jpg',
 	Cat: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_cat.jpg',
-	Chimaera: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_chimera.jpg',
 	'Core Hound': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_corehound.jpg',
 	Crab: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_crab.jpg',
-	Crocolisk: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_crocolisk.jpg',
-	Devilsaur: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_devilsaur.jpg',
-	Dragonhawk: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_dragonhawk.jpg',
-	'Fallen Zandalari': 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_animatedead.jpg',
+	Crocilisk: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_crocolisk.jpg',
 	Felguard: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_summonfelguard.jpg',
 	Felhunter: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_summonfelhunter.jpg',
 	Infernal: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_summoninfernal.jpg',
 	Doomguard: 'https://wow.zamimg.com/images/wow/icons/large/warlock_summon_doomguard.jpg',
-	'Ebon Imp': 'https://wow.zamimg.com/images/wow/icons/large/spell_nature_removecurse.jpg',
-	'Fiery Imp': 'https://wow.zamimg.com/images/wow/icons/large/ability_warlock_empoweredimp.jpg',
 	Gorilla: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_gorilla.jpg',
 	Hyena: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_hyena.jpg',
 	Imp: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_summonimp.jpg',
-	Moth: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_moth.jpg',
-	'Nether Ray': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_netherray.jpg',
-	Owl: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_owl.jpg',
 	Raptor: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_raptor.jpg',
-	Ravager: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_ravager.jpg',
-	Rhino: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_rhino.jpg',
 	Scorpid: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_scorpid.jpg',
-	Serpent: 'https://wow.zamimg.com/images/wow/icons/medium/spell_nature_guardianward.jpg',
-	Silithid: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_silithid.jpg',
 	Spider: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_spider.jpg',
-	'Shale Spider': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_spider.jpg',
-	'Spirit Beast': 'https://wow.zamimg.com/images/wow/icons/medium/ability_druid_primalprecision.jpg',
-	'Spore Bat': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_sporebat.jpg',
 	Succubus: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_summonsuccubus.jpg',
 	Tallstrider: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_tallstrider.jpg',
-	Thunderhawk: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_windserpent.jpg',
 	Turtle: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_turtle.jpg',
-	'Warp Stalker': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_warpstalker.jpg',
-	Wasp: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_wasp.jpg',
 	'Wind Serpent': 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_windserpent.jpg',
 	Wolf: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_wolf.jpg',
-	Worm: 'https://wow.zamimg.com/images/wow/icons/medium/ability_hunter_pet_worm.jpg',
 	Fox: 'https://wow.zamimg.com/images/wow/icons/medium/inv_misc_monstertail_07.jpg',
 };
 
@@ -965,7 +856,4 @@ export const resourceTypeToIcon: Record<ResourceType, string> = {
 };
 
 // Use this to connect a buff row to a cast row in the timeline view
-export const buffAuraToSpellIdMap: Record<number, ActionId> = {
-	34471: ActionId.fromSpellId(19574), // Bestial Wrath -> The Beast Within
-	37198: ActionId.fromItemId(30447), // Blessing of Righteousness -> Tome of Fiery Redemption
-};
+export const buffAuraToSpellIdMap: Record<number, ActionId> = {};

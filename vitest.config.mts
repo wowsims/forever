@@ -24,6 +24,8 @@ export default defineConfig({
 		setupFiles: [path.resolve(here, 'vitest.setup.ts')],
 		include: ['ui/**/*.test.ts', 'ui/**/*.test.tsx'],
 		restoreMocks: true,
+		// Vitest empties every CSS import it does not include, `?raw` too; SPEC_THEMES and COLOR_TOKENS parse these.
+		css: { include: [/\/ui\/styles\/theme\/(specs|colors)\.css\?raw$/] },
 		// An externalised dependency imports chart.js natively, past `vi.mock('chart.js')`, and the
 		// real one cannot build its scales under happy-dom.
 		server: { deps: { inline: ['react-chartjs-2'] } },

@@ -20,36 +20,33 @@ export const FreezeWeaponTypes = ({ slot }: FreezeWeaponTypesProps) => {
 	const weaponTypes = getBulkFreezeWeaponTypes(player, slot);
 
 	return (
-		<div>
+		<>
 			{!!weaponTypes.length && frozenWeaponSlot !== slot && (
-				<div data-testid="bulk-gear-freeze-weapontypes">
-					<h6 className="mb-2">
+				<div className="flex flex-col gap-2">
+					<h6 className="mb-0 text-sm font-semibold">
 						{slot === ItemSlot.ItemSlotMainHand
 							? i18n.t('bulk_tab.settings.freeze_weapon_types.mainhand_label')
 							: i18n.t('bulk_tab.settings.freeze_weapon_types.offhand_label')}
 					</h6>
-					<div className="mb-2 text-ui">{i18n.t('bulk_tab.settings.freeze_weapon_types.tooltip')}</div>
+					<div className="text-ui">{i18n.t('bulk_tab.settings.freeze_weapon_types.tooltip')}</div>
 					<div className="grid grid-cols-2 gap-1">
 						{weaponTypes.map(weaponType => (
 							<BooleanPicker
 								key={weaponType}
-								modObject={player}
-								config={{
-									id: `bulk-${slot}-weapon-type-${weaponType}`,
-									label: translateWeaponType(weaponType),
-									layout: 'inline',
-									value: weaponTypeFilters.get(slot)!.includes(weaponType),
-									onChange: (newValue: boolean) => {
-										const filter = weaponTypeFilters.get(slot)!;
-										setBulkWeaponTypeFilter(player, slot, newValue ? [...filter, weaponType] : filter.filter(type => type !== weaponType));
-										trackEvent({ action: 'settings', category: 'batch_sim', label: `freeze_${slot}_weapon_type`, value: newValue });
-									},
+								id={`bulk-${slot}-weapon-type-${weaponType}`}
+								label={translateWeaponType(weaponType)}
+								layout="inline"
+								value={weaponTypeFilters.get(slot)!.includes(weaponType)}
+								onChange={newValue => {
+									const filter = weaponTypeFilters.get(slot)!;
+									setBulkWeaponTypeFilter(player, slot, newValue ? [...filter, weaponType] : filter.filter(type => type !== weaponType));
+									trackEvent({ action: 'settings', category: 'batch_sim', label: `freeze_${slot}_weapon_type`, value: newValue });
 								}}
 							/>
 						))}
 					</div>
 				</div>
 			)}
-		</div>
+		</>
 	);
 };

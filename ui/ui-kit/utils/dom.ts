@@ -31,13 +31,6 @@ export const getEnvironment = (): Environments => environmentOf(hostname);
 export const isNative = () => getEnvironment() === 'local';
 export const isExternal = () => getEnvironment() === 'external';
 
-/** Puts an existing DOM node inside a React-rendered element. */
-export const adoptNode = (node: Node) => (host: HTMLElement | null) => {
-	host?.replaceChildren(node);
-};
-
-export const isNode = (value: unknown): value is Node => typeof Node !== 'undefined' && value instanceof Node;
-
 export function isRightClick(event: MouseEvent): boolean {
 	return event.button == 2;
 }

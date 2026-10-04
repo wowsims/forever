@@ -10,7 +10,7 @@ const CURSOR_OFFSET = 12;
  * the units — and anchored to the viewport rather than to an element, which is what keeps a tooltip
  * out of the scroller it is drawn over.
  */
-export const placeTooltip = (host: HTMLElement | null, anchorX: number, anchorY: number) => {
+const placeTooltip = (host: HTMLElement | null, anchorX: number, anchorY: number) => {
 	if (!host) return;
 	const rect = host.getBoundingClientRect();
 

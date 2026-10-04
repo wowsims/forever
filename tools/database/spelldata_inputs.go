@@ -64,6 +64,14 @@ type storeInputs struct {
 	// Every SpellShapeshiftForm row, whole: renderFormsFile reads it directly rather than through the
 	// store's own ids, since a form names no spell for the closure to reach it by.
 	Forms []formRow
+
+	// Roots by spell data group, whose union is Roots, and the game build each group's rows were taken
+	// from. A partial update takes some groups from the database and keeps the others as they are
+	// here (see spelldata_groups.go).
+	SpellDataGroupRoots map[string][]int32
+	Builds              map[string]string
+
+	owners *rowOwners // ownersOf's answer, worked out on first use; never encoded
 }
 
 // The tables the generator reads, from the captured rows.
@@ -174,6 +182,31 @@ func storeInputsAreCurrent(fresh *storeInputs) (bool, error) {
 		return false, fmt.Errorf("encoding the store's inputs: %w", err)
 	}
 	return bytes.Equal(committed, out), nil
+}
+
+// The committed inputs, or nil where none are committed yet.
+func loadCommittedInputs() (*storeInputs, error) {
+	if _, err := os.Stat(spellStoreInputsPath); os.IsNotExist(err) {
+		return nil, nil
+	}
+	return readStoreInputs(spellStoreInputsPath)
+}
+
+// The game build each spell data group of the committed inputs was taken from, decoded alone: the
+// rows are not needed to choose a run's groups.
+func readCommittedBuilds() (map[string]string, error) {
+	if _, err := os.Stat(spellStoreInputsPath); os.IsNotExist(err) {
+		return nil, nil
+	}
+	raw, err := dbc.ReadGzipFile(spellStoreInputsPath)
+	if err != nil {
+		return nil, fmt.Errorf("reading %s: %w", spellStoreInputsPath, err)
+	}
+	var builds struct{ Builds map[string]string }
+	if err := json.Unmarshal(raw, &builds); err != nil {
+		return nil, fmt.Errorf("decoding %s: %w", spellStoreInputsPath, err)
+	}
+	return builds.Builds, nil
 }
 
 // The committed inputs, for a caller with no game files database. The path is relative to the

@@ -1,12 +1,10 @@
 import { ItemSlot } from '@generated/proto/common';
-import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { createSimStore, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
-import { fakeHost } from '@sim/testing';
-import { render } from '@testing-library/react';
+import { renderWithHost } from '@testing/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@ui-kit/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: '', ready: true }) }));
+vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: '', ready: true }) }));
 
 const { QuickEnchantList } = await import('./QuickEnchantList');
 
@@ -35,12 +33,7 @@ describe('QuickEnchantList', () => {
 			getEquippedItem: () => equipped,
 			equipItem,
 		} as unknown as Player<any>;
-		const host = fakeHost({ player, sim: { store } });
-		const view = render(
-			<SimHostProvider host={host}>
-				<QuickEnchantList slot={ItemSlot.ItemSlotHead} onOpenDetail={() => {}} />
-			</SimHostProvider>,
-		);
+		const view = renderWithHost(<QuickEnchantList slot={ItemSlot.ItemSlotHead} onOpenDetail={() => {}} />, { player, sim: { store } });
 		return { view, equipItem, swapSlotTo: (id: string) => (equipped = equippedItem(id)) };
 	};
 

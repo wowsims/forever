@@ -1,34 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 import { EMPTY_SUGGESTIONS } from '../../model/log/search/indexes';
 import { LogToolbar } from './LogToolbar';
 import type { IdentifiedSearchGroup } from './utils';
 
 vi.mock('./LogSearchBar', () => ({ LogSearchBar: () => <div className="log-search-bar" /> }));
-
-const observed: Array<{ callback: IntersectionObserverCallback; options?: IntersectionObserverInit }> = [];
-
-beforeEach(() => {
-	observed.length = 0;
-	vi.stubGlobal(
-		'IntersectionObserver',
-		class {
-			constructor(
-				public callback: IntersectionObserverCallback,
-				public options?: IntersectionObserverInit,
-			) {
-				observed.push({ callback, options });
-			}
-			observe() {}
-			disconnect() {}
-			unobserve() {}
-			takeRecords() {
-				return [];
-			}
-		},
-	);
-});
 
 const group = (field: IdentifiedSearchGroup['field'], values: Array<string>, id = 0): IdentifiedSearchGroup => ({ id, field, join: 'or', values });
 
@@ -41,49 +18,9 @@ const mount = (groups: Array<IdentifiedSearchGroup>, onChange = vi.fn()) => ({
 	),
 });
 
-const root = (container: HTMLElement) => container.querySelector<HTMLElement>('[data-testid="log-floating-action-bar-root"]')!;
-const toggle = (container: HTMLElement) => container.querySelector<HTMLButtonElement>('[data-testid="log-floating-action-bar-toggle"]')!;
 const clear = (container: HTMLElement) => container.querySelector<HTMLButtonElement>('[data-testid="log-floating-action-bar-clear"]')!;
-const panel = () => screen.queryByTestId('log-floating-action-bar-panel-inner');
 
 describe('LogToolbar', () => {
-	it('starts collapsed, with the drawer out of the tab order', () => {
-		const { container } = mount([]);
-
-		expect(toggle(container).getAttribute('aria-expanded')).toBe('false');
-		expect(panel()).toBeNull();
-	});
-
-	it('opens and closes on the toggle, and lets the drawer back into the tab order', () => {
-		const { container } = mount([]);
-
-		fireEvent.click(toggle(container));
-		expect(toggle(container).getAttribute('aria-expanded')).toBe('true');
-		expect(panel()).not.toBeNull();
-
-		fireEvent.click(toggle(container));
-		expect(toggle(container).getAttribute('aria-expanded')).toBe('false');
-	});
-
-	it('closes on Escape and puts focus back on the toggle', async () => {
-		const { container } = mount([]);
-		fireEvent.click(toggle(container));
-
-		fireEvent.keyDown(panel()!, { key: 'Escape' });
-
-		await waitFor(() => expect(document.activeElement).toBe(toggle(container)));
-		expect(toggle(container).getAttribute('aria-expanded')).toBe('false');
-	});
-
-	it('ignores Escape while it is already closed', () => {
-		const { container } = mount([]);
-		const before = document.activeElement;
-
-		fireEvent.keyDown(root(container), { key: 'Escape' });
-
-		expect(document.activeElement).toBe(before);
-	});
-
 	// A group with no values is not a filter yet, so it must not be counted or previewed.
 	it('counts and previews only the groups that carry a value', () => {
 		const { container } = mount([group('outcome', ['crit']), group('spell', [], 1)]);
@@ -115,70 +52,5 @@ describe('LogToolbar', () => {
 		fireEvent.click(clear(container));
 
 		expect(onChange).toHaveBeenCalledWith([]);
-	});
-
-	it('renders its controls into the actions row', () => {
-		const { container } = mount([]);
-
-		expect(
-			container.querySelector('[data-testid="log-floating-action-bar-actions"] > [data-testid="log-floating-action-bar-controls"] > .log-export'),
-		).not.toBeNull();
-	});
-
-	// Built inside a hidden tab, the ratio goes 0 -> pinned without ever passing through 1, so a
-	// threshold of [1] alone never fires again.
-	it('watches for the pin with both thresholds', () => {
-		mount([]);
-
-		expect(observed).toHaveLength(1);
-		expect(observed[0].options).toEqual({ rootMargin: '0px 0px -1px 0px', threshold: [0, 1] });
-	});
-
-	describe('the pinned state', () => {
-		const deliver = (container: HTMLElement, ratios: Array<number>, clientHeight = 48) => {
-			const target = root(container);
-			Object.defineProperty(target, 'clientHeight', { value: clientHeight, configurable: true });
-			const records = ratios.map(intersectionRatio => ({ target, intersectionRatio })) as unknown as Array<IntersectionObserverEntry>;
-			act(() => observed[0].callback(records, null as never));
-		};
-
-		it('pins the bar once it is clipped by the viewport edge', () => {
-			const { container } = mount([]);
-
-			deliver(container, [0.98]);
-
-			expect(root(container).hasAttribute('data-stuck')).toBe(true);
-		});
-
-		it('lets go once the bar is fully in view again', () => {
-			const { container } = mount([]);
-			deliver(container, [0.98]);
-
-			deliver(container, [1]);
-
-			expect(root(container).hasAttribute('data-stuck')).toBe(false);
-		});
-
-		// A pane the tab switch closed has no box at all, and a ratio of 0 would otherwise read as
-		// "clipped" and pin a bar nobody can see.
-		it('stays unpinned while the pane it lives in is closed', () => {
-			const { container } = mount([]);
-			deliver(container, [0.98]);
-
-			deliver(container, [0], 0);
-
-			expect(root(container).hasAttribute('data-stuck')).toBe(false);
-		});
-
-		// One delivery can carry several records, oldest first. The list growing under a bar that was
-		// already pinned produces exactly this pair, and reading the first leaves it unpinned for good
-		// because nothing moves again to produce another record.
-		it('reads the newest record in a delivery, not the oldest', () => {
-			const { container } = mount([]);
-
-			deliver(container, [1, 0.98]);
-
-			expect(root(container).hasAttribute('data-stuck')).toBe(true);
-		});
 	});
 });

@@ -1,5 +1,5 @@
+import { SidebarRegistry } from '@app/sidebar_registry';
 import { act, render } from '@testing-library/react';
-import { SidebarRegistry } from '@ui-kit/sidebar_registry';
 import { SidebarActionButton, SidebarDisabledContext } from '@ui-kit/SidebarActionButton';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -39,7 +39,6 @@ describe('SidebarActions', () => {
 			const child = [...container.children][i];
 			expect(child.tagName).toBe('BUTTON');
 			expect(child.hasAttribute('data-sidebar-action')).toBe(true);
-			expect(child.classList.contains('w-full')).toBe(true);
 		});
 	});
 

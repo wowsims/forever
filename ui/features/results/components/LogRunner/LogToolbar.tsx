@@ -39,7 +39,7 @@ export const LogToolbar = ({ groups, suggestions, onChange, children }: LogToolb
 			preview={labels.length ? `${labels.slice(0, PREVIEW_LIMIT).join(', ')}${labels.length > PREVIEW_LIMIT ? ', …' : ''}` : ''}
 			clear={{
 				testId: 'log-floating-action-bar-clear',
-				icon: <Icon name="times" className="mr-1" />,
+				icon: <Icon name="xmark" />,
 				label: i18n.t('results_tab.details.logs.floatingActionBar.clear'),
 				hidden: labels.length === 0,
 				onClick: () => onChange([]),

@@ -88,6 +88,7 @@ func AutoAttackConfig(min float64, max float64) *core.AutoAttackOptions {
 }
 
 func (warlock *Warlock) makePet(
+	summon proto.WarlockOptions_Summon,
 	name string,
 	enabledOnStart bool,
 	baseStats stats.Stats,
@@ -138,6 +139,10 @@ func (warlock *Warlock) makePet(
 	}
 
 	warlock.setPetOptions(pet, aaOptions)
+
+	if summon == proto.WarlockOptions_Imp {
+		pet.SetSpiritManaRegen(0, 1.0/5)
+	}
 
 	return pet
 }
@@ -267,7 +272,7 @@ func (warlock *Warlock) RegisterPet(
 	//
 	// inheritance := warlock.SimplePetStatInheritanceWithScale()
 	//
-	// return warlock.makePet(name, enabledOnStart, *baseStats, attackOptions, inheritance, isGuardian)
+	// return warlock.makePet(t, name, enabledOnStart, *baseStats, attackOptions, inheritance, isGuardian)
 }
 
 func (pet *WarlockPet) GetPet() *core.Pet {

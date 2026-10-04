@@ -1,3 +1,4 @@
+import { SidebarRegistry } from '@app/sidebar_registry';
 import { initBulk } from '@features/bulk/model/init';
 import { watchTargetDummies } from '@features/encounter/model/target_dummies';
 import { repairTargetInputs } from '@features/encounter/model/target_inputs';
@@ -44,7 +45,6 @@ import { subscribeAll, subscribeReforgeChange, subscribeSimChange } from '@sim/s
 import { getEnumValues } from '@sim/utils/collections';
 import { isDevMode } from '@sim/utils/env';
 import { WorkerProgressCallback } from '@sim/workers/worker_pool';
-import { SidebarRegistry } from '@ui-kit/sidebar_registry';
 import { toastManager } from '@ui-kit/Toast';
 import { createElement } from 'react';
 
@@ -69,6 +69,9 @@ export { PRESET_FILTER_STORAGE_KEY } from './storage_keys';
 
 const ALL_SETTING_CATEGORIES = getEnumValues<SimSettingCategories>(SimSettingCategories);
 
+// Forever ships no gems yet, so the gem optimizer has nothing to suggest; a spec's `reforge` config is kept for when it does.
+const REFORGE_OPTIMIZER_ENABLED = false;
+
 // The individual sim's host: the registries, openers and cross-cutting actions the React tree
 // reaches through `useSimHost()`. `SimShell` owns every element handed to the constructor.
 export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<SpecType> {
@@ -80,8 +83,6 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 	readonly resultsPanel = new ResultsPanelStore();
 	readonly warnings = new WarningsRegistry();
 
-	readonly simActionsContainer: HTMLElement;
-	readonly simTabContentsContainer: HTMLElement;
 	readonly sidebar = new SidebarRegistry();
 
 	readonly player: Player<SpecType>;
@@ -113,9 +114,6 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		this.simDisabled = this.disabled || launchStatus === LaunchStatus.GearPlanner;
 
 		this.sim.crashEmitter.on((error: SimError) => this.handleCrash(error));
-
-		this.simActionsContainer = dom.sidebarActions;
-		this.simTabContentsContainer = dom.main;
 
 		this.player = player;
 		this.individualConfig = this.applyDefaultConfigOptions(config);
@@ -163,7 +161,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		for (const feature of config.features || []) {
 			feature(this);
 		}
-		if (config.reforge) {
+		if (REFORGE_OPTIMIZER_ENABLED && config.reforge) {
 			this.reforgeOptions = typeof config.reforge === 'function' ? config.reforge(this) : config.reforge;
 			this.reforger = createReforgeOptimizer(this.sim, this.player, {
 				...this.reforgeOptions,

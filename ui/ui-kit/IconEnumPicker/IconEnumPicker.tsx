@@ -1,125 +1,105 @@
-import { useActionId } from '@ui-kit/hooks/useActionId';
-import { useInput } from '@ui-kit/hooks/useInput';
-import { Menu } from '@ui-kit/Menu';
-import { PickerShell } from '@ui-kit/PickerShell';
+import { Field, hasFieldFrame } from '@ui-kit/Field';
+import type { ControlledProps, FieldFrameProps, ResolvedIcon } from '@ui-kit/Field/types';
+import { IconMenu } from '@ui-kit/IconSwatch';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
-import { useEffect, useId, useRef } from 'react';
+import clsx from 'clsx';
+import { useId, useRef } from 'react';
 
-import { IconEnumOption, IconText } from './IconEnumOption';
-import { type IconEnumPickerConfig, IconEnumPickerDirection, type IconEnumValueConfig } from './types';
-import { actionIconStyle, iconEnumPickerShown, iconStyleOf } from './utils';
+import { resolvedIconStyle } from '../utils/icons';
+import { IconEnumOptionItem } from './IconEnumOption';
+import { type IconEnumOption, IconEnumPickerDirection } from './types';
+import { iconStyleOf } from './utils';
 
-export interface IconEnumPickerProps<ModObject, T> {
-	modObject: ModObject;
-	config: IconEnumPickerConfig<ModObject, T>;
+export interface IconEnumPickerProps<T> extends FieldFrameProps, ControlledProps<T> {
+	options: Array<IconEnumOption<T>>;
+	equals: (a: T, b: T) => boolean;
+	/** The value that reads as inactive. */
+	zeroValue: T;
+	/** The icon for a value no option carries. */
+	backupIcon?: ResolvedIcon;
+	/** Shown when hovering the button. */
+	tooltip?: string;
+	/** The side the menu opens on. */
+	direction?: IconEnumPickerDirection;
+	numColumns?: number;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const IconEnumPicker = <ModObject, T>({ modObject, config }: IconEnumPickerProps<ModObject, T>) => {
-	const { value, setValue, disabled, revision } = useInput(modObject, config);
+/** Without a label, description or layout the trigger renders bare; with any of them it sits in a `Field` laid out as `icon`, whatever layout the caller passes. */
+export const IconEnumPicker = <T,>({
+	options,
+	equals,
+	zeroValue,
+	backupIcon,
+	tooltip,
+	direction,
+	numColumns,
+	onOpenChange,
+	value,
+	onChange,
+	disabled,
+	className,
+	testId,
+	...frameProps
+}: IconEnumPickerProps<T>) => {
 	const tooltipId = useId();
+	const labelId = useId();
+	const controlRef = useRef<HTMLAnchorElement>(null);
+	const rooted = hasFieldFrame(frameProps);
 
-	const shows = (valueConfig: IconEnumValueConfig<ModObject, T>) => !valueConfig.showWhen || valueConfig.showWhen(modObject);
+	const selected = options.find(option => equals(option.value, value));
+	const selectedHidden = !!selected?.hidden;
+	const href = selectedHidden ? undefined : selected ? selected.icon?.href : backupIcon?.href;
 
-	const hidden = !iconEnumPickerShown(config, modObject);
+	const active = !disabled && !equals(value, zeroValue);
 
-	const selected = config.values.find(valueConfig => config.equals(valueConfig.value, value));
-	const selectedHidden = !!selected && !shows(selected);
-	const backupId = selected ? undefined : config.backupIconUrl?.(value);
-	const { iconUrl, href } = useActionId(selectedHidden ? undefined : (selected?.actionId ?? backupId));
+	const horizontal = direction === IconEnumPickerDirection.Horizontal;
+	const tooltips = !!tooltip || options.some(option => !!option.tooltip);
 
-	const active = !disabled && !config.equals(value, config.zeroValue);
+	const menu = (
+		<IconMenu
+			onOpenChange={onOpenChange}
+			trigger={{
+				href,
+				style: selectedHidden ? undefined : selected ? iconStyleOf(selected) : resolvedIconStyle(backupIcon),
+				active,
+				disabled,
+				// The value's text sits on the swatch, the way IconPicker's counter does: with one icon
+				// shared by every rank, the text is what tells the ranks apart.
+				text: selectedHidden ? undefined : selected?.text,
+				className: clsx('transition-none', !rooted && className),
+				testId: testId ?? 'icon-enum-picker-root',
+				...(rooted ? { ref: controlRef, 'aria-labelledby': labelId } : {}),
+				...tooltipAnchorProps(tooltip ? tooltipId : undefined, tooltip),
+			}}
+			side={horizontal ? 'right' : 'bottom'}
+			portalProps={{ 'data-testid': 'icon-enum-picker-portal' }}
+			positionerProps={{ 'data-testid': 'icon-enum-picker-positioner' }}
+			popupProps={{
+				'data-testid': 'icon-enum-picker-menu',
+				style: {
+					gridTemplateColumns: numColumns ? `repeat(${numColumns}, 1fr)` : undefined,
+					gridAutoFlow: horizontal ? 'column' : undefined,
+				},
+			}}>
+			{options.map((option, index) => (
+				<IconEnumOptionItem key={index} option={option} tooltipId={tooltipId} onSelect={() => onChange(option.value)} />
+			))}
+		</IconMenu>
+	);
+	const optionTooltip = tooltips && <Tooltip id={tooltipId} />;
 
-	const storedValue = useRef<T | undefined>(undefined);
-	const lastRevision = useRef<number | null>(null);
-	useEffect(() => {
-		if (lastRevision.current === revision) return;
-		const construction = lastRevision.current === null;
-		lastRevision.current = revision;
-		if (construction) return;
-
-		let current = value;
-		if (hidden) {
-			if (storedValue.current === undefined) {
-				storedValue.current = value;
-				current = config.zeroValue;
-				setValue(current);
-			}
-		} else if (storedValue.current !== undefined) {
-			const restored = storedValue.current;
-			storedValue.current = undefined;
-			if (config.equals(value, config.zeroValue)) {
-				current = restored;
-				setValue(current);
-			}
-		}
-
-		if (config.values.some(valueConfig => !shows(valueConfig) && valueConfig.value === current)) setValue(config.zeroValue);
-	});
-
-	const disabledAttribute = (disabled ? { disabled: true } : {}) as Record<string, boolean>;
-
-	const horizontal = config.direction === IconEnumPickerDirection.Horizontal;
-	const numColumns = typeof config.numColumns === 'function' ? config.numColumns(modObject) : config.numColumns;
-	const tooltips = !!config.tooltip || config.values.some(valueConfig => !!valueConfig.tooltip);
+	if (!rooted)
+		return (
+			<>
+				{menu}
+				{optionTooltip}
+			</>
+		);
 
 	return (
-		<PickerShell
-			config={config as typeof config & { id: string }}
-			className="ui-icon-field relative"
-			testId="icon-enum-picker-root"
-			iconField
-			hidden={hidden}
-			disabled={disabled}
-			leading={
-				<Menu
-					surface="none"
-					// The value's text sits on the swatch, the way IconPicker's counter does: with one icon
-					// shared by every rank, the text is what tells the ranks apart.
-					trigger={selected?.text !== undefined && !selectedHidden ? <IconText text={selected.text} /> : undefined}
-					// No href when nothing is selected: React refuses javascript:void(0), and nativeButton={false} keeps the anchor focusable.
-					triggerRender={<a href={selectedHidden ? undefined : href || undefined} {...disabledAttribute} />}
-					triggerProps={{
-						nativeButton: false,
-						openOnHover: true,
-						delay: 0,
-						className: 'ui-icon-picker-swatch transition-none',
-						'data-testid': 'icon-enum-picker-button',
-						'data-active': active ? '' : undefined,
-						style: selectedHidden ? undefined : selected ? iconStyleOf(selected, iconUrl) : backupId ? actionIconStyle(iconUrl) : undefined,
-						'data-whtticon': 'false',
-						'data-disable-wowhead-touch-tooltip': 'true',
-						...tooltipAnchorProps(config.tooltip ? tooltipId : undefined, config.tooltip),
-					}}
-					side={horizontal ? 'right' : 'bottom'}
-					align="start"
-					sideOffset={-1}
-					// `positionMethod="fixed"`, not the default `absolute`: Base UI renders the positioner `position: fixed` until it has a position, so Floating UI measures it against the viewport, and the switch to `absolute` then reads those viewport coordinates against whatever ancestor is `position: relative`.
-					positionMethod="fixed"
-					portalProps={{ className: 'contents', 'data-testid': 'icon-enum-picker-portal' }}
-					positionerProps={{ 'data-testid': 'icon-enum-picker-positioner' }}
-					className="grid border-0 bg-grey"
-					popupProps={{
-						'data-testid': 'icon-enum-picker-menu',
-						style: {
-							gridTemplateColumns: numColumns ? `repeat(${numColumns}, 1fr)` : undefined,
-							gridAutoFlow: horizontal ? 'column' : undefined,
-						},
-					}}>
-					{config.values.map((valueConfig, index) => (
-						<IconEnumOption
-							key={index}
-							valueConfig={valueConfig}
-							hidden={!shows(valueConfig)}
-							tooltipId={tooltipId}
-							onSelect={() => {
-								storedValue.current = undefined;
-								setValue(valueConfig.value);
-							}}
-						/>
-					))}
-				</Menu>
-			}>
-			{tooltips && <Tooltip id={tooltipId} />}
-		</PickerShell>
+		<Field {...frameProps} layout="icon" className={className} disabled={disabled} leading={menu} labelId={labelId} controlRef={controlRef}>
+			{optionTooltip}
+		</Field>
 	);
 };

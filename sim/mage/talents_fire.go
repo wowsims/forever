@@ -19,7 +19,7 @@ func (mage *Mage) registerFireTalents() {
 	// Tier 4
 	// Improved Scorch implemented in scorch.go
 	mage.registerImprovedFireWard()
-	mage.registerHotStreak()
+	mage.registerHeatingUp()
 	mage.registerMasterOfElements()
 
 	// Tier 5
@@ -235,12 +235,12 @@ func (mage *Mage) registerImprovedFireWard() {
 	}
 }
 
-// registerHotStreak implements Hot Streak, new in Forever.
+// registerHeatingUp implements Heating Up, new in Forever.
 //
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
 // the effect can be modelled; there is no TBC equivalent to port.
-func (mage *Mage) registerHotStreak() {
-	if !mage.Talents.HotStreak {
+func (mage *Mage) registerHeatingUp() {
+	if !mage.Talents.HeatingUp {
 		return
 	}
 }

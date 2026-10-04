@@ -199,7 +199,7 @@ func TestOnUseHealsTheWearer(t *testing.T) {
 	effect := spelldata.MustFind(heal).ProcHealEffect()
 	before := caster.CurrentHealth()
 	spell.Cast(sim, &caster.Unit)
-	if got, low, high := caster.CurrentHealth()-before, effect.Min(caster.Level), effect.Max(caster.Level); got < low || got > high {
+	if got, low, high := caster.CurrentHealth()-before, effect.Min(), effect.Max(); got < low || got > high {
 		t.Errorf("the heal was %v, want %v to %v", got, low, high)
 	}
 	if offCooldown(sim, spell) {
@@ -239,7 +239,7 @@ func TestOnUseDealsItsDirectDamageAndItsDamageOverTime(t *testing.T) {
 	direct := spelldata.MustFind(fireball).DamageEffect()
 	spell.Cast(sim, target)
 	start := sim.CurrentTime
-	if got, low, high := spell.SpellMetrics[target.UnitIndex].TotalDamage, direct.Min(caster.Level), direct.Max(caster.Level); got < low || got > high {
+	if got, low, high := spell.SpellMetrics[target.UnitIndex].TotalDamage, direct.Min(), direct.Max(); got < low || got > high {
 		t.Errorf("the direct damage was %v, want %v to %v", got, low, high)
 	}
 	if got := dealtUntil(t, sim, spell, start, 8*time.Second); math.Abs(got-4*33) > 1e-6 {

@@ -27,7 +27,7 @@ export const RotationFloatingActionBarGroup = ({ title, rows, hidden, onToggle }
 	};
 
 	return (
-		<div data-testid="rotation-floating-action-bar-group">
+		<div>
 			<div data-testid="rotation-floating-action-bar-group-title" className="mb-1 font-bold">
 				{title}
 			</div>

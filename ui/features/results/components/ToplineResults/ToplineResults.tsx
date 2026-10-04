@@ -20,7 +20,7 @@ export const ToplineResults = () => {
 	return (
 		<div
 			data-testid="topline-results-root"
-			className="pb-6 text-center [&_.ui-metrics-header-row]:border-b-0 [&_.ui-metrics-row]:border-b-0 [&_.ui-metrics-row:hover]:bg-transparent [&_.ui-metrics-table]:w-full [&_.ui-metrics-table]:max-w-full [&_.ui-metrics-table]:table-fixed">
+			className="pb-6 text-center [&_.ui-metrics-table]:w-full [&_.ui-metrics-table]:max-w-full [&_.ui-metrics-table]:table-fixed [&_.ui-table-row]:border-b-0 [&_.ui-table-row:hover]:bg-transparent">
 			{metrics && <ResultMetricList metrics={metrics} layout="row" />}
 		</div>
 	);

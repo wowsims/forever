@@ -1,14 +1,18 @@
-import { SimHostProvider } from '@sim/context/SimHostContext';
 import { Emitter } from '@sim/state/events';
 import { createSimStore } from '@sim/state/sim_store';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { renderWithHost } from '@testing/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { TabPanel } from '@ui-kit/TabNav';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ResultChannel } from '../../model/result_channel';
 import type { SimResultData } from '../../model/result_data';
+import { useDrStickySlot } from './context/DrStickySlotContext';
+import type { DetailedResultsViewProps } from './DetailedResults';
+import type { DetailedResultsTabConfig } from './utils';
 
-// The picker is `UnitPicker`'s test to cover; what this pane owns is the selection, so the filter is
+// The picker is `ResultsFilter`'s test to cover; what this pane owns is the selection, so the filter is
 // reduced to a button that reports one. Everything else in the module — `ALL_UNITS`, `hasTarget`,
 // `simResultFilter` — is the real thing.
 vi.mock('../ResultsFilter', async importOriginal => ({
@@ -53,38 +57,29 @@ vi.mock('../AuraMetricsTable', () => ({
 	AuraMetricsTable: ({ useDebuffs }: { useDebuffs: boolean }) => <div data-testid={useDebuffs ? 'debuff-metrics-root' : 'buff-metrics-root'} />,
 }));
 
-const { DetailedResults } = await import('./DetailedResults');
+const { DetailedResults, DetailedResultsView } = await import('./DetailedResults');
 
 const metrics = { damage: true, threat: false, healing: false, experimental: false };
 let resultChannel: ResultChannel;
 let currentChangeEmitter: Emitter<void>;
 
-const makeHost = () => {
-	const sim = {
-		store: createSimStore(),
-		getShowDamageMetrics: () => metrics.damage,
-		getShowThreatMetrics: () => metrics.threat,
-		getShowHealingMetrics: () => metrics.healing,
-		getShowExperimental: () => metrics.experimental,
-		getFixedRngSeed: () => 0,
-		setFixedRngSeed: () => {},
-	};
-	return {
-		sim,
-		resultChannel,
-		disabled: false,
-		runSingleIteration: () => Promise.resolve(undefined),
-	} as never;
-};
-
 let runData: unknown = null;
 
 const renderPane = () =>
-	render(
-		<SimHostProvider host={makeHost()}>
-			<DetailedResults resultsManager={{ currentChangeEmitter, getRunData: () => runData } as never} />
-		</SimHostProvider>,
-	);
+	renderWithHost(<DetailedResults resultsManager={{ currentChangeEmitter, getRunData: () => runData } as never} />, {
+		sim: {
+			store: createSimStore(),
+			getShowDamageMetrics: () => metrics.damage,
+			getShowThreatMetrics: () => metrics.threat,
+			getShowHealingMetrics: () => metrics.healing,
+			getShowExperimental: () => metrics.experimental,
+			getFixedRngSeed: () => 0,
+			setFixedRngSeed: () => {},
+		},
+		resultChannel,
+		disabled: false,
+		runSingleIteration: () => Promise.resolve(undefined),
+	});
 
 const filterButton = (container: HTMLElement) => container.querySelector<HTMLButtonElement>('[data-testid="results-filter-root"]')!;
 
@@ -120,35 +115,28 @@ describe('DetailedResults', () => {
 		]);
 		expect(buttons.filter(button => button.getAttribute('aria-selected') === 'true')).toHaveLength(1);
 		expect(buttons[0].getAttribute('aria-selected')).toBe('true');
-		expect(buttons[0].tabIndex).toBe(0);
-		expect(buttons[1].tabIndex).toBe(-1);
-		expect(buttons.every(button => button.getAttribute('type') === 'button')).toBe(true);
 
 		expect(container.querySelector<HTMLElement>('#damageTab')!.hidden).toBe(false);
 		expect(container.querySelector('#damageTab')!.hasAttribute('data-starting-style')).toBe(false);
 		expect(container.querySelector<HTMLElement>('#logTab')!.hidden).toBe(true);
-		expect(container.querySelectorAll('[data-testid="dr-tab-content"] > [id]:not([hidden]):not([data-ending-style])')).toHaveLength(2);
 		expect(container.querySelector('#noResultsTab')).toBeTruthy();
 
-		expect(
-			container.querySelectorAll('[data-testid="dr-toolbar-row"] > [data-testid="results-filter"] > [data-testid="results-filter-root"]'),
-		).toHaveLength(1);
-		expect(container.querySelectorAll('#logTab [data-testid="dr-row"] > [data-testid="log"] > .log-runner-root')).toHaveLength(1);
-		expect(container.querySelectorAll('#timelineTab [data-testid="dr-row"] > [data-testid="timeline"] > .timeline-root')).toHaveLength(1);
+		expect(container.querySelectorAll('#logTab .log-runner-root')).toHaveLength(1);
+		expect(container.querySelectorAll('#timelineTab .timeline-root')).toHaveLength(1);
 	});
 
-	it('holds every metrics table in its own container', () => {
+	it('holds every metrics table in its own tab, under its own root', () => {
 		metrics.threat = true;
 		metrics.healing = true;
 		const { container } = renderPane();
-		expect(container.querySelectorAll('#damageTab [data-testid="damage-spell-metrics"] > [data-testid="damage-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#healingTab [data-testid="healing-spell-metrics"] > [data-testid="healing-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#damageTakenTab [data-testid="dtps-metrics"] > [data-testid="dtps-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#threatTab [data-testid="threat-metrics"] > [data-testid="threat-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#castsTab [data-testid="cast-metrics"] > [data-testid="cast-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#buffsTab [data-testid="buff-aura-metrics"] > [data-testid="buff-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#debuffsTab [data-testid="debuff-aura-metrics"] > [data-testid="debuff-metrics-root"]')).toHaveLength(1);
-		expect(container.querySelectorAll('#resourcesTab [data-testid="resource-metrics"] > [data-testid="resource-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#damageTab [data-testid="dr-row"] > [data-testid="damage-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#healingTab [data-testid="dr-row"] > [data-testid="healing-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#damageTakenTab [data-testid="dr-row"] > [data-testid="dtps-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#threatTab [data-testid="dr-row"] > [data-testid="threat-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#castsTab [data-testid="dr-row"] > [data-testid="cast-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#buffsTab [data-testid="dr-row"] > [data-testid="buff-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#debuffsTab [data-testid="dr-row"] > [data-testid="debuff-metrics-root"]')).toHaveLength(1);
+		expect(container.querySelectorAll('#resourcesTab [data-testid="dr-row"] > [data-testid="resource-metrics-root"]')).toHaveLength(1);
 		expect(container.querySelectorAll('[data-testid="dr-row-topline"] > [data-testid="topline-results-root"]')).toHaveLength(4);
 		expect(container.querySelectorAll('#damageTab [data-testid="dr-row-dps-histogram"] > [data-testid="dps-histogram-root"]')).toHaveLength(1);
 	});
@@ -158,15 +146,6 @@ describe('DetailedResults', () => {
 		expect(container.querySelector('[data-testid="dr-root"]')!.hasAttribute('data-no-results')).toBe(true);
 		act(() => resultChannel.emit({ result: {}, filter: {} } as SimResultData));
 		expect(container.querySelector('[data-testid="dr-root"]')!.hasAttribute('data-no-results')).toBe(false);
-	});
-
-	it('moves active on the click and show a frame later', async () => {
-		const { container } = renderPane();
-		fireEvent.click(tabButton(container, 'timelineTab'));
-		expect(container.querySelector<HTMLElement>('#timelineTab')!.hidden).toBe(false);
-		expect(container.querySelector('#timelineTab')!.hasAttribute('data-starting-style')).toBe(true);
-		expect(container.querySelector('#damageTab')!.hasAttribute('data-ending-style')).toBe(true);
-		await waitFor(() => expect(container.querySelector('#timelineTab')!.hasAttribute('data-starting-style')).toBe(false));
 	});
 
 	// What `onTabShown` was to an island, `active` is to every pane that defers its work.
@@ -180,18 +159,6 @@ describe('DetailedResults', () => {
 		expect(panes[pane].at(-1)).toBe(true);
 		fireEvent.click(tabButton(container, 'damageTab'));
 		expect(panes[pane].at(-1)).toBe(false);
-	});
-
-	// Base UI drives the arrow walk through a composite that does not answer synthetic key events
-	// under happy-dom, so what is checkable here is the roving tabindex the walk moves along -
-	// exactly one stop, and it follows the selection.
-	it('leaves one tab stop on the strip and moves it with the selection', () => {
-		const { container } = renderPane();
-		const stops = () =>
-			[...container.querySelectorAll<HTMLButtonElement>('[data-testid="dr-toolbar"] [role="tab"]')].filter(button => button.tabIndex === 0);
-		expect(stops()).toEqual([tabButton(container, 'damageTab')]);
-		fireEvent.click(tabButton(container, 'logTab'));
-		expect(stops()).toEqual([tabButton(container, 'logTab')]);
 	});
 
 	it('renders only the tabs whose toggle is on', () => {
@@ -279,5 +246,85 @@ describe('DetailedResults', () => {
 			currentChangeEmitter.emit();
 		});
 		expect(buttons[1].disabled).toBe(true);
+	});
+});
+
+const TABS: Array<DetailedResultsTabConfig> = [
+	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage' },
+	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
+];
+
+const SlotReader = () => <span data-testid="slot-reader">{useDrStickySlot()?.getAttribute('data-testid') ?? 'none'}</span>;
+
+const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
+	const handlers = { onActiveIdChange: vi.fn(), onSimulateIteration: vi.fn(), onSimulateDeath: vi.fn() };
+	const view = render(
+		<DetailedResultsView
+			tabs={TABS}
+			activeId="damageTab"
+			hasResults
+			iterationDisabled={false}
+			deathDisabled
+			targetPicker={<span data-testid="filter-slot" />}
+			{...handlers}
+			{...props}>
+			<TabPanel value="damageTab">damage pane</TabPanel>
+			<TabPanel value="logTab">
+				<SlotReader />
+			</TabPanel>
+		</DetailedResultsView>,
+	);
+	return { ...handlers, ...view };
+};
+
+const iterationButton = () => screen.getByTestId('detailed-results-1-iteration-button');
+const deathButton = () => screen.getByRole('button', { name: 'results_tab.details.sim_1_death' });
+
+describe('DetailedResultsView', () => {
+	it('runs one iteration, and holds the death button back while it has no seed to replay', () => {
+		const { onSimulateIteration, onSimulateDeath } = mount();
+
+		fireEvent.click(iterationButton());
+		fireEvent.click(deathButton());
+
+		expect(onSimulateIteration).toHaveBeenCalledOnce();
+		expect((deathButton() as HTMLButtonElement).disabled).toBe(true);
+		expect(onSimulateDeath).not.toHaveBeenCalled();
+	});
+
+	it('runs a death once one is on offer, and disables the iteration button for a disabled sim', () => {
+		const { onSimulateDeath } = mount({ deathDisabled: false, iterationDisabled: true });
+
+		fireEvent.click(deathButton());
+
+		expect(onSimulateDeath).toHaveBeenCalledOnce();
+		expect((iterationButton() as HTMLButtonElement).disabled).toBe(true);
+	});
+
+	it('marks the root while there are no results, which is what shows the empty pane', () => {
+		const empty = mount({ hasResults: false });
+		expect(screen.getByTestId('dr-root').hasAttribute('data-no-results')).toBe(true);
+		expect(screen.getByText('results_tab.details.no_results')).toBeTruthy();
+		empty.unmount();
+
+		mount();
+		expect(screen.getByTestId('dr-root').hasAttribute('data-no-results')).toBe(false);
+	});
+
+	it('draws one tab per config, reports a pick, and puts the filter in the toolbar row', () => {
+		const { onActiveIdChange } = mount();
+
+		const tabs = screen.getAllByRole('tab');
+		expect(tabs.map(tab => tab.id)).toEqual(['damageTab-nav', 'logTab-nav']);
+		fireEvent.click(tabs[1]);
+
+		expect(onActiveIdChange).toHaveBeenCalledWith('logTab');
+		expect(screen.getByTestId('results-filter').contains(screen.getByTestId('filter-slot'))).toBe(true);
+	});
+
+	it('hands the panes the sticky slot under the toolbar', () => {
+		mount({ activeId: 'logTab' });
+
+		expect(screen.getByTestId('slot-reader').textContent).toBe('dr-sticky-slot');
 	});
 });

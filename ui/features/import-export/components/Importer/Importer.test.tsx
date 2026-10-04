@@ -1,9 +1,7 @@
 // What this pins is the shell's behaviour, which is everything the four importers share: what gets
 // handed to `onImport`, and what happens to the dialog when it resolves and when it rejects.
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import { fakeHost } from '@sim/testing';
-import { act, fireEvent, render } from '@testing-library/react';
-import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
+import { renderWithHost } from '@testing/react';
+import { act, fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Importer } from './Importer';
@@ -25,29 +23,24 @@ vi.mock('@ui-kit/Toast', async importOriginal => ({
 	},
 }));
 
-const rootElem = document.createElement('div');
-
-/** The three references `useSimHost` hands out; the importer only ever reads `rootElem`. */
-const host = fakeHost({ rootElem });
+const HOST_PARTS = { rootElem: document.createElement('div') };
+const theHost = expect.objectContaining(HOST_PARTS);
 
 const renderImporter = (props: Partial<Parameters<typeof Importer>[0]> = {}) => {
 	const onImport = props.onImport ?? vi.fn().mockResolvedValue(undefined);
 	const onOpenChange = props.onOpenChange ?? vi.fn();
-	render(
-		<PortalContainerContext value={rootElem}>
-			<SimHostProvider host={host}>
-				<Importer open title="JSON Import" allowFileUpload {...props} onImport={onImport} onOpenChange={onOpenChange}>
-					<p>how to</p>
-				</Importer>
-			</SimHostProvider>
-		</PortalContainerContext>,
+	renderWithHost(
+		<Importer open title="JSON Import" allowFileUpload {...props} onImport={onImport} onOpenChange={onOpenChange}>
+			<p>how to</p>
+		</Importer>,
+		HOST_PARTS,
 	);
 	return { onImport, onOpenChange };
 };
 
 const clickImport = async () => {
 	await act(async () => {
-		fireEvent.click(rootElem.querySelector('[data-testid="import-button"]')!);
+		fireEvent.click(document.querySelector('[data-testid="import-button"]')!);
 	});
 };
 
@@ -55,17 +48,16 @@ describe('Importer', () => {
 	beforeEach(() => {
 		toasts.length = 0;
 		trackPageView.mockClear();
-		document.body.appendChild(rootElem);
 	});
 
 	it('hands the textarea contents and the host to onImport, then closes', async () => {
 		const { onImport, onOpenChange } = renderImporter();
-		const textarea = rootElem.querySelector('textarea')!;
+		const textarea = document.querySelector('textarea')!;
 		textarea.value = '{"player":{}}';
 
 		await clickImport();
 
-		expect(onImport).toHaveBeenCalledWith(host, '{"player":{}}');
+		expect(onImport).toHaveBeenCalledWith(theHost, '{"player":{}}');
 		expect(onOpenChange).toHaveBeenCalledWith(false);
 	});
 
@@ -90,48 +82,46 @@ describe('Importer', () => {
 
 	it('an upload replaces text the user has already typed', async () => {
 		const { onImport } = renderImporter();
-		const textarea = rootElem.querySelector('textarea')!;
+		const textarea = document.querySelector('textarea')!;
 		textarea.value = 'typed by hand';
 
-		const upload = rootElem.querySelector<HTMLInputElement>('[data-testid="importer-upload-input"]')!;
+		const upload = document.querySelector<HTMLInputElement>('[data-testid="importer-upload-input"]')!;
 		await act(async () => {
 			fireEvent.change(upload, { target: { files: [{ text: () => Promise.resolve('from the file') }] } });
 		});
 
 		await clickImport();
-		expect(onImport).toHaveBeenCalledWith(host, 'from the file');
+		expect(onImport).toHaveBeenCalledWith(theHost, 'from the file');
 	});
 
 	it('ignores a cancelled file picker', async () => {
 		renderImporter();
-		const upload = rootElem.querySelector<HTMLInputElement>('[data-testid="importer-upload-input"]')!;
+		const upload = document.querySelector<HTMLInputElement>('[data-testid="importer-upload-input"]')!;
 		await act(async () => {
 			fireEvent.change(upload, { target: { files: [] } });
 		});
-		expect(rootElem.querySelector('textarea')!.value).toBe('');
+		expect(document.querySelector('textarea')!.value).toBe('');
 	});
 
 	it('labels the upload input, and shows the label only when uploading is allowed', () => {
 		renderImporter();
-		const upload = rootElem.querySelector<HTMLInputElement>('[data-testid="importer-upload-input"]')!;
-		expect(rootElem.querySelector('[data-testid="upload-button"]')!.getAttribute('for')).toBe(upload.id);
+		const upload = document.querySelector<HTMLInputElement>('[data-testid="importer-upload-input"]')!;
+		expect(document.querySelector('[data-testid="upload-button"]')!.getAttribute('for')).toBe(upload.id);
 		// Derived from the title, because `keepMounted` puts every importer in the page at once.
 		expect(upload.id).toBe('upload-input-json-import');
 	});
 
 	it('renders the hidden file input even when uploading is not allowed, as vanilla did', () => {
 		renderImporter({ allowFileUpload: false });
-		expect(rootElem.querySelector('[data-testid="upload-button"]')).toBe(null);
-		expect(rootElem.querySelector('[data-testid="importer-upload-input"]')).not.toBe(null);
+		expect(document.querySelector('[data-testid="upload-button"]')).toBe(null);
+		expect(document.querySelector('[data-testid="importer-upload-input"]')).not.toBe(null);
 	});
 
-	it('puts the description above the textarea, inside the description block', () => {
+	it('puts the description above the textarea', () => {
 		renderImporter();
-		const body = rootElem.querySelector('[data-testid="sim-dialog-body"] > div')!;
+		const body = document.querySelector('[data-testid="sim-dialog-body"] > div')!;
 		const [description, textarea] = Array.from(body.children);
-		expect(description.getAttribute('data-testid')).toBe('import-description');
+		expect(description.textContent).toBe('how to');
 		expect(textarea.getAttribute('data-testid')).toBe('importer-textarea');
-		expect(textarea.className.split(' ')).toEqual(expect.arrayContaining(['ui-input']));
-		expect(body.querySelector('[data-testid="import-description"]')!.textContent).toBe('how to');
 	});
 });

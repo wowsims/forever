@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -20,12 +19,12 @@ func DamageConsumableUnsupported(s *spelldata.Spell) []string {
 
 // An explosive used from the bar: the damage its on-use spell deals, on the item's cooldown and the
 // category cooldown every explosive shares, and the damage the spell deals to the thrower where the
-// row states one. Only a character with the profession the item requires can use it.
+// row states one. Only a character with the profession and skill the item requires can use it.
 func NewSpellDataExplosive(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		consumable := core.GetConsumableByID(itemID)
-		if consumable.RequiredProfession != proto.Profession_ProfessionUnknown && !character.HasProfession(consumable.RequiredProfession) {
+		if !character.MeetsProfession(consumable.RequiredProfession, consumable.ReqProfRank) {
 			return
 		}
 
@@ -74,7 +73,7 @@ func registerCasterDamageSpell(character *core.Character, config core.SpellConfi
 	config.ActionID = config.ActionID.WithTag(1)
 	var outcome core.OutcomeApplier
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, e.Roll(sim, character.Level), outcome)
+		spell.CalcAndDealDamage(sim, target, e.Roll(sim), outcome)
 	}
 	spell := character.RegisterSpell(config)
 	outcome = casterDamageOutcome(spell, spelldata.Find(e.SpellID).CannotCrit())

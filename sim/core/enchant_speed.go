@@ -58,13 +58,13 @@ func hastePercents(pseudoStats []float64) (melee, ranged, cast float64) {
 func (aura *Aura) AttachHastePseudoStats(pseudoStats []float64) *Aura {
 	melee, ranged, cast := hastePercents(pseudoStats)
 	if melee != 0 {
-		aura.AttachMultiplyMeleeSpeed(1 + melee/100)
+		aura.AttachMultiplyMeleeSpeed(SymmetricMultiplierFromPercent(melee))
 	}
 	if ranged != 0 {
-		aura.AttachMultiplyRangedSpeed(1 + ranged/100)
+		aura.AttachMultiplyRangedSpeed(SymmetricMultiplierFromPercent(ranged))
 	}
 	if cast != 0 {
-		aura.AttachMultiplyCastSpeed(1 + cast/100)
+		aura.AttachMultiplyCastSpeed(SymmetricMultiplierFromPercent(cast))
 	}
 	return aura
 }

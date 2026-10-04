@@ -18,10 +18,6 @@ import (
 
 var reforgeOptimizeRequestID atomic.Uint64
 
-func Optimize(request *proto.ReforgeOptimizeRequest) *proto.ReforgeOptimizeResult {
-	return OptimizeAsync(request, simsignals.CreateSignals())
-}
-
 func OptimizeAsync(request *proto.ReforgeOptimizeRequest, signals simsignals.Signals) *proto.ReforgeOptimizeResult {
 	requestID := reforgeOptimizeRequestID.Add(1)
 	startedAt := time.Now()

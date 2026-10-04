@@ -17,8 +17,6 @@ func (shaman *Shaman) registerShieldsSpells() {
 
 // TODO: To be implemented. Port the TBC Shield Effect Trigger Spell implementation below; not yet verified against the Forever game files.
 func (shaman *Shaman) registerShieldEffectTriggerSpell() {
-	panic("To be implemented")
-
 	// The TBC implementation, kept for the port:
 	// shaman.ShieldSelfProcSpell = shaman.RegisterSpell(core.SpellConfig{
 	// 	Flags:          core.SpellFlagNoMetrics | core.SpellFlagNoLogs,
@@ -30,7 +28,8 @@ func (shaman *Shaman) registerShieldEffectTriggerSpell() {
 }
 
 func (shaman *Shaman) startShieldProcPeriodicAction(sim *core.Simulation) {
-	if shaman.SelfBuffs.ShieldProcrate > 0 {
+	// TODO: ShieldSelfProcSpell is nil until the shields are implemented.
+	if shaman.SelfBuffs.ShieldProcrate > 0 && shaman.ShieldSelfProcSpell != nil {
 		core.StartPeriodicAction(sim, core.PeriodicActionOptions{
 			Period:   60 * time.Second / time.Duration(shaman.SelfBuffs.ShieldProcrate),
 			Priority: core.ActionPriorityGCD,
@@ -44,8 +43,6 @@ func (shaman *Shaman) startShieldProcPeriodicAction(sim *core.Simulation) {
 // TODO: To be implemented. The ability exists: spell 408510 on the Restoration line. No rank subtext,
 // so no generated table -- pin the id directly.
 func (shaman *Shaman) registerWaterShieldSpell() {
-	panic("To be implemented")
-
 	// The TBC implementation, kept for the port:
 	// bonusManaReturned := 0.0
 	// mp5 := 50.0
@@ -95,8 +92,6 @@ var lightningShieldRank = spellData.LightningShield.Highest()
 
 // TODO: To be implemented. Port the TBC Lightning Shield Spell implementation below; not yet verified against the Forever game files.
 func (shaman *Shaman) registerLightningShieldSpell() {
-	panic("To be implemented")
-
 	// The TBC implementation, kept for the port:
 	// actionID := core.ActionID{SpellID: lightningShieldRank.ID}
 	//

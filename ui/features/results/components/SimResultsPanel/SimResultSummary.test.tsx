@@ -1,19 +1,17 @@
 import { Raid as RaidProto } from '@generated/proto/api';
 import { Encounter as EncounterProto } from '@generated/proto/common';
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import { fakeHost, mockSubscriptions } from '@sim/testing';
-import { act, fireEvent, render } from '@testing-library/react';
+import { createSimStore } from '@sim/state/sim_store';
+import { renderWithHost } from '@testing/react';
+import { mockSubscriptions } from '@testing/sim/subscriptions';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { ReferenceDiffs } from '../../model/reference_diffs';
 import { SimResultsManager } from '../../model/results_manager';
-import { SimResultSummary } from './SimResultSummary';
+import type { ResultMetric } from '../../model/topline_metrics';
+import { SimResultSummary, SimResultSummaryView, type SimResultSummaryViewProps } from './SimResultSummary';
 
 vi.mock('@sim/state/subscriptions', async () => mockSubscriptions());
-
-const host = fakeHost({
-	config: { cssScheme: 'test' },
-	sim: { getShowDamageMetrics: () => true, getShowThreatMetrics: () => true, getShowHealingMetrics: () => true } as never,
-});
 
 const dist = (avg: number, stdev = 0) => ({ avg, stdev });
 
@@ -47,60 +45,44 @@ const player = {
 	secondsOomAvg: 0,
 };
 
+let store: ReturnType<typeof createSimStore>;
+
 const sim = () =>
 	({
+		store,
 		raid: { toProto: () => RaidProto.create(), fromProto: vi.fn() },
 		encounter: { toProto: () => EncounterProto.create(), fromProto: vi.fn() },
 	}) as never;
 
 const mount = (results: SimResultsManager) =>
-	render(
-		<SimHostProvider host={host}>
-			<SimResultSummary results={results} />
-		</SimHostProvider>,
-	);
+	renderWithHost(<SimResultSummary results={results} />, {
+		config: { cssScheme: 'test' },
+		sim: { store, getShowDamageMetrics: () => true, getShowThreatMetrics: () => true, getShowHealingMetrics: () => true },
+	});
 
 const diffs = (container: HTMLElement) => [...container.querySelectorAll('[data-testid="results-reference"] > [data-testid="results-reference-diff"]')];
 
 let results: SimResultsManager;
 
+const strip = (container: HTMLElement) => container.querySelector('[data-testid="results-sim-reference"]')!;
+const metricIds = (container: HTMLElement) => [...container.querySelectorAll('[data-testid="results-metric"]')].map(row => row.getAttribute('data-metric'));
+
 describe('SimResultSummary', () => {
 	beforeEach(() => {
+		store = createSimStore();
 		results = new SimResultsManager(sim());
 	});
 
 	it('renders nothing before the first run', () => {
-		expect(mount(results).container.innerHTML).toBe('');
+		expect([...mount(results).container.children].map(child => child.getAttribute('data-testid'))).toEqual(['test-portal']);
 	});
 
 	it('renders the stacked metric list and the reference bar once a run lands', () => {
 		act(() => results.setSimResult(result(1000)));
 		const { container } = mount(results);
 
-		expect([...container.querySelectorAll('[data-testid="results-metric"]')].map(row => row.getAttribute('data-metric'))).toEqual([
-			'dps',
-			'tps',
-			'dtps',
-			'tmi',
-			'cod',
-			'tto',
-			'hps',
-		]);
-		expect(container.querySelector('[data-testid="results-sim-reference"]')?.hasAttribute('data-has-reference')).toBe(false);
-		expect([...container.querySelectorAll('[data-testid="results-sim-reference"] button')].map(button => button.getAttribute('type'))).toEqual([
-			'button',
-			'button',
-			'button',
-		]);
-	});
-
-	it('renders no reference slot at all until a reference is saved', () => {
-		act(() => results.setSimResult(result(1000)));
-		const { container } = mount(results);
-
-		expect(diffs(container)).toEqual([]);
-		expect(container.querySelectorAll('[data-testid="results-reference"]')).toHaveLength(0);
-		expect(container.querySelectorAll('[data-testid="results-metric"]')).toHaveLength(7);
+		expect(metricIds(container)).toEqual(['dps', 'tps', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
+		expect(strip(container).hasAttribute('data-has-reference')).toBe(false);
 	});
 
 	it('fills the deltas in and flags the bar the moment the reference is set', () => {
@@ -108,7 +90,7 @@ describe('SimResultSummary', () => {
 		const { container } = mount(results);
 
 		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-set-reference"]')!));
-		expect(container.querySelector('[data-testid="results-sim-reference"]')?.hasAttribute('data-has-reference')).toBe(true);
+		expect(strip(container).hasAttribute('data-has-reference')).toBe(true);
 
 		// Same run on both sides: every rendered metric gets a delta, all of them zero and none coloured.
 		expect(diffs(container)).toHaveLength(7);
@@ -134,7 +116,7 @@ describe('SimResultSummary', () => {
 		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-set-reference"]')!));
 		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-reference-delete"]')!));
 
-		expect(container.querySelector('[data-testid="results-sim-reference"]')?.hasAttribute('data-has-reference')).toBe(false);
+		expect(strip(container).hasAttribute('data-has-reference')).toBe(false);
 		expect(diffs(container)).toEqual([]);
 	});
 
@@ -149,5 +131,112 @@ describe('SimResultSummary', () => {
 		const dps = container.querySelector('[data-metric="dps"] [data-testid="results-reference-diff"]')!;
 		expect(dps.textContent).toBe('-100.00 (10.00%)');
 		expect(dps.getAttribute('data-sign')).toBe('negative');
+	});
+
+	it('titles a swapped-in run as the reference run, and the last run again after swapping back or a new run', () => {
+		const title = (container: HTMLElement) => container.querySelector('[data-testid="results-run-title"]')!.textContent;
+		act(() => results.setSimResult(result(1000)));
+		const { container } = mount(results);
+		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-set-reference"]')!));
+		act(() => results.setSimResult(result(1100)));
+		expect(title(container)).toBe('sidebar.results.last_run');
+
+		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-reference-swap"]')!));
+		expect(title(container)).toBe('sidebar.results.reference_run');
+
+		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-reference-swap"]')!));
+		expect(title(container)).toBe('sidebar.results.last_run');
+
+		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-reference-swap"]')!));
+		act(() => results.setSimResult(result(1200)));
+		expect(title(container)).toBe('sidebar.results.last_run');
+	});
+});
+
+const METRICS: Array<ResultMetric> = [
+	{ metric: 'dps', name: 'DPS', average: 1000, stdev: 10 },
+	{ metric: 'tps', name: 'TPS', average: 800, stdev: 8 },
+];
+
+const DIFFS: ReferenceDiffs = {
+	dps: { text: '+100.00 (10.00%)', tone: 'positive', significance: 'significant' },
+	tps: { text: '+0.00 (0.00%)', tone: null, significance: 'not significant' },
+};
+
+const mountView = (props: Partial<SimResultSummaryViewProps> = {}) => {
+	const handlers = { onSetReference: vi.fn(), onSwapReference: vi.fn(), onClearReference: vi.fn() };
+	const view = render(<SimResultSummaryView metrics={METRICS} {...handlers} {...props} />);
+	return { ...handlers, ...view };
+};
+
+describe('SimResultSummaryView', () => {
+	it('lists every metric it is given and offers only the save button without a reference', () => {
+		const { container } = mountView();
+
+		expect(metricIds(container)).toEqual(['dps', 'tps']);
+		expect(strip(container).hasAttribute('data-has-reference')).toBe(false);
+		expect(screen.getByTestId('results-sim-set-reference').hidden).toBe(false);
+		expect(screen.getByTestId('results-sim-reference-swap').parentElement!.hidden).toBe(true);
+		expect(container.querySelectorAll('[data-testid="results-reference-diff"]')).toHaveLength(0);
+		expect([...strip(container).querySelectorAll('svg')].every(icon => icon.getAttribute('aria-hidden') === 'true')).toBe(true);
+	});
+
+	it('flags the strip, swaps the buttons and fills the deltas in once a reference is set', () => {
+		const { container } = mountView({ referenceDiffs: DIFFS });
+
+		expect(strip(container).hasAttribute('data-has-reference')).toBe(true);
+		expect(screen.getByTestId('results-sim-set-reference').hidden).toBe(true);
+		expect(screen.getByTestId('results-sim-reference-swap').parentElement!.hidden).toBe(false);
+		expect([...container.querySelectorAll('[data-testid="results-reference-diff"]')].map(diff => diff.textContent)).toEqual([
+			'+100.00 (10.00%)',
+			'+0.00 (0.00%)',
+		]);
+	});
+
+	it('shows the first metric at full size and the rest compact', () => {
+		const { container } = mountView();
+
+		expect(
+			[...container.querySelectorAll('[data-testid="results-metric"]')].map(row => [row.getAttribute('data-metric'), row.getAttribute('data-size')]),
+		).toEqual([
+			['dps', 'md'],
+			['tps', 'sm'],
+		]);
+	});
+
+	it.each(['fresh', 'stale'] as const)('marks a %s result in the header', freshness => {
+		mountView({ freshness });
+
+		expect(screen.getByTestId('results-freshness').getAttribute('data-freshness')).toBe(freshness);
+		expect(screen.getByTestId('results-freshness').textContent).toBe(`sidebar.results.freshness.${freshness}`);
+	});
+
+	it('leaves the freshness out while nothing tracks it', () => {
+		mountView({ freshness: null });
+
+		expect(screen.queryByTestId('results-freshness')).toBeNull();
+	});
+
+	it('opens the breakdown through its handler, and has no link without one', () => {
+		const onOpenBreakdown = vi.fn();
+		const { unmount } = mountView({ onOpenBreakdown });
+		fireEvent.click(screen.getByTestId('results-open-breakdown'));
+		expect(onOpenBreakdown).toHaveBeenCalledOnce();
+		unmount();
+
+		mountView();
+		expect(screen.queryByTestId('results-open-breakdown')).toBeNull();
+	});
+
+	it('reports each of the three reference actions', () => {
+		const { onSetReference, onSwapReference, onClearReference } = mountView({ referenceDiffs: DIFFS });
+
+		fireEvent.click(screen.getByTestId('results-sim-set-reference'));
+		fireEvent.click(screen.getByTestId('results-sim-reference-swap'));
+		fireEvent.click(screen.getByTestId('results-sim-reference-delete'));
+
+		expect(onSetReference).toHaveBeenCalledOnce();
+		expect(onSwapReference).toHaveBeenCalledOnce();
+		expect(onClearReference).toHaveBeenCalledOnce();
 	});
 });

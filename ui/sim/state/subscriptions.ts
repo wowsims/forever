@@ -28,7 +28,7 @@ import { PLAYER_FIELDS } from './sim_store';
 // subscribers: everything
 // the user edits. Server-derived `currentStats` is excluded — including it
 // would make stat recomputation re-trigger itself.
-export const PLAYER_CHANGE_FIELDS = PLAYER_FIELDS.filter(f => f !== 'currentStats');
+const PLAYER_CHANGE_FIELDS = PLAYER_FIELDS.filter(f => f !== 'currentStats');
 
 export const shallowArrayEquals = (a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>) => arrayEquals(a as Array<unknown>, b as Array<unknown>, Object.is);
 

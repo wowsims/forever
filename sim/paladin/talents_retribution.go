@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
-	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -98,7 +98,7 @@ func (paladin *Paladin) applyConviction() {
 		return
 	}
 
-	paladin.AddStat(stats.PhysicalCritPercent, spellData.Conviction.ValueAt(paladin.Talents.Conviction))
+	spelldata.ParseStatic(&paladin.Character, spellData.Conviction.Rank(paladin.Talents.Conviction))
 }
 
 // Vindication - Gives your damaging melee attacks a chance to reduce the target's Attack Power by
@@ -123,7 +123,7 @@ func (paladin *Paladin) applyVindication() {
 		return buffs.NewSpellDataVindicationAura(target, true, paladin.Talents.Vindication)
 	})
 
-	attackPowerDep := paladin.NewDynamicMultiplyStat(stats.AttackPower, 1+points/100)
+	attackPowerDep := paladin.NewDynamicMultiplyStat(stats.AttackPower, core.MultiplierFromPercent(points))
 	selfAura := paladin.RegisterAura(core.Aura{
 		Label:    "Vindication" + paladin.Label,
 		ActionID: core.ActionID{SpellID: rank.ID}.WithTag(1),
@@ -254,16 +254,14 @@ func (paladin *Paladin) applySacredArbiter() {
 }
 
 // Two-Handed Weapon Specialization - Increases the damage you deal with two-handed melee weapons
-// by 2/4/6%. The game files put it on the Physical school alone.
+// by 2/4/6%.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
 	}
 
-	paladin.applyWeaponSpecialization(
-		spellData.TwoHandedWeaponSpecialization.FractionAt(paladin.Talents.TwoHandedWeaponSpecialization),
-		proto.HandType_HandTypeTwoHand,
-	)
+	spelldata.ParseStatic(&paladin.Character,
+		spellData.TwoHandedWeaponSpecialization.Rank(paladin.Talents.TwoHandedWeaponSpecialization))
 }
 
 // Vengeance - Increases your Physical and Holy damage dealt by 1/2/3% for 30 sec after landing a
@@ -310,8 +308,7 @@ func (paladin *Paladin) applyVengeance() {
 	})
 }
 
-// Champion of the Light - Increases your spell damage and healing by up to 33/66/100% of your
-// Intellect. The healing effect states no rank curve, so both follow the damage ladder.
+// Champion of the Light - Increases your spell damage by up to 20/40/60% of your Intellect.
 func (paladin *Paladin) applyChampionOfTheLight() {
 	if paladin.Talents.ChampionOfTheLight == 0 {
 		return
@@ -319,7 +316,6 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 
 	share := spellData.ChampionOfTheLight.Effect(dbcenums.A_MOD_SPELL_DAMAGE_OF_STAT_PERCENT, 126).FractionAt(paladin.Talents.ChampionOfTheLight)
 	paladin.AddStatDependency(stats.Intellect, stats.SpellDamage, share)
-	paladin.AddStatDependency(stats.Intellect, stats.HealingPower, share)
 }
 
 // Instrument of Law - Reduces the cast time of your Hammer of Wrath by 0.5/1.0 sec, and reduces all
@@ -362,7 +358,8 @@ func (paladin *Paladin) applyInstrumentOfLaw() {
 // Echo. Your next melee attack applies the replaced Seal's effects, consuming the Echo.
 //
 // Each seal leaves its own Echo (Echo of Command, of Fury, of Righteousness, of Justice): one
-// charge, no duration, consumed by the next auto attack that lands.
+// charge, no duration, consumed by the next auto attack that lands. Only one Echo is up at a time:
+// gaining one drops whichever other Echo was up.
 func (paladin *Paladin) applyTwistOfLight() {
 	if !paladin.Talents.TwistOfLight {
 		return
@@ -383,14 +380,21 @@ func (paladin *Paladin) applyTwistOfLight() {
 			Label:    fmt.Sprintf("Echo (%d)%s", id, paladin.Label),
 			ActionID: core.ActionID{SpellID: id},
 			Duration: core.NeverExpires,
-		}).AttachProcTrigger(core.ProcTrigger{
+		})
+		echo.aura.NewExclusiveEffect(EchoCategory, true, core.ExclusiveEffect{})
+		echo.aura.AttachProcTrigger(core.ProcTrigger{
 			Callback:           core.CallbackOnSpellHitDealt,
 			ProcMask:           core.ProcMaskMeleeWhiteHit,
 			Outcome:            core.OutcomeLanded,
 			TriggerImmediately: true,
+			// The hit that lands consumes the Echo at once, so the next hit cannot; the replayed
+			// seal effect resolves a batch window later, as a live seal's does.
 			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-				if echo.seal != nil && echo.seal.echo != nil {
-					echo.seal.echo(sim, result.Target)
+				if seal := echo.seal; seal != nil && seal.echo != nil {
+					target := result.Target
+					afterBatch(sim, core.ActionPriorityDOT, func(sim *core.Simulation) {
+						seal.echo(sim, target)
+					})
 				}
 				echo.seal = nil
 				echo.aura.Deactivate(sim)

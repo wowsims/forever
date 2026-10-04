@@ -11,7 +11,7 @@ import (
 // is the caster's at core.CharacterLevel, in the game files' units.
 
 func amount(e *spelldata.Effect) float64 {
-	return e.Average(core.CharacterLevel)
+	return e.Average()
 }
 
 // The game files state a permanent aura as -1 and an aura with no duration of its own, a totem's,

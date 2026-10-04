@@ -15,37 +15,41 @@ describe('SIXTY_UPGRADES_EP_EXPORTER', () => {
 	});
 
 	it('scales rating weights to per-percent weights', () => {
-		const url = exportFor(new Stats().withStat(Stat.StatMeleeHitRating, 2.5).withStat(Stat.StatMeleeCritRating, 1).withStat(Stat.StatBlockRating, 0.2));
+		const url = exportFor(
+			new Stats()
+				.withStat(Stat.StatHitRating, 2.5)
+				.withStat(Stat.StatCritRating, 1)
+				.withStat(Stat.StatHasteRating, 0.4)
+				.withStat(Stat.StatBlockRating, 0.2),
+		);
 		expect(url).toContain('&hit=25.000');
 		expect(url).toContain('&crit=14.000');
+		expect(url).toContain('&haste=4.000');
 		expect(url).toContain('&block=1.000');
 	});
 
-	it("sends a caster's spell hit and crit as its hit and crit", () => {
-		const url = exportFor(new Stats().withStat(Stat.StatSpellHitRating, 1.3).withStat(Stat.StatSpellCritRating, 0.5).withStat(Stat.StatSpellDamage, 0.5));
+	it('scales the avoidance and expertise ratings, and sends defense per point', () => {
+		const url = exportFor(
+			new Stats()
+				.withStat(Stat.StatExpertiseRating, 0.5)
+				.withStat(Stat.StatDodgeRating, 0.5)
+				.withStat(Stat.StatParryRating, 0.2)
+				.withStat(Stat.StatDefenseRating, 0.3),
+		);
+		expect(url).toContain('&expertise=5.000');
+		expect(url).toContain('&dodge=6.000');
+		expect(url).toContain('&parry=3.000');
+		expect(url).toContain('&defense=0.300');
+	});
+
+	it('sends the one hit and crit rating as its hit and crit', () => {
+		const url = exportFor(new Stats().withStat(Stat.StatHitRating, 1.3).withStat(Stat.StatCritRating, 0.5).withStat(Stat.StatSpellDamage, 0.5));
 		expect(url).toContain('&hit=13.000');
 		expect(url).toContain('&crit=7.000');
 		expect(url).toContain('&spellDamage=0.500');
 		expect(url).not.toContain('spellHit');
 		expect(url).not.toContain('spellCrit');
 		expect(url).not.toContain('rangedHit');
-	});
-
-	it('sums melee and spell weights into one hit and one crit', () => {
-		const url = exportFor(
-			new Stats()
-				.withStat(Stat.StatMeleeHitRating, 1)
-				.withStat(Stat.StatSpellHitRating, 0.5)
-				.withStat(Stat.StatMeleeCritRating, 1)
-				.withStat(Stat.StatSpellCritRating, 0.5),
-		);
-		expect(url).toContain('&hit=15.000');
-		expect(url).toContain('&crit=21.000');
-	});
-
-	it('leaves out spell haste, which the Forever import has no field for', () => {
-		const url = exportFor(new Stats().withStat(Stat.StatSpellHasteRating, 1));
-		expect(url).not.toContain('haste');
 	});
 
 	it('names healing, spell penetration and resistances the way the import reads them', () => {

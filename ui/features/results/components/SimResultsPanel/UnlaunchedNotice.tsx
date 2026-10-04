@@ -13,7 +13,7 @@ export const UnlaunchedNotice = () => (
 			{i18n.t('sim.unlaunched.contribute_message')}
 			<br />
 			{i18n.t('sim.unlaunched.discord_message')}{' '}
-			<Button as="a" variant="unstyled" href="https://discord.gg/p3DgvmnDCS" target="_blank">
+			<Button variant="unstyled" href="https://discord.gg/p3DgvmnDCS" target="_blank">
 				Discord
 			</Button>
 			!

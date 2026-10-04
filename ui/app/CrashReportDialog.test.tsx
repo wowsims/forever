@@ -1,5 +1,5 @@
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import { act, render } from '@testing-library/react';
+import { renderWithHost } from '@testing/react';
+import { act } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { CrashReportOpener } from './crash_report_opener';
@@ -7,11 +7,7 @@ import { CrashReportDialog } from './CrashReportDialog';
 
 const mount = () => {
 	const opener = new CrashReportOpener();
-	render(
-		<SimHostProvider host={{ rootElem: document.body } as never}>
-			<CrashReportDialog opener={opener} />
-		</SimHostProvider>,
-	);
+	renderWithHost(<CrashReportDialog opener={opener} />, { rootElem: document.body });
 	return opener;
 };
 

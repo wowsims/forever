@@ -1,34 +1,57 @@
-package core
+package core_test
 
 import (
+	"math"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The shares of spirit regen that continue while casting add up, and past all of it they give all of
-// it: Innervate's 100% on top of a 30% talent is the regen the unit has while not casting.
-func TestSpiritRegenWhileCastingStopsAtAllOfIt(t *testing.T) {
-	unit := &Unit{PseudoStats: stats.NewPseudoStats()}
-	unit.manaRegenMultiplier = 1
-	unit.stats[stats.Spirit] = 100
-	unit.stats[stats.Intellect] = 100
-
-	full := unit.ManaRegenPerSecondWhileNotCasting()
-	spirit := unit.SpiritManaRegenPerSecond()
-
-	for _, c := range []struct {
-		share float64
-		want  float64
+func TestSpiritRegenPriestAgainstPaladin(t *testing.T) {
+	for _, tc := range []struct {
+		class     proto.Class
+		race      proto.Race
+		spirit    float64
+		perSecond float64
 	}{
-		{0, 0},
-		{0.3, spirit * 0.3},
-		{1, full},
-		{1.3, full},
+		{proto.Class_ClassPriest, proto.Race_RaceNightElf, 125, 6.25 + 125.0/8},
+		{proto.Class_ClassMage, proto.Race_RaceGnome, 120, 6.25 + 120.0/8},
+		{proto.Class_ClassPaladin, proto.Race_RaceDwarf, 74, 7.5 + 74.0/10},
+		{proto.Class_ClassDruid, proto.Race_RaceNightElf, 110, 7.5 + 110.0/10},
 	} {
-		unit.PseudoStats.SpiritRegenRateCasting = c.share
-		if got := unit.ManaRegenPerSecondWhileCasting(); got != c.want {
-			t.Errorf("casting share %v: %v mana per second while casting, want %v", c.share, got, c.want)
-		}
+		t.Run(tc.class.String(), func(t *testing.T) {
+			character, _ := nakedSheet(t, tc.class, tc.race)
+			if spirit := character.GetStat(stats.Spirit); spirit != tc.spirit {
+				t.Fatalf("spirit %v, want %v", spirit, tc.spirit)
+			}
+			if got := character.SpiritManaRegenPerSecond(); math.Abs(got-tc.perSecond) > 1e-9 {
+				t.Errorf("spirit regen %v per second, want %v", got, tc.perSecond)
+			}
+		})
+	}
+}
+
+func TestSetSpiritManaRegenReplacesTheDefault(t *testing.T) {
+	owner := core.NewCharacter(&core.Party{Raid: &core.Raid{}}, 0, nakedPlayer(proto.Class_ClassWarlock, proto.Race_RaceHuman))
+	newPet := func(name string) *core.Pet {
+		pet := core.NewPet(core.PetConfig{Name: name, Owner: &owner, BaseStats: stats.Stats{stats.Spirit: 100}})
+		pet.EnableManaBar()
+		return &pet
+	}
+
+	unchanged := newPet("Default Pet")
+	if got := unchanged.SpiritManaRegenPerSecond(); math.Abs(got-(7.5+100.0/10)) > 1e-9 {
+		t.Errorf("default pet spirit regen %v per second, want %v", got, 7.5+100.0/10)
+	}
+
+	imp := newPet("Imp")
+	imp.SetSpiritManaRegen(0, 1.0/5)
+	if got := imp.SpiritManaRegenPerSecond(); math.Abs(got-100.0/5) > 1e-9 {
+		t.Errorf("spirit regen %v per second, want %v", got, 100.0/5)
+	}
+	if got := unchanged.SpiritManaRegenPerSecond(); math.Abs(got-(7.5+100.0/10)) > 1e-9 {
+		t.Errorf("setting one pet's spirit regen changed another's to %v per second", got)
 	}
 }

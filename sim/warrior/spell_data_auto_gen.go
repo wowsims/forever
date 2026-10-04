@@ -8,7 +8,9 @@ import (
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Blood Craze: effect 1 of spell 16487 has no rank curve and is held at its base points
-//   Improved Slam: effect 3, 4, 5, 6, 7 of spell 12862 has no rank curve and is held at its base points
+//   Gore Drinker: effect 0 of spell 1323967 has no rank curve and is held at its base points
+//   Improved Slam: effect 2, 3, 4, 5, 6, 7 of spell 12862 has no rank curve and is held at its base points
+//   Iron Will: effect 1 of spell 12962 has no rank curve and is held at its base points
 //   Raging Blows: effect 0, 1 of spell 1310315 has no rank curve and is held at its base points
 //   Vanguard: effect 0, 1, 2 of spell 1310317 has no rank curve and is held at its base points
 
@@ -31,7 +33,6 @@ type generatedSpellData struct {
 	Bloodthrill                     spelldata.Ladder
 	BloodthrillTriggered            spelldata.Ladder
 	BoomingVoice                    spelldata.Ladder
-	BoundlessRage                   spelldata.Ladder
 	ChallengingShout                spelldata.Ladder
 	Charge                          spelldata.Ladder
 	ChargeTriggered                 spelldata.Ladder
@@ -60,6 +61,9 @@ type generatedSpellData struct {
 	Flurry                          spelldata.Ladder
 	FlurryTriggered                 spelldata.Ladder
 	FocusedRage                     spelldata.Ladder
+	FuriousPrecision                spelldata.Ladder
+	GoreDrinker                     spelldata.Ladder
+	GoreDrinkerTriggered            spelldata.Ladder
 	Hamstring                       spelldata.Ladder
 	HeroicStrike                    spelldata.Ladder
 	Impale                          spelldata.Ladder
@@ -68,7 +72,6 @@ type generatedSpellData struct {
 	ImprovedBloodrage               spelldata.Ladder
 	ImprovedChallengingShout        spelldata.Ladder
 	ImprovedCharge                  spelldata.Ladder
-	ImprovedCleave                  spelldata.Ladder
 	ImprovedDemoralizingShout       spelldata.Ladder
 	ImprovedDisarm                  spelldata.Ladder
 	ImprovedExecute                 spelldata.Ladder
@@ -98,6 +101,8 @@ type generatedSpellData struct {
 	IronWill                        spelldata.Ladder
 	LastStand                       spelldata.Ladder
 	LastStandTriggered              spelldata.Ladder
+	LingeringRage                   spelldata.Ladder
+	LingeringRageTriggered          spelldata.Ladder
 	LongDaze                        spelldata.Ladder
 	MasterOfDefense                 spelldata.Ladder
 	MasterOfDefenseTriggered        spelldata.Ladder
@@ -107,7 +112,6 @@ type generatedSpellData struct {
 	OffensiveStateTriggered         spelldata.Ladder
 	Overpower                       spelldata.Ladder
 	PiercingHowl                    spelldata.Ladder
-	Precision                       spelldata.Ladder
 	Pummel                          spelldata.Ladder
 	RagingBlows                     spelldata.Ladder
 	Recklessness                    spelldata.Ladder
@@ -115,6 +119,7 @@ type generatedSpellData struct {
 	Retaliation                     spelldata.Ladder
 	RetaliationTriggered            spelldata.Ladder
 	Revenge                         spelldata.Ladder
+	RuleOfRage                      spelldata.Ladder
 	ShieldBash                      spelldata.Ladder
 	ShieldBlock                     spelldata.Ladder
 	ShieldSlam                      spelldata.Ladder
@@ -129,7 +134,6 @@ type generatedSpellData struct {
 	TacticalMasteryTriggered        spelldata.Ladder
 	Taunt                           spelldata.Ladder
 	ThunderClap                     spelldata.Ladder
-	Toughness                       spelldata.Ladder
 	TwoHandedWeaponSpecialization   spelldata.Ladder
 	UnbridledWrath                  spelldata.Ladder
 	UnbridledWrathTriggered         spelldata.Ladder
@@ -161,7 +165,6 @@ var spellData = generatedSpellData{
 	Bloodthrill:                     spelldata.Talent(1289682, 5),
 	BloodthrillTriggered:            spelldata.Ranked(1282733, 1289681),
 	BoomingVoice:                    spelldata.Talent(12321, 5),
-	BoundlessRage:                   spelldata.Talent(1310236, 3),
 	ChallengingShout:                spelldata.Ranked(1161),
 	Charge:                          spelldata.Ranked(100, 6178, 11578),
 	ChargeTriggered:                 spelldata.Ranked(7922),
@@ -190,6 +193,9 @@ var spellData = generatedSpellData{
 	Flurry:                          spelldata.Talent(12319, 5),
 	FlurryTriggered:                 spelldata.Ranked(12966),
 	FocusedRage:                     spelldata.Talent(29787, 3),
+	FuriousPrecision:                spelldata.Talent(1323963, 3),
+	GoreDrinker:                     spelldata.Talent(1323967, 2),
+	GoreDrinkerTriggered:            spelldata.Ranked(1323969),
 	Hamstring:                       spelldata.Ranked(1715, 7372, 7373),
 	HeroicStrike:                    spelldata.Ranked(78, 284, 285, 1608, 11564, 11565, 11566, 11567, 25286),
 	Impale:                          spelldata.Talent(16493, 2),
@@ -198,7 +204,6 @@ var spellData = generatedSpellData{
 	ImprovedBloodrage:               spelldata.Talent(12301, 2),
 	ImprovedChallengingShout:        spelldata.Ranked(12327, 12886),
 	ImprovedCharge:                  spelldata.Talent(12285, 2),
-	ImprovedCleave:                  spelldata.Talent(12329, 3),
 	ImprovedDemoralizingShout:       spelldata.Ranked(12324, 12876, 12877, 12878, 12879),
 	ImprovedDisarm:                  spelldata.Talent(12313, 3),
 	ImprovedExecute:                 spelldata.Talent(20502, 2),
@@ -228,6 +233,8 @@ var spellData = generatedSpellData{
 	IronWill:                        spelldata.Talent(12962, 5),
 	LastStand:                       spelldata.Ranked(12975),
 	LastStandTriggered:              spelldata.Ranked(12976),
+	LingeringRage:                   spelldata.Talent(1323964, 5),
+	LingeringRageTriggered:          spelldata.Ranked(1323966),
 	LongDaze:                        spelldata.Ranked(12705),
 	MasterOfDefense:                 spelldata.Talent(1310316, 2),
 	MasterOfDefenseTriggered:        spelldata.Ranked(23602),
@@ -237,7 +244,6 @@ var spellData = generatedSpellData{
 	OffensiveStateTriggered:         spelldata.Ranked(1282733),
 	Overpower:                       spelldata.Ranked(7384, 7887, 11584, 11585),
 	PiercingHowl:                    spelldata.Ranked(12323),
-	Precision:                       spelldata.Talent(1225295, 3),
 	Pummel:                          spelldata.Ranked(6552, 6554),
 	RagingBlows:                     spelldata.Talent(1310315, 1),
 	Recklessness:                    spelldata.Ranked(1719),
@@ -245,6 +251,7 @@ var spellData = generatedSpellData{
 	Retaliation:                     spelldata.Ranked(20230),
 	RetaliationTriggered:            spelldata.Ranked(20240),
 	Revenge:                         spelldata.Ranked(6572, 6574, 7379, 11600, 11601, 25288),
+	RuleOfRage:                      spelldata.Ranked(1322574),
 	ShieldBash:                      spelldata.Ranked(72, 1671, 1672),
 	ShieldBlock:                     spelldata.Ranked(2565),
 	ShieldSlam:                      spelldata.Ranked(23922, 23923, 23924, 23925),
@@ -259,7 +266,6 @@ var spellData = generatedSpellData{
 	TacticalMasteryTriggered:        spelldata.Ranked(12295),
 	Taunt:                           spelldata.Ranked(355),
 	ThunderClap:                     spelldata.Ranked(6343, 8198, 8204, 8205, 11580, 11581),
-	Toughness:                       spelldata.Talent(12299, 5),
 	TwoHandedWeaponSpecialization:   spelldata.Talent(12163, 3),
 	UnbridledWrath:                  spelldata.Talent(12322, 5),
 	UnbridledWrathTriggered:         spelldata.Ranked(12964),

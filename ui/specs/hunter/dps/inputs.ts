@@ -1,12 +1,18 @@
-import { HandType, ItemSlot, Spec } from '@generated/proto/common';
-import { HunterOptions_Ammo, HunterOptions_PetAttackSpeed, HunterOptions_PetType, HunterOptions_QuiverBonus } from '@generated/proto/hunter';
+import * as InputHelpers from '@features/inputs/input_helpers';
+import { Spec } from '@generated/proto/common';
+import {
+	Hunter_Rotation_Playstyle as Playstyle,
+	HunterOptions_Ammo,
+	HunterOptions_PetAttackSpeed,
+	HunterOptions_PetType,
+	HunterOptions_QuiverBonus,
+} from '@generated/proto/hunter';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
 import { HunterSpecs } from '@sim/proto/spec_types';
 import type { CustomSection } from '@sim/spec_config';
 import { getEnumValues } from '@sim/utils/collections';
-import * as InputHelpers from '@ui-kit/input_helpers';
 
 // The arrows the client's items describe, as the Ammo enum lists them: each value is the arrow's item
 // id, so the icon and the hover tooltip come from the item. Every ranged weapon is taken to fire them.
@@ -28,7 +34,6 @@ export const AmmoInput = <SpecType extends HunterSpecs>() =>
 // enum the way AmmoInput lists the arrows.
 export const QuiverInput = <SpecType extends HunterSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, HunterOptions_QuiverBonus>({
-		extraClassNames: ['quiver-picker'],
 		fieldName: 'quiverBonus',
 		label: i18n.t('settings_tab.other.quiver.label'),
 		labelTooltip: i18n.t('settings_tab.other.quiver.tooltip'),
@@ -65,7 +70,7 @@ export const PetTypeInput = <SpecType extends HunterSpecs>() =>
 			{ value: HunterOptions_PetType.Cat, actionId: ActionId.fromPetName('Cat'), tooltip: i18n.t('settings_tab.other.pet_type.cat') },
 			{ value: HunterOptions_PetType.CoreHound, actionId: ActionId.fromPetName('Core Hound'), tooltip: i18n.t('settings_tab.other.pet_type.core_hound') },
 			{ value: HunterOptions_PetType.Crab, actionId: ActionId.fromPetName('Crab'), tooltip: i18n.t('settings_tab.other.pet_type.crab') },
-			{ value: HunterOptions_PetType.Crocilisk, actionId: ActionId.fromPetName('Crocolisk'), tooltip: i18n.t('settings_tab.other.pet_type.crocolisk') },
+			{ value: HunterOptions_PetType.Crocilisk, actionId: ActionId.fromPetName('Crocilisk'), tooltip: i18n.t('settings_tab.other.pet_type.crocolisk') },
 			{ value: HunterOptions_PetType.Fox, actionId: ActionId.fromPetName('Fox'), tooltip: i18n.t('settings_tab.other.pet_type.fox') },
 			{ value: HunterOptions_PetType.Gorilla, actionId: ActionId.fromPetName('Gorilla'), tooltip: i18n.t('settings_tab.other.pet_type.gorilla') },
 			{ value: HunterOptions_PetType.Hyena, actionId: ActionId.fromPetName('Hyena'), tooltip: i18n.t('settings_tab.other.pet_type.hyena') },
@@ -208,32 +213,56 @@ export const PetSection: CustomSection<Spec.SpecHunter> = {
 	inputs: [PetUptime()],
 };
 
+const isRanged = (player: Player<Spec.SpecHunter>) => player.getSimpleRotation().playstyle !== Playstyle.Melee;
+
+// One simple rotation: the playstyle picks the priority list, the toggles the spells it casts.
 export const RotationInputs = {
 	inputs: [
-		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
-			fieldName: 'meleeWeave',
-			label: i18n.t('rotation_tab.options.hunter.melee_weave.label'),
-			labelTooltip: i18n.t('rotation_tab.options.hunter.melee_weave.tooltip'),
-			showWhen: (player: Player<Spec.SpecHunter>) => player.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item?.handType === HandType.HandTypeTwoHand,
+		InputHelpers.makeRotationEnumInput<Spec.SpecHunter, Playstyle>({
+			fieldName: 'playstyle',
+			label: i18n.t('rotation_tab.options.hunter.playstyle.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.playstyle.tooltip'),
+			values: [
+				{ name: i18n.t('rotation_tab.options.hunter.playstyle.values.turret'), value: Playstyle.Turret },
+				{ name: i18n.t('rotation_tab.options.hunter.playstyle.values.weave'), value: Playstyle.Weave },
+				{ name: i18n.t('rotation_tab.options.hunter.playstyle.values.melee'), value: Playstyle.Melee },
+			],
 		}),
 		InputHelpers.makeRotationNumberInput<Spec.SpecHunter>({
 			fieldName: 'timeToWeave',
 			label: i18n.t('rotation_tab.options.hunter.time_to_weave.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.time_to_weave.tooltip'),
 			positive: true,
-			showWhen: (player: Player<Spec.SpecHunter>) =>
-				player.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item?.handType === HandType.HandTypeTwoHand && player.getSimpleRotation().meleeWeave,
-			storeField: ['rotation', 'gear'] as const,
+			showWhen: (player: Player<Spec.SpecHunter>) => player.getSimpleRotation().playstyle === Playstyle.Weave,
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useAimed',
+			label: i18n.t('rotation_tab.options.hunter.use_aimed.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_aimed.tooltip'),
+			showWhen: isRanged,
 		}),
 		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
 			fieldName: 'useMulti',
 			label: i18n.t('rotation_tab.options.hunter.use_multi.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.use_multi.tooltip'),
+			showWhen: isRanged,
 		}),
 		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
 			fieldName: 'useArcane',
 			label: i18n.t('rotation_tab.options.hunter.use_arcane.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.use_arcane.tooltip'),
+			showWhen: isRanged,
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useSniper',
+			label: i18n.t('rotation_tab.options.hunter.use_sniper.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_sniper.tooltip'),
+			showWhen: isRanged,
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useHawk',
+			label: i18n.t('rotation_tab.options.hunter.use_hawk.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_hawk.tooltip'),
 		}),
 	],
 };

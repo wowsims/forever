@@ -28,6 +28,9 @@ export interface CastItem {
 	travelStart: number | null;
 	travelDuration: number | null;
 	log: CastLog;
+	// This cast and the earlier ones it hides: every cast of the row since the last gap of at least
+	// `STACK_WINDOW`, in order, ending with `log`. Only the last cast of a run shows the whole run.
+	stack: Array<CastLog>;
 }
 
 // The stretch an auto attack waited before it actually went out. It starts left of the cast it

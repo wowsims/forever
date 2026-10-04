@@ -11,6 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
@@ -19,6 +20,8 @@ type consumableRegistration struct {
 	name string
 	// The imbue's equip spells, which the builder takes after the consumable's own id.
 	args []int32
+	// The spell penetration the imbue states on one school as a stat.
+	piercing shared.SchoolPiercing
 	// Why the builder refuses the consumable; its table entry is then written commented out beneath it.
 	unsupported []string
 }
@@ -63,6 +66,7 @@ func GenerateConsumableRegistrations(instance *dbc.DBC, db *WowDatabase, routes 
 		case imbueFamily:
 			if inCatalogue {
 				entry.args = parsedEquipSpells(catalogued.TemporaryEnchant)
+				entry.piercing = enchantPiercing(catalogued.TemporaryEnchant)
 			}
 			imbues = append(imbues, entry)
 		case explosiveFamily:
@@ -147,7 +151,8 @@ func registrationFamilyOf(c *proto.Consumable, catalogued *dbc.Consumable, routi
 // resistance or weapon damage to the enchant's own fields, whose every effect lands on the user, and
 // whose every aura the builder's parse, counted once per hand, attaches. Consecrated Sharpening
 // Stone's enchant 2684 names 28893, its attack power against Undead; a wizard oil's equip spell is
-// already the enchant's spell damage.
+// already the enchant's spell damage. An equip spell that procs is taken where the builder can
+// build its listener: Scroll of Imbue Manablade's enchant 8715 names 1308913, mana on melee hits.
 func parsedEquipSpells(enchant dbc.TemporaryEnchant) []int32 {
 	var spellIDs []int32
 	for slot, effect := range enchant.Effects {
@@ -160,13 +165,33 @@ func parsedEquipSpells(enchant dbc.TemporaryEnchant) []int32 {
 		fields := alone.ToProto()
 		row := spelldata.Find(spellID)
 		if slices.ContainsFunc(fields.Stats, isNonZero) || slices.ContainsFunc(fields.PseudoStats, isNonZero) ||
-			fields.WeaponDamage != 0 || len(fields.EnchantEffects) > 0 ||
-			row == spelldata.Nil || slices.ContainsFunc(row.Effects, landsOffTheUser) || len(spelldata.DryRun(row, spelldata.Count(2)).Skipped) > 0 {
+			fields.WeaponDamage != 0 || len(fields.EnchantEffects) > 0 || row == spelldata.Nil {
+			continue
+		}
+		if shared.TemporaryEnchantEquipSpellProcs(row) {
+			if len(spelldata.EnchantAuraUnsupported(row)) > 0 || len(shared.FiredSpellUnsupported(row)) > 0 {
+				continue
+			}
+		} else if slices.ContainsFunc(row.Effects, landsOffTheUser) || len(spelldata.DryRun(row, spelldata.Count(2)).Skipped) > 0 {
 			continue
 		}
 		spellIDs = append(spellIDs, spellID)
 	}
 	return spellIDs
+}
+
+// The stat slot of a temporary enchant that pierces one school's resistance, which the stat array
+// the enchant's other stats ship in has no place for: Scroll of Imbue Baleflame's enchant 8706.
+func enchantPiercing(enchant dbc.TemporaryEnchant) shared.SchoolPiercing {
+	for slot, effect := range enchant.Effects {
+		if effect != dbc.ITEM_ENCHANTMENT_STAT {
+			continue
+		}
+		if school, ok := dbc.MapBonusStatIndexToPiercingSchool(enchant.Args[slot]); ok {
+			return shared.SchoolPiercing{School: school, Amount: float64(enchant.Points[slot])}
+		}
+	}
+	return shared.SchoolPiercing{}
 }
 
 func landsOffTheUser(e spelldata.Effect) bool {
@@ -187,11 +212,18 @@ func onUseUnsupported(c *proto.Consumable) []string {
 	return nil
 }
 
+// The name a generated file reaches a school index by.
+var schoolIndexNames = map[stats.SchoolIndex]string{
+	stats.SchoolIndexFire:  "stats.SchoolIndexFire",
+	stats.SchoolIndexFrost: "stats.SchoolIndexFrost",
+}
+
 // Each family is one table and one loop that calls its builder: the compiler inlines the builder, and
 // the closure it hands core, into every call site, so a call per consumable copies the builder once
 // per consumable.
 func writeRegistrationFile(path, function, constructor string, equipSpells bool, groups []registrationGroup) error {
 	var table strings.Builder
+	usesStats := false
 	for i, group := range groups {
 		switch {
 		case group.title != "" && i > 0:
@@ -204,14 +236,20 @@ func writeRegistrationFile(path, function, constructor string, equipSpells bool,
 		for _, e := range group.entries {
 			entry := fmt.Sprintf("%d,", e.id)
 			if equipSpells {
-				entry = fmt.Sprintf("{itemID: %d},", e.id)
-			}
-			if len(e.args) > 0 {
-				args := make([]string, len(e.args))
-				for j, arg := range e.args {
-					args[j] = fmt.Sprint(arg)
+				fields := []string{fmt.Sprintf("itemID: %d", e.id)}
+				if e.piercing.Amount != 0 {
+					fields = append(fields, fmt.Sprintf("piercing: shared.SchoolPiercing{School: %s, Amount: %s}",
+						schoolIndexNames[e.piercing.School], num(e.piercing.Amount)))
+					usesStats = usesStats || len(e.unsupported) == 0
 				}
-				entry = fmt.Sprintf("{itemID: %d, equipSpellIDs: []int32{%s}},", e.id, strings.Join(args, ", "))
+				if len(e.args) > 0 {
+					args := make([]string, len(e.args))
+					for j, arg := range e.args {
+						args[j] = fmt.Sprint(arg)
+					}
+					fields = append(fields, fmt.Sprintf("equipSpellIDs: []int32{%s}", strings.Join(args, ", ")))
+				}
+				entry = "{" + strings.Join(fields, ", ") + "},"
 			}
 			if len(e.unsupported) > 0 {
 				fmt.Fprintf(&table, "\t\t// unsupported: %s\n\t\t// %s // %s\n", strings.Join(e.unsupported, "; "), entry, e.name)
@@ -223,11 +261,15 @@ func writeRegistrationFile(path, function, constructor string, equipSpells bool,
 
 	var out strings.Builder
 	out.WriteString("// Code generated by tools/database/gen_consumable_registrations.go. DO NOT EDIT.\n\npackage forever\n\n")
-	out.WriteString("import \"github.com/wowsims/forever/sim/common/shared\"\n\n")
+	if usesStats {
+		out.WriteString("import (\n\t\"github.com/wowsims/forever/sim/common/shared\"\n\t\"github.com/wowsims/forever/sim/core/stats\"\n)\n\n")
+	} else {
+		out.WriteString("import \"github.com/wowsims/forever/sim/common/shared\"\n\n")
+	}
 	fmt.Fprintf(&out, "func %s() {\n", function)
 	if equipSpells {
-		fmt.Fprintf(&out, "\tfor _, imbue := range []struct {\n\t\titemID int32\n\t\tequipSpellIDs []int32\n\t}{\n%s\t} {\n", table.String())
-		fmt.Fprintf(&out, "\t\tshared.%s(imbue.itemID, imbue.equipSpellIDs...)\n\t}\n}\n", constructor)
+		fmt.Fprintf(&out, "\tfor _, imbue := range []struct {\n\t\titemID int32\n\t\tpiercing shared.SchoolPiercing\n\t\tequipSpellIDs []int32\n\t}{\n%s\t} {\n", table.String())
+		fmt.Fprintf(&out, "\t\tshared.%s(imbue.itemID, imbue.piercing, imbue.equipSpellIDs...)\n\t}\n}\n", constructor)
 	} else {
 		fmt.Fprintf(&out, "\tfor _, itemID := range []int32{\n%s\t} {\n", table.String())
 		fmt.Fprintf(&out, "\t\tshared.%s(itemID)\n\t}\n}\n", constructor)

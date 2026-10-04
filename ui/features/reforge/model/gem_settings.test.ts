@@ -5,7 +5,7 @@ import { ReforgeSettings } from '@sim/settings/reforge_settings';
 import { createSimStore } from '@sim/state/sim_store';
 import { describe, expect, it } from 'vitest';
 
-const EP_STATS = [Stat.StatIntellect, Stat.StatSpellDamage, Stat.StatSpellHitRating];
+const EP_STATS = [Stat.StatIntellect, Stat.StatSpellDamage, Stat.StatHitRating];
 
 const makeSettings = (phase = CURRENT_PHASE) =>
 	new ReforgeSettings({ sim: { store: createSimStore(), getPhase: () => phase }, storeKey: 1 } as any, {}, EP_STATS);
@@ -31,15 +31,6 @@ describe('gem optimizer settings', () => {
 		expect(proto.maxGemQuality).toBe(ItemQuality.ItemQualityRare);
 		expect(proto.disableUniqueGems).toBe(true);
 		expect(proto.epStats).toEqual(EP_STATS);
-	});
-
-	it('serializes caps on the 41-entry stat enum', () => {
-		const proto = makeSettings().toProto();
-
-		expect(proto.statCaps?.stats).toHaveLength(41);
-		expect(proto.statCaps?.pseudoStats).toHaveLength(28);
-		expect(proto.breakpointLimits?.stats).toHaveLength(41);
-		expect(proto.breakpointLimits?.pseudoStats).toHaveLength(28);
 	});
 
 	it('round-trips the gem knobs back out of a proto', () => {

@@ -72,19 +72,17 @@ message SpellEffect {
     int32 spell_id = 2;
     int32 index = 3;
     EffectType type = 4;
-    double min_effect_size = 5;
-	double effect_spread = 6;
 	oneof misc_value0 {
-		ResourceType resource_type = 7;
-		SpellSchool school = 8;
-		Stat stat = 9;
+		ResourceType resource_type = 5;
+		SpellSchool school = 6;
+		Stat stat = 7;
 	}
 	// Milliseconds between periodic aura ticks; 0 for non-periodic effects
-	int32 aura_period_ms = 10;
+	int32 aura_period_ms = 8;
 	// Stats the effect grants
-	repeated double stats = 11;
+	repeated double stats = 9;
 	// Duration of the effect's aura in milliseconds; 0 for instant effects
-	int32 duration_ms = 12;
+	int32 duration_ms = 10;
 }
 
 enum EffectType {

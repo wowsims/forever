@@ -45,7 +45,7 @@ export const ToolbarItem = ({
 		<div className="ml-4 flex transition-colors duration-150 ease-in-out [&_a]:my-4 [&_button]:my-4" data-testid="sim-toolbar-item">
 			{!hidden &&
 				(href ? (
-					<Button as="a" variant="unstyled" href={href} target="_blank" className={className} aria-label={label} data-testid={testId} {...anchor}>
+					<Button variant="unstyled" href={href} target="_blank" className={className} aria-label={label} data-testid={testId} {...anchor}>
 						{content}
 					</Button>
 				) : (

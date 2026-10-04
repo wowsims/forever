@@ -57,7 +57,7 @@ export const DpsHistogram = () => {
 	);
 
 	return (
-		<div data-testid="dps-histogram-root" className="mx-auto mt-3 h-64 w-full">
+		<div data-testid="dps-histogram-root" className="mx-auto mt-2 h-64 w-full">
 			{data && <Bar data={data} options={options} />}
 		</div>
 	);

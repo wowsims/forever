@@ -104,29 +104,6 @@ func Chance(chance float64) ProcOpt {
 	}
 }
 
-// What a trigger built from this row does not model: the proc flags the decoder names as
-// unsupported, the two tooltip shapes it reads past, and a class mask naming a family the wearer's
-// class does not use. A trigger is still built for all of them - a listener that hears fewer hits
-// than the game files' is deliberately the narrower one - so this is the audit's way of seeing which
-// rows that applies to.
-func ProcTriggerUnsupported(character *core.Character, s *Spell) []string {
-	unsupported := core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint).Unsupported
-
-	// No ProcTypeMask can state either: a trigger restricted to one named ability, and one
-	// restricted to an outcome the mask has no bit for, both listen to more than the game files do.
-	if s.ProcHint.Matches(core.ProcHintNamedAbility) {
-		unsupported = append(unsupported, "NAMED_ABILITY")
-	}
-	if s.ProcHint.Matches(core.ProcHintOutcomeTaken) {
-		unsupported = append(unsupported, "OUTCOME_TAKEN")
-	}
-	if othersFamily(character, rowClassFlags(s)) {
-		unsupported = append(unsupported, "CLASS_MASK_OTHER_FAMILY")
-	}
-
-	return unsupported
-}
-
 // The spells the listener fires on where the game files name them, which is the
 // EffectSpellClassMask of the effect that carries the proc, read against the class wearing it.
 func listenerClassFlags(character *core.Character, s *Spell) core.ClassFlags {

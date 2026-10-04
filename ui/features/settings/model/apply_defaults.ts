@@ -83,7 +83,7 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		player.setProfession1(config.defaults.other?.profession1 || Profession.Engineering);
 
 		if (config.defaults.other?.profession2 === undefined) {
-			player.setProfession2(Profession.Jewelcrafting);
+			player.setProfession2(Profession.ProfessionUnknown);
 		} else {
 			player.setProfession2(config.defaults.other.profession2);
 		}

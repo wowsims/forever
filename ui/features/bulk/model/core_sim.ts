@@ -16,13 +16,21 @@ export interface CoreBulkSimContext {
 	debugOptimisationRound: (message: string, data?: unknown) => void;
 }
 
+export interface CoreBulkSimResult {
+	referenceDpsMetrics: DistributionMetrics;
+	topGearResults: TopGearResult[];
+	/** Iterations per displayed result, from the last stage that ran; 0 when none did. */
+	iterations: number;
+	metrics: Record<string, string | number>;
+}
+
 export async function runCoreBulkSim(
 	context: CoreBulkSimContext,
 	gearSets: Gear[],
 	signal: AbortSignal,
 	reforgeConfig?: ReforgeOptimizeConfig,
 	bulkSettings?: BulkSettings,
-): Promise<{ referenceDpsMetrics: DistributionMetrics; topGearResults: TopGearResult[]; metrics: Record<string, string | number> }> {
+): Promise<CoreBulkSimResult> {
 	context.throwIfBulkAborted(signal);
 	context.debugOptimisationRound('core bulk sim started', {
 		gearSets: gearSets.length,
@@ -82,6 +90,7 @@ export async function runCoreBulkSim(
 	return {
 		referenceDpsMetrics: result.baseline.dpsMetrics,
 		topGearResults,
+		iterations: result.stageMetrics.at(-1)?.iterations ?? 0,
 		metrics: getCoreBulkSimTrackingMetrics(result),
 	};
 }

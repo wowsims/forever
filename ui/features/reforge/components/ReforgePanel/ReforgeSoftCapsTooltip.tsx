@@ -1,76 +1,63 @@
 import { breakpointValueToDisplayPercentage } from '@features/reforge/model/utils';
 import { StatCapType } from '@generated/proto/api';
+import type { Class } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import type { Player } from '@sim/player/player';
 import { statCapTypeNames } from '@sim/proto/names';
 import type { StatCap } from '@sim/proto/stats';
 import type { StatTooltipContent } from '@sim/spec_config';
-import { Fragment } from 'react';
+import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 
 export interface ReforgeSoftCapsTooltipProps {
-	player: Player<any>;
+	playerClass: Class;
 	softCaps: StatCap[];
 	additionalInformation: StatTooltipContent;
 }
 
-/** The breakpoint table hanging off the optimize button. Built per open, so the limits it shows are current. */
-export const ReforgeSoftCapsTooltip = ({ player, softCaps, additionalInformation }: ReforgeSoftCapsTooltipProps) => (
+/** The breakpoint tables hanging off the optimize button, one per soft-capped stat. Built per open, so the limits they show are current. */
+export const ReforgeSoftCapsTooltip = ({ playerClass, softCaps, additionalInformation }: ReforgeSoftCapsTooltipProps) => (
 	<>
 		<p>{i18n.t('sidebar.buttons.suggest_reforges.breakpoints_implemented')}</p>
-		<table className="w-full">
-			<tbody>
-				{softCaps.map(({ unitStat, breakpoints, capType, postCapEPs }, index) => {
-					const extra = unitStat.hasRootStat() ? additionalInformation[unitStat.getRootStat()]?.() : undefined;
-					return (
-						<Fragment key={unitStat.getKey()}>
-							<tr>
-								<th className="whitespace-nowrap" colSpan={2}>
-									{unitStat.getShortName(player.getClass())}
-								</th>
-								<td className="text-right">{statCapTypeNames.get(capType)}</td>
-							</tr>
+		<div className="grid gap-4">
+			{softCaps.map(({ unitStat, breakpoints, capType, postCapEPs }) => {
+				const extra = unitStat.hasRootStat() ? additionalInformation[unitStat.getRootStat()]?.() : undefined;
+				return (
+					<Table key={unitStat.getKey()} dense>
+						<thead>
+							<TableRow>
+								<TableHeaderCell className="text-left" colSpan={2}>
+									{unitStat.getShortName(playerClass)}
+								</TableHeaderCell>
+								<TableHeaderCell className="text-right">{statCapTypeNames.get(capType)}</TableHeaderCell>
+							</TableRow>
+						</thead>
+						<tbody>
 							{extra !== undefined && (
-								<>
-									<tr>
-										<td colSpan={3}>{extra}</td>
-									</tr>
-									<tr>
-										<td colSpan={3} className="pb-2" />
-									</tr>
-								</>
+								<TableRow>
+									<TableCell colSpan={3}>{extra}</TableCell>
+								</TableRow>
 							)}
-							<tr>
-								<th className="text-right">
+							<TableRow>
+								<TableHeaderCell className="text-right">
 									<em>%</em>
-								</th>
-								<th colSpan={2} className="text-right whitespace-nowrap">
+								</TableHeaderCell>
+								<TableHeaderCell colSpan={2} className="text-right">
 									<em>{i18n.t('sidebar.buttons.suggest_reforges.post_cap_ep')}</em>
-								</th>
-							</tr>
+								</TableHeaderCell>
+							</TableRow>
 							{breakpoints.map((breakpoint, breakpointIndex) => (
-								<tr key={breakpoint}>
-									<td className="text-right">{breakpointValueToDisplayPercentage(breakpoint, unitStat)}</td>
-									<td colSpan={2} className="text-right">
+								<TableRow key={breakpoint}>
+									<TableCell className="text-right">{breakpointValueToDisplayPercentage(breakpoint, unitStat)}</TableCell>
+									<TableCell colSpan={2} className="text-right">
 										{unitStat
 											.convertEpToRatingScale(capType === StatCapType.TypeThreshold ? postCapEPs[0] : postCapEPs[breakpointIndex])
 											.toFixed(2)}
-									</td>
-								</tr>
+									</TableCell>
+								</TableRow>
 							))}
-							{index !== softCaps.length - 1 && (
-								<>
-									<tr>
-										<td colSpan={3} className="border-b border-border pb-2" />
-									</tr>
-									<tr>
-										<td colSpan={3} className="pb-2" />
-									</tr>
-								</>
-							)}
-						</Fragment>
-					);
-				})}
-			</tbody>
-		</table>
+						</tbody>
+					</Table>
+				);
+			})}
+		</div>
 	</>
 );

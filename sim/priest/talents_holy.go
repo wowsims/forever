@@ -51,6 +51,7 @@ func (priest *Priest) applyTwilightFocus() {
 //
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
 // the effect can be modelled; there is no TBC equivalent to port.
+// TODO: Renew rank 1289450 states 35 per tick with a 0 coefficient and no level requirement; verify in game before porting Renew.
 func (priest *Priest) applyImprovedRenew() {
 	if priest.Talents.ImprovedRenew == 0 {
 		return

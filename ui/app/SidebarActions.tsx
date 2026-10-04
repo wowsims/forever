@@ -1,4 +1,4 @@
-import { isCustomEntry, type SidebarRegistry } from '@ui-kit/sidebar_registry';
+import { isCustomEntry, type SidebarRegistry } from '@app/sidebar_registry';
 import { SidebarActionButton } from '@ui-kit/SidebarActionButton';
 import { Fragment, useSyncExternalStore } from 'react';
 

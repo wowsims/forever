@@ -56,5 +56,4 @@ export const DefaultDebuffs = Debuffs.create({
 	sunderArmor: true,
 	curseOfElements: true,
 	curseOfRecklessness: true,
-	huntersMark: true,
 });

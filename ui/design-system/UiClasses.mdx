@@ -1,0 +1,12 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { UiClassGroups } from './components/UiClassCard';
+
+<Meta title="Design System/UI Classes" />
+
+# `ui-*` classes
+
+Every `.ui-*` selector in the co-located component stylesheets under `ui/` (`ui/styles/` excluded), read from the files at build time and grouped by file. Each card lists every rule whose selector names the class, nested rules included.
+
+A `ui-<component>-<part>` class is a reusable multi-utility recipe, or a rule keyed on a state or descendant selector that utilities cannot express. It is plain CSS, not a utility, so it is always in the stylesheet. A class with a live sample renders on its own; the rest need the markup of their component.
+
+<UiClassGroups />

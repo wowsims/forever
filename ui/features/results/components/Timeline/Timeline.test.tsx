@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, within } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,8 +26,8 @@ vi.mock('./chart/build', () => ({
 		return { id: player.id, datasets: [], scales: {}, annotations: null, duration: 10 };
 	},
 }));
-vi.mock('./rotation/RotationView', () => ({
-	RotationView: ({ model }: { model: unknown }) => {
+vi.mock('./rotation/RotationTrack', () => ({
+	RotationTrack: ({ model }: { model: unknown }) => {
 		state.models.push(model);
 		return <div data-testid="rotation-pane" />;
 	},
@@ -49,6 +49,9 @@ const resultFor = (requestId: string, playerId: string, filter: unknown = {}) =>
 		},
 		filter,
 	}) as unknown as SimResultData;
+
+const viewButton = (container: HTMLElement, view: 'rotation' | 'dps') =>
+	within(container).getByRole('button', { name: `results_tab.details.timeline.chart_types.${view}` });
 
 const emit = (next: SimResultData | null, rerender: () => void) => {
 	state.result = next;
@@ -126,16 +129,16 @@ describe('Timeline', () => {
 		expect(state.charted).toBe(0);
 
 		act(() => {
-			fireEvent.click(view.container.querySelector('#timeline-chart-view-dps')!);
+			fireEvent.click(viewButton(view.container, 'dps'));
 		});
 		expect(state.charted).toBe(1);
 		expect(state.specs.at(-1)).toMatchObject({ id: 'p1' });
 
 		act(() => {
-			fireEvent.click(view.container.querySelector('#timeline-chart-view-rotation')!);
+			fireEvent.click(viewButton(view.container, 'rotation'));
 		});
 		act(() => {
-			fireEvent.click(view.container.querySelector('#timeline-chart-view-dps')!);
+			fireEvent.click(viewButton(view.container, 'dps'));
 		});
 		expect(state.charted).toBe(1);
 	});
@@ -146,7 +149,7 @@ describe('Timeline', () => {
 		expect(view.container.querySelector('[data-testid="rotation-plot"]')).toBeTruthy();
 
 		act(() => {
-			fireEvent.click(view.container.querySelector('#timeline-chart-view-dps')!);
+			fireEvent.click(viewButton(view.container, 'dps'));
 		});
 		expect(view.container.querySelector('[data-testid="dps-resources-plot"]')).toBeTruthy();
 		expect(view.container.querySelector('[data-testid="rotation-plot"]')).toBeNull();

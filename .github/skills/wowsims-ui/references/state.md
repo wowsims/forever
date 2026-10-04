@@ -2,8 +2,8 @@
 
 **Source of truth:** `ui/sim/state/sim_store.ts` for the shape, `ui/sim/state/subscriptions.ts` for
 the read side, `ui/sim/state/batch.ts` for gating. `ui/sim/state/README.md` is the long-form
-companion and has the add-a-field recipe — it predates the `runs` slice, so read the slice list from
-the code:
+companion and has the add-a-field recipe. Read the slice list from the code rather than from either
+file:
 
 ```
 sed -n '/^export interface SimState {/,/^}/p' ui/sim/state/sim_store.ts
@@ -99,8 +99,11 @@ the one that matches what you want: a value, or a notification. The hook reads i
 `usePlayer()`, and there is exactly one — there is no raid sim UI, so "which player" is never a
 question a component has to answer.
 
-**A named store field on an `InputConfig`.** `InputConfig` (`ui/ui-kit/input.ts`) takes
-`storeField`, resolved by `ui/sim/hooks/useStoreField.ts` against the host from context. A
+**A named store field on an `InputConfig`.** `InputConfig` (`ui/features/inputs/input.ts`, imported
+as `@features/inputs/input`) is what a `Connected*` adapter (`ui/features/inputs/components/`) hands to
+`useInput`, which reads the value and gives the kit picker plain `value`/`onChange`. It takes
+`storeField`, resolved by `useStoreField`
+(`ui/sim/hooks/useStoreField.ts`) against the host from context. A
 `StoreField` is either a bare player field or a scoped one — `sim:` `ui:` `encounter:` `raid:`
 `reforge:` `bulk:` `statWeights:` — and an array of them folds into one `subscribeAll`, so several
 fields still notify once. The `StoreBinding` type requires one of `storeField` / `storeSubscribe`,
@@ -109,10 +112,11 @@ than a closure, it is greppable, and it cannot capture the wrong object.
 
 `StoreField` also has two aggregates, `'player:*'` and `'encounter:*'`, which watch a whole slice.
 **They are a last resort** — each one is a component re-rendering on writes it does not read. There
-are five uses today; that number should fall and never rise:
+are seven outside tests (one `'player:*'`, six `'encounter:*'`); that number should fall and never
+rise:
 
 ```
-/usr/bin/grep -rn "player:\*\|encounter:\*" --include=*.ts --include=*.tsx ui/ | /usr/bin/grep -v useStoreField.ts
+/usr/bin/grep -rn "player:\*\|encounter:\*" --include=*.ts --include=*.tsx ui/ | /usr/bin/grep -v "useStoreField.ts\|\.test\."
 ```
 
 **`useStoreSubscribe(source, read)`** (`ui/sim/hooks/useStoreSubscribe.ts`) for a source that is not
@@ -133,27 +137,41 @@ afterwards. `useSimHost()` / `usePlayer()` / `useSim()` are the same kind of rea
 `useOptionalSimHost()` is the nullable variant, for a hook that needs the host on only some paths
 and still has to run unconditionally.
 
-Composite hooks, so nobody rebuilds one: `useIsBlacksmithing()` (`ui/sim/hooks/`, both profession
-fields), `useTalents()` (`ui/features/talents/hooks/useTalents.ts`), and `useAplRotation(select)` —
-the rotation is the one player field with no value in the store, so that hook keys a `useMemo` on the
+Composite hooks, so nobody rebuilds one: `useTalents()` (`ui/features/talents/hooks/useTalents.ts`)
+and `useAplRotation(select)` (`ui/sim/hooks/useAplRotation.ts`) — the rotation is the one player field with no value in the store, so that hook keys a `useMemo` on the
 `rotation` counter and reads `player.aplRotation` through it.
 
-### `revision`, and why the pickers need it
+### `revision`, and who needs it
 
-`ui/ui-kit/hooks/useInput.ts` returns `{ value, setValue, hidden, disabled, revision }`. `revision`
-increments on **every** notification, including ones that leave the value unchanged. It is not a
-change counter, and deleting it looks safe right up to the point an input stops re-syncing.
+`useInput` (`ui/features/inputs/hooks/useInput.ts`) returns
+`{ value, setValue, hidden, disabled, revision }`. `revision` increments on **every** notification,
+including ones that leave the value unchanged. It is not a change counter. The kit pickers never see
+it: they take `value` and `onChange` and hold no store state.
 
-Four pickers own an **uncontrolled** DOM node and write it from a `useLayoutEffect` keyed
-`[value, revision]`: `NumberPicker`, `AdaptiveStringPicker`, `NumberListPicker` and `EnumPicker`.
-Without `revision`, a store write that lands back on the value already displayed runs no effect and
-the node keeps whatever the user last typed. `IconPicker` and `IconEnumPicker` use it the other way
-round, as a `lastRevision` guard that tells a real notification apart from construction.
+Its reader is `useHideZeroRestore` (`ui/features/inputs/hooks/useHideZeroRestore.ts`), which keys a
+`lastRevision` guard on it to tell a real notification apart from construction and a StrictMode
+replay before it zeroes a hidden input or restores a shown one. Both icon adapters call it:
 
-The three text pickers commit through `useCommitChange` (`ui/ui-kit/hooks/useCommitChange.ts`),
-which listens for the **native `change` event** — blur-after-edit and Enter — not React's `onChange`,
-which fires per keystroke. Typing into one of them writes nothing to the store until the edit is
-committed; `EnumPicker`'s `<select>` is the exception and commits on selection.
+- `ConnectedIconPicker` (`ui/features/inputs/components/ConnectedIconPicker/ConnectedIconPicker.tsx`) passes the
+  zero through its `write`, so a two-state source stores the zeroed or restored value as a boolean.
+- `ConnectedIconEnumPicker` (`ui/features/inputs/components/ConnectedIconEnumPicker/ConnectedIconEnumPicker.tsx`)
+  passes `restoreWhen`, so the stored value comes back only while the source holds
+  `zeroValue`, and `onSettled`, which sees the value the hide/restore step left and resets it to
+  `zeroValue` when that option is itself hidden by its `showWhen`. A user pick calls `clearStored()`
+  first, so a later show does not overwrite it.
+
+`TextField` (`ui/ui-kit/TextField/TextField.tsx`) and its presets — `NumberField`, `StringField`,
+`NumberListField`, `SearchField` — hold an
+uncommitted edit in `useDraft` (`ui/ui-kit/hooks/useDraft.ts`), keyed on the formatted display
+string: a new value from the parent drops the draft, a commit clears it, and a notification that
+leaves the display string unchanged (a same-value write, a `revision` bump) keeps a mid-edit draft.
+With the default `commit="blur"`, which every connected text field uses, they commit through `useCommitChange`
+(`ui/ui-kit/hooks/useCommitChange.ts`), which listens for the **native `change` event** —
+blur-after-edit and Enter — not React's `onChange`, which fires per keystroke. Typing into one of
+them writes nothing to the store until the edit is committed. The exceptions are `SearchField`, which
+commits per keystroke or once typing pauses, and `ChoiceField` (`ui/ui-kit/ChoiceField/ChoiceField.tsx`),
+which commits on selection. A `value` that matches none of its options shows the placeholder, or on
+the bordered `select` look without one the first option, without writing anything back.
 
 Omit both `storeField` and `storeSubscribe` for an input re-synced by its parent — the nested APL
 pickers — and for UI-local toggles; `useInput` then rings its own notification after `setValue`, and
@@ -166,31 +184,29 @@ uses, then calls a facade method that reads a field it did not name, and the ren
 mount and silently stale afterwards. There is no error, no warning and no failing test; the value is
 simply the one it had when the component last re-rendered for some other reason.
 
-A shape worth checking for on sight, because it has bitten this exact architecture before: a
-component calling `player.isBlacksmithing()` — which decides whether an item's extra Blacksmithing
-socket counts — while subscribing only to `gear`, so toggling the profession leaves gem totals and
-the favourite-gem socket colour stale until the next gear edit; or a component reading
-`player.hasProfession(...)` inside a `useMemo(…, [player, item])` with no profession subscription
-anywhere in the file, so a bulk-sim gear-change tooltip keeps whichever socket count was current
-when it mounted. The fix in both cases is `useIsBlacksmithing()`, which selects `profession1` and
-`profession2` directly. What surfaces this class of bug is naming the fields at the subscription
+A shape worth checking for on sight: a component calling `player.hasProfession(...)` — which
+decides, for one, whether a profession-only enchant or gem is offered — while subscribing only to
+`gear`, so toggling the profession leaves the list stale until the next gear edit; or a component
+reading `player.hasProfession(...)` inside a `useMemo(…, [player, item])` with no profession
+subscription anywhere in the file, so the memo keeps whichever answer was current when it mounted.
+The fix in both cases is to subscribe to what the method reads, `usePlayerStore('profession1')` and
+`usePlayerStore('profession2')`. What surfaces this class of bug is naming the fields at the subscription
 site: an aggregate, or a hand-built `storeSubscribe`, hides the read set, and `storeField` puts it
 in one greppable place. That is the practical argument for the preference order above.
 
 **No lint can find these.** The read is a method call on a facade, so the dependency is only visible
-by following `player.isBlacksmithing()` into `ui/sim/player/player.ts` and seeing which slice fields
+by following `player.hasProfession()` into `ui/sim/player/player.ts` and seeing which slice fields
 it touches. When you add a facade call to a component, audit what that method reads, not what the
 component names.
 
-**And `react-hooks/exhaustive-deps` reports the inverse case backwards.** This architecture has
-already hit one case where `ui/features/gear/components/SelectorModal/ItemList.tsx`'s
-`itemsToDisplay` memo listed `filters` in its dependency array while its body never named it
-directly — it read as a stray entry to delete. It was load-bearing: the body called
-`player.filterItemData(…)`, and that method reaches `sim.getFilters()` internally. Deleting the
-entry on a lint's word left the memo's correctness resting on another dependency happening to close
-over `filters` too — an accident of the code, not the reason the entry was there. Check for the same
-shape once `SelectorModal/ItemList.tsx` exists here: treat a dependency a lint calls unnecessary the
-same way you treat a missing one — go read the callee, don't trust the lint's diff.
+**And `react-hooks/exhaustive-deps` reports the inverse case backwards.**
+`ui/features/gear/components/SelectorModal/ItemList.tsx`'s `itemsToDisplay` memo lists `filters`
+in its dependency array while its body never names it directly, so it reads as a stray entry to
+delete. It is load-bearing: the body calls `player.filterItemData(…)`, and that method reaches
+`sim.getFilters()` internally. Deleting the entry on a lint's word leaves the memo's correctness
+resting on another dependency happening to close over `filters` too — an accident of the code, not
+the reason the entry is there; a comment beside it says so. Treat a dependency a lint calls
+unnecessary the same way you treat a missing one — go read the callee, don't trust the lint's diff.
 
 ## State vs events — the rule that gets got wrong
 
@@ -214,9 +230,15 @@ mutate in place and call `touchRotation` themselves — either form is fine, but
 replace-on-write, so re-reading state inside the closure hands you a stale object and your edit
 disappears.
 
-**Lists.** A picker that hands a list to `ListPicker` must return a COPY from `getValue`
-(`.slice()`), never the live store array. `ListPicker.tsx` splices the array `getValue` returns, in
-place, and relies on the store notification to re-render, deliberately. Confirm with `/usr/bin/grep -n splice ui/ui-kit/ListPicker/ListPicker.tsx`.
+**Lists.** `useListItems` (`ui/features/inputs/hooks/useListItems.ts`) binds an array field to a
+config: `create`, `remove`, `copy`, `move` and each row's `itemConfig` write one fresh array through
+`config.setValue`, never mutating the array it read; `remove` refuses a row `minimumItems` keeps. A
+config's `getValue` may return the live store array, and `setValue` assigns the new one
+(`rotation.priorityList = next`, `setTargets(next)`) and notifies. Each row's `itemConfig.getValue`
+re-reads `config.getValue` and finds its item by key (`ui/features/inputs/list_ids.ts`), so a row
+keeps its item through a reorder and through a source that hands back clones. The caller renders the
+array on the kit `Tree` (`ui/ui-kit/Tree/`) and wires `move` through `Tree.Root`'s
+`sortable.onMove`.
 
 ## Adding a field
 

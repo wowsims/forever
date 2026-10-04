@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{16, 19, 16}
+var TalentTreeSizes = [3]int{16, 20, 16}
 
 type Druid struct {
 	core.Character
@@ -48,7 +48,6 @@ type Druid struct {
 	Rip                  *DruidSpell
 	Shred                *DruidSpell
 	Starfire             []*DruidSpell
-	TigersFury           *DruidSpell
 	Swipe                *DruidSpell
 	Wrath                *DruidSpell
 
@@ -66,7 +65,6 @@ type Druid struct {
 	MangleAuras              core.AuraArray
 	MoonkinFormAura          *core.Aura
 	ProwlAura                *core.Aura
-	TigersFuryAura           *core.Aura
 
 	form DruidForm
 
@@ -106,7 +104,6 @@ const (
 	DruidSpellThorns
 	DruidSpellWrath
 	DruidSpellEnrage
-	DruidSpellTigersFury
 	DruidSpellCatForm
 	DruidSpellBearForm
 
@@ -224,7 +221,6 @@ func (druid *Druid) RegisterFeralCatSpells() {
 	druid.registerFerociousBiteSpell()
 	// TODO: Forever drops Faerie Fire (Feral); see registerFaerieFireFeralSpell.
 	druid.registerShredSpell()
-	druid.registerTigersFurySpell()
 }
 
 func (druid *Druid) RegisterFeralTankSpells() {
@@ -259,13 +255,9 @@ func New(char *core.Character, form DruidForm, selfBuffs SelfBuffs, talents stri
 	core.FillTalentsProto(druid.Talents.ProtoReflect(), talents, TalentTreeSizes)
 	druid.EnableManaBar()
 
-	druid.AddStatDependency(stats.Strength, stats.AttackPower, 1)
+	druid.AddStatDependency(stats.Strength, stats.AttackPower, 2)
 	druid.AddStatDependency(stats.BonusArmor, stats.Armor, 1)
 	druid.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[char.Class])
-	druid.AddStatDependency(stats.Agility, stats.DodgeRating, 1.0/14.7059*core.DodgeRatingPerDodgePercent)
-
-	// TBC: Druids have a -1.87% base dodge correction to match in-game values.
-	druid.PseudoStats.BaseDodgeChance -= 0.0187
 
 	return druid
 }

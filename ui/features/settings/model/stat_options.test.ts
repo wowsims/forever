@@ -1,7 +1,7 @@
-import { Class, Stat } from '@generated/proto/common';
+import { Class, PseudoStat, Stat } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
 import { UnitStat } from '@sim/proto/stats';
-import { fakeHost } from '@sim/testing';
+import { fakeHost } from '@testing/sim/fake_host';
 import { describe, expect, it } from 'vitest';
 
 import { applyOwnerClassLabels, inDisplayOrder, type PickerStatOptions, relevantStatOptions, type RenderableStatOptions } from './stat_options';
@@ -29,6 +29,15 @@ describe('relevantStatOptions', () => {
 	it('keeps an option tagged with an EP stat or a displayed stat, and every untagged option', () => {
 		const shown = relevantStatOptions(options, host({ epStats: [Stat.StatMP5], displayStats: [UnitStat.fromStat(Stat.StatStamina)] }));
 		expect(shown).toEqual([manaSpring, manaTide, untagged, fortitude]);
+	});
+
+	it('matches a displayed pseudo stat by its root rating, never by its own number', () => {
+		const hitBuff = option([Stat.StatHitRating]);
+		expect(PseudoStat.PseudoStatMeleeSpeedMultiplier).toBe(Stat.StatHitRating);
+		const speed = host({ displayStats: [UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeSpeedMultiplier)] });
+		expect(relevantStatOptions([hitBuff], speed)).toEqual([]);
+		const hit = host({ displayStats: [UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent)] });
+		expect(relevantStatOptions([hitBuff], hit)).toEqual([hitBuff]);
 	});
 
 	it('includes by stat, the way every spec lists them', () => {

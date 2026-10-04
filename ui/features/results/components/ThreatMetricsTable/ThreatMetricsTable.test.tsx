@@ -1,4 +1,12 @@
-import { ActionMetrics } from '@sim/proto/sim_result';
+import {
+	actionMetric as metric,
+	metricRows as rows,
+	metricsTooltipRowNames,
+	metricsTooltipTable as tooltipTable,
+	mockActionMetricsMerge,
+	petActionMetric as pet,
+	playerMetricsResult,
+} from '@testing/results-metrics';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,90 +18,19 @@ let result: SimResultData | null = null;
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
 vi.mock('../MetricsTable/MetricsActionCell', () => ({ MetricsActionCell: ({ name }: { name: string }) => <span>{name}</span> }));
 
-const metric = (name: string, overrides: Record<string, unknown> = {}) => {
-	const base: Record<string, unknown> = {
-		name,
-		actionId: { toStringIgnoringTag: () => name, toString: () => name },
-		unit: { isPet: false, petActionId: null },
-		spellSchool: null,
-		threat: 1000,
-		avgThreat: 1000,
-		totalThreatPercent: 50,
-		threatThroughput: 40,
-		casts: 10,
-		isPassiveAction: false,
-		avgCastThreat: 100,
-		avgHitThreat: 100,
-		landedHits: 10,
-		landedTicks: 0,
-		critPercent: 20,
-		blockedCritPercent: 0,
-		critTickPercent: 0,
-		totalMisses: 1,
-		totalMissesPercent: 10,
-		misses: 1,
-		missPercent: 10,
-		parries: 0,
-		parryPercent: 0,
-		dodges: 0,
-		dodgePercent: 0,
-		hits: 8,
-		crits: 2,
-		glances: 0,
-		blocks: 0,
-		blockPercent: 0,
-		blockedCrits: 0,
-		crushes: 0,
-		crushPercent: 0,
-		resistedHits: 0,
-		resistedCrits: 0,
-		resistedTicks: 0,
-		resistedCritTicks: 0,
-		ticks: 0,
-		critTicks: 0,
-		tps: 50,
-		hitAttempts: 11,
-		...overrides,
-	};
-	base.forTarget = () => base;
-	return base as unknown as ActionMetrics;
-};
-
-const pet = (name: string, overrides: Record<string, unknown> = {}) => metric(name, { unit: { isPet: true, petActionId: null }, ...overrides });
-
-const playerResult = (actions: Array<ActionMetrics>, petActions: Array<ActionMetrics> = []) =>
-	({
-		filter: {},
-		result: {
-			getRaidIndexedPlayers: () => [
-				{
-					getThreatActions: () => actions,
-					pets: petActions.length ? [{ name: 'Wolf', getThreatActions: () => petActions }] : [],
-				},
-			],
-		},
-	}) as unknown as SimResultData;
-
-const rows = (container: HTMLElement) => [...container.querySelectorAll<HTMLTableRowElement>('tbody tr')];
-const tooltipTable = () => document.querySelector('.sim-tooltip table[data-testid="metrics-table"]');
+const playerResult = playerMetricsResult('getThreatActions');
 
 describe('ThreatMetricsTable', () => {
 	beforeEach(() => {
 		result = null;
-		vi.spyOn(ActionMetrics, 'merge').mockImplementation(((metrics: Array<Record<string, number>>) => ({
-			...metrics[0],
-			threat: metrics.reduce((sum, entry) => sum + entry.threat, 0),
-			tps: metrics.reduce((sum, entry) => sum + entry.tps, 0),
-		})) as unknown as typeof ActionMetrics.merge);
+		mockActionMetricsMerge('threat', 'tps');
 	});
 
 	it('builds the ten-column shell before any result', () => {
 		const { container } = render(<ThreatMetricsTable />);
 
 		expect(container.querySelector('[data-testid="threat-metrics-root"]')).toBeTruthy();
-		const headers = [...container.querySelectorAll('thead th')];
-		expect(headers).toHaveLength(10);
-		expect(headers.filter(th => th.classList.contains('w-100'))).toEqual([headers[1]]);
+		expect(container.querySelectorAll('thead th')).toHaveLength(10);
 		expect(rows(container)).toHaveLength(0);
 	});
 
@@ -121,10 +58,7 @@ describe('ThreatMetricsTable', () => {
 
 		fireEvent.mouseEnter(container.querySelector('td.text-success')!);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		expect([...tooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')].map(row => row.cells[0].textContent)).toEqual([
-			'results_tab.details.tooltip_table.per_cast',
-			'results_tab.details.tooltip_table.per_hit',
-		]);
+		expect(metricsTooltipRowNames()).toEqual(['results_tab.details.tooltip_table.per_cast', 'results_tab.details.tooltip_table.per_hit']);
 	});
 
 	it('breaks the hits cell down by outcome, resisted hits included', async () => {
@@ -133,7 +67,7 @@ describe('ThreatMetricsTable', () => {
 
 		fireEvent.mouseEnter(rows(container)[0].cells[4]);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		expect([...tooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')].map(row => row.cells[0].textContent)).toEqual([
+		expect(metricsTooltipRowNames()).toEqual([
 			'results_tab.details.attack_types.hit',
 			'results_tab.details.attack_types.resisted_hit',
 			'results_tab.details.attack_types.critical_hit',
@@ -158,7 +92,7 @@ describe('ThreatMetricsTable', () => {
 
 		fireEvent.mouseEnter(rows(container)[0].cells[7]);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		expect([...tooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')].map(row => row.cells[0].textContent)).toEqual([
+		expect(metricsTooltipRowNames()).toEqual([
 			'results_tab.details.attack_types.miss',
 			'results_tab.details.attack_types.parry',
 			'results_tab.details.attack_types.dodge',

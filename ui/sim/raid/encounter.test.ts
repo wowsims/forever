@@ -35,34 +35,20 @@ const presetEncounter = () =>
 	});
 
 describe('Encounter', () => {
-	describe('applyPreset', () => {
-		it('stores a copy of every preset target, down to the nested target inputs', () => {
-			const preset = presetEncounter();
-			const dbTarget = preset.targets[0].target!;
-			const encounter = makeEncounter();
+	it.each([
+		['applyPreset', (encounter: Encounter, preset: PresetEncounter) => encounter.applyPreset(preset)],
+		['applyPresetTarget', (encounter: Encounter, preset: PresetEncounter) => encounter.applyPresetTarget(preset.targets[0], 0)],
+	] as const)('%s stores a copy of the preset target, down to the nested target inputs', (_name, apply) => {
+		const preset = presetEncounter();
+		const dbTarget = preset.targets[0].target!;
+		const encounter = makeEncounter();
 
-			encounter.applyPreset(preset);
+		apply(encounter, preset);
 
-			const stored = encounter.getTarget(0)!;
-			expect(stored).not.toBe(dbTarget);
-			expect(stored.targetInputs[0]).not.toBe(dbTarget.targetInputs[0]);
-			expect(TargetProto.equals(stored, dbTarget)).toBe(true);
-		});
-	});
-
-	describe('applyPresetTarget', () => {
-		it('stores a copy of the preset target at the given index', () => {
-			const preset = presetEncounter().targets[0];
-			const dbTarget = preset.target!;
-			const encounter = makeEncounter();
-
-			encounter.applyPresetTarget(preset, 0);
-
-			const stored = encounter.getTarget(0)!;
-			expect(stored).not.toBe(dbTarget);
-			expect(stored.targetInputs[0]).not.toBe(dbTarget.targetInputs[0]);
-			expect(TargetProto.equals(stored, dbTarget)).toBe(true);
-		});
+		const stored = encounter.getTarget(0)!;
+		expect(stored).not.toBe(dbTarget);
+		expect(stored.targetInputs[0]).not.toBe(dbTarget.targetInputs[0]);
+		expect(TargetProto.equals(stored, dbTarget)).toBe(true);
 	});
 
 	describe('area types', () => {
@@ -72,19 +58,6 @@ describe('Encounter', () => {
 			encounter.setAreaTypes([AreaType.AreaTypeHaunted, AreaType.AreaTypeUnknown, AreaType.AreaTypeForestGrassland, AreaType.AreaTypeHaunted]);
 
 			expect(encounter.getAreaTypes()).toEqual([AreaType.AreaTypeForestGrassland, AreaType.AreaTypeHaunted]);
-			expect(encounter.inArea(AreaType.AreaTypeHaunted)).toBe(true);
-			expect(encounter.inArea(AreaType.AreaTypeMountainous)).toBe(false);
-		});
-
-		it('toggles one area without touching the others', () => {
-			const encounter = makeEncounter();
-			encounter.setAreaTypes([AreaType.AreaTypeMountainous]);
-
-			encounter.setInArea(AreaType.AreaTypeSnowy, true);
-			expect(encounter.getAreaTypes()).toEqual([AreaType.AreaTypeMountainous, AreaType.AreaTypeSnowy]);
-
-			encounter.setInArea(AreaType.AreaTypeMountainous, false);
-			expect(encounter.getAreaTypes()).toEqual([AreaType.AreaTypeSnowy]);
 		});
 
 		it('takes its set from a zone, and forgets the zone once the set is edited by hand', () => {
@@ -94,7 +67,7 @@ describe('Encounter', () => {
 			expect(encounter.getZoneId()).toBe(2677);
 			expect(encounter.getAreaTypes()).toEqual([AreaType.AreaTypeCavernous, AreaType.AreaTypeVolcanic]);
 
-			encounter.setInArea(AreaType.AreaTypeSnowy, true);
+			encounter.setAreaTypes([...encounter.getAreaTypes(), AreaType.AreaTypeSnowy]);
 			expect(encounter.getZoneId()).toBe(0);
 			expect(encounter.getAreaTypes()).toEqual([AreaType.AreaTypeSnowy, AreaType.AreaTypeCavernous, AreaType.AreaTypeVolcanic]);
 

@@ -64,15 +64,6 @@ func (dbc *DBC) LoadSpellScaling() error {
 	return nil
 }
 
-func (dbc *DBC) SpellScaling(class proto.Class, level int) float64 {
-	if scaling, ok := dbc.SpellScalings[level]; ok {
-		if value, ok := scaling.Values[class]; ok {
-			return value
-		}
-	}
-	return 0.0 // return a default or error value if not found
-}
-
 func parseScalingValue(value string) float64 {
 	v, err := strconv.ParseFloat(value, 64)
 	if err != nil {

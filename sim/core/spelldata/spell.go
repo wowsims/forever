@@ -63,6 +63,16 @@ func (s *Spell) EffectN(i int) *Effect {
 	return &s.Effects[i-1]
 }
 
+// The effect at the game files' EffectIndex i, or NilEffect when the row carries none there.
+func (s *Spell) EffectAtIndex(i uint8) *Effect {
+	for j := range s.Effects {
+		if s.Effects[j].Index == i {
+			return &s.Effects[j]
+		}
+	}
+	return NilEffect
+}
+
 // The one effect with this aura and misc value. Panics when none matches, and when two do: reading
 // the first of several silently is the bug this shape exists to prevent, and EffectN is the way past
 // it.
@@ -108,6 +118,24 @@ func (s *Spell) DamageEffect() *Effect {
 		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
 }
 
+// A weapon strike's damage: its flat weapon-damage roll, the weapon damage and extra, all scaled by
+// the spell's weapon percent, or taken whole where it states none. In game the percent scales the
+// flat part too: Holy Strike rank 1's 12 ± 1.5 at 25% shows as 2 to 4.
+func (s *Spell) WeaponStrike(sim *core.Simulation, spell *core.Spell, weaponDamage, extra float64) float64 {
+	flat := s.firstOfType(dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL,
+		dbcenums.E_WEAPON_DAMAGE)
+	percent := 1.0
+	if p := s.firstOfType(dbcenums.E_WEAPON_PERCENT_DAMAGE); p != NilEffect {
+		percent = p.Percent()
+	}
+	return (flat.RollAt(sim, spell.Unit.Level) + weaponDamage + extra) * percent
+}
+
+// The effect granting the caster extra attacks, whose BasePoints is how many.
+func (s *Spell) ExtraAttacksEffect() *Effect {
+	return s.firstOfType(dbcenums.E_ADD_EXTRA_ATTACKS)
+}
+
 func (s *Spell) HealEffect() *Effect {
 	return s.firstOfType(dbcenums.E_HEAL)
 }
@@ -135,6 +163,10 @@ func (s *Spell) AbsorbEffect() *Effect {
 
 func (s *Spell) EnergizeEffect() *Effect {
 	return s.firstOfType(dbcenums.E_ENERGIZE)
+}
+
+func (s *Spell) CategoryCooldownEffect() *Effect {
+	return s.firstOfType(dbcenums.E_MODIFY_COOLDOWNS_BY_CATEGORY)
 }
 
 // The effect a resource gain lands through: E_ENERGIZE, an amount into the bar its misc value names

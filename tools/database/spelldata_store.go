@@ -551,8 +551,7 @@ func (t *spellTables) loadShapeshift(db *sql.DB) error {
 }
 
 // The aura a spell needs on its caster to be cast, and the one that bars it, where the game files
-// state neither as a form: Tiger's Fury names Cat Form here rather than in SpellShapeshift, whose
-// row for it is empty.
+// state neither as a form: Shifting Power names Cat Form here beside its SpellShapeshift mask.
 func (t *spellTables) loadAuraRestrictions(db *sql.DB) error {
 	return eachRow(db, `
 		SELECT SpellID, COALESCE(CasterAuraSpell, 0), COALESCE(ExcludeCasterAuraSpell, 0)

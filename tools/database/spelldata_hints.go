@@ -13,7 +13,7 @@ import (
 // Spell.Description_lang is generator input only - the store carries the reading, never the text -
 // so the sim reads a decided shape instead of re-parsing English at runtime.
 //
-// The four shapes are the ones docs/spell_data.md names under "Proc chances": the column is the
+// The four shapes are the ones docs/spell_data/procs.md names: the column is the
 // roll, an effect's value is the roll, the column is a sentinel for "fires on its own condition",
 // or nothing states a rate at all and an override owes one.
 

@@ -5,7 +5,7 @@ import { getMetaGemConditionDescription } from '@sim/proto/gems';
 import { professionNames } from '@sim/proto/names';
 import { getTalentPoints } from '@sim/proto/utils';
 import type { SimWarning } from '@sim/sim_host';
-import { subscribeAll, subscribePlayerField } from '@sim/state/subscriptions';
+import { subscribeAll, subscribePlayerField, subscribeRaidField } from '@sim/state/subscriptions';
 
 // Talents are three free-form trees, so there is no per-row requirement to check: the only
 // thing the string can be wrong about is the point total.
@@ -73,6 +73,24 @@ export function defaultSimWarnings<SpecType extends number>(player: Player<SpecT
 				return i18n.t('sidebar.warnings.unspent_talent_points', {
 					count: MAX_TALENT_POINTS - talentPoints,
 				});
+			},
+		},
+		{
+			updateOn: subscribeRaidField(player.sim.raid, 'partyBuffs'),
+			getContent: () => {
+				const buffs = player.getParty()?.getBuffs();
+				if (!buffs?.windfuryTotem) {
+					return '';
+				}
+
+				const warnings: Array<string> = [];
+				if (buffs.graceOfAirTotem) {
+					warnings.push(i18n.t('sidebar.warnings.windfury_over_grace_of_air'));
+				}
+				if (buffs.flametongueTotem) {
+					warnings.push(i18n.t('sidebar.warnings.windfury_over_flametongue'));
+				}
+				return warnings;
 			},
 		},
 	];

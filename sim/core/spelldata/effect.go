@@ -56,7 +56,32 @@ func (e *Effect) Trigger() *Spell {
 // float32 is load-bearing: EffectRealPointsPerLevel is a float32 widened into the DB
 // (3.79999995231628), and multiplying in float64 moves the result off the tooltip on six rows. The
 // game resolves the amount to a whole number, which is the floor below.
-func (e *Effect) Average(level int32) float64 {
+func (e *Effect) AverageAt(level int32) float64 {
+	return math.Floor(float64(float32(e.BasePoints) + e.levelGain(level)))
+}
+
+// Average, Min, Max, Mean and Roll read the sim's character level; the At forms take one.
+func (e *Effect) Average() float64 {
+	return e.AverageAt(core.CharacterLevel)
+}
+
+func (e *Effect) Min() float64 {
+	return e.MinAt(core.CharacterLevel)
+}
+
+func (e *Effect) Max() float64 {
+	return e.MaxAt(core.CharacterLevel)
+}
+
+func (e *Effect) Mean() float64 {
+	return e.MeanAt(core.CharacterLevel)
+}
+
+func (e *Effect) Roll(sim *core.Simulation) float64 {
+	return e.RollAt(sim, core.CharacterLevel)
+}
+
+func (e *Effect) levelGain(level int32) float32 {
 	// MaxLevel 0 is the game files' "no cap", which a spell with no SpellLevels row carries.
 	lvl := level
 	if e.MaxLevel > 0 && int32(e.MaxLevel) < lvl {
@@ -68,25 +93,48 @@ func (e *Effect) Average(level int32) float64 {
 		delta = 0
 	}
 
-	base := float32(e.BasePoints) + float32(float32(delta)*float32(e.PPL))
-	return math.Floor(float64(base))
+	return float32(float32(delta) * float32(e.PPL))
 }
 
-// The low end of the roll. EffectVariance is the spread around the average, so an effect that does not
-// roll answers the average at both ends.
-func (e *Effect) Min(level int32) float64 {
-	return e.Average(level) * (1 - e.Variance/2)
+// The low end of the roll. EffectVariance spreads the base points, whose ends are rounded to whole
+// numbers, a half to the even one; the per-level gain is added to both, and each end is rounded
+// outward. An effect that does not roll answers the average at both ends.
+func (e *Effect) MinAt(level int32) float64 {
+	low, _ := e.spread(level)
+	return low
 }
 
-func (e *Effect) Max(level int32) float64 {
-	return e.Average(level) * (1 + e.Variance/2)
+func (e *Effect) MaxAt(level int32) float64 {
+	_, high := e.spread(level)
+	return high
+}
+
+// float32 for the reason Average is: Wrath rank 3's 30 ± 2.5 ends on halves there, 27.5 and 32.5,
+// which float64 reads a hair to either side of.
+func (e *Effect) spread(level int32) (float64, float64) {
+	if e.Variance == 0 {
+		average := e.AverageAt(level)
+		return average, average
+	}
+	base := float32(e.BasePoints)
+	half := float32(float32(math.Abs(e.BasePoints)) * float32(e.Variance) / 2)
+	gain := e.levelGain(level)
+	low := float32(math.RoundToEven(float64(base-half))) + gain
+	high := float32(math.RoundToEven(float64(base+half))) + gain
+	return math.Floor(float64(low)), math.Ceil(float64(high))
 }
 
 // The amount for one cast: rolled where the game files state a spread, the average where they do not.
-func (e *Effect) Roll(sim *core.Simulation, level int32) float64 {
-	average := e.Average(level)
+func (e *Effect) RollAt(sim *core.Simulation, level int32) float64 {
 	if e.Variance == 0 {
-		return average
+		return e.AverageAt(level)
 	}
-	return sim.Roll(average*(1-e.Variance/2), average*(1+e.Variance/2))
+	return sim.Roll(e.spread(level))
+}
+
+// What a cast averages: the middle of the roll where the game files state a spread, which can sit
+// half a point above Average, and the average where they do not.
+func (e *Effect) MeanAt(level int32) float64 {
+	low, high := e.spread(level)
+	return (low + high) / 2
 }

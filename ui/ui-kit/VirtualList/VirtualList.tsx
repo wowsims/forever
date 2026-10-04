@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useReducer } from 'react';
 
 import { WINDOW_SCROLLER } from './window_scroller';
 
@@ -8,18 +8,14 @@ export interface VirtualListProps {
 	// Every row is exactly this tall. Rows are never measured — dynamic measurement would re-render
 	// on every row that reports a different height, which is an easy infinite loop.
 	rowHeight?: number;
-	overscan?: number;
 	// The element that scrolls. May be an ancestor the list shares with other content, or `window`
 	// when the list scrolls with the page. Returning `window` switches the list into window mode, so
 	// a caller resolving its scroller with `findScrollParent` may report either without knowing which
 	// it will be until the list is in the document.
 	getScrollElement: () => HTMLElement | Window | null;
-	// Pixels of a shared scroller above the first row: sticky chrome, a header, a filter bar. In
-	// window mode this is the list's own offset down the document.
+	// Pixels of a shared scroller above the first row: a sticky header, a filter bar. In window
+	// mode this is the list's own offset down the document.
 	scrollMargin?: number;
-	// The scroller's size before it has been measured. Without it the first render produces no rows,
-	// which is also what happens in a DOM that reports every element as 0x0.
-	initialRect?: { width: number; height: number };
 	className?: string;
 	rowClassName?: (index: number) => string | undefined;
 	renderRow: (index: number) => ReactNode;
@@ -27,7 +23,7 @@ export interface VirtualListProps {
 }
 
 const DEFAULT_ROW_HEIGHT = 28;
-const DEFAULT_OVERSCAN = 10;
+const OVERSCAN = 10;
 
 /**
  * Rows are absolutely positioned and moved with `transform`, which is how `@tanstack/react-virtual`
@@ -46,10 +42,8 @@ const DEFAULT_OVERSCAN = 10;
 export const VirtualList = ({
 	count,
 	rowHeight = DEFAULT_ROW_HEIGHT,
-	overscan = DEFAULT_OVERSCAN,
 	getScrollElement,
 	scrollMargin = 0,
-	initialRect,
 	className,
 	rowClassName,
 	renderRow,
@@ -65,11 +59,18 @@ export const VirtualList = ({
 		count,
 		getScrollElement: getScrollElement as () => HTMLElement | null,
 		estimateSize: () => rowHeight,
-		overscan,
+		overscan: OVERSCAN,
 		scrollMargin,
-		initialRect,
 		...(scrollsWithWindow ? WINDOW_SCROLLER : {}),
 	});
+
+	// The virtualiser first looks for its scroller in a layout effect, which runs before a parent's ref
+	// is attached; when it found none at mount but one is there now, one more render lets it subscribe.
+	const [, rerender] = useReducer((renders: number) => renders + 1, 0);
+	const subscribedTo = virtualizer.scrollElement;
+	useEffect(() => {
+		if (subscribedTo === null && getScrollElement() !== null) rerender();
+	}, [subscribedTo, getScrollElement]);
 
 	return (
 		<div className={className} data-testid={testId} style={{ position: 'relative', height: virtualizer.getTotalSize() }}>

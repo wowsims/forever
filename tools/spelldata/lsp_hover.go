@@ -346,7 +346,14 @@ func (w *workspace) hover(text string, line, col int, uri string) (string, []str
 			return trace.fail("%v", err)
 		}
 		trace.add("✓ %s → %d fields", title(result.spell), len(result.rows))
-		return configMarkdown(result), trace.lines, true
+		return result.table().markdown(), trace.lines, true
+	}
+
+	if lit := spellModConfigAt(nodes, f.tok.Pos(at)); lit != nil {
+		trace.add("SpellModConfig")
+		result := evalSpellModConfig(lit, w.declarations(folder, f, at, trace), pkg, trace)
+		trace.add("✓ SpellModConfig → %d fields", len(result.rows))
+		return result.table().markdown(), trace.lines, true
 	}
 
 	if field := familyAt(nodes); field != "" {
@@ -385,6 +392,17 @@ func spellConfigAt(nodes []ast.Node, pos token.Pos) *ast.CallExpr {
 		}
 		if name, ok := pkgSelector(call.Fun, "spelldata"); ok && name == "SpellConfig" && pos >= call.Fun.Pos() && pos <= call.Fun.End() {
 			return call
+		}
+	}
+	return nil
+}
+
+// The SpellModConfig literal whose type name the cursor is on.
+func spellModConfigAt(nodes []ast.Node, pos token.Pos) *ast.CompositeLit {
+	for _, node := range nodes {
+		lit, ok := node.(*ast.CompositeLit)
+		if ok && lit.Type != nil && isSpellModConfig(lit) && pos >= lit.Type.Pos() && pos <= lit.Type.End() {
+			return lit
 		}
 	}
 	return nil

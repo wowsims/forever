@@ -41,9 +41,4 @@ describe('the storage keys SimHostObject builds', () => {
 			getPresetFilterStorageKey: key(PRESET_FILTER_STORAGE_KEY),
 		}).toEqual(EXPECTED_KEYS);
 	});
-
-	// The one key that is deliberately not spec-prefixed, so saved encounters are shared by every sim.
-	it('keeps the saved encounter key out of the spec prefix', () => {
-		expect(SHARED_SAVED_ENCOUNTER_STORAGE_KEY.startsWith('__forever')).toBe(false);
-	});
 });

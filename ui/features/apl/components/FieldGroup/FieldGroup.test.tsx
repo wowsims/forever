@@ -1,25 +1,17 @@
-import { booleanFieldConfig, numberFieldConfig, stringFieldConfig, valueListFieldConfig } from '@features/apl/model/field_descriptors';
-import { makePlayer } from '@features/apl/testing';
+import { booleanFieldConfig, numberFieldConfig, stringFieldConfig } from '@features/apl/model/field_descriptors';
 import { APLRotation } from '@generated/proto/apl';
 import { SimHostProvider } from '@sim/context/SimHostContext';
+import { makePlayer } from '@testing/apl/player';
+import { source } from '@testing/apl/source';
 import { act, fireEvent, render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FieldGroup } from './FieldGroup';
 
-const source = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		listeners,
-		subscribe: (onChange: () => void) => {
-			listeners.add(onChange);
-			return () => listeners.delete(onChange);
-		},
-		notify: () => Array.from(listeners).forEach(listener => listener()),
-	};
+vi.mock('@sim/state/subscriptions', async () => {
+	const { mockSubscriptions } = await import('@testing/sim/subscriptions');
+	return mockSubscriptions((await import('@testing/apl/source')).source.subscribe);
 });
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 let impl: Record<string, any>;
@@ -52,7 +44,6 @@ describe('FieldGroup', () => {
 		setup({ text: 'a', flag: true, count: 3 });
 		mount([stringFieldConfig('text'), booleanFieldConfig('flag', 'Flag'), numberFieldConfig('count', false)]);
 
-		expect(root().hasAttribute('data-input-root')).toBe(true);
 		expect(
 			[...root().children].map(
 				(child, index) => child.getAttribute('data-testid') === ['adaptive-string-picker-root', 'boolean-picker-root', 'number-picker-root'][index],
@@ -99,10 +90,11 @@ describe('FieldGroup', () => {
 		expect([...root().children].map(child => child.getAttribute('data-layout'))).toEqual(['inline', 'inline', 'inline']);
 	});
 
-	it('marks a list field ui-apl-picker-builder-multi', () => {
-		setup({ vals: [] });
-		mount([valueListFieldConfig('vals')]);
+	it('stacks a wide string field so its input is not held to the inline width', () => {
+		setup({ schedule: '0s, 60s', name: 'x' });
+		mount([stringFieldConfig('schedule', { label: 'Do At', wide: true }), stringFieldConfig('name')]);
 
-		expect(root().querySelector('[data-testid="list-picker-root"]')!.className.split(' ')).toContain('ui-apl-picker-builder-multi');
+		expect([...root().children].map(child => child.getAttribute('data-layout'))).toEqual([null, 'inline']);
+		expect(root().querySelector('input')!.value).toBe('0s, 60s');
 	});
 });

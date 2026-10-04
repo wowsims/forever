@@ -135,21 +135,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Permanently enchant a helm slot item, causing you to gain 20 energy or 5 rage when shapeshifting into
-	// Cat or Bear form.
-	// https://www.wowhead.com/forever/spell=432190
-	// unsupported: no callback in the proc mask; states no rate; the enchant's effect entry resolves no stats from 17768 (A_ADD_PCT_MODIFIER, A_DUMMY)
-	// trigger 17768 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataProc(shared.SpellDataProc{
-	//	Name:           "Wolfshead Trophy",
-	//	EnchantID:      7124,
-	//	TriggerSpellID: 17768,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a Weapon to cause all spells and attacks to sometimes deal 75 additional damage to
 	// mechanical creatures.
 	// https://www.wowhead.com/forever/spell=435481
@@ -224,22 +209,6 @@ func RegisterAllEnchants() {
 	//	EnchantID:      7943,
 	//	TriggerSpellID: 1232169,
 	//	IsWeaponProc:   true,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Permanently enchant a Melee Weapon to have a chance to trigger Revelation when a non-periodic spell fails
-	// to critically strike. Revelation grants 100% increased critical strike chance to the next spell cast.
-	// Revelation's chance to trigger is diminished as your critical strike chance increases.
-	// https://www.wowhead.com/forever/spell=1248805
-	// unsupported: states no rate; the enchant's effect entry resolves no stats from 1248808 (A_MOD_CRIT_PCT)
-	// trigger 1248806 (no stated rate, core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt, core.ProcMaskSpellDamage | core.ProcMaskSpellHealing)
-	// shared.NewSpellDataProc(shared.SpellDataProc{
-	//	Name:           "Enchant Weapon - Revelation",
-	//	EnchantID:      8217,
-	//	TriggerSpellID: 1248806,
 	// }, nil)
 
 	// TODO: Manual implementation required

@@ -1,9 +1,10 @@
+import { ConnectedMultiComboBox } from '@features/inputs/components/ConnectedMultiComboBox';
+import type { MultiComboBoxConfig } from '@features/inputs/configs';
 import { AreaType } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { getAreaTypeI18nKey } from '@i18n/entity_mapping';
 import { translateAreaType } from '@i18n/localization';
 import type { Encounter } from '@sim/raid/encounter';
-import { MultiComboBox, type MultiComboBoxConfig } from '@ui-kit/MultiComboBox';
 import { useMemo } from 'react';
 
 import { trackEvent } from '../../../../tracking/utils';
@@ -50,5 +51,5 @@ export interface AreaTypesPickerProps {
 
 export const AreaTypesPicker = ({ encounter }: AreaTypesPickerProps) => {
 	const config = useMemo(() => areaTypesConfig(), []);
-	return <MultiComboBox modObject={encounter} config={config} className="w-full flex-col items-stretch" testId="encounter-area-types" />;
+	return <ConnectedMultiComboBox modObject={encounter} config={config} className="w-full flex-col items-stretch" testId="encounter-area-types" />;
 };

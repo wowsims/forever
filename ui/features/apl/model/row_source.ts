@@ -1,3 +1,4 @@
+import { carryId } from '@features/inputs/list_ids';
 import type { StoreSubscribe } from '@sim/state/subscriptions';
 
 const withoutUuid = (key: string, value: unknown) => (key === 'uuid' ? undefined : value);
@@ -7,14 +8,15 @@ const contentOf = (row: unknown): string => JSON.stringify(row, withoutUuid) ?? 
 const carryUuids = (from: any, to: any) => {
 	if (!from || !to || typeof from !== 'object' || typeof to !== 'object') return;
 	if (from.uuid?.value && !to.uuid?.value) to.uuid = { value: from.uuid.value };
+	carryId(from, to);
 	for (const key of Object.keys(to)) if (key !== 'uuid') carryUuids(from[key], to[key]);
 };
 
 /**
  * `upstream`, passed on only when this row's content moved: with every picker on the rotation
  * itself, loading a rotation re-rendered all of them for a one-row difference. A load clones, so rows
- * compare by content, and a skipped row inherits the replaced row's uuids because only a render mints
- * them.
+ * compare by content, and a skipped row inherits the replaced row's uuids and list keys because only a
+ * render mints them: the list groups its pickers handed down name the new objects too.
  */
 export const rowSource = (upstream: StoreSubscribe, readRow: () => unknown): StoreSubscribe => {
 	const listeners = new Set<() => void>();

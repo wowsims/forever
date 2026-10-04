@@ -49,6 +49,7 @@ Season of Discovery content is excluded. <List what the build still carries that
 - [ ] Add configuration options to simulation settings (optional)
 - [ ] Develop and refine the APL
 - [ ] Write unit and integration tests
+- [ ] Run the `wowsims-review` pass over the change and fix what it finds before asking for review
 
 ## Frontend Tasks
 

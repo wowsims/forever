@@ -8,7 +8,7 @@ export interface MetricTooltipProps<T> {
 	body: (metric: T) => ReactNode;
 }
 
-/** One column's `<Tooltip>`: the chrome every metrics-table tooltip shares, with the per-row body left to the caller. */
+/** One column's `<Tooltip>`: the styling every metrics-table tooltip shares, with the per-row body left to the caller. */
 export const MetricTooltip = <T,>({ id, forAnchor, body }: MetricTooltipProps<T>) => (
 	<Tooltip
 		id={id}

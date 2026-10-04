@@ -8,10 +8,11 @@ export interface SimLinkContentProps {
 	title: string;
 	/** Already-translated launch text: the sim header spells out phase and status, the landing page only the status. */
 	status?: string;
+	testId?: string;
 }
 
-export const SimLinkContent = ({ iconPath, iconClassName, label, labelClassName, title, status }: SimLinkContentProps) => (
-	<div className="ui-sim-link-content">
+export const SimLinkContent = ({ iconPath, iconClassName, label, labelClassName, title, status, testId = 'sim-link-content' }: SimLinkContentProps) => (
+	<div className="ui-sim-link-content" data-testid={testId}>
 		<img src={iconPath} className={clsx('ui-sim-link-icon', iconClassName)} data-testid="sim-link-icon" alt="" />
 		<div className="flex flex-col">
 			{label !== undefined && (

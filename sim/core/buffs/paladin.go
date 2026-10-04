@@ -81,9 +81,9 @@ func NewSpellDataRetributionAuraRank(char *core.Character, isPlayer bool, rank P
 	if !isPlayer {
 		damage, coefficient = rank.Value+RetributionAuraSpellPowerCoefficient*externalSpellPower, 0
 	}
-	aura := core.NewDamageShield(&char.Unit, label, m.actionID(isPlayer), core.NeverExpires, m.Category, m.SingleAura,
+	aura := NewDamageShield(&char.Unit, label, m.actionID(isPlayer), core.NeverExpires, m.Category, m.SingleAura,
 		core.SpellSchoolHoly, damage, coefficient)
-	core.JoinSharedCategory(aura, m.SharedCategory, isPlayer)
+	joinSharedCategory(aura, m.SharedCategory, isPlayer)
 	return aura
 }
 
@@ -141,7 +141,7 @@ func NewSpellDataJudgementOfTheCrusaderAuraRank(target *core.Unit, rank Judgemen
 		Duration: auraDuration(judgementOfTheCrusaderSpell),
 	})
 
-	aura.NewExclusiveEffect("Judgement of the Crusader", true, core.ExclusiveEffect{
+	aura.NewExclusiveEffect("Judgement of the Crusader", false, core.ExclusiveEffect{
 		Priority: bonus,
 		OnGain: func(ee *core.ExclusiveEffect, sim *core.Simulation) {
 			target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly] += bonus

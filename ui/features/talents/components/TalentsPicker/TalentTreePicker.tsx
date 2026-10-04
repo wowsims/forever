@@ -2,6 +2,7 @@ import i18n from '@i18n/config';
 import type { TalentsConfig } from '@sim/talents/config';
 import type { TalentPoints } from '@sim/talents/talents_string';
 import { totalPointsSpent, treePointTotal, withTalentPoints, withTreeCleared } from '@sim/talents/talents_string';
+import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
@@ -44,24 +45,25 @@ export const TalentTreePicker = <TalentsProto,>({ config, graph, points, treeIdx
 	};
 
 	return (
-		<div
-			className="ui-talents-picker-tree relative flex flex-1 flex-col border border-border not-first:-ml-px"
-			data-testid="talent-tree"
+		<Box
+			padding="none"
+			className="ui-talents-picker-tree relative flex flex-1 flex-col not-first:-ml-px"
+			testId="talent-tree"
 			style={{ maxWidth: `calc(${CELL} * ${graph.numCols + 2})` }}>
-			<div className="z-1 flex items-center bg-black p-3 text-base text-white">
-				<span className="mr-3 flex-1 font-bold whitespace-nowrap" data-testid="talent-tree-title">
+			<div className="z-1 flex items-center bg-black p-2 text-base text-white">
+				<span className="mr-2 flex-1 font-bold whitespace-nowrap" data-testid="talent-tree-title">
 					{treeConfig.name}
 				</span>
-				<span className="mr-3" data-testid="talent-tree-points">
+				<span className="mr-2" data-testid="talent-tree-points">
 					{spentInTree}
 				</span>
 				<Button
 					variant={null}
-					className="-mr-3 leading-none text-link-danger"
+					className="-mr-2 leading-none text-link-danger"
 					data-testid="talent-tree-reset"
 					{...tooltipAnchorProps(resetTooltipId)}
 					onClick={() => onChange(withTreeCleared(points, treeIdx))}>
-					<Icon name="times" style="base" />
+					<Icon name="xmark" style="base" />
 				</Button>
 				<Tooltip id={resetTooltipId} content={i18n.t('talents_tab.reset_button.tooltip')} />
 			</div>
@@ -70,7 +72,7 @@ export const TalentTreePicker = <TalentsProto,>({ config, graph, points, treeIdx
 				style={{ backgroundImage: `url('${treeConfig.backgroundUrl}')` }}
 			/>
 			<div
-				className="z-1 mx-[2vw] my-3 grid max-xxxl:mx-auto max-lg:mx-10"
+				className="z-1 mx-[2vw] my-2 grid max-xxxl:mx-auto max-lg:mx-10"
 				data-testid="talent-tree-main"
 				style={{
 					gridTemplateRows: `repeat(${graph.numRows}, 1fr)`,
@@ -97,6 +99,6 @@ export const TalentTreePicker = <TalentsProto,>({ config, graph, points, treeIdx
 					/>
 				))}
 			</div>
-		</div>
+		</Box>
 	);
 };

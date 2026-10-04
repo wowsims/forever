@@ -81,8 +81,8 @@ func TestEveryReachableProcIsSupportedOrListed(t *testing.T) {
 // weapon proc's listener is the item's rather than the row's, so a row that states no proc mask at
 // all is not refused for it - Annihilator's 16928 is that shape.
 func itemProcReasons(row *spelldata.Spell) []string {
-	reasons := spelldata.ItemProcUnsupported(row, false)
-	if asWeaponProc := spelldata.ItemProcUnsupported(row, true); len(asWeaponProc) < len(reasons) {
+	reasons := spelldata.ItemProcUnsupportedWithRate(row, false, 0)
+	if asWeaponProc := spelldata.ItemProcUnsupportedWithRate(row, true, 0); len(asWeaponProc) < len(reasons) {
 		return asWeaponProc
 	}
 	return reasons

@@ -201,7 +201,7 @@ func TestOnUseEnergizeRestoresAManaUsersMana(t *testing.T) {
 	effect := spelldata.MustFind(18385).ProcEnergizeEffect()
 	before = mage.CurrentMana()
 	robe.Cast(sim, &mage.Unit)
-	if got, low, high := mage.CurrentMana()-before, effect.Min(mage.Level), effect.Max(mage.Level); got < low || got > high || low != 375 || high != 625 {
+	if got, low, high := mage.CurrentMana()-before, effect.Min(), effect.Max(); got < low || got > high || low != 375 || high != 625 {
 		t.Errorf("the robe restored %v, want 375 to 625 (row reads %v to %v)", got, low, high)
 	}
 }

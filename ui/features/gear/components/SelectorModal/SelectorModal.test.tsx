@@ -1,29 +1,21 @@
 import { GemColor, ItemSlot } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { createSimStore, patchKeyed, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
-import { fakeHost } from '@sim/testing';
-import { act, fireEvent, render } from '@testing-library/react';
+import { renderWithHost } from '@testing/react';
+import { fakeHost } from '@testing/sim/fake_host';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useMemo } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { type OpenSelectorModal, type SelectorModalState, useSelectorModalState } from '../../hooks/useSelectorModal';
 import { ALL_ITEM_SLOTS } from '../../model/gear_data';
 import { type GearData, SelectorModalTabs } from '../../types';
+import type { SelectorModalViewProps } from './SelectorModal';
 
-const store = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		subscribe: (callback: () => void) => {
-			listeners.add(callback);
-			return () => listeners.delete(callback);
-		},
-		notify: () => listeners.forEach(listener => listener()),
-	};
-});
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(store.subscribe));
+vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions());
 
 const tabs = vi.hoisted(() => ({ build: vi.fn(), eligibility: vi.fn() }));
 vi.mock('./utils', () => ({ buildSelectorTabs: tabs.build, eligibilityFor: tabs.eligibility }));
@@ -38,7 +30,7 @@ vi.mock('./ItemList', () => ({
 
 vi.mock('./SlotRail', () => ({ SlotRail: () => <div data-testid="gear-picker-modal-slots" /> }));
 
-const { SelectorModal } = await import('./SelectorModal');
+const { SelectorModal, SelectorModalView } = await import('./SelectorModal');
 
 const tab = (label: SelectorModalTabs, socketIdx?: number) => ({
 	label,
@@ -141,16 +133,11 @@ describe('SelectorModal', () => {
 		host.rootElem.remove();
 	});
 
-	it('renders one tab button and one pane per tab the data earned, wired to each other', () => {
+	it('renders one tab button and one pane per tab the data earned', () => {
 		setup({ tabSet: [tab(SelectorModalTabs.Items), tab(SelectorModalTabs.RandomSuffixes), tab(SelectorModalTabs.Gem1, 0)] });
 
 		expect(tabButtons().map(button => button.dataset.label)).toEqual([SelectorModalTabs.Items, SelectorModalTabs.RandomSuffixes, SelectorModalTabs.Gem1]);
 		expect(panes.rendered.map(pane => pane.label)).toEqual([SelectorModalTabs.Items, SelectorModalTabs.RandomSuffixes, SelectorModalTabs.Gem1]);
-		for (const button of tabButtons()) {
-			const pane = document.getElementById(button.getAttribute('aria-controls')!);
-			expect(pane).not.toBeNull();
-			expect(pane!.getAttribute('aria-labelledby')).toBe(button.id);
-		}
 	});
 
 	it('marks a gem tab and gives it an icon instead of a label', () => {
@@ -261,5 +248,75 @@ describe('SelectorModal', () => {
 			refreshGear();
 		});
 		expect(getEquippedItem.mock.calls.length).toBe(before + 1);
+	});
+});
+
+const TABS: SelectorModalViewProps['tabs'] = [
+	{ label: SelectorModalTabs.Items, pane: <p>items pane</p> },
+	{ label: SelectorModalTabs.Enchants, pane: <p>enchants pane</p> },
+	{ label: SelectorModalTabs.Gem1, gemIcon: <span data-testid="gem-icon-marker" />, pane: <p>gem pane</p> },
+];
+
+const renderView = (props: Partial<SelectorModalViewProps> = {}) => {
+	const all: SelectorModalViewProps = {
+		id: 'modal',
+		open: true,
+		onOpenChange: vi.fn(),
+		title: 'Main Hand',
+		tabs: TABS,
+		activeTab: SelectorModalTabs.Items,
+		onSelectTab: vi.fn(),
+		sequence: 1,
+		...props,
+	};
+	renderWithHost(<SelectorModalView {...all} />);
+	return all;
+};
+
+const viewTabButtons = () => screen.getAllByRole('tab');
+const activePanes = () => Array.from(document.querySelectorAll('[data-testid="selector-modal-tab-pane"][data-active]')).map(pane => pane.textContent);
+
+describe('SelectorModalView', () => {
+	it('titles the dialog with the slot and puts the rail in its header', () => {
+		renderView({ rail: <div data-testid="rail-marker" /> });
+		expect(screen.getByTestId('selector-modal-title').textContent).toBe('Main Hand');
+		expect(screen.getByTestId('rail-marker')).toBeTruthy();
+	});
+
+	it('wires each tab button to its pane under the given id', () => {
+		renderView();
+		expect(viewTabButtons().map(button => button.dataset.label)).toEqual([SelectorModalTabs.Items, SelectorModalTabs.Enchants, SelectorModalTabs.Gem1]);
+		for (const button of viewTabButtons()) {
+			const pane = document.getElementById(button.getAttribute('aria-controls')!)!;
+			expect(pane.id.startsWith('modal-')).toBe(true);
+			expect(pane.getAttribute('aria-labelledby')).toBe(button.id);
+		}
+	});
+
+	it('labels a gem tab with its socket and the others with their names', () => {
+		renderView();
+		expect(viewTabButtons()[0].textContent).toBe(i18n.t('gear_tab.gear_picker.tabs.items'));
+		expect(viewTabButtons()[2].querySelector('[data-testid="gem-icon-marker"]')).not.toBeNull();
+	});
+
+	it('shows the active pane and reports a tab pick', () => {
+		const props = renderView({ activeTab: SelectorModalTabs.Enchants });
+		expect(activePanes()).toEqual(['enchants pane']);
+
+		act(() => viewTabButtons()[2].click());
+		expect(props.onSelectTab).toHaveBeenCalledWith(SelectorModalTabs.Gem1);
+	});
+
+	it('renders no panes without a request', () => {
+		renderView({ sequence: undefined });
+		expect(document.querySelector('[data-testid="selector-modal-tab-pane"]')).toBeNull();
+		expect(viewTabButtons()).toHaveLength(3);
+	});
+
+	it('hands key presses on the popup to its handler', () => {
+		const onKeyDown = vi.fn();
+		renderView({ onKeyDown });
+		fireEvent.keyDown(screen.getByTestId('selector-modal'), { key: 'ArrowDown' });
+		expect(onKeyDown).toHaveBeenCalledOnce();
 	});
 });

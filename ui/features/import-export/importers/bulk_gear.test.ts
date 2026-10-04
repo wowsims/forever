@@ -1,7 +1,7 @@
 // The batch importer's `onImport` is the whole of it: what reaches `addItems`, and what a bad payload
 // does — a throw, which the shell turns into the error toast.
 import { EquipmentSpec, ItemSpec } from '@generated/proto/common';
-import { fakeHost } from '@sim/testing';
+import { fakeHost } from '@testing/sim/fake_host';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const loadLeftovers = vi.hoisted(() => vi.fn());

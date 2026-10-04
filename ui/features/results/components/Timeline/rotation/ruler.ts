@@ -75,23 +75,19 @@ export class Ruler {
 	private lastWidth = NaN;
 
 	constructor(private readonly track: HTMLElement) {
-		const tickClass =
-			'absolute bottom-0 left-timeline-pos -ml-px h-1.25 w-0.75 bg-[linear-gradient(to_right,transparent_1px,currentcolor_1px,currentcolor_2px,transparent_2px)]';
+		const tickClass = 'absolute bottom-0 left-timeline-pos h-1 w-px bg-current';
+		const majorTickClass = `${tickClass} h-2`;
+		const labelClass = 'absolute top-px left-timeline-pos -translate-x-1/2 whitespace-nowrap data-first:translate-x-0';
 		this.minorTicks = new TickPool(track, tickClass, 'rotation-ruler-tick', (elem, index) => elem.style.setProperty('--t', String(index * this.minorStep)));
-		this.majorTicks = new TickPool(track, `${tickClass} h-3`, 'rotation-ruler-tick', (elem, index) =>
+		this.majorTicks = new TickPool(track, majorTickClass, 'rotation-ruler-tick', (elem, index) =>
 			elem.style.setProperty('--t', String(index * this.labelStep)),
 		);
-		this.labels = new TickPool(
-			track,
-			'absolute top-0.5 left-timeline-pos -translate-x-1/2 whitespace-nowrap data-first:translate-x-0',
-			'rotation-ruler-label',
-			(elem, index) => {
-				const time = index * this.labelStep;
-				elem.style.setProperty('--t', String(time));
-				elem.textContent = formatTick(time, this.labelStep);
-				elem.toggleAttribute('data-first', index === 0);
-			},
-		);
+		this.labels = new TickPool(track, labelClass, 'rotation-ruler-label', (elem, index) => {
+			const time = index * this.labelStep;
+			elem.style.setProperty('--t', String(time));
+			elem.textContent = formatTick(time, this.labelStep);
+			elem.toggleAttribute('data-first', index === 0);
+		});
 	}
 
 	draw({ scrollLeft, pps, duration, width }: RulerFrame) {

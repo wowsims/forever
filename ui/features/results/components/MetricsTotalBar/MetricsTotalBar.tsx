@@ -1,7 +1,7 @@
 import type { SpellSchool } from '@generated/proto/common';
 import { spellSchoolNames } from '@sim/proto/names';
 import { formatToCompactNumber, formatToPercent } from '@sim/utils/format';
-import { CLASS_BG, SPELL_SCHOOL_BG } from '@ui-kit/utils/colors';
+import { SPELL_SCHOOL_BG } from '@ui-kit/utils/colors';
 import { cssVars } from '@ui-kit/utils/css';
 import clsx from 'clsx';
 import type { CSSProperties } from 'react';
@@ -14,15 +14,13 @@ export interface MetricsTotalBarProps {
 	/** A darkened bar drawn over the main one — shielding, on the healing table. */
 	overlayValue?: number;
 	spellSchool?: SpellSchool | undefined | null;
-	classColor?: string | undefined | null;
 }
 
 const fill = (value: number, max: number | null): CSSProperties => cssVars({ '--percentage': formatToPercent((value / (max ?? 1)) * 100) });
 
-export const MetricsTotalBar = ({ percentage, max, total, value, overlayValue, spellSchool, classColor }: MetricsTotalBarProps) => {
+export const MetricsTotalBar = ({ percentage, max, total, value, overlayValue, spellSchool }: MetricsTotalBarProps) => {
 	const spellSchoolString = typeof spellSchool === 'number' ? spellSchoolNames.get(spellSchool) : undefined;
-	const fillBg =
-		(spellSchoolString && SPELL_SCHOOL_BG[spellSchoolString.toLowerCase()]) || (classColor && CLASS_BG[classColor.toLowerCase()]) || 'bg-current';
+	const fillBg = (spellSchoolString && SPELL_SCHOOL_BG[spellSchoolString.toLowerCase()]) || 'bg-current';
 	return (
 		<div className="relative flex w-full min-w-[calc(7ch+7ch+50px)] justify-between">
 			<div className="w-[7ch] shrink-0">{formatToPercent(percentage || 0)}</div>

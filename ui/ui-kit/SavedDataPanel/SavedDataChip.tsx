@@ -40,5 +40,8 @@ export const SavedDataChip = <T,>({
 		deleteConfirmLabel={deleteConfirmLabel}
 		onSelect={() => onLoad(entry)}
 		onDelete={onDelete ? () => onDelete(entry) : undefined}
+		testId="saved-data-set-chip"
+		nameTestId="saved-data-set-name"
+		deleteTestId="saved-data-set-delete"
 	/>
 );

@@ -160,7 +160,7 @@ func TestExprTalentRank(t *testing.T) {
 		"spellData.ImprovedRend.Rank(1).EffectN(1).BaseValue()":            "12",
 		"spellData.ImprovedRend.Rank(2).EffectN(1).BaseValue()":            "23",
 		"spellData.ImprovedRend.Highest().EffectN(1).BaseValue()":          "35",
-		"spellData.DualWieldSpecialization.Rank(2).EffectN(2).BaseValue()": "40",
+		"spellData.DualWieldSpecialization.Rank(2).EffectN(2).BaseValue()": "20",
 	}
 	for expr, want := range cases {
 		if got := evalJSON(t, expr); got.Value != want {

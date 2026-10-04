@@ -2,10 +2,7 @@ import { EnchantType, HandType, ItemType, WeaponType } from '@generated/proto/co
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@i18n/localization', () => ({
-	translateStat: (stat: unknown) => String(stat),
-	translatePseudoStat: (pseudoStat: unknown) => String(pseudoStat),
-}));
+vi.mock('@i18n/localization', async () => (await import('@testing/sim/localization')).localizationStub);
 
 import { enchantAppliesToItem } from './items';
 

@@ -14,10 +14,6 @@ func (warrior *Warrior) registerShieldWall() {
 
 	config := spelldata.SpellConfig(&warrior.Unit, shieldWallRank)
 
-	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return warrior.PseudoStats.CanBlock
-	}
-
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		aura.Activate(sim)
 	}

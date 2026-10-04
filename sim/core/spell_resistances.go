@@ -11,7 +11,6 @@ func (result *SpellResult) applyResistances(sim *Simulation, spell *Spell, isPer
 	result.Outcome |= outcome
 
 	result.ArmorAndResistanceMultiplier = resistanceMultiplier
-	result.PostArmorAndResistanceMultiplier = result.Damage
 }
 
 // Modifies damage based on Armor or Magic resistances, depending on the damage type.
@@ -73,34 +72,24 @@ func (unit *Unit) resistCoeff(spell *Spell, attacker *Unit, binary bool) float64
 	resistance := 0.0
 	if stat, ok := spell.SpellSchool.ResistanceStat(); ok {
 		piercing := attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[spell.SchoolIndex]
-		resistance = unit.GetStat(stat) - piercing
+		resistance = max(0, unit.GetStat(stat)-piercing)
 	}
-	if resistance <= 0 {
-		// Level-based resistance does not apply to binary spells.
-		if binary {
-			return 0
-		}
-		return unit.levelBasedResist(attacker)
-	}
-
 	resistanceCap := float64(attacker.Level * 5)
 	resistanceCoef := resistance / resistanceCap
 
+	if spell.Flags.Matches(SpellFlagPureDot) {
+		resistanceCoef /= 10
+	}
+
+	// Level-based resistance does not apply to binary spells.
 	if !binary && unit.Type == EnemyUnit && unit.Level > attacker.Level {
-		avgMitigationAdded := unit.levelBasedResist(attacker)
+		// 2% average mitigation per level difference
+		avgMitigationAdded := 0.02 * float64(combatLevelDiff(attacker, unit))
 		// coef is scaled 0 to 1, not 0 to 0.75
 		resistanceCoef += avgMitigationAdded * 1 / 0.75
 	}
 
 	return min(1, resistanceCoef)
-}
-
-func (unit *Unit) levelBasedResist(attacker *Unit) float64 {
-	if unit.Type == EnemyUnit && unit.Level > attacker.Level {
-		// 2% average mitigation per level difference
-		return 0.02 * float64(unit.Level-attacker.Level)
-	}
-	return 0
 }
 
 func (unit *Unit) binaryHitChance(spell *Spell, attacker *Unit) float64 {
@@ -124,8 +113,6 @@ func (unit *Unit) partialResistRollThresholds(spell *Spell, attacker *Unit) (flo
 	}
 }
 
-// https://web.archive.org/web/20130208043756/http://elitistjerks.com/f15/t29453-combat_ratings_level_85_cataclysm/
-// https://web.archive.org/web/20110309163709/http://elitistjerks.com/f78/t105429-cataclysm_mechanics_testing/
 func (at *AttackTable) GetArmorDamageModifier(spell *Spell) float64 {
 	if at.IgnoreArmor {
 		return 1.0
@@ -133,8 +120,7 @@ func (at *AttackTable) GetArmorDamageModifier(spell *Spell) float64 {
 
 	ignoreArmorFactor := Clamp(at.ArmorIgnoreFactor, 0.0, 1.0)
 
-	// Assume target > 80
-	armorConstant := float64(at.Attacker.Level)*467.5 - 22167.5
+	armorConstant := 400 + 85*float64(at.Attacker.Level)
 	defenderArmor := at.Defender.Armor() - (at.Defender.Armor() * ignoreArmorFactor)
 	// TODO: Forever possibly has different rules as there is Armor Piercing Flat and % values
 	defenderArmor = max(defenderArmor-at.Attacker.stats[stats.ArmorPenetration], 0)

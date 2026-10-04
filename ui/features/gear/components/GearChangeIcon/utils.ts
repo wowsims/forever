@@ -26,3 +26,6 @@ export const gearChangeSockets = (item: EquippedItem | undefined, previousItem: 
 		changed: changed.has(gemIdx),
 	}));
 };
+
+export const enchantChanged = (item: EquippedItem | undefined, previousItem: EquippedItem | undefined): boolean =>
+	!!item?.enchant && !!previousItem && item.enchant.effectId !== previousItem.enchant?.effectId;

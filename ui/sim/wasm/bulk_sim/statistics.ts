@@ -1,7 +1,12 @@
 import { DistributionMetrics } from '@generated/proto/api';
 
 import { Z_95 } from '../../utils/math';
-import { BULK_SIM_COMBINATION_LOG_MIN, BULK_SIM_CULLING_COEFFICIENT, BULK_SIM_SURVIVOR_SOFT_CAP_MULTIPLIER } from './constants_auto_gen';
+import {
+	BULK_SIM_COMBINATION_LOG_MIN,
+	BULK_SIM_CULLING_COEFFICIENT,
+	BULK_SIM_PAIRED_INTERVAL_CONSERVATISM,
+	BULK_SIM_SURVIVOR_SOFT_CAP_MULTIPLIER,
+} from './constants_auto_gen';
 import { getBulkSimStageMaxSurvivors } from './stage';
 import { ConcurrentBulkSimCandidate, ConcurrentBulkSimCandidateResult, ConcurrentBulkSimStageConfig } from './types';
 
@@ -64,13 +69,6 @@ export const topBulkSimResults = (results: ConcurrentBulkSimCandidateResult[], l
 		.sort((a, b) => b.dpsMetrics!.avg - a.dpsMetrics!.avg)
 		.slice(0, limit);
 };
-
-// The marginal cull test compares the sum of both candidates' half-widths, which is
-// sqrt(2) wider than the standard error of the difference it is really testing. Keeping
-// that factor when switching to the paired estimate means pairing only removes the
-// variance the shared seeds already cancel - it does not additionally tighten the
-// interval.
-const BULK_SIM_PAIRED_INTERVAL_CONSERVATISM = Math.SQRT2;
 
 // Standard error of the mean per-iteration difference between a candidate and the
 // leader. Returns undefined when the two runs cannot be paired; zero is a valid result -

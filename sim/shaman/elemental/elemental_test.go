@@ -14,8 +14,6 @@ func init() {
 }
 
 func TestElemental(t *testing.T) {
-	t.Skip("class talents and abilities are stubbed pending their Forever implementations; " +
-		"the expected .results numbers cannot be meaningful until then")
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
 			Class:      proto.Class_ClassShaman,
@@ -30,15 +28,12 @@ func TestElemental(t *testing.T) {
 					},
 				},
 			}},
-			GearSet: core.GetGearSet("../../../ui/specs/shaman/elemental/gear_sets", "p1_a"),
-			OtherGearSets: []core.GearSetCombo{
-				core.GetGearSet("../../../ui/specs/shaman/elemental/gear_sets", "p2"),
-				core.GetGearSet("../../../ui/specs/shaman/elemental/gear_sets", "p3"),
-				core.GetGearSet("../../../ui/specs/shaman/elemental/gear_sets", "p4"),
-				core.GetGearSet("../../../ui/specs/shaman/elemental/gear_sets", "p5"),
-			},
-			Talents:  DefaultTalents,
-			Rotation: core.GetAplRotation("../../../ui/specs/shaman/elemental/apls", "default"),
+			GearSet:     core.GetGearSet("../../../ui/specs/shaman/elemental/gear_sets", "preraid"),
+			Talents:     DefaultTalents,
+			Consumables: DefaultConsumables,
+			Profession1: proto.Profession_Leatherworking,
+			Profession2: proto.Profession_Enchanting,
+			Rotation:    core.GetAplRotation("../../../ui/specs/shaman/elemental/apls", "default"),
 			ItemFilter: core.ItemFilter{
 				WeaponTypes:       DefaultWeaponTypes,
 				ArmorType:         DefaultArmorType,
@@ -48,7 +43,16 @@ func TestElemental(t *testing.T) {
 	}))
 }
 
-const DefaultTalents = "55003105100213351051--05105301005"
+const DefaultTalents = "4500301323123051-05-05305"
+
+// The UI's Elemental defaults: Major Mana Potion, Flask of Supreme Power, Demonic Rune and Brilliant
+// Wizard Oil.
+var DefaultConsumables = &proto.ConsumesSpec{
+	PotId:      13444,
+	FlaskId:    13512,
+	ConjuredId: 12662,
+	MhImbueId:  20749,
+}
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeMail
 

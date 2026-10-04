@@ -7,6 +7,7 @@ import (
 )
 
 // Not generated:
+//   Bat: Sonic Blast: no hunter family teaches it
 //   Bat: Summoning: no hunter family teaches it
 
 // A pet family as the client's skill lines describe it: the Tamed Pet Passive that states the

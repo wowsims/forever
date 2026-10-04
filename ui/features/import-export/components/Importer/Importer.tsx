@@ -47,7 +47,7 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, o
 				<div className="flex gap-2">
 					{allowFileUpload && (
 						<Button as="label" htmlFor={uploadInputId} data-testid="upload-button" className="w-48">
-							<Icon name="file-arrow-up" className="mr-1" />
+							<Icon name="file-arrow-up" />
 							{i18n.t('import.json.upload_button')}
 						</Button>
 					)}
@@ -64,13 +64,14 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, o
 						}}
 					/>
 					<Button data-testid="import-button" className="w-48" onClick={runImport}>
-						<Icon name="download" style="base" className="mr-1" />
+						<Icon name="download" style="base" />
 						{i18n.t('import.json.import_button')}
 					</Button>
 				</div>
 			}>
-			<div>
-				<div data-testid="import-description">{children}</div>
+			{/* The dialog body is a flex column with a gap; this stays a single flex item so that gap doesn't land between the description and the textarea. */}
+			<div className="flex flex-col">
+				{children}
 				<TextArea spellCheck={false} data-testid="importer-textarea" className="h-[40vh] w-full resize-none" ref={textRef} />
 			</div>
 		</Dialog>

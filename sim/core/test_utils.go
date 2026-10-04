@@ -37,7 +37,7 @@ func FreshDefaultTargetConfig() *proto.Target {
 	return &proto.Target{
 		Level: CharacterLevel + 3,
 		Stats: stats.Stats{
-			stats.Armor:       7685,
+			stats.Armor:       3731,
 			stats.AttackPower: 320,
 		}.ToProtoArray(),
 		MobType: proto.MobType_MobTypeMechanical,
@@ -57,7 +57,6 @@ var FullRaidBuffs = &proto.RaidBuffs{
 	PrayerOfFortitude:        true,
 	PrayerOfSpirit:           true,
 	GiftOfTheWild:            true,
-	Thorns:                   true,
 	PrayerOfShadowProtection: true,
 }
 
@@ -73,7 +72,6 @@ var FullPartyBuffs = &proto.PartyBuffs{
 	AtieshMage:        1,
 	AtieshPriest:      1,
 	AtieshWarlock:     1,
-	TotemTwisting:     true,
 
 	ManaSpringTotem:      proto.TristateEffect_TristateEffectImproved,
 	ManaTideTotems:       1,
@@ -90,6 +88,7 @@ var FullIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfWisdom:    true,
 	GreaterBlessingOfMight:     true,
 	GreaterBlessingOfLight:     true,
+	Thorns:                     true,
 }
 
 var FullTankIndividualBuffs = &proto.IndividualBuffs{
@@ -97,6 +96,7 @@ var FullTankIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfWisdom: true,
 	GreaterBlessingOfMight:  true,
 	GreaterBlessingOfLight:  true,
+	Thorns:                  true,
 }
 
 var FullDebuffs = &proto.Debuffs{

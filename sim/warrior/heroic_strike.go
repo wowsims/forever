@@ -6,7 +6,6 @@ import (
 )
 
 var heroicStrikeRank = spellData.HeroicStrike.Highest()
-var heroicStrikeBaseDamage = heroicStrikeRank.DamageEffect().Average(core.CharacterLevel)
 
 func (warrior *Warrior) registerHeroicStrike() {
 	config := spelldata.SpellConfig(&warrior.Unit, heroicStrikeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
@@ -14,7 +13,7 @@ func (warrior *Warrior) registerHeroicStrike() {
 	config.FlatThreatBonus = 0
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := heroicStrikeBaseDamage + warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
+		baseDamage := heroicStrikeRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if !result.Landed() {

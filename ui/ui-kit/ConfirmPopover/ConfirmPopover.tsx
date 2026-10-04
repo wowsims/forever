@@ -13,8 +13,8 @@ export interface ConfirmPopoverProps {
 	triggerClassName?: PopoverProps['triggerClassName'];
 	triggerProps?: PopoverProps['triggerProps'];
 	side?: PopoverProps['side'];
+	backdrop?: PopoverProps['backdrop'];
 	confirmLabel?: string;
-	cancelLabel?: string;
 	/** Omit for a message that is only acknowledged: one dismissing button, no cancel. */
 	onConfirm?: () => void;
 	children?: ReactNode;
@@ -29,8 +29,8 @@ export const ConfirmPopover = ({
 	triggerClassName,
 	triggerProps,
 	side = 'top',
+	backdrop = true,
 	confirmLabel,
-	cancelLabel,
 	onConfirm,
 	children,
 	testId,
@@ -43,16 +43,17 @@ export const ConfirmPopover = ({
 		triggerClassName={triggerClassName}
 		triggerProps={triggerProps}
 		side={side}
+		backdrop={backdrop}
 		testId={testId ?? 'sim-confirm-popover'}
-		maxWidth="max-w-55">
-		<p className="mb-3" data-testid="sim-confirm-popover-message">
+		maxWidthClassName="max-w-54">
+		<p className="mb-2" data-testid="sim-confirm-popover-message">
 			{children}
 		</p>
 		<div className="flex justify-end gap-2" data-testid="sim-confirm-popover-actions">
 			{onConfirm ? (
 				<>
 					<Button variant="outline-cancel" size="sm" onClick={() => onOpenChange(false)}>
-						{cancelLabel ?? i18n.t('common.cancel')}
+						{i18n.t('common.cancel')}
 					</Button>
 					<Button
 						variant="cancel"

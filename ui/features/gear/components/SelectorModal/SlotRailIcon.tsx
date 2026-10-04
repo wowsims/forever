@@ -1,13 +1,13 @@
 import type { ItemSlot } from '@generated/proto/common';
 import { translateSlotName } from '@i18n/localization';
 import { usePlayer } from '@sim/context/SimHostContext';
+import { useActionId } from '@sim/hooks/useActionId';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { useActionId } from '@ui-kit/hooks/useActionId';
-import { useEquippedItemWowheadDataset } from '@ui-kit/hooks/useEquippedItemWowheadDataset';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import { useMemo } from 'react';
 
+import { useEquippedItemWowheadDataset } from '../../hooks/useEquippedItemWowheadDataset';
 import { getEmptySlotIconUrl } from '../../model/empty_slot_icons';
-import { ItemCellAnchor } from '../ItemCell';
 
 export interface SlotRailIconProps {
 	slot: ItemSlot;
@@ -26,13 +26,11 @@ export const SlotRailIcon = ({ slot, item, active, tooltipId, onOpen }: SlotRail
 
 	return (
 		<div className="ui-slot-rail-icon-wrapper" data-testid="item-picker-icon-wrapper" data-active={active ? '' : undefined} data-slot={slot}>
-			<ItemCellAnchor
+			<WowheadAnchor
 				className="ui-item-picker-icon"
-				data-testid="item-picker-icon"
-				role="button"
+				testId="item-picker-icon"
 				href={href || undefined}
 				onActivate={onOpen}
-				data-whtticon="false"
 				data-tooltip-id={tooltipId}
 				data-slot-label={translateSlotName(slot) ?? ''}
 				style={{ backgroundImage: `url('${(item && iconUrl) || getEmptySlotIconUrl(slot)}')` }}

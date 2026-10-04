@@ -1,6 +1,6 @@
+import type { MultiIconPickerConfig } from '@features/inputs/configs';
 import type { Player } from '@sim/player/player';
 import { batch } from '@sim/state/batch';
-import type { MultiIconPickerConfig } from '@ui-kit/MultiIconPicker/types';
 
 export const clearMultiIconInputs = (player: Player<any>, config: MultiIconPickerConfig<Player<any>>) => {
 	batch(() => {

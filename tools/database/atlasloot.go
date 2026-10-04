@@ -254,7 +254,7 @@ func readAtlasLootFactionData(db *WowDatabase, srcUrl string) {
 						fmt.Printf("Item: %d\n", itemID)
 						factionSource := &proto.RepSource{
 							FactionId:    faction,
-							RepFactionId: proto.RepFaction(factionID),
+							RepFactionId: int32(factionID),
 							RepLevel:     repLevel,
 						}
 

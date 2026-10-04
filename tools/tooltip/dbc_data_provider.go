@@ -7,6 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
@@ -301,40 +302,35 @@ func (d DBCTooltipDataProvider) GetDescriptionVariableString(spellId int64) stri
 	return spellEntry.Variables
 }
 
-// effectRange returns the bottom and top of the value an effect rolls. TBC
-// carries the spread as die sides rather than a variance: in game it rolls
-// basePoints + 1 .. basePoints + dieSides, so no sides at all collapses the
-// range onto basePoints, and negative sides roll the other way.
-func (d DBCTooltipDataProvider) effectRange(spellId int64, effectIdx int64) (float64, float64) {
+// effectEnd returns one end of the range the sim rolls for an effect at the character's level. An
+// effect the spell store does not carry reads its base points at both ends, whatever variance it
+// states.
+func (d DBCTooltipDataProvider) effectEnd(spellId int64, effectIdx int64, end func(*spelldata.Effect) float64) float64 {
+	if effect := spelldata.Find(int32(spellId)).EffectAtIndex(uint8(effectIdx)); effect != spelldata.NilEffect {
+		return end(effect)
+	}
+
 	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
 	if !ok {
-		return 0, 0
+		return 0
 	}
 
 	effect := GetEffectByIndex(effectEntries, int(effectIdx))
 	if effect == nil {
-		return 0, 0
+		return 0
 	}
 
-	base := float64(effect.EffectBasePoints)
-	if effect.EffectDieSides == 0 {
-		return base, base
-	}
-
-	sides := float64(effect.EffectDieSides)
-	return math.Min(base+1, base+sides), math.Max(base+1, base+sides)
+	return float64(effect.EffectBasePoints)
 }
 
 // GetEffectBaseValue implements TooltipDataProvider.
 func (d DBCTooltipDataProvider) GetEffectBaseValue(spellId int64, effectIdx int64) float64 {
-	low, _ := d.effectRange(spellId, effectIdx)
-	return low
+	return d.effectEnd(spellId, effectIdx, (*spelldata.Effect).Min)
 }
 
 // GetEffectMaxValue implements TooltipDataProvider.
 func (d DBCTooltipDataProvider) GetEffectMaxValue(spellId int64, effectIdx int64) float64 {
-	_, high := d.effectRange(spellId, effectIdx)
-	return high
+	return d.effectEnd(spellId, effectIdx, (*spelldata.Effect).Max)
 }
 
 // GetEffectPeriod implements TooltipDataProvider.

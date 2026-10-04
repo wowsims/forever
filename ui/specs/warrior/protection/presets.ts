@@ -46,13 +46,4 @@ export const OtherDefaults: Partial<SimUIOtherDefaults> = {
 		burstWindow: 6,
 		inspirationUptime: 0.25,
 	}),
-	// Morogrim
-	// healingModel: HealingModel.create({
-	// 	hps: 3300,
-	// 	cadenceSeconds: 1.5,
-	// 	cadenceVariation: 1.0,
-	// 	absorbFrac: 0.02,
-	// 	burstWindow: 6,
-	// 	inspirationUptime: 0.12,
-	// }),
 };

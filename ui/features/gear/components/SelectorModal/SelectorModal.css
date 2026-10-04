@@ -8,11 +8,11 @@
 	}
 
 	.ui-selector-modal-list-item-link {
-		@apply relative flex min-w-[10vw] items-center after:absolute after:inset-0 after:content-[''];
+		@apply relative z-1 flex min-w-[10vw] items-center;
 	}
 
 	.ui-selector-modal-list-item-name {
-		@apply ml-2 cursor-pointer text-md font-normal tracking-normal;
+		@apply ml-2 flex cursor-pointer flex-wrap items-baseline gap-x-1 text-md font-normal tracking-normal;
 	}
 
 	.ui-selector-modal-filters {

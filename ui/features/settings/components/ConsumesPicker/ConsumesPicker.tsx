@@ -1,9 +1,9 @@
+import { ConnectedIconEnumPicker } from '@features/inputs/components/ConnectedIconEnumPicker';
+import { ConnectedIconPicker } from '@features/inputs/components/ConnectedIconPicker';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { Database } from '@sim/proto/database';
-import { IconEnumPicker } from '@ui-kit/IconEnumPicker';
-import { IconPicker } from '@ui-kit/IconPicker';
-import { PickerGroup } from '@ui-kit/PickerGroup';
+import { IconRow } from '@ui-kit/IconRow';
 import { useMemo } from 'react';
 
 import { ConsumeRow } from './ConsumeRow';
@@ -16,63 +16,67 @@ export interface ConsumesPickerProps {
 }
 
 const Toggles = ({ player, toggles }: { player: Player<any>; toggles: ReadonlyArray<ConsumeToggle> }) =>
-	toggles.map(config => <IconPicker key={config.actionId.itemId} modObject={player} config={config} />);
+	toggles.map(config => <ConnectedIconPicker key={config.actionId.itemId} modObject={player} config={config} />);
 
 const Pickers = ({ player, configs }: { player: Player<any>; configs: ReadonlyArray<ConsumeConfig> }) =>
-	configs.map((config, i) => <IconEnumPicker key={i} modObject={player} config={config} />);
+	configs.map((config, i) => <ConnectedIconEnumPicker key={i} modObject={player} config={config} />);
 
 export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps) => {
 	const player = usePlayer() as Player<any>;
 	const configs = useMemo(() => consumeConfigs(player, Database.getSync()), [player]);
 
 	return (
-		<div className="grid gap-3 max-lg:grid-cols-3 max-md:grid-cols-1">
+		<div className="grid gap-2 max-lg:grid-cols-3 max-md:grid-cols-1">
 			{encounterConsumes && (
 				<ConsumeRow name="potions" configs={[configs.potion, configs.conjured]}>
-					<PickerGroup variant="icons" className="justify-end" data-testid="consumes-potions">
-						<IconEnumPicker modObject={player} config={configs.potion} />
-						<IconEnumPicker modObject={player} config={configs.conjured} />
-					</PickerGroup>
+					<IconRow className="justify-end" data-testid="consumes-potions">
+						<ConnectedIconEnumPicker modObject={player} config={configs.potion} />
+						<ConnectedIconEnumPicker modObject={player} config={configs.conjured} />
+					</IconRow>
 				</ConsumeRow>
 			)}
-			<ConsumeRow name="elixirs">
-				<PickerGroup variant="icons" className="justify-end">
-					<div data-testid="consumes-flasks">
-						<IconEnumPicker modObject={player} config={configs.flask} />
-					</div>
+			<ConsumeRow name="elixirs" configs={[configs.flask, ...configs.elixirs]}>
+				<IconRow className="justify-end">
+					<ConnectedIconEnumPicker modObject={player} config={configs.flask} testId="consumes-flasks" />
 					<Pickers player={player} configs={configs.elixirs} />
-				</PickerGroup>
+				</IconRow>
 			</ConsumeRow>
 			<ConsumeRow name="scrolls" configs={configs.scrolls}>
-				<PickerGroup variant="icons" className="justify-end" data-testid="consumes-scrolls">
+				<IconRow className="justify-end" data-testid="consumes-scrolls">
 					<Pickers player={player} configs={configs.scrolls} />
-				</PickerGroup>
+				</IconRow>
 			</ConsumeRow>
-			<ConsumeRow name="food">
-				<PickerGroup variant="icons" className="justify-end" data-testid="consumes-food">
-					<IconEnumPicker modObject={player} config={configs.food} />
+			<ConsumeRow name="food" configs={[configs.food, ...configs.groups]}>
+				<IconRow className="justify-end" data-testid="consumes-food">
+					<ConnectedIconEnumPicker modObject={player} config={configs.food} />
 					<Pickers player={player} configs={configs.groups} />
-				</PickerGroup>
+				</IconRow>
 			</ConsumeRow>
 			{encounterConsumes && (
 				<ConsumeRow name="engineering" configs={[configs.explosive, ...configs.explosiveExtras]}>
-					<PickerGroup variant="icons" className="justify-end" data-testid="consumes-engi">
-						<IconEnumPicker modObject={player} config={configs.explosive} />
+					<IconRow className="justify-end" data-testid="consumes-engi">
+						<ConnectedIconEnumPicker modObject={player} config={configs.explosive} />
 						<Toggles player={player} toggles={configs.explosiveExtras} />
-					</PickerGroup>
+					</IconRow>
 				</ConsumeRow>
 			)}
 			<ConsumeRow name="imbue" configs={[configs.mhImbue, configs.ohImbue]}>
-				<PickerGroup variant="icons" className="justify-end" data-testid="consumes-imbue">
-					<IconEnumPicker modObject={player} config={configs.mhImbue} />
-					<IconEnumPicker modObject={player} config={configs.ohImbue} />
-				</PickerGroup>
+				<IconRow className="justify-end" data-testid="consumes-imbue">
+					<ConnectedIconEnumPicker modObject={player} config={configs.mhImbue} />
+					<ConnectedIconEnumPicker modObject={player} config={configs.ohImbue} />
+				</IconRow>
+			</ConsumeRow>
+			<ConsumeRow name="holiday" configs={[...configs.holidayGroups, ...configs.holiday]}>
+				<IconRow className="justify-end" data-testid="consumes-holiday">
+					<Pickers player={player} configs={configs.holidayGroups} />
+					<Toggles player={player} toggles={configs.holiday} />
+				</IconRow>
 			</ConsumeRow>
 			{encounterConsumes && (
 				<ConsumeRow name="miscellaneous" configs={configs.miscellaneous}>
-					<PickerGroup variant="icons" className="justify-end" data-testid="consumes-misc">
+					<IconRow className="justify-end" data-testid="consumes-misc">
 						<Toggles player={player} toggles={configs.miscellaneous} />
-					</PickerGroup>
+					</IconRow>
 				</ConsumeRow>
 			)}
 		</div>

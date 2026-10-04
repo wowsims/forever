@@ -23,8 +23,13 @@ func (p *Parsed) bid(aura *core.Aura, o *parseOptions) []*attachment {
 	for _, a := range p.attachments {
 		rest := p.bidSchoolResistances(aura, a, o)
 		switch {
-		case o.exclusive:
+		case o.exclusive && o.singleAura:
 			whole = append(whole, rest...)
+		case o.exclusive:
+			for _, part := range split(rest) {
+				category := core.ExclusiveStatCategory(o.category, part.key, part.multiplicative)
+				p.bidStacks(aura, category, false, magnitude(part), []*attachment{part})
+			}
 		case o.perStatCategory != "":
 			for _, part := range split(rest) {
 				p.bidPerStat(aura, o.perStatCategory, part)
@@ -34,8 +39,12 @@ func (p *Parsed) bid(aura *core.Aura, o *parseOptions) []*attachment {
 		}
 	}
 
-	if o.exclusive {
-		p.bidWhole(aura, o, whole)
+	if o.exclusive && o.singleAura {
+		perStack := 0.0
+		if len(p.attachments) > 0 {
+			perStack = magnitude(p.attachments[0])
+		}
+		p.bidStacks(aura, o.category, true, perStack, whole)
 	}
 	return live
 }
@@ -85,23 +94,18 @@ func (p *Parsed) bidAlone(aura *core.Aura, category string, priority float64, a 
 	})
 }
 
-// One effect for everything the parse attaches. Its priority is what the stacks it is at are worth,
-// and the amounts follow it: a stacking aura bids nothing until its first stack and bids again on
-// every one. The effect activates before the aura counts as up, so the level is read off the
-// priority rather than off the aura. It is registered even when it holds nothing, which is what a
-// single-aura category needs to shut the other copy off.
-func (p *Parsed) bidWhole(aura *core.Aura, o *parseOptions, whole []*attachment) {
-	perStack := 0.0
-	if len(p.attachments) > 0 {
-		perStack = magnitude(p.attachments[0])
-	}
-
+// One effect for the attachments, worth perStack a stack. Its priority is what the stacks it is at
+// are worth, and the amounts follow it: a stacking aura bids nothing until its first stack and bids
+// again on every one. The effect activates before the aura counts as up, so the level is read off
+// the priority rather than off the aura. It is registered even when it holds nothing, which is what
+// a single-aura category needs to shut the other copy off.
+func (p *Parsed) bidStacks(aura *core.Aura, category string, singleAura bool, perStack float64, whole []*attachment) {
 	priority := perStack
 	if p.stacking {
 		priority = 0
 	}
 
-	effect := aura.NewExclusiveEffect(o.category, o.singleAura, core.ExclusiveEffect{
+	effect := aura.NewExclusiveEffect(category, singleAura, core.ExclusiveEffect{
 		Priority: priority,
 		OnGain: func(ee *core.ExclusiveEffect, sim *core.Simulation) {
 			level := p.count

@@ -353,6 +353,9 @@ func newDot(config Dot) *Dot {
 			// Compute clip delay before clearing ChanneledDot (used by nextActionWouldRecastChannel).
 			channelDelay := dot.getChannelClipDelay()
 			dot.Spell.Unit.ChanneledDot = nil
+			for _, handler := range dot.Spell.Unit.channelEndHandlers {
+				handler(sim)
+			}
 			dot.Spell.Unit.Rotation.interruptChannelIf = nil
 			dot.Spell.Unit.Rotation.allowChannelRecastOnInterrupt = false
 			// Note: even if clip delay is 0ms, always schedule rotation here so APL fires

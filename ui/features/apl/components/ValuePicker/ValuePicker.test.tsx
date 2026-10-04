@@ -1,6 +1,6 @@
-import { makePlayer } from '@features/apl/testing';
 import { APLRotation, APLValue } from '@generated/proto/apl';
 import { SimHostProvider } from '@sim/context/SimHostContext';
+import { makePlayer } from '@testing/apl/player';
 import { act, render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -18,7 +18,7 @@ const source = vi.hoisted(() => {
 	};
 });
 
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
+vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 // Statically imported for every test that is not about the cycle. The two that are reset the
@@ -47,26 +47,18 @@ const configForRoot = () => ({
 });
 
 const roots = () => Array.from(document.querySelectorAll('[data-testid="apl-value-picker-root"]'));
-const kindTriggers = () =>
-	Array.from(
-		document.querySelectorAll<HTMLButtonElement>(
-			'[data-testid="apl-value-picker-root"] > [data-testid="dropdown-picker-root"] [data-testid="dropdown-picker-button"]',
-		),
-	);
+const kindTriggers = () => Array.from(document.querySelectorAll<HTMLButtonElement>('[data-testid="apl-value-picker-root"] > button[aria-haspopup]'));
 
 beforeEach(() => {
 	document.body.innerHTML = '';
 });
 
 describe('ValuePicker', () => {
-	it('renders the kind picker and the kind’s fields, in that order', () => {
+	it('renders the kind’s fields', () => {
 		setup(constValue('5'));
 		render(<ValuePicker player={player as never} config={configForRoot() as never} />);
 
-		const root = roots()[0];
-		expect(root.children[0].getAttribute('data-testid')).toBe('dropdown-picker-root');
-		expect(root.children[1].getAttribute('data-testid')).toBe('apl-picker-builder-root');
-		expect(root.querySelector('[data-testid="adaptive-string-picker-root"] input')).toHaveProperty('value', '5');
+		expect(roots()[0].querySelector('[data-testid="adaptive-string-picker-root"] input')).toHaveProperty('value', '5');
 	});
 
 	it('renders no field group while the value has no kind', () => {

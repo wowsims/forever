@@ -1,7 +1,7 @@
 import { EncounterPicker, SavedEncounter } from '@features/encounter';
 import { SelectorModal } from '@features/gear/components/SelectorModal';
 import { OpenSelectorModalContext, useSelectorModalState } from '@features/gear/hooks/useSelectorModal';
-import { ConsumesPicker, CustomSection, OtherSettings, PlayerSettings, RaidBuffs, SavedSettings } from '@features/settings';
+import { BuffSection, ConsumesFilters, ConsumesPicker, CustomSection, OtherSettings, PlayerSettings, RaidBuffs, SavedSettings } from '@features/settings';
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import { applyOwnerClassLabels, relevantStatOptions } from '@features/settings/model/stat_options';
 import i18n from '@i18n/config';
@@ -69,7 +69,8 @@ export const SettingsTabBody = () => {
 							))}
 							<ContentBlock
 								rootDataAttributes={{ 'data-block': 'consumes-settings' }}
-								config={{ header: { title: i18n.t('settings_tab.consumables.title') } }}>
+								config={{ header: { title: i18n.t('settings_tab.consumables.title') } }}
+								headerChildren={<ConsumesFilters />}>
 								<ConsumesPicker encounterConsumes={!gearPlanner} />
 							</ContentBlock>
 							{hasOtherSettings && (
@@ -85,49 +86,18 @@ export const SettingsTabBody = () => {
 				<TabPanelColumns.Col>
 					{ready && (
 						<>
-							<ContentBlock
-								rootDataAttributes={{ 'data-block': 'buffs-settings' }}
-								config={{
-									header: {
-										title: i18n.t('settings_tab.raid_buffs.title'),
-										tooltip: i18n.t('settings_tab.raid_buffs.tooltip'),
-										className: 'flex-col',
-									},
-									withoutBody: options.buffs.length === 0,
-									bodyClassName: 'grid grid-cols-1 xl:grid-cols-2 gap-3 fhd:grid-cols-3',
-								}}
-								headerChildren={<p className="text-sm">{i18n.t('settings_tab.raid_buffs.description')}</p>}>
+							<BuffSection section="raid_buffs" empty={options.buffs.length === 0}>
 								<RaidBuffs options={options.buffs} miscOptions={[]} />
-							</ContentBlock>
+							</BuffSection>
 							{options.partyBuffs.length > 0 && (
-								<ContentBlock
-									rootDataAttributes={{ 'data-block': 'party-buffs-settings' }}
-									config={{
-										header: {
-											title: i18n.t('settings_tab.party_buffs.title'),
-											tooltip: i18n.t('settings_tab.party_buffs.tooltip'),
-											className: 'flex-col',
-										},
-										bodyClassName: 'grid grid-cols-1 xl:grid-cols-2 gap-3 fhd:grid-cols-3',
-									}}
-									headerChildren={<p className="text-sm">{i18n.t('settings_tab.party_buffs.description')}</p>}>
+								<BuffSection section="party_buffs" empty={false}>
 									<RaidBuffs options={options.partyBuffs} miscOptions={[]} />
-								</ContentBlock>
+								</BuffSection>
 							)}
 							{!gearPlanner && (
-								<ContentBlock
-									rootDataAttributes={{ 'data-block': 'debuffs-settings' }}
-									config={{
-										header: {
-											title: i18n.t('settings_tab.debuffs.title'),
-											tooltip: i18n.t('settings_tab.debuffs.tooltip'),
-											className: 'flex-col',
-										},
-										withoutBody: options.debuffs.length === 0,
-										bodyClassName: 'grid grid-cols-1 xl:grid-cols-2 gap-3 fhd:grid-cols-3',
-									}}>
+								<BuffSection section="debuffs" empty={options.debuffs.length === 0}>
 									<RaidBuffs options={options.debuffs} miscOptions={options.debuffsMisc} />
-								</ContentBlock>
+								</BuffSection>
 							)}
 						</>
 					)}

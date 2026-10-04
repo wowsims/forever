@@ -27,9 +27,9 @@ export default defineSpec<Spec.SpecDpsPriest>({
 		Stat.StatSpellDamage,
 		Stat.StatShadowDamage,
 		Stat.StatHolyDamage,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellCritRating,
-		Stat.StatSpellHasteRating,
+		Stat.StatHitRating,
+		Stat.StatCritRating,
+		Stat.StatHasteRating,
 		Stat.StatMana,
 		Stat.StatMP5,
 		Stat.StatSpirit,
@@ -71,7 +71,7 @@ export default defineSpec<Spec.SpecDpsPriest>({
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
-			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 16);
+			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17);
 		})(),
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,

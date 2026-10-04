@@ -1,7 +1,7 @@
 @layer components {
 	.ui-sim-title-trigger .ui-sim-link-content,
 	.ui-sim-title-popup .ui-sim-link-content {
-		@apply px-6;
+		--sim-link-padding-x: var(--spacing-sidebar);
 	}
 
 	.ui-sim-title-positioner[data-base-ui-inert],

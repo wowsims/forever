@@ -1,26 +1,33 @@
+import { AplItemActions, AplList } from '@features/apl/components/AplList';
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
+import { AplValidations } from '@features/apl/components/ListItemHeader';
+import { uuidValidations } from '@features/apl/components/ListItemHeader/utils';
 import { NameDisplay } from '@features/apl/components/NameDisplay';
 import { ValuePicker } from '@features/apl/components/ValuePicker';
 import { AplProvider, useApl } from '@features/apl/context/AplContext';
 import { useAplInput } from '@features/apl/hooks/useAplInput';
 import { rowSource } from '@features/apl/model/row_source';
+import type { InputConfig } from '@features/inputs/input';
 import type { APLValue, APLValueVariable } from '@generated/proto/apl';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import { renameAPLReference } from '@sim/proto/apl_utils';
-import type { InputConfig } from '@ui-kit/input';
-import { PickerShell } from '@ui-kit/PickerShell';
+import { Field } from '@ui-kit/Field';
+import { Tree } from '@ui-kit/Tree';
 import { useMemo, useRef, useState } from 'react';
 
 export interface VariableItemProps {
+	id: string;
 	player: Player<any>;
 	config: InputConfig<Player<any>, APLValueVariable>;
+	onCopy: () => void;
+	onDelete: () => void;
 }
 
-/** One named value variable: its name, and the value it stands for. */
-export const VariableItem = ({ player, config }: VariableItemProps) => {
+/** One named value variable: its name and validations in the title, and the value it stands for as the body. */
+export const VariableItem = ({ id, player, config, onCopy, onDelete }: VariableItemProps) => {
 	const { changeSource } = useApl();
-	const { value: variable, hidden, disabled, shellConfig } = useAplInput(player, config);
+	const { value: variable, disabled, frameProps } = useAplInput(player, config);
 	const [renaming, setRenaming] = useState(false);
 
 	const latest = useRef(config);
@@ -44,25 +51,26 @@ export const VariableItem = ({ player, config }: VariableItemProps) => {
 		};
 		return { changeSource: () => source, value };
 	}, [player, changeSource, label, labelTooltip]);
+	const variableLabel = i18n.t('rotation_tab.apl.variables.name');
 
 	return (
-		<PickerShell
-			config={{
-				...shellConfig,
-				extraClassNames: [...(config.extraClassNames || []), 'ui-apl-list-item-picker-root', 'flex', 'flex-row', 'items-center', 'm-0', 'gap-2'],
-			}}
-			testId="apl-list-item-picker-root"
-			hidden={hidden}
-			disabled={disabled}>
-			<div className="ui-apl-editor-row">
-				<NameDisplay name={variable?.name || ''} onRename={() => setRenaming(true)} />
-				<AplProvider changeSource={row.changeSource}>
-					<ValuePicker player={player} config={row.value} />
-				</AplProvider>
-			</div>
+		<AplList.Item
+			id={id}
+			label={variableLabel}
+			title={<NameDisplay name={variable?.name || ''} onRename={() => setRenaming(true)} />}
+			aside={<AplValidations getValidations={subject => uuidValidations(subject, config.getValue(subject)?.value?.uuid?.value)} />}
+			actions={<AplItemActions label={variableLabel} onCopy={onCopy} onDelete={onDelete} />}
+			testId="apl-variable-root">
+			<Tree.Item.Body>
+				<Field {...frameProps} density="compact" className={[frameProps.className, 'm-0']} testId="apl-list-item-picker-root" disabled={disabled}>
+					<AplProvider changeSource={row.changeSource}>
+						<ValuePicker player={player} config={row.value} />
+					</AplProvider>
+				</Field>
+			</Tree.Item.Body>
 			<AplNameDialog
 				open={renaming}
-				title={i18n.t('rotation_tab.apl.nameModal.rename', { itemName: i18n.t('rotation_tab.apl.variables.name') })}
+				title={i18n.t('rotation_tab.apl.nameModal.rename', { itemName: variableLabel })}
 				inputLabel={i18n.t('rotation_tab.apl.variables.attributes.name')}
 				confirmLabel={i18n.t('rotation_tab.apl.nameModal.renameConfirm')}
 				defaultValue={variable?.name}
@@ -76,6 +84,6 @@ export const VariableItem = ({ player, config }: VariableItemProps) => {
 				}
 				onClose={() => setRenaming(false)}
 			/>
-		</PickerShell>
+		</AplList.Item>
 	);
 };

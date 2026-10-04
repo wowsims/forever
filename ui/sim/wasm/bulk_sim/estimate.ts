@@ -1,20 +1,23 @@
-import { BulkSimRequest, BulkSimStage } from '@generated/proto/api';
+import { BulkSimStage } from '@generated/proto/api';
 
 import { BULK_SIM_MIN_COMBINATIONS } from './constants_auto_gen';
-import { bulkSimStageConfigs, getBulkSimStageMaxSurvivors, getBulkSimStageMinIterations, shouldRunBulkSimStage } from './stage';
+import { bulkSimStageConfigs, getBulkSimStageMaxSurvivors, shouldRunBulkSimStage } from './stage';
 
-export const shouldUseLegacyBulkSim = (request: BulkSimRequest, candidateCount: number): boolean => {
-	const settings = request.bulkSettings;
-	if (settings?.useLegacyBulkSim) {
-		return true;
-	}
+export const bulkSimHighStageFloor = (): number => bulkSimStageConfigs[bulkSimStageConfigs.length - 1]!.minIterations ?? 0;
+
+const bulkSimSingleStageIterations = (candidateCount: number): number => bulkSimHighStageFloor() * (candidateCount + 1);
+
+export const shouldUseSingleStageBulkSim = (candidateCount: number): boolean => {
 	if (candidateCount < BULK_SIM_MIN_COMBINATIONS) {
 		return true;
 	}
 
-	const highStageIterations = request.highStageIterations;
+	return getBulkSimOptimisationIterationsUpperBound(candidateCount) >= bulkSimSingleStageIterations(candidateCount);
+};
+
+const getBulkSimOptimisationIterationsUpperBound = (candidateCount: number): number => {
 	let remainingCandidates = candidateCount;
-	let estimatedOptimisationIterationsUpperBound = 0;
+	let iterations = 0;
 
 	for (const config of bulkSimStageConfigs) {
 		if (config.stage === BulkSimStage.BulkSimStageHigh) {
@@ -24,11 +27,9 @@ export const shouldUseLegacyBulkSim = (request: BulkSimRequest, candidateCount: 
 			continue;
 		}
 
-		estimatedOptimisationIterationsUpperBound += getBulkSimStageMinIterations(request, config) * (remainingCandidates + 1);
+		iterations += (config.minIterations ?? 0) * (remainingCandidates + 1);
 		remainingCandidates = Math.min(remainingCandidates, getBulkSimStageMaxSurvivors(config, remainingCandidates) ?? remainingCandidates);
 	}
 
-	estimatedOptimisationIterationsUpperBound +=
-		getBulkSimStageMinIterations(request, bulkSimStageConfigs[bulkSimStageConfigs.length - 1]!) * (remainingCandidates + 1);
-	return estimatedOptimisationIterationsUpperBound >= highStageIterations * candidateCount;
+	return iterations + bulkSimHighStageFloor() * (remainingCandidates + 1);
 };

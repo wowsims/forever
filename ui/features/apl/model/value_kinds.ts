@@ -48,6 +48,7 @@ import {
 	APLValueDotRemainingTime,
 	APLValueDotTickFrequency,
 	APLValueDotTimeToNextTick,
+	APLValueEncounterInArea,
 	APLValueEnergyTimeToTarget,
 	APLValueFrontOfTarget,
 	APLValueGCDIsReady,
@@ -93,6 +94,7 @@ import {
 	APLValueSpellTimeToCharge,
 	APLValueSpellTimeToReady,
 	APLValueSpellTravelTime,
+	APLValueTargetIsMobType,
 	APLValueTimeToNextEnergyTick,
 	APLValueTotemRemainingTime,
 	APLValueUnitDistance,
@@ -107,6 +109,7 @@ import { itemSwapEnabledSpecs } from '@sim/spec_config';
 
 import {
 	actionIdFieldConfig,
+	areaTypeFieldConfig,
 	autoSwingTypeFieldConfig,
 	autoTypeFieldConfig,
 	booleanFieldConfig,
@@ -119,6 +122,7 @@ import {
 	makeUseDotBaseValueCheckbox,
 	mathOperatorFieldConfig,
 	minIcdInput,
+	mobTypeFieldConfig,
 	placeholderNameFieldConfig,
 	reactionTimeCheckbox,
 	statTypeFieldConfig,
@@ -283,6 +287,13 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [],
 	}),
+	encounterInArea: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.encounter_in_area.label'),
+		submenu: ['encounter'],
+		shortDescription: i18n.t('rotation_tab.apl.values.encounter_in_area.tooltip'),
+		newValue: APLValueEncounterInArea.create,
+		fields: [areaTypeFieldConfig('areaType')],
+	}),
 
 	// Boss
 	bossSpellIsCasting: inputBuilder({
@@ -308,6 +319,13 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: APLValueBossCurrentTarget.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets')],
+	}),
+	targetIsMobType: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.target_is_mob_type.label'),
+		submenu: ['boss'],
+		shortDescription: i18n.t('rotation_tab.apl.values.target_is_mob_type.tooltip'),
+		newValue: APLValueTargetIsMobType.create,
+		fields: [unitFieldConfig('targetUnit', 'targets'), mobTypeFieldConfig('mobType')],
 	}),
 
 	// Unit

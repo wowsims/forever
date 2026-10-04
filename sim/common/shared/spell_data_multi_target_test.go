@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -46,7 +45,7 @@ func sum(values []float64) float64 {
 // every enemy of the encounter as within it. Each target rolls its own damage.
 func TestAreaDamageHitsEveryTarget(t *testing.T) {
 	effect := spelldata.MustFind(6297).DamageEffect()
-	low, high := effect.Min(core.CharacterLevel), effect.Max(core.CharacterLevel)
+	low, high := effect.Min(), effect.Max()
 
 	dealt := dealtPerTarget(t, 991101, 6297, 3)
 	for i, d := range dealt {
@@ -63,7 +62,7 @@ func TestAreaDamageHitsEveryTarget(t *testing.T) {
 // divided evenly among the three targets.
 func TestSplitDamageDividesOneRollAmongTheTargets(t *testing.T) {
 	effect := spelldata.MustFind(26789).DamageEffect()
-	low, high := effect.Min(core.CharacterLevel), effect.Max(core.CharacterLevel)
+	low, high := effect.Min(), effect.Max()
 
 	dealt := dealtPerTarget(t, 991102, 26789, 3)
 	if dealt[0] != dealt[1] || dealt[1] != dealt[2] {
@@ -77,7 +76,7 @@ func TestSplitDamageDividesOneRollAmongTheTargets(t *testing.T) {
 // Prototype Pathcarver 1295270 splits its damage "between up to $s3 nearby enemies", MaxTargets 5, and
 // does not roll. Three targets share it three ways; six share it five ways and the sixth takes none.
 func TestSplitDamageStopsAtTheRowsMaxTargets(t *testing.T) {
-	amount := spelldata.MustFind(1295270).DamageEffect().Average(core.CharacterLevel)
+	amount := spelldata.MustFind(1295270).DamageEffect().Average()
 
 	for _, tc := range []struct {
 		targets, hit int
@@ -116,7 +115,7 @@ func TestSingleTargetDamageHitsOnlyItsTarget(t *testing.T) {
 // copy without its variance makes the jumps exact.
 func TestChainDamageJumpsToItsChainTargets(t *testing.T) {
 	editRow(t, 21179, func(s *spelldata.Spell) { s.Effects[0].Variance = 0 })
-	amount := spelldata.MustFind(21179).DamageEffect().Average(core.CharacterLevel)
+	amount := spelldata.MustFind(21179).DamageEffect().Average()
 
 	dealt := dealtPerTarget(t, 991111, 21179, 4)
 	for i, want := range []float64{amount, amount * 0.7, amount * 0.7 * 0.7, 0} {

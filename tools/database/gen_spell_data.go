@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"go/format"
+	"io"
+	"maps"
 	"math"
 	"regexp"
 	"sort"
@@ -223,6 +225,13 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	scaling := petScalingSpells[dbc.ClassNameFromDBC(class)]
+	petLines, err := petSkillLines(db, scaling)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	owned := maps.Clone(exclusive)
+	maps.Copy(owned, petLines)
 
 	// The Defense skill line carries the one-class passives that open a counterattack window - Offensive
 	// State (DND) fires the 5 s Overpower aura 1282733 on a melee hit, Defensive State (DND) the Revenge
@@ -240,11 +249,12 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 			FROM SkillLineAbility sla2
 			JOIN SkillLine sl2 ON sl2.ID = sla2.SkillLine AND sl2.CategoryID = 7
 			WHERE (sla2.ClassMask & ?) != 0
-		) OR (sla.SkillLine = ? AND sla.ClassMask = ? AND sla.AcquireMethod = ?))
+		) OR (sla.SkillLine = ? AND sla.ClassMask = ? AND sla.AcquireMethod = ?)
+		OR sla.SkillLine IN (`+petSkillLinesQuery+`))
 		AND (s.NameSubtext_lang LIKE 'Rank %' OR s.NameSubtext_lang IN ('', 'Shapeshift'))
 		AND sla.SkillLine NOT IN (2851, 2853)
 		AND NOT EXISTS (SELECT 1 FROM SpellEffect se WHERE se.SpellID = sla.Spell AND se.EffectAura = ?)
-		ORDER BY n.Name_lang, sla.Spell`, dbcenums.ATTR_PASSIVE, mask, dbc.SkillLineDefense, mask, acquireOnLevel, dbcenums.A_MOUNTED)
+		ORDER BY n.Name_lang, sla.Spell`, dbcenums.ATTR_PASSIVE, mask, dbc.SkillLineDefense, mask, acquireOnLevel, scaling, dbcenums.A_MOUNTED)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -365,7 +375,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		var ladder map[int32]int32
 		var points map[int32]map[int32]float64
 		var resolveErr error
-		if claimedByClass(byName[name], mask, exclusive) {
+		if claimedByClass(byName[name], mask, owned) {
 			ladder, resolveErr = resolveLadder(db, name, byName[name], mask)
 		}
 
@@ -827,6 +837,42 @@ func curveRanks(curve map[int32]float64, maxRanks int32) (map[int32]float64, boo
 	return values, true
 }
 
+// The pet scaling spell that marks a class's own pet skill lines. The warlock's demons learn their
+// abilities on those lines alone, with no class bit and no teacher row on a class line. The hunter's
+// pet abilities are taught on Beast Training and the families are read by discoverPetFamilies, so
+// the hunter has no entry. A line with no trained ability belongs to a pet no trainer or grimoire
+// teaches: the Infernal and Doomguard carry only passives, and the Felguard is a Season of Discovery
+// rune whose one leveled passive, Avoidance 427743, would otherwise reach the class file.
+var petScalingSpells = map[string]string{"Warlock": "Warlock Pet Scaling"}
+
+const petSkillLinesQuery = `
+	SELECT h.SkillLine FROM SkillLineAbility h
+	JOIN SpellName hn ON hn.ID = h.Spell
+	JOIN SkillLine hl ON hl.ID = h.SkillLine AND hl.CategoryID = 7 AND hl.DisplayName_lang LIKE 'Pet - %'
+	WHERE hn.Name_lang = ?
+	AND EXISTS (SELECT 1 FROM SkillLineAbility t WHERE t.SkillLine = h.SkillLine AND t.AcquireMethod = 0)`
+
+// The pet skill lines that carry the scaling spell; none for an empty name.
+func petSkillLines(db *sql.DB, scaling string) (map[int32]bool, error) {
+	lines := map[int32]bool{}
+	if scaling == "" {
+		return lines, nil
+	}
+	rows, err := db.Query(petSkillLinesQuery, scaling)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var line int32
+		if err := rows.Scan(&line); err != nil {
+			return nil, err
+		}
+		lines[line] = true
+	}
+	return lines, rows.Err()
+}
+
 // The skill lines only this class appears in. 11 are shared: "Holy" carries both the paladin and the
 // priest bit, which is how paladin Holy Shock reached the priest file. Inside an exclusive line a
 // ClassMask-0 spell must be this class's, which is what makes Ignite attributable.
@@ -1156,9 +1202,26 @@ func overrideReplacements(db *sql.DB, ids map[int32]bool) (map[int32]bool, error
 
 // Every file the generator writes, by the path it is written to, rendered and none written: what
 // happens to them is writeSpellDataFiles' business, and -check's business is that nothing does.
-func renderSpellDataFiles(helper *DBHelper) (map[string][]byte, *storeInputs, error) {
+//
+// A spell data group only does not take keeps the committed inputs' rows, and a class it does not take
+// keeps its committed class file, which is therefore not among the files returned. committed is nil
+// where no inputs are committed yet.
+func renderSpellDataFiles(helper *DBHelper, only SpellDataGroups, committed *storeInputs) (map[string][]byte, *storeInputs, error) {
 	if err := RequireSpellCastTimes(helper); err != nil {
 		return nil, nil, err
+	}
+	version, err := buildVersion(helper)
+	if err != nil {
+		return nil, nil, err
+	}
+	if committed == nil && !only.all() {
+		return nil, nil, fmt.Errorf("%s is missing, so there is nothing to keep the groups not taken from", spellStoreInputsPath)
+	}
+	if committed != nil {
+		if later := groupsOnALaterBuild(committed, only, version); len(later) > 0 {
+			return nil, nil, fmt.Errorf("the game files database is %s, and %s already record a later build: "+
+				"extract the later build, or leave those groups out", version, strings.Join(later, ", "))
+		}
 	}
 
 	// Rendered in full before anything is written, so a class that fails validation cannot leave half
@@ -1177,85 +1240,51 @@ func renderSpellDataFiles(helper *DBHelper) (map[string][]byte, *storeInputs, er
 
 	// The store carries every spell the class files are built from, so the discovery runs here and
 	// both consumers read the one result rather than each rediscovering the ladders.
-	var ladderIDs []int32
+	classRoots := map[string][]int32{}
 	runeOnly, err := loadRuneOnlySpells(helper.db)
 	if err != nil {
 		return nil, nil, err
 	}
 	for _, class := range dbc.Classes {
-		pkg := strings.ToLower(dbc.ClassNameFromDBC(class))
-		tree, ok := trees[classMaskOf(class)]
-		if !ok {
-			return nil, nil, fmt.Errorf("%s: the game files hold no talent tree for this class", pkg)
-		}
-		ladders, skipped, partial, err := discoverLadders(helper.db, class, tree, runeOnly)
+		pkg := classGroup(class)
+		out, files, roots, err := discoverClass(helper.db, class, pkg, trees, runeOnly)
 		if err != nil {
-			return nil, nil, fmt.Errorf("%s: %w", pkg, err)
+			// A class the run does not take keeps its committed rows and files. When the new build
+			// breaks its discovery, the class's own port fixes that.
+			if only.Takes(pkg) {
+				return nil, nil, err
+			}
+			fmt.Fprintf(progress, "spelldata: %s is not taken and keeps its committed rows: %v\n", pkg, err)
+			continue
 		}
-		triggered, err := triggeredByField(helper.db, ladders)
-		if err != nil {
-			return nil, nil, fmt.Errorf("%s: %w", pkg, err)
-		}
-		out, err := renderClassFile(pkg, ladders, triggered, skipped, partial)
-		if err != nil {
-			return nil, nil, fmt.Errorf("%s: %w", pkg, err)
-		}
-		rendered[pkg] = out
-
-		// The hunter's pet families read the class's ladders, so they are discovered here, and their
-		// passives are roots the ladders do not reach.
-		if pkg == "hunter" {
-			families, familiesSkipped, err := discoverPetFamilies(helper.db, ladders, triggered)
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s pet families: %w", pkg, err)
-			}
-			petFile, err := renderPetFamiliesFile(families, familiesSkipped)
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s pet families: %w", pkg, err)
-			}
-			extra[fmt.Sprintf("sim/%s/pet_families_auto_gen.go", pkg)] = petFile
-			ladderIDs = append(ladderIDs, petFamilyRoots(families)...)
-
-			arrows, arrowsSkipped, err := discoverArrows(helper.db)
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s arrows: %w", pkg, err)
-			}
-			quivers, quiversSkipped, err := discoverQuivers(helper.db)
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s quivers: %w", pkg, err)
-			}
-			ammoFile, err := renderAmmoFile(arrows, quivers, append(arrowsSkipped, quiversSkipped...))
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s ammo: %w", pkg, err)
-			}
-			extra[fmt.Sprintf("sim/%s/ammo_auto_gen.go", pkg)] = ammoFile
-		}
-
-		for _, l := range ladders {
-			for _, id := range l.Ranks {
-				ladderIDs = append(ladderIDs, id)
-			}
-		}
-
-		// A node the ladders do not describe still grants a spell the sim registers - Hemorrhage is
-		// one - so every spell the tree defines is a root of the store.
-		treeSpells, err := treeSpellIDs(helper.db, tree)
-		if err != nil {
-			return nil, nil, fmt.Errorf("%s: %w", pkg, err)
-		}
-		for id := range treeSpells {
-			if id != 0 {
-				ladderIDs = append(ladderIDs, id)
-			}
+		classRoots[pkg] = roots
+		if only.Takes(pkg) {
+			rendered[pkg] = out
+			maps.Copy(extra, files)
 		}
 	}
 
 	// The game files rows the store is built from are captured on the way through and handed back, so
 	// the caller can write them next to the store and the regeneration can be checked without the
 	// database - see spelldata_inputs.go.
-	inputs, err := loadStoreInputs(helper.db, ladderIDs, trees)
+	inputs, err := loadStoreInputs(helper.db, classRoots, trees, version)
 	if err != nil {
 		return nil, nil, err
+	}
+	if !only.all() {
+		var notes []string
+		inputs, notes, err = mergeStoreInputs(committed, inputs, only, version)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, note := range notes {
+			fmt.Fprintf(progress, "spelldata: %s\n", note)
+		}
+	}
+	if committed != nil && progress != io.Discard {
+		for _, line := range changeReport(committed, inputs, only, version) {
+			fmt.Fprintf(progress, "spelldata: %s\n", line)
+		}
 	}
 	store, err := renderStore(inputs, namer)
 	if err != nil {
@@ -1282,6 +1311,76 @@ func renderSpellDataFiles(helper *DBHelper) (map[string][]byte, *storeInputs, er
 		files[path] = out
 	}
 	return files, inputs, nil
+}
+
+// One class's file, the hunter's extra files by path, and the roots the class gives the store.
+func discoverClass(db *sql.DB, class dbc.DbcClass, pkg string, trees map[int]int,
+	runeOnly map[int32]bool) (out []byte, files map[string][]byte, roots []int32, err error) {
+	tree, ok := trees[classMaskOf(class)]
+	if !ok {
+		return nil, nil, nil, fmt.Errorf("%s: the game files hold no talent tree for this class", pkg)
+	}
+	ladders, skipped, partial, err := discoverLadders(db, class, tree, runeOnly)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("%s: %w", pkg, err)
+	}
+	triggered, err := triggeredByField(db, ladders)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("%s: %w", pkg, err)
+	}
+	out, err = renderClassFile(pkg, ladders, triggered, skipped, partial)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("%s: %w", pkg, err)
+	}
+	files = map[string][]byte{}
+
+	// The hunter's pet families read the class's ladders, so they are discovered here, and their
+	// passives are roots the ladders do not reach.
+	if pkg == "hunter" {
+		families, familiesSkipped, err := discoverPetFamilies(db, ladders, triggered)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("%s pet families: %w", pkg, err)
+		}
+		petFile, err := renderPetFamiliesFile(families, familiesSkipped)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("%s pet families: %w", pkg, err)
+		}
+		files[fmt.Sprintf("sim/%s/pet_families_auto_gen.go", pkg)] = petFile
+		roots = append(roots, petFamilyRoots(families)...)
+
+		arrows, arrowsSkipped, err := discoverArrows(db)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("%s arrows: %w", pkg, err)
+		}
+		quivers, quiversSkipped, err := discoverQuivers(db)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("%s quivers: %w", pkg, err)
+		}
+		ammoFile, err := renderAmmoFile(arrows, quivers, append(arrowsSkipped, quiversSkipped...))
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("%s ammo: %w", pkg, err)
+		}
+		files[fmt.Sprintf("sim/%s/ammo_auto_gen.go", pkg)] = ammoFile
+	}
+
+	for _, l := range ladders {
+		for _, id := range l.Ranks {
+			roots = append(roots, id)
+		}
+	}
+
+	// A node the ladders do not describe still grants a spell the sim registers - Hemorrhage is
+	// one - so every spell the tree defines is a root of the store.
+	treeSpells, err := treeSpellIDs(db, tree)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("%s: %w", pkg, err)
+	}
+	for id := range treeSpells {
+		if id != 0 {
+			roots = append(roots, id)
+		}
+	}
+	return out, files, roots, nil
 }
 
 // The triggered table of every family that has one, by the family's field.

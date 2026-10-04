@@ -1,0 +1,5 @@
+@layer components {
+	.ui-icon-row {
+		@apply flex w-full flex-wrap gap-1;
+	}
+}

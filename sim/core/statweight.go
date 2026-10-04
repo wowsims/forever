@@ -47,20 +47,6 @@ func (s *UnitStats) ToProto() *proto.UnitStats {
 	}
 }
 
-// Infer missing stat weight values for HitRating and CritRating if school-specific components were calculated, then call ToProto(). Kept as a separate method in case we want to use the UnitStats struct for other applications
-// than just stat weights.
-func (s *UnitStats) ExportWeights() *proto.UnitStats {
-	if s.Stats[stats.MeleeHitRating] == 0 {
-		s.Stats[stats.MeleeHitRating] = (s.PseudoStats[proto.PseudoStat_PseudoStatMeleeHitPercent] + s.PseudoStats[proto.PseudoStat_PseudoStatRangedHitPercent]) / PhysicalHitRatingPerHitPercent
-	}
-
-	if s.Stats[stats.MeleeCritRating] == 0 {
-		s.Stats[stats.MeleeCritRating] = (s.PseudoStats[proto.PseudoStat_PseudoStatMeleeCritPercent] + s.PseudoStats[proto.PseudoStat_PseudoStatRangedCritPercent]) / SpellCritRatingPerCritPercent
-	}
-
-	return s.ToProto()
-}
-
 type StatWeightValues struct {
 	Weights       UnitStats
 	WeightsStdev  UnitStats
@@ -79,10 +65,10 @@ func NewStatWeightValues() StatWeightValues {
 
 func (swv *StatWeightValues) ToProto() *proto.StatWeightValues {
 	return &proto.StatWeightValues{
-		Weights:       swv.Weights.ExportWeights(),
-		WeightsStdev:  swv.WeightsStdev.ExportWeights(),
-		EpValues:      swv.EpValues.ExportWeights(),
-		EpValuesStdev: swv.EpValuesStdev.ExportWeights(),
+		Weights:       swv.Weights.ToProto(),
+		WeightsStdev:  swv.WeightsStdev.ToProto(),
+		EpValues:      swv.EpValues.ToProto(),
+		EpValuesStdev: swv.EpValuesStdev.ToProto(),
 	}
 }
 
@@ -176,10 +162,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		statModsHigh[stat] = statMod
 		statModsLow[stat] = -statMod
 
-		if stat.EqualsStat(stats.MeleeHitRating) {
-			statModsLow[stats.MeleeHitRating] = 0
-		} else if stat.EqualsStat(stats.SpellHitRating) {
-			statModsLow[stats.SpellHitRating] = 0
+		if stat.EqualsStat(stats.HitRating) {
+			statModsLow[stats.HitRating] = 0
 		} else if stat.EqualsStat(stats.ExpertiseRating) {
 			statModsLow[stats.ExpertiseRating] = 0
 		}
@@ -193,16 +177,15 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		statMod := defaultStatMod
 
 		if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatMeleeHitPercent) ||
-			stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatRangedHitPercent) {
-			statMod /= PhysicalHitRatingPerHitPercent
-		} else if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatSpellHitPercent) {
-			statMod /= SpellHitRatingPerHitPercent
+			stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatRangedHitPercent) ||
+			stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatSpellHitPercent) {
+			statMod /= HitRatingPerHitPercent
 		} else if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatExpertisePercent) {
 			statMod /= ExpertiseRatingPerExpertisePercent
 		} else if strings.Contains(statName, "SchoolHit") {
-			statMod /= SpellHitRatingPerHitPercent
+			statMod /= HitRatingPerHitPercent
 		} else if strings.Contains(statName, "Crit") {
-			statMod /= PhysicalCritRatingPerCritPercent // These are the same
+			statMod /= CritRatingPerCritPercent
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
 		} else {
@@ -211,29 +194,6 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 
 		statModsHigh[stat] = statMod
 		statModsLow[stat] = -statMod
-
-		// If a school-specific Hit/Crit percentage stat is being
-		// weighed, then remove the base Rating stat from the request to
-		// avoid unnecessary computations. The base Rating EP will be
-		// reconstructed from the PseudoStat EPs when writing the final
-		// results.
-		if strings.Contains(statName, "MeleeHit") ||
-			strings.Contains(statName, "RangedHit") {
-			statModsLow[stats.MeleeHitRating] = 0
-			statModsHigh[stats.MeleeHitRating] = 0
-		} else if strings.Contains(statName, "SpellHit") {
-			statModsLow[stats.SpellHitRating] = 0
-			statModsHigh[stats.SpellHitRating] = 0
-		} else if strings.Contains(statName, "MeleeCrit") {
-			statModsLow[stats.MeleeCritRating] = 0
-			statModsHigh[stats.MeleeCritRating] = 0
-		} else if strings.Contains(statName, "Expertise") {
-			statModsLow[stats.ExpertiseRating] = 0
-			statModsHigh[stats.ExpertiseRating] = 0
-		} else if strings.Contains(statName, "Crit") {
-			statModsLow[stats.SpellCritRating] = 0
-			statModsHigh[stats.SpellCritRating] = 0
-		}
 	}
 
 	for i := range statModsLow {
@@ -294,8 +254,8 @@ func computeStatWeights(swcr *proto.StatWeightsCalcRequest) *proto.StatWeightsRe
 		if stat.IsPseudoStat() {
 			statName := proto.PseudoStat_name[int32(stat.PseudoStatIdx())]
 			if strings.Contains(statName, "SchoolHit") {
-				statResult.StatData.ModLow *= SpellHitRatingPerHitPercent
-				statResult.StatData.ModHigh *= SpellHitRatingPerHitPercent
+				statResult.StatData.ModLow *= HitRatingPerHitPercent
+				statResult.StatData.ModHigh *= HitRatingPerHitPercent
 			}
 		}
 

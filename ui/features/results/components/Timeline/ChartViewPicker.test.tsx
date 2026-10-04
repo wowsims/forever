@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ChartViewPicker } from './ChartViewPicker';
@@ -8,23 +8,25 @@ const mount = (value: 'rotation' | 'dps') => {
 	return { onChange, ...render(<ChartViewPicker value={value} onChange={onChange} />) };
 };
 
+const views = () => screen.getAllByRole('button');
+
 describe('ChartViewPicker', () => {
-	it('offers the two views as one radio group', () => {
-		const { container } = mount('rotation');
-		const inputs = [...container.querySelectorAll<HTMLInputElement>('input[type=radio]')];
-		expect(inputs.map(input => input.value)).toEqual(['rotation', 'dps']);
-		expect(new Set(inputs.map(input => input.name)).size).toBe(1);
-		expect([...container.querySelectorAll('label')].map(label => label.htmlFor)).toEqual(['timeline-chart-view-rotation', 'timeline-chart-view-dps']);
+	it('offers the two views as one group of buttons', () => {
+		mount('rotation');
+
+		expect(screen.getByRole('group').contains(views()[0])).toBe(true);
+		expect(views().map(button => button.textContent)).toEqual([
+			'results_tab.details.timeline.chart_types.rotation',
+			'results_tab.details.timeline.chart_types.dps',
+		]);
 	});
 
-	it('checks the view it is given, not the one that was clicked last', () => {
-		expect(mount('dps').container.querySelector<HTMLInputElement>('#timeline-chart-view-dps')!.checked).toBe(true);
-		expect(mount('dps').container.querySelector<HTMLInputElement>('#timeline-chart-view-rotation')!.checked).toBe(false);
-	});
+	it('reports the picked view, and stays quiet for the one already showing', () => {
+		const { onChange } = mount('rotation');
 
-	it('reports the picked view', () => {
-		const { container, onChange } = mount('rotation');
-		fireEvent.click(container.querySelector('#timeline-chart-view-dps')!);
+		fireEvent.click(views()[0]);
+		expect(onChange).not.toHaveBeenCalled();
+		fireEvent.click(views()[1]);
 		expect(onChange).toHaveBeenCalledWith('dps');
 	});
 });

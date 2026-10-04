@@ -3,6 +3,7 @@ package druid
 var swipeRank = spellData.Swipe.Highest()
 
 // TODO: To be implemented.
+// TODO: Swipe gains 3% of the druid's attack power in game; its rows do not state it.
 func (druid *Druid) registerSwipeBearSpell() {
 	panic("To be implemented")
 

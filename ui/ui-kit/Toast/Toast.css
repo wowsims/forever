@@ -8,7 +8,7 @@
 	}
 
 	.ui-toast-floating {
-		@apply md:w-87.5;
+		@apply md:w-86;
 	}
 
 	.ui-toast-header {

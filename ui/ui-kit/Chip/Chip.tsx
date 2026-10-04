@@ -18,6 +18,8 @@ export interface ChipProps {
 	deleteConfirmLabel?: string;
 	className?: string;
 	testId?: string;
+	nameTestId?: string;
+	deleteTestId?: string;
 	as?: ElementType;
 	nameAs?: ElementType;
 	rootProps?: Record<string, unknown>;
@@ -38,7 +40,9 @@ export const Chip = ({
 	deleteMessage,
 	deleteConfirmLabel,
 	className,
-	testId = 'saved-data-set-chip',
+	testId,
+	nameTestId,
+	deleteTestId,
 	as: Root = 'div',
 	nameAs: Name = 'button',
 	rootProps,
@@ -49,14 +53,14 @@ export const Chip = ({
 
 	return (
 		<Root
-			className={clsx('ui-chip', 'data-active:[&_.ui-chip-name]:text-primary-foreground', className)}
+			className={clsx('ui-chip', className)}
 			data-testid={testId}
 			data-active={active ? '' : undefined}
 			data-disabled={disabled ? '' : undefined}
 			{...rootProps}>
 			<Name
-				className="ui-chip-name p-2 text-white"
-				data-testid="saved-data-set-name"
+				className="ui-chip-name"
+				data-testid={nameTestId}
 				onClick={onSelect}
 				{...(Name === 'button' ? { type: 'button' } : {})}
 				{...tooltipAnchorProps(tooltip ? chipTooltipId : undefined, tooltip)}
@@ -67,23 +71,23 @@ export const Chip = ({
 				<button
 					type="button"
 					className="ui-chip-delete"
-					data-testid="saved-data-set-delete"
+					data-testid={deleteTestId}
 					aria-label={deleteLabel}
 					{...tooltipAnchorProps(deleteTooltipId)}
 					onClick={onDelete}>
-					<Icon name="times" style="base" size="lg" />
+					<Icon name="xmark" style="base" size="lg" />
 				</button>
 			)}
 			{onDelete && confirmDelete && (
 				<ConfirmPopover
 					open={confirming}
 					onOpenChange={setConfirming}
-					trigger={<Icon name="times" style="base" size="lg" />}
+					trigger={<Icon name="xmark" style="base" size="lg" />}
 					triggerClassName="ui-chip-delete"
 					triggerProps={
 						{
 							'aria-label': deleteLabel,
-							'data-testid': 'saved-data-set-delete',
+							'data-testid': deleteTestId,
 							...tooltipAnchorProps(deleteTooltipId),
 						} as ComponentPropsWithoutRef<'button'>
 					}

@@ -23,7 +23,7 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 	warnings: [],
 
 	// Extra stats shown in consumables picker (beyond epStats).
-	consumableStats: [Stat.StatMeleeHasteRating, Stat.StatMana, Stat.StatSpirit, Stat.StatMP5],
+	consumableStats: [Stat.StatHasteRating, Stat.StatMana, Stat.StatSpirit, Stat.StatMP5],
 
 	// All stats for which EP should be calculated.
 	epStats: [
@@ -32,10 +32,10 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		Stat.StatAttackPower,
 		Stat.StatFeralAttackPower,
 		Stat.StatPhysicalDamage,
-		Stat.StatMeleeHitRating,
+		Stat.StatHitRating,
 		Stat.StatExpertiseRating,
-		Stat.StatMeleeCritRating,
-		Stat.StatMeleeHasteRating,
+		Stat.StatCritRating,
+		Stat.StatHasteRating,
 		Stat.StatArmorPenetration,
 	],
 	gemStats: [Stat.StatAgility, Stat.StatStrength],
@@ -74,7 +74,7 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
-			return new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 9).withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
+			return new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8).withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
 		})(),
 		other: Presets.OtherDefaults,
 		// Default consumes settings.
@@ -95,11 +95,9 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		}),
 		partyBuffs: PartyBuffs.create({
 			battleShout: TristateEffect.TristateEffectRegular,
-			graceOfAirTotem: true,
 			windfuryTotem: true,
 			manaSpringTotem: TristateEffect.TristateEffectRegular,
 			strengthOfEarthTotem: true,
-			totemTwisting: true,
 		}),
 		individualBuffs: IndividualBuffs.create({
 			greaterBlessingOfKings: true,
@@ -107,7 +105,6 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		}),
 		debuffs: Debuffs.create({
 			exposeArmor: true,
-			huntersMark: true,
 			judgementOfWisdom: true,
 			curseOfRecklessness: true,
 			faerieFire: true,
@@ -122,11 +119,10 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 	rotationInputs: FeralInputs.FeralDruidRotationConfig,
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [Stat.StatMP5, Stat.StatIntellect, Stat.StatStamina],
-	excludeBuffDebuffInputs: [BuffDebuffInputs.WindfuryTotem, BuffDebuffInputs.FlametongueTotem],
+	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
 		inputs: [
-			OtherInputs.TotemTwisting,
 			OtherInputs.InputDelay,
 			OtherInputs.DistanceFromTarget,
 			OtherInputs.TankAssignment,

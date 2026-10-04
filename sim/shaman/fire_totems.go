@@ -1,190 +1,114 @@
 package shaman
 
 import (
-	"math"
-
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-func searingTickCount(offset float64) int32 {
-	return int32(math.Ceil(24*(1.0+offset))) - 1
+var searingTotemRank = spellData.SearingTotem.Highest()
+var searingAttackRank = spellData.SearingTotemTriggered.Highest()
+
+// 10587's tooltip names the pulse, 10581, and the passive that casts it, 10584.
+var magmaTotemRank = spellData.MagmaTotem.Highest()
+var magmaPulseRank = spellData.MagmaTotemTriggered.ByID(10581)
+var magmaPassiveRank = spellData.MagmaTotemTriggered.ByID(10584)
+
+var fireNovaRank = spellData.FireNova.Highest()
+var fireNovaDamageRank = spellData.FireNovaTriggered.Highest()
+
+// A fire totem's own attack: the totem's, not the caster's, so it lands no proc of the caster's.
+func (shaman *Shaman) newTotemAttackConfig(rank *spelldata.Spell) core.SpellConfig {
+	return spelldata.SpellConfig(&shaman.Unit, rank,
+		spelldata.Magic(core.ProcMaskEmpty),
+		spelldata.Proc(),
+		spelldata.Flags(SpellFlagShamanSpell))
 }
 
-// TODO: To be implemented. Port the TBC Searing Totem Spell implementation below; not yet verified against the Forever game files.
+// A fire totem that acts every period while it stands. Nothing it does lands before the pull.
+func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, period core.PeriodicActionOptions) *core.Spell {
+	duration := rank.Duration()
+
+	onAction := period.OnAction
+	period.OnAction = func(sim *core.Simulation) {
+		if sim.CurrentTime >= 0 {
+			onAction(sim)
+		}
+	}
+
+	totemAura := shaman.RegisterAura(spelldata.AuraConfig(rank)).AttachPeriodicAction(period)
+
+	config := shaman.newTotemSpellConfig(rank)
+	config.ClassSpellMask = mask
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		shaman.dropTotem(sim, FireTotem, totemAura, duration)
+	}
+
+	return shaman.RegisterSpell(config)
+}
+
+// The totem attacks its target once a cast of its attack, 10436's 2.2 s.
 func (shaman *Shaman) registerSearingTotemSpell() {
-	panic("To be implemented")
+	damage := searingAttackRank.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	// shaman.SearingTotem = shaman.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 25530},
-	// 	SpellSchool:    core.SpellSchoolFire,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskEmpty,
-	// 	Flags:          core.SpellFlagAPL | SpellFlagShamanSpell | SpellFlagInstant,
-	// 	ClassSpellMask: SpellMaskSearingTotem,
-	// 	MissileSpeed:   19,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: 205,
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: time.Second,
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label: "Searing Totem",
-	// 		},
-	// 		NumberOfTicks: searingTickCount(0),
-	// 		// Derived from analysing 100 logs - 1200+ events
-	// 		// | Min ms | Avg ms | Median ms | Max ms | Total Delays |
-	// 		// | 2001.0 | 2435.6 | 2430.0    | 2954.0 | 1223         |
-	// 		TickLength:       time.Millisecond * (2400 + 30),
-	// 		BonusCoefficient: 0.16699999571,
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			baseDamage := shaman.CalcAndRollDamageRange(sim, 50, 66)
-	// 			result := dot.Spell.CalcPeriodicDamage(sim, target, baseDamage, dot.Spell.OutcomeTickMagicHitAndCrit)
-	// 			dot.Spell.WaitTravelTime(sim, func(_ *core.Simulation) {
-	// 				dot.Spell.DealPeriodicDamage(sim, result)
-	// 			})
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-	// 		shaman.cancelFireTotems(sim)
-	//
-	// 		if sim.CurrentTime < 0 {
-	// 			dropTime := sim.CurrentTime
-	// 			pa := sim.GetConsumedPendingActionFromPool()
-	// 			shaman.SearingReplaced = false
-	// 			pa.OnAction = func(sim *core.Simulation) {
-	// 				if shaman.SearingReplaced {
-	// 					return
-	// 				}
-	// 				spell.Dot(sim.Encounter.ActiveTargetUnits[0]).BaseTickCount = searingTickCount(dropTime.Minutes())
-	// 				spell.Dot(sim.Encounter.ActiveTargetUnits[0]).Apply(sim)
-	// 			}
-	//
-	// 			sim.AddPendingAction(pa)
-	// 		} else {
-	// 			spell.Dot(sim.Encounter.ActiveTargetUnits[0]).BaseTickCount = searingTickCount(0)
-	// 			spell.Dot(sim.Encounter.ActiveTargetUnits[0]).Apply(sim)
-	// 		}
-	// 		duration := time.Second * 60
-	// 		shaman.TotemExpirations[FireTotem] = sim.CurrentTime + duration
-	// 	},
-	// })
+	attackConfig := shaman.newTotemAttackConfig(searingAttackRank)
+	attackConfig.ClassSpellMask = SpellMaskSearingTotem
+	attackConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
+			spell.DealDamage(sim, result)
+		})
+	}
+	attack := shaman.RegisterSpell(attackConfig)
+
+	shaman.SearingTotem = shaman.registerFireTotem(searingTotemRank, SpellMaskSearingTotem, core.PeriodicActionOptions{
+		Period: searingAttackRank.CastTime(),
+		OnAction: func(sim *core.Simulation) {
+			attack.Cast(sim, shaman.CurrentTarget)
+		},
+	})
 }
 
-// TODO: To be implemented. Port the TBC Magma Totem Spell implementation below; not yet verified against the Forever game files.
+// The passive casts the pulse on every enemy around the totem each of its periods.
 func (shaman *Shaman) registerMagmaTotemSpell() {
-	panic("To be implemented")
+	damage := magmaPulseRank.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	// shaman.MagmaTotem = shaman.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 25550},
-	// 	SpellSchool:    core.SpellSchoolFire,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskEmpty,
-	// 	Flags:          core.SpellFlagAPL | SpellFlagShamanSpell | SpellFlagInstant,
-	// 	ClassSpellMask: SpellMaskMagmaTotem,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: 800,
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: time.Second,
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	//
-	// 	Dot: core.DotConfig{
-	// 		IsAOE: true,
-	// 		Aura: core.Aura{
-	// 			Label: "Magma Totem",
-	// 		},
-	// 		NumberOfTicks:    10,
-	// 		TickLength:       time.Second * 2,
-	// 		BonusCoefficient: 0.06700000167,
-	//
-	// 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
-	// 			baseDamage := 97.0
-	// 			dot.Spell.CalcPeriodicAoeDamage(sim, baseDamage, dot.Spell.OutcomeTickMagicHitAndCrit)
-	// 			dot.Spell.DealBatchedPeriodicDamage(sim)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-	// 		shaman.cancelFireTotems(sim)
-	// 		spell.AOEDot().Apply(sim)
-	//
-	// 		duration := time.Second * 20
-	// 		shaman.TotemExpirations[FireTotem] = sim.CurrentTime + duration
-	// 	},
-	// })
+	pulseConfig := shaman.newTotemAttackConfig(magmaPulseRank)
+	pulseConfig.ClassSpellMask = SpellMaskMagmaTotem
+	pulseConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamage(sim, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+	}
+	pulse := shaman.RegisterSpell(pulseConfig)
+
+	shaman.MagmaTotem = shaman.registerFireTotem(magmaTotemRank, SpellMaskMagmaTotem, core.PeriodicActionOptions{
+		Period: magmaPassiveRank.EffectN(1).Period(),
+		OnAction: func(sim *core.Simulation) {
+			pulse.Cast(sim, shaman.CurrentTarget)
+		},
+	})
 }
 
-// TODO: To be implemented. Port the TBC Fire Nova Totem Spell implementation below; not yet verified against the Forever game files.
-func (shaman *Shaman) registerFireNovaTotemSpell() {
-	panic("To be implemented")
+// "Instantly inflicts $11307s1 fire damage to enemies within $11307a1 yd of your active Fire totem."
+// The cast deals 11307's damage itself, so it carries both rows' class flags: Improved Fire Nova
+// names the cast, 408345, and Call of Flame and Elemental Fury name the damage, 11307.
+func (shaman *Shaman) registerFireNovaSpell() {
+	damage := fireNovaDamageRank.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	// shaman.FireNovaTotemPA = &core.PendingAction{}
-	// // TODO: Forever drops Improved Fire Totems; untalented activation delay only.
-	// duration := time.Duration(4) * time.Second
-	//
-	// shaman.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 25537},
-	// 	SpellSchool:    core.SpellSchoolFire,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskEmpty,
-	// 	Flags:          core.SpellFlagAPL | SpellFlagShamanSpell | SpellFlagInstant,
-	// 	ClassSpellMask: SpellMaskFireNovaTotem,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: 765,
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: time.Second,
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    shaman.NewTimer(),
-	// 			Duration: time.Second * 15,
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	BonusCoefficient: 0.21400000155,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		shaman.cancelFireTotems(sim)
-	//
-	// 		baseDamage := shaman.CalcAndRollDamageRange(sim, 654, 730)
-	// 		spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeMagicHitAndCrit)
-	//
-	// 		shaman.FireNovaTotemPA.OnAction = func(sim *core.Simulation) {
-	// 			spell.DealBatchedAoeDamage(sim)
-	// 		}
-	// 		shaman.FireNovaTotemPA.NextActionAt = sim.CurrentTime + duration
-	// 		sim.AddPendingAction(shaman.FireNovaTotemPA)
-	//
-	// 		shaman.TotemExpirations[FireTotem] = sim.CurrentTime + duration
-	// 	},
-	// })
-}
+	config := spelldata.SpellConfig(&shaman.Unit, fireNovaRank,
+		spelldata.Magic(core.ProcMaskSpellDamage),
+		spelldata.Flags(SpellFlagShamanSpell|SpellFlagInstant))
+	config.ClassSpellMask = SpellMaskFireNova
+	config.BonusCoefficient = damage.Coeff()
+	for i := range config.ClassFlags.Mask {
+		config.ClassFlags.Mask[i] |= fireNovaDamageRank.ClassFlags.Mask[i]
+	}
 
-func (shaman *Shaman) cancelFireTotems(sim *core.Simulation) {
-	shaman.MagmaTotem.AOEDot().Deactivate(sim)
-	shaman.FireNovaTotemPA.Cancel(sim)
-	searingTotemDot := shaman.SearingTotem.Dot(shaman.CurrentTarget)
-	if searingTotemDot != nil {
-		searingTotemDot.Deactivate(sim)
+	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
+		totem := shaman.TotemAuras[FireTotem]
+		return totem != nil && totem.IsActive()
 	}
-	shaman.SearingReplaced = true
-	if shaman.TotemOfWrath != nil {
-		shaman.TotemOfWrath.RelatedSelfBuff.Deactivate(sim)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamage(sim, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
 	}
+
+	shaman.FireNova = shaman.RegisterSpell(config)
 }

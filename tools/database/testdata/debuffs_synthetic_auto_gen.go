@@ -95,6 +95,14 @@ func NewSpellDataSynthCurseOfElementsAura(unit *core.Unit, isPlayer bool, talent
 // Judgement of the Crusader
 // func NewSpellDataSynthJudgementOfTheCrusaderAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura // judgement_of_the_crusader: spell 20303 states no aura effect the parse attaches: effect 1 A_MOD_DAMAGE_TAKEN(14) misc 2
 
+// The generated debuffs by the spell they read.
+var debuffMetas = map[int32]*Meta{
+	11581:   synthThunderClapMeta,
+	11597:   synthSunderArmorMeta,
+	11198:   synthExposeArmorMeta,
+	1311680: synthCurseOfElementsMeta,
+}
+
 func applyGeneratedDebuffs(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	if debuffs.ThunderClap {
 		core.MakePermanent(NewSpellDataSynthThunderClapAura(target, false, 0))

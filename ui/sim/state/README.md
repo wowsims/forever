@@ -7,11 +7,13 @@ anything that needs one goes through the injected `Env` adapter (`env.ts`,
 reachable as `sim.env`; browser implementation in `ui/app/browser_env.ts`,
 in-memory `makeEnv()` in `ui/sim/sim.test.ts`).
 Imports of the facades (`../player`, `../sim`, the satellites) are
-`import type` — the one remaining runtime edge out of this directory is
-`reforge_request.ts` → `ReforgeGearCache` (`../cache/reforge_cache`).
+`import type`; besides leaf modules (`constants/`, `proto/`, `utils/`), the runtime
+edges out of this directory are `reforge_request.ts` → `ReforgeGearCache`
+(`../cache/reforge_cache`) and `storage_keys.ts` → `PlayerSpecs` (`../player/specs`).
 The sim's data state lives in one Zustand vanilla store
-per page, consumed from plain TS today and from React later (`useStore(sim.store, selector)`)
-with no store changes. There is no separate event system.
+per page, consumed from plain TS through `subscriptions.ts` and from React through the hooks in
+`ui/sim/hooks/` (`usePlayerStore`, `useStoreField`, `useStoreSubscribe`). There is no separate
+event system.
 
 ## Topology
 
@@ -24,10 +26,11 @@ with no store changes. There is no separate event system.
 | `sim`                   | `Sim`                              | iterations, phase, faction, fixedRngSeed, filters, lastUsedRngSeed(+version), metadataVersion               |
 | `encounter`             | `Encounter`                        | duration, execute proportions, useHealth, targets (replace-on-write)                                        |
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, partyBuffs[5], composition[5][5] (player storeKeys) |
-| `players[storeKey]`     | `Player` / `ItemSwapSettings`      | 23 settings fields + per-field version counters (`v`)                                                       |
-| `reforge[storeKey]`     | `ReforgeSettings`                  | 12 reforge-optimizer settings + counters                                                                    |
+| `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values (`PlayerSlice`) + per-field version counters (`v`, keyed by `PLAYER_FIELDS`)                     |
+| `reforge[storeKey]`     | `ReforgeSettings`                  | reforge-optimizer settings (`REFORGE_FIELDS`) + counters                                                    |
 | `statWeights[storeKey]` | `StatWeightActionSettings`         | excluded stats + counter                                                                                    |
 | `bulk[storeKey]`        | `ui/sim/settings/bulk_settings.ts` | batch items + picker groups, batch settings, run flag, results, combination count + counters                |
+| `runs`                  | `SimRuns` (`ui/sim/sim_runs.ts`)   | `{ isRunning, isAborting }` per `SimRunKind`, written through `patchRun`                                    |
 
 Class-side by design: the Party↔Player object graph (composition in the store is
 the notification source; the objects stay on the classes), `aplRotation`
@@ -37,7 +40,7 @@ the notification source; the objects stay on the classes), `aplRotation`
 
 Facade setters keep their `setX(eventID, value)` signatures — `eventID` is an
 opaque action id (`nextEventID()` in `batch.ts`), kept for future undo grouping
-and unused by the store. Setters guard equality exactly as before, then write
+and unused by the store. Setters guard equality, then write
 through the helpers in `sim_store.ts`: `patchSlice(store, 'sim', patch)` for the
 unkeyed slices, `patchKeyed(store, 'players', key, patch, bumps)` for the
 per-player ones (`seedKeyed` / `deleteKeyed` for lifetime). One logical change
@@ -69,11 +72,16 @@ Aggregates deliberately exclude server-derived state: `PLAYER_CHANGE_FIELDS`
 drops `currentStats`, `simSettingsKey` drops the rng seed / metadata counters.
 Including them would make stat recomputation re-trigger itself.
 
-Pickers bind through `InputConfig.storeSubscribe: obj => StoreSubscribe`
-(e.g. `player => subscribePlayerField(player, 'gear')`); the `input_helpers.ts`
-factories supply it. Omit it for inputs re-synced by their parent (nested APL
-pickers) or UI-local toggles. Pickers that hand a list to `ListPicker` must
-return a COPY from `getValue` (`.slice()`).
+Pickers bind through `InputConfig` (`ui/features/inputs/input.ts`), read by
+`useInput` (`ui/features/inputs/hooks/useInput.ts`) under the `Connected*` adapters:
+`storeField` names the store field(s) the input reads (`'gear'`, `'sim:phase'`), or
+`storeSubscribe: obj => StoreSubscribe` supplies a source by hand (e.g.
+`player => subscribePlayerField(player, 'gear')`); the `input_helpers.ts` factories
+supply one. Omit both for inputs re-synced by their parent (nested APL pickers) or
+UI-local toggles. The list hands `onChange` a copy and the source's notification
+re-renders: `useListItems` (`ui/features/inputs/hooks/useListItems.ts`) never mutates
+the list it is given, and passes the fresh array to `config.setValue`, so a `getValue`
+may return the live store array.
 
 ## Events vs state
 
@@ -90,14 +98,16 @@ No batching, no dedup, fires synchronously. Never put these in the store.
 2. Facade getter reads the store; setter keeps an equality guard, writes via
    `patchSlice` / `patchKeyed`; if the setter must notify even on an equal
    value, pass the field in `bumps`.
-3. Consumers use the matching `subscribe*` helper; store the unsubscribe on the
-   component's dispose list.
+3. React consumers read it through `usePlayerStore('<field>')` or an
+   `InputConfig.storeField`; a non-React consumer calls the matching `subscribe*`
+   helper and keeps the returned unsubscribe.
 
 ## Also here
 
 `persistence.ts` (load-order contract + autosave; the localStorage key is built
 by the caller and handed in), `serialization.ts` (IndividualSimSettings
-envelope), `sim_links.ts`, `reforge_request.ts`, `env.ts`.
+envelope), `sim_links.ts`, `reforge_request.ts`, `env.ts`, `storage_keys.ts`
+(the saved-data localStorage keys).
 
 ## Not here (facades, in `ui/sim/settings/`)
 
@@ -105,7 +115,7 @@ envelope), `sim_links.ts`, `reforge_request.ts`, `env.ts`.
 `bulk_settings.ts` hold a `Player` and write the store — they are facades over
 the slices, not state, so they live in `ui/sim/settings/`. This
 directory is exactly: `sim_store`, `batch`, `events`, `subscriptions`,
-`serialization`, `sim_links`, `reforge_request`, `persistence`, `env`.
+`serialization`, `sim_links`, `reforge_request`, `persistence`, `env`, `storage_keys`.
 
 ## Player lifetime
 

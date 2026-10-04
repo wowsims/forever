@@ -40,14 +40,12 @@ describe('addPickerEntry', () => {
 		expect(addPickerEntry(BulkSimItemSlot.ItemSlotFinger, finger, 2, item(7))).toBe('duplicate');
 	});
 
-	it('allows only one copy of a unique item even in a paired slot', () => {
-		const trinket = addAll(BulkSimItemSlot.ItemSlotTrinket, [[0, item(9, { unique: true })]]);
-		expect(addPickerEntry(BulkSimItemSlot.ItemSlotTrinket, trinket, 1, item(9, { unique: true }))).toBe('duplicate');
-	});
-
-	it('allows only one copy of a limit-category item even in a paired slot', () => {
-		const trinket = addAll(BulkSimItemSlot.ItemSlotTrinket, [[0, item(9, { limitCategory: 326 })]]);
-		expect(addPickerEntry(BulkSimItemSlot.ItemSlotTrinket, trinket, 1, item(9, { limitCategory: 326 }))).toBe('duplicate');
+	it.each<[string, ItemOverrides]>([
+		['unique', { unique: true }],
+		['limit-category', { limitCategory: 326 }],
+	])('allows only one copy of a %s item even in a paired slot', (_name, overrides) => {
+		const trinket = addAll(BulkSimItemSlot.ItemSlotTrinket, [[0, item(9, overrides)]]);
+		expect(addPickerEntry(BulkSimItemSlot.ItemSlotTrinket, trinket, 1, item(9, overrides))).toBe('duplicate');
 	});
 
 	it('allows two copies of a one-handed weapon', () => {

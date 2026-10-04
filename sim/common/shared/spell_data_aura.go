@@ -18,7 +18,7 @@ type spellDataAuras struct {
 	enemies     core.AuraArray
 }
 
-func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config core.Aura) *spellDataAuras {
+func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config core.Aura, wearerOpts ...spelldata.ParseOpt) *spellDataAuras {
 	auras := &spellDataAuras{}
 	if row.RequiredAreas != 0 && !character.Env.Encounter.InArea(row.AreaType()) {
 		return auras
@@ -26,7 +26,8 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 
 	if effects := spelldata.EffectsOn(row, spelldata.AuraOnWearer); len(effects) > 0 {
 		auras.wearer = character.RegisterAura(config)
-		auras.wearerStats = spelldata.ParseEffects(character, auras.wearer, row, spelldata.Effects(effects...)).Stats()
+		auras.wearerStats = spelldata.ParseEffects(character, auras.wearer, row,
+			append([]spelldata.ParseOpt{spelldata.Effects(effects...)}, wearerOpts...)...).Stats()
 	}
 
 	if effects := spelldata.EffectsOn(row, spelldata.AuraOnPet); len(effects) > 0 {
@@ -73,7 +74,7 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 		config.Duration = procBuffDuration(cfg, trigger, buff)
 		auras := newSpellDataAuras(character, buff, config)
 
-		proc := spellDataProcListener(character, cfg, source, trigger, nil)
+		proc := spellDataProcListener(character, cfg, source, trigger)
 		if proc.ICD == 0 && buff.ID != trigger.ID {
 			proc.ICD = buff.CategoryCooldown()
 		}
@@ -98,8 +99,8 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 	})
 }
 
-// An item whose equip spell applies auras: the row's auras on the wearer and on each summoned pet for
-// as long as the item is worn. An equip spell that only re-applies another aura on a period is read as
+// An item or enchant whose equip spell applies auras: the row's auras on the wearer and on each
+// summoned pet for as long as the item or the enchant is worn. An equip spell that only re-applies another aura on a period is read as
 // that aura.
 func NewSpellDataEquipAura(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEquipAura)
@@ -124,12 +125,16 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 		config := spelldata.AuraConfig(row, spelldata.Label(cfg.Name))
 		config.Duration = core.NeverExpires
 		config.OnReset = func(aura *core.Aura, sim *core.Simulation) {
-			if character.HasItemEquipped(source.id, slots) {
+			if source.isEquipped(character, slots) {
 				aura.Activate(sim)
 			}
 		}
 
-		auras := newSpellDataAuras(character, row, config)
+		var opts []spelldata.ParseOpt
+		if hands := source.weaponHands(character, slots); hands != 0 {
+			opts = append(opts, spelldata.OnHand(hands))
+		}
+		auras := newSpellDataAuras(character, row, config, opts...)
 		for _, aura := range append([]*core.Aura{auras.wearer}, auras.pets...) {
 			if aura != nil {
 				source.registerProc(character, aura, slots)

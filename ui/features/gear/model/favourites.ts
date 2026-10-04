@@ -3,7 +3,7 @@ import { getUniqueEnchantString } from '@sim/proto/enchants';
 
 import { ItemDataFields, ItemListType, SelectorModalTabs } from '../types';
 
-export const favouriteFilterKey = (tab: SelectorModalTabs): keyof DatabaseFilters | null => {
+const favouriteFilterKey = (tab: SelectorModalTabs): keyof DatabaseFilters | null => {
 	switch (tab) {
 		case SelectorModalTabs.Items:
 			return 'favoriteItems';
@@ -20,7 +20,7 @@ export const favouriteFilterKey = (tab: SelectorModalTabs): keyof DatabaseFilter
 	}
 };
 
-export const favouriteId = <T extends ItemListType>(tab: SelectorModalTabs, itemData: ItemDataFields<T>): number | string => {
+const favouriteId = <T extends ItemListType>(tab: SelectorModalTabs, itemData: ItemDataFields<T>): number | string => {
 	if (tab === SelectorModalTabs.Enchants) {
 		return getUniqueEnchantString(itemData.item as unknown as Enchant);
 	}

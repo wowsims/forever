@@ -127,6 +127,7 @@ func NewMage(character *core.Character, options *proto.Player) *Mage {
 	core.FillTalentsProto(mage.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 
 	mage.EnableManaBar()
+	mage.AddStatDependency(stats.Strength, stats.AttackPower, 1)
 	mage.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[character.Class])
 
 	// TODO: Forever drops Summon Water Elemental; the pet is never created until we know

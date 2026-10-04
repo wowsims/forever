@@ -9,16 +9,17 @@ import { hasTouch } from '../../../../shared/pointer';
 import { useOpenSelectorModal } from '../../hooks/useSelectorModal';
 import { createGearData } from '../../model/gear_data';
 import { SelectorModalTabs } from '../../types';
-import { ItemDetailCell } from '../ItemCell';
+import { ItemDetailCell, type ItemDetailCellProps } from '../ItemCell';
 import { QuickEnchantList } from './QuickEnchantList';
 import { QuickGemList } from './QuickGemList';
 
 export interface ItemPickerCellProps {
 	slot: ItemSlot;
 	ready: boolean;
+	align?: ItemDetailCellProps['align'];
 }
 
-export const ItemPickerCell = ({ slot, ready }: ItemPickerCellProps) => {
+export const ItemPickerCell = ({ slot, ready, align }: ItemPickerCellProps) => {
 	const host = useSimHost();
 	const openSelectorModal = useOpenSelectorModal();
 	const player = host.player;
@@ -46,7 +47,7 @@ export const ItemPickerCell = ({ slot, ready }: ItemPickerCellProps) => {
 					id={`${tooltipId}-enchant`}
 					className="tooltip-quick-swap cursor-default"
 					maxWidth="max-w-none"
-					width="w-55"
+					widthClassName="w-54"
 					align="start"
 					padded={false}
 					place="bottom"
@@ -72,6 +73,7 @@ export const ItemPickerCell = ({ slot, ready }: ItemPickerCellProps) => {
 		<ItemDetailCell
 			slot={slot}
 			item={item}
+			align={align}
 			onOpen={open}
 			enchantTooltipId={`${tooltipId}-enchant`}
 			socketTooltipId={gemIdx => `${tooltipId}-gem-${gemIdx}`}

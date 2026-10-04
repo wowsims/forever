@@ -1,11 +1,11 @@
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
 import { NameDisplay } from '@features/apl/components/NameDisplay';
 import { clearPlaceholder, findContainingGroup, placeholderNames, renamePlaceholder } from '@features/apl/model/placeholders';
+import { useConnectedField } from '@features/inputs/hooks/useConnectedField';
+import type { InputConfig } from '@features/inputs/input';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
-import { useInput } from '@ui-kit/hooks/useInput';
-import type { InputConfig } from '@ui-kit/input';
-import { PickerShell } from '@ui-kit/PickerShell';
+import { Field } from '@ui-kit/Field';
 import { useState } from 'react';
 
 export interface PlaceholderNameFieldProps {
@@ -27,15 +27,16 @@ const label = (key: string) => i18n.t(`rotation_tab.apl.variablePlaceholder.${ke
  * are unrelated.
  */
 export const PlaceholderNameField = ({ player, config, getParentValue }: PlaceholderNameFieldProps) => {
-	const { value, setValue, hidden, disabled } = useInput(player, config);
+	const { value, setValue, hidden, disabled, frameProps } = useConnectedField(player, config);
 	const [open, setOpen] = useState(() => !config.getValue(player));
 
 	const isNew = !value;
 	const group = open ? findContainingGroup(player.aplRotation, getParentValue()) : undefined;
 	const existingNames = open ? placeholderNames(group).filter(name => isNew || name !== value) : [];
 
+	if (hidden) return null;
 	return (
-		<PickerShell config={config} hidden={hidden} disabled={disabled}>
+		<Field {...frameProps} disabled={disabled}>
 			<NameDisplay name={value} onRename={() => setOpen(true)} compact />
 			<AplNameDialog
 				open={open}
@@ -55,6 +56,6 @@ export const PlaceholderNameField = ({ player, config, getParentValue }: Placeho
 				onCancel={isNew ? () => player.modifyAplRotation(rotation => void clearPlaceholder(rotation, getParentValue())) : undefined}
 				onClose={() => setOpen(false)}
 			/>
-		</PickerShell>
+		</Field>
 	);
 };

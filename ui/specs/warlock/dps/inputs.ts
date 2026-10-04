@@ -1,3 +1,4 @@
+import * as InputHelpers from '@features/inputs/input_helpers';
 import { Spec } from '@generated/proto/common';
 import { WarlockOptions_Armor, WarlockOptions_CurseOptions, WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
@@ -5,7 +6,6 @@ import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
 import { WarlockSpecs } from '@sim/proto/spec_types';
 import type { CustomSection } from '@sim/spec_config';
-import * as InputHelpers from '@ui-kit/input_helpers';
 
 // Configuration for spec-specific UI elements on the settings tab.
 // These don't need to be in a separate file but it keeps things cleaner.
@@ -72,7 +72,6 @@ export const CursesSection: CustomSection<Spec.SpecWarlock> = {
 	id: 'assigned-curse-settings',
 	title: i18n.t('settings_tab.other.warlock_assigned_curse.title'),
 	description: i18n.t('settings_tab.other.warlock_assigned_curse.description'),
-	iconGroupClassName: 'curses-toggle-container',
 	iconInputs: [
 		makeCursePicker<Spec.SpecWarlock>(WarlockOptions_CurseOptions.Agony, 27218),
 		makeCursePicker<Spec.SpecWarlock>(WarlockOptions_CurseOptions.Doom, 603),

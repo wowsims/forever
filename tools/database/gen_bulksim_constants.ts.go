@@ -78,6 +78,10 @@ export const BULK_SIM_CULLING_COEFFICIENT = {{ .CullingCoefficient }};
 
 export const BULK_SIM_COMBINATION_LOG_MIN = {{ .CombinationLogMin }};
 
+export const BULK_SIM_PAIRED_INTERVAL_CONSERVATISM = {{ .PairedIntervalConservatism }};
+
+export const BULK_SIM_Z95 = {{ .Z95 }};
+
 export const BULK_SIM_MAX_ADAPTIVE_PASSES = {{ .MaxAdaptivePasses }};
 
 export const BULK_SIM_ADAPTIVE_MAX_ITERATION_MULTIPLIER = {{ .AdaptiveMaxIterationMultiplier }};
@@ -133,6 +137,8 @@ type tsBulkTuningConstants struct {
 	MinCombinations                     int
 	CullingCoefficient                  float64
 	CombinationLogMin                   float64
+	PairedIntervalConservatism          float64
+	Z95                                 float64
 	MaxAdaptivePasses                   int
 	AdaptiveMaxIterationMultiplier      int32
 	FinalistMaxExtraIterationMultiplier int32
@@ -170,6 +176,8 @@ func GenerateBulkSimTuningConstantsTSFile() error {
 		MinCombinations:                     bulk.BulkSimMinCombinations,
 		CullingCoefficient:                  bulk.BulkSimCullingCoefficient,
 		CombinationLogMin:                   bulk.BulkSimCombinationLogMin,
+		PairedIntervalConservatism:          bulk.BulkSimPairedIntervalConservatism,
+		Z95:                                 bulk.BulkSimZ95,
 		MaxAdaptivePasses:                   bulk.BulkSimMaxAdaptivePasses,
 		AdaptiveMaxIterationMultiplier:      bulk.BulkSimAdaptiveMaxIterationMultiplier,
 		FinalistMaxExtraIterationMultiplier: bulk.BulkSimFinalistMaxExtraIterationMultiplier,

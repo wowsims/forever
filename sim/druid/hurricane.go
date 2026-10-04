@@ -17,7 +17,7 @@ func (druid *Druid) registerHurricaneSpell() {
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
 	tickConfig.ClassSpellMask = DruidSpellHurricane
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, hurricaneTickDamage.Average(core.CharacterLevel), spell.OutcomeMagicHit)
+		spell.CalcAndDealAoeDamage(sim, hurricaneTickDamage.Average(), spell.OutcomeMagicHit)
 	}
 	tickSpell := druid.RegisterSpell(tickConfig)
 

@@ -1,8 +1,8 @@
+import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import type { TalentConfig } from '@sim/talents/config';
-import { externalRel } from '@sim/utils/links';
-import { useActionId } from '@ui-kit/hooks/useActionId';
 import { isRightClick } from '@ui-kit/utils/dom';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import { useEffect, useRef } from 'react';
 
 export interface TalentPickerProps<TalentsProto> {
@@ -74,13 +74,11 @@ export const TalentPicker = <TalentsProto,>({ config, points, canAdd, allPointsS
 	}, []);
 
 	return (
-		<a
+		<WowheadAnchor
 			ref={rootRef}
 			className="ui-talent-picker-root"
-			data-testid="talent-picker-root"
+			testId="talent-picker-root"
 			href={href || undefined}
-			rel={externalRel(href, undefined)}
-			data-whtticon="false"
 			data-points={String(points)}
 			data-max-points={String(config.maxPoints)}
 			data-can-add={String(canAdd)}
@@ -92,13 +90,13 @@ export const TalentPicker = <TalentsProto,>({ config, points, canAdd, allPointsS
 				zIndex,
 				backgroundImage: iconUrl ? `url('${iconUrl}')` : undefined,
 			}}
-			// The anchor is a wowhead link, so following it has to be suppressed; and `mousedown` rather than `click` is what commits, which is why a right click reaches it at all.
-			onClick={event => event.preventDefault()}
+			// `mousedown` rather than the click commits, which is why a right click reaches it at all, so the click only cancels the wowhead link.
+			navigate={false}
 			onContextMenu={event => event.preventDefault()}
 			onMouseDown={event => (isRightClick(event.nativeEvent) ? handlers.current.unspend() : handlers.current.spend())}>
 			<span className="ui-talent-picker-points" data-testid="talent-picker-points">
 				{points}/{config.maxPoints}
 			</span>
-		</a>
+		</WowheadAnchor>
 	);
 };

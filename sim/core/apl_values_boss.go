@@ -80,3 +80,29 @@ func (value *APLValueBossCurrentTarget) GetBool(sim *Simulation) bool {
 func (value *APLValueBossCurrentTarget) String() string {
 	return fmt.Sprintf("IsTanking(%s)", value.target.Get().Label)
 }
+
+type APLValueTargetIsMobType struct {
+	DefaultAPLValueImpl
+	target  UnitReference
+	mobType proto.MobType
+}
+
+func (rot *APLRotation) newValueTargetIsMobType(config *proto.APLValueTargetIsMobType, _ *proto.UUID) APLValue {
+	target := rot.GetTargetUnit(config.TargetUnit)
+	if target.Get() == nil {
+		return nil
+	}
+	return &APLValueTargetIsMobType{
+		target:  target,
+		mobType: config.MobType,
+	}
+}
+func (value *APLValueTargetIsMobType) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueTargetIsMobType) GetBool(sim *Simulation) bool {
+	return value.target.Get().MobType == value.mobType
+}
+func (value *APLValueTargetIsMobType) String() string {
+	return fmt.Sprintf("Is Mob Type(%s, %s)", value.target.Get().Label, value.mobType)
+}

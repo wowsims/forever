@@ -16,7 +16,9 @@ wherever the package uses it; a name bound to a value read off a rank, `executeB
 declaration line each accessor answers for itself: `EffectN(1)` the effect and every accessor that reads
 something off it, `Average(core.CharacterLevel)` the value and the doc comment `sim/core/spelldata`
 writes on that accessor. The cursor on `SpellConfig` in a `spelldata.SpellConfig(...)` call shows the
-config the resolver builds from the row and the options, each field with the step that filled it.
+config the resolver builds from the row and the options, each field with the step that filled it; on
+`SpellModConfig` in a `core.SpellModConfig{...}` literal, the fields it can read and the weapon its
+Equip fields require. A hit, crit or rating effect names the weapon rule the parse applies to it.
 
 ## How it answers
 

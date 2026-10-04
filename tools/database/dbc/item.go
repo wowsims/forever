@@ -242,12 +242,8 @@ func (item *Item) GetGemBonus() stats.Stats {
 		} else {
 			// This socket bonus in an Aura, need to loop over the raw SpellEffect data
 			// effectStat is the SpellID
-			effectAuras := GetDBC().SpellEffects[effectStat]
-			for _, effectAura := range effectAuras {
-				stat := ConvertEffectAuraToStatIndex(effectAura.EffectAura, effectAura.EffectMiscValues[0])
-				if stat > 0 {
-					stats[stat] = float64(effectAura.EffectBasePoints)
-				}
+			for _, effectAura := range GetDBC().SpellEffects[effectStat] {
+				addEquipEffectStat(&stats, effectAura, effectAura.EffectBasePoints)
 			}
 		}
 	}

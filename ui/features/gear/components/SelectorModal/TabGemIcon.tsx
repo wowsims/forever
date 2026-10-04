@@ -1,8 +1,7 @@
 import type { GemColor } from '@generated/proto/common';
 import type { UIGem as Gem } from '@generated/proto/ui';
-import { ActionId } from '@sim/proto/action_id';
 import { getEmptyGemSocketIconUrl } from '@sim/proto/gems';
-import { useActionId } from '@ui-kit/hooks/useActionId';
+import { wowheadIconUrl } from '@sim/proto/wowhead';
 import { cssVars } from '@ui-kit/utils/css';
 
 export interface TabGemIconProps {
@@ -12,8 +11,6 @@ export interface TabGemIconProps {
 
 // Not `GemSocket`: this one goes inside the tab's own <button>, and `GemSocket` is an anchor.
 export const TabGemIcon = ({ socketColor, gem }: TabGemIconProps) => {
-	const actionId = gem ? ActionId.fromItemId(gem.id) : undefined;
-	const { iconUrl } = useActionId(actionId);
 	const emptyIconUrl = getEmptyGemSocketIconUrl(socketColor);
 
 	return (
@@ -22,7 +19,7 @@ export const TabGemIcon = ({ socketColor, gem }: TabGemIconProps) => {
 				<img
 					className="absolute inset-gem z-1 inline-block size-gem-inner cursor-pointer rounded-full bg-cover bg-center bg-no-repeat"
 					data-testid="gem-icon"
-					src={iconUrl || undefined}
+					src={wowheadIconUrl(gem.icon)}
 					alt=""
 				/>
 			)}

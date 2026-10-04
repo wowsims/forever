@@ -2,8 +2,7 @@ import { childProps } from '@ui-kit/child_props';
 import { Icon } from '@ui-kit/Icon';
 import type { IconName, IconStyle } from '@ui-kit/Icon/types';
 import { Menu, MenuItem } from '@ui-kit/Menu';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
-import { type ReactNode, useId, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import type { ImportExportKind } from '../import_export';
 import type { ImportExportItemProps } from './ImportExportItem';
@@ -18,7 +17,6 @@ export interface ImportExportMenuProps {
 
 export const ImportExportMenu = ({ kind, icon, iconStyle = 'base', title, children }: ImportExportMenuProps) => {
 	const entries = childProps<ImportExportItemProps>(children);
-	const unsupportedId = useId();
 	const [open, setOpen] = useState(false);
 	const [openDialog, setOpenDialog] = useState<string | null>(null);
 
@@ -44,15 +42,7 @@ export const ImportExportMenu = ({ kind, icon, iconStyle = 'base', title, childr
 				positionerProps={{ 'data-testid': 'sim-dropdown-positioner' }}
 				popupProps={{ 'data-testid': 'sim-dropdown-popup' }}>
 				{entries.map(entry => (
-					<MenuItem
-						key={entry.label}
-						layout="block"
-						data-testid="sim-dropdown-item"
-						disabled={entry.isUnsupported}
-						{...(entry.isUnsupported ? tooltipAnchorProps(unsupportedId) : {})}
-						onClick={() => {
-							if (!entry.isUnsupported) setOpenDialog(entry.label);
-						}}>
+					<MenuItem key={entry.label} layout="block" data-testid="sim-dropdown-item" onClick={() => setOpenDialog(entry.label)}>
 						{entry.label}
 					</MenuItem>
 				))}
@@ -61,7 +51,6 @@ export const ImportExportMenu = ({ kind, icon, iconStyle = 'base', title, childr
 			{entries.map(entry => (
 				<entry.dialog key={entry.label} open={openDialog === entry.label} onOpenChange={next => setOpenDialog(next ? entry.label : null)} />
 			))}
-			<Tooltip id={unsupportedId} content="Currently unsupported" />
 		</div>
 	);
 };

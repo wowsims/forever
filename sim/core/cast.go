@@ -136,7 +136,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 		unshift := false
 		if spell.hasCastRequirement {
 			var reason string
-			if reason, unshift = spell.castRequirementFailure(); reason != "" {
+			if reason, unshift = spell.castRequirementFailure(sim); reason != "" {
 				return spell.castFailureHelper(sim, reason)
 			}
 		}
@@ -325,7 +325,7 @@ func (spell *Spell) makeCastFuncSimple() CastSuccessFunc {
 		unshift := false
 		if spell.hasCastRequirement {
 			var reason string
-			if reason, unshift = spell.castRequirementFailure(); reason != "" {
+			if reason, unshift = spell.castRequirementFailure(sim); reason != "" {
 				return spell.castFailureHelper(sim, reason)
 			}
 		}
@@ -359,8 +359,11 @@ func (spell *Spell) makeCastFuncSimple() CastSuccessFunc {
 		}
 
 		if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
-			spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
-				spell.ActionID, 0.0, "0s", "0s", "0s")
+			// The ranged auto's windup already logged its cast start.
+			if spell != spell.Unit.AutoAttacks.ranged.spell {
+				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
+					spell.ActionID, 0.0, "0s", "0s", "0s")
+			}
 			spell.Unit.Log(sim, "Completed cast %s", spell.ActionID)
 		}
 

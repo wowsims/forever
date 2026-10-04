@@ -45,8 +45,9 @@ type Aura struct {
 	// For easily grouping auras.
 	Tag string
 
-	ActionID        ActionID // If set, metrics will be tracked for this aura.
-	ActionIDForProc ActionID // If set, indicates that this aura is a trigger aura for the specified proc.
+	ActionID        ActionID     // If set, metrics will be tracked for this aura.
+	ActionIDForProc ActionID     // If set, indicates that this aura is a trigger aura for the specified proc.
+	Source          ActionSource // Left unset, registration fills in the phase it runs in.
 
 	Icd *Cooldown           // The internal cooldown if any
 	Dpm *DynamicProcManager // Dynamic Proc manager for proc trigger auras if any
@@ -438,6 +439,9 @@ type auraTracker struct {
 	onPeriodicHealDealtAuras   []*Aura
 	onPeriodicHealTakenAuras   []*Aura
 	onEncounterStartAuras      []*Aura
+
+	dispatchBuffers [][]*Aura // One copy of a callback list per event being handled, nested events included.
+	dispatchDepth   int
 }
 
 func newAuraTracker() auraTracker {
@@ -505,6 +509,9 @@ func (at *auraTracker) registerAura(unit *Unit, aura Aura) *Aura {
 	*newAura = aura
 	newAura.Unit = unit
 	newAura.Icd = aura.Icd
+	if newAura.Source == SourceUnset {
+		newAura.Source = unit.currentSource()
+	}
 	newAura.metrics.ID = aura.ActionID
 	newAura.activeIndex = Inactive
 	newAura.onApplyEffectsIndex = Inactive
@@ -937,38 +944,66 @@ func removeBySwappingToBack[T any, U constraints.Integer](arr []T, removeIdx U) 
 	return arr[:len(arr)-1]
 }
 
+// The auras an event reaches: those in the list when it fires that are still active when their
+// turn comes. An aura gained while the event is handled first hears the next one. Callbacks
+// deactivate auras, which reorders the list, and fire events of their own, so each event walks
+// its own copy.
+func (at *auraTracker) beginDispatch(auras []*Aura) []*Aura {
+	if at.dispatchDepth == len(at.dispatchBuffers) {
+		at.dispatchBuffers = append(at.dispatchBuffers, nil)
+	}
+	buffer := append(at.dispatchBuffers[at.dispatchDepth][:0], auras...)
+	at.dispatchBuffers[at.dispatchDepth] = buffer
+	at.dispatchDepth++
+	return buffer
+}
+
+func (at *auraTracker) endDispatch() {
+	at.dispatchDepth--
+}
+
 // Invokes the OnApplyEffects event for all tracked Auras.
 func (at *auraTracker) OnApplyEffects(sim *Simulation, target *Unit, spell *Spell) {
-	for _, aura := range at.onApplyEffectsAuras {
+	for _, aura := range at.beginDispatch(at.onApplyEffectsAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnApplyEffects(aura, sim, target, spell)
 	}
+	at.endDispatch()
 }
 
 // Invokes the OnCastComplete event for all tracked Auras.
 func (at *auraTracker) OnCastComplete(sim *Simulation, spell *Spell) {
-	for _, aura := range at.onCastCompleteAuras {
+	for _, aura := range at.beginDispatch(at.onCastCompleteAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnCastComplete(aura, sim, spell)
 	}
+	at.endDispatch()
 }
 
 // Invokes the OnSpellHit event for all tracked Auras.
 func (at *auraTracker) OnSpellHitDealt(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onSpellHitDealtAuras {
+	for _, aura := range at.beginDispatch(at.onSpellHitDealtAuras) {
 		// this check is to handle a case where auras are deactivated during iteration.
 		if !aura.active {
 			continue
 		}
 		aura.OnSpellHitDealt(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 func (at *auraTracker) OnSpellHitTaken(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onSpellHitTakenAuras {
+	for _, aura := range at.beginDispatch(at.onSpellHitTakenAuras) {
 		// this check is to handle a case where auras are deactivated during iteration.
 		if !aura.active {
 			continue
 		}
 		aura.OnSpellHitTaken(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 
 // Invokes the OnPeriodicDamage
@@ -976,34 +1011,44 @@ func (at *auraTracker) OnSpellHitTaken(sim *Simulation, spell *Spell, result *Sp
 //	As a debuff when target is being hit by dot.
 //	As a buff when caster's dots are ticking.
 func (at *auraTracker) OnPeriodicDamageDealt(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onPeriodicDamageDealtAuras {
+	for _, aura := range at.beginDispatch(at.onPeriodicDamageDealtAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnPeriodicDamageDealt(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 func (at *auraTracker) OnPeriodicDamageTaken(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onPeriodicDamageTakenAuras {
+	for _, aura := range at.beginDispatch(at.onPeriodicDamageTakenAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnPeriodicDamageTaken(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 
 // Invokes the OnHeal event for all tracked Auras.
 func (at *auraTracker) OnHealDealt(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onHealDealtAuras {
+	for _, aura := range at.beginDispatch(at.onHealDealtAuras) {
 		// this check is to handle a case where auras are deactivated during iteration.
 		if !aura.active {
 			continue
 		}
 		aura.OnHealDealt(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 func (at *auraTracker) OnHealTaken(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onHealTakenAuras {
+	for _, aura := range at.beginDispatch(at.onHealTakenAuras) {
 		// this check is to handle a case where auras are deactivated during iteration.
 		if !aura.active {
 			continue
 		}
 		aura.OnHealTaken(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 
 // Invokes the OnPeriodicHeal
@@ -1011,20 +1056,32 @@ func (at *auraTracker) OnHealTaken(sim *Simulation, spell *Spell, result *SpellR
 //	As a debuff when target is being hit by dot.
 //	As a buff when caster's dots are ticking.
 func (at *auraTracker) OnPeriodicHealDealt(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onPeriodicHealDealtAuras {
+	for _, aura := range at.beginDispatch(at.onPeriodicHealDealtAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnPeriodicHealDealt(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 func (at *auraTracker) OnPeriodicHealTaken(sim *Simulation, spell *Spell, result *SpellResult) {
-	for _, aura := range at.onPeriodicHealTakenAuras {
+	for _, aura := range at.beginDispatch(at.onPeriodicHealTakenAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnPeriodicHealTaken(aura, sim, spell, result)
 	}
+	at.endDispatch()
 }
 
 func (at *auraTracker) OnEncounterStart(sim *Simulation) {
-	for _, aura := range at.onEncounterStartAuras {
+	for _, aura := range at.beginDispatch(at.onEncounterStartAuras) {
+		if !aura.active {
+			continue
+		}
 		aura.OnEncounterStart(aura, sim)
 	}
+	at.endDispatch()
 }
 
 func (at *auraTracker) GetMetricsProto() []*proto.AuraMetrics {

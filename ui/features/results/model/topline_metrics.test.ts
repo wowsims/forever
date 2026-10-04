@@ -2,7 +2,6 @@ import { PlayerSpecs } from '@sim/player/specs/index';
 import { DANGER_TEXT } from '@ui-kit/utils/colors';
 import { describe, expect, it, vi } from 'vitest';
 
-import { resultMetricCategories } from './sim_results';
 import { showsOutOfMana, toplineResultMetrics } from './topline_metrics';
 
 vi.mock('@sim/proto/sim_result', async importOriginal => {
@@ -65,13 +64,11 @@ describe('toplineResultMetrics', () => {
 		expect(keys(simResult([player({ spec: PlayerSpecs.ProtectionPaladin })]))).toEqual(['dps', 'tps', 'dtps', 'tmi']);
 	});
 
-	it('carries the metric and its category', () => {
+	it('carries the metric, its label and its unit', () => {
 		const metrics = toplineResultMetrics(simResult([player()]));
 
 		expect(metrics[0]).toMatchObject({ metric: 'dps', name: 'sidebar.results.metrics.dps.label', average: 1000, stdev: 10 });
-		expect(resultMetricCategories.dps).toBe('damage');
 		expect(metrics.find(metric => metric.metric === 'tmi')).toMatchObject({ unit: 'percentage' });
-		expect(resultMetricCategories.tmi).toBe('threat');
 	});
 
 	it('merges the filtered actions when a target is selected', () => {
@@ -112,19 +109,12 @@ describe('toplineResultMetrics', () => {
 });
 
 describe('showsOutOfMana', () => {
-	it('is on for a lone mana user', () => {
-		expect(showsOutOfMana(simResult([player()]))).toBe(true);
-	});
-
-	it('is off for a class with no mana bar', () => {
-		expect(showsOutOfMana(simResult([player({ spec: PlayerSpecs.DpsWarrior })]))).toBe(false);
-	});
-
-	it('is off for a raid', () => {
-		expect(showsOutOfMana(simResult([player(), player()]))).toBe(false);
-	});
-
-	it('is off for a player with no spec', () => {
-		expect(showsOutOfMana(simResult([player({ spec: null })]))).toBe(false);
+	it.each([
+		['on for a lone mana user', [player()], true],
+		['off for a class with no mana bar', [player({ spec: PlayerSpecs.DpsWarrior })], false],
+		['off for a raid', [player(), player()], false],
+		['off for a player with no spec', [player({ spec: null })], false],
+	])('is %s', (_name, players, shows) => {
+		expect(showsOutOfMana(simResult(players))).toBe(shows);
 	});
 });

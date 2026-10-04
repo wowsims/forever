@@ -1,43 +1,53 @@
 @theme static {
-	--spacing-page: 0.5rem;
-	--spacing-section: 2rem;
-	--spacing-floating-action-bar: calc(2.75rem + (var(--spacing) * 2 * 2) + 2px);
-	--spacing-popup-min-w: 300px;
-	--size-scrollbar: 0.2rem;
+	--spacing-page: --spacing(2);
+	--spacing-sidebar: --spacing(2);
+	--spacing-section: --spacing(8);
+	--spacing-floating-action-bar: calc(--spacing(10) + (var(--spacing) * 2 * 2) + 2px);
+	--spacing-popup-min-w: var(--container-popup);
+	--size-scrollbar: --spacing(1);
 
 	--grid-template-columns-wide-narrow: 3fr 2fr;
 	--grid-template-columns-halves-wide: 1fr 1fr 2fr;
 	--grid-template-columns-label-value: 10ch 1fr;
 	--grid-template-columns-split: 1fr 0 1fr;
-	--grid-template-columns-icon-triple: 4rem repeat(3, 1fr);
-	--grid-template-columns-icon-fill: repeat(auto-fill, 4rem);
+	--grid-template-columns-icon-triple: --spacing(16) repeat(3, 1fr);
+	--grid-template-columns-icon-fill: repeat(auto-fill, --spacing(16));
 	--grid-template-rows-auto: auto;
 
-	--container-modal-sm: 300px;
-	--container-modal-md: 500px;
-	--container-modal-lg: 800px;
-	--container-modal-xl: 1140px;
+	--container-popup: 300px;
+	--container-tile: 220px;
+	--container-modal-md: var(--breakpoint-sm);
+	--container-modal-lg: var(--breakpoint-lg);
+	--container-modal-xl: var(--breakpoint-xl);
+	--container-landing-lg: 960px;
+	--container-landing-xxl: 1320px;
+	--container-modal-sm: var(--container-popup);
+	--container-metrics-tooltip: var(--container-popup);
 	--container-tooltip-sm: 75vw;
 	--container-tooltip: 15vw;
 	--container-tooltip-lg: 25vw;
-	--container-metrics-tooltip: 300px;
 	--container-tooltip-dropdown: 35vw;
-	--container-landing-lg: 960px;
-	--container-landing-xxl: 1320px;
 
-	--spacing-sim-header: 4.5rem;
+	--spacing-sim-header: --spacing(18);
 
-	--grid-template-columns-auto-fit-220: repeat(auto-fit, minmax(220px, 1fr));
+	--grid-template-columns-auto-fit-220: repeat(auto-fit, minmax(var(--container-tile), 1fr));
 	--grid-template-columns-single: auto;
 	--grid-template-columns-settings: 2fr 2fr 3fr;
 
-	--spacing-cr-icon: 42px;
+	--spacing-cr-icon: --spacing(12);
+
+	--spacing-tree-indent: --spacing(2);
+	--spacing-tree-gap: --spacing(2);
+	--spacing-tree-gap-compact: --spacing(1);
+	--spacing-tree-row-py: --spacing(2);
+	--spacing-tree-row-px: --spacing(2);
+	--spacing-tree-drop-line: 2px;
 }
 
 @theme static inline {
 	--grid-template-columns-reforge: auto var(--settings-button-width);
-	--spacing-settings-button-inset: calc(--spacing(3) + var(--settings-button-width));
-	--spacing-settings-panel-max: min(350px, calc(100dvw - var(--settings-button-width, 36px) - --spacing(4) * 2));
+	--spacing-settings-button-inset: calc(--spacing(2) + var(--settings-button-width));
+	--spacing-settings-panel-max: min(--spacing(100), calc(100dvw - var(--settings-button-width, --spacing(10)) - --spacing(4) * 2));
 	--spacing-selector-modal-w: min(calc(var(--modal-width-xl) - --spacing(10)), calc(100vw - (2 * var(--modal-margin)) - --spacing(10)));
 	--spacing-modal-inset-w: calc(100vw - 2 * var(--modal-margin));
 	--spacing-modal-inset-h: calc(100vh - 2 * var(--modal-margin));
@@ -45,7 +55,7 @@
 	--spacing-page-inset-w: calc(100% - 2 * var(--spacing-page));
 	--spacing-sim-header-plus: calc(var(--spacing-sim-header) + 1px);
 	--spacing-sim-header-minus: calc(var(--spacing-sim-header) - 1px);
-	--spacing-cr-icon-offset: calc(var(--spacing-cr-icon) + 20px);
+	--spacing-cr-icon-offset: calc(var(--spacing-cr-icon) + --spacing(6));
 	--spacing-log-body-min-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page));
 	--spacing-bulk-settings-max-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page));
 	--spacing-gem-inner: calc(4 * var(--gem-width) / 5);

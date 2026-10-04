@@ -1,6 +1,7 @@
 package shaman
 
 import (
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 )
 
@@ -31,5 +32,13 @@ func init() {
 
 		character.ItemSwap.RegisterProc(23199, aura)
 	})
+
+	// Totem of Charged Flames
+	// https://www.wowhead.com/forever/item=263412/totem-of-charged-flames
+	// Reduces the mana cost of Flame Shock and Lightning Bolt by 5 Mana.
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1270478},
+		[]shared.ItemVariant{
+			{ItemID: 263412, ItemName: "Totem of Charged Flames"},
+		})
 
 }

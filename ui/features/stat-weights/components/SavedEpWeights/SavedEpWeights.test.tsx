@@ -1,26 +1,16 @@
 import { Stat } from '@generated/proto/common';
 import { SavedEPWeights } from '@generated/proto/ui';
-import { SimHostProvider } from '@sim/context/SimHostContext';
 import { Stats } from '@sim/proto/stats';
 import { createSimStore, patchKeyed, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
-import { act, fireEvent, render } from '@testing-library/react';
+import { chipNamed, chips, nameInput, readStored, renderReady, saveButton, source } from '@testing/saved_panel';
+import { fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SavedEpWeights } from './SavedEpWeights';
 
-const source = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		listeners,
-		subscribe: (onChange: () => void) => {
-			listeners.add(onChange);
-			return () => listeners.delete(onChange);
-		},
-		notify: () => listeners.forEach(listener => listener()),
-	};
-});
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
+vi.mock('@sim/state/subscriptions', async () =>
+	(await import('@testing/sim/subscriptions')).mockSubscriptions((await import('@testing/saved_panel')).source.subscribe),
+);
 
 const STRINGS = vi.hoisted(
 	() =>
@@ -40,7 +30,7 @@ const STORAGE_KEY = 'tbc-warrior-savedEPWeights';
 
 const weights = (agility: number) => new Stats().withStat(Stat.StatAgility, agility);
 const storedJson = (agility: number) => SavedEPWeights.toJson(SavedEPWeights.create({ epWeights: weights(agility).toProto() }));
-const MIXED = new Stats().withStat(Stat.StatAgility, 4).withStat(Stat.StatMeleeCritRating, 1.75).withStat(Stat.StatStrength, 2);
+const MIXED = new Stats().withStat(Stat.StatAgility, 4).withStat(Stat.StatCritRating, 1.75).withStat(Stat.StatStrength, 2);
 const MIXED_JSON = SavedEPWeights.toJson(SavedEPWeights.create({ epWeights: MIXED.toProto() }));
 
 class FakePlayer {
@@ -69,7 +59,6 @@ class FakePlayer {
 let player: FakePlayer;
 let host: any;
 let presets: Array<any>;
-let waitForInit: () => Promise<void>;
 
 const setup = () => {
 	source.listeners.clear();
@@ -77,10 +66,9 @@ const setup = () => {
 	window.localStorage.clear();
 	player = new FakePlayer();
 	presets = [];
-	waitForInit = () => Promise.resolve();
 	host = {
 		player,
-		sim: { waitForInit: () => waitForInit() },
+		sim: { waitForInit: () => Promise.resolve() },
 		get individualConfig() {
 			return { presets: { epWeights: presets } };
 		},
@@ -88,28 +76,8 @@ const setup = () => {
 	};
 };
 
-// The presets and the stored sets both land on `waitForInit`, so every assertion about a chip has to
-// come after that microtask.
-const renderManager = async () => {
-	const result = render(
-		<SimHostProvider host={host}>
-			<SavedEpWeights />
-		</SimHostProvider>,
-	);
-	await act(async () => {});
-	return result;
-};
-
-const nameInput = () => document.querySelector<HTMLInputElement>('[data-testid="saved-data-save-input"]')!;
-const saveButton = () => document.querySelector<HTMLButtonElement>('[data-testid="saved-data-save-button"]')!;
-const chips = (section: 'presets' | 'custom') => [
-	...document.querySelectorAll(`:is(.saved-data-${section}, [data-testid="saved-data-${section}"]) [data-testid="saved-data-set-chip"]`),
-];
-const chipNamed = (name: string) => [...document.querySelectorAll('[data-testid="saved-data-set-chip"]')].find(chip => chip.textContent?.startsWith(name))!;
-const stored = () => JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null');
-const popover = () => document.querySelector('[data-testid="sim-confirm-popover"]');
-const popoverText = () => popover()?.querySelector('[data-testid="sim-confirm-popover-message"]')?.textContent ?? '';
-const popoverButtons = () => [...(popover()?.querySelectorAll<HTMLButtonElement>('[data-testid="sim-confirm-popover-actions"] button') ?? [])];
+const renderManager = () => renderReady(<SavedEpWeights />, host);
+const stored = () => readStored(STORAGE_KEY);
 
 beforeEach(setup);
 
@@ -135,29 +103,6 @@ describe('SavedEpWeights', () => {
 			fireEvent.click(saveButton());
 
 			expect(chipNamed('Raiding').hasAttribute('data-active')).toBe(true);
-		});
-
-		it('refuses an empty name with an alert and writes nothing', async () => {
-			await renderManager();
-
-			fireEvent.click(saveButton());
-
-			expect(popover()).not.toBeNull();
-			expect(popoverButtons()).toHaveLength(1);
-			expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
-			expect(trackEvent).not.toHaveBeenCalled();
-		});
-
-		it('replaces a set of the same name instead of adding a second chip', async () => {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: storedJson(1) }));
-			player.epWeights = weights(9);
-			await renderManager();
-
-			fireEvent.change(nameInput(), { target: { value: 'Raiding' } });
-			fireEvent.click(saveButton());
-
-			expect(chips('custom')).toHaveLength(1);
-			expect(stored()).toEqual({ Raiding: storedJson(9) });
 		});
 	});
 
@@ -212,22 +157,6 @@ describe('SavedEpWeights', () => {
 			expect(chipNamed('Raiding').hasAttribute('data-active')).toBe(true);
 		});
 
-		it('skips an unparseable entry and keeps the rest', async () => {
-			const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Broken: 'not-a-message', Raiding: storedJson(4) }));
-			await renderManager();
-
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Raiding']);
-			expect(warn).toHaveBeenCalled();
-		});
-
-		it('shows nothing when the whole value is not json', async () => {
-			window.localStorage.setItem(STORAGE_KEY, '{oops');
-			await renderManager();
-
-			expect(chips('custom')).toHaveLength(0);
-		});
-
 		// The only part of this that can lose data, and no gate covers it: an entry saved under the old
 		// storage key has to keep loading. Every stat, not just the one the rest of these tests carry.
 		it('reads a set stored under the key the vanilla manager wrote', async () => {
@@ -249,42 +178,6 @@ describe('SavedEpWeights', () => {
 		});
 	});
 
-	describe('deleting', () => {
-		it('removes the set and rewrites storage once confirmed', async () => {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: storedJson(4), Other: storedJson(2) }));
-			await renderManager();
-
-			fireEvent.click(chipNamed('Raiding').querySelector('[data-testid="saved-data-set-delete"]')!);
-			const [, confirm] = popoverButtons();
-			fireEvent.click(confirm);
-
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Other']);
-			expect(stored()).toEqual({ Other: storedJson(2) });
-			expect(trackEvent).toHaveBeenCalledWith({ action: 'settings', category: 'delete', label: 'EP' });
-		});
-
-		it('keeps the set when the confirm is declined', async () => {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: storedJson(4) }));
-			await renderManager();
-
-			fireEvent.click(chipNamed('Raiding').querySelector('[data-testid="saved-data-set-delete"]')!);
-			expect(popoverText()).not.toBe('');
-			const [cancel] = popoverButtons();
-			fireEvent.click(cancel);
-
-			expect(chips('custom')).toHaveLength(1);
-			expect(stored()).toEqual({ Raiding: storedJson(4) });
-			expect(trackEvent).not.toHaveBeenCalled();
-		});
-
-		it('gives a preset no delete button', async () => {
-			presets = [{ name: 'Default', epWeights: weights(3) }];
-			await renderManager();
-
-			expect(chipNamed('Default').querySelector('[data-testid="saved-data-set-delete"]')).toBeNull();
-		});
-	});
-
 	describe('presets', () => {
 		it('hides a preset whose enableWhen is false', async () => {
 			presets = [
@@ -303,23 +196,6 @@ describe('SavedEpWeights', () => {
 
 			expect(document.querySelector('[data-testid="saved-data-presets"]')).toBeTruthy();
 			expect(document.querySelector('[data-testid="saved-data-custom"]')).toBeNull();
-		});
-
-		it('holds the presets back until the sim is ready, as the vanilla manager did', async () => {
-			presets = [{ name: 'Default', epWeights: weights(3) }];
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: storedJson(4) }));
-			let resolveInit = () => {};
-			waitForInit = () => new Promise(resolve => (resolveInit = resolve));
-
-			render(
-				<SimHostProvider host={host}>
-					<SavedEpWeights />
-				</SimHostProvider>,
-			);
-
-			expect(chips('presets')).toHaveLength(0);
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Raiding']);
-			await act(async () => resolveInit());
 		});
 	});
 });

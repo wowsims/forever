@@ -1,28 +1,41 @@
+import { config } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import type { HTMLAttributes } from 'react';
 
-import { ICON_ALIASES, ICON_STYLE_CLASS, type IconAlias, type IconName, type IconSize, type IconStyle } from './types';
+import { iconDefinition } from './definitions';
+import type { IconName, IconSize, IconStyle } from './types';
+
+// ui/styles/main.css imports FontAwesome's stylesheet into the base layer, so `ui-icon` and utilities override it.
+config.autoAddCss = false;
 
 // `style` is the FontAwesome style here, not a CSS object, so it shadows the DOM prop.
 export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'style'> {
-	name: IconName | IconAlias;
+	name: IconName;
 	style?: IconStyle;
 	size?: IconSize;
-	spin?: boolean;
+	/** One width for every glyph (`fa-fw`), so icons in a column line up; otherwise the icon is as wide as its glyph (`fa-width-auto`). */
+	fixedWidth?: boolean;
 	className?: string;
+	/** The icon's accessible name (`aria-label`); without one the icon is hidden from assistive tech. */
 	title?: string;
+	testId?: string;
 }
 
-const resolve = (name: IconName | IconAlias): IconName => (name in ICON_ALIASES ? ICON_ALIASES[name as IconAlias] : (name as IconName));
-
 // The rest props matter: an icon is an anchor for its own tooltip at several sites, and a dropped `data-tooltip-id` fails silently.
-export const Icon = ({ name, style = 'solid', size, spin, className, title, ...rest }: IconProps) => {
+export const Icon = ({ name, style = 'solid', size, fixedWidth, className, title, testId, ...rest }: IconProps) => {
+	const definition = iconDefinition(name, style);
 	return (
-		<i
-			{...rest}
-			className={clsx(ICON_STYLE_CLASS[style], `fa-${resolve(name)}`, size && `fa-${size}`, spin && 'fa-spin', className)}
-			title={title}
-			aria-hidden={title ? undefined : true}
+		<FontAwesomeIcon
+			data-testid={testId}
+			{...(rest as Omit<HTMLAttributes<SVGSVGElement>, 'style'>)}
+			icon={definition}
+			className={clsx('ui-icon', className)}
+			data-size={size}
+			size={size}
+			fixedWidth={fixedWidth}
+			widthAuto={!fixedWidth}
+			aria-label={title}
 		/>
 	);
 };

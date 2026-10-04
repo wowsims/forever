@@ -1,4 +1,11 @@
-import { ActionMetrics } from '@sim/proto/sim_result';
+import type { ActionMetrics } from '@sim/proto/sim_result';
+import {
+	actionMetric as metric,
+	metricRows as rows,
+	metricsTooltipRowNames,
+	metricsTooltipTable as tooltipTable,
+	mockActionMetricsMerge,
+} from '@testing/results-metrics';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,104 +17,29 @@ let result: SimResultData | null = null;
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
 vi.mock('../MetricsTable/MetricsActionCell', () => ({ MetricsActionCell: ({ name }: { name: string }) => <span>{name}</span> }));
 
-const NONE = { value: 0, percentage: 0, average: 0 };
-
-// A target's action. `makeNewTarget` gives every target a null `petActionId`, so `isPet` is false on
+// A target's actions. `makeNewTarget` gives every target a null `petActionId`, so `isPet` is false on
 // every row this table can build — which is the whole of defect 12.
-const metric = (name: string, overrides: Record<string, unknown> = {}) => {
-	const base: Record<string, unknown> = {
-		name,
-		actionId: { toStringIgnoringTag: () => name, toString: () => name },
-		unit: { isPet: false, petActionId: null },
-		spellSchool: null,
-		damage: 100,
-		avgDamage: 100,
-		totalDamageTakenPercent: 50,
-		casts: 10,
-		isPassiveAction: false,
-		avgCastHit: 10,
-		avgCastTick: 0,
-		landedHits: 10,
-		landedTicks: 0,
-		avgHit: 10,
-		avgTick: 0,
-		critPercent: 20,
-		blockedCritPercent: 0,
-		critTickPercent: 0,
-		totalMisses: 1,
-		totalMissesPercent: 10,
-		misses: 1,
-		missPercent: 10,
-		parries: 0,
-		parryPercent: 0,
-		dodges: 0,
-		dodgePercent: 0,
-		hits: 8,
-		crits: 2,
-		glances: 0,
-		blocks: 0,
-		blockedCrits: 0,
-		blockPercent: 0,
-		crushes: 0,
-		crushPercent: 0,
-		resistedHits: 0,
-		resistedCrits: 0,
-		resistedTicks: 0,
-		resistedCritTicks: 0,
-		ticks: 0,
-		critTicks: 0,
-		dps: 10,
-		damageDone: {
-			hit: { value: 80, percentage: 80, average: 10 },
-			critHit: { value: 20, percentage: 20, average: 10 },
-			resistedHit: NONE,
-			resistedCritHit: NONE,
-			tick: NONE,
-			resistedTick: NONE,
-			critTick: NONE,
-			resistedCritTick: NONE,
-			glance: NONE,
-			block: NONE,
-			blockedCrit: NONE,
-			crush: NONE,
-		},
-		...overrides,
-	};
-	base.forTarget = () => base;
-	return base as unknown as ActionMetrics;
-};
-
 const targetResult = (...targets: Array<Array<ActionMetrics>>) =>
 	({
 		filter: {},
 		result: {
-			getRaidIndexedPlayers: () => [{ unitIndex: 0, getDamageActions: () => [] }],
+			getRaidIndexedPlayers: () => [{ unitIndex: 0, totalDamageTaken: 400 }],
 			getTargets: () => targets.map(actions => ({ getDamageActions: () => actions })),
+			getOwnSideDamageOn: () => [],
 		},
 	}) as unknown as SimResultData;
-
-const rows = (container: HTMLElement) => [...container.querySelectorAll<HTMLTableRowElement>('tbody tr')];
-const tooltipTable = () => document.querySelector('.sim-tooltip table[data-testid="metrics-table"]');
 
 describe('DtpsMetricsTable', () => {
 	beforeEach(() => {
 		result = null;
-		vi.spyOn(ActionMetrics, 'merge').mockImplementation(((metrics: Array<Record<string, number>>) => ({
-			...metrics[0],
-			damage: metrics.reduce((sum, entry) => sum + entry.damage, 0),
-			dps: metrics.reduce((sum, entry) => sum + entry.dps, 0),
-		})) as unknown as typeof ActionMetrics.merge);
+		mockActionMetricsMerge('damage', 'dps');
 	});
 
 	it('builds the nine-column shell before any result', () => {
 		const { container } = render(<DtpsMetricsTable />);
 
 		expect(container.querySelector('[data-testid="dtps-metrics-root"]')).toBeTruthy();
-		const headers = [...container.querySelectorAll('thead th')];
-		expect(headers).toHaveLength(9);
-		expect(headers.every(th => th.classList.contains('ui-metrics-header-cell'))).toBe(true);
-		expect(headers.filter(th => th.classList.contains('w-100'))).toEqual([headers[1]]);
-		expect(headers.filter(th => th.classList.contains('text-center'))).toEqual([headers[1]]);
+		expect(container.querySelectorAll('thead th')).toHaveLength(9);
 		expect(rows(container)).toHaveLength(0);
 	});
 
@@ -115,19 +47,26 @@ describe('DtpsMetricsTable', () => {
 		result = targetResult([metric('Melee')]);
 		const { container } = render(<DtpsMetricsTable />);
 
-		expect(rows(container).map(row => [row.cells[0].textContent, row.hasAttribute('data-parent'), row.hasAttribute('data-child'), row.className])).toEqual([
-			['Melee', false, false, 'ui-metrics-row'],
+		expect(rows(container).map(row => [row.cells[0].textContent, row.hasAttribute('data-parent'), row.hasAttribute('data-child')])).toEqual([
+			['Melee', false, false],
 		]);
+	});
+
+	it("gives each row its share of the player's damage taken", () => {
+		result = targetResult([metric('Melee', { avgDamage: 100 })]);
+		const { container } = render(<DtpsMetricsTable />);
+
+		expect(rows(container)[0].cells[1].textContent).toContain('25%');
 	});
 
 	it('merges the same ability across targets into one parent with a child per target', () => {
 		result = targetResult([metric('Melee', { dps: 30 })], [metric('Melee', { dps: 10 })]);
 		const { container } = render(<DtpsMetricsTable />);
 
-		expect(rows(container).map(row => [row.cells[0].textContent, row.hasAttribute('data-parent'), row.hasAttribute('data-child'), row.className])).toEqual([
-			['Melee', true, false, 'ui-metrics-row cursor-pointer'],
-			['Melee', false, true, 'ui-metrics-row'],
-			['Melee', false, true, 'ui-metrics-row'],
+		expect(rows(container).map(row => [row.cells[0].textContent, row.hasAttribute('data-parent'), row.hasAttribute('data-child')])).toEqual([
+			['Melee', true, false],
+			['Melee', false, true],
+			['Melee', false, true],
 		]);
 	});
 
@@ -146,10 +85,7 @@ describe('DtpsMetricsTable', () => {
 
 		fireEvent.mouseEnter(container.querySelector('td[data-primary-metric]')!);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		expect([...tooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')].map(row => row.cells[0].textContent)).toEqual([
-			'results_tab.details.attack_types.hit',
-			'results_tab.details.attack_types.critical_hit',
-		]);
+		expect(metricsTooltipRowNames()).toEqual(['results_tab.details.attack_types.hit', 'results_tab.details.attack_types.critical_hit']);
 	});
 
 	it('counts blocked hits and crushing blows out of the hit row of the casts breakdown', async () => {
@@ -158,14 +94,13 @@ describe('DtpsMetricsTable', () => {
 
 		fireEvent.mouseEnter(rows(container)[0].cells[2]);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		const breakdown = [...tooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')];
-		expect(breakdown.map(row => row.cells[0].textContent)).toEqual([
+		expect(metricsTooltipRowNames()).toEqual([
 			'results_tab.details.attack_types.hit',
 			'results_tab.details.attack_types.blocked_hit',
 			'results_tab.details.attack_types.miss',
 			'results_tab.details.attack_types.crushing_blow',
 		]);
-		expect(breakdown[0].cells[1].textContent?.endsWith('65')).toBe(true);
+		expect(rows(tooltipTable() as HTMLElement)[0].cells[1].textContent?.endsWith('65')).toBe(true);
 	});
 
 	it('carries no tooltip on Avg Hit or on the rate column, so a target reports no threat', () => {

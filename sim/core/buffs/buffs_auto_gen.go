@@ -348,8 +348,6 @@ func NewSpellDataAtieshPriestAura(unit *core.Unit, isPlayer bool, talentPoints i
 	return newItemCountBuff(unit, atieshPriestMeta, isPlayer, count)
 }
 
-// func NewSpellDataTotemTwistingAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura // totem_twisting, KindFlag: sim behaviour toggle with no spell source; rendered under Other Inputs.
-
 // Stoneskin Totem
 var StoneskinTotemCategory = "StoneskinTotem"
 var stoneskinTotemSpell = spelldata.MustFind(10405)
@@ -462,26 +460,6 @@ func GiftOfTheWildDuration(talentPoints int32) time.Duration {
 }
 func NewSpellDataGiftOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
 	return newBuff(unit, giftOfTheWildMeta, isPlayer, talentPoints)
-}
-
-// Thorns
-var ThornsCategory = "Thorns"
-var thornsSpell = spelldata.MustFind(9910)
-var thornsMeta = &Meta{
-	Label:      "Thorns",
-	Spell:      thornsSpell,
-	Category:   ThornsCategory,
-	SingleAura: true,
-}
-
-func ThornsValue(talentPoints int32) float64 {
-	return thornsMeta.Value(talentPoints)
-}
-func ThornsDuration(talentPoints int32) time.Duration {
-	return thornsMeta.Duration(talentPoints)
-}
-func NewSpellDataThornsAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newDamageShield(unit, thornsMeta, isPlayer, talentPoints)
 }
 
 // Prayer of Fortitude
@@ -782,6 +760,26 @@ func NewSpellDataPowerInfusionsAura(unit *core.Unit, isPlayer bool, talentPoints
 	return newBuff(unit, powerInfusionsMeta, isPlayer, talentPoints)
 }
 
+// Thorns
+var ThornsCategory = "Thorns"
+var thornsSpell = spelldata.MustFind(9910)
+var thornsMeta = &Meta{
+	Label:      "Thorns",
+	Spell:      thornsSpell,
+	Category:   ThornsCategory,
+	SingleAura: true,
+}
+
+func ThornsValue(talentPoints int32) float64 {
+	return thornsMeta.Value(talentPoints)
+}
+func ThornsDuration(talentPoints int32) time.Duration {
+	return thornsMeta.Duration(talentPoints)
+}
+func NewSpellDataThornsAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newDamageShield(unit, thornsMeta, isPlayer, talentPoints)
+}
+
 func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *proto.PartyBuffs, individual *proto.IndividualBuffs) {
 	if party.BloodPact {
 		core.MakePermanent(NewSpellDataBloodPactAura(&char.Unit, false, 0))
@@ -852,9 +850,6 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if raid.GiftOfTheWild {
 		core.MakePermanent(NewSpellDataGiftOfTheWildAura(&char.Unit, false, 0))
 	}
-	if raid.Thorns {
-		core.MakePermanent(NewSpellDataThornsAura(&char.Unit, false, 0))
-	}
 	if raid.PrayerOfFortitude {
 		core.MakePermanent(NewSpellDataPrayerOfFortitudeAura(&char.Unit, false, 0))
 	}
@@ -902,5 +897,8 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	}
 	if individual.PowerInfusions > 0 {
 		drivePowerInfusions(char, individual)
+	}
+	if individual.Thorns {
+		core.MakePermanent(NewSpellDataThornsAura(&char.Unit, false, 0))
 	}
 }

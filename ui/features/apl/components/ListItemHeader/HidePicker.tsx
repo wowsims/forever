@@ -1,26 +1,30 @@
 import { useAplInput } from '@features/apl/hooks/useAplInput';
+import type { InputConfig } from '@features/inputs/input';
+import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
-import type { InputConfig } from '@ui-kit/input';
-import { ListItemAction } from '@ui-kit/ListPicker';
-import { PickerShell } from '@ui-kit/PickerShell';
+import { Field } from '@ui-kit/Field';
+
+import { HeaderButton } from './HeaderButton';
 
 export interface HidePickerProps {
 	player: Player<any>;
 	config: InputConfig<Player<any>, boolean>;
 }
 
-/**
- * The eye that disables one APL list item.
- *
- * It deliberately has no tooltip: the "Enable/Disable" string it would want was never translated,
- * so adding it would put one English label into an otherwise localised header.
- */
+/** The eye that disables one APL list item. */
 export const HidePicker = ({ player, config }: HidePickerProps) => {
-	const { value, setValue, hidden, disabled, shellConfig } = useAplInput(player, config);
+	const { value, setValue, hidden, disabled, frameProps } = useAplInput(player, config);
 
+	if (hidden) return null;
 	return (
-		<PickerShell config={shellConfig} className="m-0 w-auto" testId="hide-picker-root" hidden={hidden} disabled={disabled}>
-			<ListItemAction icon={value ? 'fa-eye-slash' : 'fa-eye'} testId="hide-picker-button" onClick={() => setValue(!value)} />
-		</PickerShell>
+		<Field {...frameProps} className={['m-0 w-auto', frameProps.className]} testId="hide-picker-root" disabled={disabled}>
+			<HeaderButton
+				icon={value ? 'eye-slash' : 'eye'}
+				pressed={value}
+				label={i18n.t('rotation_tab.apl.helpers.buttons.enable_disable')}
+				testId="hide-picker-button"
+				onClick={() => setValue(!value)}
+			/>
+		</Field>
 	);
 };

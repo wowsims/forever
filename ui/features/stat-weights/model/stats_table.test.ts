@@ -63,31 +63,6 @@ describe('statsTableColumns', () => {
 		]);
 	});
 
-	it('labels each column with its own translation key', () => {
-		expect(columns().map(({ label }) => label)).toEqual([
-			'sidebar.buttons.stat_weights.modal.dps_weight.label',
-			'sidebar.buttons.stat_weights.modal.dps_ep.label',
-			'sidebar.buttons.stat_weights.modal.hps_weight.label',
-			'sidebar.buttons.stat_weights.modal.hps_ep.label',
-			'sidebar.buttons.stat_weights.modal.tps_weight.label',
-			'sidebar.buttons.stat_weights.modal.tps_ep.label',
-			'sidebar.buttons.stat_weights.modal.dtps_weight.label',
-			'sidebar.buttons.stat_weights.modal.dtps_ep.label',
-			'sidebar.buttons.stat_weights.modal.tmi_weight.label',
-			'sidebar.buttons.stat_weights.modal.tmi_ep.label',
-			'sidebar.buttons.stat_weights.modal.death_weight.label',
-			'sidebar.buttons.stat_weights.modal.death_ep.label',
-			'sidebar.buttons.stat_weights.modal.current_ep.label',
-		]);
-	});
-
-	it('gives the twelve metric columns the copy tooltip and the action column the restore one', () => {
-		const tooltips = columns().map(({ actionTooltip }) => actionTooltip);
-
-		expect(new Set(tooltips.slice(0, 12))).toEqual(new Set(['sidebar.buttons.stat_weights.modal.tooltips.copy_to_current_ep']));
-		expect(tooltips[12]).toBe('sidebar.buttons.stat_weights.modal.tooltips.restore_default_ep');
-	});
-
 	it('binds each column to its own block and field of the previous result', () => {
 		expect(columns().map(({ getWeights }) => weightMarker(getWeights()))).toEqual([
 			MARKERS.dpsWeights,
@@ -103,24 +78,6 @@ describe('statsTableColumns', () => {
 			MARKERS.pDeathWeights,
 			MARKERS.pDeathEp,
 			MARKERS.defaults,
-		]);
-	});
-
-	it('carries a ref stat on the six ep columns only', () => {
-		expect(columns().map(({ getEpRefStat }) => !!getEpRefStat)).toEqual([
-			false,
-			true,
-			false,
-			true,
-			false,
-			true,
-			false,
-			true,
-			false,
-			true,
-			false,
-			true,
-			false,
 		]);
 	});
 

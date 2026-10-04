@@ -15,11 +15,9 @@ func (warrior *Warrior) registerSunderArmor() {
 	})
 
 	config := spelldata.SpellConfig(&warrior.Unit, sunderArmorRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	config.FlatThreatBonus = sunderArmorRank.FindEffect(dbcenums.E_THREAT, 0, 0).Average(core.CharacterLevel)
-
-	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return warrior.CanApplySunderAura(target)
-	}
+	// TODO: Forever announces Sunder Armor threat scaling with Attack Power; the game files state a flat 206
+	// threat. Add the scaling once a game build carries it or it is measured in game.
+	config.FlatThreatBonus = sunderArmorRank.FindEffect(dbcenums.E_THREAT, 0, 0).Average()
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
@@ -38,8 +36,4 @@ func (warrior *Warrior) registerSunderArmor() {
 	config.RelatedAuraArrays = warrior.SunderArmorAuras.ToMap()
 
 	warrior.RegisterSpell(config)
-}
-
-func (warrior *Warrior) CanApplySunderAura(target *core.Unit) bool {
-	return warrior.SunderArmorAuras.Get(target).IsActive() || !warrior.SunderArmorAuras.Get(target).ExclusiveEffects[0].Category.AnyActive()
 }

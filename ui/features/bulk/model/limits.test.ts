@@ -6,33 +6,26 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const isExternal = vi.hoisted(() => vi.fn(() => false));
 vi.mock('@ui-kit/utils/dom', () => ({ isExternal }));
 
-const { bulkCombinationsLimit, bulkIterationsLimit, bulkLimitForHost } = await import('./limits');
+const { bulkCombinationsLimit, bulkIterationsLimit } = await import('./limits');
 
-describe('bulkLimitForHost', () => {
+describe('the host a limit is for', () => {
 	beforeEach(() => isExternal.mockReturnValue(false));
 
 	it('trusts the resolved probe over the hostname, in both directions', () => {
 		isExternal.mockReturnValue(true);
-		expect(bulkLimitForHost(true, 1, 2)).toBe(2);
+		expect(bulkIterationsLimit(true)).toBe(NATIVE_ITERATIONS_LIMIT);
+		expect(bulkCombinationsLimit(true)).toBe(NATIVE_COMBINATIONS_LIMIT);
 		isExternal.mockReturnValue(false);
-		expect(bulkLimitForHost(false, 1, 2)).toBe(1);
+		expect(bulkIterationsLimit(false)).toBe(WEB_ITERATIONS_LIMIT);
+		expect(bulkCombinationsLimit(false)).toBe(WEB_COMBINATIONS_LIMIT);
 	});
 
 	it('falls back to the hostname only while the probe is unresolved', () => {
 		isExternal.mockReturnValue(true);
-		expect(bulkLimitForHost(undefined, 1, 2)).toBe(1);
+		expect(bulkIterationsLimit(undefined)).toBe(WEB_ITERATIONS_LIMIT);
+		expect(bulkCombinationsLimit(undefined)).toBe(WEB_COMBINATIONS_LIMIT);
 		isExternal.mockReturnValue(false);
-		expect(bulkLimitForHost(undefined, 1, 2)).toBe(2);
-	});
-});
-
-describe('the two batch ceilings', () => {
-	beforeEach(() => isExternal.mockReturnValue(false));
-
-	it('pair each limit with its own host', () => {
-		expect(bulkIterationsLimit(false)).toBe(WEB_ITERATIONS_LIMIT);
-		expect(bulkIterationsLimit(true)).toBe(NATIVE_ITERATIONS_LIMIT);
-		expect(bulkCombinationsLimit(false)).toBe(WEB_COMBINATIONS_LIMIT);
-		expect(bulkCombinationsLimit(true)).toBe(NATIVE_COMBINATIONS_LIMIT);
+		expect(bulkIterationsLimit(undefined)).toBe(NATIVE_ITERATIONS_LIMIT);
+		expect(bulkCombinationsLimit(undefined)).toBe(NATIVE_COMBINATIONS_LIMIT);
 	});
 });

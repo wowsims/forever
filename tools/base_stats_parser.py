@@ -28,16 +28,10 @@ TS_OUTPUT_PATH = "ui/sim/constants/mechanics.ts"
 CONSTANTS_PATH = "sim/core/constants.go"
 DB_PATH = "tools/database/wowsims.db"
 
-# The beta does not ship the two base-crit gametables either, so these stay
-# checked in by hand. Their values are the flat per-class crit a character has
-# before any agility/intellect contribution, and nothing here can confirm them
-# for Forever. What is known: they are unchanged from the TBC sim, the MoP-era
-# extraction they came from carries them verbatim, and the placeholder 0.2 in
-# its Death Knight and Monk columns shows that table was inherited rather than
-# refitted. wowsims' vanilla sim independently carries per-class base crit in
-# the same range -- its spell column agrees within about a tenth of a percent
-# for most classes (hunter 3.6 against 3.602, warlock 1.7 exactly), though its
-# melee column differs, notably a 0 where this table has warrior 1.14.
+# Neither the Forever nor the Era game files ship the two base-crit gametables,
+# so these stay checked in by hand. They hold the vanilla per-class crit a
+# character has before any agility/intellect contribution; warrior, hunter and
+# rogue have no base melee crit. The Death Knight and Monk columns are unused.
 MELEE_CRIT_BASE = "chancetomeleecritbase.txt"
 SPELL_CRIT_BASE = "chancetospellcritbase.txt"
 COMBAT_RATINGS = "combatratings.txt"
@@ -119,6 +113,15 @@ class ClassStats:
     CombatRatings: dict
 
 
+# The sim has one hit, crit and haste rating that feeds melee, ranged and spells alike, so the
+# gametable's three columns for each must convert at the same rate.
+def SharedRating(ratings, kind: str) -> float:
+    columns = {f"{kind} - {channel}": float(ratings[f"{kind} - {channel}"]) for channel in ("Melee", "Ranged", "Spell")}
+    if len(set(columns.values())) != 1:
+        raise SystemExit(f"{kind} rating converts differently per channel at level {BASE_LEVEL}: {columns}")
+    return next(iter(columns.values()))
+
+
 def GenExtraStatsGoFile(cs: ClassStats):
     header = '''
 package core
@@ -143,12 +146,9 @@ import (
     output += f"const DodgeRatingPerDodgePercent = {float(ratings['Dodge']):f}\n"
     output += f"const ParryRatingPerParryPercent = {float(ratings['Parry']):f}\n"
     output += f"const BlockRatingPerBlockPercent = {float(ratings['Block']):f}\n"
-    output += f"const PhysicalHitRatingPerHitPercent = {float(ratings['Hit - Melee']):f}\n"
-    output += f"const SpellHitRatingPerHitPercent = {float(ratings['Hit - Spell']):f}\n"
-    output += f"const PhysicalCritRatingPerCritPercent = {float(ratings['Crit - Melee']):f}\n"
-    output += f"const SpellCritRatingPerCritPercent = {float(ratings['Crit - Spell']):f}\n"
-    output += f"const PhysicalHasteRatingPerHastePercent = {float(ratings['Haste - Melee']):f}\n"
-    output += f"const SpellHasteRatingPerHastePercent = {float(ratings['Haste - Spell']):f}\n"
+    output += f"const HitRatingPerHitPercent = {SharedRating(ratings, 'Hit'):f}\n"
+    output += f"const CritRatingPerCritPercent = {SharedRating(ratings, 'Crit'):f}\n"
+    output += f"const HasteRatingPerHastePercent = {SharedRating(ratings, 'Haste'):f}\n"
 
     output += '''var CritPerAgiMaxLevel = map[proto.Class]float64{
 proto.Class_ClassUnknown: 0.0,'''
@@ -195,12 +195,9 @@ def GenMechanicsTsFile(cs: ClassStats):
         f"export const BOSS_LEVEL = CHARACTER_LEVEL + {BOSS_LEVEL_OFFSET};",
         "",
         f"export const EXPERTISE_RATING_PER_EXPERTISE_PERCENT = {num(ratings['Expertise'])};",
-        f"export const PHYSICAL_HASTE_RATING_PER_HASTE_PERCENT = {num(ratings['Haste - Melee'])};",
-        f"export const SPELL_HASTE_RATING_PER_HASTE_PERCENT = {num(ratings['Haste - Spell'])};",
-        f"export const SPELL_CRIT_RATING_PER_CRIT_PERCENT = {num(ratings['Crit - Spell'])};",
-        f"export const PHYSICAL_CRIT_RATING_PER_CRIT_PERCENT = {num(ratings['Crit - Melee'])};",
-        f"export const SPELL_HIT_RATING_PER_HIT_PERCENT = {num(ratings['Hit - Spell'])};",
-        f"export const PHYSICAL_HIT_RATING_PER_HIT_PERCENT = {num(ratings['Hit - Melee'])};",
+        f"export const HASTE_RATING_PER_HASTE_PERCENT = {num(SharedRating(ratings, 'Haste'))};",
+        f"export const CRIT_RATING_PER_CRIT_PERCENT = {num(SharedRating(ratings, 'Crit'))};",
+        f"export const HIT_RATING_PER_HIT_PERCENT = {num(SharedRating(ratings, 'Hit'))};",
         f"export const DODGE_RATING_PER_DODGE_PERCENT = {num(ratings['Dodge'])};",
         f"export const PARRY_RATING_PER_PARRY_PERCENT = {num(ratings['Parry'])};",
         f"export const DEFENSE_RATING_PER_DEFENSE_LEVEL = {num(ratings['Defense Skill'])};",

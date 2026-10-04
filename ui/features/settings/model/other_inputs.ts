@@ -214,22 +214,3 @@ export const RetributionAuraSpellPower = {
 		party.setBuffs(buffs);
 	},
 };
-
-export const TotemTwisting = {
-	id: 'totemTwisting',
-	type: 'boolean' as const,
-	label: i18n.t('settings_tab.other.totem_twisting.label'),
-	labelTooltip: i18n.t('settings_tab.other.totem_twisting.tooltip'),
-	storeField: 'raid:partyBuffs' as const,
-	enableWhen: (player: Player<any>) => {
-		const buffs = player.getParty()!.getBuffs();
-		return buffs.windfuryTotem && buffs.graceOfAirTotem;
-	},
-	getValue: (player: Player<any>) => player.getParty()!.getBuffs().totemTwisting,
-	setValue: (player: Player<any>, newValue: boolean) => {
-		const party = player.getParty()!;
-		const buffs = party.getBuffs();
-		buffs.totemTwisting = newValue;
-		party.setBuffs(buffs);
-	},
-};

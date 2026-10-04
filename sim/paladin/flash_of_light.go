@@ -38,7 +38,7 @@ func (paladin *Paladin) registerFlashOfLight(_ int32, rank *spelldata.Spell) {
 		BonusCoefficient: heal.Coeff(),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := heal.Roll(sim, core.CharacterLevel) + paladin.flashOfLightBonusHealing
+			amount := heal.Roll(sim) + paladin.flashOfLightBonusHealing
 			if target.HasActiveAuraWithTag(buffs.GreaterBlessingOfLightCategory) {
 				amount += blessingOfLightFlashOfLightBonus
 			}

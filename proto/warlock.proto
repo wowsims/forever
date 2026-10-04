@@ -11,7 +11,7 @@ message WarlockTalents {
     int32 suppression = 2;
     int32 improved_corruption = 3;
     int32 malediction = 4;
-    int32 soul_harvesting = 5;
+    int32 soul_harvest = 5;
     int32 improved_drains = 6;
     int32 improved_bane_of_agony = 7;
     int32 fel_concentration = 8;

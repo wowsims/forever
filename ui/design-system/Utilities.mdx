@@ -1,0 +1,10 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { UtilityCards } from './components/UiClassCard';
+
+<Meta title="Design System/Utilities" />
+
+# Custom utilities
+
+Every `@utility` block in `ui/styles/main.css`, read from the file at build time. A custom utility is for an atomic pattern whose every carrier is known and where nothing else on those carriers sets the same properties; anything larger is a `ui-*` class. Unlike a `ui-*` class, a utility is generated only when a scanned file names it, and it takes variants (`focus-visible:focus-ring`).
+
+<UtilityCards />

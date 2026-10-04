@@ -1,5 +1,5 @@
 @layer components {
 	.ui-tooltip {
-		@apply border border-surface-border p-0 font-normal;
+		@apply rounded-none border border-surface-border bg-overlay p-0 text-sm font-normal text-white;
 	}
 }

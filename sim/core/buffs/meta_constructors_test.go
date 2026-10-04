@@ -207,7 +207,7 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 			},
 			Stacks: statsOnly(map[string]float64{
 				"Strength": 16, "Agility": 16, "Stamina": 16, "Intellect": 16, "Spirit": 16,
-				"Armor": 417, "Health": 160, "ArcaneResistance": 27, "FireResistance": 27,
+				"Armor": 417, "Health": 160, "DodgePercent": 0.8, "ArcaneResistance": 27, "FireResistance": 27,
 				"FrostResistance": 27, "NatureResistance": 27, "ShadowResistance": 27,
 			}),
 		}},
@@ -251,7 +251,14 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 		{"CurseOfElements", true, false, NewSpellDataCurseOfElementsAura, auraShape{
 			Label: "Curse of the Elements (External)", ActionID: external(1311680), Tag: "CurseOfElements",
 			Duration: 5 * time.Minute,
-			Bids:     []string{"CurseOfElements single=true priority=75"},
+			Bids: []string{
+				"CurseOfElementsArcaneResistanceAdd single=false priority=75",
+				"CurseOfElementsFireResistanceAdd single=false priority=75",
+				"CurseOfElementsFrostResistanceAdd single=false priority=75",
+				"CurseOfElementsNatureResistanceAdd single=false priority=75",
+				"CurseOfElementsSchoolDamageTakenMultiplierMul single=false priority=0.1",
+				"CurseOfElementsShadowResistanceAdd single=false priority=75",
+			},
 			Stacks: []unitDelta{{
 				Stats: map[string]float64{
 					"ArcaneResistance": -75, "FireResistance": -75, "FrostResistance": -75,
@@ -267,12 +274,14 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 		{"ThunderClap", true, false, NewSpellDataThunderClapAura, auraShape{
 			Label: "Thunder Clap (External)", ActionID: external(11581), Tag: "AtkSpdReduction",
 			Duration: 30 * time.Second,
-			Bids:     []string{"AtkSpdReduction single=false priority=0.166667"},
+			Bids:     []string{AtkSpeedReductionCategory + " single=false priority=0.166667"},
 			Stacks:   pseudoOnly(map[string]float64{"MeleeSpeedMultiplier": -0.166667}),
 		}},
 		{"InsectSwarm", true, false, NewSpellDataInsectSwarmAura, auraShape{
-			Label: "Insect Swarm (External)", ActionID: external(24977), Duration: 12 * time.Second,
-			Stacks: statsOnly(map[string]float64{"PhysicalHitPercent": -2}),
+			Label: "Insect Swarm (External)", ActionID: external(24977), Tag: "HitChanceReduction",
+			Duration: 12 * time.Second,
+			Bids:     []string{"HitChanceReductionPhysicalHitPercentAdd single=false priority=2"},
+			Stacks:   statsOnly(map[string]float64{"PhysicalHitPercent": -2}),
 		}},
 	}
 
@@ -295,10 +304,107 @@ func TestMetaBuffTakesAFlatBonus(t *testing.T) {
 	before := character.GetStat(stats.AttackPower)
 
 	aura := newBuff(&character.Unit, meta, false, 0)
-	core.AddGeneratedFlatBonus(aura, stats.AttackPower, meta.Value(0), BattleShoutT2Bonus)
+	AddGeneratedFlatBonus(aura, stats.AttackPower, meta.Value(0), BattleShoutT2Bonus)
 	aura.Activate(sim)
 
 	if got, want := character.GetStat(stats.AttackPower)-before, meta.Value(0)+BattleShoutT2Bonus; got != want {
 		t.Errorf("improved Battle Shout grants %v attack power, want %v", got, want)
 	}
+}
+
+func TestInspirationReadsTheStore(t *testing.T) {
+	unit := &shapeCharacter().Unit
+	baseArmor := unit.SortAndApplyStatDependencies(unit.GetStats())[stats.Armor]
+
+	for points, share := range map[int32]float64{1: 0.08, 2: 0.17, 3: 0.25} {
+		shape := shapeOf(t, false, func(u *core.Unit) *core.Aura { return inspirationAura(u, points) })
+
+		if shape.ActionID.SpellID != 14893 || shape.Duration != 15*time.Second {
+			t.Errorf("Inspiration at %d points is %v for %v, want 14893 for 15s", points, shape.ActionID, shape.Duration)
+		}
+		if got, want := round6(shape.Stacks[0].Stats["Armor"]), round6(baseArmor*share); got != want {
+			t.Errorf("Inspiration at %d points adds %v armor to %v, want %v", points, got, baseArmor, want)
+		}
+	}
+}
+
+// A flat bonus the game files' buff data does not state raises two numbers that a
+// non-stacking buff keeps apart: what the aura applies and what it bids for its
+// category. A stacking buff prices the one off the other, so it refuses one.
+func TestAddGeneratedFlatBonusRaisesTheBidAndTheAmount(t *testing.T) {
+	meta := &Meta{Label: "Battle Shout", Spell: spelldata.MustFind(25289), Category: "BattleShout", SingleAura: true}
+	character := shapeCharacter()
+	sim := &core.Simulation{}
+	before := character.GetStat(stats.AttackPower)
+
+	aura := newBuff(&character.Unit, meta, false, 0)
+
+	AddGeneratedFlatBonus(aura, stats.AttackPower, meta.Value(0), 30)
+	// A second party member wearing the same set asks for the same total.
+	AddGeneratedFlatBonus(aura, stats.AttackPower, meta.Value(0), 30)
+
+	if priority, want := aura.ExclusiveEffects[0].Priority, meta.Value(0)+30; priority != want {
+		t.Errorf("the category effect bids %v, want the game files' 139 plus the set's 30", priority)
+	}
+
+	aura.Activate(sim)
+
+	if got, want := character.GetStat(stats.AttackPower)-before, meta.Value(0)+30; got != want {
+		t.Errorf("the aura applied %v attack power, want the game files' 139 plus the set's 30", got)
+	}
+}
+
+func TestAddGeneratedFlatBonusRefusesAnAuraThatCannotCarryOne(t *testing.T) {
+	char := shapeCharacter()
+
+	stacking := char.GetOrRegisterAura(core.Aura{
+		Label:     "Generated Sunder Armor",
+		Tag:       "GeneratedArmorReduction",
+		ActionID:  core.ActionID{SpellID: 25225},
+		Duration:  core.NeverExpires,
+		MaxStacks: 5,
+	})
+	stacking.NewExclusiveEffect("GeneratedArmorReduction", true, core.ExclusiveEffect{})
+	assertPanics(t, "a stacking aura", func() {
+		AddGeneratedFlatBonus(stacking, stats.Armor, -2600, -30)
+	})
+
+	uncontested := char.GetOrRegisterAura(core.Aura{
+		Label:    "Generated Blood Pact",
+		ActionID: core.ActionID{SpellID: 11767}.WithTag(-1),
+		Duration: core.NeverExpires,
+	})
+	assertPanics(t, "an aura with no category", func() {
+		AddGeneratedFlatBonus(uncontested, stats.Stamina, 54, 30)
+	})
+
+	contested := newBuff(&char.Unit, &Meta{Label: "Battle Shout", Spell: spelldata.MustFind(25289), Category: "BattleShout", SingleAura: true}, false, 0)
+	assertPanics(t, "a base that is not what the buff bids", func() {
+		AddGeneratedFlatBonus(contested, stats.AttackPower, 620, 30)
+	})
+
+	// A category that holds several auras at once never deactivates the one it
+	// outbids, so an amount attached to the aura would apply while the effect
+	// holding it did not. No generated row has that shape; the guard is for a
+	// hand-written one that does.
+	shared := char.GetOrRegisterAura(core.Aura{
+		Label:    "Hand-Written Shout",
+		Tag:      "GeneratedSharedCategory",
+		ActionID: core.ActionID{SpellID: 25289}.WithTag(-2),
+		Duration: core.NeverExpires,
+	})
+	shared.NewExclusiveEffect("GeneratedSharedCategory", false, core.ExclusiveEffect{Priority: 139})
+	assertPanics(t, "a category that holds more than one aura", func() {
+		AddGeneratedFlatBonus(shared, stats.AttackPower, 139, 30)
+	})
+}
+
+func assertPanics(t *testing.T, what string, call func()) {
+	t.Helper()
+	defer func() {
+		if recover() == nil {
+			t.Errorf("%s took a flat bonus, which it cannot carry", what)
+		}
+	}()
+	call()
 }

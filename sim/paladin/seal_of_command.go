@@ -48,7 +48,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		BonusCoefficient: judgeDamage.Coeff(),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			baseDamage := judgeDamage.Roll(sim, core.CharacterLevel)
+			baseDamage := judgeDamage.Roll(sim)
 			if !target.PseudoStats.Stunned {
 				baseDamage /= 2
 			}

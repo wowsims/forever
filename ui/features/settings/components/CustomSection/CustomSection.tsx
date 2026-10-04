@@ -1,3 +1,5 @@
+import { ConnectedIconInput } from '@features/inputs/components/ConnectedIconInput';
+import { ConnectedInput } from '@features/inputs/components/ConnectedInput';
 import type { Spec } from '@generated/proto/common';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
@@ -5,11 +7,7 @@ import type { Player } from '@sim/player/player';
 import type { CustomSection as CustomSectionConfig } from '@sim/spec_config';
 import { type StoreSubscribe, subscribePlayerChange } from '@sim/state/subscriptions';
 import { ContentBlock } from '@ui-kit/ContentBlock';
-import { IconEnumPicker } from '@ui-kit/IconEnumPicker';
-import { IconPicker } from '@ui-kit/IconPicker';
-import { PickerGroup } from '@ui-kit/PickerGroup';
-
-import { InputPicker } from '../InputPicker';
+import { IconRow } from '@ui-kit/IconRow';
 
 export interface CustomSectionProps {
 	section: CustomSectionConfig<any>;
@@ -32,18 +30,14 @@ export const CustomSection = ({ section }: CustomSectionProps) => {
 			config={{ header: { title: section.title, tooltip: section.tooltip, className: section.description ? 'flex-col' : undefined } }}
 			headerChildren={section.description ? <p className="text-sm">{section.description}</p> : undefined}>
 			{!!section.iconInputs?.length && (
-				<PickerGroup variant="icons" className={section.iconGroupClassName}>
-					{section.iconInputs.map((config, index) =>
-						config.type === 'icon' ? (
-							<IconPicker key={index} modObject={player} config={{ ...config, layout: 'inline' }} />
-						) : (
-							<IconEnumPicker key={index} modObject={player} config={{ ...config, layout: 'inline' }} />
-						),
-					)}
-				</PickerGroup>
+				<IconRow className={section.iconGroupClassName}>
+					{section.iconInputs.map((config, index) => (
+						<ConnectedIconInput key={index} modObject={player} config={config} />
+					))}
+				</IconRow>
 			)}
 			{section.inputs?.map(config => (
-				<InputPicker key={config.id} config={{ ...config, layout: 'inline' }} />
+				<ConnectedInput key={config.id} config={{ ...config, layout: 'inline' }} />
 			))}
 		</ContentBlock>
 	);

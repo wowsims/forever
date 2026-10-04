@@ -1,7 +1,9 @@
 package database
 
 import (
+	"fmt"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,23 +12,26 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
+	"github.com/wowsims/forever/tools/database/overrides"
 )
 
 // A chance-on-hit item whose spell is a heal over time on the wearer routes to the heal shape. Neither
-// states a rate: 8348's ProcChance is the 100 that means no roll, 1297357 carries no aura options at
-// all, and "Chance on hit" beside neither names a percentage, so both stay commented out.
-func TestChanceOnHitHotRoutesAsAHealAndStatesNoRate(t *testing.T) {
+// row states a rate: 8348's ProcChance is the 100 that means no roll, 1297357 carries no aura options
+// at all, and "Chance on hit" beside neither names a percentage. Julie's Dagger registers on the
+// override's 1 PPM; Reforged Spear stays commented out.
+func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
 	for _, tc := range []struct {
 		itemID   int
 		spellID  int32
+		rated    bool
 		perTick  float64
 		duration time.Duration
 	}{
-		{6660, 8348, 13, 12 * time.Second},      // Julie's Dagger: Julie's Blessing
-		{275645, 1297357, 26, 14 * time.Second}, // Reforged Spear
+		{6660, 8348, true, 13, 12 * time.Second},       // Julie's Dagger: Julie's Blessing
+		{275645, 1297357, false, 26, 14 * time.Second}, // Reforged Spear
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
@@ -37,8 +42,12 @@ func TestChanceOnHitHotRoutesAsAHealAndStatesNoRate(t *testing.T) {
 		}
 
 		groups := map[string]Group{}
-		if got := TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups); got != EffectParseResultRefused {
-			t.Errorf("item %d parsed as %v, want refused with a reason", tc.itemID, got)
+		wantResult, wantUnsupported := EffectParseResultRefused, []string{spelldata.ReasonStatesNoRate}
+		if tc.rated {
+			wantResult, wantUnsupported = EffectParseResultSuccess, nil
+		}
+		if got := TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups); got != wantResult {
+			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, wantResult)
 			continue
 		}
 		entry := groups["Procs"].Entries[0]
@@ -47,16 +56,93 @@ func TestChanceOnHitHotRoutesAsAHealAndStatesNoRate(t *testing.T) {
 			t.Errorf("item %d: shape %v, weapon proc %v, trigger %d, buff %d; want a weapon proc healing through %d",
 				tc.itemID, r.Shape, r.IsWeaponProc, r.TriggerSpellID, r.BuffSpellID, tc.spellID)
 		}
-		if want := []string{spelldata.ReasonStatesNoRate}; !slices.Equal(r.Unsupported, want) {
-			t.Errorf("item %d refused for %q, want %q", tc.itemID, r.Unsupported, want)
+		if !slices.Equal(r.Unsupported, wantUnsupported) {
+			t.Errorf("item %d refused for %q, want %q", tc.itemID, r.Unsupported, wantUnsupported)
 		}
 
 		heal := spelldata.Find(tc.spellID)
 		e := heal.ProcHealEffect()
 		if e.Aura != dbcenums.A_PERIODIC_HEAL || e.Target[0] != dbcenums.TARGET_UNIT_CASTER ||
-			e.Average(core.CharacterLevel) != tc.perTick || e.Period() != 2*time.Second || heal.Duration() != tc.duration {
+			e.Average() != tc.perTick || e.Period() != 2*time.Second || heal.Duration() != tc.duration {
 			t.Errorf("%d heals through aura %v on target %d, %v every %v for %v; want A_PERIODIC_HEAL on the caster, %v every 2s for %v",
-				tc.spellID, e.Aura, e.Target[0], e.Average(core.CharacterLevel), e.Period(), heal.Duration(), tc.perTick, tc.duration)
+				tc.spellID, e.Aura, e.Target[0], e.Average(), e.Period(), heal.Duration(), tc.perTick, tc.duration)
+		}
+	}
+}
+
+// A chance-on-hit spell that grants extra attacks routes to the extra-attack shape: Flurry Axe 871's
+// 18797 grants the wearer one, at the override's 1.9 PPM, so it registers.
+func TestChanceOnHitExtraAttackRoutes(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	const itemID, spellID = 871, 18797
+	parsed, effect := parsedItem(t, instance, itemID, spellID)
+
+	groups := map[string]Group{}
+	if got := TryParseProcEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
+		t.Fatalf("item %d parsed as %v, want %v", itemID, got, EffectParseResultSuccess)
+	}
+	r := groups["Procs"].Entries[0].Proc
+	if r.Shape != ShapeExtraAttack || !r.IsWeaponProc || r.TriggerSpellID != spellID || r.BuffSpellID != 0 || len(r.Unsupported) != 0 {
+		t.Errorf("item %d: shape %v, weapon proc %v, trigger %d, buff %d, unsupported %q; want a weapon proc granting extra attacks through %d",
+			itemID, r.Shape, r.IsWeaponProc, r.TriggerSpellID, r.BuffSpellID, r.Unsupported, spellID)
+	}
+	if got := spelldata.Find(spellID).ExtraAttacksEffect().BasePoints; got != 1 {
+		t.Errorf("%d grants %v extra attacks, want 1", spellID, got)
+	}
+}
+
+// Two weapons sharing a trigger spell each carry their own rate on their item effect: The Needler and
+// Hanzo Sword both cast Wound 16405, at 3 and 1 PPM, and each registers on its own.
+func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	for _, tc := range []struct {
+		itemID int
+		ppm    float64
+	}{
+		{13060, 3},
+		{8190, 1},
+	} {
+		parsed, effect := parsedItem(t, instance, tc.itemID, 16405)
+		if got := effect.GetProc().GetPpm(); got != tc.ppm {
+			t.Errorf("item %d's effect states %v PPM, want %v", tc.itemID, got, tc.ppm)
+		}
+
+		groups := map[string]Group{}
+		if got := TryParseProcEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
+			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, EffectParseResultSuccess)
+			continue
+		}
+		r := groups["Procs"].Entries[0].Proc
+		if r.ItemPPM != tc.ppm || len(r.Unsupported) != 0 || !strings.Contains(r.Summary, fmt.Sprintf("%v ppm on the item", tc.ppm)) {
+			t.Errorf("item %d routed with %v PPM, unsupported %q, summary %q", tc.itemID, r.ItemPPM, r.Unsupported, r.Summary)
+		}
+	}
+}
+
+// Every hand-kept weapon rate names an effect the game files hang on that item for that spell, and
+// the database writes the rate onto the item: a mistyped id would otherwise leave the weapon refused
+// as stating no rate, with the rate sitting unread.
+func TestWeaponProcRowsNameAnItemEffect(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	for _, row := range overrides.WeaponProcs {
+		if !slices.ContainsFunc(instance.ItemEffectsByParentID[int(row.ItemID)], func(e dbc.ItemEffect) bool {
+			return e.SpellID == int(row.SpellID)
+		}) {
+			t.Errorf("item %d carries no effect casting %d", row.ItemID, row.SpellID)
+			continue
+		}
+
+		item := instance.Items[int(row.ItemID)]
+		parsed := item.ToUIItem()
+		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+		if !slices.ContainsFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.GetProc().GetPpm() == row.PPM }) {
+			t.Errorf("item %d's effects state no %v PPM", row.ItemID, row.PPM)
 		}
 	}
 }
@@ -157,6 +243,54 @@ func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 	}
 }
 
+// An on-use whose spell applies a hit or crit percent, which no item stat holds, registers as an
+// aura: Gri'lek's Charm of Valor's 24498 is spell crit alone. Weakness Analyzer's 1291101 drops at the
+// first crit, a charge the aura does not spend, and is refused.
+func TestOnUsePercentBuffRoutesAsAnAura(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	for _, tc := range []struct {
+		itemID  int
+		spellID int32
+		summary string
+		reasons []string
+	}{
+		{19952, 24498, "on use: 24498 (A_MOD_SPELL_CRIT_CHANCE)", nil}, // Gri'lek's Charm of Valor
+		{272438, 1291101, "on use: 1291101 (A_MOD_CRIT_PCT)", // Weakness Analyzer
+			[]string{"the buff drops after ProcCharges 1, which the aura does not spend"}},
+	} {
+		item := instance.Items[tc.itemID]
+		parsed := item.ToUIItem()
+		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
+		if i < 0 {
+			t.Fatalf("item %d carries no on-use effect on %d", tc.itemID, tc.spellID)
+		}
+
+		want, group := EffectParseResultSuccess, "Auras"
+		if tc.reasons != nil {
+			want, group = EffectParseResultRefused, ""
+		}
+		groups := map[string]Group{}
+		if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[i], instance, groups); got != want {
+			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, want)
+			continue
+		}
+
+		entries := groups[group].Entries
+		if len(entries) != 1 {
+			t.Fatalf("item %d: %d entries in the %q group, want 1", tc.itemID, len(entries), group)
+		}
+		r := entries[0].Proc
+		if r.Shape != ShapeAura || r.TriggerSpellID != int(tc.spellID) || r.OnUseConstructor() != "NewSpellDataAuraOnUse" ||
+			r.Summary != tc.summary || !slices.Equal(r.Unsupported, tc.reasons) {
+			t.Errorf("item %d: routing %+v; want %d through NewSpellDataAuraOnUse with %q, refused for %q",
+				tc.itemID, r, tc.spellID, tc.summary, tc.reasons)
+		}
+	}
+}
+
 // Aegis of Preservation 19345 registers its 500 armor and lists the heal on every hit taken, 23781,
 // that its buff 23780 procs.
 func TestOnUseStatBuffListsTheProcItCarries(t *testing.T) {
@@ -246,5 +380,47 @@ func TestAttackAvoidedWording(t *testing.T) {
 		if got := procTooltipHints(tc.text) & avoided; got != tc.want {
 			t.Errorf("hint = %q, want %q for %s:\n  %s", formatProcHint(got), formatProcHint(tc.want), tc.why, tc.text)
 		}
+	}
+}
+
+// An enchant whose equip spell names a melee weapon subset registers the spell as an equip aura, kept
+// up while the enchant is worn. 430391 (Hit Weapon +2) states A_MOD_HIT_CHANCE on the melee weapons
+// but not spears, which no enchant stat can hold; its row is freed of its area group for the test. An
+// enchant that already registers a proc lists it.
+func TestWeaponScopedEnchantRegistersAnEquipAura(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	const effectID, spellID = 990991, 430391
+	row := spelldata.MustFind(spellID)
+	areas := row.RequiredAreas
+	row.RequiredAreas = 0
+	t.Cleanup(func() { row.RequiredAreas = areas })
+	enchant := dbc.Enchant{EffectId: effectID, Name: "Test Hit Enchant",
+		Effects: []int{dbc.ITEM_ENCHANTMENT_EQUIP_SPELL}, EffectArgs: []int{spellID}}
+	parsed := &proto.UIEnchant{EffectId: effectID, Name: enchant.Name}
+	grants := map[int]*dbc.SpellEffect{effectID: {SpellID: spellID}}
+	if dbc.EquipSpellFolds(spellID) {
+		t.Fatalf("%d folds into the enchant stats; the test needs one left to run time", spellID)
+	}
+
+	groups := map[string]Group{}
+	storeWeaponScopedEnchant(instance, enchant, parsed, grants, groups)
+	entries := groups["Enchants"].Entries
+	if len(entries) != 1 {
+		t.Fatalf("%d entries in the Enchants group, want 1", len(entries))
+	}
+	r := entries[0].Proc
+	if r.Shape != ShapeEquip || r.TriggerSpellID != spellID || r.ProcConstructor() != "NewSpellDataEquipAura" ||
+		entries[0].Variants[0].ID != effectID || !entries[0].Supported {
+		t.Errorf("routing %+v for enchant %d, supported %v; want %d registered through NewSpellDataEquipAura",
+			r, entries[0].Variants[0].ID, entries[0].Supported, spellID)
+	}
+
+	registered := map[string]Group{"Enchants": {Name: "Enchants", Entries: []*Entry{{
+		Variants: []*Variant{{ID: effectID}}, Proc: &ProcRouting{}, Supported: true}}}}
+	storeWeaponScopedEnchant(instance, enchant, parsed, grants, registered)
+	if second := registered["Enchants"].Entries; len(second) != 2 || second[1].Supported {
+		t.Errorf("an enchant that already registers should list the equip aura, got %d entries", len(second))
 	}
 }

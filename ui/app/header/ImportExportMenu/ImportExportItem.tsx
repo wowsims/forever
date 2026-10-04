@@ -5,7 +5,6 @@ import type { ImportExportDialogProps } from '../import_export';
 export interface ImportExportItemProps {
 	label: string;
 	dialog: ComponentType<ImportExportDialogProps>;
-	isUnsupported?: boolean;
 }
 
 // A declaration, never rendered: `ImportExportMenu` reads these props off its children and splits

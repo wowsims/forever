@@ -9,9 +9,13 @@ on:
     pull_request_target:
         types: [opened, synchronize, reopened, ready_for_review, locked]
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
 jobs:
     triage:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         steps:
             - uses: actions/labeler@v4
               with:

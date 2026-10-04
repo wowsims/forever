@@ -1,14 +1,14 @@
-import { ItemQuality, ItemSlot, type ItemSpec } from '@generated/proto/common';
-import type { UIItem as Item } from '@generated/proto/ui';
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import { fakeHost } from '@sim/testing';
-import { fireEvent, render } from '@testing-library/react';
-import { itemQualityClassName } from '@ui-kit/utils/css';
+import { ItemQuality, type ItemSpec } from '@generated/proto/common';
+import { UIEnchant as Enchant, type UIItem as Item } from '@generated/proto/ui';
+import { renderWithHost } from '@testing/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
+import type { ItemListRowViewProps } from './ItemListRow';
 
 // The batch seam is mocked rather than driven: the row only asks whether the item is in the batch
 // and calls one of two writes, and both are plain functions over the player now.
@@ -31,10 +31,10 @@ const store = vi.hoisted(() => {
 	};
 });
 
-vi.mock('@ui-kit/hooks/useActionId', () => ({
+vi.mock('@sim/hooks/useActionId', () => ({
 	useActionId: () => ({ iconUrl: 'icon-url.png', name: 'item-name', href: 'https://example.com/item', ready: true }),
 }));
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(store.subscribe));
+vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(store.subscribe));
 vi.mock('@features/bulk/model/items', () => ({
 	hasBulkItem: (_player: unknown, spec: ItemSpec) => batch.hasItem(spec),
 	addBulkItem: (_player: unknown, spec: ItemSpec) => batch.addItem(spec),
@@ -48,7 +48,7 @@ vi.mock('../GearPicker/ItemNoticeIcon', () => ({
 	),
 }));
 
-const { ItemListRow } = await import('./ItemListRow');
+const { ItemListRow, ItemListRowView } = await import('./ItemListRow');
 type ItemListRowProps = Parameters<typeof ItemListRow>[0];
 
 const makeItemData = (overrides: Partial<ItemData<ItemListType, ReactNode>> = {}): ItemData<ItemListType, ReactNode> => ({
@@ -68,18 +68,14 @@ const makeItemData = (overrides: Partial<ItemData<ItemListType, ReactNode>> = {}
 const renderRow = (
 	overrides: Partial<ItemListRowProps> = {},
 	batchOverrides: Partial<{ hasItem: ReturnType<typeof vi.fn>; addItem: ReturnType<typeof vi.fn>; removeItem: ReturnType<typeof vi.fn> }> = {},
-	onWrapperClick?: () => void,
 ) => {
 	Object.assign(batch, { hasItem: vi.fn(() => false), addItem: vi.fn(), removeItem: vi.fn() }, batchOverrides);
-	const host = fakeHost({ sim: { store } });
 
 	const props: ItemListRowProps = {
 		itemData: makeItemData(),
 		label: SelectorModalTabs.Items,
-		slot: ItemSlot.ItemSlotHead,
 		active: false,
-		equippedEP: null,
-		itemEP: 0,
+		ep: { ep: 0, equippedEP: null },
 		favourited: false,
 		favouriteTooltipId: 'fav-tooltip',
 		compareTooltipId: 'compare-tooltip',
@@ -88,50 +84,40 @@ const renderRow = (
 		...overrides,
 	};
 
-	const tree = (next: ItemListRowProps) => (
-		<SimHostProvider host={host}>
-			<div onClick={onWrapperClick}>
-				<ItemListRow {...next} />
-			</div>
-		</SimHostProvider>
-	);
-	const { container, rerender } = render(tree(props));
+	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store } });
 
 	return {
 		container,
-		wrapper: container.firstElementChild as HTMLElement,
 		batch,
 		props,
-		rerender: (next: Partial<ItemListRowProps>) => rerender(tree({ ...props, ...next })),
+		rerender: (next: Partial<ItemListRowProps>) => rerender(<ItemListRow {...props} {...next} />),
 	};
 };
 
 describe('ItemListRow', () => {
-	it('renders the six list cells in order on the items tab', () => {
-		const { wrapper } = renderRow();
-		expect(Array.from(wrapper.children).map(child => child.getAttribute('data-testid'))).toEqual([
-			'selector-modal-list-item-ilvl-container',
-			'selector-modal-list-label-cell',
-			'selector-modal-list-item-source-container',
-			'selector-modal-list-item-ep',
-			'selector-modal-list-item-favorite-container',
-			'selector-modal-list-item-compare-container',
-		]);
-	});
-
-	it('omits the ilvl cell outside the items and upgrades tabs', () => {
-		const { container } = renderRow({ label: SelectorModalTabs.Enchants });
+	it('omits the level cell outside the items and enchants tabs', () => {
+		const { container } = renderRow({ label: SelectorModalTabs.Gem1 });
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')).toBeNull();
 	});
 
-	it('prefers the itemData ilvl over the item ilvl', () => {
-		const { container } = renderRow({ itemData: makeItemData({ ilvl: 500, item: { id: 1, ilvl: 400 } as Item }) });
-		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe('500');
+	it.each([
+		['an enchant’s lvl', 47, '47'],
+		['an empty cell for an enchant with no lvl', 0, ''],
+	])('shows %s on the enchants tab', (_name, lvl, shown) => {
+		const { container } = renderRow({
+			label: SelectorModalTabs.Enchants,
+			itemData: makeItemData({ ilvl: lvl, item: Enchant.create({ effectId: 1894, lvl }) as unknown as ItemListType }),
+			ep: undefined,
+		});
+		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});
 
-	it('falls back to the item ilvl when the itemData ilvl is unset', () => {
-		const { container } = renderRow({ itemData: makeItemData({ ilvl: 0, item: { id: 1, ilvl: 450 } as Item }) });
-		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe('450');
+	it.each([
+		['prefers the itemData ilvl over the item ilvl', 500, 400, '500'],
+		['falls back to the item ilvl when the itemData ilvl is unset', 0, 450, '450'],
+	])('%s', (_name, ilvl, itemIlvl, shown) => {
+		const { container } = renderRow({ itemData: makeItemData({ ilvl, item: { id: 1, ilvl: itemIlvl } as Item }) });
+		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});
 
 	it('renders the item source cell only on the items tab', () => {
@@ -154,96 +140,21 @@ describe('ItemListRow', () => {
 		expect(itemNotice.hasAttribute('data-enchant-id')).toBe(false);
 	});
 
-	it('hides the ep cell for trinket slots', () => {
-		const trinket1 = renderRow({ slot: ItemSlot.ItemSlotTrinket1 });
-		expect(trinket1.container.querySelector('[data-testid="selector-modal-list-item-ep"]')).toBeNull();
-
-		const trinket2 = renderRow({ slot: ItemSlot.ItemSlotTrinket2 });
-		expect(trinket2.container.querySelector('[data-testid="selector-modal-list-item-ep"]')).toBeNull();
-
-		const head = renderRow({ slot: ItemSlot.ItemSlotHead });
-		expect(head.container.querySelector('[data-testid="selector-modal-list-item-ep"]')).not.toBeNull();
+	it('hands the ep and equipped ep to the ep cell', () => {
+		const { container } = renderRow({ ep: { ep: 80, equippedEP: 50 } });
+		expect(container.querySelector('[data-testid="selector-modal-list-item-ep-value"]')?.textContent).toBe('80');
+		expect(container.querySelector('[data-testid="selector-modal-list-item-ep-delta"]')?.getAttribute('data-sign')).toBe('positive');
 	});
 
-	it('formats ep with one decimal below the rounding boundary and rounds at or above it', () => {
-		const below = renderRow({ itemEP: 9.94 });
-		expect(below.container.querySelector('[data-testid="selector-modal-list-item-ep-value"]')?.textContent).toBe('9.9');
-
-		const above = renderRow({ itemEP: 9.95 });
-		expect(above.container.querySelector('[data-testid="selector-modal-list-item-ep-value"]')?.textContent).toBe('10');
+	it('draws no ep cell when the list has no EP column', () => {
+		const { container } = renderRow({ ep: undefined });
+		expect(container.querySelector('[data-testid="selector-modal-list-item-ep"]')).toBeNull();
 	});
 
-	it('omits the delta when there is no equipped item to compare against', () => {
-		const { container } = renderRow({ equippedEP: null, itemEP: 5 });
-		expect(container.querySelector('[data-testid="selector-modal-list-item-ep-delta"]')?.textContent).toBe('');
-	});
-
-	it('omits the delta when the equipped and candidate ep are equal', () => {
-		const { container } = renderRow({ equippedEP: 5, itemEP: 5 });
-		expect(container.querySelector('[data-testid="selector-modal-list-item-ep-delta"]')?.textContent).toBe('');
-	});
-
-	it('shows a positive delta for a higher-ep item', () => {
-		const { container } = renderRow({ equippedEP: 5, itemEP: 8 });
-		const delta = container.querySelector('[data-testid="selector-modal-list-item-ep-delta"]');
-		expect(delta?.textContent).toBe('+3');
-		expect(delta?.getAttribute('data-sign')).toBe('positive');
-	});
-
-	it('shows a negative delta for a lower-ep item', () => {
-		const { container } = renderRow({ equippedEP: 8, itemEP: 5 });
-		const delta = container.querySelector('[data-testid="selector-modal-list-item-ep-delta"]');
-		expect(delta?.textContent).toBe('-3');
-		expect(delta?.getAttribute('data-sign')).toBe('negative');
-	});
-
-	it('carries the item quality class on the name, and wires the icon and anchor to useActionId', () => {
-		const { container } = renderRow({ itemData: makeItemData({ quality: ItemQuality.ItemQualityLegendary }) });
-		const name = container.querySelector('[data-testid="selector-modal-list-item-name"]');
-		expect(name?.classList.contains(itemQualityClassName(ItemQuality.ItemQualityLegendary)!)).toBe(true);
+	it('wires the icon and anchor to useActionId', () => {
+		const { container } = renderRow();
 		expect(container.querySelector('[data-testid="selector-modal-list-item-icon"]')?.getAttribute('src')).toBe('icon-url.png');
 		expect(container.querySelector('[data-testid="selector-modal-list-item-link"]')?.getAttribute('href')).toBe('https://example.com/item');
-	});
-
-	it('renders the name description label only when set', () => {
-		const withDescription = renderRow({ itemData: makeItemData({ nameDescription: 'Heroic' }) });
-		expect(withDescription.container.querySelector('[data-testid="heroic-label"]')?.textContent).toBe('(Heroic)');
-
-		const withoutDescription = renderRow({ itemData: makeItemData({ nameDescription: '' }) });
-		expect(withoutDescription.container.querySelector('[data-testid="heroic-label"]')).toBeNull();
-	});
-
-	it('calls onEquip when the row link is clicked', () => {
-		const onEquip = vi.fn();
-		const { container } = renderRow({ onEquip });
-		fireEvent.click(container.querySelector('[data-testid="selector-modal-list-item-link"]')!);
-		expect(onEquip).toHaveBeenCalledTimes(1);
-	});
-
-	it('clicking the favourite star toggles favourite and does not bubble to the row or equip', () => {
-		const onEquip = vi.fn();
-		const onToggleFavourite = vi.fn();
-		const onWrapperClick = vi.fn();
-		const { container } = renderRow({ onEquip, onToggleFavourite }, {}, onWrapperClick);
-
-		fireEvent.click(container.querySelector('[data-testid="selector-modal-list-item-favorite"]')!);
-
-		expect(onToggleFavourite).toHaveBeenCalledTimes(1);
-		expect(onEquip).not.toHaveBeenCalled();
-		expect(onWrapperClick).not.toHaveBeenCalled();
-	});
-
-	it('marks the favourite button data attributes and swaps the star style', () => {
-		const favouritedRow = renderRow({ favourited: true, favouriteTooltipId: 'fav-42' });
-		const favouritedButton = favouritedRow.container.querySelector('[data-testid="selector-modal-list-item-favorite"]')!;
-		expect(favouritedButton.getAttribute('data-favourited')).toBe('true');
-		expect(favouritedButton.getAttribute('data-tooltip-id')).toBe('fav-42');
-		expect(favouritedButton.querySelector('i')?.classList.contains('fas')).toBe(true);
-
-		const unfavouritedRow = renderRow({ favourited: false });
-		const unfavouritedButton = unfavouritedRow.container.querySelector('[data-testid="selector-modal-list-item-favorite"]')!;
-		expect(unfavouritedButton.getAttribute('data-favourited')).toBe('false');
-		expect(unfavouritedButton.querySelector('i')?.classList.contains('far')).toBe(true);
 	});
 
 	it('reflects whether the item is already in the bulk batch', () => {
@@ -288,9 +199,103 @@ describe('ItemListRow', () => {
 
 	it('renders the compare container on the items tab alone', () => {
 		const items = renderRow({ label: SelectorModalTabs.Items });
-		expect(items.container.querySelector('[data-testid="selector-modal-list-item-compare-container"]')).not.toBeNull();
+		expect(items.container.querySelector('[data-testid="selector-modal-list-item-compare"]')).not.toBeNull();
 
 		const enchants = renderRow({ label: SelectorModalTabs.Enchants });
-		expect(enchants.container.querySelector('[data-testid="selector-modal-list-item-compare-container"]')).toBeNull();
+		expect(enchants.container.querySelector('[data-testid="selector-modal-list-item-compare"]')).toBeNull();
+	});
+});
+
+const renderRowView = (props: Partial<ItemListRowViewProps> = {}) => {
+	const all: ItemListRowViewProps = {
+		name: 'Thunderfury',
+		quality: ItemQuality.ItemQualityLegendary,
+		nameDescription: '',
+		iconUrl: 'icon.jpg',
+		href: 'https://example.com/item',
+		active: false,
+		onEquip: vi.fn(),
+		favourited: false,
+		favouriteTooltipId: 'favourite',
+		onToggleFavourite: vi.fn(),
+		...props,
+	};
+	const { container } = render(
+		<div data-testid="row">
+			<ItemListRowView {...all} />
+		</div>,
+	);
+	const cells = () => Array.from(screen.getByTestId('row').children).map(child => child.getAttribute('data-testid'));
+	return { container, props: all, cells };
+};
+
+describe('ItemListRowView', () => {
+	it('renders every column in order when each is given', () => {
+		const { cells } = renderRowView({
+			ilvl: 80,
+			source: 'Molten Core',
+			ep: { ep: 12, equippedEP: 10 },
+			compare: { inBatch: false, tooltipId: 'compare', onToggle: vi.fn() },
+		});
+		expect(cells()).toEqual([
+			'selector-modal-list-item-ilvl-container',
+			'selector-modal-list-label-cell',
+			'selector-modal-list-item-source-container',
+			'selector-modal-list-item-ep',
+			'selector-modal-list-item-favorite',
+			'selector-modal-list-item-compare',
+			'selector-modal-list-item-row-link',
+		]);
+		expect(screen.getByTestId('selector-modal-list-item-ilvl-container').textContent).toBe('80');
+		expect(screen.getByTestId('selector-modal-list-item-source-container').textContent).toBe('Molten Core');
+	});
+
+	it('keeps the label and favourite columns alone when nothing else is given', () => {
+		expect(renderRowView().cells()).toEqual(['selector-modal-list-label-cell', 'selector-modal-list-item-favorite', 'selector-modal-list-item-row-link']);
+	});
+
+	it('leaves the description label off when the item has none', () => {
+		renderRowView({ nameDescription: '' });
+		expect(screen.getByTestId('selector-modal-list-item-name').textContent).toBe('Thunderfury');
+	});
+
+	it('shows the icon, the quality-coloured name, its description and the notice beside them', () => {
+		renderRowView({ nameDescription: 'Heroic', notice: <span data-testid="notice" />, active: true });
+		expect(screen.getByTestId('selector-modal-list-item-icon').getAttribute('src')).toBe('icon.jpg');
+		expect(screen.getByTestId('selector-modal-list-item-link').getAttribute('href')).toBe('https://example.com/item');
+		expect(screen.getByTestId('selector-modal-list-item-name').dataset.quality).toBe(String(ItemQuality.ItemQualityLegendary));
+		expect(screen.getByTestId('heroic-label').textContent).toBe('(Heroic)');
+		expect(screen.getByTestId('selector-modal-list-label-cell').hasAttribute('data-active')).toBe(true);
+		expect(screen.getByTestId('notice')).toBeTruthy();
+	});
+
+	it('equips from the row link', () => {
+		const { props } = renderRowView();
+		fireEvent.click(screen.getByTestId('selector-modal-list-item-link'));
+		expect(props.onEquip).toHaveBeenCalledOnce();
+	});
+
+	it('equips from a click on the row outside its controls', () => {
+		const { props } = renderRowView({ source: 'Molten Core' });
+		fireEvent.click(screen.getByTestId('selector-modal-list-item-row-link'));
+		expect(props.onEquip).toHaveBeenCalledOnce();
+	});
+
+	it('leaves a source link and the favourite star to themselves', () => {
+		const onSource = vi.fn();
+		const { props } = renderRowView({
+			source: (
+				<WowheadAnchor href="https://example.com/npc" testId="source-link" onClick={onSource}>
+					Ragnaros
+				</WowheadAnchor>
+			),
+		});
+
+		fireEvent.click(screen.getByTestId('source-link'));
+		fireEvent.click(screen.getByTestId('selector-modal-list-item-favorite'));
+
+		expect(onSource).toHaveBeenCalledOnce();
+		expect(props.onToggleFavourite).toHaveBeenCalledOnce();
+		expect(props.onEquip).not.toHaveBeenCalled();
 	});
 });

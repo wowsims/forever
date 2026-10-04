@@ -5,6 +5,7 @@ package common_test
 import (
 	"testing"
 
+	assetsdb "github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/sim/core"
 )
 
@@ -14,9 +15,9 @@ func TestEveryShippedConsumableIsRegistered(t *testing.T) {
 	registerAllEffects()
 
 	var missing []int32
-	for _, id := range core.ConsumableIDs() {
-		if !core.HasConsumableEffect(id) {
-			missing = append(missing, id)
+	for _, consumable := range assetsdb.Load().Consumables {
+		if !core.HasConsumableEffect(consumable.Id) {
+			missing = append(missing, consumable.Id)
 		}
 	}
 	if len(missing) > 0 {

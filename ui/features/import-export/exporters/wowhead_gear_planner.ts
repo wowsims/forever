@@ -83,7 +83,7 @@ function writeHash(data: WowheadGearPlannerData): string {
 	return hash;
 }
 
-export interface WowheadGearPlannerData {
+interface WowheadGearPlannerData {
 	class?: string;
 	race?: string;
 	level: number;
@@ -99,7 +99,7 @@ export interface WowheadItemData {
 	enchantId?: number;
 }
 
-export function createWowheadGearPlannerLink(data: WowheadGearPlannerData): string {
+function createWowheadGearPlannerLink(data: WowheadGearPlannerData): string {
 	const baseUrl = '';
 	const hash = writeHash(data);
 	return baseUrl + hash;
@@ -111,14 +111,8 @@ export const WOWHEAD_GEAR_PLANNER_EXPORTER: ExporterDefinition = {
 	getData: host => {
 		const player = host.player;
 
-		const converWowheadRace = (raceName: string): string => {
-			const alliancePrefix = raceName.endsWith('(A)') ? 'alliance-' : undefined;
-			const hordePrefix = raceName.endsWith('(H)') ? 'horde-' : undefined;
-			return (alliancePrefix ?? hordePrefix ?? '') + raceName.replaceAll(' (A)', '').replaceAll(' (H)', '').replaceAll(/\s/g, '-').toLowerCase();
-		};
-
 		const classStr = player.getPlayerClass().friendlyName.replaceAll(/\s/g, '-').toLowerCase();
-		const raceStr = converWowheadRace(raceNames.get(player.getRace())!);
+		const raceStr = raceNames.get(player.getRace())!.replaceAll(/\s/g, '-').toLowerCase();
 		const url = `${WOWHEAD_GEAR_PLANNER_URL}/${classStr}/${raceStr}/`;
 
 		const data: WowheadGearPlannerData = {

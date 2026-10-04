@@ -16,23 +16,6 @@ type Rand interface {
 	rand.Source64
 }
 
-// wraps go's default source; will panic if it's not a Source64
-func NewGoRand(seed uint64) *GoRand {
-	return &GoRand{rand.NewSource(int64(seed)).(rand.Source64)}
-}
-
-type GoRand struct {
-	rand.Source64
-}
-
-func (g GoRand) Next() uint64 {
-	return g.Uint64()
-}
-
-func (g GoRand) NextFloat64() float64 {
-	return float64(g.Uint64()>>11) * 0x1p-53
-}
-
 func NewSplitMix(seed uint64) *SplitMix64 {
 	return &SplitMix64{state: seed, start: seed}
 }

@@ -7,12 +7,19 @@ import { DamageResult } from '../../DamageResult';
 
 export interface CastTooltipProps {
 	log: CastLog;
+	/** The casts drawn under this one's icon, ending with `log`; their damage is listed together. */
+	stack?: ReadonlyArray<CastLog>;
 }
 
-export const CastTooltip = ({ log }: CastTooltipProps) => {
+export const CastTooltip = ({ log, stack = [log] }: CastTooltipProps) => {
 	const { threat: showThreatMetrics } = useDisplayMetrics(useSim());
 	const travelTime = log.travelTime == 0 ? '' : ` + ${log.travelTime.toFixed(2)}s travel time`;
-	const totalDamage = log.damageDealtLogs.reduce((total, ddl) => total + ddl.amount, 0);
+	// Two casts at the same timestamp can hand all of their damage to the later one, so the stack's
+	// damage is one list rather than one per cast.
+	const damageDealtLogs = stack.flatMap(cast => cast.damageDealtLogs);
+	const totalDamage = damageDealtLogs.reduce((total, ddl) => total + ddl.amount, 0);
+	const effectiveTime = stack.reduce((total, cast) => total + cast.effectiveTime, 0);
+	const first = stack[0];
 
 	return (
 		<div className="ui-timeline-tooltip">
@@ -24,14 +31,19 @@ export const CastTooltip = ({ log }: CastTooltipProps) => {
 					: ` (${log.castTime > 0 ? `${log.castTime.toFixed(2)}s, ` : ''}${log.effectiveTime.toFixed(2)}s GCD Time)`}
 				{travelTime.length > 0 && travelTime}
 			</span>
-			{totalDamage > 0 && (
+			{stack.length > 1 && (
 				<span>
-					Total: {totalDamage.toFixed(2)} ({(totalDamage / (log.effectiveTime || 1)).toFixed(2)} DPET)
+					{stack.length} casts {first.timestamp === log.timestamp ? 'at' : `from ${first.timestamp.toFixed(2)}s to`} {log.timestamp.toFixed(2)}s
 				</span>
 			)}
-			{log.damageDealtLogs.length > 0 && (
+			{totalDamage > 0 && (
+				<span>
+					Total: {totalDamage.toFixed(2)} ({(totalDamage / (effectiveTime || 1)).toFixed(2)} DPET)
+				</span>
+			)}
+			{damageDealtLogs.length > 0 && (
 				<ul>
-					{log.damageDealtLogs.map((ddl, index) => (
+					{damageDealtLogs.map((ddl, index) => (
 						<li key={index}>
 							<span>
 								{ddl.timestamp.toFixed(2)}s - <DamageResult log={ddl} />

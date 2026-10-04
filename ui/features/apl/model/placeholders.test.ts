@@ -1,44 +1,15 @@
 import type { APLGroup, APLRotation } from '@generated/proto/apl';
 import { describe, expect, it } from 'vitest';
 
-import { clearPlaceholder, findContainingGroup, placeholderNames, renamePlaceholder, visitObjects } from './placeholders';
-
-describe('visitObjects', () => {
-	it('visits the root itself before descending', () => {
-		const calls: Array<unknown> = [];
-		const root = { a: 1 };
-		visitObjects(root, obj => {
-			calls.push(obj);
-			return false;
-		});
-		expect(calls[0]).toBe(root);
-	});
-
-	it('recurses into arrays and nested objects, and skips primitives', () => {
-		const calls: Array<unknown> = [];
-		const leaf = { z: 1 };
-		const root = { list: [leaf, 'skip', 3], nested: { inner: leaf } };
-		visitObjects(root, obj => {
-			calls.push(obj);
-			return false;
-		});
-		expect(calls).toEqual([root, root.list, leaf, root.nested, leaf]);
-	});
-
-	it('stops the walk as soon as visit returns true', () => {
-		const calls: Array<unknown> = [];
-		const target = { marker: true };
-		const root = { a: { b: target }, c: { d: 1 } };
-		const found = visitObjects(root, obj => {
-			calls.push(obj);
-			return obj === target;
-		});
-		expect(found).toBe(true);
-		expect(calls).toEqual([root, root.a, target]);
-	});
-});
+import { clearPlaceholder, findContainingGroup, placeholderNames, renamePlaceholder } from './placeholders';
 
 describe('findContainingGroup', () => {
+	it('matches an action itself, not only what it holds', () => {
+		const group: APLGroup = { name: 'g', actions: [{ hide: false, notes: '', action: { value: { nested: {} } } as any }], variables: [] };
+		const rotation = { groups: [group] } as unknown as APLRotation;
+		expect(findContainingGroup(rotation, group.actions[0])).toBe(group);
+	});
+
 	it('finds the group holding the target, by identity', () => {
 		const target = { deep: true };
 		const group1: APLGroup = { name: 'g1', actions: [{ hide: false, notes: '', action: { value: { nested: {} } } as any }], variables: [] };
@@ -64,6 +35,13 @@ describe('placeholderNames', () => {
 	it('de-duplicates and preserves first-seen order', () => {
 		const group: APLGroup = { name: 'g', actions: [placeholderAction('b'), placeholderAction('a'), placeholderAction('b')], variables: [] };
 		expect(placeholderNames(group)).toEqual(['b', 'a']);
+	});
+
+	it('finds placeholders nested in arrays and objects, past primitive entries', () => {
+		const placeholder = (name: string) => ({ value: { oneofKind: 'variablePlaceholder', variablePlaceholder: { name } } });
+		const action = { value: { oneofKind: 'and', and: { vals: ['skip', 3, placeholder('a'), { inner: placeholder('b') }] } } };
+		const group: APLGroup = { name: 'g', actions: [{ hide: false, notes: '', action: action as any }], variables: [] };
+		expect(placeholderNames(group)).toEqual(['a', 'b']);
 	});
 
 	it('returns an empty list for an undefined group', () => {
@@ -115,6 +93,23 @@ describe('clearPlaceholder', () => {
 
 		expect(clearPlaceholder(rotation, placeholder)).toBe(true);
 		expect(holder.value).toEqual({ oneofKind: undefined });
+	});
+
+	it('stops at the first value holding the placeholder', () => {
+		const placeholder = { name: 'p' };
+		const first = { value: { oneofKind: 'variablePlaceholder', variablePlaceholder: placeholder } };
+		const second = { value: { oneofKind: 'variablePlaceholder', variablePlaceholder: placeholder } };
+		const rotation = {
+			groups: [],
+			priorityList: [
+				{ hide: false, notes: '', action: first as any },
+				{ hide: false, notes: '', action: second as any },
+			],
+		} as unknown as APLRotation;
+
+		expect(clearPlaceholder(rotation, placeholder)).toBe(true);
+		expect(first.value).toEqual({ oneofKind: undefined });
+		expect(second.value.variablePlaceholder).toBe(placeholder);
 	});
 
 	it('returns false when the placeholder is not found', () => {

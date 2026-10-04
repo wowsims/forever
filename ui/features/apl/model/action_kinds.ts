@@ -265,6 +265,7 @@ export const actionKinds: { [f in NonNullable<APLActionKind>]: ActionKindModel<A
 			stringFieldConfig('schedule', {
 				label: i18n.t('rotation_tab.apl.actions.scheduled_action.do_at.label'),
 				labelTooltip: i18n.t('rotation_tab.apl.actions.scheduled_action.do_at.tooltip'),
+				wide: true,
 			}),
 			actionFieldConfig('innerAction'),
 		],

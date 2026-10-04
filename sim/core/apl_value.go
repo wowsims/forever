@@ -100,6 +100,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueIsExecutePhase(config.GetIsExecutePhase(), config.Uuid)
 	case *proto.APLValue_NumberTargets:
 		value = rot.newValueNumberTargets(config.GetNumberTargets(), config.Uuid)
+	case *proto.APLValue_EncounterInArea:
+		value = rot.newValueEncounterInArea(config.GetEncounterInArea(), config.Uuid)
 
 	// Boss
 	case *proto.APLValue_BossSpellIsCasting:
@@ -108,6 +110,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueBossSpellTimeToReady(config.GetBossSpellTimeToReady(), config.Uuid)
 	case *proto.APLValue_BossCurrentTarget:
 		value = rot.newValueBossCurrentTarget(config.GetBossCurrentTarget(), config.Uuid)
+	case *proto.APLValue_TargetIsMobType:
+		value = rot.newValueTargetIsMobType(config.GetTargetIsMobType(), config.Uuid)
 
 	// Resources
 	case *proto.APLValue_CurrentHealth:

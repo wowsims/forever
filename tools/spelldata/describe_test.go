@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -19,14 +20,14 @@ func TestEffectLines(t *testing.T) {
 			name:    "a bleed tick",
 			id:      11574,
 			effect:  1,
-			human:   "21 physical damage every 3 s to the enemy (7 ticks)",
-			literal: "E_APPLY_AURA A_PERIODIC_DAMAGE base=21 period=3000ms target=[6,0]",
+			human:   "21 physical damage every 3 s to the enemy (7 ticks, +0.02 attack power)",
+			literal: "E_APPLY_AURA A_PERIODIC_DAMAGE base=21 ap=0.02 period=3000ms target=[6,0]",
 		},
 		{
 			name:    "school damage that rolls and scales",
 			id:      116,
 			effect:  2,
-			human:   "19.894737–22.105263 frost damage to the enemy (at level 60, +0.407 spell power)",
+			human:   "20–22 frost damage to the enemy (at level 60, +0.407 spell power)",
 			literal: "E_SCHOOL_DAMAGE base=19 ppl=0.5 variance=0.10526316 sp=0.407 target=[6,0]",
 		},
 		{
@@ -90,7 +91,7 @@ func TestEffectLines(t *testing.T) {
 			name:    "a heal that rolls and scales",
 			id:      2050,
 			effect:  1,
-			human:   "46.901962–57.098038 healing to the friendly target (at level 60, +0.429 spell power)",
+			human:   "47–58 healing to the friendly target (at level 60, +0.429 spell power)",
 			literal: "E_HEAL base=51 ppl=0.9 variance=0.19607843 sp=0.429 amplitude=1 target=[21,0]",
 		},
 		{
@@ -106,6 +107,55 @@ func TestEffectLines(t *testing.T) {
 			effect:  1,
 			human:   "+139 attack power to the party around the caster (at level 60)",
 			literal: "E_APPLY_AURA A_MOD_ATTACK_POWER base=139 ppl=0.6 radius=20 target=[20,0]",
+		},
+		{
+			name:    "crit on the attacks made with a melee weapon",
+			id:      12320,
+			effect:  1,
+			human:   "+5% physical crit, per weapon: only attacks made with a melee weapon",
+			literal: "E_APPLY_AURA A_MOD_WEAPON_CRIT_PERCENT base=5 target=[1,0]",
+		},
+		{
+			name:    "hit on the off hand's attacks, by the hand bit",
+			id:      1323963,
+			effect:  1,
+			human:   "+10% physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand",
+			literal: "E_APPLY_AURA A_MOD_HIT_CHANCE base=10 sp=1 target=[1,0]",
+		},
+		{
+			name:    "crit on everything while a melee weapon is equipped",
+			id:      16255,
+			effect:  1,
+			human:   "+1% physical and spell crit, while a melee weapon is equipped: every spell and attack",
+			literal: "E_APPLY_AURA A_MOD_CRIT_PCT base=1 target=[1,0]",
+		},
+		{
+			name:    "crit on everything with ranged weapons alone, which is per weapon",
+			id:      1310308,
+			effect:  1,
+			human:   "+2% physical crit, ranged weapons only: attacks made with a bow, gun or crossbow",
+			literal: "E_APPLY_AURA A_MOD_CRIT_PCT base=2 target=[1,0]",
+		},
+		{
+			name:    "hit taken off the enemy, whose weapon requirement is the cast's",
+			id:      3043,
+			effect:  1,
+			human:   "-2% physical hit to the enemy (the weapon requirement only gates casting)",
+			literal: "E_APPLY_AURA A_MOD_HIT_CHANCE base=-2 sp=1 target=[6,0]",
+		},
+		{
+			name:    "hit rating off its melee, ranged and spell bits",
+			id:      1299734,
+			effect:  1,
+			human:   "+5 hit rating",
+			literal: "E_APPLY_AURA A_MOD_RATING base=5 misc=224 target=[1,0]",
+		},
+		{
+			name:    "the expertise bit",
+			id:      1301076,
+			effect:  1,
+			human:   "+12 expertise rating",
+			literal: "E_APPLY_AURA A_MOD_RATING base=12 misc=8388608 target=[1,0]",
 		},
 		{
 			name:    "a shape no branch words",
@@ -151,7 +201,7 @@ func TestHeader(t *testing.T) {
 				{"cost", "10 rage"},
 				{"range", "5 yd"},
 				{"stance", "Battle, Defensive"},
-				{"equip", "needs a melee weapon"},
+				{"equip", "needs a melee weapon in the main hand"},
 				{"attrs", "refund on miss, periodic can crit"},
 				{"labels", "25"},
 			},
@@ -183,6 +233,25 @@ func TestHeader(t *testing.T) {
 				{"equip", "needs a shield"},
 				{"charges", "2"},
 				{"labels", "25"},
+			},
+		},
+		{
+			name: "one-handers in the off hand, by the hand bit",
+			id:   23584,
+			want: []field{
+				{"school", "physical"},
+				{"equip", "needs a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand"},
+				{"attrs", "passive"},
+				{"labels", "25"},
+			},
+		},
+		{
+			name: "every ranged weapon but the wand, named one by one",
+			id:   450403,
+			want: []field{
+				{"school", "physical"},
+				{"equip", "needs a bow, gun, thrown or crossbow"},
+				{"attrs", "passive"},
 			},
 		},
 		{
@@ -341,5 +410,32 @@ func TestParseArgs(t *testing.T) {
 	}
 	if _, err := parseArgs(nil); err == nil {
 		t.Error("parseArgs with no arguments wants a usage error")
+	}
+}
+
+// A rating row bound to some attacks words what the parse converts: the store states none, so the rows
+// are built here.
+func TestScopedRatingLines(t *testing.T) {
+	rating := func(mask int32, points float64) spelldata.Effect {
+		return spelldata.Effect{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RATING, Misc: mask, BasePoints: points,
+			Target: [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}}
+	}
+	cases := []struct {
+		name string
+		row  spelldata.Spell
+		want string
+	}{
+		{"ranged hit rating alone", spelldata.Spell{Effects: []spelldata.Effect{rating(64, 20)}},
+			"+20 hit rating, ranged attacks only, worth +2% hit"},
+		{"ranged crit and haste rating", spelldata.Spell{Effects: []spelldata.Effect{rating(512|262144, 28)}},
+			"+28 crit and haste rating, ranged attacks only, worth +2% crit; the haste rating is not read"},
+		{"hit and crit rating with a dagger", spelldata.Spell{EquipClass: dbcenums.ITEM_CLASS_WEAPON,
+			EquipSubclass: dbcenums.ITEM_SUBCLASS_BIT_WEAPON_DAGGERS, Effects: []spelldata.Effect{rating(32|256, 14)}},
+			"+14 hit and crit rating, per weapon: only attacks made with a dagger, worth +1.4% hit and +1% crit"},
+	}
+	for _, c := range cases {
+		if got := humanise(&c.row, &c.row.Effects[0]); got != c.want {
+			t.Errorf("%s: %q, want %q", c.name, got, c.want)
+		}
 	}
 }

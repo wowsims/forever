@@ -29,7 +29,7 @@
 	}
 
 	.ui-timeline-hover-tooltip {
-		@apply pointer-events-none fixed z-1000 max-h-[80vh] max-w-[min(94vw,68rem)] overflow-hidden border border-solid border-(--tooltip-border) bg-(--tooltip-bg) px-(--tooltip-body-padding-x) py-(--tooltip-body-padding-y) text-(--tooltip-body-color);
+		@apply pointer-events-none fixed z-tooltip max-h-[80vh] max-w-[min(94vw,68rem)] overflow-hidden border border-solid border-(--tooltip-border) bg-(--tooltip-bg) px-(--tooltip-body-padding-x) py-(--tooltip-body-padding-y) text-sm text-(--tooltip-body-color);
 		left: calc(var(--tooltip-x, 0) * 1px);
 		top: calc(var(--tooltip-y, 0) * 1px);
 	}

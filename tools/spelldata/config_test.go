@@ -150,3 +150,27 @@ func TestConfigText(t *testing.T) {
 		}
 	}
 }
+
+func TestConfigCastRequirement(t *testing.T) {
+	for _, c := range []struct {
+		pkg, family string
+		want        []string
+	}{
+		{"warrior", "ShieldBash", []string{"CastRequirement.Forms  ", "0x30000 (Battle, Defensive)", "CastRequirement.NotShapeshifted", "CastRequirement.Shield  "}},
+		{"warrior", "Charge", []string{"CastRequirement.Forms  ", "0x10000 (Battle)", "CastRequirement.NotInCombat  "}},
+		{"warrior", "SpearingStrike", []string{"173555 (melee weapon)", "ProcMaskMeleeMHAuto | ProcMaskMeleeMHSpecial"}},
+		{"hunter", "AimedShot", []string{"CastRequirement.Weapon.SubclassMask", "262156 (bow, gun or crossbow)"}},
+		{"druid", "Wrath", []string{"0x40000000 (Moonkin)", "CastRequirement.ExcludedForms", "0x2 (Tree of Life)", "CastRequirement.CasterForm  "}},
+	} {
+		var out bytes.Buffer
+		call := "spelldata.SpellConfig(&" + c.pkg + ".Unit, spellData." + c.family + ".Highest())"
+		if err := run([]string{"-config", call, "-package", c.pkg}, &out); err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range c.want {
+			if !strings.Contains(out.String(), want) {
+				t.Errorf("-config %s lacks %q:\n%s", c.family, want, out.String())
+			}
+		}
+	}
+}

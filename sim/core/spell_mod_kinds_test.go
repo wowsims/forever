@@ -149,6 +149,46 @@ func TestRangeFlatMod(t *testing.T) {
 	}
 }
 
+func TestRangePctMod(t *testing.T) {
+	spell := &Spell{MaxRange: 30, RangeMultiplier: 1}
+	mod := newTestMod(SpellModConfig{Kind: SpellMod_Range_Pct, FloatValue: 0.1}, spell)
+
+	mod.Activate()
+	if !WithinToleranceFloat64(1.1, spell.RangeMultiplier, 1e-9) {
+		t.Errorf("range multiplier with the mod active: %v, want 1.1", spell.RangeMultiplier)
+	}
+
+	mod.UpdateFloatValue(0.2)
+	if !WithinToleranceFloat64(1.2, spell.RangeMultiplier, 1e-9) {
+		t.Errorf("range multiplier after updating the mod: %v, want 1.2", spell.RangeMultiplier)
+	}
+
+	mod.Deactivate()
+	if !WithinToleranceFloat64(1, spell.RangeMultiplier, 1e-9) {
+		t.Errorf("range multiplier after removing the mod: %v, want 1", spell.RangeMultiplier)
+	}
+}
+
+// The flat mod moves MaxRange and the percentage one the multiplier, so the two leave the spell as
+// they found it whatever order they come and go in.
+func TestRangeFlatAndPctModsRemoveInAnyOrder(t *testing.T) {
+	spell := &Spell{MaxRange: 30, RangeMultiplier: 1}
+	pct := newTestMod(SpellModConfig{Kind: SpellMod_Range_Pct, FloatValue: 0.1}, spell)
+	flat := newTestMod(SpellModConfig{Kind: SpellMod_Range_Flat, FloatValue: 5}, spell)
+
+	pct.Activate()
+	flat.Activate()
+	if got := spell.MaxRange * spell.RangeMultiplier; !WithinToleranceFloat64(38.5, got, 1e-9) {
+		t.Errorf("range with both mods active: %v, want 38.5", got)
+	}
+
+	pct.Deactivate()
+	flat.Deactivate()
+	if spell.MaxRange != 30 || !WithinToleranceFloat64(1, spell.RangeMultiplier, 1e-9) {
+		t.Errorf("range after removing both mods: %v x %v, want 30 x 1", spell.MaxRange, spell.RangeMultiplier)
+	}
+}
+
 // The direct-only bucket reaches direct hits and leaves ticks at the shared additive bucket.
 func TestDirectDamageDoneFlatMod(t *testing.T) {
 	sim := SetupFakeSim()
@@ -214,6 +254,17 @@ func TestRangeFlatModRefusesToEmptyTheRange(t *testing.T) {
 
 	spell := &Spell{MaxRange: 5}
 	newTestMod(SpellModConfig{Kind: SpellMod_Range_Flat, FloatValue: -5}, spell).Activate()
+}
+
+func TestRangePctModRefusesToEmptyTheRange(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("a mod taking the range multiplier to 0 did not panic")
+		}
+	}()
+
+	spell := &Spell{MaxRange: 30, RangeMultiplier: 1}
+	newTestMod(SpellModConfig{Kind: SpellMod_Range_Pct, FloatValue: -1}, spell).Activate()
 }
 
 // Every rank of a family points at one aura and a class mask names every rank, so the value lands on

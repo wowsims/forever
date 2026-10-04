@@ -1,15 +1,16 @@
 import { useApl } from '@features/apl/context/AplContext';
 import { type ACTION_ID_SET, actionIdSets } from '@features/apl/model/action_id_sets';
 import type { DEFAULT_UNIT_REF } from '@features/apl/model/field_descriptors';
+import { pathChoices, type PathOption } from '@features/apl/model/submenus';
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
+import type { InputConfig } from '@features/inputs/input';
 import { ActionID, UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
+import { useActionId } from '@sim/hooks/useActionId';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { useUnitMetadataVersion } from '@sim/hooks/useUnitMetadataVersion';
 import type { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
 import { subscribeAll, subscribeUnitMetadata } from '@sim/state/subscriptions';
-import { DropdownField, type DropdownOption } from '@ui-kit/DropdownPicker';
-import { useActionId } from '@ui-kit/hooks/useActionId';
-import type { InputConfig } from '@ui-kit/input';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ActionIdIcon } from './ActionIdIcon';
@@ -33,14 +34,14 @@ const sameActionId = (a: ActionId | undefined, b: ActionId | undefined) => (a ==
 /**
  * The spell or aura a field names.
  *
- * Two things it does beyond binding a dropdown:
+ * Two things it does beyond binding a choice field:
  *
  * - **The option list is asynchronous and follows a unit.** `getActionIDs` reads the metadata of
  *   whatever `unitRefField` points at; the effect's cleanup is what discards a stale await, and the
  *   dependency array is what stops a rotation edit that leaves the unit alone re-reading anything.
  *   A metadata *notification* still forces a refetch, because metadata is mutated in place.
  * - **A selection the list does not contain still shows.** It becomes an extra option, and an id
- *   with no ids at all deliberately matches nothing so the picker falls back to its default label.
+ *   with no ids at all deliberately matches nothing so the picker falls back to its placeholder.
  */
 export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defaultUnitRef, getParentValue }: ActionIdFieldProps) => {
 	const set = actionIdSets[actionIdSet];
@@ -64,7 +65,7 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 	// is what forces the refetch off the notification instead.
 	const metadataEpoch = useUnitMetadataVersion(player.sim);
 
-	const [available, setAvailable] = useState<Array<DropdownOption<ActionId>>>([]);
+	const [available, setAvailable] = useState<Array<PathOption<ActionId>>>([]);
 	const { metadata } = view;
 	useEffect(() => {
 		if (!metadata) return;
@@ -73,16 +74,17 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 			if (!live) return;
 			setAvailable(
 				values
-					// The four `headerText` entries in `action_id_sets.ts` are list padding: they name no
-					// action and have never rendered.
-					.filter(value => !value.headerText)
 					// An entry the sim only accepts in the other list is not offered at all, so no user
 					// action can build a rotation out of one; see `ActionIdOption.listScope`.
 					.filter(value => !value.listScope || value.listScope === (isPrepull ? 'prepull' : 'priority'))
 					.map(value => ({
 						value: value.value,
-						label: value.value.name,
-						icon: <ActionIdIcon actionId={value.value} useBuffAura={useBuffAura} />,
+						label: (
+							<>
+								<ActionIdIcon actionId={value.value} useBuffAura={useBuffAura} />
+								{value.value.name}
+							</>
+						),
 						submenu: value.submenu,
 						tooltip: value.tooltip,
 					})),
@@ -97,13 +99,29 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 	const isMissing = selected.anyId() != 0 && !available.some(option => sameActionId(option.value, selected));
 	const { name: missingName } = useActionId(isMissing ? selected : undefined);
 
-	const options = useMemo(
-		() =>
+	const choices = useMemo(() => {
+		const built = pathChoices(
 			isMissing
-				? [...available, { value: selected, label: missingName, icon: <ActionIdIcon actionId={selected} useBuffAura={useBuffAura} /> }]
+				? [
+						...available,
+						{
+							value: selected,
+							label: (
+								<>
+									<ActionIdIcon actionId={selected} useBuffAura={useBuffAura} />
+									{missingName}
+								</>
+							),
+						},
+					]
 				: available,
-		[available, isMissing, selected, missingName, useBuffAura],
-	);
+			sameActionId,
+		);
+		// A truthy optionTree even with no submenu paths: the list arrives async, and picking the
+		// menu by optionTree presence would swap the select trigger for the menu one the moment the
+		// first submenu-bearing batch lands.
+		return { options: built.options, optionTree: built.optionTree ?? (() => built.options) };
+	}, [available, isMissing, selected, missingName, useBuffAura]);
 
 	const boundConfig = {
 		...config,
@@ -115,13 +133,14 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 	};
 
 	return (
-		<DropdownField<Player<any>, ActionID, ActionId>
+		<ConnectedChoiceField<Player<any>, ActionID, ActionId>
 			modObject={player}
 			config={boundConfig}
-			options={options}
+			options={choices.options}
+			optionTree={choices.optionTree}
 			equals={sameActionId}
-			defaultLabel={set.defaultLabel}
-			triggerClassName="p-0"
+			variant="link"
+			placeholder={set.defaultLabel}
 		/>
 	);
 };

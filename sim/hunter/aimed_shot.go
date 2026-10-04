@@ -6,14 +6,13 @@ import (
 )
 
 var aimedShotRank = spellData.AimedShot.Highest()
-var aimedShotBonusDamage = aimedShotRank.DamageEffect().Average(core.CharacterLevel)
 
 func (hunter *Hunter) registerAimedShot() {
 	config := spelldata.SpellConfig(&hunter.Unit, aimedShotRank, spelldata.Melee(core.ProcMaskRangedSpecial))
 	hunter.hasteRangedCast(&config)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := aimedShotBonusDamage + hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target))
+		baseDamage := aimedShotRank.WeaponStrike(sim, spell, hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target)), 0)
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedHitAndCrit)
 
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {

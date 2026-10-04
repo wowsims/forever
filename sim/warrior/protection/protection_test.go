@@ -75,7 +75,7 @@ var DefaultOptions = &proto.Player_ProtectionWarrior{
 	},
 }
 
-var DefaultProtectionTalents = "05--552531233311210531"
+var DefaultProtectionTalents = "05--255533121331021351"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	PotId:       13455, // Greater Stoneshield Potion

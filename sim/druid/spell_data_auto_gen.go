@@ -73,6 +73,7 @@ type generatedSpellData struct {
 	ImprovedMoonfire          spelldata.Ladder
 	ImprovedRegrowth          spelldata.Ladder
 	ImprovedRejuvenation      spelldata.Ladder
+	ImprovedShiftingPower     spelldata.Ladder
 	ImprovedStarfire          spelldata.Ladder
 	ImprovedStarfireTriggered spelldata.Ladder
 	ImprovedThorns            spelldata.Ladder
@@ -80,7 +81,6 @@ type generatedSpellData struct {
 	ImprovedWrath             spelldata.Ladder
 	Innervate                 spelldata.Ladder
 	InsectSwarm               spelldata.Ladder
-	KingOfTheJungle           spelldata.Ladder
 	Lacerate                  spelldata.Ladder
 	LeaderOfThePack           spelldata.Ladder
 	LeaderOfThePackTriggered  spelldata.Ladder
@@ -138,8 +138,6 @@ type generatedSpellData struct {
 	TeleportMoonglade         spelldata.Ladder
 	ThickHide                 spelldata.Ladder
 	Thorns                    spelldata.Ladder
-	TigersFury                spelldata.Ladder
-	TigersFuryTriggered       spelldata.Ladder
 	TrackHumanoids            spelldata.Ladder
 	TranquilSpirit            spelldata.Ladder
 	Tranquility               spelldata.Ladder
@@ -207,6 +205,7 @@ var spellData = generatedSpellData{
 	ImprovedMoonfire:          spelldata.Talent(16821, 2),
 	ImprovedRegrowth:          spelldata.Talent(17074, 5),
 	ImprovedRejuvenation:      spelldata.Talent(17111, 3),
+	ImprovedShiftingPower:     spelldata.Talent(1322670, 2),
 	ImprovedStarfire:          spelldata.Talent(16850, 5),
 	ImprovedStarfireTriggered: spelldata.Ranked(16922),
 	ImprovedThorns:            spelldata.Ranked(16836, 16839, 16840),
@@ -214,7 +213,6 @@ var spellData = generatedSpellData{
 	ImprovedWrath:             spelldata.Talent(16814, 5),
 	Innervate:                 spelldata.Ranked(29166),
 	InsectSwarm:               spelldata.Ranked(5570, 24974, 24975, 24976, 24977),
-	KingOfTheJungle:           spelldata.Talent(417046, 3),
 	Lacerate:                  spelldata.Ranked(414644, 1235826, 1235827),
 	LeaderOfThePack:           spelldata.Ranked(17007),
 	LeaderOfThePackTriggered:  spelldata.Ranked(24932),
@@ -272,8 +270,6 @@ var spellData = generatedSpellData{
 	TeleportMoonglade:         spelldata.Ranked(18960),
 	ThickHide:                 spelldata.Talent(16929, 3),
 	Thorns:                    spelldata.Ranked(467, 782, 1075, 8914, 9756, 9910),
-	TigersFury:                spelldata.Ranked(5217),
-	TigersFuryTriggered:       spelldata.Ranked(417046),
 	TrackHumanoids:            spelldata.Ranked(5225),
 	TranquilSpirit:            spelldata.Talent(24968, 5),
 	Tranquility:               spelldata.Ranked(740, 8918, 9862, 9863),

@@ -201,8 +201,8 @@ type Effect struct {
 	// keeps the answer the same for an effect whose spell the store does not carry.
 	BaseLevel, MaxLevel int16
 
-	// EffectVariance: the spread the server rolls the amount over, as min/max = average * (1 -/+
-	// Variance/2). Zero on an effect that does not roll.
+	// EffectVariance: the spread the amount rolls over, |BasePoints| * Variance/2 either side of the
+	// base points, plus the per-level gain (Min, Max). Zero on an effect that does not roll.
 	Variance float64
 
 	// EffectBonusCoefficient and BonusCoefficientFromAP: the share of spell power and attack power the
@@ -220,9 +220,9 @@ type Effect struct {
 	// SpellRadius through EffectRadiusIndex_0.
 	RadiusMin, RadiusMax float32
 
-	// EffectMiscValue_0/_1. What they mean is the aura's business: a stat for
-	// A_MOD_TOTAL_STAT_PERCENTAGE, a school mask for A_MOD_DAMAGE_DONE, a modifier op for
-	// A_ADD_PCT_MODIFIER.
+	// EffectMiscValue_0/_1. What they mean is the aura's business: a stat for A_MOD_STAT, a stat
+	// mask in the second for A_MOD_TOTAL_STAT_PERCENTAGE (TotalStatPercentStats reads it), a school
+	// mask for A_MOD_DAMAGE_DONE, a modifier op for A_ADD_PCT_MODIFIER.
 	Misc, Misc2 int32
 
 	// EffectSpellClassMask_0..3 with the owning spell's family: the spells this effect modifies.
@@ -257,7 +257,7 @@ type Power struct {
 	// ManaCost and ManaCostPerLevel, in the bar's own units.
 	Cost, CostPerLevel int32
 
-	// PowerCostPct: the share of the caster's maximum the cast takes instead of a flat amount.
+	// PowerCostPct: the share of the caster's base the cast takes instead of a flat amount.
 	CostPct float32
 
 	// ManaPerSecond, for a channel that drains while it runs.

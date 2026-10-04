@@ -122,10 +122,10 @@ func bulkSimCandidateIsCulled(metrics *proto.DistributionMetrics, bestMetrics *p
 	return candidateUpperBound < bestLowerBound
 }
 
-// bulkSimZ95 is the two-sided 95% z threshold; the same value the UI's significance test
-// (zTest in ui/core/utils.ts) uses, so backend separation decisions and frontend display
-// agree on what counts as "different".
-const bulkSimZ95 = 1.96
+// BulkSimZ95 is the two-sided 95% z threshold. gen_db -gen=go-to-ts writes it to the UI as
+// BULK_SIM_Z95, which Z_95 and zTest in ui/sim/utils/math.ts read, so backend separation decisions
+// and frontend display agree on what counts as "different".
+const BulkSimZ95 = 1.96
 
 func bulkSimUnresolvedFinalistPair(sortedFinalists []*BulkSimCandidateResult) bool {
 	for idx := 0; idx+1 < len(sortedFinalists); idx++ {
@@ -134,7 +134,7 @@ func bulkSimUnresolvedFinalistPair(sortedFinalists []*BulkSimCandidateResult) bo
 		if !ok || pairedError == 0 {
 			continue
 		}
-		if math.Abs(upper.DpsMetrics.Avg-lower.DpsMetrics.Avg) <= bulkSimZ95*pairedError {
+		if math.Abs(upper.DpsMetrics.Avg-lower.DpsMetrics.Avg) <= BulkSimZ95*pairedError {
 			return true
 		}
 	}

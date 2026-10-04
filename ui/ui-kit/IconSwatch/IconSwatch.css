@@ -1,0 +1,18 @@
+@layer components {
+	.ui-icon-picker-swatch {
+		@apply relative block size-10 min-w-10 border border-border bg-grey bg-cover [transition:border-color_0.15s_ease-in-out] data-active:border-success;
+
+		/* A disabled field already dims everything in it, its swatch included. */
+		&[data-disabled]:not(.ui-field[data-disabled] *) {
+			@apply opacity-50;
+		}
+	}
+
+	.ui-icon-swatch-text {
+		@apply pointer-events-none absolute inset-x-0 bottom-0 bg-scrim text-center text-2xs font-bold whitespace-nowrap text-success;
+	}
+
+	.ui-icon-swatch-box {
+		@apply relative size-10 shrink-0;
+	}
+}

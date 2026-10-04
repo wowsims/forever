@@ -23,7 +23,7 @@ func TestAConsumableIsTypedByTheCategoryItsOnUseShares(t *testing.T) {
 		{"Thistle Tea, category 1153 on the item over its spell's 60", 7676, dbc.CONJURED_SPELL_CATEGORY, proto.ConsumableType_ConsumableTypeConjured},
 		{"Demonic Rune, not a Consumable-class item", 12662, dbc.CONJURED_SPELL_CATEGORY, proto.ConsumableType_ConsumableTypeConjured},
 		{"Keg of Thunderbrew, an Other-subclass drink", 1262, dbc.DRINK_SPELL_CATEGORY, proto.ConsumableType_ConsumableTypeFood},
-		{"Mageblood Elixir, a Potion-subclass item on category 79", 20007, 79, proto.ConsumableType_ConsumableTypePotion},
+		{"Mageblood Elixir, an Elixir-subclass item on category 2593", 20007, 2593, proto.ConsumableType_ConsumableTypeElixir},
 		{"Gift of Arthas, an elixir on category 79", 9088, 79, proto.ConsumableType_ConsumableTypeElixir},
 	} {
 		catalogued, ok := instance.Consumables[tc.id]

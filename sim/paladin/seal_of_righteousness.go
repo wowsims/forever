@@ -59,11 +59,11 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		BonusCoefficient: judgeDamage.Coeff(),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
 		},
 	})
 
-	value := perHit.Average(core.CharacterLevel)
+	value := perHit.Average()
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: sealOfRighteousnessProcIDs[rank.RankNumber()]},
 		SpellSchool: core.SpellSchoolHoly,

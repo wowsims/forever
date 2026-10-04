@@ -1,44 +1,19 @@
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
-import type { SavedTalents as SavedTalentsProto } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { useSimHost, useSpecPresets } from '@sim/context/SimHostContext';
-import { useSimReady } from '@sim/hooks/useSimReady';
-import type { SavedDataPanelEntry } from '@ui-kit/SavedDataPanel';
 import { SavedDataPanel } from '@ui-kit/SavedDataPanel';
-import { useMemo } from 'react';
 
 import { useSavedTalents } from '../../hooks/useSavedTalents';
 import { useTalents } from '../../hooks/useTalents';
-import { serializeTalents } from './utils';
+import { loadTalents, serializeTalents, talentPresets } from './utils';
 
 export const SavedTalents = () => {
-	const host = useSimHost();
-	const { player } = host;
-	const individualConfig = useSpecPresets();
-	const ready = useSimReady();
-
-	const label = i18n.t('talents_tab.saved_talents.label');
-
-	const presets = useMemo<Array<SavedDataPanelEntry<SavedTalentsProto>>>(
-		() =>
-			ready
-				? individualConfig.talents.map(preset => ({
-						name: preset.name,
-						data: preset.data,
-						json: serializeTalents(preset.data),
-						isPreset: true,
-						afterLoad: () => preset.onLoad?.(player),
-					}))
-				: [],
-		[ready, individualConfig, player],
-	);
-
 	const panel = useSavedPanel({
-		label,
+		label: i18n.t('talents_tab.saved_talents.label'),
 		storage: useSavedTalents(),
 		current: useTalents(),
 		serialize: serializeTalents,
-		load: entry => player.setTalentsString(entry.data.talentsString),
+		load: loadTalents,
+		presets: talentPresets,
 	});
 
 	return (
@@ -50,7 +25,6 @@ export const SavedTalents = () => {
 			deleteConfirmMessage={i18n.t('talents_tab.saved_talents.delete.confirm')}
 			chooseNameAlert={i18n.t('talents_tab.saved_talents.alerts.choose_name')}
 			nameExistsAlert={i18n.t('talents_tab.saved_talents.alerts.name_exists')}
-			presets={presets}
 			{...panel}
 		/>
 	);

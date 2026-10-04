@@ -25,6 +25,8 @@ import {
 	Stat,
 	UnitReference,
 	UnitStats,
+	WeaponSkill,
+	WeaponSkillValue,
 } from '@generated/proto/common';
 import { SimDatabase } from '@generated/proto/db';
 import {
@@ -53,18 +55,23 @@ import { Stats, UnitStat } from '../proto/stats';
 import { AL_CATEGORY_HARD_MODE, emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
 import { MAX_PARTY_SIZE, Party } from '../raid/party';
 import { Raid } from '../raid/raid';
-import { ConsumableSlot, relevantConsumableIds } from '../settings/consumables';
+import { ConsumableSlot, isEnchantRelevantFor, relevantConsumableIds } from '../settings/consumables';
 import { ItemSwapSettings } from '../settings/item_swap_settings';
 import { Sim } from '../sim';
 import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
 import { playerTalentStringToProto } from '../talents/factory';
-import { omitDeep, stringComparator } from '../utils/collections';
+import { arrayEquals, omitDeep, stringComparator } from '../utils/collections';
 import { sum } from '../utils/math';
 import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
 import { PlayerSpec } from './player_spec';
 import { PlayerSpecs } from './specs';
+
+export const MAX_WEAPON_SKILL = Mechanics.CHARACTER_LEVEL * 5;
+
+export const weaponSkillValue = (weaponSkills: ReadonlyArray<WeaponSkillValue>, skill: WeaponSkill): number =>
+	weaponSkills.find(entry => entry.skill == skill)?.value ?? MAX_WEAPON_SKILL;
 
 export interface AuraStats {
 	data: AuraStatsProto;
@@ -74,6 +81,23 @@ export interface SpellStats {
 	data: SpellStatsProto;
 	id: ActionId;
 }
+
+/**
+ * Drops the rank from every id no other entry shares at another rank, so only a spell the sim
+ * registers at several ranks reads "(Rank N)" and gets a rank submenu. Entries are the same spell
+ * when they share the base name and the tag.
+ */
+const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> => {
+	const keyOf = (id: ActionId) => `${id.baseName}|${id.tag}`;
+	const ranks = new Map<string, Set<number>>();
+	for (const { id } of entries) {
+		if (!id.hasRank) continue;
+		const key = keyOf(id);
+		if (!ranks.has(key)) ranks.set(key, new Set());
+		ranks.get(key)!.add(id.rank);
+	}
+	return entries.map(entry => (entry.id.hasRank && ranks.get(keyOf(entry.id))!.size < 2 ? { ...entry, id: entry.id.withoutRank() } : entry));
+};
 
 export class UnitMetadata {
 	private name: string;
@@ -115,8 +139,8 @@ export class UnitMetadata {
 
 		await Promise.all([...newSpells, ...newAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
 
-		newSpells = newSpells.sort((a, b) => stringComparator(a.id.name, b.id.name));
-		newAuras = newAuras.sort((a, b) => stringComparator(a.id.name, b.id.name));
+		newSpells = dropLoneRanks(newSpells).sort((a, b) => stringComparator(a.id.name, b.id.name));
+		newAuras = dropLoneRanks(newAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
 
 		let anyUpdates = false;
 		if (metadata.name != this.name) {
@@ -201,6 +225,7 @@ export interface SpecConfigData<SpecType extends Spec> extends PlayerConfig<Spec
 	// Override for required talent rows. If unset, all rows [0..5] are required.
 	requiredTalentRows?: number[];
 	epStats: Array<Stat>;
+	epPseudoStats?: Array<PseudoStat>;
 	consumableStats?: Array<Stat>;
 	gemStats?: Array<Stat>;
 	// Per-spec override for the default EP ratios; must be exactly numEpRatios long.
@@ -219,7 +244,7 @@ export function registerSpecConfig<SpecType extends Spec>(spec: SpecType, config
 	SPEC_CONFIGS[spec] = config;
 }
 
-export function getSpecConfig<SpecType extends Spec>(spec: SpecType): PlayerConfig<SpecType> {
+function getSpecConfig<SpecType extends Spec>(spec: SpecType): PlayerConfig<SpecType> {
 	const config = SPEC_CONFIGS[spec] as PlayerConfig<SpecType>;
 	if (!config) {
 		throw new Error('No config registered for Spec: ' + spec);
@@ -323,6 +348,8 @@ export class Player<SpecType extends Spec> {
 			race: this.playerClass.races[0],
 			profession1: 0,
 			profession2: 0,
+			prof1Rank: 0,
+			prof2Rank: 0,
 			buffs: IndividualBuffs.create(),
 			consumables: ConsumesSpec.create(),
 			bonusStats: new Stats(),
@@ -333,6 +360,7 @@ export class Player<SpecType extends Spec> {
 			channelClipDelay: 0,
 			inFrontOfTarget: false,
 			distanceFromTarget: 0,
+			weaponSkills: [],
 			healingModel: HealingModel.create(),
 			epWeights: new Stats(),
 			epRatios: new Array<number>(Player.numEpRatios).fill(0),
@@ -632,7 +660,7 @@ export class Player<SpecType extends Spec> {
 	}
 	setProfession1(newProfession: Profession) {
 		if (newProfession != this.getProfession1()) {
-			this.patch('profession1', newProfession);
+			this.write({ profession1: newProfession, prof1Rank: 0 }, ['profession1', 'prof1Rank']);
 		}
 	}
 	getProfession2(): Profession {
@@ -640,7 +668,7 @@ export class Player<SpecType extends Spec> {
 	}
 	setProfession2(newProfession: Profession) {
 		if (newProfession != this.getProfession2()) {
-			this.patch('profession2', newProfession);
+			this.write({ profession2: newProfession, prof2Rank: 0 }, ['profession2', 'prof2Rank']);
 		}
 	}
 	getProfessions(): Array<Profession> {
@@ -652,8 +680,16 @@ export class Player<SpecType extends Spec> {
 			this.setProfession2(newProfessions[1] || Profession.ProfessionUnknown);
 		});
 	}
-	hasProfession(prof: Profession): boolean {
-		return this.getProfessions().includes(prof);
+	// Skill ranks in profession1 and profession2; 0 is the maximum.
+	setProfessionRanks(prof1Rank: number, prof2Rank: number) {
+		const current = this.slice();
+		const changed = [...(prof1Rank != current.prof1Rank ? ['prof1Rank' as const] : []), ...(prof2Rank != current.prof2Rank ? ['prof2Rank' as const] : [])];
+		if (changed.length) this.write({ prof1Rank, prof2Rank }, changed);
+	}
+	hasProfession(prof: Profession, rank = 0): boolean {
+		const { profession1, profession2, prof1Rank, prof2Rank } = this.slice();
+		const meets = (held: number, heldRank: number) => held == prof && prof != Profession.ProfessionUnknown && (heldRank == 0 || heldRank >= rank);
+		return meets(profession1, prof1Rank) || meets(profession2, prof2Rank);
 	}
 
 	getFaction(): Faction {
@@ -675,7 +711,8 @@ export class Player<SpecType extends Spec> {
 	getConsumes(forSimming?: boolean): ConsumesSpec {
 		if (forSimming) {
 			const db = this.sim.db;
-			const key = [this.getSpec(), this.getClass(), this.getRace(), this.getProfession1(), this.getProfession2()].join(':');
+			const { prof1Rank, prof2Rank } = this.slice();
+			const key = [this.getSpec(), this.getClass(), this.getRace(), this.getProfession1(), this.getProfession2(), prof1Rank, prof2Rank].join(':');
 			let cache = this.relevantConsumablesCache;
 			if (cache?.key !== key || cache.db !== db) {
 				const consumables = db.getConsumables();
@@ -836,6 +873,10 @@ export class Player<SpecType extends Spec> {
 		};
 	}
 
+	isDualWielding(): boolean {
+		return (this.getGear().getEquippedItem(ItemSlot.ItemSlotOffHand)?.item.weaponSpeed ?? 0) > 0;
+	}
+
 	getMeleeCritCapInfo(): MeleeCritCapInfo {
 		const currentStats = this.slice().currentStats;
 		const debuffStats = this.getDebuffStats();
@@ -845,19 +886,17 @@ export class Player<SpecType extends Spec> {
 		const meleeCrit = (currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeCritPercent] || 0) + debuffCrit;
 		const meleeHit = (currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeHitPercent] || 0) + debuffHit;
 		const expertise = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatExpertisePercent] || 0;
-		const targetLevel = this.sim.encounter.primaryTarget.level;
-		const critSuppression = { 68: 0, 70: 0, 71: 1, 72: 2, 73: 4.8 }[targetLevel] ?? 0;
-		const hitSuppression = { 68: 0, 70: 0, 71: 0, 72: 0, 73: 1 }[targetLevel] ?? 0;
-		const glancing = { 68: 0, 70: 6, 71: 12, 72: 18, 73: 24 }[targetLevel] ?? 0;
+		const critSuppression = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeCritSuppressionPercent] || 0;
+		const glancing = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandGlancePercent] || 0;
 
-		const oneHandHitCap = ({ 68: 4, 70: 5, 71: 6, 72: 7, 73: 8 }[targetLevel] ?? 4) + hitSuppression;
+		const oneHandHitCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandMissPercent] || 0;
 		// DW Penalty is a fixed 19%
 		const dualWieldHitCap = oneHandHitCap + 19;
-		const hasOffhandWeapon = this.getGear().getEquippedItem(ItemSlot.ItemSlotOffHand)?.item.weaponSpeed !== undefined;
-		// Due to warrior HS bug, hit cap for crit cap calculation should be 8% instead of 27%
+		const hasOffhandWeapon = this.isDualWielding();
+		// Due to warrior HS bug, hit cap for crit cap calculation is the one-hand hit cap, not the dual-wield one
 		const meleeHitCap = hasOffhandWeapon && this.getClass() != Class.ClassWarrior ? dualWieldHitCap : oneHandHitCap;
-		const dodgeCap = { 68: 4, 70: 5, 71: 5.5, 72: 6, 73: 6.5 }[targetLevel] ?? 4;
-		const parryCap = this.getInFrontOfTarget() ? ({ 68: 4, 70: 5, 71: 5.5, 72: 6, 73: 14 }[targetLevel] ?? 4) : 0;
+		const dodgeCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandDodgePercent] || 0;
+		const parryCap = this.getInFrontOfTarget() ? currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandParryPercent] || 0 : 0;
 		const expertiseCap = dodgeCap + parryCap;
 
 		const remainingMeleeHitCap = Math.max(meleeHitCap - meleeHit, 0.0);
@@ -1075,6 +1114,27 @@ export class Player<SpecType extends Spec> {
 		this.patch('distanceFromTarget', newDistanceFromTarget);
 	}
 
+	getWeaponSkills(): Array<WeaponSkillValue> {
+		return this.slice().weaponSkills.map(entry => WeaponSkillValue.clone(entry));
+	}
+
+	setWeaponSkills(newWeaponSkills: Array<WeaponSkillValue>) {
+		const current = this.slice().weaponSkills;
+		const sorted = newWeaponSkills.map(entry => WeaponSkillValue.clone(entry)).sort((a, b) => a.skill - b.skill);
+		if (arrayEquals(sorted, current, WeaponSkillValue.equals)) return;
+
+		this.patch('weaponSkills', sorted);
+	}
+
+	getWeaponSkill(skill: WeaponSkill): number {
+		return weaponSkillValue(this.slice().weaponSkills, skill);
+	}
+
+	setWeaponSkill(skill: WeaponSkill, value: number) {
+		const others = this.slice().weaponSkills.filter(entry => entry.skill != skill);
+		this.setWeaponSkills(value == MAX_WEAPON_SKILL ? others : [...others, WeaponSkillValue.create({ skill, value })]);
+	}
+
 	setDefaultHealingParams(hm: HealingModel) {
 		const boss = this.sim.encounter.primaryTarget;
 		const dualWield = boss.dualWield;
@@ -1161,6 +1221,10 @@ export class Player<SpecType extends Spec> {
 
 	computeWeaponDpsEP(slot: ItemSlot): number {
 		return this.computeStatsEP(getWeaponDpsStatsBySlot(1, slot));
+	}
+
+	isEnchantRelevant(enchant: Enchant): boolean {
+		return isEnchantRelevantFor(enchant, this.getSpecConfig());
 	}
 
 	computeRandomSuffixEP(randomSuffix: ItemRandomSuffix): number {
@@ -1260,15 +1324,13 @@ export class Player<SpecType extends Spec> {
 	};
 
 	static readonly RAID_IDS: Partial<Record<RaidFilterOption, number>> = {
-		[RaidFilterOption.RaidKara]: 3457,
-		[RaidFilterOption.RaidGruul]: 3923,
-		[RaidFilterOption.RaidMag]: 3836,
-		[RaidFilterOption.RaidTK]: 3845,
-		[RaidFilterOption.RaidSSC]: 3607,
-		[RaidFilterOption.RaidMH]: 3606,
-		[RaidFilterOption.RaidBT]: 3959,
-		[RaidFilterOption.RaidZA]: 3805,
-		[RaidFilterOption.RaidSWP]: 4075,
+		[RaidFilterOption.RaidMC]: 2717,
+		[RaidFilterOption.RaidOny]: 2159,
+		[RaidFilterOption.RaidBWL]: 2677,
+		[RaidFilterOption.RaidZG]: 1977,
+		[RaidFilterOption.RaidAQ20]: 3429,
+		[RaidFilterOption.RaidAQ40]: 3428,
+		[RaidFilterOption.RaidNaxx]: 3456,
 	};
 
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
@@ -1401,7 +1463,8 @@ export class Player<SpecType extends Spec> {
 			return enchantData;
 		}
 
-		//const filters = this.sim.getFilters();
+		const filters = this.sim.getFilters();
+		const equippedEffectId = currentEquippedItem.enchant?.effectId;
 
 		return enchantData.filter(enchantElem => {
 			const enchant = getEnchantFunc(enchantElem);
@@ -1410,7 +1473,7 @@ export class Player<SpecType extends Spec> {
 				return false;
 			}
 
-			return true;
+			return filters.showAllEnchants || enchant.effectId === equippedEffectId || this.isEnchantRelevant(enchant);
 		});
 	}
 
@@ -1492,10 +1555,13 @@ export class Player<SpecType extends Spec> {
 				race: this.getRace(),
 				profession1: this.getProfession1(),
 				profession2: this.getProfession2(),
+				prof1Rank: this.slice().prof1Rank,
+				prof2Rank: this.slice().prof2Rank,
 				reactionTimeMs: this.getReactionTime(),
 				channelClipDelayMs: this.getChannelClipDelay(),
 				inFrontOfTarget: this.getInFrontOfTarget(),
 				distanceFromTarget: this.getDistanceFromTarget(),
+				weaponSkills: this.getWeaponSkills(),
 				healingModel: this.getHealingModel(),
 			});
 			player = withSpec(this.getSpec(), player, this.getSpecOptions());
@@ -1542,10 +1608,12 @@ export class Player<SpecType extends Spec> {
 				this.setRace(proto.race);
 				this.setProfession1(proto.profession1);
 				this.setProfession2(proto.profession2);
+				this.setProfessionRanks(proto.prof1Rank, proto.prof2Rank);
 				this.setReactionTime(proto.reactionTimeMs);
 				this.setChannelClipDelay(proto.channelClipDelayMs);
 				this.setInFrontOfTarget(proto.inFrontOfTarget);
 				this.setDistanceFromTarget(proto.distanceFromTarget);
+				this.setWeaponSkills(proto.weaponSkills);
 				this.setHealingModel(proto.healingModel || HealingModel.create());
 			}
 			if (loadCategory(SimSettingCategories.External)) {
@@ -1575,6 +1643,7 @@ export class Player<SpecType extends Spec> {
 				}),
 			);
 			this.setBonusStats(new Stats());
+			this.setWeaponSkills([]);
 		});
 	}
 

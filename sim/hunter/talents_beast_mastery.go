@@ -57,11 +57,9 @@ func (hunter *Hunter) registerUnleashedFury() {
 	}
 
 	spelldata.ParseStatic(&hunter.Character, spellData.UnleashedFury.Rank(hunter.Talents.UnleashedFury))
-	if hunter.Pet == nil {
-		return
+	for _, pet := range hunter.pets() {
+		pet.PseudoStats.DamageDealtMultiplier *= spellData.UnleashedFury.MultiplierAt(hunter.Talents.UnleashedFury)
 	}
-
-	hunter.Pet.PseudoStats.DamageDealtMultiplier *= spellData.UnleashedFury.MultiplierAt(hunter.Talents.UnleashedFury)
 }
 
 // Effect 1 adds to the crit chance of Tamed Pet Passive (19591), which states 0. It names Summon
@@ -72,12 +70,10 @@ func (hunter *Hunter) registerFerocity() {
 	}
 
 	spelldata.ParseStatic(&hunter.Character, spellData.Ferocity.Rank(hunter.Talents.Ferocity))
-	if hunter.Pet == nil {
-		return
-	}
-
 	crit := spellData.Ferocity.ValueAt(hunter.Talents.Ferocity)
-	hunter.Pet.AddStats(stats.Stats{stats.PhysicalCritPercent: crit, stats.SpellCritPercent: crit})
+	for _, pet := range hunter.pets() {
+		pet.AddStats(stats.Stats{stats.PhysicalCritPercent: crit, stats.SpellCritPercent: crit})
+	}
 }
 
 // Effect 1 is the chance of Tamed Pet Passive (20784), which states 0, to cast Frenzy (19615) off

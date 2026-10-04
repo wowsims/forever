@@ -36,14 +36,14 @@ func TestItemProcUnsupported(t *testing.T) {
 		{2800, false, []string{"the trigger carries a class mask"},
 			"a family no class owns still names a set of spells the listener cannot be narrowed to"},
 	} {
-		got := ItemProcUnsupported(Find(tc.spellID), tc.isWeaponProc)
+		got := ItemProcUnsupportedWithRate(Find(tc.spellID), tc.isWeaponProc, 0)
 		if !slices.Equal(got, tc.want) {
 			t.Errorf("spell %d (weapon proc %v): unsupported = %v, want %v - %s",
 				tc.spellID, tc.isWeaponProc, got, tc.want, tc.why)
 		}
 	}
 
-	if got := ItemProcUnsupported(Find(999999), false); len(got) != 1 || got[0] != "no row in the store" {
+	if got := ItemProcUnsupportedWithRate(Find(999999), false, 0); len(got) != 1 || got[0] != "no row in the store" {
 		t.Errorf("unsupported = %v, want the missing row named", got)
 	}
 }
@@ -59,7 +59,7 @@ func TestItemProcUnsupportedCoversTheRegistrationsOwnRefusal(t *testing.T) {
 		t.Fatal("the row the test is built on states a callback after all")
 	}
 
-	if !slices.Contains(ItemProcUnsupported(&row, false), "no callback in the proc mask") {
+	if !slices.Contains(ItemProcUnsupportedWithRate(&row, false, 0), "no callback in the proc mask") {
 		t.Error("a row the sim would not register was called supported")
 	}
 }
@@ -78,7 +78,7 @@ func TestEnchantAuraUnsupported(t *testing.T) {
 	if got := EnchantAuraUnsupported(&spellsOnly); !slices.Equal(got, []string{ReasonPPMHearsNoWeaponHits}) {
 		t.Errorf("unsupported = %v, want the rate refused on a mask of spells", got)
 	}
-	if got := ItemProcUnsupported(&spellsOnly, false); got != nil {
+	if got := ItemProcUnsupportedWithRate(&spellsOnly, false, 0); got != nil {
 		t.Errorf("unsupported = %v, want an item's rate on spells to stand", got)
 	}
 }

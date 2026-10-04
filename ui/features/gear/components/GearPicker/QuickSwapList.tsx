@@ -1,8 +1,9 @@
 import type { UIEnchant as Enchant, UIGem as Gem } from '@generated/proto/ui';
+import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import { Button } from '@ui-kit/Button';
-import { useActionId } from '@ui-kit/hooks/useActionId';
 import { cssVars, itemQualityClassName } from '@ui-kit/utils/css';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import clsx from 'clsx';
 
 export type QuickSwapItem = Gem | Enchant;
@@ -26,15 +27,12 @@ const QuickSwapRow = <T extends QuickSwapItem>({ entry, onItemClick }: { entry: 
 
 	return (
 		<li className="not-last:border-b not-last:border-b-border odd:[&_a]:bg-table-odd">
-			<a
+			<WowheadAnchor
 				href={href || undefined}
 				className="flex cursor-pointer items-center border border-transparent bg-table-even -outline-offset-1 transition-[background-color,color,border] duration-150 ease-in-out focus-visible:outline focus-visible:outline-1 focus-visible:outline-link data-active:border-success pointer-fine:hover:bg-table-row-even-hover"
-				data-testid="tooltip-quick-swap__anchor"
+				testId="tooltip-quick-swap__anchor"
 				data-active={entry.active ? '' : undefined}
-				onClick={event => {
-					event.preventDefault();
-					onItemClick(entry.item);
-				}}>
+				onActivate={() => onItemClick(entry.item)}>
 				<img
 					alt={entry.item.name}
 					className="static inset-gem z-1 mr-1 inline-block size-gem-inner shrink-0 cursor-pointer rounded-none bg-cover bg-center bg-no-repeat"
@@ -45,7 +43,7 @@ const QuickSwapRow = <T extends QuickSwapItem>({ entry, onItemClick }: { entry: 
 				<span className={clsx('truncate text-left', itemQualityClassName(entry.item.quality))} data-testid="tooltip-quick-swap__label">
 					{entry.item.name}
 				</span>
-			</a>
+			</WowheadAnchor>
 		</li>
 	);
 };
@@ -58,7 +56,7 @@ export const QuickSwapList = <T extends QuickSwapItem>({ title, emptyMessage, en
 			{title}
 		</h3>
 		{entries.length ? (
-			<ul className="mb-0 max-h-51.5 list-none gap-0.5 overflow-y-auto pl-0">
+			<ul className="mb-0 max-h-50 list-none gap-px overflow-y-auto pl-0">
 				{entries.map(entry => (
 					<QuickSwapRow key={keyOf(entry.item)} entry={entry} onItemClick={onItemClick} />
 				))}

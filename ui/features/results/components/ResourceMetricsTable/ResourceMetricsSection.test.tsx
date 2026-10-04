@@ -39,14 +39,12 @@ const section = (resultData: SimResultData | null) =>
 	render(<ResourceMetricsSection resourceType={ResourceType.ResourceTypeRage} title="Rage" columns={columns} resultData={resultData} />);
 
 describe('ResourceMetricsSection', () => {
-	it('renders no container at all before any result', () => {
-		const { container } = section(null);
+	it.each([
+		['before any result', null],
+		['when a result produced no rows', resultDataWith([])],
+	])('renders no container %s', (_name, resultData) => {
+		const { container } = section(resultData);
 
-		expect(container.querySelector('[data-testid="resource-metrics-table-container"]')).toBeNull();
-	});
-
-	it('renders no container when a result produced no rows', () => {
-		const { container } = section(resultDataWith([]));
 		expect(container.querySelector('[data-testid="resource-metrics-table-container"]')).toBeNull();
 	});
 
@@ -54,7 +52,6 @@ describe('ResourceMetricsSection', () => {
 		const { container } = section(resultDataWith([resource('Bloodthirst', 10), resource('Whirlwind', 30)]));
 
 		const wrapper = container.querySelector('[data-testid="resource-metrics-table-container"]')!;
-		expect(wrapper.classList.contains('mb-5')).toBe(true);
 		expect(wrapper.querySelector('[data-testid="resource-metrics-table-title"]')?.textContent).toBe('Rage');
 		expect(wrapper.querySelectorAll('[data-testid="resource-metrics-table-root"]')).toHaveLength(1);
 		expect(wrapper.querySelectorAll('thead th')).toHaveLength(6);

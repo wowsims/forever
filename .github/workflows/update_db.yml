@@ -19,8 +19,8 @@ env:
 
 jobs:
     update-db:
-        runs-on: ubuntu-latest
-        timeout-minutes: 30
+        runs-on: self-hosted
+        timeout-minutes: 60
         permissions:
             contents: write
             pull-requests: write
@@ -34,12 +34,19 @@ jobs:
               uses: actions/setup-go@v6
               with:
                   go-version: 1.25.x
+                  cache: false
 
+            # arduino/setup-protoc has no Node 24 release, so protoc comes straight from the protobuf
+            # releases.
             - name: Install Protoc
-              uses: arduino/setup-protoc@v3
-              with:
-                  version: 3.x
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+              env:
+                  PROTOC_VERSION: '36.2'
+              run: |
+                  curl -fsSL -o "$RUNNER_TEMP/protoc.zip" "https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/protoc-$PROTOC_VERSION-linux-x86_64.zip"
+                  rm -rf "$RUNNER_TEMP/protoc"
+                  python3 -m zipfile -e "$RUNNER_TEMP/protoc.zip" "$RUNNER_TEMP/protoc"
+                  chmod +x "$RUNNER_TEMP/protoc/bin/protoc"
+                  echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"
 
             - name: Install Protoc Go plugin
               run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -48,7 +55,6 @@ jobs:
               uses: actions/setup-node@v5
               with:
                   node-version: 22
-                  cache: npm
 
             - name: Install npm dependencies
               run: npm ci
@@ -68,7 +74,7 @@ jobs:
                   echo "version=$version" >> "$GITHUB_OUTPUT"
 
             - name: Cache CDN downloads and definitions 📦
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: |
                       tools/db2tool/cdncache
@@ -90,7 +96,8 @@ jobs:
 
             # db2tool warns (and carries on) when the hotfix cache is for another
             # build than the CDN serves, which happens around a build push; the
-            # pull request says which it was.
+            # pull request says which it was. The spell data change report goes
+            # into the pull request body.
             - name: Extract game files data and regenerate the database 🔧
               id: db
               run: |
@@ -101,6 +108,11 @@ jobs:
                   else
                       echo "hotfixes=$(grep -m1 'Loaded hotfixes' "$RUNNER_TEMP/db.log" | sed 's/.*for build/applied, DBCache.bin for build/')" >> "$GITHUB_OUTPUT"
                   fi
+                  {
+                      echo "report<<REPORT_EOF"
+                      python3 tools/spelldata_report_markdown.py < "$RUNNER_TEMP/db.log" || echo "The spell data change report could not be formatted; the build log has it."
+                      echo "REPORT_EOF"
+                  } >> "$GITHUB_OUTPUT"
 
             # In dependency order: the base stats and spell tables read
             # wowsims.db; the protos pick up the rewritten .proto files; the TS
@@ -120,13 +132,47 @@ jobs:
                   go test ./tools/database/
                   npm run type-check
 
+            # A new build often moves .results numbers, and the pull request is where they are reviewed,
+            # so a failing test still opens it: the summary goes into its body and the job fails after.
+            - name: Run the Go tests 🧪
+              id: tests
+              continue-on-error: true
+              env:
+                  GOARCH: amd64
+              run: |
+                  set -o pipefail
+                  status=0
+                  go list ./sim/... | xargs -r go test --tags=with_db 2>&1 | tee "$RUNNER_TEMP/test.log" || status=1
+                  {
+                      echo "summary<<TESTS_EOF"
+                      if [ "$status" -eq 0 ]; then
+                          echo "All Go tests pass (\`go test --tags=with_db ./sim/...\`)."
+                      else
+                          echo "Go tests fail (\`go test --tags=with_db ./sim/...\`):"
+                          echo
+                          echo '```'
+                          grep -E '^(--- FAIL|FAIL|panic:)' "$RUNNER_TEMP/test.log" | head -n 100 || true
+                          echo '```'
+                      fi
+                      echo "TESTS_EOF"
+                  } >> "$GITHUB_OUTPUT"
+                  exit "$status"
+
+            # Runs even when a step above failed, so the build log always ends with
+            # what the run changed; a failed run opens no pull request to show it.
+            - name: List what changed 📋
+              if: always()
+              run: |
+                  git status --short
+                  git diff --stat
+
             - name: Set date
               id: date
               run: echo "date=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
             - name: Create Pull Request 🚀
               id: pr
-              uses: peter-evans/create-pull-request@v7
+              uses: peter-evans/create-pull-request@v8
               with:
                   branch: update_db
                   delete-branch: true
@@ -138,6 +184,16 @@ jobs:
                       - Build: ${{ steps.build.outputs.version }}
                       - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
                       - Ran `make db --cdn`, `make basestats`, `gen_spelldata`, `make proto` and `go-to-ts`; the Go builds, the generator tests pass and the UI type-checks
+
+                      ${{ steps.tests.outputs.summary }}
+
+                      ${{ steps.db.outputs.report }}
+
+            - name: Fail on the Go tests
+              if: steps.tests.outcome == 'failure'
+              run: |
+                  echo "::error::Go tests fail; the pull request lists them"
+                  exit 1
 
     # The pull request checks do not run for a pull request the workflow token
     # opened, so run the same test suite against the branch here.

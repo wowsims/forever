@@ -1,8 +1,8 @@
+import * as InputHelpers from '@features/inputs/input_helpers';
 import { Spec } from '@generated/proto/common';
 import { FeralBearDruid_Rotation_SwipeUsage as SwipeUsage } from '@generated/proto/druid';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
-import * as InputHelpers from '@ui-kit/input_helpers';
 
 export const StartingRage = InputHelpers.makeSpecOptionsNumberInput<Spec.SpecFeralBearDruid>({
 	fieldName: 'startingRage',

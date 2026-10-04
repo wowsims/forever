@@ -1,3 +1,4 @@
+import { fakeCharts } from '@testing/chart-js-mock';
 import { act, fireEvent, render } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,41 +16,9 @@ interface FakeChart {
 	destroy: () => void;
 }
 
-const charts = vi.hoisted(() => [] as Array<FakeChart>);
+const charts = fakeCharts as Array<FakeChart>;
 
-vi.mock('chart.js', () => ({
-	BarController: class {},
-	BubbleController: class {},
-	DoughnutController: class {},
-	LineController: class {},
-	PieController: class {},
-	PolarAreaController: class {},
-	RadarController: class {},
-	ScatterController: class {},
-	Chart: class {
-		static register() {}
-		data: unknown;
-		updates = 0;
-		destroyed = false;
-		constructor(
-			public canvas: HTMLCanvasElement,
-			public config: { data: unknown; options: unknown },
-		) {
-			this.data = config.data;
-			charts.push(this as never);
-		}
-		// chart.js resolves `options` through a proxy whose set trap writes back to `config.options`.
-		get options() {
-			return this.config.options;
-		}
-		update() {
-			this.updates++;
-		}
-		destroy() {
-			this.destroyed = true;
-		}
-	},
-}));
+vi.mock('chart.js', async () => (await import('@testing/chart-js-mock')).chartJsMock);
 
 const dataset = (seriesId: string, label: string): TimelineDataset =>
 	({
@@ -71,8 +40,11 @@ beforeEach(() => {
 });
 
 describe('TimelineChart', () => {
-	it('shows the waiting state with no spec at all, rather than a blank canvas', () => {
-		const { container } = render(<TimelineChart spec={null} />);
+	it.each([
+		['with no spec at all', null],
+		['for a spec that carries no series', spec()],
+	])('shows the waiting state %s, rather than a blank canvas, and builds no chart', (_name, chartSpec) => {
+		const { container } = render(<TimelineChart spec={chartSpec} />);
 		expect(container.querySelector('[data-testid="timeline-chart-empty"]')).toBeTruthy();
 		expect(container.querySelector('[data-testid="timeline-chart-canvas"]')).toBeNull();
 		expect(charts).toHaveLength(0);
@@ -87,13 +59,6 @@ describe('TimelineChart', () => {
 		expect(container.querySelector('[data-testid="timeline-chart-empty"]')).toBeTruthy();
 		expect(container.querySelector('[data-testid="timeline-chart-canvas"]')).toBeNull();
 		expect(charts[0].destroyed).toBe(true);
-	});
-
-	it('shows the waiting state for a spec that carries no series, and still builds no chart', () => {
-		const { container } = render(<TimelineChart spec={spec()} />);
-		expect(container.querySelector('[data-testid="timeline-chart-empty"]')).toBeTruthy();
-		expect(container.querySelector('[data-testid="timeline-chart-canvas"]')).toBeNull();
-		expect(charts).toHaveLength(0);
 	});
 
 	it('builds one chart from the spec and swaps the empty state out', () => {

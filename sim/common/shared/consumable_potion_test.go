@@ -238,8 +238,8 @@ func TestConjuredRuneAlwaysHitsTheUser(t *testing.T) {
 		rune.SharedCD.Reset()
 		health := drinker.CurrentHealth()
 		rune.Cast(sim, &drinker.Unit)
-		if lost := health - drinker.CurrentHealth(); lost < damage.Min(core.CharacterLevel) {
-			t.Errorf("the rune cost %v health, want at least %v", lost, damage.Min(core.CharacterLevel))
+		if lost := health - drinker.CurrentHealth(); lost < damage.Min() {
+			t.Errorf("the rune cost %v health, want at least %v", lost, damage.Min())
 		}
 		drinker.GainHealth(sim, drinker.MaxHealth(), self.HealthMetrics(&drinker.Unit))
 	}

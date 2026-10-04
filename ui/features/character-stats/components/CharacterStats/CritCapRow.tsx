@@ -1,8 +1,9 @@
 import i18n from '@i18n/config';
 import type { MeleeCritCapInfo } from '@sim/player/player';
-import { Button } from '@ui-kit/Button';
 import { Skeleton } from '@ui-kit/Skeleton';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { TableCell, TableRow } from '@ui-kit/Table';
+import { Tooltip } from '@ui-kit/Tooltip';
+import { TooltipAnchor } from '@ui-kit/TooltipAnchor';
 import { useId } from 'react';
 
 import { TooltipRow } from './TooltipRow';
@@ -16,27 +17,24 @@ export interface CritCapRowProps {
 
 export const CritCapRow = ({ info, text, pending }: CritCapRowProps) => {
 	const id = useId();
+	const tone = info.playerCritCapDelta === 0 ? 'neutral' : info.playerCritCapDelta > 0 ? 'negative' : 'positive';
 	return (
-		<tr data-testid="character-stats-table-row" className="ui-character-stats-row">
-			<td className="ui-character-stats-label">{i18n.t('sidebar.character_stats.melee_crit_cap')}</td>
-			<td className="ui-character-stats-value">
+		<TableRow testId="character-stats-table-row" className="ui-character-stats-row">
+			<TableCell className="ui-character-stats-label">{i18n.t('sidebar.character_stats.melee_crit_cap')}</TableCell>
+			<TableCell className="ui-character-stats-value">
 				{pending ? (
 					<Skeleton />
 				) : (
 					<>
-						<div className="ui-stat-value-link-container">
-							<Button
-								variant="unstyled"
-								data-testid="stat-value-link"
-								className={critCapClass(info.playerCritCapDelta)}
-								{...tooltipAnchorProps(id)}>
+						<div className="ui-stat-value-link-container" data-tone={tone}>
+							<TooltipAnchor tooltipId={id} testId="stat-value-link" className={critCapClass(info.playerCritCapDelta)}>
 								{`${text} `}
-							</Button>
+							</TooltipAnchor>
 						</div>
 						<Tooltip
 							id={id}
 							content={
-								<div>
+								<>
 									<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.glancing')} value={`${info.glancing.toFixed(2)}%`} />
 									<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.suppression')} value={`${info.suppression.toFixed(2)}%`} />
 									<TooltipRow
@@ -63,12 +61,12 @@ export const CritCapRow = ({ info, text, pending }: CritCapRowProps) => {
 										label={i18n.t('sidebar.character_stats.attack_table.can_raise_by')}
 										value={`${(info.remainingExpertiseCap + info.remainingMeleeHitCap).toFixed(2)}%`}
 									/>
-								</div>
+								</>
 							}
 						/>
 					</>
 				)}
-			</td>
-		</tr>
+			</TableCell>
+		</TableRow>
 	);
 };

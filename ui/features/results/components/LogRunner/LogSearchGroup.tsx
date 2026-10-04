@@ -1,10 +1,11 @@
 import i18n from '@i18n/config';
+import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
-import { ButtonGroup } from '@ui-kit/ButtonGroup';
 import { Chip } from '@ui-kit/Chip';
-import { DropdownPicker } from '@ui-kit/DropdownPicker';
+import { ChoiceField } from '@ui-kit/ChoiceField';
 import { Input } from '@ui-kit/FormControl';
 import { Icon } from '@ui-kit/Icon';
+import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import { useMemo, useState } from 'react';
 
 import type { SuggestionSource } from '../../model/log/search/indexes';
@@ -16,9 +17,9 @@ import { labelOf, sentenceCase, TYPED_FIELDS, valueCandidates } from './utils';
 const DROPUP = { side: 'top', positionMethod: 'fixed' } as const;
 
 const DeleteButton = ({ label, onClick, className }: { label: string; onClick: () => void; className?: string }) => (
-	<button type="button" className={className} data-testid="log-search-group-remove" aria-label={label} onClick={onClick}>
-		<Icon name="times" style="base" size="lg" />
-	</button>
+	<Button variant="unstyled" className={className} data-testid="log-search-group-remove" aria-label={label} onClick={onClick}>
+		<Icon name="xmark" style="base" size="lg" />
+	</Button>
 );
 
 export interface LogSearchGroupProps {
@@ -36,10 +37,14 @@ export const LogSearchGroup = ({ group, suggestions, onChange, onRemove }: LogSe
 		() =>
 			valueCandidates(group.field, suggestions).map(value => ({
 				value,
-				label: labelOf(group.field, value),
-				icon: suggestions.spellIcons.get(value) ? (
-					<img data-testid="log-search-suggestion-icon" className="mr-1 icon-sm" src={suggestions.spellIcons.get(value)} alt="" />
-				) : undefined,
+				label: (
+					<>
+						{suggestions.spellIcons.get(value) && (
+							<img data-testid="log-search-suggestion-icon" className="mr-1 icon-sm" src={suggestions.spellIcons.get(value)} alt="" />
+						)}
+						{labelOf(group.field, value)}
+					</>
+				),
 			})),
 		[group.field, suggestions],
 	);
@@ -59,28 +64,25 @@ export const LogSearchGroup = ({ group, suggestions, onChange, onRemove }: LogSe
 	const placeholder = TYPED_FIELDS[group.field];
 
 	return (
-		<div
-			data-testid="log-search-group"
-			className="flex max-w-62.5 flex-col gap-2 rounded-none border border-border-muted bg-panel p-2 [transition:all_0.2s_ease] hover:border-border hover:bg-panel-hover">
+		<Box
+			border="border-muted"
+			testId="log-search-group"
+			className="flex max-w-62 flex-col gap-2 bg-panel [transition:all_0.2s_ease] hover:border-border hover:bg-panel-hover">
 			<div data-testid="log-search-group-head" className="flex items-center gap-2">
 				<span data-testid="log-search-group-field" className="text-(length:--btn-font-size) leading-normal">
 					{sentenceCase(group.field)}
 				</span>
-				<ButtonGroup data-testid="log-search-group-join" className="ml-auto" size="sm">
-					{(['and', 'or'] as const).map(join => (
-						<Button
-							key={join}
-							size="sm"
-							variant={group.join === join ? 'primary' : 'outline-primary'}
-							aria-pressed={group.join === join}
-							onClick={() => {
-								if (group.join === join) return;
-								onChange({ ...group, join });
-							}}>
-							{join.toUpperCase()}
-						</Button>
-					))}
-				</ButtonGroup>
+				<ToggleGroup
+					testId="log-search-group-join"
+					className="ml-auto"
+					size="sm"
+					options={[
+						{ value: 'and', label: 'AND' },
+						{ value: 'or', label: 'OR' },
+					]}
+					value={group.join}
+					onChange={join => onChange({ ...group, join })}
+				/>
 				<DeleteButton
 					label={i18n.t('common.list_picker.delete_item', { itemLabel: sentenceCase(group.field) })}
 					onClick={onRemove}
@@ -92,6 +94,8 @@ export const LogSearchGroup = ({ group, suggestions, onChange, onRemove }: LogSe
 					<Chip
 						key={value}
 						testId="log-search-chip"
+						nameTestId="saved-data-set-name"
+						deleteTestId="saved-data-set-delete"
 						nameAs="span"
 						label={labelOf(group.field, value)}
 						confirmDelete={false}
@@ -120,19 +124,18 @@ export const LogSearchGroup = ({ group, suggestions, onChange, onRemove }: LogSe
 							</Button>
 						</>
 					) : (
-						<DropdownPicker
+						<ChoiceField<string | undefined>
 							id={`log-search-group-${group.id}`}
 							options={options}
 							value={undefined}
-							onChange={addValue}
-							equals={(a, b) => a === b}
-							defaultLabel={i18n.t('results_tab.details.logs.search_add_value')}
-							triggerClassName="border-0 p-0"
+							onChange={value => value !== undefined && addValue(value)}
+							variant="link"
+							placeholder={i18n.t('results_tab.details.logs.search_add_value')}
 							{...DROPUP}
 						/>
 					)}
 				</div>
 			</div>
-		</div>
+		</Box>
 	);
 };

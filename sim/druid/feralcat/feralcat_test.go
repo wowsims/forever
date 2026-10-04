@@ -82,10 +82,10 @@ func TestFeralCat(t *testing.T) {
 				proto.Stat_StatStrength,
 				proto.Stat_StatAttackPower,
 				proto.Stat_StatFeralAttackPower,
-				proto.Stat_StatMeleeHitRating,
+				proto.Stat_StatHitRating,
 				proto.Stat_StatExpertiseRating,
-				proto.Stat_StatMeleeCritRating,
-				proto.Stat_StatMeleeHasteRating,
+				proto.Stat_StatCritRating,
+				proto.Stat_StatHasteRating,
 				proto.Stat_StatArmorPenetration,
 			},
 		},
@@ -118,8 +118,8 @@ func BenchmarkSimulate(b *testing.B) {
 	core.RaidBenchmark(b, rsr)
 }
 
-const DefaultTalents = "-503032132322105301251-05503301"
-const MonocatTalents = "-553002132322105301051-05503301"
+const DefaultTalents = "-50303231320221050012-05503301"
+const MonocatTalents = "-5530023132022105001-05503301"
 
 var DefaultSpecOptions = &proto.Player_FeralCatDruid{
 	FeralCatDruid: &proto.FeralCatDruid{

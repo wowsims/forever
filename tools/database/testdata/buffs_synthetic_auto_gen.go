@@ -274,7 +274,7 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if party.AtieshMage > 0 {
 		driveSynthAtieshMage(char, party)
 	}
-	if raid.Thorns {
+	if individual.Thorns {
 		core.MakePermanent(NewSpellDataSynthThornsAura(&char.Unit, false, 0))
 	}
 }

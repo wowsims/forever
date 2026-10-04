@@ -29,6 +29,7 @@ import (
 var outDir = flag.String("outDir", "assets", "Path to output directory for writing generated .go files.")
 var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'atlasloot' and 'go-to-ts'")
 var dbPath = flag.String("dbPath", "./tools/database/wowsims.db", "Location of the wowsims.db file produced by tools/db2tool")
+var classes = flag.String("classes", "", "Write the talent files of these classes only (comma-separated package names, all or none, as gen_spelldata -classes); the item database is always written")
 
 func main() {
 	flag.Parse()
@@ -53,6 +54,9 @@ func main() {
 		if err := database.GenerateBulkSimTuningConstantsTSFile(); err != nil {
 			log.Fatalf("failed to generate bulk sim tuning constants TS file: %v", err)
 		}
+		if err := database.GenerateSimTablesTSFile(); err != nil {
+			log.Fatalf("failed to generate sim tables TS file: %v", err)
+		}
 		return
 	} else if *genAsset == "atlasloot" {
 		helper, err := database.NewDBHelper()
@@ -73,6 +77,14 @@ func main() {
 	}
 	defer helper.Close()
 
+	only, behind, err := database.ResolveSpellDataGroups(helper, *classes, false, true)
+	if err != nil {
+		log.Fatalf("spell data groups: %v", err)
+	}
+	for _, line := range behind {
+		fmt.Fprintf(os.Stderr, "talent files kept, not ported: %s\n", line)
+	}
+
 	if err := database.RunOverrides(helper, "tools/database/overrides"); err != nil {
 		log.Fatalf("failed to run overrides: %v", err)
 	}
@@ -86,6 +98,7 @@ func main() {
 		names           map[int]string
 		craftingSources map[int][]*proto.CraftedSource
 		repSources      map[int][]*proto.RepSource
+		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
@@ -115,7 +128,7 @@ func main() {
 	})
 	g.Go(func() (err error) { icons, err = database.LoadSpellIcons(helper); return })
 	g.Go(func() error { craftingSources = database.LoadCraftedItems(helper); return nil })
-	g.Go(func() error { repSources = database.LoadRepItems(helper); return nil })
+	g.Go(func() (err error) { repSources, factionNames, err = database.LoadRepItems(helper); return })
 	g.Go(func() error {
 		//Todo: See if we cant get rid of these as well
 		atlaslootDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/atlasloot_db.json", inputsDir)))
@@ -132,7 +145,7 @@ func main() {
 	var instance = dbc.GetDBC()
 	instance.LoadSpellScaling()
 	instance.LoadShieldBlockValues()
-	database.GenerateProtos(instance, db)
+	database.GenerateProtos(instance, db, only)
 
 	processItems(instance, iconsMap, names, dropSources, craftingSources, repSources, db)
 
@@ -162,7 +175,7 @@ func main() {
 
 	for _, atlaslootItem := range atlaslootDB.Items {
 		if dbItem, ok := db.Items[atlaslootItem.Id]; ok {
-			firstDBRepFaction := proto.RepFaction(-1)
+			firstDBRepFaction := int32(-1)
 
 			for _, dbItemSource := range dbItem.Sources {
 				if dbRepSource := dbItemSource.GetRep(); dbRepSource != nil {
@@ -204,6 +217,7 @@ func main() {
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
+	applyRepSources(leftovers, factionNames)
 	leftovers.WriteBinaryAndJson(fmt.Sprintf("%s/leftover_db.bin", dbDir), fmt.Sprintf("%s/leftover_db.json", dbDir))
 	ApplySimmableFilters(db)
 
@@ -265,16 +279,10 @@ func main() {
 					item.RequiredProfession = crafted.Profession
 				}
 			}
-
-			if rep := source.GetRep(); rep != nil {
-				item.FactionRestriction = proto.UIItem_FactionRestriction(rep.FactionId)
-			}
 		}
 
-		if item.Phase < 2 {
-			item.Phase = database.InferPhase(item)
-		}
-
+		// Forever's content phases are not known yet, so every item is phase 1.
+		item.Phase = 1
 	}
 	addSpellIcons(db, craftedSpellIds, icons, iconsMap)
 
@@ -286,7 +294,26 @@ func main() {
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
+	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
+}
+
+func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {
+	for _, item := range db.Items {
+		sides := make(map[proto.Faction]bool)
+		for _, source := range item.Sources {
+			if rep := source.GetRep(); rep != nil {
+				db.MergeFaction(&proto.UIFaction{Id: rep.RepFactionId, Name: factionNames[rep.RepFactionId]})
+				sides[rep.FactionId] = true
+			}
+		}
+		// A side's restriction holds only when every rep source names that side.
+		if len(sides) == 1 && !sides[proto.Faction_Unknown] {
+			for side := range sides {
+				item.FactionRestriction = database.AtlasLootFactionRestrictions[side]
+			}
+		}
+	}
 }
 
 func processItems(instance *dbc.DBC,
@@ -348,8 +375,8 @@ func processItems(instance *dbc.DBC,
 					Source: &proto.UIItemSource_Rep{Rep: repItem},
 				})
 			}
-			parsed.Sources = sources
-			sourceMap[parsed.Name] = sources
+			parsed.Sources = append(parsed.Sources, sources...)
+			sourceMap[parsed.Name] = parsed.Sources
 		}
 
 		parsedItems = append(parsedItems, parsed)
@@ -435,30 +462,7 @@ func ApplyGlobalFilters(db *database.WowDatabase) {
 			return false
 		}
 
-		prefix, uncut, _ := strings.Cut(gem.Name, " ")
-		if slices.Contains([]string{
-			"Forceful",
-			"Quick",
-			"Reckless",
-			"Purified Shadowsong",
-		}, prefix) {
-			gem.Phase = 5
-		} else if slices.Contains([]string{
-			"Crimson Spinel",
-			"Empyrean Sapphire",
-			"Lionseye",
-			"Shadowsong Amethyst",
-			"Pyrestone",
-			"Seaspray Emerald",
-		}, uncut) {
-			gem.Phase = 3
-		} else if gem.Name == "Charmed Amani Jewel" {
-			gem.Phase = 3
-		} else if strings.Contains(prefix, "Unstable") {
-			gem.Phase = 2
-		} else {
-			gem.Phase = 1
-		}
+		gem.Phase = 1
 
 		for _, pattern := range database.DenyListNameRegexes {
 			if pattern.MatchString(gem.Name) {

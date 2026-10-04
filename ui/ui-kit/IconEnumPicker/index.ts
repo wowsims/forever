@@ -1,3 +1,3 @@
 export { IconEnumPicker } from './IconEnumPicker';
 export type { IconEnumPickerProps } from './IconEnumPicker';
-export { iconEnumPickerShown } from './utils';
+export { type IconEnumOption, IconEnumPickerDirection } from './types';

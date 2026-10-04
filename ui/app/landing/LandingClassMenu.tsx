@@ -1,11 +1,11 @@
-import { Menu as BaseMenu } from '@base-ui/react/menu';
 import { Class } from '@generated/proto/common';
 import { translatePlayerClass, translatePlayerSpec, translateStatus } from '@i18n/localization';
 import { PlayerClasses } from '@sim/player/classes/index';
 import type { PlayerClass } from '@sim/player/player_class';
 import type { PlayerSpec } from '@sim/player/player_spec';
 import { textClassNameForClass, textClassNameForSpec } from '@sim/proto/utils';
-import { Menu } from '@ui-kit/Menu';
+import { Button } from '@ui-kit/Button';
+import { Menu, MenuLinkItem } from '@ui-kit/Menu';
 import { SimLinkContent } from '@ui-kit/SimLinkContent';
 import { CLASS_BORDER } from '@ui-kit/utils/colors';
 import clsx from 'clsx';
@@ -36,14 +36,18 @@ export const LandingClassMenu = ({ playerClass }: LandingClassMenuProps) => {
 		const [spec] = specs;
 		return (
 			<div className="ui-landing-sim-link-dropdown" data-testid="sim-link-dropdown">
-				<a href={spec.simLink} className={clsx('ui-landing-sim-link-cell', textClassNameForClass(playerClass))} data-testid="sim-link">
+				<Button
+					href={spec.simLink}
+					variant="unstyled"
+					className={clsx('ui-landing-sim-link-cell', textClassNameForClass(playerClass))}
+					data-testid="sim-link">
 					<SimLinkContent
 						iconPath={classIconPath}
 						iconClassName={CLASS_BORDER[PlayerClasses.getCssScheme(playerClass)]}
 						title={className}
 						status={translateStatus(spec.launch.status)}
 					/>
-				</a>
+				</Button>
 			</div>
 		);
 	}
@@ -75,16 +79,20 @@ export const LandingClassMenu = ({ playerClass }: LandingClassMenuProps) => {
 				keepMounted
 				className="ui-landing-sim-link-popup">
 				{specs.map(spec => (
-					<li key={spec.simLink} role="none">
-						<BaseMenu.LinkItem href={spec.simLink} className={clsx('ui-landing-sim-link-cell', textClassNameForSpec(spec))} data-testid="sim-link">
-							<SimLinkContent
-								iconPath={spec.getIcon('large')}
-								label={className}
-								title={translatePlayerSpec(spec)}
-								status={translateStatus(spec.launch.status)}
-							/>
-						</BaseMenu.LinkItem>
-					</li>
+					<MenuLinkItem
+						key={spec.simLink}
+						layout="block"
+						bare
+						href={spec.simLink}
+						className={clsx('ui-landing-sim-link-cell', textClassNameForSpec(spec))}
+						testId="sim-link">
+						<SimLinkContent
+							iconPath={spec.getIcon('large')}
+							label={className}
+							title={translatePlayerSpec(spec)}
+							status={translateStatus(spec.launch.status)}
+						/>
+					</MenuLinkItem>
 				))}
 			</Menu>
 		</div>

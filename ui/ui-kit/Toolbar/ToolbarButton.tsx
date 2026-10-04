@@ -4,14 +4,8 @@ import { Button } from '@ui-kit/Button';
 
 export type ToolbarButtonProps = ButtonProps & {
 	testId?: string;
-	focusableWhenDisabled?: boolean;
 };
 
-export const ToolbarButton = ({ testId, focusableWhenDisabled, ...buttonProps }: ToolbarButtonProps) => (
-	<BaseToolbar.Button
-		disabled={'disabled' in buttonProps ? buttonProps.disabled : undefined}
-		focusableWhenDisabled={focusableWhenDisabled}
-		render={<Button {...buttonProps} />}
-		data-testid={testId}
-	/>
+export const ToolbarButton = ({ testId, ...buttonProps }: ToolbarButtonProps) => (
+	<BaseToolbar.Button disabled={'disabled' in buttonProps ? buttonProps.disabled : undefined} render={<Button {...buttonProps} />} data-testid={testId} />
 );

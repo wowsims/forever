@@ -68,7 +68,7 @@ export const RotationRowsToolbar = ({ model, hidden, onToggle, onShowAll }: Rota
 			clear={{
 				testId: 'rotation-floating-action-bar-show-all',
 				className: 'ml-auto',
-				icon: <Icon name="times" className="mr-1" />,
+				icon: <Icon name="xmark" />,
 				label: i18n.t('results_tab.details.timeline.floatingActionBar.showAll'),
 				hidden: hiddenKeys.length === 0,
 				onClick: onShowAll,

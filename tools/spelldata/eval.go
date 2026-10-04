@@ -378,6 +378,10 @@ func convertArg(arg argument, want reflect.Type) (reflect.Value, error) {
 			f, _ := constant.Float64Val(v)
 			return reflect.ValueOf(f).Convert(want), nil
 		}
+	case want.Kind() == reflect.Bool:
+		if arg.value.Kind() == constant.Bool {
+			return reflect.ValueOf(constant.BoolVal(arg.value)).Convert(want), nil
+		}
 	case want.Kind() == reflect.String:
 		if arg.value.Kind() == constant.String {
 			return reflect.ValueOf(constant.StringVal(arg.value)).Convert(want), nil

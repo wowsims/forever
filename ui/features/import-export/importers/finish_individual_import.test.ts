@@ -3,7 +3,7 @@
 // two closing toasts is shown.
 import { Class, EquipmentSpec, Profession, Race } from '@generated/proto/common';
 import { classNames } from '@sim/proto/names';
-import { fakeHost } from '@sim/testing';
+import { fakeHost } from '@testing/sim/fake_host';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { finishIndividualImport } from './finish_individual_import';

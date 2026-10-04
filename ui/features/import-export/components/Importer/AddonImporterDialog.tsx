@@ -1,4 +1,5 @@
 import i18n from '@i18n/config';
+import { Button } from '@ui-kit/Button';
 
 import { ADDON_IMPORTER } from '../../importers';
 import { Importer } from './Importer';
@@ -6,16 +7,16 @@ import type { ImporterDialogProps } from './types';
 
 export const AddonImporterDialog = ({ open, onOpenChange }: ImporterDialogProps) => (
 	<Importer open={open} onOpenChange={onOpenChange} {...ADDON_IMPORTER}>
-		<div>
+		<>
 			<p>
 				{i18n.t('import.addon.description')}{' '}
-				<a href="https://www.curseforge.com/wow/addons/wowsimsexporter" target="_blank" rel="noopener noreferrer">
+				<Button href="https://www.curseforge.com/wow/addons/wowsimsexporter" target="_blank" variant="unstyled">
 					{i18n.t('import.addon.addon_link')}
-				</a>
+				</Button>
 				.
 			</p>
 			<p>{i18n.t('import.addon.feature_description')}</p>
 			<p>{i18n.t('import.addon.instructions')}</p>
-		</div>
+		</>
 	</Importer>
 );

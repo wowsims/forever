@@ -26,9 +26,13 @@ const (
 
 	// Beastmaster's Boots 22061 and Treads 226881: 27206 casts 27205, A_MOD_DAMAGE_PERCENT_DONE +3%
 	// misc 127 on the pet for 4 s, every 3 s. Beastmaster's Tunic 22060 and 226886: 27225 casts
-	// 27208, A_MOD_BASE_RESISTANCE_PCT +10% misc 1 on the pet, the same way.
+	// 27208, A_MOD_BASE_RESISTANCE_PCT +10% misc 1 on the pet, the same way. Beastmaster's Cap 22013:
+	// 27038 casts 27039, A_MOD_INCREASE_HEALTH_PERCENT +3%, and Beastmaster's Gloves 22015: 27043
+	// casts 27042, A_MOD_WEAPON_CRIT_PERCENT +2, both on the pet the same way.
 	increasedPetDamage int32 = 27206
 	increasedPetArmor  int32 = 27225
+	increasedPetHealth int32 = 27038
+	increasedPetCrit   int32 = 27043
 
 	// Nightfall 19169's chance on hit: 23605, A_MOD_DAMAGE_PERCENT_TAKEN +15% misc 126 on the target
 	// for 5 s. The row states no chance, so the tests hand the proc one.
@@ -65,6 +69,7 @@ func init() {
 			owner := &auraTester{Character: *character}
 			owner.pet = &testPet{Pet: core.NewPet(core.PetConfig{
 				Name: "Test Pet", Owner: &owner.Character, EnabledOnStart: true,
+				BaseStats:       stats.Stats{stats.Health: 1000},
 				StatInheritance: func(stats.Stats) stats.Stats { return stats.Stats{} },
 			})}
 			owner.AddPet(owner.pet)
@@ -84,7 +89,7 @@ type auraTester struct {
 	pet                    *testPet
 }
 
-// A pet whose claw deals 100 physical damage that armor does not reduce.
+// A pet with 1000 health whose claw deals 100 physical damage that armor does not reduce.
 type testPet struct {
 	core.Pet
 	claw *core.Spell
@@ -334,6 +339,42 @@ func TestBeastmastersBootsRaiseThePetsDamage(t *testing.T) {
 	}
 	if got := owner.pet.GetStat(stats.Armor); got != bare.pet.GetStat(stats.Armor) {
 		t.Errorf("the tunic changed the pet's armor to %v", got)
+	}
+}
+
+// Beastmaster's Cap raises the pet's maximum health by 3% and Beastmaster's Gloves its crit by 2,
+// leaving the wearer's own alone, and do nothing for a wearer with no pet.
+func TestBeastmastersCapAndGlovesRaiseThePetsHealthAndCrit(t *testing.T) {
+	const capID, glovesID int32 = 992205, 992206
+	withAuraItem(capID, proto.ItemType_ItemTypeHead)
+	withAuraItem(glovesID, proto.ItemType_ItemTypeHands)
+	NewSpellDataEquipAura(SpellDataProc{TriggerSpellID: increasedPetHealth},
+		[]ItemVariant{{ItemID: capID, ItemName: "Test Beastmaster's Cap"}})
+	NewSpellDataEquipAura(SpellDataProc{TriggerSpellID: increasedPetCrit},
+		[]ItemVariant{{ItemID: glovesID, ItemName: "Test Beastmaster's Gloves"}})
+
+	gear := map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotHead: capID, proto.ItemSlot_ItemSlotHands: glovesID}
+	sim := newAuraSim(hunter("Owner", gear), hunter("Bare Owner", nil), shaman("Petless", gear), shaman("Bare Petless", nil))
+	owner, bare := auraTesterAt(sim, 0), auraTesterAt(sim, 1)
+	petless, barePetless := auraTesterAt(sim, 2), auraTesterAt(sim, 3)
+
+	if got, bareHealth := owner.pet.MaxHealth(), bare.pet.MaxHealth(); bareHealth == 0 || !core.WithinToleranceFloat64(1.03*bareHealth, got, 1e-6) {
+		t.Errorf("the pet of the wearer has %v maximum health, want 3%% over the %v of a pet without", got, bareHealth)
+	}
+	if got, bareCrit := owner.pet.GetStat(stats.PhysicalCritPercent), bare.pet.GetStat(stats.PhysicalCritPercent); !core.WithinToleranceFloat64(bareCrit+2, got, 1e-6) {
+		t.Errorf("the pet of the wearer has %v crit, want 2 over the %v of a pet without", got, bareCrit)
+	}
+
+	for _, c := range []struct {
+		who          string
+		wearer, bare *auraTester
+	}{{"the wearer", owner, bare}, {"a wearer with no pet", petless, barePetless}} {
+		if got, want := c.wearer.MaxHealth(), c.bare.MaxHealth(); got != want {
+			t.Errorf("%s has %v maximum health, want the %v of one without", c.who, got, want)
+		}
+		if got, want := c.wearer.GetStat(stats.PhysicalCritPercent), c.bare.GetStat(stats.PhysicalCritPercent); got != want {
+			t.Errorf("%s has %v crit, want the %v of one without", c.who, got, want)
+		}
 	}
 }
 

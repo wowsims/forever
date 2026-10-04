@@ -8,17 +8,15 @@ export interface GearPickerProps {
 }
 
 export const GearPicker = ({ ready }: GearPickerProps) => (
-	<div className="ui-gear-picker grid grid-cols-2 gap-section max-lg:gap-3 max-sm:grid-cols-1" data-testid="gear-picker-root">
-		<TabPanelColumns.Col className="gap-3 *:flex-row *:text-left [&>*:nth-child(6)]:mb-section" externalGap>
+	<div className="ui-gear-picker grid grid-cols-2 gap-section max-lg:gap-2 max-sm:grid-cols-1" data-testid="gear-picker-root">
+		<TabPanelColumns.Col className="gap-2 *:flex-row *:text-left [&>*:nth-child(6)]:mb-section" externalGap>
 			{LEFT_ITEM_SLOTS.map(slot => (
 				<ItemPickerCell key={slot} slot={slot} ready={ready} />
 			))}
 		</TabPanelColumns.Col>
-		<TabPanelColumns.Col
-			className="gap-3 *:flex-row-reverse max-md:*:flex-row [&_.ui-item-picker-label-muted]:text-right max-md:[&_.ui-item-picker-label-muted]:text-left [&_.ui-item-picker-labels-container]:items-end [&_.ui-item-picker-labels-container]:text-right max-md:[&_.ui-item-picker-labels-container]:items-start [&_.ui-item-picker-name-row]:text-right max-md:[&_.ui-item-picker-name-row]:text-left"
-			externalGap>
+		<TabPanelColumns.Col className="gap-2 *:flex-row-reverse max-md:*:flex-row" externalGap>
 			{RIGHT_ITEM_SLOTS.map(slot => (
-				<ItemPickerCell key={slot} slot={slot} ready={ready} />
+				<ItemPickerCell key={slot} slot={slot} ready={ready} align="end" />
 			))}
 		</TabPanelColumns.Col>
 	</div>

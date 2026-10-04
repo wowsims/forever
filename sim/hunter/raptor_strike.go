@@ -6,7 +6,6 @@ import (
 )
 
 var raptorStrikeRank = spellData.RaptorStrike.Highest()
-var raptorStrikeBonusDamage = raptorStrikeRank.DamageEffect().Average(core.CharacterLevel)
 
 func (hunter *Hunter) registerRaptorStrike() {
 	config := spelldata.SpellConfig(&hunter.Unit, raptorStrikeRank,
@@ -15,7 +14,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 	config.Flags &^= core.SpellFlagAPL
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := raptorStrikeBonusDamage + hunter.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
+		baseDamage := raptorStrikeRank.WeaponStrike(sim, spell, hunter.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 	}
 

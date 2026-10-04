@@ -1,8 +1,9 @@
 # Running the sim locally
 
-**Source of truth:** `vite.config.mts`, `vite.build-workers.mts`, `tools/vite/spec_pages.mts`, and
-the `devserver` / `rundevserver` / `devmode` / `host` targets in the makefile. Read the target before
-copying a command out of here:
+**Source of truth:** `vite.config.mts`, `vite.build-workers.mts`, `tools/vite/spec_pages.mts`, the
+`devserver` / `rundevserver` / `devmode` / `host` targets in the makefile, and for Storybook
+`.storybook/main.ts` and the `storybook:dev` / `storybook:build` scripts in `package.json`. Read the
+target before copying a command out of here:
 
 ```
 /usr/bin/grep -n "^devserver:\|^rundevserver:\|^devmode:\|^host:" -A6 makefile
@@ -31,8 +32,8 @@ npx tsx vite.build-workers.mts     # → dist/forever/{local,net,sim}_worker.js 
 A fresh worktree also needs the gitignored generated files before anything type-checks or builds —
 see the last section of `verification.md`.
 
-Copying per-spec `ui/**/index.html` from a built checkout is **not** a step and has not been for a
-while: `tools/vite/spec_pages.mts` serves every spec URL itself from `ui/index_template.html`
+Copying per-spec `ui/**/index.html` from a built checkout is **not** a step:
+`tools/vite/spec_pages.mts` serves every spec URL itself from `ui/index_template.html`
 through `transformIndexHtml`, and 301s the bare `/forever/<class>/<spec>` to the trailing-slash form the
 way the production static host does. Only an _unknown_ spec URL falls through to vite's SPA
 fallback, which serves the landing page — so "I got the landing page" means the URL is not in
@@ -73,3 +74,25 @@ in a document like this.
 
 There is no browser or perf harness in this tree. If you need APL-edit timings, drive the page with
 Playwright yourself and record the protocol in the PR.
+
+## Storybook
+
+```
+npm run storybook:dev      # storybook dev -p 6006 --no-open → http://localhost:6006
+npm run storybook:build    # storybook build --quiet → storybook-static/ (gitignored)
+```
+
+Both need the gitignored generated TS files like every other build (the story fixtures import
+`@generated/proto/*`; see the last section of `verification.md`), but not the Go host, the worker
+bundles or `dist/`: stories render components against stub hosts, not a running sim.
+`node -e "console.log(require('./package.json').scripts)"` prints the exact commands.
+
+`.storybook/main.ts` collects `ui/**/*.mdx` and `ui/**/*.stories.tsx`, and points the vite builder
+at `.storybook/vite.config.ts` rather than the repo's `vite.config.mts`. The builder would load
+`vite.config.mts` by default, and that config carries the site build's plugins (`specPages`,
+`watchAndRun`, `checker`); the Storybook config takes only `UI_ALIASES` from it, plus React,
+Tailwind and the i18next loader. Fonts and spec backgrounds are root-absolute under
+`/forever/assets`, so `staticDirs` serves `assets/` there. `.storybook/preview.tsx` imports
+`.storybook/storybook.css` (the Storybook stylesheet entry, see `ui/STYLING.md`), the i18n config
+and `ui/shared/page_boot.ts`, stubs `gtag`, and adds the spec toolbar and the `withSimUi` frame;
+`.storybook/preview-head.html` loads the Wowhead tooltip script the spec page loads.

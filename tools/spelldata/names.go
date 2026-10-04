@@ -139,27 +139,27 @@ func formName(form int) string {
 	return fmt.Sprintf("form %d", form)
 }
 
-// ItemSubClassWeapon, which SpellEquippedItems states as a mask.
-var weaponSubclasses = map[int]string{
-	0:  "one-handed axe",
-	1:  "two-handed axe",
-	2:  "bow",
-	3:  "gun",
-	4:  "one-handed mace",
-	5:  "two-handed mace",
-	6:  "polearm",
-	7:  "one-handed sword",
-	8:  "two-handed sword",
-	10: "staff",
-	11: "exotic",
-	13: "fist weapon",
-	14: "miscellaneous weapon",
-	15: "dagger",
-	16: "thrown",
-	17: "spear",
-	18: "crossbow",
-	19: "wand",
-	20: "fishing pole",
+// ItemSubClassWeapon by its bit in the mask SpellEquippedItems states.
+var weaponSubclasses = map[int32]string{
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_1H_AXE:       "one-handed axe",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE:       "two-handed axe",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_BOW:          "bow",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_GUNS:         "gun",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_1H:      "one-handed mace",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_2H:      "two-handed mace",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_POLEARM:      "polearm",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_1H:     "one-handed sword",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H:     "two-handed sword",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_STAFF:        "staff",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_1H_EXOTIC:    "exotic",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_FIST:         "fist weapon",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MISC:         "miscellaneous weapon",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_DAGGERS:      "dagger",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_THROWN:       "thrown",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SPEAR:        "spear",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_CROSSBOW:     "crossbow",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_WAND:         "wand",
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_FISHING_POLE: "fishing pole",
 }
 
 var armorSubclasses = map[int]string{
@@ -201,42 +201,60 @@ var inventoryTypes = map[int]string{
 	28: "relic",
 }
 
-// The subclasses that are melee weapons and the ones that shoot, for the two summaries a row of many
-// bits reads better as.
-var (
-	meleeWeapons  = []int{0, 1, 4, 5, 6, 7, 8, 10, 13, 15, 17}
-	rangedWeapons = []int{2, 3, 18}
-)
+// Every melee weapon, a mask a row naming the whole family reads better as.
+const meleeWeapons = dbcenums.ITEM_SUBCLASS_BIT_WEAPON_1H_AXE | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE |
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_1H | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_2H |
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_POLEARM | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_1H |
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_STAFF |
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_FIST | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_DAGGERS |
+	dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SPEAR
 
 // What the spell states it needs equipped: the item class and subclass mask a weapon-specific
-// ability or proc names, and the inventory slots an enchant names.
+// ability or proc names, the inventory slots an enchant names, and the hand an ATTR_EX_3 bit names.
 func equipRequirement(s *spelldata.Spell) string {
-	item := ""
+	var item string
 	switch s.EquipClass {
 	case 0:
 		// Nothing stated, which is also what a row carrying only an inventory slot leaves here.
-	case 2:
-		item = "a " + weaponRequirement(s.EquipSubclass)
+		if s.EquipInvType == 0 {
+			return ""
+		}
+		item = "an item"
+	case dbcenums.ITEM_CLASS_WEAPON:
+		return "needs " + weaponsPhrase(s.EquipSubclass, s.EquipInvType, spelldata.RequiredHand(s))
 	case 4:
 		item = armorRequirement(s.EquipSubclass)
 	default:
 		item = fmt.Sprintf("an item of class %d", s.EquipClass)
 	}
-
-	slots := ""
 	if s.EquipInvType != 0 {
-		slots = maskNames(s.EquipInvType, inventoryTypes)
+		item += " in the " + maskNames(s.EquipInvType, inventoryTypes)
+	}
+	return "needs " + item
+}
+
+// A weapon requirement in words, from the Equip fields a row or a SpellModConfig states: the weapons,
+// then the slots and the hand that hold them.
+func weaponsPhrase(subclass, invType int32, hand core.ProcMask) string {
+	weapons := "a weapon"
+	if subclass != 0 {
+		weapons = "a " + weaponRequirement(subclass)
 	}
 
-	switch {
-	case item == "" && slots == "":
-		return ""
-	case item == "":
-		return "needs an item in the " + slots
-	case slots == "":
-		return "needs " + item
+	var slots []string
+	if invType != 0 {
+		slots = append(slots, maskNames(invType, inventoryTypes))
 	}
-	return "needs " + item + " in the " + slots
+	if hand.Matches(core.ProcMaskMeleeMH) && invType&dbcenums.INVTYPE_BIT_WEAPONMAINHAND == 0 {
+		slots = append(slots, inventoryTypes[21])
+	}
+	if hand.Matches(core.ProcMaskMeleeOH) && invType&dbcenums.INVTYPE_BIT_WEAPONOFFHAND == 0 {
+		slots = append(slots, inventoryTypes[22])
+	}
+	if len(slots) == 0 {
+		return weapons
+	}
+	return weapons + " in the " + orList(slots)
 }
 
 func armorRequirement(mask int32) string {
@@ -251,31 +269,16 @@ const shieldSubclass = 6
 // A weapon mask, summarised where it names a whole family: the melee set and the shooting set are
 // what the game files state on a stance ability and on a shot.
 func weaponRequirement(mask int32) string {
-	if covers(mask, rangedWeapons) && !overlaps(mask, meleeWeapons) {
+	switch mask {
+	case dbcenums.ITEM_SUBCLASS_MASK_WEAPON_SHOOTING:
 		return "bow, gun or crossbow"
-	}
-	if covers(mask, meleeWeapons) && !overlaps(mask, rangedWeapons) {
+	case meleeWeapons:
 		return "melee weapon"
 	}
-	return maskNames(mask, weaponSubclasses)
-}
-
-func covers(mask int32, bits []int) bool {
-	for _, bit := range bits {
-		if mask&(1<<uint(bit)) == 0 {
-			return false
-		}
-	}
-	return true
-}
-
-func overlaps(mask int32, bits []int) bool {
-	for _, bit := range bits {
-		if mask&(1<<uint(bit)) != 0 {
-			return true
-		}
-	}
-	return false
+	return orList(setBits(uint64(uint32(mask)), func(bit uint64) (string, bool) {
+		name, ok := weaponSubclasses[int32(bit)]
+		return name, ok
+	}))
 }
 
 // A mask of bit positions as the names it sets.
@@ -391,6 +394,21 @@ func statName(misc int32) string {
 		return "spirit"
 	}
 	return fmt.Sprintf("stat %d", misc)
+}
+
+// A_MOD_TOTAL_STAT_PERCENTAGE states its stats as a mask of stat indexes in its second misc value,
+// where it has one; 31 is all five.
+func statMaskName(mask int32) string {
+	if mask == 31 {
+		return statName(-1)
+	}
+	var names []string
+	for i := int32(0); i < 32; i++ {
+		if uint32(mask)&(1<<i) != 0 {
+			names = append(names, statName(i))
+		}
+	}
+	return strings.Join(names, " and ")
 }
 
 // SpellCategories.DispelType, which is also what an E_DISPEL effect names in its misc value.

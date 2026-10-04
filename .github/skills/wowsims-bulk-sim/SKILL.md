@@ -42,7 +42,7 @@ Comments, docs, commit messages and PR text follow `wowsims-conventions`: "game 
 - Finalist stage (runBulkSimFinalistStage / runConcurrentBulkSimFinalistStage): after the high stage, the top `topResults` candidates + baseline get lockstep extra iterations until every adjacent pair separates under a paired z-test at Z95 (bulkSimZ95 / Z_95), or the budget (BulkSimFinalistMaxExtraIterationMultiplier × high-stage iterations) is spent. Its returned results ARE the refined, DPS-sorted display set.
 - Shipped per top result: paired_error_to_next_result and paired_error_to_baseline (computed before AllValues are stripped; 0 = could not pair).
 - FE display: adjacent results inside the paired tie threshold render in one labeled tie group (unpaired zTest fallback when paired data is absent); each row shows a ±95% CI (stDevToConf95 — the unpaired per-row error, a different quantity from the pairwise grouping test).
-- The single significance threshold lives in ui/core/utils.ts (Z_95, zTest) and sim/core/bulk/statistics.go (bulkSimZ95); keep them equal.
+- The single significance threshold is BulkSimZ95 in sim/core/bulk/statistics.go; `make go-to-ts` writes it to the UI as BULK_SIM_Z95, which Z_95 and zTest in ui/sim/utils/math.ts read.
 
 ## Core Invariants
 
@@ -119,7 +119,7 @@ Reproducibility check: run the same BulkSimRequest twice through BulkSimAsync wi
 ```bash
 rg -n "BulkSimReforge|reforge_request|optimized_candidates|BulkSimStageReforge|Finalist" proto sim ui
 rg -n "bulkSimAsync|/bulkSimAsync" sim/web
-rg -n "pairedErrorToNextResult|bulkSimPairedDpsError|Z_95|bulkSimZ95" sim ui
+rg -n "pairedErrorToNextResult|bulkSimPairedDpsError|Z_95|BulkSimZ95|BULK_SIM_Z95" sim ui
 ```
 
 ## Common Pitfalls

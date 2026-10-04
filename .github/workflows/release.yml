@@ -16,12 +16,15 @@ on:
 jobs:
     tests:
         uses: ./.github/workflows/run_tests.yml
+        permissions:
+            contents: read
+            pull-requests: write
         with:
             ref: ${{ github.event.inputs.ref }}
 
     build-and-release:
         needs: tests
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         permissions:
             contents: write
         steps:
@@ -34,6 +37,7 @@ jobs:
               uses: actions/setup-go@v6
               with:
                   go-version: 1.25.x
+                  cache: false
 
             - name: Install Protoc
               uses: arduino/setup-protoc@v3
@@ -48,7 +52,6 @@ jobs:
               uses: actions/setup-node@v5
               with:
                   node-version: 22
-                  cache: npm
 
             - name: Install npm dependencies
               run: npm ci

@@ -1,0 +1,53 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { BaseSpacingScale, ResponsiveSpacing, SpacingScale } from './components/SpacingScale';
+import { TokenTable } from './components/TokenTable';
+
+<Meta title="Design System/Spacing" />
+
+# Spacing
+
+Tokens from `ui/styles/theme/spacing.css`. The spacing rhythm is even steps plus 1 — `1, 2, 4, 6, 8, 10, 12, 16, …` — and the root is 14px below `fhd` (1921px) and 16px from `fhd` on, so one step is 3.5px or 4px and `p-2` is 7px or 8px. The px values on this page, and conversions of a source px value, are at the 14px root. Convert a px value to the nearest even step (ties round down) rather than writing `[Npx]`; a sub-step hairline (a border, a divider, a ruler tick) converts to the fixed `px` step instead of rounding.
+
+## Base scale
+
+The steps a component token should alias. Each square is `--spacing(n)` wide and tall.
+
+<BaseSpacingScale />
+
+## Named lengths
+
+Every `--spacing-*` and `--size-*` token whose value is a plain `px` or `rem` length or a `--spacing(n)` step, drawn as a square of that size.
+
+<SpacingScale prefixes={['spacing', 'size']} />
+
+## Containers
+
+`--container-*` tokens with a plain length, drawn as a bar of that width.
+
+<SpacingScale prefixes={['container']} bar />
+
+## Responsive overrides
+
+`ui/styles/theme/breakpoints.css` re-declares these on `:root` per breakpoint, so `p-page`, `gap-section` and the header offset change with the viewport.
+
+<ResponsiveSpacing />
+
+## Spacing
+
+<TokenTable prefix="spacing" />
+
+<TokenTable prefix="size" />
+
+## Containers
+
+<TokenTable prefix="container" />
+
+## Grid templates
+
+<TokenTable prefix="grid-template" />
+
+## Runtime variables
+
+`ui/styles/theme/vars.css` declares plain `:root` variables, not `@theme` tokens: no utility is generated for them. A component reads one with the paren shorthand (`w-(--x)`) or from a `ui-*` class.
+
+<TokenTable file="vars.css" />

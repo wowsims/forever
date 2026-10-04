@@ -6,7 +6,8 @@ import { SimHostProvider } from '@sim/context/SimHostContext';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { SimRuns } from '@sim/sim_runs';
 import { createSimStore, patchKeyed, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -77,7 +78,7 @@ vi.mock('@sim/state/subscriptions', () => {
 const STAT_NAMES: Partial<Record<Stat, string>> = {
 	[Stat.StatStrength]: 'Strength',
 	[Stat.StatAgility]: 'Agility',
-	[Stat.StatMeleeCritRating]: 'Crit Rating',
+	[Stat.StatCritRating]: 'Crit Rating',
 };
 vi.mock('@i18n/localization', () => ({
 	translateStat: (stat: Stat) => STAT_NAMES[stat] ?? `Stat ${stat}`,
@@ -225,7 +226,7 @@ const setup = () => {
 			signalManager: { abortType },
 		},
 		individualConfig: {
-			epStats: [Stat.StatStrength, Stat.StatAgility, Stat.StatMeleeCritRating],
+			epStats: [Stat.StatStrength, Stat.StatAgility, Stat.StatCritRating],
 			epPseudoStats: [PseudoStat.PseudoStatSpellHitPercent],
 			epReferenceStat: Stat.StatStrength,
 			defaults: { epWeights: new Stats().withStat(Stat.StatAgility, 7) },
@@ -266,6 +267,10 @@ const renderDialog = () => {
 
 const popup = () => rootElem.querySelector('[data-testid="ep-weights-menu"]')!;
 const table = () => popup().querySelector('[data-testid="results-ep-table"]')!;
+const pickOption = async (id: string, index: number) => {
+	await userEvent.click(popup().querySelector<HTMLElement>(`#${id}`)!);
+	await userEvent.click(screen.getAllByRole('option')[index]);
+};
 const rowFor = (name: string) => [...table().querySelectorAll('tbody tr')].find(row => row.firstElementChild?.textContent === name)!;
 const calculate = () => popup().querySelector<HTMLButtonElement>('[data-testid="calc-weights"]')!;
 
@@ -362,13 +367,10 @@ describe('EpWeightsDialog', () => {
 
 	it('switches the table between EP and weight columns, and keeps that and the show-all pick in step across a close and reopen', async () => {
 		const { getByTestId } = renderDialog();
-		const select = () => popup().querySelector<HTMLSelectElement>('#ep-type-select')!;
+		const select = () => popup().querySelector<HTMLElement>('#ep-type-select')!;
 		const showAll = () => popup().querySelector<HTMLInputElement>('#ep-show-all-stats')!;
 		expect(table().getAttribute('data-stats-type')).toBe('ep');
-		act(() => {
-			select().value = '1';
-			fireEvent.change(select());
-		});
+		await pickOption('ep-type-select', 1);
 		expect(table().getAttribute('data-stats-type')).toBe('weight');
 		act(() => {
 			fireEvent.click(showAll());
@@ -382,10 +384,8 @@ describe('EpWeightsDialog', () => {
 			fireEvent.click(getByTestId('toggle-open'));
 		});
 
-		const tableClasses = table().className.split(' ');
-		expect(tableClasses).toHaveLength(2);
-		expect(tableClasses).toEqual(expect.arrayContaining(['w-full', 'stats-type-weight']));
-		expect(select().value).toBe('1');
+		expect(table().getAttribute('data-stats-type')).toBe('weight');
+		expect(select().textContent).toBe('sidebar.buttons.stat_weights.modal.weights');
 		expect(showAll().checked).toBe(true);
 	});
 
@@ -437,29 +437,23 @@ describe('EpWeightsDialog', () => {
 			const label = popup().querySelector<HTMLLabelElement>(`label[for="${id}"]`)!;
 			expect(label).not.toBeNull();
 			expect(label.textContent).not.toBe('');
-			expect(popup().querySelector(`select#${id}`)).not.toBeNull();
+			expect(popup().querySelector(`#${id}`)!.getAttribute('role')).toBe('combobox');
 		}
 	});
 
 	// DEFECT FIXED. The `<option>`s carried no `value`, so the selection round-tripped through the
 	// translated display string.
-	it('carries the stat enum on each reference option, writes it, and follows it in the column tooltip', () => {
+	it('carries the stat enum on each reference option, writes it, and follows it in the column tooltip', async () => {
 		renderDialog();
-		const select = popup().querySelector<HTMLSelectElement>('#ep-ref-stat-damage')!;
-		expect([...select.options].map(option => option.value)).toEqual([
-			String(Stat.StatStrength),
-			String(Stat.StatAgility),
-			String(Stat.StatMeleeCritRating),
-		]);
-		expect(select.value).toBe(String(Stat.StatStrength));
+		// The options run Strength, Agility, Crit Rating.
+		await userEvent.click(popup().querySelector<HTMLElement>('#ep-ref-stat-damage')!);
+		expect(screen.getAllByRole('option').map(option => option.getAttribute('aria-selected'))).toEqual(['true', 'false', 'false']);
+		await userEvent.keyboard('{Escape}');
 
 		const dpsEpLabel = () => table().querySelectorAll('thead tr:first-child th')[3].querySelector('span')!;
 		expect(dpsEpLabel().getAttribute('data-tooltip-content')).toContain('Strength');
 
-		act(() => {
-			select.value = String(Stat.StatAgility);
-			fireEvent.change(select);
-		});
+		await pickOption('ep-ref-stat-damage', 1);
 		expect(player.getRefStat('dpsRefStat')).toBe(Stat.StatAgility);
 		expect(dpsEpLabel().getAttribute('data-tooltip-content')).toContain('Agility');
 		expect(dpsEpLabel().getAttribute('data-tooltip-content')).not.toContain('Strength');
@@ -513,11 +507,7 @@ describe('EpWeightsDialog', () => {
 		expect(player.epWeights.getStat(Stat.StatStrength)).toBe(1);
 		expect(player.epWeights.getStat(Stat.StatAgility)).toBe(0.5);
 
-		const select = popup().querySelector<HTMLSelectElement>('#ep-type-select')!;
-		act(() => {
-			select.value = '1';
-			fireEvent.change(select);
-		});
+		await pickOption('ep-type-select', 1);
 		act(() => {
 			fireEvent.click(table().querySelector('[data-testid="ep-ratios"] [data-testid="compute-ep"]')!);
 		});
@@ -543,7 +533,7 @@ describe('EpWeightsDialog', () => {
 			});
 			expect(trackEvent).toHaveBeenCalledWith({ action: 'sim', category: 'stat_weights', label: 'calculate' });
 			expect(player.computeStatWeights).toHaveBeenCalledWith(
-				[Stat.StatStrength, Stat.StatAgility, Stat.StatMeleeCritRating],
+				[Stat.StatStrength, Stat.StatAgility, Stat.StatCritRating],
 				[PseudoStat.PseudoStatSpellHitPercent],
 				Stat.StatStrength,
 				expect.any(Function),
@@ -621,7 +611,7 @@ describe('EpWeightsDialog', () => {
 			await act(async () => {
 				fireEvent.click(calculate());
 			});
-			expect(player.computeStatWeights.mock.calls[0][0]).toEqual([Stat.StatStrength, Stat.StatMeleeCritRating]);
+			expect(player.computeStatWeights.mock.calls[0][0]).toEqual([Stat.StatStrength, Stat.StatCritRating]);
 			expect(rowFor('Agility').querySelector('[data-column-type="ep"] [data-notapplicable]')).not.toBeNull();
 		});
 

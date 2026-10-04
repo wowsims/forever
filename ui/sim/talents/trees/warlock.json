@@ -48,8 +48,8 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "soulHarvesting",
-        "fancyName": "Soul Harvesting",
+        "fieldName": "soulHarvest",
+        "fancyName": "Soul Harvest",
         "location": {
           "rowIdx": 1,
           "colIdx": 1

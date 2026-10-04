@@ -20,7 +20,7 @@ message ProtoVersion {
 	// deployed anywhere, so no saved browser data or sim link predates this
 	// number and nothing converts one: a breaking proto change simply breaks
 	// whatever a browser still holds.
-	option (current_version_number) = 1;
+	option (current_version_number) = 2;
 
 	// The actual field value is only used within unit tests.
 	int32 saved_version_number = 1;
@@ -169,7 +169,7 @@ enum Profession {
 // the Go Stats array to be larger than the size of the Stat enum proto, but the
 // shared indices between the two must exactly match.
 //
-// NextIndex: 41;
+// NextIndex: 38;
 enum Stat {
 	// Primary attributes ("main stat")
 	StatStrength = 0;
@@ -188,48 +188,50 @@ enum Stat {
 	StatShadowDamage = 11;
 
 	// Caster Secondaries
-	StatSpellHitRating = 12;
-	StatSpellCritRating = 13;
-	StatSpellHasteRating = 14;
-	// Forever renames this stat: "Rune of Perfection" states "Spell Piercing increased".
-	// The number stays 15 so saved data and old sim links keep resolving.
-	StatSpellPiercing = 15;
-	StatSpirit = 16;
+	// The game files' name for spell penetration: "Rune of Perfection" states
+	// "Spell Piercing increased".
+	StatSpellPiercing = 12;
+	StatSpirit = 13;
 
 	// Physical Secondaries
-	StatAttackPower = 17;
-	StatRangedAttackPower = 18;
-	StatFeralAttackPower = 19;
-	StatMeleeHitRating = 20;
-	StatMeleeCritRating = 21;
-	StatMeleeHasteRating = 22;
-	StatArmorPenetration = 23;
-	StatExpertiseRating = 24;
+	StatAttackPower = 14;
+	StatRangedAttackPower = 15;
+	StatFeralAttackPower = 16;
+
+	// Shared Secondaries: one rating each converts into the melee, ranged
+	// and spell percentages alike.
+	StatHitRating = 17;
+	StatCritRating = 18;
+	StatHasteRating = 19;
+
+	// Physical Secondaries
+	StatArmorPenetration = 20;
+	StatExpertiseRating = 21;
 
 	// Tank Secondaries
-	StatDefenseRating = 25;
-	StatBlockRating = 26;
-	StatBlockValue = 27;
-	StatDodgeRating = 28;
-	StatParryRating = 29;
-	StatArmor = 30;
-	StatBonusArmor = 31;
+	StatDefenseRating = 22;
+	StatBlockRating = 23;
+	StatBlockValue = 24;
+	StatDodgeRating = 25;
+	StatParryRating = 26;
+	StatArmor = 27;
+	StatBonusArmor = 28;
 
 	// Composite stats that are built up from the above gear stats + buffs.
 	// These still belong in the Stat enum because they can be present on
 	// some enchants and because the base values need to be stored for NPCs.
-	StatHealth = 32;
-	StatMana = 33;
-	StatMP5 = 34;
+	StatHealth = 29;
+	StatMana = 30;
+	StatMP5 = 31;
 
 	// Resistances
-	StatArcaneResistance = 35;
-	StatFireResistance = 36;
-	StatFrostResistance = 37;
-	StatNatureResistance = 38;
-	StatShadowResistance = 39;
+	StatArcaneResistance = 32;
+	StatFireResistance = 33;
+	StatFrostResistance = 34;
+	StatNatureResistance = 35;
+	StatShadowResistance = 36;
 
-	StatPhysicalDamage = 40;
+	StatPhysicalDamage = 37;
 
 	// DO NOT add new stats here without discussing it first; new stats come
 	// with a performance penalty.
@@ -255,7 +257,7 @@ enum Stat {
 // between the UI and backend. It's also OK to include things here which aren't
 // in the PseudoStats struct.
 //
-// NextIndex: 27;
+// NextIndex: 42;
 enum PseudoStat {
 	PseudoStatMainHandDps = 0;
 	PseudoStatOffHandDps = 1;
@@ -295,6 +297,23 @@ enum PseudoStat {
 	// (talents, the Hyjal flask); ExpertiseRating covers the few rating-denominated ones
 	// (the tier 1 4P bonuses) and converts into this at 10 rating per percent.
 	PseudoStatExpertisePercent = 27;
+
+	// Character sheet values per attack; the sim never reads them back.
+	PseudoStatOffHandHitPercent = 28;
+	PseudoStatOffHandCritPercent = 29;
+	PseudoStatMainHandHitRating = 30;
+	PseudoStatMainHandCritRating = 31;
+	PseudoStatOffHandHitRating = 32;
+	PseudoStatOffHandCritRating = 33;
+	PseudoStatRangedHitRating = 34;
+	PseudoStatRangedCritRating = 35;
+	PseudoStatMeleeCritSuppressionPercent = 36;
+	PseudoStatRangedCritSuppressionPercent = 37;
+	// The main-hand auto attack's table against the current target, 0 before the attack tables exist.
+	PseudoStatMainHandMissPercent = 38; // The miss hit has to cover.
+	PseudoStatMainHandDodgePercent = 39;
+	PseudoStatMainHandParryPercent = 40; // The target's parry against attacks from in front, not the character's own.
+	PseudoStatMainHandGlancePercent = 41;
 }
 
 message UnitStats {
@@ -371,6 +390,29 @@ enum RangedWeaponType {
 	RangedWeaponTypeLibram = 7;
 	RangedWeaponTypeTotem = 8;
 	RangedWeaponTypeSigil = 9;
+}
+
+enum WeaponSkill {
+	WeaponSkillUnknown = 0;
+	WeaponSkillAxes = 1;
+	WeaponSkillTwoHandedAxes = 2;
+	WeaponSkillMaces = 3;
+	WeaponSkillTwoHandedMaces = 4;
+	WeaponSkillSwords = 5;
+	WeaponSkillTwoHandedSwords = 6;
+	WeaponSkillPolearms = 7;
+	WeaponSkillStaves = 8;
+	WeaponSkillDaggers = 9;
+	WeaponSkillFistWeapons = 10;
+	WeaponSkillBows = 11;
+	WeaponSkillCrossbows = 12;
+	WeaponSkillGuns = 13;
+	WeaponSkillThrown = 14;
+}
+
+message WeaponSkillValue {
+	WeaponSkill skill = 1;
+	int32 value = 2; // The full skill, level-based part included (300 is the maximum at level 60).
 }
 
 // All slots on the gear menu where a single item can be worn.
@@ -610,18 +652,15 @@ enum ConsumableType {
 	ConsumableTypeFood = 3;
 	ConsumableTypeScroll = 4;
 	ConsumableTypeExplosive = 5;
-	// The game files state no Battle or Guardian split among their elixirs.
-	reserved 6, 7;
-	reserved "ConsumableTypeBattleElixir", "ConsumableTypeGuardianElixir";
-	ConsumableTypeImbue = 8;
-	ConsumableTypeOther = 9;
-	ConsumableTypeHerb = 10;
-	ConsumableTypeBandage = 11;
-	ConsumableTypeDevice = 12;
+	ConsumableTypeImbue = 6;
+	ConsumableTypeOther = 7;
+	ConsumableTypeHerb = 8;
+	ConsumableTypeBandage = 9;
+	ConsumableTypeDevice = 10;
 	// An Elixir-subclass item that shares no potion, conjured, food or drink category.
-	ConsumableTypeElixir = 13;
+	ConsumableTypeElixir = 11;
 	// A healthstone, mana gem, rune or tea: its on-use shares conjured category 1153.
-	ConsumableTypeConjured = 14;
+	ConsumableTypeConjured = 12;
 }
 
 

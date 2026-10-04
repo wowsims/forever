@@ -3,13 +3,7 @@ import type { Player } from '@sim/player/player';
 import { actionKinds, type APLActionKind } from './action_kinds';
 import { type ValidAPLValueKind, valueKinds } from './value_kinds';
 
-/**
- * One entry in a kind dropdown.
- *
- * Deliberately not `DropdownOption`: that type's `label` is a `ReactNode`, and this file is model.
- * It is structurally assignable to one, which is what lets the pickers pass the array straight
- * through while the dependency arrow keeps pointing the right way.
- */
+/** One entry in a kind picker: a `PathOption` whose label is plain text, which `choiceTree` files under its submenu. */
 export interface KindOption<K> {
 	value: K;
 	label: string;

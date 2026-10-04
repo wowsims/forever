@@ -13,7 +13,7 @@
 			&::after {
 				content: '';
 
-				@apply absolute inset-x-0 bottom-0 h-0.5 bg-white;
+				@apply absolute inset-x-0 bottom-0 h-px bg-white;
 			}
 		}
 	}

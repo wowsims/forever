@@ -11,6 +11,7 @@ import (
 
 var faerieFireRank = spellData.FaerieFire.Highest()
 
+// TODO: Faerie Fire does not reset the swing timer.
 func (druid *Druid) registerFaerieFireSpell() {
 	druid.FaerieFireAuras = druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		// The druid's own copy of the debuff; the game files have no talent that raises it.

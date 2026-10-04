@@ -1,18 +1,47 @@
+import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
+import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
 import type { ReforgeOptimizerModel } from '@features/reforge/model/reforge_optimizer';
 import { toDefaultUnitStatValue, toVisualUnitStatPercentage } from '@features/reforge/model/utils';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import type { UnitStat } from '@sim/proto/stats';
 import { subscribeReforgeChange } from '@sim/state/subscriptions';
-import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { Button } from '@ui-kit/Button';
-import { EnumPicker } from '@ui-kit/EnumPicker';
-import { Icon } from '@ui-kit/Icon';
-import { NumberPicker } from '@ui-kit/NumberPicker';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
-import { type ReactNode, useId, useMemo } from 'react';
+import { TableCell, TableRow } from '@ui-kit/Table';
+import { TooltipButton } from '@ui-kit/TooltipButton';
+import { type ReactNode, useMemo } from 'react';
 
-import { useReforgeIdPrefix } from './ReforgeIdPrefixContext';
+import { useReforgeIdPrefix } from './context/ReforgeIdPrefixContext';
+
+export interface ReforgeStatCapRowViewProps {
+	statName: string;
+	tooltip?: ReactNode;
+	percentage: ReactNode;
+	undershoot: ReactNode;
+	/** The spec's preset caps for this stat, on a row of their own. */
+	presets?: ReactNode;
+}
+
+export const ReforgeStatCapRowView = ({ statName, tooltip, percentage, undershoot, presets }: ReforgeStatCapRowViewProps) => {
+	return (
+		<>
+			<TableRow>
+				<TableCell className="w-0 whitespace-nowrap">
+					{statName} {!!tooltip && <TooltipButton tooltip={tooltip} label={i18n.t('common.help')} testId="reforge-stat-cap-help" />}
+				</TableCell>
+				<TableCell className="w-18">{percentage}</TableCell>
+				<TableCell className="w-14 text-right">{undershoot}</TableCell>
+			</TableRow>
+			{presets && (
+				<TableRow>
+					<TableCell />
+					<TableCell className="w-18">{presets}</TableCell>
+					<TableCell />
+				</TableRow>
+			)}
+		</>
+	);
+};
 
 export interface ReforgeStatCapRowProps {
 	model: ReforgeOptimizerModel;
@@ -28,7 +57,6 @@ export const ReforgeStatCapRow = ({ model, player, unitStat, tooltip }: ReforgeS
 	const settings = model.settings;
 	const idPrefix = useReforgeIdPrefix();
 	const statName = unitStat.getShortName(player.getClass());
-	const tooltipId = useId();
 
 	const getValue = () => toVisualUnitStatPercentage(settings.statCaps.getUnitStat(unitStat), unitStat);
 	const setValue = (_player: Player<any>, newValue: number) =>
@@ -48,75 +76,56 @@ export const ReforgeStatCapRow = ({ model, player, unitStat, tooltip }: ReforgeS
 	);
 
 	return (
-		<>
-			<tr>
-				<td className="ui-reforge-cap-label-cell">
-					<div className="whitespace-nowrap">
-						{statName}{' '}
-						{!!tooltip && (
-							<>
-								<Button variant="unstyled" className="inline" {...tooltipAnchorProps(tooltipId)}>
-									<Icon name="circle-question" style="regular" />
-								</Button>
-								<Tooltip id={tooltipId} content={tooltip} />
-							</>
-						)}
-					</div>
-				</td>
-				<td colSpan={3} className="w-18.75 pr-0.5 pb-1 pl-0.5">
-					<NumberPicker
+		<ReforgeStatCapRowView
+			statName={statName}
+			tooltip={tooltip}
+			percentage={
+				<ConnectedNumberField
+					modObject={player}
+					config={{
+						id: `${idPrefix}-${statName}-percentage`,
+						float: true,
+						maxDecimalDigits: 5,
+						showZeroes: false,
+						positive: true,
+						enableWhen,
+						storeField: CAP_FIELDS,
+						getValue,
+						setValue,
+					}}
+					inputClassName="pr-2 pl-2 text-right"
+				/>
+			}
+			undershoot={
+				<ConnectedBooleanPicker
+					modObject={player}
+					config={{
+						id: `${idPrefix}-${statName}-undershoot`,
+						label: '',
+						storeSubscribe: () => subscribeReforgeChange(settings),
+						getValue: () => settings.undershootCaps.getUnitStat(unitStat) > 0,
+						setValue: (_player, newValue) => {
+							settings.undershootCaps = settings.undershootCaps.withUnitStat(unitStat, newValue ? 1 : 0);
+						},
+					}}
+				/>
+			}
+			presets={
+				presetValues && (
+					<ConnectedChoiceField
 						modObject={player}
 						config={{
-							id: `${idPrefix}-${statName}-percentage`,
-							float: true,
-							maxDecimalDigits: 5,
-							showZeroes: false,
-							positive: true,
-							extraClassNames: ['mb-0'],
+							id: `${idPrefix}-${statName}-presets`,
+							label: '',
+							values: presetValues,
 							enableWhen,
 							storeField: CAP_FIELDS,
 							getValue,
 							setValue,
 						}}
-						inputClassName="pr-2 pl-2 text-right"
 					/>
-				</td>
-				<td colSpan={1} className="w-15 pb-1 pl-0.5 text-right">
-					<BooleanPicker
-						modObject={player}
-						config={{
-							id: `${idPrefix}-${statName}-undershoot`,
-							label: '',
-							storeSubscribe: () => subscribeReforgeChange(settings),
-							getValue: () => settings.undershootCaps.getUnitStat(unitStat) > 0,
-							setValue: (_player, newValue) => {
-								settings.undershootCaps = settings.undershootCaps.withUnitStat(unitStat, newValue ? 1 : 0);
-							},
-						}}
-					/>
-				</td>
-			</tr>
-			{presetValues && (
-				<tr>
-					<td className="pr-2 pb-1" />
-					<td colSpan={3} className="ui-reforge-cap-value-cell">
-						<EnumPicker
-							modObject={player}
-							config={{
-								id: `${idPrefix}-${statName}-presets`,
-								extraClassNames: ['mb-0'],
-								label: '',
-								values: presetValues,
-								enableWhen,
-								storeField: CAP_FIELDS,
-								getValue,
-								setValue,
-							}}
-							selectClassName="w-full"
-						/>
-					</td>
-				</tr>
-			)}
-		</>
+				)
+			}
+		/>
 	);
 };

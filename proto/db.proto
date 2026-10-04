@@ -64,33 +64,39 @@ message Consumable {
 	bool buffs_main_stat = 4;
 	string name = 5;
 	string icon = 6;
-	int32 category_id = 11;
+	// The level the item requires, or its item level where it requires none or level 1 (most explosives).
+	int32 lvl = 19;
+	int32 category_id = 7;
 	repeated int32 effect_ids = 8;
 
 	// The item's on-use rows: the spell each casts and the item's cooldown and category for it.
-	repeated ItemEffect item_effects = 12;
+	repeated ItemEffect item_effects = 9;
 	// Empty when every class can use it.
-	repeated Class class_allowlist = 13;
-	Profession required_profession = 15;
+	repeated Class class_allowlist = 10;
+	Profession required_profession = 11;
+	int32 req_prof_rank = 20; // The skill in required_profession the item needs (ItemSparse.RequiredSkillRank).
 	// SpellEquippedItems of a temporary enchant's spell: the weapon subclasses and inventory types
 	// it can be applied to. Zero on consumables that enchant nothing.
-	int32 weapon_subclass_mask = 16;
-	int32 weapon_inventory_type_mask = 17;
+	int32 weapon_subclass_mask = 12;
+	int32 weapon_inventory_type_mask = 13;
 	// The SpellItemEnchantment row a temporary enchant applies to the weapon. Its enchant_effects name,
 	// by buff_id alone, the combat spells it casts off that weapon's hits, each at the chance its
 	// spell's row states. Absent on consumables that enchant nothing.
-	SimEnchant temporary_enchant = 18;
+	SimEnchant temporary_enchant = 14;
 	// Empty when every race can use it.
-	repeated Race race_allowlist = 19;
+	repeated Race race_allowlist = 15;
 	// The consumable's exclusive group: of the consumables a spec names only the first of each group
 	// applies, and consumables of different groups stack. The generator resolves it from the rows and
 	// ConsumableExclusiveGroups. An empty key stacks with everything.
-	string group_key = 20;
+	string group_key = 16;
 	// The group's label in the settings.
-	string group_name = 21;
-
-	reserved 7, 9, 10, 14;
-	reserved "buff_duration", "cooldown_duration", "category_cooldown_duration", "allowable_race";
+	string group_name = 17;
+	// The hit and crit percents an on-use grants to one channel alone, and an all-channel crit on each
+	// channel. Indexed by PseudoStat; ranged totals include the melee share.
+	repeated double pseudo_stats = 18;
+	// The world event the consumable belongs to, by name, which the settings list it under. Empty for
+	// one available all year.
+	string holiday = 21;
 }
 
 message ItemEffectRandPropPoints {

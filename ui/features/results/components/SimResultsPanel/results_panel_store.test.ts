@@ -64,6 +64,44 @@ describe('ResultsPanelStore', () => {
 		expect(store.latestProgress?.completedIterations).toBe(3);
 	});
 
+	it('estimates the time left from the pace since the first tick after the presim, and starts over with each run', () => {
+		vi.useFakeTimers();
+		try {
+			const presim = ProgressMetrics.create({ presimRunning: true, totalIterations: 100 });
+			store.setPending();
+			store.setProgress(presim);
+			vi.advanceTimersByTime(5000);
+			store.setProgress(tick(10));
+			expect(store.secondsRemaining(tick(10))).toBeUndefined();
+
+			vi.advanceTimersByTime(1000);
+			// 10 iterations in 1s since the first counted tick, 80 to go.
+			expect(store.secondsRemaining(tick(20))).toBe(8);
+			expect(store.secondsRemaining(presim)).toBeUndefined();
+
+			store.setPending();
+			expect(store.secondsRemaining(tick(20))).toBeUndefined();
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it('sends each tick to every listener, and unsubscribing one leaves the other', () => {
+		const numbers: Array<number> = [];
+		const bar: Array<number> = [];
+		store.setPending();
+		store.setProgress(tick(1));
+		store.onProgress(progress => numbers.push(progress.completedIterations));
+		const unsubscribeBar = store.onProgress(progress => bar.push(progress.completedIterations));
+
+		store.setProgress(tick(2));
+		unsubscribeBar();
+		store.setProgress(tick(3));
+
+		expect(numbers).toEqual([2, 3]);
+		expect(bar).toEqual([2]);
+	});
+
 	it('hides the button zone without removing the button, the way an aborted run does', () => {
 		store.addAbortButton(() => {});
 		store.hideAll();

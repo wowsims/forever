@@ -15,10 +15,20 @@ on:
                 description: 'Commit that TestProtoVersioning diffs the protos against (defaults to remote master)'
                 required: false
                 type: string
+# Runs called from master (deploy, release) have no pull request number; the
+# run id keeps each in a group of its own so none is cancelled or queued.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+    cancel-in-progress: true
 jobs:
     build-ui:
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         timeout-minutes: 20
+        # The preview link comment needs to write to the pull request; every caller of
+        # this workflow grants the same.
+        permissions:
+            contents: read
+            pull-requests: write
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v5
@@ -36,6 +46,7 @@ jobs:
               uses: actions/setup-go@v6
               with:
                   go-version: 1.25.x
+                  cache: false
 
             - name: Install Protoc
               uses: arduino/setup-protoc@v3
@@ -50,7 +61,6 @@ jobs:
               uses: actions/setup-node@v5
               with:
                   node-version: 22
-                  cache: npm
 
             - name: Test Locales 💬
               run: |
@@ -75,17 +85,88 @@ jobs:
             - name: Unit tests 🧪
               run: npm run test:unit
 
+            - name: Build Storybook 📚
+              run: npm run storybook:build
+
             - name: Build 🔧
               run: |
                   make dist/forever/.dirstamp
 
+            # Each pull request from this repository gets its build hosted at
+            # https://pr-<number>.wowsims-forever.pages.dev/forever/ as a Cloudflare Pages
+            # preview; fork pull requests carry no secrets, so they get none. The whole `dist`
+            # folder is uploaded because the bundle is built for the `/forever/` base path,
+            # and `_redirects` sends the bare host there.
+            - name: Deploy preview ☁️
+              id: deploy
+              if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.DEPLOY_PREVIEW_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.DEPLOY_PREVIEW_ACCOUNT_ID }}
+              run: |
+                  set -o pipefail
+                  echo "/ /forever/ 302" > dist/_redirects
+                  npx --yes wrangler@4 pages deploy dist \
+                    --project-name=wowsims-forever \
+                    --branch=pr-${{ github.event.pull_request.number }} \
+                    --commit-hash=${{ github.event.pull_request.head.sha }} \
+                    --commit-dirty=true | tee "$RUNNER_TEMP/wrangler-deploy.log"
+                  # The per-deployment URL (a hash host, unlike the pr-<number> alias) is only in wrangler's output.
+                  echo "url=$(grep -o 'https://[a-z0-9]*\.wowsims-forever\.pages\.dev' "$RUNNER_TEMP/wrangler-deploy.log" | head -1)" >> "$GITHUB_OUTPUT"
+
+            # One comment per pull request, found again by its marker and edited on every push, so
+            # the link stays in one place instead of repeating. The body is the layout Cloudflare's
+            # own GitHub integration posts, with the workflow run as the log link.
+            - name: Comment preview link 🔗
+              if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+              uses: actions/github-script@v8
+              env:
+                  DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+              with:
+                  script: |
+                      const marker = '<!-- preview-link -->';
+                      const number = context.payload.pull_request.number;
+                      const sha = context.payload.pull_request.head.sha;
+                      const branchUrl = `https://pr-${number}.wowsims-forever.pages.dev`;
+                      const deploymentUrl = process.env.DEPLOYMENT_URL || branchUrl;
+                      const logsUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+                      const body = [
+                          marker,
+                          '## Deploying wowsims-forever with &nbsp;<a href="https://pages.dev"><img alt="Cloudflare Pages" src="https://user-images.githubusercontent.com/23264/106598434-9e719e00-654f-11eb-9e59-6167043cfa01.png" width="16"></a> &nbsp;Cloudflare Pages',
+                          '',
+                          '<table><tr><td><strong>Latest commit:</strong> </td><td>',
+                          `<code>${sha.slice(0, 7)}</code>`,
+                          '</td></tr>',
+                          '<tr><td><strong>Status:</strong></td><td>&nbsp;✅&nbsp; Deploy successful!</td></tr>',
+                          '<tr><td><strong>Preview URL:</strong></td><td>',
+                          `<a href='${deploymentUrl}'>${deploymentUrl}</a>`,
+                          '</td></tr>',
+                          '<tr><td><strong>Branch Preview URL:</strong></td><td>',
+                          `<a href='${branchUrl}'>${branchUrl}</a>`,
+                          '</td></tr>',
+                          '</table>',
+                          '',
+                          `[View logs](${logsUrl})`,
+                      ].join('\n');
+                      const comments = await github.paginate(github.rest.issues.listComments, { ...context.repo, issue_number: number, per_page: 100 });
+                      const existing = comments.find(comment => comment.body?.startsWith(marker));
+                      if (existing) {
+                          await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+                      } else {
+                          await github.rest.issues.createComment({ ...context.repo, issue_number: number, body });
+                      }
+
     test:
-        runs-on: ubuntu-latest
-        timeout-minutes: 30
+        runs-on: self-hosted
+        # One shard while there is a single self-hosted runner: four would only queue behind each
+        # other, each repeating the setup. Restore the commented lines once there are more runners.
+        # timeout-minutes: 30
+        timeout-minutes: 60
         strategy:
             fail-fast: false
             matrix:
-                shard: [0, 1, 2, 3]
+                # shard: [0, 1, 2, 3]
+                shard: [0]
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v5
@@ -96,6 +177,7 @@ jobs:
               uses: actions/setup-go@v6
               with:
                   go-version: 1.25.x
+                  cache: false
 
             - name: Install Protoc
               uses: arduino/setup-protoc@v3
@@ -110,7 +192,6 @@ jobs:
               uses: actions/setup-node@v5
               with:
                   node-version: 22
-                  cache: npm
 
             # TestProtoVersioning in sim/core shells out to `npx buf`, which needs node_modules.
             - name: Install npm dependencies
@@ -134,4 +215,5 @@ jobs:
                   # workflow passes the pre-push commit instead; pull requests keep the master default.
                   PROTO_BASELINE_REF: ${{ inputs.proto_baseline }}
               run: |
-                  go list ./sim/... | awk 'NR % 4 == ${{ matrix.shard }}' | xargs -r go test --tags=with_db
+                  # go list ./sim/... | awk 'NR % 4 == ${{ matrix.shard }}' | xargs -r go test --tags=with_db
+                  go list ./sim/... | awk 'NR % 1 == ${{ matrix.shard }}' | xargs -r go test --tags=with_db

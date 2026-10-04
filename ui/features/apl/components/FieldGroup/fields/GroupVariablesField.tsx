@@ -1,11 +1,13 @@
 import { placeholderNames } from '@features/apl/model/placeholders';
 import { rotationSource } from '@features/apl/utils';
-import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
+import { type ListItemsConfig, useListItems } from '@features/inputs/hooks/useListItems';
+import type { InputConfig } from '@features/inputs/input';
+import i18n from '@i18n/config';
+import { translateItemLabel } from '@i18n/localization';
 import type { Player } from '@sim/player/player';
 import { randomUUID } from '@sim/utils/misc';
-import type { InputConfig } from '@ui-kit/input';
-import { ListPicker, type ListPickerConfig } from '@ui-kit/ListPicker';
-import { PickerShell } from '@ui-kit/PickerShell';
+import { Field } from '@ui-kit/Field';
+import { Tree } from '@ui-kit/Tree';
 import { useCallback, useRef } from 'react';
 
 import { GroupVariableRow } from './GroupVariableRow';
@@ -31,15 +33,16 @@ const NOTHING_TO_PASS: Array<any> = [];
  *
  * The row set is derived: it is exactly the placeholder names of the selected group, and
  * `reconcile` rewrites the stored `variables` to that set, keeping whatever each name was already
- * assigned. It is a write on a read path, and **both** the container's own read and the list's
- * `getValue` have to call it: they are separate `useSyncExternalStore` subscribers, either may read
- * first on a notification, and a reader that skipped the reconcile would cache a row set the other
- * is about to replace. Calling it twice is safe because it is idempotent — the second call finds
- * every entry and writes nothing.
+ * assigned. It is a write on a read path, and **every** read goes through it: the list's own read
+ * and each row's re-read of its entry are separate `useSyncExternalStore` subscribers, either may
+ * read first on a notification, and a reader that skipped the reconcile would cache a row set the
+ * other is about to replace. Calling it twice is safe because it is idempotent — the second call
+ * finds every entry and writes nothing.
  *
  * Delete therefore acts on a list rebuilt underneath it: the row returns with its assignment
  * cleared, which is the useful reading of the button and the only one it can have. Copy is not
- * offered — a duplicate entry carries an existing name, so the next reconcile drops it.
+ * offered — a duplicate entry carries an existing name, so the next reconcile drops it — and
+ * neither are add or drag, because the group fixes the set and its order.
  *
  * With no group selected, one whose name resolves to nothing, or one with no placeholders, there is
  * nothing to derive: the stored `variables` are left exactly as the user wrote them and the
@@ -67,13 +70,7 @@ export const GroupVariablesField = ({ player, config, groupNameField, getParentV
 		return changed ? reconciled : existing;
 	}, [player, groupNameField]);
 
-	const subscribe = rotationSource(player);
-	const variables = useStoreSubscribe(subscribe, reconcile);
-
-	const listConfig: ListPickerConfig<Player<any>, any> = {
-		title: 'Group Variables',
-		titleTooltip: "Variables to pass to the group. These will override the group's internal variables.",
-		itemLabel: 'Variable',
+	const listConfig: ListItemsConfig<Player<any>, any> = {
 		storeSubscribe: rotationSource,
 		getValue: () => reconcile().slice(),
 		setValue: (subject: Player<any>, next: Array<any>) => {
@@ -84,27 +81,41 @@ export const GroupVariablesField = ({ player, config, groupNameField, getParentV
 		newItem: () => {
 			throw new Error('newItem should not be called for auto-populated group variables');
 		},
-		allowedActions: ['delete'],
 	};
+	const { items, itemConfig, remove } = useListItems(player, listConfig);
 
+	const itemLabel = translateItemLabel('Variable');
 	return (
-		<PickerShell
-			// The list renders the title, so the field's own label would be a second one.
-			config={{
-				...config,
-				label: undefined,
-				labelTooltip: undefined,
-				extraClassNames: [...(config.extraClassNames || []), ...(variables.length ? [] : ['hidden'])],
-			}}
-			className="ui-apl-group-variables-container"
-			testId="group-reference-variables-container"
-			hidden={false}
-			disabled={false}>
-			<ListPicker<Player<any>, any>
-				modObject={player}
-				config={listConfig}
-				renderItem={(index, itemConfig) => <GroupVariableRow player={player} config={itemConfig} name={itemConfig.getValue(player)?.name ?? ''} />}
-			/>
-		</PickerShell>
+		<Field.Root
+			layout={config.layout}
+			className={['w-full', config.extraClassNames, !items.length && 'hidden']}
+			hidden={!items.length}
+			testId="group-reference-variables-container">
+			<Field.Label as="span" tooltip="Variables to pass to the group. These will override the group's internal variables.">
+				Group Variables
+			</Field.Label>
+			<Tree.Root group="apl-group-variables" layout="inline" density="compact" testId="apl-group-variables">
+				<Tree.Items>
+					{items.map((entry, index) => (
+						<Tree.Item key={entry.name} id={entry.name} testId="apl-group-variables-item">
+							<Tree.Item.Header>
+								<Tree.Item.Actions label={i18n.t('common.list_picker.item_actions', { itemLabel })}>
+									<Tree.Item.Action
+										label={i18n.t('common.list_picker.delete_item', { itemLabel })}
+										icon="xmark"
+										tone="danger"
+										testId="apl-group-variables-delete"
+										onClick={() => remove(index)}
+									/>
+								</Tree.Item.Actions>
+							</Tree.Item.Header>
+							<Tree.Item.Body>
+								<GroupVariableRow player={player} config={itemConfig(entry, index)} name={entry.name} />
+							</Tree.Item.Body>
+						</Tree.Item>
+					))}
+				</Tree.Items>
+			</Tree.Root>
+		</Field.Root>
 	);
 };

@@ -203,6 +203,7 @@ const (
 	SpellFlagSupressDoTApply                                // If present this spell will not apply dots (Used for DTR dot supression)
 	SpellFlagSwapped                                        // Indicates that this spell is not useable because it is from a currently swapped item
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
+	SpellFlagPureDot                                        // A DoT with no direct damage component: its partial resists count a tenth of the target's resistance.
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 
 	// Used to let agents categorize their spells.
@@ -298,6 +299,19 @@ func (ss SpellSchool) SchoolDamage() stats.Stat {
 	default:
 		return stats.SpellDamage
 	}
+}
+
+var singleSchools = [...]SpellSchool{SpellSchoolPhysical, SpellSchoolArcane, SpellSchoolFire, SpellSchoolFrost,
+	SpellSchoolHoly, SpellSchoolNature, SpellSchoolShadow}
+
+// The school Spell.SchoolIndex reads: the first of physical, arcane, fire, frost, holy, nature, shadow.
+func (ss SpellSchool) MultiplierSchool() SpellSchool {
+	for _, school := range singleSchools {
+		if ss.Matches(school) {
+			return school
+		}
+	}
+	return SpellSchoolNone
 }
 
 func (ss SpellSchool) SchoolIndex() stats.SchoolIndex {

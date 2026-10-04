@@ -1,0 +1,188 @@
+@layer components {
+	.ui-tree {
+		@apply flex flex-col items-start;
+		--tree-gap: var(--spacing-tree-gap);
+		--tree-row-py: var(--spacing-tree-row-py);
+		--tree-row-px: var(--spacing-tree-row-px);
+		--tree-row-border: var(--border-default);
+		--tree-title-track: minmax(0, 1fr);
+		--tree-title-fallback: minmax(0, 1fr);
+		--tree-body-col: initial;
+		--tree-body-column: 1 / -1;
+		--tree-body-order: 7;
+		--tree-align: center;
+		--tree-flow: row;
+		--tree-track: minmax(0, 1fr);
+		--tree-drop-before: 0 calc(var(--spacing-tree-drop-line) * -1);
+		--tree-drop-after: 0 var(--spacing-tree-drop-line);
+
+		container: tree / inline-size;
+		inline-size: 100%;
+		gap: var(--tree-gap);
+
+		&[data-density='compact'] {
+			--tree-gap: var(--spacing-tree-gap-compact);
+			--tree-row-py: 0;
+			--tree-row-px: 0;
+			--tree-row-border: none;
+		}
+
+		&[data-layout='inline'] {
+			--tree-title-track: auto;
+			--tree-title-fallback: initial;
+			--tree-body-col: [body] minmax(0, 1fr);
+			--tree-body-column: body / span 1;
+			--tree-body-order: 3;
+			--tree-align: baseline;
+		}
+
+		&[data-in-body] {
+			padding-inline-start: var(--spacing-tree-indent);
+			border-inline-start: var(--border-default);
+
+			&[data-drop='into'] {
+				@apply border-s-primary;
+			}
+		}
+	}
+
+	.ui-tree-items {
+		@apply m-0 grid list-none self-stretch p-0;
+		grid-auto-flow: var(--tree-flow);
+		grid-auto-columns: var(--tree-track);
+		gap: var(--tree-gap);
+
+		@variant @max-lg/tree {
+			--tree-title-track: minmax(0, 1fr);
+			--tree-title-fallback: minmax(0, 1fr);
+			--tree-body-col: initial;
+			--tree-body-column: 1 / -1;
+			--tree-body-order: 7;
+		}
+	}
+
+	.ui-tree-item {
+		@apply relative grid;
+		--tree-col-handle: [handle] auto;
+		--tree-col-title: [title] var(--tree-title-track);
+		--tree-col-aside: [aside] auto;
+		--tree-col-trigger: [trigger] auto;
+		--tree-col-actions: [actions] auto;
+		align-items: var(--tree-align);
+		grid-template-columns: var(--tree-col-handle,) var(--tree-col-title,) var(--tree-body-col,) var(--tree-col-aside,) var(--tree-col-trigger,) var(
+				--tree-col-actions,
+			);
+		gap: var(--tree-gap);
+		padding: var(--tree-row-py) var(--tree-row-px);
+		border: var(--tree-row-border);
+
+		&:not(:has(> .ui-tree-item-header > .ui-tree-item-handle)) {
+			--tree-col-handle: initial;
+		}
+
+		&:not(:has(> .ui-tree-item-header > .ui-tree-item-title)) {
+			--tree-col-title: var(--tree-title-fallback,);
+		}
+
+		&:not(:has(> .ui-tree-item-header > .ui-tree-item-aside)) {
+			--tree-col-aside: initial;
+		}
+
+		&:not(:has(> .ui-tree-item-header > .ui-tree-item-trigger)) {
+			--tree-col-trigger: initial;
+		}
+
+		&:not(:has(> .ui-tree-item-header > .ui-tree-item-actions)) {
+			--tree-col-actions: initial;
+		}
+
+		&[data-disabled] {
+			@apply filter-[opacity(0.5)];
+		}
+
+		&[data-drag='from'] {
+			@apply opacity-50;
+		}
+
+		&[data-drop='before'] {
+			box-shadow: var(--tree-drop-before) 0 0 var(--color-primary);
+		}
+
+		&[data-drop='after'] {
+			box-shadow: var(--tree-drop-after) 0 0 var(--color-primary);
+		}
+
+		&[data-drop='into'] > .ui-tree-item-children {
+			@apply border-s-primary;
+		}
+	}
+
+	.ui-tree-item-header {
+		@apply contents;
+	}
+
+	.ui-tree-item-handle {
+		@apply order-1 cursor-grab;
+		grid-column: handle / span 1;
+	}
+
+	.ui-tree-item-title {
+		@apply order-2 m-0 flex min-w-0 items-center;
+		grid-column: title / span 1;
+		gap: var(--tree-gap);
+	}
+
+	.ui-tree-item[data-muted] > .ui-tree-item-header {
+		> .ui-tree-item-handle,
+		> .ui-tree-item-title {
+			@apply opacity-50;
+		}
+	}
+
+	.ui-tree-item-aside {
+		@apply order-4 flex items-center;
+		grid-column: aside / span 1;
+		gap: var(--tree-gap);
+	}
+
+	.ui-tree-item-trigger {
+		@apply order-5;
+		grid-column: trigger / span 1;
+	}
+
+	.ui-tree-item-actions {
+		@apply order-6;
+		grid-column: actions / span 1;
+	}
+
+	.ui-tree-item-actions-popup {
+		@apply flex flex-col items-start gap-2;
+	}
+
+	.ui-tree-item-action {
+		@apply flex items-center gap-2;
+
+		&[data-tone='danger'] {
+			@apply text-link-danger;
+		}
+	}
+
+	.ui-tree-item-body {
+		@apply min-w-0;
+		order: var(--tree-body-order);
+		grid-column: var(--tree-body-column);
+	}
+
+	.ui-tree-item-children {
+		@apply order-8;
+		grid-column: 1 / -1;
+		padding-inline-start: var(--spacing-tree-indent);
+		border-inline-start: var(--border-default);
+	}
+
+	.ui-tree-add {
+		&[data-tone='success'] {
+			@apply text-success;
+		}
+	}
+}

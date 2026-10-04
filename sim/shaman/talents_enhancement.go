@@ -1,15 +1,22 @@
 package shaman
 
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
 func (shaman *Shaman) registerEnhancementTalents() {
 	// Tier 1
-	shaman.applyEarthsGrasp()
+	// Earth's Grasp (16043) raises Stoneclaw Totem's health and Earthbind Totem's radius, which the
+	// sim does not model.
 	shaman.applyThunderingStrikes()
 	shaman.applyAncestralKnowledge()
 
 	// Tier 2
-	shaman.applyGuardianTotems()
+	// Guardian Totems (16258) improves Stoneskin, Windwall and Grounding Totem, which the sim does
+	// not model.
 	shaman.applyMentalDexterity()
-	shaman.applyImprovedGhostWolf()
+	// Improved Ghost Wolf (16262) shortens Ghost Wolf's cast, which the sim does not model.
 	shaman.applyImprovedLightningShield()
 
 	// Tier 3
@@ -34,179 +41,116 @@ func (shaman *Shaman) registerEnhancementTalents() {
 	shaman.applyRageOfTheFarseer()
 }
 
-// TODO: To be implemented. Port the TBC Ancestral Knowledge implementation below; not yet verified against the Forever game files.
+// The row requires a melee weapon, so the crit is a mod on what the equipped weapon allows.
+func (shaman *Shaman) applyThunderingStrikes() {
+	if shaman.Talents.ThunderingStrikes == 0 {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.ThunderingStrikes.Rank(shaman.Talents.ThunderingStrikes))
+}
+
 func (shaman *Shaman) applyAncestralKnowledge() {
 	if shaman.Talents.AncestralKnowledge == 0 {
 		return
 	}
-
-	// The TBC implementation, kept for the port:
-	// if shaman.Talents.AncestralKnowledge == 0 {
-	// 	return
-	// }
-	// shaman.MultiplyStat(stats.Mana, spellData.AncestralKnowledge.MultiplierAt(shaman.Talents.AncestralKnowledge))
+	spelldata.ParseStatic(&shaman.Character, spellData.AncestralKnowledge.Rank(shaman.Talents.AncestralKnowledge))
 }
 
-// TODO: To be implemented. Port the TBC Elemental Weapons implementation below; not yet verified against the Forever game files.
+func (shaman *Shaman) applyMentalDexterity() {
+	if shaman.Talents.MentalDexterity == 0 {
+		return
+	}
+
+	// Effect 1 is the Intellect share of attack power the tooltip states.
+	//
+	// TODO: Effect 2, a dummy of 20 plus 5 per level that the tooltip does not mention, is skipped.
+	spelldata.ParseStatic(&shaman.Character, spellData.MentalDexterity.Rank(shaman.Talents.MentalDexterity))
+}
+
+func (shaman *Shaman) applyImprovedLightningShield() {
+	if shaman.Talents.ImprovedLightningShield == 0 {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.ImprovedLightningShield.Rank(shaman.Talents.ImprovedLightningShield))
+}
+
 func (shaman *Shaman) applyElementalWeapons() {
 	if shaman.Talents.ElementalWeapons == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if shaman.Talents.ElementalWeapons == 0 {
-	// 	return
-	// }
-	// shaman.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: [4]float64{0.0, 0.07, 0.14, 0.2}[shaman.Talents.ElementalWeapons],
-	// 	ClassMask:  SpellMaskRockbiterWeapon,
-	// })
-	// shaman.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: [4]float64{0.0, 0.13, 0.27, 0.4}[shaman.Talents.ElementalWeapons],
-	// 	ClassMask:  SpellMaskWindfuryWeapon,
-	// })
-	// shaman.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: 0.05 * float64(shaman.Talents.ElementalWeapons),
-	// 	ClassMask:  SpellMaskFlametongueWeapon | SpellMaskFrostbrandWeapon,
-	// })
+	rank := spellData.ElementalWeapons.Rank(shaman.Talents.ElementalWeapons)
+
+	// Effect 2 is the Flametongue and Frostbrand damage. Effects 1 and 3 raise effect 1 of Rockbiter
+	// Weapon (Passive) and Windfury Weapon, which is attack power on both rows; the parse would read
+	// them as damage.
+	spelldata.ParseStatic(&shaman.Character, rank, spelldata.Effects(2))
+
+	shaman.WindfuryAPBonus *= 1 + rank.EffectN(3).Percent()
+
+	// TODO: Effect 1, Rockbiter Weapon's attack power, waits on the Rockbiter imbue.
 }
 
-// TODO: To be implemented. Port the TBC Flurry implementation below; not yet verified against the Forever game files.
+// The cost reduction is permanent; the row states no proc.
+func (shaman *Shaman) applyShamanisticFocus() {
+	if !shaman.Talents.ShamanisticFocus {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.ShamanisticFocus.Highest())
+}
+
+func (shaman *Shaman) applyAnticipation() {
+	if shaman.Talents.Anticipation == 0 {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.Anticipation.Rank(shaman.Talents.Anticipation))
+}
+
+func (shaman *Shaman) applyToughness() {
+	if shaman.Talents.Toughness == 0 {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.Toughness.Rank(shaman.Talents.Toughness))
+}
+
+var flurryBuff = spellData.FlurryTriggered.Highest()
+
 func (shaman *Shaman) applyFlurry() {
 	if shaman.Talents.Flurry == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if shaman.Talents.Flurry == 0 {
-	// 	return
-	// }
-	//
-	// flurryICD := &core.Cooldown{
-	// 	Timer:    shaman.NewTimer(),
-	// 	Duration: 500 * time.Millisecond,
-	// }
-	//
-	// attackSpeed := 1.05 +
-	// 	0.05*float64(shaman.Talents.Flurry)
-	//
-	// flurryAura := shaman.RegisterAura(core.Aura{
-	// 	ActionID:  core.ActionID{SpellID: 16284},
-	// 	Label:     "Flurry",
-	// 	Duration:  time.Second * 15,
-	// 	MaxStacks: 3,
-	// }).AttachMultiplyMeleeSpeed(attackSpeed)
-	//
-	// shaman.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:             "Flurry Trigger",
-	// 	Callback:         core.CallbackOnSpellHitDealt,
-	// 	ProcMask:         core.ProcMaskMelee,
-	// 	CanProcFromProcs: true, // 16256, 16281-16284 carry the bit.
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		if result.Outcome.Matches(core.OutcomeCrit) {
-	// 			flurryAura.Activate(sim)
-	// 			flurryAura.SetStacks(sim, 3)
-	// 			return
-	// 		}
-	//
-	// 		// Remove a stack.
-	// 		if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && flurryICD.IsReady(sim) {
-	// 			flurryICD.Use(sim)
-	// 			flurryAura.RemoveStack(sim)
-	// 		}
-	// 	},
-	// })
-	//
-}
+	// 16257 supplies the duration, the three charges and the 0.5 s between charges spent. The
+	// haste is the talent's ranked dummy, 5% a point, which the tooltip of 16256 reads as $m1; the
+	// buff's own 10% is replaced in game, its tooltip reading the applied $w1.
+	flurryAura := shaman.RegisterAura(spelldata.AuraConfig(flurryBuff)).
+		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(shaman.Talents.Flurry))
 
-// TODO: To be implemented. Port the TBC Improved Lightning Shield implementation below; not yet verified against the Forever game files.
-func (shaman *Shaman) applyImprovedLightningShield() {
-	if shaman.Talents.ImprovedLightningShield == 0 {
-		return
+	chargeICD := core.Cooldown{
+		Timer:    shaman.NewTimer(),
+		Duration: flurryBuff.ICD(),
 	}
 
-	// The TBC implementation, kept for the port:
-	// if shaman.Talents.ImprovedLightningShield == 0 {
-	// 	return
-	// }
-	// shaman.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: spellData.ImprovedLightningShield.FractionAt(shaman.Talents.ImprovedLightningShield),
-	// 	ClassMask:  SpellMaskLightningShield,
-	// })
-}
+	// The row has no roll and the crit is the condition, read off the result here because the same
+	// listener has to see the white hits that spend a charge.
+	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
+		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if result.Outcome.Matches(core.OutcomeCrit) {
+				flurryAura.Activate(sim)
+				flurryAura.SetStacks(sim, flurryAura.MaxStacks)
+				return
+			}
 
-// TODO: To be implemented. Port the TBC Mental Quickness implementation below; not yet verified against the Forever game files.
-func (shaman *Shaman) applyMentalQuickness() {
-	if shaman.Talents.MentalQuickness == 0 {
-		return
-	}
+			if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && chargeICD.IsReady(sim) {
+				chargeICD.Use(sim)
+				flurryAura.RemoveStack(sim)
+			}
+		})
+	trigger.Name = "Flurry - Trigger"
+	trigger.ProcMask = core.ProcMaskMelee
+	trigger.TriggerImmediately = true
 
-	// The TBC implementation, kept for the port:
-	// if shaman.Talents.MentalQuickness == 0 {
-	// 	return
-	// }
-	// shaman.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_PowerCost_Pct_Add,
-	// 	FloatValue: -0.02 * float64(shaman.Talents.MentalQuickness),
-	// 	SpellFlag:  SpellFlagInstant,
-	// })
-	//
-	// // TODO: To be implemented. Forever's regenerated aura enum no longer carries the
-	// // attack-power-to-spell-damage aura this talent's rank data used
-	// // (A_MOD_SPELL_DAMAGE_OF_ATTACK_POWER is gone from the auto-generated table), so the
-	// // spell damage conversion below is not applied.
-}
-
-// TODO: To be implemented. Port the TBC Shamanistic Focus implementation below; not yet verified against the Forever game files.
-func (shaman *Shaman) applyShamanisticFocus() {
-	if !shaman.Talents.ShamanisticFocus {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if !shaman.Talents.ShamanisticFocus {
-	// 	return
-	// }
-	// sfAura := shaman.RegisterAura(core.Aura{
-	// 	Label:    "Focused",
-	// 	ActionID: core.ActionID{SpellID: 43339},
-	// 	Duration: time.Second * 15,
-	// }).AttachSpellMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_PowerCost_Pct_Add,
-	// 	FloatValue: -0.6,
-	// 	ClassMask:  SpellMaskShock,
-	// })
-	//
-	// shaman.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:             "Shamanistic Focus Trigger",
-	// 	Callback:         core.CallbackOnSpellHitDealt,
-	// 	ProcMask:         core.ProcMaskMelee,
-	// 	CanProcFromProcs: true, // 43338 carries the bit.
-	// 	Outcome:          core.OutcomeCrit,
-	// 	Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-	// 		sfAura.Activate(sim)
-	// 	},
-	// })
-	//
-	// shaman.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:           "Shamanistic Focus Untrigger",
-	// 	Callback:       core.CallbackOnCastComplete,
-	// 	ClassSpellMask: SpellMaskShock,
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-	// 		sfAura.Deactivate(sim)
-	// 	},
-	// })
-}
-
-func (shaman *Shaman) applySpiritWeapons() {
-	if !shaman.Talents.SpiritWeapons {
-		return
-	}
-	//TODO ? Threat related talent
+	shaman.MakeProcTriggerAura(trigger)
 }
 
 func (shaman *Shaman) applyStormstrike() {
@@ -216,109 +160,151 @@ func (shaman *Shaman) applyStormstrike() {
 	shaman.registerStormstrikeSpell()
 }
 
-// TODO: To be implemented. Port the TBC Thundering Strikes implementation below; not yet verified against the Forever game files.
-func (shaman *Shaman) applyThunderingStrikes() {
-	if shaman.Talents.ThunderingStrikes == 0 {
+func (shaman *Shaman) applySpiritWeapons() {
+	if !shaman.Talents.SpiritWeapons {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if shaman.Talents.ThunderingStrikes == 0 {
-	// 	return
-	// }
-	// shaman.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_BonusCrit_Percent,
-	// 	FloatValue: spellData.ThunderingStrikes.ValueAt(shaman.Talents.ThunderingStrikes),
-	// 	ProcMask:   core.ProcMaskMelee,
-	// })
+	// "Gives a chance to parry enemy melee attacks."
+	shaman.PseudoStats.CanParry = true
+
+	// Effect 1 is the threat reduction, which the tooltip applies while Rockbiter Weapon is not
+	// active; the sim has no Rockbiter imbue, so it always applies.
+	//
+	// TODO: Effects 2 and 3, the threat Rockbiter Weapon gains instead, wait on the Rockbiter imbue.
+	spelldata.ParseStatic(&shaman.Character, spellData.SpiritWeapons.Highest(), spelldata.Effects(1))
 }
 
-// applyEarthsGrasp implements Earth's Grasp, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (shaman *Shaman) applyEarthsGrasp() {
-	if shaman.Talents.EarthsGrasp == 0 {
+func (shaman *Shaman) applyMentalQuickness() {
+	if shaman.Talents.MentalQuickness == 0 {
 		return
 	}
+	spelldata.ParseStatic(&shaman.Character, spellData.MentalQuickness.Rank(shaman.Talents.MentalQuickness))
 }
 
-// applyGuardianTotems implements Guardian Totems, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (shaman *Shaman) applyGuardianTotems() {
-	if shaman.Talents.GuardianTotems == 0 {
-		return
-	}
-}
+var improvedStormstrikeBuff = spellData.ImprovedStormstrikeTriggered.Highest()
 
-// applyMentalDexterity implements Mental Dexterity, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (shaman *Shaman) applyMentalDexterity() {
-	if shaman.Talents.MentalDexterity == 0 {
-		return
-	}
-}
-
-// applyImprovedGhostWolf implements Improved Ghost Wolf, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (shaman *Shaman) applyImprovedGhostWolf() {
-	if shaman.Talents.ImprovedGhostWolf == 0 {
-		return
-	}
-}
-
-// applyAnticipation implements Anticipation, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (shaman *Shaman) applyAnticipation() {
-	if shaman.Talents.Anticipation == 0 {
-		return
-	}
-}
-
-// applyToughness implements Toughness, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (shaman *Shaman) applyToughness() {
-	if shaman.Talents.Toughness == 0 {
-		return
-	}
-}
-
-// applyImprovedStormstrike implements Improved Stormstrike, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
 func (shaman *Shaman) applyImprovedStormstrike() {
 	if shaman.Talents.ImprovedStormstrike == 0 {
 		return
 	}
+
+	rank := spellData.ImprovedStormstrike.Rank(shaman.Talents.ImprovedStormstrike)
+
+	// The tooltip's $m1 is the chance on a Stormstrike to gain the regen and $m2 the chance a dodge
+	// or parry resets the cooldown, both 50/100 by rank. Effect 3, a flat 20 the tooltip does not
+	// name, is unused.
+	regenAura := shaman.RegisterAura(spelldata.AuraConfig(improvedStormstrikeBuff))
+	spelldata.ParseEffects(&shaman.Character, regenAura, improvedStormstrikeBuff)
+
+	shaman.MakeProcTriggerAura(core.ProcTrigger{
+		Name:       "Improved Stormstrike - Regen Trigger",
+		ActionID:   core.ActionID{SpellID: improvedStormstrikeBuff.ID},
+		Callback:   core.CallbackOnCastComplete,
+		ClassFlags: spellData.Stormstrike.Highest().ClassFlags,
+		ProcChance: rank.EffectN(1).Percent(),
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			regenAura.Activate(sim)
+		},
+	})
+
+	// The row hears melee attacks taken; the dodge or parry is the outcome, which no ProcTypeMask
+	// has a bit for. The generator reads the row's chance off effect 1, where the tooltip names $m2.
+	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
+		func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			if shaman.Stormstrike != nil {
+				shaman.Stormstrike.CD.Reset()
+			}
+		},
+		spelldata.ChanceFrom(rank.EffectN(2)))
+	trigger.Name = "Improved Stormstrike - Reset Trigger"
+	trigger.Outcome = core.OutcomeDodge | core.OutcomeParry
+	trigger.RequireDamageDealt = false
+
+	shaman.MakeProcTriggerAura(trigger)
 }
 
-// applyMaelstromWeapon implements Maelstrom Weapon, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+var maelstromWeaponBuff = spellData.MaelstromWeaponTriggered.Highest()
+
 func (shaman *Shaman) applyMaelstromWeapon() {
 	if shaman.Talents.MaelstromWeapon == 0 {
 		return
 	}
+
+	rank := spellData.MaelstromWeapon.Rank(shaman.Talents.MaelstromWeapon)
+
+	// 408505 supplies the duration, the five stacks and the spells its two mods reach. The amount
+	// per stack is the talent's ranked effect 1, -4% a point; the buff row states rank 5's -20%.
+	perStack := rank.EffectN(1).Percent()
+	castTimeMod := shaman.AddDynamicMod(core.SpellModConfig{
+		Kind:       core.SpellMod_CastTime_Pct,
+		ClassFlags: maelstromWeaponBuff.EffectN(1).ClassFlags,
+	})
+	costMod := shaman.AddDynamicMod(core.SpellModConfig{
+		Kind:       core.SpellMod_PowerCost_Pct_Add,
+		ClassFlags: maelstromWeaponBuff.EffectN(2).ClassFlags,
+	})
+	consumes := maelstromWeaponBuff.EffectN(1).ClassFlags
+
+	config := spelldata.AuraConfig(maelstromWeaponBuff)
+	config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
+		castTimeMod.Activate()
+		costMod.Activate()
+	}
+	config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
+		castTimeMod.Deactivate()
+		costMod.Deactivate()
+	}
+	config.OnStacksChange = func(_ *core.Aura, _ *core.Simulation, _ int32, newStacks int32) {
+		castTimeMod.UpdateFloatValue(perStack * float64(newStacks))
+		costMod.UpdateFloatValue(perStack * float64(newStacks))
+	}
+	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if consumes.Reaches(spell) {
+			aura.Deactivate(sim)
+		}
+	}
+	maelstromAura := shaman.RegisterAura(config)
+
+	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
+	// column is the "no roll" 100 and it names no procs per minute, while the tooltip says "a
+	// chance"; effect 2's 50, which the tooltip does not name, is read as that chance.
+	//
+	// TODO: Ingame test needed: the chance per melee hit.
+	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			maelstromAura.Activate(sim)
+			maelstromAura.AddStack(sim)
+		},
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcMask = core.ProcMaskMelee
+		},
+		spelldata.ChanceFrom(rank.EffectN(2)))
+	trigger.Name = "Maelstrom Weapon - Trigger"
+
+	shaman.MakeProcTriggerAura(trigger)
 }
 
-// applyRageOfTheFarseer implements Rage of the Farseer, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+var rageOfTheFarseerRank = spellData.RageOfTheFarseer.Highest()
+
 func (shaman *Shaman) applyRageOfTheFarseer() {
 	if !shaman.Talents.RageOfTheFarseer {
 		return
 	}
+
+	// Effect 1 is the melee and ranged attack speed, which the parse does not read. Effect 2 is the
+	// model's size.
+	rageAura := shaman.RegisterAura(spelldata.AuraConfig(rageOfTheFarseerRank)).
+		AttachMultiplyAttackSpeed(1 + rageOfTheFarseerRank.EffectN(1).Percent())
+
+	config := spelldata.SpellConfig(&shaman.Unit, rageOfTheFarseerRank)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		rageAura.Activate(sim)
+	}
+	config.RelatedSelfBuff = rageAura
+
+	shaman.AddMajorCooldown(core.MajorCooldown{
+		Spell: shaman.RegisterSpell(config),
+		Type:  core.CooldownTypeDPS,
+	})
 }

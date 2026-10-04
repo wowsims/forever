@@ -1,11 +1,19 @@
+import type { TypedIconEnumPickerConfig, TypedIconPickerConfig } from '@features/inputs/input_helpers';
 import { type ConsumableRelevance, makeConsumableGroupInput, makeConsumableInput, makeIdListInput } from '@features/settings/model/consumables';
-import { ConsumableType, ItemSlot, Spec } from '@generated/proto/common';
+import { ConsumableType, ItemSlot } from '@generated/proto/common';
 import type { Consumable } from '@generated/proto/db';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import type { Database } from '@sim/proto/database';
-import { ConsumableSlot, consumableSlot, consumableStatsOf, explosiveUsedBeside, handTakesImbue, higherRanks, relevanceFor } from '@sim/settings/consumables';
-import type { TypedIconEnumPickerConfig, TypedIconPickerConfig } from '@ui-kit/input_helpers';
+import {
+	consumablePseudoStatsOf,
+	ConsumableSlot,
+	consumableSlot,
+	consumableStatsOf,
+	explosiveUsedBeside,
+	handTakesImbue,
+	relevanceFor,
+} from '@sim/settings/consumables';
 
 export type ConsumeConfig = TypedIconEnumPickerConfig<Player<any>, number>;
 export type ConsumeToggle = TypedIconPickerConfig<Player<any>, boolean>;
@@ -20,6 +28,9 @@ export interface ConsumeConfigs {
 	scrolls: Array<ConsumeConfig>;
 	groups: Array<ConsumeConfig>;
 	food: ConsumeConfig;
+	// A world event's consumables: one pick per exclusive group holding one, and the rest each on its own.
+	holidayGroups: Array<ConsumeConfig>;
+	holiday: Array<ConsumeToggle>;
 	explosive: ConsumeConfig;
 	explosiveExtras: Array<ConsumeToggle>;
 	mhImbue: ConsumeConfig;
@@ -27,21 +38,12 @@ export interface ConsumeConfigs {
 	miscellaneous: Array<ConsumeToggle>;
 }
 
-type GroupRow = 'elixirs' | 'scrolls' | 'groups';
-
-// Feral druids cannot take Windfury or Flametongue Totem, so their main-hand imbue shows under them.
-const SPECS_WITHOUT_WINDFURY = [Spec.SpecFeralBearDruid, Spec.SpecFeralCatDruid];
-const mainHandImbueShown = (player: Player<any>) => {
-	if (SPECS_WITHOUT_WINDFURY.includes(player.getSpec()) || !player.getParty()) return true;
-	const buffs = player.getParty()!.getBuffs();
-	return !buffs.windfuryTotem && !buffs.flametongueTotem;
-};
+type GroupRow = 'elixirs' | 'scrolls' | 'holiday' | 'groups';
 
 export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs => {
 	const all = db.getConsumables();
 	const relevance: ConsumableRelevance = {
-		relevant: relevanceFor(all, db, consumableStatsOf(player.getSpecConfig())),
-		higherRanks: higherRanks(all),
+		relevant: relevanceFor(all, db, consumableStatsOf(player.getSpecConfig()), consumablePseudoStatsOf(player.getSpecConfig())),
 	};
 	const bySlot = new Map<ConsumableSlot, Array<Consumable>>();
 	const byGroup = new Map<string, Array<Consumable>>();
@@ -50,8 +52,10 @@ export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfig
 		if (list) list.push(consumable);
 		else map.set(key, [consumable]);
 	};
+	const holiday: Array<Consumable> = [];
 	for (const consumable of all) {
 		if (consumable.groupKey) add(byGroup, consumable.groupKey, consumable);
+		else if (consumable.holiday) holiday.push(consumable);
 		else add(bySlot, consumableSlot(consumable), consumable);
 	}
 	const inSlot = (slot: ConsumableSlot) => bySlot.get(slot) ?? [];
@@ -61,7 +65,13 @@ export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfig
 	const groups = [...byGroup.keys()].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(key => byGroup.get(key)!);
 	const holds = (group: Array<Consumable>, type: ConsumableType) => group.some(consumable => consumable.type === type);
 	const rowOf = (group: Array<Consumable>): GroupRow =>
-		holds(group, ConsumableType.ConsumableTypeElixir) ? 'elixirs' : holds(group, ConsumableType.ConsumableTypeScroll) ? 'scrolls' : 'groups';
+		holds(group, ConsumableType.ConsumableTypeElixir)
+			? 'elixirs'
+			: holds(group, ConsumableType.ConsumableTypeScroll)
+				? 'scrolls'
+				: group.some(consumable => consumable.holiday)
+					? 'holiday'
+					: 'groups';
 	const groupInputs = (row: GroupRow) =>
 		groups.filter(group => rowOf(group) === row).map(group => makeConsumableGroupInput(group, relevance, group[0].groupName));
 	const explosives = inSlot(ConsumableSlot.Explosive);
@@ -76,6 +86,8 @@ export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfig
 		scrolls: groupInputs('scrolls'),
 		groups: groupInputs('groups'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),
+		holidayGroups: groupInputs('holiday'),
+		holiday: holiday.map(consumable => makeIdListInput(consumable, relevance)),
 		explosive: input(
 			ConsumableSlot.Explosive,
 			{ consumesFieldName: 'explosiveId', tooltip: i18n.t('settings_tab.consumables.engineering.explosives') },
@@ -88,7 +100,6 @@ export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfig
 				consumesFieldName: 'mhImbueId',
 				tooltip: i18n.t('settings_tab.consumables.imbue.mhImbue'),
 				offers: (consumable, p) => handTakesImbue(consumable, handItem(p, ItemSlot.ItemSlotMainHand)),
-				showWhen: mainHandImbueShown,
 			},
 			imbues,
 		),

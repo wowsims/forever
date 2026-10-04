@@ -1,6 +1,7 @@
 import { Class, Spec } from '@generated/proto/common';
 
-import { getSpecSitePath, LaunchStatus, Phase } from '../../constants/other';
+import { CURRENT_PHASE, getSpecSitePath, LaunchStatus } from '../../constants/other';
+import { isSpecDualWieldCapable } from '../classes/capabilities';
 import { IconSize } from '../player_class';
 import { PlayerSpec, SimStatus } from '../player_spec';
 
@@ -15,10 +16,10 @@ export class Rogue extends PlayerSpec<Spec.SpecRogue> {
 	static isHealingSpec = false;
 	static isRangedDpsSpec = false;
 	static isMeleeDpsSpec = true;
-	static canDualWield = true;
+	static canDualWield = isSpecDualWieldCapable(Rogue.specID);
 
 	static launch: SimStatus = {
-		phase: Phase.Phase3,
+		phase: CURRENT_PHASE,
 		status: LaunchStatus.Alpha,
 	};
 

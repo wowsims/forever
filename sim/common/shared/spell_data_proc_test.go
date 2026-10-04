@@ -50,18 +50,6 @@ func TestSpellDataProcRegistersEveryVariant(t *testing.T) {
 	if !core.HasItemEffect(990001) || !core.HasItemEffect(990002) {
 		t.Error("a variant was left unregistered")
 	}
-
-	// Only the highest ID goes into the test suite, so a dozen re-issues of one trinket do not each
-	// get their own fixture entry.
-	if core.HasItemEffectForTest(990001) {
-		t.Error("the lower-ID variant was added to the test suite as well")
-	}
-	if !core.HasItemEffectForTest(990002) {
-		t.Error("the highest-ID variant was kept out of the test suite")
-	}
-	if !core.AddEffectsToTest {
-		t.Error("the variant loop left effects out of the test suite for whatever registers next")
-	}
 }
 
 // A row that names no hits the sim hears would register a listener that can never fire. 1249119 is
@@ -419,7 +407,7 @@ func TestStatedEnchantChanceRollsOnTheEnchantedWeaponOnly(t *testing.T) {
 	trigger := &spelldata.Spell{ID: 990410, Name: "Test Fiery Blaze", ProcChance: 15}
 	cfg := SpellDataProc{Name: "Test Fiery Blaze", EnchantID: enchantID, TriggerSpellID: trigger.ID,
 		BuffSpellID: trigger.ID, IsWeaponProc: true}
-	config := spellDataProcListener(character, cfg, cfg.effectSource(), trigger, nil)
+	config := spellDataProcListener(character, cfg, cfg.effectSource(), trigger)
 
 	if config.ProcChance != 0 {
 		t.Errorf("flat chance = %v, want none: it would roll on the off hand's hits too", config.ProcChance)
@@ -482,7 +470,7 @@ func TestSpellDataProcTakesAPPMOverride(t *testing.T) {
 			row := *spelldata.MustFind(tc.spellID)
 			unsupported := func() []string {
 				if tc.isWeaponProc {
-					return spelldata.ItemProcUnsupported(&row, true)
+					return spelldata.ItemProcUnsupportedWithRate(&row, true, 0)
 				}
 				return spelldata.EnchantAuraUnsupported(&row)
 			}
@@ -503,7 +491,7 @@ func TestSpellDataProcTakesAPPMOverride(t *testing.T) {
 
 			cfg := SpellDataProc{Name: "Test " + tc.name, EnchantID: enchantID, TriggerSpellID: row.ID,
 				BuffSpellID: row.ID, IsWeaponProc: tc.isWeaponProc}
-			config := spellDataProcListener(character, cfg, cfg.effectSource(), &row, nil)
+			config := spellDataProcListener(character, cfg, cfg.effectSource(), &row)
 
 			if config.ProcChance != 0 {
 				t.Errorf("flat chance = %v, want none beside the rate", config.ProcChance)
@@ -585,7 +573,7 @@ func TestEnchantAuraPPMFollowsItsWeapon(t *testing.T) {
 			row.ProcChanceSource, row.ProcChanceEffect = spelldata.ProcChancePPM, 0
 			cfg := SpellDataProc{Name: "Test " + tc.name, EnchantID: tc.enchantID, TriggerSpellID: row.ID,
 				BuffSpellID: row.ID}
-			config := spellDataProcListener(character, cfg, cfg.effectSource(), &row, nil)
+			config := spellDataProcListener(character, cfg, cfg.effectSource(), &row)
 
 			if config.DPM == nil {
 				t.Fatal("no procs-per-minute manager")

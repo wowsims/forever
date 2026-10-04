@@ -1,0 +1,13 @@
+@layer components {
+	.ui-tooltip-anchor {
+		@apply cursor-pointer text-link;
+
+		&:hover {
+			@apply text-link-hover;
+		}
+
+		&:focus-visible {
+			@apply focus-ring;
+		}
+	}
+}

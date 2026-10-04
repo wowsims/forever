@@ -6,7 +6,7 @@ import { renameAPLReference } from '@sim/proto/apl_utils';
  *
  * Returning `true` from `visit` stops the walk.
  */
-export const visitObjects = (node: unknown, visit: (obj: any) => boolean | void): boolean => {
+const visitObjects = (node: unknown, visit: (obj: any) => boolean | void): boolean => {
 	if (!node || typeof node !== 'object') return false;
 	if (visit(node)) return true;
 	const children = Array.isArray(node) ? node : Object.values(node);

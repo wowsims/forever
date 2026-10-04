@@ -14,7 +14,7 @@ const serpentStingTickAPShare = 0.03
 func (hunter *Hunter) registerSerpentSting() {
 	tick := serpentStingRank.PeriodicEffect()
 
-	config := spelldata.SpellConfig(&hunter.Unit, serpentStingRank, spelldata.Flags(core.SpellFlagAPL))
+	config := spelldata.SpellConfig(&hunter.Unit, serpentStingRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagPureDot))
 	// A cast, not a proc, but one that must not read as a ranged hit to on-hit listeners; what the
 	// sting's application should count as is a separate question. Matches only listeners that
 	// state no mask.
@@ -23,9 +23,9 @@ func (hunter *Hunter) registerSerpentSting() {
 	config.ThreatMultiplier = 1
 
 	config.Dot = spelldata.DotConfig(serpentStingRank, tick)
-	config.Dot.Aura.Tag = "Sting"
+	config.Dot.Aura.Tag = hunter.stingTag()
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		baseDamage := tick.Average(core.CharacterLevel) + serpentStingTickAPShare*dot.Spell.RangedAttackPower(target)
+		baseDamage := tick.Average() + serpentStingTickAPShare*dot.Spell.RangedAttackPower(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, baseDamage, serpentStingRank.TickOutcome(dot))
 	}
 

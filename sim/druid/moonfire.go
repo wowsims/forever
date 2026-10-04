@@ -16,7 +16,7 @@ func (druid *Druid) registerMoonfireSpell() {
 	config.Dot = spelldata.DotConfig(moonfireRank, moonfireRank.PeriodicEffect())
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, moonfireDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, moonfireDamage.Roll(sim), spell.OutcomeMagicHitAndCrit)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
 		}

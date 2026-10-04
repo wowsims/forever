@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { TokenTable } from './components/TokenTable';
+import { UtilityCards } from './components/UiClassCard';
+
+<Meta title="Design System/Effects" />
+
+# Effects
+
+Tokens from `ui/styles/theme/effects.css`. Each preview is painted with `var(--token)`.
+
+## Radius
+
+`effects.css` resets Tailwind's radius scale, so these are the only `rounded-*` steps besides `rounded-none` and `rounded-full`.
+
+<TokenTable prefix="radius" preview="radius" />
+
+## Shadows
+
+<TokenTable prefix="shadow" preview="shadow" />
+
+<TokenTable prefix="drop-shadow" preview="drop-shadow" />
+
+## Focus rings
+
+The outline-based focus treatment, applied as `focus-visible:focus-ring`. Tab onto a sample to see it.
+
+<UtilityCards names={['focus-ring', 'focus-ring-inset']} />
+
+## Animations
+
+<TokenTable prefix="animate" preview="animation" />
+
+## Background images
+
+Gradients that read a runtime variable (`--theme-background-image`, `--cr-resbar-from`) are empty outside the element that sets it.
+
+<TokenTable prefix="background-image" preview="background-image" />
+
+## Transitions
+
+<TokenTable prefix="transition" />

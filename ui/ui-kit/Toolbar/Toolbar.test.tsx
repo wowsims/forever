@@ -4,22 +4,24 @@ import { describe, expect, it, vi } from 'vitest';
 import { Toolbar } from './Toolbar';
 import { ToolbarButton } from './ToolbarButton';
 
-const mount = () =>
-	render(
-		<Toolbar testId="test-toolbar">
-			<ToolbarButton testId="first">First</ToolbarButton>
-			<ToolbarButton testId="second">Second</ToolbarButton>
-		</Toolbar>,
-	);
-
 describe('Toolbar', () => {
 	it('renders with the toolbar role', () => {
-		mount();
+		render(
+			<Toolbar testId="test-toolbar">
+				<ToolbarButton testId="first">First</ToolbarButton>
+				<ToolbarButton testId="second">Second</ToolbarButton>
+			</Toolbar>,
+		);
 		expect(screen.getByRole('toolbar')).toBe(screen.getByTestId('test-toolbar'));
 	});
 
 	it('moves focus between items with arrow keys', async () => {
-		mount();
+		render(
+			<Toolbar testId="test-toolbar">
+				<ToolbarButton testId="first">First</ToolbarButton>
+				<ToolbarButton testId="second">Second</ToolbarButton>
+			</Toolbar>,
+		);
 		screen.getByTestId('first').focus();
 		expect(document.activeElement).toBe(screen.getByTestId('first'));
 

@@ -1,17 +1,9 @@
 import type { AplFieldSpec } from '@features/apl/model/field_specs';
+import type { InputConfig } from '@features/inputs/input';
 import type { Player } from '@sim/player/player';
 import type { StoreSubscribe } from '@sim/state/subscriptions';
-import type { InputConfig } from '@ui-kit/input';
 
 const INLINE_KINDS: ReadonlySet<AplFieldSpec['kind']> = new Set(['boolean', 'number', 'string']);
-
-/** The two list fields that carry `ui-apl-picker-builder-multi` — `and.vals`, `sequence.actions` and their kin. */
-const MULTI_FIELDS: ReadonlySet<string> = new Set(['vals', 'actions']);
-
-const fieldClasses = (spec: AplFieldSpec): Array<string> | undefined => {
-	const classes = [...(MULTI_FIELDS.has(spec.field) ? ['ui-apl-picker-builder-multi'] : [])];
-	return classes.length ? classes : undefined;
-};
 
 /**
  * The binding one field of a kind's impl message gets.
@@ -30,8 +22,9 @@ export const fieldInputConfig = (
 	id,
 	label: spec.label,
 	labelTooltip: spec.labelTooltip,
-	layout: INLINE_KINDS.has(spec.kind) ? 'inline' : undefined,
-	extraClassNames: fieldClasses(spec),
+	// A wide field stacks, so its input takes the field's own width instead of the inline one.
+	layout: INLINE_KINDS.has(spec.kind) && !spec.wide ? 'inline' : undefined,
+	extraClassNames: spec.wide ? ['w-64', 'max-w-full'] : undefined,
 	storeSubscribe: changeSource,
 	getValue: () => {
 		const source = getParentValue();

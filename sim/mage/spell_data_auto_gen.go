@@ -12,7 +12,7 @@ import (
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Arcane Concentration: effect 1 of spell 11213 has no rank curve and is held at its base points
 //   Fingers of Frost: effect 1 of spell 400647 has no rank curve and is held at its base points
-//   Hot Streak: effect 0 of spell 400624 has no rank curve and is held at its base points
+//   Heating Up: effect 0 of spell 400624 has no rank curve and is held at its base points
 //   Missile Barrage: effect 0, 1 of spell 400588 has no rank curve and is held at its base points
 //   Piercing Ice: effect 1 of spell 11151 has no rank curve and is held at its base points
 
@@ -86,8 +86,8 @@ type generatedSpellData struct {
 	FrostbiteTriggered           spelldata.Ladder
 	Frostbolt                    spelldata.Ladder
 	FrostfireBolt                spelldata.Ladder
-	HotStreak                    spelldata.Ladder
-	HotStreakTriggered           spelldata.Ladder
+	HeatingUp                    spelldata.Ladder
+	HeatingUpTriggered           spelldata.Ladder
 	IceArmor                     spelldata.Ladder
 	IceArmorTriggered            spelldata.Ladder
 	IceBarrier                   spelldata.Ladder
@@ -217,8 +217,8 @@ var spellData = generatedSpellData{
 	FrostbiteTriggered:           spelldata.Ranked(12494),
 	Frostbolt:                    spelldata.Ranked(116, 205, 837, 7322, 8406, 8407, 8408, 10179, 10180, 10181, 25304),
 	FrostfireBolt:                spelldata.Ranked(401502, 1237312, 1237313),
-	HotStreak:                    spelldata.Talent(400624, 1),
-	HotStreakTriggered:           spelldata.Ranked(400625),
+	HeatingUp:                    spelldata.Talent(400624, 1),
+	HeatingUpTriggered:           spelldata.Ranked(400625),
 	IceArmor:                     spelldata.Ranked(7302, 7320, 10219, 10220),
 	IceArmorTriggered:            spelldata.Ranked(7321),
 	IceBarrier:                   spelldata.Ranked(11426, 13031, 13032, 13033),

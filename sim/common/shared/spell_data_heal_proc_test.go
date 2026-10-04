@@ -129,7 +129,7 @@ func TestProcHealRollsAStatedAmount(t *testing.T) {
 	}
 
 	sim, caster, _ := newHealProcSim(t, 990977, 990978, fixedHeal, 0)
-	low, high := effect.Min(caster.Level), effect.Max(caster.Level)
+	low, high := effect.Min(), effect.Max()
 	if got := swingHealed(sim, caster, core.OutcomeDodge, 0); got < low || got > high {
 		t.Errorf("the heal was %v, want %v to %v", got, low, high)
 	}

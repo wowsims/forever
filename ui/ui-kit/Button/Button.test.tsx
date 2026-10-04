@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { Icon } from '@ui-kit/Icon';
 import { describe, expect, it } from 'vitest';
 
 import { Button } from './Button';
@@ -9,19 +10,36 @@ describe('Button', () => {
 		const button = screen.getByRole('button', { name: 'Simulate' });
 		// The tree has several <button>s inside forms with no type, which submit on click.
 		expect(button.getAttribute('type')).toBe('button');
-		expect(button.className).toBe('ui-button ui-button-primary ui-button-md');
 	});
 
-	it('renders an anchor when asked, keeping the button classes', () => {
+	it('renders an anchor for an href', () => {
 		render(
-			<Button as="a" href="https://wowhead.com/forever/item=1" variant="link">
+			<Button href="https://wowhead.com/forever/item=1" variant="link">
 				Item
 			</Button>,
 		);
 		const link = screen.getByRole('link', { name: 'Item' });
+		expect(link.tagName).toBe('A');
 		expect(link.getAttribute('href')).toBe('https://wowhead.com/forever/item=1');
-		expect(link.className).toBe('ui-button-link');
 		expect(link.getAttribute('type')).toBeNull();
+		expect(screen.queryByRole('button')).toBeNull();
+	});
+
+	it('accepts an anchor only through href, and an icon-only button only with an aria-label', () => {
+		const byAs = (
+			// @ts-expect-error `as="a"` is not a Button prop, even with an href: `href` alone renders the anchor.
+			<Button as="a" href="/x">
+				Item
+			</Button>
+		);
+		// @ts-expect-error An icon-only button has no text to announce, so `aria-label` is required.
+		const unnamed = <Button iconOnly>×</Button>;
+		const named = (
+			<Button iconOnly aria-label="Close">
+				×
+			</Button>
+		);
+		expect([byAs, unnamed, named]).toHaveLength(3);
 	});
 
 	it('renders a label when asked, for a peer-checked radio', () => {
@@ -33,39 +51,23 @@ describe('Button', () => {
 		const label = screen.getByText('Rotation');
 		expect(label.tagName).toBe('LABEL');
 		expect(label.getAttribute('for')).toBe('chart-view-rotation');
-		expect(label.className).toBe('ui-button ui-button-outline-primary ui-button-md');
-	});
-
-	it('adds the size and caller classes without dropping the variant', () => {
-		render(
-			<Button variant="outline-primary" size="sm" className="reforge-action">
-				Optimize
-			</Button>,
-		);
-		expect(screen.getByRole('button').className).toBe('ui-button ui-button-outline-primary ui-button-sm reforge-action');
-	});
-
-	it('applies no padding for size="none", leaving the caller to supply its own', () => {
-		render(
-			<Button variant="outline-primary" size="none" className="reforge-action">
-				Optimize
-			</Button>,
-		);
-		expect(screen.getByRole('button').className).toBe('ui-button ui-button-outline-primary reforge-action');
 	});
 
 	it('adds rel to a cross-origin link without being asked', () => {
 		render(
-			<Button as="a" href="https://www.wowhead.com/forever/item=1" target="_blank">
-				Item
-			</Button>,
+			<>
+				<Button href="https://www.wowhead.com/forever/item=1" target="_blank">
+					Item
+				</Button>
+				<Button href="//discord.gg/p3DgvmnDCS">Discord</Button>
+			</>,
 		);
-		expect(screen.getByRole('link').getAttribute('rel')).toBe('noopener noreferrer');
+		screen.getAllByRole('link').forEach(link => expect(link.getAttribute('rel')).toBe('noopener noreferrer'));
 	});
 
 	it('merges an explicit rel rather than replacing it, and does not duplicate', () => {
 		render(
-			<Button as="a" href="https://www.wowhead.com/forever/item=1" rel="nofollow noopener">
+			<Button href="https://www.wowhead.com/forever/item=1" rel="nofollow noopener">
 				Item
 			</Button>,
 		);
@@ -76,73 +78,47 @@ describe('Button', () => {
 	it('leaves relative and non-http hrefs alone', () => {
 		render(
 			<>
-				<Button as="a" href="/forever/warrior/arms/">
-					Arms
-				</Button>
-				<Button as="a" href="#gear-tab">
-					Gear
-				</Button>
-				<Button as="a" href="mailto:someone@example.com">
-					Mail
-				</Button>
-				<Button as="a" href="javascript:void(0)">
-					Inert
-				</Button>
+				<Button href="/forever/warrior/arms/">Arms</Button>
+				<Button href="#gear-tab">Gear</Button>
+				<Button href="mailto:someone@example.com">Mail</Button>
+				<Button href="javascript:void(0)">Inert</Button>
 			</>,
 		);
 		screen.getAllByRole('link').forEach(link => expect(link.getAttribute('rel')).toBeNull());
 	});
 
-	it('emits the bare base bundle when variant is null, with no colour of its own', () => {
+	it.each([
+		['a framed button', false],
+		['an iconOnly button', true],
+	])('lays a small spinner over %s, keeping its content in place but hidden, and marks itself busy', (_kind, iconOnly) => {
+		const icon = <Icon name="gear" testId="gear" />;
 		render(
-			<Button variant={null} className="talent-tree-reset link-danger text-link-danger">
-				Reset
-			</Button>,
+			iconOnly ? (
+				<Button iconOnly loading aria-label="Settings">
+					{icon}
+				</Button>
+			) : (
+				<Button variant="outline-primary" loading aria-label="Settings">
+					{icon}
+				</Button>
+			),
 		);
-		expect(Array.from(screen.getByRole('button').classList).sort()).toEqual(
-			['ui-button', 'ui-button-md', 'talent-tree-reset', 'link-danger', 'text-link-danger'].sort(),
-		);
+		const button = screen.getByRole('button', { name: 'Settings' });
+		expect(button.getAttribute('aria-busy')).toBe('true');
+
+		const rendered = within(button).getByTestId('gear');
+		expect(rendered.parentElement!.parentElement).toBe(button);
+		expect(rendered.parentElement!.hasAttribute('data-hidden')).toBe(true);
+
+		const spinner = within(button).getByTestId('loader');
+		expect(spinner.previousElementSibling).toBe(rendered.parentElement);
+		expect(spinner.getAttribute('data-size')).toBe('xs');
 	});
 
-	it('emits nothing of its own for the unstyled variant', () => {
-		render(
-			<Button variant="unstyled" className="delete-cooldown link-danger">
-				Delete
-			</Button>,
-		);
-		expect(screen.getByRole('button').className).toBe('delete-cooldown link-danger');
-	});
-
-	it('emits the .btn-reset look for link-danger', () => {
-		render(<Button variant="link-danger">Reset</Button>);
-		expect(screen.getByRole('button').className).toBe('ui-button-link ui-button-link-danger');
-	});
-
-	it('ignores size for a link variant', () => {
-		render(
-			<Button variant="link-danger" size="sm">
-				Reset
-			</Button>,
-		);
-		expect(screen.getByRole('button').className).toBe('ui-button-link ui-button-link-danger');
-	});
-
-	it('is chromeless for iconOnly, with no variant of its own', () => {
-		render(
-			<Button iconOnly aria-label="Close">
-				×
-			</Button>,
-		);
-		const button = screen.getByRole('button', { name: 'Close' });
-		expect(button.className).toBe('ui-button-icon');
-	});
-
-	it('applies a colour variant to an iconOnly button, still chromeless', () => {
-		render(
-			<Button iconOnly variant="link-danger" aria-label="Delete">
-				×
-			</Button>,
-		);
-		expect(screen.getByRole('button', { name: 'Delete' }).className).toBe('ui-button-icon ui-button-link-danger');
+	it('renders no spinner and no aria-busy when not loading', () => {
+		render(<Button>Simulate</Button>);
+		const button = screen.getByRole('button', { name: 'Simulate' });
+		expect(button.hasAttribute('aria-busy')).toBe(false);
+		expect(within(button).queryByTestId('loader')).toBeNull();
 	});
 });

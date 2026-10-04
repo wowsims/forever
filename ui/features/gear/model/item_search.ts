@@ -3,6 +3,7 @@ import { professionNames } from '@sim/proto/names';
 import { ItemDataFields, ItemListType } from '../types';
 
 export type NpcNameLookup = (npcId: number) => string | undefined;
+export type FactionNameLookup = (factionId: number) => string | undefined;
 
 export const formatSearchQuery = (value: string): string =>
 	value
@@ -11,7 +12,7 @@ export const formatSearchQuery = (value: string): string =>
 		.toLowerCase()
 		.replaceAll(/[^\p{L}\p{N}\s]/gu, '');
 
-export const itemSourceSearchNames = <T extends ItemListType>(itemData: ItemDataFields<T>, getNpcName: NpcNameLookup): string[] => {
+const itemSourceSearchNames = <T extends ItemListType>(itemData: ItemDataFields<T>, getNpcName: NpcNameLookup, getFactionName: FactionNameLookup): string[] => {
 	if (!('item' in itemData) || typeof itemData.item != 'object' || !('sources' in itemData.item)) return [];
 	return itemData.item.sources
 		.map(src => {
@@ -23,19 +24,26 @@ export const itemSourceSearchNames = <T extends ItemListType>(itemData: ItemData
 				label = source.soldBy.npcName;
 			} else if (source.oneofKind === 'crafted') {
 				label = professionNames.get(source.crafted.profession);
+			} else if (source.oneofKind === 'rep') {
+				label = getFactionName(source.rep.repFactionId);
 			}
 			return label && formatSearchQuery(label);
 		})
 		.filter((name): name is string => !!name);
 };
 
-export const matchesSearch = <T extends ItemListType>(query: string, itemData: ItemDataFields<T>, getNpcName: NpcNameLookup): boolean => {
+export const matchesSearch = <T extends ItemListType>(
+	query: string,
+	itemData: ItemDataFields<T>,
+	getNpcName: NpcNameLookup,
+	getFactionName: FactionNameLookup,
+): boolean => {
 	if (!query.length) return true;
 
 	const searchQuery = formatSearchQuery(query).split(' ');
 	const name = formatSearchQuery(itemData.searchText);
 	const nameDescription = formatSearchQuery(itemData.nameDescription);
-	const sourceNames = itemSourceSearchNames(itemData, getNpcName);
+	const sourceNames = itemSourceSearchNames(itemData, getNpcName, getFactionName);
 
 	for (const term of searchQuery) {
 		if (!name.includes(term) && !nameDescription.includes(term) && !sourceNames.some(sourceName => sourceName.includes(term))) {

@@ -2,8 +2,10 @@ import * as other_inputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type, APLValueVariable } from '@generated/proto/apl';
 import { Cooldowns, HandType, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { Hunter_Rotation_Playstyle as Playstyle } from '@generated/proto/hunter';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import * as AplUtils from '@sim/proto/apl_utils';
 import { SpecRotation } from '@sim/proto/spec_types';
 import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
@@ -29,9 +31,9 @@ export default defineSpec<Spec.SpecHunter>({
 		Stat.StatAttackPower,
 		Stat.StatRangedAttackPower,
 		Stat.StatArmorPenetration,
-		Stat.StatMeleeHitRating,
-		Stat.StatMeleeHasteRating,
-		Stat.StatMeleeCritRating,
+		Stat.StatHitRating,
+		Stat.StatHasteRating,
+		Stat.StatCritRating,
 		Stat.StatExpertiseRating,
 		Stat.StatPhysicalDamage,
 	],
@@ -69,6 +71,7 @@ export default defineSpec<Spec.SpecHunter>({
 			PseudoStat.PseudoStatExpertisePercent,
 		],
 	),
+	displayWeaponSkillGroups: [WeaponSkillGroup.Melee, WeaponSkillGroup.Ranged],
 	itemSwapSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, ItemSlot.ItemSlotRanged, ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
 	defaults: {
 		// Default equipped gear.
@@ -77,18 +80,18 @@ export default defineSpec<Spec.SpecHunter>({
 		epWeights: new Stats(),
 		softCapBreakpoints: [
 			StatCap.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent, {
-				breakpoints: [9],
+				breakpoints: [8],
 				capType: StatCapType.TypeSoftCap,
 				postCapEPs: [0],
 			}),
 		],
 		rotationType: APLRotation_Type.TypeSimple,
-		simpleRotation: Presets.TurretRotation,
+		simpleRotation: Presets.DefaultSimpleRotation,
 		other: Presets.OtherDefaults,
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,
 		// Default talents.
-		talents: Presets.BeastMasteryTalents.data,
+		talents: Presets.SurvivalWeaveTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
@@ -102,12 +105,12 @@ export default defineSpec<Spec.SpecHunter>({
 	playerIconInputs: [HunterInputs.QuiverInput(), HunterInputs.AmmoInput()],
 	sections: [HunterInputs.PetSection],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
-	includeBuffDebuffInputs: [Stat.StatSpirit, Stat.StatSpellCritRating, Stat.StatSpellDamage],
+	includeBuffDebuffInputs: [Stat.StatSpirit, Stat.StatCritRating, Stat.StatSpellDamage],
 	excludeBuffDebuffInputs: [],
 	rotationInputs: HunterInputs.RotationInputs,
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [other_inputs.TotemTwisting, other_inputs.InputDelay, other_inputs.DistanceFromTarget, other_inputs.TankAssignment],
+		inputs: [other_inputs.InputDelay, other_inputs.DistanceFromTarget, other_inputs.TankAssignment],
 	},
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
@@ -117,73 +120,57 @@ export default defineSpec<Spec.SpecHunter>({
 	presets: {
 		epWeights: [],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.BeastMasteryTalents],
+		talents: [
+			Presets.SurvivalWeaveTalents,
+			Presets.MarksmanshipWeaveTalents,
+			Presets.BeastMasteryWeaveTalents,
+			Presets.MarksmanshipTalents,
+			Presets.BeastMasteryTalents,
+			Presets.SurvivalTalents,
+			Presets.SurvivalMeleeTalents,
+		],
 		// Preset rotations that the user can quickly select.
-		rotations: [Presets.TurretSimple, Presets.WeaveSimple, Presets.DefaultRotation],
+		rotations: [
+			Presets.SimpleRotation,
+			Presets.WeaveAPLRotation,
+			Presets.WeaveHawkAPLRotation,
+			Presets.TurretAPLRotation,
+			Presets.TurretMultiAPLRotation,
+			Presets.TurretHawkAPLRotation,
+			Presets.MeleeAPLRotation,
+		],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.P1Gear],
+		gear: [Presets.P1Gear, Presets.P1MeleeGear],
+		builds: Presets.Builds,
 	},
 
+	// With a two-hander in the main hand the hunter weaves it in; with anything else it stays at range.
 	autoRotation: (player: Player<Spec.SpecHunter>): APLRotation => {
-		const rotation = APLRotation.clone(Presets.DefaultRotation.rotation.rotation!);
-		const gear = player.getGear();
-		const mainHandType = gear.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType;
-		if (mainHandType !== HandType.HandTypeTwoHand) {
-			const meleeWeave = APLValueVariable.fromJson({ name: 'Melee weave', value: { const: { val: 'false' } } });
-			rotation.valueVariables = rotation.valueVariables.map(v => (v.name === meleeWeave.name ? meleeWeave : v));
-		}
-		return rotation;
+		const twoHander = player.getGear().getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType === HandType.HandTypeTwoHand;
+		return APLRotation.fromJson(Presets.PlaystyleAPLs[twoHander ? Playstyle.Weave : Playstyle.Turret]);
 	},
 
-	simpleRotation: (player: Player<Spec.SpecHunter>, simple: SpecRotation<Spec.SpecHunter>, cooldowns: Cooldowns): APLRotation => {
+	// The playstyle picks the priority list, and each toggle sets the list's variable of the same spell.
+	simpleRotation: (_player: Player<Spec.SpecHunter>, simple: SpecRotation<Spec.SpecHunter>, cooldowns: Cooldowns): APLRotation => {
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
-		const rotation = APLRotation.clone(Presets.DefaultRotation.rotation.rotation!);
+		const hawksAtRange = simple.playstyle === Playstyle.Turret && simple.useHawk;
+		const rotation = APLRotation.fromJson(hawksAtRange ? Presets.TurretHawkPlaystyleAPL : Presets.PlaystyleAPLs[simple.playstyle]);
 
-		const {
-			meleeWeave = player.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType === HandType.HandTypeTwoHand,
-			useMulti = true,
-			useArcane = true,
-			timeToWeave = 400,
-		} = simple;
-
-		const meleeWeaveValue = APLValueVariable.fromJson({
-			name: 'Melee weave',
-			value: { const: { val: String(meleeWeave) } },
-		});
-
-		const useMultiValue = APLValueVariable.fromJson({
-			name: 'Use Multi-Shot',
-			value: { const: { val: String(useMulti) } },
-		});
-
-		const useArcaneValue = APLValueVariable.fromJson({
-			name: 'Use Arcane Shot',
-			value: { const: { val: String(useArcane) } },
-		});
-
-		const timeToWeaveValue = APLValueVariable.fromJson({
-			name: 'Time to weave',
-			value: { const: { val: `${timeToWeave}ms` } },
-		});
-
-		const overrides: Record<string, APLValueVariable> = {
-			'Melee weave': meleeWeaveValue,
-			'Time to weave': timeToWeaveValue,
-			'Use Multi-Shot': useMultiValue,
-			'Use Arcane Shot': useArcaneValue,
+		const values: Record<string, string> = {
+			'Time to weave': `${simple.timeToWeave || 400}ms`,
+			'Use Aimed Shot': String(simple.useAimed),
+			'Use Multi-Shot': String(simple.useMulti),
+			'Use Arcane Shot': String(simple.useArcane),
+			'Use Sniper Shot': String(simple.useSniper),
+			'Use Summon Hawk': String(simple.useHawk),
 		};
-		rotation.valueVariables = rotation.valueVariables.map(v => overrides[v.name] ?? v);
+		rotation.valueVariables = rotation.valueVariables.map(variable =>
+			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,
+		);
 
 		return APLRotation.create({
 			prepullActions: rotation.prepullActions,
-			priorityList: [
-				...actions.map(action =>
-					APLListItem.create({
-						action: action,
-					}),
-				),
-				...rotation.priorityList,
-			],
+			priorityList: [...actions.map(action => APLListItem.create({ action })), ...rotation.priorityList],
 			groups: rotation.groups,
 			valueVariables: rotation.valueVariables,
 		});

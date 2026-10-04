@@ -1,7 +1,7 @@
 import { StatCapType } from '@generated/proto/api';
 import { ArmorType, Class, Profession, Race, Stat } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
-import { DungeonDifficulty, RepFaction, RepLevel } from '@generated/proto/ui';
+import { DungeonDifficulty, RepLevel } from '@generated/proto/ui';
 
 export const armorTypeNames: Map<ArmorType, string> = new Map([
 	[ArmorType.ArmorTypeUnknown, 'Unknown'],
@@ -95,7 +95,7 @@ export function getStatName(stat: Stat): string {
 	}
 }
 
-export enum SpellSchool {
+enum SpellSchool {
 	None = 0,
 	Physical = 1,
 	Holy = 2,
@@ -183,34 +183,6 @@ export const REP_LEVEL_NAMES: Record<RepLevel, string> = {
 	[RepLevel.RepLevelHonored]: 'Honored',
 	[RepLevel.RepLevelRevered]: 'Revered',
 	[RepLevel.RepLevelExalted]: 'Exalted',
-};
-
-export const REP_FACTION_NAMES: Record<RepFaction, string> = {
-	[RepFaction.RepFactionUnknown]: 'Unknown',
-	[RepFaction.RepFactionTheConsortium]: 'The Consortium',
-	[RepFaction.RepFactionTheMagHar]: "The Mag'har",
-	[RepFaction.RepFactionCenarionExpedition]: 'Cenarion Expedition',
-	[RepFaction.RepFactionHonorHold]: 'Honor Hold',
-	[RepFaction.RepFactionThrallmar]: 'Thrallmar',
-	[RepFaction.RepFactionSporeggar]: 'Sporeggar',
-	[RepFaction.RepFactionKurenai]: 'Kurenai',
-	[RepFaction.RepFactionAshtongueDeathsworn]: 'Ashtongue Deathsworn',
-	[RepFaction.RepFactionNetherwing]: 'Netherwing',
-	[RepFaction.RepFactionOgriLa]: "Ogri'la",
-};
-
-export const REP_FACTION_QUARTERMASTERS: Record<RepFaction, number> = {
-	[RepFaction.RepFactionUnknown]: 0,
-	[RepFaction.RepFactionTheConsortium]: 20242,
-	[RepFaction.RepFactionTheMagHar]: 20241,
-	[RepFaction.RepFactionCenarionExpedition]: 17904,
-	[RepFaction.RepFactionHonorHold]: 17657,
-	[RepFaction.RepFactionThrallmar]: 17585,
-	[RepFaction.RepFactionSporeggar]: 18382,
-	[RepFaction.RepFactionKurenai]: 20240,
-	[RepFaction.RepFactionAshtongueDeathsworn]: 23159,
-	[RepFaction.RepFactionNetherwing]: 23489,
-	[RepFaction.RepFactionOgriLa]: 23428,
 };
 
 export const statCapTypeNames = new Map<StatCapType, string>([

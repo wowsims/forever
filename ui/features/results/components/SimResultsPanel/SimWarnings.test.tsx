@@ -12,7 +12,7 @@ const registryWith = (...contents: string[]) => {
 	return registry;
 };
 
-const zone = () => document.querySelector('[data-testid="warning-zone"] [data-testid="sim-toolbar-item"]') as HTMLElement | null;
+const zone = () => document.querySelector('[data-testid="warning-zone"] [data-testid="warning-trigger"]') as HTMLElement | null;
 const shown = () => !!zone();
 
 describe('SimWarnings', () => {
@@ -28,7 +28,7 @@ describe('SimWarnings', () => {
 		render(<SimWarnings warnings={registryWith('an enchant needs a profession')} ready />);
 
 		expect(shown()).toBe(true);
-		expect(zone()?.querySelector('[data-testid="warning-trigger"]')?.getAttribute('aria-label')).toBe('sidebar.warnings.label');
+		expect(zone()?.getAttribute('aria-label')).toBe('sidebar.warnings.label');
 	});
 
 	it('stays quiet when a ready sim has nothing to say', () => {
@@ -61,5 +61,12 @@ describe('SimWarnings', () => {
 
 		rerender(<SimWarnings warnings={registry} ready />);
 		expect(shown()).toBe(true);
+	});
+
+	it('takes its tooltip with it on unmount', () => {
+		const { unmount } = render(<SimWarnings warnings={registryWith('an enchant needs a profession')} ready />);
+		unmount();
+
+		expect(document.querySelector('.sim-tooltip')).toBeNull();
 	});
 });

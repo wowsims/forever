@@ -81,9 +81,10 @@ func TestGeneratedExposeArmorIsTheFivePointFinisher(t *testing.T) {
 		t.Errorf("armor is %v, want five times the game files' -450", got)
 	}
 
-	category := target.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.ExposeArmorCategory)
-	if !category.SingleAura {
-		t.Error("the armor category is not single-aura, so a second armor reduction could sit next to it")
+	category := target.ExclusiveEffectManager.GetExclusiveEffectCategory(
+		core.ExclusiveStatCategory(buffs.ExposeArmorCategory, stats.Armor.StatName(), false))
+	if category.SingleAura {
+		t.Error("the armor category is single-aura, so a stronger armor reduction would push this one off the target")
 	}
 	if len(category.Effects()) != 1 || category.Effects()[0].Priority != 2250 {
 		t.Errorf("the category holds %d effects, first bid %v; want one bidding the magnitude 2250",
@@ -102,6 +103,9 @@ func TestGeneratedSunderArmorPricesEveryStack(t *testing.T) {
 	if sunder == nil {
 		t.Fatalf("no aura is labelled %q; the target has %v", "Sunder Armor (External)", targetAuraLabels(target))
 	}
+	if got := sunder.ActionID.Tag; got != -1 {
+		t.Errorf("with no warrior in the raid, the raid's Sunder is tagged %d, want the external copy's -1", got)
+	}
 	if got := target.GetStats()[stats.Armor]; got != 0 {
 		t.Errorf("a sunder with no stacks reduced armor by %v, want nothing", got)
 	}
@@ -111,15 +115,16 @@ func TestGeneratedSunderArmorPricesEveryStack(t *testing.T) {
 	if got := target.GetStats()[stats.Armor]; got != -2250 {
 		t.Errorf("armor is %v, want five stacks of the game files' -450", got)
 	}
-	category := target.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.SunderArmorCategory)
+	category := target.ExclusiveEffectManager.GetExclusiveEffectCategory(
+		core.ExclusiveStatCategory(buffs.SunderArmorCategory, stats.Armor.StatName(), false))
 	if len(category.Effects()) != 1 || category.Effects()[0].Priority != 2250 {
 		t.Errorf("the category holds %d effects, first bid %v; want one bidding the magnitude 2250",
 			len(category.Effects()), category.Effects()[0].Priority)
 	}
 }
 
-// Only the strongest armor reduction is on the target: the weaker one's aura is
-// pushed off and its armor given back.
+// The strongest armor reduction applies and the weaker one stays on the target
+// beside it; when the strongest ends, the weaker one's armor applies.
 func TestGeneratedExposeArmorOutbidsAWeakerSunder(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 
@@ -136,28 +141,83 @@ func TestGeneratedExposeArmorOutbidsAWeakerSunder(t *testing.T) {
 	if got := target.GetStats()[stats.Armor]; got != -2250 {
 		t.Errorf("armor is %v, want only Expose Armor's -2250", got)
 	}
-	if sunder.IsActive() {
-		t.Error("the weaker armor reduction is still on the target, so both apply")
+	if !sunder.IsActive() {
+		t.Error("the weaker armor reduction was pushed off the target, want it beside Expose Armor")
+	}
+
+	expose.Deactivate(sim)
+	if got := target.GetStats()[stats.Armor]; got != -450 {
+		t.Errorf("with Expose Armor off, armor is %v, want the sunder's -450", got)
 	}
 }
 
 // With both in the raid config, Expose Armor is worth its full -2250 from the
-// first moment and the raid's Sunder Armor is worth nothing until it has
-// stacks, so the category turns the sunder away and its ramp never starts.
-func TestGeneratedExposeArmorHoldsTheSlotAgainstTheRaidsSunder(t *testing.T) {
+// first moment and the raid's Sunder Armor lands beside it worth nothing. The
+// sunder's stacks build while Expose Armor holds the category, and apply once
+// Expose Armor ends.
+func TestGeneratedRaidsSunderStacksUnderExposeArmor(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 
-	applyGeneratedTestDebuffs(target, &proto.Debuffs{ExposeArmor: true, SunderArmor: true})
+	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{ExposeArmor: true, SunderArmor: true})
+	expose := target.GetAura("Expose Armor (External)")
+	sunder := target.GetAura("Sunder Armor (External)")
+	if !expose.IsActive() || !sunder.IsActive() {
+		t.Fatalf("expose active %v, sunder active %v; want both on the target", expose.IsActive(), sunder.IsActive())
+	}
 
+	sunder.SetStacks(sim, 3)
 	if got := target.GetStats()[stats.Armor]; got != -2250 {
-		t.Errorf("armor is %v, want one reduction of -2250", got)
+		t.Errorf("armor is %v, want Expose Armor's -2250 once", got)
 	}
-	if expose := target.GetAura("Expose Armor (External)"); !expose.IsActive() {
-		t.Error("Expose Armor is not on the target")
+
+	expose.Deactivate(sim)
+	if got := target.GetStats()[stats.Armor]; got != -1350 {
+		t.Errorf("with Expose Armor off, armor is %v, want the sunder's three stacks of -450", got)
 	}
-	if sunder := target.GetAura("Sunder Armor (External)"); sunder.IsActive() {
-		t.Error("the raid's Sunder Armor activated next to Expose Armor, so both are on the target")
+}
+
+// Every debuff in a shared category is on the target, but only the one holding the stat's slot in it
+// applies its reduction; taking that one off hands the reduction to the next.
+func checkOneReductionApplies(t *testing.T, debuffs *proto.Debuffs, category string, stat stats.Stat, want float64, labels ...string) {
+	t.Helper()
+	target := core.NewGeneratedDebuffTestTarget()
+	base := target.GetStats()[stat]
+
+	sim := applyGeneratedTestDebuffs(target, debuffs)
+
+	for _, label := range labels {
+		aura := target.GetAura(label)
+		if aura == nil {
+			t.Fatalf("no aura is labelled %q; the target has %v", label, targetAuraLabels(target))
+		}
+		if !aura.IsActive() {
+			t.Errorf("%s is not on the target, want every debuff in the category applied", label)
+		}
 	}
+	if got := target.GetStats()[stat] - base; got != want {
+		t.Errorf("%s moved by %v, want one reduction of the game files' %v", stat.StatName(), got, want)
+	}
+
+	slot := target.ExclusiveEffectManager.GetExclusiveEffectCategory(core.ExclusiveStatCategory(category, stat.StatName(), false))
+	holder := slot.GetActiveAura()
+	if holder == nil {
+		t.Fatalf("no debuff holds the %s category", category)
+	}
+	holder.Deactivate(sim)
+	if next := slot.GetActiveAura(); next == nil || next == holder {
+		t.Fatalf("with %s off, %v holds the %s category, want the other debuff", holder.Label, next, category)
+	}
+	if got := target.GetStats()[stat] - base; got != want {
+		t.Errorf("with %s off, %s moved by %v, want the other debuff's %v", holder.Label, stat.StatName(), got, want)
+	}
+}
+
+// Curse of Recklessness and Faerie Fire share one armor reduction slot: both are on the target, and
+// it takes one -505, not both.
+func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
+	checkOneReductionApplies(t, &proto.Debuffs{CurseOfRecklessness: true, FaerieFire: true},
+		buffs.CurseOfRecklessnessCategory, stats.Armor, -505,
+		"Curse of Recklessness (External)", "Faerie Fire (External)")
 }
 
 func TestGeneratedThunderClapSlowsTheTarget(t *testing.T) {
@@ -166,7 +226,7 @@ func TestGeneratedThunderClapSlowsTheTarget(t *testing.T) {
 	applyGeneratedTestDebuffs(target, &proto.Debuffs{ThunderClap: true})
 
 	// The game files' -20 is 20% more time between attacks, so the speed is divided by 1.2.
-	want := 1 / core.SlowedTimeMultiplier(-20)
+	want := core.SymmetricMultiplierFromPercent(-20)
 	if got := buffs.ThunderClapValue(0); got != want {
 		t.Errorf("the clap is worth %v, want the game files' -20%% as %v", got, want)
 	}
@@ -196,7 +256,7 @@ func TestGeneratedThunderClapBidsAgainstTheHandWrittenSlows(t *testing.T) {
 	// Through a variable, so that the test does the same float64 arithmetic the
 	// helper does rather than Go's exact constant arithmetic.
 	divisor := 1.5
-	stronger := core.AtkSpeedReductionEffect(slower, divisor)
+	stronger := buffs.AtkSpeedReductionEffect(slower, divisor)
 	if want := 1 - 1/divisor; stronger.Priority != want {
 		t.Errorf("a slow that divides by %v bids %v, want the magnitude %v", divisor, stronger.Priority, want)
 	}
@@ -227,14 +287,14 @@ func TestGeneratedThunderClapOutbidsThunderfurysCyclone(t *testing.T) {
 		ActionID: core.ActionID{SpellID: 27648},
 		Duration: time.Second * 12,
 	})
-	tied := core.AtkSpeedReductionEffect(cyclone, core.SlowedTimeMultiplier(-20))
+	tied := buffs.AtkSpeedReductionEffect(cyclone, core.MultiplierFromPercent(20))
 	if clapBid := clap.ExclusiveEffects[0].Priority; tied.Priority != clapBid {
 		t.Fatalf("the proc bids %v against the clap's %v, want the same -20%% slow to tie", tied.Priority, clapBid)
 	}
 
 	cyclone.Activate(sim)
 
-	want := 1 / core.SlowedTimeMultiplier(-20)
+	want := core.SymmetricMultiplierFromPercent(-20)
 	if got := target.PseudoStats.MeleeSpeedMultiplier; got != want {
 		t.Errorf("the melee speed multiplier is %v, want the clap's %v to have stayed", got, want)
 	}
@@ -254,7 +314,7 @@ func TestGeneratedThunderfuryLowersNatureResistanceAndSlows(t *testing.T) {
 	if got := target.GetStats()[stats.NatureResistance] - base; got != -25 {
 		t.Errorf("nature resistance moved by %v, want -25", got)
 	}
-	if got, want := target.TotalMeleeHasteMultiplier(), 1/core.SlowedTimeMultiplier(-20); got != want {
+	if got, want := target.TotalMeleeHasteMultiplier(), core.SymmetricMultiplierFromPercent(-20); got != want {
 		t.Errorf("the target swings at %v, want the -20%% slow's %v", got, want)
 	}
 }
@@ -267,7 +327,7 @@ func TestGeneratedThunderfuryKeepsItsResistanceBesideThunderClap(t *testing.T) {
 	if got := target.GetStats()[stats.NatureResistance] - base; got != -25 {
 		t.Errorf("nature resistance moved by %v, want -25 whatever the slow tie decides", got)
 	}
-	if got, want := target.TotalMeleeHasteMultiplier(), 1/core.SlowedTimeMultiplier(-20); got != want {
+	if got, want := target.TotalMeleeHasteMultiplier(), core.SymmetricMultiplierFromPercent(-20); got != want {
 		t.Errorf("the target swings at %v, want one -20%% slow, %v", got, want)
 	}
 }
@@ -275,23 +335,9 @@ func TestGeneratedThunderfuryKeepsItsResistanceBesideThunderClap(t *testing.T) {
 // Demoralizing Roar and Demoralizing Shout are the same category, so the attack
 // power comes off the target once however many of them the raid brings.
 func TestGeneratedDemoralizingDebuffsApplyOnce(t *testing.T) {
-	target := core.NewGeneratedDebuffTestTarget()
-
-	applyGeneratedTestDebuffs(target, &proto.Debuffs{DemoralizingRoar: true, DemoralizingShout: true})
-
-	if got := target.GetStats()[stats.AttackPower]; got != -205 {
-		t.Errorf("attack power is %v, want the store's -205 once", got)
-	}
-
-	roar := target.GetAura("Demoralizing Roar (External)")
-	shout := target.GetAura("Demoralizing Shout (External)")
-	if roar == nil || shout == nil {
-		t.Fatalf("the target has %v, want both demoralizing auras", targetAuraLabels(target))
-	}
-	if roar.IsActive() == shout.IsActive() {
-		t.Errorf("roar active %v, shout active %v; want exactly one of them on the target",
-			roar.IsActive(), shout.IsActive())
-	}
+	checkOneReductionApplies(t, &proto.Debuffs{DemoralizingRoar: true, DemoralizingShout: true},
+		buffs.DemoralizingShoutCategory, stats.AttackPower, -205,
+		"Demoralizing Roar (External)", "Demoralizing Shout (External)")
 }
 
 // The two judgements are bare 40-second auras in the game files; what they do to
@@ -349,10 +395,11 @@ func TestGeneratedAttackPowerReductionsApplyTheStrongestOnce(t *testing.T) {
 	}
 }
 
-// Without the shout, Demoralizing Screech's -205 outbids Hex of Weakness's -204.
+// Without the shout, Demoralizing Screech's -205 outbids Hex of Weakness's -204, and the hex's
+// applies once the screech ends.
 func TestGeneratedDemoralizingScreechOutbidsHexOfWeakness(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
-	applyGeneratedTestDebuffs(target, &proto.Debuffs{HexOfWeakness: true, DemoralizingScreech: true})
+	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{HexOfWeakness: true, DemoralizingScreech: true})
 	if got := target.GetStats()[stats.AttackPower]; got != -205 {
 		t.Errorf("attack power is %v, want the screech's -205 once", got)
 	}
@@ -362,8 +409,61 @@ func TestGeneratedDemoralizingScreechOutbidsHexOfWeakness(t *testing.T) {
 	if hex == nil || screech == nil {
 		t.Fatalf("the target has %v, want both attack power reductions", targetAuraLabels(target))
 	}
-	if !screech.IsActive() || hex.IsActive() {
-		t.Errorf("screech active %v, hex active %v; want the screech alone on the target", screech.IsActive(), hex.IsActive())
+	if !screech.IsActive() || !hex.IsActive() {
+		t.Errorf("screech active %v, hex active %v; want both on the target", screech.IsActive(), hex.IsActive())
+	}
+
+	screech.Deactivate(sim)
+	if got := target.GetStats()[stats.AttackPower]; got != -204 {
+		t.Errorf("with the screech off, attack power is %v, want the hex's -204", got)
+	}
+}
+
+// Hex of Weakness 19285 states -204 attack power and -20% healing taken, and each bids alone:
+// Demoralizing Shout's -205 holds the attack power, and the healing taken, which the shout does not
+// state, stays the hex's.
+func TestGeneratedHexOfWeaknessKeepsItsHealingReductionUnderDemoralizingShout(t *testing.T) {
+	target := core.NewGeneratedDebuffTestTarget()
+	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{DemoralizingShout: true, HexOfWeakness: true})
+
+	hex := target.GetAura("Hex of Weakness (External)")
+	shout := target.GetAura("Demoralizing Shout (External)")
+	if hex == nil || shout == nil || !hex.IsActive() || !shout.IsActive() {
+		t.Fatalf("the target has %v, want the hex and the shout both on it", targetAuraLabels(target))
+	}
+	if got := target.GetStats()[stats.AttackPower]; got != -205 {
+		t.Errorf("attack power is %v, want the shout's -205 once", got)
+	}
+	if got := target.PseudoStats.HealingTakenMultiplier; got != 0.8 {
+		t.Errorf("healing taken is %v times, want the hex's -20%% beside the shout", got)
+	}
+
+	shout.Deactivate(sim)
+	if got := target.GetStats()[stats.AttackPower]; got != -204 {
+		t.Errorf("with the shout off, attack power is %v, want the hex's -204", got)
+	}
+	if got := target.PseudoStats.HealingTakenMultiplier; got != 0.8 {
+		t.Errorf("with the shout off, healing taken is %v times, want the hex's -20%% once", got)
+	}
+}
+
+// Vindication 440667 states -204 attack power and -204 ranged attack power: Demoralizing Shout's -205
+// holds the attack power, and the ranged attack power, which the shout does not state, stays
+// Vindication's.
+func TestGeneratedVindicationKeepsItsRangedAttackPowerUnderDemoralizingShout(t *testing.T) {
+	target := core.NewGeneratedDebuffTestTarget()
+	applyGeneratedTestDebuffs(target, &proto.Debuffs{DemoralizingShout: true, Vindication: true})
+
+	vindication := target.GetAura("Vindication (External)")
+	shout := target.GetAura("Demoralizing Shout (External)")
+	if vindication == nil || shout == nil || !vindication.IsActive() || !shout.IsActive() {
+		t.Fatalf("the target has %v, want Vindication and the shout both on it", targetAuraLabels(target))
+	}
+	if got := target.GetStats()[stats.AttackPower]; got != -205 {
+		t.Errorf("attack power is %v, want the shout's -205 once", got)
+	}
+	if got := target.GetStats()[stats.RangedAttackPower]; got != -204 {
+		t.Errorf("ranged attack power is %v, want Vindication's -204 beside the shout", got)
 	}
 }
 
@@ -382,15 +482,15 @@ func TestGeneratedCurseOfWeaknessStacksWithDemoralizingShout(t *testing.T) {
 // The game files state Dust Cloud at one stack, which the store reads as a stacking row, so the raid's
 // copy takes its stack from a driver: without one, the amount would follow zero stacks and apply
 // nothing.
-func TestGeneratedDustCloudStacksWithFaerieFire(t *testing.T) {
+func TestGeneratedDustCloudTakesItsStackFromTheDriver(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	base := target.GetStats()[stats.Armor]
-	applyGeneratedTestDebuffs(target, &proto.Debuffs{FaerieFire: true, DustCloud: true})
+	applyGeneratedTestDebuffs(target, &proto.Debuffs{DustCloud: true})
 	if got := buffs.DustCloudValue(0); got != -505 {
 		t.Errorf("Dust Cloud is worth %v, want the game files' -505", got)
 	}
-	if got := target.GetStats()[stats.Armor] - base; got != -1010 {
-		t.Errorf("armor moved by %v, want both -505s", got)
+	if got := target.GetStats()[stats.Armor] - base; got != -505 {
+		t.Errorf("armor moved by %v, want the game files' -505", got)
 	}
 	dust := target.GetAura("Dust Cloud (External)")
 	if dust == nil {
@@ -399,6 +499,22 @@ func TestGeneratedDustCloudStacksWithFaerieFire(t *testing.T) {
 	if got := dust.GetStacks(); got != 1 {
 		t.Errorf("Dust Cloud sits at %d stacks, want the driver to have taken its one stack", got)
 	}
+}
+
+// Dust Cloud shares the armor reduction slot of Faerie Fire and Curse of Recklessness: both are on the
+// target, and it takes one -505, not both.
+func TestGeneratedDustCloudAndFaerieFireDoNotStack(t *testing.T) {
+	checkOneReductionApplies(t, &proto.Debuffs{FaerieFire: true, DustCloud: true},
+		buffs.DustCloudCategory, stats.Armor, -505,
+		"Dust Cloud (External)", "Faerie Fire (External)")
+}
+
+// Scorpid Sting and Insect Swarm share one slot: both are on the target, and its hit chance drops by
+// one -2%, not both.
+func TestGeneratedScorpidStingAndInsectSwarmDoNotStack(t *testing.T) {
+	checkOneReductionApplies(t, &proto.Debuffs{ScorpidSting: true, InsectSwarm: true},
+		buffs.ScorpidStingCategory, stats.PhysicalHitPercent, -2,
+		"Scorpid Sting (External)", "Insect Swarm (External)")
 }
 
 // The raid's Annihilator keeps all three stacks up. Armor Shatter 16928 states -165 per stack and a

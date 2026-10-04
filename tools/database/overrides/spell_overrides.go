@@ -40,6 +40,11 @@ const (
 	// The ProcHint bits the tooltip's wording did not yield, which Value carries as a bit set. It
 	// replaces what the wording produced rather than adding to it.
 	Hint
+
+	// The stat mask of the A_MOD_TOTAL_STAT_PERCENTAGE effect, onto its second misc value, one bit
+	// per stat index. Fails when the effect states either misc value itself, since 0 and 0 is
+	// Strength by index.
+	StatMask
 )
 
 func (f Field) String() string {
@@ -58,6 +63,8 @@ func (f Field) String() string {
 		return "DurationMs"
 	case Hint:
 		return "Hint"
+	case StatMask:
+		return "StatMask"
 	}
 	return "unknown field"
 }
@@ -83,28 +90,214 @@ type AreaBonus struct {
 }
 
 var AreaBonuses = []AreaBonus{
-	{1249113, []int32{9203}, 2, 1, "Molten Fury: 'This effect is doubled in Volcanic areas'; no companion row, and 9203 is the Blackrock group no spell requires", "tooltip"},
-	{1249110, []int32{9164}, 2, 1, "Chthonic Power: 'This effect is doubled in Snowy areas'; no companion row", "tooltip"},
-	{1287571, []int32{9161}, 2, 2, "Monkey Business: 'Effect and duration are doubled in Forest and Grassland areas'; no companion row", "tooltip"},
-	{1291105, []int32{9326}, 2, 1, "Stabilized: 'This effect is doubled in Strongholds and Cities'; no companion row", "tooltip"},
-	{1293820, []int32{9326}, 2, 1, "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row", "tooltip"},
+	{
+		SpellID:            1249113,
+		Groups:             []int32{9203},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Molten Fury: 'This effect is doubled in Volcanic areas'; no companion row, and 9203 is the Blackrock group no spell requires",
+		Source:             "tooltip",
+	},
+	{
+		SpellID:            1249110,
+		Groups:             []int32{9164},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Chthonic Power: 'This effect is doubled in Snowy areas'; no companion row",
+		Source:             "tooltip",
+	},
+	{
+		SpellID:            1287571,
+		Groups:             []int32{9161},
+		Multiplier:         2,
+		DurationMultiplier: 2,
+		Reason:             "Monkey Business: 'Effect and duration are doubled in Forest and Grassland areas'; no companion row",
+		Source:             "tooltip",
+	},
+	{
+		SpellID:            1291105,
+		Groups:             []int32{9326},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Stabilized: 'This effect is doubled in Strongholds and Cities'; no companion row",
+		Source:             "tooltip",
+	},
+	{
+		SpellID:            1293820,
+		Groups:             []int32{9326},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row",
+		Source:             "tooltip",
+	},
 }
 
-// The item procs whose rate the game files keep outside the spell data. Their ProcChance column reads
-// the 100 or 101 sentinel, which the store would otherwise take for "fires on every hit". Each rate is
-// a carry-over, as its Source says; none has been measured on this server.
+// The procs whose rate the game files keep outside the spell data and that belong to the spell
+// rather than to one weapon: a chance-on-hit weapon's rate is its own and lives in WeaponProcs. The
+// ProcChance column reads the 100 or 101 sentinel, which the store would otherwise take for "fires
+// on every hit". Each rate is a carry-over, as its Source says; none has been measured on this server.
 var Spells = []Override{
-	{16928, PPM, 1, "Annihilator: ProcChance 101 sentinel; TBC 1 PPM, unverified on Forever", "tbc-carryover"},
-	{23686, PPM, 1, "Darkmoon Card: Maelstrom: column reads 100, tooltip says 'Chance to strike'", "tbc-carryover"},
-	{26480, PPM, 10, "Badge of the Swarmguard: stack accumulator inside the on-use window", "tbc-carryover"},
+	{
+		SpellID: 23686,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Darkmoon Card: Maelstrom: column reads 100, tooltip says 'Chance to strike'",
+		Source:  "tbc-carryover",
+	},
+	{
+		SpellID: 26480,
+		Field:   PPM,
+		Value:   10,
+		Reason:  "Badge of the Swarmguard: stack accumulator inside the on-use window",
+		Source:  "tbc-carryover",
+	},
 
 	// Melee procs whose tooltips name no trigger condition, ruled to hear only hits with a damage
 	// component: a hit that deals damage, or the landed application of a DoT such as Rend's.
-	{7711, Hint, float64(core.ProcHintDamage), "Blazefury Medallion: fires on hits with a damage component", "owner decision, PR #99"},
-	{7721, Hint, float64(core.ProcHintDamage), "Fiery Plate Gauntlets: fires on hits with a damage component", "owner decision, PR #99"},
-	{16615, Hint, float64(core.ProcHintDamage), "Storm Gauntlets: fires on hits with a damage component", "owner decision, PR #99"},
-	{23686, Hint, float64(core.ProcHintDamage), "Darkmoon Card: Maelstrom: fires on hits with a damage component", "owner decision, PR #99"},
-	{26480, Hint, float64(core.ProcHintDamage), "Badge of the Swarmguard: stacks on hits with a damage component", "owner decision, PR #99"},
+	{
+		SpellID: 7711,
+		Field:   Hint,
+		Value:   float64(core.ProcHintDamage),
+		Reason:  "Blazefury Medallion: fires on hits with a damage component",
+		Source:  "owner decision, PR #99",
+	},
+	{
+		SpellID: 7721,
+		Field:   Hint,
+		Value:   float64(core.ProcHintDamage),
+		Reason:  "Fiery Plate Gauntlets: fires on hits with a damage component",
+		Source:  "owner decision, PR #99",
+	},
+	{
+		SpellID: 16615,
+		Field:   Hint,
+		Value:   float64(core.ProcHintDamage),
+		Reason:  "Storm Gauntlets: fires on hits with a damage component",
+		Source:  "owner decision, PR #99",
+	},
+	{
+		SpellID: 23686,
+		Field:   Hint,
+		Value:   float64(core.ProcHintDamage),
+		Reason:  "Darkmoon Card: Maelstrom: fires on hits with a damage component",
+		Source:  "owner decision, PR #99",
+	},
+	{
+		SpellID: 26480,
+		Field:   Hint,
+		Value:   float64(core.ProcHintDamage),
+		Reason:  "Badge of the Swarmguard: stacks on hits with a damage component",
+		Source:  "owner decision, PR #99",
+	},
+	{
+		SpellID: 1299796,
+		Field:   StatMask,
+		Value:   16, // TODO: Verify in game that Insight's proc doubles Spirit, not Strength.
+		Reason:  "Insight: misc 0 and 0 is Strength by index, the tooltip reads 'Increases your Spirit by 100%'",
+		Source:  "tooltip",
+	},
+	{
+		SpellID: 1248751,
+		Field:   StatMask,
+		Value:   16, // TODO: Verify in game that Mystic Mushroom raises Spirit, not Strength.
+		Reason:  "Increased Spirit: misc 0 and 0 is Strength by index, the tooltip reads 'Increases Spirit by 5%'",
+		Source:  "tooltip",
+	},
+
+	// Attack Power shares measured in game at levels 13 and 14, against the sheet's Attack Power from
+	// 99 to 154. Only Rend Rank 2 and Thunder Clap Rank 1 were measured; the other ranks carry the
+	// same share until a log at their level says otherwise.
+	{
+		SpellID: 772,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 1: Rank 2's measured share per tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 6546,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 2: ticks average 7 + 0.02 x Attack Power, read on every tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 6547,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 3: Rank 2's measured share per tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 6548,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 4: Rank 2's measured share per tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 11572,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 5: Rank 2's measured share per tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 11573,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 6: Rank 2's measured share per tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 11574,
+		Field:   APCoefPeriodic,
+		Value:   0.02,
+		Reason:  "Rend Rank 7: Rank 2's measured share per tick",
+		Source:  "combat log, Rend Rank 2, 2026-10-01",
+	},
+	{
+		SpellID: 6343,
+		Field:   APCoefDirect,
+		Value:   0.07,
+		Reason:  "Thunder Clap Rank 1: hits deal 10 + 0.07 x Attack Power, rounded down, before armor",
+		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+	{
+		SpellID: 8198,
+		Field:   APCoefDirect,
+		Value:   0.07,
+		Reason:  "Thunder Clap Rank 2: Rank 1's measured share",
+		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+	{
+		SpellID: 8204,
+		Field:   APCoefDirect,
+		Value:   0.07,
+		Reason:  "Thunder Clap Rank 3: Rank 1's measured share",
+		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+	{
+		SpellID: 8205,
+		Field:   APCoefDirect,
+		Value:   0.07,
+		Reason:  "Thunder Clap Rank 4: Rank 1's measured share",
+		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+	{
+		SpellID: 11580,
+		Field:   APCoefDirect,
+		Value:   0.07,
+		Reason:  "Thunder Clap Rank 5: Rank 1's measured share",
+		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+	{
+		SpellID: 11581,
+		Field:   APCoefDirect,
+		Value:   0.07,
+		Reason:  "Thunder Clap Rank 6: Rank 1's measured share",
+		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
 }
 
 // The procs-per-minute rate stated for a spell, or zero where none is. The item database reads it

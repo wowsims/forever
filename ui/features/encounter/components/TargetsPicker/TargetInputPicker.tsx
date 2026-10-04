@@ -1,8 +1,9 @@
+import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
+import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
 import type { TargetInput } from '@generated/proto/common';
 import type { Encounter } from '@sim/raid/encounter';
-import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { EnumPicker } from '@ui-kit/EnumPicker';
-import { NumberPicker } from '@ui-kit/NumberPicker';
+import { Field } from '@ui-kit/Field';
 import { useMemo } from 'react';
 
 import { targetInputConfig } from './utils/configs';
@@ -21,10 +22,10 @@ export const TargetInputPicker = ({ encounter, targetIndex, inputIndex, input }:
 	);
 
 	return (
-		<div className="ui-field" data-testid="target-input-picker-root">
-			{picker.kind === 'number' && <NumberPicker modObject={null} config={picker.config} />}
-			{picker.kind === 'boolean' && <BooleanPicker modObject={null} config={picker.config} />}
-			{picker.kind === 'enum' && <EnumPicker modObject={null} config={picker.config} />}
-		</div>
+		<Field testId="target-input-picker-root">
+			{picker.kind === 'number' && <ConnectedNumberField modObject={null} config={picker.config} />}
+			{picker.kind === 'boolean' && <ConnectedBooleanPicker modObject={null} config={picker.config} />}
+			{picker.kind === 'enum' && <ConnectedChoiceField modObject={null} config={picker.config} />}
+		</Field>
 	);
 };

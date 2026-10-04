@@ -7,7 +7,7 @@ import { finishIndividualImport } from './finish_individual_import';
 import type { ImporterDefinition } from './types';
 
 const removedSuffixesBody = (itemNames: string[]) => (
-	<div>
+	<>
 		<p>Sixty Upgrades currently exports the wrong Random Suffixes. We have removed the random suffix on the following item(s):</p>
 		<ul>
 			{itemNames.map((itemName, index) => (
@@ -16,7 +16,7 @@ const removedSuffixesBody = (itemNames: string[]) => (
 				</li>
 			))}
 		</ul>
-	</div>
+	</>
 );
 
 export const SIXTY_UPGRADES_IMPORTER: ImporterDefinition = {

@@ -1,6 +1,7 @@
 package warrior
 
 import (
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -15,6 +16,7 @@ var (
 	mightSunderThreat = spelldata.MustFind(23561) // 8pc: Enhanced Sunder Armor
 )
 
+// TODO: items 16861-16868 have no ItemSparse rows in the game files, so the set cannot be worn yet.
 var ItemSetBattlegearOfMight = core.NewItemSet(core.ItemSet{
 	Name: "Battlegear of Might",
 	ID:   209,
@@ -26,14 +28,10 @@ var ItemSetBattlegearOfMight = core.NewItemSet(core.ItemSet{
 		},
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
 			warrior := agent.(WarriorAgent).GetWarrior()
-			rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: mightRageEnergize.ID})
-			rage := mightRageEnergize.EnergizeEffect().Tenths()
+			gain := shared.FiredSpellHandler(&warrior.Character, core.ActionID{SpellID: mightRageEnergize.ID}, mightRageProc)
 
 			// The rate is the proc chance column, which the tooltip's $h% says is a real roll.
-			trigger := spelldata.ProcTrigger(&warrior.Character, mightRageProc,
-				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-					warrior.AddRage(sim, rage, rageMetrics)
-				})
+			trigger := spelldata.ProcTrigger(&warrior.Character, mightRageProc, gain)
 			trigger.Name = "Battlegear of Might - 5PC"
 
 			setBonusAura.AttachProcTrigger(trigger)
@@ -59,21 +57,17 @@ var (
 	wrathParryBuff    = spelldata.MustFind(23547) // 8pc: Parry, the buff
 )
 
+// TODO: items 16959-16966 have no ItemSparse rows in the game files, so the set cannot be worn yet.
 var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 	Name: "Battlegear of Wrath",
 	ID:   218,
 	Bonuses: map[int32]core.ApplySetBonus{
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
 			// Spell 23563 states 30 attack power on Battle Shout, through the flag the HasBsT2 option sets.
-			warrior := agent.(WarriorAgent).GetWarrior()
-			fromOptions := warrior.HasBsT2
-			setBonusAura.
-				ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-					warrior.HasBsT2 = true
-				}).
-				ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
-					warrior.HasBsT2 = fromOptions
-				})
+			// The shout reads the flag once, when it is registered, so only a set worn at the start counts.
+			if setBonusAura.BuildPhase == core.CharacterBuildPhaseGear {
+				agent.(WarriorAgent).GetWarrior().HasBsT2 = true
+			}
 		},
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
 			warrior := agent.(WarriorAgent).GetWarrior()

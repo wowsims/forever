@@ -31,6 +31,7 @@ export const UI_ALIASES: Record<string, string> = {
 	'@app': path.resolve(BASE_PATH, 'app'),
 	'@specs': path.resolve(BASE_PATH, 'specs'),
 	'@i18n': path.resolve(BASE_PATH, 'i18n'),
+	'@testing': path.resolve(BASE_PATH, 'testing'),
 };
 
 function serveExternalAssets() {
@@ -134,6 +135,9 @@ export default defineConfig(({ command, mode }) => {
 		path.resolve(__dirname, 'sim/core/bulk/candidates.go'),
 		path.resolve(__dirname, 'tools/database/gen_character_constants_ts.go'),
 		path.resolve(__dirname, 'tools/database/gen_bulksim_constants.ts.go'),
+		path.resolve(__dirname, 'sim/core/consumes_imbues.go'),
+		path.resolve(__dirname, 'sim/core/bulk/statistics.go'),
+		path.resolve(__dirname, 'tools/database/gen_sim_tables_ts.go'),
 	];
 
 	return {

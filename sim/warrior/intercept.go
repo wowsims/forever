@@ -8,7 +8,7 @@ import (
 var interceptRank = spellData.Intercept.Highest()
 
 // The damage sits on the stun the charge triggers, not on Intercept itself.
-var interceptStunDamage = spellData.InterceptTriggered.Highest().DamageEffect().Average(core.CharacterLevel)
+var interceptStunDamage = interceptRank.EffectN(2).Trigger().DamageEffect().Average()
 
 func (warrior *Warrior) registerIntercept() {
 	actionID := core.ActionID{SpellID: interceptRank.ID}

@@ -24,6 +24,7 @@ describe('LandingClassMenu', () => {
 	it('links straight to the only spec of a one-spec class, with no menu', () => {
 		const { getByTestId } = render(<LandingClassMenu playerClass={singleSpec} />);
 		expect(getByTestId('sim-link').getAttribute('href')).toBe(specsOf(singleSpec)[0].simLink);
+		expect(getByTestId('sim-link').hasAttribute('rel')).toBe(false);
 		expect(document.querySelector('.ui-landing-sim-link-popup')).toBeNull();
 	});
 

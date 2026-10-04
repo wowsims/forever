@@ -9,7 +9,7 @@ export enum Phase {
 	Phase5,
 }
 
-export const CURRENT_PHASE = Phase.Phase3;
+export const CURRENT_PHASE = Phase.Phase1;
 
 export enum LaunchStatus {
 	Unlaunched,

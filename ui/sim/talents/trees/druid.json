@@ -260,6 +260,17 @@
         "maxPoints": 3
       },
       {
+        "fieldName": "shreddingAttacks",
+        "fancyName": "Shredding Attacks",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 0
+        },
+        "spellId": 16966,
+        "definitionId": 134406,
+        "maxPoints": 3
+      },
+      {
         "fieldName": "savageFury",
         "fancyName": "Savage Fury",
         "location": {
@@ -293,15 +304,19 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "shreddingAttacks",
-        "fancyName": "Shredding Attacks",
+        "fieldName": "shiftingPower",
+        "fancyName": "Shifting Power",
         "location": {
           "rowIdx": 3,
           "colIdx": 0
         },
-        "spellId": 16966,
-        "definitionId": 134406,
-        "maxPoints": 3
+        "spellId": 1322605,
+        "definitionId": 134412,
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 2,
+          "colIdx": 0
+        }
       },
       {
         "fieldName": "primalBite",
@@ -345,15 +360,19 @@
         }
       },
       {
-        "fieldName": "predatoryInstincts",
-        "fancyName": "Predatory Instincts",
+        "fieldName": "improvedShiftingPower",
+        "fancyName": "Improved Shifting Power",
         "location": {
           "rowIdx": 4,
           "colIdx": 0
         },
-        "spellId": 1223242,
-        "definitionId": 134411,
-        "maxPoints": 2
+        "spellId": 1322670,
+        "definitionId": 145859,
+        "maxPoints": 2,
+        "prereqLocation": {
+          "rowIdx": 3,
+          "colIdx": 0
+        }
       },
       {
         "fieldName": "leaderOfThePack",
@@ -367,15 +386,15 @@
         "maxPoints": 1
       },
       {
-        "fieldName": "kingOfTheJungle",
-        "fancyName": "King of the Jungle",
+        "fieldName": "predatoryInstincts",
+        "fancyName": "Predatory Instincts",
         "location": {
           "rowIdx": 4,
           "colIdx": 3
         },
-        "spellId": 417046,
-        "definitionId": 134412,
-        "maxPoints": 3
+        "spellId": 1223242,
+        "definitionId": 134411,
+        "maxPoints": 2
       },
       {
         "fieldName": "naturalReaction",

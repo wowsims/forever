@@ -27,7 +27,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	bonus := tickSpell.EffectN(2)
 
 	dummy := rank.Effect(dbcenums.A_PERIODIC_DUMMY, 0)
-	bonusTargets := int(dummy.Average(core.CharacterLevel))
+	bonusTargets := int(dummy.Average())
 	tickLength := dummy.Period()
 	numberOfTicks := int32(rank.Duration() / tickLength)
 
@@ -35,9 +35,9 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	// through the dot's, which is the base tick's. Consecrated Ground marks the same targets.
 	dealTick := func(sim *core.Simulation, dot *core.Dot) {
 		for i, target := range sim.Encounter.ActiveTargetUnits {
-			damage := tick.Average(core.CharacterLevel)
+			damage := tick.Average()
 			if i < bonusTargets {
-				damage += bonus.Average(core.CharacterLevel) + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
+				damage += bonus.Average() + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
 				if paladin.consecratedGroundAuras != nil {
 					paladin.consecratedGroundAuras.Get(target).Activate(sim)
 				}
@@ -51,7 +51,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		SpellSchool:    rank.SpellSchool(),
 		DefenseType:    rank.DefenseTypeCore(),
 		ProcMask:       core.ProcMaskSpellDamage,
-		Flags:          core.SpellFlagAPL,
+		Flags:          core.SpellFlagAPL | core.SpellFlagPureDot,
 		ClassSpellMask: SpellMaskConsecration,
 		Rank:           rank.RankNumber(),
 

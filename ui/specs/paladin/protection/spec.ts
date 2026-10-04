@@ -5,6 +5,7 @@ import { PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
@@ -27,13 +28,11 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 		Stat.StatSpellDamage,
 		Stat.StatAgility,
 		Stat.StatAttackPower,
-		Stat.StatMeleeHitRating,
-		Stat.StatMeleeHasteRating,
-		Stat.StatMeleeCritRating,
+		Stat.StatHitRating,
+		Stat.StatHasteRating,
+		Stat.StatCritRating,
 		Stat.StatArmorPenetration,
 		Stat.StatExpertiseRating,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellCritRating,
 		Stat.StatDefenseRating,
 		Stat.StatBlockRating,
 		Stat.StatBlockValue,
@@ -78,6 +77,7 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 			PseudoStat.PseudoStatExpertisePercent,
 		],
 	),
+	displayWeaponSkillGroups: [WeaponSkillGroup.Melee],
 
 	defaults: {
 		// Default equipped gear.
@@ -115,7 +115,6 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
 		inputs: [
-			OtherInputs.TotemTwisting,
 			OtherInputs.InputDelay,
 			OtherInputs.TankAssignment,
 			OtherInputs.InspirationUptime,

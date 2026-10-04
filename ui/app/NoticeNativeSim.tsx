@@ -8,17 +8,13 @@ import { useTypedLocalStorage } from '@ui-kit/hooks/useTypedLocalStorage';
 import { createToastManager, ToastArea } from '@ui-kit/Toast';
 import { useEffect, useMemo, useState } from 'react';
 
-export interface NoticeNativeSimProps {
-	container: HTMLElement;
-}
-
 const SETTINGS_KEY = `${LOCAL_STORAGE_PREFIX}_notice-local-sim.v1`;
 
 // The flag has always been written as the bare string `true`, which is also its JSON form, so it
 // reads back unchanged through the shared hook.
 const parseSeen = (value: unknown): boolean | undefined => (value === true ? true : undefined);
 
-export const NoticeNativeSim = ({ container }: NoticeNativeSimProps) => {
+export const NoticeNativeSim = () => {
 	const sim = useSim();
 	// `sim.isNative` is decided during init, so this cannot be asked any earlier.
 	const ready = useSimReady();
@@ -40,12 +36,12 @@ export const NoticeNativeSim = ({ container }: NoticeNativeSimProps) => {
 			autohide: false,
 			onClose: () => setHasSeen(true),
 			body: (
-				<div>
+				<>
 					<p>{i18n.t('sim.notice_native_download.message')}</p>
-					<Button as="a" variant="outline-light" href={REPO_RELEASES_URL} target="_blank" onClick={() => setHasSeen(true)}>
+					<Button variant="outline-light" href={REPO_RELEASES_URL} target="_blank" onClick={() => setHasSeen(true)}>
 						{i18n.t('sim.notice_native_download.download_button')}
 					</Button>
-				</div>
+				</>
 			),
 		});
 		return () => manager.close();
@@ -53,5 +49,5 @@ export const NoticeNativeSim = ({ container }: NoticeNativeSimProps) => {
 
 	if (!visible) return null;
 
-	return <ToastArea manager={manager} container={container} inline className="order-100 w-full" testId="toast-notice-native-download" />;
+	return <ToastArea manager={manager} inline className="order-100 w-full" testId="toast-notice-native-download" />;
 };

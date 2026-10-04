@@ -1,0 +1,12 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { SpecThemeCards } from './components/SpecThemeCard';
+
+<Meta title="Design System/Spec Themes" />
+
+# Spec themes
+
+Every `<spec>-sim-ui` class `ui/styles/theme/specs.css` selects, read from the file at build time and grouped by class (the last word of the spec key). Each card carries `sim-ui` plus the spec class, the same pair the sim root carries, so `bg-primary`, `text-primary-foreground` and `bg-sim` resolve to that spec's `--theme-color`, `--theme-color-foreground` and `--theme-background-image`. A component never needs a spec-aware variant.
+
+The last line of each card is the background image path as `specs.css` writes it; Storybook serves `assets/` under `/forever/assets`.
+
+<SpecThemeCards />

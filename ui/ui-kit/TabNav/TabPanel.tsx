@@ -6,17 +6,17 @@ import type { ReactNode } from 'react';
 export interface TabPanelProps {
 	value: string;
 	id?: string;
-	keepMounted?: boolean;
 	className?: ClassValue;
+	testId?: string;
 	children?: ReactNode;
 }
 
-export const TabPanel = ({ value, id, keepMounted = true, className, children }: TabPanelProps) => (
+export const TabPanel = ({ value, id, className, testId = 'tab-pane', children }: TabPanelProps) => (
 	<Tabs.Panel
 		value={value}
 		id={id ?? value}
-		keepMounted={keepMounted}
-		data-testid="tab-pane"
+		keepMounted
+		data-testid={testId}
 		className={clsx('col-start-1 row-start-1 fade-in-out', className, 'data-ending-style:opacity-0 data-starting-style:opacity-0')}>
 		{children}
 	</Tabs.Panel>

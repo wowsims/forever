@@ -1,4 +1,5 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { EMPTY_SUGGESTIONS } from '../../model/log/search/indexes';
@@ -30,8 +31,9 @@ const mount = (groups: Array<IdentifiedSearchGroup>, onChange = vi.fn()) => ({
 
 const group = (id: number, field: IdentifiedSearchGroup['field']): IdentifiedSearchGroup => ({ id, field, join: 'or', values: [] });
 
-const openAddField = async (container: HTMLElement) =>
-	act(() => void fireEvent.click(container.querySelector<HTMLButtonElement>('[data-testid="log-search-add-field"] [data-testid="dropdown-picker-button"]')!));
+const addField = (container: HTMLElement) => container.querySelector<HTMLElement>('[data-testid="log-search-add-field"]')!;
+const openAddField = (container: HTMLElement) => userEvent.click(addField(container));
+const items = () => screen.queryAllByRole('option');
 
 describe('LogSearchBar', () => {
 	it('renders a card per group and the add-filter picker after them', () => {
@@ -41,16 +43,14 @@ describe('LogSearchBar', () => {
 			[...container.querySelectorAll('[data-testid="log-search-groups"] [data-testid="log-search-group"]')].map(card => card.getAttribute('data-field')),
 		).toEqual(['source', 'spell']);
 		// i18n has no bundle loaded under vitest, so a key that resolves to itself is the label landing.
-		expect(container.querySelector('[data-testid="log-search-add-field"] [data-testid="dropdown-picker-button"]')!.textContent).toBe(
-			'results_tab.details.logs.search_add_filter',
-		);
+		expect(addField(container).textContent).toBe('results_tab.details.logs.search_add_filter');
 	});
 
 	it('opens the add-filter menu upward and out of flow, for the drawer it clips against', async () => {
 		const { container } = mount([]);
 		await openAddField(container);
 
-		const positioner = document.querySelector('[data-testid="dropdown-picker-positioner"]') as HTMLElement;
+		const positioner = screen.getByTestId('choice-field-positioner');
 		expect(positioner.getAttribute('data-side')).toBe('top');
 		expect(positioner.style.position).toBe('fixed');
 	});
@@ -59,22 +59,13 @@ describe('LogSearchBar', () => {
 		const { container } = mount([]);
 		await openAddField(container);
 
-		expect([...document.querySelectorAll('[data-testid="dropdown-picker-item"]')].map(item => item.textContent)).toEqual([
-			'Source',
-			'Target',
-			'Spell',
-			'Type',
-			'School',
-			'Outcome',
-			'Time',
-			'Amount',
-		]);
+		expect(items().map(item => item.textContent)).toEqual(['Source', 'Target', 'Spell', 'Type', 'School', 'Outcome', 'Time', 'Amount']);
 	});
 
 	it('appends a new empty OR group for the field that was picked', async () => {
 		const { container, onChange } = mount([]);
 		await openAddField(container);
-		await act(() => void fireEvent.click([...document.querySelectorAll<HTMLElement>('[data-testid="dropdown-picker-item"]')][2]));
+		await userEvent.click(items()[2]);
 
 		expect(onChange).toHaveBeenCalledWith([expect.objectContaining({ field: 'spell', join: 'or', values: [] })]);
 	});
@@ -88,7 +79,7 @@ describe('LogSearchBar', () => {
 
 		for (let round = 0; round < 2; round++) {
 			await openAddField(container);
-			await act(() => void fireEvent.click(document.querySelector<HTMLElement>('[data-testid="dropdown-picker-item"]')!));
+			await userEvent.click(items()[0]);
 			rerender(<LogSearchBar groups={groups} suggestions={EMPTY_SUGGESTIONS} onChange={onChange} />);
 		}
 

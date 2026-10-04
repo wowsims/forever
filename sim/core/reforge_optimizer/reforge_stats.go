@@ -60,18 +60,13 @@ func isEmptyUnitStats(unitStats core.UnitStats) bool {
 	return true
 }
 
-// hasteRatingSpeedMultiplierPairs maps each (haste rating stat, haste% pseudo-stat) to its
-// speed multiplier pseudo-stat for the analytical haste delta calculation.
+// hasteSpeedMultipliers maps each haste% pseudo-stat to its speed multiplier pseudo-stat for the
+// analytical haste delta calculation.
 // Δhaste% = speedMult × ΔHasteRating / HasteRatingPerHastePercent
-var hasteRatingSpeedMultiplierPairs = [3]struct {
-	hasteRatingStat  stats.Stat
-	hastePS          proto.PseudoStat
-	speedMultPS      proto.PseudoStat
-	hasteRatingConst float64
-}{
-	{stats.MeleeHasteRating, proto.PseudoStat_PseudoStatMeleeHastePercent, proto.PseudoStat_PseudoStatMeleeSpeedMultiplier, core.PhysicalHasteRatingPerHastePercent},
-	{stats.MeleeHasteRating, proto.PseudoStat_PseudoStatRangedHastePercent, proto.PseudoStat_PseudoStatRangedSpeedMultiplier, core.PhysicalHasteRatingPerHastePercent},
-	{stats.SpellHasteRating, proto.PseudoStat_PseudoStatSpellHastePercent, proto.PseudoStat_PseudoStatCastSpeedMultiplier, core.SpellHasteRatingPerHastePercent},
+var hasteSpeedMultipliers = map[proto.PseudoStat]proto.PseudoStat{
+	proto.PseudoStat_PseudoStatMeleeHastePercent:  proto.PseudoStat_PseudoStatMeleeSpeedMultiplier,
+	proto.PseudoStat_PseudoStatRangedHastePercent: proto.PseudoStat_PseudoStatRangedSpeedMultiplier,
+	proto.PseudoStat_PseudoStatSpellHastePercent:  proto.PseudoStat_PseudoStatCastSpeedMultiplier,
 }
 
 func rawUnitStatsFromStats(statValues stats.Stats) core.UnitStats {
@@ -120,6 +115,9 @@ func resolveStatDelta(sdm *stats.StatDependencyManager, baseStats core.UnitStats
 		}
 		delta = setUnitStat(delta, stats.UnitStatFromPseudoStat(pair.PseudoStat), value)
 	}
+	for percent, offHand := range offHandPercents {
+		delta = setUnitStat(delta, stats.UnitStatFromPseudoStat(offHand), delta.Stats[percent])
+	}
 	spellHitDelta := delta.Stats[stats.SpellHitPercent]
 	for _, schoolHitPS := range schoolHitPercents {
 		delta = setUnitStat(delta, stats.UnitStatFromPseudoStat(schoolHitPS), spellHitDelta)
@@ -129,10 +127,10 @@ func resolveStatDelta(sdm *stats.StatDependencyManager, baseStats core.UnitStats
 
 	// Haste% pseudo-stats: read speed multipliers from baseStats.PseudoStats, which
 	// GetPseudoStatsProto populates as MeleeSpeedMultiplier×AttackSpeedMultiplier etc.
-	for _, p := range hasteRatingSpeedMultiplierPairs {
-		if hasteRatingDelta := delta.Stats[p.hasteRatingStat]; hasteRatingDelta != 0 {
-			speedMult := getUnitStat(baseStats, stats.UnitStatFromPseudoStat(p.speedMultPS))
-			delta = setUnitStat(delta, stats.UnitStatFromPseudoStat(p.hastePS), speedMult*hasteRatingDelta/p.hasteRatingConst)
+	if hasteRatingDelta := delta.Stats[stats.HasteRating]; hasteRatingDelta != 0 {
+		for hastePS, speedPS := range hasteSpeedMultipliers {
+			speedMult := getUnitStat(baseStats, stats.UnitStatFromPseudoStat(speedPS))
+			delta = setUnitStat(delta, stats.UnitStatFromPseudoStat(hastePS), speedMult*hasteRatingDelta/core.HasteRatingPerHastePercent)
 		}
 	}
 
@@ -153,17 +151,18 @@ func eachUnitStat(vec core.UnitStats, fn func(unitStat stats.UnitStat, value flo
 	}
 }
 
-var schoolHitPercents = []proto.PseudoStat{
-	proto.PseudoStat_PseudoStatSchoolHitPercentArcane,
-	proto.PseudoStat_PseudoStatSchoolHitPercentFire,
-	proto.PseudoStat_PseudoStatSchoolHitPercentFrost,
-	proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
-	proto.PseudoStat_PseudoStatSchoolHitPercentNature,
-	proto.PseudoStat_PseudoStatSchoolHitPercentShadow,
+var schoolHitPercents = core.SchoolHitPseudoStats[stats.SchoolIndexArcane:]
+
+// The off hand's percent moves with the physical percent. The per-attack ratings on the sheet are left
+// out: a rating's children are counted in percent.
+var offHandPercents = map[stats.Stat]proto.PseudoStat{
+	stats.PhysicalHitPercent:  proto.PseudoStat_PseudoStatOffHandHitPercent,
+	stats.PhysicalCritPercent: proto.PseudoStat_PseudoStatOffHandCritPercent,
 }
 
 // sheetPseudoStats returns the pseudo-stats the character sheet shows a back-end percent stat in: its
-// own, the ranged total it is the melee share of, and for spell hit the per-school percentages.
+// own, the ranged total it is the melee share of, the off hand's for physical hit and crit, and for
+// spell hit the per-school percentages.
 func sheetPseudoStats(percent stats.Stat) []proto.PseudoStat {
 	if percent == stats.ReducedCritTakenPercent {
 		return []proto.PseudoStat{proto.PseudoStat_PseudoStatReducedCritTakenPercent}
@@ -174,6 +173,9 @@ func sheetPseudoStats(percent stats.Stat) []proto.PseudoStat {
 			pseudoStats = append(pseudoStats, pair.PseudoStat)
 		}
 	}
+	if offHand, ok := offHandPercents[percent]; ok {
+		pseudoStats = append(pseudoStats, offHand)
+	}
 	if percent == stats.SpellHitPercent {
 		pseudoStats = append(pseudoStats, schoolHitPercents...)
 	}
@@ -181,7 +183,7 @@ func sheetPseudoStats(percent stats.Stat) []proto.PseudoStat {
 }
 
 // childPseudoStats returns the percent pseudo-stats a rating moves, from the core rating conversions
-// and the haste ratings, in the order core.RatingConversions lists them.
+// in the order core.RatingConversions lists them, then the channels without a back-end percent Stat.
 func childPseudoStats(parent stats.Stat) []proto.PseudoStat {
 	var children []proto.PseudoStat
 	for _, conversion := range core.RatingConversions {
@@ -189,10 +191,8 @@ func childPseudoStats(parent stats.Stat) []proto.PseudoStat {
 			children = append(children, sheetPseudoStats(conversion.Percent)...)
 		}
 	}
-	for _, p := range hasteRatingSpeedMultiplierPairs {
-		if p.hasteRatingStat == parent {
-			children = append(children, p.hastePS)
-		}
+	if channels, ok := core.RatingChannelsOf(parent); ok && !channels.HasPercentStats {
+		children = append(children, channels.Channels()...)
 	}
 	return children
 }
@@ -203,10 +203,8 @@ func ratingPerPseudoStatPercent(pseudoStat proto.PseudoStat, parent stats.Stat) 
 			return conversion.RatingPerPercent
 		}
 	}
-	for _, p := range hasteRatingSpeedMultiplierPairs {
-		if p.hasteRatingStat == parent && p.hastePS == pseudoStat {
-			return p.hasteRatingConst
-		}
+	if channels, ok := core.RatingChannelsOf(parent); ok && slices.Contains(channels.Channels(), pseudoStat) {
+		return channels.RatingPerPercent
 	}
 	return 1
 }
@@ -263,7 +261,7 @@ func unitStatFromUIStat(uiStat *proto.UIStat) (stats.UnitStat, bool) {
 // LP coefficient-key scheme
 // ---------------------------------------------------------------------------
 //
-// Coefficients are keyed by the proto enum NAME (e.g. "StatMeleeHitRating",
+// Coefficients are keyed by the proto enum NAME (e.g. "StatHitRating",
 // "PseudoStatSpellHitPercent", "ItemSlotHead") so checkCaps can recover the stat from a key.
 // Slot keys ("ItemSlot...") and special keys (SocketBonusLink_*, JewelcraftingGem, unique-gem
 // IDs, score) are not stat names and parse to (_, false).

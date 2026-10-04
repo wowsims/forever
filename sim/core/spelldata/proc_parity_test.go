@@ -150,7 +150,7 @@ func TestTheItemProcsResolveAsTheyWereRegistered(t *testing.T) {
 			continue
 		}
 
-		unsupported := ItemProcUnsupported(row, live.isWeaponProc)
+		unsupported := ItemProcUnsupportedWithRate(row, live.isWeaponProc, live.ppm)
 		if live.unsupported != "" {
 			if len(unsupported) != 1 || unsupported[0] != live.unsupported {
 				t.Errorf("%s (%d): unsupported = %v, want only %q, which is why it registers nothing now",
@@ -168,7 +168,7 @@ func TestTheItemProcsResolveAsTheyWereRegistered(t *testing.T) {
 		if live.isWeaponProc {
 			opts = append(opts, WeaponProc())
 		}
-		trigger := ProcTrigger(character, row, nil, append(opts, procRateForTest(row))...)
+		trigger := ProcTrigger(character, row, nil, append(opts, procRateForTest(live.ppm))...)
 
 		report := func(field string, got any, want any) {
 			t.Helper()
@@ -205,31 +205,26 @@ func TestTheItemProcsResolveAsTheyWereRegistered(t *testing.T) {
 			report("ICD", trigger.ICD, time.Millisecond*time.Duration(live.icdMs))
 		}
 
-		// A rate stated as procs per minute is a manager and no roll at all, so both halves are
+		// A rate stated as procs per minute is a manager and no roll at all, so the manager is
 		// asserted: a chance left beside a manager would gate the rate and the manager would never be
 		// consulted.
-		if live.ppm > 0 {
-			if trigger.DPM == nil {
-				report("DPM", "no proc manager", live.ppm)
-			}
-			if float64(row.RPPM) != live.ppm {
-				report("RPPM", row.RPPM, live.ppm)
-			}
+		if live.ppm > 0 && trigger.DPM == nil {
+			report("DPM", "no proc manager", live.ppm)
 		}
 	}
 }
 
 // The rate option sim/common/shared gives the resolver, copied rather than called: shared imports
-// this package, so a test inside it cannot import shared back. A weapon's rate is measured on the
-// weapon carrying it, so the manager is the dynamic one and the item is named to it - Annihilator is
-// the only row here that has one.
-func procRateForTest(row *Spell) ProcOpt {
+// this package, so a test inside it cannot import shared back. A weapon's rate is its item effect's,
+// measured on the weapon carrying it, so the manager is the dynamic one and the item is named to it
+// - Annihilator is the only row here that has one.
+func procRateForTest(ppm float64) ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
-		if row.RPPM <= 0 {
+		if ppm <= 0 {
 			return
 		}
 
 		trigger.ProcChance = 0
-		trigger.DPM = character.NewDynamicLegacyProcForWeapon(12798, float64(row.RPPM), 0)
+		trigger.DPM = character.NewDynamicLegacyProcForWeapon(12798, ppm, 0)
 	}
 }

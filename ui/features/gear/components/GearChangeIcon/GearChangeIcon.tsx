@@ -1,39 +1,43 @@
 import type { ItemSlot } from '@generated/proto/common';
 import { translateSlotName } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
+import { useActionId } from '@sim/hooks/useActionId';
+import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
+import type { WowheadDatasetProps } from '@sim/hooks/useWowheadDataset';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import { getEmptyGemSocketIconUrl } from '@sim/proto/gems';
-import { useActionId } from '@ui-kit/hooks/useActionId';
-import { useEquippedItemWowheadDataset } from '@ui-kit/hooks/useEquippedItemWowheadDataset';
+import type { ResolvedIcon } from '@ui-kit/Field';
+import { Icon } from '@ui-kit/Icon';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import { useId, useMemo } from 'react';
 
+import { useEquippedItemWowheadDataset } from '../../hooks/useEquippedItemWowheadDataset';
 import { getEmptySlotIconUrl } from '../../model/empty_slot_icons';
-import { gearChangeSockets } from './utils';
+import { enchantActionId } from '../../model/item_data';
+import { enchantChanged as hasEnchantChanged, type GearChangeSocket, gearChangeSockets } from './utils';
 
-export interface GearChangeIconProps {
+export interface GearChangeIconViewProps {
 	slot: ItemSlot;
-	/** The slot after the run. Undefined renders the empty frame, which is what an unfilled slot looks like. */
-	item?: EquippedItem;
-	previousItem?: EquippedItem;
+	/** False draws the empty frame, which is what an unfilled slot looks like. */
+	equipped: boolean;
+	iconUrl: string;
+	href: string;
+	wowhead?: WowheadDatasetProps;
+	sockets: ReadonlyArray<GearChangeSocket>;
+	/** The item's enchant; an empty iconUrl falls back to a glyph. */
+	enchant?: ResolvedIcon;
+	enchantChanged?: boolean;
+	enchantWowhead?: WowheadDatasetProps;
 }
 
 /**
  * Parameterises the slot and the before/after pair; fixes the frame and the per-socket change
  * markers.
  */
-export const GearChangeIcon = ({ slot, item, previousItem }: GearChangeIconProps) => {
-	const host = useSimHost();
-	const player = host.player;
+export const GearChangeIconView = ({ slot, equipped, iconUrl, href, wowhead, sockets, enchant, enchantChanged, enchantWowhead }: GearChangeIconViewProps) => {
 	const slotName = translateSlotName(slot);
 	const tooltipId = useId();
-
-	const actionId = useMemo(() => item?.asActionId(), [item]);
-	const { iconUrl, href } = useActionId(actionId);
-
-	const wowheadProps = useEquippedItemWowheadDataset(player, item);
-
-	const sockets = useMemo(() => gearChangeSockets(item, previousItem), [item, previousItem]);
 
 	return (
 		<div className="ui-item-picker-root" data-testid="gear-change-icon">
@@ -41,15 +45,21 @@ export const GearChangeIcon = ({ slot, item, previousItem }: GearChangeIconProps
 				<div
 					className="ui-item-picker-icon-wrapper"
 					data-testid="item-picker-icon-wrapper"
-					style={{ backgroundImage: `url('${(item && iconUrl) || getEmptySlotIconUrl(slot)}')` }}
+					style={{ backgroundImage: `url('${(equipped && iconUrl) || getEmptySlotIconUrl(slot)}')` }}
 				/>
-				<a
-					className="absolute inset-0"
-					data-testid="gear-change-icon-link"
-					href={item ? href || undefined : undefined}
-					data-whtticon={item ? 'false' : undefined}
-					{...wowheadProps}
-				/>
+				<WowheadAnchor className="absolute inset-0" testId="gear-change-icon-link" href={equipped ? href || undefined : undefined} {...wowhead} />
+				{enchant && (
+					<WowheadAnchor
+						className="ui-gear-change-icon-enchant"
+						testId="gear-change-icon-enchant"
+						href={enchant.href || undefined}
+						aria-label={enchant.name}
+						data-changed={enchantChanged ? '' : undefined}
+						style={enchant.iconUrl ? { backgroundImage: `url('${enchant.iconUrl}')` } : undefined}
+						{...enchantWowhead}>
+						{!enchant.iconUrl && <Icon name="circle-exclamation" className="ui-gear-change-icon-gem-marker block" />}
+					</WowheadAnchor>
+				)}
 				<div className="ui-item-picker-sockets-container" data-testid="item-picker-sockets-container">
 					{sockets.map(({ socketColor, gemName, changed }, gemIdx) => (
 						<div
@@ -59,7 +69,9 @@ export const GearChangeIcon = ({ slot, item, previousItem }: GearChangeIconProps
 							data-interactive={changed || undefined}
 							style={{ backgroundImage: `url(${getEmptyGemSocketIconUrl(socketColor)})` }}
 							{...(changed && gemName ? tooltipAnchorProps(`${tooltipId}-socket-${gemIdx}`) : {})}>
-							{changed && <i className="fas fa-exclamation-circle ui-gear-change-icon-gem-marker block" />}
+							{changed && (
+								<Icon name="circle-exclamation" className="ui-gear-change-icon-gem-marker block" data-testid="gear-change-icon-gem-marker" />
+							)}
 						</div>
 					))}
 				</div>
@@ -82,5 +94,43 @@ export const GearChangeIcon = ({ slot, item, previousItem }: GearChangeIconProps
 				) : null,
 			)}
 		</div>
+	);
+};
+
+export interface GearChangeIconProps {
+	slot: ItemSlot;
+	/** The slot after the run. Undefined renders the empty frame, which is what an unfilled slot looks like. */
+	item?: EquippedItem;
+	previousItem?: EquippedItem;
+	/** Draws the item's enchant marker, bordered when the enchant changed. */
+	showEnchant?: boolean;
+}
+
+export const GearChangeIcon = ({ slot, item, previousItem, showEnchant = false }: GearChangeIconProps) => {
+	const player = useSimHost().player;
+
+	const actionId = useMemo(() => item?.asActionId(), [item]);
+	const { iconUrl, href } = useActionId(actionId);
+	const wowhead = useEquippedItemWowheadDataset(player, item);
+	const sockets = useMemo(() => gearChangeSockets(item, previousItem), [item, previousItem]);
+
+	const itemEnchant = showEnchant ? (item?.enchant ?? undefined) : undefined;
+	const enchantActionIdOf = useMemo(() => (showEnchant && item?.enchant ? enchantActionId(item.enchant) : undefined), [showEnchant, item]);
+	const { iconUrl: enchantIconUrl, href: enchantHref } = useActionId(enchantActionIdOf);
+	const enchantWowhead = useActionIdWowheadDataset(enchantActionIdOf);
+	const enchant = itemEnchant ? { name: itemEnchant.name, iconUrl: enchantIconUrl, href: enchantHref } : undefined;
+
+	return (
+		<GearChangeIconView
+			slot={slot}
+			equipped={!!item}
+			iconUrl={iconUrl}
+			href={href}
+			wowhead={wowhead}
+			sockets={sockets}
+			enchant={enchant}
+			enchantChanged={hasEnchantChanged(item, previousItem)}
+			enchantWowhead={enchantWowhead}
+		/>
 	);
 };

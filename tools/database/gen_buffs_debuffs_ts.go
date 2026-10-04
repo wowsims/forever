@@ -270,7 +270,7 @@ func buffInput(row ResolvedBuff) (*tsBuffInput, error) {
 		input.ImpID = impID
 	case buffmanifest.ProtoInt32:
 		if row.Scope == buffmanifest.ScopeDebuff {
-			return nil, fmt.Errorf("an int32 debuff has no multistate factory in ui/ui-kit/icon_inputs.ts")
+			return nil, fmt.Errorf("an int32 debuff has no multistate factory in ui/features/inputs/icon_inputs.ts")
 		}
 		input.Factory = "makeMultistate" + scopes[row.Scope] + "Input"
 		numStates, ok := buffInputNumStates[row.Field]
@@ -311,7 +311,7 @@ func buffsDebuffsTSImports(factories map[string]bool) string {
 	var b strings.Builder
 	b.WriteString(tsImport([]string{"Class", "Stat"}, "@generated/proto/common"))
 	b.WriteString(tsImport([]string{"ActionId"}, "@sim/proto/action_id"))
-	b.WriteString(tsImport(names, "@ui-kit/icon_inputs"))
+	b.WriteString(tsImport(names, "@features/inputs/icon_inputs"))
 	b.WriteString("\n")
 	b.WriteString("import type { RenderableStatOptions } from './stat_options';\n")
 	return b.String()

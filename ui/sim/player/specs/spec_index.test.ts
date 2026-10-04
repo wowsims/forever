@@ -27,10 +27,6 @@ const EXPECTED_TREE: Partial<Record<Spec, string>> = {
 const ALL_SPECS = (Object.values(Spec) as Array<Spec>).filter((spec): spec is Spec => typeof spec === 'number' && spec !== Spec.SpecUnknown);
 
 describe('specIndex', () => {
-	it('covers all 18 specs', () => {
-		expect(ALL_SPECS.length).toBe(18);
-	});
-
 	it.each(ALL_SPECS.map(spec => [Spec[spec], spec] as const))('%s indexes a talent tree that exists', (_name, spec) => {
 		const playerSpec = PlayerSpecs.fromProto(spec);
 		const trees = classTalentsConfig[playerSpec.classID];

@@ -12,7 +12,9 @@ func replaceItem(existing core.Item, option bulkSimCandidateOption) core.Item {
 	itemSpec.Id = option.spec.GetId()
 	itemSpec.RandomSuffix = option.spec.GetRandomSuffix()
 
-	if !enchantAppliesToItem(itemSpec.GetEnchant(), option.item) {
+	if option.enchant != 0 {
+		itemSpec.Enchant = option.enchant
+	} else if !enchantAppliesToItem(itemSpec.GetEnchant(), option.item) {
 		itemSpec.Enchant = 0
 	}
 	itemSpec.Gems = mergeGems(existing, option, option.item)
@@ -26,10 +28,14 @@ func replaceItem(existing core.Item, option bulkSimCandidateOption) core.Item {
 }
 
 func createSelectedItem(option bulkSimCandidateOption) core.Item {
+	enchant := option.spec.GetEnchant()
+	if option.enchant != 0 {
+		enchant = option.enchant
+	}
 	return core.NewItem(core.ItemSpec{
 		ID:           option.spec.GetId(),
 		RandomSuffix: option.spec.GetRandomSuffix(),
-		Enchant:      option.spec.GetEnchant(),
+		Enchant:      enchant,
 		Gems:         slices.Clone(option.spec.GetGems()),
 	})
 }
@@ -74,20 +80,32 @@ func enchantAppliesToItem(effectID int32, item core.Item) bool {
 	if effectID == 0 {
 		return false
 	}
-	enchant := core.GetEnchantByEffectID(effectID)
-	if enchant == nil {
+	return core.AnyEnchantRow(effectID, func(enchant core.Enchant) bool {
+		return enchantRowAppliesToItem(enchant, item)
+	})
+}
+
+func enchantRowAppliesToItem(enchant core.Enchant, item core.Item) bool {
+	if enchant.EnchantType == proto.EnchantType_EnchantTypeTwoHand && item.HandType != proto.HandType_HandTypeTwoHand {
 		return false
 	}
-	if !core.CheckSliceOverlap(getEligibleEnchantSlots(*enchant), core.EligibleSlotsForItem(&item)) {
+	if enchant.EnchantType == proto.EnchantType_EnchantTypeStaff && item.WeaponType != proto.WeaponType_WeaponTypeStaff {
+		return false
+	}
+	if (enchant.EnchantType == proto.EnchantType_EnchantTypeShield) != (item.WeaponType == proto.WeaponType_WeaponTypeShield) {
+		return false
+	}
+	if (enchant.EnchantType == proto.EnchantType_EnchantTypeOffHand) != (item.WeaponType == proto.WeaponType_WeaponTypeOffHand) {
 		return false
 	}
 	if enchant.Type == proto.ItemType_ItemTypeRanged {
-		return item.RangedWeaponType == proto.RangedWeaponType_RangedWeaponTypeBow || item.RangedWeaponType == proto.RangedWeaponType_RangedWeaponTypeCrossbow || item.RangedWeaponType == proto.RangedWeaponType_RangedWeaponTypeGun
-	}
-	if item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeUnknown && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeWand && enchant.Type != proto.ItemType_ItemTypeRanged {
+		if item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeBow && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeCrossbow && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeGun {
+			return false
+		}
+	} else if item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeUnknown && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeWand {
 		return false
 	}
-	return true
+	return core.CheckSliceOverlap(getEligibleEnchantSlots(enchant), core.EligibleSlotsForItem(&item))
 }
 
 func getEligibleEnchantSlots(enchant core.Enchant) []proto.ItemSlot {

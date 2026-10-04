@@ -1,23 +1,32 @@
+import { AplList, AplSectionTitle } from '@features/apl/components/AplList';
 import { AplListToolbar } from '@features/apl/components/AplListToolbar';
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
-import { AplValidations } from '@features/apl/components/ListItemHeader';
-import { uuidValidations } from '@features/apl/components/ListItemHeader/utils';
 import { useRenamedCopy } from '@features/apl/hooks/useRenamedCopy';
+import { APL_VARIABLES, aplItemId } from '@features/apl/model/apply_move';
+import { freshUuids } from '@features/apl/model/fresh_uuids';
 import { rotationSource } from '@features/apl/utils';
+import { useListItems } from '@features/inputs/hooks/useListItems';
 import { APLValueVariable } from '@generated/proto/apl';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
-import { ListPicker, type ListPickerConfig } from '@ui-kit/ListPicker';
 
 import { VariableItem } from './VariableItem';
 
 const variableName = () => i18n.t('rotation_tab.apl.variables.name');
 
-/** The rotation's named values, which any condition can reference. */
+/** The rotation's named values, which any condition can reference: one tree item each. */
 export const VariablesList = () => {
 	const player = usePlayer();
-	const variables = () => player.aplRotation.valueVariables || [];
+	const variables = useListItems(player, {
+		storeSubscribe: rotationSource,
+		getValue: (subject: Player<any>) => subject.aplRotation.valueVariables || [],
+		setValue: (subject: Player<any>, next: Array<APLValueVariable>) =>
+			subject.modifyAplRotation(rotation => {
+				rotation.valueVariables = next;
+			}),
+		newItem: () => APLValueVariable.create({ name: i18n.t('rotation_tab.apl.variables.newVariableName'), value: undefined }),
+	});
 	const copying = useRenamedCopy(player, {
 		itemName: variableName(),
 		inputLabel: i18n.t('rotation_tab.apl.variables.attributes.name'),
@@ -27,42 +36,35 @@ export const VariablesList = () => {
 		},
 		nameOf: variable => variable.name,
 		// `create` re-creates nested messages recursively, so the copy's value shares nothing with the original's.
-		copy: (variable, name) => APLValueVariable.create({ name, value: variable.value }),
+		copy: (variable, name) => freshUuids(APLValueVariable.create({ name, value: variable.value })),
 	});
 
-	const config: ListPickerConfig<Player<any>, APLValueVariable> = {
-		title: i18n.t('rotation_tab.apl.variables.header'),
-		titleTooltip: i18n.t('rotation_tab.apl.variables.tooltips.overview'),
-		extraClassNames: ['ui-apl-list-item-picker', 'peer'],
-		itemLabel: variableName(),
-		storeSubscribe: rotationSource,
-		getValue: (subject: Player<any>) => subject.aplRotation.valueVariables || [],
-		setValue: (subject: Player<any>, next: Array<APLValueVariable>) =>
-			subject.modifyAplRotation(rotation => {
-				rotation.valueVariables = next;
-			}),
-		newItem: () => APLValueVariable.create({ name: i18n.t('rotation_tab.apl.variables.newVariableName'), value: undefined }),
-		onCopyItem: copying.onCopyItem,
-		allowedActions: ['copy', 'delete', 'move'],
-		inlineMenuBar: true,
-	};
-
 	return (
-		<div>
-			<ListPicker<Player<any>, APLValueVariable>
-				modObject={player}
-				config={config}
-				renderItem={(_index, itemConfig) => <VariableItem player={player} config={itemConfig} />}
-				renderItemHeader={(_index, itemConfig) => (
-					<AplValidations getValidations={subject => uuidValidations(subject, itemConfig.getValue(subject)?.value?.uuid?.value)} />
-				)}
-			/>
+		// The tab panel is a flex column with a gap; this stays a single flex item so that gap doesn't land between the header and the tree.
+		<div className="flex flex-col">
+			<h6 className="mb-2 flex items-center gap-2">
+				<AplSectionTitle text={i18n.t('rotation_tab.apl.variables.header')} tooltip={i18n.t('rotation_tab.apl.variables.tooltips.overview')} />
+			</h6>
+			<AplList.Root group={APL_VARIABLES} testId="apl-variables-tree">
+				{variables.items.map((variable, index) => {
+					const id = aplItemId(variable, index);
+					return (
+						<VariableItem
+							key={id}
+							id={id}
+							player={player}
+							config={variables.itemConfig(variable, index)}
+							onCopy={() => copying.onCopyItem(index)}
+							onDelete={() => variables.remove(index)}
+						/>
+					);
+				})}
+			</AplList.Root>
 			<AplListToolbar
-				className="peer-has-data-[drag='from']:pointer-events-none peer-has-data-[drag='from']:opacity-50"
 				itemName={variableName()}
 				nameDialog={{
 					inputLabel: i18n.t('rotation_tab.apl.variables.attributes.name'),
-					existingNames: () => variables().map(variable => variable.name),
+					existingNames: () => variables.items.map(variable => variable.name),
 				}}
 				onCreate={name =>
 					player.modifyAplRotation(rotation => {

@@ -1,5 +1,5 @@
-import { makePlayer } from '@features/apl/testing';
 import { APLRotation } from '@generated/proto/apl';
+import { makePlayer } from '@testing/apl/player';
 import { act, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 

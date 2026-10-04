@@ -1,7 +1,6 @@
 package spelldata
 
 import (
-	"math"
 	"os"
 	"strings"
 	"testing"
@@ -106,35 +105,35 @@ func TestFindMisses(t *testing.T) {
 // where the scaling stops however high the caster is.
 func TestEffectAverage(t *testing.T) {
 	damage := Find(116).EffectN(2)
-	if got := damage.Average(60); got != 21 {
+	if got := damage.AverageAt(60); got != 21 {
 		t.Errorf("Average(60) = %v, want 21", got)
 	}
-	if got := damage.Average(6); got != 20 {
+	if got := damage.AverageAt(6); got != 20 {
 		t.Errorf("Average(6) = %v, want 20", got)
 	}
-	if got := damage.Average(2); got != 19 {
+	if got := damage.AverageAt(2); got != 19 {
 		t.Errorf("Average(2) = %v, want 19", got)
 	}
 
-	wantMin, wantMax := 21-21*0.105263/2, 21+21*0.105263/2
-	if got := damage.Min(60); math.Abs(got-wantMin) > 1e-9 {
-		t.Errorf("Min(60) = %v, want %v", got, wantMin)
+	// 21 spread by 10.5% of the base 19 is 21 ± 1.
+	if got := damage.MinAt(60); got != 20 {
+		t.Errorf("Min(60) = %v, want 20", got)
 	}
-	if got := damage.Max(60); math.Abs(got-wantMax) > 1e-9 {
-		t.Errorf("Max(60) = %v, want %v", got, wantMax)
+	if got := damage.MaxAt(60); got != 22 {
+		t.Errorf("Max(60) = %v, want 22", got)
 	}
 }
 
 // A fractional base keeps its fraction until the whole amount is floored: -58.4697 is -59, and 19.7
 // gaining 0.5 over three levels is 21.2 floored to 21, not 19 + 1.5 floored to 20.
 func TestEffectAverageKeepsTheFraction(t *testing.T) {
-	if got := Find(700).EffectN(1).Average(60); got != -59 {
+	if got := Find(700).EffectN(1).AverageAt(60); got != -59 {
 		t.Errorf("Average(60) of a fractional negative base = %v, want -59", got)
 	}
-	if got := Find(800).EffectN(1).Average(60); got != 21 {
+	if got := Find(800).EffectN(1).AverageAt(60); got != 21 {
 		t.Errorf("Average(60) of a fractional base gaining 1.5 = %v, want 21", got)
 	}
-	if got := Find(800).EffectN(1).Average(4); got != 19 {
+	if got := Find(800).EffectN(1).AverageAt(4); got != 19 {
 		t.Errorf("Average(4) at the spell's own level = %v, want 19", got)
 	}
 }
@@ -146,7 +145,7 @@ func TestEffectOutOfRange(t *testing.T) {
 	if Find(116).EffectN(0) != NilEffect {
 		t.Error("EffectN(0) is not NilEffect")
 	}
-	if got := NilEffect.Average(60); got != 0 {
+	if got := NilEffect.AverageAt(60); got != 0 {
 		t.Errorf("NilEffect.Average(60) = %v, want 0", got)
 	}
 	if got := Nil.CastTime(); got != 0 {

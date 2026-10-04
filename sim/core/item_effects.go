@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"slices"
 )
 
 // Function for applying permanent effects to an Agent.
@@ -14,44 +13,14 @@ type ApplyEffect func(Agent)
 var itemEffects = map[int32]ApplyEffect{}
 var enchantEffects = map[int32]ApplyEffect{}
 
-// IDs of item effects which should be used for tests.
-var itemEffectsForTest []int32
-var enchantEffectsForTest []int32
-
-// This value can be set before adding item effects, to control whether they are included in tests.
-var AddEffectsToTest = true
-
 func HasItemEffect(id int32) bool {
 	_, ok := itemEffects[id]
 	return ok
-}
-func HasItemEffectForTest(id int32) bool {
-	return slices.Contains(itemEffectsForTest, id)
 }
 
 func HasEnchantEffect(id int32) bool {
 	_, ok := enchantEffects[id]
 	return ok
-}
-
-// The items an effect is registered for, in id order. For the test that pins which items the sim
-// simulates an effect for, which is how a regeneration says what it made live and what it dropped.
-func RegisteredItemEffectIDs() []int32 {
-	return sortedKeys(itemEffects)
-}
-
-// The same for the enchant registry.
-func RegisteredEnchantEffectIDs() []int32 {
-	return sortedKeys(enchantEffects)
-}
-
-func sortedKeys(effects map[int32]ApplyEffect) []int32 {
-	ids := make([]int32, 0, len(effects))
-	for id := range effects {
-		ids = append(ids, id)
-	}
-	slices.Sort(ids)
-	return ids
 }
 
 // Registers an ApplyEffect function which will be called before the Sim
@@ -89,9 +58,6 @@ func NewItemEffect(id int32, itemEffect ApplyEffect) {
 	}
 
 	itemEffects[id] = itemEffect
-	if AddEffectsToTest {
-		itemEffectsForTest = append(itemEffectsForTest, id)
-	}
 }
 
 func NewEnchantEffect(id int32, enchantEffect ApplyEffect) {
@@ -109,9 +75,6 @@ func NewEnchantEffect(id int32, enchantEffect ApplyEffect) {
 	}
 
 	enchantEffects[id] = enchantEffect
-	if AddEffectsToTest {
-		enchantEffectsForTest = append(enchantEffectsForTest, id)
-	}
 }
 
 func (equipment *Equipment) applyItemEffects(agent Agent, registeredItemEffects map[int32]bool, registeredItemEnchantEffects map[int32]bool, includeGemEffects bool) {

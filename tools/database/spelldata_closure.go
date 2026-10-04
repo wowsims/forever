@@ -15,17 +15,16 @@ import (
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
-// The spells the sim can reach without anything naming them first: everything the nine class files
-// are built from, and every spell an item, an enchant or a set bonus casts. What those spells trigger
-// is reached from here by reachableSpells.
+// The spells the sim can reach from gear without anything naming them first: every spell an item, an
+// enchant or a set bonus casts. With the spells the nine class files are built from, they are the
+// store's roots, and what those spells trigger is reached from there by reachableSpells. They are kept
+// apart from the class roots: they are the items spell data group and the universe the proc audit
+// asks its question over, and which query a root came from cannot be recovered from a merged list.
 //
 // The hand-kept extra spells are not here: they are added while the store is rendered, so that adding
 // one and forgetting to regenerate fails the regeneration check instead of passing it - see
 // withExtraIDs.
-// The gear half is returned on its own as well: it is the universe the proc audit asks its question
-// over, and which query a root came from cannot be recovered from the merged list.
-func storeRoots(db *sql.DB, t *spellTables, ladderIDs []int32) (roots []int32, gear []int32, err error) {
-	roots = slices.Clone(ladderIDs)
+func gearRoots(db *sql.DB, t *spellTables) (gear []int32, err error) {
 	for _, source := range []struct {
 		name  string
 		query string
@@ -40,15 +39,14 @@ func storeRoots(db *sql.DB, t *spellTables, ladderIDs []int32) (roots []int32, g
 			if err := rows.Scan(&id); err != nil {
 				return err
 			}
-			roots = append(roots, id)
 			gear = append(gear, id)
 			return nil
 		}); err != nil {
-			return nil, nil, fmt.Errorf("%s: %w", source.name, err)
+			return nil, fmt.Errorf("%s: %w", source.name, err)
 		}
 	}
 
-	return namedIDs(t, roots), namedIDs(t, gear), nil
+	return namedIDs(t, gear), nil
 }
 
 // Set by gen_spelldata -everyClassSpell: roots the store at every spell of a class family as well,
@@ -64,21 +62,22 @@ func everyClassSpellQuery() string {
 }
 
 // The spells a rank reads its numbers off by name. A rank that states no amount of its own keeps it
-// on a same-name sibling - Frenzied Regeneration's heal is on 22845, Tiger's Fury's energize on
-// 417045 - so the store carries those too: same name, same rank subtext, a shared class bit, and
-// taught by a skill line rather than merely existing.
+// on a same-name sibling - Frenzied Regeneration's heal is on 22845 - so the store carries those
+// too: same name, same rank subtext, a shared class bit, and taught by a skill line rather than
+// merely existing.
 //
 // One pass over everything already reached is enough: the relation is the name and subtext, so a
-// sibling's siblings are the ones already in hand.
-func siblingSpells(db *sql.DB, ids []int32) ([]int32, error) {
+// sibling's siblings are the ones already in hand. The siblings come back by the spell they are
+// siblings of, so one query serves every spell data group's reach.
+func siblingSpells(db *sql.DB, ids []int32) (map[int32][]int32, error) {
 	list := make([]string, len(ids))
 	for i, id := range ids {
 		list[i] = strconv.Itoa(int(id))
 	}
 
-	var siblings []int32
+	siblings := map[int32][]int32{}
 	err := eachRow(db, `
-		SELECT DISTINCT b.Spell
+		SELECT DISTINCT a.Spell, b.Spell
 		FROM SkillLineAbility a
 		JOIN SkillLineAbility b ON b.Spell != a.Spell AND (a.ClassMask & b.ClassMask) != 0
 		JOIN SpellName na ON na.ID = a.Spell
@@ -87,11 +86,11 @@ func siblingSpells(db *sql.DB, ids []int32) ([]int32, error) {
 		JOIN Spell sb ON sb.ID = b.Spell AND sb.NameSubtext_lang = sa.NameSubtext_lang
 		WHERE a.Spell IN (`+strings.Join(list, ", ")+`)
 		ORDER BY b.Spell`, func(rows *sql.Rows) error {
-		var id int32
-		if err := rows.Scan(&id); err != nil {
+		var of, id int32
+		if err := rows.Scan(&of, &id); err != nil {
 			return err
 		}
-		siblings = append(siblings, id)
+		siblings[of] = append(siblings[of], id)
 		return nil
 	})
 	return siblings, err
@@ -105,6 +104,10 @@ func withExtraIDs(t *spellTables, roots []int32) ([]int32, error) {
 	for _, extra := range overrides.ExtraSpells {
 		if extra.Reason == "" {
 			return nil, fmt.Errorf("the extra spell %d states no reason", extra.SpellID)
+		}
+		if extra.SpellDataGroup != "" && extra.SpellDataGroup != groupRacials {
+			return nil, fmt.Errorf("the extra spell %d names spell data group %q, and only %q is named by hand",
+				extra.SpellID, extra.SpellDataGroup, groupRacials)
 		}
 		// Dropped like any other unnamed id, but said out loud: it was written down on purpose.
 		if _, named := t.Names[extra.SpellID]; !named {
@@ -123,10 +126,15 @@ func withExtraIDs(t *spellTables, roots []int32) ([]int32, error) {
 func buffManifestIDs() []int32 {
 	var ids []int32
 	for _, spec := range buffmanifest.All() {
-		ids = append(ids, spec.SpellID, spec.CastID, spec.Talent)
-		if spec.ImpAction != nil {
-			ids = append(ids, spec.ImpAction.SpellID)
-		}
+		ids = append(ids, buffSpecIDs(spec)...)
+	}
+	return ids
+}
+
+func buffSpecIDs(spec buffmanifest.Row) []int32 {
+	ids := []int32{spec.SpellID, spec.CastID, spec.Talent}
+	if spec.ImpAction != nil {
+		ids = append(ids, spec.ImpAction.SpellID)
 	}
 	return ids
 }

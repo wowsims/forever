@@ -42,7 +42,7 @@ var BulkSimStageConfigs = []BulkSimStageConfig{
 	},
 	{
 		Stage:            proto.BulkSimStage_BulkSimStageHigh,
-		MinIterations:    1000,
+		MinIterations:    10000,
 		TargetErrorPct:   0.05,
 		UseConcurrentSim: true,
 	},
@@ -85,7 +85,7 @@ func GetBulkSimStageConcurrency(request *proto.BulkSimRequest, config BulkSimSta
 // N always uses seed RandomSeed+N.
 func runBulkSimStage(request *proto.BulkSimRequest, candidates []BulkSimCandidate, config BulkSimStageConfig, carry *bulkSimStageCarryOver, progress chan *proto.ProgressMetrics, signals simsignals.Signals) BulkSimStageResult {
 	startedAt := time.Now()
-	minIterations := getBulkSimStageMinIterations(request.HighStageIterations, config)
+	minIterations := config.MinIterations
 	concurrency := GetBulkSimStageConcurrency(request, config)
 	concurrency = max(1, min(concurrency, len(candidates)))
 	if !carry.covers(candidates) {
@@ -101,8 +101,8 @@ func runBulkSimStage(request *proto.BulkSimRequest, candidates []BulkSimCandidat
 
 	// Run the baseline gear up to the stage minimum to estimate DPS variance.
 	// That variance is used to calculate how many iterations are needed for the
-	// stage target error; user-provided high-stage iterations are treated as a
-	// floor and may be raised if the probe shows more iterations are required.
+	// stage target error; the stage minimum is a floor and is raised if the probe
+	// shows more iterations are required.
 	baselineProbe := carry.baselineResult()
 	probeIterations := carriedIterations
 	if probeDelta > 0 {
@@ -114,7 +114,7 @@ func runBulkSimStage(request *proto.BulkSimRequest, candidates []BulkSimCandidat
 	}
 	probeEmitter.report(1, probeDelta, baselineProbe.DpsMetrics.Avg)
 
-	iterations := max(getBulkSimStageIterations(request, config, baselineProbe.DpsMetrics, len(candidates)), probeIterations)
+	iterations := max(getBulkSimStageIterations(config, baselineProbe.DpsMetrics, len(candidates)), probeIterations)
 	baselineDelta := iterations - probeIterations
 	candidateDelta := iterations - carriedIterations
 	probeSims := core.TernaryInt(probeDelta > 0, 1, 0)
@@ -200,19 +200,9 @@ func bulkSimStageMetrics(config BulkSimStageConfig, candidates []BulkSimCandidat
 	}
 }
 
-func getBulkSimStageMinIterations(highStageIterations int32, config BulkSimStageConfig) int32 {
-	if config.Stage == proto.BulkSimStage_BulkSimStageHigh && highStageIterations > 0 {
-		return highStageIterations
-	}
-	return config.MinIterations
-}
-
-func getBulkSimStageIterations(request *proto.BulkSimRequest, config BulkSimStageConfig, baselineMetrics *proto.DistributionMetrics, candidateCount int) int32 {
-	minIterations := getBulkSimStageMinIterations(request.HighStageIterations, config)
-	// The user-defined high-stage iteration count is a floor, not a cap. Every
-	// stage still uses enough iterations to satisfy its target error when needed.
+func getBulkSimStageIterations(config BulkSimStageConfig, baselineMetrics *proto.DistributionMetrics, candidateCount int) int32 {
 	targetIterations := getBulkSimTargetIterations(config.TargetErrorPct, baselineMetrics, candidateCount)
-	return max(minIterations, targetIterations)
+	return max(config.MinIterations, targetIterations)
 }
 
 func getBulkSimStageMaxSurvivors(config BulkSimStageConfig, candidateCount int) int {

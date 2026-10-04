@@ -1,4 +1,4 @@
-import { InputPicker } from '@features/settings/components/InputPicker';
+import { ConnectedInput } from '@features/inputs/components/ConnectedInput';
 import { useSpecConfig } from '@sim/context/SimHostContext';
 
 import { RotationIconGroup } from './RotationIconGroup';
@@ -6,8 +6,8 @@ import { RotationIconGroup } from './RotationIconGroup';
 /**
  * The simple-rotation block: the spec's icon row, then its inputs.
  *
- * `inline` on the picker adds the class through `PickerShell` without writing into the spec
- * object, so a second construction doesn't append it again.
+ * `inline` on `ConnectedInput` lays each input out on a copy of its config, so the spec object is
+ * never written.
  */
 export const SimpleRotationInputs = () => {
 	const config = useSpecConfig();
@@ -16,7 +16,7 @@ export const SimpleRotationInputs = () => {
 		<>
 			<RotationIconGroup inputs={config.rotationIconInputs ?? []} />
 			{(config.rotationInputs?.inputs ?? []).map((input, index) => (
-				<InputPicker key={index} config={input} inline />
+				<ConnectedInput key={index} config={input} inline />
 			))}
 		</>
 	);

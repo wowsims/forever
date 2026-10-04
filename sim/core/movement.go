@@ -95,13 +95,7 @@ func (unit *Unit) UpdatePosition(sim *Simulation, isFinal bool) {
 		}
 	}
 
-	if unit.AutoAttacks.ranged.enabled != unit.AutoAttacks.ranged.IsInRange() {
-		if unit.AutoAttacks.ranged.IsInRange() {
-			unit.AutoAttacks.EnableRangedSwing(sim)
-		} else {
-			unit.AutoAttacks.CancelRangedSwing(sim)
-		}
-	}
+	unit.AutoAttacks.UpdateRangedRange(sim)
 
 	yards := max(int32(unit.DistanceFromTarget), 1) // never set to 0 yards as we deactivate the aura
 	if yards != unit.moveAura.GetStacks() {

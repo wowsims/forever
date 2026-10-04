@@ -16,11 +16,9 @@ var pvpTrinketIDs = []int32{
 }
 
 func init() {
-	core.AddEffectsToTest = false
 	for _, itemID := range pvpTrinketIDs {
 		core.NewItemEffect(itemID, makePvPTrinketEffect(itemID))
 	}
-	core.AddEffectsToTest = true
 }
 
 func makePvPTrinketEffect(itemID int32) core.ApplyEffect {

@@ -1,19 +1,24 @@
 import { ItemSlot } from '@generated/proto/common';
-import { UIItem as Item } from '@generated/proto/ui';
+import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SortDirection } from '@sim/constants/other';
 
-import { ItemDataFields, ItemListType } from '../types';
+import { ItemDataFields, ItemListType, SelectorModalTabs } from '../types';
 
 export enum ItemListSortBy {
 	EP,
 	ILVL,
 }
 
-// Trinket EP is weird, so those two slots sort by ilvl instead.
-export const defaultSortBy = (slot: ItemSlot): ItemListSortBy =>
-	[ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2].includes(slot) ? ItemListSortBy.ILVL : ItemListSortBy.EP;
+// EP leaves procs out, and procs are much of what trinkets and enchants offer, so those lists show no EP and sort by level.
+export const tabSortsByEP = (label: SelectorModalTabs, slot: ItemSlot): boolean =>
+	label !== SelectorModalTabs.Enchants && ![ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2].includes(slot);
 
-const baseIlvl = (item: Item): number => item.scalingOptions?.[0].ilvl || item.ilvl;
+export const tabHasLevel = (label: SelectorModalTabs): boolean => label === SelectorModalTabs.Items || label === SelectorModalTabs.Enchants;
+
+export const defaultSortBy = (label: SelectorModalTabs, slot: ItemSlot): ItemListSortBy =>
+	tabSortsByEP(label, slot) ? ItemListSortBy.EP : ItemListSortBy.ILVL;
+
+const baseIlvl = (item: Item | Enchant): number => ('lvl' in item ? item.lvl : item.scalingOptions?.[0].ilvl || item.ilvl);
 
 export type SortOptions<T extends ItemListType> = {
 	sortBy: ItemListSortBy;

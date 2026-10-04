@@ -1,5 +1,6 @@
 import i18n from '@i18n/config';
 import type { ActionMetrics } from '@sim/proto/sim_result';
+import { percentOf } from '@sim/utils/math';
 
 import { MetricsCombinedTooltip, type MetricsCombinedTooltipGroup } from '../MetricsCombinedTooltip';
 
@@ -63,8 +64,8 @@ const castsGroup = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {
 };
 
 const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}): Array<MetricsCombinedTooltipGroup> => {
-	const ofHits = (value: number) => (value / metric.landedHits) * 100;
-	const ofTicks = (value: number) => (value / metric.landedTicks) * 100;
+	const ofHits = (value: number) => percentOf(value, metric.landedHits);
+	const ofTicks = (value: number) => percentOf(value, metric.landedTicks);
 
 	return [
 		{

@@ -1,12 +1,22 @@
+import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
 import { ItemSlot } from '@generated/proto/common';
 import { translateSlotName } from '@i18n/localization';
 import type { Player } from '@sim/player/player';
 import type { ReforgeSettings } from '@sim/settings/reforge_settings';
-import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import clsx from 'clsx';
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 
-import { useReforgeIdPrefix } from './ReforgeIdPrefixContext';
+import { useReforgeIdPrefix } from './context/ReforgeIdPrefixContext';
+
+export interface ReforgeFrozenSlotsViewProps {
+	hidden: boolean;
+	pickers: ReadonlyArray<ReactNode>;
+}
+
+export const ReforgeFrozenSlotsView = ({ hidden, pickers }: ReforgeFrozenSlotsViewProps) => (
+	<div className="mb-2 grid grid-cols-2" data-testid="reforge-frozen-slots" hidden={hidden}>
+		{pickers}
+	</div>
+);
 
 export interface ReforgeFrozenSlotsProps {
 	settings: ReforgeSettings;
@@ -14,39 +24,28 @@ export interface ReforgeFrozenSlotsProps {
 	freezeItemSlots: boolean;
 }
 
-/** Two slots per row, in the gear's own slot order. The slot list is the whole slot enum, so it is memoised on the player. */
+/** One toggle per slot, in the gear's own slot order. The slot list is the whole slot enum, so it is memoised on the player. */
 export const ReforgeFrozenSlots = ({ settings, player, freezeItemSlots }: ReforgeFrozenSlotsProps) => {
 	const idPrefix = useReforgeIdPrefix();
-	const slotsByRow = useMemo(() => {
-		const allSlots = player.getGear().getItemSlots();
-		const numRows = Math.floor(allSlots.length / 2) + 1;
-		return Array.from({ length: numRows }, (_row, rowIdx) => allSlots.slice(rowIdx * 2, (rowIdx + 1) * 2));
-	}, [player]);
+	const slots = useMemo(() => player.getGear().getItemSlots(), [player]);
 
 	return (
-		<table className={clsx('mb-2', !freezeItemSlots && 'hidden')} hidden={!freezeItemSlots}>
-			{/* React reports rows placed directly under <table> as a nesting error, so the parser's implied <tbody> is written out here instead. */}
-			<tbody>
-				{slotsByRow.map((slots, rowIdx) => (
-					<tr key={rowIdx}>
-						{slots.map(slot => (
-							<td key={slot}>
-								<BooleanPicker
-									modObject={player}
-									config={{
-										id: `${idPrefix}-freeze-${ItemSlot[slot]}`,
-										label: translateSlotName(slot),
-										layout: 'inline',
-										storeField: 'reforge:freezeItemSlots',
-										getValue: () => settings.getFrozenItemSlot(slot) || false,
-										setValue: (_player, newValue) => settings.setFrozenItemSlot(slot, newValue),
-									}}
-								/>
-							</td>
-						))}
-					</tr>
-				))}
-			</tbody>
-		</table>
+		<ReforgeFrozenSlotsView
+			hidden={!freezeItemSlots}
+			pickers={slots.map(slot => (
+				<ConnectedBooleanPicker
+					key={slot}
+					modObject={player}
+					config={{
+						id: `${idPrefix}-freeze-${ItemSlot[slot]}`,
+						label: translateSlotName(slot),
+						layout: 'inline',
+						storeField: 'reforge:freezeItemSlots',
+						getValue: () => settings.getFrozenItemSlot(slot) || false,
+						setValue: (_player, newValue) => settings.setFrozenItemSlot(slot, newValue),
+					}}
+				/>
+			))}
+		/>
 	);
 };

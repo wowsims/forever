@@ -1,8 +1,8 @@
-import { UnitPicker } from '@ui-kit/UnitPicker';
+import { ChoiceField } from '@ui-kit/ChoiceField';
 import { useMemo } from 'react';
 
 import { useSimResult } from '../../hooks/useSimResult';
-import { numToRef, refToNum, unitOptions } from './utils';
+import { targetOptions } from './utils';
 
 export interface ResultsFilterProps {
 	/** `ALL_UNITS`, or the encounter index of one target. */
@@ -17,16 +17,19 @@ export interface ResultsFilterProps {
  */
 export const ResultsFilter = ({ target, onTargetChange }: ResultsFilterProps) => {
 	const resultData = useSimResult();
-	const options = useMemo(() => (resultData ? unitOptions(resultData.result) : []), [resultData]);
+	const options = useMemo(() => (resultData ? targetOptions(resultData.result) : []), [resultData]);
 
 	return (
 		<div data-testid="results-filter-root" className="flex items-center text-lg">
-			<UnitPicker
+			<ChoiceField
 				id="results-filter-target-filter"
-				className={['mb-0', !resultData && 'hidden']}
+				className={['py-4', !resultData && 'hidden']}
 				options={options}
-				value={numToRef(target)}
-				onChange={ref => onTargetChange(refToNum(ref))}
+				value={target}
+				onChange={onTargetChange}
+				disabled={!resultData}
+				variant="link"
+				placeholder="Unit"
 			/>
 		</div>
 	);

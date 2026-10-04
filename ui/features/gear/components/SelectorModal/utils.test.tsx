@@ -58,13 +58,15 @@ const player = ({ items = 1, enchants = 1, gems = 1, randomSuffixes = 1 }: Playe
 		computeStatsEP: () => 1,
 	}) as unknown as Player<any>;
 
-const labels = (options: { player: PlayerStub; item: ItemStub | null }) =>
+const tabs = (options: { player: PlayerStub; item: ItemStub | null; addOnly?: boolean }) =>
 	buildSelectorTabs({
 		player: player(options.player),
 		slot: 0,
-		gearData,
+		gearData: { ...gearData, addOnly: options.addOnly },
 		equippedItem: options.item ? equippedItem(options.item) : null,
-	}).map(tab => tab.label);
+	});
+
+const labels = (options: { player: PlayerStub; item: ItemStub | null }) => tabs(options).map(tab => tab.label);
 
 describe('buildSelectorTabs', () => {
 	it('offers only the item and enchant tabs for an empty slot', () => {
@@ -96,6 +98,13 @@ describe('buildSelectorTabs', () => {
 			SelectorModalTabs.Gem1,
 			SelectorModalTabs.Gem2,
 		]);
+	});
+
+	it('offers an add-only picker the items tab alone, with nothing to remove', () => {
+		const built = tabs({ player: {}, item: null, addOnly: true });
+		expect(built.map(tab => tab.label)).toEqual([SelectorModalTabs.Items]);
+		expect(built[0].onRemove).toBeUndefined();
+		expect(tabs({ player: {}, item: null })[0].onRemove).toBeDefined();
 	});
 });
 

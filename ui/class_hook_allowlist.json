@@ -18,10 +18,5 @@
 	{
 		"token": "bonus-stats-popover",
 		"reason": "third-party-required: react-tooltip class-based testId — Tooltip.tsx clsx()s its testId prop into className because react-tooltip forwards no data-testid; BonusStatsLink.tsx"
-	},
-	{ "token": "fa", "reason": "FontAwesome base class, loaded externally" },
-	{ "token": "fas", "reason": "FontAwesome solid style class, loaded externally" },
-	{ "token": "far", "reason": "FontAwesome regular style class, loaded externally" },
-	{ "token": "fab", "reason": "FontAwesome brand style class, loaded externally" },
-	{ "pattern": "^fa-.+$", "reason": "FontAwesome icon name class, loaded externally" }
+	}
 ]

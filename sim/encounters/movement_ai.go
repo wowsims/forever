@@ -19,8 +19,8 @@ func addMovementAI() {
 			TankIndex: 0,
 
 			Stats: stats.Stats{
-				stats.Health:      6_070_400,
-				stats.Armor:       7685,
+				stats.Health:      1_299_000,
+				stats.Armor:       3731,
 				stats.AttackPower: 320,
 			}.ToProtoArray(),
 

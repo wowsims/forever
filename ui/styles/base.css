@@ -9,6 +9,12 @@
 
 @font-face {
 	font-family: SimDefaultFont;
+	src: url(/forever/assets/fonts/PlusJakartaSans-SemiBold.woff2);
+	font-weight: 600;
+}
+
+@font-face {
+	font-family: SimDefaultFont;
 	src: url(/forever/assets/fonts/PlusJakartaSans-Bold.woff2);
 	font-weight: bold;
 }
@@ -16,6 +22,10 @@
 :root {
 	--font-size-root: 14px;
 	font-size: var(--font-size-root);
+
+	@variant fhd {
+		--font-size-root: 16px;
+	}
 
 	@variant motion-safe {
 		scroll-behavior: smooth;
@@ -127,7 +137,7 @@ h6 {
 }
 
 p {
-	margin-bottom: --spacing(3);
+	margin-bottom: --spacing(2);
 }
 
 ol,

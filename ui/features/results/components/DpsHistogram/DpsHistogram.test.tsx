@@ -1,3 +1,4 @@
+import { fakeCharts } from '@testing/chart-js-mock';
 import { render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -5,36 +6,13 @@ import type { SimResultData } from '../../model/result_data';
 import { DpsHistogram } from './DpsHistogram';
 
 let result: SimResultData | null = null;
-const charts: Array<{
+const charts = fakeCharts as Array<{
 	config: { data: { labels: Array<string>; datasets: Array<{ data: Array<number>; backgroundColor: Array<string> }> } };
 	destroyed: boolean;
-}> = [];
+}>;
 
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
-vi.mock('chart.js', () => ({
-	Chart: class {
-		static register() {}
-		destroyed = false;
-		constructor(
-			_ctx: unknown,
-			public config: never,
-		) {
-			charts.push(this as never);
-		}
-		update() {}
-		destroy() {
-			this.destroyed = true;
-		}
-	},
-	BarController: class {},
-	BubbleController: class {},
-	DoughnutController: class {},
-	LineController: class {},
-	PieController: class {},
-	PolarAreaController: class {},
-	RadarController: class {},
-	ScatterController: class {},
-}));
+vi.mock('chart.js', async () => (await import('@testing/chart-js-mock')).chartJsMock);
 
 const resultWith = (hist: Record<number, number>, avg: number, stdev: number) =>
 	({ result: { getDamageMetrics: () => ({ avg, stdev, hist }) }, filter: {} }) as never;

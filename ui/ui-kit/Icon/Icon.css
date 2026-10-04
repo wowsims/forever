@@ -1,0 +1,38 @@
+@layer components {
+	.ui-icon {
+		&[data-size='2xs'] {
+			--ui-icon-line-height: calc(1 / 10 * 1em);
+			--ui-icon-vertical-align: calc((6 / 10 - 0.375) * 1em);
+		}
+
+		&[data-size='xs'] {
+			--ui-icon-line-height: calc(1 / 12 * 1em);
+			--ui-icon-vertical-align: calc((6 / 12 - 0.375) * 1em);
+		}
+
+		&[data-size='sm'] {
+			--ui-icon-line-height: calc(1 / 14 * 1em);
+			--ui-icon-vertical-align: calc((6 / 14 - 0.375) * 1em);
+		}
+
+		&[data-size='lg'] {
+			--ui-icon-line-height: calc(1 / 20 * 1em);
+			--ui-icon-vertical-align: calc((6 / 20 - 0.375) * 1em);
+		}
+
+		&[data-size='xl'] {
+			--ui-icon-line-height: calc(1 / 24 * 1em);
+			--ui-icon-vertical-align: calc((6 / 24 - 0.375) * 1em);
+		}
+
+		&[data-size='2xl'] {
+			--ui-icon-line-height: calc(1 / 32 * 1em);
+			--ui-icon-vertical-align: calc((6 / 32 - 0.375) * 1em);
+		}
+
+		&:is([data-size='2xs'], [data-size='xs'], [data-size='sm'], [data-size='lg'], [data-size='xl'], [data-size='2xl']) {
+			margin-block: calc((var(--ui-icon-line-height) - 1em) / 2);
+			vertical-align: calc(var(--ui-icon-vertical-align) - 0.125em + (1em - var(--ui-icon-line-height)) / 2);
+		}
+	}
+}

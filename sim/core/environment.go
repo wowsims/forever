@@ -48,6 +48,8 @@ type Environment struct {
 
 	// Used to model variation in pet stat inheritance
 	heartbeatOffset time.Duration
+
+	actionSource ActionSource // Stamped on the auras and spells registered while it is set.
 }
 
 func NewEnvironment(raidProto *proto.Raid, encounterProto *proto.Encounter, runFakePrepull bool, skipRotation bool) (*Environment, *proto.RaidStats, *proto.EncounterStats) {
@@ -91,9 +93,11 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 
 	// Apply extra debuffs from raid.
 	if raidProto.Debuffs != nil && len(env.Encounter.AllTargetUnits) > 0 {
-		for targetIdx, targetUnit := range env.Encounter.AllTargetUnits {
-			applyDebuffEffects(targetUnit, targetIdx, raidProto.Debuffs, raidProto)
-		}
+		env.withSource(SourceExternalDebuff, func() {
+			for _, targetUnit := range env.Encounter.AllTargetUnits {
+				registeredBuffs().ApplyDebuffs(targetUnit, raidProto.Debuffs, raidProto)
+			}
+		})
 	}
 
 	tankTargetSet := map[*Unit]bool{}
@@ -259,6 +263,12 @@ func (env *Environment) setupAttackTables() {
 		attacker.AttackTables = make([]*AttackTable, len(env.AllUnits))
 		for idx, defender := range env.AllUnits {
 			attacker.AttackTables[idx] = NewAttackTable(attacker, defender)
+		}
+	}
+
+	for _, party := range env.Raid.Parties {
+		for _, player := range party.Players {
+			player.GetCharacter().updateAttackTableWeapons()
 		}
 	}
 }

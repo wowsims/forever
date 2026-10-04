@@ -25,9 +25,9 @@ export default defineSpec<Spec.SpecWarlock>({
 		Stat.StatSpellDamage,
 		Stat.StatShadowDamage,
 		Stat.StatFireDamage,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellCritRating,
-		Stat.StatSpellHasteRating,
+		Stat.StatHitRating,
+		Stat.StatCritRating,
+		Stat.StatHasteRating,
 		Stat.StatSpellPiercing,
 		Stat.StatMP5,
 	],
@@ -62,7 +62,7 @@ export default defineSpec<Spec.SpecWarlock>({
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
-			return new Stats().withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 16);
+			return new Stats().withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 17);
 		})(),
 
 		// Default consumes settings.
@@ -87,9 +87,9 @@ export default defineSpec<Spec.SpecWarlock>({
 		Stat.StatSpirit,
 		Stat.StatMP5,
 		Stat.StatSpellDamage,
-		Stat.StatSpellCritRating,
-		Stat.StatSpellHitRating,
-		Stat.StatSpellHasteRating,
+		Stat.StatCritRating,
+		Stat.StatHitRating,
+		Stat.StatHasteRating,
 		Stat.StatShadowDamage,
 		Stat.StatFireDamage,
 	],

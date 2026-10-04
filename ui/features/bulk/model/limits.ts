@@ -7,7 +7,7 @@ import { isExternal } from '@ui-kit/utils/dom';
  * anything else is assumed to be a local binary. Once the probe resolves it wins outright — the
  * heuristic is a first guess, never a correction to it.
  */
-export const bulkLimitForHost = (isNative: boolean | undefined, webLimit: number, nativeLimit: number): number => {
+const bulkLimitForHost = (isNative: boolean | undefined, webLimit: number, nativeLimit: number): number => {
 	if (isNative === undefined) return isExternal() ? webLimit : nativeLimit;
 	return isNative ? nativeLimit : webLimit;
 };

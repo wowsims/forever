@@ -94,9 +94,6 @@ func (druid *Druid) RegisterCatFormAura() {
 	//
 	// // In Cat Form each point of Agility gives 1 AP.
 	// agiApDep := druid.NewDynamicStatDependency(stats.Agility, stats.AttackPower, 1)
-	// // In Cat Form each point of Strength gives 2 AP (vs 1 AP in humanoid form).
-	// // The static dep in druid.go provides 1 AP/Str always; this dynamic dep adds the extra 1 AP/Str.
-	// strApDep := druid.NewDynamicStatDependency(stats.Strength, stats.AttackPower, 1)
 	// // Feral Attack Power (weapon/item feral-specific AP) converts 1:1 to AP in Cat Form.
 	// feralApDep := druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1)
 	//
@@ -129,7 +126,6 @@ func (druid *Druid) RegisterCatFormAura() {
 	//
 	// druid.AddStatsDynamic(sim, statBonus)
 	// druid.EnableBuildPhaseStatDep(sim, agiApDep)
-	// druid.EnableBuildPhaseStatDep(sim, strApDep)
 	// druid.EnableBuildPhaseStatDep(sim, feralApDep)
 	// if hotWCatApDep != nil {
 	// druid.EnableBuildPhaseStatDep(sim, hotWCatApDep)
@@ -165,14 +161,9 @@ func (druid *Druid) RegisterCatFormAura() {
 	//
 	// druid.AddStatsDynamic(sim, statBonus.Invert())
 	// druid.DisableBuildPhaseStatDep(sim, agiApDep)
-	// druid.DisableBuildPhaseStatDep(sim, strApDep)
 	// druid.DisableBuildPhaseStatDep(sim, feralApDep)
 	// if hotWCatApDep != nil {
 	// druid.DisableBuildPhaseStatDep(sim, hotWCatApDep)
-	// }
-	//
-	// if druid.TigersFuryAura != nil {
-	// druid.TigersFuryAura.Deactivate(sim)
 	// }
 	//
 	// if !druid.Env.MeasuringStats {
@@ -228,7 +219,6 @@ func (druid *Druid) RegisterBearFormAura() {
 	// stats.AttackPower: 3 * float64(core.CharacterLevel),
 	// }
 	//
-	// strApDep := druid.NewDynamicStatDependency(stats.Strength, stats.AttackPower, 1)
 	// feralApDep := druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1)
 	// stamDep := druid.NewDynamicMultiplyStat(stats.Stamina, 1.25)
 	// // Talent: Heart of the Wild — +4% Stamina per rank while in Bear form.
@@ -260,7 +250,6 @@ func (druid *Druid) RegisterBearFormAura() {
 	// druid.AddStatsDynamic(sim, statBonus)
 	// druid.ApplyDynamicEquipScaling(sim, stats.Armor, BaseBearArmorMulti)
 	// druid.ApplyDynamicEquipScaling(sim, stats.BonusArmor, BaseBearArmorMulti)
-	// druid.EnableBuildPhaseStatDep(sim, strApDep)
 	// druid.EnableBuildPhaseStatDep(sim, feralApDep)
 	//
 	// // Preserve fraction of max health when shifting
@@ -286,7 +275,6 @@ func (druid *Druid) RegisterBearFormAura() {
 	// druid.AddStatsDynamic(sim, statBonus.Invert())
 	// druid.RemoveDynamicEquipScaling(sim, stats.Armor, BaseBearArmorMulti)
 	// druid.RemoveDynamicEquipScaling(sim, stats.BonusArmor, BaseBearArmorMulti)
-	// druid.DisableBuildPhaseStatDep(sim, strApDep)
 	// druid.DisableBuildPhaseStatDep(sim, feralApDep)
 	//
 	// healthFrac := druid.CurrentHealth() / druid.MaxHealth()
@@ -306,6 +294,8 @@ func (druid *Druid) RegisterBearFormAura() {
 }
 
 // TODO: To be implemented.
+// TODO: A bear's auto attack takes the two-hander rage factor (11.25 rage a swing at a normalized speed of 2.5 in a
+// combat log), which the rage bar grants only at a normalized speed of 3.3; check whether the equipped weapon decides it.
 func (druid *Druid) registerBearFormSpell() {
 	panic("To be implemented")
 

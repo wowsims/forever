@@ -1,6 +1,5 @@
 import type { SpellSchool as SpellSchoolValue } from '@generated/proto/common';
 import type { DamageLog, Entity } from '@sim/proto/combat_log';
-import { SpellSchool } from '@sim/proto/names';
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -16,15 +15,13 @@ describe('DamageResult', () => {
 		const { container } = render(
 			<DamageResult
 				log={damage({
-					outcome: 'crit', // `spellSchoolNames` is keyed on the bitmask enum in `names.ts`, which is not the generated one the log declares.
-					spellSchool: SpellSchool.Physical as unknown as SpellSchoolValue,
+					outcome: 'crit', // `spellSchoolNames` is keyed on the bitmask enum in `names.ts` (1 is Physical), which is not the generated one the log declares.
+					spellSchool: 1 as SpellSchoolValue,
 				})}
 			/>,
 		);
 
 		expect(container.textContent).toBe('Crit [Target 1] for 1234.50 damage (Physical).');
-		expect(container.querySelector('strong')!.classList.contains('text-danger')).toBe(false);
-		expect(container.querySelector('strong')!.classList.contains('text-school-physical')).toBe(true);
 	});
 
 	// A periodic hit reads as a Tick, but a periodic crit still reads as a Crit.
@@ -37,7 +34,6 @@ describe('DamageResult', () => {
 		const healed = render(<DamageResult log={damage({ effect: 'healing' })} />).container;
 		// The double space is intentional: 'Healed ' already ends in one.
 		expect(healed.textContent).toBe('Healed  [Target 1] for 1234.50 health.');
-		expect(healed.querySelector('strong')!.classList.contains('text-resource-health')).toBe(true);
 
 		expect(render(<DamageResult log={damage({ effect: 'shielding' })} />).container.textContent).toBe('Shielded  [Target 1] for 1234.50 health.');
 	});

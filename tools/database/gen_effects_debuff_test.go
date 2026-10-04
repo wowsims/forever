@@ -17,9 +17,10 @@ import (
 //   - Howling Hide 284262's Howler's Cry 1315767 takes 60 attack power.
 //
 // The Lobotomizer 19324's Brain Damage 1290950 deals damage beside its cast slow and routes to the
-// damage shape, whose spell carries the debuff. None states a rate for its chance on hit, so all stay
-// commented out. Mug O' Hurt 4090's Dazed 13496 slows movement alone and stays skipped.
-func TestChanceOnHitDebuffsRouteAndStateNoRate(t *testing.T) {
+// damage shape, whose spell carries the debuff. Its rate is the override's 0.4 PPM, so it registers;
+// none of the others states a rate for its chance on hit, so they stay commented out. Mug O' Hurt
+// 4090's Dazed 13496 slows movement alone and stays skipped.
+func TestChanceOnHitDebuffsRoute(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
@@ -31,14 +32,15 @@ func TestChanceOnHitDebuffsRouteAndStateNoRate(t *testing.T) {
 		itemID  int
 		spellID int32
 		damage  bool
+		rated   bool
 		slows   []int32
 		debuffs []int32
 	}{
-		{12797, 16927, false, []int32{1}, []int32{1}},
-		{19324, 1290950, true, []int32{2}, []int32{2}},
-		{11607, 15280, false, nil, []int32{1}},
-		{12769, 16871, false, nil, []int32{1}},
-		{284262, 1315767, false, nil, []int32{1, 2}},
+		{12797, 16927, false, false, []int32{1}, []int32{1}},
+		{19324, 1290950, true, true, []int32{2}, []int32{2}},
+		{11607, 15280, false, false, nil, []int32{1}},
+		{12769, 16871, false, false, nil, []int32{1}},
+		{284262, 1315767, false, false, nil, []int32{1, 2}},
 	} {
 		row := spelldata.Find(tc.spellID)
 		if got := row.SlowEffects(); !slices.Equal(got, tc.slows) {
@@ -57,8 +59,12 @@ func TestChanceOnHitDebuffsRouteAndStateNoRate(t *testing.T) {
 		}
 
 		groups := map[string]Group{}
-		if got := TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups); got != EffectParseResultRefused {
-			t.Errorf("item %d parsed as %v, want refused with a reason", tc.itemID, got)
+		wantResult, wantUnsupported := EffectParseResultRefused, []string{spelldata.ReasonStatesNoRate}
+		if tc.rated {
+			wantResult, wantUnsupported = EffectParseResultSuccess, nil
+		}
+		if got := TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups); got != wantResult {
+			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, wantResult)
 			continue
 		}
 		entry := groups["Procs"].Entries[0]
@@ -71,8 +77,8 @@ func TestChanceOnHitDebuffsRouteAndStateNoRate(t *testing.T) {
 			t.Errorf("item %d: shape %v, weapon proc %v, trigger %d; want a weapon proc on %d, shape %v",
 				tc.itemID, r.Shape, r.IsWeaponProc, r.TriggerSpellID, tc.spellID, wantShape)
 		}
-		if want := []string{spelldata.ReasonStatesNoRate}; !slices.Equal(r.Unsupported, want) {
-			t.Errorf("item %d refused for %q, want %q", tc.itemID, r.Unsupported, want)
+		if !slices.Equal(r.Unsupported, wantUnsupported) {
+			t.Errorf("item %d refused for %q, want %q", tc.itemID, r.Unsupported, wantUnsupported)
 		}
 	}
 }

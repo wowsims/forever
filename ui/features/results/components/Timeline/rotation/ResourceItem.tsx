@@ -13,8 +13,8 @@ export interface ResourceItemProps {
 }
 
 const FILL_CLASSES: Record<string, string> = {
-	focus: 'bottom-0 w-2.5 bg-orange',
-	energy: 'bottom-0 w-2.5 bg-damage-partial',
+	focus: 'bottom-0 w-2 bg-orange',
+	energy: 'bottom-0 w-2 bg-damage-partial',
 	'lunar-energy': 'bottom-0 w-6 bg-resource-lunar-energy',
 	'solar-energy': 'top-0 w-6 bg-resource-solar-energy',
 };

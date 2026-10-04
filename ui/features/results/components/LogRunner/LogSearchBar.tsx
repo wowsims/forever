@@ -1,5 +1,5 @@
 import i18n from '@i18n/config';
-import { DropdownPicker } from '@ui-kit/DropdownPicker';
+import { ChoiceField } from '@ui-kit/ChoiceField';
 
 import type { SuggestionSource } from '../../model/log/search/indexes';
 import type { ClauseField } from '../../model/log/search/query';
@@ -38,18 +38,16 @@ export const LogSearchBar = ({ groups, suggestions, onChange }: LogSearchBarProp
 					/>
 				))}
 			</div>
-			<div data-testid="log-search-add-field">
-				<DropdownPicker
-					id="log-search-add-filter"
-					options={FIELD_OPTIONS}
-					value={undefined}
-					onChange={addField}
-					equals={(a, b) => a === b}
-					defaultLabel={i18n.t('results_tab.details.logs.search_add_filter')}
-					triggerClassName="border-0 p-0"
-					{...DROPUP}
-				/>
-			</div>
+			<ChoiceField<ClauseField | undefined>
+				id="log-search-add-filter"
+				testId="log-search-add-field"
+				options={FIELD_OPTIONS}
+				value={undefined}
+				onChange={field => field && addField(field)}
+				variant="link"
+				placeholder={i18n.t('results_tab.details.logs.search_add_filter')}
+				{...DROPUP}
+			/>
 		</div>
 	);
 };

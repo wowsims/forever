@@ -1,5 +1,6 @@
 import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
+import { Icon, type IconName } from '@ui-kit/Icon';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { forwardRef, useId } from 'react';
 
@@ -17,11 +18,11 @@ export interface RotationToolbarProps {
  */
 export const RotationToolbar = forwardRef<HTMLDivElement, RotationToolbarProps>(({ onZoomOut, onZoomIn, onFit, onReset }, ref) => {
 	const tooltipId = useId();
-	const buttons: Array<{ key: string; icon: string; run: () => void }> = [
-		{ key: 'zoom_out', icon: 'fas fa-magnifying-glass-minus', run: onZoomOut },
-		{ key: 'zoom_in', icon: 'fas fa-magnifying-glass-plus', run: onZoomIn },
-		{ key: 'fit', icon: 'fas fa-expand', run: onFit },
-		{ key: 'reset', icon: 'fas fa-rotate-left', run: onReset },
+	const buttons: Array<{ key: string; icon: IconName; run: () => void }> = [
+		{ key: 'zoom_out', icon: 'magnifying-glass-minus', run: onZoomOut },
+		{ key: 'zoom_in', icon: 'magnifying-glass-plus', run: onZoomIn },
+		{ key: 'fit', icon: 'expand', run: onFit },
+		{ key: 'reset', icon: 'rotate-left', run: onReset },
 	];
 
 	return (
@@ -37,7 +38,7 @@ export const RotationToolbar = forwardRef<HTMLDivElement, RotationToolbarProps>(
 						className="px-1 py-0 leading-none text-white hover:text-brand"
 						onClick={button.run}
 						{...tooltipAnchorProps(tooltipId, label)}>
-						<i className={button.icon} />
+						<Icon name={button.icon} />
 					</Button>
 				);
 			})}

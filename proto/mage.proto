@@ -38,7 +38,7 @@ message MageTalents {
     bool pyroblast = 27;
     int32 improved_scorch = 28;
     int32 improved_fire_ward = 29;
-    bool hot_streak = 30;
+    bool heating_up = 30;
     int32 master_of_elements = 31;
     int32 critical_mass = 32;
     bool blast_wave = 33;

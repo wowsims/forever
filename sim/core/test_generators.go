@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"slices"
 	"strings"
@@ -269,7 +270,7 @@ func (filter *ItemFilter) Matches(item Item, equipChecksOnly bool) bool {
 	}
 
 	if !equipChecksOnly {
-		if !HasItemEffectForTest(item.ID) {
+		if !HasItemEffect(item.ID) {
 			return false
 		}
 
@@ -329,7 +330,7 @@ func (filter *ItemFilter) FindAllMetaGems() []Gem {
 }
 
 func (filter *ItemFilter) FindAllEnchants() []Enchant {
-	filteredEnchantIDs := FilterSlice(enchantEffectsForTest, func(id int32) bool {
+	filteredEnchantIDs := FilterSlice(slices.Sorted(maps.Keys(enchantEffects)), func(id int32) bool {
 		return !slices.Contains(filter.EnchantBlacklist, id)
 	})
 

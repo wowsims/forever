@@ -1,8 +1,8 @@
+import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
+import type { NumberFieldConfig } from '@features/inputs/configs';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import type { UnitStat } from '@sim/proto/stats';
-import { NumberPicker } from '@ui-kit/NumberPicker';
-import type { NumberPickerConfig } from '@ui-kit/NumberPicker/types';
 import { useMemo } from 'react';
 
 export interface BonusStatsPickerProps {
@@ -19,10 +19,10 @@ export const BonusStatsPicker = ({ unitStat, label, onCommit }: BonusStatsPicker
 	const player = usePlayer();
 
 	const config = useMemo(
-		(): NumberPickerConfig<Player<any>> => ({
+		(): NumberFieldConfig<Player<any>> => ({
 			id: `character-bonus-stat-${unitStat.getKey()}`,
 			label,
-			extraClassNames: ['mb-0'],
+			inputClassName: 'm-0 w-32 flex-1',
 			storeField: 'bonusStats',
 			getValue: subject => {
 				const bonusStats = subject.getBonusStats();
@@ -43,5 +43,5 @@ export const BonusStatsPicker = ({ unitStat, label, onCommit }: BonusStatsPicker
 		[unitStat, label, onCommit],
 	);
 
-	return <NumberPicker modObject={player} config={config} />;
+	return <ConnectedNumberField modObject={player} config={config} />;
 };

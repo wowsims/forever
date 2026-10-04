@@ -32,7 +32,7 @@ export const SimImportExport = () => {
 	const ready = useSimReady();
 
 	return (
-		<>
+		<div className="flex flex-nowrap items-end font-bold" data-testid="import-export">
 			<ImportExportMenu kind={ImportExportKind.Import} icon="download" title={i18n.t('import.title')}>
 				{ready && (
 					<>
@@ -55,6 +55,6 @@ export const SimImportExport = () => {
 					</>
 				)}
 			</ImportExportMenu>
-		</>
+		</div>
 	);
 };

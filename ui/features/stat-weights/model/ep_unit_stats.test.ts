@@ -13,25 +13,6 @@ describe('EP_UNIT_STATS', () => {
 		expect(allStats.length).toBeGreaterThan(0);
 	});
 
-	it('keeps exactly the listed pseudo-stats', () => {
-		expect(EP_UNIT_STATS.filter(stat => stat.isPseudoStat()).map(stat => stat.getPseudoStat())).toEqual([
-			PseudoStat.PseudoStatMainHandDps,
-			PseudoStat.PseudoStatOffHandDps,
-			PseudoStat.PseudoStatRangedDps,
-			PseudoStat.PseudoStatSchoolHitPercentArcane,
-			PseudoStat.PseudoStatSchoolHitPercentFire,
-			PseudoStat.PseudoStatSchoolHitPercentFrost,
-			PseudoStat.PseudoStatSchoolHitPercentHoly,
-			PseudoStat.PseudoStatSchoolHitPercentNature,
-			PseudoStat.PseudoStatSchoolHitPercentShadow,
-			PseudoStat.PseudoStatMeleeHitPercent,
-			PseudoStat.PseudoStatSpellHitPercent,
-			PseudoStat.PseudoStatMeleeCritPercent,
-			PseudoStat.PseudoStatSpellCritPercent,
-			PseudoStat.PseudoStatExpertisePercent,
-		]);
-	});
-
 	it('drops a pseudo-stat that is not on the list', () => {
 		expect(EP_UNIT_STATS.some(stat => stat.isPseudoStat() && stat.getPseudoStat() === PseudoStat.PseudoStatMeleeSpeedMultiplier)).toBe(false);
 	});

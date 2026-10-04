@@ -162,7 +162,7 @@ export const WOWHEAD_BASE_URL = `https://wowhead.com/${WOWHEAD_DOMAIN}`;
 export const WOWHEAD_GEAR_PLANNER_URL = `https://www.wowhead.com/${WOWHEAD_DOMAIN}/gear-planner`;
 export const WOWHEAD_ICON_BASE_URL = 'https://wow.zamimg.com/images/wow/icons';
 
-type WowheadEntity = 'item' | 'spell' | 'quest' | 'npc' | 'zone';
+type WowheadEntity = 'item' | 'spell' | 'quest' | 'npc' | 'zone' | 'faction';
 
 // `https://wowhead.com/<domain>/<lang>/<entity>=<id>` — the language segment
 // is empty for English.

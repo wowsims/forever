@@ -29,16 +29,16 @@ func init() {
 			aura := character.GetOrRegisterAura(config)
 
 			spelldata.ParseEffects(character, aura, row, spelldata.Effects(1))
-			bonus, err := NaturalFlaskZoneBonusOf(row, row.EffectN(2).Average(character.Level))
+			bonus, err := NaturalFlaskZoneBonusOf(row, row.EffectN(2).Average())
 			if err != nil {
 				panic(err)
 			}
 			aura.AttachStatsBuff(bonus.Stats)
 			if bonus.AttackHastePercent != 0 {
-				aura.AttachMultiplyAttackSpeed(1 + bonus.AttackHastePercent/100)
+				aura.AttachMultiplyAttackSpeed(core.SymmetricMultiplierFromPercent(bonus.AttackHastePercent))
 			}
 			if bonus.CastHastePercent != 0 {
-				aura.AttachMultiplyCastSpeed(1 + bonus.CastHastePercent/100)
+				aura.AttachMultiplyCastSpeed(core.SymmetricMultiplierFromPercent(bonus.CastHastePercent))
 			}
 		})
 	}

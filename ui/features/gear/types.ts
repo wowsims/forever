@@ -31,6 +31,8 @@ export interface GearData {
 	getEquippedItem: () => EquippedItem | null;
 	// Fires when the equipped item for this slot changes.
 	subscribe: StoreSubscribe;
+	// Each pick adds an item rather than replacing one, so the picker offers items only, with nothing to remove.
+	addOnly?: boolean;
 }
 
 export enum SelectorModalTabs {

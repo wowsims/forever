@@ -1,15 +1,11 @@
 @layer components {
 	.ui-bulk-item-cell {
-		--gem-width: 1rem;
+		--gem-width: --spacing(4);
 
 		& .ui-item-picker-icon-wrapper {
-			--icon-size: 3.5rem;
-			min-width: 3.5rem;
-			min-height: 3.5rem;
-		}
-
-		& .ui-item-picker-name-row {
-			width: 100%;
+			--icon-size: --spacing(14);
+			min-width: var(--icon-size);
+			min-height: var(--icon-size);
 		}
 
 		& .ui-item-picker-labels-container {
@@ -19,10 +15,6 @@
 		}
 
 		& .ui-item-picker-name-container {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: baseline;
-			column-gap: --spacing(1);
 			max-width: 100%;
 		}
 

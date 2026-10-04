@@ -2,13 +2,12 @@ import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { kebabCase } from '@sim/utils/format';
 import { Button } from '@ui-kit/Button';
+import { CopyButton } from '@ui-kit/CopyButton';
 import { Dialog } from '@ui-kit/Dialog';
 import { TextArea } from '@ui-kit/FormControl';
-import { useCopyToClipboard } from '@ui-kit/hooks/useCopyToClipboard';
 import { Icon } from '@ui-kit/Icon';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { downloadString } from '@ui-kit/utils/dom';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { trackPageView } from '../../../../tracking/utils';
 import { defaultExportCategories, type ExporterDefinition } from '../../exporters';
@@ -53,9 +52,6 @@ export const Exporter = ({
 		trackPageView(title, `/export/${kebabCase(title)}`);
 	}, [open, title]);
 
-	const copyTooltipId = useId();
-	const { copy, copied } = useCopyToClipboard(() => dataRef.current);
-
 	return (
 		<Dialog
 			open={open}
@@ -64,17 +60,19 @@ export const Exporter = ({
 			title={title}
 			footer={
 				<>
-					<Button className="w-48" data-testid="copy-button" onClick={copy} {...tooltipAnchorProps(copyTooltipId)}>
-						<Icon name={copied ? 'check' : 'copy'} className="mr-1" />
-						{copied ? i18n.t('common.copy_button.copied') : i18n.t('export.json.copy_button')}
-					</Button>
+					<CopyButton
+						getContent={() => dataRef.current}
+						variant="primary"
+						className="w-48"
+						text={i18n.t('export.json.copy_button')}
+						tooltip={i18n.t('export.json.copy_tooltip')}
+					/>
 					{allowDownload && (
 						<Button className="ml-2 w-48" onClick={() => downloadString(dataRef.current, downloadFileName, downloadMimeType)}>
-							<Icon name="download" style="base" className="mr-1" />
+							<Icon name="download" style="base" />
 							{i18n.t('export.json.download_button')}
 						</Button>
 					)}
-					<Tooltip id={copyTooltipId} content={i18n.t('export.json.copy_tooltip')} />
 				</>
 			}>
 			{selectCategories && <ExporterCategoryPickers categories={categories.current} onChange={onCategoryChange} />}

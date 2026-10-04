@@ -1,8 +1,8 @@
+import { actionId } from '@testing/timeline_rotation';
 import { render, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { RotationRowIcon } from './RotationRowIcon';
-import { actionId } from './testing';
 
 const tooltipData = vi.hoisted(() => vi.fn(() => Promise.resolve('spell=1')));
 vi.mock('@sim/proto/action_id/tooltip_data', () => ({ actionIdWowheadTooltipData: tooltipData }));

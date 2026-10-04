@@ -2,6 +2,7 @@ package protection
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/warrior"
 )
@@ -51,7 +52,7 @@ func NewProtectionWarrior(character *core.Character, options *proto.Player) *Pro
 	healingModel := options.HealingModel
 	if healingModel != nil {
 		if healingModel.InspirationUptime > 0.0 {
-			core.ApplyInspiration(war.GetCharacter(), healingModel.InspirationUptime)
+			buffs.ApplyInspiration(war.GetCharacter(), healingModel.InspirationUptime)
 		}
 	}
 

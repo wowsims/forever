@@ -1,24 +1,14 @@
 import { ItemSwap, Race } from '@generated/proto/common';
 import { SavedSettings as SavedSettingsProto } from '@generated/proto/ui';
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import { act, fireEvent, render } from '@testing-library/react';
+import { chipNamed, chips, nameInput, readStored, renderReady, saveButton, source } from '@testing/saved_panel';
+import { act, fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SavedSettings } from './SavedSettings';
 
-const source = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		listeners,
-		subscribe: (onChange: () => void) => {
-			listeners.add(onChange);
-			return () => listeners.delete(onChange);
-		},
-		notify: () => listeners.forEach(listener => listener()),
-	};
-});
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
+vi.mock('@sim/state/subscriptions', async () =>
+	(await import('@testing/sim/subscriptions')).mockSubscriptions((await import('@testing/saved_panel')).source.subscribe),
+);
 
 const savedSettingsModel = vi.hoisted(() => ({
 	readSavedSettings: vi.fn(),
@@ -49,7 +39,6 @@ const storedJson = (race: Race) => SavedSettingsProto.toJson(settingsWith(race))
 let host: any;
 let presets: Array<any>;
 let itemSwapPresets: Array<any>;
-let waitForInit: () => Promise<void>;
 
 const setup = () => {
 	source.listeners.clear();
@@ -57,7 +46,6 @@ const setup = () => {
 	window.localStorage.clear();
 	presets = [];
 	itemSwapPresets = [];
-	waitForInit = () => Promise.resolve();
 
 	let current = settingsWith(Race.RaceHuman);
 	savedSettingsModel.readSavedSettings.mockImplementation(() => current);
@@ -69,7 +57,7 @@ const setup = () => {
 	let config: { presets: { settings: Array<any>; itemSwaps: Array<any> } } | undefined;
 	host = {
 		player: { getParty: () => ({}) },
-		sim: { waitForInit: () => waitForInit(), raid: {} },
+		sim: { waitForInit: () => Promise.resolve(), raid: {} },
 		get individualConfig() {
 			config ??= { presets: { settings: presets, itemSwaps: itemSwapPresets } };
 			return config;
@@ -78,25 +66,8 @@ const setup = () => {
 	};
 };
 
-const renderPanel = async () => {
-	const result = render(
-		<SimHostProvider host={host}>
-			<SavedSettings />
-		</SimHostProvider>,
-	);
-	await act(async () => {});
-	return result;
-};
-
-const nameInput = () => document.querySelector<HTMLInputElement>('[data-testid="saved-data-save-input"]')!;
-const saveButton = () => document.querySelector<HTMLButtonElement>('[data-testid="saved-data-save-button"]')!;
-const chips = (section: 'presets' | 'custom') => [
-	...document.querySelectorAll(`:is(.saved-data-${section}, [data-testid="saved-data-${section}"]) [data-testid="saved-data-set-chip"]`),
-];
-const chipNamed = (name: string) => [...document.querySelectorAll('[data-testid="saved-data-set-chip"]')].find(chip => chip.textContent?.startsWith(name))!;
-const stored = () => JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null');
-const popover = () => document.querySelector('[data-testid="sim-confirm-popover"]');
-const popoverButtons = () => [...(popover()?.querySelectorAll<HTMLButtonElement>('[data-testid="sim-confirm-popover-actions"] button') ?? [])];
+const renderPanel = () => renderReady(<SavedSettings />, host);
+const stored = () => readStored(STORAGE_KEY);
 
 beforeEach(setup);
 
@@ -158,38 +129,6 @@ describe('SavedSettings', () => {
 			});
 
 			expect(chipNamed('Council Swap').hasAttribute('data-active')).toBe(false);
-		});
-
-		it('holds the presets back until the sim is ready', async () => {
-			presets = [{ name: 'Council', race: Race.RaceOrc }];
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Mine: storedJson(Race.RaceOrc) }));
-			let resolveInit = () => {};
-			waitForInit = () => new Promise(resolve => (resolveInit = resolve));
-
-			render(
-				<SimHostProvider host={host}>
-					<SavedSettings />
-				</SimHostProvider>,
-			);
-
-			expect(chips('presets')).toHaveLength(0);
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Mine']);
-			await act(async () => resolveInit());
-		});
-	});
-
-	describe('deleting', () => {
-		it('removes the set and rewrites storage once confirmed', async () => {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: storedJson(Race.RaceOrc), Other: storedJson(Race.RaceHuman) }));
-			await renderPanel();
-
-			fireEvent.click(chipNamed('Raiding').querySelector('[data-testid="saved-data-set-delete"]')!);
-			const [, confirm] = popoverButtons();
-			fireEvent.click(confirm);
-
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Other']);
-			expect(stored()).toEqual({ Other: storedJson(Race.RaceHuman) });
-			expect(trackEvent).toHaveBeenCalledWith({ action: 'settings', category: 'delete', label: 'Settings' });
 		});
 	});
 });

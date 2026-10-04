@@ -10,7 +10,7 @@ import {
 	makeMultistateIndividualBuffInput,
 	makeMultistatePartyBuffInput,
 	makeTristatePartyBuffInput,
-} from '@ui-kit/icon_inputs';
+} from '@features/inputs/icon_inputs';
 
 import type { RenderableStatOptions } from './stat_options';
 
@@ -123,8 +123,6 @@ export const AtieshPriest = makeMultistatePartyBuffInput({
 	label: 'Atiesh - Priest',
 });
 
-// totem_twisting: sim behaviour toggle with no spell source; rendered under Other Inputs.
-
 export const StoneskinTotem = makeTristatePartyBuffInput({
 	actionId: ActionId.fromSpellId(10408),
 	impId: ActionId.fromSpellId(16258),
@@ -160,12 +158,6 @@ export const GiftOfTheWild = makeBooleanRaidBuffInput({
 	actionId: ActionId.fromSpellId(21850),
 	fieldName: 'giftOfTheWild',
 	label: 'Gift of the Wild',
-});
-
-export const Thorns = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(9910),
-	fieldName: 'thorns',
-	label: 'Thorns',
 });
 
 export const PrayerOfFortitude = makeBooleanRaidBuffInput({
@@ -256,6 +248,12 @@ export const PowerInfusions = makeMultistateIndividualBuffInput({
 	numStates: 11,
 	fieldName: 'powerInfusions',
 	label: 'Power Infusions',
+});
+
+export const Thorns = makeBooleanIndividualBuffInput({
+	actionId: ActionId.fromSpellId(9910),
+	fieldName: 'thorns',
+	label: 'Thorns',
 });
 
 export const HuntersMark = makeBooleanDebuffInput({
@@ -398,17 +396,12 @@ export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: PrayerOfSpirit,
-		stats: [Stat.StatSpirit, Stat.StatSpellDamage],
+		stats: [Stat.StatSpirit],
 		ownerClass: Class.ClassPriest,
 	},
 	{
 		config: GiftOfTheWild,
 		stats: [Stat.StatArmor, Stat.StatStrength, Stat.StatAgility, Stat.StatIntellect, Stat.StatSpirit, Stat.StatStamina],
-		ownerClass: Class.ClassDruid,
-	},
-	{
-		config: Thorns,
-		stats: [Stat.StatDefenseRating, Stat.StatStamina],
 		ownerClass: Class.ClassDruid,
 	},
 	{
@@ -418,7 +411,7 @@ export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: PrayerOfShadowProtection,
-		stats: [Stat.StatShadowResistance, Stat.StatStamina],
+		stats: [Stat.StatShadowResistance],
 		ownerClass: Class.ClassPriest,
 	},
 	{
@@ -476,7 +469,7 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: LeaderOfThePack,
-		stats: [Stat.StatMeleeCritRating, Stat.StatSpellCritRating],
+		stats: [Stat.StatCritRating],
 		ownerClass: Class.ClassDruid,
 	},
 	{
@@ -491,12 +484,12 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: MoonkinAura,
-		stats: [Stat.StatMeleeCritRating, Stat.StatSpellCritRating],
+		stats: [Stat.StatCritRating],
 		ownerClass: Class.ClassDruid,
 	},
 	{
 		config: ConcentrationAura,
-		stats: [Stat.StatDefenseRating],
+		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
 		ownerClass: Class.ClassPaladin,
 	},
 	{
@@ -506,7 +499,7 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: AtieshMage,
-		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
+		stats: [Stat.StatCritRating],
 		ownerClass: Class.ClassMage,
 	},
 	{
@@ -541,7 +534,7 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: StoneskinTotem,
-		stats: [Stat.StatArmor, Stat.StatStamina],
+		stats: [Stat.StatDefenseRating],
 		ownerClass: Class.ClassShaman,
 	},
 	{
@@ -579,15 +572,20 @@ export const GENERATED_INDIVIDUAL_BUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: PowerInfusions,
-		stats: [Stat.StatSpellHasteRating],
+		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
 		ownerClass: Class.ClassPriest,
+	},
+	{
+		config: Thorns,
+		stats: [Stat.StatDefenseRating, Stat.StatStamina],
+		ownerClass: Class.ClassDruid,
 	},
 ];
 
 export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: HuntersMark,
-		stats: [Stat.StatRangedAttackPower, Stat.StatAttackPower],
+		stats: [Stat.StatRangedAttackPower],
 		ownerClass: Class.ClassHunter,
 	},
 	{
@@ -617,7 +615,7 @@ export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 	{
 		config: FaerieFire,
-		stats: [Stat.StatAttackPower, Stat.StatMeleeHitRating],
+		stats: [Stat.StatAttackPower],
 		ownerClass: Class.ClassDruid,
 	},
 	{

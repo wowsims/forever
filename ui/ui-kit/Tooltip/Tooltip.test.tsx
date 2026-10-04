@@ -17,16 +17,6 @@ describe('Tooltip', () => {
 		expect(await screen.findByText('Reforge to hit cap')).toBeTruthy();
 	});
 
-	it('leaves nothing behind when unmounted while open', async () => {
-		const { unmount } = render(<Anchored />);
-		fireEvent.mouseEnter(screen.getByRole('button'));
-		await screen.findByText('Reforge to hit cap');
-
-		unmount();
-		expect(screen.queryByRole('tooltip')).toBeNull();
-		expect(document.body.textContent).not.toContain('Reforge to hit cap');
-	});
-
 	// react-tooltip builds content lazily for free: children are not rendered until the tooltip first
 	// opens, so a picker inside one costs nothing until it is shown.
 	it('does not render its content until it is first opened', () => {

@@ -10,19 +10,19 @@ export const BulkProgressMessage = () => {
 
 	if (!progress) return null;
 	const remaining = progress.secondsRemaining !== undefined && (
-		<div>{i18n.t('bulk_tab.progress.time_remaining', { time: formatDurationSeconds(progress.secondsRemaining) })}</div>
+		<p className="mb-0">{i18n.t('bulk_tab.progress.time_remaining', { time: formatDurationSeconds(progress.secondsRemaining) })}</p>
 	);
 	if (!progress.iterations) return remaining || null;
 
 	return (
 		<div className="text-center" data-testid="results-sim">
-			<div>
+			<p className="mb-0">
 				<Trans
 					i18n={i18n}
 					i18nKey="bulk_tab.progress.iterations_complete"
 					values={{ completed: progress.iterations.completed, total: progress.iterations.total }}
 				/>
-			</div>
+			</p>
 			{remaining}
 		</div>
 	);

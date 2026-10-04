@@ -3,10 +3,28 @@ package overrides
 // A spell the store carries although no class, item, enchant or set bonus reaches it. Reason and
 // Source weigh the same as an Override's, and the generator refuses an entry without a reason.
 type Extra struct {
-	SpellID int32
-	Reason  string
-	Source  string
+	SpellID        int32
+	Reason         string
+	Source         string
+	SpellDataGroup string // "racials" puts the row in the racials spell data group of a partial update; empty follows its class family.
 }
 
 // The spells the generator adds to the store's roots by hand.
-var ExtraSpells = []Extra{}
+var ExtraSpells = []Extra{
+	// Enchant Weapon - Revelation 8217: its proc spell 1248806 names no trigger, and each class with
+	// spells to crit has a buff of its own, which the sim picks by the wearer's class.
+	{SpellID: 1248808, Reason: "Revelation, the mage buff of enchant 8217", Source: "owner decision"},
+	{SpellID: 1323377, Reason: "Revelation, the priest buff of enchant 8217", Source: "owner decision"},
+	{SpellID: 1323392, Reason: "Revelation, the warlock buff of enchant 8217", Source: "owner decision"},
+	{SpellID: 1323400, Reason: "Revelation, the druid buff of enchant 8217", Source: "owner decision"},
+	{SpellID: 1323410, Reason: "Revelation, the hunter buff of enchant 8217", Source: "owner decision"},
+	{SpellID: 1323418, Reason: "Revelation, the shaman buff of enchant 8217", Source: "owner decision"},
+	{SpellID: 1323419, Reason: "Revelation, the paladin buff of enchant 8217", Source: "owner decision"},
+	// Eureka!, the gnome racial: a row per class, each scoping its mods to that class's abilities,
+	// which the sim picks by the gnome's class.
+	{SpellID: 1259812, Reason: "Eureka!, the rogue row of the gnome racial", Source: "owner decision", SpellDataGroup: "racials"},
+	{SpellID: 1259813, Reason: "Eureka!, the warrior row of the gnome racial", Source: "owner decision", SpellDataGroup: "racials"},
+	{SpellID: 1259817, Reason: "Eureka!, the mage row of the gnome racial", Source: "owner decision", SpellDataGroup: "racials"},
+	{SpellID: 1259821, Reason: "Eureka!, the warlock row of the gnome racial", Source: "owner decision", SpellDataGroup: "racials"},
+	{SpellID: 1259823, Reason: "Eureka!, the priest row of the gnome racial", Source: "owner decision", SpellDataGroup: "racials"},
+}

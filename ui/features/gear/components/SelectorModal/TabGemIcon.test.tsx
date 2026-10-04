@@ -1,24 +1,21 @@
 import { GemColor } from '@generated/proto/common';
 import type { UIGem as Gem } from '@generated/proto/ui';
 import { getEmptyGemSocketIconUrl } from '@sim/proto/gems';
+import { wowheadIconUrl } from '@sim/proto/wowhead';
 import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-const useActionId = vi.hoisted(() => vi.fn(() => ({ iconUrl: 'gem-icon.jpg', name: '', href: '', ready: true })));
-
-vi.mock('@ui-kit/hooks/useActionId', () => ({ useActionId }));
-
-const { TabGemIcon } = await import('./TabGemIcon');
+import { TabGemIcon } from './TabGemIcon';
 
 describe('TabGemIcon', () => {
-	const gem = { id: 42, name: 'Gem' } as Gem;
+	const gem = { id: 42, name: 'Gem', icon: 'inv_misc_gem_ruby_01' } as Gem;
 
 	it('shows the gem icon and the socket icon for a filled socket', () => {
 		const { container } = render(<TabGemIcon socketColor={GemColor.GemColorRed} gem={gem} />);
 
 		const gemIcon = container.querySelector<HTMLImageElement>('[data-testid="gem-icon"]')!;
 		const socketIcon = container.querySelector<HTMLImageElement>('[data-testid="socket-icon"]')!;
-		expect(gemIcon.src).toContain('gem-icon.jpg');
+		expect(gemIcon.src).toBe(wowheadIconUrl(gem.icon));
 		expect(socketIcon.src).toContain(getEmptyGemSocketIconUrl(GemColor.GemColorRed));
 	});
 
@@ -29,7 +26,6 @@ describe('TabGemIcon', () => {
 		const emptyUrl = getEmptyGemSocketIconUrl(GemColor.GemColorRed);
 		expect(container.querySelector('[data-testid="gem-icon"]')).toBeNull();
 		expect(socketIcon.src).toContain(emptyUrl);
-		expect(useActionId).toHaveBeenCalledWith(undefined);
 	});
 
 	it('resolves a different empty-socket url for a different socket color', () => {

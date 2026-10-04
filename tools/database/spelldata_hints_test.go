@@ -1,6 +1,6 @@
 package database
 
-// The proc shapes docs/spell_data.md names, read off the game files database the way the store's rows
+// The proc shapes docs/spell_data/procs.md names, read off the game files database the way the store's rows
 // are. Which shape a spell has is a reading of its tooltip, and a reading is what silently changes
 // when a matcher is widened: Flurry states "$m1%" for its attack speed and Unbridled Wrath states
 // "$m1% chance" for its rage, and only the second is a roll.
@@ -70,7 +70,7 @@ func TestProcShapeOfNamedSpells(t *testing.T) {
 			0, `"after dealing a melee critical strike" is the crit the caller reads off the result, since the same listener has to see the white hits that spend a charge`},
 		{12834, "Deep Wounds", procChanceAlways, 0, `"$m1%" is the share of weapon damage, and a crit is the condition`,
 			core.ProcHintCrit, `"Your critical strikes" names the trigger`},
-		{16928, "Armor Shatter", procChancePPM, 0, "the 101 sentinel, answered by an override into RPPM",
+		{16928, "Armor Shatter", procChanceAlways, 0, "the 101 sentinel; the rate is Annihilator's, on its item effect",
 			0, "the tooltip is the armor reduction, not a trigger"},
 		{1308935, "Striking", procChanceColumn, 0, "no tooltip at all, so the column is all there is",
 			0, "no tooltip to read a hint off"},

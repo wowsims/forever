@@ -2,8 +2,13 @@ import i18n from '@i18n/config';
 
 import { useBulkState } from '../../hooks/useBulkState';
 import { BulkResultRow } from './BulkResultRow';
+import { BulkResultTieGroup } from './BulkResultTieGroup';
 
-export const BulkResults = () => {
+export interface BulkResultsProps {
+	onActivateTab: (id: string) => void;
+}
+
+export const BulkResults = ({ onActivateTab }: BulkResultsProps) => {
 	const results = useBulkState(slice => slice.results);
 	const started = useBulkState(slice => slice.started);
 
@@ -17,17 +22,25 @@ export const BulkResults = () => {
 		<>
 			{results.chains.map((chain, chainIdx) =>
 				chain.length > 1 ? (
-					<div
-						key={chainIdx}
-						className="mb-6 flex flex-col rounded-md border border-l-3 border-border border-l-warning px-4 py-2"
-						data-testid="bulk-results-tie-group">
-						<span className="mb-6">{i18n.t('bulk_tab.results.tied_group')}</span>
+					<BulkResultTieGroup key={chainIdx}>
 						{chain.map((result, idx) => (
-							<BulkResultRow key={idx} result={result} baseResult={results.originalGearResults} iterations={iterations} />
+							<BulkResultRow
+								key={idx}
+								result={result}
+								baseResult={results.originalGearResults}
+								iterations={iterations}
+								onActivateTab={onActivateTab}
+							/>
 						))}
-					</div>
+					</BulkResultTieGroup>
 				) : (
-					<BulkResultRow key={chainIdx} result={chain[0]} baseResult={results.originalGearResults} iterations={iterations} />
+					<BulkResultRow
+						key={chainIdx}
+						result={chain[0]}
+						baseResult={results.originalGearResults}
+						iterations={iterations}
+						onActivateTab={onActivateTab}
+					/>
 				),
 			)}
 		</>

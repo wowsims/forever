@@ -1,11 +1,12 @@
 import type { GearData } from '@features/gear/types';
-import type { BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
+import { type ItemSlot, ItemSpec } from '@generated/proto/common';
+import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT, type BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import { bulkState } from '@sim/settings/bulk_settings';
 import { Emitter } from '@sim/state/events';
 
-import { updateBulkItem } from './items';
+import { addBulkItem, updateBulkItem } from './items';
 import { pickerEntryAt } from './picker_groups';
 
 /**
@@ -25,3 +26,22 @@ export const createBulkGearData = (player: Player<any>, bulkSlot: BulkSimItemSlo
 		subscribe: onChange => changeEvent.on(onChange),
 	};
 };
+
+/** The item slot whose list a group offers: the first slot of a paired group, the main hand for a dual-wielder's weapons. */
+export const bulkGroupItemSlot = (bulkSlot: BulkSimItemSlot): ItemSlot =>
+	BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT.get(bulkSlot) ?? BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(bulkSlot)![0];
+
+/**
+ * The selector modal's seam for adding to a group: a pick adds the item to the batch instead of
+ * replacing anything, so nothing reads as equipped and each pick is one more entry. The spec is the
+ * bare id, as the list's batch toggle writes it: `asSpec()` carries a zero per empty socket, and the
+ * toggle's in-batch match would miss it.
+ */
+export const createBulkAddGearData = (player: Player<any>): GearData => ({
+	equipItem: (newItem: EquippedItem | null) => {
+		if (newItem) addBulkItem(player, ItemSpec.create({ id: newItem.id }));
+	},
+	getEquippedItem: () => null,
+	subscribe: () => () => undefined,
+	addOnly: true,
+});

@@ -1,4 +1,4 @@
-import { ItemSlot, PseudoStat, Stat } from '@generated/proto/common';
+import { PseudoStat, Stat } from '@generated/proto/common';
 import * as Mechanics from '@sim/constants/mechanics';
 import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
@@ -22,8 +22,7 @@ const fakePlayer = (overrides: Record<string, unknown> = {}) =>
 		...overrides,
 	}) as unknown as Player<any>;
 
-const show = (stats: Stats, unitStat: UnitStat, includeBase?: boolean, includeGear?: boolean) =>
-	statDisplayString(fakePlayer(), stats, unitStat, includeBase, includeGear);
+const show = (stats: Stats, unitStat: UnitStat, includeBase?: boolean) => statDisplayString(fakePlayer(), stats, unitStat, includeBase);
 
 describe('statDisplayString, defense rating', () => {
 	const defense = UnitStat.fromStat(Stat.StatDefenseRating);
@@ -50,6 +49,14 @@ describe('statDisplayString, stats with a composite display', () => {
 		expect(show(stats, UnitStat.fromStat(Stat.StatBlockValue))).toBe('130');
 	});
 
+	it('adds the block value from strength outside the block-value multiplier', () => {
+		const blockValue = UnitStat.fromStat(Stat.StatBlockValue);
+		const strength = (value: number) => new Stats().withStat(Stat.StatStrength, value).withPseudoStat(PseudoStat.PseudoStatBlockValuePerStrength, 0.05);
+
+		expect(show(strength(120).withStat(Stat.StatBlockValue, 100).withPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier, 1.3), blockValue)).toBe('135');
+		expect(show(strength(10), blockValue)).toBe('0');
+	});
+
 	it('renders a school damage stat as the school-plus-spell-damage total with the school bonus in brackets', () => {
 		const stats = new Stats().withStat(Stat.StatFireDamage, 50).withStat(Stat.StatSpellDamage, 200);
 		expect(show(stats, UnitStat.fromStat(Stat.StatFireDamage))).toBe('250 (+50)');
@@ -59,19 +66,49 @@ describe('statDisplayString, stats with a composite display', () => {
 		const stats = new Stats()
 			.withPseudoStat(PseudoStat.PseudoStatMeleeCritPercent, 2)
 			.withPseudoStat(PseudoStat.PseudoStatRangedCritPercent, 0)
-			.withStat(Stat.StatMeleeCritRating, 0);
+			.withStat(Stat.StatCritRating, 0);
 
 		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('2.00%');
 		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent))).toBe('0.00%');
 	});
 
-	it('adds the ranged hit enchant rating at the gear stage only', () => {
-		const rangedHit = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
-		const stats = new Stats().withPseudoStat(PseudoStat.PseudoStatRangedHitPercent, 2);
-		const scoped = fakePlayer({ getEquippedItem: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotRanged ? { enchant: { effectId: 2523 } } : null) });
+	it("shows each attack's own rating in front of its percent", () => {
+		const stats = new Stats()
+			.withStat(Stat.StatHitRating, 20)
+			.withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 3)
+			.withPseudoStat(PseudoStat.PseudoStatMainHandHitRating, 30)
+			.withPseudoStat(PseudoStat.PseudoStatOffHandHitPercent, 2)
+			.withPseudoStat(PseudoStat.PseudoStatOffHandHitRating, 20)
+			.withPseudoStat(PseudoStat.PseudoStatRangedHitPercent, 5)
+			.withPseudoStat(PseudoStat.PseudoStatRangedHitRating, 50)
+			.withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 2);
 
-		expect(statDisplayString(scoped, stats, rangedHit, false, true)).toBe('30 (2.00%)');
-		expect(statDisplayString(scoped, stats, rangedHit)).toBe('2.00%');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent))).toBe('30 (3.00%)');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandHitPercent))).toBe('20 (2.00%)');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent))).toBe('50 (5.00%)');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHitPercent))).toBe('20 (2.00%)');
+	});
+
+	it('falls back to the rating for bonus stats, which carry no per-attack value', () => {
+		const bonus = new Stats().withStat(Stat.StatCritRating, 14);
+		expect(show(bonus, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('14 (0.00%)');
+	});
+});
+
+describe('statDisplayString, speed multipliers', () => {
+	const melee = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeSpeedMultiplier);
+	const ranged = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedSpeedMultiplier);
+	const multiplier = (unitStat: UnitStat, value: number) => new Stats().withPseudoStat(unitStat.getPseudoStat(), value);
+
+	it('reads a total as a signed percentage over 1', () => {
+		expect(show(multiplier(melee, 1.3), melee, true)).toBe('+30.00%');
+		expect(show(multiplier(melee, 1), melee, true)).toBe('+0.00%');
+		expect(show(multiplier(ranged, 0.9), ranged, true)).toBe('-10.00%');
+	});
+
+	it('reads a stage delta without the base stage as the change itself', () => {
+		expect(show(multiplier(melee, 0.1), melee)).toBe('+10.00%');
+		expect(show(multiplier(ranged, 0), ranged)).toBe('+0.00%');
 	});
 });
 

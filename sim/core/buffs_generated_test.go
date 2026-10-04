@@ -12,22 +12,10 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// applyBuffEffects takes an Agent, and the part of one a buff reaches is the
-// Character it wraps.
-type generatedBuffTestAgent struct {
-	*core.Character
-}
-
-func (agent generatedBuffTestAgent) GetCharacter() *core.Character       { return agent.Character }
-func (agent generatedBuffTestAgent) Initialize()                         {}
-func (agent generatedBuffTestAgent) ApplyTalents()                       {}
-func (agent generatedBuffTestAgent) Reset(_ *core.Simulation)            {}
-func (agent generatedBuffTestAgent) OnEncounterStart(_ *core.Simulation) {}
-
 func TestPartyBattleShoutAppliesTheGeneratedAura(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{BattleShout: proto.TristateEffect_TristateEffectRegular}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -74,7 +62,7 @@ func TestPartyBattleShoutAppliesTheGeneratedAura(t *testing.T) {
 func TestPlayerBattleShoutTakesTheCategoryOnATie(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{BattleShout: proto.TristateEffect_TristateEffectRegular}, &proto.IndividualBuffs{})
 
 	player := buffs.NewSpellDataBattleShoutAura(&char.Unit, true, 0)
@@ -119,7 +107,7 @@ func TestImprovedPartyBattleShoutAddsTheTierTwoBonus(t *testing.T) {
 		t.Run(row.name, func(t *testing.T) {
 			char := core.NewGeneratedBuffTestCharacter()
 
-			core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{}, row.party, &proto.IndividualBuffs{})
+			core.ApplyBuffEffects(char, &proto.RaidBuffs{}, row.party, &proto.IndividualBuffs{})
 			char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
 			if got := char.GetStats()[stats.AttackPower]; got != row.want {
@@ -148,11 +136,11 @@ func TestTheStrongerBattleShoutTakesTheCategory(t *testing.T) {
 		t.Run(row.name, func(t *testing.T) {
 			char := core.NewGeneratedBuffTestCharacter()
 
-			core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{}, row.party, &proto.IndividualBuffs{})
+			core.ApplyBuffEffects(char, &proto.RaidBuffs{}, row.party, &proto.IndividualBuffs{})
 
 			player := buffs.NewSpellDataBattleShoutAura(&char.Unit, true, 0)
 			if row.playerBonus != 0 {
-				core.AddGeneratedFlatBonus(player, stats.AttackPower, buffs.BattleShoutValue(0), row.playerBonus)
+				buffs.AddGeneratedFlatBonus(player, stats.AttackPower, buffs.BattleShoutValue(0), row.playerBonus)
 			}
 			player.BuildPhase = core.CharacterBuildPhaseBuffs
 
@@ -176,7 +164,7 @@ func TestTheStrongerBattleShoutTakesTheCategory(t *testing.T) {
 func TestGeneratedFlatStatBuffsAddUp(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{PrayerOfFortitude: true}, &proto.PartyBuffs{BloodPact: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -202,7 +190,7 @@ func TestGeneratedGreaterBlessingOfKingsMultipliesEveryStat(t *testing.T) {
 		stats.Intellect: 100, stats.Spirit: 100, stats.Armor: 100,
 	})
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{GreaterBlessingOfKings: true})
 	measureGeneratedBuffStats(char)
 
@@ -221,7 +209,7 @@ func TestGeneratedGreaterBlessingOfKingsMultipliesEveryStat(t *testing.T) {
 func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{GiftOfTheWild: true, PrayerOfShadowProtection: true},
 		&proto.PartyBuffs{}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
@@ -238,6 +226,11 @@ func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 	if got := char.GetStats()[stats.Stamina]; got != 16 {
 		t.Errorf("stamina is %v, want Gift of the Wild's 16", got)
 	}
+	for _, label := range []string{"Gift of the Wild (External)", "Prayer of Shadow Protection (External)"} {
+		if aura := char.GetAura(label); aura == nil || !aura.IsActive() {
+			t.Errorf("%s is not active, want both buffs up with only the shadow resistance held", label)
+		}
+	}
 
 	school := char.ExclusiveEffectManager.GetExclusiveEffectCategory(
 		core.ResistanceCategoryShadow + stats.ShadowResistance.StatName() + "Add")
@@ -252,7 +245,7 @@ func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 func TestGeneratedPaladinAuraJoinsTheSharedCategoryOnThePlayerCopyOnly(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{DevotionAura: true}, &proto.IndividualBuffs{})
 
 	shared := char.ExclusiveEffectManager.GetExclusiveEffectCategory("PaladinAura")
@@ -293,7 +286,7 @@ func TestGeneratedPaladinAuraJoinsTheSharedCategoryOnThePlayerCopyOnly(t *testin
 func TestGeneratedManaSpringTotemTakesTheTalentedValue(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(char, &proto.RaidBuffs{},
 		&proto.PartyBuffs{ManaSpringTotem: proto.TristateEffect_TristateEffectImproved},
 		&proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
@@ -337,7 +330,7 @@ func TestGeneratedCritAurasApplyTheClientsThreeToEveryKindOfCrit(t *testing.T) {
 		t.Run(row.name, func(t *testing.T) {
 			char := core.NewGeneratedBuffTestCharacter()
 
-			core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{}, row.party, &proto.IndividualBuffs{})
+			core.ApplyBuffEffects(char, &proto.RaidBuffs{}, row.party, &proto.IndividualBuffs{})
 			char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
 			if got := char.GetStats()[stats.PhysicalCritPercent]; got != 3 {
@@ -358,7 +351,7 @@ func TestGeneratedCritAurasApplyTheClientsThreeToEveryKindOfCrit(t *testing.T) {
 func TestGeneratedCritAurasLeaveTheOutbidCopyRegisteredAndInert(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(char, &proto.RaidBuffs{},
 		&proto.PartyBuffs{LeaderOfThePack: true, MoonkinAura: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -387,7 +380,7 @@ func TestGeneratedCritAurasLeaveTheOutbidCopyRegisteredAndInert(t *testing.T) {
 func TestGeneratedPartyConcentrationAuraReducesPushback(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(char, &proto.RaidBuffs{},
 		&proto.PartyBuffs{ConcentrationAura: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -402,7 +395,7 @@ func TestGeneratedPartyConcentrationAuraReducesPushback(t *testing.T) {
 func TestGeneratedTrueshotAuraGivesTheTopRanksRangedAttackPower(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{TrueshotAura: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -432,12 +425,11 @@ func measureGeneratedBuffStats(char *core.Character) {
 	char.SetStats(char.SortAndApplyStatDependencies(char.GetStats()).FloorGameStats())
 }
 
-// Grace of Air is the row whose uptime another field decides: with totem
-// twisting on it is 9 seconds long and re-cast every 10, and without it the
-// totem simply stands.
-func TestGeneratedGraceOfAirFollowsTotemTwisting(t *testing.T) {
+// Grace of Air stands for the fight on its own, and gives way to Windfury
+// Totem: under both, the party gets no agility from it.
+func TestGeneratedGraceOfAirGivesWayToWindfuryTotem(t *testing.T) {
 	standing := core.NewGeneratedBuffTestCharacter()
-	core.ApplyBuffEffects(generatedBuffTestAgent{standing},
+	core.ApplyBuffEffects(standing,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{GraceOfAirTotem: true}, &proto.IndividualBuffs{})
 	standing.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -452,48 +444,23 @@ func TestGeneratedGraceOfAirFollowsTotemTwisting(t *testing.T) {
 		t.Errorf("the totem's aura lasts %v, want it to stand for the fight", aura.Duration)
 	}
 
-	twisting := core.NewGeneratedBuffTestCharacter()
-	core.ApplyBuffEffects(generatedBuffTestAgent{twisting}, &proto.RaidBuffs{},
-		&proto.PartyBuffs{GraceOfAirTotem: true, TotemTwisting: true}, &proto.IndividualBuffs{})
-	twisting.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
-
-	if got := twisting.GetStats()[stats.Agility]; got != 89 {
-		t.Errorf("the twisted totem applied %v agility, want the game files' 89", got)
-	}
-	twisted := twisting.GetAura("Grace of Air Totem (External)")
-	if twisted.Duration != time.Second*9 {
-		t.Errorf("the twisted totem's aura lasts %v, want 9 seconds of every 10", twisted.Duration)
-	}
-
-	// The schedule itself: the first cast lands one totem cycle in, not at the
-	// pull, so the aura is down for the opening 10 seconds.
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{},
-		&proto.PartyBuffs{GraceOfAirTotem: true, TotemTwisting: true}, &proto.IndividualBuffs{})
-	scheduled := sim.Raid.Parties[0].Players[0].GetCharacter().GetAura("Grace of Air Totem (External)")
-	if scheduled == nil {
-		t.Fatal("the twisting shaman's totem registered no aura")
-	}
-	if scheduled.IsActive() {
-		t.Error("the twisted totem is up at the pull, want the first cast one cycle in")
-	}
-
-	for sim.CurrentTime < time.Second*10 && !scheduled.IsActive() {
-		sim.Step()
-	}
-	if !scheduled.IsActive() {
-		t.Errorf("the twisted totem is still down at %v, want it up after the first 10 second tick",
-			sim.CurrentTime)
-	}
-	if sim.CurrentTime != time.Second*10 {
-		t.Errorf("the first cast landed at %v, want 10 seconds in", sim.CurrentTime)
-	}
-
-	standingSim := setupFakeSimWithBuffs(&proto.RaidBuffs{},
 		&proto.PartyBuffs{GraceOfAirTotem: true}, &proto.IndividualBuffs{})
-	permanent := standingSim.Raid.Parties[0].Players[0].GetCharacter().GetAura("Grace of Air Totem (External)")
-	if !permanent.IsActive() || permanent.Duration != core.NeverExpires {
-		t.Errorf("without twisting the totem is active %v for %v, want it up from the pull for the fight",
-			permanent.IsActive(), permanent.Duration)
+	permanent := sim.Raid.Parties[0].Players[0].GetCharacter().GetAura("Grace of Air Totem (External)")
+	if !permanent.IsActive() {
+		t.Error("the totem is down at the pull, want it up for the fight")
+	}
+
+	underWindfury := core.NewGeneratedBuffTestCharacter()
+	core.ApplyBuffEffects(underWindfury, &proto.RaidBuffs{},
+		&proto.PartyBuffs{GraceOfAirTotem: true, WindfuryTotem: true}, &proto.IndividualBuffs{})
+	underWindfury.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
+
+	if got := underWindfury.GetStats()[stats.Agility]; got != 0 {
+		t.Errorf("under Windfury Totem the totem applied %v agility, want none", got)
+	}
+	if underWindfury.GetAura("Grace of Air Totem (External)") != nil {
+		t.Error("under Windfury Totem the totem registered its aura")
 	}
 }
 
@@ -503,7 +470,7 @@ func TestGeneratedGraceOfAirFollowsTotemTwisting(t *testing.T) {
 func TestGeneratedAtieshStavesCountTheStaves(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(char, &proto.RaidBuffs{},
 		&proto.PartyBuffs{AtieshDruid: 1, AtieshMage: 3, AtieshPriest: 2, AtieshWarlock: 1},
 		&proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
@@ -623,6 +590,10 @@ func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 		t.Fatalf("a proc no auto landed on is active %v with %v left, want the full second",
 			proc.IsActive(), proc.RemainingDuration(sim))
 	}
+	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
+		DoAt:     start + time.Second*2,
+		OnAction: func(*core.Simulation) {},
+	}))
 	for proc.IsActive() && sim.CurrentTime < start+time.Second*2 {
 		sim.Step()
 	}
@@ -632,6 +603,90 @@ func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 	}
 }
 
+// Windfury Totem's proc is the party aura 10612: a main-hand hit that deals
+// damage can fire it, auto or special, and no other hit can, a proc's hit
+// included. A main-hand auto that procs it has spent the first charge itself
+// and leaves one for the extra attack; a special leaves both.
+func TestGeneratedWindfuryTotemProcsOffMainHandHitsWithTheChargesTheTriggerLeaves(t *testing.T) {
+	setup := func(t *testing.T) (*core.Simulation, *core.Unit, *core.Aura, *[]int32) {
+		t.Helper()
+
+		sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{WindfuryTotem: true}, &proto.IndividualBuffs{})
+		char := sim.Raid.Parties[0].Players[0].GetCharacter()
+		trigger := char.GetAura("Windfury Totem Trigger")
+		proc := char.GetAura("Windfury Totem (External)")
+		if trigger == nil || proc == nil {
+			t.Fatalf("trigger %v, proc %v; want both registered", trigger, proc)
+		}
+		if !trigger.IsActive() {
+			t.Fatal("the totem's trigger is not up at the pull")
+		}
+
+		var started []int32
+		proc.ApplyOnStacksChange(func(_ *core.Aura, _ *core.Simulation, oldStacks int32, newStacks int32) {
+			if oldStacks == 0 {
+				started = append(started, newStacks)
+			}
+		})
+		return sim, sim.Encounter.AllTargetUnits[0], trigger, &started
+	}
+
+	// Offers the trigger up to 200 landed hits of one kind and answers whether any of them procced.
+	offer := func(sim *core.Simulation, target *core.Unit, trigger *core.Aura, started *[]int32, spell *core.Spell, damage float64) bool {
+		for i := 0; i < 200 && len(*started) == 0; i++ {
+			trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: damage})
+		}
+		return len(*started) > 0
+	}
+
+	for _, row := range []struct {
+		name    string
+		spell   *core.Spell
+		charges int32
+	}{
+		{"a main-hand auto leaves one charge", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, 1},
+		{"a main-hand special leaves both charges", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, 2},
+	} {
+		t.Run(row.name, func(t *testing.T) {
+			sim, target, trigger, started := setup(t)
+			if !offer(sim, target, trigger, started, row.spell, 100) {
+				t.Fatal("200 landed hits never procced the totem")
+			}
+			if got := (*started)[0]; got != row.charges {
+				t.Errorf("the proc started with %d charges, want %d", got, row.charges)
+			}
+		})
+	}
+
+	for _, row := range []struct {
+		name   string
+		spell  *core.Spell
+		damage float64
+	}{
+		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, 100},
+		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial}, 100},
+		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, 100},
+		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, 100},
+		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, 100},
+		{"a main-hand special that deals no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, 0},
+		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagProc}, 100},
+	} {
+		t.Run(row.name+" never procs it", func(t *testing.T) {
+			sim, target, trigger, started := setup(t)
+			if offer(sim, target, trigger, started, row.spell, row.damage) {
+				t.Errorf("%s procced the totem", row.name)
+			}
+		})
+	}
+
+	t.Run("the trigger waits 100 ms between procs", func(t *testing.T) {
+		_, _, trigger, _ := setup(t)
+		if trigger.Icd == nil || trigger.Icd.Duration != 100*time.Millisecond {
+			t.Errorf("the trigger's cooldown is %v, want the game files' 100 ms", trigger.Icd)
+		}
+	})
+}
+
 // Every main-hand hit adds 1363 x weapon speed / 100 fire damage.
 func TestGeneratedFlametongueTotemDamageFollowsWeaponSpeed(t *testing.T) {
 	if got := buffs.FlametongueTotemDamage(2.6); math.Abs(got-35.438) > 0.001 {
@@ -639,9 +694,9 @@ func TestGeneratedFlametongueTotemDamageFollowsWeaponSpeed(t *testing.T) {
 	}
 }
 
-// A main-hand hit that lands, auto or special, strikes the target for the
-// game files' 1363 x the weapon's speed / 100 in fire damage on the spell hit and
-// crit tables; an off-hand hit or a missed swing strikes nothing.
+// A main-hand auto attack that lands strikes the target for the game files'
+// 1363 x the weapon's speed / 100 in fire damage on the spell hit and crit
+// tables; a special, an off-hand hit or a missed swing strikes nothing.
 func TestGeneratedFlametongueTotemStrikesOnMainHandHits(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{FlametongueTotem: true}, &proto.IndividualBuffs{})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -684,7 +739,6 @@ func TestGeneratedFlametongueTotemStrikesOnMainHandHits(t *testing.T) {
 		procMask core.ProcMask
 	}{
 		{"a 2.6 speed main-hand auto", 2.6, core.ProcMaskMeleeMHAuto},
-		{"a 2.6 speed main-hand special", 2.6, core.ProcMaskMeleeMHSpecial},
 		{"a 1.3 speed main-hand auto", 1.3, core.ProcMaskMeleeMHAuto},
 	} {
 		char.AutoAttacks.SetMH(core.Weapon{SwingSpeed: row.speed})
@@ -713,6 +767,7 @@ func TestGeneratedFlametongueTotemStrikesOnMainHandHits(t *testing.T) {
 		procMask core.ProcMask
 		outcome  core.HitOutcome
 	}{
+		{"a main-hand special", core.ProcMaskMeleeMHSpecial, core.OutcomeHit},
 		{"an off-hand auto", core.ProcMaskMeleeOHAuto, core.OutcomeHit},
 		{"a ranged auto", core.ProcMaskRangedAuto, core.OutcomeHit},
 		{"a missed main-hand auto", core.ProcMaskMeleeMHAuto, core.OutcomeMiss},
@@ -723,9 +778,9 @@ func TestGeneratedFlametongueTotemStrikesOnMainHandHits(t *testing.T) {
 	}
 }
 
-// The totem's enchant lasts 10 seconds and is refreshed every 5, so a weapon
-// swapped into the main hand goes without it until the next refresh.
-func TestGeneratedFlametongueTotemLeavesASwappedInMainHandUntilTheNextRefresh(t *testing.T) {
+// The totem is a party aura, so it stands for the fight and a weapon swapped
+// into the main hand keeps it.
+func TestGeneratedFlametongueTotemStaysThroughAMainHandSwap(t *testing.T) {
 	const arcaniteReaper, whirlwindAxe = 12784, 6975
 	withMainHand := func(id int32) []*proto.ItemSpec {
 		items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
@@ -759,45 +814,24 @@ func TestGeneratedFlametongueTotemLeavesASwappedInMainHandUntilTheNextRefresh(t 
 	if totem == nil || trigger == nil {
 		t.Fatalf("totem %v, trigger %v; want both registered", totem, trigger)
 	}
-	if totem.Duration != time.Second*10 {
-		t.Errorf("the totem's enchant lasts %v, want 10 seconds", totem.Duration)
+	if totem.Duration != core.NeverExpires {
+		t.Errorf("the totem lasts %v, want it to stand for the fight", totem.Duration)
 	}
-
-	stepUntil := func(done func() bool, limit time.Duration) {
-		t.Helper()
-		for !done() && sim.CurrentTime < limit {
-			if sim.Step() {
-				t.Fatalf("the fight ended at %v", sim.CurrentTime)
-			}
-		}
-	}
-	stepUntil(trigger.IsActive, time.Second*10)
 	if !totem.IsActive() || !trigger.IsActive() {
-		t.Fatalf("by %v the totem is active %v and its trigger %v, want both up", sim.CurrentTime,
+		t.Fatalf("at the pull the totem is active %v and its trigger %v, want both up",
 			totem.IsActive(), trigger.IsActive())
 	}
 
-	swappedAt := sim.CurrentTime
 	char.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
-	if totem.IsActive() || trigger.IsActive() {
-		t.Errorf("after the swap the totem is active %v and its trigger %v, want the new main hand bare",
+	if !totem.IsActive() || !trigger.IsActive() {
+		t.Errorf("after the swap the totem is active %v and its trigger %v, want both still up",
 			totem.IsActive(), trigger.IsActive())
-	}
-
-	stepUntil(trigger.IsActive, swappedAt+time.Second*10)
-	if !trigger.IsActive() || sim.CurrentTime != swappedAt+time.Second*5 {
-		t.Errorf("the trigger is active %v at %v, want it back at the refresh 5 seconds after the swap",
-			trigger.IsActive(), sim.CurrentTime)
-	}
-	stepUntil(func() bool { return false }, time.Second*30)
-	if !trigger.IsActive() {
-		t.Errorf("the trigger has dropped by %v, want the refresh to keep it up", sim.CurrentTime)
 	}
 }
 
-// Both totems enchant the main hand, which carries one of them: under both, the
-// party's Windfury Totem holds it and Flametongue Totem registers nothing.
-func TestGeneratedWindfuryTotemHoldsTheMainHandOverFlametongueTotem(t *testing.T) {
+// The two totems do not stack: under both, Windfury Totem holds and Flametongue
+// Totem registers nothing.
+func TestGeneratedWindfuryTotemHoldsOverFlametongueTotem(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{},
 		&proto.PartyBuffs{WindfuryTotem: true, FlametongueTotem: true}, &proto.IndividualBuffs{})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -827,7 +861,7 @@ func TestGeneratedWindfuryTotemHoldsTheMainHandOverFlametongueTotem(t *testing.T
 // A generated damage shield deals the game files' damage back to whoever lands a
 // melee hit, and nothing to a spell.
 func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
-	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{Thorns: true}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
+	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{Thorns: true})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
 	attacker := sim.Encounter.AllTargetUnits[0]
 
@@ -840,7 +874,7 @@ func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 		t.Fatalf("no aura is labelled %q; the unit has %v", "Thorns (External)", auraLabels(char))
 	}
 	if !aura.IsActive() {
-		t.Fatal("the raid's Thorns is not up at the start of the fight")
+		t.Fatal("the individual Thorns is not up at the start of the fight")
 	}
 
 	shield := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 1})
@@ -875,7 +909,7 @@ func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 func TestGeneratedRetributionAuraHoldsThePaladinSlot(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{RetributionAura: true}, &proto.IndividualBuffs{})
 
 	external := char.GetAura("Retribution Aura (External)")
@@ -910,7 +944,7 @@ func TestGeneratedRetributionAuraHoldsThePaladinSlot(t *testing.T) {
 func TestRetributionAuraCarriesThePartysSpellPower(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
-	core.ApplyBuffEffects(generatedBuffTestAgent{char},
+	core.ApplyBuffEffects(char,
 		&proto.RaidBuffs{}, &proto.PartyBuffs{RetributionAura: true, RetributionAuraSpellPower: 450}, &proto.IndividualBuffs{})
 
 	if char.GetAura("Retribution Aura (External)") == nil {
@@ -1140,7 +1174,7 @@ func TestGeneratedStoneskinTotemTakesTheTalentedValue(t *testing.T) {
 	}
 
 	char := core.NewGeneratedBuffTestCharacter()
-	core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(char, &proto.RaidBuffs{},
 		&proto.PartyBuffs{StoneskinTotem: proto.TristateEffect_TristateEffectImproved}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
@@ -1156,17 +1190,17 @@ func TestGeneratedStoneskinTotemTakesTheTalentedValue(t *testing.T) {
 // Furious Howl is a flat attack power grant that competes with nothing Battle Shout holds, so both
 // land on the character at once.
 func TestGeneratedFuriousHowlStacksWithBattleShout(t *testing.T) {
-	if got := buffs.FuriousHowlValue(0); got != 138 {
-		t.Fatalf("Furious Howl is worth %v attack power, want the game files' 136 plus 4 levels of 0.7, floored to 138", got)
+	if got := buffs.FuriousHowlValue(0); got != 83 {
+		t.Fatalf("Furious Howl is worth %v attack power, want the game files' 82 plus 4 levels of 0.4, floored to 83", got)
 	}
 
 	shoutOnly := core.NewGeneratedBuffTestCharacter()
-	core.ApplyBuffEffects(generatedBuffTestAgent{shoutOnly}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(shoutOnly, &proto.RaidBuffs{},
 		&proto.PartyBuffs{BattleShout: proto.TristateEffect_TristateEffectRegular}, &proto.IndividualBuffs{})
 	shoutOnly.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
 	char := core.NewGeneratedBuffTestCharacter()
-	core.ApplyBuffEffects(generatedBuffTestAgent{char}, &proto.RaidBuffs{},
+	core.ApplyBuffEffects(char, &proto.RaidBuffs{},
 		&proto.PartyBuffs{BattleShout: proto.TristateEffect_TristateEffectRegular, FuriousHowl: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 

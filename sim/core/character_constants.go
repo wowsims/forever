@@ -1,6 +1,8 @@
 package core
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
@@ -188,4 +190,48 @@ var SpecCanDualWieldCapabilities = map[proto.Spec]bool{
 	proto.Spec_SpecEnhancementShaman: true,
 	proto.Spec_SpecDpsWarrior:        true,
 	proto.Spec_SpecProtectionWarrior: true,
+}
+
+var oneHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
+	proto.WeaponType_WeaponTypeAxe:    proto.WeaponSkill_WeaponSkillAxes,
+	proto.WeaponType_WeaponTypeDagger: proto.WeaponSkill_WeaponSkillDaggers,
+	proto.WeaponType_WeaponTypeFist:   proto.WeaponSkill_WeaponSkillFistWeapons,
+	proto.WeaponType_WeaponTypeMace:   proto.WeaponSkill_WeaponSkillMaces,
+	proto.WeaponType_WeaponTypeSword:  proto.WeaponSkill_WeaponSkillSwords,
+}
+
+var twoHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
+	proto.WeaponType_WeaponTypeAxe:     proto.WeaponSkill_WeaponSkillTwoHandedAxes,
+	proto.WeaponType_WeaponTypeMace:    proto.WeaponSkill_WeaponSkillTwoHandedMaces,
+	proto.WeaponType_WeaponTypePolearm: proto.WeaponSkill_WeaponSkillPolearms,
+	proto.WeaponType_WeaponTypeStaff:   proto.WeaponSkill_WeaponSkillStaves,
+	proto.WeaponType_WeaponTypeSword:   proto.WeaponSkill_WeaponSkillTwoHandedSwords,
+}
+
+var rangedWeaponSkills = map[proto.RangedWeaponType]proto.WeaponSkill{
+	proto.RangedWeaponType_RangedWeaponTypeBow:      proto.WeaponSkill_WeaponSkillBows,
+	proto.RangedWeaponType_RangedWeaponTypeCrossbow: proto.WeaponSkill_WeaponSkillCrossbows,
+	proto.RangedWeaponType_RangedWeaponTypeGun:      proto.WeaponSkill_WeaponSkillGuns,
+	proto.RangedWeaponType_RangedWeaponTypeThrown:   proto.WeaponSkill_WeaponSkillThrown,
+}
+
+// ClassWeaponSkills lists the weapon skills of the weapons the class can use, sorted. Race plays no part: in the
+// game files (SkillRaceClassInfo) race only decides which weapon skills a character starts with.
+func ClassWeaponSkills(class proto.Class) []proto.WeaponSkill {
+	var skills []proto.WeaponSkill
+	for weaponType, eligible := range ClassWeaponTypeCapabilities[class] {
+		if skill, ok := oneHandWeaponSkills[weaponType]; ok {
+			skills = append(skills, skill)
+		}
+		if skill, ok := twoHandWeaponSkills[weaponType]; ok && eligible.CanUseTwoHand {
+			skills = append(skills, skill)
+		}
+	}
+	for _, rangedWeaponType := range ClassRangedWeaponTypeCapabilities[class] {
+		if skill, ok := rangedWeaponSkills[rangedWeaponType]; ok {
+			skills = append(skills, skill)
+		}
+	}
+	slices.Sort(skills)
+	return skills
 }

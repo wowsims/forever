@@ -32,7 +32,8 @@ func createDynamicAddsAIPreset() {
 			TankIndex: 0,
 
 			Stats: stats.Stats{
-				stats.Armor:       7685,
+				stats.Health:      1_299_000,
+				stats.Armor:       3731,
 				stats.AttackPower: 320,
 			}.ToProtoArray(),
 
@@ -54,7 +55,7 @@ func createDynamicAddsAIPreset() {
 		Config: &proto.Target{
 			Id:        dynamicAddID,
 			Name:      addName,
-			Level:     72,
+			Level:     63,
 			MobType:   proto.MobType_MobTypeMechanical,
 			TankIndex: 1,
 

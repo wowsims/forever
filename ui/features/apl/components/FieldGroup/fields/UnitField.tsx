@@ -1,13 +1,16 @@
+import { pathChoices, type PathOption } from '@features/apl/model/submenus';
 import type { UNIT_SET } from '@features/apl/model/unit_sets';
 import { unitSets } from '@features/apl/model/unit_sets';
-import { refToValue, unitOptionModels } from '@features/apl/model/unit_values';
-import type { UnitReference } from '@generated/proto/common';
+import { refToValue, unitOptionModels, type UnitValue, withIconUrl } from '@features/apl/model/unit_values';
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
+import type { InputConfig } from '@features/inputs/input';
+import { UnitReference } from '@generated/proto/common';
+import { useActionIds } from '@sim/hooks/useActionIds';
 import { useUnitMetadataVersion } from '@sim/hooks/useUnitMetadataVersion';
 import type { Player } from '@sim/player/player';
-import { DropdownField } from '@ui-kit/DropdownPicker';
-import type { InputConfig } from '@ui-kit/input';
-import { sameUnit, unitOption } from '@ui-kit/UnitPicker';
-import type { UnitValue } from '@ui-kit/UnitPicker/types';
+import { type ChoiceOption, UnitIcon } from '@ui-kit/ChoiceField';
+import { CLASS_TEXT } from '@ui-kit/utils/colors';
+import { useMemo } from 'react';
 
 export interface UnitFieldProps {
 	player: Player<any>;
@@ -15,37 +18,69 @@ export interface UnitFieldProps {
 	unitSet: UNIT_SET;
 }
 
+/** Two `UnitValue`s are the same unit; the display fields around the reference are deliberately not compared. */
+const sameUnit = (a: UnitValue, b: UnitValue) => UnitReference.equals(a.value || UnitReference.create(), b.value || UnitReference.create());
+
+/** A `UnitValue`'s icon, class colour and text as an option; `submenu` files a pet under its owner. */
+const unitOption = (unit: UnitValue, submenu?: Array<UnitValue>): PathOption<UnitValue> => ({
+	value: unit,
+	label: unit.text,
+	icon: unit.icon ?? (unit.iconUrl ? { iconUrl: unit.iconUrl, name: unit.text ?? '' } : undefined),
+	className: unit.color && CLASS_TEXT[unit.color],
+	submenu,
+});
+
+/** The default unit shows its icon alone on the trigger. */
+const renderUnit = ({ value: unit, label }: ChoiceOption<UnitValue>) => (
+	<>
+		{(unit.icon || unit.iconUrl) && <UnitIcon icon={unit.icon} iconUrl={unit.iconUrl} />}
+		{unit.value && label}
+	</>
+);
+
 /**
  * The unit a field points at.
- *
- * It binds through `DropdownField` rather than the unbound `UnitPicker`, because a bound picker's
- * root has to *be* the shell: `UnitPicker` renders a plain `div`, and nesting that inside one would
- * add an extra element. The `UnitValue` → option mapping is shared with it.
  *
  * The option list follows unit metadata, which is where pets and targets come from; the selected
  * label is re-resolved on every render, so a pet that gains a name updates without a store write.
  */
 export const UnitField = ({ player, config, unitSet }: UnitFieldProps) => {
 	const targetUI = unitSets[unitSet].targetUI;
-	useUnitMetadataVersion(player.sim);
-	const options = unitOptionModels(unitSet, player).map(model => unitOption(model.unit, model.submenu));
+	const metadataVersion = useUnitMetadataVersion(player.sim);
+	// eslint-disable-next-line react-hooks/exhaustive-deps -- the metadata version is what moves when the units do.
+	const models = useMemo(() => unitOptionModels(unitSet, player), [unitSet, player, metadataVersion]);
+	const icons = useActionIds(models.map(({ unit }) => (typeof unit.iconUrl === 'string' ? undefined : unit.iconUrl)));
+	const choices = useMemo(() => {
+		const built = pathChoices(
+			models.map((model, index) =>
+				unitOption(
+					withIconUrl(model.unit, icons[index]),
+					model.submenu?.map(unit => withIconUrl(unit)),
+				),
+			),
+			sameUnit,
+		);
+		// A pet, and with it the only submenu, can arrive after mount; an optionTree from the first render keeps the trigger on the menu path instead of swapping it then.
+		return { options: built.options, optionTree: built.optionTree ?? (() => built.options) };
+	}, [models, icons]);
 
 	const boundConfig = {
 		...config,
 		extraClassNames: ['my-auto mr-2 ml-0', ...(config.extraClassNames || [])],
-		sourceToValue: (source: UnitReference | undefined) => refToValue(source, player, targetUI),
+		sourceToValue: (source: UnitReference | undefined) => withIconUrl(refToValue(source, player, targetUI)),
 		valueToSource: (unit: UnitValue) => unit.value,
 	};
 
 	return (
-		<DropdownField<Player<any>, UnitReference | undefined, UnitValue>
+		<ConnectedChoiceField<Player<any>, UnitReference | undefined, UnitValue>
 			modObject={player}
 			config={boundConfig}
-			options={options}
+			options={choices.options}
+			optionTree={choices.optionTree}
 			equals={sameUnit}
-			defaultLabel="Unit"
-			hideLabelWhenDefault={unit => !unit.value}
-			triggerClassName="p-0"
+			variant="link"
+			placeholder="Unit"
+			renderValue={renderUnit}
 		/>
 	);
 };

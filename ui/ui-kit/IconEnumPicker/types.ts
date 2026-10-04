@@ -1,43 +1,23 @@
-import type { ActionId } from '@sim/proto/action_id';
-import type { InputConfig, StoreBinding } from '@ui-kit/input';
+import type { ResolvedIcon } from '@ui-kit/Field/types';
 
 export enum IconEnumPickerDirection {
 	Vertical = 'vertical',
 	Horizontal = 'Horizontal',
 }
 
-export interface IconEnumValueConfig<ModObject, T> {
+export interface IconEnumOption<T> {
 	value: T;
 	// One of these should be set.
-	// If actionId is set, shows the icon for that id.
+	// If icon is set, shows that icon.
 	// If color is set, shows that color.
 	// If iconUrl is set, shows that icon as grayscale
-	actionId?: ActionId;
+	icon?: ResolvedIcon;
 	color?: string;
 	iconUrl?: string;
 	// Text to be displayed on the icon.
 	text?: string;
 	// Hover tooltip.
 	tooltip?: string;
-
-	showWhen?: (obj: ModObject) => boolean;
+	// A hidden option is left out of the menu, and selecting its value shows as no selection.
+	hidden?: boolean;
 }
-
-interface IconEnumPickerBase<ModObject, T> extends InputConfig<ModObject, T> {
-	// A function is read on every render, for a picker whose shown values change.
-	numColumns?: number | ((obj: ModObject) => number);
-	values: Array<IconEnumValueConfig<ModObject, T>>;
-	// Value that will be considered inactive.
-	zeroValue: T;
-	// Function for comparing two values.
-	// Tooltip that will be shown whne hovering over the icon-picker-button
-	tooltip?: string;
-	// The direction the menu will open in relative to the root element
-	direction?: IconEnumPickerDirection;
-	equals: (a: T, b: T) => boolean;
-	backupIconUrl?: (value: T) => ActionId;
-	showWhen?: (obj: ModObject) => boolean;
-}
-
-// Required here: an icon enum picker has no parent that refreshes it.
-export type IconEnumPickerConfig<ModObject, T> = IconEnumPickerBase<ModObject, T> & StoreBinding<ModObject>;

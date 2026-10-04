@@ -24,10 +24,6 @@ func (warrior *Warrior) registerCharge() {
 
 	aura := warrior.registerDashAura("Charge", actionID, config.Cast.CD.Duration, nil)
 
-	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return sim.CurrentTime < 0
-	}
-
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		aura.Duration = spell.CD.Duration
 		aura.Activate(sim)

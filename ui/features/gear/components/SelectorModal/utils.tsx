@@ -18,7 +18,7 @@ export interface SelectorTab {
 	itemData: ItemData<ItemListType, ReactNode>[];
 	computeEP: (item: ItemListType) => number;
 	equippedToItem: (equippedItem: EquippedItem | null) => ItemListType | null | undefined;
-	onRemove: () => void;
+	onRemove?: () => void;
 }
 
 export interface SelectorTabsOptions {
@@ -35,7 +35,7 @@ interface TabSpec<T extends ItemListType> {
 	itemData: ItemData<T, ReactNode>[];
 	computeEP: (item: T) => number;
 	equippedToItem: (equippedItem: EquippedItem | null) => T | null | undefined;
-	onRemove: () => void;
+	onRemove?: () => void;
 }
 
 // A tab with no rows is not built. The cast is necessary because every tab is uniform apart from
@@ -55,14 +55,17 @@ export const buildSelectorTabs = ({ player, slot, gearData, equippedItem }: Sele
 	const weaponSpeed = equippedItem?.item.weaponSpeed ?? 0;
 	const epPerWeaponDps = weaponSpeed ? player.computeWeaponDpsEP(slot) : 0;
 
+	const items = describe({
+		label: SelectorModalTabs.Items,
+		itemData: itemsTabData(gearData, player.getItems(slot)),
+		computeEP: item => player.computeItemEP(item, slot),
+		equippedToItem: item => item?.item,
+		onRemove: gearData.addOnly ? undefined : () => gearData.equipItem(null),
+	});
+	if (gearData.addOnly) return items ? [items] : [];
+
 	const tabs: Array<SelectorTab | null> = [
-		describe({
-			label: SelectorModalTabs.Items,
-			itemData: itemsTabData(gearData, player.getItems(slot)),
-			computeEP: item => player.computeItemEP(item, slot),
-			equippedToItem: item => item?.item,
-			onRemove: () => gearData.equipItem(null),
-		}),
+		items,
 		describe({
 			label: SelectorModalTabs.Enchants,
 			itemData: enchantsTabData(gearData, player.getEnchants(slot)),

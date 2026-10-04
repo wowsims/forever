@@ -21,6 +21,7 @@ func (druid *Druid) registerMangleAuras() {
 // TODO: To be implemented. Forever ships ONE Primal Bite -- spells 407995 and 1238069/1238070/1238073
 // on the Feral Combat line, all with ShapeshiftMask [144,0], which is Bear and Dire Bear only. It
 // applies no debuff.
+// TODO: Primal Bite generates roughly twice the threat its rows state; measure the threat multiplier in game.
 func (druid *Druid) registerPrimalBiteSpell() {
 	if !druid.Talents.PrimalBite {
 		return

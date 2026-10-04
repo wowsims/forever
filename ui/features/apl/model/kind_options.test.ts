@@ -1,5 +1,5 @@
-import { makePlayer } from '@features/apl/testing';
 import { APLRotation } from '@generated/proto/apl';
+import { makePlayer } from '@testing/apl/player';
 import { describe, expect, it, vi } from 'vitest';
 
 import { actionKinds } from './action_kinds';
@@ -10,21 +10,13 @@ vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 const player = (): any => makePlayer(APLRotation.create());
 
-describe('valueKindOptions includeIf', () => {
-	it('drops a prepull-excluded kind when isPrepull is true, and keeps it otherwise', () => {
-		const notPrepull = valueKindOptions(player(), false, false).map(option => option.value);
-		const prepull = valueKindOptions(player(), true, false).map(option => option.value);
-		expect(notPrepull).toContain('currentTime');
-		expect(prepull).not.toContain('currentTime');
-	});
-});
-
-describe('actionKindOptions includeIf', () => {
-	it('drops a prepull-excluded kind when isPrepull is true, and keeps it otherwise', () => {
-		const notPrepull = actionKindOptions(player(), false).map(option => option.value);
-		const prepull = actionKindOptions(player(), true).map(option => option.value);
-		expect(notPrepull).toContain('multidot');
-		expect(prepull).not.toContain('multidot');
+describe('kind options includeIf', () => {
+	it.each<[string, (isPrepull: boolean) => Array<{ value: string }>, string]>([
+		['valueKindOptions', isPrepull => valueKindOptions(player(), isPrepull, false), 'currentTime'],
+		['actionKindOptions', isPrepull => actionKindOptions(player(), isPrepull), 'multidot'],
+	])('%s drops a prepull-excluded kind when isPrepull is true, and keeps it otherwise', (_name, options, kind) => {
+		expect(options(false).map(option => option.value)).toContain(kind);
+		expect(options(true).map(option => option.value)).not.toContain(kind);
 	});
 });
 
@@ -60,16 +52,11 @@ describe('valueKindOptions dynamicStringResolver', () => {
 });
 
 describe('table insertion order', () => {
-	it('valueKindOptions preserves the value-kind table order', () => {
-		const order = Object.keys(valueKinds);
-		const indices = valueKindOptions(player(), false, false).map(option => order.indexOf(option.value));
-		expect(indices).toEqual([...indices].sort((a, b) => a - b));
-		expect(new Set(indices).size).toBe(indices.length);
-	});
-
-	it('actionKindOptions preserves the action-kind table order', () => {
-		const order = Object.keys(actionKinds);
-		const indices = actionKindOptions(player(), false).map(option => order.indexOf(option.value));
+	it.each<[string, Array<string>, () => Array<{ value: string }>]>([
+		['valueKindOptions', Object.keys(valueKinds), () => valueKindOptions(player(), false, false)],
+		['actionKindOptions', Object.keys(actionKinds), () => actionKindOptions(player(), false)],
+	])('%s preserves its kind table order', (_name, order, options) => {
+		const indices = options().map(option => order.indexOf(option.value));
 		expect(indices).toEqual([...indices].sort((a, b) => a - b));
 		expect(new Set(indices).size).toBe(indices.length);
 	});

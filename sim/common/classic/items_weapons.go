@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/common/itemhelpers"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -24,7 +25,7 @@ func init() {
 					Duration: time.Second * 12,
 				})
 
-				core.AtkSpeedReductionEffect(aura, core.SlowedTimeMultiplier(-20))
+				buffs.AtkSpeedReductionEffect(aura, core.MultiplierFromPercent(20))
 
 				return aura
 			})

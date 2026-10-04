@@ -1,0 +1,37 @@
+@layer components {
+	.ui-pill {
+		@apply inline-flex w-fit items-center gap-1 bg-current/15 px-1 leading-normal font-semibold;
+
+		&[data-tone='positive'] {
+			@apply text-success;
+		}
+
+		&[data-tone='negative'] {
+			@apply text-danger;
+		}
+
+		&[data-tone='warning'] {
+			@apply text-link-warning;
+		}
+
+		&[data-tone='primary'] {
+			@apply text-primary;
+		}
+
+		&[data-rounded='full'] {
+			@apply rounded-full;
+		}
+
+		&[data-size='xs'] {
+			@apply px-1 text-ui;
+		}
+
+		&[data-size='sm'] {
+			@apply px-2 text-sm;
+		}
+
+		&[data-size='md'] {
+			@apply px-2 text-base;
+		}
+	}
+}

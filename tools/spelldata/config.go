@@ -133,15 +133,7 @@ func evalSpellConfig(expr *ast.CallExpr, declarations map[string]declaration, pk
 
 func configPick(arg ast.Expr, declarations map[string]declaration, pkg string, trace *tracer) (*spelldata.Spell, string, error) {
 	trace.add("  row %s", types.ExprString(arg))
-	c, err := walkChain(arg, func(token.Pos) int { return 0 })
-	if err != nil {
-		return nil, "", err
-	}
-	c, err = resolveChain(c, declarations, trace)
-	if err != nil {
-		return nil, "", err
-	}
-	result, err := evalExpr(ladderFamilies(), c, pkg)
+	c, result, err := evalDeclaredExpr(arg, declarations, pkg, trace)
 	if err != nil {
 		return nil, "", err
 	}
@@ -149,6 +141,23 @@ func configPick(arg ast.Expr, declarations map[string]declaration, pkg string, t
 		return nil, "", fmt.Errorf("%s reads a %s, not a row", types.ExprString(arg), result.kind)
 	}
 	return result.spell, c.text(false), nil
+}
+
+// A chain of the store's accessors, resolved through the package's declarations and evaluated.
+func evalDeclaredExpr(expr ast.Expr, declarations map[string]declaration, pkg string, trace *tracer) (*chain, *exprResult, error) {
+	c, err := walkChain(expr, func(token.Pos) int { return 0 })
+	if err != nil {
+		return nil, nil, err
+	}
+	c, err = resolveChain(c, declarations, trace)
+	if err != nil {
+		return nil, nil, err
+	}
+	result, err := evalExpr(ladderFamilies(), c, pkg)
+	if err != nil {
+		return nil, nil, err
+	}
+	return c, result, nil
 }
 
 type configField struct {
@@ -171,6 +180,9 @@ func durationText(v time.Duration) string { return v.String() }
 func intText[T int32 | int](v T) string   { return strconv.Itoa(int(v)) }
 func boolText(bool) string                { return "true" }
 
+func procMaskBit(bit uint64) (string, bool)  { return dbcenums.Named(core.ProcMask(bit)) }
+func spellFlagBit(bit uint64) (string, bool) { return dbcenums.Named(core.SpellFlag(bit)) }
+
 var configFields = []configField{
 	{name: "ActionID", read: func(c *core.SpellConfig) string {
 		if c.ActionID.Tag != 0 {
@@ -181,10 +193,8 @@ var configFields = []configField{
 	{name: "Rank", read: func(c *core.SpellConfig) string { return nonZero(c.Rank, intText[int32]) }},
 	{name: "SpellSchool", read: func(c *core.SpellConfig) string { return nonZero(c.SpellSchool, core.SpellSchool.String) }},
 	{name: "DefenseType", read: func(c *core.SpellConfig) string { return nonZero(c.DefenseType, core.DefenseType.String) }},
-	{name: "Flags", bits: func(c *core.SpellConfig) uint64 { return uint64(c.Flags) },
-		bitName: func(bit uint64) (string, bool) { return dbcenums.Named(core.SpellFlag(bit)) }},
-	{name: "ProcMask", bits: func(c *core.SpellConfig) uint64 { return uint64(c.ProcMask) },
-		bitName: func(bit uint64) (string, bool) { return dbcenums.Named(core.ProcMask(bit)) }},
+	{name: "Flags", bits: func(c *core.SpellConfig) uint64 { return uint64(c.Flags) }, bitName: spellFlagBit},
+	{name: "ProcMask", bits: func(c *core.SpellConfig) uint64 { return uint64(c.ProcMask) }, bitName: procMaskBit},
 	{name: "Cast.DefaultCast.CastTime", read: func(c *core.SpellConfig) string { return nonZero(c.Cast.DefaultCast.CastTime, durationText) }},
 	{name: "Cast.DefaultCast.GCD", read: func(c *core.SpellConfig) string { return nonZero(c.Cast.DefaultCast.GCD, durationText) }},
 	{name: "Cast.DefaultCast.NonEmpty", read: func(c *core.SpellConfig) string { return nonZero(c.Cast.DefaultCast.NonEmpty, boolText) }},
@@ -206,7 +216,24 @@ var configFields = []configField{
 	{name: "MaxRange", read: func(c *core.SpellConfig) string { return nonZero(c.MaxRange, floatText) }},
 	{name: "MissileSpeed", read: func(c *core.SpellConfig) string { return nonZero(c.MissileSpeed, floatText) }},
 	{name: "ClassFlags", read: func(c *core.SpellConfig) string { return classFlagsPhrase(c.ClassFlags) }},
+	{name: "CastRequirement.Forms", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.Forms, formsText) }},
+	{name: "CastRequirement.ExcludedForms", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.ExcludedForms, formsText) }},
+	{name: "CastRequirement.CasterForm", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.CasterForm, boolText) }},
+	{name: "CastRequirement.NotShapeshifted", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.NotShapeshifted, boolText) }},
+	{name: "CastRequirement.CasterAura", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.CasterAura, intText[int32]) }},
+	{name: "CastRequirement.ExcludeCasterAura", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.ExcludeCasterAura, intText[int32]) }},
+	{name: "CastRequirement.Weapon.SubclassMask", read: func(c *core.SpellConfig) string {
+		return nonZero(c.CastRequirement.Weapon.SubclassMask, func(mask int32) string { return fmt.Sprintf("%d (%s)", mask, weaponRequirement(mask)) })
+	}},
+	{name: "CastRequirement.Weapon.InvTypeMask", read: func(c *core.SpellConfig) string {
+		return nonZero(c.CastRequirement.Weapon.InvTypeMask, func(mask int32) string { return fmt.Sprintf("%d (%s)", mask, maskNames(mask, inventoryTypes)) })
+	}},
+	{name: "CastRequirement.Weapon.Hand", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.Weapon.Hand, procMaskNames) }},
+	{name: "CastRequirement.Shield", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.Shield, boolText) }},
+	{name: "CastRequirement.NotInCombat", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.NotInCombat, boolText) }},
 }
+
+func formsText(mask uint64) string { return fmt.Sprintf("%#x (%s)", mask, stanceList(mask)) }
 
 func attribute(stages []core.SpellConfig, labels []string) []configRow {
 	final := &stages[len(stages)-1]
@@ -253,39 +280,77 @@ func attribute(stages []core.SpellConfig, labels []string) []configRow {
 
 const configFootnote = "Assignments to the config after the call are not folded in."
 
-func configMarkdown(result *configResult) string {
+func (result *configResult) table() configTable {
+	return configTable{kind: "SpellConfig", of: title(result.spell), pick: result.pick, rows: result.rows,
+		skipped: result.skipped, footnote: configFootnote}
+}
+
+// A config the way the tool prints it: the type, the spell it is of and the row it picks, the fields
+// with where each came from, a note under them, the options left unevaluated and a footnote.
+type configTable struct {
+	kind, of, pick string
+	rows           []configRow
+	codeFrom       bool
+	note           string
+	skipped        []configOption
+	footnote       string
+}
+
+func (t configTable) markdown() string {
 	var md strings.Builder
-	fmt.Fprintf(&md, "`SpellConfig` of %s\n\n", title(result.spell))
-	if result.pick != "" {
-		fmt.Fprintf(&md, "`%s`\n\n", result.pick)
+	fmt.Fprintf(&md, "`%s`", t.kind)
+	if t.of != "" {
+		fmt.Fprintf(&md, " of %s", t.of)
+	}
+	md.WriteString("\n\n")
+	if t.pick != "" {
+		fmt.Fprintf(&md, "`%s`\n\n", t.pick)
 	}
 	md.WriteString("---\n| field | value | from |\n|---|---|---|\n")
-	for _, row := range result.rows {
-		fmt.Fprintf(&md, "| **%s** | %s | %s |\n", row.field, codeCell(row.value), cell(row.from))
+	for _, row := range t.rows {
+		from := cell(row.from)
+		if t.codeFrom {
+			from = codeCell(row.from)
+		}
+		fmt.Fprintf(&md, "| **%s** | %s | %s |\n", row.field, codeCell(row.value), from)
 	}
-	for _, option := range result.skipped {
+	if t.note != "" {
+		fmt.Fprintf(&md, "\n%s\n", t.note)
+	}
+	for _, option := range t.skipped {
 		fmt.Fprintf(&md, "\nunevaluated: `%s` (%s)\n", option.source, option.err)
 	}
-	fmt.Fprintf(&md, "\n%s\n", configFootnote)
+	if t.footnote != "" {
+		fmt.Fprintf(&md, "\n%s\n", t.footnote)
+	}
 	return md.String()
 }
 
-func writeConfigText(out io.Writer, result *configResult) {
-	fmt.Fprintf(out, "SpellConfig of %s\n", title(result.spell))
-	if result.pick != "" {
-		fmt.Fprintf(out, "%s\n", result.pick)
+func (t configTable) writeText(out io.Writer) {
+	fmt.Fprint(out, t.kind)
+	if t.of != "" {
+		fmt.Fprintf(out, " of %s", t.of)
+	}
+	fmt.Fprintln(out)
+	if t.pick != "" {
+		fmt.Fprintf(out, "%s\n", t.pick)
 	}
 	fmt.Fprintln(out)
 	fieldWidth, valueWidth := 0, 0
-	for _, row := range result.rows {
+	for _, row := range t.rows {
 		fieldWidth = max(fieldWidth, len(row.field))
 		valueWidth = max(valueWidth, len(row.value))
 	}
-	for _, row := range result.rows {
+	for _, row := range t.rows {
 		fmt.Fprintf(out, "%-*s  %-*s  %s\n", fieldWidth, row.field, valueWidth, row.value, row.from)
 	}
-	for _, option := range result.skipped {
+	if t.note != "" {
+		fmt.Fprintf(out, "\n%s\n", t.note)
+	}
+	for _, option := range t.skipped {
 		fmt.Fprintf(out, "\nunevaluated: %s (%s)\n", option.source, option.err)
 	}
-	fmt.Fprintf(out, "\n%s\n", configFootnote)
+	if t.footnote != "" {
+		fmt.Fprintf(out, "\n%s\n", t.footnote)
+	}
 }

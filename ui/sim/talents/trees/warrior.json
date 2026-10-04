@@ -231,13 +231,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "ironWill",
-        "fancyName": "Iron Will",
+        "fieldName": "lingeringRage",
+        "fancyName": "Lingering Rage",
         "location": {
           "rowIdx": 1,
           "colIdx": 1
         },
-        "spellId": 12962,
+        "spellId": 1323964,
         "definitionId": 142603,
         "maxPoints": 5
       },
@@ -253,14 +253,14 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "improvedCleave",
-        "fancyName": "Improved Cleave",
+        "fieldName": "furiousPrecision",
+        "fancyName": "Furious Precision",
         "location": {
           "rowIdx": 2,
           "colIdx": 0
         },
-        "spellId": 12329,
-        "definitionId": 135467,
+        "spellId": 1323963,
+        "definitionId": 135484,
         "maxPoints": 3
       },
       {
@@ -283,17 +283,6 @@
         },
         "spellId": 16487,
         "definitionId": 135465,
-        "maxPoints": 3
-      },
-      {
-        "fieldName": "boundlessRage",
-        "fancyName": "Boundless Rage",
-        "location": {
-          "rowIdx": 2,
-          "colIdx": 3
-        },
-        "spellId": 1310236,
-        "definitionId": 135484,
         "maxPoints": 3
       },
       {
@@ -341,15 +330,15 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "precision",
-        "fancyName": "Precision",
+        "fieldName": "improvedBerserkerRage",
+        "fancyName": "Improved Berserker Rage",
         "location": {
           "rowIdx": 4,
           "colIdx": 0
         },
-        "spellId": 1225295,
-        "definitionId": 135460,
-        "maxPoints": 3
+        "spellId": 20500,
+        "definitionId": 135509,
+        "maxPoints": 2
       },
       {
         "fieldName": "deathWish",
@@ -374,26 +363,30 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "improvedBerserkerRage",
-        "fancyName": "Improved Berserker Rage",
-        "location": {
-          "rowIdx": 5,
-          "colIdx": 0
-        },
-        "spellId": 20500,
-        "definitionId": 135509,
-        "maxPoints": 2
-      },
-      {
         "fieldName": "flurry",
         "fancyName": "Flurry",
         "location": {
           "rowIdx": 5,
-          "colIdx": 2
+          "colIdx": 1
         },
         "spellId": 12319,
         "definitionId": 135459,
         "maxPoints": 5,
+        "prereqLocation": {
+          "rowIdx": 4,
+          "colIdx": 1
+        }
+      },
+      {
+        "fieldName": "goreDrinker",
+        "fancyName": "Gore Drinker",
+        "location": {
+          "rowIdx": 5,
+          "colIdx": 2
+        },
+        "spellId": 1323967,
+        "definitionId": 145863,
+        "maxPoints": 2,
         "prereqLocation": {
           "rowIdx": 3,
           "colIdx": 2
@@ -408,11 +401,7 @@
         },
         "spellId": 23881,
         "definitionId": 135461,
-        "maxPoints": 1,
-        "prereqLocation": {
-          "rowIdx": 4,
-          "colIdx": 1
-        }
+        "maxPoints": 1
       }
     ]
   },
@@ -420,6 +409,17 @@
     "name": "Protection",
     "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/tbc/163.jpg",
     "talents": [
+      {
+        "fieldName": "improvedBloodrage",
+        "fancyName": "Improved Bloodrage",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 0
+        },
+        "spellId": 12301,
+        "definitionId": 135505,
+        "maxPoints": 2
+      },
       {
         "fieldName": "shieldSpecialization",
         "fancyName": "Shield Specialization",
@@ -432,37 +432,37 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "anticipation",
-        "fancyName": "Anticipation",
+        "fieldName": "ironWill",
+        "fancyName": "Iron Will",
         "location": {
           "rowIdx": 0,
           "colIdx": 2
+        },
+        "spellId": 12962,
+        "definitionId": 145864,
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "anticipation",
+        "fancyName": "Anticipation",
+        "location": {
+          "rowIdx": 1,
+          "colIdx": 0
         },
         "spellId": 12297,
         "definitionId": 135506,
         "maxPoints": 5
       },
       {
-        "fieldName": "improvedBloodrage",
-        "fancyName": "Improved Bloodrage",
-        "location": {
-          "rowIdx": 1,
-          "colIdx": 0
-        },
-        "spellId": 12301,
-        "definitionId": 135505,
-        "maxPoints": 2
-      },
-      {
-        "fieldName": "toughness",
-        "fancyName": "Toughness",
+        "fieldName": "improvedRevenge",
+        "fancyName": "Improved Revenge",
         "location": {
           "rowIdx": 1,
           "colIdx": 2
         },
-        "spellId": 12299,
-        "definitionId": 135504,
-        "maxPoints": 5
+        "spellId": 12797,
+        "definitionId": 135500,
+        "maxPoints": 3
       },
       {
         "fieldName": "improvedThunderClap",
@@ -484,11 +484,7 @@
         },
         "spellId": 12975,
         "definitionId": 135501,
-        "maxPoints": 1,
-        "prereqLocation": {
-          "rowIdx": 1,
-          "colIdx": 0
-        }
+        "maxPoints": 1
       },
       {
         "fieldName": "masterOfDefense",
@@ -506,14 +502,14 @@
         }
       },
       {
-        "fieldName": "improvedRevenge",
-        "fancyName": "Improved Revenge",
+        "fieldName": "improvedDisarm",
+        "fancyName": "Improved Disarm",
         "location": {
           "rowIdx": 2,
           "colIdx": 2
         },
-        "spellId": 12797,
-        "definitionId": 135500,
+        "spellId": 12313,
+        "definitionId": 135498,
         "maxPoints": 3
       },
       {
@@ -539,26 +535,26 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "improvedDisarm",
-        "fancyName": "Improved Disarm",
-        "location": {
-          "rowIdx": 3,
-          "colIdx": 1
-        },
-        "spellId": 12313,
-        "definitionId": 135498,
-        "maxPoints": 3
-      },
-      {
         "fieldName": "vanguard",
         "fancyName": "Vanguard",
         "location": {
           "rowIdx": 3,
-          "colIdx": 2
+          "colIdx": 1
         },
         "spellId": 1310317,
         "definitionId": 135497,
         "maxPoints": 1
+      },
+      {
+        "fieldName": "improvedShieldBash",
+        "fancyName": "Improved Shield Bash",
+        "location": {
+          "rowIdx": 3,
+          "colIdx": 2
+        },
+        "spellId": 12311,
+        "definitionId": 135494,
+        "maxPoints": 2
       },
       {
         "fieldName": "improvedShieldWall",
@@ -583,37 +579,26 @@
         "maxPoints": 1
       },
       {
-        "fieldName": "improvedShieldBash",
-        "fancyName": "Improved Shield Bash",
-        "location": {
-          "rowIdx": 4,
-          "colIdx": 2
-        },
-        "spellId": 12311,
-        "definitionId": 135494,
-        "maxPoints": 2
-      },
-      {
-        "fieldName": "bastion",
-        "fancyName": "Bastion",
-        "location": {
-          "rowIdx": 4,
-          "colIdx": 3
-        },
-        "spellId": 16538,
-        "definitionId": 135493,
-        "maxPoints": 5
-      },
-      {
         "fieldName": "focusedRage",
         "fancyName": "Focused Rage",
         "location": {
-          "rowIdx": 5,
+          "rowIdx": 4,
           "colIdx": 2
         },
         "spellId": 29787,
         "definitionId": 135492,
         "maxPoints": 3
+      },
+      {
+        "fieldName": "bastion",
+        "fancyName": "Bastion",
+        "location": {
+          "rowIdx": 5,
+          "colIdx": 2
+        },
+        "spellId": 16538,
+        "definitionId": 135493,
+        "maxPoints": 5
       },
       {
         "fieldName": "shieldSlam",

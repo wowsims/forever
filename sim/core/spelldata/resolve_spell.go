@@ -118,7 +118,7 @@ func Magic(mask core.ProcMask) SpellOpt {
 }
 
 // A spell another spell or an aura casts: it is out of the rotation Melee and Magic put it in, it
-// does not feed on-cast effects, and it has no cast, cost, cooldown or form requirement of its own even when it shares
+// does not feed on-cast effects, and it has no cast, cost, cooldown or cast requirement of its own even when it shares
 // the row of the ability that casts it, the way the warrior's Blood Craze heal and Whirlwind's
 // off-hand strike are registered. Its damage and healing are still measured, its casts are not: the
 // metrics aggregator counts no cast for a passive spell, so a sub-spell whose casts the sim reports -
@@ -143,6 +143,17 @@ func Flags(flags core.SpellFlag) SpellOpt {
 	}
 }
 
+// RemoveFlags clears specific flags from the configuration that should not be present.
+//
+// Ex: ArcaneMissilesTickSpell is NotAProc so you cant use Proc() SpellOpt, so it ends up being castable through APL
+//
+// Usage: spelldata.RemoveFlags(core.SpellFlagAPL)
+func RemoveFlags(flags core.SpellFlag) SpellOpt {
+	return func(config *core.SpellConfig, _ *Spell) {
+		config.Flags &^= flags
+	}
+}
+
 // Splits one spell id into several actions, for a spell the sim registers more than once.
 func Tag(tag int32) SpellOpt {
 	return func(config *core.SpellConfig, _ *Spell) {
@@ -150,15 +161,25 @@ func Tag(tag int32) SpellOpt {
 	}
 }
 
+// The forms, caster auras, weapon or shield and out-of-combat state the row requires. A shield is the
+// only armor a castable spell asks for.
 func (s *Spell) CastRequirement() core.CastRequirement {
-	return core.CastRequirement{
+	r := core.CastRequirement{
 		Forms:             s.StanceMask,
 		ExcludedForms:     s.StanceExclude,
 		CasterForm:        s.CastableInCasterForm(),
 		NotShapeshifted:   s.NotShapeshifted(),
 		CasterAura:        s.CasterAura,
 		ExcludeCasterAura: s.ExcludeCasterAura,
+		NotInCombat:       s.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_NOT_IN_COMBAT),
 	}
+	switch s.EquipClass {
+	case dbcenums.ITEM_CLASS_WEAPON:
+		r.Weapon = core.EquipRequirement{SubclassMask: s.EquipSubclass, InvTypeMask: s.EquipInvType, Hand: RequiredHand(s)}
+	case dbcenums.ITEM_CLASS_ARMOR:
+		r.Shield = s.EquipSubclass&dbcenums.ITEM_SUBCLASS_BIT_ARMOR_SHIELD != 0
+	}
+	return r
 }
 
 func spellPowerCoeff(s *Spell) float64 {

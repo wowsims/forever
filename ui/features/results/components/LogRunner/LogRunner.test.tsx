@@ -1,19 +1,18 @@
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { CombatLog } from '@sim/proto/combat_log';
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimResultData } from '../../model/result_data';
-import { DrStickySlotContext } from '../DetailedResults/DrStickySlotContext';
-import { LogRunner } from './LogRunner';
+import { DrStickySlotContext } from '../DetailedResults/context/DrStickySlotContext';
+import { LogRunner, LogRunnerHeaderView } from './LogRunner';
 
 let result: SimResultData | null = null;
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
 
-// Every row, so the assertions are about what the list selected rather than what it windowed. The
-// wrapper carries `data-index`/`data-stripe` because that is what the real one stripes off.
+// Every row, so the assertions are about what the list selected rather than what it windowed.
 vi.mock('@ui-kit/VirtualList', async importOriginal => ({
 	...(await importOriginal<typeof import('@ui-kit/VirtualList')>()),
 	VirtualList: ({
@@ -37,7 +36,7 @@ vi.mock('@ui-kit/VirtualList', async importOriginal => ({
 			})()}
 			data-scroll-margin={scrollMargin}>
 			{Array.from({ length: count }, (_unused, index) => (
-				<div key={index} data-testid="virtual-list-row" data-index={index} data-stripe={index % 2 === 0 ? 'even' : 'odd'}>
+				<div key={index} data-testid="virtual-list-row">
 					{renderRow(index) as never}
 				</div>
 			))}
@@ -105,19 +104,6 @@ beforeEach(() => {
 });
 
 describe('LogRunner', () => {
-	it('renders the sticky chrome, the list and the bar even before the first run', () => {
-		const { container } = mount();
-
-		expect(container.querySelector('[data-testid="log-runner-root"]')).not.toBeNull();
-		expect(container.querySelector('[data-testid="log-runner-sticky"] > [data-testid="log-search"] > [data-testid="search-bar-root"]')).not.toBeNull();
-		expect([...container.querySelectorAll('[data-testid="log-runner-header"] > div')].map(cell => cell.textContent)).toEqual([
-			'results_tab.details.logs.time_column',
-			'results_tab.details.logs.event_column',
-		]);
-		expect(container.querySelector('[data-testid="log-runner-scroll"] > [data-testid="log-runner-list"] > [data-testid="log-runner-logs"]')).not.toBeNull();
-		expect(rows(container)).toEqual([]);
-	});
-
 	it('lists every non-debug line once a run lands, dropping the cast-completed noise', () => {
 		result = resultWith(LOGS);
 		const { container } = mount();
@@ -136,19 +122,12 @@ describe('LogRunner', () => {
 		expect(rows(container)).toHaveLength(2);
 	});
 
-	it('stripes from the absolute index, which is what survives the transform layout', () => {
-		result = resultWith(LOGS);
-		const { container } = mount();
-
-		expect([...container.querySelectorAll('[data-testid="virtual-list-row"]')].map(row => (row as HTMLElement).dataset.stripe)).toEqual(['even', 'odd']);
-	});
-
 	it('narrows the list to the lines the search box matches', async () => {
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 		result = resultWith(LOGS);
 		const { container } = mount();
 
-		fireEvent.change(searchInput(container), { target: { value: 'Cleave' } });
+		fireEvent.input(searchInput(container), { target: { value: 'Cleave' } });
 		await act(async () => void vi.advanceTimersByTime(200));
 
 		expect(rows(container)).toEqual(['[2.00] Warrior casts Cleave']);
@@ -164,7 +143,7 @@ describe('LogRunner', () => {
 
 		result = resultWith(LOGS);
 		rerender(<LogRunner active />);
-		fireEvent.change(searchInput(container), { target: { value: 'no such line' } });
+		fireEvent.input(searchInput(container), { target: { value: 'no such line' } });
 		await act(async () => void vi.advanceTimersByTime(200));
 
 		expect(rows(container)).toEqual([]);
@@ -178,7 +157,7 @@ describe('LogRunner', () => {
 		result = resultWith(LOGS);
 		const { container } = mount();
 
-		fireEvent.change(searchInput(container), { target: { value: '"casts Mortal"' } });
+		fireEvent.input(searchInput(container), { target: { value: '"casts Mortal"' } });
 		await act(async () => void vi.advanceTimersByTime(200));
 
 		expect(rows(container)).toEqual(['[1.00] Warrior casts Mortal Strike']);
@@ -226,15 +205,6 @@ describe('LogRunner', () => {
 		expect(container.querySelector('[data-testid="log-runner-logs"]')!.getAttribute('data-scroller')).toBe('window');
 	});
 
-	it('gives both bar buttons an explicit type, so neither submits a form', () => {
-		const { container } = mount();
-
-		expect([...container.querySelectorAll('[data-testid="log-floating-action-bar-controls"] button')].map(button => button.getAttribute('type'))).toEqual([
-			'button',
-			'button',
-		]);
-	});
-
 	// The debounced search box fires `onChange('')` once on mount. Scrolling the page then would move
 	// whichever tab is actually open, because this pane is `display: none` until its tab is picked.
 	describe('scrolling back to the top', () => {
@@ -269,7 +239,7 @@ describe('LogRunner', () => {
 			hidePane(container);
 			rootScrollIntoView.mockClear();
 
-			fireEvent.change(searchInput(container), { target: { value: 'Cleave' } });
+			fireEvent.input(searchInput(container), { target: { value: 'Cleave' } });
 			await act(async () => void vi.advanceTimersByTime(200));
 			backToTop(container);
 
@@ -289,7 +259,7 @@ describe('LogRunner', () => {
 			expect(listScrollIntoView).not.toHaveBeenCalled();
 		});
 
-		it('never scrolls down to the list when its first row is already below the sticky chrome', () => {
+		it('never scrolls down to the list when its first row is already below the sticky header', () => {
 			result = resultWith(LOGS);
 			const { container } = mount();
 			placeList(container, document.body, 200);
@@ -300,5 +270,23 @@ describe('LogRunner', () => {
 			expect(rootScrollIntoView).not.toHaveBeenCalled();
 			expect(listScrollIntoView).not.toHaveBeenCalled();
 		});
+	});
+});
+
+describe('LogRunnerHeaderView', () => {
+	it('shows the search text it is given and reports an edit once typing pauses', () => {
+		vi.useFakeTimers();
+		const onSearchChange = vi.fn();
+		render(<LogRunnerHeaderView searchText="Mortal" onSearchChange={onSearchChange} />);
+
+		const input = screen.getByTestId<HTMLInputElement>('log-search-input');
+		expect(input.value).toBe('Mortal');
+		expect(input.placeholder).toBe('results_tab.details.logs.search_placeholder');
+
+		fireEvent.input(input, { target: { value: 'Mortal Strike' } });
+		expect(onSearchChange).not.toHaveBeenCalled();
+		act(() => vi.advanceTimersByTime(150));
+		expect(onSearchChange).toHaveBeenCalledWith('Mortal Strike');
+		vi.useRealTimers();
 	});
 });

@@ -7,14 +7,22 @@ import { useId } from 'react';
 
 export interface SocialLinkProps {
 	social: Social;
+	testId?: string;
 }
 
-export const SocialLink = ({ social }: SocialLinkProps) => {
+export const SocialLink = ({ social, testId }: SocialLinkProps) => {
 	const id = useId();
 	const tooltip = i18n.t(social.tooltip);
 	return (
 		<>
-			<Button as="a" variant="unstyled" href={social.href} target="_blank" className={social.className} aria-label={tooltip} {...tooltipAnchorProps(id)}>
+			<Button
+				variant="unstyled"
+				href={social.href}
+				target="_blank"
+				className={social.className}
+				aria-label={tooltip}
+				data-testid={testId}
+				{...tooltipAnchorProps(id)}>
 				<Icon name={social.icon} style="brands" size="lg" />
 				{'label' in social && social.label}
 			</Button>

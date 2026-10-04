@@ -121,11 +121,11 @@ func (mage *Mage) registerArcaneConcentration() {
 	// 	ActionID: core.ActionID{SpellID: 12536},
 	// 	Duration: time.Second * 15,
 	// 	OnGain: func(aura *core.Aura, sim *core.Simulation) {
-	// 		mage.AddStatDynamic(sim, stats.SpellCritRating, bonusCrit)
+	// 		mage.AddStatDynamic(sim, stats.SpellCritPercent, bonusCrit)
 	// 		aura.Unit.PseudoStats.SpellCostPercentModifier -= 100
 	// 	},
 	// 	OnExpire: func(aura *core.Aura, sim *core.Simulation) {
-	// 		mage.AddStatDynamic(sim, stats.SpellCritRating, -bonusCrit)
+	// 		mage.AddStatDynamic(sim, stats.SpellCritPercent, -bonusCrit)
 	// 		aura.Unit.PseudoStats.SpellCostPercentModifier += 100
 	// 	},
 	// 	OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {

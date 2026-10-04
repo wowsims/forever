@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -46,7 +47,7 @@ func (paladin *Paladin) applyDivineStrength() {
 		return
 	}
 
-	paladin.MultiplyStat(stats.Strength, spellData.DivineStrength.MultiplierAt(paladin.Talents.DivineStrength))
+	spelldata.ParseStatic(&paladin.Character, spellData.DivineStrength.Rank(paladin.Talents.DivineStrength))
 }
 
 // Divine Intellect - Increases your total Intellect by 2/4/6/8/10%.
@@ -55,7 +56,7 @@ func (paladin *Paladin) applyDivineIntellect() {
 		return
 	}
 
-	paladin.MultiplyStat(stats.Intellect, spellData.DivineIntellect.MultiplierAt(paladin.Talents.DivineIntellect))
+	spelldata.ParseStatic(&paladin.Character, spellData.DivineIntellect.Rank(paladin.Talents.DivineIntellect))
 }
 
 // Healing Light - Increases the amount healed by your Holy Light, Flash of Light, and Holy Shock

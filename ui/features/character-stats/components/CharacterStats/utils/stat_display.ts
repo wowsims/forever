@@ -1,13 +1,17 @@
-import { ItemSlot, PseudoStat, Stat } from '@generated/proto/common';
+import { PseudoStat, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import type { Stats, UnitStat } from '@sim/proto/stats';
 import { TONE_TEXT } from '@ui-kit/utils/colors';
 
-/** Enchant that grants +30 ranged hit rating; the server folds it into the pseudo stat but not the rating. */
-const SCOPE_HIT_ENCHANT_EFFECT_ID = 2523;
-/** Enchant that grants +28 ranged crit rating, same story. */
-const SCOPE_CRIT_ENCHANT_EFFECT_ID = 2724;
+const PER_ATTACK_RATING = new Map<PseudoStat, PseudoStat>([
+	[PseudoStat.PseudoStatMeleeHitPercent, PseudoStat.PseudoStatMainHandHitRating],
+	[PseudoStat.PseudoStatMeleeCritPercent, PseudoStat.PseudoStatMainHandCritRating],
+	[PseudoStat.PseudoStatOffHandHitPercent, PseudoStat.PseudoStatOffHandHitRating],
+	[PseudoStat.PseudoStatOffHandCritPercent, PseudoStat.PseudoStatOffHandCritRating],
+	[PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatRangedHitRating],
+	[PseudoStat.PseudoStatRangedCritPercent, PseudoStat.PseudoStatRangedCritRating],
+]);
 
 const SCHOOL_DAMAGE_STATS = [
 	Stat.StatArcaneDamage,
@@ -18,13 +22,17 @@ const SCHOOL_DAMAGE_STATS = [
 	Stat.StatShadowDamage,
 ];
 
-/**
- * `includeBase`/`includeGear` say which stage the delta being rendered covers, because the base
- * defense skill and the scope enchants are only correct once the stage that hides them is known.
- */
-export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitStat: UnitStat, includeBase?: boolean, includeGear?: boolean): string => {
+const SPEED_MULTIPLIERS = [PseudoStat.PseudoStatMeleeSpeedMultiplier, PseudoStat.PseudoStatRangedSpeedMultiplier];
+
+/** `includeBase` says the delta covers the base stage, which is where the base defense skill and the speed multipliers' 1 belong. */
+export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitStat: UnitStat, includeBase?: boolean): string => {
 	const rootStat = unitStat.hasRootStat() ? unitStat.getRootStat() : null;
+	const perAttackRating = unitStat.isPseudoStat() ? PER_ATTACK_RATING.get(unitStat.getPseudoStat()) : undefined;
 	let rootRatingValue = rootStat !== null ? deltaStats.getStat(rootStat) : null;
+	// Bonus stats carry the rating alone, with no per-attack value to read.
+	if (perAttackRating !== undefined && deltaStats.getPseudoStat(perAttackRating) !== 0) {
+		rootRatingValue = deltaStats.getPseudoStat(perAttackRating);
+	}
 	let percentDecimals = 2;
 	let derivedPercentOrPointsValue = unitStat.convertDefaultUnitsToPercent(deltaStats.getUnitStat(unitStat));
 	let displayPrefix = '';
@@ -38,17 +46,12 @@ export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitSt
 		if (includeBase) {
 			derivedPercentOrPointsValue! += player.getBaseDefense();
 		}
-	} else if (includeGear && rootRatingValue !== null && unitStat.equalsPseudoStat(PseudoStat.PseudoStatRangedHitPercent)) {
-		if (player.getEquippedItem(ItemSlot.ItemSlotRanged)?.enchant?.effectId === SCOPE_HIT_ENCHANT_EFFECT_ID) {
-			rootRatingValue += 30;
-		}
-	} else if (rootRatingValue !== null && unitStat.equalsPseudoStat(PseudoStat.PseudoStatRangedCritPercent)) {
-		if (includeGear && player.getEquippedItem(ItemSlot.ItemSlotRanged)?.enchant?.effectId === SCOPE_CRIT_ENCHANT_EFFECT_ID) {
-			rootRatingValue += 28;
-		}
 	} else if (rootStat == Stat.StatBlockValue) {
-		if (rootRatingValue !== null && rootRatingValue > 0) {
-			rootRatingValue *= deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier) || 1;
+		if (rootRatingValue !== null) {
+			if (rootRatingValue > 0) {
+				rootRatingValue *= deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier) || 1;
+			}
+			rootRatingValue += Math.max(0, deltaStats.getStat(Stat.StatStrength) * deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValuePerStrength) - 1);
 		}
 	} else if (rootStat && SCHOOL_DAMAGE_STATS.includes(rootStat)) {
 		// School damage reads as "total (+school)": the rating column carries the school's own
@@ -60,6 +63,11 @@ export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitSt
 			derivedPercentOrPointsValue = rootRatingValue;
 			rootRatingValue += deltaStats.getStat(Stat.StatSpellDamage);
 		}
+	} else if (unitStat.isPseudoStat() && SPEED_MULTIPLIERS.includes(unitStat.getPseudoStat())) {
+		// A speed multiplier reads as a signed percentage over 1, like the haste rows; a stage delta
+		// without the base stage is already the change.
+		derivedPercentOrPointsValue = (deltaStats.getPseudoStat(unitStat.getPseudoStat()) - (includeBase ? 1 : 0)) * 100;
+		if (derivedPercentOrPointsValue >= 0) displayPrefix = '+';
 	}
 
 	const hideRootRating =
@@ -98,8 +106,12 @@ export const critImmunityCapDisplayString = (player: Player<any>): string => {
 	return `${prefix} ${Math.abs(critImmuneDelta).toFixed(2)}%`;
 };
 
-export const bonusStatClass = (bonusStatValue: number): string =>
-	bonusStatValue === 0 ? 'text-white' : TONE_TEXT[bonusStatValue > 0 ? 'positive' : 'negative'];
+export const bonusTone = (value: number): 'neutral' | 'positive' | 'negative' => (value === 0 ? 'neutral' : value > 0 ? 'positive' : 'negative');
+
+export const bonusStatClass = (bonusStatValue: number): string => {
+	const tone = bonusTone(bonusStatValue);
+	return tone === 'neutral' ? 'text-white' : TONE_TEXT[tone];
+};
 
 /** The melee crit cap reads the other way round: over the cap is bad. */
 export const critCapClass = (capDelta: number): string => (capDelta === 0 ? 'text-white' : TONE_TEXT[capDelta > 0 ? 'negative' : 'positive']);

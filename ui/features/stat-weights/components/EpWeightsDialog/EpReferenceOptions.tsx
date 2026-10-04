@@ -1,9 +1,9 @@
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { DisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { Player } from '@sim/player/player';
-import { EnumPicker } from '@ui-kit/EnumPicker';
 import { useMemo } from 'react';
 
 import { statName } from './utils';
@@ -55,10 +55,11 @@ export const EpReferenceOptions = ({ epStats, epReferenceStat, displayMetrics }:
 	const values = useMemo(() => epStats.map(stat => ({ name: statName(stat), value: stat })), [epStats]);
 
 	return (
-		<div data-testid="ep-reference-options" className="-mx-3 mb-3 flex flex-wrap [&_.ui-field-label]:font-bold">
-			{references.map(reference => (
-				<div key={reference.id} className="w-full px-3 sm:w-1/3">
-					<EnumPicker
+		<div data-testid="ep-reference-options" className="mb-2 [&_.ui-field-label]:font-bold">
+			<div className="grid gap-x-4 sm:grid-cols-3">
+				{references.map(reference => (
+					<ConnectedChoiceField
+						key={reference.id}
 						modObject={player}
 						config={{
 							id: reference.id,
@@ -70,9 +71,9 @@ export const EpReferenceOptions = ({ epStats, epReferenceStat, displayMetrics }:
 						}}
 						testId="ref-stat-select"
 					/>
-				</div>
-			))}
-			<p className="mt-3">{i18n.t('sidebar.buttons.stat_weights.modal.reference_description')}</p>
+				))}
+			</div>
+			<p className="mt-2">{i18n.t('sidebar.buttons.stat_weights.modal.reference_description')}</p>
 		</div>
 	);
 };

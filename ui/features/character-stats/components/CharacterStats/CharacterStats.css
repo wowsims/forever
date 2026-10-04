@@ -1,20 +1,10 @@
 @layer components {
+	.ui-character-stats-panel {
+		@apply flex flex-col gap-2;
+	}
+
 	.ui-character-stats-row {
 		@apply text-ui;
-	}
-
-	.ui-character-stats-row:first-child {
-		@apply border-t border-solid border-t-border;
-	}
-
-	.ui-character-stats-row:last-child .ui-character-stats-label,
-	.ui-character-stats-row:last-child .ui-character-stats-value {
-		@apply pb-2;
-	}
-
-	.ui-character-stats-label,
-	.ui-character-stats-value {
-		@apply pt-2;
 	}
 
 	.ui-character-stats-label {

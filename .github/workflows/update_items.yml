@@ -1,63 +1,171 @@
 name: Update Items
 
+# Moves the items onto the current game build without a WoW install, and nothing else: db2tool reads
+# the current wow_classic_beta build off Blizzard's CDN and overlays the latest hotfix cache, the same
+# way the Update DB workflow does. `make db CLASSES=none SHARED=0` then takes only the items spell data
+# group (the item, enchant and set-bonus rows, with the item database gen_db writes). Every class, the
+# racials and the shared rows stay on the build the committed inputs record (see
+# docs/spell_data/partial-updates.md). Whatever changed lands in a pull request; nothing changed means
+# no pull request.
 on: workflow_dispatch
+
+env:
+    PRODUCT: wow_classic_beta
+    DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin
 
 jobs:
     update-items:
+        runs-on: self-hosted
+        timeout-minutes: 60
         permissions:
             contents: write
             pull-requests: write
-        runs-on: ubuntu-latest
         steps:
+            - name: Checkout 🛎️
+              uses: actions/checkout@v5
+
             - name: Install Go
-              uses: actions/setup-go@v2
+              uses: actions/setup-go@v6
               with:
                   go-version: 1.25.x
+                  cache: false
 
+            # arduino/setup-protoc has no Node 24 release, so protoc comes straight from the protobuf
+            # releases.
             - name: Install Protoc
-              uses: arduino/setup-protoc@v1
-              with:
-                  version: 3.x
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+              env:
+                  PROTOC_VERSION: '36.2'
+              run: |
+                  curl -fsSL -o "$RUNNER_TEMP/protoc.zip" "https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/protoc-$PROTOC_VERSION-linux-x86_64.zip"
+                  rm -rf "$RUNNER_TEMP/protoc"
+                  python3 -m zipfile -e "$RUNNER_TEMP/protoc.zip" "$RUNNER_TEMP/protoc"
+                  chmod +x "$RUNNER_TEMP/protoc/bin/protoc"
+                  echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"
 
             - name: Install Protoc Go plugin
               run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
             - name: Install Node
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v5
               with:
                   node-version: 22
 
-            - name: Checkout
-              uses: actions/checkout@v5
+            - name: Install npm dependencies
+              run: npm ci
 
-            - name: Test
-              run: make test
-
-            - name: Delete Old DB
-              run: rm assets/db_inputs/wowhead_item_tooltips.csv
-
-            - name: Update DB
-              run: go run ./tools/database/gen_db -outDir=assets -gen=wowhead-items
-
-            - name: Make Items
-              run: make items
-
-            - name: Set Date
-              id: date
+            # The version service names the build the CDN currently serves. Its build config hash keys
+            # the download cache below, so a re-run for the same build fetches nothing from the CDN.
+            - name: Resolve the current beta build 🔎
+              id: build
               run: |
-                  echo "builddate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+                  row=$(curl -fsS "https://us.version.battle.net/$PRODUCT/versions" | awk -F'|' '$1 == "us"')
+                  config=$(echo "$row" | cut -d'|' -f2)
+                  version=$(echo "$row" | cut -d'|' -f6)
+                  test -n "$config" && test -n "$version"
+                  echo "Current $PRODUCT build: $version (build config $config)"
+                  echo "config=$config" >> "$GITHUB_OUTPUT"
+                  echo "version=$version" >> "$GITHUB_OUTPUT"
 
-            - name: Create Pull Request
-              uses: peter-evans/create-pull-request@v4
+            - name: Cache CDN downloads and definitions 📦
+              uses: actions/cache@v5
               with:
-                  add-paths: |
-                      assets/db_inputs/wowhead_item_tooltips.csv
-                      assets/database/db.bin
-                      assets/database/db.json
-                  branch: update_item_db
+                  path: |
+                      tools/db2tool/cdncache
+                      tools/db2tool/DBDCache
+                      tools/db2tool/listfile.csv
+                      tools/db2tool/TACTKeys.txt
+                  key: db2tool-${{ env.PRODUCT }}-${{ steps.build.outputs.config }}
+
+            - name: Download the latest hotfix cache ⚡
+              run: |
+                  mkdir -p tools/db2tool/caches
+                  curl -fsSL -o tools/db2tool/caches/DBCache.bin "$DBCACHE_URL"
+
+            # gen_db imports the Go protos, so they are generated from the committed .proto files
+            # first. Taking no class, gen_db rewrites no .proto file, so they need no second pass.
+            # The UI type-check below reads the TS protos and the go-to-ts constants, which are not
+            # committed; gen_db is called directly because on a fresh checkout `make go-to-ts`
+            # considers its outputs up to date.
+            - name: Bootstrap the protos, the TS constants and the dist stub 🧬
+              run: |
+                  make sim/core/proto/api.pb.go ui/generated/proto/api.ts binary_dist/dist.go
+                  go run ./tools/database/gen_db -gen=go-to-ts
+
+            # db2tool warns (and carries on) when the hotfix cache is for another build than the CDN
+            # serves, which happens around a build push; the pull request says which it was. The
+            # spell data change report goes into the pull request body.
+            - name: Extract game files data and regenerate the items 🔧
+              id: db
+              run: |
+                  set -o pipefail
+                  make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin" 2>&1 | tee "$RUNNER_TEMP/db.log"
+                  if grep -q 'none of the given --dbcache files hold hotfixes' "$RUNNER_TEMP/db.log"; then
+                      echo "hotfixes=NOT applied: the downloaded DBCache.bin is for a different build" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "hotfixes=$(grep -m1 'Loaded hotfixes' "$RUNNER_TEMP/db.log" | sed 's/.*for build/applied, DBCache.bin for build/')" >> "$GITHUB_OUTPUT"
+                  fi
+                  {
+                      echo "report<<REPORT_EOF"
+                      python3 tools/spelldata_report_markdown.py < "$RUNNER_TEMP/db.log" || echo "The spell data change report could not be formatted; the build log has it."
+                      echo "REPORT_EOF"
+                  } >> "$GITHUB_OUTPUT"
+
+            - name: Check the regenerated code builds 🧪
+              run: |
+                  go build ./...
+                  go test ./tools/database/
+                  npm run type-check
+
+            # New item rows can move .results numbers, and the pull request is where they are reviewed,
+            # so a failing test still opens it: the summary goes into its body and the job fails after.
+            - name: Run the Go tests 🧪
+              id: tests
+              continue-on-error: true
+              env:
+                  GOARCH: amd64
+              run: |
+                  set -o pipefail
+                  status=0
+                  go list ./sim/... | xargs -r go test --tags=with_db 2>&1 | tee "$RUNNER_TEMP/test.log" || status=1
+                  {
+                      echo "summary<<TESTS_EOF"
+                      if [ "$status" -eq 0 ]; then
+                          echo "All Go tests pass (\`go test --tags=with_db ./sim/...\`)."
+                      else
+                          echo "Go tests fail (\`go test --tags=with_db ./sim/...\`):"
+                          echo
+                          echo '```'
+                          grep -E '^(--- FAIL|FAIL|panic:)' "$RUNNER_TEMP/test.log" | head -n 100 || true
+                          echo '```'
+                      fi
+                      echo "TESTS_EOF"
+                  } >> "$GITHUB_OUTPUT"
+                  exit "$status"
+
+            - name: Set date
+              id: date
+              run: echo "date=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+            - name: Create Pull Request 🚀
+              uses: peter-evans/create-pull-request@v8
+              with:
+                  branch: update_items
                   delete-branch: true
-                  commit-message: 'Update Item DB at ${{ steps.date.outputs.builddate}}'
-                  title: 'Update Item DB at ${{ steps.date.outputs.builddate}}'
+                  commit-message: '[DB] Update items to ${{ steps.build.outputs.version }} with hotfixes as of ${{ steps.date.outputs.date }}'
+                  title: '[DB] Update items to ${{ steps.build.outputs.version }} with hotfixes as of ${{ steps.date.outputs.date }}'
                   body: |
-                      Update Item DB at ${{ steps.date.outputs.builddate}}
+                      The items spell data group and the item database, regenerated from the `${{ env.PRODUCT }}` build on Blizzard's CDN. Every class, the racials and the shared rows stay on their committed builds.
+
+                      - Build: ${{ steps.build.outputs.version }}
+                      - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
+                      - Ran `make db CLASSES=none SHARED=0 --cdn`; the Go builds, the generator tests pass and the UI type-checks
+
+                      ${{ steps.tests.outputs.summary }}
+
+                      ${{ steps.db.outputs.report }}
+
+            - name: Fail on the Go tests
+              if: steps.tests.outcome == 'failure'
+              run: |
+                  echo "::error::Go tests fail; the pull request lists them"
+                  exit 1

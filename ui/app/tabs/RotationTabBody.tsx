@@ -1,8 +1,7 @@
 import { Tabs } from '@base-ui/react/tabs';
 import { AplNavbar } from '@features/apl/components/AplNavbar';
 import { GroupList } from '@features/apl/components/GroupList';
-import { PrePullList } from '@features/apl/components/PrePullList';
-import { PriorityList } from '@features/apl/components/PriorityList';
+import { PriorityPane } from '@features/apl/components/PriorityPane';
 import { RotationTypePicker } from '@features/apl/components/RotationTypePicker';
 import { SavedRotation } from '@features/apl/components/SavedRotation';
 import { SimpleRotationInputs } from '@features/apl/components/SimpleRotationInputs';
@@ -23,14 +22,6 @@ import { useState } from 'react';
 import { PresetConfigurationPicker } from '../PresetConfigurationPicker';
 
 const ROTATION_PRESETS = [PresetConfigurationCategory.Rotation];
-
-/** The pre-pull list and the priority list share the first sub-tab. */
-const PriorityPane = () => (
-	<>
-		<PrePullList />
-		<PriorityList />
-	</>
-);
 
 const PANE_BODIES: Record<AplPaneId, ComponentType> = {
 	'apl-priority-list': PriorityPane,
@@ -65,9 +56,7 @@ export const RotationTabBody = ({ rotationType }: RotationTabBodyProps) => {
 			{rotationType === APLRotationType.TypeAuto && (
 				<TabPanelColumns.Root fullWidth>
 					<TabPanelColumns.Left variant="stacked">
-						<div>
-							<RotationTypePicker />
-						</div>
+						<RotationTypePicker />
 						<p>{i18n.t('rotation_tab.auto.description')}</p>
 					</TabPanelColumns.Left>
 					<TabPanelColumns.Right>
@@ -79,9 +68,7 @@ export const RotationTabBody = ({ rotationType }: RotationTabBodyProps) => {
 			{rotationType === APLRotationType.TypeSimple && hasSimple && (
 				<TabPanelColumns.Root fullWidth>
 					<TabPanelColumns.Left variant="stacked">
-						<div>
-							<RotationTypePicker />
-						</div>
+						<RotationTypePicker />
 						<div className="grid grid-cols-2 gap-page max-xl:grid-cols-1">
 							<ContentBlock config={{ header: { title: i18n.t('rotation_tab.simple.title') } }}>
 								<SimpleRotationInputs />

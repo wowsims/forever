@@ -125,12 +125,12 @@ func TestOnUseAbsorbRunsOnTheItemsCooldownAndCategory(t *testing.T) {
 	}
 }
 
-// With the row's spread the shield rolls within 780 * (1 -/+ 0.6/2).
+// With the row's spread the shield rolls within 780 ± 234, 0.6/2 of its base points either side.
 func TestOnUseAbsorbRollsTheRowsSpread(t *testing.T) {
 	const itemID int32 = 991205
 	effect := spelldata.MustFind(resolutionSpell).AbsorbEffect()
 	sim, caster := newOnUseSim(t, NewSpellDataAbsorbOnUse, map[int32]*proto.ItemEffect{itemID: resolutionOnUse()})
-	low, high := effect.Min(caster.Level), effect.Max(caster.Level)
+	low, high := effect.Min(), effect.Max()
 	if low == high {
 		t.Fatalf("%d states no spread", resolutionSpell)
 	}
@@ -207,7 +207,7 @@ func TestItemProcRollsTheColumnOverAnEffectsChance(t *testing.T) {
 	}
 
 	config := spellDataProcListener(&caster.Character, SpellDataProc{Name: "Uther's Strength", ItemID: 11302, TriggerSpellID: 8397},
-		effectSource{id: 11302}, uther, nil)
+		effectSource{id: 11302}, uther)
 	if config.ProcChance != 0.04 || config.DPM != nil {
 		t.Errorf("the proc rolls %v (manager %v), want the column's 0.04", config.ProcChance, config.DPM != nil)
 	}

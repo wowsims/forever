@@ -9,8 +9,9 @@
 //	go run ./tools/spelldata 11574 -json     # the same as JSON, for a script or an agent: see README.md
 //	go run ./tools/spelldata -family warrior/Execute   # the ladder's ranks, then its highest in full
 //	go run ./tools/spelldata -expr 'spellData.Execute.Rank(3)' -package warrior   # the row that reaches
-//	go run ./tools/spelldata -expr 'spellData.Execute.Highest().EffectN(1).Average(core.CharacterLevel)' -package warrior   # the value that reads
+//	go run ./tools/spelldata -expr 'spellData.Execute.Highest().EffectN(1).Average()' -package warrior   # the value that reads
 //	go run ./tools/spelldata -config 'spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))' -package warrior   # the config the resolver builds
+//	go run ./tools/spelldata -config 'core.SpellModConfig{Kind: core.SpellMod_BonusCrit_Percent, EquipSubclass: dbcenums.ITEM_SUBCLASS_BIT_WEAPON_1H_AXE | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE}'   # a mod's fields and the weapon it needs
 //	go run ./tools/spelldata -hover sim/warrior/execute.go 12:40   # the markdown an editor hover shows at line:column, 1-based
 //	go run ./tools/spelldata -lsp            # a language server on stdio answering those hovers
 //	go run ./tools/spelldata -dump out/      # every class spell in the store, one <class>.txt each
@@ -52,7 +53,7 @@ type options struct {
 	all      bool
 }
 
-const usage = "usage: go run ./tools/spelldata <id | name> [-all] [-json] | -family <class>/<Family> | -expr <call> [-package <class>] | -config <SpellConfig call> [-package <class>] | -hover <file> <line>:<column> | -lsp | -dump <dir>"
+const usage = "usage: go run ./tools/spelldata <id | name> [-all] [-json] | -family <class>/<Family> | -expr <call> [-package <class>] | -config <SpellConfig call | core.SpellModConfig literal> [-package <class>] | -hover <file> <line>:<column> | -lsp | -dump <dir>"
 
 // The flags are taken in any position: `11574 -json` is how a caller writes it, and the stdlib flag
 // package stops reading flags at the first positional argument. The ones that take a value read it as
@@ -240,20 +241,25 @@ func runExpr(out io.Writer, opts options) error {
 
 func runConfig(out io.Writer, opts options) error {
 	node, err := parser.ParseExpr(opts.arg)
-	call, ok := node.(*ast.CallExpr)
-	if err != nil || !ok {
-		return fmt.Errorf("%q is not a SpellConfig call", opts.arg)
+	call, isCall := node.(*ast.CallExpr)
+	lit, isLit := node.(*ast.CompositeLit)
+	if err != nil || !isCall && !(isLit && isSpellModConfig(lit)) {
+		return fmt.Errorf("%q is not a SpellConfig call or a core.SpellModConfig literal", opts.arg)
 	}
 	trace := &tracer{}
 	var declarations map[string]declaration
 	if ws := newWorkspace(); ws.root != "" && opts.pkg != "" {
 		declarations = ws.declarations(filepath.Join(ws.root, "sim", opts.pkg), nil, 0, trace)
 	}
+	if isLit {
+		evalSpellModConfig(lit, declarations, opts.pkg, trace).table().writeText(out)
+		return nil
+	}
 	result, err := evalSpellConfig(call, declarations, opts.pkg, trace)
 	if err != nil {
 		return err
 	}
-	writeConfigText(out, result)
+	result.table().writeText(out)
 	return nil
 }
 

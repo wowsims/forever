@@ -10,7 +10,7 @@ export interface GcdSegmentItemProps {
 export const GcdSegmentItem = ({ item, index }: GcdSegmentItemProps) => (
 	<div
 		data-testid="rotation-item-gcd-segment"
-		className="ui-timeline-item top-(--rotation-gcd-top) h-3 w-timeline-segment border-r border-black/35 bg-[rgb(80_180_235/0.55)]"
+		className="ui-timeline-item top-(--rotation-gcd-top) h-2 w-timeline-segment border-r border-black/35 bg-[rgb(80_180_235/0.55)]"
 		data-item-index={index}
 		style={spanStyle(item.start, item.end - item.start)}
 	/>

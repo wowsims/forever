@@ -1,26 +1,36 @@
 @layer components {
 	.ui-accordion {
 		@apply flex flex-col;
+
+		&[data-variant='boxed'] {
+			@apply gap-2;
+		}
 	}
 
-	.ui-accordion-item {
+	.ui-accordion[data-variant='divided'] > .ui-accordion-item {
 		@apply border-t border-border;
 
 		&:first-child {
 			@apply border-t-0;
 
-			& .ui-accordion-trigger {
+			& > .ui-accordion-trigger {
 				@apply pt-0;
 			}
 		}
 	}
 
-	.ui-accordion-header {
-		@apply m-0;
+	.ui-accordion[data-variant='boxed'] > .ui-accordion-item {
+		& > .ui-accordion-trigger {
+			@apply px-2 text-sm font-semibold;
+		}
+
+		& > .ui-accordion-panel {
+			@apply px-2 pb-2;
+		}
 	}
 
 	.ui-accordion-trigger {
-		@apply flex w-full interactive items-center justify-between gap-2 py-3 text-left font-bold text-foreground;
+		@apply flex w-full interactive items-center justify-between gap-2 py-2 text-left text-base leading-heading font-bold text-foreground;
 
 		&:hover {
 			@apply text-link-hover;
@@ -35,7 +45,7 @@
 		@apply -rotate-90 transition-transform duration-150;
 	}
 
-	.ui-accordion-panel-body {
+	.ui-accordion-panel {
 		@apply pb-4;
 	}
 }

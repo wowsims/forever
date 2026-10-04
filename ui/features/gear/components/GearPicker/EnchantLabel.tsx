@@ -1,10 +1,10 @@
 import type { UIEnchant as Enchant } from '@generated/proto/ui';
+import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
 import { ActionId } from '@sim/proto/action_id';
-import { getEnchantDescription } from '@sim/proto/enchants';
-import { useActionIdWowheadDataset } from '@ui-kit/hooks/useActionIdWowheadDataset';
-import { useEffect, useMemo, useState } from 'react';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
+import { useMemo } from 'react';
 
-import { ItemCellAnchor } from '../ItemCell';
+import { useEnchantDescription } from '../../hooks/useEnchantDescription';
 
 export interface EnchantLabelProps {
 	className: string;
@@ -15,30 +15,12 @@ export interface EnchantLabelProps {
 }
 
 export const EnchantLabel = ({ className, testId, enchant, onActivate, tooltipId }: EnchantLabelProps) => {
-	const [description, setDescription] = useState('');
+	const description = useEnchantDescription(enchant);
 
 	const actionId = useMemo(
 		() => (enchant ? (enchant.spellId ? ActionId.fromSpellId(enchant.spellId) : ActionId.fromItemId(enchant.itemId)) : undefined),
 		[enchant],
 	);
-
-	useEffect(() => {
-		if (!enchant) {
-			setDescription('');
-			return;
-		}
-		let live = true;
-		getEnchantDescription(enchant)
-			.then(text => {
-				if (live) setDescription(text);
-			})
-			.catch(() => {
-				if (live) setDescription(enchant.name);
-			});
-		return () => {
-			live = false;
-		};
-	}, [enchant]);
 
 	const wowheadProps = useActionIdWowheadDataset(actionId);
 
@@ -47,16 +29,8 @@ export const EnchantLabel = ({ className, testId, enchant, onActivate, tooltipId
 	if (!enchant) return null;
 
 	return (
-		<ItemCellAnchor
-			className={className}
-			data-testid={testId}
-			role="button"
-			href={href}
-			onActivate={onActivate}
-			data-whtticon="false"
-			data-tooltip-id={tooltipId}
-			{...wowheadProps}>
+		<WowheadAnchor className={className} testId={testId} href={href} onActivate={onActivate} data-tooltip-id={tooltipId} {...wowheadProps}>
 			{description}
-		</ItemCellAnchor>
+		</WowheadAnchor>
 	);
 };

@@ -19,4 +19,11 @@ var HandTriggers = []HandTrigger{
 			"icon, weapon damage with no base, a cost of 1 in SpellPower that is a tenth of a rage",
 		Source: "game-files-rows",
 	},
+	{
+		Spell:    1323967,
+		Triggers: 1323969,
+		Reason: "Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class " +
+			"set and icon, 3 charges heard on melee attacks, and its aura 231 casts the heal 1323968",
+		Source: "game-files-rows",
+	},
 }

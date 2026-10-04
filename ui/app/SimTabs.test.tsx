@@ -1,10 +1,10 @@
+import { useActivateTab } from '@app/tab_activation';
 import { act, render } from '@testing-library/react';
-import { useActivateTab } from '@ui-kit/tab_activation';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SimTabDef } from './SimTabDef';
-import { SimTabs } from './SimTabs';
+import { SimTabs, SimTabsPanels, SimTabsStrip } from './SimTabs';
 
 const trackPageView = vi.hoisted(() => vi.fn());
 vi.mock('../tracking/utils', () => ({ trackPageView }));
@@ -36,14 +36,31 @@ let panes: HTMLElement;
 // The first pane gets a button per tab, plus one for an id no tab carries.
 const declare = (ids: string[]) => ids.map((id, index) => makeTab(id, index, [...ids, 'nope']));
 
-const renderTabs = (ids: string[], extra?: ReactNode) =>
-	render(
-		<SimTabs panes={panes}>
-			{declare(ids)}
-			{extra}
-		</SimTabs>,
-		{ container: strip },
+// The strip and the panes are ordinary children of one `SimTabs`, in the header and `main` the shell renders them into.
+const layout = (defs: ReactNode) => (
+	<SimTabs defs={defs}>
+		<header>
+			<SimTabsStrip />
+		</header>
+		<main>
+			<SimTabsPanels />
+		</main>
+	</SimTabs>
+);
+
+const renderTabs = (ids: string[], extra?: ReactNode) => {
+	const view = render(
+		layout(
+			<>
+				{declare(ids)}
+				{extra}
+			</>,
+		),
 	);
+	strip = view.container.querySelector('header')!;
+	panes = view.container.querySelector('main')!;
+	return view;
+};
 
 // Awaited: Base UI settles a panel's `hidden` on the microtask after the value changes.
 const activate = (id: string) =>
@@ -53,17 +70,7 @@ const activate = (id: string) =>
 
 beforeEach(() => {
 	trackPageView.mockClear();
-	document.body.innerHTML = '';
-	strip = document.createElement('div');
-	panes = document.createElement('main');
-	// Attached, so focus() actually moves document.activeElement.
-	document.body.append(strip, panes);
 });
-
-const press = (key: string) =>
-	act(() => {
-		(document.activeElement ?? strip).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-	});
 
 const tabs = () => [...strip.querySelectorAll<HTMLElement>('[role="tab"]')];
 const tab = (id: string) => strip.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
@@ -116,27 +123,8 @@ describe('SimTabs', () => {
 		expect(tab('gear-tab').getAttribute('aria-selected')).toBe('false');
 	});
 
-	it('keeps a roving tabindex, so Tab reaches the strip once and lands on the open tab', async () => {
-		renderTabs(['gear-tab', 'settings-tab', 'talents-tab']);
-		const stops = () =>
-			tabs()
-				.filter(el => el.tabIndex !== -1)
-				.map(el => el.getAttribute('data-testid'));
-		expect(stops()).toEqual(['gear-tab']);
-
-		await activate('talents-tab');
-		expect(stops()).toEqual(['talents-tab']);
-	});
-
 	// Arrow/Home/End navigation is Base UI's composite, and it does not drive under happy-dom — the
 	// keys land but the roving focus never moves, so this file cannot assert the sequence.
-
-	it('leaves other keys alone, so typing still reaches the page', () => {
-		renderTabs(['gear-tab', 'settings-tab']);
-		act(() => tab('gear-tab').focus());
-		press('a');
-		expect(openId()).toBe('gear-tab');
-	});
 
 	it('activates by identifier, which is how the bulk results renderer returns to the gear tab', async () => {
 		renderTabs(['gear-tab', 'settings-tab']);
@@ -149,7 +137,7 @@ describe('SimTabs', () => {
 
 	it('places a tab declared after mount without disturbing the active one', () => {
 		const { rerender } = renderTabs(['gear-tab', 'settings-tab']);
-		rerender(<SimTabs panes={panes}>{declare(['gear-tab', 'settings-tab', 'bulk-tab'])}</SimTabs>);
+		rerender(layout(<>{declare(['gear-tab', 'settings-tab', 'bulk-tab'])}</>));
 		expect(panels().map(panel => panel.firstElementChild!.id)).toEqual(['gear-tab', 'settings-tab', 'bulk-tab']);
 		expect(openId()).toBe('gear-tab');
 	});

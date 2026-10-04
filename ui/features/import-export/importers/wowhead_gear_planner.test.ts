@@ -1,65 +1,125 @@
 // The gear-planner hash is Wowhead's own format. Nothing about it is readable, so the test that
-// means anything is a round trip: the *exporter* beside it carries an independent writer
-// (`writeTalents`/`writeHash`), and every field the reader recovers has to come back out of what
-// the writer put in.
+// means anything is a round trip: the *exporter* beside it carries an independent writer, and every
+// field the importer hands on has to come back out of the link the exporter built.
+import { Class, ItemSlot, ItemSpec, Race } from '@generated/proto/common';
 import { WOWHEAD_DOMAIN } from '@sim/proto/wowhead';
-import { describe, expect, it } from 'vitest';
+import { fakeHost } from '@testing/sim/fake_host';
+import { describe, expect, it, vi } from 'vitest';
 
-import { createWowheadGearPlannerLink, type WowheadGearPlannerData } from '../exporters/wowhead_gear_planner';
-import { parseWowheadGearLink } from './wowhead_gear_planner';
+import { WOWHEAD_GEAR_PLANNER_EXPORTER } from '../exporters/wowhead_gear_planner';
+import type { IndividualImport } from './finish_individual_import';
+import { WOWHEAD_GEAR_PLANNER_IMPORTER, WOWHEAD_SLOT_IDS } from './wowhead_gear_planner';
 
-const link = (data: WowheadGearPlannerData, classId = 'warrior', raceId = 'human') =>
-	`https://www.wowhead.com/${WOWHEAD_DOMAIN}/gear-planner/${classId}/${raceId}/${createWowheadGearPlannerLink(data)}`;
+vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
-describe('parseWowheadGearLink', () => {
-	it('recovers class and race from the path', () => {
-		const parsed = parseWowheadGearLink(link({ level: 70, talents: '', items: [] }, 'death-knight', 'horde-blood-elf'));
-		expect(parsed.classId).toBe('death-knight');
-		expect(parsed.raceId).toBe('horde-blood-elf');
+const imported = vi.hoisted(() => [] as Array<IndividualImport>);
+vi.mock('./finish_individual_import', () => ({
+	finishIndividualImport: async (_host: unknown, parsed: IndividualImport) => {
+		imported.push(parsed);
+	},
+}));
+
+interface Equipped {
+	id: number;
+	enchantSpellId?: number;
+	randomSuffix?: number;
+	gems?: Array<number>;
+}
+
+interface Exported {
+	className?: string;
+	race?: Race;
+	talents?: string;
+	gear?: Partial<Record<ItemSlot, Equipped>>;
+}
+
+const exportLink = ({ className = 'Warrior', race = Race.RaceHuman, talents = '', gear = {} }: Exported) =>
+	WOWHEAD_GEAR_PLANNER_EXPORTER.getData(
+		fakeHost({
+			player: {
+				getPlayerClass: () => ({ friendlyName: className }),
+				getRace: () => race,
+				getTalentsString: () => talents,
+				getGear: () => ({
+					getItemSlots: () => Object.keys(gear).map(Number) as Array<ItemSlot>,
+					getEquippedItem: (slot: ItemSlot) => {
+						const item = gear[slot];
+						if (!item) return null;
+						return {
+							id: item.id,
+							_enchant: item.enchantSpellId ? { spellId: item.enchantSpellId } : null,
+							_randomSuffix: item.randomSuffix ? { id: item.randomSuffix } : null,
+							_gems: (item.gems ?? []).map(id => ({ id })),
+						};
+					},
+				}),
+			},
+		}),
+		{} as never,
+	);
+
+// Every item is known, and an enchant spell maps to the effect id one above it.
+const importHost = fakeHost({
+	sim: { db: { getItemById: () => ({}), enchantSpellIdToEnchant: (spellId: number) => ({ effectId: spellId + 1 }) } },
+});
+
+const importLink = async (url: string): Promise<IndividualImport> => {
+	imported.length = 0;
+	await WOWHEAD_GEAR_PLANNER_IMPORTER.onImport(importHost, url);
+	return imported[0];
+};
+
+const roundTrip = (exported: Exported) => importLink(exportLink(exported));
+
+describe('the Wowhead gear planner link', () => {
+	it('carries class and race in the path', async () => {
+		const parsed = await roundTrip({ className: 'Hunter', race: Race.RaceNightElf });
+		expect(parsed.charClass).toBe(Class.ClassHunter);
+		expect(parsed.race).toBe(Race.RaceNightElf);
 	});
 
-	it('round-trips the three-tree talent string and the level', () => {
-		const parsed = parseWowheadGearLink(link({ level: 70, talents: '05002001-0550000502-05032', items: [] }));
-		expect(parsed.talentString).toBe('05002001-0550000502-05032');
-		expect(parsed.level).toBe(70);
+	it.each([Race.RaceHighOrderSkyborne, Race.RaceWindshaperSkyborne])('round-trips the multi-word race %s', async race => {
+		expect((await roundTrip({ race })).race).toBe(race);
+	});
+
+	it('round-trips the three-tree talent string', async () => {
+		const parsed = await roundTrip({ talents: '05002001-0550000502-05032' });
+		expect(parsed.talentsStr).toBe('05002001-0550000502-05032');
 	});
 
 	// An empty talent string writes three separators and nothing else, and must not come back as '---'.
-	it('reads an empty talent string back as empty', () => {
-		const parsed = parseWowheadGearLink(link({ level: 70, talents: '', items: [] }));
-		expect(parsed.talentString).toBe('');
+	it('reads an empty talent string back as empty', async () => {
+		const parsed = await roundTrip({ talents: '' });
+		expect(parsed.talentsStr).toBe('');
 	});
 
-	it('round-trips an item with an enchant, a random suffix and gems', () => {
-		const parsed = parseWowheadGearLink(
-			link({
-				level: 70,
-				talents: '05002001',
-				items: [{ slotId: 1, itemId: 29011, enchantId: 28909, randomEnchantId: -5, gemItemIds: { 0: 24027, 1: 24061 } }],
-			}),
-		);
-		expect(parsed.items).toEqual([{ slotId: 1, itemId: 29011, enchantId: 28909, randomEnchantId: -5, gemItemIds: [24027, 24061] }]);
+	it('round-trips an item with an enchant, a random suffix and gems', async () => {
+		const parsed = await roundTrip({
+			talents: '05002001',
+			gear: { [ItemSlot.ItemSlotHead]: { id: 29011, enchantSpellId: 28909, randomSuffix: -5, gems: [24027, 24061] } },
+		});
+		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910, randomSuffix: -5, gems: [24027, 24061] })]);
 	});
 
-	it('round-trips a bare item, leaving the optional fields off', () => {
-		const parsed = parseWowheadGearLink(link({ level: 70, talents: '05002001', items: [{ slotId: 16, itemId: 28773, gemItemIds: {} }] }));
-		expect(parsed.items).toEqual([{ slotId: 16, itemId: 28773, enchantId: undefined, randomEnchantId: undefined, gemItemIds: [] }]);
+	it('round-trips a bare item, leaving the optional fields off', async () => {
+		const parsed = await roundTrip({ talents: '05002001', gear: { [ItemSlot.ItemSlotMainHand]: { id: 28773 } } });
+		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 28773 })]);
 	});
 
 	// The ranged slot is slot id 18, and the last one the picker offers.
-	it('round-trips a full seventeen-slot set, ranged included', () => {
-		const items = Array.from({ length: 17 }, (_, index) => ({ slotId: index + 1, itemId: 28000 + index * 37, gemItemIds: {} }));
-		const parsed = parseWowheadGearLink(link({ level: 70, talents: '05002001', items }));
-		expect(parsed.items.map(item => [item.slotId, item.itemId])).toEqual(items.map(item => [item.slotId, item.itemId]));
+	it('round-trips a full seventeen-slot set, ranged included, in slot id order', async () => {
+		const slots = (Object.keys(WOWHEAD_SLOT_IDS).map(Number) as Array<ItemSlot>).sort((a, b) => WOWHEAD_SLOT_IDS[a] - WOWHEAD_SLOT_IDS[b]);
+		const gear = Object.fromEntries(slots.map((slot, index) => [slot, { id: 28000 + index * 37 }]));
+		const parsed = await roundTrip({ talents: '05002001', gear });
+		expect(slots).toHaveLength(17);
+		expect(parsed.equipmentSpec.items.map(item => item.id)).toEqual(slots.map((_, index) => 28000 + index * 37));
 	});
 
-	it('rejects a link that is not a gear planner link', () => {
-		expect(() => parseWowheadGearLink('https://www.wowhead.com/item=29011')).toThrow(/Invalid Wowhead Gear Planner URL/);
+	it('rejects a link that is not a gear planner link', async () => {
+		await expect(importLink('https://www.wowhead.com/item=29011')).rejects.toThrow('import.wowhead.error_invalid_url');
 	});
 
-	it('returns the class and race alone for a link with no hash', () => {
-		const parsed = parseWowheadGearLink(`https://www.wowhead.com/${WOWHEAD_DOMAIN}/gear-planner/warrior/human`);
-		expect(parsed.classId).toBe('warrior');
-		expect(parsed.items).toEqual([]);
+	it('rejects a gear planner link with no hash', async () => {
+		await expect(importLink(`https://www.wowhead.com/${WOWHEAD_DOMAIN}/gear-planner/warrior/human`)).rejects.toThrow('import.wowhead.error_invalid_url');
 	});
 });

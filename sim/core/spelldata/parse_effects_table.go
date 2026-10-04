@@ -3,6 +3,7 @@ package spelldata
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -51,6 +52,9 @@ type parser struct {
 
 	// DryRun: the rows are read for what they would attach, and nothing is registered on the unit.
 	dry bool
+
+	// OnHand: the weapon the row sits on.
+	hand core.ProcMask
 
 	// The slot FromCaster names, which the rows that reach only the caster's attacks share. Nil
 	// without a caster.
@@ -113,13 +117,36 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return lookup(pctModTable, op)(p, e, v/100)
 	},
 
-	// The damage the unit deals and takes, by school mask.
+	// The damage the unit deals and takes, by school mask. A row that names ranged weapons alone is a
+	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped, and
+	// also reaches the melee-defense spells of the schools its mask leaves out.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
-		return p.schoolMultiplier("damage-dealt", "DamageDealtMultiplier", e.Misc, percentMultiplier(v),
+		rule, scope, ok := p.weaponScope(e)
+		switch {
+		case !ok, rule == WeaponRuleWhileEquipped && p.character == nil && !p.dry:
+			return nil
+		case rule == WeaponRulePerWeapon:
+			scope.School = core.SpellSchool(e.Misc)
+			return p.scopedMod("SpellMod_DamageDone_Pct", core.SpellMod_DamageDone_Pct, scope, v/100)
+		}
+
+		a := p.schoolMultiplier("damage-dealt", "DamageDealtMultiplier", e.Misc, core.MultiplierFromPercent(v),
 			&p.unit.PseudoStats.DamageDealtMultiplier, &p.unit.PseudoStats.SchoolDamageDealtMultiplier)
+		if a == nil || rule != WeaponRuleWhileEquipped {
+			return a
+		}
+		if !scope.ProcMask.Matches(core.ProcMaskMelee) || e.Misc&miscAllSchools == miscAllSchools {
+			return p.whileEquipped(scope.Equip(), a)
+		}
+		melee := p.modFloat("damage-dealt-melee", core.SpellModConfig{
+			Kind:             core.SpellMod_DamageDone_Pct,
+			DefenseType:      core.DefenseTypeMelee,
+			MultiplierSchool: core.SpellSchool(miscAllSchools &^ e.Misc),
+		}, v/100)
+		return p.whileEquipped(scope.Equip(), combined(a.kind+"+"+melee.kind, a, melee))
 	},
 	dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN: func(p *parser, e *Effect, v float64) *attachment {
-		return p.schoolMultiplier("damage-taken", "DamageTakenMultiplier", e.Misc, percentMultiplier(v),
+		return p.schoolMultiplier("damage-taken", "DamageTakenMultiplier", e.Misc, core.MultiplierFromPercent(v),
 			&p.unit.PseudoStats.DamageTakenMultiplier, &p.unit.PseudoStats.SchoolDamageTakenMultiplier)
 	},
 
@@ -154,13 +181,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		}
 		switch {
 		case e.Misc&miscAllSchools == miscAllSchools:
-			a := &attachment{kind: "damage-taken-flat", value: v, parts: []*attachment{physical(), spell()}}
-			a.set = func(sim *core.Simulation, level float64) {
-				for _, part := range a.parts {
-					part.set(sim, level)
-				}
-			}
-			return a
+			return combined("damage-taken-flat", physical(), spell())
 		case e.Misc&int32(core.SpellSchoolPhysical) != 0:
 			return physical()
 		case e.Misc&miscMagicSchool == miscMagicSchool:
@@ -173,7 +194,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// flat ranged amount reaches physical ranged attacks, and a mask without physical has no field.
 	dbcenums.A_MOD_MELEE_DAMAGE_TAKEN_PCT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.pseudoMultiplier("melee-damage-taken", "MeleeDamageTakenMultiplier",
-			[]*float64{&p.unit.PseudoStats.MeleeDamageTakenMultiplier}, percentMultiplier(v))
+			[]*float64{&p.unit.PseudoStats.MeleeDamageTakenMultiplier}, core.MultiplierFromPercent(v))
 	},
 	dbcenums.A_MOD_RANGED_DAMAGE_TAKEN: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc&int32(core.SpellSchoolPhysical) == 0 {
@@ -185,7 +206,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 
 	dbcenums.A_MOD_THREAT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.pseudoMultiplier("threat", "ThreatMultiplier", []*float64{&p.unit.PseudoStats.ThreatMultiplier},
-			percentMultiplier(v))
+			core.MultiplierFromPercent(v))
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER: func(p *parser, e *Effect, v float64) *attachment {
@@ -210,47 +231,79 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 			[]*float64{&p.unit.PseudoStats.BonusRangedAttackPower}, v)
 	},
 
-	// The ratings the misc value names as a mask of the game files' combat ratings, by the
-	// combinations the sim keeps one stat for.
+	// The ratings the misc value names as a mask of the game files' combat ratings, by the combinations
+	// the sim keeps one stat for. A row that names the weapon it needs, and a mask of ranged bits
+	// alone, hold for some attacks only, and become the percent the rating is worth on them.
 	dbcenums.A_MOD_RATING: func(p *parser, e *Effect, v float64) *attachment {
-		return p.statsBuff(ratingStats(e.Misc), v)
+		rule, scope, ok := p.weaponScope(e)
+		if !ok {
+			return nil
+		}
+		switch rule {
+		case WeaponRulePerWeapon, WeaponRuleRangedRatings:
+			return p.scopedRatings(e.Misc, scope, v)
+		}
+		return p.statsBuff(RatingStats(e.Misc), v)
 	},
 
 	dbcenums.A_MOD_STAT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.statsBuff(clientStatList(e.Misc), v)
 	},
 	dbcenums.A_MOD_PERCENT_STAT:          percentStatRow,
-	dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE: percentStatRow,
+	dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE: totalStatPercentRow,
 
-	// Hit and crit, which the sim states in percentage points the way the game files do.
+	// Hit and crit, which the sim states in percentage points the way the game files do. A row that
+	// names the weapon it needs is a mod on the attacks made with that weapon, except an A_MOD_CRIT_PCT
+	// whose weapons are not ranged alone: that is crit on every spell and attack while one is equipped.
 	dbcenums.A_MOD_HIT_CHANCE: func(p *parser, e *Effect, v float64) *attachment {
+		if rule, scope, ok := p.weaponScope(e); !ok {
+			return nil
+		} else if rule == WeaponRulePerWeapon {
+			return p.scopedMod("SpellMod_BonusHit_Percent", core.SpellMod_BonusHit_Percent, scope, v)
+		}
 		return p.statBuff(stats.PhysicalHitPercent, v)
 	},
 	dbcenums.A_MOD_SPELL_HIT_CHANCE: func(p *parser, e *Effect, v float64) *attachment {
 		return p.statBuff(stats.SpellHitPercent, v)
 	},
 	dbcenums.A_MOD_WEAPON_CRIT_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
+		if rule, scope, ok := p.weaponScope(e); !ok {
+			return nil
+		} else if rule == WeaponRulePerWeapon {
+			return p.scopedMod("SpellMod_BonusCrit_Percent", core.SpellMod_BonusCrit_Percent, scope, v)
+		}
 		return p.statBuff(stats.PhysicalCritPercent, v)
 	},
 	dbcenums.A_MOD_SPELL_CRIT_CHANCE: func(p *parser, e *Effect, v float64) *attachment {
 		return p.statBuff(stats.SpellCritPercent, v)
 	},
 	dbcenums.A_MOD_CRIT_PCT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.statsBuff([]stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent}, v)
+		crit := []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent}
+		rule, scope, ok := p.weaponScope(e)
+		if !ok {
+			return nil
+		}
+		switch rule {
+		case WeaponRulePerWeapon:
+			return p.scopedMod("SpellMod_BonusCrit_Percent", core.SpellMod_BonusCrit_Percent, scope, v)
+		case WeaponRuleWhileEquipped:
+			return p.statsWhileEquipped(crit, v, scope.Equip())
+		}
+		return p.statsBuff(crit, v)
 	},
 
 	// The haste auras. Each multiplies a speed the unit recomputes, so each needs the Simulation an
 	// aura's gain hands over. Melee and ranged speed together is the sim's attack speed.
 	dbcenums.A_MOD_CASTING_SPEED_NOT_STACK: func(p *parser, e *Effect, v float64) *attachment {
-		return p.speed("cast-speed", "CastSpeedMultiplier", (*core.Unit).MultiplyCastSpeed, speedMultiplier(v))
+		return p.speed("cast-speed", "CastSpeedMultiplier", (*core.Unit).MultiplyCastSpeed, core.SymmetricMultiplierFromPercent(v))
 	},
 	dbcenums.A_MOD_MELEE_HASTE_3: func(p *parser, e *Effect, v float64) *attachment {
-		return p.speed("melee-speed", "MeleeSpeedMultiplier", (*core.Unit).MultiplyMeleeSpeed, speedMultiplier(v))
+		return p.speed("melee-speed", "MeleeSpeedMultiplier", (*core.Unit).MultiplyMeleeSpeed, core.SymmetricMultiplierFromPercent(v))
 	},
 	dbcenums.A_MOD_ATTACKSPEED:          attackSpeedRow,
 	dbcenums.A_MOD_MELEE_RANGED_HASTE_2: attackSpeedRow,
 	dbcenums.A_MOD_RANGED_HASTE: func(p *parser, e *Effect, v float64) *attachment {
-		return p.speed("ranged-speed", "RangedSpeedMultiplier", (*core.Unit).MultiplyRangedSpeed, speedMultiplier(v))
+		return p.speed("ranged-speed", "RangedSpeedMultiplier", (*core.Unit).MultiplyRangedSpeed, core.SymmetricMultiplierFromPercent(v))
 	},
 
 	// Healing. 135 is the flat bonus to healing done, 136 the multiplier on it, and 118 the
@@ -260,11 +313,11 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	},
 	dbcenums.A_MOD_HEALING_DONE_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.pseudoMultiplier("healing-dealt", "HealingDealtMultiplier",
-			[]*float64{&p.unit.PseudoStats.HealingDealtMultiplier}, percentMultiplier(v))
+			[]*float64{&p.unit.PseudoStats.HealingDealtMultiplier}, core.MultiplierFromPercent(v))
 	},
 	dbcenums.A_MOD_HEALING_PCT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.pseudoMultiplier("healing-taken", "HealingTakenMultiplier",
-			[]*float64{&p.unit.PseudoStats.HealingTakenMultiplier}, percentMultiplier(v))
+			[]*float64{&p.unit.PseudoStats.HealingTakenMultiplier}, core.MultiplierFromPercent(v))
 	},
 	dbcenums.A_MOD_HEALING: func(p *parser, e *Effect, v float64) *attachment {
 		return p.pseudoAdd("healing-taken-flat", "BonusHealingTaken", []*float64{&p.unit.PseudoStats.BonusHealingTaken}, v)
@@ -294,13 +347,13 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		switch e.Misc {
 		case int32(dbcenums.POWER_MANA):
 			return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier",
-				[]*float64{&p.unit.PseudoStats.SpiritRegenMultiplier}, percentMultiplier(v)))
+				[]*float64{&p.unit.PseudoStats.SpiritRegenMultiplier}, core.MultiplierFromPercent(v)))
 		case int32(dbcenums.POWER_ENERGY):
 			if !p.unit.HasEnergyBar() {
 				return nil
 			}
 			return p.speed("energy-regen", "EnergyRegenMultiplier", (*core.Unit).MultiplyEnergyRegenSpeed,
-				percentMultiplier(v))
+				core.MultiplierFromPercent(v))
 		}
 		return nil
 	},
@@ -311,7 +364,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_INCREASE_HEALTH: flatHealthRow,
 	dbcenums.A_MOD_MAX_HEALTH:      flatHealthRow,
 	dbcenums.A_MOD_INCREASE_HEALTH_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.statMultiplier([]stats.Stat{stats.Health}, percentMultiplier(v))
+		return p.statMultiplier([]stats.Stat{stats.Health}, core.MultiplierFromPercent(v))
 	},
 
 	// Armor is school 1 of the resistance aura; the other bits are the five magic resistances.
@@ -325,7 +378,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		if e.Misc&miscArmor == 0 {
 			return nil
 		}
-		return p.equipScaling(stats.Armor, percentMultiplier(v))
+		return p.equipScaling(stats.Armor, core.MultiplierFromPercent(v))
 	},
 	// The resistance percentage multiplies the whole of the stat. Armor alone is taken: no row states
 	// it for a magic resistance.
@@ -333,7 +386,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		if e.Misc != miscArmor {
 			return nil
 		}
-		return p.statMultiplier([]stats.Stat{stats.Armor}, percentMultiplier(v))
+		return p.statMultiplier([]stats.Stat{stats.Armor}, core.MultiplierFromPercent(v))
 	},
 
 	// Armor, attack power, spell damage and healing worth a share of a stat. The spell damage aura names
@@ -354,12 +407,12 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		if e.Misc != int32(dbcenums.POWER_MANA) {
 			return nil
 		}
-		return p.statMultiplier([]stats.Stat{stats.Mana}, percentMultiplier(v))
+		return p.statMultiplier([]stats.Stat{stats.Mana}, core.MultiplierFromPercent(v))
 	},
 
 	dbcenums.A_MOD_BLOCK_VALUE_PCT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.pseudoMultiplier("block-value", "BlockValueMultiplier",
-			[]*float64{&p.unit.PseudoStats.BlockValueMultiplier}, percentMultiplier(v))
+			[]*float64{&p.unit.PseudoStats.BlockValueMultiplier}, core.MultiplierFromPercent(v))
 	},
 
 	// The chance to be hit by melee, which the sim keeps in percentage points as a reduction that
@@ -451,10 +504,10 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		switch e.Misc {
 		case int32(dbcenums.MECHANIC_FEAR):
 			return p.pseudoMultiplier("fear-duration", "FearDurationMultiplier",
-				[]*float64{&p.unit.PseudoStats.FearDurationMultiplier}, percentMultiplier(v))
+				[]*float64{&p.unit.PseudoStats.FearDurationMultiplier}, core.MultiplierFromPercent(v))
 		case int32(dbcenums.MECHANIC_STUN):
 			return p.pseudoMultiplier("stun-duration", "StunDurationMultiplier",
-				[]*float64{&p.unit.PseudoStats.StunDurationMultiplier}, percentMultiplier(v))
+				[]*float64{&p.unit.PseudoStats.StunDurationMultiplier}, core.MultiplierFromPercent(v))
 		}
 		return nil
 	},
@@ -496,7 +549,7 @@ var flatModTable = map[dbcenums.SpellModOp]row{
 		return p.modInt("SpellMod_BuffMaxStacks_Flat", p.modConfig(e, core.SpellMod_BuffMaxStacks_Flat), v)
 	},
 	dbcenums.SPELLMOD_RANGE: func(p *parser, e *Effect, v float64) *attachment {
-		return p.modFloat("SpellMod_Range_Flat", p.modConfig(e, core.SpellMod_Range_Flat), v)
+		return p.rangeMod("SpellMod_Range_Flat", p.modConfig(e, core.SpellMod_Range_Flat), v)
 	},
 	// The chance of the procs the class mask names, in percentage points: the rows the mask names are
 	// the proc auras themselves, and a trigger built from one rolls at the raised chance, wherever it
@@ -544,6 +597,9 @@ var pctModTable = map[dbcenums.SpellModOp]row{
 	},
 	dbcenums.SPELLMOD_GLOBAL_COOLDOWN: func(p *parser, e *Effect, v float64) *attachment {
 		return p.modFloat("SpellMod_GlobalCooldown_Pct", p.modConfig(e, core.SpellMod_GlobalCooldown_Pct), v)
+	},
+	dbcenums.SPELLMOD_RANGE: func(p *parser, e *Effect, v float64) *attachment {
+		return p.rangeMod("SpellMod_Range_Pct", p.modConfig(e, core.SpellMod_Range_Pct), v)
 	},
 	dbcenums.SPELLMOD_EFFECT1: pctEffectAmount,
 	dbcenums.SPELLMOD_EFFECT2: pctEffectAmount,
@@ -643,7 +699,11 @@ func maxPower(kind string, key string, v float64, apply func(sim *core.Simulatio
 }
 
 func percentStatRow(p *parser, e *Effect, v float64) *attachment {
-	return p.statMultiplier(clientStatList(e.Misc), percentMultiplier(v))
+	return p.statMultiplier(clientStatList(e.Misc), core.MultiplierFromPercent(v))
+}
+
+func totalStatPercentRow(p *parser, e *Effect, v float64) *attachment {
+	return p.statMultiplier(e.TotalStatPercentStats(), core.MultiplierFromPercent(v))
 }
 
 // The spells a modifier effect names. The game files leave the mask empty on an effect that means the
@@ -673,6 +733,69 @@ func (p *parser) namesSpell(e *Effect) func(*core.Spell) bool {
 	}
 }
 
+// WeaponScope, narrowed to the hand OnHand names for a row bound to a weapon. Answers false for a row
+// that hand cannot carry.
+func (p *parser) weaponScope(e *Effect) (WeaponRule, core.SpellModConfig, bool) {
+	rule, scope := WeaponScope(p.spell, e)
+	if p.hand == 0 || (rule != WeaponRulePerWeapon && rule != WeaponRuleWhileEquipped) {
+		return rule, scope, true
+	}
+
+	hand := p.hand
+	if scope.EquipHand != 0 {
+		hand &= scope.EquipHand
+	}
+	scope.EquipHand = hand
+	if rule == WeaponRulePerWeapon {
+		scope.ProcMask &= hand
+	}
+	return rule, scope, scope.EquipHand != 0 && (rule != WeaponRulePerWeapon || scope.ProcMask != 0)
+}
+
+func (p *parser) scopedMod(kind string, modKind core.SpellModType, scope core.SpellModConfig, v float64) *attachment {
+	scope.Kind = modKind
+	return p.modFloat(kind, scope, v)
+}
+
+// The hit and crit a weapon-bound or ranged-only rating mask names, as mods on the attacks the scope
+// reaches. Its haste has no mod that reaches some attacks and not others, so the parse leaves it
+// unread, and the other ratings too.
+func (p *parser) scopedRatings(mask int32, scope core.SpellModConfig, v float64) *attachment {
+	scope.FromRating = true
+	var parts []*attachment
+	for _, rating := range ScopedRatingPercents(mask, v) {
+		switch rating.Stat {
+		case stats.HitRating:
+			parts = append(parts, p.scopedMod("SpellMod_BonusHit_Percent", core.SpellMod_BonusHit_Percent, scope, rating.Percent))
+		case stats.CritRating:
+			parts = append(parts, p.scopedMod("SpellMod_BonusCrit_Percent", core.SpellMod_BonusCrit_Percent, scope, rating.Percent))
+		}
+	}
+
+	switch len(parts) {
+	case 0:
+		return nil
+	case 1:
+		return parts[0]
+	}
+	kinds := make([]string, len(parts))
+	for i, part := range parts {
+		kinds[i] = part.kind
+	}
+	return combined(strings.Join(kinds, "+"), parts...)
+}
+
+// One attachment for parts that apply together, its value the first part's.
+func combined(kind string, parts ...*attachment) *attachment {
+	a := &attachment{kind: kind, value: parts[0].value, parts: parts}
+	a.set = func(sim *core.Simulation, level float64) {
+		for _, part := range a.parts {
+			part.set(sim, level)
+		}
+	}
+	return a
+}
+
 // A spell mod the parse turns on and off. AddDynamicMod rather than AddStaticMod even on a passive:
 // a mod that can be switched off is what lets an expiring aura and a conditional share one path.
 func (p *parser) mod(kind string, cfg core.SpellModConfig, value float64, scale func(*core.SpellMod, float64)) *attachment {
@@ -698,6 +821,23 @@ func (p *parser) modFloat(kind string, cfg core.SpellModConfig, v float64) *atta
 	return p.mod(kind, cfg, v, func(mod *core.SpellMod, level float64) {
 		mod.UpdateFloatValue(v * level)
 	})
+}
+
+// A range mod moves the ranged auto attack's reach with it, so the auto attack checks its range again
+// whenever the mod turns on or off.
+func (p *parser) rangeMod(kind string, cfg core.SpellModConfig, v float64) *attachment {
+	a := p.modFloat(kind, cfg, v)
+	if a.set == nil {
+		return a
+	}
+	set := a.set
+	a.set = func(sim *core.Simulation, level float64) {
+		set(sim, level)
+		if sim != nil {
+			p.unit.AutoAttacks.UpdateRangedRange(sim)
+		}
+	}
+	return a
 }
 
 func (p *parser) modInt(kind string, cfg core.SpellModConfig, v float64) *attachment {
@@ -752,8 +892,37 @@ func (p *parser) statsBuff(sts []stats.Stat, v float64) *attachment {
 	return a
 }
 
+// Flat stats that hold only while a weapon meeting the requirement is equipped, as well as while the
+// parse is on. They follow item swaps. A unit with no character wears no weapon, so the row is skipped
+// there.
+func (p *parser) statsWhileEquipped(sts []stats.Stat, v float64, req core.EquipRequirement) *attachment {
+	if p.character == nil && !p.dry {
+		return nil
+	}
+
+	a := &attachment{kind: "stat-while-equipped " + statNames(sts), value: v, stats: sts}
+	var gated *core.EquipGatedStats
+	if !p.dry {
+		bonus := stats.Stats{}
+		for _, stat := range sts {
+			bonus[stat] = v
+		}
+		gated = p.character.NewEquipGatedStats(req, bonus)
+		a.set = gated.SetLevel
+	}
+	for _, stat := range sts {
+		part := &attachment{kind: "stat-while-equipped " + stat.StatName(), value: v, stats: []stats.Stat{stat},
+			key: stat.StatName(), stat: stat, statBid: true}
+		if gated != nil {
+			part.set = func(sim *core.Simulation, level float64) { gated.SetStatLevel(sim, stat, level) }
+		}
+		a.parts = append(a.parts, part)
+	}
+	return a
+}
+
 func attackSpeedRow(p *parser, _ *Effect, v float64) *attachment {
-	return p.speed("attack-speed", "AttackSpeedMultiplier", (*core.Unit).MultiplyAttackSpeed, speedMultiplier(v))
+	return p.speed("attack-speed", "AttackSpeedMultiplier", (*core.Unit).MultiplyAttackSpeed, core.SymmetricMultiplierFromPercent(v))
 }
 
 // Flat health. The bear forms state it on A_MOD_MAX_HEALTH, where Last Stand states a percentage,
@@ -809,7 +978,7 @@ func critDamageVersusRow(p *parser, e *Effect, v float64) *attachment {
 // second stack multiplies again is not stated, so a stacking row is skipped.
 func (p *parser) versusMultiplier(kind string, key string, e *Effect, v float64, multiply func(mult float64, mobTypes ...proto.MobType)) *attachment {
 	mobTypes := MobTypes(e.Misc)
-	mult := percentMultiplier(v)
+	mult := core.MultiplierFromPercent(v)
 	if p.stacking || len(mobTypes) == 0 || mult <= 0 {
 		return nil
 	}
@@ -857,16 +1026,17 @@ func (p *parser) statMultiplier(sts []stats.Stat, mult float64) *attachment {
 	}
 
 	a := &attachment{kind: "multiply-stat " + statNames(sts), value: mult, multiplicative: true, stats: sts}
+	for _, stat := range sts {
+		a.parts = append(a.parts, &attachment{kind: "multiply-stat " + stat.StatName(), value: mult, multiplicative: true,
+			key: stat.StatName(), stat: stat, statBid: true})
+	}
 	return p.dependencies(a, func() {
 		for _, stat := range sts {
 			p.unit.MultiplyStat(stat, mult)
 		}
 	}, func() (toggles []func(sim *core.Simulation, level float64)) {
-		for _, stat := range sts {
-			part := &attachment{kind: "multiply-stat " + stat.StatName(), value: mult, multiplicative: true,
-				key: stat.StatName(), stat: stat, statBid: true,
-				set: p.statDependency(p.unit.NewDynamicMultiplyStat(stat, mult))}
-			a.parts = append(a.parts, part)
+		for _, part := range a.parts {
+			part.set = p.statDependency(p.unit.NewDynamicMultiplyStat(part.stat, mult))
 			toggles = append(toggles, part.set)
 		}
 		return toggles
@@ -1077,6 +1247,24 @@ func multiplier(kind string, mult float64, apply func(sim *core.Simulation, fact
 	}}
 }
 
+// The attachment, or each of its parts, holds only while a weapon meeting the requirement is equipped,
+// as well as while the parse is on, and follows item swaps. The row's caller checks that there is a
+// character to wear the weapon.
+func (p *parser) whileEquipped(req core.EquipRequirement, a *attachment) *attachment {
+	if p.dry {
+		return a
+	}
+
+	gated := a.parts
+	if len(gated) == 0 {
+		gated = []*attachment{a}
+	}
+	for _, g := range gated {
+		g.set = p.character.NewEquipGate(req, g.set).SetLevel
+	}
+	return a
+}
+
 // The damage multipliers the sim keeps once for everything and once per school: the game files'
 // mask of every school is the first, and a narrower mask is the second, once per school bit it
 // names.
@@ -1095,20 +1283,6 @@ func (p *parser) schoolMultiplier(kind string, key string, mask int32, mult floa
 	return p.pseudoMultiplier(kind+"-by-school", "School"+key, fields, mult)
 }
 
-// The game files state a percentage as an integer, and its sign comes from the data: a -6 is 0.94.
-// A speed the game files state as a percentage. A negative one is a slow, which makes the time between
-// attacks or the cast time that much longer rather than taking that share off the speed.
-func speedMultiplier(v float64) float64 {
-	if v < 0 {
-		return 1 / core.SlowedTimeMultiplier(v)
-	}
-	return 1 + v/100
-}
-
-func percentMultiplier(v float64) float64 {
-	return 1 + v/100
-}
-
 // The stats a game files stat index names: -1 is all five, and 0 through 4 are one of them.
 func clientStatList(misc int32) []stats.Stat {
 	if misc == miscAllStats {
@@ -1118,6 +1292,27 @@ func clientStatList(misc int32) []stats.Stat {
 		return nil
 	}
 	return []stats.Stat{clientStats[misc]}
+}
+
+// The stats a game files stat mask names, one bit per stat index.
+func statMaskList(mask int32) []stats.Stat {
+	var statList []stats.Stat
+	for i, stat := range clientStats {
+		if mask&(1<<i) != 0 {
+			statList = append(statList, stat)
+		}
+	}
+	return statList
+}
+
+// The stats an A_MOD_TOTAL_STAT_PERCENTAGE effect multiplies. A mask in the second misc value, where
+// there is one, names them, and the first then does not: Heart of the Wild 17003 states 0 and 8,
+// Intellect, and Vitality 29140 states 2 and 5, Strength and Stamina.
+func (e *Effect) TotalStatPercentStats() []stats.Stat {
+	if e.Misc2 != 0 {
+		return statMaskList(e.Misc2)
+	}
+	return clientStatList(e.Misc)
 }
 
 // The stats a flat damage mask names: the sim keeps one stat for physical damage and one for magic,
@@ -1154,31 +1349,30 @@ func resistanceStats(mask int32) []stats.Stat {
 	return out
 }
 
-// The rating a combat rating mask names. The sim keeps one stat for melee and ranged together, so the
-// masks that name both read as the melee stat, as does melee crit alone, 256, and a mask of ranged
-// alone has none.
-func ratingStats(mask int32) []stats.Stat {
-	switch mask {
-	case 2:
-		return []stats.Stat{stats.DefenseRating}
-	case 4:
-		return []stats.Stat{stats.DodgeRating}
-	case 8:
-		return []stats.Stat{stats.ParryRating}
-	case 16:
-		return []stats.Stat{stats.BlockRating}
-	case 96:
-		return []stats.Stat{stats.MeleeHitRating}
-	case 128:
-		return []stats.Stat{stats.SpellHitRating}
-	case 256, 768:
-		return []stats.Stat{stats.MeleeCritRating}
-	case 1024:
-		return []stats.Stat{stats.SpellCritRating}
-	case 131072, 393216, 524288:
-		return []stats.Stat{stats.MeleeHasteRating}
+// The ratings a combat rating mask names, read bit by bit, so a mask naming several ratings gives each
+// of them. One rating feeds melee, ranged and spells alike, so its melee and spell bits name the same
+// stat. The ranged bits are not read: beside the melee or spell bit of the same rating they add
+// nothing, and a mask of them alone is a ranged row, which ScopedRatingStats reads.
+func RatingStats(mask int32) []stats.Stat {
+	var out []stats.Stat
+	for _, rating := range []struct {
+		bits int32
+		stat stats.Stat
+	}{
+		{dbcenums.RATING_MOD_DEFENSE, stats.DefenseRating},
+		{dbcenums.RATING_MOD_DODGE, stats.DodgeRating},
+		{dbcenums.RATING_MOD_PARRY, stats.ParryRating},
+		{dbcenums.RATING_MOD_BLOCK, stats.BlockRating},
+		{dbcenums.RATING_MOD_HIT_MELEE | dbcenums.RATING_MOD_HIT_SPELL, stats.HitRating},
+		{dbcenums.RATING_MOD_CRIT_MELEE | dbcenums.RATING_MOD_CRIT_SPELL, stats.CritRating},
+		{dbcenums.RATING_MOD_HASTE_MELEE | dbcenums.RATING_MOD_HASTE_SPELL, stats.HasteRating},
+		{dbcenums.RATING_MOD_EXPERTISE, stats.ExpertiseRating},
+	} {
+		if mask&rating.bits != 0 {
+			out = append(out, rating.stat)
+		}
 	}
-	return nil
+	return out
 }
 
 // The school bits a mask names, as the positions the sim's per-school arrays index by.

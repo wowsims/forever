@@ -59,7 +59,7 @@ export const ResourceMetricsTable = () => {
 	);
 
 	return (
-		<div data-testid="resource-metrics-root">
+		<>
 			{orderedResourceTypes.map(resourceType => (
 				<ResourceMetricsSection
 					key={resourceType}
@@ -69,6 +69,6 @@ export const ResourceMetricsTable = () => {
 					resultData={resultData}
 				/>
 			))}
-		</div>
+		</>
 	);
 };

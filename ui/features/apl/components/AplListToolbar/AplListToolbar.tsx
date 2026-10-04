@@ -7,7 +7,7 @@ import { Toolbar, ToolbarButton } from '@ui-kit/Toolbar';
 import clsx from 'clsx';
 import { useState } from 'react';
 
-export interface AplListToolbarProps {
+export interface AplListToolbarViewProps {
 	/** Names the thing the button creates, e.g. "Action" or "Variable". */
 	itemName: string;
 	/**
@@ -19,14 +19,14 @@ export interface AplListToolbarProps {
 		existingNames: () => Array<string>;
 	};
 	onCreate: (name?: string) => void;
+	onReset: () => void;
 	className?: string;
 }
 
 /**
  * The sticky "new / reset" bar under an APL list.
  */
-export const AplListToolbar = ({ itemName, nameDialog, onCreate, className }: AplListToolbarProps) => {
-	const host = useSimHost();
+export const AplListToolbarView = ({ itemName, nameDialog, onCreate, onReset, className }: AplListToolbarViewProps) => {
 	const newLabel = i18n.t('rotation_tab.apl.floatingActionBar.new', { itemName });
 	const { ref: rootRef, stuck } = useStickyBottom<HTMLDivElement>();
 	const [naming, setNaming] = useState(false);
@@ -35,17 +35,17 @@ export const AplListToolbar = ({ itemName, nameDialog, onCreate, className }: Ap
 		<Toolbar
 			ref={rootRef}
 			className={clsx(
-				'sticky bottom-0 mt-3 flex items-center border-0 border-border transition-[padding,border-width,background-color] duration-150 ease-in-out data-stuck:border data-stuck:bg-background data-stuck:p-2',
+				'sticky bottom-0 mt-2 flex items-center border-0 border-border transition-[padding,border-width,background-color] duration-150 ease-in-out data-stuck:border data-stuck:bg-background data-stuck:p-2',
 				className,
 			)}
 			testId="apl-floating-action-bar-root"
 			data-stuck={stuck ? '' : undefined}>
 			<ToolbarButton variant="primary" onClick={() => (nameDialog ? setNaming(true) : onCreate())}>
-				<Icon name="plus" className="mr-2" />
+				<Icon name="plus" />
 				{newLabel}
 			</ToolbarButton>
-			<ToolbarButton variant="link-danger" size="sm" className="ml-auto" onClick={() => host.applyEmptyAplRotation()}>
-				<Icon name="times" className="mr-1" />
+			<ToolbarButton variant="link-danger" size="sm" className="ml-auto" onClick={onReset}>
+				<Icon name="xmark" />
 				{i18n.t('rotation_tab.apl.floatingActionBar.reset')}
 			</ToolbarButton>
 			{nameDialog && (
@@ -60,4 +60,11 @@ export const AplListToolbar = ({ itemName, nameDialog, onCreate, className }: Ap
 			)}
 		</Toolbar>
 	);
+};
+
+export type AplListToolbarProps = Omit<AplListToolbarViewProps, 'onReset'>;
+
+export const AplListToolbar = (props: AplListToolbarProps) => {
+	const host = useSimHost();
+	return <AplListToolbarView {...props} onReset={() => host.applyEmptyAplRotation()} />;
 };

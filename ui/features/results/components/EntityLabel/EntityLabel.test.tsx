@@ -7,18 +7,16 @@ import { EntityLabel } from './EntityLabel';
 const entity = (extra: Partial<Entity>) => ({ name: 'Warrior', ownerName: '', index: 0, isTarget: false, isPet: false, ...extra }) as Entity;
 
 describe('EntityLabel', () => {
-	it('numbers a player from one and paints it with the player colour', () => {
+	it('numbers a player from one', () => {
 		const { container } = render(<EntityLabel entity={entity({ name: 'Warrior', index: 2 })} />);
 
 		expect(container.textContent).toBe('[Warrior 3]');
-		expect(container.querySelector('span')!.classList.contains('text-primary')).toBe(true);
 	});
 
-	it('names a target by number rather than by name, in the danger colour', () => {
+	it('names a target by number rather than by name', () => {
 		const { container } = render(<EntityLabel entity={entity({ name: 'Boss', index: 0, isTarget: true })} />);
 
 		expect(container.textContent).toBe('[Target 1]');
-		expect(container.querySelector('span')!.classList.contains('text-danger')).toBe(true);
 	});
 
 	// A pet's bracket carries its owner, and the pet's own name sits outside it unstyled.

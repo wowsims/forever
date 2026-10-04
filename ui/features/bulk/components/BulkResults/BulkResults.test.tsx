@@ -29,7 +29,7 @@ const mount = () => {
 	const host = { player, sim: player.sim } as never;
 	return render(
 		<SimHostProvider host={host}>
-			<BulkResults />
+			<BulkResults onActivateTab={() => {}} />
 		</SimHostProvider>,
 	);
 };

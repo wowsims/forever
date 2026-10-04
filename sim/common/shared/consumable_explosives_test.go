@@ -106,7 +106,7 @@ func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 	for i, target := range sim.Encounter.ActiveTargetUnits {
 		d := sapper.SpellMetrics[target.UnitIndex].TotalDamage
 		dealt = append(dealt, d)
-		if low, high := enemy.Min(core.CharacterLevel), enemy.Max(core.CharacterLevel); d < low || d > high {
+		if low, high := enemy.Min(), enemy.Max(); d < low || d > high {
 			t.Errorf("target %d took %v, want one roll of %v to %v", i, d, low, high)
 		}
 	}
@@ -115,7 +115,7 @@ func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 	}
 
 	took := health - caster.CurrentHealth()
-	if low, high := thrower.Min(core.CharacterLevel), thrower.Max(core.CharacterLevel); low != 375 || high != 625 || took < low || took > high {
+	if low, high := thrower.Min(), thrower.Max(); low != 375 || high != 625 || took < low || took > high {
 		t.Errorf("the thrower took %v, want one roll of 375 to 625 (the row reads %v to %v)", took, low, high)
 	}
 }
@@ -211,8 +211,8 @@ func TestSapperAlwaysHitsTheThrower(t *testing.T) {
 		if !sapper.Cast(sim, target) {
 			t.Fatalf("the sapper could not be used")
 		}
-		if took := health - caster.CurrentHealth(); took < thrower.Min(core.CharacterLevel) {
-			t.Errorf("the thrower took %v, want at least %v", took, thrower.Min(core.CharacterLevel))
+		if took := health - caster.CurrentHealth(); took < thrower.Min() {
+			t.Errorf("the thrower took %v, want at least %v", took, thrower.Min())
 		}
 		caster.GainHealth(sim, caster.MaxHealth(), self.HealthMetrics(&caster.Unit))
 	}

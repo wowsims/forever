@@ -1,7 +1,6 @@
-import { SimHostProvider } from '@sim/context/SimHostContext';
 import { PlayerSpecs } from '@sim/player/specs/index';
-import { fakeHost, mockSubscriptions } from '@sim/testing';
-import { render } from '@testing-library/react';
+import { renderWithHost } from '@testing/react';
+import { mockSubscriptions } from '@testing/sim/subscriptions';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimResultData } from '../../model/result_data';
@@ -12,10 +11,6 @@ vi.mock('@sim/state/subscriptions', async () => mockSubscriptions());
 let result: SimResultData | null = null;
 
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
-
-const host = fakeHost({
-	sim: { getShowDamageMetrics: () => true, getShowThreatMetrics: () => true, getShowHealingMetrics: () => true } as never,
-});
 
 const dist = (avg: number, stdev = 0) => ({ avg, stdev });
 
@@ -50,7 +45,8 @@ beforeEach(() => {
 	result = null;
 });
 
-const mount = () => render(<SimHostProvider host={host}>{<ToplineResults />}</SimHostProvider>);
+const mount = () =>
+	renderWithHost(<ToplineResults />, { sim: { getShowDamageMetrics: () => true, getShowThreatMetrics: () => true, getShowHealingMetrics: () => true } });
 
 describe('ToplineResults', () => {
 	it('renders an empty root before the first run', () => {
@@ -65,8 +61,6 @@ describe('ToplineResults', () => {
 		result = resultFor(PlayerSpecs.Mage);
 		const { container } = mount();
 
-		expect(container.querySelectorAll('[data-testid="topline-results-root"] > table[data-testid="metrics-table"]')).toHaveLength(1);
-		expect(container.querySelectorAll('[data-testid="topline-results-root"] > *')).toHaveLength(1);
 		expect([...container.querySelectorAll('th')].map(cell => cell.getAttribute('data-metric'))).toEqual([
 			'dps',
 			'tps',

@@ -5,22 +5,116 @@ import { BulkSimItemSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { usePlayer, useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { Accordion, AccordionItem } from '@ui-kit/Accordion';
-import { BooleanPicker } from '@ui-kit/BooleanPicker';
+import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
-import { EnumPicker } from '@ui-kit/EnumPicker';
+import { ChoiceField, type ChoiceFieldProps } from '@ui-kit/ChoiceField';
+import { RunCard } from '@ui-kit/RunCard';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
-import { useEffect } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
-import { trackEvent } from '../../../../tracking/utils';
 import { BULK_SETTINGS_GROUP, useBulkSettingsGroups } from '../../hooks/useBulkSettingsGroups';
 import { useBulkState } from '../../hooks/useBulkState';
 import { bulkCombinationsLimit } from '../../model/limits';
 import { frozenItemSlot } from '../../model/picker_groups';
 import { runBulkBatch } from '../../model/run';
 import { canRunBatch } from '../../model/selectors';
-import { setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkUseLegacyBulkSim } from '../../model/settings';
+import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/settings';
+import { BulkEnchants } from '../BulkEnchants';
 import { CombinationsCount } from './CombinationsCount';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
+
+export interface BulkWeaponFreeze {
+	/** The frozen weapon slot, or -1 for none. */
+	value: number;
+	weaponTypes: ReactNode;
+}
+
+export interface BulkSettingsViewProps {
+	combinationsCount: ReactNode;
+	canRun: boolean;
+	onRun: () => void;
+	openGroups: string[];
+	onOpenGroupsChange: (groups: string[]) => void;
+	/** Null for a spec without a reforge optimizer. */
+	reforgeSettings: ReactNode;
+	enchants: ReactNode;
+	frozenItems: ReadonlyArray<ChoiceFieldProps<number>>;
+	/** Null for a player who cannot dual wield. */
+	weaponFreeze: BulkWeaponFreeze | null;
+	onFrozenWeaponSlotChange: (slot: number) => void;
+}
+
+export const BulkSettingsView = ({
+	combinationsCount,
+	canRun,
+	onRun,
+	openGroups,
+	onOpenGroupsChange,
+	reforgeSettings,
+	enchants,
+	frozenItems,
+	weaponFreeze,
+	onFrozenWeaponSlotChange,
+}: BulkSettingsViewProps) => (
+	<TabPanelColumns.Right>
+		<div className="sticky top-sim-header pt-6 lg:max-h-bulk-settings-max-h lg:overflow-y-auto">
+			<Box padding="md" className="grid gap-6 bg-background" testId="bulk-settings-container">
+				<RunCard
+					testId="bulk-run-card"
+					action={
+						<Button className="w-full" data-testid="bulk-settings-btn" disabled={!canRun} onClick={onRun}>
+							{i18n.t('bulk_tab.actions.simulate_batch')}
+						</Button>
+					}>
+					{combinationsCount}
+				</RunCard>
+				<Accordion value={openGroups} onValueChange={onOpenGroupsChange} variant="boxed">
+					{reforgeSettings && (
+						<AccordionItem
+							value={BULK_SETTINGS_GROUP.reforge}
+							title={i18n.t('bulk_tab.settings.groups.reforge')}
+							testId="bulk-settings-group-reforge">
+							<p className="mb-4 text-sm">{i18n.t('bulk_tab.settings.groups.reforge_description')}</p>
+							{reforgeSettings}
+						</AccordionItem>
+					)}
+					<AccordionItem
+						value={BULK_SETTINGS_GROUP.enchants}
+						title={i18n.t('bulk_tab.settings.groups.enchants')}
+						testId="bulk-settings-group-enchants">
+						{enchants}
+					</AccordionItem>
+					<AccordionItem
+						value={BULK_SETTINGS_GROUP.freezes}
+						title={i18n.t('bulk_tab.settings.groups.frozen_slots')}
+						panelClassName="grid gap-4"
+						testId="bulk-settings-group-freezes">
+						{frozenItems.map(props => (
+							<ChoiceField key={props.id} {...props} />
+						))}
+						{weaponFreeze && (
+							<>
+								<ChoiceField
+									id="freeze-weapon"
+									label={i18n.t('bulk_tab.settings.freeze_weapon.label')}
+									labelTooltip={i18n.t('bulk_tab.settings.freeze_weapon.tooltip')}
+									options={[
+										{ value: -1, label: i18n.t('common.none') },
+										{ value: ItemSlot.ItemSlotMainHand, label: i18n.t('slots.main_hand', { ns: 'character' }) },
+										{ value: ItemSlot.ItemSlotOffHand, label: i18n.t('slots.off_hand', { ns: 'character' }) },
+									]}
+									value={weaponFreeze.value}
+									onChange={onFrozenWeaponSlotChange}
+								/>
+								{weaponFreeze.weaponTypes}
+							</>
+						)}
+					</AccordionItem>
+				</Accordion>
+			</Box>
+		</div>
+	</TabPanelColumns.Right>
+);
 
 interface FrozenPair {
 	bulkSlot: BulkSimItemSlot.ItemSlotFinger | BulkSimItemSlot.ItemSlotTrinket;
@@ -52,7 +146,6 @@ export const BulkSettings = () => {
 	const player = usePlayer();
 	const frozenItems = useBulkState(slice => slice.frozenItems);
 	const frozenWeaponSlot = useBulkState(slice => slice.frozenWeaponSlot);
-	const useLegacyBulkSim = useBulkState(slice => slice.useLegacyBulkSim);
 	const canRun = useBulkState(slice => canRunBatch(slice, bulkCombinationsLimit(player.sim.isNative)));
 	const gear = usePlayerStore('gear');
 	const [openGroups, setOpenGroups] = useBulkSettingsGroups();
@@ -66,96 +159,45 @@ export const BulkSettings = () => {
 		}
 	}, [player, gear, frozenItems]);
 
-	const freezeItemConfig = (pair: FrozenPair) => ({
+	const freezeItemProps = (pair: FrozenPair): ChoiceFieldProps<number> => ({
 		id: pair.id,
 		label: i18n.t(`${pair.labelKey}.label`),
 		labelTooltip: i18n.t(`${pair.labelKey}.tooltip`),
-		values: [
-			{ name: i18n.t('common.none'), value: -1 },
-			{ name: i18n.t(pair.slotKeys[0], { ns: 'character' }), value: pair.slots[0] },
-			{ name: i18n.t(pair.slotKeys[1], { ns: 'character' }), value: pair.slots[1] },
+		options: [
+			{ value: -1, label: i18n.t('common.none') },
+			{ value: pair.slots[0], label: i18n.t(pair.slotKeys[0], { ns: 'character' }) },
+			{ value: pair.slots[1], label: i18n.t(pair.slotKeys[1], { ns: 'character' }) },
 		],
 		value: frozenItemSlot(gear, pair.slots, frozenItems.get(pair.bulkSlot)) ?? -1,
 		onChange: (newValue: number) => setBulkFrozenItem(player, pair.bulkSlot, newValue === -1 ? null : player.getGear().getEquippedItem(newValue)),
 	});
 
 	return (
-		<TabPanelColumns.Right>
-			<div className="sticky top-sim-header pt-6 lg:max-h-bulk-settings-max-h lg:overflow-y-auto">
-				<div className="grid gap-6 border border-border bg-background p-4" data-testid="bulk-settings-container">
-					<CombinationsCount />
-					<Button data-testid="bulk-settings-btn" disabled={!canRun} onClick={() => void runBulkBatch(host)}>
-						{i18n.t('bulk_tab.actions.simulate_batch')}
-					</Button>
-					<Accordion value={openGroups} onValueChange={setOpenGroups}>
-						<AccordionItem
-							value={BULK_SETTINGS_GROUP.options}
-							title={i18n.t('bulk_tab.settings.groups.options')}
-							panelClassName="grid gap-6"
-							testId="bulk-settings-group-options">
-							<div>
-								<BooleanPicker
-									modObject={player}
-									config={{
-										id: 'use-legacy-bulk-sim',
-										label: i18n.t('bulk_tab.settings.use_legacy_bulk_sim.label'),
-										labelTooltip: i18n.t('bulk_tab.settings.use_legacy_bulk_sim.tooltip'),
-										layout: 'inline',
-										value: useLegacyBulkSim,
-										onChange: (newValue: boolean) => {
-											setBulkUseLegacyBulkSim(player, newValue);
-											trackEvent({ action: 'settings', category: 'batch_sim', label: 'use_legacy_bulk_sim', value: newValue });
-										},
-									}}
-								/>
-							</div>
-						</AccordionItem>
-						{host.reforger && (
-							<AccordionItem
-								value={BULK_SETTINGS_GROUP.reforge}
-								title={i18n.t('bulk_tab.settings.groups.reforge')}
-								testId="bulk-settings-group-reforge">
-								<p className="mb-4 text-sm">{i18n.t('bulk_tab.settings.groups.reforge_description')}</p>
-								<ReforgeSettingsPanel model={host.reforger} options={host.reforgeOptions ?? undefined} idPrefix="bulk-reforge-optimizer" />
-							</AccordionItem>
-						)}
-						<AccordionItem
-							value={BULK_SETTINGS_GROUP.freezes}
-							title={i18n.t('bulk_tab.settings.groups.frozen_slots')}
-							panelClassName="grid gap-6"
-							testId="bulk-settings-group-freezes">
-							{FROZEN_PAIRS.map(pair => (
-								<div key={pair.id}>
-									<EnumPicker modObject={player} config={freezeItemConfig(pair)} />
-								</div>
-							))}
-							{getBulkPlayerCanDualWield(player) && (
+		<BulkSettingsView
+			combinationsCount={<CombinationsCount />}
+			canRun={canRun}
+			onRun={() => void runBulkBatch(host)}
+			openGroups={openGroups}
+			onOpenGroupsChange={setOpenGroups}
+			reforgeSettings={
+				host.reforger && <ReforgeSettingsPanel model={host.reforger} options={host.reforgeOptions ?? undefined} idPrefix="bulk-reforge-optimizer" />
+			}
+			enchants={<BulkEnchants />}
+			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
+			weaponFreeze={
+				getBulkPlayerCanDualWield(player)
+					? {
+							value: frozenWeaponSlot ?? -1,
+							weaponTypes: (
 								<>
-									<div>
-										<EnumPicker
-											modObject={player}
-											config={{
-												id: 'freeze-weapon',
-												label: i18n.t('bulk_tab.settings.freeze_weapon.label'),
-												labelTooltip: i18n.t('bulk_tab.settings.freeze_weapon.tooltip'),
-												values: [
-													{ name: i18n.t('common.none'), value: -1 },
-													{ name: i18n.t('slots.main_hand', { ns: 'character' }), value: ItemSlot.ItemSlotMainHand },
-													{ name: i18n.t('slots.off_hand', { ns: 'character' }), value: ItemSlot.ItemSlotOffHand },
-												],
-												value: frozenWeaponSlot ?? -1,
-												onChange: (newValue: number) => setBulkFrozenWeaponSlot(player, newValue === -1 ? null : newValue),
-											}}
-										/>
-									</div>
 									<FreezeWeaponTypes slot={ItemSlot.ItemSlotMainHand} />
 									<FreezeWeaponTypes slot={ItemSlot.ItemSlotOffHand} />
 								</>
-							)}
-						</AccordionItem>
-					</Accordion>
-				</div>
-			</div>
-		</TabPanelColumns.Right>
+							),
+						}
+					: null
+			}
+			onFrozenWeaponSlotChange={newValue => setBulkFrozenWeaponSlot(player, newValue === -1 ? null : newValue)}
+		/>
 	);
 };

@@ -1,9 +1,7 @@
+import type { IconEnumPickerConfig, IconPickerConfig, MultiIconPickerConfig } from '@features/inputs/configs';
 import { Class, Stat } from '@generated/proto/common';
 import { Player } from '@sim/player/player';
 import type { IndividualSimHost } from '@sim/sim_host';
-import type { IconEnumPickerConfig } from '@ui-kit/IconEnumPicker/types';
-import type { IconPickerConfig } from '@ui-kit/IconPicker/types';
-import type { MultiIconPickerConfig } from '@ui-kit/MultiIconPicker/types';
 
 export interface StatOption {
 	stats: Array<Stat>;
@@ -33,7 +31,7 @@ export function relevantStatOptions<OptionsType extends PickerStatOptions>(
 	simUI: IndividualSimHost<any>,
 ): StatOptions<OptionsType> {
 	const individualConfig = simUI.individualConfig;
-	const displayStatSet = new Set(individualConfig.displayStats.map(us => (us.hasRootStat() ? us.getRootStat() : us.getPseudoStat())));
+	const displayStatSet = new Set(individualConfig.displayStats.filter(us => us.hasRootStat()).map(us => us.getRootStat()));
 	const listed = (list: ReadonlyArray<unknown>, option: OptionsType) => list.includes(option.config) || option.stats.some(stat => list.includes(stat));
 
 	return options

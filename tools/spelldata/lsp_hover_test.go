@@ -19,7 +19,7 @@ const executeGo = `package warrior
 
 var executeRank = spellData.Execute.Highest()
 
-var executeBaseDamage = executeRank.EffectN(1).Average(core.CharacterLevel)
+var executeBaseDamage = executeRank.EffectN(1).AverageAt(core.CharacterLevel)
 
 var executeDamagePerRage = float64(executeRank.EffectN(1).ChainAmp) * 10
 
@@ -131,7 +131,7 @@ const executeCard = "### 20662 Execute · Rank 5\n" +
 	"| **cost** | 15 rage |\n" +
 	"| **range** | 5 yd |\n" +
 	"| **stance** | Battle, Berserker |\n" +
-	"| **equip** | needs a melee weapon |\n" +
+	"| **equip** | needs a melee weapon in the main hand |\n" +
 	"| **attrs** | refund on miss |\n" +
 	"| **labels** | 25 |\n" +
 	"\n" +
@@ -151,8 +151,8 @@ func TestHoverRankPick(t *testing.T) {
 
 func TestHoverValue(t *testing.T) {
 	markdown := wantHover(t, executeGo, "executeBaseDamage =", 4,
-		"`executeBaseDamage` = **600**\n\n`spellData.Execute.Highest().EffectN(1).Average(60)`",
-		"`spellData.Execute.Highest().EffectN(1).Average(60)`\n\n### 20662 Execute · Rank 5\n",
+		"`executeBaseDamage` = **600**\n\n`spellData.Execute.Highest().EffectN(1).AverageAt(60)`",
+		"`spellData.Execute.Highest().EffectN(1).AverageAt(60)`\n\n### 20662 Execute · Rank 5\n",
 		"| 1 ▶ | a dummy effect holding 600 to the enemy<br>",
 		"| 2 | casts 26651 Execute to the caster<br>")
 	if strings.Contains(markdown, "The amount at a caster level") {
@@ -175,11 +175,11 @@ func TestHoverTalentRank(t *testing.T) {
 	wantHover(t, crueltyGo, "crueltyRank :=", 4,
 		"### 12320 Cruelty · rank 3 of 5\n",
 		"| | Cruelty (rank 3 of 5) |",
-		"| 1 | +3% physical crit<br>`E_APPLY_AURA A_MOD_WEAPON_CRIT_PERCENT base=3 target=[1,0]` |")
+		"| 1 | +3% physical crit, per weapon: only attacks made with a melee weapon<br>`E_APPLY_AURA A_MOD_WEAPON_CRIT_PERCENT base=3 target=[1,0]` |")
 	wantHover(t, crueltyGo, "crueltyCrit :=", 4,
 		"`crueltyCrit` = **3**\n\n`spellData.Cruelty.Rank(3).EffectN(1).BaseValue()`",
 		"### 12320 Cruelty · rank 3 of 5\n",
-		"| 1 ▶ | +3% physical crit<br>")
+		"| 1 ▶ | +3% physical crit, per weapon: only attacks made with a melee weapon<br>")
 	wantHover(t, crueltyGo, "Cruelty.Rank", 3,
 		"### warrior/Cruelty\n",
 		"| 12320 | Cruelty | rank 3 of 5 | `Rank(3)` | effect 1 = 3 |",
@@ -206,13 +206,13 @@ const battleShoutGo = `package warrior
 var battleShoutRank = spellData.BattleShout.Highest()
 
 func (warrior *Warrior) registerBattleShout() {
-	baseAttackPower := battleShoutRank.Effect(dbcenums.A_MOD_ATTACK_POWER, 0).Average(core.CharacterLevel)
+	baseAttackPower := battleShoutRank.Effect(dbcenums.A_MOD_ATTACK_POWER, 0).AverageAt(core.CharacterLevel)
 }
 `
 
 func TestHoverEnumArgument(t *testing.T) {
 	wantHover(t, battleShoutGo, "baseAttackPower :=", 4,
-		"`baseAttackPower` = **139**\n\n`spellData.BattleShout.Highest().Effect(99, 0).Average(60)`",
+		"`baseAttackPower` = **139**\n\n`spellData.BattleShout.Highest().Effect(99, 0).AverageAt(60)`",
 		"| 1 ▶ | +139 attack power to the party around the caster")
 }
 
@@ -241,11 +241,11 @@ func TestHoverSegments(t *testing.T) {
 		"`EffectN(1)` = **effect 1** of 20662 Execute (Rank 5)",
 		"`spellData.Execute.Highest().EffectN(1)`",
 		"---\n| # | effect |\n|--:|:--|\n| 1 ▶ | a dummy effect holding 600 to the enemy<br>`E_DUMMY base=600 sp=1 target=[6,0]` |\n",
-		"`Average(60) = 600`  \n")
+		"`AverageAt(60) = 600`  \n")
 
-	markdown := wantHover(t, executeGo, "Average(core", 2,
-		"`Average(60)` = **600**",
-		"`spellData.Execute.Highest().EffectN(1).Average(60)`",
+	markdown := wantHover(t, executeGo, "AverageAt(core", 2,
+		"`AverageAt(60)` = **600**",
+		"`spellData.Execute.Highest().EffectN(1).AverageAt(60)`",
 		"| 1 ▶ |")
 	// The editor's Go server shows the accessor's doc beside this hover already.
 	if strings.Contains(markdown, "The amount at a caster level") {
@@ -266,9 +266,9 @@ func TestHoverTrace(t *testing.T) {
 		"sim/warrior/execute.go:5:9",
 		"declarations sim/warrior: cache miss",
 		"ident executeBaseDamage",
-		"  executeBaseDamage = executeRank.EffectN(1).Average(core.CharacterLevel)  (sim/warrior/execute.go:5)",
+		"  executeBaseDamage = executeRank.EffectN(1).AverageAt(core.CharacterLevel)  (sim/warrior/execute.go:5)",
 		"  executeRank = spellData.Execute.Highest()  (sim/warrior/execute.go:3)",
-		"expr spellData.Execute.Highest().EffectN(1).Average(core.CharacterLevel)",
+		"expr spellData.Execute.Highest().EffectN(1).AverageAt(core.CharacterLevel)",
 		"✓ 20662 Execute (Rank 5) → effect 1 → 600",
 	}
 	if len(trace) != len(want) {
@@ -319,7 +319,7 @@ func TestDeclarations(t *testing.T) {
 		"// var stubbedRank = spellData.MangleBear.ByID(33987)",
 		"\tconfig := spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(cost))",
 		"\tmaxRage := warrior.MaximumRage() - spell.Cost.GetCurrentCost()",
-		"\tticks := executeRank.EffectN(1).Average(level)",
+		"\tticks := executeRank.EffectN(1).AverageAt(level)",
 		"\tsplit := spellData.Execute.",
 		"\t\tHighest().",
 		"\t\tEffectN(1)",
@@ -376,10 +376,10 @@ func resolveText(text string, decls map[string]declaration) (string, error) {
 func TestResolveChain(t *testing.T) {
 	decls := declared(map[string]string{
 		"executeRank":       "spellData.Execute.Highest()",
-		"executeBaseDamage": "executeRank.EffectN(1).Average(core.CharacterLevel)",
+		"executeBaseDamage": "executeRank.EffectN(1).AverageAt(core.CharacterLevel)",
 	})
 	resolves := map[string]string{
-		"executeBaseDamage":      "spellData.Execute.Highest().EffectN(1).Average(core.CharacterLevel)",
+		"executeBaseDamage":      "spellData.Execute.Highest().EffectN(1).AverageAt(core.CharacterLevel)",
 		"executeRank":            "spellData.Execute.Highest()",
 		"executeRank.EffectN(1)": "spellData.Execute.Highest().EffectN(1)",
 		"Cruelty.Rank(3)":        "spellData.Cruelty.Rank(3)",
@@ -407,11 +407,11 @@ func TestResolveChainGuards(t *testing.T) {
 	deep := declared(map[string]string{
 		"a": "spellData.Execute.Highest()",
 		"b": "a.EffectN(1)",
-		"c": "b.Average(60)",
-		"d": "c.Min(60)",
-		"e": "d.Min(60)",
+		"c": "b.AverageAt(60)",
+		"d": "c.MinAt(60)",
+		"e": "d.MinAt(60)",
 	})
-	if got, err := resolveText("c", deep); got != "spellData.Execute.Highest().EffectN(1).Average(60)" {
+	if got, err := resolveText("c", deep); got != "spellData.Execute.Highest().EffectN(1).AverageAt(60)" {
 		t.Errorf("c resolved to %q, %v", got, err)
 	}
 	if _, err := resolveText("e", deep); err == nil || !strings.Contains(err.Error(), "more than 4 names") {

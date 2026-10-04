@@ -51,10 +51,11 @@ func TestOffHandProcsPerMinuteFallBackToTheMainHand(t *testing.T) {
 
 		dpm := character.newDynamicWeaponProcManager(ppm, 0, ProcMaskMelee)
 		want := ppm * row.wantSpeed / 60
-		if got := dpm.Chance(ProcMaskMeleeOHSpecial, nil); math.Abs(got-want) > 1e-12 {
+		if got, _ := dpm.chanceFor(ProcMaskMeleeOHSpecial, nil); math.Abs(got-want) > 1e-12 {
 			t.Errorf("%s: an off-hand special rolls %v, want %v", row.name, got, want)
 		}
-		if got, wantMH := dpm.Chance(ProcMaskMeleeMHSpecial, nil), ppm*fakeMHSwingSpeed/60; math.Abs(got-wantMH) > 1e-12 {
+		wantMH := ppm * fakeMHSwingSpeed / 60
+		if got, _ := dpm.chanceFor(ProcMaskMeleeMHSpecial, nil); math.Abs(got-wantMH) > 1e-12 {
 			t.Errorf("%s: a main-hand special rolls %v, want %v", row.name, got, wantMH)
 		}
 		if got := character.AutoAttacks.offHandProcSpeed(); got != row.wantSpeed {

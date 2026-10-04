@@ -1,18 +1,20 @@
-import { useApl } from '@features/apl/context/AplContext';
+import { AplProvider, useApl } from '@features/apl/context/AplContext';
 import { useAplInput } from '@features/apl/hooks/useAplInput';
-import { newKindImpl } from '@features/apl/model/field_specs';
+import { valueListGroup } from '@features/apl/model/apply_move';
+import { newKindImpl, resolveField } from '@features/apl/model/field_specs';
 import { valueKindOptions } from '@features/apl/model/kind_options';
 import { swapValueKind } from '@features/apl/model/kind_swap';
+import { pathChoices } from '@features/apl/model/submenus';
 import { type APLValueKind, type ValidAPLValueKind, valueKinds } from '@features/apl/model/value_kinds';
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
+import type { InputConfig } from '@features/inputs/input';
 import type { APLValue } from '@generated/proto/apl';
 import { UUID } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import { randomUUID } from '@sim/utils/misc';
-import { DropdownField, type DropdownOption } from '@ui-kit/DropdownPicker';
-import type { InputConfig } from '@ui-kit/input';
-import { PickerShell } from '@ui-kit/PickerShell';
-import { memo, useEffect, useId, useMemo } from 'react';
+import { Field } from '@ui-kit/Field';
+import { memo, useId, useMemo } from 'react';
 
 import { FieldGroup } from '../FieldGroup';
 
@@ -36,18 +38,24 @@ export const ValuePicker = memo(({ player, config, testId }: ValuePickerProps) =
 	const kindId = useId();
 	const { isPrepull, isGroup, changeSource } = useApl();
 
-	const { value, hidden, disabled, shellConfig } = useAplInput(player, config);
+	const { value, hidden, disabled, frameProps } = useAplInput(player, config);
 	const kind = value?.value.oneofKind;
 
 	// A value loaded from a preset or an import may carry no uuid, and the sim keys its per-value
-	// validations on one. Minting it is a silent write, deliberately without a notification — it
-	// changes nothing the user can see.
-	useEffect(() => {
-		if (value && !value.uuid?.value) value.uuid = UUID.create({ value: randomUUID() });
-	}, [value]);
+	// validations on one, as `valueListGroup` keys this value's operand list. Minting it is a silent
+	// write during render, deliberately without a notification: it changes nothing the user can see,
+	// and the list below reads the group in this same render.
+	if (value && !value.uuid?.value) value.uuid = UUID.create({ value: randomUUID() });
 
-	const options = useMemo<Array<DropdownOption<APLValueKind>>>(
-		() => [{ value: undefined, label: i18n.t('rotation_tab.apl.values.none') }, ...valueKindOptions(player, isPrepull, isGroup)],
+	// An operand list takes the whole line, so its rows lay out by the row's width, not their own.
+	const ownsList = useMemo(() => !!kind && valueKinds[kind].fields.some(field => resolveField(field).kind === 'valueList'), [kind]);
+
+	const choices = useMemo(
+		() =>
+			pathChoices<APLValueKind>(
+				[{ value: undefined, label: i18n.t('rotation_tab.apl.values.none') }, ...valueKindOptions(player, isPrepull, isGroup)],
+				Object.is,
+			),
 		[player, isPrepull, isGroup],
 	);
 
@@ -81,21 +89,26 @@ export const ValuePicker = memo(({ player, config, testId }: ValuePickerProps) =
 		},
 	});
 
+	if (hidden) return null;
 	return (
-		<PickerShell
-			config={shellConfig}
-			className="ui-apl-value-picker-root m-0 flex-row gap-2"
+		<Field
+			{...frameProps}
+			className={['m-0 flex-row items-baseline gap-2', ownsList && 'w-full', frameProps.className]}
 			testId={testId ?? 'apl-value-picker-root'}
-			hidden={hidden}
 			disabled={disabled}>
-			<DropdownField<Player<any>, APLValueKind>
+			<ConnectedChoiceField<Player<any>, APLValueKind>
 				modObject={player}
 				config={kindConfig}
-				options={options}
-				defaultLabel={i18n.t('rotation_tab.apl.values.no_condition')}
-				triggerClassName="p-0"
+				options={choices.options}
+				optionTree={choices.optionTree}
+				variant="link"
+				placeholder={i18n.t('rotation_tab.apl.values.no_condition')}
 			/>
-			{kind && <FieldGroup key={kind} player={player} config={implConfig(kind)} fields={valueKinds[kind].fields} />}
-		</PickerShell>
+			{kind && value && (
+				<AplProvider listGroup={valueListGroup(value)}>
+					<FieldGroup key={kind} player={player} config={implConfig(kind)} fields={valueKinds[kind].fields} />
+				</AplProvider>
+			)}
+		</Field>
 	);
 });

@@ -1,11 +1,11 @@
+import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
+import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
+import type { ChoiceFieldConfig } from '@features/inputs/configs';
 import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import type { Encounter } from '@sim/raid/encounter';
 import { Dialog } from '@ui-kit/Dialog';
-import { EnumPicker } from '@ui-kit/EnumPicker';
-import type { EnumPickerConfig } from '@ui-kit/EnumPicker/types';
-import { NumberPicker } from '@ui-kit/NumberPicker';
-import { PickerGroup } from '@ui-kit/PickerGroup';
+import { FieldGrid } from '@ui-kit/FieldGrid';
 import { useMemo } from 'react';
 
 import { trackEvent } from '../../../../tracking/utils';
@@ -21,12 +21,12 @@ export const AdvancedEncounterModal = ({ open, onOpenChange }: AdvancedEncounter
 	const host = useSimHost();
 	const encounter = host.sim.encounter;
 
-	const presetConfig = useMemo((): EnumPickerConfig<Encounter> => {
+	const presetConfig = useMemo((): ChoiceFieldConfig<Encounter> => {
 		const presets = encounter.sim.db.getAllPresetEncounters();
 		return {
 			id: 'aem-encounter-picker',
 			label: i18n.t('settings_tab.encounter.encounter_preset.label'),
-			extraClassNames: ['mb-0', 'pr-2', 'order-first', 'w-1/3', 'max-sm:w-1/2'],
+			extraClassNames: ['pr-2', 'order-first', 'w-1/3', 'max-sm:w-1/2'],
 			values: [{ name: 'Custom', value: -1 }, ...presets.map((preset, index) => ({ name: preset.path, value: index }))],
 			storeField: 'encounter:*',
 			getValue: (subject: Encounter) => presets.findIndex(preset => subject.matchesPreset(preset)),
@@ -47,24 +47,21 @@ export const AdvancedEncounterModal = ({ open, onOpenChange }: AdvancedEncounter
 			open={open}
 			onOpenChange={onOpenChange}
 			testId="advanced-encounter-picker-modal"
-			bodyClassName="overflow-auto"
-			bodyGap="gap-3"
-			headerChildren={<EnumPicker modObject={encounter} config={presetConfig} />}>
-			<div className="flex flex-col gap-3" data-testid="encounter-header">
-				<PickerGroup>
+			bodyClassName="gap-2 overflow-auto"
+			headerChildren={<ConnectedChoiceField modObject={encounter} config={presetConfig} />}>
+			<div className="flex flex-col gap-2" data-testid="encounter-header">
+				<FieldGrid>
 					{duration.map(config => (
-						<NumberPicker key={config.id} modObject={encounter} config={config} />
+						<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
 					))}
-				</PickerGroup>
-				<PickerGroup className="flex-row">
+				</FieldGrid>
+				<FieldGrid>
 					{execute.map(config => (
-						<NumberPicker key={config.id} modObject={encounter} config={config} />
+						<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
 					))}
-				</PickerGroup>
+				</FieldGrid>
 			</div>
-			<div>
-				<TargetsPicker encounter={encounter} />
-			</div>
+			<TargetsPicker encounter={encounter} />
 		</Dialog>
 	);
 };

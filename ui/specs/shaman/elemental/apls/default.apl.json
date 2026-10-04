@@ -1,4 +1,11 @@
 {
 	"type": "TypeAPL",
-	"priorityList": []
+	"priorityList": [
+	{"action":{"castSpell":{"spellId":{"otherId":"OtherActionPotion"}}}},
+	{"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}},"castSpell":{"spellId":{"spellId":10438}}}},
+	{"action":{"condition":{"dotIsActive":{"spellId":{"spellId":29228}}},"castSpell":{"spellId":{"spellId":1238300}}}},
+	{"action":{"condition":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":29228}}}}},"castSpell":{"spellId":{"spellId":29228}}}},
+	{"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10605}}}},
+	{"action":{"castSpell":{"spellId":{"spellId":15208}}}}
+	]
 }

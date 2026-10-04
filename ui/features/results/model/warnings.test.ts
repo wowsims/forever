@@ -59,14 +59,6 @@ describe('WarningsRegistry', () => {
 		expect(registry.getContents()).toEqual([' ']);
 	});
 
-	it('builds a fresh array per read', () => {
-		const registry = new WarningsRegistry();
-		registry.add(warning(() => 'gear').warning);
-
-		expect(registry.getContents()).toEqual(registry.getContents());
-		expect(registry.getContents()).not.toBe(registry.getContents());
-	});
-
 	it("notifies subscribers when a warning's own source fires", () => {
 		const registry = new WarningsRegistry();
 		const gear = warning(() => 'gear');

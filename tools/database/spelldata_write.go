@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"slices"
 	"sort"
+
+	"github.com/wowsims/forever/tools/database/dbc"
 )
 
 // Where the generator says what it did. -check silences it, so that a clean check prints nothing at
@@ -121,13 +123,18 @@ func buildStaged(staging string, overlay map[string]string, packages []string) e
 }
 
 // The packages to type-check: the ones the rendered Go files belong to, which is the store, the
-// shared enums, the buffs and one per class. The settings inputs and the proto messages are not Go.
+// shared enums, the buffs and the classes rendered, and every class package besides. The settings
+// inputs and the proto messages are not Go. A class a partial run does not render still compiles
+// against the store, the forms and the buffs it rewrites.
 func packagesOf(files map[string][]byte) []string {
 	seen := map[string]bool{}
 	for path := range files {
 		if filepath.Ext(path) == ".go" {
 			seen["./"+filepath.ToSlash(filepath.Dir(path))+"/"] = true
 		}
+	}
+	for _, class := range dbc.Classes {
+		seen["./sim/"+classGroup(class)+"/"] = true
 	}
 	return slices.Sorted(maps.Keys(seen))
 }
@@ -151,8 +158,12 @@ func goTool() string {
 // check when unchecked is set - and writes the game files rows the store was built from beside them:
 // they are what lets the store be regenerated and checked without the game files database, so they are
 // written from the same pass that wrote it and only once that pass has landed.
-func GenerateSpellDataFiles(helper *DBHelper, unchecked bool) error {
-	files, inputs, err := renderSpellDataFiles(helper)
+func GenerateSpellDataFiles(helper *DBHelper, unchecked bool, only SpellDataGroups) error {
+	committed, err := loadCommittedInputs()
+	if err != nil {
+		return err
+	}
+	files, inputs, err := renderSpellDataFiles(helper, only, committed)
 	if err != nil {
 		return err
 	}
@@ -163,19 +174,34 @@ func GenerateSpellDataFiles(helper *DBHelper, unchecked bool) error {
 }
 
 // The committed files that no longer match what the generator writes, for a caller that wants to
-// know rather than to regenerate. Silent on the way there: its output is the list it returns.
-func CheckSpellDataFiles(helper *DBHelper) ([]string, error) {
+// know rather than to regenerate. Silent on the way there: its output is the lists it returns. behind
+// names the spell data groups recorded on a different game build from the database's. Those are not
+// ported yet, and their files are rendered from the committed inputs.
+func CheckSpellDataFiles(helper *DBHelper) (stale []string, behind []string, err error) {
 	progress = io.Discard
 	defer func() { progress = os.Stderr }()
 
-	files, inputs, err := renderSpellDataFiles(helper)
+	version, err := buildVersion(helper)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	var only SpellDataGroups
+	committed, err := loadCommittedInputs()
+	if err != nil {
+		return nil, nil, err
+	}
+	if committed != nil {
+		only, behind = currentSpellDataGroups(committed.Builds, version)
 	}
 
-	stale, err := checkSpellDataFiles(files)
+	files, inputs, err := renderSpellDataFiles(helper, only, committed)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	stale, err = checkSpellDataFiles(files)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	// The committed inputs are checked too, and not only the store they render: a capture that no
@@ -183,11 +209,11 @@ func CheckSpellDataFiles(helper *DBHelper) ([]string, error) {
 	// capture - so nothing else here would notice it going stale.
 	current, err := storeInputsAreCurrent(inputs)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if !current {
 		stale = append(stale, spellStoreInputsPath)
 		sort.Strings(stale)
 	}
-	return stale, nil
+	return stale, behind, nil
 }

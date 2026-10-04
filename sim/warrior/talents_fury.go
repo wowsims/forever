@@ -2,25 +2,23 @@ package warrior
 
 import (
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func (warrior *Warrior) registerFuryTalents() {
 	// Tier 1
-	// Booming Voice (12321) widens the shout radius only, which the sim does not model.
+	warrior.registerBoomingVoice()
 	warrior.registerCruelty()
 
 	// Tier 2
-	warrior.registerIronWill()
+	// Lingering Rage (1323964) delays the rage decay after leaving combat, which the sim does not model.
 	warrior.registerUnbridledWrath()
 
 	// Tier 3
-	warrior.registerImprovedCleave()
+	warrior.registerFuriousPrecision()
 	warrior.registerPiercingHowl()
 	warrior.registerBloodCraze()
-	// Boundless Rage: warrior.go, when it enables the rage bar
 
 	// Tier 4
 	warrior.registerDualWieldSpecialization()
@@ -29,16 +27,25 @@ func (warrior *Warrior) registerFuryTalents() {
 	warrior.registerImprovedExecute()
 
 	// Tier 5
-	warrior.registerPrecision()
+	// Improved Berserker Rage: berserker_rage.go
 	warrior.registerDeathWish()
 	warrior.registerImprovedIntercept()
 
 	// Tier 6
-	// Improved Berserker Rage: berserker_rage.go
 	warrior.registerFlurry()
+	warrior.registerGoreDrinker()
 
 	// Tier 7
 	warrior.registerBloodthirst()
+}
+
+func (warrior *Warrior) registerBoomingVoice() {
+	if warrior.Talents.BoomingVoice == 0 {
+		return
+	}
+
+	// The shout radius has no sim kind, so only the shouts' rage cost comes off the row.
+	spelldata.ParseStatic(&warrior.Character, spellData.BoomingVoice.Rank(warrior.Talents.BoomingVoice))
 }
 
 func (warrior *Warrior) registerCruelty() {
@@ -50,7 +57,6 @@ func (warrior *Warrior) registerCruelty() {
 }
 
 var unbridledWrathRank = spellData.UnbridledWrathTriggered.Highest()
-
 var unbridledWrathRage = unbridledWrathRank.EnergizeEffect().Tenths()
 
 func (warrior *Warrior) registerUnbridledWrath() {
@@ -61,14 +67,22 @@ func (warrior *Warrior) registerUnbridledWrath() {
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
 
 	// The rate is the effect ladder the tooltip's $m1 names - 12/24/36/48/60 by rank, where the
-	// proc chance column reads a flat 60 - and the row's mask is the white hits the tooltip means.
+	// proc chance column reads 100 - and the row's mask is the white hits the tooltip means.
 	warrior.MakeProcTriggerAura(spelldata.ProcTrigger(&warrior.Character,
 		spellData.UnbridledWrath.Rank(warrior.Talents.UnbridledWrath),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			// The tooltip of 12322 doubles the rage for a two-handed weapon.
-			twoHanded := warrior.GetMainHandType() == proto.HandType_HandTypeTwoHand
-			warrior.AddRage(sim, unbridledWrathRage*core.TernaryFloat64(twoHanded, 2, 1), rageMetrics)
+			warrior.AddRage(sim, unbridledWrathRage, rageMetrics)
 		}))
+}
+
+func (warrior *Warrior) registerFuriousPrecision() {
+	if warrior.Talents.FuriousPrecision == 0 {
+		return
+	}
+
+	// The row requires a one-handed weapon in the off hand, so its hit is a mod on the attacks the
+	// off-hand weapon makes.
+	spelldata.ParseStatic(&warrior.Character, spellData.FuriousPrecision.Rank(warrior.Talents.FuriousPrecision))
 }
 
 func (warrior *Warrior) registerDualWieldSpecialization() {
@@ -78,26 +92,10 @@ func (warrior *Warrior) registerDualWieldSpecialization() {
 
 	rank := spellData.DualWieldSpecialization.Rank(warrior.Talents.DualWieldSpecialization)
 
-	// Effect 3 states A_MOD_HIT_CHANCE with nothing narrowing it, which the parse reads as hit on
-	// every attack; the tooltip states the chance to hit with off-hand attacks, so it stays a mod
-	// on the off-hand's own hits.
-	spelldata.ParseStatic(&warrior.Character, rank, spelldata.SkipEffects(3))
-
-	warrior.AddStaticMod(core.SpellModConfig{
-		ProcMask:   core.ProcMaskMeleeOH,
-		Kind:       core.SpellMod_BonusHit_Percent,
-		FloatValue: rank.EffectN(3).BaseValue(),
-	})
+	spelldata.ParseStatic(&warrior.Character, rank)
 
 	// The off-hand rage the tooltip's $m2 states is the dummy at index 2, which the parse skips.
-	warrior.SetOffHandRageMultiplier(1 + rank.EffectN(2).Percent())
-}
-
-func (warrior *Warrior) registerIronWill() {
-	if warrior.Talents.IronWill == 0 {
-		return
-	}
-	spelldata.ParseStatic(&warrior.Character, spellData.IronWill.Rank(warrior.Talents.IronWill))
+	warrior.SetOffHandRageMultiplier(core.MultiplierFromPercent(rank.EffectN(2).BaseValue()))
 }
 
 func (warrior *Warrior) registerImprovedExecute() {
@@ -133,6 +131,7 @@ func (warrior *Warrior) registerEnrage() {
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Enrage.Rank(warrior.Talents.Enrage),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.EnrageAura.Activate(sim)
+			warrior.activateGoreDrinker(sim)
 		})
 	trigger.Name = "Enrage - Trigger"
 
@@ -182,12 +181,87 @@ func (warrior *Warrior) registerFlurry() {
 	warrior.MakeProcTriggerAura(trigger)
 }
 
-func (warrior *Warrior) registerPrecision() {
-	if warrior.Talents.Precision == 0 {
+var goreDrinkerBuff = spellData.GoreDrinkerTriggered.Highest()
+var goreDrinkerHeal = goreDrinkerBuff.EffectN(1).Trigger()
+
+func (warrior *Warrior) registerGoreDrinker() {
+	if warrior.Talents.GoreDrinker == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&warrior.Character, spellData.Precision.Rank(warrior.Talents.Precision))
+	charges := int32(spellData.GoreDrinker.EffectAt(1).ValueAt(warrior.Talents.GoreDrinker))
+	healthFraction := spellData.GoreDrinker.EffectAt(2).FractionAt(warrior.Talents.GoreDrinker)
+
+	// The heal row states no amount: the buff's trigger carries it as a value, which is the talent's
+	// share of maximum health.
+	healConfig := spelldata.SpellConfig(&warrior.Unit, goreDrinkerHeal, spelldata.Proc())
+	healConfig.ProcMask = core.ProcMaskSpellHealing
+	healConfig.DamageMultiplier = 1
+	healConfig.ThreatMultiplier = 1
+	healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealHealing(sim, target, warrior.MaxHealth()*healthFraction, spell.OutcomeAlwaysHit)
+	}
+	heal := warrior.RegisterSpell(healConfig)
+
+	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
+
+	buffConfig := spelldata.AuraConfig(goreDrinkerBuff)
+	buffConfig.MaxStacks = charges
+	buffConfig.OnReset = func(_ *core.Aura, _ *core.Simulation) {
+		resetFirstAoeHit()
+	}
+	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
+
+	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
+	// TODO: Ingame test needed: Cleave and Whirlwind spend one charge and heal once per cast, however
+	// many targets they hit.
+	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
+			if !warrior.GoreDrinkerAura.IsActive() {
+				return
+			}
+			heal.Cast(sim, &warrior.Unit)
+			warrior.GoreDrinkerAura.RemoveStack(sim)
+		})
+	consume.Name = "Gore Drinker - Heal"
+	consume.Outcome = core.OutcomeLanded
+	consume.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		if !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) {
+			return true
+		}
+		if !spellData.Cleave.Contains(spell) && !spellData.Whirlwind.Contains(spell) {
+			return true
+		}
+		return firstAoeHit(sim, spell)
+	}
+	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
+
+	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,
+	// Bloodrage and Death Wish when cast, Bloodthirst when it lands, and Enrage from its own trigger.
+	warrior.MakeProcTriggerAura(core.ProcTrigger{
+		Name:     "Gore Drinker - Trigger",
+		Callback: core.CallbackOnCastComplete | core.CallbackOnSpellHitDealt,
+		Outcome:  core.OutcomeLanded,
+		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			if result == nil {
+				return spellData.BerserkerRage.Contains(spell) || spellData.Bloodrage.Contains(spell) || spellData.DeathWish.Contains(spell)
+			}
+			return spell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial) && spellData.Bloodthirst.Contains(spell)
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			warrior.activateGoreDrinker(sim)
+		},
+	})
+}
+
+func (warrior *Warrior) activateGoreDrinker(sim *core.Simulation) {
+	if warrior.GoreDrinkerAura == nil {
+		return
+	}
+
+	warrior.GoreDrinkerAura.Activate(sim)
+	warrior.GoreDrinkerAura.SetStacks(sim, warrior.GoreDrinkerAura.MaxStacks)
 }
 
 var bloodthirstRank = spellData.Bloodthirst.ByID(23894)
@@ -202,7 +276,7 @@ func (warrior *Warrior) registerBloodthirst() {
 	config := spelldata.SpellConfig(&warrior.Unit, bloodthirstRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := spell.MeleeAttackPower(target)*apShare + bloodthirstRank.DamageEffect().Roll(sim, core.CharacterLevel)
+		baseDamage := spell.MeleeAttackPower(target)*apShare + bloodthirstRank.DamageEffect().Roll(sim)
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		if !result.Landed() {
 			spell.IssueRefund(sim)
@@ -251,32 +325,19 @@ func (warrior *Warrior) registerBloodCraze() {
 
 	bloodCraze := warrior.RegisterSpell(config)
 
-	// One row, two listeners: 16487 decodes to hits taken and hits dealt at once, and the tooltip
-	// gives each its own condition. Its crit hint covers only half of the taken one - a crit taken
-	// or a hit over a share of maximum health - so both take the landed outcome and the condition
-	// by hand, and the dealt one is narrowed to the Bloodthirst the tooltip names.
-	apply := func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		bloodCraze.SelfHot().Apply(sim)
-	}
-	rank := spellData.BloodCraze.Rank(warrior.Talents.BloodCraze)
-
-	taken := spelldata.ProcTrigger(&warrior.Character, rank, apply)
+	// 16487 decodes to hits taken, and its crit hint covers only half of the tooltip's condition - a
+	// crit taken or a hit over a share of maximum health - so the trigger takes the landed outcome
+	// and the condition by hand.
+	taken := spelldata.ProcTrigger(&warrior.Character, spellData.BloodCraze.Rank(warrior.Talents.BloodCraze),
+		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			bloodCraze.SelfHot().Apply(sim)
+		})
 	taken.Name = "Blood Craze - Damage Taken"
-	taken.Callback = core.CallbackOnSpellHitTaken
 	taken.Outcome = core.OutcomeLanded
 	taken.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 		return result.Outcome.Matches(core.OutcomeCrit) || result.Damage > warrior.MaxHealth()*hitThreshold
 	}
 	warrior.MakeProcTriggerAura(taken)
-
-	dealt := spelldata.ProcTrigger(&warrior.Character, rank, apply)
-	dealt.Name = "Blood Craze - Bloodthirst"
-	dealt.Callback = core.CallbackOnSpellHitDealt
-	dealt.Outcome = core.OutcomeLanded
-	dealt.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spellData.Bloodthirst.Contains(spell)
-	}
-	warrior.MakeProcTriggerAura(dealt)
 }
 
 func (warrior *Warrior) registerRagingBlows() {
@@ -306,7 +367,6 @@ func (warrior *Warrior) registerDeathWish() {
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		deathWishAura.Activate(sim)
-		warrior.WaitUntil(sim, sim.CurrentTime+core.GCDDefault)
 	}
 
 	config.RelatedSelfBuff = deathWishAura
@@ -325,11 +385,4 @@ func (warrior *Warrior) registerImprovedIntercept() {
 	}
 
 	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedIntercept.Rank(warrior.Talents.ImprovedIntercept))
-}
-
-func (warrior *Warrior) registerImprovedCleave() {
-	if warrior.Talents.ImprovedCleave == 0 {
-		return
-	}
-	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedCleave.Rank(warrior.Talents.ImprovedCleave))
 }

@@ -17,8 +17,10 @@ var constantSources = []struct {
 	path  string
 	files []string
 }{
-	{"github.com/wowsims/forever/sim/core", []string{"sim/core/flags.go", "sim/core/constants.go"}},
+	{"github.com/wowsims/forever/sim/core/stats", []string{"sim/core/stats/stats.go"}},
 	{"github.com/wowsims/forever/sim/core/dbcenums", []string{"sim/core/dbcenums/*.go"}},
+	{"github.com/wowsims/forever/sim/core", []string{"sim/core/flags.go", "sim/core/constants.go",
+		"sim/core/base_stats_auto_gen.go", "sim/core/spell_mod.go"}},
 }
 
 var (
@@ -33,6 +35,7 @@ var (
 
 	procFlagConsts  = map[int64]string{}
 	procFlag2Consts = map[int64]string{}
+	spellModKinds   = map[int64]string{}
 )
 
 // Only the packages above are imported, and only by each other: type-checking proto and stats from
@@ -84,6 +87,27 @@ func scanConstants() {
 	evalPos = file.Name.Pos()
 
 	scanProcFlags(constPackages["github.com/wowsims/forever/sim/core/dbcenums"])
+	scanTypedConsts(constPackages["github.com/wowsims/forever/sim/core"], "SpellModType", spellModKinds)
+}
+
+// The constants of one named type a package states, by value.
+func scanTypedConsts(pkg *types.Package, typeName string, into map[int64]string) {
+	if pkg == nil {
+		return
+	}
+	scope := pkg.Scope()
+	for _, name := range scope.Names() {
+		c, ok := scope.Lookup(name).(*types.Const)
+		if !ok {
+			continue
+		}
+		if named, ok := c.Type().(*types.Named); !ok || named.Obj().Name() != typeName {
+			continue
+		}
+		if value, exact := intValue(c.Val()); exact {
+			into[value] = name
+		}
+	}
 }
 
 // The PROC_FLAG_ and PROC_FLAG_2_ constants dbcenums states, by value, each word's in its own map. A
@@ -125,7 +149,7 @@ func evalConst(expr ast.Expr) (constant.Value, error) {
 	}
 	text := types.ExprString(expr)
 	if holdsLiteral(expr) {
-		return nil, fmt.Errorf("%s is not a literal or a constant of sim/core or dbcenums", text)
+		return nil, fmt.Errorf("%s is not a literal or a constant of sim/core, stats or dbcenums", text)
 	}
 	value, seen := constValues[text]
 	if !seen {
@@ -135,7 +159,7 @@ func evalConst(expr ast.Expr) (constant.Value, error) {
 		constValues[text] = value
 	}
 	if value == nil {
-		return nil, fmt.Errorf("%s is not a literal or a constant of sim/core or dbcenums", text)
+		return nil, fmt.Errorf("%s is not a literal or a constant of sim/core, stats or dbcenums", text)
 	}
 	return value, nil
 }

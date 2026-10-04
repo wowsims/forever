@@ -93,8 +93,8 @@ func (raw ItemQuality) ToProto() proto.ItemQuality {
 const (
 	ITEM_CLASS_CONSUMABLE = iota
 	ITEM_CLASS_CONTAINER
-	ITEM_CLASS_WEAPON
-	ITEM_CLASS_GEM
+	ITEM_CLASS_WEAPON = dbcenums.ITEM_CLASS_WEAPON
+	ITEM_CLASS_GEM    = iota
 	ITEM_CLASS_ARMOR
 	ITEM_CLASS_REAGENT
 	ITEM_CLASS_PROJECTILE
@@ -308,6 +308,11 @@ const (
 	ITEM_MOD_SHADOW_DAMAGE = 88
 	ITEM_MOD_ARCANE_DAMAGE = 89
 
+	// Spell penetration on one school, in points of the target's resistance: 21516 Dagger of Spell
+	// Penetration - Fire 150 Resist (TEST) budgets 150 of 119, and 21518's Frost twin 150 of 121.
+	ITEM_MOD_FIRE_SPELL_PENETRATION  = 119
+	ITEM_MOD_FROST_SPELL_PENETRATION = 121
+
 	ITEM_MOD_ALL_RESISTANCES = 124
 )
 
@@ -328,8 +333,11 @@ const (
 	BloodElf Race = 1 << 9  // 512
 	Draenei  Race = 1 << 10 // 1024
 
-	AlliedRaces Race = Human | Dwarf | NightElf | Gnome | Draenei
-	HordeRaces  Race = Undead | Orc | Tauren | Troll | Goblin | BloodElf
+	HighOrderSkyborne  Race = 1 << 32
+	WindshaperSkyborne Race = 1 << 33
+
+	AlliedRaces Race = Human | Dwarf | NightElf | Gnome | Draenei | HighOrderSkyborne
+	HordeRaces  Race = Undead | Orc | Tauren | Troll | Goblin | BloodElf | WindshaperSkyborne
 )
 
 // Returns whether there is any overlap between the given masks.

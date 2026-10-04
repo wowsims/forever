@@ -65,10 +65,10 @@ func headerFields(s *spelldata.Spell) []field {
 	return out
 }
 
-// SpellPower states either a flat amount out of the bar or a share of the caster's maximum.
+// SpellPower states either a flat amount out of the bar or a share of the caster's base.
 func cost(s *spelldata.Spell, p *spelldata.Power) string {
 	if p.CostPct != 0 {
-		return fmt.Sprintf("%s%% of maximum %s", number(float64(p.CostPct)), powerName(p.Type))
+		return fmt.Sprintf("%s%% of base %s", number(float64(p.CostPct)), powerName(p.Type))
 	}
 	if p.Cost == 0 {
 		return ""

@@ -2,11 +2,15 @@
 
 package forever
 
-import "github.com/wowsims/forever/sim/common/shared"
+import (
+	"github.com/wowsims/forever/sim/common/shared"
+	"github.com/wowsims/forever/sim/core/stats"
+)
 
 func RegisterAllTemporaryEnchantConsumables() {
 	for _, imbue := range []struct {
 		itemID        int32
+		piercing      shared.SchoolPiercing
 		equipSpellIDs []int32
 	}{
 		{itemID: 1254},  // Lesser Firestone
@@ -35,7 +39,7 @@ func RegisterAllTemporaryEnchantConsumables() {
 		{itemID: 13699}, // Firestone
 		{itemID: 13700}, // Greater Firestone
 		{itemID: 13701}, // Major Firestone
-		{itemID: 18262}, // Elemental Sharpening Stone
+		{itemID: 18262, equipSpellIDs: []int32{22755}}, // Elemental Sharpening Stone
 		{itemID: 20744}, // Minor Wizard Oil
 		{itemID: 20745}, // Minor Mana Oil
 		{itemID: 20746}, // Lesser Wizard Oil
@@ -47,15 +51,17 @@ func RegisterAllTemporaryEnchantConsumables() {
 		{itemID: 23123, equipSpellIDs: []int32{28890}}, // Blessed Wizard Oil
 		{itemID: 274947}, // Scroll of Imbue Lesser Flame
 		{itemID: 277485}, // Scroll of Imbue Frost
-		{itemID: 277487, equipSpellIDs: []int32{1306572}}, // Scroll of Imbue Baleflame
+		{itemID: 277487, piercing: shared.SchoolPiercing{School: stats.SchoolIndexFire, Amount: 2}}, // Scroll of Imbue Baleflame
+		{itemID: 277489, equipSpellIDs: []int32{1307644}},                                           // Scroll of Imbue Spark
 		{itemID: 277494}, // Scroll of Imbue Accuracy
-		{itemID: 277496, equipSpellIDs: []int32{1306580}}, // Scroll of Imbue Balefrost
+		{itemID: 277496, piercing: shared.SchoolPiercing{School: stats.SchoolIndexFrost, Amount: 3}}, // Scroll of Imbue Balefrost
 		{itemID: 277497}, // Scroll of Imbue Flame
+		{itemID: 277498, equipSpellIDs: []int32{1308913}}, // Scroll of Imbue Manablade
 		{itemID: 277500}, // Scroll of Imbue Greater Flame
 		{itemID: 277501}, // Scroll of Imbue Greater Frost
 		{itemID: 277502}, // Scroll of Imbue Precision
 		{itemID: 277503}, // Scroll of Imbue Spellbreak
 	} {
-		shared.NewSpellDataTemporaryEnchant(imbue.itemID, imbue.equipSpellIDs...)
+		shared.NewSpellDataTemporaryEnchant(imbue.itemID, imbue.piercing, imbue.equipSpellIDs...)
 	}
 }

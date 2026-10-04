@@ -23,5 +23,4 @@ export const DefaultConsumables = ConsumesSpec.create({
 export const OtherDefaults = {
 	distanceFromTarget: 20,
 	profession1: Profession.Enchanting,
-	profession2: Profession.Jewelcrafting,
 };

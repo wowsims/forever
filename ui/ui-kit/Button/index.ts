@@ -1,2 +1,3 @@
 export { Button } from './Button';
-export type { ButtonProps, ButtonVariant } from './Button';
+export type { ButtonAsButton, ButtonProps, ButtonSize, ButtonVariant } from './types';
+export { isNativeButtonTrigger } from './utils';

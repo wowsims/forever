@@ -80,7 +80,7 @@ export const GENERIC_MISSING_SET_BONUS_NOTICE_DATA = new Map<number, string>([
 	[4, 'Not yet implemented'],
 ]);
 
-export const SET_BONUS_NOTICES = new Map<number, SetBonusNoticeData>();
+const SET_BONUS_NOTICES = new Map<number, SetBonusNoticeData>();
 
 export const registerSetBonusNotices = (db: Database) => {
 	SET_BONUS_NOTICES.forEach((value: SetBonusNoticeData, key: number) => {

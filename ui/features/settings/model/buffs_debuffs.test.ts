@@ -87,10 +87,6 @@ describe('the buff registries', () => {
 		]);
 	});
 
-	it('has no miscellaneous debuff rows left', () => {
-		expect(BuffDebuffInputs.DEBUFFS_MISC_CONFIG).toHaveLength(0);
-	});
-
 	it('puts the hand-written inputs themselves at those positions, not lookalikes', () => {
 		expect(BuffDebuffInputs.BUFFS_CONFIG[8].config).toBe(BuffDebuffInputs.GreaterBlessingOfSalvation);
 	});

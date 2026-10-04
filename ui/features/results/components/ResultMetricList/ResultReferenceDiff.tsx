@@ -1,7 +1,6 @@
 import i18n from '@i18n/config';
+import { Pill } from '@ui-kit/Pill';
 import { tooltipAnchorProps } from '@ui-kit/Tooltip';
-import { toneTextClass } from '@ui-kit/utils/css';
-import clsx from 'clsx';
 
 import type { ReferenceDiff } from '../../model/reference_diffs';
 
@@ -13,14 +12,10 @@ export interface ResultReferenceDiffProps {
 /** The delta against the saved reference run. Every layout renders the slot; only the sidebar, and only once a reference is set, fills it in. */
 export const ResultReferenceDiff = ({ diff, tooltipId }: ResultReferenceDiffProps) =>
 	diff ? (
-		<div data-testid="results-reference" className="mb-2 font-normal">
-			<span
-				className={clsx('font-bold', toneTextClass(diff.tone))}
-				data-testid="results-reference-diff"
-				data-sign={diff.tone ?? undefined}
-				{...tooltipAnchorProps(tooltipId, diff.significance)}>
+		<Pill tone={diff.tone ?? 'neutral'} className="flex" testId="results-reference">
+			<span data-testid="results-reference-diff" data-sign={diff.tone ?? undefined} {...tooltipAnchorProps(tooltipId, diff.significance)}>
 				{diff.text}
-			</span>{' '}
+			</span>
 			{i18n.t('sidebar.results.reference.vs_ref')}
-		</div>
+		</Pill>
 	) : null;

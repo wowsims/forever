@@ -28,5 +28,12 @@ export const CastItem = ({ item, index, iconUrl }: CastItemProps) => (
 			className="h-(--rotation-item-h) w-(--rotation-item-h) flex-none border-b-3 border-gray-600 group-data-[density=coarse]/scroller:hidden group-data-[outcome=cancelled]/cast:border-cancel group-data-[outcome=crit]/cast:border-damage-crit group-data-[outcome=hit]/cast:border-damage-hit group-data-[outcome=miss]/cast:border-damage-miss group-data-[outcome=partial]/cast:border-damage-partial"
 			iconUrl={iconUrl}
 		/>
+		{item.stack.length > 1 && (
+			<span
+				data-testid="rotation-item-stack-count"
+				className="flex h-(--rotation-item-h) flex-none items-center bg-black px-1 text-sm font-bold text-white group-data-[density=coarse]/scroller:hidden">
+				{item.stack.length}
+			</span>
+		)}
 	</div>
 );

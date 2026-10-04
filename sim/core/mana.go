@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -18,6 +17,9 @@ type manaBar struct {
 	currentMana float64
 
 	manaRegenMultiplier float64
+
+	spiritRegenBase      float64
+	spiritRegenPerSpirit float64
 
 	manaCastingMetrics    *ResourceMetrics
 	manaNotCastingMetrics *ResourceMetrics
@@ -59,10 +61,22 @@ func (character *Character) EnableManaBarWithModifier() {
 		ActionID: ActionID{OtherID: proto.OtherAction_OtherActionManaGain},
 	})
 
+	// Spirit restores 15 + Spirit/5 mana every 2 s tick, 12.5 + Spirit/4 for priests, mages and warlocks.
+	character.spiritRegenBase, character.spiritRegenPerSpirit = 7.5, 1.0/10
+	if character.Class == proto.Class_ClassPriest || character.Class == proto.Class_ClassMage || character.Class == proto.Class_ClassWarlock {
+		character.spiritRegenBase, character.spiritRegenPerSpirit = 6.25, 1.0/8
+	}
+
 	character.BaseMana = character.GetBaseStats()[stats.Mana]
 	character.Unit.manaBar.unit = &character.Unit
 	character.manaCastingMetrics = character.NewManaMetrics(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 1})
 	character.manaNotCastingMetrics = character.NewManaMetrics(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 2})
+}
+
+// SetSpiritManaRegen sets the spirit regen to base + Spirit*perSpirit mana per second.
+// It replaces the class default, so call it after EnableManaBar.
+func (character *Character) SetSpiritManaRegen(base float64, perSpirit float64) {
+	character.spiritRegenBase, character.spiritRegenPerSpirit = base, perSpirit
 }
 
 func (unit *Unit) HasManaBar() bool {
@@ -155,7 +169,7 @@ func (unit *Unit) MP5ManaRegenPerSecond() float64 {
 
 // Returns the rate of mana regen per second from spirit.
 func (unit *Unit) SpiritManaRegenPerSecond() float64 {
-	return 0.001 + unit.stats[stats.Spirit]*math.Sqrt(unit.stats[stats.Intellect])*0.009327
+	return unit.spiritRegenBase + unit.stats[stats.Spirit]*unit.spiritRegenPerSpirit
 }
 
 // Returns the rate of mana regen per second, assuming this unit is

@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 var windfuryTotemRank = spellData.WindfuryTotem.Highest()
@@ -11,28 +13,40 @@ var strengthOfEarthTotemRank = spellData.StrengthOfEarthTotem.Highest()
 var graceOfAirTotemRank = spellData.GraceOfAirTotem.ByID(25359)
 var manaSpringTotemRank = spellData.ManaSpringTotem.Highest()
 
-func (shaman *Shaman) newTotemSpellConfig(flatCost int32, spellID int32, spellMask int64, gcd time.Duration) core.SpellConfig {
-	return core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: spellID},
-		DefenseType:    core.DefenseTypeMagic,
-		Flags:          core.SpellFlagAPL | SpellFlagInstant,
-		ClassSpellMask: spellMask,
+// A totem's cast: the row's cost, GCD and cooldown, and nothing it hits.
+func (shaman *Shaman) newTotemSpellConfig(rank *spelldata.Spell) core.SpellConfig {
+	config := spelldata.SpellConfig(&shaman.Unit, rank, spelldata.Flags(core.SpellFlagAPL|SpellFlagShamanSpell|SpellFlagInstant))
+	config.ProcMask = core.ProcMaskEmpty
+	return config
+}
 
-		ManaCost: core.ManaCostOptions{
-			FlatCost: flatCost,
-		},
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				GCD: gcd,
-			},
-		},
+// Stands a totem in its element's slot for the totem row's duration, taking down the one there.
+func (shaman *Shaman) dropTotem(sim *core.Simulation, slot int, aura *core.Aura, duration time.Duration) {
+	if current := shaman.TotemAuras[slot]; current != nil && current != aura {
+		current.Deactivate(sim)
 	}
+	shaman.TotemAuras[slot] = aura
+	shaman.TotemExpirations[slot] = sim.CurrentTime + duration
+	aura.Activate(sim)
+}
+
+// A totem the sim models as the buff it gives its caster, lasting as long as the totem stands.
+func (shaman *Shaman) registerBuffTotem(rank *spelldata.Spell, slot int, buff *core.Aura) *core.Spell {
+	duration := rank.Duration()
+	buff.Duration = duration
+
+	config := shaman.newTotemSpellConfig(rank)
+	config.ClassSpellMask = SpellMaskBasicTotem
+	config.RelatedSelfBuff = buff
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		shaman.dropTotem(sim, slot, buff, duration)
+	}
+
+	return shaman.RegisterSpell(config)
 }
 
 // TODO: To be implemented. Port the TBC Windfury Totem Spell implementation below; not yet verified against the Forever game files.
 func (shaman *Shaman) registerWindfuryTotemSpell() {
-	panic("To be implemented")
-
 	// The TBC implementation, kept for the port:
 	// duration := time.Second * 120
 	// // TODO: Forever drops Improved Weapon Totems; untalented Windfury Totem AP only.
@@ -136,69 +150,21 @@ func (shaman *Shaman) registerWindfuryTotemSpell() {
 	// shaman.RegisterSpell(config)
 }
 
-// TODO: To be implemented. The body below builds the totem around the generated
-// aura, whose value the game files state; kept commented until this class's port is reviewed.
 func (shaman *Shaman) registerStrengthOfEarthTotemSpell() {
-	panic("To be implemented")
-
-	// The implementation, kept for the port:
-	// duration := time.Second * 120
-	// config := shaman.newTotemSpellConfig(int32(strengthOfEarthTotemRank.Cost()), strengthOfEarthTotemRank.ID, SpellMaskBasicTotem, strengthOfEarthTotemRank.GCD())
-	// // Enhancing Totems (16295) has no node in shaman tree 1082, so the aura is untalented.
-	// buffAura := buffs.NewSpellDataStrengthOfEarthTotemAura(&shaman.Unit, true, 0)
-	// buffAura.Duration = duration
-	// config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 	if shaman.EarthTotemAura != nil {
-	// 		shaman.EarthTotemAura.Deactivate(sim)
-	// 	}
-	// 	shaman.TotemExpirations[EarthTotem] = sim.CurrentTime + duration
-	// 	shaman.EarthTotemAura = buffAura
-	// 	buffAura.Activate(sim)
-	// }
-	// shaman.RegisterSpell(config)
+	// Enhancing Totems (16295) has no node in the Forever talent tree, so the aura is untalented.
+	shaman.registerBuffTotem(strengthOfEarthTotemRank, EarthTotem,
+		buffs.NewSpellDataStrengthOfEarthTotemAura(&shaman.Unit, true, 0))
 }
 
-// TODO: To be implemented. The body below builds the totem around the generated
-// aura, which is the game files' 89 agility; Enhancing Totems (16295) has no node
-// in shaman tree 1082, so there are no talent points to pass.
 func (shaman *Shaman) registerGraceOfAirTotemSpell() {
-	panic("To be implemented")
-
-	// The body the port needs:
-	// duration := time.Second * 120
-	// config := shaman.newTotemSpellConfig(int32(graceOfAirTotemRank.Cost()), graceOfAirTotemRank.ID, SpellMaskBasicTotem, graceOfAirTotemRank.GCD())
-	// buffAura := buffs.NewSpellDataGraceOfAirTotemAura(&shaman.Unit, true, 0)
-	// buffAura.Duration = duration
-	// config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 	if shaman.AirTotemAura != nil {
-	// 		shaman.AirTotemAura.Deactivate(sim)
-	// 	}
-	// 	shaman.TotemExpirations[AirTotem] = sim.CurrentTime + duration
-	// 	shaman.AirTotemAura = buffAura
-	// 	buffAura.Activate(sim)
-	// }
-	// shaman.RegisterSpell(config)
+	shaman.registerBuffTotem(graceOfAirTotemRank, AirTotem,
+		buffs.NewSpellDataGraceOfAirTotemAura(&shaman.Unit, true, 0))
 }
 
-// TODO: To be implemented. The body below builds the totem around the generated
-// aura, which Restorative Totems prices; kept commented until this class's port is reviewed.
+// The aura reads Restorative Totems' first effect, the Mana Spring share, from the talent points.
 func (shaman *Shaman) registerManaSpringTotemSpell() {
-	panic("To be implemented")
-
-	// The implementation, kept for the port:
-	// duration := time.Second * 120
-	// config := shaman.newTotemSpellConfig(int32(manaSpringTotemRank.Cost()), manaSpringTotemRank.ID, SpellMaskBasicTotem, manaSpringTotemRank.GCD())
-	// buffAura := buffs.NewSpellDataManaSpringTotemAura(&shaman.Unit, true, shaman.Talents.RestorativeTotems)
-	// buffAura.Duration = duration
-	// config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 	if shaman.WaterTotemAura != nil {
-	// 		shaman.WaterTotemAura.Deactivate(sim)
-	// 	}
-	// 	shaman.TotemExpirations[WaterTotem] = sim.CurrentTime + duration
-	// 	shaman.WaterTotemAura = buffAura
-	// 	buffAura.Activate(sim)
-	// }
-	// shaman.RegisterSpell(config)
+	shaman.registerBuffTotem(manaSpringTotemRank, WaterTotem,
+		buffs.NewSpellDataManaSpringTotemAura(&shaman.Unit, true, shaman.Talents.RestorativeTotems))
 }
 
 // Commented out upstream of this fork by "only 1 totem per type" (53970b1d84), not by

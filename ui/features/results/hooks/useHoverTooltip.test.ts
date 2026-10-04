@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { placeTooltip, useHoverTooltip } from './useHoverTooltip';
+import { useHoverTooltip } from './useHoverTooltip';
 
 const host = (width: number, height: number) => {
 	const element = document.createElement('div');
@@ -9,39 +9,41 @@ const host = (width: number, height: number) => {
 	return element;
 };
 
-describe('placeTooltip', () => {
+const mount = (width = 100, height = 50) => {
+	const view = renderHook(() => useHoverTooltip<string>());
+	// The hook only positions the element it is given; nothing renders one for it.
+	view.result.current.ref.current = host(width, height);
+	return view;
+};
+
+describe('tooltip placement', () => {
 	it('sits below and to the right of the anchor', () => {
-		const element = host(100, 50);
-		placeTooltip(element, 200, 300);
-		expect(element.style.getPropertyValue('--tooltip-x')).toBe('212');
-		expect(element.style.getPropertyValue('--tooltip-y')).toBe('312');
+		const { result } = mount(100, 50);
+		act(() => result.current.moveTo(200, 300));
+		expect(result.current.ref.current!.style.getPropertyValue('--tooltip-x')).toBe('212');
+		expect(result.current.ref.current!.style.getPropertyValue('--tooltip-y')).toBe('312');
 	});
 
 	it('flips to the left of the anchor rather than overflowing the right edge', () => {
-		const element = host(300, 50);
-		placeTooltip(element, window.innerWidth - 20, 100);
-		expect(Number(element.style.getPropertyValue('--tooltip-x'))).toBe(window.innerWidth - 20 - 12 - 300);
+		const { result } = mount(300, 50);
+		act(() => result.current.moveTo(window.innerWidth - 20, 100));
+		expect(Number(result.current.ref.current!.style.getPropertyValue('--tooltip-x'))).toBe(window.innerWidth - 20 - 12 - 300);
 	});
 
 	it('lifts a tooltip taller than the space below the anchor back inside the viewport', () => {
-		const element = host(100, 400);
-		placeTooltip(element, 10, window.innerHeight - 50);
-		expect(Number(element.style.getPropertyValue('--tooltip-y'))).toBe(window.innerHeight - 8 - 400);
+		const { result } = mount(100, 400);
+		act(() => result.current.moveTo(10, window.innerHeight - 50));
+		expect(Number(result.current.ref.current!.style.getPropertyValue('--tooltip-y'))).toBe(window.innerHeight - 8 - 400);
 	});
 
 	it('does nothing without a host', () => {
-		expect(() => placeTooltip(null, 0, 0)).not.toThrow();
+		const { result } = renderHook(() => useHoverTooltip<string>());
+		expect(() => act(() => result.current.show('Fireball', 0, 0))).not.toThrow();
+		expect(() => act(() => result.current.moveTo(0, 0))).not.toThrow();
 	});
 });
 
 describe('useHoverTooltip', () => {
-	const mount = () => {
-		const view = renderHook(() => useHoverTooltip<string>());
-		// The hook only positions the element it is given; nothing renders one for it.
-		view.result.current.ref.current = host(100, 50);
-		return view;
-	};
-
 	it('opens on the content it is shown, at the point it is given', () => {
 		const { result } = mount();
 		expect(result.current.content).toBeNull();

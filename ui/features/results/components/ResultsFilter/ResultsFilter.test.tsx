@@ -1,4 +1,5 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimResultData } from '../../model/result_data';
@@ -19,27 +20,26 @@ const resultWith = (...targets: Array<{ index: number; iconUrl?: string; classCo
 
 const mount = (target: number, onTargetChange = vi.fn()) => render(<ResultsFilter target={target} onTargetChange={onTargetChange} />);
 
-const picker = () => document.querySelector('[data-testid="results-filter-root"] > [data-testid="unit-picker-root"]') as HTMLElement;
-const trigger = () => picker().querySelector('[data-testid="dropdown-picker-button"]') as HTMLButtonElement;
-const items = () => [...document.querySelectorAll<HTMLElement>('[data-testid="dropdown-picker-item"]')];
-const open = () => act(() => void fireEvent.click(trigger()));
+const trigger = () => within(screen.getByTestId('results-filter-root')).getByRole('combobox', { hidden: true }) as HTMLButtonElement;
+const items = () => screen.queryAllByRole('option');
+const open = () => userEvent.click(trigger());
 
 beforeEach(() => {
 	resultData = null;
 });
 
 describe('ResultsFilter', () => {
-	it('stays hidden until a run has produced targets', () => {
+	it('stays disabled until a run has produced targets', () => {
 		mount(ALL_UNITS);
 
-		expect(picker().className).toContain('hidden');
+		expect(trigger().disabled).toBe(true);
 		expect(trigger().textContent).toBe('Unit');
 	});
 
 	it('shows all targets plus one option per target of the run, in encounter order', async () => {
 		resultData = resultWith({ index: 0 }, { index: 1 }, { index: 2 });
 		mount(ALL_UNITS);
-		expect(picker().className).not.toContain('hidden');
+		expect(trigger().disabled).toBe(false);
 
 		await open();
 		expect(items().map(item => item.textContent)).toEqual([
@@ -48,18 +48,16 @@ describe('ResultsFilter', () => {
 			'results_tab.details.target_number',
 			'results_tab.details.target_number',
 		]);
-		expect(items()[0].getAttribute('aria-checked')).toBe('true');
+		expect(items()[0].getAttribute('aria-selected')).toBe('true');
 	});
 
-	it("takes each target option's icon and colour off the unit it stands for", async () => {
+	it("takes each target option's icon off the unit it stands for", async () => {
 		resultData = resultWith({ index: 0, iconUrl: 'boss.jpg', classColor: 'warrior' });
 		mount(ALL_UNITS);
 		await open();
 
-		expect(items()[1].querySelector('img[data-testid="unit-picker-item-icon"]')!.getAttribute('src')).toBe('boss.jpg');
-		expect(items()[1].className).toContain('text-class-warrior');
-		// All Targets carries an empty icon url on purpose, so it draws nothing.
-		expect(items()[0].querySelector('[data-testid="unit-picker-item-icon"]')).toBeNull();
+		expect(within(items()[1]).getByTestId('unit-picker-item-icon').getAttribute('src')).toBe('boss.jpg');
+		expect(within(items()[0]).queryByTestId('unit-picker-item-icon')).toBeNull();
 	});
 
 	it('reports the encounter index of the chosen target, and ALL_UNITS for all targets', async () => {
@@ -68,11 +66,11 @@ describe('ResultsFilter', () => {
 		mount(ALL_UNITS, onTargetChange);
 
 		await open();
-		await act(() => void fireEvent.click(items()[2]));
+		await userEvent.click(items()[2]);
 		expect(onTargetChange).toHaveBeenCalledWith(1);
 
 		await open();
-		await act(() => void fireEvent.click(items()[0]));
+		await userEvent.click(items()[0]);
 		expect(onTargetChange).toHaveBeenLastCalledWith(ALL_UNITS);
 	});
 
@@ -81,7 +79,7 @@ describe('ResultsFilter', () => {
 		mount(1);
 		await open();
 
-		expect(items().map(item => item.getAttribute('aria-checked'))).toEqual(['false', 'false', 'true']);
+		expect(items().map(item => item.getAttribute('aria-selected'))).toEqual(['false', 'false', 'true']);
 	});
 });
 
@@ -101,13 +99,13 @@ describe('the filter the pane emits', () => {
 	});
 });
 
-describe('a unit reference the options do not hold', () => {
-	it('leaves the trigger on the default label', async () => {
+describe('a target the options do not hold', () => {
+	it('leaves the trigger on the placeholder', async () => {
 		resultData = resultWith({ index: 0 });
 		mount(4);
 
 		expect(trigger().textContent).toBe('Unit');
 		await open();
-		expect(items().every(item => item.getAttribute('aria-checked') === 'false')).toBe(true);
+		expect(items().every(item => item.getAttribute('aria-selected') === 'false')).toBe(true);
 	});
 });

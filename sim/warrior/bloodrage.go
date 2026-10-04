@@ -2,34 +2,34 @@ package warrior
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var bloodrageRank = spellData.Bloodrage.Highest()
-var bloodrageOverTime = spellData.BloodrageTriggered.Highest()
+var bloodrageOverTime = bloodrageRank.EffectN(2).Trigger()
 var bloodrageOverTimeTick = bloodrageOverTime.PeriodicEffect()
 
 func (warrior *Warrior) registerBloodrage() {
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: bloodrageRank.ID})
-	healthCost := warrior.GetBaseStats()[stats.Health] * float64(bloodrageRank.Powers[0].CostPct) / 100
+	healthCost := warrior.GetBaseStats()[stats.Health] * float64(bloodrageRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
 	improvedBloodrage := spellData.ImprovedBloodrage.MultiplierAt(warrior.Talents.ImprovedBloodrage)
-	instantRage := spellData.Bloodrage.EffectAt(1).TenthsAt(1) * improvedBloodrage
+	instantRage := bloodrageRank.EnergizeEffect().Tenths() * improvedBloodrage
 	ragePerTick := bloodrageOverTimeTick.Tenths() * improvedBloodrage
 
 	config := spelldata.SpellConfig(&warrior.Unit, bloodrageRank)
 
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+	config.Hot = spelldata.DotConfig(bloodrageOverTime, bloodrageOverTimeTick)
+	config.Hot.SelfOnly = true
+	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, _ *core.Dot) {
+		warrior.AddRage(sim, ragePerTick, rageMetrics)
+	}
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		warrior.AddRage(sim, instantRage, rageMetrics)
 		warrior.RemoveHealth(sim, healthCost)
-
-		core.StartPeriodicAction(sim, core.PeriodicActionOptions{
-			NumTicks: int(bloodrageOverTime.Duration() / bloodrageOverTimeTick.Period()),
-			Period:   bloodrageOverTimeTick.Period(),
-			OnAction: func(sim *core.Simulation) {
-				warrior.AddRage(sim, ragePerTick, rageMetrics)
-			},
-		})
+		spell.SelfHot().Apply(sim)
 	}
 
 	spell := warrior.RegisterSpell(config)

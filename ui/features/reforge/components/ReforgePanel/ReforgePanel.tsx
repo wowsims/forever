@@ -155,17 +155,17 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 	return (
 		<>
 			<Button
+				variant="outline-primary"
 				size="none"
-				className="-mr-(--settings-button-width) grow px-settings-button-inset py-2"
+				className="peer -mr-(--settings-button-width) grow py-2 pr-settings-button-inset pl-2"
+				aria-label={i18n.t('sidebar.buttons.suggest_reforges.title')}
 				data-testid="suggest-reforges-action-button"
 				data-sidebar-action=""
 				disabled={isRunning}
+				loading={isRunning}
 				onClick={onOptimize}
 				{...tooltipAnchorProps(softCapsTooltipId)}>
-				{i18n.t('sidebar.buttons.suggest_reforges.title')}
-				<span data-testid="suggest-reforges-action-button-loading-icon">
-					<Icon name="spinner" spin />
-				</span>
+				<Icon name="gem" />
 			</Button>
 			<Popover
 				open={open}
@@ -180,33 +180,17 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 				align="start"
 				className="min-w-popup-min-w"
 				testId="reforge-optimiser-popover"
-				maxWidth="max-w-87.5 max-lg:max-w-settings-panel-max"
-				triggerClassName={[
-					'ui-button',
-					'ui-button-md',
-					'ui-button-primary',
-					'bg-transparent',
-					'border-transparent',
-					'hover:bg-primary-hover',
-					'hover:border-primary-hover',
-					'focus-visible:bg-primary-hover',
-					'focus-visible:border-primary-hover',
-					'active:bg-primary-active',
-					'active:border-primary-active',
-					'data-[popup-open]:bg-primary-active',
-					'data-[popup-open]:border-primary-active',
-					'w-(--settings-button-width)',
-				]}
+				backdrop
+				maxWidthClassName="max-w-86 max-lg:max-w-settings-panel-max"
+				triggerRender={
+					<Button
+						variant="outline-primary"
+						className="w-(--settings-button-width) border-transparent bg-transparent peer-hover:text-primary-foreground hover:border-primary-hover hover:bg-primary-hover focus-visible:border-primary-hover focus-visible:bg-primary-hover active:border-primary-active active:bg-primary-active active:text-primary-foreground data-popup-open:border-primary-active data-popup-open:bg-primary-active data-popup-open:text-primary-foreground"
+					/>
+				}
 				triggerTestId="suggest-reforges-button-settings"
 				triggerProps={settingsTriggerProps}
-				trigger={
-					<>
-						<Icon name="cog" />
-						<span data-testid="suggest-reforges-button-settings-loading-icon">
-							<Icon name="spinner" spin />
-						</span>
-					</>
-				}>
+				trigger={<Icon name="gear" />}>
 				<ReforgeSettingsPanel model={model} options={options} onClose={() => setOpen(false)} />
 			</Popover>
 			<Tooltip ref={settingsTooltipRef} id={settingsTooltipId} place="bottom" content={i18n.t('sidebar.buttons.suggest_reforges.tooltip')} />
@@ -215,14 +199,14 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 				place="bottom"
 				clickable
 				className="suggest-reforges-softcaps"
-				maxWidth="max-w-77.5"
+				maxWidth="max-w-76"
 				// The limits are read per open.
 				render={() => {
 					const softCaps = model.softCapsConfigWithLimits;
 					if (!softCaps?.length) return null;
 					return (
 						<ReforgeSoftCapsTooltip
-							player={player}
+							playerClass={player.getClass()}
 							softCaps={softCaps}
 							additionalInformation={options?.additionalSoftCapTooltipInformation ?? {}}
 						/>

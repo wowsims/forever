@@ -1,8 +1,9 @@
 # WoWSims Spelldata for Zed
 
 The spell hover of `tools/spelldata` in Zed: a spell id in Go, JSON, TypeScript or TSX, a ladder family,
-a name bound to a ladder chain or a `spelldata.SpellConfig` call hovers as the game files' row, the value
-the chain reads or the config the resolver builds. The extension only starts the server,
+a name bound to a ladder chain, a `spelldata.SpellConfig` call or a `core.SpellModConfig` literal hovers
+as the game files' row, the value the chain reads, the config the resolver builds or the mod's fields and
+the weapon they require. The extension only starts the server,
 `go -C <worktree root> run ./tools/spelldata -lsp`; everything else is in `tools/spelldata` (see its
 README).
 

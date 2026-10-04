@@ -1,0 +1,21 @@
+@layer components {
+	.ui-button-group {
+		@apply inline-flex align-middle;
+
+		&:not([data-gap]) > .ui-button ~ .ui-button {
+			@apply -ml-px;
+		}
+
+		&[data-gap] {
+			@apply gap-2;
+		}
+
+		&[data-size='sm'] > .ui-button {
+			@apply px-2 py-1;
+		}
+
+		&[data-size='xs'] > .ui-button {
+			@apply px-2 py-1 text-ui;
+		}
+	}
+}

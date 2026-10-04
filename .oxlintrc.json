@@ -66,6 +66,26 @@
 							{
 								"group": ["@app", "@app/**", "@features", "@features/**", "@ui-kit", "@ui-kit/**", "@specs/**"],
 								"message": "ui/i18n is a leaf and must not depend on app/features/ui-kit/specs (see ui/README.md dependency direction)."
+							},
+							{
+								"group": ["@testing", "@testing/**"],
+								"message": "Only tests and stories import the test helpers in ui/testing (see ui/README.md dependency direction)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["ui/i18n/**/*.test.{ts,tsx}"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@app", "@app/**", "@features", "@features/**", "@ui-kit", "@ui-kit/**", "@specs/**"],
+								"message": "ui/i18n is a leaf and must not depend on app/features/ui-kit/specs (see ui/README.md dependency direction)."
 							}
 						]
 					}
@@ -83,11 +103,32 @@
 								"group": ["@ui-kit", "@ui-kit/**", "@features", "@features/**", "@app", "@app/**", "@specs", "@specs/**"],
 								"message": "ui/sim must not depend at runtime on ui-kit/features/app/specs (see ui/README.md dependency direction).",
 								"allowTypeImports": true
+							},
+							{
+								"group": ["@testing", "@testing/**"],
+								"message": "Only tests and stories import the test helpers in ui/testing (see ui/README.md dependency direction)."
 							}
 						]
 					}
 				],
 				"no-restricted-globals": ["error", "window", "document", "localStorage", "location", "navigator"]
+			}
+		},
+		{
+			"files": ["ui/sim/**/*.test.{ts,tsx}"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@ui-kit", "@ui-kit/**", "@features", "@features/**", "@app", "@app/**", "@specs", "@specs/**"],
+								"message": "ui/sim must not depend at runtime on ui-kit/features/app/specs (see ui/README.md dependency direction).",
+								"allowTypeImports": true
+							}
+						]
+					}
+				]
 			}
 		},
 		{
@@ -110,6 +151,90 @@
 							{
 								"group": ["react-dom/client"],
 								"message": "Only the shell creates React roots (see ui/README.md dependency direction). A feature or ui-kit component that needs one is the createRoot-per-leaf model this migration rejected."
+							},
+							{
+								"group": [
+									"@sim/hooks",
+									"@sim/hooks/**",
+									"@sim/context",
+									"@sim/context/**",
+									"@sim/state",
+									"@sim/state/**",
+									"@sim/player",
+									"@sim/player/**",
+									"@sim/raid",
+									"@sim/raid/**",
+									"@sim/proto",
+									"@sim/proto/**",
+									"@sim/settings/**",
+									"@sim/presets/**",
+									"@sim/talents/**",
+									"@sim/bulk/**",
+									"@sim/cache/**",
+									"@sim/wasm",
+									"@sim/wasm/**",
+									"@sim/workers/**",
+									"@sim/sim",
+									"@sim/sim_host",
+									"@sim/sim_runs",
+									"@sim/sim_signal_manager",
+									"@sim/spec_config"
+								],
+								"message": "ui/ui-kit is sim-agnostic: only @sim/utils/** and @sim/constants/** may be imported. Bind through ui/features/inputs."
+							},
+							{
+								"group": ["@testing", "@testing/**"],
+								"message": "Only tests and stories import the test helpers in ui/testing (see ui/README.md dependency direction)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["ui/ui-kit/**/*.test.{ts,tsx}", "ui/ui-kit/**/*.stories.tsx"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@features", "@features/**", "@app", "@app/**", "@specs", "@specs/**"],
+								"message": "ui/ui-kit must not depend on features/app/specs (see ui/README.md dependency direction)."
+							},
+							{
+								"group": ["react-dom/client"],
+								"message": "Only the shell creates React roots (see ui/README.md dependency direction). A feature or ui-kit component that needs one is the createRoot-per-leaf model this migration rejected."
+							},
+							{
+								"group": [
+									"@sim/hooks",
+									"@sim/hooks/**",
+									"@sim/context",
+									"@sim/context/**",
+									"@sim/state",
+									"@sim/state/**",
+									"@sim/player",
+									"@sim/player/**",
+									"@sim/raid",
+									"@sim/raid/**",
+									"@sim/proto",
+									"@sim/proto/**",
+									"@sim/settings/**",
+									"@sim/presets/**",
+									"@sim/talents/**",
+									"@sim/bulk/**",
+									"@sim/cache/**",
+									"@sim/wasm",
+									"@sim/wasm/**",
+									"@sim/workers/**",
+									"@sim/sim",
+									"@sim/sim_host",
+									"@sim/sim_runs",
+									"@sim/sim_signal_manager",
+									"@sim/spec_config"
+								],
+								"message": "ui/ui-kit is sim-agnostic: only @sim/utils/** and @sim/constants/** may be imported. Bind through ui/features/inputs."
 							}
 						]
 					}
@@ -118,6 +243,35 @@
 		},
 		{
 			"files": ["ui/features/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@app", "@app/**", "@specs", "@specs/**"],
+								"message": "ui/features must not depend on app/specs (see ui/README.md dependency direction)."
+							},
+							{
+								"group": ["react-dom/client"],
+								"message": "Only the shell creates React roots (see ui/README.md dependency direction). A feature or ui-kit component that needs one is the createRoot-per-leaf model this migration rejected."
+							},
+							{
+								"group": ["**/state/sim_store*"],
+								"importNames": ["patchSlice", "patchKeyed", "seedKeyed", "deleteKeyed"],
+								"message": "Features must not write the store directly \u2014 go through a facade (e.g. ui/sim/bulk_settings.ts)."
+							},
+							{
+								"group": ["@testing", "@testing/**"],
+								"message": "Only tests and stories import the test helpers in ui/testing (see ui/README.md dependency direction)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["ui/features/**/*.stories.tsx"],
 			"rules": {
 				"no-restricted-imports": [
 					"error",
@@ -180,6 +334,10 @@
 								"group": ["**/state/sim_store*"],
 								"importNames": ["patchSlice", "patchKeyed", "seedKeyed", "deleteKeyed"],
 								"message": "Features must not write the store directly \u2014 go through a facade (e.g. ui/sim/bulk_settings.ts)."
+							},
+							{
+								"group": ["@testing", "@testing/**"],
+								"message": "Only tests and stories import the test helpers in ui/testing (see ui/README.md dependency direction)."
 							}
 						]
 					}
@@ -203,7 +361,59 @@
 			}
 		},
 		{
+			"files": ["ui/design-system/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@features", "@features/**", "@app", "@app/**", "@specs", "@specs/**"],
+								"message": "ui/design-system must not depend on features/app/specs (see ui/README.md dependency direction)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["ui/testing/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@app", "@app/**", "@specs", "@specs/**"],
+								"message": "ui/testing must not depend on app/specs (see ui/README.md dependency direction)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
 			"files": ["ui/app/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": [
+							{
+								"group": ["@specs", "@specs/**"],
+								"message": "ui/app must not depend on specs (see ui/README.md dependency direction)."
+							},
+							{
+								"group": ["@testing", "@testing/**"],
+								"message": "Only tests and stories import the test helpers in ui/testing (see ui/README.md dependency direction)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["ui/app/**/*.test.{ts,tsx}", "ui/app/**/*.stories.tsx"],
 			"rules": {
 				"no-restricted-imports": [
 					"error",

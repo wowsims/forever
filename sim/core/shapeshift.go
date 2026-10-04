@@ -1,33 +1,19 @@
 package core
 
-import "github.com/wowsims/forever/sim/core/dbcenums"
+import (
+	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
+)
 
-// What the game files require of the caster's form and auras.
+// What the game files require of the caster's form, auras and equipment.
 type CastRequirement struct {
-	Forms, ExcludedForms          uint64 // SpellShapeshift masks, bit form-1
-	CasterForm                    bool   // castable with no form even though Forms names some
-	NotShapeshifted               bool   // not castable in a shapeshift (a form that is not a stance)
-	CasterAura, ExcludeCasterAura int32  // aura spell id that must / must not be active on the caster
-}
-
-func InForms(forms ...dbcenums.ShapeshiftForm) CastRequirement {
-	var r CastRequirement
-	for _, form := range forms {
-		r.Forms |= form.Mask()
-	}
-	return r
-}
-
-func (r CastRequirement) Excluding(forms ...dbcenums.ShapeshiftForm) CastRequirement {
-	for _, form := range forms {
-		r.ExcludedForms |= form.Mask()
-	}
-	return r
-}
-
-func (r CastRequirement) OrCasterForm() CastRequirement {
-	r.CasterForm = true
-	return r
+	Forms, ExcludedForms          uint64           // SpellShapeshift masks, bit form-1
+	CasterForm                    bool             // castable with no form even though Forms names some
+	NotShapeshifted               bool             // not castable in a shapeshift (a form that is not a stance)
+	CasterAura, ExcludeCasterAura int32            // aura spell id that must / must not be active on the caster
+	Weapon                        EquipRequirement // SpellEquippedItems of a weapon: each hand named holds a matching weapon, else any weapon slot does
+	Shield                        bool             // SpellEquippedItems of armor naming the shield subclass: the off hand holds a shield
+	NotInCombat                   bool             // castable only before the encounter starts
 }
 
 func (r CastRequirement) allowsForm(form dbcenums.ShapeshiftForm) bool {
@@ -71,8 +57,35 @@ func anyAuraActive(auras []*Aura) bool {
 	return false
 }
 
+// Whether the equipment meets the weapon and shield the requirement names, read at cast time so it
+// follows item swaps. Nil equipment, a unit that is not a player, meets neither.
+func (r *CastRequirement) equipped(equipment *Equipment) bool {
+	if r.Shield && (equipment == nil || equipment[proto.ItemSlot_ItemSlotOffHand].WeaponType != proto.WeaponType_WeaponTypeShield) {
+		return false
+	}
+	req := r.Weapon
+	if req.IsZero() {
+		return true
+	}
+	if equipment == nil {
+		return false
+	}
+	if req.Hand == 0 {
+		return req.matchesItem(proto.ItemSlot_ItemSlotMainHand, &equipment[proto.ItemSlot_ItemSlotMainHand]) ||
+			req.matchesItem(proto.ItemSlot_ItemSlotOffHand, &equipment[proto.ItemSlot_ItemSlotOffHand]) ||
+			req.matchesItem(proto.ItemSlot_ItemSlotRanged, &equipment[proto.ItemSlot_ItemSlotRanged])
+	}
+	if req.Hand.Matches(ProcMaskMeleeMH) && !req.matchesItem(proto.ItemSlot_ItemSlotMainHand, &equipment[proto.ItemSlot_ItemSlotMainHand]) {
+		return false
+	}
+	if req.Hand.Matches(ProcMaskMeleeOH) && !req.matchesItem(proto.ItemSlot_ItemSlotOffHand, &equipment[proto.ItemSlot_ItemSlotOffHand]) {
+		return false
+	}
+	return true
+}
+
 // unshift: castable only once Unit.AutoUnshift has left the current form.
-func (spell *Spell) castRequirementFailure() (reason string, unshift bool) {
+func (spell *Spell) castRequirementFailure(sim *Simulation) (reason string, unshift bool) {
 	r := &spell.CastRequirement
 	unit := spell.Unit
 	if !r.allowsForm(unit.ShapeshiftForm) {
@@ -86,6 +99,12 @@ func (spell *Spell) castRequirementFailure() (reason string, unshift bool) {
 	}
 	if r.ExcludeCasterAura != 0 && anyAuraActive(spell.excludeCasterAuras) {
 		return "excluded caster aura", false
+	}
+	if !r.equipped(spell.equipment) {
+		return "missing equipped item", false
+	}
+	if r.NotInCombat && sim.CurrentTime >= 0 {
+		return "in combat", false
 	}
 	return "", unshift
 }

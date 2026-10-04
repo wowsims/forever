@@ -1,7 +1,7 @@
+import { useActionId } from '@sim/hooks/useActionId';
+import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
 import type { ActionId } from '@sim/proto/action_id';
-import { externalRel } from '@sim/utils/links';
-import { useActionId } from '@ui-kit/hooks/useActionId';
-import { useActionIdWowheadDataset } from '@ui-kit/hooks/useActionIdWowheadDataset';
+import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 
 export interface ActionLinkProps {
 	actionId: ActionId;
@@ -18,7 +18,7 @@ export const ActionLink = ({ actionId, isAura }: ActionLinkProps) => {
 	const wowheadProps = useActionIdWowheadDataset(actionId, isAura);
 
 	return (
-		<a data-testid="log-action" className="text-brand" target="_blank" href={href || undefined} rel={externalRel(href, undefined)} {...wowheadProps}>
+		<WowheadAnchor testId="log-action" className="text-brand" target="_blank" href={href || undefined} {...wowheadProps}>
 			<span>
 				<span
 					data-testid="log-action-icon"
@@ -27,6 +27,6 @@ export const ActionLink = ({ actionId, isAura }: ActionLinkProps) => {
 				/>{' '}
 				{name}
 			</span>
-		</a>
+		</WowheadAnchor>
 	);
 };

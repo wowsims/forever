@@ -47,8 +47,6 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 
 	const [statsType, setStatsType] = useState<StatsType>(StatsType.Ep);
 	const [showAllStats, setShowAllStats] = useState(false);
-	// The options live in the dialog body, which unmounts on close, so their read-back source is held here.
-	const options = useRef({ statsType: 0, showAllStats: false });
 	const [iterations, setIterations] = useState(0);
 	const [simResult, setSimResult] = useState<StatWeightsResult | null>(null);
 	const [progress, setProgress] = useState<ProgressTrackerState>({ stage: 'initializing' });
@@ -174,14 +172,19 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 				// A gear planner keeps the editor and drops the calculation: there is no sim to run it on.
 				host.simDisabled ? undefined : (
 					<Button data-testid="calc-weights" disabled={isRunning} onClick={() => void onCalculate()}>
-						<Icon name="calculator" className="mr-1" />
+						<Icon name="calculator" />
 						{i18n.t('sidebar.buttons.stat_weights.modal.calculate')}
 					</Button>
 				)
 			}>
 			<div className="flex flex-col gap-4 lg:flex-row lg:items-start">
 				<div className="order-1 w-full lg:order-0">
-					<EpWeightsOptions options={options.current} onStatsTypeChange={setStatsType} onShowAllStatsChange={setShowAllStats} />
+					<EpWeightsOptions
+						statsType={statsType}
+						showAllStats={showAllStats}
+						onStatsTypeChange={setStatsType}
+						onShowAllStatsChange={setShowAllStats}
+					/>
 					{!editOnly && <EpReferenceOptions epStats={epStats} epReferenceStat={epReferenceStat} displayMetrics={displayMetrics} />}
 					<p>
 						{i18n.t('sidebar.buttons.stat_weights.modal.current_ep_description')}
@@ -211,7 +214,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						showUpdateColumn={!editOnly}
 					/>
 				</div>
-				<div className="ui-ep-weights-sidebar order-0 min-w-42.5 lg:sticky lg:top-0 lg:z-sticky lg:order-1">
+				<div className="ui-ep-weights-sidebar order-0 min-w-42 lg:sticky lg:top-0 lg:z-sticky lg:order-1">
 					<SavedEpWeights />
 				</div>
 			</div>

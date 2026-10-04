@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"math"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -98,6 +99,18 @@ func applyOverride(s *storeSpell, o overrides.Override) error {
 
 	case overrides.Hint:
 		s.ProcHint = core.ProcHint(o.Value)
+
+	case overrides.StatMask:
+		i := slices.IndexFunc(s.Effects, func(e storeEffect) bool { return e.Aura == dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE })
+		if i < 0 {
+			return fmt.Errorf("spell %d has no A_MOD_TOTAL_STAT_PERCENTAGE effect to carry a stat mask", s.ID)
+		}
+		e := &s.Effects[i]
+		if e.Misc != 0 || e.Misc2 != 0 {
+			return fmt.Errorf("spell %d now states misc %d and %d on its stat percentage, so its hand-supplied stat mask is stale",
+				s.ID, e.Misc, e.Misc2)
+		}
+		e.Misc2 = int32(o.Value)
 
 	default:
 		return fmt.Errorf("spell %d carries an override of unknown field %d", s.ID, uint8(o.Field))

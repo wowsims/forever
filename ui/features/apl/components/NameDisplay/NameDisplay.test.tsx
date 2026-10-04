@@ -17,12 +17,4 @@ describe('NameDisplay', () => {
 		fireEvent.click(screen.getByRole('button'));
 		expect(onRename).toHaveBeenCalledTimes(1);
 	});
-
-	it('renders the pencil icon as fas fa-pencil-alt', () => {
-		render(<NameDisplay name="My Group" onRename={() => {}} />);
-
-		const icon = screen.getByRole('button').querySelector('i');
-		expect(icon?.classList.contains('fas')).toBe(true);
-		expect(icon?.classList.contains('fa-pencil-alt')).toBe(true);
-	});
 });

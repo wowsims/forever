@@ -1,14 +1,13 @@
 import { ItemQuality, ItemSlot, Spec } from '@generated/proto/common';
-import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { createSimStore, patchKeyed, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
-import { fakeHost } from '@sim/testing';
-import { act, render, waitFor } from '@testing-library/react';
+import { renderWithHost } from '@testing/react';
+import { act, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 const tooltip = vi.hoisted(() => ({ settles: [] as Array<(url: string) => void> }));
 
-vi.mock('@ui-kit/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: '', ready: true }) }));
+vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: 'https://www.wowhead.com/item=1', ready: true }) }));
 vi.mock('@sim/proto/action_id/tooltip_data', () => ({
 	equippedItemWowheadTooltipData: () => new Promise<string>(resolve => tooltip.settles.push(resolve)),
 	actionIdWowheadTooltipData: () => new Promise<string>(() => {}),
@@ -41,14 +40,8 @@ describe('ItemPickerCell', () => {
 			getGear: () => store.getState().players[storeKey].gear,
 			getSpec: () => Spec.SpecUnknown,
 		} as unknown as Player<any>;
-		const host = fakeHost({ player, sim: { store } });
-
 		tooltip.settles.length = 0;
-		const { container } = render(
-			<SimHostProvider host={host}>
-				<ItemPickerCell slot={ItemSlot.ItemSlotHead} ready={false} />
-			</SimHostProvider>,
-		);
+		const { container } = renderWithHost(<ItemPickerCell slot={ItemSlot.ItemSlotHead} ready={false} />, { player, sim: { store } });
 		return {
 			container,
 			equip: (id: number) => act(() => patchKeyed(store, 'players', storeKey, { gear: gear(id) } as never, ['gear'])),

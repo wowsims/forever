@@ -94,6 +94,24 @@ func TestElixirTakesEveryEffectAndTheDurationOfItsRow(t *testing.T) {
 	}
 }
 
+// Elixir of the Grizzly 250351 (1250986) states 25 Strength and the same 2% crit as Elixir of the
+// Mongoose: both stats apply, the crit once.
+func TestOnlyOneElixirsCritApplies(t *testing.T) {
+	const grizzly int32 = 250351
+	registerStatConsumable(t, elixirOfTheMongooseID)
+	registerStatConsumable(t, grizzly)
+
+	mongoose := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, &proto.RaidBuffs{})
+	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID, grizzly}}, &proto.RaidBuffs{})
+	if both[stats.Agility] != 25 || both[stats.Strength] != 25 {
+		t.Errorf("Mongoose and Grizzly add %v Agility and %v Strength, want 25 and 25", both[stats.Agility], both[stats.Strength])
+	}
+	if both[stats.PhysicalCritPercent] != mongoose[stats.PhysicalCritPercent] || both[stats.SpellCritPercent] != mongoose[stats.SpellCritPercent] {
+		t.Errorf("Mongoose and Grizzly add %v%% physical and %v%% spell crit, want Mongoose's alone: %v%% and %v%%",
+			both[stats.PhysicalCritPercent], both[stats.SpellCritPercent], mongoose[stats.PhysicalCritPercent], mongoose[stats.SpellCritPercent])
+	}
+}
+
 // Scroll of Intellect IV states 16 Intellect, which Arcane Brilliance's 40 overrides rather than adds
 // to.
 func TestScrollIsExclusiveWithTheRaidBuffOfItsStat(t *testing.T) {

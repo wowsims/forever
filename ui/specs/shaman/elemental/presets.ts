@@ -1,12 +1,26 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, Race } from '@generated/proto/common';
+import { ConsumesSpec, Profession, Race, Spec } from '@generated/proto/common';
 import { ElementalShaman_Options as ElementalShamanOptions } from '@generated/proto/shaman';
+import { SavedTalents } from '@generated/proto/ui';
 
 import DefaultApl from './apls/default.apl.json';
+import TestingBuildJson from './builds/testing.build.json';
+import PreraidGearJson from './gear_sets/preraid.gear.json';
 
 export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+
+export const PreraidGear = PresetUtils.makePresetGear('Pre-raid', PreraidGearJson);
+
+export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.SpecElementalShaman, TestingBuildJson);
+
+export const StandardTalents = {
+	name: 'Standard',
+	data: SavedTalents.create({
+		talentsString: '4500301323123051-05-05305',
+	}),
+};
 
 export const DefaultOptions = ElementalShamanOptions.create({
 	classOptions: {
@@ -43,7 +57,6 @@ export const DefaultDebuffs = Debuffs.create({
 	exposeArmor: true,
 	faerieFire: true,
 	giftOfArthas: true,
-	huntersMark: true,
 	judgementOfWisdom: true,
 	sunderArmor: true,
 });

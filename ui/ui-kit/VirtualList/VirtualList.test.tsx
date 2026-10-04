@@ -1,10 +1,12 @@
 import { act, render, within } from '@testing-library/react';
+import { useRef } from 'react';
 import { describe, expect, it } from 'vitest';
 
 import { VirtualList } from './VirtualList';
 
 const ROW_HEIGHT = 20;
 const VIEWPORT = 200;
+const OVERSCAN = 10;
 
 // happy-dom reports every element as 0x0, so the virtualiser would render an empty window.
 // `virtual-core`'s `getRect` reads `offsetWidth`/`offsetHeight` — not `getBoundingClientRect` — so
@@ -17,16 +19,14 @@ const scroller = () => {
 	return element;
 };
 
-const renderList = (count: number, overscan = 2, scrollMargin = 0) => {
+const renderList = (count: number, scrollMargin = 0) => {
 	const element = scroller();
 	const view = render(
 		<VirtualList
 			count={count}
 			rowHeight={ROW_HEIGHT}
-			overscan={overscan}
 			scrollMargin={scrollMargin}
 			getScrollElement={() => element}
-			initialRect={{ width: 400, height: VIEWPORT }}
 			renderRow={index => <span>row {index}</span>}
 		/>,
 		{ container: element },
@@ -50,8 +50,8 @@ describe('VirtualList', () => {
 		const list = within(container).getByTestId('virtual-list');
 		expect(list.style.height).toBe(`${1000 * ROW_HEIGHT}px`);
 		// A 200px viewport over 20px rows is ten rows, plus `overscan` on each side.
-		expect(rows(container).length).toBe(VIEWPORT / ROW_HEIGHT + 2);
-		expect(rows(container).map(row => Number(row.dataset.index))).toEqual([...Array(VIEWPORT / ROW_HEIGHT + 2).keys()]);
+		expect(rows(container).length).toBe(VIEWPORT / ROW_HEIGHT + OVERSCAN);
+		expect(rows(container).map(row => Number(row.dataset.index))).toEqual([...Array(VIEWPORT / ROW_HEIGHT + OVERSCAN).keys()]);
 	});
 
 	// The reason this component exists in this shape: rows are absolutely positioned, so a row's
@@ -70,26 +70,41 @@ describe('VirtualList', () => {
 		expect(rendered.some(row => row.dataset.stripe === 'odd' && rendered.indexOf(row) % 2 === 0)).toBe(true);
 	});
 
-	it('offsets each row by its own start, so the window lands where the scroller is', () => {
-		const { container } = renderList(1000);
-
-		expect(rows(container).length).toBeGreaterThan(1);
-		for (const row of rows(container)) {
-			expect(row.style.transform).toBe(`translateY(${Number(row.dataset.index) * ROW_HEIGHT}px)`);
-		}
-	});
-
-	// A shared scroller has chrome above the rows, and `scrollMargin` is how the virtualiser is told
-	// about it. Without subtracting it back out of the transform every row sits that far too low.
-	it('subtracts the scroll margin from each row offset', () => {
-		const margin = 120;
-		const { container } = renderList(1000, 2, margin);
+	// A shared scroller has a sticky header above the rows, and `scrollMargin` is how the virtualiser
+	// is told about it. Without subtracting it back out of the transform every row sits that far too low.
+	it.each([0, 120])('offsets each row by its own start, less a scroll margin of %ipx, so the window lands where the scroller is', margin => {
+		const { container } = renderList(1000, margin);
 
 		const rendered = rows(container);
 		expect(rendered.length).toBeGreaterThan(1);
 		for (const row of rendered) {
 			expect(row.style.transform).toBe(`translateY(${Number(row.dataset.index) * ROW_HEIGHT}px)`);
 		}
+	});
+
+	it('follows a scroller its parent holds in a ref, which React attaches after the list first looks for it', async () => {
+		let scrollerElement: HTMLDivElement | null = null;
+		const Harness = () => {
+			const ref = useRef<HTMLDivElement | null>(null);
+			return (
+				<div
+					ref={element => {
+						if (element) {
+							Object.defineProperty(element, 'offsetHeight', { value: VIEWPORT, configurable: true });
+							Object.defineProperty(element, 'offsetWidth', { value: 400, configurable: true });
+						}
+						ref.current = element;
+						scrollerElement = element;
+					}}>
+					<VirtualList count={1000} rowHeight={ROW_HEIGHT} getScrollElement={() => ref.current} renderRow={index => <span>row {index}</span>} />
+				</div>
+			);
+		};
+		const { container } = render(<Harness />);
+		await act(async () => {});
+
+		await scrollTo(scrollerElement!, 100 * ROW_HEIGHT);
+		expect(Math.min(...rows(container).map(row => Number(row.dataset.index)))).toBe(100 - OVERSCAN);
 	});
 
 	it('renders nothing but keeps its height at zero for an empty list', () => {
@@ -108,7 +123,6 @@ describe('VirtualList', () => {
 				<VirtualList
 					count={1000}
 					rowHeight={ROW_HEIGHT}
-					overscan={2}
 					scrollMargin={scrollMargin}
 					getScrollElement={() => window}
 					renderRow={index => <span>row {index}</span>}
@@ -122,12 +136,12 @@ describe('VirtualList', () => {
 			});
 		};
 
-		it('measures the viewport off window.innerHeight without an initialRect', () => {
+		it('measures the viewport off window.innerHeight', () => {
 			const { container } = renderWindowList();
 
-			// An element scroller reports 0x0 in happy-dom, which is why every other case here passes
-			// `initialRect`; `window.innerHeight` is real, so window mode needs none.
-			expect(rows(container).length).toBe(Math.ceil(window.innerHeight / ROW_HEIGHT) + 2);
+			// An element scroller reports 0x0 in happy-dom, which is why every other case here stubs
+			// its box; `window.innerHeight` is real, so window mode needs no stub.
+			expect(rows(container).length).toBe(Math.ceil(window.innerHeight / ROW_HEIGHT) + OVERSCAN);
 			expect(Number(rows(container)[0].dataset.index)).toBe(0);
 		});
 
@@ -135,7 +149,7 @@ describe('VirtualList', () => {
 			const { container } = renderWindowList();
 			await scrollWindowTo(40 * ROW_HEIGHT);
 
-			expect(Number(rows(container)[0].dataset.index)).toBe(40 - 2);
+			expect(Number(rows(container)[0].dataset.index)).toBe(40 - OVERSCAN);
 		});
 
 		// The list starts partway down the document, so its own offset comes off the window position
@@ -145,7 +159,7 @@ describe('VirtualList', () => {
 			const { container } = renderWindowList(margin);
 			await scrollWindowTo(50 * ROW_HEIGHT);
 
-			expect(Number(rows(container)[0].dataset.index)).toBe(50 - 30 - 2);
+			expect(Number(rows(container)[0].dataset.index)).toBe(50 - 30 - OVERSCAN);
 			for (const row of rows(container)) {
 				expect(row.style.transform).toBe(`translateY(${Number(row.dataset.index) * ROW_HEIGHT}px)`);
 			}

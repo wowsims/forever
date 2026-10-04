@@ -1,6 +1,9 @@
 @layer components {
 	.ui-sim-link-content {
-		@apply flex items-center p-2;
+		--sim-link-padding-x: --spacing(2);
+		--sim-link-padding-y: --spacing(2);
+
+		@apply flex w-full items-center px-(--sim-link-padding-x) py-(--sim-link-padding-y);
 	}
 
 	.ui-sim-link-icon {
@@ -13,6 +16,6 @@
 	}
 
 	.ui-sim-link-title {
-		@apply text-lg font-bold whitespace-nowrap;
+		@apply text-lg font-bold whitespace-nowrap max-lg:text-base;
 	}
 }

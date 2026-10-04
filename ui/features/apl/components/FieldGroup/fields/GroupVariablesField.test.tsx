@@ -1,23 +1,17 @@
-import { makePlayer } from '@features/apl/testing';
 import { APLRotation } from '@generated/proto/apl';
-import { act, fireEvent, render } from '@testing-library/react';
+import { makePlayer } from '@testing/apl/player';
+import { source } from '@testing/apl/source';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GroupVariablesField } from './GroupVariablesField';
 
-const source = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		listeners,
-		subscribe: (onChange: () => void) => {
-			listeners.add(onChange);
-			return () => listeners.delete(onChange);
-		},
-		notify: () => Array.from(listeners).forEach(listener => listener()),
-	};
+vi.mock('@sim/state/subscriptions', async () => {
+	const { mockSubscriptions } = await import('@testing/sim/subscriptions');
+	return mockSubscriptions((await import('@testing/apl/source')).source.subscribe);
 });
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 const placeholderAction = (name: string) => ({
@@ -43,28 +37,33 @@ const setup = (opts: { groupName?: string; placeholders?: Array<string>; existin
 	parentValue = { groupName: opts.groupName, variables: opts.existingVariables || [] };
 };
 
-const mount = () =>
-	render(
+const mount = ({ strict = false } = {}) => {
+	const field = (
 		<GroupVariablesField
 			player={player as never}
 			config={{ id: 'gv', getValue: () => parentValue.variables, setValue: () => player.touchRotation() } as never}
 			groupNameField="groupName"
 			getParentValue={() => parentValue}
-		/>,
+		/>
 	);
+	return render(strict ? <StrictMode>{field}</StrictMode> : field);
+};
 
 const container = () => document.querySelector('[data-testid="group-reference-variables-container"]') as HTMLElement;
 const rows = () => Array.from(document.querySelectorAll('[data-testid="apl-group-variable-picker-root"]'));
 const labels = () => rows().map(row => row.querySelector('label')!.textContent);
 
+const openMenu = (index: number) => {
+	const item = document.querySelectorAll('[data-testid="apl-group-variables-item"]')[index];
+	const trigger = item.querySelector<HTMLButtonElement>('[data-testid="tree-item-actions"]')!;
+	trigger.focus();
+	act(() => void fireEvent.click(trigger));
+	return document.querySelector('[data-testid="tree-item-actions-popup"][data-open]') as HTMLElement;
+};
+
 const clickItemAction = (index: number, action: string) => {
-	const item = document.querySelectorAll('[data-testid="list-picker-item-container"]')[index];
-	act(() => {
-		fireEvent.click(item.querySelector('[data-testid="list-picker-item-actions"]')!);
-	});
-	act(() => {
-		fireEvent.click(document.querySelector(action)!);
-	});
+	const button = openMenu(index).querySelector(action)!;
+	act(() => void fireEvent.click(button));
 };
 
 beforeEach(() => {
@@ -81,18 +80,14 @@ describe('GroupVariablesField', () => {
 		expect(rows()[1].querySelector('label')!.textContent).toBe('b:');
 	});
 
-	it('is hidden with no group selected', () => {
-		setup({ placeholders: ['a'] });
+	it.each([
+		['with no group selected', { placeholders: ['a'] }],
+		['when the selected group defines no placeholders', { groupName: 'g1', placeholders: [] }],
+	])('is hidden %s', (_case, opts) => {
+		setup(opts);
 		mount();
 
-		expect(container().className.split(' ')).toContain('hidden');
-	});
-
-	it('is hidden when the selected group defines no placeholders', () => {
-		setup({ groupName: 'g1', placeholders: [] });
-		mount();
-
-		expect(container().className.split(' ')).toContain('hidden');
+		expect(container().hidden).toBe(true);
 		expect(rows()).toHaveLength(0);
 	});
 
@@ -118,7 +113,7 @@ describe('GroupVariablesField', () => {
 		setup({ groupName: 'g1', placeholders: ['a', 'b'], existingVariables: [existingA] });
 		mount();
 
-		clickItemAction(0, '[data-testid="list-picker-item-delete"]');
+		clickItemAction(0, '[data-testid="apl-group-variables-delete"]');
 
 		expect(labels()).toEqual(['a:', 'b:']);
 		expect(parentValue.variables.map(entry => entry.name)).toEqual(['a', 'b']);
@@ -127,45 +122,46 @@ describe('GroupVariablesField', () => {
 		expect(parentValue.variables[0].value.value.variableRef.name).toBe('');
 	});
 
-	it('offers no copy action, because a duplicate entry is dropped by the next reconcile', () => {
+	it('offers delete and nothing else: no copy, because a duplicate entry is dropped by the next reconcile, and no add or drag, because the group fixes the rows', () => {
 		setup({ groupName: 'g1', placeholders: ['a', 'b'] });
 		mount();
 
-		const item = document.querySelectorAll('[data-testid="list-picker-item-container"]')[0];
-		act(() => {
-			fireEvent.click(item.querySelector('[data-testid="list-picker-item-actions"]')!);
-		});
-
-		// Delete is asserted present so a popover that never opened fails here rather than passing.
-		expect(document.querySelector('[data-testid="list-picker-item-delete"]')).not.toBeNull();
-		expect(document.querySelector('.list-picker-item-copy')).toBeNull();
+		const menu = openMenu(0);
+		expect([...menu.querySelectorAll('button')].map(button => button.getAttribute('data-testid'))).toEqual(['apl-group-variables-delete']);
+		expect(container().querySelector('[data-testid="tree-add"]')).toBeNull();
+		expect(container().querySelector('[aria-label="common.list_picker.move_drag_drop"]')).toBeNull();
 	});
 
-	it('writes a variableRef and touches the rotation when a row picks a variable', () => {
+	it('titles an inline list with a caption that labels no control', () => {
+		setup({ groupName: 'g1', placeholders: ['a'] });
+		mount();
+
+		const caption = container().querySelector('[data-testid="form-label"]')!;
+		expect(caption.tagName).toBe('SPAN');
+		expect(caption.textContent).toBe('Group Variables');
+		expect(container().querySelector('[data-testid="apl-group-variables"]')!.getAttribute('data-layout')).toBe('inline');
+	});
+
+	it('writes a variableRef and touches the rotation when a row picks a variable', async () => {
 		setup({ groupName: 'g1', placeholders: ['a'], variableNames: ['x', 'y'] });
 		const touched = vi.spyOn(player, 'touchRotation');
 		mount();
 
-		const trigger = rows()[0].querySelector('[data-testid="dropdown-picker-button"]') as HTMLButtonElement;
-		act(() => {
-			fireEvent.click(trigger);
-		});
-		const items = Array.from(document.querySelectorAll('[data-testid="dropdown-picker-item"]'));
+		await userEvent.click(within(rows()[0] as HTMLElement).getByRole('combobox'));
+		const items = screen.getAllByRole('option');
 		expect(items.map(el => el.textContent)).toEqual(['x', 'y']);
-		act(() => {
-			fireEvent.click(items[1]);
-		});
+		await userEvent.click(items[1]);
 
 		expect(parentValue.variables[0].value).toEqual({ uuid: expect.anything(), value: { oneofKind: 'variableRef', variableRef: { name: 'y' } } });
 		expect(touched).toHaveBeenCalled();
 	});
 
-	it('gives the row label an htmlFor naming the dropdown trigger', () => {
+	it('gives the row label an htmlFor naming the choice trigger', () => {
 		setup({ groupName: 'g1', placeholders: ['a'] });
 		mount();
 
 		const label = rows()[0].querySelector('label') as HTMLLabelElement;
-		const trigger = rows()[0].querySelector('[data-testid="dropdown-picker-button"]') as HTMLButtonElement;
+		const trigger = within(rows()[0] as HTMLElement).getByRole('combobox');
 		expect(label.getAttribute('for')).toBe(trigger.id);
 		expect(label.getAttribute('for')).toBeTruthy();
 	});
@@ -180,34 +176,18 @@ describe('GroupVariablesField — nothing to derive from', () => {
 		value: { uuid: { value: 'keep' }, value: { oneofKind: 'variableRef', variableRef: { name: 'No' } } },
 	});
 
-	it('leaves the stored variables alone with no group selected', () => {
+	it.each([
+		['with no group selected', { placeholders: ['a'] }],
+		['when the named group no longer exists', { groupName: 'deleted', placeholders: ['a'] }],
+		['when the selected group declares no placeholder', { groupName: 'g1', placeholders: [] }],
+	])('leaves the stored variables alone %s', (_case, opts) => {
 		const existing = [assigned()];
-		setup({ placeholders: ['a'], existingVariables: existing });
+		setup({ ...opts, existingVariables: existing });
 		mount();
 
 		expect(parentValue.variables).toBe(existing);
 		expect(parentValue.variables[0].value.value.variableRef.name).toBe('No');
-		expect(container().className.split(' ')).toContain('hidden');
-	});
-
-	it('leaves the stored variables alone when the named group no longer exists', () => {
-		const existing = [assigned()];
-		setup({ groupName: 'deleted', placeholders: ['a'], existingVariables: existing });
-		mount();
-
-		expect(parentValue.variables).toBe(existing);
-		expect(parentValue.variables[0].value.value.variableRef.name).toBe('No');
-		expect(container().className.split(' ')).toContain('hidden');
-	});
-
-	it('leaves the stored variables alone when the selected group declares no placeholder', () => {
-		const existing = [assigned()];
-		setup({ groupName: 'g1', placeholders: [], existingVariables: existing });
-		mount();
-
-		expect(parentValue.variables).toBe(existing);
-		expect(parentValue.variables[0].value.value.variableRef.name).toBe('No');
-		expect(container().className.split(' ')).toContain('hidden');
+		expect(container().hidden).toBe(true);
 		expect(rows()).toHaveLength(0);
 	});
 
@@ -216,5 +196,81 @@ describe('GroupVariablesField — nothing to derive from', () => {
 		mount();
 
 		expect(parentValue.variables.map(entry => entry.name)).toEqual(['a']);
+	});
+
+	it('reconciles on read without writing to the store, on mount and on every re-read', () => {
+		setup({ groupName: 'g1', placeholders: ['a', 'b'] });
+		const touched = vi.spyOn(player, 'touchRotation');
+		const modified = vi.spyOn(player, 'modifyAplRotation');
+		mount();
+		act(() => source.notify());
+
+		expect(parentValue.variables.map(entry => entry.name)).toEqual(['a', 'b']);
+		expect(touched).not.toHaveBeenCalled();
+		expect(modified).not.toHaveBeenCalled();
+	});
+});
+
+describe('GroupVariablesField under StrictMode (bug 2 — reconcile is a write on a read path)', () => {
+	it('mounts with exactly one row per placeholder, no duplicates from the double-invoked read', () => {
+		setup({ groupName: 'g1', placeholders: ['a', 'b'] });
+		mount({ strict: true });
+
+		expect(labels()).toEqual(['a:', 'b:']);
+		expect(parentValue.variables.map(entry => entry.name)).toEqual(['a', 'b']);
+	});
+
+	it('keeps existing entries by identity through the StrictMode double render', () => {
+		const existingA = { name: 'a', value: { uuid: { value: 'keep-a' }, value: { oneofKind: 'variableRef', variableRef: { name: 'x' } } } };
+		setup({ groupName: 'g1', placeholders: ['a', 'b'], existingVariables: [existingA] });
+		mount({ strict: true });
+
+		expect(parentValue.variables[0]).toBe(existingA);
+		expect(parentValue.variables).toHaveLength(2);
+	});
+
+	it('reconciles a delete correctly under StrictMode, with no duplicate or dropped rows', () => {
+		const existingA = { name: 'a', value: { uuid: { value: 'keep-a' }, value: { oneofKind: 'variableRef', variableRef: { name: 'x' } } } };
+		setup({ groupName: 'g1', placeholders: ['a', 'b'], existingVariables: [existingA] });
+		mount({ strict: true });
+
+		clickItemAction(0, '[data-testid="apl-group-variables-delete"]');
+
+		expect(labels()).toEqual(['a:', 'b:']);
+		expect(parentValue.variables.map(entry => entry.name)).toEqual(['a', 'b']);
+	});
+});
+
+describe('GroupVariableRow — a row only exists while its group is selected', () => {
+	it('deselecting the group unmounts every row rather than leaving one mounted', () => {
+		setup({ groupName: 'g1', placeholders: ['a', 'b'] });
+		mount();
+		expect(rows()).toHaveLength(2);
+
+		act(() => {
+			parentValue.groupName = undefined;
+			player.touchRotation();
+		});
+
+		expect(rows()).toHaveLength(0);
+	});
+
+	it('reselecting the group mounts fresh row instances, which start with stale=true and read correctly on their first render', () => {
+		setup({ groupName: 'g1', placeholders: ['a'] });
+		mount();
+		expect(rows()).toHaveLength(1);
+
+		act(() => {
+			parentValue.groupName = undefined;
+			player.touchRotation();
+		});
+		expect(rows()).toHaveLength(0);
+
+		act(() => {
+			parentValue.groupName = 'g1';
+			player.touchRotation();
+		});
+
+		expect(rows()).toHaveLength(1);
 	});
 });

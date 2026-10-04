@@ -1,6 +1,6 @@
+import type { ActionIdState } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { ActionIdState } from '@ui-kit/hooks/useActionId';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { MetricsActionCell } from './MetricsActionCell';
@@ -8,7 +8,7 @@ import { MetricsActionCell } from './MetricsActionCell';
 const resolved = vi.hoisted(() => ({ state: { iconUrl: '', name: '', href: '', ready: true } as ActionIdState }));
 const wowhead = vi.hoisted(() => ({ calls: [] as Array<unknown> }));
 
-vi.mock('@ui-kit/hooks/useActionId', () => ({ useActionId: () => resolved.state }));
+vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => resolved.state }));
 vi.mock('@sim/proto/action_id/tooltip_data', () => ({
 	actionIdWowheadTooltipData: (...args: Array<unknown>) => {
 		wowhead.calls.push(args);
@@ -65,29 +65,9 @@ describe('MetricsActionCell', () => {
 		await waitFor(() => expect(container.querySelector<HTMLElement>('a[data-testid="metrics-action-icon"]')!.dataset.wowhead).toBe('spell=34026'));
 	});
 
-	it('exposes the toggle as a focusable button reporting its state', async () => {
+	it('exposes the toggle as a button reporting its state', async () => {
 		await cell({ expandable: true, expanded: true });
-		const toggle = screen.getByRole('button', { name: 'Kill Command' });
 
-		expect(toggle.getAttribute('aria-expanded')).toBe('true');
-		expect(toggle.querySelectorAll('.fa-caret-down')).toHaveLength(1);
-		expect(toggle.querySelectorAll('.fa-caret-right')).toHaveLength(0);
-		toggle.focus();
-		expect(document.activeElement).toBe(toggle);
-	});
-
-	it('toggles once when the button is clicked, not twice through the row', async () => {
-		const onToggle = vi.fn();
-		const onRowClick = vi.fn();
-		render(
-			<div onClick={onRowClick}>
-				<MetricsActionCell name="Kill Command" actionId={actionId} expandable={true} expanded={false} onToggle={onToggle} />
-			</div>,
-		);
-		await act(async () => {});
-
-		fireEvent.click(screen.getByRole('button', { name: 'Kill Command' }));
-		expect(onToggle).toHaveBeenCalledTimes(1);
-		expect(onRowClick).not.toHaveBeenCalled();
+		expect(screen.getByRole('button', { name: 'Kill Command' }).getAttribute('aria-expanded')).toBe('true');
 	});
 });

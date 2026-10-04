@@ -82,3 +82,5 @@ When everything is ready for release, modify `ui/core/launched_sims.ts` and `ui/
 # Deployment
 
 Thanks to the workflow defined in `.github/workflows/deploy.yml`, pushes to `master` automatically build and deploy a new site so there's nothing to do here. Sit back and appreciate your new sim!
+
+Before that, every pull request gets its own build at `https://pr-<number>.wowsims-forever.pages.dev/forever/`, linked from a comment on the pull request, so the new sim can be tried in a browser before it merges. The preview goes away when the pull request closes.

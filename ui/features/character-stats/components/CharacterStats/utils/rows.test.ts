@@ -3,7 +3,7 @@ import type { Player } from '@sim/player/player';
 import { UnitStat } from '@sim/proto/stats';
 import { describe, expect, it } from 'vitest';
 
-import { buildRows } from './rows';
+import { buildRows, defaultOpenStatGroups } from './rows';
 
 const fakePlayer = (spec: { isTankSpec?: boolean; isMeleeDpsSpec?: boolean }) =>
 	({ getPlayerSpec: () => ({ isTankSpec: false, isMeleeDpsSpec: false, ...spec }) }) as unknown as Player<any>;
@@ -19,12 +19,12 @@ describe('buildRows', () => {
 			UnitStat.fromStat(Stat.StatArmor),
 			UnitStat.fromStat(Stat.StatShadowResistance),
 		];
-		expect(buildRows(fakePlayer({}), statList).groups.map(group => group.key)).toEqual(['Primary', 'Physical', 'Spell', 'Defense', 'Resistance']);
+		expect(buildRows(fakePlayer({}), statList).groups.map(group => group.key)).toEqual(['primary', 'physical', 'spell', 'defense', 'resistance']);
 	});
 
 	it('drops a group nothing in it is displayed for', () => {
 		const layout = buildRows(fakePlayer({}), [UnitStat.fromStat(Stat.StatHealth)]);
-		expect(layout.groups.map(group => group.key)).toEqual(['Primary']);
+		expect(layout.groups.map(group => group.key)).toEqual(['primary']);
 	});
 
 	it('renders the split melee/ranged hit, crit and speed pseudo stats apart', () => {
@@ -52,23 +52,73 @@ describe('buildRows', () => {
 		].map(pseudoStat => UnitStat.fromPseudoStat(pseudoStat));
 
 		const layout = buildRows(fakePlayer({}), schools);
-		expect(kinds(layout, 'Spell')).toEqual(Array(6).fill('stat'));
+		expect(kinds(layout, 'spell')).toEqual(Array(6).fill('stat'));
 	});
 
 	it('hangs the tank readouts off the end of the Defense group', () => {
 		const layout = buildRows(fakePlayer({ isTankSpec: true }), [UnitStat.fromStat(Stat.StatDefenseRating)]);
-		expect(kinds(layout, 'Defense')).toEqual(['stat', 'miss', 'avoidance', 'crit-immunity']);
+		expect(kinds(layout, 'defense')).toEqual(['stat', 'miss', 'avoidance', 'crit-immunity']);
 	});
 
 	it('leaves the tank readouts out for a non-tank', () => {
 		const layout = buildRows(fakePlayer({}), [UnitStat.fromStat(Stat.StatDefenseRating)]);
-		expect(kinds(layout, 'Defense')).toEqual(['stat']);
+		expect(kinds(layout, 'defense')).toEqual(['stat']);
 	});
 
-	// The melee crit cap goes after the whole table, not next to the crit row.
-	it('trails the melee crit cap as its own group for a melee dps spec', () => {
-		const layout = buildRows(fakePlayer({ isMeleeDpsSpec: true }), [UnitStat.fromStat(Stat.StatHealth)]);
-		expect(layout.groups.map(group => group.key)).toEqual(['Primary', 'MeleeCritCap']);
-		expect(kinds(layout, 'MeleeCritCap')).toEqual(['melee-crit-cap']);
+	it('folds the off-hand pseudo stats into the main-hand rows instead of giving them their own row', () => {
+		const statList = [
+			PseudoStat.PseudoStatMeleeHitPercent,
+			PseudoStat.PseudoStatMeleeCritPercent,
+			PseudoStat.PseudoStatOffHandHitPercent,
+			PseudoStat.PseudoStatOffHandCritPercent,
+			PseudoStat.PseudoStatMeleeHastePercent,
+		].map(pseudoStat => UnitStat.fromPseudoStat(pseudoStat));
+
+		const layout = buildRows(fakePlayer({}), statList);
+		expect(kinds(layout, 'physical')).toEqual(['stat', 'stat', 'stat']);
+		expect(layout.shownStats.map(stat => stat.getKey())).toEqual(
+			[PseudoStat.PseudoStatMeleeHitPercent, PseudoStat.PseudoStatMeleeCritPercent, PseudoStat.PseudoStatMeleeHastePercent].map(pseudoStat =>
+				UnitStat.fromPseudoStat(pseudoStat).getKey(),
+			),
+		);
+
+		const physical = layout.groups.find(group => group.key === 'physical')!;
+		const meleeHitRow = physical.rows[0];
+		const meleeCritRow = physical.rows[1];
+		expect(meleeHitRow.kind === 'stat' && meleeHitRow.displayStat.offHandStat?.equalsPseudoStat(PseudoStat.PseudoStatOffHandHitPercent)).toBe(true);
+		expect(meleeCritRow.kind === 'stat' && meleeCritRow.displayStat.offHandStat?.equalsPseudoStat(PseudoStat.PseudoStatOffHandCritPercent)).toBe(true);
+	});
+
+	it('puts the melee crit cap directly after the Melee Crit row for a melee dps spec', () => {
+		const statList = [PseudoStat.PseudoStatMeleeHitPercent, PseudoStat.PseudoStatMeleeCritPercent, PseudoStat.PseudoStatMeleeHastePercent].map(pseudoStat =>
+			UnitStat.fromPseudoStat(pseudoStat),
+		);
+
+		const layout = buildRows(fakePlayer({ isMeleeDpsSpec: true }), statList);
+		expect(layout.groups.map(group => group.key)).toEqual(['physical']);
+		expect(kinds(layout, 'physical')).toEqual(['stat', 'stat', 'melee-crit-cap', 'stat']);
+	});
+
+	it('leaves the melee crit cap out for a non-melee-dps spec', () => {
+		const statList = [UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent), UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent)];
+		const layout = buildRows(fakePlayer({}), statList);
+		expect(kinds(layout, 'physical')).toEqual(['stat', 'stat']);
+	});
+});
+
+describe('defaultOpenStatGroups', () => {
+	const physical = [UnitStat.fromStat(Stat.StatAttackPower), UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent)];
+	const spell = [UnitStat.fromStat(Stat.StatSpellDamage), UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), UnitStat.fromStat(Stat.StatMP5)];
+
+	it('opens Attributes and Defense for a tank, whatever its key stats', () => {
+		expect(defaultOpenStatGroups(true, physical)).toEqual(['attributes', 'defense']);
+	});
+
+	it.each([
+		['physical', physical, 'physical'],
+		['spell', spell, 'spell'],
+		['ranged physical', [UnitStat.fromStat(Stat.StatRangedAttackPower), UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent)], 'physical'],
+	])('opens Attributes and the group holding most of a %s spec’s key stats', (_kind, keyStats, group) => {
+		expect(defaultOpenStatGroups(false, keyStats)).toEqual(['attributes', group]);
 	});
 });

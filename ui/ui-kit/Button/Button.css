@@ -1,6 +1,6 @@
 @layer components {
 	.ui-button {
-		@apply inline-block cursor-pointer rounded-none border border-transparent text-center align-middle text-sm leading-normal font-normal no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
+		@apply inline-flex cursor-pointer items-center justify-center gap-(--btn-gap) rounded-none border border-transparent text-center align-middle text-(length:--control-font-size) leading-normal font-normal no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
 
 		&:focus-visible {
 			@apply outline-none;
@@ -9,10 +9,21 @@
 		&:disabled {
 			@apply pointer-events-none opacity-65;
 		}
+
+		&[aria-busy] {
+			@apply relative;
+		}
 	}
 
 	.ui-button-link {
-		@apply cursor-pointer rounded-none border-0 p-0 text-center align-middle text-sm leading-normal font-normal text-link no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
+		@apply inline-flex cursor-pointer items-center gap-(--btn-gap) rounded-none border-0 p-0 text-center align-middle text-(length:--control-font-size) leading-normal font-normal text-link no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
+
+		/* A link takes the font size of its size class and none of its padding. */
+		&.ui-button-md,
+		&.ui-button-sm,
+		&.ui-button-xs {
+			@apply p-0;
+		}
 
 		&:hover {
 			@apply text-link-hover;
@@ -29,6 +40,10 @@
 
 	.ui-button-icon {
 		@apply cursor-pointer border-0 bg-transparent;
+
+		&[aria-busy] {
+			@apply relative;
+		}
 	}
 
 	.ui-button-primary {
@@ -171,31 +186,19 @@
 		}
 	}
 
-	.ui-button-warning {
-		@apply text-link-warning;
-
-		&:hover {
-			@apply text-link-warning;
-		}
-
-		&:focus-visible {
-			@apply text-link-warning shadow-none;
-		}
-
-		&:disabled {
-			@apply text-link-warning;
-		}
-	}
-
 	.ui-button-md {
-		@apply px-3 py-2;
+		@apply px-(--control-padding-x) py-(--control-padding-y);
 	}
 
 	.ui-button-sm {
 		@apply px-2 py-1;
 	}
 
-	.ui-button-inline {
-		@apply px-2 py-0;
+	.ui-button-xs {
+		@apply px-2 py-1 text-ui;
+	}
+
+	.ui-button-spinner {
+		@apply absolute inset-0 m-auto;
 	}
 }

@@ -10,7 +10,7 @@ import { Button } from '@ui-kit/Button';
 import { useStickyToolbar } from '@ui-kit/hooks/useStickyToolbar';
 import { TabPanels } from '@ui-kit/TabNav';
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { trackEvent } from '../../../../tracking/utils';
 import { useSimResult } from '../../hooks/useSimResult';
@@ -25,10 +25,81 @@ import { ResourceMetricsTable } from '../ResourceMetricsTable';
 import { ALL_UNITS, hasTarget, ResultsFilter, simResultFilter } from '../ResultsFilter';
 import { ThreatMetricsTable } from '../ThreatMetricsTable';
 import { Timeline } from '../Timeline';
+import { DrStickySlotContext } from './context/DrStickySlotContext';
 import { DetailedResultsPane } from './DetailedResultsPane';
 import { DetailedResultsTabs } from './DetailedResultsTabs';
-import { DrStickySlotContext } from './DrStickySlotContext';
-import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS } from './utils';
+import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS, type DetailedResultsTabConfig } from './utils';
+
+export interface DetailedResultsViewProps {
+	tabs: ReadonlyArray<DetailedResultsTabConfig>;
+	activeId: string;
+	onActiveIdChange: (id: string) => void;
+	hasResults: boolean;
+	iterationDisabled: boolean;
+	deathDisabled: boolean;
+	onSimulateIteration: () => void;
+	onSimulateDeath: () => void;
+	targetPicker: ReactNode;
+	/** One `DetailedResultsPane` per tab, its value the tab's id. */
+	children: ReactNode;
+}
+
+export const DetailedResultsView = ({
+	tabs,
+	activeId,
+	onActiveIdChange,
+	hasResults,
+	iterationDisabled,
+	deathDisabled,
+	onSimulateIteration,
+	onSimulateDeath,
+	targetPicker,
+	children,
+}: DetailedResultsViewProps) => {
+	const { ref: toolbarRef, stuck, className: stickyToolbarClassName } = useStickyToolbar<HTMLDivElement>();
+	const [stickySlot, setStickySlot] = useState<HTMLElement | null>(null);
+
+	return (
+		<div data-testid="detailed-results-manager-root" className="flex flex-col *:min-h-0">
+			<div data-testid="detailed-results-controls-div" className="mb-2 flex">
+				<Button data-testid="detailed-results-1-iteration-button" disabled={iterationDisabled} onClick={onSimulateIteration}>
+					{i18n.t('results_tab.details.sim_1_iteration')}
+				</Button>
+				<Button className="ml-2" disabled={deathDisabled} onClick={onSimulateDeath}>
+					{i18n.t('results_tab.details.sim_1_death')}
+				</Button>
+			</div>
+			<DrStickySlotContext.Provider value={stickySlot}>
+				<Tabs.Root
+					className="group/dr flex scroll-mt-sim-header flex-col"
+					data-testid="dr-root"
+					data-no-results={!hasResults ? '' : undefined}
+					value={activeId}
+					onValueChange={next => onActiveIdChange(String(next))}>
+					<div ref={toolbarRef} data-testid="dr-toolbar" className={clsx(stickyToolbarClassName, 'flex-col')} data-stuck={stuck ? '' : undefined}>
+						<div data-testid="dr-toolbar-row" className="flex min-h-0 w-full items-center">
+							<div data-testid="results-filter" className="flex min-h-0 items-center">
+								{targetPicker}
+							</div>
+							<div className="min-h-0 grow" />
+							<DetailedResultsTabs tabs={tabs} />
+						</div>
+						<div ref={setStickySlot} data-testid="dr-sticky-slot" />
+					</div>
+					<TabPanels data-testid="dr-tab-content">
+						<div
+							id="noResultsTab"
+							data-active
+							className="col-start-1 row-start-1 flex items-center justify-center p-6 text-base opacity-100 transition-opacity duration-150 ease-linear group-not-data-no-results/dr:hidden">
+							{i18n.t('results_tab.details.no_results')}
+						</div>
+						{children}
+					</TabPanels>
+				</Tabs.Root>
+			</DrStickySlotContext.Provider>
+		</div>
+	);
+};
 
 export interface DetailedResultsProps {
 	resultsManager: SimResultsManager;
@@ -58,8 +129,6 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	const [target, setTarget] = useState(ALL_UNITS);
 	const hasResults = useSimResult() !== null;
 
-	const { ref: toolbarRef, stuck, className: stickyToolbarClassName } = useStickyToolbar<HTMLDivElement>();
-	const [stickySlot, setStickySlot] = useState<HTMLElement | null>(null);
 	// `updateResults` is bound to the emitter, not to the filter, so the selection it reads is a ref.
 	const targetRef = useRef(target);
 	// What the last emit already carried, so the reset below does not queue a second one.
@@ -167,97 +236,65 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	};
 
 	return (
-		<div data-testid="detailed-results-manager-root" className="flex flex-col *:min-h-0">
-			<div data-testid="detailed-results-controls-div" className="mb-3 flex">
-				<Button
-					data-testid="detailed-results-1-iteration-button"
-					disabled={host.disabled}
-					onClick={() => {
-						trackEvent({ action: 'sim', category: 'simulate', label: 'once' });
-						void host.runSingleIteration();
-					}}>
-					{i18n.t('results_tab.details.sim_1_iteration')}
-				</Button>
-				<Button className="ml-3" disabled={deathDisabled} onClick={onSimulateDeath}>
-					{i18n.t('results_tab.details.sim_1_death')}
-				</Button>
-			</div>
-			<DrStickySlotContext.Provider value={stickySlot}>
-				<Tabs.Root
-					className="group/dr flex scroll-mt-sim-header flex-col"
-					data-testid="dr-root"
-					data-no-results={!hasResults ? '' : undefined}
-					value={activeId}
-					onValueChange={next => setActiveId(String(next))}>
-					<div ref={toolbarRef} data-testid="dr-toolbar" className={clsx(stickyToolbarClassName, 'flex-col')} data-stuck={stuck ? '' : undefined}>
-						<div data-testid="dr-toolbar-row" className="flex min-h-0 w-full items-center">
-							<div data-testid="results-filter" className="flex min-h-0 items-center">
-								<ResultsFilter
-									target={target}
-									onTargetChange={next => {
-										targetRef.current = next;
-										setTarget(next);
-									}}
-								/>
-							</div>
-							<div className="min-h-0 grow" />
-							<DetailedResultsTabs tabs={visibleTabs} />
-						</div>
-						<div ref={setStickySlot} data-testid="dr-sticky-slot" />
-					</div>
-					<TabPanels data-testid="dr-tab-content">
-						<div
-							id="noResultsTab"
-							data-active
-							className="col-start-1 row-start-1 flex items-center justify-center p-6 text-base opacity-100 transition-opacity duration-150 ease-linear group-not-data-no-results/dr:hidden">
-							{i18n.t('results_tab.details.no_results')}
-						</div>
-						{showDamage && (
-							<DetailedResultsPane
-								id="damageTab"
-								className="[&_.ui-metrics-table]:text-xs"
-								contentTestId="damage-spell-metrics"
-								topline
-								histogram>
-								<DamageMetricsTable />
-							</DetailedResultsPane>
-						)}
-						{showThreat && (
-							<DetailedResultsPane id="threatTab" className="[&_.ui-metrics-table]:text-xs" contentTestId="threat-metrics" topline>
-								<ThreatMetricsTable />
-							</DetailedResultsPane>
-						)}
-						{showHealing && (
-							<DetailedResultsPane id="healingTab" className="[&_.ui-metrics-table]:text-xs" contentTestId="healing-spell-metrics" topline>
-								<HealingMetricsTable />
-							</DetailedResultsPane>
-						)}
-						{showThreat && (
-							<DetailedResultsPane id="damageTakenTab" contentTestId="dtps-metrics" topline>
-								<DtpsMetricsTable />
-							</DetailedResultsPane>
-						)}
-						<DetailedResultsPane id="buffsTab" contentTestId="buff-aura-metrics">
-							<AuraMetricsTable useDebuffs={false} />
-						</DetailedResultsPane>
-						<DetailedResultsPane id="debuffsTab" contentTestId="debuff-aura-metrics">
-							<AuraMetricsTable useDebuffs={true} />
-						</DetailedResultsPane>
-						<DetailedResultsPane id="castsTab" contentTestId="cast-metrics">
-							<CastMetricsTable />
-						</DetailedResultsPane>
-						<DetailedResultsPane id="resourcesTab" contentTestId="resource-metrics">
-							<ResourceMetricsTable />
-						</DetailedResultsPane>
-						<DetailedResultsPane id="timelineTab" contentTestId="timeline" filling>
-							<Timeline active={activeId === 'timelineTab'} />
-						</DetailedResultsPane>
-						<DetailedResultsPane id="logTab" contentTestId="log">
-							<LogRunner active={activeId === 'logTab'} />
-						</DetailedResultsPane>
-					</TabPanels>
-				</Tabs.Root>
-			</DrStickySlotContext.Provider>
-		</div>
+		<DetailedResultsView
+			tabs={visibleTabs}
+			activeId={activeId}
+			onActiveIdChange={setActiveId}
+			hasResults={hasResults}
+			iterationDisabled={host.disabled}
+			deathDisabled={deathDisabled}
+			onSimulateIteration={() => {
+				trackEvent({ action: 'sim', category: 'simulate', label: 'once' });
+				void host.runSingleIteration();
+			}}
+			onSimulateDeath={onSimulateDeath}
+			targetPicker={
+				<ResultsFilter
+					target={target}
+					onTargetChange={next => {
+						targetRef.current = next;
+						setTarget(next);
+					}}
+				/>
+			}>
+			{showDamage && (
+				<DetailedResultsPane id="damageTab" className="[&_.ui-metrics-table]:text-xs" topline histogram>
+					<DamageMetricsTable />
+				</DetailedResultsPane>
+			)}
+			{showThreat && (
+				<DetailedResultsPane id="threatTab" className="[&_.ui-metrics-table]:text-xs" topline>
+					<ThreatMetricsTable />
+				</DetailedResultsPane>
+			)}
+			{showHealing && (
+				<DetailedResultsPane id="healingTab" className="[&_.ui-metrics-table]:text-xs" topline>
+					<HealingMetricsTable />
+				</DetailedResultsPane>
+			)}
+			{showThreat && (
+				<DetailedResultsPane id="damageTakenTab" topline>
+					<DtpsMetricsTable />
+				</DetailedResultsPane>
+			)}
+			<DetailedResultsPane id="buffsTab">
+				<AuraMetricsTable useDebuffs={false} />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="debuffsTab">
+				<AuraMetricsTable useDebuffs={true} />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="castsTab">
+				<CastMetricsTable />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="resourcesTab">
+				<ResourceMetricsTable />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="timelineTab" filling>
+				<Timeline active={activeId === 'timelineTab'} />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="logTab">
+				<LogRunner active={activeId === 'logTab'} />
+			</DetailedResultsPane>
+		</DetailedResultsView>
 	);
 };

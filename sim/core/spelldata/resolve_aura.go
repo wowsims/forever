@@ -81,6 +81,6 @@ func DotConfig(s *Spell, e *Effect, opts ...AuraOpt) core.DotConfig {
 
 func PeriodicDamageTick(e *Effect, outcome func(*core.Dot) core.OutcomeApplier) core.OnTick {
 	return func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, e.Average(dot.Spell.Unit.Level), outcome(dot))
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, e.Average(), outcome(dot))
 	}
 }

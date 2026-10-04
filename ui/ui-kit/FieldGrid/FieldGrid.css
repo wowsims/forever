@@ -1,0 +1,6 @@
+@layer components {
+	.ui-field-grid {
+		@apply grid w-full gap-2;
+		grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+	}
+}

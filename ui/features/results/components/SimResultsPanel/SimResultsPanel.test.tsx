@@ -1,18 +1,17 @@
 // The two halves this panel is built on, and one race that only a unit test can reach.
 //
-// Progress is refs and DOM writes; only a stage change renders. A browser-level check waits for text
-// to appear, so it passes on tick two and can never see that tick one's numbers were dropped — that
-// gap is what the "same commit" case below covers.
+// Progress renders once per tick from the store's progress listener. A browser-level check waits for
+// text to appear, so it passes on tick two and can never see that tick one's numbers were dropped —
+// that gap is what the "same commit" case below covers.
 import { ProgressMetrics } from '@generated/proto/api';
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import type { SimWarning } from '@sim/sim_host';
-import { fakeHost, mockSubscriptions } from '@sim/testing';
-import { act, render } from '@testing-library/react';
+import { formatToNumber } from '@sim/utils/format';
+import { renderWithHost } from '@testing/react';
+import { mockSubscriptions } from '@testing/sim/subscriptions';
+import { act } from '@testing-library/react';
 import { Profiler } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimResultsManager } from '../../model/results_manager';
-import { WarningsRegistry } from '../../model/warnings';
 import { ResultsPanelStore } from './results_panel_store';
 import { SimResultsPanel } from './SimResultsPanel';
 
@@ -22,111 +21,84 @@ vi.mock('@sim/state/subscriptions', async () => mockSubscriptions());
 // under test here is that the content zone renders it and nothing else.
 vi.mock('./SimResultSummary', () => ({ SimResultSummary: () => <div data-testid="sim-result-summary-root" /> }));
 
-const host = (disabled = false, simDisabled = disabled) =>
-	fakeHost({
-		disabled,
-		simDisabled,
-		// The warnings only read the registry once the sim reports ready; every case here is a loaded sim.
-		sim: {
-			waitForInit: () => Promise.resolve(),
-			getShowDamageMetrics: () => true,
-			getShowThreatMetrics: () => true,
-			getShowHealingMetrics: () => true,
-		},
-	});
-
 const progress = (dps: number, hps: number, completed: number, total: number, presimRunning = false) =>
 	ProgressMetrics.create({ dps, hps, completedIterations: completed, totalIterations: total, presimRunning });
 
 // The sim reports ready a microtask after mount, and every case here is a loaded sim, so the mount
 // is not finished until that has landed.
-const mount = async (
-	panel: ResultsPanelStore,
-	warnings: WarningsRegistry,
-	disabled = false,
-	results: SimResultsManager | null = null,
-	simDisabled = disabled,
-) => {
+const mount = async (panel: ResultsPanelStore, disabled = false, results: SimResultsManager | null = null, simDisabled = disabled) => {
 	const commits = vi.fn();
-	const view = render(
-		<SimHostProvider host={host(disabled, simDisabled)}>
-			<Profiler id="panel" onRender={commits}>
-				<SimResultsPanel panel={panel} warnings={warnings} results={results} />
-			</Profiler>
-		</SimHostProvider>,
+	const view = renderWithHost(
+		<Profiler id="panel" onRender={commits}>
+			<SimResultsPanel panel={panel} results={results} />
+		</Profiler>,
+		{
+			disabled,
+			simDisabled,
+			sim: {
+				waitForInit: () => Promise.resolve(),
+				getShowDamageMetrics: () => true,
+				getShowThreatMetrics: () => true,
+				getShowHealingMetrics: () => true,
+			},
+		},
 	);
 	await act(async () => {});
 	return { commits, view };
 };
 
-const zone = (view: ReturnType<typeof render>, selector: string) => view.container.querySelector<HTMLElement>(selector)!;
-const shown = (view: ReturnType<typeof render>, selector: string) => !zone(view, selector).hidden;
-const zones = (view: ReturnType<typeof render>) => ({
-	pending: shown(view, '[data-testid="results-pending"]'),
-	content: shown(view, '[data-testid="results-content"]'),
-	buttons: shown(view, '[data-testid="button-zone"]'),
+const zone = (view: ReturnType<typeof renderWithHost>, selector: string) => view.container.querySelector<HTMLElement>(selector)!;
+const zones = (view: ReturnType<typeof renderWithHost>) => ({
+	pending: !!view.container.querySelector('[data-testid="results-sim"], [data-testid="loader"]'),
+	content: !!view.container.querySelector('[data-testid="sim-result-summary-root"]'),
 });
 
 let panel: ResultsPanelStore;
-let warnings: WarningsRegistry;
 
 // The test i18n stub echoes the key, so these assertions pin the key rather than the copy.
-const ITERATIONS = 'sidebar.results.progress.iterations_complete';
-
-const staticWarning = (getContent: () => string | Array<string>): SimWarning => ({ updateOn: () => () => {}, getContent });
+const READOUT = '[data-testid="results-sim-progress"] [data-testid="progress-tracker-modal-progress-text"]';
 
 describe('SimResultsPanel', () => {
 	beforeEach(() => {
 		panel = new ResultsPanelStore();
-		warnings = new WarningsRegistry();
 	});
 
-	it('renders the four zones in order, with every run zone hidden at construction', async () => {
-		const { view } = await mount(panel, warnings);
-		const viewer = zone(view, '[data-testid="results-viewer"]');
+	it('renders nothing before a run starts', async () => {
+		const { view } = await mount(panel);
 
-		expect([...viewer.children].map(el => el.getAttribute('data-testid'))).toEqual(['results-pending', 'results-content', 'button-zone', 'warning-zone']);
-		expect(zones(view)).toEqual({ pending: false, content: false, buttons: false });
-		expect(shown(view, '[data-testid="warning-zone"]')).toBe(true);
-		expect(viewer.querySelector('[data-testid="results-pending"] [data-testid="loader"]')).not.toBeNull();
+		expect(view.container.querySelector('[data-testid="results-viewer"]')).toBeNull();
+		expect(zones(view)).toEqual({ pending: false, content: false });
 	});
 
 	it('follows the visibility table through the handle', async () => {
-		const { view } = await mount(panel, warnings);
+		const { view } = await mount(panel, false, {} as SimResultsManager);
 
 		act(() => panel.setPending());
-		expect(zones(view)).toEqual({ pending: true, content: false, buttons: false });
-
-		// The button zone is its own axis: adding the Stop button does not touch pending or content.
-		act(() => panel.addAbortButton(() => {}));
-		expect(zones(view)).toEqual({ pending: true, content: false, buttons: true });
+		expect(zones(view)).toEqual({ pending: true, content: false });
 
 		act(() => panel.setProgress(progress(1, 2, 3, 4)));
-		expect(zones(view)).toEqual({ pending: true, content: false, buttons: true });
-		expect(view.container.querySelector('[data-testid="results-pending"] [data-testid="results-sim"]')).not.toBeNull();
-		expect(view.container.querySelector('[data-testid="results-pending"] [data-testid="loader"]')).toBeNull();
+		expect(zones(view)).toEqual({ pending: true, content: false });
+		expect(view.container.querySelector('[data-testid="results-sim"]')).not.toBeNull();
+		expect(view.container.querySelector('[data-testid="loader"]')).toBeNull();
 
 		act(() => panel.showResult());
-		expect(zones(view)).toEqual({ pending: false, content: true, buttons: true });
+		expect(zones(view)).toEqual({ pending: false, content: true });
 
-		// `hideAll` takes the Stop button's zone down with the other two, before it is ever removed.
 		act(() => panel.hideAll());
-		expect(zones(view)).toEqual({ pending: false, content: false, buttons: false });
-		expect(view.container.querySelector('[data-testid="button-zone"] button')).not.toBeNull();
-
-		act(() => panel.removeAbortButton());
-		expect(view.container.querySelector('[data-testid="button-zone"] button')).toBeNull();
+		expect(zones(view)).toEqual({ pending: false, content: false });
 	});
 
-	it('renders the finished run into the content zone, and leaves it empty without a manager', async () => {
-		expect(zone((await mount(panel, warnings)).view, '[data-testid="results-content"]').childNodes.length).toBe(0);
+	it('renders the finished run into the content zone once the stage says so, and leaves it out without a manager', async () => {
+		const { view } = await mount(panel);
+		act(() => panel.showResult());
+		expect(view.container.querySelector('[data-testid="sim-result-summary-root"]')).toBeNull();
 
-		const { view } = await mount(panel, warnings, false, {} as SimResultsManager);
-		expect(zone(view, '[data-testid="results-content"] > [data-testid="sim-result-summary-root"]')).not.toBeNull();
+		const { view: withResults } = await mount(panel, false, {} as SimResultsManager);
+		expect(withResults.container.querySelector('[data-testid="sim-result-summary-root"]')).not.toBeNull();
 	});
 
 	it('puts the first tick on screen in the same commit that mounts the block', async () => {
-		const { view } = await mount(panel, warnings);
+		const { view } = await mount(panel);
 		act(() => panel.setPending());
 
 		// One call, carrying both the stage change and the first numbers — the shape every transport
@@ -135,11 +107,12 @@ describe('SimResultsPanel', () => {
 
 		expect(zone(view, '[data-testid="results-sim-dps"] [data-testid="topline-result-avg"]').textContent).toBe('1234.57');
 		expect(zone(view, '[data-testid="results-sim-hps"] [data-testid="topline-result-avg"]').textContent).toBe('22.50');
-		expect(zone(view, '[data-testid="results-sim"]').lastElementChild!.textContent).toBe(`10 / 1000${ITERATIONS}`);
+		expect(zone(view, READOUT).textContent).toBe(`${formatToNumber(10)} / ${formatToNumber(1000)}`);
+		expect(zone(view, '[data-testid="results-sim-progress"] [role="progressbar"]').getAttribute('aria-valuenow')).toBe('0.01');
 	});
 
-	it('writes later ticks without rendering', async () => {
-		const { view, commits } = await mount(panel, warnings);
+	it('writes later ticks with one commit each, the progress bar', async () => {
+		const { view, commits } = await mount(panel);
 		act(() => panel.setPending());
 		act(() => panel.setProgress(progress(1, 1, 1, 100)));
 		const afterMount = commits.mock.calls.length;
@@ -148,24 +121,35 @@ describe('SimResultsPanel', () => {
 
 		expect(zone(view, '[data-testid="results-sim-dps"] [data-testid="topline-result-avg"]').textContent).toBe('100.00');
 		expect(zone(view, '[data-testid="results-sim-hps"] [data-testid="topline-result-avg"]').textContent).toBe('200.00');
-		expect(zone(view, '[data-testid="results-sim"]').lastElementChild!.textContent).toBe(`100 / 100${ITERATIONS}`);
-		expect(commits.mock.calls.length).toBe(afterMount);
+		expect(zone(view, '[data-testid="results-sim-progress"] [role="progressbar"]').getAttribute('aria-valuenow')).toBe('1');
+		expect(commits.mock.calls.length).toBe(afterMount + 99);
 
 		// And a stage change is still exactly one commit.
 		act(() => panel.showResult());
-		expect(commits.mock.calls.length).toBe(afterMount + 1);
+		expect(commits.mock.calls.length).toBe(afterMount + 100);
 	});
 
 	it('shows the presim caption instead of the counter', async () => {
-		const { view } = await mount(panel, warnings);
+		const { view } = await mount(panel);
 		act(() => panel.setPending());
 		act(() => panel.setProgress(progress(0, 0, 0, 0, true)));
 
-		expect(zone(view, '[data-testid="results-sim"]').lastElementChild!.textContent).toBe(`sidebar.results.progress.presim_running${ITERATIONS}`);
+		expect(zone(view, READOUT).textContent).toBe('sidebar.results.progress.presim_running');
+		expect(zone(view, '[data-testid="results-sim-progress"] [role="progressbar"]').hasAttribute('aria-valuenow')).toBe(false);
+	});
+
+	it('shows the time remaining once a second tick gives it a pace', async () => {
+		const { view } = await mount(panel);
+		act(() => panel.setPending());
+		act(() => panel.setProgress(progress(1, 1, 10, 100)));
+		expect(view.container.querySelector('[data-testid="results-sim-time-remaining"]')).toBeNull();
+
+		act(() => panel.setProgress(progress(1, 1, 20, 100)));
+		expect(zone(view, '[data-testid="results-sim-time-remaining"]').textContent).toBe('sidebar.results.progress.time_remaining');
 	});
 
 	it('commits the stage before the caller returns, so a same-task read sees it', async () => {
-		const { view } = await mount(panel, warnings);
+		const { view } = await mount(panel);
 		// The read happens inside the same batch as the write, like the run action's own click
 		// handler reading the DOM back before its first await. Without `flushSync` in the store the
 		// commit would wait for the end of the batch and this would read the stage it replaced.
@@ -177,67 +161,12 @@ describe('SimResultsPanel', () => {
 		expect(pendingOnReturn).toBe(true);
 	});
 
-	it('disables and relabels the Stop button before calling the handler', async () => {
-		const seen: Array<{ label: string; disabled: boolean }> = [];
-		const { view } = await mount(panel, warnings);
-		act(() =>
-			panel.addAbortButton(() => {
-				const button = view.container.querySelector<HTMLButtonElement>('[data-testid="button-zone"] button')!;
-				seen.push({ label: button.textContent!.trim(), disabled: button.disabled });
-			}),
-		);
-
-		const button = view.container.querySelector<HTMLButtonElement>('[data-testid="button-zone"] button')!;
-		expect(button.getAttribute('type')).toBe('button');
-		expect(button.textContent!.trim()).toBe('sidebar.results.stop');
-
-		act(() => button.click());
-		expect(seen).toEqual([{ label: 'sidebar.results.stopping', disabled: true }]);
-	});
-
-	it('follows the warnings registry in both directions and lists one entry each', async () => {
-		let active = '';
-		let notify = () => {};
-		warnings.add({
-			updateOn: listener => {
-				notify = listener;
-				return () => {};
-			},
-			getContent: () => active,
-		});
-		const { view } = await mount(panel, warnings);
-		const item = () => view.container.querySelector('[data-testid="warning-zone"] [data-testid="sim-toolbar-item"]');
-		expect(item()).toBeNull();
-
-		act(() => {
-			active = 'Unspent talent points';
-			notify();
-		});
-		expect(item()).toBeTruthy();
-
-		act(() => {
-			active = '';
-			notify();
-		});
-		expect(item()).toBeNull();
-	});
-
-	it('names the warning trigger and draws its glyph through Icon', async () => {
-		warnings.add(staticWarning(() => 'a warning'));
-		const { view } = await mount(panel, warnings);
-		// The trigger only mounts once the registry has something to say.
-		const trigger = zone(view, '[data-testid="warning-zone"] button');
-
-		expect(trigger.getAttribute('aria-label')).toBeTruthy();
-		expect(trigger.querySelector('i')!.classList.contains('fa-triangle-exclamation')).toBe(true);
-	});
-
-	it('renders the unlaunched notice after the four zones, and only for a disabled spec', async () => {
-		const launched = await mount(panel, warnings, false);
+	it('renders the unlaunched notice last, and only for a disabled spec', async () => {
+		const launched = await mount(panel, false);
 		expect(launched.view.container.querySelector('[data-testid="sim-ui-unlaunched-container"]')).toBeNull();
 		launched.view.unmount();
 
-		const { view } = await mount(new ResultsPanelStore(), new WarningsRegistry(), true);
+		const { view } = await mount(new ResultsPanelStore(), true);
 		const viewer = zone(view, '[data-testid="results-viewer"]');
 		expect(viewer.lastElementChild!.getAttribute('data-testid')).toBe('sim-ui-unlaunched-container');
 		// One paragraph: there is no external healing sim to point at.
@@ -246,11 +175,11 @@ describe('SimResultsPanel', () => {
 	});
 
 	it('renders the gear planner notice for a sim that never runs, and the unlaunched notice instead when the sim is disabled', async () => {
-		const launched = await mount(panel, warnings, false);
+		const launched = await mount(panel, false);
 		expect(launched.view.container.querySelector('[data-testid="sim-ui-gear-planner-container"]')).toBeNull();
 		launched.view.unmount();
 
-		const planner = await mount(new ResultsPanelStore(), new WarningsRegistry(), false, null, true);
+		const planner = await mount(new ResultsPanelStore(), false, null, true);
 		const viewer = zone(planner.view, '[data-testid="results-viewer"]');
 		expect(viewer.lastElementChild!.getAttribute('data-testid')).toBe('sim-ui-gear-planner-container');
 		// One paragraph for every gear planner: there is no external healing sim to point at.
@@ -260,17 +189,15 @@ describe('SimResultsPanel', () => {
 		planner.view.unmount();
 
 		// Unlaunched outside dev mode: both flags are set and only the unlaunched notice shows.
-		const { view } = await mount(new ResultsPanelStore(), new WarningsRegistry(), true, null, true);
+		const { view } = await mount(new ResultsPanelStore(), true, null, true);
 		expect(view.container.querySelector('[data-testid="sim-ui-unlaunched-container"]')).not.toBeNull();
 		expect(view.container.querySelector('[data-testid="sim-ui-gear-planner-container"]')).toBeNull();
 	});
 
-	it('drops its subscriptions and its tooltip on unmount', async () => {
-		warnings.add(staticWarning(() => 'a warning'));
-		const { view } = await mount(panel, warnings);
+	it('drops its subscriptions on unmount', async () => {
+		const { view } = await mount(panel);
 		view.unmount();
 
-		expect(document.querySelector('.sim-tooltip')).toBeNull();
 		// A late tick from a run that outlived the panel must not throw.
 		expect(() => panel.setProgress(progress(1, 1, 1, 1))).not.toThrow();
 	});

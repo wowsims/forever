@@ -70,8 +70,317 @@ var UnsupportedAbsorbBySpellID = map[int32]string{
 var OtherItemIdsToFetch = []string{}
 var ConsumableOverrides = []*proto.Consumable{}
 
-// Empty: all 26 entries were TBC items absent from the game files.
-var ItemOverrides = []*proto.UIItem{}
+// Each Atiesh comes from its own class's quest, and nothing in the game files ties a staff to a class:
+// AllowableClass is -1 on all four, and no spell creates them. The class follows the party aura each
+// one carries.
+var ItemOverrides = []*proto.UIItem{
+	{
+		Id:             22589, // Atiesh, Greatstaff of the Guardian: party spell crit
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22630, // Atiesh, Greatstaff of the Guardian: party spell damage
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22631, // Atiesh, Greatstaff of the Guardian: party healing
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22632, // Atiesh, Greatstaff of the Guardian: party mana regeneration
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	// Naxxramas tier 3 armor comes from class quests that take a token, and the game files leave every
+	// piece open to every class: only the set's ring names its class. Each piece takes its ring's class.
+	{
+		Id:             22416, // Dreadnaught Breastplate
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22417, // Dreadnaught Legplates
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22418, // Dreadnaught Helmet
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22419, // Dreadnaught Pauldrons
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22420, // Dreadnaught Sabatons
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22421, // Dreadnaught Gauntlets
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22422, // Dreadnaught Waistguard
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22423, // Dreadnaught Bracers
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
+	},
+	{
+		Id:             22424, // Redemption Wristguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22425, // Redemption Tunic
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22426, // Redemption Handguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22427, // Redemption Legguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22428, // Redemption Headpiece
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22429, // Redemption Spaulders
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22430, // Redemption Boots
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22431, // Redemption Girdle
+		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
+	},
+	{
+		Id:             22436, // Cryptstalker Tunic
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22437, // Cryptstalker Legguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22438, // Cryptstalker Headpiece
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22439, // Cryptstalker Spaulders
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22440, // Cryptstalker Boots
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22441, // Cryptstalker Handguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22442, // Cryptstalker Girdle
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22443, // Cryptstalker Wristguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
+	},
+	{
+		Id:             22476, // Bonescythe Breastplate
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22477, // Bonescythe Legplates
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22478, // Bonescythe Helmet
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22479, // Bonescythe Pauldrons
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22480, // Bonescythe Sabatons
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22481, // Bonescythe Gauntlets
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22482, // Bonescythe Waistguard
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22483, // Bonescythe Bracers
+		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
+	},
+	{
+		Id:             22512, // Robe of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22513, // Leggings of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22514, // Circlet of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22515, // Shoulderpads of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22516, // Sandals of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22517, // Gloves of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22518, // Belt of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22519, // Bindings of Faith
+		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
+	},
+	{
+		Id:             22464, // Earthshatter Tunic
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22465, // Earthshatter Legguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22466, // Earthshatter Headpiece
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22467, // Earthshatter Spaulders
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22468, // Earthshatter Boots
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22469, // Earthshatter Handguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22470, // Earthshatter Girdle
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22471, // Earthshatter Wristguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
+	},
+	{
+		Id:             22496, // Frostfire Robe
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22497, // Frostfire Leggings
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22498, // Frostfire Circlet
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22499, // Frostfire Shoulderpads
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22500, // Frostfire Sandals
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22501, // Frostfire Gloves
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22502, // Frostfire Belt
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22503, // Frostfire Bindings
+		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
+	},
+	{
+		Id:             22504, // Plagueheart Robe
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22505, // Plagueheart Leggings
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22506, // Plagueheart Circlet
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22507, // Plagueheart Shoulderpads
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22508, // Plagueheart Sandals
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22509, // Plagueheart Gloves
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22510, // Plagueheart Belt
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22511, // Plagueheart Bindings
+		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
+	},
+	{
+		Id:             22488, // Dreamwalker Tunic
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22489, // Dreamwalker Legguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22490, // Dreamwalker Headpiece
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22491, // Dreamwalker Spaulders
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22492, // Dreamwalker Boots
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22493, // Dreamwalker Handguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22494, // Dreamwalker Girdle
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+	{
+		Id:             22495, // Dreamwalker Wristguards
+		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
+	},
+}
 
 // Keep these sorted by item ID.
 var ItemAllowList = map[int32]struct{}{
@@ -1130,6 +1439,21 @@ var ConsumableExclusiveGroups = []ConsumableGroup{
 	}},
 }
 
+// The world events by the ItemSparse.RequiredHoliday ids the items state.
+var HolidayNames = map[int]string{
+	324: "Hallow's End",
+	327: "Lunar Festival",
+	335: "Love is in the Air",
+}
+
+// Holiday consumables whose item states no RequiredHoliday: the Midsummer Fire Festival food only
+// expires 14 days after it is bought.
+var HolidayConsumables = map[int32]string{
+	23211: "Midsummer Fire Festival", // Toasted Smorc
+	23326: "Midsummer Fire Festival", // Midsummer Sausage
+	23327: "Midsummer Fire Festival", // Fire-toasted Bun
+}
+
 // Raid buffs / debuffs
 var SharedSpellsIcons = []int32{
 	// Registered CD's
@@ -1322,4 +1646,7 @@ var EnchantOverrides = []*proto.UIEnchant{
 	{EffectId: 2681, ItemId: 22635, SpellId: 28162, Name: "Savage Guard", Stats: stats.Stats{stats.NatureResistance: 10}.ToProtoArray()},
 	{EffectId: 2682, ItemId: 22636, SpellId: 28164, Name: "Ice Guard", Stats: stats.Stats{stats.FrostResistance: 10}.ToProtoArray()},
 	{EffectId: 2683, ItemId: 22638, SpellId: 28166, Name: "Shadow Guard", Stats: stats.Stats{stats.ShadowResistance: 10}.ToProtoArray()},
+	// 13419 names the cloak inventory type but the weapon item class in the game files; every other
+	// cloak enchant names the armor class.
+	{EffectId: 247, ItemId: 11039, SpellId: 7778, Name: "Enchant Cloak - Minor Agility", Type: proto.ItemType_ItemTypeBack},
 }

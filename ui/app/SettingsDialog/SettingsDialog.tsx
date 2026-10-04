@@ -1,18 +1,15 @@
 import i18n from '@i18n/config';
 import { setLang, supportedLanguages } from '@i18n/locale_service';
-import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
-import type { Sim } from '@sim/sim';
-import { subscribeSimField, subscribeUiField } from '@sim/state/subscriptions';
+import { useSim } from '@sim/context/SimHostContext';
+import { useSimStore } from '@sim/hooks/useSimStore';
+import { useUiStore } from '@sim/hooks/useUiStore';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import type { BooleanPickerConfig } from '@ui-kit/BooleanPicker/types';
 import { Button } from '@ui-kit/Button';
+import { ChoiceField, type ChoiceOption } from '@ui-kit/ChoiceField';
 import { Dialog } from '@ui-kit/Dialog';
-import { EnumPicker } from '@ui-kit/EnumPicker';
-import type { EnumPickerConfig, EnumValueConfig } from '@ui-kit/EnumPicker/types';
+import { FieldGrid } from '@ui-kit/FieldGrid';
 import { HelpText } from '@ui-kit/FormControl';
-import { NumberPicker } from '@ui-kit/NumberPicker';
-import type { NumberPickerConfig } from '@ui-kit/NumberPicker/types';
-import { PickerGroup } from '@ui-kit/PickerGroup';
+import { NumberField } from '@ui-kit/TextField';
 import { toastManager } from '@ui-kit/Toast';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useEffect, useId, useMemo, useState } from 'react';
@@ -20,18 +17,173 @@ import { useEffect, useId, useMemo, useState } from 'react';
 import { trackEvent } from '../../tracking/utils';
 import type { SimHostObject } from '../individual_sim_ui';
 
+export interface SettingsDialogViewProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	fixedRngSeed: number;
+	onFixedRngSeedChange: (seed: number) => void;
+	lastUsedRngSeed: number;
+	/** A language code; one not in `supportedLanguages` shows as English. */
+	language: string;
+	onLanguageChange: (language: string) => void;
+	showThreatMetrics: boolean;
+	onShowThreatMetricsChange: (show: boolean) => void;
+	showExperimental: boolean;
+	onShowExperimentalChange: (show: boolean) => void;
+	showQuickSwap: boolean;
+	onShowQuickSwapChange: (show: boolean) => void;
+	wasmConcurrency: number;
+	onWasmConcurrencyChange: (workers: number) => void;
+	/** False hides the worker picker; the row stays mounted. */
+	showConcurrency: boolean;
+	maxWorkers: number;
+	/** Shows the memory note under the worker picker. */
+	firefox: boolean;
+	onApplyDefaults: () => void;
+}
+
+const LANGUAGE_OPTIONS: Array<ChoiceOption<string>> = Object.entries(supportedLanguages).map(([language, name]) => ({ value: language, label: name }));
+
+const FIREFOX_WORKER_NOTE = `Too many workers can cause significant memory usage! If sim doesn't finish due to RAM running out use a lower number.`;
+
+const LastUsedRngSeed = ({ seed }: { seed: number }) => (
+	<HelpText as="div">
+		<span>{i18n.t('info.options.fixed_rng_seed.last_used')}</span>&nbsp;{seed}
+	</HelpText>
+);
+
+const WorkerNote = ({ shown }: { shown: boolean }) => (
+	<HelpText as="div" hidden={!shown}>
+		{shown ? FIREFOX_WORKER_NOTE : ''}
+	</HelpText>
+);
+
+export const SettingsDialogView = ({
+	open,
+	onOpenChange,
+	fixedRngSeed,
+	onFixedRngSeedChange,
+	lastUsedRngSeed,
+	language,
+	onLanguageChange,
+	showThreatMetrics,
+	onShowThreatMetricsChange,
+	showExperimental,
+	onShowExperimentalChange,
+	showQuickSwap,
+	onShowQuickSwapChange,
+	wasmConcurrency,
+	onWasmConcurrencyChange,
+	showConcurrency,
+	maxWorkers,
+	firefox,
+	onApplyDefaults,
+}: SettingsDialogViewProps) => {
+	const restoreTooltipId = useId();
+
+	const workerOptions = useMemo(() => {
+		const options: Array<ChoiceOption<number>> = [{ value: 0, label: 'Off' }];
+		for (let workers = 2; workers <= maxWorkers; workers++) {
+			options.push({ value: workers, label: workers.toString() });
+		}
+		return options;
+	}, [maxWorkers]);
+
+	return (
+		<Dialog
+			open={open}
+			onOpenChange={onOpenChange}
+			title={i18n.t('info.options.title')}
+			footer={
+				<>
+					<Button variant="primary" data-testid="restore-defaults" {...tooltipAnchorProps(restoreTooltipId)} onClick={onApplyDefaults}>
+						{i18n.t('info.options.restore_defaults.button')}
+					</Button>
+					<Tooltip id={restoreTooltipId} content={i18n.t('info.options.restore_defaults.tooltip')} />
+				</>
+			}>
+			<div className="flex flex-col gap-2">
+				<FieldGrid>
+					<div>
+						<NumberField
+							id="simui-fixed-rng-seed"
+							label={i18n.t('info.options.fixed_rng_seed.label')}
+							labelTooltip={i18n.t('info.options.fixed_rng_seed.tooltip')}
+							value={fixedRngSeed}
+							onChange={onFixedRngSeedChange}
+						/>
+						<LastUsedRngSeed seed={lastUsedRngSeed} />
+					</div>
+					<ChoiceField
+						id="simui-language-picker"
+						label={i18n.t('info.options.language.label')}
+						labelTooltip={i18n.t('info.options.language.tooltip')}
+						options={LANGUAGE_OPTIONS}
+						value={LANGUAGE_OPTIONS.some(option => option.value === language) ? language : 'en'}
+						onChange={onLanguageChange}
+					/>
+				</FieldGrid>
+				<div className="w-1/2 pr-2" data-testid="show-threat-metrics-picker">
+					<BooleanPicker
+						id="simui-show-threat-metrics"
+						label={i18n.t('info.options.feature_toggles.show_threat_metrics')}
+						labelTooltip="Shows all options and metrics relevant to tanks, like TPS/DTPS."
+						layout="inline"
+						value={showThreatMetrics}
+						onChange={onShowThreatMetricsChange}
+					/>
+				</div>
+				<div className="w-1/2 pr-2" data-testid="show-experimental-picker">
+					<BooleanPicker
+						id="simui-show-experimental"
+						label={i18n.t('info.options.feature_toggles.show_experimental')}
+						labelTooltip="Shows experimental options, if there are any active experiments."
+						layout="inline"
+						value={showExperimental}
+						onChange={onShowExperimentalChange}
+					/>
+				</div>
+				<div className="w-1/2 pr-2" data-testid="show-quick-swap-picker">
+					<BooleanPicker
+						id="simui-show-quick-swap"
+						label={i18n.t('info.options.feature_toggles.show_quick_swap')}
+						labelTooltip="Allows you to quickly swap between Gems/Enchants through your favorites. (Disabled on touch devices)"
+						layout="inline"
+						value={showQuickSwap}
+						onChange={onShowQuickSwapChange}
+					/>
+				</div>
+				<div className="w-1/2 pr-2" data-testid="use-concurrency-container" hidden={!showConcurrency}>
+					<ChoiceField
+						id="simui-concurrent-workers-picker"
+						label={i18n.t('info.options.use_multiple_cpu_cores.label')}
+						labelTooltip="Use web workers to spread sim workload over multiple CPU cores."
+						options={workerOptions}
+						value={wasmConcurrency}
+						onChange={onWasmConcurrencyChange}
+					/>
+					<WorkerNote shown={firefox} />
+				</div>
+			</div>
+		</Dialog>
+	);
+};
+
 export interface SettingsDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	host: SimHostObject<any>;
 }
 
-const FIREFOX_WORKER_NOTE = `Too many workers can cause significant memory usage! If sim doesn't finish due to RAM running out use a lower number.`;
-
 export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps) => {
-	const sim = host.sim;
-	const restoreTooltipId = useId();
-	const firefox = navigator.userAgent.toLowerCase().includes('firefox');
+	const sim = useSim();
+	const fixedRngSeed = useSimStore('fixedRngSeed');
+	const lastUsedRngSeed = useSimStore('lastUsedRngSeed');
+	const language = useUiStore('language');
+	const showThreatMetrics = useUiStore('showThreatMetrics');
+	const showExperimental = useUiStore('showExperimental');
+	const showQuickSwap = useUiStore('showQuickSwap');
+	const wasmConcurrency = useUiStore('wasmConcurrency');
 
 	// Local sim has native threading, so the row is only meaningful on wasm. It starts shown because
 	// the answer is a promise.
@@ -46,185 +198,51 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 		};
 	}, [sim]);
 
-	const lastUsedRngSeed = useStoreSubscribe(subscribeSimField(sim, 'lastUsedRngSeedVersion'), () => sim.getLastUsedRngSeed());
+	const setLanguage = (next: string) => {
+		trackEvent({ action: 'settings', category: 'language', label: 'update', value: next });
+		sim.setLanguage(next);
+		setLang(next);
+		// Every string on the page was read at render, so the new language only lands on a reload.
+		setTimeout(() => location.reload(), 300);
+	};
 
-	const fixedRngSeedConfig = useMemo(
-		(): NumberPickerConfig<Sim> => ({
-			id: 'simui-fixed-rng-seed',
-			label: i18n.t('info.options.fixed_rng_seed.label'),
-			labelTooltip: i18n.t('info.options.fixed_rng_seed.tooltip'),
-			extraClassNames: ['mb-0'],
-			storeSubscribe: (subject: Sim) => subscribeSimField(subject, 'fixedRngSeed'),
-			getValue: (subject: Sim) => subject.getFixedRngSeed(),
-			setValue: (subject: Sim, newValue: number) => {
-				subject.setFixedRngSeed(newValue);
-			},
-		}),
-		[],
-	);
+	const setShowExperimental = (show: boolean) => {
+		trackEvent({ action: 'settings', category: 'show-experimental', label: 'update', value: show });
+		sim.setShowExperimental(show);
+	};
 
-	const languageConfig = useMemo((): EnumPickerConfig<Sim> => {
-		const langs = Object.keys(supportedLanguages);
-		const defaultLang = langs.indexOf('en');
-		return {
-			id: 'simui-language-picker',
-			label: i18n.t('info.options.language.label'),
-			labelTooltip: i18n.t('info.options.language.tooltip'),
-			values: langs.map((lang, index) => ({ name: supportedLanguages[lang], value: index })),
-			storeSubscribe: (subject: Sim) => subscribeUiField(subject, 'language'),
-			getValue: (subject: Sim) => {
-				const index = langs.indexOf(subject.getLanguage());
-				return index == -1 ? defaultLang : index;
-			},
-			setValue: (subject: Sim, newValue: number) => {
-				trackEvent({
-					action: 'settings',
-					category: 'language',
-					label: 'update',
-					value: langs[newValue],
-				});
-				subject.setLanguage(langs[newValue] || 'en');
-				setLang(langs[newValue] || 'en');
-				// Every string on the page was read at render, so the new language only lands on a reload.
-				setTimeout(() => location.reload(), 300);
-			},
-		};
-	}, []);
+	const setWasmConcurrency = (workers: number) => {
+		trackEvent({ action: 'settings', category: 'concurrency', label: 'update', value: workers });
+		sim.setWasmConcurrency(workers);
+	};
 
-	const showThreatMetricsConfig = useMemo(
-		(): BooleanPickerConfig<Sim> => ({
-			id: 'simui-show-threat-metrics',
-			label: i18n.t('info.options.feature_toggles.show_threat_metrics'),
-			labelTooltip: 'Shows all options and metrics relevant to tanks, like TPS/DTPS.',
-			layout: 'inline',
-			storeSubscribe: (subject: Sim) => subscribeUiField(subject, 'showThreatMetrics'),
-			getValue: (subject: Sim) => subject.getShowThreatMetrics(),
-			setValue: (subject: Sim, newValue: boolean) => {
-				subject.setShowThreatMetrics(newValue);
-			},
-		}),
-		[],
-	);
-
-	const showExperimentalConfig = useMemo(
-		(): BooleanPickerConfig<Sim> => ({
-			id: 'simui-show-experimental',
-			label: i18n.t('info.options.feature_toggles.show_experimental'),
-			labelTooltip: 'Shows experimental options, if there are any active experiments.',
-			layout: 'inline',
-			storeSubscribe: (subject: Sim) => subscribeUiField(subject, 'showExperimental'),
-			getValue: (subject: Sim) => subject.getShowExperimental(),
-			setValue: (subject: Sim, newValue: boolean) => {
-				trackEvent({
-					action: 'settings',
-					category: 'show-experimental',
-					label: 'update',
-					value: newValue,
-				});
-				subject.setShowExperimental(newValue);
-			},
-		}),
-		[],
-	);
-
-	const showQuickSwapConfig = useMemo(
-		(): BooleanPickerConfig<Sim> => ({
-			id: 'simui-show-quick-swap',
-			label: i18n.t('info.options.feature_toggles.show_quick_swap'),
-			labelTooltip: 'Allows you to quickly swap between Gems/Enchants through your favorites. (Disabled on touch devices)',
-			layout: 'inline',
-			storeSubscribe: (subject: Sim) => subscribeUiField(subject, 'showQuickSwap'),
-			getValue: (subject: Sim) => subject.getShowQuickSwap(),
-			setValue: (subject: Sim, newValue: boolean) => {
-				subject.setShowQuickSwap(newValue);
-			},
-		}),
-		[],
-	);
-
-	const concurrencyConfig = useMemo((): EnumPickerConfig<Sim> => {
-		const values: Array<EnumValueConfig> = [{ value: 0, name: 'Off' }];
-		for (let workers = 2; workers <= navigator.hardwareConcurrency; workers++) {
-			values.push({ value: workers, name: workers.toString() });
-		}
-		return {
-			id: 'simui-concurrent-workers-picker',
-			label: i18n.t('info.options.use_multiple_cpu_cores.label'),
-			labelTooltip: 'Use web workers to spread sim workload over multiple CPU cores.',
-			storeSubscribe: (subject: Sim) => subscribeUiField(subject, 'wasmConcurrency'),
-			getValue: (subject: Sim) => subject.getWasmConcurrency(),
-			setValue: (subject: Sim, newValue: number) => {
-				trackEvent({
-					action: 'settings',
-					category: 'concurrency',
-					label: 'update',
-					value: newValue,
-				});
-				subject.setWasmConcurrency(newValue);
-			},
-			values: values,
-		};
-	}, []);
-
-	const restoreDefaults = () => {
-		trackEvent({
-			action: 'settings',
-			category: 'restore-defaults',
-			label: 'restore',
-		});
+	const applyDefaults = () => {
+		trackEvent({ action: 'settings', category: 'restore-defaults', label: 'restore' });
 		host.applyDefaults();
-		toastManager.add({
-			variant: 'success',
-			body: i18n.t('info.options.restore_defaults.success_message'),
-		});
+		toastManager.add({ variant: 'success', body: i18n.t('info.options.restore_defaults.success_message') });
 	};
 
 	return (
-		<Dialog
+		<SettingsDialogView
 			open={open}
 			onOpenChange={onOpenChange}
-			title={i18n.t('info.options.title')}
-			footer={
-				<>
-					<Button variant="primary" {...tooltipAnchorProps(restoreTooltipId)} onClick={restoreDefaults}>
-						{i18n.t('info.options.restore_defaults.button')}
-					</Button>
-					<Tooltip id={restoreTooltipId} content={i18n.t('info.options.restore_defaults.tooltip')} />
-				</>
-			}>
-			<div>
-				<PickerGroup data-testid="picker-group">
-					<div data-testid="fixed-rng-seed-container">
-						<div data-testid="fixed-rng-seed">
-							<NumberPicker modObject={sim} config={fixedRngSeedConfig} />
-						</div>
-						<HelpText as="div">
-							<span>{i18n.t('info.options.fixed_rng_seed.last_used')}</span>&nbsp;
-							<span data-testid="last-used-rng-seed">{lastUsedRngSeed}</span>
-						</HelpText>
-					</div>
-					<div data-testid="language-picker">
-						<EnumPicker modObject={sim} config={languageConfig} />
-					</div>
-				</PickerGroup>
-				<div className="w-1/2 pr-2" data-testid="show-threat-metrics-picker">
-					<BooleanPicker modObject={sim} config={showThreatMetricsConfig} />
-				</div>
-				<div className="w-1/2 pr-2" data-testid="show-experimental-picker">
-					<BooleanPicker modObject={sim} config={showExperimentalConfig} />
-				</div>
-				<div className="w-1/2 pr-2" data-testid="show-quick-swap-picker">
-					<BooleanPicker modObject={sim} config={showQuickSwapConfig} />
-				</div>
-				<div className="w-1/2 pr-2" data-testid="use-concurrency-container" hidden={!isWasm}>
-					<div data-testid="use-concurrent-workers-picker">
-						<EnumPicker modObject={sim} config={concurrencyConfig} />
-					</div>
-					<HelpText as="div" hidden={!firefox}>
-						{firefox ? FIREFOX_WORKER_NOTE : ''}
-					</HelpText>
-				</div>
-			</div>
-		</Dialog>
+			fixedRngSeed={fixedRngSeed}
+			onFixedRngSeedChange={seed => sim.setFixedRngSeed(seed)}
+			lastUsedRngSeed={lastUsedRngSeed}
+			language={language}
+			onLanguageChange={setLanguage}
+			showThreatMetrics={showThreatMetrics}
+			onShowThreatMetricsChange={show => sim.setShowThreatMetrics(show)}
+			showExperimental={showExperimental}
+			onShowExperimentalChange={setShowExperimental}
+			showQuickSwap={showQuickSwap}
+			onShowQuickSwapChange={show => sim.setShowQuickSwap(show)}
+			wasmConcurrency={wasmConcurrency}
+			onWasmConcurrencyChange={setWasmConcurrency}
+			showConcurrency={isWasm}
+			maxWorkers={navigator.hardwareConcurrency}
+			firefox={navigator.userAgent.toLowerCase().includes('firefox')}
+			onApplyDefaults={applyDefaults}
+		/>
 	);
 };

@@ -1,3 +1,4 @@
+import { hasId, keyFor } from '@features/inputs/list_ids';
 import { APLListItem } from '@generated/proto/apl';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -60,6 +61,18 @@ describe('rowSource', () => {
 
 		expect(listener).not.toHaveBeenCalled();
 		expect(rows[0].action?.condition?.uuid?.value).toBe('kept');
+	});
+
+	it('hands an equal copy the list keys of the row it replaces, down to its action', () => {
+		const rows = [row('a')];
+		const { upstream } = setup(rows);
+		const [oldRow, oldAction] = [rows[0], rows[0].action!];
+		const keys = [keyFor(oldRow, 0), keyFor(oldAction, 0)];
+
+		rows[0] = row('a');
+		upstream.notify();
+
+		expect([hasId(rows[0]) && keyFor(rows[0], 0), hasId(rows[0].action) && keyFor(rows[0].action, 0)]).toEqual(keys);
 	});
 
 	it('keeps a uuid the replacement already carries', () => {

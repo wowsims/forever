@@ -42,7 +42,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		BonusCoefficient: judgementDamage.Coeff(),
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, judgementDamage.Roll(sim, core.CharacterLevel), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+			spell.CalcAndDealDamage(sim, target, judgementDamage.Roll(sim), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
 		},
 	})
 
@@ -60,7 +60,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	})
 	paladin.applyImprovedSealOfFury(shield)
 
-	damage := procDamage.Average(core.CharacterLevel)
+	damage := procDamage.Mean()
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: procRank.ID},
 		SpellSchool: core.SpellSchoolHoly,

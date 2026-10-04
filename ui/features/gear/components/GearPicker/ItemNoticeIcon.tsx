@@ -1,12 +1,27 @@
 import { Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
-import { noticeIconClass, type NoticeLevel } from '@ui-kit/NoticeLevel';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
-import clsx from 'clsx';
-import { type ReactNode, useId } from 'react';
+import { NoticeIcon, type NoticeLevel } from '@ui-kit/Notice';
+import type { ReactNode } from 'react';
 
 import { ENCHANT_NOTICES, ITEM_INFO_NOTICES, ITEM_NOTICES } from '../../item_notices';
+
+export interface ItemNoticeIconViewProps {
+	level: NoticeLevel;
+	/** The notices, shown in a clickable tooltip on the icon. */
+	children: ReactNode;
+}
+
+export const ItemNoticeIconView = ({ level, children }: ItemNoticeIconViewProps) => (
+	<div className="relative z-1 inline">
+		<NoticeIcon
+			level={level}
+			label={i18n.t(level === 'info' ? 'common.list_picker.additional_information' : 'common.list_picker.warnings')}
+			className="mr-2">
+			{children}
+		</NoticeIcon>
+	</div>
+);
 
 export interface ItemNoticeIconProps {
 	itemId?: number;
@@ -15,9 +30,7 @@ export interface ItemNoticeIconProps {
 }
 
 export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoticeIconProps) => {
-	const player = usePlayer();
-	const tooltipId = useId();
-	const spec = player.getSpec();
+	const spec = usePlayer().getSpec();
 
 	const itemNotice = itemId ? ITEM_NOTICES.get(itemId) : undefined;
 	const ownNotice = itemNotice?.[spec] || itemNotice?.[Spec.SpecUnknown];
@@ -28,28 +41,13 @@ export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoti
 	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !infoNotice) return null;
 
 	const warns = !!ownNotice || !!ownEnchantNotice || !!additionalNotice;
-	const level: NoticeLevel = warns ? 'warning' : 'info';
 
 	return (
-		<div className="relative z-1 inline">
-			<button
-				type="button"
-				aria-label={i18n.t(warns ? 'common.list_picker.warnings' : 'common.list_picker.additional_information')}
-				className={clsx(noticeIconClass(level), 'fa-xl fa-fw mr-2')}
-				{...tooltipAnchorProps(tooltipId)}
-			/>
-			<Tooltip
-				id={tooltipId}
-				content={
-					<div>
-						{ownNotice}
-						{ownEnchantNotice}
-						{additionalNotice}
-						{infoNotice}
-					</div>
-				}
-				clickable
-			/>
-		</div>
+		<ItemNoticeIconView level={warns ? 'warning' : 'info'}>
+			{ownNotice}
+			{ownEnchantNotice}
+			{additionalNotice}
+			{infoNotice}
+		</ItemNoticeIconView>
 	);
 };

@@ -132,7 +132,7 @@ pull registers no spell and no cooldown. Which consumables stack is their
 [exclusive group](#exclusive-groups).
 
 A bonus against creature types is an aura the parser attaches like any other (see
-[Spell Data](spell_data.md)): Potion of Demon Slaying 9224's spell 11406 grants 180 attack power
+[Spell Data](spell_data/README.md)): Potion of Demon Slaying 9224's spell 11406 grants 180 attack power
 against the creature types its misc value masks (4, Demon), for the row's 300 s, on category 4's
 120 s timer. The imbue builder takes the equip spells of the enchant that add nothing to
 the enchant's own stats, which the generator names after the item: Consecrated Sharpening Stone
@@ -140,7 +140,10 @@ the enchant's own stats, which the generator names after the item: Consecrated S
 28893 grants 99 melee and 99 ranged attack power against Undead once per such hand, since each weapon
 carries its own equip aura and 28893 marks no aura unique. Blessed Wizard Oil 23123's enchant 2685
 names 28890, 58 spell damage against Undead (`A_MOD_FLAT_SPELL_DAMAGE_VERSUS`, mask 32). A wizard
-oil's equip spell is already the enchant's spell damage, and is not named.
+oil's equip spell is already the enchant's spell damage, and is not named. Elemental Sharpening Stone
+18262's enchant 2506 names 22755, 2% crit (`A_MOD_WEAPON_CRIT_PERCENT`) on the melee weapons its mask
+42483 names; the generated entry parses it once per stoned hand with `spelldata.OnHand`, so the crit
+reaches only the attacks of the hand carrying the stone.
 `consumables_gift_of_arthas.go` registers Gift of Arthas 9088.
 
 A pet takes no consumables of its own; the scrolls the game files mark `ONLY_TARGET_PLAYERS` cannot be
@@ -211,10 +214,20 @@ var ConsumableExclusiveGroups = []ConsumableGroup{
 The Jujus are Quest-class items the catalogue filter leaves out; naming them here brings them into
 the catalogue as well. The Blasted Lands buffs leave their category group for Zanza. The permanent
 Zanza items (23794, 23795, 23796) are not obtainable and `ConsumableDenyList` keeps them out. The two hit foods
-apply `A_MOD_HIT_CHANCE` 2, which the stat parse does not list, so `AddUnparsedStats`
-(`tools/database/consumable_unparsed_stats.go`) lists it in their db.json stats as 20 melee hit rating
-(`core.PhysicalHitRatingPerHitPercent`, 10), and a spec that weighs hit sees the Hit food picker. The sim
-reads the rows, not those stats.
+apply `A_MOD_HIT_CHANCE` 2, which the stat parse does not list and which reaches melee and ranged
+attacks alone, so `AddUnparsedStats` (`tools/database/consumable_unparsed_stats.go`) lists it in their
+db.json `pseudoStats` as 2 `PseudoStatMeleeHitPercent` and 2 `PseudoStatRangedHitPercent` (the ranged
+total includes the melee share, as `stats.PercentPseudoStats` reads it). The same
+goes for the other one-channel auras: `A_MOD_SPELL_HIT_CHANCE` lists spell hit (Scroll of Arcane
+Accuracy I 211954, 1%), `A_MOD_WEAPON_CRIT_PERCENT` melee and ranged crit, and
+`A_MOD_SPELL_CRIT_CHANCE` spell crit (Scroll of Arcane Power I 211957, 1%). `A_MOD_CRIT_PCT` reaches
+every channel, so it lists melee, ranged and spell crit alike: Elixir of the Mongoose 13452 and the
+250337/250338/250348/250351 elixirs each carry 2, listed as 2 `PseudoStatMeleeCritPercent`, 2
+`PseudoStatRangedCritPercent` and 2 `PseudoStatSpellCritPercent`. The settings offer such a
+consumable to a spec whose `displayStats` or `epPseudoStats` name one of its percents
+(`consumablePseudoStatsOf` in `ui/sim/settings/consumables.ts`), not by the hit or crit rating the
+spec weighs, so the Hit food picker shows for the melee and ranged specs and not for the casters. The
+sim reads the rows, not these lists.
 
 **Adding a group.** Add an entry to `ConsumableExclusiveGroups`: `ElixirGroup` to put items into a row
 group, or a new key and label for a group of their own, and every item id with its name. An item the
@@ -254,7 +267,7 @@ func init() {
 			aura := character.GetOrRegisterAura(config)
 
 			spelldata.ParseEffects(character, aura, row, spelldata.Effects(1))
-			bonus, err := NaturalFlaskZoneBonusOf(row, row.EffectN(2).Average(character.Level))
+			bonus, err := NaturalFlaskZoneBonusOf(row, row.EffectN(2).Average())
 			if err != nil {
 				panic(err)
 			}
@@ -278,9 +291,12 @@ deleting the hand-written one hands the id back to the rows.
 
 The settings offer a consumable by the stats db.json lists for it, and the parser lists only the
 Stamina. `AddUnparsedStats` (`tools/database/consumable_unparsed_stats.go`) adds the same
-`NaturalFlaskZoneBonusOf` to each flask's db.json stats at the rating one percent takes (Accuracy 50 melee and spell hit rating,
-Aggression 56 melee and spell crit rating, Precision 50 expertise rating at
-`core.ExpertiseRatingPerExpertisePercent` (10), Swiftness 50 melee and spell haste rating). The sim reads the rows, not those stats.
+`NaturalFlaskZoneBonusOf` to each flask's db.json stats at the rating one percent takes (Accuracy 50 hit rating,
+Aggression 56 crit rating, Precision 50 expertise rating at
+`core.ExpertiseRatingPerExpertisePercent` (10), Swiftness 50 haste rating). One rating feeds the
+physical and the spell percent alike, so a flask that grants both lists the rating once; a hit or
+crit of one channel alone is listed by that channel's pseudo stats instead, as with the hit foods
+above. The sim reads the rows, not those stats.
 
 ## Adding a consumable the rows do not support
 
@@ -328,7 +344,7 @@ var ConsumableDenyList = []int32{
 
 A consumable's numbers are its spells' rows, so a number the game files do not state goes in
 `tools/database/overrides/spell_overrides.go` like any other spell's; the fields and the rule that
-retires each are in [Spell Data: Overrides](spell_data.md#overrides). A row names the spell the
+retires each are in [Spell Data: Overrides](spell_data/overrides.md). A row names the spell the
 consumable casts, not the item:
 
 ```go

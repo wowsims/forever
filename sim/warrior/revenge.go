@@ -1,8 +1,6 @@
 package warrior
 
 import (
-	"time"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -11,25 +9,26 @@ import (
 // none is modelled until measured in game.
 var revengeRank = spellData.Revenge.Highest()
 
+// The window a block, dodge or parry opens: the aura Defensive State (DND) fires on the hit taken.
+var revengeWindow = spellData.DefensiveStateTriggered.Highest()
+
 func (warrior *Warrior) registerRevenge() {
 	actionID := core.ActionID{SpellID: revengeRank.ID}
 
-	// TODO: In-game test needed
 	aura := warrior.RegisterAura(core.Aura{
 		Label:    "Revenge",
-		Duration: 5 * time.Second,
+		Duration: revengeWindow.Duration(),
 		ActionID: actionID,
 	})
 
-	warrior.MakeProcTriggerAura(core.ProcTrigger{
-		Name:               "Revenge - Trigger",
-		TriggerImmediately: true,
-		Outcome:            core.OutcomeBlock | core.OutcomeDodge | core.OutcomeParry,
-		Callback:           core.CallbackOnSpellHitTaken,
-		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.DefensiveState.Highest(),
+		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			aura.Activate(sim)
-		},
-	})
+		})
+	trigger.Outcome = core.OutcomeBlock | core.OutcomeDodge | core.OutcomeParry
+	trigger.RequireDamageDealt = false
+	trigger.TriggerImmediately = true
+	warrior.MakeProcTriggerAura(trigger)
 
 	config := spelldata.SpellConfig(&warrior.Unit, revengeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.FlatThreatBonus = 0
@@ -39,7 +38,7 @@ func (warrior *Warrior) registerRevenge() {
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := revengeRank.DamageEffect().Roll(sim, core.CharacterLevel)
+		baseDamage := revengeRank.DamageEffect().Roll(sim)
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		aura.Deactivate(sim)
 

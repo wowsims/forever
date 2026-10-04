@@ -1,0 +1,13 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { TokenTable } from './components/TokenTable';
+import { ViewportReadout } from './components/ViewportReadout';
+
+<Meta title="Design System/Breakpoints" />
+
+# Breakpoints
+
+Tokens from `ui/styles/theme/breakpoints.css`, which resets Tailwind's defaults. All are px, so none depends on the root font size. `fhd` is a layout breakpoint only: the root font size does not change there. `max-<name>:` is the below-breakpoint form.
+
+<ViewportReadout />
+
+<TokenTable prefix="breakpoint" />

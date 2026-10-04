@@ -35,9 +35,9 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		Stat.StatBonusArmor,
 		Stat.StatDodgeRating,
 		Stat.StatDefenseRating,
-		Stat.StatMeleeHitRating,
-		Stat.StatMeleeCritRating,
-		Stat.StatMeleeHasteRating,
+		Stat.StatHitRating,
+		Stat.StatCritRating,
+		Stat.StatHasteRating,
 		Stat.StatExpertiseRating,
 		Stat.StatPhysicalDamage,
 		Stat.StatArmorPenetration,
@@ -75,7 +75,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		gear: EquipmentSpec.create(),
 		epWeights: new Stats(),
 		statCaps: (() => {
-			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 9);
+			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8);
 			const expCap = new Stats().withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
 			const critImmunityCap = new Stats().withPseudoStat(PseudoStat.PseudoStatReducedCritTakenPercent, 5.6);
 			return hitCap.add(expCap).add(critImmunityCap);
@@ -91,26 +91,23 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			giftOfTheWild: true,
 			prayerOfFortitude: true,
 			prayerOfShadowProtection: true,
-			thorns: true,
 			prayerOfSpirit: true,
 		}),
 		partyBuffs: PartyBuffs.create({
 			battleShout: TristateEffect.TristateEffectRegular,
-			graceOfAirTotem: true,
 			windfuryTotem: true,
 			manaSpringTotem: TristateEffect.TristateEffectRegular,
 			strengthOfEarthTotem: true,
-			totemTwisting: true,
 		}),
 		individualBuffs: IndividualBuffs.create({
 			greaterBlessingOfKings: true,
 			greaterBlessingOfMight: true,
+			thorns: true,
 		}),
 		debuffs: Debuffs.create({
 			exposeArmor: true,
 			faerieFire: true,
 			giftOfArthas: false,
-			huntersMark: true,
 			curseOfRecklessness: true,
 			insectSwarm: true,
 			judgementOfWisdom: true,
@@ -121,10 +118,9 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	playerIconInputs: [],
 	rotationInputs: FeralBearInputs.FeralBearRotationConfig,
 	includeBuffDebuffInputs: [Stat.StatStamina, Stat.StatArmor],
-	excludeBuffDebuffInputs: [BuffDebuffInputs.WindfuryTotem, BuffDebuffInputs.FlametongueTotem],
+	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
 	otherInputs: {
 		inputs: [
-			OtherInputs.TotemTwisting,
 			FeralBearInputs.StartingRage,
 			OtherInputs.InputDelay,
 			OtherInputs.TankAssignment,

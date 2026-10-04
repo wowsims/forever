@@ -123,11 +123,13 @@ message APLValue {
         APLValueRemainingTimePercent remaining_time_percent = 10;
         APLValueIsExecutePhase is_execute_phase = 41;
         APLValueNumberTargets number_targets = 28;
+        APLValueEncounterInArea encounter_in_area = 134;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
         APLValueBossSpellIsCasting boss_spell_is_casting = 65;
         APLValueBossCurrentTarget boss_current_target = 120;
+        APLValueTargetIsMobType target_is_mob_type = 133;
 
         // Resource values
         APLValueCurrentHealth current_health = 26;
@@ -501,6 +503,13 @@ message APLValueBossSpellIsCasting {
 }
 message APLValueBossCurrentTarget {
     UnitReference target_unit = 1;
+}
+message APLValueTargetIsMobType {
+    UnitReference target_unit = 1;
+    MobType mob_type = 2;
+}
+message APLValueEncounterInArea {
+    AreaType area_type = 1;
 }
 message APLValueUnitIsMoving {
     UnitReference source_unit = 1;

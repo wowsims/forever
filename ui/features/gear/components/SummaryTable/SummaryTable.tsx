@@ -18,7 +18,7 @@ export const SummaryTable = ({ title, modifier, empty, reset, children }: Summar
 				config={{ header: { title }, bodyClassName: 'gap-1' }}
 				headerChildren={
 					<Button variant="link-danger" size="sm" className="ml-auto shrink-0" data-testid="summary-table-reset-button" onClick={reset.onReset}>
-						<Icon name="times" className="mr-1" />
+						<Icon name="xmark" />
 						{reset.label}
 					</Button>
 				}>

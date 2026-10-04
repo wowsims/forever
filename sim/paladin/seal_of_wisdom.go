@@ -28,7 +28,7 @@ func (paladin *Paladin) registerSealOfWisdom(_ int32, rank *spelldata.Spell) {
 		return buffs.NewSpellDataJudgementOfWisdomAuraRank(target, buffs.JudgementRank{
 			SpellID: judgementID,
 			Rank:    rank.RankNumber(),
-			Value:   manaRank.EnergizeEffect().Average(core.CharacterLevel),
+			Value:   manaRank.EnergizeEffect().Average(),
 		})
 	})
 
@@ -53,7 +53,7 @@ func (paladin *Paladin) registerSealOfWisdom(_ int32, rank *spelldata.Spell) {
 	})
 
 	procRank := rank.Refs()[0]
-	mana := procRank.EnergizeEffect().Average(core.CharacterLevel)
+	mana := procRank.EnergizeEffect().Average()
 	procID := core.ActionID{SpellID: procRank.ID}
 	manaMetrics := paladin.NewManaMetrics(procID)
 	procSpell := paladin.RegisterSpell(core.SpellConfig{

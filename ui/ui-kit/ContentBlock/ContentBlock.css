@@ -1,6 +1,6 @@
 @layer components {
 	.ui-content-block {
-		@apply gap-3;
+		@apply gap-2;
 	}
 
 	.ui-content-block-header {
@@ -8,6 +8,6 @@
 	}
 
 	.ui-content-block-body {
-		@apply flex gap-3;
+		@apply flex gap-2;
 	}
 }

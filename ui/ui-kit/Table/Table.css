@@ -1,0 +1,54 @@
+@layer components {
+	.ui-table {
+		@apply w-full;
+
+		> thead > .ui-table-row {
+			@apply border-b-2 border-solid border-b-white/80;
+		}
+
+		> tbody > .ui-table-row {
+			@apply border-b border-solid border-b-white/20;
+		}
+
+		&[data-striped=''] > tbody > .ui-table-row:nth-child(even) {
+			@apply bg-white/5;
+		}
+
+		&[data-striped='solid'] > tbody > .ui-table-row {
+			@apply odd:bg-(--table-row-odd-bg) even:bg-(--table-row-even-bg);
+		}
+
+		&[data-hover] > tbody > .ui-table-row:hover {
+			@apply bg-scrim;
+		}
+
+		&[data-dense] > * > .ui-table-row > :is(.ui-table-cell, .ui-table-header-cell) {
+			@apply p-1;
+		}
+
+		&[data-variant='plain'] > * > .ui-table-row {
+			@apply border-b-0;
+
+			> :is(.ui-table-cell, .ui-table-header-cell) {
+				@apply border-x-0;
+			}
+		}
+
+		&[data-flush] > * > .ui-table-row > :is(.ui-table-cell, .ui-table-header-cell) {
+			@apply first:pl-0 last:pr-0;
+		}
+	}
+
+	.ui-table-header-cell,
+	.ui-table-cell {
+		@apply border-x border-solid border-x-white/20 px-2 py-1 first:border-l-0 last:border-r-0;
+	}
+
+	.ui-table-header-cell {
+		@apply text-center whitespace-nowrap;
+
+		&[data-wrap] {
+			@apply whitespace-normal;
+		}
+	}
+}

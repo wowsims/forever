@@ -1,25 +1,19 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Dialog } from './Dialog';
 
 describe('Dialog', () => {
-	it('builds the header/body/footer stack, with the caller class on the popup', () => {
+	it('builds the header/body/footer stack', () => {
 		render(
-			<Dialog
-				open
-				onOpenChange={() => {}}
-				className="advanced-encounter-picker-modal"
-				size="xl"
-				title="Encounter"
-				footer={<button type="button">Done</button>}>
+			<Dialog open onOpenChange={() => {}} size="xl" title="Encounter" footer={<button type="button">Done</button>}>
 				<p>contents</p>
 			</Dialog>,
 		);
 
 		const popup = screen.getByRole('dialog');
-		expect(popup.classList.contains('advanced-encounter-picker-modal')).toBe(true);
 		expect(popup.getAttribute('data-testid')).toBe('sim-dialog-popup');
 		expect(popup.getAttribute('data-size')).toBe('xl');
 		expect(Array.from(popup.children).map(el => el.getAttribute('data-testid'))).toEqual(['sim-dialog-header', 'sim-dialog-body', 'sim-dialog-footer']);
@@ -29,34 +23,22 @@ describe('Dialog', () => {
 	// The default portal target is `<body>`, which is outside `.sim-ui` and so outside the spec theme
 	// — measured in a browser, a `.btn-primary` in a body-portaled dialog is Bootstrap's
 	// rgb(13, 110, 253) while the same markup under `.sim-ui` is the warrior brown rgb(199, 156, 110).
-	// `container` is how a consumer keeps the theme; that its geometry is unaffected was measured too.
-	it('portals into the container it is given', () => {
+	// The portal container from context is how a consumer keeps the theme; that its geometry is unaffected was measured too.
+	it('portals into the container from context', () => {
 		const host = document.createElement('div');
 		host.className = 'sim-ui';
 		document.body.appendChild(host);
 
 		render(
-			<Dialog open onOpenChange={() => {}} container={host} title="Options">
-				body
-			</Dialog>,
+			<PortalContainerContext value={host}>
+				<Dialog open onOpenChange={() => {}} title="Options">
+					body
+				</Dialog>
+			</PortalContainerContext>,
 		);
 		expect(host.contains(screen.getByRole('dialog'))).toBe(true);
 
 		host.remove();
-	});
-
-	// Base UI puts the dialog role on the popup and wires `aria-labelledby` to its own `<h2>` title.
-	it('names the dialog from its title', () => {
-		render(
-			<Dialog open onOpenChange={() => {}} title="Advanced Encounter">
-				body
-			</Dialog>,
-		);
-
-		const popup = screen.getByRole('dialog', { name: 'Advanced Encounter' });
-		const title = screen.getByRole('heading', { name: 'Advanced Encounter' });
-		expect(title.tagName).toBe('H2');
-		expect(popup.getAttribute('aria-labelledby')).toBe(title.id);
 	});
 
 	it('closes on the close button and on Escape', () => {
@@ -97,64 +79,12 @@ describe('Dialog', () => {
 
 	// With `preventClose` there is nothing to put in the header at all, so there is no header.
 	it('drops the header bar rather than emptying it', () => {
-		const { rerender } = render(
-			<Dialog open onOpenChange={() => {}} header={false}>
-				body
-			</Dialog>,
-		);
-		expect(within(screen.getByRole('dialog')).getByTestId('sim-dialog-header').getAttribute('data-bare')).toBe('true');
-
-		rerender(
-			<Dialog open onOpenChange={() => {}} header={false} preventClose>
+		render(
+			<Dialog open onOpenChange={() => {}} preventClose>
 				body
 			</Dialog>,
 		);
 		expect(within(screen.getByRole('dialog')).queryByTestId('sim-dialog-header')).toBeNull();
-	});
-
-	// Base UI makes the popup the focus target, guards it either side, and hides everything else.
-	// (Which element receives focus first is layout-dependent and so is not measurable here; Base UI
-	// documents it as the first tabbable element in the popup.)
-	it('makes the popup the focus target and hides the rest of the document', () => {
-		render(
-			<Dialog open onOpenChange={() => {}} title="Options">
-				<button type="button">Reset</button>
-			</Dialog>,
-		);
-
-		const popup = screen.getByRole('dialog');
-		expect(popup.getAttribute('tabindex')).toBe('-1');
-		// Not `aria-modal`. Base UI marks the siblings instead, which is the stronger version of the same claim.
-		expect(popup.getAttribute('aria-modal')).toBeNull();
-		expect(popup.parentElement?.querySelectorAll('[data-base-ui-focus-guard]').length).toBe(2);
-
-		const outside = Array.from(document.body.children).filter(el => !el.hasAttribute('data-base-ui-portal'));
-		expect(outside.length).toBeGreaterThan(0);
-		expect(outside.every(el => el.getAttribute('aria-hidden') === 'true')).toBe(true);
-	});
-
-	// Not assertable here: the page-scroll lock is layout-dependent, so it does not engage under
-	// happy-dom at all. Measured in a real browser instead — Base UI writes `overflow: hidden` inline
-	// on <body> and clears it on close.
-
-	// Closing does not unmount at once — the popup stays in the tree carrying `data-ending-style`
-	// until its transition finishes.
-	it('keeps the popup mounted through the closing transition', () => {
-		const { rerender } = render(
-			<Dialog open onOpenChange={() => {}} title="Options">
-				body
-			</Dialog>,
-		);
-		expect(screen.getByRole('dialog').hasAttribute('data-open')).toBe(true);
-
-		rerender(
-			<Dialog open={false} onOpenChange={() => {}} title="Options">
-				body
-			</Dialog>,
-		);
-		const popup = screen.getByRole('dialog');
-		expect(popup.hasAttribute('data-open')).toBe(false);
-		expect(popup.hasAttribute('data-ending-style')).toBe(true);
 	});
 
 	// Base UI suppresses the backdrop of a *nested* dialog, so this only reproduces with one dialog

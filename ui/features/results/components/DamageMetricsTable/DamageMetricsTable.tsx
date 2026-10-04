@@ -2,12 +2,12 @@ import i18n from '@i18n/config';
 import { useSim } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { ActionMetrics } from '@sim/proto/sim_result';
-import { bucket } from '@sim/utils/collections';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
 import { useSimResult } from '../../hooks/useSimResult';
 import { buildMetricRows, filterMetricRows, indexMetricRows, type MetricGrouping, type MetricRow } from '../../model/grouping';
+import { groupActionsWithPets } from '../../model/pet_groups';
 import type { SimResultData } from '../../model/result_data';
 import {
 	attackFormat,
@@ -40,17 +40,7 @@ const damageGroups = (resultData: SimResultData): Array<Array<ActionMetrics>> =>
 	const players = resultData.result.getRaidIndexedPlayers(resultData.filter);
 	if (!players.length) return [];
 
-	const player = players[0];
-	const actions = player.getDamageActions().map(action => action.forTarget(resultData.filter));
-	const petsByName = bucket(player.pets, pet => pet.name);
-	const petGroups = Object.values(petsByName).map(pets =>
-		ActionMetrics.joinById(
-			pets.flatMap(pet => pet.getDamageActions().map(action => action.forTarget(resultData.filter))),
-			true,
-		),
-	);
-
-	return ActionMetrics.groupById(actions).concat(petGroups);
+	return groupActionsWithPets(players[0], unit => unit.getDamageActions().map(action => action.forTarget(resultData.filter)));
 };
 
 const grouping: MetricGrouping<ActionMetrics> = {

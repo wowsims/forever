@@ -16,7 +16,7 @@
 	}
 
 	.ui-combo-box-footer {
-		@apply shrink-0 border-t border-surface-border px-2 py-1.5 text-center;
+		@apply shrink-0 border-t border-surface-border p-2 text-center;
 	}
 
 	.ui-combo-box-item {

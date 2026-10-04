@@ -1,10 +1,12 @@
-import { makePlayer } from '@features/apl/testing';
 import { APLRotation } from '@generated/proto/apl';
-import type { UnitReference } from '@generated/proto/common';
+import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
+import { ActionId } from '@sim/proto/action_id';
 import { patchSlice } from '@sim/state/sim_store';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { makePlayer } from '@testing/apl/player';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UnitField } from './UnitField';
@@ -15,8 +17,9 @@ const config = { id: 'unit-field', getValue: () => undefined as UnitReference | 
 
 let player: ReturnType<typeof makePlayer>;
 let targets: Array<unknown>;
+let pets: Array<unknown>;
 
-const tree = (unitSet: 'targets' | 'players') => (
+const tree = (unitSet: 'targets' | 'players' | 'aura_sources') => (
 	<SimHostProvider host={{ player, rootElem: document.body } as never}>
 		<UnitField player={player as unknown as Player<any>} config={config} unitSet={unitSet} />
 	</SimHostProvider>
@@ -24,12 +27,14 @@ const tree = (unitSet: 'targets' | 'players') => (
 
 const label = (key: string) => `rotation_tab.apl.helpers.unit_labels.${key}`;
 
-const items = () => screen.queryAllByTestId('dropdown-picker-item').map(item => item.textContent);
-const open = () => act(() => void fireEvent.click(screen.getByTestId('dropdown-picker-button')));
+const trigger = () => document.getElementById('unit-field')!;
+const items = () => screen.queryAllByRole('menuitemradio').map(item => item.textContent);
+const open = () => userEvent.click(trigger());
 
 beforeEach(() => {
 	document.body.innerHTML = '';
 	targets = [];
+	pets = [];
 	player = makePlayer(APLRotation.create());
 	player.sim.encounter = { targetsMetadata: { asList: () => targets.slice() } };
 });
@@ -56,5 +61,41 @@ describe('UnitField', () => {
 		});
 
 		expect(items()).toHaveLength(4);
+	});
+
+	it('keeps the same trigger node when a pet, and with it a submenu, arrives after mount', async () => {
+		player.getPetMetadatas = () => ({ asList: () => pets.slice() });
+		player.sim.raid.getActivePlayers = () => [];
+		player.sim.getUnitMetadata = () => ({ getName: () => 'Player 1 - Shadowfiend' });
+		render(tree('aura_sources'));
+		const before = trigger();
+
+		await act(() => {
+			pets.push({});
+			patchSlice(player.sim.store, 'sim', { metadataVersion: 1 });
+		});
+
+		expect(trigger()).toBe(before);
+	});
+
+	it('shows a pet whose icon is an ActionId with the url it resolves to', async () => {
+		const pet = UnitReference.create({ type: UnitType.Pet, index: 0, owner: UnitReference.create({ type: UnitType.Self }) });
+		const fill = vi.spyOn(ActionId.prototype, 'fill').mockImplementation(async function (this: ActionId) {
+			return Object.assign(Object.create(ActionId.prototype), this, { name: 'Shadowfiend', iconUrl: 'shadowfiend.jpg' }) as ActionId;
+		});
+		player.getPetMetadatas = () => ({ asList: () => [{}] });
+		player.sim.raid.getActivePlayers = () => [];
+		player.sim.getUnitMetadata = () => ({ getName: () => 'Player 1 - Shadowfiend' });
+
+		render(
+			<SimHostProvider host={{ player, rootElem: document.body } as never}>
+				<UnitField player={player as unknown as Player<any>} config={{ ...config, getValue: () => pet }} unitSet="aura_sources" />
+			</SimHostProvider>,
+		);
+		await act(async () => {});
+
+		const icon = within(trigger()).getByTestId('unit-picker-item-icon');
+		expect(icon.getAttribute('src')).toBe('shadowfiend.jpg');
+		fill.mockRestore();
 	});
 });

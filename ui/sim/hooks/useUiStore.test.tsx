@@ -1,16 +1,9 @@
-import { act, render } from '@testing-library/react';
-import type { ReactNode } from 'react';
+import { mountWithSimStore as mount } from '@testing/sim/hooks';
+import { act } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { SimHostProvider } from '../context/SimHostContext';
-import { createSimStore, patchSlice } from '../state/sim_store';
+import { patchSlice } from '../state/sim_store';
 import { useUiStore } from './useUiStore';
-
-const mount = (children: ReactNode) => {
-	const store = createSimStore();
-	const host = { sim: { store } } as never;
-	return { store, ...render(<SimHostProvider host={host}>{children}</SimHostProvider>) };
-};
 
 describe('useUiStore', () => {
 	it('renders the field value and re-renders when it changes', () => {

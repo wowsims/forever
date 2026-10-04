@@ -1,0 +1,39 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { TokenTable } from './components/TokenTable';
+import { FontFaces, Headings, TypeScale } from './components/TypeScale';
+
+<Meta title="Design System/Typography" />
+
+# Typography
+
+Tokens from `ui/styles/theme/typography.css`, faces from `ui/styles/base.css`. `1rem` is 14px below `fhd` (1921px) and 16px from `fhd` on (`--font-size-root` in `base.css`), so every `rem` below scales with it.
+
+## Font faces
+
+The woff2 files in `assets/fonts` against the `@font-face` rules `base.css` declares. A file with no rule is never loaded; a bold or italic weight without one is synthesised by the browser.
+
+<FontFaces />
+
+## Families
+
+<TokenTable prefix="font" preview="font" />
+
+## Text scale
+
+Each `--text-*` token rendered at its size (`text-xs`, `text-ui`, …).
+
+<TypeScale />
+
+## Headings
+
+`h1` to `h4` are fluid below the `xl` breakpoint and fixed from it; `h5` and `h6` are fixed. `text-fluid-xl` and `text-fluid-5xl` are the two fluid `@utility` sizes in `main.css`.
+
+<Headings />
+
+## Line height
+
+<TokenTable prefix="leading" />
+
+## Text shadows
+
+<TokenTable prefix="text-shadow" preview="text-shadow" />

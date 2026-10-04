@@ -134,17 +134,15 @@ func TernaryDuration(condition bool, val1 time.Duration, val2 time.Duration) tim
 	}
 }
 
-func UnitLevelFloat64(unitLevel int32, maxLevelMinus2Val float64, maxLevelPlus0Val float64, maxLevelPlus1Val float64, maxLevelPlus2Val float64, maxLevelPlus3Val float64) float64 {
-	if unitLevel == CharacterLevel-2 {
-		return maxLevelMinus2Val
-	} else if unitLevel == CharacterLevel {
-		return maxLevelPlus0Val
-	} else if unitLevel == CharacterLevel+1 {
-		return maxLevelPlus1Val
-	} else if unitLevel == CharacterLevel+2 {
-		return maxLevelPlus2Val
+func UnitLevelFloat64(levelDiff int32, plus0Val float64, plus1Val float64, plus2Val float64, plus3Val float64) float64 {
+	if levelDiff <= 0 {
+		return plus0Val
+	} else if levelDiff == 1 {
+		return plus1Val
+	} else if levelDiff == 2 {
+		return plus2Val
 	} else {
-		return maxLevelPlus3Val
+		return plus3Val
 	}
 }
 
@@ -245,12 +243,6 @@ func (char *Character) CalcAndRollDamageRange(sim *Simulation, min float64, max 
 	return sim.Roll(min, max)
 }
 
-func ApplyVarianceMinMax(avgEffect float64, variance float64) (float64, float64) {
-	min := avgEffect * (1 - variance/2.0)
-	max := avgEffect * (1 + variance/2.0)
-	return min, max
-}
-
 type aggregator struct {
 	n     int
 	sum   float64
@@ -283,4 +275,18 @@ func GetCurrentProtoVersion() int32 {
 	options := versionMessage.ProtoReflect().Descriptor().Options()
 	optionValue := googleproto.GetExtension(options, proto.E_CurrentVersionNumber)
 	return optionValue.(int32)
+}
+
+// A percentage as a multiplier: 20 is 1.2 and -6 is 0.94.
+func MultiplierFromPercent(percent float64) float64 {
+	return 1 + percent/100
+}
+
+// A percentage as a multiplier whose negative divides by the factor its positive multiplies by: 20 is
+// 1.2 and -20 is 1/1.2.
+func SymmetricMultiplierFromPercent(percent float64) float64 {
+	if percent < 0 {
+		return 1 / MultiplierFromPercent(-percent)
+	}
+	return MultiplierFromPercent(percent)
 }

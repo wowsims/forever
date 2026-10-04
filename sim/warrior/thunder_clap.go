@@ -8,12 +8,15 @@ import (
 
 var thunderClapRank = spellData.ThunderClap.Highest()
 
-var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average(core.CharacterLevel)
+// TODO: The Attack Power share (0.07) is verified in game on Rank 1 only; Ranks 2 to 6 carry the same
+// share unmeasured. Verify it on the higher ranks once logs at their level exist.
+var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average()
+var thunderClapAPCoeff = thunderClapRank.DamageEffect().APCoeff()
 var thunderClapSlow = thunderClapRank.EffectN(2).BaseValue()
 
 // The melee speed factor the warrior's clap leaves on the target, the Conqueror's set included.
 func (warrior *Warrior) thunderClapSpeed() float64 {
-	return 1 / core.SlowedTimeMultiplier(thunderClapSlow*(1+warrior.thunderClapEffectBonus))
+	return core.SymmetricMultiplierFromPercent(thunderClapSlow * (1 + warrior.thunderClapEffectBonus))
 }
 
 func (warrior *Warrior) registerThunderClap() {
@@ -47,7 +50,8 @@ func (warrior *Warrior) registerThunderClap() {
 	config.ThreatMultiplier = 1
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		results := spell.CalcCleaveDamage(sim, target, int32(thunderClapRank.MaxTargets), thunderClapBaseDamage, spell.OutcomeMagicHitAndCrit)
+		baseDamage := thunderClapBaseDamage + thunderClapAPCoeff*spell.MeleeAttackPower(target)
+		results := spell.CalcCleaveDamage(sim, target, int32(thunderClapRank.MaxTargets), baseDamage, spell.OutcomeMagicHitAndCrit)
 		warrior.CastNormalizedSweepingStrikesAttack(results, sim)
 
 		for _, result := range results {

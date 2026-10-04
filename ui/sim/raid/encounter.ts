@@ -141,18 +141,12 @@ export class Encounter {
 	getAreaTypes(): Array<AreaType> {
 		return this.enc.areaTypes;
 	}
-	inArea(areaType: AreaType): boolean {
-		return this.enc.areaTypes.includes(areaType);
-	}
 	setAreaTypes(newAreaTypes: Array<AreaType>, zoneId = 0) {
 		const areaTypes = [...new Set(newAreaTypes)].filter(areaType => areaType != AreaType.AreaTypeUnknown).sort((a, b) => a - b);
 		const current = this.enc.areaTypes;
 		const sameSet = areaTypes.length == current.length && areaTypes.every((areaType, i) => areaType == current[i]);
 		if (sameSet && zoneId == this.enc.zoneId) return;
 		this.set({ areaTypes, zoneId });
-	}
-	setInArea(areaType: AreaType, inArea: boolean) {
-		this.setAreaTypes(inArea ? [...this.enc.areaTypes, areaType] : this.enc.areaTypes.filter(t => t != areaType));
 	}
 
 	getZoneId(): number {
@@ -240,10 +234,10 @@ export class Encounter {
 			level: Mechanics.BOSS_LEVEL,
 			mobType: MobType.MobTypeMechanical,
 			stats: Stats.fromMap({
-				[Stat.StatArmor]: 7685,
+				[Stat.StatArmor]: 3731,
 				[Stat.StatAttackPower]: 320,
 				[Stat.StatBlockValue]: 54,
-				[Stat.StatHealth]: 6070400,
+				[Stat.StatHealth]: 1299000,
 			}).asProtoArray(),
 			minBaseDamage: 15113,
 			damageSpread: 0.5,

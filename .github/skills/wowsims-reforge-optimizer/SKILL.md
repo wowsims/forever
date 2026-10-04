@@ -73,10 +73,11 @@ Files (all under sim/core/reforge_optimizer/):
 
 ```bash
 go test -tags with_db -count=1 ./sim/core/reforge_optimizer
+go test -tags with_db -count=1 -run TestReforgerOptimizer ./sim
 npm run type-check
 ```
 
-Fixtures require the `with_db` tag; they live in sim/core/reforge_optimizer/test-fixtures/ (gem-limits, gem-pool-narrow, gem-pool-wide, meta-gem-comparative, soft-caps-multi, stat-conversions, tank-caps, tank-soft-caps). Never update fixtures without being asked.
+Fixtures require the `with_db` tag; they live in sim/core/reforge_optimizer/test-fixtures/ (gem-limits, gem-pool-narrow, gem-pool-wide, meta-gem-comparative, soft-caps-multi, stat-conversions, tank-caps, tank-soft-caps). Each is a real spec's preset, so the test that runs them, `TestReforgerOptimizer`, lives in `./sim` with every class registered rather than in the optimizer's package, whose tests use the class-free `sim/core/testagent`. Never update fixtures without being asked.
 
 For integration changes touching bulk or endpoint behavior:
 

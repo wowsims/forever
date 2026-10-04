@@ -1,11 +1,11 @@
+import type { ChoiceFieldConfig } from '@features/inputs/configs';
 import { Profession } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateProfession, translateRace } from '@i18n/localization';
 import type { Player } from '@sim/player/player';
 import { getEnumValues } from '@sim/utils/collections';
-import type { EnumPickerConfig } from '@ui-kit/EnumPicker/types';
 
-export const raceInput = (player: Player<any>): EnumPickerConfig<Player<any>> => ({
+export const raceInput = (player: Player<any>): ChoiceFieldConfig<Player<any>> => ({
 	id: 'simui-race',
 	label: i18n.t('settings_tab.player.race'),
 	values: player.getPlayerClass().races.map(race => ({ name: translateRace(race), value: race })),
@@ -14,10 +14,15 @@ export const raceInput = (player: Player<any>): EnumPickerConfig<Player<any>> =>
 	setValue: (modObject, newValue) => modObject.setRace(newValue),
 });
 
-export const professionInput = (which: 1 | 2): EnumPickerConfig<Player<any>> => ({
+// The game files have no Jewelcrafting or Inscription skill line.
+const ABSENT_PROFESSIONS = [Profession.Jewelcrafting, Profession.Inscription];
+
+export const professionInput = (which: 1 | 2): ChoiceFieldConfig<Player<any>> => ({
 	id: `simui-profession${which}`,
 	label: i18n.t(`settings_tab.player.profession_${which}`),
-	values: (getEnumValues(Profession) as Array<Profession>).map(profession => ({ name: translateProfession(profession), value: profession })),
+	values: (getEnumValues(Profession) as Array<Profession>)
+		.filter(profession => !ABSENT_PROFESSIONS.includes(profession))
+		.map(profession => ({ name: translateProfession(profession), value: profession })),
 	storeField: ['profession1', 'profession2'] as const,
 	getValue: modObject => (which === 1 ? modObject.getProfession1() : modObject.getProfession2()),
 	setValue: (modObject, newValue) => (which === 1 ? modObject.setProfession1(newValue) : modObject.setProfession2(newValue)),

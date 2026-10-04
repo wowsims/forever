@@ -1,8 +1,8 @@
 import type { APLFieldDescriptor } from '@features/apl/model/field_descriptors';
 import { resolveField } from '@features/apl/model/field_specs';
+import type { InputConfig } from '@features/inputs/input';
 import type { Player } from '@sim/player/player';
-import type { InputConfig } from '@ui-kit/input';
-import { PickerShell } from '@ui-kit/PickerShell';
+import { Field } from '@ui-kit/Field';
 import { useId, useMemo } from 'react';
 
 import { AplField } from './AplField';
@@ -31,16 +31,18 @@ export const FieldGroup = ({ player, config, fields }: FieldGroupProps) => {
 	const getParentValue = () => config.getValue(player);
 
 	return (
-		<PickerShell
-			config={{ ...config, id: config.id || generatedId }}
-			className="ui-apl-picker-builder-root w-auto flex-row flex-wrap gap-2"
-			testId="apl-picker-builder-root"
-			hidden={false}
-			disabled={false}>
+		<Field
+			id={config.id || generatedId}
+			label={config.label}
+			labelTooltip={config.labelTooltip}
+			description={config.description}
+			layout={config.layout}
+			className={['w-auto min-w-0 grow flex-row flex-wrap items-baseline gap-2', config.extraClassNames]}
+			testId="apl-picker-builder-root">
 			{/* The field list is fixed by the kind, so the position is the identity. */}
 			{specs.map((spec, index) => (
 				<AplField key={index} player={player} spec={spec} getParentValue={getParentValue} />
 			))}
-		</PickerShell>
+		</Field>
 	);
 };

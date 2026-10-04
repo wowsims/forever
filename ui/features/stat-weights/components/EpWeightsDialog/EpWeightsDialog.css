@@ -1,6 +1,18 @@
 @layer components {
 	.ui-ep-weights-table-header-cell {
 		@apply sticky top-0 bg-background pt-2 pr-2 pb-2 text-left;
+
+		&::after {
+			@apply absolute -inset-x-px top-full border-b-2 border-solid border-b-white/80 content-[''];
+		}
+
+		&:first-child::after {
+			@apply left-0;
+		}
+
+		&:last-child::after {
+			@apply right-0;
+		}
 	}
 
 	.ui-ep-weights-input-align-right {
@@ -8,7 +20,7 @@
 	}
 
 	.ui-ep-weights-compact-input {
-		@apply max-lg:pr-0.75 max-lg:pl-0 max-lg:text-center;
+		@apply max-lg:pr-1 max-lg:pl-0 max-lg:text-center;
 	}
 
 	.ui-ep-weights-table-cell {

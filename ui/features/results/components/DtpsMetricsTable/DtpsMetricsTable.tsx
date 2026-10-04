@@ -1,5 +1,6 @@
 import i18n from '@i18n/config';
 import { ActionMetrics } from '@sim/proto/sim_result';
+import { percentOf } from '@sim/utils/math';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
@@ -43,18 +44,7 @@ const dtpsGroups = (resultData: SimResultData): Array<Array<ActionMetrics>> => {
 		.getTargets(resultData.filter)
 		.flatMap(target => target.getDamageActions().map(action => action.forTarget({ player: player.unitIndex })));
 
-	// Self-inflicted damage (sappers, ...) is one of the player's own actions
-	// that happens to list the player among its targets, so getTargets() never
-	// reaches it even though it already counts towards DTPS. getTargetIndex()
-	// resolves a player's action against filter.target, hence `target` here
-	// rather than the `player` key the enemy actions above use.
-	const selfDamageActions = player
-		.getDamageActions()
-		.filter(action => action.targets.some(target => target.data.unitIndex === player.unitIndex))
-		.map(action => action.forTarget({ target: player.unitIndex }))
-		.filter(action => action.damage > 0);
-
-	return ActionMetrics.groupById([...targetActions, ...selfDamageActions]);
+	return ActionMetrics.groupById([...targetActions, ...resultData.result.getOwnSideDamageOn(player)]);
 };
 
 const grouping: MetricGrouping<ActionMetrics> = {
@@ -68,6 +58,7 @@ export const DtpsMetricsTable = () => {
 	const rows = useMemo(() => (resultData ? buildMetricRows(dtpsGroups(resultData), grouping) : NO_ROWS), [resultData]);
 	const metricsByRowId = useMemo(() => indexMetricRows(rows), [rows]);
 	const maxDamage = useMetricMax(rows, metric => metric.damage);
+	const damageTaken = resultData?.result.getRaidIndexedPlayers(resultData.filter)[0]?.totalDamageTaken;
 
 	const columns = useMemo(
 		() =>
@@ -78,7 +69,7 @@ export const DtpsMetricsTable = () => {
 					header: i18n.t('results_tab.details.columns.damage_taken'),
 					total: metric => metric.avgDamage,
 					value: metric => metric.damage,
-					percentage: metric => metric.totalDamageTakenPercent,
+					percentage: metric => (damageTaken ? percentOf(metric.avgDamage, damageTaken) : undefined),
 					max: maxDamage,
 					tooltipId: TOOLTIP.damageTaken,
 				}),
@@ -130,7 +121,7 @@ export const DtpsMetricsTable = () => {
 					value: metric => metric.dps,
 				}),
 			]),
-		[maxDamage],
+		[maxDamage, damageTaken],
 	);
 
 	const forAnchor = metricForAnchor(metricsByRowId);

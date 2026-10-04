@@ -1,66 +1,22 @@
-import { ActionId } from '@sim/proto/action_id';
-import type { StoreSubscribe } from '@sim/state/subscriptions';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import type { IconPickerConfig } from '@ui-kit/IconPicker/types';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import i18n from '@i18n/config';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import type { ResolvedIcon } from '@ui-kit/Field/types';
+import { describe, expect, it, vi } from 'vitest';
 
-import { MultiIconPicker } from './MultiIconPicker';
-import type { MultiIconPickerConfig } from './types';
+import { MultiIconPicker, type MultiIconPickerProps } from './MultiIconPicker';
 
-// A filled ActionId as fill() returns one, so useActionId renders synchronously and no test touches
-// the network — the same pattern IconPicker.test.tsx uses.
-const filled = (actionId: ActionId, name: string, iconUrl: string) => Object.assign(Object.create(ActionId.prototype), actionId, { name, iconUrl }) as ActionId;
+const kingsIcon: ResolvedIcon = { iconUrl: 'kings.jpg', name: 'Kings', href: 'https://www.wowhead.com/spell=20217' };
 
-const kingsId = filled(ActionId.fromSpellId(20217), 'Kings', 'kings.jpg');
-const markId = filled(ActionId.fromSpellId(1126), 'Mark', 'mark.jpg');
-const emperorId = filled(ActionId.fromSpellId(115921), 'Emperor', 'emperor.jpg');
-const improvedId = filled(ActionId.fromSpellId(9000), 'Improved', 'improved.jpg');
-const categoryId = filled(ActionId.fromSpellId(9999), 'Category', 'category.jpg');
+const mount = (props: Partial<MultiIconPickerProps> = {}) =>
+	render(
+		<MultiIconPicker label="Stats" active={false} onClear={() => {}} {...props}>
+			{props.children ?? [<span key="kings" data-testid="child" />, <span key="mark" data-testid="child" />, <span key="emperor" data-testid="child" />]}
+		</MultiIconPicker>,
+	);
 
-/** Stands in for the player: one number per buff, plus the `(onChange) => unsubscribe` contract. */
-class Buffs {
-	private listeners = new Set<() => void>();
-	readonly values: Record<string, number> = { kings: 0, mark: 0, emperor: 0 };
-	visible = true;
-	set(field: string, value: number) {
-		this.values[field] = value;
-		this.notify();
-	}
-	setVisible(next: boolean) {
-		this.visible = next;
-		this.notify();
-	}
-	notify() {
-		this.listeners.forEach(listener => listener());
-	}
-	readonly subscribe: StoreSubscribe = listener => {
-		this.listeners.add(listener);
-		return () => this.listeners.delete(listener);
-	};
-}
-
-const input = (field: string, actionId: ActionId, extra: Partial<IconPickerConfig<Buffs, number>> = {}): IconPickerConfig<Buffs, number> => ({
-	actionId,
-	states: 2,
-	storeSubscribe: buffs => buffs.subscribe,
-	getValue: buffs => buffs.values[field],
-	setValue: (buffs, value) => buffs.set(field, Number(value)),
-	...extra,
-});
-
-const configFor = (extra: Partial<MultiIconPickerConfig<Buffs>> = {}): MultiIconPickerConfig<Buffs> => ({
-	inputs: [input('kings', kingsId), input('mark', markId), input('emperor', emperorId)],
-	label: 'Stats',
-	...extra,
-});
-
-const mount = (buffs: Buffs, config: MultiIconPickerConfig<Buffs> = configFor(), onClear = () => {}) =>
-	render(<MultiIconPicker modObject={buffs} config={config} subscribe={buffs.subscribe} onClear={onClear} />);
-
-const root = () => screen.getByTestId('multi-icon-picker-root');
-const trigger = () => within(root()).getByTestId('multi-icon-picker-button') as HTMLAnchorElement;
+const trigger = () => screen.getByTestId('multi-icon-picker-root') as HTMLAnchorElement;
 const menu = () => screen.queryByTestId('multi-icon-picker-menu') as HTMLUListElement;
-const blankOption = () => screen.getByTestId('icon-dropdown-option') as HTMLAnchorElement;
+const clearOption = () => screen.getByTestId('icon-picker-clear') as HTMLAnchorElement;
 // The menu mounts when it opens, so every test that reads an option has to open it first.
 const open = () =>
 	act(() => {
@@ -70,119 +26,81 @@ const open = () =>
 // happy-dom re-quotes the CSSOM value, so the icon is compared by name rather than by literal.
 const backgroundIcon = () => trigger().style.backgroundImage.replace(/^url\(['"]?|['"]?\)$/g, '');
 
-beforeEach(() => {
-	vi.spyOn(ActionId.prototype, 'fill').mockImplementation(async function (this: ActionId) {
-		return this;
-	});
-});
-afterEach(() => vi.restoreAllMocks());
-
 describe('MultiIconPicker', () => {
-	it('builds the root and the option list vanilla built', () => {
-		mount(new Buffs());
+	it('lays the trigger and its caption out in an icon field, with no box around the trigger', () => {
+		const { container } = mount();
+		const field = container.firstElementChild as HTMLElement;
 
-		expect(root().getAttribute('data-testid')).toBe('multi-icon-picker-root');
-		expect(root().children[0].className).toBe('relative');
-		expect(trigger()).toBeTruthy();
+		expect(field.getAttribute('data-layout')).toBe('icon');
+		expect(field.firstElementChild).toBe(trigger());
+		expect(trigger().tagName).toBe('A');
+		expect(field.querySelectorAll('div')).toHaveLength(0);
 		expect(menu()).toBeNull();
+	});
 
-		// The blank "clear" option first, then one option per input, each wrapping an IconPicker.
+	it('renders the bare trigger without a label', () => {
+		const { container } = mount({ label: undefined });
+		expect(Array.from(container.children)).toEqual([trigger()]);
+	});
+
+	it('builds the option list: the clear option first, then one option per child', () => {
+		mount();
 		open();
 		const options = Array.from(menu().children);
 		expect(options).toHaveLength(4);
-		const swatch = options[0].querySelector('a')!;
-		expect(swatch.classList.contains('ui-icon-picker-swatch')).toBe(true);
-		for (const token of ['p-0', 'filter-[opacity(0.7)]', 'hover:filter-none']) expect(swatch.classList.contains(token)).toBe(true);
-		expect(options[0].querySelector('a')?.getAttribute('data-testid')).toBe('icon-dropdown-option');
-		expect(options.slice(1).map(option => option.className)).toHaveLength(3);
-		expect(options.slice(1).every(option => option.className === options[1].className)).toBe(true);
-		expect(options.slice(1).every(option => within(option as HTMLElement).queryByTestId('icon-picker-root'))).toBe(true);
+		expect(options[0].querySelector('a')).toBe(clearOption());
+		expect(options.slice(1).every(option => option.querySelector('[data-testid="child"]'))).toBe(true);
 	});
 
-	it('positions the menu against the viewport', async () => {
-		mount(new Buffs());
-		await open();
-		expect(screen.getByTestId('multi-icon-picker-positioner').style.position).toBe('fixed');
-	});
-
-	it('renders the label only when the config names one, and names the group with it', () => {
-		const withLabel = mount(new Buffs());
+	it('names the group and the trigger with its label, and renders neither name without one', () => {
+		const withLabel = mount();
 		// A <span>, not a <label>: it names the icon group, which is not a form control.
-		const caption = within(root()).queryByTestId('multi-icon-picker-label');
-		expect(caption?.textContent).toBe('Stats');
-		expect(root().getAttribute('role')).toBe('group');
-		expect(root().getAttribute('aria-labelledby')).toBe(caption!.id);
+		const group = screen.getByRole('group', { name: 'Stats' });
+		expect(group.querySelector('label')).toBeNull();
+		expect(trigger().getAttribute('aria-label')).toBe('Stats');
 		withLabel.unmount();
 
-		mount(new Buffs(), configFor({ label: undefined }));
-		expect(within(root()).queryByTestId('multi-icon-picker-label')).toBeNull();
-		expect(root().hasAttribute('aria-labelledby')).toBe(false);
+		mount({ label: undefined });
+		expect(screen.queryByRole('group')).toBeNull();
+		expect(trigger().hasAttribute('aria-label')).toBe(false);
 	});
 
-	it('takes the button image from the first active child, not the last', () => {
-		const buffs = new Buffs();
-		mount(buffs);
+	it('names the trigger by the label and opens the menu from a click on the label', () => {
+		mount();
+		const label = screen.getByTestId('form-label');
+		expect(trigger().getAttribute('aria-labelledby')).toBe(label.id);
+
+		fireEvent.click(label);
+		expect(trigger().getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('paints the icon it is given and marks the trigger active', () => {
+		const { rerender } = mount();
 		expect(trigger().hasAttribute('data-active')).toBe(false);
 		expect(backgroundIcon()).toBe('');
 
-		act(() => buffs.set('emperor', 1));
+		rerender(
+			<MultiIconPicker label="Stats" icon={kingsIcon} active onClear={() => {}}>
+				<span />
+			</MultiIconPicker>,
+		);
 		expect(trigger().hasAttribute('data-active')).toBe(true);
-		expect(backgroundIcon()).toBe('emperor.jpg');
-
-		// Kings is earlier in the list, so it takes the icon over the one already on.
-		act(() => buffs.set('kings', 1));
 		expect(backgroundIcon()).toBe('kings.jpg');
-
-		act(() => buffs.set('kings', 0));
-		act(() => buffs.set('emperor', 0));
-		expect(trigger().hasAttribute('data-active')).toBe(false);
-		expect(backgroundIcon()).toBe('');
-	});
-
-	it('uses the improved id at state 2, as IconPicker.getActionId does', () => {
-		const buffs = new Buffs();
-		mount(buffs, configFor({ inputs: [input('kings', kingsId, { states: 3, improvedId })] }));
-
-		act(() => buffs.set('kings', 1));
-		expect(backgroundIcon()).toBe('kings.jpg');
-		act(() => buffs.set('kings', 2));
-		expect(backgroundIcon()).toBe('improved.jpg');
-	});
-
-	it('prefers categoryId over the active child, and keeps it while nothing is on', () => {
-		const buffs = new Buffs();
-		mount(buffs, configFor({ categoryId }));
-
-		expect(trigger().hasAttribute('data-active')).toBe(false);
-		expect(backgroundIcon()).toBe('category.jpg');
-
-		act(() => buffs.set('kings', 1));
-		expect(trigger().hasAttribute('data-active')).toBe(true);
-		expect(backgroundIcon()).toBe('category.jpg');
 	});
 
 	it('never gives the button an href', () => {
-		const buffs = new Buffs();
-		mount(buffs);
-		act(() => buffs.set('kings', 1));
+		mount({ icon: kingsIcon, active: true });
 		expect(trigger().hasAttribute('href')).toBe(false);
 	});
 
-	it('unmounts when showWhen goes false and mounts again when it comes back', () => {
-		const buffs = new Buffs();
-		mount(buffs, configFor({ showWhen: (player: any) => (player as Buffs).visible }));
-		expect(screen.queryByTestId('multi-icon-picker-root')).toBeTruthy();
-
-		act(() => buffs.setVisible(false));
-		expect(screen.queryByTestId('multi-icon-picker-root')).toBeNull();
-
-		act(() => buffs.setVisible(true));
-		expect(screen.queryByTestId('multi-icon-picker-root')).toBeTruthy();
+	it('takes a testId for its trigger', () => {
+		mount({ testId: 'misc-buffs' });
+		expect(screen.getByTestId('misc-buffs').tagName).toBe('A');
 	});
 
-	it('clears from a right-click on the button and from the blank option, and not from a left-click', () => {
+	it('clears from a right-click on the button and from the clear option, and not from a left-click', () => {
 		const onClear = vi.fn();
-		mount(new Buffs(), configFor(), onClear);
+		mount({ onClear });
 
 		fireEvent.mouseDown(trigger(), { button: 0 });
 		expect(onClear).not.toHaveBeenCalled();
@@ -191,12 +109,18 @@ describe('MultiIconPicker', () => {
 		expect(onClear).toHaveBeenCalledTimes(1);
 
 		open();
-		fireEvent.click(blankOption());
+		fireEvent.click(clearOption());
 		expect(onClear).toHaveBeenCalledTimes(2);
 	});
 
+	it('names the clear option by its locale string', () => {
+		mount();
+		open();
+		expect(screen.getByLabelText(i18n.t('common.clear'))).toBe(clearOption());
+	});
+
 	it('prevents the context menu on the button', () => {
-		mount(new Buffs());
+		mount();
 		const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
 		trigger().dispatchEvent(event);
 		expect(event.defaultPrevented).toBe(true);

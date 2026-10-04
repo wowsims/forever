@@ -1,9 +1,8 @@
+import type { ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import type { Encounter } from '@sim/raid/encounter';
 import type { Raid } from '@sim/raid/raid';
-import type { EnumPickerConfig } from '@ui-kit/EnumPicker/types';
-import type { NumberPickerConfig } from '@ui-kit/NumberPicker/types';
 
 import { trackEvent } from '../../../../../tracking/utils';
 
@@ -19,7 +18,7 @@ interface Field {
 	set: (encounter: Encounter, value: number) => void;
 }
 
-const field = (encounter: Encounter, spec: Field): NumberPickerConfig<Encounter> => ({
+const field = (encounter: Encounter, spec: Field): NumberFieldConfig<Encounter> => ({
 	id: spec.id,
 	label: i18n.t(`settings_tab.encounter.${spec.key}.label`),
 	labelTooltip: i18n.t(`settings_tab.encounter.${spec.key}.tooltip`),
@@ -32,7 +31,7 @@ const field = (encounter: Encounter, spec: Field): NumberPickerConfig<Encounter>
 	enableWhen: whileTimed(encounter),
 });
 
-export const durationConfigs = (encounter: Encounter): Array<NumberPickerConfig<Encounter>> =>
+export const durationConfigs = (encounter: Encounter): Array<NumberFieldConfig<Encounter>> =>
 	(
 		[
 			{ id: 'encounter-duration', key: 'duration', label: 'duration', category: 'duration', get: e => e.getDuration(), set: (e, v) => e.setDuration(v) },
@@ -91,9 +90,9 @@ const EXECUTE_BANDS: Array<Field> = [
 	},
 ];
 
-export const executeConfigs = (encounter: Encounter): Array<NumberPickerConfig<Encounter>> => EXECUTE_BANDS.map(band => field(encounter, band));
+export const executeConfigs = (encounter: Encounter): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(band => field(encounter, band));
 
-export const numAlliesConfig = (player: Player<any>): NumberPickerConfig<Raid> => ({
+export const numAlliesConfig = (player: Player<any>): NumberFieldConfig<Raid> => ({
 	id: 'encounter-num-allies',
 	label: i18n.t('settings_tab.encounter.num_allies.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.num_allies.tooltip'),
@@ -103,7 +102,7 @@ export const numAlliesConfig = (player: Player<any>): NumberPickerConfig<Raid> =
 	showWhen: () => player.shouldEnableTargetDummies(),
 });
 
-export const minBaseDamageConfig = (): NumberPickerConfig<Encounter> => ({
+export const minBaseDamageConfig = (): NumberFieldConfig<Encounter> => ({
 	id: 'encounter-min-base-damage',
 	label: i18n.t('settings_tab.encounter.min_base_damage.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.min_base_damage.tooltip'),
@@ -115,11 +114,12 @@ export const minBaseDamageConfig = (): NumberPickerConfig<Encounter> => ({
 		}),
 });
 
-export const presetEncounterConfig = (encounter: Encounter): EnumPickerConfig<Encounter> => {
+export const presetEncounterConfig = (encounter: Encounter): ChoiceFieldConfig<Encounter> => {
 	const presets = encounter.sim.db.getAllPresetEncounters();
 	return {
 		id: 'encounter-preset-encouter',
 		label: i18n.t('settings_tab.encounter.encounter_preset.label'),
+		extraClassNames: ['w-full'],
 		values: [{ name: i18n.t('common.custom'), value: -1 }, ...presets.map((preset, index) => ({ name: preset.path, value: index }))],
 		storeField: 'encounter:*',
 		getValue: (subject: Encounter) => presets.findIndex(preset => subject.matchesPreset(preset)),
@@ -129,7 +129,7 @@ export const presetEncounterConfig = (encounter: Encounter): EnumPickerConfig<En
 	};
 };
 
-export const zoneConfig = (encounter: Encounter): EnumPickerConfig<Encounter> => {
+export const zoneConfig = (encounter: Encounter): ChoiceFieldConfig<Encounter> => {
 	const zones = encounter.sim.db
 		.getAllZones()
 		.filter(zone => zone.areaTypes.length > 0)
@@ -138,6 +138,7 @@ export const zoneConfig = (encounter: Encounter): EnumPickerConfig<Encounter> =>
 		id: 'encounter-zone',
 		label: i18n.t('settings_tab.encounter.zone.label'),
 		labelTooltip: i18n.t('settings_tab.encounter.zone.tooltip'),
+		extraClassNames: ['w-full'],
 		values: [{ name: i18n.t('common.custom'), value: 0 }, ...zones.map(zone => ({ name: zone.name, value: zone.id }))],
 		storeField: 'encounter:*',
 		getValue: (subject: Encounter) => subject.getZoneId(),

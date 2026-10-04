@@ -6,11 +6,14 @@ import type { Sim } from '@sim/sim';
 import { batch } from '@sim/state/batch';
 import { Emitter } from '@sim/state/events';
 
+import { type ResultFreshnessTracker, resultFreshnessTracker } from './result_freshness';
 import type { ReferenceData } from './sim_results';
 
 export type SimResultsData = {
 	current: ReferenceData | null;
 	reference: ReferenceData | null;
+	/** The current run came in through a swap, so it is the earlier run and the latest one is the reference. */
+	swapped: boolean;
 };
 
 // The run the sidebar shows and the run it is compared against. Events (results arrived / reference
@@ -22,10 +25,14 @@ export class SimResultsManager {
 
 	private currentData: ReferenceData | null = null;
 	private referenceData: ReferenceData | null = null;
+	private swapped = false;
 	private readonly sim: Sim;
+	private readonly freshness: ResultFreshnessTracker;
 
 	constructor(sim: Sim) {
 		this.sim = sim;
+		// Built with the manager, before any run, so the first run's start is seen.
+		this.freshness = resultFreshnessTracker(sim.store);
 	}
 
 	readonly subscribe = (listener: () => void): (() => void) => {
@@ -37,9 +44,10 @@ export class SimResultsManager {
 		};
 	};
 
-	readonly getData = (): SimResultsData => ({ current: this.currentData, reference: this.referenceData });
+	readonly getData = (): SimResultsData => ({ current: this.currentData, reference: this.referenceData, swapped: this.swapped });
 
 	setSimResult(simResult: SimResult) {
+		this.swapped = false;
 		this.currentData = {
 			simResult: simResult,
 			settings: {
@@ -50,6 +58,7 @@ export class SimResultsManager {
 			encounterProto: EncounterProto.clone(simResult.request.encounter || EncounterProto.create()),
 		};
 
+		this.freshness.resultLanded();
 		this.currentChangeEmitter.emit();
 	}
 
@@ -74,10 +83,15 @@ export class SimResultsManager {
 			// they are now — so the raid and encounter have to be back first.
 			this.sim.raid.fromProto(referenceData.raidProto);
 			this.sim.encounter.fromProto(referenceData.encounterProto);
+			const wasSwapped = this.swapped;
 			this.setSimResult(referenceData.simResult);
+			this.swapped = !wasSwapped;
 
 			this.referenceChangeEmitter.emit();
 		});
+		// The restore put back the inputs the swapped-in result was built from. Taken after the batch,
+		// so writes its subscribers make in response to the restore are in too.
+		this.freshness.resultMatchesInputs();
 	}
 
 	getRunData(): SimRunData | null {

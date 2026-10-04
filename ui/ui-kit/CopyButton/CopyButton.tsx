@@ -1,7 +1,8 @@
 import i18n from '@i18n/config';
-import { Button, type ButtonVariant } from '@ui-kit/Button';
+import { Button, type ButtonSize, type ButtonVariant } from '@ui-kit/Button';
 import { useCopyToClipboard } from '@ui-kit/hooks/useCopyToClipboard';
 import { Icon } from '@ui-kit/Icon';
+import { toastManager } from '@ui-kit/Toast';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx, { type ClassValue } from 'clsx';
 import { useId } from 'react';
@@ -10,42 +11,45 @@ export interface CopyButtonProps {
 	/** Read at click time, not at mount: the reforge toast re-exports the whole sim on every click. */
 	getContent: () => string;
 	variant?: ButtonVariant | null;
+	size?: ButtonSize;
 	className?: ClassValue;
 	text?: string;
 	tooltip?: string;
-	/** Fired after the copy is started — the no-clipboard branch included. */
-	onCopied?: () => void;
+	testId?: string;
 }
 
 /**
- * Parameterises the label, the class list and the tooltip; fixes `copy-button` — the class every
- * React caller of `useCopyToClipboard` writes by hand — and the copy itself: the check icon and
- * the "copied" label for 1500ms, further clicks ignored inside it.
+ * Parameterises the label, the look and the tooltip; fixes the `copy-button` testid and the copy
+ * itself: the check icon and the "copied" label for 1500ms, further clicks ignored inside it.
  */
-export const CopyButton = ({ getContent, variant = null, className, text, tooltip, onCopied }: CopyButtonProps) => {
+export const CopyButton = ({ getContent, variant = null, size, className, text, tooltip, testId = 'copy-button' }: CopyButtonProps) => {
 	const { copy, copied } = useCopyToClipboard(getContent);
 	const tooltipId = useId();
 
 	const onClick = () => {
-		// `navigator.clipboard` is absent on an insecure origin: this shows the payload instead and never enters the copied window, so a second click alerts again.
+		// `navigator.clipboard` is absent on an insecure origin: this toasts the payload for a manual copy instead and never enters the copied window, so a second click toasts again.
 		if (navigator.clipboard == undefined) {
-			alert(getContent());
+			toastManager.add({
+				variant: 'error',
+				autohide: false,
+				body: <pre className="max-h-40 overflow-auto break-all whitespace-pre-wrap select-all">{getContent()}</pre>,
+			});
 		} else {
 			if (copied) return;
 			copy();
 		}
-		onCopied?.();
 	};
 
 	return (
 		<>
 			<Button
 				variant={variant}
+				size={size}
 				className={clsx(className)}
-				data-testid="copy-button"
+				data-testid={testId}
 				onClick={onClick}
 				{...(tooltip ? tooltipAnchorProps(tooltipId) : {})}>
-				<Icon name={copied ? 'check' : 'copy'} className="mr-1" />
+				<Icon name={copied ? 'check' : 'copy'} />
 				{copied ? i18n.t('common.copy_button.copied') : (text ?? i18n.t('common.copy_button.default_text'))}
 			</Button>
 			{tooltip && <Tooltip id={tooltipId} content={tooltip} />}

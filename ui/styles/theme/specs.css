@@ -1,5 +1,5 @@
 .sim-ui {
-	--color-primary: var(--theme-color, #0d6efd);
+	--color-primary: var(--theme-color, var(--color-blue));
 	--color-primary-foreground: var(--theme-color-foreground, var(--color-white));
 	--color-primary-disabled-foreground: var(--color-primary-foreground);
 	--theme-background-color: color-mix(in srgb, var(--color-primary) 10%, var(--color-black));

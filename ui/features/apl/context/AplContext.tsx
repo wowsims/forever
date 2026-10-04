@@ -10,9 +10,13 @@ export interface AplScope {
 	isGroup: boolean;
 	/** What the pickers below subscribe to: the rotation, or inside a list row that row's `rowSource`. */
 	changeSource: (player: Player<any>) => StoreSubscribe;
+	/** Inside a sequence, a strict sequence or a schedule, whose actions take no condition of their own. */
+	inSequence: boolean;
+	/** The `Tree.Root` group a list field below names its list with, from `valueListGroup`/`actionListGroup`. */
+	listGroup: string | undefined;
 }
 
-const DEFAULT: AplScope = { isPrepull: false, isGroup: false, changeSource: rotationSource };
+const DEFAULT: AplScope = { isPrepull: false, isGroup: false, changeSource: rotationSource, inSequence: false, listGroup: undefined };
 
 const AplContext = createContext<AplScope>(DEFAULT);
 
@@ -26,11 +30,17 @@ export interface AplProviderProps extends Partial<AplScope> {
  * It travels down rather than being read up off the DOM — `closest('.apl-prepull-action-picker')`
  * and its kin cannot answer, because a React component renders before it is in the document.
  */
-export const AplProvider = ({ isPrepull, isGroup, changeSource, children }: AplProviderProps) => {
+export const AplProvider = ({ isPrepull, isGroup, changeSource, inSequence, listGroup, children }: AplProviderProps) => {
 	const parent = useContext(AplContext);
 	const scope = useMemo(
-		() => ({ isPrepull: isPrepull ?? parent.isPrepull, isGroup: isGroup ?? parent.isGroup, changeSource: changeSource ?? parent.changeSource }),
-		[isPrepull, isGroup, changeSource, parent],
+		() => ({
+			isPrepull: isPrepull ?? parent.isPrepull,
+			isGroup: isGroup ?? parent.isGroup,
+			changeSource: changeSource ?? parent.changeSource,
+			inSequence: inSequence ?? parent.inSequence,
+			listGroup: listGroup ?? parent.listGroup,
+		}),
+		[isPrepull, isGroup, changeSource, inSequence, listGroup, parent],
 	);
 	return <AplContext value={scope}>{children}</AplContext>;
 };

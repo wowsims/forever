@@ -1,0 +1,19 @@
+@layer components {
+	.ui-box {
+		&:not([data-border='none']) {
+			@apply border border-(--box-border-color);
+		}
+
+		&[data-padding='xs'] {
+			@apply px-2 py-1;
+		}
+
+		&[data-padding='sm'] {
+			@apply p-2;
+		}
+
+		&[data-padding='md'] {
+			@apply p-4;
+		}
+	}
+}

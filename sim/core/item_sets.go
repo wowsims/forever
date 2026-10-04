@@ -213,8 +213,7 @@ func (character *Character) applyItemSetBonusEffects(agent Agent) {
 	activeSetBonuses := character.getActiveSetBonuses()
 
 	for _, activeSetBonus := range activeSetBonuses {
-		if activeSetBonus.RequiredProfession != proto.Profession_ProfessionUnknown &&
-			!character.HasProfession(activeSetBonus.RequiredProfession) {
+		if !character.MeetsProfession(activeSetBonus.RequiredProfession, 0) {
 			continue
 		}
 		setBonusAura := character.makeSetBonusStatusAura(activeSetBonus.Name, activeSetBonus.NumPieces, activeSetBonus.Slots, true)
@@ -226,8 +225,7 @@ func (character *Character) applyItemSetBonusEffects(agent Agent) {
 			if activeSetBonuses.ContainsBonus(unequippedSetBonus.Name, unequippedSetBonus.NumPieces) {
 				continue
 			}
-			if unequippedSetBonus.RequiredProfession != proto.Profession_ProfessionUnknown &&
-				!character.HasProfession(unequippedSetBonus.RequiredProfession) {
+			if !character.MeetsProfession(unequippedSetBonus.RequiredProfession, 0) {
 				continue
 			}
 			setBonusAura := character.makeSetBonusStatusAura(unequippedSetBonus.Name, unequippedSetBonus.NumPieces, unequippedSetBonus.Slots, false)

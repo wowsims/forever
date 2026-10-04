@@ -1,41 +1,40 @@
 import { Checkbox } from '@base-ui/react/checkbox';
-import { useInput } from '@ui-kit/hooks/useInput';
+import { type ControlledProps, Field, type FieldFrameProps, hasFieldFrame } from '@ui-kit/Field';
 import { Icon } from '@ui-kit/Icon';
-import { PickerShell } from '@ui-kit/PickerShell';
+import clsx from 'clsx';
 
-import type { AnyBooleanPickerConfig } from './types';
+import type { BooleanPickerOptions } from './types';
 
-export interface BooleanPickerProps<ModObject> {
-	modObject: ModObject;
-	config: AnyBooleanPickerConfig<ModObject>;
-}
+export type BooleanPickerProps = FieldFrameProps & ControlledProps<boolean> & BooleanPickerOptions;
 
-export const BooleanPicker = <ModObject,>({ modObject, config }: BooleanPickerProps<ModObject>) => {
-	const { value, setValue, hidden, disabled } = useInput(modObject, config);
+export const BooleanPicker = ({ value, onChange, disabled, reverse, className, testId, ...frameProps }: BooleanPickerProps) => {
+	const hasFrame = hasFieldFrame(frameProps);
 
 	const input = (
 		<Checkbox.Root
-			id={config.id}
-			className="ui-boolean-picker-input inline-flex items-center justify-center p-0"
-			data-testid="boolean-picker-input"
+			id={frameProps.id}
+			className={clsx('ui-boolean-picker-input inline-flex items-center justify-center p-0', !hasFrame && className)}
+			data-testid={hasFrame ? 'boolean-picker-input' : (testId ?? 'boolean-picker-input')}
 			checked={value}
 			disabled={disabled}
-			onCheckedChange={checked => setValue(checked)}>
-			<Checkbox.Indicator>
+			onCheckedChange={checked => onChange(checked)}>
+			<Checkbox.Indicator className="ui-boolean-picker-indicator">
 				<Icon name="check" className="text-primary-foreground" />
 			</Checkbox.Indicator>
 		</Checkbox.Root>
 	);
 
+	if (!hasFrame) return input;
+
 	return (
-		<PickerShell
-			config={config}
-			className={config.reverse ? 'ui-boolean-picker ui-boolean-picker-reverse' : 'ui-boolean-picker'}
-			testId="boolean-picker-root"
-			hidden={hidden}
+		<Field
+			{...frameProps}
+			className={['ui-boolean-picker', className]}
+			testId={testId ?? 'boolean-picker-root'}
 			disabled={disabled}
-			leading={config.reverse ? undefined : input}>
-			{config.reverse ? input : undefined}
-		</PickerShell>
+			reverse={reverse}
+			leading={reverse ? undefined : input}>
+			{reverse ? input : undefined}
+		</Field>
 	);
 };

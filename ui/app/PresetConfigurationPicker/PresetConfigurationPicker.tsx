@@ -1,66 +1,49 @@
 import { applyBuild } from '@features/settings/model/apply_build';
 import i18n from '@i18n/config';
+import type { Phase } from '@sim/constants/other';
 import type { PresetConfigurationCategory } from '@sim/constants/preset_categories';
 import { useSimHost, useSpecPresets } from '@sim/context/SimHostContext';
 import { useReadyStoreSubscribe } from '@sim/hooks/useReadyStoreSubscribe';
 import { useSimReady } from '@sim/hooks/useSimReady';
 import { subscribeSimChange } from '@sim/state/subscriptions';
-import { Chip } from '@ui-kit/Chip';
 import { ContentBlock } from '@ui-kit/ContentBlock';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useId, useMemo } from 'react';
 
-import { buildCategories, isBuildActive } from '../preset_build_state';
+import { isBuildActive } from '../preset_build_state';
 import type { PresetBuild } from '../preset_utils';
+import { PresetBuildChip, PresetBuildChipTooltip } from '../PresetBuildChip';
 import { PresetGroupPicker, usePresetFilterPhase } from '../PresetGroupPicker';
 
-export interface PresetConfigurationPickerProps {
-	categories: Array<PresetConfigurationCategory>;
+export interface PresetConfigurationPickerViewProps {
+	builds: ReadonlyArray<PresetBuild>;
+	/** Parallel to `builds`; null until the sim is ready. */
+	active: ReadonlyArray<boolean> | null;
+	ready: boolean;
+	phases: ReadonlyArray<Phase>;
+	phase: Phase;
+	onSelectPhase: (phase: Phase) => void;
+	onApply: (build: PresetBuild) => void;
 }
 
-export const PresetConfigurationPicker = ({ categories }: PresetConfigurationPickerProps) => {
-	const host = useSimHost();
-	const presets = useSpecPresets();
-	const ready = useSimReady();
+export const PresetConfigurationPickerView = ({ builds, active, ready, phases, phase, onSelectPhase, onApply }: PresetConfigurationPickerViewProps) => {
 	const tooltipId = useId();
-
-	const builds = useMemo(() => (presets.builds ?? []).filter(build => categories.some(category => !!build[category])), [presets, categories]);
-	const grouped = useMemo(() => builds.some(build => build.phase !== undefined || build.group !== undefined), [builds]);
-
-	// The active check must never run against an uninitialised sim; `useReadyStoreSubscribe` keeps
-	// that true here.
-	const active = useReadyStoreSubscribe(subscribeSimChange(host.sim), () => builds.map(build => isBuildActive(build, host, categories)), ready);
-
-	const filter = usePresetFilterPhase(builds);
-
-	const chips = builds.map((build, index) => (
-		<Chip
-			key={build.name}
-			as="button"
-			nameAs="span"
-			label={build.name}
-			active={active?.[index]}
-			onSelect={() => {
-				applyBuild(build, host);
-				filter.selectPhase(build.phase);
-			}}
-			nameProps={{ role: 'button' }}
-			rootProps={{ type: 'button', ...tooltipAnchorProps(tooltipId, build.name) }}
-		/>
-	));
 
 	if (!builds.length) return null;
 
+	const grouped = builds.some(build => build.phase !== undefined || build.group !== undefined);
 	const title = i18n.t('gear_tab.preset_configurations.title');
 	const tooltip = i18n.t('gear_tab.preset_configurations.tooltip');
+	const chips = builds.map((build, index) => (
+		<PresetBuildChip key={build.name} build={build} active={active?.[index]} tooltipId={tooltipId} onApply={onApply} />
+	));
 
 	return (
-		<div data-testid="preset-configuration-picker-root" data-saved-data-manager="">
+		<>
 			{grouped ? (
 				<PresetGroupPicker
-					phases={filter.phases}
-					phase={filter.phase}
-					onSelectPhase={filter.selectPhase}
+					phases={phases}
+					phase={phase}
+					onSelectPhase={onSelectPhase}
 					sections={[
 						{
 							title,
@@ -82,24 +65,42 @@ export const PresetConfigurationPicker = ({ categories }: PresetConfigurationPic
 					)}
 				</ContentBlock>
 			)}
-			<Tooltip
-				id={tooltipId}
-				render={({ activeAnchor }) => {
-					const build = builds.find(candidate => candidate.name === activeAnchor?.getAttribute('data-tooltip-content'));
-					return build ? <PresetBuildTooltip build={build} /> : null;
-				}}
-			/>
-		</div>
+			<PresetBuildChipTooltip id={tooltipId} builds={builds} />
+		</>
 	);
 };
 
-const PresetBuildTooltip = ({ build }: { build: PresetBuild }) => (
-	<>
-		<p className="mb-1">{i18n.t('common.preset.description')}</p>
-		<ul className="mb-0">
-			{buildCategories(build).map(category => (
-				<li key={category}>{category}</li>
-			))}
-		</ul>
-	</>
-);
+export interface PresetConfigurationPickerProps {
+	categories: Array<PresetConfigurationCategory>;
+}
+
+export const PresetConfigurationPicker = ({ categories }: PresetConfigurationPickerProps) => {
+	const host = useSimHost();
+	const presets = useSpecPresets();
+	const ready = useSimReady();
+
+	const builds = useMemo(() => (presets.builds ?? []).filter(build => categories.some(category => !!build[category])), [presets, categories]);
+
+	// The active check must never run against an uninitialised sim; `useReadyStoreSubscribe` keeps
+	// that true here.
+	const active = useReadyStoreSubscribe(subscribeSimChange(host.sim), () => builds.map(build => isBuildActive(build, host, categories)), ready);
+
+	const filter = usePresetFilterPhase(builds);
+
+	const apply = (build: PresetBuild) => {
+		applyBuild(build, host);
+		filter.selectPhase(build.phase);
+	};
+
+	return (
+		<PresetConfigurationPickerView
+			builds={builds}
+			active={active}
+			ready={ready}
+			phases={filter.phases}
+			phase={filter.phase}
+			onSelectPhase={filter.selectPhase}
+			onApply={apply}
+		/>
+	);
+};

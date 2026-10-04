@@ -74,7 +74,22 @@ func ShippedConsumable(c *dbc.Consumable, routing *ConsumableRouting, instance *
 		consumable.Type = proto.ConsumableType_ConsumableTypeExplosive
 	}
 	setConsumableGroup(c, consumable, routing, instance)
+	consumable.Holiday = consumableHoliday(c)
 	return consumable
+}
+
+// The world event the consumable belongs to: HolidayConsumables names it, or its item's RequiredHoliday.
+func consumableHoliday(c *dbc.Consumable) string {
+	if holiday, ok := HolidayConsumables[int32(c.Id)]; ok {
+		return holiday
+	}
+	if c.RequiredHoliday == 0 {
+		return ""
+	}
+	if holiday, ok := HolidayNames[c.RequiredHoliday]; ok {
+		return holiday
+	}
+	return fmt.Sprintf("Holiday %d", c.RequiredHoliday)
 }
 
 // Whether the catalogue's consumable is an explosive, which the explosive picker offers and the
@@ -178,7 +193,8 @@ func consumableEffects(s *spelldata.Spell) []*spelldata.Effect {
 
 // A temporary enchant's slots, by what the sim's enchant handling reads: flat weapon damage, a
 // resistance or a stat, a combat spell that deals damage at the chance the slot states, or an equip
-// spell whose auras the parser attaches. Spells that work only in one area do nothing in the sim.
+// spell whose auras the parser attaches or whose proc the imbue builder takes from its row. Spells
+// that work only in one area do nothing in the sim.
 func temporaryEnchantUnsupported(enchant dbc.TemporaryEnchant) []string {
 	if enchant.ID == 0 {
 		return []string{"the temporary enchant names no SpellItemEnchantment row"}
@@ -225,6 +241,12 @@ func equipSpellUnsupported(enchantID int, s *spelldata.Spell, spellID int32) []s
 		return []string{fmt.Sprintf("enchant %d's equip spell %d has no row in the store", enchantID, spellID)}
 	}
 	var unsupported []string
+	if shared.TemporaryEnchantEquipSpellProcs(s) {
+		for _, reason := range append(spelldata.EnchantAuraUnsupported(s), shared.FiredSpellUnsupported(s)...) {
+			unsupported = append(unsupported, fmt.Sprintf("enchant %d's equip spell %d: %s", enchantID, spellID, reason))
+		}
+		return unsupported
+	}
 	for i := range s.Effects {
 		if e := &s.Effects[i]; e.Aura != 0 && !e.ParsedAura() {
 			unsupported = append(unsupported, fmt.Sprintf("enchant %d's equip spell %d applies %v, which the parser does not attach", enchantID, spellID, e.Aura))

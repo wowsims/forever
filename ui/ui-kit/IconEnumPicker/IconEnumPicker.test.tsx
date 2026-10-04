@@ -1,200 +1,210 @@
-import { ActionId } from '@sim/proto/action_id';
-import type { StoreSubscribe } from '@sim/state/subscriptions';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { StrictMode } from 'react';
-import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
+import type { ResolvedIcon } from '@ui-kit/Field/types';
+import { type Ref, useImperativeHandle, useState } from 'react';
+import { describe, expect, it, vi } from 'vitest';
 
-import { IconEnumPicker } from './IconEnumPicker';
-import { type IconEnumPickerConfig, IconEnumPickerDirection } from './types';
-import { iconEnumPickerShown } from './utils';
+import { IconEnumPicker, type IconEnumPickerProps } from './IconEnumPicker';
+import { type IconEnumOption, IconEnumPickerDirection } from './types';
 
-// A filled ActionId as fill() returns one, so useActionId renders synchronously and no test touches
-// the network — the same pattern IconPicker.test.tsx and MultiIconPicker.test.tsx use.
-const filled = (actionId: ActionId, name: string, iconUrl: string) => Object.assign(Object.create(ActionId.prototype), actionId, { name, iconUrl }) as ActionId;
+const frostIcon: ResolvedIcon = { iconUrl: 'frost.jpg', name: 'Frost Armor', href: 'https://www.wowhead.com/spell=7302' };
+const moltenIcon: ResolvedIcon = { iconUrl: 'molten.jpg', name: 'Molten Armor', href: 'https://www.wowhead.com/spell=30482' };
+// The hunter's "No Pet" entry: an icon with no wowhead page.
+const noPetIcon: ResolvedIcon = { iconUrl: 'questionmark.jpg', name: 'No Pet' };
 
-const frostId = filled(ActionId.fromSpellId(7302), 'Frost Armor', 'frost.jpg');
-const moltenId = filled(ActionId.fromSpellId(30482), 'Molten Armor', 'molten.jpg');
-// The hunter's "No Pet" entry: an id with neither an item nor a spell, so it has an icon and no
-// wowhead page.
-const noPetId = filled(ActionId.empty('No Pet', 'questionmark.jpg'), 'No Pet', 'questionmark.jpg');
+const OPTIONS: Array<IconEnumOption<number>> = [
+	{ value: 0, tooltip: 'No Armor' },
+	{ value: 1, icon: frostIcon },
+	{ value: 2, icon: moltenIcon, tooltip: 'Molten' },
+];
 
-/** Stands in for the player: one number, plus the `(onChange) => unsubscribe` contract. */
-class Options {
-	private listeners = new Set<() => void>();
-	armor = 0;
-	engineer = true;
-	visible = true;
-	set(next: number) {
-		// The real facades drop equal writes (`Player.setConsumes` returns early), so the guard mirrors that here.
-		if (this.armor === next) return;
-		this.armor = next;
-		this.notify();
-	}
-	setEngineer(next: boolean) {
-		this.engineer = next;
-		this.notify();
-	}
-	setVisible(next: boolean) {
-		this.visible = next;
-		this.notify();
-	}
-	notify() {
-		this.listeners.forEach(listener => listener());
-	}
-	readonly subscribe: StoreSubscribe = listener => {
-		this.listeners.add(listener);
-		return () => this.listeners.delete(listener);
-	};
+interface HarnessHandle {
+	set: (next: number) => void;
 }
 
-const configFor = (extra: Partial<IconEnumPickerConfig<Options, number>> = {}): IconEnumPickerConfig<Options, number> => ({
-	values: [
-		{ value: 0, tooltip: 'No Armor' },
-		{ actionId: frostId, value: 1 },
-		{ actionId: moltenId, value: 2, tooltip: 'Molten' },
-	],
-	equals: (a, b) => a === b,
-	zeroValue: 0,
-	storeSubscribe: options => options.subscribe,
-	getValue: options => options.armor,
-	setValue: (options, next) => options.set(next),
-	...extra,
-});
+type HarnessProps = Partial<Omit<IconEnumPickerProps<number>, 'value' | 'onChange'>> & {
+	initial?: number;
+	onChange?: (next: number) => void;
+	ref?: Ref<HarnessHandle>;
+};
 
-const mount = (options: Options, config: IconEnumPickerConfig<Options, number> = configFor()) => render(<IconEnumPicker modObject={options} config={config} />);
+/** Holds the value the way a caller does, and lets a test move it underneath the picker. */
+const Harness = ({ initial = 0, onChange, ref, ...props }: HarnessProps) => {
+	const [value, setValue] = useState(initial);
+	useImperativeHandle(ref, () => ({ set: setValue }), []);
+	return (
+		<IconEnumPicker
+			options={OPTIONS}
+			equals={(a, b) => a === b}
+			zeroValue={0}
+			{...props}
+			value={value}
+			onChange={next => {
+				setValue(next);
+				onChange?.(next);
+			}}
+		/>
+	);
+};
 
-const root = () => screen.getByTestId('icon-enum-picker-root');
-const button = () => within(root()).getByTestId('icon-enum-picker-button') as HTMLAnchorElement;
+const mount = (props: HarnessProps = {}) => {
+	const handle: { current: HarnessHandle | null } = { current: null };
+	const onChange = vi.fn();
+	const view = render(<Harness onChange={onChange} ref={handle} {...props} />);
+	return { ...view, onChange, set: (next: number) => act(() => handle.current!.set(next)) };
+};
+
+const button = () => screen.getByTestId('icon-enum-picker-root') as HTMLAnchorElement;
 const menu = () => (screen.queryByTestId('icon-enum-picker-menu') ?? null) as HTMLUListElement | null;
 const items = () => Array.from(menu()!.children) as HTMLLIElement[];
-const optionAnchor = (index: number) => within(items()[index]).getByTestId('icon-picker-button') as HTMLAnchorElement;
+const optionAnchor = (index: number) => within(items()[index]).getByTestId('icon-enum-option') as HTMLAnchorElement;
 // The menu mounts when it opens, so every test that reads an option has to open it first.
 const open = (trigger: HTMLElement = button()) =>
 	act(() => {
 		fireEvent.mouseEnter(trigger);
 		fireEvent.mouseMove(trigger);
 	});
-const iconText = () => within(button()).queryByTestId('icon-picker-label');
+const iconText = () => button().textContent || null;
 // happy-dom re-quotes the CSSOM value, so icons are compared by name rather than by literal.
 const iconOf = (element: HTMLElement) => element.style.backgroundImage.replace(/^url\(['"]?|['"]?\)$/g, '');
 
-beforeEach(() => {
-	vi.spyOn(ActionId.prototype, 'fill').mockImplementation(async function (this: ActionId) {
-		return this;
-	});
-});
-afterEach(() => vi.restoreAllMocks());
-
 describe('IconEnumPicker', () => {
-	it('builds the root and the button, and mounts the options against the viewport when the menu opens', async () => {
-		mount(new Options());
+	it('renders the bare trigger swatch, and mounts the options against the viewport when the menu opens', async () => {
+		const { container } = mount();
 
-		expect(root().classList.contains('relative')).toBe(true);
-		expect(root().hasAttribute('data-input-root')).toBe(true);
-
-		expect(Array.from(root().children).map(element => `${element.tagName.toLowerCase()}.${element.className}`)).toEqual([
-			'a.ui-icon-picker-swatch transition-none',
-		]);
+		expect(Array.from(container.children)).toEqual([button()]);
+		expect(button().tagName).toBe('A');
 
 		expect(screen.queryByTestId('icon-enum-picker-portal')).toBeNull();
 		expect(menu()).toBeNull();
 
 		await open();
-		const portal = screen.getByTestId('icon-enum-picker-portal');
-		expect(portal.className).toBe('contents');
-		expect(portal.children[0].className).toBe('z-dropdown');
-		expect(portal.children[0].getAttribute('data-testid')).toBe('icon-enum-picker-positioner');
-		expect(menu()!.parentElement).toBe(portal.children[0]);
 		expect(screen.getByTestId('icon-enum-picker-positioner').style.position).toBe('fixed');
 
 		expect(menu()!.hasAttribute('hidden')).toBe(false);
 		expect(items()).toHaveLength(3);
-		expect(items().map(item => `${item.tagName.toLowerCase()}.${item.className}`)).toEqual(['li.', 'li.', 'li.']);
 		expect(items().map(item => item.getAttribute('role'))).toEqual(['none', 'none', 'none']);
-		expect(items().map(item => within(item).getByTestId('icon-picker-button').className)).toEqual([
-			'ui-icon-picker-swatch filter-[opacity(0.7)] transition-none hover:filter-none',
-			'ui-icon-picker-swatch filter-[opacity(0.7)] transition-none hover:filter-none',
-			'ui-icon-picker-swatch filter-[opacity(0.7)] transition-none hover:filter-none',
-		]);
+		expect(items().map(item => optionAnchor(items().indexOf(item)).getAttribute('role'))).toEqual(['menuitem', 'menuitem', 'menuitem']);
+	});
+
+	it('lays a labelled trigger out in an icon field and takes a testId for its trigger', () => {
+		const { container } = mount({ id: 'armor', label: 'Armor', testId: 'armor-root' });
+		const field = container.firstElementChild as HTMLElement;
+		const trigger = screen.getByTestId('armor-root');
+		expect(field.getAttribute('data-layout')).toBe('icon');
+		expect(field.firstElementChild).toBe(trigger);
+		expect(trigger.tagName).toBe('A');
+		expect(within(field).getByTestId('form-label').textContent).toBe('Armor');
+	});
+
+	it('names the trigger by the label, and opens the menu from a click on the label', () => {
+		mount({ id: 'armor', label: 'Armor' });
+		const label = screen.getByTestId('form-label');
+		expect(button().getAttribute('aria-labelledby')).toBe(label.id);
+		expect(screen.getByRole('button', { name: 'Armor' })).toBe(button());
+
+		fireEvent.click(label);
+		expect(button().getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('opens from the keyboard, moves through the options and picks one', async () => {
+		const { onChange } = mount();
+		act(() => button().focus());
+		act(() => {
+			fireEvent.keyDown(button(), { key: 'ArrowDown' });
+		});
+		await act(async () => {});
+		expect(button().getAttribute('aria-expanded')).toBe('true');
+		expect(items()).toHaveLength(3);
+
+		const highlighted = () => document.activeElement as HTMLElement;
+		act(() => {
+			fireEvent.keyDown(highlighted(), { key: 'ArrowDown' });
+		});
+		act(() => {
+			fireEvent.keyDown(highlighted(), { key: 'ArrowDown' });
+		});
+		expect(highlighted()).toBe(optionAnchor(2));
+		act(() => {
+			fireEvent.keyDown(highlighted(), { key: 'ArrowUp' });
+		});
+		act(() => {
+			fireEvent.keyDown(highlighted(), { key: 'ArrowUp' });
+		});
+		expect(highlighted()).toBe(optionAnchor(0));
+
+		act(() => {
+			fireEvent.keyDown(highlighted(), { key: 'Enter' });
+		});
+		expect(onChange).toHaveBeenCalledTimes(1);
+		expect(onChange).toHaveBeenCalledWith(0);
 	});
 
 	it('takes the button’s icon, href and active class from the selected value', () => {
-		const options = new Options();
-		mount(options);
+		const { set } = mount();
 
-		// The zero value carries neither an actionId nor an iconUrl nor a colour, so there is no image
-		// and no link. React refuses to render a `javascript:` URL, so the button simply carries no
-		// `href` at all.
+		// The zero value carries neither an icon nor an iconUrl nor a colour, so there is no image and
+		// no link. React refuses to render a `javascript:` URL, so the button carries no `href` at all.
 		expect(iconOf(button())).toBe('');
 		expect(button().hasAttribute('href')).toBe(false);
 		expect(button().hasAttribute('data-active')).toBe(false);
 
-		act(() => options.set(2));
+		set(2);
 		expect(iconOf(button())).toBe('molten.jpg');
-		expect(button().getAttribute('href')).toBe(ActionId.makeSpellUrl(30482));
+		expect(button().getAttribute('href')).toBe('https://www.wowhead.com/spell=30482');
 		expect(button().hasAttribute('data-active')).toBe(true);
 
-		act(() => options.set(0));
+		set(0);
 		expect(iconOf(button())).toBe('');
 		expect(button().hasAttribute('href')).toBe(false);
 		expect(button().hasAttribute('data-active')).toBe(false);
 	});
 
-	it('leaves the button unlinked for an id that names neither an item nor a spell', () => {
-		const options = new Options();
-		options.armor = 1;
-		mount(options, configFor({ values: [{ value: 0 }, { actionId: noPetId, value: 1 }] }));
-
-		// `useActionId` resolves no href without an itemId or a spellId — but the icon is
-		// still filled in, which is the pair this entry exists to keep apart.
+	it('leaves the button unlinked for an icon with no wowhead page', () => {
+		mount({ initial: 1, options: [{ value: 0 }, { value: 1, icon: noPetIcon }] });
 		expect(iconOf(button())).toBe('questionmark.jpg');
 		expect(button().hasAttribute('href')).toBe(false);
 	});
 
 	it('keeps the button focusable without an href', () => {
-		mount(new Options());
+		mount();
 		// An <a> with no href is not tabbable on its own; `nativeButton={false}` is what puts it back.
 		expect(button().getAttribute('tabindex')).toBe('0');
 		expect(button().getAttribute('role')).toBe('button');
 	});
 
 	it('grays an iconUrl value and paints a colour value', () => {
-		const options = new Options();
-		options.armor = 1;
-		const config = configFor({
-			values: [
+		const { set } = mount({
+			initial: 1,
+			options: [
 				{ value: 0, color: '#123456' },
 				{ value: 1, iconUrl: 'raw.jpg' },
-				{ actionId: frostId, value: 2 },
+				{ value: 2, icon: frostIcon },
 			],
 		});
-		mount(options, config);
 
 		expect(iconOf(button())).toBe('raw.jpg');
 		expect(button().style.filter).toBe('grayscale(1)');
 
-		act(() => options.set(0));
+		set(0);
 		expect(button().style.backgroundColor).toBe('#123456');
 		expect(button().style.filter).toBe('');
 	});
 
 	it('writes the value’s text over the swatch and over its option, and nothing for a value without one', () => {
-		const options = new Options();
-		mount(options, configFor({ values: [{ value: 0 }, { actionId: frostId, value: 1, text: '3' }] }));
+		const { set } = mount({ options: [{ value: 0 }, { value: 1, icon: frostIcon, text: '3' }] });
 
 		expect(iconText()).toBeNull();
 
-		act(() => options.set(1));
-		expect(iconText()!.textContent).toBe('3');
+		set(1);
+		expect(iconText()).toBe('3');
 
 		open();
-		expect(within(optionAnchor(0)).queryByTestId('icon-picker-label')).toBeNull();
-		expect(within(optionAnchor(1)).getByTestId('icon-picker-label').textContent).toBe('3');
+		expect(optionAnchor(0).textContent).toBe('');
+		expect(optionAnchor(1).textContent).toBe('3');
 	});
 
-	it('writes the value and closes the menu when an option is chosen', () => {
-		const options = new Options();
-		mount(options);
+	it('hands the chosen value to onChange and closes the menu', () => {
+		const { onChange } = mount();
 
 		open();
 		expect(button().getAttribute('aria-expanded')).toBe('true');
@@ -202,160 +212,162 @@ describe('IconEnumPicker', () => {
 		act(() => {
 			fireEvent.click(optionAnchor(2));
 		});
-		expect(options.armor).toBe(2);
+		expect(onChange).toHaveBeenCalledWith(2);
 		expect(button().getAttribute('aria-expanded')).toBe('false');
 	});
 
-	it('cancels the anchor’s navigation when an option is chosen', () => {
-		mount(new Options());
+	it('reports the menu opening and closing through onOpenChange', () => {
+		const onOpenChange = vi.fn();
+		mount({ onOpenChange });
+		expect(onOpenChange).not.toHaveBeenCalled();
+
 		open();
+		expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+
+		act(() => {
+			fireEvent.click(optionAnchor(1));
+		});
+		expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+	});
+
+	it('cancels the anchor’s navigation when an option is chosen, selects it once and closes the menu', () => {
+		const { onChange } = mount();
+		open();
+		expect(optionAnchor(1).getAttribute('href')).toBe(frostIcon.href);
 		const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 		act(() => {
 			optionAnchor(1).dispatchEvent(event);
 		});
 		expect(event.defaultPrevented).toBe(true);
+		expect(onChange.mock.calls).toEqual([[1]]);
+		expect(button().getAttribute('aria-expanded')).toBe('false');
+	});
+
+	it('selects an option with no link once on Enter and once on Space', () => {
+		const { onChange, set } = mount();
+		const press = (key: string) => {
+			act(() => {
+				fireEvent.keyDown(optionAnchor(0), { key });
+			});
+			if (menu())
+				act(() => {
+					fireEvent.keyUp(optionAnchor(0), { key });
+				});
+		};
+
+		set(1);
+		open();
+		expect(optionAnchor(0).hasAttribute('href')).toBe(false);
+		press('Enter');
+		expect(onChange.mock.calls).toEqual([[0]]);
+
+		set(1);
+		open();
+		press(' ');
+		expect(onChange.mock.calls).toEqual([[0], [0]]);
+	});
+
+	it('opts every option out of the touch tooltip, since a tap selects', () => {
+		mount();
+		open();
+		expect(items().map((_item, index) => optionAnchor(index).dataset.disableWowheadTouchTooltip)).toEqual(['true', 'true', 'true']);
+	});
+
+	it('cancels the trigger’s navigation on a click, so a tap opens the menu instead of the link', () => {
+		mount({ initial: 1 });
+		expect(button().getAttribute('href')).toBe(frostIcon.href);
+		const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+		act(() => {
+			button().dispatchEvent(event);
+		});
+		expect(event.defaultPrevented).toBe(true);
+		expect(menu()).not.toBeNull();
 	});
 
 	it('gives each option its own icon and wowhead link, and none of them the active class', () => {
-		const options = new Options();
-		options.armor = 1;
-		mount(options);
+		mount({ initial: 1 });
 		open();
 
 		expect(items().map((_item, index) => iconOf(optionAnchor(index)))).toEqual(['', 'frost.jpg', 'molten.jpg']);
 		expect(items().map((_item, index) => optionAnchor(index).getAttribute('href'))).toEqual([
 			null,
-			ActionId.makeSpellUrl(7302),
-			ActionId.makeSpellUrl(30482),
+			'https://www.wowhead.com/spell=7302',
+			'https://www.wowhead.com/spell=30482',
 		]);
 		expect(items().some((_item, index) => optionAnchor(index).hasAttribute('data-active'))).toBe(false);
 	});
 
-	it('unmounts a value whose showWhen is false and brings the option back with it', () => {
-		const options = new Options();
-		const config = configFor({
-			values: [{ value: 0 }, { actionId: frostId, value: 1 }, { actionId: moltenId, value: 2, showWhen: (obj: Options) => obj.engineer }],
-		});
-		mount(options, config);
+	it('leaves a hidden option out of the menu', () => {
+		const { rerender } = render(
+			<IconEnumPicker
+				options={[...OPTIONS.slice(0, 2), { ...OPTIONS[2], hidden: true }]}
+				equals={(a, b) => a === b}
+				zeroValue={0}
+				value={0}
+				onChange={() => {}}
+			/>,
+		);
 		open();
-		expect(items()).toHaveLength(3);
-		expect(optionAnchor(2).getAttribute('href')).toBe(ActionId.makeSpellUrl(30482));
-
-		act(() => options.setEngineer(false));
 		expect(items()).toHaveLength(2);
 
-		act(() => options.setEngineer(true));
+		rerender(<IconEnumPicker options={OPTIONS} equals={(a, b) => a === b} zeroValue={0} value={0} onChange={() => {}} />);
 		expect(items()).toHaveLength(3);
-		expect(optionAnchor(2).getAttribute('href')).toBe(ActionId.makeSpellUrl(30482));
+		expect(optionAnchor(2).getAttribute('href')).toBe('https://www.wowhead.com/spell=30482');
 	});
 
-	it('zeroes the selection when the option holding it is hidden', () => {
-		const options = new Options();
-		options.armor = 2;
-		mount(
-			options,
-			configFor({
-				values: [{ value: 0 }, { actionId: frostId, value: 1 }, { actionId: moltenId, value: 2, showWhen: (obj: Options) => obj.engineer }],
-			}),
-		);
-		expect(options.armor).toBe(2);
-
-		act(() => options.setEngineer(false));
-		expect(options.armor).toBe(0);
+	it('shows a selected value whose option is hidden as no selection', () => {
+		mount({ initial: 2, options: [{ value: 0 }, { value: 2, icon: moltenIcon, text: '2', hidden: true }] });
+		expect(iconOf(button())).toBe('');
+		expect(button().hasAttribute('href')).toBe(false);
+		expect(iconText()).toBeNull();
 	});
 
-	it('renders no picker at all unless some option carries an actionId and is shown', () => {
-		const options = new Options();
-		// The override on showWhen(): a list of colour-only values names nothing to show.
-		mount(options, configFor({ values: [{ value: 0, color: 'grey' }] }));
-		expect(screen.queryByTestId('icon-enum-picker-root')).toBeNull();
-	});
+	it('marks the trigger disabled and aria-disabled, and its menu stays closed from a click on the trigger or the label', () => {
+		const { unmount } = mount({ disabled: true });
 
-	it('unmounts on its own showWhen, and puts the value aside across it', () => {
-		const options = new Options();
-		options.armor = 2;
-		mount(options, configFor({ showWhen: (obj: Options) => obj.visible }));
-		expect(screen.queryByTestId('icon-enum-picker-root')).toBeTruthy();
+		expect(button().hasAttribute('data-disabled')).toBe(true);
+		expect(button().getAttribute('aria-disabled')).toBe('true');
+		act(() => {
+			button().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+		});
+		expect(button().getAttribute('aria-expanded')).toBe('false');
+		expect(menu()).toBeNull();
+		unmount();
 
-		// storeValue(): zeroed while away, and nothing is left in the tree.
-		act(() => options.setVisible(false));
-		expect(screen.queryByTestId('icon-enum-picker-root')).toBeNull();
-		expect(options.armor).toBe(0);
-
-		// restoreValue(): the source was still zero, so what was put aside comes back.
-		act(() => options.setVisible(true));
-		expect(screen.queryByTestId('icon-enum-picker-root')).toBeTruthy();
-		expect(options.armor).toBe(2);
-	});
-
-	it('lets a value set while the picker was hidden beat the one put aside', () => {
-		const options = new Options();
-		options.armor = 2;
-		mount(options, configFor({ showWhen: (obj: Options) => obj.visible }));
-
-		act(() => options.setVisible(false));
-		expect(options.armor).toBe(0);
-		// A preset writing while the picker is away.
-		act(() => options.set(1));
-		act(() => options.setVisible(true));
-		expect(options.armor).toBe(1);
-	});
-
-	it('offers nothing to choose while hidden, so the put-aside value can only be beaten from the source', () => {
-		const options = new Options();
-		options.armor = 2;
-		mount(options, configFor({ showWhen: (obj: Options) => obj.visible }));
-
-		act(() => options.setVisible(false));
-		expect(options.armor).toBe(0);
-		// The menu went with the picker, so there is no option to click — a write to the source is the
-		// only thing that can still beat what was put aside, which the test above covers.
-		expect(screen.queryByTestId('icon-enum-picker-menu')).toBeNull();
-	});
-
-	it('writes disabled on the anchor as well as the class on the root', () => {
-		const options = new Options();
-		mount(options, configFor({ enableWhen: () => false }));
-
-		expect(root().hasAttribute('data-disabled')).toBe(true);
-		expect(button().hasAttribute('disabled')).toBe(true);
-		// `disabled` lands on the root, not the button — so a disabled icon-enum picker still opened
-		// its menu, and this one still can.
-		expect(button().getAttribute('aria-disabled')).toBe(null);
+		const { container } = mount({ disabled: true, label: 'Armor' });
+		expect((container.firstElementChild as HTMLElement).hasAttribute('data-disabled')).toBe(true);
+		fireEvent.click(screen.getByTestId('form-label'));
+		expect(button().getAttribute('aria-expanded')).toBe('false');
+		expect(menu()).toBeNull();
 	});
 
 	it('never marks the button active while it is disabled', () => {
-		const options = new Options();
-		options.armor = 2;
-		mount(options, configFor({ enableWhen: () => false }));
+		mount({ initial: 2, disabled: true });
 		expect(button().hasAttribute('data-active')).toBe(false);
 	});
 
 	it('lays the menu out from numColumns, and turns it sideways for a horizontal picker', () => {
-		mount(new Options(), configFor({ numColumns: 5 }));
+		mount({ numColumns: 5 });
 		open();
 		expect(menu()!.style.gridTemplateColumns).toBe('repeat(5, 1fr)');
 		expect(menu()!.style.gridAutoFlow).toBe('');
-		expect(root().classList.contains('relative')).toBe(true);
 
-		render(<IconEnumPicker modObject={new Options()} config={configFor({ direction: IconEnumPickerDirection.Horizontal })} />);
-		const horizontal = screen.getAllByTestId('icon-enum-picker-root')[1];
-		expect(horizontal.classList.contains('relative')).toBe(true);
-		const horizontalButton = within(horizontal).getByTestId('icon-enum-picker-button');
+		render(<Harness direction={IconEnumPickerDirection.Horizontal} />);
+		const horizontalButton = screen.getAllByTestId('icon-enum-picker-root')[1];
 		open(horizontalButton);
 		const horizontalMenu = document.getElementById(horizontalButton.getAttribute('aria-controls')!) as HTMLUListElement;
 		expect(horizontalMenu.style.gridAutoFlow).toBe('column');
 	});
 
 	it('carries every tooltip on its anchor, and renders none until one is asked for', () => {
-		mount(new Options(), configFor({ tooltip: 'Lethal Poison' }));
+		mount({ tooltip: 'Lethal Poison' });
 
 		const tooltipId = button().getAttribute('data-tooltip-id');
 		expect(tooltipId).toBeTruthy();
 		expect(button().getAttribute('data-tooltip-content')).toBe('Lethal Poison');
 		// Before the menu is opened, because opening it is a hover on the button and a hover is what
 		// asks for a tooltip.
-		expect(document.querySelector('.sim-tooltip')).toBeNull();
+		expect(screen.queryByRole('tooltip')).toBeNull();
 
 		open();
 		expect(optionAnchor(0).getAttribute('data-tooltip-content')).toBe('No Armor');
@@ -365,82 +377,16 @@ describe('IconEnumPicker', () => {
 	});
 
 	it('renders no tooltip anchor at all when nothing configures one', () => {
-		mount(new Options(), configFor({ values: [{ value: 0 }, { actionId: frostId, value: 1 }] }));
-		expect(root().querySelectorAll('[data-tooltip-id]')).toHaveLength(0);
+		const { container } = mount({ options: [{ value: 0 }, { value: 1, icon: frostIcon }] });
+		expect(container.querySelectorAll('[data-tooltip-id]')).toHaveLength(0);
 	});
 
-	it('does not put a value aside for a picker that mounts hidden', () => {
-		const options = new Options();
-		options.armor = 2;
-		options.visible = false;
-		// Store/restore is driven by the source subscription, so it never runs during construction —
-		// and a bound picker renders twice at mount in every build, StrictMode or not. The revision
-		// guard is what keeps the second of those renders from reading as a shown-to-hidden
-		// transition and zeroing a source nobody touched.
-		render(
-			<StrictMode>
-				<IconEnumPicker modObject={options} config={configFor({ showWhen: (obj: Options) => obj.visible })} />
-			</StrictMode>,
-		);
-		expect(screen.queryByTestId('icon-enum-picker-root')).toBeNull();
-		expect(options.armor).toBe(2);
-
-		// And nothing was put aside, so coming back is a no-op rather than a restore.
-		act(() => options.setVisible(true));
-		expect(options.armor).toBe(2);
-	});
-
-	it('falls back to backupIconUrl for a value the list does not carry', () => {
-		const options = new Options();
-		options.armor = 99;
-		mount(options, configFor({ backupIconUrl: () => moltenId }));
+	it('falls back to backupIcon for a value no option carries', () => {
+		mount({ initial: 99, backupIcon: moltenIcon });
 
 		expect(iconOf(button())).toBe('molten.jpg');
-		expect(button().getAttribute('href')).toBe(ActionId.makeSpellUrl(30482));
-		// `update()` runs after `setInputValue`, so the backup branch's own `setActive(false)` never
-		// survives: a non-zero value is active whether or not the list carries it.
+		expect(button().getAttribute('href')).toBe('https://www.wowhead.com/spell=30482');
+		// A non-zero value is active whether or not an option carries it.
 		expect(button().hasAttribute('data-active')).toBe(true);
-	});
-});
-
-// The picker's own `showWhen()` override, asserted directly because a caller outside the component
-// depends on it: a `.consumes-row` hides when every picker in it is hidden, and it has only the
-// configs to ask.
-describe('iconEnumPickerShown', () => {
-	const options = new Options();
-
-	it('needs a value that carries an actionId', () => {
-		expect(
-			iconEnumPickerShown(
-				configFor({
-					values: [
-						{ value: 0, color: 'grey' },
-						{ value: 1, iconUrl: 'raw.jpg' },
-					],
-				}),
-				options,
-			),
-		).toBe(false);
-		expect(iconEnumPickerShown(configFor(), options)).toBe(true);
-	});
-
-	it('ignores an actionId value that is itself hidden', () => {
-		const hiddenOption = configFor({ values: [{ value: 0 }, { actionId: frostId, value: 1, showWhen: () => false }] });
-		expect(iconEnumPickerShown(hiddenOption, options)).toBe(false);
-	});
-
-	it('honours the config’s own showWhen as well', () => {
-		expect(iconEnumPickerShown(configFor({ showWhen: () => false }), options)).toBe(false);
-		expect(iconEnumPickerShown(configFor({ showWhen: () => true }), options)).toBe(true);
-	});
-});
-
-describe('IconEnumPickerConfig', () => {
-	type WithoutBinding = Omit<IconEnumPickerConfig<Options, number>, 'storeSubscribe' | 'storeField'>;
-	type FieldOnly = WithoutBinding & { storeField: 'player:*' };
-
-	it('will not accept a config that names neither a store subscription nor a store field', () => {
-		expectTypeOf<WithoutBinding>().not.toExtend<IconEnumPickerConfig<Options, number>>();
-		expectTypeOf<FieldOnly>().toExtend<IconEnumPickerConfig<Options, number>>();
 	});
 });

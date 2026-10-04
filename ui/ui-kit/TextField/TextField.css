@@ -1,0 +1,9 @@
+@layer components {
+	.ui-text-field:disabled {
+		@apply filter-[opacity(0.5)];
+	}
+
+	.ui-field-compact .ui-text-field {
+		@apply justify-start;
+	}
+}

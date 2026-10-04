@@ -258,21 +258,13 @@ func TestProcTriggerMasklessRateFromTheCaller(t *testing.T) {
 	}
 }
 
-// The trigger is still built for a row the decode reads past; the audit is where that shows up.
-func TestProcTriggerUnsupportedNamesTheBitsAndTheHints(t *testing.T) {
+// The trigger is still built for a row the decode reads past.
+func TestProcTriggerBuildsPastUnsupportedBitsAndHints(t *testing.T) {
 	withRows(t, procRows())
 
 	trigger := ProcTrigger(testCharacter(), Find(2600), noopHandler)
 	if trigger.Callback != core.CallbackOnSpellHitDealt {
 		t.Errorf("callback = %d, want the supported bits to still build a listener", trigger.Callback)
-	}
-
-	unsupported := ProcTriggerUnsupported(testCharacter(), Find(2600))
-	if len(unsupported) != 2 || unsupported[0] != "KILL" || unsupported[1] != "NAMED_ABILITY" {
-		t.Errorf("unsupported = %v, want the KILL bit and the named-ability hint", unsupported)
-	}
-	if got := ProcTriggerUnsupported(testCharacter(), Find(2000)); len(got) != 0 {
-		t.Errorf("unsupported = %v, want none on a row the decode models", got)
 	}
 }
 
@@ -286,16 +278,10 @@ func TestProcTriggerDropsAClassMaskOfAnotherFamily(t *testing.T) {
 	if got := ProcTrigger(warrior, Find(2700), noopHandler).ClassFlags; !got.IsZero() {
 		t.Errorf("class flags = %v, want none: family 5 names nothing a warrior casts", got)
 	}
-	if got := ProcTriggerUnsupported(warrior, Find(2700)); len(got) != 1 || got[0] != "CLASS_MASK_OTHER_FAMILY" {
-		t.Errorf("unsupported = %v, want the dropped mask reported", got)
-	}
 
 	warlock := &core.Character{Class: proto.Class_ClassWarlock}
 	if got := ProcTrigger(warlock, Find(2700), noopHandler).ClassFlags; got != (core.ClassFlags{Family: 5, Mask: [4]uint32{0: 0x8}}) {
 		t.Errorf("class flags = %v, want the row's, which is the warlock's own family", got)
-	}
-	if got := ProcTriggerUnsupported(warlock, Find(2700)); len(got) != 0 {
-		t.Errorf("unsupported = %v, want none where the family is the character's", got)
 	}
 
 	// A class the game files state no family for is no evidence that the mask is somebody else's.
@@ -312,9 +298,6 @@ func TestProcTriggerKeepsAMaskOutsideEveryClassFamily(t *testing.T) {
 	warrior := &core.Character{Class: proto.Class_ClassWarrior}
 	if got := ProcTrigger(warrior, Find(2800), noopHandler).ClassFlags; got != (core.ClassFlags{Family: 13, Mask: [4]uint32{0: 0x1}}) {
 		t.Errorf("class flags = %v, want the row's: family 13 is nobody's class family", got)
-	}
-	if got := ProcTriggerUnsupported(warrior, Find(2800)); len(got) != 0 {
-		t.Errorf("unsupported = %v, want none for a mask outside every class family", got)
 	}
 }
 

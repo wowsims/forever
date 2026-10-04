@@ -9,6 +9,7 @@
 		&[data-active] {
 			@apply bg-primary;
 
+			& .ui-chip-name,
 			& .ui-chip-delete {
 				@apply text-primary-foreground;
 			}
@@ -17,6 +18,10 @@
 		&[data-disabled] {
 			@apply hidden;
 		}
+	}
+
+	.ui-chip-name {
+		@apply p-2 text-white;
 	}
 
 	.ui-chip-delete {

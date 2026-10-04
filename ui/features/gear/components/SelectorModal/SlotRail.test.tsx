@@ -27,18 +27,14 @@ describe('SlotRail', () => {
 		expect(Array.from(buttons).map(button => Number(button.dataset.slot))).toEqual(ALL_ITEM_SLOTS);
 	});
 
-	it('marks only the icon matching currentSlot as active', () => {
-		const { container } = render(<SlotRail gear={gear} currentSlot={ItemSlot.ItemSlotFeet} onOpen={vi.fn()} />);
+	it.each([
+		[ItemSlot.ItemSlotFeet, [ItemSlot.ItemSlotFeet]],
+		[null, []],
+	])('marks only the icon matching currentSlot %s as active', (currentSlot, active) => {
+		const { container } = render(<SlotRail gear={gear} currentSlot={currentSlot} onOpen={vi.fn()} />);
 
 		const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('button'));
-		expect(buttons.filter(button => button.dataset.active === 'true').map(button => Number(button.dataset.slot))).toEqual([ItemSlot.ItemSlotFeet]);
-	});
-
-	it('marks no icon active when currentSlot is null', () => {
-		const { container } = render(<SlotRail gear={gear} currentSlot={null} onOpen={vi.fn()} />);
-
-		const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('button'));
-		expect(buttons.some(button => button.dataset.active === 'true')).toBe(false);
+		expect(buttons.filter(button => button.dataset.active === 'true').map(button => Number(button.dataset.slot))).toEqual(active);
 	});
 
 	it('passes each icon the equipped item for its own slot', () => {

@@ -1,8 +1,8 @@
 import type { StatWeightValues } from '@generated/proto/api';
 import i18n from '@i18n/config';
 import type { UnitStat } from '@sim/proto/stats';
+import { TableCell } from '@ui-kit/Table';
 import { toneTextClass } from '@ui-kit/utils/css';
-import clsx from 'clsx';
 
 import { StatWeightValue } from './StatWeightValue';
 
@@ -16,7 +16,7 @@ export interface StatWeightCellsProps {
 }
 
 const NotApplicable = () => (
-	<span data-testid="results-avg" data-notapplicable className="pr-6.25 font-bold">
+	<span data-testid="results-avg" data-notapplicable className="pr-6 font-bold">
 		{i18n.t('sidebar.buttons.stat_weights.modal.not_applicable')}
 	</span>
 );
@@ -28,10 +28,10 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 
 	return (
 		<>
-			<td
-				data-testid="stdev-cell"
+			<TableCell
+				testId="stdev-cell"
 				data-column-type="weight"
-				className={clsx('text-right in-data-[stats-type=ep]:hidden', cellClassName, unused && 'text-white/70')}
+				className={['text-right in-data-[stats-type=ep]:hidden', cellClassName, unused && 'text-white/70']}
 				data-unused={unused ? '' : undefined}>
 				{statWeights ? (
 					<StatWeightValue
@@ -42,11 +42,11 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 				) : (
 					<NotApplicable />
 				)}
-			</td>
-			<td
-				data-testid="stdev-cell"
+			</TableCell>
+			<TableCell
+				testId="stdev-cell"
 				data-column-type="ep"
-				className={clsx('text-right in-data-[stats-type=weight]:hidden', cellClassName, unused && 'text-white/70')}
+				className={['text-right in-data-[stats-type=weight]:hidden', cellClassName, unused && 'text-white/70']}
 				data-unused={unused ? '' : undefined}>
 				{statWeights ? (
 					<StatWeightValue
@@ -59,7 +59,7 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 				) : (
 					<NotApplicable />
 				)}
-			</td>
+			</TableCell>
 		</>
 	);
 };

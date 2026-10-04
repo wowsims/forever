@@ -178,7 +178,6 @@ func RegisterAllStatConsumables() {
 		246948, // Distilled Firewater
 		247754, // Minor Arcane Elixir
 		247755, // Elixir of Minor Force
-		248613, // Lightning in a Bottle
 		249865, // Peace Tea
 		249866, // Royal Tea
 		249867, // Root Tea

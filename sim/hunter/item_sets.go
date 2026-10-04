@@ -27,7 +27,7 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 		6: func(agent core.Agent, setBonusAura *core.Aura) {
 			hunter := agent.(HunterAgent).GetHunter()
 			manaMetrics := hunter.NewManaMetrics(core.ActionID{SpellID: cryptstalkerAdrenalineMana.ID})
-			mana := cryptstalkerAdrenalineMana.EnergizeEffect().Average(core.CharacterLevel)
+			mana := cryptstalkerAdrenalineMana.EnergizeEffect().Average()
 
 			// 28752 states "always" on ranged hits and its proc effect names Multi-Shot alone; the
 			// tooltip says your ranged critical hits, and the tooltip wins: the crit is the outcome

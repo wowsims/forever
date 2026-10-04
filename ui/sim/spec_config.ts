@@ -1,14 +1,15 @@
+import type * as IconInputs from '@features/inputs/icon_inputs';
+import type * as InputHelpers from '@features/inputs/input_helpers';
 import type { ReforgeOptimizerOptions } from '@features/reforge/model/reforge_optimizer';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
 import { ConsumesSpec, EquipmentSpec, HealingModel, ItemSlot, ItemSwap, Profession, PseudoStat, Race, Spec, Stat } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
-import type * as IconInputs from '@ui-kit/icon_inputs';
-import type * as InputHelpers from '@ui-kit/input_helpers';
 import type { SavedDataConfig } from '@ui-kit/SavedDataPanel/types';
 import type { ReactNode } from 'react';
 
 import { Player, PlayerConfig, registerSpecConfig as registerPlayerConfig } from './player/player';
+import type { WeaponSkillGroup } from './player/weapon_skill_groups';
 import type { PresetBuild, PresetEncounter, PresetEpWeights, PresetGear, PresetItemSwap, PresetRotation, PresetSettings } from './presets/types';
 import type { SpecOptions, SpecRotation } from './proto/spec_types';
 import type { StatMods, StatWrites } from './proto/stats';
@@ -26,8 +27,8 @@ export interface EncounterPickerConfig {
 
 export type InputConfig<ModObject> =
 	| InputHelpers.TypedBooleanPickerConfig<ModObject>
-	| InputHelpers.TypedNumberPickerConfig<ModObject>
-	| InputHelpers.TypedEnumPickerConfig<ModObject>;
+	| InputHelpers.TypedNumberFieldConfig<ModObject>
+	| InputHelpers.TypedChoiceFieldConfig<ModObject>;
 
 export interface InputSection {
 	tooltip?: string;
@@ -92,6 +93,8 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	// Per-spec override for the default EP ratios; must be exactly Player.numEpRatios long.
 	epRatios?: Array<number>;
 	displayStats: Array<UnitStat>;
+	// The Key view of the stats panel shows only these groups' weapon skills; unset shows none there.
+	displayWeaponSkillGroups?: Array<WeaponSkillGroup>;
 	modifyDisplayStats?: (player: Player<SpecType>) => StatMods;
 	overwriteDisplayStats?: (player: Player<SpecType>) => StatWrites;
 

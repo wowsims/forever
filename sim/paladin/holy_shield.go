@@ -14,7 +14,7 @@ var HolyShieldRankMap = spellData.HolyShield
 // Holy Shield (talent)
 // https://www.wowhead.com/forever/spell=20928
 //
-// Increases chance to block by 20% for 10 sec, and deals 221 Holy damage for each attack blocked
+// Increases chance to block by 30% for 10 sec, and deals 221 Holy damage for each attack blocked
 // while active. Damage caused by Holy Shield causes 20% additional threat. Each block expends a
 // charge. 4 charges.
 //
@@ -23,8 +23,8 @@ var HolyShieldRankMap = spellData.HolyShield
 func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	actionID := core.ActionID{SpellID: rank.ID}
 	damageEffect := rank.Effect(dbcenums.A_PROC_TRIGGER_DAMAGE, 0)
-	damage := damageEffect.Average(core.CharacterLevel)
-	blockPercent := rank.Effect(dbcenums.A_MOD_BLOCK_PERCENT, 0).Percent()
+	damage := damageEffect.Mean()
+	blockPercent := rank.Effect(dbcenums.A_MOD_BLOCK_PERCENT, 0).BaseValue()
 	charges := int32(rank.ProcCharges)
 
 	procSpell := paladin.RegisterSpell(core.SpellConfig{

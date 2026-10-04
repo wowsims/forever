@@ -18,7 +18,9 @@ type Hunter struct {
 	Talents *proto.HunterTalents
 	Options *proto.HunterOptions
 
-	Pet *HunterPet
+	Pet      *HunterPet
+	Hawks    []*HawkPet
+	nextHawk int // The hawk the next Summon Hawk sends.
 
 	RapidFire    *core.Spell
 	RaptorStrike *core.Spell
@@ -62,7 +64,7 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 
 	core.FillTalentsProto(hunter.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 
-	// The hunter casts its own mark, which the raid's permanent one would keep from ever landing.
+	// The hunter casts its own mark, so a raid's permanent one would credit it before the cast.
 	if raid.Debuffs != nil {
 		raid.Debuffs.HuntersMark = false
 	}
@@ -74,7 +76,7 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 	// Arrows add their damage per second to the ranged weapon, times its speed. A gun is taken to
 	// fire them too, so no bullets are kept beside them.
 	hunter.PseudoStats.BonusRangedDps += arrows[hunterOptions.Ammo.String()].DPS
-	hunter.PseudoStats.RangedSpeedMultiplier *= 1 + quivers[hunterOptions.QuiverBonus.String()].Haste/100
+	hunter.PseudoStats.RangedSpeedMultiplier *= core.SymmetricMultiplierFromPercent(quivers[hunterOptions.QuiverBonus.String()].Haste)
 
 	hunter.EnableAutoAttacks(hunter, core.AutoAttackOptions{
 		Ranged:          hunter.WeaponFromRanged(),
@@ -85,20 +87,21 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 		AutoSwingMelee:  true,
 	})
 
-	// Auto Shot is the client's row 75: its range, and the class flags that put the auto inside the
-	// talents naming it - Hawk Eye, Mortal Shots, Deadly Aspects.
+	// Auto Shot is row 75: its range, the bow, gun or crossbow it needs, and the class flags that put
+	// the auto inside the talents naming it - Hawk Eye, Mortal Shots, Deadly Aspects.
 	rangedConfig := hunter.AutoAttacks.RangedConfig()
 	rangedConfig.MinRange = float64(autoShotRank.MinRange)
 	rangedConfig.MaxRange = float64(autoShotRank.MaxRange)
 	rangedConfig.ClassFlags = autoShotRank.ClassFlags
+	rangedConfig.CastRequirement = autoShotRank.CastRequirement()
 
 	hunter.AddStatDependency(stats.Strength, stats.AttackPower, 1)
 	hunter.AddStatDependency(stats.Agility, stats.AttackPower, 1)
 	hunter.AddStatDependency(stats.Agility, stats.RangedAttackPower, 2)
 	hunter.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[hunter.Class])
-	hunter.AddStatDependency(stats.Agility, stats.DodgeRating, 1.0/25*core.DodgeRatingPerDodgePercent)
 
 	hunter.Pet = hunter.NewHunterPet()
+	hunter.Hawks = hunter.newHawks()
 
 	return hunter
 }
@@ -121,16 +124,20 @@ func (hunter *Hunter) Initialize() {
 // school's IgnoreHaste turns off, so the ranged multiplier is read here instead.
 func (hunter *Hunter) hasteRangedCast(config *core.SpellConfig) {
 	config.Cast.CastTime = func(spell *core.Spell) time.Duration {
-		return time.Duration(float64(spell.DefaultCast.CastTime) / hunter.TotalRangedHasteMultiplier())
+		return hunter.ApplyRangedSpeed(spell.DefaultCast.CastTime)
 	}
 	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
 		cast.CastTime = spell.CastTime()
 	}
 }
 
-// One sting per target: applying either sting drops the other.
+func (hunter *Hunter) stingTag() string {
+	return "Sting-" + hunter.Label
+}
+
+// One sting per hunter on a target: applying either sting drops the hunter's other one.
 func dropOtherSting(sim *core.Simulation, sting *core.Aura) {
-	if active := sting.Unit.GetActiveAuraWithTag("Sting"); active != nil && active != sting {
+	if active := sting.Unit.GetActiveAuraWithTag(sting.Tag); active != nil && active != sting {
 		active.Deactivate(sim)
 	}
 }
@@ -145,6 +152,7 @@ func (hunter *Hunter) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 }
 
 func (hunter *Hunter) Reset(_ *core.Simulation) {
+	hunter.nextHawk = 0
 }
 
 func (hunter *Hunter) OnEncounterStart(sim *core.Simulation) {

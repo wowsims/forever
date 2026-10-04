@@ -10,36 +10,43 @@ import (
 
 func (warrior *Warrior) registerProtectionTalents() {
 	// Tier 1
+	// Improved Bloodrage: bloodrage.go
 	warrior.registerShieldSpecialization()
-	warrior.registerAnticipation()
+	warrior.registerIronWill()
 
 	// Tier 2
-	// Improved Bloodrage: bloodrage.go
-	warrior.registerToughness()
+	warrior.registerAnticipation()
+	warrior.registerImprovedRevenge()
 	warrior.registerImprovedThunderClap()
 
 	// Tier 3
 	warrior.registerLastStand()
 	warrior.registerMasterOfDefense()
-	warrior.registerImprovedRevenge()
+	warrior.registerImprovedDisarm()
 	// Defiance: stances.go
 
 	// Tier 4
 	warrior.registerImprovedSunderArmor()
-	warrior.registerImprovedDisarm()
 	// Vanguard: charge.go
+	warrior.registerImprovedShieldBash()
 
 	// Tier 5
 	warrior.registerImprovedShieldWall()
 	warrior.registerConcussionBlow()
-	warrior.registerImprovedShieldBash()
-	warrior.registerBastion()
+	warrior.registerFocusedRage()
 
 	// Tier 6
-	warrior.registerFocusedRage()
+	warrior.registerBastion()
 
 	// Tier 7
 	warrior.registerShieldSlam()
+}
+
+func (warrior *Warrior) registerIronWill() {
+	if warrior.Talents.IronWill == 0 {
+		return
+	}
+	spelldata.ParseStatic(&warrior.Character, spellData.IronWill.Rank(warrior.Talents.IronWill))
 }
 
 func (warrior *Warrior) registerAnticipation() {
@@ -50,19 +57,17 @@ func (warrior *Warrior) registerAnticipation() {
 	warrior.AddStat(stats.DefenseRating, spellData.Anticipation.ValueAt(warrior.Talents.Anticipation)*core.DefenseRatingPerDefenseLevel)
 }
 
-var shieldSpecializationEnergize = spellData.ShieldSpecializationTriggered.Highest()
-
 func (warrior *Warrior) registerShieldSpecialization() {
 	if warrior.Talents.ShieldSpecialization == 0 {
 		return
 	}
 
-	// Effect 1 is the block bonus; effect 2 is the proc trigger, which the parse skips.
-	spelldata.ParseStatic(&warrior.Character,
-		spellData.ShieldSpecialization.Rank(warrior.Talents.ShieldSpecialization))
+	talent := spellData.ShieldSpecialization.Rank(warrior.Talents.ShieldSpecialization)
 
-	warrior.registerRageOnAvoid(spellData.ShieldSpecialization.Rank(warrior.Talents.ShieldSpecialization),
-		shieldSpecializationEnergize, core.OutcomeBlock, nil)
+	// Effect 1 is the block bonus; effect 2 is the proc trigger, which the parse skips.
+	spelldata.ParseStatic(&warrior.Character, talent)
+
+	warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
 }
 
 // A chance to gain rage when an incoming attack is blocked, dodged or parried. The rate is the
@@ -84,17 +89,6 @@ func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *s
 	trigger.ExtraCondition = extra
 
 	warrior.MakeProcTriggerAura(trigger)
-}
-
-func (warrior *Warrior) registerToughness() {
-	if warrior.Talents.Toughness == 0 {
-		return
-	}
-
-	// The game files state the ladder twice, once on base armor and once on bonus armor; the parse
-	// takes the base armor effect, which the tooltip words as armor from items, onto the equipment
-	// share of the sim's single Armor stat, and skips the bonus armor one.
-	spelldata.ParseStatic(&warrior.Character, spellData.Toughness.Rank(warrior.Talents.Toughness))
 }
 
 var lastStandRank = spellData.LastStand.Highest()
@@ -166,9 +160,7 @@ func (warrior *Warrior) registerConcussionBlow() {
 		return
 	}
 
-	config := spelldata.SpellConfig(&warrior.Unit, concussionBlowRank,
-		spelldata.Flags(core.SpellFlagMeleeMetrics|core.SpellFlagAPL))
-	config.ProcMask = core.ProcMaskMeleeMHSpecial
+	config := spelldata.SpellConfig(&warrior.Unit, concussionBlowRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
@@ -192,12 +184,8 @@ func (warrior *Warrior) registerShieldSlam() {
 	// TODO: In-game testing needed for threat multiplier / flat threat
 	config.FlatThreatBonus = 0
 
-	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return warrior.PseudoStats.CanBlock
-	}
-
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := shieldSlamRank.DamageEffect().Roll(sim, core.CharacterLevel) + warrior.BlockDamageReduction()
+		baseDamage := shieldSlamRank.DamageEffect().Roll(sim) + warrior.BlockDamageReduction()
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
 		if !result.Landed() {
@@ -216,16 +204,15 @@ func (warrior *Warrior) registerFocusedRage() {
 	spelldata.ParseStatic(&warrior.Character, spellData.FocusedRage.Rank(warrior.Talents.FocusedRage))
 }
 
-var masterOfDefenseEnergize = spellData.MasterOfDefenseTriggered.Highest()
-
 func (warrior *Warrior) registerMasterOfDefense() {
 	if warrior.Talents.MasterOfDefense == 0 {
 		return
 	}
 
+	talent := spellData.MasterOfDefense.Rank(warrior.Talents.MasterOfDefense)
+
 	// A shield has to be equipped, which the row does not state.
-	warrior.registerRageOnAvoid(spellData.MasterOfDefense.Rank(warrior.Talents.MasterOfDefense),
-		masterOfDefenseEnergize, core.OutcomeDodge|core.OutcomeParry,
+	warrior.registerRageOnAvoid(talent, talent.EffectN(1).Trigger(), core.OutcomeDodge|core.OutcomeParry,
 		func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 			return warrior.PseudoStats.CanBlock
 		})
@@ -247,27 +234,23 @@ func (warrior *Warrior) registerImprovedDisarm() {
 	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedDisarm.Rank(warrior.Talents.ImprovedDisarm))
 }
 
-var improvedShieldBashSilence = spellData.ImprovedShieldBashTriggered.Highest()
-
 func (warrior *Warrior) registerImprovedShieldBash() {
 	if warrior.Talents.ImprovedShieldBash == 0 {
 		return
 	}
 
+	talent := spellData.ImprovedShieldBash.Rank(warrior.Talents.ImprovedShieldBash)
+	silence := talent.EffectN(1).Trigger()
+
 	// TODO: nothing in the sim reads a silence on an enemy, so the aura only shows up in metrics.
 	silenceAuras := warrior.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		return target.GetOrRegisterAura(core.Aura{
-			Label:    "Shield Bash - Silence",
-			ActionID: core.ActionID{SpellID: improvedShieldBashSilence.ID},
-			Duration: improvedShieldBashSilence.Duration(),
-		})
+		return target.GetOrRegisterAura(spelldata.AuraConfig(silence, spelldata.Label("Shield Bash - Silence")))
 	})
 
 	// The rate is the effect ladder the tooltip's $m1 names, and the 100 in the proc chance column
 	// is noise. The one ability it fires on is a shape no proc mask states, so the row's listener
 	// is narrowed to Shield Bash by hand.
-	trigger := spelldata.ProcTrigger(&warrior.Character,
-		spellData.ImprovedShieldBash.Rank(warrior.Talents.ImprovedShieldBash),
+	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			silenceAuras.Get(result.Target).Activate(sim)
 		})
@@ -284,8 +267,8 @@ func (warrior *Warrior) registerBastion() {
 		return
 	}
 
-	// The row raises the physical school and states no shield of its own: the tooltip's shield
-	// requirement is the caller's condition, re-read on an off-hand swap.
+	// The row raises the physical school and states the shield, but the parse never scopes to a
+	// shield, so it is the caller's condition, re-read on an off-hand swap.
 	parsed := spelldata.ParseStatic(&warrior.Character, spellData.Bastion.Rank(warrior.Talents.Bastion),
 		spelldata.Conditional(func() bool { return warrior.PseudoStats.CanBlock }))
 

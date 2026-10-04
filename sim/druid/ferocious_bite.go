@@ -1,11 +1,7 @@
 package druid
 
-import (
-	"github.com/wowsims/forever/sim/core"
-)
-
 var ferociousBiteRank = spellData.FerociousBite.Highest()
-var ferociousBiteBase = ferociousBiteRank.DamageEffect().Average(core.CharacterLevel)
+var ferociousBiteBase = ferociousBiteRank.DamageEffect().Average()
 
 // TODO: To be implemented.
 func (druid *Druid) registerFerociousBiteSpell() {

@@ -16,4 +16,10 @@ describe('wowheadAnchorProps', () => {
 		expect(props).toEqual({ 'data-disable-wowhead-touch-tooltip': 'true' });
 		expect('data-whtticon' in props).toBe(false);
 	});
+
+	it('keeps the touch tooltip on a link that only navigates', () => {
+		const props = wowheadAnchorProps({ acts: false });
+		expect(props).toEqual({ 'data-whtticon': 'false' });
+		expect('data-disable-wowhead-touch-tooltip' in props).toBe(false);
+	});
 });

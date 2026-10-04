@@ -33,7 +33,6 @@ export type RunFlush = (write: () => void) => void;
 
 export class SimRuns {
 	private readonly listeners = new Map<SimRunKind, Set<(progress: never) => void>>();
-	private readonly last = new Map<SimRunKind, unknown>();
 	// Which start owns a kind right now. A start aborts the previous run, whose
 	// `finally` then lands after the new one has already flagged itself running.
 	private readonly owner = new Map<SimRunKind, symbol>();
@@ -61,7 +60,6 @@ export class SimRuns {
 	start<T, TProgress = never>(kind: SimRunKind, run: (ctx: RunContext<TProgress>) => Promise<T>): Promise<T> {
 		const token = Symbol(kind);
 		this.owner.set(kind, token);
-		this.last.delete(kind);
 		this.write(kind, this.isRunning(kind) ? { isAborting: true } : { isRunning: true, isAborting: false });
 		return (async () => {
 			try {
@@ -94,12 +92,7 @@ export class SimRuns {
 		return () => set.delete(callback as (progress: never) => void);
 	}
 
-	lastProgress<TProgress>(kind: SimRunKind): TProgress | null {
-		return (this.last.get(kind) as TProgress) ?? null;
-	}
-
 	private emit<TProgress>(kind: SimRunKind, progress: TProgress) {
-		this.last.set(kind, progress);
 		this.listeners.get(kind)?.forEach(callback => (callback as (progress: TProgress) => void)(progress));
 	}
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { adjustWeaponImbueId, DENSE_SHARPENING_STONE_ID, DENSE_WEIGHTSTONE_ID, getTalentPoints, getTalentTreePoints } from './utils';
+import { adjustWeaponImbueId, getTalentPoints, getTalentTreePoints } from './utils';
 
 // Talent strings are one dash-separated run of per-row digits per tree, so the number a caller
 // wants is the per-tree total. Returning the digits instead type-checks cleanly and quietly breaks
@@ -26,6 +26,8 @@ describe('getTalentTreePoints', () => {
 });
 
 describe('adjustWeaponImbueId', () => {
+	const DENSE_SHARPENING_STONE_ID = 12404;
+	const DENSE_WEIGHTSTONE_ID = 12643;
 	const CONSECRATED_STONE_ID = 28891;
 
 	it('swaps the Dense pair to the family the weapon belongs to', () => {

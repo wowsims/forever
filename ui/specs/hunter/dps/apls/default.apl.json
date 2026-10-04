@@ -14,21 +14,65 @@
 		},
 		{
 			"action": {
-				"condition": { "cmp": { "op": "OpLe", "lhs": { "currentTime": {} }, "rhs": { "const": { "val": "0.5s" } } } },
-				"castSpell": { "spellId": { "spellId": 20904 } }
-			}
-		},
-		{
-			"action": {
-				"condition": { "not": { "val": { "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 14325 } } } } },
-				"castSpell": { "spellId": { "spellId": 14325 } }
+				"castSpell": { "spellId": { "spellId": 14325 } },
+				"condition": { "not": { "val": { "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 14325 } } } } }
 			}
 		},
 		{ "action": { "condition": { "variableRef": { "name": "Melee weave" } }, "groupReference": { "groupName": "Weave" } } },
 		{ "action": { "castSpell": { "spellId": { "spellId": 14271 } } } },
 		{ "action": { "castSpell": { "spellId": { "spellId": 1317257 } } } },
-		{ "action": { "condition": { "not": { "val": { "dotIsActive": { "spellId": { "spellId": 25295 } } } } }, "castSpell": { "spellId": { "spellId": 25295 } } } },
-		{ "action": { "castSpell": { "spellId": { "spellId": 1310786 } } } },
+		{
+			"action": {
+				"castSpell": { "spellId": { "spellId": 25295 } },
+				"condition": { "not": { "val": { "dotIsActive": { "spellId": { "spellId": 25295 } } } } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "and": { "vals": [{ "variableRef": { "name": "Use Summon Hawk" } }, { "variableRef": { "name": "Use Arcane Shot" } }] } },
+							{ "sequenceIsComplete": { "sequenceName": "HHA" } }
+						]
+					}
+				},
+				"resetSequence": { "sequenceName": "HHA" }
+			}
+		},
+		{
+			"action": {
+				"condition": { "and": { "vals": [{ "variableRef": { "name": "Use Summon Hawk" } }, { "variableRef": { "name": "Use Arcane Shot" } }] } },
+				"sequence": {
+					"name": "HHA",
+					"actions": [
+						{ "castSpell": { "spellId": { "spellId": 1293527 } } },
+						{ "castSpell": { "spellId": { "spellId": 1293527 } } },
+						{ "castSpell": { "spellId": { "spellId": 14287 } } }
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [{ "variableRef": { "name": "Use Summon Hawk" } }, { "not": { "val": { "variableRef": { "name": "Use Arcane Shot" } } } }]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 1293527 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [{ "variableRef": { "name": "Use Arcane Shot" } }, { "not": { "val": { "variableRef": { "name": "Use Summon Hawk" } } } }]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 14287 } }
+			}
+		},
 		{
 			"action": {
 				"condition": {
@@ -38,27 +82,20 @@
 							{
 								"or": {
 									"vals": [
-										{ "not": { "val": { "variableRef": { "name": "Melee weave" } } } },
 										{
-											"and": {
-												"vals": [
-													{
-														"cmp": {
-															"op": "OpLe",
-															"lhs": { "spellCastTime": { "spellId": { "spellId": 2643 } } },
-															"rhs": { "autoTimeToNext": { "autoType": "MainHandAuto" } }
-														}
-													},
-													{
-														"cmp": {
-															"op": "OpGt",
-															"lhs": { "unitDistance": {} },
-															"rhs": { "variableRef": { "name": "Melee range" } }
-														}
+											"cmp": {
+												"op": "OpLe",
+												"lhs": {
+													"math": {
+														"op": "OpAdd",
+														"lhs": { "spellCastTime": { "spellId": { "spellId": 2643 } } },
+														"rhs": { "variableRef": { "name": "Move duration" } }
 													}
-												]
+												},
+												"rhs": { "variableRef": { "name": "Time to next weave" } }
 											}
-										}
+										},
+										{ "not": { "val": { "variableRef": { "name": "Melee weave" } } } }
 									]
 								}
 							}
@@ -68,8 +105,38 @@
 				"castSpell": { "spellId": { "spellId": 2643 } }
 			}
 		},
-		{ "action": { "castSpell": { "spellId": { "spellId": 1293527 } } } },
-		{ "action": { "condition": { "variableRef": { "name": "Use Arcane Shot" } }, "castSpell": { "spellId": { "spellId": 14287 } } } }
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "variableRef": { "name": "Use Aimed Shot" } },
+							{
+								"or": {
+									"vals": [
+										{
+											"cmp": {
+												"op": "OpLe",
+												"lhs": {
+													"math": {
+														"op": "OpAdd",
+														"lhs": { "spellCastTime": { "spellId": { "spellId": 20904 } } },
+														"rhs": { "variableRef": { "name": "Move duration" } }
+													}
+												},
+												"rhs": { "variableRef": { "name": "Time to next weave" } }
+											}
+										},
+										{ "not": { "val": { "variableRef": { "name": "Melee weave" } } } }
+									]
+								}
+							}
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 20904 } }
+			}
+		}
 	],
 	"groups": [
 		{
@@ -133,69 +200,10 @@
 										}
 									},
 									{
-										"or": {
-											"vals": [
-												{
-													"and": {
-														"vals": [
-															{
-																"cmp": {
-																	"op": "OpGe",
-																	"lhs": { "autoTimeToNext": { "autoType": "RangedAuto" } },
-																	"rhs": { "variableRef": { "name": "Weave ranged threshold" } }
-																}
-															},
-															{
-																"or": {
-																	"vals": [
-																		{
-																			"cmp": {
-																				"op": "OpGe",
-																				"lhs": { "gcdTimeToReady": {} },
-																				"rhs": { "variableRef": { "name": "Move duration" } }
-																			}
-																		},
-																		{
-																			"and": {
-																				"vals": [
-																					{ "gcdIsReady": {} },
-																					{
-																						"cmp": {
-																							"op": "OpGe",
-																							"lhs": { "autoTimeToNext": { "autoType": "RangedAuto" } },
-																							"rhs": { "variableRef": { "name": "Weave before cast threshold" } }
-																						}
-																					}
-																				]
-																			}
-																		}
-																	]
-																}
-															}
-														]
-													}
-												},
-												{
-													"and": {
-														"vals": [
-															{
-																"cmp": {
-																	"op": "OpGt",
-																	"lhs": { "autoTimeSinceLast": { "autoType": "MainHandAuto" } },
-																	"rhs": { "autoSwingTime": { "autoType": "MainHand" } }
-																}
-															},
-															{
-																"cmp": {
-																	"op": "OpGe",
-																	"lhs": { "autoTimeToNext": { "autoType": "RangedAuto" } },
-																	"rhs": { "variableRef": { "name": "Move duration" } }
-																}
-															}
-														]
-													}
-												}
-											]
+										"cmp": {
+											"op": "OpGe",
+											"lhs": { "autoTimeToNext": { "autoType": "RangedAuto" } },
+											"rhs": { "variableRef": { "name": "Auto Shot wait" } }
 										}
 									}
 								]
@@ -219,10 +227,9 @@
 		}
 	],
 	"valueVariables": [
-		{ "name": "Melee weave", "value": { "const": { "val": "false" } } },
+		{ "name": "Melee weave", "value": { "const": { "val": "true" } } },
 		{ "name": "Time to weave", "value": { "const": { "val": "400ms" } } },
-		{ "name": "Use Multi-Shot", "value": { "const": { "val": "false" } } },
-		{ "name": "Use Arcane Shot", "value": { "const": { "val": "true" } } },
+		{ "name": "Auto Shot wait", "value": { "const": { "val": "1s" } } },
 		{ "name": "Melee range", "value": { "const": { "val": "5.00" } } },
 		{ "name": "Ranged range", "value": { "const": { "val": "8.00" } } },
 		{ "name": "Starting weave distance", "value": { "variableRef": { "name": "Ranged range" } } },
@@ -235,7 +242,13 @@
 					"rhs": {
 						"math": {
 							"op": "OpDiv",
-							"lhs": { "math": { "op": "OpSub", "lhs": { "variableRef": { "name": "Ranged range" } }, "rhs": { "variableRef": { "name": "Melee range" } } } },
+							"lhs": {
+								"math": {
+									"op": "OpSub",
+									"lhs": { "variableRef": { "name": "Ranged range" } },
+									"rhs": { "variableRef": { "name": "Melee range" } }
+								}
+							},
 							"rhs": { "const": { "val": "7" } }
 						}
 					}
@@ -259,21 +272,10 @@
 				}
 			}
 		},
-		{
-			"name": "Weave ranged threshold",
-			"value": {
-				"math": { "op": "OpAdd", "lhs": { "variableRef": { "name": "Move duration" } }, "rhs": { "spellCastTime": { "spellId": { "spellId": 2643 } } } }
-			}
-		},
-		{
-			"name": "Weave before cast threshold",
-			"value": {
-				"math": {
-					"op": "OpAdd",
-					"lhs": { "variableRef": { "name": "Weave ranged threshold" } },
-					"rhs": { "spellCastTime": { "spellId": { "spellId": 20904 } } }
-				}
-			}
-		}
+		{ "name": "Time to next weave", "value": { "autoTimeToNext": { "autoType": "MainHandAuto" } } },
+		{ "name": "Use Aimed Shot", "value": { "const": { "val": "false" } } },
+		{ "name": "Use Multi-Shot", "value": { "const": { "val": "true" } } },
+		{ "name": "Use Arcane Shot", "value": { "const": { "val": "true" } } },
+		{ "name": "Use Summon Hawk", "value": { "const": { "val": "false" } } }
 	]
 }

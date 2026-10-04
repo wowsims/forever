@@ -17,6 +17,12 @@ func pseudoStatsProto(values map[proto.PseudoStat]float64) *proto.UnitStats {
 	return &proto.UnitStats{Stats: make([]float64, stats.ProtoStatsLen), PseudoStats: pseudoStats}
 }
 
+func ratingWeight(stat stats.Stat, ep float64) core.UnitStats {
+	weights := core.NewUnitStats()
+	weights.Stats[stat] = ep
+	return weights
+}
+
 func TestReforgeWeightsKeepPercentWeightsPerPercent(t *testing.T) {
 	weights := protoToCoreUnitStats(pseudoStatsProto(map[proto.PseudoStat]float64{
 		proto.PseudoStat_PseudoStatBlockPercent:     5,
@@ -39,7 +45,7 @@ func TestReforgeWeightsKeepPercentWeightsPerPercent(t *testing.T) {
 
 func TestReforgeHitCapMatchesTheBackEndHitPercent(t *testing.T) {
 	sdm := stats.NewStatDependencyManager()
-	sdm.AddStatDependency(stats.MeleeHitRating, stats.PhysicalHitPercent, 1/core.PhysicalHitRatingPerHitPercent)
+	sdm.AddStatDependency(stats.HitRating, stats.PhysicalHitPercent, 1/core.HitRatingPerHitPercent)
 	sdm.FinalizeStatDeps()
 
 	baseStats := protoToCoreUnitStats(pseudoStatsProto(map[proto.PseudoStat]float64{
@@ -60,7 +66,7 @@ func TestReforgeHitCapMatchesTheBackEndHitPercent(t *testing.T) {
 	}
 
 	delta := core.NewUnitStats()
-	delta.Stats[stats.MeleeHitRating] = 2 * core.PhysicalHitRatingPerHitPercent
+	delta.Stats[stats.HitRating] = 2 * core.HitRatingPerHitPercent
 	resolved := resolveStatDelta(&sdm, baseStats, delta)
 	if got := getUnitStat(resolved, meleeHit); math.Abs(got-2) > 1e-9 {
 		t.Errorf("rating for 2%% hit fills %v of the hit cap gap, want 2", got)
@@ -150,11 +156,9 @@ func TestReforgeAvoidanceRatingWeightMovesOntoItsCappedPercent(t *testing.T) {
 		{stats.BlockRating, proto.PseudoStat_PseudoStatBlockPercent, core.BlockRatingPerBlockPercent},
 	} {
 		percent := stats.UnitStatFromPseudoStat(test.percent)
-		weights := core.NewUnitStats()
-		weights.Stats[test.rating] = 1
 		caps := setUnitStat(core.NewUnitStats(), percent, 2)
 
-		validated := checkWeights(weights, caps, nil)
+		validated := checkWeights(ratingWeight(test.rating, 1), caps, nil)
 		if validated.Stats[test.rating] != 0 {
 			t.Errorf("%s keeps weight %v under a %s cap, want 0", test.rating.StatName(), validated.Stats[test.rating], test.percent)
 		}
@@ -174,13 +178,8 @@ func TestReforgeAvoidanceRatingWeightMovesOntoItsCappedPercent(t *testing.T) {
 func TestReforgeDefenseWeightMovesOntoItsFirstCappedPercent(t *testing.T) {
 	critTaken := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatReducedCritTakenPercent)
 	dodge := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatDodgePercent)
-	defenseWeight := func() core.UnitStats {
-		weights := core.NewUnitStats()
-		weights.Stats[stats.DefenseRating] = 1
-		return weights
-	}
 
-	validated := checkWeights(defenseWeight(), setUnitStat(setUnitStat(core.NewUnitStats(), critTaken, 2), dodge, 2), nil)
+	validated := checkWeights(ratingWeight(stats.DefenseRating, 1), setUnitStat(setUnitStat(core.NewUnitStats(), critTaken, 2), dodge, 2), nil)
 	if got := getUnitStat(validated, critTaken); got != core.DefenseRatingPerAvoidancePercent {
 		t.Errorf("crit taken weighs %v per percent, want the 25 defense one percent costs", got)
 	}
@@ -188,12 +187,97 @@ func TestReforgeDefenseWeightMovesOntoItsFirstCappedPercent(t *testing.T) {
 		t.Errorf("Dodge%% takes weight %v from defense under a crit taken cap, want 0", got)
 	}
 
-	validated = checkWeights(defenseWeight(), setUnitStat(core.NewUnitStats(), dodge, 2), nil)
+	validated = checkWeights(ratingWeight(stats.DefenseRating, 1), setUnitStat(core.NewUnitStats(), dodge, 2), nil)
 	if got := getUnitStat(validated, dodge); got != core.DefenseRatingPerAvoidancePercent {
 		t.Errorf("Dodge%% weighs %v per percent under a dodge cap alone, want the 25 defense one percent costs", got)
 	}
 	if validated.Stats[stats.DefenseRating] != 0 {
 		t.Errorf("defense keeps weight %v, want 0", validated.Stats[stats.DefenseRating])
+	}
+}
+
+func TestReforgeRatingKeepsItsWeightOverItsPercentWeights(t *testing.T) {
+	rangedHit := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedHitPercent)
+	rangedCrit := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedCritPercent)
+	weights := ratingWeight(stats.HitRating, 2)
+	weights.Stats[stats.CritRating] = 1.5
+	weights = setUnitStat(weights, rangedHit, 50)
+	weights = setUnitStat(weights, rangedCrit, 40)
+	softCaps := []*reforgeSoftCap{{
+		unitStat:    rangedHit,
+		breakpoints: []float64{3},
+		postCapEPs:  []float64{0},
+		capType:     proto.StatCapType_TypeSoftCap,
+	}}
+	validated := checkWeights(weights, core.NewUnitStats(), softCaps)
+	o := &reforgeOptimizer{player: &proto.Player{}, undershootCaps: core.NewUnitStats()}
+	hitGem := map[string]float64{}
+	o.applyReforgeStat(hitGem, stats.HitRating, 10, validated)
+
+	t.Run("checkWeights", func(t *testing.T) {
+		if got := getUnitStat(validated, rangedHit); got != 2*core.HitRatingPerHitPercent {
+			t.Errorf("ranged hit weighs %v per percent, want the hit rating's 2 per rating", got)
+		}
+		for _, child := range childPseudoStats(stats.HitRating) {
+			if child != proto.PseudoStat_PseudoStatRangedHitPercent && getUnitStat(validated, stats.UnitStatFromPseudoStat(child)) != 0 {
+				t.Errorf("%s keeps a weight beside the capped ranged hit", child)
+			}
+		}
+		if validated.Stats[stats.CritRating] != 1.5 || getUnitStat(validated, rangedCrit) != 0 {
+			t.Errorf("uncapped crit weighs %v per rating and %v per ranged crit percent, want 1.5 and 0",
+				validated.Stats[stats.CritRating], getUnitStat(validated, rangedCrit))
+		}
+	})
+
+	t.Run("score", func(t *testing.T) {
+		if got := computeCoeffScore(hitGem, validated); math.Abs(got-20) > 1e-9 {
+			t.Errorf("10 hit rating scores %v, want 20", got)
+		}
+		critGem := map[string]float64{}
+		o.applyReforgeStat(critGem, stats.CritRating, 10, validated)
+		if got := computeCoeffScore(critGem, validated); math.Abs(got-15) > 1e-9 {
+			t.Errorf("10 crit rating scores %v, want 15", got)
+		}
+	})
+
+	t.Run("checkCaps", func(t *testing.T) {
+		variables := newLPVariables()
+		variables.set("hitGem", map[string]float64{coeffKeyForUnitStat(rangedHit): 4})
+		variables.setObj("hitGem", hitGem)
+		exceeded, constraints, capped, _ := o.checkCaps(lpSolution{variables: []string{"hitGem"}}, core.NewUnitStats(), softCaps, variables, newLPConstraints(), validated)
+		if !exceeded {
+			t.Fatal("ranged hit past the soft cap gap leaves the cap unenforced")
+		}
+		if got := constraints.byName[coeffKeyForUnitStat(rangedHit)]; got != greaterEq(3) {
+			t.Errorf("ranged hit row %+v, want at least the 3%% gap", got)
+		}
+		if got := computeCoeffScore(hitGem, capped); got != 0 {
+			t.Errorf("10 hit rating past the soft cap scores %v, want the post-cap 0", got)
+		}
+	})
+}
+
+func TestReforgeRatingWithoutPercentWeightsIsUnchanged(t *testing.T) {
+	meleeHit := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMeleeHitPercent)
+
+	validated := checkWeights(ratingWeight(stats.HitRating, 2), setUnitStat(core.NewUnitStats(), meleeHit, 2), nil)
+	if validated.Stats[stats.HitRating] != 0 || getUnitStat(validated, meleeHit) != 2*core.HitRatingPerHitPercent {
+		t.Errorf("hit under a melee hit cap weighs %v per rating and %v per percent, want 0 and %v",
+			validated.Stats[stats.HitRating], getUnitStat(validated, meleeHit), 2*core.HitRatingPerHitPercent)
+	}
+
+	validated = checkWeights(ratingWeight(stats.HitRating, 2), core.NewUnitStats(), nil)
+	if validated.Stats[stats.HitRating] != 2 || getUnitStat(validated, meleeHit) != 0 {
+		t.Errorf("uncapped hit weighs %v per rating and %v per percent, want 2 and 0",
+			validated.Stats[stats.HitRating], getUnitStat(validated, meleeHit))
+	}
+}
+
+func TestReforgeUnweightedRatingKeepsItsPercentWeight(t *testing.T) {
+	meleeHit := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMeleeHitPercent)
+	validated := checkWeights(setUnitStat(core.NewUnitStats(), meleeHit, 30), setUnitStat(core.NewUnitStats(), meleeHit, 2), nil)
+	if validated.Stats[stats.HitRating] != 0 || getUnitStat(validated, meleeHit) != 30 {
+		t.Errorf("an unweighted hit rating leaves melee hit at %v per percent, want 30", getUnitStat(validated, meleeHit))
 	}
 }
 

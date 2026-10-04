@@ -1,0 +1,121 @@
+{
+  "apiVersion": 2,
+  "raidBuffs": {
+    "arcaneBrilliance": true,
+    "prayerOfSpirit": true,
+    "giftOfTheWild": true,
+    "prayerOfFortitude": true
+  },
+  "debuffs": {
+    "judgementOfWisdom": true,
+    "curseOfElements": true,
+    "curseOfRecklessness": true,
+    "faerieFire": true,
+    "exposeArmor": true,
+    "sunderArmor": true,
+    "giftOfArthas": true
+  },
+  "partyBuffs": {
+    "moonkinAura": true
+  },
+  "player": {
+    "apiVersion": 2,
+    "name": "Player",
+    "race": "RaceTroll",
+    "class": "ClassShaman",
+    "equipment": {
+      "items": [
+        {"id":22097},
+        {"id":22149},
+        {"id":22101},
+        {"id":272411},
+        {"id":22102},
+        {"id":22095},
+        {"id":22099},
+        {"id":22098},
+        {"id":22100},
+        {"id":22096},
+        {"id":275738},
+        {"id":19518},
+        {"id":272438},
+        {"id":270225},
+        {"id":271928},
+        {"id":249455},
+        {}
+      ]
+    },
+    "consumables": {
+      "potId": 13444,
+      "flaskId": 13512,
+      "conjuredId": 12662,
+      "mhImbueId": 20749,
+      "elixirIds": [
+        250343,
+        9155,
+        9179,
+        250338,
+        250341
+      ]
+    },
+    "bonusStats": {
+      "apiVersion": 2,
+      "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    },
+    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
+    "buffs": {
+      "greaterBlessingOfKings": true,
+      "greaterBlessingOfWisdom": true
+    },
+    "elementalShaman": {
+      "options": {
+        "classOptions": {
+        }
+      }
+    },
+    "talentsString": "4500301323123051-05-05305",
+    "profession1": "Leatherworking",
+    "profession2": "Enchanting",
+    "cooldowns": {
+    },
+    "rotation": {
+      "type": "TypeAPL",
+      "priorityList": [
+        {"action":{"castSpell":{"spellId":{"otherId":"OtherActionPotion"}}}},
+        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}},"castSpell":{"spellId":{"spellId":10438}}}},
+        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":29228}}},"castSpell":{"spellId":{"spellId":1238300}}}},
+        {"action":{"condition":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":29228}}}}},"castSpell":{"spellId":{"spellId":29228}}}},
+        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10605}}}},
+        {"action":{"castSpell":{"spellId":{"spellId":15208}}}}
+      ]
+    },
+    "reactionTimeMs": 100,
+    "distanceFromTarget": 20,
+    "healingModel": {
+    }
+  },
+  "encounter": {
+    "apiVersion": 2,
+    "duration": 120,
+    "durationVariation": 5,
+    "executeProportion20": 0.2,
+    "executeProportion25": 0.25,
+    "executeProportion35": 0.35,
+    "executeProportion45": 0.45,
+    "executeProportion90": 0.9,
+    "targets": [
+      {
+        "id": 31146,
+        "name": "Raid Target",
+        "level": 63,
+        "mobType": "MobTypeMechanical",
+        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1299000,0,0,0,0,0,0,0,0],
+        "minBaseDamage": 15113,
+        "damageSpread": 0.5,
+        "swingSpeed": 2,
+        "parryHaste": true,
+        "canCrush": true
+      }
+    ]
+  }
+}

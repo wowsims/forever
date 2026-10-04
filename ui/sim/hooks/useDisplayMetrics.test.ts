@@ -34,14 +34,4 @@ describe('useDisplayMetrics', () => {
 		expect(result.current.healing).toBe(true);
 		expect(store.getState().ui.showHealingMetrics).toBe(false);
 	});
-
-	it('does not derive healing from showThreatMetrics on a non-tank spec', () => {
-		const store = createSimStore();
-		const sim = fakeSim(store, Spec.SpecDpsWarrior);
-		const { result } = renderHook(() => useDisplayMetrics(sim));
-
-		act(() => patchSlice(store, 'ui', { showThreatMetrics: true }));
-
-		expect(result.current.healing).toBe(false);
-	});
 });

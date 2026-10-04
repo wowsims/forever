@@ -4,9 +4,9 @@
 	}
 
 	.ui-item-picker-icon-wrapper {
-		--icon-size: 4rem;
+		--icon-size: --spacing(16);
 
-		@apply relative h-(--icon-size) w-(--icon-size) border border-border max-lg:[--icon-size:3rem];
+		@apply relative h-(--icon-size) w-(--icon-size) border border-border max-lg:[--icon-size:--spacing(12)];
 	}
 
 	.ui-item-picker-ilvl {
@@ -19,10 +19,26 @@
 
 	.ui-item-picker-labels-container {
 		@apply flex flex-1 flex-col items-start p-2 pb-0;
+
+		&[data-align='end'] {
+			@apply md:items-end md:text-right;
+
+			> .ui-item-picker-name-row {
+				@apply md:justify-end;
+
+				& .ui-item-picker-name-container {
+					@apply md:justify-end;
+				}
+			}
+		}
+	}
+
+	.ui-item-picker-name-row {
+		@apply w-full;
 	}
 
 	.ui-item-picker-name-container {
-		@apply text-(length:--h6-font-size) text-white in-[.ui-gear-picker]:focus-visible:outline in-[.ui-gear-picker]:focus-visible:outline-1 in-[.ui-gear-picker]:focus-visible:outline-offset-1 in-[.ui-gear-picker]:focus-visible:outline-link;
+		@apply flex flex-wrap items-baseline gap-x-1 text-(length:--h6-font-size) text-white in-[.ui-gear-picker]:focus-visible:outline in-[.ui-gear-picker]:focus-visible:outline-1 in-[.ui-gear-picker]:focus-visible:outline-offset-1 in-[.ui-gear-picker]:focus-visible:outline-link;
 	}
 
 	.ui-item-picker-label-muted {

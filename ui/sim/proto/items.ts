@@ -6,14 +6,15 @@ import { UIEnchant as Enchant, UIGem as Gem, UIItem as Item } from '@generated/p
 import { PlayerSpec } from '../player/player_spec';
 import { PlayerSpecs } from '../player/specs';
 import { intersection, swap } from '../utils/collections';
+import { BLUNT_WEAPON_TYPES, ITEM_TYPE_TO_SLOTS, SHARP_WEAPON_TYPES } from './sim_tables_auto_gen';
 import { Stats } from './stats';
 
 export function isSharpWeaponType(weaponType: WeaponType): boolean {
-	return [WeaponType.WeaponTypeAxe, WeaponType.WeaponTypeDagger, WeaponType.WeaponTypePolearm, WeaponType.WeaponTypeSword].includes(weaponType);
+	return SHARP_WEAPON_TYPES.includes(weaponType);
 }
 
 export function isBluntWeaponType(weaponType: WeaponType): boolean {
-	return [WeaponType.WeaponTypeFist, WeaponType.WeaponTypeMace, WeaponType.WeaponTypeStaff].includes(weaponType);
+	return BLUNT_WEAPON_TYPES.includes(weaponType);
 }
 
 // Custom functions for determining the EP value of meta gem effects.
@@ -95,26 +96,9 @@ export const getPVPSeasonFromItem = (item: Item) => {
 	return pvpSeasonFromName[seasonName] || undefined;
 };
 
-const itemTypeToSlotsMap: Partial<Record<ItemType, Array<ItemSlot>>> = {
-	[ItemType.ItemTypeUnknown]: [],
-	[ItemType.ItemTypeHead]: [ItemSlot.ItemSlotHead],
-	[ItemType.ItemTypeNeck]: [ItemSlot.ItemSlotNeck],
-	[ItemType.ItemTypeShoulder]: [ItemSlot.ItemSlotShoulder],
-	[ItemType.ItemTypeBack]: [ItemSlot.ItemSlotBack],
-	[ItemType.ItemTypeChest]: [ItemSlot.ItemSlotChest],
-	[ItemType.ItemTypeWrist]: [ItemSlot.ItemSlotWrist],
-	[ItemType.ItemTypeHands]: [ItemSlot.ItemSlotHands],
-	[ItemType.ItemTypeWaist]: [ItemSlot.ItemSlotWaist],
-	[ItemType.ItemTypeLegs]: [ItemSlot.ItemSlotLegs],
-	[ItemType.ItemTypeFeet]: [ItemSlot.ItemSlotFeet],
-	[ItemType.ItemTypeFinger]: [ItemSlot.ItemSlotFinger1, ItemSlot.ItemSlotFinger2],
-	[ItemType.ItemTypeTrinket]: [ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
-	[ItemType.ItemTypeRanged]: [ItemSlot.ItemSlotRanged],
-};
-
 export function getEligibleItemSlots(item: Item): Array<ItemSlot> {
-	if (itemTypeToSlotsMap[item.type]) {
-		return itemTypeToSlotsMap[item.type]!;
+	if (ITEM_TYPE_TO_SLOTS[item.type]) {
+		return ITEM_TYPE_TO_SLOTS[item.type]!;
 	}
 
 	if (item.type == ItemType.ItemTypeWeapon) {
@@ -143,8 +127,8 @@ export function getEligibleEnchantSlots(enchant: Enchant): Array<ItemSlot> {
 	return [enchant.type]
 		.concat(enchant.extraTypes || [])
 		.map(type => {
-			if (itemTypeToSlotsMap[type]) {
-				return itemTypeToSlotsMap[type]!;
+			if (ITEM_TYPE_TO_SLOTS[type]) {
+				return ITEM_TYPE_TO_SLOTS[type]!;
 			}
 
 			if (type == ItemType.ItemTypeWeapon) {
@@ -155,6 +139,10 @@ export function getEligibleEnchantSlots(enchant: Enchant): Array<ItemSlot> {
 			throw new Error('Could not find item slots for enchant: ' + Enchant.toJsonString(enchant));
 		})
 		.flat();
+}
+
+export function isOffHandOnlyEnchant(enchant: Enchant): boolean {
+	return enchant.enchantType === EnchantType.EnchantTypeShield || enchant.enchantType === EnchantType.EnchantTypeOffHand;
 }
 
 export function enchantAppliesToItem(enchant: Enchant, item: Item): boolean {

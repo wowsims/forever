@@ -42,7 +42,7 @@ export function playerTalentStringToProto<SpecType extends Spec>(playerSpec: Pla
 	return talentStringToProto(proto, talentString, talentsConfig);
 }
 
-export function talentStringToProto<TalentsProto>(proto: TalentsProto, talentString: string, talentsConfig: TalentsConfig<TalentsProto>): TalentsProto {
+function talentStringToProto<TalentsProto>(proto: TalentsProto, talentString: string, talentsConfig: TalentsConfig<TalentsProto>): TalentsProto {
 	parseTalentsString(talentsConfig, talentString).forEach((treePoints, treeIdx) => {
 		talentsConfig[treeIdx].talents.forEach((talentConfig, i) => {
 			if (!talentConfig.fieldName) return;

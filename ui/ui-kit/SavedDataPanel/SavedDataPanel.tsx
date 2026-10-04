@@ -5,7 +5,6 @@ import { ContentBlock } from '@ui-kit/ContentBlock';
 import { FieldLabel, Input } from '@ui-kit/FormControl';
 import { LocaleHtml, Tooltip } from '@ui-kit/Tooltip';
 import type { ClassValue } from 'clsx';
-import clsx from 'clsx';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { SavedDataChip } from './SavedDataChip';
@@ -124,9 +123,9 @@ export const SavedDataPanel = <T,>({
 	);
 
 	return (
-		<div className={clsx(className)} data-saved-data-manager="">
-			<ContentBlock testId="saved-data" config={{ header: { title } }}>
-				<div className="ui-saved-data-container" data-testid="saved-data-container">
+		<>
+			<ContentBlock className={className} config={{ header: { title } }}>
+				<div className="ui-saved-data-container">
 					{presets.length > 0 && (
 						<div className="ui-saved-data-presets" data-testid="saved-data-presets">
 							{presets.map(renderChip)}
@@ -139,7 +138,7 @@ export const SavedDataPanel = <T,>({
 					)}
 				</div>
 				{!loadOnly && (
-					<div ref={createRef} className="ui-saved-data-create-container" data-testid="saved-data-create-container">
+					<div ref={createRef} className="ui-saved-data-create-container">
 						<FieldLabel htmlFor={nameInputId}>{nameLabel ?? label}</FieldLabel>
 						<Input
 							id={nameInputId}
@@ -165,6 +164,6 @@ export const SavedDataPanel = <T,>({
 			<ConfirmPopover open={!!problem} onOpenChange={open => !open && setProblem(null)} anchor={createRef}>
 				{problem}
 			</ConfirmPopover>
-		</div>
+		</>
 	);
 };

@@ -1,8 +1,7 @@
-export { ConsumesPicker } from './components/ConsumesPicker';
+export { BuffSection, type BuffSectionKind, type BuffSectionProps } from './components/BuffSection';
+export { ConsumesFilters, ConsumesPicker } from './components/ConsumesPicker';
 export { CooldownsPicker } from './components/CooldownsPicker';
 export type { ConsumesPickerProps } from './components/ConsumesPicker';
-export { InputPicker } from './components/InputPicker';
-export type { InputPickerProps } from './components/InputPicker';
 export { OtherSettings } from './components/OtherSettings';
 export type { OtherSettingsProps } from './components/OtherSettings';
 export { StatOptionIcons } from './components/StatOptionIcons';

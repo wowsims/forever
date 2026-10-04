@@ -60,10 +60,10 @@ func TestEnchantProcChanceFollowsTheEnchantedWeapon(t *testing.T) {
 
 	check := func(when string, mainHand, offHand float64) {
 		t.Helper()
-		if got := dpm.Chance(ProcMaskMeleeMHAuto, nil); got != mainHand {
+		if got, _ := dpm.chanceFor(ProcMaskMeleeMHAuto, nil); got != mainHand {
 			t.Errorf("%s: main hand chance = %v, want %v", when, got, mainHand)
 		}
-		if got := dpm.Chance(ProcMaskMeleeOHAuto, nil); got != offHand {
+		if got, _ := dpm.chanceFor(ProcMaskMeleeOHAuto, nil); got != offHand {
 			t.Errorf("%s: off hand chance = %v, want %v", when, got, offHand)
 		}
 	}
@@ -187,7 +187,7 @@ func TestEnchantPPMFollowsTheEnchantedWeapon(t *testing.T) {
 					{"off hand", ProcMaskMeleeOHAuto, want.offHand},
 					{"spell", ProcMaskSpellDamage, want.spell},
 				} {
-					if got := dpm.Chance(hit.mask, nil); got != hit.want {
+					if got, _ := dpm.chanceFor(hit.mask, nil); got != hit.want {
 						t.Errorf("%s: %s chance = %v, want %v", when, hit.name, got, hit.want)
 					}
 				}

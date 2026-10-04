@@ -11,9 +11,7 @@ export const AplNavbar = () => {
 
 	return (
 		<div ref={ref} className={clsx('shrink-0 grow basis-full gap-1', className)} data-testid="apl-rotation-navbar" data-stuck={stuck ? '' : undefined}>
-			<div data-testid="rotation-type-container">
-				<RotationTypePicker />
-			</div>
+			<RotationTypePicker testId="rotation-type-container" />
 			<TabNav
 				bordered={false}
 				wrap={false}

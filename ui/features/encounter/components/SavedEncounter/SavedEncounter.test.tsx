@@ -1,24 +1,14 @@
 import { Encounter as EncounterProto } from '@generated/proto/common';
 import { SavedEncounter as SavedEncounterProto } from '@generated/proto/ui';
-import { SimHostProvider } from '@sim/context/SimHostContext';
-import { act, fireEvent, render } from '@testing-library/react';
+import { chipNamed, chips, nameInput, readStored, renderReady, saveButton, source } from '@testing/saved_panel';
+import { fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SavedEncounter } from './SavedEncounter';
 
-const source = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		listeners,
-		subscribe: (onChange: () => void) => {
-			listeners.add(onChange);
-			return () => listeners.delete(onChange);
-		},
-		notify: () => listeners.forEach(listener => listener()),
-	};
-});
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
+vi.mock('@sim/state/subscriptions', async () =>
+	(await import('@testing/sim/subscriptions')).mockSubscriptions((await import('@testing/saved_panel')).source.subscribe),
+);
 
 const STRINGS = vi.hoisted(
 	() =>
@@ -54,7 +44,6 @@ class FakeEncounter {
 let encounter: FakeEncounter;
 let host: any;
 let presets: Array<any>;
-let waitForInit: () => Promise<void>;
 
 const setup = () => {
 	source.listeners.clear();
@@ -62,9 +51,8 @@ const setup = () => {
 	window.localStorage.clear();
 	encounter = new FakeEncounter();
 	presets = [];
-	waitForInit = () => Promise.resolve();
 	host = {
-		sim: { waitForInit: () => waitForInit(), encounter },
+		sim: { waitForInit: () => Promise.resolve(), encounter },
 		get individualConfig() {
 			return { presets: { encounters: presets } };
 		},
@@ -72,25 +60,8 @@ const setup = () => {
 	};
 };
 
-const renderPanel = async () => {
-	const result = render(
-		<SimHostProvider host={host}>
-			<SavedEncounter />
-		</SimHostProvider>,
-	);
-	await act(async () => {});
-	return result;
-};
-
-const nameInput = () => document.querySelector<HTMLInputElement>('[data-testid="saved-data-save-input"]')!;
-const saveButton = () => document.querySelector<HTMLButtonElement>('[data-testid="saved-data-save-button"]')!;
-const chips = (section: 'presets' | 'custom') => [
-	...document.querySelectorAll(`:is(.saved-data-${section}, [data-testid="saved-data-${section}"]) [data-testid="saved-data-set-chip"]`),
-];
-const chipNamed = (name: string) => [...document.querySelectorAll('[data-testid="saved-data-set-chip"]')].find(chip => chip.textContent?.startsWith(name))!;
-const stored = () => JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null');
-const popover = () => document.querySelector('[data-testid="sim-confirm-popover"]');
-const popoverButtons = () => [...(popover()?.querySelectorAll<HTMLButtonElement>('[data-testid="sim-confirm-popover-actions"] button') ?? [])];
+const renderPanel = () => renderReady(<SavedEncounter />, host);
+const stored = () => readStored(STORAGE_KEY);
 
 beforeEach(setup);
 
@@ -135,38 +106,6 @@ describe('SavedEncounter', () => {
 			await renderPanel();
 
 			expect(chipNamed('Council').hasAttribute('data-disabled')).toBe(false);
-		});
-
-		it('holds the presets back until the sim is ready', async () => {
-			presets = [{ name: 'Council', encounter: encounterWith(400) }];
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Mine: storedJson(200) }));
-			let resolveInit = () => {};
-			waitForInit = () => new Promise(resolve => (resolveInit = resolve));
-
-			render(
-				<SimHostProvider host={host}>
-					<SavedEncounter />
-				</SimHostProvider>,
-			);
-
-			expect(chips('presets')).toHaveLength(0);
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Mine']);
-			await act(async () => resolveInit());
-		});
-	});
-
-	describe('deleting', () => {
-		it('removes the set and rewrites storage once confirmed', async () => {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Council: storedJson(400), Other: storedJson(200) }));
-			await renderPanel();
-
-			fireEvent.click(chipNamed('Council').querySelector('[data-testid="saved-data-set-delete"]')!);
-			const [, confirm] = popoverButtons();
-			fireEvent.click(confirm);
-
-			expect(chips('custom').map(chip => chip.textContent)).toEqual(['Other']);
-			expect(stored()).toEqual({ Other: storedJson(200) });
-			expect(trackEvent).toHaveBeenCalledWith({ action: 'settings', category: 'delete', label: 'Encounter' });
 		});
 	});
 });

@@ -1,9 +1,8 @@
 import { SavedGear } from '@features/gear/components/SavedGear';
-import { gearSetData, serializeGearSet } from '@features/gear/components/SavedGear/utils';
+import { gearSetData, loadGearSet, serializeGearSet } from '@features/gear/components/SavedGear/utils';
 import { useSavedGear } from '@features/gear/hooks/useSavedGear';
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
 import { applyBuild } from '@features/settings/model/apply_build';
-import { EquipmentSpec, UnitStats } from '@generated/proto/common';
 import { SavedGearSet } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { PresetConfigurationCategory } from '@sim/constants/preset_categories';
@@ -17,11 +16,12 @@ import { batch } from '@sim/state/batch';
 import { subscribePlayerChange, subscribeSimChange } from '@sim/state/subscriptions';
 import { Chip } from '@ui-kit/Chip';
 import { SavedDataPanel } from '@ui-kit/SavedDataPanel';
-import { LocaleHtml, Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { LocaleHtml, Tooltip } from '@ui-kit/Tooltip';
 import { useId, useMemo } from 'react';
 
-import { buildCategories, isBuildActive } from '../preset_build_state';
+import { isBuildActive } from '../preset_build_state';
 import type { PresetBuild } from '../preset_utils';
+import { PresetBuildChip, PresetBuildChipTooltip } from '../PresetBuildChip';
 import { PresetConfigurationPicker } from '../PresetConfigurationPicker';
 import { PresetGroupPicker, usePresetFilterPhase } from '../PresetGroupPicker';
 
@@ -82,12 +82,13 @@ const GroupedGearPresets = () => {
 		storage: useSavedGear(),
 		current,
 		serialize: serializeGearSet,
-		load: entry =>
-			batch(() => {
-				player.setGear(sim.db.lookupEquipmentSpec(entry.data.gear || EquipmentSpec.create()));
-				player.setBonusStats(Stats.fromProto(entry.data.bonusStatsStats || UnitStats.create()));
-			}),
+		load: loadGearSet,
 	});
+
+	const applyPresetBuild = (build: PresetBuild) => {
+		applyBuild(build, host);
+		filter.selectPhase(build.phase);
+	};
 
 	const loadGearPreset = (preset: PresetGear) => {
 		batch(() => {
@@ -109,18 +110,7 @@ const GroupedGearPresets = () => {
 									phase: build.phase,
 									group: build.group,
 									node: (
-										<Chip
-											as="button"
-											nameAs="span"
-											label={build.name}
-											active={buildsActive?.[index]}
-											onSelect={() => {
-												applyBuild(build, host);
-												filter.selectPhase(build.phase);
-											}}
-											nameProps={{ role: 'button' }}
-											rootProps={{ type: 'button', ...tooltipAnchorProps(buildTooltipId, build.name) }}
-										/>
+										<PresetBuildChip build={build} active={buildsActive?.[index]} tooltipId={buildTooltipId} onApply={applyPresetBuild} />
 									),
 								}))
 							: [],
@@ -156,7 +146,6 @@ const GroupedGearPresets = () => {
 								className="mt-4"
 								nameLabel={i18n.t('gear_tab.gear_sets.gear_set_name')}
 								saveButtonText={i18n.t('gear_tab.gear_sets.save_gear_set')}
-								presets={[]}
 								{...savedPanel}
 							/>
 						),
@@ -166,32 +155,15 @@ const GroupedGearPresets = () => {
 	];
 
 	return (
-		<div data-testid="preset-configuration-picker-root" data-saved-data-manager="">
+		<>
 			<PresetGroupPicker sections={sections} phases={filter.phases} phase={filter.phase} onSelectPhase={filter.selectPhase} />
-			<Tooltip
-				id={buildTooltipId}
-				render={({ activeAnchor }) => {
-					const build = builds.find(candidate => candidate.name === activeAnchor?.getAttribute('data-tooltip-content'));
-					return build ? <PresetBuildTooltip build={build} /> : null;
-				}}
-			/>
+			<PresetBuildChipTooltip id={buildTooltipId} builds={builds} />
 			{/* The default preset-gear tooltip is the BIS disclaimer, which is two `<p>`s of markup. */}
 			<Tooltip
 				id={gearTooltipId}
 				place="bottom"
 				render={({ content }) => (typeof content === 'string' && content ? <LocaleHtml html={content} /> : null)}
 			/>
-		</div>
+		</>
 	);
 };
-
-const PresetBuildTooltip = ({ build }: { build: PresetBuild }) => (
-	<>
-		<p className="mb-1">{i18n.t('common.preset.description')}</p>
-		<ul className="mb-0">
-			{buildCategories(build).map(category => (
-				<li key={category}>{category}</li>
-			))}
-		</ul>
-	</>
-);

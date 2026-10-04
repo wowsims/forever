@@ -22,7 +22,7 @@ func (paladin *Paladin) registerDivineFavor() {
 	}).AttachSpellMod(core.SpellModConfig{
 		Kind:       core.SpellMod_BonusCrit_Percent,
 		ClassMask:  SpellMaskHealingSpells | SpellMaskHolyShock,
-		FloatValue: rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).Average(core.CharacterLevel),
+		FloatValue: rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).Average(),
 	}).AttachProcTrigger(core.ProcTrigger{
 		CanProcFromProcs:   true, // 20216 carries the bit.
 		Callback:           core.CallbackOnCastComplete,

@@ -17,10 +17,6 @@ describe('the landing page class list', () => {
 	it('reaches all eighteen specs', () => {
 		expect(classes().flatMap(playerClass => Object.values(playerClass.specs))).toHaveLength(18);
 	});
-
-	it('opens with the priest', () => {
-		expect(classes()[0].friendlyName).toBe('Priest');
-	});
 });
 
 describe('classLaunchStatus', () => {

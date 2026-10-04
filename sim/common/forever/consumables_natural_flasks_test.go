@@ -10,11 +10,11 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
-	"github.com/wowsims/forever/sim/warrior/dps"
+	"github.com/wowsims/forever/sim/core/testagent"
 )
 
 func init() {
-	dps.RegisterDpsWarrior()
+	testagent.RegisterAsDpsWarrior()
 }
 
 func warriorWithFlask(t *testing.T, flaskID int32) *core.Character {

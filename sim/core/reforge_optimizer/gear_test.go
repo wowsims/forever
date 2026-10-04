@@ -3,9 +3,10 @@
 package reforgeoptimizer
 
 import (
+	"slices"
 	"testing"
 
-	"github.com/wowsims/forever/sim"
+	assetsdb "github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 )
@@ -55,7 +56,6 @@ func TestGemMatchesSocketSecondaryColors(t *testing.T) {
 // it moves the claim from the +4 Stamina item to the +3 Stamina one, so it must be rejected.
 func TestMinimizeRegemsKeepsLargerSocketBonus(t *testing.T) {
 	requireSocketedItems(t)
-	sim.RegisterAll()
 
 	const wristSlot, handsSlot = 5, 6
 	const smooth, bold = int32(24048), int32(24027) // Yellow (no Red match), Red (Red match)
@@ -92,7 +92,6 @@ func TestMinimizeRegemsKeepsLargerSocketBonus(t *testing.T) {
 // it must still be rejected: the bonuses are not the same stat, so the swap is not provably free.
 func TestMinimizeRegemsKeepsDifferentStatSocketBonus(t *testing.T) {
 	requireSocketedItems(t)
-	sim.RegisterAll()
 
 	const backSlot, legsSlot = 3, 8
 	const smooth, bold = int32(24048), int32(24027) // Yellow (no Red match), Red (Red match)
@@ -127,7 +126,7 @@ func TestMinimizeRegemsKeepsDifferentStatSocketBonus(t *testing.T) {
 // against. They are kept rather than deleted -- the behaviour they pin is still correct.
 func requireSocketedItems(t *testing.T) {
 	t.Helper()
-	if len(core.ItemsWithSockets()) > 0 {
+	if slices.ContainsFunc(assetsdb.Load().Items, func(item *proto.UIItem) bool { return len(item.GemSockets) > 0 }) {
 		return
 	}
 	t.Skip("no socketed items in the database - Forever encrypts item stats until discovery")

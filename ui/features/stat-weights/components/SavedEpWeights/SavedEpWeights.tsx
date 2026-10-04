@@ -1,17 +1,14 @@
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
 import type { SavedEPWeights } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { useSimHost, useSpecPresets } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
-import { useSimReady } from '@sim/hooks/useSimReady';
-import { Stats } from '@sim/proto/stats';
 import type { SavedDataPanelEntry } from '@ui-kit/SavedDataPanel';
 import { SavedDataPanel } from '@ui-kit/SavedDataPanel';
 import type { ClassValue } from 'clsx';
 import { useMemo } from 'react';
 
 import { useSavedEpWeights } from '../../hooks/useSavedEpWeights';
-import { epWeightsData, serializeEpWeights } from './utils';
+import { epWeightsData, epWeightsPresets, loadEpWeights, serializeEpWeights } from './utils';
 
 const NO_USER_DATA: Array<SavedDataPanelEntry<SavedEPWeights>> = [];
 
@@ -23,40 +20,14 @@ export interface SavedEpWeightsProps {
 }
 
 export const SavedEpWeights = ({ className, loadOnly, presetsOnly }: SavedEpWeightsProps) => {
-	const host = useSimHost();
-	const { player } = host;
-	const individualConfig = useSpecPresets();
-	const ready = useSimReady();
-
-	const label = i18n.t('sidebar.buttons.stat_weights.modal.ep');
-
-	const presets = useMemo<Array<SavedDataPanelEntry<SavedEPWeights>>>(
-		() =>
-			ready
-				? individualConfig.epWeights.map(preset => {
-						const data = epWeightsData(preset.epWeights);
-						return {
-							name: preset.name,
-							data,
-							json: serializeEpWeights(data),
-							isPreset: true,
-							disabled: !!preset.enableWhen && !preset.enableWhen(player),
-							afterLoad: () => preset.onLoad?.(player),
-						};
-					})
-				: [],
-		[ready, individualConfig, player],
-	);
-
 	const epWeights = usePlayerStore('epWeights');
-	const current = useMemo(() => epWeightsData(epWeights), [epWeights]);
-
 	const panel = useSavedPanel({
-		label,
+		label: i18n.t('sidebar.buttons.stat_weights.modal.ep'),
 		storage: useSavedEpWeights(),
-		current,
+		current: useMemo(() => epWeightsData(epWeights), [epWeights]),
 		serialize: serializeEpWeights,
-		load: entry => player.setEpWeights(Stats.fromProto(entry.data.epWeights)),
+		load: loadEpWeights,
+		presets: epWeightsPresets,
 	});
 
 	return (
@@ -65,7 +36,6 @@ export const SavedEpWeights = ({ className, loadOnly, presetsOnly }: SavedEpWeig
 			title={i18n.t('sidebar.buttons.stat_weights.saved_ep_weights.title')}
 			nameLabel={i18n.t('sidebar.buttons.stat_weights.title')}
 			loadOnly={loadOnly || presetsOnly}
-			presets={presets}
 			{...panel}
 			userData={presetsOnly ? NO_USER_DATA : panel.userData}
 		/>

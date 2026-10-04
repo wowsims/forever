@@ -17,9 +17,10 @@ import {
 	type ItemSpec,
 	Target as TargetProto,
 	UnitReference,
+	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { DatabaseFilters } from '@generated/proto/ui';
+import { type BulkEnchantPreset, DatabaseFilters } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
@@ -102,6 +103,8 @@ export interface PlayerSlice {
 	race: number;
 	profession1: number;
 	profession2: number;
+	prof1Rank: number;
+	prof2Rank: number;
 	buffs: IndividualBuffs;
 	consumables: ConsumesSpec;
 	bonusStats: Stats;
@@ -113,6 +116,8 @@ export interface PlayerSlice {
 	channelClipDelay: number;
 	inFrontOfTarget: boolean;
 	distanceFromTarget: number;
+	// Only the skills not at the maximum for the level; a missing skill is at the maximum.
+	weaponSkills: Array<WeaponSkillValue>;
 	healingModel: HealingModel;
 	epWeights: Stats;
 	epRatios: Array<number>;
@@ -133,6 +138,8 @@ export const PLAYER_FIELDS = [
 	'race',
 	'profession1',
 	'profession2',
+	'prof1Rank',
+	'prof2Rank',
 	'buffs',
 	'consumables',
 	'bonusStats',
@@ -143,6 +150,7 @@ export const PLAYER_FIELDS = [
 	'channelClipDelay',
 	'inFrontOfTarget',
 	'distanceFromTarget',
+	'weaponSkills',
 	'healingModel',
 	'epWeights',
 	'epRatios',
@@ -203,10 +211,10 @@ export interface BulkSlice {
 	// A removed item leaves a null, so the picker entries' indexes never shift.
 	items: ReadonlyArray<ItemSpec | null>;
 	pickerGroups: ReadonlyMap<BulkSimItemSlot, readonly BulkPickerEntry[]>;
-	useLegacyBulkSim: boolean;
 	frozenItems: ReadonlyMap<BulkSimItemSlot, EquippedItem | null>;
 	frozenWeaponSlot: ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand | undefined;
 	weaponTypeFilters: ReadonlyMap<ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand, WeaponType[]>;
+	enchantPresets: readonly BulkEnchantPreset[];
 	combinations: number;
 	iterations: number;
 	combinationsPending: boolean;

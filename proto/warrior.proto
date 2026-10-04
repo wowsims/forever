@@ -29,41 +29,40 @@ message WarriorTalents {
     // Fury
     int32 booming_voice = 18;
     int32 cruelty = 19;
-    int32 iron_will = 20;
+    int32 lingering_rage = 20;
     int32 unbridled_wrath = 21;
-    int32 improved_cleave = 22;
+    int32 furious_precision = 22;
     bool piercing_howl = 23;
     int32 blood_craze = 24;
-    int32 boundless_rage = 25;
-    int32 dual_wield_specialization = 26;
-    bool raging_blows = 27;
-    int32 enrage = 28;
-    int32 improved_execute = 29;
-    int32 precision = 30;
-    bool death_wish = 31;
-    int32 improved_intercept = 32;
-    int32 improved_berserker_rage = 33;
-    int32 flurry = 34;
-    bool bloodthirst = 35;
+    int32 dual_wield_specialization = 25;
+    bool raging_blows = 26;
+    int32 enrage = 27;
+    int32 improved_execute = 28;
+    int32 improved_berserker_rage = 29;
+    bool death_wish = 30;
+    int32 improved_intercept = 31;
+    int32 flurry = 32;
+    int32 gore_drinker = 33;
+    bool bloodthirst = 34;
     // Protection
+    int32 improved_bloodrage = 35;
     int32 shield_specialization = 36;
-    int32 anticipation = 37;
-    int32 improved_bloodrage = 38;
-    int32 toughness = 39;
+    int32 iron_will = 37;
+    int32 anticipation = 38;
+    int32 improved_revenge = 39;
     int32 improved_thunder_clap = 40;
     bool last_stand = 41;
     int32 master_of_defense = 42;
-    int32 improved_revenge = 43;
+    int32 improved_disarm = 43;
     int32 defiance = 44;
     int32 improved_sunder_armor = 45;
-    int32 improved_disarm = 46;
-    bool vanguard = 47;
+    bool vanguard = 46;
+    int32 improved_shield_bash = 47;
     int32 improved_shield_wall = 48;
     bool concussion_blow = 49;
-    int32 improved_shield_bash = 50;
+    int32 focused_rage = 50;
     int32 bastion = 51;
-    int32 focused_rage = 52;
-    bool shield_slam = 53;
+    bool shield_slam = 52;
 }
 
 // END GENERATED
@@ -77,15 +76,12 @@ enum WarriorStance {
 }
 
 message WarriorOptions {
-	reserved 1;
-	reserved "default_shout";
+	WarriorStance default_stance = 1;
 
-	WarriorStance default_stance = 2;
-
-	double starting_rage = 3;
-	bool stance_snapshot = 4;
-	bool has_bs_t2 = 5;
-	bool use_battle_shout = 6;
+	double starting_rage = 2;
+	bool stance_snapshot = 3;
+	bool has_bs_t2 = 4;
+	bool use_battle_shout = 5;
 }
 
 enum DpsWarriorSpec {

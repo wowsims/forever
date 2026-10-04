@@ -13,9 +13,7 @@ func (warrior *Warrior) registerDisarm() {
 		return target.GetOrRegisterAura(spelldata.AuraConfig(disarmRank, spelldata.Label("Disarm-"+warrior.Label)))
 	})
 
-	config := spelldata.SpellConfig(&warrior.Unit, disarmRank, spelldata.Flags(core.SpellFlagAPL))
-	config.ProcMask = core.ProcMaskMeleeMHSpecial
-	config.ThreatMultiplier = 1
+	config := spelldata.SpellConfig(&warrior.Unit, disarmRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)

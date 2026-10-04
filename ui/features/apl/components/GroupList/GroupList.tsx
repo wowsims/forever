@@ -1,13 +1,15 @@
+import { AplList, AplSectionTitle } from '@features/apl/components/AplList';
 import { AplListToolbar } from '@features/apl/components/AplListToolbar';
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
-import { AplProvider } from '@features/apl/context/AplContext';
 import { useRenamedCopy } from '@features/apl/hooks/useRenamedCopy';
+import { APL_GROUPS, aplItemId } from '@features/apl/model/apply_move';
+import { freshUuids } from '@features/apl/model/fresh_uuids';
 import { rotationSource } from '@features/apl/utils';
+import { useListItems } from '@features/inputs/hooks/useListItems';
 import { APLGroup } from '@generated/proto/apl';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
-import { ListPicker, type ListPickerConfig } from '@ui-kit/ListPicker';
 
 import { GroupEditor } from './GroupEditor';
 
@@ -15,14 +17,22 @@ const groupName = () => i18n.t('rotation_tab.apl.actionGroups.name');
 const newGroup = (name: string) => APLGroup.create({ name, actions: [], variables: [] });
 
 /**
- * The rotation's action groups.
+ * The rotation's action groups, one tree item each with its actions under it.
  *
  * Both creating and copying a group ask for a name first, because a group is referenced by name —
  * so unlike every other list here, neither action can just append a clone.
  */
 export const GroupList = () => {
 	const player = usePlayer();
-	const groups = () => player.aplRotation.groups || [];
+	const groups = useListItems(player, {
+		storeSubscribe: rotationSource,
+		getValue: (subject: Player<any>) => subject.aplRotation.groups || [],
+		setValue: (subject: Player<any>, next: Array<APLGroup>) =>
+			subject.modifyAplRotation(rotation => {
+				rotation.groups = next;
+			}),
+		newItem: () => newGroup(i18n.t('rotation_tab.apl.actionGroups.newGroupName')),
+	});
 	const copying = useRenamedCopy(player, {
 		itemName: groupName(),
 		inputLabel: i18n.t('rotation_tab.apl.actionGroups.attributes.name'),
@@ -32,28 +42,11 @@ export const GroupList = () => {
 		},
 		nameOf: group => group.name,
 		copy: (group, name) => {
-			const clone = APLGroup.clone(group);
+			const clone = freshUuids(APLGroup.clone(group));
 			clone.name = name;
 			return clone;
 		},
 	});
-
-	const config: ListPickerConfig<Player<any>, APLGroup> = {
-		title: i18n.t('rotation_tab.apl.actionGroups.header'),
-		titleTooltip: i18n.t('rotation_tab.apl.actionGroups.tooltips.overview'),
-		extraClassNames: ['ui-apl-list-item-picker', 'peer'],
-		itemLabel: groupName(),
-		storeSubscribe: rotationSource,
-		getValue: (subject: Player<any>) => subject.aplRotation.groups || [],
-		setValue: (subject: Player<any>, next: Array<APLGroup>) =>
-			subject.modifyAplRotation(rotation => {
-				rotation.groups = next;
-			}),
-		newItem: () => newGroup(i18n.t('rotation_tab.apl.actionGroups.newGroupName')),
-		onCopyItem: copying.onCopyItem,
-		allowedActions: ['copy', 'delete', 'move'],
-		inlineMenuBar: true,
-	};
 
 	const appendGroup = (name?: string) =>
 		player.modifyAplRotation(rotation => {
@@ -61,24 +54,36 @@ export const GroupList = () => {
 		});
 
 	return (
-		<AplProvider isGroup>
-			<div>
-				<ListPicker<Player<any>, APLGroup>
-					modObject={player}
-					config={config}
-					renderItem={(index, itemConfig) => <GroupEditor player={player} config={itemConfig} groupIndex={index} />}
-				/>
-				<AplListToolbar
-					className="peer-has-data-[drag='from']:pointer-events-none peer-has-data-[drag='from']:opacity-50"
-					itemName={groupName()}
-					nameDialog={{
-						inputLabel: i18n.t('rotation_tab.apl.actionGroups.attributes.name'),
-						existingNames: () => groups().map(group => group.name),
-					}}
-					onCreate={appendGroup}
-				/>
-				<AplNameDialog {...copying.dialog} />
-			</div>
-		</AplProvider>
+		// The tab panel is a flex column with a gap; this stays a single flex item so that gap doesn't land between the header and the tree.
+		<div className="flex flex-col">
+			<h6 className="mb-2 flex items-center gap-2">
+				<AplSectionTitle text={i18n.t('rotation_tab.apl.actionGroups.header')} tooltip={i18n.t('rotation_tab.apl.actionGroups.tooltips.overview')} />
+			</h6>
+			<AplList.Root group={APL_GROUPS} isGroup testId="apl-groups-tree">
+				{groups.items.map((group, index) => {
+					const id = aplItemId(group, index);
+					return (
+						<GroupEditor
+							key={id}
+							id={id}
+							player={player}
+							config={groups.itemConfig(group, index)}
+							groupIndex={index}
+							onCopy={() => copying.onCopyItem(index)}
+							onDelete={() => groups.remove(index)}
+						/>
+					);
+				})}
+			</AplList.Root>
+			<AplListToolbar
+				itemName={groupName()}
+				nameDialog={{
+					inputLabel: i18n.t('rotation_tab.apl.actionGroups.attributes.name'),
+					existingNames: () => groups.items.map(group => group.name),
+				}}
+				onCreate={appendGroup}
+			/>
+			<AplNameDialog {...copying.dialog} />
+		</div>
 	);
 };

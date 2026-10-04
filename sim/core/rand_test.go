@@ -37,38 +37,6 @@ func TestSplitMix64(t *testing.T) {
 var result float64
 
 func BenchmarkRnds(b *testing.B) {
-	r := NewGoRand(444)
-	b.Run("GoRand", func(b *testing.B) {
-		b.ReportAllocs()
-		var sum float64
-		for i := 0; i < b.N; i++ {
-			sum += r.NextFloat64()
-			sum += r.NextFloat64()
-			sum += r.NextFloat64()
-			sum += r.NextFloat64()
-			sum += r.NextFloat64()
-		}
-		result += sum
-	})
-
-	b.Run("GoRandSetup", func(b *testing.B) {
-		b.ReportAllocs()
-		var sum float64
-		for i := 0; i < b.N; i++ {
-			r := NewGoRand(444 + uint64(i))
-			sum += r.NextFloat64()
-			r = NewGoRand(555 + uint64(i))
-			sum += r.NextFloat64()
-			r = NewGoRand(666 + uint64(i))
-			sum += r.NextFloat64()
-			r = NewGoRand(777 + uint64(i))
-			sum += r.NextFloat64()
-			r = NewGoRand(888 + uint64(i))
-			sum += r.NextFloat64()
-		}
-		result += sum
-	})
-
 	sm := NewSplitMix(444)
 	b.Run("SplitMix64", func(b *testing.B) {
 		b.ReportAllocs()

@@ -207,7 +207,7 @@ var spellData = generatedSpellData{
 	FlametongueTotem:               spelldata.Ranked(8227, 8249, 10526, 16387),
 	FlametongueTotemTriggered:      spelldata.Ranked(8230, 8248, 8250, 8253, 10521, 10523, 15036, 16389),
 	FlametongueWeapon:              spelldata.Ranked(8024, 8027, 8030, 16339, 16341, 16342),
-	FlametongueWeaponTriggered:     spelldata.Ranked(8026, 8028, 8029, 10445, 16343, 16344),
+	FlametongueWeaponTriggered:     spelldata.Ranked(8026, 8028, 8029, 10444, 10445, 16343, 16344, 29469, 29470),
 	Flurry:                         spelldata.Talent(16256, 5),
 	FlurryTriggered:                spelldata.Ranked(16257),
 	FrostResistanceTotem:           spelldata.Ranked(8181, 10478, 10479),

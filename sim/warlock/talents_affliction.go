@@ -10,7 +10,7 @@ func (warlock *Warlock) registerAfflictionTalents() {
 
 	// Tier 2
 	// Malediction implemented in curse_of_elements.go
-	warlock.applySoulHarvesting()
+	warlock.applySoulHarvest()
 	warlock.applyImprovedDrains()
 
 	// Tier 3
@@ -200,12 +200,12 @@ func (warlock *Warlock) registerAmplifyCurse() {
 	// })
 }
 
-// applySoulHarvesting implements Soul Harvesting, new in Forever.
+// applySoulHarvest implements Soul Harvest, new in Forever.
 //
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
 // the effect can be modelled; there is no TBC equivalent to port.
-func (warlock *Warlock) applySoulHarvesting() {
-	if warlock.Talents.SoulHarvesting == 0 {
+func (warlock *Warlock) applySoulHarvest() {
+	if warlock.Talents.SoulHarvest == 0 {
 		return
 	}
 }

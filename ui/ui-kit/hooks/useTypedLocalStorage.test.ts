@@ -16,21 +16,12 @@ beforeEach(() => window.localStorage.clear());
 afterEach(() => window.localStorage.clear());
 
 describe('useTypedLocalStorage', () => {
-	it('returns undefined for an absent key', () => {
-		const { result } = renderHook(() => useTypedLocalStorage<Shape>(KEY, parseShape));
-
-		expect(result.current[0]).toBeUndefined();
-	});
-
-	it('returns undefined for a key holding valid JSON of the wrong shape', () => {
-		window.localStorage.setItem(KEY, JSON.stringify({ wrong: 'shape' }));
-		const { result } = renderHook(() => useTypedLocalStorage<Shape>(KEY, parseShape));
-
-		expect(result.current[0]).toBeUndefined();
-	});
-
-	it('returns undefined for a key holding malformed JSON', () => {
-		window.localStorage.setItem(KEY, '{oops');
+	it.each([
+		['an absent key', null],
+		['a key holding valid JSON of the wrong shape', JSON.stringify({ wrong: 'shape' })],
+		['a key holding malformed JSON', '{oops'],
+	])('returns undefined for %s', (_, stored) => {
+		if (stored !== null) window.localStorage.setItem(KEY, stored);
 		const { result } = renderHook(() => useTypedLocalStorage<Shape>(KEY, parseShape));
 
 		expect(result.current[0]).toBeUndefined();

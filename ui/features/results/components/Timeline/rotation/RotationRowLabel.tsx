@@ -1,4 +1,6 @@
 import { Button } from '@ui-kit/Button';
+import { Icon } from '@ui-kit/Icon';
+import { tooltipAnchorProps } from '@ui-kit/Tooltip';
 import type { ClassValue } from 'clsx';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
@@ -8,6 +10,8 @@ export interface RotationRowLabelProps {
 	icon?: ReactNode;
 	/** A row that can be hidden shows the eye toggle; a header and the width measurer pass nothing. */
 	onHide?: () => void;
+	/** The rotation's one `<Tooltip>`, which names the eye toggle. */
+	hideTooltipId?: string;
 	className?: ClassValue;
 	header?: boolean;
 	measuring?: boolean;
@@ -17,7 +21,7 @@ export interface RotationRowLabelProps {
  * The sticky first column of every row. Its width, padding and gap are shared with `.rotation-corner`
  * — the ruler only lines up with the tracks while the two stay identical.
  */
-export const RotationRowLabel = ({ text, icon, onHide, className, header, measuring }: RotationRowLabelProps) => (
+export const RotationRowLabel = ({ text, icon, onHide, hideTooltipId, className, header, measuring }: RotationRowLabelProps) => (
 	<div
 		className={clsx(
 			measuring ? 'box-border flex w-max shrink-0 grow-0 basis-auto items-center gap-1 pr-2' : 'ui-timeline-label-col sticky left-0 z-3',
@@ -29,11 +33,12 @@ export const RotationRowLabel = ({ text, icon, onHide, className, header, measur
 			<Button
 				iconOnly
 				aria-label={`Hide ${text}`}
-				title="Hide row"
 				data-testid="rotation-row-hide"
-				className="fas fa-eye-slash flex-none p-0 text-white hover:text-link-danger"
+				className="flex-none p-0 text-white hover:text-link-danger"
 				onClick={onHide}
-			/>
+				{...tooltipAnchorProps(hideTooltipId, 'Hide row')}>
+				<Icon name="eye-slash" />
+			</Button>
 		)}
 		{icon}
 		<span data-testid="rotation-label-text" className="overflow-hidden text-ellipsis max-lg:hidden">

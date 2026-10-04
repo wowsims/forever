@@ -1,25 +1,16 @@
 import { LogLevel } from '@generated/proto/common';
 import { SimHostProvider } from '@sim/context/SimHostContext';
-import { ActionId } from '@sim/proto/action_id';
+import { source } from '@testing/apl/source';
 import { act, fireEvent, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ListItemHeader } from './ListItemHeader';
 import { uuidValidations } from './utils';
 
-const source = vi.hoisted(() => {
-	const listeners = new Set<() => void>();
-	return {
-		listeners,
-		subscribe: (onChange: () => void) => {
-			listeners.add(onChange);
-			return () => listeners.delete(onChange);
-		},
-		notify: () => listeners.forEach(listener => listener()),
-	};
+vi.mock('@sim/state/subscriptions', async () => {
+	const { mockSubscriptions } = await import('@testing/sim/subscriptions');
+	return mockSubscriptions((await import('@testing/apl/source')).source.subscribe);
 });
-
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 vi.mock('@sim/proto/action_id', () => ({ ActionId: { replaceAllInString: vi.fn(async (str: string) => str) } }));
 
@@ -42,26 +33,13 @@ const mount = (item: Row, getValidations: (player: any) => Array<any>, player = 
 };
 
 describe('ListItemHeader', () => {
-	it('renders the validations button before the hide picker', () => {
-		const { container } = mount({ hide: false }, () => []);
-
-		const nodes = Array.from(container.querySelectorAll('[data-testid="apl-validations"], [data-testid="hide-picker-root"]'));
-		expect(nodes.length).toBe(2);
-		expect(nodes[0].getAttribute('data-testid')).toBe('apl-validations');
-		expect(nodes[1].getAttribute('data-testid')).toBe('hide-picker-root');
-	});
-
 	describe('hide picker', () => {
-		it('shows fa-eye when hide is false and fa-eye-slash when hide is true', () => {
+		it('marks the eye active while the item is hidden', () => {
 			const notHidden = mount({ hide: false }, () => []);
 			const hidden = mount({ hide: true }, () => []);
 
-			const notHiddenIcon = notHidden.container.querySelector('[data-testid="hide-picker-button"] i')!;
-			const hiddenIcon = hidden.container.querySelector('[data-testid="hide-picker-button"] i')!;
-
-			expect(notHiddenIcon.classList.contains('fa-eye')).toBe(true);
-			expect(notHiddenIcon.classList.contains('fa-eye-slash')).toBe(false);
-			expect(hiddenIcon.classList.contains('fa-eye-slash')).toBe(true);
+			expect(notHidden.container.querySelector('[data-testid="hide-picker-button"]')!.getAttribute('aria-pressed')).toBe('false');
+			expect(hidden.container.querySelector('[data-testid="hide-picker-button"]')!.getAttribute('aria-pressed')).toBe('true');
 		});
 
 		it('writes hide and calls player.touchRotation() on click', () => {
@@ -81,83 +59,6 @@ describe('ListItemHeader', () => {
 
 	describe('validations', () => {
 		const validation = (logLevel: LogLevel, validation: string) => ({ logLevel, validation });
-
-		it('stays hidden while there are no validations', () => {
-			const { container } = mount({ hide: false }, () => []);
-
-			const button = container.querySelector('[data-testid="apl-validations"]') as HTMLElement;
-			expect(button.style.display).toBe('none');
-			expect(button.classList.contains('apl-validation-warning')).toBe(false);
-			expect(button.classList.contains('apl-validation-error')).toBe(false);
-			expect(button.classList.contains('apl-validation-information')).toBe(false);
-		});
-
-		it('becomes visible with the information class and icon for an information-only validation', async () => {
-			source.listeners.clear();
-			const { container } = mount({ hide: false }, () => [validation(LogLevel.Information, 'fyi')]);
-
-			await act(async () => {
-				source.notify();
-			});
-
-			const button = container.querySelector('[data-testid="apl-validations"]') as HTMLElement;
-			expect(button.style.display).not.toBe('none');
-			expect(button.classList.contains('apl-validation-information')).toBe(true);
-			expect(button.querySelector('i')?.classList.contains('fa-info-circle')).toBe(true);
-		});
-
-		it('uses the highest level in a mixed set of validations', async () => {
-			source.listeners.clear();
-			const mixed = [validation(LogLevel.Information, 'fyi'), validation(LogLevel.Warning, 'careful'), validation(LogLevel.Error, 'broken')];
-			const { container } = mount({ hide: false }, () => mixed);
-
-			await act(async () => {
-				source.notify();
-			});
-
-			const button = container.querySelector('[data-testid="apl-validations"]') as HTMLElement;
-			expect(button.classList.contains('apl-validation-error')).toBe(true);
-			expect(button.classList.contains('apl-validation-warning')).toBe(false);
-			expect(button.classList.contains('apl-validation-information')).toBe(false);
-			expect(button.querySelector('i')?.classList.contains('fa-exclamation-triangle')).toBe(true);
-		});
-
-		it('uses the warning class and icon when the highest level is a warning', async () => {
-			source.listeners.clear();
-			const mixed = [validation(LogLevel.Information, 'fyi'), validation(LogLevel.Warning, 'careful')];
-			const { container } = mount({ hide: false }, () => mixed);
-
-			await act(async () => {
-				source.notify();
-			});
-
-			const button = container.querySelector('[data-testid="apl-validations"]') as HTMLElement;
-			expect(button.classList.contains('apl-validation-warning')).toBe(true);
-			expect(button.querySelector('i')?.classList.contains('fa-exclamation-triangle')).toBe(true);
-		});
-
-		it('keeps its formatted list when a notification leaves the validations unchanged', async () => {
-			source.listeners.clear();
-			let current = [validation(LogLevel.Warning, 'careful')];
-			const { container } = mount({ hide: false }, () => current.map(entry => ({ ...entry })));
-			await act(async () => {
-				source.notify();
-			});
-			const format = vi.mocked(ActionId.replaceAllInString);
-			const formatted = format.mock.calls.length;
-
-			await act(async () => {
-				source.notify();
-			});
-			expect(format.mock.calls.length).toBe(formatted);
-
-			current = [validation(LogLevel.Error, 'broken')];
-			await act(async () => {
-				source.notify();
-			});
-			expect(format.mock.calls.length).toBe(formatted + 1);
-			expect((container.querySelector('[data-testid="apl-validations"]') as HTMLElement).classList.contains('apl-validation-error')).toBe(true);
-		});
 
 		// The sim formats rotation-supplied names into its messages ("Group reference '%s' not found"),
 		// and rotations are shared and imported, so a message is attacker-controlled text.

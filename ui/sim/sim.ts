@@ -25,6 +25,7 @@ import {
 } from '@generated/proto/api';
 import {
 	ArmorType,
+	ConsumableType,
 	EquipmentSpec,
 	Faction,
 	GemColor,
@@ -523,7 +524,7 @@ export class Sim {
 			const cachedOptimizedGearSets = bulkReforgeCacheData?.cachedOptimizedGearSets ?? [];
 			const bulkGearDatabase =
 				backendBuildCandidates && bulkSettings
-					? makeBulkItemDatabaseFromSpecs(this.db, baselineGear, bulkSettings.items)
+					? makeBulkItemDatabaseFromSpecs(this.db, baselineGear, bulkSettings)
 					: makeBulkGearDatabase(this.db, [baselineGear, ...preparedGearSets, ...cachedOptimizedGearSets]);
 			if (bulkReforgeRequest) {
 				this.augmentDatabaseForReforge(bulkGearDatabase, bulkReforgeRequest.gemOptions);
@@ -542,9 +543,6 @@ export class Sim {
 				candidates: requestCandidates,
 				optimizedCandidates: bulkReforgeCacheData?.optimizedCandidates ?? [],
 				topResults: 5,
-				// `||`, not `??`: `iterationsPerCombo` is a proto3 scalar, so an unset one arrives as 0
-				// rather than undefined and `??` would run the high stage with zero iterations.
-				highStageIterations: bulkSettings?.iterationsPerCombo || this.getIterations(),
 				reforgeRequest: bulkReforgeRequest,
 				bulkSettings,
 			});
@@ -621,7 +619,7 @@ export class Sim {
 		const player = baseRequest.raid!.parties[0].players[0];
 		const isEnchanter = [player.profession1, player.profession2].includes(Profession.Enchanting);
 		const baselineGear = Sim.prepareGear(this.raid.getActivePlayers()[0].getGear(), isEnchanter);
-		const bulkGearDatabase = makeBulkItemDatabaseFromSpecs(this.db, baselineGear, bulkSettings.items);
+		const bulkGearDatabase = makeBulkItemDatabaseFromSpecs(this.db, baselineGear, bulkSettings);
 		player.database = player.database ? Database.mergeSimDatabases(player.database, bulkGearDatabase) : bulkGearDatabase;
 		player.equipment = baselineGear.asSpec();
 		baseRequest.raid!.parties[0].players[0] = player;
@@ -906,6 +904,18 @@ export class Sim {
 		// Make a defensive copy
 		return DatabaseFilters.clone(this.store.getState().sim.filters);
 	}
+	// The consumable pickers' minimum level by ConsumableType, where the filters set none.
+	static readonly DEFAULT_MIN_CONSUMABLE_LVL: Partial<Record<ConsumableType, number>> = {
+		[ConsumableType.ConsumableTypePotion]: 40,
+		[ConsumableType.ConsumableTypeFlask]: 0,
+		[ConsumableType.ConsumableTypeElixir]: 40,
+		[ConsumableType.ConsumableTypeScroll]: 40,
+		[ConsumableType.ConsumableTypeExplosive]: 30,
+		[ConsumableType.ConsumableTypeImbue]: 40,
+	};
+	getMinConsumableLvl(type: ConsumableType): number {
+		return this.store.getState().sim.filters.minConsumableLvl[type] ?? Sim.DEFAULT_MIN_CONSUMABLE_LVL[type] ?? 0;
+	}
 	setFilters(newFilters: DatabaseFilters) {
 		if (DatabaseFilters.equals(newFilters, this.store.getState().sim.filters)) {
 			return;
@@ -1001,6 +1011,7 @@ export class Sim {
 	static readonly ALL_RANGED_WEAPON_TYPES = (getEnumValues(RangedWeaponType) as Array<RangedWeaponType>).filter(v => v != 0);
 	static readonly ALL_SOURCES = (getEnumValues(SourceFilterOption) as Array<SourceFilterOption>).filter(v => v != 0);
 	static readonly ALL_RAIDS = (getEnumValues(RaidFilterOption) as Array<RaidFilterOption>).filter(v => v != 0);
+	static readonly DEFAULT_ITERATIONS = 12500;
 
 	toProto(): SimSettingsProto {
 		const filters = this.getFilters();
@@ -1069,6 +1080,8 @@ export class Sim {
 			if (filters.sources.length == 0) {
 				filters.sources = Sim.ALL_SOURCES.slice();
 			}
+			// A binary link keeps raid values the enum reserves.
+			filters.raids = filters.raids.filter(raid => Sim.ALL_RAIDS.some(known => known === raid));
 			if (filters.raids.length == 0) {
 				filters.raids = Sim.ALL_RAIDS.slice();
 			}
@@ -1079,7 +1092,7 @@ export class Sim {
 	applyDefaults(isTankSim: boolean, isHealingSim: boolean) {
 		this.fromProto(
 			SimSettingsProto.create({
-				iterations: 12500,
+				iterations: Sim.DEFAULT_ITERATIONS,
 				phase: CURRENT_PHASE,
 				faction: Faction.Alliance,
 				showDamageMetrics: !isHealingSim,

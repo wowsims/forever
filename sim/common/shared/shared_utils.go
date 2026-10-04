@@ -363,22 +363,13 @@ func attachStackTrigger(character *core.Character, config ProcStatBonusEffect, e
 	})
 }
 
-// Registers the same effect once per item that carries it. Only the highest ID is added to the
-// test suite, so that a dozen re-issues of one trinket do not each get their own fixture entry.
+// Registers the same effect once per item that carries it.
 func forEachVariant(config ProcStatBonusEffect, variants []ItemVariant, register func(config ProcStatBonusEffect)) {
-	var maxItemID int32
-	for _, variant := range variants {
-		maxItemID = max(maxItemID, variant.ItemID)
-	}
-
 	for _, variant := range variants {
 		config.Name = variant.ItemName
 		config.ItemID = variant.ItemID
-		core.AddEffectsToTest = (config.ItemID == maxItemID)
 		register(config)
 	}
-
-	core.AddEffectsToTest = true
 }
 
 func NewProcStatBonusEffectWithVariants(config ProcStatBonusEffect, variants []ItemVariant) {
@@ -415,8 +406,7 @@ type SpellDataProc struct {
 	IsWeaponProc bool
 }
 
-// Registers the same effect once per item that carries it. Only the highest ID is added to the test
-// suite, the way the stat-bonus constructors do it.
+// Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataProc)
 }
@@ -439,19 +429,11 @@ func forEachSpellDataVariant(cfg SpellDataProc, variants []ItemVariant, register
 		return
 	}
 
-	var maxItemID int32
-	for _, variant := range variants {
-		maxItemID = max(maxItemID, variant.ItemID)
-	}
-
 	for _, variant := range variants {
 		cfg.Name = variant.ItemName
 		cfg.ItemID = variant.ItemID
-		core.AddEffectsToTest = cfg.ItemID == maxItemID
 		register(cfg)
 	}
-
-	core.AddEffectsToTest = true
 }
 
 // An aura the row applies to an enemy is NewSpellDataDebuffProc's to build, never a buff on the
@@ -468,14 +450,14 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	character := agent.GetCharacter()
 	eligibleSlots := source.eligibleSlots(character)
 
-	effect := source.procEffects()[buff.ID]
+	effect := source.procEntry(cfg, trigger)
 	if effect == nil {
 		panic(fmt.Sprintf("Error getting proc effects for item/enchant %v", source.id))
 	}
 
 	procAura := spellDataProcAura(character, cfg, trigger, buff, effect)
 
-	listener := spellDataProcListener(character, cfg, source, trigger, effect.GetProc())
+	listener := spellDataProcListener(character, cfg, source, trigger)
 	listener.Handler = spellDataProcHandler(buff, procAura)
 
 	// The same fallback the database layer applies: Bulwark of Azzinoth's armor buff sits in a
@@ -501,10 +483,11 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 
 // The listener the trigger's row describes, without the handler, plus what the row cannot state: the
 // item's own name and action, which are what the sim keys the rolls and the metrics by, and the rate
-// the effect entry states.
-func spellDataProcListener(character *core.Character, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, proc *proto.ProcEffect) core.ProcTrigger {
+// the item's effect entry states.
+func spellDataProcListener(character *core.Character, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell) core.ProcTrigger {
 	config := spelldata.ProcTrigger(character, trigger, nil, spelldata.ItemProcChance(trigger),
-		weaponProcShape(cfg), spellDataProcRate(source, trigger, proc), statedWeaponProcChance(cfg.IsWeaponProc, source, trigger))
+		weaponProcShape(cfg), spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc()),
+		statedWeaponProcChance(cfg.IsWeaponProc, source, trigger))
 	config.Name = cfg.Name
 	config.ActionID = source.actionID()
 
@@ -636,12 +619,7 @@ func attachChargeSpender(character *core.Character, cfg SpellDataProc, trigger *
 		return
 	}
 
-	spender := spelldata.ProcTrigger(character, buff, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		procAura.RemoveStack(sim)
-	})
-	spender.Name = cfg.Name + " Charge"
-
-	procAura.AttachProcTriggerCallback(&character.Unit, spender)
+	spelldata.AttachChargeSpender(character, procAura.Aura, buff, cfg.Name+" Charge")
 }
 
 // Whether a trigger can be built from this row at all: it has to name hits the sim hears and a rate
@@ -673,7 +651,7 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 
 	// The handler is attached after the options, since which unit the damage lands on depends on the
 	// callback the trigger ends up with and a weapon proc's shape rewrites it.
-	config := spellDataProcListener(character, cfg, source, trigger, nil)
+	config := spellDataProcListener(character, cfg, source, trigger)
 	config.Handler = procDamageHandler(character, damageSpell, config.Callback)
 
 	// The proc's damage lands on the hit that caused it rather than on the next one, which is what
@@ -714,10 +692,10 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 				if batchSpell != spell {
 					batchSpell, batchOutcome = spell, GetOutcome(spell, outcome)
 				}
-				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, character.Level, batchOutcome), debuff)
+				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, batchOutcome), debuff)
 				return
 			}
-			single[0] = spell.CalcDamage(sim, target, effect.Roll(sim, character.Level), GetOutcome(spell, outcome))
+			single[0] = spell.CalcDamage(sim, target, effect.Roll(sim), GetOutcome(spell, outcome))
 			dealOneOnArrival(sim, spell, target, single, debuff)
 		}
 		return config
@@ -739,7 +717,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 			dealOnArrival(sim, spell, target, nil, after)
 			return
 		}
-		single[0] = spell.CalcDamage(sim, target, effect.Roll(sim, character.Level), GetOutcome(spell, outcome))
+		single[0] = spell.CalcDamage(sim, target, effect.Roll(sim), GetOutcome(spell, outcome))
 		dealOneOnArrival(sim, spell, target, single, after)
 	}
 
@@ -797,9 +775,9 @@ func applyDotIfLanded(sim *core.Simulation, spell *core.Spell, target *core.Unit
 // ChainAmp of the damage at each jump. A split row rolls once and divides the roll evenly among the
 // targets it reaches. Otherwise each target rolls its own, and an uncapped area takes the encounter's
 // AoE cap the way an explosive does.
-func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, level int32, outcome core.OutcomeApplier) core.SpellResultSlice {
+func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	roll := func(sim *core.Simulation, _ *core.Spell) float64 {
-		return effect.Roll(sim, level)
+		return effect.Roll(sim)
 	}
 
 	if !effect.HitsAnArea() {
@@ -943,7 +921,7 @@ func applySpellDataSelfProc(agent core.Agent, cfg SpellDataProc, source effectSo
 	character := agent.GetCharacter()
 	selfSpell := character.RegisterSpell(spellConfig)
 
-	config := spellDataProcListener(character, cfg, source, trigger, nil)
+	config := spellDataProcListener(character, cfg, source, trigger)
 	config.Handler = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		selfSpell.Cast(sim, &character.Unit)
 	}
@@ -971,7 +949,7 @@ func spellDataProcHealSpell(character *core.Character, heal *spelldata.Spell, as
 		if effect.Type == dbcenums.E_HEAL_PCT {
 			return target.MaxHealth() * effect.Percent()
 		}
-		return effect.Roll(sim, character.Level)
+		return effect.Roll(sim)
 	}
 
 	cannotCrit := heal.CannotCrit()
@@ -1000,7 +978,7 @@ func spellDataProcHotSpell(character *core.Character, heal *spelldata.Spell, eff
 		if canCrit {
 			outcome = dot.Spell.OutcomeTickHealingCrit
 		}
-		dot.Spell.CalcAndDealPeriodicHealing(sim, target, effect.Roll(sim, character.Level), outcome)
+		dot.Spell.CalcAndDealPeriodicHealing(sim, target, effect.Roll(sim), outcome)
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
@@ -1109,7 +1087,7 @@ func spellDataAbsorbSpell(character *core.Character, absorb *spelldata.Spell, so
 	config.ProcMask = core.ProcMaskEmpty
 	config.RelatedSelfBuff = shield.Aura
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		amount = effect.Roll(sim, character.Level)
+		amount = effect.Roll(sim)
 		shield.Activate(sim)
 	}
 
@@ -1676,6 +1654,42 @@ func (s effectSource) eligibleSlots(character *core.Character) []proto.ItemSlot 
 	}
 
 	return character.ItemSwap.EligibleSlotsForItem(s.id)
+}
+
+func (s effectSource) isEquipped(character *core.Character, slots []proto.ItemSlot) bool {
+	if s.isEnchant {
+		return character.HasEnchantEquipped(s.id, slots)
+	}
+
+	return character.HasItemEquipped(s.id, slots)
+}
+
+// The melee hands an enchant sits on, as proc masks, or 0 for an item and for an enchant in any other
+// slot.
+func (s effectSource) weaponHands(character *core.Character, slots []proto.ItemSlot) core.ProcMask {
+	if !s.isEnchant {
+		return 0
+	}
+	var hands core.ProcMask
+	for _, slot := range slots {
+		switch slot {
+		case proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand:
+			hands |= character.GetProcMaskForWeaponSlot(slot)
+		default:
+			return 0
+		}
+	}
+	return hands
+}
+
+// The proc-carrying effect this item or enchant declares for the proc: the one keyed by the buff it
+// applies, or by the trigger where that is the buff. Nil where it declares none.
+func (s effectSource) procEntry(cfg SpellDataProc, trigger *spelldata.Spell) *proto.ItemEffect {
+	effects := s.procEffects()
+	if effect := effects[cfg.BuffSpellID]; effect != nil {
+		return effect
+	}
+	return effects[trigger.ID]
 }
 
 // The proc-carrying effects this item or enchant declares, keyed by the aura each one applies.

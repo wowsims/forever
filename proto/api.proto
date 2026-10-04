@@ -18,7 +18,7 @@ import "shaman.proto";
 import "warlock.proto";
 import "warrior.proto";
 
-// NextIndex: 59
+// NextIndex: 62
 message Player {
 	// Proto version at the time Player were saved.
 	// A "breaking change" here is defined as anything that will break saved
@@ -76,6 +76,9 @@ message Player {
 	string talents_string = 39;
 	Profession profession1 = 41;
 	Profession profession2 = 42;
+	// Skill in profession1 and profession2; 0 means the maximum.
+	int32 prof1_rank = 59;
+	int32 prof2_rank = 60;
 	Cooldowns cooldowns = 43;
 
 	APLRotation rotation = 44;
@@ -89,6 +92,8 @@ message Player {
 	double distance_from_target = 48;
 	double dark_intent_uptime = 52;
 	bool challenge_mode = 58;
+	// A weapon skill missing from the list is at the maximum for the player's level.
+	repeated WeaponSkillValue weapon_skills = 61;
 
 	HealingModel healing_model = 49;
 
@@ -434,7 +439,8 @@ message BulkSimRequest {
 	repeated BulkGearCandidate candidates = 3;
 	repeated BulkGearCandidate optimized_candidates = 4;
 	int32 top_results = 5;
-	int32 high_stage_iterations = 6;
+	reserved 6;
+	reserved "high_stage_iterations";
 	ReforgeOptimizeRequest reforge_request = 7;
 	BulkSettings bulk_settings = 8;
 }
@@ -568,11 +574,25 @@ message ComputeStatsRequest {
 	Encounter encounter = 2;
 	bool skip_rotation = 3; // Skip APL rotation init and attack-table setup. Faster; suitable for stat-only reads.
 }
+// The submenu an aura or spell is filed under in the APL pickers.
+enum ActionCategory {
+	ActionCategoryUnknown = 0; // The class's own; no category submenu.
+	ActionCategoryConsumable = 1;
+	ActionCategoryCooldown = 2;
+	ActionCategoryItem = 3;
+	ActionCategoryTalent = 4;
+	ActionCategoryRacial = 5;
+	ActionCategoryProfession = 6;
+	ActionCategoryExternalBuff = 7; // Switched on in the buff settings.
+	ActionCategoryExternalCooldown = 8; // A major cooldown switched on in the buff settings.
+	ActionCategoryExternalDebuff = 9; // Switched on in the debuff settings.
+}
 message AuraStats {
 	ActionID id = 1;
 	int32 max_stacks = 2;
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
+	ActionCategory category = 5;
 }
 message SpellStats {
 	ActionID id = 1;
@@ -591,6 +611,7 @@ message SpellStats {
 	bool has_ranks = 13; // Whether this spell has a rank
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
+	ActionCategory category = 16;
 }
 message APLValidation {
 	LogLevel log_level = 1;
@@ -741,15 +762,22 @@ message ProgressMetrics {
 
 message BulkSettings {
 	repeated ItemSpec items = 1;
-	int32 iterations_per_combo = 2;
+	reserved 2;
+	reserved "iterations_per_combo";
 
-	bool use_legacy_bulk_sim = 3;
+	int32 freeze_ring_slot = 3;
+	int32 freeze_trinket_slot = 4;
+	int32 freeze_weapon_slot = 5;
+	repeated WeaponType freeze_mainhand_weapon_slots = 6;
+	repeated WeaponType freeze_offhand_weapon_slots = 7;
 
-	int32 freeze_ring_slot = 4;
-	int32 freeze_trinket_slot = 5;
-	int32 freeze_weapon_slot = 6;
-	repeated WeaponType freeze_mainhand_weapon_slots = 7;
-	repeated WeaponType freeze_offhand_weapon_slots = 8;
+	// Enchants to cross with the candidate items, per slot. Finger1 serves both fingers.
+	repeated BulkEnchantSlotOptions enchants = 8;
+}
+
+message BulkEnchantSlotOptions {
+	ItemSlot slot = 1;
+	repeated int32 effect_ids = 2;
 }
 
 message BulkGearCandidate {
@@ -809,8 +837,7 @@ message BulkCombinationCountResult {
 	int32 raw_combinations = 1;
 	int32 combinations = 2;
 	double iterations = 3;
-	bool use_legacy_bulk_sim = 4;
-	ErrorOutcome error = 5;
+	ErrorOutcome error = 4;
 }
 
 message BulkCandidatesRequest {

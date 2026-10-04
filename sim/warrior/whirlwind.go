@@ -8,25 +8,22 @@ import (
 var whirlwindRank = spellData.Whirlwind.Highest()
 
 func (warrior *Warrior) registerWhirlwind() {
-	var whirlwindOH *core.Spell
-	if warrior.Talents.RagingBlows {
-		config := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
-			spelldata.Melee(core.ProcMaskMeleeOHSpecial), spelldata.Proc(), spelldata.Tag(2))
+	// The tooltip of 1680 strikes with both melee weapons, and the row states only the one weapon
+	// damage effect, so the off-hand strike is a sub-spell on the same row.
+	ohConfig := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
+		spelldata.Melee(core.ProcMaskMeleeOHSpecial), spelldata.Proc(), spelldata.Tag(2))
 
-		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			baseDamage := warrior.OHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-			spell.CalcCleaveDamage(sim, target, int32(whirlwindRank.MaxTargets), baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-			spell.DealBatchedAoeDamage(sim)
-		}
-
-		whirlwindOH = warrior.RegisterSpell(config)
+	ohConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		baseDamage := warrior.OHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
+		spell.CalcCleaveDamage(sim, target, int32(whirlwindRank.MaxTargets), baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		spell.DealBatchedAoeDamage(sim)
 	}
 
-	config := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
-		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Tag(1))
+	whirlwindOH := warrior.RegisterSpell(ohConfig)
 
 	// TODO: In-game testing required for threat multiplier / threat bonus.
-	config.ThreatMultiplier = 1
+	config := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Tag(1))
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := warrior.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
@@ -34,7 +31,7 @@ func (warrior *Warrior) registerWhirlwind() {
 		warrior.CastNormalizedSweepingStrikesAttack(results, sim)
 		spell.DealBatchedAoeDamage(sim)
 
-		if whirlwindOH != nil && warrior.HasOHWeapon() {
+		if warrior.HasOHWeapon() {
 			whirlwindOH.Cast(sim, target)
 		}
 	}

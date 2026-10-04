@@ -1,8 +1,8 @@
 // Configuration for spec-specific UI elements on the settings tab.
+import * as InputHelpers from '@features/inputs/input_helpers';
 import { Spec } from '@generated/proto/common';
 import { DpsWarriorSpec, WarriorSunder } from '@generated/proto/warrior';
 import i18n from '@i18n/config';
-import * as InputHelpers from '@ui-kit/input_helpers';
 
 import { isArmsKebabSpec, isFurySpec } from './presets';
 

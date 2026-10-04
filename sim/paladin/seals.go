@@ -27,6 +27,9 @@ type sealConfig struct {
 	echo   func(sim *core.Simulation, target *core.Unit)
 }
 
+// Only one Twist of Light Echo is up at a time.
+const EchoCategory = "PaladinEcho"
+
 // The Echoes Twist of Light names, one per seal.
 const (
 	echoOfCommandID       = 1311703
@@ -133,12 +136,17 @@ func (paladin *Paladin) activeSeal() *sealConfig {
 // A seal's per-hit damage lands a batch window after the swing that fired it, the way the game
 // resolves the proc after the melee hit.
 func dealAfterBatch(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+	afterBatch(sim, core.ActionPriorityLow, func(sim *core.Simulation) {
+		spell.DealDamage(sim, result)
+	})
+}
+
+// Runs the action a batch window from now.
+func afterBatch(sim *core.Simulation, priority core.ActionPriority, onAction func(*core.Simulation)) {
 	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
 		DoAt:     sim.CurrentTime + core.SpellBatchWindow,
-		Priority: core.ActionPriorityLow,
-		OnAction: func(sim *core.Simulation) {
-			spell.DealDamage(sim, result)
-		},
+		Priority: priority,
+		OnAction: onAction,
 	}))
 }
 

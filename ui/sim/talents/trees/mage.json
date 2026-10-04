@@ -337,8 +337,8 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "hotStreak",
-        "fancyName": "Hot Streak",
+        "fieldName": "heatingUp",
+        "fancyName": "Heating Up",
         "location": {
           "rowIdx": 3,
           "colIdx": 2

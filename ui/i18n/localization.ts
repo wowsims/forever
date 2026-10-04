@@ -10,6 +10,7 @@ import {
 	RangedWeaponType,
 	SpellSchool,
 	Stat,
+	WeaponSkill,
 	WeaponType,
 } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
@@ -39,6 +40,7 @@ import {
 	getSpecI18nKey,
 	getStatusI18nKey,
 	getTargetInputI18nKey,
+	getWeaponSkillI18nKey,
 	getWeaponTypeI18nKey,
 	itemQualityI18nKeys,
 	protoStatNameI18nKeys,
@@ -138,6 +140,12 @@ export const translateWeaponType = (weaponType: WeaponType): string => {
 export const translateRangedWeaponType = (rangedWeaponType: RangedWeaponType): string => {
 	return i18n.t(`common.ranged_weapon_types.${getRangedWeaponTypeI18nKey(rangedWeaponType)}`, {
 		defaultValue: RangedWeaponType[rangedWeaponType],
+	});
+};
+
+export const translateWeaponSkill = (weaponSkill: WeaponSkill): string => {
+	return i18n.t(`common.weapon_skills.${getWeaponSkillI18nKey(weaponSkill)}`, {
+		defaultValue: WeaponSkill[weaponSkill],
 	});
 };
 

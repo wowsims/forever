@@ -1,0 +1,21 @@
+@layer components {
+	.ui-drawer {
+		@apply fixed fade-in-out outline-none motion-reduce:transition-none;
+
+		&[data-side] {
+			@apply overflow-y-auto border-border bg-background p-4;
+		}
+
+		&[data-side='bottom'] {
+			@apply inset-x-0 bottom-0 max-h-1/2 border-t;
+		}
+
+		&[data-side='left'] {
+			@apply inset-y-0 left-0 w-(--container-popup) max-w-full border-r;
+		}
+
+		&[data-side='right'] {
+			@apply inset-y-0 right-0 w-(--container-popup) max-w-full border-l;
+		}
+	}
+}

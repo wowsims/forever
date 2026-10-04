@@ -1,36 +1,32 @@
-import { Button } from '@ui-kit/Button';
-import { Icon } from '@ui-kit/Icon';
+import { Button, type ButtonAsButton, type ButtonVariant } from '@ui-kit/Button';
+import { Spinner } from '@ui-kit/Spinner';
 import clsx from 'clsx';
-import { type MouseEvent, type ReactNode, useContext } from 'react';
+import { useContext } from 'react';
 
-import { SidebarDisabledContext } from './sidebar_disabled';
+import { SidebarDisabledContext } from './context/sidebar_disabled';
 
-export interface SidebarActionButtonProps {
-	children: ReactNode;
-	className?: string;
-	onClick: (event: MouseEvent<HTMLButtonElement>) => void;
-	disabled?: boolean;
-	loading?: boolean;
-	testId?: string;
-}
+export type SidebarActionButtonProps = Pick<ButtonAsButton, 'children' | 'className' | 'disabled' | 'loading'> &
+	Required<Pick<ButtonAsButton, 'onClick'>> & {
+		variant?: Extract<ButtonVariant, 'primary' | 'outline-primary' | 'cancel'>;
+		testId?: string;
+	};
 
-export const SidebarActionButton = ({ children, className, onClick, disabled, loading, testId }: SidebarActionButtonProps) => {
+export const SidebarActionButton = ({ children, className, onClick, variant = 'primary', disabled, loading, testId }: SidebarActionButtonProps) => {
 	const sidebarDisabled = useContext(SidebarDisabledContext);
 
 	return (
 		<Button
-			variant="primary"
-			className={clsx('w-full', className)}
+			variant={variant}
+			className={clsx('ui-sidebar-action w-full', className)}
 			data-testid={testId}
 			data-sidebar-action=""
+			data-variant={variant}
 			data-loading={loading ? '' : undefined}
 			onClick={onClick}
-			disabled={disabled || sidebarDisabled}
+			disabled={disabled || sidebarDisabled || loading}
 			aria-busy={loading || undefined}>
 			{children}
-			<span data-sidebar-action-loading-icon="">
-				<Icon name="spinner" spin />
-			</span>
+			{loading && <Spinner size="xs" className="ui-sidebar-action-spinner" />}
 		</Button>
 	);
 };

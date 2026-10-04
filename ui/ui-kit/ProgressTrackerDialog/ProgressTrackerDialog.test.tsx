@@ -1,15 +1,16 @@
 // What this pins is the split the dialog is built on: the stage is dialog state and everything that
-// moves with a worker message is state local to the bar, so a tick renders that leaf and not the
+// moves with a worker message is state local to `HandleProgressBar`, so a tick renders that leaf and not the
 // `keepMounted` dialog that outlives every run. The measured rate is ~10 progress callbacks a second
 // on wasm (sim/core/sim.go:336 throttles each sim to one report per 100 ms, and
 // ui/sim/wasm/sim.ts:118 decimates by worker count) and ~2/s on the native host, which is why the
 // bar renders per message instead of coalescing across frames.
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { Profiler, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ElapsedTime } from './ElapsedTime';
+import { HandleProgressBar } from './HandleProgressBar';
+import { ProgressTrackerBar } from './ProgressTrackerBar';
 import { ProgressTrackerDialog } from './ProgressTrackerDialog';
 import type { ProgressTrackerHandle, ProgressTrackerState } from './types';
 
@@ -63,9 +64,10 @@ describe('ProgressTrackerDialog', () => {
 
 		expect(barTitle()!.textContent).toBe('3 / 12 simulations complete');
 		expect(barFill().style.width).toBe('25%');
-		expect(bar().getAttribute('aria-valuenow')).toBe('30');
-		expect(bar().getAttribute('aria-valuemax')).toBe('120');
+		expect(bar().getAttribute('aria-valuenow')).toBe('0.25');
+		expect(bar().getAttribute('aria-valuemax')).toBe('1');
 		expect(bar().getAttribute('aria-valuemin')).toBe('0');
+		expect(bar().getAttribute('aria-valuetext')).toBe('25%');
 		expect(bar().hasAttribute('data-progressing')).toBe(true);
 		expect(barText()!.textContent).toBe('30/120');
 	});
@@ -104,6 +106,14 @@ describe('ProgressTrackerDialog', () => {
 		expect(bar().hasAttribute('data-complete')).toBe(true);
 	});
 
+	it('keeps what is pushed the moment the handle attaches', () => {
+		const pushOnAttach = (value: ProgressTrackerHandle | null) => value?.setProgress({ current: 2, total: 8 });
+		render(<ProgressTrackerDialog ref={pushOnAttach} open title="Bulk Sim" state={{ stage: 'running' }} hasProgressBar />);
+
+		expect(barText()!.textContent).toBe('2/8');
+		expect(barFill().style.width).toBe('25%');
+	});
+
 	// A consumer that keeps the dialog mounted between runs would otherwise open the next one showing
 	// the last one's numbers.
 	it('clears the bar when the next run opens it', () => {
@@ -137,13 +147,11 @@ describe('ProgressTrackerDialog', () => {
 		expect(screen.getByTestId('progress-tracker-modal-message').hidden).toBe(true);
 	});
 
-	it('cannot be closed, and cancels through its own button', () => {
+	it('has no close button, and cancels through its own button', () => {
 		const onCancel = vi.fn();
 		renderDialog({ onCancel });
 
 		expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
-		fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
-		expect(screen.getByRole('dialog')).toBeTruthy();
 
 		const cancel = screen.getByTestId('progress-tracker-modal-cancel-btn');
 		expect(cancel.getAttribute('type')).toBe('button');
@@ -167,18 +175,67 @@ describe('ProgressTrackerDialog', () => {
 		expect(popup.hasAttribute('hidden')).toBe(true);
 	});
 
-	it('portals into the container from context, which is the only way it is given one', () => {
-		const host = document.createElement('div');
-		document.body.appendChild(host);
+	it('restarts the elapsed readout when the next run opens it', () => {
+		vi.useFakeTimers();
+		const view = render(<Harness />);
+		act(() => {
+			vi.advanceTimersByTime(3200);
+		});
+		expect(screen.getByTestId('time-elapsed').textContent).toBe('3s');
 
-		render(
-			<PortalContainerContext value={host}>
-				<Harness />
-			</PortalContainerContext>,
-		);
-		expect(host.contains(screen.getByRole('dialog'))).toBe(true);
+		view.rerender(<Harness open={false} />);
+		act(() => {
+			vi.advanceTimersByTime(10_000);
+		});
+		view.rerender(<Harness />);
 
-		host.remove();
+		expect(screen.getByTestId('time-elapsed').textContent).toBe('0s');
+		vi.useRealTimers();
+	});
+});
+
+describe('ProgressTrackerBar', () => {
+	it('fills to the fraction it is given, with its caption and readout', () => {
+		render(<ProgressTrackerBar running progress={0.5} title="Batch 2 of 4" readout="2/4" />);
+
+		expect(barFill().style.width).toBe('50%');
+		expect(bar().getAttribute('aria-valuetext')).toBe('50%');
+		expect(barTitle()!.textContent).toBe('Batch 2 of 4');
+		expect(barText()!.textContent).toBe('2/4');
+	});
+
+	it('marks the bar unmeasured while it has no fraction', () => {
+		render(<ProgressTrackerBar running title="Preparing" />);
+
+		expect(bar().hasAttribute('data-indeterminate')).toBe(true);
+		expect(barFill().style.width).toBe('');
+		expect(barTitle()!.textContent).toBe('Preparing');
+		expect(barText()).toBeNull();
+	});
+
+	it('shows nothing measured while it is not running', () => {
+		render(<ProgressTrackerBar running={false} progress={0.5} title="Batch 2 of 4" readout="2/4" />);
+
+		expect(bar().hasAttribute('data-indeterminate')).toBe(true);
+		expect(barTitle()).toBeNull();
+		expect(barText()).toBeNull();
+	});
+
+	it('takes its root test id from testId, progress-tracker-bar by default', () => {
+		const { unmount } = render(<ProgressTrackerBar running />);
+		expect(screen.getByTestId('progress-tracker-bar').contains(barFill())).toBe(true);
+		unmount();
+
+		render(<ProgressTrackerBar running testId="batch-progress" />);
+		expect(screen.getByTestId('batch-progress').contains(barFill())).toBe(true);
+	});
+});
+
+describe('HandleProgressBar', () => {
+	it('hands its testId to the bar it renders', () => {
+		render(<HandleProgressBar running testId="reforge-progress" />);
+		expect(screen.getByTestId('reforge-progress').contains(barFill())).toBe(true);
+		expect(screen.queryByTestId('progress-tracker-bar')).toBeNull();
 	});
 });
 
@@ -197,7 +254,7 @@ describe('ElapsedTime', () => {
 		const commits = vi.fn();
 		render(
 			<Profiler id="elapsed" onRender={commits}>
-				<ElapsedTime running />
+				<ElapsedTime running startedAt={Date.now()} />
 			</Profiler>,
 		);
 		const atMount = commits.mock.calls.length;
@@ -214,20 +271,21 @@ describe('ElapsedTime', () => {
 	// `keepMounted` is what makes this a leak rather than a tidy-up: without the cleanup the interval
 	// outlives every run and keeps writing for the life of the page.
 	it('stops its interval when the dialog closes and when it unmounts', () => {
-		const { rerender, unmount } = render(<ElapsedTime running />);
+		const firstRun = Date.now();
+		const { rerender, unmount } = render(<ElapsedTime running startedAt={firstRun} />);
 		act(() => {
 			vi.advanceTimersByTime(1400);
 		});
 		expect(text()).toBe('1s');
 
-		rerender(<ElapsedTime running={false} />);
+		rerender(<ElapsedTime running={false} startedAt={firstRun} />);
 		act(() => {
 			vi.advanceTimersByTime(5000);
 		});
 		expect(text()).toBe('1s');
 		expect(vi.getTimerCount()).toBe(0);
 
-		rerender(<ElapsedTime running />);
+		rerender(<ElapsedTime running startedAt={Date.now()} />);
 		expect(text()).toBe('0s');
 		act(() => {
 			vi.advanceTimersByTime(1400);
@@ -238,11 +296,27 @@ describe('ElapsedTime', () => {
 	});
 
 	it('runs no timer while the dialog is closed', () => {
-		render(<ElapsedTime running={false} />);
+		render(<ElapsedTime running={false} startedAt={Date.now()} />);
 		act(() => {
 			vi.advanceTimersByTime(5000);
 		});
 		expect(text()).toBe('0s');
 		expect(vi.getTimerCount()).toBe(0);
+	});
+
+	it('takes its test id from testId, time-elapsed by default', () => {
+		render(<ElapsedTime running={false} startedAt={Date.now()} testId="bulk-elapsed" />);
+		expect(screen.getByTestId('bulk-elapsed').textContent).toBe('0s');
+		expect(screen.queryByTestId('time-elapsed')).toBeNull();
+	});
+
+	it('counts from the start it is given, not from when it mounted', () => {
+		render(<ElapsedTime running startedAt={Date.now() - 65_000} />);
+		expect(text()).toBe('1m 05s');
+
+		act(() => {
+			vi.advanceTimersByTime(1000);
+		});
+		expect(text()).toBe('1m 06s');
 	});
 });

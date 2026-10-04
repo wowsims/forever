@@ -26,19 +26,9 @@ const propsFor = (overrides: Overrides = {}): ComboBoxProps<string> => ({
 const mount = (overrides: Overrides = {}) => render(<ComboBox {...propsFor(overrides)} />);
 
 const input = () => screen.getByTestId('combo-box-input') as HTMLInputElement;
-const root = () => screen.getByTestId('combo-box-root');
 const list = () => screen.getByRole('listbox');
 
 describe('ComboBox', () => {
-	it('renders the shared field shell as its root', () => {
-		mount();
-
-		expect(root().classList.contains('ui-field')).toBe(true);
-		expect(root().hasAttribute('data-input-root')).toBe(true);
-		expect(root().contains(input())).toBe(true);
-		expect(input().classList.contains('ui-input')).toBe(true);
-	});
-
 	it('renders a label only when one is given, wired to the input by id', () => {
 		const { rerender } = mount({ id: 'the-id' });
 		expect(screen.queryByText('Item Name')).toBeNull();
@@ -46,17 +36,6 @@ describe('ComboBox', () => {
 		rerender(<ComboBox {...propsFor({ id: 'the-id', label: 'Item Name' })} />);
 		expect(screen.getByText('Item Name').closest('label')!.getAttribute('for')).toBe('the-id');
 		expect(input().id).toBe('the-id');
-	});
-
-	it('fills its column by default and stops growing when grow is false', () => {
-		const { rerender } = mount();
-		expect(root().classList.contains('flex-none')).toBe(false);
-		expect(input().parentElement!.classList.contains('w-full')).toBe(true);
-
-		rerender(<ComboBox {...propsFor({ grow: false })} />);
-		expect(root().classList.contains('flex-none')).toBe(true);
-		expect(input().parentElement!.classList.contains('flex-none')).toBe(true);
-		expect(input().parentElement!.classList.contains('w-full')).toBe(false);
 	});
 
 	it('offers no clear button while the value is empty, nor when the box is not clearable', () => {
@@ -112,15 +91,12 @@ describe('ComboBox', () => {
 		expect(onChange).not.toHaveBeenCalled();
 	});
 
-	it('renders the options as a list, keeping any caller list class alongside its own', () => {
-		mount({ open: true, listClassName: 'bulk-search-list', listTestId: 'the-list' });
+	it('renders the options as a list, with the list test id', () => {
+		mount({ open: true, listTestId: 'the-list' });
 
 		expect(list().tagName).toBe('UL');
-		expect(list().classList.contains('ui-combo-box-list')).toBe(true);
-		expect(list().classList.contains('bulk-search-list')).toBe(true);
 		expect(list().getAttribute('data-testid')).toBe('the-list');
 		expect(screen.getAllByRole('option').map(option => option.tagName)).toEqual(['LI', 'LI', 'LI']);
-		expect(screen.getAllByRole('option').every(option => option.classList.contains('ui-combo-box-item'))).toBe(true);
 	});
 
 	it('renders the footer as a sibling after the scrolling list, not inside it', () => {
@@ -129,7 +105,6 @@ describe('ComboBox', () => {
 		const footer = screen.getByTestId('the-footer');
 		expect(list().contains(footer)).toBe(false);
 		expect(footer.parentElement).toBe(list().parentElement);
-		expect(footer.parentElement!.classList.contains('ui-combo-box-popup')).toBe(true);
 		expect(list().nextElementSibling).toBe(footer);
 	});
 

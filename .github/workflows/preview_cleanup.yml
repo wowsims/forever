@@ -1,0 +1,49 @@
+name: Remove pull request preview
+on:
+    pull_request:
+        types: [closed]
+# Every push of a same-repository pull request lands in the Pages project as the pr-<number>
+# branch (the preview steps in run_tests.yml). Nothing on Cloudflare expires those, so the
+# closing pull request deletes them itself; fork pull requests never had one.
+jobs:
+    remove-preview:
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        runs-on: self-hosted
+        permissions:
+            contents: read
+            pull-requests: write
+        steps:
+            - name: Delete the preview deployments 🗑️
+              uses: actions/github-script@v8
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.DEPLOY_PREVIEW_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.DEPLOY_PREVIEW_ACCOUNT_ID }}
+              with:
+                  script: |
+                      const number = context.payload.pull_request.number;
+                      const branch = `pr-${number}`;
+                      const base = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/pages/projects/wowsims-forever/deployments`;
+                      const headers = { Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}` };
+                      const call = async (url, method = 'GET') => {
+                          const response = await fetch(url, { method, headers });
+                          const json = await response.json();
+                          if (!json.success) throw new Error(`${method} ${url.replace(process.env.CLOUDFLARE_ACCOUNT_ID, '<account>')}: ${JSON.stringify(json.errors)}`);
+                          return json;
+                      };
+                      const ids = [];
+                      for (let page = 1; ; page++) {
+                          const { result, result_info } = await call(`${base}?env=preview&page=${page}`);
+                          ids.push(...result.filter(deployment => deployment.deployment_trigger?.metadata?.branch === branch).map(deployment => deployment.id));
+                          if (!result.length || page >= (result_info?.total_pages ?? page)) break;
+                      }
+                      // The newest deployment carries the branch alias, which only `force` lets go of.
+                      for (const id of ids) await call(`${base}/${id}?force=true`, 'DELETE');
+                      core.info(`Deleted ${ids.length} deployment(s) of ${branch}.`);
+
+                      const marker = '<!-- preview-link -->';
+                      const comments = await github.paginate(github.rest.issues.listComments, { ...context.repo, issue_number: number, per_page: 100 });
+                      const existing = comments.find(comment => comment.body?.startsWith(marker));
+                      if (existing) {
+                          const body = `${marker}\nThe Cloudflare Pages preview of this pull request was removed when it closed.`;
+                          await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+                      }

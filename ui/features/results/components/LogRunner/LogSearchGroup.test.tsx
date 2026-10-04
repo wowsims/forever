@@ -1,4 +1,5 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { EMPTY_SUGGESTIONS } from '../../model/log/search/indexes';
@@ -64,23 +65,21 @@ describe('LogSearchGroup', () => {
 
 	// A picked field offers a menu; a numeric one offers a box, and never both.
 	it('offers a picker for a picked field and a typed box for a numeric one', () => {
-		expect(mount(group({ field: 'spell' })).container.querySelector('[data-testid="dropdown-picker-button"]')).not.toBeNull();
+		expect(within(mount(group({ field: 'spell' })).container).queryByRole('combobox')).not.toBeNull();
 		expect(mount(group({ field: 'spell' })).container.querySelector('[data-testid="log-search-group-input"]')).toBeNull();
 		expect(
 			mount(group({ field: 'time' }))
 				.container.querySelector('[data-testid="log-search-group-input"]')!
 				.getAttribute('placeholder'),
 		).toBe('10-30');
-		expect(mount(group({ field: 'amount' })).container.querySelector('[data-testid="dropdown-picker-button"]')).toBeNull();
+		expect(within(mount(group({ field: 'amount' })).container).queryByRole('combobox')).toBeNull();
 	});
 
 	it('draws the spell icon the index resolved next to its option', async () => {
 		const { container } = mount(group({ field: 'spell' }));
-		await act(() => void fireEvent.click(container.querySelector<HTMLButtonElement>('[data-testid="dropdown-picker-button"]')!));
+		await userEvent.click(within(container).getByRole('combobox'));
 
-		expect(document.querySelector<HTMLImageElement>('[data-testid="dropdown-picker-item"] [data-testid="log-search-suggestion-icon"]')!.src).toBe(
-			'https://icons/cleave.jpg',
-		);
+		expect(within(screen.getByRole('option')).getByTestId<HTMLImageElement>('log-search-suggestion-icon').src).toBe('https://icons/cleave.jpg');
 	});
 
 	describe('the typed value box', () => {

@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ClassHookAllowlist, RetiredClassNames } from './components/HookTables';
+
+<Meta title="Design System/State Hooks" />
+
+# State, visibility and locating elements
+
+The rules from `ui/STYLING.md` §§2–5, condensed. That file is the full text.
+
+## Composition classes
+
+- A reusable multi-utility recipe, or a rule keyed on a state or descendant selector, is a `ui-<component>-<part>` class in a `.css` file next to its component, `@import`ed from `ui/styles/main.css` and built with `@apply` inside `@layer components`.
+- A `.css` file selects only `ui-*` classes. Attribute, pseudo and descendant parts are fine inside a `ui-*` rule; a top-level semantic hook class, `data-testid` or bare element selector is not. `specs.css` and `vendor.css` are the two exceptions.
+- No comments in any `ui/` `.css` file, lint-disable directives included.
+- Native nesting (`&:hover`, `&[data-active]`, `& .child`) is fine; there is no `&-suffix` concatenation.
+
+## State is a `data-*` attribute
+
+Every state (`active`, `selected`, `open`, `loading`, …) is a `data-*` attribute, never a class: presence (`data-active`) or a value (`data-state="open"`), plus Base UI's own (`data-popup-open`, `data-highlighted`, `data-checked`, `data-starting-style`). Style it with the matching variant: `data-active:bg-primary`, `data-[state=open]:`, `group-data-[…]:` for an ancestor carrying `group` or `group/<name>`. A per-frame writer uses `element.toggleAttribute('data-*', cond)`.
+
+## Visibility is a conditional render
+
+A setting that decides whether something exists is a branch in JSX on a hook's value (`useDisplayMetrics`), or `showWhen` on an input config, never a CSS hide class or a `data-hide-*` pair.
+
+## Locating elements
+
+- Role and accessible name first (`getByRole('button', { name })`), `data-testid` when no role fits. Never `querySelector('.class')`, `classList.contains` or a class-list snapshot.
+- A testid that replaces a retired class hook keeps the old name verbatim. An unread hook is deleted, not turned into a testid.
+- `data-testid` is never a styling hook, in CSS or in an arbitrary variant.
+- Kit components take a `testId` prop and put it on the element that carries the identity.
+
+## Allowed non-utility classes
+
+`ui/class_hook_allowlist.json`: every class token outside Tailwind and `ui-*` that `ui/no_class_hooks.test.ts` accepts. An entry is only for an external constraint.
+
+<ClassHookAllowlist />
+
+## Retired class names
+
+`ui/retired_class_names.json`: former hook classes `ui/no_class_hooks.test.ts` keeps out of `ui/`. None may come back as a class.
+
+<RetiredClassNames />

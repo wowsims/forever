@@ -3,10 +3,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { beforeAll, describe, expect, it } from 'vitest';
-
 // oxlint-disable-next-line import/extensions
-import { findClassHooks, findRetiredClassNames, findTestidStyling } from './testing/tailwind/class-hooks.mjs';
+import { findClassHooks, findRetiredClassNames, findTestidStyling } from '@testing/tailwind/class-hooks.mjs';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 

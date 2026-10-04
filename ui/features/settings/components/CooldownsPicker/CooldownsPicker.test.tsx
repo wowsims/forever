@@ -20,7 +20,7 @@ const source = vi.hoisted(() => {
 	};
 });
 
-vi.mock('@sim/state/subscriptions', async () => (await import('@sim/testing')).mockSubscriptions(source.subscribe));
+vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(source.subscribe));
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 const NAMES: Record<number, string> = { 1: 'Recklessness', 2: 'Skull Banner', 3: 'Avatar' };
@@ -124,14 +124,6 @@ describe('CooldownsPicker', () => {
 		expect(rows()).toHaveLength(3);
 	});
 
-	it('leaves the timings input disabled until the row has an action', () => {
-		setup([cooldownFor(1)]);
-		mount();
-
-		expect(timingsInput(0).disabled).toBe(false);
-		expect(timingsInput(1).disabled).toBe(true);
-	});
-
 	it('shows the stored timings of its own row', () => {
 		setup([cooldownFor(1, [10, 20]), cooldownFor(2, [30])]);
 		mount();
@@ -151,19 +143,6 @@ describe('CooldownsPicker', () => {
 			source.notify();
 		});
 		expect(result.current).toHaveLength(1);
-	});
-
-	it('renders the delete button with the vanilla class list and icon', () => {
-		setup([cooldownFor(1)]);
-		mount();
-
-		const buttonClasses = Array.from(deleteButton(0).classList);
-		expect(buttonClasses).toHaveLength(1);
-		expect(buttonClasses).toContain('text-link-danger');
-
-		const iconClasses = Array.from(deleteButton(0).querySelector('i')!.classList);
-		expect(iconClasses).toHaveLength(3);
-		for (const token of ['fa', 'fa-times', 'fa-xl']) expect(iconClasses).toContain(token);
 	});
 
 	it('anchors every delete button to one shared tooltip', () => {

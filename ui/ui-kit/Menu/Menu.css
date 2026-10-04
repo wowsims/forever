@@ -1,9 +1,13 @@
 @layer components {
 	.ui-menu-item {
-		@apply block w-full cursor-pointer border-0 bg-transparent px-2 py-1 text-left font-normal whitespace-nowrap text-white transition-colors duration-200 ease-in-out;
+		@apply block w-full cursor-pointer border-0 bg-transparent text-left font-normal whitespace-nowrap text-white transition-colors duration-200 ease-in-out;
 
-		&[data-highlighted] {
-			@apply bg-surface-hover;
+		&:where(:not([data-bare])) {
+			@apply px-2 py-1;
+
+			&[data-highlighted] {
+				@apply bg-surface-hover;
+			}
 		}
 
 		&[data-checked] {
@@ -27,8 +31,12 @@
 		@apply z-menu;
 	}
 
+	.ui-popup-surface {
+		@apply border border-surface-border bg-overlay text-white;
+	}
+
 	.ui-menu {
-		@apply min-w-40 border border-surface-border bg-surface-raised py-0 text-base text-white;
+		@apply min-w-40 py-0 text-base;
 	}
 
 	.ui-menu-plain {

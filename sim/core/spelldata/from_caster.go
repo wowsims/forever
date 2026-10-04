@@ -24,9 +24,9 @@ type casterPart struct {
 // A damage effect that reaches only the caster's attacks: a percentage the game applies once per
 // stack, so a level of 2 is worth 1 + 2*value/100.
 func (p *parser) casterDamage(kind string, v float64, reaches func(*core.Spell) bool) *attachment {
-	a := &attachment{kind: kind, value: percentMultiplier(v), multiplicative: true}
+	a := &attachment{kind: kind, value: core.MultiplierFromPercent(v), multiplicative: true}
 	return p.casterEffect(a, reaches, func(s *casterSlot) *[]*casterPart { return &s.damage },
-		func(level float64) float64 { return percentMultiplier(v * level) })
+		func(level float64) float64 { return core.MultiplierFromPercent(v * level) })
 }
 
 // A crit effect that reaches only the caster's attacks: percentage points, once per stack.

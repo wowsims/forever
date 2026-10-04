@@ -83,10 +83,20 @@ function auraItems(auraUptimeLogs: ReadonlyArray<AuraUptimeLog>, sharesRowWithCa
 	});
 }
 
+/**
+ * Casts of one row that start closer together than this, in seconds, run on as one stack. A cast icon
+ * is 24px wide and the default zoom is 100px per second, so each cast inside the window draws over the
+ * one before it.
+ */
+const STACK_WINDOW = 0.21;
+
 function castRowItems(castLogs: ReadonlyArray<CastLog>, mergedAuras: ReadonlyArray<Array<AuraUptimeLog>>, duration: number, showGcd: boolean): Array<RowItem> {
 	const items: Array<RowItem> = [];
+	let stack: Array<CastLog> = [];
 	castLogs.forEach(castLog => {
 		const start = castLog.timestamp;
+		const previous = stack[stack.length - 1];
+		stack = previous && start - previous.timestamp < STACK_WINDOW ? [...stack, castLog] : [castLog];
 		const cancelled = !!castLog.castCancelledLog;
 		const width = cancelled ? castLog.cancelTime : castLog.castTime + castLog.travelTime;
 		const hasTravelTime = !cancelled && castLog.travelTime != 0;
@@ -103,6 +113,7 @@ function castRowItems(castLogs: ReadonlyArray<CastLog>, mergedAuras: ReadonlyArr
 			travelStart: hasTravelTime ? castLog.castTime : null,
 			travelDuration: hasTravelTime ? castLog.travelTime : null,
 			log: castLog,
+			stack,
 		});
 		if (showGcd && !cancelled) {
 			const extensionStart = start + castLog.castTime;

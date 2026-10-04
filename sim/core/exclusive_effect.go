@@ -4,6 +4,25 @@ import (
 	"time"
 )
 
+// Exclusive categories for resistance buffs — ensures only the highest value applies per school.
+const (
+	ResistanceCategoryArcane = "ResistanceArcane"
+	ResistanceCategoryFire   = "ResistanceFire"
+	ResistanceCategoryFrost  = "ResistanceFrost"
+	ResistanceCategoryNature = "ResistanceNature"
+	ResistanceCategoryShadow = "ResistanceShadow"
+)
+
+// Exclusive category for flat stat buffs which don't stack with each other
+// e.g. Arcane Brilliance vs Greater Arcane Elixir.
+const StatBuffCategory = "StatBuff"
+
+// The category one stat or pseudo-stat of a buff bids in alone: the buff's category, then the stat's
+// name or its PseudoStats field, then whether the buff adds to it or multiplies it.
+func ExclusiveStatCategory(category string, key string, multiplicative bool) string {
+	return category + key + Ternary(multiplicative, "Mul", "Add")
+}
+
 // An Exclusive effect is one which may not be active at the same time as other
 // effects in the same category. For example, the armor reduction effects from
 // Sunder Armor and Expose Armor are exclusive with each other.

@@ -13,7 +13,7 @@ describe('TabPanels', () => {
 					<TabPanel value="a">
 						<div data-testid="a-content">A</div>
 					</TabPanel>
-					<TabPanel value="b" keepMounted>
+					<TabPanel value="b">
 						<div data-testid="b-content">B</div>
 					</TabPanel>
 				</TabPanels>
@@ -27,13 +27,5 @@ describe('TabPanels', () => {
 			expect(pane.className).toContain('col-start-1');
 			expect(pane.className).toContain('row-start-1');
 		});
-	});
-
-	it('keeps a passed className alongside the grid classes', () => {
-		const { container } = render(<TabPanels className="pt-6" data-testid="dr-tab-content" />);
-		const root = container.firstElementChild as HTMLElement;
-		expect(root.getAttribute('data-testid')).toBe('dr-tab-content');
-		expect(root.className).toContain('pt-6');
-		expect(root.className).toContain('grid-cols-1');
 	});
 });

@@ -3,6 +3,7 @@ import { useSim } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { ActionMetrics } from '@sim/proto/sim_result';
 import { formatToNumber } from '@sim/utils/format';
+import { percentOf } from '@sim/utils/math';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
@@ -65,14 +66,14 @@ const healingHitGroups = (metric: ActionMetrics): Array<MetricsCombinedTooltipGr
 		totalPercentage: 100,
 		name: 'Hits',
 		data: [
-			{ name: i18n.t('results_tab.details.attack_types.hit'), value: metric.hits, percentage: (metric.hits / metric.landedHits) * 100 },
-			{ name: i18n.t('results_tab.details.attack_types.critical_hit'), value: metric.crits, percentage: (metric.crits / metric.landedHits) * 100 },
-			{ name: i18n.t('results_tab.details.attack_types.glancing_blow'), value: metric.glances, percentage: (metric.glances / metric.landedHits) * 100 },
-			{ name: i18n.t('results_tab.details.attack_types.blocked_hit'), value: metric.blocks, percentage: (metric.blocks / metric.landedHits) * 100 },
+			{ name: i18n.t('results_tab.details.attack_types.hit'), value: metric.hits, percentage: percentOf(metric.hits, metric.landedHits) },
+			{ name: i18n.t('results_tab.details.attack_types.critical_hit'), value: metric.crits, percentage: percentOf(metric.crits, metric.landedHits) },
+			{ name: i18n.t('results_tab.details.attack_types.glancing_blow'), value: metric.glances, percentage: percentOf(metric.glances, metric.landedHits) },
+			{ name: i18n.t('results_tab.details.attack_types.blocked_hit'), value: metric.blocks, percentage: percentOf(metric.blocks, metric.landedHits) },
 			{
 				name: i18n.t('results_tab.details.attack_types.blocked_critical_hit'),
 				value: metric.blockedCrits,
-				percentage: (metric.blockedCrits / metric.landedHits) * 100,
+				percentage: percentOf(metric.blockedCrits, metric.landedHits),
 			},
 		],
 	},
@@ -81,11 +82,11 @@ const healingHitGroups = (metric: ActionMetrics): Array<MetricsCombinedTooltipGr
 		totalPercentage: 100,
 		name: 'Ticks',
 		data: [
-			{ name: i18n.t('results_tab.details.attack_types.tick'), value: metric.ticks, percentage: (metric.ticks / metric.landedTicks) * 100 },
+			{ name: i18n.t('results_tab.details.attack_types.tick'), value: metric.ticks, percentage: percentOf(metric.ticks, metric.landedTicks) },
 			{
 				name: i18n.t('results_tab.details.attack_types.critical_tick'),
 				value: metric.critTicks,
-				percentage: (metric.critTicks / metric.landedTicks) * 100,
+				percentage: percentOf(metric.critTicks, metric.landedTicks),
 			},
 		],
 	},

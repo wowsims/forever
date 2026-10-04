@@ -149,12 +149,20 @@ message HunterOptions {
 
 message Hunter {
 	message Rotation {
-		bool melee_weave = 1;
-		int32 time_to_weave = 8;
+		// Where the hunter stands: at range, walking in for each melee swing, or in melee range.
+		enum Playstyle {
+			Turret = 0;
+			Weave  = 1;
+			Melee  = 2;
+		}
+		reserved 1;
+		int32 time_to_weave = 2;
 		bool use_multi = 3;
 		bool use_arcane = 4;
-
-		reserved 2, 5, 6, 7, 9;
+		Playstyle playstyle = 5;
+		bool use_aimed = 6;
+		bool use_sniper = 7;
+		bool use_hawk = 8;
 	}
 	message Options {
 		HunterOptions class_options = 1;

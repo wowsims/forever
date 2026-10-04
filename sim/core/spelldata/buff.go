@@ -23,7 +23,7 @@ var buffAuraTable = map[dbcenums.EffectAuraType]row{
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER_PCT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.statMultiplier([]stats.Stat{stats.AttackPower}, percentMultiplier(v))
+		return p.statMultiplier([]stats.Stat{stats.AttackPower}, core.MultiplierFromPercent(v))
 	},
 }
 
@@ -64,7 +64,7 @@ func (p *Parsed) SkippedNotes(s *Spell) []string {
 // percentage of it, or a flat addition. An untaken talent is NilEffect, which adds nothing.
 func Scaled(amount float64, mod *Effect) float64 {
 	if mod.Aura == dbcenums.A_ADD_PCT_MODIFIER {
-		return math.Trunc(amount * (1 + mod.BaseValue()/100))
+		return math.Trunc(amount * core.MultiplierFromPercent(mod.BaseValue()))
 	}
 	return math.Trunc(amount + mod.BaseValue())
 }

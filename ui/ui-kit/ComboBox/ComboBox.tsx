@@ -1,5 +1,5 @@
 import { Autocomplete } from '@base-ui/react/autocomplete';
-import { FieldShell } from '@ui-kit/FieldShell';
+import { Field } from '@ui-kit/Field';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import clsx from 'clsx';
 import { type Key, type ReactNode, type RefObject } from 'react';
@@ -74,16 +74,22 @@ export const ComboBox = <T,>({
 				onOpenChange(next, details.reason);
 			}}
 			openOnInputClick={false}>
-			<FieldShell
+			<Field
 				label={label}
 				id={id}
 				grow={grow}
-				rootTestId="combo-box-root"
-				showClear={clearable && value.length > 0}
-				clearLabel={clearLabel}
-				clearClassName={clearClassName}
-				clearTestId="combo-box-clear-btn"
-				onClear={() => onChange('')}>
+				testId="combo-box-root"
+				clear={
+					clearable
+						? {
+								show: value.length > 0,
+								label: clearLabel,
+								className: clearClassName,
+								testId: 'combo-box-clear-btn',
+								onClear: () => onChange(''),
+							}
+						: undefined
+				}>
 				<Autocomplete.Input
 					id={id}
 					data-testid={inputTestId}
@@ -91,7 +97,7 @@ export const ComboBox = <T,>({
 					placeholder={placeholder}
 					autoComplete={autoComplete}
 				/>
-			</FieldShell>
+			</Field>
 			<Autocomplete.Portal className="contents" container={portalContainer ?? undefined}>
 				<Autocomplete.Positioner className="ui-combo-box-positioner" align="start" sideOffset={2} anchor={popupAnchor}>
 					<Autocomplete.Popup className="ui-combo-box-popup">

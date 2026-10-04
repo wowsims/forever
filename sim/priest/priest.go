@@ -89,6 +89,7 @@ func New(char *core.Character, selfBuffs SelfBuffs, talents string) *Priest {
 
 	core.FillTalentsProto(priest.Talents.ProtoReflect(), talents, TalentTreeSizes)
 	priest.EnableManaBar()
+	priest.AddStatDependency(stats.Strength, stats.AttackPower, 1)
 	if selfBuffs.Armor == proto.PriestOptions_InnerFire {
 		// Inner Fire rank 7: +1580 armor. The charges never run out on a caster that is not hit.
 		priest.AddStat(stats.Armor, 1580)

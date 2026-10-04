@@ -62,5 +62,4 @@ export const DefaultDebuffs = Debuffs.create({
 	curseOfElements: true,
 	giftOfArthas: true,
 	exposeArmor: true,
-	huntersMark: true,
 });

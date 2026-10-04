@@ -21,9 +21,9 @@ func (warrior *Warrior) registerBattleShout() {
 	castsOwnShout := warrior.UseBattleShout
 
 	// Three pieces of Battlegear of Wrath add a flat 30 to the shout. HasBsT2 is
-	// the user saying this warrior wears them; the equipped set is not read. The
-	// set is worth the 30 on the shout this warrior makes, so it raises what that
-	// copy applies and what the cast is worth to the category together.
+	// set by the user or by the set worn at the start. The set is worth the 30 on
+	// the shout this warrior makes, so it raises what that copy applies and what
+	// the cast is worth to the category together.
 	battleShoutBase := buffs.BattleShoutValue(0)
 	battleShoutValue := battleShoutBase
 	shoutsWithTheSet := castsOwnShout && warrior.HasBsT2
@@ -36,10 +36,10 @@ func (warrior *Warrior) registerBattleShout() {
 		// keeps the build phase it was registered with.
 		partyShout := !castsOwnShout && unit.GetAuraByID(core.ActionID{SpellID: battleShoutRank.ID}.WithTag(-1)) != nil
 
-		// Booming Voice widens the radius only, so the aura takes no talent points.
+		// Booming Voice widens the radius and lowers the cost only, so the aura takes no talent points.
 		aura := buffs.NewSpellDataBattleShoutAura(unit, castsOwnShout, 0)
 		if shoutsWithTheSet {
-			core.AddGeneratedFlatBonus(aura, stats.AttackPower, battleShoutBase, buffs.BattleShoutT2Bonus)
+			buffs.AddGeneratedFlatBonus(aura, stats.AttackPower, battleShoutBase, buffs.BattleShoutT2Bonus)
 		}
 		if !partyShout {
 			aura.BuildPhase = core.Ternary(castsOwnShout, core.CharacterBuildPhaseBuffs, core.CharacterBuildPhaseNone)

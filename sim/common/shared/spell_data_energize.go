@@ -1,6 +1,8 @@
 package shared
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -20,11 +22,7 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 		}
 
 		amount := func(sim *core.Simulation) float64 {
-			gain := effect.Roll(sim, character.Level)
-			if power.InTenths() {
-				gain /= 10
-			}
-			return gain
+			return barAmount(power, effect.Roll(sim))
 		}
 
 		config := spelldata.SpellConfig(&character.Unit, row)
@@ -45,10 +43,7 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			}
 		}
 
-		whole := effect.Max(character.Level) * ticks
-		if power.InTenths() {
-			whole /= 10
-		}
+		whole := barAmount(power, effect.Max()*ticks)
 
 		return config, core.MajorCooldown{
 			Type: bar.cdType,
@@ -93,4 +88,75 @@ func energizedBarOf(character *core.Character, power dbcenums.PowerType, actionI
 		}, true
 	}
 	return energizedBar{}, false
+}
+
+// Whether the power type is one of the bars a gain fills: mana, rage or energy.
+func EnergizesABar(power dbcenums.PowerType) bool {
+	switch power {
+	case dbcenums.POWER_MANA, dbcenums.POWER_RAGE, dbcenums.POWER_ENERGY:
+		return true
+	}
+	return false
+}
+
+// Why the spell a proc row fires cannot be built, or nil where it can: the row states no effect
+// beside its proc, and the spell it fires puts mana, rage or energy into the wearer's bar at once or
+// changes the cooldown of one of the wearer's spell categories.
+func FiredSpellUnsupported(row *spelldata.Spell) []string {
+	var unsupported []string
+	if len(row.Effects) > 1 {
+		unsupported = append(unsupported, fmt.Sprintf("%d states effects beside its proc, which the listener leaves out", row.ID))
+	}
+	fired := row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+	gain, cooldown := fired.EnergizeEffect(), fired.CategoryCooldownEffect()
+
+	switch {
+	case fired == spelldata.Nil:
+		unsupported = append(unsupported, fmt.Sprintf("%d fires no spell the store carries", row.ID))
+	case gain != spelldata.NilEffect:
+		if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+			unsupported = append(unsupported, fmt.Sprintf("%d's gain lands on implicit target %d, not the wearer", fired.ID, gain.Target[0]))
+		}
+		if !EnergizesABar(dbcenums.PowerType(gain.Misc)) {
+			unsupported = append(unsupported, fmt.Sprintf("%d fills power type %d, not mana, rage or energy", fired.ID, gain.Misc))
+		}
+	case cooldown != spelldata.NilEffect:
+		if cooldown.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+			unsupported = append(unsupported, fmt.Sprintf("%d changes the cooldowns of implicit target %d, not the wearer", fired.ID, cooldown.Target[0]))
+		}
+	default:
+		unsupported = append(unsupported, fmt.Sprintf("%d fires %d, which neither restores a resource nor changes a spell category's cooldown", row.ID, fired.ID))
+	}
+	return unsupported
+}
+
+// What the spell a proc row fires does, or nil where the wearer has no bar its gain fills. A
+// cooldown change moves the whole category's timer, which is where a spell whose only recovery is
+// its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
+// 1306610 -100000.
+func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell) core.ProcHandler {
+	fired := row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+	if gain := fired.EnergizeEffect(); gain != spelldata.NilEffect {
+		power := dbcenums.PowerType(gain.Misc)
+		bar, ok := energizedBarOf(character, power, actionID)
+		if !ok {
+			return nil
+		}
+		return func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+		}
+	}
+
+	cooldown := fired.CategoryCooldownEffect()
+	timer := character.CategoryTimer(cooldown.Misc)
+	return func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		timer.Set(max(sim.CurrentTime, timer.ReadyAt()+cooldown.TimeValue()))
+	}
+}
+
+func barAmount(power dbcenums.PowerType, v float64) float64 {
+	if power.InTenths() {
+		return v / 10
+	}
+	return v
 }

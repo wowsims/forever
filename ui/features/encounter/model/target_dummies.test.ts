@@ -1,7 +1,6 @@
 import type { Player } from '@sim/player/player';
 import type { Sim } from '@sim/sim';
-import { createSimStore, patchKeyed, seedKeyed } from '@sim/state/sim_store';
-import { PLAYER_CHANGE_FIELDS } from '@sim/state/subscriptions';
+import { createSimStore, patchKeyed, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { watchTargetDummies } from './target_dummies';
@@ -15,7 +14,7 @@ let store: ReturnType<typeof createSimStore>;
 let dummies: number;
 let sim: Sim;
 
-const seedPlayerSlice = () => seedKeyed(store, 'players', STORE_KEY, { v: Object.fromEntries(PLAYER_CHANGE_FIELDS.map(f => [f, 0])) } as never);
+const seedPlayerSlice = () => seedKeyed(store, 'players', STORE_KEY, { v: zeroVersions(PLAYER_FIELDS) } as never);
 
 /** Anything the store notices as a player change; the rule does not care which field. */
 const changePlayer = () => patchKeyed(store, 'players', STORE_KEY, {}, ['talentsString']);

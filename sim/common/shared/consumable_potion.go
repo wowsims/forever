@@ -74,10 +74,9 @@ func consumablePartsOf(row *spelldata.Spell) (consumableParts, []string) {
 			parts.absorb = e
 		case e.Type == dbcenums.E_ENERGIZE, e.Type == dbcenums.E_ENERGIZE_PCT,
 			e.Type == dbcenums.E_APPLY_AURA && e.Aura == dbcenums.A_PERIODIC_ENERGIZE:
-			switch dbcenums.PowerType(e.Misc) {
-			case dbcenums.POWER_MANA, dbcenums.POWER_RAGE, dbcenums.POWER_ENERGY:
+			if EnergizesABar(dbcenums.PowerType(e.Misc)) {
 				parts.gains = append(parts.gains, e)
-			default:
+			} else {
 				unsupported = append(unsupported, fmt.Sprintf("%s fills power type %d", kind, e.Misc))
 			}
 		case e.Type == dbcenums.E_SCHOOL_DAMAGE:
@@ -318,16 +317,11 @@ func newConsumableGain(character *core.Character, row *spelldata.Spell, e *spell
 		return nil
 	}
 
-	level := character.Level
 	amount := func(roll func(*spelldata.Effect) float64) float64 {
 		if e.Type == dbcenums.E_ENERGIZE_PCT {
 			return maximum() * e.Percent() * bonus
 		}
-		value := roll(e)
-		if power.InTenths() {
-			value /= 10
-		}
-		return value * bonus
+		return barAmount(power, roll(e)) * bonus
 	}
 
 	ticks := 1
@@ -340,13 +334,13 @@ func newConsumableGain(character *core.Character, row *spelldata.Spell, e *spell
 				NumTicks: ticks,
 				Priority: core.ActionPriorityDOT,
 				OnAction: func(sim *core.Simulation) {
-					add(sim, amount(func(e *spelldata.Effect) float64 { return e.Roll(sim, level) }), metrics)
+					add(sim, amount(func(e *spelldata.Effect) float64 { return e.Roll(sim) }), metrics)
 				},
 			})
 		}
 	} else {
 		gain.apply = func(sim *core.Simulation) {
-			add(sim, amount(func(e *spelldata.Effect) float64 { return e.Roll(sim, level) }), metrics)
+			add(sim, amount(func(e *spelldata.Effect) float64 { return e.Roll(sim) }), metrics)
 		}
 	}
 
@@ -355,7 +349,7 @@ func newConsumableGain(character *core.Character, row *spelldata.Spell, e *spell
 		if power == dbcenums.POWER_MANA {
 			room -= character.ManaRegenPerSecondWhileCasting() * 5
 		}
-		return room >= amount(func(e *spelldata.Effect) float64 { return e.Max(level) })*float64(ticks)
+		return room >= amount(func(e *spelldata.Effect) float64 { return e.Max() })*float64(ticks)
 	}
 	return gain
 }
