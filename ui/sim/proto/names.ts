@@ -67,7 +67,6 @@ export const professionNames: Map<Profession, string> = new Map([
 	[Profession.Engineering, 'Engineering'],
 	[Profession.Herbalism, 'Herbalism'],
 	[Profession.Inscription, 'Inscription'],
-	[Profession.Jewelcrafting, 'Jewelcrafting'],
 	[Profession.Leatherworking, 'Leatherworking'],
 	[Profession.Mining, 'Mining'],
 	[Profession.Skinning, 'Skinning'],

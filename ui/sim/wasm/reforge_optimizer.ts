@@ -16,12 +16,11 @@ export const optimizeReforgeGear = async (
 	baseRaid: RaidProto,
 	templateRequest: ReforgeOptimizeRequest,
 	gear: EquipmentSpec,
-	includeGems: boolean,
 	workerPool: WorkerPool,
 	signals: SimSignals,
 	mode = ReforgeOptimizeMode.ReforgeOptimizeModeSingle,
 ): Promise<EquipmentSpec | null> => {
-	const reforgeRequest = makeReforgeRequest(baseRaid, templateRequest, gear, includeGems, mode);
+	const reforgeRequest = makeReforgeRequest(baseRaid, templateRequest, gear, mode);
 	if (!reforgeRequest) {
 		return null;
 	}
@@ -30,7 +29,7 @@ export const optimizeReforgeGear = async (
 		const result = await workerPool.reforgeOptimizeAsync(reforgeRequest, signals);
 		if (result.error) {
 			if (result.error.type != ErrorOutcomeType.ErrorOutcomeAborted) {
-				console.warn(`[Reforge] Optimization failed includeGems=${includeGems}: ${result.error.message}`);
+				console.warn(`[Reforge] Optimization failed: ${result.error.message}`);
 			}
 			return null;
 		}
@@ -38,7 +37,7 @@ export const optimizeReforgeGear = async (
 		return result.optimizedGear ? EquipmentSpec.clone(result.optimizedGear) : null;
 	} catch (error) {
 		if (!signals.abort.isTriggered()) {
-			console.warn(`[Reforge] Optimization failed includeGems=${includeGems}`, error);
+			console.warn('[Reforge] Optimization failed', error);
 		}
 		return null;
 	}
@@ -48,7 +47,6 @@ export const makeReforgeRequest = (
 	baseRaid: RaidProto,
 	templateRequest: ReforgeOptimizeRequest,
 	gear: EquipmentSpec,
-	includeGems: boolean,
 	mode = ReforgeOptimizeMode.ReforgeOptimizeModeSingle,
 ): ReforgeOptimizeRequest | null => {
 	const raid = RaidProto.clone(baseRaid);
@@ -63,8 +61,5 @@ export const makeReforgeRequest = (
 	reforgeRequest.raid = raid;
 	reforgeRequest.mode = mode;
 	reforgeRequest.settings = ReforgeSettings.clone(reforgeRequest.settings ?? ReforgeSettings.create());
-	if (!includeGems) {
-		reforgeRequest.gemOptions = [];
-	}
 	return reforgeRequest;
 };

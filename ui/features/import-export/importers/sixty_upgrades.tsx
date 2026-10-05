@@ -70,9 +70,6 @@ export const SIXTY_UPGRADES_IMPORTER: ImporterDefinition = {
 					return;
 				}
 			}
-			if (itemJson.gems) {
-				itemSpec.gems = (itemJson.gems as any[]).filter(gemJson => gemJson?.id).map(gemJson => gemJson.id);
-			}
 
 			// As long as 60U exports the wrong suffixes we should inform the user that they need to manually add them.
 			if (itemJson.suffixId) {

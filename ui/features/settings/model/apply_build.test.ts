@@ -1,6 +1,5 @@
 import { ReforgeSettings as ReforgeSettingsProto } from '@generated/proto/api';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { Phase } from '@sim/constants/other';
 import type { PresetBuild } from '@sim/presets/types';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -97,7 +96,7 @@ describe('applyBuild player timings', () => {
 describe('applyBuild reforge settings', () => {
 	// Preset builds carry a partial; fromProto is the full-replace deserialization path.
 	it('merges the preset instead of replacing every field', () => {
-		const reforgeSettings = ReforgeSettingsProto.create({ maxGemPhase: Phase.Phase1 });
+		const reforgeSettings = ReforgeSettingsProto.create({ useCustomEpValues: true });
 
 		applyBuild({ name: 'P1', reforgeSettings }, host());
 

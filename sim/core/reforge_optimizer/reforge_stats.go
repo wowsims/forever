@@ -263,8 +263,7 @@ func unitStatFromUIStat(uiStat *proto.UIStat) (stats.UnitStat, bool) {
 //
 // Coefficients are keyed by the proto enum NAME (e.g. "StatHitRating",
 // "PseudoStatSpellHitPercent", "ItemSlotHead") so checkCaps can recover the stat from a key.
-// Slot keys ("ItemSlot...") and special keys (SocketBonusLink_*, JewelcraftingGem, unique-gem
-// IDs, score) are not stat names and parse to (_, false).
+// Slot keys ("ItemSlot...") and the "score" key are not stat names and parse to (_, false).
 
 func statCoeffKey(stat proto.Stat) string {
 	return proto.Stat_name[int32(stat)]
@@ -272,10 +271,6 @@ func statCoeffKey(stat proto.Stat) string {
 
 func pseudoStatCoeffKey(pseudoStat proto.PseudoStat) string {
 	return proto.PseudoStat_name[int32(pseudoStat)]
-}
-
-func slotCoeffKey(slot proto.ItemSlot) string {
-	return proto.ItemSlot_name[int32(slot)]
 }
 
 // unitStatFromCoeffKey recovers the stat from a coefficient key, or (_, false) for non-stat

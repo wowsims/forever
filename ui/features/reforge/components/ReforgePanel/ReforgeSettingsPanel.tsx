@@ -1,12 +1,8 @@
 import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
-import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import type { ReforgeOptimizerModel, ReforgeOptimizerOptions } from '@features/reforge/model/reforge_optimizer';
-import { gemPhaseValues } from '@features/reforge/model/utils';
 import { SavedEpWeights } from '@features/stat-weights/components/SavedEpWeights';
 import { useOpenEpWeights } from '@features/stat-weights/hooks/useEpWeightsDialog';
-import { ItemQuality } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { translateItemQuality } from '@i18n/localization';
 import { useSimHost, useSpecConfig } from '@sim/context/SimHostContext';
 import { Button } from '@ui-kit/Button';
 import { type ReactNode, useMemo } from 'react';
@@ -25,7 +21,6 @@ export interface ReforgeSettingsPanelViewProps {
 	showEpHelp: boolean;
 	statCaps: ReactNode;
 	softCaps: ReactNode;
-	gemOptions: ReactNode;
 	freezeSlots: ReactNode;
 	savedEpWeights: ReactNode;
 	onEditWeights: () => void;
@@ -36,7 +31,6 @@ export const ReforgeSettingsPanelView = ({
 	showEpHelp,
 	statCaps,
 	softCaps,
-	gemOptions,
 	freezeSlots,
 	savedEpWeights,
 	onEditWeights,
@@ -52,7 +46,6 @@ export const ReforgeSettingsPanelView = ({
 		)}
 		{statCaps}
 		{softCaps}
-		{gemOptions}
 		{freezeSlots}
 		{savedEpWeights}
 		<Button variant="outline-primary" className="mt-2" data-testid="reforge-edit-weights" onClick={onEditWeights}>
@@ -83,17 +76,6 @@ export const ReforgeSettingsPanel = ({ model, options, onClose, idPrefix = DEFAU
 	const freezeItemSlots = useReforgeField(settings, 'freezeItemSlots', () => settings.freezeItemSlots);
 
 	const statTooltips = useMemo(() => buildStatTooltips(options?.statTooltips), [options]);
-	const phaseValues = useMemo(() => gemPhaseValues().map(phase => ({ name: i18n.t(`common.phases.${phase}`), value: phase })), []);
-	const qualityValues = useMemo(
-		() =>
-			Object.values(ItemQuality)
-				.filter(
-					(quality): quality is number =>
-						typeof quality === 'number' && quality >= ItemQuality.ItemQualityUncommon && quality <= ItemQuality.ItemQualityEpic,
-				)
-				.map(quality => ({ name: translateItemQuality(quality), value: quality })),
-		[],
-	);
 	const softCapsConfig = model.softCapsConfig;
 	const hasSoftCaps = !!softCapsConfig?.length;
 
@@ -155,57 +137,6 @@ export const ReforgeSettingsPanel = ({ model, options, onClose, idPrefix = DEFAU
 							)}
 						</>
 					)
-				}
-				gemOptions={
-					<>
-						<ConnectedBooleanPicker
-							modObject={player}
-							config={{
-								extraClassNames: ['mb-2'],
-								id: `${idPrefix}-disable-unique-gems`,
-								label: i18n.t('sidebar.buttons.suggest_reforges.disable_unique_gems'),
-								layout: 'inline',
-								storeField: 'reforge:disableUniqueGems',
-								getValue: () => settings.disableUniqueGems,
-								setValue: (_player, newValue) => {
-									trackEvent({ action: 'settings', category: 'reforging', label: 'disable_unique_gems', value: newValue });
-									model.setDisableUniqueGems(newValue);
-								},
-							}}
-						/>
-						<ConnectedChoiceField
-							modObject={player}
-							config={{
-								extraClassNames: ['mb-2'],
-								id: `${idPrefix}-max-gem-phase`,
-								label: i18n.t('sidebar.buttons.suggest_reforges.max_gem_phase'),
-								defaultValue: model.getMaxGemPhase(),
-								values: phaseValues,
-								storeField: 'reforge:maxGemPhase',
-								getValue: () => model.getMaxGemPhase(),
-								setValue: (_player, newValue) => {
-									trackEvent({ action: 'settings', category: 'reforging', label: 'max_gem_phase', value: newValue });
-									model.setMaxGemPhase(newValue);
-								},
-							}}
-						/>
-						<ConnectedChoiceField
-							modObject={player}
-							config={{
-								extraClassNames: ['mb-2'],
-								id: `${idPrefix}-max-gem-quality`,
-								label: i18n.t('sidebar.buttons.suggest_reforges.max_gem_quality'),
-								defaultValue: model.getMaxGemQuality(),
-								values: qualityValues,
-								storeField: 'reforge:maxGemQuality',
-								getValue: () => model.getMaxGemQuality(),
-								setValue: (_player, newValue) => {
-									trackEvent({ action: 'settings', category: 'reforging', label: 'max_gem_quality', value: newValue });
-									model.setMaxGemQuality(newValue);
-								},
-							}}
-						/>
-					</>
 				}
 				freezeSlots={
 					<>

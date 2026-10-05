@@ -1,21 +1,21 @@
-import type { UIGem } from '@generated/proto/ui';
+import type { UIEnchant } from '@generated/proto/ui';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: 'https://www.wowhead.com/item=7', ready: true }) }));
+vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: 'https://www.wowhead.com/spell=7', ready: true }) }));
 
 const { QuickSwapList } = await import('./QuickSwapList');
 
-const GEM = { id: 7, name: 'Test Gem', quality: 3 } as UIGem;
+const ENCHANT = { effectId: 7, spellId: 7, type: 0, name: 'Test Enchant', quality: 3 } as UIEnchant;
 
 describe('QuickSwapList', () => {
 	it('swaps to the entry on a click and never follows its wowhead link', () => {
 		const onItemClick = vi.fn();
 		render(
 			<QuickSwapList
-				title="Gems"
+				title="Enchants"
 				emptyMessage="None"
-				entries={[{ item: GEM, active: false }]}
+				entries={[{ item: ENCHANT, active: false }]}
 				onItemClick={onItemClick}
 				footerButton={{ label: 'More', onClick: () => {} }}
 			/>,
@@ -24,8 +24,8 @@ describe('QuickSwapList', () => {
 		const click = new MouseEvent('click', { bubbles: true, cancelable: true });
 		anchor.dispatchEvent(click);
 
-		expect(anchor.getAttribute('href')).toBe('https://www.wowhead.com/item=7');
+		expect(anchor.getAttribute('href')).toBe('https://www.wowhead.com/spell=7');
 		expect(click.defaultPrevented).toBe(true);
-		expect(onItemClick).toHaveBeenCalledWith(GEM);
+		expect(onItemClick).toHaveBeenCalledWith(ENCHANT);
 	});
 });

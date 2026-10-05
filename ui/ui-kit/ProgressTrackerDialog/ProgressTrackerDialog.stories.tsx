@@ -37,8 +37,8 @@ export const WithProgress: Story = {
 
 export const WithWarning: Story = {
 	args: {
-		title: 'Optimizing Gems',
-		warning: <p className="m-0">Gemming can take a while. You may cancel at any time.</p>,
+		title: 'Optimizing Gear',
+		warning: <p className="m-0">Optimizing can take a while. You may cancel at any time.</p>,
 	},
 };
 

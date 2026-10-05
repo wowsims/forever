@@ -1,8 +1,8 @@
 // Building the trimmed SimDatabase a bulk run ships to the workers.
 import { BulkSettings } from '@generated/proto/api';
 import { ItemRandomSuffix } from '@generated/proto/common';
-import { ItemEffectRandPropPoints, SimDatabase, SimEnchant, SimGem, SimItem } from '@generated/proto/db';
-import { UIEnchant as Enchant, UIGem as Gem, UIItem as Item } from '@generated/proto/ui';
+import { ItemEffectRandPropPoints, SimDatabase, SimEnchant, SimItem } from '@generated/proto/db';
+import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 
 import { Database } from '../proto/database';
 import { EquippedItem } from '../proto/equipped_item';
@@ -17,7 +17,6 @@ export const makeBulkGearDatabase = (db: Database, gearSets: Gear[], extraItems:
 	const itemEffectRandPropPoints = new Map<number, ItemEffectRandPropPoints>();
 	const enchants = new Map<string, Enchant>();
 	const enchantIds = new Set(extraEnchantIds);
-	const gems = new Map<number, Gem>();
 
 	const addEquippedItem = (equippedItem: EquippedItem) => {
 		const item = equippedItem.item;
@@ -40,10 +39,6 @@ export const makeBulkGearDatabase = (db: Database, gearSets: Gear[], extraItems:
 			enchants.set(enchantRowKey(enchant), enchant);
 			enchantIds.add(enchant.effectId);
 		}
-
-		for (const gem of equippedItem.gems) {
-			if (gem) gems.set(gem.id, gem);
-		}
 	};
 
 	for (const gearSet of gearSets) {
@@ -63,7 +58,6 @@ export const makeBulkGearDatabase = (db: Database, gearSets: Gear[], extraItems:
 		randomSuffixes: Array.from(randomSuffixes.values()),
 		itemEffectRandPropPoints: Array.from(itemEffectRandPropPoints.values()),
 		enchants: Array.from(enchants.values()).map(enchant => SimEnchant.fromJson(Enchant.toJson(enchant), { ignoreUnknownFields: true })),
-		gems: Array.from(gems.values()).map(gem => SimGem.fromJson(Gem.toJson(gem), { ignoreUnknownFields: true })),
 	});
 };
 

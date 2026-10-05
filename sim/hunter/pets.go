@@ -403,7 +403,7 @@ func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 	var auras []*core.Aura
 	for _, character := range []*core.Character{&hp.Character, &hp.hunterOwner.Character} {
 		aura := character.RegisterAura(spelldata.AuraConfig(rank))
-		spelldata.ParseEffects(character, aura, rank)
+		spelldata.ParseEffects(character, aura, rank, spelldata.Exclusive(buffs.FuriousHowlCategory, true))
 		auras = append(auras, aura)
 	}
 

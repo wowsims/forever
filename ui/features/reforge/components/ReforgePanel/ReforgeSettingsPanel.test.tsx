@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { ReforgeSettingsPanelView, type ReforgeSettingsPanelViewProps } from './ReforgeSettingsPanel';
 
-const SLOTS = ['customEpToggle', 'statCaps', 'softCaps', 'gemOptions', 'freezeSlots', 'savedEpWeights'] as const;
+const SLOTS = ['customEpToggle', 'statCaps', 'softCaps', 'freezeSlots', 'savedEpWeights'] as const;
 
 const slotProps = Object.fromEntries(SLOTS.map(slot => [slot, <span data-slot={slot} />])) as Record<(typeof SLOTS)[number], ReactNode>;
 

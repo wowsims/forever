@@ -4,7 +4,7 @@ import { EquipmentSpec, ItemSlot, PseudoStat, Spec, Stat } from '@generated/prot
 import { SavedTalents } from '@generated/proto/ui';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
-import { DEFAULT_HYBRID_CASTER_GEM_STATS, Stats, UnitStat } from '@sim/proto/stats';
+import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
 import * as PriestInputs from './inputs';
@@ -63,7 +63,6 @@ export default defineSpec<Spec.SpecDpsPriest>({
 			PseudoStat.PseudoStatSchoolHitPercentShadow,
 		],
 	),
-	gemStats: DEFAULT_HYBRID_CASTER_GEM_STATS,
 
 	defaults: {
 		// Default equipped gear.

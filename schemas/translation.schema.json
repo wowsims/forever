@@ -620,37 +620,6 @@
 						"generic_resource"
 					]
 				},
-				"item_qualities": {
-					"type": "object",
-					"properties": {
-						"junk": {
-							"type": "string"
-						},
-						"common": {
-							"type": "string"
-						},
-						"uncommon": {
-							"type": "string"
-						},
-						"rare": {
-							"type": "string"
-						},
-						"epic": {
-							"type": "string"
-						},
-						"legendary": {
-							"type": "string"
-						},
-						"artifact": {
-							"type": "string"
-						},
-						"heirloom": {
-							"type": "string"
-						}
-					},
-					"additionalProperties": false,
-					"required": ["junk", "common", "uncommon", "rare", "epic", "legendary", "artifact", "heirloom"]
-				},
 				"stats": {
 					"type": "object",
 					"properties": {
@@ -1150,7 +1119,6 @@
 				"weapon_skills",
 				"spell_schools",
 				"resource_types",
-				"item_qualities",
 				"stats",
 				"currency",
 				"copy_button",
@@ -1286,19 +1254,6 @@
 				"title": {
 					"type": "string"
 				},
-				"gem_summary": {
-					"type": "object",
-					"properties": {
-						"title": {
-							"type": "string"
-						},
-						"reset_gems": {
-							"type": "string"
-						}
-					},
-					"additionalProperties": false,
-					"required": ["title", "reset_gems"]
-				},
 				"reforge_success": {
 					"type": "object",
 					"properties": {
@@ -1345,19 +1300,10 @@
 								},
 								"enchants": {
 									"type": "string"
-								},
-								"gem1": {
-									"type": "string"
-								},
-								"gem2": {
-									"type": "string"
-								},
-								"gem3": {
-									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["items", "random_suffix", "enchants", "gem1", "gem2", "gem3"]
+							"required": ["items", "random_suffix", "enchants"]
 						},
 						"remove_buttons": {
 							"type": "object",
@@ -1367,13 +1313,10 @@
 								},
 								"remove_random_suffix": {
 									"type": "string"
-								},
-								"remove_gem": {
-									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["remove_enchant", "remove_random_suffix", "remove_gem"]
+							"required": ["remove_enchant", "remove_random_suffix"]
 						},
 						"filters": {
 							"type": "object",
@@ -1422,22 +1365,6 @@
 						"quick_popovers": {
 							"type": "object",
 							"properties": {
-								"favorite_gems": {
-									"type": "object",
-									"properties": {
-										"title": {
-											"type": "string"
-										},
-										"empty_message": {
-											"type": "string"
-										},
-										"open_gems": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["title", "empty_message", "open_gems"]
-								},
 								"favorite_enchants": {
 									"type": "object",
 									"properties": {
@@ -1456,7 +1383,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["favorite_gems", "favorite_enchants"]
+							"required": ["favorite_enchants"]
 						},
 						"missing_gear_message": {
 							"type": "object",
@@ -1611,7 +1538,7 @@
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "gem_summary", "reforge_success", "gear_sets", "gear_picker", "preset_configurations", "upgrade_summary"]
+			"required": ["title", "reforge_success", "gear_sets", "gear_picker", "preset_configurations", "upgrade_summary"]
 		},
 		"settings_tab": {
 			"type": "object",
@@ -2172,6 +2099,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"queue_delay": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"has_bs_tier_2": {
 							"type": "object",
 							"properties": {
@@ -2270,19 +2210,6 @@
 							"required": ["label", "tooltip"]
 						},
 						"show_2h_weapons": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
-						"show_matching_gems": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -2503,13 +2430,13 @@
 						"starting_rage",
 						"stance_snapshot",
 						"has_bs_tier_2",
+						"queue_delay",
 						"assume_bleed_active",
 						"cannot_shred_target",
 						"okf_uptime",
 						"sync_type",
 						"show_1h_weapons",
 						"show_2h_weapons",
-						"show_matching_gems",
 						"show_all_enchants",
 						"show_ep_values",
 						"phase_selector",
@@ -7309,10 +7236,40 @@
 											},
 											"additionalProperties": false,
 											"required": ["label"]
+										},
+										"use_rend": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label"]
+										},
+										"use_hamstring": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label"]
+										},
+										"use_stance_dance": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label"]
 										}
 									},
 									"additionalProperties": false,
-									"required": ["spec", "use_recklessness", "use_overpower"]
+									"required": ["spec", "use_recklessness", "use_overpower", "use_rend", "use_stance_dance", "use_hamstring"]
 								}
 							},
 							"additionalProperties": false,
@@ -8440,13 +8397,7 @@
 				"warnings": {
 					"type": "object",
 					"properties": {
-						"meta_gem_disabled": {
-							"type": "string"
-						},
 						"profession_requirement": {
-							"type": "string"
-						},
-						"too_many_jc_gems": {
 							"type": "string"
 						},
 						"unspent_talent_points": {
@@ -8458,24 +8409,12 @@
 						"windfury_over_flametongue": {
 							"type": "string"
 						},
-						"custom_ep_not_enabled": {
-							"type": "string"
-						},
 						"label": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": [
-						"meta_gem_disabled",
-						"profession_requirement",
-						"too_many_jc_gems",
-						"unspent_talent_points",
-						"windfury_over_grace_of_air",
-						"windfury_over_flametongue",
-						"custom_ep_not_enabled",
-						"label"
-					]
+					"required": ["profession_requirement", "unspent_talent_points", "windfury_over_grace_of_air", "windfury_over_flametongue", "label"]
 				},
 				"buttons": {
 					"type": "object",
@@ -8834,9 +8773,6 @@
 								"any": {
 									"type": "string"
 								},
-								"optimize_gems_tooltip": {
-									"type": "string"
-								},
 								"freeze_item_slots_tooltip": {
 									"type": "string"
 								},
@@ -8893,15 +8829,6 @@
 								},
 								"freeze_item_slots": {
 									"type": "string"
-								},
-								"max_gem_phase": {
-									"type": "string"
-								},
-								"max_gem_quality": {
-									"type": "string"
-								},
-								"disable_unique_gems": {
-									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -8910,7 +8837,6 @@
 								"tooltip",
 								"use_soft_cap_breakpoints",
 								"any",
-								"optimize_gems_tooltip",
 								"freeze_item_slots_tooltip",
 								"edit_stat_caps",
 								"stat_caps_tooltip",
@@ -8929,10 +8855,7 @@
 								"modify_in_editor",
 								"hard_cap_info",
 								"edit_weights",
-								"freeze_item_slots",
-								"max_gem_phase",
-								"max_gem_quality",
-								"disable_unique_gems"
+								"freeze_item_slots"
 							]
 						}
 					},

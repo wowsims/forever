@@ -110,7 +110,7 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 		setProgressOpen(false);
 		performance.mark('reforge-optimization-end');
 		const completionTimeInMs = performance.measure('reforge-optimization-measure', 'reforge-optimization-start', 'reforge-optimization-end').duration;
-		if (isDevMode()) console.log('Gem optimization took:', `${completionTimeInMs.toFixed(2)}ms`);
+		if (isDevMode()) console.log('Gear optimization took:', `${completionTimeInMs.toFixed(2)}ms`);
 		trackEvent({ action: 'settings', category: 'reforging', label: 'suggest_duration', value: Math.ceil(completionTimeInMs / 1000) });
 	}, []);
 
@@ -137,7 +137,7 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 
 	const onCancel = async () => {
 		isCancelling.current = true;
-		if (isDevMode()) console.log('User cancelled gem optimization');
+		if (isDevMode()) console.log('User cancelled gear optimization');
 		try {
 			await model.abortReforgeOptimization();
 		} catch {
@@ -165,7 +165,7 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 				loading={isRunning}
 				onClick={onOptimize}
 				{...tooltipAnchorProps(softCapsTooltipId)}>
-				<Icon name="gem" />
+				<Icon name="screwdriver-wrench" />
 			</Button>
 			<Popover
 				open={open}
@@ -217,13 +217,13 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 				<ProgressTrackerDialog
 					open
 					testId="reforge-optimizer-progress-tracker"
-					title="Optimizing Gems"
+					title="Optimizing Gear"
 					state={{ stage: 'initializing' }}
 					warning={
 						<>
 							<p>
-								Gemming can be a lengthy process, especially as specific stat caps and breakpoints come into play for classes. This may take a
-								while, but be assured that the calculation will eventually complete.
+								Gear optimization can be a lengthy process, especially as specific stat caps and breakpoints come into play for classes. This
+								may take a while, but be assured that the calculation will eventually complete.
 							</p>
 							<p className="mb-0">You may cancel this operation at any time using the button below.</p>
 						</>

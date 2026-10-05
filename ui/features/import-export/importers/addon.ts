@@ -76,12 +76,7 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 		gearJson.items = (gearJson.items as Array<any>).filter(item => item != null);
 		delete gearJson.version;
 
-		(gearJson.items as Array<any>).forEach(item => {
-			if (item.gems) {
-				item.gems = (item.gems as Array<any>).map(gem => gem || 0);
-			}
-		});
-		const equipmentSpec = EquipmentSpec.fromJson(gearJson);
+		const equipmentSpec = EquipmentSpec.fromJson(gearJson, { ignoreUnknownFields: true });
 
 		await finishIndividualImport(host, {
 			charClass,

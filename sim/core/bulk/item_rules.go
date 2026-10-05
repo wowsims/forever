@@ -17,13 +17,11 @@ func replaceItem(existing core.Item, option bulkSimCandidateOption) core.Item {
 	} else if !enchantAppliesToItem(itemSpec.GetEnchant(), option.item) {
 		itemSpec.Enchant = 0
 	}
-	itemSpec.Gems = mergeGems(existing, option, option.item)
 
 	return core.NewItem(core.ItemSpec{
 		ID:           itemSpec.GetId(),
 		RandomSuffix: itemSpec.GetRandomSuffix(),
 		Enchant:      itemSpec.GetEnchant(),
-		Gems:         slices.Clone(itemSpec.GetGems()),
 	})
 }
 
@@ -36,44 +34,7 @@ func createSelectedItem(option bulkSimCandidateOption) core.Item {
 		ID:           option.spec.GetId(),
 		RandomSuffix: option.spec.GetRandomSuffix(),
 		Enchant:      enchant,
-		Gems:         slices.Clone(option.spec.GetGems()),
 	})
-}
-
-// Gems picked for the bulk item win; the replaced item's gems are re-homed into the sockets
-// still free, preferring a color match over mere eligibility. Gems with no room are dropped.
-func mergeGems(existing core.Item, option bulkSimCandidateOption, newItem core.Item) []int32 {
-	newGems := make([]int32, len(newItem.GemSockets))
-
-	for socketIdx, gemID := range option.spec.GetGems() {
-		if socketIdx >= len(newGems) {
-			break
-		}
-		newGems[socketIdx] = gemID
-	}
-
-	for gemIdx, gem := range existing.Gems {
-		if gemIdx >= len(existing.GemSockets) || gem.ID == 0 {
-			continue
-		}
-		socketIdx := firstFreeSocket(newItem.GemSockets, newGems, gem.Color, core.GemMatchesSocket)
-		if socketIdx == -1 {
-			socketIdx = firstFreeSocket(newItem.GemSockets, newGems, gem.Color, core.GemEligibleForSocket)
-		}
-		if socketIdx != -1 {
-			newGems[socketIdx] = gem.ID
-		}
-	}
-	return newGems
-}
-
-func firstFreeSocket(socketColors []proto.GemColor, gems []int32, gemColor proto.GemColor, accepts func(proto.GemColor, proto.GemColor) bool) int {
-	for socketIdx, socketColor := range socketColors {
-		if gems[socketIdx] == 0 && accepts(gemColor, socketColor) {
-			return socketIdx
-		}
-	}
-	return -1
 }
 
 func enchantAppliesToItem(effectID int32, item core.Item) bool {

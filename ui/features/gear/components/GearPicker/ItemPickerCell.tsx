@@ -11,7 +11,6 @@ import { createGearData } from '../../model/gear_data';
 import { SelectorModalTabs } from '../../types';
 import { ItemDetailCell, type ItemDetailCellProps } from '../ItemCell';
 import { QuickEnchantList } from './QuickEnchantList';
-import { QuickGemList } from './QuickGemList';
 
 export interface ItemPickerCellProps {
 	slot: ItemSlot;
@@ -38,46 +37,23 @@ export const ItemPickerCell = ({ slot, ready, align }: ItemPickerCellProps) => {
 		[openSelectorModal, player, slot, ready],
 	);
 
-	// The lists read the store inside `Tooltip`'s children, which react-tooltip does not build until
-	// the tooltip first opens — that is what keeps 16-64 `filters` subscribers off the pane.
-	const quickSwapTooltips =
+	// The list reads the store inside `Tooltip`'s children, which react-tooltip does not build until
+	// the tooltip first opens — that is what keeps a `filters` subscriber per slot off the pane.
+	const quickSwapTooltip =
 		!item || !ready ? null : (
-			<>
-				<Tooltip
-					id={`${tooltipId}-enchant`}
-					className="tooltip-quick-swap cursor-default"
-					maxWidth="max-w-none"
-					widthClassName="w-54"
-					align="start"
-					padded={false}
-					place="bottom"
-					clickable
-					hidden={!showQuickSwap}
-					content={<QuickEnchantList slot={slot} onOpenDetail={() => open(SelectorModalTabs.Enchants)} />}
-				/>
-				{item.allSocketColors().map((_socketColor, gemIdx) => (
-					<Tooltip
-						key={gemIdx}
-						id={`${tooltipId}-gem-${gemIdx}`}
-						className="tooltip-quick-swap"
-						place="bottom"
-						clickable
-						hidden={!showQuickSwap}
-						content={<QuickGemList slot={slot} socketIdx={gemIdx} onOpenDetail={() => open(`Gem${gemIdx + 1}` as SelectorModalTabs)} />}
-					/>
-				))}
-			</>
+			<Tooltip
+				id={`${tooltipId}-enchant`}
+				className="tooltip-quick-swap cursor-default"
+				maxWidth="max-w-none"
+				widthClassName="w-54"
+				align="start"
+				padded={false}
+				place="bottom"
+				clickable
+				hidden={!showQuickSwap}
+				content={<QuickEnchantList slot={slot} onOpenDetail={() => open(SelectorModalTabs.Enchants)} />}
+			/>
 		);
 
-	return (
-		<ItemDetailCell
-			slot={slot}
-			item={item}
-			align={align}
-			onOpen={open}
-			enchantTooltipId={`${tooltipId}-enchant`}
-			socketTooltipId={gemIdx => `${tooltipId}-gem-${gemIdx}`}
-			extraLabels={quickSwapTooltips}
-		/>
-	);
+	return <ItemDetailCell slot={slot} item={item} align={align} onOpen={open} enchantTooltipId={`${tooltipId}-enchant`} extraLabels={quickSwapTooltip} />;
 };

@@ -170,7 +170,7 @@ func NewRogue(character *core.Character, options *proto.Player, talents string) 
 	core.FillTalentsProto(rogue.Talents.ProtoReflect(), talents, TalentTreeSizes)
 
 	// Passive rogue threat reduction: https://wotlk.wowhead.com/spell=21184/rogue-passive-dnd
-	rogue.PseudoStats.ThreatMultiplier *= 0.71
+	rogue.PseudoStats.ThreatMultiplier *= 1 + spellData.RoguePassive.Highest().EffectN(1).Percent()
 	rogue.PseudoStats.CanParry = true
 
 	maxEnergy := 100.0 + spellData.Vigor.ValueAt(rogue.Talents.Vigor)

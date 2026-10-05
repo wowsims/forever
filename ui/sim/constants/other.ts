@@ -13,7 +13,7 @@ export const CURRENT_PHASE = Phase.Phase1;
 
 export enum LaunchStatus {
 	Unlaunched,
-	// Gear, gems, enchants, talents and the gem optimizer work. No simulation, and none planned.
+	// Gear, enchants, talents and the gear optimizer work. No simulation, and none planned.
 	GearPlanner,
 	Alpha,
 	Beta,

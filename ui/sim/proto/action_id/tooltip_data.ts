@@ -13,10 +13,8 @@ export function actionIdWowheadTooltipData(
 }
 
 export function equippedItemWowheadTooltipData(player: Player<any>, equippedItem: EquippedItem): Promise<string> {
-	const gemIds = equippedItem.gems.length ? equippedItem.curGems().map(gem => (gem ? gem.id : 0)) : [];
 	const enchantIds = [equippedItem.enchant?.effectId].filter((id): id is number => id !== undefined);
 	return actionIdWowheadTooltipData(equippedItem.asActionId(), {
-		gemIds,
 		itemLevel: Number(equippedItem.ilvl),
 		enchantIds: enchantIds,
 		randomEnchantmentId: equippedItem.randomSuffix?.id,

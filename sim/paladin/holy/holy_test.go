@@ -29,7 +29,6 @@ func TestHolyPaladin(t *testing.T) {
 				Buffs:         core.FullIndividualBuffs,
 				TalentsString: StandardTalents,
 				Profession1:   proto.Profession_Enchanting,
-				Profession2:   proto.Profession_Jewelcrafting,
 				Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 			},
 			PlayerOptions,

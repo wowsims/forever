@@ -211,8 +211,8 @@ func TestReforgeRatingKeepsItsWeightOverItsPercentWeights(t *testing.T) {
 	}}
 	validated := checkWeights(weights, core.NewUnitStats(), softCaps)
 	o := &reforgeOptimizer{player: &proto.Player{}, undershootCaps: core.NewUnitStats()}
-	hitGem := map[string]float64{}
-	o.applyReforgeStat(hitGem, stats.HitRating, 10, validated)
+	hitCoeffs := map[string]float64{}
+	o.applyReforgeStat(hitCoeffs, stats.HitRating, 10, validated)
 
 	t.Run("checkWeights", func(t *testing.T) {
 		if got := getUnitStat(validated, rangedHit); got != 2*core.HitRatingPerHitPercent {
@@ -230,28 +230,28 @@ func TestReforgeRatingKeepsItsWeightOverItsPercentWeights(t *testing.T) {
 	})
 
 	t.Run("score", func(t *testing.T) {
-		if got := computeCoeffScore(hitGem, validated); math.Abs(got-20) > 1e-9 {
+		if got := computeCoeffScore(hitCoeffs, validated); math.Abs(got-20) > 1e-9 {
 			t.Errorf("10 hit rating scores %v, want 20", got)
 		}
-		critGem := map[string]float64{}
-		o.applyReforgeStat(critGem, stats.CritRating, 10, validated)
-		if got := computeCoeffScore(critGem, validated); math.Abs(got-15) > 1e-9 {
+		critCoeffs := map[string]float64{}
+		o.applyReforgeStat(critCoeffs, stats.CritRating, 10, validated)
+		if got := computeCoeffScore(critCoeffs, validated); math.Abs(got-15) > 1e-9 {
 			t.Errorf("10 crit rating scores %v, want 15", got)
 		}
 	})
 
 	t.Run("checkCaps", func(t *testing.T) {
 		variables := newLPVariables()
-		variables.set("hitGem", map[string]float64{coeffKeyForUnitStat(rangedHit): 4})
-		variables.setObj("hitGem", hitGem)
-		exceeded, constraints, capped, _ := o.checkCaps(lpSolution{variables: []string{"hitGem"}}, core.NewUnitStats(), softCaps, variables, newLPConstraints(), validated)
+		variables.set("hit", map[string]float64{coeffKeyForUnitStat(rangedHit): 4})
+		variables.setObj("hit", hitCoeffs)
+		exceeded, constraints, capped, _ := o.checkCaps(lpSolution{variables: []string{"hit"}}, core.NewUnitStats(), softCaps, variables, newLPConstraints(), validated)
 		if !exceeded {
 			t.Fatal("ranged hit past the soft cap gap leaves the cap unenforced")
 		}
 		if got := constraints.byName[coeffKeyForUnitStat(rangedHit)]; got != greaterEq(3) {
 			t.Errorf("ranged hit row %+v, want at least the 3%% gap", got)
 		}
-		if got := computeCoeffScore(hitGem, capped); got != 0 {
+		if got := computeCoeffScore(hitCoeffs, capped); got != 0 {
 			t.Errorf("10 hit rating past the soft cap scores %v, want the post-cap 0", got)
 		}
 	})

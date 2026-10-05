@@ -49,12 +49,12 @@ const { addBulkItems, hasBulkItem, loadEquippedBulkItems, seedBulkPickerGroups }
 
 const STORE_KEY = 7;
 
-const fakeItem = (id: number, name: string, gems: number[] = []): EquippedItem => {
+const fakeItem = (id: number, name: string, enchant = 0): EquippedItem => {
 	const item = {
 		id,
 		item: { id, name, unique: false },
 		_item: { id, name, unique: false },
-		asSpec: () => ItemSpec.create({ id, gems }),
+		asSpec: () => ItemSpec.create({ id, enchant }),
 		equals: (other: EquippedItem | null) => !!other && other.id === id,
 		withDynamicStats: () => item as unknown as EquippedItem,
 	};
@@ -64,14 +64,14 @@ const fakeItem = (id: number, name: string, gems: number[] = []): EquippedItem =
 const BATCHED = fakeItem(1, 'Batched Ring');
 const WORN = fakeItem(2, 'Worn Ring');
 const PICKED = fakeItem(3, 'Picked Ring');
-const SOCKETED = fakeItem(4, 'Socketed Ring', [0, 0]);
+const ENCHANTED = fakeItem(4, 'Enchanted Ring', 2928);
 
 const mount = () => {
 	const store = createSimStore();
 	const gear = { getEquippedItem: () => null };
 	seedKeyed(store, 'players', STORE_KEY, { gear, v: zeroVersions(PLAYER_FIELDS) } as never);
 
-	const db = { lookupItemSpec: (spec: ItemSpec) => [BATCHED, WORN, PICKED, SOCKETED].find(item => item.id === spec.id) ?? null };
+	const db = { lookupItemSpec: (spec: ItemSpec) => [BATCHED, WORN, PICKED, ENCHANTED].find(item => item.id === spec.id) ?? null };
 	const player = {
 		sim: { store, db, isNative: false, encounter: { getAreaTypes: () => [] } },
 		storeKey: STORE_KEY,
@@ -218,22 +218,22 @@ describe('BulkItemPickerGroup add button', () => {
 		const { gearData } = h.modal().request!;
 
 		act(() => gearData.equipItem(PICKED));
-		act(() => gearData.equipItem(SOCKETED));
+		act(() => gearData.equipItem(ENCHANTED));
 
 		const rings = bulkState(h.player).pickerGroups.get(BulkSimItemSlot.ItemSlotFinger)!;
-		expect(rings.map(entry => entry.item)).toEqual([BATCHED, PICKED, SOCKETED]);
+		expect(rings.map(entry => entry.item)).toEqual([BATCHED, PICKED, ENCHANTED]);
 		expect(screen.getAllByTestId('bulk-item-picker')).toHaveLength(3);
 		expect(h.modal().open).toBe(true);
 		expect(gearData.getEquippedItem()).toBeNull();
 	});
 
-	it("adds a socketed pick in the shape the list's in-batch mark looks for", () => {
+	it("adds an enchanted pick in the shape the list's in-batch mark looks for", () => {
 		const h = mount();
 		h.clickAdd('rings');
 
-		act(() => h.modal().request!.gearData.equipItem(SOCKETED));
+		act(() => h.modal().request!.gearData.equipItem(ENCHANTED));
 
-		expect(hasBulkItem(h.player, ItemSpec.create({ id: SOCKETED.id }))).toBe(true);
+		expect(hasBulkItem(h.player, ItemSpec.create({ id: ENCHANTED.id }))).toBe(true);
 	});
 });
 

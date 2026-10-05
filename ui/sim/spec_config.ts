@@ -84,7 +84,6 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	knownIssues?: Array<ReactNode>;
 	warnings?: Array<(simUI: IndividualSimHost<SpecType>) => SimWarning>;
 	consumableStats?: Array<Stat>;
-	gemStats?: Array<Stat>;
 	epStats: Array<Stat>;
 	epPseudoStats?: Array<PseudoStat>;
 	epReferenceStat: Stat;

@@ -1,5 +1,4 @@
 import { StatCapType } from '@generated/proto/api';
-import { Phase } from '@sim/constants/other';
 import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
 
 /**
@@ -49,9 +48,3 @@ export const toDefaultUnitStatValue = (value: number, unitStat: UnitStat): numbe
 
 /** A configured breakpoint as the tooltips and limit selects show it. */
 export const breakpointValueToDisplayPercentage = (value: number, unitStat: UnitStat): string => unitStat.convertDefaultUnitsToPercent(value)!.toFixed(2);
-
-/** The phases the max-gem-phase picker offers, ascending. */
-export const gemPhaseValues = (): number[] =>
-	Object.keys(Phase)
-		.filter(key => !isNaN(Number(key)))
-		.map(Number);

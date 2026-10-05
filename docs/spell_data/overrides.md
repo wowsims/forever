@@ -76,6 +76,15 @@ against the encounter's area set. The override is stale once the row states a `R
 own. The on-use stat actives that `shared.NewSimpleStatActive` registers read it; a proc chance the
 tooltip says is doubled has no reader yet.
 
+`overrides.CurveSigns` is the third table, for a talent whose tree curve states a reduction as a positive
+number while the row's base points and the tooltip state it as a negative one (Frost Channeling's threat
+on effect 2: row -30, curve 10/20/30). A row names the spell and the effect position, counted from 1 as
+the tooltip's `$s2` counts. The generator negates that curve in `generatedCurves`, so `MultiplierAt`
+reads 0.9 where the tooltip says 10% less. The row is stale once the curve's sign agrees with the row's,
+and refused where the spell has no curve at that position or the row's base points are 0. This is per
+spell, not a sign rule: some curves disagree with their row and are right, like Eclipse's, whose tooltip
+divides the curve by -1000.
+
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or
 replace a consumable itself are in [Consumables](../consumables.md).
 

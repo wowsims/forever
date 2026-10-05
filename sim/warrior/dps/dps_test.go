@@ -51,6 +51,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 		Rotation: core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury"),
 		OtherRotations: []core.RotationCombo{
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
+			armsStanceDanceRotation(),
 		},
 
 		ItemFilter: core.ItemFilter{
@@ -71,6 +72,16 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 	}
 }
 
+func armsStanceDanceRotation() core.RotationCombo {
+	rotation := core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms").Rotation
+	for _, item := range rotation.PriorityList {
+		if item.GetAction().GetGroupReference().GetGroupName() == "Stance Dance ON/OFF" {
+			item.Hide = false
+		}
+	}
+	return core.RotationCombo{Label: "arms_stance_dance", Rotation: rotation}
+}
+
 var DefaultOptions = &proto.Player_DpsWarrior{
 	DpsWarrior: &proto.DpsWarrior{
 		Options: &proto.DpsWarrior_Options{
@@ -82,8 +93,8 @@ var DefaultOptions = &proto.Player_DpsWarrior{
 	},
 }
 
-var DefaultFuryTalents = "30305013002-25053005150110501"
-var DefaultArmsTalents = "30305213032315201-0505003004"
+var DefaultFuryTalents = "30305013002-25053005052010501"
+var DefaultArmsTalents = "30325213132515201-0505-2"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	PotId:       250943, // Major Frenzy Potion

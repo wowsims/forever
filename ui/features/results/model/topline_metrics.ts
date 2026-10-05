@@ -119,7 +119,9 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 
 	if (!displayMetrics) return resultColumns;
 
+	// Threat per second is the one threat metric every spec shows; the rest follow the setting.
 	return resultColumns.filter(({ metric }) => {
+		if (metric === 'tps') return true;
 		const category = resultMetricCategories[metric];
 		return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
 	});

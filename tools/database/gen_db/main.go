@@ -110,10 +110,8 @@ func main() {
 		return err
 	})
 	g.Go(func() error { _, err := database.LoadAndWriteRandomPropAllocations(helper, inputsDir); return err })
-	g.Go(func() error { _, err := database.LoadAndWriteRawGems(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteRawEnchants(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteRawSpellEffects(helper, inputsDir); return err })
-	g.Go(func() error { _, err := database.LoadAndWriteItemStatEffects(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteItemDamageTables(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteItemArmorTotal(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteItemArmorQuality(helper, inputsDir); return err })
@@ -148,18 +146,6 @@ func main() {
 	database.GenerateProtos(instance, db, only)
 
 	processItems(instance, iconsMap, names, dropSources, craftingSources, repSources, db)
-
-	for _, gem := range instance.Gems {
-		parsed := gem.ToProto()
-		// All BOA gems are unique-equipped, but this isn't indicated in the gamefiles.
-		if gem.Bonding == dbc.BIND_ON_ACQUIRE {
-			parsed.Unique = true
-		}
-		if parsed.Icon == "" {
-			parsed.Icon = strings.ToLower(database.GetIconName(iconsMap, gem.FDID))
-		}
-		db.MergeGem(parsed)
-	}
 
 	for _, enchant := range instance.Enchants {
 		parsed := enchant.ToProto()
@@ -211,7 +197,6 @@ func main() {
 	}
 
 	db.MergeItems(database.ItemOverrides)
-	db.MergeGems(database.GemOverrides)
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
@@ -457,28 +442,6 @@ func ApplyGlobalFilters(db *database.WowDatabase) {
 		return true
 	})
 
-	db.Gems = core.FilterMap(db.Gems, func(_ int32, gem *proto.UIGem) bool {
-		if _, ok := database.GemDenyList[gem.Id]; ok {
-			return false
-		}
-
-		gem.Phase = 1
-
-		for _, pattern := range database.DenyListNameRegexes {
-			if pattern.MatchString(gem.Name) {
-				return false
-			}
-		}
-		return true
-	})
-
-	db.Gems = core.FilterMap(db.Gems, func(_ int32, gem *proto.UIGem) bool {
-		if strings.HasSuffix(gem.Name, "Stormjewel") {
-			gem.Unique = false
-		}
-		return true
-	})
-
 	db.ItemIcons = core.FilterMap(db.ItemIcons, func(_ int32, icon *proto.IconData) bool {
 		return icon.Name != "" && icon.Icon != ""
 	})
@@ -498,16 +461,12 @@ func ApplyGlobalFilters(db *database.WowDatabase) {
 // Filters out entities which shouldn't be included in the sim.
 func ApplySimmableFilters(db *database.WowDatabase) {
 	db.Items = core.FilterMap(db.Items, simmableItemFilter)
-	db.Gems = core.FilterMap(db.Gems, simmableGemFilter)
 	db.Enchants = core.FilterMap(db.Enchants, simmableEnchantFilter)
 }
 
 func ApplyNonSimmableFilters(db *database.WowDatabase) {
 	db.Items = core.FilterMap(db.Items, func(id int32, item *proto.UIItem) bool {
 		return !simmableItemFilter(id, item)
-	})
-	db.Gems = core.FilterMap(db.Gems, func(id int32, gem *proto.UIGem) bool {
-		return !simmableGemFilter(id, gem)
 	})
 	db.Enchants = core.FilterMap(db.Enchants, func(id database.EnchantDBKey, enchant *proto.UIEnchant) bool {
 		return !simmableEnchantFilter(id, enchant)
@@ -540,13 +499,6 @@ func simmableItemFilter(_ int32, item *proto.UIItem) bool {
 	}
 
 	return true
-}
-func simmableGemFilter(_ int32, gem *proto.UIGem) bool {
-	if _, ok := database.GemAllowList[gem.Id]; ok {
-		return true
-	}
-
-	return gem.Quality >= proto.ItemQuality_ItemQualityUncommon
 }
 
 var nonLiveEnchants = map[database.EnchantDBKey]struct{}{}

@@ -123,7 +123,8 @@ enum Profession {
 	Engineering = 4;
 	Herbalism = 5;
 	Inscription = 6;
-	Jewelcrafting = 7;
+	reserved 7;
+	reserved "Jewelcrafting";
 	Leatherworking = 8;
 	Mining = 9;
 	Skinning = 10;
@@ -447,18 +448,6 @@ enum ItemQuality {
 	ItemQualityHeirloom = 7;
 }
 
-enum GemColor {
-	GemColorUnknown = 0;
-	GemColorMeta = 1;
-	GemColorRed = 2;
-	GemColorBlue = 3;
-	GemColorYellow = 4;
-	GemColorGreen = 5;
-	GemColorOrange = 6;
-	GemColorPurple = 7;
-	GemColorPrismatic = 8;
-}
-
 enum SpellSchool {
 	SpellSchoolPhysical = 0;
 	SpellSchoolArcane = 1;
@@ -634,10 +623,8 @@ message ItemSpec {
 	int32 id = 1;
 	int32 random_suffix = 2;
 	int32 enchant = 3;
-	repeated int32 gems = 4;
-	// Set by the UI when the socketed meta gem's requirements are not met. The gem stays in its
-	// socket so the item's socket bonus still applies, but contributes no stats and no effect.
-	bool meta_gem_disabled = 5;
+	reserved 4, 5;
+	reserved "gems", "meta_gem_disabled";
 }
 
 

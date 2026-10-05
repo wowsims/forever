@@ -81,6 +81,13 @@ describe('toplineResultMetrics', () => {
 		expect(toplineResultMetrics(result)[0]).toMatchObject({ metric: 'dps', average: 400, stdev: undefined });
 	});
 
+	it('keeps tps while the other threat metrics follow the setting', () => {
+		const result = simResult([player()]);
+		const displayMetrics = { damage: true, threat: false, healing: true };
+
+		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'tto', 'hps']);
+	});
+
 	it('omits the merged columns a filtered encounter has no actions for', () => {
 		expect(keys(simResult([player({ getTargetIndex: () => 0 })]))).toEqual(['tto', 'hps']);
 	});

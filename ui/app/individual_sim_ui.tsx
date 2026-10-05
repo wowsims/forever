@@ -69,7 +69,7 @@ export { PRESET_FILTER_STORAGE_KEY } from './storage_keys';
 
 const ALL_SETTING_CATEGORIES = getEnumValues<SimSettingCategories>(SimSettingCategories);
 
-// Forever ships no gems yet, so the gem optimizer has nothing to suggest; a spec's `reforge` config is kept for when it does.
+// Off: the gear optimizer has nothing to choose between. A spec's `reforge` config is read only when this is on.
 const REFORGE_OPTIMIZER_ENABLED = false;
 
 // The individual sim's host: the registries, openers and cross-cutting actions the React tree
@@ -166,8 +166,8 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 			this.reforger = createReforgeOptimizer(this.sim, this.player, {
 				...this.reforgeOptions,
 				defaults: this.individualConfig.defaults,
-				// Omitting this leaves the solver un-weighted, and the gem-optimizer/ep-stats probe
-				// is the only thing that notices.
+				// Omitting this leaves the solver un-weighted, and the ep-stats probe is the only
+				// thing that notices.
 				epStats: this.individualConfig.epStats,
 			});
 			this.sidebar.add({
@@ -294,7 +294,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 
 	fromProto(settings: IndividualSimSettings, includeCategories?: Array<SimSettingCategories>) {
 		// A gear planner hides the encounter settings, so the default target applied by `applyDefaults`
-		// stays whatever the saved settings or the link carried: stats and the gem optimizer always
+		// stays whatever the saved settings or the link carried: stats and the gear optimizer always
 		// have a full environment to build, without a second ComputeStats to put it back.
 		const categories = this.simDisabled
 			? (includeCategories?.length ? includeCategories : ALL_SETTING_CATEGORIES).filter(category => category !== SimSettingCategories.Encounter)

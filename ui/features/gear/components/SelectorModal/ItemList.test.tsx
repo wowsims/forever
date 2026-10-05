@@ -1,4 +1,4 @@
-import { Class, GemColor, ItemQuality, ItemSlot, ItemType, ScalingItemProperties, Stat } from '@generated/proto/common';
+import { Class, ItemQuality, ItemSlot, ItemType, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -109,7 +109,6 @@ describe('ItemList', () => {
 	const tab = (label: SelectorModalTabs, over: Partial<SelectorTab> = {}): SelectorTab =>
 		({
 			label,
-			socketColor: GemColor.GemColorRed,
 			itemData: ROWS,
 			computeEP: (candidate: any) => candidate?.ilvl ?? 0,
 			equippedToItem: (equipped: EquippedItem | null) => equipped?.item ?? null,
@@ -157,7 +156,6 @@ describe('ItemList', () => {
 				getClass: () => Class.ClassWarrior,
 				filterItemData: (idxs: number[]) => idxs,
 				filterEnchantData: (idxs: number[]) => idxs,
-				filterGemData: (idxs: number[]) => idxs,
 			},
 		});
 	});
@@ -219,15 +217,6 @@ describe('ItemList', () => {
 		expect(names(container)).toEqual(['Low', 'Mid', 'HighFirst', 'HighSecond']);
 	});
 
-	it('renders the matching-gems option on a gem tab and nowhere else', () => {
-		const { container, unmount } = setup();
-		expect(container.querySelector('[data-testid="selector-modal-show-matching-gems"]')).toBeNull();
-		unmount();
-
-		const gems = setup({ label: SelectorModalTabs.Gem2 });
-		expect(gems.container.querySelector('[data-testid="selector-modal-show-matching-gems"]')).not.toBeNull();
-	});
-
 	it('offers the weapon options in a main hand and, for a warrior, an off hand — never in another slot', () => {
 		const shown = (slot: ItemSlot, label = SelectorModalTabs.Items) => {
 			const { container, unmount } = setup({ slot, label });
@@ -259,7 +248,7 @@ describe('ItemList', () => {
 
 		expect(labelFor(SelectorModalTabs.Items)).toContain('unequip_item');
 		expect(labelFor(SelectorModalTabs.Enchants)).toContain('remove_enchant');
-		expect(labelFor(SelectorModalTabs.Gem3)).toContain('remove_gem');
+		expect(labelFor(SelectorModalTabs.RandomSuffixes)).toContain('remove_random_suffix');
 	});
 
 	it('narrows the rows to the search, without losing the sort the user chose', () => {

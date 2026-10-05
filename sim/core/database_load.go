@@ -16,7 +16,6 @@ func init() {
 	simDB := &proto.SimDatabase{
 		Items:                    make([]*proto.SimItem, len(db.Items)),
 		Enchants:                 make([]*proto.SimEnchant, len(db.Enchants)),
-		Gems:                     make([]*proto.SimGem, len(db.Gems)),
 		ItemEffectRandPropPoints: make([]*proto.ItemEffectRandPropPoints, len(db.ItemEffectRandPropPoints)),
 		RandomSuffixes:           make([]*proto.ItemRandomSuffix, len(db.RandomSuffixes)),
 		Consumables:              make([]*proto.Consumable, len(db.Consumables)),
@@ -32,8 +31,6 @@ func init() {
 			WeaponType:       item.WeaponType,
 			HandType:         item.HandType,
 			RangedWeaponType: item.RangedWeaponType,
-			GemSockets:       item.GemSockets,
-			SocketBonus:      item.SocketBonus,
 			PseudoStats:      item.PseudoStats,
 			WeaponSpeed:      item.WeaponSpeed,
 			QualityModifier:  item.QualityModifier,
@@ -66,15 +63,6 @@ func init() {
 			Type:           enchant.Type,
 			EnchantType:    enchant.EnchantType,
 			ExtraTypes:     enchant.ExtraTypes,
-		}
-	}
-
-	for i, gem := range db.Gems {
-		simDB.Gems[i] = &proto.SimGem{
-			Id:    gem.Id,
-			Name:  gem.Name,
-			Color: gem.Color,
-			Stats: gem.Stats,
 		}
 	}
 

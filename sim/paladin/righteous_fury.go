@@ -2,7 +2,7 @@ package paladin
 
 import (
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // Righteous Fury
@@ -20,11 +20,8 @@ func (paladin *Paladin) registerRighteousFury() {
 		Label:    "Righteous Fury",
 		ActionID: actionID,
 		Duration: core.NeverExpires,
-	}).AttachSpellMod(core.SpellModConfig{
-		Kind:       core.SpellMod_ThreatMultiplier_Pct,
-		School:     core.SpellSchoolHoly,
-		FloatValue: rank.Effect(dbcenums.A_MOD_THREAT, 2).Percent(),
 	})
+	spelldata.ParseEffects(&paladin.Character, paladin.RighteousFuryAura, rank, spelldata.Effects(1))
 
 	paladin.RegisterSpell(core.SpellConfig{
 		ActionID:       actionID,

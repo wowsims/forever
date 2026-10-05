@@ -34,9 +34,6 @@ func TestRegisteredEffects(t *testing.T) {
 	for _, item := range db.Items {
 		itemIDs = append(itemIDs, item.Id)
 	}
-	for _, gem := range db.Gems {
-		itemIDs = append(itemIDs, gem.Id)
-	}
 	var enchantIDs []int32
 	for _, enchant := range db.Enchants {
 		enchantIDs = append(enchantIDs, enchant.EffectId)
@@ -115,9 +112,6 @@ func changedLines(committed string, registered string) []string {
 func itemName(id int32) string {
 	if item := core.GetItemByID(id); item != nil {
 		return item.Name
-	}
-	if gem, ok := core.GetGemByID(id); ok {
-		return gem.Name
 	}
 	return "?"
 }

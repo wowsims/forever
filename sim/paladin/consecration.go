@@ -33,12 +33,12 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 
 	// The bonus scales on its own coefficient, so it is added to the base damage here rather than
 	// through the dot's, which is the base tick's. Consecrated Ground marks the same targets.
-	dealTick := func(sim *core.Simulation, dot *core.Dot) {
+	dealTick := func(sim *core.Simulation, dot *core.Dot, firstTick bool) {
 		for i, target := range sim.Encounter.ActiveTargetUnits {
 			damage := tick.Average()
 			if i < bonusTargets {
 				damage += bonus.Average() + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
-				if paladin.consecratedGroundAuras != nil {
+				if firstTick && paladin.consecratedGroundAuras != nil {
 					paladin.consecratedGroundAuras.Get(target).Activate(sim)
 				}
 			}
@@ -81,7 +81,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 			TickLength:       tickLength,
 			BonusCoefficient: tick.Coeff(),
 			OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
-				dealTick(sim, dot)
+				dealTick(sim, dot, false)
 			},
 		},
 
@@ -92,7 +92,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 
 			dot := spell.AOEDot()
 			dot.Apply(sim)
-			dealTick(sim, dot)
+			dealTick(sim, dot, true)
 		},
 	})
 }

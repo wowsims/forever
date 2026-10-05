@@ -1,5 +1,5 @@
-import { GemColor, ItemQuality, ScalingItemProperties } from '@generated/proto/common';
-import type { UIEnchant, UIGem, UIItem } from '@generated/proto/ui';
+import { ItemQuality, ScalingItemProperties } from '@generated/proto/common';
+import type { UIEnchant, UIItem } from '@generated/proto/ui';
 import { ActionId } from '@sim/proto/action_id';
 import { EquippedItem } from '@sim/proto/equipped_item';
 
@@ -11,20 +11,17 @@ export const wowheadIconUrl = (file: string) => `https://wow.zamimg.com/images/w
 export interface EquippedItemOptions {
 	item?: Partial<UIItem>;
 	enchant?: UIEnchant;
-	gems?: Array<UIGem | null>;
 }
 
 /**
  * An `EquippedItem` around `makeUIItem`, with the base scaling entry that `EquippedItem.ilvl` reads
  * filled from the item's own `ilvl`.
  */
-export const makeEquippedItem = ({ item = {}, enchant, gems }: EquippedItemOptions = {}): EquippedItem => {
+export const makeEquippedItem = ({ item = {}, enchant }: EquippedItemOptions = {}): EquippedItem => {
 	const base = makeUIItem(item);
 	base.scalingOptions = { 0: ScalingItemProperties.create({ ilvl: base.ilvl }), ...base.scalingOptions };
-	return new EquippedItem({ item: base, enchant, gems });
+	return new EquippedItem({ item: base, enchant });
 };
-
-export const SOCKETED_ITEM: Partial<UIItem> = { gemSockets: [GemColor.GemColorRed, GemColor.GemColorYellow] };
 
 /** One selector-modal row for Thunderfury. A view takes the icon resolved, so nothing fills `actionId`. */
 export const makeItemData = (overrides: Partial<ItemData<ItemListType, string>> = {}): ItemData<ItemListType, string> => {

@@ -1,5 +1,5 @@
 import { ItemRandomSuffix } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIGem as Gem, UIItem as Item } from '@generated/proto/ui';
+import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { translateProtoStatName } from '@i18n/localization';
 import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
@@ -59,23 +59,6 @@ const enchantRow = (
 
 export const enchantsTabData = (gearData: GearData, enchants: Enchant[]): ItemData<Enchant, string>[] =>
 	enchants.sort(byLvlDescending).map(enchant => enchantRow(enchant, (equippedItem, value) => equippedItem.withEnchant(value), gearData));
-
-export const gemsTabData = (gearData: GearData, gems: Gem[], socketIdx: number): ItemData<Gem, string>[] =>
-	gems.map(gem => ({
-		item: gem,
-		id: gem.id,
-		actionId: ActionId.fromItemId(gem.id),
-		name: gem.name,
-		searchText: gem.name,
-		quality: gem.quality,
-		phase: gem.phase,
-		nameDescription: '',
-		ignoreEPFilter: true,
-		onEquip: gem => {
-			const equippedItem = gearData.getEquippedItem();
-			if (equippedItem) gearData.equipItem(equippedItem.withGem(gem, socketIdx));
-		},
-	}));
 
 export const randomSuffixesTabData = (player: Player<any>, gearData: GearData, equippedItem: EquippedItem): ItemData<ItemRandomSuffix, string>[] => {
 	const itemProto = equippedItem.item;

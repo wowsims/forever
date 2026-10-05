@@ -776,7 +776,11 @@ func (spell *Spell) ApplyAOEThreatIgnoreMultipliers(threatAmount float64) {
 	}
 }
 func (spell *Spell) ApplyAOEThreat(threatAmount float64) {
-	spell.ApplyAOEThreatIgnoreMultipliers(threatAmount * spell.Unit.PseudoStats.ThreatMultiplier)
+	spell.ApplyAOEThreatIgnoreMultipliers(threatAmount * spell.unitThreatMultiplier())
+}
+
+func (spell *Spell) unitThreatMultiplier() float64 {
+	return spell.Unit.PseudoStats.ThreatMultiplier * spell.Unit.PseudoStats.SchoolThreatMultiplier[spell.SchoolIndex]
 }
 
 func (spell *Spell) finalizeExpectedDamage(result *SpellResult) {
@@ -799,8 +803,8 @@ func (spell *Spell) ExpectedTickDamageFromCurrentSnapshot(sim *Simulation, targe
 }
 
 // The damage multiplier of a critical strike. The base comes from the DefenseType: spells crit
-// for 150%, melee and ranged attacks for 200%. Multiplicative modifiers (the 3% meta gems, the
-// slaying talents on the attack table, SpellMod_CritMultiplier_Pct) scale that base; additive
+// for 150%, melee and ranged attacks for 200%. Multiplicative modifiers (the slaying
+// talents on the attack table, SpellMod_CritMultiplier_Pct) scale that base; additive
 // ones (Ruin, Impale, SpellMod_CritMultiplier_Flat) scale only the bonus part above 100%.
 // https://web.archive.org/web/20081014064638/http://elitistjerks.com/f31/t12595-relentless_earthstorm_diamond_-_melee_only/p4/
 func (spell *Spell) CritDamageMultiplier(at *AttackTable) float64 {

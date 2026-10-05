@@ -133,7 +133,7 @@ export const BulkResultRow = ({ result, baseResult, iterations, onActivateTab }:
 
 					// Three display states per slot:
 					// 1. Unchanged -  slots stay empty
-					// 2. Same - Item with different gems or enchant shows the compact change icon (socket and enchant markers);
+					// 2. Same - Item with a different enchant shows the compact change icon (enchant marker);
 					// 3. New - The item appearing at all already says the slot changed.
 					if (itemChanged && spec.id !== 0 && spec.id === originalEquipmentSpec.items[idx]?.id) {
 						return (

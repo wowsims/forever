@@ -3,6 +3,13 @@ on:
     push:
         branches:
             - master
+    # Update Items dispatches this after it merges; a merge by the workflow token starts no push run.
+    workflow_dispatch:
+        inputs:
+            proto_baseline:
+                description: 'The master tip before the merge'
+                required: true
+                type: string
 jobs:
     tests:
         uses: ./.github/workflows/run_tests.yml
@@ -12,7 +19,7 @@ jobs:
         with:
             # The master tip before this push: what is deployed, and what the protos must stay
             # compatible with unless the version is bumped.
-            proto_baseline: ${{ github.event.before }}
+            proto_baseline: ${{ github.event.before || inputs.proto_baseline }}
 
     build-and-deploy:
         needs: tests

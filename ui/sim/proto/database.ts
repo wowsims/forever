@@ -1,14 +1,13 @@
-import { EquipmentSpec, GemColor, ItemRandomSuffix, ItemSlot, ItemSpec, ItemSwap, PresetEncounter, PresetTarget } from '@generated/proto/common';
+import { EquipmentSpec, ItemRandomSuffix, ItemSlot, ItemSpec, ItemSwap, PresetEncounter, PresetTarget } from '@generated/proto/common';
 import { Consumable, ItemEffectRandPropPoints, SimDatabase } from '@generated/proto/db';
 import { SpellEffect } from '@generated/proto/spell';
-import { IconData, UIDatabase, UIEnchant as Enchant, UIFaction, UIGem as Gem, UIItem as Item, UINPC as Npc, UIZone as Zone } from '@generated/proto/ui';
+import { IconData, UIDatabase, UIEnchant as Enchant, UIFaction, UIItem as Item, UINPC as Npc, UIZone as Zone } from '@generated/proto/ui';
 
 import { CacheHandler } from '../cache/cache_handler';
 import { CHARACTER_LEVEL } from '../constants/mechanics';
 import { arrayEquals, distinct } from '../utils/collections';
 import { EquippedItem } from './equipped_item';
 import { Gear, ItemSwapGear } from './gear';
-import { gemEligibleForSocket, gemMatchesSocket } from './gems';
 import { enchantAppliesToItem, getEligibleEnchantSlots, getEligibleItemSlots } from './items';
 import { Stats } from './stats';
 import { WOWHEAD_DOMAIN, WOWHEAD_EXPANSION_ENV } from './wowhead';
@@ -101,7 +100,6 @@ export class Database {
 	private readonly itemEffectRandPropPoints = new Map<number, ItemEffectRandPropPoints>();
 	private readonly enchantsBySlot: Partial<Record<ItemSlot, Enchant[]>> = {};
 	private readonly enchantsByEffectId = new Map<number, Enchant[]>();
-	private readonly gems = new Map<number, Gem>();
 	private readonly npcs = new Map<number, Npc>();
 	private readonly zones = new Map<number, Zone>();
 	private readonly factions = new Map<number, UIFaction>();
@@ -147,7 +145,6 @@ export class Database {
 				this.enchantsBySlot[slot]!.push(enchant);
 			});
 		});
-		db.gems.forEach(gem => this.gems.set(gem.id, gem));
 
 		db.npcs.forEach(npc => this.npcs.set(npc.id, npc));
 		db.zones.forEach(zone => this.zones.set(zone.id, zone));
@@ -164,14 +161,6 @@ export class Database {
 					id: item.id,
 					name: item.name,
 					icon: item.icon,
-				})),
-		);
-		db.gems.forEach(
-			gem =>
-				(this.itemIcons[gem.id] = IconData.create({
-					id: gem.id,
-					name: gem.name,
-					icon: gem.icon,
 				})),
 		);
 		db.itemIcons.forEach(data => (this.itemIcons[data.id] = data));
@@ -224,16 +213,6 @@ export class Database {
 		return this.enchantsByEffectId.get(effectId) ?? [];
 	}
 
-	getGems(socketColor?: GemColor): Array<Gem> {
-		if (!socketColor) return Array.from(this.gems.values());
-
-		const ret = [];
-		for (const g of this.gems.values()) {
-			if (gemEligibleForSocket(g, socketColor)) ret.push(g);
-		}
-		return ret;
-	}
-
 	getNpc(npcId: number): Npc | null {
 		return this.npcs.get(npcId) || null;
 	}
@@ -245,18 +224,6 @@ export class Database {
 	}
 	getAllZones(): Array<Zone> {
 		return Array.from(this.zones.values());
-	}
-
-	getMatchingGems(socketColor: GemColor): Array<Gem> {
-		const ret = [];
-		for (const g of this.gems.values()) {
-			if (gemMatchesSocket(g, socketColor)) ret.push(g);
-		}
-		return ret;
-	}
-
-	lookupGem(itemID: number): Gem | null {
-		return this.gems.get(itemID) || null;
 	}
 
 	lookupItemSpec(itemSpec: ItemSpec): EquippedItem | null {
@@ -278,8 +245,6 @@ export class Database {
 			}
 		}
 
-		const gems = itemSpec.gems.map(gemId => this.lookupGem(gemId));
-
 		let randomSuffix: ItemRandomSuffix | null = null;
 		if (itemSpec.randomSuffix && !!this.getRandomSuffixById(itemSpec.randomSuffix)) {
 			randomSuffix = this.getRandomSuffixById(itemSpec.randomSuffix)!;
@@ -288,7 +253,6 @@ export class Database {
 		return new EquippedItem({
 			item,
 			enchant,
-			gems,
 			randomSuffix,
 		});
 	}
@@ -422,7 +386,6 @@ export class Database {
 				db1.enchants.concat(db2.enchants),
 				(a, b) => a.effectId == b.effectId && a.type == b.type && a.enchantType == b.enchantType && arrayEquals(a.extraTypes, b.extraTypes),
 			),
-			gems: distinct(db1.gems.concat(db2.gems), (a, b) => a.id == b.id),
 			spellEffects: distinct(db1.spellEffects.concat(db2.spellEffects), (a, b) => a.id == b.id),
 			consumables: distinct(db1.consumables.concat(db2.consumables), (a, b) => a.id == b.id),
 		});

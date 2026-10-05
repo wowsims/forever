@@ -199,17 +199,7 @@ var MapProfessionIdToProfession = map[int]proto.Profession{
 	202: proto.Profession_Engineering,
 	333: proto.Profession_Enchanting,
 	393: proto.Profession_Skinning,
-	755: proto.Profession_Jewelcrafting,
 	773: proto.Profession_Inscription,
-}
-
-var MapSocketTypeToGemColor = map[int]proto.GemColor{
-	0: proto.GemColor_GemColorUnknown,
-	1: proto.GemColor_GemColorMeta,
-	2: proto.GemColor_GemColorRed,
-	3: proto.GemColor_GemColorYellow,
-	4: proto.GemColor_GemColorBlue,
-	7: proto.GemColor_GemColorPrismatic,
 }
 
 var MapInventoryTypeToItemType = map[int]proto.ItemType{

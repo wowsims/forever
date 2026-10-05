@@ -205,8 +205,8 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	},
 
 	dbcenums.A_MOD_THREAT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.pseudoMultiplier("threat", "ThreatMultiplier", []*float64{&p.unit.PseudoStats.ThreatMultiplier},
-			core.MultiplierFromPercent(v))
+		return p.schoolMultiplier("threat", "ThreatMultiplier", e.Misc, core.MultiplierFromPercent(v),
+			&p.unit.PseudoStats.ThreatMultiplier, &p.unit.PseudoStats.SchoolThreatMultiplier)
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER: func(p *parser, e *Effect, v float64) *attachment {

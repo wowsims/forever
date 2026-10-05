@@ -22,7 +22,6 @@ const filters = (over: Partial<DatabaseFilters> = {}): DatabaseFilters =>
 	({
 		favoriteItems: [],
 		favoriteEnchants: [],
-		favoriteGems: [],
 		favoriteRandomSuffixes: [],
 		favoriteReforges: [],
 		...over,
@@ -38,14 +37,6 @@ describe('the list a favourite goes to', () => {
 		expect(f.favoriteItems).toEqual([]);
 	});
 
-	it('shares one list between the three gem tabs', () => {
-		const f = filters();
-		applyFavourite(f, SelectorModalTabs.Gem1, row(1, {} as never), true);
-		applyFavourite(f, SelectorModalTabs.Gem2, row(2, {} as never), true);
-		applyFavourite(f, SelectorModalTabs.Gem3, row(3, {} as never), true);
-		expect(f.favoriteGems).toEqual([1, 2, 3]);
-	});
-
 	it('keys every other tab by the row id', () => {
 		const f = filters();
 		applyFavourite(f, SelectorModalTabs.Items, row(4321, {} as never), true);
@@ -56,7 +47,7 @@ describe('the list a favourite goes to', () => {
 describe('isItemFavourited', () => {
 	it('reads the tab’s own list', () => {
 		expect(isItemFavourited(filters({ favoriteItems: [9] }), SelectorModalTabs.Items, row(9, {} as never))).toBe(true);
-		expect(isItemFavourited(filters({ favoriteGems: [9] }), SelectorModalTabs.Items, row(9, {} as never))).toBe(false);
+		expect(isItemFavourited(filters({ favoriteRandomSuffixes: [9] }), SelectorModalTabs.Items, row(9, {} as never))).toBe(false);
 	});
 
 	it('is always false on a tab with no favourites list', () => {

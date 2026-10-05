@@ -29,9 +29,8 @@ func greaterEq(n float64) lpConstraint { return lpConstraint{min: n, hasMin: tru
 //
 // Each variable carries coefficients in TWO parallel spaces:
 //   - byName holds the CAP coefficients (fully stat-dependency-resolved via resolveStatDelta)
-//     plus the structural/constraint keys (slot, socket, SocketBonusLink_*, JewelcraftingGem,
-//     unique-gem IDs). modelToLPFormat's constraint rows and checkCaps read byName, so every
-//     dependency counts toward caps.
+//     plus the structural/constraint keys. modelToLPFormat's constraint
+//     rows and checkCaps read byName, so every dependency counts toward caps.
 //   - objByName holds the OBJECTIVE coefficients (the EP-calibrated applyReforgeStat output).
 //     updateReforgeScores reads objByName to compute each variable's 'score' coefficient, so
 //     the LP objective stays exactly as calibrated.

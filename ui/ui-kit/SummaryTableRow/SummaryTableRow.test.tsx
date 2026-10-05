@@ -5,9 +5,9 @@ import { SummaryTableRow } from './SummaryTableRow';
 
 describe('SummaryTableRow', () => {
 	it('takes its testId in place of the summary-table-row default', () => {
-		render(<SummaryTableRow testId="gem-row" />);
+		render(<SummaryTableRow testId="source-row" />);
 
-		expect(screen.getByTestId('gem-row')).not.toBeNull();
+		expect(screen.getByTestId('source-row')).not.toBeNull();
 		expect(screen.queryByTestId('summary-table-row')).toBeNull();
 	});
 });

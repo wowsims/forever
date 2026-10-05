@@ -307,12 +307,14 @@ var Party = []BuffSpec{
 			proto.Stat_StatDefenseRating,
 		},
 	},
-	// A pet ability the hunter class family does not file, so the owner is stated.
+	// A pet ability the hunter class family does not file, so the owner is stated. It does not stack
+	// with Battle Shout: the two share one category and the stronger applies.
 	{
-		Field:    "furious_howl",
-		SpellID:  24597,
-		Owner:    proto.Class_ClassHunter,
-		Category: "FuriousHowl",
+		Field:      "furious_howl",
+		SpellID:    24597,
+		Owner:      proto.Class_ClassHunter,
+		Category:   "BattleShout",
+		SingleAura: true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},

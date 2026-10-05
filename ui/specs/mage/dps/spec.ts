@@ -5,7 +5,7 @@ import { SavedTalents } from '@generated/proto/ui';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { SpecRotation } from '@sim/proto/spec_types';
-import { DEFAULT_CASTER_GEM_STATS, Stats, UnitStat } from '@sim/proto/stats';
+import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
 import * as MageInputs from './inputs';
@@ -72,8 +72,6 @@ export default defineSpec<Spec.SpecMage>({
 			talents: new Stats().addPseudoStat(PseudoStat.PseudoStatSpellCritPercent, player.getTalents().arcaneInstability),
 		};
 	},
-
-	gemStats: DEFAULT_CASTER_GEM_STATS,
 
 	consumableStats: [
 		Stat.StatIntellect,

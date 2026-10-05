@@ -1,6 +1,6 @@
 import { ItemSlot } from '@generated/proto/common';
 import { translateSlotName } from '@i18n/localization';
-import { makeEquippedItem, SOCKETED_ITEM } from '@testing/storybook/fixtures/gear';
+import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -27,7 +27,6 @@ describe('ItemDetailCellView', () => {
 		renderCell({ item: null, iconUrl: '' });
 		expect(name().textContent).toBe(translateSlotName(ItemSlot.ItemSlotMainHand));
 		expect(icon().style.backgroundImage).toContain(getEmptySlotIconUrl(ItemSlot.ItemSlotMainHand));
-		expect(screen.queryByTestId('gem-socket-container')).toBeNull();
 	});
 
 	it('puts the wowhead tooltip on both the icon and the name', () => {
@@ -41,18 +40,17 @@ describe('ItemDetailCellView', () => {
 		expect(screen.getByTestId('item-picker-labels-container').lastElementChild!.getAttribute('data-testid')).toBe('extra-marker');
 	});
 
-	it('opens the items tab from the icon and the name, and each gem tab from its socket', () => {
+	it('opens the items tab from the icon and the name', () => {
 		const onOpen = vi.fn();
-		renderCell({ item: makeEquippedItem({ item: SOCKETED_ITEM }), onOpen, href: '' });
+		renderCell({ onOpen, href: '' });
 
 		fireEvent.click(icon());
 		fireEvent.click(name());
-		screen.getAllByTestId('gem-socket-container').forEach(socket => fireEvent.click(socket));
-		expect(onOpen.mock.calls).toEqual([[SelectorModalTabs.Items], [SelectorModalTabs.Items], [SelectorModalTabs.Gem1], [SelectorModalTabs.Gem2]]);
+		expect(onOpen.mock.calls).toEqual([[SelectorModalTabs.Items], [SelectorModalTabs.Items]]);
 	});
 
 	it('is a button only where it opens the selector with no link, and never nests one anchor in another', () => {
-		const { rerender } = renderCell({ item: makeEquippedItem({ item: SOCKETED_ITEM }), onOpen: () => {} });
+		const { rerender } = renderCell({ onOpen: () => {} });
 		expect([icon(), name()].map(anchor => anchor.getAttribute('role'))).toEqual([null, null]);
 		expect(document.querySelectorAll('a a')).toHaveLength(0);
 
@@ -62,11 +60,6 @@ describe('ItemDetailCellView', () => {
 
 		rerender(<ItemDetailCellView slot={ItemSlot.ItemSlotMainHand} item={null} iconUrl="" href="" />);
 		expect([icon(), name()].map(anchor => anchor.getAttribute('role'))).toEqual([null, null]);
-	});
-
-	it('anchors each socket at its own tooltip', () => {
-		renderCell({ item: makeEquippedItem({ item: SOCKETED_ITEM }), socketTooltipId: gemIdx => `socket-${gemIdx}` });
-		expect(screen.getAllByTestId('gem-socket-container').map(socket => socket.getAttribute('data-tooltip-id'))).toEqual(['socket-0', 'socket-1']);
 	});
 
 	it.each([

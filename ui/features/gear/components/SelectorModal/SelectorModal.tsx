@@ -19,15 +19,12 @@ import { resolveSelectedTab } from '../../model/tab_eligibility';
 import { getTranslatedTabLabel, SelectorModalTabs } from '../../types';
 import { ItemList } from './ItemList';
 import { SlotRail } from './SlotRail';
-import { TabGemIcon } from './TabGemIcon';
 import { buildSelectorTabs, eligibilityFor } from './utils';
 
 const DEFAULT_MODAL_ID = 'gear-picker-selector-modal';
 
 export interface SelectorModalViewTab {
 	label: SelectorModalTabs;
-	/** A gem tab shows its socket in place of a text label. */
-	gemIcon?: ReactNode;
 	pane: ReactNode;
 }
 
@@ -74,14 +71,10 @@ export const SelectorModalView = ({ id, open, onOpenChange, onKeyDown, rail, tit
 								testId="selector-modal-tabs"
 								tabs={tabs.map(tab => ({
 									id: tab.label,
-									label: tab.gemIcon ?? getTranslatedTabLabel(tab.label),
+									label: getTranslatedTabLabel(tab.label),
 									tabId: tabId(tab.label),
 									ariaControls: paneId(tab.label),
 									dataLabel: tab.label,
-									buttonClassName: clsx(
-										tab.gemIcon !== undefined &&
-											'-mr-2 ml-2 flex items-center p-0 px-2 py-2 opacity-70 transition-opacity duration-150 ease-in-out hover:opacity-100 data-active:opacity-100',
-									),
 								}))}
 							/>
 						</div>
@@ -155,7 +148,7 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 		() => (gearData && slot !== null ? buildSelectorTabs({ player, slot, gearData, equippedItem }) : []),
 		[player, slot, gearData, equippedItem],
 	);
-	const eligibility = useMemo(() => (slot !== null ? eligibilityFor({ player, slot, equippedItem }) : null), [player, slot, equippedItem]);
+	const eligibility = useMemo(() => (slot !== null ? eligibilityFor({ player, slot }) : null), [player, slot]);
 
 	// The requested tab is resolved once per request; a tab the user picks afterwards is taken as-is.
 	// Falling back to the first tab avoids showing an empty body when the tab you were on no longer exists.
@@ -194,7 +187,6 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 			title={slot !== null ? (translateSlotName(slot) ?? '') : ''}
 			tabs={tabs.map(tab => ({
 				label: tab.label,
-				gemIcon: tab.socketIdx === undefined ? undefined : <TabGemIcon socketColor={tab.socketColor} gem={equippedItem?.gems[tab.socketIdx] ?? null} />,
 				pane: slot !== null && <ItemList tab={tab} slot={slot} equippedItem={equippedItem} />,
 			}))}
 			activeTab={activeTab?.label ?? null}

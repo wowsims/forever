@@ -13,7 +13,6 @@ import {
 	ConsumesSpec,
 	Cooldowns,
 	Faction,
-	GemColor,
 	HandType,
 	HealingModel,
 	ItemRandomSuffix,
@@ -29,15 +28,7 @@ import {
 	WeaponSkillValue,
 } from '@generated/proto/common';
 import { SimDatabase } from '@generated/proto/db';
-import {
-	DungeonDifficulty,
-	RaidFilterOption,
-	SourceFilterOption,
-	UIEnchant as Enchant,
-	UIGem as Gem,
-	UIItem as Item,
-	UIItem_FactionRestriction,
-} from '@generated/proto/ui';
+import { DungeonDifficulty, RaidFilterOption, SourceFilterOption, UIEnchant as Enchant, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
 
 import * as Mechanics from '../constants/mechanics';
 import { CURRENT_API_VERSION } from '../constants/other';
@@ -47,8 +38,7 @@ import { ActionId } from '../proto/action_id';
 import { Database } from '../proto/database';
 import { EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
-import { gemMatchesSocket, isUnrestrictedGem } from '../proto/gems';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem, getMetaGemEffectEP, isPVPItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem, isPVPItem } from '../proto/items';
 import { specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
@@ -62,7 +52,6 @@ import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
 import { playerTalentStringToProto } from '../talents/factory';
 import { arrayEquals, omitDeep, stringComparator } from '../utils/collections';
-import { sum } from '../utils/math';
 import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
 import { PlayerSpec } from './player_spec';
@@ -227,7 +216,6 @@ export interface SpecConfigData<SpecType extends Spec> extends PlayerConfig<Spec
 	epStats: Array<Stat>;
 	epPseudoStats?: Array<PseudoStat>;
 	consumableStats?: Array<Stat>;
-	gemStats?: Array<Stat>;
 	// Per-spec override for the default EP ratios; must be exactly numEpRatios long.
 	epRatios?: Array<number>;
 	displayStats?: Array<UnitStat>;
@@ -279,7 +267,6 @@ export class Player<SpecType extends Spec> {
 	readonly hiddenMCDs: Array<number>;
 
 	private itemEPCache = new Array<Map<string, number>>();
-	private gemEPCache = new Map<number, number>();
 	private randomSuffixEPCache = new Map<number, number>();
 	private enchantEPCache = new Map<number, number>();
 	// The potions and conjured items getConsumes(true) lists, by the spec, class, race and
@@ -535,11 +522,6 @@ export class Player<SpecType extends Spec> {
 		return this.sim.db.getEnchants(slot).filter(enchant => canEquipEnchant(enchant, this.playerSpec, this.hasProfession(Profession.Enchanting)));
 	}
 
-	// Returns all gems that this player can wear of the given color.
-	getGems(socketColor?: GemColor): Array<Gem> {
-		return this.sim.db.getGems(socketColor);
-	}
-
 	getEpWeights(): Stats {
 		return this.slice().epWeights;
 	}
@@ -547,7 +529,6 @@ export class Player<SpecType extends Spec> {
 	setEpWeights(newEpWeights: Stats) {
 		this.patch('epWeights', newEpWeights);
 
-		this.gemEPCache = new Map();
 		this.enchantEPCache = new Map();
 		this.randomSuffixEPCache = new Map();
 		for (let i = 0; i < ItemSlot.ItemSlotRanged + 1; ++i) {
@@ -1187,24 +1168,6 @@ export class Player<SpecType extends Spec> {
 		return stats.computeEP(this.getEpWeights());
 	}
 
-	computeGemEP(gem: Gem): number {
-		if (this.gemEPCache.has(gem.id)) {
-			return this.gemEPCache.get(gem.id)!;
-		}
-
-		const epFromStats = this.computeStatsEP(new Stats(gem.stats));
-		const epFromEffect = getMetaGemEffectEP(this.playerSpec, gem, this.getEpWeights());
-		let bonusEP = 0;
-		// unique items are slightly worse than non-unique because you can have only one.
-		if (gem.unique) {
-			bonusEP -= 0.01;
-		}
-
-		const ep = epFromStats + epFromEffect + bonusEP;
-		this.gemEPCache.set(gem.id, ep);
-		return ep;
-	}
-
 	computeEnchantEP(enchant: Enchant, weaponSpeed = 0, epPerWeaponDps = 0): number {
 		let ep = this.enchantEPCache.get(enchant.effectId);
 		if (ep === undefined) {
@@ -1262,34 +1225,6 @@ export class Player<SpecType extends Spec> {
 		if (item.unique) {
 			ep -= 0.01;
 		}
-
-		// Compare whether its better to match sockets + get socket bonus, or just use best gems.
-		const bestGemEPNotMatchingSockets = sum(
-			item.gemSockets.map(socketColor => {
-				const gems = this.sim.db.getGems(socketColor).filter(gem => isUnrestrictedGem(gem, this.sim.getPhase()));
-				if (gems.length > 0) {
-					return Math.max(...gems.map(gem => this.computeGemEP(gem)));
-				} else {
-					return 0;
-				}
-			}),
-		);
-
-		const bestGemEPMatchingSockets =
-			sum(
-				item.gemSockets.map(socketColor => {
-					const gems = this.sim.db
-						.getGems(socketColor)
-						.filter(gem => isUnrestrictedGem(gem, this.sim.getPhase()) && gemMatchesSocket(gem, socketColor));
-					if (gems.length > 0) {
-						return Math.max(...gems.map(gem => this.computeGemEP(gem)));
-					} else {
-						return 0;
-					}
-				}),
-			) + this.computeStatsEP(new Stats(item.socketBonus));
-
-		ep += Math.max(bestGemEPMatchingSockets, bestGemEPNotMatchingSockets);
 
 		this.itemEPCache[slot].set(cacheKey, ep);
 		return ep;
@@ -1474,27 +1409,6 @@ export class Player<SpecType extends Spec> {
 			}
 
 			return filters.showAllEnchants || enchant.effectId === equippedEffectId || this.isEnchantRelevant(enchant);
-		});
-	}
-
-	filterGemData<T>(gemData: Array<T>, getGemFunc: (val: T) => Gem, slot: ItemSlot, socketColor: GemColor): Array<T> {
-		const filters = this.sim.getFilters();
-
-		const isJewelcrafting = this.hasProfession(Profession.Jewelcrafting);
-		return gemData.filter(gemElem => {
-			const gem = getGemFunc(gemElem);
-			if (!isJewelcrafting && gem.requiredProfession == Profession.Jewelcrafting) {
-				return false;
-			}
-
-			if (filters.matchingGemsOnly && !gemMatchesSocket(gem, socketColor)) {
-				return false;
-			}
-
-			// No gem is dropped for having all its positive stats outside the spec's EP/gem stat
-			// list: a meta's effect is not in its stat block at all, and such a per-spec allowlist
-			// hides gems people want. Every gem that reaches here is kept.
-			return true;
 		});
 	}
 

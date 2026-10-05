@@ -4,7 +4,7 @@ import { Spec } from '@generated/proto/common';
 import { DpsWarriorSpec, WarriorSunder } from '@generated/proto/warrior';
 import i18n from '@i18n/config';
 
-import { isArmsKebabSpec, isFurySpec } from './presets';
+import { isArmsKebabSpec, isArmsSpec, isFurySpec } from './presets';
 
 // These don't need to be in a separate file but it keeps things cleaner.
 export const RotationInputs = {
@@ -31,10 +31,29 @@ export const RotationInputs = {
 			label: i18n.t('rotation_tab.options.warrior.dps.use_recklessness.label'),
 		}),
 		InputHelpers.makeRotationBooleanInput<Spec.SpecDpsWarrior>({
+			fieldName: 'useStanceDance',
+			label: i18n.t('rotation_tab.options.warrior.dps.use_stance_dance.label'),
+			showWhen: player => {
+				const { spec } = player.getSimpleRotation();
+				return spec ? spec === DpsWarriorSpec.DpsWarriorSpecArms : isArmsSpec(player) || isArmsKebabSpec(player);
+			},
+			storeField: ['rotation', 'talentsString', 'gear'] as const,
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecDpsWarrior>({
 			fieldName: 'useOverpower',
 			label: i18n.t('rotation_tab.options.warrior.dps.use_overpower.label'),
 			showWhen: player => isFurySpec(player) || isArmsKebabSpec(player),
 			storeField: ['rotation', 'talentsString', 'gear'] as const,
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecDpsWarrior>({
+			fieldName: 'useRend',
+			label: i18n.t('rotation_tab.options.warrior.dps.use_rend.label'),
+			showWhen: player => isFurySpec(player),
+			storeField: ['rotation', 'talentsString', 'gear'] as const,
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecDpsWarrior>({
+			fieldName: 'useHamstring',
+			label: i18n.t('rotation_tab.options.warrior.dps.use_hamstring.label'),
 		}),
 	],
 };

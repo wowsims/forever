@@ -38,20 +38,12 @@ export const optimizeReforgeCandidates = async (
 
 	const gearCache = makeBulkSimReforgeGearCache(request, reforgeRequest, workerPool, signals);
 	const collector = makeBulkSimReforgeCollector(request.baseRequest.raid.parties[0]?.players[0]?.equipment, candidates.length);
-	// The reforger is gem-driven, so the gem-inclusive model is the one with gem options.
-	const includeGems = reforgeRequest.gemOptions.length > 0;
 
 	const reforgeQueue = queue<BulkSimReforgeCandidateTask, Error>(async ({ candidate, position }) => {
 		if (signals.abort.isTriggered()) return;
 		if (!candidate.gear) return;
 
-		// Retry without gems: a gem-inclusive model can be infeasible where the
-		// reforge-only one is not.
-		const gearKey = reforgeGearKey(candidate.gear);
-		let optimizedGear = await gearCache.optimize(candidate.gear, gearKey, includeGems);
-		if (!optimizedGear && !signals.abort.isTriggered() && includeGems) {
-			optimizedGear = await gearCache.optimize(candidate.gear, gearKey, false);
-		}
+		let optimizedGear = await gearCache.optimize(candidate.gear, reforgeGearKey(candidate.gear));
 		const optimizedSuccessfully = !!optimizedGear;
 		if (!optimizedGear) {
 			if (signals.abort.isTriggered()) return;
@@ -105,7 +97,7 @@ const dedupeBulkSimReforgeCandidates = (request: BulkSimRequest, candidates: Bul
 };
 
 type BulkSimReforgeGearCache = {
-	optimize: (gear: EquipmentSpec, gearKey: string, includeGems: boolean) => Promise<EquipmentSpec | null>;
+	optimize: (gear: EquipmentSpec, gearKey: string) => Promise<EquipmentSpec | null>;
 };
 
 // Memoizes solves by gear key, and lets a second caller await an in-flight solve for the same
@@ -121,13 +113,12 @@ const makeBulkSimReforgeGearCache = (
 	const inFlightOptimizedGearByKey = new Map<string, Promise<EquipmentSpec | null>>();
 
 	return {
-		optimize: async (gear: EquipmentSpec, gearKey: string, includeGems: boolean): Promise<EquipmentSpec | null> => {
-			const cacheKey = `${gearKey}:${includeGems ? 1 : 0}`;
-			if (optimizedGearByKey.has(cacheKey)) {
-				const cachedGear = optimizedGearByKey.get(cacheKey);
+		optimize: async (gear: EquipmentSpec, gearKey: string): Promise<EquipmentSpec | null> => {
+			if (optimizedGearByKey.has(gearKey)) {
+				const cachedGear = optimizedGearByKey.get(gearKey);
 				return cachedGear ? EquipmentSpec.clone(cachedGear) : null;
 			}
-			const inFlightGear = inFlightOptimizedGearByKey.get(cacheKey);
+			const inFlightGear = inFlightOptimizedGearByKey.get(gearKey);
 			if (inFlightGear) {
 				const optimizedGear = await inFlightGear;
 				return optimizedGear ? EquipmentSpec.clone(optimizedGear) : null;
@@ -135,26 +126,18 @@ const makeBulkSimReforgeGearCache = (
 
 			const baseRaid = request.baseRequest?.raid;
 			if (!baseRaid) {
-				optimizedGearByKey.set(cacheKey, null);
+				optimizedGearByKey.set(gearKey, null);
 				return null;
 			}
 
-			const optimizePromise = optimizeReforgeGear(
-				baseRaid,
-				templateRequest,
-				gear,
-				includeGems,
-				workerPool,
-				signals,
-				ReforgeOptimizeMode.ReforgeOptimizeModeBulk,
-			);
-			inFlightOptimizedGearByKey.set(cacheKey, optimizePromise);
+			const optimizePromise = optimizeReforgeGear(baseRaid, templateRequest, gear, workerPool, signals, ReforgeOptimizeMode.ReforgeOptimizeModeBulk);
+			inFlightOptimizedGearByKey.set(gearKey, optimizePromise);
 			try {
 				const optimizedGear = await optimizePromise;
-				optimizedGearByKey.set(cacheKey, optimizedGear ? EquipmentSpec.clone(optimizedGear) : null);
+				optimizedGearByKey.set(gearKey, optimizedGear ? EquipmentSpec.clone(optimizedGear) : null);
 				return optimizedGear;
 			} finally {
-				inFlightOptimizedGearByKey.delete(cacheKey);
+				inFlightOptimizedGearByKey.delete(gearKey);
 			}
 		},
 	};

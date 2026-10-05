@@ -18,7 +18,6 @@ interface WowheadGearPlannerImportJSON {
 		slotId: number;
 		itemId: number;
 		randomEnchantId?: number;
-		gemItemIds: number[];
 		enchantId?: number;
 	}[];
 }
@@ -96,7 +95,6 @@ function readHash(hash: string): WowheadGearPlannerImportJSON {
 				slotId: slotIdx,
 				itemId: itemID,
 				randomEnchantId: undefined,
-				gemItemIds: [],
 				enchantId: undefined,
 			};
 
@@ -113,14 +111,8 @@ function readHash(hash: string): WowheadGearPlannerImportJSON {
 				}
 				item.randomEnchantId = randomEnchantId;
 			}
-			while (n--) {
-				let gemID = 0;
-				const s = gearPlannerBits.shift()!;
-				gemID |= (s & 31) << 16;
-				gemID |= gearPlannerBits.shift()! << 8;
-				gemID |= gearPlannerBits.shift()!;
-				item.gemItemIds.push(gemID);
-			}
+			// Skips the item's n gem ids, three bytes each.
+			gearPlannerBits.splice(0, 3 * n);
 			t.items.push(item);
 		}
 	}
@@ -197,9 +189,6 @@ export const WOWHEAD_GEAR_PLANNER_IMPORTER: ImporterDefinition = {
 					return;
 				}
 				itemSpec.enchant = enchant.effectId;
-			}
-			if (item.gemItemIds) {
-				itemSpec.gems = item.gemItemIds;
 			}
 			if (item.randomEnchantId) {
 				itemSpec.randomSuffix = item.randomEnchantId;

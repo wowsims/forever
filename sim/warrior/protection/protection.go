@@ -43,6 +43,7 @@ func NewProtectionWarrior(character *core.Character, options *proto.Player) *Pro
 			UseBattleShout: classOptions.UseBattleShout,
 			DefaultStance:  classOptions.DefaultStance,
 			StartingRage:   classOptions.StartingRage,
+			QueueDelay:     classOptions.QueueDelay,
 			StanceSnapshot: classOptions.StanceSnapshot,
 			HasBsT2:        classOptions.HasBsT2,
 		}),

@@ -1,4 +1,3 @@
-import { GemSocket } from '@features/gear/components/ItemCell';
 import { useEquippedItemWowheadDataset } from '@features/gear/hooks/useEquippedItemWowheadDataset';
 import { useOpenSelectorModal } from '@features/gear/hooks/useSelectorModal';
 import { getEmptySlotIconUrl } from '@features/gear/model/empty_slot_icons';
@@ -43,16 +42,6 @@ export const ItemSwapIconView = ({ slot, item, iconUrl, name, href, wowhead, onO
 			style={{ backgroundImage: `url('${(item && iconUrl) || getEmptySlotIconUrl(slot)}')` }}
 			{...wowhead}
 		/>
-		<div className="ui-item-picker-sockets-container" data-testid="item-picker-sockets-container">
-			{item?.allSocketColors().map((socketColor, gemIdx) => (
-				<GemSocket
-					key={gemIdx}
-					socketColor={socketColor}
-					gem={item.gems[gemIdx] ?? null}
-					className="focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-1 focus-visible:outline-link"
-				/>
-			))}
-		</div>
 	</div>
 );
 

@@ -9,7 +9,8 @@ message SimDatabase {
 	repeated SimItem items = 1;
 	repeated ItemRandomSuffix random_suffixes = 5;
 	repeated SimEnchant enchants = 2;
-	repeated SimGem gems = 3;
+	reserved 3;
+	reserved "gems";
 	repeated ItemEffectRandPropPoints item_effect_rand_prop_points = 9;
 
 	repeated Consumable consumables = 7;
@@ -39,8 +40,8 @@ message SimItem {
 	WeaponType weapon_type = 5;
 	HandType hand_type = 6;
 	RangedWeaponType ranged_weapon_type = 7;
-	repeated GemColor gem_sockets = 8;
-	repeated double socketBonus = 9;
+	reserved 8, 9;
+	reserved "gem_sockets", "socketBonus";
 	double quality_modifier = 15; // Negative for caster weapons; used by Seal of Righteousness proc among others.
 
 	double weapon_speed = 10;
@@ -104,10 +105,3 @@ message ItemEffectRandPropPoints {
 	int32 rand_prop_points =2;
 }
 
-// Contains only the Gem info needed by the sim.
-message SimGem {
-	int32 id = 1;
-	string name = 2;
-	GemColor color = 3;
-	repeated double stats = 4;
-}

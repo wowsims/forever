@@ -1,7 +1,4 @@
 :root {
-	/* Gem */
-	--gem-width: --spacing(4);
-
 	/* Base */
 	--border-default: 1px solid var(--color-border);
 	--dr-filling-pane-min-height: 70vh;

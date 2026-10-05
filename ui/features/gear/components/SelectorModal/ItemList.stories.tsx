@@ -56,10 +56,3 @@ export const MainHandItems: Story = {
 		],
 	},
 };
-
-export const GemTab: Story = {
-	args: {
-		remove: { label: 'Remove Gem', onClick: fn() },
-		toggles: [toggle('matching-gems', 'Show Matching Gems', true), toggle('ep-values', 'Show EP', false)],
-	},
-};

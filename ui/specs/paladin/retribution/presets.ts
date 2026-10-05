@@ -1,19 +1,23 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, Race, TristateEffect } from '@generated/proto/common';
+import { ConsumesSpec, Profession, PseudoStat, Race, Stat, TristateEffect } from '@generated/proto/common';
 import { RetributionPaladin_Options as RetributionPaladinOptions } from '@generated/proto/paladin';
+import { SavedTalents } from '@generated/proto/ui';
+import { Stats } from '@sim/proto/stats';
 
-import DefaultApl from './apls/default.apl.json';
-import DefaultGear from './gear_sets/default.gear.json';
+import HolyShockApl from './apls/holy_shock.apl.json';
+import TwistOfLightApl from './apls/twist_of_light.apl.json';
+import HolyShockGear from './gear_sets/holy_shock.gear.json';
+import TwistOfLightGear from './gear_sets/twist_of_light.gear.json';
 
-// Seal of Righteousness, Judgement and Holy Strike on cooldown. A rotation worth the name waits
-// for the Forever numbers above level 20.
-export const APL_PRESET = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+export const HolyShockAplPreset = PresetUtils.makePresetAPLRotation('Holy Shock', HolyShockApl);
+export const TwistOfLightAplPreset = PresetUtils.makePresetAPLRotation('Twist of Light', TwistOfLightApl);
 
-// Level 60 blues from dungeons, quests, reputations and crafting: a placeholder until Phase 1
-// gear is known.
-export const GEAR_DEFAULT = PresetUtils.makePresetGear('Default', DefaultGear, {
+export const HolySHockGearPreset = PresetUtils.makePresetGear('Holy Shock', HolyShockGear, {
+	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
+});
+export const TwistOfLightGearPreset = PresetUtils.makePresetGear('Twist of Light', TwistOfLightGear, {
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 
@@ -21,13 +25,75 @@ export const DefaultOptions = RetributionPaladinOptions.create({
 	classOptions: {},
 });
 
+export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '550030032101012--052252300012303' }));
+export const TwistOfLightTalents = PresetUtils.makePresetTalents('Twist of Light', SavedTalents.create({ talentsString: '55003003--05225331101330321' }));
+
+export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
+	'Holy Shock',
+	Stats.fromMap(
+		{
+			[Stat.StatStrength]: 2.5,
+			[Stat.StatAgility]: 3.11,
+			[Stat.StatIntellect]: 4.53,
+			[Stat.StatSpellDamage]: 5.78,
+			[Stat.StatSpellPiercing]: 0.01,
+			[Stat.StatAttackPower]: 1,
+			[Stat.StatHitRating]: 10.25,
+			[Stat.StatCritRating]: 4.66,
+			[Stat.StatHasteRating]: 4.06,
+			[Stat.StatArmorPenetration]: 0.26,
+			[Stat.StatExpertiseRating]: 6.2,
+			[Stat.StatMP5]: 0.01,
+		},
+		{
+			[PseudoStat.PseudoStatMainHandDps]: 13.04,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 2.32,
+		},
+	),
+);
+
+export const TwistOfLightEpWeights = PresetUtils.makePresetEpWeights(
+	'Twist of Light',
+	Stats.fromMap(
+		{
+			[Stat.StatStrength]: 2.4,
+			[Stat.StatAgility]: 2.23,
+			[Stat.StatIntellect]: 2.06,
+			[Stat.StatSpellDamage]: 2.36,
+			[Stat.StatSpellPiercing]: 0.01,
+			[Stat.StatAttackPower]: 1,
+			[Stat.StatHitRating]: 6.83,
+			[Stat.StatCritRating]: 3.08,
+			[Stat.StatHasteRating]: 22.87,
+			[Stat.StatArmorPenetration]: 0.24,
+			[Stat.StatExpertiseRating]: 5.1,
+			[Stat.StatMP5]: 0.23,
+		},
+		{
+			[PseudoStat.PseudoStatMainHandDps]: 13.85,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.6,
+		},
+	),
+);
+
 export const DefaultConsumables = ConsumesSpec.create({
-	potId: Consumables.MajorFrenzyPotion.id,
-	flaskId: Consumables.FlaskOfNaturalAggression.id,
+	potId: Consumables.MajorSpellblastingPotion.id,
+	flaskId: Consumables.FlaskOfSupremePower.id,
 	foodId: Consumables.SmokedDesertDumplings.id,
 	conjuredId: Consumables.DemonicRune.id,
 	explosiveId: Consumables.EzThroDynamiteII.id,
-	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.ScrollOfAgilityIV.id, Consumables.ScrollOfStrengthIV.id],
+	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.ROIDS.id],
+	elixirIds: [
+		Consumables.ElixirOfHolyPower.id,
+		Consumables.ElixirOfSages.id,
+		Consumables.ElixirOfTheMongoose.id,
+		Consumables.ElixirOfTheOwl.id,
+		Consumables.ElixirOfTheGrizzly.id,
+		Consumables.GreaterArcaneElixir.id,
+		Consumables.GreaterMagebloodElixir.id,
+		Consumables.JujuMight.id,
+	],
+	mhImbueId: Consumables.BrilliantWizardOil.id,
 });
 
 export const DefaultRaidBuffs = RaidBuffs.create({
@@ -47,14 +113,15 @@ export const DefaultPartyBuffs = PartyBuffs.create({
 });
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
-	thorns: true,
 	greaterBlessingOfKings: true,
 	greaterBlessingOfWisdom: true,
 	greaterBlessingOfMight: true,
+	greaterBlessingOfSalvation: true,
 });
 
 export const DefaultDebuffs = Debuffs.create({
 	curseOfElements: true,
+	judgementOfLight: true,
 	judgementOfWisdom: true,
 	curseOfRecklessness: true,
 	sunderArmor: true,

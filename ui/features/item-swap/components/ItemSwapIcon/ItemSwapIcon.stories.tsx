@@ -1,6 +1,6 @@
 import { ItemSlot } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { makeEquippedItem, SOCKETED_ITEM, wowheadIconUrl } from '@testing/storybook/fixtures/gear';
+import { makeEquippedItem, wowheadIconUrl } from '@testing/storybook/fixtures/gear';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { ItemSwapIconView } from './ItemSwapIcon';
@@ -32,8 +32,4 @@ export const EmptySlot: Story = {
 
 export const Filled: Story = {
 	args: { item: makeEquippedItem(), iconUrl: wowheadIconUrl('inv_sword_39'), name: 'Thunderfury, Blessed Blade of the Windseeker' },
-};
-
-export const WithSockets: Story = {
-	args: { item: makeEquippedItem({ item: SOCKETED_ITEM }), iconUrl: wowheadIconUrl('inv_sword_39'), name: 'Thunderfury, Blessed Blade of the Windseeker' },
 };

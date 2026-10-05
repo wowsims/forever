@@ -28,8 +28,6 @@ import {
 	ConsumableType,
 	EquipmentSpec,
 	Faction,
-	GemColor,
-	ItemSlot,
 	Profession,
 	PseudoStat,
 	RangedWeaponType,
@@ -38,7 +36,6 @@ import {
 	UnitReference_Type as UnitType,
 	WeaponType,
 } from '@generated/proto/common';
-import { SimDatabase, SimGem } from '@generated/proto/db';
 import { DatabaseFilters, RaidFilterOption, SimSettings as SimSettingsProto, SourceFilterOption } from '@generated/proto/ui';
 import { getLang } from '@i18n/locale_service';
 import { SimRequest } from '@worker/types';
@@ -68,10 +65,10 @@ import { RequestTypes, SimSignalManager } from './sim_signal_manager';
 import { batch } from './state/batch';
 import type { Env } from './state/env';
 import { Emitter } from './state/events';
-import { cacheRelevantReforgeRequest, getReforgeGemOptions, makeReforgeConfigRequestFields } from './state/reforge_request';
+import { cacheRelevantReforgeRequest, makeReforgeConfigRequestFields } from './state/reforge_request';
 import { createSimStore, patchSlice, SimSettingsSlice, UISlice } from './state/sim_store';
 import { subscribeStatsInputs, subscribeUiField } from './state/subscriptions';
-import { distinct, getEnumValues } from './utils/collections';
+import { getEnumValues } from './utils/collections';
 import { environmentOf } from './utils/env';
 import { hashString, noop, sleep } from './utils/misc';
 import { runConcurrentBulkSim, runConcurrentSim, runConcurrentStatWeights } from './wasm';
@@ -107,17 +104,6 @@ export type RunSimOptions = {
 };
 
 // Core Sim module which deals only with api types, no UI-related stuff.
-// The backend cannot tell an inactive meta gem from an active one, so an unmet
-// meta requirement would still grant its stats. Mirrors ui/core/sim.ts.
-const gearAsBackendSpec = (gear: Gear): EquipmentSpec => {
-	const spec = gear.asSpec();
-	const headIdx = gear.getItemSlots().indexOf(ItemSlot.ItemSlotHead);
-	if (headIdx >= 0 && gear.hasInactiveMetaGem()) {
-		spec.items[headIdx].metaGemDisabled = true;
-	}
-	return spec;
-};
-
 export class Sim {
 	private readonly workerPool: WorkerPool;
 
@@ -262,30 +248,17 @@ export class Sim {
 		const raidProto = this.raid.toProto(false, true);
 		this.modifyRaidProto(raidProto);
 
-		// Remove any inactive meta gems, since the backend doesn't have its own validation.
 		raidProto.parties.forEach(party => {
 			party.players.forEach(player => {
 				if (!player.equipment) {
 					return;
 				}
 
-				let gear = this.db.lookupEquipmentSpec(player.equipment);
-				let gearChanged = false;
-
 				const isEnchanter = [player.profession1, player.profession2].includes(Profession.Enchanting);
 
 				// Remove ring enchants if not an enchanter.
 				if (!isEnchanter) {
-					gear = gear.withoutEnchanting();
-					gearChanged = true;
-				}
-
-				// An inactive meta gem is flagged rather than removed, so that flag still has to reach
-				// the backend even when nothing else about the gear changed. Dropping the second half
-				// of this condition leaves an enchanter — the only player whose gear is otherwise
-				// untouched here — simming an unmet meta gem's full stats.
-				if (gearChanged || gear.hasInactiveMetaGem()) {
-					player.equipment = gearAsBackendSpec(gear);
+					player.equipment = this.db.lookupEquipmentSpec(player.equipment).withoutEnchanting().asSpec();
 				}
 
 				extendPlayerProtoWithMissingEffects(player, this.db);
@@ -337,7 +310,7 @@ export class Sim {
 			if (options.gear) {
 				const gear = Sim.prepareGear(options.gear, [player.profession1, player.profession2].includes(Profession.Enchanting));
 				player.database = gear.toDatabase(this.db);
-				player.equipment = gearAsBackendSpec(gear);
+				player.equipment = gear.asSpec();
 				if (player.consumables) player.consumables = gear.adjustImbues(player.consumables);
 			}
 
@@ -377,24 +350,6 @@ export class Sim {
 			gear = gear.withoutEnchanting();
 		}
 		return gear;
-	}
-
-	// Extends a request's SimDatabase with the optimizer's gem options, so the backend
-	// optimizer can resolve them.
-	private augmentDatabaseForReforge(database: SimDatabase, gemOptions: Array<{ id: number; name: string; color: GemColor; stats: number[] }>): void {
-		database.gems = distinct(
-			database.gems.concat(
-				gemOptions.map(gem =>
-					SimGem.create({
-						id: gem.id,
-						name: gem.name,
-						color: gem.color,
-						stats: gem.stats.slice(),
-					}),
-				),
-			),
-			(a, b) => a.id == b.id,
-		);
 	}
 
 	async runBulkSim(
@@ -526,9 +481,6 @@ export class Sim {
 				backendBuildCandidates && bulkSettings
 					? makeBulkItemDatabaseFromSpecs(this.db, baselineGear, bulkSettings)
 					: makeBulkGearDatabase(this.db, [baselineGear, ...preparedGearSets, ...cachedOptimizedGearSets]);
-			if (bulkReforgeRequest) {
-				this.augmentDatabaseForReforge(bulkGearDatabase, bulkReforgeRequest.gemOptions);
-			}
 			player.database = player.database ? Database.mergeSimDatabases(player.database, bulkGearDatabase) : bulkGearDatabase;
 			player.equipment = baselineGear.asSpec();
 			baseRequest.raid!.parties[0].players[0] = player;
@@ -651,14 +603,14 @@ export class Sim {
 	}
 
 	// Stats for a hypothetical gear set, without touching the player's own current stats or
-	// metadata. Used by the gem optimizer and by batch simming.
+	// metadata. Used by the gear optimizer and by batch simming.
 	async getCharacterStatsForGear(gear: Gear): Promise<PlayerStats> {
 		await this.waitForInit();
 
 		const raidProto = this.getModifiedRaidProto();
 		const player = raidProto.parties[0].players[0];
 		player.database = gear.toDatabase(this.db);
-		player.equipment = gearAsBackendSpec(gear);
+		player.equipment = gear.asSpec();
 		extendPlayerProtoWithMissingEffects(player, this.db);
 		raidProto.parties[0].players[0] = player;
 
@@ -724,23 +676,21 @@ export class Sim {
 	}
 
 	// Returns the stats for Player 0 without triggering any metadata updates.
-	// Can be used for Suggest Gems / Batch Simming without interfering with the UI.
+	// Can be used for the gear optimizer / Batch Simming without interfering with the UI.
 	async reforgeOptimize(config: ReforgeOptimizeConfig): Promise<ReforgeOptimizeResult> {
 		const signals = this.signalManager.registerRunning(RequestTypes.ReforgeOptimize);
 		try {
 			await this.waitForInit();
-			const gemOptions = getReforgeGemOptions(this.db);
 			const raid = this.getModifiedRaidProto();
 			const player = raid.parties[0].players[0];
 			player.database = config.gear.toDatabase(this.db);
-			this.augmentDatabaseForReforge(player.database, gemOptions);
 			player.equipment = config.gear.asSpec();
 			raid.parties[0].players[0] = player;
 
 			const request = ReforgeOptimizeRequest.create({
 				requestId: generateRequestId(SimRequest.reforgeOptimizeAsync),
 				raid,
-				...makeReforgeConfigRequestFields(config, this.db),
+				...makeReforgeConfigRequestFields(config),
 				debug: config.debug ?? false,
 			});
 			const result = await this.workerPool.reforgeOptimizeAsync(request, signals);
@@ -756,7 +706,7 @@ export class Sim {
 	private makeBulkSimReforgeRequest(config: ReforgeOptimizeConfig): ReforgeOptimizeRequest {
 		return ReforgeOptimizeRequest.create({
 			requestId: generateRequestId(SimRequest.reforgeOptimizeAsync),
-			...makeReforgeConfigRequestFields(config, this.db),
+			...makeReforgeConfigRequestFields(config),
 		});
 	}
 
@@ -781,7 +731,7 @@ export class Sim {
 				.includes(player.getRaidIndex())
 				? [UnitReference.create({ type: UnitType.Player, index: 0 })]
 				: [];
-			// `toDatabase()` fills items, enchants and gems only, so without this the request carries
+			// `toDatabase()` fills items and enchants only, so without this the request carries
 			// no consumables or spell effects. lib.wasm is built without the `with_db` tag, so a
 			// worker that has not already handled a full sim request cannot resolve them and computes
 			// the stat's sub-sims with no flask, elixir, food or potion.
@@ -1108,12 +1058,11 @@ export class Sim {
 	}
 
 	defaultFilters(): DatabaseFilters {
-		const { favoriteItems = [], favoriteGems = [], favoriteRandomSuffixes = [], favoriteReforges = [], favoriteEnchants = [] } = this.getFilters();
+		const { favoriteItems = [], favoriteRandomSuffixes = [], favoriteReforges = [], favoriteEnchants = [] } = this.getFilters();
 		return DatabaseFilters.create({
 			oneHandedWeapons: true,
 			twoHandedWeapons: true,
 			favoriteItems,
-			favoriteGems,
 			favoriteEnchants,
 			favoriteRandomSuffixes,
 			favoriteReforges,

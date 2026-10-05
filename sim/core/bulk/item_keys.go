@@ -38,29 +38,20 @@ func buildCandidateOptionKey(option bulkSimCandidateOption) candidateOptionKey {
 }
 
 // itemSpecFingerprintKey is a zero-allocation alternative to the string fingerprint.
-// gemsHash is a position-weighted XOR of gem IDs; collision probability is negligible
-// for the small, fixed set of gem IDs used in practice.
 type itemSpecFingerprintKey struct {
 	id           int32
 	randomSuffix int32
 	enchant      int32
-	gemsHash     uint64
 }
 
 func buildItemSpecFingerprintKey(item *proto.ItemSpec) itemSpecFingerprintKey {
 	if item == nil {
 		return itemSpecFingerprintKey{}
 	}
-	var gemsHash uint64
-	for i, gem := range item.GetGems() {
-		// Knuth multiplicative hash per position to make order matter.
-		gemsHash ^= uint64(uint32(gem)*2654435761) << (uint(i) & 63)
-	}
 	return itemSpecFingerprintKey{
 		id:           item.GetId(),
 		randomSuffix: item.GetRandomSuffix(),
 		enchant:      item.GetEnchant(),
-		gemsHash:     gemsHash,
 	}
 }
 

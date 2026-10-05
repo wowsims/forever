@@ -721,34 +721,6 @@ export class StatCap {
 	}
 }
 
-const DEFAULT_GEM_STATS = [Stat.StatStamina];
-export const DEFAULT_MELEE_GEM_STATS = [
-	...DEFAULT_GEM_STATS,
-	Stat.StatStrength,
-	Stat.StatAgility,
-	Stat.StatHitRating,
-	Stat.StatCritRating,
-	Stat.StatHasteRating,
-];
-export const DEFAULT_CASTER_GEM_STATS = [
-	...DEFAULT_GEM_STATS,
-	Stat.StatIntellect,
-	Stat.StatSpellDamage,
-	Stat.StatHitRating,
-	Stat.StatCritRating,
-	Stat.StatHasteRating,
-];
-export const DEFAULT_HYBRID_CASTER_GEM_STATS = [...DEFAULT_CASTER_GEM_STATS, Stat.StatSpirit];
-export const DEFAULT_HEALER_GEM_STATS = [
-	...DEFAULT_GEM_STATS,
-	Stat.StatIntellect,
-	Stat.StatSpirit,
-	Stat.StatHealingPower,
-	Stat.StatCritRating,
-	Stat.StatHasteRating,
-	Stat.StatMP5,
-];
-
 // ---------------------------------------------------------------------------
 // Stat attribution (moved out of components/character_stats.tsx so the math is
 // UI-free and reusable).

@@ -147,7 +147,7 @@ gets extracted:
   base-stats generation reads them. No DB2 decoding involved.
 - **`Tables`** — the list of DB2 tables to decode into SQLite. Roughly:
   everything item-related (ItemSparse, damage/armor tables, random suffixes,
-  upgrades, reforging, gems, sets), everything spell-related (the ~25 `Spell*`
+  upgrades, reforging, sets), everything spell-related (the ~25 `Spell*`
   tables that the modern game files split spell data into, enchants,
   procs-per-minute),
   talents/glyphs, and dungeon-journal/zone tables (Map, JournalEncounter…)

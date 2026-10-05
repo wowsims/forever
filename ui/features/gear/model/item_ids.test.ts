@@ -1,4 +1,4 @@
-import { UIEnchant as Enchant, UIGem as Gem, UIItem as Item } from '@generated/proto/ui';
+import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { describe, expect, it } from 'vitest';
 
 import { SelectorModalTabs } from '../types';
@@ -10,9 +10,8 @@ describe('getItemIdByItemType', () => {
 		expect(getItemIdByItemType(SelectorModalTabs.Enchants, enchant)).toBe(4444);
 	});
 
-	it('reads id on the item, gem and random-suffix tabs', () => {
+	it('reads id on the item and random-suffix tabs', () => {
 		expect(getItemIdByItemType(SelectorModalTabs.Items, { id: 5 } as unknown as Item)).toBe(5);
-		expect(getItemIdByItemType(SelectorModalTabs.Gem3, { id: 6 } as unknown as Gem)).toBe(6);
 		expect(getItemIdByItemType(SelectorModalTabs.RandomSuffixes, { id: 7 } as never)).toBe(7);
 	});
 

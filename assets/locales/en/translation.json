@@ -181,16 +181,6 @@
 			"burning_embers": "Burning Embers",
 			"generic_resource": "Missing Resource!"
 		},
-		"item_qualities": {
-			"junk": "Junk",
-			"common": "Common",
-			"uncommon": "Uncommon",
-			"rare": "Rare",
-			"epic": "Epic",
-			"legendary": "Legendary",
-			"artifact": "Artifact",
-			"heirloom": "Heirloom"
-		},
 		"stats": {
 			"strength": "Strength",
 			"agility": "Agility",
@@ -309,7 +299,7 @@
 			"other_settings": "Other Settings",
 			"buffs": "Buffs",
 			"debuffs": "Debuffs",
-			"reforge_settings": "Suggest Gem Settings"
+			"reforge_settings": "Gear Optimizer Settings"
 		}
 	},
 	"sim": {
@@ -328,7 +318,7 @@
 		},
 		"gear_planner": {
 			"title": "Gear planning only.",
-			"message": "Gear, gems, enchants, talents and the gem optimizer work for this spec. There's no simulation planned."
+			"message": "Gear, enchants, talents and the gear optimizer work for this spec. There's no simulation planned."
 		},
 		"unlaunched": {
 			"title": "This sim is currently not supported.",
@@ -349,13 +339,9 @@
 	},
 	"gear_tab": {
 		"title": "Gear",
-		"gem_summary": {
-			"title": "Gem Summary",
-			"reset_gems": "Reset gems"
-		},
 		"reforge_success": {
-			"title": "The following items were regemmed:",
-			"no_changes": "No gem changes were made!"
+			"title": "The following items were changed:",
+			"no_changes": "No gear changes were made!"
 		},
 		"gear_sets": {
 			"title": "Gear Sets",
@@ -367,15 +353,11 @@
 			"tabs": {
 				"items": "Item",
 				"random_suffix": "Random Suffix",
-				"enchants": "Enchants",
-				"gem1": "Gem",
-				"gem2": "Gem",
-				"gem3": "Gem"
+				"enchants": "Enchants"
 			},
 			"remove_buttons": {
 				"remove_enchant": "Remove Enchant",
-				"remove_random_suffix": "Remove Random Suffix",
-				"remove_gem": "Remove Gem"
+				"remove_random_suffix": "Remove Random Suffix"
 			},
 			"filters": {
 				"title": "Filters",
@@ -392,11 +374,6 @@
 				}
 			},
 			"quick_popovers": {
-				"favorite_gems": {
-					"title": "Favorite gems",
-					"empty_message": "Add favorite gems.",
-					"open_gems": "Open Gems"
-				},
 				"favorite_enchants": {
 					"title": "Favorite Enchants",
 					"empty_message": "Add favorite Enchants",
@@ -620,6 +597,10 @@
 				"label": "Battle Shout: Battlegear of Wrath",
 				"tooltip": "Three pieces of Battlegear of Wrath add 30 attack power to Battle Shout. Set this when the pieces arrive through an item swap rather than the worn set."
 			},
+			"queue_delay": {
+				"label": "HS/Cleave Queue Delay (ms)",
+				"tooltip": "How long (in milliseconds) to delay re-queueing Heroic Strike/Cleave in order to simulate real reaction time and game delay."
+			},
 			"assume_bleed_active": {
 				"label": "Assume Bleed Always Active",
 				"tooltip": "Assume bleed always exists for 'Rend and Tear' calculations. Otherwise will only calculate based on own rip/rake/lacerate."
@@ -649,10 +630,6 @@
 			"show_2h_weapons": {
 				"label": "2H",
 				"tooltip": "Show two-handed weapons"
-			},
-			"show_matching_gems": {
-				"label": "Match Socket",
-				"tooltip": "Show only items with matching socket colors"
 			},
 			"show_all_enchants": {
 				"label": "Show All",
@@ -979,8 +956,8 @@
 			"groups": {
 				"enchants": "Enchants",
 				"frozen_slots": "Frozen slots",
-				"reforge": "Gem settings",
-				"reforge_description": "These are the same settings the Suggest Gems button uses. The batch sim applies them to every gear set it simulates."
+				"reforge": "Gear optimizer settings",
+				"reforge_description": "These are the same settings the Optimize Gear button uses. The batch sim applies them to every gear set it simulates."
 			},
 			"iterations": "Iterations",
 			"freeze_ring": {
@@ -1021,9 +998,9 @@
 		},
 		"progress": {
 			"total_combinations": "{{count}} total combinations.",
-			"restoring_reforges_from_cache": "Restoring gemmed gear sets from cache",
+			"restoring_reforges_from_cache": "Restoring optimized gear sets from cache",
 			"building_candidate_gear_sets": "Building candidate gear sets",
-			"reforging_iteration_rounds": "Optimizing gems",
+			"reforging_iteration_rounds": "Optimizing gear",
 			"baseline_round": "Running baseline round",
 			"refining_rounds": "Running refining rounds",
 			"low_iteration_rounds": "Running low iteration rounds",
@@ -2071,8 +2048,17 @@
 					"use_recklessness": {
 						"label": "Use Recklessness"
 					},
+					"use_stance_dance": {
+						"label": "Use Stance Dance"
+					},
 					"use_overpower": {
 						"label": "Use Overpower"
+					},
+					"use_rend": {
+						"label": "Rend weave"
+					},
+					"use_hamstring": {
+						"label": "Hamstring weave"
 					}
 				}
 			}
@@ -2363,7 +2349,7 @@
 		"github": "Contribute on GitHub",
 		"status": {
 			"unlaunched": "This sim is a WORK IN PROGRESS. It is not fully developed and should not be used for general purposes.",
-			"gear_planner": "This sim is a GEAR PLANNER only. Gear, gems, enchants, talents and the gem optimizer work. There's no simulation planned for this spec.",
+			"gear_planner": "This sim is a GEAR PLANNER only. Gear, enchants, talents and the gear optimizer work. There's no simulation planned for this spec.",
 			"alpha": "This sim is in ALPHA. Bugs are expected; please let us know if you find one!",
 			"beta": "This sim is in BETA. There may still be a few bugs; please let us know if you find one!"
 		},
@@ -2397,13 +2383,10 @@
 		"iterations": "Iterations",
 		"warnings": {
 			"label": "Warnings",
-			"meta_gem_disabled": "Meta gem disabled ({{gemName}}): {{description}}",
 			"profession_requirement": "{{itemName}} requires {{professionName}}, but it is not selected.",
-			"too_many_jc_gems": "Only 2 Jewelcrafting Gems are allowed, but {{count}} are equipped.",
 			"unspent_talent_points": "You have {{count}} unspent talent point(s).",
 			"windfury_over_grace_of_air": "Windfury Totem and Grace of Air Totem do not stack: only Windfury Totem applies.",
-			"windfury_over_flametongue": "Windfury Totem and Flametongue Totem do not stack: only Windfury Totem applies.",
-			"custom_ep_not_enabled": "Detected custom EPs. Enable \"Use custom EP Weights\" in the Suggest Gems settings to use them for gemming."
+			"windfury_over_flametongue": "Windfury Totem and Flametongue Totem do not stack: only Windfury Totem applies."
 		},
 		"buttons": {
 			"simulate": "Simulate",
@@ -2502,14 +2485,13 @@
 				}
 			},
 			"suggest_reforges": {
-				"title": "Suggest Gems",
-				"tooltip": "Change Gem Optimizer settings",
+				"title": "Optimize Gear",
+				"tooltip": "Change Gear Optimizer settings",
 				"use_soft_cap_breakpoints": "Use soft cap breakpoints",
 				"any": "Any",
-				"optimize_gems_tooltip": "Optimize gems.",
-				"freeze_item_slots_tooltip": "Flag one or more item slots to be \"frozen\", which will prevent the optimizer from changing the gems in that slot from their current settings. This can be useful for hybrid classes who use the same gear piece for multiple raid roles.",
+				"freeze_item_slots_tooltip": "Flag one or more item slots to be \"frozen\", which will prevent the optimizer from changing that slot from its current settings. This can be useful for hybrid classes who use the same gear piece for multiple raid roles.",
 				"edit_stat_caps": "Edit stat caps",
-				"stat_caps_tooltip": "Stat caps are the maximum amount of a stat that can be gained from Gemming. If a stat exceeds its cap, the optimizer will attempt to reduce it to the cap value.",
+				"stat_caps_tooltip": "Stat caps are the most of a stat the optimizer will add. If a stat exceeds its cap, the optimizer will attempt to reduce it to the cap value.",
 				"reset_to_defaults": "Reset to stat cap defaults",
 				"stat": "Stat",
 				"select_preset": "Select preset",
@@ -2518,17 +2500,14 @@
 				"no_limit_set": "No limit set",
 				"breakpoints_implemented": "The following breakpoints have been implemented for this spec:",
 				"post_cap_ep": "Post cap EP",
-				"reforge_optimization_failed": "Gem optimization failed. Please try again, or report the issue if it persists.",
-				"reforge_optimization_cancelled": "Gem optimization cancelled.",
+				"reforge_optimization_failed": "Gear optimization failed. Please try again, or report the issue if it persists.",
+				"reforge_optimization_cancelled": "Gear optimization cancelled.",
 				"use_custom": "Use custom EP Weights",
 				"enable_modification": "This will enable modification of the default EP weights and setting custom stat caps.",
 				"modify_in_editor": "Ep weights can be modified in the Stat Weights editor.",
 				"hard_cap_info": "If you want to hard cap a stat make sure to put the EP for that stat higher.",
 				"edit_weights": "Change weights",
-				"freeze_item_slots": "Freeze item slots",
-				"max_gem_phase": "Max Gem Phase",
-				"max_gem_quality": "Max Gem Quality",
-				"disable_unique_gems": "Disable Unique Gems"
+				"freeze_item_slots": "Freeze item slots"
 			}
 		},
 		"header": {

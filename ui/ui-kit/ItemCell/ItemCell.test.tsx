@@ -4,18 +4,16 @@ import { describe, expect, it } from 'vitest';
 import { ItemCell } from './ItemCell';
 
 describe('ItemCell', () => {
-	it('keeps an empty item-level badge and an empty sockets container, which an empty gear slot renders', () => {
-		const { container } = render(<ItemCell icon={<a />} ilvl={null} sockets={null} name="Head" />);
+	it('keeps an empty item-level badge, which an empty gear slot renders', () => {
+		const { container } = render(<ItemCell icon={<a />} ilvl={null} name="Head" />);
 
 		expect(container.querySelector('[data-testid="item-picker-ilvl"]')?.textContent).toBe('');
-		expect(container.querySelector('[data-testid="item-picker-sockets-container"]')?.children).toHaveLength(0);
 	});
 
-	it('drops the badge and the sockets container when the caller omits them', () => {
+	it('drops the badge when the caller omits it', () => {
 		const { container } = render(<ItemCell icon={<a />} name="Head" />);
 
 		expect(container.querySelector('[data-testid="item-picker-ilvl"]')).toBeNull();
-		expect(container.querySelector('[data-testid="item-picker-sockets-container"]')).toBeNull();
 	});
 
 	it('puts the trailing action after the labels, outside the label stack', () => {

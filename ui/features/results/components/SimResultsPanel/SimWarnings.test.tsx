@@ -44,7 +44,7 @@ describe('SimWarnings', () => {
 		expect(shown()).toBe(false);
 
 		act(() => {
-			remove.current = registry.add({ updateOn: () => () => {}, getContent: () => 'too many JC gems' });
+			remove.current = registry.add({ updateOn: () => () => {}, getContent: () => 'profession requirement not met' });
 		});
 		expect(shown()).toBe(true);
 

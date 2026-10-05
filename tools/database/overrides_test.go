@@ -5,6 +5,7 @@ package database
 // trusts. These run the merge on synthetic rows, so they need no game files database.
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -287,6 +288,91 @@ func TestShippedAreaBonusesAreWellFormed(t *testing.T) {
 		}
 		if len(b.Groups) == 0 || b.Multiplier <= 0 || b.DurationMultiplier <= 0 {
 			t.Errorf("spell %d's area bonus reads %v x%v (duration x%v)", b.SpellID, b.Groups, b.Multiplier, b.DurationMultiplier)
+		}
+	}
+}
+
+func TestCurveSignsTakeTheRowsSign(t *testing.T) {
+	rows := []storeSpell{{ID: 10, Effects: []storeEffect{{Index: 0, BasePoints: -5}, {Index: 1, BasePoints: -30}}}}
+	curves := map[int32][][]float64{10: {{-5, -10, -15}, {10, 20, 30}}}
+	list := []overrides.CurveSign{{SpellID: 10, Effect: 2, Reason: "tooltip", Source: "tooltip"}}
+
+	if err := applyCurveSigns(rows, curves, list); err != nil {
+		t.Fatalf("%v", err)
+	}
+	if got := curves[10]; !slices.Equal(got[0], []float64{-5, -10, -15}) || !slices.Equal(got[1], []float64{-10, -20, -30}) {
+		t.Errorf("spell 10's curves read %v", got)
+	}
+	if len(rows[0].overrideNotes) != 1 || !strings.Contains(rows[0].overrideNotes[0], "CurveSign effect 2") {
+		t.Errorf("row 10's notes read %v", rows[0].overrideNotes)
+	}
+
+	for _, tc := range []struct {
+		name   string
+		base   float64
+		curves [][]float64
+		list   []overrides.CurveSign
+		wants  string
+	}{
+		{
+			name:   "no reason",
+			base:   -30,
+			curves: [][]float64{{10, 20, 30}},
+			list:   []overrides.CurveSign{{SpellID: 10, Effect: 1}},
+			wants:  "states no reason",
+		},
+		{
+			name:   "a spell the store does not carry",
+			base:   -30,
+			curves: [][]float64{{10, 20, 30}},
+			list:   []overrides.CurveSign{{SpellID: 12, Effect: 1, Reason: "tooltip"}},
+			wants:  "which the store does not carry",
+		},
+		{
+			name:   "a position past the curves",
+			base:   -30,
+			curves: [][]float64{{10, 20, 30}},
+			list:   []overrides.CurveSign{{SpellID: 10, Effect: 2, Reason: "tooltip"}},
+			wants:  "no curve at effect 2",
+		},
+		{
+			name:   "a row with base points 0",
+			base:   0,
+			curves: [][]float64{{10, 20, 30}},
+			list:   []overrides.CurveSign{{SpellID: 10, Effect: 1, Reason: "tooltip"}},
+			wants:  "base points 0",
+		},
+		{
+			name:   "a curve that now takes the row's sign",
+			base:   -30,
+			curves: [][]float64{{-10, -20, -30}},
+			list:   []overrides.CurveSign{{SpellID: 10, Effect: 1, Reason: "tooltip"}},
+			wants:  "hand-supplied sign is stale",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			rows := []storeSpell{{ID: 10, Effects: []storeEffect{{Index: 0, BasePoints: tc.base}, {Index: 1, BasePoints: tc.base}}}}
+			err := applyCurveSigns(rows, map[int32][][]float64{10: tc.curves}, tc.list)
+			if err == nil {
+				t.Fatalf("the merge accepted %s", tc.name)
+			}
+			if !strings.Contains(err.Error(), tc.wants) {
+				t.Errorf("the error reads %q, which does not name %q", err, tc.wants)
+			}
+		})
+	}
+}
+
+func TestShippedCurveSignsAreWellFormed(t *testing.T) {
+	if len(overrides.CurveSigns) == 0 {
+		t.Fatal("the curve sign table is empty, so nothing below checked anything")
+	}
+	for _, c := range overrides.CurveSigns {
+		if c.Reason == "" || c.Source == "" {
+			t.Errorf("spell %d's curve sign on effect %d states reason %q and source %q", c.SpellID, c.Effect, c.Reason, c.Source)
+		}
+		if c.Effect < 1 {
+			t.Errorf("spell %d's curve sign names effect %d, and effects count from 1", c.SpellID, c.Effect)
 		}
 	}
 }

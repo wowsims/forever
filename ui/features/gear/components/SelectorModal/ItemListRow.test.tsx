@@ -96,7 +96,7 @@ const renderRow = (
 
 describe('ItemListRow', () => {
 	it('omits the level cell outside the items and enchants tabs', () => {
-		const { container } = renderRow({ label: SelectorModalTabs.Gem1 });
+		const { container } = renderRow({ label: SelectorModalTabs.RandomSuffixes });
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')).toBeNull();
 	});
 

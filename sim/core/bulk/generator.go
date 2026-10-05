@@ -3,7 +3,6 @@ package bulk
 import (
 	"fmt"
 	"math"
-	"slices"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -167,7 +166,6 @@ func (generator *bulkSimCandidateGenerator) initSelectedItems() error {
 				ID:           selectedItem.GetId(),
 				RandomSuffix: selectedItem.GetRandomSuffix(),
 				Enchant:      selectedItem.GetEnchant(),
-				Gems:         slices.Clone(selectedItem.GetGems()),
 			}),
 		}
 
@@ -267,7 +265,7 @@ func (generator *bulkSimCandidateGenerator) initGroupedSlotPairs() {
 					continue
 				}
 				frozenOption := bulkSimCandidateOption{spec: frozenSpec, item: *frozenItem}
-				// A frozen item stays in the slot it is worn in: replaceItem takes the enchant and gems from that slot.
+				// A frozen item stays in the slot it is worn in: replaceItem takes the enchant from that slot.
 				if generator.frozenSlots[bulkSlot] == BulkSimItemSlotToItemSlotPairs[bulkSlot][1] {
 					pairs = append(pairs, [2]bulkSimCandidateOption{option, frozenOption})
 				} else {

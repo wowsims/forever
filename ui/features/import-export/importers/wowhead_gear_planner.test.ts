@@ -23,7 +23,6 @@ interface Equipped {
 	id: number;
 	enchantSpellId?: number;
 	randomSuffix?: number;
-	gems?: Array<number>;
 }
 
 interface Exported {
@@ -49,7 +48,6 @@ const exportLink = ({ className = 'Warrior', race = Race.RaceHuman, talents = ''
 							id: item.id,
 							_enchant: item.enchantSpellId ? { spellId: item.enchantSpellId } : null,
 							_randomSuffix: item.randomSuffix ? { id: item.randomSuffix } : null,
-							_gems: (item.gems ?? []).map(id => ({ id })),
 						};
 					},
 				}),
@@ -93,12 +91,40 @@ describe('the Wowhead gear planner link', () => {
 		expect(parsed.talentsStr).toBe('');
 	});
 
-	it('round-trips an item with an enchant, a random suffix and gems', async () => {
+	it('round-trips an item with an enchant and a random suffix', async () => {
 		const parsed = await roundTrip({
 			talents: '05002001',
-			gear: { [ItemSlot.ItemSlotHead]: { id: 29011, enchantSpellId: 28909, randomSuffix: -5, gems: [24027, 24061] } },
+			gear: { [ItemSlot.ItemSlotHead]: { id: 29011, enchantSpellId: 28909, randomSuffix: -5 } },
 		});
-		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910, randomSuffix: -5, gems: [24027, 24061] })]);
+		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910, randomSuffix: -5 })]);
+	});
+
+	// A Wowhead link can carry gem ids, three bytes each, after an item: they are skipped, and the
+	// item after them still parses.
+	it('skips the gem ids an item carries', async () => {
+		const id3 = (id: number, high = 0) => [high | (id >> 16), (id >> 8) & 255, id & 255];
+		const enchantOffset = 128;
+		const bytes = [
+			3, // format version
+			60, // level
+			0, // no talent bytes
+			WOWHEAD_SLOT_IDS[ItemSlot.ItemSlotHead] | enchantOffset,
+			...id3(29011, 2 << 5), // two gems
+			28909 >> 8,
+			28909 & 255,
+			...id3(24027, 0 << 5),
+			...id3(24061, 1 << 5),
+			WOWHEAD_SLOT_IDS[ItemSlot.ItemSlotMainHand],
+			...id3(28773),
+		];
+		const hash = btoa(String.fromCharCode(...bytes))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+
+		const parsed = await importLink(`https://www.wowhead.com/${WOWHEAD_DOMAIN}/gear-planner/warrior/human/${hash}`);
+
+		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910 }), ItemSpec.create({ id: 28773 })]);
 	});
 
 	it('round-trips a bare item, leaving the optional fields off', async () => {

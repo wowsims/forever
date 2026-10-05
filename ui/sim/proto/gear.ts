@@ -1,14 +1,12 @@
-import { ConsumesSpec, EquipmentSpec, GemColor, HandType, ItemSlot, ItemSpec, Profession, WeaponType } from '@generated/proto/common';
-import { ItemEffectRandPropPoints, SimDatabase, SimEnchant, SimGem, SimItem } from '@generated/proto/db';
-import { UIEnchant as Enchant, UIGem as Gem, UIItem as Item } from '@generated/proto/ui';
+import { ConsumesSpec, EquipmentSpec, HandType, ItemSlot, ItemSpec, Profession, WeaponType } from '@generated/proto/common';
+import { ItemEffectRandPropPoints, SimDatabase, SimEnchant, SimItem } from '@generated/proto/db';
+import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 
 import { distinct, equalsOrBothNull, getEnumValues } from '../utils/collections';
 import { sum } from '../utils/math';
 import { Database } from './database';
 import { EquippedItem } from './equipped_item';
-import { gemMatchesSocket, isMetaGemActive } from './gems';
 import { isBluntWeaponType, isSharpWeaponType, validWeaponCombo } from './items';
-import { Stats } from './stats';
 import { adjustWeaponImbueId } from './utils';
 
 type InternalGear = Record<ItemSlot, EquippedItem | null>;
@@ -82,14 +80,13 @@ abstract class BaseGear {
 	/**
 	 * Returns a new Gear set with the item equipped.
 	 *
-	 * Checks for validity and removes/exchanges items/gems as needed.
+	 * Checks for validity and removes/exchanges items as needed.
 	 */
 	protected withEquippedItemInternal(newSlot: ItemSlot, newItem: EquippedItem | null): Partial<InternalGear> {
 		// Create a new identical set of gear
 		const newInternalGear = this.asMap();
 
 		if (newItem) {
-			this.removeUniqueGems(newInternalGear, newItem);
 			this.removeUniqueItems(newInternalGear, newItem);
 		}
 
@@ -99,19 +96,6 @@ abstract class BaseGear {
 		BaseGear.validateWeaponCombo(newInternalGear, newSlot);
 
 		return newInternalGear;
-	}
-
-	private removeUniqueGems(gear: Partial<InternalGear>, newItem: EquippedItem) {
-		// If the new item has unique gems, remove matching.
-		newItem.gems
-			.filter(gem => gem?.unique)
-			.forEach(gem => {
-				this.getItemSlots()
-					.map(slot => Number(slot) as ItemSlot)
-					.forEach(slot => {
-						gear[slot] = gear[slot]?.removeGemsWithId(gem!.id) || null;
-					});
-			});
 	}
 
 	private removeUniqueItems(gear: Partial<InternalGear>, newItem: EquippedItem) {
@@ -159,7 +143,6 @@ abstract class BaseGear {
 					return out;
 				}),
 			),
-			gems: distinct(equippedItems.map(ei => (ei._gems.filter(g => g != null) as Array<Gem>).map(gem => BaseGear.gemToDB(gem))).flat()),
 		};
 		return SimDatabase.create(data);
 	}
@@ -171,14 +154,10 @@ abstract class BaseGear {
 	private static enchantToDB(enchant: Enchant): SimEnchant {
 		return SimEnchant.fromJson(Enchant.toJson(enchant), { ignoreUnknownFields: true });
 	}
-
-	private static gemToDB(gem: Gem): SimGem {
-		return SimGem.fromJson(Gem.toJson(gem), { ignoreUnknownFields: true });
-	}
 }
 
 /**
- * Represents a full gear set, including items/enchants/gems for every slot.
+ * Represents a full gear set, including items/enchants for every slot.
  *
  * This is an immutable type.
  */
@@ -199,152 +178,6 @@ export class Gear extends BaseGear {
 		return EquipmentSpec.create({
 			items: this.asArray().map(ei => (ei ? ei.asSpec() : ItemSpec.create())),
 		});
-	}
-
-	getAllGems(): Array<Gem> {
-		return this.asArray()
-			.map(ei => (ei == null ? [] : ei.curEquippedGems()))
-			.flat();
-	}
-
-	getNonMetaGems(): Array<Gem> {
-		return this.getAllGems().filter(gem => gem.color != GemColor.GemColorMeta);
-	}
-
-	statsFromGems(): Stats {
-		let stats = new Stats();
-
-		// Stats from just the gems.
-		const gems = this.getAllGems();
-		for (let i = 0; i < gems.length; i++) {
-			stats = stats.add(new Stats(gems[i].stats));
-		}
-
-		// Stats from socket bonuses.
-		const items = this.asArray().filter(ei => ei != null) as Array<EquippedItem>;
-		for (let i = 0; i < items.length; i++) {
-			stats = stats.add(items[i].socketBonusStats());
-		}
-
-		return stats;
-	}
-
-	getGemsOfColor(color: GemColor): Array<Gem> {
-		return this.getAllGems().filter(gem => gem.color == color);
-	}
-
-	getJCGems(): Array<Gem> {
-		return this.getAllGems().filter(gem => gem.requiredProfession == Profession.Jewelcrafting);
-	}
-
-	getMetaGem(): Gem | null {
-		return this.getGemsOfColor(GemColor.GemColorMeta)[0] || null;
-	}
-
-	gemColorCounts(): { red: number; yellow: number; blue: number } {
-		const gems = this.getAllGems();
-		return {
-			red: gems.filter(gem => gemMatchesSocket(gem, GemColor.GemColorRed)).length,
-			yellow: gems.filter(gem => gemMatchesSocket(gem, GemColor.GemColorYellow)).length,
-			blue: gems.filter(gem => gemMatchesSocket(gem, GemColor.GemColorBlue)).length,
-		};
-	}
-
-	// Returns true if this gear set has a meta gem AND the other gems meet the meta's conditions.
-	hasActiveMetaGem(): boolean {
-		const metaGem = this.getMetaGem();
-		if (!metaGem) {
-			return false;
-		}
-
-		const gemColorCounts = this.gemColorCounts();
-		return isMetaGemActive(metaGem, gemColorCounts.red, gemColorCounts.yellow, gemColorCounts.blue);
-	}
-
-	hasInactiveMetaGem(): boolean {
-		return this.getMetaGem() != null && !this.hasActiveMetaGem();
-	}
-
-	withGem(itemSlot: ItemSlot, socketIdx: number, gem: Gem | null): Gear {
-		const item = this.getEquippedItem(itemSlot);
-
-		if (item) {
-			return this.withEquippedItem(itemSlot, item.withGem(gem, socketIdx));
-		}
-
-		return this;
-	}
-
-	withSingleGemSubstitution(oldGem: Gem | null, newGem: Gem | null): Gear {
-		for (const slot of this.getItemSlots()) {
-			const item = this.getEquippedItem(slot);
-
-			if (!item) {
-				continue;
-			}
-
-			const currentGems = item!.curGems();
-
-			if (currentGems.includes(oldGem)) {
-				const socketIdx = currentGems.indexOf(oldGem);
-				return this.withGem(slot, socketIdx, newGem);
-			}
-		}
-
-		return this;
-	}
-
-	findGem(gemToFind: Gem): [ItemSlot, number][] {
-		const gemMatchData: [ItemSlot, number][] = [];
-
-		for (const slot of this.getItemSlots()) {
-			const item = this.getEquippedItem(slot);
-
-			if (!item) {
-				continue;
-			}
-
-			for (const [socketIdx, gem] of item.curGems().entries()) {
-				if (gem?.id === gemToFind.id) {
-					gemMatchData.push([slot, socketIdx]);
-				}
-			}
-		}
-
-		return gemMatchData;
-	}
-
-	withMetaGem(metaGem: Gem | null): Gear {
-		const headItem = this.getEquippedItem(ItemSlot.ItemSlotHead);
-
-		if (headItem) {
-			for (const [socketIdx, socketColor] of headItem.allSocketColors().entries()) {
-				if (socketColor == GemColor.GemColorMeta) {
-					return this.withEquippedItem(ItemSlot.ItemSlotHead, headItem.withGem(metaGem, socketIdx));
-				}
-			}
-		}
-
-		return this;
-	}
-
-	withoutGems(ignoreSlots?: Set<ItemSlot>, ignoreMeta?: boolean): Gear {
-		let curGear: Gear = this;
-		const metaGem = this.getMetaGem();
-
-		for (const slot of this.getItemSlots()) {
-			const item = this.getEquippedItem(slot);
-
-			if (item && !ignoreSlots?.has(slot)) {
-				curGear = curGear.withEquippedItem(slot, item.removeAllGems());
-			}
-		}
-
-		if (ignoreMeta) {
-			return curGear.withMetaGem(metaGem);
-		}
-
-		return curGear;
 	}
 
 	// Removes enchanting profession bonus.
@@ -395,7 +228,7 @@ export class Gear extends BaseGear {
 	getProfessionRequirements(): Array<Profession> {
 		return distinct((this.asArray().filter(ei => ei != null) as Array<EquippedItem>).map(ei => ei.getProfessionRequirements()).flat());
 	}
-	getFailedProfessionRequirements(professions: Array<Profession>): Array<Item | Gem | Enchant> {
+	getFailedProfessionRequirements(professions: Array<Profession>): Array<Item | Enchant> {
 		return (this.asArray().filter(ei => ei != null) as Array<EquippedItem>).map(ei => ei.getFailedProfessionRequirements(professions)).flat();
 	}
 	getItemSetCount(name: string, alternativeName?: string) {
@@ -425,7 +258,7 @@ export class Gear extends BaseGear {
 }
 
 /**
- * Represents a item swap gear set, including items/enchants/gems/bonusStats.
+ * Represents a item swap gear set, including items/enchants/bonusStats.
  *
  * This is an immutable type.
  */

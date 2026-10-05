@@ -6,12 +6,24 @@ name: Update Items
 # group (the item, enchant and set-bonus rows, with the item database gen_db writes). Every class, the
 # racials and the shared rows stay on the build the committed inputs record (see
 # docs/spell_data/partial-updates.md). Whatever changed lands in a pull request; nothing changed means
-# no pull request.
-on: workflow_dispatch
+# no pull request. Check Hotfixes dispatches this when new hotfixes come out. A pull request with
+# hotfixes applied that passes the Go tests here and the Run Tests suite is merged and deployed.
+on:
+    workflow_dispatch:
+        inputs:
+            dbcache_url:
+                description: 'The DBCache.bin to apply (defaults to the latest for wow_classic_beta)'
+                required: false
+                type: string
+
+# A second dispatch waits for the running one, which may still be merging its pull request.
+concurrency:
+    group: ${{ github.workflow }}
+    cancel-in-progress: false
 
 env:
     PRODUCT: wow_classic_beta
-    DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin
+    DBCACHE_URL: ${{ inputs.dbcache_url || 'https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin' }}
 
 jobs:
     update-items:
@@ -20,6 +32,11 @@ jobs:
         permissions:
             contents: write
             pull-requests: write
+        outputs:
+            hotfixes-applied: ${{ startsWith(steps.db.outputs.hotfixes, 'applied') }}
+            pull-request-number: ${{ steps.pr.outputs.pull-request-number }}
+            pull-request-operation: ${{ steps.pr.outputs.pull-request-operation }}
+            pull-request-head-sha: ${{ steps.pr.outputs.pull-request-head-sha }}
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v5
@@ -147,6 +164,7 @@ jobs:
               run: echo "date=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
             - name: Create Pull Request 🚀
+              id: pr
               uses: peter-evans/create-pull-request@v8
               with:
                   branch: update_items
@@ -169,3 +187,41 @@ jobs:
               run: |
                   echo "::error::Go tests fail; the pull request lists them"
                   exit 1
+
+    # The pull request checks do not run for a pull request the workflow token opened, so the same
+    # suite runs against the branch here.
+    test:
+        needs: update-items
+        if: needs.update-items.outputs.pull-request-operation == 'created' || needs.update-items.outputs.pull-request-operation == 'updated'
+        uses: ./.github/workflows/run_tests.yml
+        permissions:
+            contents: read
+            pull-requests: write
+        with:
+            ref: ${{ needs.update-items.outputs.pull-request-head-sha }}
+
+    # Without hotfixes the items fall back to the raw build, so such a pull request waits for review.
+    # A merge by the workflow token starts no push workflow, so the deploy is dispatched while Build
+    # and Deploy is enabled.
+    merge:
+        needs: [update-items, test]
+        if: needs.update-items.outputs.hotfixes-applied == 'true'
+        runs-on: self-hosted
+        timeout-minutes: 5
+        permissions:
+            actions: write
+            contents: write
+            pull-requests: write
+        steps:
+            - name: Merge the pull request 🔀
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  before=$(gh api "repos/$GITHUB_REPOSITORY/commits/master" --jq .sha)
+                  gh pr merge "${{ needs.update-items.outputs.pull-request-number }}" -R "$GITHUB_REPOSITORY" \
+                      --merge --delete-branch --match-head-commit "${{ needs.update-items.outputs.pull-request-head-sha }}"
+                  if [ "$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deploy.yml" --jq .state)" = active ]; then
+                      gh workflow run deploy.yml -R "$GITHUB_REPOSITORY" --ref master -f proto_baseline="$before"
+                  else
+                      echo "Build and Deploy is disabled; nothing deployed"
+                  fi

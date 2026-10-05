@@ -375,7 +375,6 @@ var AtlasLootProfessionIDs = map[int]proto.Profession{
 	11: proto.Profession_Tailoring,
 	12: proto.Profession_Engineering,
 	13: proto.Profession_Enchanting,
-	17: proto.Profession_Jewelcrafting,
 	18: proto.Profession_Inscription,
 }
 var AtlasLootFactions = map[string]proto.Faction{

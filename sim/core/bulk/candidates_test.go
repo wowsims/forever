@@ -9,7 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// Enchant, gem and item-rule helpers.
+// Enchant and item-rule helpers.
 
 func addBulkTestEnchant(effectID int32, itemType proto.ItemType, enchantType proto.EnchantType) int32 {
 	core.AddToDatabase(&proto.SimDatabase{
@@ -170,98 +170,14 @@ func TestBulkSimEnchantAppliesToItem_RejectsNonMatchingItemTypes(t *testing.T) {
 	}
 }
 
-func TestMergeGems_RehomesReplacedItemGems(t *testing.T) {
-	existing := core.Item{
-		Type:       proto.ItemType_ItemTypeHead,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorMeta, proto.GemColor_GemColorRed},
-		Gems: []core.Gem{
-			{ID: 1001, Color: proto.GemColor_GemColorMeta},
-			{ID: 1002, Color: proto.GemColor_GemColorRed},
-		},
-	}
-	newItem := core.Item{
-		Type:       proto.ItemType_ItemTypeHead,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorMeta, proto.GemColor_GemColorBlue},
-	}
-
-	gems := mergeGems(existing, bulkSimCandidateOption{spec: &proto.ItemSpec{}}, newItem)
-	if len(gems) != 2 {
-		t.Fatalf("expected 2 gem slots, got %d", len(gems))
-	}
-	if gems[0] != 1001 {
-		t.Fatalf("expected meta gem to persist in meta socket, got %d", gems[0])
-	}
-	if gems[1] != 1002 {
-		t.Fatalf("expected red gem to be re-homed into the blue socket, got %d", gems[1])
-	}
-}
-
-func TestMergeGems_KeepsNonHeadGems(t *testing.T) {
-	existing := core.Item{
-		Type:       proto.ItemType_ItemTypeHands,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorRed},
-		Gems: []core.Gem{
-			{ID: 2001, Color: proto.GemColor_GemColorRed},
-		},
-	}
-	newItem := core.Item{
-		Type:       proto.ItemType_ItemTypeHands,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorRed},
-	}
-
-	gems := mergeGems(existing, bulkSimCandidateOption{spec: &proto.ItemSpec{}}, newItem)
-	if len(gems) != 1 {
-		t.Fatalf("expected 1 gem slot, got %d", len(gems))
-	}
-	if gems[0] != 2001 {
-		t.Fatalf("expected gem to be carried over into the matching socket, got %d", gems[0])
-	}
-}
-
-func TestMergeGems_MetaGemNeedsMetaSocket(t *testing.T) {
-	existing := core.Item{
-		Type:       proto.ItemType_ItemTypeHead,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorMeta},
-		Gems:       []core.Gem{{ID: 3001, Color: proto.GemColor_GemColorMeta}},
-	}
-	newItem := core.Item{
-		Type:       proto.ItemType_ItemTypeHead,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorRed},
-	}
-
-	gems := mergeGems(existing, bulkSimCandidateOption{spec: &proto.ItemSpec{}}, newItem)
-	if gems[0] != 0 {
-		t.Fatalf("expected meta gem to be dropped when there is no meta socket, got %d", gems[0])
-	}
-}
-
-func TestMergeGems_BulkItemGemsWin(t *testing.T) {
-	existing := core.Item{
-		Type:       proto.ItemType_ItemTypeHands,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorRed},
-		Gems:       []core.Gem{{ID: 4001, Color: proto.GemColor_GemColorRed}},
-	}
-	newItem := core.Item{
-		Type:       proto.ItemType_ItemTypeHands,
-		GemSockets: []proto.GemColor{proto.GemColor_GemColorRed},
-	}
-	option := bulkSimCandidateOption{spec: &proto.ItemSpec{Gems: []int32{4002}}}
-
-	gems := mergeGems(existing, option, newItem)
-	if gems[0] != 4002 {
-		t.Fatalf("expected the gem picked for the bulk item to win, got %d", gems[0])
-	}
-}
-
-func oneHandOption(id int32, gems ...int32) bulkSimCandidateOption {
+func oneHandOption(id int32) bulkSimCandidateOption {
 	return bulkSimCandidateOption{
-		spec: &proto.ItemSpec{Id: id, Gems: gems},
+		spec: &proto.ItemSpec{Id: id},
 		item: core.Item{
 			ID:         id,
 			Type:       proto.ItemType_ItemTypeWeapon,
 			HandType:   proto.HandType_HandTypeOneHand,
 			WeaponType: proto.WeaponType_WeaponTypeSword,
-			Gems:       make([]core.Gem, len(gems)),
 		},
 	}
 }
@@ -427,22 +343,6 @@ func TestGetAllWeaponCombosNeverPairsTwoHandWithOffHand(t *testing.T) {
 		if combo[1] != nil {
 			t.Fatalf("expected nil offhand for 2H combo, got item %d", combo[1].spec.GetId())
 		}
-	}
-}
-
-// A differently-gemmed copy of the same item id is a distinct candidate, so the fingerprint
-// key must not collapse it the way an id-only key would.
-func TestItemSpecFingerprintKeyDistinguishesGems(t *testing.T) {
-	plain := buildItemSpecFingerprintKey(&proto.ItemSpec{Id: 100})
-	gemmed := buildItemSpecFingerprintKey(&proto.ItemSpec{Id: 100, Gems: []int32{42}})
-	if plain == gemmed {
-		t.Fatal("fingerprint key ignored gems")
-	}
-
-	reordered := buildItemSpecFingerprintKey(&proto.ItemSpec{Id: 100, Gems: []int32{42, 7}})
-	swapped := buildItemSpecFingerprintKey(&proto.ItemSpec{Id: 100, Gems: []int32{7, 42}})
-	if reordered == swapped {
-		t.Fatal("fingerprint key ignored gem order")
 	}
 }
 
@@ -968,7 +868,7 @@ func bulkEnchantCandidateGear(t *testing.T, generator *bulkSimCandidateGenerator
 func bulkEnchantGearKey(gear *proto.EquipmentSpec) string {
 	key := ""
 	for slot, item := range gear.GetItems() {
-		key += fmt.Sprintf("%d=%d/%d/%d/%v;", slot, item.GetId(), item.GetRandomSuffix(), item.GetEnchant(), item.GetGems())
+		key += fmt.Sprintf("%d=%d/%d/%d;", slot, item.GetId(), item.GetRandomSuffix(), item.GetEnchant())
 	}
 	return key
 }

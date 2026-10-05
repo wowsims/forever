@@ -272,8 +272,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 		}
 
 		const reforgeConfig = host.reforger ? host.reforger.getReforgeOptimizeConfig(baseGear) : undefined;
-		// With the gem optimizer every candidate must be submitted (its gems differentiate
-		// otherwise identical gear); without it duplicates are culled up front.
+		// With the gear optimizer every candidate is submitted; without it duplicates are culled up front.
 		const gearSets = reforgeConfig ? candidateGearSets : dedupeGearSets(candidateGearSets, [baseGear]);
 
 		run.simStart = new Date().getTime();

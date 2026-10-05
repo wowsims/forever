@@ -190,6 +190,58 @@ func applyAreaBonuses(rows []storeSpell, list []overrides.AreaBonus) error {
 	return nil
 }
 
+// Negates the curve at each listed position, after checking every rank on it still disagrees in sign
+// with the row's base points.
+func applyCurveSigns(rows []storeSpell, curves map[int32][][]float64, list []overrides.CurveSign) error {
+	byID := map[int32]*storeSpell{}
+	for i := range rows {
+		byID[rows[i].ID] = &rows[i]
+	}
+
+	type key struct {
+		id     int32
+		effect int
+	}
+	seen := map[key]bool{}
+
+	for _, c := range list {
+		if c.Reason == "" {
+			return fmt.Errorf("the curve sign of spell %d effect %d states no reason", c.SpellID, c.Effect)
+		}
+		if seen[key{c.SpellID, c.Effect}] {
+			return fmt.Errorf("spell %d carries two curve signs on effect %d", c.SpellID, c.Effect)
+		}
+		seen[key{c.SpellID, c.Effect}] = true
+
+		row, ok := byID[c.SpellID]
+		if !ok {
+			return fmt.Errorf("the curve sign names spell %d, which the store does not carry", c.SpellID)
+		}
+		position := c.Effect - 1
+		if position < 0 || position >= len(curves[c.SpellID]) || position >= len(row.Effects) {
+			return fmt.Errorf("spell %d has no curve at effect %d to take the row's sign", c.SpellID, c.Effect)
+		}
+		base := row.Effects[position].BasePoints
+		if base == 0 {
+			return fmt.Errorf("spell %d states base points 0 on effect %d, so there is no sign for its curve to take",
+				c.SpellID, c.Effect)
+		}
+		curve := curves[c.SpellID][position]
+		for _, value := range curve {
+			if value == 0 || (value < 0) == (base < 0) {
+				return fmt.Errorf("spell %d's curve on effect %d reads %v against base points %v, so its hand-supplied sign is stale",
+					c.SpellID, c.Effect, curve, base)
+			}
+		}
+		for i := range curve {
+			curve[i] = -curve[i]
+		}
+		row.overrideNotes = append(row.overrideNotes,
+			fmt.Sprintf("override: CurveSign effect %d -- %s", c.Effect, c.Reason))
+	}
+	return nil
+}
+
 // The ticking effect: a periodic aura, or the damage effect the rank's dummy times, which is how
 // the rank tables read a DoT too.
 func (s *storeSpell) periodicEffect() *storeEffect {

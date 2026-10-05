@@ -27,12 +27,9 @@ import (
 func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 	var raw dbc.Item
 	var randomSuffixOptions sql.NullString
-	var statPercentageOfSocket string
 	var bonusAmountCalculated string
 	var bonusStatString string
 	var statValue string
-	var socketTypes string
-	var statPercentEditor string
 	var maxCount int
 	err := rows.Scan(
 		&raw.Id,
@@ -44,15 +41,12 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 		&raw.ItemLevel,
 		&statValue,
 		&bonusStatString,
-		&statPercentEditor,
 		&raw.ArmorValue,
 		&raw.FireResistance,
 		&raw.NatureResistance,
 		&raw.FrostResistance,
 		&raw.ShadowResistance,
 		&raw.ArcaneResistance,
-		&socketTypes,
-		&raw.SocketEnchantmentId,
 		&raw.Flags0,
 		&raw.Flags1,
 		&raw.Flags2,
@@ -63,7 +57,6 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 		&raw.RaceMask,
 		&raw.QualityModifier,
 		&randomSuffixOptions,
-		&statPercentageOfSocket,
 		&bonusAmountCalculated,
 		&raw.ItemClass,
 		&raw.ItemSubClass,
@@ -81,10 +74,6 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 		return raw, fmt.Errorf("failed to parse RandomSuffixOptions: %w", parseErr)
 	}
 
-	raw.StatPercentageOfSocket, err = parseFloatArrayField(statPercentageOfSocket, 10)
-	if err != nil {
-		return raw, fmt.Errorf("failed to parse StatPercentageOfSocket: %w %s", err, statPercentageOfSocket)
-	}
 	raw.StatAlloc, err = parseFloatArrayField(statValue, 10)
 	if err != nil {
 		return raw, fmt.Errorf("failed to parse StatAlloc: %w", err)
@@ -96,14 +85,6 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 	raw.BonusStat, err = parseIntArrayField(bonusStatString, 10)
 	if err != nil {
 		return raw, fmt.Errorf("failed to parse BonusStat: %w", err)
-	}
-	raw.Sockets, err = parseIntArrayField(socketTypes, 3)
-	if err != nil {
-		return raw, fmt.Errorf("failed to parse Sockets: %w", err)
-	}
-	raw.SocketModifier, err = parseFloatArrayField(statPercentEditor, 10)
-	if err != nil {
-		return raw, fmt.Errorf("failed to parse SocketModifier: %w", err)
 	}
 	// MaxCount identifies that an item is unique
 	// this is not the same as unique-equipped but
@@ -134,15 +115,12 @@ func LoadAndWriteRawItems(dbHelper *DBHelper, filter string, inputsDir string) (
 			s.ItemLevel,
 			s.StatPercentEditor as StatValue,
 			s.StatModifier_bonusStat as bonusStat,
-			'[0,0,0,0,0,0,0,0,0,0]' as StatPercentEditor, -- socket penalty array: dropped from the game files
-			0 as ArmorValue, -- Item.Resistances_*: dropped from the game files; armor and the
-			0 as FireResistance, -- five resistances arrive as stat-array entries instead
+			0 as ArmorValue, -- Item.Resistances_* is absent from the game files: GetArmorValue computes
+			0 as FireResistance, -- armor from the item level tables, and resistances arrive as stat-array entries
 			0 as NatureResistance,
 			0 as FrostResistance,
 			0 as ShadowResistance,
 			0 as ArcaneResistance,
-			s.SocketType as SocketTypes,
-			s.Socket_match_enchantment_ID as SocketEnchantmentId,
 			s.Flags_0 as Flags_0,
 			s.Flags_1 as Flags_1,
 			s.Flags_2 as Flags_2,
@@ -156,7 +134,6 @@ func LoadAndWriteRawItems(dbHelper *DBHelper, filter string, inputsDir string) (
 			-- random suffix group and every item reads NULL here. ParseRandomSuffixOptions
 			-- takes a NullString and reads NULL as no suffix options.
 			NULL AS RandomSuffixOptions,
-			 s.StatPercentageOfSocket,
 			 '[0,0,0,0,0,0,0,0,0,0]', -- StatModifier_bonusAmount: dropped; derived from StatAlloc
 			 i.ClassID,
 			 i.SubClassID,
@@ -247,47 +224,7 @@ func applyCreatorClassMasks[T any](dbHelper *DBHelper, rows []T, classMaskOf fun
 	return nil
 }
 
-//ItemStatEffects
-// Used for straight up item stat effects from SpellItemEnchantment (socket bonuses for now, single stat)
-//
-
-func ScanItemStatEffects(rows *sql.Rows) (dbc.ItemStatEffect, error) {
-	var raw dbc.ItemStatEffect
-	var ePointsMin, epointsMax, eArgs string
-	err := rows.Scan(&raw.ID, &raw.EffectIsAura, &ePointsMin, &epointsMax, &eArgs)
-	if err != nil {
-		panic("Error scanning item stat effects")
-	}
-	raw.EffectPointsMin, err = parseIntArrayField(ePointsMin, 3)
-	if err != nil {
-		return raw, fmt.Errorf("failed to parse EffectPointsMin: %w", err)
-	}
-	raw.EffectPointsMax, err = parseIntArrayField(epointsMax, 3)
-	if err != nil {
-		return raw, fmt.Errorf("failed to parse EffectPointsMax: %w", err)
-	}
-	raw.EffectArg, err = parseIntArrayField(eArgs, 3)
-	if err != nil {
-		return raw, fmt.Errorf("failed to parse EffectArg: %w", err)
-	}
-	return raw, err
-}
-
-func LoadAndWriteItemStatEffects(dbHelper *DBHelper, inputsDir string) ([]dbc.ItemStatEffect, error) {
-	query := `SELECT ID,
-		CASE WHEN Effect_0 = 3 THEN 1 ELSE 0 END as EffectIsAura,
-		EffectPointsMin, EffectPointsMin AS EffectPointsMax, EffectArg FROM SpellItemEnchantment WHERE Effect_0 = 5 OR Effect_0 = 3`
-	items, err := LoadRows(dbHelper.db, query, ScanItemStatEffects)
-	if err != nil {
-		return nil, fmt.Errorf("error in query load items")
-	}
-	json, _ := json.Marshal(items)
-	if err := dbc.WriteGzipFile(fmt.Sprintf("%s/dbc/item_stat_effects.json", inputsDir), json); err != nil {
-		panic(fmt.Sprintf("Error loading DBC data %v", err))
-	}
-	return items, nil
-}
-
+// ItemDamage tables
 func ScanItemDamageTable(rows *sql.Rows) (dbc.ItemDamageTable, error) {
 	var raw dbc.ItemDamageTable
 	var qualityString string
@@ -438,81 +375,6 @@ func ScanArmorLocation(rows *sql.Rows) (dbc.ArmorLocation, error) {
 	raw.Modifier = [5]float64{}
 	err := rows.Scan(&raw.Id, &raw.Modifier[0], &raw.Modifier[1], &raw.Modifier[2], &raw.Modifier[3], &raw.Modifier[4])
 	return raw, err
-}
-
-// ItemDamage tables
-func ScanGemTable(rows *sql.Rows) (dbc.Gem, error) {
-	var raw dbc.Gem
-	var statListString string
-	var statBonusString string
-	var effectString string
-	err := rows.Scan(
-		&raw.ItemId,
-		&raw.Name,
-		&raw.FDID,
-		&raw.GemType,
-		&statListString,
-		&statBonusString,
-		&raw.MinItemLevel,
-		&raw.Quality,
-		&effectString,
-		&raw.IsJc,
-		&raw.Flags0,
-		&raw.Bonding,
-	)
-	if err != nil {
-		return raw, fmt.Errorf("scanning gem data: %w", err)
-	}
-
-	raw.EffectPoints, err = parseIntArrayField(statListString, 3)
-	if err != nil {
-		return raw, fmt.Errorf("parsing effect points for gem %d (%s): %w", raw.ItemId, statListString, err)
-	}
-
-	raw.EffectArgs, err = parseIntArrayField(statBonusString, 3)
-	if err != nil {
-		return raw, fmt.Errorf("parsing effect args for gem %d (%s): %w", raw.ItemId, statBonusString, err)
-	}
-
-	raw.Effects, err = parseIntArrayField(effectString, 3)
-	if err != nil {
-		return raw, fmt.Errorf("parsing effects for gem %d (%s): %w", raw.ItemId, effectString, err)
-	}
-
-	return raw, nil
-}
-
-func LoadAndWriteRawGems(dbHelper *DBHelper, inputsDir string) ([]dbc.Gem, error) {
-	query := `SELECT
-		s.ID,
-		s.Display_lang as Name,
-		i.IconFileDataID as FDID,
-		gp.'Type' as GemType,
-		sie.EffectPointsMin as StatList, -- EffectPointsMax: dropped from the game files
-		sie.EffectArg as StatBonus,
-		0 MinItemLevel, -- GemProperties.Min_item_level: dropped from the game files
-		s.OverallQualityId Quality,
-		sie.Effect,
-		CASE
-			WHEN s.RequiredSkill = 755 THEN 1
-			ELSE 0
-		END AS IsJc,
-		s.Flags_0,
-		s.Bonding
-		FROM ItemSparse s
-		JOIN Item i ON s.ID = i.ID
-		JOIN GemProperties gp ON s.Gem_properties = gp.ID
-		JOIN SpellItemEnchantment sie ON gp.Enchant_ID = sie.ID
-		WHERE i.ClassID = 3`
-	items, err := LoadRows(dbHelper.db, query, ScanGemTable)
-	if err != nil {
-		return nil, fmt.Errorf("error loading items for GemTables: %w", err)
-	}
-	json, _ := json.Marshal(items)
-	if err := dbc.WriteGzipFile(fmt.Sprintf("%s/dbc/gems.json", inputsDir), json); err != nil {
-		panic(fmt.Sprintf("Error loading DBC data %v", err))
-	}
-	return items, nil
 }
 
 func ScanEnchantsTable(rows *sql.Rows) (dbc.Enchant, error) {

@@ -310,25 +310,6 @@ func (filter *ItemFilter) FindAllSets() []*ItemSet {
 	return filteredSets
 }
 
-func (filter *ItemFilter) FindAllMetaGems() []Gem {
-	var filteredGems []Gem
-
-	dbMu.RLock()
-	defer dbMu.RUnlock()
-	for _, gem := range gemsByID {
-		if gem.Color == proto.GemColor_GemColorMeta {
-			if !strings.Contains(gem.Name, "Skyfire") &&
-				!strings.Contains(gem.Name, "Earthstorm") &&
-				!strings.Contains(gem.Name, "Starfire") &&
-				!strings.Contains(gem.Name, "Unstable") {
-				filteredGems = append(filteredGems, gem)
-			}
-		}
-	}
-
-	return filteredGems
-}
-
 func (filter *ItemFilter) FindAllEnchants() []Enchant {
 	filteredEnchantIDs := FilterSlice(slices.Sorted(maps.Keys(enchantEffects)), func(id int32) bool {
 		return !slices.Contains(filter.EnchantBlacklist, id)
@@ -363,10 +344,7 @@ type ItemsTestGenerator struct {
 	items []Item
 	sets  []*ItemSet
 
-	metagems []Gem
 	enchants []Enchant
-
-	metaSocketIdx int
 }
 
 func (generator *ItemsTestGenerator) init() {
@@ -390,24 +368,11 @@ func (generator *ItemsTestGenerator) init() {
 	generator.items = generator.ItemFilter.FindAllItems()
 	generator.sets = generator.ItemFilter.FindAllSets()
 	generator.enchants = generator.ItemFilter.FindAllEnchants()
-
-	baseEquipment := ProtoToEquipment(generator.Player.Equipment)
-	generator.metaSocketIdx = -1
-	for i, socketColor := range baseEquipment[proto.ItemSlot_ItemSlotHead].GemSockets {
-		if socketColor == proto.GemColor_GemColorMeta {
-			generator.metaSocketIdx = i
-			break
-		}
-	}
-	if generator.metaSocketIdx == -1 {
-		return
-	}
-	generator.metagems = generator.ItemFilter.FindAllMetaGems()
 }
 
 func (generator *ItemsTestGenerator) NumTests() int {
 	generator.init()
-	return len(generator.items) + len(generator.sets) + len(generator.metagems) + len(generator.enchants)
+	return len(generator.items) + len(generator.sets) + len(generator.enchants)
 }
 
 func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.ComputeStatsRequest, *proto.StatWeightsRequest, *proto.RaidSimRequest) {
@@ -426,16 +391,8 @@ func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.Comput
 			equipment.EquipItem(setItem)
 		}
 		label = strings.ReplaceAll(testSet.Name, " ", "")
-	} else if testIdx < len(generator.items)+len(generator.sets)+len(generator.metagems) {
-		testMetaGem := generator.metagems[testIdx-len(generator.items)-len(generator.sets)]
-		headItem := &equipment[proto.ItemSlot_ItemSlotHead]
-		for len(headItem.Gems) <= generator.metaSocketIdx {
-			headItem.Gems = append(headItem.Gems, Gem{})
-		}
-		headItem.Gems[generator.metaSocketIdx] = testMetaGem
-		label = strings.ReplaceAll(testMetaGem.Name, " ", "")
 	} else {
-		testEnchant := generator.enchants[testIdx-len(generator.items)-len(generator.sets)-len(generator.metagems)]
+		testEnchant := generator.enchants[testIdx-len(generator.items)-len(generator.sets)]
 		equipment.EquipEnchant(testEnchant)
 		label = fmt.Sprintf("%s-%d", strings.ReplaceAll(testEnchant.Name, " ", ""), testEnchant.EffectID)
 	}

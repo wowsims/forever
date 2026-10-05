@@ -1,7 +1,6 @@
 import i18n from '@i18n/config';
 import { CHARACTER_LEVEL } from '@sim/constants/mechanics';
 import type { Player } from '@sim/player/player';
-import { getMetaGemConditionDescription } from '@sim/proto/gems';
 import { professionNames } from '@sim/proto/names';
 import { getTalentPoints } from '@sim/proto/utils';
 import type { SimWarning } from '@sim/sim_host';
@@ -13,20 +12,6 @@ const MAX_TALENT_POINTS = CHARACTER_LEVEL - 9;
 
 export function defaultSimWarnings<SpecType extends number>(player: Player<SpecType>): Array<SimWarning> {
 	return [
-		{
-			updateOn: subscribePlayerField(player, 'gear'),
-			getContent: () => {
-				if (!player.getGear().hasInactiveMetaGem()) {
-					return '';
-				}
-
-				const metaGem = player.getGear().getMetaGem()!;
-				return i18n.t('sidebar.warnings.meta_gem_disabled', {
-					gemName: metaGem.name,
-					description: getMetaGemConditionDescription(metaGem),
-				});
-			},
-		},
 		{
 			updateOn: subscribeAll([
 				subscribePlayerField(player, 'gear'),
@@ -45,19 +30,6 @@ export function defaultSimWarnings<SpecType extends number>(player: Player<SpecT
 						professionName: professionNames.get(fpr.requiredProfession)!,
 					}),
 				);
-			},
-		},
-		{
-			updateOn: subscribePlayerField(player, 'gear'),
-			getContent: () => {
-				const jcGems = player.getGear().getJCGems();
-				if (jcGems.length <= 2) {
-					return '';
-				}
-
-				return i18n.t('sidebar.warnings.too_many_jc_gems', {
-					count: jcGems.length,
-				});
 			},
 		},
 		{

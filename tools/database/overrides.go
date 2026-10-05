@@ -1616,13 +1616,8 @@ var DenyListNameRegexes = []*regexp.Regexp{
 	regexp.MustCompile(`Stabilized Eternium Scope`),
 }
 
-// Allows manual overriding for Gem fields in case WowHead is wrong.
-// Empty: this build ships no gem system -- GemProperties has zero rows.
-var GemOverrides = []*proto.UIGem{}
-var GemAllowList = map[int32]struct{}{}
 var EnchantDenyListSpells = map[int32]struct{}{}
 var EnchantDenyListItems = map[int32]struct{}{}
-var GemDenyList = map[int32]struct{}{}
 
 var EnchantDenyList = map[int32]struct{}{}
 

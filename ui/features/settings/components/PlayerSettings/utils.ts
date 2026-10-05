@@ -14,8 +14,8 @@ export const raceInput = (player: Player<any>): ChoiceFieldConfig<Player<any>> =
 	setValue: (modObject, newValue) => modObject.setRace(newValue),
 });
 
-// The game files have no Jewelcrafting or Inscription skill line.
-const ABSENT_PROFESSIONS = [Profession.Jewelcrafting, Profession.Inscription];
+// The game files have no Inscription skill line.
+const ABSENT_PROFESSIONS = [Profession.Inscription];
 
 export const professionInput = (which: 1 | 2): ChoiceFieldConfig<Player<any>> => ({
 	id: `simui-profession${which}`,

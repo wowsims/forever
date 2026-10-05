@@ -48,32 +48,6 @@ const SOFT_CAPS = (
 	</>
 );
 
-const GEM_OPTIONS = (
-	<>
-		{toggle('unique-gems', 'Disable unique gems')}
-		<StoryEnum
-			id="story-max-gem-phase"
-			className="mb-2"
-			label="Max gem phase"
-			values={[
-				{ name: 'Phase 1', value: 1 },
-				{ name: 'Phase 2', value: 2 },
-			]}
-		/>
-		<StoryEnum
-			id="story-max-gem-quality"
-			className="mb-2"
-			label="Max gem quality"
-			values={[
-				{ name: 'Uncommon', value: 2 },
-				{ name: 'Rare', value: 3 },
-				{ name: 'Epic', value: 4 },
-			]}
-			initial={4}
-		/>
-	</>
-);
-
 const FREEZE_SLOTS = (
 	<>
 		{toggle('freeze-slots', 'Freeze item slots', true)}
@@ -95,7 +69,6 @@ const meta = {
 		showEpHelp: false,
 		statCaps: STAT_CAPS,
 		softCaps: SOFT_CAPS,
-		gemOptions: GEM_OPTIONS,
 		freezeSlots: FREEZE_SLOTS,
 		savedEpWeights: null,
 		onEditWeights: fn(),
@@ -104,7 +77,6 @@ const meta = {
 		customEpToggle: { control: false },
 		statCaps: { control: false },
 		softCaps: { control: false },
-		gemOptions: { control: false },
 		freezeSlots: { control: false },
 		savedEpWeights: { control: false },
 	},

@@ -11,12 +11,6 @@
 					"id": {
 						"type": "integer"
 					},
-					"gems": {
-						"type": "array",
-						"items": {
-							"type": "integer"
-						}
-					},
 					"enchant": {
 						"type": "integer"
 					},

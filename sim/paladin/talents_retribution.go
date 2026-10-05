@@ -333,13 +333,13 @@ func (paladin *Paladin) applyInstrumentOfLaw() {
 		TimeValue: time.Duration(spellData.InstrumentOfLaw.EffectAt(1).ValueAt(paladin.Talents.InstrumentOfLaw)) * time.Millisecond,
 	})
 
-	// The game files state the threat reduction as a positive number Righteous Fury zeroes.
+	// The threat reduction is off while Righteous Fury is up.
 	threat := core.MakePermanent(paladin.RegisterAura(core.Aura{
 		Label:    "Instrument of Law" + paladin.Label,
 		ActionID: core.ActionID{SpellID: rank.ID},
 	}).AttachMultiplicativePseudoStatBuff(
 		&paladin.PseudoStats.ThreatMultiplier,
-		1-spellData.InstrumentOfLaw.Effect(dbcenums.A_MOD_THREAT, 127).FractionAt(paladin.Talents.InstrumentOfLaw),
+		spellData.InstrumentOfLaw.Effect(dbcenums.A_MOD_THREAT, 127).MultiplierAt(paladin.Talents.InstrumentOfLaw),
 	))
 
 	paladin.OnSpellRegistered(func(spell *core.Spell) {

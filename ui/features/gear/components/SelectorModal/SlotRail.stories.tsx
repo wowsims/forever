@@ -1,7 +1,7 @@
 import { ItemSlot } from '@generated/proto/common';
 import { Gear } from '@sim/proto/gear';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { makeEquippedItem, SOCKETED_ITEM } from '@testing/storybook/fixtures/gear';
+import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { withSimHost } from '@testing/storybook/fixtures/models';
 import { expect, fireEvent, fn, within } from 'storybook/test';
 
@@ -9,7 +9,7 @@ import { SlotRail } from './SlotRail';
 
 const PARTIAL_GEAR = new Gear({
 	[ItemSlot.ItemSlotMainHand]: makeEquippedItem(),
-	[ItemSlot.ItemSlotHands]: makeEquippedItem({ item: { id: 16863, name: 'Gauntlets of Might', icon: 'inv_gauntlets_10', ...SOCKETED_ITEM } }),
+	[ItemSlot.ItemSlotHands]: makeEquippedItem({ item: { id: 16863, name: 'Gauntlets of Might', icon: 'inv_gauntlets_10' } }),
 });
 
 const meta = {

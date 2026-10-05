@@ -38,7 +38,6 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		Stat.StatHasteRating,
 		Stat.StatArmorPenetration,
 	],
-	gemStats: [Stat.StatAgility, Stat.StatStrength],
 	epPseudoStats: [],
 	// Reference stat against which to calculate EP. I think all classes use either spell power or attack power.
 	epReferenceStat: Stat.StatAgility,

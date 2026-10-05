@@ -371,12 +371,13 @@ func NewSpellDataStoneskinTotemAura(unit *core.Unit, isPlayer bool, talentPoints
 }
 
 // Furious Howl
-var FuriousHowlCategory = "FuriousHowl"
+var FuriousHowlCategory = "BattleShout"
 var furiousHowlSpell = spelldata.MustFind(24597)
 var furiousHowlMeta = &Meta{
-	Label:    "Furious Howl",
-	Spell:    furiousHowlSpell,
-	Category: FuriousHowlCategory,
+	Label:      "Furious Howl",
+	Spell:      furiousHowlSpell,
+	Category:   FuriousHowlCategory,
+	SingleAura: true,
 }
 
 func FuriousHowlValue(talentPoints int32) float64 {

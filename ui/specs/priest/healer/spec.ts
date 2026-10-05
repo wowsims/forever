@@ -5,7 +5,7 @@ import { EquipmentSpec, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
-import { DEFAULT_HEALER_GEM_STATS, Stats, UnitStat } from '@sim/proto/stats';
+import { Stats, UnitStat } from '@sim/proto/stats';
 import { defaultHealerIndividualBuffs, defaultHealerPartyBuffs, defaultHealerRaidBuffs } from '@sim/proto/utils';
 import { defineSpec } from '@sim/spec_config';
 
@@ -47,7 +47,6 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		],
 		[PseudoStat.PseudoStatSpellCritPercent, PseudoStat.PseudoStatSpellHastePercent],
 	),
-	gemStats: DEFAULT_HEALER_GEM_STATS,
 
 	defaults: {
 		// Default equipped gear.
@@ -99,6 +98,6 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		return APLRotation.create();
 	},
 
-	// The gem optimizer.
+	// The gear optimizer.
 	reforge: {},
 });

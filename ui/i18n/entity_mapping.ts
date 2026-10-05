@@ -2,7 +2,6 @@ import {
 	AreaType,
 	ArmorType,
 	Class,
-	ItemQuality,
 	ItemSlot,
 	MobType,
 	Profession,
@@ -199,17 +198,6 @@ export const resourceTypeI18nKeys: Record<ResourceType, string> = {
 	[ResourceType.ResourceTypeGenericResource]: 'generic_resource',
 };
 
-export const itemQualityI18nKeys: Record<ItemQuality, string> = {
-	[ItemQuality.ItemQualityJunk]: 'junk',
-	[ItemQuality.ItemQualityCommon]: 'common',
-	[ItemQuality.ItemQualityUncommon]: 'uncommon',
-	[ItemQuality.ItemQualityRare]: 'rare',
-	[ItemQuality.ItemQualityEpic]: 'epic',
-	[ItemQuality.ItemQualityLegendary]: 'legendary',
-	[ItemQuality.ItemQualityArtifact]: 'artifact',
-	[ItemQuality.ItemQualityHeirloom]: 'heirloom',
-};
-
 export const specI18nKeys: Record<Spec, string> = {
 	[Spec.SpecUnknown]: 'unknown',
 	// Druid
@@ -303,7 +291,6 @@ export const professionI18nKeys: Record<Profession, string> = {
 	[Profession.Engineering]: 'engineering',
 	[Profession.Herbalism]: 'herbalism',
 	[Profession.Inscription]: 'inscription',
-	[Profession.Jewelcrafting]: 'jewelcrafting',
 	[Profession.Leatherworking]: 'leatherworking',
 	[Profession.Mining]: 'mining',
 	[Profession.Skinning]: 'skinning',

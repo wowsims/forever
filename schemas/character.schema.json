@@ -255,9 +255,6 @@
 				"inscription": {
 					"type": "string"
 				},
-				"jewelcrafting": {
-					"type": "string"
-				},
 				"leatherworking": {
 					"type": "string"
 				},
@@ -283,7 +280,6 @@
 				"engineering",
 				"herbalism",
 				"inscription",
-				"jewelcrafting",
 				"leatherworking",
 				"mining",
 				"skinning",

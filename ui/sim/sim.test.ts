@@ -56,9 +56,6 @@ const makeGear = (label: string) =>
 		withoutEnchanting: vi.fn(() => makeGear(`${label}-stripped`)),
 		toDatabase: vi.fn(() => ({ label })),
 		asSpec: vi.fn(() => ({ label })),
-		// gearAsBackendSpec reads both of these before handing equipment to the backend.
-		getItemSlots: vi.fn(() => []),
-		hasInactiveMetaGem: vi.fn(() => false),
 		adjustImbues: vi.fn((consumables: unknown) => consumables),
 	}) as unknown as Gear;
 

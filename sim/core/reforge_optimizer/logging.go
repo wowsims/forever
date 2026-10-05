@@ -17,7 +17,7 @@ func logRequestInput(requestID uint64, request *proto.ReforgeOptimizeRequest) {
 	log.Printf("[reforgeOptimize:%d]   settings", requestID)
 	log.Printf("[reforgeOptimize:%d]     useSoftCapBreakpoints=%t freezeItemSlots=%t", requestID, settings.GetUseSoftCapBreakpoints(), settings.GetFreezeItemSlots())
 	log.Printf("[reforgeOptimize:%d]     frozenSlots=%s", requestID, formatItemSlots(settings.GetFrozenItemSlots()))
-	log.Printf("[reforgeOptimize:%d]   inputs gemOptions=%d baselineItems=%d softCaps=%d", requestID, len(request.GetGemOptions()), baselineItemCount(request), len(softCaps))
+	log.Printf("[reforgeOptimize:%d]   inputs baselineItems=%d softCaps=%d", requestID, baselineItemCount(request), len(softCaps))
 	log.Printf("[reforgeOptimize:%d]   caps", requestID)
 	logProtoUnitStats(requestID, "    hard", settings.GetStatCaps())
 	logProtoUnitStats(requestID, "    undershoot", request.GetUndershootCaps())
@@ -55,18 +55,6 @@ func logProtoUnitStats(requestID uint64, label string, unitStats *proto.UnitStat
 	for _, part := range parts {
 		log.Printf("[reforgeOptimize:%d] %s%s", requestID, label, part)
 	}
-}
-
-func logOptimizedGearSummary(requestID uint64, equipment *proto.EquipmentSpec) {
-	gems := 0
-	for _, item := range equipment.GetItems() {
-		for _, gemID := range item.GetGems() {
-			if gemID != 0 {
-				gems++
-			}
-		}
-	}
-	log.Printf("[reforgeOptimize:%d] optimized gear contains gems=%d", requestID, gems)
 }
 
 func unitStatName(unitStat stats.UnitStat) string {

@@ -1,6 +1,6 @@
 import { ItemSlot } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { makeEquippedItem, SOCKETED_ITEM, wowheadIconUrl } from '@testing/storybook/fixtures/gear';
+import { makeEquippedItem, wowheadIconUrl } from '@testing/storybook/fixtures/gear';
 import { makeUIEnchant } from '@testing/storybook/fixtures/protos';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
@@ -39,8 +39,6 @@ export const Equipped: Story = {
 };
 
 export const EmptySlot: Story = { args: { item: null, iconUrl: '' } };
-
-export const EmptySockets: Story = { args: { item: makeEquippedItem({ item: SOCKETED_ITEM }) } };
 
 export const RightColumn: Story = {
 	args: { align: 'end', slot: ItemSlot.ItemSlotHands, item: null, iconUrl: '' },

@@ -1,0 +1,125 @@
+package warrior
+
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
+var heroicStrikeRank = spellData.HeroicStrike.Highest()
+
+var cleaveRank = spellData.Cleave.Highest()
+var cleaveTargets = int32(cleaveRank.DamageEffect().ChainTargets)
+
+func (warrior *Warrior) registerHeroicStrike() {
+	config := spelldata.SpellConfig(&warrior.Unit, heroicStrikeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.Flags &^= core.SpellFlagAPL
+	// TODO: Ingame research needed if this adds flat threat
+	config.FlatThreatBonus = 0
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		baseDamage := heroicStrikeRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+
+		if !result.Landed() {
+			spell.IssueRefund(sim)
+		}
+	}
+
+	warrior.HeroicStrike = warrior.RegisterSpell(config)
+	warrior.makeQueueSpellsAndAura(warrior.HeroicStrike)
+}
+
+func (warrior *Warrior) registerCleave() {
+	config := spelldata.SpellConfig(&warrior.Unit, cleaveRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.Flags &^= core.SpellFlagAPL
+	// TODO: Ingame research needed if this adds flat threat
+	config.FlatThreatBonus = 0
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		baseDamage := cleaveRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		results := spell.CalcCleaveDamage(sim, target, cleaveTargets, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		spell.DealBatchedAoeDamage(sim)
+		if !results[0].Landed() {
+			spell.IssueRefund(sim)
+		}
+	}
+
+	warrior.Cleave = warrior.RegisterSpell(config)
+	warrior.makeQueueSpellsAndAura(warrior.Cleave)
+}
+
+// Heroic Strike and Cleave go off on the next main-hand swing (ON_NEXT_SWING in the game files): the
+// APL casts the tag 1 spell, which queues the attack after the Queue Delay, and the next swing, extra
+// attacks included, casts it in the swing's place. One attack is queued at a time, and a swing the
+// rage no longer covers drops the queue.
+func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
+	isQueueQueued := false
+
+	queueAura := warrior.RegisterAura(core.Aura{
+		Label:    "HS/Cleave Queue Aura-" + srcSpell.ActionID.String(),
+		ActionID: srcSpell.ActionID.WithTag(1),
+		Duration: core.NeverExpires,
+		OnReset: func(_ *core.Aura, _ *core.Simulation) {
+			isQueueQueued = false
+		},
+		OnGain: func(aura *core.Aura, _ *core.Simulation) {
+			warrior.curQueueAura = aura
+			warrior.curQueuedAutoSpell = srcSpell
+		},
+		OnExpire: func(_ *core.Aura, _ *core.Simulation) {
+			warrior.curQueueAura = nil
+			warrior.curQueuedAutoSpell = nil
+		},
+	})
+
+	warrior.RegisterSpell(core.SpellConfig{
+		ActionID:    srcSpell.ActionID.WithTag(1),
+		SpellSchool: srcSpell.SpellSchool,
+		DefenseType: srcSpell.DefenseType,
+		ProcMask:    core.ProcMaskEmpty,
+		Flags:       core.SpellFlagAPL | core.SpellFlagNoMetrics,
+
+		Cast: core.CastConfig{
+			DefaultCast: core.Cast{
+				NonEmpty: true,
+			},
+		},
+
+		ExtraCastCondition: func(sim *core.Simulation, _ *core.Unit) bool {
+			return warrior.curQueueAura == nil &&
+				!isQueueQueued &&
+				warrior.CurrentRage() >= srcSpell.Cost.GetCurrentCost() &&
+				warrior.queuedRealismICD.IsReady(sim)
+		},
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			if warrior.queuedRealismICD.Duration == 0 {
+				queueAura.Activate(sim)
+				return
+			}
+
+			isQueueQueued = true
+			warrior.queuedRealismICD.Use(sim)
+			sim.AddPendingAction(&core.PendingAction{
+				NextActionAt: sim.CurrentTime + warrior.queuedRealismICD.Duration,
+				OnAction: func(sim *core.Simulation) {
+					queueAura.Activate(sim)
+					isQueueQueued = false
+				},
+			})
+		},
+	})
+}
+
+func (warrior *Warrior) TryHSOrCleave(sim *core.Simulation, mhSwingSpell *core.Spell) *core.Spell {
+	if warrior.curQueueAura == nil {
+		return mhSwingSpell
+	}
+
+	queued := warrior.curQueuedAutoSpell
+	warrior.curQueueAura.Deactivate(sim)
+	if !queued.CanCast(sim, warrior.CurrentTarget) {
+		return mhSwingSpell
+	}
+
+	return queued
+}

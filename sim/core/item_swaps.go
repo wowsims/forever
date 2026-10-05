@@ -344,24 +344,6 @@ func (swap *ItemSwap) EligibleSlotsForEffect(effectID int32) []proto.ItemSlot {
 	return eligibleSlots
 }
 
-func (swap *ItemSwap) EligibleSlotsForGem(effectID int32) []proto.ItemSlot {
-	var eligibleSlots []proto.ItemSlot
-
-	for itemSlot := proto.ItemSlot(0); itemSlot < NumItemSlots; itemSlot++ {
-		if !swap.IsEnabled() {
-			if swap.character.Equipment.containsGemInSlot(effectID, itemSlot) {
-				eligibleSlots = append(eligibleSlots, itemSlot)
-			}
-		} else {
-			if swap.originalEquip.containsGemInSlot(effectID, itemSlot) || swap.swapEquip.containsGemInSlot(effectID, itemSlot) {
-				eligibleSlots = append(eligibleSlots, itemSlot)
-			}
-		}
-	}
-
-	return eligibleSlots
-}
-
 func (swap *ItemSwap) SwapItems(sim *Simulation, swapSet proto.APLActionItemSwap_SwapSet, isReset bool) {
 	if !swap.IsEnabled() || (!swap.IsValidSwap(swapSet) && !isReset) {
 		return
@@ -524,7 +506,6 @@ func toItem(itemSpec *proto.ItemSpec) Item {
 
 	return NewItem(ItemSpec{
 		ID:           itemSpec.Id,
-		Gems:         itemSpec.Gems,
 		Enchant:      itemSpec.Enchant,
 		RandomSuffix: itemSpec.RandomSuffix,
 	})

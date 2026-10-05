@@ -37,7 +37,7 @@ const sort = <T extends Item | UIEnchant>(rows: ItemData<T>[], over: Partial<Par
 describe('defaultSortBy', () => {
 	it.each([
 		[SelectorModalTabs.Items, ItemSlot.ItemSlotHead, ItemListSortBy.EP],
-		[SelectorModalTabs.Gem1, ItemSlot.ItemSlotHead, ItemListSortBy.EP],
+		[SelectorModalTabs.RandomSuffixes, ItemSlot.ItemSlotHead, ItemListSortBy.EP],
 		[SelectorModalTabs.Items, ItemSlot.ItemSlotTrinket1, ItemListSortBy.ILVL],
 		[SelectorModalTabs.Items, ItemSlot.ItemSlotTrinket2, ItemListSortBy.ILVL],
 		[SelectorModalTabs.Enchants, ItemSlot.ItemSlotHead, ItemListSortBy.ILVL],
@@ -50,7 +50,7 @@ describe('defaultSortBy', () => {
 describe('tab columns', () => {
 	it.each([
 		[SelectorModalTabs.Items, ItemSlot.ItemSlotChest, true],
-		[SelectorModalTabs.Gem2, ItemSlot.ItemSlotChest, true],
+		[SelectorModalTabs.RandomSuffixes, ItemSlot.ItemSlotChest, true],
 		[SelectorModalTabs.Enchants, ItemSlot.ItemSlotChest, false],
 		[SelectorModalTabs.Items, ItemSlot.ItemSlotTrinket2, false],
 	])('gives the %s tab of slot %i an EP column: %s', (label, slot, hasEP) => {
@@ -60,7 +60,6 @@ describe('tab columns', () => {
 	it.each([
 		[SelectorModalTabs.Items, true],
 		[SelectorModalTabs.Enchants, true],
-		[SelectorModalTabs.Gem1, false],
 		[SelectorModalTabs.RandomSuffixes, false],
 	])('gives the %s tab a level column: %s', (label, hasLevel) => {
 		expect(tabHasLevel(label)).toBe(hasLevel);

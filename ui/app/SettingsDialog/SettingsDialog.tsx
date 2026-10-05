@@ -147,7 +147,7 @@ export const SettingsDialogView = ({
 					<BooleanPicker
 						id="simui-show-quick-swap"
 						label={i18n.t('info.options.feature_toggles.show_quick_swap')}
-						labelTooltip="Allows you to quickly swap between Gems/Enchants through your favorites. (Disabled on touch devices)"
+						labelTooltip="Allows you to quickly swap enchants through your favorites. (Disabled on touch devices)"
 						layout="inline"
 						value={showQuickSwap}
 						onChange={onShowQuickSwapChange}

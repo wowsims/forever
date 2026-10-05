@@ -37,7 +37,6 @@ export default defineSpec<Spec.SpecHunter>({
 		Stat.StatExpertiseRating,
 		Stat.StatPhysicalDamage,
 	],
-	gemStats: [Stat.StatStamina, Stat.StatAgility],
 	epPseudoStats: [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatRangedCritPercent, PseudoStat.PseudoStatRangedDps],
 	consumableStats: [Stat.StatStamina, Stat.StatHealth, Stat.StatMana],
 	// Reference stat against which to calculate EP.

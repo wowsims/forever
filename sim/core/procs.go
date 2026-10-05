@@ -177,13 +177,3 @@ func (sp staticProc) Chance(_ *Simulation) float64 { return sp.chance }
 func (sp staticProc) Proc(sim *Simulation, label string) bool {
 	return sim.Proc(sp.chance, label)
 }
-
-func (item *Item) selectEffectId(isEnchant bool, isGem bool) int32 {
-	if isEnchant {
-		return item.Enchant.EffectID
-	} else if isGem {
-		return item.Gems[0].ID
-	}
-
-	return item.ID
-}

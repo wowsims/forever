@@ -15,7 +15,8 @@ message UIDatabase {
 	repeated UIItem items = 1;
 	repeated ItemRandomSuffix random_suffixes = 11;
 	repeated UIEnchant enchants = 2;
-	repeated UIGem gems = 3;
+	reserved 3;
+	reserved "gems";
 	repeated PresetEncounter encounters = 6;
 
 	repeated UIZone zones = 8;
@@ -66,8 +67,8 @@ message UIItem {
 
 	repeated double stats = 9;
 	repeated double pseudo_stats = 34; // Indexed by PseudoStat.
-	repeated GemColor gem_sockets = 10;
-	repeated double socketBonus = 11;
+	reserved 10, 11;
+	reserved "gem_sockets", "socketBonus";
 	repeated int32 random_suffix_options = 26;
 	int32 rand_prop_points = 27;
 
@@ -211,19 +212,6 @@ message UIEnchant {
 	repeated ItemEffect enchant_effects = 14;
 }
 
-message UIGem {
-	int32 id = 1;
-	string name = 2;
-	string icon = 3;
-	GemColor color = 4;
-
-	repeated double stats = 5;
-
-	int32 phase = 6;
-	ItemQuality quality = 7;
-	bool unique = 8;
-	Profession required_profession = 9;
-}
 
 message IconData {
 	int32 id = 1;
@@ -283,14 +271,15 @@ message DatabaseFilters {
 
 	bool one_handed_weapons = 6;
 	bool two_handed_weapons = 7;
-	bool matching_gems_only = 8;
+	reserved 8;
+	reserved "matching_gems_only";
 	// The enchant picker also lists enchants worth nothing to the spec's stat weights.
 	bool show_all_enchants = 25;
 
 	// Item IDs for favorited items.
 	repeated int32 favorite_items = 11;
-	// Item IDs for favorited gems.
-	repeated int32 favorite_gems = 12;
+	reserved 12;
+	reserved "favorite_gems";
 	// Item IDs for favorited random suffixes.
 	repeated int32 favorite_random_suffixes = 22;
 	// Item IDs for favorited reforges.

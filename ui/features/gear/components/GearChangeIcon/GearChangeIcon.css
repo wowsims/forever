@@ -1,15 +1,5 @@
 @layer components {
-	.ui-gear-change-icon-gem-socket {
-		--changed-socket-marker-size: calc(var(--gem-width) * 0.7);
-
-		@apply flex items-center justify-center bg-contain bg-no-repeat tracking-normal data-interactive:cursor-pointer data-interactive:select-none;
-	}
-
-	.ui-gear-change-icon-gem-marker {
-		@apply ml-px text-(length:--changed-socket-marker-size) text-danger;
-	}
-
 	.ui-gear-change-icon-enchant {
-		@apply absolute top-0 right-0 flex size-(--gem-width) items-center justify-center border border-border bg-contain bg-no-repeat data-changed:border-success;
+		@apply absolute top-0 right-0 flex size-4 items-center justify-center border border-border bg-contain bg-no-repeat data-changed:border-success;
 	}
 }

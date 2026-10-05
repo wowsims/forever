@@ -3,7 +3,7 @@ import { APLRotation } from '@generated/proto/apl';
 import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
-import { DEFAULT_HYBRID_CASTER_GEM_STATS, Stats, UnitStat } from '@sim/proto/stats';
+import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
 import * as ShamanInputs from '../shared/inputs';
@@ -46,7 +46,6 @@ export default defineSpec<Spec.SpecElementalShaman>({
 			PseudoStat.PseudoStatSchoolHitPercentNature,
 		],
 	),
-	gemStats: DEFAULT_HYBRID_CASTER_GEM_STATS,
 	defaults: {
 		// Default equipped gear.
 		gear: Presets.PreraidGear.gear,

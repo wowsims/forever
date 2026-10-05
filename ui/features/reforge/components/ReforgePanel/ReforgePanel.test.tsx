@@ -34,7 +34,7 @@ describe('ReforgePanel', () => {
 		expect(settings.querySelector('.fa-gear')).not.toBeNull();
 	});
 
-	it.each([false, true])('disables the run button and shows its spinner only while a gem optimization run is in flight (%s)', isRunning => {
+	it.each([false, true])('disables the run button and shows its spinner only while a gear optimization run is in flight (%s)', isRunning => {
 		runState.isRunning = isRunning;
 		const { container } = renderPanel();
 		const run = container.querySelector('button')!;

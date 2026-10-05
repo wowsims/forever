@@ -9,10 +9,6 @@ const favouriteFilterKey = (tab: SelectorModalTabs): keyof DatabaseFilters | nul
 			return 'favoriteItems';
 		case SelectorModalTabs.Enchants:
 			return 'favoriteEnchants';
-		case SelectorModalTabs.Gem1:
-		case SelectorModalTabs.Gem2:
-		case SelectorModalTabs.Gem3:
-			return 'favoriteGems';
 		case SelectorModalTabs.RandomSuffixes:
 			return 'favoriteRandomSuffixes';
 		default:

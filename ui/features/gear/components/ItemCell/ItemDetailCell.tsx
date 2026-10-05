@@ -18,7 +18,6 @@ import { getEmptySlotIconUrl } from '../../model/empty_slot_icons';
 import { SelectorModalTabs } from '../../types';
 import { EnchantLabel } from '../GearPicker/EnchantLabel';
 import { ItemNoticeIcon } from '../GearPicker/ItemNoticeIcon';
-import { GemSocket } from './GemSocket';
 import { NameDescriptionLabel } from './NameDescriptionLabel';
 
 export interface ItemDetailCellViewProps extends Pick<ItemCellProps, 'border' | 'padding'> {
@@ -39,8 +38,6 @@ export interface ItemDetailCellViewProps extends Pick<ItemCellProps, 'border' | 
 	action?: ReactNode;
 	/** Anchors the enchant label at a tooltip — the gear picker's quick-swap popover. */
 	enchantTooltipId?: string;
-	/** Anchors each socket at one, by socket index. */
-	socketTooltipId?: (gemIdx: number) => string;
 	/** Rendered after the enchant label. */
 	extraLabels?: ReactNode;
 	testId?: string;
@@ -48,8 +45,8 @@ export interface ItemDetailCellViewProps extends Pick<ItemCellProps, 'border' | 
 }
 
 /**
- * One equipped item as the gear vocabulary renders it: icon, item level, sockets, name and
- * enchant, with the empty state for a slot that holds nothing.
+ * One equipped item as the gear vocabulary renders it: icon, item level, name and enchant, with
+ * the empty state for a slot that holds nothing.
  */
 export const ItemDetailCellView = ({
 	slot,
@@ -65,7 +62,6 @@ export const ItemDetailCellView = ({
 	notice,
 	action,
 	enchantTooltipId,
-	socketTooltipId,
 	extraLabels,
 	testId,
 	rootDataAttributes,
@@ -87,19 +83,6 @@ export const ItemDetailCellView = ({
 				style={{ backgroundImage: `url('${(item && iconUrl) || getEmptySlotIconUrl(slot)}')` }}
 				{...wowhead}
 			/>
-		}
-		sockets={
-			item
-				?.allSocketColors()
-				.map((socketColor, gemIdx) => (
-					<GemSocket
-						key={gemIdx}
-						socketColor={socketColor}
-						gem={item.gems[gemIdx] ?? null}
-						onActivate={onOpen && (() => onOpen(`Gem${gemIdx + 1}` as SelectorModalTabs))}
-						data-tooltip-id={socketTooltipId?.(gemIdx)}
-					/>
-				)) ?? null
 		}
 		name={
 			<>

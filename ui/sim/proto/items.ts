@@ -1,13 +1,12 @@
 // What a player may equip: item and enchant eligibility, weapon-type rules and
 // the gear identity keys the reforge cache is keyed on.
-import { EnchantType, EquipmentSpec, HandType, ItemSlot, ItemType, Profession, RangedWeaponType, Spec, Stat, WeaponType } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIGem as Gem, UIItem as Item } from '@generated/proto/ui';
+import { EnchantType, EquipmentSpec, HandType, ItemSlot, ItemType, Profession, RangedWeaponType, Spec, WeaponType } from '@generated/proto/common';
+import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 
 import { PlayerSpec } from '../player/player_spec';
 import { PlayerSpecs } from '../player/specs';
 import { intersection, swap } from '../utils/collections';
 import { BLUNT_WEAPON_TYPES, ITEM_TYPE_TO_SLOTS, SHARP_WEAPON_TYPES } from './sim_tables_auto_gen';
-import { Stats } from './stats';
 
 export function isSharpWeaponType(weaponType: WeaponType): boolean {
 	return SHARP_WEAPON_TYPES.includes(weaponType);
@@ -15,27 +14,6 @@ export function isSharpWeaponType(weaponType: WeaponType): boolean {
 
 export function isBluntWeaponType(weaponType: WeaponType): boolean {
 	return BLUNT_WEAPON_TYPES.includes(weaponType);
-}
-
-// Custom functions for determining the EP value of meta gem effects.
-// Default meta effect EP value is 0, so just handle the ones relevant to your spec.
-const metaGemEffectEPs: Partial<Record<Spec, (gem: Gem, epWeights: Stats) => number>> = {
-	[Spec.SpecDpsWarrior]: (gem: Gem, epWeights: Stats) => {
-		// Relentless Earthstorm Diamond
-		if (gem.id == 32409) {
-			const relativeStrengthEP = 44.46 / epWeights.getStat(Stat.StatStrength);
-			return relativeStrengthEP;
-		}
-		return 0;
-	},
-};
-
-export function getMetaGemEffectEP<SpecType extends Spec>(playerSpec: PlayerSpec<SpecType>, gem: Gem, epWeights: Stats) {
-	if (metaGemEffectEPs[playerSpec.specID]) {
-		return metaGemEffectEPs[playerSpec.specID]!(gem, epWeights);
-	} else {
-		return 0;
-	}
 }
 
 // Returns true if this item may be equipped in at least 1 slot for the given Spec.
@@ -189,9 +167,7 @@ export function canEquipEnchant<SpecType extends Spec>(enchant: Enchant, playerS
 }
 
 /**
- * Fingerprint for comparing or deduplicating gear sets: item, random suffix, enchant, plus
- * the head meta gem. Other gems are deliberately excluded — two sets differing only there
- * are the same bulk-sim input.
+ * Fingerprint for comparing or deduplicating gear sets: item, random suffix and enchant.
  *
  * NOT a cache key. Use getReforgeCacheGearKey for anything that keys an optimizer result.
  */
@@ -200,10 +176,8 @@ export function getGearIdentityKey(spec: EquipmentSpec): string {
 }
 
 /**
- * Cache key for a gem-optimizer result: everything the optimizer's output depends on. It
- * clears every non-meta gem in a non-frozen slot before solving (see clearGems), so the
- * equipped gems that survive — a frozen slot's full set, and the head meta — are exactly
- * what the identity fingerprint already encodes, plus each frozen slot's frozen marker.
+ * Cache key for an optimizer result: the identity fingerprint plus each frozen slot's
+ * frozen marker.
  */
 export function getReforgeCacheGearKey(spec: EquipmentSpec, frozenItemSlots?: readonly ItemSlot[]): string {
 	return buildGearKey(spec, frozenItemSlots);
@@ -231,16 +205,12 @@ function buildGearKey(spec: EquipmentSpec, frozenItemSlots?: readonly ItemSlot[]
 
 		const itemSlot = slotIdx as ItemSlot;
 		const isFrozen = !!frozenSlotMask?.[itemSlot];
-		const gemFingerprint = isFrozen
-			? (item.gems ?? []).map(gemId => gemId ?? 0).join(',')
-			: String(itemSlot === ItemSlot.ItemSlotHead ? (item.gems?.[0] ?? 0) : 0);
 		const reforgeFingerprint = 0;
-		itemKeys[slotIdx] = [item.id, item.randomSuffix ?? 0, item.enchant ?? 0, reforgeFingerprint, gemFingerprint].join(':');
+		itemKeys[slotIdx] = [item.id, item.randomSuffix ?? 0, item.enchant ?? 0, reforgeFingerprint].join(':');
 		// Frozen-ness has to travel with the item through the paired-slot normalization
 		// below, or swapping two rings with one of them frozen collapses to a single key
 		// while the optimizer (which freezes by slot index) must leave a different ring
-		// alone in each case. Appended rather than joined in so unfrozen keys - the ones
-		// already in users' caches - stay byte-identical.
+		// alone in each case.
 		if (isFrozen) {
 			itemKeys[slotIdx] += ':frozen';
 		}

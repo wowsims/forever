@@ -19,12 +19,9 @@ const equippedItem = (id: number) =>
 	({
 		item: { id, name: `Item ${id}`, quality: ItemQuality.ItemQualityEpic, nameDescription: '' },
 		ilvl: 120,
-		gems: [],
-		numPossibleSockets: 0,
 		randomSuffix: undefined,
 		enchant: undefined,
 		asActionId: () => ({ itemId: id, spellId: 0 }),
-		allSocketColors: () => [],
 		hasRandomSuffixOptions: () => false,
 	}) as any;
 

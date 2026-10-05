@@ -1,7 +1,6 @@
 import {
 	AreaType,
 	ArmorType,
-	ItemQuality,
 	ItemSlot,
 	MobType,
 	Profession,
@@ -42,7 +41,6 @@ import {
 	getTargetInputI18nKey,
 	getWeaponSkillI18nKey,
 	getWeaponTypeI18nKey,
-	itemQualityI18nKeys,
 	protoStatNameI18nKeys,
 	pseudoStatI18nKeys,
 	resourceTypeI18nKeys,
@@ -152,12 +150,6 @@ export const translateWeaponSkill = (weaponSkill: WeaponSkill): string => {
 export const translateResourceType = (resourceType: ResourceType): string => {
 	return i18n.t(`common.resource_types.${resourceTypeI18nKeys[resourceType] || ResourceType[resourceType].toLowerCase()}`, {
 		defaultValue: ResourceType[resourceType],
-	});
-};
-
-export const translateItemQuality = (itemQuality: ItemQuality): string => {
-	return i18n.t(`common.item_qualities.${itemQualityI18nKeys[itemQuality] || ItemQuality[itemQuality].toLowerCase()}`, {
-		defaultValue: ItemQuality[itemQuality],
 	});
 };
 

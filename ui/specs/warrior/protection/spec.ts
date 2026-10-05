@@ -131,6 +131,7 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 		inputs: [
 			WarriorInputs.StartingRage(),
 			WarriorInputs.StanceSnapshot(),
+			WarriorInputs.QueueDelay(),
 			OtherInputs.InputDelay,
 			OtherInputs.TankAssignment,
 			OtherInputs.InspirationUptime,

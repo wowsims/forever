@@ -8,7 +8,6 @@ export interface ItemCellProps {
 	padding?: BoxPadding;
 	icon: ReactNode;
 	ilvl?: ReactNode;
-	sockets?: ReactNode;
 	name: ReactNode;
 	labels?: ReactNode;
 	action?: ReactNode;
@@ -24,7 +23,6 @@ export const ItemCell = ({
 	padding = 'none',
 	icon,
 	ilvl,
-	sockets,
 	name,
 	labels,
 	action,
@@ -41,11 +39,6 @@ export const ItemCell = ({
 				</span>
 			)}
 			{icon}
-			{sockets !== undefined && (
-				<div className="ui-item-picker-sockets-container" data-testid="item-picker-sockets-container">
-					{sockets}
-				</div>
-			)}
 		</div>
 		<div className="ui-item-picker-labels-container" data-align={align} data-testid="item-picker-labels-container">
 			<div className="ui-item-picker-name-row flex gap-1 tracking-normal" data-testid="item-picker-name-row">

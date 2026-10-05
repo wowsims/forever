@@ -1,9 +1,9 @@
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
-import { ActionID, EquipmentSpec, GemColor, HandType, ItemQuality, ItemSlot, ItemSpec, ItemType, WeaponType } from '@generated/proto/common';
-import { UIEnchant, UIGem, UIItem } from '@generated/proto/ui';
+import { ActionID, EquipmentSpec, HandType, ItemQuality, ItemSlot, ItemSpec, ItemType, WeaponType } from '@generated/proto/common';
+import { UIEnchant, UIItem } from '@generated/proto/ui';
 
 // Ids and icons are real rows of the Forever item database, so a story that loads tooltips shows the
-// right one. The database carries no gems: `makeUIGem` is shape only.
+// right one.
 
 /** A head (Lionheart Helm) and a main hand (Thunderfury with Crusader); every other slot is empty. */
 export const makeEquipmentSpec = (
@@ -32,17 +32,6 @@ export const makeUIItem = (overrides: Partial<UIItem> = {}): UIItem =>
 		phase: 1,
 		quality: ItemQuality.ItemQualityLegendary,
 		unique: true,
-		...overrides,
-	});
-
-export const makeUIGem = (overrides: Partial<UIGem> = {}): UIGem =>
-	UIGem.create({
-		id: 1,
-		name: 'Blood Ruby',
-		icon: 'inv_misc_gem_ruby_01',
-		color: GemColor.GemColorRed,
-		phase: 1,
-		quality: ItemQuality.ItemQualityRare,
 		...overrides,
 	});
 

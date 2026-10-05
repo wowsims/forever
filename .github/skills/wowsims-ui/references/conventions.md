@@ -10,8 +10,7 @@ enforced.
 `npx oxfmt . --check`, so its scope is the whole repo: the markdown in `.github/skills/`, the
 workflows, `docker-compose.yml` and the JSON schemas are formatted too, and CI checks them. What it
 skips is `ignorePatterns` in `.oxfmtrc.json`, all of it data rather than source: `assets/**`, whose
-database is written by `gen_db`; `**/test-fixtures/*.json`, which here is the reforge parity set
-under `sim/core/reforge_optimizer/`; and the per-spec preset JSON and talent trees. Anything
+database is written by `gen_db`; `**/test-fixtures/*.json`; and the per-spec preset JSON and talent trees. Anything
 `.gitignore` already hides is skipped as well, which is how generated output stays out.
 
 ```

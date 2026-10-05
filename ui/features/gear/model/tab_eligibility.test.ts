@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { SelectorModalTabs } from '../types';
 import { resolveSelectedTab, TabEligibility } from './tab_eligibility';
 
-const all: TabEligibility = { hasEnchants: true, socketCount: 2 };
+const all: TabEligibility = { hasEnchants: true };
 
 describe('resolveSelectedTab', () => {
 	it('keeps a tab that has something to show', () => {
@@ -12,15 +12,10 @@ describe('resolveSelectedTab', () => {
 
 	it('falls back to Items when the requested tab is empty', () => {
 		expect(resolveSelectedTab(SelectorModalTabs.Enchants, { ...all, hasEnchants: false })).toBe(SelectorModalTabs.Items);
-		expect(resolveSelectedTab(SelectorModalTabs.Gem2, { ...all, socketCount: 0 })).toBe(SelectorModalTabs.Items);
-	});
-
-	it('leaves a gem tab selected when the slot is empty', () => {
-		expect(resolveSelectedTab(SelectorModalTabs.Gem1, { ...all, socketCount: undefined })).toBe(SelectorModalTabs.Gem1);
 	});
 
 	it('ignores eligibility that belongs to another tab', () => {
-		expect(resolveSelectedTab(SelectorModalTabs.Items, { hasEnchants: false, socketCount: 0 })).toBe(SelectorModalTabs.Items);
+		expect(resolveSelectedTab(SelectorModalTabs.Items, { hasEnchants: false })).toBe(SelectorModalTabs.Items);
 		expect(resolveSelectedTab(SelectorModalTabs.RandomSuffixes, { ...all, hasEnchants: false })).toBe(SelectorModalTabs.RandomSuffixes);
 	});
 });

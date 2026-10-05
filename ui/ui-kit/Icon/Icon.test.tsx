@@ -45,8 +45,8 @@ describe('Icon', () => {
 	});
 
 	it('keeps a data-testid passed as an attribute when it has no testId', () => {
-		const { getByTestId } = render(<Icon name="gear" data-testid="gem-marker" />);
-		expect(getByTestId('gem-marker').tagName.toLowerCase()).toBe('svg');
+		const { getByTestId } = render(<Icon name="gear" data-testid="gear-marker" />);
+		expect(getByTestId('gear-marker').tagName.toLowerCase()).toBe('svg');
 	});
 
 	it('is hidden from assistive tech unless it carries a title', () => {

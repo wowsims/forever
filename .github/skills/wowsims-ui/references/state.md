@@ -185,7 +185,7 @@ mount and silently stale afterwards. There is no error, no warning and no failin
 simply the one it had when the component last re-rendered for some other reason.
 
 A shape worth checking for on sight: a component calling `player.hasProfession(...)` — which
-decides, for one, whether a profession-only enchant or gem is offered — while subscribing only to
+decides, for one, whether a profession-only enchant is offered — while subscribing only to
 `gear`, so toggling the profession leaves the list stale until the next gear edit; or a component
 reading `player.hasProfession(...)` inside a `useMemo(…, [player, item])` with no profession
 subscription anywhere in the file, so the memo keeps whichever answer was current when it mounted.

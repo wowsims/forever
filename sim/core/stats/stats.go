@@ -550,7 +550,8 @@ type PseudoStats struct {
 	FeralCombatSkill   float64
 	FeralCombatEnabled bool // While set, FeralCombatSkill replaces the skill of the equipped weapon.
 
-	ThreatMultiplier float64 // Modulates the threat generated. Affected by things like salv.
+	ThreatMultiplier       float64            // Modulates the threat generated. Affected by things like salv.
+	SchoolThreatMultiplier [SchoolLen]float64 // The threat of one spell school, on top of ThreatMultiplier.
 
 	DamageDealtMultiplier          float64            // All damage
 	SchoolDamageDealtMultiplier    [SchoolLen]float64 // For specific spell schools (arcane, fire, shadow, etc).
@@ -644,7 +645,8 @@ func NewPseudoStats() PseudoStats {
 		AttackSpeedMultiplier: 1,
 		SpiritRegenMultiplier: 1,
 
-		ThreatMultiplier: 1,
+		ThreatMultiplier:       1,
+		SchoolThreatMultiplier: NewSchoolFloatArray(),
 
 		DamageDealtMultiplier:          1,
 		SchoolDamageDealtMultiplier:    NewSchoolFloatArray(),

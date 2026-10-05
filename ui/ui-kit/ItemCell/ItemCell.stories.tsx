@@ -5,7 +5,6 @@ import { Icon } from '@ui-kit/Icon';
 import { ItemCell } from './ItemCell';
 
 const ICON = 'https://wow.zamimg.com/images/wow/icons/large/inv_sword_39.jpg';
-const GEM = 'https://wow.zamimg.com/images/wow/icons/small/inv_jewelcrafting_gem_37.jpg';
 
 const meta = {
 	title: 'Kit/ItemCell',
@@ -24,7 +23,6 @@ const meta = {
 	argTypes: {
 		icon: { control: false },
 		name: { control: false },
-		sockets: { control: false },
 		labels: { control: false },
 		action: { control: false },
 	},
@@ -34,17 +32,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-
-export const WithSockets: Story = {
-	args: {
-		sockets: (
-			<>
-				<img className="size-4 border border-border" src={GEM} alt="" />
-				<img className="size-4 border border-border" src={GEM} alt="" />
-			</>
-		),
-	},
-};
 
 export const WithLabels: Story = {
 	args: {

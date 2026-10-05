@@ -1,29 +1,26 @@
-import type { UIEnchant as Enchant, UIGem as Gem } from '@generated/proto/ui';
+import type { UIEnchant as Enchant } from '@generated/proto/ui';
 import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import { Button } from '@ui-kit/Button';
-import { cssVars, itemQualityClassName } from '@ui-kit/utils/css';
+import { itemQualityClassName } from '@ui-kit/utils/css';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import clsx from 'clsx';
 
-export type QuickSwapItem = Gem | Enchant;
-
-export interface QuickSwapEntry<T extends QuickSwapItem> {
-	item: T;
+export interface QuickSwapEntry {
+	item: Enchant;
 	active: boolean;
 }
 
-export interface QuickSwapListProps<T extends QuickSwapItem> {
+export interface QuickSwapListProps {
 	title: string;
 	emptyMessage: string;
-	entries: ReadonlyArray<QuickSwapEntry<T>>;
-	onItemClick: (item: T) => void;
+	entries: ReadonlyArray<QuickSwapEntry>;
+	onItemClick: (item: Enchant) => void;
 	footerButton: { label: string; onClick: () => void };
 }
 
-const QuickSwapRow = <T extends QuickSwapItem>({ entry, onItemClick }: { entry: QuickSwapEntry<T>; onItemClick: (item: T) => void }) => {
-	const actionId = 'spellId' in entry.item ? ActionId.fromSpellId(entry.item.spellId) : ActionId.fromItemId(entry.item.id);
-	const { iconUrl, href } = useActionId(actionId);
+const QuickSwapRow = ({ entry, onItemClick }: { entry: QuickSwapEntry; onItemClick: (item: Enchant) => void }) => {
+	const { iconUrl, href } = useActionId(ActionId.fromSpellId(entry.item.spellId));
 
 	return (
 		<li className="not-last:border-b not-last:border-b-border odd:[&_a]:bg-table-odd">
@@ -35,9 +32,7 @@ const QuickSwapRow = <T extends QuickSwapItem>({ entry, onItemClick }: { entry: 
 				onActivate={() => onItemClick(entry.item)}>
 				<img
 					alt={entry.item.name}
-					className="static inset-gem z-1 mr-1 inline-block size-gem-inner shrink-0 cursor-pointer rounded-none bg-cover bg-center bg-no-repeat"
-					data-testid="gem-icon"
-					style={cssVars({ '--gem-width': '2.5rem' })}
+					className="static z-1 mr-1 inline-block size-8 shrink-0 cursor-pointer rounded-none bg-cover bg-center bg-no-repeat"
 					src={iconUrl || undefined}
 				/>
 				<span className={clsx('truncate text-left', itemQualityClassName(entry.item.quality))} data-testid="tooltip-quick-swap__label">
@@ -48,9 +43,7 @@ const QuickSwapRow = <T extends QuickSwapItem>({ entry, onItemClick }: { entry: 
 	);
 };
 
-const keyOf = (item: QuickSwapItem) => ('effectId' in item ? `enchant-${item.effectId}-${item.type}` : `gem-${item.id}`);
-
-export const QuickSwapList = <T extends QuickSwapItem>({ title, emptyMessage, entries, onItemClick, footerButton }: QuickSwapListProps<T>) => (
+export const QuickSwapList = ({ title, emptyMessage, entries, onItemClick, footerButton }: QuickSwapListProps) => (
 	<>
 		<h3 className="mb-0 px-2 pt-2 pb-2 text-center text-(length:--h6-font-size)" data-testid="tooltip-quick-swap__title">
 			{title}
@@ -58,7 +51,7 @@ export const QuickSwapList = <T extends QuickSwapItem>({ title, emptyMessage, en
 		{entries.length ? (
 			<ul className="mb-0 max-h-50 list-none gap-px overflow-y-auto pl-0">
 				{entries.map(entry => (
-					<QuickSwapRow key={keyOf(entry.item)} entry={entry} onItemClick={onItemClick} />
+					<QuickSwapRow key={`enchant-${entry.item.effectId}-${entry.item.type}`} entry={entry} onItemClick={onItemClick} />
 				))}
 			</ul>
 		) : (

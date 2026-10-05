@@ -47,25 +47,15 @@ function writeHash(data: WowheadGearPlannerData): string {
 		let bits = itemArray[slotIndex];
 		const item = items[slotIndex];
 		const id = item.itemId;
-		const gems = item.gemItemIds || {};
 		const enchant = item.enchantId || 0;
 		const randomEnchant = item.randomEnchantId || 0;
 		if (enchant) bits |= enchantOffset;
 		if (randomEnchant) bits |= randomEnchantOffset;
 
 		hashArray.push(bits);
-		const gemCount = Object.keys(gems).length;
-		const f = (gemCount & 7) << 5;
-		hashArray.push((f | (id >> 16)) & 255, (id >> 8) & 255, id & 255);
+		hashArray.push((id >> 16) & 255, (id >> 8) & 255, id & 255);
 		if (enchant) hashArray.push((enchant >> 8) & 255, enchant & 255);
 		if (randomEnchant) hashArray.push((randomEnchant >> 8) & 255, randomEnchant & 255);
-
-		Object.keys(gems).forEach(e => {
-			const gemNumber = parseInt(e);
-			const t = (gemNumber & 7) << 5;
-			const a = gems[gemNumber];
-			hashArray.push((t | (a >> 16)) & 255, (a >> 8) & 255, a & 255);
-		});
 	}
 
 	// Encode bits into characters
@@ -95,7 +85,6 @@ export interface WowheadItemData {
 	slotId: number;
 	itemId: number;
 	randomEnchantId?: number;
-	gemItemIds?: Record<number, number>;
 	enchantId?: number;
 }
 
@@ -140,15 +129,6 @@ export const WOWHEAD_GEAR_PLANNER_EXPORTER: ExporterDefinition = {
 					itemData.randomEnchantId = item._randomSuffix.id;
 				}
 				itemData.enchantId = item._enchant?.spellId;
-
-				if (item._gems) {
-					itemData.gemItemIds = {};
-					item._gems.forEach((gem, index) => {
-						if (gem?.id) {
-							itemData.gemItemIds![index] = gem.id;
-						}
-					});
-				}
 				data.items.push(itemData);
 			});
 

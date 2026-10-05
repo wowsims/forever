@@ -18,4 +18,4 @@ read `wowsims-conventions` before writing comments, docs, test messages, commit 
 | `wowsims-review`              | Reviewing a spell change, your own before committing or a pull request, against the rows       |
 | `wowsims-ui`                  | The frontend under `ui/`                                                                       |
 | `wowsims-bulk-sim`            | Bulk sim, locally, on the server and in the browser                                            |
-| `wowsims-reforge-optimizer`   | The gear (gem and socket) optimizer                                                            |
+| `wowsims-reforge-optimizer`   | The gear optimizer (EP, stat caps, HiGHS)                                                      |

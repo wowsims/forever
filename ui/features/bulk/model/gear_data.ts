@@ -34,8 +34,7 @@ export const bulkGroupItemSlot = (bulkSlot: BulkSimItemSlot): ItemSlot =>
 /**
  * The selector modal's seam for adding to a group: a pick adds the item to the batch instead of
  * replacing anything, so nothing reads as equipped and each pick is one more entry. The spec is the
- * bare id, as the list's batch toggle writes it: `asSpec()` carries a zero per empty socket, and the
- * toggle's in-batch match would miss it.
+ * bare id, as the list's batch toggle writes it, so the toggle's in-batch match finds it.
  */
 export const createBulkAddGearData = (player: Player<any>): GearData => ({
 	equipItem: (newItem: EquippedItem | null) => {

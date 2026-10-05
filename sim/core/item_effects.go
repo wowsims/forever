@@ -41,15 +41,13 @@ func MissingEnchantEffects() []int32 { return missingEnchantEffects }
 func NewItemEffect(id int32, itemEffect ApplyEffect) {
 	if WITH_DB {
 		if GetItemByID(id) == nil {
-			if _, hasGem := GetGemByID(id); !hasGem {
-				// Forever's item set is a subset of TBC's -- 81 items these effects were
-				// written for are simply not in the game files any more, and item 1168 is not
-				// in the DBC at all. Skipping keeps the implementation around for the day
-				// an item comes back, where panicking would stop the sim from starting and
-				// deleting the code would lose work that is still correct.
-				missingItemEffects = append(missingItemEffects, id)
-				return
-			}
+			// Forever's item set is a subset of TBC's -- 81 items these effects were
+			// written for are simply not in the game files any more, and item 1168 is not
+			// in the DBC at all. Skipping keeps the implementation around for the day
+			// an item comes back, where panicking would stop the sim from starting and
+			// deleting the code would lose work that is still correct.
+			missingItemEffects = append(missingItemEffects, id)
+			return
 		}
 	}
 
@@ -77,23 +75,12 @@ func NewEnchantEffect(id int32, enchantEffect ApplyEffect) {
 	enchantEffects[id] = enchantEffect
 }
 
-func (equipment *Equipment) applyItemEffects(agent Agent, registeredItemEffects map[int32]bool, registeredItemEnchantEffects map[int32]bool, includeGemEffects bool) {
+func (equipment *Equipment) applyItemEffects(agent Agent, registeredItemEffects map[int32]bool, registeredItemEnchantEffects map[int32]bool) {
 	class := agent.GetCharacter().Class
 	for _, eq := range equipment {
 		if applyItemEffect, ok := itemEffects[eq.ID]; ok && !registeredItemEffects[eq.ID] && eq.UsableBy(class) {
 			applyItemEffect(agent)
 			registeredItemEffects[eq.ID] = true
-		}
-
-		if includeGemEffects {
-			for _, g := range eq.Gems {
-				if g.Disabled {
-					continue
-				}
-				if applyGemEffect, ok := itemEffects[g.ID]; ok {
-					applyGemEffect(agent)
-				}
-			}
 		}
 
 		if applyEnchantEffect, ok := enchantEffects[eq.Enchant.EffectID]; ok && !registeredItemEnchantEffects[eq.Enchant.EffectID] {

@@ -2,7 +2,6 @@ package dbc
 
 import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
-	"github.com/wowsims/forever/sim/core/proto"
 )
 
 type ItemStaticFlags0 uint32
@@ -234,47 +233,6 @@ const (
 )
 
 func (i InventoryTypeFlag) Has(flag InventoryTypeFlag) bool {
-	return i&flag != 0
-}
-
-type GemType int
-
-const (
-	Meta   GemType = 0x1
-	Red    GemType = 0x2
-	Yellow GemType = 0x4
-	Blue   GemType = 0x8
-	// Combined colors:
-	Orange    GemType = Red | Yellow        // 0x6
-	Purple    GemType = Red | Blue          // 0xa
-	Green     GemType = Yellow | Blue       // 0xc
-	Prismatic GemType = Red | Yellow | Blue // 0xe
-)
-
-func (gem GemType) ToProto() proto.GemColor {
-	switch gem {
-	case Meta:
-		return proto.GemColor_GemColorMeta
-	case Red:
-		return proto.GemColor_GemColorRed
-	case Yellow:
-		return proto.GemColor_GemColorYellow
-	case Blue:
-		return proto.GemColor_GemColorBlue
-	case Orange:
-		return proto.GemColor_GemColorOrange
-	case Purple:
-		return proto.GemColor_GemColorPurple
-	case Green:
-		return proto.GemColor_GemColorGreen
-	case Prismatic:
-		return proto.GemColor_GemColorPrismatic
-	default:
-		return proto.GemColor_GemColorUnknown
-	}
-}
-
-func (i GemType) Has(flag GemType) bool {
 	return i&flag != 0
 }
 

@@ -97,7 +97,7 @@ message Player {
 
 	HealingModel healing_model = 49;
 
-	// Items/enchants/gems/etc to include in the database.
+	// Items/enchants/etc to include in the database.
 	SimDatabase database = 50;
 }
 
@@ -459,7 +459,8 @@ message ReforgeOptimizeRequest {
 	UnitStats undershoot_caps = 5;
 	ReforgeSettings settings = 6;
 	repeated StatCapConfig soft_caps = 7;
-	repeated ReforgeGemOption gem_options = 8;
+	reserved 8;
+	reserved "gem_options";
 	bool debug = 9;
 }
 
@@ -478,27 +479,12 @@ message ReforgeSettings {
 	repeated ItemSlot frozen_item_slots = 4;
 	UnitStats stat_caps = 5;
 	UnitStats breakpoint_limits = 6;
-	int32 max_gem_phase = 7;
-	ItemQuality max_gem_quality = 8;
-	bool disable_unique_gems = 9;
-	// The stats this spec is willing to gem for. A gem is only a candidate if every stat it carries
-	// is in this list, so specs list stats they weight at 0 (Stamina, spell penetration) to keep
-	// those gems selectable. It cannot be derived from the pre-cap EPs for exactly that reason.
+	reserved 7, 8, 9;
+	reserved "max_gem_phase", "max_gem_quality", "disable_unique_gems";
+	// The stats this spec is willing to optimize for. Specs list stats they weight at 0 (Stamina,
+	// spell penetration) so options carrying them stay selectable, which is why it cannot be
+	// derived from the pre-cap EPs.
 	repeated Stat ep_stats = 10;
-}
-
-message ReforgeGemOption {
-	int32 id = 1;
-	string name = 2;
-	GemColor color = 3;
-
-	repeated double stats = 4;
-
-	bool unique = 5;
-	Profession required_profession = 6;
-	string icon = 8;
-	int32 phase = 9;
-	ItemQuality quality = 10;
 }
 
 message StatCapConfig {

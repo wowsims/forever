@@ -349,10 +349,10 @@ func (character *Character) applyItemEffects(agent Agent) {
 	registeredItemEffects := make(map[int32]bool)
 	registeredItemEnchantEffects := make(map[int32]bool)
 
-	character.Equipment.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects, true)
+	character.Equipment.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
 
 	if character.ItemSwap.IsEnabled() {
-		character.ItemSwap.unEquippedItems.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects, false)
+		character.ItemSwap.unEquippedItems.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
 	}
 
 	character.registerEquipSpeedAuras()
@@ -549,15 +549,6 @@ func (character *Character) HasTrinketEquipped(itemID int32) bool {
 
 func (character *Character) HasRingEquipped(itemID int32) bool {
 	return character.Finger1().ID == itemID || character.Finger2().ID == itemID
-}
-
-func (character *Character) HasMetaGemEquipped(gemID int32) bool {
-	for _, gem := range character.Head().Gems {
-		if gem.ID == gemID && !gem.Disabled {
-			return true
-		}
-	}
-	return false
 }
 
 // Returns the MH weapon if one is equipped, and null otherwise.

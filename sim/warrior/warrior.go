@@ -1,6 +1,8 @@
 package warrior
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -13,6 +15,7 @@ type WarriorInputs struct {
 	DefaultStance  proto.WarriorStance
 
 	StartingRage   float64
+	QueueDelay     int32
 	StanceSnapshot bool
 	HasBsT2        bool
 }
@@ -53,7 +56,11 @@ type Warrior struct {
 	Taunt             *core.Spell
 	VictoryRush       *core.Spell
 
-	EnrageAura      *core.Aura
+	curQueueAura       *core.Aura
+	curQueuedAutoSpell *core.Spell
+	queuedRealismICD   *core.Cooldown
+
+	EnrageAura     *core.Aura
 	GoreDrinkerAura *core.Aura
 
 	SweepingStrikesAura *core.Aura
@@ -110,6 +117,9 @@ func (warrior *Warrior) Initialize() {
 }
 
 func (warrior *Warrior) Reset(_ *core.Simulation) {
+	warrior.curQueueAura = nil
+	warrior.curQueuedAutoSpell = nil
+
 	switch warrior.DefaultStance {
 	case proto.WarriorStance_WarriorStanceBattle:
 		warrior.ShapeshiftForm = battleStanceRank.ShapeshiftForm()
@@ -150,6 +160,7 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 		MainHand:       warrior.WeaponFromMainHand(),
 		OffHand:        warrior.WeaponFromOffHand(),
 		AutoSwingMelee: true,
+		ReplaceMHSwing: warrior.TryHSOrCleave,
 	})
 
 	warrior.PseudoStats.CanParry = true
@@ -157,6 +168,13 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 	warrior.AddStatDependency(stats.Strength, stats.AttackPower, 2)
 	warrior.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[character.Class])
 	warrior.AddStatDependency(stats.BonusArmor, stats.Armor, 1)
+
+	// Without a delay the sim re-queues Heroic Strike faster than a player can, which lands
+	// back-to-back hits around extra attacks.
+	warrior.queuedRealismICD = &core.Cooldown{
+		Timer:    warrior.NewTimer(),
+		Duration: time.Millisecond * time.Duration(inputs.QueueDelay),
+	}
 
 	return warrior
 }

@@ -1,33 +1,32 @@
 ---
 name: wowsims-reforge-optimizer
-description: 'Use when working on the WoWSims TBC gear optimizer ("reforge optimizer" — the name is inherited from MoP; TBC has no reforging, it optimizes gems/socket bonuses), the /reforgeOptimizeAsync endpoint, HiGHS solver integration, gem/socket/cap logic, or softcap breakpoints.'
+description: 'Use when working on the WoWSims gear optimizer ("reforge optimizer" — the name is inherited from MoP; there is no reforging), the /reforgeOptimizeAsync endpoint, HiGHS solver integration, EP/cap logic, or softcap breakpoints.'
 argument-hint: 'Describe the optimizer bug, fixture, or behavior to work on.'
 ---
 
-# WoWSims TBC Gear Optimizer Guide
+# WoWSims Gear Optimizer Guide
 
 Comments, docs, commit messages and PR text follow `wowsims-conventions`: "game files", not "client", no history in comments, no "golden".
 
 ## Scope
 
-- Core optimizer behavior in sim/core/reforge_optimizer (gem + socket-bonus choices; no reforging exists in TBC — the "reforge" naming is legacy from the MoP port).
+- Core optimizer behavior in sim/core/reforge_optimizer (no reforging exists — the "reforge" naming is legacy from the MoP port).
 - Endpoint path /reforgeOptimizeAsync and worker integration.
-- HiGHS-backed MIP solving for gem + socket-bonus choices under stat caps.
+- HiGHS-backed MIP solving under stat caps.
+
+The optimizer has no decision variables: the game has no gems or sockets. `optimizeReforges` returns the input gear unchanged without calling HiGHS; `TestOptimizeReturnsTheGearUnchanged` pins that. The EP scoring, cap/soft-cap machinery, LP serialization and HiGHS bridges have no production caller.
 
 ## Architecture
 
 Files (all under sim/core/reforge_optimizer/):
 
 - Main flow + optimizer state: optimizer.go.
-- LP model build — decision variables, gem options, objective/cap coefficient split: model.go.
+- EP scoring and objective/cap coefficient split: model.go.
 - Byte-exact deterministic CPLEX LP text serialization for HiGHS: lp.go (rows are <=/>= only; term/sign formatting goes through appendLPTerm — the byte layout is load-bearing for HiGHS tie-breaking).
 - Solve + cap-refinement loop: solver.go.
 - Soft caps / gap-to-cap conversion + cap-detection helpers: caps.go.
 - Stat/UnitStat math: reforge_stats.go.
-- Gear/gem sim wrappers, applyLPSolution, regem minimization: gear.go.
-- Meta-gem activation constraints: meta_gem_constraints.go.
-- Relative cap modeling: relative_stat_cap.go.
-- Spec/profession predicates: utils.go.
+- Gear helpers (clone, frozen slots): gear.go.
 - HiGHS bridge:
     - Go non-browser (embedded, pooled wazero): highswasm.go. (Do NOT rename to highs_wasm.go — the `_wasm.go` suffix is an implicit GOARCH=wasm constraint that breaks the native build.)
     - Browser wasm: highs_js.go.
@@ -36,8 +35,6 @@ Files (all under sim/core/reforge_optimizer/):
 ## Core Invariants
 
 - Final correctness must be validated with exact core.ComputeStats results; solver deltas are guidance only.
-- Optimizer includes gem + socket bonus surfaces when enabled.
-- Socket bonus feasibility is modeled explicitly with link constraints.
 - On HiGHS failure, return an error; do not silently downgrade solver behavior.
 - Verbose optimizer diagnostics remain behind ReforgeOptimizeRequest.debug.
 - Deterministic LP text: modelToLPFormat is byte-exact and stable, so HiGHS tie-breaking among equal-objective solutions stays reproducible.
@@ -49,17 +46,9 @@ Files (all under sim/core/reforge_optimizer/):
 - If exact post-check violates constraints, tighten existing rows and re-solve.
 - Keep soft-cap scoring piecewise with pre-cap and post-cap EP behavior.
 
-## Gem and Meta Rules
-
-- Meta gems are not regular swap targets.
-- Regem minimization must preserve/restore meta socket correctness (meta activation conditions modeled in meta_gem_constraints.go).
-- Keep gem order stable in EquipmentSpec output.
-- Preserve class-specific stat dependency semantics in gem scoring.
-
 ## Bulk Sim Integration Contract
 
 - Bulk Sim uses ReforgeOptimizeRequest mode for bulk operations; avoid duplicate optimizer config types.
-- Bulk pre-pass may call the optimizer twice per candidate when includeGems fallback is enabled.
 - Cache keys represent input identity; cached values are optimized output gear (plain `equipmentSpec:` proto JSON).
 - Bulk runs derive their RNG seed from content including the cache-relevant optimizer config — see the wowsims-bulk-sim skill for the staged/finalist pipeline.
 
@@ -73,11 +62,10 @@ Files (all under sim/core/reforge_optimizer/):
 
 ```bash
 go test -tags with_db -count=1 ./sim/core/reforge_optimizer
-go test -tags with_db -count=1 -run TestReforgerOptimizer ./sim
 npm run type-check
 ```
 
-Fixtures require the `with_db` tag; they live in sim/core/reforge_optimizer/test-fixtures/ (gem-limits, gem-pool-narrow, gem-pool-wide, meta-gem-comparative, soft-caps-multi, stat-conversions, tank-caps, tank-soft-caps). Each is a real spec's preset, so the test that runs them, `TestReforgerOptimizer`, lives in `./sim` with every class registered rather than in the optimizer's package, whose tests use the class-free `sim/core/testagent`. Never update fixtures without being asked.
+There are no preset fixtures; the optimizer's tests use the class-free `sim/core/testagent`, and the ones that build gear need the `with_db` tag. Fixtures built from a real spec's preset need every class registered, so a test that runs them belongs in `./sim`, not in the optimizer's package. Never update fixtures without being asked.
 
 For integration changes touching bulk or endpoint behavior:
 
@@ -95,6 +83,4 @@ rg -n "reforgeOptimizeAsync|ReforgeOptimize" sim ui
 ## Common Pitfalls
 
 - Accepting solver-feasible output without exact-stat verification.
-- Letting post-processing invalidate meta-gem or socket constraints.
-- Introducing frontend/backend drift in gem/socket-force behavior.
-- Porting MoP-specific assumptions into TBC (reforging, Rune of Re-Origination, Windwalker/monk specs, amp trinkets).
+- Porting MoP-specific assumptions (reforging, Rune of Re-Origination, Windwalker/monk specs, amp trinkets).

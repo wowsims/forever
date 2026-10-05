@@ -123,7 +123,9 @@ takes only `-classes`, since it has no racial or shared files, and always writes
 
 The Update Items workflow (`.github/workflows/update_items.yml`) extracts the current build from the
 CDN with the latest hotfixes and runs `make db CLASSES=none SHARED=0`, so its pull request moves the
-items and leaves every class, the racials and the shared rows on their committed builds.
+items and leaves every class, the racials and the shared rows on their committed builds. The Check
+Hotfixes workflow dispatches it every hour that the hotfix cache changed; a pull request with the
+hotfixes applied that passes every test is merged and deployed without review.
 
 `db2tool` writes the `BuildInfo` table on every extraction. In offline mode pass the full version,
 `--build 1.60.1.70170`; a bare build number is recorded as given, with a warning. Stamp a database
