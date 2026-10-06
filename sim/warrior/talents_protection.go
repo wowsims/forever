@@ -54,7 +54,7 @@ func (warrior *Warrior) registerAnticipation() {
 		return
 	}
 
-	warrior.AddStat(stats.DefenseRating, spellData.Anticipation.ValueAt(warrior.Talents.Anticipation)*core.DefenseRatingPerDefenseLevel)
+	spelldata.ParseStatic(&warrior.Character, spellData.Anticipation.Rank(warrior.Talents.Anticipation))
 }
 
 func (warrior *Warrior) registerShieldSpecialization() {

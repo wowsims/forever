@@ -185,8 +185,9 @@ Serpent Sting 19464, Improved Moonfire 16821). `SPELLMOD_ALL_EFFECTS` raises bot
 
 Anything the table has no row for is skipped and reported; the parse does not guess a value for it. That covers the dummies the game files use
 for "a script does this", the proc-driver auras (a proc is a `ProcTrigger`, not a modifier), the
-crowd-control auras (stun, fear, root, silence) and `A_MOD_SKILL`. Those are named in the report rather
-than numbered, so a port can see at a glance which ones are its own work.
+crowd-control auras (stun, fear, root, silence) and `A_MOD_SKILL` on a profession skill; Defense reads
+as defense rating and a weapon skill adds to the skill the player states. Those are named in the report
+rather than numbered, so a port can see at a glance which ones are its own work.
 
 The shape of the parse also skips some rows the table does know. A value the sim keeps as one number
 per unit cannot be applied once per stack, and the static path has neither an aura to follow nor a

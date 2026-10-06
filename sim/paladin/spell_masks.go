@@ -84,31 +84,8 @@ const (
 		SpellMaskJudgementOfTheCrusader |
 		SpellMaskJudgementOfFury
 
-	SpellMaskAllAuras = SpellMaskDevotionAura |
-		SpellMaskRetributionAura |
-		SpellMaskConcentrationAura |
-		SpellMaskFireResistanceAura |
-		SpellMaskFrostResistanceAura |
-		SpellMaskShadowResistanceAura
-
-	// The heals Healing Light, Illumination and Divine Favor name.
+	// The heals Illumination names.
 	SpellMaskHealingSpells = SpellMaskHolyLight |
 		SpellMaskFlashOfLight |
 		SpellMaskHolyShockHeal
-
-	// Everything cast without a cast time, for Benediction.
-	SpellMaskInstantSpells = SpellMaskAllSeals |
-		SpellMaskAllAuras |
-		SpellMaskJudgement |
-		SpellMaskHolyStrike |
-		SpellMaskConsecration |
-		SpellMaskExorcism |
-		SpellMaskLayOnHands |
-		SpellMaskRighteousFury |
-		SpellMaskDivineFavor |
-		SpellMaskHolyShock |
-		SpellMaskHolyShockHeal |
-		SpellMaskHolyShield |
-		SpellMaskSwiftJudgement |
-		SpellMaskTemplarsBulwark
 )

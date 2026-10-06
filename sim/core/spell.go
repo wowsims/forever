@@ -695,7 +695,7 @@ func (spell *Spell) CanCompleteCast(sim *Simulation, target *Unit, logCastFailur
 	}
 
 	if spell.hasCastRequirement {
-		if reason, _ := spell.castRequirementFailure(sim); reason != "" {
+		if reason, _ := spell.castRequirementFailure(sim, target); reason != "" {
 			if logCastFailure {
 				return spell.castFailureHelper(sim, reason)
 			}

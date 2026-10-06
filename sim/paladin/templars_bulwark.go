@@ -3,6 +3,7 @@ package paladin
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // Templar's Bulwark (talent)
@@ -26,36 +27,17 @@ func (paladin *Paladin) registerTemplarsBulwark() {
 		},
 	})
 
-	spell := paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       actionID,
-		SpellSchool:    rank.SpellSchool(),
-		DefenseType:    rank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-		ClassSpellMask: SpellMaskTemplarsBulwark,
-
-		ManaCost: manaCost(rank),
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				NonEmpty: true,
-			},
-			CD: core.Cooldown{
-				Timer:    paladin.NewTimer(),
-				Duration: cooldown(rank),
-			},
-		},
-
-		ExtraCastCondition: func(_ *core.Simulation, _ *core.Unit) bool {
-			return !paladin.Forbearance.IsActive()
-		},
-
-		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-			shield.Activate(sim)
-			paladin.Forbearance.Activate(sim)
-		},
-
-		RelatedSelfBuff: shield.Aura,
-	})
+	// The row's excluded caster aura is Forbearance, so the cast requirement refuses it while
+	// Forbearance is up.
+	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ClassSpellMask = SpellMaskTemplarsBulwark
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		shield.Activate(sim)
+		paladin.Forbearance.Activate(sim)
+	}
+	config.RelatedSelfBuff = shield.Aura
+	spell := paladin.RegisterSpell(config)
 
 	paladin.AddMajorCooldown(core.MajorCooldown{
 		Spell: spell,

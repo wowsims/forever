@@ -3,22 +3,18 @@ package paladin
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // Seal of Justice
 // https://www.wowhead.com/forever/spell=20164
 //
-// Fills the Paladin with the spirit of justice for 30 sec, giving each melee attack a chance to
-// stun for 2 sec. Only one Seal can be active on the Paladin at any one time.
+// Fills the Paladin with the spirit of justice for 30 sec, giving each melee attack a chance to stun
+// for 2 sec. Only one Seal can be active on the Paladin at any one time.
 //
-// Unleashing this Seal's energy will judge an enemy for 10 sec, preventing them from fleeing.
-// Your melee strikes will refresh the spell's duration. Only one Judgement per Paladin can be
-// active at any one time.
-//
-// The seal's second effect names its judgement (the row has no effect at the game files' index 1).
-// Raid bosses are immune to the stun and never flee, so the seal is the aura and the judgement
-// is the debuff, nothing more. Twist of Light still names it, so replacing it leaves an Echo of
-// Justice with nothing to replay.
+// Unleashing this Seal's energy will judge an enemy for 10 sec, preventing them from fleeing. Your
+// melee strikes will refresh the spell's duration. Only one Judgement per Paladin can be active at
+// any one time.
 func (paladin *Paladin) registerSealOfJustice() {
 	rank := spellData.SealOfJustice.Highest()
 	judgementRank := spellData.SealOfJusticeTriggered.ByID(int32(rank.EffectN(2).BaseValue()))
@@ -32,27 +28,17 @@ func (paladin *Paladin) registerSealOfJustice() {
 	})
 
 	// Melee in SpellCategories and Always Hit: the debuff lands without a roll.
-	judgement := paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: judgementRank.ID},
-		SpellSchool:    judgementRank.SpellSchool(),
-		DefenseType:    judgementRank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagMeleeMetrics,
-		ClassSpellMask: SpellMaskJudgementOfJustice,
-
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHit)
-			judgementAuras.Get(target).Activate(sim)
-		},
-
-		RelatedAuraArrays: judgementAuras.ToMap(),
-	})
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskEmpty), spelldata.RemoveFlags(core.SpellFlagAPL))
+	judgementConfig.ClassSpellMask = SpellMaskJudgementOfJustice
+	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHit)
+		judgementAuras.Get(target).Activate(sim)
+	}
+	judgementConfig.RelatedAuraArrays = judgementAuras.ToMap()
+	judgement := paladin.RegisterSpell(judgementConfig)
 
 	aura := paladin.makeSealExclusive(paladin.RegisterAura(core.Aura{
-		Label:    sealLabel("Seal of Justice", paladin, rank),
+		Label:    rank.RankedLabel(&paladin.Unit),
 		ActionID: core.ActionID{SpellID: rank.ID},
 		Duration: sealDuration,
 	}))

@@ -10,7 +10,7 @@ Comments, docs, commit messages and PR text follow `wowsims-conventions`: "game 
 
 ## Scope
 
-- The spell store, `sim/core/spelldata`: one generated row per spell id, and the resolvers that turn a row into a spell config, an aura, a dot, a talent's modifiers or a proc listener. The warrior and the hunter read it through the resolvers; the other seven classes read its rows by hand instead, with no resolver in between.
+- The spell store, `sim/core/spelldata`: one generated row per spell id, and the resolvers that turn a row into a spell config, an aura, a dot, a talent's modifiers or a proc listener. The warrior and the hunter read it through the resolvers; the paladin registers its spells through `SpellConfig` and reads its talents and auras by hand; the other six classes read its rows by hand instead, with no resolver in between.
 - Regenerating it: `tools/database/gen_spelldata`, `tools/database/gen_spell_data.go`, `tools/database/gen_spell_store.go`, `tools/database/spelldata.go`.
 - Reconciling a sim number that disagrees with the game files.
 
@@ -70,7 +70,7 @@ func ItemProcUnsupportedWithRate(trigger *Spell, isWeaponProc bool, itemPPM floa
 ```
 
 - `SpellOpt`: `Melee(mask)`, `Magic(mask)`, `Proc()`, `Flags(f)`, `Tag(n)`.
-- `AuraOpt`: `Label(name)`, `Permanent()`.
+- `AuraOpt`: `Label(name)`, `RankLabel(rank, owner)`, `Permanent()`.
 - `ParseOpt`: `Effects(...)`, `SkipEffects(...)`, `Conditional(fn)`, `IgnoreStacks()`, `FromCaster(unit, i, total)`.
 - `ProcOpt`: `PPM(n)`, `Chance(f)`, `ChanceFrom(effect)`.
 
@@ -80,7 +80,7 @@ A debuff that raises only its caster's damage or crit against the target (Shadow
 
 `Proc()` takes a sub-spell out of the rotation and empties the cast, cooldown and every cost the row filled, so it can resolve off the row of the ability that casts it: Whirlwind's off-hand strike takes `Melee(ProcMaskMeleeOHSpecial)`, `Proc()` and `Tag(2)` on the Whirlwind row itself, writing only `ApplyEffects` by hand; Flurry tells it from the main-hand strike with `spellData.Whirlwind.Contains(spell)` and an off-hand proc mask. A bleed row fills its damage and threat multipliers with 1 — `IsBleed` reads `SpellCategories.Mechanic` where the other `attributes.go` accessors read an `Attr` bit.
 
-Where a spell can be cast is the row's too: `SpellConfig` fills `CastRequirement` from the stance masks, the caster aura restrictions, the shapeshift attribute bits, the weapon or shield `SpellEquippedItems` and the hand bits name, and the not-in-combat attribute bit, and core enforces it, reading the equipment at cast time. Never write a stance, form, weapon, shield or `sim.CurrentTime < 0` check in `ExtraCastCondition`; the class only sets `Unit.ShapeshiftForm` (and `Unit.AutoUnshift` where leaving a form is automatic, the druid). A hand-read class takes `row.CastRequirement()`; a spell with no row states one as a `core.CastRequirement` literal (`Forms: form.Mask()`). See "Where a spell can be cast" in `docs/spell_data/building-an-ability.md`.
+Where a spell can be cast is the row's too: `SpellConfig` fills `CastRequirement` from the stance masks, the caster aura restrictions, the shapeshift attribute bits, the weapon or shield `SpellEquippedItems` and the hand bits name, the not-in-combat attribute bit, and the target creature types `SpellTargetRestrictions` states for a spell cast on an enemy, and core enforces it, reading the equipment at cast time. Never write a stance, form, weapon, shield, target creature type or `sim.CurrentTime < 0` check in `ExtraCastCondition`; the class only sets `Unit.ShapeshiftForm` (and `Unit.AutoUnshift` where leaving a form is automatic, the druid). A hand-read class takes `row.CastRequirement()`; a spell with no row states one as a `core.CastRequirement` literal (`Forms: form.Mask()`). See "Where a spell can be cast" in `docs/spell_data/building-an-ability.md`.
 
 ## Weapon requirements and the one rating
 

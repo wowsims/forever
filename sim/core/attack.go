@@ -414,7 +414,7 @@ func (wa *WeaponAttack) requirementFails(sim *Simulation) bool {
 	if !wa.spell.hasCastRequirement {
 		return false
 	}
-	reason, _ := wa.spell.castRequirementFailure(sim)
+	reason, _ := wa.spell.castRequirementFailure(sim, nil)
 	return reason != ""
 }
 

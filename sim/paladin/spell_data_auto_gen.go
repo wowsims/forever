@@ -7,7 +7,6 @@ import (
 )
 
 // Not generated:
-//   Holy Shock: ambiguous rank 2 between spells 25912, 25914; rank 3 between spells 25911, 25913; rank 4 between spells 25902, 25903
 //   Judgement of Fury: missing rank 1 of 7
 //   Judgement of the Crusader: missing rank 1 of 6
 
@@ -71,6 +70,8 @@ type generatedSpellData struct {
 	HolyLight                     spelldata.Ladder
 	HolyPower                     spelldata.Ladder
 	HolyShield                    spelldata.Ladder
+	HolyShock                     spelldata.Ladder
+	HolyShockTriggered            spelldata.Ladder
 	HolyStrike                    spelldata.Ladder
 	HolyWrath                     spelldata.Ladder
 	HolyWrathTriggered            spelldata.Ladder
@@ -208,6 +209,8 @@ var spellData = generatedSpellData{
 	HolyLight:                     spelldata.Ranked(635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292),
 	HolyPower:                     spelldata.Talent(5923, 5),
 	HolyShield:                    spelldata.Ranked(20925, 20927, 20928),
+	HolyShock:                     spelldata.Ranked(1311606, 20473, 20929, 20930),
+	HolyShockTriggered:            spelldata.Ranked(25902, 25903, 25911, 25912, 25913, 25914, 1311604, 1311605),
 	HolyStrike:                    spelldata.Ranked(679, 678, 1866, 680, 2495, 5569, 10332, 10333),
 	HolyWrath:                     spelldata.Ranked(2812, 10318),
 	HolyWrathTriggered:            spelldata.Ranked(429147),

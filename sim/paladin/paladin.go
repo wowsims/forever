@@ -5,7 +5,6 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -18,6 +17,9 @@ type Paladin struct {
 
 	Forbearance       *core.Aura
 	RighteousFuryAura *core.Aura
+
+	// Swift Judgement's free next Judgement, which Judgement spends.
+	swiftJudgementAura *core.Aura
 
 	Judgement *core.Spell
 
@@ -43,17 +45,6 @@ type Paladin struct {
 	flashOfLightBonusHealing          float64
 	holyShieldBlockValueMultiplier    float64
 	forbearanceReduction              time.Duration
-
-	// Timers shared by the ranks of one ability.
-	judgementTimer     *core.Timer
-	holyStrikeTimer    *core.Timer
-	consecrationTimer  *core.Timer
-	exorcismTimer      *core.Timer
-	hammerOfWrathTimer *core.Timer
-	holyWrathTimer     *core.Timer
-	holyShockTimer     *core.Timer
-	holyShieldTimer    *core.Timer
-	lightsVigilTimer   *core.Timer
 }
 
 // Implemented by each Paladin spec.
@@ -102,28 +93,6 @@ func (paladin *Paladin) Reset(_ *core.Simulation) {
 }
 
 func (paladin *Paladin) OnEncounterStart(_ *core.Simulation) {
-}
-
-func (paladin *Paladin) sharedTimer(timer **core.Timer) *core.Timer {
-	if *timer == nil {
-		*timer = paladin.NewTimer()
-	}
-	return *timer
-}
-
-// The cost a row states: a flat number, or a share of base mana for the spells the game files price
-// that way (Judgement, Righteous Fury, Seal of Justice).
-func manaCost(rank *spelldata.Spell) core.ManaCostOptions {
-	if len(rank.Powers) > 0 && rank.Powers[0].CostPct > 0 {
-		return core.ManaCostOptions{BaseCostPercent: float64(rank.Powers[0].CostPct)}
-	}
-	return core.ManaCostOptions{FlatCost: int32(rank.Cost())}
-}
-
-// A rank's own cooldown, or the one it shares with its category: the game files keep every paladin
-// ability cooldown but Judgement's and the talent cooldowns on the category.
-func cooldown(rank *spelldata.Spell) time.Duration {
-	return max(rank.Cooldown(), rank.CategoryCooldown())
 }
 
 func NewPaladin(character *core.Character, talentsStr string, _ *proto.PaladinOptions) *Paladin {

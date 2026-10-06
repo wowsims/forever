@@ -24,25 +24,12 @@ func auraRank(rank *spelldata.Spell) buffs.PaladinAuraRank {
 // paladin auras in sim/core/buffs, which already sit in PaladinAuraCategory so one cast replaces the
 // last.
 func (paladin *Paladin) registerAuraSpell(rank *spelldata.Spell, aura *core.Aura, classMask int64) {
-	paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       aura.ActionID,
-		SpellSchool:    rank.SpellSchool(),
-		DefenseType:    rank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-		ClassSpellMask: classMask,
-		Rank:           rank.RankNumber(),
-
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				GCD: rank.GCD(),
-			},
-		},
-
-		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-			aura.Activate(sim)
-		},
-
-		RelatedSelfBuff: aura,
-	})
+	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ClassSpellMask = classMask
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		aura.Activate(sim)
+	}
+	config.RelatedSelfBuff = aura
+	paladin.RegisterSpell(config)
 }

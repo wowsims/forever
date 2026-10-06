@@ -4,6 +4,11 @@
 Bloodthirst's `ClassFlags` fired it on Mortal Strike too and moved multi-target HPS from 0.16 to 15. Ask
 the ladder: `spellData.Bloodthirst.Contains(spell)`.
 
+**A hand-built `core.SpellConfig` carries no class flags unless it sets them.** `spelldata.SpellConfig`
+fills `ClassFlags` from the row, but a config written out by hand needs `ClassFlags: rank.ClassFlags`.
+Without them every modifier, trigger and charge the game files state by class flags skips the spell, and
+nothing reports it: Revelation's paladin buff 1323419 gave Holy Light no crit and was never spent.
+
 **The data contains ranks the game never grants.** Fireball 38692 and Frostbolt 38697 are rank 14
 entries at level 70 whose `SkillLineAbility` rows and spell attributes are byte-for-byte
 indistinguishable from the real rank 13s, so the generator cannot filter them. Reaching for

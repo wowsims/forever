@@ -124,6 +124,8 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 		// settled, and would otherwise put the aura back on for an item only in the swap set.
 		config := spelldata.AuraConfig(row, spelldata.Label(cfg.Name))
 		config.Duration = core.NeverExpires
+		// Worn from the start, the aura is part of the gear the character sheet shows.
+		config.BuildPhase = core.Ternary(source.isEquipped(character, slots), core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
 		config.OnReset = func(aura *core.Aura, sim *core.Simulation) {
 			if source.isEquipped(character, slots) {
 				aura.Activate(sim)

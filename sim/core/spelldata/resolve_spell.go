@@ -161,8 +161,10 @@ func Tag(tag int32) SpellOpt {
 	}
 }
 
-// The forms, caster auras, weapon or shield and out-of-combat state the row requires. A shield is the
-// only armor a castable spell asks for.
+// The forms, caster auras, weapon or shield, out-of-combat state and target creature types the row
+// requires. A shield is the only armor a castable spell asks for. The creature types limit the cast
+// only on a spell cast on an enemy unit: Bestial Wrath's Beast is the pet it lands on, and Holy Wrath's
+// Undead and Demon are the enemies its area hits.
 func (s *Spell) CastRequirement() core.CastRequirement {
 	r := core.CastRequirement{
 		Forms:             s.StanceMask,
@@ -178,6 +180,11 @@ func (s *Spell) CastRequirement() core.CastRequirement {
 		r.Weapon = core.EquipRequirement{SubclassMask: s.EquipSubclass, InvTypeMask: s.EquipInvType, Hand: RequiredHand(s)}
 	case dbcenums.ITEM_CLASS_ARMOR:
 		r.Shield = s.EquipSubclass&dbcenums.ITEM_SUBCLASS_BIT_ARMOR_SHIELD != 0
+	}
+	if s.EffectN(1).Target[0] == dbcenums.TARGET_UNIT_TARGET_ENEMY {
+		for _, mobType := range MobTypes(s.TargetCreatureType) {
+			r.TargetMobTypes |= 1 << mobType
+		}
 	}
 	return r
 }

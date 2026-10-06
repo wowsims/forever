@@ -401,6 +401,8 @@ var ItemDenyList = map[int32]struct{}{
 	18582: {},
 	18583: {},
 	18584: {},
+	20003: {}, // Devilsaur Claws
+	20005: {}, // Devilsaur Claws
 	22736: {},
 	23363: {}, // Titanic Breastplate
 	24265: {},

@@ -369,7 +369,7 @@ func (swap *ItemSwap) SwapItems(sim *Simulation, swapSet proto.APLActionItemSwap
 	}
 
 	if swap.weaponIDs() != weapons {
-		character.updateAttackTableWeapons()
+		character.UpdateAttackTableWeapons()
 		for _, onWeaponChange := range swap.onWeaponChange {
 			onWeaponChange(sim)
 		}

@@ -280,8 +280,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 842.59309
-  tps: 487.92184
+  dps: 849.15093
+  tps: 491.59423
   dtps: 7.50802
  }
 }
@@ -432,9 +432,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-JusticeBattlegear"
  value: {
-  dps: 768.35867
-  tps: 446.23481
-  dtps: 7.56206
+  dps: 771.11496
+  tps: 447.80522
+  dtps: 7.51423
  }
 }
 dps_results: {
@@ -584,9 +584,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-ScrollsofBlindingLight-19343"
  value: {
-  dps: 845.59231
-  tps: 489.58751
-  dtps: 7.61635
+  dps: 847.50286
+  tps: 490.61665
+  dtps: 7.35001
  }
 }
 dps_results: {

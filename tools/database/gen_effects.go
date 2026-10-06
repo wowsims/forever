@@ -1327,8 +1327,8 @@ func (r *ProcRouting) ProcConstructor() string {
 }
 
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health and stat
-// multipliers, the flat damage taken, and the hit and crit percents, none of which an item states as
-// a stat. The percents reach the item stats only through an equip spell that folds; an on-use or a
+// multipliers, the flat damage taken, the hit and crit percents, and skill points, none of which an
+// item states as a stat. The percents reach the item stats only through an equip spell that folds; an on-use or a
 // weapon-scoped equip spell applies them as an aura.
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -1345,6 +1345,7 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_SPELL_HIT_CHANCE,
 	dbcenums.A_MOD_SPELL_CRIT_CHANCE,
 	dbcenums.A_MOD_CRIT_PCT,
+	dbcenums.A_MOD_SKILL,
 }
 
 func appliesAnItemAura(s *spelldata.Spell) bool {

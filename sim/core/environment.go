@@ -268,7 +268,7 @@ func (env *Environment) setupAttackTables() {
 
 	for _, party := range env.Raid.Parties {
 		for _, player := range party.Players {
-			player.GetCharacter().updateAttackTableWeapons()
+			player.GetCharacter().UpdateAttackTableWeapons()
 		}
 	}
 }

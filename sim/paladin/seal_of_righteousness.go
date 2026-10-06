@@ -6,17 +6,18 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them.
+// The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them,
+// and the store carries no row for them, so the proc is built by hand.
 var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
 // Seal of Righteousness
 // https://www.wowhead.com/forever/spell=20293
 //
-// Fills the Paladin with holy spirit for 30 sec, granting each melee attack an additional X to Y
-// Holy damage. Slower weapons cause more Holy damage per swing. Only one Seal can be active on
-// the Paladin at any one time.
+// Fills the Paladin with holy spirit for 30 sec, granting each melee attack an additional 24 to 83
+// Holy damage. Slower weapons cause more Holy damage per swing. Only one Seal can be active on the
+// Paladin at any one time.
 //
-// Unleashing this Seal's energy will cause Holy damage to an enemy.
+// Unleashing this Seal's energy will cause 187 to 203 Holy damage to an enemy.
 //
 // The seal's second effect names its judgement (the row has no effect at the game files' index 1).
 // The judgement's dummy, its second effect, carries the number the per-hit damage is built from:
@@ -46,22 +47,13 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 
 	// The judgement is Melee in SpellCategories and carries No Active Defense: it rolls hit and
 	// crit on the melee table and cannot be dodged, parried or blocked.
-	judgement := paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: judgeRank.ID},
-		SpellSchool:    judgeRank.SpellSchool(),
-		DefenseType:    judgeRank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskMeleeMHSpecial,
-		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagBinary,
-		ClassSpellMask: SpellMaskJudgementOfRighteousness,
-
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		BonusCoefficient: judgeDamage.Coeff(),
-
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
-		},
-	})
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
+	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
+	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealDamage(sim, target, judgeDamage.Roll(sim), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+	}
+	judgement := paladin.RegisterSpell(judgementConfig)
 
 	value := perHit.Average()
 	procSpell := paladin.RegisterSpell(core.SpellConfig{
@@ -89,7 +81,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	})
 
 	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
-		Name:            sealLabel("Seal of Righteousness", paladin, rank),
+		Name:            rank.RankedLabel(&paladin.Unit),
 		ActionID:        core.ActionID{SpellID: rank.ID},
 		MetricsActionID: core.ActionID{SpellID: rank.ID},
 		Duration:        sealDuration,

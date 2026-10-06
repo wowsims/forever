@@ -1025,6 +1025,19 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 		if err != nil {
 			return nil, err
 		}
+		if castable == 0 && len(chosen) < len(cands) {
+			// Holy Shock's ranks 2-4 put the class bit on the damage and heal spells and none on the
+			// castable one, so the class filter above keeps only the two never exposed. The castable
+			// one is still the rank's when it is the only one of all the rank's spells.
+			all := map[int32]bool{}
+			for _, c := range lowestAcquireMethod(cands) {
+				all[c.SpellID] = true
+			}
+			castable, err = castableOf(db, all)
+			if err != nil {
+				return nil, err
+			}
+		}
 		if castable == 0 {
 			// Judgement of Command is the same dispatcher shape with no mana on either half - the
 			// parent Judgement pays - so SpellPower cannot separate them. One E_DUMMY against one

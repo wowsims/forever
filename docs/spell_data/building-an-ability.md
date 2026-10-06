@@ -46,15 +46,17 @@ put there.
 
 ## Where a spell can be cast
 
-`core.CastRequirement` is what the game files require of the caster's form, auras and equipment. Core
-refuses any cast, `CanCast` or `CanQueue` that breaks it ("wrong form", "missing caster aura",
-"excluded caster aura", "missing equipped item", "in combat"). It reads six game files sources:
+`core.CastRequirement` is what the game files require of the caster's form, auras and equipment, and
+of the target's creature type. Core refuses any cast, `CanCast` or `CanQueue` that breaks it ("wrong
+form", "missing caster aura", "excluded caster aura", "missing equipped item", "in combat", "wrong
+target creature type"). It reads seven game files sources:
 `SpellShapeshift`'s mask and exclude mask (`StanceMask`, `StanceExclude`), `SpellAuraRestrictions`
 (`CasterAura`, `ExcludeCasterAura`; Tiger's Fury states its Cat Form requirement there, not in a mask),
 the not-shapeshifted and castable-in-caster-form attribute bits, `SpellShapeshiftForm`'s stance flag
 (`dbcenums.ShapeshiftForm.IsStance`, generated into `sim/core/dbcenums/forms_auto_gen.go`),
-`SpellEquippedItems` with the `ATTR_EX_3_REQ_MAIN_HAND` and `ATTR_EX_3_REQ_OFF_HAND` hand bits, and the
-not-in-combat attribute bit (`ATTR_NOT_IN_COMBAT`, Charge's).
+`SpellEquippedItems` with the `ATTR_EX_3_REQ_MAIN_HAND` and `ATTR_EX_3_REQ_OFF_HAND` hand bits, the
+not-in-combat attribute bit (`ATTR_NOT_IN_COMBAT`, Charge's), and `SpellTargetRestrictions`'
+`TargetCreatureType`.
 
 For the caster's form `f`: an excluded form refuses; a form in the mask allows; in a shapeshift that is
 not a stance (Cat, Bear) a spell with a mask or the not-shapeshifted bit is refused; with no form or in
@@ -71,6 +73,14 @@ spell asks for. A unit that is not a player meets neither, and a player with no 
 requirement. A spell
 with the not-in-combat bit is refused from the start of the encounter on, so Charge is a prepull
 action.
+
+`TargetCreatureType` is a mask of creature types, bit `1 << (type - 1)`, which `spelldata.MobTypes`
+turns into `proto.MobType`s; `CastRequirement.TargetMobTypes` holds them as bits `1 << proto.MobType`.
+It limits the cast only when the row's first effect targets `TARGET_UNIT_TARGET_ENEMY`, the enemy the
+spell is cast on: Chastise's 64 allows a Humanoid, Exorcism's 36 an Undead or a Demon. Elsewhere the
+mask names some other unit and the cast is not limited: Bestial Wrath's Beast is the pet it lands on,
+and Holy Wrath's Undead and Demon are the enemies its area hits, which the spell's effects pick
+themselves. A target of unknown mob type is in no mask and is refused. A weapon swing checks no target.
 
 The class does nothing beyond reporting its form in `Unit.ShapeshiftForm` (the warrior's `setStance`,
 the druid's `setForm`). A unit that sets `Unit.AutoUnshift` (the druid, to `ClearForm`) can cast a spell

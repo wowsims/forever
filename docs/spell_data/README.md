@@ -3,8 +3,9 @@
 The sim reads its numbers from the game files instead of hand-transcribed literals. They come out of
 one store, `sim/core/spelldata`: a generated file that holds every spell the sim can reach, and
 resolvers that turn a row into a spell config, an aura, a dot, a talent's modifiers or a proc listener.
-The warrior and the hunter read the store through the resolvers. The other seven classes read its rows
-by hand, one value at a time, with no resolver in between.
+The warrior and the hunter read the store through the resolvers. The paladin registers its spells
+through `SpellConfig` and reads its talents and auras by hand. The other six classes read its rows by
+hand, one value at a time, with no resolver in between.
 
 - [The store](store.md)
 - [Building an ability](building-an-ability.md)

@@ -495,6 +495,7 @@ func (character *Character) FillPlayerStats(playerStats *proto.PlayerStats) {
 		PseudoStats: character.GetPseudoStatsProto(),
 		ApiVersion:  GetCurrentProtoVersion(),
 	}
+	playerStats.WeaponSkills = character.weaponSkillsProto()
 
 	character.clearBuildPhaseAuras(CharacterBuildPhaseAll)
 	playerStats.Sets = character.GetActiveSetBonusNames()

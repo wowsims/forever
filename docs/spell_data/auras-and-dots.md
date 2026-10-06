@@ -7,8 +7,12 @@ otherwise, since the sim keeps stacks and charges in one field. A row that state
 resolves to 0, and core refuses to activate an aura with that duration. Such an aura needs
 `Permanent()` or a duration the caller supplies.
 
-`Label(name)` renames the aura, and two auras of the same spell on one unit need it. `Permanent()`
-makes the aura last the iteration, whatever the row says.
+`Label(name)` renames the aura, and two auras of the same spell on one unit need it.
+`RankLabel(rank, owner)` labels it by `rank.RankedLabel(owner)` ("Holy Fire Rank 8 - Priest (#1)"): a
+caster registers every rank, and ranks that share one label share one aura, so one cast would tick
+every rank's dot; the owner's label keeps two casters' debuffs on one target apart. A label built by
+hand, such as a proc trigger's `Name`, takes `rank.RankedLabel(owner)` directly. `Permanent()` makes
+the aura last the iteration, whatever the row says.
 
 ```go
 aura := warrior.RegisterAura(spelldata.AuraConfig(shieldBlockRank))

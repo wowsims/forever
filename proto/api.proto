@@ -643,6 +643,9 @@ message PlayerStats {
 	APLStats rotation_stats = 12;
 
 	repeated PetStats pets = 11;
+
+	// The full skill per weapon skill, with every bonus the gear, talents and buffs add.
+	repeated WeaponSkillValue weapon_skills = 13;
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

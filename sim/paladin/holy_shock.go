@@ -1,117 +1,54 @@
 package paladin
 
 import (
-	"time"
-
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// One rank of Holy Shock: the spell the paladin casts, and the damage and heal it triggers. The
-// game files ship the damage and heal chains as two ladders under one name, which the generator
-// refuses, so the table is by hand from the game files rows: the cast's cost, and each chain's number
-// with its 0.429 coefficient.
-type holyShockRank struct {
-	rank     int32
-	spellID  int32
-	cost     int32
-	damageID int32
-	damage   float64
-	healID   int32
-	heal     float64
-}
-
-var HolyShockRanks = []holyShockRank{
-	{rank: 1, spellID: 1311606, cost: 160, damageID: 1311604, damage: 134, healID: 1311605, heal: 114},
-	{rank: 2, spellID: 20473, cost: 225, damageID: 25912, damage: 182, healID: 25914, heal: 156},
-	{rank: 3, spellID: 20929, cost: 275, damageID: 25911, damage: 258, healID: 25913, heal: 230},
-	{rank: 4, spellID: 20930, cost: 325, damageID: 25902, damage: 348, healID: 25903, heal: 320},
-}
-
-const (
-	holyShockCoefficient = 0.429
-	holyShockCooldown    = time.Second * 10
-	holyShockRange       = 20
-)
+var HolyShockRankMap = spellData.HolyShock
 
 // Holy Shock (talent)
-// https://www.wowhead.com/forever/spell=1311606
+// https://www.wowhead.com/forever/spell=20930
 //
-// Blasts the target with Holy energy, causing X Holy damage to an enemy, or Y healing to an ally.
-//
-// The damage and the heal are two spells that share the cast's cooldown: the damage carries the
-// cast's id so the rotation names it as the game files do, the heal carries its own. Light's Vigil
-// on the enemy turns the damage into the vigil's strike, refunds the vigil, and skips the cooldown.
+// Blasts the target with Holy energy, causing 334 to 362 Holy damage to an enemy, or 307 to 333
+// healing to an ally.
 func (paladin *Paladin) registerHolyShock() {
-	for _, rank := range HolyShockRanks {
-		paladin.registerHolyShockRank(rank)
-	}
+	HolyShockRankMap.Each(paladin.registerHolyShockRank)
 }
 
-func (paladin *Paladin) registerHolyShockRank(rank holyShockRank) {
-	timer := paladin.sharedTimer(&paladin.holyShockTimer)
+// One of the rank's two spells off the cast row, with the effect row's id, defense type, class
+// flags and spell power coefficient.
+func (paladin *Paladin) holyShockConfig(rank *spelldata.Spell, id int32, row *spelldata.Spell, effect *spelldata.Effect, mask core.ProcMask) core.SpellConfig {
+	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(mask))
+	config.ActionID = core.ActionID{SpellID: id}
+	config.DefenseType = row.DefenseTypeCore()
+	config.ClassFlags = row.ClassFlags
+	// Magic reads the coefficient off the cast row, which states none.
+	config.BonusCoefficient = effect.Coeff()
+	return config
+}
 
-	paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: rank.spellID},
-		SpellSchool:    core.SpellSchoolHoly,
-		DefenseType:    core.DefenseTypeMagic,
-		ProcMask:       core.ProcMaskSpellDamage,
-		Flags:          core.SpellFlagAPL,
-		ClassSpellMask: SpellMaskHolyShock,
-		Rank:           rank.rank,
-		MaxRange:       holyShockRange,
+func (paladin *Paladin) registerHolyShockRank(_ int32, rank *spelldata.Spell) {
+	refs := rank.Refs()
+	damageRow, healRow := refs[0], refs[1]
+	damage, heal := damageRow.DamageEffect(), healRow.HealEffect()
 
-		ManaCost: core.ManaCostOptions{FlatCost: rank.cost},
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				GCD: core.GCDDefault,
-			},
-			CD: core.Cooldown{
-				Timer:    timer,
-				Duration: holyShockCooldown,
-			},
-		},
+	damageConfig := paladin.holyShockConfig(rank, rank.ID, damageRow, damage, core.ProcMaskSpellDamage)
+	damageConfig.ClassSpellMask = SpellMaskHolyShock
+	damageConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		if vigil := paladin.activeLightsVigil(target); vigil != nil {
+			vigil.consume(sim, target)
+			spell.CD.Reset()
+		}
+		spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+	}
+	paladin.RegisterSpell(damageConfig)
 
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		BonusCoefficient: holyShockCoefficient,
-
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if vigil := paladin.activeLightsVigil(target); vigil != nil {
-				vigil.consume(sim, target)
-				spell.CD.Reset()
-				return
-			}
-			spell.CalcAndDealDamage(sim, target, rank.damage, spell.OutcomeMagicHitAndCrit)
-		},
-	})
-
-	paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: rank.healID},
-		SpellSchool:    core.SpellSchoolHoly,
-		DefenseType:    core.DefenseTypeMagic,
-		ProcMask:       core.ProcMaskSpellHealing,
-		Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-		ClassSpellMask: SpellMaskHolyShockHeal,
-		Rank:           rank.rank,
-		MaxRange:       holyShockRange,
-
-		ManaCost: core.ManaCostOptions{FlatCost: rank.cost},
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				GCD: core.GCDDefault,
-			},
-			CD: core.Cooldown{
-				Timer:    timer,
-				Duration: holyShockCooldown,
-			},
-		},
-
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		BonusCoefficient: holyShockCoefficient,
-
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealHealing(sim, target, rank.heal, spell.OutcomeHealingCrit)
-		},
-	})
+	healConfig := paladin.holyShockConfig(rank, healRow.ID, healRow, heal, core.ProcMaskSpellHealing)
+	healConfig.Flags |= core.SpellFlagHelpful
+	healConfig.ClassSpellMask = SpellMaskHolyShockHeal
+	healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealHealing(sim, target, heal.Roll(sim), spell.OutcomeHealingCrit)
+	}
+	paladin.RegisterSpell(healConfig)
 }

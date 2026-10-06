@@ -2,7 +2,7 @@ package paladin
 
 import (
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // Divine Favor (talent)
@@ -12,51 +12,27 @@ import (
 // effect chance.
 func (paladin *Paladin) registerDivineFavor() {
 	rank := spellData.DivineFavor.Highest()
-	actionID := core.ActionID{SpellID: rank.ID}
 
-	var divineFavorAura *core.Aura
-	divineFavorAura = paladin.RegisterAura(core.Aura{
-		Label:    "Divine Favor" + paladin.Label,
-		ActionID: actionID,
-		Duration: core.NeverExpires,
-	}).AttachSpellMod(core.SpellModConfig{
-		Kind:       core.SpellMod_BonusCrit_Percent,
-		ClassMask:  SpellMaskHealingSpells | SpellMaskHolyShock,
-		FloatValue: rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).Average(),
-	}).AttachProcTrigger(core.ProcTrigger{
-		CanProcFromProcs:   true, // 20216 carries the bit.
-		Callback:           core.CallbackOnCastComplete,
-		ClassSpellMask:     SpellMaskHealingSpells | SpellMaskHolyShock,
-		TriggerImmediately: true,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			divineFavorAura.Deactivate(sim)
-		},
-	})
+	// The crit and the one charge the next Holy Light, Flash of Light or Holy Shock spends are the
+	// row's.
+	divineFavorAura := paladin.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label("Divine Favor"+paladin.Label)))
+	spelldata.ParseEffects(&paladin.Character, divineFavorAura, rank)
+	// The cast spends the charge whether or not it lands, so a resisted Holy Shock, or one a Light's
+	// Vigil turns into its strike, spends it too.
+	spelldata.AttachChargeSpender(&paladin.Character, divineFavorAura, rank, "Divine Favor Charge"+paladin.Label,
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnApplyEffects
+			trigger.Outcome = core.OutcomeEmpty
+		})
 
-	divineFavor := paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       actionID,
-		SpellSchool:    rank.SpellSchool(),
-		DefenseType:    rank.DefenseTypeCore(),
-		Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-		ClassSpellMask: SpellMaskDivineFavor,
-
-		ManaCost: manaCost(rank),
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				NonEmpty: true,
-			},
-			CD: core.Cooldown{
-				Timer:    paladin.NewTimer(),
-				Duration: cooldown(rank),
-			},
-		},
-
-		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-			spell.RelatedSelfBuff.Activate(sim)
-		},
-
-		RelatedSelfBuff: divineFavorAura,
-	})
+	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
+	config.ClassSpellMask = SpellMaskDivineFavor
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.RelatedSelfBuff.Activate(sim)
+		spell.RelatedSelfBuff.SetStacks(sim, spell.RelatedSelfBuff.MaxStacks)
+	}
+	config.RelatedSelfBuff = divineFavorAura
+	divineFavor := paladin.RegisterSpell(config)
 
 	paladin.AddMajorCooldown(core.MajorCooldown{
 		Spell: divineFavor,

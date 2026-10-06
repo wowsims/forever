@@ -1,8 +1,8 @@
 # Porting a class onto the resolvers
 
-1. **Start from the ladders.** Every class file is already one ladder per family, and the seven
-   classes other than the warrior and the hunter read them by hand, the way [Reading a row by hand](reading-by-hand.md)
-   describes. The move from hand reads onto the resolvers (`SpellConfig`, `AuraConfig`, `DotConfig`,
+1. **Start from the ladders.** Every class file is already one ladder per family, and the classes
+   other than the warrior and the hunter read them by hand, the way [Reading a row by hand](reading-by-hand.md)
+   describes; the paladin's spell registrations are on `SpellConfig`, its talents and auras are not. The move from hand reads onto the resolvers (`SpellConfig`, `AuraConfig`, `DotConfig`,
    `ParseEffects`, `ProcTrigger`) is the warrior's, and this checklist is written for it.
 2. **Dump the rows before touching a call site**, three ways: the effects at the rank taken, which
    registered spells each modifier's `EffectSpellClassMask` names, and the whole `ProcTrigger` the row

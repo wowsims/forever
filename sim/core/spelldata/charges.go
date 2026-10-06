@@ -11,7 +11,8 @@ import (
 // on its spell modifiers instead, and the charge goes to the spells the buff modifies.
 //
 // A channel is one cast: the charge stays up for every tick and every target, and is spent when the
-// channel ends.
+// channel ends. A channel the buff's class flags name spends it once the channel has started, even
+// when its cast lands nothing itself.
 // TODO: A tick that lands after its channel ends, a missile still in flight, misses the charge.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
 	firstHit, resetFirstHit := core.OncePerCast()
@@ -44,6 +45,22 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 	}
 
 	buff.AttachProcTriggerCallback(&character.Unit, spender)
+
+	if !spender.ClassFlags.IsZero() {
+		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
+			Name:               name + " - Channel",
+			Callback:           core.CallbackOnCastComplete,
+			SpellFlags:         core.SpellFlagChanneled,
+			ClassFlags:         spender.ClassFlags,
+			TriggerImmediately: true,
+			ExtraCondition: func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+				return character.IsChanneling()
+			},
+			Handler: func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+				channelHit = true
+			},
+		})
+	}
 	return spender
 }
 

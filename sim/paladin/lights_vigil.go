@@ -1,8 +1,6 @@
 package paladin
 
 import (
-	"fmt"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -32,12 +30,9 @@ type lightsVigil struct {
 // https://www.wowhead.com/forever/spell=1311595
 //
 // Applies Light's Vigil to the target for 30 sec. Your next Holy Shock cast on them triggers no
-// cooldown and causes friendly targets to heal their party for 704, or enemy targets to suffer 395
-// Holy damage and refund 75% of Light's Vigil's Mana cost. You may only have 1 Light's Vigil
-// active per Paladin, per party.
-//
-// The sim casts it on enemies: Holy Shock on a vigiled enemy fires the strike and the refund. The
-// friendly path, a party heal off a Holy Shock heal, has no target model here and is not built.
+// cooldown and causes enemy targets to suffer 380 to 410 Holy damage and refund 75% of Light's
+// Vigil's Mana cost, or allied targets to heal their party for 700 to 740. You may only have one
+// Light's Vigil active per party.
 func (paladin *Paladin) registerLightsVigil() {
 	LightsVigilRankMap.Each(paladin.registerLightsVigilRank)
 }
@@ -56,69 +51,43 @@ func (paladin *Paladin) registerLightsVigilRank(_ int32, rank *spelldata.Spell) 
 
 	vigil.auras = paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return target.GetOrRegisterAura(core.Aura{
-			Label:    fmt.Sprintf("Light's Vigil%s Rank %d", paladin.Label, rank.RankNumber()),
+			Label:    rank.RankedLabel(&paladin.Unit),
 			ActionID: core.ActionID{SpellID: auraRank.ID},
 			Duration: auraRank.Duration(),
 		})
 	})
 
-	vigil.strike = paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: strikeRank.ID},
-		SpellSchool:    strikeRank.SpellSchool(),
-		DefenseType:    strikeRank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskSpellDamage,
-		Flags:          core.SpellFlagPassiveSpell,
-		ClassSpellMask: SpellMaskLightsVigilStrike,
-
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		BonusCoefficient: strikeDamage.Coeff(),
-
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, strikeDamage.Roll(sim), spell.OutcomeMagicHitAndCrit)
-		},
-	})
+	strikeConfig := spelldata.SpellConfig(&paladin.Unit, strikeRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+	strikeConfig.ClassSpellMask = SpellMaskLightsVigilStrike
+	strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealDamage(sim, target, strikeDamage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+	}
+	vigil.strike = paladin.RegisterSpell(strikeConfig)
 
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
 	vigil.strike.RelatedAuraArrays = vigil.auras.ToMap()
 
-	paladin.RegisterSpell(core.SpellConfig{
-		ActionID:       core.ActionID{SpellID: rank.ID},
-		SpellSchool:    rank.SpellSchool(),
-		DefenseType:    rank.DefenseTypeCore(),
-		ProcMask:       core.ProcMaskEmpty,
-		Flags:          core.SpellFlagAPL,
-		ClassSpellMask: SpellMaskLightsVigil,
-		Rank:           rank.RankNumber(),
-		MaxRange:       float64(rank.MaxRange),
-
-		ManaCost: manaCost(rank),
-		Cast: core.CastConfig{
-			DefaultCast: core.Cast{
-				GCD:      rank.GCD(),
-				CastTime: rank.CastTime(),
-			},
-			CD: core.Cooldown{
-				Timer:    paladin.sharedTimer(&paladin.lightsVigilTimer),
-				Duration: cooldown(rank),
-			},
-		},
-
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			vigil.cost = spell.CurCast.Cost
-			// One vigil per paladin: a new one replaces whatever was up.
-			for _, other := range paladin.lightsVigils {
-				for _, aura := range other.auras {
-					if aura != nil && aura.IsActive() {
-						aura.Deactivate(sim)
-					}
+	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ClassSpellMask = SpellMaskLightsVigil
+	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
+		castTime := paladin.ApplyCastSpeedForSpell(cast.CastTime, spell)
+		paladin.AutoAttacks.StopMeleeUntil(sim, sim.CurrentTime+castTime)
+	}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		vigil.cost = spell.CurCast.Cost
+		// One vigil per paladin: a new one replaces whatever was up.
+		for _, other := range paladin.lightsVigils {
+			for _, aura := range other.auras {
+				if aura != nil && aura.IsActive() {
+					aura.Deactivate(sim)
 				}
 			}
-			vigil.auras.Get(target).Activate(sim)
-		},
-
-		RelatedAuraArrays: vigil.auras.ToMap(),
-	})
+		}
+		vigil.auras.Get(target).Activate(sim)
+	}
+	config.RelatedAuraArrays = vigil.auras.ToMap()
+	paladin.RegisterSpell(config)
 
 	vigil.consume = func(sim *core.Simulation, target *core.Unit) {
 		vigil.auras.Get(target).Deactivate(sim)

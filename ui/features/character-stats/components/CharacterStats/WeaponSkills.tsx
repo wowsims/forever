@@ -55,6 +55,9 @@ export const WeaponSkills = ({ mode }: WeaponSkillsProps) => {
 	const player = usePlayer();
 	const { displayWeaponSkillGroups } = useSpecConfig();
 	const weaponSkills = usePlayerStore('weaponSkills');
+	// The sim's full skill, gear and buffs included, once it has computed the stats; the stated skill before.
+	const finalSkills = usePlayerStore('currentStats')?.weaponSkills;
+	const displayed = finalSkills?.length ? finalSkills : weaponSkills;
 	const classSkills = getClassWeaponSkills(player.getClass());
 	const keySkills = weaponSkillsInGroups(displayWeaponSkillGroups ?? []);
 	const shown = mode === 'all' ? classSkills : classSkills.filter(skill => keySkills.includes(skill));
@@ -67,7 +70,7 @@ export const WeaponSkills = ({ mode }: WeaponSkillsProps) => {
 		return {
 			skill,
 			label,
-			value: weaponSkillValue(weaponSkills, skill),
+			value: weaponSkillValue(displayed, skill),
 			bonusLink: <BonusLink label={bonusLabel} picker={onCommit => <WeaponSkillPicker skill={skill} label={bonusLabel} onCommit={onCommit} />} />,
 		};
 	});

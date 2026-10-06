@@ -1,3 +1,4 @@
+import { PlayerStats } from '@generated/proto/api';
 import { Class, WeaponSkill, type WeaponSkillValue } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateWeaponSkill } from '@i18n/localization';
@@ -14,9 +15,10 @@ import { WeaponSkills } from './WeaponSkills';
 const KEY = 3;
 
 // The Player's own setters run against a seeded slice; its constructor needs a whole sim behind it.
-const renderForPaladin = (weaponSkills: Array<WeaponSkillValue> = []) => {
+const renderForPaladin = (weaponSkills: Array<WeaponSkillValue> = [], finalSkills?: Array<WeaponSkillValue>) => {
 	const store = createSimStore();
-	seedKeyed(store, 'players', KEY, { weaponSkills, v: zeroVersions(PLAYER_FIELDS) } as unknown as PlayerSlice);
+	const currentStats = finalSkills ? PlayerStats.create({ weaponSkills: finalSkills }) : undefined;
+	seedKeyed(store, 'players', KEY, { weaponSkills, currentStats, v: zeroVersions(PLAYER_FIELDS) } as unknown as PlayerSlice);
 	const player = Object.assign(Object.create(Player.prototype), { sim: { store }, storeKey: KEY, playerSpec: { classID: Class.ClassPaladin } });
 	renderWithHost(
 		<Accordion value={['weapon-skill']} onValueChange={() => {}}>
@@ -53,6 +55,19 @@ describe('WeaponSkills', () => {
 		renderForPaladin();
 
 		for (const skill of getClassWeaponSkills(Class.ClassPaladin)) expect(shown(skill)).toEqual({ value: '300', tone: 'neutral' });
+	});
+
+	it("shows the sim's full skill once it has computed the stats, the gear's bonus on top of the stated one", () => {
+		renderForPaladin(
+			[{ skill: WeaponSkill.WeaponSkillMaces, value: 302 }],
+			[
+				{ skill: WeaponSkill.WeaponSkillMaces, value: 306 },
+				{ skill: WeaponSkill.WeaponSkillSwords, value: 300 },
+			],
+		);
+
+		expect(shown(WeaponSkill.WeaponSkillMaces)).toEqual({ value: '306', tone: 'positive' });
+		expect(shown(WeaponSkill.WeaponSkillSwords)).toEqual({ value: '300', tone: 'neutral' });
 	});
 
 	it.each([
