@@ -13,7 +13,7 @@ func (druid *Druid) registerWrathSpell() {
 	config.ClassSpellMask = DruidSpellWrath
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, wrathDamage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, wrathDamage.Average(), spell.OutcomeMagicHitAndCrit)
 
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 			spell.DealDamage(sim, result)

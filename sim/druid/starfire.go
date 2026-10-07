@@ -16,7 +16,7 @@ func (druid *Druid) registerStarfireSpell(rankConfig *spelldata.Spell) {
 	config.ClassSpellMask = DruidSpellStarfire
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 
 	druid.Starfire = append(druid.Starfire, druid.RegisterSpell(config))
