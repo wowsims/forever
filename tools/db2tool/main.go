@@ -295,6 +295,13 @@ func run(args []string) error {
 			fmt.Fprintf(os.Stderr, "db2tool: warning: no DBCache.bin for build %d found under %s or %s; continuing without the overlay\n", buildNumber, settings.Settings.BaseDir, filepath.Join(toolHome, "caches"))
 		}
 	}
+	var hotfixPush int32
+	if hotfixReader != nil {
+		hotfixPush = hotfixReader.HighestPush()
+		fmt.Printf("Hotfixes: build %d up to push %d\n", buildNumber, hotfixPush)
+	} else {
+		fmt.Printf("Hotfixes: none applied for build %d\n", buildNumber)
+	}
 
 	// decodeTable opens a table, decodes it against its definition for this
 	// build and overlays the hotfixes.
@@ -386,7 +393,7 @@ func run(args []string) error {
 			return err
 		}
 	}
-	if err := sqlite.WriteBuildInfo(db, version, settings.Settings.Product); err != nil {
+	if err := sqlite.WriteBuildInfo(db, version, settings.Settings.Product, hotfixPush); err != nil {
 		return err
 	}
 

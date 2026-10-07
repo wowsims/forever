@@ -2,9 +2,11 @@ package database
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"strings"
@@ -323,6 +325,37 @@ func TestARunRefusesGroupsOnALaterBuild(t *testing.T) {
 	}
 	if got := groupsOnALaterBuild(in, nil, "1.60.1.70300"); len(got) != 0 {
 		t.Errorf("later groups = %q, want none against a later database", got)
+	}
+}
+
+func TestARunRefusesADatabaseBehindOnHotfixes(t *testing.T) {
+	builds := map[string]string{"warrior": "new", "mage": "old", groupItems: "new"}
+	hotfixes := map[string]int32{"warrior": 112426, "mage": 112426}
+	err := checkHotfixes(builds, hotfixes, nil, "new", 112405)
+	if err == nil || !strings.Contains(err.Error(), "warrior (push 112426)") || strings.Contains(err.Error(), "mage") {
+		t.Errorf("err = %v, want the warrior refused and mage, on another build, left out", err)
+	}
+	for _, push := range []int32{112426, 112500} {
+		if err := checkHotfixes(builds, hotfixes, nil, "new", push); err != nil {
+			t.Errorf("push %d: %v, want it taken", push, err)
+		}
+	}
+	if err := checkHotfixes(builds, hotfixes, groupsOf(t, "druid"), "new", 112405); err != nil {
+		t.Errorf("%v, want the items, which record no push, and the untaken warrior to pass", err)
+	}
+}
+
+func TestHotfixPushOfADatabaseWithoutTheColumnIsZero(t *testing.T) {
+	db, err := sql.Open("sqlite", filepath.Join(t.TempDir(), "old.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if _, err := db.Exec(`CREATE TABLE BuildInfo (Version TEXT NOT NULL, Product TEXT NOT NULL); INSERT INTO BuildInfo VALUES ('1.60.1.70235', 'wow_classic_beta')`); err != nil {
+		t.Fatal(err)
+	}
+	if push, err := hotfixPush(&DBHelper{db: db}); err != nil || push != 0 {
+		t.Errorf("push = %d, %v, want 0", push, err)
 	}
 }
 

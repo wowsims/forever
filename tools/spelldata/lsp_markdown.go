@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -44,10 +46,66 @@ func familyMarkdown(f *ladderFamily) string {
 
 func exprMarkdown(result *exprResult, hover chainHover) string {
 	var md strings.Builder
+
 	c := result.card()
 	called := ""
 	if n := len(hover.chain.segments); n > 0 {
 		called = hover.chain.segments[n-1].text(true)
+	}
+
+	// Only show the rank selector when the cursor is actually on the
+	// rank parameter itself. Expressions which resolve through rank still
+	// use the selected virtual rank, but do not show the selector again.
+	showRankSelector := hover.rank != nil &&
+		hover.name == hover.rank.parameter
+
+	if showRankSelector && result.family != nil {
+		selectedRank := int32(result.family.ladder.Len())
+
+		if hover.rank.rank > 0 {
+			selectedRank = hover.rank.rank
+		}
+
+		fmt.Fprintf(
+			&md,
+			"**Rank:** **%d** / %d\n\n",
+			selectedRank,
+			result.family.ladder.Len(),
+		)
+
+		for rank := int32(1); rank <= int32(result.family.ladder.Len()); rank++ {
+			args, _ := json.Marshal(map[string]any{
+				"parameter": hover.rank.parameter,
+				"function":  hover.rank.function,
+				"rank":      rank,
+			})
+
+			if rank > 1 {
+				md.WriteString(" ")
+			}
+
+			if rank == selectedRank {
+				fmt.Fprintf(&md, "**[%d]**", rank)
+			} else {
+				fmt.Fprintf(
+					&md,
+					"[%d](command:wowsims-spelldata.changeRank?%s)",
+					rank,
+					url.QueryEscape(string(args)),
+				)
+			}
+		}
+
+		md.WriteString("\n\n")
+	}
+
+	// Accessors on a Ladder.Each virtual rank should render only the
+	// resolved spell/rank heading and the value under the cursor.
+	// The full spell card and evaluation trail are redundant here.
+	if hover.rank != nil && hover.parameter != nil && len(hover.chain.segments) > 0 {
+		fmt.Fprintf(&md, "### %s\n\n", c.heading())
+		fmt.Fprintf(&md, "`%s` = **%s**\n\n", called, result.value)
+		return md.String()
 	}
 
 	switch result.kind {
@@ -73,9 +131,18 @@ func exprMarkdown(result *exprResult, hover chainHover) string {
 		if hover.name != "" {
 			label = hover.name
 		}
-		fmt.Fprintf(&md, "`%s` = **%s**\n\n", label, result.value)
-		fmt.Fprintf(&md, "`%s`\n\n", result.trail)
-		c.writeMarkdown(&md)
+
+		if hover.name == "" {
+			c.writeMarkdown(&md)
+			md.WriteString("\n")
+			fmt.Fprintf(&md, "`%s` = **%s**\n\n", label, result.value)
+			fmt.Fprintf(&md, "`%s`\n", result.trail)
+		} else {
+			fmt.Fprintf(&md, "`%s` = **%s**\n\n", label, result.value)
+			fmt.Fprintf(&md, "`%s`\n\n", result.trail)
+			c.writeMarkdown(&md)
+		}
 	}
+
 	return md.String()
 }

@@ -153,6 +153,19 @@ func (h *HotfixReader) Combine(other *HotfixReader) {
 	}
 }
 
+// The highest server push among the records, the hotfix level the reader brings; 0 when it holds
+// none. Push -1 marks a row the game cached on demand, and ids from 0x01000000 up are synthetic ones
+// given to on-demand rows, so neither counts.
+func (h *HotfixReader) HighestPush() int32 {
+	var highest int32
+	for i := range h.records {
+		if push := h.records[i].PushID; push > 0 && push < 0x01000000 {
+			highest = max(highest, push)
+		}
+	}
+	return highest
+}
+
 // CombineHotfixFiles parses each file in order into readers keyed by BuildId:
 // the first file seen for a build becomes its base reader and later files
 // Combine into it.

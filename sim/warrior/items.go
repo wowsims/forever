@@ -39,8 +39,9 @@ var ItemSetBattlegearOfMight = core.NewItemSet(core.ItemSet{
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
 			// The row states A_ADD_PCT_MODIFIER on the threat, which the parse maps to
 			// SpellMod_ThreatMultiplier_Pct: that scales the threat a spell's damage makes, and
-			// Sunder Armor deals none - all of its threat is the flat bonus. So only the amount
-			// and the spells it names come off the row.
+			// Sunder Armor deals none. All of its threat is the flat bonus and its attack power
+			// share, which SpellMod_FlatThreatBonus_Pct scales together, so only the amount and the
+			// spells it names come off the row.
 			setBonusAura.AttachSpellMod(core.SpellModConfig{
 				ClassFlags: mightSunderThreat.EffectN(1).ClassFlags,
 				Kind:       core.SpellMod_FlatThreatBonus_Pct,

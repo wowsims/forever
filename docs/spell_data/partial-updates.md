@@ -66,16 +66,24 @@ While the inputs record one game build, a run that names no groups takes all of 
 regeneration. Once a partial update leaves groups on different builds, such a run takes only the
 groups on the database's build and prints the rest, so `make db`, `make spelldata` or the
 `all_items.go` rule never moves a class that has not been ported. The inputs record the game build each
-group was taken from (`Builds`, read from the `BuildInfo` table `db2tool` writes) and the roots of
-each group (`SpellDataGroupRoots`). The next partial update keeps the other groups by those roots. A racial row on a
+group was taken from (`Builds`), the highest hotfix push it was taken with (`Hotfixes`), both read
+from the `BuildInfo` table `db2tool` writes, and the roots of each group (`SpellDataGroupRoots`). The next partial update keeps the other groups by those roots. A racial row on a
 different build from the class whose flags it states is printed as a warning.
 
 `-check` renders the groups whose recorded build is the database's and compares those. A group on
 another build is printed as not ported and does not fail the check. Its class file is not compared,
-since only its own build could render it. Items are always compared. Hotfixes within one game
-build are not recorded, so a re-extraction that picked up new ones fails `-check` on the current groups
-until they are regenerated. Inputs that record no groups are split the way the database splits the
-same ids, and a root that names no group there is printed as adopted into `shared`.
+since only its own build could render it. Items are always compared. A re-extraction that picked up
+new hotfixes fails `-check` on the current groups until they are regenerated. Inputs that record no
+groups are split the way the database splits the same ids, and a root that names no group there is
+printed as adopted into `shared`.
+
+A database extracted with older hotfixes than the inputs record is refused. When a group the run
+takes is on the database's game build and records a higher push than the database's, `gen_spelldata`
+(`-check` included) stops before writing anything and names the groups, and `gen_db` does the same
+for the groups it takes, `items` always among them. Taking such a database would drop every row
+only a later hotfix adds. Log into the game to refresh `DBCache.bin`, or pass a newer cache with
+`make db DB2TOOL_FLAGS="--dbcache path/to/DBCache.bin"`, and run `make db` again. No flag skips the
+check. `db2tool` prints the push it applied as `Hotfixes: build 70235 up to push 112426`.
 
 Two pull requests that each take a class both rewrite the store and the gzipped inputs. Resolve the
 conflict by taking the base branch's copies and running `gen_spelldata -classes=<class>` again; the merge
@@ -127,20 +135,24 @@ items and leaves every class, the racials and the shared rows on their committed
 Hotfixes workflow dispatches it every hour that the hotfix cache changed; a pull request with the
 hotfixes applied that passes every test is merged and deployed without review.
 
-`db2tool` writes the `BuildInfo` table on every extraction. In offline mode pass the full version,
-`--build 1.60.1.70170`; a bare build number is recorded as given, with a warning. Stamp a database
-extracted without `BuildInfo` instead of extracting it again, since a new extraction can pick up hotfixes
-the committed rows do not have:
+`db2tool` writes the `BuildInfo` table on every extraction: the game build, the product and
+`HotfixPush`, the highest hotfix push it applied (0 when it applied none, as in offline mode without
+`--dbcache` or with `--no-hotfixes`). In offline mode pass the full version, `--build 1.60.1.70170`;
+a bare build number is recorded as given, with a warning. Stamp a database extracted without
+`BuildInfo` instead of extracting it again, since a new extraction can pick up hotfixes the committed
+rows do not have. Stamp the push `db2tool` printed for that extraction, or 0 when it is not known; a
+database whose `BuildInfo` has no `HotfixPush` column reads as 0:
 
 ```
-sqlite3 tools/database/wowsims.db "CREATE TABLE BuildInfo (Version TEXT NOT NULL, Product TEXT NOT NULL); INSERT INTO BuildInfo VALUES ('1.60.1.70170','wow_classic_beta');"
+sqlite3 tools/database/wowsims.db "CREATE TABLE BuildInfo (Version TEXT NOT NULL, Product TEXT NOT NULL, HotfixPush INTEGER NOT NULL); INSERT INTO BuildInfo VALUES ('1.60.1.70235','wow_classic_beta',112426);"
 sqlite3 tools/database/wowsims.db "SELECT * FROM BuildInfo"
 ```
 
-The build each spell data group is on, and the conflict resolution between two class pull requests:
+The build and hotfix push each spell data group is on, and the conflict resolution between two class
+pull requests:
 
 ```
-zcat assets/db_inputs/spell_store_inputs.json | python3 -c "import json,sys; print(json.load(sys.stdin)['Builds'])"
+zcat assets/db_inputs/spell_store_inputs.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['Builds'], d.get('Hotfixes'))"
 
 git checkout origin/master -- sim/core/spelldata/spells_auto_gen.go assets/db_inputs/spell_store_inputs.json
 go run ./tools/database/gen_spelldata -classes=mage

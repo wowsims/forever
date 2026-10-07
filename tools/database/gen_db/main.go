@@ -85,6 +85,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "talent files kept, not ported: %s\n", line)
 	}
 
+	// The item database and the talent files of the groups taken are written from the database, so one
+	// behind the committed inputs in hotfixes would drop the items and talents only a hotfix adds.
+	if err := database.RequireCommittedHotfixes(helper, only); err != nil {
+		log.Fatalf("hotfixes: %v", err)
+	}
+
 	if err := database.RunOverrides(helper, "tools/database/overrides"); err != nil {
 		log.Fatalf("failed to run overrides: %v", err)
 	}

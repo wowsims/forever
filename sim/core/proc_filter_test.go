@@ -6,32 +6,35 @@ import "testing"
 // or outcome check. Rows are the hitting spell, columns the listener.
 func TestProcTriggerEligibility(t *testing.T) {
 	triggers := []struct {
-		name  string
-		flags SpellFlag
+		name     string
+		procMask ProcMask
+		flags    SpellFlag
 	}{
-		{"auto attack", SpellFlagNone},
-		{"ability", SpellFlagNone},
-		{"proc", SpellFlagProc},
-		{"proc suppressing weapon procs", SpellFlagProc | SpellFlagSuppressWeaponProcs},
-		{"ability suppressing weapon procs", SpellFlagSuppressWeaponProcs},
+		{"auto attack", ProcMaskMeleeMHAuto, SpellFlagNone},
+		{"ability", ProcMaskMeleeMHSpecial, SpellFlagNone},
+		{"proc", ProcMaskMeleeMHSpecial, SpellFlagProc},
+		{"proc suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagProc | SpellFlagSuppressWeaponProcs},
+		{"ability suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagSuppressWeaponProcs},
+		{"item proc's damage", ProcMaskEmpty, SpellFlagProc},
+		{"spell", ProcMaskSpellDamage, SpellFlagNone},
 	}
 	listeners := []struct {
 		name   string
 		config ProcTrigger
 		// One expectation per trigger above.
-		want [5]bool
+		want [7]bool
 	}{
-		{"aura", ProcTrigger{}, [5]bool{true, true, false, false, true}},
-		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, [5]bool{true, true, true, true, true}},
-		{"weapon proc", ProcTrigger{IsWeaponProc: true}, [5]bool{true, true, true, false, false}},
-		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, [5]bool{true, true, false, false, false}},
+		{"aura", ProcTrigger{}, [7]bool{true, true, false, false, true, false, true}},
+		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, [7]bool{true, true, true, true, true, true, true}},
+		{"weapon proc", ProcTrigger{IsWeaponProc: true}, [7]bool{true, true, true, false, false, false, false}},
+		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, [7]bool{true, true, false, false, false, false, true}},
 	}
 
 	for _, listener := range listeners {
 		for i, trigger := range triggers {
 			unit := &Unit{}
 			aura := &Aura{Unit: unit}
-			spell := &Spell{ProcMask: ProcMaskMeleeMHSpecial, Flags: trigger.flags}
+			spell := &Spell{ProcMask: trigger.procMask, Flags: trigger.flags}
 			result := &SpellResult{Outcome: OutcomeHit}
 			fired := false
 

@@ -47,6 +47,9 @@ func (warrior *Warrior) registerExecute() {
 	config := spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Flags(core.SpellFlagNoOnCastComplete))
 	config.ClassSpellMask = SpellMaskExecute
 
+	otherConfig := spelldata.SpellConfig(&warrior.Unit, executeRank)
+	otherConfig.ClassSpellMask = SpellMaskExecute
+
 	ww := spelldata.SpellConfig(&warrior.Unit, spellData.Whirlwind.Highest(),
 		spelldata.Melee(core.ProcMaskMeleeOHSpecial), // the off hand
 		spelldata.Proc(), spelldata.Tag(2))
@@ -55,24 +58,52 @@ func (warrior *Warrior) registerExecute() {
 }
 `
 
+const spellConfigAssignmentsGo = `package priest
+
+var holyFireRank = spellData.HolyFire.Rank(8)
+
+func (priest *Priest) registerHolyFire() {
+	config := spelldata.SpellConfig(&priest.Unit, holyFireRank, spelldata.Magic(core.ProcMaskSpellDamage))
+
+	config.Dot = spelldata.DotConfig(holyFireRank, holyFireRank)
+	config.Dot.Aura.Tag = "Holy Fire"
+	config.Dot.OnTick = spelldata.PeriodicDamageTick(holyFireRank, holyFireRank.TickOutcomeHitRolled)
+
+	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		return spell.CalcDamage(sim, target, 100, spell.OutcomeExpectedMagicHitAndCrit)
+	}
+
+	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
+		return spell.CalcPeriodicDamage(sim, target, 50, spell.OutcomeExpectedMagicAlwaysHit)
+	}
+}`
+
 func TestHoverSpellConfig(t *testing.T) {
 	markdown, trace, ok := hoverOn(t, newWorkspace(), executeConfigGo, warriorURI(t, "execute.go"), "SpellConfig(&warrior.Unit, executeRank, spelldata.Melee", 3)
 	if !ok {
 		t.Fatalf("no hover:\n%s", strings.Join(trace, "\n"))
 	}
 	for _, want := range []string{
-		"`SpellConfig` of 20662 Execute (Rank 5)\n\n`spellData.Execute.Highest()`",
-		"---\n| field | value | from |",
-		"| **ActionID** | `SpellID 20662` | row |",
-		"| **Rank** | `5` | row |",
-		"| **SpellSchool** | `SpellSchoolPhysical` | row |",
-		"| **DefenseType** | `DefenseTypeMelee` | row |",
+		"`SpellConfig` of 20662 Execute (Rank 5)",
+		"`20662 Execute (Rank 5)`",
+		"| **ActionID** | `SpellID 20662` | SpellData · 20662 Execute (Rank 5) |",
+		"| **Rank** | `5` | SpellData · 20662 Execute (Rank 5) |",
+		"| **SpellSchool** | `SpellSchoolPhysical` | SpellData · 20662 Execute (Rank 5) |",
+		"| **DefenseType** | `DefenseTypeMelee` | SpellData · 20662 Execute (Rank 5) |",
+		"| **Flags** | `SpellFlagMeleeMetrics \\| SpellFlagNoOnCastComplete \\| SpellFlagAPL` | Melee(ProcMaskMeleeMHSpecial), Flags(SpellFlagNoOnCastComplete) |",
 		"| **ProcMask** | `ProcMaskMeleeMHSpecial` | Melee(ProcMaskMeleeMHSpecial) |",
-		"| **Cast.DefaultCast.GCD** | `1.5s` | row |",
-		"| **RageCost.Cost** | `15` | row |",
+		"| **Cast.DefaultCast.GCD** | `1.5s` | SpellData · 20662 Execute (Rank 5) |",
+		"| **Cast.IgnoreHaste** | `true` | SpellData · 20662 Execute (Rank 5) |",
+		"| **RageCost.Cost** | `15` | SpellData · 20662 Execute (Rank 5) |",
+		"| **RageCost.Refund** | `0.8` | SpellData · 20662 Execute (Rank 5) |",
 		"| **DamageMultiplier** | `1` | Melee(ProcMaskMeleeMHSpecial) |",
-		"| **MaxRange** | `5` | row |",
-		"Assignments to the config after the call are not folded in.",
+		"| **ThreatMultiplier** | `1` | Melee(ProcMaskMeleeMHSpecial) |",
+		"| **MaxRange** | `5` | SpellData · 20662 Execute (Rank 5) |",
+		"| **ClassFlags** | `family 4 mask 0x20000000` | SpellData · 20662 Execute (Rank 5) |",
+		"| **CastRequirement.Forms** | `0x50000 (Battle, Berserker)` | SpellData · 20662 Execute (Rank 5) |",
+		"| **CastRequirement.NotShapeshifted** | `true` | SpellData · 20662 Execute (Rank 5) |",
+		"| **CastRequirement.Weapon.SubclassMask** | `173555 (melee weapon)` | SpellData · 20662 Execute (Rank 5) |",
+		"| **CastRequirement.Weapon.Hand** | `ProcMaskMeleeMHAuto \\| ProcMaskMeleeMHSpecial` | SpellData · 20662 Execute (Rank 5) |",
 	} {
 		if !strings.Contains(markdown, want) {
 			t.Errorf("the hover lacks %q:\n%s", want, markdown)
@@ -100,13 +131,40 @@ func TestHoverSpellConfig(t *testing.T) {
 	}
 }
 
+func TestHoverSpellConfigLocalVariable(t *testing.T) {
+	markdown, trace, ok := hoverOn(
+		t,
+		newWorkspace(),
+		executeConfigGo,
+		warriorURI(t, "execute.go"),
+		"otherConfig := spelldata.SpellConfig",
+		len("otherConfig"),
+	)
+	if !ok {
+		t.Fatalf("no hover:\n%s", strings.Join(trace, "\n"))
+	}
+
+	for _, want := range []string{
+		"`SpellConfig` of 20662 Execute (Rank 5)",
+		"| **ActionID** | `SpellID 20662` | SpellData · 20662 Execute (Rank 5) |",
+		"| **Rank** | `5` | SpellData · 20662 Execute (Rank 5) |",
+		"### Assigned later",
+		"| field | value | source |",
+		"| **ClassSpellMask** | `SpellMaskExecute` | [10](",
+	} {
+		if !strings.Contains(markdown, want) {
+			t.Errorf("the hover lacks %q:\n%s", want, markdown)
+		}
+	}
+}
+
 func TestHoverSpellConfigAcrossLines(t *testing.T) {
 	markdown, trace, ok := hoverOn(t, newWorkspace(), executeConfigGo, warriorURI(t, "execute.go"), "SpellConfig(&warrior.Unit, spellData.Whirlwind", 3)
 	if !ok {
 		t.Fatalf("no hover:\n%s", strings.Join(trace, "\n"))
 	}
 	for _, want := range []string{
-		"| **ActionID** | `SpellID 1680, Tag 2` | row, Tag(2) |",
+		"| **ActionID** | `SpellID 1680, Tag 2` | SpellData · 1680 Whirlwind, Tag(2) |",
 		"| **ProcMask** | `ProcMaskMeleeOHSpecial` | Melee(ProcMaskMeleeOHSpecial) |",
 		"SpellFlagPassiveSpell",
 		"Proc()",
@@ -144,7 +202,7 @@ func TestConfigText(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := out.String()
-	for _, want := range []string{"SpellConfig of 20662 Execute (Rank 5)\n", "ProcMaskMeleeMHSpecial", "Melee(ProcMaskMeleeMHSpecial)", configFootnote} {
+	for _, want := range []string{"SpellConfig of 20662 Execute (Rank 5)\n", "ProcMaskMeleeMHSpecial", "Melee(ProcMaskMeleeMHSpecial)"} {
 		if !strings.Contains(text, want) {
 			t.Errorf("-config lacks %q:\n%s", want, text)
 		}
@@ -158,7 +216,7 @@ func TestConfigCastRequirement(t *testing.T) {
 	}{
 		{"warrior", "ShieldBash", []string{"CastRequirement.Forms  ", "0x30000 (Battle, Defensive)", "CastRequirement.NotShapeshifted", "CastRequirement.Shield  "}},
 		{"warrior", "Charge", []string{"CastRequirement.Forms  ", "0x10000 (Battle)", "CastRequirement.NotInCombat  "}},
-		{"warrior", "SpearingStrike", []string{"173555 (melee weapon)", "ProcMaskMeleeMHAuto | ProcMaskMeleeMHSpecial"}},
+		{"warrior", "SpearingStrike", []string{"1378 (two-handed axe, two-handed mace, polearm, two-handed sword or staff)", "ProcMaskMeleeMHAuto | ProcMaskMeleeMHSpecial"}},
 		{"hunter", "AimedShot", []string{"CastRequirement.Weapon.SubclassMask", "262156 (bow, gun or crossbow)"}},
 		{"druid", "Wrath", []string{"0x40000000 (Moonkin)", "CastRequirement.ExcludedForms", "0x2 (Tree of Life)", "CastRequirement.CasterForm  "}},
 	} {
@@ -172,5 +230,33 @@ func TestConfigCastRequirement(t *testing.T) {
 				t.Errorf("-config %s lacks %q:\n%s", c.family, want, out.String())
 			}
 		}
+	}
+}
+
+func TestHoverSpellConfigIncludesLaterAssignments(t *testing.T) {
+	markdown, trace, ok := hoverOn(
+		t,
+		newWorkspace(),
+		executeConfigGo,
+		warriorURI(t, "execute.go"),
+		"config := spelldata.SpellConfig",
+		3,
+	)
+	if !ok {
+		t.Fatalf("no hover:\n%s", strings.Join(trace, "\n"))
+	}
+
+	for _, want := range []string{
+		"### Assigned later",
+		"| field | value | source |",
+		"| **ClassSpellMask** | `SpellMaskExecute` | [7](",
+	} {
+		if !strings.Contains(markdown, want) {
+			t.Errorf("the hover lacks %q:\n%s", want, markdown)
+		}
+	}
+
+	if strings.Contains(markdown, "Assignments to the config after the call are not folded in.") {
+		t.Errorf("old assignment footnote is still present:\n%s", markdown)
 	}
 }

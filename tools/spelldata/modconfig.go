@@ -82,7 +82,7 @@ func modFieldValue(expr ast.Expr, want reflect.Type, declarations map[string]dec
 
 	value, err := evalConst(expr)
 	if err != nil {
-		_, read, err := evalDeclaredExpr(expr, declarations, pkg, trace)
+		_, read, err := evalDeclaredExpr(expr, declarations, pkg, trace, nil)
 		if err != nil {
 			return reflect.Value{}, err
 		}

@@ -92,24 +92,26 @@ type configRow struct {
 }
 
 type configResult struct {
-	spell   *spelldata.Spell
-	pick    string
-	rows    []configRow
-	skipped []configOption
+	spell         *spelldata.Spell
+	pick          string
+	rows          []configRow
+	skipped       []configOption
+	missing       []string
+	assignedLater []configAssignment
 }
 
-func evalSpellConfig(expr *ast.CallExpr, declarations map[string]declaration, pkg string, trace *tracer) (*configResult, error) {
+func evalSpellConfig(expr *ast.CallExpr, declarations map[string]declaration, pkg string, trace *tracer, virtual *virtualRank) (*configResult, error) {
 	if len(expr.Args) < 2 {
 		return nil, fmt.Errorf("%s is not a SpellConfig call with a row", types.ExprString(expr))
 	}
 
-	s, pick, err := configPick(expr.Args[1], declarations, pkg, trace)
+	s, pick, err := configPick(expr.Args[1], declarations, pkg, trace, virtual)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &configResult{spell: s, pick: pick}
-	labels := []string{"row"}
+	labels := []string{fmt.Sprintf("SpellData · %s", title(s))}
 	var opts []spelldata.SpellOpt
 	for _, arg := range expr.Args[2:] {
 		option := readOption(arg)
@@ -128,36 +130,82 @@ func evalSpellConfig(expr *ast.CallExpr, declarations map[string]declaration, pk
 		stages = append(stages, spelldata.SpellConfig(&core.Unit{}, s, opts[:i]...))
 	}
 	result.rows = attribute(stages, labels)
+	result.missing = missingConfigFields(&stages[len(stages)-1])
 	return result, nil
 }
 
-func configPick(arg ast.Expr, declarations map[string]declaration, pkg string, trace *tracer) (*spelldata.Spell, string, error) {
+func configPick(arg ast.Expr, declarations map[string]declaration, pkg string, trace *tracer, virtual *virtualRank) (*spelldata.Spell, string, error) {
 	trace.add("  row %s", types.ExprString(arg))
-	c, result, err := evalDeclaredExpr(arg, declarations, pkg, trace)
+	_, result, err := evalDeclaredExpr(arg, declarations, pkg, trace, virtual)
 	if err != nil {
 		return nil, "", err
 	}
 	if result.kind != kindSpell {
 		return nil, "", fmt.Errorf("%s reads a %s, not a row", types.ExprString(arg), result.kind)
 	}
-	return result.spell, c.text(false), nil
+	return result.spell, title(result.spell), nil
 }
 
 // A chain of the store's accessors, resolved through the package's declarations and evaluated.
-func evalDeclaredExpr(expr ast.Expr, declarations map[string]declaration, pkg string, trace *tracer) (*chain, *exprResult, error) {
+func evalDeclaredExpr(expr ast.Expr, declarations map[string]declaration, pkg string, trace *tracer, virtual *virtualRank) (*chain, *exprResult, error) {
 	c, err := walkChain(expr, func(token.Pos) int { return 0 })
 	if err != nil {
 		return nil, nil, err
 	}
-	c, err = resolveChain(c, declarations, trace)
+
+	if virtual != nil {
+		// Preserve the virtual parameter as the root of the expression.
+		// This matters not only for "rank" itself, but also for aliases such
+		// as "holyFireHit" whose declaration eventually resolves through rank.
+		resolved, err := resolveToVirtual(c, declarations, virtual.parameter, trace)
+		if err != nil {
+			return nil, nil, err
+		}
+		c = resolved
+	} else {
+		c, err = resolveChain(c, declarations, trace)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	result, err := evalExpr(ladderFamilies(), c, pkg, virtual)
 	if err != nil {
 		return nil, nil, err
 	}
-	result, err := evalExpr(ladderFamilies(), c, pkg)
-	if err != nil {
-		return nil, nil, err
-	}
+
 	return c, result, nil
+}
+
+func resolveToVirtual(c *chain, declarations map[string]declaration, parameter string, trace *tracer) (*chain, error) {
+	if c.root.name == parameter {
+		return c, nil
+	}
+
+	if c.rooted() {
+		return c, nil
+	}
+
+	name := c.root.name
+	bound, ok := declarations[name]
+	if !ok {
+		if isFamilyName(name) {
+			return &chain{root: root{family: name}, segments: c.segments}, nil
+		}
+		return nil, fmt.Errorf("no ladder-shaped declaration of %s in the package", name)
+	}
+
+	trace.add("  %s = %s  (%s:%d)", name, bound.chain.text(false), trace.rel(bound.file), bound.line)
+
+	head, err := resolveToVirtual(bound.chain, declarations, parameter, trace)
+	if err != nil {
+		return nil, err
+	}
+
+	return &chain{
+		root:     head.root,
+		segments: append(slices.Clip(head.segments), c.segments...),
+	}, nil
 }
 
 type configField struct {
@@ -211,6 +259,8 @@ var configFields = []configField{
 	{name: "FocusCost.Refund", read: func(c *core.SpellConfig) string { return nonZero(c.FocusCost.Refund, floatText) }},
 	{name: "DamageMultiplier", read: func(c *core.SpellConfig) string { return nonZero(c.DamageMultiplier, floatText) }},
 	{name: "ThreatMultiplier", read: func(c *core.SpellConfig) string { return nonZero(c.ThreatMultiplier, floatText) }},
+	{name: "FlatThreatBonus", read: func(c *core.SpellConfig) string { return nonZero(c.FlatThreatBonus, floatText) }},
+	{name: "ThreatAPCoefficient", read: func(c *core.SpellConfig) string { return nonZero(c.ThreatAPCoefficient, floatText) }},
 	{name: "BonusCoefficient", read: func(c *core.SpellConfig) string { return nonZero(c.BonusCoefficient, floatText) }},
 	{name: "MinRange", read: func(c *core.SpellConfig) string { return nonZero(c.MinRange, floatText) }},
 	{name: "MaxRange", read: func(c *core.SpellConfig) string { return nonZero(c.MaxRange, floatText) }},
@@ -231,6 +281,65 @@ var configFields = []configField{
 	{name: "CastRequirement.Weapon.Hand", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.Weapon.Hand, procMaskNames) }},
 	{name: "CastRequirement.Shield", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.Shield, boolText) }},
 	{name: "CastRequirement.NotInCombat", read: func(c *core.SpellConfig) string { return nonZero(c.CastRequirement.NotInCombat, boolText) }},
+}
+
+func missingConfigFields(config *core.SpellConfig) []string {
+	var missing []string
+
+	if config.ApplyEffects == nil {
+		missing = append(missing, "ApplyEffects")
+	}
+	if config.ExpectedInitialDamage == nil {
+		missing = append(missing, "ExpectedInitialDamage")
+	}
+	if config.ExpectedTickDamage == nil {
+		missing = append(missing, "ExpectedTickDamage")
+	}
+	if config.ExtraCastCondition == nil {
+		missing = append(missing, "ExtraCastCondition")
+	}
+
+	if reflect.ValueOf(config.Dot).IsZero() {
+		missing = append(missing, "Dot")
+	}
+	if reflect.ValueOf(config.Hot).IsZero() {
+		missing = append(missing, "Hot")
+	}
+	if reflect.ValueOf(config.Shield).IsZero() {
+		missing = append(missing, "Shield")
+	}
+
+	if reflect.ValueOf(config.RelatedAuraArrays).IsZero() {
+		missing = append(missing, "RelatedAuraArrays")
+	}
+	if config.RelatedDotSpell == nil {
+		missing = append(missing, "RelatedDotSpell")
+	}
+	if config.RelatedSelfBuff == nil {
+		missing = append(missing, "RelatedSelfBuff")
+	}
+
+	if reflect.ValueOf(config.Source).IsZero() {
+		missing = append(missing, "Source")
+	}
+
+	return missing
+}
+
+// These are SpellConfig fields that SpellData intentionally does not populate.
+// They are normally supplied by the caller when the spell is registered.
+var configMissingFields = []string{
+	"ApplyEffects",
+	"ExpectedInitialDamage",
+	"ExpectedTickDamage",
+	"ExtraCastCondition",
+	"Dot",
+	"Hot",
+	"Shield",
+	"RelatedAuraArrays",
+	"RelatedDotSpell",
+	"RelatedSelfBuff",
+	"Source",
 }
 
 func formsText(mask uint64) string { return fmt.Sprintf("%#x (%s)", mask, stanceList(mask)) }
@@ -278,11 +387,16 @@ func attribute(stages []core.SpellConfig, labels []string) []configRow {
 	return rows
 }
 
-const configFootnote = "Assignments to the config after the call are not folded in."
-
 func (result *configResult) table() configTable {
-	return configTable{kind: "SpellConfig", of: title(result.spell), pick: result.pick, rows: result.rows,
-		skipped: result.skipped, footnote: configFootnote}
+	return configTable{
+		kind:          "SpellConfig",
+		of:            title(result.spell),
+		pick:          result.pick,
+		rows:          result.rows,
+		missing:       result.missing,
+		skipped:       result.skipped,
+		assignedLater: result.assignedLater,
+	}
 }
 
 // A config the way the tool prints it: the type, the spell it is of and the row it picks, the fields
@@ -294,18 +408,23 @@ type configTable struct {
 	note           string
 	skipped        []configOption
 	footnote       string
+	missing        []string
+	assignedLater  []configAssignment
 }
 
-func (t configTable) markdown() string {
+func (t configTable) markdown(uri string) string {
 	var md strings.Builder
+
 	fmt.Fprintf(&md, "`%s`", t.kind)
 	if t.of != "" {
 		fmt.Fprintf(&md, " of %s", t.of)
 	}
 	md.WriteString("\n\n")
+
 	if t.pick != "" {
 		fmt.Fprintf(&md, "`%s`\n\n", t.pick)
 	}
+
 	md.WriteString("---\n| field | value | from |\n|---|---|---|\n")
 	for _, row := range t.rows {
 		from := cell(row.from)
@@ -314,15 +433,35 @@ func (t configTable) markdown() string {
 		}
 		fmt.Fprintf(&md, "| **%s** | %s | %s |\n", row.field, codeCell(row.value), from)
 	}
+
+	if len(t.assignedLater) > 0 {
+		md.WriteString("\n### Assigned later\n\n")
+		md.WriteString("| field | value | source |\n|---|---|---|\n")
+		for _, assignment := range t.assignedLater {
+			fmt.Fprintf(
+				&md,
+				"| **%s** | %s | [%d](%s#L%d) |\n",
+				assignment.field,
+				codeCell(assignment.value),
+				assignment.line,
+				uri,
+				assignment.line,
+			)
+		}
+	}
+
 	if t.note != "" {
 		fmt.Fprintf(&md, "\n%s\n", t.note)
 	}
+
 	for _, option := range t.skipped {
 		fmt.Fprintf(&md, "\nunevaluated: `%s` (%s)\n", option.source, option.err)
 	}
+
 	if t.footnote != "" {
 		fmt.Fprintf(&md, "\n%s\n", t.footnote)
 	}
+
 	return md.String()
 }
 
@@ -353,4 +492,100 @@ func (t configTable) writeText(out io.Writer) {
 	if t.footnote != "" {
 		fmt.Fprintf(out, "\n%s\n", t.footnote)
 	}
+}
+
+type configAssignment struct {
+	field string
+	value string
+	line  int
+}
+
+func configAssignments(file *ast.File, tok *token.File, call *ast.CallExpr, name string) []configAssignment {
+	var assignments []configAssignment
+
+	var selectorPath func(ast.Expr) (string, bool)
+	selectorPath = func(expr ast.Expr) (string, bool) {
+		switch expr := expr.(type) {
+		case *ast.Ident:
+			if expr.Name != name {
+				return "", false
+			}
+			return "", true
+
+		case *ast.SelectorExpr:
+			parent, ok := selectorPath(expr.X)
+			if !ok {
+				return "", false
+			}
+			if parent == "" {
+				return expr.Sel.Name, true
+			}
+			return parent + "." + expr.Sel.Name, true
+
+		default:
+			return "", false
+		}
+	}
+
+	// Find the function containing the SpellConfig call. We only inspect
+	// assignments in that function, and do not descend into nested functions.
+	var body *ast.BlockStmt
+	ast.Inspect(file, func(node ast.Node) bool {
+		switch node := node.(type) {
+		case *ast.FuncDecl:
+			if node.Body != nil &&
+				node.Body.Pos() <= call.Pos() &&
+				call.End() <= node.Body.End() {
+				body = node.Body
+				return false
+			}
+		case *ast.FuncLit:
+			if node.Body != nil &&
+				node.Body.Pos() <= call.Pos() &&
+				call.End() <= node.Body.End() {
+				body = node.Body
+				return false
+			}
+		}
+		return true
+	})
+
+	if body == nil {
+		return nil
+	}
+
+	ast.Inspect(body, func(node ast.Node) bool {
+		// Don't inspect nested function bodies. Assignments inside a closure
+		// are not assignments to the config in this function's flow.
+		switch node := node.(type) {
+		case *ast.FuncLit:
+			return false
+
+		case *ast.AssignStmt:
+			// Only consider assignments that occur after the SpellConfig call.
+			if node.Pos() <= call.End() {
+				return true
+			}
+
+			for i, lhs := range node.Lhs {
+				field, ok := selectorPath(lhs)
+				if !ok || field == "" {
+					continue
+				}
+				if i >= len(node.Rhs) {
+					continue
+				}
+
+				assignments = append(assignments, configAssignment{
+					field: field,
+					value: types.ExprString(node.Rhs[i]),
+					line:  tok.Line(node.Pos()),
+				})
+			}
+		}
+
+		return true
+	})
+
+	return assignments
 }

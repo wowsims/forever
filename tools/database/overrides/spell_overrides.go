@@ -45,6 +45,15 @@ const (
 	// per stat index. Fails when the effect states either misc value itself, since 0 and 0 is
 	// Strength by index.
 	StatMask
+
+	// The attack-power coefficient of the E_THREAT or E_THREAT_ALL effect, onto its Effect.APCoef.
+	// Fails when the game files state a BonusCoefficientFromAP there.
+	APCoefThreat
+
+	// A flat threat bonus of Value times the spell's level, onto Spell.FlatThreat, for a family whose
+	// ranks scale their threat with their level. Fails like FlatThreat, and beside a FlatThreat
+	// override on the same spell.
+	ThreatPerSpellLevel
 )
 
 func (f Field) String() string {
@@ -65,6 +74,10 @@ func (f Field) String() string {
 		return "Hint"
 	case StatMask:
 		return "StatMask"
+	case APCoefThreat:
+		return "APCoefThreat"
+	case ThreatPerSpellLevel:
+		return "ThreatPerSpellLevel"
 	}
 	return "unknown field"
 }
@@ -334,6 +347,195 @@ var Spells = []Override{
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 6: Rank 1's measured share",
 		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+
+	// Revenge's Attack Power shares, read off how its non-crit hits move with Attack Power inside each
+	// log, with Defensive Stance's 10% and Improved Revenge taken out. Only Ranks 1 and 2 were measured;
+	// the other ranks carry their share until a log at their level says otherwise.
+	{
+		SpellID: 6572,
+		Field:   APCoefDirect,
+		Value:   0.28,
+		Reason:  "Revenge Rank 1: hits deal 22 +/- 15% + 0.28 x Attack Power, before armor",
+		Source:  "combat logs, Revenge Rank 1, 2026-09-25 and 2026-09-29",
+	},
+	{
+		SpellID: 6574,
+		Field:   APCoefDirect,
+		Value:   0.28,
+		Reason:  "Revenge Rank 2: 0.24 to 0.30 x Attack Power with Improved Revenge 3/3 taken out, Rank 1's 0.28 within it",
+		Source:  "combat log, Revenge Rank 2, 2026-10-03",
+	},
+	{
+		SpellID: 7379,
+		Field:   APCoefDirect,
+		Value:   0.28, // TODO: Measure Revenge Rank 3 in game.
+		Reason:  "Revenge Rank 3: Ranks 1 and 2's measured share",
+		Source:  "combat logs, Revenge Ranks 1 and 2, 2026-09-25 to 2026-10-03",
+	},
+	{
+		SpellID: 11600,
+		Field:   APCoefDirect,
+		Value:   0.28, // TODO: Measure Revenge Rank 4 in game.
+		Reason:  "Revenge Rank 4: Ranks 1 and 2's measured share",
+		Source:  "combat logs, Revenge Ranks 1 and 2, 2026-09-25 to 2026-10-03",
+	},
+	{
+		SpellID: 11601,
+		Field:   APCoefDirect,
+		Value:   0.28, // TODO: Measure Revenge Rank 5 in game.
+		Reason:  "Revenge Rank 5: Ranks 1 and 2's measured share",
+		Source:  "combat logs, Revenge Ranks 1 and 2, 2026-09-25 to 2026-10-03",
+	},
+	{
+		SpellID: 25288,
+		Field:   APCoefDirect,
+		Value:   0.28, // TODO: Measure Revenge Rank 6 in game.
+		Reason:  "Revenge Rank 6: Ranks 1 and 2's measured share",
+		Source:  "combat logs, Revenge Ranks 1 and 2, 2026-09-25 to 2026-10-03",
+	},
+
+	// Sunder Armor's threat grows with the sheet's Attack Power: measured on Rank 1 at 132, 158, 170 and
+	// 180 Attack Power, in Battle and Defensive Stance. The other ranks carry its share until a capture
+	// at their level says otherwise.
+	{
+		SpellID: 7386,
+		Field:   APCoefThreat,
+		Value:   0.05,
+		Reason:  "Sunder Armor Rank 1: threat is 34 + 0.05 x Attack Power, times the stance, rounded down",
+		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+	},
+	{
+		SpellID: 7405,
+		Field:   APCoefThreat,
+		Value:   0.05, // TODO: Measure Sunder Armor Rank 2 in game.
+		Reason:  "Sunder Armor Rank 2: Rank 1's measured share",
+		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+	},
+	{
+		SpellID: 8380,
+		Field:   APCoefThreat,
+		Value:   0.05, // TODO: Measure Sunder Armor Rank 3 in game.
+		Reason:  "Sunder Armor Rank 3: Rank 1's measured share",
+		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+	},
+	{
+		SpellID: 11596,
+		Field:   APCoefThreat,
+		Value:   0.05, // TODO: Measure Sunder Armor Rank 4 in game.
+		Reason:  "Sunder Armor Rank 4: Rank 1's measured share",
+		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+	},
+	{
+		SpellID: 11597,
+		Field:   APCoefThreat,
+		Value:   0.05, // TODO: Measure Sunder Armor Rank 5 in game.
+		Reason:  "Sunder Armor Rank 5: Rank 1's measured share",
+		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+	},
+
+	// Heroic Strike and Cleave add threat beyond their damage in proportion to the rank's spell level,
+	// as Sunder Armor's game files threat does (34 to 206, 3.4 to 3.55 per level), and none with
+	// Attack Power: Heroic Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is
+	// multiplied by the stance with the damage, and Cleave splits it between the targets it hits.
+	// Ranks not measured carry the measured share.
+	{
+		SpellID: 78,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 1 in game.
+		Reason:  "Heroic Strike Rank 1: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 284,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 2 in game.
+		Reason:  "Heroic Strike Rank 2: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 285,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54,
+		Reason:  "Heroic Strike Rank 3: threat is the damage + 40 to 40.6 at spell level 16, times the stance",
+		Source:  "threat capture, Heroic Strike Rank 3, 2026-10-07",
+	},
+	{
+		SpellID: 1608,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54,
+		Reason:  "Heroic Strike Rank 4: threat is the damage + 61 at spell level 24, times the stance",
+		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+	},
+	{
+		SpellID: 11564,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 5 in game.
+		Reason:  "Heroic Strike Rank 5: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 11565,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 6 in game.
+		Reason:  "Heroic Strike Rank 6: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 11566,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 7 in game.
+		Reason:  "Heroic Strike Rank 7: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 11567,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 8 in game.
+		Reason:  "Heroic Strike Rank 8: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 25286,
+		Field:   ThreatPerSpellLevel,
+		Value:   2.54, // TODO: Measure Heroic Strike Rank 9 in game.
+		Reason:  "Heroic Strike Rank 9: Ranks 3 and 4's measured share",
+		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+	},
+	{
+		SpellID: 845,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.53, // TODO: Measure Cleave Rank 1 in game.
+		Reason:  "Cleave Rank 1: Rank 2's measured share",
+		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+	},
+	{
+		SpellID: 7369,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.53,
+		Reason:  "Cleave Rank 2: adds ~46 beyond its damage at spell level 30 on one target, ~23 on each of two, times the stance",
+		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+	},
+	{
+		SpellID: 11608,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.53, // TODO: Measure Cleave Rank 3 in game.
+		Reason:  "Cleave Rank 3: Rank 2's measured share",
+		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+	},
+	{
+		SpellID: 11609,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.53, // TODO: Measure Cleave Rank 4 in game.
+		Reason:  "Cleave Rank 4: Rank 2's measured share",
+		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+	},
+	{
+		SpellID: 20569,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.53, // TODO: Measure Cleave Rank 5 in game.
+		Reason:  "Cleave Rank 5: Rank 2's measured share",
+		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
 }
 

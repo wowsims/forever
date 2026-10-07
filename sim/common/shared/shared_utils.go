@@ -662,17 +662,15 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 }
 
 // The spell the proc casts, as its row states it: school, defense type, spell power share, travel
-// time and the amount it rolls. What the row cannot state is that it is a proc's spell - out of the
-// rotation, not a cast of its own, and its hits do not feed the damage-dealt listeners, which is
-// what would have a weapon's own proc answer itself.
+// time and the amount it rolls. What the row cannot state is that it is a proc's spell: out of the
+// rotation and not a cast of its own. Its hits reach the damage listeners as a proc's do, so a
+// listener with Can Proc From Procs hears them (Vengeance off a Lightning Strike crit) and a weapon
+// proc never does.
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
 
-	// The proc's own hits carry no mask: what hears them is the flags below, not a hit kind.
+	// The proc's own hits carry no mask: what hears them is the flags castBy sets, not a hit kind.
 	config.ProcMask = core.ProcMaskEmpty
-	if asProc {
-		config.Flags |= core.SpellFlagNoOnDamageDealt
-	}
 
 	defenseType := damageDefenseType(config.DefenseType, config.SpellSchool, false)
 	config.DefenseType = defenseType

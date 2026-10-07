@@ -65,11 +65,12 @@ type storeInputs struct {
 	// store's own ids, since a form names no spell for the closure to reach it by.
 	Forms []formRow
 
-	// Roots by spell data group, whose union is Roots, and the game build each group's rows were taken
-	// from. A partial update takes some groups from the database and keeps the others as they are
-	// here (see spelldata_groups.go).
+	// Roots by spell data group, whose union is Roots, and the game build and highest hotfix push each
+	// group's rows were taken from. A partial update takes some groups from the database and keeps the
+	// others as they are here (see spelldata_groups.go).
 	SpellDataGroupRoots map[string][]int32
 	Builds              map[string]string
+	Hotfixes            map[string]int32
 
 	owners *rowOwners // ownersOf's answer, worked out on first use; never encoded
 }
@@ -192,21 +193,24 @@ func loadCommittedInputs() (*storeInputs, error) {
 	return readStoreInputs(spellStoreInputsPath)
 }
 
-// The game build each spell data group of the committed inputs was taken from, decoded alone: the
-// rows are not needed to choose a run's groups.
-func readCommittedBuilds() (map[string]string, error) {
+// The game build and hotfix push each spell data group of the committed inputs was taken from,
+// decoded alone: the rows are not needed to choose a run's groups or to check its database.
+func readCommittedBuilds() (builds map[string]string, hotfixes map[string]int32, err error) {
 	if _, err := os.Stat(spellStoreInputsPath); os.IsNotExist(err) {
-		return nil, nil
+		return nil, nil, nil
 	}
 	raw, err := dbc.ReadGzipFile(spellStoreInputsPath)
 	if err != nil {
-		return nil, fmt.Errorf("reading %s: %w", spellStoreInputsPath, err)
+		return nil, nil, fmt.Errorf("reading %s: %w", spellStoreInputsPath, err)
 	}
-	var builds struct{ Builds map[string]string }
-	if err := json.Unmarshal(raw, &builds); err != nil {
-		return nil, fmt.Errorf("decoding %s: %w", spellStoreInputsPath, err)
+	var stamps struct {
+		Builds   map[string]string
+		Hotfixes map[string]int32
 	}
-	return builds.Builds, nil
+	if err := json.Unmarshal(raw, &stamps); err != nil {
+		return nil, nil, fmt.Errorf("decoding %s: %w", spellStoreInputsPath, err)
+	}
+	return stamps.Builds, stamps.Hotfixes, nil
 }
 
 // The committed inputs, for a caller with no game files database. The path is relative to the

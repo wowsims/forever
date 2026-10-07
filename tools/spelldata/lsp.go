@@ -60,10 +60,12 @@ type lspServer struct {
 	ws       *workspace
 	trace    bool
 	shutdown bool
+
+	ranks map[string]int32
 }
 
 func serveLSP(in io.Reader, out io.Writer) (shutdownRequested bool, err error) {
-	server := &lspServer{out: out, ws: newWorkspace(), trace: true}
+	server := &lspServer{out: out, ws: newWorkspace(), trace: true, ranks: map[string]int32{}}
 	reader := textproto.NewReader(bufio.NewReader(in))
 
 	for {
@@ -115,6 +117,37 @@ func (s *lspServer) handle(msg rpcMessage) {
 	}()
 
 	switch msg.Method {
+	case "wowsims-spelldata/setRank":
+		var params struct {
+			URI       string `json:"uri"`
+			Parameter string `json:"parameter"`
+			Function  string `json:"function"`
+			Rank      int32  `json:"rank"`
+		}
+
+		if err := json.Unmarshal(msg.Params, &params); err != nil {
+			if request {
+				s.respond(msg.ID, nil, &rpcError{
+					Code:    codeParseError,
+					Message: err.Error(),
+				})
+			}
+			return
+		}
+
+		key := fmt.Sprintf(
+			"%s:%s:%s",
+			params.URI,
+			params.Function,
+			params.Parameter,
+		)
+
+		s.ranks[key] = params.Rank
+
+		if request {
+			s.respond(msg.ID, nil, nil)
+		}
+
 	case "initialize":
 		var params struct {
 			InitializationOptions struct {
@@ -165,6 +198,7 @@ func (s *lspServer) handle(msg rpcMessage) {
 		case "textDocument/didClose":
 			s.ws.update(uri, "", false)
 		case "textDocument/hover":
+
 			s.respond(msg.ID, s.hover(uri, params.Position), nil)
 		}
 
@@ -182,7 +216,7 @@ func (s *lspServer) hover(uri string, at position) any {
 		return nil
 	}
 
-	markdown, trace, ok := s.ws.hover(text, at.Line, at.Character, uri)
+	markdown, trace, ok := s.ws.hover(text, at.Line, at.Character, uri, s.ranks)
 	s.log(strings.Join(trace, "\n"))
 	if !ok {
 		return nil

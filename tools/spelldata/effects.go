@@ -82,7 +82,7 @@ func humanise(s *spelldata.Spell, e *spelldata.Effect) string {
 		return join("casts", triggerPhrase(e), targetPhrase(e))
 
 	case dbcenums.E_THREAT:
-		return join(amount(e), "threat", targetPhrase(e))
+		return sentence(join(amount(e), "threat", targetPhrase(e)), coefficients(e))
 	case dbcenums.E_INTERRUPT_CAST:
 		return join("interrupts the cast", targetPhrase(e))
 	case dbcenums.E_DISPEL:

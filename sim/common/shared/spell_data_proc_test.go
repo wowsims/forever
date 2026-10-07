@@ -311,10 +311,13 @@ func TestSpellDataDamageProcAppliesToACharacter(t *testing.T) {
 		t.Errorf("defense type = %v, want the row's magic", spell.DefenseType)
 	}
 	for _, flag := range []core.SpellFlag{core.SpellFlagPassiveSpell, core.SpellFlagNoOnCastComplete,
-		core.SpellFlagNoOnDamageDealt, core.SpellFlagProc} {
+		core.SpellFlagProc} {
 		if !spell.Flags.Matches(flag) {
 			t.Errorf("flags = %b, want %b set", spell.Flags, flag)
 		}
+	}
+	if spell.Flags.Matches(core.SpellFlagNoOnDamageDealt) {
+		t.Error("the proc's hits skip the damage listeners, want them heard by the ones that hear procs")
 	}
 	if spell.ProcMask != core.ProcMaskEmpty {
 		t.Errorf("proc mask = %v, want none: a proc's damage is heard through its flags", spell.ProcMask)

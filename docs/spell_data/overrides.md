@@ -14,14 +14,16 @@ a reason. `Source` names where the number came from: `tbc-carryover`, `tooltip`,
 Every field names a rule the generator checks before it writes the value, so a stale override lasts
 until the next regeneration at most:
 
-|                                   |                                                           | stale when                               |
-| --------------------------------- | --------------------------------------------------------- | ---------------------------------------- |
-| `PPM`                             | procs per minute, onto `Spell.RPPM`                       | the row states a `SpellProcsPerMinuteID` |
-| `FlatThreat`                      | threat the tooltip states without a number                | the spell gains a threat effect          |
-| `APCoefDirect` / `APCoefPeriodic` | an attack power coefficient the game files keep in script | the game files state one on that effect  |
-| `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                | the tooltip states a chance of its own   |
-| `DurationMs`                      | an aura duration                                          | the game files state a `SpellDuration`   |
-| `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield   | -                                        |
+|                                   |                                                                                | stale when                               |
+| --------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------- |
+| `PPM`                             | procs per minute, onto `Spell.RPPM`                                            | the row states a `SpellProcsPerMinuteID` |
+| `FlatThreat`                      | threat the tooltip states without a number                                     | the spell gains a threat effect          |
+| `ThreatPerSpellLevel`             | flat threat of the value times the rank's spell level, onto `Spell.FlatThreat` | the spell gains a threat effect          |
+| `APCoefDirect` / `APCoefPeriodic` | an attack power coefficient the game files keep in script                      | the game files state one on that effect  |
+| `APCoefThreat`                    | the attack power share of the threat effect                                    | the game files state one on it           |
+| `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                                     | the tooltip states a chance of its own   |
+| `DurationMs`                      | an aura duration                                                               | the game files state a `SpellDuration`   |
+| `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield                        | -                                        |
 
 The generator also refuses two cases that have nothing to do with the field: an override naming a spell
 the store does not carry, and two overrides of the same field on one spell. Every applied override

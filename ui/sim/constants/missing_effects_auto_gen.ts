@@ -112,6 +112,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		1982, // Nightblade
+		[
+			"Sends a shadowy bolt at the enemy causing 200 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
+		]
+	],
+	[
 		1986, // Gutrender
 		[
 			"Wounds the target for 102 damage.", // 18090 - https://www.wowhead.com/forever/spell=18090
@@ -223,6 +229,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		3456, // Dog Whistle
 		[
 			"", // 1293501 - https://www.wowhead.com/forever/spell=1293501
+		]
+	],
+	[
+		3475, // Cloak of Flames
+		[
+			"Deals 5 Fire damage to anyone who strikes you with a melee attack.", // 21142 - https://www.wowhead.com/forever/spell=21142
 		]
 	],
 	[
@@ -751,6 +763,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		10772, // Glutton's Cleaver
 		[
 			"Wounds the target causing them to bleed for 70 damage over 7s.", // 18075 - https://www.wowhead.com/forever/spell=18075
+		]
+	],
+	[
+		10776, // Silky Spider Cape
+		[
+			"Reduces the duration of all movement impairing effects on you by 7%.", // 1293819 - https://www.wowhead.com/forever/spell=1293819
 		]
 	],
 	[

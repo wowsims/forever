@@ -171,6 +171,29 @@ func TestCombineDedupsOnFullRecordIdentity(t *testing.T) {
 	}
 }
 
+func TestHighestPushCountsOnlyServerPushes(t *testing.T) {
+	h, err := parseHotfix(xfthFile(9, 1,
+		xfthEntry(-1, 0x1, 1, 1, []byte{1}),
+		xfthEntry(112405, 0x1, 2, 1, []byte{1}),
+		xfthEntry(112426, 0x1, 3, 1, []byte{1}),
+		xfthEntry(0x01000005, 0x1, 4, 1, []byte{1}),
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := h.HighestPush(); got != 112426 {
+		t.Errorf("HighestPush = %d, want 112426", got)
+	}
+
+	onDemand, err := parseHotfix(xfthFile(9, 1, xfthEntry(-1, 0x1, 1, 1, []byte{1}), xfthEntry(0x01000005, 0x1, 2, 1, []byte{1})))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := onDemand.HighestPush(); got != 0 {
+		t.Errorf("HighestPush of on-demand rows alone = %d, want 0", got)
+	}
+}
+
 // The WoW install is often reached through a symlink (the checked-in BaseDir
 // pointing into a wine prefix). WalkDir does not descend into a symlinked
 // root, so without resolving it first the scan finds nothing and the run is

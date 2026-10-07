@@ -1065,6 +1065,7 @@
 {"id":22281,"name":"Blue Dinner Suit","icon":"inv_shirt_blue_01","type":5,"quality":1,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":22282,"name":"Purple Dinner Suit","icon":"inv_shirt_purple_01","type":5,"quality":1,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":22999,"name":"Tabard of the Argent Dawn","icon":"inv_shirt_guildtabard_01","quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":60}}},
+{"id":23192,"name":"Tabard of the Scarlet Crusade","icon":"inv_misc_cape_18","quality":1,"unique":true,"expansion":1,"sources":[{"drop":{"difficulty":1,"zoneId":796,"otherName":"Trash"}}],"scalingOptions":{"0":{"ilvl":1}}},
 {"id":23323,"name":"Crown of the Fire Festival","icon":"inv_helmet_08","type":1,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":2},"ilvl":1}}},
 {"id":23324,"name":"Mantle of the Fire Festival","icon":"inv_shoulder_23","type":3,"quality":1,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":23709,"name":"Tabard of Frost","icon":"inv_shirt_guildtabard_01","quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":1}}},

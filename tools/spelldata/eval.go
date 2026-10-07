@@ -62,9 +62,13 @@ type segment struct {
 
 // An argument as the caller wrote it and as the evaluator reads it: `core.CharacterLevel` is passed as
 // 60 and prints as 60 in the trail, so the trail is the chain with every name resolved.
+//
+// A Ladder.Each callback parameter is deferred until evalExpr has the virtual rank context.
+// Parameter contains the identifier name when value is nil.
 type argument struct {
-	source string
-	value  constant.Value
+	source    string
+	value     constant.Value
+	parameter string
 }
 
 // The segment as written, or with every argument resolved to its value.
@@ -74,7 +78,7 @@ func (s segment) text(resolved bool) string {
 	}
 	parts := make([]string, 0, len(s.args))
 	for _, arg := range s.args {
-		if resolved {
+		if resolved && arg.value != nil {
 			parts = append(parts, arg.value.String())
 		} else {
 			parts = append(parts, arg.source)
@@ -111,6 +115,8 @@ type exprResult struct {
 	family     *ladderFamily
 	spell      *spelldata.Spell
 	readEffect int
+
+	spellConfig *core.SpellConfig
 
 	value     string
 	accessors []string
@@ -155,13 +161,18 @@ func walkChain(node ast.Expr, offset func(token.Pos) int) (*chain, error) {
 			return nil, err
 		}
 		seg := segment{name: sel.Sel.Name, call: true, start: offset(sel.X.End()), end: offset(n.End())}
+
 		for _, arg := range n.Args {
 			value, err := evalConst(arg)
 			if err != nil {
 				return nil, err
 			}
-			seg.args = append(seg.args, argument{source: types.ExprString(arg), value: value})
+			seg.args = append(seg.args, argument{
+				source: types.ExprString(arg),
+				value:  value,
+			})
 		}
+
 		if c.root.name == "spelldata" && len(c.segments) == 0 && (seg.name == "MustFind" || seg.name == "Find") && len(seg.args) == 1 {
 			c.root = root{byID: &seg}
 			return c, nil
@@ -172,9 +183,86 @@ func walkChain(node ast.Expr, offset func(token.Pos) int) (*chain, error) {
 	return nil, fmt.Errorf("%s is not a chain of accessor calls: write spellData.<Family> and the accessors on it", types.ExprString(node))
 }
 
+func walkChainWithParameter(node ast.Expr, offset func(token.Pos) int, parameter string) (*chain, error) {
+	switch n := node.(type) {
+	case *ast.CallExpr:
+		sel, ok := n.Fun.(*ast.SelectorExpr)
+		if !ok {
+			return nil, fmt.Errorf("%s is not an accessor call", types.ExprString(n.Fun))
+		}
+
+		c, err := walkChainWithParameter(sel.X, offset, parameter)
+		if err != nil {
+			return nil, err
+		}
+
+		seg := segment{
+			name:  sel.Sel.Name,
+			call:  true,
+			start: offset(sel.X.End()),
+			end:   offset(n.End()),
+		}
+
+		for _, arg := range n.Args {
+			source := types.ExprString(arg)
+
+			value, err := evalConst(arg)
+			if err == nil {
+				seg.args = append(seg.args, argument{
+					source: source,
+					value:  value,
+				})
+				continue
+			}
+
+			ident, ok := arg.(*ast.Ident)
+			if !ok {
+				return nil, err
+			}
+
+			// Rank(...) inside a virtual-rank evaluation uses the rank
+			// selected by the hover rather than resolving the identifier
+			// as a sim/core constant.
+			if seg.name == "Rank" {
+				seg.args = append(seg.args, argument{
+					source:    source,
+					parameter: ident.Name,
+				})
+				continue
+			}
+
+			if parameter == "" || ident.Name != parameter {
+				return nil, err
+			}
+
+			seg.args = append(seg.args, argument{
+				source:    source,
+				parameter: ident.Name,
+			})
+
+			seg.args = append(seg.args, argument{
+				source:    source,
+				parameter: ident.Name,
+			})
+		}
+
+		if c.root.name == "spelldata" && len(c.segments) == 0 &&
+			(seg.name == "MustFind" || seg.name == "Find") && len(seg.args) == 1 {
+			c.root = root{byID: &seg}
+			return c, nil
+		}
+
+		c.segments = append(c.segments, seg)
+		return c, nil
+
+	default:
+		return walkChain(node, offset)
+	}
+}
+
 // A ladder followed by the store's own accessors, evaluated by name over the exported method set: an
 // accessor added to sim/core/spelldata is readable here without a list to keep in step.
-func evalExpr(index map[string]*ladderFamily, c *chain, pkg string) (result *exprResult, err error) {
+func evalExpr(index map[string]*ladderFamily, c *chain, pkg string, virtual *virtualRank) (result *exprResult, err error) {
 	// The store panics where a caller asks for a rank or an effect it does not carry, on purpose. The
 	// panic is this reader's answer, as an error.
 	defer func() {
@@ -188,6 +276,32 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string) (result *exp
 	var current reflect.Value
 
 	switch {
+	case virtual != nil && c.root.name == virtual.parameter:
+		family, err = findFamily(index, virtual.ladder.root.family, pkg)
+		if err != nil {
+			return nil, err
+		}
+		if family.err != nil {
+			return nil, family.err
+		}
+
+		spell := family.ladder.Highest()
+		// if virtual.rank > 0
+		if virtual.rank > 0 {
+			spell = family.ladder.Rank(virtual.rank)
+		}
+
+		if spell == spelldata.Nil {
+			return nil, fmt.Errorf("%s names a spell the store does not carry", c.root.name)
+		}
+
+		res = &exprResult{
+			trail:  c.root.name,
+			family: family,
+			spell:  spell,
+		}
+		current = reflect.ValueOf(spell)
+
 	case c.root.byID != nil:
 		id, err := convertArg(c.root.byID.args[0], reflect.TypeFor[int32]())
 		if err != nil {
@@ -220,7 +334,7 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string) (result *exp
 	var effectOf func(*spelldata.Spell) *spelldata.Effect
 
 	for _, seg := range c.segments {
-		answer, err := callSegment(current, seg)
+		answer, err := callSegment(current, seg, virtual)
 		if err != nil {
 			return nil, err
 		}
@@ -238,7 +352,7 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string) (result *exp
 		case spelldata.LadderEffect:
 			effectOf = spellEffect(seg)
 		default:
-			if rank, ok := rankArgument(current, seg); ok {
+			if rank, ok := rankArgument(current, seg, virtual); ok {
 				res.spell = family.ladder.Rank(rank)
 				res.readEffect = 1
 				if effectOf != nil {
@@ -275,6 +389,10 @@ func (f *ladderFamily) checkPick(seg segment) error {
 	if len(seg.args) != 1 {
 		return nil
 	}
+	if seg.args[0].value == nil {
+		return nil
+	}
+
 	n, ok := intValue(seg.args[0].value)
 	if !ok {
 		return nil
@@ -296,7 +414,11 @@ func (f *ladderFamily) checkPick(seg segment) error {
 func spellEffect(seg segment) func(*spelldata.Spell) *spelldata.Effect {
 	method := map[string]string{"EffectAt": "EffectN", "Effect": "Effect"}[seg.name]
 	return func(s *spelldata.Spell) *spelldata.Effect {
-		answer, err := callSegment(reflect.ValueOf(s), segment{name: method, args: seg.args, call: true})
+		answer, err := callSegment(
+			reflect.ValueOf(s),
+			segment{name: method, args: seg.args, call: true},
+			nil,
+		)
 		if err != nil {
 			return spelldata.NilEffect
 		}
@@ -306,20 +428,51 @@ func spellEffect(seg segment) func(*spelldata.Spell) *spelldata.Effect {
 
 // The rank a value read off a ladder is at: the one argument of a ...At(rank). Rank 0 is untaken and
 // reads no rank.
-func rankArgument(recv reflect.Value, seg segment) (int32, bool) {
+
+func rankArgument(recv reflect.Value, seg segment, virtual *virtualRank) (int32, bool) {
 	switch recv.Interface().(type) {
 	case spelldata.Ladder, spelldata.LadderEffect:
 	default:
 		return 0, false
 	}
-	if len(seg.args) != 1 || !strings.HasSuffix(seg.name, "At") {
+
+	if len(seg.args) != 1 || (seg.name != "Rank" && !strings.HasSuffix(seg.name, "At")) {
 		return 0, false
 	}
-	n, exact := intValue(seg.args[0].value)
+
+	// A virtual-rank hover already has the rank selected by the
+	// Set Rank / Change Rank markdown control. The argument to
+	// Rank(...) or an *At accessor may therefore be the callback's
+	// rank parameter rather than a constant.
+	if virtual != nil {
+		return virtual.rank, virtual.rank > 0
+	}
+
+	value, err := argumentValue(seg.args[0], virtual)
+	if err != nil {
+		return 0, false
+	}
+
+	n, exact := intValue(value)
 	return int32(n), exact && n > 0
 }
 
-func callSegment(recv reflect.Value, seg segment) (reflect.Value, error) {
+// Resolve a chain argument to a constant. Ladder.Each callback parameters are
+// the one exception: the rank-number parameter is resolved from virtual.rank
+// when evaluating a virtual rank.
+func argumentValue(arg argument, virtual *virtualRank) (constant.Value, error) {
+	if arg.value != nil {
+		return arg.value, nil
+	}
+
+	if virtual != nil && arg.parameter != "" && arg.parameter == virtual.rankParameter {
+		return constant.MakeInt64(int64(virtual.rank)), nil
+	}
+
+	return nil, fmt.Errorf("%s is not a literal or a constant of sim/core, stats or dbcenums", arg.source)
+}
+
+func callSegment(recv reflect.Value, seg segment, virtual *virtualRank) (reflect.Value, error) {
 	owner := recv.Type().String()
 	if !seg.call {
 		row := reflect.Indirect(recv)
@@ -350,7 +503,18 @@ func callSegment(recv reflect.Value, seg segment) (reflect.Value, error) {
 
 	in := make([]reflect.Value, 0, len(seg.args))
 	for i, arg := range seg.args {
-		value, err := convertArg(arg, signature.In(i))
+		resolved, err := argumentValue(arg, virtual)
+		if err != nil {
+			return reflect.Value{}, fmt.Errorf("%s: %w", label, err)
+		}
+
+		value, err := convertArg(
+			argument{
+				source: arg.source,
+				value:  resolved,
+			},
+			signature.In(i),
+		)
 		if err != nil {
 			return reflect.Value{}, fmt.Errorf("%s: %w", label, err)
 		}
@@ -407,6 +571,8 @@ func arguments(n int) string {
 func formatValue(v reflect.Value) (string, error) {
 	switch value := v.Interface().(type) {
 	case time.Duration:
+		return value.String(), nil
+	case core.SpellSchool:
 		return value.String(), nil
 	case bool:
 		return strconv.FormatBool(value), nil

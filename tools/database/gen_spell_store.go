@@ -196,7 +196,7 @@ func num32(f float64) string {
 
 // The store's data, ready to write: the rows and the curves. Everything is rendered before anything
 // is written, the way the class files are.
-func loadStoreInputs(db *sql.DB, classRoots map[string][]int32, trees map[int]int, version string) (*storeInputs, error) {
+func loadStoreInputs(db *sql.DB, classRoots map[string][]int32, trees map[int]int, version string, push int32) (*storeInputs, error) {
 	tables, err := loadSpellTables(db)
 	if err != nil {
 		return nil, err
@@ -249,8 +249,10 @@ func loadStoreInputs(db *sql.DB, classRoots map[string][]int32, trees map[int]in
 	in.Forms = forms
 	in.SpellDataGroupRoots = groupRoots
 	in.Builds = map[string]string{}
+	in.Hotfixes = map[string]int32{}
 	for _, p := range allSpellDataGroups() {
 		in.Builds[p] = version
+		in.Hotfixes[p] = push
 	}
 	return in, nil
 }

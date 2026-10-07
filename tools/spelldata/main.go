@@ -215,7 +215,7 @@ func runExpr(out io.Writer, opts options) error {
 	if err != nil {
 		return err
 	}
-	result, err := evalExpr(ladderFamilies(), c, opts.pkg)
+	result, err := evalExpr(ladderFamilies(), c, opts.pkg, nil)
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func runConfig(out io.Writer, opts options) error {
 		evalSpellModConfig(lit, declarations, opts.pkg, trace).table().writeText(out)
 		return nil
 	}
-	result, err := evalSpellConfig(call, declarations, opts.pkg, trace)
+	result, err := evalSpellConfig(call, declarations, opts.pkg, trace, nil)
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func runHover(out io.Writer, opts options) error {
 		return err
 	}
 
-	markdown, trace, found := newWorkspace().hover(string(text), line-1, col-1, pathURI(opts.arg))
+	markdown, trace, found := newWorkspace().hover(string(text), line-1, col-1, pathURI(opts.arg), nil)
 	for _, entry := range trace {
 		fmt.Fprintln(os.Stderr, entry)
 	}

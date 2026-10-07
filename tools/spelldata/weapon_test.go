@@ -42,7 +42,7 @@ const weaponRowsGo = `package warrior
 var cruelty = spelldata.MustFind(12320)
 var thunderingStrikes = spelldata.MustFind(16255)
 var rangedScope = spelldata.MustFind(1310308)
-var furiousPrecision = spelldata.MustFind(1323963)
+var dualWield = spelldata.MustFind(23584)
 var scorpidSting = spelldata.MustFind(3043)
 var oneHandedSpec = spelldata.MustFind(20196)
 `
@@ -52,13 +52,13 @@ func TestHoverWeaponRules(t *testing.T) {
 		"MustFind(12320)":   "| 1 | +5% physical crit, per weapon: only attacks made with a melee weapon<br>",
 		"MustFind(16255)":   "| 1 | +1% physical and spell crit, while a melee weapon is equipped: every spell and attack<br>",
 		"MustFind(1310308)": "| 1 | +2% physical crit, ranged weapons only: attacks made with a bow, gun or crossbow<br>",
-		"MustFind(1323963)": "| 1 | +10% physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand<br>",
+		"MustFind(23584)":   "| 3 | +10% physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand<br>",
 		"MustFind(3043)":    "| 1 | -2% physical hit to the enemy (the weapon requirement only gates casting)<br>",
 		"MustFind(20196)":   "| 1 | +2% physical damage done and on the melee-defense spells of the other schools, while a one-handed axe, one-handed mace, one-handed sword, exotic, fist weapon or dagger is equipped<br>",
 	} {
 		wantHover(t, weaponRowsGo, needle, 9, want)
 	}
-	wantHover(t, weaponRowsGo, "MustFind(1323963)", 9,
+	wantHover(t, weaponRowsGo, "MustFind(23584)", 9,
 		"| **equip** | needs a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand |")
 }
 

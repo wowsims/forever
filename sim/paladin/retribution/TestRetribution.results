@@ -103,8 +103,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 856.10446
-  tps: 495.47258
+  dps: 856.9915
+  tps: 495.96932
   dtps: 7.20545
  }
 }
@@ -135,8 +135,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 852.09941
-  tps: 492.99697
+  dps: 852.24715
+  tps: 493.07971
   dtps: 7.70491
  }
 }
@@ -207,8 +207,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 844.39305
-  tps: 489.01611
+  dps: 844.71759
+  tps: 489.19785
   dtps: 7.40206
  }
 }
@@ -280,8 +280,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 849.15093
-  tps: 491.59423
+  dps: 843.86707
+  tps: 488.63527
   dtps: 7.50802
  }
 }
@@ -304,8 +304,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FieryPlateGauntlets-12631"
  value: {
-  dps: 848.0658
-  tps: 491.25415
+  dps: 849.18615
+  tps: 491.88154
   dtps: 6.97613
  }
 }
@@ -568,8 +568,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-OrbofFire-12805"
  value: {
-  dps: 842.11635
-  tps: 487.47596
+  dps: 842.13624
+  tps: 487.4871
   dtps: 6.93029
  }
 }
@@ -640,8 +640,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-StormGauntlets-12632"
  value: {
-  dps: 855.44453
-  tps: 495.38624
+  dps: 856.51177
+  tps: 495.98389
   dtps: 7.08872
  }
 }

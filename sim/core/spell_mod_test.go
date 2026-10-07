@@ -3,6 +3,8 @@ package core
 import (
 	"testing"
 	"time"
+
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 const fakeThreatSpellClassMask int64 = 1 << 0
@@ -88,9 +90,13 @@ func TestFlatThreatBonusPctMod(t *testing.T) {
 	spell := fw.GetSpell(fakeThreatSpellActionID)
 	attackTable := fw.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
 
+	// 100 flat + 0.05 x the 1000 attack power the fake warrior holds.
+	spell.ThreatAPCoefficient = 0.05
+	fw.AddStatDynamic(sim, stats.AttackPower, 1000)
+
 	threat := spell.ThreatFromDamage(sim, OutcomeHit, 0, attackTable)
-	if !WithinToleranceFloat64(100, threat, 0.001) {
-		t.Fatalf("Incorrect threat without a mod: Expected: %0.3f, Actual: %0.3f", 100.0, threat)
+	if !WithinToleranceFloat64(150, threat, 0.001) {
+		t.Fatalf("Incorrect threat without a mod: Expected: %0.3f, Actual: %0.3f", 150.0, threat)
 	}
 
 	mod := fw.AddDynamicMod(SpellModConfig{
@@ -101,14 +107,14 @@ func TestFlatThreatBonusPctMod(t *testing.T) {
 
 	mod.Activate()
 	threat = spell.ThreatFromDamage(sim, OutcomeHit, 0, attackTable)
-	if !WithinToleranceFloat64(115, threat, 0.001) {
-		t.Fatalf("Incorrect threat with the mod active: Expected: %0.3f, Actual: %0.3f", 115.0, threat)
+	if !WithinToleranceFloat64(172.5, threat, 0.001) {
+		t.Fatalf("Incorrect threat with the mod active: Expected: %0.3f, Actual: %0.3f", 172.5, threat)
 	}
 
 	mod.Deactivate()
 	threat = spell.ThreatFromDamage(sim, OutcomeHit, 0, attackTable)
-	if !WithinToleranceFloat64(100, threat, 0.001) {
-		t.Fatalf("Incorrect threat after the mod was removed: Expected: %0.3f, Actual: %0.3f", 100.0, threat)
+	if !WithinToleranceFloat64(150, threat, 0.001) {
+		t.Fatalf("Incorrect threat after the mod was removed: Expected: %0.3f, Actual: %0.3f", 150.0, threat)
 	}
 }
 

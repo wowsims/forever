@@ -1,6 +1,7 @@
 import { existsSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { delimiter, join } from 'node:path';
+
 import * as vscode from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
 
@@ -25,6 +26,7 @@ function findGo(configured: string): string | undefined {
 		join(homedir(), 'go', 'bin', exe),
 		'C:\\Program Files\\Go\\bin\\go.exe',
 	];
+
 	return candidates.find(path => path !== exe && isFile(path));
 }
 
@@ -37,6 +39,32 @@ function isFile(path: string): boolean {
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
+	const changeRank = vscode.commands.registerCommand('wowsims-spelldata.changeRank', async (args: { parameter: string; function: string; rank: number }) => {
+		if (client === undefined) {
+			return;
+		}
+
+		const editor = vscode.window.activeTextEditor;
+		if (editor === undefined) {
+			return;
+		}
+
+		await client.sendRequest('wowsims-spelldata/setRank', {
+			uri: editor.document.uri.toString(),
+			parameter: args.parameter,
+			function: args.function,
+			rank: args.rank,
+		});
+
+		await vscode.commands.executeCommand('editor.action.hideHover');
+
+		setTimeout(() => {
+			void vscode.commands.executeCommand('editor.action.showHover');
+		}, 50);
+	});
+
+	context.subscriptions.push(changeRank);
+
 	const root = vscode.workspace.workspaceFolders?.map(folder => folder.uri.fsPath).find(path => existsSync(join(path, 'go.mod')));
 	if (root === undefined) {
 		return;
@@ -67,6 +95,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 				for (const content of hover?.contents ?? []) {
 					if (content instanceof vscode.MarkdownString) {
 						content.supportHtml = true;
+						content.isTrusted = {
+							enabledCommands: ['wowsims-spelldata.changeRank'],
+						};
 					}
 				}
 				return hover;

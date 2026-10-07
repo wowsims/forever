@@ -155,3 +155,31 @@ func TestMarshalingContract(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildInfoRecordsTheHotfixPush(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "build.db")
+	conn, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteBuildInfo(conn, "1.60.1.70235", "wow_classic_beta", 112426); err != nil {
+		t.Fatal(err)
+	}
+	if err := conn.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	var version, product string
+	var push int32
+	if err := db.QueryRow("SELECT Version, Product, HotfixPush FROM BuildInfo").Scan(&version, &product, &push); err != nil {
+		t.Fatal(err)
+	}
+	if version != "1.60.1.70235" || product != "wow_classic_beta" || push != 112426 {
+		t.Errorf("BuildInfo = %q, %q, %d, want 1.60.1.70235, wow_classic_beta, 112426", version, product, push)
+	}
+}

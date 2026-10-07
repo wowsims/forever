@@ -66,6 +66,11 @@ func Permanent() AuraOpt {
 // replaces OnTick for a heal or a value the game files do not state. OnSnapshot is nil.
 //
 // The aura's duration is the row's, which core recomputes from the ticks on every application.
+//
+// A ranked row's dot joins the rank group of its name with the row's rank, so a caster keeps one rank
+// of it on a unit, and its aura carries the ranked name unless an option labels it. A lower rank's
+// periodic stays off while a higher rank is up; the row's CastRequirement decides whether the cast
+// itself is refused.
 func DotConfig(s *Spell, e *Effect, opts ...AuraOpt) core.DotConfig {
 	if e.PeriodMs <= 0 {
 		panic(fmt.Sprintf("spelldata: effect %d of spell %d (%s) states no tick period",
@@ -77,13 +82,18 @@ func DotConfig(s *Spell, e *Effect, opts ...AuraOpt) core.DotConfig {
 		panic(fmt.Sprintf("spelldata: spell %d (%s) states no duration to tick over", s.ID, s.Name))
 	}
 
-	return core.DotConfig{
-		Aura:             AuraConfig(s, opts...),
+	config := core.DotConfig{
+		Aura:             AuraConfig(s, append([]AuraOpt{Label(s.RankedName())}, opts...)...),
 		TickLength:       e.Period(),
 		NumberOfTicks:    int32(s.Duration() / e.Period()),
 		BonusCoefficient: e.Coeff(),
 		OnTick:           PeriodicDamageTick(e, s.TickOutcome),
 	}
+	if rank := s.RankNumber(); rank > 0 {
+		config.RankGroup = s.Name
+		config.Rank = rank
+	}
+	return config
 }
 
 func PeriodicDamageTick(e *Effect, outcome func(*core.Dot) core.OutcomeApplier) core.OnTick {

@@ -58,6 +58,36 @@ func TestOverridesBakeOntoTheRow(t *testing.T) {
 	}
 }
 
+func TestThreatAPCoefficientBakesOntoTheThreatEffect(t *testing.T) {
+	rows := []storeSpell{{ID: 10, Effects: []storeEffect{
+		{Index: 0, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RESISTANCE_PCT},
+		{Index: 1, Type: dbcenums.E_THREAT},
+	}}}
+	list := []overrides.Override{{SpellID: 10, Field: overrides.APCoefThreat, Value: 0.05, Reason: "measured"}}
+
+	if err := applyOverrides(rows, list); err != nil {
+		t.Fatalf("baking the override: %v", err)
+	}
+	if rows[0].Effects[0].APCoef != 0 || rows[0].Effects[1].APCoef != 0.05 {
+		t.Errorf("the effects read %v and %v attack power", rows[0].Effects[0].APCoef, rows[0].Effects[1].APCoef)
+	}
+}
+
+func TestThreatPerSpellLevelBakesTheRanksFlatThreat(t *testing.T) {
+	rows := []storeSpell{{ID: 10, SpellLevel: 16}, {ID: 11, SpellLevel: 24}}
+	list := []overrides.Override{
+		{SpellID: 10, Field: overrides.ThreatPerSpellLevel, Value: 2.5, Reason: "measured"},
+		{SpellID: 11, Field: overrides.ThreatPerSpellLevel, Value: 2.5, Reason: "measured"},
+	}
+
+	if err := applyOverrides(rows, list); err != nil {
+		t.Fatalf("baking the overrides: %v", err)
+	}
+	if rows[0].FlatThreat != 40 || rows[1].FlatThreat != 60 {
+		t.Errorf("the ranks read %v and %v flat threat", rows[0].FlatThreat, rows[1].FlatThreat)
+	}
+}
+
 // A proc chance override states the percentage the tooltip does not, and the store keeps the column
 // as the source of it.
 func TestProcChanceOverrideBecomesTheColumn(t *testing.T) {
@@ -125,6 +155,35 @@ func TestOverridesRefuseWhatTheClientNowStates(t *testing.T) {
 			rows:  []storeSpell{{ID: 10}},
 			list:  []overrides.Override{{SpellID: 10, Field: overrides.APCoefPeriodic, Value: 0.2, Reason: "measured"}},
 			wants: "no periodic effect",
+		},
+		{
+			name: "a game files threat coefficient",
+			rows: []storeSpell{{ID: 10, Effects: []storeEffect{
+				{Index: 1, Type: dbcenums.E_THREAT, APCoef: 0.1},
+			}}},
+			list:  []overrides.Override{{SpellID: 10, Field: overrides.APCoefThreat, Value: 0.05, Reason: "measured"}},
+			wants: "now states 0.1 attack power on its threat effect",
+		},
+		{
+			name:  "no threat effect to carry the coefficient",
+			rows:  []storeSpell{{ID: 10}},
+			list:  []overrides.Override{{SpellID: 10, Field: overrides.APCoefThreat, Value: 0.05, Reason: "measured"}},
+			wants: "no threat effect",
+		},
+		{
+			name:  "a per-level threat on a game files threat effect",
+			rows:  []storeSpell{{ID: 10, SpellLevel: 16, Effects: []storeEffect{{Index: 1, Type: dbcenums.E_THREAT}}}},
+			list:  []overrides.Override{{SpellID: 10, Field: overrides.ThreatPerSpellLevel, Value: 2.5, Reason: "measured"}},
+			wants: "now states threat on effect 1",
+		},
+		{
+			name: "a flat and a per-level threat on one spell",
+			rows: []storeSpell{{ID: 10, SpellLevel: 16}},
+			list: []overrides.Override{
+				{SpellID: 10, Field: overrides.FlatThreat, Value: 200, Reason: "measured"},
+				{SpellID: 10, Field: overrides.ThreatPerSpellLevel, Value: 2.5, Reason: "measured"},
+			},
+			wants: "two flat threat overrides",
 		},
 		{
 			name:  "a chance the tooltip states",

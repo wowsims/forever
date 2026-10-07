@@ -46,10 +46,11 @@ put there.
 
 ## Where a spell can be cast
 
-`core.CastRequirement` is what the game files require of the caster's form, auras and equipment, and
-of the target's creature type. Core refuses any cast, `CanCast` or `CanQueue` that breaks it ("wrong
-form", "missing caster aura", "excluded caster aura", "missing equipped item", "in combat", "wrong
-target creature type"). It reads seven game files sources:
+`core.CastRequirement` is what the game files require of the caster's form, auras and equipment, of
+the target's creature type, and of the ranks of the periodic the cast applies. Core refuses any cast,
+`CanCast` or `CanQueue` that breaks it ("wrong form", "missing caster aura", "excluded caster aura",
+"missing equipped item", "in combat", "wrong target creature type", "a more powerful spell is
+active"). It reads seven game files sources:
 `SpellShapeshift`'s mask and exclude mask (`StanceMask`, `StanceExclude`), `SpellAuraRestrictions`
 (`CasterAura`, `ExcludeCasterAura`; Tiger's Fury states its Cat Form requirement there, not in a mask),
 the not-shapeshifted and castable-in-caster-form attribute bits, `SpellShapeshiftForm`'s stance flag
@@ -81,6 +82,13 @@ spell is cast on: Chastise's 64 allows a Humanoid, Exorcism's 36 an Undead or a 
 mask names some other unit and the cast is not limited: Bestial Wrath's Beast is the pet it lands on,
 and Holy Wrath's Undead and Demon are the enemies its area hits, which the spell's effects pick
 themselves. A target of unknown mob type is in no mask and is refused. A weapon swing checks no target.
+
+`CastRequirement.NotUnderHigherRank` is set on a ranked row whose only effect that does something is
+the periodic, an effect with a tick period; a dummy or script effect does not count. The cast is
+refused while a higher rank of the dot it applies (`Spell.Dot(target)`, which follows
+RelatedDotSpell, else the caster's self periodic) from the same caster is up, as
+[Auras and dots](auras-and-dots.md) sets out. `Proc()` empties the cast requirement, so a rank
+registered with it casts and only its `Dot.Apply` skips.
 
 The class does nothing beyond reporting its form in `Unit.ShapeshiftForm` (the warrior's `setStance`,
 the druid's `setForm`). A unit that sets `Unit.AutoUnshift` (the druid, to `ClearForm`) can cast a spell

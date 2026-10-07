@@ -117,8 +117,8 @@ func TestEffectLines(t *testing.T) {
 		},
 		{
 			name:    "hit on the off hand's attacks, by the hand bit",
-			id:      1323963,
-			effect:  1,
+			id:      23584,
+			effect:  3,
 			human:   "+10% physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand",
 			literal: "E_APPLY_AURA A_MOD_HIT_CHANCE base=10 sp=1 target=[1,0]",
 		},

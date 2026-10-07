@@ -13,8 +13,6 @@ var cleaveTargets = int32(cleaveRank.DamageEffect().ChainTargets)
 func (warrior *Warrior) registerHeroicStrike() {
 	config := spelldata.SpellConfig(&warrior.Unit, heroicStrikeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.Flags &^= core.SpellFlagAPL
-	// TODO: Ingame research needed if this adds flat threat
-	config.FlatThreatBonus = 0
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := heroicStrikeRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
@@ -32,12 +30,14 @@ func (warrior *Warrior) registerHeroicStrike() {
 func (warrior *Warrior) registerCleave() {
 	config := spelldata.SpellConfig(&warrior.Unit, cleaveRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.Flags &^= core.SpellFlagAPL
-	// TODO: Ingame research needed if this adds flat threat
-	config.FlatThreatBonus = 0
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := cleaveRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		// The flat threat is the cleave's total, split between the targets it hits.
+		flatThreat := spell.FlatThreatBonus
+		spell.FlatThreatBonus /= float64(min(cleaveTargets, sim.Environment.ActiveTargetCount()))
 		results := spell.CalcCleaveDamage(sim, target, cleaveTargets, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		spell.FlatThreatBonus = flatThreat
 		spell.DealBatchedAoeDamage(sim)
 		if !results[0].Landed() {
 			spell.IssueRefund(sim)

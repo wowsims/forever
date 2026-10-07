@@ -573,7 +573,7 @@ const (
 	// Uses: FloatValue
 	SpellMod_BaseDamage_Flat
 
-	// Will multiply the spell.FlatThreatBonus. +5% = 0.05
+	// Will multiply the spell.FlatThreatBonus and its attack power share. +5% = 0.05
 	// Uses FloatValue
 	SpellMod_FlatThreatBonus_Pct
 
@@ -1212,10 +1212,12 @@ func removeBaseDamageFlat(mod *SpellMod, spell *Spell) {
 
 func applyFlatThreatBonusPercent(mod *SpellMod, spell *Spell) {
 	spell.FlatThreatBonus *= (1 + mod.floatValue)
+	spell.ThreatAPCoefficient *= (1 + mod.floatValue)
 }
 
 func removeFlatThreatBonusPercent(mod *SpellMod, spell *Spell) {
 	spell.FlatThreatBonus /= (1 + mod.floatValue)
+	spell.ThreatAPCoefficient /= (1 + mod.floatValue)
 }
 
 // A dot belongs to the spell that ticks it, so every spell the mod names takes the value; the auras

@@ -223,7 +223,9 @@ func init() {
 	// The proc spell names no buff: each class with spells to crit has a Revelation of its own, and the
 	// wearer gets its class's, with that row's class flags and charge. The game files state no rate,
 	// only that a direct spell or heal landing without a crit rolls it, and that the chance falls as
-	// the wearer's crit chance rises. The spell a channel casts each tick (Blizzard's) rolls it too.
+	// the wearer's crit chance rises. Only a hit that deals damage or heals rolls it: a landing for
+	// nothing, such as a channel's start or an aura's application, does not. The spell a channel
+	// casts each tick (Blizzard's) rolls it too.
 	// TODO: Verify in game that warriors and rogues get no buff.
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -250,6 +252,7 @@ func init() {
 		}, spelldata.Chance(0.09)) // TODO: Measure the rate and how it falls with the wearer's crit chance.
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
+		trigger.RequireDamageDealt = true
 		// The row's listener hears direct spells and heals. A ranged Shot the buff's class flags name
 		// rolls the same chance, which the hunter buff's Arcane Shot is.
 		// TODO: Verify in game that a hunter's Arcane Shot procs Revelation.

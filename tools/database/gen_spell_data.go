@@ -1230,10 +1230,17 @@ func renderSpellDataFiles(helper *DBHelper, only SpellDataGroups, committed *sto
 	if committed == nil && !only.all() {
 		return nil, nil, fmt.Errorf("%s is missing, so there is nothing to keep the groups not taken from", spellStoreInputsPath)
 	}
+	push, err := hotfixPush(helper)
+	if err != nil {
+		return nil, nil, err
+	}
 	if committed != nil {
 		if later := groupsOnALaterBuild(committed, only, version); len(later) > 0 {
 			return nil, nil, fmt.Errorf("the game files database is %s, and %s already record a later build: "+
 				"extract the later build, or leave those groups out", version, strings.Join(later, ", "))
+		}
+		if err := checkHotfixes(committed.Builds, committed.Hotfixes, only, version, push); err != nil {
+			return nil, nil, err
 		}
 	}
 
@@ -1280,7 +1287,7 @@ func renderSpellDataFiles(helper *DBHelper, only SpellDataGroups, committed *sto
 	// The game files rows the store is built from are captured on the way through and handed back, so
 	// the caller can write them next to the store and the regeneration can be checked without the
 	// database - see spelldata_inputs.go.
-	inputs, err := loadStoreInputs(helper.db, classRoots, trees, version)
+	inputs, err := loadStoreInputs(helper.db, classRoots, trees, version, push)
 	if err != nil {
 		return nil, nil, err
 	}

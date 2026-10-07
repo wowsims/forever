@@ -107,6 +107,61 @@ func buildVersion(helper *DBHelper) (string, error) {
 	return version, nil
 }
 
+// The highest hotfix push db2tool applied to the database, which it records in BuildInfo. A
+// database whose BuildInfo has no HotfixPush column reads as 0, the same as one extracted with no
+// hotfixes.
+func hotfixPush(helper *DBHelper) (int32, error) {
+	var columns int
+	if err := helper.db.QueryRow(`SELECT count(*) FROM pragma_table_info('BuildInfo') WHERE name = 'HotfixPush'`).Scan(&columns); err != nil {
+		return 0, fmt.Errorf("reading the columns of BuildInfo: %w", err)
+	}
+	if columns == 0 {
+		return 0, nil
+	}
+	var push int32
+	if err := helper.db.QueryRow(`SELECT HotfixPush FROM BuildInfo`).Scan(&push); err != nil {
+		return 0, fmt.Errorf("reading the hotfix push from BuildInfo: %w", err)
+	}
+	return push, nil
+}
+
+// Refuses a database older in hotfixes than the committed inputs: taking a group from it would drop
+// the hotfix rows its committed data holds. Only groups recorded on the database's game build are
+// compared, and a group the inputs record no push for passes.
+func checkHotfixes(builds map[string]string, hotfixes map[string]int32, only SpellDataGroups, version string, push int32) error {
+	var newer []string
+	for _, p := range allSpellDataGroups() {
+		committed, ok := hotfixes[p]
+		if ok && only.Takes(p) && builds[p] == version && committed > push {
+			newer = append(newer, fmt.Sprintf("%s (push %d)", p, committed))
+		}
+	}
+	if len(newer) == 0 {
+		return nil
+	}
+	return fmt.Errorf("the game files database is %s with hotfixes up to push %d, and the committed inputs hold later hotfixes for %s: "+
+		"log into the game to refresh DBCache.bin (or pass a newer cache with `make db DB2TOOL_FLAGS=\"--dbcache path/to/DBCache.bin\"`) "+
+		"and run `make db` again", version, push, strings.Join(newer, ", "))
+}
+
+// Refuses the database when the committed inputs hold later hotfixes for a group only takes on the
+// same game build.
+func RequireCommittedHotfixes(helper *DBHelper, only SpellDataGroups) error {
+	builds, hotfixes, err := readCommittedBuilds()
+	if err != nil || hotfixes == nil {
+		return err
+	}
+	version, err := buildVersion(helper)
+	if err != nil {
+		return err
+	}
+	push, err := hotfixPush(helper)
+	if err != nil {
+		return err
+	}
+	return checkHotfixes(builds, hotfixes, only, version, push)
+}
+
 // The groups whose committed build matches the database's. -check compares only these and reports a
 // group on another build as not ported. Inputs that record no builds are checked whole.
 func currentSpellDataGroups(builds map[string]string, version string) (only SpellDataGroups, behind []string) {
@@ -134,7 +189,7 @@ func currentSpellDataGroups(builds map[string]string, version string) (only Spel
 // only the groups on the database's build, so a plain run never moves a class that has not been
 // ported.
 func defaultSpellDataGroups(helper *DBHelper) (SpellDataGroups, []string, error) {
-	builds, err := readCommittedBuilds()
+	builds, _, err := readCommittedBuilds()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -422,9 +477,14 @@ func mergeStoreInputs(old, fresh *storeInputs, only SpellDataGroups, version str
 	if merged.Builds == nil {
 		merged.Builds = map[string]string{}
 	}
+	merged.Hotfixes = maps.Clone(old.Hotfixes)
+	if merged.Hotfixes == nil {
+		merged.Hotfixes = map[string]int32{}
+	}
 	for _, p := range allSpellDataGroups() {
 		if only.Takes(p) {
 			merged.Builds[p] = version
+			merged.Hotfixes[p] = fresh.Hotfixes[p]
 		}
 	}
 	return merged, append(notes, racialBuildWarnings(merged)...), nil

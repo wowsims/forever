@@ -97,7 +97,7 @@ func TestExprValue(t *testing.T) {
 			expr:  "spelldata.MustFind(11574).SpellSchool()",
 			kind:  kindValue,
 			trail: "spelldata.MustFind(11574).SpellSchool()",
-			value: "1",
+			value: "SpellSchoolPhysical",
 			read:  0,
 			id:    11574,
 		},

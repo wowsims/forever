@@ -161,6 +161,8 @@ type Unit struct {
 
 	categoryTimers map[int32]*Timer
 
+	dotRankGroups map[string]*dotRankGroup
+
 	AttackTables                 []*AttackTable
 	DynamicDamageTakenModifiers  []DynamicDamageTakenModifier
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
