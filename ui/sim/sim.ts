@@ -862,6 +862,7 @@ export class Sim {
 		[ConsumableType.ConsumableTypeScroll]: 40,
 		[ConsumableType.ConsumableTypeExplosive]: 30,
 		[ConsumableType.ConsumableTypeImbue]: 40,
+		[ConsumableType.ConsumableTypeWeaponImbue]: 40,
 	};
 	getMinConsumableLvl(type: ConsumableType): number {
 		return this.store.getState().sim.filters.minConsumableLvl[type] ?? Sim.DEFAULT_MIN_CONSUMABLE_LVL[type] ?? 0;

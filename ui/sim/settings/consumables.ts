@@ -16,7 +16,10 @@ export enum ConsumableSlot {
 	Elixir,
 	Food,
 	Explosive,
+	// A sharpening stone, weightstone, oil or shield coating: a temporary enchant, one per hand.
 	Imbue,
+	// A poison, firestone, spellstone or Scroll of Imbue: one per hand, beside the hand's temporary enchant.
+	WeaponImbue,
 	// Everything else, picked any number at a time into extra_ids.
 	Extra,
 }
@@ -51,6 +54,8 @@ export function consumableSlot(consumable: Consumable): ConsumableSlot {
 			return ConsumableSlot.Explosive;
 		case ConsumableType.ConsumableTypeImbue:
 			return ConsumableSlot.Imbue;
+		case ConsumableType.ConsumableTypeWeaponImbue:
+			return ConsumableSlot.WeaponImbue;
 		default:
 			return ConsumableSlot.Extra;
 	}

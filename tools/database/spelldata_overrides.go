@@ -97,6 +97,13 @@ func applyOverride(s *storeSpell, o overrides.Override) error {
 		}
 		s.DurationMs = int32(o.Value)
 
+	case overrides.ICDMs:
+		if s.ICDMs != 0 {
+			return fmt.Errorf("spell %d now states an internal cooldown of %d ms, so its hand-supplied one is stale",
+				s.ID, s.ICDMs)
+		}
+		s.ICDMs = int32(o.Value)
+
 	case overrides.Hint:
 		s.ProcHint = core.ProcHint(o.Value)
 

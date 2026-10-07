@@ -9,26 +9,22 @@ import (
 
 func TestSelectedConsumableIDs(t *testing.T) {
 	consumes := &proto.ConsumesSpec{
-		PotId:         13444,
-		Potions:       []int32{13444, 13446},
-		FlaskId:       13510,
-		FoodId:        20452,
-		ExplosiveId:   18588,
-		MhImbueId:     20749,
-		OhImbueId:     12404,
-		ConjuredItems: []int32{7676},
-		ExtraIds:      []int32{10646, 10309, 10305, 5206},
+		PotId:           13444,
+		Potions:         []int32{13444, 13446},
+		FlaskId:         13510,
+		FoodId:          20452,
+		ExplosiveId:     18588,
+		MhImbueId:       20749,
+		MhWeaponImbueId: 8928,
+		OhImbueId:       12404,
+		ConjuredItems:   []int32{7676},
+		ExtraIds:        []int32{10646, 10309, 10305, 5206},
 	}
 
-	got := selectedConsumableIDs(consumes, true)
-	want := []int32{13444, 13510, 20452, 18588, 12404, 20749, 10646, 10309, 10305, 5206, 13446, 7676}
+	got := selectedConsumableIDs(consumes)
+	want := []int32{13444, 13510, 20452, 18588, 12404, 20749, 8928, 10646, 10309, 10305, 5206, 13446, 7676}
 	if !slices.Equal(got, want) {
 		t.Errorf("selected %v, want %v", got, want)
-	}
-
-	bareMainHand := selectedConsumableIDs(consumes, false)
-	if slices.Contains(bareMainHand, 20749) {
-		t.Errorf("selected the main-hand imbue while the main hand carries no enchant: %v", bareMainHand)
 	}
 }
 
@@ -43,7 +39,7 @@ func TestSelectedConsumableIDsKeepTheFirstOfEachGroup(t *testing.T) {
 		{Id: scroll, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "29/2"},
 	}})
 
-	got := selectedConsumableIDs(&proto.ConsumesSpec{ElixirIds: []int32{agility, mongoose, sages, ungrouped}, ExtraIds: []int32{juju, scroll}}, false)
+	got := selectedConsumableIDs(&proto.ConsumesSpec{ElixirIds: []int32{agility, mongoose, sages, ungrouped}, ExtraIds: []int32{juju, scroll}})
 	if want := []int32{agility, sages, ungrouped, scroll}; !slices.Equal(got, want) {
 		t.Errorf("selected %v, want %v", got, want)
 	}

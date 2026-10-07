@@ -191,6 +191,32 @@ describe('consumeConfigs', () => {
 		expect(offered(configs.ohImbue, player)).toEqual([228980]);
 	});
 
+	it('gives each hand a stone and a weapon imbue side by side, each picker offering only its kind', () => {
+		const imbues = [
+			Consumable.create({ id: 12404, name: 'Dense Sharpening Stone', type: ConsumableType.ConsumableTypeImbue, weaponSubclassMask: 33219 }),
+			Consumable.create({
+				id: 8928,
+				name: 'Instant Poison VI',
+				type: ConsumableType.ConsumableTypeWeaponImbue,
+				weaponSubclassMask: 173555,
+				classAllowlist: [Class.ClassRogue],
+			}),
+		];
+		const imbueDb = { getConsumables: () => imbues, getSpellEffect: () => undefined } as unknown as Database;
+		const dagger = UIItem.create({ weaponType: WeaponType.WeaponTypeDagger, handType: HandType.HandTypeOneHand });
+		const sword = UIItem.create({ weaponType: WeaponType.WeaponTypeSword, handType: HandType.HandTypeOneHand });
+		const { player, state } = playerOf({ cls: Class.ClassRogue, spec: Spec.SpecRogue, mainHand: dagger, offHand: sword });
+		const configs = consumeConfigs(player, imbueDb);
+		expect(offered(configs.mhImbue, player)).toEqual([12404]);
+		expect(offered(configs.ohImbue, player)).toEqual([12404]);
+		expect(offered(configs.mhWeaponImbue, player)).toEqual([8928]);
+		expect(offered(configs.ohWeaponImbue, player)).toEqual([8928]);
+
+		configs.mhImbue.setValue(player, 12404);
+		configs.mhWeaponImbue.setValue(player, 8928);
+		expect([state.consumes.mhImbueId, state.consumes.mhWeaponImbueId]).toEqual([12404, 8928]);
+	});
+
 	it('shows the main-hand imbue under Windfury Totem and Flametongue Totem', () => {
 		const { player } = playerOf({ windfury: true, flametongue: true });
 		const mhImbue = consumeConfigs(player, db).mhImbue;
@@ -300,8 +326,8 @@ describe('consumeConfigs', () => {
 			Consumable.create({ ...scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'), classAllowlist: [Class.ClassRogue] }),
 			Consumable.create({ id: 12404, name: 'Dense Sharpening Stone II', type: ConsumableType.ConsumableTypeImbue, weaponSubclassMask: 1 << 7 }),
 			Consumable.create({ id: 12643, name: 'Dense Sharpening Stone III', type: ConsumableType.ConsumableTypeImbue, weaponSubclassMask: 1 << 15 }),
-			Consumable.create({ id: 8928, name: 'Instant Poison V', type: ConsumableType.ConsumableTypeImbue, lvl: 52, weaponSubclassMask: 1 << 15 }),
-			Consumable.create({ id: 8927, name: 'Instant Poison IV', type: ConsumableType.ConsumableTypeImbue, lvl: 44, weaponSubclassMask: 1 << 15 }),
+			Consumable.create({ id: 8928, name: 'Instant Poison V', type: ConsumableType.ConsumableTypeWeaponImbue, lvl: 52, weaponSubclassMask: 1 << 15 }),
+			Consumable.create({ id: 8927, name: 'Instant Poison IV', type: ConsumableType.ConsumableTypeWeaponImbue, lvl: 44, weaponSubclassMask: 1 << 15 }),
 		];
 		const rankDb = { getConsumables: () => ranks, getSpellEffect: () => undefined } as unknown as Database;
 		const sword = UIItem.create({ weaponType: WeaponType.WeaponTypeSword, handType: HandType.HandTypeOneHand });
@@ -315,7 +341,8 @@ describe('consumeConfigs', () => {
 		const rogue = playerOf({ cls: Class.ClassRogue, mainHand: dagger }).player;
 		const rogueConfigs = consumeConfigs(rogue, rankDb);
 		expect(offered(rogueConfigs.scrolls[0], rogue)).toEqual([2289, 10310]);
-		expect(offered(rogueConfigs.mhImbue, rogue)).toEqual([8928, 8927, 12643]);
+		expect(offered(rogueConfigs.mhImbue, rogue)).toEqual([12643]);
+		expect(offered(rogueConfigs.mhWeaponImbue, rogue)).toEqual([8928, 8927]);
 	});
 
 	it('keeps offering a picked consumable below the minimum level, and hides it once unpicked', () => {

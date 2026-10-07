@@ -101,8 +101,10 @@ damage or any of the weapon-damage effects), `HealEffect()`, `EnergizeEffect()` 
 | `Coeff()` / `APCoeff()` | the spell power and attack power shares of the effect                 |
 | `Average()`             | the amount at the sim's character level                               |
 | `Min()` / `Max()`       | the ends of the roll                                                  |
-| `Mean()`                | what a cast averages, the middle of the roll                          |
+| `Mean()`                | what a cast averages before power                                     |
 | `Roll(sim)`             | the amount for one cast                                               |
+| `DirectAmount(sim)`     | what to hand `CalcDamage` or `CalcHealing`: `Average()` or one `Roll` |
+| `DirectVariance()`      | the variance `core.SpellConfig.DirectVariance` takes from the effect  |
 
 Each also comes in an `At` form taking a level (`AverageAt(level)`, `RollAt(sim, level)`), for a test
 pinning an in-game tooltip at a lower level and for `ParseEffects`' level option.
@@ -114,12 +116,25 @@ Where it does not (Vindication's debuff states 0 and 1), the in-game amount coun
 The arithmetic is float32 on purpose: the game files' per-level gain is a float32 widened into the
 database, and folding it in float64 moves six rows off the tooltip.
 
-`EffectVariance` is the spread the amount rolls over. It spreads the base points only:
-`|BasePoints| * Variance/2` either side of them, with each end rounded to a whole number and a base end
-on a half rounding to the even one. The per-level gain is then added to both ends, and `Min` is rounded
-down and `Max` rounded up, in float32 for the same reason. `Roll` rolls it where the row states one and
-answers the average where it does not, so a call site never has to ask whether this particular spell's
-amount is a range.
+`EffectVariance` is the full width of the roll, and what it spreads depends on the effect.
+
+- A spell-school hit (`E_SCHOOL_DAMAGE` on a spell that is not physical) and a heal of any school roll
+  their whole amount once spell power or healing power is added: the amount lands within
+  `Variance/2` of itself. Core applies that roll, so the spell takes `DirectVariance()` into
+  `core.SpellConfig.DirectVariance` and the call site hands `CalcDamage` or `CalcHealing` the
+  unrolled `Average()`; `Mean()` answers the same.
+- A physical hit rolls its base points alone by `|BasePoints| * Variance` either side, and attack
+  power is added on top unspread.
+- Any other effect (an energize, an absorb, an aura's amount) rolls its base points by
+  `|BasePoints| * Variance/2` either side.
+
+The base-point ends are rounded to a whole number, a base end on a half rounding to the even one. The
+per-level gain is then added to both ends, and `Min` is rounded down and `Max` rounded up, in float32
+for the same reason. For a spell-school hit or a heal those are the ends the game files state, not
+where a cast lands. `Roll` rolls the base points where the row states a spread and answers the average
+where it does not; `DirectAmount` answers the average where core rolls the whole amount and `Roll`
+otherwise, so a call site that serves physical and spell-school rows alike never has to ask which it
+holds.
 
 ## Attributes, edges and class flags
 

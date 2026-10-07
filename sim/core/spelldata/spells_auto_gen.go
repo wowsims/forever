@@ -22803,11 +22803,11 @@ var generatedSpells = []Spell{
 			{ID: 879400, SpellID: 350025, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 33, PPL: 0.699999988079071, Variance: 0.12121211737394333, MaxLevel: 12, SPCoef: 0.26899999380111694, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Cost: 35}}}, // enchantment: ProcChance 10 -- EffectPointsMin of SpellItemEnchantment 26
-	{ID: 350026, Name: "Shadow Bolt", School: 32, Speed: 20, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 12, MaxLevel: 17, CastTimeMs: 2800, MaxRange: 30, DefenseType: 1, PreventionType: 1, ProcChance: 15, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 1}}, InterruptFlags: 15,
+	{ID: 350026, Name: "Shadow Bolt", School: 32, Speed: 20, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 12, MaxLevel: 17, CastTimeMs: 2800, MaxRange: 30, DefenseType: 1, PreventionType: 1, ProcChance: 15, ICDMs: 10000, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 1}}, InterruptFlags: 15,
 		Effects: []Effect{
 			{ID: 879401, SpellID: 350026, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 52, PPL: 0.8999999761581421, Variance: 0.1538461595773697, MaxLevel: 17, SPCoef: 0.5600000023841858, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Cost: 70}}}, // enchantment: ProcChance 15 -- EffectPointsMin of SpellItemEnchantment 25
+		Powers: []Power{{Cost: 70}}}, // enchantment: ProcChance 15 -- EffectPointsMin of SpellItemEnchantment 25 // override: ICDMs 10000 -- Shadow Oil: no proc on 425 landed hits within 10 s of the last one, 80 on 633 after; procs at least 10.26 s apart, none on hits from 9.98 s
 	{ID: 355363, Name: "Rallying Cry of the Dragonslayer", School: 1, Attr: [17]uint32{2: 0x104, 3: 0x100000, 5: 0x60008, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 7200000, MaxRange: 50000, ProcChance: 101, AuraInterrupt: [2]uint32{1: 0x800}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
 		Effects: []Effect{
 			{ID: 888415, SpellID: 355363, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SPELL_CRIT_CHANCE, BasePoints: 10, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},

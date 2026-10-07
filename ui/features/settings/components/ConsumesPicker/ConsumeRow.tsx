@@ -41,7 +41,7 @@ const rowConfigShown = (config: ConsumeRowConfig, player: Player<any>): boolean 
 	'values' in config ? iconEnumPickerShown(config, player) : !config.showWhen || config.showWhen(player);
 
 export interface ConsumeRowProps {
-	name: 'potions' | 'elixirs' | 'food' | 'holiday' | 'engineering' | 'imbue' | 'scrolls' | 'miscellaneous';
+	name: 'potions' | 'elixirs' | 'food' | 'holiday' | 'engineering' | 'imbue' | 'weaponImbue' | 'scrolls' | 'miscellaneous';
 	configs: ReadonlyArray<ConsumeRowConfig>;
 	children: ReactNode;
 }

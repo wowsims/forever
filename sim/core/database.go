@@ -198,9 +198,15 @@ type Item struct {
 	//Internal use
 	TempEnchant             int32
 	TempEnchantWeaponDamage float64
+	WeaponImbue             int32 // The Effect 360 imbue (poison, firestone, class imbue), beside the Effect 54 TempEnchant.
 	ScalingOptions          map[int32]*proto.ScalingItemProperties
 	RandPropPoints          int32
 	ItemEffects             []*proto.ItemEffect
+}
+
+// Matches either slot: the Effect 54 TempEnchant or the Effect 360 WeaponImbue.
+func (item *Item) HasTempEnchant(effectID int32) bool {
+	return item.TempEnchant == effectID || item.WeaponImbue == effectID
 }
 
 func ItemFromProto(pData *proto.SimItem) Item {
@@ -406,7 +412,7 @@ func (equipment *Equipment) EquipEnchant(enchant Enchant) {
 }
 
 func (equipment *Equipment) containsEnchantInSlot(effectID int32, slot proto.ItemSlot) bool {
-	return (equipment[slot].Enchant.EffectID == effectID) || (equipment[slot].TempEnchant == effectID)
+	return (equipment[slot].Enchant.EffectID == effectID) || equipment[slot].HasTempEnchant(effectID)
 }
 
 func (equipment *Equipment) containsEnchantInSlots(effectID int32, possibleSlots []proto.ItemSlot) bool {

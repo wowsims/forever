@@ -5,7 +5,7 @@ import (
 )
 
 func (rogue *Rogue) applyPoisons() {
-	if rogue.Consumables.MhImbueId == 0 && rogue.Consumables.OhImbueId == 0 {
+	if rogue.Consumables.MhWeaponImbueId == 0 && rogue.Consumables.OhWeaponImbueId == 0 {
 		return
 	}
 	rogue.applyDeadlyPoison()
@@ -154,10 +154,10 @@ func (rogue *Rogue) registerInstantPoisonSpell() {
 
 func (rogue *Rogue) getPoisonProcMask(poisonId int32) core.ProcMask {
 	var mask core.ProcMask
-	if rogue.Consumables.MhImbueId == poisonId {
+	if rogue.Consumables.MhWeaponImbueId == poisonId {
 		mask |= core.ProcMaskMeleeMH
 	}
-	if rogue.Consumables.OhImbueId == poisonId {
+	if rogue.Consumables.OhWeaponImbueId == poisonId {
 		mask |= core.ProcMaskMeleeOH
 	}
 	return mask

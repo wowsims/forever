@@ -87,11 +87,11 @@ func (c *Consumable) ToMap() map[string]interface{} {
 // ToProto converts the Consumable to a proto representation.
 func (c *Consumable) ToProto() *proto.Consumable {
 	onUses := c.OnUseEffects()
-	enchant := temporaryEnchantSpell(onUses)
+	enchant, enchantEffect := temporaryEnchantSpell(onUses)
 	category := onUseCategory(onUses)
 	consumable := &proto.Consumable{
 		Id:                 int32(c.Id),
-		Type:               c.consumableType(enchant, category),
+		Type:               c.consumableType(enchantEffect, category),
 		Stats:              c.GetStatModifiers().ToProtoArray(),
 		Name:               c.Name,
 		Lvl:                int32(c.ItemLevel),
@@ -146,16 +146,16 @@ func (c *Consumable) OnUseEffects() []*proto.ItemEffect {
 	return effects
 }
 
-func temporaryEnchantSpell(onUses []*proto.ItemEffect) *Spell {
+func temporaryEnchantSpell(onUses []*proto.ItemEffect) (*Spell, dbcenums.SpellEffectType) {
 	for _, e := range onUses {
 		for _, se := range dbcInstance.SpellEffects[int(e.BuffId)] {
 			if IsTemporaryEnchantEffect(se.EffectType) {
 				spell := dbcInstance.Spells[int(e.BuffId)]
-				return &spell
+				return &spell, se.EffectType
 			}
 		}
 	}
-	return nil
+	return nil, 0
 }
 
 // The category the first on-use shares: the item's row, or where it states none, its spell's. The
@@ -182,9 +182,11 @@ func (c *Consumable) SharesExplosivesCategory() bool {
 // item whose spell 11406 shares category 4), and otherwise its item subclass, with what shares the
 // food or drink category food. Whether it is an explosive takes how its spell routes, which the
 // database package decides.
-func (c *Consumable) consumableType(enchant *Spell, category int32) proto.ConsumableType {
+func (c *Consumable) consumableType(enchantEffect dbcenums.SpellEffectType, category int32) proto.ConsumableType {
 	switch {
-	case enchant != nil:
+	case enchantEffect == dbcenums.E_360:
+		return proto.ConsumableType_ConsumableTypeWeaponImbue
+	case enchantEffect != 0:
 		return proto.ConsumableType_ConsumableTypeImbue
 	case category == POTION_SPELL_CATEGORY:
 		return proto.ConsumableType_ConsumableTypePotion

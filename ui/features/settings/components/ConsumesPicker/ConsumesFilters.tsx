@@ -19,6 +19,7 @@ const TYPE_KEYS: ReadonlyArray<[ConsumableType, string]> = [
 	[ConsumableType.ConsumableTypeFood, 'food'],
 	[ConsumableType.ConsumableTypeExplosive, 'explosive'],
 	[ConsumableType.ConsumableTypeImbue, 'imbue'],
+	[ConsumableType.ConsumableTypeWeaponImbue, 'weaponImbue'],
 	[ConsumableType.ConsumableTypeDevice, 'device'],
 	[ConsumableType.ConsumableTypeOther, 'other'],
 ];

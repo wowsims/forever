@@ -480,16 +480,16 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 716.19824
-  tps: 518.43768
+  dps: 716.17307
+  tps: 518.42006
   dtps: 8.54968
  }
 }
 dps_results: {
  key: "TestHunter-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 549.60226
-  tps: 400.95822
+  dps: 549.60202
+  tps: 400.95805
   dtps: 8.33294
  }
 }

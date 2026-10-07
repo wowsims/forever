@@ -695,7 +695,8 @@
 					"scroll": "Scrolls",
 					"food": "Food",
 					"explosive": "Explosives",
-					"imbue": "Imbues",
+					"imbue": "Stones and Oils",
+					"weaponImbue": "Weapon Imbues",
 					"device": "Devices",
 					"other": "Other"
 				}
@@ -719,9 +720,14 @@
 				"explosives": "Explosives"
 			},
 			"imbue": {
-				"title": "Imbues",
+				"title": "Stones and Oils",
 				"mhImbue": "Main Hand",
 				"ohImbue": "Off Hand"
+			},
+			"weaponImbue": {
+				"title": "Weapon Imbues",
+				"mhWeaponImbue": "Main Hand",
+				"ohWeaponImbue": "Off Hand"
 			},
 			"scrolls": {
 				"title": "Scrolls"

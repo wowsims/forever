@@ -43,7 +43,8 @@ func TestTemporaryEnchantStatsApplyPerEnchantedHand(t *testing.T) {
 }
 
 // Shadow Oil 3824, enchant 25: its combat spell 350026 is cast off the enchanted weapon's hits, at the
-// 15% the store writes onto 350026's row from the enchantment.
+// 15% the store writes onto 350026's row from the enchantment, with the 10 s internal cooldown the
+// override states.
 func TestTemporaryEnchantCombatSpellRegistersAWeaponProc(t *testing.T) {
 	shadowOil := core.Consumable{Id: 3824, Name: "Shadow Oil", TemporaryEnchant: &core.Enchant{
 		EffectID:       25,
@@ -54,8 +55,12 @@ func TestTemporaryEnchantCombatSpellRegistersAWeaponProc(t *testing.T) {
 	character.Equipment[proto.ItemSlot_ItemSlotMainHand] = core.Item{ID: 1, TempEnchant: 25}
 	applyTemporaryEnchant(character, shadowOil)
 
-	if auraByLabel(character, "Shadow Oil") == nil {
+	listener := auraByLabel(character, "Shadow Oil")
+	if listener == nil {
 		t.Fatal("no listener casts the oil's combat spell")
+	}
+	if listener.Icd == nil || listener.Icd.Duration != 10*time.Second {
+		t.Errorf("the oil's listener has internal cooldown %v, want 10 s", listener.Icd)
 	}
 	if character.GetSpell(core.ActionID{SpellID: 350026}) == nil {
 		t.Error("the combat spell 350026 was not registered")
@@ -204,6 +209,49 @@ func TestSparkResetsCategoryNineteenOnHitsTaken(t *testing.T) {
 	}
 	if procs < 1 || procs > 12 {
 		t.Errorf("%d procs over 50 hits taken, want about 5 at 10%%", procs)
+	}
+}
+
+// A stone shaped like Dense Sharpening Stone 12404 (Effect 54, enchant 1643's 8 weapon damage) and a
+// poison shaped like Instant Poison VI 8928 (Effect 360, enchant 625's combat spell 11337): one hand
+// carries both.
+func TestStoneAndPoisonShareAHand(t *testing.T) {
+	const stone, poison int32 = 991513, 991514
+	const mainHandID, offHandID int32 = 991511, 991512
+	core.AddToDatabase(&proto.SimDatabase{
+		Items: []*proto.SimItem{testOneHander(mainHandID), testOneHander(offHandID)},
+		Consumables: []*proto.Consumable{
+			{Id: stone, Name: "Test Stone", Type: proto.ConsumableType_ConsumableTypeImbue,
+				TemporaryEnchant: &proto.SimEnchant{EffectId: 1643, WeaponDamage: 8}},
+			{Id: poison, Name: "Test Poison", Type: proto.ConsumableType_ConsumableTypeWeaponImbue,
+				TemporaryEnchant: &proto.SimEnchant{EffectId: 625, EnchantEffects: []*proto.ItemEffect{{BuffId: 11337}}}},
+		},
+	})
+	NewSpellDataTemporaryEnchant(stone, SchoolPiercing{})
+	NewSpellDataTemporaryEnchant(poison, SchoolPiercing{})
+
+	player := testMage()
+	player.Name = "Wearer"
+	player.Buffs = &proto.IndividualBuffs{}
+	player.Equipment = &proto.EquipmentSpec{Items: testHands(&proto.ItemSpec{Id: mainHandID}, &proto.ItemSpec{Id: offHandID})}
+	player.Consumables = &proto.ConsumesSpec{MhImbueId: stone, MhWeaponImbueId: poison}
+	player.Rotation = &proto.APLRotation{}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
+		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 600},
+	}, simsignals.CreateSignals())
+	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+
+	mainHand := character.Equipment[proto.ItemSlot_ItemSlotMainHand]
+	if mainHand.TempEnchant != 1643 || mainHand.WeaponImbue != 625 {
+		t.Fatalf("main hand carries enchant %d and imbue %d, want the stone's 1643 and the poison's 625", mainHand.TempEnchant, mainHand.WeaponImbue)
+	}
+	if got := character.WeaponFromMainHand().BaseDamageMin; got != 58 {
+		t.Errorf("main hand deals %v minimum damage, want the sword's 50 and the stone's 8", got)
+	}
+	if auraByLabel(character, "Test Poison") == nil {
+		t.Error("no listener casts the poison's combat spell beside the stone")
 	}
 }
 

@@ -53,7 +53,7 @@ func (shaman *Shaman) registerSearingTotemSpell() {
 	attackConfig := shaman.newTotemAttackConfig(searingAttackRank)
 	attackConfig.ClassSpellMask = SpellMaskSearingTotem
 	attackConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 			spell.DealDamage(sim, result)
 		})
@@ -75,7 +75,7 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 	pulseConfig := shaman.newTotemAttackConfig(magmaPulseRank)
 	pulseConfig.ClassSpellMask = SpellMaskMagmaTotem
 	pulseConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealAoeDamage(sim, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 	pulse := shaman.RegisterSpell(pulseConfig)
 
@@ -98,6 +98,7 @@ func (shaman *Shaman) registerFireNovaSpell() {
 		spelldata.Flags(SpellFlagShamanSpell|SpellFlagInstant))
 	config.ClassSpellMask = SpellMaskFireNova
 	config.BonusCoefficient = damage.Coeff()
+	config.DirectVariance = damage.DirectVariance()
 	for i := range config.ClassFlags.Mask {
 		config.ClassFlags.Mask[i] |= fireNovaDamageRank.ClassFlags.Mask[i]
 	}
@@ -107,7 +108,7 @@ func (shaman *Shaman) registerFireNovaSpell() {
 		return totem != nil && totem.IsActive()
 	}
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealAoeDamage(sim, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 
 	shaman.FireNova = shaman.RegisterSpell(config)

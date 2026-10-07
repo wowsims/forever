@@ -31,7 +31,7 @@ func (paladin *Paladin) registerHolyWrath(_ int32, rank *spelldata.Spell) {
 		results := []*core.SpellResult{}
 		for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
 			if aoeTarget.MobType == proto.MobType_MobTypeUndead || aoeTarget.MobType == proto.MobType_MobTypeDemon {
-				results = append(results, spell.CalcDamage(sim, aoeTarget, damage.Roll(sim), spell.OutcomeMagicHitAndCrit))
+				results = append(results, spell.CalcDamage(sim, aoeTarget, damage.Average(), spell.OutcomeMagicHitAndCrit))
 			}
 		}
 

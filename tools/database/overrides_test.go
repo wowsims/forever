@@ -29,6 +29,7 @@ func TestOverridesBakeOntoTheRow(t *testing.T) {
 		{SpellID: 10, Field: overrides.APCoefDirect, Value: 0.2, Reason: "measured"},
 		{SpellID: 10, Field: overrides.APCoefPeriodic, Value: 0.1, Reason: "measured"},
 		{SpellID: 10, Field: overrides.DurationMs, Value: 15000, Reason: "measured"},
+		{SpellID: 10, Field: overrides.ICDMs, Value: 10000, Reason: "measured"},
 		{SpellID: 10, Field: overrides.Hint, Value: float64(core.ProcHintCrit), Reason: "measured"},
 		{SpellID: 10, Field: overrides.StatMask, Value: 16, Reason: "tooltip"},
 	}
@@ -37,8 +38,9 @@ func TestOverridesBakeOntoTheRow(t *testing.T) {
 	}
 
 	row := rows[0]
-	if row.RPPM != 1.5 || row.FlatThreat != 200 || row.DurationMs != 15000 {
-		t.Errorf("the row reads RPPM %v, flat threat %v, duration %d", row.RPPM, row.FlatThreat, row.DurationMs)
+	if row.RPPM != 1.5 || row.FlatThreat != 200 || row.DurationMs != 15000 || row.ICDMs != 10000 {
+		t.Errorf("the row reads RPPM %v, flat threat %v, duration %d, internal cooldown %d",
+			row.RPPM, row.FlatThreat, row.DurationMs, row.ICDMs)
 	}
 	if row.Effects[0].APCoef != 0.2 || row.Effects[1].APCoef != 0.1 {
 		t.Errorf("the effects read %v direct and %v periodic attack power",
@@ -202,6 +204,12 @@ func TestOverridesRefuseWhatTheClientNowStates(t *testing.T) {
 			rows:  []storeSpell{{ID: 10, DurationMs: 8000}},
 			list:  []overrides.Override{{SpellID: 10, Field: overrides.DurationMs, Value: 15000, Reason: "measured"}},
 			wants: "now states a duration of 8000 ms",
+		},
+		{
+			name:  "a game files internal cooldown",
+			rows:  []storeSpell{{ID: 10, ICDMs: 3000}},
+			list:  []overrides.Override{{SpellID: 10, Field: overrides.ICDMs, Value: 10000, Reason: "measured"}},
+			wants: "now states an internal cooldown of 3000 ms",
 		},
 		{
 			name: "a game files stat",

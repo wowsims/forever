@@ -22,7 +22,7 @@ func (shaman *Shaman) registerEarthShockSpell() {
 
 	damage := earthShockRank.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 
 	shaman.EarthShock = shaman.RegisterSpell(config)
@@ -36,7 +36,7 @@ func (shaman *Shaman) registerFlameShockSpell() {
 
 	damage := flameShockRank.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
 		}
@@ -53,7 +53,7 @@ func (shaman *Shaman) registerFrostShockSpell() {
 
 	damage := frostShockRank.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 
 	shaman.FrostShock = shaman.RegisterSpell(config)

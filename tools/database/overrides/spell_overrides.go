@@ -54,6 +54,10 @@ const (
 	// ranks scale their threat with their level. Fails like FlatThreat, and beside a FlatThreat
 	// override on the same spell.
 	ThreatPerSpellLevel
+
+	// The internal cooldown between two procs in milliseconds, onto Spell.ICDMs. Fails when the game
+	// files state a SpellAuraOptions.ProcCategoryRecovery.
+	ICDMs
 )
 
 func (f Field) String() string {
@@ -78,6 +82,8 @@ func (f Field) String() string {
 		return "APCoefThreat"
 	case ThreatPerSpellLevel:
 		return "ThreatPerSpellLevel"
+	case ICDMs:
+		return "ICDMs"
 	}
 	return "unknown field"
 }
@@ -252,6 +258,13 @@ var Spells = []Override{
 		Value:   16, // TODO: Verify in game that Mystic Mushroom raises Spirit, not Strength.
 		Reason:  "Increased Spirit: misc 0 and 0 is Strength by index, the tooltip reads 'Increases Spirit by 5%'",
 		Source:  "tooltip",
+	},
+	{
+		SpellID: 350026,
+		Field:   ICDMs,
+		Value:   10000,
+		Reason:  "Shadow Oil: no proc on 425 landed hits within 10 s of the last one, 80 on 633 after; procs at least 10.26 s apart, none on hits from 9.98 s",
+		Source:  "wcl:Y4mTwRvPtqAn36CB/1-9, 2026-10-07",
 	},
 
 	// Attack Power shares measured in game at levels 13 and 14, against the sheet's Attack Power from

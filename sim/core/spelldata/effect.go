@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
 // The game files' own number, before any unit the aura gives it.
@@ -98,7 +99,9 @@ func (e *Effect) levelGain(level int32) float32 {
 
 // The low end of the roll. EffectVariance spreads the base points, whose ends are rounded to whole
 // numbers, a half to the even one; the per-level gain is added to both, and each end is rounded
-// outward. An effect that does not roll answers the average at both ends.
+// outward. An effect that does not roll answers the average at both ends. For a spell-school hit or
+// a heal these are the ends the game files state, which core spreads over the whole amount instead
+// (DirectVariance).
 func (e *Effect) MinAt(level int32) float64 {
 	low, _ := e.spread(level)
 	return low
@@ -117,10 +120,14 @@ func (e *Effect) spread(level int32) (float64, float64) {
 		return average, average
 	}
 	base := float32(e.BasePoints)
-	half := float32(float32(math.Abs(e.BasePoints)) * float32(e.Variance) / 2)
+	// A physical hit rolls its base points by the whole Variance either side; anything else by half.
+	side := float32(float32(math.Abs(e.BasePoints)) * float32(e.Variance) / 2)
+	if e.physicalDamage() {
+		side *= 2
+	}
 	gain := e.levelGain(level)
-	low := float32(math.RoundToEven(float64(base-half))) + gain
-	high := float32(math.RoundToEven(float64(base+half))) + gain
+	low := float32(math.RoundToEven(float64(base-side))) + gain
+	high := float32(math.RoundToEven(float64(base+side))) + gain
 	return math.Floor(float64(low)), math.Ceil(float64(high))
 }
 
@@ -132,9 +139,42 @@ func (e *Effect) RollAt(sim *core.Simulation, level int32) float64 {
 	return sim.Roll(e.spread(level))
 }
 
-// What a cast averages: the middle of the roll where the game files state a spread, which can sit
-// half a point above Average, and the average where they do not.
+// What a cast averages before power: the average for a spell-school hit or a heal, whose roll core
+// centres on it; elsewhere the middle of the roll, which can sit half a point above Average.
 func (e *Effect) MeanAt(level int32) float64 {
+	if e.DirectVariance() > 0 {
+		return e.AverageAt(level)
+	}
 	low, high := e.spread(level)
 	return (low + high) / 2
+}
+
+// The amount to hand CalcDamage or CalcHealing for one cast: the average where core rolls the whole
+// amount (DirectVariance), one roll of the base points otherwise.
+func (e *Effect) DirectAmount(sim *core.Simulation) float64 {
+	if e.DirectVariance() > 0 {
+		return e.Average()
+	}
+	return e.Roll(sim)
+}
+
+// What core.SpellConfig.DirectVariance takes: the Variance of a spell-school hit or of a heal of any
+// school, which roll their whole amount once power is added; 0 for every other effect.
+func (e *Effect) DirectVariance() float64 {
+	switch {
+	case e.Type == dbcenums.E_HEAL:
+		return e.Variance
+	case e.Type == dbcenums.E_SCHOOL_DAMAGE && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
+		return e.Variance
+	}
+	return 0
+}
+
+func (e *Effect) physicalDamage() bool {
+	switch e.Type {
+	case dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE, dbcenums.E_WEAPON_PERCENT_DAMAGE,
+		dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL:
+		return Find(e.SpellID).SpellSchool() == core.SpellSchoolPhysical
+	}
+	return false
 }

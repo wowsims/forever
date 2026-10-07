@@ -60,7 +60,7 @@ func (paladin *Paladin) registerLightsVigilRank(_ int32, rank *spelldata.Spell) 
 	strikeConfig := spelldata.SpellConfig(&paladin.Unit, strikeRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
 	strikeConfig.ClassSpellMask = SpellMaskLightsVigilStrike
 	strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, strikeDamage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, strikeDamage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 	vigil.strike = paladin.RegisterSpell(strikeConfig)
 

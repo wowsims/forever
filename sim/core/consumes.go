@@ -77,17 +77,14 @@ func (character *Character) SelectedConsumableIDs() []int32 {
 	if character.Consumables == nil {
 		return nil
 	}
-	return selectedConsumableIDs(character.Consumables, character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant != 0)
+	return selectedConsumableIDs(character.Consumables)
 }
 
 // The agent's own consumables the spec names, each once, and of each exclusive group only the first.
-// The main-hand imbue counts only where applyTemporaryEnchants put its enchant on the main hand.
-func selectedConsumableIDs(consumables *proto.ConsumesSpec, mainHandEnchanted bool) []int32 {
+func selectedConsumableIDs(consumables *proto.ConsumesSpec) []int32 {
 	ids := append([]int32{consumables.PotId, consumables.FlaskId}, consumables.ElixirIds...)
-	ids = append(ids, consumables.FoodId, consumables.ConjuredId, consumables.ExplosiveId, consumables.OhImbueId)
-	if mainHandEnchanted {
-		ids = append(ids, consumables.MhImbueId)
-	}
+	ids = append(ids, consumables.FoodId, consumables.ConjuredId, consumables.ExplosiveId,
+		consumables.OhImbueId, consumables.OhWeaponImbueId, consumables.MhImbueId, consumables.MhWeaponImbueId)
 	ids = append(ids, consumables.ExtraIds...)
 	ids = append(ids, consumables.Potions...)
 	ids = append(ids, consumables.ConjuredItems...)

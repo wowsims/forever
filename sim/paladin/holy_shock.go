@@ -17,14 +17,15 @@ func (paladin *Paladin) registerHolyShock() {
 }
 
 // One of the rank's two spells off the cast row, with the effect row's id, defense type, class
-// flags and spell power coefficient.
+// flags, spell power coefficient and roll.
 func (paladin *Paladin) holyShockConfig(rank *spelldata.Spell, id int32, row *spelldata.Spell, effect *spelldata.Effect, mask core.ProcMask) core.SpellConfig {
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(mask))
 	config.ActionID = core.ActionID{SpellID: id}
 	config.DefenseType = row.DefenseTypeCore()
 	config.ClassFlags = row.ClassFlags
-	// Magic reads the coefficient off the cast row, which states none.
+	// Magic reads the coefficient and the roll off the cast row, which states neither.
 	config.BonusCoefficient = effect.Coeff()
+	config.DirectVariance = effect.DirectVariance()
 	return config
 }
 
@@ -40,7 +41,7 @@ func (paladin *Paladin) registerHolyShockRank(_ int32, rank *spelldata.Spell) {
 			vigil.consume(sim, target)
 			spell.CD.Reset()
 		}
-		spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 	paladin.RegisterSpell(damageConfig)
 
@@ -48,7 +49,7 @@ func (paladin *Paladin) registerHolyShockRank(_ int32, rank *spelldata.Spell) {
 	healConfig.Flags |= core.SpellFlagHelpful
 	healConfig.ClassSpellMask = SpellMaskHolyShockHeal
 	healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealHealing(sim, target, heal.Roll(sim), spell.OutcomeHealingCrit)
+		spell.CalcAndDealHealing(sim, target, heal.Average(), spell.OutcomeHealingCrit)
 	}
 	paladin.RegisterSpell(healConfig)
 }

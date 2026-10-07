@@ -24,7 +24,7 @@ func (shaman *Shaman) registerLavaBurstSpell() {
 		}
 
 		spell.DamageMultiplier *= multiplier
-		result := spell.CalcDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 		spell.DamageMultiplier /= multiplier
 
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {

@@ -676,6 +676,11 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	config.DefenseType = defenseType
 	outcome := damageOutcome(defenseType, damage.CannotCrit(), OutcomeDefault)
 	effect := damage.DamageEffect()
+	config.DirectVariance = effect.DirectVariance()
+	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
+	if damage.SplitsDamage {
+		config.DirectVariance = 0
+	}
 
 	single := make(core.SpellResultSlice, 1)
 	debuff := debuffOnLanding(character, damage)
@@ -693,7 +698,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, batchOutcome), debuff)
 				return
 			}
-			single[0] = spell.CalcDamage(sim, target, effect.Roll(sim), GetOutcome(spell, outcome))
+			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), GetOutcome(spell, outcome))
 			dealOneOnArrival(sim, spell, target, single, debuff)
 		}
 		return config
@@ -715,7 +720,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 			dealOnArrival(sim, spell, target, nil, after)
 			return
 		}
-		single[0] = spell.CalcDamage(sim, target, effect.Roll(sim), GetOutcome(spell, outcome))
+		single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), GetOutcome(spell, outcome))
 		dealOneOnArrival(sim, spell, target, single, after)
 	}
 
@@ -775,7 +780,7 @@ func applyDotIfLanded(sim *core.Simulation, spell *core.Spell, target *core.Unit
 // AoE cap the way an explosive does.
 func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	roll := func(sim *core.Simulation, _ *core.Spell) float64 {
-		return effect.Roll(sim)
+		return effect.DirectAmount(sim)
 	}
 
 	if !effect.HitsAnArea() {
@@ -793,7 +798,7 @@ func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core
 		if capped {
 			reached = min(reached, int32(row.MaxTargets))
 		}
-		share := roll(sim, spell) / float64(reached)
+		share := effect.Roll(sim) / float64(reached)
 		if capped {
 			return spell.CalcCleaveDamage(sim, target, int32(row.MaxTargets), share, outcome)
 		}
@@ -943,11 +948,12 @@ func spellDataProcHealSpell(character *core.Character, heal *spelldata.Spell, as
 		return spellDataProcHotSpell(character, heal, effect, config)
 	}
 
+	config.DirectVariance = effect.DirectVariance()
 	amount := func(sim *core.Simulation, target *core.Unit) float64 {
 		if effect.Type == dbcenums.E_HEAL_PCT {
 			return target.MaxHealth() * effect.Percent()
 		}
-		return effect.Roll(sim)
+		return effect.DirectAmount(sim)
 	}
 
 	cannotCrit := heal.CannotCrit()

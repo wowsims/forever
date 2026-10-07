@@ -127,7 +127,7 @@ const (
 // is nil for a consumable db.json does not ship, catalogued for one the catalogue does not carry.
 func registrationFamilyOf(c *proto.Consumable, catalogued *dbc.Consumable, routing *ConsumableRouting) registrationFamily {
 	switch {
-	case c != nil && c.Type == proto.ConsumableType_ConsumableTypeImbue:
+	case c != nil && (c.Type == proto.ConsumableType_ConsumableTypeImbue || c.Type == proto.ConsumableType_ConsumableTypeWeaponImbue):
 		return imbueFamily
 	case catalogued != nil && IsExplosive(catalogued, routing):
 		return explosiveFamily

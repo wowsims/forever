@@ -480,6 +480,9 @@ message ConsumesSpec {
 	repeated int32 extra_ids = 19;
 	// Item ids of the elixirs the character uses, any number of them.
 	repeated int32 elixir_ids = 21;
+	// The poison, firestone, spellstone or Scroll of Imbue on each hand, beside its stone or oil above.
+	int32 mh_weapon_imbue_id = 22;
+	int32 oh_weapon_imbue_id = 23;
 }
 
 enum MobType {
@@ -639,6 +642,7 @@ enum ConsumableType {
 	ConsumableTypeFood = 3;
 	ConsumableTypeScroll = 4;
 	ConsumableTypeExplosive = 5;
+	// A sharpening stone, weightstone, oil or shield coating: its spell casts the temporary enchant Effect 54.
 	ConsumableTypeImbue = 6;
 	ConsumableTypeOther = 7;
 	ConsumableTypeHerb = 8;
@@ -648,6 +652,9 @@ enum ConsumableType {
 	ConsumableTypeElixir = 11;
 	// A healthstone, mana gem, rune or tea: its on-use shares conjured category 1153.
 	ConsumableTypeConjured = 12;
+	// A poison, firestone, spellstone or Scroll of Imbue: its spell casts the imbue Effect 360, which a
+	// weapon carries beside an Effect 54 stone or oil.
+	ConsumableTypeWeaponImbue = 13;
 }
 
 

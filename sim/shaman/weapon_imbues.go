@@ -19,10 +19,10 @@ const (
 func (shaman *Shaman) RegisterOnItemSwapWithImbue(effectID int32, procMask *core.ProcMask, aura *core.Aura) {
 	shaman.RegisterItemSwapCallback(core.AllWeaponSlots(), func(sim *core.Simulation, slot proto.ItemSlot) {
 		mask := core.ProcMaskUnknown
-		if shaman.MainHand().TempEnchant == effectID {
+		if shaman.MainHand().WeaponImbue == effectID {
 			mask |= core.ProcMaskMeleeMH
 		}
-		if shaman.OffHand().TempEnchant == effectID {
+		if shaman.OffHand().WeaponImbue == effectID {
 			mask |= core.ProcMaskMeleeOH
 		}
 		*procMask = mask
@@ -38,12 +38,12 @@ func (shaman *Shaman) RegisterOnItemSwapWithImbue(effectID int32, procMask *core
 func (shaman *Shaman) setupItemSwapImbue(imbue proto.ShamanImbue, imbueID int32) {
 	if shaman.ItemSwap.IsEnabled() {
 		if mhSwap := shaman.ItemSwap.GetUnequippedItemBySlot(proto.ItemSlot_ItemSlotMainHand); mhSwap != nil && shaman.SelfBuffs.ImbueMHSwap == imbue {
-			mhSwap.TempEnchant = imbueID
-			shaman.ItemSwap.AddTempEnchant(imbueID, proto.ItemSlot_ItemSlotMainHand, true)
+			mhSwap.WeaponImbue = imbueID
+			shaman.ItemSwap.AddWeaponImbue(imbueID, proto.ItemSlot_ItemSlotMainHand, true)
 		}
 		if ohSwap := shaman.ItemSwap.GetUnequippedItemBySlot(proto.ItemSlot_ItemSlotOffHand); ohSwap != nil && shaman.SelfBuffs.ImbueOHSwap == imbue {
-			ohSwap.TempEnchant = imbueID
-			shaman.ItemSwap.AddTempEnchant(imbueID, proto.ItemSlot_ItemSlotOffHand, true)
+			ohSwap.WeaponImbue = imbueID
+			shaman.ItemSwap.AddWeaponImbue(imbueID, proto.ItemSlot_ItemSlotOffHand, true)
 		}
 	}
 }
@@ -126,17 +126,17 @@ func (shaman *Shaman) RegisterWindfuryImbue(procMask core.ProcMask) {
 	//
 	// mH := shaman.MainHand()
 	// if mH != nil && shaman.SelfBuffs.ImbueMH == proto.ShamanImbue_WindfuryWeapon {
-	// mH.TempEnchant = windfuryEnchantID
+	// mH.WeaponImbue = windfuryEnchantID
 	// if shaman.ItemSwap.IsEnabled() {
-	// shaman.ItemSwap.AddTempEnchant(windfuryEnchantID, proto.ItemSlot_ItemSlotMainHand, false)
+	// shaman.ItemSwap.AddWeaponImbue(windfuryEnchantID, proto.ItemSlot_ItemSlotMainHand, false)
 	// }
 	// mask |= core.ProcMaskMeleeMH
 	// }
 	// oH := shaman.OffHand()
 	// if oH != nil && shaman.SelfBuffs.ImbueOH == proto.ShamanImbue_WindfuryWeapon {
-	// oH.TempEnchant = windfuryEnchantID
+	// oH.WeaponImbue = windfuryEnchantID
 	// if shaman.ItemSwap.IsEnabled() {
-	// shaman.ItemSwap.AddTempEnchant(windfuryEnchantID, proto.ItemSlot_ItemSlotOffHand, false)
+	// shaman.ItemSwap.AddWeaponImbue(windfuryEnchantID, proto.ItemSlot_ItemSlotOffHand, false)
 	// }
 	// mask |= core.ProcMaskMeleeOH
 	// }
@@ -200,12 +200,12 @@ func (shaman *Shaman) makeFTProcTriggerAura(itemSlot proto.ItemSlot, triggerProc
 		if is == proto.ItemSlot_ItemSlotMainHand {
 			mh := shaman.MainHand()
 			mhSwap := shaman.ItemSwap.GetUnequippedItemBySlot(is)
-			if mh.TempEnchant != flametongueEnchantID {
+			if mh.WeaponImbue != flametongueEnchantID {
 				// The new main hand does not have flametongue on, so deactivate
 				aura.Deactivate(sim)
 				return
 			}
-			if mhSwap.TempEnchant != flametongueEnchantID {
+			if mhSwap.WeaponImbue != flametongueEnchantID {
 				// The new main hand has flametongue on and the swapped one does not, so need to activate
 				aura.Activate(sim)
 				return
@@ -214,12 +214,12 @@ func (shaman *Shaman) makeFTProcTriggerAura(itemSlot proto.ItemSlot, triggerProc
 		if is == proto.ItemSlot_ItemSlotOffHand {
 			oh := shaman.OffHand()
 			ohSwap := shaman.ItemSwap.GetUnequippedItemBySlot(is)
-			if oh.TempEnchant != flametongueEnchantID {
+			if oh.WeaponImbue != flametongueEnchantID {
 				// The new offhand does not have flametongue on, so deactivate
 				aura.Deactivate(sim)
 				return
 			}
-			if ohSwap.TempEnchant != flametongueEnchantID {
+			if ohSwap.WeaponImbue != flametongueEnchantID {
 				// The new offhand has flametongue on and the swapped one does not, so need to activate
 				aura.Activate(sim)
 				return
@@ -256,10 +256,10 @@ func (shaman *Shaman) RegisterFlametongueImbue(procMask core.ProcMask) {
 	// continue
 	// }
 	//
-	// weapon.TempEnchant = flametongueEnchantID
+	// weapon.WeaponImbue = flametongueEnchantID
 	//
 	// if shaman.ItemSwap.IsEnabled() {
-	// shaman.ItemSwap.AddTempEnchant(flametongueEnchantID, itemSlot, false)
+	// shaman.ItemSwap.AddWeaponImbue(flametongueEnchantID, itemSlot, false)
 	// }
 	//
 	// flameTongueSpell := shaman.newFlametongueImbueSpell(weapon)
@@ -304,16 +304,16 @@ func (shaman *Shaman) RegisterFrostbrandImbue(procMask core.ProcMask) {
 	//
 	// mH := shaman.MainHand()
 	// if mH != nil && shaman.SelfBuffs.ImbueMH == proto.ShamanImbue_FrostbrandWeapon {
-	// mH.TempEnchant = frostbrandEnchantID
+	// mH.WeaponImbue = frostbrandEnchantID
 	// if shaman.ItemSwap.IsEnabled() {
-	// shaman.ItemSwap.AddTempEnchant(frostbrandEnchantID, proto.ItemSlot_ItemSlotMainHand, false)
+	// shaman.ItemSwap.AddWeaponImbue(frostbrandEnchantID, proto.ItemSlot_ItemSlotMainHand, false)
 	// }
 	// }
 	// oH := shaman.OffHand()
 	// if oH != nil && shaman.SelfBuffs.ImbueOH == proto.ShamanImbue_FrostbrandWeapon {
-	// oH.TempEnchant = frostbrandEnchantID
+	// oH.WeaponImbue = frostbrandEnchantID
 	// if shaman.ItemSwap.IsEnabled() {
-	// shaman.ItemSwap.AddTempEnchant(frostbrandEnchantID, proto.ItemSlot_ItemSlotOffHand, false)
+	// shaman.ItemSwap.AddWeaponImbue(frostbrandEnchantID, proto.ItemSlot_ItemSlotOffHand, false)
 	// }
 	// }
 	//

@@ -55,7 +55,7 @@ func applyTemporaryEnchant(character *core.Character, consumable core.Consumable
 
 	var hands []core.ProcMask
 	for _, slot := range []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand} {
-		if character.Equipment[slot].TempEnchant != enchant.EffectID {
+		if !character.Equipment[slot].HasTempEnchant(enchant.EffectID) {
 			continue
 		}
 		hands = append(hands, character.GetProcMaskForWeaponSlot(slot))

@@ -29,7 +29,7 @@ func (shaman *Shaman) newChainLightningSpellConfig(rank *spelldata.Spell, overlo
 		// damage of the next.
 		curTarget := target
 		for hitIndex := range numHits {
-			results[hitIndex] = spell.CalcDamage(sim, curTarget, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+			results[hitIndex] = spell.CalcDamage(sim, curTarget, damage.Average(), spell.OutcomeMagicHitAndCrit)
 			curTarget = sim.Environment.NextActiveTargetUnit(curTarget)
 			spell.DamageMultiplier *= bounce
 		}
@@ -56,7 +56,7 @@ func (shaman *Shaman) newChainLightningOverloadConfig(rank *spelldata.Spell) cor
 
 	damage := rank.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 
 	return config

@@ -35,6 +35,8 @@ export interface ConsumeConfigs {
 	explosiveExtras: Array<ConsumeToggle>;
 	mhImbue: ConsumeConfig;
 	ohImbue: ConsumeConfig;
+	mhWeaponImbue: ConsumeConfig;
+	ohWeaponImbue: ConsumeConfig;
 	miscellaneous: Array<ConsumeToggle>;
 }
 
@@ -75,8 +77,7 @@ export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfig
 	const groupInputs = (row: GroupRow) =>
 		groups.filter(group => rowOf(group) === row).map(group => makeConsumableGroupInput(group, relevance, group[0].groupName));
 	const explosives = inSlot(ConsumableSlot.Explosive);
-	const imbues = inSlot(ConsumableSlot.Imbue);
-	const handItem = (p: Player<any>, slot: ItemSlot) => p.getEquippedItem(slot)?.item;
+	const fitsWeaponIn = (slot: ItemSlot) => (consumable: Consumable, p: Player<any>) => handTakesImbue(consumable, p.getEquippedItem(slot)?.item);
 
 	return {
 		potion: input(ConsumableSlot.Potion, { consumesFieldName: 'potId', tooltip: i18n.t('settings_tab.consumables.potions.combat') }),
@@ -94,24 +95,26 @@ export const consumeConfigs = (player: Player<any>, db: Database): ConsumeConfig
 			explosives.filter(consumable => !explosiveUsedBeside(consumable)),
 		),
 		explosiveExtras: explosives.filter(explosiveUsedBeside).map(consumable => makeIdListInput(consumable, relevance)),
-		mhImbue: input(
-			ConsumableSlot.Imbue,
-			{
-				consumesFieldName: 'mhImbueId',
-				tooltip: i18n.t('settings_tab.consumables.imbue.mhImbue'),
-				offers: (consumable, p) => handTakesImbue(consumable, handItem(p, ItemSlot.ItemSlotMainHand)),
-			},
-			imbues,
-		),
-		ohImbue: input(
-			ConsumableSlot.Imbue,
-			{
-				consumesFieldName: 'ohImbueId',
-				tooltip: i18n.t('settings_tab.consumables.imbue.ohImbue'),
-				offers: (consumable, p) => handTakesImbue(consumable, handItem(p, ItemSlot.ItemSlotOffHand)),
-			},
-			imbues,
-		),
+		mhImbue: input(ConsumableSlot.Imbue, {
+			consumesFieldName: 'mhImbueId',
+			tooltip: i18n.t('settings_tab.consumables.imbue.mhImbue'),
+			includeIf: fitsWeaponIn(ItemSlot.ItemSlotMainHand),
+		}),
+		ohImbue: input(ConsumableSlot.Imbue, {
+			consumesFieldName: 'ohImbueId',
+			tooltip: i18n.t('settings_tab.consumables.imbue.ohImbue'),
+			includeIf: fitsWeaponIn(ItemSlot.ItemSlotOffHand),
+		}),
+		mhWeaponImbue: input(ConsumableSlot.WeaponImbue, {
+			consumesFieldName: 'mhWeaponImbueId',
+			tooltip: i18n.t('settings_tab.consumables.weaponImbue.mhWeaponImbue'),
+			includeIf: fitsWeaponIn(ItemSlot.ItemSlotMainHand),
+		}),
+		ohWeaponImbue: input(ConsumableSlot.WeaponImbue, {
+			consumesFieldName: 'ohWeaponImbueId',
+			tooltip: i18n.t('settings_tab.consumables.weaponImbue.ohWeaponImbue'),
+			includeIf: fitsWeaponIn(ItemSlot.ItemSlotOffHand),
+		}),
 		miscellaneous: inSlot(ConsumableSlot.Extra).map(consumable => makeIdListInput(consumable, relevance)),
 	};
 };

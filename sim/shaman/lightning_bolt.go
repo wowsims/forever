@@ -22,7 +22,7 @@ func (shaman *Shaman) newLightningBoltSpellConfig(rank *spelldata.Spell, overloa
 
 	damage := rank.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 			if overload != nil && result.Landed() && sim.Proc(shaman.GetOverloadChance(), "Lightning Overload") {

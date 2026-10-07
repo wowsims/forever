@@ -22,6 +22,8 @@ var (
 func applyTemporaryEnchants(character *Character, consumables *proto.ConsumesSpec) {
 	character.applyTemporaryEnchant(consumables.MhImbueId, proto.ItemSlot_ItemSlotMainHand)
 	character.applyTemporaryEnchant(consumables.OhImbueId, proto.ItemSlot_ItemSlotOffHand)
+	character.applyTemporaryEnchant(consumables.MhWeaponImbueId, proto.ItemSlot_ItemSlotMainHand)
+	character.applyTemporaryEnchant(consumables.OhWeaponImbueId, proto.ItemSlot_ItemSlotOffHand)
 }
 
 func (character *Character) isFeralDruid() bool {
@@ -33,8 +35,13 @@ func (character *Character) applyTemporaryEnchant(itemID int32, slot proto.ItemS
 	if consumable.TemporaryEnchant == nil || !consumable.TakesItem(slot, character.Equipment[slot]) {
 		return
 	}
-	character.Equipment[slot].TempEnchant = consumable.TemporaryEnchant.EffectID
-	character.Equipment[slot].TempEnchantWeaponDamage = consumable.TemporaryEnchant.WeaponDamage
+	item := &character.Equipment[slot]
+	if consumable.Type == proto.ConsumableType_ConsumableTypeWeaponImbue {
+		item.WeaponImbue = consumable.TemporaryEnchant.EffectID
+		return
+	}
+	item.TempEnchant = consumable.TemporaryEnchant.EffectID
+	item.TempEnchantWeaponDamage = consumable.TemporaryEnchant.WeaponDamage
 }
 
 // Whether the temporary enchant's SpellEquippedItems masks take the item in this slot.

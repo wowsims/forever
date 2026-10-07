@@ -166,9 +166,9 @@ func TestProcImbuesRegisterTheirListeners(t *testing.T) {
 		{277489, notchedShortsword, 8707, "Scroll of Imbue Spark", true},
 		{277498, smallHandBlade, 8715, "Scroll of Imbue Manablade", false},
 	} {
-		_, character := warriorWithConsumes(t, &proto.ConsumesSpec{MhImbueId: c.imbue}, c.weapon, 0, proto.MobType_MobTypeUnknown)
+		_, character := warriorWithConsumes(t, &proto.ConsumesSpec{MhWeaponImbueId: c.imbue}, c.weapon, 0, proto.MobType_MobTypeUnknown)
 
-		if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != c.enchant {
+		if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].WeaponImbue; got != c.enchant {
 			t.Errorf("%s puts enchant %d on the main hand, want %d", c.name, got, c.enchant)
 		}
 		if got := character.GetAura(c.name) != nil; got != c.listens {

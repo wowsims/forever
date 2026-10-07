@@ -154,9 +154,35 @@ func TestRollEndsMatchTheTooltip(t *testing.T) {
 		}
 	}
 
-	// Wrath rank 3 at 20 rolls 32 to 37, which averages 34.5 where Average floors 34.2 to 34.
-	if got := MustFind(5178).DamageEffect().MeanAt(20); got != 34.5 {
-		t.Errorf("Wrath rank 3 at 20 averages %v, want 34.5", got)
+	// Wrath rank 3 at 20 shows 32 to 37, but a cast rolls its whole amount around Average, which floors
+	// 34.2 to 34, so before spell power it averages 34 rather than the tooltip's middle.
+	if got := MustFind(5178).DamageEffect().MeanAt(20); got != 34 {
+		t.Errorf("Wrath rank 3 at 20 averages %v, want 34", got)
+	}
+}
+
+// A physical hit rolls its base points by the whole Variance either side: Revenge rank 1's 22 ± 3.4 is
+// 19 to 25. A spell-school hit and a heal of any school, Healing Potion's included, leave their roll to
+// core, which spreads the whole amount by DirectVariance; an energize keeps the half-width roll.
+func TestRollWidthByEffectKind(t *testing.T) {
+	withGeneratedStore(t)
+
+	revenge := MustFind(6572).DamageEffect()
+	if got, want := [2]float64{revenge.MinAt(60), revenge.MaxAt(60)}, [2]float64{19, 25}; got != want {
+		t.Errorf("Revenge rank 1 rolls %v, want %v", got, want)
+	}
+	if got := revenge.DirectVariance(); got != 0 {
+		t.Errorf("Revenge rank 1 hands core a DirectVariance of %v, want 0", got)
+	}
+
+	for _, effect := range []*Effect{MustFind(5178).DamageEffect(), MustFind(439).HealEffect()} {
+		if got := effect.DirectVariance(); got != effect.Variance || got == 0 {
+			t.Errorf("%d hands core a DirectVariance of %v, want its Variance %v", effect.SpellID, got, effect.Variance)
+		}
+	}
+
+	if got := MustFind(437).EnergizeEffect().DirectVariance(); got != 0 {
+		t.Errorf("Restore Mana hands core a DirectVariance of %v, want 0", got)
 	}
 }
 

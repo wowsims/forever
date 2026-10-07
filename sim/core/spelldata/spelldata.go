@@ -201,8 +201,10 @@ type Effect struct {
 	// keeps the answer the same for an effect whose spell the store does not carry.
 	BaseLevel, MaxLevel int16
 
-	// EffectVariance: the spread the amount rolls over, |BasePoints| * Variance/2 either side of the
-	// base points, plus the per-level gain (Min, Max). Zero on an effect that does not roll.
+	// EffectVariance, the full width of the roll: a spell-school hit or a heal lands within
+	// Variance/2 of its whole amount, power included (DirectVariance); a physical hit rolls
+	// |BasePoints| * Variance either side of the base points and any other effect half that, plus
+	// the per-level gain (Min, Max). Zero on an effect that does not roll.
 	Variance float64
 
 	// EffectBonusCoefficient and BonusCoefficientFromAP: the share of spell power and attack power the

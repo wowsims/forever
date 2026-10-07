@@ -111,8 +111,8 @@ func Melee(mask core.ProcMask) SpellOpt {
 	}
 }
 
-// The same for a spell that scales with spell power, whose share of it the row states on the effect
-// that deals the damage, or heals where the spell has no damaging effect.
+// The same for a spell that scales with spell power, whose share of it and whose roll the row states
+// on the effect that deals the damage, or heals where the spell has no damaging effect.
 func Magic(mask core.ProcMask) SpellOpt {
 	return func(config *core.SpellConfig, s *Spell) {
 		config.ProcMask = mask
@@ -120,6 +120,7 @@ func Magic(mask core.ProcMask) SpellOpt {
 		config.DamageMultiplier = 1
 		config.ThreatMultiplier = 1
 		config.BonusCoefficient = spellPowerCoeff(s)
+		config.DirectVariance = amountEffect(s).DirectVariance()
 	}
 }
 
@@ -219,10 +220,14 @@ func (e *Effect) isInert() bool {
 }
 
 func spellPowerCoeff(s *Spell) float64 {
+	return amountEffect(s).Coeff()
+}
+
+func amountEffect(s *Spell) *Effect {
 	if e := s.DamageEffect(); e != NilEffect {
-		return e.Coeff()
+		return e
 	}
-	return s.HealEffect().Coeff()
+	return s.HealEffect()
 }
 
 // Spell.NameSubtext_lang, which is "Rank 4" on a ranked spell and a word like "Passive" or

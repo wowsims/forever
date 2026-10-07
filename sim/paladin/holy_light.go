@@ -25,7 +25,7 @@ func (paladin *Paladin) registerHolyLight(_ int32, rank *spelldata.Spell) {
 	config.ClassSpellMask = SpellMaskHolyLight
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		amount := heal.Roll(sim)
+		amount := heal.Average()
 		if target.HasActiveAuraWithTag(buffs.GreaterBlessingOfLightCategory) {
 			amount += blessingOfLightHolyLightBonus
 		}
