@@ -56,7 +56,7 @@ describe('BulkResults', () => {
 	it('shows one pill per duration and switches the list on a click', () => {
 		mount(3, [entry(180, 100, true), entry(90, 200), entry(300, 300)]);
 		const pills = within(screen.getByTestId('bulk-duration-pills')).getAllByRole('button');
-		expect(pills.map(pill => pill.textContent)).toEqual(['3:00 ±5sbulk_tab.results.encounter_duration', '1:30 ±5s', '5:00 ±5s']);
+		expect(pills.map(pill => pill.textContent)).toEqual(['3:00 ±5s bulk_tab.results.encounter_duration', '1:30 ±5s', '5:00 ±5s']);
 		expect(rowIterations()).toEqual(['100', '100']);
 
 		fireEvent.click(pills[1]);

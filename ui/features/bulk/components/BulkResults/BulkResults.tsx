@@ -25,7 +25,12 @@ export const BulkDurationPills = ({ entries, selected, onSelect }: BulkDurationP
 				aria-pressed={index === selected}
 				onClick={() => onSelect(index)}>
 				{formatDurationLabel(entry)}
-				{entry.isEncounter && <span className="ml-1 text-xs opacity-75">{i18n.t('bulk_tab.results.encounter_duration')}</span>}
+				{entry.isEncounter && (
+					<>
+						{' '}
+						<span className="ml-1 text-xs opacity-75">{i18n.t('bulk_tab.results.encounter_duration')}</span>
+					</>
+				)}
 			</Button>
 		))}
 	</div>

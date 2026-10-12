@@ -38,7 +38,7 @@ describe('bulk requests', () => {
 	});
 });
 
-const GEAR = { asSpec: () => ({ items: [] }), getEquippedItem: () => null };
+const GEAR = { asSpec: () => ({ items: [] }) };
 const CORE_RESULT = { referenceDpsMetrics: { avg: 1000, stdev: 1 }, topGearResults: [], iterations: 100, metrics: {} };
 
 const batchHost = () => {
@@ -84,6 +84,7 @@ describe('runBulkBatch', () => {
 
 	it('keeps the finished durations when cancelled', async () => {
 		const host = batchHost();
+		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.mocked(runCoreBulkSim)
 			.mockReset()
 			.mockResolvedValueOnce(CORE_RESULT as never)
@@ -93,6 +94,7 @@ describe('runBulkBatch', () => {
 			});
 
 		await runBulkBatch(host);
+		consoleError.mockRestore();
 
 		const results = bulkState(host.player).results!;
 		expect(results.plannedDurations).toBe(3);
@@ -102,6 +104,7 @@ describe('runBulkBatch', () => {
 
 	it('keeps the finished durations when a later one fails', async () => {
 		const host = batchHost();
+		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.mocked(runCoreBulkSim)
 			.mockReset()
 			.mockResolvedValueOnce(CORE_RESULT as never)
@@ -109,14 +112,21 @@ describe('runBulkBatch', () => {
 
 		await runBulkBatch(host);
 
+		expect(consoleError).toHaveBeenCalled();
+		consoleError.mockRestore();
+
 		expect(bulkState(host.player).results!.entries.map(entry => entry.duration)).toEqual([180]);
 	});
 
 	it('leaves no results when the first duration fails', async () => {
 		const host = batchHost();
+		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.mocked(runCoreBulkSim).mockReset().mockRejectedValueOnce(new Error('worker crashed'));
 
 		await runBulkBatch(host);
+
+		expect(consoleError).toHaveBeenCalled();
+		consoleError.mockRestore();
 
 		expect(bulkState(host.player).results).toBeNull();
 	});

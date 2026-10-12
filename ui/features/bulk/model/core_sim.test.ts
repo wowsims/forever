@@ -27,6 +27,7 @@ describe('runCoreBulkSim', () => {
 	it('decorates every stage title', async () => {
 		const setSimProgress = vi.fn();
 		const runBulkSim = vi.fn(async (onProgress: (progress: ProgressMetrics) => void) => {
+			onProgress(ProgressMetrics.create({ totalIterations: 10, bulkStage: BulkSimStage.BulkSimStageLow }));
 			onProgress(ProgressMetrics.create({ totalIterations: 10, bulkStage: BulkSimStage.BulkSimStageMedium }));
 			return RESULT;
 		});
@@ -35,6 +36,7 @@ describe('runCoreBulkSim', () => {
 			decorateTitle: title => `D2 · ${title}`,
 		});
 
-		expect(setSimProgress.mock.calls[0][1].title).toMatch(/^D2 · /);
+		expect(setSimProgress.mock.calls).toHaveLength(2);
+		for (const call of setSimProgress.mock.calls) expect(call[1].title).toMatch(/^D2 · /);
 	});
 });

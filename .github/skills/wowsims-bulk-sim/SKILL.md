@@ -134,6 +134,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - A slot holding the same item with another enchant renders `GearChangeIcon`; a new item renders plainly;
   unchanged slots stay empty. Starting a run clears the results and returns to the Setup pane; a finished run
   opens Results.
+- The batch tab can list extra durations. `runBulkBatch` runs the batch once per duration, the encounter's first,
+  with the duration set on the request copy only (the encounter override of `Sim.runBulkSim`). Every duration
+  shares the one content seed, and `results` holds one entry per finished duration.
 - Progress is throttled (`BulkSimProgressThrottle` in Go, 100 ms in the browser emitter). Every stage, the
   finalist included, reports through the shared stage-metrics builder.
 

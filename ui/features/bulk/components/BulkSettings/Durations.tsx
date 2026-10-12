@@ -26,10 +26,10 @@ const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.s
 
 export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, onRemove }: DurationsViewProps) => {
 	const idPrefix = useId();
-	const pairFields = (id: string, pair: DurationPair, disabled: boolean, onPairChange?: (patch: Partial<DurationPair>) => void) => (
+	const pairFields = (id: string, rowLabel: string, pair: DurationPair, disabled: boolean, onPairChange?: (patch: Partial<DurationPair>) => void) => (
 		<>
 			<label className="sr-only" htmlFor={`${id}-duration`}>
-				{t('duration')}
+				{`${rowLabel} ${t('duration')}`}
 			</label>
 			<NumberField
 				id={`${id}-duration`}
@@ -40,7 +40,7 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 				onChange={value => onPairChange?.({ duration: Math.max(1, value) })}
 			/>
 			<label className="sr-only" htmlFor={`${id}-variation`}>
-				{t('variation')}
+				{`${rowLabel} ${t('variation')}`}
 			</label>
 			<NumberField
 				id={`${id}-variation`}
@@ -54,7 +54,7 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 	);
 
 	return (
-		<div className="grid gap-3" data-testid="bulk-durations">
+		<div className="grid gap-2" data-testid="bulk-durations">
 			<p className="mb-0 text-sm">{t('description')}</p>
 			{healthFight && <p className="mb-0 text-sm text-gray-400">{t('health_fight')}</p>}
 			<div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
@@ -63,7 +63,7 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 				<span className="text-xs text-gray-400">{t('variation')}</span>
 				<span />
 				<span>{t('encounter')}</span>
-				{pairFields(`${idPrefix}-encounter`, encounter, true)}
+				{pairFields(`${idPrefix}-encounter`, t('encounter'), encounter, true)}
 				<Icon name="lock" className="text-gray-400" />
 				{rows.map((row, index) => (
 					<div key={index} className="contents" data-testid="bulk-duration-row">
@@ -71,8 +71,13 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 							{t('extra', { index: index + 1 })}
 							{row.duplicate && <span className="text-xs text-warning">{t('duplicate')}</span>}
 						</span>
-						{pairFields(`${idPrefix}-${index}`, row, healthFight, patch => onChange(index, patch))}
-						<Button iconOnly aria-label={t('remove', { index: index + 1 })} className="text-link-danger" onClick={() => onRemove(index)}>
+						{pairFields(`${idPrefix}-${index}`, t('extra', { index: index + 1 }), row, healthFight, patch => onChange(index, patch))}
+						<Button
+							iconOnly
+							aria-label={t('remove', { index: index + 1 })}
+							className="text-link-danger"
+							disabled={healthFight}
+							onClick={() => onRemove(index)}>
 							<Icon name="xmark" />
 						</Button>
 					</div>
@@ -101,7 +106,7 @@ export const Durations = () => {
 			rows={durations.map((row, index) => ({
 				duration: row.duration,
 				durationVariation: row.durationVariation,
-				duplicate: isDuplicateDuration(encounter, durations, index),
+				duplicate: !useHealth && isDuplicateDuration(encounter, durations, index),
 			}))}
 			healthFight={useHealth}
 			onAdd={() => addBulkDuration(player, encounter)}

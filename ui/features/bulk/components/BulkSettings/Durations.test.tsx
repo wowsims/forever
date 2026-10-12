@@ -68,5 +68,6 @@ describe('Durations', () => {
 		expect(screen.getByText('bulk_tab.settings.durations.health_fight')).toBeTruthy();
 		expect((screen.getByRole('button', { name: 'bulk_tab.settings.durations.add' }) as HTMLButtonElement).disabled).toBe(true);
 		expect(inputs().every(input => input.disabled)).toBe(true);
+		expect((screen.getByRole('button', { name: /bulk_tab.settings.durations.remove/ }) as HTMLButtonElement).disabled).toBe(true);
 	});
 });
