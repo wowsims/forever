@@ -971,8 +971,21 @@
 			"total_iterations": "Minimum iterations",
 			"total_iterations_tooltip": "The batch sims at least this many iterations. The error target adds more as it runs.",
 			"groups": {
+				"durations": "Durations",
 				"enchants": "Enchants",
 				"frozen_slots": "Frozen slots"
+			},
+			"durations": {
+				"description": "The batch runs once per duration; each duration gets its own results.",
+				"encounter": "Encounter",
+				"extra": "Extra {{index}}",
+				"duration": "Duration (s)",
+				"variation": "± (s)",
+				"add": "Add duration",
+				"remove": "Remove extra duration {{index}}",
+				"duplicate": "Same as an earlier duration, skipped",
+				"health_fight": "Health-based fights have no duration to vary, so the batch runs once.",
+				"count": "Durations"
 			},
 			"iterations": "Iterations",
 			"freeze_ring": {

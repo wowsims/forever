@@ -3444,12 +3444,52 @@
 								"enchants": {
 									"type": "string"
 								},
+								"durations": {
+									"type": "string"
+								},
 								"frozen_slots": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["enchants", "frozen_slots"]
+							"required": ["durations", "enchants", "frozen_slots"]
+						},
+						"durations": {
+							"type": "object",
+							"properties": {
+								"description": {
+									"type": "string"
+								},
+								"encounter": {
+									"type": "string"
+								},
+								"extra": {
+									"type": "string"
+								},
+								"duration": {
+									"type": "string"
+								},
+								"variation": {
+									"type": "string"
+								},
+								"add": {
+									"type": "string"
+								},
+								"remove": {
+									"type": "string"
+								},
+								"duplicate": {
+									"type": "string"
+								},
+								"health_fight": {
+									"type": "string"
+								},
+								"count": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["description", "encounter", "extra", "duration", "variation", "add", "remove", "duplicate", "health_fight", "count"]
 						},
 						"iterations": {
 							"type": "string"
@@ -3588,6 +3628,7 @@
 						"total_iterations",
 						"total_iterations_tooltip",
 						"groups",
+						"durations",
 						"iterations",
 						"freeze_ring",
 						"freeze_trinket",

@@ -20,6 +20,7 @@ import { runBulkBatch } from '../../model/run';
 import { canRunBatch } from '../../model/selectors';
 import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/settings';
 import { CombinationsCount } from './CombinationsCount';
+import { Durations } from './Durations';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
 
 export interface BulkWeaponFreeze {
@@ -34,6 +35,7 @@ export interface BulkSettingsViewProps {
 	onRun: () => void;
 	openGroups: string[];
 	onOpenGroupsChange: (groups: string[]) => void;
+	durations: ReactNode;
 	enchants: ReactNode;
 	frozenItems: ReadonlyArray<ChoiceFieldProps<number>>;
 	/** Null for a player who cannot dual wield. */
@@ -47,6 +49,7 @@ export const BulkSettingsView = ({
 	onRun,
 	openGroups,
 	onOpenGroupsChange,
+	durations,
 	enchants,
 	frozenItems,
 	weaponFreeze,
@@ -65,6 +68,12 @@ export const BulkSettingsView = ({
 					{combinationsCount}
 				</RunCard>
 				<Accordion value={openGroups} onValueChange={onOpenGroupsChange} variant="boxed">
+					<AccordionItem
+						value={BULK_SETTINGS_GROUP.durations}
+						title={i18n.t('bulk_tab.settings.groups.durations')}
+						testId="bulk-settings-group-durations">
+						{durations}
+					</AccordionItem>
 					<AccordionItem
 						value={BULK_SETTINGS_GROUP.enchants}
 						title={i18n.t('bulk_tab.settings.groups.enchants')}
@@ -166,6 +175,7 @@ export const BulkSettings = () => {
 			onRun={() => void runBulkBatch(host)}
 			openGroups={openGroups}
 			onOpenGroupsChange={setOpenGroups}
+			durations={<Durations />}
 			enchants={<EnchantPresets />}
 			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
 			weaponFreeze={

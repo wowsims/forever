@@ -7,6 +7,7 @@ import { fn } from 'storybook/test';
 
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
 import { CombinationsCountView } from './CombinationsCount';
+import { DurationsView } from './Durations';
 
 const pair = (id: string, label: string, first: [string, ItemSlot], second: [string, ItemSlot]) => ({
 	id,
@@ -51,11 +52,14 @@ const meta = {
 	tags: ['autodocs'],
 	render: args => <StatefulBulkSettings {...args} />,
 	args: {
-		combinationsCount: <CombinationsCountView pending={false} combinations={48} iterations={96000} iterationsLimit={1000000} />,
+		combinationsCount: <CombinationsCountView pending={false} combinations={48} iterations={96000} iterationsLimit={1000000} durations={1} />,
 		canRun: true,
 		onRun: fn(),
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
+		durations: (
+			<DurationsView encounter={{ duration: 180, durationVariation: 5 }} rows={[]} healthFight={false} onAdd={fn()} onChange={fn()} onRemove={fn()} />
+		),
 		enchants: (
 			<EnchantPresetsView
 				presets={[
@@ -78,6 +82,7 @@ const meta = {
 	},
 	argTypes: {
 		combinationsCount: { control: false },
+		durations: { control: false },
 		enchants: { control: false },
 		frozenItems: { control: false },
 		weaponFreeze: { control: false },

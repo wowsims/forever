@@ -1,10 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { CombinationsCountView, type CombinationsCountViewProps } from './CombinationsCount';
 
 const renderCount = (props: Partial<CombinationsCountViewProps> = {}) =>
-	render(<CombinationsCountView pending={false} combinations={12} iterations={24000} iterationsLimit={50000} {...props} />);
+	render(<CombinationsCountView pending={false} combinations={12} iterations={24000} iterationsLimit={50000} durations={1} {...props} />);
 
 describe('CombinationsCountView', () => {
 	it('shows a spinner in place of both numbers while the count is pending', () => {
@@ -30,6 +30,15 @@ describe('CombinationsCountView', () => {
 		expect(help.parentElement!.textContent).toBe('bulk_tab.settings.total_iterations');
 		fireEvent.focus(help);
 		expect(await screen.findByText('bulk_tab.settings.total_iterations_tooltip')).toBeTruthy();
+	});
+
+	it('shows the duration multiplier only for more than one duration', () => {
+		renderCount({ durations: 1 });
+		expect(screen.queryByTestId('bulk-durations-count')).toBeNull();
+		cleanup();
+
+		renderCount({ durations: 3 });
+		expect(screen.getByTestId('bulk-durations-count').textContent).toBe('× 3');
 	});
 
 	it('warns once the iterations pass the limit', () => {

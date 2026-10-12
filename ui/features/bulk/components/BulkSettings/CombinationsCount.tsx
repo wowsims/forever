@@ -8,8 +8,10 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { TooltipButton } from '@ui-kit/TooltipButton';
 import clsx from 'clsx';
 import { useId } from 'react';
+import { useStore } from 'zustand';
 
 import { useBulkState } from '../../hooks/useBulkState';
+import { bulkDurationRuns } from '../../model/durations';
 import { bulkIterationsLimit } from '../../model/limits';
 
 export interface CombinationsCountViewProps {
@@ -17,9 +19,10 @@ export interface CombinationsCountViewProps {
 	combinations: number;
 	iterations: number;
 	iterationsLimit: number;
+	durations: number;
 }
 
-export const CombinationsCountView = ({ pending, combinations, iterations, iterationsLimit }: CombinationsCountViewProps) => {
+export const CombinationsCountView = ({ pending, combinations, iterations, iterationsLimit, durations }: CombinationsCountViewProps) => {
 	const tooltipId = useId();
 	const overLimit = !pending && iterations > iterationsLimit;
 	const warningText = i18n.t('bulk_tab.warning.iterations_limit', { limit: formatToNumber(iterationsLimit) });
@@ -30,6 +33,14 @@ export const CombinationsCountView = ({ pending, combinations, iterations, itera
 			<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-combinations">
 				{pending ? <Spinner size="sm" /> : formatToNumber(combinations)}
 			</dd>
+			{durations > 1 && (
+				<>
+					<dt className="font-normal">{i18n.t('bulk_tab.settings.durations.count')}</dt>
+					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-durations-count">
+						× {durations}
+					</dd>
+				</>
+			)}
 			<dt className="flex items-center gap-1 font-normal">
 				{i18n.t('bulk_tab.settings.total_iterations')}
 				<TooltipButton
@@ -66,6 +77,17 @@ export const CombinationsCount = () => {
 	const pending = useBulkState(slice => slice.combinationsPending);
 	const combinations = useBulkState(slice => slice.combinations);
 	const iterations = useBulkState(slice => slice.iterations);
+	const encounter = useStore(sim.store, state => state.encounter);
+	const extras = useBulkState(slice => slice.durations);
+	const durations = bulkDurationRuns(encounter, extras).length;
 
-	return <CombinationsCountView pending={pending} combinations={combinations} iterations={iterations} iterationsLimit={bulkIterationsLimit(sim.isNative)} />;
+	return (
+		<CombinationsCountView
+			pending={pending}
+			combinations={combinations}
+			iterations={iterations}
+			iterationsLimit={bulkIterationsLimit(sim.isNative)}
+			durations={durations}
+		/>
+	);
 };

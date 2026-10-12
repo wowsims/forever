@@ -79,12 +79,13 @@ describe('BulkSettings', () => {
 		expect(JSON.parse(localStorage.getItem('test-__bulkSettingsGroups')!)).toEqual(['freezes']);
 	});
 
-	it('shows only the enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
+	it('shows only the durations, enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
 		const { container } = mount({ settings: {} });
 
 		const triggers = [...container.querySelectorAll('[data-testid^="bulk-settings-group-"][data-testid$="-trigger"]')];
 
 		expect(triggers.map(trigger => trigger.getAttribute('data-testid'))).toEqual([
+			'bulk-settings-group-durations-trigger',
 			'bulk-settings-group-enchants-trigger',
 			'bulk-settings-group-freezes-trigger',
 		]);
@@ -109,6 +110,7 @@ const renderSettings = (props: Partial<BulkSettingsViewProps> = {}) => {
 			combinationsCount={<span data-testid="count" />}
 			canRun
 			openGroups={['freezes']}
+			durations={null}
 			enchants={null}
 			frozenItems={[RING_VIEW]}
 			weaponFreeze={null}
