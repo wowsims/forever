@@ -6,10 +6,10 @@ import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { patchSlice } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
 import { runCoreBulkSim } from './core_sim';
-import { cancelBulkBatch, refreshBulkCombinations, runBulkBatch } from './run';
+import { cancelBulkBatch, refreshBulkCombinations, runBulkBatch, subscribeBulkProgress } from './run';
 
 vi.mock('./core_sim', () => ({ runCoreBulkSim: vi.fn() }));
 vi.mock('../../../tracking/utils', () => ({ trackEvent: () => {} }));
@@ -60,11 +60,16 @@ const batchHost = () => {
 };
 
 describe('runBulkBatch', () => {
+	let consoleError: MockInstance;
+
+	beforeEach(() => {
+		vi.mocked(runCoreBulkSim).mockReset();
+		consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+	});
+
 	it('runs the encounter, then each extra duration', async () => {
 		const host = batchHost();
-		vi.mocked(runCoreBulkSim)
-			.mockReset()
-			.mockResolvedValue(CORE_RESULT as never);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
 
 		await runBulkBatch(host);
 
@@ -84,9 +89,7 @@ describe('runBulkBatch', () => {
 
 	it('keeps the finished durations when cancelled', async () => {
 		const host = batchHost();
-		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.mocked(runCoreBulkSim)
-			.mockReset()
 			.mockResolvedValueOnce(CORE_RESULT as never)
 			.mockImplementationOnce(async () => {
 				await cancelBulkBatch(host);
@@ -94,7 +97,6 @@ describe('runBulkBatch', () => {
 			});
 
 		await runBulkBatch(host);
-		consoleError.mockRestore();
 
 		const results = bulkState(host.player).results!;
 		expect(results.plannedDurations).toBe(3);
@@ -104,29 +106,24 @@ describe('runBulkBatch', () => {
 
 	it('keeps the finished durations when a later one fails', async () => {
 		const host = batchHost();
-		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 		vi.mocked(runCoreBulkSim)
-			.mockReset()
 			.mockResolvedValueOnce(CORE_RESULT as never)
 			.mockRejectedValueOnce(new Error('worker crashed'));
 
 		await runBulkBatch(host);
 
 		expect(consoleError).toHaveBeenCalled();
-		consoleError.mockRestore();
 
 		expect(bulkState(host.player).results!.entries.map(entry => entry.duration)).toEqual([180]);
 	});
 
 	it('leaves no results when the first duration fails', async () => {
 		const host = batchHost();
-		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-		vi.mocked(runCoreBulkSim).mockReset().mockRejectedValueOnce(new Error('worker crashed'));
+		vi.mocked(runCoreBulkSim).mockRejectedValueOnce(new Error('worker crashed'));
 
 		await runBulkBatch(host);
 
 		expect(consoleError).toHaveBeenCalled();
-		consoleError.mockRestore();
 
 		expect(bulkState(host.player).results).toBeNull();
 	});
@@ -134,13 +131,36 @@ describe('runBulkBatch', () => {
 	it('runs once for a health fight', async () => {
 		const host = batchHost();
 		patchSlice(host.player.sim.store, 'encounter', { useHealth: true });
-		vi.mocked(runCoreBulkSim)
-			.mockReset()
-			.mockResolvedValue(CORE_RESULT as never);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
 
 		await runBulkBatch(host);
 
 		expect(vi.mocked(runCoreBulkSim)).toHaveBeenCalledTimes(1);
 		expect(bulkState(host.player).results!.plannedDurations).toBe(1);
+	});
+
+	it('prefixes the progress titles with the duration being run when there are several', async () => {
+		const host = batchHost();
+		const titles: string[] = [];
+		subscribeBulkProgress(host.player, progress => titles.push(progress.title));
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(titles).toHaveLength(3);
+		for (const title of titles) expect(title.startsWith('bulk_tab.progress.duration_title')).toBe(true);
+	});
+
+	it('leaves the progress titles bare for a health fight', async () => {
+		const host = batchHost();
+		patchSlice(host.player.sim.store, 'encounter', { useHealth: true });
+		const titles: string[] = [];
+		subscribeBulkProgress(host.player, progress => titles.push(progress.title));
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(titles).toHaveLength(1);
+		expect(titles.some(title => title.startsWith('bulk_tab.progress.duration_title'))).toBe(false);
 	});
 });

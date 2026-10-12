@@ -77,9 +77,11 @@ export const CombinationsCount = () => {
 	const pending = useBulkState(slice => slice.combinationsPending);
 	const combinations = useBulkState(slice => slice.combinations);
 	const iterations = useBulkState(slice => slice.iterations);
-	const encounter = useStore(sim.store, state => state.encounter);
+	const duration = useStore(sim.store, state => state.encounter.duration);
+	const durationVariation = useStore(sim.store, state => state.encounter.durationVariation);
+	const useHealth = useStore(sim.store, state => state.encounter.useHealth);
 	const extras = useBulkState(slice => slice.durations);
-	const durations = bulkDurationRuns(encounter, extras).length;
+	const durations = bulkDurationRuns({ duration, durationVariation, useHealth }, extras).length;
 
 	return (
 		<CombinationsCountView

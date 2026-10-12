@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { CombinationsCountView, type CombinationsCountViewProps } from './CombinationsCount';
@@ -32,13 +32,13 @@ describe('CombinationsCountView', () => {
 		expect(await screen.findByText('bulk_tab.settings.total_iterations_tooltip')).toBeTruthy();
 	});
 
-	it('shows the duration multiplier only for more than one duration', () => {
-		renderCount({ durations: 1 });
-		expect(screen.queryByTestId('bulk-durations-count')).toBeNull();
-		cleanup();
+	it.each([
+		[1, null],
+		[3, '× 3'],
+	])('shows the duration multiplier only for more than one duration (%i durations)', (durations, multiplier) => {
+		renderCount({ durations });
 
-		renderCount({ durations: 3 });
-		expect(screen.getByTestId('bulk-durations-count').textContent).toBe('× 3');
+		expect(screen.queryByTestId('bulk-durations-count')?.textContent ?? null).toBe(multiplier);
 	});
 
 	it('warns once the iterations pass the limit', () => {

@@ -34,6 +34,7 @@ interface BulkRun {
 	combinationsRequestVersion: number;
 	progress: BulkProgress | null;
 	listeners: Set<(progress: BulkProgress) => void>;
+	durationTitle: ((title: string) => string) | null;
 }
 
 const runs = new WeakMap<Player<any>, BulkRun>();
@@ -49,6 +50,7 @@ const runOf = (player: Player<any>): BulkRun => {
 			combinationsRequestVersion: 0,
 			progress: null,
 			listeners: new Set(),
+			durationTitle: null,
 		};
 		runs.set(player, run);
 	}
@@ -68,12 +70,13 @@ export const subscribeBulkProgress = (player: Player<any>, listener: (progress: 
 const emitProgress = (player: Player<any>, next: BulkProgress | null) => {
 	if (!next) return;
 	const run = runOf(player);
-	run.progress = next;
-	for (const listener of run.listeners) listener(next);
+	const shown = run.durationTitle ? { ...next, title: run.durationTitle(next.title) } : next;
+	run.progress = shown;
+	for (const listener of run.listeners) listener(shown);
 };
 
-const setCandidateGearProgress = (player: Player<any>, title?: string) => {
-	emitProgress(player, candidateGearProgress({ now: new Date().getTime(), title }));
+const setCandidateGearProgress = (player: Player<any>) => {
+	emitProgress(player, candidateGearProgress({ now: new Date().getTime() }));
 };
 
 const setSimProgress = (player: Player<any>, metrics: ProgressMetrics, config: BulkSimProgressConfig) => {
@@ -235,20 +238,20 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 		for (const [index, durationRun] of durationRuns.entries()) {
 			throwIfBulkAborted(player, abortSignal);
-			const decorateTitle = (title: string) =>
+			run.durationTitle =
 				durationRuns.length > 1
-					? i18n.t('bulk_tab.progress.duration_title', {
-							current: index + 1,
-							total: durationRuns.length,
-							label: formatDurationLabel(durationRun),
-							title,
-						})
-					: title;
-			setCandidateGearProgress(player, decorateTitle(i18n.t('bulk_tab.progress.building_candidate_gear_sets')));
+					? title =>
+							i18n.t('bulk_tab.progress.duration_title', {
+								current: index + 1,
+								total: durationRuns.length,
+								label: formatDurationLabel(durationRun),
+								title,
+							})
+					: null;
+			setCandidateGearProgress(player);
 			run.simStart = new Date().getTime();
 			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, {
 				encounterOverride: { duration: durationRun.duration, durationVariation: durationRun.durationVariation },
-				decorateTitle,
 			});
 			entries.push({ ...durationRun, results: rankResults(bulkSimResult, baseGear) });
 		}
@@ -263,6 +266,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 	} finally {
+		run.durationTitle = null;
 		const wasCancelling = run.isCancelling;
 		if (wasCancelling || runError) {
 			await abortBulkSimWork(host);
