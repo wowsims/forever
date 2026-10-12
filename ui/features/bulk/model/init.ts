@@ -2,7 +2,14 @@ import { ItemSlot } from '@generated/proto/common';
 import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BulkSimItemSlot } from '@sim/bulk/utils';
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { loadStoredBulkSettings, loadStoredEnchantPresets, patchBulkState, seedBulkSettings, storeBulkSettings } from '@sim/settings/bulk_settings';
+import {
+	loadStoredBulkDurations,
+	loadStoredBulkSettings,
+	loadStoredEnchantPresets,
+	patchBulkState,
+	seedBulkSettings,
+	storeBulkSettings,
+} from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { subscribeAll, subscribeBulkChange, subscribePlayerField } from '@sim/state/subscriptions';
 
@@ -37,6 +44,11 @@ const loadSettings = (player: Player<any>) => {
 	const enchantPresets = loadStoredEnchantPresets(player);
 	if (enchantPresets != null) {
 		patchBulkState(player, { enchantPresets: enchantPresets.presets }, ['settings']);
+	}
+
+	const durations = loadStoredBulkDurations(player);
+	if (durations != null) {
+		patchBulkState(player, { durations: durations.durations });
 	}
 };
 

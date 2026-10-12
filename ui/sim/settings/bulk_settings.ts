@@ -3,7 +3,7 @@
 // is `bulk[player.storeKey]` and the key is the player's spec prefix.
 import { BulkSettings as BulkSettingsProto } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
-import { BulkEnchantPresets } from '@generated/proto/ui';
+import { BulkDurations, BulkEnchantPresets } from '@generated/proto/ui';
 import type { IMessageType } from '@protobuf-ts/runtime';
 
 import { BulkSimItemSlot } from '../bulk/constants_auto_gen';
@@ -14,6 +14,7 @@ import { specStorageKey } from '../state/storage_keys';
 const BULK_SETTINGS_STORAGE_KEY = 'bulk-settings.v2';
 const LEGACY_BULK_SETTINGS_STORAGE_KEY = 'bulk-settings.v1';
 const BULK_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-enchant-presets.v1';
+const BULK_DURATIONS_STORAGE_KEY = 'bulk-durations.v1';
 
 const initialBulkSlice = (): BulkSlice => ({
 	items: [],
@@ -28,6 +29,7 @@ const initialBulkSlice = (): BulkSlice => ({
 		[ItemSlot.ItemSlotOffHand, []],
 	]),
 	enchantPresets: [],
+	durations: [],
 	combinations: 0,
 	iterations: 0,
 	combinationsPending: false,
@@ -87,6 +89,18 @@ export const storeEnchantPresets = (player: Player<any>, presets: BulkEnchantPre
 		player.sim.env.storage.setItem(
 			specStorageKey(player.getPlayerSpec(), BULK_ENCHANT_PRESETS_STORAGE_KEY),
 			BulkEnchantPresets.toJsonString(presets, { enumAsInteger: true }),
+		);
+	} catch {}
+};
+
+export const loadStoredBulkDurations = (player: Player<any>): BulkDurations | null => loadStoredProto(player, BULK_DURATIONS_STORAGE_KEY, BulkDurations);
+
+// Over the quota the previously stored durations stay.
+export const storeBulkDurations = (player: Player<any>, durations: BulkDurations) => {
+	try {
+		player.sim.env.storage.setItem(
+			specStorageKey(player.getPlayerSpec(), BULK_DURATIONS_STORAGE_KEY),
+			BulkDurations.toJsonString(durations, { enumAsInteger: true }),
 		);
 	} catch {}
 };

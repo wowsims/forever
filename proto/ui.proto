@@ -402,6 +402,17 @@ message BulkEnchantPresets {
 	repeated BulkEnchantPreset presets = 1;
 }
 
+// Local storage data for the bulk sim's extra durations. The encounter's own duration always runs first and is not
+// stored here.
+message BulkDurations {
+	repeated BulkDuration durations = 1;
+}
+
+message BulkDuration {
+	double duration = 1;
+	double duration_variation = 2;
+}
+
 // Local storage data for a saved encounter.
 message SavedEncounter {
 	Encounter encounter = 1;

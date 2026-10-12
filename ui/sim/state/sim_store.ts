@@ -19,7 +19,7 @@ import {
 	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { type BulkEnchantPreset, DatabaseFilters } from '@generated/proto/ui';
+import { type BulkDuration, type BulkEnchantPreset, DatabaseFilters } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
@@ -209,6 +209,8 @@ export interface BulkSlice {
 	frozenWeaponSlot: ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand | undefined;
 	weaponTypeFilters: ReadonlyMap<ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand, WeaponType[]>;
 	enchantPresets: readonly BulkEnchantPreset[];
+	// Extra batch durations; the encounter's own duration is read live and never stored here.
+	durations: readonly BulkDuration[];
 	combinations: number;
 	iterations: number;
 	combinationsPending: boolean;
