@@ -1,7 +1,7 @@
 import { enchantPresetPool } from '@features/enchant-presets/model/enchant_presets';
 import { BulkSettings, ProgressMetrics } from '@generated/proto/api';
 import i18n from '@i18n/config';
-import { BulkResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
+import { BulkRunResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
 import { getGearIdentityKey } from '@sim/proto/items';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
@@ -200,7 +200,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 	await sim.waitForInit();
 	const bulkSettings = bulkRequestSettings(player);
-	let results: BulkResults | null = null;
+	let results: BulkRunResults | null = null;
 	let runError: unknown = null;
 
 	try {
@@ -229,10 +229,21 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 		rankedResults.sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
 
 		const resultIterations = Math.max(1, bulkSimResult.iterations || bulkSimHighStageFloor());
+		const encounter = sim.store.getState().encounter;
 		results = {
-			chains: buildTieChains(rankedResults, originalGearResults, resultIterations),
-			originalGearResults,
-			iterations: resultIterations,
+			plannedDurations: 1,
+			entries: [
+				{
+					duration: encounter.duration,
+					durationVariation: encounter.durationVariation,
+					isEncounter: true,
+					results: {
+						chains: buildTieChains(rankedResults, originalGearResults, resultIterations),
+						originalGearResults,
+						iterations: resultIterations,
+					},
+				},
+			],
 		};
 	} catch (error) {
 		runError = error;

@@ -1046,7 +1046,9 @@
 			"gear_equipped": "Batch gear equipped!",
 			"current_gear": "Current Gear",
 			"margin_of_error": "95% confidence interval of the mean DPS. Rankings closer than this can change between runs.",
-			"tied_group": "Statistically tied — the order within this group can change between runs"
+			"tied_group": "Statistically tied — the order within this group can change between runs",
+			"durations": "Durations",
+			"encounter_duration": "encounter"
 		},
 		"import_modal": {
 			"title": "Bag Item Import",

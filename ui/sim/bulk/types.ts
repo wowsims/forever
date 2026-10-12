@@ -32,6 +32,19 @@ export interface BulkResults {
 	iterations: number;
 }
 
+export interface BulkDurationResults {
+	duration: number;
+	durationVariation: number;
+	isEncounter: boolean;
+	results: BulkResults;
+}
+
+export interface BulkRunResults {
+	/** Length of the run list when the batch started, so a cancelled multi-duration run still shows its pills. */
+	plannedDurations: number;
+	entries: BulkDurationResults[];
+}
+
 export interface BulkSimRoundConfig {
 	currentRound: number;
 	totalRounds: number;

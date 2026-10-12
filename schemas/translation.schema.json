@@ -3719,10 +3719,25 @@
 						},
 						"tied_group": {
 							"type": "string"
+						},
+						"durations": {
+							"type": "string"
+						},
+						"encounter_duration": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["run_simulation", "equip_button", "gear_equipped", "current_gear", "margin_of_error", "tied_group"]
+					"required": [
+						"run_simulation",
+						"equip_button",
+						"gear_equipped",
+						"current_gear",
+						"margin_of_error",
+						"tied_group",
+						"durations",
+						"encounter_duration"
+					]
 				},
 				"import_modal": {
 					"type": "object",
