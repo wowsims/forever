@@ -1022,7 +1022,8 @@
 			"iterations_complete": "{{completed}} / {{total}}<br />iterations complete",
 			"seconds_remaining": "{{seconds}} seconds remaining",
 			"time_remaining": "{{time}} remaining",
-			"finalist_iteration_rounds": "Running finalist tie-breaker rounds"
+			"finalist_iteration_rounds": "Running finalist tie-breaker rounds",
+			"duration_title": "Duration {{current}}/{{total}} · {{label}} · {{title}}"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",

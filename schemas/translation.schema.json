@@ -3631,6 +3631,9 @@
 						},
 						"time_remaining": {
 							"type": "string"
+						},
+						"duration_title": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -3645,7 +3648,8 @@
 						"finalist_iteration_rounds",
 						"iterations_complete",
 						"seconds_remaining",
-						"time_remaining"
+						"time_remaining",
+						"duration_title"
 					]
 				},
 				"notifications": {

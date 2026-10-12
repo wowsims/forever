@@ -347,7 +347,12 @@ export class Sim {
 		return gear;
 	}
 
-	async runBulkSim(onProgress: WorkerProgressCallback, bulkSettings: BulkSettings, abortSignal?: AbortSignal): Promise<BulkSimResult | ErrorOutcome> {
+	async runBulkSim(
+		onProgress: WorkerProgressCallback,
+		bulkSettings: BulkSettings,
+		abortSignal?: AbortSignal,
+		encounterOverride?: { duration: number; durationVariation: number },
+	): Promise<BulkSimResult | ErrorOutcome> {
 		this.requireRunnableSetup();
 
 		const signals = this.signalManager.registerRunning(RequestTypes.BulkSim);
@@ -356,6 +361,11 @@ export class Sim {
 
 			const requestId = generateRequestId(SimRequest.bulkSimAsync);
 			const baseRequest = this.makeRaidSimRequest();
+			// The request carries a fresh encounter proto, so the live encounter keeps its own duration.
+			if (encounterOverride) {
+				baseRequest.encounter!.duration = encounterOverride.duration;
+				baseRequest.encounter!.durationVariation = encounterOverride.durationVariation;
+			}
 			baseRequest.requestId = requestId;
 			baseRequest.simOptions!.debugFirstIteration = false;
 			baseRequest.simOptions!.debug = false;

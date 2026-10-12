@@ -1,8 +1,9 @@
 import { enchantPresetPool } from '@features/enchant-presets/model/enchant_presets';
 import { BulkSettings, ProgressMetrics } from '@generated/proto/api';
 import i18n from '@i18n/config';
-import { BulkRunResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
+import { BulkDurationResults, BulkRunResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
+import type { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -11,7 +12,8 @@ import { bulkSimHighStageFloor } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
 
 import { trackEvent } from '../../../tracking/utils';
-import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
+import { type CoreBulkSimOptions, type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
+import { bulkDurationRuns, formatDurationLabel } from './durations';
 import { BulkProgress, candidateGearProgress, simProgress } from './progress';
 import { createBulkSettingsProto } from './settings';
 import { buildTieChains } from './tie_chains';
@@ -70,8 +72,8 @@ const emitProgress = (player: Player<any>, next: BulkProgress | null) => {
 	for (const listener of run.listeners) listener(next);
 };
 
-const setCandidateGearProgress = (player: Player<any>) => {
-	emitProgress(player, candidateGearProgress({ now: new Date().getTime() }));
+const setCandidateGearProgress = (player: Player<any>, title?: string) => {
+	emitProgress(player, candidateGearProgress({ now: new Date().getTime(), title }));
 };
 
 const setSimProgress = (player: Player<any>, metrics: ProgressMetrics, config: BulkSimProgressConfig) => {
@@ -129,7 +131,12 @@ const runWithBulkAbort = async <T>(player: Player<any>, promise: Promise<T>, sig
 	}
 };
 
-const runCoreBulkSim = async (host: IndividualSimHost<any>, signal: AbortSignal, bulkSettings: BulkSettings): Promise<CoreBulkSimResult> => {
+const runCoreBulkSim = async (
+	host: IndividualSimHost<any>,
+	signal: AbortSignal,
+	bulkSettings: BulkSettings,
+	options: CoreBulkSimOptions,
+): Promise<CoreBulkSimResult> => {
 	const { player } = host;
 	return runCoreBulkSimImpl(
 		{
@@ -141,7 +148,19 @@ const runCoreBulkSim = async (host: IndividualSimHost<any>, signal: AbortSignal,
 		},
 		signal,
 		bulkSettings,
+		options,
 	);
+};
+
+const rankResults = (bulkSimResult: CoreBulkSimResult, baseGear: Gear) => {
+	const { referenceDpsMetrics, topGearResults } = bulkSimResult;
+	const originalGearKey = getGearIdentityKey(baseGear.asSpec());
+	const rankedResults = topGearResults.filter(result => getGearIdentityKey(result.gear.asSpec()) !== originalGearKey);
+	const originalGearResults: TopGearResult = { gear: baseGear, dpsMetrics: referenceDpsMetrics };
+	rankedResults.push(originalGearResults);
+	rankedResults.sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
+	const iterations = Math.max(1, bulkSimResult.iterations || bulkSimHighStageFloor());
+	return { chains: buildTieChains(rankedResults, originalGearResults, iterations), originalGearResults, iterations };
 };
 
 const abortBulkSimWork = async (host: IndividualSimHost<any>) => {
@@ -200,7 +219,8 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 	await sim.waitForInit();
 	const bulkSettings = bulkRequestSettings(player);
-	let results: BulkRunResults | null = null;
+	const durationRuns = bulkDurationRuns(sim.store.getState().encounter, bulkState(player).durations);
+	const entries: BulkDurationResults[] = [];
 	let runError: unknown = null;
 
 	try {
@@ -213,38 +233,25 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 		await refreshBulkCombinations(host);
 
-		setCandidateGearProgress(player);
-		run.simStart = new Date().getTime();
-		const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings);
-		const { referenceDpsMetrics, topGearResults } = bulkSimResult;
-
-		const originalGearKey = getGearIdentityKey(baseGear.asSpec());
-		const rankedResults = topGearResults.filter(result => getGearIdentityKey(result.gear.asSpec()) !== originalGearKey);
-		const originalGearResults: TopGearResult = {
-			gear: baseGear,
-			dpsMetrics: referenceDpsMetrics,
-		};
-
-		rankedResults.push(originalGearResults);
-		rankedResults.sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
-
-		const resultIterations = Math.max(1, bulkSimResult.iterations || bulkSimHighStageFloor());
-		const encounter = sim.store.getState().encounter;
-		results = {
-			plannedDurations: 1,
-			entries: [
-				{
-					duration: encounter.duration,
-					durationVariation: encounter.durationVariation,
-					isEncounter: true,
-					results: {
-						chains: buildTieChains(rankedResults, originalGearResults, resultIterations),
-						originalGearResults,
-						iterations: resultIterations,
-					},
-				},
-			],
-		};
+		for (const [index, durationRun] of durationRuns.entries()) {
+			throwIfBulkAborted(player, abortSignal);
+			const decorateTitle = (title: string) =>
+				durationRuns.length > 1
+					? i18n.t('bulk_tab.progress.duration_title', {
+							current: index + 1,
+							total: durationRuns.length,
+							label: formatDurationLabel(durationRun),
+							title,
+						})
+					: title;
+			setCandidateGearProgress(player, decorateTitle(i18n.t('bulk_tab.progress.building_candidate_gear_sets')));
+			run.simStart = new Date().getTime();
+			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, {
+				encounterOverride: { duration: durationRun.duration, durationVariation: durationRun.durationVariation },
+				decorateTitle,
+			});
+			entries.push({ ...durationRun, results: rankResults(bulkSimResult, baseGear) });
+		}
 	} catch (error) {
 		runError = error;
 		console.error(error);
@@ -268,6 +275,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 		run.isCancelling = false;
+		const results: BulkRunResults | null = entries.length ? { plannedDurations: durationRuns.length, entries } : null;
 		patchBulkState(player, results ? { isRunning: false, results } : { isRunning: false });
 	}
 };

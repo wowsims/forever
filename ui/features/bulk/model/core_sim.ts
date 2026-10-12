@@ -20,7 +20,18 @@ export interface CoreBulkSimResult {
 	metrics: Record<string, string | number>;
 }
 
-export async function runCoreBulkSim(context: CoreBulkSimContext, signal: AbortSignal, bulkSettings: BulkSettings): Promise<CoreBulkSimResult> {
+export interface CoreBulkSimOptions {
+	encounterOverride?: { duration: number; durationVariation: number };
+	/** Wraps every progress title, e.g. with the duration being run. */
+	decorateTitle?: (title: string) => string;
+}
+
+export async function runCoreBulkSim(
+	context: CoreBulkSimContext,
+	signal: AbortSignal,
+	bulkSettings: BulkSettings,
+	{ encounterOverride, decorateTitle = title => title }: CoreBulkSimOptions = {},
+): Promise<CoreBulkSimResult> {
 	context.throwIfBulkAborted(signal);
 	context.debugOptimisationRound('core bulk sim started');
 
@@ -37,13 +48,13 @@ export async function runCoreBulkSim(context: CoreBulkSimContext, signal: AbortS
 		context.setSimProgress(progress, {
 			currentRound: 1,
 			totalRounds: 1,
-			title: stageName ? i18n.t(`bulk_tab.progress.${stageName}_iteration_rounds`) : i18n.t('bulk_tab.progress.refining_rounds'),
+			title: decorateTitle(stageName ? i18n.t(`bulk_tab.progress.${stageName}_iteration_rounds`) : i18n.t('bulk_tab.progress.refining_rounds')),
 			aggregateStartedAt: currentProgressStageStartedAt,
 			useSimCountProgress: true,
 		});
 	};
 
-	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal), signal);
+	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal, encounterOverride), signal);
 	if (!result || (result && 'type' in result)) {
 		throw new Error(result?.message);
 	}
