@@ -21,7 +21,6 @@ const TextField = <V,>({
 	inputClassName,
 	inputSize,
 	inputTestId,
-	invalid,
 	className,
 	testId,
 	...frameProps
@@ -58,7 +57,6 @@ const TextField = <V,>({
 			inputSize={inputSize}
 			data-testid={inputTestId ?? (rooted ? undefined : testId)}
 			disabled={disabled}
-			aria-invalid={invalid || undefined}
 			placeholder={placeholder}
 			autoComplete={autoComplete}
 			value={text}

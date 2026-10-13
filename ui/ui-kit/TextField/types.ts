@@ -30,8 +30,6 @@ export interface TextFieldProps<V> extends FieldFrameProps, ControlledProps<V> {
 	inputClassName?: string;
 	inputSize?: InputSize;
 	inputTestId?: string;
-	/** Outlines the input in red and marks it `aria-invalid`. */
-	invalid?: boolean;
 }
 
 export interface NumberCodecOptions {
