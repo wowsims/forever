@@ -4,7 +4,7 @@ import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import { patchSlice } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { Durations } from './Durations';
 
@@ -59,53 +59,27 @@ describe('Durations', () => {
 		expect(inputs()[0].getAttribute('aria-invalid')).toBeNull();
 	});
 
-	it('rejects a duplicate value, restores the old one and clears the outline after a moment', () => {
-		vi.useFakeTimers();
-		try {
-			const player = mount([
-				[90, 10],
-				[300, 10],
-			]);
+	it('stores a duplicate pair and outlines it until the pair differs again', () => {
+		const player = mount([
+			[90, 10],
+			[300, 10],
+		]);
 
-			commit(inputs()[4], '90');
+		commit(inputs()[4], '90');
 
-			expect(bulkState(player).durations.map(row => [row.duration, row.durationVariation])).toEqual([
-				[90, 10],
-				[300, 10],
-			]);
-			expect(inputs()[4].value).toBe('300');
-			expect(inputs()[4].getAttribute('aria-invalid')).toBe('true');
-			expect(inputs()[5].getAttribute('aria-invalid')).toBe('true');
-			expect(inputs()[2].getAttribute('aria-invalid')).toBeNull();
+		expect(bulkState(player).durations.map(row => [row.duration, row.durationVariation])).toEqual([
+			[90, 10],
+			[90, 10],
+		]);
+		expect(inputs()[4].getAttribute('aria-invalid')).toBe('true');
+		expect(inputs()[5].getAttribute('aria-invalid')).toBe('true');
+		expect(inputs()[2].getAttribute('aria-invalid')).toBeNull();
+		expect(inputs()[3].getAttribute('aria-invalid')).toBeNull();
 
-			act(() => {
-				vi.advanceTimersByTime(1500);
-			});
+		commit(inputs()[5], '20');
 
-			expect(inputs()[4].getAttribute('aria-invalid')).toBeNull();
-			expect(inputs()[5].getAttribute('aria-invalid')).toBeNull();
-		} finally {
-			vi.useRealTimers();
-		}
-	});
-
-	it('drops the rejected flash when a row is removed', () => {
-		vi.useFakeTimers();
-		try {
-			mount([
-				[90, 10],
-				[300, 10],
-			]);
-
-			commit(inputs()[4], '90');
-			expect(inputs()[4].getAttribute('aria-invalid')).toBe('true');
-
-			fireEvent.click(screen.getAllByRole('button', { name: /bulk_tab.settings.durations.remove/ })[0]);
-
-			expect(inputs().some(input => input.getAttribute('aria-invalid') === 'true')).toBe(false);
-		} finally {
-			vi.useRealTimers();
-		}
+		expect(inputs()[4].getAttribute('aria-invalid')).toBeNull();
+		expect(inputs()[5].getAttribute('aria-invalid')).toBeNull();
 	});
 
 	it('clamps a typed duration to one second', () => {

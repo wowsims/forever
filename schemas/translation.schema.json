@@ -3481,9 +3481,6 @@
 								"duplicate": {
 									"type": "string"
 								},
-								"rejected": {
-									"type": "string"
-								},
 								"health_fight": {
 									"type": "string"
 								},
@@ -3492,19 +3489,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": [
-								"description",
-								"encounter",
-								"extra",
-								"duration",
-								"variation",
-								"add",
-								"remove",
-								"duplicate",
-								"rejected",
-								"health_fight",
-								"count"
-							]
+							"required": ["description", "encounter", "extra", "duration", "variation", "add", "remove", "duplicate", "health_fight", "count"]
 						},
 						"iterations": {
 							"type": "string"

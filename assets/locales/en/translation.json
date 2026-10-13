@@ -984,7 +984,6 @@
 				"add": "Add duration",
 				"remove": "Remove extra duration {{index}}",
 				"duplicate": "Same as another duration, skipped",
-				"rejected": "Same as another duration, not saved",
 				"health_fight": "Health-based fights have no duration to vary, so the batch runs once.",
 				"count": "Durations"
 			},

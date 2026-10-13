@@ -3,7 +3,7 @@ import { usePlayer, useSim } from '@sim/context/SimHostContext';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { NumberField } from '@ui-kit/TextField';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId } from 'react';
 import { useStore } from 'zustand';
 
 import { useBulkState } from '../../hooks/useBulkState';
@@ -18,35 +18,14 @@ export interface DurationsViewProps {
 	rows: readonly DurationRow[];
 	healthFight: boolean;
 	onAdd: () => void;
-	onChange: (index: number, patch: Partial<DurationPair>) => boolean;
+	onChange: (index: number, patch: Partial<DurationPair>) => void;
 	onRemove: (index: number) => void;
 }
-
-const REJECTED_FLASH_MS = 1500;
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.durations.${key}`, options);
 
 export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, onRemove }: DurationsViewProps) => {
 	const idPrefix = useId();
-	const [rejected, setRejected] = useState<number | null>(null);
-	const rejectTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-	useEffect(() => () => clearTimeout(rejectTimer.current), []);
-
-	const change = (index: number, patch: Partial<DurationPair>) => {
-		clearTimeout(rejectTimer.current);
-		if (onChange(index, patch)) {
-			setRejected(null);
-			return;
-		}
-		setRejected(index);
-		rejectTimer.current = setTimeout(() => setRejected(null), REJECTED_FLASH_MS);
-	};
-
-	const clearRejected = () => {
-		clearTimeout(rejectTimer.current);
-		setRejected(null);
-	};
-
 	const pairFields = (
 		id: string,
 		rowLabel: string,
@@ -87,9 +66,6 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 		<div className="grid gap-2" data-testid="bulk-durations">
 			<p className="mb-0 text-sm">{t('description')}</p>
 			{healthFight && <p className="mb-0 text-sm text-gray-400">{t('health_fight')}</p>}
-			<span className="sr-only" role="status">
-				{rejected !== null && t('rejected')}
-			</span>
 			<div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
 				<span />
 				<span className="text-xs text-gray-400">{t('duration')}</span>
@@ -104,36 +80,19 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 							{t('extra', { index: index + 1 })}
 							{row.duplicate && <span className="sr-only">{t('duplicate')}</span>}
 						</span>
-						{pairFields(
-							`${idPrefix}-${index}`,
-							t('extra', { index: index + 1 }),
-							row,
-							healthFight,
-							!healthFight && (row.duplicate || rejected === index),
-							patch => change(index, patch),
-						)}
+						{pairFields(`${idPrefix}-${index}`, t('extra', { index: index + 1 }), row, healthFight, row.duplicate, patch => onChange(index, patch))}
 						<Button
 							iconOnly
 							aria-label={t('remove', { index: index + 1 })}
 							className="text-link-danger"
 							disabled={healthFight}
-							onClick={() => {
-								clearRejected();
-								onRemove(index);
-							}}>
+							onClick={() => onRemove(index)}>
 							<Icon name="xmark" />
 						</Button>
 					</div>
 				))}
 			</div>
-			<Button
-				variant="outline-primary"
-				size="sm"
-				disabled={healthFight}
-				onClick={() => {
-					clearRejected();
-					onAdd();
-				}}>
+			<Button variant="outline-primary" size="sm" disabled={healthFight} onClick={onAdd}>
 				<Icon name="plus" />
 				{t('add')}
 			</Button>
@@ -160,7 +119,7 @@ export const Durations = () => {
 			}))}
 			healthFight={useHealth}
 			onAdd={() => addBulkDuration(player, encounter)}
-			onChange={(index, patch) => updateBulkDuration(player, encounter, index, patch)}
+			onChange={(index, patch) => updateBulkDuration(player, index, patch)}
 			onRemove={index => removeBulkDuration(player, index)}
 		/>
 	);

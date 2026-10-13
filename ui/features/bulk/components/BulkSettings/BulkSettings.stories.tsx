@@ -58,14 +58,7 @@ const meta = {
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
 		durations: (
-			<DurationsView
-				encounter={{ duration: 180, durationVariation: 5 }}
-				rows={[]}
-				healthFight={false}
-				onAdd={fn()}
-				onChange={fn(() => true)}
-				onRemove={fn()}
-			/>
+			<DurationsView encounter={{ duration: 180, durationVariation: 5 }} rows={[]} healthFight={false} onAdd={fn()} onChange={fn()} onRemove={fn()} />
 		),
 		enchants: (
 			<EnchantPresetsView

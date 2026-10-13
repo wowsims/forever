@@ -16,9 +16,8 @@ const StatefulDurations = (props: DurationsViewProps) => {
 				props.onAdd();
 			}}
 			onChange={(index, patch) => {
-				const accepted = props.onChange(index, patch);
-				if (accepted) setRows(rows.map((row, at) => (at === index ? { ...row, ...patch } : row)));
-				return accepted;
+				setRows(rows.map((row, at) => (at === index ? { ...row, ...patch } : row)));
+				props.onChange(index, patch);
 			}}
 			onRemove={index => {
 				setRows(rows.filter((_, at) => at !== index));
@@ -38,7 +37,7 @@ const meta = {
 		rows: [],
 		healthFight: false,
 		onAdd: fn(),
-		onChange: fn(() => true),
+		onChange: fn(),
 		onRemove: fn(),
 	},
 	decorators: [
@@ -66,13 +65,6 @@ export const TwoExtras: Story = {
 
 export const DuplicateRow: Story = {
 	args: { rows: [{ duration: 180, durationVariation: 5, duplicate: true }] },
-};
-
-export const RejectedEdit: Story = {
-	args: {
-		rows: [{ duration: 90, durationVariation: 10, duplicate: false }],
-		onChange: fn(() => false),
-	},
 };
 
 export const HealthFight: Story = {
