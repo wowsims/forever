@@ -36,8 +36,7 @@ export interface BulkEncounterResults {
 	/** Empty for the current encounter, which the views label themselves. */
 	name: string;
 	isCurrent: boolean;
-	/** Length and target count, formatted when the run started. */
-	summary: string;
+	/** The encounter's length, formatted when the run started. */
 	durationLabel: string;
 	results: BulkResults;
 }

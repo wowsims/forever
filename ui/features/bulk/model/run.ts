@@ -260,7 +260,6 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			entries.push({
 				name: encounterRun.name,
 				isCurrent: encounterRun.isCurrent,
-				summary: formatEncounterSummary(encounterRun.encounter),
 				durationLabel: formatEncounterDuration(encounterRun.encounter),
 				results: rankResults(bulkSimResult, baseGear),
 			});

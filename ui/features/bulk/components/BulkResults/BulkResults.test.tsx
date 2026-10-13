@@ -22,7 +22,6 @@ const entry = (name: string, durationLabel: string, iterations: number, isCurren
 	return {
 		name,
 		isCurrent,
-		summary: `${durationLabel} · 1 target`,
 		durationLabel,
 		results: { chains: [[result(1100)], [baseline]], originalGearResults: baseline, iterations },
 	};

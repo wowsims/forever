@@ -1,6 +1,6 @@
 import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions, BulkSettings } from '@generated/proto/api';
-import { Encounter, ItemSlot } from '@generated/proto/common';
+import { Encounter, ItemSlot, Target } from '@generated/proto/common';
 import { BulkEncounterRef, SavedEncounter, UIEnchant } from '@generated/proto/ui';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -41,9 +41,9 @@ const GEAR = { asSpec: () => ({ items: [] }) };
 const CORE_RESULT = { referenceDpsMetrics: { avg: 1000, stdev: 1 }, topGearResults: [], iterations: 100, metrics: {} };
 const SAVED_KEY = 'saved-encounters';
 
-const CURRENT = Encounter.create({ duration: 180, durationVariation: 5 });
-const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, useHealth: true });
-const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10 });
+const CURRENT = Encounter.create({ duration: 180, durationVariation: 5, targets: [Target.create()] });
+const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, useHealth: true, targets: [Target.create()] });
+const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets: [Target.create()] });
 
 const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
 

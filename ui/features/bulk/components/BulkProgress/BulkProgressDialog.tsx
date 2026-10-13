@@ -32,23 +32,14 @@ export const BulkProgressDialog = () => {
 		[host],
 	);
 
-	const showSteps = labels.length > 1;
 	return (
 		<ProgressTrackerDialog
 			open
 			testId="bulk-sim-progress-tracker"
 			title="Bulk Sim"
-			state={{
-				stage: state.stage,
-				message:
-					showSteps || state.hasMessage ? (
-						<>
-							{showSteps && <HandleProgressStepList ref={stepsRef} labels={labels} />}
-							{state.hasMessage && MESSAGE}
-						</>
-					) : undefined,
-			}}
+			state={{ stage: state.stage, message: state.hasMessage ? MESSAGE : undefined }}
 			hasProgressBar
+			belowBar={labels.length > 1 && <HandleProgressStepList ref={stepsRef} labels={labels} />}
 			onCancel={() => void cancelBulkBatch(host)}
 			ref={barRef}
 		/>

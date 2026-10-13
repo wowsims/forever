@@ -92,6 +92,18 @@ describe('formatEncounterSummary', () => {
 });
 
 describe('pickableBulkEncounters', () => {
+	it('leaves out a preset or a saved encounter with no target', () => {
+		const host = hostWith(
+			[
+				{ name: 'No preset target', encounter: encounter(300, 5, 0) },
+				{ name: 'Patchwerk', encounter: encounter(300) },
+			],
+			{ 'No saved target': encounter(90, 5, 0), Council: encounter(90) },
+		);
+
+		expect(pickableBulkEncounters(host).map(entry => entry.name)).toEqual(['Patchwerk', 'Council']);
+	});
+
 	it('lists the presets, then the saved encounters, and leaves out a preset with no encounter', () => {
 		const host = hostWith(
 			[

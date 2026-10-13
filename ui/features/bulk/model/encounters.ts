@@ -49,13 +49,17 @@ export const formatEncounterDuration = ({ duration, durationVariation, useHealth
 export const formatEncounterSummary = (encounter: EncounterSummaryFields): string =>
 	`${formatEncounterDuration(encounter)} · ${t('targets', { count: Math.max(1, encounter.targets.length) })}`;
 
-// Presets first, then the user's saved encounters, in the order the Saved Encounters panel lists them.
+const entry = (name: string, preset: boolean, encounter: Encounter | undefined): BulkEncounterEntry[] =>
+	encounter && encounter.targets.length > 0 ? [{ ref: BulkEncounterRef.create({ name, preset }), name, encounter }] : [];
+
+// Presets first, then the user's saved encounters, in the order the Saved Encounters panel lists them. One with no
+// encounter or no target cannot run and is left out.
 export const bulkEncounterEntries = (
 	presets: readonly PresetEncounter[] | undefined,
 	saved: ReadonlyArray<{ name: string; data: SavedEncounter }>,
 ): BulkEncounterEntry[] => [
-	...(presets ?? []).flatMap(({ name, encounter }) => (encounter ? [{ ref: BulkEncounterRef.create({ name, preset: true }), name, encounter }] : [])),
-	...saved.flatMap(({ name, data }) => (data.encounter ? [{ ref: BulkEncounterRef.create({ name, preset: false }), name, encounter: data.encounter }] : [])),
+	...(presets ?? []).flatMap(({ name, encounter }) => entry(name, true, encounter)),
+	...saved.flatMap(({ name, data }) => entry(name, false, data.encounter)),
 ];
 
 // The record the Saved Encounters panel writes, name to SavedEncounter JSON; an unreadable entry is left out.
