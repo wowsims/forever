@@ -165,6 +165,7 @@ func AddWeaponProcAura(character *core.Character, config WeaponProcAura) {
 				procAura.SetStacks(sim, procAura.MaxStacks)
 			}
 		},
+		ActivatesAura: procAura,
 	})
 
 	character.ItemSwap.RegisterProc(config.ItemID, aura)

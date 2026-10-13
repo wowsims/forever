@@ -400,11 +400,16 @@ export class ActionId {
 			case 'Flame Shock':
 			case 'Earth Shock':
 			case 'Frost Shock':
-			case 'Fire Nova':
 				if (tag == 1) {
 					name += ' (DoT)';
 				} else if (tag == 7) {
 					name += ' (Echo)';
+				}
+				break;
+			case 'Fire Nova':
+				// The cast's hits report under its spell, tagged 1, so they share its row.
+				if (tag === 1) {
+					name += ' (Damage)';
 				}
 				break;
 			case 'Fulmination':

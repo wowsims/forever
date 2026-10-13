@@ -234,7 +234,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 			/>
 			<div
 				ref={listRef}
-				className="mb-0 max-h-[60vh] w-full overflow-x-hidden overflow-y-scroll p-0"
+				className="mb-0 h-[65dvh] w-full overflow-x-hidden overflow-y-scroll p-0"
 				data-testid="selector-modal-list"
 				data-hide-ep={!showEPValues ? '' : undefined}
 				tabIndex={0}>

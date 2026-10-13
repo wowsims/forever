@@ -131,7 +131,11 @@ func (shaman *Shaman) applyElementalFocus() {
 			clearcastingAura.Activate(sim)
 		})
 	trigger.Name = "Elemental Focus - Trigger"
-	trigger.Callback = trigger.Callback&^core.CallbackOnSpellHitDealt | core.CallbackOnCastResult
+	// The tooltip's "after casting" is one roll per cast, a miss included, and none for what the
+	// shaman does not cast, such as a Lightning Overload. The row's helpful-spell bit adds heals,
+	// which the tooltip's damage spells leave out.
+	trigger.Callback = core.CallbackOnCastComplete
+	trigger.ProcMask &^= core.ProcMaskSpellHealing
 	trigger.TriggerImmediately = true
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		return spell.SpellSchool.Matches(core.SpellSchoolFire | core.SpellSchoolFrost | core.SpellSchoolNature)

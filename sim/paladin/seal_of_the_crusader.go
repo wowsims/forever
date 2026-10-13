@@ -19,8 +19,10 @@ import (
 // 161. Your melee strikes will refresh the spell's duration. Only one Judgement per Paladin can be
 // active at any one time.
 //
-// The game files state no number for the damage each attack loses; every sim before this one has
-// divided the white damage by the same 1.4 the speed gains, and that stays.
+// The game files state no number for the damage each attack loses. In game the seal swings the weapon
+// as a 1.4 times faster, lighter one: each white hit deals 1/1.4 of its damage, attack power's share
+// included, and Vindication's chance on each swing drops by the same 1.4, both measured at 1.6 and 3.6
+// speed. The white damage a second and the procs a minute hold.
 func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfTheCrusaderTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementAuras := paladin.newJudgementAuras(func(target *core.Unit) *core.Aura {
@@ -51,7 +53,7 @@ func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell
 		Duration: sealDuration,
 	}).
 		AttachStatBuff(stats.AttackPower, attackPower).
-		AttachMultiplyMeleeSpeed(speed).
+		AttachMultiplyWeaponSpeed(speed).
 		AttachSpellMod(core.SpellModConfig{
 			ProcMask:   core.ProcMaskMeleeMHAuto,
 			Kind:       core.SpellMod_DamageDone_Pct,

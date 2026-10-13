@@ -66,6 +66,29 @@ func (character *Character) NewStaticLegacyPPMManager(ppm float64, procMask Proc
 	return &dpm
 }
 
+// A procs-per-minute rate on the main hand's speed as WeaponSpeedMultiplier leaves it: Seal of the
+// Crusader's faster swings each carry 1/1.4 of the chance, so the swings' procs a minute hold, and
+// haste leaves the chance alone. Both are read at each roll, so a weapon swap needs no callback.
+func (character *Character) NewWeaponSpeedPPMManager(ppm float64, procMask ProcMask) *DynamicProcManager {
+	return &DynamicProcManager{
+		procMasks:   []ProcMask{procMask},
+		procChances: []DynamicProc{weaponSpeedProc{unit: &character.Unit, ppm: ppm}},
+	}
+}
+
+type weaponSpeedProc struct {
+	unit *Unit
+	ppm  float64
+}
+
+func (wp weaponSpeedProc) Reset() {}
+func (wp weaponSpeedProc) Chance(_ *Simulation) float64 {
+	return wp.ppm / 60 * wp.unit.AutoAttacks.MH().SwingSpeed / wp.unit.PseudoStats.WeaponSpeedMultiplier
+}
+func (wp weaponSpeedProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(wp.Chance(sim), label)
+}
+
 // Dynamic Proc Manager for static ProcMasks and no item swap callback
 func (character *Character) NewFixedProcChanceManager(fixedProcChance float64, procMask ProcMask) *DynamicProcManager {
 	dpm := character.newDynamicWeaponProcManager(0, fixedProcChance, procMask)

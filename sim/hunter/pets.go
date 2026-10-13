@@ -41,7 +41,6 @@ var petBaseStats = stats.Stats{
 
 func addPetStatDependencies(pet *core.Character) {
 	pet.AddStatDependency(stats.Strength, stats.AttackPower, 2.0)
-	pet.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[proto.Class_ClassWarrior])
 }
 
 // Classic's 18.17-27.66 damage a second of a 2 s swing.
@@ -85,6 +84,8 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		family:      family,
 	}
 
+	// Agility gives the pet no crit. In game a level 30 pet crits at its owner's melee crit plus its
+	// skill over the target's defense, with no crit of its own.
 	addPetStatDependencies(&hp.Character)
 
 	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +50% a rank.
@@ -104,18 +105,25 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 }
 
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
-// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power and all of the
-// ranged crit chance, the racial weapon specializations with it. Not linear, so the pet snapshots
-// them rather than following every change - see registerStatInheritance.
+// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power and the owner's
+// melee crit (inheritedMeleeCrit). Not linear, so the pet snapshots them; registerStatInheritance
+// says when.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
 		return stats.Stats{
 			stats.Health:              ownerStats[stats.Stamina] * 2,
 			stats.Armor:               ownerStats[stats.Armor] * 0.3,
 			stats.AttackPower:         max(ownerStats[stats.AttackPower], ownerStats[stats.RangedAttackPower]) * 0.1,
-			stats.PhysicalCritPercent: ownerStats[stats.PhysicalCritPercent] + ownerStats[stats.RangedCritPercent],
+			stats.PhysicalCritPercent: hunter.inheritedMeleeCrit(ownerStats),
 		}
 	}
+}
+
+// The melee crit the in-game character sheet shows: the owner's physical crit less 0.04% a point of
+// main-hand skill below the level-based maximum, at least 0. Ranged crit does not reach a pet.
+func (hunter *Hunter) inheritedMeleeCrit(ownerStats stats.Stats) float64 {
+	mhSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetMHWeapon())
+	return max(0, ownerStats[stats.PhysicalCritPercent]+min(mhSkillBonus, 0)*0.04)
 }
 
 // The server's HunterPetInheritance: the pet snapshots its owner's stats when summoned and again on

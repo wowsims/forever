@@ -42,7 +42,7 @@ export const CastTooltip = ({ log, stack = [log] }: CastTooltipProps) => {
 				</span>
 			)}
 			{damageDealtLogs.length > 0 && (
-				<ul>
+				<ul className="ui-timeline-tooltip-hits">
 					{damageDealtLogs.map((ddl, index) => (
 						<li key={index}>
 							<span>

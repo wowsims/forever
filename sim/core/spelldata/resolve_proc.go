@@ -73,6 +73,15 @@ func PPM(ppm float64) ProcOpt {
 	}
 }
 
+// A hand-supplied rate on the main hand's speed as Seal of the Crusader leaves it, through
+// core.NewWeaponSpeedPPMManager. Like PPM, it reads the trigger's proc mask.
+func WeaponSpeedPPM(ppm float64) ProcOpt {
+	return func(character *core.Character, trigger *core.ProcTrigger) {
+		trigger.ProcChance = 0
+		trigger.DPM = character.NewWeaponSpeedPPMManager(ppm, trigger.ProcMask)
+	}
+}
+
 // The chance an effect states, for a $mN the generator could not resolve into ProcChanceEffect.
 func ChanceFrom(e *Effect) ProcOpt {
 	return Chance(e.Percent())

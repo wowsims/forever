@@ -45,6 +45,10 @@
 		& li {
 			@apply flex items-center gap-2 whitespace-nowrap;
 		}
+
+		& .ui-timeline-tooltip-hits {
+			@apply flex flex-col;
+		}
 	}
 
 	.ui-timeline-tooltip-header {
