@@ -26,7 +26,7 @@ export interface AplNameDialogProps {
  * placeholders, and behind extracting a value to a variable.
  *
  * The name is component state rather than an uncontrolled input read on submit: the confirm
- * button's disabled state, the `aria-invalid` ring and the conflict message are all derived from it.
+ * button's disabled state, the `aria-invalid` border and the conflict message are all derived from it.
  */
 export const AplNameDialog = ({
 	open,

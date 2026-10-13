@@ -42,6 +42,11 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 		rejectTimer.current = setTimeout(() => setRejected(null), REJECTED_FLASH_MS);
 	};
 
+	const clearRejected = () => {
+		clearTimeout(rejectTimer.current);
+		setRejected(null);
+	};
+
 	const pairFields = (
 		id: string,
 		rowLabel: string,
@@ -82,6 +87,9 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 		<div className="grid gap-2" data-testid="bulk-durations">
 			<p className="mb-0 text-sm">{t('description')}</p>
 			{healthFight && <p className="mb-0 text-sm text-gray-400">{t('health_fight')}</p>}
+			<span className="sr-only" role="status">
+				{rejected !== null && t('rejected')}
+			</span>
 			<div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
 				<span />
 				<span className="text-xs text-gray-400">{t('duration')}</span>
@@ -95,11 +103,6 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 						<span className="grid">
 							{t('extra', { index: index + 1 })}
 							{row.duplicate && <span className="sr-only">{t('duplicate')}</span>}
-							{rejected === index && (
-								<span className="sr-only" role="status">
-									{t('rejected')}
-								</span>
-							)}
 						</span>
 						{pairFields(
 							`${idPrefix}-${index}`,
@@ -114,13 +117,23 @@ export const DurationsView = ({ encounter, rows, healthFight, onAdd, onChange, o
 							aria-label={t('remove', { index: index + 1 })}
 							className="text-link-danger"
 							disabled={healthFight}
-							onClick={() => onRemove(index)}>
+							onClick={() => {
+								clearRejected();
+								onRemove(index);
+							}}>
 							<Icon name="xmark" />
 						</Button>
 					</div>
 				))}
 			</div>
-			<Button variant="outline-primary" size="sm" disabled={healthFight} onClick={onAdd}>
+			<Button
+				variant="outline-primary"
+				size="sm"
+				disabled={healthFight}
+				onClick={() => {
+					clearRejected();
+					onAdd();
+				}}>
 				<Icon name="plus" />
 				{t('add')}
 			</Button>

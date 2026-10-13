@@ -89,6 +89,25 @@ describe('Durations', () => {
 		}
 	});
 
+	it('drops the rejected flash when a row is removed', () => {
+		vi.useFakeTimers();
+		try {
+			mount([
+				[90, 10],
+				[300, 10],
+			]);
+
+			commit(inputs()[4], '90');
+			expect(inputs()[4].getAttribute('aria-invalid')).toBe('true');
+
+			fireEvent.click(screen.getAllByRole('button', { name: /bulk_tab.settings.durations.remove/ })[0]);
+
+			expect(inputs().some(input => input.getAttribute('aria-invalid') === 'true')).toBe(false);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
 	it('clamps a typed duration to one second', () => {
 		const player = mount([[90, 10]]);
 		commit(inputs()[2], '0');
