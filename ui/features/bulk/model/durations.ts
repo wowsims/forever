@@ -42,17 +42,22 @@ const writeDurations = (player: Player<any>, durations: BulkDuration[]) => {
 export const addBulkDuration = (player: Player<any>, encounter: DurationPair) => {
 	const { durations } = bulkState(player);
 	const last = durations.at(-1) ?? encounter;
-	writeDurations(player, [
-		...durations,
-		BulkDuration.create({ duration: last.duration + NEW_DURATION_STEP_SECONDS, durationVariation: last.durationVariation }),
-	]);
+	let duration = last.duration + NEW_DURATION_STEP_SECONDS;
+	const taken = (candidate: DurationPair) => samePair(candidate, encounter) || durations.some(row => samePair(row, candidate));
+	while (taken({ duration, durationVariation: last.durationVariation })) duration += NEW_DURATION_STEP_SECONDS;
+	writeDurations(player, [...durations, BulkDuration.create({ duration, durationVariation: last.durationVariation })]);
 };
 
-export const updateBulkDuration = (player: Player<any>, index: number, patch: Partial<DurationPair>) => {
+// An edit that would equal the encounter or another row is dropped and reported as `false`.
+export const updateBulkDuration = (player: Player<any>, encounter: DurationPair, index: number, patch: Partial<DurationPair>): boolean => {
+	const { durations } = bulkState(player);
+	const next = BulkDuration.create({ ...durations[index], ...patch });
+	if (samePair(next, encounter) || durations.some((row, at) => at !== index && samePair(row, next))) return false;
 	writeDurations(
 		player,
-		bulkState(player).durations.map((row, at) => (at === index ? BulkDuration.create({ ...row, ...patch }) : row)),
+		durations.map((row, at) => (at === index ? next : row)),
 	);
+	return true;
 };
 
 export const removeBulkDuration = (player: Player<any>, index: number) => {

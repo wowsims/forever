@@ -62,10 +62,52 @@ describe('extra duration rows', () => {
 		const player = makeBulkPlayer();
 		addBulkDuration(player, ENCOUNTER);
 		addBulkDuration(player, ENCOUNTER);
-		updateBulkDuration(player, 0, { durationVariation: 20 });
+		expect(updateBulkDuration(player, ENCOUNTER, 0, { durationVariation: 20 })).toBe(true);
 		removeBulkDuration(player, 1);
 
 		expect(bulkState(player).durations).toEqual([BulkDuration.create(pair(240, 20))]);
 		expect(loadStoredBulkDurations(player)?.durations).toEqual([BulkDuration.create(pair(240, 20))]);
+	});
+
+	it('rejects an update equal to the encounter and stores nothing', () => {
+		const player = makeBulkPlayer();
+		addBulkDuration(player, ENCOUNTER);
+		const stored = loadStoredBulkDurations(player)?.durations;
+
+		expect(updateBulkDuration(player, ENCOUNTER, 0, { duration: 180 })).toBe(false);
+
+		expect(bulkState(player).durations).toEqual([BulkDuration.create(pair(240, 5))]);
+		expect(loadStoredBulkDurations(player)?.durations).toEqual(stored);
+	});
+
+	it('rejects an update equal to another row', () => {
+		const player = makeBulkPlayer();
+		addBulkDuration(player, ENCOUNTER);
+		addBulkDuration(player, ENCOUNTER);
+
+		expect(updateBulkDuration(player, ENCOUNTER, 0, { duration: 300 })).toBe(false);
+
+		expect(bulkState(player).durations).toEqual([BulkDuration.create(pair(240, 5)), BulkDuration.create(pair(300, 5))]);
+	});
+
+	it('skips a value another row already holds when adding', () => {
+		const player = makeBulkPlayer();
+		addBulkDuration(player, ENCOUNTER);
+		addBulkDuration(player, ENCOUNTER);
+		addBulkDuration(player, ENCOUNTER);
+		updateBulkDuration(player, ENCOUNTER, 0, { duration: 500 });
+		updateBulkDuration(player, ENCOUNTER, 2, { duration: 240 });
+		addBulkDuration(player, ENCOUNTER);
+
+		expect(bulkState(player).durations.map(row => row.duration)).toEqual([500, 300, 240, 360]);
+	});
+
+	it('skips the encounter value when adding', () => {
+		const player = makeBulkPlayer();
+		addBulkDuration(player, ENCOUNTER);
+		updateBulkDuration(player, ENCOUNTER, 0, { duration: 120 });
+		addBulkDuration(player, ENCOUNTER);
+
+		expect(bulkState(player).durations.map(row => row.duration)).toEqual([120, 240]);
 	});
 });

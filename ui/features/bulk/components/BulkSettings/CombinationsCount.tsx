@@ -66,7 +66,7 @@ export const CombinationsCountView = ({ pending, combinations, iterations, itera
 						<Tooltip id={tooltipId} place="left" content={warningText} />
 					</>
 				)}
-				{pending ? <Spinner size="sm" /> : formatToNumber(iterations)}
+				{pending ? <Spinner size="sm" /> : formatToNumber(iterations * durations)}
 			</dd>
 		</dl>
 	);

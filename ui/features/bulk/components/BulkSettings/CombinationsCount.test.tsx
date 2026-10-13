@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { CombinationsCountView, type CombinationsCountViewProps } from './CombinationsCount';
@@ -39,6 +39,22 @@ describe('CombinationsCountView', () => {
 		renderCount({ durations });
 
 		expect(screen.queryByTestId('bulk-durations-count')?.textContent ?? null).toBe(multiplier);
+	});
+
+	it('counts the iterations of every duration', () => {
+		renderCount({ iterations: 100, durations: 3 });
+
+		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('300');
+	});
+
+	it('judges the warning on the iterations of one duration', () => {
+		renderCount({ iterations: 50001, durations: 1 });
+		expect(screen.queryByTestId('warning')).not.toBeNull();
+		cleanup();
+
+		renderCount({ iterations: 49999, durations: 3 });
+		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('149,997');
+		expect(screen.queryByTestId('warning')).toBeNull();
 	});
 
 	it('warns once the iterations pass the limit', () => {
