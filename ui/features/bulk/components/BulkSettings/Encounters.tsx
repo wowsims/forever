@@ -23,60 +23,80 @@ export interface EncountersViewProps {
 
 const t = (key: string) => i18n.t(`bulk_tab.settings.encounters.${key}`);
 
+interface EncounterCheckRowProps {
+	id: string;
+	label: string;
+	summary: string;
+	checked: boolean;
+	disabled?: boolean;
+	duplicate?: boolean;
+	onChange: (checked: boolean) => void;
+	testId: string;
+	summaryTestId?: string;
+}
+
+// The label column shrinks and wraps, so a long name never runs into the summary.
+const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = false, onChange, testId, summaryTestId }: EncounterCheckRowProps) => (
+	<div
+		className="grid grid-cols-[1fr_auto] items-center gap-2 border border-transparent px-1 data-duplicate:border-danger"
+		data-duplicate={duplicate || undefined}
+		data-testid={testId}>
+		<BooleanPicker
+			id={id}
+			className="min-w-0"
+			label={label}
+			layout="inline"
+			size="sm"
+			value={checked}
+			disabled={disabled}
+			aria-describedby={duplicate ? `${id}-duplicate` : undefined}
+			onChange={onChange}
+		/>
+		{duplicate && (
+			<span id={`${id}-duplicate`} className="sr-only">
+				{t('duplicate')}
+			</span>
+		)}
+		<span className="text-xs whitespace-nowrap text-gray-400 tabular-nums" data-testid={summaryTestId}>
+			{summary}
+		</span>
+	</div>
+);
+
 export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange }: EncountersViewProps) => {
 	const idPrefix = useId();
 	const group = (preset: boolean, heading: string, rows: readonly EncounterRow[]) =>
 		rows.length > 0 && (
 			<div className="grid gap-1">
 				<h6 className="mb-0 text-xs text-gray-400">{heading}</h6>
-				{rows.map((row, index) => {
-					const id = `${idPrefix}-${preset ? 'preset' : 'saved'}-${index}`;
-					return (
-						<div
-							key={row.name}
-							className="flex items-center gap-2 border border-transparent px-1 data-duplicate:border-danger"
-							data-duplicate={row.duplicate || undefined}
-							data-testid="bulk-encounter">
-							<BooleanPicker
-								id={id}
-								className="min-w-0 flex-1"
-								label={row.name}
-								layout="inline"
-								size="sm"
-								value={row.checked}
-								aria-describedby={row.duplicate ? `${id}-duplicate` : undefined}
-								onChange={checked => onCheckedChange(preset, row.name, checked)}
-							/>
-							{row.duplicate && (
-								<span id={`${id}-duplicate`} className="sr-only">
-									{t('duplicate')}
-								</span>
-							)}
-							<span className="text-xs text-gray-400 tabular-nums">{row.summary}</span>
-						</div>
-					);
-				})}
+				{rows.map((row, index) => (
+					<EncounterCheckRow
+						key={row.name}
+						id={`${idPrefix}-${preset ? 'preset' : 'saved'}-${index}`}
+						label={row.name}
+						summary={row.summary}
+						checked={row.checked}
+						duplicate={row.duplicate}
+						onChange={checked => onCheckedChange(preset, row.name, checked)}
+						testId="bulk-encounter"
+					/>
+				))}
 			</div>
 		);
 
 	return (
 		<div className="grid gap-2" data-testid="bulk-encounters">
 			<p className="mb-0 text-sm">{t('description')}</p>
-			<div className="flex items-center gap-2 border border-transparent px-1" data-testid="bulk-encounter-current">
-				<BooleanPicker
-					id={`${idPrefix}-current`}
-					className="min-w-0 flex-1 whitespace-nowrap"
-					label={t('current')}
-					layout="inline"
-					size="sm"
-					value
-					disabled
-					onChange={() => {}}
-				/>
-				<span className="text-xs text-gray-400 tabular-nums" data-testid="bulk-encounter-current-summary">
-					{currentSummary}
-				</span>
-			</div>
+			<EncounterCheckRow
+				id={`${idPrefix}-current`}
+				label={t('current')}
+				summary={currentSummary}
+				checked
+				disabled
+				onChange={() => {}}
+				testId="bulk-encounter-current"
+				summaryTestId="bulk-encounter-current-summary"
+			/>
 			{group(true, t('presets'), presets)}
 			{group(false, t('saved'), saved)}
 			{!presets.length && !saved.length && <p className="mb-0 text-sm text-gray-400">{t('empty')}</p>}
