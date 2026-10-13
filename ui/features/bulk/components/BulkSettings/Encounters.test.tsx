@@ -67,7 +67,10 @@ describe('Encounters', () => {
 	it('the locked current row follows the live encounter', () => {
 		const player = mount();
 		const summary = () => screen.getByTestId('bulk-encounter-current-summary').textContent;
+		const current = screen.getByRole('checkbox', { name: 'bulk_tab.settings.encounters.current' });
 
+		expect(current.getAttribute('aria-checked')).toBe('true');
+		expect(current.getAttribute('aria-disabled')).toBe('true');
 		expect(summary()).toBe('3:00 ±5s · bulk_tab.settings.encounters.targets');
 
 		act(() => patchSlice(player.sim.store, 'encounter', { duration: 200, useHealth: true }));

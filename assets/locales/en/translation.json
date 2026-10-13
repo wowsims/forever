@@ -978,7 +978,6 @@
 			"encounters": {
 				"description": "The batch runs once per encounter, and each encounter gets its own results. Save encounters in Settings → Saved Encounters.",
 				"current": "Current encounter",
-				"always": "always",
 				"presets": "Presets",
 				"saved": "Saved",
 				"empty": "No saved encounters yet. Save one in Settings → Saved Encounters to run the batch against it too.",

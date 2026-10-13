@@ -2,8 +2,6 @@ import { BulkEncounterRef } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { Icon } from '@ui-kit/Icon';
-import { Pill } from '@ui-kit/Pill';
 import { useId } from 'react';
 
 import { useBulkEncounters } from '../../hooks/useBulkEncounters';
@@ -44,6 +42,7 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 								className="min-w-0 flex-1"
 								label={row.name}
 								layout="inline"
+								size="sm"
 								value={row.checked}
 								aria-describedby={row.duplicate ? `${id}-duplicate` : undefined}
 								onChange={checked => onCheckedChange(preset, row.name, checked)}
@@ -63,14 +62,17 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 	return (
 		<div className="grid gap-2" data-testid="bulk-encounters">
 			<p className="mb-0 text-sm">{t('description')}</p>
-			<div className="flex items-center gap-2 px-1" data-testid="bulk-encounter-current">
-				<Icon name="lock" className="text-gray-400" />
-				<span className="min-w-0 flex-1">
-					{t('current')}{' '}
-					<Pill size="xs" testId="bulk-encounter-always">
-						{t('always')}
-					</Pill>
-				</span>
+			<div className="flex items-center gap-2 border border-transparent px-1" data-testid="bulk-encounter-current">
+				<BooleanPicker
+					id={`${idPrefix}-current`}
+					className="min-w-0 flex-1 whitespace-nowrap"
+					label={t('current')}
+					layout="inline"
+					size="sm"
+					value
+					disabled
+					onChange={() => {}}
+				/>
 				<span className="text-xs text-gray-400 tabular-nums" data-testid="bulk-encounter-current-summary">
 					{currentSummary}
 				</span>
