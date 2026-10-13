@@ -44,6 +44,22 @@ export const Default: Story = {};
 
 export const MediumSize: Story = { args: { inputSize: 'md' } };
 
+const InvalidStory = ({ onChange }: { onChange: (next: number) => void }) => (
+	<div className="flex flex-col gap-2">
+		<StringField id="string-field-invalid" label="Rotation Name" invalid {...useStoryValue('Default', () => {})} />
+		<NumberField id="number-field-invalid" label="Duration (s)" invalid {...useStoryValue(180, onChange)} />
+	</div>
+);
+
+export const Invalid: Story = {
+	render: args => <InvalidStory onChange={args.onChange as (next: number) => void} />,
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.getByLabelText('Rotation Name').getAttribute('aria-invalid')).toBe('true');
+		await expect(canvas.getByLabelText('Duration (s)').getAttribute('aria-invalid')).toBe('true');
+	},
+};
+
 const NumberStory = ({ onChange }: { onChange: (next: number) => void }) => (
 	<div className="flex flex-col gap-2">
 		<NumberField id="number-field-int" label="Iterations" {...useStoryValue(12500, onChange)} />
