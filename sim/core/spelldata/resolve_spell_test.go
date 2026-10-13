@@ -405,6 +405,35 @@ func TestSpellConfigMagicOption(t *testing.T) {
 	}
 }
 
+func TestSpellConfigNoThreatRow(t *testing.T) {
+	withRows(t, []Spell{{
+		ID: 1100, Name: "Silent Bolt", School: 8, DefenseType: 1,
+		Attr:    [17]uint32{dbcenums.ATTR_INDEX_EX_1: dbcenums.ATTR_EX_1_NO_THREAT},
+		Effects: []Effect{{SpellID: 1100, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Target: [2]dbcenums.ImplicitTarget{6, 0}}},
+	}})
+
+	if got := SpellConfig(testUnit(), Find(1100), Magic(core.ProcMaskSpellDamage)).ThreatMultiplier; got != 0 {
+		t.Errorf("Magic threat multiplier = %v, want 0 on a row with ATTR_EX_1_NO_THREAT", got)
+	}
+	if got := SpellConfig(testUnit(), Find(1100), Melee(core.ProcMaskMeleeMHSpecial)).ThreatMultiplier; got != 0 {
+		t.Errorf("Melee threat multiplier = %v, want 0 on a row with ATTR_EX_1_NO_THREAT", got)
+	}
+}
+
+func TestSpellConfigAreaAroundACasterOrPointHasNoRange(t *testing.T) {
+	centres := []dbcenums.ImplicitTarget{dbcenums.TARGET_DEST_CASTER, dbcenums.TARGET_SRC_CASTER, dbcenums.TARGET_DEST_DEST}
+	for _, centre := range centres {
+		withRows(t, []Spell{{
+			ID: 1200, Name: "Nova", School: 4, DefenseType: 1, MaxRange: 30,
+			Effects: []Effect{{SpellID: 1200, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100,
+				Target: [2]dbcenums.ImplicitTarget{centre, dbcenums.TARGET_UNIT_DEST_AREA_ENEMY}}},
+		}})
+		if got := SpellConfig(testUnit(), Find(1200)).MaxRange; got != 0 {
+			t.Errorf("max range of area damage centred on target %d = %v, want 0", centre, got)
+		}
+	}
+}
+
 func TestSpellConfigProcFlagsAndTag(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(100), Proc(), Flags(core.SpellFlagIgnoreResists), Tag(2))

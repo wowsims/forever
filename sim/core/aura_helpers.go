@@ -56,6 +56,8 @@ type ProcTrigger struct {
 	ICD                 time.Duration
 	Handler             ProcHandler
 	TriggerImmediately  bool       // If false (default), the handler will be called one spell batch window later for improved realism.
+	ActivatesAura       *Aura      // The aura the handler activates, which the APL then reads as active while the handler waits out the spell batch window.
+	ActivatesAuras      AuraArray  // The same for a per-target aura, the one on the result's target, or on the attacker for a hit taken; a trigger without a result falls back to ActivatesAura.
 	ClassSpellMask      int64      // The sim's own custom spell masks, not from the game files.
 	ClassFlags          ClassFlags // The spells this trigger fires on (EffectSpellClassMask in the game files); with ClassSpellMask, both must match.
 	ProcSpellClassFlags ClassFlags // The proccing spell's class flags, which proc chance talents match (e.g. Improved Poisons on Instant Poison).
@@ -148,7 +150,20 @@ type deferredProc struct {
 	spell     *Spell
 	result    SpellResult
 	hasResult bool
+	pending   *Aura // The declared aura, pending activation until the handler runs.
+	own       bool  // Whether a guaranteed trigger fired off a spell its unit cast from its APL.
 	cleanUp   func(*Simulation)
+}
+
+func (config *ProcTrigger) activatedAura(spell *Spell, result *SpellResult) *Aura {
+	if config.ActivatesAuras == nil || result == nil {
+		return config.ActivatesAura
+	}
+	// A hit taken lands on the wearer, so a per-target aura goes on the attacker.
+	if config.Callback.Matches(CallbackOnSpellHitTaken) {
+		return config.ActivatesAuras.Get(spell.Unit)
+	}
+	return config.ActivatesAuras.Get(result.Target)
 }
 
 func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) {
@@ -167,12 +182,35 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 		procAura.Dpm = config.DPM
 	}
 
+	if config.ProcChance == 0 {
+		config.ProcChance = 1
+	}
+	// The player can count on a proc that always fires off their own cast; a rolled one they only see land.
+	guaranteed := config.ProcChance == 1 && dpm == nil
+
 	handler := config.Handler
 	var freeDeferred []*deferredProc
 
+	// An own trigger marks the aura as the player's only if its handler put the aura up, refreshed it or changed its stacks.
+	runOwnHandler := func(sim *Simulation, spell *Spell, result *SpellResult, activated *Aura) {
+		wasActive, expiresAt, stacks := activated.IsActive(), activated.ExpiresAt(), activated.GetStacks()
+		handler(sim, spell, result)
+		if activated.IsActive() && (!wasActive || activated.ExpiresAt() != expiresAt || activated.GetStacks() != stacks) {
+			activated.lastOwnProcAt = sim.CurrentTime
+		}
+	}
+
 	applyHandler := func(sim *Simulation, spell *Spell, result *SpellResult) {
+		activated := config.activatedAura(spell, result)
+		// A major cooldown's proc stays a proc, as the cooldown manager may cast it on its own.
+		own := guaranteed && activated != nil && spell.Unit == unit &&
+			spell.Flags.Matches(SpellFlagAPL) && !spell.Flags.Matches(SpellFlagMCD)
 		if config.TriggerImmediately {
-			handler(sim, spell, result)
+			if own {
+				runOwnHandler(sim, spell, result, activated)
+			} else {
+				handler(sim, spell, result)
+			}
 			return
 		}
 
@@ -193,11 +231,18 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 				if !dp.hasResult {
 					res = nil
 				}
-				handler(sim, dp.spell, res)
+				dp.pending.addPending(dp.own, -1)
+				if dp.own {
+					runOwnHandler(sim, dp.spell, res, dp.pending)
+				} else {
+					handler(sim, dp.spell, res)
+				}
 				release()
 			}
 			dp.cleanUp = func(sim *Simulation) { release() }
 		}
+		dp.pending, dp.own = activated, own
+		dp.pending.addPending(own, 1)
 		dp.spell = spell
 		dp.hasResult = result != nil
 		if result != nil {
@@ -240,10 +285,6 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			icd.Use(sim)
 		}
 		applyHandler(sim, spell, result)
-	}
-
-	if config.ProcChance == 0 {
-		config.ProcChance = 1
 	}
 
 	if config.Callback.Matches(CallbackOnSpellHitDealt) {
@@ -788,6 +829,18 @@ func (parentAura *Aura) AttachMultiplyMeleeSpeed(multiplier float64) *Aura {
 
 	parentAura.ApplyOnExpire(func(_ *Aura, sim *Simulation) {
 		parentAura.Unit.MultiplyMeleeSpeed(sim, 1/multiplier)
+	})
+
+	return parentAura
+}
+
+func (parentAura *Aura) AttachMultiplyWeaponSpeed(multiplier float64) *Aura {
+	parentAura.ApplyOnGain(func(_ *Aura, sim *Simulation) {
+		parentAura.Unit.MultiplyWeaponSpeed(sim, multiplier)
+	})
+
+	parentAura.ApplyOnExpire(func(_ *Aura, sim *Simulation) {
+		parentAura.Unit.MultiplyWeaponSpeed(sim, 1/multiplier)
 	})
 
 	return parentAura

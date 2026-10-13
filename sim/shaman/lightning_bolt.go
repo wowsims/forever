@@ -8,13 +8,10 @@ import (
 var lightningBoltRanks = castableRanks(spellData.LightningBolt)
 
 func (shaman *Shaman) registerLightningBoltSpell() {
-	lightningBoltRanks.Each(func(_ int32, rank *spelldata.Spell) {
-		overload := shaman.RegisterSpell(shaman.newLightningBoltSpellConfig(rank, nil))
-		shaman.RegisterSpell(shaman.newLightningBoltSpellConfig(rank, overload))
-	})
+	shaman.registerWithOverloads(lightningBoltRanks, lightningBoltOverloadRanks, shaman.newLightningBoltSpellConfig)
 }
 
-// The cast, with the overload it may trigger; the overload itself, where overload is nil.
+// The cast, with the overload it may trigger; the overload itself, from its own row, where overload is nil.
 func (shaman *Shaman) newLightningBoltSpellConfig(rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
 	config := shaman.newElectricSpellConfig(rank, overload == nil)
 	config.ClassSpellMask = SpellMaskLightningBolt

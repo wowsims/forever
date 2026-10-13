@@ -527,6 +527,7 @@ type PseudoStats struct {
 	RangedSpeedMultiplier float64
 	RangedHasteMultiplier float64
 	AttackSpeedMultiplier float64 // Used for real haste effects that modify resoruce regen and are used for RPPM effects
+	WeaponSpeedMultiplier float64 // Seal of the Crusader's faster, lighter swings, which a rate on the weapon's speed divides by
 
 	FiveSecondRuleRefreshTime time.Duration // last time a spell was cast
 	SpiritRegenRateCasting    float64       // percentage of spirit regen allowed during casting
@@ -642,6 +643,7 @@ func NewPseudoStats() PseudoStats {
 		RangedSpeedMultiplier: 1,
 		RangedHasteMultiplier: 1,
 		AttackSpeedMultiplier: 1,
+		WeaponSpeedMultiplier: 1,
 		SpiritRegenMultiplier: 1,
 
 		ThreatMultiplier:       1,

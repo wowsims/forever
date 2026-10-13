@@ -209,6 +209,7 @@ func factory_StatBonusEffect(config ProcStatBonusEffect, extraSpell func(agent c
 				DPM:                dpm,
 				ICD:                time.Millisecond * time.Duration(proc.IcdMs),
 				Handler:            procHandler(config, effect, procAura, windowAura, procSpell),
+				ActivatesAura:      core.Ternary(windowAura != nil, windowAura, procAura.Aura),
 
 				RequireDamageComponent: config.RequireDamageComponent,
 			})
@@ -459,6 +460,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 
 	listener := spellDataProcListener(character, cfg, source, trigger)
 	listener.Handler = spellDataProcHandler(buff, procAura)
+	listener.ActivatesAura = procAura.Aura
 
 	// The same fallback the database layer applies: Bulwark of Azzinoth's armor buff sits in a
 	// spell category with a 60s recovery while its trigger states nothing. Only a buff that is a

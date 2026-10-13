@@ -8,15 +8,18 @@ import (
 var chainLightningRanks = castableRanks(spellData.ChainLightning)
 
 func (shaman *Shaman) registerChainLightningSpell() {
-	chainLightningRanks.Each(func(_ int32, rank *spelldata.Spell) {
-		overload := shaman.RegisterSpell(shaman.newChainLightningOverloadConfig(rank))
-		shaman.RegisterSpell(shaman.newChainLightningSpellConfig(rank, overload))
-	})
+	shaman.registerWithOverloads(chainLightningRanks, chainLightningOverloadRanks, shaman.newChainLightningSpellConfig)
 }
 
+// The cast, with the overload it may trigger; the overload itself, from its own row, where overload is
+// nil. Both jump alike, so an overload reaches as many targets as the cast, starting on the target that
+// triggered it.
 func (shaman *Shaman) newChainLightningSpellConfig(rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
-	config := shaman.newElectricSpellConfig(rank, false)
+	config := shaman.newElectricSpellConfig(rank, overload == nil)
 	config.ClassSpellMask = SpellMaskChainLightning
+	if overload == nil {
+		config.ClassSpellMask = SpellMaskChainLightningOverload
+	}
 
 	// The effect states the targets the bolt reaches and what each jump keeps.
 	damage := rank.DamageEffect()
@@ -36,30 +39,25 @@ func (shaman *Shaman) newChainLightningSpellConfig(rank *spelldata.Spell, overlo
 			spell.DamageMultiplier *= bounce
 		}
 
-		// Each target hit rolls its own overload, at a third of Lightning Bolt's chance, and the
-		// overload strikes that target alone, after the hit lands, as Lightning Bolt's does.
+		// Each target the cast hits rolls its own overload, at a third of Lightning Bolt's chance. An
+		// overload rolls none of its own. DealDamage disposes the result, so Landed is read first.
 		//
 		// TODO: Ingame test needed: the tooltip of 408438 states one chance for both spells.
+		var overloadTargets []*core.Unit
 		for _, result := range results {
 			landed, hitTarget := result.Landed(), result.Target
 			spell.DealDamage(sim, result)
 			spell.DamageMultiplier /= bounce
-			if landed && sim.Proc(shaman.GetOverloadChance()/3, "Lightning Overload") {
-				overload.Cast(sim, hitTarget)
+			if overload != nil && landed && sim.Proc(shaman.GetOverloadChance()/3, "Lightning Overload") {
+				overloadTargets = append(overloadTargets, hitTarget)
 			}
 		}
-	}
 
-	return config
-}
-
-func (shaman *Shaman) newChainLightningOverloadConfig(rank *spelldata.Spell) core.SpellConfig {
-	config := shaman.newElectricSpellConfig(rank, true)
-	config.ClassSpellMask = SpellMaskChainLightningOverload
-
-	damage := rank.DamageEffect()
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
+		// The overloads are priced once every hit of the cast has landed, so a debuff charge one of
+		// those hits spends, such as Stormstrike's, does not also raise an overload that jumps there.
+		for _, overloadTarget := range overloadTargets {
+			overload.Cast(sim, overloadTarget)
+		}
 	}
 
 	return config

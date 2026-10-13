@@ -89,28 +89,35 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 }
 
 // "Instantly inflicts $11307s1 fire damage to enemies within $11307a1 yd of your active Fire totem."
-// The tooltip reads 11307, but the cast hits for the Fire Nova row of its own rank, 408428, and deals
-// that damage itself, so it carries both rows' class flags: Improved Fire Nova names both, and Call of
-// Flame and Elemental Fury name the damage, 408428.
+// The tooltip reads 11307, but the cast deals nothing itself: it casts the Fire Nova row of its own
+// rank, 408428, which hits. Each row carries its own class flags, so Improved Fire Nova's cooldown
+// reaches the cast and its damage the hit, and Call of Flame and Elemental Fury name the hit alone.
+// The hit lacks Not a Proc, so only listeners that can proc from procs hear it. It reports as the
+// cast's spell tagged 1, so the results show the cast and its hits as one row.
 func (shaman *Shaman) registerFireNovaSpell() {
 	damage := fireNovaDamageRank.DamageEffect()
+
+	novaConfig := spelldata.SpellConfig(&shaman.Unit, fireNovaDamageRank,
+		spelldata.Magic(core.ProcMaskSpellDamage),
+		spelldata.Proc(),
+		spelldata.Flags(SpellFlagShamanSpell|core.SpellFlagProc))
+	novaConfig.ActionID = core.ActionID{SpellID: fireNovaRank.ID, Tag: 1}
+	novaConfig.ClassSpellMask = SpellMaskFireNova
+	novaConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamage(sim, damage.Average(), spell.OutcomeMagicHitAndCrit)
+	}
+	nova := shaman.RegisterSpell(novaConfig)
 
 	config := spelldata.SpellConfig(&shaman.Unit, fireNovaRank,
 		spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Flags(SpellFlagShamanSpell|SpellFlagInstant))
 	config.ClassSpellMask = SpellMaskFireNova
-	config.BonusCoefficient = damage.Coeff()
-	config.DirectVariance = damage.DirectVariance()
-	for i := range config.ClassFlags.Mask {
-		config.ClassFlags.Mask[i] |= fireNovaDamageRank.ClassFlags.Mask[i]
-	}
-
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 		totem := shaman.TotemAuras[FireTotem]
 		return totem != nil && totem.IsActive()
 	}
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, damage.Average(), spell.OutcomeMagicHitAndCrit)
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+		nova.Cast(sim, target)
 	}
 
 	shaman.FireNova = shaman.RegisterSpell(config)

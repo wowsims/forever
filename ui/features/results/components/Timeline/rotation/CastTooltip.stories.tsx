@@ -1,3 +1,4 @@
+import { Entity } from '@sim/proto/combat_log';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { withSimHost } from '@testing/storybook/fixtures/models';
 import { castLog, damageLog, resultsHostParts } from '@testing/storybook/fixtures/results-views';
@@ -42,3 +43,11 @@ const stackedHits = castLog(12, { damageDealtLogs: [damageLog(12.01, 244.59), da
 
 /** Two casts at the same time, where the later one took both hits. */
 export const Stacked: Story = { args: { log: stackedHits, stack: [castLog(12, { damageDealtLogs: [] }), stackedHits] } };
+
+const chainHit = (index: number, amount: number, overrides = {}) =>
+	damageLog(12.01, amount, { target: new Entity('Raid Target', '', index, true, false), ...overrides });
+
+/** One cast that hits three targets, each hit on its own line. */
+export const MultipleTargets: Story = {
+	args: { log: castLog(12, { damageDealtLogs: [chainHit(0, 612.4), chainHit(1, 428.68, { outcome: 'crit' }), chainHit(2, 300.08)] }) },
+};

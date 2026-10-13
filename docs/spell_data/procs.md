@@ -50,11 +50,12 @@ reaches the pet. Frenzy 19621 names the proc of Tamed Pet Passive 20784, a row t
 hold, so the pet's trigger sets `ProcSpellClassFlags` from the talent's effect mask. Every proc chance
 row attaches.
 
-|                 |                                                                                                                                                               |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PPM(n)`        | a rate the game files do not carry. It clears the chance and binds a manager to the trigger's proc mask, so an option that narrows the mask has to come first |
-| `Chance(f)`     | a rate the caller states outright, manager included                                                                                                           |
-| `ChanceFrom(e)` | the chance an effect states, for a `$mN` the generator could not resolve                                                                                      |
+|                     |                                                                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PPM(n)`            | a rate the game files do not carry. It clears the chance and binds a manager to the trigger's proc mask, so an option that narrows the mask has to come first                 |
+| `WeaponSpeedPPM(n)` | the same, on the main hand's speed as Seal of the Crusader leaves it: the seal's faster swings each carry 1/1.4 of the chance and haste leaves it alone. Vindication rolls it |
+| `Chance(f)`         | a rate the caller states outright, manager included                                                                                                                           |
+| `ChanceFrom(e)`     | the chance an effect states, for a `$mN` the generator could not resolve                                                                                                      |
 
 A trigger that ends with neither a chance nor a manager panics and names the spell, because a row with
 no stated rate never means a listener that fires on every qualifying hit. A procs-per-minute rate with

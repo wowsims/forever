@@ -637,6 +637,14 @@ func (unit *Unit) MultiplyMeleeSpeed(sim *Simulation, amount float64) {
 	unit.AutoAttacks.UpdateSwingTimers(sim)
 }
 
+// For an attack speed aura that swings the weapon as a faster, lighter one: the swings speed up as
+// melee speed does, and WeaponSpeedMultiplier carries the factor for the procs that read the weapon's
+// speed.
+func (unit *Unit) MultiplyWeaponSpeed(sim *Simulation, amount float64) {
+	unit.PseudoStats.WeaponSpeedMultiplier *= amount
+	unit.MultiplyMeleeSpeed(sim, amount)
+}
+
 func (unit *Unit) updateRangedAttackSpeed() {
 	oldRangedAttackSpeed := unit.rangedAttackSpeed
 	unit.rangedAttackSpeed = unit.TotalRangedHasteMultiplier()

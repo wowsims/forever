@@ -89,8 +89,9 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	if s.MinRange != 0 && s.EquipClass == dbcenums.ITEM_CLASS_WEAPON && s.EquipSubclass&(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_BOW|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_GUNS|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_CROSSBOW) != 0 {
 		config.MinRange = core.MinRangedRange
 	}
-	// The row's range is to the caster's target; damage over an area around the caster needs none.
-	if damage := s.DamageEffect(); damage.HitsAnArea() && (damage.Target[0] == dbcenums.TARGET_DEST_CASTER || damage.Target[0] == dbcenums.TARGET_SRC_CASTER) {
+	// The row's range is to the caster's target; damage over an area around the caster, or around the
+	// point the triggering spell chose, needs none.
+	if damage := s.DamageEffect(); damage.HitsAnArea() && (damage.Target[0] == dbcenums.TARGET_DEST_CASTER || damage.Target[0] == dbcenums.TARGET_SRC_CASTER || damage.Target[0] == dbcenums.TARGET_DEST_DEST) {
 		config.MaxRange = 0
 	}
 	if threat := s.firstOfType(dbcenums.E_THREAT, dbcenums.E_THREAT_ALL); threat != NilEffect {
@@ -113,11 +114,11 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 
 // The proc mask, the melee metrics bucket and the multipliers an ability needs, for a physical spell.
 func Melee(mask core.ProcMask) SpellOpt {
-	return func(config *core.SpellConfig, _ *Spell) {
+	return func(config *core.SpellConfig, s *Spell) {
 		config.ProcMask = mask
 		config.Flags |= core.SpellFlagMeleeMetrics | core.SpellFlagAPL
 		config.DamageMultiplier = 1
-		config.ThreatMultiplier = 1
+		config.ThreatMultiplier = threatMultiplier(s)
 		config.Cast.IgnoreHaste = true
 	}
 }
@@ -129,10 +130,17 @@ func Magic(mask core.ProcMask) SpellOpt {
 		config.ProcMask = mask
 		config.Flags |= core.SpellFlagAPL
 		config.DamageMultiplier = 1
-		config.ThreatMultiplier = 1
+		config.ThreatMultiplier = threatMultiplier(s)
 		config.BonusCoefficient = spellPowerCoeff(s)
 		config.DirectVariance = amountEffect(s).DirectVariance()
 	}
+}
+
+func threatMultiplier(s *Spell) float64 {
+	if s.GeneratesNoThreat() {
+		return 0
+	}
+	return 1
 }
 
 // A spell another spell or an aura casts: it is out of the rotation Melee and Magic put it in, it

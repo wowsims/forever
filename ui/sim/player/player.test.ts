@@ -1,6 +1,7 @@
 import { AuraStats as AuraStatsProto, SpellStats as SpellStatsProto, UnitMetadata as UnitMetadataProto } from '@generated/proto/api';
 import { Debuffs } from '@generated/proto/buffs';
-import { ActionID as ActionIdProto, Class, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { ActionID as ActionIdProto, Class, ItemRandomSuffix, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { UIItem as Item } from '@generated/proto/ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ActionId } from '../proto/action_id';
@@ -90,6 +91,26 @@ describe('Player.getMeleeCritCapInfo', () => {
 	it('adds the dual-wield miss to the hit cap, except for a warrior', () => {
 		expect(critCapInfo(LEVEL_63_AT_300, { dualWield: true }).meleeHitCap).toBeCloseTo(8 + 19);
 		expect(critCapInfo(LEVEL_63_AT_300, { dualWield: true, playerClass: Class.ClassWarrior }).meleeHitCap).toBeCloseTo(8);
+	});
+});
+
+describe('Player.getRandomSuffixes', () => {
+	// A spec whose default EP weights are all zero rates every suffix at 0 EP.
+	const suffixesOf = (options: Array<number>) =>
+		Player.prototype.getRandomSuffixes.call(
+			{
+				sim: { db: { getRandomSuffixById: (id: number) => (id < 100 ? ItemRandomSuffix.create({ id }) : undefined) } },
+				computeRandomSuffixEP: () => 0,
+			} as unknown as Player<any>,
+			Item.create({ randomSuffixOptions: options }),
+		);
+
+	it('lists every suffix the database knows, whatever its EP', () => {
+		expect(suffixesOf([1, 2, 3]).map(suffix => suffix.id)).toEqual([1, 2, 3]);
+	});
+
+	it('skips an option missing from the database', () => {
+		expect(suffixesOf([1, 100, 2]).map(suffix => suffix.id)).toEqual([1, 2]);
 	});
 });
 

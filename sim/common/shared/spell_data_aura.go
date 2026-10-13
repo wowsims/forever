@@ -89,6 +89,7 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 		proc.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			auras.activate(sim, procDamageTarget(character, callback, spell, result))
 		}
+		proc.ActivatesAura = auras.wearer
 
 		triggerAura := source.registerTrigger(character, proc)
 		if auras.wearer == nil {

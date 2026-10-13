@@ -517,12 +517,9 @@ export class Player<SpecType extends Spec> {
 		return this.sim.db.getItems(slot).filter(item => canEquipItem(item, this.playerSpec, slot));
 	}
 
-	// Returns all random suffixes that this player would be interested in for the given base item.
+	// Returns all random suffixes the given base item can roll.
 	getRandomSuffixes(item: Item): Array<ItemRandomSuffix> {
-		const randPropPoints = item.scalingOptions[0]?.randPropPoints ?? item.randPropPoints;
-		return item.randomSuffixOptions
-			.map(id => this.sim.db.getRandomSuffixById(id))
-			.filter((suffix): suffix is ItemRandomSuffix => !!suffix && this.computeRandomSuffixEP(suffix, randPropPoints) > 0);
+		return item.randomSuffixOptions.map(id => this.sim.db.getRandomSuffixById(id)).filter((suffix): suffix is ItemRandomSuffix => !!suffix);
 	}
 
 	// Returns all enchants that this player can wear in the given slot.
