@@ -1,9 +1,9 @@
 import { useSimHost } from '@sim/context/SimHostContext';
-import type { ProgressTrackerHandle } from '@ui-kit/ProgressTrackerDialog';
-import { ProgressTrackerDialog } from '@ui-kit/ProgressTrackerDialog';
+import type { ProgressStepListHandle, ProgressTrackerHandle } from '@ui-kit/ProgressTrackerDialog';
+import { HandleProgressStepList, ProgressTrackerDialog } from '@ui-kit/ProgressTrackerDialog';
 import { useEffect, useRef, useState } from 'react';
 
-import { cancelBulkBatch, subscribeBulkProgress } from '../../model/run';
+import { bulkEncounterSteps, cancelBulkBatch, subscribeBulkProgress } from '../../model/run';
 import { BulkProgressMessage } from './BulkProgressMessage';
 
 /** One element, so the dialog's own state changes only when the stage does. */
@@ -14,7 +14,10 @@ export const BulkProgressDialog = () => {
 	const host = useSimHost();
 
 	const [state, setState] = useState({ stage: 'preparing', hasMessage: false });
+	// The run sets its encounter list before it is marked running, so the list is complete at mount.
+	const [labels] = useState(() => bulkEncounterSteps(host.player).labels);
 	const barRef = useRef<ProgressTrackerHandle>(null);
+	const stepsRef = useRef<ProgressStepListHandle>(null);
 
 	useEffect(
 		() =>
@@ -24,16 +27,27 @@ export const BulkProgressDialog = () => {
 					previous.stage === progress.stage && previous.hasMessage === hasMessage ? previous : { stage: progress.stage, hasMessage },
 				);
 				barRef.current?.setProgress({ title: progress.title, current: progress.current, total: progress.total });
+				stepsRef.current?.setRunning(bulkEncounterSteps(host.player).running);
 			}),
 		[host],
 	);
 
+	const showSteps = labels.length > 1;
 	return (
 		<ProgressTrackerDialog
 			open
 			testId="bulk-sim-progress-tracker"
 			title="Bulk Sim"
-			state={{ stage: state.stage, message: state.hasMessage ? MESSAGE : undefined }}
+			state={{
+				stage: state.stage,
+				message:
+					showSteps || state.hasMessage ? (
+						<>
+							{showSteps && <HandleProgressStepList ref={stepsRef} labels={labels} />}
+							{state.hasMessage && MESSAGE}
+						</>
+					) : undefined,
+			}}
 			hasProgressBar
 			onCancel={() => void cancelBulkBatch(host)}
 			ref={barRef}

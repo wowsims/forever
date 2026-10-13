@@ -1,4 +1,5 @@
 import { BulkSettings, DistributionMetrics, ProgressMetrics } from '@generated/proto/api';
+import type { Encounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import { bulkSimStageToOptimisationStage, cleanBulkDpsMetrics, getCoreBulkSimTrackingMetrics } from '@sim/bulk/utils';
@@ -21,7 +22,7 @@ export interface CoreBulkSimResult {
 }
 
 export interface CoreBulkSimOptions {
-	encounterOverride?: { duration: number; durationVariation: number };
+	encounterOverride?: Encounter;
 }
 
 export async function runCoreBulkSim(

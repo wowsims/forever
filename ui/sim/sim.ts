@@ -26,6 +26,7 @@ import {
 import {
 	ArmorType,
 	ConsumableType,
+	Encounter as EncounterProto,
 	EquipmentSpec,
 	Faction,
 	Profession,
@@ -351,7 +352,7 @@ export class Sim {
 		onProgress: WorkerProgressCallback,
 		bulkSettings: BulkSettings,
 		abortSignal?: AbortSignal,
-		encounterOverride?: { duration: number; durationVariation: number },
+		encounterOverride?: EncounterProto,
 	): Promise<BulkSimResult | ErrorOutcome> {
 		this.requireRunnableSetup();
 
@@ -361,10 +362,8 @@ export class Sim {
 
 			const requestId = generateRequestId(SimRequest.bulkSimAsync);
 			const baseRequest = this.makeRaidSimRequest();
-			// The request carries a fresh encounter proto, so the live encounter keeps its own duration.
 			if (encounterOverride) {
-				baseRequest.encounter!.duration = encounterOverride.duration;
-				baseRequest.encounter!.durationVariation = encounterOverride.durationVariation;
+				baseRequest.encounter = EncounterProto.clone(encounterOverride);
 			}
 			baseRequest.requestId = requestId;
 			baseRequest.simOptions!.debugFirstIteration = false;

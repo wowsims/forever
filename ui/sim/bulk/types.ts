@@ -32,17 +32,20 @@ export interface BulkResults {
 	iterations: number;
 }
 
-export interface BulkDurationResults {
-	duration: number;
-	durationVariation: number;
-	isEncounter: boolean;
+export interface BulkEncounterResults {
+	/** Empty for the current encounter, which the views label themselves. */
+	name: string;
+	isCurrent: boolean;
+	/** Length and target count, formatted when the run started. */
+	summary: string;
+	durationLabel: string;
 	results: BulkResults;
 }
 
 export interface BulkRunResults {
-	/** Length of the run list when the batch started, so a cancelled multi-duration run still shows its pills. */
-	plannedDurations: number;
-	entries: BulkDurationResults[];
+	/** Length of the run list when the batch started, so a cancelled multi-encounter run still shows its pills. */
+	plannedEncounters: number;
+	entries: BulkEncounterResults[];
 }
 
 export interface BulkSimRoundConfig {

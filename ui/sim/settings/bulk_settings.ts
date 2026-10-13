@@ -3,7 +3,7 @@
 // is `bulk[player.storeKey]` and the key is the player's spec prefix.
 import { BulkSettings as BulkSettingsProto } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
-import { BulkDurations, BulkEnchantPresets } from '@generated/proto/ui';
+import { BulkEnchantPresets, BulkEncounterSelection } from '@generated/proto/ui';
 import type { IMessageType } from '@protobuf-ts/runtime';
 
 import { BulkSimItemSlot } from '../bulk/constants_auto_gen';
@@ -14,7 +14,7 @@ import { specStorageKey } from '../state/storage_keys';
 const BULK_SETTINGS_STORAGE_KEY = 'bulk-settings.v2';
 const LEGACY_BULK_SETTINGS_STORAGE_KEY = 'bulk-settings.v1';
 const BULK_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-enchant-presets.v1';
-const BULK_DURATIONS_STORAGE_KEY = 'bulk-durations.v1';
+const BULK_ENCOUNTERS_STORAGE_KEY = 'bulk-encounters.v1';
 
 const initialBulkSlice = (): BulkSlice => ({
 	items: [],
@@ -29,7 +29,7 @@ const initialBulkSlice = (): BulkSlice => ({
 		[ItemSlot.ItemSlotOffHand, []],
 	]),
 	enchantPresets: [],
-	durations: [],
+	encounters: [],
 	combinations: 0,
 	iterations: 0,
 	combinationsPending: false,
@@ -93,6 +93,8 @@ export const loadStoredEnchantPresets = (player: Player<any>): BulkEnchantPreset
 export const storeEnchantPresets = (player: Player<any>, presets: BulkEnchantPresets) =>
 	storeProto(player, BULK_ENCHANT_PRESETS_STORAGE_KEY, BulkEnchantPresets, presets);
 
-export const loadStoredBulkDurations = (player: Player<any>): BulkDurations | null => loadStoredProto(player, BULK_DURATIONS_STORAGE_KEY, BulkDurations);
+export const loadStoredBulkEncounters = (player: Player<any>): BulkEncounterSelection | null =>
+	loadStoredProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection);
 
-export const storeBulkDurations = (player: Player<any>, durations: BulkDurations) => storeProto(player, BULK_DURATIONS_STORAGE_KEY, BulkDurations, durations);
+export const storeBulkEncounters = (player: Player<any>, selection: BulkEncounterSelection) =>
+	storeProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection, selection);

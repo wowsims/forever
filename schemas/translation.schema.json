@@ -3444,7 +3444,7 @@
 								"enchants": {
 									"type": "string"
 								},
-								"durations": {
+								"encounters": {
 									"type": "string"
 								},
 								"frozen_slots": {
@@ -3452,44 +3452,59 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["durations", "enchants", "frozen_slots"]
+							"required": ["encounters", "enchants", "frozen_slots"]
 						},
-						"durations": {
+						"encounters": {
 							"type": "object",
 							"properties": {
 								"description": {
 									"type": "string"
 								},
-								"encounter": {
+								"current": {
 									"type": "string"
 								},
-								"extra": {
+								"always": {
 									"type": "string"
 								},
-								"duration": {
+								"presets": {
 									"type": "string"
 								},
-								"variation": {
+								"saved": {
 									"type": "string"
 								},
-								"add": {
-									"type": "string"
-								},
-								"remove": {
+								"empty": {
 									"type": "string"
 								},
 								"duplicate": {
 									"type": "string"
 								},
-								"health_fight": {
+								"count": {
 									"type": "string"
 								},
-								"count": {
+								"health_summary": {
+									"type": "string"
+								},
+								"targets_one": {
+									"type": "string"
+								},
+								"targets_other": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["description", "encounter", "extra", "duration", "variation", "add", "remove", "duplicate", "health_fight", "count"]
+							"required": [
+								"description",
+								"current",
+								"always",
+								"presets",
+								"saved",
+								"empty",
+								"duplicate",
+								"count",
+								"health_summary",
+								"targets_one",
+								"targets_other"
+							]
 						},
 						"iterations": {
 							"type": "string"
@@ -3628,7 +3643,7 @@
 						"total_iterations",
 						"total_iterations_tooltip",
 						"groups",
-						"durations",
+						"encounters",
 						"iterations",
 						"freeze_ring",
 						"freeze_trinket",
@@ -3672,9 +3687,6 @@
 						},
 						"time_remaining": {
 							"type": "string"
-						},
-						"duration_title": {
-							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -3689,8 +3701,7 @@
 						"finalist_iteration_rounds",
 						"iterations_complete",
 						"seconds_remaining",
-						"time_remaining",
-						"duration_title"
+						"time_remaining"
 					]
 				},
 				"notifications": {
@@ -3765,24 +3776,15 @@
 						"tied_group": {
 							"type": "string"
 						},
-						"durations": {
+						"encounters": {
 							"type": "string"
 						},
-						"encounter_duration": {
+						"current": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": [
-						"run_simulation",
-						"equip_button",
-						"gear_equipped",
-						"current_gear",
-						"margin_of_error",
-						"tied_group",
-						"durations",
-						"encounter_duration"
-					]
+					"required": ["run_simulation", "equip_button", "gear_equipped", "current_gear", "margin_of_error", "tied_group", "encounters", "current"]
 				},
 				"import_modal": {
 					"type": "object",

@@ -1,15 +1,14 @@
 import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions, BulkSettings } from '@generated/proto/api';
-import { ItemSlot } from '@generated/proto/common';
-import { BulkDuration, UIEnchant } from '@generated/proto/ui';
+import { Encounter, ItemSlot } from '@generated/proto/common';
+import { BulkEncounterRef, SavedEncounter, UIEnchant } from '@generated/proto/ui';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
-import { patchSlice } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
 import { runCoreBulkSim } from './core_sim';
-import { cancelBulkBatch, refreshBulkCombinations, runBulkBatch, subscribeBulkProgress } from './run';
+import { bulkEncounterSteps, cancelBulkBatch, refreshBulkCombinations, runBulkBatch } from './run';
 
 vi.mock('./core_sim', () => ({ runCoreBulkSim: vi.fn() }));
 vi.mock('../../../tracking/utils', () => ({ trackEvent: () => {} }));
@@ -40,24 +39,41 @@ describe('bulk requests', () => {
 
 const GEAR = { asSpec: () => ({ items: [] }) };
 const CORE_RESULT = { referenceDpsMetrics: { avg: 1000, stdev: 1 }, topGearResults: [], iterations: 100, metrics: {} };
+const SAVED_KEY = 'saved-encounters';
 
-const batchHost = () => {
+const CURRENT = Encounter.create({ duration: 180, durationVariation: 5 });
+const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, useHealth: true });
+const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10 });
+
+const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
+
+const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('Same as current'), ref('Gone'), ref('Council')]) => {
 	const player = makeBulkPlayer({ getGear: () => GEAR, setGearAsync: vi.fn(async () => {}) });
-	patchSlice(player.sim.store, 'encounter', { duration: 180, durationVariation: 5, useHealth: false });
-	patchBulkState(player, {
-		durations: [BulkDuration.create({ duration: 90, durationVariation: 10 }), BulkDuration.create({ duration: 300, durationVariation: 30 })],
-	});
+	const saved = { 'Same as current': CURRENT, Council: COUNCIL };
+	player.sim.env.storage.setItem(
+		SAVED_KEY,
+		JSON.stringify(
+			Object.fromEntries(Object.entries(saved).map(([name, encounter]) => [name, SavedEncounter.toJson(SavedEncounter.create({ encounter }))])),
+		),
+	);
+	patchBulkState(player, { encounters: checked });
 	return {
 		player,
 		sim: {
 			store: player.sim.store,
+			env: player.sim.env,
+			encounter: { toProto: () => Encounter.clone(CURRENT) },
 			waitForInit: async () => {},
 			signalManager: { abortType: vi.fn(async () => {}) },
 			getBulkCombinationCount: async () => ({ combinations: 1, iterations: 1 }),
 		},
+		individualConfig: { presets: { encounters: [{ name: 'Patchwerk', encounter: PATCHWERK }] } },
+		getSavedEncounterStorageKey: () => SAVED_KEY,
 		handleCrash: (e: unknown) => Promise.reject(e),
 	} as unknown as IndividualSimHost<any>;
 };
+
+const overrides = () => vi.mocked(runCoreBulkSim).mock.calls.map(call => call[3]?.encounterOverride);
 
 describe('runBulkBatch', () => {
 	let consoleError: MockInstance;
@@ -67,27 +83,34 @@ describe('runBulkBatch', () => {
 		consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 	});
 
-	it('runs the encounter, then each extra duration', async () => {
+	it('runs the current encounter, then each checked one, skipping duplicates and deleted refs', async () => {
 		const host = batchHost();
 		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
 
 		await runBulkBatch(host);
 
-		expect(vi.mocked(runCoreBulkSim).mock.calls.map(call => call[3]?.encounterOverride)).toEqual([
-			{ duration: 180, durationVariation: 5 },
-			{ duration: 90, durationVariation: 10 },
-			{ duration: 300, durationVariation: 30 },
-		]);
+		expect(overrides()).toEqual([CURRENT, PATCHWERK, COUNCIL]);
 		const results = bulkState(host.player).results!;
-		expect(results.plannedDurations).toBe(3);
-		expect(results.entries.map(entry => [entry.duration, entry.isEncounter])).toEqual([
-			[180, true],
-			[90, false],
-			[300, false],
+		expect(results.plannedEncounters).toBe(3);
+		expect(results.entries.map(entry => [entry.name, entry.isCurrent])).toEqual([
+			['', true],
+			['Patchwerk', false],
+			['Council', false],
 		]);
+		expect(results.entries[2].durationLabel).toBe('1:30 ±10s');
 	});
 
-	it('keeps the finished durations when cancelled', async () => {
+	it('runs once when nothing is checked', async () => {
+		const host = batchHost([]);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(overrides()).toEqual([CURRENT]);
+		expect(bulkState(host.player).results!.plannedEncounters).toBe(1);
+	});
+
+	it('keeps the finished encounters when cancelled', async () => {
 		const host = batchHost();
 		vi.mocked(runCoreBulkSim)
 			.mockResolvedValueOnce(CORE_RESULT as never)
@@ -99,12 +122,12 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		const results = bulkState(host.player).results!;
-		expect(results.plannedDurations).toBe(3);
-		expect(results.entries.map(entry => entry.duration)).toEqual([180]);
+		expect(results.plannedEncounters).toBe(3);
+		expect(results.entries.map(entry => entry.isCurrent)).toEqual([true]);
 		expect(bulkState(host.player).isRunning).toBe(false);
 	});
 
-	it('keeps the finished durations when a later one fails', async () => {
+	it('keeps the finished encounters when a later one fails', async () => {
 		const host = batchHost();
 		vi.mocked(runCoreBulkSim)
 			.mockResolvedValueOnce(CORE_RESULT as never)
@@ -113,54 +136,36 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		expect(consoleError).toHaveBeenCalled();
-
-		expect(bulkState(host.player).results!.entries.map(entry => entry.duration)).toEqual([180]);
+		expect(bulkState(host.player).results!.entries.map(entry => entry.isCurrent)).toEqual([true]);
 	});
 
-	it('leaves no results when the first duration fails', async () => {
+	it('leaves no results when the first encounter fails', async () => {
 		const host = batchHost();
 		vi.mocked(runCoreBulkSim).mockRejectedValueOnce(new Error('worker crashed'));
 
 		await runBulkBatch(host);
 
 		expect(consoleError).toHaveBeenCalled();
-
 		expect(bulkState(host.player).results).toBeNull();
 	});
 
-	it('runs once for a health fight', async () => {
+	it('lists every encounter as a step from the start and moves the running one along', async () => {
 		const host = batchHost();
-		patchSlice(host.player.sim.store, 'encounter', { useHealth: true });
-		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+		const seen: Array<[number, number]> = [];
+		vi.mocked(runCoreBulkSim).mockImplementation(async () => {
+			const { labels, running } = bulkEncounterSteps(host.player);
+			seen.push([labels.length, running]);
+			return CORE_RESULT as never;
+		});
 
 		await runBulkBatch(host);
 
-		expect(vi.mocked(runCoreBulkSim)).toHaveBeenCalledTimes(1);
-		expect(bulkState(host.player).results!.plannedDurations).toBe(1);
-	});
-
-	it('prefixes the progress titles with the duration being run when there are several', async () => {
-		const host = batchHost();
-		const titles: string[] = [];
-		subscribeBulkProgress(host.player, progress => titles.push(progress.title));
-		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
-
-		await runBulkBatch(host);
-
-		expect(titles).toHaveLength(3);
-		for (const title of titles) expect(title.startsWith('bulk_tab.progress.duration_title')).toBe(true);
-	});
-
-	it('leaves the progress titles bare for a health fight', async () => {
-		const host = batchHost();
-		patchSlice(host.player.sim.store, 'encounter', { useHealth: true });
-		const titles: string[] = [];
-		subscribeBulkProgress(host.player, progress => titles.push(progress.title));
-		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
-
-		await runBulkBatch(host);
-
-		expect(titles).toHaveLength(1);
-		expect(titles.some(title => title.startsWith('bulk_tab.progress.duration_title'))).toBe(false);
+		expect(seen).toEqual([
+			[3, 0],
+			[3, 1],
+			[3, 2],
+		]);
+		const { labels } = bulkEncounterSteps(host.player);
+		expect(labels[1]).toBe('Patchwerk · bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets');
 	});
 });

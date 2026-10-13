@@ -971,21 +971,22 @@
 			"total_iterations": "Minimum iterations",
 			"total_iterations_tooltip": "The batch sims at least this many iterations. The error target adds more as it runs.",
 			"groups": {
-				"durations": "Durations",
+				"encounters": "Encounters",
 				"enchants": "Enchants",
 				"frozen_slots": "Frozen slots"
 			},
-			"durations": {
-				"description": "The batch runs once per duration; each duration gets its own results.",
-				"encounter": "Encounter",
-				"extra": "Extra {{index}}",
-				"duration": "Duration (s)",
-				"variation": "± (s)",
-				"add": "Add duration",
-				"remove": "Remove extra duration {{index}}",
-				"duplicate": "Same as another duration, skipped",
-				"health_fight": "Health-based fights have no duration to vary, so the batch runs once.",
-				"count": "Durations"
+			"encounters": {
+				"description": "The batch runs once per encounter, and each encounter gets its own results. Save encounters in Settings → Saved Encounters.",
+				"current": "Current encounter",
+				"always": "always",
+				"presets": "Presets",
+				"saved": "Saved",
+				"empty": "No saved encounters yet. Save one in Settings → Saved Encounters to run the batch against it too.",
+				"duplicate": "Same as another encounter, skipped",
+				"count": "Encounters",
+				"health_summary": "Health",
+				"targets_one": "{{count}} target",
+				"targets_other": "{{count}} targets"
 			},
 			"iterations": "Iterations",
 			"freeze_ring": {
@@ -1035,8 +1036,7 @@
 			"iterations_complete": "{{completed}} / {{total}}<br />iterations complete",
 			"seconds_remaining": "{{seconds}} seconds remaining",
 			"time_remaining": "{{time}} remaining",
-			"finalist_iteration_rounds": "Running finalist tie-breaker rounds",
-			"duration_title": "Duration {{current}}/{{total}} · {{label}} · {{title}}"
+			"finalist_iteration_rounds": "Running finalist tie-breaker rounds"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
@@ -1061,8 +1061,8 @@
 			"current_gear": "Current Gear",
 			"margin_of_error": "95% confidence interval of the mean DPS. Rankings closer than this can change between runs.",
 			"tied_group": "Statistically tied — the order within this group can change between runs",
-			"durations": "Durations",
-			"encounter_duration": "encounter"
+			"encounters": "Encounters",
+			"current": "Current"
 		},
 		"import_modal": {
 			"title": "Bag Item Import",

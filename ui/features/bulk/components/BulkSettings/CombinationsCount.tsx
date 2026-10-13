@@ -8,10 +8,10 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { TooltipButton } from '@ui-kit/TooltipButton';
 import clsx from 'clsx';
 import { useId } from 'react';
-import { useStore } from 'zustand';
 
+import { useBulkEncounters } from '../../hooks/useBulkEncounters';
 import { useBulkState } from '../../hooks/useBulkState';
-import { bulkDurationRuns } from '../../model/durations';
+import { bulkEncounterRuns } from '../../model/encounters';
 import { bulkIterationsLimit } from '../../model/limits';
 
 export interface CombinationsCountViewProps {
@@ -19,10 +19,10 @@ export interface CombinationsCountViewProps {
 	combinations: number;
 	iterations: number;
 	iterationsLimit: number;
-	durations: number;
+	encounters: number;
 }
 
-export const CombinationsCountView = ({ pending, combinations, iterations, iterationsLimit, durations }: CombinationsCountViewProps) => {
+export const CombinationsCountView = ({ pending, combinations, iterations, iterationsLimit, encounters }: CombinationsCountViewProps) => {
 	const tooltipId = useId();
 	const overLimit = !pending && iterations > iterationsLimit;
 	const warningText = i18n.t('bulk_tab.warning.iterations_limit', { limit: formatToNumber(iterationsLimit) });
@@ -33,11 +33,11 @@ export const CombinationsCountView = ({ pending, combinations, iterations, itera
 			<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-combinations">
 				{pending ? <Spinner size="sm" /> : formatToNumber(combinations)}
 			</dd>
-			{durations > 1 && (
+			{encounters > 1 && (
 				<>
-					<dt className="font-normal">{i18n.t('bulk_tab.settings.durations.count')}</dt>
-					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-durations-count">
-						× {durations}
+					<dt className="font-normal">{i18n.t('bulk_tab.settings.encounters.count')}</dt>
+					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-encounters-count">
+						× {encounters}
 					</dd>
 				</>
 			)}
@@ -66,7 +66,7 @@ export const CombinationsCountView = ({ pending, combinations, iterations, itera
 						<Tooltip id={tooltipId} place="left" content={warningText} />
 					</>
 				)}
-				{pending ? <Spinner size="sm" /> : formatToNumber(iterations * durations)}
+				{pending ? <Spinner size="sm" /> : formatToNumber(iterations * encounters)}
 			</dd>
 		</dl>
 	);
@@ -77,11 +77,7 @@ export const CombinationsCount = () => {
 	const pending = useBulkState(slice => slice.combinationsPending);
 	const combinations = useBulkState(slice => slice.combinations);
 	const iterations = useBulkState(slice => slice.iterations);
-	const duration = useStore(sim.store, state => state.encounter.duration);
-	const durationVariation = useStore(sim.store, state => state.encounter.durationVariation);
-	const useHealth = useStore(sim.store, state => state.encounter.useHealth);
-	const extras = useBulkState(slice => slice.durations);
-	const durations = bulkDurationRuns({ duration, durationVariation, useHealth }, extras).length;
+	const { current, picked } = useBulkEncounters();
 
 	return (
 		<CombinationsCountView
@@ -89,7 +85,7 @@ export const CombinationsCount = () => {
 			combinations={combinations}
 			iterations={iterations}
 			iterationsLimit={bulkIterationsLimit(sim.isNative)}
-			durations={durations}
+			encounters={bulkEncounterRuns(current, picked).length}
 		/>
 	);
 };

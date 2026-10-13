@@ -28,7 +28,15 @@ const mount = (reforger: unknown = null) => {
 	seedKeyed(store, 'players', STORE_KEY, { gear, v: zeroVersions(PLAYER_FIELDS) } as never);
 	const player = { sim: { store, isNative: false }, storeKey: STORE_KEY, getGear: () => gear } as unknown as Player<any>;
 	seedBulkSettings(player);
-	const host = { player, sim: player.sim, reforger, reforgeOptions: null, getStorageKey: (key: string) => `test-${key}` } as never;
+	const host = {
+		player,
+		sim: player.sim,
+		reforger,
+		reforgeOptions: null,
+		individualConfig: { presets: {} },
+		getStorageKey: (key: string) => `test-${key}`,
+		getSavedEncounterStorageKey: () => 'test-saved-encounters',
+	} as never;
 	const { container } = render(
 		<SimHostProvider host={host}>
 			<BulkSettings />
@@ -79,13 +87,13 @@ describe('BulkSettings', () => {
 		expect(JSON.parse(localStorage.getItem('test-__bulkSettingsGroups')!)).toEqual(['freezes']);
 	});
 
-	it('shows only the durations, enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
+	it('shows only the encounter, enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
 		const { container } = mount({ settings: {} });
 
 		const triggers = [...container.querySelectorAll('[data-testid^="bulk-settings-group-"][data-testid$="-trigger"]')];
 
 		expect(triggers.map(trigger => trigger.getAttribute('data-testid'))).toEqual([
-			'bulk-settings-group-durations-trigger',
+			'bulk-settings-group-encounters-trigger',
 			'bulk-settings-group-enchants-trigger',
 			'bulk-settings-group-freezes-trigger',
 		]);
@@ -110,7 +118,7 @@ const renderSettings = (props: Partial<BulkSettingsViewProps> = {}) => {
 			combinationsCount={<span data-testid="count" />}
 			canRun
 			openGroups={['freezes']}
-			durations={null}
+			encounters={null}
 			enchants={null}
 			frozenItems={[RING_VIEW]}
 			weaponFreeze={null}

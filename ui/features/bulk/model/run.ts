@@ -1,7 +1,7 @@
 import { enchantPresetPool } from '@features/enchant-presets/model/enchant_presets';
 import { BulkSettings, ProgressMetrics } from '@generated/proto/api';
 import i18n from '@i18n/config';
-import { BulkDurationResults, BulkRunResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
+import { BulkEncounterResults, BulkRunResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
 import type { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
@@ -13,7 +13,7 @@ import { toastManager } from '@ui-kit/Toast';
 
 import { trackEvent } from '../../../tracking/utils';
 import { type CoreBulkSimOptions, type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
-import { bulkDurationRuns, formatDurationLabel } from './durations';
+import { bulkEncounterRuns, checkedBulkEncounters, formatEncounterDuration, formatEncounterSummary, pickableBulkEncounters } from './encounters';
 import { BulkProgress, candidateGearProgress, simProgress } from './progress';
 import { createBulkSettingsProto } from './settings';
 import { buildTieChains } from './tie_chains';
@@ -34,7 +34,14 @@ interface BulkRun {
 	combinationsRequestVersion: number;
 	progress: BulkProgress | null;
 	listeners: Set<(progress: BulkProgress) => void>;
-	durationTitle: ((title: string) => string) | null;
+	steps: BulkEncounterSteps;
+}
+
+export interface BulkEncounterSteps {
+	/** One per encounter the batch runs, set before the run is marked running. */
+	labels: readonly string[];
+	/** 0-based encounter being run. */
+	running: number;
 }
 
 const runs = new WeakMap<Player<any>, BulkRun>();
@@ -50,7 +57,7 @@ const runOf = (player: Player<any>): BulkRun => {
 			combinationsRequestVersion: 0,
 			progress: null,
 			listeners: new Set(),
-			durationTitle: null,
+			steps: { labels: [], running: 0 },
 		};
 		runs.set(player, run);
 	}
@@ -58,6 +65,8 @@ const runOf = (player: Player<any>): BulkRun => {
 };
 
 export const bulkProgress = (player: Player<any>): BulkProgress | null => runOf(player).progress;
+
+export const bulkEncounterSteps = (player: Player<any>): BulkEncounterSteps => runOf(player).steps;
 
 export const subscribeBulkProgress = (player: Player<any>, listener: (progress: BulkProgress) => void): (() => void) => {
 	const { listeners } = runOf(player);
@@ -70,9 +79,8 @@ export const subscribeBulkProgress = (player: Player<any>, listener: (progress: 
 const emitProgress = (player: Player<any>, next: BulkProgress | null) => {
 	if (!next) return;
 	const run = runOf(player);
-	const shown = run.durationTitle ? { ...next, title: run.durationTitle(next.title) } : next;
-	run.progress = shown;
-	for (const listener of run.listeners) listener(shown);
+	run.progress = next;
+	for (const listener of run.listeners) listener(next);
 };
 
 const setCandidateGearProgress = (player: Player<any>) => {
@@ -215,6 +223,14 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 	run.isCancelling = false;
 	run.progress = null;
+	const encounterRuns = bulkEncounterRuns(sim.encounter.toProto(), checkedBulkEncounters(pickableBulkEncounters(host), bulkState(player).encounters));
+	run.steps = {
+		labels: encounterRuns.map(
+			encounterRun =>
+				`${encounterRun.isCurrent ? i18n.t('bulk_tab.results.current') : encounterRun.name} · ${formatEncounterSummary(encounterRun.encounter)}`,
+		),
+		running: 0,
+	};
 	patchBulkState(player, { isRunning: true, started: true });
 	run.abortController = new AbortController();
 	run.abortPromise = null;
@@ -222,8 +238,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 	await sim.waitForInit();
 	const bulkSettings = bulkRequestSettings(player);
-	const durationRuns = bulkDurationRuns(sim.store.getState().encounter, bulkState(player).durations);
-	const entries: BulkDurationResults[] = [];
+	const entries: BulkEncounterResults[] = [];
 	let runError: unknown = null;
 
 	try {
@@ -236,24 +251,19 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 		await refreshBulkCombinations(host);
 
-		for (const [index, durationRun] of durationRuns.entries()) {
+		for (const [index, encounterRun] of encounterRuns.entries()) {
 			throwIfBulkAborted(player, abortSignal);
-			run.durationTitle =
-				durationRuns.length > 1
-					? title =>
-							i18n.t('bulk_tab.progress.duration_title', {
-								current: index + 1,
-								total: durationRuns.length,
-								label: formatDurationLabel(durationRun),
-								title,
-							})
-					: null;
+			run.steps = { ...run.steps, running: index };
 			setCandidateGearProgress(player);
 			run.simStart = new Date().getTime();
-			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, {
-				encounterOverride: { duration: durationRun.duration, durationVariation: durationRun.durationVariation },
+			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, { encounterOverride: encounterRun.encounter });
+			entries.push({
+				name: encounterRun.name,
+				isCurrent: encounterRun.isCurrent,
+				summary: formatEncounterSummary(encounterRun.encounter),
+				durationLabel: formatEncounterDuration(encounterRun.encounter),
+				results: rankResults(bulkSimResult, baseGear),
 			});
-			entries.push({ ...durationRun, results: rankResults(bulkSimResult, baseGear) });
 		}
 	} catch (error) {
 		runError = error;
@@ -266,7 +276,6 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 	} finally {
-		run.durationTitle = null;
 		const wasCancelling = run.isCancelling;
 		if (wasCancelling || runError) {
 			await abortBulkSimWork(host);
@@ -279,7 +288,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 		run.isCancelling = false;
-		const results: BulkRunResults | null = entries.length ? { plannedDurations: durationRuns.length, entries } : null;
+		const results: BulkRunResults | null = entries.length ? { plannedEncounters: encounterRuns.length, entries } : null;
 		patchBulkState(player, results ? { isRunning: false, results } : { isRunning: false });
 	}
 };

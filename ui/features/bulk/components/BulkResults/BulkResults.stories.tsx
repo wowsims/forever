@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import { BulkDurationPills, type BulkDurationPillsProps } from './BulkResults';
+import { BulkEncounterPills, type BulkEncounterPillsProps } from './BulkResults';
 
-const StatefulPills = (props: BulkDurationPillsProps) => {
+const StatefulPills = (props: BulkEncounterPillsProps) => {
 	const [selected, setSelected] = useState(props.selected);
 	return (
-		<BulkDurationPills
+		<BulkEncounterPills
 			{...props}
 			selected={selected}
 			onSelect={index => {
@@ -19,28 +19,35 @@ const StatefulPills = (props: BulkDurationPillsProps) => {
 };
 
 const meta = {
-	title: 'Features/Bulk/BulkResults/BulkDurationPills',
-	component: BulkDurationPills,
+	title: 'Features/Bulk/BulkResults/BulkEncounterPills',
+	component: BulkEncounterPills,
 	tags: ['autodocs'],
 	render: args => <StatefulPills {...args} />,
 	args: {
 		entries: [
-			{ duration: 180, durationVariation: 5, isEncounter: true },
-			{ duration: 90, durationVariation: 10, isEncounter: false },
-			{ duration: 300, durationVariation: 30, isEncounter: false },
+			{ name: '', isCurrent: true, durationLabel: '3:00 ±5s' },
+			{ name: 'Patchwerk', isCurrent: false, durationLabel: '5:00 ±30s' },
+			{ name: 'Council', isCurrent: false, durationLabel: '4:00 ±10s' },
 		],
 		selected: 0,
 		onSelect: fn(),
 	},
-} satisfies Meta<typeof BulkDurationPills>;
+} satisfies Meta<typeof BulkEncounterPills>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const ThreeDurations: Story = {};
+export const ThreeEncounters: Story = {};
 
-export const ManyDurationsWrap: Story = {
+export const ManyEncountersWrap: Story = {
 	args: {
-		entries: [180, 45, 90, 120, 300, 480, 600].map((duration, index) => ({ duration, durationVariation: 10, isEncounter: index === 0 })),
+		entries: [
+			{ name: '', isCurrent: true, durationLabel: '3:00 ±5s' },
+			...['Patchwerk', 'Council', 'Execute test', 'Long fight', 'Short fight', 'Cleave pack'].map((name, index) => ({
+				name,
+				isCurrent: false,
+				durationLabel: index === 2 ? 'Health' : `${index + 2}:00 ±10s`,
+			})),
+		],
 	},
 };

@@ -1,3 +1,4 @@
+import { Encounter } from '@generated/proto/common';
 import { describe, expect, it, vi } from 'vitest';
 
 import { type CoreBulkSimContext, runCoreBulkSim } from './core_sim';
@@ -16,7 +17,7 @@ const context = (runBulkSim: ReturnType<typeof vi.fn>, setSimProgress = vi.fn())
 describe('runCoreBulkSim', () => {
 	it('passes the encounter override to the sim', async () => {
 		const runBulkSim = vi.fn(async (..._args: unknown[]) => RESULT);
-		const override = { duration: 90, durationVariation: 10 };
+		const override = Encounter.create({ duration: 90, durationVariation: 10, useHealth: true });
 
 		await runCoreBulkSim(context(runBulkSim), new AbortController().signal, {} as never, { encounterOverride: override });
 
