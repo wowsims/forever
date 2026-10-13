@@ -29,6 +29,16 @@
 		&[data-disabled] {
 			@apply pointer-events-none opacity-50;
 		}
+
+		/* The compact context matches Field.css's compact box rule, so a small picker stays small inside a compact field. */
+		&[data-size='sm'],
+		.ui-field-compact &[data-size='sm'] {
+			@apply size-4;
+
+			> .ui-boolean-picker-indicator {
+				@apply text-xs;
+			}
+		}
 	}
 
 	.ui-boolean-picker-indicator {

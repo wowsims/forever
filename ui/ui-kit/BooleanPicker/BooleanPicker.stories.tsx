@@ -51,3 +51,4 @@ export const Reverse: Story = { args: { label: 'Dual Wield', reverse: true, layo
 export const Inline: Story = { args: { label: 'Show All Stats', layout: 'inline' } };
 export const Disabled: Story = { args: { disabled: true, value: true } };
 export const Unlabelled: Story = { args: { label: undefined } };
+export const Small: Story = { args: { label: 'Patchwerk', layout: 'inline', size: 'sm', value: true } };
