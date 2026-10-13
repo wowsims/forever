@@ -101,6 +101,11 @@ describe('Encounters', () => {
 		expect(rows().map(row => row.hasAttribute('data-duplicate'))).toEqual([false, true, true, false]);
 		expect(rowNamed('Same as current').textContent).toContain('bulk_tab.settings.encounters.duplicate');
 		expect(rowNamed('Council').textContent).not.toContain('bulk_tab.settings.encounters.duplicate');
+
+		const describedBy = screen.getByRole('checkbox', { name: 'Same as current' }).getAttribute('aria-describedby')!;
+		expect(document.getElementById(describedBy)?.textContent).toBe('bulk_tab.settings.encounters.duplicate');
+		expect(screen.getByRole('checkbox', { name: 'Council' }).hasAttribute('aria-describedby')).toBe(false);
+		expect(screen.getByRole('checkbox', { name: 'Patchwerk' }).hasAttribute('aria-describedby')).toBe(false);
 	});
 
 	it('leaves an unchecked encounter equal to the current one unmarked', () => {

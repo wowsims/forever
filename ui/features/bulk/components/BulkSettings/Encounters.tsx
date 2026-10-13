@@ -31,24 +31,32 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 		rows.length > 0 && (
 			<div className="grid gap-1">
 				<h6 className="mb-0 text-xs text-gray-400">{heading}</h6>
-				{rows.map((row, index) => (
-					<div
-						key={row.name}
-						className="flex items-center gap-2 border border-transparent px-1 data-duplicate:border-danger"
-						data-duplicate={row.duplicate || undefined}
-						data-testid="bulk-encounter">
-						<BooleanPicker
-							id={`${idPrefix}-${preset ? 'preset' : 'saved'}-${index}`}
-							className="min-w-0 flex-1"
-							label={row.name}
-							layout="inline"
-							value={row.checked}
-							onChange={checked => onCheckedChange(preset, row.name, checked)}
-						/>
-						{row.duplicate && <span className="sr-only">{t('duplicate')}</span>}
-						<span className="text-xs text-gray-400 tabular-nums">{row.summary}</span>
-					</div>
-				))}
+				{rows.map((row, index) => {
+					const id = `${idPrefix}-${preset ? 'preset' : 'saved'}-${index}`;
+					return (
+						<div
+							key={row.name}
+							className="flex items-center gap-2 border border-transparent px-1 data-duplicate:border-danger"
+							data-duplicate={row.duplicate || undefined}
+							data-testid="bulk-encounter">
+							<BooleanPicker
+								id={id}
+								className="min-w-0 flex-1"
+								label={row.name}
+								layout="inline"
+								value={row.checked}
+								aria-describedby={row.duplicate ? `${id}-duplicate` : undefined}
+								onChange={checked => onCheckedChange(preset, row.name, checked)}
+							/>
+							{row.duplicate && (
+								<span id={`${id}-duplicate`} className="sr-only">
+									{t('duplicate')}
+								</span>
+							)}
+							<span className="text-xs text-gray-400 tabular-nums">{row.summary}</span>
+						</div>
+					);
+				})}
 			</div>
 		);
 
