@@ -33,6 +33,10 @@
 		&[data-size='xl'] {
 			@apply max-w-modal-xl max-lg:max-w-modal-inset-w;
 		}
+
+		&[data-size='full'] {
+			@apply h-modal-inset-h w-modal-inset-w max-w-modal-inset-w;
+		}
 	}
 
 	.ui-dialog-header {

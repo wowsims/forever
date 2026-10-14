@@ -22,6 +22,7 @@ export const COLOR_FAMILIES: ReadonlyArray<ColorFamily> = [
 	{ name: 'Resource', segments: ['resource'] },
 	{ name: 'Damage', segments: ['damage'] },
 	{ name: 'Timeline', segments: ['timeline'] },
+	{ name: 'Chart series', segments: ['chart'] },
 	{ name: 'Faction', segments: ['faction'] },
 	{ name: 'Talent', segments: ['talent'] },
 	{ name: 'Combat replay', segments: ['cr'] },

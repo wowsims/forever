@@ -42,6 +42,7 @@ func main() {
 	js.Global().Set("statWeightsAsync", js.FuncOf(statWeightsAsync))
 	js.Global().Set("statWeightRequests", js.FuncOf(statWeightRequests))
 	js.Global().Set("statWeightCompute", js.FuncOf(statWeightCompute))
+	js.Global().Set("statWeightTopUpPlan", js.FuncOf(statWeightTopUpPlan))
 	js.Global().Set("abortById", js.FuncOf(abortById))
 	js.Global().Call("wasmready")
 	<-c
@@ -344,6 +345,26 @@ func statWeightCompute(this js.Value, args []js.Value) interface{} {
 	}
 
 	res := core.StatWeightCompute(req)
+
+	outbytes, err := googleProto.Marshal(res)
+	if err != nil {
+		log.Printf("[ERROR] Failed to marshal result: %s", err.Error())
+		return nil
+	}
+	outArray := js.Global().Get("Uint8Array").New(len(outbytes))
+	js.CopyBytesToJS(outArray, outbytes)
+
+	return outArray
+}
+
+func statWeightTopUpPlan(this js.Value, args []js.Value) interface{} {
+	req := &proto.StatWeightsTopUpRequest{}
+	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
+		log.Printf("Failed to parse request: %s", err)
+		return nil
+	}
+
+	res := core.StatWeightTopUpPlan(req)
 
 	outbytes, err := googleProto.Marshal(res)
 	if err != nil {

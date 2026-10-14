@@ -3,6 +3,7 @@ import type { PseudoStat, Stat } from '@generated/proto/common';
 import { useCallback, useRef } from 'react';
 
 import { usePlayer, useSim } from '../context/SimHostContext';
+import type { StatWeightsOptions } from '../sim';
 import { SimRunKind } from '../state/sim_store';
 import { type SimRunState, useSimRun } from './useSimRun';
 
@@ -10,6 +11,7 @@ export interface StatWeightsArgs {
 	epStats: Array<Stat>;
 	epPseudoStats: Array<PseudoStat>;
 	epReferenceStat: Stat;
+	options?: StatWeightsOptions;
 }
 
 export interface UseStatWeightsOptions {
@@ -32,10 +34,16 @@ export const useStatWeights = ({ onProgress }: UseStatWeightsOptions = {}): UseS
 	const start = useCallback(
 		(args: StatWeightsArgs) =>
 			sim.runs.start<StatWeightsResult, ProgressMetrics>(SimRunKind.StatWeights, ctx =>
-				player.computeStatWeights(args.epStats, args.epPseudoStats, args.epReferenceStat, metrics => {
-					ctx.emit(metrics);
-					progressRef.current?.(metrics);
-				}),
+				player.computeStatWeights(
+					args.epStats,
+					args.epPseudoStats,
+					args.epReferenceStat,
+					metrics => {
+						ctx.emit(metrics);
+						progressRef.current?.(metrics);
+					},
+					args.options,
+				),
 			),
 		[sim, player],
 	);

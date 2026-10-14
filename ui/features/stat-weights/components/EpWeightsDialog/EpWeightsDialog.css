@@ -27,6 +27,10 @@
 		@apply pt-2 pr-2 pb-2 pl-2;
 	}
 
+	.ui-ep-weights-settings-grid {
+		@apply grid gap-x-4 gap-y-2 sm:grid-cols-3 lg:grid-cols-1;
+	}
+
 	.ui-ep-weights-sidebar .ui-saved-data-create-container {
 		@apply max-w-50;
 	}

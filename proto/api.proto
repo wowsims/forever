@@ -680,6 +680,25 @@ message StatWeightsRequest {
 	repeated Stat stats_to_weigh = 6;
 	repeated PseudoStat pseudo_stats_to_weigh = 10;
 	Stat ep_reference_stat = 7;
+
+	// The stat HPS EP divides by, simulated like ep_reference_stat; unset means ep_reference_stat.
+	optional Stat hps_reference_stat = 11;
+	// Unset runs the request's iteration count once. Set, the first pass runs a fixed count the sim picks
+	// and the request's count plays no part.
+	StatWeightsTarget target = 12;
+}
+
+// The ± each targeted EP runs extra iterations to reach.
+message StatWeightsTarget {
+	double ep_ci = 1; // The 90% ± of each EP to reach.
+	int32 max_iteration_multiplier = 2; // Caps each run at this multiple of its first pass's iterations; 0 means no cap.
+	repeated StatWeightsTargetMetric metrics = 3; // The metrics whose EP ± the target applies to; empty means DPS only.
+}
+
+enum StatWeightsTargetMetric {
+	StatWeightsTargetMetricDps = 0;
+	StatWeightsTargetMetricHps = 1;
+	StatWeightsTargetMetricTps = 2;
 }
 
 message StatWeightsStatData {
@@ -697,17 +716,57 @@ message StatWeightRequestsData {
 	RaidSimRequest base_request = 1;
 	Stat ep_reference_stat = 2;
 	repeated StatWeightsStatRequestData stat_sim_requests = 3;
+	Stat hps_reference_stat = 4;
 }
 
-message StatWeightsStatResultData {
-	StatWeightsStatData stat_data = 1;
-	RaidSimResult result_low = 2;
-	RaidSimResult result_high = 3;
+// The differences of one metric between a stat run and the baseline at the same iterations, before
+// the stat's modifier scales them. Sums from several passes add up.
+message StatWeightsPairedSums {
+	int32 n = 1;
+	double sum = 2;
+	double sum_sq = 3;
 }
+
+// One side of a stat, paired with the baseline.
+message StatWeightsSidePairs {
+	StatWeightsPairedSums dps = 1;
+	StatWeightsPairedSums hps = 2;
+	StatWeightsPairedSums tps = 3;
+	StatWeightsPairedSums dtps = 4;
+	StatWeightsPairedSums tmi = 5;
+	double chance_of_death = 6; // The first run's, which shares its iterations with the first baseline run.
+}
+
+message StatWeightsStatPairs {
+	StatWeightsStatData stat_data = 1;
+	StatWeightsSidePairs low = 2; // Unset for a stat simulated above the baseline only.
+	StatWeightsSidePairs high = 3;
+}
+
 message StatWeightsCalcRequest {
-	RaidSimResult base_result = 1;
 	Stat ep_reference_stat = 2;
-	repeated StatWeightsStatResultData stat_sim_results = 3;
+	Stat hps_reference_stat = 4;
+	int32 probe_iterations = 5; // The first baseline run's.
+	int32 baseline_iterations = 6; // Every baseline run's together.
+	double base_chance_of_death = 7; // The first baseline run's.
+	repeated StatWeightsStatPairs stat_pairs = 8;
+}
+
+message StatWeightsTopUpRequest {
+	StatWeightsCalcRequest calc = 1;
+	StatWeightsTarget target = 2;
+	int32 passes = 3; // The top-up passes already run.
+}
+
+// Target iteration totals per side. An empty stats list means every stat has reached the target or
+// the passes have run out.
+message StatWeightsTopUpPlan {
+	int32 baseline_iterations = 1;
+	repeated StatWeightsStatIterations stats = 2;
+}
+message StatWeightsStatIterations {
+	int32 unit_stat = 1;
+	int32 iterations = 2;
 }
 
 message StatWeightsResult {
@@ -718,6 +777,7 @@ message StatWeightsResult {
 	StatWeightValues tmi = 5;
 	StatWeightValues p_death = 6;
 	ErrorOutcome error = 7;
+	UnitStats sample_counts = 8; // Paired samples behind each stat's weight.
 }
 message StatWeightValues {
 	UnitStats weights = 1;

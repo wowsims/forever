@@ -35,7 +35,8 @@ against an in-memory `Env`.
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, `partyBuffs[5]`, `composition[5][5]`        |
 | `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values, as `PlayerSlice`, plus a per-field version counter `v` keyed by `PLAYER_FIELDS`         |
 | `reforge[storeKey]`     | `ReforgeSettings`                  | gear-optimizer settings (`REFORGE_FIELDS`) and counters                                             |
-| `statWeights[storeKey]` | `StatWeightActionSettings`         | excluded stats and a counter                                                                        |
+| `statWeights[storeKey]` | `StatWeightActionSettings`         | excluded stats, EP precision settings and a counter                                                 |
+| `statSweep[storeKey]`   | `StatSweepSettings`                | the stat sweep's stats, range, step, plotted metric and precision settings, and a counter           |
 | `bulk[storeKey]`        | `ui/sim/settings/bulk_settings.ts` | the batch's items, picker groups, limits, run flags and results, plus `v: { settings, items }`      |
 | `runs`                  | `SimRuns` (`ui/sim/sim_runs.ts`)   | `{ isRunning, isAborting }` per `SimRunKind`: one user-visible operation, not one worker request    |
 
@@ -222,7 +223,7 @@ only the draft: re-reading state inside the callback returns the old object and 
 
 ## Player lifetime
 
-`Player.dispose()` unsubscribes its store reactions and drops its `players` / `reforge` / `statWeights` / `bulk` slices
-on the next tick. `Party.setPlayer` disposes a displaced player on the next microtask if it still has no party: moves
+`Player.dispose()` unsubscribes its store reactions and drops its `players` / `reforge` / `statWeights` / `statSweep` /
+`bulk` slices on the next tick. `Party.setPlayer` disposes a displaced player on the next microtask if it still has no party: moves
 and swaps re-place the instance within the same task and are never disposed, and removals (`setPlayer(…, null)`) never
 dispose. `Party.fromProto` spec changes and import temporaries call `dispose()` explicitly.

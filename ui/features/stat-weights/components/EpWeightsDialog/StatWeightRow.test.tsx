@@ -1,8 +1,10 @@
+import type { StatWeightsResult } from '@generated/proto/api';
 import { Class, Stat } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import { createSimStore } from '@sim/state/sim_store';
+import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render } from '@testing-library/react';
 import { Table } from '@ui-kit/Table';
 import { describe, expect, it, vi } from 'vitest';
@@ -14,7 +16,7 @@ const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
 // The settings are the real class on a real store, so the toggle goes through the same store write
 // and subscription the dialog uses. The player only answers what the row reads.
-const setup = () => {
+const setup = (editResult: (result: StatWeightsResult) => void = () => {}) => {
 	const store = createSimStore();
 	const storage = new Map<string, string>();
 	const player = {
@@ -33,6 +35,7 @@ const setup = () => {
 	const result = emptyStatWeightsResult();
 	AGILITY.setProtoValue(result.dps!.weights!, 1.9);
 	AGILITY.setProtoValue(result.dps!.epValues!, 0.79);
+	editResult(result);
 
 	const view = render(
 		<Table>
@@ -75,6 +78,21 @@ describe('StatWeightRow', () => {
 		expect(settings.isStatExcludedFromCalc(Stat.StatAgility)).toBe(false);
 		expect(container.querySelector('[data-notapplicable]')).toBeNull();
 		expect(epCell().textContent).toBe('0.79');
+	});
+
+	it("sizes the ± by the stat's own sample count, and by the run's iterations when the result has none", () => {
+		const epInterval = (container: HTMLElement) => container.querySelector('[data-column-type="ep"]')!.textContent;
+		const withStdev = (result: StatWeightsResult) => AGILITY.setProtoValue(result.dps!.epValuesStdev!, 6);
+
+		const counted = setup(result => {
+			withStdev(result);
+			result.sampleCounts = new Stats().withStat(Stat.StatAgility, 500).toProto();
+		});
+		expect(epInterval(counted.container)).toContain(`(${stDevToConf90(6, 500).toFixed(2)})`);
+		counted.unmount();
+
+		const uncounted = setup(withStdev);
+		expect(epInterval(uncounted.container)).toContain(`(${stDevToConf90(6, 1000).toFixed(2)})`);
 	});
 });
 

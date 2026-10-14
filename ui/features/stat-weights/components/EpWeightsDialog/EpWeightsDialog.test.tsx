@@ -1,10 +1,11 @@
 // The store, the worker and the saved-data manager are stubbed — what is under test is the view,
 // and every source it reads is driven directly.
-import { ErrorOutcomeType, type StatWeightsResult } from '@generated/proto/api';
-import { Class, PseudoStat, Stat } from '@generated/proto/common';
+import { ErrorOutcomeType, type StatWeightsResult, StatWeightsTargetMetric } from '@generated/proto/api';
+import { Class, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { Stats, UnitStat } from '@sim/proto/stats';
+import type { PrecisionSettings } from '@sim/settings/precision';
 import { SimRuns } from '@sim/sim_runs';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -138,6 +139,9 @@ class FakePlayer {
 	getClass() {
 		return Class.ClassWarrior;
 	}
+	getSpec() {
+		return Spec.SpecUnknown;
+	}
 	getEpWeights() {
 		return this.epWeights;
 	}
@@ -163,7 +167,12 @@ class FakePlayer {
 class FakeSettings {
 	excludedStats: Stat[] = [];
 	excludedPseudoStats: PseudoStat[] = [];
+	precision: PrecisionSettings = { precisionMode: 'iterations', iterations: 0, targetCi: 0.01, maxIterationMultiplier: 0 };
 
+	setPrecision(patch: Partial<PrecisionSettings>) {
+		this.precision = { ...this.precision, ...patch };
+		source.notify('statWeights');
+	}
 	isStatExcludedFromCalc(stat: Stat) {
 		return this.excludedStats.includes(stat);
 	}
@@ -285,6 +294,7 @@ const openStatFilter = () =>
 		fireEvent.click(statFilterTrigger());
 	});
 const statFilterBox = (stat: UnitStat) => rootElem.querySelector<HTMLElement>(`#ep-stat-filter-${stat.getKey()}`)!;
+const precisionText = (key: string) => `common.precision.${key}`;
 
 describe('EpWeightsDialog', () => {
 	beforeEach(setup);
@@ -487,18 +497,6 @@ describe('EpWeightsDialog', () => {
 		expect(dpsEpLabel().getAttribute('data-tooltip-content')).not.toContain('Strength');
 	});
 
-	// DEFECT FIXED. `getModalConfig` read `getShowThreatMetrics()` once, at construction.
-	it('follows the threat-metrics toggle in the dialog size', () => {
-		renderDialog();
-		expect(popup().getAttribute('data-size')).toBe('lg');
-
-		act(() => {
-			host.sim.showThreatMetrics = true;
-			source.notify('ui:showThreatMetrics');
-		});
-		expect(popup().getAttribute('data-size')).toBe('xl');
-	});
-
 	it('copies a column into the current EP weights, leaving excluded stats alone', () => {
 		host.sim.showThreatMetrics = true;
 		host.individualConfig.defaults.epWeights = new Stats().withStat(Stat.StatAgility, 7).withStat(Stat.StatStrength, 11);
@@ -565,6 +563,7 @@ describe('EpWeightsDialog', () => {
 				[PseudoStat.PseudoStatSpellHitPercent],
 				Stat.StatStrength,
 				expect.any(Function),
+				{ hpsReferenceStat: Stat.StatStrength },
 			);
 
 			const progress = rootElem.querySelector('[data-testid="progress-tracker-dialog"]')!;
@@ -730,6 +729,127 @@ describe('EpWeightsDialog', () => {
 			});
 			expect(openChanges).toEqual([false]);
 			expect(abortType).not.toHaveBeenCalled();
+		});
+
+		it('runs to the target ± in every shown metric, against the chosen DPS and healing reference stats, with no iteration count', async () => {
+			player.computeStatWeights.mockResolvedValue(weightsResult([[STRENGTH, 2]]));
+			player.refStats.dpsRefStat = Stat.StatAgility;
+			player.refStats.healRefStat = Stat.StatIntellect;
+			host.sim.showThreatMetrics = true;
+			settings.precision = { precisionMode: 'target', iterations: 4000, targetCi: 0.02, maxIterationMultiplier: 4 };
+			renderDialog();
+
+			await act(async () => {
+				fireEvent.click(calculate());
+			});
+			expect(player.computeStatWeights).toHaveBeenCalledWith(
+				[Stat.StatStrength, Stat.StatAgility, Stat.StatCritRating],
+				[PseudoStat.PseudoStatSpellHitPercent],
+				Stat.StatAgility,
+				expect.any(Function),
+				{
+					targetEpCi: 0.02,
+					maxIterationMultiplier: 4,
+					targetMetrics: [
+						StatWeightsTargetMetric.StatWeightsTargetMetricDps,
+						StatWeightsTargetMetric.StatWeightsTargetMetricHps,
+						StatWeightsTargetMetric.StatWeightsTargetMetricTps,
+					],
+					hpsReferenceStat: Stat.StatIntellect,
+				},
+			);
+			expect(player.computeStatWeights.mock.calls[0][4]).not.toHaveProperty('iterations');
+		});
+
+		it('disables Calculate in Target ± mode while the target is empty, and enables it in iterations mode', () => {
+			settings.precision = { precisionMode: 'target', iterations: 0, targetCi: 0.02, maxIterationMultiplier: 0 };
+			renderDialog();
+			expect(calculate().disabled).toBe(false);
+
+			fireEvent.change(popup().querySelector('#ep-precision-target')!, { target: { value: '' } });
+			expect(settings.precision.targetCi).toBe(0);
+			expect(calculate().disabled).toBe(true);
+
+			fireEvent.click(screen.getByRole('button', { name: precisionText('mode_iterations') }));
+			expect(calculate().disabled).toBe(false);
+		});
+
+		it('shows the iteration count with the sim setting as placeholder in iterations mode, and the target and cap alone in target mode', () => {
+			renderDialog();
+			const iterations = popup().querySelector<HTMLInputElement>('#ep-precision-iterations')!;
+			expect([iterations.value, iterations.placeholder]).toEqual(['', String(host.sim.store.getState().sim.iterations)]);
+			expect(popup().querySelector('#ep-precision-target')).toBeNull();
+
+			fireEvent.change(iterations, { target: { value: '4000' } });
+			expect(settings.precision.iterations).toBe(4000);
+
+			fireEvent.click(screen.getByRole('button', { name: precisionText('mode_target') }));
+			const cap = popup().querySelector<HTMLInputElement>('#ep-precision-max-multiplier')!;
+			expect([cap.value, cap.placeholder]).toEqual(['', precisionText('max_multiplier_none')]);
+			expect(popup().querySelector('#ep-precision-iterations')).toBeNull();
+
+			fireEvent.change(cap, { target: { value: '4' } });
+			expect(settings.precision.maxIterationMultiplier).toBe(4);
+		});
+
+		it('keeps four decimals of the target', () => {
+			settings.precision = { precisionMode: 'target', iterations: 0, targetCi: 0.0025, maxIterationMultiplier: 0 };
+			renderDialog();
+			const target = popup().querySelector<HTMLInputElement>('#ep-precision-target')!;
+			expect(target.value).toBe('0.0025');
+
+			fireEvent.change(target, { target: { value: '0.0075' } });
+			expect(settings.precision.targetCi).toBe(0.0075);
+		});
+
+		it('locks the precision mode and fields while a calculation runs', async () => {
+			player.computeStatWeights.mockImplementation(() => new Promise(() => {}));
+			settings.precision = { precisionMode: 'target', iterations: 0, targetCi: 0.02, maxIterationMultiplier: 0 };
+			renderDialog();
+
+			await act(async () => {
+				fireEvent.click(calculate());
+			});
+			expect(screen.getByRole<HTMLButtonElement>('button', { name: precisionText('mode_iterations'), hidden: true }).disabled).toBe(true);
+			expect(popup().querySelector<HTMLInputElement>('#ep-precision-target')!.disabled).toBe(true);
+		});
+
+		describe('HPS EP with no healing reference stat chosen', () => {
+			// The sim's HPS EP for Agility is 9, which is not Agility's HPS weight over Strength's (0.5): a shown 9.00 is
+			// the value as the sim sent it, a shown 0.50 is recomputed against Strength, the spec's reference stat.
+			const hpsResult = () => {
+				const result = weightsResult([
+					[STRENGTH, 2],
+					[AGILITY, 1],
+				]);
+				STRENGTH.setProtoValue(result.hps!.weights!, 2);
+				STRENGTH.setProtoValue(result.hps!.epValues!, 1);
+				AGILITY.setProtoValue(result.hps!.weights!, 1);
+				AGILITY.setProtoValue(result.hps!.epValues!, 9);
+				return result;
+			};
+			const hpsEp = (stat: string) => rowFor(stat).querySelectorAll('[data-column-type="ep"] [data-testid="results-avg"]')[1].textContent;
+
+			beforeEach(() => {
+				player.computeStatWeights.mockResolvedValue(hpsResult());
+				player.refStats.dpsRefStat = Stat.StatAgility;
+			});
+
+			it.each(['iterations', 'target'] as const)(
+				'runs in %s mode against the chosen DPS and the spec’s HPS reference stat, and shows HPS EP as the sim sent it',
+				async precisionMode => {
+					settings.precision = { precisionMode, iterations: 4000, targetCi: 0.02, maxIterationMultiplier: 4 };
+					renderDialog();
+
+					await act(async () => {
+						fireEvent.click(calculate());
+					});
+					const [call] = player.computeStatWeights.mock.calls;
+					expect(call[2]).toBe(Stat.StatAgility);
+					expect(call[4].hpsReferenceStat).toBe(Stat.StatStrength);
+					expect(hpsEp('Agility')).toBe('9.00');
+				},
+			);
 		});
 	});
 

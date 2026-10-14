@@ -24,6 +24,7 @@ export interface EpWeightsTableViewProps {
 	showEpRatios: boolean;
 	/** The Update column picks which stats a calculation writes; a gear planner has no calculation. */
 	showUpdateColumn?: boolean;
+	statAction?: ReactNode;
 	children: ReactNode;
 }
 
@@ -36,6 +37,7 @@ export const EpWeightsTableView = ({
 	showThreatMetrics,
 	showEpRatios,
 	showUpdateColumn = true,
+	statAction,
 	children,
 }: EpWeightsTableViewProps) => (
 	<div data-testid="results-ep-table-container" className="relative flex-1 overflow-y-auto">
@@ -45,7 +47,7 @@ export const EpWeightsTableView = ({
 			className={[showThreatMetrics && 'max-lg:pr-0', `stats-type-${statsType}`]}
 			data-stats-type={statsType}>
 			<thead>
-				<EpWeightsHeader columns={columns} showThreatMetrics={showThreatMetrics} showUpdateColumn={showUpdateColumn} />
+				<EpWeightsHeader columns={columns} showThreatMetrics={showThreatMetrics} showUpdateColumn={showUpdateColumn} statAction={statAction} />
 				{showEpRatios && (
 					<EpRatiosRow
 						columns={columns}
@@ -78,6 +80,7 @@ export interface EpWeightsTableProps {
 	showEpRatios: boolean;
 	displayMetrics: DisplayMetrics;
 	showUpdateColumn?: boolean;
+	statAction?: ReactNode;
 }
 
 export const EpWeightsTable = ({
@@ -97,6 +100,7 @@ export const EpWeightsTable = ({
 	showEpRatios,
 	displayMetrics,
 	showUpdateColumn = true,
+	statAction,
 }: EpWeightsTableProps) => {
 	const onEpRatioChange = useCallback(
 		(ratioIndex: number, value: number) => {
@@ -116,7 +120,8 @@ export const EpWeightsTable = ({
 			onComputeEp={onComputeEp}
 			showThreatMetrics={showThreatMetrics}
 			showEpRatios={showEpRatios}
-			showUpdateColumn={showUpdateColumn}>
+			showUpdateColumn={showUpdateColumn}
+			statAction={statAction}>
 			{stats.map(stat => (
 				<StatWeightRow
 					key={stat.getFullName(player.getClass())}

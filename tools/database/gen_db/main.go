@@ -57,6 +57,9 @@ func main() {
 		if err := database.GenerateSimTablesTSFile(); err != nil {
 			log.Fatalf("failed to generate sim tables TS file: %v", err)
 		}
+		if err := database.GenerateStatWeightConstantsTSFile(); err != nil {
+			log.Fatalf("failed to generate stat weight constants TS file: %v", err)
+		}
 		return
 	} else if *genAsset == "atlasloot" {
 		helper, err := database.NewDBHelper()

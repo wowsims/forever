@@ -305,6 +305,14 @@
 			"action_has_errors": "This action has errors, and will not behave as expected.",
 			"toggle_item": "Show or hide {{itemLabel}}"
 		},
+		"precision": {
+			"label": "Precision",
+			"mode_iterations": "Iterations",
+			"mode_target": "Target ±",
+			"iterations": "Iterations",
+			"max_multiplier": "Max ×",
+			"max_multiplier_none": "None"
+		},
 		"preset": {
 			"ep_weights": "EP Weights",
 			"gear": "Gear",
@@ -2710,7 +2718,7 @@
 		"options": {
 			"title": "Options",
 			"fixed_rng_seed": {
-				"label": "Fixed RNG Seed",
+				"label": "Fixed RNG seed",
 				"tooltip": "Seed value for the random number generator used during sims, or 0 to use different randomness each run. Use this to share exact sim results or for debugging.",
 				"last_used": "Last used RNG seed:"
 			},
@@ -2719,15 +2727,17 @@
 				"tooltip": "Controls the language for Wowhead tooltips."
 			},
 			"feature_toggles": {
-				"show_threat_metrics": "Show Threat/Tank Options",
-				"show_experimental": "Show Experimental",
+				"show_threat_metrics": "Show threat/tank options",
+				"show_experimental": "Show experimental",
+				"show_power_tools": "Show power tools",
+				"show_power_tools_tooltip": "Shows more tools for theorycrafting.",
 				"show_quick_swap": "Show quick swap interface",
 				"show_threat_metrics_tooltip": "Shows all options and metrics relevant to tanks, like TPS/DTPS.",
 				"show_experimental_tooltip": "Shows experimental options, if there are any active experiments.",
 				"show_quick_swap_tooltip": "Allows you to quickly swap enchants through your favorites. (Disabled on touch devices)"
 			},
 			"use_multiple_cpu_cores": {
-				"label": "Use Multiple CPU Cores",
+				"label": "Use multiple CPU cores",
 				"tooltip": "Use web workers to spread sim workload over multiple CPU cores.",
 				"off": "Off",
 				"firefox_note": "Too many workers can cause significant memory usage! If sim doesn't finish due to RAM running out use a lower number."
@@ -2759,7 +2769,8 @@
 					"title": "Calculate Stat Weights",
 					"ep": "EP",
 					"weights": "Weights",
-					"stats_type": "Stat display type",
+					"settings": "Settings",
+					"show_as": "Show as:",
 					"dps_tps_reference": "DPS/TPS reference:",
 					"healing_reference": "Healing reference:",
 					"mitigation_reference": "Mitigation reference:",
@@ -2848,6 +2859,59 @@
 				},
 				"saved_ep_weights": {
 					"title": "Saved EP weights"
+				},
+				"precision": {
+					"iterations_tooltip": "Iterations per simulation. Empty uses the sim's iteration setting.",
+					"target_ci": "Target ±",
+					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value.",
+					"max_multiplier_tooltip": "The most iterations a stat may run, as a multiple of the automatic first pass. Empty sets no cap."
+				}
+			},
+			"stat_sweep": {
+				"title": "Stat sweep",
+				"settings": "Settings",
+				"stats": {
+					"label": "Stats",
+					"placeholder": "Select stat(s)",
+					"empty": "No stat matches",
+					"open": "Show all stats",
+					"remove": "Remove stat"
+				},
+				"range": "Range ±",
+				"step": "Step",
+				"run": "Run stat sweep",
+				"progress": "Step {{current}} / {{total}}",
+				"run_label": "{{stat}} ±{{range}}",
+				"batch_label": "{{stats}} ±{{range}}",
+				"capped_label": "{{label}} (capped at {{added}})",
+				"metric": "Plotted metric",
+				"show_spread": "Show spread",
+				"show_spread_tooltip": "Shades ± 1 standard deviation of a fight's value around each line.",
+				"current_value": "Current value",
+				"added_axis": "Stat added",
+				"tooltip_total": "{{stat}} {{total}} ({{added}})",
+				"tooltip_value": "{{value}} ± {{stdev}}",
+				"tooltip_value_capped": "{{value}} ± {{stdev}} (capped)",
+				"band_key": "Shaded: ± 1 standard deviation of a fight's {{metric}}",
+				"empty": "Run a stat sweep to plot {{metric}} across each stat's range.",
+				"export_csv": "Export CSV",
+				"stopped": "Stat sweep stopped by another run. Its finished steps are kept.",
+				"history": {
+					"title": "History",
+					"delete": "Delete {{label}}",
+					"delete_batch": "Delete every run of {{label}}",
+					"show": "Show {{label}}",
+					"hide": "Hide {{label}}",
+					"show_hidden": "Show {{label}}, some runs are hidden",
+					"more_stats": "{{stats}} +{{count}}",
+					"metric": "The metric plotted when this run started, which Target ± followed",
+					"empty": "No saved stat sweeps yet."
+				},
+				"precision": {
+					"iterations_tooltip": "Iterations per step. Empty uses the sim's iteration setting.",
+					"target_ci": "Target ± ({{metric}})",
+					"target_ci_tooltip": "Keeps simulating each step until the 90% ± of its {{metric}} is at most this value. A run follows the metric plotted when it starts.",
+					"max_multiplier_tooltip": "The most iterations a step may run, as a multiple of the automatic first pass. Empty sets no cap."
 				}
 			},
 			"suggest_reforges": {

@@ -1,6 +1,8 @@
-import { StatWeightsResult, StatWeightValues } from '@generated/proto/api';
+import { StatWeightsResult, StatWeightsTargetMetric, StatWeightValues } from '@generated/proto/api';
 import { PseudoStat, Stat, UnitStats } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
+import type { PrecisionSettings } from '@sim/settings/precision';
+import type { StatWeightsOptions } from '@sim/sim';
 
 import { EP_UNIT_STATS } from './ep_unit_stats';
 
@@ -18,13 +20,12 @@ export type ExcludedStats = {
 const normaliseEpValue = (refStat: Stat, values: StatWeightValues) => {
 	const refUnitStat = UnitStat.fromStat(refStat);
 	const refWeight = refUnitStat.getProtoValue(values.weights!);
-	const refStdev = refUnitStat.getProtoValue(values.weightsStdev!);
 	EP_UNIT_STATS.forEach(stat => {
 		const value = stat.getProtoValue(values.weights!);
 		stat.setProtoValue(values.epValues!, refWeight === 0 ? 0 : value / refWeight);
 
 		const valueStdev = stat.getProtoValue(values.weightsStdev!);
-		stat.setProtoValue(values.epValuesStdev!, refStdev === 0 ? 0 : valueStdev / refStdev);
+		stat.setProtoValue(values.epValuesStdev!, refWeight === 0 ? 0 : valueStdev / Math.abs(refWeight));
 	});
 };
 
@@ -71,6 +72,24 @@ const combineScaled = (results: StatWeightsResult, epRatios: number[], select: (
 export const combineScaledEpValues = (results: StatWeightsResult, epRatios: number[]): Stats => combineScaled(results, epRatios, values => values.epValues);
 
 export const combineScaledWeights = (results: StatWeightsResult, epRatios: number[]): Stats => combineScaled(results, epRatios, values => values.weights);
+
+type EpTargetMetrics = { damage: boolean; healing: boolean; threat: boolean };
+
+const targetMetrics = (displayMetrics: EpTargetMetrics): StatWeightsTargetMetric[] => [
+	...(displayMetrics.damage ? [StatWeightsTargetMetric.StatWeightsTargetMetricDps] : []),
+	...(displayMetrics.healing ? [StatWeightsTargetMetric.StatWeightsTargetMetricHps] : []),
+	...(displayMetrics.threat ? [StatWeightsTargetMetric.StatWeightsTargetMetricTps] : []),
+];
+
+// An iteration count of 0 leaves the sim's own setting in charge. A target sends no count, since the sim sizes its first
+// pass itself, and applies to the shown metrics' EP; with none shown, the sim targets DPS EP alone.
+export const precisionRunOptions = (
+	{ precisionMode, iterations, targetCi, maxIterationMultiplier }: PrecisionSettings,
+	displayMetrics: EpTargetMetrics,
+): StatWeightsOptions =>
+	precisionMode === 'target'
+		? { targetEpCi: targetCi, maxIterationMultiplier, targetMetrics: targetMetrics(displayMetrics) }
+		: { iterations: iterations || undefined };
 
 export const epWeightsWithoutExcluded = (newWeights: Stats, oldWeights: Stats, { excludedStats, excludedPseudoStats }: ExcludedStats): Stats => {
 	let merged = newWeights;

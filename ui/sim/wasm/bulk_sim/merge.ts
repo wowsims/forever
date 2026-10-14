@@ -1,5 +1,6 @@
 import { BulkGearResult, DistributionMetrics } from '@generated/proto/api';
 
+import { mergeAggregates } from '../../utils/math';
 import { ConcurrentBulkSimCandidateResult } from './types';
 
 export const hasBulkSimStageError = (baseline: ConcurrentBulkSimCandidateResult | undefined, results: ConcurrentBulkSimCandidateResult[]): boolean => {
@@ -38,13 +39,14 @@ const mergeBulkSimDistributionMetrics = (
 	if (!metrics) return additionalMetrics;
 	if (!additionalMetrics) return metrics;
 
-	const metricsAggregator = getBulkSimDistributionMetricsAggregatorData(metrics);
-	const additionalAggregator = getBulkSimDistributionMetricsAggregatorData(additionalMetrics);
-	const totalN = metricsAggregator.n + additionalAggregator.n;
-	if (totalN <= 0) return DistributionMetrics.clone(metrics);
+	const { avg, n, sumSq, stdev } = mergeAggregates(
+		{ avg: metrics.avg, ...getBulkSimDistributionMetricsAggregatorData(metrics) },
+		{ avg: additionalMetrics.avg, ...getBulkSimDistributionMetricsAggregatorData(additionalMetrics) },
+	);
+	if (n <= 0) return DistributionMetrics.clone(metrics);
 
 	const merged = DistributionMetrics.create({
-		avg: (metrics.avg * metricsAggregator.n + additionalMetrics.avg * additionalAggregator.n) / totalN,
+		avg,
 		max: metrics.max,
 		maxSeed: metrics.maxSeed,
 		min: metrics.min,
@@ -55,10 +57,7 @@ const mergeBulkSimDistributionMetrics = (
 		// takes an array rather than spread call args (which throw RangeError past the
 		// engine's argument limit).
 		allValues: metrics.allValues.concat(additionalMetrics.allValues),
-		aggregatorData: {
-			n: totalN,
-			sumSq: metricsAggregator.sumSq + additionalAggregator.sumSq,
-		},
+		aggregatorData: { n, sumSq },
 	});
 
 	if (additionalMetrics.max > merged.max) {
@@ -74,7 +73,7 @@ const mergeBulkSimDistributionMetrics = (
 	for (const [roundedDps, count] of Object.entries(additionalMetrics.hist)) {
 		merged.hist[Number(roundedDps)] = (merged.hist[Number(roundedDps)] ?? 0) + count;
 	}
-	merged.stdev = Math.sqrt(Math.max(0, merged.aggregatorData!.sumSq / totalN - merged.avg * merged.avg));
+	merged.stdev = stdev;
 	return merged;
 };
 

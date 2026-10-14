@@ -21,6 +21,36 @@
 		&:empty {
 			@apply hidden;
 		}
+
+		&[data-disabled] {
+			@apply pointer-events-none;
+		}
+	}
+
+	/* The sizer's widest line sets the field's width; the input and the chips add nothing to it. */
+	.ui-multi-combo-box-fit {
+		@apply w-fit;
+
+		.ui-multi-combo-box-field {
+			@apply grid;
+		}
+
+		.ui-multi-combo-box-input {
+			@apply col-start-1 row-start-1 w-0 min-w-full;
+		}
+
+		.ui-multi-combo-box-chips {
+			@apply self-stretch contain-inline-size;
+		}
+	}
+
+	/* Each line pads like the input and draws its text through ::before, so find-in-page does not match the copies. */
+	.ui-multi-combo-box-sizer {
+		@apply invisible col-start-1 row-start-1 h-0 overflow-hidden;
+
+		> span {
+			@apply block px-(--input-padding-x) whitespace-nowrap before:content-[attr(data-label)];
+		}
 	}
 
 	.ui-multi-combo-box-trigger {

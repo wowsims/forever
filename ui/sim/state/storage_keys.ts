@@ -7,6 +7,7 @@ export const SAVED_ROTATION_STORAGE_KEY = '__savedRotation__';
 export const SAVED_SETTINGS_STORAGE_KEY = '__savedSettings__';
 export const SAVED_TALENTS_STORAGE_KEY = '__savedTalents__';
 export const STAT_WEIGHT_SETTINGS_STORAGE_KEY = '__statweight_settings__';
+export const STAT_SWEEP_SETTINGS_STORAGE_KEY = '__stat_sweep_settings__';
 
 // Local storage is shared by all sites under the same domain, so each spec site prefixes its keys.
 export function specStorageKey(spec: PlayerSpec<any>, keyPart: string): string {

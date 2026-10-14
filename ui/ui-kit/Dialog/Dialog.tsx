@@ -6,7 +6,7 @@ import { Icon } from '@ui-kit/Icon';
 import clsx from 'clsx';
 import type { KeyboardEventHandler, ReactNode } from 'react';
 
-export type DialogSize = 'sm' | 'md' | 'lg' | 'xl';
+export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 export interface DialogProps {
 	open: boolean;

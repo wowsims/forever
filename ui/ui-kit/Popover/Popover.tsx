@@ -3,7 +3,7 @@ import { isNativeButtonTrigger } from '@ui-kit/Button';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import type { ClassValue } from 'clsx';
 import clsx from 'clsx';
-import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type ReactElement, type ReactNode, useState } from 'react';
 
 export type PopoverSide = 'top' | 'right' | 'bottom' | 'left';
 export type PopoverAlign = 'start' | 'center' | 'end';
@@ -65,10 +65,14 @@ export const Popover = ({
 	testId,
 }: PopoverProps) => {
 	const portalContainer = usePortalContainer();
+	const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
+	// The popup is portaled out of a dialog its trigger sits in, so only this keeps it inside that dialog.
+	const collisionBoundary = triggerElement?.closest<HTMLElement>('[role="dialog"]') ?? undefined;
 	return (
 		<BasePopover.Root open={open} modal={false} onOpenChange={nextOpen => onOpenChange?.(nextOpen)}>
 			{trigger != null && (
 				<BasePopover.Trigger
+					ref={setTriggerElement}
 					render={triggerRender}
 					nativeButton={isNativeButtonTrigger(triggerRender)}
 					className={clsx(triggerClassName)}
@@ -86,7 +90,8 @@ export const Popover = ({
 					anchor={anchor}
 					side={side}
 					align={align}
-					sideOffset={sideOffset}>
+					sideOffset={sideOffset}
+					collisionBoundary={collisionBoundary}>
 					<BasePopover.Popup
 						className={clsx(
 							maxWidthClassName ?? 'max-w-(--available-width)',

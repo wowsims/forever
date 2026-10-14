@@ -95,6 +95,10 @@ func StatWeightCompute(request *proto.StatWeightsCalcRequest) *proto.StatWeights
 	return computeStatWeights(request)
 }
 
+func StatWeightTopUpPlan(request *proto.StatWeightsTopUpRequest) *proto.StatWeightsTopUpPlan {
+	return planStatWeightTopUp(request)
+}
+
 /**
  * Runs multiple iterations of the sim with a full raid.
  */

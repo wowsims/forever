@@ -3,6 +3,7 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { tooltipAnchorProps } from '@ui-kit/Tooltip';
+import type { ReactNode } from 'react';
 
 import type { EpColumn } from './types';
 import { EP_TOOLTIP_ID } from './utils';
@@ -11,15 +12,19 @@ export interface EpWeightsHeaderProps {
 	columns: EpColumn[];
 	showThreatMetrics: boolean;
 	showUpdateColumn?: boolean;
+	statAction?: ReactNode;
 }
 
 // Every label wraps: with threat metrics on, fourteen metric columns share the dialog's width.
 // The sticky cells draw the row's bottom rule themselves, in its transparent border's place: a
 // collapsed row border stays with the scrolled table, not with the header.
-export const EpWeightsHeader = ({ columns, showThreatMetrics, showUpdateColumn = true }: EpWeightsHeaderProps) => (
+export const EpWeightsHeader = ({ columns, showThreatMetrics, showUpdateColumn = true, statAction }: EpWeightsHeaderProps) => (
 	<TableRow className="border-b-transparent">
 		<TableHeaderCell wrap className={['ui-ep-weights-table-header-cell', showThreatMetrics && 'lg:max-xl:pr-0']}>
-			{i18n.t('sidebar.buttons.stat_weights.modal.column_headers.stat')}
+			<span className="inline-flex items-center gap-1">
+				{i18n.t('sidebar.buttons.stat_weights.modal.column_headers.stat')}
+				{statAction}
+			</span>
 		</TableHeaderCell>
 		{showUpdateColumn && (
 			<TableHeaderCell wrap className={['ui-ep-weights-table-header-cell', showThreatMetrics && 'lg:max-xl:pr-0']}>

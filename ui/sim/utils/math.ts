@@ -2,6 +2,7 @@
 // for sim results, and the combinatorics the bulk sim enumerates with.
 
 import { BULK_SIM_Z95 } from '../wasm/bulk_sim/constants_auto_gen';
+import { STAT_WEIGHT_Z90 } from '../wasm/stat_weights_constants_auto_gen';
 import { distinct } from './collections';
 
 export function sum(arr: Array<number>): number {
@@ -10,7 +11,27 @@ export function sum(arr: Array<number>): number {
 
 export const percentOf = (part: number, whole: number) => (part / whole) * 100;
 
+// What is left of `total` at the rate `completed` took `elapsed`, in `elapsed`'s unit; undefined before anything completes.
+export const timeRemainingAtRate = (elapsed: number, completed: number, total: number): number | undefined =>
+	completed > 0 ? (elapsed / completed) * Math.max(0, total - completed) : undefined;
+
+export interface Aggregate {
+	avg: number;
+	n: number;
+	sumSq: number;
+}
+
+// Two samples as one sample over both; n must be above 0.
+export const mergeAggregates = (a: Aggregate, b: Aggregate): Aggregate & { stdev: number } => {
+	const n = a.n + b.n;
+	const avg = (a.avg * a.n + b.avg * b.n) / n;
+	const sumSq = a.sumSq + b.sumSq;
+	return { avg, n, sumSq, stdev: Math.sqrt(Math.max(0, sumSq / n - avg * avg)) };
+};
+
 export const Z_95 = BULK_SIM_Z95;
+// The two-sided 90% interval, the ± shown behind each EP and the one Target ± sizes runs by.
+export const Z_90 = STAT_WEIGHT_Z90;
 
 // The sim's standard two-sample significance test; every "are these two results actually
 // different" decision should go through this so thresholds never diverge.
@@ -32,7 +53,7 @@ export function zTest(
 }
 
 export function stDevToConf90(stDev: number, N: number) {
-	return (1.645 * stDev) / Math.sqrt(N);
+	return (Z_90 * stDev) / Math.sqrt(N);
 }
 
 export function stDevToConf95(stDev: number, N: number) {

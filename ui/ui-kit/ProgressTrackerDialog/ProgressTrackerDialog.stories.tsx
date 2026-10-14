@@ -39,6 +39,10 @@ export const WithProgress: Story = {
 	args: { hasProgressBar: true, ref: pushSample },
 };
 
+export const WithTimeRemaining: Story = {
+	args: { hasProgressBar: true, ref: handle => handle?.setProgress({ ...SAMPLE, secondsRemaining: 95 }) },
+};
+
 export const WithStepsBelowBar: Story = {
 	args: {
 		hasProgressBar: true,

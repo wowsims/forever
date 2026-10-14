@@ -25,7 +25,8 @@ ui/
                      components/ (React, one folder per component) + hooks/ + utils/ (feature
                      helpers that are neither a component nor DOM-free). The capabilities are
                      apl, bulk, character-stats, enchant-presets, encounter, gear, import-export,
-                     item-swap, reforge, results, settings, stat-filters, stat-weights, talents.
+                     item-swap, reforge, results, settings, stat-filters, stat-sweep, stat-weights,
+                     talents.
                      alias @features
   features/hooks/    React hooks several features share and none owns (useSavedPanel,
                      useActivateTab), one per file, beside the capability folders

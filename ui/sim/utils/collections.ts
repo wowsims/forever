@@ -52,6 +52,14 @@ export function arrayEquals<T>(a: Array<T>, b: Array<T>, comparator?: (a: T, b: 
 	return a.length == b.length && a.every((val, i) => comparator!(val, b[i]));
 }
 
+// Whether every field `patch` sets already holds that value in `current`, comparing a field `equals` names with its own test.
+export function isUnchangedPatch<T extends object>(current: T, patch: Partial<T>, equals: { [K in keyof T]?: (a: T[K], b: T[K]) => boolean } = {}): boolean {
+	return (Object.keys(patch) as Array<keyof T>).every(key => {
+		const equal = equals[key] ?? ((a: T[typeof key], b: T[typeof key]) => a === b);
+		return equal(patch[key] as T[typeof key], current[key]);
+	});
+}
+
 // Returns a new array containing only elements present in both a and b.
 export function intersection<T>(a: Array<T>, b: Array<T>): Array<T> {
 	return a.filter(value => b.includes(value));

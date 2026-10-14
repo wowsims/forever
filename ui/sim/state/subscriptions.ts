@@ -6,6 +6,7 @@ import type { Encounter } from '../raid/encounter';
 import type { Party } from '../raid/party';
 import type { Raid } from '../raid/raid';
 import type { ReforgeSettings } from '../settings/reforge_settings';
+import type { StatSweepSettings } from '../settings/stat_sweep_settings';
 import type { StatWeightActionSettings } from '../settings/stat_weight_settings';
 import type { Sim } from '../sim';
 import { arrayEquals } from '../utils/collections';
@@ -235,6 +236,12 @@ export function subscribeReforgeChange(settings: ReforgeSettings): StoreSubscrib
 export function subscribeStatWeightsChange(settings: StatWeightActionSettings): StoreSubscribe {
 	const storeKey = settings.storeKey;
 	return cached(settings, 'change', () => fromSelector(settings.store, s => s.statWeights[storeKey]?.v.settings));
+}
+
+// Stat sweep settings (per player).
+export function subscribeStatSweepChange(settings: StatSweepSettings): StoreSubscribe {
+	const storeKey = settings.storeKey;
+	return cached(settings, 'change', () => fromSelector(settings.store, s => s.statSweep[storeKey]?.v.settings));
 }
 
 export function subscribePlayerStatWeightsField(player: Player<any>, field: keyof StatWeightsSlice['v']): StoreSubscribe {

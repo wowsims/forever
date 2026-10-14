@@ -1,9 +1,9 @@
-import { StatWeightsResult, StatWeightValues } from '@generated/proto/api';
+import { StatWeightsResult, StatWeightsTargetMetric, StatWeightValues } from '@generated/proto/api';
 import { PseudoStat, Stat } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { describe, expect, it } from 'vitest';
 
-import { calculateEp, combineScaledEpValues, combineScaledWeights, emptyStatWeightsResult, epWeightsWithoutExcluded } from './ep_math';
+import { calculateEp, combineScaledEpValues, combineScaledWeights, emptyStatWeightsResult, epWeightsWithoutExcluded, precisionRunOptions } from './ep_math';
 
 const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 const MAIN_HAND_DPS = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps);
@@ -70,22 +70,27 @@ describe('calculateEp', () => {
 		expect(epOf(calculated.dps, AGILITY)).toBe(0);
 	});
 
-	it('writes zero rather than dividing when the ref stdev is zero', () => {
+	it('writes a zero stdev rather than dividing when the ref weight is zero', () => {
 		const calculated = calculateEp(
-			result({ dps: values({ [Stat.StatStrength]: 4, [Stat.StatAgility]: 2 }, { [Stat.StatStrength]: 0, [Stat.StatAgility]: 3 }) }),
+			result({ dps: values({ [Stat.StatStrength]: 0, [Stat.StatAgility]: 2 }, { [Stat.StatStrength]: 2, [Stat.StatAgility]: 3 }) }),
 			{ ...noRefs, dps: Stat.StatStrength },
 		);
 
 		expect(epStdevOf(calculated.dps, AGILITY)).toBe(0);
 	});
 
-	it('normalises the stdev against the stdev ref, not the weight ref', () => {
+	it('divides the stdev by the size of the ref weight, not by the ref stdev', () => {
 		const calculated = calculateEp(
 			result({ dps: values({ [Stat.StatStrength]: 4, [Stat.StatAgility]: 2 }, { [Stat.StatStrength]: 2, [Stat.StatAgility]: 3 }) }),
 			{ ...noRefs, dps: Stat.StatStrength },
 		);
+		const negativeRef = calculateEp(
+			result({ dps: values({ [Stat.StatStrength]: -4, [Stat.StatAgility]: 2 }, { [Stat.StatStrength]: 2, [Stat.StatAgility]: 3 }) }),
+			{ ...noRefs, dps: Stat.StatStrength },
+		);
 
-		expect(epStdevOf(calculated.dps, AGILITY)).toBe(1.5);
+		expect(epStdevOf(calculated.dps, AGILITY)).toBe(0.75);
+		expect(epStdevOf(negativeRef.dps, AGILITY)).toBe(0.75);
 	});
 
 	it('normalises the listed pseudo-stats too', () => {
@@ -186,6 +191,41 @@ describe('combineScaledWeights', () => {
 		};
 
 		expect(combineScaledWeights(results, [2, 1, 1, 1, 1, 1]).getStat(Stat.StatAgility)).toBe(6);
+	});
+});
+
+describe('precisionRunOptions', () => {
+	const precision = { iterations: 4000, targetCi: 0.02, maxIterationMultiplier: 4 };
+	const shown = { damage: true, healing: true, threat: true };
+	const none = { damage: false, healing: false, threat: false };
+
+	it('sends only the iteration count in iterations mode, and none when it is 0', () => {
+		expect(precisionRunOptions({ ...precision, precisionMode: 'iterations' }, shown)).toEqual({ iterations: 4000 });
+		expect(precisionRunOptions({ ...precision, precisionMode: 'iterations', iterations: 0 }, shown).iterations).toBeUndefined();
+	});
+
+	it('sends the target and the cap in target mode, with no iteration count and no metrics when none is shown', () => {
+		expect(precisionRunOptions({ ...precision, precisionMode: 'target' }, none)).toStrictEqual({
+			targetEpCi: 0.02,
+			maxIterationMultiplier: 4,
+			targetMetrics: [],
+		});
+	});
+
+	it('targets the shown metrics in target mode only', () => {
+		expect(precisionRunOptions({ ...precision, precisionMode: 'target' }, shown)).toStrictEqual({
+			targetEpCi: 0.02,
+			maxIterationMultiplier: 4,
+			targetMetrics: [
+				StatWeightsTargetMetric.StatWeightsTargetMetricDps,
+				StatWeightsTargetMetric.StatWeightsTargetMetricHps,
+				StatWeightsTargetMetric.StatWeightsTargetMetricTps,
+			],
+		});
+		expect(precisionRunOptions({ ...precision, precisionMode: 'target' }, { damage: false, healing: true, threat: false }).targetMetrics).toEqual([
+			StatWeightsTargetMetric.StatWeightsTargetMetricHps,
+		]);
+		expect(precisionRunOptions({ ...precision, precisionMode: 'iterations' }, shown)).toEqual({ iterations: 4000 });
 	});
 });
 

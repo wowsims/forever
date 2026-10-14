@@ -1,6 +1,8 @@
 import type { StatWeightsResult, StatWeightValues } from '@generated/proto/api';
+import i18n from '@i18n/config';
 import type { DisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { storyStatFilter } from '@testing/storybook/fixtures/stat-filters';
 import { makeEpColumns, makeStatWeightsResult, STAT_WEIGHT_STATS } from '@testing/storybook/fixtures/stat-weights';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { expect, fn, within } from 'storybook/test';
@@ -59,10 +61,12 @@ const meta = {
 		onComputeEp: fn(),
 		showThreatMetrics: false,
 		showEpRatios: true,
+		statAction: storyStatFilter('ep-stat-filter', i18n.t('stat_filters.triggers.ep')),
 		children: rows(null, DAMAGE, false),
 	},
 	argTypes: {
 		columns: { control: false },
+		statAction: { control: false },
 		children: { control: false },
 		statsType: { control: 'select', options: [StatsType.Ep, StatsType.Weight] },
 	},

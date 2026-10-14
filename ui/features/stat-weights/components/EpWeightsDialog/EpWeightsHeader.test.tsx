@@ -36,4 +36,15 @@ describe('EpWeightsHeader', () => {
 		fireEvent.click(dpsEp.querySelector('[data-testid="col-action"]')!);
 		expect(onCopy).toHaveBeenCalledTimes(1);
 	});
+
+	it('puts the stat action in the Stat column header', () => {
+		const { container } = render(
+			<Table>
+				<thead>
+					<EpWeightsHeader columns={makeEpColumns()} showThreatMetrics={false} statAction={<button type="button">stat filter</button>} />
+				</thead>
+			</Table>,
+		);
+		expect(container.querySelectorAll('th')[0].querySelector('button')!.textContent).toBe('stat filter');
+	});
 });

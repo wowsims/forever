@@ -1,5 +1,6 @@
 import type { ResultsPanelHandle } from '@features/results/model/results_panel_handle';
 import type { ProgressMetrics } from '@generated/proto/api';
+import { timeRemainingAtRate } from '@sim/utils/math';
 import { flushSync } from 'react-dom';
 
 export enum ResultsPanelStage {
@@ -49,9 +50,8 @@ export class ResultsPanelStore implements ResultsPanelHandle {
 	/** Measured from the first tick after the presim, so the presim's time does not count against the iterations. */
 	secondsRemaining(progress: ProgressMetrics): number | undefined {
 		const from = this.estimateFrom;
-		const done = from ? progress.completedIterations - from.completed : 0;
-		if (!from || progress.presimRunning || done <= 0) return undefined;
-		return ((Date.now() - from.at) / 1000 / done) * Math.max(0, progress.totalIterations - progress.completedIterations);
+		if (!from || progress.presimRunning) return undefined;
+		return timeRemainingAtRate((Date.now() - from.at) / 1000, progress.completedIterations - from.completed, progress.totalIterations - from.completed);
 	}
 
 	setProgress(progress: ProgressMetrics) {

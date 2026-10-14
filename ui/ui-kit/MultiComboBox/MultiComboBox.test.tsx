@@ -109,6 +109,17 @@ describe('MultiComboBox', () => {
 		expect(input().disabled).toBe(true);
 		expect(screen.getByTestId('multi-combo-box-root').hasAttribute('data-disabled')).toBe(true);
 	});
+
+	it('keeps its picks in view while disabled, with no way to remove one', () => {
+		render(<Harness initial={[1, 3]} disabled />);
+
+		expect(chips()).toEqual(['Apple', 'Cherry']);
+		for (const chip of screen.getAllByTestId('multi-combo-box-chip')) {
+			expect(chip.hasAttribute('data-disabled')).toBe(false);
+			expect(chip.getAttribute('aria-disabled')).toBe('true');
+		}
+		expect(screen.queryAllByRole('button', { name: 'Remove' })).toEqual([]);
+	});
 });
 
 vi.mock('@ui-kit/hooks/usePortalContainer', () => ({ usePortalContainer: () => null }));

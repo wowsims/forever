@@ -6,14 +6,9 @@ import { EpWeightsOptions } from './EpWeightsOptions';
 import { StatsType } from './types';
 
 describe('EpWeightsOptions', () => {
-	it('shows the stats type and the stat filter slot, and reports a stats type change', async () => {
+	it('shows the stats type and reports a stats type change', async () => {
 		const onStatsTypeChange = vi.fn();
-		const { container } = render(
-			<EpWeightsOptions statsType={StatsType.Weight} onStatsTypeChange={onStatsTypeChange}>
-				<button type="button">stat filter</button>
-			</EpWeightsOptions>,
-		);
-		expect(screen.getByRole('button', { name: 'stat filter' })).toBeTruthy();
+		const { container } = render(<EpWeightsOptions statsType={StatsType.Weight} onStatsTypeChange={onStatsTypeChange} />);
 
 		const select = container.querySelector<HTMLElement>('#ep-type-select')!;
 		await userEvent.click(select);

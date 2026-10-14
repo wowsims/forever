@@ -76,4 +76,12 @@ export const WithPicks: Story = {
 	},
 };
 export const ManyPicks: Story = { args: { values: MORE_AREAS, value: MORE_AREAS.map(area => area.value) } };
-export const Disabled: Story = { args: { value: [3], disabled: true } };
+export const FitOptions: Story = { args: { fitOptions: true, values: MORE_AREAS, value: [1, 2, 7, 11] } };
+export const Disabled: Story = {
+	args: { value: [2, 3, 7], disabled: true },
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		for (const chip of canvas.getAllByTestId('multi-combo-box-chip')) await expect(chip).toBeVisible();
+		await expect(canvas.queryAllByRole('button', { name: 'Remove' })).toEqual([]);
+	},
+};

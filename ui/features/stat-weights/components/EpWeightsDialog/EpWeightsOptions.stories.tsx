@@ -1,6 +1,4 @@
-import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { storyStatFilter } from '@testing/storybook/fixtures/stat-filters';
 import { fn } from 'storybook/test';
 
 import { EpWeightsOptions } from './EpWeightsOptions';
@@ -13,9 +11,8 @@ const meta = {
 	args: {
 		statsType: StatsType.Ep,
 		onStatsTypeChange: fn(),
-		children: storyStatFilter('ep-stat-filter', i18n.t('stat_filters.triggers.ep')),
 	},
-	argTypes: { statsType: { control: 'select', options: [StatsType.Ep, StatsType.Weight] }, children: { control: false } },
+	argTypes: { statsType: { control: 'select', options: [StatsType.Ep, StatsType.Weight] } },
 } satisfies Meta<typeof EpWeightsOptions>;
 
 export default meta;

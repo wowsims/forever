@@ -1,34 +1,54 @@
 import { showsEpRatios } from '@features/results/model/sim_results';
 import { StatFilterPopover, useStatFilter } from '@features/stat-filters';
-import { ErrorOutcomeType, type StatWeightsResult } from '@generated/proto/api';
+import { ErrorOutcomeType, type ProgressMetrics, type StatWeightsResult } from '@generated/proto/api';
 import { Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { useSimHost, useSpecConfig } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
+import { useSimStore } from '@sim/hooks/useSimStore';
 import { useStatWeights } from '@sim/hooks/useStatWeights';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Stats } from '@sim/proto/stats';
+import { precisionRunnable } from '@sim/settings/precision';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
-import { subscribePlayerField } from '@sim/state/subscriptions';
+import { subscribePlayerField, subscribeStatWeightsChange } from '@sim/state/subscriptions';
 import { Button } from '@ui-kit/Button';
+import { ContentBlock } from '@ui-kit/ContentBlock';
 import { Dialog } from '@ui-kit/Dialog';
+import { DialogColumns } from '@ui-kit/DialogColumns';
 import { Icon } from '@ui-kit/Icon';
-import { ProgressTrackerDialog, type ProgressTrackerHandle, type ProgressTrackerState } from '@ui-kit/ProgressTrackerDialog';
+import { ProgressTrackerDialog, type ProgressTrackerHandle, type ProgressTrackerProgress, type ProgressTrackerState } from '@ui-kit/ProgressTrackerDialog';
 import { toastManager } from '@ui-kit/Toast';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { trackEvent } from '../../../../tracking/utils';
-import { calculateEp, combineScaledEpValues, combineScaledWeights, emptyStatWeightsResult, epWeightsWithoutExcluded } from '../../model/ep_math';
+import {
+	calculateEp,
+	combineScaledEpValues,
+	combineScaledWeights,
+	emptyStatWeightsResult,
+	epWeightsWithoutExcluded,
+	precisionRunOptions,
+} from '../../model/ep_math';
 import { epFilterScope } from '../../model/ep_unit_stats';
 import { statsTableColumns } from '../../model/stats_table';
+import { PrecisionOptions } from '../PrecisionOptions';
 import { SavedEpWeights } from '../SavedEpWeights';
 import { EpReferenceOptions } from './EpReferenceOptions';
 import { EpWeightsOptions } from './EpWeightsOptions';
 import { EpWeightsTable } from './EpWeightsTable';
 import { StatsType } from './types';
 import { buildEpColumns, EP_TOOLTIP_ID } from './utils';
+
+const precisionText = (key: string) => i18n.t(`sidebar.buttons.stat_weights.precision.${key}`);
+
+const trackerProgress = (metrics: ProgressMetrics): ProgressTrackerProgress => ({
+	title: `${metrics.completedSims} / ${metrics.totalSims} ${i18n.t('sidebar.buttons.stat_weights.modal.progress.simulations_complete')}`,
+	current: metrics.completedIterations,
+	total: metrics.totalIterations,
+});
 
 export interface EpWeightsDialogProps {
 	open: boolean;
@@ -58,14 +78,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 		isAborting,
 		abort,
 		start: startStatWeights,
-	} = useStatWeights({
-		onProgress: metrics =>
-			progressRef.current?.setProgress({
-				title: `${metrics.completedSims} / ${metrics.totalSims} ${i18n.t('sidebar.buttons.stat_weights.modal.progress.simulations_complete')}`,
-				current: metrics.completedIterations,
-				total: metrics.totalIterations,
-			}),
-	});
+	} = useStatWeights({ onProgress: metrics => progressRef.current?.setProgress(trackerProgress(metrics)) });
 
 	const simDisplayMetrics = useDisplayMetrics(sim);
 	// A gear planner never computes weights, so none of the computed columns apply: only the
@@ -79,8 +92,12 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 		heal: player.getRefStat('healRefStat'),
 		tank: player.getRefStat('tankRefStat'),
 	}));
+	const dpsReferenceStat = refStats.dps ?? epReferenceStat;
+	const hpsReferenceStat = refStats.heal ?? epReferenceStat;
 	const epRatios = useStoreSubscribe(subscribePlayerField(player, 'epRatios'), () => player.getEpRatios());
 	const epWeights = usePlayerStore('epWeights');
+	const precision = useStoreSubscribe(subscribeStatWeightsChange(settings), () => settings.precision);
+	const defaultIterations = useSimStore('iterations');
 
 	// `calculateEp` writes `epValues` from `weights`, which normalisation leaves alone.
 	const result = useMemo(() => (simResult ? calculateEp(simResult, refStats) : null), [simResult, refStats]);
@@ -97,13 +114,13 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 				statsTableColumns({
 					getPrevSimResult: () => prevSimResult,
 					getDefaultEpWeights: () => individualConfig.defaults.epWeights.toProto(),
-					getDpsEpRefStat: () => refStats.dps ?? epReferenceStat,
-					getHealEpRefStat: () => refStats.heal ?? epReferenceStat,
+					getDpsEpRefStat: () => dpsReferenceStat,
+					getHealEpRefStat: () => hpsReferenceStat,
 					getTankEpRefStat: () => refStats.tank ?? Stat.StatArmor,
 				}),
 				weights => applyWeights(Stats.fromProto(weights)),
 			),
-		[prevSimResult, individualConfig, refStats, epReferenceStat, applyWeights],
+		[prevSimResult, individualConfig, dpsReferenceStat, hpsReferenceStat, refStats, applyWeights],
 	);
 	const visibleColumns = useMemo(() => columns.filter(column => !column.metric || displayMetrics[column.metric]), [columns, displayMetrics]);
 
@@ -136,12 +153,14 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 		let result: StatWeightsResult | null = null;
 		let runIterations = 0;
 		try {
-			runIterations = sim.getIterations();
+			runIterations = precision.iterations || sim.getIterations();
 			setProgress({ stage: 'running' });
 			result = await startStatWeights({
 				epStats: epStats.filter(stat => !settings.isStatExcludedFromCalc(stat)),
 				epPseudoStats: epPseudoStats.filter(pseudoStat => !settings.isPseudoStatExcludedFromCalc(pseudoStat)),
-				epReferenceStat,
+				// A target is measured against these stats' weights, so they have to be the ones the shown ± divides by.
+				epReferenceStat: dpsReferenceStat,
+				options: { ...precisionRunOptions(precision, displayMetrics), hpsReferenceStat },
 			});
 			if (result.error) {
 				if (result.error.type === ErrorOutcomeType.ErrorOutcomeAborted)
@@ -160,31 +179,27 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 		if (!result) return;
 		setIterations(runIterations);
 		setSimResult(result);
-	}, [sim, settings, epStats, epPseudoStats, epReferenceStat, isRunning, startStatWeights]);
+	}, [sim, settings, precision, displayMetrics, dpsReferenceStat, hpsReferenceStat, epStats, epPseudoStats, isRunning, startStatWeights]);
 
 	return (
 		<Dialog
 			open={open}
 			onOpenChange={handleOpenChange}
 			testId="ep-weights-menu"
-			size={showThreatMetrics ? 'xl' : 'lg'}
+			size="xl"
 			scrollContents
 			title={i18n.t('sidebar.buttons.stat_weights.modal.title')}
 			footer={
 				// A gear planner keeps the editor and drops the calculation: there is no sim to run it on.
 				host.simDisabled ? undefined : (
-					<Button data-testid="calc-weights" disabled={isRunning} onClick={() => void onCalculate()}>
+					<Button data-testid="calc-weights" disabled={isRunning || !precisionRunnable(precision)} onClick={() => void onCalculate()}>
 						<Icon name="calculator" />
 						{i18n.t('sidebar.buttons.stat_weights.modal.calculate')}
 					</Button>
 				)
 			}>
-			<div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-				<div className="order-1 w-full lg:order-0">
-					<EpWeightsOptions statsType={statsType} onStatsTypeChange={setStatsType}>
-						<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />
-					</EpWeightsOptions>
-					{!editOnly && <EpReferenceOptions epStats={epStats} epReferenceStat={epReferenceStat} displayMetrics={displayMetrics} />}
+			<DialogColumns.Root>
+				<DialogColumns.Main>
 					<p>
 						{i18n.t('sidebar.buttons.stat_weights.modal.current_ep_description')}
 						{!editOnly && (
@@ -211,12 +226,37 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						showEpRatios={showEpRatios}
 						displayMetrics={displayMetrics}
 						showUpdateColumn={!editOnly}
+						statAction={<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />}
 					/>
-				</div>
-				<div className="ui-ep-weights-sidebar order-0 min-w-42 lg:sticky lg:top-0 lg:z-sticky lg:order-1">
+				</DialogColumns.Main>
+				<DialogColumns.Sidebar className="ui-ep-weights-sidebar">
 					<SavedEpWeights />
-				</div>
-			</div>
+					<ContentBlock config={{ header: { title: i18n.t('sidebar.buttons.stat_weights.modal.settings') } }}>
+						<div className="flex flex-col gap-4">
+							<div className="ui-ep-weights-settings-grid">
+								<EpWeightsOptions statsType={statsType} onStatsTypeChange={setStatsType} />
+							</div>
+							{!editOnly && (
+								<>
+									<EpReferenceOptions epStats={epStats} epReferenceStat={epReferenceStat} displayMetrics={displayMetrics} />
+									<PrecisionOptions
+										value={precision}
+										onChange={patch => settings.setPrecision(patch)}
+										defaultIterations={defaultIterations}
+										idPrefix="ep-precision"
+										targetLabel={precisionText('target_ci')}
+										targetTooltip={precisionText('target_ci_tooltip')}
+										iterationsTooltip={precisionText('iterations_tooltip')}
+										maxMultiplierTooltip={precisionText('max_multiplier_tooltip')}
+										maxDecimalDigits={4}
+										disabled={isRunning}
+									/>
+								</>
+							)}
+						</div>
+					</ContentBlock>
+				</DialogColumns.Sidebar>
+			</DialogColumns.Root>
 			<Tooltip id={EP_TOOLTIP_ID} />
 			{isRunning && (
 				<ProgressTrackerDialog

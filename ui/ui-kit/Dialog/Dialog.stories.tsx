@@ -5,7 +5,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { Dialog, type DialogProps, type DialogSize } from './Dialog';
 
-const SIZES: Array<DialogSize> = ['sm', 'md', 'lg', 'xl'];
+const SIZES: Array<DialogSize> = ['sm', 'md', 'lg', 'xl', 'full'];
 
 interface DialogStoryProps extends DialogProps {
 	trigger?: string;
@@ -117,6 +117,11 @@ export const ScrollContents: Story = {
 			</ol>
 		),
 	},
+};
+
+/** The viewport inset in both directions, for a tool that wants all the room it can get; the body scrolls inside it. */
+export const Full: Story = {
+	args: { size: 'full', scrollContents: true, title: 'Stat sweep', footer: <Button>Run</Button> },
 };
 
 export const PreventClose: Story = {

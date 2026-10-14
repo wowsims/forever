@@ -26,7 +26,7 @@ back the character-stat recomputation until the load ends and then runs it once:
 4. `env.location.setHash('')`
 5. `player.setName('Player')`
 6. `opts.autosaveSubscribe(schedulePersist)`, last, so initialization does not re-store what it just loaded
-7. `opts.statWeightSettings.load()`
+7. `opts.statWeightSettings.load()`, then `opts.statSweepSettings.load()`
 
 Then one explicit `persist()` outside the batch, because the autosave subscription only sees changes made after it
 existed.
@@ -43,9 +43,11 @@ The caller builds the key and hands it in; the state layer never derives one. `S
 spec's key. The suffixes live in `ui/sim/state/storage_keys.ts` (the saved-data slots and
 `STAT_WEIGHT_SETTINGS_STORAGE_KEY`) and in `persistence.ts` (`SETTINGS_STORAGE_SUFFIX` for the settings envelope).
 
-`SHARED_SAVED_ENCOUNTER_STORAGE_KEY` is the one key without the spec prefix, so saved encounters are shared across
-every sim. A new key goes through `getStorageKey` unless it must be shared across specs, and then says so in a
-comment, since the shared form is easy to copy by accident.
+A few keys skip the spec prefix, so every sim shares them: `SHARED_SAVED_ENCOUNTER_STORAGE_KEY` (saved encounters),
+and in `ui/sim/sim.ts` the app-wide preferences `WASM_CONCURRENCY_STORAGE_KEY` and `SHOW_POWER_TOOLS_STORAGE_KEY`.
+`Sim` reads those two in its constructor and writes them in their setters; they stay out of the settings envelope, so
+a spec's Restore Defaults leaves them alone. A new key goes through `getStorageKey` unless it must be shared across
+specs, and then says so in a comment, since the shared form is easy to copy by accident.
 
 ## The envelope
 

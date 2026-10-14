@@ -140,6 +140,8 @@ export const StatWeightRow = ({
 		.map(({ statWeights, metric }, ratioIndex) => ({ statWeights, metric, ratioIndex, epRatio: epRatios[ratioIndex] }))
 		.filter(entry => displayMetrics[entry.metric]);
 	const currentEp = epWeights.getUnitStat(stat);
+	// A result without per-stat counts falls back to the run's iteration count.
+	const samples = (rowResult?.sampleCounts && stat.getProtoValue(rowResult.sampleCounts)) || iterations;
 
 	return (
 		<StatWeightRowView
@@ -147,7 +149,7 @@ export const StatWeightRow = ({
 			fullName={stat.getFullName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
 			metrics={metrics}
-			iterations={iterations}
+			iterations={samples}
 			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}
 			currentEp={currentEp}
 			onCurrentEpChange={value => player.setEpWeights(player.getEpWeights().withUnitStat(stat, value))}

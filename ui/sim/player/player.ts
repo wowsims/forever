@@ -48,7 +48,7 @@ import { MAX_PARTY_SIZE, Party } from '../raid/party';
 import { Raid } from '../raid/raid';
 import { ConsumableSlot, isEnchantRelevantFor, relevantConsumableIds } from '../settings/consumables';
 import { ItemSwapSettings } from '../settings/item_swap_settings';
-import { Sim } from '../sim';
+import { Sim, type StatWeightsOptions } from '../sim';
 import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
 import { playerBrokenTalentNames, playerTalentStringToProto } from '../talents/factory';
@@ -586,8 +586,9 @@ export class Player<SpecType extends Spec> {
 		epPseudoStats: Array<PseudoStat>,
 		epReferenceStat: Stat,
 		onProgress: WorkerProgressCallback,
+		options?: StatWeightsOptions,
 	): Promise<StatWeightsResult> {
-		return await this.sim.statWeights(this, epStats, epPseudoStats, epReferenceStat, onProgress);
+		return await this.sim.statWeights(this, epStats, epPseudoStats, epReferenceStat, onProgress, options);
 	}
 
 	getCurrentStats(): PlayerStats {

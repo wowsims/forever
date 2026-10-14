@@ -3,7 +3,8 @@ export const enum RequestTypes {
 	StatWeights = 0x2,
 	ReforgeOptimize = 0x4,
 	BulkSim = 0x8,
-	All = 0xf,
+	StatSweep = 0x10,
+	All = 0x1f,
 }
 
 class TriggerSignal {

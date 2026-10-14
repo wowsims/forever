@@ -12,4 +12,6 @@ export interface MultiComboBoxProps extends FieldFrameProps, ControlledProps<Arr
 	emptyText?: string;
 	removeLabel?: string;
 	openLabel?: string;
+	/** Sizes the field to its widest option name or placeholder instead of the row; the chips wrap inside that width. */
+	fitOptions?: boolean;
 }

@@ -15,6 +15,7 @@ export enum SimRequest {
 	statWeightsAsync = 'statWeightsAsync',
 	statWeightRequests = 'statWeightRequests',
 	statWeightCompute = 'statWeightCompute',
+	statWeightTopUpPlan = 'statWeightTopUpPlan',
 	raidSimRequestSplit = 'raidSimRequestSplit',
 	raidSimResultCombination = 'raidSimResultCombination',
 	abortById = 'abortById',

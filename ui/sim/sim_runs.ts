@@ -6,6 +6,7 @@ const REQUEST_TYPE: Record<SimRunKind, RequestTypes> = {
 	[SimRunKind.IndividualSim]: RequestTypes.IndividualSim,
 	[SimRunKind.BulkSim]: RequestTypes.BulkSim,
 	[SimRunKind.StatWeights]: RequestTypes.StatWeights,
+	[SimRunKind.StatSweep]: RequestTypes.StatSweep,
 	[SimRunKind.ReforgeOptimize]: RequestTypes.ReforgeOptimize,
 };
 
@@ -16,6 +17,7 @@ const REQUEST_TYPE: Record<SimRunKind, RequestTypes> = {
 const ABORT_SCOPE: Record<SimRunKind, RequestTypes> = {
 	...REQUEST_TYPE,
 	[SimRunKind.StatWeights]: RequestTypes.All,
+	[SimRunKind.StatSweep]: RequestTypes.All,
 };
 
 export interface RunContext<TProgress> {

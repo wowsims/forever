@@ -29,7 +29,7 @@ import { ENCOUNTER_DEFAULTS } from '../constants/encounter';
 import { CURRENT_PHASE } from '../constants/other';
 import type { EquippedItem } from '../proto/equipped_item';
 import type { Gear, ItemSwapGear } from '../proto/gear';
-import type { StatCap, Stats } from '../proto/stats';
+import type { StatCap, Stats, UnitStat } from '../proto/stats';
 
 // Presentation flags (owned by UISettings).
 export interface UISlice {
@@ -37,6 +37,7 @@ export interface UISlice {
 	showThreatMetrics: boolean;
 	showHealingMetrics: boolean;
 	showExperimental: boolean;
+	showPowerTools: boolean;
 	wasmConcurrency: number;
 	showQuickSwap: boolean;
 	showEPValues: boolean;
@@ -191,10 +192,34 @@ export interface ReforgeSlice {
 	v: Record<ReforgeField, number>;
 }
 
+// A fixed iteration count, or simulating each EP stat or sweep step until its ± reaches a target.
+export type PrecisionMode = 'iterations' | 'target';
+
 // Stat-weight modal settings, one slice per player (keyed by storeKey).
 export interface StatWeightsSlice {
 	excludedStats: Array<number>;
 	excludedPseudoStats: Array<number>;
+	precisionMode: PrecisionMode;
+	iterations: number; // 0 runs the global sim iteration count.
+	targetCi: number; // The 90% ± of each EP to reach.
+	maxIterationMultiplier: number; // Caps a stat's iterations at this multiple of the probe count; 0 means no cap.
+	v: { settings: number };
+}
+
+// The metrics a stat sweep records at every step.
+export type StatSweepMetric = 'dps' | 'hps' | 'tps' | 'dtps' | 'tmi';
+
+// Stat sweep settings, one slice per player (keyed by storeKey).
+export interface StatSweepSlice {
+	stats: UnitStat[] | null; // null, or only ones the spec does not offer, means the first one offered, and [] means none.
+	range: number;
+	step: number;
+	metric: StatSweepMetric; // Plotted when offered, else DPS; a run's Target ± follows the one plotted when it starts.
+	showSpread: boolean; // Shades ± 1 standard deviation around each line.
+	precisionMode: PrecisionMode;
+	iterations: number; // 0 runs the global sim iteration count.
+	targetCi: number; // In the units of the run's metric.
+	maxIterationMultiplier: number; // Caps a step's iterations at this multiple of its first pass; 0 means no cap.
 	v: { settings: number };
 }
 
@@ -230,6 +255,7 @@ export enum SimRunKind {
 	IndividualSim = 'individual-sim',
 	BulkSim = 'bulk-sim',
 	StatWeights = 'stat-weights',
+	StatSweep = 'stat-sweep',
 	ReforgeOptimize = 'reforge-optimize',
 }
 
@@ -244,6 +270,7 @@ export interface SimState {
 	runs: Record<SimRunKind, RunSlice>;
 	reforge: { [storeKey: number]: ReforgeSlice };
 	statWeights: { [storeKey: number]: StatWeightsSlice };
+	statSweep: { [storeKey: number]: StatSweepSlice };
 	bulk: { [storeKey: number]: BulkSlice };
 	sim: SimSettingsSlice;
 	ui: UISlice;
@@ -269,6 +296,7 @@ const initialState = (): SimState => ({
 		showThreatMetrics: false,
 		showHealingMetrics: false,
 		showExperimental: false,
+		showPowerTools: false,
 		wasmConcurrency: 0,
 		showQuickSwap: true,
 		showEPValues: false,
@@ -296,6 +324,7 @@ const initialState = (): SimState => ({
 	players: {},
 	reforge: {},
 	statWeights: {},
+	statSweep: {},
 	bulk: {},
 });
 
@@ -328,7 +357,7 @@ export function patchSlice<N extends UnkeyedSlice>(store: SimStore, slice: N, pa
 // The slices keyed by a player's storeKey. Single source of truth: `KeyedSlice`
 // is derived from it, and deleteKeyed iterates it, so adding a keyed slice
 // cannot leave the disposal path behind.
-export const KEYED_SLICES = ['players', 'reforge', 'statWeights', 'bulk'] as const;
+export const KEYED_SLICES = ['players', 'reforge', 'statWeights', 'statSweep', 'bulk'] as const;
 type KeyedSlice = (typeof KEYED_SLICES)[number];
 type KeyedEntry<N extends KeyedSlice> = SimState[N][number];
 type Versions<N extends KeyedSlice> = KeyedEntry<N>['v'];

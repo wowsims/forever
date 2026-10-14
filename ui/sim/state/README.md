@@ -28,7 +28,8 @@ event system.
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, partyBuffs[5], composition[5][5] (player storeKeys) |
 | `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values (`PlayerSlice`) + per-field version counters (`v`, keyed by `PLAYER_FIELDS`)                     |
 | `reforge[storeKey]`     | `ReforgeSettings`                  | reforge-optimizer settings (`REFORGE_FIELDS`) + counters                                                    |
-| `statWeights[storeKey]` | `StatWeightActionSettings`         | excluded stats + counter                                                                                    |
+| `statWeights[storeKey]` | `StatWeightActionSettings`         | excluded stats, EP precision settings + counter                                                             |
+| `statSweep[storeKey]`   | `StatSweepSettings`                | the stat sweep's stats, range, step, plotted metric and precision settings + counter                        |
 | `bulk[storeKey]`        | `ui/sim/settings/bulk_settings.ts` | batch items + picker groups, batch settings, run flag, results, combination count + counters                |
 | `runs`                  | `SimRuns` (`ui/sim/sim_runs.ts`)   | `{ isRunning, isAborting }` per `SimRunKind`, written through `patchRun`                                    |
 
@@ -120,7 +121,7 @@ directory is exactly: `sim_store`, `batch`, `events`, `subscriptions`,
 ## Player lifetime
 
 `Player.dispose()` unsubscribes its store reactions and drops its `players` /
-`reforge` / `statWeights` / `bulk` slices on the next tick. Discard rule: `Party.setPlayer`
+`reforge` / `statWeights` / `statSweep` / `bulk` slices on the next tick. Discard rule: `Party.setPlayer`
 disposes a _displaced_ player on the next microtask if it still has no party — moves
 and swaps re-place the instance within the same task and are never disposed; removals
 (`setPlayer(…, null)`) never dispose. Explicit `dispose()` remains for `Party.fromProto`

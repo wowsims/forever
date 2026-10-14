@@ -1108,6 +1108,19 @@
 						"toggle_item"
 					]
 				},
+				"precision": {
+					"type": "object",
+					"properties": {
+						"label": { "type": "string" },
+						"mode_iterations": { "type": "string" },
+						"mode_target": { "type": "string" },
+						"iterations": { "type": "string" },
+						"max_multiplier": { "type": "string" },
+						"max_multiplier_none": { "type": "string" }
+					},
+					"additionalProperties": false,
+					"required": ["label", "mode_iterations", "mode_target", "iterations", "max_multiplier", "max_multiplier_none"]
+				},
 				"preset": {
 					"type": "object",
 					"properties": {
@@ -1577,6 +1590,7 @@
 				"currency",
 				"copy_button",
 				"list_picker",
+				"precision",
 				"preset",
 				"dungeon_difficulties",
 				"rep_levels",
@@ -9703,6 +9717,12 @@
 								"show_experimental": {
 									"type": "string"
 								},
+								"show_power_tools": {
+									"type": "string"
+								},
+								"show_power_tools_tooltip": {
+									"type": "string"
+								},
 								"show_quick_swap": {
 									"type": "string"
 								},
@@ -9720,6 +9740,8 @@
 							"required": [
 								"show_threat_metrics",
 								"show_experimental",
+								"show_power_tools",
+								"show_power_tools_tooltip",
 								"show_quick_swap",
 								"show_threat_metrics_tooltip",
 								"show_experimental_tooltip",
@@ -9848,7 +9870,10 @@
 										"weights": {
 											"type": "string"
 										},
-										"stats_type": {
+										"settings": {
+											"type": "string"
+										},
+										"show_as": {
 											"type": "string"
 										},
 										"dps_tps_reference": {
@@ -10129,7 +10154,8 @@
 										"title",
 										"ep",
 										"weights",
-										"stats_type",
+										"settings",
+										"show_as",
 										"dps_tps_reference",
 										"healing_reference",
 										"mitigation_reference",
@@ -10171,10 +10197,113 @@
 									},
 									"additionalProperties": false,
 									"required": ["title"]
+								},
+								"precision": {
+									"type": "object",
+									"properties": {
+										"iterations_tooltip": { "type": "string" },
+										"target_ci": { "type": "string" },
+										"target_ci_tooltip": { "type": "string" },
+										"max_multiplier_tooltip": { "type": "string" }
+									},
+									"additionalProperties": false,
+									"required": ["iterations_tooltip", "target_ci", "target_ci_tooltip", "max_multiplier_tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "modal", "saved_ep_weights"]
+							"required": ["title", "modal", "saved_ep_weights", "precision"]
+						},
+						"stat_sweep": {
+							"type": "object",
+							"properties": {
+								"title": { "type": "string" },
+								"settings": { "type": "string" },
+								"stats": {
+									"type": "object",
+									"properties": {
+										"label": { "type": "string" },
+										"placeholder": { "type": "string" },
+										"empty": { "type": "string" },
+										"open": { "type": "string" },
+										"remove": { "type": "string" }
+									},
+									"additionalProperties": false,
+									"required": ["label", "placeholder", "empty", "open", "remove"]
+								},
+								"range": { "type": "string" },
+								"step": { "type": "string" },
+								"run": { "type": "string" },
+								"progress": { "type": "string" },
+								"run_label": { "type": "string" },
+								"batch_label": { "type": "string" },
+								"capped_label": { "type": "string" },
+								"metric": { "type": "string" },
+								"show_spread": { "type": "string" },
+								"show_spread_tooltip": { "type": "string" },
+								"current_value": { "type": "string" },
+								"added_axis": { "type": "string" },
+								"tooltip_total": { "type": "string" },
+								"tooltip_value": { "type": "string" },
+								"tooltip_value_capped": { "type": "string" },
+								"band_key": { "type": "string" },
+								"empty": { "type": "string" },
+								"export_csv": { "type": "string" },
+								"stopped": { "type": "string" },
+								"history": {
+									"type": "object",
+									"properties": {
+										"title": { "type": "string" },
+										"delete": { "type": "string" },
+										"delete_batch": { "type": "string" },
+										"show": { "type": "string" },
+										"hide": { "type": "string" },
+										"show_hidden": { "type": "string" },
+										"more_stats": { "type": "string" },
+										"metric": { "type": "string" },
+										"empty": { "type": "string" }
+									},
+									"additionalProperties": false,
+									"required": ["title", "delete", "delete_batch", "show", "hide", "show_hidden", "more_stats", "metric", "empty"]
+								},
+								"precision": {
+									"type": "object",
+									"properties": {
+										"iterations_tooltip": { "type": "string" },
+										"target_ci": { "type": "string" },
+										"target_ci_tooltip": { "type": "string" },
+										"max_multiplier_tooltip": { "type": "string" }
+									},
+									"additionalProperties": false,
+									"required": ["iterations_tooltip", "target_ci", "target_ci_tooltip", "max_multiplier_tooltip"]
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"title",
+								"settings",
+								"stats",
+								"range",
+								"step",
+								"run",
+								"progress",
+								"run_label",
+								"batch_label",
+								"capped_label",
+								"metric",
+								"show_spread",
+								"show_spread_tooltip",
+								"current_value",
+								"added_axis",
+								"tooltip_total",
+								"tooltip_value",
+								"tooltip_value_capped",
+								"band_key",
+								"empty",
+								"export_csv",
+								"stopped",
+								"history",
+								"precision"
+							]
 						},
 						"suggest_reforges": {
 							"type": "object",
@@ -10347,7 +10476,7 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["simulate", "stat_weights", "suggest_reforges"]
+					"required": ["simulate", "stat_weights", "stat_sweep", "suggest_reforges"]
 				},
 				"header": {
 					"type": "object",

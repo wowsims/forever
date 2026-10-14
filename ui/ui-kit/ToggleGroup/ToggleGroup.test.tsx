@@ -44,6 +44,15 @@ describe('ToggleGroup', () => {
 		expect(onChange).not.toHaveBeenCalled();
 	});
 
+	it('disables every option while disabled', () => {
+		const onChange = vi.fn();
+		render(<ToggleGroup options={OPTIONS} value="one" onChange={onChange} aria-label="Pick one" disabled />);
+
+		expect(screen.getAllByRole<HTMLButtonElement>('button').map(button => button.disabled)).toEqual([true, true, true]);
+		fireEvent.click(screen.getByRole('button', { name: 'Two' }));
+		expect(onChange).not.toHaveBeenCalled();
+	});
+
 	it('passes the small size to the group', () => {
 		mount('one', 'sm');
 

@@ -52,3 +52,5 @@ export const Default: Story = {
 };
 
 export const Small: Story = { args: { size: 'sm' } };
+
+export const Disabled: Story = { args: { disabled: true } };

@@ -3,6 +3,7 @@ import { Stat } from '@generated/proto/common';
 import { DatabaseFilters, IndividualSimSettings, SimSettings, StatFilters, StatSelection } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import { UnitStat } from '@sim/proto/stats';
+import type { StatSweepSettings } from '@sim/settings/stat_sweep_settings';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import { type IndividualSettingsHost, loadIndividualSettings } from '@sim/state/persistence';
 
@@ -29,4 +30,5 @@ export const loadSettings = ({ host, player }: { host: IndividualSettingsHost; p
 		player,
 		autosaveSubscribe: () => () => {},
 		statWeightSettings: { load: () => {} } as unknown as StatWeightActionSettings,
+		statSweepSettings: { load: () => {} } as unknown as StatSweepSettings,
 	});

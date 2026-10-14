@@ -11,6 +11,8 @@ export interface ProgressTrackerProgress {
 	title?: string;
 	current?: number;
 	total?: number;
+	/** Shows the time left on a line of its own; null keeps the line empty until there is an estimate, so the dialog does not grow. */
+	secondsRemaining?: number | null;
 }
 
 export interface ProgressTrackerHandle {
