@@ -39,18 +39,18 @@ export const SimImportExport = () => {
 						<ImportExportItem label="JSON" dialog={JsonImporterDialog} />
 						<ImportExportItem label="60U" dialog={SixtyUpgradesImporterDialog} />
 						<ImportExportItem label="WoWHead" dialog={WowheadImporterDialog} />
-						<ImportExportItem label="Addon" dialog={AddonImporterDialog} />
+						<ImportExportItem label={i18n.t('import.menu.addon')} dialog={AddonImporterDialog} />
 					</>
 				)}
 			</ImportExportMenu>
 			<ImportExportMenu kind={ImportExportKind.Export} icon="right-from-bracket" title={i18n.t('export.title')}>
 				{ready && (
 					<>
-						<ImportExportItem label="Link" dialog={LinkExporterDialog} />
+						<ImportExportItem label={i18n.t('export.menu.link')} dialog={LinkExporterDialog} />
 						<ImportExportItem label="JSON" dialog={JsonExporterDialog} />
 						<ImportExportItem label="WoWHead" dialog={WowheadExporterDialog} />
-						<ImportExportItem label="60U EP" dialog={SixtyUpgradesExporterDialog} />
-						<ImportExportItem label="Pawn EP" dialog={PawnExporterDialog} />
+						<ImportExportItem label={i18n.t('export.menu.sixty_upgrades_ep')} dialog={SixtyUpgradesExporterDialog} />
+						<ImportExportItem label={i18n.t('export.menu.pawn_ep')} dialog={PawnExporterDialog} />
 						<ImportExportItem label="CLI" dialog={CliExporterDialog} />
 					</>
 				)}

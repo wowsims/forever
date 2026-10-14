@@ -1,4 +1,5 @@
 import { ResourceType } from '@generated/proto/spell';
+import i18n from '@i18n/config';
 import { DpsLog, ResourceGroupLog, ThreatLogGroup } from '@sim/proto/combat_log';
 import { resourceColors, resourceNames } from '@sim/proto/names';
 import { UnitMetrics } from '@sim/proto/sim_result';
@@ -53,7 +54,7 @@ export function timeScale(duration: number, label: string): ScaleOptions<'linear
 }
 
 export function dpsScale(maxDps: number): ScaleOptions<'linear'> {
-	return valueScale(dpsColor(), 'DPS', Math.max(100, Math.ceil((maxDps || 0) / 100) * 100));
+	return valueScale(dpsColor(), i18n.t('results_tab.details.timeline.tooltips.dps'), Math.max(100, Math.ceil((maxDps || 0) / 100) * 100));
 }
 
 // 'auto' shows the axis exactly while a dataset drawn against it is visible, so the threat line
@@ -64,7 +65,7 @@ export function threatScale(maxThreat: number): ScaleOptions<'linear'> {
 }
 
 export function manaScale(maxMana: number): ScaleOptions<'linear'> {
-	return valueScale(manaColor(), 'Mana', maxMana, {
+	return valueScale(manaColor(), i18n.t('common.resource_types.mana'), maxMana, {
 		position: 'right',
 		ticks: {
 			color: manaColor(),
@@ -90,7 +91,7 @@ export function dpsDataset(unit: UnitMetrics, seriesId: string, borderColor: str
 		maxDps,
 		dataset: {
 			seriesId,
-			label: 'DPS',
+			label: i18n.t('results_tab.details.timeline.tooltips.dps'),
 			yAxisID: Y_DPS,
 			borderColor,
 			...LINE_DATASET,
@@ -125,7 +126,7 @@ export function manaDataset(unit: UnitMetrics): { dataset: TimelineDataset<Resou
 		maxMana,
 		dataset: {
 			seriesId: MANA_SERIES_ID,
-			label: 'Mana',
+			label: i18n.t('common.resource_types.mana'),
 			yAxisID: Y_MANA,
 			borderColor: manaColor(),
 			...LINE_DATASET,

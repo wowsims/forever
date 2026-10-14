@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import { ChoiceField } from '@ui-kit/ChoiceField';
 import { useMemo } from 'react';
 
@@ -29,7 +30,7 @@ export const ResultsFilter = ({ target, onTargetChange }: ResultsFilterProps) =>
 				onChange={onTargetChange}
 				disabled={!resultData}
 				variant="link"
-				placeholder="Unit"
+				placeholder={i18n.t('results_tab.details.unit')}
 			/>
 		</div>
 	);

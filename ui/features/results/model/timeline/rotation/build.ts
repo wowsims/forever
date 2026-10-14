@@ -1,9 +1,9 @@
 import { ResourceType } from '@generated/proto/spell';
+import i18n from '@i18n/config';
 import { ActionId, buffAuraToSpellIdMap, resourceTypeToIcon } from '@sim/proto/action_id';
 import type { AuraUptimeLog, CastLog, ResourceGroupLog } from '@sim/proto/combat_log';
-import { resourceNames } from '@sim/proto/names';
+import { resourceCssName, resourceNames } from '@sim/proto/names';
 import type { UnitMetrics } from '@sim/proto/sim_result';
-import { kebabCase } from '@sim/utils/format';
 
 import {
 	actionBucketKey,
@@ -234,7 +234,7 @@ export function buildRotationModel({ player, targets, duration, showGcd }: Build
 
 		const label = resourceNames.get(resourceType)!;
 		const icon = resourceTypeToIcon[resourceType];
-		const cssName = kebabCase(label);
+		const cssName = resourceCssName(resourceType);
 
 		const items: Array<RowItem> = resourceItems(resourceType, resourceLogs, duration);
 		addContentRow(section, {
@@ -259,7 +259,7 @@ export function buildRotationModel({ player, targets, duration, showGcd }: Build
 			key: makeRowKey(section.id, 'gcd', 'gcd'),
 			section: section.id,
 			height: ROW_HEIGHTS.gcd,
-			label: 'GCD',
+			label: i18n.t('results_tab.details.timeline.gcd'),
 			items,
 			maxRightUpTo: sortAndPrefixMax(items),
 		});

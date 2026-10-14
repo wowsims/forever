@@ -265,12 +265,18 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 			<Tooltip
 				id={`${tooltipId}-favourite`}
 				render={({ activeAnchor }) =>
-					(activeAnchor as HTMLElement | null)?.dataset.favourited === 'true' ? 'Remove from favorites' : 'Add to favorites'
+					(activeAnchor as HTMLElement | null)?.dataset.favourited === 'true'
+						? i18n.t('gear_tab.gear_picker.row_actions.remove_favorite')
+						: i18n.t('gear_tab.gear_picker.row_actions.add_favorite')
 				}
 			/>
 			<Tooltip
 				id={`${tooltipId}-compare`}
-				render={({ activeAnchor }) => ((activeAnchor as HTMLElement | null)?.dataset.inBatch === 'true' ? 'Remove from Batch Sim' : 'Add to Batch Sim')}
+				render={({ activeAnchor }) =>
+					(activeAnchor as HTMLElement | null)?.dataset.inBatch === 'true'
+						? i18n.t('gear_tab.gear_picker.row_actions.remove_from_batch')
+						: i18n.t('gear_tab.gear_picker.row_actions.add_to_batch')
+				}
 			/>
 		</>
 	);

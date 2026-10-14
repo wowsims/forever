@@ -123,7 +123,7 @@ function readHash(hash: string): WowheadGearPlannerImportJSON {
 function parseWowheadGearLink(link: string): WowheadGearPlannerImportJSON {
 	const match = link.match(new RegExp(`${WOWHEAD_DOMAIN}/gear-planner/(.+)`));
 	if (!match) {
-		throw new Error(`Invalid Wowhead Gear Planner URL ${link}, must look like "${WOWHEAD_GEAR_PLANNER_URL}/CLASS/RACE/XXXX"`);
+		throw new Error(i18n.t('import.wowhead.error_invalid_link', { url: link, example: `${WOWHEAD_GEAR_PLANNER_URL}/CLASS/RACE/XXXX` }));
 	}
 	return readHash(match[1]);
 }

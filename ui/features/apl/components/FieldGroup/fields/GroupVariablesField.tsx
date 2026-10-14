@@ -91,8 +91,8 @@ export const GroupVariablesField = ({ player, config, groupNameField, getParentV
 			className={['w-full', config.extraClassNames, !items.length && 'hidden']}
 			hidden={!items.length}
 			testId="group-reference-variables-container">
-			<Field.Label as="span" tooltip="Variables to pass to the group. These will override the group's internal variables.">
-				Group Variables
+			<Field.Label as="span" tooltip={i18n.t('rotation_tab.apl.actions.group_reference.variables_tooltip')}>
+				{i18n.t('rotation_tab.apl.actions.group_reference.variables')}
 			</Field.Label>
 			<Tree.Root group="apl-group-variables" layout="inline" density="compact" testId="apl-group-variables">
 				<Tree.Items>

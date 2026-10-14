@@ -64,7 +64,7 @@ const healingHitGroups = (metric: ActionMetrics): Array<MetricsCombinedTooltipGr
 	{
 		spellSchool: metric.spellSchool,
 		totalPercentage: 100,
-		name: 'Hits',
+		name: i18n.t('results_tab.details.columns.hits'),
 		data: [
 			{ name: i18n.t('results_tab.details.attack_types.hit'), value: metric.hits, percentage: percentOf(metric.hits, metric.landedHits) },
 			{ name: i18n.t('results_tab.details.attack_types.critical_hit'), value: metric.crits, percentage: percentOf(metric.crits, metric.landedHits) },
@@ -80,7 +80,7 @@ const healingHitGroups = (metric: ActionMetrics): Array<MetricsCombinedTooltipGr
 	{
 		spellSchool: metric.spellSchool,
 		totalPercentage: 100,
-		name: 'Ticks',
+		name: i18n.t('results_tab.details.tooltip_table.ticks'),
 		data: [
 			{ name: i18n.t('results_tab.details.attack_types.tick'), value: metric.ticks, percentage: percentOf(metric.ticks, metric.landedTicks) },
 			{

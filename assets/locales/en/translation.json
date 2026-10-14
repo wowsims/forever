@@ -35,7 +35,8 @@
 			"delete_title": "Delete saved {{label}}",
 			"delete_confirm": "Delete saved {{label}} '{{name}}'?",
 			"choose_name": "Choose a label for your saved {{label}}!",
-			"name_exists": "{{label}} with name {{name}} already exists."
+			"name_exists": "{{label}} with name {{name}} already exists.",
+			"save_title": "Save {{label}}"
 		},
 		"melee": "Melee",
 		"any": "Any",
@@ -175,7 +176,16 @@
 			"frost": "Frost",
 			"holy": "Holy",
 			"nature": "Nature",
-			"shadow": "Shadow"
+			"shadow": "Shadow",
+			"astral": "Astral",
+			"shadowflame": "Shadowflame",
+			"spellfire": "Spellfire",
+			"spellfrost": "Spellfrost",
+			"frostfire": "Frostfire",
+			"shadowfrost": "Shadowfrost",
+			"plague": "Plague",
+			"firestorm": "Firestorm",
+			"elemental": "Elemental"
 		},
 		"resource_types": {
 			"health": "Health",
@@ -189,7 +199,8 @@
 			"maelstrom": "Maelstrom",
 			"demonic_fury": "Demonic Fury",
 			"burning_embers": "Burning Embers",
-			"generic_resource": "Missing Resource!"
+			"generic_resource": "Missing Resource!",
+			"generic_resource_name": "Generic Resource"
 		},
 		"stats": {
 			"strength": "Strength",
@@ -310,7 +321,104 @@
 			"buffs": "Buffs",
 			"debuffs": "Debuffs",
 			"reforge_settings": "Enchants Optimizer Settings"
-		}
+		},
+		"dungeon_difficulties": {
+			"unknown": "Unknown",
+			"normal": "N",
+			"heroic": "H",
+			"celestial": "CEL",
+			"raid_10": "10N",
+			"raid_10_heroic": "10H",
+			"raid_finder": "RF",
+			"raid_25": "RN",
+			"raid_25_heroic": "RH",
+			"raid_flex": "RFL"
+		},
+		"rep_levels": {
+			"unknown": "Unknown",
+			"hated": "Hated",
+			"hostile": "Hostile",
+			"unfriendly": "Unfriendly",
+			"neutral": "Neutral",
+			"friendly": "Friendly",
+			"honored": "Honored",
+			"revered": "Revered",
+			"exalted": "Exalted"
+		},
+		"stat_cap_types": {
+			"hard_cap": "Hard cap",
+			"soft_cap": "Soft cap",
+			"threshold": "Threshold"
+		},
+		"significance": {
+			"significant": "Difference is significantly different (Z = {{z}}).",
+			"not_significant": "Difference is not significantly different (Z = {{z}})."
+		},
+		"action_names": {
+			"mana_tick": "Mana Tick",
+			"energy_tick": "Energy Tick",
+			"focus_tick": "Focus Tick",
+			"mana_gain": "Mana Gain",
+			"rage_gain": "Rage Gain",
+			"attack": "Attack",
+			"shoot": "Shoot",
+			"refund": "Refund",
+			"moving": "Moving",
+			"prepull": "Prepull",
+			"encounter_start": "Encounter Start",
+			"minor_run_speed": "Minor Run Speed (8%)",
+			"item_swap_main": "Item Swap: Main",
+			"item_swap_swapped": "Item Swap: Swapped"
+		},
+		"action_tags": {
+			"casting": "Casting",
+			"not_casting": "Not Casting",
+			"main_hand": "Main Hand",
+			"off_hand": "Off Hand",
+			"windfury": "Windfury",
+			"boss": "Boss",
+			"add": "Add",
+			"no_stacks": "No Stacks",
+			"one_stack": "1 Stack",
+			"crits": "Crits",
+			"blast_wave": "Blast Wave",
+			"dot": "DoT",
+			"mastery": "Mastery",
+			"shot": "Shot",
+			"shiv": "Shiv",
+			"cast": "Cast",
+			"overload": "Overload",
+			"echo": "Echo",
+			"echo_overload": "Echo Overload",
+			"haste": "Haste",
+			"crit": "Crit",
+			"agi": "Agi",
+			"damage": "Damage",
+			"wasted": "Wasted",
+			"raid": "raid",
+			"queue": "Queue",
+			"normalized": "Normalized",
+			"devastate": "Devastate",
+			"single_target": "ST",
+			"multi_target": "MT",
+			"heal": "Heal",
+			"no_orb": "No Orb",
+			"mana_restore": "Mana Restore",
+			"malefic": "Malefic",
+			"cooldown": "Cooldown",
+			"hit": "Hit",
+			"external": "External",
+			"self": "self",
+			"custom_boss": "Custom Boss",
+			"thrash": "Thrash",
+			"stacks": "{{stacks}} Stacks",
+			"ticks": "{{ticks}} Tick",
+			"combo_points": "{{points}} CP",
+			"maelstrom_weapon": "{{stacks}} MW",
+			"from_player": "from #{{number}}",
+			"rank": "Rank {{rank}}"
+		},
+		"close": "Close"
 	},
 	"sim": {
 		"title": "Forever {{spec}} {{class}} simulator",
@@ -345,6 +453,15 @@
 			"confirm_title": "Simulation Failure:",
 			"confirm_message": "Press Ok to file crash report",
 			"report_title": "Crash Report"
+		},
+		"run_errors": {
+			"raid_empty": "Raid is empty! Try adding some players first.",
+			"no_targets": "Encounter has no targets! Try adding some targets first.",
+			"sim_failed": "Something went wrong running your sim. Reload the page and try again.",
+			"bulk_candidates_failed": "Failed to build bulk candidates",
+			"bulk_sim_failed": "Something went wrong running your bulk sim. Reload the page and try again.",
+			"stat_weights_failed": "Something went wrong calculating your stat weights. Reload the page and try again.",
+			"browser_unsupported": "This browser does not support DecompressionStream; the in-browser sim requires a current browser version."
 		}
 	},
 	"gear_tab": {
@@ -404,7 +521,8 @@
 			"table_headers": {
 				"ilvl": "ILvl",
 				"item": "Item",
-				"source": "Source"
+				"source": "Source",
+				"ep": "EP"
 			},
 			"sorted_ascending": "sorted ascending",
 			"sorted_descending": "sorted descending",
@@ -419,7 +537,19 @@
 			"ranged_weapon_type": "Ranged Weapon Type",
 			"ranged_weapon_speed": "Ranged Weapon Speed",
 			"min_ranged_speed": "Min Ranged Speed",
-			"max_ranged_speed": "Max Ranged Speed"
+			"max_ranged_speed": "Max Ranged Speed",
+			"row_actions": {
+				"favorite": "Favorite",
+				"compare": "Compare",
+				"add_favorite": "Add to favorites",
+				"remove_favorite": "Remove from favorites",
+				"add_to_batch": "Add to Batch Sim",
+				"remove_from_batch": "Remove from Batch Sim"
+			},
+			"sources": {
+				"world_drop": "World Drop"
+			},
+			"edit_slot": "Edit {{slot}}"
 		},
 		"preset_configurations": {
 			"title": "Preset Configurations",
@@ -429,6 +559,31 @@
 			"title": "Remaining Upgrade Costs",
 			"upgrade_all_items": "Upgrade all items",
 			"reset_upgrades": "Reset Upgrades"
+		},
+		"item_notices": {
+			"want_to_help": "Want to help out by providing additional information? Contact us on our Discord!",
+			"missing_random_suffix": "Please select a random suffix",
+			"missing_effect": {
+				"item": "This item effect (on-use or proc) is not implemented!",
+				"enchant": "This enchant effect (on-use or proc) is not implemented!",
+				"item_listed": "The following item effect (on-use or proc) is not implemented!",
+				"enchant_listed": "The following enchant effect (on-use or proc) is not implemented!",
+				"working_on_it": "We are working hard on gathering all the old resources to allow for an initial implementation."
+			},
+			"tentative_implementation": "This item <span className=\"font-bold\">is</span> implemented, but detailed proc behavior will be confirmed on PTR.",
+			"will_not_be_implemented": "The equip/use effect on this item will not be implemented!",
+			"unvalidated_rate": {
+				"ppm_vanilla": "In-game validation needed. Currently using Vanilla PPM values",
+				"ppm_tbc": "In-game validation needed. Currently using TBC PPM values",
+				"ppm_unknown": "In-game validation needed. Currently using an estimated proc rate",
+				"chance_vanilla": "In-game validation needed. Currently using a Vanilla proc chance",
+				"chance_tbc": "In-game validation needed. Currently using a TBC proc chance",
+				"chance_unknown": "In-game validation needed. Currently using an estimated proc chance"
+			},
+			"not_yet_implemented": "Not yet implemented",
+			"set_bonus_warnings": "This item set has the following warnings:",
+			"set_bonus_piece": "{{pieces}}-piece:",
+			"area_stats": "Only while the encounter is in one of these areas:"
 		}
 	},
 	"settings_tab": {
@@ -913,7 +1068,8 @@
 			"settings": "Settings",
 			"settings_name": "Settings Name",
 			"save_settings": "Save Settings"
-		}
+		},
+		"external_label": "{{label}} (External)"
 	},
 	"talents_tab": {
 		"title": "Talents",
@@ -1035,11 +1191,15 @@
 			"iterations_complete": "{{completed}} / {{total}}<br />iterations complete",
 			"seconds_remaining": "{{seconds}} seconds remaining",
 			"time_remaining": "{{time}} remaining",
-			"finalist_iteration_rounds": "Running finalist tie-breaker rounds"
+			"finalist_iteration_rounds": "Running finalist tie-breaker rounds",
+			"title": "Bulk Sim"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
-			"failed_to_remove_item": "Failed to remove item, please report this issue."
+			"failed_to_remove_item": "Failed to remove item, please report this issue.",
+			"no_baseline_results": "Bulk sim did not return baseline results.",
+			"bulk_sim_aborted": "Bulk Sim Aborted",
+			"combinations_failed": "Failed to calculate bulk combinations"
 		},
 		"warning": {
 			"iterations_limit": "Simming over {{limit}} iterations in the sim will take a long time or may not run at all. For larger batch sims we recommend downloading the executable and running on your machine."
@@ -1315,7 +1475,16 @@
 				},
 				"warlock_cast_assigned_curse": {
 					"label": "Cast Assigned Curse",
-					"tooltip": "Casts the Curse that warlock is assigned"
+					"tooltip": "Casts the Curse that warlock is assigned",
+					"short_description": "Casts the Warlock's Assigned Curse"
+				},
+				"group_reference": {
+					"label": "Group Reference",
+					"tooltip": "References an action group defined in the Groups section.",
+					"full_description": "<p>Executes all actions in the referenced group in order. Groups allow you to create reusable action sequences.</p> <p>Example: If you have a group named \"careful_aim\" with actions [serpent_sting, chimera_shot, steady_shot], referencing this group will execute those three actions in sequence.</p>",
+					"group_name_tooltip": "Name of the group to reference (must match a group defined in the Groups section)",
+					"variables": "Group Variables",
+					"variables_tooltip": "Variables to pass to the group. These will override the group's internal variables."
 				}
 			},
 			"values": {
@@ -1773,6 +1942,36 @@
 				"offset": {
 					"label": "Offset",
 					"tooltip": "The time offset from which when the cooldown will be triggered"
+				},
+				"dot_base_duration": {
+					"label": "Dot Base Duration",
+					"tooltip": "The base duration of the DoT."
+				},
+				"dot_crit_percent_increase": {
+					"label": "Dot Crit Chance Increase %",
+					"tooltip": "How much higher a new DoT's Critical Strike Chance would be compared to the old."
+				},
+				"dot_tick_rate_percent_increase": {
+					"label": "Dot Tick Rate Increase %",
+					"tooltip": "How much faster a new DoT would tick compared to the old."
+				},
+				"variable_ref": {
+					"label": "Variable Reference",
+					"tooltip": "Reference a named condition variable"
+				},
+				"variable_placeholder": {
+					"label": "Variable Placeholder",
+					"tooltip": "Placeholder value that gets replaced when group is referenced",
+					"full_description": "<p>Defines a placeholder value that must be set when this group is referenced. This allows groups to be parameterized.</p> <p>Example: If you add a Variable Placeholder named \"replace\", then when referencing this group, you must provide a value for \"replace\".</p>",
+					"name_tooltip": "Name of the variable placeholder to expose. This name will be used when referencing the group."
+				},
+				"action_group_used": {
+					"label": "Action Group is used",
+					"tooltip": "Returns <b>True</b> if the specified action group is used in the rotation. This allows you to conditionally execute actions based on whether an action group is included in the rotation."
+				},
+				"active_item_swap_set": {
+					"label": "Item Swap",
+					"tooltip": "Returns <b>True</b> if the specified item swap set is currently active."
 				}
 			},
 			"operators": {
@@ -1846,7 +2045,9 @@
 				"professions": "Professions",
 				"external_buffs": "External Buffs",
 				"external_cooldowns": "External Cooldowns",
-				"external_debuffs": "External Debuffs"
+				"external_debuffs": "External Debuffs",
+				"variables": "Variables",
+				"groups": "Groups"
 			},
 			"item_swap_sets": {
 				"main": "Main",
@@ -1907,7 +2108,8 @@
 					"enable_action": "Enable Action",
 					"disable_action": "Disable Action",
 					"enable_disable": "Enable/Disable"
-				}
+				},
+				"unit_placeholder": "Unit"
 			}
 		},
 		"auto": {
@@ -2141,7 +2343,27 @@
 					"hidden": "{{count}} hidden",
 					"showAll": "Show all",
 					"toggle": "Toggle hidden rows"
-				}
+				},
+				"gcd": "GCD",
+				"hide_row": "Hide row",
+				"hide_row_named": "Hide {{row}}",
+				"sections": {
+					"player": "Player",
+					"target_casts": "{{target}} - Casts",
+					"target_debuffs": "{{target}} - Debuffs"
+				},
+				"cast_tooltip": {
+					"window": "{{spell}} from {{start}}s to {{end}}s",
+					"cancelled": "(Cancelled after {{time}}s)",
+					"cast_and_gcd_time": "({{castTime}}s, {{gcdTime}}s GCD Time)",
+					"gcd_time": "({{gcdTime}}s GCD Time)",
+					"travel_time": "+ {{time}}s travel time",
+					"stack_at": "{{casts}} casts at {{time}}s",
+					"stack_range": "{{casts}} casts from {{start}}s to {{end}}s",
+					"total": "Total: {{total}} ({{dpet}} DPET)"
+				},
+				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
+				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
 			},
 			"logs": {
 				"top_button": "Top",
@@ -2158,6 +2380,56 @@
 					"none": "No filters",
 					"active": "{{count}} active",
 					"clear": "Clear filters"
+				},
+				"search_join": {
+					"and": "AND",
+					"or": "OR"
+				},
+				"search_fields": {
+					"source": "Source",
+					"target": "Target",
+					"spell": "Spell",
+					"type": "Type",
+					"school": "School",
+					"outcome": "Outcome",
+					"time": "Time",
+					"amount": "Amount"
+				},
+				"search_types": {
+					"damage": "Damage",
+					"heal": "Heal",
+					"shield": "Shield",
+					"resource": "Resource",
+					"aura": "Aura",
+					"buff": "Buff",
+					"cast": "Cast",
+					"delay": "Delay",
+					"major_cooldown": "Major cooldown",
+					"stat_change": "Stat change",
+					"debug": "Debug"
+				},
+				"lines": {
+					"threat": "({{threat}} Threat)",
+					"resource_spent": "Spent <amount>{{amount}} {{resource}}</amount> from <action/>. ({{before}} → {{after}})",
+					"resource_gained": "Gained <amount>{{amount}} {{resource}}</amount> from <action/>. ({{before}} → {{after}})",
+					"health_lost": "Lost <amount>{{amount}} {{resource}}</amount> from <action/>. ({{before}} → {{after}})",
+					"health_recovered": "Recovered <amount>{{amount}} {{resource}}</amount> from <action/>. ({{before}} → {{after}})",
+					"aura_gained": "Aura gained: <action/>.",
+					"aura_faded": "Aura faded: <action/>.",
+					"aura_refreshed": "Aura refreshed: <action/>.",
+					"aura_stacks": "<action/> stacks: {{from}} → {{to}}.",
+					"major_cooldown": "Major cooldown used: <action/>.",
+					"cast_began": "Casting <action/> (Cast time: {{castTime}}s, Cost: {{cost}} Mana).",
+					"cast_cancelled": "Cancelled <action/> after {{time}}s.",
+					"cast_completed": "Completed cast {{spell}}.",
+					"auto_delay": "<action/> delayed by {{delay}}, was ready at {{readyAt}}.",
+					"spell_queued": "Queueing <action/> to cast at {{fireAt}}.",
+					"cast_failed": "Failed to cast <action/>: {{reason}}.",
+					"pushback_channeling": "<action/> lost {{pushback}} while channeling due to pushback.",
+					"pushback_casting": "<action/> pushed back {{pushback}} while casting.",
+					"stats_gained": "Gained {{stats}} from <action/>.",
+					"stats_lost": "Lost {{stats}} from fading <action/>.",
+					"cast": "Casting {{spell}} (Cast time = {{castTime}}s)."
 				}
 			},
 			"tabs": {
@@ -2256,7 +2528,12 @@
 				"miss": "Miss",
 				"parry": "Parry",
 				"dodge": "Dodge",
-				"threat": "Threat"
+				"threat": "Threat",
+				"crit": "Crit",
+				"crush": "Crush",
+				"glance": "Glance",
+				"block": "Block",
+				"critical_block": "Critical Block"
 			},
 			"tooltip_table": {
 				"type": "Type",
@@ -2264,7 +2541,16 @@
 				"average": "Average",
 				"amount": "Amount",
 				"per_cast": "Per Cast",
-				"per_hit": "Per Hit"
+				"per_hit": "Per Hit",
+				"ticks": "Ticks"
+			},
+			"unit": "Unit",
+			"damage_result": {
+				"healed": "Healed",
+				"shielded": "Shielded",
+				"health_amount": "for <amount>{{amount}} health</amount><resist/>.",
+				"damage_amount": "for <amount>{{amount}} damage<school/></amount><resist/>.",
+				"resist": "({{percent}}% Resist)"
 			}
 		}
 	},
@@ -2288,7 +2574,8 @@
 			"import_button": "Import",
 			"error_invalid_url": "Invalid WCL URL {{url}}, must look like \"https://www.wowhead.com/forever/gear-planner/CLASS/RACE/XXXX\"",
 			"error_cannot_parse_class": "Could not parse Class: {{classId}}",
-			"error_cannot_parse_race": "Could not parse Race: {{raceId}}"
+			"error_cannot_parse_race": "Could not parse Race: {{raceId}}",
+			"error_invalid_link": "Invalid Wowhead Gear Planner URL {{url}}, must look like \"{{example}}\""
 		},
 		"addon": {
 			"title": "Addon Import",
@@ -2297,7 +2584,36 @@
 			"feature_description": "This feature imports gear, race, talents, and professions. It does NOT import buffs, debuffs, consumes, rotation, or custom stats.",
 			"instructions": "To import, paste the output from the addon below and click, 'Import'.",
 			"upload_button": "Upload File",
-			"import_button": "Import"
+			"import_button": "Import",
+			"error_invalid_export": "Please use a valid Addon export.",
+			"outdated": "Addon is not up to date. Addon version : '{{version}}', Latest version : '{{latest}}'",
+			"below_max_level": "The character you imported is level {{level}}. The Sim is intended to be used for max level only, so you might be missing certain items."
+		},
+		"error": "Import error:",
+		"success": "Import successful!",
+		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
+		"missing_ids": {
+			"title": "Import successful, but the following IDs were not found in the sim database:",
+			"items": "Items:",
+			"enchants": "Enchants:"
+		},
+		"errors": {
+			"cannot_parse_class": "Could not parse Class!",
+			"cannot_parse_race": "Could not parse Race!",
+			"cannot_parse_profession": "Could not parse profession '{{profession}}'",
+			"wrong_class": "Wrong Class! Expected {{expected}} but found {{found}}!"
+		},
+		"sixty_upgrades": {
+			"title": "Sixty Upgrades Import",
+			"description": "Import settings from",
+			"feature_description": "This feature imports gear, race, and (optionally) talents. It does NOT import buffs, debuffs, consumes, rotation, or custom stats.",
+			"instructions": "To import, paste the output from the site's export option below and click, 'Import'.",
+			"error_invalid_export": "Please use a valid Sixty Upgrades export.",
+			"removed_random_suffixes": "Sixty Upgrades currently exports the wrong Random Suffixes. We have removed the random suffix on the following item(s):",
+			"talents_not_imported": "Sixty Upgrades exports do not carry talent ranks, so talents were not imported. Set them on the Talents tab."
+		},
+		"menu": {
+			"addon": "Addon"
 		}
 	},
 	"export": {
@@ -2367,6 +2683,14 @@
 				"label": "Encounter",
 				"tooltip": "Fight-related settings."
 			}
+		},
+		"sixty_upgrades_ep": {
+			"title": "Sixty Upgrades EP Export"
+		},
+		"menu": {
+			"link": "Link",
+			"sixty_upgrades_ep": "60U EP",
+			"pawn_ep": "Pawn EP"
 		}
 	},
 	"info": {
@@ -2397,17 +2721,25 @@
 			"feature_toggles": {
 				"show_threat_metrics": "Show Threat/Tank Options",
 				"show_experimental": "Show Experimental",
-				"show_quick_swap": "Show quick swap interface"
+				"show_quick_swap": "Show quick swap interface",
+				"show_threat_metrics_tooltip": "Shows all options and metrics relevant to tanks, like TPS/DTPS.",
+				"show_experimental_tooltip": "Shows experimental options, if there are any active experiments.",
+				"show_quick_swap_tooltip": "Allows you to quickly swap enchants through your favorites. (Disabled on touch devices)"
 			},
 			"use_multiple_cpu_cores": {
-				"label": "Use Multiple CPU Cores"
+				"label": "Use Multiple CPU Cores",
+				"tooltip": "Use web workers to spread sim workload over multiple CPU cores.",
+				"off": "Off",
+				"firefox_note": "Too many workers can cause significant memory usage! If sim doesn't finish due to RAM running out use a lower number."
 			},
 			"restore_defaults": {
 				"button": "Restore Defaults",
 				"tooltip": "Restores all default settings (gear, consumes, buffs, talents, EP weights, etc). Saved settings are preserved.",
 				"success_message": "Restored to default settings."
 			}
-		}
+		},
+		"download_native_sim": "Download simulator for faster simulating",
+		"native_sim_outdated": "Newer version of simulator available for download"
 	},
 	"sidebar": {
 		"iterations": "Iterations",
@@ -2508,6 +2840,10 @@
 					"progress": {
 						"simulations_complete": "simulations complete",
 						"iterations_complete": "iterations complete"
+					},
+					"notifications": {
+						"cancelled": "Statweight sim cancelled.",
+						"failed": "Something went wrong calculating your stat weights. Reload the page and try again."
 					}
 				},
 				"saved_ep_weights": {
@@ -2546,7 +2882,16 @@
 				"go_to_batch_sim": "Go to batch sim",
 				"use_enchant_presets": "Use enchant presets",
 				"use_enchant_presets_tooltip": "Pick enchants only from the checked enchant presets, the same presets the Batch Sim uses. A slot no checked preset lists keeps its enchant.",
-				"no_enchant_preset": "Check at least one enchant preset to optimize enchants."
+				"no_enchant_preset": "Check at least one enchant preset to optimize enchants.",
+				"failure_reason": "Reason for failure:",
+				"max_column": "Max?",
+				"haste_cap_tooltip": "Final percentage value <strong>including</strong> all buffs/gear.",
+				"progress": {
+					"title": "Optimizing Enchants",
+					"lengthy": "Enchant optimization can be a lengthy process, especially as specific stat caps and breakpoints come into play for classes. This may take a while, but be assured that the calculation will eventually complete.",
+					"cancel_hint": "You may cancel this operation at any time using the button below."
+				},
+				"no_result": "Native Go gear optimizer did not return optimized gear."
 			}
 		},
 		"header": {

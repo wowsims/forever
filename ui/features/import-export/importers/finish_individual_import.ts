@@ -1,4 +1,5 @@
 import type { Class, EquipmentSpec, Profession, Race } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { Database } from '@sim/proto/database';
 import { classNames } from '@sim/proto/names';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -20,7 +21,7 @@ export const finishIndividualImport = async (
 	{ charClass, race, equipmentSpec, talentsStr, professions, missingEnchants = [], missingItems = [] }: IndividualImport,
 ): Promise<void> => {
 	if (charClass != host.player.getClass()) {
-		throw new Error(`Wrong Class! Expected ${host.player.getPlayerClass().friendlyName} but found ${classNames.get(charClass)}!`);
+		throw new Error(i18n.t('import.errors.wrong_class', { expected: host.player.getPlayerClass().friendlyName, found: classNames.get(charClass) }));
 	}
 
 	await Database.loadLeftoversIfNecessary(equipmentSpec);
@@ -43,20 +44,20 @@ export const finishIndividualImport = async (
 	if (importedTalents) {
 		toastManager.add({
 			variant: 'warning',
-			body: 'The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.',
+			body: i18n.t('import.talents_not_imported'),
 			delay: 8000,
 		});
 	}
 
 	if (missingItems.length == 0 && missingEnchants.length == 0) {
-		toastManager.add({ variant: 'success', body: `Import successful!` });
+		toastManager.add({ variant: 'success', body: i18n.t('import.success') });
 	} else {
 		toastManager.add({
 			variant: 'info',
 			body:
-				'Import successful, but the following IDs were not found in the sim database:' +
-				(missingItems.length == 0 ? '' : '\n\nItems: ' + missingItems.join(', ')) +
-				(missingEnchants.length == 0 ? '' : '\n\nEnchants: ' + missingEnchants.join(', ')),
+				i18n.t('import.missing_ids.title') +
+				(missingItems.length == 0 ? '' : `\n\n${i18n.t('import.missing_ids.items')} ` + missingItems.join(', ')) +
+				(missingEnchants.length == 0 ? '' : `\n\n${i18n.t('import.missing_ids.enchants')} ` + missingEnchants.join(', ')),
 		});
 	}
 };

@@ -18,8 +18,7 @@ func init() {
 // rotation and the fake prepull (no SkipRotation) make it exercise a full environment reset, the
 // path the UI's stats request takes.
 func TestHealerPriest(t *testing.T) {
-	t.Skip("class talents and abilities are stubbed pending their Forever implementations; " +
-		"the expected .results numbers cannot be meaningful until then")
+	t.Skip("healer gear set JSON files referenced by this test are absent")
 	var generators []core.TestGenerator
 	for _, gearSet := range []string{"preraid", "p3_t5", "p3"} {
 		player := core.WithSpec(

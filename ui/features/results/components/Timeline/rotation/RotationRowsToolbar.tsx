@@ -17,13 +17,13 @@ export interface RotationRowsToolbarProps {
 const sectionTitle = (section: Section): string => {
 	switch (section.kind) {
 		case 'player':
-			return 'Player';
+			return i18n.t('results_tab.details.timeline.sections.player');
 		case 'buffs':
-			return 'Buffs';
+			return i18n.t('results_tab.details.tabs.buffs');
 		case 'targetCasts':
-			return `${section.label} - Casts`;
+			return i18n.t('results_tab.details.timeline.sections.target_casts', { target: section.label });
 		case 'targetDebuffs':
-			return `${section.label} - Debuffs`;
+			return i18n.t('results_tab.details.timeline.sections.target_debuffs', { target: section.label });
 		default:
 			return section.label;
 	}

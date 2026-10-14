@@ -151,7 +151,7 @@ describe('ProgressTrackerDialog', () => {
 		const onCancel = vi.fn();
 		renderDialog({ onCancel });
 
-		expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'common.close' })).toBeNull();
 
 		const cancel = screen.getByTestId('progress-tracker-modal-cancel-btn');
 		expect(cancel.getAttribute('type')).toBe('button');

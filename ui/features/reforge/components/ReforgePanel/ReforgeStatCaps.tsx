@@ -48,7 +48,7 @@ export const ReforgeStatCapsView = ({ onReset, children }: ReforgeStatCapsViewPr
 					<TableRow>
 						<TableHeaderCell className="text-left">{i18n.t('sidebar.buttons.suggest_reforges.stat')}</TableHeaderCell>
 						<TableHeaderCell className="text-right">%</TableHeaderCell>
-						<TableHeaderCell className="text-left">Max?</TableHeaderCell>
+						<TableHeaderCell className="text-left">{i18n.t('sidebar.buttons.suggest_reforges.max_column')}</TableHeaderCell>
 					</TableRow>
 				</thead>
 				<tbody>{children}</tbody>

@@ -126,15 +126,15 @@ describe('Toast', () => {
 		act(() => {
 			manager.add({ variant: 'warning', body: 'sealed', canClose: false, autohide: false });
 		});
-		expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'common.close' })).toBeNull();
 
 		act(() => {
 			manager.add({ variant: 'info', body: 'closable', autohide: false });
 		});
-		const close = screen.getByRole('button', { name: 'Close' });
+		const close = screen.getByRole('button', { name: 'common.close' });
 		expect(close.getAttribute('type')).toBe('button');
 		expect(close.tagName).toBe('BUTTON');
-		expect(close.getAttribute('aria-label')).toBe('Close');
+		expect(close.getAttribute('aria-label')).toBe('common.close');
 
 		fireEvent.click(close);
 		await waitFor(() => expect(screen.queryByText('closable')).toBeNull());
@@ -147,7 +147,7 @@ describe('Toast', () => {
 			toastManager.add({ variant: 'error', body: 'boom' });
 		});
 
-		const close = screen.getByRole('button', { name: 'Close' }).querySelectorAll('svg');
+		const close = screen.getByRole('button', { name: 'common.close' }).querySelectorAll('svg');
 		expect(close).toHaveLength(1);
 		expect(close[0].getAttribute('data-icon')).toBe('xmark');
 		expect(close[0].getAttribute('data-size')).toBe('lg');

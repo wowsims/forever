@@ -120,7 +120,7 @@ describe('Sim.runSim', () => {
 		const sim = makeSim();
 		vi.spyOn(sim.raid, 'isEmpty').mockReturnValue(true);
 
-		await expect(sim.runSim({ raw: true })).rejects.toThrow('Raid is empty!');
+		await expect(sim.runSim({ raw: true })).rejects.toThrow('sim.run_errors.raid_empty');
 		expect(runningSignals(sim).size).toBe(0);
 		expect(mocks.raidSimAsync).not.toHaveBeenCalled();
 	});
@@ -129,7 +129,7 @@ describe('Sim.runSim', () => {
 		const sim = makeSim();
 		vi.spyOn(sim.encounter, 'getTargets').mockReturnValue([]);
 
-		await expect(sim.runSim({ raw: true })).rejects.toThrow('Encounter has no targets!');
+		await expect(sim.runSim({ raw: true })).rejects.toThrow('sim.run_errors.no_targets');
 	});
 
 	it('substitutes the gear option onto the player, stripping ring enchants for a non-enchanter', async () => {

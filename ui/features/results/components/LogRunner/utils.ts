@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import type { CombatLog, Outcome } from '@sim/proto/combat_log';
 import { formattedTimestamp, rawWithoutTimestamp } from '@sim/proto/combat_log';
 import { OUTCOMES } from '@sim/proto/combat_log/types';
@@ -6,7 +7,7 @@ import type { SuggestionSource } from '../../model/log/search/indexes';
 import { TYPE_SUGGESTIONS } from '../../model/log/search/indexes';
 import type { ClauseField, SearchGroup } from '../../model/log/search/query';
 import type { SimResultData } from '../../model/result_data';
-import { OUTCOME_LABEL } from '../DamageResult';
+import { outcomeLabel } from '../DamageResult';
 
 /**
  * A `SearchGroup` with the identity React needs to keep a group's half-typed value across the removal
@@ -19,14 +20,60 @@ export const DEBUG_MARKER = '[DEBUG]';
 /** Fields whose values are typed into a box rather than picked, and the placeholder each shows. */
 export const TYPED_FIELDS: Partial<Record<ClauseField, string>> = { time: '10-30', amount: '>5000' };
 
-export const sentenceCase = (text: string): string => (text ? text.charAt(0).toUpperCase() + text.slice(1) : text);
+export const fieldLabel = (field: ClauseField): string => {
+	switch (field) {
+		case 'source':
+			return i18n.t('results_tab.details.logs.search_fields.source');
+		case 'target':
+			return i18n.t('results_tab.details.logs.search_fields.target');
+		case 'spell':
+			return i18n.t('results_tab.details.logs.search_fields.spell');
+		case 'type':
+			return i18n.t('results_tab.details.logs.search_fields.type');
+		case 'school':
+			return i18n.t('results_tab.details.logs.search_fields.school');
+		case 'outcome':
+			return i18n.t('results_tab.details.logs.search_fields.outcome');
+		case 'time':
+			return i18n.t('results_tab.details.logs.search_fields.time');
+		case 'amount':
+			return i18n.t('results_tab.details.logs.search_fields.amount');
+	}
+};
+
+const typeLabel = (token: string): string | undefined => {
+	switch (token) {
+		case 'damage':
+			return i18n.t('results_tab.details.logs.search_types.damage');
+		case 'heal':
+			return i18n.t('results_tab.details.logs.search_types.heal');
+		case 'shield':
+			return i18n.t('results_tab.details.logs.search_types.shield');
+		case 'resource':
+			return i18n.t('results_tab.details.logs.search_types.resource');
+		case 'aura':
+			return i18n.t('results_tab.details.logs.search_types.aura');
+		case 'buff':
+			return i18n.t('results_tab.details.logs.search_types.buff');
+		case 'cast':
+			return i18n.t('results_tab.details.logs.search_types.cast');
+		case 'delay':
+			return i18n.t('results_tab.details.logs.search_types.delay');
+		case 'major-cooldown':
+			return i18n.t('results_tab.details.logs.search_types.major_cooldown');
+		case 'stat-change':
+			return i18n.t('results_tab.details.logs.search_types.stat_change');
+		case 'debug':
+			return i18n.t('results_tab.details.logs.search_types.debug');
+	}
+};
 
 export const labelOf = (field: ClauseField, value: string): string => {
 	switch (field) {
 		case 'outcome':
-			return OUTCOME_LABEL[value as Outcome] ?? value;
+			return outcomeLabel(value as Outcome) ?? value;
 		case 'type':
-			return sentenceCase(value.replace(/-/g, ' '));
+			return typeLabel(value) ?? value;
 		default:
 			return value;
 	}

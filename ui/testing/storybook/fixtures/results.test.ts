@@ -9,7 +9,7 @@ describe('makeSimResult', () => {
 		const player = result.getFirstPlayer()!;
 		expect(player.name).toBe('Player');
 		expect(player.dps.avg).toBeCloseTo(325.3, 1);
-		expect(player.getDamageActions().map(action => action.name)).toEqual(['Attack (Main Hand)']);
+		expect(player.getDamageActions().map(action => action.name)).toEqual(['common.action_names.attack (common.action_tags.main_hand)']);
 		expect(result.getTargets().map(target => target.name)).toEqual(['Raid Target']);
 		expect(result.iterations).toBe(100);
 		expect(result.duration).toBe(180);

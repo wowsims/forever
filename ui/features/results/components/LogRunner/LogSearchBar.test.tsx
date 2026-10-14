@@ -59,7 +59,9 @@ describe('LogSearchBar', () => {
 		const { container } = mount([]);
 		await openAddField(container);
 
-		expect(items().map(item => item.textContent)).toEqual(['Source', 'Target', 'Spell', 'Type', 'School', 'Outcome', 'Time', 'Amount']);
+		expect(items().map(item => item.textContent)).toEqual(
+			['source', 'target', 'spell', 'type', 'school', 'outcome', 'time', 'amount'].map(field => `results_tab.details.logs.search_fields.${field}`),
+		);
 	});
 
 	it('appends a new empty OR group for the field that was picked', async () => {

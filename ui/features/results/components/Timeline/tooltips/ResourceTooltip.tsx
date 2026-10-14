@@ -1,7 +1,6 @@
 import i18n from '@i18n/config';
 import type { ResourceGroupLog, ResourceLog } from '@sim/proto/combat_log';
-import { resourceNames } from '@sim/proto/names';
-import { kebabCase } from '@sim/utils/format';
+import { resourceCssName } from '@sim/proto/names';
 import { TIMELINE_SERIES_TEXT } from '@ui-kit/utils/colors';
 import clsx from 'clsx';
 
@@ -21,13 +20,12 @@ const delta = (log: ResourceLog): string => {
 };
 
 export const ResourceTooltip = ({ log, maxValue, includeAuras }: ResourceTooltipProps) => {
-	const resourceName = resourceNames.get(log.resourceType)!;
-	const seriesColorClass = TIMELINE_SERIES_TEXT[kebabCase(resourceName)];
+	const seriesColorClass = TIMELINE_SERIES_TEXT[resourceCssName(log.resourceType)];
 	const asPercent = percentageResources.includes(log.resourceType);
 	const display = (value: number) => (asPercent ? `${value.toFixed(1)} (${((value / maxValue) * 100).toFixed(0)}%)` : `${value.toFixed(1)}`);
 
 	return (
-		<div data-resource={kebabCase(resourceName)} className="ui-timeline-tooltip">
+		<div data-resource={resourceCssName(log.resourceType)} className="ui-timeline-tooltip">
 			<div data-testid="timeline-tooltip-header" className="ui-timeline-tooltip-header">
 				<span className="font-bold">{log.timestamp.toFixed(2)}s</span>
 			</div>

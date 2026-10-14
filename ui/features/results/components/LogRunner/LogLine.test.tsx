@@ -1,8 +1,10 @@
 import { ResourceType } from '@generated/proto/spell';
+import i18n from '@i18n/config';
 import type { CombatLog, Entity } from '@sim/proto/combat_log';
 import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { LogLine } from './LogLine';
 
 // The anchor's own behaviour is `ActionLink`'s test; here it only has to be identifiable in the line.
@@ -15,6 +17,15 @@ const base = { logIndex: 0, timestamp: 1, source: player, target: null, actionId
 const line = (extra: Record<string, unknown>) => ({ ...base, raw: '[1.00] raw', ...extra }) as unknown as CombatLog;
 
 const text = (log: CombatLog) => render(<LogLine log={log} />).container.textContent;
+
+// Each line is a locale string with its action link spliced in as an element, which only exists once
+// the string resolves; the test setup loads no locale, so this suite loads the English one.
+beforeAll(() => {
+	i18n.addResourceBundle('en', 'translation', english, true, true);
+});
+afterAll(() => {
+	i18n.removeResourceBundle('en', 'translation');
+});
 
 describe('LogLine', () => {
 	it('trails a damage line with its threat, and drops it for a line the target dealt', () => {

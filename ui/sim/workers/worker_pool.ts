@@ -22,6 +22,7 @@ import {
 	StatWeightsRequest,
 	StatWeightsResult,
 } from '@generated/proto/api';
+import i18n from '@i18n/config';
 import { AsyncSimRequest, SimRequest, WorkerReceiveMessage, WorkerSendMessage } from '@worker/types';
 
 import { REPO_NAME } from '../constants/other';
@@ -43,7 +44,7 @@ let sharedWasmModule: Promise<WebAssembly.Module> | undefined;
 const getSharedWasmModule = (): Promise<WebAssembly.Module> => {
 	sharedWasmModule ??= (async () => {
 		if (typeof DecompressionStream === 'undefined') {
-			throw new Error('This browser does not support DecompressionStream; the in-browser sim requires a current browser version.');
+			throw new Error(i18n.t('sim.run_errors.browser_unsupported'));
 		}
 		const response = await fetch(SIM_WASM_URL);
 		if (!response.ok || !response.body) {

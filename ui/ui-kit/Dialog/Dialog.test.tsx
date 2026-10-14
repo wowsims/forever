@@ -49,11 +49,11 @@ describe('Dialog', () => {
 			</Dialog>,
 		);
 
-		const close = screen.getByRole('button', { name: 'Close' });
+		const close = screen.getByRole('button', { name: 'common.close' });
 		// The tree has several <button>s inside forms with no type, so this one needs `type="button"` set explicitly.
 		expect(close.getAttribute('type')).toBe('button');
 		expect(close.tagName).toBe('BUTTON');
-		expect(close.getAttribute('aria-label')).toBe('Close');
+		expect(close.getAttribute('aria-label')).toBe('common.close');
 
 		fireEvent.click(close);
 		expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -71,7 +71,7 @@ describe('Dialog', () => {
 			</Dialog>,
 		);
 
-		expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'common.close' })).toBeNull();
 		fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
 		expect(onOpenChange).not.toHaveBeenCalled();
 		expect(screen.getByRole('dialog')).toBeTruthy();

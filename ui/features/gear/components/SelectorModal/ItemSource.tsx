@@ -1,4 +1,5 @@
 import { UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
+import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { getPVPSeasonFromItem, isPVPItem } from '@sim/proto/items';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
@@ -33,14 +34,15 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 				<span>
 					{season}
 					<br />
-					PVP
+					{i18n.t('common.sources.pvp')}
 				</span>
 			</SourceLink>
 		);
 	};
 
 	if (!item.sources?.length) {
-		if (item.randomSuffixOptions.length) return <SourceLink href={`${ActionId.makeItemUrl(item.id)}#dropped-by`}>World Drop</SourceLink>;
+		if (item.randomSuffixOptions.length)
+			return <SourceLink href={`${ActionId.makeItemUrl(item.id)}#dropped-by`}>{i18n.t('gear_tab.gear_picker.sources.world_drop')}</SourceLink>;
 		if (isPVPItem(item)) return pvp();
 		return null;
 	}
@@ -49,7 +51,7 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 	if (source.source.oneofKind === 'crafted') {
 		const src = source.source.crafted;
 		const href = src.spellId ? ActionId.makeSpellUrl(src.spellId) : ActionId.makeItemUrl(item.id);
-		return <SourceLink href={href}>{professionNames.get(src.profession) ?? 'Unknown'}</SourceLink>;
+		return <SourceLink href={href}>{professionNames.get(src.profession) ?? i18n.t('common.sources.unknown')}</SourceLink>;
 	}
 
 	if (source.source.oneofKind === 'drop') {
@@ -66,7 +68,7 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 			return (
 				<SourceLink href={ActionId.makeNpcUrl(npc.id)}>
 					<span>
-						{zone.name} ({difficultyNames.get(src.difficulty) ?? 'Unknown'})
+						{zone.name} ({difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})
 						<br />
 						{npc.name + category}
 					</span>
@@ -92,7 +94,7 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 		return (
 			<SourceLink href={ActionId.makeQuestUrl(src.id)}>
 				<span>
-					Quest
+					{i18n.t('common.sources.quest')}
 					<FactionIcon restriction={item.factionRestriction} />
 					<br />
 					{src.name}
@@ -107,7 +109,7 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 			<SourceLink href={ActionId.makeFactionUrl(reps[0].repFactionId)}>
 				{reps.map((rep, index) => (
 					<span key={`${rep.repFactionId}-${index}`}>
-						{sim.db.getRepFaction(rep.repFactionId)?.name || 'Unknown'} - {REP_LEVEL_NAMES[rep.repLevel]}
+						{sim.db.getRepFaction(rep.repFactionId)?.name || i18n.t('common.sources.unknown')} - {REP_LEVEL_NAMES[rep.repLevel]}
 						<FactionIcon restriction={item.factionRestriction} />
 						<br />
 					</span>
@@ -123,7 +125,7 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 		return (
 			<SourceLink href={ActionId.makeNpcUrl(src.npcId)}>
 				<span>
-					Sold by
+					{i18n.t('common.sources.sold_by')}
 					<br />
 					{src.npcName}
 				</span>

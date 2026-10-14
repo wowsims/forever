@@ -442,8 +442,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EyeofMoam-21473"
  value: {
-  dps: 438.70061
-  tps: 467.51112
+  dps: 438.54766
+  tps: 467.35818
   dtps: 486.03552
  }
 }
@@ -1215,7 +1215,7 @@ dps_results: {
  value: {
   dps: 435.44533
   tps: 464.47662
-  dtps: 472.82916
+  dtps: 472.82944
  }
 }
 dps_results: {

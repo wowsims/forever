@@ -66,7 +66,7 @@ describe('Importer', () => {
 
 		await clickImport();
 
-		expect(toasts).toEqual([{ variant: 'error', body: 'Import error: Could not parse Class!' }]);
+		expect(toasts).toEqual([{ variant: 'error', body: 'import.error Could not parse Class!' }]);
 		expect(onOpenChange).not.toHaveBeenCalled();
 	});
 

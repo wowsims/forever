@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { LOG_SUGGESTIONS } from '@testing/storybook/fixtures/results-views';
 import { useState } from 'react';
@@ -38,7 +39,7 @@ type Story = StoryObj<typeof meta>;
 
 export const PickedField: Story = {
 	play: async ({ args, canvasElement }) => {
-		await userEvent.click(within(canvasElement).getByRole('button', { name: 'AND' }));
+		await userEvent.click(within(canvasElement).getByRole('button', { name: i18n.t('results_tab.details.logs.search_join.and') }));
 		await expect(args.onChange).toHaveBeenCalledWith(expect.objectContaining({ join: 'and' }));
 	},
 };

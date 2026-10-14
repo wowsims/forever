@@ -1,9 +1,9 @@
-import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
+import { APLListItem, APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { ActionID, Cooldowns, type Spec } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import type { Player } from '../player/player';
-import { isEqualAPLRotation, renameAPLReference } from './apl_utils';
+import { hideScheduledCooldownCasts, isEqualAPLRotation, renameAPLReference } from './apl_utils';
 
 // Only the TypeSimple branch reaches the player, and none of these cases take it.
 const player = null as unknown as Player<Spec>;
@@ -67,5 +67,68 @@ describe('renameAPLReference', () => {
 
 		const value = rotation.priorityList[0].action!.condition!.value;
 		expect(value.oneofKind === 'actionGroupUsed' && value.actionGroupUsed.name).toBe('Burst');
+	});
+});
+
+describe('hideScheduledCooldownCasts', () => {
+	const ICY_VEINS = 12472;
+	const COLD_SNAP = 11958;
+	const BERSERKING = 20554;
+	const ARCANE_POWER = 12042;
+	const MANA_EMERALD = 22044;
+
+	const spell = (spellId: number, tag = 0) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId }, tag });
+	const item = (itemId: number) => ActionID.create({ rawId: { oneofKind: 'itemId', itemId } });
+	const cast = (spellId: ActionID) => APLListItem.create({ action: { action: { oneofKind: 'castSpell', castSpell: { spellId } } } });
+	// Cold Snap gated on Icy Veins being on cooldown: it reads Icy Veins but does not cast it.
+	const coldSnap = () =>
+		APLListItem.create({
+			action: {
+				condition: { value: { oneofKind: 'spellIsReady', spellIsReady: { spellId: spell(ICY_VEINS) } } },
+				action: { oneofKind: 'castSpell', castSpell: { spellId: spell(COLD_SNAP) } },
+			},
+		});
+	const preset = () =>
+		APLRotation.create({
+			priorityList: [coldSnap(), cast(spell(ICY_VEINS)), cast(spell(BERSERKING, 1)), cast(item(MANA_EMERALD))],
+			groups: [{ name: 'Burst', actions: [cast(spell(ICY_VEINS)), cast(spell(COLD_SNAP))] }],
+		});
+
+	const cd = (id: ActionID, timings: Array<number>) => ({ id, timings });
+	const hide = (cooldowns: Cooldowns) => {
+		const rotation = preset();
+		hideScheduledCooldownCasts(rotation, cooldowns);
+		return rotation;
+	};
+	const hidden = (rotation: APLRotation) => [rotation.priorityList.map(i => i.hide), rotation.groups[0].actions.map(i => i.hide)];
+
+	it('leaves the preset untouched when no cooldown has timings', () => {
+		expect(hide(Cooldowns.create())).toEqual(preset());
+		// A picked cooldown with no timings yields an invalid schedule, so the preset's line must stay.
+		expect(hide(Cooldowns.create({ cooldowns: [cd(spell(ICY_VEINS), [])] }))).toEqual(preset());
+	});
+
+	it('hides every Icy Veins cast in the priority list and in groups once Icy Veins is scheduled, and nothing else', () => {
+		const rotation = hide(Cooldowns.create({ cooldowns: [cd(spell(ICY_VEINS), [10])] }));
+
+		// Cold Snap only reads Icy Veins in its condition, so it stays to enable a second scheduled Icy Veins.
+		expect(hidden(rotation)).toEqual([
+			[false, true, false, false],
+			[true, false],
+		]);
+		// Nothing is removed, so indices stay stable.
+		expect(rotation.priorityList).toHaveLength(preset().priorityList.length);
+	});
+
+	it('matches across tags so a differently tagged variant still replaces the preset line', () => {
+		expect(hidden(hide(Cooldowns.create({ cooldowns: [cd(spell(BERSERKING, 0), [5])] })))[0]).toEqual([false, false, true, false]);
+	});
+
+	it('hides item casts by item id', () => {
+		expect(hidden(hide(Cooldowns.create({ cooldowns: [cd(item(MANA_EMERALD), [30])] })))[0]).toEqual([false, false, false, true]);
+	});
+
+	it('is a no-op for a scheduled cooldown the preset never casts directly', () => {
+		expect(hide(Cooldowns.create({ cooldowns: [cd(spell(ARCANE_POWER), [15])] }))).toEqual(preset());
 	});
 });

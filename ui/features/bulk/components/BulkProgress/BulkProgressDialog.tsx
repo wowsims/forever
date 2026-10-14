@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import type { ProgressStepListHandle, ProgressTrackerHandle } from '@ui-kit/ProgressTrackerDialog';
 import { HandleProgressStepList, ProgressTrackerDialog } from '@ui-kit/ProgressTrackerDialog';
@@ -36,7 +37,7 @@ export const BulkProgressDialog = () => {
 		<ProgressTrackerDialog
 			open
 			testId="bulk-sim-progress-tracker"
-			title="Bulk Sim"
+			title={i18n.t('bulk_tab.progress.title')}
 			state={{ stage: state.stage, message: state.hasMessage ? MESSAGE : undefined }}
 			hasProgressBar
 			belowBar={labels.length > 1 && <HandleProgressStepList ref={stepsRef} labels={labels} />}

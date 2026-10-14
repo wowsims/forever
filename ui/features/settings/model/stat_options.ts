@@ -2,6 +2,7 @@ import { inputPicked, valuePicked } from '@features/inputs/components/ConnectedI
 import type { IconEnumPickerConfig, IconPickerConfig, MultiIconPickerConfig } from '@features/inputs/configs';
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
 import { Class, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { UnitStat } from '@sim/proto/stats';
 import type { IndividualSimUIConfig } from '@sim/spec_config';
@@ -95,7 +96,7 @@ export function applyOwnerClassLabels<OptionsType extends RenderableStatOptions>
 	return options.map(option => {
 		const label = option.config.label;
 		if (option.ownerClass !== playerClass || typeof label !== 'string') return option;
-		return { ...option, config: { ...option.config, label: `${label} (External)` } };
+		return { ...option, config: { ...option.config, label: i18n.t('settings_tab.external_label', { label }) } };
 	});
 }
 

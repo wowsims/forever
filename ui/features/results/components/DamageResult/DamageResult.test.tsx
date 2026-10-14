@@ -1,14 +1,25 @@
 import type { SpellSchool as SpellSchoolValue } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import type { DamageLog, Entity } from '@sim/proto/combat_log';
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { DamageResult } from './DamageResult';
 
 const target = { name: 'Boss', ownerName: '', index: 0, isTarget: true, isPet: false } as Entity;
 
 const damage = (extra: Partial<DamageLog>) =>
 	({ kind: 'damage', outcome: 'hit', effect: 'damage', amount: 1234.5, tick: false, target, spellSchool: null, ...extra }) as DamageLog;
+
+// The line is a locale string with the target and amount spliced in as elements, which only exist once
+// the string resolves; the test setup loads no locale, so this suite loads the English one.
+beforeAll(() => {
+	i18n.addResourceBundle('en', 'translation', english, true, true);
+});
+afterAll(() => {
+	i18n.removeResourceBundle('en', 'translation');
+});
 
 describe('DamageResult', () => {
 	it('names the outcome, the target and the amount with its school', () => {

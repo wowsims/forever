@@ -144,14 +144,15 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 				epReferenceStat,
 			});
 			if (result.error) {
-				if (result.error.type === ErrorOutcomeType.ErrorOutcomeAborted) toastManager.add({ variant: 'info', body: 'Statweight sim cancelled.' });
+				if (result.error.type === ErrorOutcomeType.ErrorOutcomeAborted)
+					toastManager.add({ variant: 'info', body: i18n.t('sidebar.buttons.stat_weights.modal.notifications.cancelled') });
 				result = null;
 			}
 		} catch (error: any) {
 			console.error(error);
 			toastManager.add({
 				variant: 'error',
-				body: error?.message || 'Something went wrong calculating your stat weights. Reload the page and try again.',
+				body: error?.message || i18n.t('sidebar.buttons.stat_weights.modal.notifications.failed'),
 			});
 			result = null;
 		}

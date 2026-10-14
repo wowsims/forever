@@ -38,6 +38,7 @@ import {
 	WeaponType,
 } from '@generated/proto/common';
 import { DatabaseFilters, RaidFilterOption, SimSettings as SimSettingsProto, SourceFilterOption } from '@generated/proto/ui';
+import i18n from '@i18n/config';
 import { getLang } from '@i18n/locale_service';
 import { SimRequest } from '@worker/types';
 
@@ -284,9 +285,9 @@ export class Sim {
 
 	private requireRunnableSetup() {
 		if (this.raid.isEmpty()) {
-			throw new Error('Raid is empty! Try adding some players first.');
+			throw new Error(i18n.t('sim.run_errors.raid_empty'));
 		} else if (this.encounter.getTargets().length < 1) {
-			throw new Error('Encounter has no targets! Try adding some targets first.');
+			throw new Error(i18n.t('sim.run_errors.no_targets'));
 		}
 	}
 
@@ -333,7 +334,7 @@ export class Sim {
 		} catch (error) {
 			if (error instanceof SimError) throw error;
 			console.error(error);
-			throw new Error('Something went wrong running your sim. Reload the page and try again.');
+			throw new Error(i18n.t('sim.run_errors.sim_failed'));
 		} finally {
 			this.signalManager.unregisterRunning(signals);
 		}
@@ -395,7 +396,7 @@ export class Sim {
 			if (useWasmBulkSim) {
 				const bulkCandidatesResult = await this.getBulkCandidates(bulkSettings);
 				if (bulkCandidatesResult.error) {
-					throw new SimError(bulkCandidatesResult.error.message || 'Failed to build bulk candidates');
+					throw new SimError(bulkCandidatesResult.error.message || i18n.t('sim.run_errors.bulk_candidates_failed'));
 				}
 				const gearSets = bulkCandidatesResult.candidates.flatMap(candidate => (candidate.gear ? [candidate.gear] : []));
 				candidates = dedupeGearSets(gearSets, [baselineGear.asSpec()]).map((gear, index) => ({ index, gear }));
@@ -426,7 +427,7 @@ export class Sim {
 		} catch (error) {
 			if (error instanceof SimError) throw error;
 			console.error(error);
-			throw new Error('Something went wrong running your bulk sim. Reload the page and try again.');
+			throw new Error(i18n.t('sim.run_errors.bulk_sim_failed'));
 		} finally {
 			this.signalManager.unregisterRunning(signals);
 		}
@@ -639,7 +640,7 @@ export class Sim {
 			} catch (error) {
 				if (error instanceof SimError) throw error;
 				console.error(error);
-				throw new Error('Something went wrong calculating your stat weights. Reload the page and try again.');
+				throw new Error(i18n.t('sim.run_errors.stat_weights_failed'));
 			} finally {
 				this.signalManager.unregisterRunning(signals);
 			}

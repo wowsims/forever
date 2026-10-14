@@ -124,7 +124,10 @@ describe('RotationTrack', () => {
 
 		expect(toggles).toHaveLength(2);
 		expect(new Set(toggles.map(toggle => toggle.getAttribute('data-tooltip-id'))).size).toBe(1);
-		expect(toggles.map(toggle => toggle.getAttribute('data-tooltip-content'))).toEqual(['Hide row', 'Hide row']);
+		expect(toggles.map(toggle => toggle.getAttribute('data-tooltip-content'))).toEqual([
+			'results_tab.details.timeline.hide_row',
+			'results_tab.details.timeline.hide_row',
+		]);
 		expect(toggles.every(toggle => !toggle.hasAttribute('title'))).toBe(true);
 	});
 
@@ -149,7 +152,7 @@ describe('RotationTrack', () => {
 		const item = container.querySelector('[data-row-key="cast:a"] [data-testid="rotation-item-cast"]')!;
 		fireEvent.mouseOver(item);
 		await settle();
-		expect(container.querySelector('[data-testid="timeline-hover-tooltip"]')!.textContent).toContain('Bolt from 0.00s');
+		expect(container.querySelector('[data-testid="timeline-hover-tooltip"]')!.textContent).toContain('results_tab.details.timeline.cast_tooltip.window');
 
 		fireEvent.mouseOver(container.querySelector('[data-testid="rotation-content"]')!);
 		await settle();

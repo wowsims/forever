@@ -16,7 +16,7 @@ describe('EntityLabel', () => {
 	it('names a target by number rather than by name', () => {
 		const { container } = render(<EntityLabel entity={entity({ name: 'Boss', index: 0, isTarget: true })} />);
 
-		expect(container.textContent).toBe('[Target 1]');
+		expect(container.textContent).toBe('[results_tab.details.target_number]');
 	});
 
 	// A pet's bracket carries its owner, and the pet's own name sits outside it unstyled.

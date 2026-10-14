@@ -1,4 +1,24 @@
 {
 	"type": "TypeAPL",
-	"priorityList": []
+	"prepullActions": [
+	{"action":{"castSpell":{"spellId":{"spellId":10947,"rank":9}}},"doAtValue":{"const":{"val":"-1.5s"}}}
+	],
+	"priorityList": [
+	{"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{"spellId":15473}}}}},"castSpell":{"spellId":{"spellId":15473}}}},
+	{"action":{"condition":{"variableRef":{"name":"Dark Sac"}},"castSpell":{"spellId":{"spellId":1277328}}}},
+	{"action":{"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
+	{"action":{"autocastOtherCooldowns":{}}},
+	{"action":{"condition":{"variableRef":{"name":"Inner Focus Rules"}},"castSpell":{"spellId":{"spellId":14751}}}},
+	{"action":{"castSpell":{"spellId":{"spellId":10947}}}},
+	{"action":{"condition":{"variableRef":{"name":"SWP Refresh"}},"castSpell":{"spellId":{"spellId":10894}}}},
+	{"action":{"castSpell":{"spellId":{"spellId":1309636}}}},
+	{"action":{"condition":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":19280}}}}},"castSpell":{"spellId":{"spellId":19280}}}},
+	{"hide":true,"action":{"condition":{"spellIsKnown":{"spellId":{"spellId":19305}}},"castSpell":{"spellId":{"spellId":19305}}}},
+	{"action":{"channelSpell":{"spellId":{"spellId":18807},"interruptIf":{}}}}
+	],
+	"valueVariables": [
+	{"name":"Dark Sac","value":{"cmp":{"op":"OpLe","lhs":{"currentMana":{}},"rhs":{"const":{"val":"2000"}}}}},
+	{"name":"Inner Focus Rules","value":{"spellIsReady":{"spellId":{"spellId":10947}}}},
+	{"name":"SWP Refresh","value":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":10894}}}}}}
+	]
 }

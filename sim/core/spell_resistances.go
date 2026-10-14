@@ -56,7 +56,7 @@ func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
 	return at.Defender.binaryHitChance(spell, at.Attacker)
 }
 
-// The average share of a spell's damage the target resists, R / (R + 5L + 80) for the caster's level L,
+// The average share of a spell's damage the target resists, R / (R + 9L) for the caster's level L,
 // with the caster's Spell Piercing taken off R. Piercing beyond the resistance makes the share negative,
 // and the roll pays it out as bonus damage. The target's own resistance stops at 0, so a debuff that
 // lowers it below 0 adds nothing. A target above the caster's level resists no more for its level.
@@ -70,10 +70,10 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		piercing := attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[spell.SchoolIndex]
 		resistance = max(0, unit.GetStat(stat)) - piercing
 	}
-	// TODO: the Spell Piercing logs disagree on the constant (#76). Mages with 15 piercing from Arcane
-	// Subtlety at level 20 and 24+ fit 5L + 80; at level 30 a mage with 15 from the talent and a priest
-	// with 7 from gear both sit near 10L. The level-20 mage logged again at 30 sets how K grows.
-	resistanceConstant := 5*float64(attacker.Level) + 80
+	// TODO: 9L is a fit to the Spell Piercing logs at levels 20 to 30 (#76). Some ExpectedStat creature
+	// curves fit them as well and part from 9L above 30 (K at 60: 478 to 823 against 540); a log at
+	// level 40 to 60 decides.
+	resistanceConstant := 9 * float64(attacker.Level)
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
 	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the resistance.

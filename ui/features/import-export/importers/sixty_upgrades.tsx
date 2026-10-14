@@ -1,4 +1,5 @@
 import { Class, EquipmentSpec, ItemSpec, Race } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { getEligibleItemSlots } from '@sim/proto/items';
 import { nameToClass, nameToRace } from '@sim/proto/names';
 import { toastManager } from '@ui-kit/Toast';
@@ -8,7 +9,7 @@ import type { ImporterDefinition } from './types';
 
 const removedSuffixesBody = (itemNames: string[]) => (
 	<>
-		<p>Sixty Upgrades currently exports the wrong Random Suffixes. We have removed the random suffix on the following item(s):</p>
+		<p>{i18n.t('import.sixty_upgrades.removed_random_suffixes')}</p>
 		<ul>
 			{itemNames.map((itemName, index) => (
 				<li key={index}>
@@ -20,14 +21,14 @@ const removedSuffixesBody = (itemNames: string[]) => (
 );
 
 export const SIXTY_UPGRADES_IMPORTER: ImporterDefinition = {
-	title: 'Sixty Upgrades Import',
+	title: i18n.t('import.sixty_upgrades.title'),
 	allowFileUpload: true,
 	onImport: async (host, data) => {
 		let importJson: any | null;
 		try {
 			importJson = JSON.parse(data);
 		} catch {
-			throw new Error('Please use a valid Sixty Upgrades export.');
+			throw new Error(i18n.t('import.sixty_upgrades.error_invalid_export'));
 		}
 
 		const missingItems: number[] = [];
@@ -35,12 +36,12 @@ export const SIXTY_UPGRADES_IMPORTER: ImporterDefinition = {
 
 		const charClass = nameToClass((importJson?.character?.gameClass as string) || '');
 		if (charClass == Class.ClassUnknown) {
-			throw new Error('Could not parse Class!');
+			throw new Error(i18n.t('import.errors.cannot_parse_class'));
 		}
 
 		const race = nameToRace((importJson?.character?.race as string) || '');
 		if (race == Race.RaceUnknown) {
-			throw new Error('Could not parse Race!');
+			throw new Error(i18n.t('import.errors.cannot_parse_race'));
 		}
 
 		// Sixty Upgrades names a talent by the spell id of the rank taken. A Forever talent reports
@@ -96,7 +97,7 @@ export const SIXTY_UPGRADES_IMPORTER: ImporterDefinition = {
 		if (droppedTalents > 0) {
 			toastManager.add({
 				variant: 'warning',
-				body: 'Sixty Upgrades exports do not carry talent ranks, so talents were not imported. Set them on the Talents tab.',
+				body: i18n.t('import.sixty_upgrades.talents_not_imported'),
 				delay: 8000,
 			});
 		}

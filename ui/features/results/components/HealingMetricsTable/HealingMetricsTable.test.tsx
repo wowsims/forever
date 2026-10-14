@@ -95,7 +95,10 @@ describe('HealingMetricsTable', () => {
 
 		fireEvent.mouseEnter(rows(container)[0].cells[6]);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		expect([...tooltipTable()!.querySelectorAll('tbody th')].map(th => th.textContent)).toEqual(['Hits', 'Ticks']);
+		expect([...tooltipTable()!.querySelectorAll('tbody th')].map(th => th.textContent)).toEqual([
+			'results_tab.details.columns.hits',
+			'results_tab.details.tooltip_table.ticks',
+		]);
 	});
 
 	it('anchors all three header tooltips on their own header cell', () => {

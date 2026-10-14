@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import type { SuggestionSource } from '../../model/log/search/indexes';
 import { isNumericFilter } from '../../model/log/search/indexes';
 import type { IdentifiedSearchGroup } from './utils';
-import { labelOf, sentenceCase, TYPED_FIELDS, valueCandidates } from './utils';
+import { fieldLabel, labelOf, TYPED_FIELDS, valueCandidates } from './utils';
 
 // The group sits in the bottom bar's Drawer sheet; up is the direction that has room below it.
 const DROPUP = { side: 'top', positionMethod: 'fixed' } as const;
@@ -70,21 +70,21 @@ export const LogSearchGroup = ({ group, suggestions, onChange, onRemove }: LogSe
 			className="flex max-w-62 flex-col gap-2 bg-panel [transition:all_0.2s_ease] hover:border-border hover:bg-panel-hover">
 			<div data-testid="log-search-group-head" className="flex items-center gap-2">
 				<span data-testid="log-search-group-field" className="text-(length:--btn-font-size) leading-normal">
-					{sentenceCase(group.field)}
+					{fieldLabel(group.field)}
 				</span>
 				<ToggleGroup
 					testId="log-search-group-join"
 					className="ml-auto"
 					size="sm"
 					options={[
-						{ value: 'and', label: 'AND' },
-						{ value: 'or', label: 'OR' },
+						{ value: 'and', label: i18n.t('results_tab.details.logs.search_join.and') },
+						{ value: 'or', label: i18n.t('results_tab.details.logs.search_join.or') },
 					]}
 					value={group.join}
 					onChange={join => onChange({ ...group, join })}
 				/>
 				<DeleteButton
-					label={i18n.t('common.list_picker.delete_item', { itemLabel: sentenceCase(group.field) })}
+					label={i18n.t('common.list_picker.delete_item', { itemLabel: fieldLabel(group.field) })}
 					onClick={onRemove}
 					className="py-2 text-white"
 				/>

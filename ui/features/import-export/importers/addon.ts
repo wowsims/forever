@@ -30,14 +30,14 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 		try {
 			importJson = JSON.parse(data);
 		} catch {
-			throw new Error('Please use a valid Addon export.');
+			throw new Error(i18n.t('import.addon.error_invalid_export'));
 		}
 
 		const addonVersion = await WSE_VERSION;
 		if (addonVersion && ((importJson['version'] as string) || '') != addonVersion) {
 			toastManager.add({
 				variant: 'warning',
-				body: `Addon is not up to date. Addon version : '${importJson['version']}', Latest version : '${addonVersion}'`,
+				body: i18n.t('import.addon.outdated', { version: importJson['version'], latest: addonVersion }),
 			});
 		}
 
@@ -46,25 +46,25 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 		if (level < CHARACTER_LEVEL) {
 			toastManager.add({
 				variant: 'warning',
-				body: `The character you imported is level ${level}. The Sim is intended to be used for max level only, so you might be missing certain items.`,
+				body: i18n.t('import.addon.below_max_level', { level }),
 				delay: 5000,
 			});
 		}
 
 		const charClass = nameToClass((importJson['class'] as string) || '');
 		if (charClass == Class.ClassUnknown) {
-			throw new Error('Could not parse Class!');
+			throw new Error(i18n.t('import.errors.cannot_parse_class'));
 		}
 
 		const race = nameToRace((importJson['race'] as string) || '');
 		if (race == Race.RaceUnknown) {
-			throw new Error('Could not parse Race!');
+			throw new Error(i18n.t('import.errors.cannot_parse_race'));
 		}
 
 		const professions = (importJson['professions'] as Array<{ name: string; level: number }>).map(profData => nameToProfession(profData.name));
 		professions.forEach((prof, i) => {
 			if (prof == Profession.ProfessionUnknown) {
-				throw new Error(`Could not parse profession '${importJson['professions'][i]}'`);
+				throw new Error(i18n.t('import.errors.cannot_parse_profession', { profession: importJson['professions'][i] }));
 			}
 		});
 

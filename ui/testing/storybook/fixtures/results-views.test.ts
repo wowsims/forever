@@ -15,7 +15,10 @@ describe('results view fixtures', () => {
 		const { rows, maxDamage } = await loadAttackRows();
 
 		expect(rows).toHaveLength(1);
-		expect(rows[0].subRows!.map(row => row.metric.name)).toEqual(['Attack (Main Hand)', 'Attack (Off Hand)']);
+		expect(rows[0].subRows!.map(row => row.metric.name)).toEqual([
+			'common.action_names.attack (common.action_tags.main_hand)',
+			'common.action_names.attack (common.action_tags.off_hand)',
+		]);
 		expect(rows[0].metric.damage).toBeCloseTo(
 			rows[0].subRows!.reduce((total, row) => total + row.metric.damage, 0),
 			6,
@@ -28,7 +31,10 @@ describe('results view fixtures', () => {
 		const { resultData } = await loadRageResult();
 		const player = resultData.result.getFirstPlayer()!;
 
-		expect(player.getResourceMetrics(ResourceType.ResourceTypeRage).map(metric => metric.name)).toEqual(['Attack (Main Hand)', 'Rage Gain']);
+		expect(player.getResourceMetrics(ResourceType.ResourceTypeRage).map(metric => metric.name)).toEqual([
+			'common.action_names.attack (common.action_tags.main_hand)',
+			'common.action_names.rage_gain',
+		]);
 		expect(player.getResourceMetrics(ResourceType.ResourceTypeMana)).toEqual([]);
 	});
 

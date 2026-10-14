@@ -1,7 +1,9 @@
+import i18n from '@i18n/config';
 import type { DpsLog } from '@sim/proto/combat_log';
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import english from '../../../../../../assets/locales/en/translation.json';
 import { DpsTooltip } from './DpsTooltip';
 
 const log = (over: Partial<DpsLog> = {}) =>
@@ -22,6 +24,15 @@ const log = (over: Partial<DpsLog> = {}) =>
 		activeAuras: [],
 		...over,
 	}) as unknown as DpsLog;
+
+// A damage line is a locale string with its target and amount spliced in as elements that only exist
+// once the string resolves; the test setup loads no locale, so this suite loads the English one.
+beforeAll(() => {
+	i18n.addResourceBundle('en', 'translation', english, true, true);
+});
+afterAll(() => {
+	i18n.removeResourceBundle('en', 'translation');
+});
 
 describe('DpsTooltip', () => {
 	it('heads with the timestamp and closes with the DPS at that point', () => {

@@ -2,6 +2,7 @@ import { APLActionItemSwap_SwapSet } from '@generated/proto/apl';
 import { ActionID as ActionIdProto, ItemRandomSuffix, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { IconData, UIItem as Item } from '@generated/proto/ui';
+import i18n from '@i18n/config';
 
 import { CHARACTER_LEVEL } from '../../constants/mechanics';
 import { Database } from '../database';
@@ -66,112 +67,108 @@ export class ActionId {
 			case OtherAction.OtherActionNone:
 				break;
 			case OtherAction.OtherActionWait:
-				baseName = 'Wait';
+				baseName = i18n.t('rotation_tab.apl.actions.wait.label');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_pocketwatch_01.jpg';
 				break;
 			case OtherAction.OtherActionManaRegen:
-				name = 'Mana Tick';
+				name = i18n.t('common.action_names.mana_tick');
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeMana];
 				if (tag == 1) {
-					name += ' (Casting)';
+					name += ` (${i18n.t('common.action_tags.casting')})`;
 				} else if (tag == 2) {
-					name += ' (Not Casting)';
+					name += ` (${i18n.t('common.action_tags.not_casting')})`;
 				}
 				break;
 			case OtherAction.OtherActionEnergyRegen:
-				baseName = 'Energy Tick';
+				baseName = i18n.t('common.action_names.energy_tick');
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeEnergy];
 				break;
 			case OtherAction.OtherActionFocusRegen:
-				baseName = 'Focus Tick';
+				baseName = i18n.t('common.action_names.focus_tick');
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeFocus];
 				break;
 			case OtherAction.OtherActionManaGain:
-				baseName = 'Mana Gain';
+				baseName = i18n.t('common.action_names.mana_gain');
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeMana];
 				break;
 			case OtherAction.OtherActionRageGain:
-				baseName = 'Rage Gain';
+				baseName = i18n.t('common.action_names.rage_gain');
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeRage];
 				break;
 			case OtherAction.OtherActionAttack:
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_sword_04.jpg';
 				// A name handed in is a filled one: an extra attack's, from the spell that tagged it.
 				if (name) break;
-				name = 'Attack';
+				name = i18n.t('common.action_names.attack');
 				if (this.tag == 1) {
-					name += ' (Main Hand)';
+					name += ` (${i18n.t('common.action_tags.main_hand')})`;
 				} else if (this.tag == 2) {
-					name += ' (Off Hand)';
+					name += ` (${i18n.t('common.action_tags.off_hand')})`;
 				} else if (this.tag == 10610) {
 					// Windfury Totem's swings, tagged with 10610, the spell that grants them.
-					name += ' (Windfury)';
+					name += ` (${i18n.t('common.action_tags.windfury')})`;
 				} else if (this.tag == 99999) {
-					name += ' (Boss)';
+					name += ` (${i18n.t('common.action_tags.boss')})`;
 				} else if (this.tag == 99998) {
-					name += ' (Add)';
+					name += ` (${i18n.t('common.action_tags.add')})`;
 				} else if (this.tag == 100000) {
-					name += ' (Custom Boss)';
+					name += ` (${i18n.t('common.action_tags.custom_boss')})`;
 				} else if (this.tag == 100000 + 1) {
-					name += ' (Custom Boss) - Thrash';
+					name += ` (${i18n.t('common.action_tags.custom_boss')}) - ${i18n.t('common.action_tags.thrash')}`;
 				}
 				break;
 			case OtherAction.OtherActionShoot:
-				name = 'Shoot';
+				name = i18n.t('common.action_names.shoot');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/ability_marksmanship.jpg';
 				break;
 			case OtherAction.OtherActionPet:
 				break;
 			case OtherAction.OtherActionRefund:
-				baseName = 'Refund';
+				baseName = i18n.t('common.action_names.refund');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_coin_01.jpg';
 				break;
 			case OtherAction.OtherActionDamageTaken:
-				baseName = 'Damage Taken';
+				baseName = i18n.t('results_tab.details.columns.damage_taken');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_sword_04.jpg';
 				break;
 			case OtherAction.OtherActionHealingModel:
-				baseName = 'Incoming HPS';
+				baseName = i18n.t('settings_tab.other.incoming_hps.label');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_renew.jpg';
 				break;
 			case OtherAction.OtherActionResourcePotion:
-				baseName = 'Resource Potion';
+				baseName = i18n.t('settings_tab.consumables.potions.resource');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_potion_76.jpg';
 				break;
 			case OtherAction.OtherActionDefensivePotion:
-				baseName = 'Defensive Potion';
+				baseName = i18n.t('settings_tab.consumables.potions.defensive');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_potion_69.jpg';
 				break;
 			case OtherAction.OtherActionOffensivePotion:
-				baseName = 'Offensive Potion';
+				baseName = i18n.t('settings_tab.consumables.potions.offensive');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_alchemy_elixir_04.jpg';
 				break;
 			case OtherAction.OtherActionMove:
-				baseName = 'Moving';
+				baseName = i18n.t('common.action_names.moving');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/inv_boots_cloth_03.jpg';
 				break;
 			case OtherAction.OtherActionPrepull:
-				baseName = 'Prepull';
+				baseName = i18n.t('common.action_names.prepull');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/inv_misc_pocketwatch_02.jpg';
 				break;
 			case OtherAction.OtherActionEncounterStart:
-				baseName = 'Encounter Start';
+				baseName = i18n.t('common.action_names.encounter_start');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/achievement_faction_elders.jpg';
 				break;
 			case OtherAction.OtherActionItemSwap:
-				baseName = 'Item Swap: ';
-				if (this.tag == APLActionItemSwap_SwapSet.Main) {
-					baseName += 'Main';
-				} else {
-					baseName += 'Swapped';
-				}
+				baseName =
+					this.tag == APLActionItemSwap_SwapSet.Main ? i18n.t('common.action_names.item_swap_main') : i18n.t('common.action_names.item_swap_swapped');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/ability_dualwield.jpg';
 				break;
 		}
 		this.baseName = baseName ?? '';
 		this.name = (name || baseName) ?? '';
 		this.iconUrl = iconUrl ?? '';
-		if (this.name) this.name += this.rank ? ` (Rank ${this.rank})` : '';
+		if (this.name) this.name += this.rank ? ` (${i18n.t('common.action_tags.rank', { rank: this.rank })})` : '';
 		this.spellIdTooltipOverride = this.spellTooltipOverride?.spellId || null;
 	}
 
@@ -246,13 +243,13 @@ export class ActionId {
 		}
 		const name = await spellName;
 		if (!name) return this;
-		return new ActionId({ otherId: this.otherId, tag: this.tag, name: `Attack (${name})`, iconUrl: this.iconUrl });
+		return new ActionId({ otherId: this.otherId, tag: this.tag, name: `${i18n.t('common.action_names.attack')} (${name})`, iconUrl: this.iconUrl });
 	}
 
 	// Returns an ActionId with the name and iconUrl fields filled.
 	// playerIndex is the optional index of the player to whom this ID corresponds.
 	async fill(playerIndex?: number): Promise<ActionId> {
-		if (this.otherId == OtherAction.OtherActionAttack && this.name == 'Attack' && this.tag > 2) {
+		if (this.otherId == OtherAction.OtherActionAttack && this.name == i18n.t('common.action_names.attack') && this.tag > 2) {
 			return this.fillExtraAttack();
 		}
 		if (this.name || this.iconUrl) {
@@ -271,145 +268,145 @@ export class ActionId {
 
 		switch (baseName) {
 			case 'Minor Speed':
-				name = 'Minor Run Speed (8%)';
+				name = i18n.t('common.action_names.minor_run_speed');
 				break;
 			case 'Arcane Missiles':
 				break;
 			case 'Arcane Blast':
 				if (tag == 1) {
-					name += ' (No Stacks)';
+					name += ` (${i18n.t('common.action_tags.no_stacks')})`;
 				} else if (tag == 2) {
-					name += ` (1 Stack)`;
+					name += ` (${i18n.t('common.action_tags.one_stack')})`;
 				} else if (tag > 2) {
-					name += ` (${tag - 1} Stacks)`;
+					name += ` (${i18n.t('common.action_tags.stacks', { stacks: tag - 1 })})`;
 				}
 				break;
 			case 'Hot Streak':
-				if (tag) name += ' (Crits)';
+				if (tag) name += ` (${i18n.t('common.action_tags.crits')})`;
 				break;
 			case 'Fireball':
 			case 'Flamestrike':
-				if (tag == 1) name += ' (Blast Wave)';
+				if (tag == 1) name += ` (${i18n.t('common.action_tags.blast_wave')})`;
 				break;
 			case 'Pyroblast':
 			case 'Combustion':
-				if (tag) name += ' (DoT)';
+				if (tag) name += ` (${i18n.t('common.action_tags.dot')})`;
 				break;
 			case 'Evocation':
 				if (tag == 1) {
-					name += ' (1 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 1 })})`;
 				} else if (tag == 2) {
-					name += ' (2 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 2 })})`;
 				} else if (tag == 3) {
-					name += ' (3 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 3 })})`;
 				} else if (tag == 4) {
-					name += ' (4 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 4 })})`;
 				} else if (tag == 5) {
-					name += ' (5 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 5 })})`;
 				}
 				break;
 			case 'Mind Flay':
 				if (tag == 1) {
-					name += ' (1 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 1 })})`;
 				} else if (tag == 2) {
-					name += ' (2 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 2 })})`;
 				} else if (tag == 3) {
-					name += ' (3 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 3 })})`;
 				}
 				break;
 			case 'Mind Sear':
 				if (tag == 1) {
-					name += ' (1 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 1 })})`;
 				} else if (tag == 2) {
-					name += ' (2 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 2 })})`;
 				} else if (tag == 3) {
-					name += ' (3 Tick)';
+					name += ` (${i18n.t('common.action_tags.ticks', { ticks: 3 })})`;
 				} else if (tag == 77486) {
-					name += ' (Mastery)';
+					name += ` (${i18n.t('common.action_tags.mastery')})`;
 				}
 
 				break;
 			case 'Shoot':
-				if (tag == 1) name += ' (Shot)';
+				if (tag == 1) name += ` (${i18n.t('common.action_tags.shot')})`;
 				break;
 			case 'Envenom':
 			case 'Eviscerate':
 			case 'Rupture':
 			case 'Slice and Dice':
 			case 'Expose Armor':
-				if (tag) name += ` (${tag} CP)`;
+				if (tag) name += ` (${i18n.t('common.action_tags.combo_points', { points: tag })})`;
 				break;
 			case 'Crimson Tempest':
 				if (tag == 7) {
-					name += ' (DoT)';
+					name += ` (${i18n.t('common.action_tags.dot')})`;
 				} else if (tag) {
-					name += ` (${tag} CP)`;
+					name += ` (${i18n.t('common.action_tags.combo_points', { points: tag })})`;
 				}
 				break;
 			case 'Wound Poison':
 				if (tag == 1) {
-					name += ' (Shiv)';
+					name += ` (${i18n.t('common.action_tags.shiv')})`;
 				}
 				break;
 			case 'Bladestorm':
 				if (tag == 1) {
-					name += ' (Main Hand)';
+					name += ` (${i18n.t('common.action_tags.main_hand')})`;
 				} else if (tag == 2) {
-					name += ' (Off Hand)';
+					name += ` (${i18n.t('common.action_tags.off_hand')})`;
 				}
 				break;
 			case 'Mutilate':
 				if (tag == 0) {
-					name += ' (Cast)';
+					name += ` (${i18n.t('common.action_tags.cast')})`;
 				} else if (tag == 1) {
-					name += ' (Main Hand)';
+					name += ` (${i18n.t('common.action_tags.main_hand')})`;
 				} else if (tag == 2) {
-					name += ' (Off Hand)';
+					name += ` (${i18n.t('common.action_tags.off_hand')})`;
 				}
 				break;
 			case 'Stormstrike':
 				if (tag == 0) {
-					name += ' (Cast)';
+					name += ` (${i18n.t('common.action_tags.cast')})`;
 				} else if (tag == 1) {
-					name += ' (Main Hand)';
+					name += ` (${i18n.t('common.action_tags.main_hand')})`;
 				} else if (tag == 2) {
-					name += ' (Off Hand)';
+					name += ` (${i18n.t('common.action_tags.off_hand')})`;
 				}
 				break;
 			case 'Chain Lightning':
 			case 'Lightning Bolt':
 			case 'Lava Burst':
 				if (tag == 6) {
-					name += ' (Overload)';
+					name += ` (${i18n.t('common.action_tags.overload')})`;
 				} else if (tag == 7) {
-					name += ' (Echo)';
+					name += ` (${i18n.t('common.action_tags.echo')})`;
 				} else if (tag == 8) {
-					name += ' (Echo Overload)';
+					name += ` (${i18n.t('common.action_tags.echo_overload')})`;
 				} else if (tag == 9) {
-					name += ' (Mastery)';
+					name += ` (${i18n.t('common.action_tags.mastery')})`;
 				} else if (tag == 10) {
-					name += ' (Haste)';
+					name += ` (${i18n.t('common.action_tags.haste')})`;
 				} else if (tag == 11) {
-					name += ' (Crit)';
+					name += ` (${i18n.t('common.action_tags.crit')})`;
 				} else if (tag == 12) {
-					name += ' (Agi)';
+					name += ` (${i18n.t('common.action_tags.agi')})`;
 				} else if (tag) {
-					name += ` (${tag} MW)`;
+					name += ` (${i18n.t('common.action_tags.maelstrom_weapon', { stacks: tag })})`;
 				}
 				break;
 			case 'Flame Shock':
 			case 'Earth Shock':
 			case 'Frost Shock':
 				if (tag == 1) {
-					name += ' (DoT)';
+					name += ` (${i18n.t('common.action_tags.dot')})`;
 				} else if (tag == 7) {
-					name += ' (Echo)';
+					name += ` (${i18n.t('common.action_tags.echo')})`;
 				}
 				break;
 			case 'Fire Nova':
 				// The cast's hits report under its spell, tagged 1, so they share its row.
 				if (tag === 1) {
-					name += ' (Damage)';
+					name += ` (${i18n.t('common.action_tags.damage')})`;
 				}
 				break;
 			case 'Fulmination':
@@ -417,13 +414,13 @@ export class ActionId {
 				break;
 			case 'Lightning Shield':
 				if (tag == 1) {
-					name += ' (Wasted)';
+					name += ` (${i18n.t('common.action_tags.wasted')})`;
 				}
 				break;
 			case 'Moonfire':
 			case 'Sunfire':
 				if (tag == 1) {
-					name += ' (DoT)';
+					name += ` (${i18n.t('common.action_tags.dot')})`;
 				}
 				break;
 			// For targetted buffs, tag is the source player's raid index or -1 if none.
@@ -433,12 +430,12 @@ export class ActionId {
 			case 'Power Infusion':
 				if (tag != -1) {
 					if (tag === playerIndex || playerIndex == undefined) {
-						name += ` (self)`;
+						name += ` (${i18n.t('common.action_tags.self')})`;
 					} else {
-						name += ` (from #${tag + 1})`;
+						name += ` (${i18n.t('common.action_tags.from_player', { number: tag + 1 })})`;
 					}
 				} else {
-					name += ' (raid)';
+					name += ` (${i18n.t('common.action_tags.raid')})`;
 				}
 				break;
 			case 'Berserking':
@@ -450,26 +447,26 @@ export class ActionId {
 			case 'Windfury Weapon':
 			case 'Enchant Weapon - Crusader':
 				if (tag == 1) {
-					name += ' (Main Hand)';
+					name += ` (${i18n.t('common.action_tags.main_hand')})`;
 				} else if (tag == 2) {
-					name += ' (Off Hand)';
+					name += ` (${i18n.t('common.action_tags.off_hand')})`;
 				}
 				break;
 			case 'Heroic Strike':
 			case 'Cleave':
 			case 'Maul':
 				if (tag == 1) {
-					name += ' (Queue)';
+					name += ` (${i18n.t('common.action_tags.queue')})`;
 				}
 				break;
 			case 'Sweeping Strikes':
 				if (tag == 1) {
-					name += ' (Normalized)';
+					name += ` (${i18n.t('common.action_tags.normalized')})`;
 				}
 				break;
 			case 'Sunder Armor':
 				if (tag == 1) {
-					name += ' (Devastate)';
+					name += ` (${i18n.t('common.action_tags.devastate')})`;
 				}
 				break;
 			case 'Improved Berserker Rage':
@@ -478,53 +475,53 @@ export class ActionId {
 				break;
 			case 'Thunderfury':
 				if (tag == 1) {
-					name += ' (ST)';
+					name += ` (${i18n.t('common.action_tags.single_target')})`;
 				} else if (tag == 2) {
-					name += ' (MT)';
+					name += ` (${i18n.t('common.action_tags.multi_target')})`;
 				}
 				break;
 			case 'Devouring Plague':
 				if (tag == 1) {
-					name += ' (DoT)';
+					name += ` (${i18n.t('common.action_tags.dot')})`;
 					break;
 				} else if (tag == 2) {
-					name += ' (Heal)';
+					name += ` (${i18n.t('common.action_tags.heal')})`;
 					break;
 				}
 				if (tag == 77486) {
-					name += ' (Mastery)';
+					name += ` (${i18n.t('common.action_tags.mastery')})`;
 					break;
 				}
 			case 'Shadow Word: Death':
 				if (tag == 1) {
-					name += ' (No Orb)';
+					name += ` (${i18n.t('common.action_tags.no_orb')})`;
 				}
 			case 'Shadowfiend':
 				if (tag == 1) {
-					name += ' (Mana Restore)';
+					name += ` (${i18n.t('common.action_tags.mana_restore')})`;
 				}
 				break;
 			case 'Immolate':
 				if (tag == 1) {
-					name += ' (DoT)';
+					name += ` (${i18n.t('common.action_tags.dot')})`;
 				}
 				break;
 			case 'Vampiric Touch':
 			case 'Shadow Word: Pain':
 				if (tag == 77486) {
-					name += ' (Mastery)';
+					name += ` (${i18n.t('common.action_tags.mastery')})`;
 				}
 
 				break;
 			case 'Unstable Affliction':
 			case 'Corruption':
 				if (tag == 1) {
-					name += ' (Malefic)';
+					name += ` (${i18n.t('common.action_tags.malefic')})`;
 				}
 				break;
 			case 'Raptor Strike':
 				if (tag == 2) {
-					name += ' (Cooldown)';
+					name += ` (${i18n.t('common.action_tags.cooldown')})`;
 				}
 				break;
 			case 'Retribution Aura':
@@ -534,9 +531,9 @@ export class ActionId {
 				// player's own copy, tag 1 the copy an outside caster provides, and that copy's
 				// aura is the tag -1 this case names below.
 				if (tag === 1 || tag === 2) {
-					name += ' (Hit)';
+					name += ` (${i18n.t('common.action_tags.hit')})`;
 				} else if (tag === -1) {
-					name += ' (External)';
+					name += ` (${i18n.t('common.action_tags.external')})`;
 				}
 				break;
 			case 'Searing Totem':
@@ -544,23 +541,35 @@ export class ActionId {
 			case 'Flametongue Totem':
 				// A totem's hits report under the totem's spell, tagged 1, so they share its row.
 				if (tag === 1) {
-					name += ' (Attack)';
+					name += ` (${i18n.t('common.action_names.attack')})`;
 				} else if (tag === -1) {
-					name += ' (External)';
+					name += ` (${i18n.t('common.action_tags.external')})`;
 				}
 				break;
 			case 'Dummy Spell':
 				if (tag === 100000) {
-					['Arcane', 'Fire', 'Frost', 'Holy', 'Shadow', 'Nature'].forEach((school, index) => {
+					[
+						i18n.t('common.spell_schools.arcane'),
+						i18n.t('common.spell_schools.fire'),
+						i18n.t('common.spell_schools.frost'),
+						i18n.t('common.spell_schools.holy'),
+						i18n.t('common.spell_schools.shadow'),
+						i18n.t('common.spell_schools.nature'),
+					].forEach((school, index) => {
 						if (tag === 100000 + index) {
 							name += ` (${school})`;
 						}
 					});
 				}
 				break;
+			case 'Penance':
+				if (tag === 1) {
+					name += ' (Heal)';
+				}
+				break;
 			default:
 				if (tag === -1) {
-					name += ' (External)';
+					name += ` (${i18n.t('common.action_tags.external')})`;
 				} else if (tag) {
 					name += ' (??)';
 				}
@@ -799,13 +808,21 @@ export class ActionId {
 	}
 
 	get nameWithoutRank(): string {
-		return this.name.replace(/ \(Rank \d+\)/g, '');
+		return this.name.replace(rankSuffixPattern(), '');
 	}
 
 	get hasRank(): boolean {
 		return this.rank > 0;
 	}
 }
+
+// Matches the " (Rank N)" suffix the constructor appends, in the current locale's wording.
+const rankSuffixPattern = (): RegExp => {
+	const [before, after] = i18n.t('common.action_tags.rank', { rank: '\u0000' }).split('\u0000');
+	const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const rank = after === undefined ? escape(before) : `${escape(before)}\\d+${escape(after)}`;
+	return new RegExp(` \\(${rank}\\)`, 'g');
+};
 
 type ActionIdOverride = { itemId?: number; spellId?: number };
 
