@@ -135,13 +135,19 @@ describe('BulkSettings encounters group', () => {
 	};
 	const rows = () => screen.queryAllByTestId('bulk-encounter');
 	const box = (name: string) => screen.getByRole('checkbox', { name });
+	// The texts a checkbox is described by: the encounter summary, then the duplicate reason when there is one.
+	const descriptions = (name: string) => (box(name).getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent);
+	const hasLabelTooltip = (name: string) => screen.getByText(name, { selector: 'label' }).hasAttribute('data-tooltip-id');
 
-	it('lists the presets, then the saved encounters, under their headings', () => {
+	it('lists the presets, then the saved encounters, under their headings, each with its summary as a tooltip', () => {
 		openEncounters({ presets: [{ name: 'Patchwerk', encounter: PATCHWERK }], saved: { Council: COUNCIL } });
 
 		expect(rows()).toHaveLength(2);
-		expect(rows()[0].textContent).toMatch(/^Patchwerk.*5:00 ±30s · bulk_tab\.settings\.encounters\.targets$/);
-		expect(rows()[1].textContent).toMatch(/^Council.*4:00 ±10s · bulk_tab\.settings\.encounters\.targets$/);
+		expect(rows().map(row => row.querySelector('label')?.textContent)).toEqual(['Patchwerk', 'Council']);
+		expect(descriptions('Patchwerk')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets']);
+		expect(descriptions('Council')).toEqual(['4:00 ±10s · bulk_tab.settings.encounters.targets']);
+		expect(hasLabelTooltip('Patchwerk')).toBe(true);
+		expect(hasLabelTooltip('Council')).toBe(true);
 		expect(screen.getByText('bulk_tab.settings.encounters.presets')).toBeTruthy();
 		expect(screen.getByText('bulk_tab.settings.encounters.saved')).toBeTruthy();
 		expect(screen.queryByText('bulk_tab.settings.encounters.empty')).toBeNull();
@@ -156,16 +162,17 @@ describe('BulkSettings encounters group', () => {
 
 	it('shows the current encounter as a ticked, locked row that follows the live encounter', () => {
 		const { player } = openEncounters();
-		const summary = () => screen.getByTestId('bulk-encounter-current-summary').textContent;
-		const current = box('bulk_tab.settings.encounters.current');
+		const name = 'bulk_tab.settings.encounters.current';
+		const current = box(name);
 
 		expect(current.getAttribute('aria-checked')).toBe('true');
 		expect(current.getAttribute('aria-disabled')).toBe('true');
-		expect(summary()).toBe('3:00 ±5s · bulk_tab.settings.encounters.targets');
+		expect(hasLabelTooltip(name)).toBe(true);
+		expect(descriptions(name)).toEqual(['3:00 ±5s · bulk_tab.settings.encounters.targets']);
 
 		act(() => patchSlice(player.sim.store, 'encounter', { duration: 200, useHealth: true }));
 
-		expect(summary()).toBe('bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets');
+		expect(descriptions(name)).toEqual(['bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets']);
 	});
 
 	it('stores the checked refs in list order', () => {
@@ -199,10 +206,9 @@ describe('BulkSettings encounters group', () => {
 		});
 
 		expect(['Patchwerk', 'Patchwerk again', 'Council'].map(name => box(name).getAttribute('aria-invalid'))).toEqual([null, 'true', null]);
-		const describedBy = box('Patchwerk again').getAttribute('aria-describedby')!;
-		expect(document.getElementById(describedBy)?.textContent).toBe('bulk_tab.settings.encounters.duplicate');
-		expect(box('Council').hasAttribute('aria-describedby')).toBe(false);
-		expect(box('Patchwerk').hasAttribute('aria-describedby')).toBe(false);
+		expect(descriptions('Patchwerk again')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets', 'bulk_tab.settings.encounters.duplicate']);
+		expect(descriptions('Council')).toEqual(['4:00 ±10s · bulk_tab.settings.encounters.targets']);
+		expect(descriptions('Patchwerk')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets']);
 	});
 
 	it('points to the saved encounters when there is nothing to pick', () => {

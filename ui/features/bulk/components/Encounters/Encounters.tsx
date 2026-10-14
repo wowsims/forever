@@ -32,33 +32,34 @@ interface EncounterCheckRowProps {
 	duplicate?: boolean;
 	onChange: (checked: boolean) => void;
 	testId: string;
-	summaryTestId?: string;
 }
 
-// The label column shrinks and wraps, so a long name never runs into the summary.
-const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = false, onChange, testId, summaryTestId }: EncounterCheckRowProps) => (
-	<div className="grid grid-cols-[1fr_auto] items-center gap-2" data-testid={testId}>
+// The summary shows as the label's hover tooltip; the sr-only copy describes the checkbox for screen readers, which
+// the tooltip does not reach.
+const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = false, onChange, testId }: EncounterCheckRowProps) => (
+	<>
 		<BooleanPicker
 			id={id}
-			className="min-w-0"
 			label={label}
+			labelTooltip={summary}
 			layout="inline"
 			size="sm"
 			value={checked}
 			disabled={disabled}
 			invalid={duplicate}
-			aria-describedby={duplicate ? `${id}-duplicate` : undefined}
+			aria-describedby={duplicate ? `${id}-summary ${id}-duplicate` : `${id}-summary`}
 			onChange={onChange}
+			testId={testId}
 		/>
+		<span id={`${id}-summary`} className="sr-only">
+			{summary}
+		</span>
 		{duplicate && (
 			<span id={`${id}-duplicate`} className="sr-only">
 				{t('duplicate')}
 			</span>
 		)}
-		<span className="text-xs whitespace-nowrap text-gray-400 tabular-nums" data-testid={summaryTestId}>
-			{summary}
-		</span>
-	</div>
+	</>
 );
 
 export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange }: EncountersViewProps) => {
@@ -93,7 +94,6 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 				disabled
 				onChange={() => {}}
 				testId="bulk-encounter-current"
-				summaryTestId="bulk-encounter-current-summary"
 			/>
 			{group(true, t('presets'), presets)}
 			{group(false, t('saved'), saved)}
