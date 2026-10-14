@@ -48,7 +48,7 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 		ActionID:    actionID.WithTag(actionID.Tag + 2),
 		SpellSchool: school,
 		ProcMask:    core.ProcMaskEmpty,
-		Flags:       core.SpellFlagBinary | core.SpellFlagPassiveSpell,
+		Flags:       core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
