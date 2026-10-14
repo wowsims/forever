@@ -8,6 +8,7 @@ export type ButtonVariant =
 	| 'link'
 	| 'link-danger'
 	| 'outline-primary'
+	| 'outline-secondary'
 	| 'outline-light'
 	| 'outline-cancel'
 	| 'unstyled';

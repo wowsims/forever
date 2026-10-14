@@ -35,6 +35,7 @@ const meta = {
 		options: { control: false },
 		value: { control: 'select', options: OPTIONS.map(option => option.value) },
 		size: { control: 'select', options: [undefined, 'sm', 'xs'] },
+		tone: { control: 'select', options: ['accent', 'neutral'] },
 	},
 	render: args => <StatefulToggleGroup {...args} />,
 } satisfies Meta<typeof ToggleGroup<View>>;
@@ -54,3 +55,5 @@ export const Default: Story = {
 export const Small: Story = { args: { size: 'sm' } };
 
 export const Disabled: Story = { args: { disabled: true } };
+
+export const Neutral: Story = { args: { tone: 'neutral', size: 'sm' } };

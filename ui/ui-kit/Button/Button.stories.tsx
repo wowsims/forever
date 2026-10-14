@@ -14,6 +14,7 @@ const VARIANTS: Array<ButtonVariant> = [
 	'link',
 	'link-danger',
 	'outline-primary',
+	'outline-secondary',
 	'outline-light',
 	'outline-cancel',
 	'unstyled',
@@ -55,6 +56,7 @@ export const Cancel: Story = { args: { variant: 'cancel' } };
 export const Link: Story = { args: { variant: 'link', size: 'sm' } };
 export const LinkDanger: Story = { args: { variant: 'link-danger', size: 'sm' } };
 export const OutlinePrimary: Story = { args: { variant: 'outline-primary' } };
+export const OutlineSecondary: Story = { args: { variant: 'outline-secondary' } };
 export const OutlineLight: Story = { args: { variant: 'outline-light' } };
 export const OutlineCancel: Story = { args: { variant: 'outline-cancel' } };
 export const Unstyled: Story = { args: { variant: 'unstyled' } };
