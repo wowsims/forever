@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import clsx from 'clsx';
@@ -15,7 +16,7 @@ export const RowActions = ({ favourited, favouriteTooltipId, onToggleFavourite, 
 	<>
 		<Button
 			iconOnly
-			aria-label="Favorite"
+			aria-label={i18n.t('gear_tab.gear_picker.row_actions.favorite')}
 			className={clsx('relative z-1 w-8', favourited && 'text-brand')}
 			data-testid="selector-modal-list-item-favorite"
 			data-tooltip-id={favouriteTooltipId}
@@ -29,7 +30,7 @@ export const RowActions = ({ favourited, favouriteTooltipId, onToggleFavourite, 
 		{compare && (
 			<Button
 				iconOnly
-				aria-label="Compare"
+				aria-label={i18n.t('gear_tab.gear_picker.row_actions.compare')}
 				className={clsx('relative z-1 w-8', compare.inBatch && 'text-brand')}
 				data-testid="selector-modal-list-item-compare"
 				data-tooltip-id={compare.tooltipId}

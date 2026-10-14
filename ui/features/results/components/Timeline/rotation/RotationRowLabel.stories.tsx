@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MORTAL_STRIKE } from '@testing/storybook/fixtures/results-views';
 import { Tooltip } from '@ui-kit/Tooltip';
@@ -34,7 +35,9 @@ type Story = StoryObj<typeof meta>;
 
 export const Hideable: Story = {
 	play: async ({ args, canvasElement }) => {
-		await userEvent.click(within(canvasElement).getByRole('button', { name: `Hide ${MORTAL_STRIKE.name}` }));
+		await userEvent.click(
+			within(canvasElement).getByRole('button', { name: i18n.t('results_tab.details.timeline.hide_row_named', { row: MORTAL_STRIKE.name }) }),
+		);
 		await expect(args.onHide).toHaveBeenCalledOnce();
 	},
 };

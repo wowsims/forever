@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import type { CastLog } from '@sim/proto/combat_log';
 
 export interface DelayTooltipProps {
@@ -6,8 +7,6 @@ export interface DelayTooltipProps {
 
 export const DelayTooltip = ({ log }: DelayTooltipProps) => (
 	<div className="ui-timeline-tooltip">
-		<span>
-			Auto delayed by {log.delayText}, was ready at {log.readyAtText}
-		</span>
+		<span>{i18n.t('results_tab.details.timeline.delay_tooltip', { delay: log.delayText, readyAt: log.readyAtText })}</span>
 	</div>
 );

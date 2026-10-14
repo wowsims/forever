@@ -49,7 +49,7 @@ export const ItemListHeaderRow = ({ label, ep, sortBy, sortDirection, onSort }: 
 						variant="unstyled"
 						className="flex items-center text-inherit [font:inherit] focus-visible:focus-ring"
 						onClick={() => onSort(ItemListSortBy.EP)}>
-						<span>EP</span>
+						<span>{i18n.t('gear_tab.gear_picker.table_headers.ep')}</span>
 						<Icon name="plus-minus" size="2xs" />
 						{epSortedLabel && <span className="sr-only">, {epSortedLabel}</span>}
 					</Button>

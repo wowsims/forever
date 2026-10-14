@@ -33,7 +33,7 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, o
 			await onImport(host, textRef.current?.value || '');
 			onOpenChange(false);
 		} catch (error: any) {
-			toastManager.add({ variant: 'error', body: `Import error: ${error?.message || error}` });
+			toastManager.add({ variant: 'error', body: `${i18n.t('import.error')} ${error?.message || error}` });
 		}
 	};
 

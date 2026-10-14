@@ -18,6 +18,9 @@ const mount = (groups: Array<IdentifiedSearchGroup>, onChange = vi.fn()) => ({
 	),
 });
 
+// The test setup loads no locale, so each label reads as its own key.
+const PREVIEW = 'results_tab.details.logs.search_fields.outcome: results_tab.details.attack_types.crit';
+
 const clear = (container: HTMLElement) => container.querySelector<HTMLButtonElement>('[data-testid="log-floating-action-bar-clear"]')!;
 
 describe('LogToolbar', () => {
@@ -28,13 +31,13 @@ describe('LogToolbar', () => {
 		expect(container.querySelector('[data-testid="log-floating-action-bar-summary"]')!.textContent).toBe(
 			'results_tab.details.logs.floatingActionBar.active',
 		);
-		expect(container.querySelector('[data-testid="log-floating-action-bar-preview"]')!.textContent).toBe('Outcome: Crit');
+		expect(container.querySelector('[data-testid="log-floating-action-bar-preview"]')!.textContent).toBe(PREVIEW);
 	});
 
 	it('elides the preview past three filters', () => {
 		const { container } = mount([0, 1, 2, 3].map(index => group('outcome', ['crit'], index)));
 
-		expect(container.querySelector('[data-testid="log-floating-action-bar-preview"]')!.textContent).toBe('Outcome: Crit, Outcome: Crit, Outcome: Crit, …');
+		expect(container.querySelector('[data-testid="log-floating-action-bar-preview"]')!.textContent).toBe(`${PREVIEW}, ${PREVIEW}, ${PREVIEW}, …`);
 	});
 
 	it('says there are no filters and hides Clear while nothing is picked', () => {

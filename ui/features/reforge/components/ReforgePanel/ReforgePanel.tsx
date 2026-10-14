@@ -102,7 +102,7 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 					{i18n.t('sidebar.buttons.suggest_reforges.reforge_optimization_failed')}
 					<p />
 					<p>
-						<b>Reason for failure:</b> <i>{String(error)}</i>
+						<b>{i18n.t('sidebar.buttons.suggest_reforges.failure_reason')}</b> <i>{String(error)}</i>
 					</p>
 				</>,
 				{ variant: 'error', delay: 10000 },
@@ -234,15 +234,12 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 				<ProgressTrackerDialog
 					open
 					testId="reforge-optimizer-progress-tracker"
-					title="Optimizing Enchants"
+					title={i18n.t('sidebar.buttons.suggest_reforges.progress.title')}
 					state={{ stage: 'initializing' }}
 					warning={
 						<>
-							<p>
-								Enchant optimization can be a lengthy process, especially as specific stat caps and breakpoints come into play for classes. This
-								may take a while, but be assured that the calculation will eventually complete.
-							</p>
-							<p className="mb-0">You may cancel this operation at any time using the button below.</p>
+							<p>{i18n.t('sidebar.buttons.suggest_reforges.progress.lengthy')}</p>
+							<p className="mb-0">{i18n.t('sidebar.buttons.suggest_reforges.progress.cancel_hint')}</p>
 						</>
 					}
 					onCancel={onCancel}

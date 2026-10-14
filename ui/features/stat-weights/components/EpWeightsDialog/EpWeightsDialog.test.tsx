@@ -720,7 +720,7 @@ describe('EpWeightsDialog', () => {
 			});
 			expect(toasts).toEqual([
 				{ variant: 'error', body: 'sim exploded' },
-				{ variant: 'info', body: 'Statweight sim cancelled.' },
+				{ variant: 'info', body: 'sidebar.buttons.stat_weights.modal.notifications.cancelled' },
 			]);
 			expect(rowFor('Strength').querySelector('[data-column-type="ep"] [data-notapplicable]')).not.toBeNull();
 

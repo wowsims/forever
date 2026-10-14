@@ -91,6 +91,8 @@
 		"TraitEdge",
 		"TraitNodeGroupXTraitCond",
 		"PlayerExpectedStat",
+		"ExpectedStat",
+		"ExpectedStatMod",
 		"SpellCastTimes",
 		"SpellCastingRequirements"
 	]

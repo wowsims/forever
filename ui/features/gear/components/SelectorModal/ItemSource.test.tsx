@@ -32,7 +32,7 @@ describe('ItemSource', () => {
 		const { container, getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('href')).toBe(`${ActionId.makeItemUrl(100)}#dropped-by`);
-		expect(container.textContent).toBe('World Drop');
+		expect(container.textContent).toBe('gear_tab.gear_picker.sources.world_drop');
 	});
 
 	it('links to the pvp season for a gladiator item with no sources', () => {
@@ -40,7 +40,7 @@ describe('ItemSource', () => {
 		const { container, getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeItemUrl(200));
-		expect(container.textContent).toBe(`${getPVPSeasonFromItem(item)}PVP`);
+		expect(container.textContent).toBe(`${getPVPSeasonFromItem(item)}common.sources.pvp`);
 	});
 
 	it('renders nothing for a plain item with no sources, no suffixes, and no pvp name', () => {
@@ -140,7 +140,7 @@ describe('ItemSource', () => {
 		const { container, queryByRole } = mount(item);
 
 		expect(queryByRole('img')).toBeNull();
-		expect(container.textContent).toBe('QuestNeutral Ground');
+		expect(container.textContent).toBe('common.sources.questNeutral Ground');
 	});
 
 	it('finds and renders a rep source even when it is not the first entry', () => {
@@ -165,7 +165,7 @@ describe('ItemSource', () => {
 		const { container, getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(5));
-		expect(container.textContent).toBe(`Sold by${"Sha'tari Quartermaster"}`);
+		expect(container.textContent).toBe(`common.sources.sold_by${"Sha'tari Quartermaster"}`);
 	});
 
 	it('opens external links in a new tab, with noopener and noreferrer', () => {

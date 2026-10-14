@@ -1,4 +1,5 @@
 import { PseudoStat, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { UnitStat } from '@sim/proto/stats';
 
 import type { ExporterDefinition } from './types';
@@ -56,7 +57,7 @@ const getName = (stat: UnitStat): string => (stat.isStat() ? STAT_NAMES[stat.get
 const getScale = (stat: UnitStat): number => (stat.isStat() ? (stat.convertPercentToRating(1) ?? 1) : 1);
 
 export const SIXTY_UPGRADES_EP_EXPORTER: ExporterDefinition = {
-	title: 'Sixty Upgrades EP Export',
+	title: i18n.t('export.sixty_upgrades_ep.title'),
 	allowDownload: true,
 	getData: host => {
 		const player = host.player;

@@ -604,6 +604,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9419, // Galgann's Firehammer
+		[
+			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
+		]
+	],
+	[
 		9446, // Electrocutioner Leg
 		[
 			"Blasts a target for 28 Nature damage. Mechanical targets take 2 x damage.", // 1292851 - https://www.wowhead.com/forever/spell=1292851

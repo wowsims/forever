@@ -23,16 +23,25 @@ func RegisterHealerPriest() {
 	)
 }
 
-// Gear planner only: no healing spells are implemented, so the agent exists to compute stats.
 func NewHealerPriest(character *core.Character, options *proto.Player) *HealerPriest {
 	selfBuffs := priest.SelfBuffs{
-		UseShadowfiend: true,
-		Armor:          options.GetHealerPriest().GetOptions().GetClassOptions().GetArmor(),
+		Armor: options.GetHealerPriest().GetOptions().GetClassOptions().GetArmor(),
 	}
 
-	return &HealerPriest{
-		Priest: priest.New(character, selfBuffs, options.TalentsString),
+	basePriest := priest.New(character, selfBuffs, options.TalentsString)
+	healerOptions := options.GetHealerPriest().GetOptions()
+	basePriest.PrayerOfHealingMode = healerOptions.GetPrayerOfHealingMode()
+	basePriest.PrayerOfMendingJumps = healerOptions.GetPrayerOfMendingJumps()
+	basePriest.PrayerOfMendingDelay = 2.5
+	if healerOptions != nil && healerOptions.PrayerOfMendingDelay != nil {
+		basePriest.PrayerOfMendingDelay = *healerOptions.PrayerOfMendingDelay
 	}
+	basePriest.HolyNovaHealTargets = healerOptions.GetHolyNovaHealTargets()
+	if basePriest.HolyNovaHealTargets == 0 {
+		basePriest.HolyNovaHealTargets = 5
+	}
+
+	return &HealerPriest{Priest: basePriest}
 }
 
 type HealerPriest struct {
@@ -45,6 +54,7 @@ func (healer *HealerPriest) GetPriest() *priest.Priest {
 
 func (healer *HealerPriest) Initialize() {
 	healer.Priest.Initialize()
+	healer.Priest.InitializeHealingSpells()
 }
 
 func (healer *HealerPriest) ApplyTalents() {

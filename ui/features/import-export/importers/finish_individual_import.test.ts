@@ -2,7 +2,6 @@
 // guard, which now reaches the caller instead of becoming an unhandled rejection, and which of the
 // two closing toasts is shown.
 import { Class, EquipmentSpec, Profession, Race } from '@generated/proto/common';
-import { classNames } from '@sim/proto/names';
 import { fakeHost } from '@testing/sim/fake_host';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -52,9 +51,7 @@ describe('finishIndividualImport', () => {
 	});
 
 	it('rejects when the export is for another class, before touching the player', async () => {
-		await expect(finishIndividualImport(host, parsed({ charClass: Class.ClassMage }))).rejects.toThrow(
-			`Wrong Class! Expected Warrior but found ${classNames.get(Class.ClassMage)}!`,
-		);
+		await expect(finishIndividualImport(host, parsed({ charClass: Class.ClassMage }))).rejects.toThrow('import.errors.wrong_class');
 		expect(player.setRace).not.toHaveBeenCalled();
 		expect(loadLeftovers).not.toHaveBeenCalled();
 	});
@@ -65,7 +62,7 @@ describe('finishIndividualImport', () => {
 		expect(player.setRace).toHaveBeenCalledWith(Race.RaceHuman);
 		expect(player.setGear).toHaveBeenCalledWith('the gear');
 		expect(player.setProfessions).toHaveBeenCalledWith([Profession.Engineering]);
-		expect(toasts).toEqual([{ variant: 'success', body: 'Import successful!' }]);
+		expect(toasts).toEqual([{ variant: 'success', body: 'import.success' }]);
 	});
 
 	// A talent string indexes the exporter's trees by position, and no exporter targets these
@@ -75,7 +72,7 @@ describe('finishIndividualImport', () => {
 
 		expect(player.setTalentsString).not.toHaveBeenCalled();
 		expect(toasts[0].variant).toBe('warning');
-		expect(toasts[0].body).toContain('not imported');
+		expect(toasts[0].body).toBe('import.talents_not_imported');
 	});
 
 	// `--` is what an empty three-tree talent string looks like: the import carried no talents, so
@@ -92,7 +89,7 @@ describe('finishIndividualImport', () => {
 		expect(toasts).toEqual([
 			{
 				variant: 'info',
-				body: 'Import successful, but the following IDs were not found in the sim database:\n\nItems: 1, 2\n\nEnchants: 3',
+				body: 'import.missing_ids.title\n\nimport.missing_ids.items 1, 2\n\nimport.missing_ids.enchants 3',
 			},
 		]);
 	});

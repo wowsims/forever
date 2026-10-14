@@ -22,7 +22,9 @@ describe('RotationRowsToolbar', () => {
 
 		fireEvent.click(toggle);
 		expect(chips(document.body).map(chip => chip.textContent)).toEqual(['Alpha', 'Beta', 'Gamma', 'Delta']);
-		expect(document.querySelector('[data-testid="rotation-floating-action-bar-group-title"]')!.textContent).toBe('Player');
+		expect(document.querySelector('[data-testid="rotation-floating-action-bar-group-title"]')!.textContent).toBe(
+			'results_tab.details.timeline.sections.player',
+		);
 	});
 
 	it('keeps the drawer open across a new result and rebuilds its chips', () => {

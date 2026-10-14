@@ -1047,8 +1047,6 @@ func spellDataProcHealSpell(character *core.Character, heal *spelldata.Spell, as
 // on the spell power share of the ticking effect. A tick crits only where the row states Periodic
 // Can Crit and does not rule crits out. A second proc while it runs starts it over.
 func spellDataProcHotSpell(character *core.Character, heal *spelldata.Spell, effect *spelldata.Effect, config core.SpellConfig) core.SpellConfig {
-	config.BonusCoefficient = effect.Coeff()
-
 	canCrit := heal.PeriodicCanCrit() && !heal.CannotCrit()
 	config.Hot = spelldata.DotConfig(heal, effect, spelldata.Label(heal.Name+" HoT"))
 	config.Hot.SelfOnly = true

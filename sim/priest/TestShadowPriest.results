@@ -1,28 +1,25 @@
 character_stats_results: {
  key: "TestShadowPriest-CharacterStats-Default"
  value: {
-  final_stats: 178
-  final_stats: 174
-  final_stats: 579
-  final_stats: 345
-  final_stats: 897.3
-  final_stats: 884.3
+  final_stats: 115
+  final_stats: 63
+  final_stats: 273
+  final_stats: 348
+  final_stats: 307
+  final_stats: 417
   final_stats: 0
   final_stats: 0
-  final_stats: 233
+  final_stats: 40
   final_stats: 0
   final_stats: 0
-  final_stats: 527
-  final_stats: 78
-  final_stats: 132
+  final_stats: 208
   final_stats: 0
+  final_stats: 236
+  final_stats: 377
+  final_stats: 50
   final_stats: 0
-  final_stats: 253
-  final_stats: 848.1
-  final_stats: 389
-  final_stats: 0
-  final_stats: 0
-  final_stats: 48
+  final_stats: 10
+  final_stats: 7
   final_stats: 0
   final_stats: 0
   final_stats: 0
@@ -31,1733 +28,1011 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 27
-  final_stats: 3044
-  final_stats: 0
-  final_stats: 10351
-  final_stats: 7515
-  final_stats: 122.5
-  final_stats: 33
-  final_stats: 33
-  final_stats: 33
-  final_stats: 33
+  final_stats: 1748
   final_stats: 70
+  final_stats: 3947
+  final_stats: 6316
+  final_stats: 81
+  final_stats: 27
+  final_stats: 27
+  final_stats: 27
+  final_stats: 33
+  final_stats: 60
+  final_stats: 0
+  final_stats: 1
+  final_stats: 1
+  final_stats: 9.65
+  final_stats: 13.1464
   final_stats: 0
   final_stats: 0
-  final_stats: 9.18293
-  final_stats: 17.31722
-  final_stats: 21.52909
+  final_stats: 0
+  final_stats: 6.15
   final_stats: 0
   final_stats: 0
   final_stats: 0
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-AbacusofViolentOdds-28288"
+ key: "TestShadowPriest-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-AbsolutionRegalia"
+ key: "TestShadowPriest-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 1720.86185
-  tps: 884.4098
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-AdamantineFigurine-27891"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-AdamantiteScope-2722"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 664.85549
+  tps: 336.40062
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-AegisofPreservation-19345"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-AncientAqirArtifact-33830"
+ key: "TestShadowPriest-AllItems-AnkhofLife-1713"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.30177
+  tps: 340.53093
+  dtps: 4.76836
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-AncientCrystalTalisman-25620"
+ key: "TestShadowPriest-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 1741.01806
-  tps: 899.75333
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-AncientDraeneiArcaneRelic-31615"
- value: {
-  dps: 1722.99397
-  tps: 890.69655
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-AncientDraeneiWarTalisman-31617"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Arcanist'sStone-28223"
- value: {
-  dps: 1734.36855
-  tps: 896.51495
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ArcanoweaveVestments"
- value: {
-  dps: 1614.31591
-  tps: 836.85372
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ArgussianCompass-27770"
- value: {
-  dps: 1542.7118
-  tps: 800.66584
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-AshtongueTalismanofAcumen-32490"
- value: {
-  dps: 1750.26125
-  tps: 904.11237
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-AvatarRegalia"
- value: {
-  dps: 1645.54033
-  tps: 848.99278
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BadgeofTenacity-32658"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-BandoftheEternalChampion-29301"
+ key: "TestShadowPriest-AllItems-Benediction-18608"
  value: {
-  dps: 1734.31729
-  tps: 896.47936
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BandoftheEternalDefender-29297"
- value: {
-  dps: 1734.31729
-  tps: 896.47936
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BandoftheEternalRestorer-29309"
- value: {
-  dps: 1754.48722
-  tps: 905.81423
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BandoftheEternalSage-29305"
- value: {
-  dps: 1770.41324
-  tps: 914.28238
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BangleofEndlessBlessings-28370"
- value: {
-  dps: 1707.94856
-  tps: 882.87401
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BattlecastGarb"
- value: {
-  dps: 1669.15041
-  tps: 864.0985
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sAlacrity-35326"
- value: {
-  dps: 1739.39452
-  tps: 900.12253
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sAlacrity-35327"
- value: {
-  dps: 1739.39452
-  tps: 900.12253
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sAudacity-34049"
- value: {
-  dps: 1737.19885
-  tps: 897.75921
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sCruelty-34163"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sDepravity-34162"
- value: {
-  dps: 1711.23901
-  tps: 884.89019
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sDetermination-33832"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Battlemaster'sPerseverance-34050"
- value: {
-  dps: 1725.72404
-  tps: 892.07311
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Berserker'sCall-33831"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Biznicks247x128Accurascope-2523"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-BlackenedNaaruSliver-34427"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Bladefist'sBreadth-28041"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 1737.31886
-  tps: 898.01148
+  dps: 669.349
+  tps: 338.60244
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-BloodlustBrooch-29383"
+ key: "TestShadowPriest-AllItems-BlazingEmblem-2802"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-BraidedEterniumChain-24114"
+ key: "TestShadowPriest-AllItems-BristleconeCloak-275833"
  value: {
-  dps: 1737.31886
-  tps: 898.01148
+  dps: 669.23089
+  tps: 338.38037
+  dtps: 5.18304
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-BroochoftheImmortalKing-32534"
+ key: "TestShadowPriest-AllItems-CloakofFire-14134"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 666.78569
+  tps: 337.19812
+  dtps: 5.07724
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-ChainoftheTwilightOwl-24121"
+ key: "TestShadowPriest-AllItems-CloakofFlames-3475"
  value: {
-  dps: 1751.86699
-  tps: 905.15922
+  dps: 669.23089
+  tps: 338.38037
+  dtps: 5.18304
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-CharmofAlacrity-25787"
+ key: "TestShadowPriest-AllItems-ColdBasiliskEye-5079"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-CircletofArcaneMight-24123"
+ key: "TestShadowPriest-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 1708.33545
-  tps: 883.05927
+  dps: 673.62997
+  tps: 340.63348
+  dtps: 4.5956
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-CommendationofKael'thas-34473"
+ key: "TestShadowPriest-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Coren'sLuckyCoin-38289"
+ key: "TestShadowPriest-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-CoreofAr'kelos-29776"
+ key: "TestShadowPriest-AllItems-Defender'sGripStabilizer-272440"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-CoronetofVerdantFlame-24122"
+ key: "TestShadowPriest-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 1693.985
-  tps: 875.34965
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-CrystalforgedTrinket-32654"
+ key: "TestShadowPriest-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Dabiri'sEnigma-30300"
+ key: "TestShadowPriest-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-DarkIronSmokingPipe-38290"
+ key: "TestShadowPriest-AllItems-DormantHeartoftheMountain-249473"
  value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.81803
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-DarkmoonCard:Crusade-31856"
+ key: "TestShadowPriest-AllItems-EarthenSigil-20525"
  value: {
-  dps: 1755.60213
-  tps: 906.88327
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-DarkmoonCard:Vengeance-31858"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-DarkmoonCard:Wrath-31857"
- value: {
-  dps: 1715.99929
-  tps: 887.23923
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-DirebrewHops-38288"
- value: {
-  dps: 1741.50294
-  tps: 899.98892
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-DraconicInfusedEmblem-22268"
- value: {
-  dps: 1721.35486
-  tps: 889.98111
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Dragonmaw-28438"
- value: {
-  dps: 1615.7752
-  tps: 837.87216
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-DragonspineTrophy-28830"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Dragonstrike-28439"
- value: {
-  dps: 1615.7752
-  tps: 837.87216
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-DrakefistHammer-28437"
- value: {
-  dps: 1615.7752
-  tps: 837.87216
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-EarringofSoulfulMeditation-30665"
- value: {
-  dps: 1726.03376
-  tps: 891.35576
+  dps: 673.8767
+  tps: 341.82496
+  dtps: 4.99616
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-Earthstrike-21180"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-EmblemofPerseverance-25996"
+ key: "TestShadowPriest-AllItems-EbonHand-19170"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-EmptyMugofDirebrew-38287"
+ key: "TestShadowPriest-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Enchant2HWeapon-GreaterImpact-963"
+ key: "TestShadowPriest-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 1724.86745
-  tps: 891.78948
+  dps: 690.76796
+  tps: 349.09774
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-EnchantBoots-Cat'sSwiftness-2939"
+ key: "TestShadowPriest-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 665.20235
+  tps: 336.57059
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantChest-Absorption-8220"
+ value: {
+  dps: 678.33705
+  tps: 343.00659
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantChest-LesserAbsorption-63"
+ value: {
+  dps: 678.33705
+  tps: 343.00659
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantChest-MinorAbsorption-44"
+ value: {
+  dps: 678.33705
+  tps: 343.00659
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantCloak-Subtlety-2621"
+ value: {
+  dps: 679.25005
+  tps: 336.78035
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-EnchantGloves-Threat-2613"
  value: {
-  dps: 1747.81705
-  tps: 920.71578
+  dps: 679.25005
+  tps: 350.12757
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-EnchantWeapon-Crusader-1900"
  value: {
-  dps: 1724.86745
-  tps: 891.78948
+  dps: 665.20235
+  tps: 336.57059
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-EssenceoftheMartyr-29376"
+ key: "TestShadowPriest-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 1741.50294
-  tps: 899.98892
+  dps: 676.30219
+  tps: 342.00951
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-EyeofMagtheridon-28789"
+ key: "TestShadowPriest-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 1747.1989
-  tps: 902.67066
+  dps: 665.59103
+  tps: 336.54858
+  dtps: 4.6436
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-Recovery-8721"
+ value: {
+  dps: 665.20235
+  tps: 336.57059
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EssenceofthePureFlame-18815"
+ value: {
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EverlookDeliveryBot-274760"
+ value: {
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EverlookPathcarver-274759"
+ value: {
+  dps: 675.64091
+  tps: 342.37989
+  dtps: 4.5828
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EyeofDiminution-23001"
+ value: {
+  dps: 684.3089
+  tps: 345.94978
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-EyeofMoam-21473"
  value: {
-  dps: 1712.14092
-  tps: 885.34085
+  dps: 695.26591
+  tps: 351.30173
+  dtps: 4.87321
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 1760.1939
-  tps: 909.44014
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-EyeoftheNight-24116"
+ key: "TestShadowPriest-AllItems-FetishofChitinousSpikes-21488"
  value: {
-  dps: 1740.93662
-  tps: 899.80141
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-FelsteelShieldSpike-2714"
+ key: "TestShadowPriest-AllItems-FetishoftheSandReaver-21647"
  value: {
-  dps: 1724.86745
-  tps: 891.78948
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Figurine-CrimsonSerpent-35700"
+ key: "TestShadowPriest-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 1732.43396
-  tps: 895.4196
+  dps: 675.64074
+  tps: 341.6854
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Figurine-DawnstoneCrab-24125"
+ key: "TestShadowPriest-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 676.28257
+  tps: 342.01556
+  dtps: 4.86559
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Figurine-EmpyreanTortoise-35693"
+ key: "TestShadowPriest-AllItems-FurbolgMedicinePouch-16768"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 670.24909
+  tps: 339.04349
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Figurine-LivingRubySerpent-24126"
+ key: "TestShadowPriest-AllItems-GlacialBlade-19099"
  value: {
-  dps: 1720.33934
-  tps: 889.32641
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Figurine-NightseyePanther-24128"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Figurine-ShadowsongPanther-35702"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-FigurineoftheColossus-27529"
- value: {
-  dps: 1539.80426
-  tps: 799.23261
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-FrostscytheofLordAhune-278953"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-GlowingCrystalInsignia-25619"
- value: {
-  dps: 1741.01806
-  tps: 899.75333
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-GlyphofDeflection-23040"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-GnomereganAuto-Blocker600-29387"
+ key: "TestShadowPriest-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 664.85549
+  tps: 336.40062
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Gri'lek'sCharmofValor-19952"
+ key: "TestShadowPriest-AllItems-GoldenBanana-270226"
  value: {
-  dps: 1706.49614
-  tps: 882.53877
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-HandofJustice-11815"
+ key: "TestShadowPriest-AllItems-Graverobber'sShovel-273817"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Hazza'rah'sCharmofDestruction-19957"
+ key: "TestShadowPriest-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 1706.8703
-  tps: 882.72193
+  dps: 637.96853
+  tps: 323.14346
+  dtps: 5.21571
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-GutRipper-2164"
+ value: {
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-HammeroftheNorthernWind-810"
+ value: {
+  dps: 637.96853
+  tps: 323.14346
+  dtps: 5.21571
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-HandofEdwardtheOdd-2243"
+ value: {
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-Hazza'rah'sCharmofHealing-19958"
  value: {
-  dps: 1710.04373
-  tps: 883.99622
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Hazza'rah'sCharmofMagic-19959"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Heartrazor-29962"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-HeavenlyInspiration-30293"
- value: {
-  dps: 1715.12768
-  tps: 886.2158
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-HexShrunkenHead-33829"
- value: {
-  dps: 1777.75577
-  tps: 918.05815
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 1719.77104
-  tps: 889.10234
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-HourglassoftheUnraveller-28034"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-IconofUnyieldingCourage-28121"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ImbuedNetherweave"
- value: {
-  dps: 1653.92616
-  tps: 855.06405
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-IncarnateRegalia"
- value: {
-  dps: 1616.76638
-  tps: 832.72186
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-InfinityBlade-30312"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-JomGabbar-23570"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-KhoriumScope-2723"
+ key: "TestShadowPriest-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 680.85892
+  tps: 344.25937
+  dtps: 5.04636
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 669.75676
+  tps: 338.69785
+  dtps: 4.78559
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Linken'sBoomerang-11905"
+ value: {
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.7744
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MadnessoftheBetrayer-32505"
+ key: "TestShadowPriest-AllItems-MajorRecombobulator-18637"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Mana-EtchedRegalia"
+ key: "TestShadowPriest-AllItems-ManualCrowdPummeler-9449"
  value: {
-  dps: 1561.91541
-  tps: 810.98121
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-MarkofResolution-17759"
+ value: {
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-MarkoftheChampion-23206"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-MarkoftheChampion-23207"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MasqueradeGown-28578"
+ key: "TestShadowPriest-AllItems-MarkoftheRedFlight-282778"
  value: {
-  dps: 1726.20566
-  tps: 891.9232
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MementoofTyrande-32496"
+ key: "TestShadowPriest-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 1730.44896
-  tps: 893.29239
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MindQuickeningGem-19339"
+ key: "TestShadowPriest-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 1732.32247
-  tps: 896.38814
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.81803
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Moroes'LuckyPocketWatch-28528"
+ key: "TestShadowPriest-AllItems-OrbofFire-12805"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-NatPagle'sBrokenReel-19947"
+ key: "TestShadowPriest-AllItems-PetrifiedScarab-21685"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-NaturalAlignmentCrystal-19344"
+ key: "TestShadowPriest-AllItems-RingofSaviors-1447"
  value: {
-  dps: 1729.69039
-  tps: 894.04897
+  dps: 672.85087
+  tps: 340.32141
+  dtps: 4.85953
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-NetherweaveVestments"
+ key: "TestShadowPriest-AllItems-SerenityField-272439"
  value: {
-  dps: 1586.03401
-  tps: 823.52748
+  dps: 679.487
+  tps: 343.67298
+  dtps: 4.89469
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-OgreMauler'sBadge-25628"
+ key: "TestShadowPriest-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Oshu'gunRelic-25634"
- value: {
-  dps: 1729.90852
-  tps: 894.21342
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PendantofFrozenFlame-24092"
- value: {
-  dps: 1737.31886
-  tps: 898.01148
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PendantofShadow'sEnd-24097"
- value: {
-  dps: 1737.31886
-  tps: 898.01148
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PendantofThawing-24093"
- value: {
-  dps: 1737.31886
-  tps: 898.01148
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PendantofWithering-24095"
- value: {
-  dps: 1737.31886
-  tps: 898.01148
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PendantoftheNullRune-24098"
- value: {
-  dps: 1737.31886
-  tps: 898.01148
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PendantoftheVioletEye-28727"
- value: {
-  dps: 1707.19186
-  tps: 881.72408
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PrimalMooncloth"
- value: {
-  dps: 1677.10362
-  tps: 865.40193
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Prismcharm-15867"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-PrismofInnerCalm-30621"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-RaggedJohn'sNeverendingCup-15873"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-RegalProtectorate-28042"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-RobeoftheElderScribes-28602"
- value: {
-  dps: 1744.65344
-  tps: 901.21107
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-RodoftheSunKing-29996"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Romulo'sPoisonVial-28579"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-RuneofForce-25994"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ScarabofDisplacement-30629"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ScaraboftheInfiniteCycle-28190"
- value: {
-  dps: 1721.67411
-  tps: 890.06669
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ScrollsofBlindingLight-19343"
- value: {
-  dps: 1732.32247
-  tps: 896.38814
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Scryer'sBloodgem-29132"
- value: {
-  dps: 1723.80343
-  tps: 891.09393
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-SextantofUnstableCurrents-30626"
- value: {
-  dps: 1727.42528
-  tps: 892.86892
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Shadow'sEmbrace"
- value: {
-  dps: 1722.25912
-  tps: 890.70438
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ShadowmoonInsignia-32501"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ShardofContempt-34472"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Shiffar'sNexus-Horn-28418"
- value: {
-  dps: 1721.53313
-  tps: 889.96078
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ShiftingNaaruSliver-34429"
- value: {
-  dps: 1787.05556
-  tps: 923.66187
+  dps: 677.46414
+  tps: 343.14855
+  dtps: 4.86815
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-SoulclothEmbrace"
+ key: "TestShadowPriest-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 1596.09638
-  tps: 827.46066
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.81803
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-SpellstrikeInfusion"
+ key: "TestShadowPriest-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 1684.36814
-  tps: 871.73171
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-SpyglassoftheHiddenFleet-30620"
+ key: "TestShadowPriest-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
-  hps: 14.44444
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-StabilitzedEterniumScope-2724"
+ key: "TestShadowPriest-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-StaffoftheQirajiProphets-21128"
+ key: "TestShadowPriest-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Starkiller'sBauble-30340"
+ key: "TestShadowPriest-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 1720.74859
-  tps: 889.58517
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-StarofSha'naar-25995"
- value: {
-  dps: 1714.33391
-  tps: 886.47408
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-SteelyNaaruSliver-34428"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-SyphonoftheNathrezim-32262"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 1740.11708
-  tps: 899.30708
+  dps: 693.59035
+  tps: 350.48071
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 1726.85827
-  tps: 892.60473
+  dps: 686.26958
+  tps: 346.89353
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-TerokkarTabletofPrecision-25937"
+ key: "TestShadowPriest-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-TerokkarTabletofVim-25936"
+ key: "TestShadowPriest-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 1715.73865
-  tps: 887.11068
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-TheLightningCapacitor-28785"
- value: {
-  dps: 1724.16541
-  tps: 884.15953
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-TheLionHornofStormwind-14557"
- value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-TheNightBlade-31331"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 1754.96639
-  tps: 906.6964
+  dps: 704.68009
+  tps: 355.91468
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-TheSkullofGul'dan-32483"
+ key: "TestShadowPriest-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 1763.56126
-  tps: 911.3387
+  dps: 667.67172
+  tps: 338.126
+  dtps: 4.97221
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Timbal'sFocusingCrystal-34470"
+ key: "TestShadowPriest-AllItems-ToySoldier-274386"
  value: {
-  dps: 1771.34069
-  tps: 919.98361
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-TomeofDiabolicRemedy-33828"
+ key: "TestShadowPriest-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 1728.31289
-  tps: 892.396
+  dps: 676.57075
+  tps: 342.1411
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-TsunamiTalisman-30627"
+ key: "TestShadowPriest-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-UnitingCharm-25633"
+ key: "TestShadowPriest-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-VengeanceoftheIllidari-28040"
- value: {
-  dps: 1724.09141
-  tps: 891.23545
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Warp-ScarabBrooch-27828"
- value: {
-  dps: 1721.73817
-  tps: 889.40948
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-WhitemendWisdom"
- value: {
-  dps: 1640.94741
-  tps: 848.86616
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-WorldBreaker-30090"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
+  dps: 673.6906
+  tps: 341.77562
+  dtps: 4.83142
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 1754.66833
-  tps: 906.58464
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-WrathofSpellfire"
- value: {
-  dps: 1633.23966
-  tps: 846.42648
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Wushoolay'sCharmofNature-19955"
- value: {
-  dps: 1710.04373
-  tps: 883.99622
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Xi'ri'sGift-29179"
- value: {
-  dps: 1728.84298
-  tps: 893.57753
+  dps: 685.45804
+  tps: 346.49587
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-ZandalarianHeroBadge-19948"
  value: {
-  dps: 1705.47439
-  tps: 882.03863
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ZandalarianHeroCharm-19950"
+ value: {
+  dps: 686.29829
+  tps: 346.9076
+  dtps: 4.85069
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ZandalarianHeroMedallion-19949"
+ value: {
+  dps: 673.87793
+  tps: 340.82162
+  dtps: 4.85069
  }
 }
 dps_results: {
  key: "TestShadowPriest-Average-Default"
  value: {
-  dps: 1756.44059
-  tps: 907.83187
+  dps: 685.9516
+  tps: 346.5316
+  dtps: 4.97922
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-Dwarf-preraid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2041.69373
-  tps: 1423.27336
+  dps: 748.83919
+  tps: 580.09663
+  dtps: 4.84273
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-Dwarf-preraid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 2041.69373
-  tps: 1047.79191
+  dps: 676.16858
+  tps: 341.75455
+  dtps: 5.10153
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-Dwarf-preraid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 2253.42473
-  tps: 1114.18061
+  dps: 675.19938
+  tps: 338.30171
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-Dwarf-preraid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1098.46551
-  tps: 1067.9486
+  dps: 320.47103
+  tps: 224.32972
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-Dwarf-preraid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 1098.46551
-  tps: 812.90262
+  dps: 320.47103
+  tps: 224.32972
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-Dwarf-preraid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1193.99711
-  tps: 870.05496
+  dps: 483.89569
+  tps: 338.72699
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-test-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-NightElf-preraid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2031.56546
-  tps: 1361.12606
+  dps: 751.98368
+  tps: 581.89807
+  dtps: 4.84273
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-test-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-NightElf-preraid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 2031.56546
-  tps: 1036.0009
+  dps: 678.69762
+  tps: 343.09089
+  dtps: 4.8759
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-test-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-NightElf-preraid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 2229.99993
-  tps: 1099.97103
+  dps: 684.77416
+  tps: 343.02031
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-test-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-NightElf-preraid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 870.10501
-  tps: 723.30408
+  dps: 325.65914
+  tps: 227.9614
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-test-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-NightElf-preraid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 870.10501
-  tps: 636.54031
+  dps: 325.65914
+  tps: 227.9614
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-p3-Shadow-test-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-NightElf-preraid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1196.77396
-  tps: 870.66826
+  dps: 495.52172
+  tps: 346.86521
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-Troll-preraid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1741.37446
-  tps: 1375.74645
+  dps: 754.88618
+  tps: 584.38595
+  dtps: 4.89357
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-Troll-preraid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 1741.37446
-  tps: 898.96028
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-Troll-preraid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1960.2349
-  tps: 967.34925
+  dps: 681.34789
+  tps: 341.33906
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-Troll-preraid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 617.43537
-  tps: 700.51816
+  dps: 319.8403
+  tps: 223.88821
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-Troll-preraid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 617.43537
-  tps: 459.05102
+  dps: 319.8403
+  tps: 223.88821
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-Troll-preraid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1009.59149
-  tps: 737.07326
+  dps: 488.24652
+  tps: 341.77257
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-test-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-Undead-preraid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1743.46914
-  tps: 1236.65838
+  dps: 759.69023
+  tps: 584.24786
+  dtps: 4.80951
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-test-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-Undead-preraid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 1743.46914
-  tps: 889.67098
+  dps: 684.2604
+  tps: 347.54291
+  dtps: 4.71503
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-test-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-Undead-preraid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1948.70207
-  tps: 958.5837
+  dps: 681.04332
+  tps: 342.75599
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-test-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestShadowPriest-Settings-Undead-preraid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 475.98213
-  tps: 437.31187
+  dps: 385.28279
+  tps: 368.6123
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-test-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestShadowPriest-Settings-Undead-preraid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 475.98213
-  tps: 347.42162
+  dps: 385.28279
+  tps: 275.56508
  }
 }
 dps_results: {
- key: "TestShadowPriest-Settings-Dwarf-pre_raid-Shadow-test-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestShadowPriest-Settings-Undead-preraid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 998.74324
-  tps: 726.80053
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 2056.02013
-  tps: 1445.69712
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 2056.02013
-  tps: 1055.72523
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2317.4519
-  tps: 1147.59267
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 1086.44619
-  tps: 1055.96992
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 1086.44619
-  tps: 804.00168
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1213.98568
-  tps: 887.61657
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-test-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 2058.38491
-  tps: 1385.74965
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-test-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 2058.38491
-  tps: 1050.44111
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-test-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2343.03485
-  tps: 1160.12821
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-test-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 875.95269
-  tps: 739.85592
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-test-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 875.95269
-  tps: 641.52363
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-p3-Shadow-test-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1229.45458
-  tps: 896.74433
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 1761.31682
-  tps: 1401.96715
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 1761.31682
-  tps: 909.87189
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2005.40938
-  tps: 992.24701
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 617.54534
-  tps: 702.42179
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 617.54534
-  tps: 459.17053
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1060.66343
-  tps: 775.95431
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-test-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 1767.60417
-  tps: 1270.0252
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-test-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 1767.60417
-  tps: 902.83052
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-test-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2022.49296
-  tps: 998.8697
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-test-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 479.57573
-  tps: 455.13467
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-test-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 479.57573
-  tps: 350.73772
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Troll-pre_raid-Shadow-test-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1065.4864
-  tps: 777.88118
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 2065.92629
-  tps: 1437.43379
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 2065.92629
-  tps: 1060.03116
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2345.54624
-  tps: 1161.45069
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 1090.30764
-  tps: 1059.56951
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 1090.30764
-  tps: 806.85601
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1248.06943
-  tps: 912.86805
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-test-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 2047.40626
-  tps: 1373.73117
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-test-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 2047.40626
-  tps: 1044.39705
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-test-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2291.05173
-  tps: 1132.17443
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-test-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 865.42178
-  tps: 718.9613
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-test-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 865.42178
-  tps: 633.18958
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-p3-Shadow-test-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1201.44783
-  tps: 874.37786
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 1776.86355
-  tps: 1413.38298
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 1776.86355
-  tps: 918.13548
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 2056.57377
-  tps: 1019.56168
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 628.12696
-  tps: 704.7458
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 628.12696
-  tps: 466.83228
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1088.05813
-  tps: 796.47366
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-test-FullBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 1752.19909
-  tps: 1243.56009
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-test-FullBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 1752.19909
-  tps: 894.10746
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-test-FullBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1991.19202
-  tps: 979.64631
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-test-NoBuffs-0.0yards-LongMultiTarget"
- value: {
-  dps: 479.6312
-  tps: 447.11168
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-test-NoBuffs-0.0yards-LongSingleTarget"
- value: {
-  dps: 479.6312
-  tps: 350.41324
- }
-}
-dps_results: {
- key: "TestShadowPriest-Settings-Undead-pre_raid-Shadow-test-NoBuffs-0.0yards-ShortSingleTarget"
- value: {
-  dps: 1030.79685
-  tps: 751.28863
+  dps: 479.80596
+  tps: 338.17282
  }
 }
 dps_results: {
  key: "TestShadowPriest-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 1754.66635
-  tps: 909.41727
+  dps: 679.25005
+  tps: 343.45396
+  dtps: 4.85069
  }
 }

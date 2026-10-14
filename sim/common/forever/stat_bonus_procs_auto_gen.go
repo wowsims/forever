@@ -245,6 +245,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Chance on harmful spell cast to blast a target for 77 Fire damage.
+	// https://www.wowhead.com/forever/spell=18083
+	// unsupported: states no rate
+	// trigger 1293980 (no stated rate, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 18083
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293980, BuffSpellID: 18083},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 9419, ItemName: "Galgann's Firehammer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Water breathing lasts 100% longer than normal.
 	// https://www.wowhead.com/forever/spell=1320643
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{

@@ -5,6 +5,7 @@ import { refToValue, unitOptionModels, type UnitValue, withIconUrl } from '@feat
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import type { InputConfig } from '@features/inputs/input';
 import { UnitReference } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { useActionIds } from '@sim/hooks/useActionIds';
 import { useUnitMetadataVersion } from '@sim/hooks/useUnitMetadataVersion';
 import type { Player } from '@sim/player/player';
@@ -79,7 +80,7 @@ export const UnitField = ({ player, config, unitSet }: UnitFieldProps) => {
 			optionTree={choices.optionTree}
 			equals={sameUnit}
 			variant="link"
-			placeholder="Unit"
+			placeholder={i18n.t('rotation_tab.apl.helpers.unit_placeholder')}
 			renderValue={renderUnit}
 		/>
 	);

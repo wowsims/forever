@@ -10,7 +10,9 @@ import sqlite3
 # Two sources, both produced by `make db` from the Forever beta game files:
 #
 #   tools/database/wowsims.db     PlayerExpectedStat -- base mana and the
-#                                 crit-per-agility / crit-per-intellect slopes
+#                                 crit-per-agility / crit-per-intellect slopes;
+#                                 ExpectedStat -- the creature health, armor
+#                                 and auto attack dps of the level
 #   assets/db_inputs/basestats/   the CombatRatings gametable, plus the two
 #                                 base-crit tables described below
 #
@@ -106,8 +108,24 @@ def GenExpectedStats(dbPath: str, level: int):
     return stats
 
 
+def GenCreatureExpectedStats(dbPath: str, level: int):
+    conn = sqlite3.connect(dbPath)
+    rows = conn.execute(
+        """SELECT CreatureHealth, CreatureArmor, CreatureAutoAttackDps
+           FROM ExpectedStat WHERE Lvl = ? AND ContentSetID = 0""",
+        (level,),
+    ).fetchall()
+    conn.close()
+
+    if len(rows) != 1:
+        raise SystemExit(f"ExpectedStat has {len(rows)} level {level} rows, expected one")
+    health, armor, autoAttackDps = rows[0]
+    return {"Health": float(health), "Armor": float(armor), "AutoAttackDps": float(autoAttackDps)}
+
+
 class ClassStats:
     Expected: dict
+    Creature: dict
     MCritBase: dict
     SCritBase: dict
     CombatRatings: dict
@@ -149,6 +167,11 @@ import (
     output += f"const HitRatingPerHitPercent = {SharedRating(ratings, 'Hit'):f}\n"
     output += f"const CritRatingPerCritPercent = {SharedRating(ratings, 'Crit'):f}\n"
     output += f"const HasteRatingPerHastePercent = {SharedRating(ratings, 'Haste'):f}\n"
+
+    output += "// ExpectedStat's creature values at the character level\n"
+    output += f"const CreatureHealthMaxLevel = {cs.Creature['Health']!r}\n"
+    output += f"const CreatureArmorMaxLevel = {cs.Creature['Armor']!r}\n"
+    output += f"const CreatureAutoAttackDpsMaxLevel = {cs.Creature['AutoAttackDps']!r}\n"
 
     output += '''var CritPerAgiMaxLevel = map[proto.Class]float64{
 proto.Class_ClassUnknown: 0.0,'''
@@ -212,6 +235,7 @@ def GenMechanicsTsFile(cs: ClassStats):
 if __name__ == "__main__":
     args = ClassStats()
     args.Expected = GenExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
+    args.Creature = GenCreatureExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
     args.MCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + MELEE_CRIT_BASE)
     args.SCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + SPELL_CRIT_BASE)
     args.CombatRatings = GenNameIndexedDb(BASE_DIR + DIR_PATH + COMBAT_RATINGS)

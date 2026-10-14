@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import type { Entity } from '@sim/proto/combat_log';
 
 export interface EntityLabelProps {
@@ -6,7 +7,7 @@ export interface EntityLabelProps {
 
 export const EntityLabel = ({ entity }: EntityLabelProps) => {
 	if (entity.isTarget) {
-		return <span className="text-danger">[Target {entity.index + 1}]</span>;
+		return <span className="text-danger">[{i18n.t('results_tab.details.target_number', { number: entity.index + 1 })}]</span>;
 	}
 
 	if (entity.isPet) {

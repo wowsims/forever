@@ -1,4 +1,5 @@
 import type { ItemSlot } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import type { Gear } from '@sim/proto/gear';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useId } from 'react';
@@ -31,7 +32,11 @@ export const SlotRail = ({ gear, currentSlot, onOpen }: SlotRailProps) => {
 					/>
 				))}
 			</div>
-			<Tooltip id={tooltipId} place="left" render={({ activeAnchor }) => `Edit ${(activeAnchor as HTMLElement | null)?.dataset.slotLabel ?? ''}`} />
+			<Tooltip
+				id={tooltipId}
+				place="left"
+				render={({ activeAnchor }) => i18n.t('gear_tab.gear_picker.edit_slot', { slot: (activeAnchor as HTMLElement | null)?.dataset.slotLabel ?? '' })}
+			/>
 		</>
 	);
 };

@@ -1,4 +1,5 @@
 import { Spec } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { translateAreaType, translateStat } from '@i18n/localization';
 import {
 	MISSING_ENCHANT_EFFECTS,
@@ -9,6 +10,7 @@ import {
 	type UnvalidatedRate,
 } from '@sim/constants/missing_effects_auto_gen';
 import type { Database } from '@sim/proto/database';
+import { LocaleHtml } from '@ui-kit/Tooltip';
 import type { ReactNode } from 'react';
 
 export type ItemNoticeData = {
@@ -20,22 +22,30 @@ export type ItemNoticeData = {
 // Keys are item counts for each set bonus (typically 2 and 4), values are the
 // notice that should be displayed for each bonus. If null, will default to
 // GENERIC_MISSING_SET_BONUS_NOTICE_DATA.
-export type SetBonusNoticeData = Map<number, string> | null;
+export type SetBonusNoticeData = Map<number, ReactNode> | null;
 
-const WantToHelpMessage = () => <p className="mb-0">Want to help out by providing additional information? Contact us on our Discord!</p>;
+const WantToHelpMessage = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.want_to_help')}</p>;
 
-export const MISSING_RANDOM_SUFFIX_WARNING = <p className="mb-0">Please select a random suffix</p>;
+const MissingRandomSuffixWarning = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.missing_random_suffix')}</p>;
 
-const missingEffectNotice = (effectKind: 'item' | 'enchant', tooltips: string[]): ItemNoticeData => ({
-	[Spec.SpecUnknown]: !tooltips.length ? (
+export const MISSING_RANDOM_SUFFIX_WARNING = <MissingRandomSuffixWarning />;
+
+const MissingEffectNotice = ({ effectKind, tooltips }: { effectKind: 'item' | 'enchant'; tooltips: string[] }) =>
+	!tooltips.length ? (
 		<>
-			<p className="font-bold">{`This ${effectKind} effect (on-use or proc) is not implemented!`}</p>
-			<p>We are working hard on gathering all the old resources to allow for an initial implementation.</p>
+			<p className="font-bold">
+				{effectKind === 'item' ? i18n.t('gear_tab.item_notices.missing_effect.item') : i18n.t('gear_tab.item_notices.missing_effect.enchant')}
+			</p>
+			<p>{i18n.t('gear_tab.item_notices.missing_effect.working_on_it')}</p>
 			<WantToHelpMessage />
 		</>
 	) : (
 		<>
-			<p className="font-bold">{`The following ${effectKind} effect (on-use or proc) is not implemented!`}</p>
+			<p className="font-bold">
+				{effectKind === 'item'
+					? i18n.t('gear_tab.item_notices.missing_effect.item_listed')
+					: i18n.t('gear_tab.item_notices.missing_effect.enchant_listed')}
+			</p>
 			<ul>
 				{tooltips
 					.filter(tooltip => !!tooltip)
@@ -44,27 +54,39 @@ const missingEffectNotice = (effectKind: 'item' | 'enchant', tooltips: string[])
 					))}
 			</ul>
 		</>
-	),
+	);
+
+const missingEffectNotice = (effectKind: 'item' | 'enchant', tooltips: string[]): ItemNoticeData => ({
+	[Spec.SpecUnknown]: <MissingEffectNotice effectKind={effectKind} tooltips={tooltips} />,
 });
 
-const TENTATIVE_IMPLEMENTATION_WARNING = (
+const TentativeImplementationWarning = () => (
 	<>
 		<p>
-			This item <span className="font-bold">is</span> implemented, but detailed proc behavior will be confirmed on PTR.
+			<LocaleHtml html={i18n.t('gear_tab.item_notices.tentative_implementation')} />
 		</p>
 		<WantToHelpMessage />
 	</>
 );
 
-const WILL_NOT_BE_IMPLEMENTED_WARNING = <>The equip/use effect on this item will not be implemented!</>;
+const TENTATIVE_IMPLEMENTATION_WARNING = <TentativeImplementationWarning />;
+
+const WillNotBeImplementedWarning = () => <>{i18n.t('gear_tab.item_notices.will_not_be_implemented')}</>;
+
+const WILL_NOT_BE_IMPLEMENTED_WARNING = <WillNotBeImplementedWarning />;
 
 const unvalidatedRateText = ({ kind, origin }: UnvalidatedRate): string => {
-	if (origin === 'unknown') {
-		return `In-game validation needed. Currently using an estimated proc ${kind === 'ppm' ? 'rate' : 'chance'}`;
+	if (kind === 'ppm') {
+		if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla');
+		if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_unknown');
+		return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc');
 	}
-	const version = origin === 'vanilla' ? 'Vanilla' : 'TBC';
-	return `In-game validation needed. Currently using ${kind === 'ppm' ? `${version} PPM values` : `a ${version} proc chance`}`;
+	if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla');
+	if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_unknown');
+	return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc');
 };
+
+const UnvalidatedRateText = ({ rate }: { rate: UnvalidatedRate }) => <>{unvalidatedRateText(rate)}</>;
 
 // Gear with an unvalidated rate can also miss an effect, so the rate warning joins the notice it already has.
 const addUnvalidatedRateNotices = (notices: Map<number, ItemNoticeData>, rates: Map<number, UnvalidatedRate>) => {
@@ -75,7 +97,9 @@ const addUnvalidatedRateNotices = (notices: Map<number, ItemNoticeData>, rates: 
 			[Spec.SpecUnknown]: (
 				<>
 					{notice?.[Spec.SpecUnknown]}
-					<p className="mb-0">{unvalidatedRateText(rate)}</p>
+					<p className="mb-0">
+						<UnvalidatedRateText rate={rate} />
+					</p>
 				</>
 			),
 		});
@@ -110,15 +134,17 @@ export const ENCHANT_NOTICES = new Map<number, ItemNoticeData>(
 
 addUnvalidatedRateNotices(ENCHANT_NOTICES, UNVALIDATED_RATE_ENCHANTS);
 
-export const GENERIC_MISSING_SET_BONUS_NOTICE_DATA = new Map<number, string>([
-	[2, 'Not yet implemented'],
-	[4, 'Not yet implemented'],
+const NotYetImplemented = () => <>{i18n.t('gear_tab.item_notices.not_yet_implemented')}</>;
+
+export const GENERIC_MISSING_SET_BONUS_NOTICE_DATA = new Map<number, ReactNode>([
+	[2, <NotYetImplemented key={2} />],
+	[4, <NotYetImplemented key={4} />],
 ]);
 
 const SET_BONUS_NOTICES = new Map<number, SetBonusNoticeData>(
 	[...UNVALIDATED_RATE_SET_BONUSES].map(([setID, bonuses]): [number, SetBonusNoticeData] => [
 		setID,
-		new Map([...bonuses].map(([pieceCount, rate]) => [pieceCount, unvalidatedRateText(rate)])),
+		new Map([...bonuses].map(([pieceCount, rate]): [number, ReactNode] => [pieceCount, <UnvalidatedRateText key={pieceCount} rate={rate} />])),
 	]),
 );
 
@@ -127,11 +153,11 @@ export const registerSetBonusNotices = (db: Database) => {
 		const noticeData = value || GENERIC_MISSING_SET_BONUS_NOTICE_DATA;
 		const noticeContent = (
 			<>
-				<p className="mb-1"> This item set has the following warnings:</p>
+				<p className="mb-1"> {i18n.t('gear_tab.item_notices.set_bonus_warnings')}</p>
 				<ul className="mb-0">
 					{Array.from(noticeData.keys()).map(pieceCount => (
 						<li key={pieceCount}>
-							{pieceCount.toFixed(0)}-piece: {noticeData.get(pieceCount)!}
+							{i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })} {noticeData.get(pieceCount)}
 						</li>
 					))}
 				</ul>
@@ -156,7 +182,7 @@ export const registerAreaStatsNotices = (db: Database) => {
 		ITEM_INFO_NOTICES.set(
 			item.id,
 			<>
-				<p className="mb-1">Only while the encounter is in one of these areas:</p>
+				<p className="mb-1">{i18n.t('gear_tab.item_notices.area_stats')}</p>
 				<ul className="mb-0">
 					{areaStats.map(bonus => (
 						<li key={bonus.areaType}>

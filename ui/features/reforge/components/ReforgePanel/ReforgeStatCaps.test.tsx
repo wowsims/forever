@@ -20,7 +20,11 @@ describe('ReforgeStatCapsView', () => {
 		renderCaps();
 
 		expect(screen.getByRole('heading').textContent).toBe('sidebar.buttons.suggest_reforges.edit_stat_caps');
-		expect(screen.getAllByRole('columnheader').map(header => header.textContent)).toEqual(['sidebar.buttons.suggest_reforges.stat', '%', 'Max?']);
+		expect(screen.getAllByRole('columnheader').map(header => header.textContent)).toEqual([
+			'sidebar.buttons.suggest_reforges.stat',
+			'%',
+			'sidebar.buttons.suggest_reforges.max_column',
+		]);
 	});
 
 	it('names the caps explanation and the reset as the only two buttons', () => {

@@ -98,7 +98,7 @@ const calculateBulkCombinations = async (host: IndividualSimHost<any>) => {
 		const combinationCountResult = await sim.getBulkCombinationCount(bulkSettings);
 
 		if (combinationCountResult.error) {
-			throw new Error(combinationCountResult.error.message || 'Failed to calculate bulk combinations');
+			throw new Error(combinationCountResult.error.message || i18n.t('bulk_tab.notifications.combinations_failed'));
 		}
 
 		patchBulkState(player, { combinations: combinationCountResult.combinations, iterations: combinationCountResult.iterations });
@@ -120,7 +120,7 @@ export const refreshBulkCombinations = async (host: IndividualSimHost<any>) => {
 
 const throwIfBulkAborted = (player: Player<any>, signal: AbortSignal) => {
 	if (signal.aborted || runOf(player).isCancelling) {
-		throw new Error('Bulk Sim Aborted');
+		throw new Error(i18n.t('bulk_tab.notifications.bulk_sim_aborted'));
 	}
 };
 
@@ -129,7 +129,7 @@ const runWithBulkAbort = async <T>(player: Player<any>, promise: Promise<T>, sig
 
 	let abortHandler: (() => void) | null = null;
 	const abortPromise = new Promise<never>((_, reject) => {
-		abortHandler = () => reject(new Error('Bulk Sim Aborted'));
+		abortHandler = () => reject(new Error(i18n.t('bulk_tab.notifications.bulk_sim_aborted')));
 		signal.addEventListener('abort', abortHandler, { once: true });
 	});
 

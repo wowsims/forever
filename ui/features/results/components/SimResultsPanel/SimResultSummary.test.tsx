@@ -98,7 +98,7 @@ describe('SimResultSummary', () => {
 		expect(new Set(diffs(container).map(diff => diff.getAttribute('data-sign')))).toEqual(new Set([null]));
 	});
 
-	it('colours a significant gain positive and carries the z score on the anchor', () => {
+	it('colours a significant gain positive and carries the significance on the anchor', () => {
 		act(() => results.setSimResult(result(1000)));
 		const { container } = mount(results);
 		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-set-reference"]')!));
@@ -107,7 +107,7 @@ describe('SimResultSummary', () => {
 		const dps = container.querySelector('[data-metric="dps"] [data-testid="results-reference-diff"]')!;
 		expect(dps.textContent).toBe('+100.00 (10.00%)');
 		expect(dps.getAttribute('data-sign')).toBe('positive');
-		expect(dps.getAttribute('data-tooltip-content')).toMatch(/^Difference is significantly different \(Z = \d+\.\d{3}\)\.$/);
+		expect(dps.getAttribute('data-tooltip-content')).toBe('common.significance.significant');
 	});
 
 	it('drops the reference again on delete', () => {

@@ -438,8 +438,6 @@ func (unit *Unit) processDynamicBonus(sim *Simulation, bonus *stats.Stats) {
 			continue
 		}
 
-		pet.pendingStatInheritance.AddInplace(bonus)
-
 		if pet.statInheritanceAction.consumed || (pet.statInheritanceAction.NextActionAt == 0) {
 			numHeartbeats := (sim.CurrentTime - unit.Env.heartbeatOffset) / PetUpdateInterval
 			pet.statInheritanceAction.NextActionAt = PetUpdateInterval*(numHeartbeats+1) + unit.Env.heartbeatOffset

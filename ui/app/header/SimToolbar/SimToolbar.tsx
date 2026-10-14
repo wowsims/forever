@@ -32,7 +32,7 @@ export const SimToolbarView = ({ knownIssues, outdatedNativeSim, onOpenSettings 
 
 		{ISSUES_REPO && <ToolbarItem href={REPO_CHOOSE_NEW_ISSUE_URL} icon="bug" tooltip={i18n.t('info.bug_report')} />}
 
-		{!isNative() && <ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" tooltip="Download simulator for faster simulating" />}
+		{!isNative() && <ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" tooltip={i18n.t('info.download_native_sim')} />}
 
 		<ToolbarItem testId="sim-options" icon="gear" tooltip={i18n.t('info.sim_options')} onClick={onOpenSettings} />
 
@@ -45,7 +45,7 @@ export const SimToolbarView = ({ knownIssues, outdatedNativeSim, onOpenSettings 
 		</div>
 
 		{outdatedNativeSim && (
-			<ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" className="text-link-danger" tooltip="Newer version of simulator available for download" />
+			<ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" className="text-link-danger" tooltip={i18n.t('info.native_sim_outdated')} />
 		)}
 	</>
 );

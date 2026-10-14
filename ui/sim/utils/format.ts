@@ -1,5 +1,7 @@
 // Turning values into the strings and colours the UI shows.
 
+import i18n from '@i18n/config';
+
 export const sanitizeId = (id: string) => id.split(' ').join('').toLocaleLowerCase();
 
 export interface FormatDurationSecondsOptions {
@@ -50,7 +52,7 @@ export interface DeltaText {
 
 /** The sentence both delta tooltips carry, built once so the sidebar's and the bulk row's wording cannot drift. Takes a `zTest` result. */
 export const formatSignificance = ({ z, isDiff }: { z: number; isDiff: boolean }): string =>
-	`Difference is ${isDiff ? '' : 'not '}significantly different (Z = ${z.toFixed(3)}).`;
+	isDiff ? i18n.t('common.significance.significant', { z: z.toFixed(3) }) : i18n.t('common.significance.not_significant', { z: z.toFixed(3) });
 
 export function formatDeltaText(
 	before: number,

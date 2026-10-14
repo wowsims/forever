@@ -18,6 +18,11 @@ const HitRatingPerHitPercent = 10.000000
 const CritRatingPerCritPercent = 14.000000
 const HasteRatingPerHastePercent = 10.000000
 
+// ExpectedStat's creature values at the character level
+const CreatureHealthMaxLevel = 4365.0
+const CreatureArmorMaxLevel = 3566.0
+const CreatureAutoAttackDpsMaxLevel = 60.45291519165039
+
 var CritPerAgiMaxLevel = map[proto.Class]float64{
 	proto.Class_ClassUnknown: 0.0,
 	proto.Class_ClassWarrior: 0.05000000,

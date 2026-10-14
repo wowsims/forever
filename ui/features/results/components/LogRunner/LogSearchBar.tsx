@@ -6,12 +6,10 @@ import type { ClauseField } from '../../model/log/search/query';
 import { FIELD_NAMES } from '../../model/log/search/query';
 import { LogSearchGroup } from './LogSearchGroup';
 import type { IdentifiedSearchGroup } from './utils';
-import { sentenceCase } from './utils';
+import { fieldLabel } from './utils';
 
 // Same reason as the group pickers': the drawer clips its overflow and has room upwards.
 const DROPUP = { side: 'top', positionMethod: 'fixed' } as const;
-
-const FIELD_OPTIONS = FIELD_NAMES.map(field => ({ value: field, label: sentenceCase(field) }));
 
 export interface LogSearchBarProps {
 	groups: ReadonlyArray<IdentifiedSearchGroup>;
@@ -41,7 +39,7 @@ export const LogSearchBar = ({ groups, suggestions, onChange }: LogSearchBarProp
 			<ChoiceField<ClauseField | undefined>
 				id="log-search-add-filter"
 				testId="log-search-add-field"
-				options={FIELD_OPTIONS}
+				options={FIELD_NAMES.map(field => ({ value: field, label: fieldLabel(field) }))}
 				value={undefined}
 				onChange={field => field && addField(field)}
 				variant="link"

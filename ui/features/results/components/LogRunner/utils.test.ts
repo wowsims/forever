@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { EMPTY_SUGGESTIONS } from '../../model/log/search/indexes';
 import type { SimResultData } from '../../model/result_data';
-import { combinedLogText, keywordsOf, labelOf, selectedTargetNumber, sentenceCase, valueCandidates } from './utils';
+import { combinedLogText, fieldLabel, keywordsOf, labelOf, selectedTargetNumber, valueCandidates } from './utils';
 
 const resultWith = (targets: number, selected: number) =>
 	({
@@ -18,11 +18,11 @@ const logLine = (timestamp: number, raw: string) => ({ timestamp, raw }) as Comb
 describe('LogRunner utils', () => {
 	describe('labelOf', () => {
 		it('spells an outcome token the way the results line does', () => {
-			expect(labelOf('outcome', 'critical-block')).toBe('Critical Block');
+			expect(labelOf('outcome', 'critical-block')).toBe('results_tab.details.attack_types.critical_block');
 		});
 
-		it('unhyphenates a type token and leaves everything else alone', () => {
-			expect(labelOf('type', 'major-cooldown')).toBe('Major cooldown');
+		it('names a type token by its own key and leaves everything else alone', () => {
+			expect(labelOf('type', 'major-cooldown')).toBe('results_tab.details.logs.search_types.major_cooldown');
 			expect(labelOf('spell', 'Mortal Strike')).toBe('Mortal Strike');
 		});
 
@@ -32,9 +32,8 @@ describe('LogRunner utils', () => {
 		});
 	});
 
-	it('sentence-cases without touching an empty string', () => {
-		expect(sentenceCase('source')).toBe('Source');
-		expect(sentenceCase('')).toBe('');
+	it('names a field by its own key', () => {
+		expect(fieldLabel('source')).toBe('results_tab.details.logs.search_fields.source');
 	});
 
 	describe('keywordsOf', () => {

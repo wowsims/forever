@@ -38,10 +38,10 @@ vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
 	]),
 }));
 
-const VANILLA_PPM_WARNING = 'In-game validation needed. Currently using Vanilla PPM values';
-const TBC_PPM_WARNING = 'In-game validation needed. Currently using TBC PPM values';
-const VANILLA_CHANCE_WARNING = 'In-game validation needed. Currently using a Vanilla proc chance';
-const TBC_CHANCE_WARNING = 'In-game validation needed. Currently using a TBC proc chance';
+const VANILLA_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_vanilla';
+const TBC_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_tbc';
+const VANILLA_CHANCE_WARNING = 'gear_tab.item_notices.unvalidated_rate.chance_vanilla';
+const TBC_CHANCE_WARNING = 'gear_tab.item_notices.unvalidated_rate.chance_tbc';
 
 const notice = (node: ReactNode) => {
 	const { container } = render(<>{node}</>);
@@ -59,7 +59,7 @@ describe('the item notice table', () => {
 		['enchant', ENCHANT_NOTICES, 2, 'Enchants a thing.'],
 	] as const)('lists the tooltips a missing %s effect carries', (kind, table, id, tooltip) => {
 		expect(notice(table.get(id)?.[Spec.SpecUnknown])).toEqual({
-			heading: `The following ${kind} effect (on-use or proc) is not implemented!`,
+			heading: `gear_tab.item_notices.missing_effect.${kind}_listed`,
 			items: [tooltip],
 		});
 	});
@@ -69,8 +69,8 @@ describe('the item notice table', () => {
 		['a TBC rate per minute', 4, TBC_PPM_WARNING],
 		['a vanilla chance', 5, VANILLA_CHANCE_WARNING],
 		['a TBC chance', 6, TBC_CHANCE_WARNING],
-		['a rate per minute of no known origin', 7, 'In-game validation needed. Currently using an estimated proc rate'],
-		['a chance of no known origin', 8, 'In-game validation needed. Currently using an estimated proc chance'],
+		['a rate per minute of no known origin', 7, 'gear_tab.item_notices.unvalidated_rate.ppm_unknown'],
+		['a chance of no known origin', 8, 'gear_tab.item_notices.unvalidated_rate.chance_unknown'],
 	])('warns that %s needs validating on an item with no other notice', (_, id, warning) => {
 		expect(paragraphs(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown])).toEqual([warning]);
 	});
@@ -79,7 +79,7 @@ describe('the item notice table', () => {
 		['item', ITEM_NOTICES, 1, VANILLA_PPM_WARNING],
 		['enchant', ENCHANT_NOTICES, 2, TBC_PPM_WARNING],
 	] as const)('keeps the missing effect notice of an %s with an unvalidated rate and adds the rate warning after it', (kind, table, id, warning) => {
-		expect(paragraphs(table.get(id)?.[Spec.SpecUnknown])).toEqual([`The following ${kind} effect (on-use or proc) is not implemented!`, warning]);
+		expect(paragraphs(table.get(id)?.[Spec.SpecUnknown])).toEqual([`gear_tab.item_notices.missing_effect.${kind}_listed`, warning]);
 	});
 
 	it('warns that an enchant rate needs validating on an enchant with no other notice', () => {
@@ -100,8 +100,11 @@ describe('registerSetBonusNotices', () => {
 
 		for (const id of ITEM_IDS) {
 			const { heading, items } = notice(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown]);
-			expect(heading?.trim()).toBe('This item set has the following warnings:');
-			expect(items).toEqual([`2-piece: ${TBC_CHANCE_WARNING}`, `4-piece: ${VANILLA_PPM_WARNING}`]);
+			expect(heading?.trim()).toBe('gear_tab.item_notices.set_bonus_warnings');
+			expect(items).toEqual([
+				`gear_tab.item_notices.set_bonus_piece ${TBC_CHANCE_WARNING}`,
+				`gear_tab.item_notices.set_bonus_piece ${VANILLA_PPM_WARNING}`,
+			]);
 		}
 	});
 
@@ -133,7 +136,7 @@ describe('registerAreaStatsNotices', () => {
 		registerAreaStatsNotices(db);
 
 		expect(notice(ITEM_INFO_NOTICES.get(RUNE))).toEqual({
-			heading: 'Only while the encounter is in one of these areas:',
+			heading: 'gear_tab.item_notices.area_stats',
 			items: ['area-1: +29 stat-17, +29 stat-18'],
 		});
 		expect(ITEM_INFO_NOTICES.has(PLAIN)).toBe(false);

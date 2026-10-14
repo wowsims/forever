@@ -83,7 +83,7 @@ describe('ItemNoticeIcon', () => {
 
 		expect(screen.getByRole('button').dataset.level).toBe('warning');
 		open();
-		expect(await screen.findByText('The following enchant effect (on-use or proc) is not implemented!')).toBeTruthy();
+		expect(await screen.findByText('gear_tab.item_notices.missing_effect.enchant_listed')).toBeTruthy();
 		expect(await screen.findByText(/often chill the target/)).toBeTruthy();
 	});
 

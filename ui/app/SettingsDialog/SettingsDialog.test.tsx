@@ -162,7 +162,7 @@ describe('SettingsDialogView', () => {
 		render(<SettingsDialogView {...props({ maxWorkers: 4 })} />);
 
 		await userEvent.click(byId('simui-concurrent-workers-picker'));
-		expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['Off', '2', '3', '4']);
+		expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['info.options.use_multiple_cpu_cores.off', '2', '3', '4']);
 	});
 
 	it('reports each change through its handler', async () => {
@@ -222,7 +222,7 @@ describe('SettingsDialogView', () => {
 
 		rerender(<SettingsDialogView {...props({ firefox: true })} />);
 		expect(workerNote().hidden).toBe(false);
-		expect(workerNote().textContent).toContain('Too many workers');
+		expect(workerNote().textContent).toContain('info.options.use_multiple_cpu_cores.firefox_note');
 	});
 
 	it('applies the defaults from the footer button', () => {

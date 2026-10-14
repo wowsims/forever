@@ -150,7 +150,7 @@ export const SavedDataPanel = <T,>({
 							onChange={event => setName(event.target.value)}
 						/>
 						<Button className="ui-saved-data-save-button" data-testid="saved-data-save-button" onClick={handleSave}>
-							{saveButtonText ?? `Save ${label}`}
+							{saveButtonText ?? i18n.t('common.saved_data.save_title', { label })}
 						</Button>
 					</div>
 				)}

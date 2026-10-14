@@ -20,6 +20,6 @@ describe('ADDON_IMPORTER', () => {
 	});
 
 	it('rejects a payload that is not an addon export', async () => {
-		await expect(ADDON_IMPORTER.onImport({} as never, 'not json')).rejects.toThrow('Please use a valid Addon export.');
+		await expect(ADDON_IMPORTER.onImport({} as never, 'not json')).rejects.toThrow('import.addon.error_invalid_export');
 	});
 });

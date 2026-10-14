@@ -138,7 +138,7 @@ describe('GroupVariablesField', () => {
 
 		const caption = container().querySelector('[data-testid="form-label"]')!;
 		expect(caption.tagName).toBe('SPAN');
-		expect(caption.textContent).toBe('Group Variables');
+		expect(caption.textContent).toBe('rotation_tab.apl.actions.group_reference.variables');
 		expect(container().querySelector('[data-testid="apl-group-variables"]')!.getAttribute('data-layout')).toBe('inline');
 	});
 

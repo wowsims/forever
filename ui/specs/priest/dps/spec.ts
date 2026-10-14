@@ -1,13 +1,14 @@
+import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation } from '@generated/proto/apl';
-import { EquipmentSpec, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
-import { SavedTalents } from '@generated/proto/ui';
+import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
+import * as PriestSharedInputs from '../shared/inputs';
 import * as PriestInputs from './inputs';
 import * as Presets from './presets';
 
@@ -35,7 +36,7 @@ export default defineSpec<Spec.SpecDpsPriest>({
 		Stat.StatMP5,
 		Stat.StatSpirit,
 	],
-	epPseudoStats: [PseudoStat.PseudoStatSchoolHitPercentShadow],
+	epPseudoStats: [PseudoStat.PseudoStatSchoolHitPercentShadow, PseudoStat.PseudoStatSchoolHitPercentHoly],
 	// Reference stat against which to calculate EP. I think all classes use either spell power or attack power.
 	epReferenceStat: Stat.StatSpellDamage,
 	// Which stats to display in the Character Stats section, at the bottom of the left-hand sidebar.
@@ -57,22 +58,23 @@ export default defineSpec<Spec.SpecDpsPriest>({
 			PseudoStat.PseudoStatSpellCritPercent,
 			PseudoStat.PseudoStatSpellHastePercent,
 			PseudoStat.PseudoStatSchoolHitPercentShadow,
+			PseudoStat.PseudoStatSchoolHitPercentHoly,
 		],
 	),
 	displayWeaponSkillGroups: [WeaponSkillGroup.Wands],
 
 	defaults: {
 		// Default equipped gear.
-		gear: EquipmentSpec.create(),
+		gear: Presets.PreraidGear.gear,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
-			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17);
+			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17).withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentHoly, 17);
 		})(),
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,
 		// Default talents.
-		talents: SavedTalents.create(),
+		talents: Presets.StandardTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
@@ -88,10 +90,10 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
-	playerIconInputs: [PriestInputs.ShadowformInput()],
+	playerIconInputs: [PriestSharedInputs.ArmorInput(), PriestInputs.ShadowformInput()],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [],
-	excludeBuffDebuffInputs: [],
+	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshDruid, BuffDebuffInputs.AtieshMage, BuffDebuffInputs.AtieshWarlock],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
 		inputs: [OtherInputs.InputDelay, OtherInputs.ChannelClipDelay, OtherInputs.TankAssignment, OtherInputs.DistanceFromTarget],
@@ -103,15 +105,20 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	},
 
 	presets: {
-		epWeights: [],
+		epWeights: [Presets.ShadowEpWeights, Presets.SmiteEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [],
-		rotations: [Presets.ROTATION_PRESET_DEFAULT],
+		talents: [Presets.StandardTalents, Presets.SmiteTalents],
+		rotations: [Presets.ROTATION_PRESET_DEFAULT, Presets.ROTATION_SMITE_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
-		gear: [],
+		gear: [Presets.PreraidGear, Presets.PreraidSmite],
 	},
 
-	autoRotation: (_: Player<Spec.SpecDpsPriest>): APLRotation => {
+	autoRotation: (priest: Player<Spec.SpecDpsPriest>): APLRotation => {
+		const [disc, , shadow] = priest.getTalentTreePoints();
+
+		if (disc > shadow) {
+			return Presets.ROTATION_SMITE_DEFAULT.rotation.rotation!;
+		}
 		return Presets.ROTATION_PRESET_DEFAULT.rotation.rotation!;
 	},
 

@@ -36,7 +36,7 @@ describe('RotationRow', () => {
 	it('asks to hide itself by key, and names the row in the button', () => {
 		const { container, onHide } = mount();
 		const hide = container.querySelector<HTMLButtonElement>('[data-testid="rotation-row-hide"]')!;
-		expect(hide.getAttribute('aria-label')).toBe('Hide Fire Bolt');
+		expect(hide.getAttribute('aria-label')).toBe('results_tab.details.timeline.hide_row_named');
 		fireEvent.click(hide);
 		expect(onHide).toHaveBeenCalledWith('cast:a');
 	});

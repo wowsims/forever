@@ -189,7 +189,7 @@ describe('applyOwnerClassLabels', () => {
 	it('marks the buffs the player casts itself as external, and returns every other row untouched', () => {
 		const shown = applyOwnerClassLabels([battleShout, arcaneBrilliance, giftOfArthas], playerOf(Class.ClassWarrior));
 
-		expect(shown.map(option => option.config.label)).toEqual(['Battle Shout (External)', 'Arcane Brilliance', 'Gift of Arthas']);
+		expect(shown.map(option => option.config.label)).toEqual(['settings_tab.external_label', 'Arcane Brilliance', 'Gift of Arthas']);
 		expect(shown[1]).toBe(arcaneBrilliance);
 		expect(shown[2]).toBe(giftOfArthas);
 	});
@@ -205,7 +205,7 @@ describe('applyOwnerClassLabels', () => {
 	it('marks every row the class owns, not just the first', () => {
 		const shown = applyOwnerClassLabels([battleShout, arcaneBrilliance, demoralizingShout], playerOf(Class.ClassWarrior));
 
-		expect(shown.map(option => option.config.label)).toEqual(['Battle Shout (External)', 'Arcane Brilliance', 'Demoralizing Shout (External)']);
+		expect(shown.map(option => option.config.label)).toEqual(['settings_tab.external_label', 'Arcane Brilliance', 'settings_tab.external_label']);
 		expect(shown[1]).toBe(arcaneBrilliance);
 	});
 

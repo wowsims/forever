@@ -33,7 +33,7 @@ describe('ResultsFilter', () => {
 		mount(ALL_UNITS);
 
 		expect(trigger().disabled).toBe(true);
-		expect(trigger().textContent).toBe('Unit');
+		expect(trigger().textContent).toBe('results_tab.details.unit');
 	});
 
 	it('shows all targets plus one option per target of the run, in encounter order', async () => {
@@ -104,7 +104,7 @@ describe('a target the options do not hold', () => {
 		resultData = resultWith({ index: 0 });
 		mount(4);
 
-		expect(trigger().textContent).toBe('Unit');
+		expect(trigger().textContent).toBe('results_tab.details.unit');
 		await open();
 		expect(items().every(item => item.getAttribute('aria-selected') === 'false')).toBe(true);
 	});

@@ -2,7 +2,7 @@ import * as InputHelpers from '@features/inputs/input_helpers';
 import { ActionId } from '@sim/proto/action_id';
 import { PriestSpecs } from '@sim/proto/spec_types';
 
-// Configuration for class-specific UI elements on the settings tab.
+// Configuration for the DPS spec's own UI elements on the settings tab.
 // These don't need to be in a separate file but it keeps things cleaner.
 
 export const ShadowformInput = <SpecType extends PriestSpecs>() =>

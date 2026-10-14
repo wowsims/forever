@@ -993,9 +993,9 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'dot_spells', '')],
 	}),
 	dotBaseDuration: inputBuilder({
-		label: 'Dot Base Duration',
+		label: i18n.t('rotation_tab.apl.values.dot_base_duration.label'),
 		submenu: ['dot'],
-		shortDescription: 'The base duration of the DoT.',
+		shortDescription: i18n.t('rotation_tab.apl.values.dot_base_duration.tooltip'),
 		newValue: APLValueDotBaseDuration.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'dot_spells', '')],
@@ -1009,17 +1009,17 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
 	}),
 	dotCritPercentIncrease: inputBuilder({
-		label: 'Dot Crit Chance Increase %',
+		label: i18n.t('rotation_tab.apl.values.dot_crit_percent_increase.label'),
 		submenu: ['dot'],
-		shortDescription: "How much higher a new DoT's Critical Strike Chance would be compared to the old.",
+		shortDescription: i18n.t('rotation_tab.apl.values.dot_crit_percent_increase.tooltip'),
 		newValue: APLValueDotPercentIncrease.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
 	}),
 	dotTickRatePercentIncrease: inputBuilder({
-		label: 'Dot Tick Rate Increase %',
+		label: i18n.t('rotation_tab.apl.values.dot_tick_rate_percent_increase.label'),
 		submenu: ['dot'],
-		shortDescription: 'How much faster a new DoT would tick compared to the old.',
+		shortDescription: i18n.t('rotation_tab.apl.values.dot_tick_rate_percent_increase.tooltip'),
 		newValue: APLValueDotPercentIncrease.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
@@ -1083,47 +1083,43 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		fields: [],
 	}),
 	variableRef: inputBuilder({
-		label: 'Variable Reference',
-		submenu: ['Variables'],
-		shortDescription: 'Reference a named condition variable',
+		label: i18n.t('rotation_tab.apl.values.variable_ref.label'),
+		submenu: ['variables'],
+		shortDescription: i18n.t('rotation_tab.apl.values.variable_ref.tooltip'),
 		newValue: () => ({ name: '' }),
 		fields: [variableNameFieldConfig('name')],
 	}),
 	variablePlaceholder: inputBuilder({
-		label: 'Variable Placeholder',
-		submenu: ['Variables'],
-		shortDescription: 'Placeholder value that gets replaced when group is referenced',
-		fullDescription: `
-			<p>Defines a placeholder value that must be set when this group is referenced. This allows groups to be parameterized.</p>
-			<p>Example: If you add a Variable Placeholder named "replace", then when referencing this group, you must provide a value for "replace".</p>
-		`,
+		label: i18n.t('rotation_tab.apl.values.variable_placeholder.label'),
+		submenu: ['variables'],
+		shortDescription: i18n.t('rotation_tab.apl.values.variable_placeholder.tooltip'),
+		fullDescription: i18n.t('rotation_tab.apl.values.variable_placeholder.full_description'),
 		includeIf: (_player: Player<any>, isPrepull: boolean, isGroup: boolean) => !isPrepull && isGroup, // Only show in groups, not prepull or priority list
 		newValue: () => ({ name: '' }),
 		fields: [
 			placeholderNameFieldConfig('name', {
-				labelTooltip: 'Name of the variable placeholder to expose. This name will be used when referencing the group.',
+				labelTooltip: i18n.t('rotation_tab.apl.values.variable_placeholder.name_tooltip'),
 			}),
 		],
 	}),
 	actionGroupUsed: inputBuilder({
-		label: 'Action Group is used',
-		submenu: ['Variables'],
-		shortDescription:
-			'Returns <b>True</b> if the specified action group is used in the rotation. This allows you to conditionally execute actions based on whether an action group is included in the rotation.',
+		label: i18n.t('rotation_tab.apl.values.action_group_used.label'),
+		submenu: ['variables'],
+		shortDescription: i18n.t('rotation_tab.apl.values.action_group_used.tooltip'),
 		newValue: APLValueActionGroupUsed.create,
 		fields: [groupNameFieldConfig('name')],
 	}),
 	activeItemSwapSet: inputBuilder({
-		label: 'Item Swap',
-		submenu: ['Misc'],
-		shortDescription: 'Returns <b>True</b> if the specified item swap set is currently active.',
+		label: i18n.t('rotation_tab.apl.values.active_item_swap_set.label'),
+		submenu: ['misc'],
+		shortDescription: i18n.t('rotation_tab.apl.values.active_item_swap_set.tooltip'),
 		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && itemSwapEnabledSpecs.includes(player.getSpec()),
 		newValue: APLValueActiveItemSwapSet.create,
 		fields: [itemSwapSetFieldConfig('swapSet')],
 	}),
 	selectedPotion: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.selected_potion.label'),
-		submenu: ['Misc'],
+		submenu: ['misc'],
 		shortDescription: i18n.t('rotation_tab.apl.values.selected_potion.tooltip'),
 		newValue: APLValueSelectedPotion.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
@@ -1131,7 +1127,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 	}),
 	selectedConjured: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.selected_conjured.label'),
-		submenu: ['Misc'],
+		submenu: ['misc'],
 		shortDescription: i18n.t('rotation_tab.apl.values.selected_conjured.tooltip'),
 		newValue: APLValueSelectedConjured.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
@@ -1139,7 +1135,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 	}),
 	multipleCdUsages: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.multiple_cd_usages.label'),
-		submenu: ['Misc'],
+		submenu: ['misc'],
 		shortDescription: i18n.t('rotation_tab.apl.values.multiple_cd_usages.tooltip'),
 		newValue: () =>
 			APLValueMultipleCdUsages.create({

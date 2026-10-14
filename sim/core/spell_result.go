@@ -707,20 +707,26 @@ func (spell *Spell) calcHealingInternal(sim *Simulation, target *Unit, baseHeali
 
 	return result
 }
-func (spell *Spell) calcHealing(sim *Simulation, target *Unit, baseHealing float64, outcomeApplier OutcomeApplier, isPeriodic bool) *SpellResult {
+func (spell *Spell) CalcHealing(sim *Simulation, target *Unit, baseHealing float64, outcomeApplier OutcomeApplier) *SpellResult {
 	if spell.BonusCoefficient > 0 {
 		baseHealing += spell.BonusCoefficient * spell.HealingPower(target)
 	}
-	if !isPeriodic && spell.DirectVariance > 0 && !spell.expecting {
+	if spell.DirectVariance > 0 && !spell.expecting {
 		baseHealing *= sim.RollWithLabel(1-spell.DirectVariance/2, 1+spell.DirectVariance/2, "Healing Roll")
 	}
-	return spell.calcHealingInternal(sim, target, baseHealing, spell.casterHealingMultiplier(isPeriodic), outcomeApplier)
-}
-func (spell *Spell) CalcHealing(sim *Simulation, target *Unit, baseHealing float64, outcomeApplier OutcomeApplier) *SpellResult {
-	return spell.calcHealing(sim, target, baseHealing, outcomeApplier, false)
+	return spell.calcHealingInternal(sim, target, baseHealing, spell.CasterHealingMultiplier(), outcomeApplier)
 }
 func (spell *Spell) CalcPeriodicHealing(sim *Simulation, target *Unit, baseHealing float64, outcomeApplier OutcomeApplier) *SpellResult {
-	return spell.calcHealing(sim, target, baseHealing, outcomeApplier, true)
+	var dot *Dot
+	if spell.aoeDot != nil {
+		dot = spell.aoeDot
+	} else {
+		dot = spell.Hot(target)
+	}
+	if dot.BonusCoefficient > 0 {
+		baseHealing += dot.BonusCoefficient * spell.HealingPower(target)
+	}
+	return spell.calcHealingInternal(sim, target, baseHealing, dot.CasterPeriodicHealingMultiplier(), outcomeApplier)
 }
 func (dot *Dot) CalcSnapshotHealing(sim *Simulation, target *Unit, outcomeApplier OutcomeApplier) *SpellResult {
 	return dot.Spell.calcHealingInternal(sim, target, dot.SnapshotBaseDamage, dot.SnapshotAttackerMultiplier, outcomeApplier)

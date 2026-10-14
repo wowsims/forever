@@ -25,9 +25,9 @@ describe('LogSearchGroup', () => {
 	it('names the field and marks the join in force', () => {
 		const { container } = mount(group({ join: 'and' }));
 
-		expect(container.querySelector('[data-testid="log-search-group-field"]')!.textContent).toBe('Outcome');
+		expect(container.querySelector('[data-testid="log-search-group-field"]')!.textContent).toBe('results_tab.details.logs.search_fields.outcome');
 		const joins = [...container.querySelectorAll<HTMLButtonElement>('[data-testid="log-search-group-join"] button')];
-		expect(joins.map(button => button.textContent)).toEqual(['AND', 'OR']);
+		expect(joins.map(button => button.textContent)).toEqual(['results_tab.details.logs.search_join.and', 'results_tab.details.logs.search_join.or']);
 		expect(joins.map(button => button.getAttribute('aria-pressed'))).toEqual(['true', 'false']);
 	});
 
@@ -44,7 +44,7 @@ describe('LogSearchGroup', () => {
 	it('shows one chip per picked value, with the label the field spells it as', () => {
 		const { container } = mount(group({ values: ['critical-block', 'crit'] }));
 
-		expect(chips(container)).toEqual(['Critical Block', 'Crit']);
+		expect(chips(container)).toEqual(['results_tab.details.attack_types.critical_block', 'results_tab.details.attack_types.crit']);
 	});
 
 	it('drops the chip that was deleted and keeps the rest', () => {

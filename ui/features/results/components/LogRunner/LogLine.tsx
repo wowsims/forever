@@ -1,4 +1,5 @@
 import { ResourceType } from '@generated/proto/spell';
+import i18n from '@i18n/config';
 import type {
 	AuraLog,
 	AuraStacksLog,
@@ -21,6 +22,7 @@ import { matchTimestampPrefix } from '@sim/proto/combat_log';
 import { resourceNames } from '@sim/proto/names';
 import { resourceTextClass } from '@ui-kit/utils/colors';
 import type { ComponentType } from 'react';
+import { Trans } from 'react-i18next';
 
 import { DamageResult } from '../DamageResult';
 import { EntityLabel } from '../EntityLabel';
@@ -44,7 +46,7 @@ const DefaultLine = ({ log }: { log: CombatLog }) => {
 };
 
 const DamageLine = ({ log }: { log: DamageLog }) => {
-	const threatPostfix = log.source?.isTarget ? '' : ` (${log.threat.toFixed(2)} Threat)`;
+	const threatPostfix = log.source?.isTarget ? '' : ` ${i18n.t('results_tab.details.logs.lines.threat', { threat: log.threat.toFixed(2) })}`;
 	return (
 		<>
 			<SourcePrefix log={log} /> <ActionLink actionId={log.actionId!} /> <DamageResult log={log} />
@@ -53,103 +55,165 @@ const DamageLine = ({ log }: { log: DamageLog }) => {
 	);
 };
 
+const RESOURCE_LINE_KEYS = {
+	healthLost: 'results_tab.details.logs.lines.health_lost',
+	healthRecovered: 'results_tab.details.logs.lines.health_recovered',
+	spent: 'results_tab.details.logs.lines.resource_spent',
+	gained: 'results_tab.details.logs.lines.resource_gained',
+} as const;
+
 const ResourceLine = ({ log }: { log: ResourceLog }) => {
 	const signedDiff = (log.valueAfter - log.valueBefore) * (log.isSpend ? -1 : 1);
 	const isHealth = log.resourceType == ResourceType.ResourceTypeHealth;
-	const verb = isHealth ? (log.isSpend ? 'Lost' : 'Recovered') : log.isSpend ? 'Spent' : 'Gained';
+	const key = isHealth
+		? log.isSpend
+			? RESOURCE_LINE_KEYS.healthLost
+			: RESOURCE_LINE_KEYS.healthRecovered
+		: log.isSpend
+			? RESOURCE_LINE_KEYS.spent
+			: RESOURCE_LINE_KEYS.gained;
 	const resourceName = resourceNames.get(log.resourceType)!;
 	const resourceClass = resourceTextClass(log.resourceType);
 
 	return (
 		<>
-			<SourcePrefix log={log} /> {verb}{' '}
-			<strong className={resourceClass}>
-				{signedDiff.toFixed(1)} {resourceName}
-			</strong>
-			{` from `}
-			<ActionLink actionId={log.actionId!} />. ({log.valueBefore.toFixed(1)} &rarr; {log.valueAfter.toFixed(1)})
+			<SourcePrefix log={log} />{' '}
+			<Trans
+				i18n={i18n}
+				i18nKey={key}
+				values={{ amount: signedDiff.toFixed(1), resource: resourceName, before: log.valueBefore.toFixed(1), after: log.valueAfter.toFixed(1) }}
+				components={{ amount: <strong className={resourceClass} />, action: <ActionLink actionId={log.actionId!} /> }}
+			/>
 		</>
 	);
 };
 
+const AURA_LINE_KEYS = {
+	gained: 'results_tab.details.logs.lines.aura_gained',
+	faded: 'results_tab.details.logs.lines.aura_faded',
+	refreshed: 'results_tab.details.logs.lines.aura_refreshed',
+} as const;
+
 const AuraLine = ({ log }: { log: AuraLog }) => (
 	<>
 		<SourcePrefix log={log} />
-		{`  Aura  `}
-		{log.isGained ? 'gained' : log.isFaded ? 'faded' : 'refreshed'}: <ActionLink actionId={log.actionId!} isAura />.
+		{'  '}
+		<Trans
+			i18n={i18n}
+			i18nKey={log.isGained ? AURA_LINE_KEYS.gained : log.isFaded ? AURA_LINE_KEYS.faded : AURA_LINE_KEYS.refreshed}
+			components={{ action: <ActionLink actionId={log.actionId!} isAura /> }}
+		/>
 	</>
 );
 
 const AuraStacksLine = ({ log }: { log: AuraStacksLog }) => (
 	<>
-		<SourcePrefix log={log} /> <ActionLink actionId={log.actionId!} isAura /> stacks: {log.oldStacks} &rarr; {log.newStacks}.
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey="results_tab.details.logs.lines.aura_stacks"
+			values={{ from: log.oldStacks, to: log.newStacks }}
+			components={{ action: <ActionLink actionId={log.actionId!} isAura /> }}
+		/>
 	</>
 );
 
 const MajorCooldownLine = ({ log }: { log: MajorCooldownLog }) => (
 	<>
-		<SourcePrefix log={log} /> Major cooldown used: <ActionLink actionId={log.actionId!} />.
+		<SourcePrefix log={log} />{' '}
+		<Trans i18n={i18n} i18nKey="results_tab.details.logs.lines.major_cooldown" components={{ action: <ActionLink actionId={log.actionId!} /> }} />
 	</>
 );
 
 const CastBeganLine = ({ log }: { log: CastBeganLog }) => (
 	<>
-		<SourcePrefix log={log} /> Casting <ActionLink actionId={log.actionId!} /> (Cast time: {log.castTime.toFixed(2)}s, Cost: {log.manaCost.toFixed(1)}{' '}
-		Mana).
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey="results_tab.details.logs.lines.cast_began"
+			values={{ castTime: log.castTime.toFixed(2), cost: log.manaCost.toFixed(1) }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
 	</>
 );
 
 const CastCancelledLine = ({ log }: { log: CastCancelledLog }) => (
 	<>
-		<SourcePrefix log={log} /> Cancelled <ActionLink actionId={log.actionId!} /> after {log.cancelTime.toFixed(2)}s.
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey="results_tab.details.logs.lines.cast_cancelled"
+			values={{ time: log.cancelTime.toFixed(2) }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
 	</>
 );
 
 const CastCompletedLine = ({ log }: { log: CastCompletedLog }) => (
 	<>
-		<SourcePrefix log={log} /> Completed cast {log.actionId!.name}.
+		<SourcePrefix log={log} /> {i18n.t('results_tab.details.logs.lines.cast_completed', { spell: log.actionId!.name })}
 	</>
 );
 
 const AutoDelayLine = ({ log }: { log: AutoDelayLog }) => (
 	<>
-		<SourcePrefix log={log} /> <ActionLink actionId={log.actionId!} /> delayed by {log.delayText}, was ready at {log.readyAtLogText}.
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey="results_tab.details.logs.lines.auto_delay"
+			values={{ delay: log.delayText, readyAt: log.readyAtLogText }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
 	</>
 );
 
 const SpellQueuedLine = ({ log }: { log: SpellQueuedLog }) => (
 	<>
-		<SourcePrefix log={log} /> Queueing <ActionLink actionId={log.actionId!} /> to cast at {log.fireAtText}.
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey="results_tab.details.logs.lines.spell_queued"
+			values={{ fireAt: log.fireAtText }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
 	</>
 );
 
 const CastFailedLine = ({ log }: { log: CastFailedLog }) => (
 	<>
-		<SourcePrefix log={log} /> Failed to cast <ActionLink actionId={log.actionId!} />: {log.reason}.
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey="results_tab.details.logs.lines.cast_failed"
+			values={{ reason: log.reason }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
 	</>
 );
 
-const CastPushbackLine = ({ log }: { log: CastPushbackLog }) =>
-	log.isChanneling ? (
-		<>
-			<SourcePrefix log={log} /> <ActionLink actionId={log.actionId!} /> lost {log.pushbackText} while channeling due to pushback.
-		</>
-	) : (
-		<>
-			<SourcePrefix log={log} /> <ActionLink actionId={log.actionId!} /> pushed back {log.pushbackText} while casting.
-		</>
-	);
+const CastPushbackLine = ({ log }: { log: CastPushbackLog }) => (
+	<>
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey={log.isChanneling ? 'results_tab.details.logs.lines.pushback_channeling' : 'results_tab.details.logs.lines.pushback_casting'}
+			values={{ pushback: log.pushbackText }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
+	</>
+);
 
-const StatChangeLine = ({ log }: { log: StatChangeLog }) =>
-	log.isGain ? (
-		<>
-			<SourcePrefix log={log} /> Gained {log.stats} from <ActionLink actionId={log.actionId!} />.
-		</>
-	) : (
-		<>
-			<SourcePrefix log={log} /> Lost {log.stats} from fading <ActionLink actionId={log.actionId!} />.
-		</>
-	);
+const StatChangeLine = ({ log }: { log: StatChangeLog }) => (
+	<>
+		<SourcePrefix log={log} />{' '}
+		<Trans
+			i18n={i18n}
+			i18nKey={log.isGain ? 'results_tab.details.logs.lines.stats_gained' : 'results_tab.details.logs.lines.stats_lost'}
+			values={{ stats: log.stats }}
+			components={{ action: <ActionLink actionId={log.actionId!} /> }}
+		/>
+	</>
+);
 
 const ResourceGroupLine = ({ log }: { log: ResourceGroupLog }) => (
 	<>
@@ -159,7 +223,7 @@ const ResourceGroupLine = ({ log }: { log: ResourceGroupLog }) => (
 
 const CastLine = ({ log }: { log: CastLog }) => (
 	<>
-		<SourcePrefix log={log} /> Casting {log.actionId!.name} (Cast time = {log.castTime.toFixed(2)}s).
+		<SourcePrefix log={log} /> {i18n.t('results_tab.details.logs.lines.cast', { spell: log.actionId!.name, castTime: log.castTime.toFixed(2) })}
 	</>
 );
 

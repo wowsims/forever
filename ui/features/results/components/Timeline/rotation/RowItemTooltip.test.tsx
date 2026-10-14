@@ -1,8 +1,10 @@
 import { ResourceType } from '@generated/proto/spell';
+import i18n from '@i18n/config';
 import { renderWithHost } from '@testing/react';
 import { mockSubscriptions } from '@testing/sim/subscriptions';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import english from '../../../../../../assets/locales/en/translation.json';
 import type { AuraItem, CastItem, ResourceItem, RowItem, TickItem } from '../../../model/timeline/rotation';
 import { RowItemTooltip } from './RowItemTooltip';
 
@@ -42,6 +44,15 @@ const cast = (over: Record<string, unknown> = {}) =>
 		},
 	}) as unknown as CastItem;
 
+// Every line is a locale string, and a damage line splices its target and amount in as elements that
+// only exist once the string resolves; the test setup loads no locale, so this suite loads the English one.
+beforeAll(() => {
+	i18n.addResourceBundle('en', 'translation', english, true, true);
+});
+afterAll(() => {
+	i18n.removeResourceBundle('en', 'translation');
+});
+
 describe('RowItemTooltip', () => {
 	it('gives a cast its window, its cast time and its GCD time', () => {
 		expect(text(cast())).toContain('Fireball from 2.00s to 3.50s (1.50s, 1.50s GCD Time)');
@@ -59,7 +70,7 @@ describe('RowItemTooltip', () => {
 		const withDamage = text(cast({ damageDealtLogs: [damage(3000), damage(1500)] }));
 		expect(withDamage).toContain('Total: 4500.00 (3000.00 DPET)');
 		expect(withDamage).toContain('1.50s - Hit [Target 1] for 3000.00 damage');
-		expect(withDamage).toContain('(40.3 results_tab.details.timeline.tooltips.threat)');
+		expect(withDamage).toContain('(40.3 Threat)');
 	});
 
 	it('lists the damage of every cast in a stack and totals it over their effective time', () => {
@@ -104,6 +115,6 @@ describe('RowItemTooltip', () => {
 		const rendered = text(resource);
 		expect(rendered).toContain('200.0 (100%)');
 		// The rotation's own blocks never list auras: the row beneath already shows them.
-		expect(rendered).not.toContain('active_auras');
+		expect(rendered).not.toContain('Active Auras');
 	});
 });

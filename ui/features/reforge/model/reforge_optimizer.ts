@@ -6,6 +6,7 @@
 import { enchantPresetPool } from '@features/enchant-presets/model/enchant_presets';
 import { ReforgeOptimizeRequest, ReforgeSettings } from '@generated/proto/api';
 import { Profession, Spec, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { ReforgeGearCache } from '@sim/cache/reforge_cache';
 import { Player } from '@sim/player/player';
 import { Gear } from '@sim/proto/gear';
@@ -183,7 +184,7 @@ export const createReforgeOptimizer = (sim: Sim, player: Player<any>, options: R
 
 		const result = await sim.reforgeOptimize(config);
 		if (!result.optimizedGear) {
-			throw new Error('Native Go gear optimizer did not return optimized gear.');
+			throw new Error(i18n.t('sidebar.buttons.suggest_reforges.no_result'));
 		}
 
 		await cache.setGear(cacheKey, result.optimizedGear);

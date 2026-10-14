@@ -13,32 +13,50 @@ export interface CastTooltipProps {
 
 export const CastTooltip = ({ log, stack = [log] }: CastTooltipProps) => {
 	const { threat: showThreatMetrics } = useDisplayMetrics(useSim());
-	const travelTime = log.travelTime == 0 ? '' : ` + ${log.travelTime.toFixed(2)}s travel time`;
+	const travelTime = log.travelTime == 0 ? '' : ` ${i18n.t('results_tab.details.timeline.cast_tooltip.travel_time', { time: log.travelTime.toFixed(2) })}`;
 	// Two casts at the same timestamp can hand all of their damage to the later one, so the stack's
 	// damage is one list rather than one per cast.
 	const damageDealtLogs = stack.flatMap(cast => cast.damageDealtLogs);
 	const totalDamage = damageDealtLogs.reduce((total, ddl) => total + ddl.amount, 0);
 	const effectiveTime = stack.reduce((total, cast) => total + cast.effectiveTime, 0);
 	const first = stack[0];
+	const timing = log.castCancelledLog
+		? i18n.t('results_tab.details.timeline.cast_tooltip.cancelled', { time: log.cancelTime.toFixed(2) })
+		: log.castTime > 0
+			? i18n.t('results_tab.details.timeline.cast_tooltip.cast_and_gcd_time', {
+					castTime: log.castTime.toFixed(2),
+					gcdTime: log.effectiveTime.toFixed(2),
+				})
+			: i18n.t('results_tab.details.timeline.cast_tooltip.gcd_time', { gcdTime: log.effectiveTime.toFixed(2) });
 
 	return (
 		<div className="ui-timeline-tooltip">
 			<span>
-				{log.actionId!.name} from {log.timestamp.toFixed(2)}s to{' '}
-				{(log.castCancelledLog ? log.castCancelledLog.timestamp : log.timestamp + log.castTime).toFixed(2)}s
-				{log.castCancelledLog
-					? ` (Cancelled after ${log.cancelTime.toFixed(2)}s)`
-					: ` (${log.castTime > 0 ? `${log.castTime.toFixed(2)}s, ` : ''}${log.effectiveTime.toFixed(2)}s GCD Time)`}
+				{i18n.t('results_tab.details.timeline.cast_tooltip.window', {
+					spell: log.actionId!.name,
+					start: log.timestamp.toFixed(2),
+					end: (log.castCancelledLog ? log.castCancelledLog.timestamp : log.timestamp + log.castTime).toFixed(2),
+				})}
+				{` ${timing}`}
 				{travelTime.length > 0 && travelTime}
 			</span>
 			{stack.length > 1 && (
 				<span>
-					{stack.length} casts {first.timestamp === log.timestamp ? 'at' : `from ${first.timestamp.toFixed(2)}s to`} {log.timestamp.toFixed(2)}s
+					{first.timestamp === log.timestamp
+						? i18n.t('results_tab.details.timeline.cast_tooltip.stack_at', { casts: stack.length, time: log.timestamp.toFixed(2) })
+						: i18n.t('results_tab.details.timeline.cast_tooltip.stack_range', {
+								casts: stack.length,
+								start: first.timestamp.toFixed(2),
+								end: log.timestamp.toFixed(2),
+							})}
 				</span>
 			)}
 			{totalDamage > 0 && (
 				<span>
-					Total: {totalDamage.toFixed(2)} ({(totalDamage / (effectiveTime || 1)).toFixed(2)} DPET)
+					{i18n.t('results_tab.details.timeline.cast_tooltip.total', {
+						total: totalDamage.toFixed(2),
+						dpet: (totalDamage / (effectiveTime || 1)).toFixed(2),
+					})}
 				</span>
 			)}
 			{damageDealtLogs.length > 0 && (

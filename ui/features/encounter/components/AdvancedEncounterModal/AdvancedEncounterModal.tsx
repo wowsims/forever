@@ -27,7 +27,7 @@ export const AdvancedEncounterModal = ({ open, onOpenChange }: AdvancedEncounter
 			id: 'aem-encounter-picker',
 			label: i18n.t('settings_tab.encounter.encounter_preset.label'),
 			extraClassNames: ['pr-2', 'order-first', 'w-1/3', 'max-sm:w-1/2'],
-			values: [{ name: 'Custom', value: -1 }, ...presets.map((preset, index) => ({ name: preset.path, value: index }))],
+			values: [{ name: i18n.t('common.custom'), value: -1 }, ...presets.map((preset, index) => ({ name: preset.path, value: index }))],
 			storeField: 'encounter:*',
 			getValue: (subject: Encounter) => presets.findIndex(preset => subject.matchesPreset(preset)),
 			setValue: (subject: Encounter, newValue: number) => {

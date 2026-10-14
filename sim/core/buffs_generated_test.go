@@ -1669,11 +1669,13 @@ func TestGeneratedFuriousHowlDoesNotStackWithBattleShout(t *testing.T) {
 	}
 }
 
-// An owner with one true pet and one guardian, both meleeing and summoned at the pull.
+// An owner with one true pet and one guardian, both meleeing and summoned at the pull, and a dynamic
+// pet that stays away until a test enables it.
 type petOwner struct {
 	core.Character
 	pet      *testPet
 	guardian *testPet
+	dynamic  *testPet
 }
 
 type testPet struct {
@@ -1688,6 +1690,15 @@ func init() {
 			owner := &petOwner{Character: *character}
 			owner.pet = newTestPet(owner, "True Pet", false)
 			owner.guardian = newTestPet(owner, "Guardian", true)
+			owner.dynamic = &testPet{Pet: core.NewPet(core.PetConfig{
+				Name:  "Dynamic Pet",
+				Owner: &owner.Character,
+				StatInheritance: func(ownerStats stats.Stats) stats.Stats {
+					return stats.Stats{stats.AttackPower: max(ownerStats[stats.Strength], ownerStats[stats.Agility])}
+				},
+				IsDynamic: true,
+			})}
+			owner.AddPet(owner.dynamic)
 			return owner
 		},
 		func(player *proto.Player, spec interface{}) {
@@ -1722,6 +1733,8 @@ func (c *petOwner) Initialize()                         {}
 func (p *testPet) GetPet() *core.Pet                   { return &p.Pet }
 func (p *testPet) Reset(_ *core.Simulation)            {}
 func (p *testPet) OnEncounterStart(_ *core.Simulation) {}
+
+func (p *testPet) ExecuteCustomRotation(_ *core.Simulation) {}
 
 func setupPetOwnerSim(party *proto.PartyBuffs) (*core.Simulation, *petOwner) {
 	sim := core.NewSim(&proto.RaidSimRequest{

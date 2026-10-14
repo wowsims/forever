@@ -5,8 +5,7 @@ import { SimToolbarView } from './SimToolbar';
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
-const downloadLinks = () =>
-	screen.queryAllByRole('link').filter(link => link.getAttribute('aria-label') === 'Newer version of simulator available for download');
+const downloadLinks = () => screen.queryAllByRole('link').filter(link => link.getAttribute('aria-label') === 'info.native_sim_outdated');
 
 describe('SimToolbarView', () => {
 	it('lists the known issues and hides the entry when there are none', () => {

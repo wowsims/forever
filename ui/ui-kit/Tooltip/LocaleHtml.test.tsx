@@ -46,10 +46,29 @@ describe('LocaleHtml', () => {
 const LOCALES = join(process.cwd(), 'assets/locales');
 const HTML_TAG = /<[a-zA-Z/][^>]*>/;
 
-// Keys that carry markup *and* interpolate. LocaleHtml resolves the string before Trans parses it, so a
+// Keys that carry markup *and* interpolate. LocaleHtml and Trans resolve the string before parsing it, so a
 // value that looks like a tag is re-parsed — it renders as text rather than markup, but it still renders
-// wrong. Every value spliced into these is a number the sim produced, so none of them can.
-const INTERPOLATING_HTML_KEYS = ['bulk_tab.progress.iterations_complete'];
+// wrong. Every value spliced into these is a number, a duration, a stat or resource name or the engine's
+// reason text, none of which carries a tag.
+const INTERPOLATING_HTML_KEYS = [
+	'bulk_tab.progress.iterations_complete',
+	'results_tab.details.damage_result.damage_amount',
+	'results_tab.details.damage_result.health_amount',
+	'results_tab.details.logs.lines.aura_stacks',
+	'results_tab.details.logs.lines.auto_delay',
+	'results_tab.details.logs.lines.cast_began',
+	'results_tab.details.logs.lines.cast_cancelled',
+	'results_tab.details.logs.lines.cast_failed',
+	'results_tab.details.logs.lines.health_lost',
+	'results_tab.details.logs.lines.health_recovered',
+	'results_tab.details.logs.lines.pushback_casting',
+	'results_tab.details.logs.lines.pushback_channeling',
+	'results_tab.details.logs.lines.resource_gained',
+	'results_tab.details.logs.lines.resource_spent',
+	'results_tab.details.logs.lines.spell_queued',
+	'results_tab.details.logs.lines.stats_gained',
+	'results_tab.details.logs.lines.stats_lost',
+];
 
 const flatten = (value: unknown, path = ''): Array<[string, string]> =>
 	typeof value === 'string'

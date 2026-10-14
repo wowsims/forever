@@ -6,7 +6,7 @@ import type { SuggestionSource } from '../../model/log/search/indexes';
 import { FloatingActionBar } from '../FloatingActionBar';
 import { LogSearchBar } from './LogSearchBar';
 import type { IdentifiedSearchGroup } from './utils';
-import { labelOf, sentenceCase } from './utils';
+import { fieldLabel, labelOf } from './utils';
 
 const PREVIEW_LIMIT = 3;
 
@@ -21,7 +21,7 @@ export interface LogToolbarProps {
 export const LogToolbar = ({ groups, suggestions, onChange, children }: LogToolbarProps) => {
 	const labels = groups
 		.filter(group => group.values.length > 0)
-		.map(group => `${sentenceCase(group.field)}: ${group.values.map(value => labelOf(group.field, value)).join(', ')}`);
+		.map(group => `${fieldLabel(group.field)}: ${group.values.map(value => labelOf(group.field, value)).join(', ')}`);
 
 	return (
 		<FloatingActionBar

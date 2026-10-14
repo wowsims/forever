@@ -1,10 +1,12 @@
+import i18n from '@i18n/config';
 import type { DamageLog } from '@sim/proto/combat_log';
 import { isAvoidedOutcome } from '@sim/proto/combat_log/types';
 import { spellSchoolNames } from '@sim/proto/names';
 import { SPELL_SCHOOL_TEXT } from '@ui-kit/utils/colors';
+import { Trans } from 'react-i18next';
 
 import { EntityLabel } from '../EntityLabel';
-import { OUTCOME_LABEL } from './utils';
+import { outcomeLabel } from './utils';
 
 export interface DamageResultProps {
 	log: DamageLog;
@@ -17,28 +19,39 @@ export const DamageResult = ({ log }: DamageResultProps) => {
 	const isHealing = log.effect === 'healing';
 	const isShielding = log.effect === 'shielding';
 	const isMissLike = isAvoidedOutcome(log.outcome);
-	const outcomeLabel = log.outcome === 'hit' && log.tick ? 'Tick' : OUTCOME_LABEL[log.outcome];
+	const outcome = log.outcome === 'hit' && log.tick ? i18n.t('results_tab.details.attack_types.tick') : outcomeLabel(log.outcome);
+	const amount = log.amount.toFixed(2);
+	const resist = <>{log.resist > 0 && <> {i18n.t('results_tab.details.damage_result.resist', { percent: log.resist })}</>}</>;
 
 	return (
 		<>
-			{isHealing ? 'Healed ' : ''}
-			{isShielding ? 'Shielded ' : ''}
-			{!(isHealing || isShielding) && <>{outcomeLabel}</>}
+			{isHealing ? `${i18n.t('results_tab.details.damage_result.healed')} ` : ''}
+			{isShielding ? `${i18n.t('results_tab.details.damage_result.shielded')} ` : ''}
+			{!(isHealing || isShielding) && <>{outcome}</>}
 			{` `}
 			{log.target ? <EntityLabel entity={log.target} /> : ''}
 			{!isMissLike ? (
 				<>
 					{' '}
-					for{' '}
 					{isHealing || isShielding ? (
-						<strong className="text-resource-health">{log.amount.toFixed(2)} health</strong>
+						<Trans
+							i18n={i18n}
+							i18nKey="results_tab.details.damage_result.health_amount"
+							values={{ amount }}
+							components={{ amount: <strong className="text-resource-health" />, resist }}
+						/>
 					) : (
-						<strong className={schoolClass ?? 'text-danger'}>
-							{log.amount.toFixed(2)} damage
-							{spellSchoolString && <> ({spellSchoolString})</>}
-						</strong>
+						<Trans
+							i18n={i18n}
+							i18nKey="results_tab.details.damage_result.damage_amount"
+							values={{ amount }}
+							components={{
+								amount: <strong className={schoolClass ?? 'text-danger'} />,
+								school: <>{spellSchoolString && <> ({spellSchoolString})</>}</>,
+								resist,
+							}}
+						/>
 					)}
-					{log.resist > 0 && <> ({log.resist}% Resist)</>}.
 				</>
 			) : (
 				''

@@ -24,12 +24,7 @@ const CASES: Array<[string, ComponentType<ImporterDialogProps>, string, string]>
 	['AddonImporterDialog', AddonImporterDialog, ADDON_IMPORTER.title, i18n.t('import.addon.instructions')],
 	['BulkGearImporterDialog', BulkGearImporterDialog, BULK_GEAR_IMPORTER.title, i18n.t('bulk_tab.import_modal.description_line1')],
 	['JsonImporterDialog', JsonImporterDialog, JSON_IMPORTER.title, i18n.t('import.json.instructions')],
-	[
-		'SixtyUpgradesImporterDialog',
-		SixtyUpgradesImporterDialog,
-		SIXTY_UPGRADES_IMPORTER.title,
-		"To import, paste the output from the site's export option below and click, 'Import'.",
-	],
+	['SixtyUpgradesImporterDialog', SixtyUpgradesImporterDialog, SIXTY_UPGRADES_IMPORTER.title, i18n.t('import.sixty_upgrades.instructions')],
 	['WowheadImporterDialog', WowheadImporterDialog, WOWHEAD_GEAR_PLANNER_IMPORTER.title, i18n.t('import.wowhead.instructions')],
 ];
 

@@ -1303,7 +1303,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 623.24281
+  dps: 622.82165
   tps: 266.13135
   dtps: 7.17387
  }

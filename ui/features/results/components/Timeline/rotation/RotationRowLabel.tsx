@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { tooltipAnchorProps } from '@ui-kit/Tooltip';
@@ -32,11 +33,11 @@ export const RotationRowLabel = ({ text, icon, onHide, hideTooltipId, className,
 		{onHide && (
 			<Button
 				iconOnly
-				aria-label={`Hide ${text}`}
+				aria-label={i18n.t('results_tab.details.timeline.hide_row_named', { row: text })}
 				data-testid="rotation-row-hide"
 				className="flex-none p-0 text-white hover:text-link-danger"
 				onClick={onHide}
-				{...tooltipAnchorProps(hideTooltipId, 'Hide row')}>
+				{...tooltipAnchorProps(hideTooltipId, i18n.t('results_tab.details.timeline.hide_row'))}>
 				<Icon name="eye-slash" />
 			</Button>
 		)}
