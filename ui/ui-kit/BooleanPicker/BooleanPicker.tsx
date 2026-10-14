@@ -13,6 +13,7 @@ export const BooleanPicker = ({
 	disabled,
 	reverse,
 	size,
+	invalid,
 	className,
 	testId,
 	'aria-describedby': describedBy,
@@ -24,6 +25,7 @@ export const BooleanPicker = ({
 		<Checkbox.Root
 			id={frameProps.id}
 			data-size={size}
+			aria-invalid={invalid || undefined}
 			aria-describedby={describedBy}
 			className={clsx('ui-boolean-picker-input inline-flex items-center justify-center p-0', !hasFrame && className)}
 			data-testid={hasFrame ? 'boolean-picker-input' : (testId ?? 'boolean-picker-input')}

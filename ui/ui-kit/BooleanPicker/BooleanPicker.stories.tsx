@@ -52,3 +52,4 @@ export const Inline: Story = { args: { label: 'Show All Stats', layout: 'inline'
 export const Disabled: Story = { args: { disabled: true, value: true } };
 export const Unlabelled: Story = { args: { label: undefined } };
 export const Small: Story = { args: { label: 'Patchwerk', layout: 'inline', size: 'sm', value: true } };
+export const Invalid: Story = { args: { label: 'Patchwerk again', layout: 'inline', invalid: true, value: true } };

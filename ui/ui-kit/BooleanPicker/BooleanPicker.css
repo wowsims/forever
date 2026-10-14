@@ -30,6 +30,12 @@
 			@apply pointer-events-none opacity-50;
 		}
 
+		&[aria-invalid='true'],
+		&[aria-invalid='true']:focus,
+		&[aria-invalid='true'][data-checked] {
+			@apply border-danger;
+		}
+
 		/* The compact context matches Field.css's compact box rule, so a small picker stays small inside a compact field. */
 		&[data-size='sm'],
 		.ui-field-compact &[data-size='sm'] {
