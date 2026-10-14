@@ -84,7 +84,7 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 
 	return (
 		<div className="grid gap-2" data-testid="bulk-encounters">
-			<p className="mb-0 text-sm">{t('description')}</p>
+			<p className="mb-0 text-xs">{t('description')}</p>
 			<EncounterCheckRow
 				id={`${idPrefix}-current`}
 				label={t('current')}
