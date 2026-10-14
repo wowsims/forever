@@ -26,7 +26,7 @@ func TestSchoolSpellPiercingLowersOnlyItsSchool(t *testing.T) {
 
 	_, frostBare := coeffs(0, 0)
 	fireResist, frostResist := coeffs(0, 30)
-	if want := 70.0 / (70 + 380); !WithinToleranceFloat64(want, fireResist, 1e-9) {
+	if want := 70.0 / (70 + 540); !WithinToleranceFloat64(want, fireResist, 1e-9) {
 		t.Errorf("fire average resist with 30 fire piercing = %v, want %v", fireResist, want)
 	}
 	if frostResist != frostBare {
@@ -34,10 +34,10 @@ func TestSchoolSpellPiercingLowersOnlyItsSchool(t *testing.T) {
 	}
 
 	fireBoth, frostBoth := coeffs(20, 30)
-	if want := 50.0 / (50 + 380); !WithinToleranceFloat64(want, fireBoth, 1e-9) {
+	if want := 50.0 / (50 + 540); !WithinToleranceFloat64(want, fireBoth, 1e-9) {
 		t.Errorf("fire average resist with 20 piercing and 30 fire piercing = %v, want %v", fireBoth, want)
 	}
-	if want := 80.0 / (80 + 380); !WithinToleranceFloat64(want, frostBoth, 1e-9) {
+	if want := 80.0 / (80 + 540); !WithinToleranceFloat64(want, frostBoth, 1e-9) {
 		t.Errorf("frost average resist with 20 piercing and 30 fire piercing = %v, want %v", frostBoth, want)
 	}
 }
