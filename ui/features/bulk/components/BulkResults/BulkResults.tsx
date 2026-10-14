@@ -1,32 +1,37 @@
 import i18n from '@i18n/config';
 import type { BulkEncounterResults, BulkRunResults } from '@sim/bulk/types';
-import { Button } from '@ui-kit/Button';
+import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import { useState } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
 import { BulkResultRow } from './BulkResultRow';
 import { BulkResultTieGroup } from './BulkResultTieGroup';
 
-export interface BulkEncounterPillsProps {
+export interface BulkEncounterTabsProps {
 	entries: ReadonlyArray<Pick<BulkEncounterResults, 'name' | 'isCurrent' | 'durationLabel'>>;
 	selected: number;
 	onSelect: (index: number) => void;
 }
 
-export const BulkEncounterPills = ({ entries, selected, onSelect }: BulkEncounterPillsProps) => (
-	<div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={i18n.t('bulk_tab.results.encounters')} data-testid="bulk-encounter-pills">
-		{entries.map((entry, index) => (
-			<Button
-				key={index}
-				size="sm"
-				className="rounded-full"
-				variant={index === selected ? 'primary' : 'outline-primary'}
-				aria-pressed={index === selected}
-				onClick={() => onSelect(index)}>
-				{entry.isCurrent ? i18n.t('bulk_tab.results.current') : entry.name} <span className="ml-1 text-xs opacity-75">{entry.durationLabel}</span>
-			</Button>
-		))}
-	</div>
+// Many encounters wrap onto further rows instead of running out of the results column.
+export const BulkEncounterTabs = ({ entries, selected, onSelect }: BulkEncounterTabsProps) => (
+	<ToggleGroup
+		className="mb-4 max-w-full flex-wrap"
+		tone="neutral"
+		size="sm"
+		aria-label={i18n.t('bulk_tab.results.encounters')}
+		testId="bulk-encounter-tabs"
+		value={String(selected)}
+		onChange={next => onSelect(Number(next))}
+		options={entries.map((entry, index) => ({
+			value: String(index),
+			label: (
+				<>
+					{entry.isCurrent ? i18n.t('bulk_tab.results.current') : entry.name} <span className="ml-1 text-xs opacity-75">{entry.durationLabel}</span>
+				</>
+			),
+		}))}
+	/>
 );
 
 export interface BulkResultsProps {
@@ -50,7 +55,7 @@ export const BulkResults = ({ onActivateTab }: BulkResultsProps) => {
 	return (
 		<>
 			{results.plannedEncounters > 1 && (
-				<BulkEncounterPills entries={results.entries} selected={index} onSelect={next => setSelection({ of: results, index: next })} />
+				<BulkEncounterTabs entries={results.entries} selected={index} onSelect={next => setSelection({ of: results, index: next })} />
 			)}
 			{shown.chains.map((chain, chainIdx) =>
 				chain.length > 1 ? (

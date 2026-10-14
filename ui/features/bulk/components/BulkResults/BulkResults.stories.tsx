@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import { BulkEncounterPills, type BulkEncounterPillsProps } from './BulkResults';
+import { BulkEncounterTabs, type BulkEncounterTabsProps } from './BulkResults';
 
-const StatefulPills = (props: BulkEncounterPillsProps) => {
+const StatefulTabs = (props: BulkEncounterTabsProps) => {
 	const [selected, setSelected] = useState(props.selected);
 	return (
-		<BulkEncounterPills
+		<BulkEncounterTabs
 			{...props}
 			selected={selected}
 			onSelect={index => {
@@ -19,10 +19,10 @@ const StatefulPills = (props: BulkEncounterPillsProps) => {
 };
 
 const meta = {
-	title: 'Features/Bulk/BulkResults/BulkEncounterPills',
-	component: BulkEncounterPills,
+	title: 'Features/Bulk/BulkResults/BulkEncounterTabs',
+	component: BulkEncounterTabs,
 	tags: ['autodocs'],
-	render: args => <StatefulPills {...args} />,
+	render: args => <StatefulTabs {...args} />,
 	args: {
 		entries: [
 			{ name: '', isCurrent: true, durationLabel: '3:00 ±5s' },
@@ -32,7 +32,7 @@ const meta = {
 		selected: 0,
 		onSelect: fn(),
 	},
-} satisfies Meta<typeof BulkEncounterPills>;
+} satisfies Meta<typeof BulkEncounterTabs>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -50,4 +50,11 @@ export const ManyEncountersWrap: Story = {
 			})),
 		],
 	},
+	decorators: [
+		Story => (
+			<div className="w-80">
+				<Story />
+			</div>
+		),
+	],
 };

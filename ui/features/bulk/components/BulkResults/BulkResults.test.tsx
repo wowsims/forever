@@ -48,24 +48,26 @@ describe('BulkResults', () => {
 		expect(rowIterations()).toEqual([String(RUN_ITERATIONS), String(RUN_ITERATIONS)]);
 	});
 
-	it('shows no pills for a single-encounter run', () => {
+	it('shows no encounter tabs for a single-encounter run', () => {
 		mount(1, [entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
-		expect(screen.queryByTestId('bulk-encounter-pills')).toBeNull();
+		expect(screen.queryByTestId('bulk-encounter-tabs')).toBeNull();
 	});
 
-	it('names one pill per encounter, with its length, and switches the list on a click', () => {
+	it('names one tab per encounter, with its length, and switches the list on a click', () => {
 		mount(3, [entry('', '3:00 ±5s', 100, true), entry('Patchwerk', '5:00 ±30s', 200), entry('Council', 'Health', 300)]);
-		const pills = within(screen.getByTestId('bulk-encounter-pills')).getAllByRole('button');
-		expect(pills.map(pill => pill.textContent)).toEqual(['bulk_tab.results.current 3:00 ±5s', 'Patchwerk 5:00 ±30s', 'Council Health']);
+		const group = screen.getByRole('group', { name: 'bulk_tab.results.encounters' });
+		const tabs = within(group).getAllByRole('button');
+		expect(tabs.map(tab => tab.textContent)).toEqual(['bulk_tab.results.current 3:00 ±5s', 'Patchwerk 5:00 ±30s', 'Council Health']);
+		expect(tabs.map(tab => tab.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
 		expect(rowIterations()).toEqual(['100', '100']);
 
-		fireEvent.click(pills[1]);
+		fireEvent.click(tabs[1]);
 		expect(rowIterations()).toEqual(['200', '200']);
-		expect(pills[1].getAttribute('aria-pressed')).toBe('true');
+		expect(tabs.map(tab => tab.getAttribute('aria-pressed'))).toEqual(['false', 'true', 'false']);
 	});
 
-	it('shows one pill for a cancelled multi-encounter run', () => {
+	it('shows one tab for a cancelled multi-encounter run', () => {
 		mount(3, [entry('', '3:00 ±5s', 100, true)]);
-		expect(screen.getByTestId('bulk-encounter-pills').querySelectorAll('button')).toHaveLength(1);
+		expect(within(screen.getByTestId('bulk-encounter-tabs')).getAllByRole('button')).toHaveLength(1);
 	});
 });
