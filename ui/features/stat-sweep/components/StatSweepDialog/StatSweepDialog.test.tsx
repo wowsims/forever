@@ -732,13 +732,13 @@ describe('StatSweepDialog', () => {
 			await openDialog();
 
 			await run();
-			const rows = () => [...tracker()!.querySelectorAll('[data-testid="stat-sweep-stat"]')];
+			const rows = () => [...tracker()!.querySelectorAll('[data-testid="progress-step"]')];
 			expect(rows().map(row => [row.textContent, row.getAttribute('data-state'), row.getAttribute('aria-current')])).toEqual([
 				[STRENGTH.getFullName(Class.ClassWarrior), 'done', null],
 				[AGILITY.getFullName(Class.ClassWarrior), 'running', 'step'],
 			]);
-			expect(tracker()!.querySelectorAll('[data-testid="stat-sweep-stat-spinner"]')).toHaveLength(1);
-			expect(rows()[1].querySelector('[data-testid="stat-sweep-stat-spinner"]')).not.toBeNull();
+			expect(tracker()!.querySelectorAll('[data-testid="progress-step-spinner"]')).toHaveLength(1);
+			expect(rows()[1].querySelector('[data-testid="progress-step-spinner"]')).not.toBeNull();
 
 			await act(async () => {
 				fireEvent.click(tracker()!.querySelector('[data-testid="progress-tracker-modal-cancel-btn"]')!);
