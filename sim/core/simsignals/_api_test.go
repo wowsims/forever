@@ -145,7 +145,8 @@ func TestAbort(t *testing.T) {
 				proto.Stat_StatHitRating,
 				proto.Stat_StatExpertiseRating,
 			},
-			EpReferenceStat: proto.Stat_StatAttackPower,
+			EpReferenceStat:  proto.Stat_StatAttackPower,
+			HpsReferenceStat: proto.Stat_StatAttackPower,
 		}
 		swr.SimOptions.Iterations = 9999
 

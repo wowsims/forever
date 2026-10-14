@@ -655,7 +655,7 @@ export class Sim {
 				statsToWeigh: epStats,
 				pseudoStatsToWeigh: epPseudoStats,
 				epReferenceStat: epReferenceStat,
-				hpsReferenceStat: options.hpsReferenceStat,
+				hpsReferenceStat: options.hpsReferenceStat ?? epReferenceStat,
 				target:
 					options.targetEpCi === undefined
 						? undefined

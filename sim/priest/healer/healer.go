@@ -33,8 +33,8 @@ func NewHealerPriest(character *core.Character, options *proto.Player) *HealerPr
 	basePriest.PrayerOfHealingMode = healerOptions.GetPrayerOfHealingMode()
 	basePriest.PrayerOfMendingJumps = healerOptions.GetPrayerOfMendingJumps()
 	basePriest.PrayerOfMendingDelay = 2.5
-	if healerOptions != nil && healerOptions.PrayerOfMendingDelay != nil {
-		basePriest.PrayerOfMendingDelay = *healerOptions.PrayerOfMendingDelay
+	if delay := healerOptions.GetPrayerOfMendingDelay(); delay > 0 {
+		basePriest.PrayerOfMendingDelay = delay
 	}
 	basePriest.HolyNovaHealTargets = healerOptions.GetHolyNovaHealTargets()
 	if basePriest.HolyNovaHealTargets == 0 {

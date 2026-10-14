@@ -34,6 +34,7 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 		Stat.StatArmorPenetration,
 		Stat.StatSpellDamage,
 		Stat.StatNatureDamage,
+		Stat.StatSpellPiercing,
 	],
 	epPseudoStats: [PseudoStat.PseudoStatMainHandDps],
 	// Reference stat against which to calculate EP.
@@ -52,6 +53,7 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 			Stat.StatArmorPenetration,
 			Stat.StatSpellDamage,
 			Stat.StatNatureDamage,
+			Stat.StatSpellPiercing,
 		],
 		[
 			PseudoStat.PseudoStatMeleeHitPercent,

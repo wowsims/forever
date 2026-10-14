@@ -29,6 +29,7 @@ export default defineSpec<Spec.SpecDpsPriest>({
 		Stat.StatSpellDamage,
 		Stat.StatShadowDamage,
 		Stat.StatHolyDamage,
+		Stat.StatSpellPiercing,
 		Stat.StatHitRating,
 		Stat.StatCritRating,
 		Stat.StatHasteRating,
@@ -52,6 +53,7 @@ export default defineSpec<Spec.SpecDpsPriest>({
 			Stat.StatSpellDamage,
 			Stat.StatShadowDamage,
 			Stat.StatHolyDamage,
+			Stat.StatSpellPiercing,
 		],
 		[
 			PseudoStat.PseudoStatSpellHitPercent,

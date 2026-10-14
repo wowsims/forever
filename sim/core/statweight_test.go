@@ -93,6 +93,7 @@ func runSyntheticStatWeights(t *testing.T, statsToWeigh []proto.Stat, pseudoStat
 		StatsToWeigh:       statsToWeigh,
 		PseudoStatsToWeigh: pseudoStatsToWeigh,
 		EpReferenceStat:    proto.Stat_StatAgility,
+		HpsReferenceStat:   proto.Stat_StatAgility,
 	})
 
 	var runs []statWeightStatRuns
@@ -263,11 +264,12 @@ var noisyDpsPerPoint = map[stats.UnitStat]float64{agilityUnitStat: 1, hitRatingU
 // Agility, the reference, simulated below and above the baseline, and hit rating above it only.
 func noisyStatWeightRequests() *proto.StatWeightRequestsData {
 	return buildStatWeightRequests(&proto.StatWeightsRequest{
-		Player:          &proto.Player{},
-		Encounter:       &proto.Encounter{},
-		SimOptions:      &proto.SimOptions{Iterations: 2, RandomSeed: 1},
-		StatsToWeigh:    []proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
-		EpReferenceStat: proto.Stat_StatAgility,
+		Player:           &proto.Player{},
+		Encounter:        &proto.Encounter{},
+		SimOptions:       &proto.SimOptions{Iterations: 2, RandomSeed: 1},
+		StatsToWeigh:     []proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+		EpReferenceStat:  proto.Stat_StatAgility,
+		HpsReferenceStat: proto.Stat_StatAgility,
 	})
 }
 
@@ -542,11 +544,12 @@ var attackPowerUnitStat = stats.UnitStatFromStat(stats.AttackPower)
 // a bow: an empty ranged slot deals NaN damage.
 func weaponTesterStatWeightsRequest(iterations int32) *proto.StatWeightsRequest {
 	return &proto.StatWeightsRequest{
-		Player:          weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, WeaponTestBowID), nil).Parties[0].Players[0],
-		Encounter:       MakeSingleTargetEncounter(0),
-		SimOptions:      &proto.SimOptions{Iterations: iterations, RandomSeed: 1, IsTest: true},
-		StatsToWeigh:    []proto.Stat{proto.Stat_StatAttackPower},
-		EpReferenceStat: proto.Stat_StatAttackPower,
+		Player:           weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, WeaponTestBowID), nil).Parties[0].Players[0],
+		Encounter:        MakeSingleTargetEncounter(0),
+		SimOptions:       &proto.SimOptions{Iterations: iterations, RandomSeed: 1, IsTest: true},
+		StatsToWeigh:     []proto.Stat{proto.Stat_StatAttackPower},
+		EpReferenceStat:  proto.Stat_StatAttackPower,
+		HpsReferenceStat: proto.Stat_StatAttackPower,
 	}
 }
 
@@ -659,7 +662,7 @@ var (
 )
 
 // Agility and hit rating weighed with agility as the DPS reference and hpsReferenceStat as the HPS one.
-func healingStatWeightsRequest(hpsReferenceStat *proto.Stat) *proto.StatWeightsRequest {
+func healingStatWeightsRequest(hpsReferenceStat proto.Stat) *proto.StatWeightsRequest {
 	return &proto.StatWeightsRequest{
 		Player:           &proto.Player{},
 		Encounter:        &proto.Encounter{},
@@ -674,7 +677,7 @@ func healingStatWeightsRequest(hpsReferenceStat *proto.Stat) *proto.StatWeightsR
 // the baseline's by its stat's worth alone, so each DPS ± is 0, and each run's HPS carries noise of
 // its own.
 func healingStatWeightCalc(perSide int) *proto.StatWeightsCalcRequest {
-	requests := buildStatWeightRequests(healingStatWeightsRequest(proto.Stat_StatIntellect.Enum()))
+	requests := buildStatWeightRequests(healingStatWeightsRequest(proto.Stat_StatIntellect))
 	run := func(index int, stat stats.UnitStat, mod float64) *proto.RaidSimResult {
 		var dps, hps []float64
 		for i := range perSide {
@@ -696,10 +699,10 @@ func healingStatWeightCalc(perSide int) *proto.StatWeightsCalcRequest {
 	return pairedStatWeightCalc(requests, run(0, 0, 0), runs)
 }
 
-// A set HPS reference stat is simulated, below and above its baseline like the DPS one, and an unset
-// one is the DPS reference stat.
-func TestStatWeightsSimulateTheHpsReferenceStatWhenSet(t *testing.T) {
-	set := buildStatWeightRequests(healingStatWeightsRequest(proto.Stat_StatIntellect.Enum()))
+// The HPS reference stat is simulated, below and above its baseline like the DPS one, and one equal to
+// the DPS reference stat adds no runs.
+func TestStatWeightsSimulateTheHpsReferenceStat(t *testing.T) {
+	set := buildStatWeightRequests(healingStatWeightsRequest(proto.Stat_StatIntellect))
 	index := slices.IndexFunc(set.StatSimRequests, func(request *proto.StatWeightsStatRequestData) bool {
 		return request.StatData.UnitStat == int32(intellectUnitStat)
 	})
@@ -710,12 +713,12 @@ func TestStatWeightsSimulateTheHpsReferenceStatWhenSet(t *testing.T) {
 		t.Errorf("intellect modifiers %v and %v, want one below and one above", statData.ModLow, statData.ModHigh)
 	}
 
-	unset := buildStatWeightRequests(healingStatWeightsRequest(nil))
-	if len(unset.StatSimRequests) != len(set.StatSimRequests)-1 || simulatesStat(unset, intellectUnitStat) {
-		t.Errorf("unset HPS reference simulates %d stats, want the weighed ones alone", len(unset.StatSimRequests))
+	same := buildStatWeightRequests(healingStatWeightsRequest(proto.Stat_StatAgility))
+	if len(same.StatSimRequests) != len(set.StatSimRequests)-1 || simulatesStat(same, intellectUnitStat) {
+		t.Errorf("HPS reference equal to the DPS one simulates %d stats, want the weighed ones alone", len(same.StatSimRequests))
 	}
-	if unset.HpsReferenceStat != proto.Stat_StatAgility {
-		t.Errorf("unset HPS reference = %v, want the DPS reference", unset.HpsReferenceStat)
+	if same.HpsReferenceStat != proto.Stat_StatAgility {
+		t.Errorf("HPS reference = %v, want agility", same.HpsReferenceStat)
 	}
 }
 
@@ -814,11 +817,12 @@ func TestStatWeightsReadTheChanceOfDeathFromTheFirstRuns(t *testing.T) {
 
 func TestStatWeightRequestsRunAtLeastOneIterationPerSide(t *testing.T) {
 	requests := buildStatWeightRequests(&proto.StatWeightsRequest{
-		Player:          &proto.Player{},
-		Encounter:       &proto.Encounter{},
-		SimOptions:      &proto.SimOptions{Iterations: 1, RandomSeed: 1},
-		StatsToWeigh:    []proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
-		EpReferenceStat: proto.Stat_StatAgility,
+		Player:           &proto.Player{},
+		Encounter:        &proto.Encounter{},
+		SimOptions:       &proto.SimOptions{Iterations: 1, RandomSeed: 1},
+		StatsToWeigh:     []proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+		EpReferenceStat:  proto.Stat_StatAgility,
+		HpsReferenceStat: proto.Stat_StatAgility,
 	})
 	if got := requests.BaseRequest.SimOptions.Iterations; got != 1 {
 		t.Errorf("baseline runs %d iterations, want 1", got)
@@ -838,12 +842,13 @@ func TestStatWeightRequestsProbeATargetAtAFixedCount(t *testing.T) {
 	for _, target := range []*proto.StatWeightsTarget{nil, {EpCi: 0.01}} {
 		for _, iterations := range []int32{10, 100 * StatWeightTargetProbeIterations} {
 			requests := buildStatWeightRequests(&proto.StatWeightsRequest{
-				Player:          &proto.Player{},
-				Encounter:       &proto.Encounter{},
-				SimOptions:      &proto.SimOptions{Iterations: iterations, RandomSeed: 1},
-				StatsToWeigh:    []proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
-				EpReferenceStat: proto.Stat_StatAgility,
-				Target:          target,
+				Player:           &proto.Player{},
+				Encounter:        &proto.Encounter{},
+				SimOptions:       &proto.SimOptions{Iterations: iterations, RandomSeed: 1},
+				StatsToWeigh:     []proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+				EpReferenceStat:  proto.Stat_StatAgility,
+				HpsReferenceStat: proto.Stat_StatAgility,
+				Target:           target,
 			})
 			want := iterations / 2
 			if target != nil {

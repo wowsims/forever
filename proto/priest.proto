@@ -96,7 +96,7 @@ message HealerPriest {
 		PriestOptions class_options = 1;
 		PrayerOfHealingMode prayer_of_healing_mode = 2;
 		int32 prayer_of_mending_jumps = 3;
-		optional double prayer_of_mending_delay = 4;
+		double prayer_of_mending_delay = 4; // Seconds; 0 means the default 2.5.
 		int32 holy_nova_heal_targets = 5;
 	}
 	Options options = 3;

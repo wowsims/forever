@@ -145,10 +145,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	// Reduce variance even more by using test-level RNG controls.
 	swr.SimOptions.UseLabeledRands = true
 
-	hpsReferenceStat := swr.EpReferenceStat
-	if swr.HpsReferenceStat != nil {
-		hpsReferenceStat = *swr.HpsReferenceStat
-	}
+	hpsReferenceStat := swr.HpsReferenceStat
 
 	swBaseResponse := &proto.StatWeightRequestsData{
 		BaseRequest: &proto.RaidSimRequest{

@@ -663,6 +663,7 @@ func FullCharacterTestSuiteGenerator(configs []CharacterSuiteConfig) []TestGener
 						StatsToWeigh:       config.StatsToWeigh,
 						PseudoStatsToWeigh: config.PseudoStatsToWeigh,
 						EpReferenceStat:    config.EPReferenceStat,
+						HpsReferenceStat:   config.EPReferenceStat,
 					},
 				},
 			})
