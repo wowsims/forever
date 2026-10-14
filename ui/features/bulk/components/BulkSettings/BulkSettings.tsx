@@ -19,8 +19,8 @@ import { frozenItemSlot } from '../../model/picker_groups';
 import { runBulkBatch } from '../../model/run';
 import { canRunBatch } from '../../model/selectors';
 import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/settings';
+import { Encounters } from '../Encounters';
 import { CombinationsCount } from './CombinationsCount';
-import { Encounters } from './Encounters';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
 
 export interface BulkWeaponFreeze {

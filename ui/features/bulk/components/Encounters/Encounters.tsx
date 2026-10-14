@@ -5,7 +5,7 @@ import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { useId } from 'react';
 
 import { useBulkEncounters } from '../../hooks/useBulkEncounters';
-import { formatEncounterSummary, isBulkEncounterChecked, isDuplicateEncounter, setBulkEncounterChecked } from '../../model/encounters';
+import { bulkEncounterList, formatEncounterSummary, setBulkEncounterChecked } from '../../model/encounters';
 
 export interface EncounterRow {
 	name: string;
@@ -37,10 +37,7 @@ interface EncounterCheckRowProps {
 
 // The label column shrinks and wraps, so a long name never runs into the summary.
 const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = false, onChange, testId, summaryTestId }: EncounterCheckRowProps) => (
-	<div
-		className="grid grid-cols-[1fr_auto] items-center gap-2 border border-transparent px-1 data-duplicate:border-danger"
-		data-duplicate={duplicate || undefined}
-		data-testid={testId}>
+	<div className="grid grid-cols-[1fr_auto] items-center gap-2" data-testid={testId}>
 		<BooleanPicker
 			id={id}
 			className="min-w-0"
@@ -49,6 +46,7 @@ const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = 
 			size="sm"
 			value={checked}
 			disabled={disabled}
+			invalid={duplicate}
 			aria-describedby={duplicate ? `${id}-duplicate` : undefined}
 			onChange={onChange}
 		/>
@@ -106,20 +104,12 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 
 export const Encounters = () => {
 	const player = usePlayer();
-	const { current, entries, checked, picked } = useBulkEncounters();
-	const pickedEncounters = picked.map(entry => entry.encounter);
+	const { current, entries, checked } = useBulkEncounters();
+	const list = bulkEncounterList(current, entries, checked);
 	const rows = (preset: boolean): EncounterRow[] =>
-		entries
-			.filter(entry => entry.ref.preset === preset)
-			.map(entry => {
-				const at = picked.indexOf(entry);
-				return {
-					name: entry.name,
-					summary: formatEncounterSummary(entry.encounter),
-					checked: isBulkEncounterChecked(checked, entry.ref),
-					duplicate: at >= 0 && isDuplicateEncounter(current, pickedEncounters, at),
-				};
-			});
+		list
+			.filter(item => item.ref.preset === preset)
+			.map(item => ({ name: item.name, summary: formatEncounterSummary(item.encounter), checked: item.checked, duplicate: item.duplicate }));
 
 	return (
 		<EncountersView

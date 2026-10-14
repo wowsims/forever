@@ -6,10 +6,10 @@ import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+	bulkEncounterList,
 	bulkEncounterRuns,
 	checkedBulkEncounters,
 	formatEncounterSummary,
-	isDuplicateEncounter,
 	pickableBulkEncounters,
 	setBulkEncounterChecked,
 } from './encounters';
@@ -72,14 +72,6 @@ describe('bulkEncounterRuns', () => {
 	});
 });
 
-describe('isDuplicateEncounter', () => {
-	it('flags a pick equal to the current encounter or to an earlier pick only', () => {
-		const picked = [encounter(180), encounter(90), encounter(90), encounter(90, 5, 2)];
-
-		expect(picked.map((_, index) => isDuplicateEncounter(CURRENT, picked, index))).toEqual([true, false, true, false]);
-	});
-});
-
 describe('formatEncounterSummary', () => {
 	it.each([
 		[encounter(180), '3:00 ±5s · bulk_tab.settings.encounters.targets:1'],
@@ -132,6 +124,42 @@ describe('pickableBulkEncounters', () => {
 		const checked = [BulkEncounterRef.create({ name: 'Patchwerk', preset: false })];
 
 		expect(checkedBulkEncounters(pickableBulkEncounters(host), checked).map(entry => entry.encounter.duration)).toEqual([120]);
+	});
+});
+
+describe('bulkEncounterList', () => {
+	const entry = (name: string, proto: Encounter, preset = false) => ({ ref: BulkEncounterRef.create({ name, preset }), name, encounter: proto });
+	const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
+	const listed = (entries: ReturnType<typeof entry>[], checked: BulkEncounterRef[]) =>
+		bulkEncounterList(CURRENT, entries, checked).map(item => [item.name, item.checked, item.duplicate]);
+
+	it('leaves out an entry equal to the current encounter, checked or not', () => {
+		const entries = [
+			entry('Same as current', encounter(180)),
+			entry('Council', encounter(90)),
+			entry('Also current', { ...encounter(180), apiVersion: 2 }),
+		];
+
+		expect(listed(entries, [ref('Same as current')])).toEqual([['Council', false, false]]);
+	});
+
+	it('lists a checked entry equal to an earlier checked one and flags it', () => {
+		const entries = [entry('Patchwerk', encounter(300), true), entry('Patchwerk again', encounter(300)), entry('Council', encounter(90))];
+
+		expect(listed(entries, [ref('Patchwerk', true), ref('Patchwerk again'), ref('Council')])).toEqual([
+			['Patchwerk', true, false],
+			['Patchwerk again', true, true],
+			['Council', true, false],
+		]);
+	});
+
+	it('flags only checked entries, against earlier checked ones', () => {
+		const entries = [entry('Patchwerk', encounter(300)), entry('Patchwerk again', encounter(300))];
+
+		expect(listed(entries, [ref('Patchwerk again')])).toEqual([
+			['Patchwerk', false, false],
+			['Patchwerk again', true, false],
+		]);
 	});
 });
 

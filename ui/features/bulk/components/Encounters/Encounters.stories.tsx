@@ -25,14 +25,18 @@ const StatefulEncounters = (props: EncountersViewProps) => {
 const row = (name: string, summary: string, checked = false, duplicate = false): EncounterRow => ({ name, summary, checked, duplicate });
 
 const meta = {
-	title: 'Features/Bulk/BulkSettings/Encounters',
+	title: 'Features/Bulk/Encounters',
 	component: EncountersView,
 	tags: ['autodocs'],
 	render: args => <StatefulEncounters {...args} />,
 	args: {
 		currentSummary: '3:00 ±5s · 1 target',
 		presets: [row('Patchwerk', '5:00 ±30s · 1 target', true)],
-		saved: [row('Council', '4:00 ±10s · 3 targets', true), row('Short fight', '3:00 ±5s · 1 target', true, true), row('Execute test', 'Health · 1 target')],
+		saved: [
+			row('Council', '4:00 ±10s · 3 targets', true),
+			row('Council, saved twice', '4:00 ±10s · 3 targets', true, true),
+			row('Execute test', 'Health · 1 target'),
+		],
 		onCheckedChange: fn(),
 	},
 	decorators: [

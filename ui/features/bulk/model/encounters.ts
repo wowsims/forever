@@ -29,9 +29,9 @@ const sameEncounter = (a: Encounter, b: Encounter) => Encounter.equals({ ...a, a
 
 const sameRef = (a: BulkEncounterRef, b: BulkEncounterRef) => a.name === b.name && a.preset === b.preset;
 
-export const isBulkEncounterChecked = (checked: readonly BulkEncounterRef[], ref: BulkEncounterRef) => checked.some(item => sameRef(item, ref));
+const isBulkEncounterChecked = (checked: readonly BulkEncounterRef[], ref: BulkEncounterRef) => checked.some(item => sameRef(item, ref));
 
-export const isDuplicateEncounter = (current: Encounter, picked: readonly Encounter[], index: number): boolean =>
+const isDuplicateEncounter = (current: Encounter, picked: readonly Encounter[], index: number): boolean =>
 	sameEncounter(current, picked[index]) || picked.slice(0, index).some(earlier => sameEncounter(earlier, picked[index]));
 
 // The current encounter runs first, unnamed; a picked one equal to the current one or to an earlier pick is skipped.
@@ -87,11 +87,35 @@ export const pickableBulkEncounters = (host: IndividualSimHost<any>): BulkEncoun
 export const checkedBulkEncounters = (entries: readonly BulkEncounterEntry[], checked: readonly BulkEncounterRef[]): BulkEncounterEntry[] =>
 	entries.filter(entry => isBulkEncounterChecked(checked, entry.ref));
 
-// Rewritten from the listed refs, so the stored order follows the list and refs to deleted encounters go.
+export interface BulkEncounterListItem extends BulkEncounterEntry {
+	checked: boolean;
+	duplicate: boolean;
+}
+
+// The rows the Encounters group shows. One equal to the current encounter is left out, since the current one runs
+// anyway; a checked one equal to an earlier checked row is flagged. The run skips both.
+export const bulkEncounterList = (
+	current: Encounter,
+	entries: readonly BulkEncounterEntry[],
+	checked: readonly BulkEncounterRef[],
+): BulkEncounterListItem[] => {
+	const picked: Encounter[] = [];
+	return entries
+		.filter(entry => !sameEncounter(entry.encounter, current))
+		.map(entry => {
+			const isChecked = isBulkEncounterChecked(checked, entry.ref);
+			const duplicate = isChecked && picked.some(earlier => sameEncounter(earlier, entry.encounter));
+			if (isChecked) picked.push(entry.encounter);
+			return { ...entry, checked: isChecked, duplicate };
+		});
+};
+
+// Rewritten from every pickable ref, rows hidden as equal to the current encounter included, so the stored order
+// follows the list, a hidden row keeps its state, and refs to deleted encounters go.
 // No `settings` bump: the encounters change neither the combination count nor the stored BulkSettings.
-export const setBulkEncounterChecked = (player: Player<any>, ref: BulkEncounterRef, checked: boolean, listed: readonly BulkEncounterRef[]) => {
+export const setBulkEncounterChecked = (player: Player<any>, ref: BulkEncounterRef, checked: boolean, pickable: readonly BulkEncounterRef[]) => {
 	const current = bulkState(player).encounters;
-	const encounters = listed.filter(item => (sameRef(item, ref) ? checked : isBulkEncounterChecked(current, item)));
+	const encounters = pickable.filter(item => (sameRef(item, ref) ? checked : isBulkEncounterChecked(current, item)));
 	patchBulkState(player, { encounters });
 	storeBulkEncounters(player, BulkEncounterSelection.create({ encounters }));
 };

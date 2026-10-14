@@ -1,11 +1,14 @@
-import { ItemSlot } from '@generated/proto/common';
+import { Encounter, ItemSlot, Target } from '@generated/proto/common';
+import { BulkEncounterRef, SavedEncounter } from '@generated/proto/ui';
 import { BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
+import { PlayerSpecs } from '@sim/player/specs';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { bulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
-import { createSimStore, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { bulkState, loadStoredBulkEncounters, patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
+import { createSimStore, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
+import { memoryEnv } from '@testing/sim/memory_env';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,20 +25,39 @@ const { BulkSettings, BulkSettingsView } = await import('./BulkSettings');
 const STORE_KEY = 5;
 const RING = { id: 1, equals: () => false } as unknown as EquippedItem;
 
-const mount = (reforger: unknown = null) => {
+const SAVED_ENCOUNTERS_KEY = 'test-saved-encounters';
+const CURRENT = { duration: 180, durationVariation: 5, targets: [Target.create()] };
+
+interface MountOptions {
+	reforger?: unknown;
+	presets?: Array<{ name: string; encounter: Encounter }>;
+	saved?: Record<string, Encounter>;
+	checked?: BulkEncounterRef[];
+}
+
+const mount = ({ reforger = null, presets = [], saved = {}, checked = [] }: MountOptions = {}) => {
+	const record = Object.entries(saved).map(([name, encounter]) => [name, SavedEncounter.toJson(SavedEncounter.create({ encounter }))]);
+	localStorage.setItem(SAVED_ENCOUNTERS_KEY, JSON.stringify(Object.fromEntries(record)));
 	const store = createSimStore();
+	patchSlice(store, 'encounter', CURRENT);
 	const gear = { getEquippedItem: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotFinger1 ? RING : null) };
 	seedKeyed(store, 'players', STORE_KEY, { gear, v: zeroVersions(PLAYER_FIELDS) } as never);
-	const player = { sim: { store, isNative: false }, storeKey: STORE_KEY, getGear: () => gear } as unknown as Player<any>;
+	const player = {
+		sim: { store, isNative: false, env: memoryEnv() },
+		storeKey: STORE_KEY,
+		getGear: () => gear,
+		getPlayerSpec: () => PlayerSpecs.DpsWarrior,
+	} as unknown as Player<any>;
 	seedBulkSettings(player);
+	patchBulkState(player, { encounters: checked });
 	const host = {
 		player,
 		sim: player.sim,
 		reforger,
 		reforgeOptions: null,
-		individualConfig: { presets: {} },
+		individualConfig: { presets: { encounters: presets } },
 		getStorageKey: (key: string) => `test-${key}`,
-		getSavedEncounterStorageKey: () => 'test-saved-encounters',
+		getSavedEncounterStorageKey: () => SAVED_ENCOUNTERS_KEY,
 	} as never;
 	const { container } = render(
 		<SimHostProvider host={host}>
@@ -88,7 +110,7 @@ describe('BulkSettings', () => {
 	});
 
 	it('shows only the encounter, enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
-		const { container } = mount({ settings: {} });
+		const { container } = mount({ reforger: { settings: {} } });
 
 		const triggers = [...container.querySelectorAll('[data-testid^="bulk-settings-group-"][data-testid$="-trigger"]')];
 
@@ -97,6 +119,98 @@ describe('BulkSettings', () => {
 			'bulk-settings-group-enchants-trigger',
 			'bulk-settings-group-freezes-trigger',
 		]);
+	});
+});
+
+describe('BulkSettings encounters group', () => {
+	const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, targets: [Target.create()] });
+	const COUNCIL = Encounter.create({ duration: 240, durationVariation: 10, targets: [Target.create(), Target.create(), Target.create()] });
+	const SAME_AS_CURRENT = Encounter.create({ ...createSimStore().getState().encounter, ...CURRENT });
+	const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
+
+	const openEncounters = (options: MountOptions = {}) => {
+		const mounted = mount(options);
+		mounted.openGroup('encounters');
+		return mounted;
+	};
+	const rows = () => screen.queryAllByTestId('bulk-encounter');
+	const box = (name: string) => screen.getByRole('checkbox', { name });
+
+	it('lists the presets, then the saved encounters, under their headings', () => {
+		openEncounters({ presets: [{ name: 'Patchwerk', encounter: PATCHWERK }], saved: { Council: COUNCIL } });
+
+		expect(rows()).toHaveLength(2);
+		expect(rows()[0].textContent).toMatch(/^Patchwerk.*5:00 ±30s · bulk_tab\.settings\.encounters\.targets$/);
+		expect(rows()[1].textContent).toMatch(/^Council.*4:00 ±10s · bulk_tab\.settings\.encounters\.targets$/);
+		expect(screen.getByText('bulk_tab.settings.encounters.presets')).toBeTruthy();
+		expect(screen.getByText('bulk_tab.settings.encounters.saved')).toBeTruthy();
+		expect(screen.queryByText('bulk_tab.settings.encounters.empty')).toBeNull();
+	});
+
+	it('omits the heading of an empty list', () => {
+		openEncounters({ saved: { Council: COUNCIL } });
+
+		expect(screen.queryByText('bulk_tab.settings.encounters.presets')).toBeNull();
+		expect(screen.getByText('bulk_tab.settings.encounters.saved')).toBeTruthy();
+	});
+
+	it('shows the current encounter as a ticked, locked row that follows the live encounter', () => {
+		const { player } = openEncounters();
+		const summary = () => screen.getByTestId('bulk-encounter-current-summary').textContent;
+		const current = box('bulk_tab.settings.encounters.current');
+
+		expect(current.getAttribute('aria-checked')).toBe('true');
+		expect(current.getAttribute('aria-disabled')).toBe('true');
+		expect(summary()).toBe('3:00 ±5s · bulk_tab.settings.encounters.targets');
+
+		act(() => patchSlice(player.sim.store, 'encounter', { duration: 200, useHealth: true }));
+
+		expect(summary()).toBe('bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets');
+	});
+
+	it('stores the checked refs in list order', () => {
+		const { player } = openEncounters({ presets: [{ name: 'Patchwerk', encounter: PATCHWERK }], saved: { Council: COUNCIL } });
+
+		fireEvent.click(box('Council'));
+		fireEvent.click(box('Patchwerk'));
+
+		const expected = [ref('Patchwerk', true), ref('Council')];
+		expect(bulkState(player).encounters).toEqual(expected);
+		expect(loadStoredBulkEncounters(player)?.encounters).toEqual(expected);
+		expect(box('Council').getAttribute('aria-checked')).toBe('true');
+	});
+
+	it('hides an encounter equal to the current one and keeps its stored state', () => {
+		const { player } = openEncounters({ saved: { 'Same as current': SAME_AS_CURRENT, Council: COUNCIL }, checked: [ref('Same as current')] });
+
+		expect(rows()).toHaveLength(1);
+		expect(screen.queryByRole('checkbox', { name: 'Same as current' })).toBeNull();
+
+		fireEvent.click(box('Council'));
+
+		expect(bulkState(player).encounters).toEqual([ref('Same as current'), ref('Council')]);
+	});
+
+	it('marks the checkbox of a checked encounter equal to an earlier checked one', () => {
+		openEncounters({
+			presets: [{ name: 'Patchwerk', encounter: PATCHWERK }],
+			saved: { 'Patchwerk again': PATCHWERK, Council: COUNCIL },
+			checked: [ref('Patchwerk', true), ref('Patchwerk again')],
+		});
+
+		expect(['Patchwerk', 'Patchwerk again', 'Council'].map(name => box(name).getAttribute('aria-invalid'))).toEqual([null, 'true', null]);
+		const describedBy = box('Patchwerk again').getAttribute('aria-describedby')!;
+		expect(document.getElementById(describedBy)?.textContent).toBe('bulk_tab.settings.encounters.duplicate');
+		expect(box('Council').hasAttribute('aria-describedby')).toBe(false);
+		expect(box('Patchwerk').hasAttribute('aria-describedby')).toBe(false);
+	});
+
+	it('points to the saved encounters when there is nothing to pick', () => {
+		openEncounters();
+
+		expect(rows()).toHaveLength(0);
+		expect(screen.getByText('bulk_tab.settings.encounters.empty')).toBeTruthy();
+		expect(screen.getByTestId('bulk-encounter-current')).toBeTruthy();
 	});
 });
 

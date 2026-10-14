@@ -5,9 +5,9 @@ import { StoryBoolean } from '@testing/storybook/fixtures/settings_reforge_bulk'
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
+import { EncountersView } from '../Encounters';
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
 import { CombinationsCountView } from './CombinationsCount';
-import { EncountersView } from './Encounters';
 
 const pair = (id: string, label: string, first: [string, ItemSlot], second: [string, ItemSlot]) => ({
 	id,
