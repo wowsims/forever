@@ -12,7 +12,14 @@
 			overflow: hidden;
 		}
 
-		& .ui-item-picker-name-container {
+		/* The name gives way first: the notice beside it keeps its width, and the name truncates instead of pushing it out of the row. */
+		& .ui-item-picker-name-row > * {
+			flex-shrink: 0;
+		}
+
+		& .ui-item-picker-name-row > .ui-item-picker-name-container {
+			flex-shrink: 1;
+			min-width: 0;
 			max-width: 100%;
 		}
 
@@ -25,7 +32,12 @@
 	}
 
 	.ui-bulk-result-item {
-		border: 3px solid transparent;
+		border: 1px solid transparent;
+
+		/* Result rows show only the icon, so it runs smaller than in the picker rows. */
+		&.ui-bulk-item-cell .ui-item-picker-icon-wrapper {
+			--icon-size: --spacing(12);
+		}
 	}
 
 	.ui-bulk-item-search-item {

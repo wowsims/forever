@@ -23,3 +23,18 @@ export const Editable: Story = {};
 export const Equipped: Story = { args: { state: 'equipped', onRemove: undefined } };
 
 export const Frozen: Story = { args: { state: 'frozen', onRemove: undefined } };
+
+/** A long name in a narrow row, with a warning (a random suffix not yet picked): the name truncates, the warning and ✕ stay inside. */
+export const LongNameWithWarning: Story = {
+	args: {
+		slot: ItemSlot.ItemSlotTrinket1,
+		item: makeEquippedItem({ item: { name: 'Badge of the Swarmguard of the Eternal Watch', randomSuffixOptions: [1] } }),
+	},
+	decorators: [
+		Story => (
+			<div className="w-72">
+				<Story />
+			</div>
+		),
+	],
+};

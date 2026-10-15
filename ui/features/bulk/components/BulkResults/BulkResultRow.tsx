@@ -36,9 +36,10 @@ export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, s
 
 	return (
 		<div
-			className="flex items-center gap-4 not-last:not-only:mb-6 not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6"
+			className="flex items-center gap-4 not-last:not-only:mb-6 not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6 max-md:flex-wrap"
 			data-testid="bulk-sim-result-root">
-			<div className="flex-3 text-center" data-testid="results-sim">
+			{/* Wide enough for "9,999.99 DPS(±1)" and its pill on one line each, so every row's gear starts at the same x. */}
+			<div className="w-52 shrink-0" data-testid="results-sim">
 				{showDamage && (
 					<div className="flex flex-col items-start gap-2 text-left font-bold" data-testid="results-sim-dps">
 						{isBase && <span className="text-sm font-normal">{i18n.t('bulk_tab.results.current_gear')}</span>}
@@ -56,10 +57,10 @@ export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, s
 					</div>
 				)}
 			</div>
-			<div className="flex flex-5 flex-wrap gap-1" data-testid="bulk-gear-combo">
+			<div className="flex min-w-0 flex-1 flex-wrap gap-1 max-md:order-last max-md:basis-full" data-testid="bulk-gear-combo">
 				{children}
 			</div>
-			<div className="flex flex-1 justify-end">
+			<div className="ml-auto flex shrink-0 justify-end">
 				<Button className={clsx(isBase && 'hidden')} data-testid="bulk-equip-btn" data-hidden={isBase ? '' : undefined} onClick={onEquip}>
 					{i18n.t('bulk_tab.results.equip_button')}
 				</Button>
