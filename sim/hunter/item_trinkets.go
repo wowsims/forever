@@ -119,7 +119,7 @@ func init() {
 
 // A DPS cooldown on the cooldown and the category cooldown the item's on-use effect states.
 func registerTrinketOnUse(character *core.Character, itemID int32, buff *core.Aura, apply core.ApplySpellResults, shouldActivate core.CooldownActivationCondition) {
-	effects := core.GetItemByID(itemID).ItemEffects
+	effects := shared.ItemEffects(itemID)
 	i := slices.IndexFunc(effects, func(effect *proto.ItemEffect) bool { return effect.GetOnUse() != nil })
 	if i < 0 {
 		panic(fmt.Sprintf("item %d has no on-use effect", itemID))

@@ -201,7 +201,6 @@ type Item struct {
 	TempEnchantStats        *stats.Stats // The stats the TempEnchant and the WeaponImbue put on the item, counted with its enchant's.
 	ScalingOptions          map[int32]*proto.ScalingItemProperties
 	RandPropPoints          int32
-	ItemEffects             []*proto.ItemEffect
 }
 
 // Matches either slot: the Effect 54 TempEnchant or the Effect 360 WeaponImbue.
@@ -228,7 +227,6 @@ func ItemFromProto(pData *proto.SimItem) Item {
 		SetID:            pData.SetId,
 		ClassAllowlist:   pData.ClassAllowlist,
 		ScalingOptions:   pData.ScalingOptions,
-		ItemEffects:      pData.ItemEffects,
 	}
 }
 

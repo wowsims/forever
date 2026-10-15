@@ -56,14 +56,14 @@ func TestChanceOnHitDebuffsRoute(t *testing.T) {
 
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID })
 		if i < 0 {
 			t.Fatalf("item %d carries no effect on %d", tc.itemID, tc.spellID)
 		}
 
 		groups := map[string]Group{}
-		wantUnsupported, ok := rateOutcome(t, tc.itemID, tc.spellID, TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups))
+		wantUnsupported, ok := rateOutcome(t, tc.itemID, tc.spellID, TryParseProcEffect(parsed, effects[i], instance, groups))
 		if !ok {
 			continue
 		}

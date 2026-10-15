@@ -50,7 +50,7 @@ func init() {
 				buff.Activate(sim)
 			},
 		}
-		for _, effect := range core.GetItemByID(10030).ItemEffects {
+		for _, effect := range shared.ItemEffects(10030) {
 			if effect.GetOnUse() != nil {
 				itemCast := shared.OnUseCast(character, effect)
 				config.Cast.CD, config.Cast.SharedCD = itemCast.CD, itemCast.SharedCD

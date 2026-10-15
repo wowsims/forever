@@ -364,7 +364,7 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 // The item's use as a major cooldown, on the cooldowns its on-use effect states. The use completes no
 // cast, so a buff that counts casts does not count the use that applied it.
 func registerItemOnUse(character *core.Character, itemID int32, cdType core.CooldownType, buff *core.StatBuffAura, apply core.ApplySpellResults) {
-	effects := core.GetItemByID(itemID).ItemEffects
+	effects := shared.ItemEffects(itemID)
 	i := slices.IndexFunc(effects, func(effect *proto.ItemEffect) bool { return effect.GetOnUse() != nil })
 	if i < 0 {
 		panic(fmt.Sprintf("item %d has no on-use effect", itemID))

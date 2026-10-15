@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -360,7 +361,7 @@ func init() {
 
 // The procs per minute the item's chance-on-hit entry for the spell carries.
 func weaponProcPPM(itemID int32, spellID int32) float64 {
-	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+	for _, effect := range shared.ItemEffects(itemID) {
 		if effect.BuffId == spellID && effect.GetProc().GetPpm() > 0 {
 			return effect.GetProc().GetPpm()
 		}

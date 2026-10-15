@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
@@ -177,10 +178,10 @@ func landShot(t *testing.T, sim *core.Simulation, hunter *testHunter, shot *core
 	}
 }
 
-// The cooldown, category and category cooldown the on-use effect in the item's db entry states.
+// The cooldown, category and category cooldown the item's on-use effect states.
 func classItemOnUse(t *testing.T, itemID int32) (time.Duration, int32, time.Duration) {
 	t.Helper()
-	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+	for _, effect := range shared.ItemEffects(itemID) {
 		if onUse := effect.GetOnUse(); onUse != nil {
 			return core.DurationFromMillis(onUse.CooldownMs), onUse.CategoryId, core.DurationFromMillis(onUse.CategoryCooldownMs)
 		}

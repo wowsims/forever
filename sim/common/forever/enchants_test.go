@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
@@ -352,7 +353,7 @@ func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 	character := sim.Raid.Parties[0].Players[0].GetCharacter()
 
 	var ppm float64
-	for _, effect := range core.GetEnchantByEffectID(crusader).EnchantEffects {
+	for _, effect := range shared.EnchantEffects(crusader) {
 		if effect.BuffId == holyStrength {
 			ppm = effect.GetProc().GetPpm()
 		}

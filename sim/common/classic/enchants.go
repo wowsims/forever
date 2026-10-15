@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -64,7 +65,7 @@ func init() {
 			Name:         "Enchant Weapon - Crusader",
 			ActionID:     actionID,
 			IsWeaponProc: true,
-			DPM:          character.NewDynamicLegacyProcForEnchant(1900, entryPPM(core.GetEnchantByEffectID(1900).EnchantEffects, 20007), 0),
+			DPM:          character.NewDynamicLegacyProcForEnchant(1900, entryPPM(shared.EnchantEffects(1900), 20007), 0),
 			Outcome:      core.OutcomeLanded,
 			Callback:     core.CallbackOnSpellHitDealt,
 			Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {

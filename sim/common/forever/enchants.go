@@ -302,7 +302,7 @@ func init() {
 
 // The chance per hit the enchant's effect entry carries for the spell.
 func enchantProcChance(effectID int32, spellID int32) float64 {
-	for _, effect := range core.GetEnchantByEffectID(effectID).EnchantEffects {
+	for _, effect := range shared.EnchantEffects(effectID) {
 		if effect.BuffId == spellID && effect.GetProc().GetProcChance() > 0 {
 			return effect.GetProc().GetProcChance()
 		}

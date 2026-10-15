@@ -1,5 +1,4 @@
 import { Class, ItemQuality, ItemSlot, ItemType, ScalingItemProperties, Stat } from '@generated/proto/common';
-import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
@@ -308,7 +307,7 @@ describe('ItemList', () => {
 		const granting = (stat: Stat) => ({ stats: new Stats().withStat(stat, 3).asProtoArray() });
 		const relevant = head(1, 'Relevant', granting(Stat.StatStrength));
 		const worthless = head(2, 'Worthless', granting(Stat.StatIntellect));
-		const proc = head(3, 'Proc', { enchantEffects: [ItemEffect.create()] });
+		const proc = head(3, 'Proc');
 		const equipped = head(4, 'Equipped', granting(Stat.StatIntellect));
 		Object.assign(host.player, {
 			getEquippedItem: () => ({ item: Item.create({ type: ItemType.ItemTypeHead }), enchant: equipped }),

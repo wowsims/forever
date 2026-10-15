@@ -224,17 +224,14 @@ func auraByLabel(character *core.Character, label string) *core.Aura {
 func TestSpellDataProcAppliesToACharacter(t *testing.T) {
 	const itemID int32 = 990201
 
-	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{
-		Id:   itemID,
-		Name: "Test Trinket",
-		ItemEffects: []*proto.ItemEffect{{
-			BuffId:           990111,
-			EffectDurationMs: 15000,
-			ScalingOptions: map[int32]*proto.ScalingItemEffectProperties{
-				0: {Stats: map[int32]float64{int32(proto.Stat_StatSpellDamage): 40}},
-			},
-			Effect: &proto.ItemEffect_Proc{Proc: &proto.ProcEffect{}},
-		}},
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: itemID, Name: "Test Trinket"}}})
+	RegisterItemEffects(map[int32][]*proto.ItemEffect{itemID: {{
+		BuffId:           990111,
+		EffectDurationMs: 15000,
+		ScalingOptions: map[int32]*proto.ScalingItemEffectProperties{
+			0: {Stats: map[int32]float64{int32(proto.Stat_StatSpellDamage): 40}},
+		},
+		Effect: &proto.ItemEffect_Proc{Proc: &proto.ProcEffect{}},
 	}}})
 
 	trigger := &spelldata.Spell{

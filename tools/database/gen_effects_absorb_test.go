@@ -15,12 +15,12 @@ func parsedItem(t *testing.T, instance *dbc.DBC, itemID int, spellID int32) (*pr
 	t.Helper()
 	item := instance.Items[itemID]
 	parsed := item.ToUIItem()
-	parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-	i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == spellID })
+	effects := dbc.MergeItemEffectsForAllStates(parsed)
+	i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == spellID })
 	if i < 0 {
 		t.Fatalf("item %d carries no effect on %d", itemID, spellID)
 	}
-	return parsed, parsed.ItemEffects[i]
+	return parsed, effects[i]
 }
 
 // An on-use whose spell puts an A_SCHOOL_ABSORB on the wearer registers through the absorb shape:

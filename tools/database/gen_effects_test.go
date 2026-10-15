@@ -30,14 +30,14 @@ func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID })
 		if i < 0 {
 			t.Fatalf("item %d carries no effect on %d", tc.itemID, tc.spellID)
 		}
 
 		groups := map[string]Group{}
-		wantUnsupported, ok := rateOutcome(t, tc.itemID, tc.spellID, TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups))
+		wantUnsupported, ok := rateOutcome(t, tc.itemID, tc.spellID, TryParseProcEffect(parsed, effects[i], instance, groups))
 		if !ok {
 			continue
 		}
@@ -229,8 +229,8 @@ func TestWeaponProcRowsNameAnItemEffect(t *testing.T) {
 
 		item := instance.Items[int(row.ItemID)]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		if !slices.ContainsFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.GetProc().GetPpm() == row.PPM }) {
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		if !slices.ContainsFunc(effects, func(e *proto.ItemEffect) bool { return e.GetProc().GetPpm() == row.PPM }) {
 			t.Errorf("item %d's effects state no %v PPM", row.ItemID, row.PPM)
 		}
 	}
@@ -261,14 +261,14 @@ func TestOnUseRoutesFromTheSpellItCasts(t *testing.T) {
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
 		if i < 0 {
 			t.Fatalf("item %d carries no on-use effect on %d", tc.itemID, tc.spellID)
 		}
 
 		groups := map[string]Group{}
-		if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[i], instance, groups); got != tc.want {
+		if got := TryParseOnUseEffect(parsed, effects[i], instance, groups); got != tc.want {
 			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, tc.want)
 			continue
 		}
@@ -308,14 +308,14 @@ func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
 		if i < 0 {
 			t.Fatalf("item %d carries no on-use effect on %d", tc.itemID, tc.spellID)
 		}
 
 		groups := map[string]Group{}
-		if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[i], instance, groups); got != EffectParseResultSuccess {
+		if got := TryParseOnUseEffect(parsed, effects[i], instance, groups); got != EffectParseResultSuccess {
 			t.Errorf("item %d parsed as %v, want registered", tc.itemID, got)
 			continue
 		}
@@ -358,14 +358,14 @@ func TestOnUsePeriodicTriggerDamageRoutesAsPeriodicDamage(t *testing.T) {
 
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
 		if i < 0 {
 			t.Fatalf("item %d carries no on-use effect on %d", tc.itemID, tc.spellID)
 		}
 
 		groups := map[string]Group{}
-		if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[i], instance, groups); got != EffectParseResultSuccess {
+		if got := TryParseOnUseEffect(parsed, effects[i], instance, groups); got != EffectParseResultSuccess {
 			t.Errorf("item %d parsed as %v, want registered", tc.itemID, got)
 			continue
 		}
@@ -408,8 +408,8 @@ func TestOnUsePercentBuffRoutesAsAnAura(t *testing.T) {
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
 		if i < 0 {
 			t.Fatalf("item %d carries no on-use effect on %d", tc.itemID, tc.spellID)
 		}
@@ -419,7 +419,7 @@ func TestOnUsePercentBuffRoutesAsAnAura(t *testing.T) {
 			want, group = EffectParseResultRefused, ""
 		}
 		groups := map[string]Group{}
-		if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[i], instance, groups); got != want {
+		if got := TryParseOnUseEffect(parsed, effects[i], instance, groups); got != want {
 			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, want)
 			continue
 		}
@@ -524,9 +524,9 @@ func TestOnUseStatBuffListsTheProcItCarries(t *testing.T) {
 
 	item := instance.Items[19345]
 	parsed := item.ToUIItem()
-	parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+	effects := dbc.MergeItemEffectsForAllStates(parsed)
 	groups := map[string]Group{}
-	if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[0], instance, groups); got != EffectParseResultSuccess {
+	if got := TryParseOnUseEffect(parsed, effects[0], instance, groups); got != EffectParseResultSuccess {
 		t.Fatalf("parsed as %v, want the stat on-use registered", got)
 	}
 

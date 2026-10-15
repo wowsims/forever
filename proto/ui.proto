@@ -106,7 +106,6 @@ message UIItem {
 
 	FactionRestriction faction_restriction = 25;
 	map<int32, ScalingItemProperties> scaling_options = 29; // keys are the other ilvl variants that this item could potentially have
-	repeated ItemEffect item_effects = 30;
 	SpellSchool spell_school = 35; // The weapon's damage school; unset means physical.
 }
 
@@ -210,7 +209,6 @@ message UIEnchant {
 	// Classes that are allowed to use the enchant. Empty indicates no special class restrictions.
 	repeated Class class_allowlist = 11;
 	Profession required_profession = 12;
-	repeated ItemEffect enchant_effects = 14;
 	EnchantProcKind proc_kind = 18;
 }
 

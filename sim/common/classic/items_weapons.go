@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -86,7 +87,7 @@ func init() {
 			Name:         "Thunderfury Proc",
 			Callback:     core.CallbackOnSpellHitDealt,
 			Outcome:      core.OutcomeLanded,
-			DPM:          character.NewDynamicLegacyProcForWeapon(19019, entryPPM(core.GetItemByID(19019).ItemEffects, procActionID.SpellID), 0),
+			DPM:          character.NewDynamicLegacyProcForWeapon(19019, entryPPM(shared.ItemEffects(19019), procActionID.SpellID), 0),
 			IsWeaponProc: true,
 			Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 				singleTargetSpell.Cast(sim, result.Target)

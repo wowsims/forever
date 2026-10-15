@@ -116,6 +116,21 @@ var enchantEffectArgFixes = map[int]map[int]int{
 	8203: {0: ITEM_MOD_SPIRIT},
 }
 
+// The effects an enchant's slots resolve stats or a hand-kept rate for, one per buff.
+func (enchant *Enchant) SlotEffects(slots []EnchantProcSlot) []*proto.ItemEffect {
+	var effects []*proto.ItemEffect
+	for _, slot := range slots {
+		effect := slot.Effect
+		if rate := overrides.EnchantProcRate(int32(enchant.EffectId), int32(slot.SpellID)); rate != nil {
+			effect = withEnchantProcRate(enchant.EffectId, slot, rate)
+		}
+		if effect != nil && !slices.ContainsFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == effect.BuffId }) {
+			effects = append(effects, effect)
+		}
+	}
+	return effects
+}
+
 // Enchants the proc rules classify wrongly, keyed by effect id.
 var enchantProcKindOverrides = map[int]proto.EnchantProcKind{
 	// Lotus Claw: its equip spell 1294053, a chance at Death Lotus when gathering herbs, is an A_DUMMY with no SpellAuraOptions row.
@@ -178,15 +193,6 @@ func (enchant *Enchant) ToProtoWithSlots() (*proto.UIEnchant, []EnchantProcSlot)
 
 	slots := enchant.ProcSlots()
 	uiEnchant.ProcKind = enchant.procKind(slots)
-	for _, slot := range slots {
-		effect := slot.Effect
-		if rate := overrides.EnchantProcRate(int32(enchant.EffectId), int32(slot.SpellID)); rate != nil {
-			effect = withEnchantProcRate(enchant.EffectId, slot, rate)
-		}
-		if effect != nil && !slices.ContainsFunc(uiEnchant.EnchantEffects, func(e *proto.ItemEffect) bool { return e.BuffId == effect.BuffId }) {
-			uiEnchant.EnchantEffects = append(uiEnchant.EnchantEffects, effect)
-		}
-	}
 
 	if enchant.FDID == 0 {
 		uiEnchant.Icon = "trade_engraving"

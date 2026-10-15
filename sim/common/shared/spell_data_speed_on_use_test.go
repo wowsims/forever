@@ -38,8 +38,8 @@ func newSpeedOnUseSim(t *testing.T, class proto.Class, race proto.Race, trinkets
 	slot := proto.ItemSlot_ItemSlotTrinket1
 	for id, trinket := range trinkets {
 		core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: id, Name: "Test Trinket",
-			Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}},
-			ItemEffects: []*proto.ItemEffect{trinket.effect}}}})
+			Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+		RegisterItemEffects(map[int32][]*proto.ItemEffect{id: {trinket.effect}})
 		trinket.register(id)
 		items[slot] = &proto.ItemSpec{Id: id}
 		slot++

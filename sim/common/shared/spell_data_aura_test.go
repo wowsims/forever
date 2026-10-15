@@ -138,12 +138,12 @@ func testHit(id int32, school core.SpellSchool, mask core.ProcMask) core.SpellCo
 
 func withAuraItem(id int32, itemType proto.ItemType, effects ...*proto.ItemEffect) {
 	item := &proto.SimItem{Id: id, Name: "Test Aura Item", Type: itemType,
-		ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}, ItemEffects: effects}
+		ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}
 	if itemType == proto.ItemType_ItemTypeWeapon {
 		item = testOneHander(id)
-		item.ItemEffects = effects
 	}
 	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{item}})
+	RegisterItemEffects(map[int32][]*proto.ItemEffect{id: effects})
 }
 
 func auraPlayer(name string, class proto.Class, spec interface{}, slotted map[proto.ItemSlot]int32) *proto.Player {

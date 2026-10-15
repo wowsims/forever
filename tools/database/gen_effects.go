@@ -799,8 +799,9 @@ func renderMissingEffects(w io.Writer, rates UnvalidatedRates) error {
 	return nil
 }
 
-func GenerateEnchantEffects(instance *dbc.DBC, db *WowDatabase) {
+func GenerateEnchantEffects(instance *dbc.DBC, db *WowDatabase) map[int32][]*proto.ItemEffect {
 	groupMapProc := map[string]Group{}
+	enchantEffects := map[int32][]*proto.ItemEffect{}
 	enchantSpellEffects := enchantGrantEffects(instance.SpellEffectsById)
 
 	// The raw rows repeat an enchant once per recipe name, and an enchant registers once.
@@ -814,6 +815,9 @@ func GenerateEnchantEffects(instance *dbc.DBC, db *WowDatabase) {
 			continue
 		}
 		generated[parsed.EffectId] = true
+		if effects := enchant.SlotEffects(slots); len(effects) > 0 {
+			enchantEffects[parsed.EffectId] = effects
+		}
 
 		TryParseEnchantEffect(parsed, slots, groupMapProc, instance, enchantSpellEffects)
 		storeUnmappedSpeedEnchant(instance, enchant, parsed, enchantSpellEffects)
@@ -826,6 +830,8 @@ func GenerateEnchantEffects(instance *dbc.DBC, db *WowDatabase) {
 	}
 
 	GenerateEffectsFile(procGroups, "sim/common/forever/enchants_auto_gen.go", TmplStrEnchant)
+
+	return registeredEffects(enchantEffects, core.HasEnchantEffect, procGroups)
 }
 
 var speedAuras = []dbcenums.EffectAuraType{
@@ -1030,15 +1036,17 @@ func ItemEffectIsSupported(instance *dbc.DBC, effectID int) bool {
 	return supported && !carriesOnlyAloneIgnoredAuras(instance.SpellEffectsInOrder(effectID))
 }
 
-func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase, itemSources map[int][]*proto.DropSource) {
+func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase, itemSources map[int][]*proto.DropSource) map[int32][]*proto.ItemEffect {
 	groupMapOnUse := map[string]Group{}
 	groupMapProc := map[string]Group{}
+	itemEffects := map[int32][]*proto.ItemEffect{}
 
 	// Example loop over your items
 	for _, parsed := range db.Items {
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		itemEffects[parsed.Id] = effects
 
-		for _, itemEffect := range parsed.ItemEffects {
+		for _, itemEffect := range effects {
 			if !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
 				// Commented into the generated file rather than dropped. These are deliberately
 				// out of scope - summons, teleports, created items - but an item whose only
@@ -1128,8 +1136,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase, itemSources map[int
 		for _, entry := range entries {
 			for _, variant := range entry.Variants {
 				if _, ok := needsStatPostfix[variant.Name]; ok {
-					item := db.Items[int32(variant.ID)]
-					for _, itemEffect := range item.ItemEffects {
+					for _, itemEffect := range itemEffects[int32(variant.ID)] {
 						variant.Name += " - " + GetEffectStatString(itemEffect)
 					}
 				}
@@ -1150,6 +1157,8 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase, itemSources map[int
 
 	GenerateEffectsFile(onUseGroups, "sim/common/forever/stat_bonus_cds_auto_gen.go", TmplStrOnUse)
 	GenerateEffectsFile(procGroups, "sim/common/forever/stat_bonus_procs_auto_gen.go", TmplStrProc)
+
+	return registeredEffects(itemEffects, core.HasItemEffect, onUseGroups, procGroups)
 }
 
 // An item registers one effect, and the sim drops every registration after the first, so an equip aura

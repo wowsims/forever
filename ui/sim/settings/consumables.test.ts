@@ -353,7 +353,7 @@ describe('isEnchantRelevantFor', () => {
 	});
 
 	it('keeps an enchant that grants no stat at all, such as a proc', () => {
-		expect(relevant(UIEnchant.create({ effectId: 7, enchantEffects: [ItemEffect.create()] }), caster)).toBe(true);
+		expect(relevant(UIEnchant.create({ effectId: 7 }), caster)).toBe(true);
 	});
 });
 

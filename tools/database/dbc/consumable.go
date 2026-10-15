@@ -55,7 +55,7 @@ func (t TemporaryEnchant) ToProto() *proto.SimEnchant {
 		Stats:          parsed.Stats,
 		PseudoStats:    parsed.PseudoStats,
 		WeaponDamage:   parsed.WeaponDamage,
-		EnchantEffects: parsed.EnchantEffects,
+		EnchantEffects: enchant.SlotEffects(slots),
 	}
 	for _, slot := range slots {
 		spellID := int32(slot.SpellID)

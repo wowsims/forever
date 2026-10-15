@@ -51,8 +51,8 @@ func newOnUseSimAgainst(t *testing.T, register func(int32), trinkets map[int32]*
 	slot := proto.ItemSlot_ItemSlotTrinket1
 	for id, effect := range trinkets {
 		core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: id, Name: "Test Trinket",
-			Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}},
-			ItemEffects: []*proto.ItemEffect{effect}}}})
+			Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+		RegisterItemEffects(map[int32][]*proto.ItemEffect{id: {effect}})
 		register(id)
 		items[slot] = &proto.ItemSpec{Id: id}
 		slot++

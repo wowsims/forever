@@ -26,14 +26,14 @@ func TestOnUseEnergizeRoutesFromTheSpellItCasts(t *testing.T) {
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
-		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
+		effects := dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(effects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.spellID && e.GetOnUse() != nil })
 		if i < 0 {
 			t.Fatalf("item %d carries no on-use effect on %d", tc.itemID, tc.spellID)
 		}
 
 		groups := map[string]Group{}
-		if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[i], instance, groups); got != EffectParseResultSuccess {
+		if got := TryParseOnUseEffect(parsed, effects[i], instance, groups); got != EffectParseResultSuccess {
 			t.Errorf("item %d parsed as %v, want it registered", tc.itemID, got)
 			continue
 		}

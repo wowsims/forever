@@ -23,6 +23,8 @@ message SimEnchant {
 	string name = 2; // Only needed for unit tests.
 	ItemType type = 3; // Only needed for unit tests.
 	repeated double stats = 4;
+	// Set only on a consumable's temporary enchant. A permanent enchant's effects are in the sim's
+	// generated effects table.
 	repeated ItemEffect enchant_effects = 5;
 	EnchantType enchant_type = 6;
 	repeated ItemType extra_types = 7;
@@ -51,7 +53,6 @@ message SimItem {
 	int32 set_id = 12;
 
 	map<int32, ScalingItemProperties> scaling_options = 13; // keys are the all ItemLevelState variants that this item could potentially have
-	repeated ItemEffect item_effects = 14;
 
 	int32 limit_category = 16;
 	bool unique = 17;

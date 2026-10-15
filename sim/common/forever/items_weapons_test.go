@@ -8,6 +8,7 @@ import (
 	"time"
 
 	_ "github.com/wowsims/forever/sim/common/classic" // registers Thunderfury and Enchant Weapon - Crusader.
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
@@ -92,7 +93,7 @@ func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*
 // weapon's proc registers on.
 func itemEntryPPM(t *testing.T, itemID int32, spellID int32) float64 {
 	t.Helper()
-	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+	for _, effect := range shared.ItemEffects(itemID) {
 		if effect.BuffId == spellID && effect.GetProc().GetPpm() > 0 {
 			return effect.GetProc().GetPpm()
 		}

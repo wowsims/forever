@@ -218,8 +218,11 @@ func main() {
 	leftovers.WriteBinaryAndJson(fmt.Sprintf("%s/leftover_db.bin", dbDir), fmt.Sprintf("%s/leftover_db.json", dbDir))
 	ApplySimmableFilters(db)
 
-	database.GenerateItemEffects(instance, db, dropSources)
-	database.GenerateEnchantEffects(instance, db)
+	itemEffects := database.GenerateItemEffects(instance, db, dropSources)
+	enchantEffects := database.GenerateEnchantEffects(instance, db)
+	if err := database.GenerateItemEffectsTable(itemEffects, enchantEffects); err != nil {
+		log.Fatalf("failed to generate the item effects table: %v", err)
+	}
 	if err := database.GenerateConsumableRegistrations(instance, db, consumableRoutes); err != nil {
 		log.Fatalf("failed to generate the consumable registrations: %v", err)
 	}

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -88,11 +89,11 @@ func useTrinket(t *testing.T, sim *core.Simulation, character *core.Character, i
 	return spell
 }
 
-// Uses the item, checking it against the cooldown, category and category cooldown its db entry's
-// on-use effect states; a category with no cooldown of its own runs for the effect's duration.
+// Uses the item, checking it against the cooldown, category and category cooldown its on-use effect
+// states; a category with no cooldown of its own runs for the effect's duration.
 func useTrinketAsEntryStates(t *testing.T, sim *core.Simulation, character *core.Character, itemID int32, cdType core.CooldownType) *core.Spell {
 	t.Helper()
-	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+	for _, effect := range shared.ItemEffects(itemID) {
 		onUse := effect.GetOnUse()
 		if onUse == nil {
 			continue
