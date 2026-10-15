@@ -1,12 +1,13 @@
 import type { AggregatorData, DistributionMetrics } from '@generated/proto/api';
 import type { MetricSummary, StatSweepPoint, StatSweepRecord } from '@sim/cache/stat_sweep_history';
+import type { UnitStat } from '@sim/proto/stats';
 import { precisionRunnable, type PrecisionSettings } from '@sim/settings/precision';
 import type { StatSweepMetric } from '@sim/state/sim_store';
 import { distinct } from '@sim/utils/collections';
 import { mergeAggregates, sum, timeRemainingAtRate, Z_90 } from '@sim/utils/math';
 import { STAT_WEIGHT_MAX_TOP_UP_PASSES, STAT_WEIGHT_TARGET_PROBE_ITERATIONS } from '@sim/wasm/stat_weights_constants_auto_gen';
 
-export type StatSweepStep = Pick<StatSweepPoint, 'offset' | 'statValue'>;
+export type StatSweepStep = Pick<StatSweepPoint, 'offset' | 'bonus' | 'statValue'>;
 
 export type MetricSample = Pick<DistributionMetrics, 'avg' | 'stdev'> & AggregatorData;
 
@@ -42,9 +43,15 @@ export function buildSweepOffsets(range: number, step: number): number[] {
 	return offsets.sort((a, b) => a - b);
 }
 
-/** Each offset at the stat total it reaches, `totals` in the same order; an offset whose total falls below 0 is dropped. */
-export const sweepSteps = (offsets: readonly number[], totals: readonly number[]): StatSweepStep[] =>
-	offsets.map((offset, index) => ({ offset, statValue: roundFloat(totals[index]) })).filter(step => step.statValue >= 0);
+/**
+ * The bonus a step adds to `unitStat`. Range and step are rating, so a % stat moves by the % that rating gives (10 hit rating
+ * = 1% hit), as the EP calculation scales them; a stat with no rating form takes the offset as is.
+ */
+export const sweepBonus = (unitStat: UnitStat, offset: number): number => unitStat.convertRatingToDefaultUnits(offset) ?? offset;
+
+/** Each offset with the bonus it adds to `unitStat` and the stat total it reaches, `totals` in the same order; an offset whose total falls below 0 is dropped. */
+export const sweepSteps = (unitStat: UnitStat, offsets: readonly number[], totals: readonly number[]): StatSweepStep[] =>
+	offsets.map((offset, index) => ({ offset, bonus: sweepBonus(unitStat, offset), statValue: roundFloat(totals[index]) })).filter(step => step.statValue >= 0);
 
 /** The stored runs plus any run in memory they do not hold yet, newest first. */
 export const mergeSweepHistory = (inMemory: readonly StatSweepRecord[], stored: readonly StatSweepRecord[]): StatSweepRecord[] =>
@@ -273,6 +280,7 @@ export const STAT_SWEEP_CSV_COLUMNS = [
 	'stat',
 	'base_total',
 	'added',
+	'bonus',
 	'total',
 	...STAT_SWEEP_METRICS.flatMap(metric => [metric, `${metric}_stdev`]),
 	'samples',
@@ -291,6 +299,7 @@ export function statSweepCsv(runs: ReadonlyArray<StatSweepCsvRun>): string {
 			run.statLabel,
 			run.baseStatValue,
 			point.offset,
+			point.bonus,
 			point.statValue,
 			...STAT_SWEEP_METRICS.flatMap(metric => [point.metrics[metric].avg, point.metrics[metric].stdev]),
 			// Every metric comes from the same iterations.

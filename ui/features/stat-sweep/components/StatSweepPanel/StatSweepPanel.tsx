@@ -14,8 +14,6 @@ export interface StatSweepPanelProps {
 	onRangeChange: (range: number) => void;
 	step: number;
 	onStepChange: (step: number) => void;
-	/** Percent stats step in fractions of a point. */
-	fractional?: boolean;
 	precision: ReactNode;
 	chart: ReactNode;
 	history: ReactNode;
@@ -32,7 +30,6 @@ export const StatSweepPanel = ({
 	onRangeChange,
 	step,
 	onStepChange,
-	fractional,
 	precision,
 	chart,
 	history,
@@ -60,16 +57,8 @@ export const StatSweepPanel = ({
 						disabled={running}
 						testId="stat-sweep-stats"
 					/>
-					<NumberField
-						id="stat-sweep-range"
-						label={t('range')}
-						float={fractional}
-						positive
-						disabled={running}
-						value={range}
-						onChange={onRangeChange}
-					/>
-					<NumberField id="stat-sweep-step" label={t('step')} float={fractional} positive disabled={running} value={step} onChange={onStepChange} />
+					<NumberField id="stat-sweep-range" label={t('range')} positive disabled={running} value={range} onChange={onRangeChange} />
+					<NumberField id="stat-sweep-step" label={t('step')} positive disabled={running} value={step} onChange={onStepChange} />
 				</div>
 				{chart}
 			</DialogColumns.Main>

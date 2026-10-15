@@ -1,7 +1,7 @@
 // Driven through the sidebar action as a user does. The sim and the history store are stubbed; the settings, the store and the
 // run flags are real.
 import { ErrorOutcomeType } from '@generated/proto/api';
-import { Class, Spec, Stat } from '@generated/proto/common';
+import { Class, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { StatSweepPoint, StatSweepRecord } from '@sim/cache/stat_sweep_history';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -206,7 +206,31 @@ describe('StatSweepDialog', () => {
 			dtps: { avg: 1990, stdev: 300, n: 3000 },
 			tmi: { avg: 10.1, stdev: 2, n: 3000 },
 		});
-		expect(saved().cappedAt).toBeUndefined();
+		expect(saved().capped).toBeUndefined();
+	});
+
+	it('steps a % stat by the % its rating gives, plotting the step as the rating', async () => {
+		const shadowHit = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow);
+		host.individualConfig.epPseudoStats = [shadowHit.getPseudoStat()];
+		settings.set({ stats: [shadowHit], range: 20, step: 10 });
+		await openDialog();
+
+		await run();
+
+		expect(simulatePass.mock.calls.map(call => call[0].bonusStats.getUnitStat(shadowHit))).toEqual([0, 1, 2]);
+		expect(saved().points.map(point => [point.offset, point.bonus, point.statValue])).toEqual([
+			[0, 0, 0],
+			[10, 1, 1],
+			[20, 2, 2],
+		]);
+		expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual([0, 10, 20]);
+
+		const { data, options } = lastChart();
+		const title = options.plugins!.tooltip!.callbacks!.title! as unknown as (items: object[]) => string[];
+		const t = vi.spyOn(i18n, 't');
+		title([{ raw: data.datasets[2].data.find(datum => datum.x === 10)! }]);
+		expect(t.mock.calls.find(([key]) => key === 'sidebar.buttons.stat_sweep.tooltip_total')![1]).toMatchObject({ total: '1', added: '+1' });
+		t.mockRestore();
 	});
 
 	it('stores an entered range and step, and the stats picked and removed by key', async () => {
@@ -373,7 +397,7 @@ describe('StatSweepDialog', () => {
 
 		expect(strengthSteps()).toEqual([0, 10, 20, 30]);
 		expect(saved().points.map(point => point.statValue)).toEqual([0, 10, 20, 30]);
-		expect(saved().cappedAt).toBe(10);
+		expect(saved().capped).toEqual({ offset: 10, bonus: 10 });
 		expect(screen.getByText('sidebar.buttons.stat_sweep.capped_label')).toBeTruthy();
 	});
 
@@ -388,7 +412,7 @@ describe('StatSweepDialog', () => {
 
 		expect(strengthSteps()).toEqual([0, 10, 20, 30, 40]);
 		expect(saved().metric).toBe('tps');
-		expect(saved().cappedAt).toBeUndefined();
+		expect(saved().capped).toBeUndefined();
 		expect(screen.getByTestId('stat-sweep-history-metric').textContent).toBe(metricLabel('tps'));
 	});
 
@@ -621,7 +645,9 @@ describe('StatSweepDialog', () => {
 			const [csv, fileName, mimeType] = download.mock.calls[0];
 			const lines = csv.trim().split('\n');
 			expect(lines).toHaveLength(3);
-			expect(lines[0]).toBe('run,batch,stat,base_total,added,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples');
+			expect(lines[0]).toBe(
+				'run,batch,stat,base_total,added,bonus,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples',
+			);
 			expect(lines.slice(1).map((line: string) => line.split(',')[1])).toEqual([saved().batchLabel, saved().batchLabel]);
 			expect([fileName, mimeType]).toEqual(['wowsims-stat-sweep.csv', 'text/csv']);
 		});
@@ -666,7 +692,7 @@ describe('StatSweepDialog', () => {
 
 			const topUp = Math.ceil(((Z_90 * 100) / 2) ** 2) - PROBE;
 			expect(passesByStep()).toEqual({ 0: [PROBE, topUp], 10: [PROBE, topUp], 20: [PROBE, topUp], 30: [PROBE] });
-			expect(saved().cappedAt).toBe(10);
+			expect(saved().capped).toEqual({ offset: 10, bonus: 10 });
 		});
 
 		it('disables Run while the target is empty, and enables it in iterations mode', async () => {

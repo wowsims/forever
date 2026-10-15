@@ -25,6 +25,7 @@ import {
 	type StatSweepSample,
 	type StatSweepStep,
 	type StatSweepStepSample,
+	sweepBonus,
 	type SweepPassRunner,
 	sweepSteps,
 } from './stat_sweep';
@@ -111,7 +112,7 @@ export function runStatSweep({ sim, specId }: StatSweepDeps, args: StatSweepArgs
 			let lastStepIterations = 0;
 			for (const [statIndex, { unitStat, label, baseStatValue }] of args.stats.entries()) {
 				if (aborting()) break;
-				const raidAt = (offset: number) => withFirstPlayerBonus(base.raid!, ownBonus.add(new Stats().withUnitStat(unitStat, offset)).toProto());
+				const raidAt = (bonus: number) => withFirstPlayerBonus(base.raid!, ownBonus.add(new Stats().withUnitStat(unitStat, bonus)).toProto());
 				const record: StatSweepRecord = {
 					id: randomUUID(),
 					createdAt: Date.now(),
@@ -133,16 +134,16 @@ export function runStatSweep({ sim, specId }: StatSweepDeps, args: StatSweepArgs
 					const totals = await Promise.all(
 						offsets.map(async offset => {
 							if (offset === 0) return baseStatValue;
-							const result = await sim.computeRaidStats(raidAt(offset));
+							const result = await sim.computeRaidStats(raidAt(sweepBonus(unitStat, offset)));
 							if (result.errorResult) throw new SimError(result.errorResult);
 							return Stats.fromProto(result.raidStats!.parties[0].players[0].finalStats).getUnitStat(unitStat);
 						}),
 					);
-					const steps = sweepSteps(offsets, totals);
+					const steps = sweepSteps(unitStat, offsets, totals);
 					if (steps.length < offsets.length) report(skipSweepSteps(progress, statIndex, offsets.length - steps.length));
 					const measure = async (step: StatSweepStep, index: number, confirmsCap: (firstPass: StatSweepStepSample['firstPass']) => boolean) => {
 						if (aborting()) return null;
-						const raid = raidAt(step.offset);
+						const raid = raidAt(step.bonus);
 						let planned = 0;
 						const runPass: SweepPassRunner = async (iterations, seedOffset) => {
 							if (aborting()) return null;
@@ -192,7 +193,7 @@ export function runStatSweep({ sim, specId }: StatSweepDeps, args: StatSweepArgs
 						steps,
 						measure,
 						({ points, cappedStep }) => {
-							finished = { ...record, points, ...(cappedStep && { cappedAt: cappedStep.offset }) };
+							finished = { ...record, points, ...(cappedStep && { capped: { offset: cappedStep.offset, bonus: cappedStep.bonus } }) };
 							onRunUpdate(finished);
 						},
 						skipped => report(skipSweepSteps(progress, statIndex, skipped)),

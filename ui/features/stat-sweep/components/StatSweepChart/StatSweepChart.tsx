@@ -5,6 +5,7 @@ import i18n from '@i18n/config';
 import type { StatSweepPoint } from '@sim/cache/stat_sweep_history';
 import type { StatSweepMetric } from '@sim/state/sim_store';
 import { distinct } from '@sim/utils/collections';
+import { formatToNumber } from '@sim/utils/format';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import type { ChartData, ChartDataset, ChartOptions, Plugin } from 'chart.js';
@@ -19,8 +20,8 @@ export interface StatSweepSeries {
 	/** The swept stat's total when the run started. */
 	baseStatValue: number;
 	points: ReadonlyArray<StatSweepPoint>;
-	/** The stat added past which more of the stat left every metric unchanged. */
-	cappedAt?: number;
+	/** The step past which more of the stat left every metric unchanged. */
+	capped?: Pick<StatSweepPoint, 'offset' | 'bonus'>;
 }
 
 export interface StatSweepChartProps {
@@ -77,7 +78,7 @@ function datasets(series: ReadonlyArray<StatSweepSeries>, metric: StatSweepMetri
 			run.points.map(point => {
 				const x = point.offset;
 				const { avg, stdev } = point.metrics[metric];
-				return { x, y: avg + sign * stdev, stdev, point, statLabel: run.statLabel, capped: run.cappedAt !== undefined && x >= run.cappedAt };
+				return { x, y: avg + sign * stdev, stdev, point, statLabel: run.statLabel, capped: run.capped !== undefined && x >= run.capped.offset };
 			});
 		const edge = {
 			pointRadius: 0,
@@ -126,11 +127,13 @@ function xRange(series: ReadonlyArray<StatSweepSeries>) {
 	return { min: min - pad, max: max + pad };
 }
 
-const signed = (added: number) => (added > 0 ? `+${added}` : String(added));
+const shown = (value: number) => formatToNumber(value, { useGrouping: false });
 
-/** The run's label, with the stat added at which more of the stat stopped changing any metric. */
-export const runLabel = ({ label, cappedAt }: { label: string; cappedAt?: number }) =>
-	cappedAt === undefined ? label : t('capped_label', { label, added: signed(cappedAt) });
+const signed = (added: number) => formatToNumber(added, { signDisplay: 'exceptZero', useGrouping: false });
+
+/** The run's label, with the stat added at which more of the stat stopped changing any metric, in the stat's own units as the tooltip gives it. */
+export const runLabel = ({ label, capped }: Pick<StatSweepSeries, 'label' | 'capped'>) =>
+	capped === undefined ? label : t('capped_label', { label, added: signed(capped.bonus) });
 
 const markerPlugin: Plugin<'line'> = {
 	id: 'statSweepMarker',
@@ -200,8 +203,8 @@ function options(series: ReadonlyArray<StatSweepSeries>, metric: StatSweepMetric
 					title: items =>
 						distinct(
 							items.map(item => {
-								const { x, point, statLabel } = item.raw as SweepDatum;
-								return t('tooltip_total', { stat: statLabel, total: point.statValue, added: signed(x) });
+								const { point, statLabel } = item.raw as SweepDatum;
+								return t('tooltip_total', { stat: statLabel, total: shown(point.statValue), added: signed(point.bonus) });
 							}),
 						),
 					label: item => {

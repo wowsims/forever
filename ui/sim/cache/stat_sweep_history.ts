@@ -6,7 +6,7 @@ import type { StatSweepMetric } from '../state/sim_store';
 
 const STAT_SWEEP_DB_NAME = `${LOCAL_STORAGE_PREFIX}_stat-sweep`;
 // Every upgrade drops the stored runs, so a change to the record shape never meets runs saved in the old one.
-const STAT_SWEEP_DB_VERSION = 2;
+const STAT_SWEEP_DB_VERSION = 3;
 const RUNS_STORE = 'runs';
 
 export interface MetricSummary {
@@ -17,9 +17,11 @@ export interface MetricSummary {
 }
 
 export interface StatSweepPoint {
-	/** Bonus points of the swept stat, which % stat multipliers scale before they reach its total. */
+	/** The step's change in rating for a % stat, whose % that rating gives (10 hit rating = 1% hit); bonus points for any other stat. Every stat shares this axis. */
 	offset: number;
-	/** The swept stat's final total with `offset` bonus points, as the sim computes it. */
+	/** The bonus the step adds to the stat in its own units: `offset`, or for a % stat the % that rating gives. */
+	bonus: number;
+	/** The swept stat's final total with the step's bonus, as the sim computes it. */
 	statValue: number;
 	metrics: Record<StatSweepMetric, MetricSummary>;
 }
@@ -38,8 +40,8 @@ export interface StatSweepRecord {
 	metric: StatSweepMetric;
 	baseStatValue: number;
 	points: StatSweepPoint[];
-	/** The stat added past which more of the stat left every metric unchanged, so the run skipped the steps above the next one. */
-	cappedAt?: number;
+	/** The step past which more of the stat left every metric unchanged, so the run skipped the steps above the next one. */
+	capped?: Pick<StatSweepPoint, 'offset' | 'bonus'>;
 	/** Shared by every run one sweep saved; a run without one is a batch of its own. */
 	batchId?: string;
 	/** The sweep's stats in run order with its range, the same on every run of the batch. */
