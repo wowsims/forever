@@ -49,7 +49,8 @@ func (priest *Priest) applyTwilightFocus() {
 }
 
 // Increases the amount healed by your Renew spell by 5%.
-// TODO: Renew rank 1289450 states 35 per tick with a 0 coefficient and no level requirement; verify in game before porting Renew.
+// TODO: 1289450 is a second Renew, 35 per tick with a 0 coefficient and no level requirement. Nothing
+// teaches it, so the Renew ladder leaves it out; verify in game.
 func (priest *Priest) applyImprovedRenew() {
 	if priest.Talents.ImprovedRenew == 0 {
 		return

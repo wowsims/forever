@@ -2,9 +2,35 @@ package core
 
 import (
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 )
+
+// Two pre-pull casts back to back, the second at the instant the first one ends. Both complete.
+func TestPrepullCastAtPreviousCastEnd(t *testing.T) {
+	castAt := func(doAt string) *proto.APLPrepullAction {
+		return &proto.APLPrepullAction{
+			DoAtValue: constValue(doAt),
+			Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{
+				SpellId: &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: 1}},
+			}}},
+		}
+	}
+	request := fakeSwingCasterRequest()
+	request.Raid.Parties[0].Players[0].Rotation.PrepullActions = []*proto.APLPrepullAction{castAt("-5s"), castAt("-3s")}
+
+	sim := NewSim(request, simsignals.CreateSignals())
+	sim.Reset()
+	sim.PrePull()
+	fc := sim.Raid.Parties[0].Players[0].(*FakeSwingCaster)
+	stepSwingSim(t, sim, -time.Second/2)
+
+	if casts := fc.Resetting.SpellMetrics[0].Casts; casts != 2 {
+		t.Fatalf("expected both pre-pull casts complete by -1s, got %d", casts)
+	}
+}
 
 func TestPrepullActionCondition(t *testing.T) {
 	// A pre-pull Change Target to the second target, run only when the encounter has more targets than minTargets.

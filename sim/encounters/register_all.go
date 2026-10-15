@@ -24,7 +24,7 @@ func AddDefaultPresetEncounter() {
 			TankIndex: 0,
 
 			Stats: stats.Stats{
-				stats.Health:      1_299_000,
+				stats.Health:      1_428_900,
 				stats.Armor:       3731,
 				stats.AttackPower: 320,
 			}.ToProtoArray(),

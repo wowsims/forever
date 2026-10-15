@@ -22646,6 +22646,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 705033, SpellID: 29641, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 26, Variance: 0.3636363744735718, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
+	{ID: 29644, Name: "Fire Blast", School: 4, Attr: [17]uint32{3: 0x10000, 4: 0x800000, 15: 0x2000}, SpellLevel: 1, MaxRange: 50000, DefenseType: 3,
+		Effects: []Effect{
+			{ID: 705034, SpellID: 29644, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 28, Variance: 0.4000000059604645, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 29647, Name: "Flaming Shell", School: 4, Speed: 35, Attr: [17]uint32{0: 0x10, 3: 0x10000, 4: 0x800000, 15: 0x2000}, SpellLevel: 1, MaxRange: 50000, DefenseType: 3,
 		Effects: []Effect{
 			{ID: 705036, SpellID: 29647, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 38.5, Variance: 0.3636363744735718, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

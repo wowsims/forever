@@ -156,6 +156,10 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 							rotation.prepullActions = append(rotation.prepullActions, action)
 							rotation.prepullIdxMap = append(rotation.prepullIdxMap, prepullIdx)
 							unit.RegisterPrepullAction(doAt, func(sim *Simulation) {
+								// A prepull action at a cast's last instant runs before the cast's own
+								// completion; the cast completes first.
+								unit.completeDueHardcast(sim)
+
 								// Warnings for prepull cast failure are detected by running a fake prepull,
 								// so this action.Execute needs to record warnings.
 								rotation.doAndRecordWarnings(&rotation.prepullValidations[prepullIdx], true, func() {

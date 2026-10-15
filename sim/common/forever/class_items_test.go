@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/core/testagent"
 	_ "github.com/wowsims/forever/sim/hunter" // registers the hunter's item effects.
+	"github.com/wowsims/forever/sim/priest"
 	"github.com/wowsims/forever/sim/shaman"
 	"github.com/wowsims/forever/sim/shaman/enhancement"
 	_ "github.com/wowsims/forever/sim/warrior" // registers the warrior's item effects.
@@ -30,6 +31,7 @@ var (
 
 func init() {
 	enhancement.RegisterEnhancementShaman()
+	priest.RegisterPriest()
 
 	// The warrior stand-in: a rage bar, which the game files' tenths of rage are read against, and a
 	// Hamstring costing 10 rage.
@@ -212,6 +214,88 @@ func enhancementShamanWithTotem(t *testing.T, totemID int32) (*core.Simulation, 
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+}
+
+// An untalented Shadow priest wearing the items, against an Undead target and a Humanoid one.
+func priestWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *priest.Priest) {
+	t.Helper()
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{Id: worn[proto.ItemSlot(i)]}
+	}
+	player := &proto.Player{
+		Name: "Priest", Class: proto.Class_ClassPriest, Race: proto.Race_RaceTroll,
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: &proto.ConsumesSpec{},
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+		Spec: &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{
+			Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
+		Encounter: &proto.Encounter{Duration: 180, Targets: []*proto.Target{
+			{Name: "undead", Level: 60, MobType: proto.MobType_MobTypeUndead},
+			{Name: "humanoid", Level: 60, MobType: proto.MobType_MobTypeHumanoid}}},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].(priest.PriestAgent).GetPriest()
+}
+
+// Finery of Infinite Wisdom's 3-piece bonus 26172 raises Shadow Word: Pain's ticks by the row's
+// percentage and leaves Mind Blast alone.
+func TestFineryOfInfiniteWisdomRaisesShadowWordPain(t *testing.T) {
+	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotMainHand: 21410,
+		proto.ItemSlot_ItemSlotFinger1:  21411,
+		proto.ItemSlot_ItemSlotBack:     21412,
+	})
+	target := sim.Encounter.ActiveTargetUnits[1]
+	pain := wearer.GetSpell(core.ActionID{SpellID: priest.ShadowWordPainRankMap.Highest().ID})
+	blast := wearer.GetSpell(core.ActionID{SpellID: priest.MindBlastRankMap.Highest().ID})
+	bonus := wearer.GetAura("Finery of Infinite Wisdom 3P")
+	if pain == nil || blast == nil || bonus == nil || !bonus.IsActive() {
+		t.Fatalf("Shadow Word: Pain %v, Mind Blast %v, the 3-piece bonus %v: want all three, the bonus up", pain, blast, bonus)
+	}
+
+	painWith, blastWith := pain.ExpectedTickDamage(sim, target), blast.ExpectedInitialDamage(sim, target)
+	bonus.Deactivate(sim)
+	want := pain.ExpectedTickDamage(sim, target) * (1 + spelldata.MustFind(26172).EffectN(1).Percent())
+	if !core.WithinToleranceFloat64(want, painWith, 1e-6) {
+		t.Errorf("with the 3-piece bonus, Shadow Word: Pain ticks for %v, want %v", painWith, want)
+	}
+	if blastWithout := blast.ExpectedInitialDamage(sim, target); !core.WithinToleranceFloat64(blastWithout, blastWith, 1e-6) {
+		t.Errorf("with the 3-piece bonus, Mind Blast hits for %v, want %v as without it", blastWith, blastWithout)
+	}
+}
+
+// Raiments of Conviction's 4-piece bonus 1301087 adds its amount to the priest's spell damage against
+// the creature types its effect names, Undead, and nothing against a Humanoid. Three pieces add none.
+func TestRaimentsOfConvictionAddSpellDamageAgainstUndead(t *testing.T) {
+	versus := func(wearer *priest.Priest, target *core.Unit) float64 {
+		return wearer.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
+	}
+	worn := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotShoulder: 273922,
+		proto.ItemSlot_ItemSlotHands:    273921,
+		proto.ItemSlot_ItemSlotLegs:     273920,
+	}
+
+	sim, three := priestWearing(t, worn)
+	if got := versus(three, sim.Encounter.ActiveTargetUnits[0]); got != 0 {
+		t.Errorf("with three pieces, the priest has %v spell damage against Undead, want 0", got)
+	}
+
+	worn[proto.ItemSlot_ItemSlotFeet] = 273923
+	sim, four := priestWearing(t, worn)
+	undead, humanoid := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	if got, want := versus(four, undead), spelldata.MustFind(1301087).EffectN(1).BaseValue(); got != want {
+		t.Errorf("with four pieces, the priest has %v spell damage against Undead, want %v", got, want)
+	}
+	if got := versus(four, humanoid); got != 0 {
+		t.Errorf("with four pieces, the priest has %v spell damage against a Humanoid, want 0", got)
+	}
 }
 
 // Arcane Infused Gem 19336 grants Arcane Infused 23721 for the row's duration, on the cooldowns its

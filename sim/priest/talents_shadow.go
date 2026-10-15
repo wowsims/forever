@@ -151,7 +151,7 @@ func (priest *Priest) applyShadowWeaving() {
 
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:             "Shadow Weaving Trigger",
-		CanProcFromProcs: true, // 15257, 15331-15334 carry the bit.
+		CanProcFromProcs: true, // 15257 carries the bit.
 		ClassSpellMask:   PriestShadowSpells,
 		Callback:         core.CallbackOnSpellHitDealt,
 		Outcome:          core.OutcomeLanded,
