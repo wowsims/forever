@@ -91,7 +91,6 @@ describe('runBulkBatch', () => {
 
 		expect(overrides()).toEqual([CURRENT, PATCHWERK, COUNCIL]);
 		const results = bulkState(host.player).results!;
-		expect(results.plannedEncounters).toBe(3);
 		expect(results.entries.map(entry => [entry.name, entry.isCurrent])).toEqual([
 			['', true],
 			['Patchwerk', false],
@@ -107,7 +106,7 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		expect(overrides()).toEqual([CURRENT]);
-		expect(bulkState(host.player).results!.plannedEncounters).toBe(1);
+		expect(bulkState(host.player).results!.entries).toHaveLength(1);
 	});
 
 	it('keeps the finished encounters when cancelled', async () => {
@@ -122,7 +121,6 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		const results = bulkState(host.player).results!;
-		expect(results.plannedEncounters).toBe(3);
 		expect(results.entries.map(entry => entry.isCurrent)).toEqual([true]);
 		expect(bulkState(host.player).isRunning).toBe(false);
 	});

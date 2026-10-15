@@ -42,8 +42,6 @@ export interface BulkEncounterResults {
 }
 
 export interface BulkRunResults {
-	/** Length of the run list when the batch started, so a cancelled multi-encounter run still shows its pills. */
-	plannedEncounters: number;
 	entries: BulkEncounterResults[];
 }
 

@@ -287,7 +287,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 		run.isCancelling = false;
-		const results: BulkRunResults | null = entries.length ? { plannedEncounters: encounterRuns.length, entries } : null;
+		const results: BulkRunResults | null = entries.length ? { entries } : null;
 		patchBulkState(player, results ? { isRunning: false, results } : { isRunning: false });
 	}
 };

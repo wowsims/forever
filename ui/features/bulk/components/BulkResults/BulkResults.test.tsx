@@ -27,11 +27,11 @@ const entry = (name: string, durationLabel: string, iterations: number, isCurren
 	};
 };
 
-const mount = (plannedEncounters: number, entries: BulkEncounterResults[]) => {
+const mount = (entries: BulkEncounterResults[]) => {
 	const store = createSimStore();
 	const player = { sim: { store, getIterations: () => 100 }, storeKey: STORE_KEY } as unknown as Player<any>;
 	seedBulkSettings(player);
-	patchBulkState(player, { started: true, results: { plannedEncounters, entries } });
+	patchBulkState(player, { started: true, results: { entries } });
 	const host = { player, sim: player.sim } as never;
 	return render(
 		<SimHostProvider host={host}>
@@ -44,17 +44,17 @@ const rowIterations = () => screen.getAllByTestId('row').map(row => row.getAttri
 
 describe('BulkResults', () => {
 	it('gives every row the iteration count the run was scored with, not the sidebar value', () => {
-		mount(1, [entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
+		mount([entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
 		expect(rowIterations()).toEqual([String(RUN_ITERATIONS), String(RUN_ITERATIONS)]);
 	});
 
 	it('shows no encounter tabs for a single-encounter run', () => {
-		mount(1, [entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
+		mount([entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
 		expect(screen.queryByTestId('bulk-encounter-tabs')).toBeNull();
 	});
 
 	it('names one tab per encounter, with its length, and switches the list on a click', () => {
-		mount(3, [entry('', '3:00 ±5s', 100, true), entry('Patchwerk', '5:00 ±30s', 200), entry('Council', 'Health', 300)]);
+		mount([entry('', '3:00 ±5s', 100, true), entry('Patchwerk', '5:00 ±30s', 200), entry('Council', 'Health', 300)]);
 		const group = screen.getByRole('group', { name: 'bulk_tab.results.encounters' });
 		const tabs = within(group).getAllByRole('button');
 		expect(tabs.map(tab => tab.textContent)).toEqual(['bulk_tab.results.current 3:00 ±5s', 'Patchwerk 5:00 ±30s', 'Council Health']);
@@ -66,8 +66,9 @@ describe('BulkResults', () => {
 		expect(tabs.map(tab => tab.getAttribute('aria-pressed'))).toEqual(['false', 'true', 'false']);
 	});
 
-	it('shows one tab for a cancelled multi-encounter run', () => {
-		mount(3, [entry('', '3:00 ±5s', 100, true)]);
-		expect(within(screen.getByTestId('bulk-encounter-tabs')).getAllByRole('button')).toHaveLength(1);
+	it('shows no tabs for a cancelled multi-encounter run with one finished encounter', () => {
+		mount([entry('', '3:00 ±5s', 100, true)]);
+		expect(screen.queryByTestId('bulk-encounter-tabs')).toBeNull();
+		expect(rowIterations()).toEqual(['100', '100']);
 	});
 });

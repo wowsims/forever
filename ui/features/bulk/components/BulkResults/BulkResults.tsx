@@ -54,7 +54,7 @@ export const BulkResults = ({ onActivateTab }: BulkResultsProps) => {
 	const iterations = shown.iterations;
 	return (
 		<>
-			{results.plannedEncounters > 1 && (
+			{results.entries.length > 1 && (
 				<BulkEncounterTabs entries={results.entries} selected={index} onSelect={next => setSelection({ of: results, index: next })} />
 			)}
 			{shown.chains.map((chain, chainIdx) =>
