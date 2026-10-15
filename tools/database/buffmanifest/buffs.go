@@ -36,8 +36,9 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:   "prayer_of_fortitude",
-		SpellID: 21564,
+		Field:    "prayer_of_fortitude",
+		SpellID:  21564,
+		Category: "StatBuff",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},

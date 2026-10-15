@@ -237,7 +237,7 @@ export class Encounter {
 				[Stat.StatArmor]: 3731,
 				[Stat.StatAttackPower]: 320,
 				[Stat.StatBlockValue]: 54,
-				[Stat.StatHealth]: 1299000,
+				[Stat.StatHealth]: 1428900,
 			}).asProtoArray(),
 			minBaseDamage: 2601,
 			damageSpread: 0.5,

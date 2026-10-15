@@ -68,11 +68,8 @@ func NewFakeSwingCaster(char *Character, _ *proto.Player, _ *proto.Raid) Agent {
 	return fc
 }
 
-// A dual-wielding caster one second into the fight: the MH swung at 0 and is next due at 2.6s, the
-// OH swung at 0.9s and is next due at 2.7s.
-func setupSwingResetSim(t *testing.T) (*Simulation, *FakeSwingCaster) {
-	t.Helper()
-	sim := NewSim(&proto.RaidSimRequest{
+func fakeSwingCasterRequest() *proto.RaidSimRequest {
+	return &proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{
 			RandomSeed: 100,
 		},
@@ -99,7 +96,14 @@ func setupSwingResetSim(t *testing.T) (*Simulation, *FakeSwingCaster) {
 			},
 			Duration: 180,
 		},
-	}, simsignals.CreateSignals())
+	}
+}
+
+// A dual-wielding caster one second into the fight: the MH swung at 0 and is next due at 2.6s, the
+// OH swung at 0.9s and is next due at 2.7s.
+func setupSwingResetSim(t *testing.T) (*Simulation, *FakeSwingCaster) {
+	t.Helper()
+	sim := NewSim(fakeSwingCasterRequest(), simsignals.CreateSignals())
 	sim.Reset()
 	sim.PrePull()
 

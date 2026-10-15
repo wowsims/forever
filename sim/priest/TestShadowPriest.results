@@ -133,6 +133,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Champion'sInvestiture"
+ value: {
+  dps: 626.26571
+  tps: 317.20193
+  dtps: 5.08909
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Champion'sRaiment"
+ value: {
+  dps: 645.33632
+  tps: 326.73277
+  dtps: 5.5652
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-CloakofFire-14134"
  value: {
   dps: 666.78569
@@ -154,6 +170,14 @@ dps_results: {
   dps: 673.87793
   tps: 340.82162
   dtps: 5.10552
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Confessor'sRaiment"
+ value: {
+  dps: 643.91864
+  tps: 325.82326
+  dtps: 5.11856
  }
 }
 dps_results: {
@@ -405,6 +429,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-FieldMarshal'sInvestiture"
+ value: {
+  dps: 635.83991
+  tps: 321.98214
+  dtps: 5.48529
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-FieldMarshal'sRaiment"
+ value: {
+  dps: 668.54052
+  tps: 338.12711
+  dtps: 5.65824
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-FineryofInfiniteWisdom"
+ value: {
+  dps: 662.34375
+  tps: 334.84138
+  dtps: 5.08835
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 675.64074
@@ -426,6 +474,14 @@ dps_results: {
   dps: 670.24909
   tps: 339.04349
   dtps: 5.10552
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-GarmentsoftheOracle"
+ value: {
+  dps: 698.38564
+  tps: 351.54559
+  dtps: 3.25515
  }
 }
 dps_results: {
@@ -557,6 +613,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-LieutenantCommander'sInvestiture"
+ value: {
+  dps: 626.26571
+  tps: 317.20193
+  dtps: 5.08909
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-LieutenantCommander'sRaiment"
+ value: {
+  dps: 645.33632
+  tps: 326.73277
+  dtps: 5.5652
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 673.87793
@@ -650,6 +722,14 @@ dps_results: {
   dps: 673.87793
   tps: 340.82162
   dtps: 5.10552
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-RaimentsofConviction"
+ value: {
+  dps: 633.07038
+  tps: 320.75287
+  dtps: 5.3778
  }
 }
 dps_results: {
@@ -797,11 +877,58 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-VestmentsofConviction"
+ value: {
+  dps: 634.51235
+  tps: 321.53553
+  dtps: 5.11863
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-VestmentsofFaith"
+ value: {
+  dps: 592.04798
+  tps: 297.32489
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 621.13069
+  tps: 314.08315
+  dtps: 0.68602
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 651.24382
+  tps: 327.37002
+  dtps: 1.42809
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-VolcanicHammer-12792"
  value: {
   dps: 679.25005
   tps: 343.45396
   dtps: 5.10552
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Warlord'sInvestiture"
+ value: {
+  dps: 635.83991
+  tps: 321.98214
+  dtps: 5.48529
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Warlord'sRaiment"
+ value: {
+  dps: 668.54052
+  tps: 338.12711
+  dtps: 5.65824
  }
 }
 dps_results: {

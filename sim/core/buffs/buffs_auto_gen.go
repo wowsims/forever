@@ -504,10 +504,12 @@ func NewSpellDataGiftOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoints 
 }
 
 // Prayer of Fortitude
+var PrayerOfFortitudeCategory = "StatBuff"
 var prayerOfFortitudeSpell = spelldata.MustFind(21564)
 var prayerOfFortitudeMeta = &Meta{
-	Label: "Prayer of Fortitude",
-	Spell: prayerOfFortitudeSpell,
+	Label:    "Prayer of Fortitude",
+	Spell:    prayerOfFortitudeSpell,
+	Category: PrayerOfFortitudeCategory,
 }
 
 func PrayerOfFortitudeValue(talentPoints int32) float64 {

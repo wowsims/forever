@@ -353,4 +353,8 @@ druid registering its own copy of any of them has nothing to decide: the copy jo
 and the two bid. The last two share one, `DruidCritAura`, because spell 17007 calls Leader of the
 Pack exclusive with Moonkin Aura. A druid's own cast of either joins it, so a party that ticks both and
 a druid who casts one are worth the game files' 3, not two threes. Only `trueshot_aura` is left
-without a category, so the hunter port has to choose.
+without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
+`sim/priest/priest.go`) bid without `SingleAura`: `prayer_of_fortitude` and `prayer_of_spirit` each
+stat on its own in `StatBuff`, with Arcane Brilliance and the scrolls, and `prayer_of_shadow_protection`
+in the shadow resistance category every buff joins. A priest's own prayer and the raid's count once,
+while Gift of the Wild and Blood Pact still add their Stamina on top.

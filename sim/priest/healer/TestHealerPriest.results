@@ -1,120 +1,12 @@
 character_stats_results: {
- key: "TestHealerPriest-p3"
- value: {
-  final_stats: 179
-  final_stats: 168
-  final_stats: 817
-  final_stats: 649
-  final_stats: 2702.1
-  final_stats: 1187.35
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 67
-  final_stats: 157
-  final_stats: 0
-  final_stats: 501
-  final_stats: 848.1
-  final_stats: 389
-  final_stats: 0
-  final_stats: 0
-  final_stats: 48
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 3524
-  final_stats: 0
-  final_stats: 12731
-  final_stats: 12075
-  final_stats: 229.5
-  final_stats: 40
-  final_stats: 40
-  final_stats: 50
-  final_stats: 40
-  final_stats: 77
-  final_stats: 0
-  final_stats: 1
-  final_stats: 4
-  final_stats: 17.07722
-  final_stats: 22.38484
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
- }
-}
-character_stats_results: {
- key: "TestHealerPriest-p3_t5"
- value: {
-  final_stats: 179
-  final_stats: 168
-  final_stats: 789
-  final_stats: 628
-  final_stats: 2632.5
-  final_stats: 1166.75
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 67
-  final_stats: 157
-  final_stats: 0
-  final_stats: 505
-  final_stats: 848.1
-  final_stats: 389
-  final_stats: 0
-  final_stats: 0
-  final_stats: 48
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 3457
-  final_stats: 0
-  final_stats: 12451
-  final_stats: 11760
-  final_stats: 216.5
-  final_stats: 40
-  final_stats: 40
-  final_stats: 50
-  final_stats: 40
-  final_stats: 77
-  final_stats: 0
-  final_stats: 1
-  final_stats: 4
-  final_stats: 17.07722
-  final_stats: 22.12234
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
- }
-}
-character_stats_results: {
  key: "TestHealerPriest-preraid"
  value: {
-  final_stats: 179
-  final_stats: 168
-  final_stats: 523
-  final_stats: 553
-  final_stats: 2042.4
-  final_stats: 951.4
+  final_stats: 116
+  final_stats: 57
+  final_stats: 311
+  final_stats: 275
+  final_stats: 663.75
+  final_stats: 231.12
   final_stats: 0
   final_stats: 0
   final_stats: 0
@@ -122,39 +14,39 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 48
-  final_stats: 0
-  final_stats: 0
-  final_stats: 464
-  final_stats: 848.1
-  final_stats: 389
-  final_stats: 0
-  final_stats: 0
-  final_stats: 48
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 3147
-  final_stats: 0
-  final_stats: 9791
-  final_stats: 10635
-  final_stats: 211.5
-  final_stats: 40
-  final_stats: 40
+  final_stats: 339
+  final_stats: 378
   final_stats: 50
-  final_stats: 40
-  final_stats: 77
   final_stats: 0
-  final_stats: 1
-  final_stats: 4
-  final_stats: 17.07722
-  final_stats: 20.32422
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 1706
+  final_stats: 0
+  final_stats: 4327
+  final_stats: 5221
+  final_stats: 87
+  final_stats: 27
+  final_stats: 27
+  final_stats: 27
+  final_stats: 31
+  final_stats: 60
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 8.85
+  final_stats: 10.42
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 5.85
   final_stats: 0
   final_stats: 0
   final_stats: 0

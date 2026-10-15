@@ -69,6 +69,10 @@ func (priest *Priest) Initialize() {
 		spellData.Chastise.Each(priest.registerChastise)
 		spellData.DesperatePrayer.Each(priest.registerDesperatePrayer)
 	}
+
+	priest.registerPrayerOfFortitude()
+	priest.registerPrayerOfSpirit()
+	priest.registerPrayerOfShadowProtection()
 }
 
 func (priest *Priest) InitializeHealingSpells() {
@@ -91,6 +95,28 @@ func (priest *Priest) registerSelfBuffSpell(rank *spelldata.Spell, aura *core.Au
 		}
 	}
 	config.RelatedSelfBuff = aura
+
+	return priest.RegisterSpell(config)
+}
+
+// A prayer's own copy on every player in the raid, up once the priest casts it. It bids in the same
+// category as the raid buff of that name, so the two count once. The cast waits until nothing as
+// strong holds the category, which the raid buff, permanent from the start, always does.
+func (priest *Priest) registerPrayer(rank *spelldata.Spell, newAura func(*core.Unit, bool, int32) *core.Aura) *core.Spell {
+	auras := priest.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
+		return newAura(unit, true, 0)
+	})
+	ownAura := auras.Get(&priest.Unit)
+
+	config := spelldata.SpellConfig(&priest.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ExtraCastCondition = func(sim *core.Simulation, _ *core.Unit) bool {
+		return ownAura.ShouldRefreshExclusiveEffects(sim, 0)
+	}
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		auras.ActivateAllPlayers(sim)
+	}
+	config.RelatedAuraArrays = auras.ToMap()
 
 	return priest.RegisterSpell(config)
 }

@@ -598,6 +598,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9412, // Galgann's Fireblaster
+		[
+			"Strike your ranged target with a Fire Blast for 28 Fire damage.", // 29644 - https://www.wowhead.com/forever/spell=29644
+		]
+	],
+	[
 		9414, // Oilskin Leggings
 		[
 			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726

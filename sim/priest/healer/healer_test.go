@@ -18,9 +18,8 @@ func init() {
 // rotation and the fake prepull (no SkipRotation) make it exercise a full environment reset, the
 // path the UI's stats request takes.
 func TestHealerPriest(t *testing.T) {
-	t.Skip("healer gear set JSON files referenced by this test are absent")
 	var generators []core.TestGenerator
-	for _, gearSet := range []string{"preraid", "p3_t5", "p3"} {
+	for _, gearSet := range []string{"preraid"} {
 		player := core.WithSpec(
 			&proto.Player{
 				Class:         proto.Class_ClassPriest,
@@ -45,8 +44,8 @@ func TestHealerPriest(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), generators)
 }
 
-// Circle of Healing 20/41/0, wowhead's TBC raid build.
-var StandardTalents = "50023011305-235050032002150520051"
+// The Holy preset from ui/specs/priest/healer/presets.ts.
+var StandardTalents = "005203011301-33505003030121531"
 
 var FullConsumes = &proto.ConsumesSpec{
 	FoodId:        250066, // Soaring Pamplona
