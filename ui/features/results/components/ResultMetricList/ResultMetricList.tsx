@@ -7,6 +7,7 @@ import { useId } from 'react';
 import type { ReferenceDiffs } from '../../model/reference_diffs';
 import { resultMetricCategories, type ResultMetrics } from '../../model/sim_results';
 import type { ResultMetric } from '../../model/topline_metrics';
+import { ResultMetricValue } from '../ResultMetricValue';
 import { ResultReferenceDiff } from './ResultReferenceDiff';
 import { formatAverage, formatStdev, hasMetricTooltip, type ResultMetricLayout, resultMetricTooltip } from './utils';
 
@@ -69,16 +70,12 @@ export const ResultMetricList = ({ metrics, layout, referenceDiffs, size = 'md' 
 						data-metric-category={resultMetricCategories[column.metric]}
 						data-size={size}
 						{...anchorFor(column.metric)}>
-						<span data-testid="topline-result-avg" className={size === 'sm' ? 'text-md' : 'text-2xl leading-none'}>
-							{formatAverage(column, layout)}
-							<span className="text-ui font-normal"> {column.name}</span>
-						</span>
-						{!!column.stdev && (
-							<span data-testid="topline-result-stdev" className="text-ui font-normal">
-								(<Icon name="plus-minus" size="xs" />
-								{formatStdev(column, layout)})
-							</span>
-						)}
+						<ResultMetricValue
+							average={formatAverage(column, layout)}
+							unit={column.name}
+							margin={column.stdev ? formatStdev(column, layout) : undefined}
+							size={size}
+						/>
 						<ResultReferenceDiff diff={referenceDiffs?.[column.metric]} tooltipId={diffTooltipId} />
 					</div>
 				))
