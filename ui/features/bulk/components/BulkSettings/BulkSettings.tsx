@@ -56,7 +56,7 @@ export const BulkSettingsView = ({
 	onFrozenWeaponSlotChange,
 }: BulkSettingsViewProps) => (
 	<TabPanelColumns.Right>
-		<div className="sticky top-sim-header pt-6 lg:max-h-bulk-settings-max-h lg:overflow-y-auto">
+		<div className="sticky top-sim-header lg:max-h-bulk-settings-max-h lg:overflow-y-auto">
 			<Box padding="md" className="grid gap-6 bg-background" testId="bulk-settings-container">
 				<RunCard
 					testId="bulk-run-card"

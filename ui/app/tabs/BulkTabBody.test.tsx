@@ -1,10 +1,27 @@
+import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
 import { REPO_RELEASES_URL } from '@sim/constants/other';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { SimHostProvider } from '@sim/context/SimHostContext';
+import type { Player } from '@sim/player/player';
+import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
+import { createSimStore } from '@sim/state/sim_store';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { BulkTabActionsView, type BulkTabActionsViewProps } from './BulkTabBody';
+import { BulkTabActionsView, type BulkTabActionsViewProps, BulkTabBody } from './BulkTabBody';
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
+vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => false }));
+vi.mock('@features/bulk/components/BulkItemSearch', () => ({ BulkItemSearch: () => null }));
+vi.mock('@features/bulk/components/BulkPickerGroups', () => ({ BulkPickerGroups: () => null }));
+vi.mock('@features/bulk/components/BulkProgress', () => ({ BulkProgressDialog: () => null }));
+vi.mock('@features/bulk/components/BulkSettings', () => ({ BulkSettings: () => <div data-testid="bulk-settings-stub" /> }));
+vi.mock('@features/bulk/components/BulkResults/BulkResultRow', () => ({
+	BulkResultRow: ({ result }: { result: TopGearResult }) => <div data-testid="row" data-avg={result.dpsMetrics.avg} />,
+}));
+vi.mock('@features/gear/components/SelectorModal', () => ({ SelectorModal: () => null }));
+vi.mock('@features/import-export', () => ({ BulkGearImporterDialog: () => null }));
+const downloadString = vi.hoisted(() => vi.fn());
+vi.mock('@ui-kit/utils/dom', async importOriginal => ({ ...(await importOriginal<typeof import('@ui-kit/utils/dom')>()), downloadString }));
 
 const props = (overrides: Partial<BulkTabActionsViewProps> = {}): BulkTabActionsViewProps => ({
 	showNativeDownload: false,
@@ -34,5 +51,144 @@ describe('BulkTabActionsView', () => {
 		expect(handlers.onImportBags).toHaveBeenCalledTimes(1);
 		expect(handlers.onImportFavorites).toHaveBeenCalledTimes(1);
 		expect(handlers.onClear).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('BulkTabBody', () => {
+	const STORE_KEY = 3;
+	const BASELINE_DPS = 1000;
+
+	// A gear set with no slots, equal only to itself: enough for the CSV export.
+	const gear = () => {
+		const set = { getItemSlots: () => [], getEquippedItem: () => null, equals: (other: unknown) => other === set };
+		return set;
+	};
+	const result = (avg: number) => ({ gear: gear(), dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
+
+	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`.
+	const entry = (name: string, durationLabel: string, best: number, isCurrent = false): BulkEncounterResults => {
+		const baseline = result(BASELINE_DPS);
+		return {
+			name,
+			isCurrent,
+			durationLabel,
+			duration: 180,
+			durationVariation: 5,
+			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100 },
+		};
+	};
+
+	const mount = (entries: BulkEncounterResults[] | null) => {
+		const store = createSimStore();
+		const player = { sim: { store, isNative: false }, storeKey: STORE_KEY } as unknown as Player<any>;
+		seedBulkSettings(player);
+		patchBulkState(player, { started: entries !== null, results: entries && { entries } });
+		const host = { player, sim: player.sim } as never;
+		render(
+			<SimHostProvider host={host}>
+				<BulkTabBody />
+			</SimHostProvider>,
+		);
+		return player;
+	};
+
+	const sidebar = () => screen.queryByTestId('bulk-encounter-results');
+	const sidebarRows = () =>
+		within(sidebar()!)
+			.getAllByRole('button')
+			.filter(button => button.hasAttribute('aria-pressed'));
+	const exportButton = () => screen.getByTestId('bulk-results-export-csv');
+	const shownBest = () => screen.getAllByTestId('row')[0].getAttribute('data-avg');
+	const settings = () => screen.getByTestId('bulk-settings-stub');
+	// Both panes stay mounted. A pane that stops being active turns inert at once and gains `hidden` only when its fade-out
+	// ends, which never happens here, so `inert` marks the pane that is going away.
+	const paneOf = (element: Element) => element.closest('[data-testid="tab-pane"]')!;
+	const isShown = (element: Element) => !element.closest('[hidden], [inert]');
+	const THREE = [entry('', '3:00 ±5s', 1100, true), entry('Patchwerk', '5:00 ±30s', 1036.5), entry('Council', 'Health', 1250)];
+
+	it('shows the batch settings inside the Setup pane and no encounter list', () => {
+		mount(null);
+
+		expect(paneOf(settings()).id).toBe('bulkSetupTab');
+		expect(isShown(settings())).toBe(true);
+		expect(sidebar()).toBeNull();
+	});
+
+	it('lists one row per finished encounter inside the Results pane, current first, with the best DPS and its gain', () => {
+		mount(THREE);
+
+		expect(isShown(settings())).toBe(false);
+		expect(paneOf(sidebar()!).id).toBe('bulkResultsTab');
+		expect(isShown(sidebar()!)).toBe(true);
+		expect(sidebarRows().map(row => row.textContent)).toEqual([
+			'bulk_tab.results.current 3:00 ±5s1,100.00 +100.00 (10.00%)',
+			'Patchwerk 5:00 ±30s1,036.50 +36.50 (3.65%)',
+			'Council Health1,250.00 +250.00 (25.00%)',
+		]);
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
+		expect(shownBest()).toBe('1100');
+	});
+
+	it('shows only the DPS for an encounter where the current gear stays best', () => {
+		mount([entry('', '3:00 ±5s', 1100, true), entry('Patchwerk', '5:00 ±30s', BASELINE_DPS)]);
+
+		expect(sidebarRows()[1].textContent).toBe('Patchwerk 5:00 ±30s1,000.00');
+	});
+
+	it('shows the ranking of the encounter picked in the list', () => {
+		mount(THREE);
+
+		fireEvent.click(sidebarRows()[2]);
+
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+		expect(shownBest()).toBe('1250');
+	});
+
+	it('starts a new run on its first encounter again', () => {
+		const player = mount(THREE);
+		fireEvent.click(sidebarRows()[1]);
+
+		act(() => patchBulkState(player, { results: { entries: THREE.slice() } }));
+
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
+		expect(shownBest()).toBe('1100');
+	});
+
+	it('shows no encounter list for a run with one finished result', () => {
+		mount([entry('', '3:00 ±5s', 1100, true)]);
+
+		expect(sidebar()).toBeNull();
+		expect(isShown(settings())).toBe(false);
+		expect(shownBest()).toBe('1100');
+	});
+
+	it('shows the settings again, and hides the encounter list, when Setup is picked', () => {
+		mount(THREE);
+
+		fireEvent.click(screen.getByRole('tab', { name: 'bulk_tab.tabs.setup' }));
+
+		expect(isShown(settings())).toBe(true);
+		expect(isShown(sidebar()!)).toBe(false);
+	});
+
+	it('exports every encounter as CSV from the bottom of the encounter list', () => {
+		mount(THREE);
+
+		expect(sidebar()!.contains(exportButton())).toBe(true);
+		fireEvent.click(exportButton());
+
+		expect(downloadString).toHaveBeenCalledOnce();
+		const [csv, fileName, mimeType] = downloadString.mock.calls[0];
+		expect([fileName, mimeType]).toEqual(['wowsims-batch-results.csv', 'text/csv']);
+		expect(csv.trimEnd().split('\n')).toHaveLength(1 + 3 * 2);
+	});
+
+	it('puts the CSV export above the ranking when there is no encounter list', () => {
+		mount([entry('', '3:00 ±5s', 1100, true)]);
+
+		expect(paneOf(exportButton()).id).toBe('bulkResultsTab');
+		fireEvent.click(exportButton());
+
+		expect(downloadString).toHaveBeenCalledWith(expect.any(String), 'wowsims-batch-results.csv', 'text/csv');
 	});
 });

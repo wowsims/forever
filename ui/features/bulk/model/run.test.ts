@@ -97,6 +97,11 @@ describe('runBulkBatch', () => {
 			['Council', false],
 		]);
 		expect(results.entries[2].durationLabel).toBe('1:30 ±10s');
+		expect(results.entries.map(entry => [entry.duration, entry.durationVariation])).toEqual([
+			[180, 5],
+			[null, null],
+			[90, 10],
+		]);
 	});
 
 	it('runs once when nothing is checked', async () => {

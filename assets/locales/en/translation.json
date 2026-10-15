@@ -1106,7 +1106,6 @@
 	},
 	"bulk_tab": {
 		"title": "Batch",
-		"description": "<span className=\"bold\">Batch Simming</span> is a new feature akin to the <span className=\"bold\">Top Gear</span> sim on <a href=\"https://raidbots.com\" target=\"_blank\">Raidbots.com</a> that allows you to select multiple items and sim them to find the best combinations.<br />This is an <span className=\"text-brand\">Alpha</span> feature, so if you have feedback or found a bug, please report it!",
 		"download_native": "Download the local sim for faster results.",
 		"tabs": {
 			"setup": "Setup",
@@ -1225,11 +1224,13 @@
 			"run_simulation": "Run a simulation to view results",
 			"equip_button": "Equip",
 			"gear_equipped": "Batch gear equipped!",
-			"current_gear": "Current Gear",
+			"current_gear": "Current gear",
 			"margin_of_error": "95% confidence interval of the mean DPS. Rankings closer than this can change between runs.",
 			"tied_group": "Statistically tied — the order within this group can change between runs",
 			"encounters": "Encounters",
-			"current": "Current"
+			"encounters_caption": "The best set's DPS and its gain over your current gear, per encounter. Pick one to see its ranking.",
+			"current": "Current",
+			"export_csv": "Export CSV"
 		},
 		"import_modal": {
 			"title": "Bag Item Import",

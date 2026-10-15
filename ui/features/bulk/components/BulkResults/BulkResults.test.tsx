@@ -3,7 +3,7 @@ import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { createSimStore } from '@sim/state/sim_store';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./BulkResultRow', () => ({
@@ -17,12 +17,14 @@ const RUN_ITERATIONS = 30000;
 
 const result = (avg: number) => ({ gear: {}, dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
 
-const entry = (name: string, durationLabel: string, iterations: number, isCurrent = false): BulkEncounterResults => {
+const entry = (iterations: number): BulkEncounterResults => {
 	const baseline = result(1000);
 	return {
-		name,
-		isCurrent,
-		durationLabel,
+		name: '',
+		isCurrent: true,
+		durationLabel: '3:00 ±5s',
+		duration: 180,
+		durationVariation: 5,
 		results: { chains: [[result(1100)], [baseline]], originalGearResults: baseline, iterations },
 	};
 };
@@ -35,7 +37,7 @@ const mount = (entries: BulkEncounterResults[]) => {
 	const host = { player, sim: player.sim } as never;
 	return render(
 		<SimHostProvider host={host}>
-			<BulkResults onActivateTab={() => {}} />
+			<BulkResults onActivateTab={() => {}} selected={0} />
 		</SimHostProvider>,
 	);
 };
@@ -44,31 +46,7 @@ const rowIterations = () => screen.getAllByTestId('row').map(row => row.getAttri
 
 describe('BulkResults', () => {
 	it('gives every row the iteration count the run was scored with, not the sidebar value', () => {
-		mount([entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
+		mount([entry(RUN_ITERATIONS)]);
 		expect(rowIterations()).toEqual([String(RUN_ITERATIONS), String(RUN_ITERATIONS)]);
-	});
-
-	it('shows no encounter tabs for a single-encounter run', () => {
-		mount([entry('', '3:00 ±5s', RUN_ITERATIONS, true)]);
-		expect(screen.queryByTestId('bulk-encounter-tabs')).toBeNull();
-	});
-
-	it('names one tab per encounter, with its length, and switches the list on a click', () => {
-		mount([entry('', '3:00 ±5s', 100, true), entry('Patchwerk', '5:00 ±30s', 200), entry('Council', 'Health', 300)]);
-		const group = screen.getByRole('group', { name: 'bulk_tab.results.encounters' });
-		const tabs = within(group).getAllByRole('button');
-		expect(tabs.map(tab => tab.textContent)).toEqual(['bulk_tab.results.current 3:00 ±5s', 'Patchwerk 5:00 ±30s', 'Council Health']);
-		expect(tabs.map(tab => tab.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
-		expect(rowIterations()).toEqual(['100', '100']);
-
-		fireEvent.click(tabs[1]);
-		expect(rowIterations()).toEqual(['200', '200']);
-		expect(tabs.map(tab => tab.getAttribute('aria-pressed'))).toEqual(['false', 'true', 'false']);
-	});
-
-	it('shows no tabs for a cancelled multi-encounter run with one finished encounter', () => {
-		mount([entry('', '3:00 ±5s', 100, true)]);
-		expect(screen.queryByTestId('bulk-encounter-tabs')).toBeNull();
-		expect(rowIterations()).toEqual(['100', '100']);
 	});
 });

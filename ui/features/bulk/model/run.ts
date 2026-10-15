@@ -257,10 +257,13 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			setCandidateGearProgress(player);
 			run.simStart = new Date().getTime();
 			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, { encounterOverride: encounterRun.encounter });
+			const { useHealth, duration, durationVariation } = encounterRun.encounter;
 			entries.push({
 				name: encounterRun.name,
 				isCurrent: encounterRun.isCurrent,
 				durationLabel: formatEncounterDuration(encounterRun.encounter),
+				duration: useHealth ? null : duration,
+				durationVariation: useHealth ? null : durationVariation,
 				results: rankResults(bulkSimResult, baseGear),
 			});
 		}

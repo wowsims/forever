@@ -3978,9 +3978,6 @@
 				"title": {
 					"type": "string"
 				},
-				"description": {
-					"type": "string"
-				},
 				"download_native": {
 					"type": "string"
 				},
@@ -4426,12 +4423,29 @@
 						"encounters": {
 							"type": "string"
 						},
+						"encounters_caption": {
+							"type": "string"
+						},
 						"current": {
+							"type": "string"
+						},
+						"export_csv": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["run_simulation", "equip_button", "gear_equipped", "current_gear", "margin_of_error", "tied_group", "encounters", "current"]
+					"required": [
+						"run_simulation",
+						"equip_button",
+						"gear_equipped",
+						"current_gear",
+						"margin_of_error",
+						"tied_group",
+						"encounters",
+						"encounters_caption",
+						"current",
+						"export_csv"
+					]
 				},
 				"import_modal": {
 					"type": "object",
@@ -4453,7 +4467,6 @@
 			"additionalProperties": false,
 			"required": [
 				"title",
-				"description",
 				"download_native",
 				"tabs",
 				"actions",

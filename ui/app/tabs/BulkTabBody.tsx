@@ -1,9 +1,12 @@
 import { Tabs } from '@base-ui/react/tabs';
+import { BulkEncounterResults } from '@features/bulk/components/BulkEncounterResults';
 import { BulkItemSearch } from '@features/bulk/components/BulkItemSearch';
 import { BulkPickerGroups } from '@features/bulk/components/BulkPickerGroups';
 import { BulkProgressDialog } from '@features/bulk/components/BulkProgress';
 import { BulkResults } from '@features/bulk/components/BulkResults';
+import { BulkResultsCsvButton } from '@features/bulk/components/BulkResultsCsvButton';
 import { BulkSettings } from '@features/bulk/components/BulkSettings';
+import { useBulkResultSelection } from '@features/bulk/hooks/useBulkResultSelection';
 import { useBulkState } from '@features/bulk/hooks/useBulkState';
 import { addBulkItems, clearBulkItems } from '@features/bulk/model/items';
 import { SelectorModal } from '@features/gear/components/SelectorModal';
@@ -19,7 +22,6 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { TabNav, TabPanel, TabPanels } from '@ui-kit/TabNav';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
-import { LocaleHtml } from '@ui-kit/Tooltip';
 import { useEffect, useState } from 'react';
 
 const PANES = [
@@ -38,16 +40,14 @@ export interface BulkTabActionsViewProps {
 
 export const BulkTabActionsView = ({ showNativeDownload, onImportBags, onImportFavorites, onClear }: BulkTabActionsViewProps) => (
 	<>
-		<div>
-			{showNativeDownload && (
-				<p className="mb-0">
-					<Button href={REPO_RELEASES_URL} target="_blank" variant="unstyled">
-						<Icon name="gauge-high" className="mr-1" />
-						{i18n.t('bulk_tab.download_native')}
-					</Button>
-				</p>
-			)}
-		</div>
+		{showNativeDownload && (
+			<p className="mb-0">
+				<Button href={REPO_RELEASES_URL} target="_blank" variant="unstyled">
+					<Icon name="gauge-high" className="mr-1" />
+					{i18n.t('bulk_tab.download_native')}
+				</Button>
+			</p>
+		)}
 		<div className="flex grid-flow-col gap-2" data-testid="bulk-gear-actions">
 			<Button variant="secondary" onClick={onImportBags}>
 				<Icon name="download" style="base" /> {i18n.t('bulk_tab.actions.import_bags')}
@@ -72,41 +72,48 @@ export const BulkTabBody = () => {
 
 	const [activeId, setActiveId] = useState<BulkPaneId>('bulkSetupTab');
 	const [importOpen, setImportOpen] = useState(false);
+	const [selectedEncounter, selectEncounter] = useBulkResultSelection();
 	const selector = useSelectorModalState();
 	// Starting a run clears the results and drops back to setup; finishing one opens the results.
 	useEffect(() => setActiveId(results ? 'bulkResultsTab' : 'bulkSetupTab'), [results]);
 
 	return (
 		<OpenSelectorModalContext value={selector.openTab}>
-			<TabPanelColumns.Left className="pt-2" variant="auto-columns">
-				<Tabs.Root data-testid="bulk-tab-tabs" value={activeId} onValueChange={next => setActiveId(next as BulkPaneId)}>
-					<TabNav tabs={PANES.map(pane => ({ id: pane.id, label: i18n.t(pane.labelKey) }))} />
-					<TabPanels>
-						<TabPanel value="bulkSetupTab" className="gap-6 not-data-hidden:grid">
-							<p className="mb-0">
-								<LocaleHtml html={i18n.t('bulk_tab.description')} />
-							</p>
-							<BulkTabActionsView
-								showNativeDownload={ready && host.sim.isNative === false}
-								onImportBags={() => setImportOpen(true)}
-								onImportFavorites={() =>
-									addBulkItems(
-										host.player,
-										host.sim.getFilters().favoriteItems.map(itemID => ItemSpec.create({ id: itemID })),
-									)
-								}
-								onClear={() => clearBulkItems(host.player)}
-							/>
-							<BulkItemSearch ready={ready} />
-							<BulkPickerGroups />
-						</TabPanel>
-						<TabPanel value="bulkResultsTab">
-							<BulkResults onActivateTab={activateTab} />
-						</TabPanel>
-					</TabPanels>
-				</Tabs.Root>
-			</TabPanelColumns.Left>
-			<BulkSettings />
+			<Tabs.Root className="w-full pt-2" data-testid="bulk-tab-tabs" value={activeId} onValueChange={next => setActiveId(next as BulkPaneId)}>
+				<TabNav tabs={PANES.map(pane => ({ id: pane.id, label: i18n.t(pane.labelKey) }))} />
+				<TabPanels>
+					<TabPanel value="bulkSetupTab">
+						<TabPanelColumns.Root fullWidth>
+							<TabPanelColumns.Left variant="auto-columns">
+								<BulkTabActionsView
+									showNativeDownload={ready && host.sim.isNative === false}
+									onImportBags={() => setImportOpen(true)}
+									onImportFavorites={() =>
+										addBulkItems(
+											host.player,
+											host.sim.getFilters().favoriteItems.map(itemID => ItemSpec.create({ id: itemID })),
+										)
+									}
+									onClear={() => clearBulkItems(host.player)}
+								/>
+								<BulkItemSearch ready={ready} />
+								<BulkPickerGroups />
+							</TabPanelColumns.Left>
+							<BulkSettings />
+						</TabPanelColumns.Root>
+					</TabPanel>
+					<TabPanel value="bulkResultsTab">
+						<TabPanelColumns.Root fullWidth>
+							<TabPanelColumns.Left variant="stacked">
+								{/* With one result there is no encounter list to hold the export, so it sits above the ranking. */}
+								{results?.entries.length === 1 && <BulkResultsCsvButton />}
+								<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
+							</TabPanelColumns.Left>
+							<BulkEncounterResults selected={selectedEncounter} onSelect={selectEncounter} />
+						</TabPanelColumns.Root>
+					</TabPanel>
+				</TabPanels>
+			</Tabs.Root>
 			{importOpen && <BulkGearImporterDialog open onOpenChange={setImportOpen} />}
 			<SelectorModal state={selector} id="bulk-selector-modal" rail={false} />
 			{isRunning && <BulkProgressDialog />}

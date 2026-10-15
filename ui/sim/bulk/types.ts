@@ -38,6 +38,9 @@ export interface BulkEncounterResults {
 	isCurrent: boolean;
 	/** The encounter's length, formatted when the run started. */
 	durationLabel: string;
+	/** Seconds; null for a health-based encounter, which has no set length. */
+	duration: number | null;
+	durationVariation: number | null;
 	results: BulkResults;
 }
 

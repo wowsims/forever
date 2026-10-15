@@ -1,5 +1,7 @@
 import { GearChangeIcon } from '@features/gear/components/GearChangeIcon';
 import { ItemDetailCell } from '@features/gear/components/ItemCell';
+import { ResultReferenceDiff } from '@features/results/components/ResultMetricList';
+import { ResultMetricValue } from '@features/results/components/ResultMetricValue';
 import { ItemSlot, ItemSpec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { TopGearResult } from '@sim/bulk/types';
@@ -10,10 +12,11 @@ import { type DeltaText, formatDeltaText, formatSignificance, formatToNumber } f
 import { stDevToConf95, zTest } from '@sim/utils/math';
 import { Button } from '@ui-kit/Button';
 import { toastManager } from '@ui-kit/Toast';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
-import { toneTextClass } from '@ui-kit/utils/css';
+import { Tooltip } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
 import { type ReactNode, useId } from 'react';
+
+import { formatBulkDps } from '../../model/format';
 
 export interface BulkResultRowViewProps {
 	showDamage: boolean;
@@ -37,34 +40,19 @@ export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, s
 			data-testid="bulk-sim-result-root">
 			<div className="flex-3 text-center" data-testid="results-sim">
 				{showDamage && (
-					<div className="grid grid-cols-wide-narrow gap-2 text-left leading-none font-bold" data-testid="results-sim-dps">
-						<span className="mr-1 text-2xl" data-testid="topline-result-avg">
-							{formatToNumber(avg)}
-						</span>
-						{plusMinus > 0 && (
-							<>
-								<span className="text-sm text-muted" {...tooltipAnchorProps(marginTooltipId)}>
-									{' ±' + formatToNumber(plusMinus, { maximumFractionDigits: 0 })}
-								</span>
-								<Tooltip id={marginTooltipId} content={i18n.t('bulk_tab.results.margin_of_error')} />
-							</>
-						)}
-						<div className="mb-0 flex items-end font-normal" data-testid="results-reference">
-							{isBase ? (
-								<span className="font-bold">{i18n.t('bulk_tab.results.current_gear')}</span>
-							) : (
-								<>
-									<span
-										className={clsx('font-bold', toneTextClass(delta.tone))}
-										data-testid="results-reference-diff"
-										data-tone={delta.tone}
-										{...tooltipAnchorProps(deltaTooltipId)}>
-										{delta.text}
-									</span>
-									<Tooltip id={deltaTooltipId} content={significance} />
-								</>
-							)}
+					<div className="flex flex-col items-start gap-2 text-left font-bold" data-testid="results-sim-dps">
+						{isBase && <span className="text-sm font-normal">{i18n.t('bulk_tab.results.current_gear')}</span>}
+						<div>
+							<ResultMetricValue
+								average={formatBulkDps(avg)}
+								unit={i18n.t('sidebar.results.metrics.dps.label')}
+								margin={plusMinus > 0 ? formatToNumber(plusMinus, { maximumFractionDigits: 0 }) : undefined}
+								marginTooltipId={marginTooltipId}
+							/>
 						</div>
+						{!isBase && <ResultReferenceDiff diff={{ ...delta, significance }} tooltipId={deltaTooltipId} label={null} />}
+						<Tooltip id={marginTooltipId} content={i18n.t('bulk_tab.results.margin_of_error')} />
+						<Tooltip id={deltaTooltipId} />
 					</div>
 				)}
 			</div>
