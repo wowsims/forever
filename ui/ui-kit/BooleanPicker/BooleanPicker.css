@@ -39,10 +39,10 @@
 		/* The compact context matches Field.css's compact box rule, so a small picker stays small inside a compact field. */
 		&[data-size='sm'],
 		.ui-field-compact &[data-size='sm'] {
-			@apply size-4;
+			@apply size-6;
 
 			> .ui-boolean-picker-indicator {
-				@apply text-xs;
+				@apply text-sm;
 			}
 		}
 	}

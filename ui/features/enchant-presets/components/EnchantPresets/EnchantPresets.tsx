@@ -30,10 +30,10 @@ export const EnchantPresetsView = ({ presets, onCheckedChange, onNew, onEdit, on
 	const [confirming, setConfirming] = useState<string | null>(null);
 
 	return (
-		<div className="grid gap-4" data-testid="bulk-enchant-presets">
-			<p className="mb-0 text-sm">{i18n.t('bulk_tab.settings.enchant_presets.description')}</p>
+		<div className="grid gap-2" data-testid="bulk-enchant-presets">
+			<p className="mb-0 text-xs">{i18n.t('bulk_tab.settings.enchant_presets.description')}</p>
 			{presets.length ? (
-				<div className="grid gap-2">
+				<div className="grid gap-1">
 					{presets.map((preset, index) => (
 						<div key={preset.name} className="flex items-center gap-2" data-testid="bulk-enchant-preset">
 							<BooleanPicker
@@ -41,6 +41,7 @@ export const EnchantPresetsView = ({ presets, onCheckedChange, onNew, onEdit, on
 								className="min-w-0 flex-1"
 								label={preset.name}
 								layout="inline"
+								size="sm"
 								value={preset.checked}
 								onChange={checked => onCheckedChange(preset.name, checked)}
 							/>
