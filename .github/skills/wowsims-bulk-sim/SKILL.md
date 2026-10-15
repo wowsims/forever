@@ -139,6 +139,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   per checked one, skipping any equal to the current encounter or to an earlier pick. Each run replaces the whole
   encounter on the request copy only (the encounter override of `Sim.runBulkSim`). Every encounter shares the one
   content seed, and `results` holds one entry per finished encounter.
+- With two or more finished encounters, the encounter list offers Compare encounters: one bar chart per encounter
+  holding only that encounter's own ranking, each on its own DPS scale, and a table of the same values. A set keeps
+  one "Set N" number across all encounters, by gear identity (`ui/features/bulk/model/compare.ts`).
 - The Setup/Results tab strip spans the batch tab, and each pane has its own columns. Setup holds the settings
   sidebar. Results holds the ranking and, for a run with more than one finished encounter, an encounter list
   (`BulkEncounterResults`); picking a row shows that encounter's ranking. With one result there is no list and the

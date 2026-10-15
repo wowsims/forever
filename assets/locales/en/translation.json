@@ -1232,6 +1232,19 @@
 			"current": "Current",
 			"export_csv": "Export CSV"
 		},
+		"compare": {
+			"button": "Compare encounters",
+			"title": "Compare encounters",
+			"caption": "Each encounter's own ranking, on a DPS scale of its own given under its name. A set keeps its number in every encounter; point at one to pick it out everywhere.",
+			"set": "Set {{number}}",
+			"scale": "Scale {{min}} – {{max}} DPS",
+			"key_ranked": "Ranked set",
+			"details": "{{set}}: {{dps}} ±{{margin}} DPS",
+			"details_gain": "{{set}}: {{dps}} ±{{margin}} DPS, {{gain}} over current gear",
+			"chart_label": "{{encounter}}: the DPS of each set it ranked. The table below lists the same values.",
+			"table_caption": "Each set's DPS and gain over your current gear in the encounters that ranked it.",
+			"table_set": "Set"
+		},
 		"import_modal": {
 			"title": "Bag Item Import",
 			"description_line1": "Import bag items from a JSON file, which can be created by the WowSimsExporter in-game AddOn.",

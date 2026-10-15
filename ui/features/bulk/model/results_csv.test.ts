@@ -39,6 +39,7 @@ const entry = (name: string, isCurrent: boolean, best: number, timed = true, upg
 		name,
 		isCurrent,
 		durationLabel: timed ? '3:00 ±5s' : 'Health',
+		summaryLabel: timed ? '3:00 ±5s · 1 target' : 'Health · 1 target',
 		duration: timed ? 180 : null,
 		durationVariation: timed ? 5 : null,
 		results: { chains: [[result(upgrade, best, 10)], [base]], originalGearResults: base, iterations: 100 },

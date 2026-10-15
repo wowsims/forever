@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
+import { BulkCompareButtonView } from '../BulkCompareButton';
 import { BulkResultsCsvButtonView } from '../BulkResultsCsvButton';
 import { BulkEncounterResultsView, type BulkEncounterResultsViewProps } from './BulkEncounterResults';
 
@@ -32,7 +33,12 @@ const meta = {
 		],
 		selected: 0,
 		onSelect: fn(),
-		footer: <BulkResultsCsvButtonView onExport={fn()} />,
+		footer: (
+			<div className="flex flex-wrap gap-2">
+				<BulkResultsCsvButtonView onExport={fn()} />
+				<BulkCompareButtonView onOpen={fn()} />
+			</div>
+		),
 	},
 	argTypes: { footer: { control: false } },
 	decorators: [

@@ -8,6 +8,7 @@ import type { ReactNode } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
 import { formatBulkDps } from '../../model/format';
+import { BulkCompareButton } from '../BulkCompareButton';
 import { BulkResultsCsvButton } from '../BulkResultsCsvButton';
 
 export interface BulkEncounterResultRow {
@@ -87,5 +88,17 @@ export interface BulkEncounterResultsProps {
 export const BulkEncounterResults = ({ selected, onSelect }: BulkEncounterResultsProps) => {
 	const results = useBulkState(slice => slice.results);
 	if (!results || results.entries.length < 2) return null;
-	return <BulkEncounterResultsView rows={results.entries.map(resultRow)} selected={selected} onSelect={onSelect} footer={<BulkResultsCsvButton />} />;
+	return (
+		<BulkEncounterResultsView
+			rows={results.entries.map(resultRow)}
+			selected={selected}
+			onSelect={onSelect}
+			footer={
+				<div className="flex flex-wrap gap-2">
+					<BulkResultsCsvButton />
+					<BulkCompareButton />
+				</div>
+			}
+		/>
+	);
 };
