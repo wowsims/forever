@@ -139,7 +139,6 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 				onRangeChange={range => settings.set({ range })}
 				step={step}
 				onStepChange={step => settings.set({ step })}
-				fractional={selectedStats.some(stat => stat.isPseudoStat())}
 				precision={
 					<PrecisionOptions
 						value={precision}

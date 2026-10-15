@@ -1,4 +1,7 @@
+import { EP_UNIT_STATS } from '@features/stat-weights/model/ep_unit_stats';
+import { PseudoStat, Stat } from '@generated/proto/common';
 import type { StatSweepRecord } from '@sim/cache/stat_sweep_history';
+import { UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import type { StatSweepMetric } from '@sim/state/sim_store';
 import { Z_90 } from '@sim/utils/math';
@@ -21,6 +24,7 @@ import {
 	type StatSweepSample,
 	type StatSweepStepSample,
 	sweepBatches,
+	sweepBonus,
 	type SweepPassRunner,
 	sweepStepPosition,
 	sweepSteps,
@@ -94,18 +98,24 @@ describe('buildSweepOffsets', () => {
 	});
 });
 
+const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
+
 describe('sweepSteps', () => {
 	it('places each offset at its total and drops those whose total falls below 0, keeping one that lands on 0', () => {
-		expect(sweepSteps([-30, -20, -10, 0, 10], [-13, 0, 11, 22, 33])).toEqual([
-			{ offset: -20, statValue: 0 },
-			{ offset: -10, statValue: 11 },
-			{ offset: 0, statValue: 22 },
-			{ offset: 10, statValue: 33 },
+		expect(sweepSteps(STRENGTH, [-30, -20, -10, 0, 10], [-13, 0, 11, 22, 33])).toEqual([
+			{ offset: -20, bonus: -20, statValue: 0 },
+			{ offset: -10, bonus: -10, statValue: 11 },
+			{ offset: 0, bonus: 0, statValue: 22 },
+			{ offset: 10, bonus: 10, statValue: 33 },
 		]);
 	});
 
 	it('rounds float noise out of the totals', () => {
-		expect(sweepSteps([10], [0.1 + 0.2])).toEqual([{ offset: 10, statValue: 0.3 }]);
+		expect(sweepSteps(STRENGTH, [10], [0.1 + 0.2])).toEqual([{ offset: 10, bonus: 10, statValue: 0.3 }]);
+	});
+
+	it('stores the % a rating gives as the bonus of a % stat', () => {
+		expect(sweepSteps(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), [10], [5])).toEqual([{ offset: 10, bonus: 10 / 14, statValue: 5 }]);
 	});
 });
 
@@ -265,7 +275,7 @@ describe('measureSweepStep', () => {
 });
 
 describe('runSweepStat', () => {
-	const stepsOf = (...offsets: number[]) => offsets.map(offset => ({ offset, statValue: 100 + offset }));
+	const stepsOf = (...offsets: number[]) => offsets.map(offset => ({ offset, bonus: offset, statValue: 100 + offset }));
 	// DPS moves TPS with it; TMI is set on its own.
 	const metricsAt = (dps: number, tmi: number): StatSweepSample => ({ ...sweepSample(1000, {}, dps), tmi: flat(tmi, 3, 1000) });
 	const stepSample = (avg: number, firstPassDps = avg, tmi = 12): StatSweepStepSample => {
@@ -296,7 +306,7 @@ describe('runSweepStat', () => {
 			[-20, 6],
 		]);
 		expect(onSkip).toHaveBeenCalledExactlyOnceWith(2);
-		expect(run.cappedStep).toEqual({ offset: 20, statValue: 120 });
+		expect(run.cappedStep).toEqual({ offset: 20, bonus: 20, statValue: 120 });
 		expect(run.points.map(point => point.offset)).toEqual([-20, -10, 0, 10, 20, 30, 40]);
 		expect(run.stopped).toBe(false);
 	});
@@ -516,25 +526,45 @@ describe('statSweepCsv', () => {
 				statLabel: 'Hit Rating',
 				baseStatValue: 120,
 				points: [
-					{ offset: -20, statValue: 100, metrics: metrics(1500.5, 100, 10000) },
-					{ offset: 0, statValue: 120, metrics: metrics(1520, 0, 10000) },
+					{ offset: -20, bonus: -20, statValue: 100, metrics: metrics(1500.5, 100, 10000) },
+					{ offset: 0, bonus: 0, statValue: 120, metrics: metrics(1520, 0, 10000) },
 				],
 			},
 			{
 				label: 'Crit',
 				batchLabel: '',
-				statLabel: 'Crit "Rating"',
-				baseStatValue: 50,
-				points: [{ offset: 10, statValue: 61, metrics: metrics(1600, 200, 400) }],
+				statLabel: 'Spell "Crit"',
+				baseStatValue: 5,
+				points: [{ offset: 14, bonus: 1, statValue: 6, metrics: metrics(1600, 200, 400) }],
 			},
 		]);
 
 		expect(csv.split('\n')).toEqual([
-			'run,batch,stat,base_total,added,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples',
-			'"Hit, ±100","Hit Rating, Crit Rating ±100",Hit Rating,120,-20,100,1500.5,100,5,1,3001,200,300,30,9.5,0.25,10000',
-			'"Hit, ±100","Hit Rating, Crit Rating ±100",Hit Rating,120,0,120,1520,0,5,1,3040,0,300,30,9.5,0.25,10000',
-			'Crit,,"Crit ""Rating""",50,10,61,1600,200,5,1,3200,400,300,30,9.5,0.25,400',
+			'run,batch,stat,base_total,added,bonus,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples',
+			'"Hit, ±100","Hit Rating, Crit Rating ±100",Hit Rating,120,-20,-20,100,1500.5,100,5,1,3001,200,300,30,9.5,0.25,10000',
+			'"Hit, ±100","Hit Rating, Crit Rating ±100",Hit Rating,120,0,0,120,1520,0,5,1,3040,0,300,30,9.5,0.25,10000',
+			'Crit,,"Spell ""Crit""",5,14,1,6,1600,200,5,1,3200,400,300,30,9.5,0.25,400',
 			'',
 		]);
+	});
+});
+
+describe('sweepBonus', () => {
+	it('turns the rating of a % stat into its %', () => {
+		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow), 10)).toBe(1);
+		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), 14)).toBe(1);
+		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatExpertisePercent), 10)).toBe(1);
+	});
+
+	it('keeps the offset of a rating and of a stat with no % form', () => {
+		expect(sweepBonus(UnitStat.fromStat(Stat.StatHitRating), 10)).toBe(10);
+		expect(sweepBonus(UnitStat.fromStat(Stat.StatStrength), 10)).toBe(10);
+		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), 10)).toBe(10);
+	});
+
+	it('scales every % stat the sweep offers', () => {
+		const percentStats = EP_UNIT_STATS.filter(stat => stat.isPseudoStat() && PseudoStat[stat.getPseudoStat()].includes('Percent'));
+		expect(percentStats.length).toBeGreaterThan(0);
+		for (const stat of percentStats) expect(sweepBonus(stat, 140), stat.getKey()).not.toBe(140);
 	});
 });

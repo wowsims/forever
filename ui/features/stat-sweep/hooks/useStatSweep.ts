@@ -135,7 +135,7 @@ export const useStatSweep = () => {
 				statLabel: statLabel(run),
 				baseStatValue: run.baseStatValue,
 				points: run.points,
-				cappedAt: run.cappedAt,
+				capped: run.capped,
 			})),
 		[view, colorSlots, statLabel],
 	);

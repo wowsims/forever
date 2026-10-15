@@ -2888,7 +2888,7 @@
 				"show_spread": "Show spread",
 				"show_spread_tooltip": "Shades ± 1 standard deviation of a fight's value around each line.",
 				"current_value": "Current value",
-				"added_axis": "Stat added",
+				"added_axis": "Stat added (% stats as rating)",
 				"tooltip_total": "{{stat}} {{total}} ({{added}})",
 				"tooltip_value": "{{value}} ± {{stdev}}",
 				"tooltip_value_capped": "{{value}} ± {{stdev}} (capped)",

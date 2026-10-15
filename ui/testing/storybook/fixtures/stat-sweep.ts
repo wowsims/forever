@@ -10,7 +10,7 @@ import {
 } from '@generated/proto/api';
 import { Class, Spec, Stat } from '@generated/proto/common';
 import type { MetricSummary, StatSweepPoint } from '@sim/cache/stat_sweep_history';
-import { Stats } from '@sim/proto/stats';
+import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatSweepSettings } from '@sim/settings/stat_sweep_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { SimRuns } from '@sim/sim_runs';
@@ -31,9 +31,10 @@ type MetricsAt = (value: number, samples: number) => Record<StatSweepMetric, Met
 const pointsFrom = (base: number, samples: number, metricsAt: MetricsAt): StatSweepPoint[] => {
 	const offsets = buildSweepOffsets(100, 10);
 	return sweepSteps(
+		UnitStat.fromStat(Stat.StatHitRating),
 		offsets,
 		offsets.map(offset => base + offset),
-	).map(({ offset, statValue }) => ({ offset, statValue, metrics: metricsAt(statValue, samples) }));
+	).map(step => ({ ...step, metrics: metricsAt(step.statValue, samples) }));
 };
 
 // A damage dealer: threat follows damage, and nothing is healed or taken.
