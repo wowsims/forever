@@ -607,6 +607,53 @@ func TestWandShootScheduler(t *testing.T) {
 		}
 	})
 
+	t.Run("a strict sequence waits for a spell queued on its own cooldown", func(t *testing.T) {
+		for _, gcd := range []time.Duration{0, GCDDefault} {
+			t.Run(gcd.String(), func(t *testing.T) {
+				var casts []int32
+				var first, second, fallback *Spell
+				ct := newChannelTest(func(ct *channelTest, char *Character) *Spell {
+					register := func(id int32, gcd time.Duration) *Spell {
+						return char.RegisterSpell(SpellConfig{
+							ActionID: ActionID{SpellID: id},
+							Flags:    SpellFlagAPL,
+							Cast: CastConfig{
+								DefaultCast: Cast{GCD: gcd},
+								CD:          Cooldown{Timer: char.NewTimer(), Duration: time.Minute},
+							},
+							ApplyEffects: func(_ *Simulation, _ *Unit, _ *Spell) { casts = append(casts, id) },
+						})
+					}
+					first = register(910124, gcd)
+					second = register(910125, GCDDefault)
+					fallback = register(910126, GCDDefault)
+					return fakeShoot(char, &ct.shots)
+				})
+				for _, spell := range []*Spell{first, second, fallback} {
+					spell.finalize()
+				}
+				ct.start(&timedStubAction{readyAt: time.Minute})
+				ct.runUntil(750 * time.Millisecond)
+				first.CD.Set(time.Second)
+				sequence := &APLAction{impl: &APLActionStrictSequence{unit: &ct.fw.Unit, subactions: []*APLAction{
+					{impl: ct.castOf(first)},
+					{impl: ct.castOf(second)},
+				}}}
+				sequence.Finalize(ct.rot)
+				ct.rot.priorityList = []*APLAction{sequence, {impl: ct.castOf(fallback)}}
+				ct.fw.RotationTimer.Set(ct.sim.CurrentTime)
+				ct.rot.DoNextAction(ct.sim)
+				if len(casts) != 0 {
+					t.Fatalf("a queued sequence cast before its cooldown ended: %v", casts)
+				}
+				ct.runUntil(time.Second + gcd + time.Millisecond)
+				if len(casts) < 2 || !slices.Equal(casts[:2], []int32{first.SpellID, second.SpellID}) {
+					t.Fatalf("the queued spell must be followed by the next sequence step, casts %v", casts)
+				}
+			})
+		}
+	})
+
 	t.Run("a spell queueable at the slot takes it", func(t *testing.T) {
 		var nukeAt []time.Duration
 		ct, nuke := newSpellShootTest(nukeConfig(&nukeAt))

@@ -1,76 +1,42 @@
 package druid
 
-var lacerateRank = spellData.Lacerate.Highest()
-var lacerateTick = lacerateRank.PeriodicEffect()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented.
 func (druid *Druid) registerLacerateSpell() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// tickDamageBase := lacerateTick.Average(core.CharacterLevel)
-	//
-	// druid.Lacerate = druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: lacerateRank.ID},
-	// 	CastRequirement: lacerateRank.CastRequirement(),
-	// 	SpellSchool:     lacerateRank.SpellSchool(),
-	// 	DefenseType:     lacerateRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskMeleeMHSpecial,
-	// 	ClassSpellMask:  DruidSpellLacerate,
-	// 	Flags:           core.SpellFlagMeleeMetrics | core.SpellFlagAPL,
-	//
-	// 	RageCost: core.RageCostOptions{
-	// 		Cost:   int32(lacerateRank.Cost()),
-	// 		Refund: 0.8,
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: lacerateRank.GCD(),
-	// 		},
-	// 		IgnoreHaste: true,
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 0.5,
-	// 	FlatThreatBonus:  267,
-	// 	MaxRange:         core.MaxMeleeRange,
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label:     "Lacerate",
-	// 			MaxStacks: 5,
-	// 			Duration:  time.Second * 15,
-	// 		},
-	// 		NumberOfTicks: int32(lacerateRank.Duration() / lacerateTick.Period()),
-	// 		TickLength:    lacerateTick.Period(),
-	//
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			perStack := tickDamageBase + 0.01*dot.Spell.MeleeAttackPower(target)
-	// 			dot.Spell.CalcAndDealPeriodicDamage(sim, target, perStack*float64(dot.Aura.GetStacks()), dot.OutcomeTick)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := tickDamageBase + 0.01*spell.MeleeAttackPower(target)
-	// 		if druid.MangleAuras != nil && druid.MangleAuras.Get(target).IsActive() {
-	// 			baseDamage *= 1.3
-	// 		}
-	// 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-	//
-	// 		if result.Landed() {
-	// 			dot := spell.Dot(target)
-	// 			if dot.IsActive() {
-	// 				dot.Refresh(sim)
-	// 				dot.AddStack(sim)
-	// 			} else {
-	// 				dot.Apply(sim)
-	// 				dot.SetStacks(sim, 1)
-	// 			}
-	// 		} else {
-	// 			spell.IssueRefund(sim)
-	// 		}
-	// 	},
-	// })
-	//
-	// druid.Lacerate.ShortName = "Lacerate"
+	rank := spellData.Lacerate.Highest()
+	tick := rank.PeriodicDamageEffect()
+	perStack := rank.EffectN(2).Percent()
+	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.Dot = spelldata.DotConfig(rank, tick)
+	// TODO: Ingame research needed -- the tooltip's "Causes a high amount of threat"; the row states no
+	// threat effect, so the cast threatens only for its damage.
+	// Each application stacks the bleed, so a tick is the row's amount per stack.
+	// TODO: Ingame research needed -- whether the hit or the bleed gains attack power; the row states none.
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.AverageAt(druid.level())*float64(dot.GetStacks())*druid.rendAndTearMultiplier(target), rank.TickOutcome(dot))
+	}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		dot := spell.Dot(target)
+		existing := int32(0)
+		if dot.IsActive() {
+			existing = dot.GetStacks()
+		}
+		stacks := existing
+		if maxStacks := dot.MaxStacks; maxStacks == 0 || stacks < maxStacks {
+			stacks++
+		}
+		// The tooltip's "$s2% weapon damage per existing application": a first Lacerate hits for nothing.
+		weapon := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
+		damage := weapon * perStack * float64(existing) * druid.rendAndTearMultiplier(target)
+		result := spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		if result.Landed() {
+			dot.Apply(sim)
+			dot.SetStacks(sim, stacks)
+		}
+		druid.refundOnMiss(sim, spell, result)
+	}
+	druid.Lacerate = druid.RegisterSpell(config)
 }

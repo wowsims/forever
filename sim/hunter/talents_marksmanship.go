@@ -23,7 +23,7 @@ func (hunter *Hunter) registerMarksmanshipTalents() {
 	hunter.registerLoneWolf()
 
 	// Tier 4
-	// Trueshot Aura: a party buff, hunter.go
+	// Trueshot Aura: a raid buff, hunter.go
 	hunter.registerMortalShots()
 
 	// Tier 5
@@ -168,14 +168,13 @@ func (hunter *Hunter) registerRapidRecuperation() {
 	hunter.rapidRecuperationAura = buff
 
 	// The proc shape with no roll: 1223987 fires on a ranged ability and names Serpent Sting only
-	// in its tooltip, so the listener is narrowed to it by hand. The sting's application carries no
-	// proc mask and deals no damage of its own, which the listener has to accept.
+	// in its tooltip, so the listener is narrowed to it by hand. The sting's application deals no
+	// damage of its own, which the listener has to accept.
 	trigger := spelldata.ProcTrigger(&hunter.Character, rank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			hunter.gainRapidRecuperation(sim, hit)
 		})
 	trigger.Name = "Rapid Recuperation - Trigger"
-	trigger.ProcMask = core.ProcMaskEmpty
 	trigger.ClassFlags = serpentStingRank.ClassFlags
 	trigger.RequireDamageDealt = false
 

@@ -10,6 +10,7 @@ import {
 	makeMultistateIndividualBuffInput,
 	makeMultistatePartyBuffInput,
 	makeTristatePartyBuffInput,
+	makeTristateRaidBuffInput,
 } from '@features/inputs/icon_inputs';
 
 import type { RenderableStatOptions } from './stat_options';
@@ -20,23 +21,10 @@ export const BloodPact = makeBooleanPartyBuffInput({
 	label: 'Blood Pact',
 });
 
-export const BattleShout = makeTristatePartyBuffInput({
-	actionId: ActionId.fromSpellId(25289),
-	impId: ActionId.fromSpellId(23563),
-	fieldName: 'battleShout',
-	label: 'Battle Shout',
-});
-
 export const DevotionAura = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(10293),
 	fieldName: 'devotionAura',
 	label: 'Devotion Aura',
-});
-
-export const LeaderOfThePack = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(17007),
-	fieldName: 'leaderOfThePack',
-	label: 'Leader of the Pack',
 });
 
 export const ManaSpringTotem = makeTristatePartyBuffInput({
@@ -47,16 +35,10 @@ export const ManaSpringTotem = makeTristatePartyBuffInput({
 });
 
 export const ManaTideTotems = makeMultistatePartyBuffInput({
-	actionId: ActionId.fromSpellId(17359),
+	actionId: ActionId.fromSpellId(1325256),
 	numStates: 5,
 	fieldName: 'manaTideTotems',
 	label: 'Mana Tide Totem',
-});
-
-export const MoonkinAura = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(24858),
-	fieldName: 'moonkinAura',
-	label: 'Moonkin Aura',
 });
 
 // retribution_aura: the hand-written input shows itself for tank specs only, since a damage shield only matters on the unit being hit; a role gate no manifest
@@ -71,12 +53,6 @@ export const ConcentrationAura = makeBooleanPartyBuffInput({
 	label: 'Concentration Aura',
 });
 
-export const TrueshotAura = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(20906),
-	fieldName: 'trueshotAura',
-	label: 'Trueshot Aura',
-});
-
 export const AtieshMage = makeMultistatePartyBuffInput({
 	actionId: ActionId.fromSpellId(28142),
 	numStates: 5,
@@ -89,24 +65,6 @@ export const AtieshWarlock = makeMultistatePartyBuffInput({
 	numStates: 5,
 	fieldName: 'atieshWarlock',
 	label: 'Atiesh - Warlock',
-});
-
-export const StrengthOfEarthTotem = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(25361),
-	fieldName: 'strengthOfEarthTotem',
-	label: 'Strength of Earth Totem',
-});
-
-export const GraceOfAirTotem = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(25359),
-	fieldName: 'graceOfAirTotem',
-	label: 'Grace of Air Totem',
-});
-
-export const WindfuryTotem = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(10614),
-	fieldName: 'windfuryTotem',
-	label: 'Windfury Totem',
 });
 
 export const AtieshDruid = makeMultistatePartyBuffInput({
@@ -128,18 +86,6 @@ export const StoneskinTotem = makeTristatePartyBuffInput({
 	impId: ActionId.fromSpellId(16258),
 	fieldName: 'stoneskinTotem',
 	label: 'Stoneskin Totem',
-});
-
-export const FuriousHowl = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(24597),
-	fieldName: 'furiousHowl',
-	label: 'Furious Howl',
-});
-
-export const FlametongueTotem = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(16387),
-	fieldName: 'flametongueTotem',
-	label: 'Flametongue Totem',
 });
 
 export const Darkspear = makeBooleanPartyBuffInput({
@@ -220,10 +166,65 @@ export const NatureResistanceTotem = makeBooleanRaidBuffInput({
 	label: 'Nature Resistance Totem',
 });
 
+export const StrengthOfEarthTotem = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(25361),
+	fieldName: 'strengthOfEarthTotem',
+	label: 'Strength of Earth Totem',
+});
+
+export const GraceOfAirTotem = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(25359),
+	fieldName: 'graceOfAirTotem',
+	label: 'Grace of Air Totem',
+});
+
+export const WindfuryTotem = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(10614),
+	fieldName: 'windfuryTotem',
+	label: 'Windfury Totem',
+});
+
+export const FlametongueTotem = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(16387),
+	fieldName: 'flametongueTotem',
+	label: 'Flametongue Totem',
+});
+
+export const BattleShout = makeTristateRaidBuffInput({
+	actionId: ActionId.fromSpellId(25289),
+	impId: ActionId.fromSpellId(23563),
+	fieldName: 'battleShout',
+	label: 'Battle Shout',
+});
+
+export const TrueshotAura = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(20906),
+	fieldName: 'trueshotAura',
+	label: 'Trueshot Aura',
+});
+
+export const FuriousHowl = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(24597),
+	fieldName: 'furiousHowl',
+	label: 'Furious Howl',
+});
+
 export const AspectOfTheWild = makeBooleanRaidBuffInput({
 	actionId: ActionId.fromSpellId(20190),
 	fieldName: 'aspectOfTheWild',
 	label: 'Aspect of the Wild',
+});
+
+export const LeaderOfThePack = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(17007),
+	fieldName: 'leaderOfThePack',
+	label: 'Leader of the Pack',
+});
+
+export const MoonkinAura = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(24858),
+	fieldName: 'moonkinAura',
+	label: 'Moonkin Aura',
 });
 
 export const GreaterBlessingOfKings = makeBooleanIndividualBuffInput({
@@ -457,69 +458,6 @@ export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 		ownerClass: Class.ClassShaman,
 	},
 	{
-		config: AspectOfTheWild,
-		stats: [Stat.StatNatureResistance],
-		ownerClass: Class.ClassHunter,
-	},
-];
-
-export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
-	{
-		config: BloodPact,
-		stats: [Stat.StatStamina],
-		ownerClass: Class.ClassWarlock,
-	},
-	{
-		config: BattleShout,
-		stats: [Stat.StatAttackPower],
-		ownerClass: Class.ClassWarrior,
-	},
-	{
-		config: DevotionAura,
-		stats: [Stat.StatArmor],
-		ownerClass: Class.ClassPaladin,
-	},
-	{
-		config: LeaderOfThePack,
-		stats: [Stat.StatCritRating],
-		ownerClass: Class.ClassDruid,
-	},
-	{
-		config: ManaSpringTotem,
-		stats: [Stat.StatMP5],
-		ownerClass: Class.ClassShaman,
-	},
-	{
-		config: ManaTideTotems,
-		stats: [Stat.StatMP5],
-		ownerClass: Class.ClassShaman,
-	},
-	{
-		config: MoonkinAura,
-		stats: [Stat.StatCritRating],
-		ownerClass: Class.ClassDruid,
-	},
-	{
-		config: ConcentrationAura,
-		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
-		ownerClass: Class.ClassPaladin,
-	},
-	{
-		config: TrueshotAura,
-		stats: [Stat.StatRangedAttackPower],
-		ownerClass: Class.ClassHunter,
-	},
-	{
-		config: AtieshMage,
-		stats: [Stat.StatCritRating],
-		ownerClass: Class.ClassMage,
-	},
-	{
-		config: AtieshWarlock,
-		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
-		ownerClass: Class.ClassWarlock,
-	},
-	{
 		config: StrengthOfEarthTotem,
 		stats: [Stat.StatStrength],
 		ownerClass: Class.ClassShaman,
@@ -535,6 +473,79 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		ownerClass: Class.ClassShaman,
 	},
 	{
+		config: FlametongueTotem,
+		stats: [Stat.StatAttackPower],
+		ownerClass: Class.ClassShaman,
+	},
+	{
+		config: BattleShout,
+		stats: [Stat.StatAttackPower],
+		ownerClass: Class.ClassWarrior,
+	},
+	{
+		config: TrueshotAura,
+		stats: [Stat.StatRangedAttackPower],
+		ownerClass: Class.ClassHunter,
+	},
+	{
+		config: FuriousHowl,
+		stats: [Stat.StatAttackPower],
+		ownerClass: Class.ClassHunter,
+	},
+	{
+		config: AspectOfTheWild,
+		stats: [Stat.StatNatureResistance],
+		ownerClass: Class.ClassHunter,
+	},
+	{
+		config: LeaderOfThePack,
+		stats: [Stat.StatAttackPower],
+		ownerClass: Class.ClassDruid,
+	},
+	{
+		config: MoonkinAura,
+		stats: [Stat.StatSpellDamage],
+		ownerClass: Class.ClassDruid,
+	},
+];
+
+export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
+	{
+		config: BloodPact,
+		stats: [Stat.StatStamina],
+		ownerClass: Class.ClassWarlock,
+	},
+	{
+		config: DevotionAura,
+		stats: [Stat.StatArmor],
+		ownerClass: Class.ClassPaladin,
+	},
+	{
+		config: ManaSpringTotem,
+		stats: [Stat.StatMP5],
+		ownerClass: Class.ClassShaman,
+	},
+	{
+		config: ManaTideTotems,
+		stats: [Stat.StatMP5],
+		ownerClass: Class.ClassShaman,
+	},
+	{
+		config: ConcentrationAura,
+		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
+		ownerClass: Class.ClassPaladin,
+	},
+	{
+		config: AtieshMage,
+		stats: [Stat.StatCritRating],
+		ownerClass: Class.ClassMage,
+	},
+	{
+		config: AtieshWarlock,
+		stats: [Stat.StatSpellDamage, Stat.StatHealingPower],
+		ownerClass: Class.ClassWarlock,
+	},
+	{
 		config: AtieshDruid,
 		stats: [Stat.StatMP5],
 		ownerClass: Class.ClassDruid,
@@ -547,16 +558,6 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: StoneskinTotem,
 		stats: [Stat.StatDefenseRating],
-		ownerClass: Class.ClassShaman,
-	},
-	{
-		config: FuriousHowl,
-		stats: [Stat.StatAttackPower],
-		ownerClass: Class.ClassHunter,
-	},
-	{
-		config: FlametongueTotem,
-		stats: [Stat.StatAttackPower],
 		ownerClass: Class.ClassShaman,
 	},
 	{

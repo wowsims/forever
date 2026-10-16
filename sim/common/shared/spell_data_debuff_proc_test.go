@@ -190,7 +190,7 @@ func TestLobotomizersSlowSharesSlowsSlot(t *testing.T) {
 	expectSpeeds(t, "after the proc", target, 1, min(1/1.5, brainDamage))
 }
 
-// Annihilator 12798's Armor Shatter 16928 states A_MOD_RESISTANCE on armor, on the enemy, stacking.
+// Annihilator 12798's Armor Shatter 16928 states A_MOD_ARMOR_NO_MODS on armor, on the enemy, stacking.
 // Each proc takes the row's armor off the target up to its stack count and leaves the wearer's armor
 // untouched; a further proc keeps the full stacks and runs the row's duration from itself; the armor
 // comes back when that runs out. The row's PPM is set aside for a chance of 100%, and a copy stacks to
@@ -205,7 +205,7 @@ func TestAnnihilatorShattersTheTargetsArmor(t *testing.T) {
 	row := spelldata.MustFind(armorShatter)
 	stacks, duration := int(row.MaxStack), row.Duration()
 	sim, caster, target := newSlowProcSim(t, 991406, registerSpellDataDebuffProc, armorShatter, nil)
-	perStack := -row.FirstAura(dbcenums.A_MOD_RESISTANCE).MeanAt(target.Level)
+	perStack := -row.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
 	needAmount(t, "16928's armor", perStack)
 	wearerArmor, targetArmor := caster.GetStat(stats.Armor), target.GetStat(stats.Armor)
 	expectArmor := func(when string, want float64) {
@@ -277,7 +277,7 @@ func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
 
 	row := spelldata.MustFind(armorShatter)
 	stacks := int32(row.MaxStack)
-	perStack := -row.FirstAura(dbcenums.A_MOD_RESISTANCE).MeanAt(target.Level)
+	perStack := -row.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
 	needAmount(t, "16928's armor", perStack)
 	if stacks < 2 {
 		t.Fatalf("16928 stacks to %d, nothing to bid at full stacks", stacks)

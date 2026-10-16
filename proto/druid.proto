@@ -42,7 +42,7 @@ message DruidTalents {
     int32 blood_frenzy = 30;
     int32 improved_shifting_power = 31;
     bool leader_of_the_pack = 32;
-    int32 predatory_instincts = 33;
+    int32 natural_instinct = 33;
     int32 natural_reaction = 34;
     int32 rend_and_tear = 35;
     bool berserk = 36;
@@ -76,55 +76,34 @@ message BalanceDruid {
 
   message Options {
     DruidOptions class_options = 1;
-	float okf_uptime = 2;
   }
   Options options = 3;
 }
 
 message FeralCatDruid {
-  message Rotation {
-    enum FinishingMove {
-      Rip = 0;
-      Bite = 1;
-      None = 2;
-    }
-
-    FinishingMove finishing_move = 2;
-    bool biteweave = 3;
-    bool ripweave = 4;
-    int32 rip_min_combo_points = 5;
-    int32 bite_min_combo_points = 6;
-    bool mangle_trick = 7;
-    bool rake_trick = 8;
-    bool maintain_faerie_fire = 9;
-  }
-  Rotation rotation = 1;
+  // The cat plays APL rotations only.
+  message Rotation {}
 
   message Options {
     DruidOptions class_options = 1;
     bool cannot_shred_target = 2;
+    // Rend and Tear and the Bleed Is Active APL value treat the target as bleeding whatever bleeds it has.
+    bool assume_bleed_active = 3;
+    // Clearcasting is up at the pull, fished for out of combat with spells before it.
+    bool prepull_clearcasting = 4;
   }
   Options options = 3;
 }
 
 message FeralBearDruid {
-  message Rotation {
-    bool maintain_faerie_fire = 1;
-    bool maintain_demoralizing_roar = 2;
-    int32 maul_rage_threshold = 3;
-
-    enum SwipeUsage {
-      SwipeUsage_Never = 0;
-      SwipeUsage_WithEnoughAP = 1;
-      SwipeUsage_Spam = 2;
-    }
-    SwipeUsage swipe_usage = 4;
-    int32 swipe_ap_threshold = 5;
-  }
+  // The bear plays APL rotations only.
+  message Rotation {}
 
   message Options {
     DruidOptions class_options = 1;
     double starting_rage = 2;
+    // Rend and Tear and the Bleed Is Active APL value treat the target as bleeding whatever bleeds it has.
+    bool assume_bleed_active = 3;
   }
   Options options = 3;
 }

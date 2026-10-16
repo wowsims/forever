@@ -69,7 +69,7 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: Presets.PreBiSGear.gear,
+		gear: Presets.DefaultGear.gear,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.PreBiSEpWeights.epWeights,
 		statCaps: (() => {
@@ -121,7 +121,7 @@ export default defineSpec<Spec.SpecEnhancementShaman>({
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.ROTATION_PRESET_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSGear],
+		gear: [Presets.DefaultGear],
 		// Preset builds that the user can quickly select.
 		builds: [Presets.TestingBuild],
 	},

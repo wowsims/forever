@@ -15,10 +15,10 @@ func (hunter *Hunter) registerSerpentSting() {
 	tick := serpentStingRank.PeriodicEffect()
 
 	config := spelldata.SpellConfig(&hunter.Unit, serpentStingRank, spelldata.Flags(core.SpellFlagAPL))
-	// A cast, not a proc, but one that must not read as a ranged hit to on-hit listeners; what the
-	// sting's application should count as is a separate question. Matches only listeners that
-	// state no mask.
-	config.ProcMask = core.ProcMaskEmpty
+	// A ranged ability, as the game files' ranged-ability procs (Rapid Recuperation) see it, so the
+	// ticks crit at the ranged crit. The application deals no damage, so the on-hit listeners that
+	// require damage skip it, and the ticks reach only periodic listeners.
+	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 

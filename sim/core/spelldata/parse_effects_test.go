@@ -139,9 +139,8 @@ func TestParseStaticBuildsTheModTable(t *testing.T) {
 	if parsed.Applied[0].Value != 0.15 {
 		t.Errorf("a percentage modifier is worth %v, want 0.15", parsed.Applied[0].Value)
 	}
-	// The game files state rage on a 0-1000 bar, so -30 is 3 rage off the cost.
-	if parsed.Applied[1].Value != -3 {
-		t.Errorf("a rage cost modifier is worth %v, want -3", parsed.Applied[1].Value)
+	if parsed.Applied[1].Value != -30 {
+		t.Errorf("a cost modifier is worth %v, want the row's -30", parsed.Applied[1].Value)
 	}
 	if parsed.Applied[2].Value != -500 {
 		t.Errorf("a cast time modifier is worth %v ms, want -500", parsed.Applied[2].Value)
@@ -152,18 +151,25 @@ func TestParseStaticBuildsTheModTable(t *testing.T) {
 	}
 }
 
-// The same cost modifier on a mana bar is the game files' own number.
-func TestParseStaticCostOnAManaBar(t *testing.T) {
+// One cost modifier takes rage off a rage spell on the game files' 0-1000 bar, and the row's own number
+// off a spell of another power, on the same caster.
+func TestParseStaticCostInEachSpellsPower(t *testing.T) {
 	withRows(t, parseRows())
-	character := parseCharacter(&proto.Player{
-		Class: proto.Class_ClassMage,
-		Spec:  &proto.Player_Mage{Mage: &proto.Mage{}},
-	})
+	character := parseWarrior()
+	character.EnableRageBar(core.RageBarOptions{})
 
-	parsed := ParseStatic(character, Find(1000))
+	rage := character.RegisterSpell(core.SpellConfig{ActionID: core.ActionID{SpellID: 2000},
+		ClassFlags: parseTargetMask, RageCost: core.RageCostOptions{Cost: 15}})
+	energy := character.RegisterSpell(core.SpellConfig{ActionID: core.ActionID{SpellID: 2001},
+		ClassFlags: parseTargetMask, EnergyCost: core.EnergyCostOptions{Cost: 40}})
 
-	if parsed.Applied[1].Value != -30 {
-		t.Errorf("a mana cost modifier is worth %v, want the row's -30", parsed.Applied[1].Value)
+	ParseStatic(character, Find(1000))
+
+	if got := rage.Cost.FlatModifier; got != -3 {
+		t.Errorf("the rage spell's cost moves by %d, want -3", got)
+	}
+	if got := energy.Cost.FlatModifier; got != -30 {
+		t.Errorf("the energy spell's cost moves by %d, want the row's -30", got)
 	}
 }
 
@@ -561,6 +567,7 @@ func TestEveryTableRow(t *testing.T) {
 		{pct, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE), 7, "SpellMod_BonusCrit_Percent", 7, false},
 		{pct, int32(dbcenums.SPELLMOD_DOT), 10, "SpellMod_DotDamageDone_Pct", 0.1, false},
 		{pct, int32(dbcenums.SPELLMOD_CHANCE_OF_SUCCESS), 100, "SpellMod_ProcChance_Pct", 1, false},
+		{pct, int32(dbcenums.SPELLMOD_PROC_COOLDOWN), -50, "SpellMod_ProcCooldown_Pct", -0.5, false},
 		{pct, int32(dbcenums.SPELLMOD_GLOBAL_COOLDOWN), -10, "SpellMod_GlobalCooldown_Pct", -0.1, false},
 		{pct, int32(dbcenums.SPELLMOD_RANGE), 10, "SpellMod_Range_Pct", 0.1, false},
 		{pct, int32(dbcenums.SPELLMOD_EFFECT1), 10, "effect1-assumed-damage SpellMod_DamageDone_Flat", 0.1, false},
@@ -577,7 +584,7 @@ func TestEveryTableRow(t *testing.T) {
 		{dbcenums.A_MOD_RESISTANCE, 1, 100, "stat Armor", 100, false},
 		{dbcenums.A_MOD_BASE_RESISTANCE_PCT, 1, 10, "equip-scaling Armor", 1.1, false},
 		{dbcenums.A_MOD_RESISTANCE_PCT, 1, 8, "multiply-stat Armor", 1.08, false},
-		{dbcenums.A_MOD_ARMOR_NO_MODS, 1, -450, "stat Armor", -450, false},
+		{dbcenums.A_MOD_ARMOR_NO_MODS, 1, -450, "stat ArmorNoMods", -450, false},
 		{dbcenums.A_MOD_RESISTANCE, 16, 30, "stat FrostResistance", 30, false},
 		{dbcenums.A_MOD_RESISTANCE, 127, 30,
 			"stat Armor, stat FireResistance, stat NatureResistance, stat FrostResistance, stat ShadowResistance, stat ArcaneResistance", 30, false},

@@ -70,6 +70,9 @@ group was taken from (`Builds`), the highest hotfix push it was taken with (`Hot
 from the `BuildInfo` table `db2tool` writes, and the roots of each group (`SpellDataGroupRoots`). The next partial update keeps the other groups by those roots. A racial row on a
 different build from the class whose flags it states is printed as a warning.
 
+A game files table the store starts reading reaches only the groups a run takes. The other groups keep
+their rows as the inputs commit them, without that table, until a later run takes them.
+
 `-check` renders the groups whose recorded build is the database's and compares those. A group on
 another build is printed as not ported and does not fail the check. Its class file is not compared,
 since only its own build could render it. Items are always compared. A re-extraction that picked up

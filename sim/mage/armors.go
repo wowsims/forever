@@ -1,135 +1,82 @@
 package mage
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
-func (mage *Mage) registerArmorSpells() {
-	panic("To be implemented")
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
+)
 
-	// The TBC implementation, kept for the port:
-	//
-	// mageArmorEffectCategory := "MageArmors"
-	//
-	// moltenArmorActionId := core.ActionID{SpellID: 30482}
-	// moltenArmor := mage.RegisterAura(core.Aura{
-	// 	Label:    "Molten Armor",
-	// 	ActionID: moltenArmorActionId,
-	// 	Duration: time.Minute * 30,
-	// }).AttachStatBuff(stats.SpellCritPercent, 3)
-	//
-	// moltenArmor.NewExclusiveEffect(mageArmorEffectCategory, true, core.ExclusiveEffect{})
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       moltenArmorActionId,
-	// 	SpellSchool:    core.SpellSchoolFire,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-	// 	ClassSpellMask: MageSpellMoltenArmor,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: 630,
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: core.GCDDefault,
-	// 		},
-	// 	},
-	// 	ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-	// 		return !moltenArmor.IsActive()
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		moltenArmor.Activate(sim)
-	// 	},
-	// })
-	//
-	// mageArmorActionId := core.ActionID{SpellID: 27125}
-	// mageArmor := mage.RegisterAura(core.Aura{
-	// 	ActionID: mageArmorActionId,
-	// 	Label:    "Mage Armor",
-	// 	Duration: time.Minute * 30,
-	// 	OnGain: func(aura *core.Aura, sim *core.Simulation) {
-	// 		mage.PseudoStats.SpiritRegenRateCasting += .3
-	// 		mage.UpdateManaRegenRates(sim)
-	// 	},
-	// 	OnExpire: func(aura *core.Aura, sim *core.Simulation) {
-	// 		mage.PseudoStats.SpiritRegenRateCasting -= .3
-	// 		mage.UpdateManaRegenRates(sim)
-	// 	},
-	// })
-	//
-	// mageArmor.NewExclusiveEffect(mageArmorEffectCategory, true, core.ExclusiveEffect{})
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       mageArmorActionId,
-	// 	SpellSchool:    core.SpellSchoolArcane,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-	// 	ClassSpellMask: MageSpellMageArmor,
-	// 	ClassFlags:     spellData.MageArmor.Highest().ClassFlags,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: 575,
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: core.GCDDefault,
-	// 		},
-	// 	},
-	// 	ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-	// 		return !mageArmor.IsActive()
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		mageArmor.Activate(sim)
-	// 	},
-	// })
-	//
-	// //Frost armor/IceArmor gives no benefit to dps, merely armor and slow on hit
-	// iceArmorActionId := core.ActionID{SpellID: 27124}
-	// iceArmor := mage.RegisterAura(core.Aura{
-	// 	ActionID: iceArmorActionId,
-	// 	Label:    "Frost Armor",
-	// 	Duration: time.Minute * 30,
-	// })
-	//
-	// iceArmor.NewExclusiveEffect(mageArmorEffectCategory, true, core.ExclusiveEffect{})
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       iceArmorActionId,
-	// 	SpellSchool:    core.SpellSchoolFrost,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	Flags:          core.SpellFlagAPL | core.SpellFlagHelpful,
-	// 	ClassSpellMask: MageSpellFrostArmor,
-	// 	ClassFlags:     spellData.IceArmor.Highest().ClassFlags,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: 630,
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: core.GCDDefault,
-	// 		},
-	// 	},
-	// 	ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-	// 		return !iceArmor.IsActive()
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		iceArmor.Activate(sim)
-	// 	},
-	// })
-	//
-	// if mage.Options.DefaultMageArmor != proto.MageArmor_MageArmorNone {
-	// 	var defaultArmor *core.Aura
-	// 	switch mage.Options.DefaultMageArmor {
-	// 	case proto.MageArmor_MageArmorFrostArmor:
-	// 		defaultArmor = iceArmor
-	// 	case proto.MageArmor_MageArmorMageArmor:
-	// 		defaultArmor = mageArmor
-	// 	case proto.MageArmor_MageArmorMoltenArmor:
-	// 		defaultArmor = moltenArmor
-	// 	}
-	//
-	// 	core.MakePermanent(defaultArmor)
-	// 	defaultArmor.BuildPhase = core.CharacterBuildPhaseBuffs
-	// }
+// The Chilled procs on Frost and Ice Armor slow the attacker, which does nothing in the sim. One
+// armor is up at a time.
+func (mage *Mage) registerArmorSpells() {
+	// Frost Warding raises Frost and Ice Armor's armor and resistance.
+	warding := 1 + spellData.FrostWarding.EffectAt(1).FractionAt(mage.Talents.FrostWarding)
+	// Arcane Shielding's effect 2 raises Mage Armor's resistances (effect 1), so that effect is
+	// scaled here; the casting regen (effect 2) is parsed.
+	shielding := 1 + spellData.ArcaneShielding.EffectAt(2).FractionAt(mage.Talents.ArcaneShielding)
+
+	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+	// spellData.FrostArmor lists.
+	frostArmorRank := spellData.FrostArmor.Highest()
+	mage.registerArmor(frostArmorRank, MageSpellFrostArmor, stats.Stats{
+		stats.Armor: warding * frostArmorRank.EffectN(1).BaseValue(),
+	})
+
+	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+	// spellData.IceArmor lists.
+	iceArmorRank := spellData.IceArmor.Highest()
+	iceArmor := mage.registerArmor(iceArmorRank, MageSpellIceArmor, stats.Stats{
+		stats.Armor:           warding * iceArmorRank.EffectN(1).BaseValue(),
+		stats.FrostResistance: warding * iceArmorRank.EffectN(3).BaseValue(),
+	})
+
+	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+	// spellData.MageArmor lists.
+	mageArmorRank := spellData.MageArmor.Highest()
+	resist := shielding * mageArmorRank.EffectN(1).BaseValue()
+	mageArmor := mage.registerArmor(mageArmorRank, MageSpellMageArmor, stats.Stats{
+		stats.ArcaneResistance: resist,
+		stats.FireResistance:   resist,
+		stats.FrostResistance:  resist,
+		stats.NatureResistance: resist,
+		stats.ShadowResistance: resist,
+	})
+	spelldata.ParseEffects(&mage.Character, mageArmor, mageArmorRank, spelldata.Effects(2))
+
+	if mage.Options == nil {
+		return
+	}
+
+	defaultArmor := map[proto.MageArmor]*core.Aura{
+		proto.MageArmor_MageArmorFrostArmor: iceArmor,
+		proto.MageArmor_MageArmorMageArmor:  mageArmor,
+	}[mage.Options.DefaultMageArmor]
+
+	if defaultArmor != nil {
+		defaultArmor.BuildPhase = core.CharacterBuildPhaseBuffs
+		defaultArmor.ApplyOnReset(func(aura *core.Aura, sim *core.Simulation) {
+			aura.Activate(sim)
+		})
+	}
+}
+
+func (mage *Mage) registerArmor(rank *spelldata.Spell, classMask int64, bonus stats.Stats) *core.Aura {
+	aura := mage.RegisterAura(spelldata.AuraConfig(rank, spelldata.RankLabel(rank, &mage.Unit))).AttachStatsBuff(bonus)
+	aura.NewExclusiveEffect("Mage Armor", true, core.ExclusiveEffect{})
+
+	config := spelldata.SpellConfig(&mage.Unit, rank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagHelpful))
+	config.ClassSpellMask = classMask
+	config.RelatedSelfBuff = aura
+
+	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
+		return !aura.IsActive()
+	}
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		aura.Activate(sim)
+	}
+
+	mage.RegisterSpell(config)
+	return aura
 }

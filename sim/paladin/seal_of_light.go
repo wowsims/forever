@@ -50,18 +50,14 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 	}
 	procSpell := paladin.RegisterSpell(procConfig)
 
-	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
-		Name:            rank.RankedLabel(&paladin.Unit),
-		ActionID:        core.ActionID{SpellID: rank.ID},
-		MetricsActionID: core.ActionID{SpellID: rank.ID},
-		Duration:        sealDuration,
-		Callback:        core.CallbackOnSpellHitDealt,
-		ProcMask:        core.ProcMaskMelee,
-		Outcome:         core.OutcomeLanded,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			procSpell.Cast(sim, &paladin.Unit)
-		},
-	}))
+	// The row hears melee swings and abilities; its rate is an override.
+	trigger := spelldata.ProcTrigger(&paladin.Character, rank, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		procSpell.Cast(sim, &paladin.Unit)
+	})
+	trigger.Name = rank.RankedLabel(&paladin.Unit)
+	trigger.MetricsActionID = core.ActionID{SpellID: rank.ID}
+	trigger.Duration = sealDuration
+	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(trigger))
 
 	paladin.registerSealSpell(&sealConfig{
 		rank:      rank,

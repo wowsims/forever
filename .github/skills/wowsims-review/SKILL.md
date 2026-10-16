@@ -88,8 +88,9 @@ Each of these has a section in `references/defects.md`.
   builds one, the handler runs a `SpellBatchWindow` later. Which of the two a buff's proc is decides whether
   an `OnCastComplete` handler sees the cast that procced it, so a claim about order is proven at runtime,
   never by reading the call order alone.
-- **What a cast spends, and when.** Combo points and extra energy are spent on a landed hit only; a
-  one-charge buff is consumed by the cast it modifies; a refund on a miss is the row's (`MissRefund()`).
+- **What a cast spends, and when.** Check combo points, extra energy, and miss refunds independently:
+  Ferocious Bite retains combo points on failure but consumes its energy. A one-charge buff is consumed
+  by the cast it modifies. Use the row's `MissRefund()` unless verified spell-specific behavior differs.
 - **What scales.** A tick that should scale with stacks or combo points; a row's `PointsPerResource`; a flat
   weapon bonus, which is added before the weapon percent multiplies it.
 - **How many targets.** An area effect (`Effect.HitsAnArea()`, `Spell.MaxTargets`) hits every enemy, and a

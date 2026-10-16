@@ -123,8 +123,8 @@ placed anywhere but the end renumbers the rows after it. `buffmanifest.All()` pa
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Field`          | the proto field, snake_case                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `SpellID`        | the spell the numbers are read from, and a root of the store: the top rank of the castable family, or the aura that family's cast applies when the cast is a summon or a dummy                                                                                                                                                                                                                                                                                                                                                           |
-| `CastID`         | the cast the player learns, where it is not `SpellID`. It names the buff and times an external cooldown: Mana Tide's aura 17360 carries the mana, the cast 17359 the 13 seconds and the 5 minutes                                                                                                                                                                                                                                                                                                                                        |
-| `TooltipID`      | the settings input's icon and tooltip spell, for a row whose aura states no `Description_lang` and whose `CastID` is not that spell either (Moonkin Aura's row points at Moonkin Form, Vindication's at the talent). `0` defers to `CastID`, then `SpellID`; it never changes the numbers the row reads                                                                                                                                                                                                                                  |
+| `CastID`         | the cast the player learns, where it is not `SpellID`. It names the buff and times an external cooldown: Mana Tide's aura 1325257 carries the mana, the cast 1325256 the 13 seconds and the 5 minutes                                                                                                                                                                                                                                                                                                                                    |
+| `TooltipID`      | the settings input's icon and tooltip spell, for a row whose input shows a spell that is neither its aura nor its `CastID` (Moonkin Aura's row points at Moonkin Form, the Judgements' rows at their Seals, Vindication's at the talent). `0` defers to `CastID`, then `SpellID`; it never changes the numbers the row reads                                                                                                                                                                                                             |
 | `Talent`         | the spell of the trait node that prices the improved state. Its one spell modifier whose class mask reaches `SpellID` is the improvement (two fail the pass), and a `SPELLMOD_DURATION` modifier scales the duration, any other the value. The generated `Meta.TalentEffect` names that effect by its `EffectN` position. Where no modifier reaches it, a tooltip term `${$m1/-N*$<SpellID>m1}` prices the buff at rank/N of its amount (Vindication), which the generated `Meta.TalentDivisor` states as N; with neither the pass fails |
 | `Category`       | the exclusive-effect category the aura bids in, `""` for none                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `SharedCategory` | a second category the aura joins without an effect of its own, which is how the paladin auras exclude each other across schools. Applied to the player's copy only, and declared once in the generated file as `<Name>Category`                                                                                                                                                                                                                                                                                                          |
@@ -220,7 +220,7 @@ A row the generator cannot express outright either states `Driver: true` or is a
 needs one, and the apply block calls `drive<Go>` instead. The contract is in
 `sim/core/buffs/drivers.go`: a buff row's driver takes the `*Character` and the whole scope message,
 and a debuff row's takes the `*Unit`, the debuffs and the raid. Because the driver gets the whole
-message, Grace of Air can read `party.WindfuryTotem`. The driver builds the generated aura with its
+message, Flametongue Totem can read `raid.WindfuryTotem`. The driver builds the generated aura with its
 `NewSpellData...` constructor and adds what the game files do not state: a proc trigger, a cooldown, a
 delay, the metrics of a regen. The row compiles once the function is declared.
 
@@ -230,17 +230,17 @@ A true pet stands under every totem its owner does whose aura a pet may carry, w
 exclusivity; a guardian (`PetConfig.IsGuardian`) stands under none. The apply block of a totem row that no driver handles calls
 `standTotem` in `sim/core/buffs/totems.go`, which makes the owner's copy permanent and builds the same
 constructor on each true pet's unit, so the pet's copy bids in the same categories on the pet. The
-four driven totems pass their pet copies to `inheritTotem` themselves: Mana Tide's copy of the
-external cooldown's aura, Grace of Air's through `standTotem`, and the weapon totems' whole chain
-(totem aura, category bid and proc) on the pet's character, for a pet that melees. Grace of Air and
-Flametongue Totem do nothing under Windfury Totem, on the pet as on the owner.
+three driven totems pass their pet copies to `inheritTotem` themselves: Mana Tide's copy of the
+external cooldown's aura, and the weapon totems' whole chain (totem aura, category bid and proc) on the
+pet's character, for a pet that melees. Flametongue Totem does nothing under Windfury Totem; Grace of
+Air stacks with it as of 1.60.1.70425.
 
 The exception is a totem whose aura spell sets the only on player bit of Attributes[3]
 (`ATTR_EX_3_ONLY_ON_PLAYER`, read by `Spell.OnlyOnPlayers`): a target that is not a player is invalid,
 so `inheritTotem` gives no pet a copy. Every caller passes the spell the check reads: the row's own
-spell for Mana Tide, Grace of Air and every generated totem, and the party aura (10612, 15036) for a
-weapon totem. Strength of Earth and Grace of Air set the bit at every rank, so a pet never carries
-either.
+spell for Mana Tide and every generated totem, and the raid aura (10612, 15036) for a
+weapon totem. Strength of Earth, Grace of Air, Windfury Totem and Flametongue Totem set the bit, so a
+pet carries none of them.
 
 The pet's copy never expires on its own and is never in a build phase. It is up while the owner's
 copy is up and the pet is summoned: the owner's copy turns it on and off, and the pet's enable and
@@ -326,7 +326,7 @@ when no trait node prices one, and the icon that state shows. Battlegear of Wrat
 218's `ItemSetSpell` at three pieces (2336) is 23563, an `A_ADD_FLAT_MODIFIER` of 30 against every
 effect of the Battle Shout family, which raises the shout from 139 attack power to 169. The two halves
 of that are modelled separately. The warrior's own cast reads the `has_bs_t2` class option (the user's
-word that this warrior wears the set, not the equipped gear). The party's copy is `battle_shout`'s
+word that this warrior wears the set, not the equipped gear). The raid's copy is `battle_shout`'s
 improved state, which `driveBattleShout` reads because the resolver has no curve to give it. Both call `AddGeneratedFlatBonus`, which raises what the aura
 applies and what it bids for its category together, so the stronger of the two copies is the one the
 character sheet shows. It is told what the buff is worth without the bonus, because the aura belongs
@@ -346,13 +346,12 @@ Neither copy is permanent, and the two are worth the same unless one side wears 
 `TestPlayerBattleShoutTakesTheCategoryOnATie` holds the player's own copy to the tie and
 `TestTheStrongerBattleShoutTakesTheCategory` holds the stronger one to the rest. The rows this decides
 are `thorns`, `leader_of_the_pack`, `moonkin_aura` and `trueshot_aura`: `sim/druid/druid.go`,
-`sim/druid/feralcat` and `sim/druid/feralbear` raise the party's Leader of the Pack or Moonkin Aura
+`sim/druid/feralcat` and `sim/druid/feralbear` raise the raid's Leader of the Pack or Moonkin Aura
 from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and the druid's own Thorns waits on the
 druid port. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
 druid registering its own copy of any of them has nothing to decide: the copy joins the same category
-and the two bid. The last two share one, `DruidCritAura`, because spell 17007 calls Leader of the
-Pack exclusive with Moonkin Aura. A druid's own cast of either joins it, so a party that ticks both and
-a druid who casts one are worth the game files' 3, not two threes. Only `trueshot_aura` is left
+and the two bid. Leader of the Pack and Moonkin Aura each have their own category: one raises melee and
+ranged crit, the other spell crit, so a raid that ticks both gets both. Only `trueshot_aura` is left
 without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
 `sim/priest/priest.go`) bid without `SingleAura`: `prayer_of_fortitude` and `prayer_of_spirit` each
 stat on its own in `StatBuff`, with Arcane Brilliance and the scrolls, and `prayer_of_shadow_protection`

@@ -26,14 +26,14 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "elementalWarding",
-        "fancyName": "Elemental Warding",
+        "fieldName": "elementalDevastation",
+        "fancyName": "Elemental Devastation",
         "location": {
           "rowIdx": 1,
           "colIdx": 0
         },
-        "spellId": 28996,
-        "definitionId": 134232,
+        "spellId": 30160,
+        "definitionId": 134230,
         "maxPoints": 3
       },
       {
@@ -48,25 +48,25 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "callOfFlame",
-        "fancyName": "Call of Flame",
+        "fieldName": "elementalAlacrity",
+        "fancyName": "Elemental Alacrity",
         "location": {
           "rowIdx": 1,
           "colIdx": 2
         },
-        "spellId": 16038,
-        "definitionId": 134231,
+        "spellId": 16578,
+        "definitionId": 134232,
         "maxPoints": 3
       },
       {
-        "fieldName": "elementalDevastation",
-        "fancyName": "Elemental Devastation",
+        "fieldName": "callOfFlame",
+        "fancyName": "Call of Flame",
         "location": {
           "rowIdx": 1,
           "colIdx": 3
         },
-        "spellId": 30160,
-        "definitionId": 134230,
+        "spellId": 16038,
+        "definitionId": 134231,
         "maxPoints": 3
       },
       {
@@ -74,26 +74,26 @@
         "fancyName": "Elemental Focus",
         "location": {
           "rowIdx": 2,
-          "colIdx": 1
+          "colIdx": 0
         },
         "spellId": 16164,
         "definitionId": 134229,
         "maxPoints": 1
       },
       {
-        "fieldName": "elementalAlacrity",
-        "fancyName": "Elemental Alacrity",
+        "fieldName": "elementalWarding",
+        "fancyName": "Elemental Warding",
         "location": {
           "rowIdx": 2,
-          "colIdx": 2
+          "colIdx": 1
         },
-        "spellId": 16578,
+        "spellId": 28996,
         "definitionId": 134226,
         "maxPoints": 3
       },
       {
-        "fieldName": "improvedFireNova",
-        "fancyName": "Improved Fire Nova",
+        "fieldName": "trialByFire",
+        "fancyName": "Trial by Fire",
         "location": {
           "rowIdx": 3,
           "colIdx": 0
@@ -114,19 +114,15 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "callOfThunder",
-        "fancyName": "Call of Thunder",
+        "fieldName": "earthbound",
+        "fancyName": "Earthbound",
         "location": {
           "rowIdx": 3,
-          "colIdx": 2
+          "colIdx": 3
         },
-        "spellId": 16120,
+        "spellId": 1222988,
         "definitionId": 134223,
-        "maxPoints": 1,
-        "prereqLocation": {
-          "rowIdx": 2,
-          "colIdx": 2
-        }
+        "maxPoints": 1
       },
       {
         "fieldName": "elementalReach",
@@ -140,26 +136,30 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "lightningOverload",
-        "fancyName": "Lightning Overload",
+        "fieldName": "lavaBurst",
+        "fancyName": "Lava Burst",
         "location": {
           "rowIdx": 4,
           "colIdx": 1
         },
-        "spellId": 408438,
-        "definitionId": 134220,
-        "maxPoints": 3
-      },
-      {
-        "fieldName": "earthbound",
-        "fancyName": "Earthbound",
-        "location": {
-          "rowIdx": 4,
-          "colIdx": 3
-        },
-        "spellId": 1222988,
+        "spellId": 408490,
         "definitionId": 134221,
         "maxPoints": 1
+      },
+      {
+        "fieldName": "lightningOverload",
+        "fancyName": "Lightning Overload",
+        "location": {
+          "rowIdx": 4,
+          "colIdx": 2
+        },
+        "spellId": 408438,
+        "definitionId": 134220,
+        "maxPoints": 3,
+        "prereqLocation": {
+          "rowIdx": 1,
+          "colIdx": 2
+        }
       },
       {
         "fieldName": "elementalFury",
@@ -172,18 +172,18 @@
         "definitionId": 134227,
         "maxPoints": 5,
         "prereqLocation": {
-          "rowIdx": 3,
+          "rowIdx": 4,
           "colIdx": 2
         }
       },
       {
-        "fieldName": "lavaBurst",
-        "fancyName": "Lava Burst",
+        "fieldName": "elementalMastery",
+        "fancyName": "Elemental Mastery",
         "location": {
           "rowIdx": 6,
           "colIdx": 1
         },
-        "spellId": 408490,
+        "spellId": 16166,
         "definitionId": 134219,
         "maxPoints": 1,
         "prereqLocation": {
@@ -425,13 +425,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "totemicFocus",
-        "fancyName": "Totemic Focus",
+        "fieldName": "tidalFocus",
+        "fancyName": "Tidal Focus",
         "location": {
           "rowIdx": 0,
           "colIdx": 2
         },
-        "spellId": 16173,
+        "spellId": 16179,
         "definitionId": 134190,
         "maxPoints": 5
       },
@@ -458,13 +458,13 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "tidalFocus",
-        "fancyName": "Tidal Focus",
+        "fieldName": "totemicFocus",
+        "fancyName": "Totemic Focus",
         "location": {
           "rowIdx": 1,
           "colIdx": 2
         },
-        "spellId": 16179,
+        "spellId": 16173,
         "definitionId": 134196,
         "maxPoints": 5
       },

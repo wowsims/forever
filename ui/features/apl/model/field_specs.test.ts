@@ -19,7 +19,6 @@ import {
 	booleanFieldConfig,
 	comparisonOperatorFieldConfig,
 	curseTypeFieldConfig,
-	eclipseTypeFieldConfig,
 	executePhaseThresholdFieldConfig,
 	groupNameFieldConfig,
 	groupReferenceVariablesFieldConfig,
@@ -33,6 +32,7 @@ import {
 	reactionTimeCheckbox,
 	statTypeFieldConfig,
 	stringFieldConfig,
+	summonTypeFieldConfig,
 	totemTypeFieldConfig,
 	unitFieldConfig,
 	valueFieldConfig,
@@ -52,8 +52,8 @@ const newKindImpl = (kind: Parameters<typeof newKindImplFor>[0]) => newKindImplF
 describe('resolveField kinds', () => {
 	it('resolves the fixed-enum descriptor types to kind enum', () => {
 		const descriptors = [
-			eclipseTypeFieldConfig('f'),
 			curseTypeFieldConfig('f'),
+			summonTypeFieldConfig('f'),
 			autoTypeFieldConfig('f'),
 			autoSwingTypeFieldConfig('f'),
 			statTypeFieldConfig('f'),

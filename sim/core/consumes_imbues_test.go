@@ -60,24 +60,19 @@ func TestTemporaryEnchantGoesOnTheHandsTheSpecNames(t *testing.T) {
 		}},
 	})
 
-	newCharacter := func(partyBuffs *proto.PartyBuffs) *Character {
-		items := make([]*proto.ItemSpec, NumItemSlots)
-		for i := range items {
-			items[i] = &proto.ItemSpec{}
-		}
-		items[proto.ItemSlot_ItemSlotMainHand].Id = swordID
-		items[proto.ItemSlot_ItemSlotOffHand].Id = maceID
-		character := NewCharacter(&Party{buffs: partyBuffs}, 0, &proto.Player{
-			Class:       proto.Class_ClassWarrior,
-			Race:        proto.Race_RaceHuman,
-			Spec:        &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}},
-			Equipment:   &proto.EquipmentSpec{Items: items},
-			Consumables: &proto.ConsumesSpec{MhImbueId: stoneID, OhImbueId: stoneID},
-		})
-		return &character
+	items := make([]*proto.ItemSpec, NumItemSlots)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
 	}
-
-	character := newCharacter(&proto.PartyBuffs{})
+	items[proto.ItemSlot_ItemSlotMainHand].Id = swordID
+	items[proto.ItemSlot_ItemSlotOffHand].Id = maceID
+	character := NewCharacter(&Party{buffs: &proto.PartyBuffs{}}, 0, &proto.Player{
+		Class:       proto.Class_ClassWarrior,
+		Race:        proto.Race_RaceHuman,
+		Spec:        &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}},
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: &proto.ConsumesSpec{MhImbueId: stoneID, OhImbueId: stoneID},
+	})
 	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != stoneEnchantID {
 		t.Errorf("main-hand sword carries enchant %d, want %d", got, stoneEnchantID)
 	}
@@ -89,16 +84,6 @@ func TestTemporaryEnchantGoesOnTheHandsTheSpecNames(t *testing.T) {
 	}
 	if oh := character.WeaponFromOffHand(); oh.BaseDamageMin != 100 || oh.BaseDamageMax != 150 {
 		t.Errorf("off-hand mace deals %v-%v, want its own 100-150", oh.BaseDamageMin, oh.BaseDamageMax)
-	}
-
-	underWindfury := newCharacter(&proto.PartyBuffs{WindfuryTotem: true})
-	if got := underWindfury.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != stoneEnchantID {
-		t.Errorf("main hand carries enchant %d under Windfury Totem, want the stone's %d", got, stoneEnchantID)
-	}
-
-	underFlametongue := newCharacter(&proto.PartyBuffs{FlametongueTotem: true})
-	if got := underFlametongue.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != stoneEnchantID {
-		t.Errorf("main hand carries enchant %d under Flametongue Totem, want the stone's %d", got, stoneEnchantID)
 	}
 }
 

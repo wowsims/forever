@@ -1,10 +1,8 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
-import { APLAction, APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
+import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { Cooldowns, EquipmentSpec, ItemSlot, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
-import { FeralBearDruid_Rotation as DruidRotation } from '@generated/proto/druid';
-import { SavedTalents } from '@generated/proto/ui';
+import { ItemSlot, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
@@ -33,6 +31,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		Stat.StatFeralAttackPower,
 		Stat.StatArmor,
 		Stat.StatBonusArmor,
+		Stat.StatArmorNoMods,
 		Stat.StatDodgeRating,
 		Stat.StatDefenseRating,
 		Stat.StatHitRating,
@@ -42,7 +41,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		Stat.StatPhysicalDamage,
 		Stat.StatArmorPenetration,
 	],
-	epPseudoStats: [],
+	epPseudoStats: [PseudoStat.PseudoStatMainHandDps],
 	epReferenceStat: Stat.StatAgility,
 	tankRefStat: Stat.StatStamina,
 	displayStats: UnitStat.createDisplayStatArray(
@@ -54,6 +53,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			Stat.StatAttackPower,
 			Stat.StatArmor,
 			Stat.StatBonusArmor,
+			Stat.StatArmorNoMods,
 			Stat.StatDodgeRating,
 			Stat.StatDefenseRating,
 			Stat.StatNatureResistance,
@@ -72,8 +72,9 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	),
 
 	defaults: {
-		gear: EquipmentSpec.create(),
-		epWeights: new Stats(),
+		gear: Presets.Level60Gear.gear,
+		encounter: Presets.Level60Encounter,
+		epWeights: Presets.Level60SurvivalEp,
 		statCaps: (() => {
 			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8);
 			const expCap = new Stats().withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
@@ -82,9 +83,8 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		})(),
 		other: Presets.OtherDefaults,
 		consumables: Presets.DefaultConsumables,
-		rotationType: APLRotationType.TypeAPL,
-		aplRotation: Presets.ROTATION_DEFAULT.rotation.rotation!,
-		talents: SavedTalents.create(),
+		rotationType: APLRotationType.TypeAuto,
+		talents: Presets.BearTalents.data,
 		specOptions: Presets.DefaultOptions,
 		raidBuffs: RaidBuffs.create({
 			arcaneBrilliance: true,
@@ -92,12 +92,12 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			prayerOfFortitude: true,
 			prayerOfShadowProtection: true,
 			prayerOfSpirit: true,
+			windfuryTotem: true,
+			strengthOfEarthTotem: true,
+			battleShout: TristateEffect.TristateEffectRegular,
 		}),
 		partyBuffs: PartyBuffs.create({
-			battleShout: TristateEffect.TristateEffectRegular,
-			windfuryTotem: true,
 			manaSpringTotem: TristateEffect.TristateEffectRegular,
-			strengthOfEarthTotem: true,
 		}),
 		individualBuffs: IndividualBuffs.create({
 			greaterBlessingOfKings: true,
@@ -116,12 +116,12 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	},
 
 	playerIconInputs: [],
-	rotationInputs: FeralBearInputs.FeralBearRotationConfig,
 	includeBuffDebuffInputs: [Stat.StatStamina, Stat.StatArmor],
 	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
 	otherInputs: {
 		inputs: [
 			FeralBearInputs.StartingRage,
+			FeralBearInputs.AssumeBleedActive,
 			OtherInputs.InputDelay,
 			OtherInputs.TankAssignment,
 			OtherInputs.InspirationUptime,
@@ -141,26 +141,16 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	},
 
 	presets: {
-		epWeights: [],
-		talents: [],
-		// ROTATION_SIMPLE is kept in presets.ts for reference but omitted here —
-		// the APL rotation is more user-friendly and handles CDs, re-shifting, and
-		// on-use items more easily.
+		epWeights: [Presets.Level60SurvivalEpWeights, Presets.Level60ThreatEpWeights, Presets.Level60DpsEpWeights],
+		talents: [Presets.BearTalents, Presets.HybridTalents],
 		rotations: [Presets.ROTATION_DEFAULT],
-		gear: [],
+		gear: [Presets.Level60Gear],
+		encounters: [Presets.Level60Encounter],
 	},
 
+	// Auto is the APL preset, which queues Maul on every rage gain instead of only after a GCD.
 	autoRotation: (_player: Player<Spec.SpecFeralBearDruid>): APLRotation => {
 		return Presets.ROTATION_DEFAULT.rotation.rotation!;
-	},
-
-	simpleRotation: (_player: Player<Spec.SpecFeralBearDruid>, simple: DruidRotation, _cooldowns: Cooldowns): APLRotation => {
-		const doRotation = APLAction.fromJsonString(
-			`{"bearOptimalRotationAction":{"maintainFaerieFire":${simple.maintainFaerieFire},"maintainDemoralizingRoar":${simple.maintainDemoralizingRoar},"maulRageThreshold":${simple.maulRageThreshold},"swipeUsage":${simple.swipeUsage},"swipeApThreshold":${simple.swipeApThreshold}}}`,
-		);
-		return APLRotation.create({
-			priorityList: [APLListItem.create({ action: doRotation })],
-		});
 	},
 
 	reforge: {},

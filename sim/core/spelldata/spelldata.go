@@ -158,8 +158,9 @@ type Spell struct {
 	// damage".
 	SplitsDamage bool
 
-	Effects []Effect
-	Powers  []Power
+	Effects  []Effect
+	Powers   []Power
+	Reagents []Reagent
 }
 
 // Where the proc's chance is stated, since the ProcChance column alone cannot tell a roll from a
@@ -268,6 +269,12 @@ type Power struct {
 
 	// ManaPerSecond, for a channel that drains while it runs.
 	PerSecond int32
+}
+
+// One filled slot of the SpellReagents row: an item the cast consumes, and how many.
+type Reagent struct {
+	Item  int32
+	Count int16
 }
 
 // What an unknown spell and an out-of-range effect answer with: every accessor reads zero off them,

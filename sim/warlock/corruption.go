@@ -2,68 +2,34 @@ package warlock
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var corruptionRank = spellData.Corruption.Highest()
-var corruptionTick = corruptionRank.PeriodicEffect()
-var corruptionCoeff = corruptionTick.Coeff()
+func (warlock *Warlock) registerCorruption() {
+	rankedSpell := spellData.Corruption.ByID(25311)
+	corruptionTick := rankedSpell.PeriodicEffect()
 
-// TODO: To be implemented. Port the TBC Corruption implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) registerCorruption() *core.Spell {
-	panic("To be implemented")
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellCorruption
 
-	// The TBC implementation, kept for the port:
-	// tickLength := corruptionTick.Period()
-	// tickCount := int32(corruptionRank.Duration() / tickLength)
-	// warlock.CorruptionTickBaseDamage = corruptionTick.Average(core.CharacterLevel)
-	//
-	// warlock.Corruption = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: corruptionRank.ID},
-	// 	SpellSchool:    corruptionRank.SpellSchool(),
-	// 	DefenseType:    corruptionRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: WarlockSpellCorruption,
-	// 	ClassFlags:     corruptionRank.ClassFlags,
-	//
-	// 	DamageMultiplier: 1,
-	// 	ManaCost:         core.ManaCostOptions{FlatCost: int32(corruptionRank.Cost())},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      corruptionRank.GCD(),
-	// 			CastTime: corruptionRank.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	//
-	// 		if result.Landed() {
-	// 			spell.Dot(target).Apply(sim)
-	// 		}
-	// 		spell.DealOutcome(sim, result)
-	// 	},
-	// 	BonusCoefficient: corruptionCoeff,
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label: "Corruption",
-	// 			Tag:   "Affliction",
-	// 		},
-	// 		NumberOfTicks:    tickCount,
-	// 		TickLength:       tickLength,
-	// 		BonusCoefficient: corruptionCoeff,
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			dot.Spell.CalcAndDealPeriodicDamage(sim, target, warlock.CorruptionTickBaseDamage, dot.OutcomeTick)
-	// 		},
-	// 	},
-	// 	ExpectedTickDamage: func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
-	// 		dot := spell.Dot(target)
-	// 		result := spell.CalcPeriodicDamage(sim, target, warlock.CorruptionTickBaseDamage*float64(tickCount), spell.OutcomeExpectedMagicHit)
-	// 		result.Damage /= dot.CalcTickPeriod().Round(time.Millisecond).Seconds()
-	// 		return result
-	// 	},
-	// })
-	//
-	// return warlock.Corruption
+	// Tick the row's average, rolling only the crit: the hit was rolled when the dot landed
+	config.Dot = spelldata.DotConfig(rankedSpell, corruptionTick)
+	config.Dot.Aura.Tag = "Affliction"
+	config.Dot.OnTick = spelldata.PeriodicDamageTick(corruptionTick, rankedSpell.TickOutcome)
+
+	// Roll to hit and apply as dot
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
+		if result.Landed() {
+			spell.Dot(target).Apply(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	// Calculate expected damage from the row's average tick
+	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		return spell.CalcPeriodicDamage(sim, target, corruptionTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+	}
+
+	warlock.Corruption = warlock.RegisterSpell(config)
 }

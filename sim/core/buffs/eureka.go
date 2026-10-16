@@ -22,5 +22,7 @@ func eurekaMods(spellID int32) core.EurekaMods {
 		Cost:         cost.Percent(),
 		Damage:       damage.Percent(),
 		Channel:      channel.Percent(),
+		Duration:     row.Duration(),
+		Cooldown:     row.Cooldown(),
 	}
 }

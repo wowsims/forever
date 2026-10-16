@@ -32,14 +32,20 @@ func checkAttackTableValues(t *testing.T, when string, values []attackTableValue
 func TestPlayerAttackTableAgainstEachTargetLevel(t *testing.T) {
 	for _, tc := range []struct {
 		level                                   int32
-		miss, dodge, parry                      float64
+		miss, dodge, parry, block               float64
 		glance, glanceMin, glanceMax, critSuppr float64
 		auraCritSuppr, spellMiss                float64
 	}{
-		{60, 0.05, 0.05, 0.05, 0.10, 0.91, 0.99, 0, 0, 0.04},
-		{61, 0.055, 0.055, 0.055, 0.20, 0.91, 0.99, 0.01, 0, 0.05},
-		{62, 0.06, 0.06, 0.06, 0.30, 0.80, 0.90, 0.02, 0, 0.06},
-		{63, 0.08, 0.065, 0.14, 0.40, 0.55, 0.75, 0.03, 0.018, 0.17},
+		{55, 0.025, 0.025, 0.025, 0.025, 0, 0.91, 0.99, -0.01, 0, 0},
+		{56, 0.03, 0.03, 0.03, 0.03, 0, 0.91, 0.99, -0.008, 0, 0},
+		{57, 0.035, 0.035, 0.035, 0.035, 0, 0.91, 0.99, -0.006, 0, 0.01},
+		{58, 0.04, 0.04, 0.04, 0.04, 0, 0.91, 0.99, -0.004, 0, 0.02},
+		{59, 0.045, 0.045, 0.045, 0.045, 0, 0.91, 0.99, -0.002, 0, 0.03},
+		{60, 0.05, 0.05, 0.05, 0.05, 0.10, 0.91, 0.99, 0, 0, 0.04},
+		{61, 0.055, 0.055, 0.055, 0.05, 0.20, 0.91, 0.99, 0.01, 0, 0.05},
+		{62, 0.06, 0.06, 0.06, 0.05, 0.30, 0.80, 0.90, 0.02, 0, 0.06},
+		{63, 0.08, 0.065, 0.14, 0.05, 0.40, 0.55, 0.75, 0.03, 0.018, 0.17},
+		{64, 0.08, 0.065, 0.14, 0.05, 0.40, 0.55, 0.75, 0.03, 0.018, 0.17},
 	} {
 		attacker, defender := attackTableUnits(PlayerUnit, 60, EnemyUnit, tc.level)
 		table := NewAttackTable(attacker, defender)
@@ -47,7 +53,7 @@ func TestPlayerAttackTableAgainstEachTargetLevel(t *testing.T) {
 			BaseMissChance:       tc.miss,
 			BaseDodgeChance:      tc.dodge,
 			BaseParryChance:      tc.parry,
-			BaseBlockChance:      0.05,
+			BaseBlockChance:      tc.block,
 			BaseGlanceChance:     tc.glance,
 			GlanceMultiplierMin:  tc.glanceMin,
 			GlanceMultiplierMax:  tc.glanceMax,
@@ -198,13 +204,13 @@ func TestWandSkillSetsTheRangedHandsSpellMiss(t *testing.T) {
 		{285, 60, 0.17},
 		{275, 60, 0.17},
 		{305, 63, 0.06},
-		{310, 60, 0.04},
+		{310, 60, 0.02},
 		{310, 65, 0.05},
 		{315, 65, 0.04},
 		{303, 61, 0.04},
 		{303, 62, 0.05},
 		{308, 62, 0.04},
-		{312, 61, 0.04},
+		{312, 61, 0.03},
 	} {
 		character := NewCharacter(&Party{}, 0, &proto.Player{
 			Name:         "Wand Tester",
@@ -224,7 +230,7 @@ func TestWandSkillSetsTheRangedHandsSpellMiss(t *testing.T) {
 }
 
 func TestFeralCombatSkillReplacesTheWeaponsSkillInAForm(t *testing.T) {
-	staff := &Item{WeaponType: proto.WeaponType_WeaponTypeStaff, HandType: proto.HandType_HandTypeTwoHand}
+	staff := &Item{ID: 1, WeaponType: proto.WeaponType_WeaponTypeStaff, HandType: proto.HandType_HandTypeTwoHand}
 	for _, tc := range []struct {
 		name        string
 		inForm      bool
@@ -243,6 +249,37 @@ func TestFeralCombatSkillReplacesTheWeaponsSkillInAForm(t *testing.T) {
 		if got := GetWeaponSkill(unit, tc.weapon); got != tc.weaponSkill {
 			t.Errorf("%s: weapon skill %v, want %v", tc.name, got, tc.weaponSkill)
 		}
+	}
+}
+
+func TestFeralCombatRefreshesExistingAttackTables(t *testing.T) {
+	character := NewCharacter(&Party{}, 0, &proto.Player{
+		Class:     proto.Class_ClassDruid,
+		Race:      proto.Race_RaceNightElf,
+		Spec:      &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}},
+		Equipment: &proto.EquipmentSpec{},
+		WeaponSkills: []*proto.WeaponSkillValue{{
+			Skill: proto.WeaponSkill_WeaponSkillStaves,
+			Value: 280,
+		}},
+	})
+	staff := &Item{ID: 1, WeaponType: proto.WeaponType_WeaponTypeStaff, HandType: proto.HandType_HandTypeTwoHand}
+	defender := &Unit{Type: EnemyUnit, Level: 63, PseudoStats: stats.NewPseudoStats()}
+	character.AttackTables = []*AttackTable{NewAttackTable(&character.Unit, defender)}
+	character.Equipment[proto.ItemSlot_ItemSlotMainHand] = *staff
+	character.UpdateAttackTableWeapons()
+	if got := character.AttackTables[0].MH.BaseMissChance; math.Abs(got-0.12) > 1e-9 {
+		t.Fatalf("280 staff skill miss = %v, want 0.12", got)
+	}
+
+	character.SetFeralCombat(true)
+	if got := character.AttackTables[0].MH.BaseMissChance; math.Abs(got-0.08) > 1e-9 {
+		t.Fatalf("feral combat miss = %v, want 0.08", got)
+	}
+
+	character.SetFeralCombat(false)
+	if got := character.AttackTables[0].MH.BaseMissChance; math.Abs(got-0.12) > 1e-9 {
+		t.Fatalf("restored staff skill miss = %v, want 0.12", got)
 	}
 }
 

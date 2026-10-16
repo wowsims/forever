@@ -118,9 +118,16 @@ const (
 // Judgement effects on the target" can find them.
 const JudgementAuraTag = "JudgementAura"
 
-// The game files say the judgements proc on a chance without stating it; the sim uses 50% until
-// in-game testing says otherwise.
-const judgementProcChance = 0.5
+// The chance a judgement's row states for the heal or mana it grants attackers. The game files keep
+// it outside the spell data, so it is an override, and a row with none would otherwise fire on every
+// hit.
+func judgementProcChance(spellID int32) float64 {
+	chance := spelldata.MustFind(spellID).StatedChance()
+	if chance == 0 {
+		panic(fmt.Sprintf("buffs: judgement %d states no proc chance", spellID))
+	}
+	return chance
+}
 
 // Judgement of the Crusader raises the Holy damage the target takes by a flat amount. Every rank
 // and every paladin share one exclusive category, so the strongest active one is the one that
@@ -168,9 +175,9 @@ func NewSpellDataJudgementOfLightAuraRank(target *core.Unit, caster *core.Unit, 
 	}), caster, rank)
 }
 
-// Whoever lands a damaging melee hit on the judged target has a chance to be healed for the rank's
-// amount. The caster's proc chance mods, e.g. Improved Judgement of Light, raise that chance; the
-// raid's copy has no caster.
+// Whoever lands a damaging melee hit on the judged target rolls the row's chance to be healed for
+// the rank's amount. The caster's proc chance mods, e.g. Improved Judgement of Light, raise that
+// chance; the raid's copy has no caster.
 func AttachJudgementOfLightHeal(aura *core.Aura, caster *core.Unit, rank JudgementRank) *core.Aura {
 	healthMetrics := aura.Unit.NewHealthMetrics(core.ActionID{SpellID: rank.SpellID})
 	heal := rank.Value
@@ -181,7 +188,7 @@ func AttachJudgementOfLightHeal(aura *core.Aura, caster *core.Unit, rank Judgeme
 		ProcMask:            core.ProcMaskMelee,
 		Outcome:             core.OutcomeLanded,
 		RequireDamageDealt:  true,
-		ProcChance:          judgementProcChance,
+		ProcChance:          judgementProcChance(rank.SpellID),
 		ProcSpellClassFlags: spelldata.MustFind(rank.SpellID).ClassFlags,
 		Caster:              caster,
 		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
@@ -205,8 +212,8 @@ func NewSpellDataJudgementOfWisdomAuraRank(target *core.Unit, rank JudgementRank
 	}), rank)
 }
 
-// Whoever lands an attack or spell on the judged target has a chance to regain the rank's mana.
-// Melee claim it returns mana on a miss as well.
+// Whoever lands an attack or spell on the judged target rolls the row's chance to regain the rank's
+// mana. Melee claim it returns mana on a miss as well.
 func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura {
 	actionID := core.ActionID{SpellID: rank.SpellID}
 	mana := rank.Value
@@ -215,7 +222,7 @@ func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura
 		Name:            aura.Label,
 		ActionID:        actionID,
 		MetricsActionID: actionID,
-		ProcChance:      judgementProcChance,
+		ProcChance:      judgementProcChance(rank.SpellID),
 		ProcMask:        core.ProcMaskDirect,
 		Callback:        core.CallbackOnSpellHitTaken,
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

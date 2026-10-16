@@ -30,6 +30,10 @@ const (
 	// The same for the ticking effect.
 	APCoefPeriodic
 
+	// The spell-power coefficient of the direct effect, onto Effect.SPCoef. Fails when the game files
+	// state an EffectBonusCoefficient there.
+	SPCoefDirect
+
 	// A proc chance in percent, onto Spell.ProcChance. Fails when the tooltip states a chance of
 	// its own through $h or $mN, because then the game files already say where the roll is.
 	ProcChancePct
@@ -70,6 +74,8 @@ func (f Field) String() string {
 		return "APCoefDirect"
 	case APCoefPeriodic:
 		return "APCoefPeriodic"
+	case SPCoefDirect:
+		return "SPCoefDirect"
 	case ProcChancePct:
 		return "ProcChancePct"
 	case DurationMs:
@@ -95,7 +101,7 @@ type Override struct {
 	Field   Field
 	Value   float64
 	Reason  string
-	Source  string // "tbc-carryover", "tooltip", "wcl:<report>/<fight>", "issue #N"
+	Source  string // "tbc-carryover", "tooltip", "wcl:<report>/<fight>", "issue #N", "combat log, <spell and rank>, <date>"
 }
 
 // Tooltip-only area bonuses ("doubled in X areas"). Groups are AreaGroup ids; any counts.
@@ -154,8 +160,8 @@ var AreaBonuses = []AreaBonus{
 // The procs whose rate the game files keep outside the spell data and that belong to the spell
 // rather than to one weapon: a chance-on-hit weapon's rate is its own and lives in WeaponProcs. The
 // ProcChance column reads the 100 or 101 sentinel, which the store would otherwise take for "fires
-// on every hit", or the spell has no proc row at all. Each rate is a carry-over, as its Source says;
-// none has been measured on this server.
+// on every hit", or the spell has no proc row at all. Each row's Source says where its number came
+// from.
 var Spells = []Override{
 	{
 		SpellID: 23686,
@@ -217,25 +223,105 @@ var Spells = []Override{
 		Source:  "owner decision, PR #99",
 	},
 	{
-		SpellID: 1299796,
-		Field:   StatMask,
-		Value:   16, // TODO: Verify in game that Insight's proc doubles Spirit, not Strength.
-		Reason:  "Insight: misc 0 and 0 is Strength by index, the tooltip reads 'Increases your Spirit by 100%'",
-		Source:  "tooltip",
-	},
-	{
-		SpellID: 1248751,
-		Field:   StatMask,
-		Value:   16, // TODO: Verify in game that Mystic Mushroom raises Spirit, not Strength.
-		Reason:  "Increased Spirit: misc 0 and 0 is Strength by index, the tooltip reads 'Increases Spirit by 5%'",
-		Source:  "tooltip",
-	},
-	{
 		SpellID: 350026,
 		Field:   ICDMs,
 		Value:   10000,
 		Reason:  "Shadow Oil: no proc on 425 landed hits within 10 s of the last one, 80 on 633 after; procs at least 10.26 s apart, none on hits from 9.98 s",
 		Source:  "wcl:Y4mTwRvPtqAn36CB/1-9, 2026-10-07",
+	},
+
+	// A spell-power coefficient the damage effect does not state.
+	{
+		SpellID: 1240047,
+		Field:   SPCoefDirect,
+		Value:   1.0 / 7, // TODO: Measure Ice Lance's spell power coefficient in game.
+		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game; TBC's 1/7 until measured",
+		Source:  "tbc-carryover",
+	},
+
+	// Seal of Light and Judgement of Light, measured in game at level 30 on Rank 1 across two combat
+	// logs, one with a 1.6 s weapon and one with a 3.7 s one. The seal healed on 463 of 1101 and 509
+	// of 554 landed melee hits while it was up, which only a per-minute rate fits, and the judgement
+	// on 825 of the 1693 landed while it was up, 534 of 1090 at 1.6 s and 256 of 537 at 3.7 s, which
+	// is a flat chance. Neither fired on a dodge, a parry or a miss. The other ranks carry Rank 1's
+	// numbers until a log at their level says otherwise, and Judgement of Wisdom carries Judgement of
+	// Light's chance until a log measures it.
+	{
+		SpellID: 20165,
+		Field:   PPM,
+		Value:   15,
+		Reason:  "Seal of Light Rank 1: 463 of 1101 landed hits at 1.6 s and 509 of 554 at 3.7 s; 15 per minute fits both, 14 fits neither and 16 fails the 3.7 s log",
+		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20347,
+		Field:   PPM,
+		Value:   15, // TODO: Measure Seal of Light Rank 2 in game.
+		Reason:  "Seal of Light Rank 2: Rank 1's measured rate",
+		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20348,
+		Field:   PPM,
+		Value:   15, // TODO: Measure Seal of Light Rank 3 in game.
+		Reason:  "Seal of Light Rank 3: Rank 1's measured rate",
+		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20349,
+		Field:   PPM,
+		Value:   15, // TODO: Measure Seal of Light Rank 4 in game.
+		Reason:  "Seal of Light Rank 4: Rank 1's measured rate",
+		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20185,
+		Field:   ProcChancePct,
+		Value:   50,
+		Reason:  "Judgement of Light Rank 1: 825 of 1693 landed hits, 534 of 1090 at 1.6 s and 256 of 537 at 3.7 s",
+		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20344,
+		Field:   ProcChancePct,
+		Value:   50, // TODO: Measure Judgement of Light Rank 2 in game.
+		Reason:  "Judgement of Light Rank 2: Rank 1's measured chance",
+		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20345,
+		Field:   ProcChancePct,
+		Value:   50, // TODO: Measure Judgement of Light Rank 3 in game.
+		Reason:  "Judgement of Light Rank 3: Rank 1's measured chance",
+		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20346,
+		Field:   ProcChancePct,
+		Value:   50, // TODO: Measure Judgement of Light Rank 4 in game.
+		Reason:  "Judgement of Light Rank 4: Rank 1's measured chance",
+		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+	},
+	{
+		SpellID: 20186,
+		Field:   ProcChancePct,
+		Value:   50, // TODO: Measure Judgement of Wisdom Rank 1 in game.
+		Reason:  "Judgement of Wisdom Rank 1: Judgement of Light Rank 1's measured chance",
+		Source:  "estimate",
+	},
+	{
+		SpellID: 20354,
+		Field:   ProcChancePct,
+		Value:   50, // TODO: Measure Judgement of Wisdom Rank 2 in game.
+		Reason:  "Judgement of Wisdom Rank 2: Judgement of Light Rank 1's measured chance",
+		Source:  "estimate",
+	},
+	{
+		SpellID: 20355,
+		Field:   ProcChancePct,
+		Value:   50, // TODO: Measure Judgement of Wisdom Rank 3 in game.
+		Reason:  "Judgement of Wisdom Rank 3: Judgement of Light Rank 1's measured chance",
+		Source:  "estimate",
 	},
 
 	// Attack Power shares measured in game at levels 13 and 14, against the sheet's Attack Power from
@@ -331,6 +417,62 @@ var Spells = []Override{
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 6: Rank 1's measured share",
 		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+	},
+	{
+		SpellID: 16864,
+		Field:   PPM,
+		Value:   2,
+		Reason:  "Omen of Clarity: 2.0 procs per minute, measured in combat logs; the game files state none",
+		Source:  "issue #225",
+	},
+	{
+		SpellID: 9896,
+		Field:   APCoefPeriodic,
+		Value:   0.01,
+		Reason:  "Rip: 0.06 attack power per combo point over six ticks, capped at four points; higher-rank verification remains open",
+		Source:  "Rip AP Scaling Testing, 2026-09-26, https://docs.google.com/spreadsheets/d/1fQiaAQzz1r_wS-2pD5e1Y6wZLxajru2R8GK5Uw1Lo60",
+	},
+	{
+		SpellID: 1822,
+		Field:   APCoefPeriodic,
+		Value:   0.055,
+		Reason:  "Rake Rank 1: periodic attack power share fitted to 136, 162, 217 and 237 AP with reported damage modifiers",
+		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
+	},
+	{
+		SpellID: 1823,
+		Field:   APCoefPeriodic,
+		Value:   0.055,
+		Reason:  "Rake Rank 2: Rank 1's measured periodic share; TODO: verify at this rank",
+		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
+	},
+	{
+		SpellID: 1824,
+		Field:   APCoefPeriodic,
+		Value:   0.055,
+		Reason:  "Rake Rank 3: Rank 1's measured periodic share; TODO: verify at this rank",
+		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
+	},
+	{
+		SpellID: 9904,
+		Field:   APCoefPeriodic,
+		Value:   0.055,
+		Reason:  "Rake Rank 4: Rank 1's measured periodic share; TODO: verify at this rank",
+		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
+	},
+	{
+		SpellID: 9908,
+		Field:   APCoefDirect,
+		Value:   0.03,
+		Reason:  "Swipe Rank 5: 3% of attack power on each hit; the game files state none",
+		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
+	},
+	{
+		SpellID: 22829,
+		Field:   APCoefDirect,
+		Value:   0.03,
+		Reason:  "Placeholder: Ferocious Bite attack power per combo point; the game files state none",
+		Source:  "classic-carryover",
 	},
 
 	// Revenge's Attack Power shares, read off how its non-crit hits move with Attack Power inside each

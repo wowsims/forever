@@ -90,8 +90,9 @@ type storeSpell struct {
 	ProcHint         core.ProcHint
 	SplitsDamage     bool
 
-	Effects []storeEffect
-	Powers  []storePower
+	Effects  []storeEffect
+	Powers   []storePower
+	Reagents []storeReagent
 
 	// The generator's own bookkeeping, which the store has no field for. The procs-per-minute id is
 	// what a PPM override is checked against, the tooltip flag what a proc chance override is, and
@@ -150,6 +151,11 @@ type storePower struct {
 	PerSecond          int32
 }
 
+type storeReagent struct {
+	Item  int32
+	Count int16
+}
+
 // Every table the store reads, loaded once for the whole game files database rather than per spell:
 // the closure walks the effects and descriptions of spells it has not selected yet, so the rows
 // have to be there before the set of wanted ids is known. Exported because storeInputs embeds it,
@@ -173,9 +179,10 @@ type spellTables struct {
 	Requirements     map[int32]int32
 	Equipped         map[int32]equippedRow
 
-	Labels  map[int32][]int16
-	Powers  map[int32][]storePower
-	Effects map[int32][]storeEffect
+	Labels   map[int32][]int16
+	Powers   map[int32][]storePower
+	Reagents map[int32][]storeReagent
+	Effects  map[int32][]storeEffect
 
 	// The spell granting the enchant, by each enchant equip spell that answers a hit.
 	EnchantGrants map[int32]int32
@@ -262,6 +269,7 @@ func newSpellTables() *spellTables {
 		Equipped:         map[int32]equippedRow{},
 		Labels:           map[int32][]int16{},
 		Powers:           map[int32][]storePower{},
+		Reagents:         map[int32][]storeReagent{},
 		Effects:          map[int32][]storeEffect{},
 		EnchantGrants:    map[int32]int32{},
 		EnchantChances:   map[int32]enchantChance{},
@@ -275,7 +283,7 @@ func loadSpellTables(db *sql.DB) (*spellTables, error) {
 	for _, load := range []func(*sql.DB) error{
 		t.loadNames, t.loadMisc, t.loadLevels, t.loadCooldowns, t.loadCategories, t.loadAuraOptions,
 		t.loadClassOptions, t.loadInterrupts, t.loadShapeshift, t.loadAuraRestrictions, t.loadTargetRestrictions,
-		t.loadCastingRequirements, t.loadEquippedItems, t.loadLabels, t.loadPowers, t.loadEffects,
+		t.loadCastingRequirements, t.loadEquippedItems, t.loadLabels, t.loadPowers, t.loadReagents, t.loadEffects,
 		t.loadEnchantGrants, t.loadEnchantChances,
 	} {
 		if err := load(db); err != nil {
@@ -338,6 +346,7 @@ func (t *spellTables) row(id int32) storeSpell {
 	s.Labels = t.Labels[id]
 	s.RefIDs = t.referencedIDs(id)
 	s.Powers = t.Powers[id]
+	s.Reagents = t.Reagents[id]
 
 	// The effect's class mask is read against the owning spell's family: the mask words alone name
 	// nothing, since the same bit is a different spell in each family. The family is carried only
@@ -646,6 +655,24 @@ func (t *spellTables) loadPowers(db *sql.DB) error {
 		}
 		p.Type = int8(powerType)
 		t.Powers[id] = append(t.Powers[id], p)
+		return nil
+	})
+}
+
+// Reagent and ReagentCount are JSON arrays of 8 slots, read in slot order; an empty slot is item 0.
+func (t *spellTables) loadReagents(db *sql.DB) error {
+	return eachRow(db, `
+		SELECT s.SpellID, item.value, count.value
+		FROM SpellReagents s, json_each(s.Reagent) item
+		JOIN json_each(s.ReagentCount) count ON count.key = item.key
+		WHERE item.value != 0 AND count.value != 0
+		ORDER BY s.SpellID, item.key`, func(rows *sql.Rows) error {
+		var id int32
+		var r storeReagent
+		if err := rows.Scan(&id, &r.Item, &r.Count); err != nil {
+			return err
+		}
+		t.Reagents[id] = append(t.Reagents[id], r)
 		return nil
 	})
 }

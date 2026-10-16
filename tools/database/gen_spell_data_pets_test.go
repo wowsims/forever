@@ -2,7 +2,8 @@ package database
 
 // The warlock's demon abilities sit on the demons' own skill lines with no class bit, so the class
 // file reaches them through the pet scaling spell those lines carry. The Felguard's line carries it
-// too, but no ability on it is trained: it is a Season of Discovery rune. Reads SkillLineAbility,
+// too, but no ability on it is trained: it is a Season of Discovery rune. The summons are on the
+// class's own Demonology line, each the one rank of its subtext "Summon". Reads SkillLineAbility,
 // which the store's inputs do not capture, so it skips without tools/database/wowsims.db.
 
 import (
@@ -45,6 +46,10 @@ func TestWarlockDemonAbilitiesAreGenerated(t *testing.T) {
 		"Lash of Pain":        6,
 		"Spell Lock":          2,
 		"Warlock Pet Scaling": 1,
+		"Summon Imp":          1,
+		"Summon Voidwalker":   1,
+		"Summon Succubus":     1,
+		"Summon Felhunter":    1,
 	} {
 		if generated[name] != ranks {
 			t.Errorf("%s: %d ranks generated, want %d", name, generated[name], ranks)

@@ -12,7 +12,7 @@ import (
 // A dynamic pet inherits from its owner's totals: strength the owner gains reaches the pet at the
 // next pet heartbeat, and comes back off at the heartbeat after the owner loses it.
 func TestDynamicPetInheritsFromTheOwnersTotals(t *testing.T) {
-	sim, owner := setupPetOwnerSim(&proto.PartyBuffs{})
+	sim, owner := setupPetOwnerSim(&proto.RaidBuffs{}, &proto.PartyBuffs{})
 	for _, unit := range slices.Concat(sim.Raid.AllUnits, sim.Encounter.AllTargetUnits) {
 		unit.AutoAttacks.CancelAutoSwing(sim)
 	}

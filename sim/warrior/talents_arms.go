@@ -251,17 +251,13 @@ func (warrior *Warrior) registerBloodthrill() {
 	}
 
 	talent := spellData.Bloodthrill.Rank(warrior.Talents.Bloodthrill)
-	// The tooltip's "Lasts $1289681d" is the one spell the row refers to, not the Overpower its
-	// effect fires.
-	window := talent.Refs()[0].Duration()
 
-	// The proc makes Overpower usable for the buff's duration; the cast consumes it like a dodge
-	// would. The rate is the shape where the tooltip's $s1 names an effect, so the row's own
-	// ProcChanceEffectN reads the ladder; the Rend the tooltip asks for is the caller's.
+	// The proc opens Overpower's window as a dodge would, for the window's own duration, and the
+	// cast consumes it. The tooltip's $s1 names an effect, so the row's own ProcChanceEffectN
+	// reads the rate ladder. The caller checks for the Rend the tooltip asks for.
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.OverpowerAura.Activate(sim)
-			warrior.OverpowerAura.UpdateExpires(sim.CurrentTime + window)
 		})
 	trigger.Name = "Bloodthrill - Trigger"
 	trigger.RequireDamageDealt = false

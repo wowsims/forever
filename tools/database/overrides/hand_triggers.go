@@ -28,10 +28,25 @@ var HandTriggers = []HandTrigger{
 		Source: "game-files-rows",
 	},
 	{
+		Spell:    1311074,
+		Triggers: 1311077,
+		Reason: "Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, " +
+			"a mana energize whose tooltip reads Judging restores a portion of the Judged Seal's Mana cost",
+		Source: "game-files-rows",
+	},
+	{
 		Spell:    1323967,
 		Triggers: 1323969,
 		Reason: "Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class " +
 			"set and icon, 3 charges heard on melee attacks, and its aura 231 casts the heal 1323968",
+		Source: "game-files-rows",
+	},
+	{
+		Spell:    24574,
+		Triggers: 24575,
+		Reason: "Zandalarian Hero Badge's on-use Brittle Armor applies the stacking buff its tooltip describes: " +
+			"same name, 200 armor (A_MOD_ARMOR_NO_MODS) and 3 defense a stack, the 2000 and 30 of ten stacks, and " +
+			"the script effect 24590 of its proc takes a stack off per hit taken",
 		Source: "game-files-rows",
 	},
 	{

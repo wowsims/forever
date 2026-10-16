@@ -1,6 +1,6 @@
 # Reading a row by hand
 
-The druid, mage, priest, rogue and warlock read the store by hand. A class file names the ladder it
+The druid, priest, rogue and warlock read the store by hand. A class file names the ladder it
 needs, picks a rank, and reads every field the registration wants straight into a plain expression,
 with no resolver in between. In these classes' files **a row is a source of numbers only**: they use
 no `spelldata.SpellConfig`, `AuraConfig`, `DotConfig`, `ProcTrigger`, `ParseEffects` or
@@ -25,6 +25,7 @@ With no resolver to read the row for the caller, a registration reads these valu
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `rank.ID`, `rank.RankNumber()`                     | the `ActionID` and the `Rank` field a `core.SpellConfig` wants; `RankNumber()` is `NameSubtext_lang`'s "Rank N", 0 where the game files state none                                      |
 | `rank.Cost()`                                      | the cost off the first power the row states, in the sim's units (rage already divided by ten); it answers a `float64`, so an `int32` field like `ManaCostOptions.FlatCost` needs a cast |
+| `rank.ReagentCount(item)`                          | how many of that item each cast consumes, off `Reagents` (SpellReagents); 0 for an item it does not take                                                                                |
 | `rank.GCD()`, `rank.CastTime()`                    | the global cooldown and the cast time                                                                                                                                                   |
 | `max(rank.Cooldown(), rank.CategoryCooldown())`    | the row's own cooldown, or the one it shares with a category                                                                                                                            |
 | `rank.Duration()`                                  | an aura or dot's length; the game files' -1 becomes `core.NeverExpires`                                                                                                                 |

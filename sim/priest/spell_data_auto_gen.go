@@ -8,8 +8,9 @@ import (
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Blessed Recovery: effect 1 of spell 27811 has no rank curve and is held at its base points
+//   Devouring Contagion: effect 2 of spell 1309950 has no rank curve and is held at its base points
+//   Divine Aegis: effect 1 of spell 431622 has no rank curve and is held at its base points
 //   Early Demise: effect 1 of spell 1310076 has no rank curve and is held at its base points
-//   Improved Mind Flay: effect 3 of spell 1225139 has no rank curve and is held at its base points
 //   Soul Warding: effect 0, 1 of spell 402000 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
@@ -25,6 +26,8 @@ type generatedSpellData struct {
 	ContingencyPlan             spelldata.Ladder
 	ContingencyPlanTriggered    spelldata.Ladder
 	CureDisease                 spelldata.Ladder
+	DarkInspiration             spelldata.Ladder
+	DarkInspirationTriggered    spelldata.Ladder
 	DarkSacrifice               spelldata.Ladder
 	Darkness                    spelldata.Ladder
 	DesperatePrayer             spelldata.Ladder
@@ -54,7 +57,6 @@ type generatedSpellData struct {
 	HolyPrecision               spelldata.Ladder
 	HolyReach                   spelldata.Ladder
 	HolySpecialization          spelldata.Ladder
-	ImprovedFade                spelldata.Ladder
 	ImprovedHealing             spelldata.Ladder
 	ImprovedInnerFire           spelldata.Ladder
 	ImprovedManaBurn            spelldata.Ladder
@@ -107,7 +109,6 @@ type generatedSpellData struct {
 	SearingLight                spelldata.Ladder
 	SearingLightTriggered       spelldata.Ladder
 	ShackleUndead               spelldata.Ladder
-	ShadowAffinity              spelldata.Ladder
 	ShadowFocus                 spelldata.Ladder
 	ShadowProtection            spelldata.Ladder
 	ShadowReach                 spelldata.Ladder
@@ -154,6 +155,8 @@ var spellData = generatedSpellData{
 	ContingencyPlan:             spelldata.Ranked(1277462, 1277634, 1277638, 1277639, 1277640),
 	ContingencyPlanTriggered:    spelldata.Ranked(1277456, 1277457, 1277458, 1277459, 1277460, 1277463, 1277464, 1277465, 1277466, 1277467),
 	CureDisease:                 spelldata.Ranked(528),
+	DarkInspiration:             spelldata.Talent(1326159, 5),
+	DarkInspirationTriggered:    spelldata.Ranked(1326168),
 	DarkSacrifice:               spelldata.Ranked(1277324, 1277325, 1277326, 1277327, 1277328),
 	Darkness:                    spelldata.Talent(15259, 5),
 	DesperatePrayer:             spelldata.Ranked(13908, 19236, 19238, 19240, 19241, 19242, 19243),
@@ -183,7 +186,6 @@ var spellData = generatedSpellData{
 	HolyPrecision:               spelldata.Talent(1309957, 3),
 	HolyReach:                   spelldata.Talent(27789, 2),
 	HolySpecialization:          spelldata.Talent(14889, 5),
-	ImprovedFade:                spelldata.Talent(15274, 2),
 	ImprovedHealing:             spelldata.Talent(14912, 3),
 	ImprovedInnerFire:           spelldata.Talent(14747, 3),
 	ImprovedManaBurn:            spelldata.Talent(14750, 2),
@@ -236,7 +238,6 @@ var spellData = generatedSpellData{
 	SearingLight:                spelldata.Talent(14909, 2),
 	SearingLightTriggered:       spelldata.Ranked(1284536),
 	ShackleUndead:               spelldata.Ranked(9484, 9485, 10955),
-	ShadowAffinity:              spelldata.Talent(15318, 3),
 	ShadowFocus:                 spelldata.Talent(15260, 5),
 	ShadowProtection:            spelldata.Ranked(976, 10957, 10958),
 	ShadowReach:                 spelldata.Talent(17322, 2),

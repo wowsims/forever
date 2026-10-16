@@ -31,14 +31,17 @@ func NewBalanceDruid(character *core.Character, options *proto.Player) *BalanceD
 		Druid:   druid.New(character, druid.Moonkin, selfBuffs, options.TalentsString),
 		Options: balanceOptions.Options,
 	}
+	if !moonkin.Talents.MoonkinForm {
+		moonkin.StartingForm = druid.Humanoid
+	}
 
 	moonkin.SelfBuffs.InnervateTarget = &proto.UnitReference{}
 	if balanceOptions.Options.ClassOptions.InnervateTarget != nil {
 		moonkin.SelfBuffs.InnervateTarget = balanceOptions.Options.ClassOptions.InnervateTarget
 	}
 
-	moonkin.RegisterMoonkinFormSpell()
 	moonkin.RegisterMoonkinFormAura()
+	moonkin.RegisterMoonkinFormSpell()
 
 	return moonkin
 }
@@ -46,8 +49,6 @@ func NewBalanceDruid(character *core.Character, options *proto.Player) *BalanceD
 type BalanceDruid struct {
 	*druid.Druid
 	Options *proto.BalanceDruid_Options
-
-	ManaMetric *core.ResourceMetrics
 }
 
 func (moonkin *BalanceDruid) GetDruid() *druid.Druid {
@@ -57,7 +58,6 @@ func (moonkin *BalanceDruid) GetDruid() *druid.Druid {
 func (moonkin *BalanceDruid) Initialize() {
 	moonkin.Druid.Initialize()
 	moonkin.Druid.RegisterBalanceSpells()
-	moonkin.ManaMetric = moonkin.NewManaMetrics(core.ActionID{SpellID: 81070 /* Eclipse */})
 }
 
 func (moonkin *BalanceDruid) ApplyTalents() {
@@ -66,4 +66,7 @@ func (moonkin *BalanceDruid) ApplyTalents() {
 
 func (moonkin *BalanceDruid) Reset(sim *core.Simulation) {
 	moonkin.Druid.Reset(sim)
+	if moonkin.MoonkinFormAura != nil {
+		moonkin.MoonkinFormAura.Activate(sim)
+	}
 }

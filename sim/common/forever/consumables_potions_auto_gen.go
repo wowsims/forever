@@ -42,6 +42,7 @@ func RegisterPotionsAndConjured() {
 		13459,  // Greater Shadow Protection Potion
 		13460,  // Greater Holy Protection Potion
 		13461,  // Greater Arcane Protection Potion
+		14894,  // Lily Root
 		17348,  // Major Healing Draught
 		17349,  // Superior Healing Draught
 		17351,  // Major Mana Draught
@@ -92,7 +93,6 @@ func RegisterPotionsAndConjured() {
 		11951, // Whipper Root Tuber
 		11952, // Night Dragon's Breath
 		12662, // Demonic Rune
-		14894, // Lily Root
 		15723, // Tea with Sugar
 		17747, // Razorlash Root
 		19004, // Minor Healthstone

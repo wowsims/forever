@@ -15,7 +15,7 @@ func (hunter *Hunter) registerScorpidSting() {
 	})
 
 	config := spelldata.SpellConfig(&hunter.Unit, scorpidStingRank, spelldata.Flags(core.SpellFlagAPL))
-	// See Serpent Sting for the mask.
+	// No proc mask: a debuff with no damage, seen only by listeners that state no mask.
 	config.ProcMask = core.ProcMaskEmpty
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

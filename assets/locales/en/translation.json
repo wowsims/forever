@@ -219,6 +219,7 @@
 			"spell_power": "Spell Power",
 			"armor": "Armor",
 			"bonus_armor": "Bonus Armor",
+			"armor_no_mods": "Armor (No Mods)",
 			"health": "Health",
 			"mana": "Mana",
 			"mp5": "MP5",
@@ -776,15 +777,15 @@
 			},
 			"assume_bleed_active": {
 				"label": "Assume Bleed Always Active",
-				"tooltip": "Assume bleed always exists for 'Rend and Tear' calculations. Otherwise will only calculate based on own rip/rake/lacerate."
+				"tooltip": "Assume bleed always exists for 'Rend and Tear' calculations and the 'Bleed Is Active' APL condition. Otherwise will only calculate based on your own bleeds."
+			},
+			"prepull_clearcasting": {
+				"label": "Clearcasting at the Pull",
+				"tooltip": "Start the fight with Clearcasting from Omen of Clarity, fished for out of combat by casting spells before the pull."
 			},
 			"cannot_shred_target": {
 				"label": "Cannot Shred Target",
 				"tooltip": "Alternative to \"In Front of Target\" for modeling bosses that do not Parry or Block, but which you still cannot Shred."
-			},
-			"okf_uptime": {
-				"label": "Owlkin Frenzy Uptime (%)",
-				"tooltip": "Percentage of fight uptime for Owlkin Frenzy"
 			},
 			"show_1h_weapons": {
 				"label": "1H",
@@ -825,6 +826,22 @@
 			"warlock_assigned_curse": {
 				"title": "Assigned Curse",
 				"description": "The selected curse will prevent the selected external debuff from being cast."
+			},
+			"warlock_soul_shards": {
+				"label": "Soul Shards",
+				"tooltip": "Soul Shards carried into the fight. Soul Fire and Shadowburn each take one, and cannot be cast without one."
+			},
+			"warlock_pet": {
+				"label": "Pet",
+				"tooltip": "The demon out when the fight starts. Summons in the APL can change it."
+			},
+			"warlock_armor": {
+				"label": "Armor",
+				"tooltip": "The armor spell up for the fight."
+			},
+			"warlock_demonic_sacrifice": {
+				"label": "Demonic Sacrifice",
+				"tooltip": "The effect up when the fight starts, labelled with the demon sacrificed for it. Without Demonic Pact, a sacrifice leaves no demon out."
 			},
 			"pet_training": {
 				"cobra_reflexes": {
@@ -1686,18 +1703,6 @@
 					"label": "Max Combo Points",
 					"tooltip": "Amount of maximum available Combo Points."
 				},
-				"solar_energy": {
-					"label": "Solar Energy",
-					"tooltip": "Amount of currently available Solar Energy."
-				},
-				"lunar_energy": {
-					"label": "Lunar Energy",
-					"tooltip": "Amount of currently available Lunar Energy"
-				},
-				"current_eclipse_phase": {
-					"label": "Current Eclipse Phase",
-					"tooltip": "The eclipse phase the druid currently is in."
-				},
 				"generic_resource": {
 					"label": "{GENERIC_RESOURCE}",
 					"tooltip": "Amount of currently available {GENERIC_RESOURCE}."
@@ -1875,6 +1880,10 @@
 					"label": "Dot Is Active",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking, otherwise <b>False</b>."
 				},
+				"druid_bleed_is_active": {
+					"label": "Bleed Is Active",
+					"tooltip": "<b>True</b> if one of your bleeds is on the target, or if <b>Assume Bleed Always Active</b> is enabled, otherwise <b>False</b>."
+				},
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking on all targets, otherwise <b>False</b>."
@@ -1922,6 +1931,10 @@
 				"warlock_is_assigned_curse": {
 					"label": "Is Assigned Curse",
 					"tooltip": "True if the warlock is assigned the specified curse"
+				},
+				"warlock_active_pet": {
+					"label": "Active Pet Is",
+					"tooltip": "True while the specified demon is out. No Pet is true while no demon is."
 				},
 				"protection_paladin_damage_taken_last_global": {
 					"label": "Damage Taken Last Global",
@@ -2022,10 +2035,17 @@
 				"water": "Water"
 			},
 			"curse_types": {
-				"agony": "Curse of Agony",
-				"doom": "Curse of Doom",
 				"elements": "Curse of Elements",
-				"recklessness": "Curse of Recklessness"
+				"recklessness": "Curse of Recklessness",
+				"weakness": "Curse of Weakness",
+				"no_curse": "No Curse"
+			},
+			"summon_types": {
+				"imp": "Imp",
+				"voidwalker": "Voidwalker",
+				"succubus": "Succubus",
+				"felhunter": "Felhunter",
+				"no_summon": "No Pet"
 			},
 			"submenus": {
 				"logic": "Logic",
@@ -2055,7 +2075,6 @@
 				"focus": "Focus",
 				"energy": "Energy",
 				"combo_points": "Combo Points",
-				"eclipse": "Eclipse",
 				"cooldowns": "Cooldowns",
 				"potions": "Potions",
 				"conjured_items": "Conjured Items",
@@ -2102,11 +2121,6 @@
 					"use_base_value": "Use base value",
 					"use_base_value_tooltip": "If checked, will compare the current DoT to the the base value (on encounter start) of the DoT.",
 					"variable_assignment_tooltip": "Value to assign to variable '{{variableName}}'"
-				},
-				"eclipse_types": {
-					"lunar": "Lunar",
-					"solar": "Solar",
-					"neutral": "Neutral"
 				},
 				"rotation_types": {
 					"single_target": "Single Target",
@@ -2161,74 +2175,6 @@
 			}
 		},
 		"options": {
-			"druid": {
-				"feral_cat": {
-					"finishing_move": {
-						"label": "Finishing Move",
-						"tooltip": "Choose whether Rip or Ferocious Bite is the primary finisher in the rotation.",
-						"values": {
-							"rip": "Rip",
-							"bite": "Ferocious Bite",
-							"none": "None"
-						}
-					},
-					"biteweave": {
-						"label": "Enable Bite-weaving",
-						"tooltip": "Spend Combo Points on Ferocious Bite when Rip is already active on the target."
-					},
-					"ripweave": {
-						"label": "Enable Rip-weaving",
-						"tooltip": "Spend Combo Points on Rip when at 52 Energy or above, even when Bite is the primary finisher."
-					},
-					"rip_min_combo_points": {
-						"label": "Rip CP Threshold",
-						"tooltip": "Minimum Combo Points to accumulate before casting Rip."
-					},
-					"bite_min_combo_points": {
-						"label": "Bite CP Threshold",
-						"tooltip": "Minimum Combo Points to accumulate before casting Ferocious Bite."
-					},
-					"mangle_trick": {
-						"label": "Use Mangle trick",
-						"tooltip": "Cast Mangle rather than Shred when between 50–56 Energy with 2pT6, or 60–61 Energy without, with less than 1 second until the next Energy tick."
-					},
-					"rake_trick": {
-						"label": "Use Rake/Bite tricks",
-						"tooltip": "Cast Rake or Ferocious Bite rather than powershifting when between 35–39 Energy without 2pT6, with more than 1 second until the next Energy tick."
-					},
-					"maintain_faerie_fire": {
-						"label": "Maintain Faerie Fire",
-						"tooltip": "Use Faerie Fire (Feral) whenever it is not active on the target."
-					}
-				},
-				"feral_bear": {
-					"maul_rage_threshold": {
-						"label": "Maul Rage Threshold",
-						"tooltip": "Use Maul when current Rage is at or above this value."
-					},
-					"swipe_usage": {
-						"label": "Swipe Usage",
-						"tooltip": "When to use Swipe in the rotation.",
-						"values": {
-							"never": "Never",
-							"with_enough_ap": "With Enough AP",
-							"spam": "Spam"
-						}
-					},
-					"swipe_ap_threshold": {
-						"label": "Swipe AP Threshold",
-						"tooltip": "Minimum Attack Power required before Swipe is used in the rotation."
-					},
-					"maintain_demo_roar": {
-						"label": "Maintain Demo Roar",
-						"tooltip": "Keep Demoralizing Roar active on the primary target."
-					},
-					"maintain_faerie_fire": {
-						"label": "Maintain Faerie Fire",
-						"tooltip": "Use Faerie Fire (Feral) whenever it is not active on the target."
-					}
-				}
-			},
 			"rogue": {
 				"apply_poisons_manually": {
 					"label": "Configure poisons manually",
@@ -2772,7 +2718,6 @@
 			"profession_requirement": "{{itemName}} requires {{professionName}}, but it is not selected.",
 			"unspent_talent_points": "You have {{count}} unspent talent point(s).",
 			"broken_talents": "These talents are missing their tier or prerequisite points, so the build is not possible in game. The sim still applies them: {{talents}}.",
-			"windfury_over_grace_of_air": "Windfury Totem and Grace of Air Totem do not stack: only Windfury Totem applies.",
 			"windfury_over_flametongue": "Windfury Totem and Flametongue Totem do not stack: only Windfury Totem applies."
 		},
 		"buttons": {

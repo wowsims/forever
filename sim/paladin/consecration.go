@@ -14,7 +14,8 @@ var ConsecrationRankMap = spellData.Consecration
 // Consecrates the land beneath the Paladin, doing 96 Holy damage over 8 sec to enemies who enter the
 // area. The first 4 enemies who enter the area will take an additional 216 damage over 8 sec.
 //
-// The ticks crit in game, though no row in the ladder states Periodic Can Crit.
+// The ground ticks once a period after the cast, none at the cast. Each tick rolls spell hit and crit
+// on its own, though no row in the ladder states Periodic Can Crit.
 func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	tickSpell := spellData.ConsecrationTriggered.Rank(n)
 	tick := tickSpell.EffectN(1)
@@ -24,21 +25,6 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	bonusTargets := int(dummy.Average())
 	tickLength := dummy.Period()
 	numberOfTicks := int32(rank.Duration() / tickLength)
-
-	// The bonus scales on its own coefficient, so it is added to the base damage here rather than
-	// through the dot's, which is the base tick's. Consecrated Ground marks the same targets.
-	dealTick := func(sim *core.Simulation, dot *core.Dot, firstTick bool) {
-		for i, target := range sim.Encounter.ActiveTargetUnits {
-			damage := tick.Average()
-			if i < bonusTargets {
-				damage += bonus.Average() + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
-				if firstTick && paladin.consecratedGroundAuras != nil {
-					paladin.consecratedGroundAuras.Get(target).Activate(sim)
-				}
-			}
-			dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicCrit)
-		}
-	}
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = SpellMaskConsecration
@@ -52,22 +38,32 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 			ActionID: core.ActionID{SpellID: rank.ID},
 			Label:    rank.RankedLabel(&paladin.Unit),
 		},
-		NumberOfTicks:    numberOfTicks - 1, // the sim adds an immediate tick below
+		NumberOfTicks:    numberOfTicks,
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
+		// The bonus scales on its own coefficient, so it is added to the base damage here rather than
+		// through the dot's, which is the base tick's. The periodic dummy picks the bonus targets from its
+		// first tick on, and Consecrated Ground marks them on that first tick.
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
-			dealTick(sim, dot, false)
+			for i, target := range sim.Encounter.ActiveTargetUnits {
+				damage := tick.Average()
+				if i < bonusTargets {
+					damage += bonus.Average() + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
+					if dot.TickCount() == 1 && paladin.consecratedGroundAuras != nil {
+						paladin.consecratedGroundAuras.Get(target).Activate(sim)
+					}
+				}
+				dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
+			}
 		},
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		// Consecration does one hit check on cast but the ground effect will still be applied
-		// meaning it's only needed to proc things like Eye of Magtheridon (procs on resist)
+		// The cast rolls its own hit only so that procs on a resist can fire; the ground is laid whether
+		// it lands or not.
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
 
-		dot := spell.AOEDot()
-		dot.Apply(sim)
-		dealTick(sim, dot, true)
+		spell.AOEDot().Apply(sim)
 	}
 
 	paladin.RegisterSpell(config)

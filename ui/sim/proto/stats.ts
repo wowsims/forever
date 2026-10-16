@@ -351,6 +351,7 @@ const displayStatOrder: Array<UnitStat> = [
 	UnitStat.fromStat(Stat.StatMana),
 	UnitStat.fromStat(Stat.StatArmor),
 	UnitStat.fromStat(Stat.StatBonusArmor),
+	UnitStat.fromStat(Stat.StatArmorNoMods),
 	UnitStat.fromStat(Stat.StatStamina),
 	UnitStat.fromStat(Stat.StatStrength),
 	UnitStat.fromStat(Stat.StatAgility),

@@ -1,58 +1,35 @@
 package druid
 
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
 var insectSwarmRank = spellData.InsectSwarm.Highest()
-var insectSwarmTick = insectSwarmRank.PeriodicEffect()
 
-// TODO: To be implemented.
 func (druid *Druid) registerInsectSwarmSpell() {
-	panic("To be implemented")
+	auras := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		return buffs.NewSpellDataInsectSwarmAura(target, true, 0)
+	})
 
-	// The TBC implementation, kept for the port:
-	// druid.InsectSwarm = druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: insectSwarmRank.ID},
-	// 	CastRequirement: insectSwarmRank.CastRequirement(),
-	// 	SpellSchool:     insectSwarmRank.SpellSchool(),
-	// 	DefenseType:     insectSwarmRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskSpellDamage,
-	// 	ClassSpellMask:  DruidSpellInsectSwarm,
-	// 	Flags:           core.SpellFlagAPL | core.SpellFlagBinary,
-	//
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	// 	MaxRange:         float64(insectSwarmRank.MaxRange),
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(insectSwarmRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: insectSwarmRank.GCD(),
-	// 		},
-	// 	},
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label: "Insect Swarm",
-	// 		},
-	//
-	// 		NumberOfTicks:       int32(insectSwarmRank.Duration() / insectSwarmTick.Period()),
-	// 		TickLength:          insectSwarmTick.Period(),
-	// 		AffectedByCastSpeed: false,
-	// 		BonusCoefficient:    insectSwarmTick.Coeff(),
-	//
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			dot.Spell.CalcAndDealPeriodicDamage(sim, target, insectSwarmTick.Average(core.CharacterLevel), dot.OutcomeTick)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	//
-	// 		if result.Landed() {
-	// 			spell.Dot(target).Apply(sim)
-	// 		}
-	//
-	// 		spell.DealOutcome(sim, result)
-	// 	},
-	// })
+	// Binary: the row's second effect lowers the target's chance to hit, and a spell with a
+	// non-damage effect is resisted whole or not at all. Its ticks still take partial resists, against
+	// the full resistance.
+	config := spelldata.SpellConfig(&druid.Unit, insectSwarmRank,
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagBinary|core.SpellFlagFullResistanceTicks))
+	config.Dot = spelldata.DotConfig(insectSwarmRank, insectSwarmRank.PeriodicEffect())
+	// A duration mod such as Nature's Splendor's lengthens the hit debuff through it, as it does the dot.
+	config.RelatedAuraArrays = auras.ToMap()
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+		if result.Landed() {
+			spell.Dot(target).Apply(sim)
+			auras.Get(target).Activate(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	druid.InsectSwarm = druid.RegisterSpell(config)
 }

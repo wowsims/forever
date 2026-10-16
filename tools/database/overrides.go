@@ -1556,14 +1556,14 @@ var SharedSpellsIcons = []int32{
 	19615, // Frenzy Effect
 	20554, // Berserking
 	20572, // Blood Fury
-	20574, // Axe Specialization
+	20574, // Savage
 	20594, // Stoneform
-	20597, // Sword Specialization
+	20597, // Ruthless
 	23110, // Dash
 	23563, // Enhanced Battle Shout
 	25076, // Cobra Reflexes
 	21564, // Prayer of Fortitude
-	25895, // Greater Blessing of Salvation
+	25895, // Mass Salvation
 	25916, // Greater Blessing of Might
 	25918, // Greater Blessing of Wisdom
 	27681, // Prayer of Spirit
@@ -1576,7 +1576,7 @@ var SharedSpellsIcons = []int32{
 	1259686, // Skysight
 	1259688, // Elemental Blessing
 	1259705, // Read Ley Line
-	1259719, // Mace Specialization
+	1259719, // Earth Fury
 	1259799, // Elune's Light
 	1259812, // Eureka!
 	1259813, // Eureka!
@@ -1660,7 +1660,4 @@ var EnchantOverrides = []*proto.UIEnchant{
 	{EffectId: 2681, ItemId: 22635, SpellId: 28162, Name: "Savage Guard", Stats: stats.Stats{stats.NatureResistance: 10}.ToProtoArray()},
 	{EffectId: 2682, ItemId: 22636, SpellId: 28164, Name: "Ice Guard", Stats: stats.Stats{stats.FrostResistance: 10}.ToProtoArray()},
 	{EffectId: 2683, ItemId: 22638, SpellId: 28166, Name: "Shadow Guard", Stats: stats.Stats{stats.ShadowResistance: 10}.ToProtoArray()},
-	// 13419 names the cloak inventory type but the weapon item class in the game files; every other
-	// cloak enchant names the armor class.
-	{EffectId: 247, ItemId: 11039, SpellId: 7778, Name: "Enchant Cloak - Minor Agility", Type: proto.ItemType_ItemTypeBack},
 }

@@ -37,6 +37,17 @@
         "maxPoints": 5
       },
       {
+        "fieldName": "missileBarrage",
+        "fancyName": "Missile Barrage",
+        "location": {
+          "rowIdx": 0,
+          "colIdx": 3
+        },
+        "spellId": 400588,
+        "definitionId": 135332,
+        "maxPoints": 2
+      },
+      {
         "fieldName": "arcaneSubtlety",
         "fancyName": "Arcane Subtlety",
         "location": {
@@ -151,15 +162,19 @@
         }
       },
       {
-        "fieldName": "missileBarrage",
-        "fancyName": "Missile Barrage",
+        "fieldName": "arcaneWrath",
+        "fancyName": "Arcane Wrath",
         "location": {
           "rowIdx": 3,
           "colIdx": 3
         },
-        "spellId": 400588,
-        "definitionId": 135332,
-        "maxPoints": 1
+        "spellId": 1326079,
+        "definitionId": 145958,
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 2,
+          "colIdx": 3
+        }
       },
       {
         "fieldName": "presenceOfMind",
@@ -216,8 +231,8 @@
     "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/tbc/41.jpg",
     "talents": [
       {
-        "fieldName": "wakeOfFire",
-        "fancyName": "Wake of Fire",
+        "fieldName": "improvedFireBlast",
+        "fancyName": "Improved Fire Blast",
         "location": {
           "rowIdx": 0,
           "colIdx": 0
@@ -371,7 +386,7 @@
         },
         "spellId": 11115,
         "definitionId": 135314,
-        "maxPoints": 3
+        "maxPoints": 5
       },
       {
         "fieldName": "blastWave",
@@ -393,7 +408,7 @@
         },
         "spellId": 11124,
         "definitionId": 135312,
-        "maxPoints": 5
+        "maxPoints": 3
       },
       {
         "fieldName": "combustion",
@@ -461,14 +476,14 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "permafrost",
-        "fancyName": "Permafrost",
+        "fieldName": "frostbite",
+        "fancyName": "Frostbite",
         "location": {
           "rowIdx": 1,
           "colIdx": 1
         },
-        "spellId": 11175,
-        "definitionId": 135306,
+        "spellId": 11071,
+        "definitionId": 135304,
         "maxPoints": 3
       },
       {
@@ -483,14 +498,14 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "frostbite",
-        "fancyName": "Frostbite",
+        "fieldName": "permafrost",
+        "fancyName": "Permafrost",
         "location": {
           "rowIdx": 1,
           "colIdx": 3
         },
-        "spellId": 11071,
-        "definitionId": 135304,
+        "spellId": 11175,
+        "definitionId": 135306,
         "maxPoints": 3
       },
       {

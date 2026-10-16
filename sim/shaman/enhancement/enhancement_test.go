@@ -25,12 +25,12 @@ func TestEnhancement(t *testing.T) {
 				{Label: "Frostbrand", SpecOptions: imbueOptions(proto.ShamanImbue_FrostbrandWeapon)},
 				{Label: "Rockbiter", SpecOptions: imbueOptions(proto.ShamanImbue_RockbiterWeapon)},
 			},
-			GearSet:     core.GetGearSet("../../../ui/specs/shaman/enhancement/gear_sets", "prebis"),
+			GearSet:     testingBuild.GearSet,
 			Talents:     DefaultTalents,
 			Consumables: DefaultConsumables,
 			Profession1: proto.Profession_Engineering,
 			Profession2: proto.Profession_Leatherworking,
-			Rotation:    core.GetAplRotation("../../../ui/specs/shaman/enhancement/apls", "default"),
+			Rotation:    testingBuild.Rotation,
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
 					proto.WeaponType_WeaponTypeAxe,
@@ -58,7 +58,11 @@ func imbueOptions(imbue proto.ShamanImbue) *proto.Player_EnhancementShaman {
 	}
 }
 
-const DefaultTalents = "050533102-053030031005112251"
+// The Testing build's gear, talents and rotation.
+var testingBuild = core.GetTestBuildFromJSON(proto.Class_ClassShaman, "../../../ui/specs/shaman/enhancement/builds", "testing",
+	core.ItemFilter{}, nil, nil)
+
+var DefaultTalents = testingBuild.Talents
 
 // The UI's Enhancement defaults: Major Mana Potion, Flask of Supreme Power, Smoked Desert Dumplings,
 // Demonic Rune, the Owl, Sages, Greater Mageblood, Nature Power, Greater Arcane, Cunning and Ferocity

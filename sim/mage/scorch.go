@@ -1,50 +1,52 @@
 package mage
 
-var scorchRank = spellData.Scorch.Highest()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerScorchSpell() {
-	panic("To be implemented")
+	procChance := spellData.ImprovedScorch.EffectAt(1).FractionAt(mage.Talents.ImprovedScorch)
 
-	// The TBC implementation, kept for the port:
-	//
-	// procChance := []float64{0, 0.33, 0.66, 1}[mage.Talents.ImprovedScorch]
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: scorchRank.ID},
-	// 	SpellSchool:    scorchRank.SpellSchool(),
-	// 	DefenseType:    scorchRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: MageSpellScorch,
-	// 	ClassFlags:     scorchRank.ClassFlags,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(scorchRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      scorchRank.GCD(),
-	// 			CastTime: scorchRank.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplierAdditive: 1,
-	// 	BonusCoefficient:         scorchRank.DamageEffect().Coeff(),
-	// 	ThreatMultiplier:         1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := scorchRank.DamageEffect().Average(core.CharacterLevel)
-	// 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMagicHitAndCrit)
-	// 		if result.Landed() && mage.Talents.ImprovedScorch > 0 {
-	// 			if sim.Proc(procChance, "Improved Scorch") {
-	// 				aura := mage.ImprovedScorchAuras.Get(target)
-	// 				aura.Activate(sim)
-	// 				aura.AddStack(sim)
-	// 			}
-	// 		}
-	// 	},
-	//
-	// 	RelatedAuraArrays: mage.ImprovedScorchAuras.ToMap(),
-	// })
+	if mage.Talents.ImprovedScorch > 0 {
+		mage.ImprovedScorchAuras = mage.newFireVulnerabilityAuras()
+	}
+
+	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+	// spellData.Scorch lists.
+	mage.registerScorchRank(spellData.Scorch.Highest(), procChance)
+}
+
+func (mage *Mage) registerScorchRank(rank *spelldata.Spell, procChance float64) {
+	damage := rank.DamageEffect()
+
+	config := spelldata.SpellConfig(&mage.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = MageSpellScorch
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
+		if result.Landed() && sim.Proc(procChance, "Improved Scorch") {
+			aura := mage.ImprovedScorchAuras.Get(target)
+			aura.Activate(sim)
+			aura.AddStack(sim)
+		}
+	}
+
+	config.RelatedAuraArrays = mage.ImprovedScorchAuras.ToMap()
+
+	mage.RegisterSpell(config)
+}
+
+// Fire Vulnerability (22959), Improved Scorch's debuff: "Increases Fire damage taken from the Mage by
+// 3% per stack", up to 5. It is A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER with misc 4, so it scales only
+// the Fire damage of the mage whose Scorch applied it, never another player's: each mage keeps its
+// own stack on the target, parsed onto this mage's attack table against it.
+func (mage *Mage) newFireVulnerabilityAuras() core.AuraArray {
+	debuff := spellData.ImprovedScorchTriggered.Highest()
+
+	return mage.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		aura := target.GetOrRegisterAura(spelldata.AuraConfig(debuff, spelldata.Label(debuff.Name+mage.Label)))
+		spelldata.ParseEffects(nil, aura, debuff, spelldata.FromCaster(&mage.Unit, DDBC_FireVulnerability, DDBC_Total))
+		return aura
+	})
 }

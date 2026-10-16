@@ -1,55 +1,27 @@
 package druid
 
-var demoralizingRoarRank = spellData.DemoralizingRoar.Highest()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented.
 func (druid *Druid) registerDemoralizingRoarSpell() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// druid.registerDemoralizingRoarAura()
-	//
-	// druid.DemoralizingRoar = druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: demoralizingRoarRank.ID},
-	// 	CastRequirement: demoralizingRoarRank.CastRequirement(),
-	// 	SpellSchool:     demoralizingRoarRank.SpellSchool(),
-	// 	DefenseType:     demoralizingRoarRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskEmpty,
-	// 	ClassSpellMask:  DruidSpellDemoralizingRoar,
-	// 	Flags:           core.SpellFlagAPL,
-	//
-	// 	RageCost: core.RageCostOptions{
-	// 		Cost: int32(demoralizingRoarRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: demoralizingRoarRank.GCD(),
-	// 		},
-	// 		IgnoreHaste: true,
-	// 	},
-	//
-	// 	ThreatMultiplier: 1,
-	// 	FlatThreatBonus:  62 * 2,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		for _, aoeTarget := range druid.Env.Encounter.AllTargetUnits {
-	// 			result := spell.CalcOutcome(sim, aoeTarget, spell.OutcomeMeleeSpecialHit)
-	// 			if result.Landed() {
-	// 				druid.DemoralizingRoarAuras.Get(aoeTarget).Activate(sim)
-	// 			}
-	// 		}
-	// 	},
-	// })
-}
-
-// TODO: To be implemented.
-func (druid *Druid) registerDemoralizingRoarAura() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// druid.DemoralizingRoarAuras = druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-	// 	// The druid's own copy of the aura; the game files have no Feral Aggression
-	// 	// node, so there are no talent points to pass.
-	// 	return buffs.NewSpellDataDemoralizingRoarAura(target, true, 0)
-	// })
+	rank := spellData.DemoralizingRoar.Highest()
+	druid.DemoralizingRoarAuras = druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		return buffs.NewSpellDataDemoralizingRoarAura(target, true, 0)
+	})
+	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskEmpty))
+	// Effect 1 hits every enemy around the caster, and the row states no target cap.
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			// The row's defense type is magic, so a target cannot dodge it.
+			result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
+			if result.Landed() {
+				druid.DemoralizingRoarAuras.Get(target).Activate(sim)
+			}
+		}
+	}
+	config.RelatedAuraArrays = druid.DemoralizingRoarAuras.ToMap()
+	druid.DemoralizingRoar = druid.RegisterSpell(config)
 }

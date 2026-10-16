@@ -1,47 +1,29 @@
 package warlock
 
-var soulfireRank = spellData.SoulFire.Highest()
-var soulfireCoeff = soulfireRank.DamageEffect().Coeff()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. Port the TBC Soulfire implementation below; not yet verified against the Forever game files.
+// The 1 min cooldown is the row's category cooldown, and the Soul Shard each cast takes the row's reagent.
 func (warlock *Warlock) registerSoulfire() {
-	panic("To be implemented")
+	rankedSpell := spellData.SoulFire.ByID(17924)
+	soulFireHit := rankedSpell.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	// warlock.Soulfire = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: soulfireRank.ID},
-	// 	SpellSchool:    soulfireRank.SpellSchool(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: WarlockSpellSoulFire,
-	// 	ClassFlags:     soulfireRank.ClassFlags,
-	// 	MissileSpeed:   float64(soulfireRank.Speed),
-	//
-	// 	ManaCost: core.ManaCostOptions{FlatCost: int32(soulfireRank.Cost())},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      soulfireRank.GCD(),
-	// 			CastTime: soulfireRank.CastTime() - time.Duration(400*warlock.Talents.Bane),
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    warlock.NewTimer(),
-	// 			Duration: max(soulfireRank.Cooldown(), soulfireRank.CategoryCooldown()),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	DefenseType:      soulfireRank.DefenseTypeCore(),
-	// 	ThreatMultiplier: 1,
-	// 	BonusCoefficient: soulfireCoeff,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		dmgRoll := soulfireRank.DamageEffect().Average(core.CharacterLevel)
-	// 		result := spell.CalcDamage(sim, target, dmgRoll, spell.OutcomeMagicHitAndCrit)
-	// 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
-	// 			spell.DealDamage(sim, result)
-	// 		})
-	// 	},
-	// })
-	//
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellSoulFire
+
+	// Roll the damage and to hit, then land it after the travel time
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcDamage(sim, target, soulFireHit.Average(), spell.OutcomeMagicHitAndCrit)
+		spell.DealDamageAfterTravel(sim, result)
+	}
+
+	// Calculate expected damage from the row's average hit
+	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		return spell.CalcDamage(sim, target, soulFireHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+	}
+
+	warlock.useReagents(&config, rankedSpell)
+	warlock.Soulfire = warlock.RegisterSpell(config)
 }

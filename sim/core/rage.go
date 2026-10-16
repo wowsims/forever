@@ -78,6 +78,7 @@ type RageBarOptions struct {
 	MaxRage            float64
 	StartingRage       float64
 	BaseRageMultiplier float64
+	TwoHandRage        bool // Auto attacks take the two-hand factor whatever the weapon's normalized speed.
 }
 
 func (unit *Unit) EnableRageBar(options RageBarOptions) {
@@ -136,7 +137,7 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			// rage is normalized so it only depends on weapon swing speed and some multipliers
 			swingRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
 			generatedRage := swingRage
-			if weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
+			if options.TwoHandRage || weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
 				generatedRage *= TwoHandRageMultiplier
 			}
 			// The crit bonus scales the swing's rage without the two-hand multiplier; the off-hand factors stay in it.

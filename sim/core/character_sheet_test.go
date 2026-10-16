@@ -136,10 +136,13 @@ func TestSheetSwordCritReachesOnlyTheSwordHand(t *testing.T) {
 	})
 }
 
-func TestSheetSwordSpecializationShowsInEveryCritRow(t *testing.T) {
-	sim, character := NewWeaponTestSim(t, proto.Race_RaceHuman,
+func TestSheetSwordGatedCritShowsInEveryCritRow(t *testing.T) {
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead,
 		WeaponTestSlots(WeaponTestSwordID, WeaponTestDaggerID, WeaponTestBowID),
-		WeaponTestSlots(WeaponTestDaggerID, WeaponTestDaggerID, WeaponTestBowID), nil)
+		WeaponTestSlots(WeaponTestDaggerID, WeaponTestDaggerID, WeaponTestBowID), func(character *Character) {
+			character.NewEquipGatedStats(EquipRequirement{SubclassMask: WeaponSubclassMask(proto.WeaponType_WeaponTypeSword)},
+				stats.Stats{stats.PhysicalCritPercent: 2, stats.SpellCritPercent: 2}).SetLevel(nil, 1)
+		})
 	spellCrit := character.GetStat(stats.SpellCritPercent)
 	delta := sheetDeltaOf(character, func() {
 		character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
@@ -151,30 +154,6 @@ func TestSheetSwordSpecializationShowsInEveryCritRow(t *testing.T) {
 	})
 	if got := character.GetStat(stats.SpellCritPercent) - spellCrit; !WithinToleranceFloat64(-2, got, 1e-9) {
 		t.Errorf("spell crit moved by %v, want -2", got)
-	}
-}
-
-// The sheet counts Sword Specialization in the base stage, so no later stage adds it again.
-func TestSheetSwordSpecializationSitsInTheBaseStage(t *testing.T) {
-	stages := func(mainHand int32) *proto.PlayerStats {
-		raid := weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(mainHand, WeaponTestDaggerID, WeaponTestBowID), nil)
-		return ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: weaponTestEncounter()}).RaidStats.Parties[0].Players[0]
-	}
-	sword, axe := stages(WeaponTestSwordID), stages(weaponTestAxeID)
-	for name, stage := range map[string]func(*proto.PlayerStats) *proto.UnitStats{
-		"base":     func(s *proto.PlayerStats) *proto.UnitStats { return s.BaseStats },
-		"gear":     func(s *proto.PlayerStats) *proto.UnitStats { return s.GearStats },
-		"talents":  func(s *proto.PlayerStats) *proto.UnitStats { return s.TalentsStats },
-		"buffs":    func(s *proto.PlayerStats) *proto.UnitStats { return s.BuffsStats },
-		"consumes": func(s *proto.PlayerStats) *proto.UnitStats { return s.ConsumesStats },
-		"final":    func(s *proto.PlayerStats) *proto.UnitStats { return s.FinalStats },
-	} {
-		delta := stats.FromUnitStatsProto(stage(sword)).Subtract(stats.FromUnitStatsProto(stage(axe)))
-		for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
-			if !WithinToleranceFloat64(2, delta[stat], 1e-9) {
-				t.Errorf("the %s stage holds %v %s more with a sword than with an axe, want 2", name, delta[stat], stat.StatName())
-			}
-		}
 	}
 }
 

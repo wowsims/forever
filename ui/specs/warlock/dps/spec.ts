@@ -7,6 +7,7 @@ import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
+import { subscribeAll, subscribePlayerField } from '@sim/state/subscriptions';
 
 import * as WarlockInputs from './inputs';
 import * as Presets from './presets';
@@ -89,6 +90,9 @@ export default defineSpec<Spec.SpecWarlock>({
 		Stat.StatShadowDamage,
 		Stat.StatFireDamage,
 	],
+	playerInputs: {
+		inputs: [WarlockInputs.SoulShardsInput()],
+	},
 	// IconInputs to include in the 'Player' section on the settings tab.
 	playerIconInputs: [WarlockInputs.PetInput(), WarlockInputs.ArmorInput(), WarlockInputs.DemonicSacrificeInput()],
 
@@ -97,7 +101,7 @@ export default defineSpec<Spec.SpecWarlock>({
 	excludeBuffDebuffInputs: [],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [OtherInputs.DistanceFromTarget],
+		inputs: [OtherInputs.InputDelay, OtherInputs.DistanceFromTarget],
 	},
 	itemSwapSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
 	encounterPicker: {
@@ -120,6 +124,15 @@ export default defineSpec<Spec.SpecWarlock>({
 		return Presets.DEFAULT_APL.rotation.rotation!;
 	},
 	sections: [WarlockInputs.CursesSection],
+
+	// Re-settles the demon out and the demon sacrificed when the talents or the options change, such as
+	// dropping Demonic Pact or Demonic Sacrifice.
+	derivedSettings: [
+		{
+			subscribe: player => subscribeAll([subscribePlayerField(player, 'talentsString'), subscribePlayerField(player, 'specOptions')]),
+			apply: player => WarlockInputs.settleDemons(player),
+		},
+	],
 
 	reforge: {},
 });

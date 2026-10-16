@@ -255,6 +255,10 @@ enum Stat {
 
 	StatPhysicalDamage = 37;
 
+	// Armor that neither the percent armor modifiers nor the scaling of armor
+	// from items touch, which A_MOD_ARMOR_NO_MODS states. It adds to Armor.
+	StatArmorNoMods = 38;
+
 	// DO NOT add new stats here without discussing it first; new stats come
 	// with a performance penalty.
 

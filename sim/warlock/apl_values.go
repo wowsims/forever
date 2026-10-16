@@ -2,7 +2,6 @@ package warlock
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -12,6 +11,8 @@ func (warlock *Warlock) NewAPLValue(rot *core.APLRotation, config *proto.APLValu
 	switch config.Value.(type) {
 	case *proto.APLValue_WarlockIsAssignedCurse:
 		return warlock.newValueWarlockIsAssignedCurse(rot, config.GetWarlockIsAssignedCurse())
+	case *proto.APLValue_WarlockActivePet:
+		return warlock.newValueWarlockActivePet(rot, config.GetWarlockActivePet())
 	case *proto.APLValue_WarlockAssignedCurseIsActive:
 		return warlock.newValueWarlockAssignedCurseIsActive(rot, config.GetWarlockAssignedCurseIsActive())
 	default:
@@ -21,9 +22,8 @@ func (warlock *Warlock) NewAPLValue(rot *core.APLRotation, config *proto.APLValu
 
 type APLValueWarlockAssignedCurseIsActive struct {
 	core.DefaultAPLValueImpl
-	warlock *Warlock
-	target  core.UnitReference
-	spell   *core.Spell
+	target core.UnitReference
+	spell  *core.Spell
 }
 
 func (warlock *Warlock) newValueWarlockAssignedCurseIsActive(rot *core.APLRotation, config *proto.APLValueWarlockAssignedCurseIsActive) core.APLValue {
@@ -33,9 +33,8 @@ func (warlock *Warlock) newValueWarlockAssignedCurseIsActive(rot *core.APLRotati
 		return nil
 	}
 	return &APLValueWarlockAssignedCurseIsActive{
-		warlock: warlock,
-		target:  target,
-		spell:   warlock.GetAssignedCurse(),
+		target: target,
+		spell:  warlock.GetAssignedCurse(),
 	}
 }
 
@@ -44,16 +43,25 @@ func (x *APLValueWarlockAssignedCurseIsActive) Type() proto.APLValueType {
 }
 
 func (x *APLValueWarlockAssignedCurseIsActive) GetBool(sim *core.Simulation) bool {
-	target := x.target.Get()
-	aura := target.GetAuraByID(x.spell.ActionID.WithTag(1))
-	if aura == nil {
-		aura = target.GetAuraByID(x.spell.ActionID.WithTag(0))
+	if x.spell == nil {
+		return false
 	}
+	target := x.target.Get()
 
-	return aura.IsActive() && aura.TimeActive(sim) >= x.warlock.ReactionTime
+	// This warlock's own copy of the curse. The warlock cast it, so it counts as up the moment it lands, with
+	// no reaction time.
+	for _, auras := range x.spell.RelatedAuraArrays {
+		if aura := auras.Get(target); aura.IsActive() {
+			return true
+		}
+	}
+	return false
 }
 
 func (x *APLValueWarlockAssignedCurseIsActive) String() string {
+	if x.spell == nil {
+		return "Is Assigned Curse Active (none)"
+	}
 	return fmt.Sprintf("Is Assigned Curse Active (%s)", x.spell.ActionID)
 }
 
@@ -88,6 +96,35 @@ func (x *APLValueWarlockIsAssignedCurse) String() string {
 	return fmt.Sprintf("Is Assigned Curse (%t)", x.isAssignedCurse)
 }
 
+type APLValueWarlockActivePet struct {
+	core.DefaultAPLValueImpl
+	warlock *Warlock
+	summon  proto.WarlockOptions_Summon
+}
+
+func (warlock *Warlock) newValueWarlockActivePet(_ *core.APLRotation, config *proto.APLValueWarlockActivePet) core.APLValue {
+	return &APLValueWarlockActivePet{
+		warlock: warlock,
+		summon:  config.Summon,
+	}
+}
+
+func (x *APLValueWarlockActivePet) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+
+func (x *APLValueWarlockActivePet) GetBool(_ *core.Simulation) bool {
+	pet := x.warlock.ActivePet
+	if pet == nil || !pet.IsEnabled() {
+		return x.summon == proto.WarlockOptions_NoSummon
+	}
+	return pet.summon == x.summon
+}
+
+func (x *APLValueWarlockActivePet) String() string {
+	return fmt.Sprintf("Active Pet Is (%s)", x.summon)
+}
+
 func (warlock *Warlock) NewAPLAction(rot *core.APLRotation, config *proto.APLAction) core.APLActionImpl {
 	switch config.Action.(type) {
 	case *proto.APLAction_CastWarlockAssignedCurse:
@@ -98,9 +135,8 @@ func (warlock *Warlock) NewAPLAction(rot *core.APLRotation, config *proto.APLAct
 }
 
 type APLActionCastWarlockAssignedCurse struct {
-	warlock    *Warlock
-	lastAction time.Duration
-	target     core.UnitReference
+	warlock *Warlock
+	target  core.UnitReference
 }
 
 func (x *APLActionCastWarlockAssignedCurse) GetInnerActions() []*core.APLAction { return nil }
@@ -129,35 +165,33 @@ func (warlock *Warlock) newActionWarlockAssignedCurseAction(rot *core.APLRotatio
 }
 
 func (x *APLActionCastWarlockAssignedCurse) Execute(sim *core.Simulation) {
-	x.GetSpellFromAction(sim).Cast(sim, x.target.Get())
+	x.GetSpellFromAction(sim).CastOrQueue(sim, x.target.Get())
 }
 
 func (x *APLActionCastWarlockAssignedCurse) IsReady(sim *core.Simulation) bool {
-	return x.GetSpellFromAction(sim).CanCast(sim, x.warlock.CurrentTarget)
+	spell := x.GetSpellFromAction(sim)
+	return spell != nil && spell.CanCastOrQueue(sim, x.target.Get())
 }
 
-func (x *APLActionCastWarlockAssignedCurse) Reset(*core.Simulation) {
-	x.lastAction = -core.NeverExpires
-}
+func (x *APLActionCastWarlockAssignedCurse) Reset(*core.Simulation) {}
 
 func (x *APLActionCastWarlockAssignedCurse) String() string {
-	return fmt.Sprintf("Cast Assigned Curse(%s)", x.warlock.GetAssignedCurse().ActionID)
+	curse := x.warlock.GetAssignedCurse()
+	if curse == nil {
+		return "Cast Assigned Curse(none)"
+	}
+	return fmt.Sprintf("Cast Assigned Curse(%s)", curse.ActionID)
 }
 
+// Nil under NoCurse. Elements is the default: any value it does not name falls back to it.
 func (warlock *Warlock) GetAssignedCurse() *core.Spell {
 	switch warlock.Options.CurseOptions {
-	case proto.WarlockOptions_Agony:
-		return warlock.CurseOfAgony
-
-	case proto.WarlockOptions_Doom:
-		return warlock.CurseOfDoom
-
-	case proto.WarlockOptions_Elements:
-		return warlock.CurseOfElements
-
+	case proto.WarlockOptions_NoCurse:
+		return nil
 	case proto.WarlockOptions_Recklessness:
 		return warlock.CurseOfRecklessness
+	case proto.WarlockOptions_Weakness:
+		return warlock.CurseOfWeakness
 	}
-
-	return nil
+	return warlock.CurseOfElements
 }

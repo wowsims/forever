@@ -7,15 +7,14 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfMight: true,
 });
 
-export const DefaultPartyBuffs = PartyBuffs.create({
-	strengthOfEarthTotem: true,
-	windfuryTotem: true,
-	leaderOfThePack: true,
-});
+export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfFortitude: true,
 	giftOfTheWild: true,
+	strengthOfEarthTotem: true,
+	windfuryTotem: true,
+	leaderOfThePack: true,
 });
 
 export const DefaultDebuffs = Debuffs.create({

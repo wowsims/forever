@@ -1,48 +1,36 @@
 package warlock
 
-var curseOfElementsRank = spellData.CurseOfTheElements.Highest()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. The body below builds the spell around the generated
-// aura and has not been checked against the game files past the aura itself.
+// The debuff is this warlock's own copy of the one the raid option builds, parsed from the row: -75 to
+// all resistances and 10% more damage taken. Its category keeps it from stacking with another warlock's
+// copy or a raid one.
 func (warlock *Warlock) registerCurseOfElements() {
-	panic("To be implemented")
+	rankedSpell := spellData.CurseOfTheElements.ByID(1311680)
 
-	// The TBC implementation, kept for the port:
-	// warlock.CurseOfElementsAuras = warlock.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-	// 	// The warlock's own copy of the aura. Malediction's modifier masks do
-	// 	// not cover this curse, so there are no talent points to pass.
-	// 	return buffs.NewSpellDataCurseOfElementsAura(target, true, 0)
-	// })
-	// warlock.CurseOfElements = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: curseOfElementsRank.ID},
-	// 	SpellSchool:    curseOfElementsRank.SpellSchool(),
-	// 	DefenseType:    curseOfElementsRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskEmpty,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: WarlockSpellCurseOfElements,
-	// 	ClassFlags:     curseOfElementsRank.ClassFlags,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(curseOfElementsRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: curseOfElementsRank.GCD(),
-	// 		},
-	// 	},
-	//
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	// 		if result.Landed() {
-	// 			warlock.DeactivateOtherCurses(sim, spell, target)
-	// 			warlock.CurseOfElementsAuras.Get(target).Activate(sim)
-	// 		}
-	//
-	// 		spell.DealOutcome(sim, result)
-	// 	},
-	//
-	// 	RelatedAuraArrays: warlock.CurseOfElementsAuras.ToMap(),
-	// })
+	warlock.CurseOfElementsAuras = warlock.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		return buffs.NewSpellDataCurseOfElementsAuraFor(target, &warlock.Unit)
+	})
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ThreatMultiplier = 1
+	config.ClassSpellMask = WarlockSpellCurseOfElements
+	config.RelatedAuraArrays = warlock.CurseOfElementsAuras.ToMap()
+
+	// Roll to hit and apply in place of any other Curse
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
+		if result.Landed() {
+			warlock.deactivateOtherCurses(sim, spell, target)
+			warlock.CurseOfElementsAuras.Get(target).Activate(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	warlock.CurseOfElements = warlock.RegisterSpell(config)
+	warlock.Curses = append(warlock.Curses, warlock.CurseOfElements)
 }

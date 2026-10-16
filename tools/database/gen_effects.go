@@ -602,7 +602,7 @@ var literalRates = []literalRate{
 // The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
 func rateOrigin(source string) string {
 	switch {
-	case strings.HasPrefix(source, "wcl:"), strings.HasPrefix(source, "issue #"):
+	case strings.HasPrefix(source, "wcl:"), strings.HasPrefix(source, "issue #"), strings.HasPrefix(source, "combat log, "):
 		return ""
 	case source == "vanilla-carryover":
 		return "vanilla"
@@ -1961,8 +1961,9 @@ func ParseTooltipForMissingEffect(parsed *proto.UIItem, itemEffect *proto.ItemEf
 // after it may not open "by", "for" or "chance" - those three are how a tooltip states a magnitude
 // instead. The second reads the trigger stated from the caster's side, "your critical strikes",
 // where the plural is what separates it from the magnitudes: those all read "critical strike
-// chance", "critical strike damage" or "critical strike rating", in the singular.
-var critMatcher = regexp.MustCompile(`critical ([^\s]+|damage,?)( chance)? [^fbc]|[Yy]our [a-z ]{0,20}critical strikes`)
+// chance", "critical strike damage" or "critical strike rating", in the singular. Some tooltips
+// capitalize the term ("Your Critical Strikes with direct damage spells").
+var critMatcher = regexp.MustCompile(`critical ([^\s]+|damage,?)( chance)? [^fbc]|[Yy]our [a-z ]{0,20}[Cc]ritical [Ss]trikes`)
 var pureHealMatcher = regexp.MustCompile(`healing spells`)
 
 // A trigger clause restricted to spells with a damage component: "your damaging spells", "damage

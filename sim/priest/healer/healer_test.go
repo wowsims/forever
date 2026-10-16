@@ -45,7 +45,7 @@ func TestHealerPriest(t *testing.T) {
 }
 
 // The Holy preset from ui/specs/priest/healer/presets.ts.
-var StandardTalents = "005203011301-33505003030121531"
+var StandardTalents = "00520101133-33505003030121531"
 
 var FullConsumes = &proto.ConsumesSpec{
 	FoodId:        250066, // Soaring Pamplona

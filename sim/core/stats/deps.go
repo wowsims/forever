@@ -16,7 +16,9 @@ var safeDepsOrder = []Stat{
 	Stamina,
 	Intellect,
 	Spirit,
+	DefenseRating,
 	BonusArmor,
+	ArmorNoMods,
 	Armor,
 	FeralAttackPower,
 	AttackPower,
@@ -29,7 +31,6 @@ var safeDepsOrder = []Stat{
 	HasteRating,
 	CritRating,
 	HitRating,
-	DefenseRating,
 	BlockRating,
 	BlockPercent,
 	DodgeRating,
@@ -89,6 +90,9 @@ type StatDependency struct {
 
 	// Where non-zero, src counts in whole steps of this size only.
 	step float64
+
+	// Where set, src adds to dst whole, outside dst's own multipliers.
+	unmultiplied bool
 }
 
 func (sd StatDependency) String() string {
@@ -115,18 +119,6 @@ func (dep *StatDependency) UpdateValue(newAmount float64) {
 type StatDependencyManager struct {
 	deps      []*StatDependency
 	finalized bool
-
-	// The share of each stat that the stat's own multipliers leave alone, and that share when the
-	// deps were finalized, which a reset returns to.
-	unmultiplied        Stats
-	initialUnmultiplied Stats
-}
-
-// Adds to the share of a stat that the stat's own multipliers leave alone. The amount is part of the
-// stat as well, which the caller adds after this: the multipliers scale the rest of the stat, and
-// every dependency that reads the stat counts all of it.
-func (sdm *StatDependencyManager) AddUnmultiplied(s Stat, amount float64) {
-	sdm.unmultiplied[s] += amount
 }
 
 func NewStatDependencyManager() StatDependencyManager {
@@ -156,6 +148,13 @@ func (sdm *StatDependencyManager) AddStatDependency(src Stat, dst Stat, amount f
 func (sdm *StatDependencyManager) AddFlooredStatDependency(src Stat, dst Stat, step float64, amount float64) {
 	sdm.AddStatDependency(src, dst, amount)
 	sdm.deps[len(sdm.deps)-1].step = step
+}
+
+// Adds all of src to dst after dst's own multipliers, which scale the rest of dst and leave src's
+// share whole. Every dependency that reads dst counts all of it.
+func (sdm *StatDependencyManager) AddUnmultipliedStatDependency(src Stat, dst Stat) {
+	sdm.AddStatDependency(src, dst, 1)
+	sdm.deps[len(sdm.deps)-1].unmultiplied = true
 }
 
 func (sdm *StatDependencyManager) MultiplyStat(s Stat, amount float64) {
@@ -229,10 +228,11 @@ func (sdm *StatDependencyManager) sortDeps() {
 					continue
 				}
 
-				if dep.dynamic || dep.step != 0 {
+				if dep.dynamic || dep.step != 0 || dep.unmultiplied {
 					// Dynamic deps need to remain separate, so
-					// they can be turned on/off, and floored ones
-					// so they keep their step.
+					// they can be turned on/off, floored ones
+					// so they keep their step, and unmultiplied
+					// ones so they stay outside the multipliers.
 					deps = append(deps, dep)
 				} else {
 					if srcStat == dstStat {
@@ -263,7 +263,6 @@ func (sdm *StatDependencyManager) FinalizeStatDeps() {
 	}
 	sdm.sortDeps()
 	sdm.finalized = true
-	sdm.initialUnmultiplied = sdm.unmultiplied
 }
 
 func (sdm *StatDependencyManager) ResetStatDeps() {
@@ -272,7 +271,6 @@ func (sdm *StatDependencyManager) ResetStatDeps() {
 			dep.enabled = false
 		}
 	}
-	sdm.unmultiplied = sdm.initialUnmultiplied
 }
 
 func (sdm *StatDependencyManager) IsFinalized() bool {
@@ -281,22 +279,14 @@ func (sdm *StatDependencyManager) IsFinalized() bool {
 
 // ApplyStatDependenciesInPlace is ApplyStatDependencies without copying the array.
 func (sdm *StatDependencyManager) ApplyStatDependenciesInPlace(s *Stats) {
-	sdm.applyStatDependencies(s, &sdm.unmultiplied)
-}
-
-// Applies the dependencies to a change in stats rather than to whole stats: a change is scaled by
-// every multiplier, since the share the multipliers leave alone is a constant of the whole.
-func (sdm *StatDependencyManager) ApplyStatDependenciesToChange(s Stats) Stats {
-	var none Stats
-	sdm.applyStatDependencies(&s, &none)
-	return s
-}
-
-func (sdm *StatDependencyManager) applyStatDependencies(s *Stats, unmultiplied *Stats) {
+	var unmultiplied Stats
 	for _, dep := range sdm.deps {
 		if dep.enabled {
 			if dep.src == dep.dst {
 				s[dep.dst] = (s[dep.dst]-unmultiplied[dep.dst])*dep.amount + unmultiplied[dep.dst]
+			} else if dep.unmultiplied {
+				s[dep.dst] += s[dep.src]
+				unmultiplied[dep.dst] += s[dep.src]
 			} else if dep.step != 0 {
 				s[dep.dst] += math.Floor(s[dep.src]/dep.step) * dep.step * dep.amount
 			} else if isFlooredGameStat[dep.src] {

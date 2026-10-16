@@ -17,10 +17,10 @@ import (
 
 func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
-	return trinketWarriorWielding(t, trinketID, 0)
+	return trinketWarriorWielding(t, trinketID, 0, 0)
 }
 
-func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32) (*core.Simulation, *core.Character) {
+func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck int32) (*core.Simulation, *core.Character) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 	for i := range items {
@@ -28,6 +28,7 @@ func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32) (*cor
 	}
 	items[proto.ItemSlot_ItemSlotTrinket1].Id = trinketID
 	items[proto.ItemSlot_ItemSlotMainHand].Id = mainHand
+	items[proto.ItemSlot_ItemSlotNeck].Id = neck
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
@@ -230,10 +231,22 @@ func TestLifegivingGemRaisesMaximumHealthByAShare(t *testing.T) {
 	}
 }
 
+// A neck that doubles the wearer's armor, a percent armor modifier.
+const armorDoublingNeckID int32 = 992741
+
 // Zandalarian Hero Badge 19948 grants armor and defense on 24574's stacks, and each melee or ranged
-// hit taken takes one stack's share of each off; a spell hit taken does not.
+// hit taken takes one stack's share of each off; a spell hit taken does not. Brittle Armor 24575
+// states a stack's armor with A_MOD_ARMOR_NO_MODS, so the full stacks' armor reaches the wearer whole
+// past the neck's doubling.
 func TestZandalarianHeroBadgeLosesArmorPerHitTaken(t *testing.T) {
-	sim, character := trinketWarrior(t, 19948)
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: armorDoublingNeckID, Name: "Test Armor Doubling Neck",
+		Type: proto.ItemType_ItemTypeNeck, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+	if !core.HasItemEffect(armorDoublingNeckID) {
+		core.NewItemEffect(armorDoublingNeckID, func(agent core.Agent) {
+			agent.GetCharacter().MultiplyStat(stats.Armor, 2)
+		})
+	}
+	sim, character := trinketWarriorWielding(t, 19948, 0, armorDoublingNeckID)
 	before := character.GetStats()
 
 	useTrinketAsEntryStates(t, sim, character, 19948, core.CooldownTypeSurvival)
@@ -241,6 +254,13 @@ func TestZandalarianHeroBadgeLosesArmorPerHitTaken(t *testing.T) {
 	full := fullAmounts(character, before, stats.Armor, stats.DefenseRating)
 	if full[stats.Armor] <= 0 || full[stats.DefenseRating] <= 0 {
 		t.Fatalf("the badge grants %v armor and %v defense rating, want both", full[stats.Armor], full[stats.DefenseRating])
+	}
+	stackArmor := spelldata.MustFind(24575).EffectN(1)
+	if stackArmor.Aura != dbcenums.A_MOD_ARMOR_NO_MODS {
+		t.Fatalf("24575's first effect is %v, want A_MOD_ARMOR_NO_MODS", stackArmor.Aura)
+	}
+	if want := stackArmor.BasePoints * float64(stacks); !statNear(full[stats.Armor], want) {
+		t.Errorf("the badge's full stacks grant %v armor, want their %v whole", full[stats.Armor], want)
 	}
 
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -375,7 +395,7 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 		t.Errorf("the heal's chance on a main hand swing is %v, want the entry's procs per minute on the swing's speed, %v", chance, want)
 	}
 	// Ravager 7717 is only a weapon of another speed here.
-	armedSim, armed := trinketWarriorWielding(t, 19287, 7717)
+	armedSim, armed := trinketWarriorWielding(t, 19287, 7717, 0)
 	armedChance, armedSpeed := procOf(armed).Dpm.Chance(core.ProcMaskMeleeMHAuto, armedSim), armed.AutoAttacks.MH().SwingSpeed
 	if armedSpeed == speed {
 		t.Fatalf("the weapon swings at the unarmed %v, want another speed", speed)

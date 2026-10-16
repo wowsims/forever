@@ -46,6 +46,9 @@ export const AURA_AS_RESOURCE: ActionId[] = [
 
 	// Mage
 	ActionId.fromSpellId(148022), // Icicle
+
+	// Warlock
+	ActionId.fromItemId(6265), // Soul Shards
 ];
 export const IDS_TO_GROUP_FOR_ROTATION: Array<number> = [
 	5171, // Rogue - Slice and Dice

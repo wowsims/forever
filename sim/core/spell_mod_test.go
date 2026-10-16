@@ -84,6 +84,43 @@ func TestGlobalCooldownPctMod(t *testing.T) {
 	}
 }
 
+// A -100% cooldown mod, such as Berserk's on Primal Bite, removes the cooldown while it is up and gives it
+// back once it is gone, beside a mod that only shortens it.
+func TestCooldownMultiplierModOfZero(t *testing.T) {
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := fw.GetSpell(fakeGCDSpellActionID)
+
+	removed := fw.AddDynamicMod(SpellModConfig{
+		ClassMask:  fakeGCDSpellClassMask,
+		Kind:       SpellMod_Cooldown_Multiplier,
+		FloatValue: 0,
+	})
+	halved := fw.AddDynamicMod(SpellModConfig{
+		ClassMask:  fakeGCDSpellClassMask,
+		Kind:       SpellMod_Cooldown_Multiplier,
+		FloatValue: 0.5,
+	})
+
+	steps := []struct {
+		name   string
+		toggle func()
+		want   float64
+	}{
+		{"without a mod", func() {}, 1},
+		{"with the halving mod", halved.Activate, 0.5},
+		{"with both mods", removed.Activate, 0},
+		{"after the removing mod is gone", removed.Deactivate, 0.5},
+		{"after both are gone", halved.Deactivate, 1},
+	}
+	for _, step := range steps {
+		step.toggle()
+		if got := spell.CooldownMultiplier(); got != step.want {
+			t.Errorf("%s: cooldown multiplier %v, want %v", step.name, got, step.want)
+		}
+	}
+}
+
 func TestFlatThreatBonusPctMod(t *testing.T) {
 	sim := SetupFakeRageSim()
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)

@@ -10,7 +10,7 @@ func init() {
 	//
 	// Increases the critical hit chance of Wrath and Starfire by 2%.
 	//
-	// Reaches Wrath and Starfire by class flags, which they do not set until the druid is ported.
+	// Reaches Wrath and Starfire by class flags.
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 24433},
 		[]shared.ItemVariant{
 			{ItemID: 19613, ItemName: "Pristine Enchanted South Seas Kelp"},

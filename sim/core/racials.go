@@ -12,7 +12,16 @@ func applyRaceEffects(agent Agent) {
 
 	switch character.Race {
 	case proto.Race_RaceDwarf:
-		applyWeaponSpecialization(character, 1, proto.WeaponType_WeaponTypeMace) // Mace Specialization 1259719
+		// Earth Fury 1259719 holds while any weapon slot holds a mace, one- or two-handed, and follows
+		// item swaps.
+		earthFuryActive := false
+		character.NewEquipGate(EquipRequirement{SubclassMask: WeaponSubclassMask(proto.WeaponType_WeaponTypeMace)}, func(_ *Simulation, level float64) {
+			if (level > 0) == earthFuryActive {
+				return
+			}
+			earthFuryActive = level > 0
+			character.PseudoStats.CritDamageMultiplier *= Ternary(earthFuryActive, 1.02, 1/1.02)
+		}).SetLevel(nil, 1)
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20594}
@@ -51,7 +60,7 @@ func applyRaceEffects(agent Agent) {
 		applyEureka(character)
 	case proto.Race_RaceHuman:
 		character.MultiplyStat(stats.Spirit, 1.05)
-		applyWeaponSpecialization(character, 2, proto.WeaponType_WeaponTypeSword) // Sword Specialization 20597
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 2, stats.SpellCritPercent: 2}) // Ruthless 20597
 	case proto.Race_RaceNightElf:
 		character.PseudoStats.BaseDodgeChance += 0.01
 		character.PseudoStats.MovementSpeedMultiplier *= 1.02
@@ -73,7 +82,7 @@ func applyRaceEffects(agent Agent) {
 				},
 			})
 	case proto.Race_RaceOrc:
-		applyWeaponSpecialization(character, 1, proto.WeaponType_WeaponTypeAxe) // Axe Specialization 20574
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1}) // Savage 20574
 
 		bloodFuryID := ActionID{SpellID: 20572}
 
@@ -90,7 +99,7 @@ func applyRaceEffects(agent Agent) {
 
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
-			Duration: time.Minute * 2,
+			Duration: time.Minute * 3,
 		}
 		bloodFuryAura.Icd = &bloodFuryCD
 
@@ -128,7 +137,7 @@ func applyRaceEffects(agent Agent) {
 			stats.SchoolIndexNature,
 			stats.SchoolIndexShadow,
 		} {
-			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.85)
+			shatterCurseAura.AttachMultiplicativePseudoStatBuff(&character.PseudoStats.SchoolDamageTakenMultiplier[school], 0.95)
 		}
 
 		shatterCurse := character.RegisterSpell(SpellConfig{
@@ -156,8 +165,7 @@ func applyRaceEffects(agent Agent) {
 		})
 	case proto.Race_RaceTauren:
 		character.MultiplyStat(stats.Health, 1.05)
-		character.AddStat(stats.PhysicalHitPercent, 1)
-		character.AddStat(stats.SpellHitPercent, 1)
+		character.PseudoStats.CritDamageMultiplier *= 1.02 // Endurance 20550
 	case proto.Race_RaceTroll:
 		applyCreatureTypeSlaying(character, proto.MobType_MobTypeBeast)
 
@@ -269,8 +277,8 @@ func applyRaceEffects(agent Agent) {
 func applySkyborneSharedRacials(character *Character) {
 	applyCreatureTypeSlaying(character, proto.MobType_MobTypeElemental)
 
-	character.PseudoStats.AttackSpeedMultiplier *= 1.01
-	character.PseudoStats.CastSpeedMultiplier *= 1.01
+	character.PseudoStats.AttackSpeedMultiplier *= 1.03 // Wind Blessed 1259710
+	character.PseudoStats.CastSpeedMultiplier *= 1.03
 }
 
 func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
@@ -278,16 +286,6 @@ func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 		character.MultiplyDamageVersus(1.05, mobType)
 		character.MultiplyCritDamageVersus(1.05, mobType)
 	})
-}
-
-// The crit holds while any weapon slot holds a weapon of this type, one- or two-handed, follows item
-// swaps, and reaches every spell and attack. The sheet counts it in the base stage.
-func applyWeaponSpecialization(character *Character, critPercent float64, weaponType proto.WeaponType) {
-	req := EquipRequirement{SubclassMask: WeaponSubclassMask(weaponType)}
-	character.NewEquipGatedStats(req, stats.Stats{
-		stats.PhysicalCritPercent: critPercent,
-		stats.SpellCritPercent:    critPercent,
-	}).SetLevel(nil, 1)
 }
 
 func applyExpansiveMind(character *Character) {
@@ -302,10 +300,12 @@ func applyExpansiveMind(character *Character) {
 }
 
 // One class's Eureka! row: the class mask and the fraction of its idx0 SPELLMOD_COST, idx1
-// SPELLMOD_DAMAGE and idx2 SPELLMOD_DOT, zero where the row states no SPELLMOD_DOT.
+// SPELLMOD_DAMAGE and idx2 SPELLMOD_DOT, zero where the row states no SPELLMOD_DOT, and the row's
+// duration and cooldown.
 type EurekaMods struct {
 	CostFlags, DamageFlags, ChannelFlags ClassFlags
 	Cost, Damage, Channel                float64
+	Duration, Cooldown                   time.Duration
 }
 
 var eurekaMods func(spellID int32) EurekaMods
@@ -316,22 +316,17 @@ func RegisterEurekaMods(read func(spellID int32) EurekaMods) {
 	eurekaMods = read
 }
 
-// Eureka! scopes its mods to each class's abilities by the game files' class masks: idx0 of each row
-// names the spells whose cost it lowers, idx1 the ones whose direct damage it raises, and idx2, on the
-// warlock and priest rows only, the channels whose ticks it raises when they start with a stack up. A
-// stack goes once per cast of an ability any of them names, at the cast's end, which for a direct
-// spell is its cast result, a miss included; one that lands has to have a damage component. A channel
-// is one cast: one that starts with a stack up, or is running when Eureka! comes up, holds a stack from
-// then on for every tick and every spell it casts, and spends it when the channel ends, cut short or
-// not, even when its own cast result deals nothing. A channel started while another runs spends the
-// other's stack. Wand Shoot is no such channel.
-// TODO: Ingame test needed: whether a channel still running when the 15 seconds run out keeps the
-// bonus to its end.
+// Eureka! scopes its mods to each class's abilities by the game files' class masks, for as long as
+// the buff is up: idx0 of each row names the spells whose cost it lowers, idx1 the ones whose direct
+// damage it raises, and idx2, on the warlock and priest rows only, the channels whose ticks it raises.
+// Other periodic damage takes no bonus. A tick takes the bonus when Eureka! is up as it lands, so a
+// channel started before the buff gains it and one running past its end loses it.
+// TODO: Ingame test needed: whether a channel still running when the buff runs out keeps the bonus to
+// its end.
 func applyEureka(character *Character) {
 	var spellID int32
 	var resourceType proto.ResourceType
 	procMask := ProcMaskSpecial
-	spendCallback := CallbackOnCastResult
 
 	switch character.Class {
 	case proto.Class_ClassRogue:
@@ -345,7 +340,6 @@ func applyEureka(character *Character) {
 	case proto.Class_ClassPriest:
 		spellID, resourceType = 1259823, proto.ResourceType_ResourceTypeMana
 		procMask |= ProcMaskSpellHealing
-		spendCallback |= CallbackOnHealDealt
 	default:
 		return
 	}
@@ -356,120 +350,32 @@ func applyEureka(character *Character) {
 	mods := eurekaMods(spellID)
 	actionID := ActionID{SpellID: spellID}
 
-	costMod := character.AddDynamicMod(SpellModConfig{
+	aura := character.RegisterAura(Aura{
+		Label:    "Eureka!",
+		ActionID: actionID,
+		Duration: mods.Duration,
+	}).AttachSpellMod(SpellModConfig{
 		Kind:         SpellMod_PowerCost_Pct,
 		ClassFlags:   mods.CostFlags,
 		ProcMask:     procMask,
 		ResourceType: resourceType,
 		FloatValue:   mods.Cost,
-	})
-	damageMod := character.AddDynamicMod(SpellModConfig{
+	}).AttachSpellMod(SpellModConfig{
 		Kind:       SpellMod_DirectDamageDone_Pct,
 		ClassFlags: mods.DamageFlags,
 		ProcMask:   procMask,
 		FloatValue: mods.Damage,
 	})
-	firstHit, resetFirstHit := OncePerCast()
-
-	aura := character.RegisterAura(Aura{
-		Label:     "Eureka!",
-		ActionID:  actionID,
-		Duration:  time.Second * 15,
-		MaxStacks: 3,
-		OnGain: func(aura *Aura, sim *Simulation) {
-			resetFirstHit()
-			aura.SetStacks(sim, 3)
-			costMod.Activate()
-			damageMod.Activate()
-		},
-		OnExpire: func(_ *Aura, _ *Simulation) {
-			costMod.Deactivate()
-			damageMod.Deactivate()
-		},
-	})
-
-	spendFlags := mods.CostFlags
-	for i := range spendFlags.Mask {
-		spendFlags.Mask[i] |= mods.DamageFlags.Mask[i]
+	// A SPELLMOD_DOT row that names no spells reaches none, where a mod with no class flags reaches all.
+	if !mods.ChannelFlags.IsZero() {
+		aura.AttachSpellMod(SpellModConfig{
+			Kind:       SpellMod_DotDamageDone_Pct,
+			ClassFlags: mods.ChannelFlags,
+			ProcMask:   procMask,
+			SpellFlag:  SpellFlagChanneled,
+			FloatValue: mods.Channel,
+		})
 	}
-
-	var heldChannel *Dot
-	raisedChannels := make(map[*Dot]bool)
-	release := func(sim *Simulation) {
-		if raisedChannels[heldChannel] {
-			heldChannel.PeriodicDamageMultiplier /= 1 + mods.Channel
-		}
-		heldChannel = nil
-		if aura.IsActive() {
-			aura.RemoveStack(sim)
-		}
-	}
-	// TODO: A missile still in flight when its channel ends, with its cast result dealt on landing,
-	// spends a stack of its own.
-	hold := func(sim *Simulation, dot *Dot) {
-		if heldChannel == dot {
-			return
-		}
-		if heldChannel != nil {
-			release(sim)
-			if !aura.IsActive() {
-				return
-			}
-		}
-		heldChannel = dot
-		if raisedChannels[dot] {
-			dot.PeriodicDamageMultiplier *= 1 + mods.Channel
-		}
-	}
-
-	spender := ProcTrigger{
-		Name:       "Eureka! - Spend",
-		Callback:   spendCallback,
-		ClassFlags: spendFlags,
-		ProcMask:   procMask,
-
-		ExtraCondition: func(sim *Simulation, spell *Spell, result *SpellResult) bool {
-			if channel := character.ChanneledDot; channel != nil && !character.Wand.wanding() {
-				hold(sim, channel)
-				return false
-			}
-			// A channel's cast result lands before or after its dot starts, as the class orders it; a
-			// landed one leaves the stack to the dot's start.
-			if heldChannel != nil || (spell.Flags.Matches(SpellFlagChanneled) && result.Landed()) {
-				return false
-			}
-			return (!result.Landed() || result.Damage > 0 || spell.hasDot(result.Target)) && firstHit(sim, spell)
-		},
-		Handler: func(sim *Simulation, _ *Spell, _ *SpellResult) {
-			aura.RemoveStack(sim)
-		},
-	}
-	aura.AttachProcTrigger(spender)
-
-	// newDot's own gain hook comes first, so the unit's ChanneledDot is set here.
-	character.OnSpellRegistered(func(spell *Spell) {
-		if !spell.Flags.Matches(SpellFlagChanneled) || !spender.matchesSpell(spell) {
-			return
-		}
-		raised := !spell.Flags.Matches(SpellFlagNoSpellMods) && spell.MatchesFlags(mods.ChannelFlags)
-		for _, dot := range append(DotArray{spell.AOEDot()}, spell.dots...) {
-			if dot == nil {
-				continue
-			}
-			raisedChannels[dot] = raised
-			dot.ApplyOnGain(func(_ *Aura, sim *Simulation) {
-				if aura.IsActive() {
-					hold(sim, dot)
-				}
-			})
-		}
-	})
-	// The final tick has landed by now, so it keeps the bonus.
-	character.OnChannelEnd(func(sim *Simulation, dot *Dot) {
-		if dot == heldChannel {
-			release(sim)
-		}
-	})
 
 	spell := character.RegisterSpell(SpellConfig{
 		ActionID: actionID,
@@ -477,7 +383,7 @@ func applyEureka(character *Character) {
 		Cast: CastConfig{
 			CD: Cooldown{
 				Timer:    character.NewTimer(),
-				Duration: time.Minute * 2,
+				Duration: mods.Cooldown,
 			},
 		},
 		ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
@@ -494,10 +400,10 @@ func applyEureka(character *Character) {
 }
 
 func applyTouchOfTheGrave(character *Character) {
-	auraID, procChance := int32(1260201), 0.1
+	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {
 	case proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassRogue:
-		auraID, procChance = 1260189, 0.05
+		auraID, procChance = 1260189, 0.2
 	}
 
 	drainID := ActionID{SpellID: 1260198}
@@ -508,7 +414,7 @@ func applyTouchOfTheGrave(character *Character) {
 		SpellSchool: SpellSchoolShadow,
 		DefenseType: DefenseTypeMagic,
 		ProcMask:    ProcMaskEmpty,
-		Flags:       SpellFlagProc | SpellFlagPassiveSpell | SpellFlagIgnoreAttackerModifiers | SpellFlagNoSpellMods,
+		Flags:       SpellFlagProc | SpellFlagPassiveSpell | SpellFlagIgnoreModifiers | SpellFlagNoSpellMods,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
@@ -528,7 +434,7 @@ func applyTouchOfTheGrave(character *Character) {
 		ProcMask:   ProcMaskMelee | ProcMaskRanged | ProcMaskSpellDamage,
 		Outcome:    OutcomeLanded,
 		ProcChance: procChance,
-		ICD:        time.Second,
+		ICD:        time.Second * 25,
 
 		RequireDamageComponent: true,
 

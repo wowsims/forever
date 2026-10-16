@@ -1,39 +1,23 @@
 package mage
 
-var arcaneExplosionRank = spellData.ArcaneExplosion.Highest()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
+// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+// spellData.ArcaneExplosion lists.
 func (mage *Mage) registerArcaneExplosionSpell() {
-	panic("To be implemented")
+	mage.registerArcaneExplosionRank(spellData.ArcaneExplosion.Len(), spellData.ArcaneExplosion.Highest())
+}
 
-	// The TBC implementation, kept for the port:
-	// arcaneExplosionCoefficient := 0.21400000155
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: arcaneExplosionRank.ID},
-	// 	SpellSchool:    arcaneExplosionRank.SpellSchool(),
-	// 	DefenseType:    arcaneExplosionRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: MageSpellArcaneExplosion,
-	// 	ClassFlags:     arcaneExplosionRank.ClassFlags,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(arcaneExplosionRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: arcaneExplosionRank.GCD(),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	BonusCoefficient: arcaneExplosionCoefficient,
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := arcaneExplosionRank.DamageEffect().Average(core.CharacterLevel)
-	// 		spell.CalcAndDealAoeDamage(sim, baseDamage, spell.OutcomeMagicHitAndCrit)
-	// 	},
-	// })
+func (mage *Mage) registerArcaneExplosionRank(_ int32, rank *spelldata.Spell) {
+	config := spelldata.SpellConfig(&mage.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = MageSpellArcaneExplosion
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamageWithVariance(sim, spell.OutcomeMagicHitAndCrit, rollDamage(rank.DamageEffect()))
+	}
+
+	mage.RegisterSpell(config)
 }

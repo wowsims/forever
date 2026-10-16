@@ -28,7 +28,8 @@ func (s *Spell) IsChanneled() bool {
 
 // Whether damage taken while casting the spell pushes its cast back.
 func (s *Spell) PushedBack() bool {
-	return s.InterruptFlags&dbcenums.SPELL_INTERRUPT_FLAG_PUSHBACK != 0
+	return s.InterruptFlags&dbcenums.SPELL_INTERRUPT_FLAG_PUSHBACK != 0 &&
+		!s.HasAttr(dbcenums.ATTR_INDEX_EX_6, dbcenums.ATTR_EX_6_NO_PUSHBACK)
 }
 
 // Whether completing a cast of the spell leaves the melee swing timer running instead of starting

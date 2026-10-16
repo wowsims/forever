@@ -1,7 +1,6 @@
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
-import { Cooldowns, EquipmentSpec, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
-import { SavedTalents } from '@generated/proto/ui';
+import { Cooldowns, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
@@ -65,12 +64,6 @@ export default defineSpec<Spec.SpecMage>({
 	),
 	displayWeaponSkillGroups: [WeaponSkillGroup.Wands],
 
-	modifyDisplayStats: (player: Player<Spec.SpecMage>) => {
-		return {
-			talents: new Stats().addPseudoStat(PseudoStat.PseudoStatSpellCritPercent, player.getTalents().arcaneInstability),
-		};
-	},
-
 	consumableStats: [
 		Stat.StatIntellect,
 		Stat.StatSpirit,
@@ -87,7 +80,7 @@ export default defineSpec<Spec.SpecMage>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: EquipmentSpec.create(),
+		gear: Presets.P1ArcaneGear.gear,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
@@ -96,7 +89,7 @@ export default defineSpec<Spec.SpecMage>({
 		// Default consumes settings.
 		consumables: DefaultConsumables,
 		// Default talents.
-		talents: SavedTalents.create(),
+		talents: Presets.ArcaneTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		other: Presets.OtherDefaults,
@@ -132,9 +125,9 @@ export default defineSpec<Spec.SpecMage>({
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.DEFAULT_APL, Presets.APL_ARCANE_SIMPLE],
 		// Preset talents that the user can quickly select.
-		talents: [],
+		talents: [Presets.ArcaneTalents],
 		// Preset gear configurations that the user can quickly select.
-		gear: [],
+		gear: [Presets.P1ArcaneGear],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecMage>): APLRotation => {
@@ -146,8 +139,8 @@ export default defineSpec<Spec.SpecMage>({
 		// }
 	},
 
-	// TODO: To be implemented. The default APL (apls/default.apl.json) is an empty stub, so
-	// there are no value variables or actions left to clone and adjust.
+	// TODO: The simple settings are not applied yet. The default APL (apls/default.apl.json) has no
+	// value variables for them to set, so the simple rotation is that APL as it stands.
 	simpleRotation: (_player: Player<Spec.SpecMage>, _simple: SpecRotation<Spec.SpecMage>, _cooldowns: Cooldowns): APLRotation => {
 		// const actions = AplUtils.simpleCooldownActions(cooldowns);
 		// const rotation = APLRotation.clone(Presets.ROTATION_PRESET_ARCANE.rotation.rotation!);

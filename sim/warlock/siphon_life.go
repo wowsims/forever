@@ -1,69 +1,44 @@
 package warlock
 
-var siphonLifeRank = spellData.SiphonLife.Highest()
-var siphonLifeTick = siphonLifeRank.PeriodicEffect()
-var siphonLifeCoeff = siphonLifeTick.Coeff()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. Port the TBC Siphon Life Spell implementation below; not yet verified against the Forever game files.
+// A periodic leech like Drain Life's: each tick heals the caster for what it deals. The row does not mark
+// Periodic Can Crit, so the ticks do not crit.
 func (warlock *Warlock) registerSiphonLifeSpell() {
-	panic("To be implemented")
+	rankedSpell := spellData.SiphonLife.ByID(18881)
+	siphonLifeTick := rankedSpell.PeriodicEffect()
 
-	// The TBC implementation, kept for the port:
-	// actionID := core.ActionID{SpellID: siphonLifeRank.ID}
-	// tickLength := siphonLifeTick.Period()
-	// baseCost := siphonLifeRank.Cost()
-	//
-	// healthMetrics := warlock.NewHealthMetrics(actionID)
-	//
-	// warlock.SiphonLife = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       actionID,
-	// 	SpellSchool:    core.SpellSchoolShadow,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ClassSpellMask: WarlockSpellSiphonLife,
-	// 	ClassFlags:     siphonLifeRank.ClassFlags,
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	BaseCost:       baseCost,
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			Cost: baseCost,
-	// 			GCD:  siphonLifeRank.GCD(),
-	// 		},
-	// 	},
-	// 	DamageMultiplier: 1,
-	// 	BonusCoefficient: siphonLifeCoeff,
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	//
-	// 		if result.Landed() {
-	// 			spell.Dot(target).Apply(sim)
-	// 		}
-	// 		spell.DealOutcome(sim, result)
-	// 	},
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label: "SiphonLife",
-	// 			Tag:   "Affliction",
-	// 		},
-	// 		NumberOfTicks:    int32(siphonLifeRank.Duration() / tickLength),
-	// 		TickLength:       tickLength,
-	// 		BonusCoefficient: siphonLifeCoeff,
-	//
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, siphonLifeTick.Average(core.CharacterLevel), dot.OutcomeTick)
-	//
-	// 			healthToRegain := result.Damage * (1 * warlock.PseudoStats.BonusHealingTaken)
-	// 			warlock.GainHealth(sim, healthToRegain, healthMetrics)
-	// 			dot.Spell.ApplyAOEThreat(healthToRegain * 0.5)
-	// 		},
-	// 	},
-	//
-	// 	ExpectedTickDamage: func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
-	// 		dot := spell.Dot(target)
-	// 		result := spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(core.CharacterLevel)*float64(int32(siphonLifeRank.Duration()/tickLength)), spell.OutcomeExpectedMagicHit)
-	// 		result.Damage /= dot.CalcTickPeriod().Round(time.Millisecond).Seconds()
-	// 		return result
-	// 	},
-	// })
+	healthMetrics := warlock.NewHealthMetrics(core.ActionID{SpellID: rankedSpell.ID})
+
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellSiphonLife
+
+	// Tick the row's average, rolling only the crit the row allows, and heal for the damage dealt
+	config.Dot = spelldata.DotConfig(rankedSpell, siphonLifeTick)
+	config.Dot.Aura.Tag = "Affliction"
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.TickOutcome(dot))
+
+		heal := result.Damage * warlock.PseudoStats.SelfHealingMultiplier * warlock.PseudoStats.HealingTakenMultiplier
+		warlock.GainHealth(sim, heal, healthMetrics)
+	}
+
+	// Roll to hit and apply as dot
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
+		if result.Landed() {
+			spell.Dot(target).Apply(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	// Calculate expected damage from the row's average tick
+	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		return spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+	}
+
+	warlock.SiphonLife = warlock.RegisterSpell(config)
 }

@@ -50,7 +50,7 @@ const setup = (enabled: boolean) => {
 			getItem: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotMainHand ? { item: sword } : null),
 		},
 		getSpecConfig: () => ({ epStats: [Stat.StatStrength, Stat.StatAttackPower], displayStats: [] }),
-		getParty: () => ({ getBuffs: () => ({ windfuryTotem: false, flametongueTotem: false }) }),
+		getParty: () => ({ getBuffs: () => ({}) }),
 		getConsumes: () => ConsumesSpec.create(),
 		getEpWeights: () => weights,
 	} as unknown as Player<any>;

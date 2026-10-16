@@ -9,12 +9,12 @@ import (
 func (shaman *Shaman) registerRestorationTalents() {
 	// Tier 1
 	shaman.applyImprovedHealingWave()
-	shaman.applyTotemicFocus()
+	shaman.applyTidalFocus()
 
 	// Tier 2
 	shaman.applyMindfulness()
 	shaman.applyNaturalGrace()
-	shaman.applyTidalFocus()
+	shaman.applyTotemicFocus()
 	shaman.applyImprovedReincarnation()
 
 	// Tier 3

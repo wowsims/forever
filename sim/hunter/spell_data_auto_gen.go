@@ -127,7 +127,6 @@ type generatedSpellData struct {
 	HuntersMark                     spelldata.Ladder
 	ImmolationTrap                  spelldata.Ladder
 	ImmolationTrapTriggered         spelldata.Ladder
-	ImmolationTrapEffect            spelldata.Ladder
 	ImprovedArcaneShot              spelldata.Ladder
 	ImprovedAspectOfTheMonkey       spelldata.Ladder
 	ImprovedConcussiveShot          spelldata.Ladder
@@ -309,7 +308,7 @@ var spellData = generatedSpellData{
 	ExplosiveTrapTriggered:          spelldata.Ranked(13812, 14314, 14315),
 	ExplosiveTrapEffect:             spelldata.Ranked(13812, 14314, 14315),
 	ExposePrey:                      spelldata.Talent(1310532, 2),
-	ExposePreyTriggered:             spelldata.Ranked(5302, 1310726),
+	ExposePreyTriggered:             spelldata.Ranked(1310726),
 	EyesOfTheBeast:                  spelldata.Ranked(1002),
 	FasterAttackI:                   spelldata.Ranked(1263099),
 	FasterAttackII:                  spelldata.Ranked(1263100),
@@ -349,7 +348,6 @@ var spellData = generatedSpellData{
 	HuntersMark:                     spelldata.Ranked(1130, 14323, 14324, 14325),
 	ImmolationTrap:                  spelldata.Ranked(13795, 14302, 14303, 14304, 14305),
 	ImmolationTrapTriggered:         spelldata.Ranked(13797, 14298, 14299, 14300, 14301),
-	ImmolationTrapEffect:            spelldata.Ranked(13797, 14298, 14299, 14300, 14301),
 	ImprovedArcaneShot:              spelldata.Talent(19454, 5),
 	ImprovedAspectOfTheMonkey:       spelldata.Talent(19549, 3),
 	ImprovedConcussiveShot:          spelldata.Talent(19407, 5),

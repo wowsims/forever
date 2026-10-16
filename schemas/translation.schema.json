@@ -754,6 +754,9 @@
 						"bonus_armor": {
 							"type": "string"
 						},
+						"armor_no_mods": {
+							"type": "string"
+						},
 						"health": {
 							"type": "string"
 						},
@@ -965,6 +968,7 @@
 						"spell_power",
 						"armor",
 						"bonus_armor",
+						"armor_no_mods",
 						"health",
 						"mana",
 						"mp5",
@@ -2783,7 +2787,7 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
-						"cannot_shred_target": {
+						"prepull_clearcasting": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -2796,7 +2800,7 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
-						"okf_uptime": {
+						"cannot_shred_target": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -2939,6 +2943,58 @@
 							"additionalProperties": false,
 							"required": ["title", "description"]
 						},
+						"warlock_pet": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
+						"warlock_armor": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
+						"warlock_demonic_sacrifice": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
+						"warlock_soul_shards": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"pet_attack_speed": {
 							"type": "object",
 							"properties": {
@@ -3045,8 +3101,8 @@
 						"has_bs_tier_2",
 						"queue_delay",
 						"assume_bleed_active",
+						"prepull_clearcasting",
 						"cannot_shred_target",
-						"okf_uptime",
 						"show_1h_weapons",
 						"show_2h_weapons",
 						"show_all_enchants",
@@ -3057,6 +3113,10 @@
 						"blessings",
 						"shaman_shield_procrate",
 						"warlock_assigned_curse",
+						"warlock_soul_shards",
+						"warlock_pet",
+						"warlock_armor",
+						"warlock_demonic_sacrifice",
 						"pet_attack_speed",
 						"pet_training",
 						"pet_section"
@@ -5950,45 +6010,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"solar_energy": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"lunar_energy": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"current_eclipse_phase": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"generic_resource": {
 									"type": "object",
 									"properties": {
@@ -6562,6 +6583,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"druid_bleed_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"dot_is_active_on_all_targets": {
 									"type": "object",
 									"properties": {
@@ -6693,6 +6727,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"warlock_assigned_curse_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"warlock_active_pet": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7008,9 +7055,6 @@
 								"estimated_time_to_target_energy",
 								"current_combo_points",
 								"max_combo_points",
-								"solar_energy",
-								"lunar_energy",
-								"current_eclipse_phase",
 								"generic_resource",
 								"gcd_is_ready",
 								"gcd_time_to_ready",
@@ -7054,6 +7098,7 @@
 								"any_stat_buff_cooldowns_active",
 								"any_stat_buff_cooldowns_min_duration",
 								"dot_is_active",
+								"druid_bleed_is_active",
 								"dot_is_active_on_all_targets",
 								"dot_remaining_time",
 								"dot_lowest_remaining_time",
@@ -7066,6 +7111,7 @@
 								"totem_remaining_time",
 								"warlock_assigned_curse_is_active",
 								"warlock_is_assigned_curse",
+								"warlock_active_pet",
 								"protection_paladin_damage_taken_last_global",
 								"aura_remaining_icd",
 								"aura_icd_is_ready",
@@ -7176,21 +7222,43 @@
 						"curse_types": {
 							"type": "object",
 							"properties": {
-								"agony": {
-									"type": "string"
-								},
-								"doom": {
-									"type": "string"
-								},
 								"elements": {
 									"type": "string"
 								},
 								"recklessness": {
 									"type": "string"
+								},
+								"weakness": {
+									"type": "string"
+								},
+								"no_curse": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["agony", "doom", "elements", "recklessness"]
+							"required": ["elements", "recklessness", "weakness", "no_curse"]
+						},
+						"summon_types": {
+							"type": "object",
+							"properties": {
+								"imp": {
+									"type": "string"
+								},
+								"voidwalker": {
+									"type": "string"
+								},
+								"succubus": {
+									"type": "string"
+								},
+								"felhunter": {
+									"type": "string"
+								},
+								"no_summon": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["imp", "voidwalker", "succubus", "felhunter", "no_summon"]
 						},
 						"submenus": {
 							"type": "object",
@@ -7276,9 +7344,6 @@
 								"combo_points": {
 									"type": "string"
 								},
-								"eclipse": {
-									"type": "string"
-								},
 								"cooldowns": {
 									"type": "string"
 								},
@@ -7351,7 +7416,6 @@
 								"focus",
 								"energy",
 								"combo_points",
-								"eclipse",
 								"cooldowns",
 								"potions",
 								"conjured_items",
@@ -7492,22 +7556,6 @@
 										"variable_assignment_tooltip"
 									]
 								},
-								"eclipse_types": {
-									"type": "object",
-									"properties": {
-										"lunar": {
-											"type": "string"
-										},
-										"solar": {
-											"type": "string"
-										},
-										"neutral": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["lunar", "solar", "neutral"]
-								},
 								"rotation_types": {
 									"type": "object",
 									"properties": {
@@ -7588,7 +7636,6 @@
 							"required": [
 								"action_id_sets",
 								"field_configs",
-								"eclipse_types",
 								"rotation_types",
 								"unit_labels",
 								"placeholder_tooltip",
@@ -7619,6 +7666,7 @@
 						"execute_phases",
 						"totem_types",
 						"curse_types",
+						"summon_types",
 						"submenus",
 						"item_swap_sets",
 						"helpers"
@@ -7711,237 +7759,6 @@
 				"options": {
 					"type": "object",
 					"properties": {
-						"druid": {
-							"type": "object",
-							"properties": {
-								"feral_cat": {
-									"type": "object",
-									"properties": {
-										"finishing_move": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												},
-												"values": {
-													"type": "object",
-													"properties": {
-														"rip": {
-															"type": "string"
-														},
-														"bite": {
-															"type": "string"
-														},
-														"none": {
-															"type": "string"
-														}
-													},
-													"additionalProperties": false,
-													"required": ["rip", "bite", "none"]
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip", "values"]
-										},
-										"biteweave": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"ripweave": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"rip_min_combo_points": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"bite_min_combo_points": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"mangle_trick": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"rake_trick": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"maintain_faerie_fire": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										}
-									},
-									"additionalProperties": false,
-									"required": [
-										"finishing_move",
-										"biteweave",
-										"ripweave",
-										"rip_min_combo_points",
-										"bite_min_combo_points",
-										"mangle_trick",
-										"rake_trick",
-										"maintain_faerie_fire"
-									]
-								},
-								"feral_bear": {
-									"type": "object",
-									"properties": {
-										"maul_rage_threshold": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"swipe_usage": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												},
-												"values": {
-													"type": "object",
-													"properties": {
-														"never": {
-															"type": "string"
-														},
-														"with_enough_ap": {
-															"type": "string"
-														},
-														"spam": {
-															"type": "string"
-														}
-													},
-													"additionalProperties": false,
-													"required": ["never", "with_enough_ap", "spam"]
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip", "values"]
-										},
-										"swipe_ap_threshold": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"maintain_demo_roar": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										},
-										"maintain_faerie_fire": {
-											"type": "object",
-											"properties": {
-												"label": {
-													"type": "string"
-												},
-												"tooltip": {
-													"type": "string"
-												}
-											},
-											"additionalProperties": false,
-											"required": ["label", "tooltip"]
-										}
-									},
-									"additionalProperties": false,
-									"required": ["maul_rage_threshold", "swipe_usage", "swipe_ap_threshold", "maintain_demo_roar", "maintain_faerie_fire"]
-								}
-							},
-							"additionalProperties": false,
-							"required": ["feral_cat", "feral_bear"]
-						},
 						"rogue": {
 							"type": "object",
 							"properties": {
@@ -8229,7 +8046,7 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["druid", "rogue", "shaman", "warlock", "hunter", "warrior"]
+					"required": ["rogue", "shaman", "warlock", "hunter", "warrior"]
 				}
 			},
 			"additionalProperties": false,
@@ -9870,9 +9687,6 @@
 						"broken_talents": {
 							"type": "string"
 						},
-						"windfury_over_grace_of_air": {
-							"type": "string"
-						},
 						"windfury_over_flametongue": {
 							"type": "string"
 						},
@@ -9881,14 +9695,7 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": [
-						"profession_requirement",
-						"unspent_talent_points",
-						"broken_talents",
-						"windfury_over_grace_of_air",
-						"windfury_over_flametongue",
-						"label"
-					]
+					"required": ["profession_requirement", "unspent_talent_points", "broken_talents", "windfury_over_flametongue", "label"]
 				},
 				"buttons": {
 					"type": "object",

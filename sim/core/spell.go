@@ -167,7 +167,8 @@ type Spell struct {
 	BonusSpellDamage         float64
 	BonusExpertisePercent    float64
 	CastTimeMultiplier       float64
-	CdMultiplier             float64
+	CdMultiplier             float64       // The product of the nonzero cooldown multiplier mods; CooldownMultiplier reads it.
+	cdMultiplierZeroes       int32         // Active cooldown multiplier mods of 0, which remove the cooldown and cannot be divided back out.
 	GCDMultiplier            float64       // Scales DefaultCast.GCD, after the flat GCD mods and before haste and the GCD minimum; 1 = unmodified. Fed by SpellMod_GlobalCooldown_Pct.
 	unscaledGCD              time.Duration // DefaultCast.GCD is rewritten from this on every GCD mod, so a direct write there is lost.
 	RangeMultiplier          float64       // Scales MaxRange, after the flat range mods; 1 = unmodified. Fed by SpellMod_Range_Pct.
@@ -446,6 +447,9 @@ func (spell *Spell) CurDot() *Dot {
 	return spell.dots.Get(spell.Unit.CurrentTarget)
 }
 func (spell *Spell) AOEDot() *Dot {
+	if spell.aoeDot == nil && spell.RelatedDotSpell != nil {
+		return spell.RelatedDotSpell.AOEDot()
+	}
 	return spell.aoeDot
 }
 
@@ -605,6 +609,14 @@ func (spell *Spell) HealthMetrics(target *Unit) *ResourceMetrics {
 		spell.healthMetrics[target.UnitIndex] = target.NewHealthMetrics(spell.ActionID)
 	}
 	return spell.healthMetrics[target.UnitIndex]
+}
+
+// The multiplier a cast applies to the spell's cooldown: 0 while a mod removes the cooldown.
+func (spell *Spell) CooldownMultiplier() float64 {
+	if spell.cdMultiplierZeroes > 0 {
+		return 0
+	}
+	return spell.CdMultiplier
 }
 
 func (spell *Spell) ReadyAt() time.Duration {

@@ -1,6 +1,6 @@
 # Porting a class onto the resolvers
 
-1. **Start from the ladders.** Every class file is already one ladder per family. The druid, mage,
+1. **Start from the ladders.** Every class file is already one ladder per family. The druid,
    priest, rogue and warlock read them by hand, the way [Reading a row by hand](reading-by-hand.md)
    describes; grep the class folder for `spelldata.SpellConfig` and `spelldata.Parse` to see where a
    class stands. This checklist covers the move from hand reads onto the resolvers (`SpellConfig`,

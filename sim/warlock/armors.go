@@ -1,32 +1,25 @@
 package warlock
 
-// TODO: To be implemented. Port the TBC Armors implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) registerArmors() {
-	panic("To be implemented")
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-	// The TBC implementation, kept for the port:
-	//
-	// demonArmorBonus := 660.0
-	// demonArmorSRBonus := 18.0
-	//
-	// if warlock.Talents.DemonicAegis > 0 {
-	// 	bonusMultiplier := spellData.DemonicAegis.MultiplierAt(warlock.Talents.DemonicAegis)
-	//
-	// 	demonArmorBonus *= bonusMultiplier
-	// 	demonArmorSRBonus *= bonusMultiplier
-	// }
-	//
-	// warlock.DemonArmor = warlock.RegisterAura(core.Aura{
-	// 	Label:    "Demon Armor",
-	// 	ActionID: core.ActionID{SpellID: 27260},
-	// 	Duration: time.Minute * 30,
-	// }).AttachStatBuff(stats.Armor, demonArmorBonus).AttachStatBuff(stats.ShadowResistance, demonArmorSRBonus)
-	//
-	// // Armor selection
-	// switch warlock.Options.Armor {
-	//
-	// case proto.WarlockOptions_DemonArmor:
-	// 	core.MakePermanent(warlock.DemonArmor)
-	// }
-	//
+// Demon Armor (11735), parsed from its row: armor and Shadow resistance. Its in-combat health regen is left
+// out by the parse. Demonic Aegis raises every amount it states.
+func (warlock *Warlock) registerArmors() {
+	rankedSpell := spellData.DemonArmor.ByID(11735)
+
+	opts := []spelldata.ParseOpt{}
+	if warlock.Talents.DemonicAegis > 0 {
+		opts = append(opts, spelldata.Count(1+spellData.DemonicAegis.Rank(warlock.Talents.DemonicAegis).EffectN(1).Percent()))
+	}
+
+	warlock.DemonArmor = warlock.RegisterAura(spelldata.AuraConfig(rankedSpell))
+	spelldata.ParseEffects(&warlock.Character, warlock.DemonArmor, rankedSpell, opts...)
+
+	if warlock.Options.Armor == proto.WarlockOptions_DemonArmor {
+		core.MakePermanent(warlock.DemonArmor)
+	}
 }

@@ -1,59 +1,32 @@
 package druid
 
-// TODO: To be implemented. The generated aura carries Innervate's spirit regen,
-// so the druid's own cast needs no more than the aura the body below activates.
-func (druid *Druid) registerInnervateCD() {
-	panic("To be implemented")
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-	// The body the port needs:
-	// innervateTarget := druid.GetUnit(druid.SelfBuffs.InnervateTarget)
-	// if innervateTarget == nil {
-	// 	innervateTarget = &druid.Unit
-	// }
-	// innervateTargetChar := druid.Env.Raid.GetPlayerFromUnit(innervateTarget).GetCharacter()
-	//
-	// actionID := core.ActionID{SpellID: 29166, Tag: druid.Index}
-	// var innervateSpell *DruidSpell
-	//
-	// innervateCD := buffs.InnervatesCooldown()
-	//
-	// amount := 0.05
-	// if innervateTarget == &druid.Unit {
-	// 	// TODO: Forever drops Dreamstate; untalented (self-cast base amount) until we
-	// 	// know whether the effect moved onto another talent.
-	// 	amount = 0.2
-	// }
-	//
-	// var innervateAura = buffs.NewSpellDataInnervatesAura(innervateTarget, true, 0)
-	//
-	// innervateSpell = druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        actionID,
-	// 	CastRequirement: spellData.Innervate.Highest().CastRequirement(),
-	// 	DefenseType:     core.DefenseTypeMagic,
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: core.GCDDefault,
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    druid.NewTimer(),
-	// 			Duration: innervateCD,
-	// 		},
-	// 	},
-	// 	ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-	// 		// If target already has another innervate, don't cast.
-	// 		return !innervateTarget.HasActiveAuraWithTag(buffs.InnervatesCategory)
-	// 	},
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		innervateAura.Activate(sim)
-	// 	},
-	// })
-	//
-	// druid.AddMajorCooldown(core.MajorCooldown{
-	// 	Spell: innervateSpell.Spell,
-	// 	Type:  core.CooldownTypeMana,
-	// 	ShouldActivate: func(sim *core.Simulation, character *core.Character) bool {
-	// 		// Require manual APL usage
-	// 		return false
-	// 	},
-	// })
+func (druid *Druid) registerInnervateCD() {
+	rank := spellData.Innervate.Highest()
+	target := druid.GetUnit(druid.SelfBuffs.InnervateTarget)
+	if target == nil {
+		target = &druid.Unit
+	}
+	aura := buffs.NewSpellDataInnervatesAura(target, true, 0)
+	config := spelldata.SpellConfig(&druid.Unit, rank)
+	config.Flags |= core.SpellFlagAPL | core.SpellFlagHelpful
+	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
+		return !target.HasActiveAuraWithTag(buffs.InnervatesCategory)
+	}
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		aura.Activate(sim)
+	}
+	druid.Innervate = druid.RegisterSpell(config)
+	druid.AddMajorCooldown(core.MajorCooldown{
+		Spell: druid.Innervate.Spell,
+		Type:  core.CooldownTypeMana,
+		ShouldActivate: func(_ *core.Simulation, _ *core.Character) bool {
+			return false
+		},
+	})
 }

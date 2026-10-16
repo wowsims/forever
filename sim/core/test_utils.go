@@ -58,28 +58,28 @@ var FullRaidBuffs = &proto.RaidBuffs{
 	PrayerOfSpirit:           true,
 	GiftOfTheWild:            true,
 	PrayerOfShadowProtection: true,
+
+	GraceOfAirTotem:      true,
+	StrengthOfEarthTotem: true,
+	WindfuryTotem:        true,
+	BattleShout:          proto.TristateEffect_TristateEffectRegular,
+	TrueshotAura:         true,
+	LeaderOfThePack:      true,
+	MoonkinAura:          true,
 }
 
 var FullPartyBuffs = &proto.PartyBuffs{
 	BloodPact:         true,
-	MoonkinAura:       true,
-	LeaderOfThePack:   true,
 	DevotionAura:      true,
 	RetributionAura:   true,
 	ConcentrationAura: true,
-	TrueshotAura:      true,
 	AtieshDruid:       1,
 	AtieshMage:        1,
 	AtieshPriest:      1,
 	AtieshWarlock:     1,
 
-	ManaSpringTotem:      proto.TristateEffect_TristateEffectImproved,
-	ManaTideTotems:       1,
-	GraceOfAirTotem:      true,
-	StrengthOfEarthTotem: true,
-	WindfuryTotem:        true,
-
-	BattleShout: proto.TristateEffect_TristateEffectRegular,
+	ManaSpringTotem: proto.TristateEffect_TristateEffectImproved,
+	ManaTideTotems:  1,
 }
 
 var FullIndividualBuffs = &proto.IndividualBuffs{

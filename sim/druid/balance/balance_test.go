@@ -15,8 +15,6 @@ func init() {
 }
 
 func TestBalance(t *testing.T) {
-	t.Skip("class talents and abilities are stubbed pending their Forever implementations; " +
-		"the expected .results numbers cannot be meaningful until then")
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
 			Class:      proto.Class_ClassDruid,
@@ -29,12 +27,9 @@ func TestBalance(t *testing.T) {
 					},
 				},
 			}},
-			GearSet: core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p1_a"),
+			GearSet: core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p1"),
 			OtherGearSets: []core.GearSetCombo{
-				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p2_a"),
-				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p3"),
-				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p4"),
-				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p5"),
+				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "prebis"),
 			},
 			Talents:  DefaultTalents,
 			Rotation: core.GetAplRotation("../../../ui/specs/druid/balance/apls", "default"),
@@ -47,7 +42,7 @@ func TestBalance(t *testing.T) {
 	}))
 }
 
-const DefaultTalents = "510022312503135231351--520033"
+const DefaultTalents = "5532220115501351--505"
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeLeather
 

@@ -53,7 +53,7 @@ func TestGeneratedRowsReadInTheSimsUnits(t *testing.T) {
 			return 1 + pct/100
 		}},
 		{"ExposeArmor", ExposeArmorValue, 0, func(t *testing.T, _ int32) float64 {
-			return float64(firstAura(t, exposeArmorSpell, dbcenums.A_MOD_RESISTANCE).PointsPerResource) * 5
+			return float64(firstAura(t, exposeArmorSpell, dbcenums.A_MOD_ARMOR_NO_MODS).PointsPerResource) * 5
 		}},
 		// Each rank is its share of the debuff's amount, rounded half away from zero; untaken is the whole.
 		{"Vindication", VindicationValue, vindicationMeta.Talent.Len(), func(t *testing.T, points int32) float64 {

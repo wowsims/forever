@@ -1,78 +1,99 @@
 package warlock
 
-// Package-level state the commented-out implementations used:
-// var agonyRank = spellData.CurseOfAgony.ByID(27218)
-// var agonyTick = agonyRank.PeriodicEffect()
-// var agonyCoeff = agonyTick.Coeff()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. Forever renamed this to **Bane of Agony**: spells 980, 1014, 6217, 11711 (and up)
-// on the Affliction line, a full rank chain. The registrar needs re-pointing at that name,
-// not implementing from nothing.
-func (warlock *Warlock) registerCurseOfAgony() {
-	panic("To be implemented")
+// Bane of Agony's ticks are set at cast. Amplify Curse raises the base, and the base ramps in thirds: the
+// first third of the ticks at half, the second at the base, the last at one and a half. The spell power share
+// is the spell power at cast, the same on every tick: it neither ramps nor takes Amplify Curse. Damage
+// multipliers apply as each tick lands.
+func (warlock *Warlock) registerBaneOfAgony() {
+	rankedSpell := spellData.BaneOfAgony.ByID(11713)
+	agonyTick := rankedSpell.PeriodicEffect()
 
-	// The TBC implementation, kept for the port:
-	//
-	// tickLength := agonyTick.Period()
-	// calculateBaseDamage := func(sim *core.Simulation, dot *core.Dot) float64 {
-	// 	damageMultiplier := core.TernaryFloat64(warlock.AmplifyCurseAura != nil && warlock.AmplifyCurseAura.IsActive(), 1.5, 1.0)
-	// 	return agonyTick.Average(core.CharacterLevel) * damageMultiplier
-	// }
-	//
-	// warlock.CurseOfAgony = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: agonyRank.ID},
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	SpellSchool:    agonyRank.SpellSchool(),
-	// 	DefenseType:    agonyRank.DefenseTypeCore(),
-	// 	ClassSpellMask: WarlockSpellCurseOfAgony,
-	// 	ClassFlags:     agonyRank.ClassFlags,
-	//
-	// 	ThreatMultiplier: 1,
-	// 	DamageMultiplier: 1,
-	// 	BonusCoefficient: agonyCoeff,
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: agonyRank.GCD(),
-	// 		},
-	// 	},
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(agonyRank.Cost()),
-	// 	},
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	// 		if result.Landed() {
-	// 			warlock.DeactivateOtherCurses(sim, spell, target)
-	// 			spell.Dot(target).Apply(sim)
-	// 		}
-	// 		spell.DealOutcome(sim, result)
-	// 	},
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label: "Agony",
-	// 			Tag:   "Affliction",
-	// 		},
-	//
-	// 		TickLength:               tickLength,
-	// 		NumberOfTicks:            int32(agonyRank.Duration() / tickLength),
-	// 		PeriodicDamageMultiplier: 1,
-	//
-	// 		BonusCoefficient: agonyCoeff,
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			dot.Spell.CalcAndDealPeriodicDamage(sim, target, calculateBaseDamage(sim, dot), dot.OutcomeTick)
-	// 		},
-	// 	},
-	//
-	// 	ExpectedTickDamage: func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
-	// 		dot := spell.Dot(target)
-	//
-	// 		// Always compare fully stacked agony damage
-	// 		result := spell.CalcPeriodicDamage(sim, target, calculateBaseDamage(sim, dot), spell.OutcomeExpectedMagicHit)
-	// 		result.Damage *= 10
-	// 		result.Damage /= dot.CalcTickPeriod().Round(time.Millisecond).Seconds()
-	// 		return result
-	// 	},
-	// })
+	// What each target's Bane landed with: the Amplify Curse bonus, which the cast spends, and the spell
+	// power share per tick.
+	type agonyCast struct{ ampMult, spellPowerShare float64 }
+	castByTarget := map[int32]agonyCast{}
+
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellBaneOfAgony
+
+	config.Dot = spelldata.DotConfig(rankedSpell, agonyTick)
+	config.Dot.Aura.Tag = "Affliction"
+
+	// A cast now, with Amplify Curse if it is up.
+	castNow := func(target *core.Unit, dot *core.Dot) agonyCast {
+		cast := agonyCast{ampMult: 1}
+		if warlock.AmplifyCurseAura.IsActive() {
+			cast.ampMult = warlock.AmplifyCurseMultiplier
+		}
+		cast.spellPowerShare = dot.BonusCoefficient * dot.Spell.BonusDamage(warlock.AttackTables[target.UnitIndex])
+		return cast
+	}
+
+	// Dot.Apply snapshots on every application, whatever applied the Bane, and runs inside the cast's
+	// effects, before the cast spends Amplify Curse.
+	config.Dot.OnSnapshot = func(_ *core.Simulation, target *core.Unit, dot *core.Dot) {
+		castByTarget[target.UnitIndex] = castNow(target, dot)
+	}
+
+	// Sets the dot's snapshot to a tick of the cast at the ramp, with the damage multipliers of now.
+	setTick := func(target *core.Unit, dot *core.Dot, cast agonyCast, ramp float64) {
+		dot.SnapshotBaseDamage = agonyTick.Average()*ramp*cast.ampMult + cast.spellPowerShare
+		dot.SnapshotAttackerMultiplier = dot.Spell.AttackerDamageMultiplier(warlock.AttackTables[target.UnitIndex], true) *
+			dot.PeriodicDamageMultiplier
+	}
+
+	// A dot activated without Apply has no entry, and ticks as if cast now.
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		cast, ok := castByTarget[target.UnitIndex]
+		if !ok {
+			cast = castNow(target, dot)
+		}
+		setTick(target, dot, cast, baneOfAgonyRamp(dot.TickCount(), dot.BaseTickCount))
+		dot.CalcAndDealPeriodicSnapshotDamage(sim, target, rankedSpell.TickOutcome(dot))
+	}
+
+	// Roll to hit and apply as dot in place of any other Bane
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
+		if result.Landed() {
+			warlock.deactivateOtherBanes(sim, spell, target)
+			spell.Dot(target).Apply(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	// Calculate expected damage from the average tick, the base at a ramp of one, which is what a tick is worth
+	// over the whole duration: the dot on the target as it landed (useSnapshot), or a cast now, so Dot Percent
+	// Increase sees what re-applying gains. Each tick sets the snapshot again, so setting it here costs a
+	// running dot nothing.
+	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
+		dot := spell.Dot(target)
+		cast, ok := castByTarget[target.UnitIndex]
+		if !useSnapshot || !ok {
+			cast = castNow(target, dot)
+		}
+		setTick(target, dot, cast, 1)
+		return dot.CalcSnapshotDamage(sim, target, spell.OutcomeExpectedMagicAlwaysHit)
+	}
+
+	warlock.BaneOfAgony = warlock.RegisterSpell(config)
+	warlock.Banes = append(warlock.Banes, warlock.BaneOfAgony)
+}
+
+// Helper function to facilitate the percentage of base damage dealt per tick
+func baneOfAgonyRamp(tick int32, ticks int32) float64 {
+	third := max(ticks/3, 1)
+	switch {
+	case tick <= third:
+		return 0.5
+	case tick <= 2*third:
+		return 1
+	default:
+		return 1.5
+	}
 }

@@ -1,4 +1,9 @@
 {
 	"type": "TypeAPL",
-	"priorityList": []
+	"priorityList": [
+	{"action":{"autocastOtherCooldowns":{}}},
+	{"action":{"condition":{"auraIsActive":{"auraId":{"spellId":400589},"includeReactionTime":true}},"castSpell":{"spellId":{"spellId":25345}}}},
+	{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"auraNumStacks":{"auraId":{"spellId":400573}}},"rhs":{"const":{"val":"4"}}}},{"auraIsInactive":{"auraId":{"spellId":400589},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":25304}}}},
+	{"action":{"castSpell":{"spellId":{"spellId":1239700}}}}
+	]
 }

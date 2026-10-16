@@ -7,12 +7,14 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Package-level state the commented-out implementations used:
-// var waterShieldRank = spellData.WaterShield.ByID(33736)
-
+// One shield is up at a time, so the shield proc rate option spends a charge of whichever it is.
 func (shaman *Shaman) registerShieldsSpells() {
-	shaman.registerWaterShieldSpell()
-	shaman.registerLightningShieldSpell()
+	spendWaterShield := shaman.registerWaterShieldSpell()
+	spendLightningShield := shaman.registerLightningShieldSpell()
+	shaman.ShieldSelfProc = func(sim *core.Simulation) {
+		spendLightningShield(sim, shaman.CurrentTarget)
+		spendWaterShield(sim)
+	}
 }
 
 // The shield proc rate option stands for the hits a shaman takes when nothing attacks it in the sim.
@@ -28,52 +30,67 @@ func (shaman *Shaman) startShieldProcPeriodicAction(sim *core.Simulation) {
 	}
 }
 
-// TODO: To be implemented. The ability exists: spell 408510 on the Restoration line. No rank subtext,
-// so no generated table -- pin the id directly.
-func (shaman *Shaman) registerWaterShieldSpell() {
-	// The TBC implementation, kept for the port:
-	// bonusManaReturned := 0.0
-	// mp5 := 50.0
-	// if shaman.CouldHaveSetBonus(ItemSetTidefuryRaiment, 4) {
-	// 	bonusManaReturned = 56
-	// }
-	//
-	// actionID := core.ActionID{SpellID: waterShieldRank.ID}
-	// waterShieldManaMetrics := shaman.NewManaMetrics(actionID)
-	//
-	// shaman.WaterShieldAura = shaman.RegisterAura(core.Aura{
-	// 	Label:     "Water Shield",
-	// 	ActionID:  actionID,
-	// 	Duration:  10 * time.Minute,
-	// 	MaxStacks: 3,
-	// }).AttachProcTrigger(core.ProcTrigger{
-	// 	Name:           "Water Shield Trigger",
-	// 	Callback:       core.CallbackOnSpellHitTaken,
-	// 	ICD:            3500 * time.Millisecond,
-	// 	ClassSpellMask: SpellMaskShieldSelfProc,
-	// 	Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-	// 		shaman.WaterShieldAura.RemoveStack(sim)
-	// 		shaman.AddMana(sim, waterShieldRank.DamageEffect().Average(core.CharacterLevel)+bonusManaReturned, waterShieldManaMetrics)
-	// 	},
-	// }).AttachStatBuff(stats.MP5, mp5)
-	//
-	// shaman.RegisterSpell(core.SpellConfig{
-	// 	ActionID:    actionID,
-	// 	SpellSchool: core.SpellSchoolNature,
-	// 	DefenseType: core.DefenseTypeMagic,
-	// 	Flags:       core.SpellFlagAPL | SpellFlagInstant,
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: waterShieldRank.GCD(),
-	// 		},
-	// 	},
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		shaman.LightningShieldAura.Deactivate(sim)
-	// 		shaman.WaterShieldAura.Activate(sim)
-	// 		shaman.WaterShieldAura.SetStacks(sim, 3)
-	// 	},
-	// 	RelatedSelfBuff: shaman.WaterShieldAura,
-	// })
+var waterShieldRank = spellData.WaterShield.Highest()
+var waterShieldMana = spellData.WaterShieldTriggered.Highest()
+
+// The talent teaches Water Shield: three globes for 10 minutes, one of which a hit taken or one of the
+// shaman's spell crits spends, at most once every 3.5 s, to restore 408511's 2% of maximum mana. The
+// row hears both on one mask, but its tooltip asks for a crit only of the shaman's own spells ("when a
+// spell, melee, or ranged attack hits the caster or when one of the caster's spells gets a critical
+// result"), so the two are separate triggers sharing the globes and the cooldown. Answers what spends a
+// globe for the shield proc rate option.
+func (shaman *Shaman) registerWaterShieldSpell() func(sim *core.Simulation) {
+	if !shaman.Talents.WaterShield {
+		return func(*core.Simulation) {}
+	}
+
+	manaMetrics := shaman.NewManaMetrics(core.ActionID{SpellID: waterShieldMana.ID})
+	manaShare := waterShieldMana.EffectN(1).Percent()
+
+	shaman.WaterShieldAura = shaman.RegisterAura(spelldata.AuraConfig(waterShieldRank))
+
+	icd := core.Cooldown{
+		Timer:    shaman.NewTimer(),
+		Duration: waterShieldRank.ICD(),
+	}
+	spendGlobe := func(sim *core.Simulation) {
+		if !shaman.WaterShieldAura.IsActive() || !icd.IsReady(sim) {
+			return
+		}
+		icd.Use(sim)
+		shaman.WaterShieldAura.RemoveStack(sim)
+		shaman.AddMana(sim, shaman.MaxMana()*manaShare, manaMetrics)
+	}
+	handler := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		spendGlobe(sim)
+	}
+
+	taken := spelldata.ProcTrigger(&shaman.Character, waterShieldRank, handler)
+	taken.Name = "Water Shield Trigger - Hit Taken"
+	taken.ICD = 0
+	taken.Callback = core.CallbackOnSpellHitTaken
+	taken.ProcMask &^= core.ProcMaskSpellHealing
+	taken.Outcome = core.OutcomeLanded
+	shaman.WaterShieldAura.AttachProcTrigger(taken)
+
+	crit := spelldata.ProcTrigger(&shaman.Character, waterShieldRank, handler)
+	crit.Name = "Water Shield Trigger - Spell Crit"
+	crit.ICD = 0
+	crit.Callback = core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt
+	crit.ProcMask = core.ProcMaskSpellDamage | core.ProcMaskSpellHealing
+	shaman.WaterShieldAura.AttachProcTrigger(crit)
+
+	config := spelldata.SpellConfig(&shaman.Unit, waterShieldRank, spelldata.Flags(core.SpellFlagAPL|SpellFlagShamanSpell|SpellFlagInstant))
+	config.ProcMask = core.ProcMaskEmpty
+	config.RelatedSelfBuff = shaman.WaterShieldAura
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		shaman.LightningShieldAura.Deactivate(sim)
+		shaman.WaterShieldAura.Activate(sim)
+		shaman.WaterShieldAura.SetStacks(sim, shaman.WaterShieldAura.MaxStacks)
+	}
+	shaman.RegisterSpell(config)
+
+	return spendGlobe
 }
 
 var lightningShieldRank = spellData.LightningShield.Highest()
@@ -83,7 +100,7 @@ var lightningShieldOrb = lightningShieldRank.Refs()[0]
 
 // 10432 holds three charges for 10 minutes, and a hit taken spends one, at most once every 3.5 s, to
 // strike the attacker with the orb.
-func (shaman *Shaman) registerLightningShieldSpell() {
+func (shaman *Shaman) registerLightningShieldSpell() func(sim *core.Simulation, attacker *core.Unit) {
 	orbConfig := spelldata.SpellConfig(&shaman.Unit, lightningShieldOrb,
 		spelldata.Magic(core.ProcMaskSpellDamageProc), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc|SpellFlagShamanSpell))
 	orbConfig.ClassSpellMask = SpellMaskLightningShield
@@ -109,10 +126,6 @@ func (shaman *Shaman) registerLightningShieldSpell() {
 		shaman.LightningShieldAura.RemoveStack(sim)
 		orb.Cast(sim, attacker)
 	}
-	shaman.ShieldSelfProc = func(sim *core.Simulation) {
-		spendCharge(sim, shaman.CurrentTarget)
-	}
-
 	trigger := spelldata.ProcTrigger(&shaman.Character, lightningShieldRank, func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 		spendCharge(sim, spell.Unit)
 	})
@@ -132,4 +145,6 @@ func (shaman *Shaman) registerLightningShieldSpell() {
 		shaman.LightningShieldAura.SetStacks(sim, shaman.LightningShieldAura.MaxStacks)
 	}
 	shaman.LightningShield = shaman.RegisterSpell(config)
+
+	return spendCharge
 }

@@ -151,6 +151,7 @@ func (paladin *Paladin) applySanctifiedJudgement() {
 	}
 
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: spellData.SanctifiedJudgement.Highest().ID})
+	manaMetrics.NoThreat = spellData.SanctifiedJudgementTriggered.Highest().GeneratesNoThreat()
 	refund := spellData.SanctifiedJudgement.EffectAt(2).FractionAt(paladin.Talents.SanctifiedJudgement)
 
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
@@ -290,7 +291,7 @@ func (paladin *Paladin) applyVengeance() {
 	paladin.MakeProcTriggerAura(trigger)
 }
 
-// Champion of the Light - Increases your spell damage by up to 20/40/60% of your Intellect.
+// Champion of the Light - Increases your spell damage by up to 10/20/30% of your Intellect.
 func (paladin *Paladin) applyChampionOfTheLight() {
 	if paladin.Talents.ChampionOfTheLight == 0 {
 		return

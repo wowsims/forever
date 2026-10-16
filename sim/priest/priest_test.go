@@ -15,7 +15,7 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-const defaultTalents = "005300211303--500320501201312251"
+const defaultTalents = "00530321103--50052001231312251"
 
 // The UI's defaults: Flask of Supreme Power, Major Spellblasting Potion, Nightfin Soup, Demonic Rune,
 // Brilliant Wizard Oil and Ez-Thro Dynamite II.

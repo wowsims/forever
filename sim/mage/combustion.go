@@ -1,101 +1,79 @@
 package mage
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
-func (mage *Mage) registerCombustionSpell() {
-	panic("To be implemented")
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-	// The TBC implementation, kept for the port:
-	// if !mage.Talents.Combustion {
-	// 	return
-	// }
-	//
-	// actionID := core.ActionID{SpellID: 11129}
-	// cd := core.Cooldown{
-	// 	Timer:    mage.NewTimer(),
-	// 	Duration: time.Minute * 3,
-	// }
-	//
-	// numCrits := 0
-	// critPerStack := 0.0
-	//
-	// critMod := mage.AddDynamicMod(core.SpellModConfig{
-	// 	ClassMask:  MageSpellFire,
-	// 	FloatValue: critPerStack,
-	// 	Kind:       core.SpellMod_BonusCrit_Percent,
-	// })
-	//
-	// combustAura := mage.RegisterAura(core.Aura{
-	// 	Label:     "Combustion",
-	// 	ActionID:  actionID,
-	// 	Duration:  core.NeverExpires,
-	// 	MaxStacks: 20,
-	//
-	// 	OnGain: func(aura *core.Aura, sim *core.Simulation) {
-	// 		numCrits = 0
-	// 		critMod.Activate()
-	// 	},
-	//
-	// 	OnExpire: func(aura *core.Aura, sim *core.Simulation) {
-	// 		critMod.Deactivate()
-	// 		cd.Use(sim)
-	// 		mage.UpdateMajorCooldowns()
-	// 	},
-	//
-	// 	OnStacksChange: func(aura *core.Aura, sim *core.Simulation, oldStacks, newStacks int32) {
-	// 		critPerStack = float64(newStacks) * 10
-	// 		critMod.UpdateFloatValue(critPerStack)
-	// 	},
-	//
-	// 	OnSpellHitDealt: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		if !spell.SpellSchool.Matches(core.SpellSchoolFire) {
-	// 			return
-	// 		}
-	//
-	// 		if spell.SameAction(mage.Ignite.ActionID) {
-	// 			return
-	// 		}
-	//
-	// 		if !result.Landed() {
-	// 			return
-	// 		}
-	//
-	// 		if numCrits >= 3 {
-	// 			aura.Deactivate(sim)
-	// 			return
-	// 		}
-	//
-	// 		aura.AddStack(sim)
-	//
-	// 		if result.DidCrit() {
-	// 			numCrits++
-	// 			if numCrits == 3 {
-	// 				aura.Deactivate(sim)
-	// 			}
-	// 		}
-	// 	},
-	// })
-	//
-	// combustSpell := mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:    actionID,
-	// 	DefenseType: core.DefenseTypeMagic,
-	// 	Flags:       core.SpellFlagNoOnCastComplete,
-	// 	Cast: core.CastConfig{
-	// 		CD: cd,
-	// 	},
-	//
-	// 	ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-	// 		return !combustAura.IsActive()
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		combustAura.Activate(sim)
-	// 	},
-	//
-	// 	RelatedSelfBuff: combustAura,
-	// })
-	//
-	// mage.AddMajorCooldown(core.MajorCooldown{
-	// 	Spell: combustSpell,
-	// 	Type:  core.CooldownTypeDPS,
-	// })
+var combustionRank = spellData.Combustion.Highest()
+var combustionBuffRank = spellData.CombustionTriggered.Highest()
+
+// Combustion
+// https://www.wowhead.com/forever/spell=11129
+//
+// "When activated, this spell causes each of your Fire damage spell hits to increase your critical
+// strike chance with Fire damage spells by 10%. This effect lasts until you have caused 3
+// non-periodic critical strikes with Fire spells."
+//
+// Two auras: 11129 counts the crits left in its stacks (its ProcCharges), and 28682 carries the
+// crit, a SPELLMOD_CRITICAL_CHANCE per stack on its own class mask, up to 10 stacks.
+func (mage *Mage) registerCombustionSpell() {
+	buffAura := mage.RegisterAura(spelldata.AuraConfig(combustionBuffRank, spelldata.Label("Combustion Crit")))
+	spelldata.ParseEffects(&mage.Character, buffAura, combustionBuffRank)
+
+	var combustionSpell *core.Spell
+
+	chargesConfig := spelldata.AuraConfig(combustionRank, spelldata.Label("Combustion"))
+
+	// Effect 2 casts 28682 on activation, so the crit starts at one stack before any Fire hit.
+	chargesConfig.OnGain = func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
+		buffAura.Activate(sim)
+		buffAura.SetStacks(sim, 1)
+	}
+
+	// The row is Disabled While Active (Attr0 0x2000000): the cooldown starts when the effect ends.
+	chargesConfig.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
+		buffAura.Deactivate(sim)
+		combustionSpell.CD.Use(sim)
+		mage.UpdateMajorCooldowns()
+	}
+
+	// Each landed Fire spell hit adds a stack, a crit included; a crit then spends one of the charges.
+	// Periodic damage never reaches OnSpellHitDealt, so DoT ticks and Ignite neither stack nor spend,
+	// and a Fire wand's shots are ranged autos, not spells.
+	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() {
+			return
+		}
+
+		buffAura.AddStack(sim)
+
+		if result.DidCrit() {
+			aura.RemoveStack(sim)
+		}
+	}
+
+	chargesAura := mage.RegisterAura(chargesConfig)
+
+	// An off-GCD cast of its own.
+	config := spelldata.SpellConfig(&mage.Unit, combustionRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagNoOnCastComplete))
+	config.ClassSpellMask = MageSpellCombustion
+
+	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
+		return !chargesAura.IsActive()
+	}
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		chargesAura.Activate(sim)
+	}
+
+	config.RelatedSelfBuff = chargesAura
+
+	combustionSpell = mage.RegisterSpell(config)
+
+	mage.AddMajorCooldown(core.MajorCooldown{
+		Spell: combustionSpell,
+		Type:  core.CooldownTypeDPS,
+	})
 }

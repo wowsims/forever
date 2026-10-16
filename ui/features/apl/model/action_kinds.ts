@@ -4,13 +4,11 @@ import {
 	APLActionActivateAura,
 	APLActionActivateAuraWithStacks,
 	APLActionAutocastOtherCooldowns,
-	APLActionBearOptimalRotationAction,
 	APLActionCancelAura,
 	APLActionCastAllStatBuffCooldowns,
 	APLActionCastFriendlySpell,
 	APLActionCastSpell,
 	APLActionCastWarlockAssignedCurse,
-	APLActionCatOptimalRotationAction,
 	APLActionChangeTarget,
 	APLActionChannelSpell,
 	APLActionCustomRotation,
@@ -420,22 +418,6 @@ export const actionKinds: { [f in NonNullable<APLActionKind>]: ActionKindModel<A
 	}),
 
 	// Class/spec specific actions.
-	// There are no pickers for the optimal-rotation actions: they exist in the proto
-	// for the simple-rotation generator only, and never surface in the APL editor.
-	bearOptimalRotationAction: {
-		label: '',
-		shortDescription: '',
-		includeIf: (_player: Player<any>, _isPrepull: boolean) => false,
-		newValue: APLActionBearOptimalRotationAction.create,
-		fields: [],
-	},
-	catOptimalRotationAction: {
-		label: '',
-		shortDescription: '',
-		includeIf: (_player: Player<any>, _isPrepull: boolean) => false,
-		newValue: APLActionCatOptimalRotationAction.create,
-		fields: [],
-	},
 	guardianHotwDpsRotation: {
 		label: '',
 		shortDescription: '',

@@ -48,7 +48,7 @@ func (shaman *Shaman) registerBuffTotem(rank *spelldata.Spell, slot int, buff *c
 }
 
 // A weapon totem stands as an aura of the totem row's duration that holds the totem's category, which
-// turns its proc on. The proc is core/buffs', shared with the party buff of the same totem.
+// turns its proc on. The proc is core/buffs', shared with the raid buff of the same totem.
 func (shaman *Shaman) registerWeaponTotem(rank *spelldata.Spell, slot int, category string, priority float64, procTrigger *core.Aura) *core.Spell {
 	duration := rank.Duration()
 

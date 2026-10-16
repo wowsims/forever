@@ -17,8 +17,8 @@ export const ROTATION_SMITE_DEFAULT = PresetUtils.makePresetAPLRotation('Smite',
 export const PreraidGear = PresetUtils.makePresetGear('Pre-raid', PreraidGearJson);
 export const PreraidSmite = PresetUtils.makePresetGear('Smite Pre-raid', PreraidSmiteGear);
 
-export const StandardTalents = PresetUtils.makePresetTalents('Standard', SavedTalents.create({ talentsString: '005300211303--500320501201312251' }));
-export const SmiteTalents = PresetUtils.makePresetTalents('Smite', SavedTalents.create({ talentsString: '525230031305001001-30515100002-3' }));
+export const StandardTalents = PresetUtils.makePresetTalents('Standard', SavedTalents.create({ talentsString: '00530321103--50052001231312251' }));
+export const SmiteTalents = PresetUtils.makePresetTalents('Smite', SavedTalents.create({ talentsString: '525235031030001001-30515100002-3' }));
 
 export const DefaultOptions = Options.create({
 	classOptions: {
@@ -49,11 +49,11 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 	giftOfTheWild: true,
 	prayerOfFortitude: true,
 	prayerOfSpirit: true,
+	moonkinAura: true,
 });
 
 export const DefaultPartyBuffs = PartyBuffs.create({
 	manaSpringTotem: TristateEffect.TristateEffectRegular,
-	moonkinAura: true,
 });
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({

@@ -102,7 +102,9 @@ func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 
 // The rows whose spell the game files target somewhere else than the scope reaches,
 // each with the reason the scope is still what the sim wants.
-var scopeExemptions = map[string]string{}
+var scopeExemptions = map[string]string{
+	"windfury_totem": "10610 is the attack power the proc grants; the totem's aura 10612, which hands the proc out, applies to the raid",
+}
 
 // What the game files say against the scope the manifest files the row under, and
 // "" when the two agree or the row is one the game files may state nothing for.
@@ -119,9 +121,8 @@ func scopeComplaint(row ResolvedBuff) string {
 	return ""
 }
 
-// What the parse attaches for a row, by the kind it attaches as. The two auras
-// the game files state as a bare A_MOD_CRIT_PCT carry no school, and the
-// amount lands on every kind of crit.
+// What the parse attaches for a row, by the kind it attaches as. Leader of the
+// Pack's crit is melee and ranged only, and Moonkin Aura's spell only.
 //
 // Expose Armor states nothing on the effect itself: its armor is per combo
 // point, and the raid config's debuff is the five-point finisher.
@@ -129,8 +130,8 @@ func scopeComplaint(row ResolvedBuff) string {
 // The paladin auras state a healing-taken row of 0 beside the aura, which the
 // parse leaves out.
 var pinnedAmounts = map[string]func(spell *spelldata.Spell) map[string]float64{
-	"leader_of_the_pack": everyCrit,
-	"moonkin_aura":       everyCrit,
+	"leader_of_the_pack": physicalCrit,
+	"moonkin_aura":       spellCrit,
 	"expose_armor":       fiveComboPointArmor,
 	"devotion_aura":      flatArmor,
 	"concentration_aura": lessPushback,
@@ -147,17 +148,24 @@ func auraEffect(spell *spelldata.Spell, auras ...dbcenums.EffectAuraType) *spell
 	return spelldata.NilEffect
 }
 
-func everyCrit(spell *spelldata.Spell) map[string]float64 {
-	crit := auraEffect(spell, dbcenums.A_MOD_CRIT_PCT).Mean()
-	return map[string]float64{"stat PhysicalCritPercent": crit, "stat SpellCritPercent": crit}
+func physicalCrit(spell *spelldata.Spell) map[string]float64 {
+	return map[string]float64{"stat PhysicalCritPercent": auraEffect(spell, dbcenums.A_MOD_WEAPON_CRIT_PERCENT).Mean()}
+}
+
+func spellCrit(spell *spelldata.Spell) map[string]float64 {
+	return map[string]float64{"stat SpellCritPercent": auraEffect(spell, dbcenums.A_MOD_SPELL_CRIT_CHANCE).Mean()}
 }
 
 func fiveComboPointArmor(spell *spelldata.Spell) map[string]float64 {
-	return map[string]float64{"stat Armor": float64(auraEffect(spell, dbcenums.A_MOD_RESISTANCE).PointsPerResource) * 5}
+	return map[string]float64{"stat ArmorNoMods": float64(auraEffect(spell, dbcenums.A_MOD_ARMOR_NO_MODS).PointsPerResource) * 5}
 }
 
 func flatArmor(spell *spelldata.Spell) map[string]float64 {
-	return map[string]float64{"stat Armor": auraEffect(spell, dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS).Mean()}
+	effect := auraEffect(spell, dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS)
+	if effect.ArmorNoMods() {
+		return map[string]float64{"stat ArmorNoMods": effect.Mean()}
+	}
+	return map[string]float64{"stat Armor": effect.Mean()}
 }
 
 func lessPushback(spell *spelldata.Spell) map[string]float64 {

@@ -131,7 +131,8 @@ func (shaman *Shaman) applyFlurry() {
 	}
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
-	// listener has to see the white hits that spend a charge.
+	// listener has to see the white hits that spend a charge. Windfury Weapon's strikes are white in
+	// name only and spend none.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if result.Outcome.Matches(core.OutcomeCrit) {
@@ -140,7 +141,8 @@ func (shaman *Shaman) applyFlurry() {
 				return
 			}
 
-			if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && chargeICD.IsReady(sim) {
+			if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) &&
+				spell != shaman.windfuryWeaponStrike && chargeICD.IsReady(sim) {
 				chargeICD.Use(sim)
 				flurryAura.RemoveStack(sim)
 			}

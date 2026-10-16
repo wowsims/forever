@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@i18n/localization', async () => (await import('@testing/sim/localization')).localizationStub);
 
-import { EquippedItem } from './equipped_item';
+import { enchantEP, EquippedItem } from './equipped_item';
+import { Stats } from './stats';
 
 const chestItem = () =>
 	Item.create({
@@ -95,5 +96,23 @@ describe('EquippedItem with a random suffix that reduces caster DPS', () => {
 			expect([equipped.item.weaponDamageMin, equipped.item.weaponDamageMax]).toEqual([58, 88]);
 			expect(equipped.calcStats(ItemSlot.ItemSlotMainHand).getPseudoStat(PseudoStat.PseudoStatMainHandDps)).toBeCloseTo((58 + 88) / 2 / 3.6);
 		}
+	});
+});
+
+// One point of ArmorNoMods is one point of sheet armor and has a weight of its own, which the gear optimizer's candidate
+// filter reads with no scale; the Armor weight is per point of armor from items.
+describe('enchantEP with ArmorNoMods', () => {
+	const armor = 125;
+	const armorEnchant = (stat: Stat) => Enchant.create({ effectId: 1504, stats: Stats.fromMap({ [stat]: armor, [Stat.StatStamina]: 3 }).asProtoArray() });
+
+	it('values ArmorNoMods at its own weight and Armor at the Armor weight', () => {
+		const weights = Stats.fromMap({ [Stat.StatArmor]: 0.5, [Stat.StatArmorNoMods]: 0.125, [Stat.StatStamina]: 2 });
+		expect(enchantEP(armorEnchant(Stat.StatArmorNoMods), weights, 0, 0)).toBeCloseTo(armor * 0.125 + 3 * 2);
+		expect(enchantEP(armorEnchant(Stat.StatArmor), weights, 0, 0)).toBeCloseTo(armor * 0.5 + 3 * 2);
+	});
+
+	it('gives ArmorNoMods nothing where only Armor has a weight', () => {
+		const weights = Stats.fromMap({ [Stat.StatArmor]: 0.5 });
+		expect(enchantEP(armorEnchant(Stat.StatArmorNoMods), weights, 0, 0)).toBe(0);
 	});
 });

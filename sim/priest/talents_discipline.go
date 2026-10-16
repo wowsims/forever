@@ -222,13 +222,16 @@ func (priest *Priest) applyPenance() {
 	spellData.Penance.Each(priest.registerPenance)
 }
 
-// Your critical heals create a protective shield on the target, absorbing X% of the amount healed. Lasts 12 sec.
+// Your non-periodic critical heals create a protective shield on the target, absorbing X% of the amount healed.
+// Shields up to 20 damage per level and lasts 12 sec.
 func (priest *Priest) applyDivineAegis() {
 	if priest.Talents.DivineAegis == 0 {
 		return
 	}
 
 	shieldFraction := spellData.DivineAegis.EffectAt(1).FractionAt(priest.Talents.DivineAegis)
+	// The tooltip prices the cap as $s2*$pl, the second effect's points per caster level.
+	maxShield := spellData.DivineAegis.EffectAt(2).ValueAt(priest.Talents.DivineAegis) * float64(priest.Level)
 	shields := priest.NewAllyDamageAbsorptionAuraArray(func(target *core.Unit) *core.DamageAbsorptionAura {
 		return target.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{
 			Aura: core.Aura{
@@ -241,7 +244,7 @@ func (priest *Priest) applyDivineAegis() {
 	})
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Divine Aegis",
-		Callback: core.CallbackOnHealDealt | core.CallbackOnPeriodicHealDealt,
+		Callback: core.CallbackOnHealDealt,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			if !result.DidCrit() {
 				return
@@ -253,7 +256,7 @@ func (priest *Priest) applyDivineAegis() {
 			} else {
 				shield.Activate(sim)
 			}
-			shield.ShieldStrength += strength
+			shield.ShieldStrength = min(shield.ShieldStrength+strength, maxShield)
 			shield.SetStacks(sim, max(1, int32(shield.ShieldStrength)))
 		},
 	})

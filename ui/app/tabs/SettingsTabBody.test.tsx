@@ -3,7 +3,7 @@ import type { RenderableStatOptions } from '@features/settings/model/stat_option
 import { withSelection } from '@features/stat-filters/model/stat_filters';
 import { APLRotation } from '@generated/proto/apl';
 import { PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { Stat, TristateEffect } from '@generated/proto/common';
+import { Stat } from '@generated/proto/common';
 import { UnitStat } from '@sim/proto/stats';
 import { patchSlice } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
@@ -45,7 +45,8 @@ const SPEC = {
 	autoRotation: () => APLRotation.create(),
 	presets: { epWeights: [] },
 	displayStats: [UnitStat.fromStat(Stat.StatStrength)],
-	epStats: [Stat.StatAttackPower],
+	// Stamina keeps Blood Pact on offer, so the Party Buffs section renders between the raid buffs and the debuffs.
+	epStats: [Stat.StatAttackPower, Stat.StatStamina],
 	includeBuffDebuffInputs: [] as unknown[],
 	excludeBuffDebuffInputs: [] as unknown[],
 	otherInputs: { inputs: [] },
@@ -113,7 +114,7 @@ describe('SettingsTabBody sections', () => {
 		const { player } = await setup(noPartyBuffStats);
 		const party = player.getParty()!;
 
-		act(() => party.setBuffs(PartyBuffs.create({ battleShout: TristateEffect.TristateEffectRegular })));
+		act(() => party.setBuffs(PartyBuffs.create({ bloodPact: true })));
 		expect(section('party_buffs')).not.toBeNull();
 
 		act(() => party.setBuffs(PartyBuffs.create()));

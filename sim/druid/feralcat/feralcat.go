@@ -32,18 +32,21 @@ func NewFeralCatDruid(character *core.Character, options *proto.Player) *FeralDr
 	}
 
 	cat.CannotShredTarget = feralOptions.Options.CannotShredTarget
+	cat.AssumeBleedActive = feralOptions.Options.GetAssumeBleedActive()
+	cat.prepullClearcasting = feralOptions.Options.GetPrepullClearcasting()
 
 	cat.EnableEnergyBar(core.EnergyBarOptions{
 		MaxComboPoints: 5,
 		MaxEnergy:      100.0,
 		UnitClass:      proto.Class_ClassDruid,
 	})
-	cat.EnableRageBar(core.RageBarOptions{BaseRageMultiplier: 2.5})
+	cat.EnableRageBar(core.RageBarOptions{BaseRageMultiplier: 1, TwoHandRage: druid.BearRageIsTwoHanded})
 
 	cat.EnableAutoAttacks(cat, core.AutoAttackOptions{
 		// Base paw weapon.
 		MainHand:       cat.GetCatWeapon(),
 		AutoSwingMelee: true,
+		ReplaceMHSwing: cat.TryMaul,
 	})
 
 	cat.RegisterCatFormAura()
@@ -55,27 +58,31 @@ func NewFeralCatDruid(character *core.Character, options *proto.Player) *FeralDr
 type FeralDruid struct {
 	*druid.Druid
 
-	Rotation FeralDruidRotation
-
-	readyToShift   bool
-	waitingForTick bool
+	prepullClearcasting bool
 }
 
 func (cat *FeralDruid) GetDruid() *druid.Druid {
 	return cat.Druid
 }
 
+// Leader of the Pack comes from the druid's own talent.
 func (cat *FeralDruid) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
+	cat.Druid.AddRaidBuffs(raidBuffs)
 }
 
-// AddPartyBuffs auto-applies Leader of the Pack from the druid's own talent.
-func (cat *FeralDruid) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
-	if cat.Talents.LeaderOfThePack {
-		partyBuffs.LeaderOfThePack = true
-	}
+func (cat *FeralDruid) AddPartyBuffs(_ *proto.PartyBuffs) {
 }
 
 func (cat *FeralDruid) Initialize() {
+	if cat.prepullClearcasting {
+		// Omen of Clarity procs off any druid spell, so a cat can fish for it out of combat; the
+		// shift back to Cat Form takes a GCD before the pull. The proc started Omen of Clarity's ICD
+		// then at the latest.
+		cat.RegisterPrepullAction(-core.GCDDefault, func(sim *core.Simulation) {
+			cat.ClearcastingAura.Activate(sim)
+			cat.OmenOfClarityAura.Icd.Use(sim)
+		})
+	}
 	cat.Druid.Initialize()
 	cat.RegisterFeralCatSpells()
 }
@@ -88,6 +95,4 @@ func (cat *FeralDruid) Reset(sim *core.Simulation) {
 	cat.Druid.Reset(sim)
 	cat.Druid.ClearForm(sim)
 	cat.CatFormAura.Activate(sim)
-	cat.readyToShift = false
-	cat.waitingForTick = false
 }

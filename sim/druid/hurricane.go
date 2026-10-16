@@ -1,73 +1,43 @@
 package druid
 
-// The dbcenums and core imports belong with the commented implementation.
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
 var hurricaneRank = spellData.Hurricane.Highest()
 
-// TODO: To be implemented.
-func (druid *Druid) registerHurricaneSpell() {
-	panic("To be implemented")
+// The damage each second is its own row, which the channel casts on every tick.
+var hurricaneTickRank = spellData.HurricaneTriggered.Highest()
+var hurricaneTickDamage = hurricaneTickRank.DamageEffect()
 
-	// The ported implementation, kept until this class is done:
-	// tickLength := hurricaneRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
-	//
-	// // Hurricane's periodic damage is the spell HurricaneTriggered casts each tick.
-	// hurricaneTickSpell := spellData.HurricaneTriggered.Highest()
-	// hurricaneTick := hurricaneTickSpell.DamageEffect()
-	//
-	// druid.Hurricane = druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: hurricaneRank.ID},
-	// 	CastRequirement: hurricaneRank.CastRequirement(),
-	// 	SpellSchool:     hurricaneRank.SpellSchool(),
-	// 	DefenseType:     hurricaneRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskSpellDamage,
-	// 	Flags:           core.SpellFlagChanneled | core.SpellFlagAPL,
-	// 	ClassSpellMask:  DruidSpellHurricane,
-	// 	MaxRange:        float64(hurricaneRank.MaxRange),
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(hurricaneRank.Cost()),
-	// 	},
-	// 	// TODO: Forever states no cooldown on Hurricane (the game files rows carry none), so the
-	// 	// spell is registered without one rather than with an invented duration.
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: hurricaneRank.GCD(),
-	// 		},
-	// 	},
-	// 	Dot: core.DotConfig{
-	// 		IsAOE: true,
-	// 		Aura: core.Aura{
-	// 			Label: "Hurricane (Aura)",
-	// 		},
-	// 		NumberOfTicks:       int32(hurricaneRank.Duration() / tickLength),
-	// 		TickLength:          tickLength,
-	// 		AffectedByCastSpeed: true,
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			druid.Hurricane.RelatedDotSpell.Cast(sim, target)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-	// 		spell.AOEDot().Apply(sim)
-	// 	},
-	// })
-	//
-	// druid.Hurricane.RelatedDotSpell = druid.Unit.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: hurricaneTickSpell.ID},
-	// 	SpellSchool:    core.SpellSchoolNature,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	ClassSpellMask: DruidSpellHurricane,
-	// 	// The tick is its own game files row that the channel triggers, a proc rather than a cast.
-	// 	Flags: core.SpellFlagProc,
-	//
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	// 	BonusCoefficient: hurricaneTick.Coeff(),
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-	// 		spell.CalcAndDealAoeDamage(sim, hurricaneTick.Average(core.CharacterLevel), spell.OutcomeMagicHit)
-	// 	},
-	// })
+func (druid *Druid) registerHurricaneSpell() {
+	tickConfig := spelldata.SpellConfig(&druid.Unit, hurricaneTickRank,
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamage(sim, hurricaneTickDamage.Average(), spell.OutcomeMagicHit)
+	}
+	tickSpell := druid.RegisterSpell(tickConfig)
+
+	// The channel ticks on an A_PERIODIC_DUMMY, which DotConfig does not read, so the dot is by hand.
+	tickLength := hurricaneRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
+
+	config := spelldata.SpellConfig(&druid.Unit, hurricaneRank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.Dot = core.DotConfig{
+		IsAOE:               true,
+		Aura:                spelldata.AuraConfig(hurricaneRank),
+		NumberOfTicks:       int32(hurricaneRank.Duration() / tickLength),
+		TickLength:          tickLength,
+		AffectedByCastSpeed: true,
+		OnTick: func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
+			tickSpell.Cast(sim, target)
+		},
+	}
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.AOEDot().Apply(sim)
+	}
+
+	druid.Hurricane = druid.RegisterSpell(config)
+	druid.Hurricane.RelatedDotSpell = tickSpell.Spell
 }

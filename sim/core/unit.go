@@ -144,10 +144,11 @@ type Unit struct {
 	// Pets owned by this Unit.
 	PetAgents []PetAgent
 
-	DynamicStatsPets      []*Pet
-	DynamicMeleeSpeedPets []*Pet
-	DynamicCastSpeedPets  []*Pet
-	RegenInheritancePets  []*Pet
+	DynamicStatsPets       []*Pet
+	DynamicMeleeSpeedPets  []*Pet
+	DynamicRangedSpeedPets []*Pet
+	DynamicCastSpeedPets   []*Pet
+	RegenInheritancePets   []*Pet
 
 	// AutoAttacks is the manager for auto attack swings.
 	// Must be enabled to use, with "EnableAutoAttacks()".
@@ -571,7 +572,7 @@ func (unit *Unit) ApplyCastSpeed(dur time.Duration) time.Duration {
 	return time.Duration(float64(dur) * unit.CastSpeed)
 }
 func (unit *Unit) ApplyCastSpeedForSpell(dur time.Duration, spell *Spell) time.Duration {
-	return time.Duration(float64(dur) * unit.CastSpeed * max(0, spell.CastTimeMultiplier))
+	return max(0, time.Duration(float64(dur)*unit.CastSpeed*max(0, spell.CastTimeMultiplier)))
 }
 
 // ApplyRangedSpeed applies ranged haste to a duration, for ranged abilities that should be affected by ranged haste
@@ -656,6 +657,13 @@ func (unit *Unit) updateRangedAttackSpeed() {
 func (unit *Unit) MultiplyRangedSpeed(sim *Simulation, amount float64) {
 	unit.PseudoStats.RangedSpeedMultiplier *= amount
 	unit.updateRangedAttackSpeed()
+
+	// The pets that take the owner's ranged speed take each change at once, not at the next pet
+	// heartbeat.
+	for _, pet := range unit.DynamicRangedSpeedPets {
+		pet.dynamicRangedSpeedInheritance(sim, amount)
+	}
+
 	unit.AutoAttacks.UpdateSwingTimers(sim)
 }
 
@@ -845,6 +853,8 @@ func AddRatingConversions(sdm *stats.StatDependencyManager) {
 // structs) and to NPCs (represented as Target structs).
 func (unit *Unit) addUniversalStatDependencies() {
 	AddRatingConversions(&unit.StatDependencyManager)
+	// A_MOD_ARMOR_NO_MODS armor, which no percent armor modifier scales.
+	unit.AddUnmultipliedStatDependency(stats.ArmorNoMods, stats.Armor)
 }
 
 func (unit *Unit) finalize() {
@@ -935,6 +945,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 
 	unit.DynamicStatsPets = unit.DynamicStatsPets[:0]
 	unit.DynamicMeleeSpeedPets = unit.DynamicMeleeSpeedPets[:0]
+	unit.DynamicRangedSpeedPets = unit.DynamicRangedSpeedPets[:0]
 	clear(unit.SpellsInFlight)
 
 	if unit.Type != PetUnit {
@@ -1007,12 +1018,23 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 		Name: unit.Label,
 	}
 
+	// The rank rides on the id so the UI can group a spell's ranks; the tooltips the UI fetches do not
+	// always state one. An aura takes the rank of the spell sharing its id.
+	ranks := map[ActionID]int32{}
+	rankedID := func(actionID ActionID) *proto.ActionID {
+		id := actionID.ToProto()
+		id.Rank = ranks[actionID]
+		return id
+	}
+	for _, spell := range unit.Spellbook {
+		if spell.Rank > 0 {
+			ranks[spell.ActionID] = spell.Rank
+		}
+	}
+
 	metadata.Spells = MapSlice(unit.Spellbook, func(spell *Spell) *proto.SpellStats {
-		// The rank rides on the id so the UI names it without a database entry for the spell.
-		id := spell.ActionID.ToProto()
-		id.Rank = spell.Rank
 		return &proto.SpellStats{
-			Id: id,
+			Id: rankedID(spell.ActionID),
 
 			IsCastable:      spell.Flags.Matches(SpellFlagAPL),
 			IsChanneled:     spell.Flags.Matches(SpellFlagChanneled),
@@ -1037,7 +1059,7 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 	})
 	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
 		return &proto.AuraStats{
-			Id:                 aura.ActionID.ToProto(),
+			Id:                 rankedID(aura.ActionID),
 			MaxStacks:          aura.MaxStacks,
 			HasIcd:             aura.Icd != nil,
 			HasExclusiveEffect: len(aura.ExclusiveEffects) > 0,

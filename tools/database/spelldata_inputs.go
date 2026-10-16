@@ -121,6 +121,7 @@ func captureStoreInputs(t *spellTables, roots []int32, ids []int32,
 
 		keepSlice(in.Labels, id, t.Labels)
 		keepSlice(in.Powers, id, t.Powers)
+		keepSlice(in.Reagents, id, t.Reagents)
 		keepSlice(in.Effects, id, t.Effects)
 
 		keepValue(in.EnchantGrants, id, t.EnchantGrants)

@@ -33,7 +33,7 @@ export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', Sav
 
 // Measured on each gear set with the Protection talents: 0.6 x the threat weights (Strength = 1) plus 1.15 x the
 // TMI weights (Stamina = 1). On the defense cap gear, defense is its value past the cap; on the threat gear, hit is
-// its value past the 8% cap.
+// its value past the 8% cap. ArmorNoMods weighs as Armor, since nothing in the build scales armor.
 export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS (Defense Cap)',
 	Stats.fromMap(
@@ -54,6 +54,7 @@ export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 			[Stat.StatParryRating]: 0.18,
 			[Stat.StatArmor]: 0.05,
 			[Stat.StatBonusArmor]: 0.05,
+			[Stat.StatArmorNoMods]: 0.05,
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 2.16,
@@ -81,6 +82,7 @@ export const PreBiSThreatEpWeights = PresetUtils.makePresetEpWeights(
 			[Stat.StatParryRating]: 0.15,
 			[Stat.StatArmor]: 0.05,
 			[Stat.StatBonusArmor]: 0.05,
+			[Stat.StatArmorNoMods]: 0.05,
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 2.29,

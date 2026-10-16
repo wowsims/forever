@@ -45,6 +45,12 @@ func (hb *healthBar) CurrentHealthPercent() float64 {
 	return hb.currentHealth / hb.unit.stats[stats.Health]
 }
 
+// Puts current health at a share of the maximum with no healing or damage, so no metrics or TMI entry
+// move. A druid's change of form moves the maximum and keeps the share.
+func (hb *healthBar) SetCurrentHealthPercent(percent float64) {
+	hb.currentHealth = percent * hb.MaxHealth()
+}
+
 func (hb *healthBar) GainHealth(sim *Simulation, amount float64, metrics *ResourceMetrics) {
 	if amount < 0 {
 		panic("Trying to gain negative health!")

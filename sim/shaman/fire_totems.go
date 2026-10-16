@@ -27,10 +27,10 @@ func (shaman *Shaman) newTotemAttackConfig(totem *spelldata.Spell, rank *spellda
 	return config
 }
 
-// A fire totem that acts every period while it stands. Nothing it does lands before the pull.
+// A fire totem that acts every period while it stands. Nothing it does lands before the pull. The
+// totem stands as long as its aura lasts, which a duration mod on the cast reaches (Trial by Fire's
+// on Magma Totem).
 func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, period core.PeriodicActionOptions) *core.Spell {
-	duration := rank.Duration()
-
 	onAction := period.OnAction
 	period.OnAction = func(sim *core.Simulation) {
 		if sim.CurrentTime >= 0 {
@@ -42,8 +42,9 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 
 	config := shaman.newTotemSpellConfig(rank)
 	config.ClassSpellMask = mask
+	config.RelatedSelfBuff = totemAura
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		shaman.dropTotem(sim, FireTotem, totemAura, duration)
+		shaman.dropTotem(sim, FireTotem, totemAura, totemAura.Duration)
 	}
 
 	return shaman.RegisterSpell(config)
@@ -88,10 +89,10 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 	})
 }
 
-// "Instantly inflicts $11307s1 fire damage to enemies within $11307a1 yd of your active Fire totem."
-// The tooltip reads 11307, but the cast deals nothing itself: it casts the Fire Nova row of its own
-// rank, 408428, which hits. Each row carries its own class flags, so Improved Fire Nova's cooldown
-// reaches the cast and its damage the hit, and Call of Flame and Elemental Fury name the hit alone.
+// "Instantly inflicts $408428s1 fire damage to enemies within $408428a1 yd of your active Fire totem."
+// The cast deals nothing itself: it casts the Fire Nova row of its own rank, 408428, which hits. Each
+// row carries its own class flags, so Trial by Fire's cooldown reaches the cast and its damage the
+// hit, and Call of Flame and Elemental Fury name the hit alone.
 // The hit lacks Not a Proc, so only listeners that can proc from procs hear it. It reports as the
 // cast's spell tagged 1, so the results show the cast and its hits as one row.
 func (shaman *Shaman) registerFireNovaSpell() {

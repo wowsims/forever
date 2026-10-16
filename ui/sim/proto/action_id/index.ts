@@ -286,8 +286,7 @@ export class ActionId {
 				break;
 			case 'Fireball':
 			case 'Flamestrike':
-				if (tag == 1) name += ` (${i18n.t('common.action_tags.blast_wave')})`;
-				break;
+			case 'Frostfire Bolt':
 			case 'Pyroblast':
 			case 'Combustion':
 				if (tag) name += ` (${i18n.t('common.action_tags.dot')})`;

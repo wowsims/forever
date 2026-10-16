@@ -4,255 +4,56 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Dungeon Set 3
-var ItemSetOblivionRaiment = core.NewItemSet(core.ItemSet{
-	ID:   644,
-	Name: "Oblivion Raiment",
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Grants your pet 45 mana per 5 sec.
-			// Pet Mana Regen - 37375
-			if agent.GetCharacter().Class != proto.Class_ClassWarlock {
-				return
-			}
-
-			warlock := agent.(WarlockAgent).GetWarlock()
-
-			setBonusAura.
-				ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
-					for _, pet := range warlock.Pets {
-						pet.AddStatDynamic(sim, stats.MP5, 45.0)
-					}
-				}).
-				ApplyOnExpire(func(aura *core.Aura, sim *core.Simulation) {
-					for _, pet := range warlock.Pets {
-						pet.AddStatDynamic(sim, stats.MP5, -45.0)
-					}
-				})
-
-		},
-		// 4pc (37376) buffs Seed of Corruption, which the game files do not ship, so there is
-		// nothing to model.
-	},
-})
-
-// T4
-var ItemSetVoidheartRaiment = core.NewItemSet(core.ItemSet{
-	ID:   645,
-	Name: "Voidheart Raiment",
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: func(agent core.Agent, setBonusAura *core.Aura) {
-			warlock := agent.(WarlockAgent).GetWarlock()
-			// Your shadow damage spells have a chance to grant you 135 bonus shadow damage for 15 sec.
-			// Flameshadow - 37379
-			shadowBonus := warlock.NewTemporaryStatsAura("Flameshadow", core.ActionID{SpellID: 37379}, stats.Stats{stats.ShadowDamage: 135}, time.Second*15)
-
-			// Your fire damage spells have a chance to grant you 135 bonus fire damage for 15 sec.
-			// Shadowflame Hellfire and RoF - 39437
-			fireBonus := warlock.NewTemporaryStatsAura("Shadowflame Hellfire and RoF", core.ActionID{SpellID: 39437}, stats.Stats{stats.FireDamage: 135}, time.Second*15)
-
-			setBonusAura.AttachProcTrigger(core.ProcTrigger{
-				Name:               "Voidheart Raiment 2pc",
-				ProcChance:         0.05,
-				Callback:           core.CallbackOnSpellHitDealt,
-				RequireDamageDealt: true,
-				Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-					if spell.SpellSchool.Matches(core.SpellSchoolShadow) {
-						shadowBonus.Activate(sim)
-					} else if spell.SpellSchool.Matches(core.SpellSchoolFire) {
-						fireBonus.Activate(sim)
-					}
-				},
-			})
-		},
-		4: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Increases the duration of your Corruption and Immolate abilities by 3 sec.
-			// Improved Corruption and Immolate - 37380
-
-			setBonusAura.AttachSpellMod(core.SpellModConfig{
-				Kind:      core.SpellMod_DotNumberOfTicks_Flat,
-				IntValue:  1,
-				ClassMask: WarlockSpellCorruption | WarlockSpellImmolateDot,
-			}).ExposeToAPL(37380)
-		},
-	},
-})
-
-// T5
-var ItemSetCorruptorRaiment = core.NewItemSet(core.ItemSet{
-	ID:   646,
-	Name: "Corruptor Raiment",
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Causes your pet to be healed for 15% of the damage you deal.
-			// Pet Healing - 37381
-			healthMetric := agent.(WarlockAgent).GetWarlock().NewHealthMetrics(core.ActionID{SpellID: 38394})
-			setBonusAura.AttachProcTrigger(core.ProcTrigger{
-				Name:             "Corruptor Raiment 2pc - Pet Healing",
-				CanProcFromProcs: true, // 37381 carries the bit.
-				ActionID:         core.ActionID{SpellID: 37381},
-				Outcome:          core.OutcomeLanded,
-				Callback:         core.CallbackOnSpellHitDealt,
-				Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-					for _, pet := range agent.(WarlockAgent).GetWarlock().Pets {
-						pet.GainHealth(sim, result.Damage*0.15, healthMetric)
-					}
-
-				},
-			})
-
-		},
-		4: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Your Shadowbolt spell hits increase the damage of Corruption by 10% and your Incinerate spell hits increase the damage of Immolate by 10%.
-			// Improved Corruption and Immolate - 37384
-			warlock := agent.(WarlockAgent).GetWarlock()
-
-			warlock.OnSpellRegistered(func(spell *core.Spell) {
-				if spell.Matches(WarlockSpellCorruption | WarlockSpellImmolateDot) {
-					for _, target := range warlock.Env.Encounter.AllTargetUnits {
-						if warlock.T5_4PC_Multiplier[target.UnitIndex] == nil {
-							warlock.T5_4PC_Multiplier[target.UnitIndex] = make(map[*core.Spell]float64)
-						}
-
-						dot := spell.Dot(target)
-						if dot != nil {
-							dot.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-								warlock.T5_4PC_Multiplier[target.UnitIndex][spell] = 1
-							})
-						}
-					}
-				}
-			})
-
-			setBonusAura.AttachProcTrigger(core.ProcTrigger{
-				Name:           "Corruptor Raiment 4pc - Improved Corruption and Immolate",
-				ActionID:       core.ActionID{SpellID: 37384},
-				ClassSpellMask: WarlockSpellShadowBolt | WarlockSpellIncinerate,
-				Outcome:        core.OutcomeLanded,
-				Callback:       core.CallbackOnSpellHitDealt,
-				Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-					dot := core.Ternary(
-						spell.Matches(WarlockSpellShadowBolt),
-						warlock.Corruption.Dot(result.Target),
-						warlock.Immolate.Dot(result.Target),
-					)
-					baseDamage := core.Ternary(
-						spell.Matches(WarlockSpellShadowBolt),
-						warlock.CorruptionTickBaseDamage,
-						warlock.ImmolateTickBaseDamage,
-					)
-					if dot != nil && dot.IsActive() {
-						currentBaseDamage := baseDamage * warlock.T5_4PC_Multiplier[result.Target.UnitIndex][dot.Spell]
-						snapShotterBonusCoeff := dot.SnapshotBaseDamage - currentBaseDamage
-
-						warlock.T5_4PC_Multiplier[result.Target.UnitIndex][dot.Spell] *= 1.10
-
-						newBaseDamage := baseDamage * warlock.T5_4PC_Multiplier[result.Target.UnitIndex][dot.Spell]
-						dot.SnapshotBaseDamage = newBaseDamage + snapShotterBonusCoeff
-					}
-				},
-			}).ExposeToAPL(37384)
-		},
-	},
-})
-
-// T6
-var ItemSetMaleficRaiment = core.NewItemSet(core.ItemSet{
-	ID:   670,
-	Name: "Malefic Raiment",
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Each time one of your Corruption or Immolate spells deals periodic damage, you heal 70 health.
-			// Dot Heals - 38394
-			warlock := agent.(WarlockAgent).GetWarlock()
-			healthMetric := warlock.NewHealthMetrics(core.ActionID{SpellID: 38394})
-
-			setBonusAura.AttachProcTrigger(core.ProcTrigger{
-				Name:           "Malefic Raiment 2pc - Dot Heals",
-				ActionID:       core.ActionID{SpellID: 38394},
-				ClassSpellMask: WarlockSpellCorruption | WarlockSpellImmolateDot,
-				Callback:       core.CallbackOnPeriodicDamageDealt,
-				Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-					warlock.GainHealth(sim, 70*warlock.PseudoStats.SelfHealingMultiplier, healthMetric)
-				},
-			})
-		},
-		4: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Increases damage done by shadowbolt and incinerate by 6%.
-			setBonusAura.AttachSpellMod(core.SpellModConfig{
-				Kind:       core.SpellMod_DamageDone_Flat,
-				FloatValue: 0.06,
-				ClassMask:  WarlockSpellShadowBolt | WarlockSpellIncinerate,
-			}).ExposeToAPL(38393)
-		},
-	},
-})
+const blackBookItemID = 19337
 
 func init() {
-
-	// The Black Book
-	core.NewItemEffect(19337, func(agent core.Agent) {
+	// The Black Book: Blessing of the Black Book doubles the damage and the armor of the demon out. Every
+	// effect of the row lands on the pet, so the item cannot be used with no demon out.
+	core.NewItemEffect(blackBookItemID, func(agent core.Agent) {
 		warlock := agent.(WarlockAgent).GetWarlock()
-		duration := time.Second * 30
+		itemEffect := core.GetItemByID(blackBookItemID).ItemEffects[0]
+		onUse := itemEffect.GetOnUse()
+		row := spelldata.MustFind(itemEffect.BuffId)
 
-		petAuras := make([]*core.StatBuffAura, len(warlock.Env.Raid.AllUnits)+1)
-		for _, pet := range warlock.Pets {
-			petAuras[pet.UnitIndex] = pet.NewTemporaryStatsAura(
-				"Blessing of The Black Book",
-				core.ActionID{SpellID: 23720},
-				stats.Stats{stats.SpellDamage: 200, stats.AttackPower: 325, stats.Armor: 1600},
-				duration,
-			)
+		petAuras := make(map[*WarlockPet]*core.Aura)
+		for _, pet := range warlock.demons() {
+			aura := pet.RegisterAura(spelldata.AuraConfig(row))
+			spelldata.ParseEffects(&pet.Character, aura, row)
+			petAuras[pet] = aura
 		}
 
-		aura := warlock.RegisterAura(core.Aura{
-			Label:    "Blessing of The Black Book",
-			ActionID: core.ActionID{ItemID: 19337},
-			Duration: duration,
-			OnGain: func(aura *core.Aura, sim *core.Simulation) {
-				if warlock.ActivePet != nil {
-					petAuras[warlock.ActivePet.UnitIndex].Activate(sim)
-				}
-			},
-		})
+		cast := spelldata.Cast(row)
+		cast.CD = core.Cooldown{
+			Timer:    warlock.NewTimer(),
+			Duration: time.Duration(onUse.CooldownMs) * time.Millisecond,
+		}
+		cast.SharedCD = core.Cooldown{
+			Timer:    warlock.GetOrInitSpellCategoryTimer(onUse.CategoryId),
+			Duration: time.Duration(onUse.CategoryCooldownMs) * time.Millisecond,
+		}
 
 		spell := warlock.RegisterSpell(core.SpellConfig{
-			ActionID:    core.ActionID{ItemID: 19337},
-			DefenseType: core.DefenseTypeMagic, // Blessing of the Black Book (23720)
+			ActionID:    core.ActionID{ItemID: blackBookItemID},
+			SpellSchool: row.SpellSchool(),
+			ProcMask:    core.ProcMaskEmpty,
 			Flags:       core.SpellFlagNoOnCastComplete,
+			Cast:        cast,
 
-			Cast: core.CastConfig{
-				CD: core.Cooldown{
-					Timer:    warlock.NewTimer(),
-					Duration: time.Minute * 3,
-				},
-				SharedCD: core.Cooldown{
-					Timer:    warlock.GetOffensiveTrinketCD(),
-					Duration: duration,
-				},
+			ExtraCastCondition: func(_ *core.Simulation, _ *core.Unit) bool {
+				return warlock.ActivePet != nil && warlock.ActivePet.IsEnabled()
 			},
 
-			ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
-				return warlock.ActivePet != nil
-			},
-
-			ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-				aura.Activate(sim)
+			ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+				petAuras[warlock.ActivePet].Activate(sim)
 			},
 		})
 
 		warlock.AddMajorCooldown(core.MajorCooldown{
 			Spell: spell,
 			Type:  core.CooldownTypeDPS,
-			BuffAura: &core.StatBuffAura{
-				Aura:            aura,
-				BuffedStatTypes: []stats.Stat{stats.SpellDamage, stats.AttackPower, stats.Armor},
-			},
 		})
 	})
-
 }

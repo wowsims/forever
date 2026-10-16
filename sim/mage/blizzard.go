@@ -1,70 +1,40 @@
 package mage
 
-// The dbcenums and core imports belong with the commented implementation.
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-var blizzardRank = spellData.Blizzard.Highest()
-
-// TODO: To be implemented.
+// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+// spellData.Blizzard lists.
 func (mage *Mage) registerBlizzardSpell() {
-	panic("To be implemented")
+	mage.registerBlizzardRank(spellData.Blizzard.Len(), spellData.Blizzard.Highest())
+}
 
-	// The ported implementation, kept until this class is done:
-	// blizzardActionId := core.ActionID{SpellID: blizzardRank.ID}
-	// tickLength := blizzardRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
-	//
-	// // Blizzard's periodic damage is the spell BlizzardTriggered casts each tick.
-	// blizzardTick := spellData.BlizzardTriggered.Highest().DamageEffect()
-	//
-	// blizzardTickSpell := mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       blizzardActionId,
-	// 	SpellSchool:    core.SpellSchoolFrost,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	ClassSpellMask: MageSpellBlizzard,
-	// 	ClassFlags:     blizzardRank.ClassFlags,
-	//
-	// 	DamageMultiplier: 1,
-	// 	BonusCoefficient: blizzardTick.Coeff(),
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-	// 		spell.CalcAndDealAoeDamage(sim, blizzardTick.Average(core.CharacterLevel), spell.OutcomeMagicHit)
-	// 	},
-	// })
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       blizzardActionId,
-	// 	SpellSchool:    core.SpellSchoolFrost,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagChanneled | core.SpellFlagAPL,
-	// 	ClassSpellMask: MageSpellBlizzard,
-	// 	ClassFlags:     blizzardRank.ClassFlags,
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(blizzardRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: blizzardRank.GCD(),
-	// 		},
-	// 	},
-	// 	Dot: core.DotConfig{
-	// 		IsAOE: true,
-	// 		Aura: core.Aura{
-	// 			Label:    "Blizzard",
-	// 			ActionID: blizzardActionId,
-	// 		},
-	// 		NumberOfTicks:        int32(blizzardRank.Duration() / tickLength),
-	// 		TickLength:           tickLength,
-	// 		AffectedByCastSpeed:  true,
-	// 		HasteReducesDuration: true,
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			blizzardTickSpell.Cast(sim, target)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		spell.AOEDot().Apply(sim)
-	// 	},
-	// })
+// Each tick casts the same rank of spellData.BlizzardTriggered on every enemy in the area; the ticks
+// do not crit. The cast's row names no tick spell, only an area trigger, so the two pair by rank.
+func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
+	tickRank := spellData.BlizzardTriggered.Rank(rank)
+
+	tickConfig := spelldata.SpellConfig(&mage.Unit, tickRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+	tickConfig.ClassSpellMask = MageSpellBlizzard
+	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamageWithVariance(sim, spell.OutcomeMagicHit, rollDamage(tickRank.DamageEffect()))
+	}
+	tickSpell := mage.RegisterSpell(tickConfig)
+
+	config := spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = MageSpellBlizzard
+	config.Dot = spelldata.DotConfig(castRank, castRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0))
+	config.Dot.IsAOE = true
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
+		tickSpell.Cast(sim, target)
+	}
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.AOEDot().Apply(sim)
+	}
+
+	mage.RegisterSpell(config)
 }

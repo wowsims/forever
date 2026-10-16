@@ -129,46 +129,43 @@ func TestMultipleStatDep(t *testing.T) {
 	}
 }
 
-// The doubling scales the 200 armor outside the share and adds the 100 of the share after it.
-func TestAddUnmultipliedStaysOutOfTheSameStatMultiplier(t *testing.T) {
-	sdm := NewStatDependencyManager()
-	sdm.MultiplyStat(Armor, 2)
-	sdm.AddUnmultiplied(Armor, 100)
-	sdm.FinalizeStatDeps()
-
-	if got := sdm.ApplyStatDependencies(Stats{Armor: 300})[Armor]; got != 500 {
-		t.Errorf("armor: %v, want (300-100)*2+100 = 500", got)
-	}
-}
-
-// A share added during an iteration is gone after the reset, which returns to the share the deps were
-// finalized with however often it runs.
-func TestResetStatDepsRestoresTheUnmultipliedShare(t *testing.T) {
-	sdm := NewStatDependencyManager()
-	sdm.MultiplyStat(Armor, 2)
-	sdm.AddUnmultiplied(Armor, 100)
-	sdm.FinalizeStatDeps()
-
-	for iteration := 1; iteration <= 3; iteration++ {
-		sdm.AddUnmultiplied(Armor, -450)
-		if got := sdm.ApplyStatDependencies(Stats{Armor: 300})[Armor]; got != 950 {
-			t.Errorf("iteration %d, armor with the -450 share: %v, want (300+350)*2-350 = 950", iteration, got)
+// The doubling scales the 200 armor and adds the 100 ArmorNoMods after it, whichever was registered
+// first, and a dependency reading armor counts all of it.
+func TestUnmultipliedStatDependencyStaysOutOfTheSameStatMultiplier(t *testing.T) {
+	for _, unmultipliedFirst := range []bool{true, false} {
+		sdm := NewStatDependencyManager()
+		if unmultipliedFirst {
+			sdm.AddUnmultipliedStatDependency(ArmorNoMods, Armor)
+			sdm.MultiplyStat(Armor, 2)
+		} else {
+			sdm.MultiplyStat(Armor, 2)
+			sdm.AddUnmultipliedStatDependency(ArmorNoMods, Armor)
 		}
-		sdm.ResetStatDeps()
-		if got := sdm.ApplyStatDependencies(Stats{Armor: 300})[Armor]; got != 500 {
-			t.Errorf("iteration %d, armor after the reset: %v, want the finalized 500", iteration, got)
+		sdm.AddStatDependency(Armor, AttackPower, 0.1)
+		sdm.FinalizeStatDeps()
+
+		got := sdm.ApplyStatDependencies(Stats{Armor: 200, ArmorNoMods: 100})
+		if got[Armor] != 500 {
+			t.Errorf("ArmorNoMods registered first %v: armor %v, want 200*2+100 = 500", unmultipliedFirst, got[Armor])
+		}
+		if got[AttackPower] != 50 {
+			t.Errorf("ArmorNoMods registered first %v: attack power from armor %v, want 500*0.1 = 50", unmultipliedFirst, got[AttackPower])
 		}
 	}
 }
 
-// A change in stats is scaled whole: the share is part of the stat it changes, not of the change.
-func TestApplyStatDependenciesToChangeIgnoresTheUnmultipliedShare(t *testing.T) {
+// The dependencies give a change of stats as they give whole stats: under the doubling, a change of
+// 300 armor is 600 and a change of 100 ArmorNoMods is 100 armor.
+func TestUnmultipliedStatDependencyAppliesToAChange(t *testing.T) {
 	sdm := NewStatDependencyManager()
 	sdm.MultiplyStat(Armor, 2)
-	sdm.AddUnmultiplied(Armor, 100)
+	sdm.AddUnmultipliedStatDependency(ArmorNoMods, Armor)
 	sdm.FinalizeStatDeps()
 
-	if got := sdm.ApplyStatDependenciesToChange(Stats{Armor: 300})[Armor]; got != 600 {
+	if got := sdm.ApplyStatDependencies(Stats{Armor: 300})[Armor]; got != 600 {
 		t.Errorf("a change of 300 armor: %v, want 300*2 = 600", got)
+	}
+	if got := sdm.ApplyStatDependencies(Stats{ArmorNoMods: 100})[Armor]; got != 100 {
+		t.Errorf("a change of 100 ArmorNoMods: %v armor, want all 100", got)
 	}
 }

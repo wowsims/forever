@@ -15,8 +15,6 @@ func init() {
 }
 
 func TestArcane(t *testing.T) {
-	t.Skip("class talents and abilities are stubbed pending their Forever implementations; " +
-		"the expected .results numbers cannot be meaningful until then")
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
 			Class:      proto.Class_ClassMage,
@@ -32,7 +30,7 @@ func TestArcane(t *testing.T) {
 				},
 			}},
 			GearSet:  core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "p1Arcane"),
-			Talents:  "2500052300030150330125--053500031003001",
+			Talents:  "0502205003100301531--055500032",
 			Rotation: core.GetAplRotation("../../ui/specs/mage/dps/apls", "default"),
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{

@@ -15,12 +15,13 @@ import (
 // A measured Source needs no notice; a carry-over names its version, and anything else is an estimate.
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
-		"wcl:abc/1-2, 2026-01-01": "",
-		"issue #1":                "",
-		"vanilla-carryover":       "vanilla",
-		"tbc-carryover":           "tbc",
-		"estimate":                "unknown",
-		"owner decision":          "unknown",
+		"wcl:abc/1-2, 2026-01-01":             "",
+		"issue #1":                            "",
+		"combat log, Rend Rank 2, 2026-10-01": "",
+		"vanilla-carryover":                   "vanilla",
+		"tbc-carryover":                       "tbc",
+		"estimate":                            "unknown",
+		"owner decision":                      "unknown",
 	} {
 		if got := rateOrigin(source); got != want {
 			t.Errorf("source %q reads as origin %q, want %q", source, got, want)

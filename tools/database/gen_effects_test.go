@@ -530,7 +530,7 @@ func TestOnUseStatBuffListsTheProcItCarries(t *testing.T) {
 		t.Fatalf("parsed as %v, want the stat on-use registered", got)
 	}
 
-	entry := groups["Armor"].Entries[0]
+	entry := groups["ArmorNoMods"].Entries[0]
 	if want := "the proc the buff carries, 23781 (E_HEAL)"; !entry.Supported || entry.NotSimulated != want {
 		t.Errorf("supported %v, not simulated %q; want registered with %q", entry.Supported, entry.NotSimulated, want)
 	}

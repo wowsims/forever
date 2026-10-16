@@ -50,6 +50,11 @@ reaches the pet. Frenzy 19621 names the proc of Tamed Pet Passive 20784, a row t
 hold, so the pet's trigger sets `ProcSpellClassFlags` from the talent's effect mask. Every proc chance
 row attaches.
 
+A `SPELLMOD_PROC_COOLDOWN` names its procs the same way and parses to `SpellMod_ProcCooldown_Pct`,
+which scales the internal cooldown a proc starts: Moonkin Form 24858 takes Omen of Clarity 16864's
+10 s to 5 s while the form is up. The length is read each time a proc starts the cooldown, so one
+already running keeps its length.
+
 |                     |                                                                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `PPM(n)`            | a rate the game files do not carry. It clears the chance and binds a manager to the trigger's proc mask, so an option that narrows the mask has to come first                 |

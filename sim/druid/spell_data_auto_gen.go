@@ -10,11 +10,13 @@ import (
 //   Improved Shred: missing rank 1 of 2
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
+//   Berserk: effect 0, 1, 2, 3 of spell 417141 has no rank curve and is held at its base points
 //   Eclipse: effect 2, 3 of spell 408248 has no rank curve and is held at its base points
 //   Gift of the Earthmother: effect 0 of spell 414673 has no rank curve and is held at its base points
 //   Natural Reaction: effect 2, 3 of spell 417051 has no rank curve and is held at its base points
 //   Nature's Splendor: effect 0, 1, 2 of spell 1223083 has no rank curve and is held at its base points
 //   Predatory Strikes: effect 1 of spell 16972 has no rank curve and is held at its base points
+//   Shifting Power: effect 0 of spell 1322605 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
 	AbolishPoison             spelldata.Ladder
@@ -26,6 +28,7 @@ type generatedSpellData struct {
 	Bash                      spelldata.Ladder
 	BearForm                  spelldata.Ladder
 	BearFormTriggered         spelldata.Ladder
+	Berserk                   spelldata.Ladder
 	BloodFrenzy               spelldata.Ladder
 	BloodFrenzyTriggered      spelldata.Ladder
 	BrutalImpact              spelldata.Ladder
@@ -92,6 +95,7 @@ type generatedSpellData struct {
 	Moonglow                  spelldata.Ladder
 	MoonkinForm               spelldata.Ladder
 	MoonkinFormTriggered      spelldata.Ladder
+	NaturalInstinct           spelldata.Ladder
 	NaturalReaction           spelldata.Ladder
 	NaturalReactionTriggered  spelldata.Ladder
 	NaturalShapeshifter       spelldata.Ladder
@@ -112,7 +116,6 @@ type generatedSpellData struct {
 	Pounce                    spelldata.Ladder
 	PounceTriggered           spelldata.Ladder
 	PounceBleed               spelldata.Ladder
-	PredatoryInstincts        spelldata.Ladder
 	PredatoryStrikes          spelldata.Ladder
 	PrimalBite                spelldata.Ladder
 	Prowl                     spelldata.Ladder
@@ -128,6 +131,7 @@ type generatedSpellData struct {
 	Rip                       spelldata.Ladder
 	SavageFury                spelldata.Ladder
 	SharpenedClaws            spelldata.Ladder
+	ShiftingPower             spelldata.Ladder
 	Shred                     spelldata.Ladder
 	ShreddingAttacks          spelldata.Ladder
 	SootheAnimal              spelldata.Ladder
@@ -158,6 +162,7 @@ var spellData = generatedSpellData{
 	Bash:                      spelldata.Ranked(5211, 6798, 8983),
 	BearForm:                  spelldata.Ranked(5487),
 	BearFormTriggered:         spelldata.Ranked(1178),
+	Berserk:                   spelldata.Talent(417141, 1),
 	BloodFrenzy:               spelldata.Talent(16958, 2),
 	BloodFrenzyTriggered:      spelldata.Ranked(16959),
 	BrutalImpact:              spelldata.Talent(16940, 2),
@@ -224,6 +229,7 @@ var spellData = generatedSpellData{
 	Moonglow:                  spelldata.Talent(16845, 3),
 	MoonkinForm:               spelldata.Ranked(24858),
 	MoonkinFormTriggered:      spelldata.Ranked(24905, 24907),
+	NaturalInstinct:           spelldata.Talent(1223242, 2),
 	NaturalReaction:           spelldata.Talent(417051, 5),
 	NaturalReactionTriggered:  spelldata.Ranked(417053),
 	NaturalShapeshifter:       spelldata.Talent(16833, 3),
@@ -244,7 +250,6 @@ var spellData = generatedSpellData{
 	Pounce:                    spelldata.Ranked(9005, 9823, 9827),
 	PounceTriggered:           spelldata.Ranked(9007, 9824, 9826),
 	PounceBleed:               spelldata.Ranked(9007, 9824, 9826),
-	PredatoryInstincts:        spelldata.Talent(1223242, 2),
 	PredatoryStrikes:          spelldata.Talent(16972, 3),
 	PrimalBite:                spelldata.Ranked(407995, 1238069, 1238070, 1238073),
 	Prowl:                     spelldata.Ranked(5215, 6783, 9913),
@@ -260,6 +265,7 @@ var spellData = generatedSpellData{
 	Rip:                       spelldata.Ranked(1079, 9492, 9493, 9752, 9894, 9896),
 	SavageFury:                spelldata.Talent(16998, 2),
 	SharpenedClaws:            spelldata.Talent(16942, 2),
+	ShiftingPower:             spelldata.Talent(1322605, 1),
 	Shred:                     spelldata.Ranked(5221, 6800, 8992, 9829, 9830),
 	ShreddingAttacks:          spelldata.Talent(16966, 3),
 	SootheAnimal:              spelldata.Ranked(2908, 8955, 9901),

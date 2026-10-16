@@ -34,6 +34,10 @@ var mirroredTypes = []struct {
 		store:  spelldata.Power{},
 		mirror: storePower{},
 	},
+	{
+		store:  spelldata.Reagent{},
+		mirror: storeReagent{},
+	},
 }
 
 func TestSpellStoreMirrorNamesEveryField(t *testing.T) {

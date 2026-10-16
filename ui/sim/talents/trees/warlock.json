@@ -37,15 +37,15 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "malediction",
-        "fancyName": "Malediction",
+        "fieldName": "grimReach",
+        "fancyName": "Grim Reach",
         "location": {
           "rowIdx": 1,
           "colIdx": 0
         },
-        "spellId": 1225177,
+        "spellId": 18218,
         "definitionId": 135454,
-        "maxPoints": 5
+        "maxPoints": 2
       },
       {
         "fieldName": "soulHarvest",

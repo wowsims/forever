@@ -63,7 +63,7 @@ func nakedSheet(t *testing.T, class proto.Class, race proto.Race) (*core.Charact
 	case proto.Class_ClassMage:
 		built = &mage.NewMage(&character, player).Character
 	case proto.Class_ClassWarlock:
-		built = &warlock.NewWarlock(&character, player, &proto.WarlockOptions{SacrificeSummon: true}, raid).Character
+		built = &warlock.NewWarlock(&character, player, &proto.WarlockOptions{}, raid).Character
 	case proto.Class_ClassDruid:
 		built = &druid.New(&character, druid.Humanoid, druid.SelfBuffs{}, "").Character
 	case proto.Class_ClassRogue:

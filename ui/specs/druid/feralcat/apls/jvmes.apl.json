@@ -1,0 +1,2136 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [
+		{
+			"action": {
+				"groupReference": {
+					"groupName": "Prepull opener"
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-1s"
+				}
+			}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "Shift Energy ceiling",
+			"value": {
+				"const": {
+					"val": "50"
+				}
+			}
+		},
+		{
+			"name": "Bite minimum CP",
+			"value": {
+				"const": {
+					"val": "4"
+				}
+			}
+		},
+		{
+			"name": "Bite Energy ceiling",
+			"value": {
+				"const": {
+					"val": "55"
+				}
+			}
+		},
+		{
+			"name": "Rip minimum CP",
+			"value": {
+				"const": {
+					"val": "4"
+				}
+			}
+		},
+		{
+			"name": "Terminal window",
+			"value": {
+				"cmp": {
+					"op": "OpLt",
+					"lhs": {
+						"remainingTime": {}
+					},
+					"rhs": {
+						"const": {
+							"val": "6s"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "Shift now",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"currentEnergy": {}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "Shift Energy ceiling"
+									}
+								}
+							}
+						},
+						{
+							"spellCanCast": {
+								"spellId": {
+									"spellId": 1322605
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Rake due",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"not": {
+								"val": {
+									"dotIsActive": {
+										"spellId": {
+											"spellId": 9904
+										}
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"remainingTime": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "6s"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Rip due",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"currentComboPoints": {}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "Rip minimum CP"
+									}
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"dotIsActive": {
+										"spellId": {
+											"spellId": 9896
+										}
+									}
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"variableRef": {
+										"name": "Terminal window"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Bite allowed",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"currentComboPoints": {}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "Bite minimum CP"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"currentEnergy": {}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "Bite Energy ceiling"
+									}
+								}
+							}
+						},
+						{
+							"variableRef": {
+								"name": "Terminal window"
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Reserve refresh Energy",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"and": {
+								"vals": [
+									{
+										"cmp": {
+											"op": "OpGe",
+											"lhs": {
+												"currentComboPoints": {}
+											},
+											"rhs": {
+												"variableRef": {
+													"name": "Rip minimum CP"
+												}
+											}
+										}
+									},
+									{
+										"dotIsActive": {
+											"spellId": {
+												"spellId": 9896
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLe",
+											"lhs": {
+												"dotRemainingTime": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "2s"
+												}
+											}
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Terminal window"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"math": {
+															"op": "OpSub",
+															"lhs": {
+																"currentEnergy": {}
+															},
+															"rhs": {
+																"spellCurrentCost": {
+																	"spellId": {
+																		"spellId": 9830
+																	}
+																}
+															}
+														}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"and": {
+								"vals": [
+									{
+										"dotIsActive": {
+											"spellId": {
+												"spellId": 9904
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLe",
+											"lhs": {
+												"dotRemainingTime": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "2s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"math": {
+															"op": "OpSub",
+															"lhs": {
+																"currentEnergy": {}
+															},
+															"rhs": {
+																"spellCurrentCost": {
+																	"spellId": {
+																		"spellId": 9830
+																	}
+																}
+															}
+														}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Free global 1.0s",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"gcdTimeToReady": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "0s"
+									}
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"auraId": {
+											"spellId": 16870
+										}
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"spellTimeToReady": {
+										"spellId": {
+											"spellId": 1322605
+										}
+									}
+								},
+								"rhs": {
+									"const": {
+										"val": "1.0s"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLt",
+								"lhs": {
+									"math": {
+										"op": "OpAdd",
+										"lhs": {
+											"currentEnergy": {}
+										},
+										"rhs": {
+											"const": {
+												"val": "10"
+											}
+										}
+									}
+								},
+								"rhs": {
+									"spellCurrentCost": {
+										"spellId": {
+											"spellId": 9830
+										}
+									}
+								}
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Rake due"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Rip due"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Bite allowed"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 22829
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"dotIsActive": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"dotRemainingTime": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "1.0s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"dotIsActive": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"dotRemainingTime": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "1.0s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "10"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Free global 1.5s",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"gcdTimeToReady": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "0s"
+									}
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"auraId": {
+											"spellId": 16870
+										}
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"spellTimeToReady": {
+										"spellId": {
+											"spellId": 1322605
+										}
+									}
+								},
+								"rhs": {
+									"const": {
+										"val": "1.5s"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLt",
+								"lhs": {
+									"math": {
+										"op": "OpAdd",
+										"lhs": {
+											"currentEnergy": {}
+										},
+										"rhs": {
+											"const": {
+												"val": "15"
+											}
+										}
+									}
+								},
+								"rhs": {
+									"spellCurrentCost": {
+										"spellId": {
+											"spellId": 9830
+										}
+									}
+								}
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Rake due"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "15"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Rip due"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "15"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Bite allowed"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "15"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 22829
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"dotIsActive": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"dotRemainingTime": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "1.5s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "15"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9896
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"dotIsActive": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"dotRemainingTime": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "1.5s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"currentEnergy": {}
+													},
+													"rhs": {
+														"const": {
+															"val": "15"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9904
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Elune's Light now",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"spellIsKnown": {
+								"spellId": {
+									"spellId": 1259799
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"auraId": {
+											"spellId": 417141
+										}
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"spellTimeToReady": {
+										"spellId": {
+											"spellId": 417141
+										}
+									}
+								},
+								"rhs": {
+									"const": {
+										"val": "15s"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Shadowmeld into Ravage",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"spellIsKnown": {
+								"spellId": {
+									"spellId": 20580
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"gcdTimeToReady": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "0s"
+									}
+								}
+							}
+						},
+						{
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						},
+						{
+							"spellIsReady": {
+								"spellId": {
+									"spellId": 20580
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"variableRef": {
+										"name": "Reserve refresh Energy"
+									}
+								}
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 16870
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGe",
+											"lhs": {
+												"currentEnergy": {}
+											},
+											"rhs": {
+												"spellCurrentCost": {
+													"spellId": {
+														"spellId": 9867
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Energized now",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"spellIsKnown": {
+								"spellId": {
+									"spellId": 1259705
+								}
+							}
+						},
+						{
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						},
+						{
+							"spellIsReady": {
+								"spellId": {
+									"spellId": 1259705
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"auraId": {
+											"spellId": 16870
+										}
+									}
+								}
+							}
+						},
+						{
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"auraId": {
+											"spellId": 417141
+										}
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"currentEnergy": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "30"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLt",
+								"lhs": {
+									"currentMana": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "1400"
+									}
+								}
+							}
+						},
+						{
+							"variableRef": {
+								"name": "Free global 1.5s"
+							}
+						}
+					]
+				}
+			}
+		}
+	],
+	"priorityList": [
+		{
+			"notes": "Ravage opener",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 9913
+									}
+								}
+							},
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 16870
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 9867
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 768
+											}
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 9634
+											}
+										}
+									}
+								}
+							},
+							{
+								"and": {
+									"vals": [
+										{
+											"cmp": {
+												"op": "OpLt",
+												"lhs": {
+													"currentMana": {}
+												},
+												"rhs": {
+													"const": {
+														"val": "1400"
+													}
+												}
+											}
+										},
+										{
+											"cmp": {
+												"op": "OpLt",
+												"lhs": {
+													"currentMana": {}
+												},
+												"rhs": {
+													"math": {
+														"op": "OpMul",
+														"lhs": {
+															"remainingTime": {}
+														},
+														"rhs": {
+															"const": {
+																"val": "50"
+															}
+														}
+													}
+												}
+											}
+										}
+									]
+								}
+							},
+							{
+								"spellCanCast": {
+									"spellId": {
+										"spellId": 29166
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 29166
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"not": {
+						"val": {
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 768
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"autocastOtherCooldowns": {}
+			}
+		},
+		{
+			"notes": "Return to Cat",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 768
+											}
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 9634
+											}
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 768
+					}
+				}
+			}
+		},
+		{
+			"notes": "Berserk with Rake",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"variableRef": {
+											"name": "Shift now"
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"and": {
+											"vals": [
+												{
+													"variableRef": {
+														"name": "Rip due"
+													}
+												},
+												{
+													"spellCanCast": {
+														"spellId": {
+															"spellId": 9896
+														}
+													}
+												}
+											]
+										}
+									}
+								}
+							},
+							{
+								"variableRef": {
+									"name": "Rake due"
+								}
+							},
+							{
+								"spellCanCast": {
+									"spellId": {
+										"spellId": 9904
+									}
+								}
+							}
+						]
+					}
+				},
+				"strictSequence": {
+					"actions": [
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 417141
+								}
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 9904
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"notes": "Berserk with Shred",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"variableRef": {
+											"name": "Shift now"
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"and": {
+											"vals": [
+												{
+													"variableRef": {
+														"name": "Rip due"
+													}
+												},
+												{
+													"spellCanCast": {
+														"spellId": {
+															"spellId": 9896
+														}
+													}
+												}
+											]
+										}
+									}
+								}
+							},
+							{
+								"and": {
+									"vals": [
+										{
+											"not": {
+												"val": {
+													"variableRef": {
+														"name": "Rake due"
+													}
+												}
+											}
+										},
+										{
+											"not": {
+												"val": {
+													"variableRef": {
+														"name": "Reserve refresh Energy"
+													}
+												}
+											}
+										}
+									]
+								}
+							},
+							{
+								"spellCanCast": {
+									"spellId": {
+										"spellId": 9830
+									}
+								}
+							}
+						]
+					}
+				},
+				"strictSequence": {
+					"actions": [
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 417141
+								}
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 9830
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Elune's Light now"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 1259799
+					}
+				}
+			},
+			"notes": "Elune's Light outside Berserk"
+		},
+		{
+			"notes": "Shift below ceiling",
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Shift now"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 1322605
+					}
+				}
+			}
+		},
+		{
+			"notes": "Tea threshold",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpLe",
+									"lhs": {
+										"currentEnergy": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "20"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"itemId": 7676
+					}
+				}
+			}
+		},
+		{
+			"notes": "Mighty Rage Potion",
+			"action": {
+				"condition": {
+					"auraIsActive": {
+						"auraId": {
+							"spellId": 768
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"otherId": "OtherActionOffensivePotion"
+					}
+				}
+			}
+		},
+		{
+			"notes": "Terminal Bite",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"variableRef": {
+									"name": "Bite allowed"
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 22829
+					}
+				}
+			}
+		},
+		{
+			"notes": "Maintain Rip",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"variableRef": {
+									"name": "Rip due"
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 9896
+					}
+				}
+			}
+		},
+		{
+			"notes": "Maintain Rake",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"variableRef": {
+									"name": "Rake due"
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 9904
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Shadowmeld into Ravage"
+					}
+				},
+				"strictSequence": {
+					"actions": [
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 20580
+								}
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 9867
+								}
+							}
+						}
+					]
+				}
+			},
+			"notes": "Shadowmeld into Ravage"
+		},
+		{
+			"notes": "Shred",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"variableRef": {
+											"name": "Reserve refresh Energy"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 9830
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"spellIsKnown": {
+									"spellId": {
+										"itemId": 10646
+									}
+								}
+							},
+							{
+								"variableRef": {
+									"name": "Free global 1.5s"
+								}
+							},
+							{
+								"spellIsReady": {
+									"spellId": {
+										"itemId": 10646
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGe",
+									"lhs": {
+										"currentMana": {}
+									},
+									"rhs": {
+										"spellCurrentCost": {
+											"spellId": {
+												"spellId": 768
+											}
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 417141
+											}
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"variableRef": {
+											"name": "Reserve refresh Energy"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"strictSequence": {
+					"actions": [
+						{
+							"cancelAura": {
+								"auraId": {
+									"spellId": 768
+								}
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"itemId": 10646
+								}
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 768
+								}
+							}
+						}
+					]
+				}
+			},
+			"notes": "Sapper in a free global"
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Energized now"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 1259705
+					}
+				}
+			},
+			"notes": "Read Ley Line in a free global"
+		},
+		{
+			"notes": "Faerie Fire filler",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "Free global 1.0s"
+								}
+							},
+							{
+								"auraIcdIsReady": {
+									"auraId": {
+										"spellId": 16864
+									}
+								}
+							},
+							{
+								"or": {
+									"vals": [
+										{
+											"not": {
+												"val": {
+													"spellIsKnown": {
+														"spellId": {
+															"itemId": 10646
+														}
+													}
+												}
+											}
+										},
+										{
+											"not": {
+												"val": {
+													"spellIsReady": {
+														"spellId": {
+															"itemId": 10646
+														}
+													}
+												}
+											}
+										},
+										{
+											"not": {
+												"val": {
+													"variableRef": {
+														"name": "Free global 1.5s"
+													}
+												}
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 9907
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"auraIsActive": {
+									"auraId": {
+										"spellId": 768
+									}
+								}
+							},
+							{
+								"spellIsReady": {
+									"spellId": {
+										"spellId": 29166
+									}
+								}
+							},
+							{
+								"and": {
+									"vals": [
+										{
+											"cmp": {
+												"op": "OpLt",
+												"lhs": {
+													"currentMana": {}
+												},
+												"rhs": {
+													"const": {
+														"val": "1400"
+													}
+												}
+											}
+										},
+										{
+											"cmp": {
+												"op": "OpLt",
+												"lhs": {
+													"currentMana": {}
+												},
+												"rhs": {
+													"math": {
+														"op": "OpMul",
+														"lhs": {
+															"remainingTime": {}
+														},
+														"rhs": {
+															"const": {
+																"val": "50"
+															}
+														}
+													}
+												}
+											}
+										}
+									]
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpLe",
+									"lhs": {
+										"gcdTimeToReady": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "0s"
+										}
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpLe",
+									"lhs": {
+										"currentEnergy": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "30"
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 16870
+											}
+										}
+									}
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 417141
+											}
+										}
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGe",
+									"lhs": {
+										"remainingTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "15s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"cancelAura": {
+					"auraId": {
+						"spellId": 768
+					}
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Prepull opener",
+			"actions": [
+				{
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 9913
+							}
+						},
+						"condition": {
+							"auraIsActive": {
+								"auraId": {
+									"spellId": 16870
+								}
+							}
+						}
+					}
+				}
+			]
+		}
+	]
+}

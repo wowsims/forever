@@ -4,13 +4,12 @@ import {
 	APLValueAutoAttackType,
 	APLValueAutoSwingTime_SwingType as AutoSwingType,
 	APLValueCompare_ComparisonOperator as ComparisonOperator,
-	APLValueEclipsePhase,
 	APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold,
 	APLValueMath_MathOperator as MathOperator,
 } from '@generated/proto/apl';
 import { ActionID, AreaType, MobType, RangedWeaponType, Stat } from '@generated/proto/common';
 import { ShamanTotems_TotemType as TotemType } from '@generated/proto/shaman';
-import { WarlockOptions_CurseOptions as CurseOptions } from '@generated/proto/warlock';
+import { WarlockOptions_CurseOptions as CurseOptions, WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
 import { translateAreaType, translateMobType, translateStat } from '@i18n/localization';
 import { getClassRangedWeaponTypes } from '@sim/player/classes/capabilities';
@@ -73,22 +72,24 @@ export type AplFieldSpec =
 
 const none = () => i18n.t('common.none');
 
-const ECLIPSE_TYPES: EnumTable = {
-	defaultLabel: i18n.t('rotation_tab.apl.helpers.eclipse_types.lunar'),
-	options: [
-		{ value: APLValueEclipsePhase.LunarPhase, label: i18n.t('rotation_tab.apl.helpers.eclipse_types.lunar') },
-		{ value: APLValueEclipsePhase.SolarPhase, label: i18n.t('rotation_tab.apl.helpers.eclipse_types.solar') },
-		{ value: APLValueEclipsePhase.NeutralPhase, label: i18n.t('rotation_tab.apl.helpers.eclipse_types.neutral') },
-	],
-};
-
 const CURSE_TYPES: EnumTable = {
 	defaultLabel: none(),
 	options: [
-		{ value: CurseOptions.Agony, label: i18n.t('rotation_tab.apl.curse_types.agony') },
-		{ value: CurseOptions.Doom, label: i18n.t('rotation_tab.apl.curse_types.doom') },
 		{ value: CurseOptions.Elements, label: i18n.t('rotation_tab.apl.curse_types.elements') },
 		{ value: CurseOptions.Recklessness, label: i18n.t('rotation_tab.apl.curse_types.recklessness') },
+		{ value: CurseOptions.Weakness, label: i18n.t('rotation_tab.apl.curse_types.weakness') },
+		{ value: CurseOptions.NoCurse, label: i18n.t('rotation_tab.apl.curse_types.no_curse') },
+	],
+};
+
+const SUMMON_TYPES: EnumTable = {
+	defaultLabel: none(),
+	options: [
+		{ value: Summon.Imp, label: i18n.t('rotation_tab.apl.summon_types.imp') },
+		{ value: Summon.Voidwalker, label: i18n.t('rotation_tab.apl.summon_types.voidwalker') },
+		{ value: Summon.Succubus, label: i18n.t('rotation_tab.apl.summon_types.succubus') },
+		{ value: Summon.Felhunter, label: i18n.t('rotation_tab.apl.summon_types.felhunter') },
+		{ value: Summon.NoSummon, label: i18n.t('rotation_tab.apl.summon_types.no_summon') },
 	],
 };
 
@@ -241,10 +242,12 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return { ...base, kind: 'placeholderName', field: descriptor.field, newValue: () => '' };
 		case 'groupReferenceVariables':
 			return { ...base, kind: 'groupVariables', field: descriptor.field, newValue: () => [], groupNameField: descriptor.groupNameField };
-		case 'eclipseType':
-			return asEnum(descriptor.field, ECLIPSE_TYPES, () => APLValueEclipsePhase.LunarPhase);
 		case 'curseType':
-			return asEnum(descriptor.field, CURSE_TYPES, () => CurseOptions.Agony);
+			return asEnum(descriptor.field, CURSE_TYPES, () => CurseOptions.Elements);
+		case 'summonType':
+			// NoSummon is 0, which fieldInputConfig reads as unset and replaces with this default, so the
+			// default has to be NoSummon for it to stay selectable.
+			return asEnum(descriptor.field, SUMMON_TYPES, () => Summon.NoSummon);
 		case 'autoType':
 			return isWandClass(player)
 				? asEnum(descriptor.field, AUTO_TYPES_WAND, () => APLValueAutoAttackType.WandAuto)

@@ -14,30 +14,30 @@ func (shaman *Shaman) registerElementalTalents() {
 	shaman.applyConcussion()
 
 	// Tier 2
-	shaman.applyElementalWarding()
-	shaman.applyReverberation()
-	shaman.applyCallOfFlame()
 	shaman.applyElementalDevastation()
+	shaman.applyReverberation()
+	shaman.applyElementalAlacrity()
+	shaman.applyCallOfFlame()
 
 	// Tier 3
 	shaman.applyElementalFocus()
-	shaman.applyElementalAlacrity()
+	shaman.applyElementalWarding()
 
 	// Tier 4
-	shaman.applyImprovedFireNova()
+	shaman.applyTrialByFire()
 	// Eye of the Storm (29062) reduces pushback only, which the sim does not model.
-	shaman.applyCallOfThunder()
+	// Earthbound (1222988) makes Earthbind Totem root, which the sim does not model.
 
 	// Tier 5
 	shaman.applyElementalReach()
+	shaman.applyLavaBurst()
 	// Lightning Overload: shaman.go, GetOverloadChance
-	// Earthbound (1222988) makes Earthbind Totem root, which the sim does not model.
 
 	// Tier 6
 	shaman.applyElementalFury()
 
 	// Tier 7
-	shaman.applyLavaBurst()
+	shaman.applyElementalMastery()
 }
 
 func (shaman *Shaman) applyConvection() {
@@ -87,14 +87,13 @@ func (shaman *Shaman) applyElementalDevastation() {
 	critAura := shaman.RegisterAura(spelldata.AuraConfig(elementalDevastationBuff)).
 		AttachStatBuff(stats.PhysicalCritPercent, spellData.ElementalDevastation.ValueAt(shaman.Talents.ElementalDevastation))
 
-	// The row hears harmful spells with no roll; the tooltip's "offensive spell critical strikes"
-	// is the outcome, which no ProcTypeMask has a bit for.
+	// The row hears harmful spells with no roll, and the tooltip's "Critical Strikes with direct
+	// damage spells" makes the crit the outcome.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.ElementalDevastation.Rank(shaman.Talents.ElementalDevastation),
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			critAura.Activate(sim)
 		})
 	trigger.Name = "Elemental Devastation - Trigger"
-	trigger.Outcome = core.OutcomeCrit
 
 	shaman.MakeProcTriggerAura(trigger)
 }
@@ -151,21 +150,15 @@ func (shaman *Shaman) applyElementalAlacrity() {
 	spelldata.ParseStatic(&shaman.Character, spellData.ElementalAlacrity.Rank(shaman.Talents.ElementalAlacrity))
 }
 
-func (shaman *Shaman) applyImprovedFireNova() {
-	if shaman.Talents.ImprovedFireNova == 0 {
+func (shaman *Shaman) applyTrialByFire() {
+	if shaman.Talents.TrialByFire == 0 {
 		return
 	}
-	spelldata.ParseStatic(&shaman.Character, spellData.ImprovedFireNova.Rank(shaman.Talents.ImprovedFireNova))
+	spelldata.ParseStatic(&shaman.Character, spellData.TrialByFire.Rank(shaman.Talents.TrialByFire))
 }
 
-func (shaman *Shaman) applyCallOfThunder() {
-	if !shaman.Talents.CallOfThunder {
-		return
-	}
-	spelldata.ParseStatic(&shaman.Character, spellData.CallOfThunder.Highest())
-}
-
-// The range the row states reaches the spells' range checks only.
+// The range the row states reaches the spells' range checks only, and the sim has no Totemic
+// Projection for effect 3's cooldown to reach.
 func (shaman *Shaman) applyElementalReach() {
 	if shaman.Talents.ElementalReach == 0 {
 		return
@@ -186,4 +179,31 @@ func (shaman *Shaman) applyLavaBurst() {
 		return
 	}
 	shaman.registerLavaBurstSpells()
+}
+
+var elementalMasteryRank = spellData.ElementalMastery.Highest()
+
+// The row states one charge and casts that would spend it, but the tooltip reads "Lasts $d", so the
+// buff lasts its full 15 s and no cast spends it.
+//
+// TODO: Ingame test needed: whether the first spell the buff reaches ends it.
+func (shaman *Shaman) applyElementalMastery() {
+	if !shaman.Talents.ElementalMastery {
+		return
+	}
+
+	emAura := shaman.RegisterAura(spelldata.AuraConfig(elementalMasteryRank))
+	spelldata.ParseEffects(&shaman.Character, emAura, elementalMasteryRank)
+
+	config := spelldata.SpellConfig(&shaman.Unit, elementalMasteryRank)
+	config.ClassSpellMask = SpellMaskElementalMastery
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		emAura.Activate(sim)
+	}
+	config.RelatedSelfBuff = emAura
+
+	shaman.AddMajorCooldown(core.MajorCooldown{
+		Spell: shaman.RegisterSpell(config),
+		Type:  core.CooldownTypeDPS,
+	})
 }

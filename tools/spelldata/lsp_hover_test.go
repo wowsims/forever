@@ -235,7 +235,7 @@ func TestHoverEnumArgument(t *testing.T) {
 	attackPower := ladderOf(t, "warrior/BattleShout").Highest().Effect(dbcenums.A_MOD_ATTACK_POWER, 0)
 	wantHover(t, battleShoutGo, "baseAttackPower :=", 4,
 		"`baseAttackPower` = **"+column(attackPower.AverageAt(60))+"**\n\n`spellData.BattleShout.Highest().Effect(99, 0).AverageAt(60)`",
-		"| 1 ▶ | "+signedColumn(attackPower.Mean())+" attack power to the party around the caster")
+		"| 1 ▶ | "+signedColumn(attackPower.Mean())+" attack power to the raid around the caster")
 }
 
 // A line of sim/warrior/stances.go with two ladder reads in one expression, then a declaration split

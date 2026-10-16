@@ -5,7 +5,6 @@ option go_package = "./proto";
 
 import "common.proto";
 import "shaman.proto";
-import "druid.proto";
 import "warlock.proto";
 
 // Rotation options are based heavily on APL. See https://github.com/simulationcraft/simc/wiki/ActionLists.
@@ -87,8 +86,6 @@ message APLAction {
         APLActionMoveDuration move_duration = 22;
 
         // Class or Spec-specific actions
-        APLActionCatOptimalRotationAction cat_optimal_rotation_action = 18;
-        APLActionBearOptimalRotationAction bear_optimal_rotation_action = 30;
         APLActionGuardianHotwDpsRotation guardian_hotw_dps_rotation = 27;
 		APLActionCastWarlockAssignedCurse cast_warlock_assigned_curse = 29;
 
@@ -101,7 +98,7 @@ message APLAction {
 }
 
 
-// NextIndex: 131
+// NextIndex: 135
 message APLValue {
 	UUID uuid = 85;
 
@@ -139,8 +136,6 @@ message APLValue {
         APLValueCurrentRage current_rage = 14;
         APLValueCurrentEnergy current_energy = 15;
         APLValueCurrentComboPoints current_combo_points = 16;
-        APLValueCurrentSolarEnergy current_solar_energy = 68;
-        APLValueCurrentLunarEnergy current_lunar_energy = 69;
 		APLValueCurrentGenericResource current_generic_resource = 75;
 		APLValueCurrentManaRegen current_mana_regen = 130;
         APLValueMaxHealth max_health = 98;
@@ -229,8 +224,9 @@ message APLValue {
         APLValueTotemRemainingTime totem_remaining_time = 49;
 APLValueWarlockAssignedCurseIsActive warlock_assigned_curse_is_active = 59;
 		APLValueWarlockIsAssignedCurse warlock_is_assigned_curse = 129;
-        APLValueCurrentEclipsePhase druid_current_eclipse_phase = 70;
+		APLValueWarlockActivePet warlock_active_pet = 135;
 		APLValueProtectionPaladinDamageTakenLastGlobal protection_paladin_damage_taken_last_global = 100;
+		APLValueDruidBleedIsActive druid_bleed_is_active = 68;
 
 		// Variable reference
 		APLValueVariableRef variable_ref = 111;
@@ -369,25 +365,6 @@ message APLActionItemSwap {
 
     // The set to swap to.
     SwapSet swap_set = 1;
-}
-
-message APLActionCatOptimalRotationAction {
-    FeralCatDruid.Rotation.FinishingMove finishing_move = 1;
-    bool biteweave = 2;
-    bool ripweave = 3;
-    int32 rip_min_combo_points = 4;
-    int32 bite_min_combo_points = 5;
-    bool mangle_trick = 6;
-    bool rake_trick = 7;
-    bool maintain_faerie_fire = 8;
-}
-
-message APLActionBearOptimalRotationAction {
-    bool maintain_faerie_fire = 1;
-    bool maintain_demoralizing_roar = 2;
-    int32 maul_rage_threshold = 3;
-    FeralBearDruid.Rotation.SwipeUsage swipe_usage = 4;
-    int32 swipe_ap_threshold = 5;
 }
 
 message APLActionGuardianHotwDpsRotation {
@@ -532,8 +509,6 @@ message APLValueCurrentManaPercent {
 message APLValueCurrentRage {}
 message APLValueCurrentEnergy {}
 message APLValueCurrentComboPoints {}
-message APLValueCurrentSolarEnergy {}
-message APLValueCurrentLunarEnergy {}
 message APLValueCurrentGenericResource {}
 message APLValueCurrentManaRegen {}
 message APLValueMaxHealth {}
@@ -544,17 +519,6 @@ message APLValueMaxRage {}
 message APLValueTimeToNextEnergyTick {}
 message APLValueEnergyTimeToTarget {
 	APLValue target_energy = 1;
-}
-
-enum APLValueEclipsePhase {
-    UnknownPhase = 0;
-    NeutralPhase = 1;
-    SolarPhase = 2;
-    LunarPhase = 3;
-}
-
-message APLValueCurrentEclipsePhase {
-    APLValueEclipsePhase eclipse_phase = 1;
 }
 
 message APLValueGCDIsReady {}
@@ -780,6 +744,14 @@ message APLValueWarlockAssignedCurseIsActive {
 }
 message APLValueWarlockIsAssignedCurse {
 	WarlockOptions.CurseOptions curse_type = 1;
+}
+// True while this demon is out; NoSummon is true while no demon is.
+message APLValueWarlockActivePet {
+	WarlockOptions.Summon summon = 1;
+}
+// True while one of the druid's bleeds is up on the target, or while the druid assumes a bleed.
+message APLValueDruidBleedIsActive {
+	UnitReference target_unit = 1;
 }
 message APLValueAfflictionCurrentSnapshot {
 	ActionID spell_id = 1;

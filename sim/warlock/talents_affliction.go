@@ -1,15 +1,18 @@
 package warlock
 
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
 func (warlock *Warlock) registerAfflictionTalents() {
 	// Tier 1
 	// Improved Life Tap implemented in lifetap.go
 	warlock.applySuppression()
 	warlock.applyImprovedCorruption()
-	// Empowered Corruption rides on Improved Corruption's guard; see the TODO below.
-	warlock.applyEmpoweredCorruption()
 
 	// Tier 2
-	// Malediction implemented in curse_of_elements.go
+	warlock.applyGrimReach()
 	warlock.applySoulHarvest()
 	warlock.applyImprovedDrains()
 
@@ -22,11 +25,11 @@ func (warlock *Warlock) registerAfflictionTalents() {
 	// Tier 4
 	warlock.applyMalevolence()
 	warlock.applyNightfall()
-	warlock.applyCurseOfExhaustion()
+	warlock.registerCurseOfExhaustion()
 
 	// Tier 5
 	warlock.applySiphonLife()
-	// Soul Siphon implemented in drain_life.go
+	// Soul Siphon implemented via helper functions that calculate the multiplier, and are called by the affected spells.
 
 	// Tier 6
 	warlock.applyShadowMastery()
@@ -35,257 +38,248 @@ func (warlock *Warlock) registerAfflictionTalents() {
 	warlock.applyWrack()
 }
 
-// TODO: To be implemented. Port the TBC Suppression implementation below; not yet verified against the Forever game files.
+// --- Tier 1 ---
+
 func (warlock *Warlock) applySuppression() {
 	if warlock.Talents.Suppression == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.Suppression == 0 {
-	// 	return
-	// }
-	//
-	// warlock.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_BonusHit_Percent,
-	// 	FloatValue: spellData.Suppression.Effect(dbcenums.A_MOD_SPELL_HIT_CHANCE, 0).ValueAt(warlock.Talents.Suppression),
-	// 	ClassMask:  WarlockAfflictionSpells,
-	// })
+	spelldata.ParseStatic(&warlock.Character, spellData.Suppression.Rank(warlock.Talents.Suppression))
 }
 
-// TODO: To be implemented. Port the TBC Improved Corruption implementation below; not yet verified against the Forever game files.
 func (warlock *Warlock) applyImprovedCorruption() {
 	if warlock.Talents.ImprovedCorruption == 0 {
 		return
 	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.ImprovedCorruption == 0 {
-	// 	return
-	// }
-	//
-	// warlock.AddStaticMod(core.SpellModConfig{
-	// 	Kind:      core.SpellMod_CastTime_Flat,
-	// 	TimeValue: time.Millisecond * (-400 * time.Duration(warlock.Talents.ImprovedCorruption)),
-	// 	ClassMask: WarlockSpellCorruption,
-	// })
+	spelldata.ParseStatic(&warlock.Character, spellData.ImprovedCorruption.Rank(warlock.Talents.ImprovedCorruption))
 }
 
-// TODO: To be implemented. Port the TBC Empowered Corruption implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyEmpoweredCorruption() {
-	if warlock.Talents.ImprovedCorruption == 0 {
+// --- Tier 2 ---
+
+// Grim Reach raises the range of the Affliction spells by 10/20%, read from its row.
+func (warlock *Warlock) applyGrimReach() {
+	if warlock.Talents.GrimReach == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.ImprovedCorruption == 0 {
-	// 	return
-	// }
-	//
-	// // TODO: this read Talents.EmpoweredCorruption, a talent Forever drops entirely, while
-	// // the registrar's guard is ImprovedCorruption (kept) -- looks like a long-standing
-	// // copy-paste bug. EmpoweredCorruption's spellData ladder is unrelated to
-	// // ImprovedCorruption's rank count, so the bonus coefficient is unknown and pinned to 0
-	// // until confirmed against the Forever tooltip.
-	// warlock.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DotBonusCoeffecient_Flat,
-	// 	FloatValue: 0,
-	// 	ClassMask:  WarlockSpellCorruption,
-	// })
+	spelldata.ParseStatic(&warlock.Character, spellData.GrimReach.Rank(warlock.Talents.GrimReach))
 }
 
-// TODO: To be implemented. Port the TBC Nightfall implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyNightfall() {
-	if warlock.Talents.Nightfall == 0 {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.Nightfall == 0 {
-	// 	return
-	// }
-	//
-	// warlock.NightfallProcAura = warlock.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:            "Shadow Trance",
-	// 	MetricsActionID: core.ActionID{SpellID: 17941},
-	// 	ClassSpellMask:  WarlockSpellShadowBolt,
-	// 	Callback:        core.CallbackOnCastComplete,
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		if spell.CurCast.CastTime != 0 {
-	// 			return
-	// 		}
-	// 		warlock.NightfallProcAura.Deactivate(sim)
-	// 	},
-	// }).AttachSpellMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_CastTime_Pct,
-	// 	FloatValue: -1.0,
-	// 	ClassMask:  WarlockSpellShadowBolt,
-	// })
-	//
-	// warlock.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:           "Nightfall",
-	// 	ClassSpellMask: WarlockSpellCorruption | WarlockSpellDrainLife,
-	// 	// Forever puts the real per-rank chance on the effect; Rank(r).ProcChance reads a flat 100.
-	// 	ProcChance: spellData.Nightfall.FractionAt(warlock.Talents.Nightfall),
-	// 	Callback:   core.CallbackOnPeriodicDamageDealt,
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		warlock.NightfallProcAura.Activate(sim)
-	// 	},
-	// })
-}
-
-// TODO: To be implemented. Port the TBC Shadow Mastery implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyShadowMastery() {
-	if warlock.Talents.ShadowMastery == 0 {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.ShadowMastery == 0 {
-	// 	return
-	// }
-	//
-	// warlock.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: spellData.ShadowMastery.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(warlock.Talents.ShadowMastery),
-	// 	ClassMask:  WarlockShadowDamage,
-	// })
-}
-
-// TODO: To be implemented. Port the TBC Amplify Curse implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) registerAmplifyCurse() {
-	if !warlock.Talents.AmplifyCurse {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if !warlock.Talents.AmplifyCurse {
-	// 	return
-	// }
-	//
-	// actionID := core.ActionID{SpellID: 18288}
-	//
-	// warlock.AmplifyCurseAura = warlock.GetOrRegisterAura(core.Aura{
-	// 	Label:    "Amplify Curse",
-	// 	Tag:      "Affliction",
-	// 	ActionID: actionID,
-	// 	Duration: time.Second * 30,
-	// 	OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-	// 		if spell.Matches(WarlockSpellCurseOfAgony | WarlockSpellCurseOfDoom) {
-	// 			warlock.AmplifyCurseAura.Deactivate(sim)
-	// 		}
-	// 	},
-	// })
-	//
-	// warlock.AmplifyCurse = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID: actionID,
-	// 	Flags:    core.SpellFlagAPL,
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: time.Second,
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    warlock.NewTimer(),
-	// 			Duration: time.Minute * 3,
-	// 		},
-	// 	},
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		warlock.AmplifyCurseAura.Activate(sim)
-	// 	},
-	// })
-	//
-	// warlock.AddMajorCooldown(core.MajorCooldown{
-	// 	Spell: warlock.AmplifyCurse,
-	// 	Type:  core.CooldownTypeDPS,
-	// })
-}
-
-// applySoulHarvest implements Soul Harvest, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// TODO: Not implemented due to lack of a kill event: adds "leave" the encounter on a set timer rather
+// than dying. Requires a Drain Soul kill to trigger.
 func (warlock *Warlock) applySoulHarvest() {
 	if warlock.Talents.SoulHarvest == 0 {
 		return
 	}
 }
 
-// applyImprovedDrains implements Improved Drains, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
 func (warlock *Warlock) applyImprovedDrains() {
 	if warlock.Talents.ImprovedDrains == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.ImprovedDrains.Rank(warlock.Talents.ImprovedDrains))
 }
 
-// applyImprovedBaneOfAgony implements Improved Bane of Agony, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// --- Tier 3 ---
 func (warlock *Warlock) applyImprovedBaneOfAgony() {
 	if warlock.Talents.ImprovedBaneOfAgony == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.ImprovedBaneOfAgony.Rank(warlock.Talents.ImprovedBaneOfAgony))
 }
 
-// applyFelConcentration implements Fel Concentration, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// TODO: Not implemented, as it does not affect sims for now.
+// The row is SPELLMOD_NOT_LOSE_CASTING_TIME (pushback protection) on the drains and Wrack,
+// which the parse skips; it matters only once the sim models pushback from damage taken.
 func (warlock *Warlock) applyFelConcentration() {
 	if warlock.Talents.FelConcentration == 0 {
 		return
 	}
 }
 
-// applyPandemic implements Pandemic, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+func (warlock *Warlock) registerAmplifyCurse() {
+	if !warlock.Talents.AmplifyCurse {
+		return
+	}
+
+	rankedSpell := spellData.AmplifyCurse.ByID(18288)
+	warlock.AmplifyCurseMultiplier = 1 + rankedSpell.EffectN(1).Percent()
+
+	// Effect 1 names the curses it amplifies, Bane of Agony and Curse of Weakness, which are the ones that spend it.
+	amplifiedCurses := rankedSpell.EffectN(1).ClassFlags
+
+	// TODO: Confirm that the amp is consumed on cast, regardless of hit.
+	auraConfig := spelldata.AuraConfig(rankedSpell)
+	auraConfig.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if spell.MatchesFlags(amplifiedCurses) {
+			aura.Deactivate(sim)
+		}
+	}
+	warlock.AmplifyCurseAura = warlock.RegisterAura(auraConfig)
+
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Flags(core.SpellFlagAPL))
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		warlock.AmplifyCurseAura.Activate(sim)
+	}
+	warlock.AmplifyCurse = warlock.RegisterSpell(config)
+
+	// Never cast on its own: the APL decides which curse takes the amp.
+	warlock.AddMajorCooldown(core.MajorCooldown{
+		Spell:          warlock.AmplifyCurse,
+		Type:           core.CooldownTypeDPS,
+		ShouldActivate: func(*core.Simulation, *core.Character) bool { return false },
+	})
+}
+
 func (warlock *Warlock) applyPandemic() {
 	if warlock.Talents.Pandemic == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.Pandemic.Rank(warlock.Talents.Pandemic))
 }
 
-// applyMalevolence implements Malevolence, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// --- Tier 4 ---
 func (warlock *Warlock) applyMalevolence() {
 	if warlock.Talents.Malevolence == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.Malevolence.Rank(warlock.Talents.Malevolence))
 }
 
-// applyCurseOfExhaustion implements Curse of Exhaustion, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (warlock *Warlock) applyCurseOfExhaustion() {
+func (warlock *Warlock) applyNightfall() {
+	if warlock.Talents.Nightfall == 0 {
+		return
+	}
+
+	shadowTrance := spellData.NightfallTriggered.ByID(17941)
+	// Effect 1 names the spells it makes instant, which are the ones that spend it.
+	instant := shadowTrance.EffectN(1).ClassFlags
+
+	auraConfig := spelldata.AuraConfig(shadowTrance)
+	auraConfig.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if spell.MatchesFlags(instant) && spell.CurCast.CastTime == 0 {
+			aura.Deactivate(sim)
+		}
+	}
+
+	warlock.NightfallProcAura = warlock.RegisterAura(auraConfig)
+
+	spelldata.ParseEffects(&warlock.Character, warlock.NightfallProcAura, shadowTrance)
+
+	trigger := spelldata.ProcTrigger(&warlock.Character, spellData.Nightfall.Rank(warlock.Talents.Nightfall),
+		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			warlock.NightfallProcAura.Activate(sim)
+		})
+	// The talent row names no spells, so the triggering ones are gathered from their own rows.
+	trigger.ClassFlags = combineClassFlags(
+		spellData.Corruption.Highest().ClassFlags,
+		spellData.DrainSoul.Highest().ClassFlags,
+		spellData.DrainLife.Highest().ClassFlags,
+		spellData.Wrack.Highest().ClassFlags,
+	)
+
+	trigger.RequireDamageDealt = true
+	warlock.MakeProcTriggerAura(trigger)
+}
+
+// TODO: Not implemented, as it does not affect DPS: the curse only slows the target's movement.
+func (warlock *Warlock) registerCurseOfExhaustion() {
 	if !warlock.Talents.CurseOfExhaustion {
 		return
 	}
 }
 
-// applySiphonLife implements Siphon Life, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// --- Tier 5 ---
+
 func (warlock *Warlock) applySiphonLife() {
 	if !warlock.Talents.SiphonLife {
 		return
 	}
+
+	warlock.registerSiphonLifeSpell()
 }
 
-// applyWrack implements Wrack, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+func (warlock *Warlock) soulSiphonPerEffect() float64 {
+	return spellData.SoulSiphon.FractionAt(warlock.Talents.SoulSiphon)
+}
+
+// Soul Siphon's cap, from its tooltip: "4/8/12% per each of your other Affliction effects active on the
+// target, up to a maximum increase of 12/24/36%", three effects at every rank. Row 17804 is a single
+// A_DUMMY stating the per-effect share only: no cap and no class flags.
+const soulSiphonMaxEffects = 3
+
+// The multiplier a Soul Siphon spell's tick takes. The spells are the tooltip's, since the row names none:
+// Drain Life, Drain Soul and Wrack, each of which calls this.
+// TODO: Appears to count any "affliction effect", confirm this includes curses in-game.
+func (warlock *Warlock) soulSiphonMultiplier(target *core.Unit, multiplierPerEffect float64) float64 {
+	if multiplierPerEffect == 0 {
+		return 1
+	}
+	return 1 + multiplierPerEffect*min(warlock.AfflictionCount(target), soulSiphonMaxEffects)
+}
+
+// Builds a Soul Siphon channel: Drain Life, Drain Soul and Wrack share the tick, hit roll and expected
+// damage, and differ in the tick effect and what each adds on top. afterTick, when given, runs on each
+// tick's result once it is dealt (Drain Life's heal).
+func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, tick *spelldata.Effect,
+	afterTick func(sim *core.Simulation, result *core.SpellResult)) core.SpellConfig {
+	soulSiphonMult := warlock.soulSiphonPerEffect()
+
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+
+	// TODO: Confirm no snapshot from Soul Siphon.
+	// TODO: Confirm in game whether spell haste shortens the ticks; the rows carry no haste attribute, so
+	// neither AffectedByCastSpeed nor HasteReducesDuration is set.
+	config.Dot = spelldata.DotConfig(rankedSpell, tick)
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		result := dot.Spell.CalcPeriodicDamage(sim, target, tick.Average(), rankedSpell.TickOutcome(dot))
+		scaleResult(sim, dot.Spell, result, warlock.soulSiphonMultiplier(target, soulSiphonMult))
+		dot.Spell.DealPeriodicDamage(sim, result)
+		if afterTick != nil {
+			afterTick(sim, result)
+		}
+	}
+
+	// Roll to hit and apply as dot
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
+		if result.Landed() {
+			spell.Dot(target).Apply(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	// Calculate expected damage, scaled by Soul Siphon multiplier.
+	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		result := spell.CalcPeriodicDamage(sim, target, tick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+		result.Damage *= warlock.soulSiphonMultiplier(target, soulSiphonMult)
+		return result
+	}
+
+	return config
+}
+
+// --- Tier 6 ---
+func (warlock *Warlock) applyShadowMastery() {
+	if warlock.Talents.ShadowMastery == 0 {
+		return
+	}
+
+	// Effect 1 raises direct damage and effect 2 periodic damage.
+	// Effect 1's class flags include Corruption, which has no direct damage.
+	spelldata.ParseStatic(&warlock.Character, spellData.ShadowMastery.Rank(warlock.Talents.ShadowMastery))
+}
+
+// --- Tier 7 ---
 func (warlock *Warlock) applyWrack() {
 	if !warlock.Talents.Wrack {
 		return
 	}
+
+	warlock.registerWrackSpell()
 }

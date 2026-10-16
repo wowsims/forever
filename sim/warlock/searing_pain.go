@@ -1,39 +1,29 @@
 package warlock
 
-var searingPainRank = spellData.SearingPain.Highest()
-var searingPainCoeff = searingPainRank.DamageEffect().Coeff()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. Port the TBC Searing Pain implementation below; not yet verified against the Forever game files.
 func (warlock *Warlock) registerSearingPain() {
-	panic("To be implemented")
+	rankedSpell := spellData.SearingPain.ByID(17923)
+	searingPainHit := rankedSpell.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	//
-	// warlock.Shadowburn = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: searingPainRank.ID},
-	// 	SpellSchool:    searingPainRank.SpellSchool(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: WarlockSpellSearingPain,
-	// 	ClassFlags:     searingPainRank.ClassFlags,
-	// 	MaxRange:       float64(searingPainRank.MaxRange),
-	//
-	// 	ManaCost: core.ManaCostOptions{FlatCost: int32(searingPainRank.Cost())},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      searingPainRank.GCD(),
-	// 			CastTime: searingPainRank.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	DefenseType:      searingPainRank.DefenseTypeCore(),
-	// 	ThreatMultiplier: 2,
-	// 	BonusCoefficient: searingPainCoeff,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		dmgRoll := searingPainRank.DamageEffect().Average(core.CharacterLevel)
-	// 		spell.CalcAndDealDamage(sim, target, dmgRoll, spell.OutcomeMagicHitAndCrit)
-	// 	},
-	// })
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellSearingPain
+	// The tooltip's "Causes a high amount of threat" states no number and the row has no threat effect.
+	config.ThreatMultiplier = 2 // TODO: Measure Searing Pain's threat in game.
+
+	// Roll the damage and to hit
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcDamage(sim, target, searingPainHit.Average(), spell.OutcomeMagicHitAndCrit)
+		spell.DealDamage(sim, result)
+	}
+
+	// Calculate expected damage from the row's average hit
+	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		return spell.CalcDamage(sim, target, searingPainHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+	}
+
+	warlock.SearingPain = warlock.RegisterSpell(config)
 }

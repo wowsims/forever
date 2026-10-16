@@ -386,8 +386,8 @@
         "maxPoints": 1
       },
       {
-        "fieldName": "predatoryInstincts",
-        "fancyName": "Predatory Instincts",
+        "fieldName": "naturalInstinct",
+        "fancyName": "Natural Instinct",
         "location": {
           "rowIdx": 4,
           "colIdx": 3

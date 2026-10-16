@@ -122,7 +122,7 @@ func (config *ProcTrigger) matchesSpell(spell *Spell) bool {
 }
 
 // Whether the trigger's rolls let a hit of this proc mask through. The stated chance draws unless it
-// is exactly 1; a manager then rolls its own chance for the mask, and a mask none of its masks hears
+// is 1 or more; a manager then rolls its own chance for the mask, and a mask none of its masks hears
 // fails without a draw. The unit's proc chance mods raise the manager's chance where there is one and
 // the stated chance otherwise. The cast and apply-effects listeners roll no manager.
 func (config *ProcTrigger) rolls(sim *Simulation, unit *Unit, dpm *DynamicProcManager, procMask ProcMask) bool {
@@ -134,7 +134,7 @@ func (config *ProcTrigger) rolls(sim *Simulation, unit *Unit, dpm *DynamicProcMa
 	if dpm == nil {
 		stated = unit.ModifiedProcChance(config.ProcSpellClassFlags, stated)
 	}
-	if stated != 1 && sim.RandomFloat(config.Name) > stated {
+	if stated < 1 && sim.RandomFloat(config.Name) > stated {
 		return false
 	}
 	if dpm == nil {
@@ -174,6 +174,16 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			Duration: config.ICD,
 		}
 		procAura.Icd = &icd
+	}
+	icdOwner := unit
+	if config.Caster != nil {
+		icdOwner = config.Caster
+	}
+	startICD := func(sim *Simulation) {
+		if config.ICD == 0 {
+			return
+		}
+		icd.Set(sim.CurrentTime + icdOwner.ModifiedProcCooldown(config.ProcSpellClassFlags, config.ICD))
 	}
 
 	var dpm *DynamicProcManager
@@ -281,9 +291,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			return
 		}
 
-		if icd.Duration != 0 {
-			icd.Use(sim)
-		}
+		startICD(sim)
 		applyHandler(sim, spell, result)
 	}
 
@@ -318,9 +326,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 				return
 			}
 
-			if icd.Duration != 0 {
-				icd.Use(sim)
-			}
+			startICD(sim)
 			applyHandler(sim, spell, nil)
 		}
 	}
@@ -341,9 +347,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 				return
 			}
 
-			if icd.Duration != 0 {
-				icd.Use(sim)
-			}
+			startICD(sim)
 			applyHandler(sim, spell, emptyResult)
 		}
 	}
@@ -406,7 +410,7 @@ func (aura *StatBuffAura) CanProc(sim *Simulation) bool {
 }
 
 // The stats a buff to any of makes a survival cooldown.
-var SurvivalStats = []stats.Stat{stats.Armor, stats.BlockPercent, stats.BlockValue, stats.DodgeRating, stats.ParryRating,
+var SurvivalStats = []stats.Stat{stats.Armor, stats.ArmorNoMods, stats.BlockPercent, stats.BlockValue, stats.DodgeRating, stats.ParryRating,
 	stats.DodgePercent, stats.ParryPercent, stats.Health, stats.ArcaneResistance, stats.FireResistance, stats.FrostResistance,
 	stats.NatureResistance, stats.ShadowResistance}
 

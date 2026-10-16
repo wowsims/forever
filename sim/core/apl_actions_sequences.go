@@ -195,7 +195,16 @@ func (action *APLActionStrictSequence) current() *APLAction {
 }
 func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction {
 	if nextAction := action.current(); nextAction.IsReady(sim) {
-		if action.unit.GCD.IsReady(sim) {
+		castReady := action.unit.GCD.IsReady(sim)
+		switch cast := nextAction.impl.(type) {
+		case *APLActionCastSpell:
+			castReady = cast.spell.CanCast(sim, cast.target.Get())
+		case *APLActionCastFriendlySpell:
+			castReady = cast.spell.CanCast(sim, cast.target.Get())
+		case *APLActionChannelSpell:
+			castReady = cast.spell.CanCast(sim, cast.target.Get())
+		}
+		if castReady {
 			action.advanceSequence()
 		} else if _, ok := nextAction.impl.(*APLActionWait); ok {
 			action.advanceSequence()

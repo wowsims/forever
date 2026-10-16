@@ -114,7 +114,7 @@ func shieldTestSim(t *testing.T) (*core.Simulation, *core.Character, *core.Unit)
 		Rotation:      core.GetAplRotation("../../ui/specs/warrior/protection/apls", "default").Rotation,
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{WindfuryTotem: true}, &proto.RaidBuffs{},
+		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true},
 			&proto.Debuffs{}),
 		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
@@ -186,11 +186,11 @@ func TestWarriorShoutsForTheTierTwoBonus(t *testing.T) {
 	}
 }
 
-// What the warrior does about the Battle Shout category. The buff is the
-// unit's, so a 169 shout from the party or from the warrior standing next to
-// this one is the same category: a 139 shout the category would turn away is a
-// global and some rage thrown away, and so is refreshing a copy that still has
-// most of its three minutes to run.
+// How the warrior treats the Battle Shout category. The buff belongs to the
+// unit, so a 169 shout from the raid and one from the warrior standing next to
+// this one fill the same category. Casting a 139 shout the category would turn
+// away wastes a global and rage, and so does refreshing a copy with most of its
+// three minutes left.
 func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 	warriorProto := func(name string, hasT2 bool) *proto.Player {
 		return &proto.Player{
@@ -213,11 +213,11 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 		}
 	}
 
-	build := func(party *proto.PartyBuffs, players ...*proto.Player) *core.Environment {
+	build := func(raidBuffs *proto.RaidBuffs, players ...*proto.Player) *core.Environment {
 		t.Helper()
 		raid := &proto.Raid{
-			Parties:          []*proto.Party{{Players: players, Buffs: party}},
-			Buffs:            &proto.RaidBuffs{},
+			Parties:          []*proto.Party{{Players: players, Buffs: &proto.PartyBuffs{}}},
+			Buffs:            raidBuffs,
 			Debuffs:          &proto.Debuffs{},
 			NumActiveParties: 1,
 		}
@@ -229,16 +229,16 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 
 	t.Run("an improved external shout outbids a warrior without the set", func(t *testing.T) {
 		sim := &core.Simulation{}
-		env := build(&proto.PartyBuffs{BattleShout: proto.TristateEffect_TristateEffectImproved}, warriorProto("Bare", false))
+		env := build(&proto.RaidBuffs{BattleShout: proto.TristateEffect_TristateEffectImproved}, warriorProto("Bare", false))
 		war := env.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
 
 		external := war.GetAura("Battle Shout (External)")
 		if external == nil {
-			t.Fatal("the party's copy is not registered")
+			t.Fatal("the raid's copy is not registered")
 		}
 		external.Activate(sim)
 		if !external.IsActive() || external.ExclusiveEffects[0].Priority != withSet {
-			t.Fatalf("the party's copy is active %v at %v, want it up at %v",
+			t.Fatalf("the raid's copy is active %v at %v, want it up at %v",
 				external.IsActive(), external.ExclusiveEffects[0].Priority, withSet)
 		}
 
@@ -247,7 +247,7 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 		}
 	})
 
-	// The copy holding the category is the warrior's own, shared with a party
+	// The copy holding the category is the warrior's own, shared with a raid
 	// member wearing the set, so it bids 169 while this warrior is worth 139.
 	// What decides the cast is how long it has left, not what it bids.
 	for _, row := range []struct {
@@ -260,7 +260,7 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			sim := &core.Simulation{}
-			env := build(&proto.PartyBuffs{}, warriorProto("Set", true), warriorProto("Bare", false))
+			env := build(&proto.RaidBuffs{}, warriorProto("Set", true), warriorProto("Bare", false))
 			bare := env.Raid.Parties[0].Players[1].(*dps.DpsWarrior)
 
 			own := bare.GetAura("Battle Shout (Player)")
@@ -432,7 +432,7 @@ func TestOverpowerAndRevengeWindowsOpenOnAvoidedMeleeHits(t *testing.T) {
 
 // Furious Precision 3/3 gives the off-hand axe's attacks 10% hit and the main hand's none.
 // Cruelty 5/5 gives each axe 5% crit, and a two-handed axe also takes Weaponmaster's 5%, whose aura is
-// up. Axe Specialization is crit on every attack, not a mod on the axes.
+// up. Savage is crit on every attack, not a mod on the axes.
 func TestTalentsReachTheirWeapons(t *testing.T) {
 	for _, c := range []struct {
 		name     string

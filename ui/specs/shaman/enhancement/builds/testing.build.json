@@ -3,7 +3,11 @@
   "raidBuffs": {
     "arcaneBrilliance": true,
     "giftOfTheWild": true,
-    "prayerOfFortitude": true
+    "prayerOfFortitude": true,
+    "graceOfAirTotem": true,
+    "flametongueTotem": true,
+    "battleShout": "TristateEffectRegular",
+    "leaderOfThePack": true
   },
   "debuffs": {
     "huntersMark": true,
@@ -16,10 +20,6 @@
     "giftOfArthas": true
   },
   "partyBuffs": {
-    "battleShout": "TristateEffectRegular",
-    "leaderOfThePack": true,
-    "strengthOfEarthTotem": true,
-    "windfuryTotem": true
   },
   "player": {
     "apiVersion": 2,
@@ -38,7 +38,7 @@
         {"id":20216},
         {"id":252486,"enchant":2543},
         {"id":22096,"enchant":1887},
-        {"id":284716},
+        {"id":275973},
         {"id":272406},
         {"id":272437},
         {"id":249469},
@@ -48,7 +48,6 @@
       ]
     },
     "consumables": {
-      "resourcePotId": 13444,
       "flaskId": 13512,
       "foodId": 20452,
       "conjuredId": 12662,
@@ -66,7 +65,8 @@
         12820,
         250328,
         250350
-      ]
+      ],
+      "resourcePotId": 13444
     },
     "bonusStats": {
       "apiVersion": 2,
@@ -76,16 +76,17 @@
     "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfMight": true
+      "greaterBlessingOfMight": true,
+      "greaterBlessingOfSalvation": true
     },
     "enhancementShaman": {
       "options": {
         "classOptions": {
-          "imbueMh": "RockbiterWeapon"
+          "imbueMh": "WindfuryWeapon"
         }
       }
     },
-    "talentsString": "050533102-053030031005112251",
+    "talentsString": "053503102-053030031005112251",
     "profession1": "Engineering",
     "profession2": "Leatherworking",
     "cooldowns": {
@@ -93,8 +94,8 @@
     "rotation": {
       "type": "TypeAPL",
       "prepullActions": [
-        {"action":{"castSpell":{"spellId":{"spellId":25359}}},"doAtValue":{"const":{"val":"-8s"}}},
-        {"action":{"castSpell":{"spellId":{"spellId":16387}}},"doAtValue":{"const":{"val":"-7s"}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10614}}},"doAtValue":{"const":{"val":"-8s"}}},
+        {"action":{"castSpell":{"spellId":{"spellId":16387}}},"doAtValue":{"const":{"val":"-7s"}},"hide":true},
         {"action":{"castSpell":{"spellId":{"spellId":25361}}},"doAtValue":{"const":{"val":"-6s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10497}}},"doAtValue":{"const":{"val":"-5s"}}}
       ],
@@ -102,7 +103,7 @@
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"80%"}}}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"70%"}}}},"castSpell":{"spellId":{"itemId":12662}}}},
         {"action":{"autocastOtherCooldowns":{}}},
-        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Air"}},"rhs":{"const":{"val":"0s"}}}},"castSpell":{"spellId":{"spellId":25359}}}},
+        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Air"}},"rhs":{"const":{"val":"0s"}}}},"castSpell":{"spellId":{"spellId":10614}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Earth"}},"rhs":{"const":{"val":"0s"}}}},"castSpell":{"spellId":{"spellId":25361}}}},
         {"action":{"condition":{"auraIsActive":{"auraId":{"spellId":16246},"includeReactionTime":true}},"castSpell":{"spellId":{"spellId":408345}}}},
         {"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{"spellId":10432}}}}},"castSpell":{"spellId":{"spellId":10432}}}},
@@ -135,7 +136,7 @@
         "level": 63,
         "mobType": "MobTypeMechanical",
         "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0],
-        "minBaseDamage": 15113,
+        "minBaseDamage": 2601,
         "damageSpread": 0.5,
         "swingSpeed": 2,
         "parryHaste": true,

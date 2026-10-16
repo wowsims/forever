@@ -19,19 +19,19 @@ import (
 // hands the driver the *Character the buffs are applied to and the message its
 // field lives on, a debuff-scope row the *Unit the debuffs land on plus the
 // debuffs and the raid. The driver reads its own field out of the message, and
-// any other field it needs: Grace of Air does nothing under Windfury Totem.
+// any other field it needs: Flametongue Totem does nothing under Windfury Totem.
 
 // Three pieces of Battlegear of Wrath are worth 30 more attack power on Battle
 // Shout: item set 218's ItemSetSpell at three pieces is 23563, which adds a flat
 // 30 to every effect of the Battle Shout family.
 var BattleShoutT2Bonus = spelldata.MustFind(23563).EffectN(1).BaseValue()
 
-// The party's Battle Shout is the external caster's copy, which chains behind
+// The raid's Battle Shout is the external caster's copy, which chains behind
 // the player's own shout rather than being up from the start. Its improved state
 // says that warrior shouted with the set on.
-func driveBattleShout(char *core.Character, party *proto.PartyBuffs) {
+func driveBattleShout(char *core.Character, raid *proto.RaidBuffs) {
 	aura := NewSpellDataBattleShoutAura(&char.Unit, false, 0)
-	if party.BattleShout == proto.TristateEffect_TristateEffectImproved {
+	if raid.BattleShout == proto.TristateEffect_TristateEffectImproved {
 		AddGeneratedFlatBonus(aura, stats.AttackPower, BattleShoutValue(0), BattleShoutT2Bonus)
 	}
 	applyFixedShoutAura(char, aura, BattleShoutCategory)
@@ -195,18 +195,18 @@ func driveManaTideTotems(char *core.Character, party *proto.PartyBuffs) {
 	})
 }
 
-// The party aura the totem puts up, a Proc Trigger Spell aura that names 10610.
-var windfuryTotemPartyAura = spelldata.MustFind(10612)
+// The raid aura the totem puts up, a Proc Trigger Spell aura that names 10610.
+var windfuryTotemRaidAura = spelldata.MustFind(10612)
 
 // The totem's summon, which names the totem aura in the metrics.
 var windfuryTotemCast = spelldata.MustFind(10614)
 
 // The totem's aura is the attack power a windfury proc grants. The totem hands
-// the proc out as the party aura 10612, whose row states the chance, what it
+// the proc out as the raid aura 10612, whose row states the chance, what it
 // hears and its 100 ms cooldown. The driver keeps the extra attack the proc
 // lands, and the totem aura that holds the category.
-func driveWindfuryTotem(char *core.Character, _ *proto.PartyBuffs) {
-	inheritWeaponTotem(char, windfuryTotemPartyAura, standWindfuryTotem)
+func driveWindfuryTotem(char *core.Character, _ *proto.RaidBuffs) {
+	inheritWeaponTotem(char, windfuryTotemRaidAura, standWindfuryTotem)
 }
 
 func standWindfuryTotem(char *core.Character) *core.Aura {
@@ -223,12 +223,11 @@ func standWindfuryTotem(char *core.Character) *core.Aura {
 
 const windfuryTotemTriggerLabel = "Windfury Totem Trigger"
 
-// Windfury Totem does not stack with Flametongue Totem or Grace of Air Totem:
-// while it stands, it outbids Flametongue Totem's proc and the agility of Grace
-// of Air, the one stat its row adds, whoever stands each totem.
+// Windfury Totem does not stack with Flametongue Totem: while it stands, it
+// outbids Flametongue Totem's proc, whoever stands each totem. Grace of Air
+// Totem stacks with it as of 1.60.1.70425.
 var windfuryTotemHoldsOver = []string{
 	FlametongueTotemCategory,
-	core.ExclusiveStatCategory(GraceOfAirTotemCategory, stats.Agility.StatName(), false),
 }
 
 // The Windfury Totem proc on the character's main hand, inactive until a totem
@@ -245,7 +244,7 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	procAura.BuildPhase = core.CharacterBuildPhaseNone
 
 	// The row's own proc flags say what spends a charge: every auto attack that
-	// lands, since the column's chance is the party aura's roll. The attack
+	// lands, since the column's chance is the raid aura's roll. The attack
 	// power stays until the charges are gone or the row's duration runs out.
 	procAura.MaxStacks = int32(windfuryTotemSpell.ProcCharges)
 	spender := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
@@ -264,12 +263,12 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// after it spends the next, so a main-hand auto's extra attack is the only
 	// swing buffed. A special spends none and leaves the last charge to the auto
 	// after its extra attack.
-	trigger := spelldata.ProcTrigger(char, windfuryTotemPartyAura, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		procAura.Activate(sim)
 		procAura.SetStacks(sim, procAura.MaxStacks)
 	})
 	trigger.Name = windfuryTotemTriggerLabel
-	trigger.MetricsActionID = core.ActionID{SpellID: windfuryTotemPartyAura.ID, Tag: -1}
+	trigger.MetricsActionID = core.ActionID{SpellID: windfuryTotemRaidAura.ID, Tag: -1}
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.ProcMask &= core.ProcMaskMeleeMH
@@ -278,7 +277,7 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	return char.MakeProcTriggerAura(trigger).ApplyOnInit(onInit)
 }
 
-// A standing Windfury Totem, the party's or the shaman's own, outbids its rivals
+// A standing Windfury Totem, the raid's or the shaman's own, outbids its rivals
 // even while Windfury Weapon on the main hand keeps its proc down.
 func HoldOverWindfuryTotemRivals(totemAura *core.Aura) {
 	for _, category := range windfuryTotemHoldsOver {
@@ -286,7 +285,7 @@ func HoldOverWindfuryTotemRivals(totemAura *core.Aura) {
 	}
 }
 
-// A weapon totem's party aura bids for the category while it is up, which keeps
+// A weapon totem's raid aura bids for the category while it is up, which keeps
 // the proc trigger up while it holds it. Outbid, by a main-hand
 // imbue, the shaman's own totem or a standing Windfury Totem, it stays up and takes
 // the category back once the higher bid goes.
@@ -302,7 +301,7 @@ func holdTotemAura(totemAura *core.Aura, category string, priority float64, proc
 	})
 }
 
-// The totem's party aura names its proc in its base points rather than its
+// The totem's raid aura names its proc in its base points rather than its
 // trigger column, so the proc is read by id.
 var flametongueTotemProc = spelldata.MustFind(16389)
 
@@ -322,14 +321,14 @@ func FlametongueTotemDamage(weaponSpeed float64) float64 {
 	return flametongueTotemProc.EffectN(1).BaseValue() * weaponSpeed / 100
 }
 
-// The totem hands its proc out as the party aura 15036, whose row hears auto
+// The totem hands its proc out as the raid aura 15036, whose row hears auto
 // attacks at 100%. Every main-hand auto attack that lands adds fire damage
 // priced by the weapon's speed.
 //
 // The two totems do not stack: under both, Windfury Totem's proc holds and
 // Flametongue Totem does nothing.
-func driveFlametongueTotem(char *core.Character, party *proto.PartyBuffs) {
-	if party.WindfuryTotem {
+func driveFlametongueTotem(char *core.Character, raid *proto.RaidBuffs) {
+	if raid.WindfuryTotem {
 		return
 	}
 	inheritWeaponTotem(char, flametongueTotemSpell, standFlametongueTotem)
@@ -348,7 +347,7 @@ const flametongueTotemTriggerLabel = "Flametongue Totem Trigger"
 
 // The Flametongue Totem proc on the character's main hand, inactive until a
 // totem aura holding FlametongueTotemCategory turns it on. A character under
-// both the party buff and a totem of its own casting has one proc, built once,
+// both the raid buff and a totem of its own casting has one proc, built once,
 // and it does nothing while the Windfury Totem proc is up.
 func NewFlametongueTotemProcTrigger(char *core.Character) *core.Aura {
 	if procTrigger := char.GetAura(flametongueTotemTriggerLabel); procTrigger != nil {
@@ -379,15 +378,6 @@ func NewFlametongueTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.TriggerImmediately = true
 	trigger.ProcMask &= core.ProcMaskMeleeMH
 	return char.MakeProcTriggerAura(trigger)
-}
-
-// Windfury Totem and Grace of Air Totem do not stack: under both, Windfury
-// Totem holds and Grace of Air does nothing.
-func driveGraceOfAirTotem(char *core.Character, party *proto.PartyBuffs) {
-	if party.WindfuryTotem {
-		return
-	}
-	standTotem(char, graceOfAirTotemSpell, NewSpellDataGraceOfAirTotemAura, 0)
 }
 
 // The party's Retribution Aura is the top rank, and its damage carries the

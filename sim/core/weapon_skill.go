@@ -60,3 +60,9 @@ func (character *Character) UpdateAttackTableWeapons() {
 		}
 	}
 }
+
+// Feral forms replace equipped weapon skill and refresh existing attack tables.
+func (character *Character) SetFeralCombat(enabled bool) {
+	character.PseudoStats.FeralCombatEnabled = enabled
+	character.UpdateAttackTableWeapons()
+}

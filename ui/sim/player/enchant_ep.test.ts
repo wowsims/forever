@@ -37,6 +37,13 @@ describe('Player.computeEnchantEP', () => {
 		expect(computeEnchantEP(striking, ItemSlot.ItemSlotMainHand, null)).toBe(0);
 		expect(computeEnchantEP(striking)).toBe(0);
 	});
+
+	it('values ArmorNoMods at its own weight, with no scale', () => {
+		const armorWeights = Stats.fromMap({ [Stat.StatArmor]: 0.5, [Stat.StatArmorNoMods]: 0.125 });
+		const armor = (stat: Stat) => Enchant.create({ effectId: 1504, stats: new Stats().withStat(stat, 125).asProtoArray() });
+		expect(computeEnchantEP(armor(Stat.StatArmorNoMods), undefined, undefined, armorWeights)).toBeCloseTo(125 * 0.125);
+		expect(computeEnchantEP(armor(Stat.StatArmor), undefined, undefined, armorWeights)).toBeCloseTo(125 * 0.5);
+	});
 });
 
 describe('Player.computeEnchantEP on percent pseudo stats', () => {

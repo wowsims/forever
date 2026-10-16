@@ -252,7 +252,7 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 	// Gift of the Wild states its armor, its five stats and each school's resistance as effects of
 	// their own, the resistances keyed by the game files' school mask.
 	gotwStat := rowAmount(t, giftOfTheWildSpell.Effect(dbcenums.A_MOD_STAT, -1))
-	gotwAdded := map[stats.Stat]float64{stats.Armor: rowAmount(t, armorEffect(t, giftOfTheWildSpell))}
+	gotwAdded := map[stats.Stat]float64{stats.ArmorNoMods: rowAmount(t, armorEffect(t, giftOfTheWildSpell))}
 	for _, stat := range []stats.Stat{stats.Strength, stats.Agility, stats.Stamina, stats.Intellect, stats.Spirit} {
 		gotwAdded[stat] = gotwStat
 	}
@@ -406,7 +406,8 @@ func TestMetaBuffTakesAFlatBonus(t *testing.T) {
 
 func TestInspirationReadsTheStore(t *testing.T) {
 	unit := &shapeCharacter().Unit
-	baseArmor := unit.SortAndApplyStatDependencies(unit.GetStats())[stats.Armor]
+	applied := unit.SortAndApplyStatDependencies(unit.GetStats())
+	baseArmor := applied[stats.Armor] - applied[stats.ArmorNoMods]
 
 	if inspirationTalent.Len() == 0 {
 		t.Fatal("Inspiration has no ranks")

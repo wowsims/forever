@@ -4,7 +4,8 @@
     "arcaneBrilliance": true,
     "prayerOfSpirit": true,
     "giftOfTheWild": true,
-    "prayerOfFortitude": true
+    "prayerOfFortitude": true,
+    "moonkinAura": true
   },
   "debuffs": {
     "judgementOfWisdom": true,
@@ -16,7 +17,6 @@
     "giftOfArthas": true
   },
   "partyBuffs": {
-    "moonkinAura": true
   },
   "player": {
     "apiVersion": 2,
@@ -79,7 +79,7 @@
         }
       }
     },
-    "talentsString": "3500301323113051-04-053150001001",
+    "talentsString": "5500331023001351-05-053050001",
     "profession1": "Leatherworking",
     "profession2": "Enchanting",
     "cooldowns": {
@@ -87,6 +87,7 @@
     "rotation": {
       "type": "TypeAPL",
       "prepullActions": [
+        {"action":{"castSpell":{"spellId":{"spellId":408510}}},"doAtValue":{"const":{"val":"-5.5s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":25361}}},"doAtValue":{"const":{"val":"-4s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10614}}},"doAtValue":{"const":{"val":"-3s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10497}}},"doAtValue":{"const":{"val":"-2s"}}},
@@ -96,13 +97,14 @@
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"80%"}}}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"70%"}}}},"castSpell":{"spellId":{"itemId":12662}}}},
         {"action":{"autocastOtherCooldowns":{}}},
-        {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"50%"}}}},"castSpell":{"spellId":{"spellId":17359}}}},
+        {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"50%"}}}},"castSpell":{"spellId":{"spellId":1325256}}}},
         {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10438}}}},
         {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10587}}}},
         {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":408345}}}},
         {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10605}}}},
-        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":1238300}}}},
+        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":1326047}}}},
         {"action":{"condition":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}}}},"castSpell":{"spellId":{"spellId":10448,"rank":5}}}},
+        {"action":{"castSpell":{"spellId":{"spellId":16166}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}},"castSpell":{"spellId":{"spellId":10392,"rank":8}}}},
         {"action":{"castSpell":{"spellId":{"spellId":15208}}}}
       ]
@@ -114,7 +116,7 @@
   },
   "encounter": {
     "apiVersion": 2,
-    "duration": 60,
+    "duration": 180,
     "durationVariation": 5,
     "executeProportion20": 0.2,
     "executeProportion25": 0.25,
@@ -129,30 +131,6 @@
         "mobType": "MobTypeMechanical",
         "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0],
         "minBaseDamage": 15113,
-        "damageSpread": 0.5,
-        "swingSpeed": 2,
-        "parryHaste": true,
-        "canCrush": true
-      },
-      {
-        "id": 31146,
-        "name": "Raid Target",
-        "level": 63,
-        "mobType": "MobTypeMechanical",
-        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0],
-        "minBaseDamage": 2601,
-        "damageSpread": 0.5,
-        "swingSpeed": 2,
-        "parryHaste": true,
-        "canCrush": true
-      },
-      {
-        "id": 31146,
-        "name": "Raid Target",
-        "level": 63,
-        "mobType": "MobTypeMechanical",
-        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0],
-        "minBaseDamage": 2601,
         "damageSpread": 0.5,
         "swingSpeed": 2,
         "parryHaste": true,

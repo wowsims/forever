@@ -1,49 +1,27 @@
 package mage
 
-const blastWaveCoefficient = 0.1930000037
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-var blastWaveRank = spellData.BlastWave.Highest()
-
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
+// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+// spellData.BlastWave lists.
 func (mage *Mage) registerBlastWaveSpell() {
-	panic("To be implemented")
+	mage.registerBlastWaveRank(spellData.BlastWave.Len(), spellData.BlastWave.Highest())
+}
 
-	// The TBC implementation, kept for the port:
-	// if !mage.Talents.BlastWave {
-	// 	return
-	// }
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: blastWaveRank.ID},
-	// 	Flags:          core.SpellFlagAPL,
-	// 	SpellSchool:    blastWaveRank.SpellSchool(),
-	// 	DefenseType:    blastWaveRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	ClassSpellMask: MageSpellBlastWave,
-	// 	ClassFlags:     blastWaveRank.ClassFlags,
-	//
-	// 	BonusCoefficient: blastWaveRank.DamageEffect().Coeff(),
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(blastWaveRank.Cost()),
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: blastWaveRank.GCD(),
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    mage.NewTimer(),
-	// 			Duration: max(blastWaveRank.Cooldown(), blastWaveRank.CategoryCooldown()),
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := blastWaveRank.DamageEffect().Average(core.CharacterLevel)
-	// 		spell.CalcAndDealAoeDamage(sim, baseDamage, spell.OutcomeMagicHitAndCrit)
-	// 		//The above returns a result slice if you want to implement the daze on the targets hit
-	// 	},
-	// })
+// The daze (effect 2) does nothing to a boss.
+func (mage *Mage) registerBlastWaveRank(_ int32, rank *spelldata.Spell) {
+	// Binary: a spell with a non-damage effect (the daze) is resisted whole or not at all, which the
+	// row does not state.
+	config := spelldata.SpellConfig(&mage.Unit, rank,
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagBinary))
+	config.ClassSpellMask = MageSpellBlastWave
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealAoeDamageWithVariance(sim, spell.OutcomeMagicHitAndCrit, rollDamage(rank.DamageEffect()))
+	}
+
+	mage.RegisterSpell(config)
 }

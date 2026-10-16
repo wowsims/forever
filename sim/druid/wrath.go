@@ -1,45 +1,19 @@
 package druid
 
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
 var wrathRank = spellData.Wrath.Highest()
+var wrathDamage = wrathRank.DamageEffect()
 
-// TODO: To be implemented.
 func (druid *Druid) registerWrathSpell() {
-	panic("To be implemented")
+	config := spelldata.SpellConfig(&druid.Unit, wrathRank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcDamage(sim, target, wrathDamage.Average(), spell.OutcomeMagicHitAndCrit)
+		spell.DealDamageAfterTravel(sim, result)
+	}
 
-	// The TBC implementation, kept for the port:
-	// druid.Wrath = druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: wrathRank.ID},
-	// 	CastRequirement: wrathRank.CastRequirement(),
-	// 	SpellSchool:     wrathRank.SpellSchool(),
-	// 	DefenseType:     wrathRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskSpellDamage,
-	// 	ClassSpellMask:  DruidSpellWrath,
-	// 	Flags:           core.SpellFlagAPL,
-	// 	MissileSpeed:    float64(wrathRank.Speed),
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(wrathRank.Cost()),
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      wrathRank.GCD(),
-	// 			CastTime: wrathRank.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	BonusCoefficient: wrathRank.DamageEffect().Coeff(),
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	// 	MaxRange:         float64(wrathRank.MaxRange),
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := wrathRank.DamageEffect().Average(core.CharacterLevel)
-	// 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMagicHitAndCrit)
-	//
-	// 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
-	// 			spell.DealDamage(sim, result)
-	// 		})
-	// 	},
-	// })
+	druid.Wrath = druid.RegisterSpell(config)
 }

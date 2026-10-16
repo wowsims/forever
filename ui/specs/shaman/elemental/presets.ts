@@ -56,11 +56,10 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 	giftOfTheWild: true,
 	prayerOfFortitude: true,
 	prayerOfSpirit: true,
-});
-
-export const DefaultPartyBuffs = PartyBuffs.create({
 	moonkinAura: true,
 });
+
+export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,

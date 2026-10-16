@@ -252,6 +252,17 @@ func (s *Spell) Cost() float64 {
 	return s.PowerCost(s.Powers[0].Type)
 }
 
+// How many of the item each cast consumes; 0 when it is not one of the spell's reagents.
+func (s *Spell) ReagentCount(item int32) int32 {
+	count := int32(0)
+	for _, r := range s.Reagents {
+		if r.Item == item {
+			count += int32(r.Count)
+		}
+	}
+	return count
+}
+
 // Spell.NameSubtext_lang's "Rank N" as a number; 0 for a spell the game files show no rank on, whose
 // subtext is "Passive" or empty.
 func (s *Spell) RankNumber() int32 {

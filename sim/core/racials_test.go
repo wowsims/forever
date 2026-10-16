@@ -99,6 +99,26 @@ func TestBloodFuryIsPercentBased(t *testing.T) {
 	if !WithinToleranceFloat64(apBefore*1.1, fw.GetStat(stats.AttackPower), 0.01) {
 		t.Fatalf("Blood Fury should grant 10%% Attack Power: before %0.2f, after %0.2f", apBefore, fw.GetStat(stats.AttackPower))
 	}
+	if got := fw.GetSpell(ActionID{SpellID: 20572}).TimeToReady(sim); got != 3*time.Minute {
+		t.Fatalf("Blood Fury should be ready again 3 minutes after its cast, got %v", got)
+	}
+}
+
+func TestShatterCurseCutsMagicDamageTaken(t *testing.T) {
+	sim, fw := setupRacialSim(proto.Race_RaceOrc)
+
+	before := fw.PseudoStats.SchoolDamageTakenMultiplier
+	castRacial(t, sim, fw, 1299026)
+
+	for school := stats.SchoolIndexPhysical; school < stats.SchoolLen; school++ {
+		want := before[school] * 0.95
+		if school == stats.SchoolIndexPhysical {
+			want = before[school]
+		}
+		if got := fw.PseudoStats.SchoolDamageTakenMultiplier[school]; !WithinToleranceFloat64(want, got, 1e-9) {
+			t.Errorf("Shatter Curse should leave school %d taking x%0.2f, got x%0.2f", school, want, got)
+		}
+	}
 }
 
 func TestBerserkingIsFlatTenPercent(t *testing.T) {
@@ -193,9 +213,10 @@ func TestGnomeWarrior(t *testing.T) {
 	}
 
 	castRacial(t, sim, fw, 1259813)
+	castAt := sim.CurrentTime
 	eureka := fw.GetAura("Eureka!")
-	if !eureka.IsActive() || eureka.GetStacks() != 3 {
-		t.Fatalf("Eureka! should start at 3 charges, got %d", eureka.GetStacks())
+	if !eureka.IsActive() || eureka.MaxStacks != 0 {
+		t.Fatalf("Eureka! should come up with no charges, got %d of %d", eureka.GetStacks(), eureka.MaxStacks)
 	}
 
 	mods := eurekaMods(1259813)
@@ -207,9 +228,7 @@ func TestGnomeWarrior(t *testing.T) {
 			warriorEurekaFlags(), named, unnamed)
 	}
 	mortalStrike := fw.RegisterSpell(fakeWarriorAbility(12294, named, 100))
-	hamstring := fw.RegisterSpell(fakeWarriorAbility(1715, named, 0))
 	sunderArmor := fw.RegisterSpell(fakeWarriorAbility(7386, unnamed, 0))
-	rend := fw.GetSpell(fakeRendActionID)
 	itemSpell := fw.RegisterSpell(SpellConfig{
 		ActionID:         ActionID{SpellID: 2},
 		Flags:            SpellFlagAPL,
@@ -230,46 +249,36 @@ func TestGnomeWarrior(t *testing.T) {
 	if sunderArmor.DirectDamageMultiplier != 1 || sunderArmor.Cost.GetCurrentCost() != 30 {
 		t.Fatalf("Eureka! should leave Sunder Armor alone, which its class mask does not name")
 	}
-
-	// The spend lands one spell batch after the hit.
-	stacksAfter := func(spell *Spell) int32 {
-		spell.SkipCastAndApplyEffects(sim, fw.CurrentTarget)
-		for end := sim.CurrentTime + SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-		}
-		return eureka.GetStacks()
-	}
-
-	if stacksAfter(itemSpell) != 3 || itemSpell.DirectDamageMultiplier != 1 {
+	if itemSpell.DirectDamageMultiplier != 1 {
 		t.Fatalf("Eureka! should ignore spells that are not class abilities")
 	}
-	if stacksAfter(sunderArmor) != 3 {
-		t.Fatalf("Sunder Armor should not spend a charge")
+
+	// However many abilities it raises, Eureka! holds to the last moment of its duration.
+	for range 5 {
+		mortalStrike.SkipCastAndApplyEffects(sim, fw.CurrentTarget)
 	}
-	if stacksAfter(hamstring) != 3 {
-		t.Fatalf("an ability the mask names should not spend a charge when it deals no damage")
+	var upAtTheEnd, upAfter, done bool
+	var multiplierAtTheEnd float64
+	at := func(when time.Duration, action func(sim *Simulation)) {
+		sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{DoAt: when, OnAction: action}))
 	}
-	if stacksAfter(rend) != 3 {
-		t.Fatalf("Rend should not spend a charge: it is periodic, and the class mask does not name it")
+	at(castAt+mods.Duration-time.Millisecond, func(_ *Simulation) {
+		upAtTheEnd, multiplierAtTheEnd = eureka.IsActive(), mortalStrike.DirectDamageMultiplier
+	})
+	// An aura runs out when the sim advances to its end, which takes a pending action at that time.
+	at(castAt+mods.Duration, func(_ *Simulation) { upAfter, done = eureka.IsActive(), true })
+	for !done && !sim.Step() {
 	}
-	if stacksAfter(mortalStrike) != 2 {
-		t.Fatalf("Mortal Strike should spend a charge")
+	if !upAtTheEnd || !WithinToleranceFloat64(1+mods.Damage, multiplierAtTheEnd, 0.0001) {
+		t.Fatalf("Eureka! should keep Mortal Strike at x%0.2f to the end of its %v, got up %t at x%0.2f",
+			1+mods.Damage, mods.Duration, upAtTheEnd, multiplierAtTheEnd)
 	}
-	// An off-hand strike on the same spell id, as Whirlwind's is, lands with the main-hand one and
-	// spends no second charge.
-	offHandConfig := fakeWarriorAbility(12294, named, 100)
-	offHandConfig.ActionID = offHandConfig.ActionID.WithTag(2)
-	offHandConfig.ProcMask = ProcMaskMeleeOHSpecial
-	offHandStrike := fw.RegisterSpell(offHandConfig)
-	mortalStrike.SkipCastAndApplyEffects(sim, fw.CurrentTarget)
-	if stacksAfter(offHandStrike) != 1 {
-		t.Fatalf("a main- and off-hand strike of one cast should spend one charge, %d left", eureka.GetStacks())
+	if upAfter {
+		t.Fatalf("Eureka! should end %v after its cast", mods.Duration)
 	}
-	stacksAfter(mortalStrike)
-	if eureka.IsActive() {
-		t.Fatalf("Eureka! should end after 3 abilities, %d left at %v", eureka.GetStacks(), sim.CurrentTime)
-	}
-	if !WithinToleranceFloat64(1, mortalStrike.DirectDamageMultiplier, 0.0001) {
-		t.Fatalf("Eureka! should drop its damage bonus when it ends, got %0.2f", mortalStrike.DirectDamageMultiplier)
+	if mortalStrike.DirectDamageMultiplier != 1 || mortalStrike.Cost.GetCurrentCost() != 30 {
+		t.Fatalf("Eureka! should drop its damage bonus and cost cut when it ends, got x%0.2f and %0.1f Rage",
+			mortalStrike.DirectDamageMultiplier, mortalStrike.Cost.GetCurrentCost())
 	}
 }
 
@@ -286,6 +295,9 @@ func TestGnomeEurekaReadsEachClassRow(t *testing.T) {
 		if !(mods.Cost < 0 && mods.Damage > 0) {
 			t.Errorf("Eureka! %d reads cost %v and damage %v, want a cut and a raise", spellID, mods.Cost, mods.Damage)
 		}
+		if mods.Duration <= 0 || mods.Cooldown <= 0 {
+			t.Errorf("Eureka! %d reads duration %v and cooldown %v, want both", spellID, mods.Duration, mods.Cooldown)
+		}
 		if mods.CostFlags.Mask == [4]uint32{} || mods.CostFlags.Family != family ||
 			mods.DamageFlags.Mask == [4]uint32{} || mods.DamageFlags.Family != family {
 			t.Errorf("Eureka! %d reads cost flags %+v and damage flags %+v, want masks in %s's family %d",
@@ -298,18 +310,17 @@ func TestGnomeEurekaReadsEachClassRow(t *testing.T) {
 	}
 }
 
-// Eureka!'s idx2 raises every tick of a warlock channel its mask names that starts with a stack up,
-// and the channel spends that stack when it ends. A channel cast with no stack up takes no bonus, nor
-// does a periodic spell that is not a channel, on the mask or off it.
+// Eureka!'s idx2 raises the ticks of a warlock channel its mask names that land while the buff is up,
+// on a channel started before the buff and on one that runs on past its end. A periodic spell that is
+// not a channel takes no bonus, on the mask or off it.
 func TestGnomeWarlockEurekaChannel(t *testing.T) {
 	sim, fw := setupFakeWarlockSim(proto.Race_RaceGnome)
 	target := fw.CurrentTarget
 
 	eurekaSpell := fw.GetSpell(ActionID{SpellID: 1259821})
-	if eurekaSpell == nil || !eurekaSpell.Cast(sim, target) {
-		t.Fatalf("a gnome warlock should cast Eureka! 1259821")
+	if eurekaSpell == nil {
+		t.Fatalf("a gnome warlock should carry Eureka! 1259821")
 	}
-	eureka := fw.GetAura("Eureka!")
 	mods := eurekaMods(1259821)
 	if mods.ChannelFlags.IsZero() || mods.Channel <= 0 {
 		t.Fatalf("the warlock's Eureka! reads channel flags %+v with %v, want a raise on its channels", mods.ChannelFlags, mods.Channel)
@@ -320,6 +331,9 @@ func TestGnomeWarlockEurekaChannel(t *testing.T) {
 	}
 	boosted := 1 + mods.Channel
 
+	at := func(when time.Duration, action func(sim *Simulation)) {
+		sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{DoAt: when, OnAction: action}))
+	}
 	multiplier := func(spell *Spell) float64 { return spell.Dot(target).PeriodicDamageMultiplier }
 	drainLife := fw.DrainLife.Dot(target)
 	var tickMultipliers []float64
@@ -328,44 +342,30 @@ func TestGnomeWarlockEurekaChannel(t *testing.T) {
 		tickMultipliers = append(tickMultipliers, dot.PeriodicDamageMultiplier)
 		onTick(sim, target, dot)
 	}
-	cast := func(spell *Spell) {
-		tickMultipliers = nil
-		spell.SkipCastAndApplyEffects(sim, target)
-		for end := sim.CurrentTime + SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-		}
-	}
-	channelTicks := func(want float64, what string) {
+	channelFrom := func(start time.Duration, what string, want ...float64) {
 		t.Helper()
+		tickMultipliers = nil
+		at(start, func(sim *Simulation) { fw.DrainLife.SkipCastAndApplyEffects(sim, target) })
+		for !drainLife.IsActive() && !sim.Step() {
+		}
 		for drainLife.IsActive() && !sim.Step() {
 		}
-		if len(tickMultipliers) != 5 {
-			t.Fatalf("Drain Life should tick 5 times, got %d", len(tickMultipliers))
+		if len(tickMultipliers) != len(want) {
+			t.Fatalf("%s should tick %d times, got %d", what, len(want), len(tickMultipliers))
 		}
 		for i, got := range tickMultipliers {
-			if !WithinToleranceFloat64(want, got, 0.0001) {
-				t.Fatalf("%s should take x%0.2f on every tick, tick %d got x%0.2f", what, want, i+1, got)
+			if !WithinToleranceFloat64(want[i], got, 0.0001) {
+				t.Fatalf("%s: tick %d should take x%0.2f, got x%0.2f", what, i+1, want[i], got)
 			}
 		}
-		if got := multiplier(fw.DrainLife); !WithinToleranceFloat64(1, got, 0.0001) {
-			t.Fatalf("Drain Life should drop the bonus when its channel ends, got x%0.2f", got)
-		}
 	}
 
-	if got := multiplier(fw.DrainLife); got != 1 {
-		t.Fatalf("Eureka! should leave Drain Life alone until a channel starts with a stack up, got x%0.2f", got)
-	}
-	cast(fw.DrainLife)
-	if eureka.GetStacks() != 3 {
-		t.Fatalf("Drain Life should hold its stack while it channels, %d left", eureka.GetStacks())
-	}
-	channelTicks(boosted, "the Drain Life cast with a stack up")
-	if eureka.GetStacks() != 2 {
-		t.Fatalf("Drain Life should spend its stack when its channel ends, %d left", eureka.GetStacks())
-	}
-
-	cast(fw.Haunt)
-	if eureka.GetStacks() != 1 {
-		t.Fatalf("Haunt should spend a stack at its cast result, %d left", eureka.GetStacks())
+	start := sim.CurrentTime
+	eurekaCast := false
+	at(start+2500*time.Millisecond, func(sim *Simulation) { eurekaCast = eurekaSpell.Cast(sim, target) })
+	channelFrom(start, "a Drain Life with Eureka! cast after its second tick", 1, 1, boosted, boosted, boosted)
+	if !eurekaCast {
+		t.Fatalf("a gnome warlock should cast Eureka! during a channel")
 	}
 	if got := multiplier(fw.Haunt); got != 1 {
 		t.Fatalf("Eureka! should leave a periodic spell that is not a channel alone, even on its mask, got x%0.2f", got)
@@ -374,132 +374,173 @@ func TestGnomeWarlockEurekaChannel(t *testing.T) {
 		t.Fatalf("Eureka! should leave Corruption's ticks alone, got x%0.2f", got)
 	}
 
-	cast(fw.DrainLife)
-	channelTicks(boosted, "the Drain Life holding the last stack")
-	if eureka.IsActive() {
-		t.Fatalf("Drain Life should spend the last stack when its channel ends, %d left", eureka.GetStacks())
-	}
-
-	cast(fw.DrainLife)
-	channelTicks(1, "a Drain Life cast after Eureka! ended")
+	// Eureka! runs out 2.5 seconds into this channel.
+	channelFrom(start+mods.Duration, "a Drain Life running past the end of Eureka!", boosted, boosted, 1, 1, 1)
 }
 
-// A channel spends one Eureka! stack when it ends, run out or cut short, however many damage spells
-// it casts, and the stack keeps the damage bonus up for all of them. A channel whose cast misses
-// spends at its cast result and holds no stack after.
-func TestGnomeEurekaChannelSpendsOnceAtItsEnd(t *testing.T) {
-	sim, fw := setupFakeWarlockSim(proto.Race_RaceGnome)
-	target := fw.CurrentTarget
+const (
+	racialTestMaceID int32 = 991511 + iota
+	racialTestTwoHandMaceID
+)
 
-	if !fw.GetSpell(ActionID{SpellID: 1259821}).Cast(sim, target) {
-		t.Fatalf("a gnome warlock should cast Eureka! 1259821")
-	}
-	eureka := fw.GetAura("Eureka!")
-	mods := eurekaMods(1259821)
-	if fw.RainOfFireTick.ClassFlags.IsZero() {
-		t.Fatalf("no class flag bit sits on the warlock's Eureka! damage mask %+v and off its channel mask %+v",
-			mods.DamageFlags, mods.ChannelFlags)
-	}
-	boosted := 1 + mods.Damage
-
-	channel := fw.RainOfFire.Dot(target)
-	var missileMultipliers []float64
-	onTick := channel.onTick
-	channel.onTick = func(sim *Simulation, target *Unit, dot *Dot) {
-		missileMultipliers = append(missileMultipliers, fw.RainOfFireTick.DirectDamageMultiplier)
-		onTick(sim, target, dot)
-	}
-	cast := func() {
-		missileMultipliers = nil
-		fw.RainOfFire.SkipCastAndApplyEffects(sim, target)
-		for end := sim.CurrentTime + SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
+func addRacialTestMaces() {
+	mace := func(id int32, handType proto.HandType) *proto.SimItem {
+		return &proto.SimItem{
+			Id:             id,
+			Name:           "Test Mace",
+			Type:           proto.ItemType_ItemTypeWeapon,
+			WeaponType:     proto.WeaponType_WeaponTypeMace,
+			HandType:       handType,
+			WeaponSpeed:    2.6,
+			ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {WeaponDamageMin: 50, WeaponDamageMax: 90}},
 		}
 	}
+	addToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		mace(racialTestMaceID, proto.HandType_HandTypeOneHand),
+		mace(racialTestTwoHandMaceID, proto.HandType_HandTypeTwoHand),
+	}})
+}
 
-	fw.missRainOfFire = true
-	cast()
-	fw.missRainOfFire = false
-	if channel.IsActive() || eureka.GetStacks() != 2 {
-		t.Fatalf("a Rain of Fire that misses should spend a stack at its cast result, %d left", eureka.GetStacks())
-	}
-
-	cast()
-	for len(missileMultipliers) == 0 && !sim.Step() {
-	}
-	if !channel.IsActive() || eureka.GetStacks() != 2 {
-		t.Fatalf("Rain of Fire should hold its stack after its first missile, %d left", eureka.GetStacks())
-	}
-	channel.Deactivate(sim)
-	if eureka.GetStacks() != 1 {
-		t.Fatalf("a Rain of Fire cut short should spend one stack when it ends, %d left", eureka.GetStacks())
-	}
-
-	cast()
-	for channel.IsActive() && !sim.Step() {
-		if channel.IsActive() && eureka.GetStacks() != 1 {
-			t.Fatalf("Rain of Fire should hold the last stack while it channels, %d left at %v", eureka.GetStacks(), sim.CurrentTime)
+// The crit multipliers of a main-hand swing, a spell and a heal.
+func racialCritMultipliers(sim *Simulation, character *Character) map[string]float64 {
+	magic := func(id int32, procMask ProcMask, school SpellSchool) *Spell {
+		if spell := character.GetSpell(ActionID{SpellID: id}); spell != nil {
+			return spell
 		}
+		return character.RegisterSpell(SpellConfig{
+			ActionID:         ActionID{SpellID: id},
+			DefenseType:      DefenseTypeMagic,
+			ProcMask:         procMask,
+			SpellSchool:      school,
+			DamageMultiplier: 1,
+		})
 	}
-	if len(missileMultipliers) != 5 {
-		t.Fatalf("Rain of Fire should cast 5 missiles, got %d", len(missileMultipliers))
-	}
-	for i, got := range missileMultipliers {
-		if !WithinToleranceFloat64(boosted, got, 0.0001) {
-			t.Fatalf("Eureka! should raise every missile of the channel to x%0.2f, missile %d got x%0.2f", boosted, i+1, got)
-		}
-	}
-	if eureka.IsActive() {
-		t.Fatalf("Rain of Fire and its missiles should spend the last stack when the channel ends, %d left", eureka.GetStacks())
+	attackTable := character.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
+	return map[string]float64{
+		"main-hand swing": character.AutoAttacks.MHAuto().CritDamageMultiplier(attackTable),
+		"spell":           magic(990801, ProcMaskSpellDamage, SpellSchoolFire).CritDamageMultiplier(attackTable),
+		"heal":            magic(990802, ProcMaskSpellHealing, SpellSchoolHoly).CritDamageMultiplier(nil),
 	}
 }
 
-// Eureka! cast during a channel holds that channel's stack from its next hit, and a channel cast while
-// another still runs spends the other's stack and takes the bonus off its ticks.
-func TestGnomeEurekaHoldsTheRunningChannel(t *testing.T) {
-	sim, fw := setupFakeWarlockSim(proto.Race_RaceGnome)
-	target := fw.CurrentTarget
-	drainLife := fw.DrainLife.Dot(target)
-	rainOfFire := fw.RainOfFire.Dot(target)
-	runFor := func(d time.Duration) {
-		for end := sim.CurrentTime + d; sim.CurrentTime < end && !sim.Step(); {
+// Endurance raises the crit damage bonus of attacks, spells and heals alike by 2% of the base
+// multiplier with any weapon or none, and Earth Fury does while any weapon slot holds a mace.
+func TestCritDamageRacials(t *testing.T) {
+	addRacialTestMaces()
+	bareHands := WeaponTestSlots(0, 0, 0)
+	sword := WeaponTestSlots(WeaponTestSwordID, 0, 0)
+
+	for _, tc := range []struct {
+		name    string
+		race    proto.Race
+		weapons []*proto.ItemSpec
+		want    float64
+	}{
+		{"tauren with bare hands", proto.Race_RaceTauren, bareHands, 1.02},
+		{"tauren with a sword", proto.Race_RaceTauren, sword, 1.02},
+		{"dwarf with a mace", proto.Race_RaceDwarf, WeaponTestSlots(racialTestMaceID, 0, 0), 1.02},
+		{"dwarf with a two-handed mace", proto.Race_RaceDwarf, WeaponTestSlots(racialTestTwoHandMaceID, 0, 0), 1.02},
+		{"dwarf with a mace in the off hand", proto.Race_RaceDwarf, WeaponTestSlots(WeaponTestDaggerID, racialTestMaceID, 0), 1.02},
+		{"dwarf with a sword", proto.Race_RaceDwarf, sword, 1},
+		{"dwarf with bare hands", proto.Race_RaceDwarf, bareHands, 1},
+	} {
+		human := racialCritMultipliers(NewWeaponTestSim(t, proto.Race_RaceHuman, tc.weapons, nil, nil))
+		for name, got := range racialCritMultipliers(NewWeaponTestSim(t, tc.race, tc.weapons, nil, nil)) {
+			if want := human[name] * tc.want; !WithinToleranceFloat64(want, got, 1e-9) {
+				t.Errorf("%s: a %s should crit for x%0.4f, got x%0.4f", tc.name, name, want, got)
+			}
 		}
-	}
-
-	fw.RainOfFire.SkipCastAndApplyEffects(sim, target)
-	runFor(time.Millisecond * 1500)
-	if !fw.GetSpell(ActionID{SpellID: 1259821}).Cast(sim, target) {
-		t.Fatalf("a gnome warlock should cast Eureka! during a channel")
-	}
-	eureka := fw.GetAura("Eureka!")
-	for rainOfFire.IsActive() && !sim.Step() {
-	}
-	if eureka.GetStacks() != 2 {
-		t.Fatalf("a Rain of Fire running when Eureka! is cast should spend one stack when it ends, %d left", eureka.GetStacks())
-	}
-
-	fw.DrainLife.SkipCastAndApplyEffects(sim, target)
-	runFor(time.Millisecond * 1500)
-	fw.RainOfFire.SkipCastAndApplyEffects(sim, target)
-	if !drainLife.IsActive() || eureka.GetStacks() != 1 {
-		t.Fatalf("a Rain of Fire cast during Drain Life should spend Drain Life's stack as it starts, %d left", eureka.GetStacks())
-	}
-	if got := drainLife.PeriodicDamageMultiplier; got != 1 {
-		t.Fatalf("Drain Life should lose the bonus once a Rain of Fire starts during it, got x%0.2f", got)
-	}
-	for (drainLife.IsActive() || rainOfFire.IsActive()) && !sim.Step() {
-	}
-	if eureka.IsActive() || drainLife.PeriodicDamageMultiplier != 1 {
-		t.Fatalf("the Rain of Fire should spend the last stack when it ends, %d left, Drain Life at x%0.2f",
-			eureka.GetStacks(), drainLife.PeriodicDamageMultiplier)
 	}
 }
 
-func TestTaurenEndurance(t *testing.T) {
+// Earth Fury follows the weapons through an item swap in combat, and an iteration that ends on the
+// swapped weapons starts the next one with the crit damage it began with.
+func TestEarthFuryFollowsAnItemSwapInCombat(t *testing.T) {
+	addRacialTestMaces()
+	withMace := WeaponTestSlots(racialTestMaceID, WeaponTestDaggerID, WeaponTestBowID)
+	withSword := WeaponTestSlots(WeaponTestSwordID, WeaponTestDaggerID, WeaponTestBowID)
+
+	for _, tc := range []struct {
+		name              string
+		equipped, swapped []*proto.ItemSpec
+		before, after     float64
+	}{
+		{"mace swapped for a sword", withMace, withSword, 1.02, 1},
+		{"sword swapped for a mace", withSword, withMace, 1, 1.02},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, dwarf := NewWeaponTestSim(t, proto.Race_RaceDwarf, tc.equipped, tc.swapped, nil)
+			base := racialCritMultipliers(NewWeaponTestSim(t, proto.Race_RaceHuman, tc.equipped, nil, nil))
+			check := func(when string, want float64) {
+				t.Helper()
+				for name, got := range racialCritMultipliers(sim, dwarf) {
+					if !WithinToleranceFloat64(base[name]*want, got, 1e-9) {
+						t.Errorf("%s at %v: a %s should crit for x%0.4f, got x%0.4f", when, sim.CurrentTime, name, base[name]*want, got)
+					}
+				}
+			}
+
+			sim.PrePull()
+			for sim.CurrentTime < 3*time.Second {
+				sim.Step()
+			}
+			check("before the swap", tc.before)
+			dwarf.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+			check("after the swap", tc.after)
+
+			for sim.CurrentTime < 6*time.Second {
+				sim.Step()
+			}
+			dwarf.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+			check("after the swap back", tc.before)
+
+			dwarf.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+			sim.Cleanup()
+			sim.Reset()
+			check("in the next iteration", tc.before)
+		})
+	}
+}
+
+// Endurance carries no hit, so a tauren holds a human's physical and spell hit.
+func TestTaurenEnduranceGrantsNoHit(t *testing.T) {
 	_, human := setupRacialSim(proto.Race_RaceHuman)
 	_, tauren := setupRacialSim(proto.Race_RaceTauren)
+	for _, stat := range []stats.Stat{stats.PhysicalHitPercent, stats.SpellHitPercent} {
+		if got, want := tauren.GetStat(stat), human.GetStat(stat); got != want {
+			t.Errorf("a tauren should hold a human's %s %v, got %v", stat.StatName(), want, got)
+		}
+	}
+}
 
-	if !WithinToleranceFloat64(human.GetStat(stats.PhysicalHitPercent)+1, tauren.GetStat(stats.PhysicalHitPercent), 0.0001) {
-		t.Fatalf("Endurance should grant 1%% hit")
+// Ruthless and Savage raise the crit of every spell and attack whatever the character holds, bare
+// hands included. An undead has no crit racial, so at the same attributes it holds the crit without them.
+func TestRuthlessAndSavageNeedNoWeapon(t *testing.T) {
+	for _, tc := range []struct {
+		race proto.Race
+		crit float64
+	}{
+		{proto.Race_RaceHuman, 2},
+		{proto.Race_RaceOrc, 1},
+	} {
+		for name, weapons := range map[string][]*proto.ItemSpec{
+			"bare hands": WeaponTestSlots(0, 0, 0),
+			"daggers":    WeaponTestSlots(WeaponTestDaggerID, WeaponTestDaggerID, WeaponTestBowID),
+			"a sword":    WeaponTestSlots(WeaponTestSwordID, 0, 0),
+			"an axe":     WeaponTestSlots(weaponTestAxeID, 0, 0),
+		} {
+			_, character := NewWeaponTestSim(t, tc.race, weapons, nil, nil)
+			sim, undead := NewWeaponTestSim(t, proto.Race_RaceUndead, weapons, nil, nil)
+			undead.AddStatsDynamic(sim, stats.Stats{
+				stats.Agility:   character.GetStat(stats.Agility) - undead.GetStat(stats.Agility),
+				stats.Intellect: character.GetStat(stats.Intellect) - undead.GetStat(stats.Intellect),
+			})
+			for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
+				if got := character.GetStat(stat) - undead.GetStat(stat); !WithinToleranceFloat64(tc.crit, got, 1e-6) {
+					t.Errorf("%s with %s: %s +%v over an undead, want +%v", tc.race, name, stat.StatName(), got, tc.crit)
+				}
+			}
+		}
 	}
 }
 
@@ -507,7 +548,7 @@ func TestTouchOfTheGraveUsesTheMeleeVariant(t *testing.T) {
 	_, fw := setupRacialSim(proto.Race_RaceUndead)
 
 	if aura := fw.GetAura("Touch of the Grave"); aura == nil || aura.ActionIDForProc.SpellID != 1260189 {
-		t.Fatalf("An undead warrior should carry the 5%% Touch of the Grave")
+		t.Fatalf("An undead warrior should carry the 20%% Touch of the Grave")
 	} else if aura.OnSpellHitDealt == nil {
 		t.Fatalf("Touch of the Grave listens for no hit, so it never procs")
 	}
@@ -523,8 +564,8 @@ func TestSkyborneRacials(t *testing.T) {
 		_, fw := setupRacialSim(race)
 
 		swingRatio := human.AutoAttacks.MainhandSwingSpeed().Seconds() / fw.AutoAttacks.MainhandSwingSpeed().Seconds()
-		if !WithinToleranceFloat64(1.01, swingRatio, 0.001) {
-			t.Errorf("%s: Wind Blessed should swing 1%% faster, got x%0.4f", race, swingRatio)
+		if !WithinToleranceFloat64(1.03, swingRatio, 0.001) {
+			t.Errorf("%s: Wind Blessed should swing 3%% faster, got x%0.4f", race, swingRatio)
 		}
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)
@@ -608,102 +649,6 @@ func TestBloodFuryReportsItsTemporaryStats(t *testing.T) {
 	}
 }
 
-// A weapon specialization follows the weapons through an item swap in combat: a human's Sword
-// Specialization and an orc's Axe Specialization move the crit of the sheet, of spells and of every
-// auto when the main hand changes between a sword and an axe, and move it back on the swap back.
-func TestWeaponSpecializationFollowsAnItemSwapInCombat(t *testing.T) {
-	for _, tc := range []struct {
-		race      proto.Race
-		swordCrit float64
-		axeCrit   float64
-	}{
-		{race: proto.Race_RaceHuman, swordCrit: 2},
-		{race: proto.Race_RaceOrc, axeCrit: 1},
-	} {
-		t.Run(tc.race.String(), func(t *testing.T) {
-			withSword := WeaponTestSlots(WeaponTestSwordID, WeaponTestDaggerID, WeaponTestBowID)
-			withAxe := WeaponTestSlots(weaponTestAxeID, WeaponTestDaggerID, WeaponTestBowID)
-
-			finalStats := func(equipped, swapped []*proto.ItemSpec) stats.Stats {
-				result := ComputeStats(&proto.ComputeStatsRequest{Raid: weaponTestRaid(tc.race, equipped, swapped), Encounter: weaponTestEncounter()})
-				return stats.FromUnitStatsProto(result.RaidStats.Parties[0].Players[0].FinalStats)
-			}
-			startSword, startAxe := finalStats(withSword, withAxe), finalStats(withAxe, withSword)
-			for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
-				if got := startSword[stat] - startAxe[stat]; !WithinToleranceFloat64(tc.swordCrit-tc.axeCrit, got, 1e-9) {
-					t.Errorf("starting with the sword over the axe moves the sheet's %s by %v, want %v", stat.StatName(), got, tc.swordCrit-tc.axeCrit)
-				}
-			}
-
-			sim, character := NewWeaponTestSim(t, tc.race, withSword, withAxe, nil)
-			startCrit := stats.Stats{
-				stats.PhysicalCritPercent: character.GetStat(stats.PhysicalCritPercent),
-				stats.SpellCritPercent:    character.GetStat(stats.SpellCritPercent),
-			}
-			sim.PrePull()
-			for sim.CurrentTime < 3*time.Second {
-				sim.Step()
-			}
-
-			target := sim.Encounter.ActiveTargetUnits[0]
-			attackTable := character.AttackTables[target.UnitIndex]
-			spell := &Spell{Unit: &character.Unit, ProcMask: ProcMaskSpellDamage}
-			// Lifts every chance clear of the level 63 target's crit suppression, which floors it at 0.
-			character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalCritPercent: 20, stats.SpellCritPercent: 20})
-
-			critChances := func() map[string]float64 {
-				chances := map[string]float64{
-					"physical crit stat": character.GetStat(stats.PhysicalCritPercent) / 100,
-					"spell crit stat":    character.GetStat(stats.SpellCritPercent) / 100,
-					"spell":              spell.SpellCritChance(target),
-				}
-				for name, auto := range autos(character) {
-					if auto.BonusCritPercent != 0 {
-						t.Errorf("the %s carries %v%% crit of its own, want none", name, auto.BonusCritPercent)
-					}
-					chances[name] = auto.PhysicalCritChance(attackTable)
-				}
-				return chances
-			}
-			check := func(when string, weaponType proto.WeaponType, before, after map[string]float64, want float64) {
-				t.Helper()
-				if got := character.MainHand().WeaponType; got != weaponType {
-					t.Fatalf("%s: main hand holds a %s, want a %s", when, got, weaponType)
-				}
-				for name := range before {
-					if got := after[name] - before[name]; !WithinToleranceFloat64(want/100, got, 1e-9) {
-						t.Errorf("%s at %v: the %s moved by %v, want %v", when, sim.CurrentTime, name, got, want/100)
-					}
-				}
-			}
-
-			sword := critChances()
-			if sim.CurrentTime <= 0 {
-				t.Fatalf("the swap is at %v, want it in combat", sim.CurrentTime)
-			}
-			character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
-			axe := critChances()
-			check("sword swapped for the axe", proto.WeaponType_WeaponTypeAxe, sword, axe, tc.axeCrit-tc.swordCrit)
-
-			for sim.CurrentTime < 6*time.Second {
-				sim.Step()
-			}
-			character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
-			check("axe swapped back for the sword", proto.WeaponType_WeaponTypeSword, axe, critChances(), tc.swordCrit-tc.axeCrit)
-
-			// An iteration that ends on the axe starts the next one on the sword with the crit it began with.
-			character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
-			sim.Cleanup()
-			sim.Reset()
-			for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
-				if got := character.GetStat(stat); !WithinToleranceFloat64(startCrit[stat], got, 1e-9) {
-					t.Errorf("the next iteration starts at %v %s, want %v", got, stat.StatName(), startCrit[stat])
-				}
-			}
-		})
-	}
-}
-
 func init() {
 	RegisterAgentFactory(
 		proto.Player_Warlock{},
@@ -722,14 +667,11 @@ func init() {
 type fakeDotWarlock struct {
 	Character
 
-	Corruption     *Spell
-	Curse          *Spell
-	DrainLife      *Spell
-	Haunt          *Spell
-	RainOfFire     *Spell
-	RainOfFireTick *Spell
-	missRainOfFire bool
-	damagingTicks  int
+	Corruption    *Spell
+	Curse         *Spell
+	DrainLife     *Spell
+	Haunt         *Spell
+	damagingTicks int
 }
 
 func newFakeDotWarlock(char *Character, _ *proto.Player, _ *proto.Raid) Agent {
@@ -779,42 +721,11 @@ func (fw *fakeDotWarlock) Initialize() {
 		},
 	})
 
-	// Both on the Eureka! channel mask and on a mask that spends a stack; only Drain Life is a channel.
+	// Both on the Eureka! channel mask and on its cost mask; only Drain Life is a channel.
 	mods := eurekaMods(1259821)
 	onEurekaMasks := oneClassFlagBit(ClassSpellFamilies[proto.Class_ClassWarlock], []ClassFlags{mods.ChannelFlags, mods.CostFlags}, nil)
 	fw.DrainLife = fw.RegisterSpell(fakeWarlockDot(689, "Drain Life", onEurekaMasks, SpellFlagChanneled))
 	fw.Haunt = fw.RegisterSpell(fakeWarlockDot(1293694, "Haunt", onEurekaMasks, 0))
-
-	// A channel that casts a damage spell each tick, both on the Eureka! damage mask, with its cast
-	// result dealt before its dot starts.
-	onDamageMask := oneClassFlagBit(ClassSpellFamilies[proto.Class_ClassWarlock], []ClassFlags{mods.DamageFlags}, []ClassFlags{mods.ChannelFlags})
-	fw.RainOfFireTick = fw.RegisterSpell(SpellConfig{
-		ActionID:         ActionID{SpellID: 1282385},
-		ClassFlags:       onDamageMask,
-		SpellSchool:      SpellSchoolFire,
-		DefenseType:      DefenseTypeMagic,
-		ProcMask:         ProcMaskSpellDamage,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-
-		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeAlwaysHit)
-		},
-	})
-	rainOfFire := fakeWarlockDot(11678, "Rain of Fire", onDamageMask, SpellFlagChanneled)
-	rainOfFire.Dot.OnTick = func(sim *Simulation, target *Unit, _ *Dot) {
-		fw.RainOfFireTick.SkipCastAndApplyEffects(sim, target)
-	}
-	rainOfFire.ApplyEffects = func(sim *Simulation, target *Unit, spell *Spell) {
-		outcome := spell.OutcomeAlwaysHit
-		if fw.missRainOfFire {
-			outcome = spell.OutcomeAlwaysMiss
-		}
-		if spell.CalcAndDealOutcome(sim, target, outcome).Landed() {
-			spell.Dot(target).Apply(sim)
-		}
-	}
-	fw.RainOfFire = fw.RegisterSpell(rainOfFire)
 }
 
 // A periodic warlock spell with the game files' family 5 flags, which always lands.
@@ -921,5 +832,65 @@ func TestTouchOfTheGraveIgnoresPeriodicTicks(t *testing.T) {
 	}
 	if fw.damagingTicks == 0 {
 		t.Fatalf("The DoT's ticks dealt no damage, so the test proves nothing")
+	}
+}
+
+func TestTouchOfTheGraveProcsOnceIn25Seconds(t *testing.T) {
+	sim, fw, aura := setupTouchOfTheGraveWarlock(t)
+	target := fw.CurrentTarget
+	drain := fw.GetSpell(ActionID{SpellID: 1260198})
+	drains := func() int32 { return drain.SpellMetrics[target.UnitIndex].Casts }
+	hit := func() { fw.Corruption.SkipCastAndApplyEffects(sim, target) }
+
+	if !touchOfTheGraveProcsWithin(sim, aura, 200, hit) {
+		t.Fatalf("Touch of the Grave should proc within 200 landed casts")
+	}
+	procAt := sim.CurrentTime
+
+	procsAfter, done := false, false
+	at := func(when time.Duration, action func(sim *Simulation)) {
+		sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{DoAt: when, OnAction: action}))
+	}
+	// A proc from these hits would restart the cooldown, and the hits at 25 seconds could not proc.
+	at(procAt+25*time.Second-time.Millisecond, func(_ *Simulation) {
+		for range 200 {
+			hit()
+		}
+	})
+	at(procAt+25*time.Second, func(sim *Simulation) {
+		procsAfter = touchOfTheGraveProcsWithin(sim, aura, 200, hit)
+	})
+	// Each drain lands one spell batch after its proc.
+	at(procAt+25*time.Second+2*SpellBatchWindow, func(_ *Simulation) { done = true })
+	for !done && !sim.Step() {
+	}
+
+	if !procsAfter {
+		t.Errorf("Touch of the Grave should proc again on the first hits once 25 seconds have passed, and on none before")
+	}
+	if got := drains(); got != 2 {
+		t.Errorf("Touch of the Grave should drain twice, at its first proc and 25 seconds later, got %d", got)
+	}
+}
+
+// The drain is a share of the caster's health, which no Shadow damage taken on the target or Shadow
+// damage done by the caster scales.
+func TestTouchOfTheGraveIgnoresShadowModifiers(t *testing.T) {
+	sim, fw, _ := setupTouchOfTheGraveWarlock(t)
+	target := fw.CurrentTarget
+	attackTable := fw.AttackTables[target.UnitIndex]
+	drain := fw.GetSpell(ActionID{SpellID: 1260198})
+
+	target.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexShadow] *= 2
+	fw.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexShadow] *= 2
+
+	if got := fw.Corruption.TargetDamageMultiplier(sim, attackTable, false); got != 2 {
+		t.Fatalf("a Shadow spell should take the target's x2 Shadow damage taken, got x%0.2f", got)
+	}
+	if got := drain.TargetDamageMultiplier(sim, attackTable, false); got != 1 {
+		t.Errorf("the drain should take no damage taken multiplier on the target, got x%0.2f", got)
+	}
+	if got := drain.AttackerDamageMultiplier(attackTable, false); got != 1 {
+		t.Errorf("the drain should take no damage done multiplier of the caster, got x%0.2f", got)
 	}
 }

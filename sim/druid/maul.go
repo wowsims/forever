@@ -4,78 +4,41 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var maulRank = spellData.Maul.Highest()
-
-// TODO: To be implemented.
 func (druid *Druid) registerMaulSpell() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// // The actual Maul spell that fires on the next auto-attack swing.
-	// maulSpell := druid.RegisterSpell(core.SpellConfig{
-	// 	ActionID:        core.ActionID{SpellID: maulRank.ID},
-	// 	CastRequirement: maulRank.CastRequirement(),
-	// 	SpellSchool:     maulRank.SpellSchool(),
-	// 	DefenseType:     maulRank.DefenseTypeCore(),
-	// 	ProcMask:        core.ProcMaskMeleeMHSpecial,
-	// 	ClassSpellMask:  DruidSpellMaul,
-	// 	Flags:           core.SpellFlagMeleeMetrics,
-	//
-	// 	RageCost: core.RageCostOptions{
-	// 		Cost:   int32(maulRank.Cost()),
-	// 		Refund: 0.8,
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			NonEmpty: true,
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	// 	FlatThreatBonus:  344,
-	// 	MaxRange:         core.MaxMeleeRange,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := maulRank.DamageEffect().Average(core.CharacterLevel) + spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
-	// 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-	// 		if !result.Landed() {
-	// 			spell.IssueRefund(sim)
-	// 		}
-	// 		if druid.maulQueueAura != nil {
-	// 			druid.maulQueueAura.Deactivate(sim)
-	// 		}
-	// 	},
-	//
-	// 	ExpectedInitialDamage: func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-	// 		baseDamage := maulRank.DamageEffect().Average(core.CharacterLevel) + spell.Unit.AutoAttacks.MH().CalculateAverageWeaponDamage(spell.MeleeAttackPower(target))
-	// 		return spell.CalcDamage(sim, target, baseDamage, spell.OutcomeExpectedMeleeWeaponSpecialHitAndCrit)
-	// 	},
-	// })
-	//
-	// druid.Maul = druid.makeMaulQueueSpellAndAura(maulSpell)
+	rank := spellData.Maul.Highest()
+	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
+		spelldata.RemoveFlags(core.SpellFlagAPL))
+	// The queued cast keeps the spell id the APL names. The swing's damage is the same id, tagged,
+	// so a lookup of the untagged id finds the queue.
+	config.ActionID = config.ActionID.WithTag(1)
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		if druid.maulQueueAura != nil {
+			druid.maulQueueAura.Deactivate(sim)
+		}
+		result := spell.CalcAndDealDamage(sim, target, druid.weaponSpecialDamage(sim, spell, target, rank), spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		druid.refundOnMiss(sim, spell, result)
+	}
+	damage := druid.RegisterSpell(config)
+	druid.Maul = druid.makeMaulQueueSpellAndAura(damage)
 }
 
-// makeMaulQueueSpellAndAura creates the APL-visible queue spell and the aura
-// that signals ReplaceMHSwing to fire Maul on the next auto-attack, mirroring
-// the warrior Heroic Strike queue pattern.
 func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell {
 	isMaulQueued := false
 
 	druid.maulQueueAura = druid.RegisterAura(core.Aura{
 		Label:    "Maul Queue Aura",
-		ActionID: maulSpell.ActionID.WithTag(1),
+		ActionID: maulSpell.ActionID,
 		Duration: core.NeverExpires,
-		OnReset: func(aura *core.Aura, sim *core.Simulation) {
+		OnReset: func(_ *core.Aura, _ *core.Simulation) {
 			isMaulQueued = false
 		},
-		OnGain: func(aura *core.Aura, sim *core.Simulation) {
+		OnGain: func(_ *core.Aura, _ *core.Simulation) {
 			druid.maulQueueSpell = maulSpell.Spell
 		},
-		OnExpire: func(aura *core.Aura, sim *core.Simulation) {
+		OnExpire: func(_ *core.Aura, _ *core.Simulation) {
 			druid.maulQueueSpell = nil
 		},
 	})
@@ -86,8 +49,8 @@ func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell
 	}
 
 	queueSpell := druid.RegisterSpell(core.SpellConfig{
-		ActionID:        maulSpell.ActionID.WithTag(1),
-		CastRequirement: maulRank.CastRequirement(),
+		ActionID:        maulSpell.ActionID.WithTag(0),
+		CastRequirement: maulSpell.CastRequirement,
 		SpellSchool:     core.SpellSchoolPhysical,
 		DefenseType:     core.DefenseTypeMelee,
 		ProcMask:        core.ProcMaskMeleeMHSpecial,
@@ -99,7 +62,7 @@ func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell
 			},
 		},
 
-		ExtraCastCondition: func(sim *core.Simulation, target *core.Unit) bool {
+		ExtraCastCondition: func(sim *core.Simulation, _ *core.Unit) bool {
 			return druid.maulQueueAura != nil &&
 				!druid.maulQueueAura.IsActive() &&
 				!isMaulQueued &&
@@ -107,7 +70,7 @@ func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell
 				druid.maulRealismICD.IsReady(sim)
 		},
 
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 			if druid.maulRealismICD.IsReady(sim) {
 				isMaulQueued = true
 				druid.maulRealismICD.Use(sim)
@@ -125,13 +88,11 @@ func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell
 	return queueSpell
 }
 
-// TryMaul returns the Maul spell if the queue aura is active and Maul can
-// fire, otherwise returns the normal auto-attack swing spell.
 func (druid *Druid) TryMaul(sim *core.Simulation, mhSwingSpell *core.Spell) *core.Spell {
-	if !druid.maulQueueAura.IsActive() {
+	if druid.maulQueueAura == nil || !druid.maulQueueAura.IsActive() {
 		return mhSwingSpell
 	}
-	if !druid.maulQueueSpell.CanCast(sim, druid.CurrentTarget) {
+	if druid.maulQueueSpell == nil || !druid.maulQueueSpell.CanCast(sim, druid.CurrentTarget) {
 		druid.maulQueueAura.Deactivate(sim)
 		return mhSwingSpell
 	}

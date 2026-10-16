@@ -14,41 +14,27 @@ func init() {
 }
 
 func TestFeralBear(t *testing.T) {
-	t.Skip("class talents and abilities are stubbed pending their Forever implementations; " +
-		"the expected .results numbers cannot be meaningful until then")
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
 			Class:      proto.Class_ClassDruid,
 			Race:       proto.Race_RaceNightElf,
 			OtherRaces: []proto.Race{proto.Race_RaceTauren},
 
-			GearSet: core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p1"),
-			OtherGearSets: []core.GearSetCombo{
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "preraid"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p2_survival"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p2_balanced"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p2_offensive"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p2_warden"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p2_hydross_frost"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p2_hydross_nature"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p3"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p4"),
-				core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p5"),
-			},
+			GearSet: core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "default"),
 
 			Talents: DefaultTalents,
 			OtherTalentSets: []core.TalentsCombo{
-				{Label: "DemoRoar", Talents: DemoRoarTalents},
+				{Label: "Hybrid", Talents: HybridTalents},
 			},
 
 			SpecOptions: core.SpecOptionsCombo{Label: "Standard", SpecOptions: DefaultSpecOptions},
-
-			Rotation: core.RotationCombo{
-				Label: "Default",
-				Rotation: &proto.APLRotation{
-					Type: proto.APLRotation_TypeSimple,
-				},
+			OtherSpecOptions: []core.SpecOptionsCombo{
+				{Label: "BleedAssumed", SpecOptions: &proto.Player_FeralBearDruid{FeralBearDruid: &proto.FeralBearDruid{
+					Options: &proto.FeralBearDruid_Options{StartingRage: 25, AssumeBleedActive: true},
+				}}},
 			},
+
+			Rotation: core.GetAplRotation("../../../ui/specs/druid/feralbear/apls", "default"),
 
 			Consumables: DefaultConsumables,
 
@@ -98,12 +84,10 @@ func BenchmarkSimulate(b *testing.B) {
 				Class:         proto.Class_ClassDruid,
 				Race:          proto.Race_RaceNightElf,
 				TalentsString: DefaultTalents,
-				Equipment:     core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "p1").GearSet,
+				Equipment:     core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "default").GearSet,
 				Consumables:   DefaultConsumables,
 				Spec:          DefaultSpecOptions,
-				Rotation: &proto.APLRotation{
-					Type: proto.APLRotation_TypeSimple,
-				},
+				Rotation:      core.GetAplRotation("../../../ui/specs/druid/feralbear/apls", "default").Rotation,
 			},
 			nil, nil, nil,
 		),
@@ -117,8 +101,12 @@ func BenchmarkSimulate(b *testing.B) {
 	core.RaidBenchmark(b, rsr)
 }
 
-const DefaultTalents = "-50303231320221050012-05503301"
-const DemoRoarTalents = "-5530323132022105001-05503001"
+// The bear UI default. Balance 9 is for Nature's Reach (melee hit) and Nature's Majesty (melee crit).
+// Feral Instinct raises only Swipe, which a single target never sees.
+const DefaultTalents = "0500220000000000-55200322120132012551-0000000000000000"
+
+// The bear UI's Hybrid preset (presets.ts HybridTalents).
+const HybridTalents = "0500220000000000-35230332121132212051-0000000000000000"
 
 var DefaultSpecOptions = &proto.Player_FeralBearDruid{
 	FeralBearDruid: &proto.FeralBearDruid{

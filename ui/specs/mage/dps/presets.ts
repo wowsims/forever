@@ -6,6 +6,16 @@ import { Mage_Options as MageOptions, Mage_Rotation, MageArmor } from '@generate
 import { SavedTalents } from '@generated/proto/ui';
 
 import DefaultApl from './apls/default.apl.json';
+import P1ArcaneGearJson from './gear_sets/p1Arcane.gear.json';
+
+export const P1ArcaneGear = PresetUtils.makePresetGear('P1 Arcane', P1ArcaneGearJson);
+
+export const ArcaneTalents = {
+	name: 'Arcane',
+	data: SavedTalents.create({
+		talentsString: '0502205003100301531--055500032',
+	}),
+};
 
 // Preset options for this spec.
 // Eventually we will import these values for the raid sim too, so its good to
@@ -20,13 +30,6 @@ export const ArcaneMageSimpleRotation = Mage_Rotation.create({
 });
 
 export const APL_ARCANE_SIMPLE = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecMage, ArcaneMageSimpleRotation);
-
-export const Talents = {
-	name: 'Blank',
-	data: SavedTalents.create({
-		talentsString: '',
-	}),
-};
 
 export const DefaultOptions = MageOptions.create({
 	classOptions: {

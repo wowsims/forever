@@ -274,7 +274,7 @@ func TestExclusiveSingleAura(t *testing.T) {
 func TestExclusiveFollowsTheStacks(t *testing.T) {
 	sim := &core.Simulation{}
 	target := buffTestWarrior()
-	before := target.GetStat(stats.Armor)
+	before := target.GetStat(stats.ArmorNoMods)
 
 	row := buffRow(11597, auraEffect(dbcenums.A_MOD_ARMOR_NO_MODS, miscArmor, -450))
 	row.MaxStack = 5
@@ -292,12 +292,12 @@ func TestExclusiveFollowsTheStacks(t *testing.T) {
 	if effect.Priority != 900 {
 		t.Errorf("the debuff bids %v at two stacks, want 900", effect.Priority)
 	}
-	if got := target.GetStat(stats.Armor) - before; got != -900 {
+	if got := target.GetStat(stats.ArmorNoMods) - before; got != -900 {
 		t.Errorf("armor at two stacks: %v, want -900", got)
 	}
 
 	aura.Deactivate(sim)
-	if got := target.GetStat(stats.Armor); got != before {
+	if got := target.GetStat(stats.ArmorNoMods); got != before {
 		t.Errorf("armor after the debuff fell off: %v, want %v", got, before)
 	}
 }

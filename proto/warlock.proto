@@ -10,7 +10,7 @@ message WarlockTalents {
     int32 improved_life_tap = 1;
     int32 suppression = 2;
     int32 improved_corruption = 3;
-    int32 malediction = 4;
+    int32 grim_reach = 4;
     int32 soul_harvest = 5;
     int32 improved_drains = 6;
     int32 improved_bane_of_agony = 7;
@@ -71,34 +71,30 @@ message WarlockOptions {
 		Voidwalker = 2;
 		Succubus = 3;
 		Felhunter = 4;
-		Felguard = 5;
 	}
 
 	enum Armor {
 		NoArmor = 0;
-		FelArmor = 1;
 		DemonArmor = 2;
 	}
 
-	enum PetOptions {
-		None = 0;
-		MeleeOnly = 1;
-	}
-
+	// Agony and Doom are Banes in Forever, cast directly rather than as the assigned curse. NoCurse
+	// assigns none, and leaves every raid curse on.
 	enum CurseOptions {
-		Agony = 0;
-		Doom = 1;
-		Elements = 2;
+		Elements = 0;
 		Recklessness = 3;
+		NoCurse = 4;
+		Weakness = 5;
 	}
 
+	// The demon out. With a sacrifice and no Demonic Pact, none is: summoning any demon cancels the effect.
 	Summon summon = 1;
-	bool detonate_seed = 2;
-	bool use_item_swap_bonus_stats = 3 [deprecated = true];
-	bool sacrifice_summon = 5;
 	Armor armor = 4;
-	PetOptions pet_options = 6;
 	CurseOptions curse_options = 7;
+	// The demon Demonic Sacrifice sacrifices, NoSummon for none.
+	Summon sacrificed_demon = 8;
+	// The Soul Shards carried into the fight.
+	int32 soul_shards = 9;
 }
 
 message Warlock {
@@ -107,7 +103,6 @@ message Warlock {
 
 	message Options {
 		WarlockOptions class_options = 1;
-		int32 exhale_window = 6;
 	}
 	Options options = 1;
 }

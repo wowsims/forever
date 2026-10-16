@@ -2,6 +2,9 @@ package warlock
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -40,336 +43,424 @@ func (warlock *Warlock) registerDemonologyTalents() {
 	warlock.applyDemonicPact()
 }
 
-// TODO: To be implemented. Port the TBC Improved Imp implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyImprovedImp() {
-	if warlock.Talents.ImprovedImp == 0 || warlock.Options.SacrificeSummon {
-		return
-	}
+// --- Tier 1 ---
 
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.ImprovedImp == 0 || warlock.Options.SacrificeSummon {
-	// 	return
-	// }
-	//
-	// warlock.Imp.AddStaticMod(core.SpellModConfig{
-	// 	Kind: core.SpellMod_DamageDone_Flat,
-	// 	// SPELLMOD_ALL_EFFECTS carries the same ladder and also covers Blood Pact, which is
-	// 	// buffed elsewhere; this mod is the Firebolt damage half.
-	// 	FloatValue: spellData.ImprovedImp.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(warlock.Talents.ImprovedImp),
-	// 	ClassMask:  WarlockSpellImpFireBolt,
-	// })
-}
-
-// TODO: To be implemented. Port the TBC Demonic Embrace implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyDemonicEmbrace() {
-	if warlock.Talents.DemonicEmbrace == 0 {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.DemonicEmbrace == 0 {
-	// 	return
-	// }
-	//
-	// warlock.MultiplyStat(stats.Stamina, 1.0+(0.03)*float64(warlock.Talents.DemonicEmbrace))
-	// warlock.MultiplyStat(stats.Spirit, 1.0-(0.01)*float64(warlock.Talents.DemonicEmbrace))
-}
-
-// TODO: To be implemented. Port the TBC Improved Sayaad implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyImprovedSayaad() {
-	if warlock.Talents.ImprovedSayaad == 0 || warlock.Options.SacrificeSummon {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.ImprovedSayaad == 0 || warlock.Options.SacrificeSummon {
-	// 	return
-	// }
-	//
-	// //This might not actually increase the damage, find a source to prove this
-	// warlock.Succubus.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: 0.1 * float64(warlock.Talents.ImprovedSayaad),
-	// 	ClassMask:  WarlockSpellSuccubusLashOfPain,
-	// })
-}
-
-// TODO: To be implemented. Port the TBC Unholy Power implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyUnholyPower() {
-	if warlock.Talents.UnholyPower == 0 || warlock.Options.SacrificeSummon {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.UnholyPower == 0 || warlock.Options.SacrificeSummon {
-	// 	return
-	// }
-	//
-	// for _, pet := range warlock.Pets {
-	// 	if pet != &warlock.Imp.Pet {
-	// 		pet.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical] *= spellData.UnholyPower.MultiplierAt(warlock.Talents.UnholyPower)
-	// 	}
-	// }
-	//
-	// warlock.Imp.AddStaticMod(core.SpellModConfig{
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// 	FloatValue: spellData.UnholyPower.FractionAt(warlock.Talents.UnholyPower),
-	// 	ClassMask:  WarlockSpellImpFireBolt,
-	// })
-}
-
-// TODO: To be implemented. Port the TBC Demonic Sacrifice implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyDemonicSacrifice() {
-	if !warlock.Talents.DemonicSacrifice || warlock.Options.SacrificeSummon == false {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if !warlock.Talents.DemonicSacrifice || warlock.Options.SacrificeSummon == false {
-	// 	return
-	// }
-	//
-	// switch warlock.Options.Summon {
-	// case proto.WarlockOptions_Succubus:
-	// 	warlock.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexShadow] *= 1.15
-	// case proto.WarlockOptions_Imp:
-	// 	warlock.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexFire] *= 1.15
-	// case proto.WarlockOptions_Felhunter:
-	// 	warlock.applyDemonicSacrificeManaRegen(core.ActionID{SpellID: 18792}, 0.03)
-	// }
-}
-
-// TODO: To be implemented. Port the TBC Demonic Sacrifice Mana Regen implementation below; not yet verified against the Forever game files.
-// Demonic Sacrifice restores a percentage of maximum mana every 4 seconds, which is
-// independent of the sim's regular 2 second mana ticks.
-func (warlock *Warlock) applyDemonicSacrificeManaRegen(actionID core.ActionID, manaPercent float64) {
-
-	// The TBC implementation, kept for the port:
-	// manaMetrics := warlock.NewManaMetrics(actionID)
-	//
-	// warlock.RegisterResetEffect(func(sim *core.Simulation) {
-	// 	core.StartPeriodicAction(sim, core.PeriodicActionOptions{
-	// 		Period:   time.Second * 4,
-	// 		Priority: core.ActionPriorityRegen,
-	// 		OnAction: func(sim *core.Simulation) {
-	// 			warlock.AddMana(sim, warlock.MaxMana()*manaPercent, manaMetrics)
-	// 		},
-	// 	})
-	// })
-}
-
-// TODO: To be implemented. Port the TBC Master Demonologist implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyMasterDemonologist() {
-	if warlock.Talents.MasterDemonologist == 0 || warlock.Options.SacrificeSummon == true {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.MasterDemonologist == 0 || warlock.Options.SacrificeSummon == true {
-	// 	return
-	// }
-	// points := float64(warlock.Talents.MasterDemonologist)
-	//
-	// switch warlock.Options.Summon {
-	//
-	// case proto.WarlockOptions_Imp:
-	// 	warlock.MasterDemonologistAura = warlock.NewTemporaryStatsAura("Master Demonologist", core.ActionID{SpellID: (23825 + int32(points))}, stats.Stats{}, core.NeverExpires).Aura
-	// 	warlock.MasterDemonologistAura.AttachMultiplicativePseudoStatBuff(&warlock.PseudoStats.ThreatMultiplier, 1.0-0.04*points)
-	// 	for _, pet := range warlock.Pets {
-	// 		if pet == &warlock.Imp.Pet {
-	// 			pet.PseudoStats.ThreatMultiplier *= 1.0 - 0.04*points
-	// 		}
-	// 	}
-	// case proto.WarlockOptions_Succubus:
-	// 	warlock.MasterDemonologistAura = warlock.NewTemporaryStatsAura("Master Demonologist", core.ActionID{SpellID: (23832 + int32(points))}, stats.Stats{}, core.NeverExpires).Aura
-	// 	warlock.MasterDemonologistAura.AttachMultiplicativePseudoStatBuff(&warlock.PseudoStats.DamageDealtMultiplier, 1.0+0.02*points)
-	// 	for _, pet := range warlock.Pets {
-	// 		if pet == &warlock.Succubus.Pet {
-	// 			pet.PseudoStats.DamageDealtMultiplier *= 1.0 + 0.02*points
-	// 		}
-	// 	}
-	// case proto.WarlockOptions_Voidwalker:
-	// 	warlock.PseudoStats.BonusPhysicalDamageTaken *= 1.0 - 0.02*points
-	// 	warlock.MasterDemonologistAura = warlock.NewTemporaryStatsAura("Master Demonologist", core.ActionID{SpellID: (23840 + int32(points))}, stats.Stats{}, core.NeverExpires).Aura
-	// 	warlock.MasterDemonologistAura.AttachMultiplicativePseudoStatBuff(&warlock.PseudoStats.BonusPhysicalDamageTaken, 1.0-0.02*points)
-	// 	for _, pet := range warlock.Pets {
-	// 		if pet == &warlock.Voidwalker.Pet {
-	// 			pet.PseudoStats.BonusPhysicalDamageTaken *= 1.0 - 0.02*points
-	// 		}
-	// 	}
-	// case proto.WarlockOptions_Felhunter:
-	// 	resistsBonus := 0.20 * points * 70
-	// 	warlock.MasterDemonologistAura = warlock.NewTemporaryStatsAura("Master Demonologist", core.ActionID{SpellID: (23836 + int32(points))}, stats.Stats{}, core.NeverExpires).Aura
-	// 	warlock.MasterDemonologistAura.AttachStatsBuff(stats.Stats{
-	// 		stats.ArcaneResistance: resistsBonus,
-	// 		stats.FireResistance:   resistsBonus,
-	// 		stats.FrostResistance:  resistsBonus,
-	// 		stats.NatureResistance: resistsBonus,
-	// 		stats.ShadowResistance: resistsBonus,
-	// 	})
-	// 	for _, pet := range warlock.Pets {
-	// 		if pet == &warlock.Felhunter.Pet {
-	// 			pet.NewTemporaryStatsAura("Master Demonologist", core.ActionID{SpellID: (23836 + int32(points))}, stats.Stats{
-	// 				stats.ArcaneResistance: resistsBonus,
-	// 				stats.FireResistance:   resistsBonus,
-	// 				stats.FrostResistance:  resistsBonus,
-	// 				stats.NatureResistance: resistsBonus,
-	// 				stats.ShadowResistance: resistsBonus,
-	// 			}, core.NeverExpires)
-	// 		}
-	// 	}
-	// }
-	//
-}
-
-// TODO: To be implemented. Port the TBC Soul Link implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applySoulLink() {
-	if !warlock.Talents.SoulLink {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if !warlock.Talents.SoulLink {
-	// 	return
-	// }
-	//
-	// // TODO Add if/while pet is alive
-	// warlock.PseudoStats.DamageTakenMultiplier *= 0.80
-	// warlock.PseudoStats.DamageDealtMultiplier *= 1.05
-	//
-	// for _, pet := range warlock.Pets {
-	// 	pet.PseudoStats.DamageDealtMultiplier *= 1.05
-	// }
-}
-
-// TODO: To be implemented. Port the TBC Demonic Knowledge implementation below; not yet verified against the Forever game files.
-func (warlock *Warlock) applyDemonicKnowledge() {
-	if warlock.Talents.DemonicKnowledge == 0 {
-		return
-	}
-
-	// The TBC implementation, kept for the port:
-	// if warlock.Talents.DemonicKnowledge == 0 {
-	// 	return
-	// }
-	//
-	// warlock.DemonicKnowledgeAura = warlock.RegisterAura(core.Aura{
-	// 	Label:    "Demonic Knowledge",
-	// 	Duration: core.NeverExpires,
-	// })
-}
-
-func (warlock *Warlock) updateDemonicKnowledge(sim *core.Simulation) {
-	if warlock.DemonicKnowledgeBonus != 0 {
-		warlock.AddStatDynamic(sim, stats.SpellDamage, -warlock.DemonicKnowledgeBonus)
-	}
-
-	if warlock.ActivePet == nil {
-		warlock.DemonicKnowledgeBonus = 0
-		return
-	}
-
-	coeff := spellData.DemonicKnowledge.FractionAt(warlock.Talents.DemonicKnowledge)
-	bonus := coeff * (warlock.ActivePet.GetStat(stats.Stamina) + warlock.ActivePet.GetStat(stats.Intellect))
-
-	warlock.DemonicKnowledgeBonus = bonus
-	warlock.AddStatDynamic(sim, stats.SpellDamage, bonus)
-}
-
-// applyImprovedHealthFunnel implements Improved Health Funnel, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// TODO: Not implemented, as it does not affect sims for now: Health Funnel is not modelled.
 func (warlock *Warlock) applyImprovedHealthFunnel() {
 	if warlock.Talents.ImprovedHealthFunnel == 0 {
 		return
 	}
 }
 
-// applyImprovedVoidwalker implements Improved Voidwalker, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// Effect 2 raises Firebolt, on the Imp. Effect 1 (Fire Shield) and the dummy effect 3 do not affect sims.
+func (warlock *Warlock) applyImprovedImp() {
+	if warlock.Talents.ImprovedImp == 0 || warlock.Imp == nil {
+		return
+	}
+
+	spelldata.ParseStatic(&warlock.Imp.Character, spellData.ImprovedImp.Rank(warlock.Talents.ImprovedImp), spelldata.Effects(2))
+}
+
+// Effect 1 raises total Stamina, as the tooltip says.
+func (warlock *Warlock) applyDemonicEmbrace() {
+	if warlock.Talents.DemonicEmbrace == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.DemonicEmbrace.Rank(warlock.Talents.DemonicEmbrace), spelldata.Effects(1))
+}
+
+// All damage the demons deal. The row's modifier names no spell the sim registers, so it is the pet's own
+// damage multiplier; the Firebolt tooltip's $?s18769 reads this talent too.
+func (warlock *Warlock) applyUnholyPower() {
+	if warlock.Talents.UnholyPower == 0 {
+		return
+	}
+
+	unholyPowerMult := 1 + spellData.UnholyPower.Rank(warlock.Talents.UnholyPower).EffectN(1).Percent()
+	for _, pet := range warlock.demons() {
+		pet.PseudoStats.DamageDealtMultiplier *= unholyPowerMult
+	}
+}
+
+// --- Tier 2 ---
+
+// TODO: Not implemented, as it does not affect sims for now: it raises the Voidwalker's threat and defensive
+// abilities, which are not modelled.
 func (warlock *Warlock) applyImprovedVoidwalker() {
 	if warlock.Talents.ImprovedVoidwalker == 0 {
 		return
 	}
 }
 
-// applyFelVitality implements Fel Vitality, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// The demons' maximum health and mana (effect 1), and the warlock's maximum mana (effect 2). The parse skips
+// both, so they are applied here.
 func (warlock *Warlock) applyFelVitality() {
 	if warlock.Talents.FelVitality == 0 {
 		return
 	}
+
+	rank := spellData.FelVitality.Rank(warlock.Talents.FelVitality)
+	petMult, warlockMult := 1+rank.EffectN(1).Percent(), 1+rank.EffectN(2).Percent()
+
+	for _, pet := range warlock.demons() {
+		pet.MultiplyStat(stats.Health, petMult)
+		pet.MultiplyStat(stats.Mana, petMult)
+	}
+	warlock.MultiplyStat(stats.Mana, warlockMult)
 }
 
-// applyDemonicEnergies implements Demonic Energies, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// The demon gains a share of the mana Life Tap returns (lifetap.go). Healing the demon for a share of the
+// warlock's spell damage does not affect sims.
 func (warlock *Warlock) applyDemonicEnergies() {
 	if warlock.Talents.DemonicEnergies == 0 {
 		return
 	}
+
+	warlock.lifeTapPetShare = spellData.DemonicEnergies.Rank(warlock.Talents.DemonicEnergies).EffectN(2).Percent()
 }
 
-// applyMasterSummoner implements Master Summoner, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// --- Tier 3 ---
+
+// Raises Lash of Pain, on the Succubus. Effect 2 (Seduction's duration) does not affect sims.
+func (warlock *Warlock) applyImprovedSayaad() {
+	if warlock.Talents.ImprovedSayaad == 0 || warlock.Succubus == nil {
+		return
+	}
+
+	spelldata.ParseStatic(&warlock.Succubus.Character, spellData.ImprovedSayaad.Rank(warlock.Talents.ImprovedSayaad))
+}
+
+// The sacrificed demon grants its effect until a summon cancels it (summonDemon): the Imp 15% more
+// Shadow damage (18789), the Succubus 15% more Fire damage (18791), the Voidwalker mana every 4 sec (18792),
+// the Felhunter health every 4 sec (18790), which does not affect sims. The demon sacrificed before the
+// fight (settled in resolveSacrifice) is sacrificed at the start; casting the talent's spell (18788)
+// sacrifices the demon out. The row states no cast time, cost or cooldown.
+func (warlock *Warlock) applyDemonicSacrifice() {
+	if !warlock.Talents.DemonicSacrifice {
+		return
+	}
+
+	warlock.DemonicSacrificeAuras = map[proto.WarlockOptions_Summon]*core.Aura{}
+	for _, effect := range []struct {
+		summon proto.WarlockOptions_Summon
+		id     int32
+	}{
+		{proto.WarlockOptions_Imp, 18789},
+		{proto.WarlockOptions_Felhunter, 18790},
+		{proto.WarlockOptions_Succubus, 18791},
+		{proto.WarlockOptions_Voidwalker, 18792},
+	} {
+		summon := effect.summon
+		effectRow := spellData.DemonicSacrificeTriggered.ByID(effect.id)
+		auraConfig := spelldata.AuraConfig(effectRow)
+		auraConfig.Duration = core.NeverExpires
+		// Auras reset after the reset effects, so the demon sacrificed before the fight is marked here.
+		if summon == warlock.Options.SacrificedDemon {
+			auraConfig.OnReset = func(aura *core.Aura, sim *core.Simulation) {
+				warlock.sacrificedDemon = summon
+				aura.Activate(sim)
+			}
+		}
+		aura := warlock.RegisterAura(auraConfig)
+		spelldata.ParseEffects(&warlock.Character, aura, effectRow)
+		warlock.DemonicSacrificeAuras[summon] = aura
+
+		// Fel Energy's A_OBS_MOD_POWER: a share of maximum mana every period while the aura is up,
+		// which the parse skips.
+		if summon == proto.WarlockOptions_Voidwalker {
+			restore := effectRow.EffectN(1)
+			manaMetrics := warlock.NewManaMetrics(core.ActionID{SpellID: effectRow.ID})
+			var restoreAction *core.PendingAction
+			aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+				restoreAction = core.StartPeriodicAction(sim, core.PeriodicActionOptions{
+					Period: restore.Period(),
+					OnAction: func(sim *core.Simulation) {
+						warlock.AddMana(sim, warlock.MaxMana()*restore.Percent(), manaMetrics)
+					},
+				})
+			}).ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+				restoreAction.Cancel(sim)
+			})
+		}
+	}
+
+	warlock.RegisterResetEffect(func(_ *core.Simulation) {
+		warlock.sacrificedDemon = proto.WarlockOptions_NoSummon
+	})
+
+	config := spelldata.SpellConfig(&warlock.Unit, spellData.DemonicSacrifice.ByID(18788), spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
+		return warlock.ActivePet != nil && warlock.ActivePet.IsEnabled()
+	}
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		pet := warlock.ActivePet
+		// Before the dismissal, so a summon's stun ending does not set the sacrificed demon's swings going again
+		pet.summonStun.Deactivate(sim)
+		pet.Disable(sim)
+		warlock.ActivePet = nil
+
+		warlock.DemonicSacrificeAuras[warlock.sacrificedDemon].Deactivate(sim)
+		warlock.sacrificedDemon = pet.summon
+		warlock.DemonicSacrificeAuras[pet.summon].Activate(sim)
+	}
+	warlock.DemonicSacrifice = warlock.RegisterSpell(config)
+}
+
+// Shortens the summons' cast (effect 1) and lowers their cost (effect 2), through the class flags the
+// summon rows share.
 func (warlock *Warlock) applyMasterSummoner() {
 	if warlock.Talents.MasterSummoner == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.MasterSummoner.Rank(warlock.Talents.MasterSummoner))
 }
 
-// applyDecimation implements Decimation, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// --- Tier 4 ---
+
+// Effect 2 shortens Soul Fire's cooldown. Below 35% health (effect 3), Shadow Bolt and Searing Pain deal more
+// damage (effect 4), and a cast of either that lands grants Decimation (440873): for 10 sec Soul Fire casts
+// faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard.
 func (warlock *Warlock) applyDecimation() {
 	if warlock.Talents.Decimation == 0 {
 		return
 	}
+
+	rank := spellData.Decimation.Rank(warlock.Talents.Decimation)
+	spelldata.ParseStatic(&warlock.Character, rank, spelldata.Effects(2))
+
+	// The execute bonus, up from the moment the fight reaches 35%
+	executeBonus := rank.EffectN(4)
+	executeAura := warlock.RegisterAura(core.Aura{
+		Label:    "Decimation - Execute",
+		ActionID: core.ActionID{SpellID: rank.ID},
+		Duration: core.NeverExpires,
+	})
+	spelldata.ParseEffects(&warlock.Character, executeAura, rank, spelldata.Effects(4))
+
+	// TODO: The row states the threshold as effect 3 (35); the sim's execute phases are fixed, and 35 is one.
+	warlock.RegisterResetEffect(func(sim *core.Simulation) {
+		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
+			if isExecute == 35 {
+				executeAura.Activate(sim)
+			}
+		})
+	})
+
+	// The buff's row states the 2/2 value, -40%; the talent's effect 1 prices the rank (-20% at 1/2), so the
+	// buff takes the row's duration and Soul Fire's flags, and the rank's value.
+	decimationRow := spellData.DecimationTriggered.ByID(440873)
+	decimationAura := warlock.RegisterAura(spelldata.AuraConfig(decimationRow)).AttachSpellMod(core.SpellModConfig{
+		Kind:       core.SpellMod_CastTime_Pct,
+		ClassFlags: decimationRow.EffectN(1).ClassFlags,
+		FloatValue: rank.EffectN(1).Percent(),
+	})
+	noReagent := decimationRow.Effect(dbcenums.A_NO_REAGENT_USE, 0)
+	warlock.reagentWaivers = append(warlock.reagentWaivers, reagentWaiver{aura: decimationAura, flags: noReagent.ClassFlags})
+
+	// The buff comes with the cast, and only when its hit lands: a miss or a full resist grants nothing.
+	// Shadow Bolt and Searing Pain roll their hit at the cast, so the trigger reads its cast result, before a
+	// bolt lands.
+	warlock.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Decimation - Trigger",
+		Callback:       core.CallbackOnCastResult,
+		Outcome:        core.OutcomeLanded,
+		ClassFlags:     executeBonus.ClassFlags,
+		ClassSpellMask: WarlockSpellShadowBolt | WarlockSpellSearingPain,
+		// In the logs the buff comes in the same batch as the cast.
+		TriggerImmediately: true,
+		ExtraCondition: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return sim.IsExecutePhase35()
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			decimationAura.Activate(sim)
+		},
+	})
 }
 
-// applyFelDomination implements Fel Domination, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// For 15 sec, the next summon casts 5.5 sec faster (effect 1) for half the mana (effect 2), and spends
+// the buff.
 func (warlock *Warlock) applyFelDomination() {
 	if !warlock.Talents.FelDomination {
 		return
 	}
+
+	rankedSpell := spellData.FelDomination.ByID(18708)
+	summons := rankedSpell.EffectN(1).ClassFlags
+
+	auraConfig := spelldata.AuraConfig(rankedSpell)
+	auraConfig.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if spell.MatchesFlags(summons) {
+			aura.Deactivate(sim)
+		}
+	}
+	warlock.FelDominationAura = warlock.RegisterAura(auraConfig)
+	spelldata.ParseEffects(&warlock.Character, warlock.FelDominationAura, rankedSpell)
+
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Flags(core.SpellFlagAPL))
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		warlock.FelDominationAura.Activate(sim)
+	}
+	warlock.RegisterSpell(config)
 }
 
-// applyDemonicBrand implements Demonic Brand, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// Searing Pain brands the target (1293696) for 10 sec; the demon's next attacks against it each consume a
+// charge and deal the brand's damage (pets.go). Effect 1, Searing Pain's lower threat, is parsed.
+// The brand row has no charges of its own; the ladder's effect 2, a charges modifier, gives them, 2/4/6 by
+// rank: in the logs the brand lands with 6 at 3/3, though the tooltip reads 3.
 func (warlock *Warlock) applyDemonicBrand() {
 	if warlock.Talents.DemonicBrand == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.DemonicBrand.Rank(warlock.Talents.DemonicBrand), spelldata.Effects(1))
+	charges := int32(spellData.DemonicBrand.Rank(warlock.Talents.DemonicBrand).EffectN(2).BaseValue())
+
+	brandRow := spellData.DemonicBrandTriggered.ByID(1293696)
+	warlock.DemonicBrandAuras = warlock.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		auraConfig := spelldata.AuraConfig(brandRow, spelldata.RankLabel(brandRow, &warlock.Unit))
+		auraConfig.MaxStacks = charges
+		return target.GetOrRegisterAura(auraConfig)
+	})
+
+	warlock.MakeProcTriggerAura(core.ProcTrigger{
+		Name:     "Demonic Brand - Trigger",
+		Callback: core.CallbackOnSpellHitDealt,
+		Outcome:  core.OutcomeLanded,
+		// In the logs the brand lands in the same batch as Searing Pain's hit.
+		TriggerImmediately: true,
+		ActivatesAuras:     warlock.DemonicBrandAuras,
+		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return spellData.SearingPain.Contains(spell)
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			brand := warlock.DemonicBrandAuras.Get(result.Target)
+			brand.Activate(sim)
+			brand.SetStacks(sim, charges)
+		},
+	})
 }
 
-// applyImprovedFelhunter implements Improved Felhunter, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// --- Tier 5 ---
+
+// TODO: Not implemented, as it does not affect sims for now: it improves the Felhunter's utility abilities,
+// which are not modelled.
 func (warlock *Warlock) applyImprovedFelhunter() {
 	if warlock.Talents.ImprovedFelhunter == 0 {
 		return
 	}
 }
 
-// applyDemonicPact implements Demonic Pact, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// While a demon is out, it and the warlock deal more damage (25228, effect 1). The share of damage
+// the demon takes instead does not affect sims.
+func (warlock *Warlock) applySoulLink() {
+	if !warlock.Talents.SoulLink {
+		return
+	}
+
+	soulLinkMult := 1 + spellData.SoulLinkTriggered.ByID(25228).EffectN(1).Percent()
+
+	warlock.addPetActiveAura(warlock.RegisterAura(core.Aura{
+		Label:    "Soul Link",
+		ActionID: core.ActionID{SpellID: spellData.SoulLink.ByID(19028).ID},
+		Duration: core.NeverExpires,
+	}).AttachMultiplicativePseudoStatBuff(&warlock.PseudoStats.DamageDealtMultiplier, soulLinkMult))
+
+	for _, pet := range warlock.demons() {
+		pet.PseudoStats.DamageDealtMultiplier *= soulLinkMult
+	}
+}
+
+// While a demon is out, the warlock and the demon gain spell damage of up to the rank's share of the
+// warlock's level. The row's value is a dummy only the tooltip reads.
+func (warlock *Warlock) applyDemonicKnowledge() {
+	if warlock.Talents.DemonicKnowledge == 0 {
+		return
+	}
+
+	rank := spellData.DemonicKnowledge.Rank(warlock.Talents.DemonicKnowledge)
+	spellDamage := float64(warlock.Level) * rank.EffectN(1).Percent()
+
+	warlock.DemonicKnowledgeAura = warlock.RegisterAura(core.Aura{
+		Label:    "Demonic Knowledge",
+		ActionID: core.ActionID{SpellID: rank.ID},
+		Duration: core.NeverExpires,
+	}).AttachStatBuff(stats.SpellDamage, spellDamage)
+	warlock.addPetActiveAura(warlock.DemonicKnowledgeAura)
+
+	for _, pet := range warlock.demons() {
+		pet.AddStat(stats.SpellDamage, spellDamage)
+	}
+}
+
+// --- Tier 6 ---
+
+// Grants the warlock and the demon out an effect by demon, its four dummies read by the tooltip: the Imp
+// more Fire damage (effect 1), the Voidwalker less Physical damage taken (effect 2), the Succubus more Shadow
+// damage (effect 3), the Felhunter less magic damage taken (effect 4). The warlock's share lasts while
+// that demon is out; the demon's own is always on it, as it acts only while out.
+func (warlock *Warlock) applyMasterDemonologist() {
+	if warlock.Talents.MasterDemonologist == 0 {
+		return
+	}
+
+	rank := spellData.MasterDemonologist.Rank(warlock.Talents.MasterDemonologist)
+	for _, pet := range warlock.demons() {
+		warlock.applyMasterDemonologistFor(pet, rank)
+	}
+}
+
+func (warlock *Warlock) applyMasterDemonologistFor(pet *WarlockPet, rank *spelldata.Spell) {
+	var schools []stats.SchoolIndex
+	var amount float64
+	dealt := true
+	switch pet.summon {
+	case proto.WarlockOptions_Imp:
+		schools, amount = []stats.SchoolIndex{stats.SchoolIndexFire}, rank.EffectN(1).Percent()
+	case proto.WarlockOptions_Voidwalker:
+		schools, amount, dealt = []stats.SchoolIndex{stats.SchoolIndexPhysical}, rank.EffectN(2).Percent(), false
+	case proto.WarlockOptions_Succubus:
+		schools, amount = []stats.SchoolIndex{stats.SchoolIndexShadow}, rank.EffectN(3).Percent()
+	case proto.WarlockOptions_Felhunter:
+		schools, amount, dealt = []stats.SchoolIndex{stats.SchoolIndexArcane, stats.SchoolIndexFire, stats.SchoolIndexFrost,
+			stats.SchoolIndexHoly, stats.SchoolIndexNature, stats.SchoolIndexShadow}, rank.EffectN(4).Percent(), false
+	default:
+		return
+	}
+
+	multipliers := func(unit *core.Unit) []*float64 {
+		fields := make([]*float64, len(schools))
+		for i, school := range schools {
+			if dealt {
+				fields[i] = &unit.PseudoStats.SchoolDamageDealtMultiplier[school]
+			} else {
+				fields[i] = &unit.PseudoStats.SchoolDamageTakenMultiplier[school]
+			}
+		}
+		return fields
+	}
+
+	aura := warlock.RegisterAura(core.Aura{
+		Label:    "Master Demonologist - " + pet.Name,
+		ActionID: core.ActionID{SpellID: rank.ID, Tag: int32(pet.summon)},
+		Duration: core.NeverExpires,
+	})
+	for _, field := range multipliers(&warlock.Unit) {
+		aura.AttachMultiplicativePseudoStatBuff(field, 1+amount)
+	}
+	pet.ownerAuras = append(pet.ownerAuras, aura)
+
+	for _, field := range multipliers(&pet.Unit) {
+		*field *= 1 + amount
+	}
+}
+
+// --- Tier 7 ---
+
+// Keeps Demonic Sacrifice's effect through a summon of another demon: resolveSacrifice and summonDemon
+// read the talent.
 func (warlock *Warlock) applyDemonicPact() {
 	if !warlock.Talents.DemonicPact {
 		return

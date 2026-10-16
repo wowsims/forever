@@ -1,46 +1,37 @@
 package warlock
 
-var curseOfRecklessnessRank = spellData.CurseOfRecklessness.Highest()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. The body below builds the spell around the generated
-// aura and has not been checked against the game files past the aura itself.
+// The debuff is this warlock's own copy of the one the raid option builds, parsed from the row: -505
+// armor. Its category keeps it from stacking with another warlock's copy or a raid one. The row's dummy
+// +90 attack power for the target and its fear immunity are left out, as the raid debuff leaves them out.
 func (warlock *Warlock) registerCurseOfRecklessness() {
-	panic("To be implemented")
+	rankedSpell := spellData.CurseOfRecklessness.ByID(11717)
 
-	// The TBC implementation, kept for the port:
-	// warlock.CurseOfRecklessnessAuras = warlock.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-	// 	return buffs.NewSpellDataCurseOfRecklessnessAura(target, true, 0)
-	// })
-	// warlock.CurseOfRecklessness = warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: curseOfRecklessnessRank.ID},
-	// 	SpellSchool:    curseOfRecklessnessRank.SpellSchool(),
-	// 	DefenseType:    curseOfRecklessnessRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskEmpty,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: WarlockSpellCurseOfRecklessness,
-	// 	ClassFlags:     curseOfRecklessnessRank.ClassFlags,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(curseOfRecklessnessRank.Cost()),
-	// 	},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: curseOfRecklessnessRank.GCD(),
-	// 		},
-	// 	},
-	//
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	// 		if result.Landed() {
-	// 			warlock.DeactivateOtherCurses(sim, spell, target)
-	// 			warlock.CurseOfRecklessnessAuras.Get(target).Activate(sim)
-	// 		}
-	//
-	// 		spell.DealOutcome(sim, result)
-	// 	},
-	//
-	// 	RelatedAuraArrays: warlock.CurseOfRecklessnessAuras.ToMap(),
-	// })
+	warlock.CurseOfRecklessnessAuras = warlock.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		return buffs.NewSpellDataCurseOfRecklessnessAuraFor(target, &warlock.Unit)
+	})
+
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Flags(core.SpellFlagAPL))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ThreatMultiplier = 1
+	config.ClassSpellMask = WarlockSpellCurseOfRecklessness
+	config.RelatedAuraArrays = warlock.CurseOfRecklessnessAuras.ToMap()
+
+	// Roll to hit and apply in place of any other Curse
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
+		if result.Landed() {
+			warlock.deactivateOtherCurses(sim, spell, target)
+			warlock.CurseOfRecklessnessAuras.Get(target).Activate(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+
+	warlock.CurseOfRecklessness = warlock.RegisterSpell(config)
+	warlock.Curses = append(warlock.Curses, warlock.CurseOfRecklessness)
 }

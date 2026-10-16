@@ -149,12 +149,12 @@ func dropOtherSting(sim *core.Simulation, sting *core.Aura) {
 }
 
 func (hunter *Hunter) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
+	if hunter.Talents.TrueshotAura {
+		raidBuffs.TrueshotAura = true
+	}
 }
 
-func (hunter *Hunter) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
-	if hunter.Talents.TrueshotAura {
-		partyBuffs.TrueshotAura = true
-	}
+func (hunter *Hunter) AddPartyBuffs(_ *proto.PartyBuffs) {
 }
 
 func (hunter *Hunter) Reset(_ *core.Simulation) {

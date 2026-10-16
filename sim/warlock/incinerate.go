@@ -1,45 +1,38 @@
 package warlock
 
-var incinerateRank = spellData.Incinerate.Highest()
-var incinerateCoeff = incinerateRank.DamageEffect().Coeff()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. Port the TBC Incinerate implementation below; not yet verified against the Forever game files.
+// Granted by the Incinerate talent: effect 2 is the bonus against a target afflicted by Immolate.
+// TODO: Assumed any Immolate counts, not only this warlock's; confirm in-game.
 func (warlock *Warlock) registerIncinerate() {
-	panic("To be implemented")
+	rankedSpell := spellData.Incinerate.ByID(1293813)
+	incinerateHit := rankedSpell.DamageEffect()
+	immolateMult := 1 + rankedSpell.EffectN(2).Percent()
 
-	// The TBC implementation, kept for the port:
-	// warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: incinerateRank.ID},
-	// 	SpellSchool:    incinerateRank.SpellSchool(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	MissileSpeed:   float64(incinerateRank.Speed),
-	// 	ClassSpellMask: WarlockSpellIncinerate,
-	// 	ClassFlags:     incinerateRank.ClassFlags,
-	//
-	// 	ManaCost: core.ManaCostOptions{FlatCost: int32(incinerateRank.Cost())},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      incinerateRank.GCD(),
-	// 			CastTime: incinerateRank.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplierAdditive: 1,
-	// 	DefenseType:              incinerateRank.DefenseTypeCore(),
-	// 	ThreatMultiplier:         1,
-	// 	BonusCoefficient:         incinerateCoeff,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		baseDamage := incinerateRank.DamageEffect().Average(core.CharacterLevel)
-	// 		if warlock.Immolate.Dot(target).IsActive() {
-	// 			baseDamage += sim.Roll(111, 128)
-	// 		}
-	// 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMagicHitAndCrit)
-	//
-	// 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
-	// 			spell.DealDamage(sim, result)
-	// 		})
-	// 	},
-	// })
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellIncinerate
+
+	// Roll the damage and to hit, raised if any Immolate burns on the target, then land it after travel
+	// TODO: Confirm in game that the 25% raises the whole hit, spell power included.
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcDamage(sim, target, incinerateHit.Average(), spell.OutcomeMagicHitAndCrit)
+		if target.HasActiveAuraWithTag(immolateTag) {
+			scaleResult(sim, spell, result, immolateMult)
+		}
+		spell.DealDamageAfterTravel(sim, result)
+	}
+
+	// Calculate expected damage from the row's average hit, raised if any Immolate burns on the target
+	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		result := spell.CalcDamage(sim, target, incinerateHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+		if target.HasActiveAuraWithTag(immolateTag) {
+			scaleResult(sim, spell, result, immolateMult)
+		}
+		return result
+	}
+
+	warlock.Incinerate = warlock.RegisterSpell(config)
 }

@@ -165,8 +165,8 @@ func resolveBuff(t *spellTables, nodes []traitNode, spec buffmanifest.Row) (Reso
 // The spell's name, its row and duration, and the cooldown of a buff other
 // players cast on their own: the shared timer the sim hands the next source is
 // the cast's cooldown, and a totem's aura states neither how long the totem
-// stands nor when the next one may be dropped. Mana Tide is that row - 17360
-// carries the mana, the cast 17359 the 13 seconds and the 5 minutes.
+// stands nor when the next one may be dropped. Mana Tide is that row - 1325257
+// carries the mana, the cast 1325256 the 13 seconds and the 5 minutes.
 func loadBuffSpell(t *spellTables, row *ResolvedBuff) error {
 	if row.SpellID = row.BuffSpec.SpellID; row.SpellID == 0 {
 		return fmt.Errorf("names no spell")
@@ -811,7 +811,7 @@ func buffConstructor(row ResolvedBuff, rendered buffRow) string {
 // uptime calls a driver of a fixed name that sim/core/buffs/drivers.go declares,
 // and so does a row the manifest marks as driven. A driver is handed the whole
 // scope message rather than its own field, because a driven buff often reads a
-// second one: Grace of Air does nothing under Windfury Totem. Any other totem
+// second one: Flametongue Totem does nothing under Windfury Totem. Any other totem
 // stands through standTotem, which puts it on the character's true pets too
 // unless the row's spell says only a player can carry it.
 func buffApply(row ResolvedBuff, spellVar string) (string, string, bool) {

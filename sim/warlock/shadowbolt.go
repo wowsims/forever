@@ -1,52 +1,28 @@
 package warlock
 
-var shadowBoltRank = spellData.ShadowBolt.Highest()
-var shadowBoltCoeff = shadowBoltRank.DamageEffect().Coeff()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. Port the TBC Shadow Bolt implementation below; not yet verified against the Forever game files.
+// Nightfall's Shadow Trance makes it instant through the cast time modifier parsed onto that aura.
 func (warlock *Warlock) registerShadowBolt() {
-	panic("To be implemented")
+	rankedSpell := spellData.ShadowBolt.ByID(25307)
+	shadowBoltHit := rankedSpell.DamageEffect()
 
-	// The TBC implementation, kept for the port:
-	//
-	// warlock.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: shadowBoltRank.ID},
-	// 	SpellSchool:    shadowBoltRank.SpellSchool(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL,
-	// 	ClassSpellMask: WarlockSpellShadowBolt,
-	// 	ClassFlags:     shadowBoltRank.ClassFlags,
-	// 	MissileSpeed:   float64(shadowBoltRank.Speed),
-	//
-	// 	ManaCost: core.ManaCostOptions{FlatCost: int32(shadowBoltRank.Cost())},
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD:      shadowBoltRank.GCD(),
-	// 			CastTime: shadowBoltRank.CastTime(),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplierAdditive: 1,
-	// 	DefenseType:              shadowBoltRank.DefenseTypeCore(),
-	// 	ThreatMultiplier:         1,
-	// 	BonusCoefficient:         shadowBoltCoeff,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		dmgRoll := shadowBoltRank.DamageEffect().Average(core.CharacterLevel)
-	// 		result := spell.CalcDamage(sim, target, dmgRoll, spell.OutcomeMagicHitAndCrit)
-	// 		existingAura := target.GetAurasWithTag("ImprovedShadowBolt")
-	//
-	// 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
-	// 			spell.DealDamage(sim, result)
-	// 			if len(existingAura) == 0 || existingAura[0].Duration != core.NeverExpires {
-	// 				if result.Landed() && result.Outcome.Matches(core.OutcomeCrit) && warlock.Talents.ImprovedShadowBolt > 0 {
-	// 					if !warlock.ImpShadowboltAura.IsActive() {
-	// 						warlock.ImpShadowboltAura.Activate(sim)
-	// 					}
-	// 					warlock.ImpShadowboltAura.SetStacks(sim, 4)
-	// 				}
-	// 			}
-	// 		})
-	// 	},
-	// })
+	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = WarlockSpellShadowBolt
+
+	// Roll the damage and to hit, then land it after the bolt's travel time
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcDamage(sim, target, shadowBoltHit.Average(), spell.OutcomeMagicHitAndCrit)
+		spell.DealDamageAfterTravel(sim, result)
+	}
+
+	// Calculate expected damage from the row's average hit
+	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		return spell.CalcDamage(sim, target, shadowBoltHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+	}
+
+	warlock.ShadowBolt = warlock.RegisterSpell(config)
 }
