@@ -35,6 +35,8 @@ const meta = {
 		options: { control: false },
 		value: { control: 'select', options: OPTIONS.map(option => option.value) },
 		size: { control: 'select', options: [undefined, 'sm', 'xs'] },
+		tone: { control: 'select', options: ['accent', 'neutral'] },
+		orientation: { control: 'select', options: ['horizontal', 'vertical'] },
 	},
 	render: args => <StatefulToggleGroup {...args} />,
 } satisfies Meta<typeof ToggleGroup<View>>;
@@ -54,3 +56,49 @@ export const Default: Story = {
 export const Small: Story = { args: { size: 'sm' } };
 
 export const Disabled: Story = { args: { disabled: true } };
+
+export const Neutral: Story = { args: { tone: 'neutral', size: 'sm' } };
+
+export const Vertical: Story = {
+	args: {
+		tone: 'neutral',
+		size: 'sm',
+		orientation: 'vertical',
+		options: [
+			{
+				value: 'rotation',
+				label: (
+					<span className="grid grid-cols-1">
+						<span>Rotation</span>
+						<span className="text-xs opacity-75">Spell order and cooldowns</span>
+					</span>
+				),
+			},
+			{
+				value: 'dps',
+				label: (
+					<span className="grid grid-cols-1">
+						<span>DPS</span>
+						<span className="text-xs opacity-75">Damage per second over the fight</span>
+					</span>
+				),
+			},
+			{
+				value: 'threat',
+				label: (
+					<span className="grid grid-cols-1">
+						<span>Threat</span>
+						<span className="text-xs opacity-75">Threat per second over the fight</span>
+					</span>
+				),
+			},
+		],
+	},
+	decorators: [
+		Story => (
+			<div className="w-64">
+				<Story />
+			</div>
+		),
+	],
+};

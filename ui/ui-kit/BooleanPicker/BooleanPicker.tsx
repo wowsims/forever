@@ -12,7 +12,6 @@ export const BooleanPicker = ({
 	onChange,
 	disabled,
 	reverse,
-	size,
 	invalid,
 	className,
 	testId,
@@ -24,7 +23,6 @@ export const BooleanPicker = ({
 	const input = (
 		<Checkbox.Root
 			id={frameProps.id}
-			data-size={size}
 			aria-invalid={invalid || undefined}
 			aria-describedby={describedBy}
 			className={clsx('ui-boolean-picker-input inline-flex items-center justify-center p-0', !hasFrame && className)}
