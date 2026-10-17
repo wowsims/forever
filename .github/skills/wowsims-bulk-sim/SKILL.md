@@ -155,8 +155,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   (`ui/features/bulk/model/swappable_slots.ts`).
 - The Setup/Results tab strip spans the batch tab, and each pane has its own columns. Setup holds the settings
   sidebar. Results holds the ranking and, for a run with more than one finished encounter, an encounter list
-  (`BulkEncounterResults`); picking a row shows that encounter's ranking. With one result there is no list and the
-  ranking takes the full width.
+  (`BulkEncounterResults`, a vertical, neutral-tone `ToggleGroup`); picking a row shows that encounter's ranking.
+  With one result there is no list and the ranking takes the full width.
 - Progress is throttled (`BulkSimProgressThrottle` in Go, 100 ms in the browser emitter). Every stage, the
   finalist included, reports through the shared stage-metrics builder.
 

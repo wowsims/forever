@@ -44,7 +44,7 @@ const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = 
 			label={label}
 			labelTooltip={summary}
 			layout="inline"
-			size="sm"
+			density="compact"
 			value={checked}
 			disabled={disabled}
 			invalid={duplicate}
@@ -53,7 +53,7 @@ const EncounterCheckRow = ({ id, label, summary, checked, disabled, duplicate = 
 			testId={testId}
 		/>
 		<span id={`${id}-summary`} className="sr-only">
-			{summary}
+			{summary}.
 		</span>
 		{duplicate && (
 			<span id={`${id}-duplicate`} className="sr-only">

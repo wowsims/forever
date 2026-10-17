@@ -2,8 +2,8 @@ import i18n from '@i18n/config';
 import type { BulkEncounterResults as BulkEncounterResultsEntry } from '@sim/bulk/types';
 import { formatDeltaText } from '@sim/utils/format';
 import { Box } from '@ui-kit/Box';
-import { Button } from '@ui-kit/Button';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
+import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import type { ReactNode } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
@@ -34,31 +34,36 @@ export const BulkEncounterResultsView = ({ rows, selected, onSelect, footer }: B
 			<Box padding="md" className="grid gap-2 bg-background">
 				<h6 className="mb-0">{t('encounters')}</h6>
 				<p className="mb-0 text-xs">{t('encounters_caption')}</p>
-				{rows.map((row, index) => (
-					<Button
-						key={index}
-						size="sm"
-						variant={index === selected ? 'secondary' : 'outline-secondary'}
-						className="grid w-full grid-cols-1 text-left"
-						aria-pressed={index === selected}
-						onClick={() => onSelect(index)}>
-						<span className="flex min-w-0 items-baseline gap-2">
-							<span className="min-w-0 truncate" title={row.label}>
-								{row.label}
-							</span>{' '}
-							<span className="shrink-0 text-xs opacity-75">{row.durationLabel}</span>
-						</span>
-						<span className="whitespace-nowrap tabular-nums">
-							{row.bestDps}
-							{row.gain !== null && (
-								<>
-									{' '}
-									<span className="text-xs opacity-75">{row.gain}</span>
-								</>
-							)}
-						</span>
-					</Button>
-				))}
+				<ToggleGroup
+					tone="neutral"
+					orientation="vertical"
+					size="sm"
+					aria-label={t('encounters')}
+					value={String(selected)}
+					onChange={next => onSelect(Number(next))}
+					options={rows.map((row, index) => ({
+						value: String(index),
+						label: (
+							<span className="grid w-full min-w-0 grid-cols-1">
+								<span className="flex min-w-0 items-baseline gap-2">
+									<span className="min-w-0 truncate" title={row.label}>
+										{row.label}
+									</span>{' '}
+									<span className="shrink-0 text-xs opacity-75">{row.durationLabel}</span>
+								</span>
+								<span className="whitespace-nowrap tabular-nums">
+									{row.bestDps}
+									{row.gain !== null && (
+										<>
+											{' '}
+											<span className="text-xs opacity-75">{row.gain}</span>
+										</>
+									)}
+								</span>
+							</span>
+						),
+					}))}
+				/>
 				{footer}
 			</Box>
 		</div>

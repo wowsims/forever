@@ -146,8 +146,8 @@ describe('BulkSettings encounters group', () => {
 
 		expect(rows()).toHaveLength(2);
 		expect(rows().map(row => row.querySelector('label')?.textContent)).toEqual(['Patchwerk', 'Council']);
-		expect(descriptions('Patchwerk')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets']);
-		expect(descriptions('Council')).toEqual(['4:00 ±10s · bulk_tab.settings.encounters.targets']);
+		expect(descriptions('Patchwerk')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets.']);
+		expect(descriptions('Council')).toEqual(['4:00 ±10s · bulk_tab.settings.encounters.targets.']);
 		expect(hasLabelTooltip('Patchwerk')).toBe(true);
 		expect(hasLabelTooltip('Council')).toBe(true);
 		expect(screen.getByText('bulk_tab.settings.encounters.presets')).toBeTruthy();
@@ -170,11 +170,11 @@ describe('BulkSettings encounters group', () => {
 		expect(current.getAttribute('aria-checked')).toBe('true');
 		expect(current.getAttribute('aria-disabled')).toBe('true');
 		expect(hasLabelTooltip(name)).toBe(true);
-		expect(descriptions(name)).toEqual(['3:00 ±5s · bulk_tab.settings.encounters.targets']);
+		expect(descriptions(name)).toEqual(['3:00 ±5s · bulk_tab.settings.encounters.targets.']);
 
 		act(() => patchSlice(player.sim.store, 'encounter', { duration: 200, useHealth: true }));
 
-		expect(descriptions(name)).toEqual(['bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets']);
+		expect(descriptions(name)).toEqual(['bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets.']);
 	});
 
 	it('stores the checked refs in list order', () => {
@@ -208,9 +208,9 @@ describe('BulkSettings encounters group', () => {
 		});
 
 		expect(['Patchwerk', 'Patchwerk again', 'Council'].map(name => box(name).getAttribute('aria-invalid'))).toEqual([null, 'true', null]);
-		expect(descriptions('Patchwerk again')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets', 'bulk_tab.settings.encounters.duplicate']);
-		expect(descriptions('Council')).toEqual(['4:00 ±10s · bulk_tab.settings.encounters.targets']);
-		expect(descriptions('Patchwerk')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets']);
+		expect(descriptions('Patchwerk again')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets.', 'bulk_tab.settings.encounters.duplicate']);
+		expect(descriptions('Council')).toEqual(['4:00 ±10s · bulk_tab.settings.encounters.targets.']);
+		expect(descriptions('Patchwerk')).toEqual(['5:00 ±30s · bulk_tab.settings.encounters.targets.']);
 	});
 
 	it('points to the saved encounters when there is nothing to pick', () => {
