@@ -145,6 +145,21 @@ export const NarrowScrolls: Story = {
 	],
 };
 
+// A phone's width: the set column takes a third of it and its long item names wrap and hyphenate, two encounters fill
+// the rest and the others scroll sideways.
+export const Phone: Story = {
+	globals: { viewport: { value: 'mobile1', isRotated: false } },
+	args: tableArgs(COLUMNS, CURRENT_DPS, [
+		...ROWS,
+		row(
+			'set-5',
+			'S5',
+			['Thunderfury, Blessed Blade of the Windseeker', 'Spaulders of Valor (Enchant Shoulders - Zandalar Signet of Might)'],
+			[cell(6.2), cell(1.1), cell(0.8), cell(-0.6), cell(1.3), cell(1.5), cell(2.1), cell(0.7)],
+		),
+	]),
+};
+
 export const TwoEncounters: Story = {
 	args: tableArgs(
 		COLUMNS.slice(0, 2),

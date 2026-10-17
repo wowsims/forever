@@ -66,13 +66,16 @@ const TINT_CLASSES: Record<GainTint, string> = {
 };
 const TINTS: GainTint[] = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
 
-// The set column's width and each encounter column's narrowest, in spacing steps; past that the table scrolls sideways.
+// From md up, the set column's width (its col's md:w-64) and each encounter column's narrowest, in spacing steps; past
+// that the table scrolls sideways.
 const SET_COLUMN_STEPS = 64;
 const MIN_COLUMN_STEPS = 36;
 
-const CELL_CLASS = 'cursor-pointer py-4 text-center text-foreground tabular-nums data-best:outline-2 data-best:-outline-offset-2 data-best:outline-foreground';
+const CELL_CLASS = 'py-4 text-center text-foreground tabular-nums data-best:outline-2 data-best:-outline-offset-2 data-best:outline-foreground';
 const GAP_CLASS = 'border border-dashed border-surface-border py-4 text-center text-muted';
 const STICKY_CLASS = 'sticky left-0 z-10 bg-background text-left';
+// The ring fills the border spacing around each header cell, so rows scrolling under the header do not show through it.
+const HEADER_CLASS = 'sticky top-0 z-20 bg-background align-bottom text-base ring-4 ring-background';
 
 const Cell = ({ cell, tooltipId }: { cell: BulkCompareTableCell | null; tooltipId: string }) =>
 	cell ? (
@@ -111,28 +114,35 @@ const Legend = ({ low, high, lowTint, highTint }: BulkCompareTableLegend) => (
 export const BulkCompareTable = ({ columns, rows, legend }: BulkCompareTableProps) => {
 	const tooltipId = useId();
 	return (
-		<div className="grid min-w-0 gap-4">
+		// The table scrolls inside the dialog's height, so the header row stays at its top and the legend stays below it. The
+		// scroller is positioned so the gap cells' screen-reader text stays inside it and does not scroll the dialog body.
+		<div className="flex min-h-0 min-w-0 flex-col gap-4">
 			<p className="mb-0 text-sm">{t('table_caption')}</p>
-			<div className="min-w-0 overflow-x-auto">
-				{/* A fixed layout gives the set column its width and shares the rest equally among the encounters. */}
+			<div className="@container relative min-h-0 min-w-0 overflow-auto">
+				{/* A fixed layout gives the set column its width and shares the rest equally among the encounters. Below md
+				every column takes a third of the scroller's width, so two encounters show next to the set column and the rest
+				scroll sideways. */}
 				<Table
 					variant="plain"
 					dense
-					className="table-fixed border-separate border-spacing-1"
-					style={{ minWidth: `calc((${SET_COLUMN_STEPS} + ${columns.length} * ${MIN_COLUMN_STEPS}) * var(--spacing))` }}>
+					className="min-w-(--phone-min-width) table-fixed border-separate border-spacing-1 md:min-w-(--min-width)"
+					style={{
+						['--min-width' as string]: `calc((${SET_COLUMN_STEPS} + ${columns.length} * ${MIN_COLUMN_STEPS}) * var(--spacing))`,
+						['--phone-min-width' as string]: `calc(${columns.length + 1} * 100cqw / 3)`,
+					}}>
 					<colgroup>
-						<col style={{ width: `calc(${SET_COLUMN_STEPS} * var(--spacing))` }} />
+						<col className="w-[calc(100cqw/3)] md:w-64" />
 						{columns.map((_, index) => (
 							<col key={index} />
 						))}
 					</colgroup>
 					<thead>
 						<TableRow>
-							<TableHeaderCell scope="col" className={clsx(STICKY_CLASS, 'align-bottom text-base')}>
+							<TableHeaderCell scope="col" className={clsx(STICKY_CLASS, HEADER_CLASS, 'z-30')}>
 								{t('table_set')}
 							</TableHeaderCell>
 							{columns.map((column, index) => (
-								<TableHeaderCell key={index} scope="col" wrap className="align-bottom text-base">
+								<TableHeaderCell key={index} scope="col" wrap className={HEADER_CLASS}>
 									{column.label}
 									<span className="block text-sm font-normal text-muted">{column.length}</span>
 								</TableHeaderCell>
@@ -142,10 +152,13 @@ export const BulkCompareTable = ({ columns, rows, legend }: BulkCompareTableProp
 					<tbody>
 						{rows.map(row => (
 							<TableRow key={row.key}>
-								<TableHeaderCell scope="row" wrap className={clsx(STICKY_CLASS, 'align-middle font-normal')}>
+								<TableHeaderCell
+									scope="row"
+									wrap
+									className={clsx(STICKY_CLASS, 'align-middle font-normal max-md:wrap-break-word max-md:hyphens-auto')}>
 									{row.label}
 									{row.changes.map((item, index) => (
-										<span key={index} className="block truncate text-xs text-muted" title={item}>
+										<span key={index} className="block text-xs text-muted md:truncate" title={item}>
 											{item}
 										</span>
 									))}
