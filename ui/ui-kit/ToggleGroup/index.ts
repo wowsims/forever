@@ -1,1 +1,1 @@
-export { ToggleGroup, type ToggleGroupOption, type ToggleGroupProps, type ToggleGroupTone } from './ToggleGroup';
+export { ToggleGroup, type ToggleGroupOption, type ToggleGroupProps } from './ToggleGroup';
