@@ -1,85 +1,83 @@
 import i18n from '@i18n/config';
 import type { BulkEncounterResults } from '@sim/bulk/types';
-import { formatDeltaText, formatToNumber } from '@sim/utils/format';
-import { stDevToConf95 } from '@sim/utils/math';
+import { formatDeltaText, formatDurationSeconds, formatToNumber } from '@sim/utils/format';
 import { Dialog } from '@ui-kit/Dialog';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { type BulkComparison, bulkComparison, changedItemLabels, type ComparedBar, type ComparedEncounter } from '../../model/compare';
+import {
+	type BulkComparison,
+	bulkComparison,
+	changedItemLabels,
+	type ComparedBar,
+	type ComparedEncounter,
+	compareMatrix,
+	encounterRanks,
+	gainTint,
+} from '../../model/compare';
 import { formatBulkDps } from '../../model/format';
-import { BulkCompareChart, type BulkCompareGroup } from '../BulkCompareChart';
-import { BulkCompareTable, type BulkCompareTableCell, type BulkCompareTableRow } from '../BulkCompareTable';
+import { BulkCompareTable, type BulkCompareTableProps } from '../BulkCompareTable';
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.compare.${key}`, options);
 
-const setLabel = (bar: Pick<ComparedBar, 'isCurrent' | 'number'>) =>
-	bar.isCurrent ? i18n.t('bulk_tab.results.current_gear') : t('set', { number: bar.number });
+const currentLabel = () => i18n.t('bulk_tab.results.current_gear');
+
+const shortLabel = (number: number) => t('short_set', { number });
 
 const encounterLabel = ({ entry }: ComparedEncounter) => (entry.isCurrent ? i18n.t('bulk_tab.results.current') : entry.name);
 
-// As the result rows show a set's margin and its gain, without the significance colour.
-const formatted = (bar: ComparedBar): BulkCompareTableCell => ({
-	dps: formatBulkDps(bar.dpsMetrics.avg),
-	margin: formatToNumber(stDevToConf95(bar.dpsMetrics.stdev, bar.iterations), { maximumFractionDigits: 0 }),
-	gain: bar.isCurrent ? null : formatDeltaText(bar.dpsMetrics.avg - bar.gain, bar.dpsMetrics.avg, 2, undefined, true, true).text,
-});
+const lengthLabel = (duration: number) => formatDurationSeconds(duration, { separatorStyle: 'colon', minimumUnit: 'minutes' });
 
-const chartGroups = ({ encounters }: BulkComparison): BulkCompareGroup[] =>
-	encounters.map(encounter => ({
-		label: encounterLabel(encounter),
-		summary: encounter.entry.summaryLabel,
-		bars: encounter.bars.map(bar => {
-			const { dps, margin, gain } = formatted(bar);
-			const set = setLabel(bar);
-			return {
-				key: bar.key,
-				label: set,
-				isCurrent: bar.isCurrent,
-				avg: bar.dpsMetrics.avg,
-				details: gain === null ? t('details', { set, dps, margin }) : t('details_gain', { set, dps, margin, gain }),
-			};
-		}),
-	}));
+// The rank and DPS with the fight-to-fight spread, the ± the sim results card shows, then the gain over the current gear.
+// The current gear's own cells (rank null) carry neither rank nor gain.
+const cellTooltip = (bar: ComparedBar, { entry }: ComparedEncounter, rank: number | null): string => {
+	const base = entry.results.originalGearResults.dpsMetrics;
+	const { avg, stdev } = bar.dpsMetrics;
+	const dps = formatBulkDps(avg);
+	const spread = t('readout_spread', { spread: formatToNumber(stdev, { maximumFractionDigits: 0 }) });
+	if (rank === null) return `${t('readout_current', { dps })} ${spread}`;
+	return `${t('readout_rank', { rank, dps })} ${spread} · ${formatDeltaText(base.avg, avg, 2, undefined, true, true).text}`;
+};
 
-// The current gear first, then every set by number, each with its result where an encounter ranked it.
-const tableRows = ({ encounters, sets, current }: BulkComparison): BulkCompareTableRow[] => {
-	const cellsOf = (key: string) =>
-		encounters.map(encounter => {
-			const bar = encounter.bars.find(candidate => candidate.key === key);
-			return bar ? formatted(bar) : null;
-		});
-	const currentKey = encounters[0]?.bars.find(bar => bar.isCurrent)?.key ?? '';
-	return [
-		{ key: currentKey, label: setLabel({ isCurrent: true, number: 0 }), changes: [], cells: cellsOf(currentKey) },
-		...sets.map(set => ({
-			key: set.key,
-			label: setLabel({ isCurrent: false, number: set.number }),
-			changes: current ? changedItemLabels(set.gear, current) : [],
-			cells: cellsOf(set.key),
+const gainLabel = (gainPct: number) => `${formatToNumber(gainPct, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' })}%`;
+
+const tableProps = (comparison: BulkComparison): BulkCompareTableProps => {
+	const { encounters, current } = comparison;
+	const { rows, scale } = compareMatrix(comparison);
+	const ranks = encounters.map(encounterRanks);
+	return {
+		columns: encounters.map(encounter => ({
+			label: encounterLabel(encounter),
+			length: encounter.entry.duration === null ? encounter.entry.durationLabel : lengthLabel(encounter.entry.duration),
 		})),
-	];
+		rows: rows.map(({ key, set, cells }) => ({
+			key,
+			label: set ? shortLabel(set.number) : currentLabel(),
+			changes: set && current ? changedItemLabels(set.gear, current) : [],
+			cells: cells.map(
+				(cell, index) =>
+					cell && {
+						gain: gainLabel(cell.gainPct),
+						dps: formatBulkDps(cell.bar.dpsMetrics.avg),
+						tint: cell.tint,
+						best: cell.best,
+						tooltip: cellTooltip(cell.bar, encounters[index], set ? (ranks[index].get(key) ?? null) : null),
+					},
+			),
+		})),
+		legend: {
+			low: gainLabel(scale.low),
+			high: gainLabel(scale.high),
+			lowTint: gainTint(scale.low, scale),
+			highTint: gainTint(scale.high, scale),
+		},
+	};
 };
 
 // The dialog's popup mounts this on open, so the comparison is built only while the dialog shows.
 const BulkCompareBody = ({ entries }: { entries: readonly BulkEncounterResults[] }) => {
-	const [highlighted, setHighlighted] = useState<string | null>(null);
-	const { comparison, groups, rows } = useMemo(() => {
-		const comparison = bulkComparison(entries);
-		return { comparison, groups: chartGroups(comparison), rows: tableRows(comparison) };
-	}, [entries]);
-
-	return (
-		<div className="grid grid-cols-1 gap-6">
-			<BulkCompareChart groups={groups} highlighted={highlighted} onHighlight={setHighlighted} />
-			<BulkCompareTable
-				encounters={comparison.encounters.map(encounter => ({ label: encounterLabel(encounter), summary: encounter.entry.summaryLabel }))}
-				rows={rows}
-				highlighted={highlighted}
-				onHighlight={setHighlighted}
-			/>
-		</div>
-	);
+	const table = useMemo(() => tableProps(bulkComparison(entries)), [entries]);
+	return <BulkCompareTable {...table} />;
 };
 
 export interface BulkCompareDialogProps {

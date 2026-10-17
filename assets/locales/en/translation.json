@@ -1252,15 +1252,15 @@
 		"compare": {
 			"button": "Compare encounters",
 			"title": "Compare encounters",
-			"caption": "Each encounter's own ranking, on a DPS scale of its own given under its name. A set keeps its number in every encounter; point at one to pick it out everywhere.",
-			"set": "Set {{number}}",
-			"scale": "Scale {{min}} – {{max}} DPS",
-			"key_ranked": "Ranked set",
-			"details": "{{set}}: {{dps}} ±{{margin}} DPS",
-			"details_gain": "{{set}}: {{dps}} ±{{margin}} DPS, {{gain}} over current gear",
-			"chart_label": "{{encounter}}: the DPS of each set it ranked. The table below lists the same values.",
-			"table_caption": "Each set's DPS and gain over your current gear in the encounters that ranked it.",
-			"table_set": "Set"
+			"short_set": "S{{number}}",
+			"readout_rank": "#{{rank}} · {{dps}} DPS",
+			"readout_current": "{{dps}} DPS",
+			"readout_spread": "±{{spread}} per fight",
+			"not_ranked": "Not ranked",
+			"table_caption": "Each set's gain over your current gear in every encounter, its DPS underneath. A dashed cell is an encounter that did not rank the set; point at a cell for its rank and spread.",
+			"table_set": "Gear set",
+			"table_legend_best": "Best in the encounter",
+			"table_legend_gap": "Not ranked in that encounter"
 		},
 		"import_modal": {
 			"title": "Bag Item Import",

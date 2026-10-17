@@ -6,7 +6,7 @@ import { EquippedItem } from '@sim/proto/equipped_item';
 import { Gear } from '@sim/proto/gear';
 import { describe, expect, it } from 'vitest';
 
-import { bulkComparison, changedItemLabels, dpsAxisRange } from './compare';
+import { bulkComparison, changedItemLabels, compareMatrix, encounterRanks, gainTint, type MatrixRow } from './compare';
 
 const equipped = (id: number, enchant?: UIEnchant) =>
 	new EquippedItem({ item: UIItem.create({ id, name: `Item ${id}`, type: ItemType.ItemTypeHead, scalingOptions: { 0: { ilvl: 60 } } }), enchant });
@@ -22,7 +22,7 @@ const B = gearSet(3);
 const C = gearSet(4);
 
 // An encounter ranking `ranked` and the current gear at 1000 DPS, best first, as the run stores it.
-const entry = (name: string, duration: number | null, ranked: Array<[Gear, number]>, iterations = 100): BulkEncounterResults => {
+const entry = (name: string, duration: number | null, ranked: Array<[Gear, number]>): BulkEncounterResults => {
 	const base = result(CURRENT, 1000);
 	const chains = [...ranked.map(([gear, avg]) => result(gear, avg)), base].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg).map(ranking => [ranking]);
 	return {
@@ -32,7 +32,7 @@ const entry = (name: string, duration: number | null, ranked: Array<[Gear, numbe
 		summaryLabel: '',
 		duration,
 		durationVariation: duration === null ? null : 5,
-		results: { chains, originalGearResults: base, iterations },
+		results: { chains, originalGearResults: base, iterations: 100 },
 	};
 };
 
@@ -45,7 +45,7 @@ const ENTRIES = [
 		[B, 1030],
 		[gearSet(2), 990],
 	]),
-	entry('Council', 90, [[A, 1020]], 400),
+	entry('Council', 90, [[A, 1020]]),
 ];
 
 describe('bulkComparison', () => {
@@ -53,20 +53,20 @@ describe('bulkComparison', () => {
 		const { encounters } = bulkComparison(ENTRIES);
 
 		expect(encounters.map(encounter => encounter.entry.name)).toEqual(['Council', 'Current', 'Patchwerk']);
-		expect(encounters.map(encounter => encounter.bars.map(bar => [bar.dpsMetrics.avg, bar.gain, bar.iterations]))).toEqual([
+		expect(encounters.map(encounter => encounter.bars.map(bar => [bar.dpsMetrics.avg, bar.gain]))).toEqual([
 			[
-				[1020, 20, 400],
-				[1000, 0, 400],
+				[1020, 20],
+				[1000, 0],
 			],
 			[
-				[1030, 30, 100],
-				[1000, 0, 100],
-				[990, -10, 100],
+				[1030, 30],
+				[1000, 0],
+				[990, -10],
 			],
 			[
-				[1100, 100, 100],
-				[1050, 50, 100],
-				[1000, 0, 100],
+				[1100, 100],
+				[1050, 50],
+				[1000, 0],
 			],
 		]);
 	});
@@ -87,16 +87,78 @@ describe('bulkComparison', () => {
 	});
 });
 
-describe('dpsAxisRange', () => {
-	it('ends at the longest bar and starts where the shortest keeps a third of its length', () => {
-		const { min, max } = dpsAxisRange([1000, 1060, 1030]);
+describe('encounterRanks', () => {
+	it('ranks the sets an encounter ranked from 1, leaving the current gear out', () => {
+		const [, current] = bulkComparison(ENTRIES).encounters;
 
-		expect([min, max]).toEqual([970, 1060]);
-		expect((1000 - min) / (max - min)).toBeCloseTo(1 / 3);
+		expect([...encounterRanks(current).values()]).toEqual([1, 2]);
+	});
+});
+
+describe('gainTint', () => {
+	it('tints next to no change neutral, then one step for each fifth of the table’s largest gain', () => {
+		const scale = { low: 0, high: 10 };
+		const tintOf = (gainPct: number) => gainTint(gainPct, scale);
+
+		expect([0, 0.04, -0.04].map(tintOf)).toEqual([0, 0, 0]);
+		expect([0.05, 2, 2.01, 6, 6.01, 8, 8.01, 10].map(tintOf)).toEqual([1, 1, 2, 3, 4, 4, 5, 5]);
 	});
 
-	it('gives a lone value a bar of its own', () => {
-		expect(dpsAxisRange([800])).toEqual({ min: 792, max: 800 });
+	it('measures losses and gains against the largest of either, so a smaller side never reaches the darkest step', () => {
+		const scale = { low: -4, high: 2 };
+		const tintOf = (gainPct: number) => gainTint(gainPct, scale);
+
+		expect([-4, -1, 1, 2].map(tintOf)).toEqual([-5, -2, 2, 3]);
+	});
+
+	it('tints every cell neutral where no set changes anything', () => {
+		expect(gainTint(0, { low: 0, high: 0 })).toBe(0);
+	});
+});
+
+describe('compareMatrix', () => {
+	const cellsOf = (row: MatrixRow) => row.cells.map(cell => (cell ? [cell.gainPct, cell.tint, cell.best] : null));
+
+	it('puts the current gear first, then every set by number, with a gap where an encounter did not rank the set', () => {
+		const { rows } = compareMatrix(bulkComparison(ENTRIES));
+
+		expect(rows.map(row => row.set?.number ?? 'current')).toEqual(['current', 1, 2, 3]);
+		expect(rows.map(cellsOf)).toEqual([
+			[
+				[0, 0, false],
+				[0, 0, false],
+				[0, 0, false],
+			],
+			[
+				[2, 1, true],
+				[-1, -1, false],
+				[5, 3, false],
+			],
+			[null, [3, 2, true], null],
+			[null, null, [10, 5, true]],
+		]);
+	});
+
+	it('tints the whole table on one scale, from its lowest gain to its highest, 0 included', () => {
+		expect(compareMatrix(bulkComparison(ENTRIES)).scale).toEqual({ low: -1, high: 10 });
+
+		const gainsOnly = compareMatrix(bulkComparison([entry('Short', 60, [[A, 1100]]), entry('Long', 300, [[B, 1040]])]));
+
+		expect(gainsOnly.scale).toEqual({ low: 0, high: 10 });
+		expect(gainsOnly.rows.map(cellsOf)).toEqual([
+			[
+				[0, 0, false],
+				[0, 0, false],
+			],
+			[[10, 5, true], null],
+			[null, [4, 2, true]],
+		]);
+	});
+
+	it('marks the current gear best where every set the encounter ranked does worse', () => {
+		const [current, set] = compareMatrix(bulkComparison([entry('Solo', 60, [[A, 990]])])).rows;
+
+		expect([current.cells[0]!.best, set.cells[0]!.best]).toEqual([true, false]);
 	});
 });
 

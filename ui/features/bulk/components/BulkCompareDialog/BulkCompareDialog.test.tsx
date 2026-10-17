@@ -1,21 +1,16 @@
-// The dialog over a real store holding three finished encounters; chart.js is stubbed. With no locale loaded every string
-// is its key, so sets are told apart by their DPS and their changed helm.
+// The dialog over a real store holding three finished encounters. With no locale loaded every string is its key, so sets
+// are told apart by their gains.
+//
+// The fixture, in display order: Council (1:30) ranks S1 1,030, S2 1,020, S3 990; Patchwerk (5:00) S2 1,100, S4 1,090,
+// S5 1,080; Ragnaros (health-based) S6 12,500, S1 1,150, S2 1,120. The current gear does 1,000 in each, and every result
+// spreads ±10 a fight.
 import { SimHostProvider } from '@sim/context/SimHostContext';
-import { fakeCharts } from '@testing/chart-js-mock';
 import { makeBulkCompareHost } from '@testing/storybook/fixtures/bulk-compare';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
-import type { ActiveElement, ChartOptions } from 'chart.js';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { BulkCompareDialog } from './BulkCompareDialog';
-
-vi.mock('chart.js', async () => (await import('@testing/chart-js-mock')).chartJsMock);
-
-type FakeChart = {
-	config: { data: { datasets: Array<{ data: number[]; backgroundColor: string[]; hoverBackgroundColor: string[] }> }; options: ChartOptions<'bar'> };
-};
-const charts = fakeCharts as FakeChart[];
 
 const rootElem = document.createElement('div');
 
@@ -31,96 +26,52 @@ const mount = () => {
 };
 
 const dialog = () => within(screen.getByRole('dialog'));
-const drawn = () => charts.map(chart => chart.config.data.datasets[0].data);
-// Which bars are dimmed, by the alpha a dimmed bar's colour ends in.
-const dimmed = () => charts.map(chart => chart.config.data.datasets[0].backgroundColor.map(color => color.endsWith('4d')));
-const bodyRows = () => within(dialog().getByRole('table')).getAllByRole('row').slice(1);
-const hoverBar = async (chart: number, bar: number) => {
-	const onHover = charts[chart].config.options.onHover as unknown as (event: unknown, elements: ActiveElement[]) => void;
-	await act(async () => onHover(undefined, bar < 0 ? [] : [{ index: bar } as ActiveElement]));
-};
-
-beforeEach(() => {
-	charts.length = 0;
-});
+const bodyRows = () => dialog().getAllByRole('row').slice(1);
+const cells = (row: HTMLElement) => within(row).getAllByRole('cell');
+const shown = (row: HTMLElement) =>
+	cells(row).map(cell => (cell.hasAttribute('data-gap') ? 'gap' : `${cell.firstElementChild!.textContent}${cell.hasAttribute('data-best') ? ' best' : ''}`));
 
 describe('BulkCompareDialog', () => {
-	it('draws one chart per encounter, shortest first and health-based last, each with its own ranking and the current gear', () => {
+	it('shows the table straight away, with no view switch', () => {
 		mount();
 
-		expect(drawn()).toEqual([
-			[1030, 1020, 1000, 990],
-			[1100, 1090, 1080, 1000],
-			[12500, 1150, 1120, 1000],
-		]);
-		expect(dialog().getAllByRole('img', { name: 'bulk_tab.compare.chart_label' })).toHaveLength(3);
-		expect(
-			dialog()
-				.getAllByRole('heading', { level: 3 })
-				.map(heading => heading.firstChild?.textContent),
-		).toEqual(['Council', 'Patchwerk', 'Ragnaros']);
+		expect(dialog().getByRole('table')).toBeTruthy();
+		expect(screen.getByRole('dialog').querySelector('[aria-pressed]')).toBeNull();
 	});
 
-	it('picks a set out in every chart and in the table while its bar is hovered, dimming the other sets but not the current gear', async () => {
+	it('gives every encounter a column by length, the health-based one last', () => {
 		mount();
 
-		await hoverBar(1, 0);
-
-		expect(dimmed()).toEqual([
-			[true, false, false, true],
-			[false, true, true, false],
-			[true, true, false, false],
-		]);
-		expect(charts.map(chart => chart.config.data.datasets[0].hoverBackgroundColor)).toEqual(
-			charts.map(chart => chart.config.data.datasets[0].backgroundColor),
-		);
-		expect(bodyRows().map(row => row.hasAttribute('data-active'))).toEqual([false, false, true, false, false, false, false]);
-
-		await hoverBar(1, -1);
-
-		expect(
-			dimmed()
-				.flat()
-				.every(isDimmed => !isDimmed),
-		).toBe(true);
-		expect(bodyRows().some(row => row.hasAttribute('data-active'))).toBe(false);
+		const headers = within(dialog().getAllByRole('row')[0]).getAllByRole('columnheader');
+		expect(headers.map(header => header.firstChild!.textContent)).toEqual(['bulk_tab.compare.table_set', 'Council', 'Patchwerk', 'Ragnaros']);
 	});
 
-	it('picks a set out in every chart while its table row is hovered', async () => {
-		mount();
-
-		await act(async () => fireEvent.mouseEnter(bodyRows()[0]));
-
-		expect(dimmed()).toEqual([
-			[true, true, false, true],
-			[true, true, true, false],
-			[true, true, true, false],
-		]);
-
-		await act(async () => fireEvent.mouseLeave(bodyRows()[0]));
-
-		expect(dimmed().flat().some(Boolean)).toBe(false);
-	});
-
-	it('tables the current gear, then every set by the number it first got, with a cell only where an encounter ranked it', () => {
+	it('lists the current gear, then every set by number, with gaps and each encounter’s best marked', () => {
 		mount();
 
 		const rows = bodyRows();
-		const cells = (row: HTMLElement) =>
-			within(row)
-				.getAllByRole('cell')
-				.map(cell => cell.textContent);
+		expect(rows.map(row => within(row).getByRole('rowheader').firstChild!.textContent)).toEqual([
+			'bulk_tab.results.current_gear',
+			...Array.from({ length: 6 }, () => 'bulk_tab.compare.short_set'),
+		]);
+		const [current, s1, , , , , s6] = rows;
+		expect(shown(current)).toEqual(['0.00%', '0.00%', '0.00%']);
+		expect(shown(s1)).toEqual(['+3.00% best', 'gap', '+15.00%']);
+		expect(shown(s6)).toEqual(['gap', 'gap', '+1,150.00% best']);
+	});
 
-		expect(
-			rows.map(
-				row =>
-					within(row)
-						.getByRole('rowheader')
-						.textContent?.match(/Helm \d+/)?.[0] ?? '',
-			),
-		).toEqual(['', 'Helm 3', 'Helm 2', 'Helm 6', 'Helm 4', 'Helm 5', 'Helm 7']);
-		expect(cells(rows[0]).every(cell => /^1,000\.00 ±\d+$/.test(cell!))).toBe(true);
-		expect(cells(rows[3])).toEqual([expect.stringMatching(/^990\.00 ±\d+-10\.00 \(1\.01%\)$/), '', '']);
-		expect(cells(rows[2]).map(cell => cell!.split(' ')[0])).toEqual(['1,020.00', '1,100.00', '1,120.00']);
+	it('names the items a set changes under its label', () => {
+		mount();
+
+		const [, s1] = bodyRows();
+		expect(within(s1).getByText('Helm 3')).toBeTruthy();
+	});
+
+	it('gives each cell its rank, spread and gain as a tooltip, and the current gear’s its DPS and spread only', () => {
+		mount();
+
+		const [current, s1] = bodyRows();
+		expect(cells(s1)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_rank bulk_tab.compare.readout_spread · +30.00 (3.00%)');
+		expect(cells(current)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_current bulk_tab.compare.readout_spread');
 	});
 });

@@ -3,7 +3,7 @@ import { REPO_RELEASES_URL } from '@sim/constants/other';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
-import { createSimStore } from '@sim/state/sim_store';
+import { createSimStore, patchSlice } from '@sim/state/sim_store';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -191,5 +191,16 @@ describe('BulkTabBody', () => {
 		fireEvent.click(exportButton());
 
 		expect(downloadString).toHaveBeenCalledWith(expect.any(String), 'wowsims-batch-results.csv', 'text/csv');
+	});
+
+	it('offers Compare encounters under the encounter list only with power tools on', () => {
+		const player = mount(THREE);
+		const compareButton = () => within(sidebar()!).queryByText('bulk_tab.compare.button');
+
+		expect(compareButton()).toBeNull();
+
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+
+		expect(compareButton()).not.toBeNull();
 	});
 });

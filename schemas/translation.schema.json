@@ -4512,29 +4512,29 @@
 					"properties": {
 						"button": { "type": "string" },
 						"title": { "type": "string" },
-						"caption": { "type": "string" },
-						"set": { "type": "string" },
-						"scale": { "type": "string" },
-						"key_ranked": { "type": "string" },
-						"details": { "type": "string" },
-						"details_gain": { "type": "string" },
-						"chart_label": { "type": "string" },
+						"short_set": { "type": "string" },
+						"readout_rank": { "type": "string" },
+						"readout_current": { "type": "string" },
+						"readout_spread": { "type": "string" },
+						"not_ranked": { "type": "string" },
 						"table_caption": { "type": "string" },
-						"table_set": { "type": "string" }
+						"table_set": { "type": "string" },
+						"table_legend_best": { "type": "string" },
+						"table_legend_gap": { "type": "string" }
 					},
 					"additionalProperties": false,
 					"required": [
 						"button",
 						"title",
-						"caption",
-						"set",
-						"scale",
-						"key_ranked",
-						"details",
-						"details_gain",
-						"chart_label",
+						"short_set",
+						"readout_rank",
+						"readout_current",
+						"readout_spread",
+						"not_ranked",
 						"table_caption",
-						"table_set"
+						"table_set",
+						"table_legend_best",
+						"table_legend_gap"
 					]
 				},
 				"import_modal": {

@@ -33,13 +33,15 @@ interface MountOptions {
 	presets?: Array<{ name: string; encounter: Encounter }>;
 	saved?: Record<string, Encounter>;
 	checked?: BulkEncounterRef[];
+	powerTools?: boolean;
 }
 
-const mount = ({ reforger = null, presets = [], saved = {}, checked = [] }: MountOptions = {}) => {
+const mount = ({ reforger = null, presets = [], saved = {}, checked = [], powerTools = true }: MountOptions = {}) => {
 	const record = Object.entries(saved).map(([name, encounter]) => [name, SavedEncounter.toJson(SavedEncounter.create({ encounter }))]);
 	localStorage.setItem(SAVED_ENCOUNTERS_KEY, JSON.stringify(Object.fromEntries(record)));
 	const store = createSimStore();
 	patchSlice(store, 'encounter', CURRENT);
+	patchSlice(store, 'ui', { showPowerTools: powerTools });
 	const gear = { getEquippedItem: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotFinger1 ? RING : null) };
 	seedKeyed(store, 'players', STORE_KEY, { gear, v: zeroVersions(PLAYER_FIELDS) } as never);
 	const player = {
@@ -217,6 +219,28 @@ describe('BulkSettings encounters group', () => {
 		expect(rows()).toHaveLength(0);
 		expect(screen.getByText('bulk_tab.settings.encounters.empty')).toBeTruthy();
 		expect(screen.getByTestId('bulk-encounter-current')).toBeTruthy();
+	});
+
+	it('counts every encounter the batch will run', () => {
+		mount({ presets: [{ name: 'Patchwerk', encounter: PATCHWERK }], saved: { Council: COUNCIL }, checked: [ref('Patchwerk', true), ref('Council')] });
+
+		expect(screen.getByTestId('bulk-encounters-count').textContent).toBe('× 3');
+	});
+
+	it('hides the group and counts the current encounter alone with power tools off, keeping the checked ones', () => {
+		const checked = [ref('Patchwerk', true), ref('Council')];
+		const presets = [{ name: 'Patchwerk', encounter: PATCHWERK }];
+		const { player, container } = mount({ presets, saved: { Council: COUNCIL }, checked, powerTools: false });
+		const trigger = () => container.querySelector('[data-testid="bulk-settings-group-encounters-trigger"]');
+
+		expect(trigger()).toBeNull();
+		expect(screen.queryByTestId('bulk-encounters-count')).toBeNull();
+		expect(bulkState(player).encounters).toEqual(checked);
+
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+
+		expect(trigger()).not.toBeNull();
+		expect(screen.getByTestId('bulk-encounters-count').textContent).toBe('× 3');
 	});
 });
 

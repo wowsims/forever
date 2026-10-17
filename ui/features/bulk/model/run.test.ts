@@ -4,6 +4,7 @@ import { Encounter, ItemSlot, Target } from '@generated/proto/common';
 import { BulkEncounterRef, SavedEncounter, UIEnchant } from '@generated/proto/ui';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
+import { patchSlice } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
@@ -47,8 +48,9 @@ const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets:
 
 const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
 
-const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('Same as current'), ref('Gone'), ref('Council')]) => {
+const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('Same as current'), ref('Gone'), ref('Council')], powerTools = true) => {
 	const player = makeBulkPlayer({ getGear: () => GEAR, setGearAsync: vi.fn(async () => {}) });
+	patchSlice(player.sim.store, 'ui', { showPowerTools: powerTools });
 	const saved = { 'Same as current': CURRENT, Council: COUNCIL };
 	player.sim.env.storage.setItem(
 		SAVED_KEY,
@@ -66,6 +68,7 @@ const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('S
 			waitForInit: async () => {},
 			signalManager: { abortType: vi.fn(async () => {}) },
 			getBulkCombinationCount: async () => ({ combinations: 1, iterations: 1 }),
+			getShowPowerTools: () => player.sim.store.getState().ui.showPowerTools,
 		},
 		individualConfig: { presets: { encounters: [{ name: 'Patchwerk', encounter: PATCHWERK }] } },
 		getSavedEncounterStorageKey: () => SAVED_KEY,
@@ -112,6 +115,25 @@ describe('runBulkBatch', () => {
 
 		expect(overrides()).toEqual([CURRENT]);
 		expect(bulkState(host.player).results!.entries).toHaveLength(1);
+	});
+
+	it('runs only the current encounter with power tools off, keeping the checked ones for when they are back on', async () => {
+		const checked = [ref('Patchwerk', true), ref('Council')];
+		const host = batchHost(checked, false);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(overrides()).toEqual([CURRENT]);
+		expect(bulkEncounterSteps(host.player).labels).toHaveLength(1);
+		expect(bulkState(host.player).results!.entries.map(entry => entry.isCurrent)).toEqual([true]);
+		expect(bulkState(host.player).encounters).toEqual(checked);
+
+		vi.mocked(runCoreBulkSim).mockClear();
+		patchSlice(host.player.sim.store, 'ui', { showPowerTools: true });
+		await runBulkBatch(host);
+
+		expect(overrides()).toEqual([CURRENT, PATCHWERK, COUNCIL]);
 	});
 
 	it('keeps the finished encounters when cancelled', async () => {

@@ -223,7 +223,9 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 	run.isCancelling = false;
 	run.progress = null;
-	const encounterRuns = bulkEncounterRuns(sim.encounter.toProto(), checkedBulkEncounters(pickableBulkEncounters(host), bulkState(player).encounters));
+	// Without power tools the batch runs the current encounter alone; the checked encounters stay stored for when they are back.
+	const picked = sim.getShowPowerTools() ? checkedBulkEncounters(pickableBulkEncounters(host), bulkState(player).encounters) : [];
+	const encounterRuns = bulkEncounterRuns(sim.encounter.toProto(), picked);
 	run.steps = {
 		labels: encounterRuns.map(
 			encounterRun =>

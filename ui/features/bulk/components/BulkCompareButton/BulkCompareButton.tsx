@@ -1,4 +1,5 @@
 import i18n from '@i18n/config';
+import { useUiStore } from '@sim/hooks/useUiStore';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { useState } from 'react';
@@ -11,13 +12,15 @@ export interface BulkCompareButtonViewProps {
 
 export const BulkCompareButtonView = ({ onOpen }: BulkCompareButtonViewProps) => (
 	<Button variant="outline-primary" size="sm" onClick={onOpen}>
-		<Icon name="scale-balanced" />
+		<Icon name="table-cells" />
 		{i18n.t('bulk_tab.compare.button')}
 	</Button>
 );
 
 export const BulkCompareButton = () => {
+	const shown = useUiStore('showPowerTools');
 	const [open, setOpen] = useState(false);
+	if (!shown) return null;
 	return (
 		<>
 			<BulkCompareButtonView onOpen={() => setOpen(true)} />

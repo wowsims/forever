@@ -1,7 +1,8 @@
 export {
 	BulkCompareTable,
 	type BulkCompareTableCell,
-	type BulkCompareTableEncounter,
+	type BulkCompareTableColumn,
+	type BulkCompareTableLegend,
 	type BulkCompareTableProps,
 	type BulkCompareTableRow,
 } from './BulkCompareTable';

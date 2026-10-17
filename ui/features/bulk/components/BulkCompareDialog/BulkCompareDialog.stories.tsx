@@ -12,7 +12,6 @@ const meta = {
 	component: BulkCompareDialog,
 	tags: ['autodocs'],
 	args: { open: true, onOpenChange: fn() },
-	parameters: { smoke: false, smokeReason: 'chart.js needs a canvas' },
 	decorators: [
 		Story => (
 			<SimHostProvider host={host}>

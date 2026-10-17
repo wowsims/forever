@@ -4,6 +4,7 @@ import i18n from '@i18n/config';
 import { BulkSimItemSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { usePlayer, useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
+import { useUiStore } from '@sim/hooks/useUiStore';
 import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
@@ -35,6 +36,7 @@ export interface BulkSettingsViewProps {
 	onRun: () => void;
 	openGroups: string[];
 	onOpenGroupsChange: (groups: string[]) => void;
+	/** Null hides the group, as with power tools off. */
 	encounters: ReactNode;
 	enchants: ReactNode;
 	frozenItems: ReadonlyArray<ChoiceFieldProps<number>>;
@@ -68,12 +70,14 @@ export const BulkSettingsView = ({
 					{combinationsCount}
 				</RunCard>
 				<Accordion value={openGroups} onValueChange={onOpenGroupsChange} variant="boxed">
-					<AccordionItem
-						value={BULK_SETTINGS_GROUP.encounters}
-						title={i18n.t('bulk_tab.settings.groups.encounters')}
-						testId="bulk-settings-group-encounters">
-						{encounters}
-					</AccordionItem>
+					{encounters != null && (
+						<AccordionItem
+							value={BULK_SETTINGS_GROUP.encounters}
+							title={i18n.t('bulk_tab.settings.groups.encounters')}
+							testId="bulk-settings-group-encounters">
+							{encounters}
+						</AccordionItem>
+					)}
 					<AccordionItem
 						value={BULK_SETTINGS_GROUP.enchants}
 						title={i18n.t('bulk_tab.settings.groups.enchants')}
@@ -144,6 +148,7 @@ export const BulkSettings = () => {
 	const frozenWeaponSlot = useBulkState(slice => slice.frozenWeaponSlot);
 	const canRun = useBulkState(slice => canRunBatch(slice, bulkCombinationsLimit(player.sim.isNative)));
 	const gear = usePlayerStore('gear');
+	const powerTools = useUiStore('showPowerTools');
 	const [openGroups, setOpenGroups] = useBulkSettingsGroups();
 
 	// Clearing a frozen item whose slot no longer holds it writes to the store; that is not safe
@@ -175,7 +180,7 @@ export const BulkSettings = () => {
 			onRun={() => void runBulkBatch(host)}
 			openGroups={openGroups}
 			onOpenGroupsChange={setOpenGroups}
-			encounters={<Encounters />}
+			encounters={powerTools ? <Encounters /> : null}
 			enchants={<EnchantPresets />}
 			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
 			weaponFreeze={
