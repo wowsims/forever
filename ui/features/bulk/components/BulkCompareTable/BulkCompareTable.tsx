@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { cssVars } from '@ui-kit/utils/css';
 import clsx from 'clsx';
 import { useId } from 'react';
 
@@ -33,7 +34,7 @@ export interface BulkCompareTableRow {
 }
 
 /** The table's lowest gain and its highest, each with the tint it takes. */
-export interface BulkCompareTableLegend {
+interface BulkCompareTableLegend {
 	low: string;
 	high: string;
 	lowTint: GainTint;
@@ -126,10 +127,10 @@ export const BulkCompareTable = ({ columns, rows, legend }: BulkCompareTableProp
 					variant="plain"
 					dense
 					className="min-w-(--phone-min-width) table-fixed border-separate border-spacing-1 md:min-w-(--min-width)"
-					style={{
-						['--min-width' as string]: `calc((${SET_COLUMN_STEPS} + ${columns.length} * ${MIN_COLUMN_STEPS}) * var(--spacing))`,
-						['--phone-min-width' as string]: `calc(${columns.length + 1} * 100cqw / 3)`,
-					}}>
+					style={cssVars({
+						'--min-width': `calc((${SET_COLUMN_STEPS} + ${columns.length} * ${MIN_COLUMN_STEPS}) * var(--spacing))`,
+						'--phone-min-width': `calc(${columns.length + 1} * 100cqw / 3)`,
+					})}>
 					<colgroup>
 						<col className="w-[calc(100cqw/3)] md:w-64" />
 						{columns.map((_, index) => (

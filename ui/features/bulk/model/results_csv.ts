@@ -1,5 +1,4 @@
 import type { ItemSlot } from '@generated/proto/common';
-import i18n from '@i18n/config';
 import { translateSlotName } from '@i18n/localization';
 import type { BulkEncounterResults } from '@sim/bulk/types';
 import { ActionId } from '@sim/proto/action_id';
@@ -7,6 +6,7 @@ import type { EquippedItem } from '@sim/proto/equipped_item';
 import { type CsvValue, toCsv } from '@sim/utils/csv';
 import { stDevToConf95 } from '@sim/utils/math';
 
+import { encounterLabel } from './encounters';
 import { formatBulkItemLabel } from './format';
 
 export const BULK_RESULTS_CSV_FILE_NAME = 'wowsims-batch-results.csv';
@@ -30,7 +30,7 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string
 	const slots: ItemSlot[] = entries[0]?.results.originalGearResults.gear.getItemSlots() ?? [];
 	const rows = entries.flatMap(entry => {
 		const { chains, originalGearResults: base, iterations } = entry.results;
-		const encounter = entry.isCurrent ? i18n.t('bulk_tab.results.current') : entry.name;
+		const encounter = encounterLabel(entry);
 		return chains.flat().map((result, index): CsvValue[] => {
 			const avg = result.dpsMetrics.avg;
 			const diff = avg - base.dpsMetrics.avg;

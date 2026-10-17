@@ -22,7 +22,6 @@ const entry = (iterations: number): BulkEncounterResults => {
 	return {
 		name: '',
 		isCurrent: true,
-		durationLabel: '3:00 ±5s',
 		duration: 180,
 		durationVariation: 5,
 		results: { chains: [[result(1100)], [baseline]], originalGearResults: baseline, iterations },
@@ -33,7 +32,7 @@ const mount = (entries: BulkEncounterResults[]) => {
 	const store = createSimStore();
 	const player = { sim: { store, getIterations: () => 100 }, storeKey: STORE_KEY } as unknown as Player<any>;
 	seedBulkSettings(player);
-	patchBulkState(player, { started: true, results: { entries } });
+	patchBulkState(player, { started: true, results: entries });
 	const host = { player, sim: player.sim } as never;
 	return render(
 		<SimHostProvider host={host}>

@@ -19,7 +19,7 @@ export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
 		return started ? null : <div className="flex items-center justify-center p-6">{i18n.t('bulk_tab.results.run_simulation')}</div>;
 	}
 
-	const { results: shown } = results.entries[selected] ?? results.entries[0];
+	const { results: shown } = results[selected];
 	const iterations = shown.iterations;
 	return (
 		<div>

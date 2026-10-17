@@ -6,7 +6,7 @@ import { EquippedItem } from '@sim/proto/equipped_item';
 import { Gear } from '@sim/proto/gear';
 import { describe, expect, it } from 'vitest';
 
-import { bulkComparison, changedItemLabels, compareMatrix, encounterRanks, gainTint, type MatrixRow } from './compare';
+import { changedItemLabels, compareMatrix, gainTint, type MatrixRow } from './compare';
 
 const equipped = (id: number, enchant?: UIEnchant) =>
 	new EquippedItem({ item: UIItem.create({ id, name: `Item ${id}`, type: ItemType.ItemTypeHead, scalingOptions: { 0: { ilvl: 60 } } }), enchant });
@@ -28,7 +28,6 @@ const entry = (name: string, duration: number | null, ranked: Array<[Gear, numbe
 	return {
 		name,
 		isCurrent: false,
-		durationLabel: '',
 		duration,
 		durationVariation: duration === null ? null : 5,
 		results: { chains, originalGearResults: base, iterations: 100 },
@@ -47,51 +46,70 @@ const ENTRIES = [
 	entry('Council', 90, [[A, 1020]]),
 ];
 
-describe('bulkComparison', () => {
-	it('orders the encounters by duration, health-based last, each with its own ranking and the current gear in it', () => {
-		const { encounters } = bulkComparison(ENTRIES);
+describe('compareMatrix', () => {
+	const cellsOf = (row: MatrixRow) => row.cells.map(cell => (cell ? [cell.gainPct, cell.tint, cell.best] : null));
 
-		expect(encounters.map(encounter => encounter.entry.name)).toEqual(['Council', 'Current', 'Patchwerk']);
-		expect(encounters.map(encounter => encounter.bars.map(bar => [bar.dpsMetrics.avg, bar.gain]))).toEqual([
-			[
-				[1020, 20],
-				[1000, 0],
-			],
-			[
-				[1030, 30],
-				[1000, 0],
-				[990, -10],
-			],
-			[
-				[1100, 100],
-				[1050, 50],
-				[1000, 0],
-			],
+	it('orders the columns by duration, health-based last', () => {
+		expect(compareMatrix(ENTRIES).columns.map(column => column.name)).toEqual(['Council', 'Current', 'Patchwerk']);
+	});
+
+	it('numbers each set where it first shows, reading the columns in order, and keeps the number in every column', () => {
+		const { rows } = compareMatrix(ENTRIES);
+
+		expect(rows.map(row => row.set && [row.set.number, row.set.gear.getEquippedItem(ItemSlot.ItemSlotHead)!.id])).toEqual([null, [1, 2], [2, 3], [3, 4]]);
+	});
+
+	it('ranks the sets in each column from 1, the current gear taking no rank', () => {
+		const { rows } = compareMatrix(ENTRIES);
+
+		expect(rows.map(row => row.cells.map(cell => (cell ? cell.rank : 'gap')))).toEqual([
+			[null, null, null],
+			[1, 2, 2],
+			['gap', 1, 'gap'],
+			['gap', 'gap', 1],
 		]);
 	});
 
-	it('numbers each set where it first shows and keeps the number in every encounter, leaving the current gear out', () => {
-		const { encounters, sets } = bulkComparison(ENTRIES);
-		const numberOf = (key: string) => sets.find(set => set.key === key)?.number;
+	it('puts the current gear first, then every set by number, with a gap where an encounter did not rank the set', () => {
+		const { rows } = compareMatrix(ENTRIES);
 
-		expect(encounters.map(encounter => encounter.bars.map(bar => (bar.isCurrent ? 'current' : numberOf(bar.key))))).toEqual([
-			[1, 'current'],
-			[2, 'current', 1],
-			[3, 1, 'current'],
-		]);
-		expect(sets.map(set => [set.number, set.gear.getEquippedItem(ItemSlot.ItemSlotHead)!.id])).toEqual([
-			[1, 2],
-			[2, 3],
-			[3, 4],
+		expect(rows.map(row => row.set?.number ?? 'current')).toEqual(['current', 1, 2, 3]);
+		expect(rows.map(cellsOf)).toEqual([
+			[
+				[0, 0, false],
+				[0, 0, false],
+				[0, 0, false],
+			],
+			[
+				[2, 1, true],
+				[-1, -1, false],
+				[5, 3, false],
+			],
+			[null, [3, 2, true], null],
+			[null, null, [10, 5, true]],
 		]);
 	});
-});
 
-describe('encounterRanks', () => {
-	it('ranks the sets an encounter ranked from 1, leaving the current gear out', () => {
-		const [, current] = bulkComparison(ENTRIES).encounters;
+	it('tints the whole table on one scale, from its lowest gain to its highest, 0 included', () => {
+		expect(compareMatrix(ENTRIES).scale).toEqual({ low: -1, high: 10 });
 
-		expect([...encounterRanks(current).values()]).toEqual([1, 2]);
+		const gainsOnly = compareMatrix([entry('Short', 60, [[A, 1100]]), entry('Long', 300, [[B, 1040]])]);
+
+		expect(gainsOnly.scale).toEqual({ low: 0, high: 10 });
+		expect(gainsOnly.rows.map(cellsOf)).toEqual([
+			[
+				[0, 0, false],
+				[0, 0, false],
+			],
+			[[10, 5, true], null],
+			[null, [4, 2, true]],
+		]);
+	});
+
+	it('marks the current gear best where every set the encounter ranked does worse', () => {
+		const [current, set] = compareMatrix([entry('Solo', 60, [[A, 990]])]).rows;
+
+		expect([current.cells[0]!.best, set.cells[0]!.best]).toEqual([true, false]);
 	});
 });
 
@@ -116,58 +134,35 @@ describe('gainTint', () => {
 	});
 });
 
-describe('compareMatrix', () => {
-	const cellsOf = (row: MatrixRow) => row.cells.map(cell => (cell ? [cell.gainPct, cell.tint, cell.best] : null));
-
-	it('puts the current gear first, then every set by number, with a gap where an encounter did not rank the set', () => {
-		const { rows } = compareMatrix(bulkComparison(ENTRIES));
-
-		expect(rows.map(row => row.set?.number ?? 'current')).toEqual(['current', 1, 2, 3]);
-		expect(rows.map(cellsOf)).toEqual([
-			[
-				[0, 0, false],
-				[0, 0, false],
-				[0, 0, false],
-			],
-			[
-				[2, 1, true],
-				[-1, -1, false],
-				[5, 3, false],
-			],
-			[null, [3, 2, true], null],
-			[null, null, [10, 5, true]],
-		]);
-	});
-
-	it('tints the whole table on one scale, from its lowest gain to its highest, 0 included', () => {
-		expect(compareMatrix(bulkComparison(ENTRIES)).scale).toEqual({ low: -1, high: 10 });
-
-		const gainsOnly = compareMatrix(bulkComparison([entry('Short', 60, [[A, 1100]]), entry('Long', 300, [[B, 1040]])]));
-
-		expect(gainsOnly.scale).toEqual({ low: 0, high: 10 });
-		expect(gainsOnly.rows.map(cellsOf)).toEqual([
-			[
-				[0, 0, false],
-				[0, 0, false],
-			],
-			[[10, 5, true], null],
-			[null, [4, 2, true]],
-		]);
-	});
-
-	it('marks the current gear best where every set the encounter ranked does worse', () => {
-		const [current, set] = compareMatrix(bulkComparison([entry('Solo', 60, [[A, 990]])])).rows;
-
-		expect([current.cells[0]!.best, set.cells[0]!.best]).toEqual([true, false]);
-	});
-});
-
 describe('changedItemLabels', () => {
+	const pair = (first: ItemSlot, second: ItemSlot, ids: [number, number]) => new Gear({ [first]: equipped(ids[0]), [second]: equipped(ids[1]) });
+
 	it('names the items worn where the current gear wears something else, an enchant change included', () => {
 		const crusader = UIEnchant.create({ effectId: 1900, name: 'Crusader' });
 		const current = gearSet(1, equipped(7));
 
-		expect(changedItemLabels(gearSet(1, equipped(7)), current)).toEqual([]);
-		expect(changedItemLabels(gearSet(2, equipped(7, crusader)), current)).toEqual(['Item 2', 'Item 7 (Crusader)']);
+		expect(changedItemLabels(gearSet(1, equipped(7)), current, false)).toEqual([]);
+		expect(changedItemLabels(gearSet(2, equipped(7, crusader)), current, false)).toEqual(['Item 2', 'Item 7 (Crusader)']);
+	});
+
+	it.each([
+		['rings', ItemSlot.ItemSlotFinger1, ItemSlot.ItemSlotFinger2],
+		['trinkets', ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
+	])('names nothing where the %s only change places', (_, first, second) => {
+		expect(changedItemLabels(pair(first, second, [11, 10]), pair(first, second, [10, 11]), false)).toEqual([]);
+	});
+
+	it('names a new item in a pair', () => {
+		const current = pair(ItemSlot.ItemSlotFinger1, ItemSlot.ItemSlotFinger2, [10, 11]);
+
+		expect(changedItemLabels(pair(ItemSlot.ItemSlotFinger1, ItemSlot.ItemSlotFinger2, [10, 12]), current, false)).toEqual(['Item 12']);
+	});
+
+	it('takes swapped weapons for no change only for a player who can dual wield', () => {
+		const current = pair(ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, [20, 21]);
+		const swapped = pair(ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, [21, 20]);
+
+		expect(changedItemLabels(swapped, current, true)).toEqual([]);
+		expect(changedItemLabels(swapped, current, false)).toEqual(['Item 21', 'Item 20']);
 	});
 });

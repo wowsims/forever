@@ -7,7 +7,7 @@ import { Spinner } from '@ui-kit/Spinner';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { TooltipButton } from '@ui-kit/TooltipButton';
 import clsx from 'clsx';
-import { useId } from 'react';
+import { useId, useMemo } from 'react';
 
 import { useBulkEncounters } from '../../hooks/useBulkEncounters';
 import { useBulkState } from '../../hooks/useBulkState';
@@ -77,7 +77,8 @@ export const CombinationsCount = () => {
 	const pending = useBulkState(slice => slice.combinationsPending);
 	const combinations = useBulkState(slice => slice.combinations);
 	const iterations = useBulkState(slice => slice.iterations);
-	const { current, picked } = useBulkEncounters();
+	const { current, entries, checked, powerTools } = useBulkEncounters();
+	const encounters = useMemo(() => bulkEncounterRuns(current, entries, checked, powerTools).length, [current, entries, checked, powerTools]);
 
 	return (
 		<CombinationsCountView
@@ -85,7 +86,7 @@ export const CombinationsCount = () => {
 			combinations={combinations}
 			iterations={iterations}
 			iterationsLimit={bulkIterationsLimit(sim.isNative)}
-			encounters={bulkEncounterRuns(current, picked).length}
+			encounters={encounters}
 		/>
 	);
 };

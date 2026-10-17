@@ -65,15 +65,14 @@ describe('BulkTabBody', () => {
 	};
 	const result = (avg: number) => ({ gear: gear(), dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
 
-	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`.
-	const entry = (name: string, durationLabel: string, best: number, isCurrent = false): BulkEncounterResults => {
+	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`; a null length is a health-based encounter.
+	const entry = (name: string, length: [duration: number, variation: number] | null, best: number, isCurrent = false): BulkEncounterResults => {
 		const baseline = result(BASELINE_DPS);
 		return {
 			name,
 			isCurrent,
-			durationLabel,
-			duration: 180,
-			durationVariation: 5,
+			duration: length?.[0] ?? null,
+			durationVariation: length?.[1] ?? null,
 			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100 },
 		};
 	};
@@ -82,7 +81,7 @@ describe('BulkTabBody', () => {
 		const store = createSimStore();
 		const player = { sim: { store, isNative: false }, storeKey: STORE_KEY } as unknown as Player<any>;
 		seedBulkSettings(player);
-		patchBulkState(player, { started: entries !== null, results: entries && { entries } });
+		patchBulkState(player, { started: entries !== null, results: entries });
 		const host = { player, sim: player.sim } as never;
 		render(
 			<SimHostProvider host={host}>
@@ -104,7 +103,7 @@ describe('BulkTabBody', () => {
 	// ends, which never happens here, so `inert` marks the pane that is going away.
 	const paneOf = (element: Element) => element.closest('[data-testid="tab-pane"]')!;
 	const isShown = (element: Element) => !element.closest('[hidden], [inert]');
-	const THREE = [entry('', '3:00 ±5s', 1100, true), entry('Patchwerk', '5:00 ±30s', 1036.5), entry('Council', 'Health', 1250)];
+	const THREE = [entry('', [180, 5], 1100, true), entry('Patchwerk', [300, 30], 1036.5), entry('Council', null, 1250)];
 
 	it('shows the batch settings inside the Setup pane and no encounter list', () => {
 		mount(null);
@@ -123,14 +122,14 @@ describe('BulkTabBody', () => {
 		expect(sidebarRows().map(row => row.textContent)).toEqual([
 			'bulk_tab.results.current 3:00 ±5s1,100.00 +100.00 (10.00%)',
 			'Patchwerk 5:00 ±30s1,036.50 +36.50 (3.65%)',
-			'Council Health1,250.00 +250.00 (25.00%)',
+			'Council bulk_tab.settings.encounters.health_summary1,250.00 +250.00 (25.00%)',
 		]);
 		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
 		expect(shownBest()).toBe('1100');
 	});
 
 	it('shows only the DPS for an encounter where the current gear stays best', () => {
-		mount([entry('', '3:00 ±5s', 1100, true), entry('Patchwerk', '5:00 ±30s', BASELINE_DPS)]);
+		mount([entry('', [180, 5], 1100, true), entry('Patchwerk', [300, 30], BASELINE_DPS)]);
 
 		expect(sidebarRows()[1].textContent).toBe('Patchwerk 5:00 ±30s1,000.00');
 	});
@@ -148,14 +147,14 @@ describe('BulkTabBody', () => {
 		const player = mount(THREE);
 		fireEvent.click(sidebarRows()[1]);
 
-		act(() => patchBulkState(player, { results: { entries: THREE.slice() } }));
+		act(() => patchBulkState(player, { results: THREE.slice() }));
 
 		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
 		expect(shownBest()).toBe('1100');
 	});
 
 	it('shows no encounter list for a run with one finished result', () => {
-		mount([entry('', '3:00 ±5s', 1100, true)]);
+		mount([entry('', [180, 5], 1100, true)]);
 
 		expect(sidebar()).toBeNull();
 		expect(isShown(settings())).toBe(false);
@@ -184,7 +183,7 @@ describe('BulkTabBody', () => {
 	});
 
 	it('puts the CSV export above the ranking when there is no encounter list', () => {
-		mount([entry('', '3:00 ±5s', 1100, true)]);
+		mount([entry('', [180, 5], 1100, true)]);
 
 		expect(paneOf(exportButton()).id).toBe('bulkResultsTab');
 		fireEvent.click(exportButton());

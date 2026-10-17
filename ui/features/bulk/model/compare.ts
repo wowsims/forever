@@ -1,79 +1,35 @@
-import type { DistributionMetrics } from '@generated/proto/api';
-import { ItemSpec } from '@generated/proto/common';
-import type { BulkEncounterResults } from '@sim/bulk/types';
+import { type ItemSlot, ItemSpec } from '@generated/proto/common';
+import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
 import type { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
 
 import { formatBulkItemLabel } from './format';
+import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from './swappable_slots';
 
-export interface ComparedBar {
-	key: string;
-	isCurrent: boolean;
-	dpsMetrics: DistributionMetrics;
-	/** DPS over the current gear's in the same encounter. */
-	gain: number;
-}
-
-export interface ComparedEncounter {
-	entry: BulkEncounterResults;
-	/** The encounter's own ranking, the current gear included, best first. */
-	bars: ComparedBar[];
-}
-
-export interface ComparedSet {
+interface ComparedSet {
 	key: string;
 	gear: Gear;
 	number: number;
-}
-
-export interface BulkComparison {
-	/** By duration, shortest first; health-based ones last, in run order. */
-	encounters: ComparedEncounter[];
-	/** Every ranked set but the current gear, by number. */
-	sets: ComparedSet[];
-	current: Gear | null;
 }
 
 const gearKey = (gear: Gear) => getGearIdentityKey(gear.asSpec());
 
 const durationOrder = (entry: BulkEncounterResults) => entry.duration ?? Infinity;
 
-// A set is numbered where it first shows, reading the encounters in display order and each one's ranking top down, and
-// keeps that number in every other encounter that ranks it.
-export const bulkComparison = (entries: readonly BulkEncounterResults[]): BulkComparison => {
-	const sets = new Map<string, ComparedSet>();
-	const current = entries[0]?.results.originalGearResults.gear ?? null;
-	const currentKey = current ? gearKey(current) : '';
-	const encounters = [...entries]
-		.sort((a, b) => durationOrder(a) - durationOrder(b))
-		.map((entry): ComparedEncounter => {
-			const { chains, originalGearResults } = entry.results;
-			const bars = chains.flat().map((result): ComparedBar => {
-				const key = gearKey(result.gear);
-				const isCurrent = key === currentKey;
-				if (!isCurrent && !sets.has(key)) sets.set(key, { key, gear: result.gear, number: sets.size + 1 });
-				return {
-					key,
-					isCurrent,
-					dpsMetrics: result.dpsMetrics,
-					gain: result.dpsMetrics.avg - originalGearResults.dpsMetrics.avg,
-				};
-			});
-			return { entry, bars };
-		});
-	return { encounters, sets: [...sets.values()], current };
-};
-
-export const changedItemLabels = (gear: Gear, current: Gear): string[] =>
-	gear.getItemSlots().flatMap(slot => {
+// The items the set wears where the current gear wears something else, an enchant change included. A pair of slots
+// whose two items only change places changes nothing.
+export const changedItemLabels = (gear: Gear, current: Gear, canDualWield: boolean): string[] => {
+	const items = gear.asSpec().items;
+	const worn = current.asSpec().items;
+	const unchanged = (slot: ItemSlot) => {
+		const pair = getSwappableItemSlotPair(slot, canDualWield);
+		return ItemSpec.equals(items[slot], worn[slot]) || (pair !== undefined && itemSpecPairsEqualUnordered(items, worn, pair));
+	};
+	return gear.getItemSlots().flatMap(slot => {
 		const equipped = gear.getEquippedItem(slot);
-		const worn = current.getEquippedItem(slot);
-		return equipped && !(worn && ItemSpec.equals(equipped.asSpec(), worn.asSpec())) ? [formatBulkItemLabel(equipped)] : [];
+		return equipped && !unchanged(slot) ? [formatBulkItemLabel(equipped)] : [];
 	});
-
-// The rank of each set the encounter ranked, 1 for its best; the current gear takes no rank.
-export const encounterRanks = (encounter: ComparedEncounter): Map<string, number> =>
-	new Map(encounter.bars.filter(bar => !bar.isCurrent).map((bar, index) => [bar.key, index + 1]));
+};
 
 const percentOf = (value: number, of: number) => (of ? (value / of) * 100 : 0);
 
@@ -101,9 +57,11 @@ export const gainTint = (gainPct: number, { low, high }: GainScale): GainTint =>
 };
 
 export interface MatrixCell {
-	bar: ComparedBar;
+	result: TopGearResult;
 	/** DPS over the current gear's, in percent of the current gear's DPS. */
 	gainPct: number;
+	/** The set's place in the encounter's ranking, 1 for its best; null on the current gear's row. */
+	rank: number | null;
 	tint: GainTint;
 	/** The encounter's highest DPS, the current gear's included. */
 	best: boolean;
@@ -113,36 +71,53 @@ export interface MatrixRow {
 	key: string;
 	/** Null for the current gear's row. */
 	set: ComparedSet | null;
-	/** One per encounter, in `BulkComparison.encounters` order; null where the encounter did not rank the set. */
+	/** One per column; null where the encounter did not rank the set. */
 	cells: Array<MatrixCell | null>;
 }
 
-export interface CompareMatrix {
+interface CompareMatrix {
+	/** One per encounter by duration, shortest first; health-based ones last, in run order. */
+	columns: BulkEncounterResults[];
+	/** The current gear's row, then every set's by number. */
 	rows: MatrixRow[];
 	/** The span every cell's tint is measured against, one for the whole table. */
 	scale: GainScale;
+	current: Gear | null;
 }
 
-// The current gear's row, then every set's by number, with a column for every encounter, health-based ones too.
-export const compareMatrix = ({ encounters, sets }: BulkComparison): CompareMatrix => {
-	const columns = encounters.map(({ entry, bars }) => ({
-		base: entry.results.originalGearResults.dpsMetrics.avg,
-		top: Math.max(...bars.map(bar => bar.dpsMetrics.avg)),
-		byKey: new Map(bars.map(bar => [bar.key, bar])),
-	}));
+// A set is numbered where it first shows, reading the columns in order and each one's ranking top down, and keeps that
+// number in every other column that ranks it.
+export const compareMatrix = (entries: readonly BulkEncounterResults[]): CompareMatrix => {
+	const current = entries[0]?.results.originalGearResults.gear ?? null;
+	const currentKey = current ? gearKey(current) : '';
+	const columns = [...entries].sort((a, b) => durationOrder(a) - durationOrder(b));
+	const sets = new Map<string, ComparedSet>();
+	const rankings = columns.map(({ results: { chains, originalGearResults } }) => {
+		const results = chains.flat();
+		let rank = 0;
+		const byKey = new Map<string, Pick<MatrixCell, 'result' | 'rank'>>(
+			results.map(result => {
+				const key = gearKey(result.gear);
+				const isCurrent = key === currentKey;
+				if (!isCurrent && !sets.has(key)) sets.set(key, { key, gear: result.gear, number: sets.size + 1 });
+				return [key, { result, rank: isCurrent ? null : ++rank }];
+			}),
+		);
+		return { base: originalGearResults.dpsMetrics.avg, top: Math.max(...results.map(result => result.dpsMetrics.avg)), byKey };
+	});
 	const rowOf = (key: string, set: ComparedSet | null) => ({
 		key,
 		set,
-		cells: columns.map(({ base, top, byKey }) => {
-			const bar = byKey.get(key);
-			if (!bar) return null;
-			return { bar, gainPct: percentOf(bar.gain, base), best: bar.dpsMetrics.avg === top };
+		cells: rankings.map(({ base, top, byKey }) => {
+			const ranked = byKey.get(key);
+			if (!ranked) return null;
+			const { avg } = ranked.result.dpsMetrics;
+			return { ...ranked, gainPct: percentOf(avg - base, base), best: avg === top };
 		}),
 	});
-	const currentKey = encounters.flatMap(encounter => encounter.bars).find(bar => bar.isCurrent)?.key;
-	const rows = [...(currentKey === undefined ? [] : [rowOf(currentKey, null)]), ...sets.map(set => rowOf(set.key, set))];
+	const rows = [...(current ? [rowOf(currentKey, null)] : []), ...[...sets.values()].map(set => rowOf(set.key, set))];
 	const gains = rows.flatMap(row => row.cells.flatMap(cell => (cell ? [cell.gainPct] : [])));
 	const scale = { low: Math.min(0, ...gains), high: Math.max(0, ...gains) };
 	const tinted = (cell: Omit<MatrixCell, 'tint'> | null): MatrixCell | null => cell && { ...cell, tint: gainTint(cell.gainPct, scale) };
-	return { rows: rows.map((row): MatrixRow => ({ ...row, cells: row.cells.map(tinted) })), scale };
+	return { columns, rows: rows.map((row): MatrixRow => ({ ...row, cells: row.cells.map(tinted) })), scale, current };
 };

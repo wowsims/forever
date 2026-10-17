@@ -7,11 +7,10 @@ import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
 import type { ReactNode } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
+import { encounterLabel, formatEncounterDuration } from '../../model/encounters';
 import { formatBulkDps } from '../../model/format';
-import { BulkCompareButton } from '../BulkCompareButton';
-import { BulkResultsCsvButton } from '../BulkResultsCsvButton';
 
-export interface BulkEncounterResultRow {
+interface BulkEncounterResultRow {
 	label: string;
 	durationLabel: string;
 	bestDps: string;
@@ -72,33 +71,18 @@ const resultRow = (entry: BulkEncounterResultsEntry): BulkEncounterResultRow => 
 	const gain = best.dpsMetrics.avg - originalGearResults.dpsMetrics.avg;
 	// Formatted as the result rows format a set's DPS and its gain, without the significance colour.
 	return {
-		label: entry.isCurrent ? t('current') : entry.name,
-		durationLabel: entry.durationLabel,
+		label: encounterLabel(entry),
+		durationLabel: formatEncounterDuration(entry),
 		bestDps: formatBulkDps(best.dpsMetrics.avg),
 		gain: gain === 0 ? null : formatDeltaText(originalGearResults.dpsMetrics.avg, best.dpsMetrics.avg, 2, undefined, true, true).text,
 	};
 };
 
-export interface BulkEncounterResultsProps {
-	selected: number;
-	onSelect: (index: number) => void;
-}
+export type BulkEncounterResultsProps = Pick<BulkEncounterResultsViewProps, 'selected' | 'onSelect' | 'footer'>;
 
-// One row per finished encounter, the current one first; renders nothing for a run with a single result.
-export const BulkEncounterResults = ({ selected, onSelect }: BulkEncounterResultsProps) => {
+// One row per finished encounter, the current one first; renders nothing before a run has finished one.
+export const BulkEncounterResults = ({ selected, onSelect, footer }: BulkEncounterResultsProps) => {
 	const results = useBulkState(slice => slice.results);
-	if (!results || results.entries.length < 2) return null;
-	return (
-		<BulkEncounterResultsView
-			rows={results.entries.map(resultRow)}
-			selected={selected}
-			onSelect={onSelect}
-			footer={
-				<div className="flex flex-wrap gap-2">
-					<BulkResultsCsvButton />
-					<BulkCompareButton />
-				</div>
-			}
-		/>
-	);
+	if (!results) return null;
+	return <BulkEncounterResultsView rows={results.map(resultRow)} selected={selected} onSelect={onSelect} footer={footer} />;
 };

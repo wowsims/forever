@@ -2,10 +2,10 @@ import { GearChangeIcon } from '@features/gear/components/GearChangeIcon';
 import { ItemDetailCell } from '@features/gear/components/ItemCell';
 import { ResultReferenceDiff } from '@features/results/components/ResultMetricList';
 import { ResultMetricValue } from '@features/results/components/ResultMetricValue';
-import { ItemSlot, ItemSpec } from '@generated/proto/common';
+import { ItemSpec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { TopGearResult } from '@sim/bulk/types';
-import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, getBulkItemSlotFromSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
+import { getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { type DeltaText, formatDeltaText, formatSignificance, formatToNumber } from '@sim/utils/format';
@@ -17,6 +17,7 @@ import clsx from 'clsx';
 import { type ReactNode, useId } from 'react';
 
 import { formatBulkDps } from '../../model/format';
+import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from '../../model/swappable_slots';
 
 export interface BulkResultRowViewProps {
 	showDamage: boolean;
@@ -51,7 +52,7 @@ export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, s
 								marginTooltipId={marginTooltipId}
 							/>
 						</div>
-						{!isBase && <ResultReferenceDiff diff={{ ...delta, significance }} tooltipId={deltaTooltipId} label={null} />}
+						{!isBase && <ResultReferenceDiff diff={{ ...delta, significance }} tooltipId={deltaTooltipId} hideLabel />}
 						<Tooltip id={marginTooltipId} content={i18n.t('bulk_tab.results.margin_of_error')} />
 						<Tooltip id={deltaTooltipId} />
 					</div>
@@ -75,13 +76,6 @@ export interface BulkResultRowProps {
 	iterations: number;
 	onActivateTab: (id: string) => void;
 }
-
-const getSwappableItemSlotPair = (slot: number, canDualWield: boolean): [ItemSlot, ItemSlot] | undefined =>
-	BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(getBulkItemSlotFromSlot(slot, canDualWield));
-
-const itemSpecPairsEqualUnordered = (resultItems: ItemSpec[], originalItems: ItemSpec[], [slot1, slot2]: [ItemSlot, ItemSlot]): boolean =>
-	(ItemSpec.equals(resultItems[slot1], originalItems[slot1]) && ItemSpec.equals(resultItems[slot2], originalItems[slot2])) ||
-	(ItemSpec.equals(resultItems[slot1], originalItems[slot2]) && ItemSpec.equals(resultItems[slot2], originalItems[slot1]));
 
 export const BulkResultRow = ({ result, baseResult, iterations, onActivateTab }: BulkResultRowProps) => {
 	const host = useSimHost();

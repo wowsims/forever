@@ -1,7 +1,8 @@
 import { enchantPresetPool } from '@features/enchant-presets/model/enchant_presets';
 import { BulkSettings, ProgressMetrics } from '@generated/proto/api';
+import type { Encounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { BulkEncounterResults, BulkRunResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
+import { BulkEncounterResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
 import type { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
@@ -12,8 +13,8 @@ import { bulkSimHighStageFloor } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
 
 import { trackEvent } from '../../../tracking/utils';
-import { type CoreBulkSimOptions, type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
-import { bulkEncounterRuns, checkedBulkEncounters, formatEncounterDuration, formatEncounterSummary, pickableBulkEncounters } from './encounters';
+import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
+import { bulkEncounterRuns, encounterLabel, encounterLength, formatEncounterSummary, pickableBulkEncounters } from './encounters';
 import { BulkProgress, candidateGearProgress, simProgress } from './progress';
 import { createBulkSettingsProto } from './settings';
 import { buildTieChains } from './tie_chains';
@@ -32,16 +33,21 @@ interface BulkRun {
 	abortController: AbortController | null;
 	abortPromise: Promise<void> | null;
 	combinationsRequestVersion: number;
-	progress: BulkProgress | null;
-	listeners: Set<(progress: BulkProgress) => void>;
+	progress: BulkRunProgress | null;
+	listeners: Set<(progress: BulkRunProgress) => void>;
 	steps: BulkEncounterSteps;
 }
 
-export interface BulkEncounterSteps {
-	/** One per encounter the batch runs, set before the run is marked running. */
+interface BulkEncounterSteps {
+	/** One per encounter the batch runs, one array for the whole run. */
 	labels: readonly string[];
 	/** 0-based encounter being run. */
 	running: number;
+}
+
+/** A stage's progress with the batch's encounter steps; the run emits a first one before it is marked running. */
+interface BulkRunProgress extends BulkProgress {
+	steps: BulkEncounterSteps;
 }
 
 const runs = new WeakMap<Player<any>, BulkRun>();
@@ -64,11 +70,9 @@ const runOf = (player: Player<any>): BulkRun => {
 	return run;
 };
 
-export const bulkProgress = (player: Player<any>): BulkProgress | null => runOf(player).progress;
+export const bulkProgress = (player: Player<any>): BulkRunProgress | null => runOf(player).progress;
 
-export const bulkEncounterSteps = (player: Player<any>): BulkEncounterSteps => runOf(player).steps;
-
-export const subscribeBulkProgress = (player: Player<any>, listener: (progress: BulkProgress) => void): (() => void) => {
+export const subscribeBulkProgress = (player: Player<any>, listener: (progress: BulkRunProgress) => void): (() => void) => {
 	const { listeners } = runOf(player);
 	listeners.add(listener);
 	return () => {
@@ -79,8 +83,9 @@ export const subscribeBulkProgress = (player: Player<any>, listener: (progress: 
 const emitProgress = (player: Player<any>, next: BulkProgress | null) => {
 	if (!next) return;
 	const run = runOf(player);
-	run.progress = next;
-	for (const listener of run.listeners) listener(next);
+	const progress = { ...next, steps: run.steps };
+	run.progress = progress;
+	for (const listener of run.listeners) listener(progress);
 };
 
 const setCandidateGearProgress = (player: Player<any>) => {
@@ -146,7 +151,7 @@ const runCoreBulkSim = async (
 	host: IndividualSimHost<any>,
 	signal: AbortSignal,
 	bulkSettings: BulkSettings,
-	options: CoreBulkSimOptions,
+	encounter: Encounter,
 ): Promise<CoreBulkSimResult> => {
 	const { player } = host;
 	return runCoreBulkSimImpl(
@@ -159,7 +164,7 @@ const runCoreBulkSim = async (
 		},
 		signal,
 		bulkSettings,
-		options,
+		encounter,
 	);
 };
 
@@ -222,17 +227,13 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	});
 
 	run.isCancelling = false;
-	run.progress = null;
-	// Without power tools the batch runs the current encounter alone; the checked encounters stay stored for when they are back.
-	const picked = sim.getShowPowerTools() ? checkedBulkEncounters(pickableBulkEncounters(host), bulkState(player).encounters) : [];
-	const encounterRuns = bulkEncounterRuns(sim.encounter.toProto(), picked);
+	const encounterRuns = bulkEncounterRuns(sim.encounter.toProto(), pickableBulkEncounters(host), bulkState(player).encounters, sim.getShowPowerTools());
 	run.steps = {
-		labels: encounterRuns.map(
-			encounterRun =>
-				`${encounterRun.isCurrent ? i18n.t('bulk_tab.results.current') : encounterRun.name} · ${formatEncounterSummary(encounterRun.encounter)}`,
-		),
+		labels: encounterRuns.map(encounterRun => `${encounterLabel(encounterRun)} · ${formatEncounterSummary(encounterRun.encounter)}`),
 		running: 0,
 	};
+	// The progress dialog mounts on `isRunning` and takes the steps from the progress there, before the first stage reports.
+	setCandidateGearProgress(player);
 	patchBulkState(player, { isRunning: true, started: true });
 	run.abortController = new AbortController();
 	run.abortPromise = null;
@@ -258,14 +259,11 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			run.steps = { ...run.steps, running: index };
 			setCandidateGearProgress(player);
 			run.simStart = new Date().getTime();
-			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, { encounterOverride: encounterRun.encounter });
-			const { useHealth, duration, durationVariation } = encounterRun.encounter;
+			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, encounterRun.encounter);
 			entries.push({
 				name: encounterRun.name,
 				isCurrent: encounterRun.isCurrent,
-				durationLabel: formatEncounterDuration(encounterRun.encounter),
-				duration: useHealth ? null : duration,
-				durationVariation: useHealth ? null : durationVariation,
+				...encounterLength(encounterRun.encounter),
 				results: rankResults(bulkSimResult, baseGear),
 			});
 		}
@@ -292,7 +290,6 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 		run.isCancelling = false;
-		const results: BulkRunResults | null = entries.length ? { entries } : null;
-		patchBulkState(player, results ? { isRunning: false, results } : { isRunning: false });
+		patchBulkState(player, entries.length ? { isRunning: false, results: entries } : { isRunning: false });
 	}
 };

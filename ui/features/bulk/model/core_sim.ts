@@ -21,15 +21,11 @@ export interface CoreBulkSimResult {
 	metrics: Record<string, string | number>;
 }
 
-export interface CoreBulkSimOptions {
-	encounterOverride?: Encounter;
-}
-
 export async function runCoreBulkSim(
 	context: CoreBulkSimContext,
 	signal: AbortSignal,
 	bulkSettings: BulkSettings,
-	{ encounterOverride }: CoreBulkSimOptions = {},
+	encounter: Encounter,
 ): Promise<CoreBulkSimResult> {
 	context.throwIfBulkAborted(signal);
 	context.debugOptimisationRound('core bulk sim started');
@@ -53,7 +49,7 @@ export async function runCoreBulkSim(
 		});
 	};
 
-	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal, encounterOverride), signal);
+	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal, encounter), signal);
 	if (!result || (result && 'type' in result)) {
 		throw new Error(result?.message);
 	}

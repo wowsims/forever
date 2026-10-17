@@ -24,7 +24,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
 import type { BulkSimItemSlot } from '../bulk/constants_auto_gen';
-import type { BulkPickerEntry, BulkRunResults } from '../bulk/types';
+import type { BulkEncounterResults, BulkPickerEntry } from '../bulk/types';
 import { ENCOUNTER_DEFAULTS } from '../constants/encounter';
 import { CURRENT_PHASE } from '../constants/other';
 import type { EquippedItem } from '../proto/equipped_item';
@@ -241,7 +241,8 @@ export interface BulkSlice {
 	combinationsPending: boolean;
 	isRunning: boolean;
 	started: boolean;
-	results: BulkRunResults | null;
+	// One per finished encounter of the last run, the current one first.
+	results: readonly BulkEncounterResults[] | null;
 	// The gear the last batch started from. The set-bonus feasibility check judges against it, not
 	// against the candidate gear a run swaps in and out of the player.
 	runGear: Gear | null;

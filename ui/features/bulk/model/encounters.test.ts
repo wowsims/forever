@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
 	bulkEncounterList,
 	bulkEncounterRuns,
-	checkedBulkEncounters,
+	formatEncounterDuration,
 	formatEncounterSummary,
 	pickableBulkEncounters,
 	setBulkEncounterChecked,
@@ -23,7 +23,9 @@ const SAVED_KEY = 'saved-encounters';
 const encounter = (duration: number, durationVariation = 5, targets = 1) =>
 	Encounter.create({ duration, durationVariation, targets: Array.from({ length: targets }, () => Target.create()) });
 
-const named = (name: string, proto: Encounter) => ({ name, encounter: proto });
+const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
+
+const entry = (name: string, proto: Encounter, preset = false) => ({ ref: ref(name, preset), name, encounter: proto });
 
 const CURRENT = encounter(180);
 
@@ -40,8 +42,11 @@ const hostWith = (presets: Array<{ name: string; encounter?: Encounter }>, saved
 };
 
 describe('bulkEncounterRuns', () => {
-	it('runs the current encounter first, then each picked one in order', () => {
-		const runs = bulkEncounterRuns(CURRENT, [named('Council', encounter(90)), named('Patchwerk', encounter(300))]);
+	const checkedAll = (entries: ReturnType<typeof entry>[]) => entries.map(item => item.ref);
+
+	it('runs the current encounter first, then each checked one in list order', () => {
+		const entries = [entry('Council', encounter(90)), entry('Unchecked', encounter(120)), entry('Patchwerk', encounter(300))];
+		const runs = bulkEncounterRuns(CURRENT, entries, [ref('Patchwerk'), ref('Council')], true);
 
 		expect(runs.map(run => [run.name, run.isCurrent, run.encounter.duration])).toEqual([
 			['', true, 180],
@@ -50,25 +55,42 @@ describe('bulkEncounterRuns', () => {
 		]);
 	});
 
-	it('skips a pick equal to the current encounter or to an earlier pick', () => {
-		const runs = bulkEncounterRuns(CURRENT, [
-			named('Same as current', encounter(180)),
-			named('Council', encounter(90)),
-			named('Council again', encounter(90)),
-			named('Council, more variance', encounter(90, 20)),
-		]);
+	it('skips a checked one equal to the current encounter or to an earlier checked one', () => {
+		const entries = [
+			entry('Same as current', encounter(180)),
+			entry('Council', encounter(90)),
+			entry('Council again', encounter(90)),
+			entry('Council, more variance', encounter(90, 20)),
+		];
+		const runs = bulkEncounterRuns(CURRENT, entries, checkedAll(entries), true);
 
 		expect(runs.map(run => run.name)).toEqual(['', 'Council', 'Council, more variance']);
 	});
 
 	it('compares encounters without their api version', () => {
-		const runs = bulkEncounterRuns({ ...CURRENT, apiVersion: 3 }, [named('Same as current', encounter(180))]);
+		const entries = [entry('Same as current', encounter(180))];
 
-		expect(runs).toHaveLength(1);
+		expect(bulkEncounterRuns({ ...CURRENT, apiVersion: 3 }, entries, checkedAll(entries), true)).toHaveLength(1);
 	});
 
-	it('runs the current encounter alone when nothing is picked', () => {
-		expect(bulkEncounterRuns(CURRENT, [])).toEqual([{ name: '', encounter: CURRENT, isCurrent: true }]);
+	it('runs the current encounter alone when nothing is checked', () => {
+		expect(bulkEncounterRuns(CURRENT, [entry('Council', encounter(90))], [], true)).toEqual([{ name: '', encounter: CURRENT, isCurrent: true }]);
+	});
+
+	it('runs the current encounter alone with power tools off, whatever is checked', () => {
+		const entries = [entry('Council', encounter(90))];
+
+		expect(bulkEncounterRuns(CURRENT, entries, checkedAll(entries), false)).toEqual([{ name: '', encounter: CURRENT, isCurrent: true }]);
+	});
+});
+
+describe('formatEncounterDuration', () => {
+	it.each([
+		[{ duration: 90, durationVariation: 10 }, '1:30 ±10s'],
+		[{ duration: 300, durationVariation: null }, '5:00'],
+		[{ duration: null, durationVariation: null }, 'bulk_tab.settings.encounters.health_summary'],
+	])('formats %#', (length, label) => {
+		expect(formatEncounterDuration(length)).toBe(label);
 	});
 });
 
@@ -114,22 +136,18 @@ describe('pickableBulkEncounters', () => {
 
 	it('ignores a checked ref whose encounter was deleted', () => {
 		const host = hostWith([], { Council: encounter(90) });
-		const checked = [BulkEncounterRef.create({ name: 'Gone', preset: false }), BulkEncounterRef.create({ name: 'Council', preset: false })];
 
-		expect(checkedBulkEncounters(pickableBulkEncounters(host), checked).map(entry => entry.name)).toEqual(['Council']);
+		expect(bulkEncounterRuns(CURRENT, pickableBulkEncounters(host), [ref('Gone'), ref('Council')], true).map(run => run.name)).toEqual(['', 'Council']);
 	});
 
 	it('tells a preset from a saved encounter of the same name', () => {
 		const host = hostWith([{ name: 'Patchwerk', encounter: encounter(300) }], { Patchwerk: encounter(120) });
-		const checked = [BulkEncounterRef.create({ name: 'Patchwerk', preset: false })];
 
-		expect(checkedBulkEncounters(pickableBulkEncounters(host), checked).map(entry => entry.encounter.duration)).toEqual([120]);
+		expect(bulkEncounterRuns(CURRENT, pickableBulkEncounters(host), [ref('Patchwerk')], true).map(run => run.encounter.duration)).toEqual([180, 120]);
 	});
 });
 
 describe('bulkEncounterList', () => {
-	const entry = (name: string, proto: Encounter, preset = false) => ({ ref: BulkEncounterRef.create({ name, preset }), name, encounter: proto });
-	const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
 	const listed = (entries: ReturnType<typeof entry>[], checked: BulkEncounterRef[]) =>
 		bulkEncounterList(CURRENT, entries, checked).map(item => [item.name, item.checked, item.duplicate]);
 

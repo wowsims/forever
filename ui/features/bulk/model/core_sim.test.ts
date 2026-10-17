@@ -15,12 +15,12 @@ const context = (runBulkSim: ReturnType<typeof vi.fn>, setSimProgress = vi.fn())
 	}) as unknown as CoreBulkSimContext;
 
 describe('runCoreBulkSim', () => {
-	it('passes the encounter override to the sim', async () => {
+	it('passes the encounter to the sim as its override', async () => {
 		const runBulkSim = vi.fn(async (..._args: unknown[]) => RESULT);
-		const override = Encounter.create({ duration: 90, durationVariation: 10, useHealth: true });
+		const encounter = Encounter.create({ duration: 90, durationVariation: 10, useHealth: true });
 
-		await runCoreBulkSim(context(runBulkSim), new AbortController().signal, {} as never, { encounterOverride: override });
+		await runCoreBulkSim(context(runBulkSim), new AbortController().signal, {} as never, encounter);
 
-		expect(runBulkSim.mock.calls[0][3]).toEqual(override);
+		expect(runBulkSim.mock.calls[0][3]).toEqual(encounter);
 	});
 });

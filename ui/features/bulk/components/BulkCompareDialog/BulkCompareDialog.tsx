@@ -1,20 +1,14 @@
 import i18n from '@i18n/config';
 import type { BulkEncounterResults } from '@sim/bulk/types';
-import { formatDeltaText, formatDurationSeconds, formatToNumber } from '@sim/utils/format';
+import { getBulkPlayerCanDualWield } from '@sim/bulk/utils';
+import { usePlayer } from '@sim/context/SimHostContext';
+import { formatDeltaText, formatToNumber, formatToPercent } from '@sim/utils/format';
 import { Dialog } from '@ui-kit/Dialog';
 import { useMemo } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import {
-	type BulkComparison,
-	bulkComparison,
-	changedItemLabels,
-	type ComparedBar,
-	type ComparedEncounter,
-	compareMatrix,
-	encounterRanks,
-	gainTint,
-} from '../../model/compare';
+import { changedItemLabels, compareMatrix, gainTint, type MatrixCell } from '../../model/compare';
+import { encounterLabel, formatEncounterDuration } from '../../model/encounters';
 import { formatBulkDps } from '../../model/format';
 import { BulkCompareTable, type BulkCompareTableProps } from '../BulkCompareTable';
 
@@ -24,45 +18,40 @@ const currentLabel = () => i18n.t('bulk_tab.results.current_gear');
 
 const shortLabel = (number: number) => t('short_set', { number });
 
-const encounterLabel = ({ entry }: ComparedEncounter) => (entry.isCurrent ? i18n.t('bulk_tab.results.current') : entry.name);
-
-const gainLabel = (gainPct: number) => `${formatToNumber(gainPct, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' })}%`;
-
-const lengthLabel = (duration: number) => formatDurationSeconds(duration, { separatorStyle: 'colon', minimumUnit: 'minutes' });
+const gainLabel = (gainPct: number) => formatToPercent(gainPct, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' });
 
 // The rank and DPS with the fight-to-fight spread, the ± the sim results card shows, then the gain over the current gear.
 // The current gear's own cells (rank null) carry neither rank nor gain. The percentage is the cell's own, of the current
 // gear's DPS.
-const cellTooltip = (bar: ComparedBar, { entry }: ComparedEncounter, rank: number | null, gainPct: number): string => {
+const cellTooltip = ({ result, rank, gainPct }: MatrixCell, entry: BulkEncounterResults): string => {
 	const base = entry.results.originalGearResults.dpsMetrics;
-	const { avg, stdev } = bar.dpsMetrics;
+	const { avg, stdev } = result.dpsMetrics;
 	const dps = formatBulkDps(avg);
 	const spread = t('readout_spread', { spread: formatToNumber(stdev, { maximumFractionDigits: 0 }) });
 	if (rank === null) return `${t('readout_current', { dps })} ${spread}`;
 	return `${t('readout_rank', { rank, dps })} ${spread} · ${formatDeltaText(base.avg, avg, 2, undefined, true).text} (${gainLabel(gainPct)})`;
 };
 
-const tableProps = (comparison: BulkComparison): BulkCompareTableProps => {
-	const { encounters, current } = comparison;
-	const { rows, scale } = compareMatrix(comparison);
-	const ranks = encounters.map(encounterRanks);
+const tableProps = (entries: readonly BulkEncounterResults[], canDualWield: boolean): BulkCompareTableProps => {
+	const { columns, rows, scale, current } = compareMatrix(entries);
 	return {
-		columns: encounters.map(encounter => ({
-			label: encounterLabel(encounter),
-			length: encounter.entry.duration === null ? encounter.entry.durationLabel : lengthLabel(encounter.entry.duration),
+		// The column gives the length alone; the variation is on the encounter list.
+		columns: columns.map(entry => ({
+			label: encounterLabel(entry),
+			length: formatEncounterDuration({ duration: entry.duration, durationVariation: null }),
 		})),
 		rows: rows.map(({ key, set, cells }) => ({
 			key,
 			label: set ? shortLabel(set.number) : currentLabel(),
-			changes: set && current ? changedItemLabels(set.gear, current) : [],
+			changes: set && current ? changedItemLabels(set.gear, current, canDualWield) : [],
 			cells: cells.map(
 				(cell, index) =>
 					cell && {
 						gain: gainLabel(cell.gainPct),
-						dps: formatBulkDps(cell.bar.dpsMetrics.avg),
+						dps: formatBulkDps(cell.result.dpsMetrics.avg),
 						tint: cell.tint,
 						best: cell.best,
-						tooltip: cellTooltip(cell.bar, encounters[index], set ? (ranks[index].get(key) ?? null) : null, cell.gainPct),
+						tooltip: cellTooltip(cell, columns[index]),
 					},
 			),
 		})),
@@ -77,7 +66,8 @@ const tableProps = (comparison: BulkComparison): BulkCompareTableProps => {
 
 // The dialog's popup mounts this on open, so the comparison is built only while the dialog shows.
 const BulkCompareBody = ({ entries }: { entries: readonly BulkEncounterResults[] }) => {
-	const table = useMemo(() => tableProps(bulkComparison(entries)), [entries]);
+	const canDualWield = getBulkPlayerCanDualWield(usePlayer());
+	const table = useMemo(() => tableProps(entries, canDualWield), [entries, canDualWield]);
 	return <BulkCompareTable {...table} />;
 };
 
@@ -87,7 +77,7 @@ export interface BulkCompareDialogProps {
 }
 
 export const BulkCompareDialog = ({ open, onOpenChange }: BulkCompareDialogProps) => {
-	const entries = useBulkState(slice => slice.results?.entries);
+	const entries = useBulkState(slice => slice.results);
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} size="full" scrollContents title={t('title')}>

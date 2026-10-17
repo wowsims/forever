@@ -1,4 +1,5 @@
 import { Tabs } from '@base-ui/react/tabs';
+import { BulkCompareButton } from '@features/bulk/components/BulkCompareButton';
 import { BulkEncounterResults } from '@features/bulk/components/BulkEncounterResults';
 import { BulkItemSearch } from '@features/bulk/components/BulkItemSearch';
 import { BulkPickerGroups } from '@features/bulk/components/BulkPickerGroups';
@@ -106,10 +107,21 @@ export const BulkTabBody = () => {
 						<TabPanelColumns.Root fullWidth>
 							<TabPanelColumns.Left variant="stacked">
 								{/* With one result there is no encounter list to hold the export, so it sits above the ranking. */}
-								{results?.entries.length === 1 && <BulkResultsCsvButton />}
+								{results?.length === 1 && <BulkResultsCsvButton />}
 								<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
 							</TabPanelColumns.Left>
-							<BulkEncounterResults selected={selectedEncounter} onSelect={selectEncounter} />
+							{results && results.length > 1 && (
+								<BulkEncounterResults
+									selected={selectedEncounter}
+									onSelect={selectEncounter}
+									footer={
+										<div className="flex flex-wrap gap-2">
+											<BulkResultsCsvButton />
+											<BulkCompareButton />
+										</div>
+									}
+								/>
+							)}
 						</TabPanelColumns.Root>
 					</TabPanel>
 				</TabPanels>

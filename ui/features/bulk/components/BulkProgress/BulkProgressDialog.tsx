@@ -4,7 +4,7 @@ import type { ProgressStepListHandle, ProgressTrackerHandle } from '@ui-kit/Prog
 import { HandleProgressStepList, ProgressTrackerDialog } from '@ui-kit/ProgressTrackerDialog';
 import { useEffect, useRef, useState } from 'react';
 
-import { bulkEncounterSteps, cancelBulkBatch, subscribeBulkProgress } from '../../model/run';
+import { bulkProgress, cancelBulkBatch, subscribeBulkProgress } from '../../model/run';
 import { BulkProgressMessage } from './BulkProgressMessage';
 
 /** One element, so the dialog's own state changes only when the stage does. */
@@ -15,8 +15,8 @@ export const BulkProgressDialog = () => {
 	const host = useSimHost();
 
 	const [state, setState] = useState({ stage: 'preparing', hasMessage: false });
-	// The run sets its encounter list before it is marked running, so the list is complete at mount.
-	const [labels] = useState(() => bulkEncounterSteps(host.player).labels);
+	// The run emits its first progress before it is marked running, so the encounter list is complete at mount.
+	const [labels] = useState(() => bulkProgress(host.player)?.steps.labels ?? []);
 	const barRef = useRef<ProgressTrackerHandle>(null);
 	const stepsRef = useRef<ProgressStepListHandle>(null);
 
@@ -28,7 +28,7 @@ export const BulkProgressDialog = () => {
 					previous.stage === progress.stage && previous.hasMessage === hasMessage ? previous : { stage: progress.stage, hasMessage },
 				);
 				barRef.current?.setProgress({ title: progress.title, current: progress.current, total: progress.total });
-				stepsRef.current?.setRunning(bulkEncounterSteps(host.player).running);
+				stepsRef.current?.setRunning(progress.steps.running);
 			}),
 		[host],
 	);

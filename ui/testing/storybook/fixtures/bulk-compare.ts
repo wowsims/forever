@@ -1,5 +1,5 @@
 import { DistributionMetrics } from '@generated/proto/api';
-import { ItemSlot, ItemType } from '@generated/proto/common';
+import { Class, ItemSlot, ItemType, Spec } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
@@ -28,7 +28,6 @@ const encounter = (name: string, duration: number | null, ranked: Array<[number,
 	return {
 		name,
 		isCurrent: false,
-		durationLabel: '',
 		duration,
 		durationVariation: duration === null ? null : 5,
 		results: { chains: results.map(ranking => [ranking]), originalGearResults: base, iterations: 100 },
@@ -55,10 +54,15 @@ export const BULK_COMPARE_ENTRIES: BulkEncounterResults[] = [
 	]),
 ];
 
-// A host whose batch results are `entries`, over a real store, for the comparison views.
+// A host whose batch results are `entries`, over a real store, for the comparison views. Its player cannot dual wield.
 export const makeBulkCompareHost = (entries: BulkEncounterResults[] = BULK_COMPARE_ENTRIES): IndividualSimHost<any> => {
-	const player = { sim: { store: createSimStore() }, storeKey: 0 } as unknown as Player<any>;
+	const player = {
+		sim: { store: createSimStore() },
+		storeKey: 0,
+		getSpec: () => Spec.SpecUnknown,
+		getClass: () => Class.ClassUnknown,
+	} as unknown as Player<any>;
 	seedBulkSettings(player);
-	patchBulkState(player, { started: true, results: { entries } });
+	patchBulkState(player, { started: true, results: entries });
 	return { player, sim: player.sim } as unknown as IndividualSimHost<any>;
 };

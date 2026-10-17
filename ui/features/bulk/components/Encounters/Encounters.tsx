@@ -1,13 +1,14 @@
-import { BulkEncounterRef } from '@generated/proto/ui';
+import type { BulkEncounterRef } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { useId } from 'react';
+import { useId, useMemo } from 'react';
 
 import { useBulkEncounters } from '../../hooks/useBulkEncounters';
 import { bulkEncounterList, formatEncounterSummary, setBulkEncounterChecked } from '../../model/encounters';
 
 export interface EncounterRow {
+	ref: BulkEncounterRef;
 	name: string;
 	summary: string;
 	checked: boolean;
@@ -18,7 +19,7 @@ export interface EncountersViewProps {
 	currentSummary: string;
 	presets: readonly EncounterRow[];
 	saved: readonly EncounterRow[];
-	onCheckedChange: (preset: boolean, name: string, checked: boolean) => void;
+	onCheckedChange: (ref: BulkEncounterRef, checked: boolean) => void;
 }
 
 const t = (key: string) => i18n.t(`bulk_tab.settings.encounters.${key}`);
@@ -76,7 +77,7 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 						summary={row.summary}
 						checked={row.checked}
 						duplicate={row.duplicate}
-						onChange={checked => onCheckedChange(preset, row.name, checked)}
+						onChange={checked => onCheckedChange(row.ref, checked)}
 						testId="bulk-encounter"
 					/>
 				))}
@@ -105,21 +106,26 @@ export const EncountersView = ({ currentSummary, presets, saved, onCheckedChange
 export const Encounters = () => {
 	const player = usePlayer();
 	const { current, entries, checked } = useBulkEncounters();
-	const list = bulkEncounterList(current, entries, checked);
-	const rows = (preset: boolean): EncounterRow[] =>
-		list
-			.filter(item => item.ref.preset === preset)
-			.map(item => ({ name: item.name, summary: formatEncounterSummary(item.encounter), checked: item.checked, duplicate: item.duplicate }));
+	const rows = useMemo(() => {
+		const list = bulkEncounterList(current, entries, checked).map((item): EncounterRow => ({
+			ref: item.ref,
+			name: item.name,
+			summary: formatEncounterSummary(item.encounter),
+			checked: item.checked,
+			duplicate: item.duplicate,
+		}));
+		return { presets: list.filter(row => row.ref.preset), saved: list.filter(row => !row.ref.preset) };
+	}, [current, entries, checked]);
 
 	return (
 		<EncountersView
 			currentSummary={formatEncounterSummary(current)}
-			presets={rows(true)}
-			saved={rows(false)}
-			onCheckedChange={(preset, name, value) =>
+			presets={rows.presets}
+			saved={rows.saved}
+			onCheckedChange={(ref, value) =>
 				setBulkEncounterChecked(
 					player,
-					BulkEncounterRef.create({ name, preset }),
+					ref,
 					value,
 					entries.map(entry => entry.ref),
 				)

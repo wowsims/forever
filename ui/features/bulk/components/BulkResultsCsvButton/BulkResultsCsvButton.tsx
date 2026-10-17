@@ -21,5 +21,5 @@ export const BulkResultsCsvButtonView = ({ onExport }: BulkResultsCsvButtonViewP
 export const BulkResultsCsvButton = () => {
 	const results = useBulkState(slice => slice.results);
 	if (!results) return null;
-	return <BulkResultsCsvButtonView onExport={() => downloadString(bulkResultsCsv(results.entries), BULK_RESULTS_CSV_FILE_NAME, 'text/csv')} />;
+	return <BulkResultsCsvButtonView onExport={() => downloadString(bulkResultsCsv(results), BULK_RESULTS_CSV_FILE_NAME, 'text/csv')} />;
 };
