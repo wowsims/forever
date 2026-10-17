@@ -102,16 +102,16 @@ var ItemSetWildheartRaiment = core.NewItemSet(core.ItemSet{
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
 			// TODO: The proc also answers a melee swing with energy (27784, whose row restores mana) and
 			// a melee hit taken with rage (27783); only the spell cast's mana is modelled.
-			druid := agent.(DruidAgent).GetDruid()
+			character := agent.GetCharacter()
 			mana := wildheartMana.EnergizeEffect().Average()
-			manaMetrics := druid.NewManaMetrics(core.ActionID{SpellID: wildheartMana.ID})
+			manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: wildheartMana.ID})
 
 			// The column reads 100 and the trigger clause states no number; the dummy effect's 5
 			// is the chance. The row's mask carries the melee branches too, so the listener takes
 			// the spell cast's shape by hand.
-			trigger := spelldata.ProcTrigger(&druid.Character, wildheartProc,
+			trigger := spelldata.ProcTrigger(character, wildheartProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-					druid.AddMana(sim, mana, manaMetrics)
+					character.AddMana(sim, mana, manaMetrics)
 				}, spelldata.ChanceFrom(wildheartProc.EffectN(1)))
 			trigger.Name = "Wildheart Raiment - 5PC"
 			trigger.Callback = core.CallbackOnCastComplete

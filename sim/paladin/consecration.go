@@ -4,6 +4,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var ConsecrationRankMap = spellData.Consecration
@@ -42,13 +43,15 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
 		// The bonus scales on its own coefficient, so it is added to the base damage here rather than
-		// through the dot's, which is the base tick's. The periodic dummy picks the bonus targets from its
-		// first tick on, and Consecrated Ground marks them on that first tick.
+		// through the dot's, which is the base tick's and states none: the spell power and the Holy
+		// damage the target takes extra both sit inside the tick's base. The periodic dummy picks the
+		// bonus targets from its first tick on, and Consecrated Ground marks them on that first tick.
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			for i, target := range sim.Encounter.ActiveTargetUnits {
 				damage := tick.Average()
 				if i < bonusTargets {
-					damage += bonus.Average() + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
+					damage += bonus.Average() + bonus.Coeff()*(dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])+
+						target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly])
 					if dot.TickCount() == 1 && paladin.consecratedGroundAuras != nil {
 						paladin.consecratedGroundAuras.Get(target).Activate(sim)
 					}

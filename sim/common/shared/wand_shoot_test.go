@@ -214,7 +214,7 @@ func TestWandShoot(t *testing.T) {
 		}
 	})
 
-	t.Run("a shot crits on ranged crit for 1.5 times its roll", func(t *testing.T) {
+	t.Run("a shot crits on spell crit for 1.5 times its roll", func(t *testing.T) {
 		sim, caster := newShadowWandSim(t)
 		if caster.shot.DefenseType != core.DefenseTypeMagic {
 			t.Fatalf("a shot's defense type is %v, want magic", caster.shot.DefenseType)
@@ -222,7 +222,7 @@ func TestWandShoot(t *testing.T) {
 		plain := shots(t, sim, caster, 50)
 
 		sim, caster = newShadowWandSim(t)
-		caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalCritPercent: 100})
+		caster.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 100})
 		crits := shots(t, sim, caster, 50)
 		for i := range crits {
 			if !core.WithinToleranceFloat64(1.5*plain[i], crits[i], 1e-9) {
@@ -231,17 +231,17 @@ func TestWandShoot(t *testing.T) {
 		}
 		metrics := caster.shot.SpellMetrics[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
 		if metrics.Crits != 50 || metrics.Hits != 0 {
-			t.Fatalf("with 100%% ranged crit Shoot landed %d crits and %d hits, want 50 and 0", metrics.Crits, metrics.Hits)
+			t.Fatalf("with 100%% spell crit Shoot landed %d crits and %d hits, want 50 and 0", metrics.Crits, metrics.Hits)
 		}
 	})
 
-	t.Run("spell crit does not crit a shot", func(t *testing.T) {
+	t.Run("ranged crit does not crit a shot", func(t *testing.T) {
 		sim, caster := newShadowWandSim(t)
-		caster.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 100})
+		caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalCritPercent: 100, stats.RangedCritPercent: 100})
 		shots(t, sim, caster, 50)
 		metrics := caster.shot.SpellMetrics[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
 		if metrics.Crits != 0 || metrics.Hits != 50 {
-			t.Fatalf("with 100%% spell crit and no ranged crit Shoot landed %d crits and %d hits, want 0 and 50", metrics.Crits, metrics.Hits)
+			t.Fatalf("with 100%% ranged crit and no spell crit Shoot landed %d crits and %d hits, want 0 and 50", metrics.Crits, metrics.Hits)
 		}
 	})
 
@@ -255,27 +255,30 @@ func TestWandShoot(t *testing.T) {
 		return caster.shot.SpellMetrics[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
 	}
 
-	// The misses with the given spell hit and full physical hit.
-	misses := func(t *testing.T, targetLevel int32, spellHit float64, weaponSkills ...*proto.WeaponSkillValue) int32 {
+	// The misses with the given physical hit, no ranged hit and full spell hit.
+	misses := func(t *testing.T, targetLevel int32, physicalHit float64, weaponSkills ...*proto.WeaponSkillValue) int32 {
 		t.Helper()
 		return shoot300(t, targetLevel, func(caster *wandCaster) stats.Stats {
-			return stats.Stats{stats.SpellHitPercent: spellHit - caster.GetStat(stats.SpellHitPercent)}
+			return stats.Stats{
+				stats.PhysicalHitPercent: physicalHit - caster.GetStat(stats.PhysicalHitPercent),
+				stats.RangedHitPercent:   -caster.GetStat(stats.RangedHitPercent),
+			}
 		}, weaponSkills...).Misses
 	}
 
-	t.Run("at full wand skill a shot misses on the spell table, which physical hit does not lower", func(t *testing.T) {
+	t.Run("at full wand skill a shot misses on the ranged table, which spell hit does not lower", func(t *testing.T) {
 		for _, tc := range []struct {
 			targetLevel, low, expected, high int32
-		}{{60, 3, 12, 24}, {63, 33, 51, 69}} {
+		}{{60, 5, 15, 27}, {63, 11, 24, 39}} {
 			if got := misses(t, tc.targetLevel, 0); got < tc.low || got > tc.high {
-				t.Errorf("with no spell hit and full physical hit Shoot missed %d of 300 shots on a level %d target, want about %d", got, tc.targetLevel, tc.expected)
+				t.Errorf("with no physical hit and full spell hit Shoot missed %d of 300 shots on a level %d target, want about %d", got, tc.targetLevel, tc.expected)
 			}
 		}
 	})
 
-	t.Run("spell hit lowers a shot's miss", func(t *testing.T) {
-		if got := misses(t, 63, 17); got != 0 {
-			t.Errorf("with 17%% spell hit Shoot missed %d of 300 shots on a level 63 target, want none", got)
+	t.Run("physical hit lowers a shot's miss", func(t *testing.T) {
+		if got := misses(t, 63, 9); got != 0 {
+			t.Errorf("with 9%% physical hit Shoot missed %d of 300 shots on a level 63 target, want none", got)
 		}
 	})
 
@@ -293,27 +296,27 @@ func TestWandShoot(t *testing.T) {
 			weaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillWands, Value: 290}},
 		})
 		table := caster.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
-		short := table.Ranged.BaseSpellMissChance
+		short := table.Ranged.BaseMissChance
 		spelldata.ParseStatic(&caster.Character, &spelldata.Spell{ID: 990003, Name: "Test Wand Skill", Effects: []spelldata.Effect{
 			{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL, Misc: 228, BasePoints: 10},
 		}})
 		if got := caster.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillWands]; got != 0 {
 			t.Errorf("wand skill after a 10 point Wands skill row at 290: %v over the maximum, want 0", got)
 		}
-		if got := table.Ranged.BaseSpellMissChance; math.Abs(short-0.06) > 1e-9 || math.Abs(got-0.04) > 1e-9 {
-			t.Errorf("the wand hand's spell miss on a level 60 target was %v at 290 wand skill and %v after a 10 point Wands skill row, want 0.06 and 0.04", short, got)
+		if got := table.Ranged.BaseMissChance; math.Abs(short-0.06) > 1e-9 || math.Abs(got-0.05) > 1e-9 {
+			t.Errorf("the wand hand's miss on a level 60 target was %v at 290 wand skill and %v after a 10 point Wands skill row, want 0.06 and 0.05", short, got)
 		}
 	})
 
-	t.Run("wand skill short of the maximum lowers a shot's crit by 0.2% a point", func(t *testing.T) {
+	t.Run("wand skill short of the maximum leaves a shot's crit as it is", func(t *testing.T) {
 		crits := func(skill int32) int32 {
 			return shoot300(t, 60, func(*wandCaster) stats.Stats {
-				return stats.Stats{stats.PhysicalCritPercent: 20}
+				return stats.Stats{stats.SpellCritPercent: 20}
 			}, &proto.WeaponSkillValue{Skill: proto.WeaponSkill_WeaponSkillWands, Value: skill}).Crits
 		}
 		full, short := crits(300), crits(275)
-		if full < 45 || full > 75 || short < 28 || short > 55 || short >= full {
-			t.Errorf("Shoot crit %d of 300 shots at 300 wand skill and %d at 275 on a level 60 target with 20%% crit, want about 60 and 45", full, short)
+		if full < 45 || full > 75 || short != full {
+			t.Errorf("Shoot crit %d of 300 shots at 300 wand skill and %d at 275 on a level 60 target with 20%% spell crit, want the same, about 60", full, short)
 		}
 	})
 

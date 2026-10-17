@@ -717,10 +717,11 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setConsumes(newConsumes: ConsumesSpec) {
-		if (ConsumesSpec.equals(this.slice().consumables, newConsumes)) return;
+		const adjustedConsumes = this.itemSwapSettings.getGear().adjustSwapImbues(this.getGear().adjustImbues(newConsumes));
+		if (ConsumesSpec.equals(this.slice().consumables, adjustedConsumes)) return;
 
 		// Make a defensive copy
-		this.patch('consumables', ConsumesSpec.clone(newConsumes));
+		this.patch('consumables', ConsumesSpec.clone(adjustedConsumes));
 	}
 
 	equipItem(slot: ItemSlot, newItem: EquippedItem | null) {

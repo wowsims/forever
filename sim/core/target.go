@@ -464,7 +464,7 @@ type AttackTableHand struct {
 	GlanceMultiplierMin  float64
 	GlanceMultiplierMax  float64
 	MeleeCritSuppression float64
-	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill, which a wand shot rolls.
+	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill.
 }
 
 func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTableHand {

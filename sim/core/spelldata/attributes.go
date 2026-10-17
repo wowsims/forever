@@ -72,6 +72,11 @@ func (s *Spell) CannotCrit() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_2, dbcenums.ATTR_EX_2_CANT_CRIT)
 }
 
+// Whether the game files flag the spell Always Hit, which picks an outcome with no miss roll.
+func (s *Spell) AlwaysHits() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)
+}
+
 // Whether the spell's hits count as a proc, which is what a listener that cannot proc from procs
 // skips. The game files state the negative, so this answers it as the sim's SpellFlagProc reads.
 func (s *Spell) IsAProc() bool {

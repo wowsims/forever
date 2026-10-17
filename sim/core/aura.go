@@ -1232,6 +1232,16 @@ func (caster *Unit) NewAllyAuraArray(makeAura func(*Unit) *Aura) AuraArray {
 	return auras
 }
 
+// An aura on each player in the caster's party, the caster among them, and none on their pets.
+func (caster *Character) NewPartyAuraArray(makeAura func(*Character) *Aura) AuraArray {
+	auras := make([]*Aura, len(caster.Env.AllUnits))
+	for _, agent := range caster.Party.Players {
+		member := agent.GetCharacter()
+		auras[member.UnitIndex] = makeAura(member)
+	}
+	return auras
+}
+
 func (caster *Unit) NewEnemyAuraArray(makeAura func(*Unit) *Aura) AuraArray {
 	auras := make([]*Aura, len(caster.Env.AllUnits))
 	for _, target := range caster.Env.AllUnits {

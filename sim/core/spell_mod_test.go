@@ -121,6 +121,68 @@ func TestCooldownMultiplierModOfZero(t *testing.T) {
 	}
 }
 
+// A cooldown mod below -100% removes the cooldown like one of -100%, and gives it back once it is gone.
+func TestCooldownMultiplierModBelowZero(t *testing.T) {
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := fw.GetSpell(fakeGCDSpellActionID)
+
+	removed := fw.AddDynamicMod(SpellModConfig{
+		ClassMask:  fakeGCDSpellClassMask,
+		Kind:       SpellMod_Cooldown_Multiplier,
+		FloatValue: -0.5,
+	})
+	removed.Activate()
+	if got := spell.CooldownMultiplier(); got != 0 {
+		t.Errorf("with a -150%% mod: cooldown multiplier %v, want 0", got)
+	}
+	removed.Deactivate()
+	if got := spell.CooldownMultiplier(); got != 1 {
+		t.Errorf("after the -150%% mod is gone: cooldown multiplier %v, want 1", got)
+	}
+}
+
+// A flat reduction longer than the cooldown, such as Raiments of Conviction's 60 s off Devouring
+// Plague's 24 s, stops the cooldown at 0, and removing the mods gives back exactly what they took.
+func TestCooldownFlatModStopsAtZero(t *testing.T) {
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := fw.GetSpell(fakeGCDSpellActionID)
+	spell.CD.Duration = 24 * time.Second
+
+	removed := fw.AddDynamicMod(SpellModConfig{
+		ClassMask: fakeGCDSpellClassMask,
+		Kind:      SpellMod_Cooldown_Flat,
+		TimeValue: -60 * time.Second,
+	})
+	shortened := fw.AddDynamicMod(SpellModConfig{
+		ClassMask: fakeGCDSpellClassMask,
+		Kind:      SpellMod_Cooldown_Flat,
+		TimeValue: -10 * time.Second,
+	})
+
+	steps := []struct {
+		name   string
+		toggle func()
+		want   time.Duration
+	}{
+		{"with the 60 s mod", removed.Activate, 0},
+		{"with both mods", shortened.Activate, 0},
+		{"after the 10 s mod is gone", shortened.Deactivate, 0},
+		{"after both are gone", removed.Deactivate, 24 * time.Second},
+		{"with the 10 s mod", shortened.Activate, 14 * time.Second},
+		{"with both mods again", removed.Activate, 0},
+		{"after the 60 s mod is gone", removed.Deactivate, 14 * time.Second},
+		{"after both are gone again", shortened.Deactivate, 24 * time.Second},
+	}
+	for _, step := range steps {
+		step.toggle()
+		if got := spell.CD.Duration; got != step.want {
+			t.Errorf("%s: cooldown %v, want %v", step.name, got, step.want)
+		}
+	}
+}
+
 func TestFlatThreatBonusPctMod(t *testing.T) {
 	sim := SetupFakeRageSim()
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)

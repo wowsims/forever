@@ -1600,12 +1600,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		249396, // Mystic Mushroom
-		[
-			"Increases Spirit by 5%.", // 1248751 - https://www.wowhead.com/forever/spell=1248751
-		]
-	],
-	[
 		249443, // Totem of Ancestral Protection
 		[
 			"Reduces the cooldown of Grounding Totem by 1 sec.", // 1249011 - https://www.wowhead.com/forever/spell=1249011

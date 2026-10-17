@@ -12,15 +12,21 @@ func (mage *Mage) registerBlizzardSpell() {
 	mage.registerBlizzardRank(spellData.Blizzard.Len(), spellData.Blizzard.Highest())
 }
 
-// Each tick casts the same rank of spellData.BlizzardTriggered on every enemy in the area; the ticks
-// do not crit. The cast's row names no tick spell, only an area trigger, so the two pair by rank.
+// Each tick casts the same rank of spellData.BlizzardTriggered on every enemy in the area, and rolls
+// a crit unless the tick's row bars it. The cast's row names no tick spell, only an area trigger, so
+// the two pair by rank.
 func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.BlizzardTriggered.Rank(rank)
+	cannotCrit := tickRank.CannotCrit()
 
 	tickConfig := spelldata.SpellConfig(&mage.Unit, tickRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
 	tickConfig.ClassSpellMask = MageSpellBlizzard
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamageWithVariance(sim, spell.OutcomeMagicHit, rollDamage(tickRank.DamageEffect()))
+		outcome := spell.OutcomeMagicHitAndCrit
+		if cannotCrit {
+			outcome = spell.OutcomeMagicHit
+		}
+		spell.CalcAndDealAoeDamageWithVariance(sim, outcome, rollDamage(tickRank.DamageEffect()))
 	}
 	tickSpell := mage.RegisterSpell(tickConfig)
 

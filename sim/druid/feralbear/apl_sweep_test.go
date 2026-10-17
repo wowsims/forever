@@ -141,15 +141,16 @@ type bearTune struct {
 	maul       int     // rage at which Maul queues
 	frenzied   float64 // Frenzied Regeneration below this health fraction; 0 never
 	bleedFirst bool    // Berserk only once Lacerate is on the target, for Rend and Tear
-	opener     string  // "roar": Berserk once Demoralizing Roar is up; "roar_pb": and Primal Bite is on cooldown
+	opener     string  // "roar": Berserk once Demoralizing Roar is up; "roar_pb": and the GCD after a Primal Bite has ended
 }
 
 // bestBearAPL is the list ui/specs/druid/feralbear/apls/default.apl.json holds. The druid's own
 // Faerie Fire is left out: the raid's is the same armor reduction, so the cast only spends a GCD.
 // Enrage is left out: Dire Bear loses 16% of its gear armor for 10s, which costs more deaths than
 // its 30 rage buys damage. Berserk waits for Demoralizing Roar, so the roar does not take a GCD
-// from Berserk's Primal Bites.
-var bestBearAPL = bearTune{elune: "berserk", enrage: "never", demo: true, maul: 20, frenzied: 0.2, opener: "roar"}
+// from Berserk's Primal Bites, and for the end of a Primal Bite's GCD, so its reset buys a whole
+// Primal Bite.
+var bestBearAPL = bearTune{elune: "berserk", enrage: "never", demo: true, maul: 20, frenzied: 0.2, opener: "roar_pb"}
 
 // The preset files and the tunes that build them.
 func bearAPLPresets() map[string]*proto.APLRotation {
@@ -283,11 +284,28 @@ func bearAPL(tune bearTune) *proto.APLRotation {
 	if tune.bleedFirst {
 		berserkWhen = append(berserkWhen, dotUp(spellLacerate))
 	}
-	if tune.opener == "roar" || tune.opener == "roar_pb" {
+	if tune.opener == "roar" {
 		berserkWhen = append(berserkWhen, roarUp)
 	}
+	// Berserk goes when a Primal Bite's GCD ends: 6s cooldown less the 1.5s GCD leaves 4.5s, and 4s
+	// keeps the margin of an evaluation a little late. A GCD spell queued in the last 400ms of that GCD
+	// would go out before Berserk, which waits for the GCD itself, so the Lacerates and Swipe hold.
+	var hold *proto.APLValue
 	if tune.opener == "roar_pb" {
-		berserkWhen = append(berserkWhen, not(spellReadyBear(spellPrimalBite)))
+		follows := vars.def("Berserk follows Primal Bite", and(spellKnown(spellBerserk), spellReadyBear(spellBerserk), roarUp,
+			cmp(proto.APLValueCompare_OpGe, spellLeft(spellPrimalBite), konst("4s"))))
+		berserkWhen = append(berserkWhen, follows)
+		hold = not(follows)
+	}
+	held := func(condition *proto.APLValue) *proto.APLValue {
+		switch {
+		case hold == nil:
+			return condition
+		case condition == nil:
+			return hold
+		default:
+			return and(condition, hold)
+		}
 	}
 	if tune.berserk >= 0 {
 		var condition *proto.APLValue
@@ -330,8 +348,8 @@ func bearAPL(tune bearTune) *proto.APLRotation {
 	}
 
 	// Five stacks about to fall off are worth more than anything else the GCD could buy.
-	keepUp := []*proto.APLListItem{bearCastWhen(spellLacerate, vars.def("Lacerate falls off",
-		and(fiveStacks, cmp(proto.APLValueCompare_OpLe, dotLeft(spellLacerate), konst("1.5s")))))}
+	keepUp := []*proto.APLListItem{bearCastWhen(spellLacerate, held(vars.def("Lacerate falls off",
+		and(fiveStacks, cmp(proto.APLValueCompare_OpLe, dotLeft(spellLacerate), konst("1.5s"))))))}
 	if tune.demo {
 		keepUp = append(keepUp, bearCastWhen(spellDemoRoar, not(roarUp)))
 	}
@@ -357,13 +375,17 @@ func bearAPL(tune bearTune) *proto.APLRotation {
 			gate = and(gates...)
 		}
 		if tune.swipe {
-			filler = append(filler, bearCastWhen(spellSwipe, and(append(gates, cmp(proto.APLValueCompare_OpGt, dotLeft(spellLacerate), konst("3s")))...)))
+			filler = append(filler, bearCastWhen(spellSwipe, held(and(append(gates, cmp(proto.APLValueCompare_OpGt, dotLeft(spellLacerate), konst("3s")))...))))
 		}
 		filler = append(filler, bearCastWhen(spellLacerate, gate))
 	}
 	// An ungated Lacerate filler already stacks Lacerate to 5.
 	if len(filler) != 1 || filler[0].Action.Condition != nil {
-		damage = append(damage, bearCastWhen(spellLacerate, not(fiveStacks)))
+		damage = append(damage, bearCastWhen(spellLacerate, held(not(fiveStacks))))
+	}
+	if len(filler) > 0 {
+		last := filler[len(filler)-1]
+		last.Action.Condition = held(last.Action.Condition)
 	}
 	list = append(list, groups.def("Damage", append(damage, filler...)...))
 	list = append(list, bearCastWhen(spellMaul, rageAtLeast(tune.maul)))
@@ -576,7 +598,7 @@ func TestBearAPLSweep(t *testing.T) {
 		bearRow{"best, maul 40", with(func(b *bearTune) { b.maul = 40 })},
 		bearRow{"best, berserk autocast", with(func(b *bearTune) { b.berserk = -1; b.elune = "auto" })},
 		bearRow{"best, berserk at the pull", with(func(b *bearTune) { b.opener = "" })},
-		bearRow{"best, roar, bite then berserk", with(func(b *bearTune) { b.opener = "roar_pb" })},
+		bearRow{"best, berserk once roar is up", with(func(b *bearTune) { b.opener = "roar" })},
 		bearRow{"best, roar, lacerate, berserk", with(func(b *bearTune) { b.bleedFirst = true })},
 	)
 	scenarios := []bearScenario{

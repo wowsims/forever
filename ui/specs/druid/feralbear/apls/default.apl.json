@@ -75,7 +75,7 @@
 					"action": {
 						"condition": {
 							"variableRef": {
-								"name": "Demoralizing Roar is up"
+								"name": "Berserk follows Primal Bite"
 							}
 						},
 						"castSpell": {
@@ -131,8 +131,23 @@
 				{
 					"action": {
 						"condition": {
-							"variableRef": {
-								"name": "Lacerate falls off"
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Lacerate falls off"
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Berserk follows Primal Bite"
+												}
+											}
+										}
+									}
+								]
 							}
 						},
 						"castSpell": {
@@ -176,6 +191,15 @@
 				},
 				{
 					"action": {
+						"condition": {
+							"not": {
+								"val": {
+									"variableRef": {
+										"name": "Berserk follows Primal Bite"
+									}
+								}
+							}
+						},
 						"castSpell": {
 							"spellId": {
 								"spellId": 1235827
@@ -233,6 +257,51 @@
 					"auraId": {
 						"spellId": 9898
 					}
+				}
+			}
+		},
+		{
+			"name": "Berserk follows Primal Bite",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"spellIsKnown": {
+								"spellId": {
+									"spellId": 417141
+								}
+							}
+						},
+						{
+							"spellIsReady": {
+								"spellId": {
+									"spellId": 417141
+								}
+							}
+						},
+						{
+							"variableRef": {
+								"name": "Demoralizing Roar is up"
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"spellTimeToReady": {
+										"spellId": {
+											"spellId": 1238073
+										}
+									}
+								},
+								"rhs": {
+									"const": {
+										"val": "4s"
+									}
+								}
+							}
+						}
+					]
 				}
 			}
 		},

@@ -226,7 +226,7 @@ func (spell *Spell) BonusDamage(attackTable *AttackTable) float64 {
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
 		bonusDamage += spell.Unit.stats[stats.PhysicalDamage]
 	} else {
-		bonusDamage += spell.SpellDamage(attackTable.Defender) + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage] + attackTable.Defender.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex]
+		bonusDamage += spell.SpellDamage(attackTable.Defender) + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
 	}
 
 	return bonusDamage
@@ -854,9 +854,33 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 		}
 	} else if !spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.SpellSchool.Matches(SpellSchoolNone) {
 		result.Damage += attackTable.Defender.PseudoStats.BonusSpellDamageTaken
+		// The target's flat school bonus, Judgement of the Crusader, lands after the caster's done
+		// multipliers and before the target's and the outcome roll: a crit doubles it and a damage done
+		// talent never scales it.
+		result.Damage += spell.takenBonusCoefficient(attackTable.Defender, isPeriodic) * attackTable.Defender.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex]
 	}
 
 	result.Damage *= spell.TargetDamageMultiplier(sim, attackTable, isPeriodic)
+}
+
+// The coefficient the target's flat school bonus is taken at: a tick's dot coefficient, the
+// spell's own, or the one a spell states for it when its spell power goes through a weapon percent
+// and so sets no BonusCoefficient.
+func (spell *Spell) takenBonusCoefficient(target *Unit, isPeriodic bool) float64 {
+	if isPeriodic {
+		dot := spell.aoeDot
+		if dot == nil {
+			dot = spell.Dot(target)
+		}
+		if dot == nil {
+			return 0
+		}
+		return dot.BonusCoefficient
+	}
+	if spell.BonusCoefficient > 0 {
+		return spell.BonusCoefficient
+	}
+	return spell.TakenBonusCoefficient
 }
 func (spell *Spell) TargetDamageMultiplier(sim *Simulation, attackTable *AttackTable, isPeriodic bool) float64 {
 	if spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {

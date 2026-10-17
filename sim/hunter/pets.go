@@ -88,7 +88,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	// skill over the target's defense, with no crit of its own.
 	addPetStatDependencies(&hp.Character)
 
-	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +50% a rank.
+	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +10% a rank.
 	hp.EnableFocusBar(spellData.BestialDiscipline.EffectAt(1).MultiplierAt(hunter.Talents.BestialDiscipline))
 
 	// Normalized in ApplyTalents to the Faster or Slower Attack passive's swing.
@@ -105,9 +105,9 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 }
 
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
-// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power and the owner's
-// higher crit (inheritedCrit). Not linear, so the pet snapshots them; registerStatInheritance
-// says when.
+// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power, the owner's
+// higher crit (inheritedCrit) and the owner's expertise. Not linear, so the pet snapshots them;
+// registerStatInheritance says when.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
 		return stats.Stats{
@@ -115,6 +115,9 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 			stats.Armor:               ownerStats[stats.Armor] * 0.3,
 			stats.AttackPower:         max(ownerStats[stats.AttackPower], ownerStats[stats.RangedAttackPower]) * 0.1,
 			stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats),
+			// TODO: 415429 effect 17 (A_MOD_COMBAT_RESULT_CHANCE2, misc 4) states expertise without an
+			// amount; the full share is unmeasured.
+			stats.ExpertisePercent: ownerStats[stats.ExpertisePercent],
 		}
 	}
 }

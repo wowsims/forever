@@ -160,6 +160,24 @@ func TestBerserkLiftsPrimalBiteCooldownOnlyWhileUp(t *testing.T) {
 	}
 }
 
+// Berserk's tooltip "removes its cooldown": a Primal Bite cooldown already running when Berserk starts
+// ends with it.
+func TestBerserkClearsARunningPrimalBiteCooldown(t *testing.T) {
+	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
+	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("primal bite did not cast")
+	}
+	sim.CurrentTime += 2 * time.Second
+	if bear.PrimalBite.IsReady(sim) {
+		t.Fatal("primal bite is ready 2 s after a cast without berserk")
+	}
+	bear.BerserkAura.Activate(sim)
+	if !bear.PrimalBite.IsReady(sim) {
+		t.Errorf("primal bite is on cooldown until %v once berserk starts", bear.PrimalBite.ReadyAt())
+	}
+}
+
 func TestFrenziedRegenerationSpendsRageForHealth(t *testing.T) {
 	sim, bear := newBear(t)
 	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))

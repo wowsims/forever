@@ -36,7 +36,7 @@ func TestAffliction(t *testing.T) {
 				},
 			}},
 			GearSet:  core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", "preraid"),
-			Talents:  "25550320135201351--053",
+			Talents:  "25520320135201351--05501",
 			Rotation: core.GetAplRotation("../../ui/specs/warlock/dps/apls", "affliction"),
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{

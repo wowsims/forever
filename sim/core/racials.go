@@ -207,7 +207,7 @@ func applyRaceEffects(agent Agent) {
 		energizedAura := character.RegisterAura(Aura{
 			Label:    "Energized",
 			ActionID: ActionID{SpellID: 1270842},
-			Duration: time.Second * 15,
+			Duration: time.Second * 30, // SpellMisc 1270842 DurationIndex 9, 30000 ms
 			OnGain: func(aura *Aura, sim *Simulation) {
 				if aura.Unit.HasManaBar() {
 					aura.Unit.MultiplyManaRegenSpeed(sim, 2)

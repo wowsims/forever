@@ -315,8 +315,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 618.5851
-  tps: 440.25151
+  dps: 617.13435
+  tps: 439.23599
  }
 }
 dps_results: {
@@ -667,6 +667,13 @@ dps_results: {
  value: {
   dps: 552.96858
   tps: 394.31995
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-MysticMushroom-249396"
+ value: {
+  dps: 594.50081
+  tps: 423.39251
  }
 }
 dps_results: {

@@ -104,16 +104,21 @@ func (priest *Priest) applyMindFlay() {
 func (priest *Priest) applyImprovedMindFlay() {}
 
 // Your Mind Blast and fully channeled Mind Flay causes Dark Inspiration, increasing yours and your party's Spirit by X% for 10 sec.
-// The sim models only the priest's own Spirit.
+// The buff's row targets the caster's party (target 20). The sim buffs the party's players, the priest
+// among them, and not their pets. Each player carries one copy per priest, and only the strongest applies.
 func (priest *Priest) applyDarkInspiration() {
 	if priest.Talents.DarkInspiration == 0 {
 		return
 	}
 
 	buff := spellData.DarkInspirationTriggered.Highest()
-	aura := priest.RegisterAura(spelldata.AuraConfig(buff))
 	// The buff's row states the full five-rank amount, which the talent's ranks scale.
-	spelldata.ParseEffects(&priest.Character, aura, buff, spelldata.ScaledByRanks(priest.Talents.DarkInspiration, spellData.DarkInspiration.Len()))
+	ranks := spelldata.ScaledByRanks(priest.Talents.DarkInspiration, spellData.DarkInspiration.Len())
+	auras := priest.NewPartyAuraArray(func(member *core.Character) *core.Aura {
+		aura := member.RegisterAura(spelldata.AuraConfig(buff, spelldata.RankLabel(buff, &priest.Unit)))
+		spelldata.ParseEffects(member, aura, buff, ranks, spelldata.Exclusive("DarkInspiration", true))
+		return aura
+	})
 
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:           "Dark Inspiration Trigger",
@@ -121,7 +126,7 @@ func (priest *Priest) applyDarkInspiration() {
 		Callback:       core.CallbackOnSpellHitDealt,
 		Outcome:        core.OutcomeLanded,
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			aura.Activate(sim)
+			auras.ActivateAll(sim)
 		},
 	})
 	priest.MakeProcTriggerAura(core.ProcTrigger{
@@ -130,7 +135,7 @@ func (priest *Priest) applyDarkInspiration() {
 		Callback:       core.CallbackOnPeriodicDamageDealt,
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.Dot(result.Target).RemainingTicks() == 0 {
-				aura.Activate(sim)
+				auras.ActivateAll(sim)
 			}
 		},
 	})

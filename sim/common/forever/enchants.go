@@ -264,8 +264,8 @@ func init() {
 			if !spell.ProcMask.Matches(spellHits) && !shot {
 				return false
 			}
-			// TODO: Verify in game that a landing while the buff is up does not roll.
-			return !result.DidCrit() && !buff.IsActive()
+			// A landing while the buff is up rolls too and refreshes it.
+			return !result.DidCrit()
 		}
 		character.ItemSwap.RegisterEnchantProc(8217, character.MakeProcTriggerAura(trigger))
 	})

@@ -84,9 +84,11 @@ func (paladin *Paladin) applyImprovedSeals() {
 		return
 	}
 
-	// The Seal of Command proc takes the talent through its weapon percent, see registerSealOfCommand.
+	// The row names the Righteousness and Fury hits and the damaging Judgements only. The Seal of Command
+	// proc takes the talent through its weapon percent, see registerSealOfCommand.
 	paladin.AddStaticMod(core.SpellModConfig{
-		ClassMask:  (SpellMaskSealProcs &^ SpellMaskSealOfCommandProc) | SpellMaskAllJudgements,
+		ClassMask: SpellMaskSealOfRighteousnessProc | SpellMaskSealOfFuryProc |
+			SpellMaskJudgementOfRighteousness | SpellMaskJudgementOfCommand | SpellMaskJudgementOfFury,
 		Kind:       core.SpellMod_DirectDamageDone_Pct,
 		FloatValue: spellData.ImprovedSeals.FractionAt(paladin.Talents.ImprovedSeals),
 	})

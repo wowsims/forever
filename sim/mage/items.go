@@ -150,27 +150,27 @@ var ItemSetMagistersRegalia = core.NewItemSet(core.ItemSet{
 	ID:   181,
 	Bonuses: map[int32]core.ApplySetBonus{
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
-			mage := agent.(MageAgent).GetMage()
-			spelldata.ParseEffects(&mage.Character, setBonusAura, magisterSpellDamage)
+			character := agent.GetCharacter()
+			spelldata.ParseEffects(character, setBonusAura, magisterSpellDamage)
 		},
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
-			mage := agent.(MageAgent).GetMage()
-			manaMetrics := mage.NewManaMetrics(core.ActionID{SpellID: magisterManaGain.ID})
+			character := agent.GetCharacter()
+			manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: magisterManaGain.ID})
 			mana := magisterManaGain.EnergizeEffect().Average()
 
 			// The rate is the proc chance column with no cooldown, rolled on every spell cast, the
 			// tooltip's "your spellcasts".
-			trigger := spelldata.ProcTrigger(&mage.Character, magisterManaProc,
+			trigger := spelldata.ProcTrigger(character, magisterManaProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-					mage.AddMana(sim, mana, manaMetrics)
+					character.AddMana(sim, mana, manaMetrics)
 				})
 			trigger.Name = "Magister's Regalia - 5PC"
 
 			setBonusAura.AttachProcTrigger(trigger)
 		},
 		6: func(agent core.Agent, setBonusAura *core.Aura) {
-			mage := agent.(MageAgent).GetMage()
-			spelldata.ParseEffects(&mage.Character, setBonusAura, magisterMP5)
+			character := agent.GetCharacter()
+			spelldata.ParseEffects(character, setBonusAura, magisterMP5)
 		},
 	},
 })
@@ -184,8 +184,8 @@ var ItemSetSorcerersRegalia = core.NewItemSet(core.ItemSet{
 	ID:   517,
 	Bonuses: map[int32]core.ApplySetBonus{
 		6: func(agent core.Agent, setBonusAura *core.Aura) {
-			mage := agent.(MageAgent).GetMage()
-			spelldata.ParseEffects(&mage.Character, setBonusAura, sorcererSpellDamage)
+			character := agent.GetCharacter()
+			spelldata.ParseEffects(character, setBonusAura, sorcererSpellDamage)
 		},
 	},
 })

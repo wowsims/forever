@@ -658,6 +658,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-MysticMushroom-249396"
+ value: {
+  dps: 631.15846
+  tps: 338.32645
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-OrbofFire-12805"
  value: {
   dps: 635.42179

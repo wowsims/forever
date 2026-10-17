@@ -4,6 +4,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them,
@@ -74,11 +75,15 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
 
+		// No BonusCoefficient: the coefficient depends on the hand, and Judgement of the Crusader
+		// sits inside the base with the spell power, under the done multipliers, so the proc adds
+		// both by hand.
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			mh := paladin.MainHand()
 			hand, coefficient := sealOfRighteousnessHand(mh)
-			spell.BonusCoefficient = coefficient
-			baseDamage := value / 100 * mh.SwingSpeed * hand
+			attackTable := spell.Unit.AttackTables[target.UnitIndex]
+			baseDamage := value/100*mh.SwingSpeed*hand +
+				coefficient*(spell.BonusDamage(attackTable)+target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly])
 			result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 			dealAfterBatch(sim, spell, result)
 		},

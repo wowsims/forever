@@ -10,16 +10,7 @@ func (priest *Priest) registerHolyFireSpell(_ int32, rank *spelldata.Spell) {
 	// TODO: Verify rank 5 (15265) in game. Its tick states 13 where the ranks around it state 7 and 10
 	// (4/5/6/7/13/10/13/15 by rank, the same 0.05 spell power share on each).
 	config := priest.periodicDamageSpellConfig(rank, PriestSpellHolyFire)
-
-	if priest.powerInLightAuras != nil {
-		// A replaced rank's dot expires before the new rank's dot gains, so the marker ends up on.
-		config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
-			priest.powerInLightAuras.Get(aura.Unit).Activate(sim)
-		}
-		config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
-			priest.powerInLightAuras.Get(aura.Unit).Deactivate(sim)
-		}
-	}
+	priest.attachPowerInLightMarker(&config)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, holyFireHit.Average(), spell.OutcomeMagicHitAndCrit)

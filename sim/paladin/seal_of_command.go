@@ -58,16 +58,16 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	coefficient := procEffect.Coeff()
 	// 20424 carries Not a Proc: it is an ability hit to every listener, weapon procs included. No
 	// BonusCoefficient: the spell power goes through the weapon percent, so the proc adds it by hand
-	// below rather than letting CalcDamage add it on top.
+	// below rather than letting CalcDamage add it on top. The Holy damage the target takes extra is
+	// taken at the full coefficient after the done multipliers, where core adds it.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	procConfig.ClassSpellMask = SpellMaskSealOfCommandProc
+	procConfig.TakenBonusCoefficient = coefficient
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
 		baseDamage := (weaponDamage + coefficient*spell.SpellDamage(target)) * weaponPercent
 
-		targetBonus := target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly] +
-			spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
-		baseDamage += coefficient * targetBonus
+		baseDamage += coefficient * spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
 
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		dealAfterBatch(sim, spell, result)

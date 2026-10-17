@@ -1,11 +1,12 @@
 import { AuraStats as AuraStatsProto, SpellStats as SpellStatsProto, UnitMetadata as UnitMetadataProto } from '@generated/proto/api';
 import { Debuffs } from '@generated/proto/buffs';
-import { ActionID as ActionIdProto, Class, ItemRandomSuffix, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { ActionID as ActionIdProto, Class, ConsumesSpec, ItemRandomSuffix, PseudoStat, Spec, Stat, WeaponType } from '@generated/proto/common';
 import { UIItem as Item } from '@generated/proto/ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ActionId } from '../proto/action_id';
 import { Stats } from '../proto/stats';
+import { adjustImbues, adjustSwapImbues } from '../proto/utils';
 import { Player, UnitMetadata } from './player';
 
 // getDebuffStats reads nothing but the raid's debuffs, so the method is called against that one
@@ -14,6 +15,38 @@ const debuffStats = (debuffs: Partial<Debuffs>): Stats =>
 	Player.prototype.getDebuffStats.call({
 		sim: { raid: { getDebuffs: () => Debuffs.create(debuffs) } },
 	} as unknown as Player<any>);
+
+describe('Player.setConsumes', () => {
+	it('matches main-hand and item-swap imbues to their weapons', () => {
+		const sword = Item.create({ weaponType: WeaponType.WeaponTypeSword });
+		const mace = Item.create({ weaponType: WeaponType.WeaponTypeMace });
+		let storedConsumes = ConsumesSpec.create();
+		const player = {
+			slice: () => ({ consumables: storedConsumes }),
+			getGear: () => ({ adjustImbues: (consumes: ConsumesSpec) => adjustImbues(consumes, sword, mace) }),
+			itemSwapSettings: {
+				getGear: () => ({ adjustSwapImbues: (consumes: ConsumesSpec) => adjustSwapImbues(consumes, mace, sword) }),
+			},
+			patch: (_field: string, consumes: ConsumesSpec) => {
+				storedConsumes = consumes;
+			},
+		} as unknown as Player<any>;
+
+		Player.prototype.setConsumes.call(
+			player,
+			ConsumesSpec.create({
+				mhImbueId: 12643,
+				ohImbueId: 12404,
+				swapMhImbueId: 12404,
+				swapOhImbueId: 12643,
+			}),
+		);
+
+		expect([storedConsumes.mhImbueId, storedConsumes.ohImbueId, storedConsumes.swapMhImbueId, storedConsumes.swapOhImbueId]).toEqual([
+			12404, 12643, 12643, 12404,
+		]);
+	});
+});
 
 describe('Player.getDebuffStats', () => {
 	// Judgement of the Crusader raises Holy damage taken and nothing else: Improved Seal of the

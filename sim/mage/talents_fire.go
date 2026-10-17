@@ -249,11 +249,7 @@ func (mage *Mage) registerMasterOfElements() {
 		if !spell.SpellSchool.Matches(core.SpellSchoolFire | core.SpellSchoolFrost) {
 			return false
 		}
-		if spell.Cost == nil || spell.Cost.BaseCost == 0 {
-			return false
-		}
-
-		return spell.CurCast.Cost > 0
+		return spell.Cost != nil && spell.Cost.BaseCost > 0
 	}
 
 	mage.MakeProcTriggerAura(trigger)

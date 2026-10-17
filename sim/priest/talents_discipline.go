@@ -41,8 +41,9 @@ func (priest *Priest) registerDisciplineTalents() {
 	priest.applyPowerInfusion()
 }
 
-// Your Smite and Penance spells deal X% increased damage to targets afflicted with your Holy Fire.
-// The marker on each target is up while any rank of this priest's Holy Fire burns it (holy_fire.go).
+// Your Smite and Penance spells deal X% increased damage to targets afflicted with your Holy Fire or Shadow Word: Pain.
+// The marker on each target is up while any rank of this priest's Holy Fire or Shadow Word: Pain is on it
+// (attachPowerInLightMarker).
 func (priest *Priest) applyPowerInLight() {
 	if priest.Talents.PowerInLight == 0 {
 		return
@@ -60,6 +61,28 @@ func (priest *Priest) applyPowerInLight() {
 			return 1
 		})
 	})
+}
+
+// Switches the target's Power in Light marker from a Holy Fire or Shadow Word: Pain rank's dot. A dot
+// that drops leaves the marker on while another of them is still up; a replaced rank's dot expires
+// before the new rank's dot gains, so the marker ends up on.
+func (priest *Priest) attachPowerInLightMarker(config *core.SpellConfig) {
+	if priest.powerInLightAuras == nil {
+		return
+	}
+
+	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
+		priest.powerInLightAuras.Get(aura.Unit).Activate(sim)
+	}
+	// The dropping dot already reads inactive here.
+	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
+		for _, spell := range priest.Spellbook {
+			if spell.Matches(PriestSpellHolyFire|PriestSpellShadowWordPain) && spell.Dot(aura.Unit).IsActive() {
+				return
+			}
+		}
+		priest.powerInLightAuras.Get(aura.Unit).Deactivate(sim)
+	}
 }
 
 // Wand damage, +13% / +25%: the wand's shots are the priest's only ranged autos. The row's school mask
