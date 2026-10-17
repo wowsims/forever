@@ -72,7 +72,6 @@ describe('BulkTabBody', () => {
 			name,
 			isCurrent,
 			durationLabel,
-			summaryLabel: `${durationLabel} · 1 target`,
 			duration: 180,
 			durationVariation: 5,
 			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100 },

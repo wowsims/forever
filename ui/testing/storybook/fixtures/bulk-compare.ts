@@ -22,14 +22,13 @@ const CURRENT = compareGearSet(1);
 const result = (gear: Gear, avg: number): TopGearResult => ({ gear, dpsMetrics: DistributionMetrics.create({ avg, stdev: 10 }) });
 
 // An encounter ranking the sets with the given helm ids at the given DPS, and the current gear at 1000, best first.
-const encounter = (name: string, duration: number | null, summaryLabel: string, ranked: Array<[number, number]>): BulkEncounterResults => {
+const encounter = (name: string, duration: number | null, ranked: Array<[number, number]>): BulkEncounterResults => {
 	const base = result(CURRENT, 1000);
 	const results = [...ranked.map(([id, avg]) => result(compareGearSet(id), avg)), base].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
 	return {
 		name,
 		isCurrent: false,
 		durationLabel: '',
-		summaryLabel,
 		duration,
 		durationVariation: duration === null ? null : 5,
 		results: { chains: results.map(ranking => [ranking]), originalGearResults: base, iterations: 100 },
@@ -39,17 +38,17 @@ const encounter = (name: string, duration: number | null, summaryLabel: string, 
 // Run order Patchwerk, Council, Ragnaros; display order Council, Patchwerk, Ragnaros (health-based last). Helm 2 ranks in
 // every encounter, helm 3 in Council and Ragnaros, the rest in one each.
 export const BULK_COMPARE_ENTRIES: BulkEncounterResults[] = [
-	encounter('Patchwerk', 300, '5:00 ±5s · 1 target', [
+	encounter('Patchwerk', 300, [
 		[2, 1100],
 		[4, 1090],
 		[5, 1080],
 	]),
-	encounter('Council', 90, '1:30 ±5s · 1 target', [
+	encounter('Council', 90, [
 		[3, 1030],
 		[2, 1020],
 		[6, 990],
 	]),
-	encounter('Ragnaros', null, 'Health · 1 target', [
+	encounter('Ragnaros', null, [
 		[7, 12500],
 		[3, 1150],
 		[2, 1120],

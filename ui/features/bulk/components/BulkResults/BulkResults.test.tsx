@@ -23,7 +23,6 @@ const entry = (iterations: number): BulkEncounterResults => {
 		name: '',
 		isCurrent: true,
 		durationLabel: '3:00 ±5s',
-		summaryLabel: '3:00 ±5s · 1 target',
 		duration: 180,
 		durationVariation: 5,
 		results: { chains: [[result(1100)], [baseline]], originalGearResults: baseline, iterations },

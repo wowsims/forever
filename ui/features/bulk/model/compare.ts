@@ -1,16 +1,14 @@
 import type { DistributionMetrics } from '@generated/proto/api';
 import { ItemSpec } from '@generated/proto/common';
-import { translateProtoStatName } from '@i18n/localization';
 import type { BulkEncounterResults } from '@sim/bulk/types';
-import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
+
+import { formatBulkItemLabel } from './format';
 
 export interface ComparedBar {
 	key: string;
 	isCurrent: boolean;
-	/** The set's number across the whole comparison; 0 for the current gear. */
-	number: number;
 	dpsMetrics: DistributionMetrics;
 	/** DPS over the current gear's in the same encounter. */
 	gain: number;
@@ -57,7 +55,6 @@ export const bulkComparison = (entries: readonly BulkEncounterResults[]): BulkCo
 				return {
 					key,
 					isCurrent,
-					number: isCurrent ? 0 : sets.get(key)!.number,
 					dpsMetrics: result.dpsMetrics,
 					gain: result.dpsMetrics.avg - originalGearResults.dpsMetrics.avg,
 				};
@@ -67,18 +64,11 @@ export const bulkComparison = (entries: readonly BulkEncounterResults[]): BulkCo
 	return { encounters, sets: [...sets.values()], current };
 };
 
-// "Item Suffix (Enchant)", as the result rows name it.
-const itemLabel = (equipped: EquippedItem): string => {
-	const suffix = equipped.randomSuffix ? ` ${translateProtoStatName(equipped.randomSuffix.name)}` : '';
-	const enchant = equipped.enchant ? ` (${equipped.enchant.name})` : '';
-	return `${equipped.item.name}${suffix}${enchant}`;
-};
-
 export const changedItemLabels = (gear: Gear, current: Gear): string[] =>
 	gear.getItemSlots().flatMap(slot => {
 		const equipped = gear.getEquippedItem(slot);
 		const worn = current.getEquippedItem(slot);
-		return equipped && !(worn && ItemSpec.equals(equipped.asSpec(), worn.asSpec())) ? [itemLabel(equipped)] : [];
+		return equipped && !(worn && ItemSpec.equals(equipped.asSpec(), worn.asSpec())) ? [formatBulkItemLabel(equipped)] : [];
 	});
 
 // The rank of each set the encounter ranked, 1 for its best; the current gear takes no rank.
@@ -135,15 +125,18 @@ export interface CompareMatrix {
 
 // The current gear's row, then every set's by number, with a column for every encounter, health-based ones too.
 export const compareMatrix = ({ encounters, sets }: BulkComparison): CompareMatrix => {
+	const columns = encounters.map(({ entry, bars }) => ({
+		base: entry.results.originalGearResults.dpsMetrics.avg,
+		top: Math.max(...bars.map(bar => bar.dpsMetrics.avg)),
+		byKey: new Map(bars.map(bar => [bar.key, bar])),
+	}));
 	const rowOf = (key: string, set: ComparedSet | null) => ({
 		key,
 		set,
-		cells: encounters.map(({ entry, bars }) => {
-			const bar = bars.find(candidate => candidate.key === key);
+		cells: columns.map(({ base, top, byKey }) => {
+			const bar = byKey.get(key);
 			if (!bar) return null;
-			const gainPct = percentOf(bar.gain, entry.results.originalGearResults.dpsMetrics.avg);
-			const top = Math.max(...bars.map(other => other.dpsMetrics.avg));
-			return { bar, gainPct, best: bar.dpsMetrics.avg === top };
+			return { bar, gainPct: percentOf(bar.gain, base), best: bar.dpsMetrics.avg === top };
 		}),
 	});
 	const currentKey = encounters.flatMap(encounter => encounter.bars).find(bar => bar.isCurrent)?.key;

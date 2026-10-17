@@ -70,8 +70,9 @@ describe('BulkCompareDialog', () => {
 	it('gives each cell its rank, spread and gain as a tooltip, and the current gear’s its DPS and spread only', () => {
 		mount();
 
-		const [current, s1] = bodyRows();
-		expect(cells(s1)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_rank bulk_tab.compare.readout_spread · +30.00 (3.00%)');
+		const [current, s1, , s3] = bodyRows();
+		expect(cells(s1)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_rank bulk_tab.compare.readout_spread · +30.00 (+3.00%)');
+		expect(cells(s3)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_rank bulk_tab.compare.readout_spread · -10.00 (-1.00%)');
 		expect(cells(current)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_current bulk_tab.compare.readout_spread');
 	});
 });

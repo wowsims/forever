@@ -1,11 +1,13 @@
 import type { ItemSlot } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { translateProtoStatName, translateSlotName } from '@i18n/localization';
+import { translateSlotName } from '@i18n/localization';
 import type { BulkEncounterResults } from '@sim/bulk/types';
 import { ActionId } from '@sim/proto/action_id';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import { type CsvValue, toCsv } from '@sim/utils/csv';
 import { stDevToConf95 } from '@sim/utils/math';
+
+import { formatBulkItemLabel } from './format';
 
 export const BULK_RESULTS_CSV_FILE_NAME = 'wowsims-batch-results.csv';
 
@@ -20,14 +22,7 @@ const slotHeaders = (slot: ItemSlot): string[] => {
 // as its bonus), the item id and the enchant id the gear spec stores. An empty slot leaves all four cells empty.
 const slotCells = (equipped: EquippedItem | null): CsvValue[] => {
 	if (!equipped) return ['', '', '', ''];
-	const suffix = equipped.randomSuffix ? ` ${translateProtoStatName(equipped.randomSuffix.name)}` : '';
-	const enchant = equipped.enchant ? ` (${equipped.enchant.name})` : '';
-	return [
-		`${equipped.item.name}${suffix}${enchant}`,
-		ActionId.makeItemUrl(equipped.id, equipped.randomSuffix?.id),
-		equipped.id,
-		equipped.enchant?.effectId ?? '',
-	];
+	return [formatBulkItemLabel(equipped), ActionId.makeItemUrl(equipped.id, equipped.randomSuffix?.id), equipped.id, equipped.enchant?.effectId ?? ''];
 };
 
 // One row per ranked set of every finished encounter, in the order the Results pane lists them, with the full gear set.

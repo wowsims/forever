@@ -26,20 +26,21 @@ const shortLabel = (number: number) => t('short_set', { number });
 
 const encounterLabel = ({ entry }: ComparedEncounter) => (entry.isCurrent ? i18n.t('bulk_tab.results.current') : entry.name);
 
+const gainLabel = (gainPct: number) => `${formatToNumber(gainPct, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' })}%`;
+
 const lengthLabel = (duration: number) => formatDurationSeconds(duration, { separatorStyle: 'colon', minimumUnit: 'minutes' });
 
 // The rank and DPS with the fight-to-fight spread, the ± the sim results card shows, then the gain over the current gear.
-// The current gear's own cells (rank null) carry neither rank nor gain.
-const cellTooltip = (bar: ComparedBar, { entry }: ComparedEncounter, rank: number | null): string => {
+// The current gear's own cells (rank null) carry neither rank nor gain. The percentage is the cell's own, of the current
+// gear's DPS.
+const cellTooltip = (bar: ComparedBar, { entry }: ComparedEncounter, rank: number | null, gainPct: number): string => {
 	const base = entry.results.originalGearResults.dpsMetrics;
 	const { avg, stdev } = bar.dpsMetrics;
 	const dps = formatBulkDps(avg);
 	const spread = t('readout_spread', { spread: formatToNumber(stdev, { maximumFractionDigits: 0 }) });
 	if (rank === null) return `${t('readout_current', { dps })} ${spread}`;
-	return `${t('readout_rank', { rank, dps })} ${spread} · ${formatDeltaText(base.avg, avg, 2, undefined, true, true).text}`;
+	return `${t('readout_rank', { rank, dps })} ${spread} · ${formatDeltaText(base.avg, avg, 2, undefined, true).text} (${gainLabel(gainPct)})`;
 };
-
-const gainLabel = (gainPct: number) => `${formatToNumber(gainPct, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' })}%`;
 
 const tableProps = (comparison: BulkComparison): BulkCompareTableProps => {
 	const { encounters, current } = comparison;
@@ -61,7 +62,7 @@ const tableProps = (comparison: BulkComparison): BulkCompareTableProps => {
 						dps: formatBulkDps(cell.bar.dpsMetrics.avg),
 						tint: cell.tint,
 						best: cell.best,
-						tooltip: cellTooltip(cell.bar, encounters[index], set ? (ranks[index].get(key) ?? null) : null),
+						tooltip: cellTooltip(cell.bar, encounters[index], set ? (ranks[index].get(key) ?? null) : null, cell.gainPct),
 					},
 			),
 		})),

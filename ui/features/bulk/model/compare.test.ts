@@ -29,7 +29,6 @@ const entry = (name: string, duration: number | null, ranked: Array<[Gear, numbe
 		name,
 		isCurrent: false,
 		durationLabel: '',
-		summaryLabel: '',
 		duration,
 		durationVariation: duration === null ? null : 5,
 		results: { chains, originalGearResults: base, iterations: 100 },
@@ -73,8 +72,9 @@ describe('bulkComparison', () => {
 
 	it('numbers each set where it first shows and keeps the number in every encounter, leaving the current gear out', () => {
 		const { encounters, sets } = bulkComparison(ENTRIES);
+		const numberOf = (key: string) => sets.find(set => set.key === key)?.number;
 
-		expect(encounters.map(encounter => encounter.bars.map(bar => (bar.isCurrent ? 'current' : bar.number)))).toEqual([
+		expect(encounters.map(encounter => encounter.bars.map(bar => (bar.isCurrent ? 'current' : numberOf(bar.key))))).toEqual([
 			[1, 'current'],
 			[2, 'current', 1],
 			[3, 1, 'current'],
