@@ -283,10 +283,12 @@ func applySkyborneSharedRacials(character *Character) {
 	character.PseudoStats.CastSpeedMultiplier *= 1.03
 }
 
+// Beast Slaying 20557, Big Game Hunter 1259721 and Elemental Insight 1259707 state one effect, aura 168:
+// 5% damage against the creature type. Their rows carry no aura 547, the critical damage half that
+// Humanoid Slaying 19151 and Monster Slaying 24294 state.
 func applyCreatureTypeSlaying(character *Character, mobType proto.MobType) {
 	character.Env.RegisterPostFinalizeEffect(func() {
 		character.MultiplyDamageVersus(1.05, mobType)
-		character.MultiplyCritDamageVersus(1.05, mobType)
 	})
 }
 
