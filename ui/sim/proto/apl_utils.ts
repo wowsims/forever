@@ -91,7 +91,7 @@ export const isEqualAPLRotation = (player: Player<Spec>, rotation?: APLRotation,
 
 	const matchable = matchableRotation(rotation);
 	const otherMatchable = matchableRotation(otherRotation);
-	if (otherMatchable?.type === APLRotation_Type.TypeSimple && otherMatchable?.simple?.specRotationJson) {
+	if (otherMatchable?.type === APLRotation_Type.TypeSimple && otherMatchable?.simple) {
 		return (
 			!!matchable?.simple &&
 			player.specTypeFunctions.rotationEquals(

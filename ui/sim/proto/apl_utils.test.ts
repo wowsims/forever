@@ -65,8 +65,9 @@ describe('isEqualAPLRotation', () => {
 		const preset = (specRotationJson: string, cooldowns: Cooldowns) =>
 			APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson, cooldowns } });
 
-		expect(isEqualAPLRotation(defaultsPlayer, current, simple(Cooldowns.create()))).toBe(false);
+		expect(isEqualAPLRotation(defaultsPlayer, current, preset('{"spec":"Fury"}', Cooldowns.clone(picked)))).toBe(false);
 		expect(isEqualAPLRotation(defaultsPlayer, current, preset('{}', Cooldowns.clone(picked)))).toBe(true);
+		expect(isEqualAPLRotation(defaultsPlayer, preset('{}', Cooldowns.clone(picked)), current)).toBe(true);
 	});
 });
 
