@@ -116,18 +116,16 @@ export function threatDataset(unit: UnitMetrics, seriesId: string, borderColor: 
 	};
 }
 
-// The largest value the resource is ever declared or observed to hold over the fight. The first
-// group is no scale: mana spent before the pull leaves it below the maximum, and resources that
-// start empty (chi, combo points, runic power) open at 0 with no useful maxValue.
+// The largest value the resource is declared or observed to hold over the fight. The first group is
+// no scale: mana spent before the pull leaves it below the maximum.
 function largestResourceValue(logs: Array<ResourceGroupLog>): number {
 	let max = 0;
-	for (const log of logs) max = Math.max(max, log.maxValue || 0, log.valueBefore, log.valueAfter);
+	for (const log of logs) max = Math.max(max, log.maxValue, log.valueBefore, log.valueAfter);
 	return max;
 }
 
 export function manaDataset(unit: UnitMetrics): { dataset: TimelineDataset<ResourceGroupLog>; maxMana: number } | null {
 	const logs = unit.groupedResourceLogs[ResourceType.ResourceTypeMana].filter(log => log.timestamp >= 0);
-	if (logs.length == 0) return null;
 	const maxMana = largestResourceValue(logs);
 	if (maxMana <= 0) return null;
 

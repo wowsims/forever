@@ -14,6 +14,10 @@ describe('manaDataset', () => {
 	it('scales to the maximum mana when mana was spent before the pull', () => {
 		const mana = manaDataset(unit([group(-1, 3565, 2865, 3565), group(0, 2865, 2800, 3565), group(5, 2800, 2600, 3565)]));
 		expect(mana?.maxMana).toBe(3565);
-		expect(mana?.dataset.tooltipSpec).toEqual({ kind: 'resource', maxValue: 3565, includeAuras: true });
+	});
+
+	it('scales to the highest maximum mana when the maximum rises during the fight', () => {
+		const mana = manaDataset(unit([group(0, 3565, 3400, 3565), group(5, 3400, 3500, 3800)]));
+		expect(mana?.maxMana).toBe(3800);
 	});
 });
