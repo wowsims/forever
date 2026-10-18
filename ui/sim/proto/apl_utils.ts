@@ -2,6 +2,7 @@ import { APLAction, APLPrepullAction, APLRotation, APLRotation_Type } from '@gen
 import { ActionID as ActionIdProto, Cooldowns, Spec } from '@generated/proto/common';
 
 import { Player } from '../player/player';
+import { simpleSpecRotationFromJson } from './spec_functions';
 
 type APLRenameTarget =
 	| { type: 'variable'; oldName: string; newName: string }
@@ -82,21 +83,17 @@ export function renameAPLReference(obj: unknown, target: APLRenameTarget): void 
 const matchableRotation = (rotation?: APLRotation): APLRotation | undefined =>
 	rotation?.type === APLRotation_Type.TypeAuto ? { ...rotation, type: APLRotation_Type.TypeAPL } : rotation;
 
-// An empty spec json means the default spec rotation, as in `Player.getSimpleRotation`.
-const simpleSpecRotation = (player: Player<Spec>, specRotationJson: string) =>
-	specRotationJson ? player.specTypeFunctions.rotationFromJson(JSON.parse(specRotationJson)) : player.specTypeFunctions.rotationCreate();
-
 export const isEqualAPLRotation = (player: Player<Spec>, rotation?: APLRotation, otherRotation?: APLRotation): boolean => {
 	if (!!rotation != !!otherRotation) return false;
 
 	const matchable = matchableRotation(rotation);
 	const otherMatchable = matchableRotation(otherRotation);
-	if (otherMatchable?.type === APLRotation_Type.TypeSimple && otherMatchable?.simple) {
+	if (otherMatchable?.type === APLRotation_Type.TypeSimple && otherMatchable.simple) {
 		return (
 			!!matchable?.simple &&
 			player.specTypeFunctions.rotationEquals(
-				simpleSpecRotation(player, otherMatchable.simple.specRotationJson),
-				simpleSpecRotation(player, matchable.simple.specRotationJson),
+				simpleSpecRotationFromJson(player.specTypeFunctions, otherMatchable.simple.specRotationJson),
+				simpleSpecRotationFromJson(player.specTypeFunctions, matchable.simple.specRotationJson),
 			) &&
 			// Cooldown timings are part of a Simple rotation, so two that differ only there are not
 			// the same rotation. Without this the mage mana-gem and Serpent-Coil builds report as

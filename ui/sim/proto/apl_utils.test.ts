@@ -39,13 +39,17 @@ describe('isEqualAPLRotation', () => {
 		expect(isEqualAPLRotation(player, undefined, undefined)).toBe(true);
 	});
 
-	// The Simple branch does reach the player, so it needs the two codec hooks it calls.
+	// The Simple branch does reach the player, so it needs the three codec hooks it calls.
 	const simplePlayer = {
-		specTypeFunctions: { rotationFromJson: (json: unknown) => json, rotationEquals: (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b) },
+		specTypeFunctions: {
+			rotationCreate: () => ({}),
+			rotationFromJson: (json: unknown) => json,
+			rotationEquals: (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b),
+		},
 	} as unknown as Player<Spec>;
 
-	const simple = (cooldowns: Cooldowns) =>
-		APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson: '{"spec":"Fury"}', cooldowns } });
+	const simple = (cooldowns: Cooldowns, specRotationJson = '{"spec":"Fury"}') =>
+		APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson, cooldowns } });
 
 	it('separates Simple rotations that differ only in cooldown timings', () => {
 		const a = simple(Cooldowns.create({ cooldowns: [{ id: ActionID.create(), timings: [10] }] }));
@@ -55,19 +59,13 @@ describe('isEqualAPLRotation', () => {
 		expect(isEqualAPLRotation(simplePlayer, a, simple(Cooldowns.clone(a.simple!.cooldowns!)))).toBe(true);
 	});
 
-	// A Simple rotation only gets its spec json once a checkbox is touched, so picking a cooldown first leaves it empty.
 	it('reads an empty spec json as the default spec rotation', () => {
-		const defaultsPlayer = {
-			specTypeFunctions: { ...simplePlayer.specTypeFunctions, rotationCreate: () => ({}) },
-		} as unknown as Player<Spec>;
-		const picked = Cooldowns.create({ cooldowns: [{ id: ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 13877 } }) }] });
-		const current = APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson: '', cooldowns: picked } });
-		const preset = (specRotationJson: string, cooldowns: Cooldowns) =>
-			APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson, cooldowns } });
+		const picked = Cooldowns.create({ cooldowns: [{ id: ActionID.create() }] });
+		const current = simple(picked, '');
 
-		expect(isEqualAPLRotation(defaultsPlayer, current, preset('{"spec":"Fury"}', Cooldowns.clone(picked)))).toBe(false);
-		expect(isEqualAPLRotation(defaultsPlayer, current, preset('{}', Cooldowns.clone(picked)))).toBe(true);
-		expect(isEqualAPLRotation(defaultsPlayer, preset('{}', Cooldowns.clone(picked)), current)).toBe(true);
+		expect(isEqualAPLRotation(simplePlayer, current, simple(picked))).toBe(false);
+		expect(isEqualAPLRotation(simplePlayer, current, simple(picked, '{}'))).toBe(true);
+		expect(isEqualAPLRotation(simplePlayer, simple(picked, '{}'), current)).toBe(true);
 	});
 });
 

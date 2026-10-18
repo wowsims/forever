@@ -40,7 +40,7 @@ import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
 import { canEquipEnchant, canEquipItem, enchantAppliesToItem, isPVPItem } from '../proto/items';
-import { specTypeFunctions, withSpec } from '../proto/spec_functions';
+import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
 import { AL_CATEGORY_HARD_MODE, emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
@@ -939,18 +939,7 @@ export class Player<SpecType extends Spec> {
 	}
 
 	getSimpleRotation(): SpecRotation<SpecType> {
-		const jsonStr = this.aplRotation_.simple?.specRotationJson || '';
-		if (!jsonStr) {
-			return this.specTypeFunctions.rotationCreate();
-		}
-
-		try {
-			const json = JSON.parse(jsonStr);
-			return this.specTypeFunctions.rotationFromJson(json);
-		} catch (e) {
-			console.warn(`Error parsing rotation spec options: ${e}\n\nSpec options: '${jsonStr}'`);
-			return this.specTypeFunctions.rotationCreate();
-		}
+		return simpleSpecRotationFromJson(this.specTypeFunctions, this.aplRotation_.simple?.specRotationJson || '');
 	}
 
 	setSimpleRotation(newRotation: SpecRotation<SpecType>) {
