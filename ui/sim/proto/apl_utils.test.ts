@@ -54,6 +54,20 @@ describe('isEqualAPLRotation', () => {
 		expect(isEqualAPLRotation(simplePlayer, a, b)).toBe(false);
 		expect(isEqualAPLRotation(simplePlayer, a, simple(Cooldowns.clone(a.simple!.cooldowns!)))).toBe(true);
 	});
+
+	// A Simple rotation only gets its spec json once a checkbox is touched, so picking a cooldown first leaves it empty.
+	it('reads an empty spec json as the default spec rotation', () => {
+		const defaultsPlayer = {
+			specTypeFunctions: { ...simplePlayer.specTypeFunctions, rotationCreate: () => ({}) },
+		} as unknown as Player<Spec>;
+		const picked = Cooldowns.create({ cooldowns: [{ id: ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 13877 } }) }] });
+		const current = APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson: '', cooldowns: picked } });
+		const preset = (specRotationJson: string, cooldowns: Cooldowns) =>
+			APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson, cooldowns } });
+
+		expect(isEqualAPLRotation(defaultsPlayer, current, simple(Cooldowns.create()))).toBe(false);
+		expect(isEqualAPLRotation(defaultsPlayer, current, preset('{}', Cooldowns.clone(picked)))).toBe(true);
+	});
 });
 
 describe('renameAPLReference', () => {

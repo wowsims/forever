@@ -82,6 +82,10 @@ export function renameAPLReference(obj: unknown, target: APLRenameTarget): void 
 const matchableRotation = (rotation?: APLRotation): APLRotation | undefined =>
 	rotation?.type === APLRotation_Type.TypeAuto ? { ...rotation, type: APLRotation_Type.TypeAPL } : rotation;
 
+// An empty spec json means the default spec rotation, as in `Player.getSimpleRotation`.
+const simpleSpecRotation = (player: Player<Spec>, specRotationJson: string) =>
+	specRotationJson ? player.specTypeFunctions.rotationFromJson(JSON.parse(specRotationJson)) : player.specTypeFunctions.rotationCreate();
+
 export const isEqualAPLRotation = (player: Player<Spec>, rotation?: APLRotation, otherRotation?: APLRotation): boolean => {
 	if (!!rotation != !!otherRotation) return false;
 
@@ -91,8 +95,8 @@ export const isEqualAPLRotation = (player: Player<Spec>, rotation?: APLRotation,
 		return (
 			!!matchable?.simple &&
 			player.specTypeFunctions.rotationEquals(
-				player.specTypeFunctions.rotationFromJson(JSON.parse(otherMatchable.simple.specRotationJson)),
-				player.specTypeFunctions.rotationFromJson(JSON.parse(matchable.simple.specRotationJson)),
+				simpleSpecRotation(player, otherMatchable.simple.specRotationJson),
+				simpleSpecRotation(player, matchable.simple.specRotationJson),
 			) &&
 			// Cooldown timings are part of a Simple rotation, so two that differ only there are not
 			// the same rotation. Without this the mage mana-gem and Serpent-Coil builds report as
