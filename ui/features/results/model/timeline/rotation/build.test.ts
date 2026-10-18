@@ -125,6 +125,16 @@ describe('resource rows', () => {
 		expect(items[0].log.logs).toHaveLength(2);
 	});
 
+	it('ends a slice before the pull where the next group starts, even at 0', () => {
+		const mana = ResourceType.ResourceTypeMana;
+		const items = resourceItems(mana, [group(mana, -0.1, 1000, 900), group(mana, 0, 900, 900), group(mana, 0.1, 900, 950)]);
+		expect(items.map(item => [item.start, item.end])).toEqual([
+			[-0.1, 0],
+			[0, 0.1],
+			[0.1, 30],
+		]);
+	});
+
 	it('keeps every group of a number row, however close', () => {
 		const rage = ResourceType.ResourceTypeRage;
 		expect(resourceItems(rage, [group(rage, 1, 0, 10), group(rage, 1.02, 10, 20)])).toHaveLength(2);
