@@ -38,6 +38,7 @@ import {
 	APLValueCurrentTime,
 	APLValueCurrentTimePercent,
 	APLValueDotBaseDuration,
+	APLValueDotExpectedDps,
 	APLValueDotIsActive,
 	APLValueDotIsActiveOnAllTargets,
 	APLValueDotLowestRemainingTime,
@@ -983,14 +984,6 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
 	}),
-	dotCritPercentIncrease: inputBuilder({
-		label: i18n.t('rotation_tab.apl.values.dot_crit_percent_increase.label'),
-		submenu: ['dot'],
-		shortDescription: i18n.t('rotation_tab.apl.values.dot_crit_percent_increase.tooltip'),
-		newValue: APLValueDotPercentIncrease.create,
-		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
-		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
-	}),
 	dotTickRatePercentIncrease: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.dot_tick_rate_percent_increase.label'),
 		submenu: ['dot'],
@@ -998,6 +991,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: APLValueDotPercentIncrease.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
+	}),
+	dotExpectedDps: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.dot_expected_dps.label'),
+		submenu: ['dot'],
+		shortDescription: i18n.t('rotation_tab.apl.values.dot_expected_dps.tooltip'),
+		newValue: APLValueDotExpectedDps.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', '')],
 	}),
 	sequenceIsComplete: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.sequence_is_complete.label'),

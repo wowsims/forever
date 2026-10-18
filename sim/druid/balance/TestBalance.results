@@ -152,6 +152,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-DarkmantleArmor"
+ value: {
+  dps: 423.68656
+  tps: 304.11754
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 552.96858
@@ -170,6 +177,13 @@ dps_results: {
  value: {
   dps: 552.96858
   tps: 394.31995
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-DeathmistRaiment"
+ value: {
+  dps: 529.21831
+  tps: 377.67017
  }
 }
 dps_results: {
@@ -205,6 +219,14 @@ dps_results: {
  value: {
   dps: 552.96858
   tps: 394.31995
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-DreadmistRaiment"
+ value: {
+  dps: 494.92261
+  tps: 353.63861
+  hps: 8.65557
  }
 }
 dps_results: {
@@ -401,6 +423,13 @@ dps_results: {
  value: {
   dps: 574.5873
   tps: 409.40389
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-FrostfireRegalia"
+ value: {
+  dps: 705.32464
+  tps: 431.11605
  }
 }
 dps_results: {
@@ -614,6 +643,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Magister'sRegalia"
+ value: {
+  dps: 497.88745
+  tps: 357.62555
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-MajorRecombobulator-18637"
  value: {
   dps: 552.96858
@@ -691,6 +727,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-PlagueheartRaiment"
+ value: {
+  dps: 662.55912
+  tps: 471.0661
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-PristineEnchantedSouthSeasKelp-19613"
  value: {
   dps: 580.42763
@@ -719,6 +762,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-ShadowcraftArmor"
+ value: {
+  dps: 429.03624
+  tps: 307.61648
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 559.64989
@@ -737,6 +787,13 @@ dps_results: {
  value: {
   dps: 552.96858
   tps: 394.31995
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 537.84965
+  tps: 383.67934
  }
 }
 dps_results: {
@@ -835,6 +892,27 @@ dps_results: {
  value: {
   dps: 556.91513
   tps: 397.08253
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-VestmentsofFaith"
+ value: {
+  dps: 414.15603
+  tps: 296.89557
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 475.06459
+  tps: 341.93024
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 514.18241
+  tps: 367.02213
  }
 }
 dps_results: {

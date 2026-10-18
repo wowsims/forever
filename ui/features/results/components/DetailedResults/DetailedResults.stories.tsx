@@ -6,13 +6,18 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { DetailedResultsView, type DetailedResultsViewProps } from './DetailedResults';
 import { DETAILED_RESULTS_TABS } from './utils';
 
-const StatefulView = ({ activeId: initial, onActiveIdChange, ...props }: DetailedResultsViewProps) => {
+const StatefulView = ({ activeId: initial, onActiveIdChange, groupRanks: initialGroupRanks, onGroupRanksChange, ...props }: DetailedResultsViewProps) => {
 	const [activeId, setActiveId] = useState(initial);
+	const [groupRanks, setGroupRanks] = useState(initialGroupRanks);
 	const change = (next: string) => {
 		setActiveId(next);
 		onActiveIdChange(next);
 	};
-	return <DetailedResultsView {...props} activeId={activeId} onActiveIdChange={change} />;
+	const changeGroupRanks = (next: boolean) => {
+		setGroupRanks(next);
+		onGroupRanksChange(next);
+	};
+	return <DetailedResultsView {...props} activeId={activeId} onActiveIdChange={change} groupRanks={groupRanks} onGroupRanksChange={changeGroupRanks} />;
 };
 
 const meta = {
@@ -29,6 +34,8 @@ const meta = {
 		onSimulateIteration: fn(),
 		onSimulateDeath: fn(),
 		targetPicker: <span className="px-2">All units</span>,
+		groupRanks: true,
+		onGroupRanksChange: fn(),
 		children: DETAILED_RESULTS_TABS.map(tab => (
 			<TabPanel key={tab.id} value={tab.id} className="pt-0 pb-0">
 				<p className="p-4">The {tab.id} pane.</p>
@@ -57,3 +64,10 @@ export const NoResults: Story = { args: { hasResults: false } };
 export const DeathOnOffer: Story = { args: { deathDisabled: false } };
 
 export const SimDisabled: Story = { args: { iterationDisabled: true } };
+
+export const RanksUngrouped: Story = {
+	play: async ({ args, canvasElement }) => {
+		await userEvent.click(within(canvasElement).getByRole('checkbox'));
+		await expect(args.onGroupRanksChange).toHaveBeenCalledWith(false);
+	},
+};

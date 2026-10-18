@@ -35,7 +35,7 @@ func (shield *Shield) Apply(sim *Simulation, shieldAmount float64) {
 
 	threat := 0.0 // TODO
 	shield.Spell.SpellMetrics[target.UnitIndex].TotalThreat += threat
-	shield.Spell.SpellMetrics[target.UnitIndex].TotalShielding += shieldAmount
+	shield.Spell.RecordShielding(target, shieldAmount)
 	shield.Spell.SpellMetrics[target.UnitIndex].Hits++
 
 	if sim.Log != nil {

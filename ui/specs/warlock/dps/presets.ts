@@ -1,22 +1,40 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, TristateEffect } from '@generated/proto/common';
+import { ConsumesSpec, Profession, Spec, TristateEffect } from '@generated/proto/common';
+import { SavedTalents } from '@generated/proto/ui';
 import { Warlock_Options as WarlockOptions, WarlockOptions_Armor, WarlockOptions_CurseOptions, WarlockOptions_Summon } from '@generated/proto/warlock';
 
-import DefaultApl from './apls/default.apl.json';
+import AffWrackBuildJson from './builds/aff_wrack.build.json';
+import DemoFireBrandBuildJson from './builds/demo_fire_brand.build.json';
+import DemoShadowBrandBuildJson from './builds/demo_shadow_brand.build.json';
+import DestroBuildJson from './builds/destro.build.json';
+import SmRuinBuildJson from './builds/sm_ruin.build.json';
 
 // Preset options for this spec.
 // Eventually we will import these values for the raid sim too, so its good to
 // keep them in a separate file.
 
-export const DEFAULT_APL = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+export const DEMO_FIRE_BRAND_APL = PresetUtils.makePresetAPLRotation('Demo (Fire Brand)', DemoFireBrandBuildJson.player.rotation);
+export const DEMO_SHADOW_BRAND_APL = PresetUtils.makePresetAPLRotation('Demo (Shadow Brand)', DemoShadowBrandBuildJson.player.rotation);
+export const DESTRO_APL = PresetUtils.makePresetAPLRotation('Destro', DestroBuildJson.player.rotation);
+export const SM_RUIN_APL = PresetUtils.makePresetAPLRotation('SM/Ruin', SmRuinBuildJson.player.rotation);
+export const AFF_WRACK_APL = PresetUtils.makePresetAPLRotation('Aff (Wrack)', AffWrackBuildJson.player.rotation);
+
+const talentsOf = (name: string, json: { player: { talentsString: string } }) =>
+	PresetUtils.makePresetTalents(name, SavedTalents.create({ talentsString: json.player.talentsString }));
+
+export const DemoFireBrandTalents = talentsOf('Demo (Fire Brand)', DemoFireBrandBuildJson);
+export const DemoShadowBrandTalents = talentsOf('Demo (Shadow Brand)', DemoShadowBrandBuildJson);
+export const DestroTalents = talentsOf('Destro', DestroBuildJson);
+export const SmRuinTalents = talentsOf('SM/Ruin', SmRuinBuildJson);
+export const AffWrackTalents = talentsOf('Aff (Wrack)', AffWrackBuildJson);
 
 // Defaults
 export const DefaultOptions = WarlockOptions.create({
 	classOptions: {
 		armor: WarlockOptions_Armor.DemonArmor,
-		curseOptions: WarlockOptions_CurseOptions.Recklessness,
+		curseOptions: WarlockOptions_CurseOptions.Elements,
 		sacrificedDemon: WarlockOptions_Summon.Succubus,
 		summon: WarlockOptions_Summon.Imp,
 		// A full Felcloth Bag (21341), the largest Soul Bag a warlock can carry.
@@ -60,8 +78,17 @@ export const DefaultDebuffs = Debuffs.create({
 	judgementOfWisdom: true,
 	sunderArmor: true,
 	faerieFire: true,
-	curseOfRecklessness: true,
-	curseOfElements: true,
 	giftOfArthas: true,
 	exposeArmor: true,
 });
+
+// Each build file holds the talents, demons, consumables, buffs and rotation of one tree and playstyle.
+const build = (name: string, json: unknown) => PresetUtils.makePresetBuildFromJSON(name, Spec.SpecWarlock, json);
+
+export const Builds = [
+	build('Demo (Fire Brand)', DemoFireBrandBuildJson),
+	build('Demo (Shadow Brand)', DemoShadowBrandBuildJson),
+	build('Destro', DestroBuildJson),
+	build('SM/Ruin', SmRuinBuildJson),
+	build('Aff (Wrack)', AffWrackBuildJson),
+];

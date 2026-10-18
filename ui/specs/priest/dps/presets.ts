@@ -1,24 +1,27 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, Race, Stat, TristateEffect } from '@generated/proto/common';
+import { ConsumesSpec, Profession, Race, Spec, Stat, TristateEffect } from '@generated/proto/common';
 import { DpsPriest_Options as Options, PriestOptions_Armor } from '@generated/proto/priest';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultApl from './apls/default.apl.json';
-import SmiteApl from './apls/smite.apl.json';
-import PreraidGearJson from './gear_sets/preraid.gear.json';
-import PreraidSmiteGear from './gear_sets/preraid-smite.gear.json';
+import SmiteTestingBuildJson from './builds/smite_testing.build.json';
+import ShadowTestingBuildJson from './builds/testing.build.json';
 
-export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
-export const ROTATION_SMITE_DEFAULT = PresetUtils.makePresetAPLRotation('Smite', SmiteApl);
+export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', ShadowTestingBuildJson.player.rotation);
+export const ROTATION_SMITE_DEFAULT = PresetUtils.makePresetAPLRotation('Smite', SmiteTestingBuildJson.player.rotation);
 
-export const PreraidGear = PresetUtils.makePresetGear('Pre-raid', PreraidGearJson);
-export const PreraidSmite = PresetUtils.makePresetGear('Smite Pre-raid', PreraidSmiteGear);
+export const ShadowTestingGear = PresetUtils.makePresetGear('Shadow Testing', ShadowTestingBuildJson.player.equipment, { devOnly: true });
+export const SmiteTestingGear = PresetUtils.makePresetGear('Smite Testing', SmiteTestingBuildJson.player.equipment, { devOnly: true });
 
-export const StandardTalents = PresetUtils.makePresetTalents('Standard', SavedTalents.create({ talentsString: '00530321103--50052001231312251' }));
-export const SmiteTalents = PresetUtils.makePresetTalents('Smite', SavedTalents.create({ talentsString: '525235031030001001-30515100002-3' }));
+export const StandardTalents = PresetUtils.makePresetTalents('Standard', SavedTalents.create({ talentsString: ShadowTestingBuildJson.player.talentsString }));
+export const ShadowTestingBuild = PresetUtils.makePresetBuildFromJSON('Shadow Testing', Spec.SpecDpsPriest, ShadowTestingBuildJson, {
+	gear: ShadowTestingGear,
+});
+
+export const SmiteTalents = PresetUtils.makePresetTalents('Smite', SavedTalents.create({ talentsString: SmiteTestingBuildJson.player.talentsString }));
+export const SmiteTestingBuild = PresetUtils.makePresetBuildFromJSON('Smite Testing', Spec.SpecDpsPriest, SmiteTestingBuildJson, { gear: SmiteTestingGear });
 
 export const DefaultOptions = Options.create({
 	classOptions: {
@@ -69,7 +72,7 @@ export const DefaultDebuffs = Debuffs.create({
 
 export const OtherDefaults = {
 	channelClipDelay: 100,
-	distanceFromTarget: 28,
+	distanceFromTarget: 20,
 	profession1: Profession.Enchanting,
 	profession2: Profession.Tailoring,
 	race: Race.RaceUndead,

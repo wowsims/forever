@@ -15,7 +15,10 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-const defaultTalents = "00530321103--50052001231312251"
+// The Shadow Testing build's gear, talents and rotation, which the UI's Shadow Testing gear set,
+// Standard talents and Default rotation read too.
+var shadowTestingBuild = core.GetTestBuildFromJSON(proto.Class_ClassPriest, "../../ui/specs/priest/dps/builds", "testing",
+	core.ItemFilter{}, nil, nil)
 
 // The UI's defaults: Flask of Supreme Power, Major Spellblasting Potion, Nightfin Soup, Demonic Rune,
 // Brilliant Wizard Oil and Ez-Thro Dynamite II.
@@ -51,13 +54,13 @@ func TestShadowPriest(t *testing.T) {
 				},
 			},
 
-			GearSet:     core.GetGearSet("../../ui/specs/priest/dps/gear_sets", "preraid"),
-			Talents:     defaultTalents,
+			GearSet:     shadowTestingBuild.GearSet,
+			Talents:     shadowTestingBuild.Talents,
 			Consumables: defaultConsumables,
 			Profession1: proto.Profession_Enchanting,
 			Profession2: proto.Profession_Tailoring,
 
-			Rotation: core.GetAplRotation("../../ui/specs/priest/dps/apls", "default"),
+			Rotation: core.RotationCombo{Label: "default", Rotation: shadowTestingBuild.Rotation.Rotation},
 
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
@@ -91,7 +94,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 			Name:      "Prayer",
 			Race:      proto.Race_RaceTroll,
 			Class:     proto.Class_ClassPriest,
-			Equipment: core.GetGearSet("../../ui/specs/priest/dps/gear_sets", "preraid").GearSet,
+			Equipment: shadowTestingBuild.GearSet.GearSet,
 			Spec: &proto.Player_DpsPriest{
 				DpsPriest: &proto.DpsPriest{
 					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},

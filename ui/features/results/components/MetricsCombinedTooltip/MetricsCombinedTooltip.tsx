@@ -11,6 +11,8 @@ export interface MetricsCombinedTooltipEntry {
 	value: number;
 	percentage: number;
 	average?: number;
+	min?: number;
+	max?: number;
 }
 
 export interface MetricsCombinedTooltipGroup {
@@ -23,16 +25,21 @@ export interface MetricsCombinedTooltipGroup {
 
 export interface MetricsCombinedTooltipProps {
 	groups: Array<MetricsCombinedTooltipGroup>;
-	/** Overrides for the Type / Count / Average headers, by position. */
+	/** Overrides for the Type and Count headers, by position. The Min, Average and Max headers are fixed. */
 	headerValues?: Array<string | undefined>;
 }
+
+type ValueField = 'min' | 'average' | 'max';
+
+const VALUE_FIELDS: Array<ValueField> = ['min', 'average', 'max'];
 
 /** The tooltip *body* only — a nested breakdown table. It parameterises the rows and the bars; the anchor, the open/close and the veto belong to the column's one `<Tooltip>`, which is what keeps a 19-row table at seven tooltip instances instead of 133. */
 export const MetricsCombinedTooltip = ({ groups, headerValues }: MetricsCombinedTooltipProps) => {
 	const displayGroups = groups
 		.filter(group => group.data.some(entry => entry.value))
 		.map(group => ({ ...group, data: group.data.filter(entry => entry.value) }));
-	const hasAverageColumn = displayGroups.some(group => group.data.some(entry => typeof entry.average === 'number'));
+	const valueColumns = VALUE_FIELDS.filter(field => displayGroups.some(group => group.data.some(entry => typeof entry[field] === 'number')));
+	const columnCount = 2 + valueColumns.length;
 
 	return (
 		<Table striped hover className="ui-metrics-table" testId="metrics-table">
@@ -44,41 +51,49 @@ export const MetricsCombinedTooltip = ({ groups, headerValues }: MetricsCombined
 					<TableHeaderCell testId="metrics-table-header-cell" className="ui-metrics-header-cell">
 						{headerValues?.[1] || i18n.t('results_tab.details.tooltip_table.count')}
 					</TableHeaderCell>
-					{hasAverageColumn && (
-						<TableHeaderCell testId="metrics-table-header-cell" className="ui-metrics-header-cell">
-							{headerValues?.[2] || i18n.t('results_tab.details.tooltip_table.average')}
+					{valueColumns.map(field => (
+						<TableHeaderCell key={field} testId="metrics-table-header-cell" className="ui-metrics-header-cell">
+							{i18n.t(`results_tab.details.tooltip_table.${field}`)}
 						</TableHeaderCell>
-					)}
+					))}
 				</TableRow>
 			</thead>
 			<tbody data-testid="metrics-table-body">
 				{displayGroups.map(({ name: groupName, className, data, spellSchool, totalPercentage }, groupIndex) => {
 					const maxValue = Math.max(...data.map(entry => entry.value));
-					const columnCount = data.some(entry => typeof entry.average === 'number') ? 3 : 2;
 					return (
 						<Fragment key={groupName ?? groupIndex}>
 							{groupName && displayGroups.length > 1 && (
 								<TableRow testId="metrics-table-group-header" className={className}>
-									<TableHeaderCell className="p-0 text-left font-normal" colSpan={columnCount}>
+									<TableHeaderCell
+										className="border-b border-border-muted px-2 pt-2 pb-1 text-left font-medium text-muted"
+										colSpan={columnCount}>
 										{groupName}
 									</TableHeaderCell>
 								</TableRow>
 							)}
 							{[...data]
 								.sort((a, b) => b.value - a.value)
-								.map(({ name, value, percentage, average }) => (
-									<TableRow className={className} key={name}>
-										<TableCell className="ui-metrics-cell">{name}</TableCell>
+								.map(entry => (
+									<TableRow className={className} key={entry.name}>
+										<TableCell className="ui-metrics-cell whitespace-nowrap">{entry.name}</TableCell>
 										<TableCell className="ui-metrics-cell">
 											<MetricsTotalBar
 												spellSchool={spellSchool}
-												percentage={(percentage / totalPercentage) * 100}
+												percentage={(entry.percentage / totalPercentage) * 100}
 												max={maxValue}
-												total={value}
-												value={value}
+												total={entry.value}
+												value={entry.value}
 											/>
 										</TableCell>
-										{typeof average === 'number' && <TableCell className="ui-metrics-cell">{formatToCompactNumber(average)}</TableCell>}
+										{valueColumns.map(field => {
+											const fieldValue = entry[field];
+											return (
+												<TableCell key={field} className="ui-metrics-cell">
+													{typeof fieldValue === 'number' ? formatToCompactNumber(fieldValue) : ''}
+												</TableCell>
+											);
+										})}
 									</TableRow>
 								))}
 						</Fragment>

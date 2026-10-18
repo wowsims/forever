@@ -57,6 +57,40 @@ describe('MetricsCombinedTooltip', () => {
 		expect(cells(withAverage.container)).toEqual([['Hit', '10', '5']]);
 	});
 
+	it('adds the min and max columns around the average only when an entry carries them', () => {
+		const withRange = render(
+			<MetricsCombinedTooltip groups={[group(undefined, [{ name: 'Hit', value: 10, percentage: 10, average: 10, min: 8, max: 12 }])]} />,
+		);
+		expect([...withRange.container.querySelectorAll('thead th')].map(th => th.textContent)).toEqual([
+			'results_tab.details.tooltip_table.type',
+			'results_tab.details.tooltip_table.count',
+			'results_tab.details.tooltip_table.min',
+			'results_tab.details.tooltip_table.average',
+			'results_tab.details.tooltip_table.max',
+		]);
+		expect(cells(withRange.container)).toEqual([['Hit', '10', '8', '10', '12']]);
+
+		const withoutRange = render(<MetricsCombinedTooltip groups={[group(undefined, [{ name: 'Hit', value: 10, percentage: 10, average: 10 }])]} />);
+		expect(withoutRange.container.querySelectorAll('thead th')).toHaveLength(3);
+	});
+
+	it('leaves the min and max cells empty on a row without a range while another row has one', () => {
+		const { container } = render(
+			<MetricsCombinedTooltip
+				groups={[
+					group(undefined, [
+						{ name: 'Hit', value: 40, percentage: 40, min: 8, max: 12 },
+						{ name: 'Crit', value: 10, percentage: 10 },
+					]),
+				]}
+			/>,
+		);
+		expect(cells(container)).toEqual([
+			['Hit', '40', '8', '12'],
+			['Crit', '10', '', ''],
+		]);
+	});
+
 	it('takes the header overrides by position and leaves the holes at their defaults', () => {
 		const { container } = render(
 			<MetricsCombinedTooltip headerValues={[undefined, 'Amount']} groups={[group(undefined, [{ name: 'Hit', value: 10, percentage: 10 }])]} />,

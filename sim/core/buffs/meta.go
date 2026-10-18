@@ -111,15 +111,21 @@ func (m *Meta) actionID(isPlayer bool) core.ActionID {
 // SchoolResistances, and where Category is set, Exclusive(Category, true) for a single-aura one or
 // ExclusivePerStat(Category) for any other. Only the player's own copy joins SharedCategory.
 func newBuff(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32) *core.Aura {
-	return m.buff(unit, isPlayer, talentPoints, m.Options(talentPoints))
+	return m.buff(unit, isPlayer, m.label(isPlayer), talentPoints, m.Options(talentPoints))
+}
+
+// A caster's own copy of a generated buff, one per caster: newBuff's player copy labelled
+// "<Label>-<caster's label>". It bids in Category all the same.
+func newCasterBuff(unit *core.Unit, m *Meta, caster *core.Unit, talentPoints int32) *core.Aura {
+	return m.buff(unit, true, m.Label+"-"+caster.Label, talentPoints, m.Options(talentPoints))
 }
 
 // A buff worth its amounts once per item in the party: newBuff with Count(count).
 func newItemCountBuff(unit *core.Unit, m *Meta, isPlayer bool, count float64) *core.Aura {
-	return m.buff(unit, isPlayer, 0, append(m.Options(0), spelldata.Count(count)))
+	return m.buff(unit, isPlayer, m.label(isPlayer), 0, append(m.Options(0), spelldata.Count(count)))
 }
 
-func (m *Meta) buff(unit *core.Unit, isPlayer bool, talentPoints int32, opts []spelldata.ParseOpt) *core.Aura {
+func (m *Meta) buff(unit *core.Unit, isPlayer bool, label string, talentPoints int32, opts []spelldata.ParseOpt) *core.Aura {
 	opts = append(opts, spelldata.SchoolResistances())
 	if m.Category != "" {
 		if m.SingleAura {
@@ -130,7 +136,7 @@ func (m *Meta) buff(unit *core.Unit, isPlayer bool, talentPoints int32, opts []s
 	}
 
 	buildPhase := core.Ternary(isPlayer, core.CharacterBuildPhaseNone, core.CharacterBuildPhaseBuffs)
-	return m.parsedAura(unit, isPlayer, m.label(isPlayer), m.Category, talentPoints, buildPhase, opts)
+	return m.parsedAura(unit, isPlayer, label, m.Category, talentPoints, buildPhase, opts)
 }
 
 // The aura a generated debuff registers on the target: labelled and tagged like newBuff, never in a

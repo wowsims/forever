@@ -124,9 +124,13 @@ const (
 )
 
 // The family GenerateConsumableRegistrations registers the consumable in, which names its builder. c
-// is nil for a consumable db.json does not ship, catalogued for one the catalogue does not carry.
+// is nil for a consumable db.json does not ship, catalogued for one the catalogue does not carry. An
+// imbue ClassBuiltImbues names is the class's own, and registers in none.
 func registrationFamilyOf(c *proto.Consumable, catalogued *dbc.Consumable, routing *ConsumableRouting) registrationFamily {
+	_, classBuilt := ClassBuiltImbues[c.GetId()]
 	switch {
+	case c != nil && classBuilt:
+		return unregisteredFamily
 	case c != nil && (c.Type == proto.ConsumableType_ConsumableTypeImbue || c.Type == proto.ConsumableType_ConsumableTypeWeaponImbue):
 		return imbueFamily
 	case catalogued != nil && IsExplosive(catalogued, routing):

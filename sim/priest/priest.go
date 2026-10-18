@@ -138,6 +138,9 @@ func (priest *Priest) periodicDamageSpellConfig(rank *spelldata.Spell, classSpel
 	}
 
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
+		if rank.PeriodicCanCrit() {
+			return spell.CalcPeriodicDamage(sim, target, tick.Average(), spell.OutcomeExpectedMagicCrit)
+		}
 		return spell.CalcPeriodicDamage(sim, target, tick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
 	}
 

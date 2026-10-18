@@ -67,7 +67,7 @@ const ARMS_PRESET_OPTIONS = {
 // "of the Tiger" suffix, and the neck is a Darkmoon Faire ticket reward. The cloak, the first ring and the
 // Adaptive Combat Assistant are sold by the Undermine Trader in Stranglethorn Vale; the Dawn Armor pattern and
 // the second ring have no known source.
-export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, FURY_PRESET_OPTIONS);
+export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
 
 // The best build found on the Pre-BiS Fury gear over a three minute fight.
 export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30305013002-25053005052010501' }));
@@ -95,7 +95,7 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 
 // The same sources as the Pre-BiS Fury gear; the cloak and the bow are world-drop greens with the "of the
 // Tiger" suffix too.
-export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, ARMS_PRESET_OPTIONS);
+export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.

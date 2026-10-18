@@ -98,7 +98,7 @@ message APLAction {
 }
 
 
-// NextIndex: 135
+// NextIndex: 136
 message APLValue {
 	UUID uuid = 85;
 
@@ -207,8 +207,8 @@ message APLValue {
         APLValueDotTimeToNextTick dot_time_to_next_tick = 117;
         APLValueDotBaseDuration dot_base_duration = 114;
 		APLValueDotPercentIncrease dot_percent_increase = 101;
-		APLValueDotPercentIncrease dot_crit_percent_increase = 109;
         APLValueDotPercentIncrease dot_tick_rate_percent_increase = 110;
+        APLValueDotExpectedDps dot_expected_dps = 109;
 
         // Sequence values
         APLValueSequenceIsComplete sequence_is_complete = 44;
@@ -762,6 +762,11 @@ message APLValueProtectionPaladinDamageTakenLastGlobal {}
 
 message APLValueDotBaseDuration {
 	ActionID spell_id = 1;
+}
+
+message APLValueDotExpectedDps {
+	ActionID spell_id = 1;
+	UnitReference target_unit = 2;
 }
 
 message APLValueDotPercentIncrease {

@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -456,6 +457,37 @@ func (spell *Spell) CalcAndDealOutcome(sim *Simulation, target *Unit, outcomeApp
 	return result
 }
 
+func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
+	resisted := result.DidResist()
+	switch {
+	case result.DidBlockCrit():
+		return proto.HitKind_HitKindBlockedCrit
+	case result.DidCrit():
+		switch {
+		case isPeriodic && resisted:
+			return proto.HitKind_HitKindResistedCritTick
+		case isPeriodic:
+			return proto.HitKind_HitKindCritTick
+		case resisted:
+			return proto.HitKind_HitKindResistedCrit
+		}
+		return proto.HitKind_HitKindCrit
+	case result.DidGlance():
+		return proto.HitKind_HitKindGlance
+	case result.DidBlock():
+		return proto.HitKind_HitKindBlock
+	case result.DidCrush():
+		return proto.HitKind_HitKindCrush
+	case isPeriodic && resisted:
+		return proto.HitKind_HitKindResistedTick
+	case isPeriodic:
+		return proto.HitKind_HitKindTick
+	case resisted:
+		return proto.HitKind_HitKindResistedHit
+	}
+	return proto.HitKind_HitKindHit
+}
+
 // Applies the fully computed spell result to the sim.
 func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result *SpellResult) {
 	if !isPeriodic {
@@ -499,6 +531,10 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 			spell.SpellMetrics[result.Target.UnitIndex].TotalCrushDamage += result.Damage
 		}
 		spell.SpellMetrics[result.Target.UnitIndex].TotalThreat += result.Threat
+
+		if result.Landed() {
+			spell.recordHit(result.Target, hitKind(result, isPeriodic), result.Damage)
+		}
 	}
 
 	// Mark total damage done in raid so far for health based fights.
@@ -747,6 +783,16 @@ func (spell *Spell) dealHealingInternal(sim *Simulation, isPeriodic bool, result
 	}
 	spell.SpellMetrics[result.Target.UnitIndex].TotalHealing += result.Damage
 	spell.SpellMetrics[result.Target.UnitIndex].TotalThreat += result.Threat
+	kind := proto.HitKind_HitKindHeal
+	switch {
+	case isPeriodic && result.DidCrit():
+		kind = proto.HitKind_HitKindCritHealTick
+	case isPeriodic:
+		kind = proto.HitKind_HitKindHealTick
+	case result.DidCrit():
+		kind = proto.HitKind_HitKindCritHeal
+	}
+	spell.recordHit(result.Target, kind, result.Damage)
 	if result.Target.HasHealthBar() {
 		result.Target.GainHealth(sim, result.Damage, spell.HealthMetrics(result.Target))
 	}

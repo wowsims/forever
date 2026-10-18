@@ -26,6 +26,7 @@ export const IconEnumOptionItem = <T,>({ option, tooltipId, onSelect }: IconEnum
 						className="filter-[opacity(0.7)] transition-none hover:filter-none"
 						testId="icon-enum-option"
 						onActivate={onSelect}
+						{...option.wowhead}
 					/>
 				}
 				{...tooltipAnchorProps(option.tooltip ? tooltipId : undefined, option.tooltip)}

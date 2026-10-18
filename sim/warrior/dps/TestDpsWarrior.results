@@ -198,6 +198,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-DarkmantleArmor"
+ value: {
+  dps: 530.81452
+  tps: 310.0599
+  dtps: 3.1134
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 458.12737
@@ -220,6 +228,14 @@ dps_results: {
   dps: 467.93724
   tps: 274.27861
   dtps: 3.05866
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-DeathmistRaiment"
+ value: {
+  dps: 427.91198
+  tps: 251.71002
+  dtps: 3.1134
  }
 }
 dps_results: {
@@ -268,6 +284,14 @@ dps_results: {
   dps: 458.12737
   tps: 268.84514
   dtps: 3.05866
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-DreadmistRaiment"
+ value: {
+  dps: 416.66817
+  tps: 245.72791
+  dtps: 3.10872
  }
 }
 dps_results: {
@@ -440,6 +464,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-FeralheartRaiment"
+ value: {
+  dps: 489.38737
+  tps: 286.41033
+  dtps: 3.1134
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 458.12737
@@ -477,6 +509,14 @@ dps_results: {
   dps: 458.12737
   tps: 268.84514
   dtps: 3.05866
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-FrostfireRegalia"
+ value: {
+  dps: 472.16377
+  tps: 276.94555
+  dtps: 3.33811
  }
 }
 dps_results: {
@@ -672,6 +712,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Magister'sRegalia"
+ value: {
+  dps: 419.3112
+  tps: 247.06426
+  dtps: 3.1623
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-MajorRecombobulator-18637"
  value: {
   dps: 458.12737
@@ -776,6 +824,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-PlagueheartRaiment"
+ value: {
+  dps: 476.63671
+  tps: 279.80266
+  dtps: 3.31166
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-RageofMugamba-19577"
  value: {
   dps: 460.52465
@@ -832,6 +888,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-ShadowcraftArmor"
+ value: {
+  dps: 490.20948
+  tps: 286.71022
+  dtps: 3.1134
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 452.51012
@@ -861,6 +925,14 @@ dps_results: {
   dps: 458.12737
   tps: 268.84514
   dtps: 3.05866
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 423.55187
+  tps: 249.61572
+  dtps: 3.1623
  }
 }
 dps_results: {
@@ -992,6 +1064,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-VestmentsofFaith"
+ value: {
+  dps: 414.79723
+  tps: 244.26565
+  dtps: 3.16165
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 414.79723
+  tps: 244.26565
+  dtps: 3.1134
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 422.51064
+  tps: 248.73099
+  dtps: 3.1134
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-VolcanicHammer-12792"
  value: {
   dps: 458.12737
@@ -1013,6 +1109,14 @@ dps_results: {
   dps: 458.12737
   tps: 268.84514
   dtps: 3.05866
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-WildheartRaiment"
+ value: {
+  dps: 431.14034
+  tps: 253.45031
+  dtps: 3.1134
  }
 }
 dps_results: {

@@ -271,6 +271,40 @@ message TargetedActionMetrics {
 
 	// Total time spent casting this action, in milliseconds, either from hard casts, GCD, or channeling.
 	double cast_time_ms = 26;
+
+	// Per-value avg, stdev, min and max of each outcome this action landed on this target, keyed by HitKind.
+	// Only kinds with at least one value are present; hist and all_values stay empty.
+	map<int32, DistributionMetrics> ranges = 37;
+
+	// Values a class or spec records on this action, one entry per key.
+	repeated CustomActionMetric custom_metrics = 38;
+}
+
+// The outcome a range in TargetedActionMetrics.ranges covers. The resisted kinds are partial resists.
+enum HitKind {
+	HitKindHit = 0;
+	HitKindResistedHit = 1;
+	HitKindCrit = 2;
+	HitKindResistedCrit = 3;
+	HitKindTick = 4;
+	HitKindResistedTick = 5;
+	HitKindCritTick = 6;
+	HitKindResistedCritTick = 7;
+	HitKindGlance = 8;
+	HitKindBlock = 9;
+	HitKindBlockedCrit = 10;
+	HitKindCrush = 11;
+	HitKindHeal = 12;
+	HitKindCritHeal = 13;
+	HitKindHealTick = 14;
+	HitKindCritHealTick = 15;
+	HitKindShield = 16;
+}
+
+message CustomActionMetric {
+	// Names the label under results_tab.details.custom_metrics in the locale files.
+	string key = 1;
+	DistributionMetrics range = 2;
 }
 
 message AggregatorData {

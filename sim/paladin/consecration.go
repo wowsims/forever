@@ -1,6 +1,8 @@
 package paladin
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -8,6 +10,22 @@ import (
 )
 
 var ConsecrationRankMap = spellData.Consecration
+
+// The mark the ground lays on the first enemies inside it, one aura per enemy: the bonus tick's dummy,
+// and Consecrated Ground's Holy damage from caster mod, whose points the server sets from the talent.
+// The area trigger keeps it up while the ground stands, so it outlives the last tick by the row's
+// 0.6 sec.
+func (paladin *Paladin) registerConsecrationMark() {
+	mark := spellData.ConsecratedGroundTriggered.Highest()
+
+	paladin.consecrationMarks = paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		aura := target.GetOrRegisterAura(spelldata.AuraConfig(mark, spelldata.Label("Consecration Mark"+paladin.Label)))
+		if paladin.consecratedGroundPoints != nil {
+			spelldata.ParseEffects(nil, aura, mark, spelldata.FromCaster(&paladin.Unit, 0, 1), spelldata.ScaledBy(paladin.consecratedGroundPoints))
+		}
+		return aura
+	})
+}
 
 // Consecration
 // https://www.wowhead.com/forever/spell=20924
@@ -26,6 +44,22 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	bonusTargets := int(dummy.Average())
 	tickLength := dummy.Period()
 	numberOfTicks := int32(rank.Duration() / tickLength)
+	markTail := spellData.ConsecratedGroundTriggered.Highest().Duration()
+
+	// The ground marks the enemies inside it, up to the bonus targets, and keeps every mark up for the
+	// time it has left and the mark's tail: at the cast, and at each tick for an enemy that came later.
+	markTargets := func(sim *core.Simulation, remaining time.Duration) {
+		marked := 0
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			mark := paladin.consecrationMarks.Get(target)
+			if !mark.IsActive() && marked >= bonusTargets {
+				continue
+			}
+			mark.Duration = remaining + markTail
+			mark.Activate(sim)
+			marked++
+		}
+	}
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = SpellMaskConsecration
@@ -44,17 +78,14 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		BonusCoefficient: tick.Coeff(),
 		// The bonus scales on its own coefficient, so it is added to the base damage here rather than
 		// through the dot's, which is the base tick's and states none: the spell power and the Holy
-		// damage the target takes extra both sit inside the tick's base. The periodic dummy picks the
-		// bonus targets from its first tick on, and Consecrated Ground marks them on that first tick.
+		// damage the target takes extra both sit inside the tick's base. The marked enemies take it.
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
-			for i, target := range sim.Encounter.ActiveTargetUnits {
+			markTargets(sim, dot.RemainingDuration(sim))
+			for _, target := range sim.Encounter.ActiveTargetUnits {
 				damage := tick.Average()
-				if i < bonusTargets {
+				if paladin.consecrationMarks.Get(target).IsActive() {
 					damage += bonus.Average() + bonus.Coeff()*(dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])+
 						target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly])
-					if dot.TickCount() == 1 && paladin.consecratedGroundAuras != nil {
-						paladin.consecratedGroundAuras.Get(target).Activate(sim)
-					}
 				}
 				dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
 			}
@@ -67,6 +98,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
 
 		spell.AOEDot().Apply(sim)
+		markTargets(sim, rank.Duration())
 	}
 
 	paladin.RegisterSpell(config)

@@ -297,6 +297,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-CryptstalkerArmor"
+ value: {
+  dps: 497.04635
+  tps: 1062.20803
+  dtps: 258.06372
+  hps: 17.6
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-DarkmantleArmor"
+ value: {
+  dps: 492.05432
+  tps: 1058.57996
+  dtps: 336.91877
+  hps: 16.4
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 464.27824
@@ -320,6 +338,15 @@ dps_results: {
   dps: 470.01618
   tps: 1008.76879
   dtps: 288.35919
+  hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-DeathmistRaiment"
+ value: {
+  dps: 433.69848
+  tps: 930.05171
+  dtps: 438.56595
   hps: 16.4
  }
 }
@@ -374,6 +401,15 @@ dps_results: {
   dps: 445.50089
   tps: 963.57397
   dtps: 297.57948
+  hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-DreadmistRaiment"
+ value: {
+  dps: 425.53497
+  tps: 912.32818
+  dtps: 445.92071
   hps: 16.4
  }
 }
@@ -567,6 +603,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-FeralheartRaiment"
+ value: {
+  dps: 460.73419
+  tps: 992.23468
+  dtps: 386.85376
+  hps: 16.4
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 464.27824
@@ -618,6 +663,15 @@ dps_results: {
   tps: 1011.44477
   dtps: 275.78636
   hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-FrostfireRegalia"
+ value: {
+  dps: 439.95242
+  tps: 938.43506
+  dtps: 439.49555
+  hps: 17
  }
 }
 dps_results: {
@@ -891,6 +945,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Magister'sRegalia"
+ value: {
+  dps: 420.58561
+  tps: 897.88807
+  dtps: 447.7276
+  hps: 16.4
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-MajorRecombobulator-18637"
  value: {
   dps: 464.27824
@@ -996,6 +1059,15 @@ dps_results: {
   tps: 995.289
   dtps: 284.80113
   hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-PlagueheartRaiment"
+ value: {
+  dps: 443.25558
+  tps: 946.04271
+  dtps: 438.45327
+  hps: 17.6
  }
 }
 dps_results: {
@@ -1107,6 +1179,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ShadowcraftArmor"
+ value: {
+  dps: 461.59566
+  tps: 987.43638
+  dtps: 356.34607
+  hps: 16.4
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 464.27824
@@ -1139,6 +1220,15 @@ dps_results: {
   dps: 464.27824
   tps: 1001.79256
   dtps: 288.30476
+  hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 427.48424
+  tps: 919.48506
+  dtps: 445.00366
   hps: 16.4
  }
 }
@@ -1305,6 +1395,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-VestmentsofFaith"
+ value: {
+  dps: 398.84715
+  tps: 859.48175
+  dtps: 441.23341
+  hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 416.85481
+  tps: 895.18999
+  dtps: 449.12398
+  hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 419.43886
+  tps: 901.96613
+  dtps: 437.65722
+  hps: 16.4
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-VileProtector-7747"
  value: {
   dps: 468.63076
@@ -1337,6 +1454,15 @@ dps_results: {
   dps: 464.27824
   tps: 1001.79256
   dtps: 288.34029
+  hps: 16.4
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-WildheartRaiment"
+ value: {
+  dps: 427.17066
+  tps: 920.40635
+  dtps: 428.01938
   hps: 16.4
  }
 }

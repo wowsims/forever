@@ -127,6 +127,7 @@ func main() {
 	g.Go(func() error { _, err := database.LoadAndWriteItemArmorShield(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteArmorLocation(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteItemEffects(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemSetSpells(helper, inputsDir); return err })
 	g.Go(func() error { _, err := database.LoadAndWriteSpells(helper, inputsDir); return err })
 	g.Go(func() (err error) { consumables, err = database.LoadAndWriteConsumables(helper, inputsDir); return })
 	g.Go(func() (err error) {

@@ -56,8 +56,9 @@ jobs:
             - name: Install npm dependencies
               run: npm ci
 
-            - name: Install binaryen
-              run: sudo apt-get update && sudo apt-get install -y binaryen
+            # The deploy action copies the build with rsync.
+            - name: Install binaryen and rsync
+              run: sudo apt-get update && sudo apt-get install -y binaryen rsync
 
             - name: Build 🔧
               run: |

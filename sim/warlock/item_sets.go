@@ -19,8 +19,6 @@ var (
 	doomcallerImmo    = spelldata.MustFind(26116)   // 3pc: Immolate's damage
 	doomcallerBolt    = spelldata.MustFind(26117)   // 5pc: Shadow Bolt's cost
 	unspokenPets      = spelldata.MustFind(26118)   // 3pc: the demons' damage
-	plagueCorruption  = spelldata.MustFind(28829)   // 4pc: Corruption's damage
-	plagueThreat      = spelldata.MustFind(28746)   // 6pc: threat
 	demonheartHit     = spelldata.MustFind(1300966) // 2pc: hit
 	demonheartDemons  = spelldata.MustFind(1301094) // 4pc: spell damage against Demons
 )
@@ -151,32 +149,6 @@ var ItemSetImplementsOfUnspokenNames = core.NewItemSet(core.ItemSet{
 				pet.PseudoStats.DamageDealtMultiplier *= petMult
 			}
 		},
-	},
-})
-
-// Naxxramas
-var ItemSetPlagueheartRaiment = core.NewItemSet(core.ItemSet{
-	ID:   529,
-	Name: "Plagueheart Raiment",
-	Slots: []proto.ItemSlot{
-		proto.ItemSlot_ItemSlotHead,
-		proto.ItemSlot_ItemSlotShoulder,
-		proto.ItemSlot_ItemSlotChest,
-		proto.ItemSlot_ItemSlotWrist,
-		proto.ItemSlot_ItemSlotHands,
-		proto.ItemSlot_ItemSlotWaist,
-		proto.ItemSlot_ItemSlotLegs,
-		proto.ItemSlot_ItemSlotFeet,
-		proto.ItemSlot_ItemSlotFinger1,
-		proto.ItemSlot_ItemSlotFinger2,
-	},
-	Bonuses: map[int32]core.ApplySetBonus{
-		// 2pc (28831) heals the warlock off Shadow Bolt hits, which does not affect sims.
-		4: parsedSetBonus(plagueCorruption),
-		// Effect 2 lowers the threat of Corruption, Immolate, Curse of Agony and Siphon Life. Effect 1,
-		// 25% less threat from spell crits, has no place in the sim's threat.
-		6: parsedSetBonus(plagueThreat),
-		// 8pc (28830) takes 12% off Life Tap's health cost, which does not affect sims.
 	},
 })
 

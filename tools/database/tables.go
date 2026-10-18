@@ -1094,6 +1094,44 @@ func LoadAndWriteItemEffects(dbHelper *DBHelper, inputsDir string) ([]dbc.ItemEf
 	return effects, nil
 }
 
+func ScanItemSetSpell(rows *sql.Rows) (dbc.ItemSetSpell, error) {
+	var spell dbc.ItemSetSpell
+
+	err := rows.Scan(
+		&spell.ItemSetID,
+		&spell.Threshold,
+		&spell.SpellID,
+	)
+	if err != nil {
+		return spell, fmt.Errorf("scanning item set spell data: %w", err)
+	}
+
+	return spell, nil
+}
+
+const itemSetSpellsQuery = `
+	SELECT
+		iss.ItemSetID,
+		iss.Threshold,
+		iss.SpellID
+	FROM ItemSetSpell iss
+	ORDER BY iss.ID
+	`
+
+func LoadAndWriteItemSetSpells(dbHelper *DBHelper, inputsDir string) ([]dbc.ItemSetSpell, error) {
+	spells, err := LoadRows(dbHelper.db, itemSetSpellsQuery, ScanItemSetSpell)
+	if err != nil {
+		return nil, fmt.Errorf("error loading item set spells: %w", err)
+	}
+
+	fmt.Println("Loaded ItemSetSpells:", len(spells))
+	json, _ := json.Marshal(spells)
+	if err := dbc.WriteGzipFile(fmt.Sprintf("%s/dbc/item_set_spells.json", inputsDir), json); err != nil {
+		panic(fmt.Sprintf("Error loading DBC data %v", err))
+	}
+	return spells, nil
+}
+
 type RawTalent struct {
 	DefinitionID   int
 	TierID         int

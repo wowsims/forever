@@ -34881,6 +34881,11 @@ var generatedSpells = []Spell{
 			{ID: 1293272, SpellID: 1280349, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 12, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 			{ID: 1330586, SpellID: 1280349, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 27, BaseLevel: 60, SPCoef: 0.041999999433755875, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 		}},
+	{ID: 1280353, Name: "Consecration", School: 2, Attr: [17]uint32{1: 0x88, 2: 0x40000004, 3: 0x40000000, 4: 0x8080, 5: 0x4000400, 8: 0x1000, 9: 0x100008, 13: 0x81, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, DurationMs: 600, MaxRange: 50000, ProcChance: 100, ProcFlags: [2]uint32{0: 0x8}, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{0: 32}}, Labels: []int16{26}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1293276, SpellID: 1280353, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 1, SPCoef: 0.041999999433755875, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
+			{ID: 1340802, SpellID: 1280353, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER, BaseLevel: 1, PvpMult: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
+		}},
 	{ID: 1282380, Name: "Rain of Fire", Rank: "Rank 1", School: 4, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x8080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, MaxLevel: 25, MaxRange: 50000, DefenseType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 32}}, Labels: []int16{19}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1296066, SpellID: 1282380, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 40, PPL: 0.30000001192092896, BaseLevel: 20, MaxLevel: 25, SPCoef: 0.08299999684095383, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
@@ -38653,6 +38658,7 @@ var generatedHandTriggers = map[int32][]int32{
 	408343:  {408426},  // Fire Nova Rank 3 hits for 408426, the level 32 Fire Nova Rank 3 row, as ranks 1 and 2 hit for theirs
 	408344:  {408427},  // Fire Nova Rank 4 hits for 408427, the level 42 Fire Nova Rank 4 row, as ranks 1 and 2 hit for theirs
 	408345:  {408428},  // Fire Nova Rank 5 hits for 408428, the level 52 Fire Nova Rank 5 row, as ranks 1 and 2 hit for theirs
+	1310905: {1280353}, // Consecrated Ground's talent aura (a dummy) rides the mark Consecration's ground puts on the first 4 enemies inside it, 1280353: same name and class set, the bonus damage's dummy with its 0.042 coefficient and a Holy damage from caster mod whose points the server sets from the talent; the tooltip names the Consecration rank 20924 instead. In the log the mark lands at the cast and drops 0.6 sec after the last tick
 	1311074: {1311077}, // Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, a mana energize whose tooltip reads Judging restores a portion of the Judged Seal's Mana cost
 	1314103: {1314104}, // Improved Seal of Fury's talent aura (three dummies) casts the mana restore 1314104: same name and icon, a mana energize whose tooltip reads its numbers off 1314103 and whose aura text is Restoring Mana
 	1323967: {1323969}, // Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class set and icon, 3 charges heard on melee attacks, and its aura 231 casts the heal 1323968

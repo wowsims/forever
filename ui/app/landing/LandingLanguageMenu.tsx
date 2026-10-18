@@ -21,7 +21,7 @@ export const LandingLanguageMenu = ({ triggerClassName }: LandingLanguageMenuPro
 			trigger={<Icon name="globe" size="2x" />}
 			triggerProps={{
 				id: 'languageDropdown',
-				className: clsx('ui-landing-language-caret flex items-center text-sm whitespace-nowrap text-white/55', triggerClassName),
+				className: clsx('ui-landing-language-caret flex items-center text-sm whitespace-nowrap text-white', triggerClassName),
 				'aria-label': supportedLanguages[currentLang],
 			}}
 			align="end"

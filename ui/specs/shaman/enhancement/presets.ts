@@ -11,9 +11,9 @@ import TestingBuildJson from './builds/testing.build.json';
 
 export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
 
-export const DefaultGear = PresetUtils.makePresetGear('Testing', TestingBuildJson.player.equipment);
+export const DefaultGear = PresetUtils.makePresetGear('Testing', TestingBuildJson.player.equipment, { devOnly: true });
 
-export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.SpecEnhancementShaman, TestingBuildJson);
+export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.SpecEnhancementShaman, TestingBuildJson, { gear: DefaultGear });
 
 export const StandardTalents = {
 	name: 'Standard',
@@ -22,26 +22,27 @@ export const StandardTalents = {
 	}),
 };
 
-// Measured on the Pre-BiS gear with the Standard talents over a three minute fight. Hit is its value below the
-// 8% cap.
+// Measured on the Testing gear with the Standard talents over a three minute fight. The gear has 8.2% hit, so hit
+// is measured with 40 hit rating taken off, for its value below the 8% cap.
 export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.82,
-			[Stat.StatIntellect]: 2.72,
+			[Stat.StatAgility]: 1.32,
+			[Stat.StatIntellect]: 1.99,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatHitRating]: 5.36,
-			[Stat.StatCritRating]: 3.13,
-			[Stat.StatHasteRating]: 2.51,
-			[Stat.StatExpertiseRating]: 3.66,
-			[Stat.StatArmorPenetration]: 0.5,
-			[Stat.StatSpellDamage]: 1.15,
-			[Stat.StatNatureDamage]: 0.63,
+			[Stat.StatHitRating]: 5.2,
+			[Stat.StatCritRating]: 2.42,
+			[Stat.StatHasteRating]: 2.81,
+			[Stat.StatExpertiseRating]: 3.5,
+			[Stat.StatArmorPenetration]: 0.37,
+			[Stat.StatSpellDamage]: 1.27,
+			[Stat.StatNatureDamage]: 0.72,
+			[Stat.StatSpellPiercing]: 2.52,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 14.2,
+			[PseudoStat.PseudoStatMainHandDps]: 14.18,
 		},
 	),
 );

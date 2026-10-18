@@ -144,6 +144,7 @@ func (warlock *Warlock) Initialize() {
 	shared.RegisterShoot(&warlock.Character)
 
 	warlock.registerSummons()
+	warlock.registerBloodPact()
 
 	warlock.registerArmors()
 
@@ -152,12 +153,6 @@ func (warlock *Warlock) Initialize() {
 
 func (warlock *Warlock) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
 
-}
-
-func (warlock *Warlock) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
-	if warlock.Options.Summon == proto.WarlockOptions_Imp {
-		partyBuffs.BloodPact = true
-	}
 }
 
 func (warlock *Warlock) Reset(sim *core.Simulation) {

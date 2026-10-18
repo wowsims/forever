@@ -176,8 +176,8 @@ func TestTheStrongerBattleShoutTakesTheCategory(t *testing.T) {
 	}
 }
 
-// Two flat stat rows: Prayer of Fortitude's stamina bids only against its own stat's category and
-// Blood Pact names none, so the two sources of stamina add up.
+// Two flat stat rows: Prayer of Fortitude's stamina bids in StatBuff's stamina category and Blood Pact
+// in BloodPact, so the two sources of stamina add up.
 func TestGeneratedFlatStatBuffsAddUp(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 

@@ -270,6 +270,58 @@ func (x *aggregator) meanAndStdDev() (float64, float64) {
 	return mean, stdDev
 }
 
+// The zero value is empty. Mean and m2 (the sum of squared deviations) are kept Welford-style, so the
+// stdev stays stable for large counts of near-equal values and is exactly 0 for constant ones.
+type valueRange struct {
+	n        int
+	mean, m2 float64
+	min, max float64
+}
+
+func (r *valueRange) add(v float64) {
+	if r.n == 0 {
+		r.min, r.max = v, v
+	} else {
+		r.min = math.Min(r.min, v)
+		r.max = math.Max(r.max, v)
+	}
+	r.n++
+	d := v - r.mean
+	r.mean += d / float64(r.n)
+	r.m2 += d * (v - r.mean)
+}
+
+func (r *valueRange) merge(o *valueRange) {
+	if o.n == 0 {
+		return
+	}
+	if r.n == 0 {
+		*r = *o
+		return
+	}
+	n := float64(r.n + o.n)
+	delta := o.mean - r.mean
+	r.m2 += o.m2 + delta*delta*float64(r.n)*float64(o.n)/n
+	r.mean += delta * float64(o.n) / n
+	r.n += o.n
+	r.min = math.Min(r.min, o.min)
+	r.max = math.Max(r.max, o.max)
+}
+
+func (r *valueRange) toProto() *proto.DistributionMetrics {
+	stdev := 0.0
+	if r.n > 0 {
+		stdev = math.Sqrt(math.Max(0, r.m2/float64(r.n)))
+	}
+	return &proto.DistributionMetrics{
+		Avg:            r.mean,
+		Stdev:          stdev,
+		Min:            r.min,
+		Max:            r.max,
+		AggregatorData: &proto.AggregatorData{N: int32(r.n)},
+	}
+}
+
 func GetCurrentProtoVersion() int32 {
 	versionMessage := &proto.ProtoVersion{}
 	options := versionMessage.ProtoReflect().Descriptor().Options()

@@ -38,6 +38,7 @@ export const OtherDefaults = {
 
 // Leather at 60 with no set bonus and no proc. The stand-in the rotation was tuned on.
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
+	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',
 });
 
@@ -46,6 +47,7 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJso
 // Baron, Swiftwalker Boots, Tarnished Elven Ring, Blackhand's Breadth and Hand of Justice, which the item
 // database does not carry.
 export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearJson, {
+	devOnly: true,
 	tooltip: 'Pre-raid leather with The Unstoppable Force, Wolfshead Helm and full enchants.',
 });
 

@@ -20,7 +20,7 @@ describe('Toast', () => {
 
 		const toast = within(standardViewport()).getByTestId('sim-toast');
 		expect(toast.getAttribute('data-variant')).toBe('success');
-		expect(within(toast).getByTestId('sim-toast-title').textContent).toBe('WowSims');
+		expect(within(toast).getByTestId('sim-toast-title').textContent).toBe('WoWSims');
 		expect(within(toast).getByTestId('sim-toast-body').textContent).toBe('Import successful!');
 		expect(toast.getAttribute('aria-describedby')).toBe(within(toast).getByTestId('sim-toast-body').id);
 	});

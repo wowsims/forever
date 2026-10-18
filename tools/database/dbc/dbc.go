@@ -26,9 +26,10 @@ type DBC struct {
 	ItemArmorTotal         map[int]ItemArmorTotal
 	ArmorLocation          map[int]ArmorLocation
 	SpellScalings          map[int]SpellScaling
-	Consumables            map[int]Consumable   // Item ID
-	ItemEffects            map[int]ItemEffect   // Effect ID
-	ItemEffectsByParentID  map[int][]ItemEffect // ParentItemID
+	Consumables            map[int]Consumable     // Item ID
+	ItemEffects            map[int]ItemEffect     // Effect ID
+	ItemEffectsByParentID  map[int][]ItemEffect   // ParentItemID
+	ItemSetSpells          map[int][]ItemSetSpell // Item set ID
 	ShieldBlockValues      map[int]ShieldBlock
 
 	// Every spell's effects flattened into effect index order. Built once by indexSpellEffects and
@@ -56,6 +57,7 @@ func NewDBC() *DBC {
 		ItemEffects:            make(map[int]ItemEffect),
 		SpellScalings:          make(map[int]SpellScaling),
 		ItemEffectsByParentID:  make(map[int][]ItemEffect),
+		ItemSetSpells:          make(map[int][]ItemSetSpell),
 		ShieldBlockValues:      make(map[int]ShieldBlock),
 	}
 }
@@ -91,6 +93,7 @@ func InitDBC() error {
 	load("armor location", dbcInstance.LoadArmorLocation, "./assets/db_inputs/dbc/armor_location.json")
 	load("consumables", dbcInstance.loadConsumables, "./assets/db_inputs/dbc/consumables.json")
 	load("item effects", dbcInstance.loadItemEffects, "./assets/db_inputs/dbc/item_effects.json")
+	load("item set spells", dbcInstance.loadItemSetSpells, "./assets/db_inputs/dbc/item_set_spells.json")
 	load("spells", dbcInstance.loadSpells, "./assets/db_inputs/dbc/spells.json")
 	if err := g.Wait(); err != nil {
 		return err
@@ -204,6 +207,28 @@ func (d *DBC) loadItemEffects(filename string) error {
 			d.ItemEffectsByParentID[effect.ParentItemID],
 			effect,
 		)
+	}
+
+	return nil
+}
+
+func (d *DBC) loadItemSetSpells(filename string) error {
+	data, err := ReadGzipFile(filename)
+	if err != nil {
+		return err
+	}
+
+	var spells []ItemSetSpell
+	if err = json.Unmarshal(data, &spells); err != nil {
+		return ParseError{
+			Source: filename,
+			Field:  "ItemSetSpell",
+			Reason: err.Error(),
+		}
+	}
+
+	for _, spell := range spells {
+		d.ItemSetSpells[spell.ItemSetID] = append(d.ItemSetSpells[spell.ItemSetID], spell)
 	}
 
 	return nil

@@ -105,7 +105,7 @@ export class RestorationShaman extends PlayerSpec<Spec.SpecRestorationShaman> {
 
 	static launch: SimStatus = {
 		phase: CURRENT_PHASE,
-		status: LaunchStatus.GearPlanner,
+		status: LaunchStatus.Unlaunched,
 	};
 
 	readonly specIndex = RestorationShaman.specIndex;

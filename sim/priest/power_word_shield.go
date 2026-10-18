@@ -28,7 +28,7 @@ func (priest *Priest) registerPowerWordShield() {
 				return spell.SpellSchool.Matches(schools)
 			},
 			OnDamageAbsorbed: func(_ *core.Simulation, _ *core.DamageAbsorptionAura, _ *core.SpellResult, absorbed float64) {
-				castBy[target.UnitIndex].SpellMetrics[target.UnitIndex].TotalShielding += absorbed
+				castBy[target.UnitIndex].RecordShielding(target, absorbed)
 			},
 		})
 		// The APL's Multishield reads the spell's Shield, which ends with the absorb.

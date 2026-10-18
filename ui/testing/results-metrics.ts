@@ -1,5 +1,10 @@
 import type { SimResultData } from '@features/results/model/result_data';
+import { ActionMetrics as ActionMetricsProto, TargetedActionMetrics as TargetedActionMetricsProto } from '@generated/proto/api';
+import { ActionID } from '@generated/proto/common';
+import { IconData } from '@generated/proto/ui';
+import { Database } from '@sim/proto/database';
 import { ActionMetrics } from '@sim/proto/sim_result';
+import { makeSimRun } from '@testing/storybook/fixtures/results';
 import { vi } from 'vitest';
 
 const NONE = { value: 0, percentage: 0, average: 0 };
@@ -54,8 +59,8 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 		avgTick: 0,
 		dps: 10,
 		damageDone: {
-			hit: { value: 80, percentage: 80, average: 10 },
-			critHit: { value: 20, percentage: 20, average: 10 },
+			hit: { value: 80, percentage: 80, average: 10, min: 8, max: 12 },
+			critHit: { value: 20, percentage: 20, average: 10, min: 16, max: 24 },
 			resistedHit: NONE,
 			resistedCritHit: NONE,
 			tick: NONE,
@@ -67,6 +72,14 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 			blockedCrit: NONE,
 			crush: NONE,
 		},
+		healingDone: {
+			heal: { value: 80, percentage: 80, average: 10, min: 8, max: 12 },
+			critHeal: { value: 20, percentage: 20, average: 20, min: 16, max: 24 },
+			tick: NONE,
+			critTick: NONE,
+			shield: NONE,
+		},
+		customMetrics: [],
 		threat: 1000,
 		avgThreat: 1000,
 		totalThreatPercent: 50,
@@ -124,3 +137,41 @@ export const metricRows = (container: HTMLElement) => [...container.querySelecto
 export const metricsTooltipTable = () => document.querySelector('.sim-tooltip table[data-testid="metrics-table"]');
 
 export const metricsTooltipRowNames = () => [...metricsTooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')].map(row => row.cells[0].textContent);
+
+export interface SpellActionFixture {
+	spellId: number;
+	tag?: number;
+	damage: number;
+}
+
+/** `makeSimRun` with the warrior's auto attack swapped for one spell action per entry, each with the auto attack's outcomes on the target. */
+export const spellActionsRun = (spells: Array<SpellActionFixture>) => {
+	const run = makeSimRun();
+	const player = run.result.raidMetrics!.parties[0].players[0];
+	const template = player.actions[0];
+	player.actions = spells.map(({ spellId, tag = 0, damage }) =>
+		ActionMetricsProto.create({
+			...template,
+			isMelee: false,
+			id: ActionID.create({ rawId: { oneofKind: 'spellId', spellId }, tag }),
+			targets: [TargetedActionMetricsProto.create({ ...template.targets[0], damage })],
+		}),
+	);
+	return run;
+};
+
+/** Answers the spell lookups `ActionId.fill` makes with the given name and rank per spell id. */
+export const stubSpellIcons = (spells: Record<number, { name: string; rank?: number }>) =>
+	vi
+		.spyOn(Database, 'getSpellIconData')
+		.mockImplementation(spellId => Promise.resolve(IconData.create({ id: spellId, icon: 'spell_fire_flamebolt', ...spells[spellId] })));
+
+/** Two ranks of one spell and a spell with no rank, for the rank grouping tests. */
+export const RANKED_SPELLS = { FIREBALL_1: 133, FIREBALL_2: 143, FROSTBOLT: 116 };
+
+export const stubRankedSpellIcons = () =>
+	stubSpellIcons({
+		[RANKED_SPELLS.FIREBALL_1]: { name: 'Fireball', rank: 1 },
+		[RANKED_SPELLS.FIREBALL_2]: { name: 'Fireball', rank: 2 },
+		[RANKED_SPELLS.FROSTBOLT]: { name: 'Frostbolt' },
+	});

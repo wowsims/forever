@@ -213,6 +213,23 @@ export function defineSpec<SpecType extends Spec>(def: SpecDefinition<SpecType>)
 	return def;
 }
 
+// Removes dev-only gearsets from the gear presets and from the builds, dropping a
+// build left empty. The default gear stays only when it is a production gearset
+// the spec lists, so a default taken from an unlisted preset is cleared as well.
+// `ui/app/spec_entry.tsx` applies it outside the dev server and the previews.
+export function withoutDevOnlyGear<SpecType extends Spec>(def: SpecDefinition<SpecType>): SpecDefinition<SpecType> {
+	const gear = def.presets.gear.filter(preset => !preset.devOnly);
+	const builds = def.presets.builds
+		?.map(build => (build.gear?.devOnly ? { ...build, gear: undefined } : build))
+		.filter(({ name: _name, phase: _phase, group: _group, ...categories }) => Object.values(categories).some(value => value !== undefined));
+	const productionGear = [...gear, ...(builds ?? []).map(build => build.gear)].map(preset => preset?.gear);
+	return {
+		...def,
+		defaults: { ...def.defaults, gear: productionGear.includes(def.defaults.gear) ? def.defaults.gear : EquipmentSpec.create() },
+		presets: { ...def.presets, gear, builds },
+	};
+}
+
 export function registerSpecConfig<SpecType extends Spec>(spec: SpecType, config: IndividualSimUIConfig<SpecType>): IndividualSimUIConfig<SpecType> {
 	registerPlayerConfig(spec, config);
 	return config;

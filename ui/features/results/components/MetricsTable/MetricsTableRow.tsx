@@ -6,6 +6,9 @@ import { tooltipAnchorProps } from '@ui-kit/Tooltip';
 import type { MetricsTableFeatures } from '../../hooks/useMetricsTable';
 import type { MetricRow } from '../../model/grouping';
 
+// The Name cell's indent by row depth: a spell, its ranks, a rank's tags.
+const CHILD_INDENT = [undefined, 'pl-4', 'pl-8'];
+
 export interface MetricsTableRowProps<T> {
 	row: Row<MetricsTableFeatures, MetricRow<T>>;
 	rowThreatOnly?: (metric: T) => boolean;
@@ -30,7 +33,7 @@ export const MetricsTableRow = <T,>({ row, rowThreatOnly }: MetricsTableRowProps
 						className={[
 							'ui-metrics-cell',
 							toggle && 'relative',
-							row.depth > 0 && index === 0 && 'pl-4',
+							index === 0 && CHILD_INDENT[row.depth],
 							cell.column.columnDef.meta?.columnClass,
 							cell.column.columnDef.meta?.dataClass,
 						]}

@@ -208,9 +208,12 @@ var Raid = []BuffSpec{
 }
 
 var Party = []BuffSpec{
+	// The Imp's copy and a ticked one bid per stat, both staying up, so the ticked one applies again
+	// once the Imp leaves.
 	{
-		Field:   "blood_pact",
-		SpellID: 11767,
+		Field:    "blood_pact",
+		SpellID:  11767,
+		Category: "BloodPact",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},

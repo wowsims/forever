@@ -27,6 +27,12 @@ describe('Icon', () => {
 		expect(iconDefinition('arrow-rotate-left', 'solid').icon[3]).toBe('f0e2');
 	});
 
+	it('draws the World of Warcraft logo as one path in a 20 by 20 box', () => {
+		const svg = el(render(<Icon name="wow" style="brands" />).container);
+		expect(svg.getAttribute('viewBox')).toBe('0 0 20 20');
+		expect(svg.querySelectorAll('path')).toHaveLength(1);
+	});
+
 	it.each(Object.keys(DEFINITIONS) as IconName[])('renders %s from a definition, canonically named', name => {
 		const definition = iconDefinition(name, 'solid');
 		expect(definition).toBeDefined();

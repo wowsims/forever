@@ -1,0 +1,133 @@
+{
+  "apiVersion": 2,
+  "raidBuffs": {
+    "arcaneBrilliance": true,
+    "prayerOfSpirit": true,
+    "giftOfTheWild": true,
+    "prayerOfFortitude": true,
+    "moonkinAura": true
+  },
+  "debuffs": {
+    "judgementOfTheCrusader": true,
+    "judgementOfWisdom": true,
+    "curseOfElements": true
+  },
+  "partyBuffs": {
+    "manaSpringTotem": "TristateEffectRegular"
+  },
+  "player": {
+    "apiVersion": 2,
+    "name": "Player",
+    "race": "RaceUndead",
+    "class": "ClassPriest",
+    "equipment": {
+      "items": [
+        {"id":260212},
+        {"id":23125},
+        {"id":19050},
+        {"id":19121},
+        {"id":14141},
+        {"id":254071},
+        {"id":254105},
+        {"id":19047},
+        {"id":14144},
+        {"id":254013},
+        {"id":275738},
+        {"id":19523},
+        {"id":10659},
+        {"id":270225},
+        {"id":274420},
+        {},
+        {"id":249385}
+      ]
+    },
+    "consumables": {
+      "flaskId": 13512,
+      "foodId": 13931,
+      "conjuredId": 12662,
+      "mhImbueId": 20749,
+      "elixirIds": [
+        9264,
+        13454,
+        250328,
+        250337,
+        250338,
+        250341,
+        21546
+      ],
+      "resourcePotId": 13444,
+      "offensivePotId": 250937
+    },
+    "bonusStats": {
+      "apiVersion": 2,
+      "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    },
+    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
+    "buffs": {
+      "greaterBlessingOfKings": true,
+      "greaterBlessingOfWisdom": true
+    },
+    "dpsPriest": {
+      "options": {
+        "classOptions": {
+          "armor": "InnerFire",
+          "preShadowform": true
+        }
+      }
+    },
+    "talentsString": "525235031030001001-30515100002-3",
+    "profession1": "Enchanting",
+    "profession2": "Tailoring",
+    "cooldowns": {
+    },
+    "rotation": {
+      "type": "TypeAPL",
+      "prepullActions": [
+        {"action":{"castSpell":{"spellId":{"spellId":10060}}},"doAtValue":{"const":{"val":"-1s"}}}
+      ],
+      "priorityList": [
+        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"10%"}}}},"castSpell":{"spellId":{"spellId":5019},"target":{"type":"Target"}}}},
+        {"action":{"condition":{"and":{"vals":[{"not":{"val":{"dotIsActive":{"spellId":{"spellId":15265,"rank":5}}}}},{"cmp":{"op":"OpLe","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}}]}},"castSpell":{"spellId":{"spellId":15265,"rank":5}}}},
+        {"action":{"condition":{"and":{"vals":[{"not":{"val":{"dotIsActive":{"spellId":{"spellId":15261,"rank":8}}}}},{"cmp":{"op":"OpGe","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}}]}},"castSpell":{"spellId":{"spellId":15261,"rank":8}}}},
+        {"action":{"condition":{"and":{"vals":[{"auraIsActive":{"auraId":{"spellId":1284536},"includeReactionTime":true}},{"cmp":{"op":"OpGe","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"3"}}}}]}},"castSpell":{"spellId":{"spellId":27801,"rank":6}}}},
+        {"action":{"condition":{"not":{"val":{"dotIsActive":{"targetUnit":{"type":"Target"},"spellId":{"spellId":10894}}}}},"castSpell":{"spellId":{"spellId":10894}}}},
+        {"hide":true,"action":{"condition":{"spellCanCast":{"spellId":{"spellId":19280,"rank":6}}},"castSpell":{"spellId":{"spellId":19280,"rank":6}}}},
+        {"hide":true,"action":{"condition":{"spellCanCast":{"spellId":{"spellId":1309636}}},"castSpell":{"spellId":{"spellId":1309636},"target":{"type":"Target"}}}},
+        {"hide":true,"action":{"condition":{"spellCanCast":{"spellId":{"spellId":10947}}},"castSpell":{"spellId":{"spellId":10947}}}},
+        {"action":{"condition":{"spellCanCast":{"spellId":{"spellId":1316995,"rank":4}}},"castSpell":{"spellId":{"spellId":1316995,"rank":4}}}},
+        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}},"castSpell":{"spellId":{"spellId":1004,"rank":5}}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10934}}}}
+      ]
+    },
+    "reactionTimeMs": 100,
+    "channelClipDelayMs": 100,
+    "distanceFromTarget": 20,
+    "healingModel": {
+    }
+  },
+  "encounter": {
+    "apiVersion": 2,
+    "duration": 180,
+    "durationVariation": 5,
+    "executeProportion20": 0.2,
+    "executeProportion25": 0.25,
+    "executeProportion35": 0.35,
+    "executeProportion45": 0.45,
+    "executeProportion90": 0.9,
+    "targets": [
+      {
+        "id": 31146,
+        "name": "Raid Target",
+        "level": 63,
+        "mobType": "MobTypeMechanical",
+        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],
+        "minBaseDamage": 2601,
+        "damageSpread": 0.5,
+        "swingSpeed": 2,
+        "parryHaste": true,
+        "canCrush": true
+      }
+    ]
+  }
+}

@@ -16,6 +16,8 @@ export const COLOR_FAMILIES: ReadonlyArray<ColorFamily> = [
 	{ name: 'Cancel', segments: ['cancel'] },
 	{ name: 'Link', segments: ['link'] },
 	{ name: 'Status', segments: ['success', 'warning', 'info', 'brand', 'expansion'] },
+	{ name: 'Social', segments: ['discord'] },
+	{ name: 'Landing', segments: ['landing'] },
 	{ name: 'Class', segments: ['class'] },
 	{ name: 'School', segments: ['school'] },
 	{ name: 'Quality', segments: ['quality'] },

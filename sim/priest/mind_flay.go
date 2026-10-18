@@ -21,6 +21,19 @@ func (priest *Priest) registerMindFlaySpell(_ int32, rank *spelldata.Spell) {
 			onTick(sim, target, dot)
 			dot.PeriodicDamageMultiplier = multiplier
 		}
+
+		// The expected tick is the channel's average, the ramp's mean over its ticks.
+		expectedTick := config.ExpectedTickDamage
+		ticks := config.Dot.NumberOfTicks
+		config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
+			result := expectedTick(sim, target, spell, useSnapshot)
+			sum := 0.0
+			for n := int32(0); n < ticks; n++ {
+				sum += math.Pow(ramp, float64(n))
+			}
+			result.Damage *= sum / float64(ticks)
+			return result
+		}
 	}
 
 	priest.RegisterSpell(config)

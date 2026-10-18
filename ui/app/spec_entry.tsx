@@ -6,7 +6,8 @@ import { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
 import { Sim } from '@sim/sim';
 import type { SpecDefinition } from '@sim/spec_config';
-import { registerSpecConfig } from '@sim/spec_config';
+import { registerSpecConfig, withoutDevOnlyGear } from '@sim/spec_config';
+import { isPreviewOrDevMode } from '@sim/utils/env';
 import { StrictMode } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
@@ -34,7 +35,8 @@ void (async () => {
 		throw new Error(`No spec module for ${location.pathname} (looked for ${key}.ts(x)).`);
 	}
 
-	const def = (await loadSpec()).default;
+	const loaded = (await loadSpec()).default;
+	const def = isPreviewOrDevMode(location.hostname) ? loaded : withoutDevOnlyGear(loaded);
 
 	// `new Player()` resolves the spec's config out of the registry in its constructor, so the definition has to be registered before the player is built.
 	registerSpecConfig(def.spec, def);

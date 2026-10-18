@@ -245,13 +245,16 @@ export const updateSimPageMetadata = (): void => {
 
 	const { className, specName } = classSpecInfo;
 
+	// Hunter, Mage, Rogue and Warlock have one spec, which has no name of its own.
+	const spec = i18n.t(`specs.${classNameToClassKey(className)}.${specName.toLowerCase()}`, { ns: 'character', defaultValue: '' });
 	const translationData = {
 		class: translateClass(className),
-		spec: translateSpec(className, specName),
+		spec,
 	};
+	const suffix = spec ? '' : '_class';
 
-	document.title = i18n.t('sim.title', translationData);
-	setMetaDescription(i18n.t('sim.description', translationData));
+	document.title = i18n.t(`sim.title${suffix}`, translationData);
+	setMetaDescription(i18n.t(`sim.description${suffix}`, translationData));
 };
 
 export const translateItemLabel = (itemLabel: string): string => {

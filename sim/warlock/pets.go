@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -18,6 +19,7 @@ type WarlockPet struct {
 	AutoCastAbilities []*core.Spell
 	MinMana           float64      // The mana the pet keeps before it casts again
 	ownerAuras        []*core.Aura // the warlock's effects that last while this demon, and no other, is out
+	partyAuras        []*core.Aura // the effects on the warlock's party that last while this demon is out
 	summonStun        *core.Aura   // Summoning Disorientation, from the start of the warlock's summon until it runs out or the summon dismisses this demon
 }
 
@@ -258,6 +260,9 @@ func (warlock *Warlock) registerPet(summon proto.WarlockOptions_Summon, name str
 		for _, aura := range pet.ownerAuras {
 			aura.Deactivate(sim)
 		}
+		for _, aura := range pet.partyAuras {
+			aura.Deactivate(sim)
+		}
 	}
 
 	warlock.AddPet(pet)
@@ -348,6 +353,28 @@ func (pet *WarlockPet) ExecuteCustomRotation(sim *core.Simulation) {
 }
 
 // --- Imp ---
+
+// The Imp's Blood Pact on each player in the warlock's party, the warlock among them and no pets, up while
+// the Imp is out. With the Imp out at the start it counts in the build phase. It shares the party buff's
+// category, so a Blood Pact ticked in the settings and the Imp's own are worth one buff. Each warlock's
+// Imp puts up its own copy, and with two Imps out the strongest applies.
+func (warlock *Warlock) registerBloodPact() {
+	impAtStart := warlock.Imp.EnabledOnStart()
+	auras := warlock.NewPartyAuraArray(func(member *core.Character) *core.Aura {
+		aura := buffs.NewSpellDataBloodPactAuraFor(&member.Unit, &warlock.Unit)
+		if impAtStart {
+			aura.BuildPhase = core.CharacterBuildPhaseBuffs
+			// The Imp comes out in the warlock's reset, before the players after it in the party reset.
+			core.MakePermanent(aura)
+		}
+		return aura
+	})
+	for _, aura := range auras {
+		if aura != nil {
+			warlock.Imp.partyAuras = append(warlock.Imp.partyAuras, aura)
+		}
+	}
+}
 
 func (pet *WarlockPet) registerFirebolt() {
 	rankedSpell := spellData.Firebolt.ByID(11763)

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools/database/dbc"
 	"github.com/wowsims/forever/tools/database/overrides"
@@ -45,7 +46,7 @@ func rateTestDB(itemIDs []int32, enchantIDs []int32, sets map[int32]int32) *WowD
 }
 
 // Each unmeasured rate lands on its piece of gear with the kind and origin of its row: a weapon rate
-// on its item, a spell rate on every item and enchant casting the spell, an enchant rate on its
+// on its item, a spell rate on every item, enchant and set bonus casting the spell, an enchant rate on its
 // enchant, a literal on its item, enchant or set bonus. A measured rate, a row that is not a rate, and
 // gear the database does not carry stay out. Each piece is listed once, in id order.
 func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
@@ -75,6 +76,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 		},
 		SpellItems:    map[int32][]int32{6: {40, 98}, 7: {45}, 8: {20}, 9: {45}},
 		SpellEnchants: map[int32][]int32{6: {300}},
+		SpellSets:     map[int32][][2]int32{6: {{7000, 6}, {9000, 2}}},
 	}
 	db := rateTestDB([]int32{10, 20, 30, 40, 45, 50, 60}, []int32{100, 200, 300}, map[int32]int32{70: 7000})
 
@@ -114,6 +116,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 		{"set bonuses", rates.SetBonuses, []entry{
 			{7000, 2, overrides.RatePPM, "vanilla"},
 			{7000, 4, overrides.RateChance, "tbc"},
+			{7000, 6, overrides.RatePPM, "tbc"},
 		}},
 	} {
 		if got := entries(tc.got); !slices.Equal(got, tc.want) {
@@ -148,7 +151,7 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 		},
 	}
 	var rendered bytes.Buffer
-	if err := renderMissingEffects(&rendered, rates); err != nil {
+	if err := renderMissingEffects(&rendered, rates, nil); err != nil {
 		t.Fatal(err)
 	}
 
@@ -172,6 +175,73 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 		if !strings.Contains(rendered.String(), block) {
 			t.Errorf("the generated file holds no block\n%s\nin\n%s", block, rendered.String())
 		}
+	}
+}
+
+// A set bonus is missing when no registered set covers its piece count: a registered set lists the
+// counts it leaves out, an unregistered set lists them all, a set registered with ID 0 is matched by
+// name, and a set with no items in the database stays out.
+func TestMissingSetBonusesListUncoveredPieceCounts(t *testing.T) {
+	registered := []*core.ItemSet{
+		{ID: 100, Name: "Set 100", Bonuses: map[int32]core.ApplySetBonus{2: nil}},
+		{Name: "Set 300", Bonuses: map[int32]core.ApplySetBonus{2: nil, 4: nil}},
+	}
+	setSpells := map[int][]dbc.ItemSetSpell{
+		100: {{ItemSetID: 100, Threshold: 2, SpellID: 1}, {ItemSetID: 100, Threshold: 4, SpellID: 2}, {ItemSetID: 100, Threshold: 4, SpellID: 3}},
+		200: {{ItemSetID: 200, Threshold: 3, SpellID: 4}, {ItemSetID: 200, Threshold: 6, SpellID: 5}},
+		300: {{ItemSetID: 300, Threshold: 2, SpellID: 6}, {ItemSetID: 300, Threshold: 4, SpellID: 7}, {ItemSetID: 300, Threshold: 5, SpellID: 8}},
+		400: {{ItemSetID: 400, Threshold: 2, SpellID: 9}},
+	}
+	db := rateTestDB(nil, nil, map[int32]int32{10: 100, 20: 200, 30: 300})
+
+	got := missingSetBonuses(registered, setSpells, db, func(spellID int) string { return fmt.Sprintf("Tooltip %d", spellID) })
+
+	want := []MissingSetBonus{
+		{ID: 100, Pieces: 4, Name: "Set 100", Spells: []int32{2, 3}, Tooltips: []string{"Tooltip 2", "Tooltip 3"}},
+		{ID: 200, Pieces: 3, Name: "Set 200", Spells: []int32{4}, Tooltips: []string{"Tooltip 4"}},
+		{ID: 200, Pieces: 6, Name: "Set 200", Spells: []int32{5}, Tooltips: []string{"Tooltip 5"}},
+		{ID: 300, Pieces: 5, Name: "Set 300", Spells: []int32{8}, Tooltips: []string{"Tooltip 8"}},
+	}
+	if !slices.EqualFunc(got, want, func(a, b MissingSetBonus) bool {
+		return a.ID == b.ID && a.Pieces == b.Pieces && a.Name == b.Name && slices.Equal(a.Spells, b.Spells) && slices.Equal(a.Tooltips, b.Tooltips)
+	}) {
+		t.Errorf("listed %+v, want %+v", got, want)
+	}
+}
+
+// A set's missing bonuses render under the set by piece count, one tooltip per spell.
+func TestMissingSetBonusesRender(t *testing.T) {
+	bonuses := []MissingSetBonus{
+		{ID: 3, Pieces: 2, Name: "Set", Spells: []int32{11}, Tooltips: []string{`Says "hi".`}},
+		{ID: 3, Pieces: 4, Name: "Set", Spells: []int32{12, 13}, Tooltips: []string{"One.", "Two."}},
+	}
+	var rendered bytes.Buffer
+	if err := renderMissingEffects(&rendered, UnvalidatedRates{}, bonuses); err != nil {
+		t.Fatal(err)
+	}
+
+	block := "export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([\n" +
+		"\t[\n" +
+		"\t\t3, // Set\n" +
+		"\t\tnew Map([\n" +
+		"\t\t\t[\n" +
+		"\t\t\t\t2,\n" +
+		"\t\t\t\t[\n" +
+		"\t\t\t\t\t\"Says \\\"hi\\\".\", // 11 - https://www.wowhead.com/forever/spell=11\n" +
+		"\t\t\t\t],\n" +
+		"\t\t\t],\n" +
+		"\t\t\t[\n" +
+		"\t\t\t\t4,\n" +
+		"\t\t\t\t[\n" +
+		"\t\t\t\t\t\"One.\", // 12 - https://www.wowhead.com/forever/spell=12\n" +
+		"\t\t\t\t\t\"Two.\", // 13 - https://www.wowhead.com/forever/spell=13\n" +
+		"\t\t\t\t],\n" +
+		"\t\t\t],\n" +
+		"\t\t]),\n" +
+		"\t],\n" +
+		"])\n"
+	if !strings.Contains(rendered.String(), block) {
+		t.Errorf("the generated file holds no block\n%s\nin\n%s", block, rendered.String())
 	}
 }
 

@@ -21,37 +21,42 @@ const SIM_LINK_CLASSES =
 const launchLabel = (launch: { phase: number; status: number }) =>
 	i18n.t('sidebar.header.phase', { phase: i18n.t(`common.phases.${launch.phase}`), status: translateStatus(launch.status) });
 
-const ClassSubmenu = ({ playerClass }: { playerClass: PlayerClass<Class> }) => (
-	<Menu
-		submenu
-		surface="plain"
-		trigger={<SimLinkContent iconPath={playerClass.getIcon('large')} title={translatePlayerClass(playerClass)} />}
-		triggerRender={<Button variant="unstyled" />}
-		triggerProps={{ className: clsx(SIM_LINK_CLASSES, textClassNameForClass(playerClass)), 'data-testid': 'sim-link' }}
-		side="right"
-		align="start"
-		sideOffset={0}
-		className="ui-sim-title-popup w-auto min-w-popup-min-w"
-		positionerProps={{ 'data-testid': 'sim-title-positioner' }}
-		popupProps={{ 'data-testid': 'sim-title-popup' }}>
-		{Object.values(playerClass.specs).map(spec => (
-			<MenuLinkItem
-				key={spec.simLink}
-				layout="block"
-				bare
-				href={new URL(spec.simLink, window.location.href).toString()}
-				className={clsx(SIM_LINK_CLASSES, textClassNameForSpec(spec))}
-				testId="sim-link">
-				<SimLinkContent
-					iconPath={spec.getIcon('large')}
-					label={translatePlayerClass(PlayerSpecs.getPlayerClass(spec))}
-					title={translatePlayerSpec(spec)}
-					status={launchLabel(spec.launch)}
-				/>
-			</MenuLinkItem>
-		))}
-	</Menu>
-);
+const ClassSubmenu = ({ playerClass }: { playerClass: PlayerClass<Class> }) => {
+	const specs = Object.values(playerClass.specs);
+	// A class with one sim for all its specs names it "All Specializations", as the landing page does.
+	const specTitle = (spec: PlayerSpec<any>) => (specs.length === 1 ? i18n.t('landing.home.allSpecs') : translatePlayerSpec(spec));
+	return (
+		<Menu
+			submenu
+			surface="plain"
+			trigger={<SimLinkContent iconPath={playerClass.getIcon('large')} title={translatePlayerClass(playerClass)} />}
+			triggerRender={<Button variant="unstyled" />}
+			triggerProps={{ className: clsx(SIM_LINK_CLASSES, textClassNameForClass(playerClass)), 'data-testid': 'sim-link' }}
+			side="right"
+			align="start"
+			sideOffset={0}
+			className="ui-sim-title-popup w-auto min-w-popup-min-w"
+			positionerProps={{ 'data-testid': 'sim-title-positioner' }}
+			popupProps={{ 'data-testid': 'sim-title-popup' }}>
+			{specs.map(spec => (
+				<MenuLinkItem
+					key={spec.simLink}
+					layout="block"
+					bare
+					href={new URL(spec.simLink, window.location.href).toString()}
+					className={clsx(SIM_LINK_CLASSES, textClassNameForSpec(spec))}
+					testId="sim-link">
+					<SimLinkContent
+						iconPath={spec.getIcon('large')}
+						label={translatePlayerClass(PlayerSpecs.getPlayerClass(spec))}
+						title={specTitle(spec)}
+						status={launchLabel(spec.launch)}
+					/>
+				</MenuLinkItem>
+			))}
+		</Menu>
+	);
+};
 
 export const SimTitleDropdown = ({ currentSpec }: SimTitleDropdownProps) => (
 	<div className="z-sim-title h-sim-header-plus border-b border-b-border pb-px max-lg:sticky max-lg:-top-px" data-testid="sim-title-dropdown-root">

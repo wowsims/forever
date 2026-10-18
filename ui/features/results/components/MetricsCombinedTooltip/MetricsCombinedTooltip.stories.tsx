@@ -31,11 +31,16 @@ const meta = {
 	argTypes: { groups: { control: false } },
 	decorators: [
 		Story => (
-			<div className="w-96 text-xs">
+			<div className="min-w-96 text-xs">
 				<Story />
 			</div>
 		),
 		withTooltipSurface,
+		Story => (
+			<div className="w-max">
+				<Story />
+			</div>
+		),
 	],
 } satisfies Meta<typeof MetricsCombinedTooltip>;
 
@@ -54,6 +59,28 @@ export const WithAverages: Story = {
 					{ name: 'Hit', value: 64, percentage: 80, average: 1210.4 },
 					{ name: 'Critical Hit', value: 16, percentage: 20, average: 2420.8 },
 				],
+			},
+		],
+	},
+};
+
+export const WithRanges: Story = {
+	args: {
+		headerValues: [undefined, 'Amount'],
+		groups: [
+			{
+				totalPercentage: 100,
+				spellSchool: SpellSchool.SpellSchoolHoly,
+				data: [
+					{ name: 'Hit', value: 3800, percentage: 70, average: 773, min: 650, max: 900 },
+					{ name: 'Critical Hit', value: 1700, percentage: 30, average: 1546, min: 1300, max: 1800 },
+				],
+			},
+			{
+				name: 'Spec metrics',
+				totalPercentage: 100,
+				spellSchool: SpellSchool.SpellSchoolHoly,
+				data: [{ name: 'Divine Aegis shield', value: 4920, percentage: 89, average: 410, min: 300, max: 520 }],
 			},
 		],
 	},

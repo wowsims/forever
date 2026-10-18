@@ -24,14 +24,8 @@ func RegisterAllTemporaryEnchantConsumables() {
 		{itemID: 3829},  // Frost Oil
 		{itemID: 5522},  // Spellstone
 		{itemID: 5654},  // Instant Toxin
-		{itemID: 6947},  // Instant Poison
-		{itemID: 6949},  // Instant Poison II
-		{itemID: 6950},  // Instant Poison III
 		{itemID: 7964},  // Solid Sharpening Stone
 		{itemID: 7965},  // Solid Weightstone
-		{itemID: 8926},  // Instant Poison IV
-		{itemID: 8927},  // Instant Poison V
-		{itemID: 8928},  // Instant Poison VI
 		{itemID: 12404}, // Dense Sharpening Stone
 		{itemID: 12643}, // Dense Weightstone
 		{itemID: 13602}, // Greater Spellstone

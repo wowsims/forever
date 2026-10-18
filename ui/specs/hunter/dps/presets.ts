@@ -22,8 +22,8 @@ import P1MeleeGearJson from './gear_sets/p1_melee.gear.json';
 
 // The same armor twice, with the weapons each playstyle swings: a two-hander to weave with, which
 // is also the better pair of stats at range, and two one-handers to stand in melee with.
-export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson);
-export const P1MeleeGear = PresetUtils.makePresetGear('P1 Dual Wield', P1MeleeGearJson);
+export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
+export const P1MeleeGear = PresetUtils.makePresetGear('P1 Dual Wield', P1MeleeGearJson, { devOnly: true });
 
 // The priority list of each playstyle. Their "Use ..." variables are the simple rotation's toggles.
 export const PlaystyleAPLs: Record<Playstyle, any> = {
@@ -98,7 +98,6 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 	arcaneBrilliance: true,
 	prayerOfSpirit: true,
 	giftOfTheWild: true,
-	prayerOfFortitude: true,
 	graceOfAirTotem: true,
 	strengthOfEarthTotem: true,
 	battleShout: TristateEffect.TristateEffectRegular,

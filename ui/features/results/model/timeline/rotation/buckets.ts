@@ -51,13 +51,10 @@ export const AURA_AS_RESOURCE: ActionId[] = [
 	ActionId.fromItemId(6265), // Soul Shards
 ];
 export const IDS_TO_GROUP_FOR_ROTATION: Array<number> = [
-	5171, // Rogue - Slice and Dice
-	2098, // Rogue - Eviscerate
-	1943, // Rogue - Rupture
-	51690, // Rogue - Killing Spree
-	32645, // Rogue - Envenom
-	16511, // Rogue - Hemorrhage
-	121471, // Rogue - Shadow Blades
+	6774, // Rogue - Slice and Dice
+	11300, // Rogue - Eviscerate
+	11275, // Rogue - Rupture
+	11198, // Rogue - Expose Armor
 	5019, // Wand - Shoot (the channel and its shots)
 	10438, // Shaman - Searing Totem (the totem and its attacks)
 	10587, // Shaman - Magma Totem (the totem and its pulses)

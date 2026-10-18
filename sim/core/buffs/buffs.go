@@ -15,3 +15,8 @@ func init() {
 		ApplyDebuffs: applyDebuffs,
 	})
 }
+
+// A warlock's own Blood Pact, one per warlock, bidding in the party buff's category.
+func NewSpellDataBloodPactAuraFor(unit *core.Unit, warlock *core.Unit) *core.Aura {
+	return newCasterBuff(unit, bloodPactMeta, warlock, 0)
+}

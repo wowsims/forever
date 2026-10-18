@@ -59,10 +59,11 @@ func catalogueConsumableIDs() []int32 {
 }
 
 // Whether the catalogue's consumable goes into db.json: its spell routes to a shape, or
-// ConsumableAllowList or ConsumableOverrides names it. KeepConsumable runs after.
+// ConsumableAllowList, ClassBuiltImbues or ConsumableOverrides names it. KeepConsumable runs after.
 func ShipsConsumable(routing *ConsumableRouting) bool {
 	id := int32(routing.ItemID)
-	return routing.Supported() || slices.Contains(ConsumableAllowList, id) ||
+	_, classBuilt := ClassBuiltImbues[id]
+	return routing.Supported() || classBuilt || slices.Contains(ConsumableAllowList, id) ||
 		slices.ContainsFunc(ConsumableOverrides, func(c *proto.Consumable) bool { return c.Id == id })
 }
 

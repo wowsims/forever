@@ -93,6 +93,9 @@ var missingItemSets []string
 // their items.
 func MissingItemSets() []string { return missingItemSets }
 
+// The registered sets; a set skipped for holding no items in the database is in MissingItemSets instead.
+func ItemSets() []*ItemSet { return sets }
+
 type SetBonus struct {
 	// Name of the set.
 	Name string

@@ -647,8 +647,13 @@ func (rot *APLRotation) newAPLActionWithGroupVars(config *proto.APLAction, group
 		return nil
 	}
 
+	condition := rot.coerceTo(rot.newAPLValueWithContext(config.Condition, groupVars), proto.APLValueType_ValueTypeBool)
+	if config.Condition != nil && config.Condition.Value != nil && condition == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
+	}
+
 	action := &APLAction{
-		condition: rot.coerceTo(rot.newAPLValueWithContext(config.Condition, groupVars), proto.APLValueType_ValueTypeBool),
+		condition: condition,
 		impl:      rot.newAPLActionImpl(config),
 	}
 

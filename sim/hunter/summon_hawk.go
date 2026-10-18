@@ -55,7 +55,6 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 			IsDynamic:                        true,
 			HasDynamicRangedSpeedInheritance: true,
 		})}
-		addPetStatDependencies(&hawk.Character)
 		swing := petSwing
 		// 2.5 s in game, before the owner's ranged speed.
 		swing.SwingSpeed = 2.5

@@ -4,6 +4,7 @@ import { translateAreaType, translateStat } from '@i18n/localization';
 import {
 	MISSING_ENCHANT_EFFECTS,
 	MISSING_ITEM_EFFECTS,
+	MISSING_SET_BONUSES,
 	UNVALIDATED_RATE_ENCHANTS,
 	UNVALIDATED_RATE_ITEMS,
 	UNVALIDATED_RATE_SET_BONUSES,
@@ -11,18 +12,13 @@ import {
 } from '@sim/constants/missing_effects_auto_gen';
 import type { Database } from '@sim/proto/database';
 import { LocaleHtml } from '@ui-kit/Tooltip';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 
 export type ItemNoticeData = {
 	// SpecUnknown is used as default and should always be present.
 	// A falsy value disables the notice for that spec.
 	[Spec.SpecUnknown]: ReactNode;
 } & Record<number, ReactNode>;
-
-// Keys are item counts for each set bonus (typically 2 and 4), values are the
-// notice that should be displayed for each bonus. If null, will default to
-// GENERIC_MISSING_SET_BONUS_NOTICE_DATA.
-export type SetBonusNoticeData = Map<number, ReactNode> | null;
 
 const WantToHelpMessage = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.want_to_help')}</p>;
 
@@ -134,38 +130,94 @@ export const ENCHANT_NOTICES = new Map<number, ItemNoticeData>(
 
 addUnvalidatedRateNotices(ENCHANT_NOTICES, UNVALIDATED_RATE_ENCHANTS);
 
-const NotYetImplemented = () => <>{i18n.t('gear_tab.item_notices.not_yet_implemented')}</>;
-
-export const GENERIC_MISSING_SET_BONUS_NOTICE_DATA = new Map<number, ReactNode>([
-	[2, <NotYetImplemented key={2} />],
-	[4, <NotYetImplemented key={4} />],
-]);
-
-const SET_BONUS_NOTICES = new Map<number, SetBonusNoticeData>(
-	[...UNVALIDATED_RATE_SET_BONUSES].map(([setID, bonuses]): [number, SetBonusNoticeData] => [
-		setID,
-		new Map([...bonuses].map(([pieceCount, rate]): [number, ReactNode] => [pieceCount, <UnvalidatedRateText key={pieceCount} rate={rate} />])),
-	]),
+const NotYetImplementedBonus = ({ tooltips }: { tooltips: string[] }) => (
+	<>
+		{i18n.t('gear_tab.item_notices.not_yet_implemented')}
+		<ul className="mb-0">
+			{tooltips
+				.filter(tooltip => !!tooltip)
+				.map(tooltip => (
+					<li key={tooltip}>{tooltip}</li>
+				))}
+		</ul>
+	</>
 );
 
+const PartlyImplementedBonus = ({ text }: { text: () => string }) => (
+	<>
+		{i18n.t('gear_tab.item_notices.not_fully_supported')} {text()}
+	</>
+);
+
+// Bonuses the sim registers but models only in part, by set id and piece count.
+const PARTLY_IMPLEMENTED_SET_BONUSES = new Map<number, Map<number, () => string>>([
+	[185, new Map([[5, () => i18n.t('gear_tab.item_notices.partial_set_bonus.wildheart_raiment_5')]])],
+	[500, new Map([[3, () => i18n.t('gear_tab.item_notices.partial_set_bonus.implements_of_unspoken_names_3')]])],
+	[
+		523,
+		new Map([
+			[4, () => i18n.t('gear_tab.item_notices.partial_set_bonus.dreadnaughts_battlegear_4')],
+			[8, () => i18n.t('gear_tab.item_notices.partial_set_bonus.dreadnaughts_battlegear_8')],
+		]),
+	],
+	[2103, new Map([[3, () => i18n.t('gear_tab.item_notices.partial_set_bonus.battleplate_of_glory_3')]])],
+	[2114, new Map([[4, () => i18n.t('gear_tab.item_notices.partial_set_bonus.grovekeeper_eclipse_4')]])],
+]);
+
+// By set id, then by piece count: what each bonus leaves out, a missing effect, a partial one or an
+// unvalidated rate, in that order.
+const SET_BONUS_NOTICES = new Map<number, Map<number, ReactNode[]>>();
+
+const addSetBonusNotices = <T,>(bonusesBySet: Map<number, Map<number, T>>, notice: (value: T) => ReactNode) => {
+	for (const [setID, bonuses] of bonusesBySet) {
+		const notices = SET_BONUS_NOTICES.get(setID) ?? new Map<number, ReactNode[]>();
+		for (const [pieceCount, value] of bonuses) {
+			notices.set(pieceCount, [...(notices.get(pieceCount) ?? []), notice(value)]);
+		}
+		SET_BONUS_NOTICES.set(setID, notices);
+	}
+};
+
+addSetBonusNotices(MISSING_SET_BONUSES, tooltips => <NotYetImplementedBonus tooltips={tooltips} />);
+addSetBonusNotices(PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBonus text={text} />);
+addSetBonusNotices(UNVALIDATED_RATE_SET_BONUSES, rate => <UnvalidatedRateText rate={rate} />);
+
+// A set piece can also miss an item effect or carry a rate of its own, so the set notice joins the
+// notice it already has.
 export const registerSetBonusNotices = (db: Database) => {
-	SET_BONUS_NOTICES.forEach((value: SetBonusNoticeData, key: number) => {
-		const noticeData = value || GENERIC_MISSING_SET_BONUS_NOTICE_DATA;
+	SET_BONUS_NOTICES.forEach((bonuses, setID) => {
 		const noticeContent = (
 			<>
 				<p className="mb-1"> {i18n.t('gear_tab.item_notices.set_bonus_warnings')}</p>
 				<ul className="mb-0">
-					{Array.from(noticeData.keys()).map(pieceCount => (
-						<li key={pieceCount}>
-							{i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })} {noticeData.get(pieceCount)}
-						</li>
-					))}
+					{[...bonuses.keys()]
+						.sort((a, b) => a - b)
+						.map(pieceCount => (
+							<li key={pieceCount}>
+								{i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })}{' '}
+								{bonuses.get(pieceCount)?.map((notice, index) => (
+									<Fragment key={index}>
+										{index > 0 && ' '}
+										{notice}
+									</Fragment>
+								))}
+							</li>
+						))}
 				</ul>
 			</>
 		);
 
-		for (const id of db.getItemIdsForSet(key)) {
-			ITEM_NOTICES.set(id, { [Spec.SpecUnknown]: noticeContent });
+		for (const id of db.getItemIdsForSet(setID)) {
+			const notice = ITEM_NOTICES.get(id);
+			ITEM_NOTICES.set(id, {
+				...notice,
+				[Spec.SpecUnknown]: (
+					<>
+						{notice?.[Spec.SpecUnknown]}
+						{noticeContent}
+					</>
+				),
+			});
 		}
 	});
 };

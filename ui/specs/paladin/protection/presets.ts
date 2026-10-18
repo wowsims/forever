@@ -16,6 +16,7 @@ export const APL_PRESET = PresetUtils.makePresetAPLRotation('Default', DefaultAp
 // Level 60 blues from dungeons, quests, reputations and crafting: a placeholder until Phase 1
 // gear is known.
 export const GEAR_DEFAULT = PresetUtils.makePresetGear('Default', DefaultGear, {
+	devOnly: true,
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 

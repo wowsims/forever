@@ -23,11 +23,11 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 // cloak, the first ring and Defender's Grip Stabilizer are sold by the Undermine Trader in Stranglethorn Vale; Beads
 // of Ogre Might is a Dire Maul quest reward. Horned Pauldron, the Dawn Armor pattern, the second ring and the
 // Sentinel's Gloves plans have no known source.
-export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson);
+export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson, { devOnly: true });
 
 // The same sources with no defense floor: the most threat that survives the default target on the default healing.
 // Heart of the Scale drops in Lower Blackrock Spire; Cutthroat's Signet is sold by the Undermine Trader.
-export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson);
+export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson, { devOnly: true });
 
 export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '35300003-05-050531120300021351' }));
 

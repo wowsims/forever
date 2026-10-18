@@ -244,6 +244,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DarkmantleArmor"
+ value: {
+  dps: 469.96632
+  tps: 735.61572
+  dtps: 348.13795
+  hps: 57.39349
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 463.50974
@@ -268,6 +277,15 @@ dps_results: {
   tps: 745.62988
   dtps: 341.09107
   hps: 60.67257
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-DeathmistRaiment"
+ value: {
+  dps: 411.6481
+  tps: 644.68456
+  dtps: 494.96463
+  hps: 61.85954
  }
 }
 dps_results: {
@@ -313,6 +331,15 @@ dps_results: {
   tps: 726.26265
   dtps: 341.39152
   hps: 60.67257
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-DreadmistRaiment"
+ value: {
+  dps: 400.79786
+  tps: 628.21092
+  dtps: 506.16146
+  hps: 59.14713
  }
 }
 dps_results: {
@@ -568,6 +595,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-FrostfireRegalia"
+ value: {
+  dps: 426.1082
+  tps: 667.35958
+  dtps: 475.3655
+  hps: 62.11215
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 468.84578
@@ -820,6 +856,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Magister'sRegalia"
+ value: {
+  dps: 402.07269
+  tps: 630.08038
+  dtps: 506.43509
+  hps: 55.05442
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MajorRecombobulator-18637"
  value: {
   dps: 463.50974
@@ -919,6 +964,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-PlagueheartRaiment"
+ value: {
+  dps: 436.82262
+  tps: 684.38932
+  dtps: 478.54507
+  hps: 65.14532
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-PristineEnchantedSouthSeasKelp-19613"
  value: {
   dps: 464.53689
@@ -955,6 +1009,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-ShadowcraftArmor"
+ value: {
+  dps: 444.53473
+  tps: 696.59544
+  dtps: 371.77832
+  hps: 56.38575
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 466.49222
@@ -979,6 +1042,15 @@ dps_results: {
   tps: 724.961
   dtps: 339.64767
   hps: 60.54419
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 402.92848
+  tps: 631.61864
+  dtps: 498.61805
+  hps: 57.93999
  }
 }
 dps_results: {
@@ -1114,6 +1186,33 @@ dps_results: {
   tps: 725.15879
   dtps: 339.52636
   hps: 60.92996
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-VestmentsofFaith"
+ value: {
+  dps: 394.00605
+  tps: 617.88026
+  dtps: 479.23756
+  hps: 60.54348
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 394.13381
+  tps: 618.00162
+  dtps: 506.48573
+  hps: 54.99968
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 394.18809
+  tps: 618.42533
+  dtps: 491.79935
+  hps: 59.01218
  }
 }
 dps_results: {

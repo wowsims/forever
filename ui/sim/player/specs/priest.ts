@@ -9,7 +9,7 @@ export class DpsPriest extends PlayerSpec<Spec.SpecDpsPriest> {
 	static specIndex = 0;
 	static specID = Spec.SpecDpsPriest as Spec.SpecDpsPriest;
 	static classID = Class.ClassPriest as Class.ClassPriest;
-	static friendlyName = 'Shadow';
+	static friendlyName = 'DPS';
 	static simLink = getSpecSitePath('priest', 'dps');
 
 	static isTankSpec = false;
@@ -62,7 +62,7 @@ export class HealerPriest extends PlayerSpec<Spec.SpecHealerPriest> {
 
 	static launch: SimStatus = {
 		phase: CURRENT_PHASE,
-		status: LaunchStatus.GearPlanner,
+		status: LaunchStatus.Unlaunched,
 	};
 
 	readonly specIndex = HealerPriest.specIndex;

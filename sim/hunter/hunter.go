@@ -117,6 +117,7 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerArcaneShot()
 	hunter.registerMultiShot()
 	hunter.registerSerpentSting()
+	hunter.registerTraps()
 	hunter.registerScorpidSting()
 	hunter.registerRaptorStrike()
 	hunter.registerMongooseBite()

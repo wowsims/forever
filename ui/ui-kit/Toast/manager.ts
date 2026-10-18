@@ -23,7 +23,7 @@ export const createToastManager = (): ToastManager => {
 	const base = createBaseToastManager();
 	return {
 		base,
-		add: ({ variant, body, title = 'WowSims', autohide = true, delay = DEFAULT_TOAST_DELAY, canClose = true, className, onClose }: ToastOptions) =>
+		add: ({ variant, body, title = 'WoWSims', autohide = true, delay = DEFAULT_TOAST_DELAY, canClose = true, className, onClose }: ToastOptions) =>
 			base.add({
 				title,
 				description: body,

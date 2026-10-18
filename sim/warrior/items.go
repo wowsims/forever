@@ -163,63 +163,6 @@ var ItemSetConquerorsBattlegear = core.NewItemSet(core.ItemSet{
 	},
 })
 
-var (
-	dreadnaughtRevenge        = spelldata.MustFind(28844) // 2pc: Revenge
-	dreadnaughtTauntHit       = spelldata.MustFind(28843) // 4pc: Increased Spell Hit Chance
-	dreadnaughtAbilityHit     = spelldata.MustFind(28842) // 6pc: Increased Hit Chance
-	dreadnaughtCheatDeath     = spelldata.MustFind(28845) // 8pc: Cheat Death, the proc
-	dreadnaughtCheatDeathBuff = spelldata.MustFind(28846) // 8pc: Cheat Death, the healing buff
-)
-
-var ItemSetDreadnaughtsBattlegear = core.NewItemSet(core.ItemSet{
-	Name: "Dreadnaught's Battlegear",
-	ID:   523,
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: func(agent core.Agent, setBonusAura *core.Aura) {
-			// A_ADD_FLAT_MODIFIER on the damage has no sim kind in the parse table, so only the
-			// amount and the spell it names come off the row.
-			setBonusAura.AttachSpellMod(core.SpellModConfig{
-				ClassFlags: dreadnaughtRevenge.EffectN(1).ClassFlags,
-				Kind:       core.SpellMod_BaseDamage_Flat,
-				FloatValue: dreadnaughtRevenge.EffectN(1).BaseValue(),
-			})
-		},
-		4: func(agent core.Agent, setBonusAura *core.Aura) {
-			// TODO: both spells resolve on OutcomeAlwaysHit, so the bonus changes nothing until
-			// they roll against the spell hit table.
-			warrior := agent.(WarriorAgent).GetWarrior()
-			spelldata.ParseEffects(&warrior.Character, setBonusAura, dreadnaughtTauntHit)
-		},
-		6: func(agent core.Agent, setBonusAura *core.Aura) {
-			warrior := agent.(WarriorAgent).GetWarrior()
-			spelldata.ParseEffects(&warrior.Character, setBonusAura, dreadnaughtAbilityHit)
-		},
-		8: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Spell 28845 states that below 20% health, healing spells cast on you gain up to 160
-			// healing (spell 28846) for 5 seconds.
-			// TODO: the tank sim's modelled incoming healing bypasses the bonus; only heals a healer
-			// unit casts take it.
-			warrior := agent.(WarriorAgent).GetWarrior()
-
-			cheatDeath := warrior.RegisterAura(spelldata.AuraConfig(dreadnaughtCheatDeathBuff))
-			spelldata.ParseEffects(&warrior.Character, cheatDeath, dreadnaughtCheatDeathBuff)
-
-			trigger := spelldata.ProcTrigger(&warrior.Character, dreadnaughtCheatDeath,
-				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-					cheatDeath.Activate(sim)
-				})
-			trigger.Name = "Cheat Death - Trigger"
-			// The health threshold is the whole of the tooltip's condition and the row states none
-			// of it.
-			trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
-				return warrior.CurrentHealthPercent() < 0.2
-			}
-
-			setBonusAura.AttachProcTrigger(trigger)
-		},
-	},
-})
-
 // The six pieces the Tier 1 ItemSet rows list.
 // TODO: only the shoulders, hands, legs and feet have ItemSparse rows in the game files, so the
 // 5-piece bonuses cannot be worn yet.

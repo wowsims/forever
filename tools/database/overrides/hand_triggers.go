@@ -35,6 +35,16 @@ var HandTriggers = []HandTrigger{
 		Source: "game-files-rows",
 	},
 	{
+		Spell:    1310905,
+		Triggers: 1280353,
+		Replaces: 20924,
+		Reason: "Consecrated Ground's talent aura (a dummy) rides the mark Consecration's ground puts on the first 4 enemies " +
+			"inside it, 1280353: same name and class set, the bonus damage's dummy with its 0.042 coefficient and a " +
+			"Holy damage from caster mod whose points the server sets from the talent; the tooltip names the " +
+			"Consecration rank 20924 instead. In the log the mark lands at the cast and drops 0.6 sec after the last tick",
+		Source: "combat log, Consecration Rank 2 with Consecrated Ground 2/2, 2026-10-17",
+	},
+	{
 		Spell:    1323967,
 		Triggers: 1323969,
 		Reason: "Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class " +

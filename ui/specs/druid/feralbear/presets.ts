@@ -26,6 +26,7 @@ export const HybridTalents = PresetUtils.makePresetTalents(
 
 // Leather at 60 with no set bonus and no proc, about the item level of the cat preset.
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
+	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. The idol slot is empty: every idol has an effect.',
 });
 

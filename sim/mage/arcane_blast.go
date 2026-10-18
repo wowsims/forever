@@ -18,14 +18,12 @@ func (mage *Mage) registerArcaneBlastRank(_ int32, rank *spelldata.Spell) {
 	config.ClassSpellMask = MageSpellArcaneBlast
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
-		if result.Landed() {
-			// The charges last from the first one, so a new stack leaves the duration alone.
-			if !mage.ArcaneChargesAura.IsActive() {
-				mage.ArcaneChargesAura.Activate(sim)
-			}
-			mage.ArcaneChargesAura.AddStack(sim)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
+
+		if !mage.ArcaneChargesAura.IsActive() {
+			mage.ArcaneChargesAura.Activate(sim)
 		}
+		mage.ArcaneChargesAura.AddStack(sim)
 	}
 
 	mage.RegisterSpell(config)

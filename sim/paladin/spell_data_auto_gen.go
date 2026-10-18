@@ -174,7 +174,7 @@ var spellData = generatedSpellData{
 	Cleanse:                       spelldata.Ranked(4987),
 	ConcentrationAura:             spelldata.Ranked(19746),
 	ConsecratedGround:             spelldata.Talent(1310905, 2),
-	ConsecratedGroundTriggered:    spelldata.Ranked(20924),
+	ConsecratedGroundTriggered:    spelldata.Ranked(1280353),
 	Consecration:                  spelldata.Ranked(26573, 20116, 20922, 20923, 20924),
 	ConsecrationTriggered:         spelldata.Ranked(1280345, 1280346, 1280347, 1280348, 1280349),
 	Conviction:                    spelldata.Talent(20117, 5),

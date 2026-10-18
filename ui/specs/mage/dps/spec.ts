@@ -1,10 +1,9 @@
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
-import { Cooldowns, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
-import { SpecRotation } from '@sim/proto/spec_types';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
@@ -99,8 +98,9 @@ export default defineSpec<Spec.SpecMage>({
 		partyBuffs: DefaultPartyBuffs,
 		individualBuffs: DefaultIndividualBuffs,
 
-		rotationType: APLRotation_Type.TypeSimple,
-		simpleRotation: Presets.ArcaneMageSimpleRotation,
+		rotationType: APLRotation_Type.TypeAPL,
+		aplRotation: Presets.ArcaneAplPreset.rotation.rotation,
+
 		debuffs: DefaultDebuffs,
 	},
 
@@ -123,11 +123,12 @@ export default defineSpec<Spec.SpecMage>({
 	presets: {
 		epWeights: [],
 		// Preset rotations that the user can quickly select.
-		rotations: [Presets.DEFAULT_APL, Presets.APL_ARCANE_SIMPLE],
+		rotations: [Presets.ArcaneAplPreset, Presets.FFBAplPreset, Presets.FireAplPreset],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.ArcaneTalents],
+		talents: [Presets.ArcaneTalents, Presets.FFBTalents, Presets.FireTalents],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.P1ArcaneGear],
+		builds: [Presets.ArcaneBuild, Presets.FFBBuild, Presets.FireBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecMage>): APLRotation => {
@@ -135,55 +136,55 @@ export default defineSpec<Spec.SpecMage>({
 		// if (numTargets >= 2) {
 		// 	return Presets.ROTATION_PRESET_CLEAVE.rotation.rotation!;
 		// } else {
-		return Presets.DEFAULT_APL.rotation.rotation!;
+		return Presets.ArcaneAplPreset.rotation.rotation!;
 		// }
 	},
 
 	// TODO: The simple settings are not applied yet. The default APL (apls/default.apl.json) has no
 	// value variables for them to set, so the simple rotation is that APL as it stands.
-	simpleRotation: (_player: Player<Spec.SpecMage>, _simple: SpecRotation<Spec.SpecMage>, _cooldowns: Cooldowns): APLRotation => {
-		// const actions = AplUtils.simpleCooldownActions(cooldowns);
-		// const rotation = APLRotation.clone(Presets.ROTATION_PRESET_ARCANE.rotation.rotation!);
-		//
-		// const { conserveStart = 20, conserveEnd = 30, delayMajorCDs = 10 } = simple;
-		//
-		// const conserveStartString = APLValueVariable.fromJson({
-		// 	name: 'Conserve Start',
-		// 	value: { const: { val: String(conserveStart) + '%' } },
-		// });
-		//
-		// const conserveEndString = APLValueVariable.fromJson({
-		// 	name: 'Conserve End',
-		// 	value: { const: { val: String(conserveEnd) + '%' } },
-		// });
-		//
-		// const delayMajorCDsString = APLValueVariable.fromJson({
-		// 	name: 'Delay Major CDs',
-		// 	value: { const: { val: String(delayMajorCDs) + 's' } },
-		// });
-		//
-		// rotation.valueVariables[0] = conserveStartString;
-		// rotation.valueVariables[1] = conserveEndString;
-		// rotation.valueVariables[2] = delayMajorCDsString;
-		//
-		// // The user's timings replace the preset's own logic for those spells (e.g. Icy Veins lust/drums alignment).
-		// AplUtils.hideScheduledCooldownCasts(rotation, cooldowns);
-		//
-		// return APLRotation.create({
-		// 	prepullActions: rotation.prepullActions,
-		// 	priorityList: [
-		// 		...actions.map(action =>
-		// 			APLListItem.create({
-		// 				action: action,
-		// 			}),
-		// 		),
-		// 		...rotation.priorityList,
-		// 	],
-		// 	groups: rotation.groups,
-		// 	valueVariables: rotation.valueVariables,
-		// });
-		return APLRotation.clone(Presets.DEFAULT_APL.rotation.rotation!);
-	},
+	//simpleRotation: (_player: Player<Spec.SpecMage>, _simple: SpecRotation<Spec.SpecMage>, _cooldowns: Cooldowns): APLRotation => {
+	// const actions = AplUtils.simpleCooldownActions(cooldowns);
+	// const rotation = APLRotation.clone(Presets.ROTATION_PRESET_ARCANE.rotation.rotation!);
+	//
+	// const { conserveStart = 20, conserveEnd = 30, delayMajorCDs = 10 } = simple;
+	//
+	// const conserveStartString = APLValueVariable.fromJson({
+	// 	name: 'Conserve Start',
+	// 	value: { const: { val: String(conserveStart) + '%' } },
+	// });
+	//
+	// const conserveEndString = APLValueVariable.fromJson({
+	// 	name: 'Conserve End',
+	// 	value: { const: { val: String(conserveEnd) + '%' } },
+	// });
+	//
+	// const delayMajorCDsString = APLValueVariable.fromJson({
+	// 	name: 'Delay Major CDs',
+	// 	value: { const: { val: String(delayMajorCDs) + 's' } },
+	// });
+	//
+	// rotation.valueVariables[0] = conserveStartString;
+	// rotation.valueVariables[1] = conserveEndString;
+	// rotation.valueVariables[2] = delayMajorCDsString;
+	//
+	// // The user's timings replace the preset's own logic for those spells (e.g. Icy Veins lust/drums alignment).
+	// AplUtils.hideScheduledCooldownCasts(rotation, cooldowns);
+	//
+	// return APLRotation.create({
+	// 	prepullActions: rotation.prepullActions,
+	// 	priorityList: [
+	// 		...actions.map(action =>
+	// 			APLListItem.create({
+	// 				action: action,
+	// 			}),
+	// 		),
+	// 		...rotation.priorityList,
+	// 	],
+	// 	groups: rotation.groups,
+	// 	valueVariables: rotation.valueVariables,
+	// });
+	//return APLRotation.clone(Presets.DEFAULT_APL.rotation.rotation!);
+	//},
 
 	reforge: {},
 });

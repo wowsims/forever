@@ -225,7 +225,8 @@ func applyRaceEffects(agent Agent) {
 			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
 			Cast: CastConfig{
 				DefaultCast: Cast{
-					GCD: GCDDefault,
+					GCD:      GCDDefault,
+					CastTime: DurationFromMillis(2000.0),
 				},
 				CD: Cooldown{
 					Timer:    character.NewTimer(),
@@ -258,7 +259,8 @@ func applyRaceEffects(agent Agent) {
 			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
 			Cast: CastConfig{
 				DefaultCast: Cast{
-					GCD: GCDDefault,
+					GCD:      GCDDefault,
+					CastTime: DurationFromMillis(500.0),
 				},
 				CD: Cooldown{
 					Timer:    character.NewTimer(),

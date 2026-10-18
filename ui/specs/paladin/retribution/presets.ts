@@ -18,9 +18,11 @@ export const HolyShockAplPreset = PresetUtils.makePresetAPLRotation('Holy Shock'
 export const TwistOfLightAplPreset = PresetUtils.makePresetAPLRotation('Twist of Light', TwistOfLightApl);
 
 export const HolyShockGearPreset = PresetUtils.makePresetGear('Holy Shock', HolyShockGear, {
+	devOnly: true,
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 export const TwistOfLightGearPreset = PresetUtils.makePresetGear('Twist of Light', TwistOfLightGear, {
+	devOnly: true,
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 

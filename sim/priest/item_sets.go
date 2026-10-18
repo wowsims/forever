@@ -1,8 +1,6 @@
 package priest
 
 import (
-	"slices"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -18,18 +16,6 @@ func parsedSetBonus(id int32) core.ApplySetBonus {
 	}
 }
 
-// The eight slots of a dungeon set.
-var dungeonSetSlots = []proto.ItemSlot{
-	proto.ItemSlot_ItemSlotHead,
-	proto.ItemSlot_ItemSlotShoulder,
-	proto.ItemSlot_ItemSlotChest,
-	proto.ItemSlot_ItemSlotWrist,
-	proto.ItemSlot_ItemSlotHands,
-	proto.ItemSlot_ItemSlotWaist,
-	proto.ItemSlot_ItemSlotLegs,
-	proto.ItemSlot_ItemSlotFeet,
-}
-
 // The six slots of a Conviction set and of a PvP set. A Conviction ItemSet row lists six pieces the
 // game files do not ship; the shoulders, hands, legs and feet ship under other ids, and no head or
 // chest piece ships.
@@ -41,56 +27,6 @@ var sixPieceSetSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotLegs,
 	proto.ItemSlot_ItemSlotFeet,
 }
-
-var (
-	devoutManaProc      = spelldata.MustFind(450576) // 5pc: the proc
-	devoutSuddenInsight = spelldata.MustFind(450554) // 5pc: the mana it restores
-)
-
-// Dungeon Set 1
-// https://www.wowhead.com/forever/item-set=182/vestments-of-the-devout
-//
-// The 4-piece bonus (27778) shields the wearer when struck, which the sim does not model.
-var ItemSetVestmentsOfTheDevout = core.NewItemSet(core.ItemSet{
-	ID:    182,
-	Name:  "Vestments of the Devout",
-	Slots: dungeonSetSlots,
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: parsedSetBonus(18679), // +8 All Resistances.
-		3: parsedSetBonus(9346),  // Increases damage and healing done by magical spells and effects by up to 18.
-		5: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Your spellcasts have a 5% chance to energize you for 200 mana.
-			character := agent.GetCharacter()
-			manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: devoutSuddenInsight.ID})
-			mana := devoutSuddenInsight.EnergizeEffect().Average()
-
-			trigger := spelldata.ProcTrigger(character, devoutManaProc,
-				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-					character.AddMana(sim, mana, manaMetrics)
-				})
-			trigger.Name = "Vestments of the Devout - 5PC"
-
-			setBonusAura.AttachProcTrigger(trigger)
-			setBonusAura.ExposeToAPL(devoutManaProc.ID)
-		},
-		6: parsedSetBonus(18378), // Restores 8 mana per 5 sec.
-	},
-})
-
-// Dungeon Set 2
-// https://www.wowhead.com/forever/item-set=514/vestments-of-the-virtuous
-//
-// The 4-piece bonus (27778) shields the wearer when struck, which the sim does not model.
-var ItemSetVestmentsOfTheVirtuous = core.NewItemSet(core.ItemSet{
-	ID:    514,
-	Name:  "Vestments of the Virtuous",
-	Slots: dungeonSetSlots,
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: parsedSetBonus(18679), // +8 All Resistances.
-		6: parsedSetBonus(14047), // Increases damage and healing done by magical spells and effects by up to 23.
-		8: parsedSetBonus(14803), // +200 Armor.
-	},
-})
 
 // Zul'Gurub
 // https://www.wowhead.com/forever/item-set=480/confessors-raiment
@@ -148,45 +84,6 @@ var ItemSetGarmentsOfTheOracle = core.NewItemSet(core.ItemSet{
 	},
 	Bonuses: map[int32]core.ApplySetBonus{
 		5: parsedSetBonus(26171), // Increases the duration of your Renew spell by 3 sec.
-	},
-})
-
-var (
-	faithEpiphanyProc = spelldata.MustFind(28802) // 8pc: Epiphany, the proc
-	faithEpiphanyBuff = spelldata.MustFind(28804) // 8pc: Epiphany, the mana regeneration
-)
-
-// Tier 3
-// https://www.wowhead.com/forever/item-set=525/vestments-of-faith
-//
-// The 4-piece bonus (28809) shields the target of a Greater Heal crit with Armor of Faith, which
-// the sim does not model.
-var ItemSetVestmentsOfFaith = core.NewItemSet(core.ItemSet{
-	ID:    525,
-	Name:  "Vestments of Faith",
-	Slots: slices.Concat(dungeonSetSlots, []proto.ItemSlot{proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2}),
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: parsedSetBonus(28807), // Reduces the mana cost of your Renew spell by 12%.
-		6: parsedSetBonus(28808), // Reduces the threat from your healing spells.
-		8: func(agent core.Agent, setBonusAura *core.Aura) {
-			// Each spell you cast can trigger an Epiphany, increasing your mana regeneration by 24
-			// for 30 sec.
-			character := agent.GetCharacter()
-			epiphany := character.RegisterAura(spelldata.AuraConfig(faithEpiphanyBuff))
-			spelldata.ParseEffects(character, epiphany, faithEpiphanyBuff)
-
-			// The proc effect's class flags name Shadow Word: Pain alone; the tooltip says each spell
-			// you cast, and the tooltip wins: the flags come off.
-			trigger := spelldata.ProcTrigger(character, faithEpiphanyProc,
-				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-					epiphany.Activate(sim)
-				})
-			trigger.Name = "Vestments of Faith - 8PC"
-			trigger.ClassFlags = core.ClassFlags{}
-
-			setBonusAura.AttachProcTrigger(trigger)
-			setBonusAura.ExposeToAPL(faithEpiphanyProc.ID)
-		},
 	},
 })
 

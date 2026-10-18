@@ -1314,6 +1314,28 @@ func TestValueDotPercentIncrease(t *testing.T) {
 	}
 }
 
+func TestValueDotExpectedDps(t *testing.T) {
+	sim, fw, rot := setupFakeRageRotation()
+	rend := fw.GetSpell(fakeRendActionID)
+	id := fakeRendActionID.ToProto()
+
+	wantNoValue(t, map[string]APLValue{
+		"Dot Expected DPS without an expected tick damage calculator": rot.newValueDotExpectedDps(&proto.APLValueDotExpectedDps{SpellId: id}, nil),
+	})
+
+	rend.expectedTickDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
+		return &SpellResult{Damage: 300}
+	}
+
+	perSecond := rot.newValueDotExpectedDps(&proto.APLValueDotExpectedDps{SpellId: id}, nil)
+	if perSecond == nil {
+		t.Fatalf("Expected Dot Expected DPS to resolve once the spell has an expected tick damage calculator")
+	}
+	if got := perSecond.GetFloat(sim); got != 100 {
+		t.Fatalf("Dot Expected DPS for a 300 tick every 3s = %f, want 100", got)
+	}
+}
+
 func TestValueSequences(t *testing.T) {
 	sim, fw, rot := setupFakeRageRotation()
 	castSpell := &APLActionCastSpell{spell: fw.GetSpell(fakeCategorySpellActionIDs[0])}

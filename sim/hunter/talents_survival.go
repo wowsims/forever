@@ -17,7 +17,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	// Improved Wing Clip (19228) is a root chance on a snare the sim does not cast.
 
 	// Tier 3
-	// Clever Traps (19239): the sim places no traps.
+	hunter.registerCleverTraps()
 	hunter.registerSurefooted()
 	// Deterrence (19263) is parry and dodge the sim's targets do not test.
 
@@ -199,4 +199,14 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 	}
 
 	hunter.MakeProcTriggerAura(trigger)
+}
+
+// Effect 1 lengthens the crowd control traps, which the sim does not place; effect 2 raises the
+// Immolation and Explosive Trap damage.
+func (hunter *Hunter) registerCleverTraps() {
+	if hunter.Talents.CleverTraps == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&hunter.Character, spellData.CleverTraps.Rank(hunter.Talents.CleverTraps), spelldata.Effects(2))
 }

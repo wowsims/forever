@@ -159,6 +159,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-DarkmantleArmor"
+ value: {
+  dps: 632.68883
+  tps: 339.76141
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 634.47164
@@ -178,6 +185,13 @@ dps_results: {
  value: {
   dps: 643.56227
   tps: 344.99759
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-DeathmistRaiment"
+ value: {
+  dps: 502.02279
+  tps: 274.58129
  }
 }
 dps_results: {
@@ -213,6 +227,14 @@ dps_results: {
  value: {
   dps: 634.47164
   tps: 340.51151
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-DreadmistRaiment"
+ value: {
+  dps: 499.38792
+  tps: 273.0343
+  hps: 1.26521
  }
 }
 dps_results: {
@@ -413,6 +435,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-FrostfireRegalia"
+ value: {
+  dps: 512.44273
+  tps: 279.6742
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 634.47164
@@ -602,6 +631,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Magister'sRegalia"
+ value: {
+  dps: 499.38792
+  tps: 273.32334
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-MajorRecombobulator-18637"
  value: {
   dps: 634.47164
@@ -679,6 +715,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-PlagueheartRaiment"
+ value: {
+  dps: 523.24301
+  tps: 285.11698
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-PristineEnchantedSouthSeasKelp-19613"
  value: {
   dps: 629.08155
@@ -707,6 +750,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-ShadowcraftArmor"
+ value: {
+  dps: 596.47817
+  tps: 321.56736
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 637.57845
@@ -725,6 +775,13 @@ dps_results: {
  value: {
   dps: 634.47164
   tps: 340.51151
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 502.02279
+  tps: 274.4421
  }
 }
 dps_results: {
@@ -830,6 +887,27 @@ dps_results: {
  value: {
   dps: 634.47164
   tps: 340.51151
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VestmentsofFaith"
+ value: {
+  dps: 492.02673
+  tps: 268.79027
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 499.38792
+  tps: 273.22416
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 502.02279
+  tps: 274.05024
  }
 }
 dps_results: {

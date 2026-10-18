@@ -67,6 +67,7 @@ const makePresetGearHelper = (name: string, gear: EquipmentSpec, options: Preset
 		// The gear tab groups its preset chips by phase and named group.
 		phase: options.phase,
 		group: options.group,
+		devOnly: options.devOnly,
 	};
 };
 

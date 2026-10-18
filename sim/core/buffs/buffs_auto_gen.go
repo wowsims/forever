@@ -16,10 +16,12 @@ import (
 var PaladinAuraCategory = "PaladinAura"
 
 // Blood Pact
+var BloodPactCategory = "BloodPact"
 var bloodPactSpell = spelldata.MustFind(11767)
 var bloodPactMeta = &Meta{
-	Label: "Blood Pact",
-	Spell: bloodPactSpell,
+	Label:    "Blood Pact",
+	Spell:    bloodPactSpell,
+	Category: BloodPactCategory,
 }
 
 func BloodPactValue(talentPoints int32) float64 {

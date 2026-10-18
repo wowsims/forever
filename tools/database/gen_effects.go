@@ -597,6 +597,24 @@ var literalRates = []literalRate{
 		Reason: "Totem of the Storm: half of Maelstrom Weapon's rate per minute, which the shaman talent " +
 			"code keeps as its own literal; the item cannot carry it without the talent reading it from the item",
 	},
+	{
+		Gear:   "set bonus",
+		ID:     184,
+		Pieces: 5,
+		Kind:   overrides.RatePPM,
+		Origin: "unknown",
+		Reason: "Shadowcraft Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
+			"so the sim keeps 1 per minute as a literal",
+	},
+	{
+		Gear:   "set bonus",
+		ID:     512,
+		Pieces: 4,
+		Kind:   overrides.RatePPM,
+		Origin: "unknown",
+		Reason: "Darkmantle Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
+			"so the sim keeps 1 per minute as a literal",
+	},
 }
 
 // The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
@@ -618,8 +636,9 @@ type rateInputs struct {
 	Spells        []overrides.Override
 	EnchantProcs  []overrides.EnchantProc
 	Literals      []literalRate
-	SpellItems    map[int32][]int32 // The items casting each spell, by spell id.
-	SpellEnchants map[int32][]int32 // The enchant effect ids casting each spell, by spell id.
+	SpellItems    map[int32][]int32    // The items casting each spell, by spell id.
+	SpellEnchants map[int32][]int32    // The enchant effect ids casting each spell, by spell id.
+	SpellSets     map[int32][][2]int32 // The set id and piece count of each set bonus granting the spell, by spell id.
 }
 
 // A spell override's rate kind, or 0 for an override that is not a rate.
@@ -633,7 +652,7 @@ func spellRateKind(o overrides.Override) overrides.RateKind {
 	return 0
 }
 
-// The shipped tables, with the items and enchants the game files have casting each rated spell.
+// The shipped tables, with the items, enchants and set bonuses the game files have casting each rated spell.
 func shippedRateInputs(instance *dbc.DBC) rateInputs {
 	in := rateInputs{
 		WeaponProcs:   overrides.WeaponProcs,
@@ -642,6 +661,7 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		Literals:      literalRates,
 		SpellItems:    map[int32][]int32{},
 		SpellEnchants: map[int32][]int32{},
+		SpellSets:     map[int32][][2]int32{},
 	}
 	for _, o := range overrides.Spells {
 		if spellRateKind(o) == 0 {
@@ -657,30 +677,48 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 				in.SpellEnchants[o.SpellID] = append(in.SpellEnchants[o.SpellID], int32(effectID))
 			}
 		}
+		for setID, spells := range instance.ItemSetSpells {
+			for _, spell := range spells {
+				if spell.SpellID == int(o.SpellID) {
+					in.SpellSets[o.SpellID] = append(in.SpellSets[o.SpellID], [2]int32{int32(setID), int32(spell.Threshold)})
+				}
+			}
+		}
 	}
 	return in
 }
 
 // Every hand-kept proc rate reaching an item, an enchant or a set bonus in the database whose Source
 // is not a measurement on Forever, once per piece of gear and in id order: the weapon rates, the
-// spell rates through the items and enchants that cast the spell, the enchant rates, and the rates
+// spell rates through the items, enchants and set bonuses that cast the spell, the enchant rates, and the rates
 // still kept as literals in code. Two rates of different kind or origin on one piece is an error.
 func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) {
 	items := map[int32]UnvalidatedRate{}
 	enchants := map[int32]UnvalidatedRate{}
 	setBonuses := map[[2]int32]UnvalidatedRate{}
 	var conflict error
-	put := func(list map[int32]UnvalidatedRate, rate UnvalidatedRate) {
-		if listed, ok := list[rate.ID]; ok && (listed.Kind != rate.Kind || listed.Origin != rate.Origin) && conflict == nil {
+	check := func(listed UnvalidatedRate, ok bool, rate UnvalidatedRate) {
+		if ok && (listed.Kind != rate.Kind || listed.Origin != rate.Origin) && conflict == nil {
 			conflict = fmt.Errorf("%s (%d) carries two rates, a %s %s one and a %s %s one",
 				rate.Name, rate.ID, listed.Origin, listed.Kind, rate.Origin, rate.Kind)
 		}
+	}
+	put := func(list map[int32]UnvalidatedRate, rate UnvalidatedRate) {
+		listed, ok := list[rate.ID]
+		check(listed, ok, rate)
 		list[rate.ID] = rate
+	}
+	putSetBonus := func(rate UnvalidatedRate) {
+		key := [2]int32{rate.ID, rate.Pieces}
+		listed, ok := setBonuses[key]
+		check(listed, ok, rate)
+		setBonuses[key] = rate
 	}
 	enchantByEffectID := map[int32]*proto.UIEnchant{}
 	for _, enchant := range db.Enchants {
 		enchantByEffectID[enchant.EffectId] = enchant
 	}
+	setNames := setNamesOf(db)
 
 	for _, proc := range in.WeaponProcs {
 		item, ok := db.Items[proc.ItemID]
@@ -702,6 +740,11 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 		for _, effectID := range in.SpellEnchants[o.SpellID] {
 			if enchant, ok := enchantByEffectID[effectID]; ok {
 				put(enchants, UnvalidatedRate{ID: effectID, Name: enchant.Name, Kind: kind, Origin: origin})
+			}
+		}
+		for _, bonus := range in.SpellSets[o.SpellID] {
+			if name, ok := setNames[bonus[0]]; ok {
+				putSetBonus(UnvalidatedRate{ID: bonus[0], Pieces: bonus[1], Name: name, Kind: kind, Origin: origin})
 			}
 		}
 	}
@@ -727,12 +770,9 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 				put(enchants, rate)
 			}
 		case "set bonus":
-			for _, item := range db.Items {
-				if item.SetId == literal.ID {
-					rate.Name = item.SetName
-					setBonuses[[2]int32{literal.ID, literal.Pieces}] = rate
-					break
-				}
+			if name, ok := setNames[literal.ID]; ok {
+				rate.Name = name
+				putSetBonus(rate)
 			}
 		}
 	}
@@ -750,6 +790,87 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	}, conflict
 }
 
+// A set bonus the game files grant at a piece count the sim registers no effect for.
+type MissingSetBonus struct {
+	ID       int32 // The set id.
+	Pieces   int32
+	Name     string
+	Spells   []int32
+	Tooltips []string // One per spell.
+}
+
+// Every set bonus of a set with items in the database whose piece count no registered set covers,
+// in set id and piece count order. A set registered with ID 0 is matched by name.
+func missingSetBonuses(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSpell, db *WowDatabase, tooltipOf func(spellID int) string) []MissingSetBonus {
+	var missing []MissingSetBonus
+	for setID, name := range setNamesOf(db) {
+		implemented := map[int32]bool{}
+		for _, set := range registered {
+			if set.ID == setID || set.ID == 0 && (set.Name == name || set.AlternativeName == name) {
+				for pieces := range set.Bonuses {
+					implemented[pieces] = true
+				}
+			}
+		}
+		byPieces := map[int32]*MissingSetBonus{}
+		for _, row := range setSpells[int(setID)] {
+			pieces := int32(row.Threshold)
+			if implemented[pieces] {
+				continue
+			}
+			bonus, ok := byPieces[pieces]
+			if !ok {
+				bonus = &MissingSetBonus{ID: setID, Pieces: pieces, Name: name}
+				byPieces[pieces] = bonus
+			}
+			bonus.Spells = append(bonus.Spells, int32(row.SpellID))
+			bonus.Tooltips = append(bonus.Tooltips, tooltipOf(row.SpellID))
+		}
+		for _, bonus := range byPieces {
+			missing = append(missing, *bonus)
+		}
+	}
+
+	sort.Slice(missing, func(i, j int) bool {
+		return missing[i].ID < missing[j].ID || missing[i].ID == missing[j].ID && missing[i].Pieces < missing[j].Pieces
+	})
+	return missing
+}
+
+// The name of every set with an item in the database, by set id.
+func setNamesOf(db *WowDatabase) map[int32]string {
+	names := map[int32]string{}
+	for _, item := range db.Items {
+		if item.SetId != 0 {
+			names[item.SetId] = item.SetName
+		}
+	}
+	return names
+}
+
+// A list in set id order, cut into one run per set.
+func groupBySet[T any](list []T, setID func(T) int32) [][]T {
+	var sets [][]T
+	for _, entry := range list {
+		if len(sets) == 0 || setID(sets[len(sets)-1][0]) != setID(entry) {
+			sets = append(sets, nil)
+		}
+		sets[len(sets)-1] = append(sets[len(sets)-1], entry)
+	}
+	return sets
+}
+
+// The spell's tooltip as the missing-effects list shows it, or its name where the tooltip does not render.
+func setBonusTooltip(instance *dbc.DBC, spellID int) string {
+	spell := instance.Spells[spellID]
+	if rendered, _ := tooltip.ParseTooltip(spell.Description, tooltip.DBCTooltipDataProvider{DBC: instance}, int64(spellID)); rendered != nil {
+		if text := rendered.String(); text != "" {
+			return text
+		}
+	}
+	return spell.NameLang
+}
+
 func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
 	if _, err := os.Stat(missingEffectsFileName); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
@@ -759,6 +880,9 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
 	if err != nil {
 		return err
 	}
+	setBonuses := missingSetBonuses(core.ItemSets(), instance.ItemSetSpells, db, func(spellID int) string {
+		return setBonusTooltip(instance, spellID)
+	})
 
 	f, err := os.Create(missingEffectsFileName)
 	if err != nil {
@@ -766,10 +890,10 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
 	}
 	defer f.Close()
 
-	return renderMissingEffects(f, rates)
+	return renderMissingEffects(f, rates, setBonuses)
 }
 
-func renderMissingEffects(w io.Writer, rates UnvalidatedRates) error {
+func renderMissingEffects(w io.Writer, rates UnvalidatedRates, setBonuses []MissingSetBonus) error {
 	funcMap := map[string]any{
 		"asCoreCallback": asCoreCallback,
 		"asCoreProcMask": asCoreProcMask,
@@ -778,16 +902,12 @@ func renderMissingEffects(w io.Writer, rates UnvalidatedRates) error {
 		"jsString":       jsString,
 	}
 	tmpl := template.Must(template.New("missingEffects").Funcs(funcMap).Parse(TmplStrMissingEffects))
-	var sets [][]UnvalidatedRate
-	for _, bonus := range rates.SetBonuses {
-		if len(sets) == 0 || sets[len(sets)-1][0].ID != bonus.ID {
-			sets = append(sets, nil)
-		}
-		sets[len(sets)-1] = append(sets[len(sets)-1], bonus)
-	}
+	sets := groupBySet(rates.SetBonuses, func(r UnvalidatedRate) int32 { return r.ID })
+	missingSets := groupBySet(setBonuses, func(b MissingSetBonus) int32 { return b.ID })
 	data := map[string]any{
 		"ItemEffects":               missingEffectsMap["ItemEffects"],
 		"EnchantEffects":            missingEffectsMap["EnchantEffects"],
+		"MissingSetBonuses":         missingSets,
 		"UnvalidatedRateItems":      rates.Items,
 		"UnvalidatedRateEnchants":   rates.Enchants,
 		"UnvalidatedRateSetBonuses": sets,

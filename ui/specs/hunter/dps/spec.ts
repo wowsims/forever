@@ -1,3 +1,4 @@
+import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as other_inputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type, APLValueVariable } from '@generated/proto/apl';
@@ -100,7 +101,25 @@ export default defineSpec<Spec.SpecHunter>({
 	sections: [HunterInputs.PetSection],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [Stat.StatSpirit, Stat.StatCritRating, Stat.StatSpellDamage],
-	excludeBuffDebuffInputs: [],
+	// Rows that never move hunter DPS: stamina, threat, caster and party-only buffs and the debuffs only a tank wants.
+	excludeBuffDebuffInputs: [
+		BuffDebuffInputs.AdmiralsHat,
+		BuffDebuffInputs.AtieshMage,
+		BuffDebuffInputs.AtieshWarlock,
+		BuffDebuffInputs.BloodPact,
+		BuffDebuffInputs.ConcentrationAura,
+		BuffDebuffInputs.DemoralizingRoar,
+		BuffDebuffInputs.DemoralizingScreech,
+		BuffDebuffInputs.GreaterBlessingOfSalvation,
+		BuffDebuffInputs.HexOfWeakness,
+		BuffDebuffInputs.JudgementOfTheCrusader,
+		BuffDebuffInputs.MoonkinAura,
+		BuffDebuffInputs.PowerInfusion,
+		BuffDebuffInputs.PrayerOfFortitude,
+		BuffDebuffInputs.ScorpidSting,
+		BuffDebuffInputs.ThunderClap,
+		BuffDebuffInputs.Thunderfury,
+	],
 	rotationInputs: HunterInputs.RotationInputs,
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {

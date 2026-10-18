@@ -40,7 +40,7 @@ export const OtherDefaults = {
 export const DiscTalents = PresetUtils.makePresetTalents('Disc', SavedTalents.create({ talentsString: '005025021330011531-335001030301' }));
 export const HolyTalents = PresetUtils.makePresetTalents('Holy', SavedTalents.create({ talentsString: '00520101133-33505003030121531' }));
 
-export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreraidGearJson);
+export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreraidGearJson, { devOnly: true });
 
 export const DiscSingleTargetEpWeights = PresetUtils.makePresetEpWeights(
 	'Disc Single-Target',
