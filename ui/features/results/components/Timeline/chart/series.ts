@@ -116,10 +116,19 @@ export function threatDataset(unit: UnitMetrics, seriesId: string, borderColor: 
 	};
 }
 
+// The largest value the resource is ever declared or observed to hold over the fight. The first
+// group is no scale: mana spent before the pull leaves it below the maximum, and resources that
+// start empty (chi, combo points, runic power) open at 0 with no useful maxValue.
+function largestResourceValue(logs: Array<ResourceGroupLog>): number {
+	let max = 0;
+	for (const log of logs) max = Math.max(max, log.maxValue || 0, log.valueBefore, log.valueAfter);
+	return max;
+}
+
 export function manaDataset(unit: UnitMetrics): { dataset: TimelineDataset<ResourceGroupLog>; maxMana: number } | null {
 	const logs = unit.groupedResourceLogs[ResourceType.ResourceTypeMana].filter(log => log.timestamp >= 0);
 	if (logs.length == 0) return null;
-	const maxMana = logs[0].valueBefore;
+	const maxMana = largestResourceValue(logs);
 	if (maxMana <= 0) return null;
 
 	return {
@@ -155,12 +164,7 @@ export function resourceDatasets(unit: UnitMetrics): Array<TimelineDataset<Resou
 		const logs = unit.groupedResourceLogs[resourceType].filter(log => log.timestamp >= 0);
 		if (logs.length == 0) continue;
 
-		// Resources that start empty - chi, combo points, runic power - have no useful
-		// maxValue on their groups and a valueBefore of 0 at t=0, so scaling off either
-		// gave nonsense percentages. Take the largest value the resource is ever declared
-		// or observed to hold, over the whole fight.
-		let resourceMax = 0;
-		for (const log of logs) resourceMax = Math.max(resourceMax, log.maxValue || 0, log.valueBefore, log.valueAfter);
+		const resourceMax = largestResourceValue(logs);
 		if (resourceMax <= 0) continue;
 
 		const label = resourceNames.get(resourceType)!;
