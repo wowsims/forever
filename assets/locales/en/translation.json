@@ -1824,7 +1824,7 @@
 				},
 				"spell_expected_dpet": {
 					"label": "Spell Expected DPET",
-					"tooltip": "The expected damage of one full cast of this spell if cast now, its initial hit plus all its ticks, with crits, divided by the time the cast takes: its cast time, its channel or the GCD, whichever is longer."
+					"tooltip": "The expected damage of a spell if you cast it now. Includes cast time, GCD time, and averaged crit."
 				},
 				"aura_known": {
 					"label": "Aura Known",
