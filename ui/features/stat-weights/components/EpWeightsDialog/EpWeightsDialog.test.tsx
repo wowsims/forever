@@ -8,6 +8,7 @@ import { Stats, UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import { SimRuns } from '@sim/sim_runs';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
+import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
@@ -850,6 +851,82 @@ describe('EpWeightsDialog', () => {
 					expect(hpsEp('Agility')).toBe('9.00');
 				},
 			);
+		});
+	});
+
+	// A percent pseudo-stat's weight is stored per percentage point and shown per rating point, like the ratings
+	// beside it. The school hit weights come from the sim per hit rating point and show as they are.
+	describe('percent pseudo-stats', () => {
+		const RANGED_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
+		const FIRE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire);
+		const CRIT = UnitStat.fromStat(Stat.StatCritRating);
+		const rangedHitRow = () => rowFor(RANGED_HIT.getFullName(Class.ClassWarrior));
+		const fireHitRow = () => rowFor(FIRE_HIT.getFullName(Class.ClassWarrior));
+		const shown = (row: Element, columnType: 'weight' | 'ep') =>
+			row.querySelector(`[data-column-type="${columnType}"] [data-testid="results-avg"]`)!.textContent;
+		const currentEpInput = (row: Element) => row.querySelector<HTMLInputElement>('[data-testid="current-ep"] input')!;
+
+		beforeEach(() => {
+			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatSchoolHitPercentFire];
+		});
+
+		it('shows the computed weight, EP and ± per rating point, and copies the stored unit', async () => {
+			const result = weightsResult([
+				[RANGED_HIT, 9.28],
+				[FIRE_HIT, 1.15],
+				[CRIT, 1.15],
+			]);
+			RANGED_HIT.setProtoValue(result.dps!.weightsStdev!, 50);
+			RANGED_HIT.setProtoValue(result.dps!.epValuesStdev!, 50);
+			player.computeStatWeights.mockResolvedValue(result);
+			renderDialog();
+			await act(async () => {
+				fireEvent.click(calculate());
+			});
+
+			expect(shown(rangedHitRow(), 'weight')).toBe('0.93');
+			expect(shown(rangedHitRow(), 'ep')).toBe('0.93');
+			expect(rangedHitRow().querySelector('[data-column-type="weight"]')!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
+			expect(rangedHitRow().querySelector('[data-column-type="ep"]')!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
+			expect(shown(fireHitRow(), 'ep')).toBe('1.15');
+			expect(shown(rowFor('Crit Rating'), 'ep')).toBe('1.15');
+
+			act(() => {
+				fireEvent.click(table().querySelectorAll('thead tr:first-child th')[3].querySelector('[data-testid="col-action"]')!);
+			});
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(9.28);
+			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
+		});
+
+		it('shows the current EP per rating point, and stores an edit per percentage point', () => {
+			renderDialog();
+			act(() =>
+				player.setEpWeights(
+					new Stats()
+						.withPseudoStat(PseudoStat.PseudoStatRangedHitPercent, 9.28)
+						.withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 1.15)
+						.withStat(Stat.StatCritRating, 1.15),
+				),
+			);
+
+			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
+			expect(currentEpInput(fireHitRow()).value).toBe('1.15');
+			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.15');
+
+			act(() => {
+				const input = currentEpInput(rangedHitRow());
+				input.value = '1.00';
+				fireEvent.change(input);
+			});
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(10);
+			expect(currentEpInput(rangedHitRow()).value).toBe('1.00');
+
+			act(() => {
+				const input = currentEpInput(fireHitRow());
+				input.value = '2.00';
+				fireEvent.change(input);
+			});
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(2);
 		});
 	});
 

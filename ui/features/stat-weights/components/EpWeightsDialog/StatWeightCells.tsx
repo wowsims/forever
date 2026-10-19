@@ -1,9 +1,11 @@
 import type { StatWeightValues } from '@generated/proto/api';
+import type { UnitStats } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { UnitStat } from '@sim/proto/stats';
 import { TableCell } from '@ui-kit/Table';
 import { toneTextClass } from '@ui-kit/utils/css';
 
+import { epRatingScale } from '../../model/ep_unit_stats';
 import { StatWeightValue } from './StatWeightValue';
 
 export interface StatWeightCellsProps {
@@ -22,6 +24,8 @@ const NotApplicable = () => (
 );
 
 export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelta, cellClassName }: StatWeightCellsProps) => {
+	const scale = epRatingScale(stat);
+	const shown = (values: UnitStats) => stat.getProtoValue(values) / scale;
 	const unused = !!statWeights && epRatio === 0;
 	const rounded = epDelta.toFixed(2);
 	const delta = !statWeights || unused || rounded === '0.00' ? undefined : epDelta > 0 ? 'positive' : 'negative';
@@ -34,11 +38,7 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 				className={['text-right in-data-[stats-type=ep]:hidden', cellClassName, unused && 'text-white/70']}
 				data-unused={unused ? '' : undefined}>
 				{statWeights ? (
-					<StatWeightValue
-						value={stat.getProtoValue(statWeights.weights!)}
-						stdev={stat.getProtoValue(statWeights.weightsStdev!)}
-						iterations={iterations}
-					/>
+					<StatWeightValue value={shown(statWeights.weights!)} stdev={shown(statWeights.weightsStdev!)} iterations={iterations} />
 				) : (
 					<NotApplicable />
 				)}
@@ -50,8 +50,8 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 				data-unused={unused ? '' : undefined}>
 				{statWeights ? (
 					<StatWeightValue
-						value={stat.getProtoValue(statWeights.epValues!)}
-						stdev={stat.getProtoValue(statWeights.epValuesStdev!)}
+						value={shown(statWeights.epValues!)}
+						stdev={shown(statWeights.epValuesStdev!)}
 						iterations={iterations}
 						className={toneTextClass(delta)}
 						sign={delta}

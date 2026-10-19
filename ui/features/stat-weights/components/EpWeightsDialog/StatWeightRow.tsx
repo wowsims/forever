@@ -12,6 +12,7 @@ import { TableCell, TableRow } from '@ui-kit/Table';
 import { NumberField } from '@ui-kit/TextField';
 import clsx from 'clsx';
 
+import { epRatingScale } from '../../model/ep_unit_stats';
 import { StatWeightCells } from './StatWeightCells';
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
@@ -139,6 +140,7 @@ export const StatWeightRow = ({
 	const metrics = allMetrics
 		.map(({ statWeights, metric }, ratioIndex) => ({ statWeights, metric, ratioIndex, epRatio: epRatios[ratioIndex] }))
 		.filter(entry => displayMetrics[entry.metric]);
+	const scale = epRatingScale(stat);
 	const currentEp = epWeights.getUnitStat(stat);
 	// A result without per-stat counts falls back to the run's iteration count.
 	const samples = (rowResult?.sampleCounts && stat.getProtoValue(rowResult.sampleCounts)) || iterations;
@@ -150,9 +152,9 @@ export const StatWeightRow = ({
 			shortName={stat.getShortName(player.playerClass.classID)}
 			metrics={metrics}
 			iterations={samples}
-			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}
-			currentEp={currentEp}
-			onCurrentEpChange={value => player.setEpWeights(player.getEpWeights().withUnitStat(stat, value))}
+			epDelta={(scaledEpValue(stat, epRatios, rowResult) - currentEp) / scale}
+			currentEp={currentEp / scale}
+			onCurrentEpChange={value => player.setEpWeights(player.getEpWeights().withUnitStat(stat, value * scale))}
 			include={
 				includable
 					? {
