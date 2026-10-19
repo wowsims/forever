@@ -48,7 +48,7 @@ func (dot *Dot) OutcomeTickMagicHit(sim *Simulation, result *SpellResult, attack
 	} else {
 		result.Outcome = OutcomeMiss
 		result.Damage = 0
-		dot.Spell.SpellMetrics[result.Target.UnitIndex].Misses++
+		dot.Spell.SpellMetrics[result.Target.UnitIndex].TickMisses++
 	}
 }
 
@@ -216,7 +216,7 @@ func (spell *Spell) OutcomeTickMagicHitAndCrit(sim *Simulation, result *SpellRes
 	} else {
 		result.Outcome = OutcomeMiss
 		result.Damage = 0
-		spell.SpellMetrics[result.Target.UnitIndex].Misses++
+		spell.SpellMetrics[result.Target.UnitIndex].TickMisses++
 	}
 }
 

@@ -265,7 +265,7 @@
 										"cmp": {
 											"op": "OpLe",
 											"lhs": { "autoTimeToNext": { "autoType": "MainHandAuto" } },
-											"rhs": { "variableRef": { "name": "Move duration" } }
+											"rhs": { "math": { "op": "OpSub", "lhs": { "variableRef": { "name": "Move duration" } }, "rhs": { "inputDelay": {} } } }
 										}
 									},
 									{
@@ -297,9 +297,9 @@
 	],
 	"valueVariables": [
 		{ "name": "Melee weave", "value": { "const": { "val": "true" } } },
-		{ "name": "Time to weave", "value": { "const": { "val": "200ms" } } },
+		{ "name": "Time to weave", "value": { "const": { "val": "100ms" } } },
 		{ "name": "Melee range", "value": { "const": { "val": "5.00" } } },
-		{ "name": "Ranged range", "value": { "const": { "val": "11.00" } } },
+		{ "name": "Ranged range", "value": { "const": { "val": "12.00" } } },
 		{ "name": "Starting weave distance", "value": { "variableRef": { "name": "Ranged range" } } },
 		{
 			"name": "Move duration",

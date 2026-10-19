@@ -32,7 +32,7 @@ func BenchmarkMage(b *testing.B) {
 }
 
 func arcaneSuite() core.CharacterSuiteConfig {
-	return mageSuite(ArcaneTalents, "arcaneFrost")
+	return mageSuite(ArcaneTalents, "arcaneFrostFill")
 }
 
 func ffbSuite() core.CharacterSuiteConfig {

@@ -22,7 +22,7 @@ func (mage *Mage) registerArcaneMissilesRank(_ int32, rank *spelldata.Spell) {
 	tickConfig.ClassSpellMask = MageSpellArcaneMissilesTick
 	// Each missile rolls when the tick fires it and lands after flying at the row's speed.
 	tickConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, missileDamage.Average(), spell.OutcomeTickMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, missileDamage.Average(), spell.OutcomeMagicHitAndCrit)
 		spell.DealDamageAfterTravel(sim, result)
 		spell.SpellMetrics[target.UnitIndex].Casts--
 	}
@@ -46,7 +46,6 @@ func (mage *Mage) registerArcaneMissilesRank(_ int32, rank *spelldata.Spell) {
 		spell.Dot(target).Apply(sim)
 
 		tickSpell.SpellMetrics[target.UnitIndex].Casts++
-		tickSpell.SpellMetrics[target.UnitIndex].Hits++
 	}
 
 	mage.RegisterSpell(spellConfig)

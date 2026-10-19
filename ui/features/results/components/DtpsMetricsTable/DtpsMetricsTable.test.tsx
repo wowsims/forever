@@ -89,7 +89,9 @@ describe('DtpsMetricsTable', () => {
 	});
 
 	it('counts blocked hits and crushing blows out of the hit row of the casts breakdown', async () => {
-		result = targetResult([metric('Melee', { landedHits: 100, casts: 112, totalMisses: 12, misses: 12, blocks: 20, blockedCrits: 5, crushes: 10 })]);
+		result = targetResult([
+			metric('Melee', { landedHits: 100, landedRolls: 100, casts: 112, totalMisses: 12, misses: 12, blocks: 20, blockedCrits: 5, crushes: 10 }),
+		]);
 		const { container } = render(<DtpsMetricsTable />);
 
 		fireEvent.mouseEnter(rows(container)[0].cells[2]);

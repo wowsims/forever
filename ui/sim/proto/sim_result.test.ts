@@ -302,3 +302,33 @@ describe('per-value ranges', () => {
 		expect(done.critHeal.value).toBe(0);
 	});
 });
+
+describe('miss percent of ticks that roll their own hit', () => {
+	it('takes the tick rolls of a spell that lands only ticks as its miss attempts, not its casts', async () => {
+		const [action] = await rangedActions([{ casts: 10, ticks: 80, critTicks: 10, tickMisses: 10 }]);
+
+		expect(action.missPercent).toBe(10);
+		expect(action.totalMissesPercent).toBe(10);
+		expect(action.misses).toBe(5);
+		expect(action.landedRolls).toBe(45);
+		expect(action.critPercent).toBe(0);
+	});
+
+	it('joins direct and tick rolls in the miss percent and keeps the crit percent over the direct rolls', async () => {
+		const [blast, ticks] = await rangedActions([{ casts: 10, hits: 7, crits: 2, misses: 1 }], [{ ticks: 27, critTicks: 3, tickMisses: 10 }]);
+		const merged = ActionMetrics.merge([blast, ticks]);
+
+		expect(ticks.missPercent).toBe(25);
+		expect(merged.missPercent).toBe(22);
+		expect(merged.misses).toBe(5.5);
+		expect(merged.landedRolls).toBe(19.5);
+		expect(merged.critPercent).toBe(20);
+	});
+
+	it('keeps the casts of a DoT whose ticks roll no hit as its miss attempts', async () => {
+		const [action] = await rangedActions([{ casts: 10, misses: 1, ticks: 50, critTicks: 5 }]);
+
+		expect(action.missPercent).toBe(10);
+		expect(action.landedRolls).toBe(0);
+	});
+});

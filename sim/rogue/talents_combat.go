@@ -117,8 +117,9 @@ func (rogue *Rogue) registerBladeFlurry() {
 			return
 		}
 		curDmg = result.Damage
-		bfHit.Cast(sim, rogue.Env.NextActiveTargetUnit(result.Target))
-		bfHit.SpellMetrics[result.Target.UnitIndex].Casts--
+		next := rogue.Env.NextActiveTargetUnit(result.Target)
+		bfHit.Cast(sim, next)
+		bfHit.SpellMetrics[next.UnitIndex].Casts--
 	}
 
 	config := spelldata.SpellConfig(&rogue.Unit, bladeFlurryRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagMCD))
