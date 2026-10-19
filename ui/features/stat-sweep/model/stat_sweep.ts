@@ -5,7 +5,7 @@ import { precisionRunnable, type PrecisionSettings } from '@sim/settings/precisi
 import type { StatSweepMetric } from '@sim/state/sim_store';
 import { distinct } from '@sim/utils/collections';
 import { toCsv } from '@sim/utils/csv';
-import { mergeAggregates, sum, timeRemainingAtRate, Z_90 } from '@sim/utils/math';
+import { mergeAggregates, roundFloat, sum, timeRemainingAtRate, Z_90 } from '@sim/utils/math';
 import { STAT_WEIGHT_MAX_TOP_UP_PASSES, STAT_WEIGHT_TARGET_PROBE_ITERATIONS } from '@sim/wasm/stat_weights_constants_auto_gen';
 
 export type StatSweepStep = Pick<StatSweepPoint, 'offset' | 'bonus' | 'statValue'>;
@@ -25,9 +25,6 @@ export const offeredSweepMetrics = ({ healing, threat }: { healing: boolean; thr
 /** The stored metric while it is offered, else DPS. */
 export const shownSweepMetric = (stored: StatSweepMetric, offered: ReadonlyArray<StatSweepMetric>): StatSweepMetric =>
 	offered.includes(stored) ? stored : 'dps';
-
-// Rounds away float noise like 3 × 0.1 = 0.30000000000000004, which would otherwise label an axis tick.
-const roundFloat = (value: number) => Math.round(value * 1e6) / 1e6;
 
 /**
  * Multiples of `step` from −`range` to +`range`, ascending, always with 0. ±`range` itself is left out when `range` is

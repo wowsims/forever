@@ -854,8 +854,8 @@ describe('EpWeightsDialog', () => {
 		});
 	});
 
-	// A percent pseudo-stat's weight is stored per percentage point and shown per rating point, like the ratings
-	// beside it. The school hit weights come from the sim per hit rating point and show as they are.
+	// A percent pseudo-stat's weight, school hit included, is stored per percentage point and shown per rating
+	// point, like the ratings beside it.
 	describe('percent pseudo-stats', () => {
 		const RANGED_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
 		const FIRE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire);
@@ -865,6 +865,12 @@ describe('EpWeightsDialog', () => {
 		const shown = (row: Element, columnType: 'weight' | 'ep') =>
 			row.querySelector(`[data-column-type="${columnType}"] [data-testid="results-avg"]`)!.textContent;
 		const currentEpInput = (row: Element) => row.querySelector<HTMLInputElement>('[data-testid="current-ep"] input')!;
+		const editCurrentEp = (row: Element, value: string) =>
+			act(() => {
+				const input = currentEpInput(row);
+				input.value = value;
+				fireEvent.change(input);
+			});
 
 		beforeEach(() => {
 			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatSchoolHitPercentFire];
@@ -873,7 +879,7 @@ describe('EpWeightsDialog', () => {
 		it('shows the computed weight, EP and ± per rating point, and copies the stored unit', async () => {
 			const result = weightsResult([
 				[RANGED_HIT, 9.28],
-				[FIRE_HIT, 1.15],
+				[FIRE_HIT, 23.2],
 				[CRIT, 1.15],
 			]);
 			RANGED_HIT.setProtoValue(result.dps!.weightsStdev!, 50);
@@ -884,17 +890,18 @@ describe('EpWeightsDialog', () => {
 				fireEvent.click(calculate());
 			});
 
-			expect(shown(rangedHitRow(), 'weight')).toBe('0.93');
-			expect(shown(rangedHitRow(), 'ep')).toBe('0.93');
-			expect(rangedHitRow().querySelector('[data-column-type="weight"]')!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
-			expect(rangedHitRow().querySelector('[data-column-type="ep"]')!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
-			expect(shown(fireHitRow(), 'ep')).toBe('1.15');
-			expect(shown(rowFor('Crit Rating'), 'ep')).toBe('1.15');
+			for (const columnType of ['weight', 'ep'] as const) {
+				expect(shown(rangedHitRow(), columnType)).toBe('0.93');
+				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
+				expect(shown(fireHitRow(), columnType)).toBe('2.32');
+				expect(shown(rowFor('Crit Rating'), columnType)).toBe('1.15');
+			}
 
 			act(() => {
 				fireEvent.click(table().querySelector('thead th[data-column-type="ep"] [data-testid="col-action"]')!);
 			});
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(9.28);
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(23.2);
 			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
 		});
 
@@ -904,40 +911,27 @@ describe('EpWeightsDialog', () => {
 				player.setEpWeights(
 					new Stats()
 						.withPseudoStat(PseudoStat.PseudoStatRangedHitPercent, 9.28)
-						.withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 1.15)
+						.withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 23.2)
 						.withStat(Stat.StatCritRating, 1.15),
 				),
 			);
 
 			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
-			expect(currentEpInput(fireHitRow()).value).toBe('1.15');
+			expect(currentEpInput(fireHitRow()).value).toBe('2.32');
 			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.15');
 
-			act(() => {
-				const input = currentEpInput(rangedHitRow());
-				input.value = '1.00';
-				fireEvent.change(input);
-			});
+			editCurrentEp(rangedHitRow(), '1.00');
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(10);
 			expect(currentEpInput(rangedHitRow()).value).toBe('1.00');
 
-			act(() => {
-				const input = currentEpInput(fireHitRow());
-				input.value = '2.00';
-				fireEvent.change(input);
-			});
-			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(2);
+			editCurrentEp(fireHitRow(), '2.00');
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(20);
 		});
 
 		it('stores an edit without float noise', () => {
 			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedCritPercent];
 			renderDialog();
-			const row = rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent).getFullName(Class.ClassWarrior));
-			act(() => {
-				const input = currentEpInput(row);
-				input.value = '0.80';
-				fireEvent.change(input);
-			});
+			editCurrentEp(rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent).getFullName(Class.ClassWarrior)), '0.80');
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedCritPercent)).toBe(11.2);
 		});
 	});

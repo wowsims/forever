@@ -12,10 +12,8 @@ export interface StatWeightCellsProps {
 	statWeights?: StatWeightValues;
 	iterations: number;
 	epRatio: number;
-	/** In the stored unit, like the weights; the cells show both divided by ratingScale. */
+	/** In the stored unit, like the weights; the cells show both per rating point. */
 	epDelta: number;
-	/** The rating points one stored weight unit covers; 1 shows the stored unit. */
-	ratingScale?: number;
 	cellClassName: string;
 }
 
@@ -25,9 +23,9 @@ const NotApplicable = () => (
 	</span>
 );
 
-export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelta, ratingScale = 1, cellClassName }: StatWeightCellsProps) => {
-	const shown = (values: UnitStats) => stat.getProtoValue(values) / ratingScale;
-	const shownDelta = epDelta / ratingScale;
+export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelta, cellClassName }: StatWeightCellsProps) => {
+	const shown = (values: UnitStats) => stat.convertEpToRatingScale(stat.getProtoValue(values));
+	const shownDelta = stat.convertEpToRatingScale(epDelta);
 	const unused = !!statWeights && epRatio === 0;
 	const rounded = shownDelta.toFixed(2);
 	const delta = !statWeights || unused || rounded === '0.00' ? undefined : shownDelta > 0 ? 'positive' : 'negative';

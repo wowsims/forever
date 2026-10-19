@@ -49,8 +49,8 @@ describe('Player.computeEnchantEP', () => {
 describe('Player.computeEnchantEP on percent pseudo stats', () => {
 	const ratingWeights = Stats.fromMap({ [Stat.StatDodgeRating]: 2, [Stat.StatCritRating]: 3, [Stat.StatHitRating]: 5 }, {});
 
-	it('values a school hit percent at its per hit rating weight, ten ratings to the percent', () => {
-		const schoolWeights = Stats.fromMap({}, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 2.32 });
+	it('values a school hit percent at its per percent weight', () => {
+		const schoolWeights = Stats.fromMap({}, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 23.2 });
 		expect(enchantEP(1, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 1 }, schoolWeights)).toBeCloseTo(23.2);
 	});
 
