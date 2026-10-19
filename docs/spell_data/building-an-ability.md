@@ -13,7 +13,10 @@ warrior.RegisterSpell(config)
 
 The row fills the `ActionID`, `Rank` (from "Rank 4", which is what flips `HasRanks` in the APL UI),
 `SpellSchool`, `DefenseType`, `ClassFlags`, `MissileSpeed`, `MissileMinDuration` and
-`MinRange`/`MaxRange`. A row with Fixed Travel Time states its flight time in seconds as its Speed,
+`MinRange`/`MaxRange`. A spell that is not passive (no `Proc()`), states no range and has an effect
+centred on the caster or a cone from it gets that effect's radius as its `MaxRange`, after the
+options: Arcane Explosion and Thunder Clap reach only as far as they hit, and Hellfire, whose damage
+sits on a triggered row, sets it by hand. A row with Fixed Travel Time states its flight time in seconds as its Speed,
 so it gets no `MissileSpeed` and that time as its `MissileMinDuration`, or its own MinDuration where
 that is longer: Dragonfire Potion's 1252554 lands 1 s after use at any distance. It fills the cast:
 the cast time, the GCD where the row sits in the global cooldown category, its own cooldown and the

@@ -34,6 +34,8 @@ func (warlock *Warlock) registerHellfire() {
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellHellfire
+	// The channel's effects are on the caster; the reach is the radius Hellfire Effect burns around it.
+	config.MaxRange = float64(effectHit.RadiusMax)
 
 	// TODO: The burn on the caster is taken as health lost, not as Fire damage its resistance could reduce.
 	config.Dot = spelldata.DotConfig(rankedSpell, channelTick)

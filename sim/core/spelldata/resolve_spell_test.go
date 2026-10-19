@@ -448,17 +448,85 @@ func TestSpellConfigNoThreatRow(t *testing.T) {
 	}
 }
 
-func TestSpellConfigAreaAroundACasterOrPointHasNoRange(t *testing.T) {
-	centres := []dbcenums.ImplicitTarget{dbcenums.TARGET_DEST_CASTER, dbcenums.TARGET_SRC_CASTER, dbcenums.TARGET_DEST_DEST}
-	for _, centre := range centres {
+// Area damage drops the row's range to the target: around the caster it reaches its radius, as a
+// cast and not as a proc, and around the point the triggering spell chose it reaches anywhere.
+func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testing.T) {
+	for _, tc := range []struct {
+		centre       dbcenums.ImplicitTarget
+		cast, asProc float64
+	}{
+		{dbcenums.TARGET_DEST_CASTER, 8, 0},
+		{dbcenums.TARGET_SRC_CASTER, 8, 0},
+		{dbcenums.TARGET_DEST_DEST, 0, 0},
+	} {
 		withRows(t, []Spell{{
 			ID: 1200, Name: "Nova", School: 4, DefenseType: 1, MaxRange: 30,
-			Effects: []Effect{{SpellID: 1200, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100,
-				Target: [2]dbcenums.ImplicitTarget{centre, dbcenums.TARGET_UNIT_DEST_AREA_ENEMY}}},
+			Effects: []Effect{{SpellID: 1200, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, RadiusMax: 8,
+				Target: [2]dbcenums.ImplicitTarget{tc.centre, dbcenums.TARGET_UNIT_DEST_AREA_ENEMY}}},
 		}})
-		if got := SpellConfig(testUnit(), Find(1200)).MaxRange; got != 0 {
-			t.Errorf("max range of area damage centred on target %d = %v, want 0", centre, got)
+		if got := SpellConfig(testUnit(), Find(1200)).MaxRange; got != tc.cast {
+			t.Errorf("max range of area damage centred on target %d = %v, want %v", tc.centre, got, tc.cast)
 		}
+		if got := SpellConfig(testUnit(), Find(1200), Proc()).MaxRange; got != tc.asProc {
+			t.Errorf("max range of a proc's area damage centred on target %d = %v, want %v", tc.centre, got, tc.asProc)
+		}
+	}
+}
+
+// The rows' own areas: a spell centred on the caster or a cone from it reaches its radius, from
+// whichever radius slot the row states it in, and a proc of one, a DEST_DEST area and a spell with a
+// range of its own keep what they had.
+func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
+	withGeneratedStore(t)
+
+	radiusOf := func(row *Spell) float64 {
+		var radius float32
+		for i := range row.Effects {
+			if e := &row.Effects[i]; e.HitsACone() || e.HitsAroundTheCaster() {
+				radius = max(radius, e.RadiusMax)
+			}
+		}
+		if radius == 0 {
+			t.Fatalf("%d %s states no radius on an area around the caster or a cone", row.ID, row.Name)
+		}
+		return float64(radius)
+	}
+
+	for _, id := range []int32{
+		10202, // Arcane Explosion, [22,15], radius in the second slot
+		11581, // Thunder Clap, [22,15]
+		10161, // Cone of Cold, a cone
+		20924, // Consecration, a dummy at [18,16]
+		11556, // Demoralizing Shout, an aura and threat, no damage
+	} {
+		row := MustFind(id)
+		if got, radius := SpellConfig(testUnit(), row).MaxRange, radiusOf(row); got != radius {
+			t.Errorf("%d %s reaches %v yd, want its %v yd radius", id, row.Name, got, radius)
+		}
+	}
+
+	for _, id := range []int32{
+		11682, // Hellfire Effect, cast by the channel
+		12278, // Thunderbrew's Boot Flask's cone, cast by its aura
+	} {
+		row := MustFind(id)
+		if got, radius := SpellConfig(testUnit(), row).MaxRange, radiusOf(row); got != radius {
+			t.Errorf("%d %s cast reaches %v yd, want its %v yd radius", id, row.Name, got, radius)
+		}
+		if got := SpellConfig(testUnit(), row, Proc()).MaxRange; got != 0 {
+			t.Errorf("%d %s as a proc reaches %v yd, want no range", id, row.Name, got)
+		}
+	}
+
+	fireNova := MustFind(408428) // around the totem's point (DEST_DEST)
+	if fireNova.MaxRange == 0 {
+		t.Fatalf("%d %s states no range of its own", fireNova.ID, fireNova.Name)
+	}
+	if got := SpellConfig(testUnit(), fireNova).MaxRange; got != 0 {
+		t.Errorf("%d %s reaches %v yd, want no range", fireNova.ID, fireNova.Name, got)
+	}
+	if got := SpellConfig(testUnit(), MustFind(20511)).MaxRange; got != 10 {
+		t.Errorf("Intimidating Shout reaches %v yd, want its row's own 10", got)
 	}
 }
 

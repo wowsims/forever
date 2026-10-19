@@ -113,8 +113,8 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	if s.MinRange != 0 && s.EquipClass == dbcenums.ITEM_CLASS_WEAPON && s.EquipSubclass&(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_BOW|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_GUNS|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_CROSSBOW) != 0 {
 		config.MinRange = core.MinRangedRange
 	}
-	// The row's range is to the caster's target; damage over an area around the caster, or around the
-	// point the triggering spell chose, needs none.
+	// The row's range is to the caster's target. Damage over an area around the caster reaches its
+	// radius instead (below), and damage around the point the triggering spell chose reaches anywhere.
 	if damage := s.DamageEffect(); damage.HitsAnArea() && (slices.Contains(casterCentres, damage.Target[0]) || damage.Target[0] == dbcenums.TARGET_DEST_DEST) {
 		config.MaxRange = 0
 	}
@@ -132,6 +132,15 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	// The row first, the caller's options on top, so an option sees what the row filled.
 	for _, opt := range opts {
 		opt(&config, s)
+	}
+	// A cast with no range of its own whose area is centred on the caster, or is a cone from it, reaches
+	// only the enemies inside that area: the radius is the reach. A proc or tick keeps no range.
+	if config.MaxRange == 0 && !config.Flags.Matches(core.SpellFlagPassiveSpell) {
+		for i := range s.Effects {
+			if e := &s.Effects[i]; e.HitsACone() || e.HitsAroundTheCaster() {
+				config.MaxRange = max(config.MaxRange, float64(e.RadiusMax))
+			}
+		}
 	}
 	return config
 }

@@ -224,7 +224,7 @@ type Effect struct {
 	Amplitude float32
 	PeriodMs  int32
 
-	// SpellRadius through EffectRadiusIndex_0.
+	// SpellRadius through EffectRadiusIndex_0 or _1, whichever is larger.
 	RadiusMin, RadiusMax float32
 
 	// EffectMiscValue_0/_1. What they mean is the aura's business: a stat for A_MOD_STAT, a stat

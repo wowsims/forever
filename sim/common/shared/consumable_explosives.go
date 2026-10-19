@@ -73,15 +73,7 @@ func consumableDamageSpell(character *core.Character, itemID int32, row *spellda
 		return cloudDamageSpell(character, itemID, row, cloud, damage)
 	}
 
-	config := spellDataOnUseDamageSpell(character, row)
-	effect := row.DamageEffect()
-	// A cone from the user, or an area around the user, that states no range reaches as far as its
-	// radius: Dragonfire Potion's 1252554 burns the enemies within 12 yd in front, and Goblin Sapper
-	// Charge's 13241 the ones within 10 yd.
-	if config.MaxRange == 0 && (effect.HitsACone() || effect.HitsAroundTheCaster()) {
-		config.MaxRange = float64(effect.RadiusMax)
-	}
-	return config
+	return spellDataOnUseDamageSpell(character, row)
 }
 
 // A cloud's damage. The row's missile flies to the target, at its speed and for no less than its
