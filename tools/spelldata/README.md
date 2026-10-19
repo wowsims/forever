@@ -25,7 +25,11 @@ match; an item swap re-filters it; `FromRating` counts on the sheet as rating.
 of the store (`Highest()`, `Rank(n)`, `EffectAt(1).TenthsAt(1)`, `Effect(dbcenums.A_X, misc)`, ...),
 with arguments that are literals or constants of `dbcenums`, of `stats` (`stats.HitRating`) or of
 `sim/core`'s `flags.go`, `constants.go`, `base_stats_auto_gen.go` (`core.HitRatingPerHitPercent`) and
-`spell_mod.go` (`core.SpellMod_BonusCrit_Percent`).
+`spell_mod.go` (`core.SpellMod_BonusCrit_Percent`). An argument can also be a chain of its own, bare or
+under a conversion to a number type, read before the call
+(`spellData.SealOfFuryTriggered.ByID(int32(spellData.SealOfFury.Highest().EffectN(3).BaseValue()))`;
+a float converted to an integer type drops its fraction, as in Go), and a constant index reads one entry
+of a list an accessor answers (`Highest().Refs()[0]`).
 
 A hit, crit or rating effect names the rule `spelldata.WeaponScope` gives it, which is the one the parse
 attaches it by: `per weapon: only attacks made with <weapons>`, `ranged weapons only`,
@@ -102,7 +106,8 @@ What a hover reads: a spell id in the shapes hand-written code states (`MustFind
 `.ByID(n)`, `SpellID: n`, `"spellId": n`, `fromSpellId(n)`, `spellId: n`) in any file; in a Go file
 also a `spellData.<Family>` token, a name the package folder binds to a ladder chain with `var`, `=` or
 `:=` at package level, or the hovered function binds before the cursor (substituted through at most
-four names, cycles refused), one accessor of a chain anywhere in an expression,
+four names, cycles refused), one accessor of a chain anywhere in an expression, the chain inside such
+an accessor's argument (`ByID(int32(rank.EffectN(3).BaseValue()))`, read at the rank picked for `rank`),
 `spelldata.SpellConfig`, and the type name of a `core.SpellModConfig` literal. A file the editor does not hold is read again when its modification time
 moves. The server compiles the store in; restart it after regenerating.
 
