@@ -294,6 +294,21 @@ func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
 	}
 }
 
+// Casting Bane of Agony spends Amplify Curse. The tooltip names it, but neither of Amplify Curse's class masks in
+// the game files does.
+func TestBaneOfAgonySpendsAmplifyCurse(t *testing.T) {
+	sim, warlock := newWarlockSim("000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+
+	warlock.AmplifyCurseAura.Activate(sim)
+	if !warlock.BaneOfAgony.Cast(sim, target) {
+		t.Fatalf("Bane of Agony did not cast")
+	}
+	if warlock.AmplifyCurseAura.IsActive() {
+		t.Fatalf("Amplify Curse is still up after a Bane of Agony cast")
+	}
+}
+
 // The Imp's Blood Pact is up on the party's players while the Imp is out, counts in the stats with the Imp out at
 // the start, and drops when the Imp is dismissed or sacrificed. A Blood Pact ticked in the party buffs adds nothing
 // while the Imp's is up and takes over once it drops. With two Imps in the party one Blood Pact counts, and it
