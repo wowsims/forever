@@ -92,7 +92,9 @@ describe('DamageMetricsTable', () => {
 	});
 
 	it('counts blocked hits out of the hit row of the casts breakdown, and shows no crushing blows', async () => {
-		result = playerResult([metric('Steady Shot', { landedHits: 100, casts: 112, totalMisses: 12, misses: 12, blocks: 20, blockedCrits: 5, crushes: 10 })]);
+		result = playerResult([
+			metric('Steady Shot', { landedHits: 100, landedRolls: 100, casts: 112, totalMisses: 12, misses: 12, blocks: 20, blockedCrits: 5, crushes: 10 }),
+		]);
 		const { container } = render(<DamageMetricsTable />);
 
 		fireEvent.mouseEnter(rows(container)[0].cells[2]);
@@ -103,6 +105,17 @@ describe('DamageMetricsTable', () => {
 			'results_tab.details.attack_types.miss',
 		]);
 		expect(rows(tooltipTable() as HTMLElement)[0].cells[1].textContent?.endsWith('75')).toBe(true);
+	});
+
+	it('takes the misses out of the casts of a DoT on the hit row of the casts breakdown', async () => {
+		result = playerResult([metric('Corruption', { landedHits: 0, landedRolls: 0, casts: 10, totalMisses: 1, misses: 1, missPercent: 10 })]);
+		const { container } = render(<DamageMetricsTable />);
+
+		fireEvent.mouseEnter(rows(container)[0].cells[2]);
+		await waitFor(() => expect(tooltipTable()).toBeTruthy());
+		const hit = rows(tooltipTable() as HTMLElement)[0].cells[1].textContent;
+		expect(hit?.startsWith('90%')).toBe(true);
+		expect(hit?.endsWith('9')).toBe(true);
 	});
 
 	it('resolves a child row against its own metric, not its parent', async () => {

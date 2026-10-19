@@ -215,6 +215,7 @@ func (actionMetrics *ActionMetrics) ToProto(actionID ActionID) *proto.ActionMetr
 type SpellMetrics struct {
 	Casts             int32
 	Misses            int32
+	TickMisses        int32
 	Hits              int32
 	ResistedHits      int32
 	Crits             int32
@@ -254,6 +255,7 @@ type TargetedActionMetrics struct {
 
 	Casts             int32
 	Misses            int32
+	TickMisses        int32
 	Hits              int32
 	ResistedHits      int32
 	Crits             int32
@@ -302,6 +304,7 @@ func (tam *TargetedActionMetrics) ToProto() *proto.TargetedActionMetrics {
 		CritTicks:              tam.CritTicks,
 		ResistedCritTicks:      tam.ResistedCritTicks,
 		Misses:                 tam.Misses,
+		TickMisses:             tam.TickMisses,
 		Dodges:                 tam.Dodges,
 		Parries:                tam.Parries,
 		Blocks:                 tam.Blocks,
@@ -451,6 +454,7 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 			tam.Casts += spellTargetMetrics.Casts
 		}
 		tam.Misses += spellTargetMetrics.Misses
+		tam.TickMisses += spellTargetMetrics.TickMisses
 		tam.Hits += spellTargetMetrics.Hits
 		tam.ResistedHits += spellTargetMetrics.ResistedHits
 		tam.Crits += spellTargetMetrics.Crits
