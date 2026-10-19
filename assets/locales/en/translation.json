@@ -1824,7 +1824,7 @@
 				},
 				"spell_expected_dpet": {
 					"label": "Spell Expected DPET",
-					"tooltip": "The expected damage of a spell if you cast it now. Includes cast time, GCD time, and averaged crit."
+					"tooltip": "The expected damage of a spell if you cast it now, assuming it lands. Includes cast time, GCD time, and averaged crit."
 				},
 				"aura_known": {
 					"label": "Aura Known",

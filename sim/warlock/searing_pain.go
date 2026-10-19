@@ -22,7 +22,7 @@ func (warlock *Warlock) registerSearingPain() {
 
 	// Calculate expected damage from the row's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcDamage(sim, target, searingPainHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+		return spell.CalcDamage(sim, target, searingPainHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}
 
 	warlock.SearingPain = warlock.RegisterSpell(config)
