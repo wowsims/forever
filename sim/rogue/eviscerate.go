@@ -8,7 +8,7 @@ import (
 var eviscerateRank = spellData.Eviscerate.Rank(8)
 
 func (rogue *Rogue) registerEviscerate() {
-	eviscerateBaseDamage := eviscerateRank.DamageEffect().Average()
+	eviscerateBaseDamage := eviscerateRank.DamageEffect()
 	eviscerateDamagePerPoint := float64(eviscerateRank.DamageEffect().PointsPerResource)
 	eviscerateApScalingPerPoint := 0.04 // Estimated from in-game tests.
 	config := spelldata.SpellConfig(&rogue.Unit, eviscerateRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
@@ -18,7 +18,8 @@ func (rogue *Rogue) registerEviscerate() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
 		comboPoints := float64(rogue.ComboPoints())
-		flatBaseDamage := eviscerateBaseDamage + eviscerateDamagePerPoint*comboPoints
+		// The roll spreads the base points alone; the per-point damage and attack power add on top.
+		flatBaseDamage := eviscerateBaseDamage.Roll(sim) + eviscerateDamagePerPoint*comboPoints
 
 		baseDamage := flatBaseDamage + eviscerateApScalingPerPoint*comboPoints*spell.MeleeAttackPower(target)
 
