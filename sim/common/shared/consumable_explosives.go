@@ -64,12 +64,7 @@ func ConsumableDamages(row *spelldata.Spell) bool {
 	if cloud, _ := DamageCloudOf(row); cloud != spelldata.Nil {
 		return true
 	}
-	for _, e := range []*spelldata.Effect{row.DamageEffect(), row.PeriodicDamageEffect()} {
-		if e != spelldata.NilEffect && e.HitsAnEnemy() {
-			return true
-		}
-	}
-	return false
+	return row.DamagesAnEnemy()
 }
 
 // The spell a consumable that damages enemies registers: its cloud's, or the damage its own row deals.
@@ -80,9 +75,6 @@ func consumableDamageSpell(character *core.Character, itemID int32, row *spellda
 
 	config := spellDataOnUseDamageSpell(character, row)
 	effect := row.DamageEffect()
-	if effect == spelldata.NilEffect {
-		effect = row.PeriodicDamageEffect()
-	}
 	// A cone from the user, or an area around the user, that states no range reaches as far as its
 	// radius: Dragonfire Potion's 1252554 burns the enemies within 12 yd in front, and Goblin Sapper
 	// Charge's 13241 the ones within 10 yd.
@@ -107,15 +99,10 @@ func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damag
 	tickConfig.Dot = spelldata.DotConfig(&lasting, lasting.PeriodicDamageEffect())
 	tickSpell := character.RegisterSpell(tickConfig)
 
-	land := func(sim *core.Simulation) {
-		for _, enemy := range sim.Encounter.ActiveTargetUnits {
-			tickSpell.Dot(enemy).Apply(sim)
-		}
-	}
 	config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.WaitTravelTime(sim, land)
+		spell.WaitTravelTime(sim, tickSpell.ApplyAllDots)
 	}
 	return config
 }

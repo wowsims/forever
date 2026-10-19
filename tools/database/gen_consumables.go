@@ -132,28 +132,29 @@ func RouteConsumable(c *dbc.Consumable, instance *dbc.DBC) *ConsumableRouting {
 	}
 	routing.SpellID = onUses[0].BuffId
 
+	row := spelldata.Find(routing.SpellID)
 	onUse := routeOnUseSpell(c.Id, routing.SpellID, instance)
 	switch {
 	case onUse.Supported() && onUse.Shape == ShapeDamage:
 		routing.Kind = ConsumableDamage
-		routing.Unsupported = shared.DamageConsumableUnsupported(spelldata.Find(routing.SpellID))
+		routing.Unsupported = shared.DamageConsumableUnsupported(row)
 		return routing
 	case onUse.Supported() && onUse.Shape == ShapeHeal:
 		routing.Kind = ConsumableHeal
-		routing.Unsupported = shared.ConsumableUnsupported(spelldata.Find(routing.SpellID))
+		routing.Unsupported = shared.ConsumableUnsupported(row)
 		return routing
 	case onUse.Shape == ShapeAbsorb:
 		routing.Kind = ConsumableAbsorb
-		routing.Unsupported = append(onUse.Unsupported, shared.ConsumableUnsupported(spelldata.Find(routing.SpellID))...)
+		routing.Unsupported = append(onUse.Unsupported, shared.ConsumableUnsupported(row)...)
 		return routing
 	}
-	if cloud, _ := shared.DamageCloudOf(spelldata.Find(routing.SpellID)); cloud != spelldata.Nil {
+	if cloud, _ := shared.DamageCloudOf(row); cloud != spelldata.Nil {
 		routing.Kind = ConsumableDamage
-		routing.Unsupported = shared.DamageConsumableUnsupported(spelldata.Find(routing.SpellID))
+		routing.Unsupported = shared.DamageConsumableUnsupported(row)
 		return routing
 	}
 
-	routing.Kind, routing.Unsupported = consumableShape(c, spelldata.Find(routing.SpellID))
+	routing.Kind, routing.Unsupported = consumableShape(c, row)
 	if routing.Kind == "" {
 		routing.Unsupported = onUse.Unsupported
 		if onUse.Supported() {
@@ -216,7 +217,7 @@ func temporaryEnchantUnsupported(enchant dbc.TemporaryEnchant) []string {
 		switch effect {
 		case dbc.ITEM_ENCHANTMENT_NONE, dbc.ITEM_ENCHANTMENT_DAMAGE, dbc.ITEM_ENCHANTMENT_RESISTANCE, dbc.ITEM_ENCHANTMENT_STAT:
 		case dbc.ITEM_ENCHANTMENT_COMBAT_SPELL:
-			if !dealsDamageToAnEnemy(spelldata.Find(spellID)) {
+			if !spelldata.Find(spellID).DamagesAnEnemy() {
 				unsupported = append(unsupported, fmt.Sprintf("enchant %d casts %d, which deals no damage to an enemy", enchant.ID, spellID))
 			}
 			if enchant.Points[slot] <= 0 {
@@ -235,15 +236,6 @@ func temporaryEnchantUnsupported(enchant dbc.TemporaryEnchant) []string {
 		unsupported = append(unsupported, fmt.Sprintf("enchant %d's spells work only in area group %d", enchant.ID, enchant.RequiredAreasID))
 	}
 	return unsupported
-}
-
-func dealsDamageToAnEnemy(s *spelldata.Spell) bool {
-	for _, e := range []*spelldata.Effect{s.DamageEffect(), s.PeriodicDamageEffect()} {
-		if e != spelldata.NilEffect && e.HitsAnEnemy() {
-			return true
-		}
-	}
-	return false
 }
 
 func equipSpellUnsupported(enchantID int, s *spelldata.Spell, spellID int32) []string {

@@ -122,15 +122,10 @@ states what it refuses beside itself (`shared.ConsumableUnsupported`, `DamageCon
 The potion builder runs one spell on the user: a heal, an absorb, a gain of mana, rage or energy, damage
 to the user and the auras the parser attaches. A spell that damages enemies it deals through the
 damage builders instead (`consumableDamageSpell`, which the explosives use too), with nothing beside
-it on the user; the potion is a DPS cooldown and never an explosive. Dragonfire Potion 250953's
-1252554 burns every enemy in its cone with a hit and a damage over time, landing 1 s after use at any
-distance, since the row states Fixed Travel Time and its Speed of 1 is the flight time in seconds. It
-reaches as far as its 12 yd radius, since a cone or an area around the user that states no range
-takes its radius as one; Goblin Sapper Charge 10646's 13241 reaches its 10 yd for the same reason.
-Caustic Smog Potion 250951's 1252525 throws a missile at 10 yd a second and for no less than its
-1.5 s, and the cloud 1252526 leaves puts 1252543's damage over time on every enemy for the cloud's
-12 s; the ticks count under the potion's item, tagged 2. Both rows state Always Hit: a spell the
-player uses that states it rolls no miss, and the cloud's damage goes on each enemy unrolled. A
+it on the user; the potion is a DPS cooldown and never an explosive. A cone or an area around the user
+that states no range reaches as far as its radius. A row with Fixed Travel Time lands after its Speed
+in seconds at any distance (`docs/spell_data/building-an-ability.md`), and `cloudDamageSpell` puts a
+cloud's damage over time on every enemy. A
 potion shares category 4's timer and is a major
 cooldown only as one of the spec's three potion picks (`resource_pot_id`, `defensive_pot_id`,
 `offensive_pot_id`), which the APL's Resource, Defensive and Offensive Potion placeholders cast; a

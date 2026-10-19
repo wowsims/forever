@@ -666,7 +666,9 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 // listener with Can Proc From Procs hears them (Vengeance off a Lightning Strike crit).
 //
 // Used from an item instead, a row that states Always Hit rolls no miss, and crits the way damage to
-// its own caster does (casterDamageOutcome): Dragonfire Potion's 1252554 always lands.
+// its own caster does (casterDamageOutcome): Dragonfire Potion's 1252554 always lands. A proc's row
+// keeps its miss: the bit on a triggered row stops a second roll in the chain, and the sim folds the
+// chain into one spell that rolls once.
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
 

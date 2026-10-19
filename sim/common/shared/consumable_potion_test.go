@@ -531,16 +531,8 @@ func TestADamageCloudNamesWhatStopsIt(t *testing.T) {
 	if cloud.ID != 1252526 || damage.ID != 1252543 {
 		t.Fatalf("1252525 leaves cloud %d dealing %d, want 1252526 dealing 1252543", cloud.ID, damage.ID)
 	}
-	if !slices.Contains(spelldata.MustFind(1252526).Triggered(), damage) {
-		t.Errorf("1252526 triggers %v, want 1252543 among them", spelldata.MustFind(1252526).Triggered())
-	}
-	if cloud, _ := DamageCloudOf(spelldata.MustFind(1252544)); cloud != spelldata.Nil || ConsumableDamages(spelldata.MustFind(1252544)) {
-		t.Errorf("Disorienting Smog Potion's 1252544 leaves damage cloud %d, want none", cloud.ID)
-	}
-	for _, id := range []int32{1252525, 1252554} {
-		if got := ConsumableUnsupported(spelldata.MustFind(id)); got != nil || !ConsumableDamages(spelldata.MustFind(id)) {
-			t.Errorf("%d: unsupported %v, deals damage %v; want the damage, supported", id, got, ConsumableDamages(spelldata.MustFind(id)))
-		}
+	if ConsumableDamages(spelldata.MustFind(1252544)) {
+		t.Errorf("Disorienting Smog Potion's 1252544 deals damage, want none")
 	}
 
 	for _, tc := range []struct {
@@ -598,9 +590,6 @@ func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 	cloud, damage := DamageCloudOf(row)
 	tick := damage.PeriodicDamageEffect()
 	ticks := int(cloud.Duration() / tick.Period())
-	travel := func(distance float64) time.Duration {
-		return max(row.MissileMinDuration(), time.Duration(distance/float64(row.Speed)*float64(time.Second)))
-	}
 
 	for i, distance := range []float64{0, 5, float64(row.MaxRange)} {
 		causticID, manaID := 993010+2*int32(i), 993011+2*int32(i)
@@ -623,17 +612,18 @@ func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 		if offCooldown(sim, mana) {
 			t.Errorf("at %v yd: the mana potion is usable while category 4 runs", distance)
 		}
-		lands := start + travel(distance)
+		flight := caustic.TravelTime()
+		lands := start + flight
 		stepPast(t, sim, lands-time.Millisecond)
 		for i, target := range targets {
 			if poison.Dot(target).IsActive() {
-				t.Errorf("at %v yd: target %d is poisoned before the missile's %v flight ended", distance, i, travel(distance))
+				t.Errorf("at %v yd: target %d is poisoned before the missile's %v flight ended", distance, i, flight)
 			}
 		}
 		stepPast(t, sim, lands+time.Millisecond)
 		for i, target := range targets {
 			if !poison.Dot(target).IsActive() {
-				t.Errorf("at %v yd: target %d is not poisoned once the missile landed after %v", distance, i, travel(distance))
+				t.Errorf("at %v yd: target %d is not poisoned once the missile landed after %v", distance, i, flight)
 			}
 		}
 

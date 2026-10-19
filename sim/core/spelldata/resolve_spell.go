@@ -115,7 +115,7 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	}
 	// The row's range is to the caster's target; damage over an area around the caster, or around the
 	// point the triggering spell chose, needs none.
-	if damage := s.DamageEffect(); damage.HitsAroundTheCaster() || damage.HitsAnArea() && damage.Target[0] == dbcenums.TARGET_DEST_DEST {
+	if damage := s.DamageEffect(); damage.HitsAnArea() && (slices.Contains(casterCentres, damage.Target[0]) || damage.Target[0] == dbcenums.TARGET_DEST_DEST) {
 		config.MaxRange = 0
 	}
 	if threat := s.firstOfType(dbcenums.E_THREAT, dbcenums.E_THREAT_ALL); threat != NilEffect {

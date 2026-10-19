@@ -55,6 +55,10 @@ func (parts consumableParts) hasAura() bool {
 	return len(parts.auraIdx) > 0
 }
 
+func (parts consumableParts) gainsOnly() bool {
+	return !parts.damage && parts.heal == nil && parts.absorb == nil && !parts.hasAura()
+}
+
 func consumablePartsOf(row *spelldata.Spell) (consumableParts, []string) {
 	var parts consumableParts
 	var unsupported []string
@@ -209,7 +213,7 @@ func registerSpellDataConsumable(itemID int32) {
 			}
 		}
 
-		if !parts.damage && parts.heal == nil && parts.absorb == nil && !parts.hasAura() && len(gains) == 0 {
+		if parts.gainsOnly() && len(gains) == 0 {
 			return
 		}
 
@@ -223,9 +227,8 @@ func registerSpellDataConsumable(itemID int32) {
 		}
 
 		ownEffects := config.ApplyEffects
-		damages := parts.damage
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if !damages {
+			if !parts.damage {
 				target = &character.Unit
 			}
 			if ownEffects != nil {
@@ -250,7 +253,7 @@ func registerSpellDataConsumable(itemID int32) {
 
 		consumables := character.Consumables
 		mcd := core.MajorCooldown{Spell: spell, Type: cdType}
-		if !parts.damage && parts.heal == nil && parts.absorb == nil && !parts.hasAura() {
+		if parts.gainsOnly() {
 			mcd.ShouldActivate = func(sim *core.Simulation, character *core.Character) bool {
 				for i := range gains {
 					if !gains[i].fits() {
