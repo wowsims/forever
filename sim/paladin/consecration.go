@@ -94,8 +94,8 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// The cast rolls its own hit only so that procs on a resist can fire; the ground is laid whether
-		// it lands or not.
-		spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
+		// it lands or not. The roll counts nothing, so the row's Miss % is the ticks' own.
+		spell.CalcAndDealOutcome(sim, target, spell.OutcomeTickMagicHitNoHitCounter)
 
 		spell.AOEDot().Apply(sim)
 		markTargets(sim, rank.Duration())

@@ -1106,6 +1106,10 @@ export class ActionMetrics {
 		return this.combinedMetrics.landedTicks;
 	}
 
+	get landedRolls() {
+		return this.combinedMetrics.landedRolls;
+	}
+
 	get hitAttempts() {
 		return this.combinedMetrics.hitAttempts;
 	}
@@ -1539,6 +1543,8 @@ class TargetedActionMetrics {
 	readonly landedHitsRaw: number;
 	readonly landedTicksRaw: number;
 	readonly hitAttempts: number;
+	readonly landedRollsRaw: number;
+	private readonly rollAttempts: number;
 
 	constructor(data: TargetedActionMetricsProto, { iterations, duration }: TargetedActionMetricsOptions) {
 		this.iterations = iterations;
@@ -1557,6 +1563,12 @@ class TargetedActionMetrics {
 		// which include the misses, as its hit attempts.
 		this.hitAttempts =
 			this.landedHitsRaw == 0 && this.landedTicksRaw > 0 ? this.data.casts : this.data.misses + this.data.dodges + this.data.parries + this.landedHitsRaw;
+
+		// Ticks that roll their own hit are attempts of their own, and a tick miss is the only sign that they
+		// roll: a hit-capped row of them reads 0% over its casts as it would over its ticks.
+		const ticksRoll = this.data.tickMisses > 0;
+		this.landedRollsRaw = this.landedHitsRaw + (ticksRoll ? this.landedTicksRaw : 0);
+		this.rollAttempts = ticksRoll ? this.landedRollsRaw + this.data.misses + this.data.tickMisses + this.data.dodges + this.data.parries : this.hitAttempts;
 	}
 
 	get damage() {
@@ -1760,6 +1772,10 @@ class TargetedActionMetrics {
 		return this.landedTicksRaw / this.iterations;
 	}
 
+	get landedRolls() {
+		return this.landedRollsRaw / this.iterations;
+	}
+
 	get avgHit() {
 		const lhr = this.landedHitsRaw;
 		return lhr == 0 ? 0 : (this.data.damage - this.data.tickDamage) / lhr;
@@ -1797,11 +1813,11 @@ class TargetedActionMetrics {
 	}
 
 	get misses() {
-		return this.data.misses / this.iterations;
+		return (this.data.misses + this.data.tickMisses) / this.iterations;
 	}
 
 	get missPercent() {
-		return percentOf(this.data.misses, this.hitAttempts);
+		return percentOf(this.data.misses + this.data.tickMisses, this.rollAttempts);
 	}
 
 	get dodges() {
@@ -1809,7 +1825,7 @@ class TargetedActionMetrics {
 	}
 
 	get dodgePercent() {
-		return percentOf(this.data.dodges, this.hitAttempts);
+		return percentOf(this.data.dodges, this.rollAttempts);
 	}
 
 	get parries() {
@@ -1817,7 +1833,7 @@ class TargetedActionMetrics {
 	}
 
 	get parryPercent() {
-		return percentOf(this.data.parries, this.hitAttempts);
+		return percentOf(this.data.parries, this.rollAttempts);
 	}
 
 	get hits() {
@@ -1936,6 +1952,7 @@ class TargetedActionMetrics {
 				critTicks: sum(actions.map(a => a.data.critTicks)),
 				resistedCritTicks: sum(actions.map(a => a.data.resistedCritTicks)),
 				misses: sum(actions.map(a => a.data.misses)),
+				tickMisses: sum(actions.map(a => a.data.tickMisses)),
 				dodges: sum(actions.map(a => a.data.dodges)),
 				parries: sum(actions.map(a => a.data.parries)),
 				blocks: sum(actions.map(a => a.data.blocks)),

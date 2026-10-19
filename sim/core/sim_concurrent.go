@@ -265,6 +265,7 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 		baseTgt.CritTicks += addTgt.CritTicks
 		baseTgt.ResistedCritTicks += addTgt.ResistedCritTicks
 		baseTgt.Misses += addTgt.Misses
+		baseTgt.TickMisses += addTgt.TickMisses
 		baseTgt.Dodges += addTgt.Dodges
 		baseTgt.Parries += addTgt.Parries
 		baseTgt.Crushes += addTgt.Crushes

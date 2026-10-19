@@ -197,6 +197,10 @@ message TargetedActionMetrics {
 	// # of times this action was a Miss.
 	int32 misses = 7;
 
+	// # of times a tick of this action rolled a Miss. Only ticks that roll their own hit count here; a DoT whose
+	// hit rolls once on its cast keeps that miss in misses.
+	int32 tick_misses = 39;
+
 	// # of times this action was a Dodge.
 	int32 dodges = 8;
 

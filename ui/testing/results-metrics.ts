@@ -23,6 +23,7 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 		isPassiveAction: false,
 		landedHits: 10,
 		landedTicks: 0,
+		landedRolls: 10,
 		hitAttempts: 11,
 		critPercent: 20,
 		blockedCritPercent: 0,

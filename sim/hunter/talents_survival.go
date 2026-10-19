@@ -29,7 +29,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	// Tier 5
 	hunter.registerResourcefulness()
 	// Expose Prey: mongoose_bite.go
-	// Survivalist's Discipline (1310496) shortens the trap and Deterrence cooldowns, none registered.
+	hunter.registerSurvivalistsDiscipline()
 	hunter.registerStriderKick()
 
 	// Tier 6
@@ -113,6 +113,16 @@ func (hunter *Hunter) registerResourcefulness() {
 	trigger.Outcome = core.OutcomeCrit
 
 	hunter.MakeProcTriggerAura(trigger)
+}
+
+// The cooldown mod matches every trap's placement spell and Deterrence; the sim registers only the
+// Immolation and Explosive Trap placements, and their shared category cooldown shortens with them.
+func (hunter *Hunter) registerSurvivalistsDiscipline() {
+	if hunter.Talents.SurvivalistsDiscipline == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&hunter.Character, spellData.SurvivalistsDiscipline.Rank(hunter.Talents.SurvivalistsDiscipline))
 }
 
 var striderKickRank = spellData.StriderKick.Highest()
