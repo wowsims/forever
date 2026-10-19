@@ -11,9 +11,11 @@ const LANGUAGES = ['go', 'json', 'typescript', 'typescriptreact'];
 let client: LanguageClient | undefined;
 
 // VS Code started from a desktop launcher or a WSL/remote server does not read the shell profile,
-// so a Go install the terminal finds is often missing from its PATH.
+// so a Go install the terminal finds is often missing from its PATH. A configured path that is not on
+// this machine, as one set in the shared workspace settings for another machine can be, falls back to
+// the same search.
 function findGo(configured: string): string | undefined {
-	if (configured !== 'go') {
+	if (configured !== 'go' && isFile(configured)) {
 		return configured;
 	}
 	const exe = process.platform === 'win32' ? 'go.exe' : 'go';
@@ -89,13 +91,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		initializationOptions: { trace: settings.get<string>('trace', 'on'), rankLinks: true },
 		outputChannel,
 		middleware: {
-			// The effects table breaks each wording from its game files row with <br>, which VS
-			// Code renders only where the markdown allows HTML.
+			// VS Code runs a command link in a hover only where the markdown trusts that command.
 			provideHover: async (document, position, token, next) => {
 				const hover = await next(document, position, token);
 				for (const content of hover?.contents ?? []) {
 					if (content instanceof vscode.MarkdownString) {
-						content.supportHtml = true;
 						content.isTrusted = {
 							enabledCommands: ['wowsims-spelldata.changeRank'],
 						};
