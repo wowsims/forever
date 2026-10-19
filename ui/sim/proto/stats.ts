@@ -185,12 +185,15 @@ export class UnitStat {
 		}
 	}
 
+	// The rating points one stored EP weight unit of this stat covers. A percent pseudo-stat rooted at a rating
+	// (hit, crit, haste, expertise, dodge, parry, block, in every hand) is weighted per percentage point.
+	// The school hit percents are weighted per hit rating point and have no root rating, so they stay as they are.
+	epRatingScale(): number {
+		return this.isPseudoStat() && this.isPercentRating() ? (this.convertPercentToRating(1) ?? 1) : 1;
+	}
+
 	convertEpToRatingScale(epValue: number): number {
-		if (this.isPseudoStat() && PseudoStat[this.pseudoStat!].includes('Percent')) {
-			return this.convertRatingToPercent(epValue) ?? epValue;
-		} else {
-			return epValue;
-		}
+		return epValue / this.epRatingScale();
 	}
 
 	getProtoValue(proto: UnitStats): number {
@@ -519,7 +522,8 @@ export class Stats {
 	// What a channel holds beyond it is worth that percent's own weight. A channel the weights leave at
 	// 0 falls back to what the rating is worth past the channels they weigh, and any other percent to
 	// its rating's weight. The fallbacks of one rating count once, as the largest, since the one rating
-	// raises them all.
+	// raises them all. A school hit percent's weight is per hit rating point, so its percent counts as the
+	// rating it costs.
 	computeEP(epWeights: Stats): number {
 		let total = 0;
 		this.stats.forEach((stat, idx) => {
@@ -559,6 +563,8 @@ export class Stats {
 			const rated = RATING_WEIGHTED_PERCENT_PSEUDO_STATS.get(idx);
 			if (rated) {
 				addPercent(rated.root, idx, value, rated.perPercent * epWeights.stats[rated.root]);
+			} else if (SCHOOL_HIT_PERCENT_PSEUDO_STATS.includes(idx)) {
+				total += value * Mechanics.HIT_RATING_PER_HIT_PERCENT * epWeights.pseudoStats[idx];
 			} else {
 				total += value * epWeights.pseudoStats[idx];
 			}

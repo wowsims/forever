@@ -49,6 +49,11 @@ describe('Player.computeEnchantEP', () => {
 describe('Player.computeEnchantEP on percent pseudo stats', () => {
 	const ratingWeights = Stats.fromMap({ [Stat.StatDodgeRating]: 2, [Stat.StatCritRating]: 3, [Stat.StatHitRating]: 5 }, {});
 
+	it('values a school hit percent at its per hit rating weight, ten ratings to the percent', () => {
+		const schoolWeights = Stats.fromMap({}, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 2.32 });
+		expect(enchantEP(1, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 1 }, schoolWeights)).toBeCloseTo(23.2);
+	});
+
 	it('values 2622 Enchant Cloak - Dodge at the dodge rating weight', () => {
 		expect(enchantEP(2622, { [PseudoStat.PseudoStatDodgePercent]: 1 }, ratingWeights)).toBeCloseTo(Mechanics.DODGE_RATING_PER_DODGE_PERCENT * 2);
 	});

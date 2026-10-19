@@ -5,7 +5,6 @@ import type { UnitStat } from '@sim/proto/stats';
 import { TableCell } from '@ui-kit/Table';
 import { toneTextClass } from '@ui-kit/utils/css';
 
-import { epRatingScale } from '../../model/ep_unit_stats';
 import { StatWeightValue } from './StatWeightValue';
 
 export interface StatWeightCellsProps {
@@ -13,7 +12,10 @@ export interface StatWeightCellsProps {
 	statWeights?: StatWeightValues;
 	iterations: number;
 	epRatio: number;
+	/** In the stored unit, like the weights; the cells show both divided by ratingScale. */
 	epDelta: number;
+	/** The rating points one stored weight unit covers; 1 shows the stored unit. */
+	ratingScale?: number;
 	cellClassName: string;
 }
 
@@ -23,12 +25,12 @@ const NotApplicable = () => (
 	</span>
 );
 
-export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelta, cellClassName }: StatWeightCellsProps) => {
-	const scale = epRatingScale(stat);
-	const shown = (values: UnitStats) => stat.getProtoValue(values) / scale;
+export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelta, ratingScale = 1, cellClassName }: StatWeightCellsProps) => {
+	const shown = (values: UnitStats) => stat.getProtoValue(values) / ratingScale;
+	const shownDelta = epDelta / ratingScale;
 	const unused = !!statWeights && epRatio === 0;
-	const rounded = epDelta.toFixed(2);
-	const delta = !statWeights || unused || rounded === '0.00' ? undefined : epDelta > 0 ? 'positive' : 'negative';
+	const rounded = shownDelta.toFixed(2);
+	const delta = !statWeights || unused || rounded === '0.00' ? undefined : shownDelta > 0 ? 'positive' : 'negative';
 
 	return (
 		<>

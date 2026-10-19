@@ -12,7 +12,6 @@ import { TableCell, TableRow } from '@ui-kit/Table';
 import { NumberField } from '@ui-kit/TextField';
 import clsx from 'clsx';
 
-import { epRatingScale } from '../../model/ep_unit_stats';
 import { StatWeightCells } from './StatWeightCells';
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
@@ -36,8 +35,12 @@ export interface StatWeightRowViewProps {
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
 	epDelta: number;
+	/** The stored EP weight; the Current EP cell shows it divided by ratingScale. */
 	currentEp: number;
+	/** Called with the stored unit: an edit is multiplied by ratingScale. */
 	onCurrentEpChange: (value: number) => void;
+	/** The rating points one stored weight unit covers; 1 shows the stored unit. */
+	ratingScale?: number;
 	/** Absent for a stat outside the spec's EP set: the Update cell stays empty. */
 	include?: StatWeightRowInclude;
 	showThreatMetrics: boolean;
@@ -53,6 +56,7 @@ export const StatWeightRowView = ({
 	epDelta,
 	currentEp,
 	onCurrentEpChange,
+	ratingScale = 1,
 	include,
 	showThreatMetrics,
 	showUpdateColumn = true,
@@ -82,6 +86,7 @@ export const StatWeightRowView = ({
 					iterations={iterations}
 					epRatio={epRatio}
 					epDelta={epDelta}
+					ratingScale={ratingScale}
 					cellClassName={cellClassName}
 				/>
 			))}
@@ -89,8 +94,8 @@ export const StatWeightRowView = ({
 				<NumberField
 					id={`ep-weight-stat-${sanitizeId(shortName)}`}
 					float
-					value={currentEp}
-					onChange={onCurrentEpChange}
+					value={currentEp / ratingScale}
+					onChange={value => onCurrentEpChange(Math.round(value * ratingScale * 1e6) / 1e6)}
 					inputClassName={showThreatMetrics ? 'ui-ep-weights-compact-input' : undefined}
 				/>
 			</TableCell>
@@ -140,7 +145,6 @@ export const StatWeightRow = ({
 	const metrics = allMetrics
 		.map(({ statWeights, metric }, ratioIndex) => ({ statWeights, metric, ratioIndex, epRatio: epRatios[ratioIndex] }))
 		.filter(entry => displayMetrics[entry.metric]);
-	const scale = epRatingScale(stat);
 	const currentEp = epWeights.getUnitStat(stat);
 	// A result without per-stat counts falls back to the run's iteration count.
 	const samples = (rowResult?.sampleCounts && stat.getProtoValue(rowResult.sampleCounts)) || iterations;
@@ -152,9 +156,10 @@ export const StatWeightRow = ({
 			shortName={stat.getShortName(player.playerClass.classID)}
 			metrics={metrics}
 			iterations={samples}
-			epDelta={(scaledEpValue(stat, epRatios, rowResult) - currentEp) / scale}
-			currentEp={currentEp / scale}
-			onCurrentEpChange={value => player.setEpWeights(player.getEpWeights().withUnitStat(stat, value * scale))}
+			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}
+			currentEp={currentEp}
+			onCurrentEpChange={value => player.setEpWeights(player.getEpWeights().withUnitStat(stat, value))}
+			ratingScale={stat.epRatingScale()}
 			include={
 				includable
 					? {

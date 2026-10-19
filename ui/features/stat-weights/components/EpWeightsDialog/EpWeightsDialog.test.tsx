@@ -892,7 +892,7 @@ describe('EpWeightsDialog', () => {
 			expect(shown(rowFor('Crit Rating'), 'ep')).toBe('1.15');
 
 			act(() => {
-				fireEvent.click(table().querySelectorAll('thead tr:first-child th')[3].querySelector('[data-testid="col-action"]')!);
+				fireEvent.click(table().querySelector('thead th[data-column-type="ep"] [data-testid="col-action"]')!);
 			});
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(9.28);
 			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
@@ -927,6 +927,18 @@ describe('EpWeightsDialog', () => {
 				fireEvent.change(input);
 			});
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(2);
+		});
+
+		it('stores an edit without float noise', () => {
+			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedCritPercent];
+			renderDialog();
+			const row = rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent).getFullName(Class.ClassWarrior));
+			act(() => {
+				const input = currentEpInput(row);
+				input.value = '0.80';
+				fireEvent.change(input);
+			});
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedCritPercent)).toBe(11.2);
 		});
 	});
 

@@ -100,6 +100,37 @@ describe('UnitStat', () => {
 		expect(() => unitStat.convertEpToRatingScale(0).toFixed(2)).not.toThrow();
 	});
 
+	it.each([
+		[PseudoStat.PseudoStatRangedHitPercent, 10],
+		[PseudoStat.PseudoStatMeleeHitPercent, 10],
+		[PseudoStat.PseudoStatSpellHitPercent, 10],
+		[PseudoStat.PseudoStatOffHandHitPercent, 10],
+		[PseudoStat.PseudoStatRangedCritPercent, 14],
+		[PseudoStat.PseudoStatMeleeCritPercent, 14],
+		[PseudoStat.PseudoStatSpellCritPercent, 14],
+		[PseudoStat.PseudoStatOffHandCritPercent, 14],
+		[PseudoStat.PseudoStatExpertisePercent, 10],
+		[PseudoStat.PseudoStatMeleeHastePercent, 10],
+		[PseudoStat.PseudoStatDodgePercent, 12],
+		[PseudoStat.PseudoStatParryPercent, 15],
+		[PseudoStat.PseudoStatBlockPercent, 5],
+		[PseudoStat.PseudoStatSchoolHitPercentFire, 1],
+		[PseudoStat.PseudoStatMainHandDps, 1],
+	])('epRatingScale of pseudo-stat %i is %i', (pseudoStat, scale) => {
+		expect(UnitStat.fromPseudoStat(pseudoStat).epRatingScale()).toBe(scale);
+	});
+
+	it('leaves a Stat, rating or not, at an epRatingScale of 1', () => {
+		expect(UnitStat.fromStat(Stat.StatHitRating).epRatingScale()).toBe(1);
+		expect(UnitStat.fromStat(Stat.StatCritRating).epRatingScale()).toBe(1);
+		expect(UnitStat.fromStat(Stat.StatStrength).epRatingScale()).toBe(1);
+	});
+
+	it('converts a percent EP per rating, and leaves the school hit EP the sim reports per rating as it is', () => {
+		expect(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent).convertEpToRatingScale(14)).toBe(1);
+		expect(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire).convertEpToRatingScale(1.15)).toBe(1.15);
+	});
+
 	it('needs a parentStat to turn ReducedCritTakenPercent back into a rating', () => {
 		const unitStat = UnitStat.fromPseudoStat(PseudoStat.PseudoStatReducedCritTakenPercent);
 		expect(unitStat.convertPercentToRating(1)).toBeNull();

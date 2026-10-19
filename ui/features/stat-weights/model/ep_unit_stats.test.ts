@@ -2,7 +2,7 @@ import { PseudoStat, Stat } from '@generated/proto/common';
 import { UnitStat } from '@sim/proto/stats';
 import { describe, expect, it } from 'vitest';
 
-import { EP_UNIT_STATS, epFilterScope, epRatingScale, isEpStat } from './ep_unit_stats';
+import { EP_UNIT_STATS, epFilterScope, isEpStat } from './ep_unit_stats';
 
 const names = (stats: ReadonlyArray<UnitStat>) => stats.map(stat => stat.getKey());
 
@@ -61,27 +61,5 @@ describe('epFilterScope', () => {
 	it('keeps EP_UNIT_STATS order', () => {
 		const universe = names(epFilterScope(statSet).universe);
 		expect(universe).toEqual(names(EP_UNIT_STATS).filter(key => universe.includes(key)));
-	});
-});
-
-describe('epRatingScale', () => {
-	it.each([
-		[PseudoStat.PseudoStatRangedHitPercent, 10],
-		[PseudoStat.PseudoStatMeleeHitPercent, 10],
-		[PseudoStat.PseudoStatSpellHitPercent, 10],
-		[PseudoStat.PseudoStatRangedCritPercent, 14],
-		[PseudoStat.PseudoStatMeleeCritPercent, 14],
-		[PseudoStat.PseudoStatSpellCritPercent, 14],
-		[PseudoStat.PseudoStatExpertisePercent, 10],
-		[PseudoStat.PseudoStatSchoolHitPercentFire, 1],
-		[PseudoStat.PseudoStatMainHandDps, 1],
-	])('scales pseudo-stat %i by %i', (pseudoStat, scale) => {
-		expect(epRatingScale(UnitStat.fromPseudoStat(pseudoStat))).toBe(scale);
-	});
-
-	it('leaves a Stat, rating or not, unscaled', () => {
-		expect(epRatingScale(UnitStat.fromStat(Stat.StatHitRating))).toBe(1);
-		expect(epRatingScale(UnitStat.fromStat(Stat.StatCritRating))).toBe(1);
-		expect(epRatingScale(UnitStat.fromStat(Stat.StatStrength))).toBe(1);
 	});
 });

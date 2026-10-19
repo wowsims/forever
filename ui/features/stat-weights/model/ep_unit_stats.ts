@@ -34,11 +34,6 @@ export const isEpStat = (stat: UnitStat, { epStats, epPseudoStats }: EpStatSet):
 	return epPseudoStats.includes(stat.getPseudoStat());
 };
 
-// The rating points one stored EP weight unit covers. A percent pseudo-stat's weight is stored per percentage point,
-// since enchants hold it as a percent and item EP is a dot product, and the stats table shows it per rating point beside
-// the ratings. The school hit weights come from the sim per hit rating point already, and have no root rating.
-export const epRatingScale = (stat: UnitStat): number => (stat.isPseudoStat() && stat.isPercentRating() ? (stat.convertPercentToRating(1) ?? 1) : 1);
-
 export const epFilterScope = (statSet: EpStatSet): StatFilterScope => ({
 	defaults: EP_UNIT_STATS.filter(stat => isEpStat(stat, statSet)),
 	// Every Stat, but only the pseudo-stats the spec weights: a row's Current EP cell writes straight into the
