@@ -120,13 +120,12 @@ states what it refuses beside itself (`shared.ConsumableUnsupported`, `DamageCon
 | other consumables that route as `stat aura`                    | `consumable_stats_auto_gen.go`       | `NewSpellDataStatConsumable`   |
 
 The potion builder runs one spell on the user: a heal, an absorb, a gain of mana, rage or energy, damage
-to the user and the auras the parser attaches. A spell that damages enemies it deals through the
-damage builders instead (`consumableDamageSpell`, which the explosives use too), with nothing beside
-it on the user; the potion is a DPS cooldown and never an explosive. A cone or an area around the user
-that states no range reaches as far as its radius. A row with Fixed Travel Time lands after its Speed
-in seconds at any distance (`docs/spell_data/building-an-ability.md`), and `cloudDamageSpell` puts a
-cloud's damage over time on every enemy. A
-potion shares category 4's timer and is a major
+to the user and the auras the parser attaches. A spell that damages enemies goes through the damage
+builders instead (`consumableDamageSpell`, which the explosives use too), with nothing beside it on
+the user; the potion is a DPS cooldown and never an explosive. A cone or an area around the user that
+states no range reaches as far as its radius. A row with Fixed Travel Time lands after its Speed in
+seconds at any distance (`docs/spell_data/building-an-ability.md`), and `cloudDamageSpell` puts a
+cloud's damage over time on every enemy. A potion shares category 4's timer and is a major
 cooldown only as one of the spec's three potion picks (`resource_pot_id`, `defensive_pot_id`,
 `offensive_pot_id`), which the APL's Resource, Defensive and Offensive Potion placeholders cast; a
 conjured item is one only as the spec's conjured item; any
