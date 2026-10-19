@@ -113,9 +113,9 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	if s.MinRange != 0 && s.EquipClass == dbcenums.ITEM_CLASS_WEAPON && s.EquipSubclass&(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_BOW|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_GUNS|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_CROSSBOW) != 0 {
 		config.MinRange = core.MinRangedRange
 	}
-	// The row's range is to the caster's target. Damage over an area around the caster reaches its
-	// radius instead (below), and damage around the point the triggering spell chose reaches anywhere.
-	if damage := s.DamageEffect(); damage.HitsAnArea() && (slices.Contains(casterCentres, damage.Target[0]) || damage.Target[0] == dbcenums.TARGET_DEST_DEST) {
+	// The row's range is to the caster's target; damage around the point the triggering spell chose
+	// reaches anywhere.
+	if damage := s.DamageEffect(); damage.HitsAnArea() && damage.Target[0] == dbcenums.TARGET_DEST_DEST {
 		config.MaxRange = 0
 	}
 	if threat := s.firstOfType(dbcenums.E_THREAT, dbcenums.E_THREAT_ALL); threat != NilEffect {
@@ -133,16 +133,44 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	for _, opt := range opts {
 		opt(&config, s)
 	}
-	// A cast with no range of its own whose area is centred on the caster, or is a cone from it, reaches
-	// only the enemies inside that area: the radius is the reach. A proc or tick keeps no range.
-	if config.MaxRange == 0 && !config.Flags.Matches(core.SpellFlagPassiveSpell) {
-		for i := range s.Effects {
-			if e := &s.Effects[i]; e.HitsACone() || e.HitsAroundTheCaster() {
-				config.MaxRange = max(config.MaxRange, float64(e.RadiusMax))
-			}
+	// An area centred on the caster, or a cone from it, reaches only the enemies inside it: a cast
+	// reaches the radius, and a proc or tick has no range. Damage centred on the caster does so even
+	// where the row states a range (Flamestrike's 18818 states 30 and reaches its 10 yd radius); a cone,
+	// or an area on another effect, does so only where the row states none.
+	if radius, ok := casterAreaRadius(s); ok && (config.MaxRange == 0 || s.DamageEffect().HitsAroundTheCaster()) {
+		config.MaxRange = 0
+		if !config.Flags.Matches(core.SpellFlagPassiveSpell) {
+			config.MaxRange = float64(radius)
 		}
 	}
 	return config
+}
+
+// The largest radius of the row's areas centred on the caster or cones from it, and whether it has
+// one. A row with none takes the row its A_PERIODIC_TRIGGER_SPELL aura on the caster fires: Hellfire's
+// channel fires Hellfire Effect, 10 yd around the warlock, every second.
+func casterAreaRadius(s *Spell) (float32, bool) {
+	radius, ok := ownCasterAreaRadius(s)
+	if ok {
+		return radius, true
+	}
+	for i := range s.Effects {
+		if e := &s.Effects[i]; e.Aura == dbcenums.A_PERIODIC_TRIGGER_SPELL && e.Target[0] == dbcenums.TARGET_UNIT_CASTER {
+			if r, found := ownCasterAreaRadius(e.Trigger()); found {
+				radius, ok = max(radius, r), true
+			}
+		}
+	}
+	return radius, ok
+}
+
+func ownCasterAreaRadius(s *Spell) (radius float32, ok bool) {
+	for i := range s.Effects {
+		if e := &s.Effects[i]; e.HitsACone() || e.HitsAroundTheCaster() {
+			radius, ok = max(radius, e.RadiusMax), true
+		}
+	}
+	return radius, ok
 }
 
 // The proc mask, the melee metrics bucket and the multipliers an ability needs, for a physical spell.

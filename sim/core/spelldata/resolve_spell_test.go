@@ -473,49 +473,44 @@ func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testin
 	}
 }
 
-// The rows' own areas: a spell centred on the caster or a cone from it reaches its radius, from
-// whichever radius slot the row states it in, and a proc of one, a DEST_DEST area and a spell with a
-// range of its own keep what they had.
+// The rows' own areas: a cast centred on the caster or a cone from it reaches its radius, from
+// whichever radius slot the row states it in, even where the row states a range, and through the row
+// its periodic trigger aura fires. A proc of one has no range, and a DEST_DEST area, a cone on a row
+// with a range of its own and a spell with no area keep what they had.
 func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 	withGeneratedStore(t)
 
-	radiusOf := func(row *Spell) float64 {
-		var radius float32
-		for i := range row.Effects {
-			if e := &row.Effects[i]; e.HitsACone() || e.HitsAroundTheCaster() {
-				radius = max(radius, e.RadiusMax)
-			}
-		}
+	for _, tc := range []struct {
+		id, areaRow int32
+		effect      int
+	}{
+		{10202, 10202, 1}, // Arcane Explosion, [22,15], radius in the second slot
+		{11581, 11581, 1}, // Thunder Clap, [22,15]
+		{10161, 10161, 2}, // Cone of Cold, a cone
+		{20924, 20924, 1}, // Consecration, a dummy at [18,16]
+		{11556, 11556, 1}, // Demoralizing Shout, an aura and threat, no damage
+		{18818, 18818, 1}, // Flamestrike, [18,16], states 30 yd
+		{11682, 11682, 1}, // Hellfire Effect
+		{12278, 12278, 1}, // Thunderbrew's Boot Flask's cone
+		{11684, 11682, 1}, // Hellfire, whose periodic trigger aura fires Hellfire Effect
+		{12257, 12278, 1}, // Thunderbrew's Boot Flask, whose periodic trigger aura fires the cone
+	} {
+		row := MustFind(tc.id)
+		radius := float64(MustFind(tc.areaRow).EffectN(tc.effect).RadiusMax)
 		if radius == 0 {
-			t.Fatalf("%d %s states no radius on an area around the caster or a cone", row.ID, row.Name)
+			t.Fatalf("%d effect %d states no radius", tc.areaRow, tc.effect)
 		}
-		return float64(radius)
-	}
-
-	for _, id := range []int32{
-		10202, // Arcane Explosion, [22,15], radius in the second slot
-		11581, // Thunder Clap, [22,15]
-		10161, // Cone of Cold, a cone
-		20924, // Consecration, a dummy at [18,16]
-		11556, // Demoralizing Shout, an aura and threat, no damage
-	} {
-		row := MustFind(id)
-		if got, radius := SpellConfig(testUnit(), row).MaxRange, radiusOf(row); got != radius {
-			t.Errorf("%d %s reaches %v yd, want its %v yd radius", id, row.Name, got, radius)
-		}
-	}
-
-	for _, id := range []int32{
-		11682, // Hellfire Effect, cast by the channel
-		12278, // Thunderbrew's Boot Flask's cone, cast by its aura
-	} {
-		row := MustFind(id)
-		if got, radius := SpellConfig(testUnit(), row).MaxRange, radiusOf(row); got != radius {
-			t.Errorf("%d %s cast reaches %v yd, want its %v yd radius", id, row.Name, got, radius)
+		if got := SpellConfig(testUnit(), row).MaxRange; got != radius {
+			t.Errorf("%d %s cast reaches %v yd, want its %v yd radius", tc.id, row.Name, got, radius)
 		}
 		if got := SpellConfig(testUnit(), row, Proc()).MaxRange; got != 0 {
-			t.Errorf("%d %s as a proc reaches %v yd, want no range", id, row.Name, got)
+			t.Errorf("%d %s as a proc reaches %v yd, want no range", tc.id, row.Name, got)
 		}
+	}
+
+	forkedLightning := MustFind(11828) // a 45 yd cone on a row stating 30 yd
+	if got := SpellConfig(testUnit(), forkedLightning).MaxRange; got != 30 {
+		t.Errorf("%d %s reaches %v yd, want its row's own 30", forkedLightning.ID, forkedLightning.Name, got)
 	}
 
 	fireNova := MustFind(408428) // around the totem's point (DEST_DEST)

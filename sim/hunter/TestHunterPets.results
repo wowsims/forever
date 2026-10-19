@@ -240,9 +240,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-CloakofFire-14134"
  value: {
-  dps: 782.87439
-  tps: 287.95921
-  dtps: 4.40754
+  dps: 781.99125
+  tps: 287.34102
+  dtps: 4.7639
  }
 }
 dps_results: {
@@ -1310,9 +1310,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 791.03665
-  tps: 293.54632
-  dtps: 4.27451
+  dps: 788.57323
+  tps: 291.82193
+  dtps: 4.63269
  }
 }
 dps_results: {
