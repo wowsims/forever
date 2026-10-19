@@ -45,18 +45,36 @@ func TargetsAnEnemy(target dbcenums.ImplicitTarget) bool {
 	return slices.Contains(enemyTargets, target)
 }
 
+// The enemy targets that pick every enemy in a cone in front of the caster.
+var coneEnemyTargets = []dbcenums.ImplicitTarget{
+	dbcenums.TARGET_UNIT_CONE_ENEMY_24, dbcenums.TARGET_UNIT_CONE_180_DEG_ENEMY, dbcenums.TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY,
+}
+
 // The enemy targets that pick every enemy in an area, cone, rectangle or line rather than one unit.
-var areaEnemyTargets = []dbcenums.ImplicitTarget{
-	dbcenums.TARGET_UNIT_SRC_AREA_ENEMY, dbcenums.TARGET_UNIT_DEST_AREA_ENEMY, dbcenums.TARGET_UNIT_CONE_ENEMY_24,
-	dbcenums.TARGET_UNIT_CONE_180_DEG_ENEMY, dbcenums.TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY,
+var areaEnemyTargets = slices.Concat(coneEnemyTargets, []dbcenums.ImplicitTarget{
+	dbcenums.TARGET_UNIT_SRC_AREA_ENEMY, dbcenums.TARGET_UNIT_DEST_AREA_ENEMY,
 	dbcenums.TARGET_UNIT_SRC_AREA_FURTHEST_ENEMY, dbcenums.TARGET_UNIT_CASTER_AREA_ENEMY_CLUMP,
 	dbcenums.TARGET_UNIT_RECT_CASTER_ENEMY, dbcenums.TARGET_UNIT_LINE_CASTER_TO_DEST_ENEMY,
-}
+})
 
 // Whether either of the effect's implicit targets picks the enemies in an area. The area is often the
 // second: Shard of the Fallen Star states TARGET_DEST_TARGET_ENEMY, then TARGET_UNIT_DEST_AREA_ENEMY.
 func (e *Effect) HitsAnArea() bool {
 	return slices.Contains(areaEnemyTargets, e.Target[0]) || slices.Contains(areaEnemyTargets, e.Target[1])
+}
+
+// Whether either of the effect's implicit targets picks the enemies in a cone in front of the caster.
+func (e *Effect) HitsACone() bool {
+	return slices.Contains(coneEnemyTargets, e.Target[0]) || slices.Contains(coneEnemyTargets, e.Target[1])
+}
+
+// The first implicit targets that centre an area on the caster.
+var casterCentres = []dbcenums.ImplicitTarget{dbcenums.TARGET_SRC_CASTER, dbcenums.TARGET_DEST_CASTER}
+
+// Whether the effect picks the enemies in an area centred on the caster: Goblin Sapper Charge's 13241
+// states TARGET_SRC_CASTER, then TARGET_UNIT_SRC_AREA_ENEMY.
+func (e *Effect) HitsAroundTheCaster() bool {
+	return e.HitsAnArea() && slices.Contains(casterCentres, e.Target[0])
 }
 
 // What the game files state about a spell, as the fields core registers it through. The caller adds
@@ -84,6 +102,12 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 		CastRequirement: s.CastRequirement(),
 	}
 	applyCost(&config, s)
+	// A row with Fixed Travel Time flies for its Speed in seconds at any distance: Dragonfire Potion's
+	// 1252554 lands 1 sec after use.
+	if s.FixedTravelTime() {
+		config.MissileSpeed = 0
+		config.MissileMinDuration = max(config.MissileMinDuration, core.DurationFromSeconds(float64(s.Speed)))
+	}
 	// Forever moves the minimum range of a bow, gun or crossbow shot from the 8 yd the row states to
 	// core.MinRangedRange.
 	if s.MinRange != 0 && s.EquipClass == dbcenums.ITEM_CLASS_WEAPON && s.EquipSubclass&(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_BOW|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_GUNS|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_CROSSBOW) != 0 {
@@ -91,7 +115,7 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	}
 	// The row's range is to the caster's target; damage over an area around the caster, or around the
 	// point the triggering spell chose, needs none.
-	if damage := s.DamageEffect(); damage.HitsAnArea() && (damage.Target[0] == dbcenums.TARGET_DEST_CASTER || damage.Target[0] == dbcenums.TARGET_SRC_CASTER || damage.Target[0] == dbcenums.TARGET_DEST_DEST) {
+	if damage := s.DamageEffect(); damage.HitsAroundTheCaster() || damage.HitsAnArea() && damage.Target[0] == dbcenums.TARGET_DEST_DEST {
 		config.MaxRange = 0
 	}
 	if threat := s.firstOfType(dbcenums.E_THREAT, dbcenums.E_THREAT_ALL); threat != NilEffect {

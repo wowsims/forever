@@ -77,6 +77,12 @@ func (s *Spell) AlwaysHits() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)
 }
 
+// Whether the game files flag the spell Fixed Travel Time, which makes its Speed the missile's flight
+// time in seconds rather than yards per second.
+func (s *Spell) FixedTravelTime() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_9, dbcenums.ATTR_EX_9_FIXED_TRAVEL_TIME)
+}
+
 // Whether the spell's hits count as a proc, which is what a listener that cannot proc from procs
 // skips. The game files state the negative, so this answers it as the sim's SpellFlagProc reads.
 func (s *Spell) IsAProc() bool {

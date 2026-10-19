@@ -476,6 +476,7 @@ func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 
 	onUse := onUseSpell(t, caster, itemID)
 	onUse.Cast(sim, target)
+	stepPast(t, sim, sim.CurrentTime+onUse.TravelTime()+time.Millisecond)
 	if metrics := onUse.SpellMetrics[target.UnitIndex]; metrics.Hits != 1 || metrics.Misses != 0 || !onUse.Dot(target).IsActive() {
 		t.Errorf("the on-use took %d hits and %d misses, damage over time up %v; want the hit and its damage over time",
 			metrics.Hits, metrics.Misses, onUse.Dot(target).IsActive())

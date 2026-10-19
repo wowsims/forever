@@ -118,6 +118,7 @@ const (
 	ATTR_INDEX_EX_4  int = 4
 	ATTR_INDEX_EX_6  int = 6
 	ATTR_INDEX_EX_8  int = 8
+	ATTR_INDEX_EX_9  int = 9
 	ATTR_INDEX_EX_11 int = 11
 	ATTR_INDEX_EX_12 int = 12
 )

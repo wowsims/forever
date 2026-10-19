@@ -64,6 +64,7 @@ func newExplosiveSim(t *testing.T, consumes *proto.ConsumesSpec, profession prot
 				Equipment:   &proto.EquipmentSpec{},
 				Consumables: consumes,
 				Profession1: profession,
+				Rotation:    &proto.APLRotation{},
 			}},
 			Buffs: &proto.PartyBuffs{},
 		}}},
@@ -118,6 +119,28 @@ func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 	took := health - caster.CurrentHealth()
 	if low, high := thrower.Min(), thrower.Max(); took < low || took > high {
 		t.Errorf("the thrower took %v, want one roll of %v to %v", took, low, high)
+	}
+}
+
+// An explosive whose damage lands on an area around the thrower and whose row states no range reaches
+// as far as the area's radius: 13241 is usable from its 10 yd and not a yard past it.
+func TestAnExplosiveAroundTheThrowerReachesOnlyItsRadius(t *testing.T) {
+	row := spelldata.MustFind(13241)
+	effect := row.DamageEffect()
+	if !effect.HitsAroundTheCaster() || row.MaxRange != 0 {
+		t.Fatalf("13241 states range %v and area around the thrower %v, nothing to check", row.MaxRange, effect.HitsAroundTheCaster())
+	}
+	sim, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 1)
+	sapper := onUseSpell(t, caster, goblinSapperID)
+	target := sim.Encounter.ActiveTargetUnits[0]
+
+	caster.DistanceFromTarget = float64(effect.RadiusMax)
+	if !sapper.CanCast(sim, target) {
+		t.Errorf("the sapper cannot be used from its %v yd radius", effect.RadiusMax)
+	}
+	caster.DistanceFromTarget = float64(effect.RadiusMax) + 1
+	if sapper.CanCast(sim, target) {
+		t.Errorf("the sapper can be used from %v yd, past its %v yd radius", caster.DistanceFromTarget, effect.RadiusMax)
 	}
 }
 

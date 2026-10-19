@@ -40,7 +40,7 @@ func AddPotionClasses(db *WowDatabase) error {
 		if survival {
 			add(proto.PotionClass_PotionClassDefensive)
 		}
-		if shared.ConsumableDealsDamage(row) {
+		if shared.ConsumableDamages(row) {
 			add(proto.PotionClass_PotionClassOffensive)
 		}
 

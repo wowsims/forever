@@ -42,12 +42,6 @@ func ConsumableRestores(row *spelldata.Spell) (power, survival bool) {
 	return len(parts.gains) > 0, parts.heal != nil || parts.absorb != nil
 }
 
-// Whether the builder deals the consumable's spell as damage to enemies.
-func ConsumableDealsDamage(row *spelldata.Spell) bool {
-	parts, _ := consumablePartsOf(row)
-	return parts.damage
-}
-
 type consumableParts struct {
 	damage     bool
 	heal       *spelldata.Effect
@@ -155,7 +149,7 @@ func registerSpellDataConsumable(itemID int32) {
 		var config core.SpellConfig
 		switch {
 		case parts.damage:
-			config = consumableDamageSpell(character, row)
+			config = consumableDamageSpell(character, itemID, row)
 		case parts.heal != nil:
 			config = spellDataProcHealSpell(character, row, false)
 			config.DamageMultiplier *= potionBonus

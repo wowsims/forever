@@ -123,12 +123,15 @@ The potion builder runs one spell on the user: a heal, an absorb, a gain of mana
 to the user and the auras the parser attaches. A spell that damages enemies it deals through the
 damage builders instead (`consumableDamageSpell`, which the explosives use too), with nothing beside
 it on the user; the potion is a DPS cooldown and never an explosive. Dragonfire Potion 250953's
-1252554 burns every enemy in its cone with a hit and a damage over time, landing at the 1 yd a second
-its row states, and reaches as far as its 12 yd radius, since a cone that states no range takes its
-radius as one. Caustic Smog Potion 250951's 1252525 throws a missile at 10 yd a second and for no
-less than its 1.5 s, and the cloud 1252526 leaves puts 1252543's damage over time on every enemy for
-the cloud's 12 s. Both rows state Always Hit: a spell the player uses that states it rolls no miss,
-and the cloud's damage goes on each enemy unrolled. A potion shares category 4's timer and is a major
+1252554 burns every enemy in its cone with a hit and a damage over time, landing 1 s after use at any
+distance, since the row states Fixed Travel Time and its Speed of 1 is the flight time in seconds. It
+reaches as far as its 12 yd radius, since a cone or an area around the user that states no range
+takes its radius as one; Goblin Sapper Charge 10646's 13241 reaches its 10 yd for the same reason.
+Caustic Smog Potion 250951's 1252525 throws a missile at 10 yd a second and for no less than its
+1.5 s, and the cloud 1252526 leaves puts 1252543's damage over time on every enemy for the cloud's
+12 s; the ticks count under the potion's item, tagged 2. Both rows state Always Hit: a spell the
+player uses that states it rolls no miss, and the cloud's damage goes on each enemy unrolled. A
+potion shares category 4's timer and is a major
 cooldown only as one of the spec's three potion picks (`resource_pot_id`, `defensive_pot_id`,
 `offensive_pot_id`), which the APL's Resource, Defensive and Offensive Potion placeholders cast; a
 conjured item is one only as the spec's conjured item; any
@@ -426,7 +429,7 @@ no elixir as a column of the Scrolls row, and the rest (Hit food, Zanza) after t
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills
 them after `AddUnparsedStats`: a gain of mana, rage or energy the potion builder models is resource, a
-heal or absorb defensive, damage to enemies offensive (`shared.ConsumableDealsDamage`: Dragonfire
+heal or absorb defensive, damage to enemies offensive (`shared.ConsumableDamages`: Dragonfire
 Potion, Caustic Smog Potion), the stats the potion grants, its mob type stats among them, of the class the
 major cooldown manager files the buff under (`core.CooldownTypeOf`: any of `core.SurvivalStats`
 defensive, only `core.ManaStats` resource, anything else offensive), and a hit or crit percent

@@ -714,41 +714,52 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		return config
 	}
 
-	after := afterDealt(applyDotIfLanded)
+	// The damage over time lands only with the hit that applies it, which is its one hit roll: the
+	// direct hit where the row deals one, else a roll of its own on the hit table of the spell's
+	// defense type, without the crit an application cannot deal. The hit and the damage over time
+	// each reach every active enemy where their own effect covers an area (the row's MaxTargets of
+	// them from the target out, where it states one), else the target alone. An enemy the damage over
+	// time reaches and the hit does not rolls its own application.
+	config.Dot = spelldata.DotConfig(damage, periodic)
+	areaHit, areaDot := effect.HitsAnArea(), periodic.HitsAnArea()
+	after := applyDotIfLanded(areaDot)
 	if debuff != nil {
+		applyDot := after
 		after = func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
-			applyDotIfLanded(sim, spell, target, results)
+			applyDot(sim, spell, target, results)
 			debuff(sim, spell, target, results)
 		}
 	}
-
-	// The damage over time lands only with the hit that applies it, which is its one hit roll: the
-	// direct hit where the row deals one, else a roll of its own on the hit table of the spell's
-	// defense type, without the crit an application cannot deal. Over an area, every enemy it reaches
-	// (the row's MaxTargets of them from the target out, where it states one) rolls its own, and each
-	// one it lands on takes the damage over time.
-	config.Dot = spelldata.DotConfig(damage, periodic)
-	area := periodic.HitsAnArea()
-	var applications core.SpellResultSlice
-	if area {
-		applications = make(core.SpellResultSlice, 0, len(character.Env.AllUnits))
+	var rolls core.SpellResultSlice
+	if areaDot && !areaHit {
+		rolls = make(core.SpellResultSlice, 0, len(character.Env.AllUnits))
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		bind(spell)
 		switch {
-		case area && effect != spelldata.NilEffect:
+		case areaHit:
 			dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), after)
 			return
-		case area:
+		case areaDot:
+			rolls = rolls[:0]
+			if effect != spelldata.NilEffect {
+				rolls = append(rolls, spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome))
+			}
 			reached := sim.Environment.ActiveTargetCount()
 			if damage.MaxTargets > 0 {
 				reached = min(reached, int32(damage.MaxTargets))
 			}
-			applications = applications[:0]
-			for enemy := target; len(applications) < int(reached); enemy = sim.Environment.NextActiveTargetUnit(enemy) {
-				applications = append(applications, spell.CalcOutcome(sim, enemy, applicationOutcome))
+			enemy := target
+			if !enemy.IsEnabled() {
+				enemy = sim.Environment.NextActiveTargetUnit(enemy)
 			}
-			dealOnArrival(sim, spell, target, applications, after)
+			for range reached {
+				if effect == spelldata.NilEffect || enemy != target {
+					rolls = append(rolls, spell.CalcOutcome(sim, enemy, applicationOutcome))
+				}
+				enemy = sim.Environment.NextActiveTargetUnit(enemy)
+			}
+			dealOnArrival(sim, spell, target, rolls, after)
 			return
 		case effect == spelldata.NilEffect:
 			single[0] = spell.CalcOutcome(sim, target, applicationOutcome)
@@ -815,16 +826,14 @@ func dealResults(sim *core.Simulation, spell *core.Spell, target *core.Unit, res
 	}
 }
 
-// The damage over time goes on every enemy the hit carrying it landed on, or on the target where
-// there is no hit.
-func applyDotIfLanded(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
-	if len(results) == 0 {
-		spell.Dot(target).Apply(sim)
-		return
-	}
-	for _, result := range results {
-		if result.Landed() {
-			spell.Dot(result.Target).Apply(sim)
+// The damage over time goes on with the roll that carries it: over an area, on every enemy whose roll
+// landed and that is still active when it lands; else on the target alone, where its roll landed.
+func applyDotIfLanded(area bool) afterDealt {
+	return func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
+		for _, result := range results {
+			if result.Landed() && (area && result.Target.IsEnabled() || !area && result.Target == target) {
+				spell.Dot(result.Target).Apply(sim)
+			}
 		}
 	}
 }

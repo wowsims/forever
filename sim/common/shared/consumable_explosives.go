@@ -72,14 +72,10 @@ func ConsumableDamages(row *spelldata.Spell) bool {
 	return false
 }
 
-// The targets of a cone from the user, whose row states no range of its own.
-var coneTargets = []dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CONE_ENEMY_24, dbcenums.TARGET_UNIT_CONE_180_DEG_ENEMY,
-	dbcenums.TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY}
-
 // The spell a consumable that damages enemies registers: its cloud's, or the damage its own row deals.
-func consumableDamageSpell(character *core.Character, row *spelldata.Spell) core.SpellConfig {
+func consumableDamageSpell(character *core.Character, itemID int32, row *spelldata.Spell) core.SpellConfig {
 	if cloud, damage := DamageCloudOf(row); cloud != spelldata.Nil {
-		return cloudDamageSpell(character, row, cloud, damage)
+		return cloudDamageSpell(character, itemID, row, cloud, damage)
 	}
 
 	config := spellDataOnUseDamageSpell(character, row)
@@ -87,9 +83,10 @@ func consumableDamageSpell(character *core.Character, row *spelldata.Spell) core
 	if effect == spelldata.NilEffect {
 		effect = row.PeriodicDamageEffect()
 	}
-	// A cone from the user reaches as far as its radius: Dragonfire Potion's 1252554 burns the
-	// enemies within 12 yd in front.
-	if config.MaxRange == 0 && slices.Contains(coneTargets, effect.Target[0]) {
+	// A cone from the user, or an area around the user, that states no range reaches as far as its
+	// radius: Dragonfire Potion's 1252554 burns the enemies within 12 yd in front, and Goblin Sapper
+	// Charge's 13241 the ones within 10 yd.
+	if config.MaxRange == 0 && (effect.HitsACone() || effect.HitsAroundTheCaster()) {
 		config.MaxRange = float64(effect.RadiusMax)
 	}
 	return config
@@ -98,11 +95,14 @@ func consumableDamageSpell(character *core.Character, row *spelldata.Spell) core
 // A cloud's damage. The row's missile flies to the target, at its speed and for no less than its
 // minimum flight time, and the cloud it leaves there puts its damage over time on every enemy for
 // as long as the cloud lasts: Caustic Smog Potion's 1252543 ticks every second for 1252526's 12 sec.
-// The damage states Always Hit (DamageConsumableUnsupported), so it goes on each enemy unrolled.
-func cloudDamageSpell(character *core.Character, row, cloud, damage *spelldata.Spell) core.SpellConfig {
+// The damage states Always Hit (DamageConsumableUnsupported), so it goes on each enemy unrolled. The
+// ticks count under the item, tagged 2 apart from the damage to the user's tag 1
+// (registerCasterDamageSpell).
+func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damage *spelldata.Spell) core.SpellConfig {
 	lasting := *damage
 	lasting.DurationMs = cloud.DurationMs
 	tickConfig := spelldata.SpellConfig(&character.Unit, &lasting, damageShape(&lasting), castBy(true))
+	tickConfig.ActionID = core.ActionID{ItemID: itemID}.WithTag(2)
 	tickConfig.DefenseType = damageDefenseType(tickConfig.DefenseType, tickConfig.SpellSchool, false)
 	tickConfig.Dot = spelldata.DotConfig(&lasting, lasting.PeriodicDamageEffect())
 	tickSpell := character.RegisterSpell(tickConfig)
@@ -133,7 +133,7 @@ func NewSpellDataExplosive(itemID int32) {
 
 		for _, itemEffect := range consumable.OnUseEffects() {
 			row := spelldata.MustFind(itemEffect.BuffId)
-			config := consumableDamageSpell(character, row)
+			config := consumableDamageSpell(character, itemID, row)
 			config.ActionID = core.ActionID{ItemID: itemID}
 			config.Flags |= core.SpellFlagExplosive
 			// The row of every Engineering explosive but Goblin Sapper Charge's 13241 marks it not usable

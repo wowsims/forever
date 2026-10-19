@@ -111,6 +111,34 @@ func testUnit() *core.Unit {
 	return &core.Unit{}
 }
 
+// A row flagged Fixed Travel Time states its flight time in seconds as its Speed, so its missile has no
+// speed and flies that long at any distance, unless its MinDuration is longer.
+func TestAFixedTravelTimeRowFliesForItsSpeedInSeconds(t *testing.T) {
+	var fixed [17]uint32
+	fixed[dbcenums.ATTR_INDEX_EX_9] = dbcenums.ATTR_EX_9_FIXED_TRAVEL_TIME
+	withRows(t, []Spell{
+		{ID: 1, Name: "Fixed", Speed: 4, Attr: fixed},
+		{ID: 2, Name: "Fixed Under Its Minimum", Speed: 4, MinDuration: 5, Attr: fixed},
+		{ID: 3, Name: "Flying", Speed: 4, MinDuration: 1},
+	})
+
+	for _, tc := range []struct {
+		id      int32
+		speed   float64
+		minimum time.Duration
+	}{
+		{1, 0, 4 * time.Second},
+		{2, 0, 5 * time.Second},
+		{3, 4, time.Second},
+	} {
+		config := SpellConfig(testUnit(), Find(tc.id))
+		if config.MissileSpeed != tc.speed || config.MissileMinDuration != tc.minimum {
+			t.Errorf("%s: MissileSpeed %v, MissileMinDuration %v; want %v and %v", Find(tc.id).Name,
+				config.MissileSpeed, config.MissileMinDuration, tc.speed, tc.minimum)
+		}
+	}
+}
+
 func TestSpellConfigFromARow(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(400))

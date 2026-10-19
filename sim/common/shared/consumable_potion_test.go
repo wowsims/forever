@@ -538,8 +538,8 @@ func TestADamageCloudNamesWhatStopsIt(t *testing.T) {
 		t.Errorf("Disorienting Smog Potion's 1252544 leaves damage cloud %d, want none", cloud.ID)
 	}
 	for _, id := range []int32{1252525, 1252554} {
-		if got := ConsumableUnsupported(spelldata.MustFind(id)); got != nil || !ConsumableDealsDamage(spelldata.MustFind(id)) {
-			t.Errorf("%d: unsupported %v, deals damage %v; want the damage, supported", id, got, ConsumableDealsDamage(spelldata.MustFind(id)))
+		if got := ConsumableUnsupported(spelldata.MustFind(id)); got != nil || !ConsumableDamages(spelldata.MustFind(id)) {
+			t.Errorf("%d: unsupported %v, deals damage %v; want the damage, supported", id, got, ConsumableDamages(spelldata.MustFind(id)))
 		}
 	}
 
@@ -609,7 +609,10 @@ func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 			testConsumable{manaID, potion, testOnUse(17531, 0, 4, 120000)})
 		drinker.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: -1000})
 		caustic, mana := consumableSpell(t, drinker, causticID), consumableSpell(t, drinker, manaID)
-		poison := drinker.GetSpell(core.ActionID{SpellID: damage.ID})
+		poison := drinker.GetSpell(core.ActionID{ItemID: causticID}.WithTag(2))
+		if poison == nil {
+			t.Fatalf("the cloud's ticks are not booked under the potion %d, tagged 2", causticID)
+		}
 		targets := sim.Encounter.ActiveTargetUnits
 
 		drinker.DistanceFromTarget = distance
@@ -661,48 +664,62 @@ func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 	}
 }
 
-// Dragonfire Potion's 1252554 burns every enemy in its cone with a hit and a damage over time,
-// landing at the row's Speed, and reaches as far as the cone's radius.
+// Dragonfire Potion's 1252554 burns every enemy in its cone with a hit and a damage over time, and
+// reaches as far as the cone's radius. The row states Fixed Travel Time, so the fire lands its Speed
+// in seconds after use, 1 sec, from any distance.
 func TestDragonfirePotionBurnsEveryEnemyInItsCone(t *testing.T) {
-	const dragonfireID int32 = 993020
 	row := spelldata.MustFind(1252554)
+	if !row.FixedTravelTime() {
+		t.Fatalf("%d states no Fixed Travel Time, nothing to check", row.ID)
+	}
 	direct, burn := row.DamageEffect(), row.PeriodicDamageEffect()
 	ticks := int(row.Duration() / burn.Period())
-	sim, drinker := newConsumableSimAgainst(t, manaUser(), &proto.ConsumesSpec{OffensivePotId: dragonfireID}, 0, 3,
-		testConsumable{dragonfireID, potion, testOnUse(row.ID, 0, 4, 120000)})
-	dragonfire := consumableSpell(t, drinker, dragonfireID)
-	targets := sim.Encounter.ActiveTargetUnits
+	flight := core.DurationFromSeconds(float64(row.Speed))
 
-	drinker.DistanceFromTarget = float64(direct.RadiusMax) + 1
-	if dragonfire.CanCast(sim, targets[0]) {
-		t.Errorf("the potion can be used from %v yd, past its cone's %v", drinker.DistanceFromTarget, direct.RadiusMax)
-	}
-	drinker.DistanceFromTarget = float64(direct.RadiusMax)
-	if !dragonfire.CanCast(sim, targets[0]) {
-		t.Fatalf("the potion cannot be used from its cone's %v yd", direct.RadiusMax)
-	}
+	for i, distance := range []float64{0, float64(direct.RadiusMax)} {
+		dragonfireID := 993020 + int32(i)
+		sim, drinker := newConsumableSimAgainst(t, manaUser(), &proto.ConsumesSpec{OffensivePotId: dragonfireID}, 0, 3,
+			testConsumable{dragonfireID, potion, testOnUse(row.ID, 0, 4, 120000)})
+		dragonfire := consumableSpell(t, drinker, dragonfireID)
+		targets := sim.Encounter.ActiveTargetUnits
 
-	start := sim.CurrentTime
-	dragonfire.Cast(sim, targets[0])
-	lands := start + time.Duration(drinker.DistanceFromTarget/float64(row.Speed)*float64(time.Second))
-	stepPast(t, sim, lands-time.Millisecond)
-	for i, target := range targets {
-		if got := dragonfire.SpellMetrics[target.UnitIndex].TotalDamage; got != 0 || dragonfire.Dot(target).IsActive() {
-			t.Errorf("target %d took %v before the fire's flight ended at %v", i, got, lands-start)
+		drinker.DistanceFromTarget = float64(direct.RadiusMax) + 1
+		if dragonfire.CanCast(sim, targets[0]) {
+			t.Errorf("the potion can be used from %v yd, past its cone's %v", drinker.DistanceFromTarget, direct.RadiusMax)
 		}
-	}
+		drinker.DistanceFromTarget = distance
+		if !dragonfire.CanCast(sim, targets[0]) {
+			t.Fatalf("the potion cannot be used from %v yd, within its cone's %v", distance, direct.RadiusMax)
+		}
 
-	stepPast(t, sim, lands+row.Duration()+time.Millisecond)
-	for i, target := range targets {
-		metrics := dragonfire.SpellMetrics[target.UnitIndex]
-		if metrics.Hits != 1 || metrics.Misses != 0 || metrics.Ticks != int32(ticks) {
-			t.Errorf("target %d took %d hits, %d misses and %d ticks; want the hit and %d ticks", i, metrics.Hits, metrics.Misses, metrics.Ticks, ticks)
+		start := sim.CurrentTime
+		dragonfire.Cast(sim, targets[0])
+		lands := start + flight
+		stepPast(t, sim, lands-time.Millisecond)
+		for i, target := range targets {
+			if got := dragonfire.SpellMetrics[target.UnitIndex].TotalDamage; got != 0 || dragonfire.Dot(target).IsActive() {
+				t.Errorf("at %v yd: target %d took %v before the fire's %v flight ended", distance, i, got, flight)
+			}
 		}
-		if metrics.TotalDamage <= metrics.TotalTickDamage {
-			t.Errorf("target %d took no damage from the hit", i)
+		stepPast(t, sim, lands+time.Millisecond)
+		for i, target := range targets {
+			if dragonfire.SpellMetrics[target.UnitIndex].Hits != 1 || !dragonfire.Dot(target).IsActive() {
+				t.Errorf("at %v yd: target %d is not burning once the fire landed after %v", distance, i, flight)
+			}
 		}
-		if metrics.TotalTickDamage < float64(ticks)*burn.Min() || metrics.TotalTickDamage > float64(ticks)*burn.Max() {
-			t.Errorf("target %d took %v over time, want %d ticks of %v to %v", i, metrics.TotalTickDamage, ticks, burn.Min(), burn.Max())
+
+		stepPast(t, sim, lands+row.Duration()+time.Millisecond)
+		for i, target := range targets {
+			metrics := dragonfire.SpellMetrics[target.UnitIndex]
+			if metrics.Hits != 1 || metrics.Misses != 0 || metrics.Ticks != int32(ticks) {
+				t.Errorf("at %v yd: target %d took %d hits, %d misses and %d ticks; want the hit and %d ticks", distance, i, metrics.Hits, metrics.Misses, metrics.Ticks, ticks)
+			}
+			if metrics.TotalDamage <= metrics.TotalTickDamage {
+				t.Errorf("at %v yd: target %d took no damage from the hit", distance, i)
+			}
+			if metrics.TotalTickDamage < float64(ticks)*burn.Min() || metrics.TotalTickDamage > float64(ticks)*burn.Max() {
+				t.Errorf("at %v yd: target %d took %v over time, want %d ticks of %v to %v", distance, i, metrics.TotalTickDamage, ticks, burn.Min(), burn.Max())
+			}
 		}
 	}
 }
