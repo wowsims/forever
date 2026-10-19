@@ -185,12 +185,15 @@ export class UnitStat {
 		}
 	}
 
+	// The rating points one stored EP weight unit of this stat covers. A percent pseudo-stat rooted at a rating
+	// (hit, crit, haste, expertise, dodge, parry, block, in every hand) or a school hit percent is weighted per
+	// percentage point.
+	epRatingScale(): number {
+		return this.isPseudoStat() && (this.isPercentRating() || this.isSchoolHitPercent()) ? this.convertPercentToRating(1)! : 1;
+	}
+
 	convertEpToRatingScale(epValue: number): number {
-		if (this.isPseudoStat() && PseudoStat[this.pseudoStat!].includes('Percent')) {
-			return this.convertRatingToPercent(epValue) ?? epValue;
-		} else {
-			return epValue;
-		}
+		return epValue / this.epRatingScale();
 	}
 
 	getProtoValue(proto: UnitStats): number {

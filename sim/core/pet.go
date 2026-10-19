@@ -243,6 +243,19 @@ func (pet *Pet) EnabledOnStart() bool {
 	return pet.enabledOnStart
 }
 
+// Sets the pet on the target before the pull: its rotation runs from now on, and it swings once in reach.
+func (pet *Pet) AttackBeforePull(sim *Simulation) {
+	if sim.CurrentTime >= 0 || pet.engagedBeforePull {
+		return
+	}
+	pet.engagedBeforePull = true
+	// A pet summoned before the pull has its first swing queued at 0
+	pet.AutoAttacks.CancelMeleeSwing(sim)
+	pet.AutoAttacks.mh.swingAt = sim.CurrentTime
+	pet.AutoAttacks.EnableMeleeSwing(sim)
+	pet.SetGCDTimer(sim, sim.CurrentTime)
+}
+
 // Runs enableEffect on every summon, after OnPetEnable, for a caller that does not own the pet.
 func (pet *Pet) RegisterEnableEffect(enableEffect OnPetEnable) {
 	pet.enableEffects = append(pet.enableEffects, enableEffect)

@@ -787,7 +787,11 @@ func (aa *AutoAttacks) EnableMeleeSwing(sim *Simulation) {
 		return
 	}
 
-	aa.mh.swingAt = max(aa.mh.swingAt, sim.CurrentTime, 0)
+	earliest := sim.CurrentTime
+	if !aa.mh.unit.engagedBeforePull {
+		earliest = max(earliest, 0)
+	}
+	aa.mh.swingAt = max(aa.mh.swingAt, earliest)
 	if aa.mh.IsInRange() && !aa.mh.enabled {
 		aa.mh.enabled = true
 		aa.mh.addWeaponAttack(sim, aa.mh.unit.TotalMeleeHasteMultiplier())

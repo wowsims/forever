@@ -18,6 +18,7 @@ export type ACTION_ID_SET =
 	| 'non_instant_spells'
 	| 'friendly_spells'
 	| 'expected_dot_spells'
+	| 'expected_damage_spells'
 	| 'spells_with_travelTime'
 	| 'potions'
 	| 'conjured_items';
@@ -259,6 +260,23 @@ export const actionIdSets: Record<
 			const spells = metadata
 				.getSpells()
 				.filter(spell => spell.data.hasExpectedTick)
+				// filter duplicate dot entries from RelatedDotSpell
+				.filter((value, index, self) => self.findIndex(v => v.id.anyId() === value.id.anyId()) === index);
+
+			return spells.map(actionId => {
+				return {
+					value: actionId.id,
+					submenu: createSpellSubmenu(actionId.id, spells),
+				};
+			});
+		},
+	},
+	expected_damage_spells: {
+		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.expected_damage_spells'),
+		getActionIDs: async metadata => {
+			const spells = metadata
+				.getSpells()
+				.filter(spell => spell.data.isCastable && (spell.data.hasExpectedTick || spell.data.hasExpectedInitial))
 				// filter duplicate dot entries from RelatedDotSpell
 				.filter((value, index, self) => self.findIndex(v => v.id.anyId() === value.id.anyId()) === index);
 

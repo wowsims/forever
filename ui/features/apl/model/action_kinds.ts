@@ -20,6 +20,7 @@ import {
 	APLActionMoveDuration,
 	APLActionMultidot,
 	APLActionMultishield,
+	APLActionPetAttack,
 	APLActionResetSequence,
 	APLActionSchedule,
 	APLActionSequence,
@@ -29,7 +30,7 @@ import {
 	APLActionWait,
 	APLActionWaitUntil,
 } from '@generated/proto/apl';
-import { Spec } from '@generated/proto/common';
+import { Class, Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { itemSwapEnabledSpecs } from '@sim/spec_config';
@@ -387,6 +388,14 @@ export const actionKinds: { [f in NonNullable<APLActionKind>]: ActionKindModel<A
 				labelTooltip: i18n.t('rotation_tab.apl.actions.move.duration_tooltip'),
 			}),
 		],
+	}),
+	['petAttack']: inputBuilder({
+		label: i18n.t('rotation_tab.apl.actions.pet_attack.label'),
+		submenu: ['misc'],
+		shortDescription: i18n.t('rotation_tab.apl.actions.pet_attack.tooltip'),
+		includeIf: (player: Player<any>, isPrepull: boolean) => isPrepull && [Class.ClassHunter, Class.ClassWarlock].includes(player.getClass()),
+		newValue: () => APLActionPetAttack.create(),
+		fields: [],
 	}),
 	['customRotation']: inputBuilder({
 		label: i18n.t('rotation_tab.apl.actions.custom_rotation.label'),

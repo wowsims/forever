@@ -1533,6 +1533,10 @@
 					"duration_tooltip": "Amount of time the character should move.",
 					"move_duration_tooltip": "The characters moves for the given duration."
 				},
+				"pet_attack": {
+					"label": "Pet Attack",
+					"tooltip": "Works like /petattack in-game. Tells the pet to move/attack."
+				},
 				"custom_rotation": {
 					"label": "Custom Rotation",
 					"tooltip": "INTERNAL ONLY"
@@ -1822,6 +1826,10 @@
 					"label": "Spell in Flight",
 					"tooltip": "<b>True</b> if this spell is currently in flight, otherwise <b>False</b>."
 				},
+				"spell_expected_dpet": {
+					"label": "Spell Expected DPET",
+					"tooltip": "The expected damage of a spell if you cast it now, assuming it lands. Includes cast time, GCD time, and averaged crit."
+				},
 				"aura_known": {
 					"label": "Aura Known",
 					"tooltip": "<b>True</b> if the aura is currently known, otherwise <b>False</b>."
@@ -2011,10 +2019,6 @@
 					"label": "Dot Tick Rate Increase %",
 					"tooltip": "How much faster a new DoT would tick compared to the old."
 				},
-				"dot_expected_dps": {
-					"label": "Dot Expected DPS",
-					"tooltip": "The expected damage per second of the DoT or channel if cast now: its average tick, with crits, over its tick period. Compares spells that tick at different rates."
-				},
 				"variable_ref": {
 					"label": "Variable Reference",
 					"tooltip": "Reference a named condition variable"
@@ -2134,6 +2138,7 @@
 					"non_instant_spells": "Non-instant Spell",
 					"friendly_spells": "Friendly Spell",
 					"expected_dot_spells": "DoT Spell",
+					"expected_damage_spells": "Damage Spell",
 					"spells_with_travelTime": "Spell"
 				},
 				"field_configs": {

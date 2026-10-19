@@ -7,6 +7,7 @@ import { scaledEpValue, type Stats, type UnitStat } from '@sim/proto/stats';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import { subscribeStatWeightsChange } from '@sim/state/subscriptions';
 import { sanitizeId } from '@sim/utils/format';
+import { roundFloat } from '@sim/utils/math';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { NumberField } from '@ui-kit/TextField';
@@ -35,7 +36,9 @@ export interface StatWeightRowViewProps {
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
 	epDelta: number;
+	/** The stored EP weight; the Current EP cell shows it per rating point. */
 	currentEp: number;
+	/** Called with the stored unit. */
 	onCurrentEpChange: (value: number) => void;
 	/** Absent for a stat outside the spec's EP set: the Update cell stays empty. */
 	include?: StatWeightRowInclude;
@@ -57,6 +60,7 @@ export const StatWeightRowView = ({
 	showUpdateColumn = true,
 }: StatWeightRowViewProps) => {
 	const cellClassName = clsx('ui-ep-weights-table-cell', showThreatMetrics && 'max-lg:pl-0');
+	const ratingScale = stat.epRatingScale();
 
 	return (
 		<TableRow>
@@ -88,8 +92,8 @@ export const StatWeightRowView = ({
 				<NumberField
 					id={`ep-weight-stat-${sanitizeId(shortName)}`}
 					float
-					value={currentEp}
-					onChange={onCurrentEpChange}
+					value={currentEp / ratingScale}
+					onChange={value => onCurrentEpChange(roundFloat(value * ratingScale))}
 					inputClassName={showThreatMetrics ? 'ui-ep-weights-compact-input' : undefined}
 				/>
 			</TableCell>

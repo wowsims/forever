@@ -88,16 +88,30 @@ describe('UnitStat', () => {
 		expect(UnitStat.fromStat(Stat.StatStrength).isPercentRating()).toBe(false);
 	});
 
-	// The inverse of the parentStat case below: convertRatingToPercent has no branch for
-	// ReducedCritTakenPercent either, so it returns null. convertEpToRatingScale declares
-	// `number` and asserted that null away with `!`, handing callers a null that only blew up
-	// once something did arithmetic on it - the Prot Paladin soft-cap tooltip called .toFixed()
-	// on it and took the sidebar down on hover.
+	// The soft-cap tooltip calls .toFixed() on the result, so a stat with no rating still gets a number.
 	it('falls back to the raw EP value when a stat has no percent conversion', () => {
 		const unitStat = UnitStat.fromPseudoStat(PseudoStat.PseudoStatReducedCritTakenPercent);
-		expect(unitStat.convertRatingToPercent(1)).toBeNull();
 		expect(unitStat.convertEpToRatingScale(12.5)).toBe(12.5);
 		expect(() => unitStat.convertEpToRatingScale(0).toFixed(2)).not.toThrow();
+	});
+
+	it.each(
+		(
+			[
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 10],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent), 14],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHastePercent), 10],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatExpertisePercent), 10],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent), 12],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatParryPercent), 15],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatBlockPercent), 5],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), 10],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), 1],
+				[UnitStat.fromStat(Stat.StatCritRating), 1],
+			] as const
+		).map(([unitStat, scale]) => [unitStat.getKey(), unitStat, scale] as const),
+	)('epRatingScale of %s is %i', (_key, unitStat, scale) => {
+		expect(unitStat.epRatingScale()).toBe(scale);
 	});
 
 	it('needs a parentStat to turn ReducedCritTakenPercent back into a rating', () => {

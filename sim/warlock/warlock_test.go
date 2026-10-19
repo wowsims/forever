@@ -54,6 +54,8 @@ func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto
 			Profession1: build.Profession1,
 			Profession2: build.Profession2,
 			Rotation:    core.RotationCombo{Label: buildFile, Rotation: build.Rotation.Rotation},
+			// The UI preset's distance, from which the demon walks in
+			StartingDistance: 20,
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
 					proto.WeaponType_WeaponTypeDagger,

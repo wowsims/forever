@@ -366,38 +366,3 @@ func (value *APLValueDotTickRatePercentIncrease) getTickRate(useSnapshot bool) f
 	}
 	return dot.CalcTickPeriod().Round(time.Millisecond).Seconds()
 }
-
-// The expected tick of a cast now over its tick period, so DoTs and channels that tick at different
-// rates compare per second of their duration.
-type APLValueDotExpectedDps struct {
-	DefaultAPLValueImpl
-	spell     *Spell
-	targetRef UnitReference
-}
-
-func (rot *APLRotation) newValueDotExpectedDps(config *proto.APLValueDotExpectedDps, _ *proto.UUID) APLValue {
-	spell := rot.GetAPLSpell(config.SpellId)
-	if spell == nil || spell.expectedTickDamageInternal == nil {
-		return nil
-	}
-	targetRef := rot.GetTargetUnit(config.TargetUnit)
-	if spell.Dot(targetRef.Get()) == nil {
-		return nil
-	}
-
-	return &APLValueDotExpectedDps{
-		spell:     spell,
-		targetRef: targetRef,
-	}
-}
-
-func (value *APLValueDotExpectedDps) Type() proto.APLValueType {
-	return proto.APLValueType_ValueTypeFloat
-}
-func (value *APLValueDotExpectedDps) GetFloat(sim *Simulation) float64 {
-	target := value.targetRef.Get()
-	return value.spell.ExpectedTickDamage(sim, target) / value.spell.Dot(target).CalcTickPeriod().Seconds()
-}
-func (value *APLValueDotExpectedDps) String() string {
-	return fmt.Sprintf("Dot Expected DPS(%s)", value.spell.ActionID)
-}

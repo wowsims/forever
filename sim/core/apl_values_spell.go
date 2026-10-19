@@ -395,3 +395,62 @@ func (value *APLValueSpellInFlight) GetBool(sim *Simulation) bool {
 func (value *APLValueSpellInFlight) String() string {
 	return fmt.Sprintf("SpellInFlight(%s)", value.spell.ActionID)
 }
+
+// The expected damage of one full cast if cast now, its hit and all its ticks, over the time the cast
+// costs the caster: the cast time or channel, or the GCD when that is longer.
+type APLValueSpellExpectedDpet struct {
+	DefaultAPLValueImpl
+	spell     *Spell
+	targetRef UnitReference
+}
+
+func (rot *APLRotation) newValueSpellExpectedDpet(config *proto.APLValueSpellExpectedDpet, _ *proto.UUID) APLValue {
+	spell := rot.GetAPLSpell(config.SpellId)
+	if spell == nil || (spell.expectedInitialDamageInternal == nil && spell.expectedTickDamageInternal == nil) {
+		return nil
+	}
+	return &APLValueSpellExpectedDpet{
+		spell:     spell,
+		targetRef: rot.GetTargetUnit(config.TargetUnit),
+	}
+}
+
+func (value *APLValueSpellExpectedDpet) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeFloat
+}
+
+func (value *APLValueSpellExpectedDpet) GetFloat(sim *Simulation) float64 {
+	spell := value.spell
+	target := value.targetRef.Get()
+
+	cast := spell.DefaultCast
+	if !spell.IgnoreHaste {
+		cast.GCD = spell.hastedGCD(cast.GCD)
+		cast.CastTime = spell.CastTime().Round(time.Millisecond)
+	}
+
+	var damage float64
+	if spell.expectedInitialDamageInternal != nil {
+		damage += spell.ExpectedInitialDamage(sim, target)
+	}
+	if dot := spell.Dot(target); dot != nil {
+		ticks := dot.ExpectedTickCount()
+		if spell.expectedTickDamageInternal != nil {
+			damage += spell.ExpectedTickDamage(sim, target) * float64(ticks)
+		}
+		if spell.Flags.Matches(SpellFlagChanneled) {
+			cast.CastTime = dot.CalcTickPeriod() * time.Duration(ticks)
+		}
+	}
+
+	// A spell with no GCD and no cast time (an auto attack, an off-GCD instant) scores 0.
+	executeTime := cast.EffectiveTime()
+	if executeTime == 0 {
+		return 0
+	}
+	return damage / executeTime.Seconds()
+}
+
+func (value *APLValueSpellExpectedDpet) String() string {
+	return fmt.Sprintf("Spell Expected DPET(%s)", value.spell.ActionID)
+}

@@ -633,6 +633,7 @@ message SpellStats {
 	bool has_cast_time = 9; // Whether this spell has a cast time or not.
 	bool is_friendly = 10; // Whether this spell should be cast on player units
 	bool has_expected_tick = 11; // Whether this spell supports expected damage calculations
+	bool has_expected_initial = 17; // Whether this spell supports expected initial damage calculations
 	bool has_missile_speed = 12; // Whether this spell has a missile speed
 	bool has_ranks = 13; // Whether this spell has a rank
 	bool is_potion = 14; // Whether this spell is a potion

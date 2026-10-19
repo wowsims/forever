@@ -38,7 +38,6 @@ import {
 	APLValueCurrentTime,
 	APLValueCurrentTimePercent,
 	APLValueDotBaseDuration,
-	APLValueDotExpectedDps,
 	APLValueDotIsActive,
 	APLValueDotIsActiveOnAllTargets,
 	APLValueDotLowestRemainingTime,
@@ -83,6 +82,7 @@ import {
 	APLValueSpellChanneledTicks,
 	APLValueSpellCPM,
 	APLValueSpellCurrentCost,
+	APLValueSpellExpectedDpet,
 	APLValueSpellFullCooldown,
 	APLValueSpellGCDHastedDuration,
 	APLValueSpellInFlight,
@@ -701,6 +701,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'spells_with_travelTime', '')],
 	}),
+	spellExpectedDpet: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.spell_expected_dpet.label'),
+		submenu: ['spell'],
+		shortDescription: i18n.t('rotation_tab.apl.values.spell_expected_dpet.tooltip'),
+		newValue: APLValueSpellExpectedDpet.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_damage_spells', '')],
+	}),
 
 	// Auras
 	auraIsKnown: inputBuilder({
@@ -991,14 +999,6 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: APLValueDotPercentIncrease.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
-	}),
-	dotExpectedDps: inputBuilder({
-		label: i18n.t('rotation_tab.apl.values.dot_expected_dps.label'),
-		submenu: ['dot'],
-		shortDescription: i18n.t('rotation_tab.apl.values.dot_expected_dps.tooltip'),
-		newValue: APLValueDotExpectedDps.create,
-		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
-		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', '')],
 	}),
 	sequenceIsComplete: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.sequence_is_complete.label'),

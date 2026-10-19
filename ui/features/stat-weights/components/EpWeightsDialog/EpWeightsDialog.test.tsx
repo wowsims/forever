@@ -8,6 +8,7 @@ import { Stats, UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import { SimRuns } from '@sim/sim_runs';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
+import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
@@ -850,6 +851,88 @@ describe('EpWeightsDialog', () => {
 					expect(hpsEp('Agility')).toBe('9.00');
 				},
 			);
+		});
+	});
+
+	// A percent pseudo-stat's weight, school hit included, is stored per percentage point and shown per rating
+	// point, like the ratings beside it.
+	describe('percent pseudo-stats', () => {
+		const RANGED_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
+		const FIRE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire);
+		const CRIT = UnitStat.fromStat(Stat.StatCritRating);
+		const rangedHitRow = () => rowFor(RANGED_HIT.getFullName(Class.ClassWarrior));
+		const fireHitRow = () => rowFor(FIRE_HIT.getFullName(Class.ClassWarrior));
+		const shown = (row: Element, columnType: 'weight' | 'ep') =>
+			row.querySelector(`[data-column-type="${columnType}"] [data-testid="results-avg"]`)!.textContent;
+		const currentEpInput = (row: Element) => row.querySelector<HTMLInputElement>('[data-testid="current-ep"] input')!;
+		const editCurrentEp = (row: Element, value: string) =>
+			act(() => {
+				const input = currentEpInput(row);
+				input.value = value;
+				fireEvent.change(input);
+			});
+
+		beforeEach(() => {
+			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatSchoolHitPercentFire];
+		});
+
+		it('shows the computed weight, EP and ± per rating point, and copies the stored unit', async () => {
+			const result = weightsResult([
+				[RANGED_HIT, 9.28],
+				[FIRE_HIT, 23.2],
+				[CRIT, 1.15],
+			]);
+			RANGED_HIT.setProtoValue(result.dps!.weightsStdev!, 50);
+			RANGED_HIT.setProtoValue(result.dps!.epValuesStdev!, 50);
+			player.computeStatWeights.mockResolvedValue(result);
+			renderDialog();
+			await act(async () => {
+				fireEvent.click(calculate());
+			});
+
+			for (const columnType of ['weight', 'ep'] as const) {
+				expect(shown(rangedHitRow(), columnType)).toBe('0.93');
+				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
+				expect(shown(fireHitRow(), columnType)).toBe('2.32');
+				expect(shown(rowFor('Crit Rating'), columnType)).toBe('1.15');
+			}
+
+			act(() => {
+				fireEvent.click(table().querySelector('thead th[data-column-type="ep"] [data-testid="col-action"]')!);
+			});
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(9.28);
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(23.2);
+			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
+		});
+
+		it('shows the current EP per rating point, and stores an edit per percentage point', () => {
+			renderDialog();
+			act(() =>
+				player.setEpWeights(
+					new Stats()
+						.withPseudoStat(PseudoStat.PseudoStatRangedHitPercent, 9.28)
+						.withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 23.2)
+						.withStat(Stat.StatCritRating, 1.15),
+				),
+			);
+
+			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
+			expect(currentEpInput(fireHitRow()).value).toBe('2.32');
+			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.15');
+
+			editCurrentEp(rangedHitRow(), '1.00');
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(10);
+			expect(currentEpInput(rangedHitRow()).value).toBe('1.00');
+
+			editCurrentEp(fireHitRow(), '2.00');
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(20);
+		});
+
+		it('stores an edit without float noise', () => {
+			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedCritPercent];
+			renderDialog();
+			editCurrentEp(rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent).getFullName(Class.ClassWarrior)), '0.80');
+			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedCritPercent)).toBe(11.2);
 		});
 	});
 

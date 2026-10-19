@@ -196,6 +196,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellFullCooldown(config.GetSpellFullCooldown(), config.Uuid)
 	case *proto.APLValue_SpellInFlight:
 		value = rot.newValueSpellInFlight(config.GetSpellInFlight(), config.Uuid)
+	case *proto.APLValue_SpellExpectedDpet:
+		value = rot.newValueSpellExpectedDpet(config.GetSpellExpectedDpet(), config.Uuid)
 
 	// Auras
 	case *proto.APLValue_AuraIsKnown:
@@ -256,8 +258,6 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
 	case *proto.APLValue_DotTickRatePercentIncrease:
 		value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
-	case *proto.APLValue_DotExpectedDps:
-		value = rot.newValueDotExpectedDps(config.GetDotExpectedDps(), config.Uuid)
 
 	// Sequences
 	case *proto.APLValue_SequenceIsComplete:

@@ -54,12 +54,12 @@ var oneHandedSpec = spelldata.MustFind(20196)
 func TestHoverWeaponRules(t *testing.T) {
 	percent := func(id int32) string { return signedColumn(spelldata.MustFind(id).EffectN(1).Mean()) + "%" }
 	for needle, want := range map[string]string{
-		"MustFind(12320)":   "| 1 | " + percent(12320) + " physical crit, per weapon: only attacks made with a melee weapon<br>",
-		"MustFind(16255)":   "| 1 | " + percent(16255) + " physical and spell crit, while a melee weapon is equipped: every spell and attack<br>",
-		"MustFind(1310308)": "| 1 | " + percent(1310308) + " physical crit, ranged weapons only: attacks made with a bow, gun or crossbow<br>",
-		"MustFind(1323963)": "| 1 | " + percent(1323963) + " physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand<br>",
-		"MustFind(3043)":    "| 1 | " + percent(3043) + " physical hit to the enemy (the weapon requirement only gates casting)<br>",
-		"MustFind(20196)":   "| 1 | " + percent(20196) + " physical damage done and on the melee-defense spells of the other schools, while a one-handed axe, one-handed mace, one-handed sword, exotic, fist weapon or dagger is equipped<br>",
+		"MustFind(12320)":   "**1** · " + percent(12320) + " physical crit, per weapon: only attacks made with a melee weapon  \n",
+		"MustFind(16255)":   "**1** · " + percent(16255) + " physical and spell crit, while a melee weapon is equipped: every spell and attack  \n",
+		"MustFind(1310308)": "**1** · " + percent(1310308) + " physical crit, ranged weapons only: attacks made with a bow, gun or crossbow  \n",
+		"MustFind(1323963)": "**1** · " + percent(1323963) + " physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand  \n",
+		"MustFind(3043)":    "**1** · " + percent(3043) + " physical hit to the enemy (the weapon requirement only gates casting)  \n",
+		"MustFind(20196)":   "**1** · " + percent(20196) + " physical damage done and on the melee-defense spells of the other schools, while a one-handed axe, one-handed mace, one-handed sword, exotic, fist weapon or dagger is equipped  \n",
 	} {
 		wantHover(t, weaponRowsGo, needle, 9, want)
 	}

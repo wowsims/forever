@@ -341,13 +341,6 @@ func calcStatWeights(swcr *proto.StatWeightsCalcRequest) (*StatWeightsResult, *p
 		}
 
 		modLow, modHigh := statPairs.StatData.ModLow, statPairs.StatData.ModHigh
-		if stat.IsPseudoStat() {
-			statName := proto.PseudoStat_name[int32(stat.PseudoStatIdx())]
-			if strings.Contains(statName, "SchoolHit") {
-				modLow *= HitRatingPerHitPercent
-				modHigh *= HitRatingPerHitPercent
-			}
-		}
 
 		// Check for hard caps. Hard caps will have results identical to the baseline because RNG is fixed.
 		// When we find a hard-capped stat, just skip it (will return 0).

@@ -11,6 +11,9 @@ export function sum(arr: Array<number>): number {
 
 export const percentOf = (part: number, whole: number) => (part / whole) * 100;
 
+// Rounds away float noise like 3 × 0.1 = 0.30000000000000004.
+export const roundFloat = (value: number) => Math.round(value * 1e6) / 1e6;
+
 // What is left of `total` at the rate `completed` took `elapsed`, in `elapsed`'s unit; undefined before anything completes.
 export const timeRemainingAtRate = (elapsed: number, completed: number, total: number): number | undefined =>
 	completed > 0 ? (elapsed / completed) * Math.max(0, total - completed) : undefined;

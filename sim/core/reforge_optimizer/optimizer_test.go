@@ -24,6 +24,8 @@ const (
 	plainArmorEnchantID
 	armorNoModsEnchantID
 	armorScalingNeckID
+	hitRatingWristID
+	holyHitWristID
 )
 
 const (
@@ -40,6 +42,8 @@ func addFixtureEnchants() {
 	crit := make([]float64, len(proto.PseudoStat_name))
 	crit[proto.PseudoStat_PseudoStatMeleeCritPercent] = 1
 	crit[proto.PseudoStat_PseudoStatRangedCritPercent] = 1
+	holyHit := make([]float64, len(proto.PseudoStat_name))
+	holyHit[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = 1
 	core.AddToDatabase(&proto.SimDatabase{Enchants: []*proto.SimEnchant{
 		{EffectId: agilityWristID, Type: proto.ItemType_ItemTypeWrist, Stats: stat(proto.Stat_StatAgility, 7)},
 		{EffectId: strengthWristID, Type: proto.ItemType_ItemTypeWrist, Stats: stat(proto.Stat_StatStrength, 7)},
@@ -48,6 +52,8 @@ func addFixtureEnchants() {
 		{EffectId: agilityWeaponID, Type: proto.ItemType_ItemTypeWeapon, Stats: stat(proto.Stat_StatAgility, 15)},
 		{EffectId: attackPowerShoulderID, Type: proto.ItemType_ItemTypeShoulder, Stats: stat(proto.Stat_StatAttackPower, attackPowerShoulderAP)},
 		{EffectId: critShoulderID, Type: proto.ItemType_ItemTypeShoulder, Stats: stat(proto.Stat_StatAttackPower, critShoulderAP), PseudoStats: crit},
+		{EffectId: hitRatingWristID, Type: proto.ItemType_ItemTypeWrist, Stats: stat(proto.Stat_StatHitRating, core.HitRatingPerHitPercent)},
+		{EffectId: holyHitWristID, Type: proto.ItemType_ItemTypeWrist, PseudoStats: holyHit},
 	}})
 }
 
@@ -182,6 +188,34 @@ func TestOptimizeValuesAPercentEnchantThroughItsRating(t *testing.T) {
 	}
 	if got, want := result.GetScore(), critShoulderAP+core.CritRatingPerCritPercent*critRatingEP; math.Abs(got-want) > 1e-9 {
 		t.Errorf("score %v, want %v", got, want)
+	}
+}
+
+// A school hit weight is per percent, so a percent of Holy hit, reached through hit rating or carried
+// by the enchant, is worth what its ten hit rating are worth under a hit rating weight a tenth as large.
+func TestOptimizeValuesSchoolHitPerPercent(t *testing.T) {
+	addFixtureEnchants()
+	const holyHitEP = 23.2
+	for _, tc := range []struct {
+		name    string
+		enchant int32
+		weight  func(*proto.UnitStats)
+	}{
+		{"hit rating under a HitRating weight", hitRatingWristID, func(w *proto.UnitStats) {
+			w.Stats[proto.Stat_StatHitRating] = holyHitEP / core.HitRatingPerHitPercent
+		}},
+		{"hit rating under a Holy hit weight", hitRatingWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = holyHitEP }},
+		{"Holy hit under a Holy hit weight", holyHitWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = holyHitEP }},
+	} {
+		request := enchantRequest(protectionWarriorRaid("preraid"), nil, wrist(tc.enchant))
+		tc.weight(request.PreCapEpWeights)
+		result := optimize(t, request)
+		if got := slotEnchant(result, proto.ItemSlot_ItemSlotWrist); got != tc.enchant {
+			t.Errorf("%s: wrist enchant %d, want %d", tc.name, got, tc.enchant)
+		}
+		if got := result.GetScore(); math.Abs(got-holyHitEP) > 1e-9 {
+			t.Errorf("%s: score %v, want %v", tc.name, got, holyHitEP)
+		}
 	}
 }
 

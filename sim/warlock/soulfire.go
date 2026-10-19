@@ -21,7 +21,7 @@ func (warlock *Warlock) registerSoulfire() {
 
 	// Calculate expected damage from the row's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcDamage(sim, target, soulFireHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+		return spell.CalcDamage(sim, target, soulFireHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}
 
 	warlock.useReagents(&config, rankedSpell)

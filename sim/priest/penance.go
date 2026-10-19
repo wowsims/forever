@@ -59,7 +59,7 @@ func (priest *Priest) registerPenance(_ int32, rank *spelldata.Spell) {
 
 	bolts := float64(1 + config.Dot.NumberOfTicks)
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, _ *core.Spell, _ bool) *core.SpellResult {
-		result := boltSpell.CalcDamage(sim, target, bolt.Average(), boltSpell.OutcomeExpectedMagicHitAndCrit)
+		result := boltSpell.CalcDamage(sim, target, bolt.Average(), boltSpell.OutcomeExpectedMagicCrit)
 		result.Damage *= bolts
 		return result
 	}

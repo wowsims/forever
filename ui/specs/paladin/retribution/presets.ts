@@ -5,6 +5,7 @@ import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/prot
 import { ConsumesSpec, Profession, PseudoStat, Race, Stat, TristateEffect } from '@generated/proto/common';
 import { RetributionPaladin_Options as RetributionPaladinOptions } from '@generated/proto/paladin';
 import { SavedTalents } from '@generated/proto/ui';
+import * as Mechanics from '@sim/constants/mechanics';
 import type { PresetSettings } from '@sim/presets/types';
 import { Stats } from '@sim/proto/stats';
 
@@ -55,7 +56,7 @@ export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 13.04,
-			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 2.32,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 2.32 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );
@@ -79,7 +80,7 @@ export const TwistOfLightEpWeights = PresetUtils.makePresetEpWeights(
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 13.85,
-			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.6,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.6 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );
