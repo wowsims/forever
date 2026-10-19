@@ -148,23 +148,6 @@ func eachUnitStat(vec core.UnitStats, fn func(unitStat stats.UnitStat, value flo
 
 var schoolHitPercents = core.SchoolHitPseudoStats[stats.SchoolIndexArcane:]
 
-// A school hit weight, pre-cap or post-cap, is per hit rating point, the unit the stat weights measure
-// it in. The model counts school hit in percent, so it multiplies the weight by this.
-func weightScale(unitStat stats.UnitStat) float64 {
-	if slices.ContainsFunc(schoolHitPercents, unitStat.EqualsPseudoStat) {
-		return core.HitRatingPerHitPercent
-	}
-	return 1
-}
-
-func preCapWeights(protoWeights *proto.UnitStats) core.UnitStats {
-	weights := protoToCoreUnitStats(protoWeights)
-	for idx, weight := range weights.PseudoStats {
-		weights.PseudoStats[idx] = weight * weightScale(stats.UnitStatFromPseudoStat(proto.PseudoStat(idx)))
-	}
-	return weights
-}
-
 // The off hand's percent moves with the physical percent. The per-attack ratings on the sheet are left
 // out: a rating's children are counted in percent.
 var offHandPercents = map[stats.Stat]proto.PseudoStat{

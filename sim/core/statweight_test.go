@@ -133,6 +133,7 @@ var (
 	hitRatingUnitStat = stats.UnitStatFromStat(stats.HitRating)
 	meleeHitUnitStat  = stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMeleeHitPercent)
 	rangedHitUnitStat = stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedHitPercent)
+	holyHitUnitStat   = stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatSchoolHitPercentHoly)
 )
 
 // A spec weighing melee and ranged hit percent, or a hunter weighing ranged hit percent alone, still
@@ -170,6 +171,22 @@ func TestStatWeightsSimulateHitRatingBesideItsPercents(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// A school hit weight and EP are per percentage point, like every other percent's, although its sub-sim
+// probes a tenth of a percent, one hit rating point's worth.
+func TestStatWeightsWeighSchoolHitPerPercent(t *testing.T) {
+	_, result := runSyntheticStatWeights(t,
+		[]proto.Stat{proto.Stat_StatAgility},
+		[]proto.PseudoStat{proto.PseudoStat_PseudoStatSchoolHitPercentHoly},
+		map[stats.UnitStat]float64{agilityUnitStat: 1, holyHitUnitStat: 23.2})
+
+	if got := protoUnitStat(result.Dps.Weights, holyHitUnitStat); math.Abs(got-23.2) > 1e-9 {
+		t.Errorf("Holy hit weight = %v, want 23.2 per percent", got)
+	}
+	if got := protoUnitStat(result.Dps.EpValues, holyHitUnitStat); math.Abs(got-23.2) > 1e-9 {
+		t.Errorf("Holy hit EP = %v, want 23.2 per percent", got)
 	}
 }
 

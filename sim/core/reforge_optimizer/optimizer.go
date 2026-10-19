@@ -148,7 +148,7 @@ func (o *reforgeOptimizer) optimizeReforges() (*proto.EquipmentSpec, float64, in
 		softCapConfigs = o.request.GetSoftCaps()
 	}
 	reforgeSoftCaps := computeReforgeSoftCaps(o.baseStats, softCapConfigs)
-	weights := checkWeights(preCapWeights(o.request.GetPreCapEpWeights()), reforgeCaps, reforgeSoftCaps)
+	weights := checkWeights(protoToCoreUnitStats(o.request.GetPreCapEpWeights()), reforgeCaps, reforgeSoftCaps)
 
 	variables, constraints := o.buildEnchantModel(weights)
 	selected, score, passes, err := o.solveModel(weights, reforgeCaps, reforgeSoftCaps, variables, constraints, optimizerTimeout.Seconds())

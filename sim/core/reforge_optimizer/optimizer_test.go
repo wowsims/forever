@@ -191,20 +191,21 @@ func TestOptimizeValuesAPercentEnchantThroughItsRating(t *testing.T) {
 	}
 }
 
-// A school hit weight is per hit rating point, so a percent of Holy hit, reached through hit rating
-// or carried by the enchant, is worth what the hit rating for it is worth under the same weight.
-func TestOptimizeValuesSchoolHitPerHitRating(t *testing.T) {
+// A school hit weight is per percent, so a percent of Holy hit, reached through hit rating or carried
+// by the enchant, is worth what its ten hit rating are worth under a hit rating weight a tenth as large.
+func TestOptimizeValuesSchoolHitPerPercent(t *testing.T) {
 	addFixtureEnchants()
-	const ep = 2.32
-	want := core.HitRatingPerHitPercent * ep
+	const holyHitEP = 23.2
 	for _, tc := range []struct {
 		name    string
 		enchant int32
 		weight  func(*proto.UnitStats)
 	}{
-		{"hit rating under a HitRating weight", hitRatingWristID, func(w *proto.UnitStats) { w.Stats[proto.Stat_StatHitRating] = ep }},
-		{"hit rating under a Holy hit weight", hitRatingWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = ep }},
-		{"Holy hit under a Holy hit weight", holyHitWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = ep }},
+		{"hit rating under a HitRating weight", hitRatingWristID, func(w *proto.UnitStats) {
+			w.Stats[proto.Stat_StatHitRating] = holyHitEP / core.HitRatingPerHitPercent
+		}},
+		{"hit rating under a Holy hit weight", hitRatingWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = holyHitEP }},
+		{"Holy hit under a Holy hit weight", holyHitWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = holyHitEP }},
 	} {
 		request := enchantRequest(protectionWarriorRaid("preraid"), nil, wrist(tc.enchant))
 		tc.weight(request.PreCapEpWeights)
@@ -212,8 +213,8 @@ func TestOptimizeValuesSchoolHitPerHitRating(t *testing.T) {
 		if got := slotEnchant(result, proto.ItemSlot_ItemSlotWrist); got != tc.enchant {
 			t.Errorf("%s: wrist enchant %d, want %d", tc.name, got, tc.enchant)
 		}
-		if got := result.GetScore(); math.Abs(got-want) > 1e-9 {
-			t.Errorf("%s: score %v, want %v", tc.name, got, want)
+		if got := result.GetScore(); math.Abs(got-holyHitEP) > 1e-9 {
+			t.Errorf("%s: score %v, want %v", tc.name, got, holyHitEP)
 		}
 	}
 }
