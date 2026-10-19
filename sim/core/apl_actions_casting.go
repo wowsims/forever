@@ -41,8 +41,37 @@ func (action *APLActionCastSpell) Execute(sim *Simulation) {
 func (action *APLActionCastSpell) String() string {
 	return fmt.Sprintf("Cast Spell(%s)", action.spell.ActionID)
 }
-func (action *APLActionCastSpell) PostFinalize(rot *APLRotation) {
-	rot.warnIfNeverInRange(action.spell)
+
+// Runs the action's own post-finalize step, then warns for each spell the action and its inner
+// actions cast from out of reach. A group reference is skipped: the group's own actions warn.
+func (rot *APLRotation) postFinalize(action *APLAction) {
+	action.impl.PostFinalize(rot)
+	if _, ok := action.impl.(*APLActionGroupReference); ok {
+		return
+	}
+	for _, inner := range action.GetAllActions() {
+		if spell := castSpellOf(inner); spell != nil {
+			rot.warnIfNeverInRange(spell)
+		}
+	}
+}
+
+func castSpellOf(action *APLAction) *Spell {
+	switch impl := action.impl.(type) {
+	case *APLActionCastSpell:
+		return impl.spell
+	case *APLActionCastFriendlySpell:
+		return impl.spell
+	case *APLActionChannelSpell:
+		return impl.spell
+	case *APLActionMultidot:
+		return impl.spell
+	case *APLActionStrictMultidot:
+		return impl.spell
+	case *APLActionMultishield:
+		return impl.spell
+	}
+	return nil
 }
 
 // The range check refuses a cast from farther than the spell's MaxRange, so a spell that does not
@@ -111,9 +140,6 @@ func (action *APLActionCastFriendlySpell) Execute(sim *Simulation) {
 func (action *APLActionCastFriendlySpell) String() string {
 	return fmt.Sprintf("Cast Friendly Spell(%s)", action.spell.ActionID)
 }
-func (action *APLActionCastFriendlySpell) PostFinalize(rot *APLRotation) {
-	rot.warnIfNeverInRange(action.spell)
-}
 
 type APLActionChannelSpell struct {
 	defaultAPLActionImpl
@@ -163,9 +189,6 @@ func (action *APLActionChannelSpell) Execute(sim *Simulation) {
 }
 func (action *APLActionChannelSpell) String() string {
 	return fmt.Sprintf("Channel Spell(%s, interruptIf=%s)", action.spell.ActionID, action.interruptIf)
-}
-func (action *APLActionChannelSpell) PostFinalize(rot *APLRotation) {
-	rot.warnIfNeverInRange(action.spell)
 }
 
 type APLActionMultidot struct {
@@ -241,9 +264,6 @@ func (action *APLActionMultidot) Execute(sim *Simulation) {
 }
 func (action *APLActionMultidot) String() string {
 	return fmt.Sprintf("Multidot(%s)", action.spell.ActionID)
-}
-func (action *APLActionMultidot) PostFinalize(rot *APLRotation) {
-	rot.warnIfNeverInRange(action.spell)
 }
 
 type APLActionStrictMultidot struct {
@@ -362,9 +382,6 @@ func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
 func (action *APLActionStrictMultidot) String() string {
 	return fmt.Sprintf("StrictMultidot(%s)", action.spell.ActionID)
 }
-func (action *APLActionStrictMultidot) PostFinalize(rot *APLRotation) {
-	rot.warnIfNeverInRange(action.spell)
-}
 
 type APLActionMultishield struct {
 	defaultAPLActionImpl
@@ -425,9 +442,6 @@ func (action *APLActionMultishield) Execute(sim *Simulation) {
 }
 func (action *APLActionMultishield) String() string {
 	return fmt.Sprintf("Multishield(%s)", action.spell.ActionID)
-}
-func (action *APLActionMultishield) PostFinalize(rot *APLRotation) {
-	rot.warnIfNeverInRange(action.spell)
 }
 
 type APLActionCastAllStatBuffCooldowns struct {

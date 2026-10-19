@@ -318,7 +318,7 @@ func (rot *APLRotation) getStats() *proto.APLStats {
 	// Perform one final round of validation after post-finalize effects.
 	for i, action := range rot.prepullActions {
 		rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
-			action.impl.PostFinalize(rot)
+			rot.postFinalize(action)
 		})
 	}
 
@@ -327,14 +327,14 @@ func (rot *APLRotation) getStats() *proto.APLStats {
 		// Parse actions in the group
 		for actionIdx, action := range group.actions {
 			rot.doAndRecordWarnings(&rot.groupListValidations[groupIdx][rot.groupListIdxMap[groupIdx][actionIdx]], false, func() {
-				action.impl.PostFinalize(rot)
+				rot.postFinalize(action)
 			})
 		}
 	}
 
 	for i, action := range rot.priorityList {
 		rot.doAndRecordWarnings(&rot.priorityListValidations[rot.priorityListIdxMap[i]], false, func() {
-			action.impl.PostFinalize(rot)
+			rot.postFinalize(action)
 		})
 	}
 
