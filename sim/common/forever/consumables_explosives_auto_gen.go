@@ -37,6 +37,7 @@ func RegisterAllExplosives() {
 		18641,  // Dense Dynamite
 		22151,  // Anthion's Holy Water
 		215127, // High-Yield Radiation Bomb
+		215168, // Ez-Thro Radiation Bomb
 		217495, // Scroll of Cryoblast
 		260792, // SAF-T Dynamite
 		260793, // SAF-T Copper Bomb
@@ -52,9 +53,6 @@ func RegisterAllExplosives() {
 		276145, // Explosive Runeshard
 		277499, // Scroll of Greater Cryoblast
 		284868, // Holy Hand Grenade of Alterac
-
-		// unsupported: 435968's damage over time lands on an area, which the damage builder applies to one target
-		// 215168, // Ez-Thro Radiation Bomb
 	} {
 		shared.NewSpellDataExplosive(itemID)
 	}

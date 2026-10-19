@@ -21,8 +21,10 @@ spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
 `spelldata.DotConfig(row, effect, opts...)` answers a `core.DotConfig`: that aura, `TickLength` from
 the effect's period, `NumberOfTicks` from the row's duration over that period, `BonusCoefficient` from
-the effect's spell power share, and an `OnTick` that deals the effect's own `Average` at the caster's
-level, on the stats and multipliers in force at the tick. `OnSnapshot` is nil. It panics where the
+the effect's spell power share, and an `OnTick` that deals one `Roll` of the effect at the caster's
+level, on the stats and multipliers in force at the tick. Every tick rolls on its own where the effect
+states a `Variance` (Caustic Smog Potion's 1252543 ticks 31 to 35); an effect that states none deals
+its `Average`, and its ticks draw no random number. `OnSnapshot` is nil. It panics where the
 effect states no period or the row no duration, so a permanent aura's -1 never resolves into an absurd
 number of ticks. A caller replaces `OnTick` for a heal or a value the game files do not state.
 

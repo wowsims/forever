@@ -15,18 +15,21 @@ import (
 // potions have on the wearer by $s1%."
 const alchemistsStoneSpellID int32 = 17619
 
-// A consumable whose on-use spell the potion builder runs on the user, on the item's cooldown and the
-// category it shares. A potion is a major cooldown only while the consumes pick it for an APL potion
-// placeholder, the other potions are the rotation's; a conjured item (a healthstone, mana gem, rune or tea) is one only while it is
-// the spec's chosen one; any other, such as the Flame Deflector's shield or the Scroll of Minor
+// A consumable whose on-use spell the potion builder runs on the user, or whose damage it deals to
+// enemies (consumableDamageSpell), on the item's cooldown and the category it shares. A potion is a
+// major cooldown only while the consumes pick it for an APL potion placeholder, the other potions are
+// the rotation's; a conjured item (a healthstone, mana gem, rune or tea) is one only while it is the
+// spec's chosen one; any other, such as the Flame Deflector's shield or the Scroll of Minor
 // Evocation's mana, whenever the spec names it.
 func NewSpellDataOnUseConsumable(itemID int32) {
 	registerSpellDataConsumable(itemID)
 }
 
-// Why the consumable builders cannot run the spell, or nil where they can. Every effect has to land
-// on the user and be a heal, an absorb, a gain of mana, rage or energy, damage to the user, or an
-// aura the parser attaches, and the spell has to work outside a seated rest.
+// Why the consumable builders cannot run the spell, or nil where they can. A spell that damages
+// enemies has to be one the damage builders run (DamageConsumableUnsupported), with nothing beside
+// it on the user. Otherwise every effect has to land on the user and be a heal, an absorb, a gain of
+// mana, rage or energy, damage to the user, or an aura the parser attaches, and the spell has to work
+// outside a seated rest.
 func ConsumableUnsupported(row *spelldata.Spell) []string {
 	_, unsupported := consumablePartsOf(row)
 	return unsupported
@@ -39,7 +42,14 @@ func ConsumableRestores(row *spelldata.Spell) (power, survival bool) {
 	return len(parts.gains) > 0, parts.heal != nil || parts.absorb != nil
 }
 
+// Whether the builder deals the consumable's spell as damage to enemies.
+func ConsumableDealsDamage(row *spelldata.Spell) bool {
+	parts, _ := consumablePartsOf(row)
+	return parts.damage
+}
+
 type consumableParts struct {
+	damage     bool
 	heal       *spelldata.Effect
 	absorb     *spelldata.Effect
 	gains      []*spelldata.Effect
@@ -56,6 +66,16 @@ func consumablePartsOf(row *spelldata.Spell) (consumableParts, []string) {
 	var unsupported []string
 	if row == spelldata.Nil {
 		return parts, []string{"the spell has no row in the store"}
+	}
+	if ConsumableDamages(row) {
+		parts.damage = true
+		unsupported = DamageConsumableUnsupported(row)
+		for i := range row.Effects {
+			if LandsOnTheUser(&row.Effects[i]) {
+				unsupported = append(unsupported, fmt.Sprintf("%s lands on the user beside the damage", row.Effects[i].Type))
+			}
+		}
+		return parts, unsupported
 	}
 
 	for i := range row.Effects {
@@ -134,6 +154,8 @@ func registerSpellDataConsumable(itemID int32) {
 
 		var config core.SpellConfig
 		switch {
+		case parts.damage:
+			config = consumableDamageSpell(character, row)
 		case parts.heal != nil:
 			config = spellDataProcHealSpell(character, row, false)
 			config.DamageMultiplier *= potionBonus
@@ -158,6 +180,9 @@ func registerSpellDataConsumable(itemID int32) {
 		sharedCD := config.Cast.SharedCD.Duration
 
 		cdType := core.CooldownTypeUnknown
+		if parts.damage {
+			cdType = core.CooldownTypeDPS
+		}
 		var applyAura func(*core.Simulation)
 		if parts.hasAura() {
 			aura := character.GetOrRegisterAura(spelldata.AuraConfig(row))
@@ -190,7 +215,7 @@ func registerSpellDataConsumable(itemID int32) {
 			}
 		}
 
-		if parts.heal == nil && parts.absorb == nil && !parts.hasAura() && len(gains) == 0 {
+		if !parts.damage && parts.heal == nil && parts.absorb == nil && !parts.hasAura() && len(gains) == 0 {
 			return
 		}
 
@@ -204,9 +229,13 @@ func registerSpellDataConsumable(itemID int32) {
 		}
 
 		ownEffects := config.ApplyEffects
+		damages := parts.damage
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if !damages {
+				target = &character.Unit
+			}
 			if ownEffects != nil {
-				ownEffects(sim, &character.Unit, spell)
+				ownEffects(sim, target, spell)
 			}
 			for i := range gains {
 				gains[i].apply(sim)
@@ -227,7 +256,7 @@ func registerSpellDataConsumable(itemID int32) {
 
 		consumables := character.Consumables
 		mcd := core.MajorCooldown{Spell: spell, Type: cdType}
-		if parts.heal == nil && parts.absorb == nil && !parts.hasAura() {
+		if !parts.damage && parts.heal == nil && parts.absorb == nil && !parts.hasAura() {
 			mcd.ShouldActivate = func(sim *core.Simulation, character *core.Character) bool {
 				for i := range gains {
 					if !gains[i].fits() {

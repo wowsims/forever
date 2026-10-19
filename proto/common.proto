@@ -713,7 +713,7 @@ enum PotionClass {
 	PotionClassUnknown = 0;
 	PotionClassResource = 1; // Restores mana, rage or energy, or buffs only mana regen.
 	PotionClassDefensive = 2; // Heals, absorbs, or buffs armor, avoidance, health or a resistance.
-	PotionClassOffensive = 3; // Buffs anything else, such as spell power or attack power.
+	PotionClassOffensive = 3; // Buffs anything else, such as spell power or attack power, or deals damage.
 }
 
 

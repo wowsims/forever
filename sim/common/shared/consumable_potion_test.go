@@ -2,6 +2,7 @@ package shared
 
 import (
 	"math"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -64,6 +65,12 @@ const (
 // builder, at half health, with its spells certain to hit and never to crit.
 func newConsumableSim(t *testing.T, player *proto.Player, consumes *proto.ConsumesSpec, trinket int32, consumables ...testConsumable) (*core.Simulation, *testCaster) {
 	t.Helper()
+	return newConsumableSimAgainst(t, player, consumes, trinket, 1, consumables...)
+}
+
+// The same against the given number of targets.
+func newConsumableSimAgainst(t *testing.T, player *proto.Player, consumes *proto.ConsumesSpec, trinket int32, targetCount int, consumables ...testConsumable) (*core.Simulation, *testCaster) {
+	t.Helper()
 	for _, c := range consumables {
 		core.AddToDatabase(&proto.SimDatabase{Consumables: []*proto.Consumable{{Id: c.id, Name: "Test Consumable",
 			Type: c.consumableType, ItemEffects: []*proto.ItemEffect{c.effect}}}})
@@ -87,6 +94,10 @@ func newConsumableSim(t *testing.T, player *proto.Player, consumes *proto.Consum
 	player.Profession1 = proto.Profession_Alchemy
 	player.Rotation = &proto.APLRotation{}
 
+	targets := make([]*proto.Target, targetCount)
+	for i := range targets {
+		targets[i] = &proto.Target{Name: "target", Level: 60}
+	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
@@ -94,7 +105,7 @@ func newConsumableSim(t *testing.T, player *proto.Player, consumes *proto.Consum
 			Buffs:   &proto.PartyBuffs{},
 		}}},
 		Encounter: &proto.Encounter{
-			Targets:  []*proto.Target{{Name: "target", Level: 60}},
+			Targets:  targets,
 			Duration: 600,
 		},
 	}, simsignals.CreateSignals())
@@ -464,6 +475,8 @@ func TestConsumableUnsupportedNamesWhatStopsIt(t *testing.T) {
 	}
 	onEnemy := effect(dbcenums.E_ENERGIZE, mana)
 	onEnemy.Target[0] = dbcenums.TARGET_UNIT_TARGET_ENEMY
+	hitOnEnemy := effect(dbcenums.E_SCHOOL_DAMAGE, 0)
+	hitOnEnemy.Target[0] = dbcenums.TARGET_UNIT_TARGET_ENEMY
 
 	for _, tc := range []struct {
 		name string
@@ -471,6 +484,8 @@ func TestConsumableUnsupportedNamesWhatStopsIt(t *testing.T) {
 		want string
 	}{
 		{"a dummy effect", spelldata.Spell{Effects: []spelldata.Effect{effect(dbcenums.E_DUMMY, 0)}}, "E_DUMMY"},
+		{"a gain beside damage to an enemy", spelldata.Spell{Effects: []spelldata.Effect{hitOnEnemy, effect(dbcenums.E_ENERGIZE, mana)}},
+			"E_ENERGIZE lands on the user beside the damage"},
 		{"an effect on an enemy", spelldata.Spell{Effects: []spelldata.Effect{onEnemy}}, "not the user"},
 		{"a stun", spelldata.Spell{DurationMs: 5000, Effects: []spelldata.Effect{aura(dbcenums.A_MOD_STUN, 0, 0)}}, "A_MOD_STUN"},
 		{"damage over time on the user", spelldata.Spell{DurationMs: 15000,
@@ -500,9 +515,194 @@ func TestConsumableUnsupportedNamesWhatStopsIt(t *testing.T) {
 			Effects: []spelldata.Effect{aura(dbcenums.A_PERIODIC_HEAL, 0, 1000), aura(dbcenums.A_PERIODIC_ENERGIZE, mana, 1000)}}},
 		{"a share of the bar", spelldata.Spell{Effects: []spelldata.Effect{effect(dbcenums.E_ENERGIZE_PCT, mana)}}},
 		{"a shield", spelldata.Spell{DurationMs: 60000, Effects: []spelldata.Effect{aura(dbcenums.A_SCHOOL_ABSORB, 4, 0)}}},
+		{"damage to an enemy", spelldata.Spell{Effects: []spelldata.Effect{hitOnEnemy}}},
 	} {
 		if got := ConsumableUnsupported(&tc.row); got != nil {
 			t.Errorf("%s: unsupported %v, want none", tc.name, got)
+		}
+	}
+}
+
+// Caustic Smog Potion's 1252525 leaves the cloud 1252526, which puts 1252543 on the enemies inside
+// it. The cloud has to state how long it lasts, and its damage has to state Always Hit, since the
+// cloud rolls none. Disorienting Smog Potion's cloud deals no damage.
+func TestADamageCloudNamesWhatStopsIt(t *testing.T) {
+	cloud, damage := DamageCloudOf(spelldata.MustFind(1252525))
+	if cloud.ID != 1252526 || damage.ID != 1252543 {
+		t.Fatalf("1252525 leaves cloud %d dealing %d, want 1252526 dealing 1252543", cloud.ID, damage.ID)
+	}
+	if !slices.Contains(spelldata.MustFind(1252526).Triggered(), damage) {
+		t.Errorf("1252526 triggers %v, want 1252543 among them", spelldata.MustFind(1252526).Triggered())
+	}
+	if cloud, _ := DamageCloudOf(spelldata.MustFind(1252544)); cloud != spelldata.Nil || ConsumableDamages(spelldata.MustFind(1252544)) {
+		t.Errorf("Disorienting Smog Potion's 1252544 leaves damage cloud %d, want none", cloud.ID)
+	}
+	for _, id := range []int32{1252525, 1252554} {
+		if got := ConsumableUnsupported(spelldata.MustFind(id)); got != nil || !ConsumableDealsDamage(spelldata.MustFind(id)) {
+			t.Errorf("%d: unsupported %v, deals damage %v; want the damage, supported", id, got, ConsumableDealsDamage(spelldata.MustFind(id)))
+		}
+	}
+
+	for _, tc := range []struct {
+		name string
+		id   int32
+		edit func(*spelldata.Spell)
+		want string
+	}{
+		{"a cloud of no duration", 1252526, func(s *spelldata.Spell) { s.DurationMs = 0 }, "states no duration"},
+		{"damage that rolls a hit", 1252543, func(s *spelldata.Spell) { s.Attr[dbcenums.ATTR_INDEX_EX_3] &^= dbcenums.ATTR_EX_3_ALWAYS_HIT }, "rolls a hit"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			editRow(t, tc.id, tc.edit)
+			if got := strings.Join(ConsumableUnsupported(spelldata.MustFind(1252525)), "; "); !strings.Contains(got, tc.want) {
+				t.Errorf("unsupported %q, want it to name %s", got, tc.want)
+			}
+		})
+	}
+}
+
+// A damage potion is an offensive potion: a potion of category 4, never an explosive, and a DPS major
+// cooldown only as the spec's offensive potion pick.
+func TestADamagePotionIsAnOffensivePotion(t *testing.T) {
+	for i, row := range []int32{1252525, 1252554} {
+		pickedID, otherID := 993001+2*int32(i), 993002+2*int32(i)
+		sim, drinker := newConsumableSim(t, manaUser(), &proto.ConsumesSpec{OffensivePotId: pickedID, Potions: []int32{otherID}}, 0,
+			testConsumable{pickedID, potion, testOnUse(row, 0, 4, 120000)},
+			testConsumable{otherID, potion, testOnUse(row, 0, 4, 120000)})
+		picked, other := consumableSpell(t, drinker, pickedID), consumableSpell(t, drinker, otherID)
+
+		for _, spell := range []*core.Spell{picked, other} {
+			if !spell.Flags.Matches(core.SpellFlagPotion|core.SpellFlagEncounterOnly) || spell.Flags.Matches(core.SpellFlagExplosive) {
+				t.Errorf("%d: flags %v, want a potion used in the encounter, not an explosive", row, spell.Flags)
+			}
+		}
+		mcd := drinker.GetInitialMajorCooldown(picked.ActionID)
+		if mcd.Spell != picked || !mcd.Type.Matches(core.CooldownTypeDPS) || mcd.Type.Matches(core.CooldownTypeExplosive) {
+			t.Errorf("%d: the picked potion is a major cooldown of type %v, want a DPS one that is no explosive", row, mcd.Type)
+		}
+		if drinker.GetInitialMajorCooldown(other.ActionID).Spell != nil {
+			t.Errorf("%d: a potion the spec does not pick is a major cooldown", row)
+		}
+		if !picked.Cast(sim, sim.Encounter.ActiveTargetUnits[0]) {
+			t.Errorf("%d: the picked potion could not be used", row)
+		}
+	}
+}
+
+// Caustic Smog Potion's 1252525 flies at its Speed for no less than its MinDuration, and the cloud
+// 1252526 leaves puts 1252543 on every enemy for the cloud's duration. 1252543 states Always Hit, so
+// it lands on each enemy even for a drinker who cannot hit anything, and every tick rolls its own
+// amount. The potion shares category 4 with a mana potion.
+func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
+	row := spelldata.MustFind(1252525)
+	cloud, damage := DamageCloudOf(row)
+	tick := damage.PeriodicDamageEffect()
+	ticks := int(cloud.Duration() / tick.Period())
+	travel := func(distance float64) time.Duration {
+		return max(row.MissileMinDuration(), time.Duration(distance/float64(row.Speed)*float64(time.Second)))
+	}
+
+	for i, distance := range []float64{0, 5, float64(row.MaxRange)} {
+		causticID, manaID := 993010+2*int32(i), 993011+2*int32(i)
+		sim, drinker := newConsumableSimAgainst(t, manaUser(), &proto.ConsumesSpec{OffensivePotId: causticID, Potions: []int32{manaID}}, 0, 3,
+			testConsumable{causticID, potion, testOnUse(row.ID, 0, 4, 120000)},
+			testConsumable{manaID, potion, testOnUse(17531, 0, 4, 120000)})
+		drinker.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: -1000})
+		caustic, mana := consumableSpell(t, drinker, causticID), consumableSpell(t, drinker, manaID)
+		poison := drinker.GetSpell(core.ActionID{SpellID: damage.ID})
+		targets := sim.Encounter.ActiveTargetUnits
+
+		drinker.DistanceFromTarget = distance
+		start := sim.CurrentTime
+		if !caustic.Cast(sim, targets[0]) {
+			t.Fatalf("at %v yd: the potion could not be used", distance)
+		}
+		if offCooldown(sim, mana) {
+			t.Errorf("at %v yd: the mana potion is usable while category 4 runs", distance)
+		}
+		lands := start + travel(distance)
+		stepPast(t, sim, lands-time.Millisecond)
+		for i, target := range targets {
+			if poison.Dot(target).IsActive() {
+				t.Errorf("at %v yd: target %d is poisoned before the missile's %v flight ended", distance, i, travel(distance))
+			}
+		}
+		stepPast(t, sim, lands+time.Millisecond)
+		for i, target := range targets {
+			if !poison.Dot(target).IsActive() {
+				t.Errorf("at %v yd: target %d is not poisoned once the missile landed after %v", distance, i, travel(distance))
+			}
+		}
+
+		var dealt []float64
+		for n := 1; n <= ticks; n++ {
+			dealt = append(dealt, dealtUntil(t, sim, poison, lands, time.Duration(n)*tick.Period()))
+		}
+		stepPast(t, sim, lands+cloud.Duration()+tick.Period())
+		for i, d := range dealt {
+			if d < tick.Min() || d > tick.Max() {
+				t.Errorf("at %v yd: tick %d dealt %v, want a roll of %v to %v", distance, i+1, d, tick.Min(), tick.Max())
+			}
+		}
+		if slices.Min(dealt) == slices.Max(dealt) {
+			t.Errorf("at %v yd: every tick dealt %v, want a roll of its own each", distance, dealt[0])
+		}
+		for i, target := range targets {
+			metrics := poison.SpellMetrics[target.UnitIndex]
+			if metrics.Ticks != int32(ticks) || metrics.Misses != 0 {
+				t.Errorf("at %v yd: target %d took %d ticks and %d misses, want the cloud's %d ticks", distance, i, metrics.Ticks, metrics.Misses, ticks)
+			}
+		}
+
+		stepPast(t, sim, start+row.CategoryCooldown())
+		if !offCooldown(sim, mana) {
+			t.Errorf("at %v yd: the mana potion is not usable once category 4's %v ran out", distance, row.CategoryCooldown())
+		}
+	}
+}
+
+// Dragonfire Potion's 1252554 burns every enemy in its cone with a hit and a damage over time,
+// landing at the row's Speed, and reaches as far as the cone's radius.
+func TestDragonfirePotionBurnsEveryEnemyInItsCone(t *testing.T) {
+	const dragonfireID int32 = 993020
+	row := spelldata.MustFind(1252554)
+	direct, burn := row.DamageEffect(), row.PeriodicDamageEffect()
+	ticks := int(row.Duration() / burn.Period())
+	sim, drinker := newConsumableSimAgainst(t, manaUser(), &proto.ConsumesSpec{OffensivePotId: dragonfireID}, 0, 3,
+		testConsumable{dragonfireID, potion, testOnUse(row.ID, 0, 4, 120000)})
+	dragonfire := consumableSpell(t, drinker, dragonfireID)
+	targets := sim.Encounter.ActiveTargetUnits
+
+	drinker.DistanceFromTarget = float64(direct.RadiusMax) + 1
+	if dragonfire.CanCast(sim, targets[0]) {
+		t.Errorf("the potion can be used from %v yd, past its cone's %v", drinker.DistanceFromTarget, direct.RadiusMax)
+	}
+	drinker.DistanceFromTarget = float64(direct.RadiusMax)
+	if !dragonfire.CanCast(sim, targets[0]) {
+		t.Fatalf("the potion cannot be used from its cone's %v yd", direct.RadiusMax)
+	}
+
+	start := sim.CurrentTime
+	dragonfire.Cast(sim, targets[0])
+	lands := start + time.Duration(drinker.DistanceFromTarget/float64(row.Speed)*float64(time.Second))
+	stepPast(t, sim, lands-time.Millisecond)
+	for i, target := range targets {
+		if got := dragonfire.SpellMetrics[target.UnitIndex].TotalDamage; got != 0 || dragonfire.Dot(target).IsActive() {
+			t.Errorf("target %d took %v before the fire's flight ended at %v", i, got, lands-start)
+		}
+	}
+
+	stepPast(t, sim, lands+row.Duration()+time.Millisecond)
+	for i, target := range targets {
+		metrics := dragonfire.SpellMetrics[target.UnitIndex]
+		if metrics.Hits != 1 || metrics.Misses != 0 || metrics.Ticks != int32(ticks) {
+			t.Errorf("target %d took %d hits, %d misses and %d ticks; want the hit and %d ticks", i, metrics.Hits, metrics.Misses, metrics.Ticks, ticks)
+		}
+		if metrics.TotalDamage <= metrics.TotalTickDamage {
+			t.Errorf("target %d took no damage from the hit", i)
+		}
+		if metrics.TotalTickDamage < float64(ticks)*burn.Min() || metrics.TotalTickDamage > float64(ticks)*burn.Max() {
+			t.Errorf("target %d took %v over time, want %d ticks of %v to %v", i, metrics.TotalTickDamage, ticks, burn.Min(), burn.Max())
 		}
 	}
 }

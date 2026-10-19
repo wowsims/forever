@@ -38,8 +38,10 @@ An item that also teaches a spell is an Engrave rune and is left out, and so is 
 spell store.
 
 **Routing.** `RouteConsumable` in `tools/database/gen_consumables.go` reads the spell the consumable's
-first on-use row casts. Damage, heals and absorbs are routed the way an item's on-use is; otherwise the
-first effect of the spell, or of a spell it triggers on the user, that fits a shape decides it:
+first on-use row casts. Damage, heals and absorbs are routed the way an item's on-use is, and a
+missile that leaves a cloud dealing damage over time (`shared.DamageCloudOf`) routes as damage;
+otherwise the first effect of the spell, or of a spell it triggers on the user, that fits a shape
+decides it:
 
 | kind                | what the spell does                                                    |
 | ------------------- | ---------------------------------------------------------------------- |
@@ -105,9 +107,8 @@ data-driven ones, for one id panic. An id db.json does not carry registers nothi
 data-driven registrations into `sim/common/forever`, one file per family, and
 `common.RegisterAllEffects` runs them. It picks each consumable's builder once, by its type, the
 category its on-use shares and how its spell routes, in the order of the table. The explosive and
-potion files keep a consumable their builder refuses, commented out with the reason: Ez-Thro
-Radiation Bomb 215168's damage over time lands on an area. Each builder states what it
-refuses beside itself (`shared.ConsumableUnsupported`, `DamageConsumableUnsupported`,
+potion files keep a consumable their builder refuses, commented out with the reason. Each builder
+states what it refuses beside itself (`shared.ConsumableUnsupported`, `DamageConsumableUnsupported`,
 `StatConsumableUnsupported`), and the router reads the same checks.
 
 | family                                                         | file                                 | builder                        |
@@ -119,7 +120,15 @@ refuses beside itself (`shared.ConsumableUnsupported`, `DamageConsumableUnsuppor
 | other consumables that route as `stat aura`                    | `consumable_stats_auto_gen.go`       | `NewSpellDataStatConsumable`   |
 
 The potion builder runs one spell on the user: a heal, an absorb, a gain of mana, rage or energy, damage
-to the user and the auras the parser attaches. A potion shares category 4's timer and is a major
+to the user and the auras the parser attaches. A spell that damages enemies it deals through the
+damage builders instead (`consumableDamageSpell`, which the explosives use too), with nothing beside
+it on the user; the potion is a DPS cooldown and never an explosive. Dragonfire Potion 250953's
+1252554 burns every enemy in its cone with a hit and a damage over time, landing at the 1 yd a second
+its row states, and reaches as far as its 12 yd radius, since a cone that states no range takes its
+radius as one. Caustic Smog Potion 250951's 1252525 throws a missile at 10 yd a second and for no
+less than its 1.5 s, and the cloud 1252526 leaves puts 1252543's damage over time on every enemy for
+the cloud's 12 s. Both rows state Always Hit: a spell the player uses that states it rolls no miss,
+and the cloud's damage goes on each enemy unrolled. A potion shares category 4's timer and is a major
 cooldown only as one of the spec's three potion picks (`resource_pot_id`, `defensive_pot_id`,
 `offensive_pot_id`), which the APL's Resource, Defensive and Offensive Potion placeholders cast; a
 conjured item is one only as the spec's conjured item; any
@@ -417,7 +426,8 @@ no elixir as a column of the Scrolls row, and the rest (Hit food, Zanza) after t
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills
 them after `AddUnparsedStats`: a gain of mana, rage or energy the potion builder models is resource, a
-heal or absorb defensive, the stats the potion grants, its mob type stats among them, of the class the
+heal or absorb defensive, damage to enemies offensive (`shared.ConsumableDealsDamage`: Dragonfire
+Potion, Caustic Smog Potion), the stats the potion grants, its mob type stats among them, of the class the
 major cooldown manager files the buff under (`core.CooldownTypeOf`: any of `core.SurvivalStats`
 defensive, only `core.ManaStats` resource, anything else offensive), and a hit or crit percent
 offensive. A potion of several classes, such as Major Rejuvenation Potion or

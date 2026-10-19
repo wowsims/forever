@@ -32,6 +32,8 @@ func TestConsumablesRouteByTheirSpell(t *testing.T) {
 		{10646, ConsumableDamage},            // Goblin Sapper Charge: 13241
 		{11566, ConsumableDamage},            // Crystal Charge, a Quest-class item: 15239
 		{215127, ConsumableDamage},           // High-Yield Radiation Bomb: 435963
+		{250951, ConsumableDamage},           // Caustic Smog Potion: 1252525's cloud 1252526 puts 1252543 on every enemy
+		{250953, ConsumableDamage},           // Dragonfire Potion: 1252554, a cone of fire
 		{13446, ConsumableHeal},              // Major Healing Potion: 17534
 		{13444, ConsumableEnergize},          // Major Mana Potion: 17531
 		{13510, ConsumableStatAura},          // Flask of the Titans: 17626

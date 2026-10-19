@@ -27,6 +27,7 @@ func TestPotionClassesFollowTheirEffectsAndStats(t *testing.T) {
 	}
 	heal := spelldata.Effect{Type: dbcenums.E_HEAL, Target: onCaster}
 	absorb := spelldata.Effect{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_SCHOOL_ABSORB, Target: onCaster}
+	damage := spelldata.Effect{Type: dbcenums.E_SCHOOL_DAMAGE, Target: [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY}}
 	const (
 		resource  = proto.PotionClass_PotionClassResource
 		defensive = proto.PotionClass_PotionClassDefensive
@@ -46,6 +47,7 @@ func TestPotionClassesFollowTheirEffectsAndStats(t *testing.T) {
 		{"rage and strength", proto.ConsumableType_ConsumableTypePotion, []spelldata.Effect{energize(dbcenums.POWER_RAGE)}, stats.Stats{stats.Strength: 1}, []proto.PotionClass{resource, offensive}},
 		{"armor", proto.ConsumableType_ConsumableTypePotion, nil, stats.Stats{stats.Armor: 1}, []proto.PotionClass{defensive}},
 		{"spell damage", proto.ConsumableType_ConsumableTypePotion, nil, stats.Stats{stats.SpellDamage: 1}, []proto.PotionClass{offensive}},
+		{"damage to an enemy", proto.ConsumableType_ConsumableTypePotion, []spelldata.Effect{damage}, stats.Stats{}, []proto.PotionClass{offensive}},
 		{"a flask", proto.ConsumableType_ConsumableTypeFlask, nil, stats.Stats{stats.Health: 1}, nil},
 	} {
 		t.Run(c.name, func(t *testing.T) {

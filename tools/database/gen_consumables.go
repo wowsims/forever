@@ -119,7 +119,8 @@ func KeepConsumable(consumable *proto.Consumable) bool {
 }
 
 // Routes the spell the consumable's first on-use row casts: as damage, a heal or an absorb where the
-// on-use routing takes it, and otherwise by the first of its effects, or of the spells it triggers on
+// on-use routing takes it, as damage where its missile leaves a cloud that deals it
+// (shared.DamageCloudOf), and otherwise by the first of its effects, or of the spells it triggers on
 // the user, that fits a consumable shape. A heal, an absorb or a gain of a resource is supported only
 // where the potion builder runs the spell.
 func RouteConsumable(c *dbc.Consumable, instance *dbc.DBC) *ConsumableRouting {
@@ -144,6 +145,11 @@ func RouteConsumable(c *dbc.Consumable, instance *dbc.DBC) *ConsumableRouting {
 	case onUse.Shape == ShapeAbsorb:
 		routing.Kind = ConsumableAbsorb
 		routing.Unsupported = append(onUse.Unsupported, shared.ConsumableUnsupported(spelldata.Find(routing.SpellID))...)
+		return routing
+	}
+	if cloud, _ := shared.DamageCloudOf(spelldata.Find(routing.SpellID)); cloud != spelldata.Nil {
+		routing.Kind = ConsumableDamage
+		routing.Unsupported = shared.DamageConsumableUnsupported(spelldata.Find(routing.SpellID))
 		return routing
 	}
 

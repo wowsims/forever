@@ -13,10 +13,11 @@ import (
 
 // Lists the classes of each potion, which the settings offer it under and the APL potion placeholders
 // cast it by. A gain of mana, rage or energy the potion builder models is a resource potion, a heal or
-// absorb a defensive one, and the stats it grants of the class the major cooldown manager files the buff
-// under: any armor, avoidance, health or resistance defensive, mana regen alone resource, anything else
-// offensive. A potion with no class fails. Runs after AddUnparsedStats, so the stats against creature
-// types, listed as mob type stats, and the hit and crit percents count.
+// absorb a defensive one, damage to enemies an offensive one, and the stats it grants of the class the
+// major cooldown manager files the buff under: any armor, avoidance, health or resistance defensive,
+// mana regen alone resource, anything else offensive. A potion with no class fails. Runs after
+// AddUnparsedStats, so the stats against creature types, listed as mob type stats, and the hit and
+// crit percents count.
 func AddPotionClasses(db *WowDatabase) error {
 	for id, consumable := range db.Consumables {
 		consumable.PotionClasses = nil
@@ -31,12 +32,16 @@ func AddPotionClasses(db *WowDatabase) error {
 			}
 		}
 
-		power, survival := shared.ConsumableRestores(spelldata.Find(consumable.ItemEffects[0].BuffId))
+		row := spelldata.Find(consumable.ItemEffects[0].BuffId)
+		power, survival := shared.ConsumableRestores(row)
 		if power {
 			add(proto.PotionClass_PotionClassResource)
 		}
 		if survival {
 			add(proto.PotionClass_PotionClassDefensive)
+		}
+		if shared.ConsumableDealsDamage(row) {
+			add(proto.PotionClass_PotionClassOffensive)
 		}
 
 		granted := stats.FromProtoArray(consumable.Stats)

@@ -2,20 +2,122 @@ package shared
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Why the explosives builder cannot run the damage spell, or nil where it can: it puts a damage over
-// time on the one target the spell is used on, so a row whose damage over time lands on every enemy
-// in an area is not what it builds.
+// Why the damage builders cannot run the spell, or nil where they can. A cloud has to state how long
+// it lasts, and its damage has to tick, land on an enemy and state Always Hit, since the cloud rolls
+// no hit for it.
 func DamageConsumableUnsupported(s *spelldata.Spell) []string {
-	if periodic := s.PeriodicDamageEffect(); periodic != spelldata.NilEffect && periodic.HitsAnArea() {
-		return []string{fmt.Sprintf("%d's damage over time lands on an area, which the damage builder applies to one target", s.ID)}
+	cloud, damage := DamageCloudOf(s)
+	if cloud == spelldata.Nil {
+		return nil
 	}
-	return nil
+	var unsupported []string
+	periodic := damage.PeriodicDamageEffect()
+	if cloud.DurationMs <= 0 {
+		unsupported = append(unsupported, fmt.Sprintf("the cloud %d states no duration", cloud.ID))
+	}
+	if periodic.PeriodMs <= 0 {
+		unsupported = append(unsupported, fmt.Sprintf("%d states no period for its damage over time", damage.ID))
+	}
+	if !periodic.HitsAnEnemy() {
+		unsupported = append(unsupported, fmt.Sprintf("%d's damage over time lands on implicit target %d, not an enemy", damage.ID, periodic.Target[0]))
+	}
+	if !damage.AlwaysHits() {
+		unsupported = append(unsupported, fmt.Sprintf("%d rolls a hit, which the cloud does not roll", damage.ID))
+	}
+	return unsupported
+}
+
+// The cloud a consumable's missile leaves where it lands, and the damage over time the cloud puts on
+// the enemies inside it: the spell's E_TRIGGER_MISSILE fires a spell whose E_CREATE_AREATRIGGER is
+// the cloud, and the damage is the first spell the cloud triggers that deals periodic damage
+// (Caustic Smog Potion's 1252525 fires 1252526, which puts 1252543 on the enemies). Nil and Nil
+// where the spell leaves no such cloud: Disorienting Smog Potion's cloud deals no damage.
+func DamageCloudOf(row *spelldata.Spell) (cloud, damage *spelldata.Spell) {
+	for i := range row.Effects {
+		if row.Effects[i].Type != dbcenums.E_TRIGGER_MISSILE {
+			continue
+		}
+		trigger := row.Effects[i].Trigger()
+		if !slices.ContainsFunc(trigger.Effects, func(e spelldata.Effect) bool { return e.Type == dbcenums.E_CREATE_AREATRIGGER }) {
+			continue
+		}
+		for _, s := range trigger.Triggered() {
+			if s.PeriodicDamageEffect() != spelldata.NilEffect {
+				return trigger, s
+			}
+		}
+	}
+	return spelldata.Nil, spelldata.Nil
+}
+
+// Whether a consumable's spell deals damage to enemies: a hit or a damage over time of its own, or a
+// cloud's.
+func ConsumableDamages(row *spelldata.Spell) bool {
+	if cloud, _ := DamageCloudOf(row); cloud != spelldata.Nil {
+		return true
+	}
+	for _, e := range []*spelldata.Effect{row.DamageEffect(), row.PeriodicDamageEffect()} {
+		if e != spelldata.NilEffect && e.HitsAnEnemy() {
+			return true
+		}
+	}
+	return false
+}
+
+// The targets of a cone from the user, whose row states no range of its own.
+var coneTargets = []dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CONE_ENEMY_24, dbcenums.TARGET_UNIT_CONE_180_DEG_ENEMY,
+	dbcenums.TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY}
+
+// The spell a consumable that damages enemies registers: its cloud's, or the damage its own row deals.
+func consumableDamageSpell(character *core.Character, row *spelldata.Spell) core.SpellConfig {
+	if cloud, damage := DamageCloudOf(row); cloud != spelldata.Nil {
+		return cloudDamageSpell(character, row, cloud, damage)
+	}
+
+	config := spellDataOnUseDamageSpell(character, row)
+	effect := row.DamageEffect()
+	if effect == spelldata.NilEffect {
+		effect = row.PeriodicDamageEffect()
+	}
+	// A cone from the user reaches as far as its radius: Dragonfire Potion's 1252554 burns the
+	// enemies within 12 yd in front.
+	if config.MaxRange == 0 && slices.Contains(coneTargets, effect.Target[0]) {
+		config.MaxRange = float64(effect.RadiusMax)
+	}
+	return config
+}
+
+// A cloud's damage. The row's missile flies to the target, at its speed and for no less than its
+// minimum flight time, and the cloud it leaves there puts its damage over time on every enemy for
+// as long as the cloud lasts: Caustic Smog Potion's 1252543 ticks every second for 1252526's 12 sec.
+// The damage states Always Hit (DamageConsumableUnsupported), so it goes on each enemy unrolled.
+func cloudDamageSpell(character *core.Character, row, cloud, damage *spelldata.Spell) core.SpellConfig {
+	lasting := *damage
+	lasting.DurationMs = cloud.DurationMs
+	tickConfig := spelldata.SpellConfig(&character.Unit, &lasting, damageShape(&lasting), castBy(true))
+	tickConfig.DefenseType = damageDefenseType(tickConfig.DefenseType, tickConfig.SpellSchool, false)
+	tickConfig.Dot = spelldata.DotConfig(&lasting, lasting.PeriodicDamageEffect())
+	tickSpell := character.RegisterSpell(tickConfig)
+
+	land := func(sim *core.Simulation) {
+		for _, enemy := range sim.Encounter.ActiveTargetUnits {
+			tickSpell.Dot(enemy).Apply(sim)
+		}
+	}
+	config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
+	config.ProcMask = core.ProcMaskEmpty
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.WaitTravelTime(sim, land)
+	}
+	return config
 }
 
 // An explosive used from the bar: the damage its on-use spell deals, on the item's cooldown and the
@@ -31,7 +133,7 @@ func NewSpellDataExplosive(itemID int32) {
 
 		for _, itemEffect := range consumable.OnUseEffects() {
 			row := spelldata.MustFind(itemEffect.BuffId)
-			config := spellDataOnUseDamageSpell(character, row)
+			config := consumableDamageSpell(character, row)
 			config.ActionID = core.ActionID{ItemID: itemID}
 			config.Flags |= core.SpellFlagExplosive
 			// The row of every Engineering explosive but Goblin Sapper Charge's 13241 marks it not usable

@@ -300,6 +300,34 @@ func TestShippedOverridesAreWellFormed(t *testing.T) {
 	}
 }
 
+// A hand trigger goes into the store while its spell's effects leave the link unstated, and is
+// refused once one of them triggers the linked spell itself. Each case runs over every shipped
+// entry, with only the first entry's spell stating the link in the stale case.
+func TestAHandTriggerTheGameFilesStateIsStale(t *testing.T) {
+	link := overrides.HandTriggers[0]
+	tablesWith := func(trigger int32) (*spellTables, map[int32]bool) {
+		tables := newSpellTables()
+		tables.Effects[link.Spell] = []storeEffect{{SpellID: link.Spell, Type: dbcenums.E_DUMMY, TriggerID: trigger}}
+		inStore := map[int32]bool{}
+		for _, l := range overrides.HandTriggers {
+			inStore[l.Spell], inStore[l.Triggers] = true, true
+		}
+		return tables, inStore
+	}
+
+	hand, err := storeHandTriggers(tablesWith(0))
+	if err != nil {
+		t.Fatalf("an unstated link is refused: %v", err)
+	}
+	if got := hand[link.Spell]; len(got) == 0 || got[0].Triggers != link.Triggers {
+		t.Errorf("the store links %d to %v, want %d", link.Spell, got, link.Triggers)
+	}
+
+	if _, err := storeHandTriggers(tablesWith(link.Triggers)); err == nil || !strings.Contains(err.Error(), "stale") {
+		t.Errorf("a link %d's effect states is not refused as stale: %v", link.Spell, err)
+	}
+}
+
 func TestAreaBonusesBakeOntoTheRow(t *testing.T) {
 	rows := []storeSpell{{ID: 10}, {ID: 11}}
 	list := []overrides.AreaBonus{

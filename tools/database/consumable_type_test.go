@@ -60,6 +60,8 @@ func TestOnlyADamagingExplosiveIsTypedAnExplosive(t *testing.T) {
 		{"Bag of Marbles, category 24, 5917 lowers the target's hit chance", 1191, false},
 		{"Large Rope Net, category 24, 8312 roots", 835, false},
 		{"EZ-Splode Blasting Charge, a Trade Goods explosive on no category", 221325, false},
+		{"Caustic Smog Potion, category 4, 1252525's cloud deals damage", 250951, false},
+		{"Dragonfire Potion, category 4, 1252554 deals damage", 250953, false},
 	} {
 		catalogued, ok := instance.Consumables[tc.id]
 		if !ok {

@@ -101,4 +101,12 @@ var HandTriggers = []HandTrigger{
 		Reason:   "Fire Nova Rank 5 hits for 408428, the level 52 Fire Nova Rank 5 row, as ranks 1 and 2 hit for theirs",
 		Source:   "combat log, Fire Nova Ranks 1 and 2, 2026-10-07",
 	},
+	{
+		Spell:    1252526,
+		Triggers: 1252543,
+		Reason: "Caustic Smog Potion's cloud: 1252526's E_CREATE_AREATRIGGER (area trigger 39425) lasts 12 sec and " +
+			"puts 1252543 on the enemies inside it; the tooltip reads $1252543s1 Nature damage every $1252543t1 sec, " +
+			"and the potion's 1252525 names 1252543 among its tooltip references",
+		Source: "tooltip",
+	},
 }
