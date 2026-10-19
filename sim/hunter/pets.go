@@ -240,9 +240,9 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	}
 }
 
-// An ability by the client's name of its row, so the generated family table needs no hand list
-// beside it. A name not here is one the sim has nothing to measure - Cower, Growl, Prowl, Shell
-// Shield - and stays unregistered.
+// An ability by its row's name in the game files, so the generated family table needs no hand list
+// beside it. A name not here stays unregistered: Cower, Growl, Prowl and Shell Shield change nothing
+// the sim measures, and the Boar's Charge is not modelled.
 func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	var spell *core.Spell
 	switch rank.Name {
@@ -260,9 +260,6 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 		spell = hp.registerFuriousHowl(rank)
 	case "Trickster's Dance":
 		spell = hp.registerSelfBuff(rank)
-	case "Charge":
-		hp.closers = append(hp.closers, hp.registerCharge(rank))
-		return
 	case "Dash", "Dive":
 		hp.closers = append(hp.closers, hp.registerSprint(rank))
 		return
@@ -458,25 +455,6 @@ func (hp *HunterPet) registerSprint(rank *spelldata.Spell) *core.Spell {
 	config := hp.spellConfig(rank)
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 		aura.Activate(sim)
-	}
-	return hp.RegisterSpell(config)
-}
-
-// The boar's charge: the pet closes to the enemy, and its next melee hit carries the row's attack
-// power. The stun is not modelled.
-func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
-	aura := hp.RegisterAura(spelldata.AuraConfig(rank))
-	spelldata.ParseEffects(&hp.Character, aura, rank, spelldata.Effects(2))
-	aura.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if spell.ProcMask.Matches(core.ProcMaskMelee) && result.Landed() {
-			aura.Deactivate(sim)
-		}
-	}
-
-	config := hp.spellConfig(rank)
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		aura.Activate(sim)
-		hp.MoveTo(core.MaxMeleeRange-1, sim)
 	}
 	return hp.RegisterSpell(config)
 }
