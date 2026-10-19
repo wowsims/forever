@@ -1357,6 +1357,13 @@ func TestValueSpellExpectedDpet(t *testing.T) {
 	}
 
 	rend.Flags &^= SpellFlagChanneled
+	dot := rend.Dot(sim.Encounter.AllTargetUnits[0])
+	dot.BaseDurationFlat = 6 * time.Second
+	if got := dpet.GetFloat(sim); got != 700 {
+		t.Errorf("7 ticks of 150 (two ticks of extra base duration) on an instant with a 1.5s GCD = %f, want 700", got)
+	}
+	dot.BaseDurationFlat = 0
+
 	rend.DefaultCast.GCD = 0
 	if got := dpet.GetFloat(sim); got != 0 {
 		t.Errorf("a spell with neither a cast time nor a GCD = %f, want 0", got)

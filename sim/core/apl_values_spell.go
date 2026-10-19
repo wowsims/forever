@@ -443,7 +443,7 @@ func (value *APLValueSpellExpectedDpet) GetFloat(sim *Simulation) float64 {
 		}
 	}
 
-	// Auto attacks take neither a cast time nor a GCD.
+	// A spell with no GCD and no cast time (an auto attack, an off-GCD instant) scores 0.
 	executeTime := cast.EffectiveTime()
 	if executeTime == 0 {
 		return 0
