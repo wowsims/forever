@@ -4,7 +4,7 @@ on:
         types: [opened]
 jobs:
     send_webhook:
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
         steps:
             - name: Send webhook
               uses: Ilshidur/action-discord@master

@@ -17,7 +17,7 @@ env:
 
 jobs:
     check-hotfixes:
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
         timeout-minutes: 5
         permissions:
             actions: write
