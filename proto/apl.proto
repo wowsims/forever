@@ -175,6 +175,7 @@ message APLValue {
         APLValueSpellGCDHastedDuration spell_gcd_hasted_duration = 115;
         APLValueSpellFullCooldown spell_full_cooldown = 116;
         APLValueSpellInFlight spell_in_flight = 118;
+        APLValueSpellExpectedDpet spell_expected_dpet = 109;
 
         // Aura values
         APLValueAuraIsKnown aura_is_known = 73;
@@ -208,7 +209,6 @@ message APLValue {
         APLValueDotBaseDuration dot_base_duration = 114;
 		APLValueDotPercentIncrease dot_percent_increase = 101;
         APLValueDotPercentIncrease dot_tick_rate_percent_increase = 110;
-        APLValueDotExpectedDps dot_expected_dps = 109;
 
         // Sequence values
         APLValueSequenceIsComplete sequence_is_complete = 44;
@@ -607,6 +607,10 @@ message APLValueSpellFullCooldown{
 message APLValueSpellInFlight{
 	ActionID spell_id = 1;
 }
+message APLValueSpellExpectedDpet {
+	ActionID spell_id = 1;
+	UnitReference target_unit = 2;
+}
 
 message APLValueAuraIsKnown {
     UnitReference source_unit = 2;
@@ -762,11 +766,6 @@ message APLValueProtectionPaladinDamageTakenLastGlobal {}
 
 message APLValueDotBaseDuration {
 	ActionID spell_id = 1;
-}
-
-message APLValueDotExpectedDps {
-	ActionID spell_id = 1;
-	UnitReference target_unit = 2;
 }
 
 message APLValueDotPercentIncrease {

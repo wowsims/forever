@@ -6404,6 +6404,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"spell_expected_dpet": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"aura_known": {
 									"type": "object",
 									"properties": {
@@ -7024,19 +7037,6 @@
 									"required": ["label", "tooltip"],
 									"additionalProperties": false
 								},
-								"dot_expected_dps": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"required": ["label", "tooltip"],
-									"additionalProperties": false
-								},
 								"variable_ref": {
 									"type": "object",
 									"properties": {
@@ -7168,6 +7168,7 @@
 								"channel_clip_delay",
 								"input_delay",
 								"spell_in_flight",
+								"spell_expected_dpet",
 								"aura_known",
 								"aura_active",
 								"aura_active_with_reaction_time",
@@ -7212,7 +7213,6 @@
 								"offset",
 								"dot_base_duration",
 								"dot_tick_rate_percent_increase",
-								"dot_expected_dps",
 								"variable_ref",
 								"variable_placeholder",
 								"action_group_used",
@@ -7579,6 +7579,9 @@
 										"expected_dot_spells": {
 											"type": "string"
 										},
+										"expected_damage_spells": {
+											"type": "string"
+										},
 										"spells_with_travelTime": {
 											"type": "string"
 										}
@@ -7598,6 +7601,7 @@
 										"non_instant_spells",
 										"friendly_spells",
 										"expected_dot_spells",
+										"expected_damage_spells",
 										"spells_with_travelTime"
 									]
 								},

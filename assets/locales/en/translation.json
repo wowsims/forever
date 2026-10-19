@@ -1822,6 +1822,10 @@
 					"label": "Spell in Flight",
 					"tooltip": "<b>True</b> if this spell is currently in flight, otherwise <b>False</b>."
 				},
+				"spell_expected_dpet": {
+					"label": "Spell Expected DPET",
+					"tooltip": "The expected damage of one full cast of this spell if cast now, its initial hit plus all its ticks, with crits, divided by the time the cast takes: its cast time, its channel or the GCD, whichever is longer."
+				},
 				"aura_known": {
 					"label": "Aura Known",
 					"tooltip": "<b>True</b> if the aura is currently known, otherwise <b>False</b>."
@@ -2011,10 +2015,6 @@
 					"label": "Dot Tick Rate Increase %",
 					"tooltip": "How much faster a new DoT would tick compared to the old."
 				},
-				"dot_expected_dps": {
-					"label": "Dot Expected DPS",
-					"tooltip": "The expected damage per second of the DoT or channel if cast now: its average tick, with crits, over its tick period. Compares spells that tick at different rates."
-				},
 				"variable_ref": {
 					"label": "Variable Reference",
 					"tooltip": "Reference a named condition variable"
@@ -2134,6 +2134,7 @@
 					"non_instant_spells": "Non-instant Spell",
 					"friendly_spells": "Friendly Spell",
 					"expected_dot_spells": "DoT Spell",
+					"expected_damage_spells": "Damage Spell",
 					"spells_with_travelTime": "Spell"
 				},
 				"field_configs": {

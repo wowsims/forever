@@ -1314,25 +1314,52 @@ func TestValueDotPercentIncrease(t *testing.T) {
 	}
 }
 
-func TestValueDotExpectedDps(t *testing.T) {
+func TestValueSpellExpectedDpet(t *testing.T) {
 	sim, fw, rot := setupFakeRageRotation()
 	rend := fw.GetSpell(fakeRendActionID)
-	id := fakeRendActionID.ToProto()
+	config := &proto.APLValueSpellExpectedDpet{SpellId: fakeRendActionID.ToProto()}
 
 	wantNoValue(t, map[string]APLValue{
-		"Dot Expected DPS without an expected tick damage calculator": rot.newValueDotExpectedDps(&proto.APLValueDotExpectedDps{SpellId: id}, nil),
+		"Spell Expected DPET without an expected damage calculator": rot.newValueSpellExpectedDpet(config, nil),
 	})
 
-	rend.expectedTickDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
-		return &SpellResult{Damage: 300}
+	rend.expectedInitialDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
+		return &SpellResult{Damage: 600}
+	}
+	dpet := rot.newValueSpellExpectedDpet(config, nil)
+	if dpet == nil {
+		t.Fatalf("Expected Spell Expected DPET to resolve once the spell has an expected initial damage calculator")
 	}
 
-	perSecond := rot.newValueDotExpectedDps(&proto.APLValueDotExpectedDps{SpellId: id}, nil)
-	if perSecond == nil {
-		t.Fatalf("Expected Dot Expected DPS to resolve once the spell has an expected tick damage calculator")
+	rend.IgnoreHaste = false
+	rend.DefaultCast.GCD = GCDDefault
+	rend.DefaultCast.CastTime = 2 * time.Second
+	if got := dpet.GetFloat(sim); got != 300 {
+		t.Errorf("a 600 hit with a 2s cast = %f, want 300", got)
 	}
-	if got := perSecond.GetFloat(sim); got != 100 {
-		t.Fatalf("Dot Expected DPS for a 300 tick every 3s = %f, want 100", got)
+
+	rend.expectedTickDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
+		return &SpellResult{Damage: 150}
+	}
+	if got := dpet.GetFloat(sim); got != 675 {
+		t.Errorf("a 600 hit and 5 ticks of 150 with a 2s cast = %f, want 675", got)
+	}
+
+	rend.expectedInitialDamageInternal = nil
+	rend.DefaultCast.CastTime = 0
+	if got := dpet.GetFloat(sim); got != 500 {
+		t.Errorf("5 ticks of 150 on an instant with a 1.5s GCD = %f, want 500", got)
+	}
+
+	rend.Flags |= SpellFlagChanneled
+	if got := dpet.GetFloat(sim); got != 50 {
+		t.Errorf("5 ticks of 150 channeled every 3s = %f, want 50", got)
+	}
+
+	rend.Flags &^= SpellFlagChanneled
+	rend.DefaultCast.GCD = 0
+	if got := dpet.GetFloat(sim); got != 0 {
+		t.Errorf("a spell with neither a cast time nor a GCD = %f, want 0", got)
 	}
 }
 
