@@ -13,13 +13,8 @@ warrior.RegisterSpell(config)
 
 The row fills the `ActionID`, `Rank` (from "Rank 4", which is what flips `HasRanks` in the APL UI),
 `SpellSchool`, `DefenseType`, `ClassFlags`, `MissileSpeed`, `MissileMinDuration` and
-`MinRange`/`MaxRange`. After the options, an effect centred on the caster or a cone from it gives a
-cast its radius as its `MaxRange` and a passive spell (`Proc()`) none: Arcane Explosion and Thunder
-Clap reach only as far as they hit. Damage centred on the caster does so even where the row states a
-range (Flamestrike's 18818 states 30 yd and reaches its 10 yd radius); a cone, or an area on another
-effect, only where the row states none. A row with no such effect takes the one its periodic trigger
-aura on the caster fires, so Hellfire reaches the 10 yd Hellfire Effect burns around the warlock. A
-row with Fixed Travel Time states its flight time in seconds as its Speed, so it gets no
+`MinRange`/`MaxRange`. After the options, an area centred on the caster or a cone from it gives a
+cast its radius as `MaxRange` and a proc (`Proc()`) none; see `SpellConfig`. A row with Fixed Travel Time states its flight time in seconds as its Speed, so it gets no
 `MissileSpeed` and that time as its `MissileMinDuration`, or its own MinDuration where that is
 longer: Dragonfire Potion's 1252554 lands 1 s after use at any distance. It fills the cast:
 the cast time, the GCD where the row sits in the global cooldown category, its own cooldown and the

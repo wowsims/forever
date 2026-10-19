@@ -392,7 +392,7 @@ func (unit *Unit) RegisterSpell(config SpellConfig) *Spell {
 		spell.MaxRange = config.MaxRange
 		oldExtraCastCondition := spell.ExtraCastCondition
 		spell.ExtraCastCondition = func(sim *Simulation, target *Unit) bool {
-			if ((spell.MinRange != 0) && (spell.Unit.DistanceFromTarget < spell.MinRange)) || ((spell.MaxRange != 0) && (spell.Unit.DistanceFromTarget > spell.MaxRange*spell.RangeMultiplier)) {
+			if ((spell.MinRange != 0) && (spell.Unit.DistanceFromTarget < spell.MinRange)) || ((spell.MaxRange != 0) && (spell.Unit.DistanceFromTarget > spell.EffectiveMaxRange())) {
 				/*if sim.Log != nil {
 					sim.Log("Cannot cast spell %s, out of range!", spell.ActionID)
 				}*/
@@ -446,6 +446,12 @@ func (spell *Spell) Dot(target *Unit) *Dot {
 	}
 	return spell.dots.Get(target)
 }
+
+// The distance the range check allows: MaxRange after the range mods.
+func (spell *Spell) EffectiveMaxRange() float64 {
+	return spell.MaxRange * spell.RangeMultiplier
+}
+
 func (spell *Spell) CurDot() *Dot {
 	if spell.dots == nil {
 		if spell.RelatedDotSpell != nil {

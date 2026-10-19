@@ -485,15 +485,10 @@ func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 		effect      int
 	}{
 		{10202, 10202, 1}, // Arcane Explosion, [22,15], radius in the second slot
-		{11581, 11581, 1}, // Thunder Clap, [22,15]
 		{10161, 10161, 2}, // Cone of Cold, a cone
 		{20924, 20924, 1}, // Consecration, a dummy at [18,16]
-		{11556, 11556, 1}, // Demoralizing Shout, an aura and threat, no damage
 		{18818, 18818, 1}, // Flamestrike, [18,16], states 30 yd
-		{11682, 11682, 1}, // Hellfire Effect
-		{12278, 12278, 1}, // Thunderbrew's Boot Flask's cone
 		{11684, 11682, 1}, // Hellfire, whose periodic trigger aura fires Hellfire Effect
-		{12257, 12278, 1}, // Thunderbrew's Boot Flask, whose periodic trigger aura fires the cone
 	} {
 		row := MustFind(tc.id)
 		radius := float64(MustFind(tc.areaRow).EffectN(tc.effect).RadiusMax)

@@ -15,6 +15,9 @@ type APLRotation struct {
 	valueVariables []*APLValueVariable
 	resetActions   []*APLAction
 
+	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
+	canMoveCloserValue bool
+
 	// Shared variable caches: all APLValueVariableRef instances for the same
 	// variable name share the same cache (but each has its own expression tree).
 	variableCaches map[string]*variableCache

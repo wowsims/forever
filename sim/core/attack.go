@@ -744,7 +744,7 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 func (wa *WeaponAttack) IsInRange() bool {
 	maxRange := wa.MaxRange
 	if wa.spell != nil && wa.spell.MaxRange != 0 {
-		maxRange = wa.spell.MaxRange * wa.spell.RangeMultiplier
+		maxRange = wa.spell.EffectiveMaxRange()
 	}
 	return (wa.MinRange == 0. || wa.MinRange <= wa.unit.DistanceFromTarget) && (maxRange == 0. || maxRange >= wa.unit.DistanceFromTarget)
 }

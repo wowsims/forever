@@ -115,7 +115,8 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	}
 	// The row's range is to the caster's target; damage around the point the triggering spell chose
 	// reaches anywhere.
-	if damage := s.DamageEffect(); damage.HitsAnArea() && damage.Target[0] == dbcenums.TARGET_DEST_DEST {
+	damage := s.DamageEffect()
+	if damage.HitsAnArea() && damage.Target[0] == dbcenums.TARGET_DEST_DEST {
 		config.MaxRange = 0
 	}
 	if threat := s.firstOfType(dbcenums.E_THREAT, dbcenums.E_THREAT_ALL); threat != NilEffect {
@@ -129,7 +130,8 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 		config.ThreatMultiplier = 1
 	}
 
-	// The row first, the caller's options on top, so an option sees what the row filled.
+	// The row first, the caller's options on top, so an option sees what the row filled; the reach is
+	// settled after the options.
 	for _, opt := range opts {
 		opt(&config, s)
 	}
@@ -137,11 +139,8 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	// reaches the radius, and a proc or tick has no range. Damage centred on the caster does so even
 	// where the row states a range (Flamestrike's 18818 states 30 and reaches its 10 yd radius); a cone,
 	// or an area on another effect, does so only where the row states none.
-	if radius, ok := casterAreaRadius(s); ok && (config.MaxRange == 0 || s.DamageEffect().HitsAroundTheCaster()) {
-		config.MaxRange = 0
-		if !config.Flags.Matches(core.SpellFlagPassiveSpell) {
-			config.MaxRange = float64(radius)
-		}
+	if radius, ok := casterAreaRadius(s); ok && (config.MaxRange == 0 || damage.HitsAroundTheCaster()) {
+		config.MaxRange = core.TernaryFloat64(config.Flags.Matches(core.SpellFlagPassiveSpell), 0, float64(radius))
 	}
 	return config
 }
@@ -150,10 +149,11 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 // one. A row with none takes the row its A_PERIODIC_TRIGGER_SPELL aura on the caster fires: Hellfire's
 // channel fires Hellfire Effect, 10 yd around the warlock, every second.
 func casterAreaRadius(s *Spell) (float32, bool) {
-	radius, ok := ownCasterAreaRadius(s)
-	if ok {
-		return radius, true
+	if r, ok := ownCasterAreaRadius(s); ok {
+		return r, true
 	}
+	var radius float32
+	var ok bool
 	for i := range s.Effects {
 		if e := &s.Effects[i]; e.Aura == dbcenums.A_PERIODIC_TRIGGER_SPELL && e.Target[0] == dbcenums.TARGET_UNIT_CASTER {
 			if r, found := ownCasterAreaRadius(e.Trigger()); found {

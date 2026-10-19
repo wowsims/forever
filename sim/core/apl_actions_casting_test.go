@@ -20,19 +20,26 @@ func TestCastOutOfReachWarns(t *testing.T) {
 	sequence := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_Sequence{Sequence: &proto.APLActionSequence{Actions: []*proto.APLAction{cast(nova).Action}}}}}
 	move := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_Move{Move: &proto.APLActionMove{RangeFromTarget: constValue("5")}}}}
 
+	groupName := "reach"
+	groupRef := &proto.APLAction{Action: &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: groupName}}}
+	groupedSequence := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_Sequence{Sequence: &proto.APLActionSequence{Actions: []*proto.APLAction{groupRef}}}}}
+	group := &proto.APLGroup{Name: groupName, Actions: []*proto.APLListItem{cast(nova)}}
+
 	for _, tc := range []struct {
-		name  string
-		first *proto.APLListItem
-		start float64
-		extra []*proto.APLListItem
-		warns bool
+		name     string
+		first    *proto.APLListItem
+		start    float64
+		extra    []*proto.APLListItem
+		groups   []*proto.APLGroup
+		warnings int
 	}{
-		{"from 20 yd", nil, 20, nil, true},
-		{"from 5 yd", nil, 5, nil, false},
-		{"from 20 yd with a move", nil, 20, []*proto.APLListItem{move}, false},
-		{"from 20 yd with a cast that moves to the target", nil, 20, []*proto.APLListItem{cast(charge)}, false},
-		{"from 20 yd in a channel", channel, 20, nil, true},
-		{"from 20 yd in a sequence", sequence, 20, nil, true},
+		{"from 20 yd", cast(nova), 20, nil, nil, 1},
+		{"from 5 yd", cast(nova), 5, nil, nil, 0},
+		{"from 20 yd with a move", cast(nova), 20, []*proto.APLListItem{move}, nil, 0},
+		{"from 20 yd with a cast that moves to the target", cast(nova), 20, []*proto.APLListItem{cast(charge)}, nil, 0},
+		{"from 20 yd in a channel", channel, 20, nil, nil, 1},
+		{"from 20 yd in a sequence", sequence, 20, nil, nil, 1},
+		{"from 20 yd in a group referenced from a sequence", groupedSequence, 20, nil, []*proto.APLGroup{group}, 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			sim := NewSim(fakeSwingCasterRequest(), simsignals.CreateSignals())
@@ -52,23 +59,26 @@ func TestCastOutOfReachWarns(t *testing.T) {
 			sim.Environment.State = Finalized
 			fc.StartDistanceFromTarget = tc.start
 
-			first := tc.first
-			if first == nil {
-				first = cast(nova)
-			}
 			rot := fc.newAPLRotation(&proto.APLRotation{
 				Type:         proto.APLRotation_TypeAPL,
-				PriorityList: append([]*proto.APLListItem{first}, tc.extra...),
+				Groups:       tc.groups,
+				PriorityList: append([]*proto.APLListItem{tc.first}, tc.extra...),
 			})
-			validations := rot.getStats().PriorityList[0].Validations
+			stats := rot.getStats()
+			validations := stats.PriorityList[0].Validations
+			for _, group := range stats.Groups {
+				for _, action := range group.Actions {
+					validations = append(validations, action.Validations...)
+				}
+			}
 			warnings := 0
 			for _, v := range validations {
 				if v.LogLevel == proto.LogLevel_Warning && strings.Contains(v.Validation, "never cast") {
 					warnings++
 				}
 			}
-			if want := map[bool]int{true: 1, false: 0}[tc.warns]; warnings != want {
-				t.Errorf("warnings = %d, want %d: %v", warnings, want, validations)
+			if warnings != tc.warnings {
+				t.Errorf("warnings = %d, want %d: %v", warnings, tc.warnings, validations)
 			}
 		})
 	}
