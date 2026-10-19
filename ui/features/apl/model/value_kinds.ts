@@ -380,7 +380,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 			const clss = player.getClass();
 			return !isPrepull && clss !== Class.ClassRogue && clss !== Class.ClassWarrior;
 		},
-		fields: [],
+		fields: [unitFieldConfig('sourceUnit', 'self_and_pets')],
 	}),
 	currentManaPercent: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.current_mana_percent.label'),
@@ -391,7 +391,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 			const clss = player.getClass();
 			return !isPrepull && clss !== Class.ClassRogue && clss !== Class.ClassWarrior;
 		},
-		fields: [],
+		fields: [unitFieldConfig('sourceUnit', 'self_and_pets')],
 	}),
 	maxMana: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.max_mana.label'),

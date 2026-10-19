@@ -1,7 +1,7 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { Player } from '@sim/player/player';
 
-export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'targets' | 'players';
+export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
 
 export const unitSets: Record<
 	UNIT_SET,
@@ -41,6 +41,18 @@ export const unitSets: Record<
 					.getPetMetadatas()
 					.asList()
 					.map((petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
+			].flat();
+		},
+	},
+	// A pet without the resource the value reads gets the sim's validation warning.
+	self_and_pets: {
+		getUnits: player => {
+			return [
+				undefined,
+				player
+					.getPetMetadatas()
+					.asList()
+					.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
 			].flat();
 		},
 	},
