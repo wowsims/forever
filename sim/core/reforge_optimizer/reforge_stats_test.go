@@ -53,6 +53,27 @@ func TestReforgeWeightsKeepPercentWeightsPerPercent(t *testing.T) {
 	}
 }
 
+func TestReforgeSchoolHitPostCapEPsArePerPercent(t *testing.T) {
+	softCap := func(pseudoStat proto.PseudoStat) *proto.StatCapConfig {
+		return &proto.StatCapConfig{
+			UnitStat:    &proto.UIStat{UnitStat: &proto.UIStat_PseudoStat{PseudoStat: pseudoStat}},
+			Breakpoints: []float64{17},
+			CapType:     proto.StatCapType_TypeSoftCap,
+			PostCap_EPs: []float64{0.6},
+		}
+	}
+	softCaps := computeReforgeSoftCaps(core.NewUnitStats(), []*proto.StatCapConfig{
+		softCap(proto.PseudoStat_PseudoStatSchoolHitPercentHoly),
+		softCap(proto.PseudoStat_PseudoStatSpellHitPercent),
+	})
+	if got, want := softCaps[0].postCapEPs[0], 0.6*core.HitRatingPerHitPercent; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Holy hit post-cap EP %v, want %v per percent", got, want)
+	}
+	if got := softCaps[1].postCapEPs[0]; got != 0.6 {
+		t.Errorf("spell hit post-cap EP %v, want 0.6", got)
+	}
+}
+
 func TestReforgeHitCapMatchesTheBackEndHitPercent(t *testing.T) {
 	sdm := stats.NewStatDependencyManager()
 	sdm.AddStatDependency(stats.HitRating, stats.PhysicalHitPercent, 1/core.HitRatingPerHitPercent)

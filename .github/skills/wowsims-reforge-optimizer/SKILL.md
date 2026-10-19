@@ -79,6 +79,10 @@ change.
   or haste channels share counted once and a rating's fallbacks counted once, as the largest; flat weapon damage as
   main-hand, off-hand or ranged DPS at the weapon's speed. The cap coefficients push the raw stat delta through
   the baseline's stat dependency manager (`resolveStatDelta`), so Agility counts toward Crit% and Dodge%.
+- A school hit weight, pre-cap or post-cap, is per hit rating point, as the stat weights measure it, while every
+  school hit value the model counts is in percent. `preCapWeights` and `computeReforgeSoftCaps` multiply those
+  weights by `HitRatingPerHitPercent` (`weightScale`) before anything reads them, so `checkWeights` must run after
+  them: the weight it moves from hit rating onto a capped school hit is already per percent.
 - `enchantTieBreak` (twice for the slot's input enchant, none where the input enchant stays in the baseline) keeps
   the input enchant on an EP tie and fills a slot whose candidates are all worth 0. The solve passes an explicit
   `mipRelGap` far below HiGHS's default, which would otherwise swamp the tie-break.

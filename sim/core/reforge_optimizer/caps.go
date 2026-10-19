@@ -34,6 +34,10 @@ func computeReforgeSoftCaps(baseStats core.UnitStats, configs []*proto.StatCapCo
 		}
 
 		weights := slices.Clone(config.GetPostCap_EPs())
+		scale := weightScale(unitStat)
+		for i := range weights {
+			weights[i] *= scale
+		}
 		relativeBreakpoints := make([]float64, 0, len(config.GetBreakpoints()))
 		for _, breakpoint := range config.GetBreakpoints() {
 			relativeBreakpoints = append(relativeBreakpoints, computeGapToCap(baseStats, unitStat, breakpoint))
