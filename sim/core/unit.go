@@ -83,6 +83,9 @@ type Unit struct {
 	// Whether this unit is able to perform actions.
 	enabled bool
 
+	// A pet its owner set on the target before the pull: its rotation and swings run before 0.
+	engagedBeforePull bool
+
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
 	// effects from items / abilities.
@@ -918,6 +921,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	unit.engagedBeforePull = false
 	unit.Metrics.reset()
 	unit.ResetStatDeps()
 	unit.statsWithoutDeps = unit.initialStatsWithoutDeps

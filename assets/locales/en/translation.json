@@ -1533,6 +1533,10 @@
 					"duration_tooltip": "Amount of time the character should move.",
 					"move_duration_tooltip": "The characters moves for the given duration."
 				},
+				"pet_attack": {
+					"label": "Pet Attack",
+					"tooltip": "Sets the pet on the target before the pull: it starts its rotation, walks in to its range first, and swings once in reach."
+				},
 				"custom_rotation": {
 					"label": "Custom Rotation",
 					"tooltip": "INTERNAL ONLY"

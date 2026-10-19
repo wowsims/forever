@@ -5440,6 +5440,19 @@
 										"move_duration_tooltip"
 									]
 								},
+								"pet_attack": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"custom_rotation": {
 									"type": "object",
 									"properties": {
@@ -5520,6 +5533,7 @@
 								"trigger_icd",
 								"item_swap",
 								"move",
+								"pet_attack",
 								"custom_rotation",
 								"warlock_cast_assigned_curse",
 								"group_reference"
