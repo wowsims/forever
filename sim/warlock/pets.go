@@ -21,6 +21,7 @@ type WarlockPet struct {
 	ownerAuras        []*core.Aura // the warlock's effects that last while this demon, and no other, is out
 	partyAuras        []*core.Aura // the effects on the warlock's party that last while this demon is out
 	summonStun        *core.Aura   // Summoning Disorientation, from the start of the warlock's summon until it runs out or the summon dismisses this demon
+	reach             float64      // how far from the target the demon fights: melee, or the Imp's Firebolt range
 }
 
 // A demon's level 60 stats and what its own stats convert into, from the team's pet model sheet where no
@@ -213,13 +214,15 @@ func (warlock *Warlock) registerPet(summon proto.WarlockOptions_Summon, name str
 	pet := &WarlockPet{
 		owner:  warlock,
 		summon: summon,
+		reach:  core.MaxMeleeRange,
 		Pet: core.NewPet(core.PetConfig{
-			Name:            name,
-			Owner:           &warlock.Character,
-			BaseStats:       model.baseStats,
-			StatInheritance: warlock.petStatInheritance(model.mp5PerOwnerIntellect),
-			IsDynamic:       true,
-			EnabledOnStart:  enabledOnStart,
+			Name:                  name,
+			Owner:                 &warlock.Character,
+			BaseStats:             model.baseStats,
+			StatInheritance:       warlock.petStatInheritance(model.mp5PerOwnerIntellect),
+			IsDynamic:             true,
+			EnabledOnStart:        enabledOnStart,
+			StartsAtOwnerDistance: true,
 		}),
 	}
 	pet.EnableManaBar()
@@ -241,6 +244,7 @@ func (warlock *Warlock) registerPet(summon proto.WarlockOptions_Summon, name str
 				BaseDamageMin: model.meleeMin,
 				BaseDamageMax: model.meleeMax,
 				SwingSpeed:    model.swingSpeed,
+				MaxRange:      core.MaxMeleeRange,
 			},
 			AutoSwingMelee: true,
 		})
@@ -322,6 +326,14 @@ func (pet *WarlockPet) OnEncounterStart(_ *core.Simulation) {
 // Casts the first ability that is ready once the pet has its MinMana; otherwise waits until it has
 // the mana for the cheapest one, or until the GCD and the cooldown of an ability it has the mana for end.
 func (pet *WarlockPet) ExecuteCustomRotation(sim *core.Simulation) {
+	// The demon appears beside the warlock and walks in to its reach before it acts.
+	if pet.DistanceFromTarget > pet.reach {
+		if !pet.Moving {
+			pet.MoveTo(pet.reach-1, sim)
+		}
+		return
+	}
+
 	// A demon with nothing to cast only swings, which its auto attacks do on their own.
 	if len(pet.AutoCastAbilities) == 0 {
 		pet.WaitUntil(sim, core.NeverExpires)
@@ -386,6 +398,7 @@ func (pet *WarlockPet) registerFirebolt() {
 
 	config := spelldata.SpellConfig(&pet.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellImpFireBolt
+	pet.reach = config.MaxRange
 
 	// Roll the damage and to hit, then land it after the bolt's travel time
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
