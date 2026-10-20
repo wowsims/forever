@@ -331,3 +331,51 @@ func TestJVMESUsesAvailableRacials(t *testing.T) {
 		})
 	}
 }
+
+func TestJVMESShadowmeldUsesClearcasting(t *testing.T) {
+	for _, prepull := range []bool{false, true} {
+		t.Run(strconv.FormatBool(prepull), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			request := sweepRequest(powershiftTalents, rotation, false, 1)
+			request.Encounter.Duration = 300
+			request.SimOptions.Debug = true
+			player := request.Raid.Parties[0].Players[0]
+			player.Race = proto.Race_RaceNightElf
+			player.GetFeralCatDruid().Options.PrepullClearcasting = prepull
+			result := core.RunRaidSim(request)
+			if result.Error != nil {
+				t.Fatal(result.Error.Message)
+			}
+			active, combatProc, pendingRavage := false, false, false
+			melds := 0
+			for _, line := range strings.Split(result.Logs, "\n") {
+				if strings.Contains(line, "Aura gained: {SpellID: 16870}") {
+					active = true
+					combatProc = combatProc || !strings.HasPrefix(line, "[-")
+				}
+				if strings.Contains(line, "Casting {SpellID: 20580}") {
+					if !active || !combatProc {
+						t.Fatalf("Shadowmeld without an in-combat Clearcasting proc: %s", line)
+					}
+					melds++
+					pendingRavage = true
+				}
+				if pendingRavage && strings.Contains(line, "Casting {SpellID: 9867}") {
+					if !strings.Contains(line, "Cost = 0.000") {
+						t.Fatalf("Ravage after Shadowmeld spent energy: %s", line)
+					}
+					pendingRavage = false
+				}
+				if strings.Contains(line, "Aura faded: {SpellID: 16870}") {
+					if combatProc && melds == 0 {
+						t.Fatal("the first in-combat Clearcasting proc was spent before Shadowmeld")
+					}
+					active = false
+				}
+			}
+			if melds == 0 || pendingRavage {
+				t.Fatalf("Shadowmeld casts = %d, unfinished Ravage = %v", melds, pendingRavage)
+			}
+		})
+	}
+}

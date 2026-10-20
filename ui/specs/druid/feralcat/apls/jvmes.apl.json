@@ -815,92 +815,71 @@
       }
     },
     {
-      "name": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy",
+      "name": "Shadowmeld on Clearcasting: Ravage before other builders or bleeds",
       "value": {
         "and": {
           "vals": [
             {
-              "and": {
-                "vals": [
-                  {
-                    "spellIsKnown": {
-                      "spellId": {
-                        "spellId": 20580
-                      }
-                    }
-                  },
-                  {
-                    "cmp": {
-                      "op": "OpLe",
-                      "lhs": {
-                        "gcdTimeToReady": {}
-                      },
-                      "rhs": {
-                        "const": {
-                          "val": "0s"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "auraIsActive": {
-                      "auraId": {
-                        "spellId": 768
-                      }
-                    }
-                  },
-                  {
-                    "spellIsReady": {
-                      "spellId": {
-                        "spellId": 20580
-                      }
-                    }
-                  },
-                  {
-                    "not": {
-                      "val": {
-                        "variableRef": {
-                          "name": "Save energy for the next bleed refresh"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "or": {
-                      "vals": [
-                        {
-                          "auraIsActive": {
-                            "auraId": {
-                              "spellId": 16870
-                            }
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpGe",
-                            "lhs": {
-                              "currentEnergy": {}
-                            },
-                            "rhs": {
-                              "spellCurrentCost": {
-                                "spellId": {
-                                  "spellId": 9867
-                                }
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 16870
+                }
               }
             },
             {
               "not": {
                 "val": {
-                  "variableRef": {
-                    "name": "Pool energy for a later Berserk"
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 9913
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "currentTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
                   }
                 }
               }
@@ -2113,6 +2092,34 @@
       }
     },
     {
+      "notes": "Shadowmeld on Clearcasting: Ravage before other builders or bleeds",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shadowmeld on Clearcasting: Ravage before other builders or bleeds"
+          }
+        },
+        "strictSequence": {
+          "actions": [
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 9867
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       "action": {
         "condition": {
           "variableRef": {
@@ -2294,34 +2301,6 @@
           "spellId": {
             "spellId": 9904
           }
-        }
-      }
-    },
-    {
-      "notes": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy",
-      "action": {
-        "condition": {
-          "variableRef": {
-            "name": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy"
-          }
-        },
-        "strictSequence": {
-          "actions": [
-            {
-              "castSpell": {
-                "spellId": {
-                  "spellId": 20580
-                }
-              }
-            },
-            {
-              "castSpell": {
-                "spellId": {
-                  "spellId": 9867
-                }
-              }
-            }
-          ]
         }
       }
     },
