@@ -27,6 +27,8 @@ export interface BulkCompareTableCell {
 export interface BulkCompareTableRow {
 	key: string;
 	label: string;
+	/** The set's talent setup, named when some encounter ran more than one; null shows none. */
+	talents: string | null;
 	/** The items the set wears where the current gear wears something else. */
 	changes: readonly string[];
 	/** One per column; null where the encounter did not rank the set. */
@@ -158,6 +160,7 @@ export const BulkCompareTable = ({ columns, rows, legend }: BulkCompareTableProp
 									wrap
 									className={clsx(STICKY_CLASS, 'align-middle font-normal max-md:wrap-break-word max-md:hyphens-auto')}>
 									{row.label}
+									{row.talents !== null && <span className="block text-sm">{row.talents}</span>}
 									{row.changes.map((item, index) => (
 										<span key={index} className="block text-xs text-muted md:truncate" title={item}>
 											{item}

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { CombinationsCountView, type CombinationsCountViewProps } from './CombinationsCount';
 
 const renderCount = (props: Partial<CombinationsCountViewProps> = {}) =>
-	render(<CombinationsCountView pending={false} combinations={12} iterations={24000} iterationsLimit={50000} encounters={1} {...props} />);
+	render(<CombinationsCountView pending={false} combinations={12} iterations={24000} iterationsLimit={50000} encounters={1} talentSetups={1} {...props} />);
 
 describe('CombinationsCountView', () => {
 	it('shows a spinner in place of both numbers while the count is pending', () => {
@@ -32,34 +32,28 @@ describe('CombinationsCountView', () => {
 		expect(await screen.findByText('bulk_tab.settings.total_iterations_tooltip')).toBeTruthy();
 	});
 
-	it.each([
-		[1, null],
-		[3, '× 3'],
-	])('shows the encounter multiplier only for more than one encounter (%i encounters)', (encounters, multiplier) => {
-		renderCount({ encounters });
+	it('shows no run count for a single run', () => {
+		renderCount({ encounters: 1, talentSetups: 1 });
 
-		expect(screen.queryByTestId('bulk-encounters-count')?.textContent ?? null).toBe(multiplier);
+		expect(screen.queryByTestId('bulk-runs-count')).toBeNull();
 	});
 
-	it('labels the multiplier as the encounter count', () => {
-		renderCount({ encounters: 2 });
+	it('counts the runs of every encounter and talent setup', () => {
+		renderCount({ iterations: 100, encounters: 3, talentSetups: 2 });
+		const runs = screen.getByTestId('bulk-runs-count');
 
-		expect(screen.getByTestId('bulk-encounters-count').previousElementSibling!.textContent).toBe('bulk_tab.settings.encounters.count');
+		expect(runs.textContent).toBe('bulk_tab.settings.runs.total');
+		expect(runs.previousElementSibling!.textContent).toBe('bulk_tab.settings.runs.encounters × bulk_tab.settings.runs.talents');
+		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('600');
 	});
 
-	it('counts the iterations of every encounter', () => {
-		renderCount({ iterations: 100, encounters: 3 });
-
-		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('300');
-	});
-
-	it('judges the warning on the iterations of one encounter', () => {
-		renderCount({ iterations: 50001, encounters: 1 });
+	it('judges the warning on the iterations of one run', () => {
+		renderCount({ iterations: 50001, encounters: 1, talentSetups: 1 });
 		expect(screen.queryByTestId('warning')).not.toBeNull();
 		cleanup();
 
-		renderCount({ iterations: 49999, encounters: 3 });
-		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('149,997');
+		renderCount({ iterations: 49999, encounters: 3, talentSetups: 2 });
+		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('299,994');
 		expect(screen.queryByTestId('warning')).toBeNull();
 	});
 

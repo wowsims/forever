@@ -2,6 +2,7 @@ import i18n from '@i18n/config';
 import type { BulkEncounterResults } from '@sim/bulk/types';
 import { getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { usePlayer } from '@sim/context/SimHostContext';
+import type { Gear } from '@sim/proto/gear';
 import { formatDeltaText, formatToNumber, formatToPercent } from '@sim/utils/format';
 import { Dialog } from '@ui-kit/Dialog';
 import { useMemo } from 'react';
@@ -10,6 +11,7 @@ import { useBulkState } from '../../hooks/useBulkState';
 import { changedItemLabels, compareMatrix, gainTint, type MatrixCell } from '../../model/compare';
 import { encounterLabel, formatEncounterDuration } from '../../model/encounters';
 import { formatBulkDps } from '../../model/format';
+import { talentsLabel } from '../../model/talents';
 import { BulkCompareTable, type BulkCompareTableProps } from '../BulkCompareTable';
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.compare.${key}`, options);
@@ -32,18 +34,25 @@ const cellTooltip = ({ result, rank, gainPct }: MatrixCell, entry: BulkEncounter
 	return `${t('readout_rank', { rank, dps })} ${spread} · ${formatDeltaText(base.avg, avg, 2, undefined, true).text} (${gainLabel(gainPct)})`;
 };
 
+// A set that changes no item (current gear under another talent setup) says so, as the result rows do.
+const changesOf = (gear: Gear, current: Gear, canDualWield: boolean): string[] => {
+	const changed = changedItemLabels(gear, current, canDualWield);
+	return changed.length ? changed : [i18n.t('bulk_tab.results.gear_unchanged')];
+};
+
 const tableProps = (entries: readonly BulkEncounterResults[], canDualWield: boolean): BulkCompareTableProps => {
-	const { columns, rows, scale, current } = compareMatrix(entries);
+	const { columns, rows, scale, current, showTalents } = compareMatrix(entries);
 	return {
 		// The column gives the length alone; the variation is on the encounter list.
 		columns: columns.map(entry => ({
 			label: encounterLabel(entry),
 			length: formatEncounterDuration({ duration: entry.duration, durationVariation: null }),
 		})),
-		rows: rows.map(({ key, set, cells }) => ({
+		rows: rows.map(({ key, set, talents, cells }) => ({
 			key,
 			label: set ? shortLabel(set.number) : currentLabel(),
-			changes: set && current ? changedItemLabels(set.gear, current, canDualWield) : [],
+			talents: showTalents ? talentsLabel(talents) : null,
+			changes: set && current ? changesOf(set.gear, current, canDualWield) : [],
 			cells: cells.map(
 				(cell, index) =>
 					cell && {

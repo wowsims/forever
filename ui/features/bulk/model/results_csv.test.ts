@@ -1,9 +1,10 @@
 import { ItemSlot } from '@generated/proto/common';
-import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkRankedResult } from '@sim/bulk/types';
 import { ActionId } from '@sim/proto/action_id';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { Gear } from '@sim/proto/gear';
 import { stDevToConf95 } from '@sim/utils/math';
+import { CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
 import { describe, expect, it } from 'vitest';
 
 import { bulkResultsCsv } from './results_csv';
@@ -23,7 +24,14 @@ const gear = (head: EquippedItem | null, mainHand: EquippedItem | null): Gear =>
 	return set as unknown as Gear;
 };
 
-const result = (set: Gear, avg: number, stdev = 0): TopGearResult => ({ gear: set, dpsMetrics: { avg, stdev } as never });
+const result = (set: Gear, avg: number, stdev = 0, talents = CURRENT_TALENT_SETUP): BulkRankedResult => ({
+	gear: set,
+	dpsMetrics: { avg, stdev } as never,
+	talents,
+});
+
+const ARMS = '3030500130';
+const LIVE = CURRENT_TALENT_SETUP.talentsString;
 
 const LIONHEART = equipped(12640, 'Lionheart Helm');
 const THUNDERFURY = equipped(19019, 'Thunderfury, Blessed Blade of the Windseeker', { name: 'Crusader', effectId: 1900 });
@@ -40,7 +48,7 @@ const entry = (name: string, isCurrent: boolean, best: number, timed = true, upg
 		isCurrent,
 		duration: timed ? 180 : null,
 		durationVariation: timed ? 5 : null,
-		results: { chains: [[result(upgrade, best, 10)], [base]], originalGearResults: base, iterations: 100 },
+		results: { chains: [[result(upgrade, best, 10)], [base]], originalGearResults: base, iterations: 100, talentSetups: 1 },
 	};
 };
 
@@ -50,7 +58,7 @@ describe('bulkResultsCsv', () => {
 	it('heads the file with the result columns, then four columns per gear slot', () => {
 		expect(lines(bulkResultsCsv([entry('', true, 1100)]))[0]).toBe(
 			[
-				'encounter,duration,variation,rank,current_gear,dps,dps_margin_95,diff,diff_pct',
+				'encounter,duration,variation,rank,current_gear,dps,dps_margin_95,diff,diff_pct,talents,talents_string',
 				'slots.head,slots.head wowhead,slots.head item id,slots.head enchant id',
 				'slots.main_hand,slots.main_hand wowhead,slots.main_hand item id,slots.main_hand enchant id',
 			].join(','),
@@ -88,6 +96,31 @@ describe('bulkResultsCsv', () => {
 		const [, upgrade] = lines(bulkResultsCsv([entry('', true, 1100)]));
 
 		expect(upgrade).toMatch(/,https:\/\/wowhead\.com\/forever\/item=10001\?level=\d+&bonus=23,10001,/);
+	});
+
+	it('adds the talent setup’s name and string to every row', () => {
+		const arms = { name: 'Arms', talentsString: ARMS, isCurrent: false };
+		const base = result(CURRENT_GEAR, 1000, 10);
+		const twoSetups: BulkEncounterResults = {
+			name: '',
+			isCurrent: true,
+			duration: 180,
+			durationVariation: 5,
+			results: {
+				chains: [[result(UPGRADE, 1100, 10, arms)], [result(CURRENT_GEAR, 1050, 10, arms)], [base]],
+				originalGearResults: base,
+				iterations: 100,
+				talentSetups: 2,
+			},
+		};
+		const [header, ...rows] = lines(bulkResultsCsv([twoSetups]));
+
+		expect(header.split(',').slice(9, 11)).toEqual(['talents', 'talents_string']);
+		expect(rows.map(row => row.split(',').slice(9, 11))).toEqual([
+			['Arms', ARMS],
+			['Arms', ARMS],
+			['bulk_tab.results.current_talents', LIVE],
+		]);
 	});
 
 	it('leaves all four cells of an empty slot empty', () => {

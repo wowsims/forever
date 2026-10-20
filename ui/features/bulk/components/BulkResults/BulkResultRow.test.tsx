@@ -13,6 +13,8 @@ const renderRow = (props: Partial<BulkResultRowViewProps> = {}) => {
 			isBase={false}
 			delta={{ text: '+34.50 (2.88%)', tone: 'positive' }}
 			significance="Difference is significantly different (Z = 4.200)."
+			talents={null}
+			gearUnchanged={false}
 			onEquip={onEquip}
 			{...props}>
 			<span data-testid="gear-cells" />
@@ -72,5 +74,35 @@ describe('BulkResultRowView', () => {
 		expect(screen.getByTestId('bulk-gear-combo').contains(screen.getByTestId('gear-cells'))).toBe(true);
 		fireEvent.click(screen.getByTestId('bulk-equip-btn'));
 		expect(onEquip).toHaveBeenCalledOnce();
+	});
+
+	it('names the row’s talent setup above the gear and as a talent preset', () => {
+		renderRow({ talents: { label: 'Arms', talentsString: '3030500130', isCurrent: false } });
+
+		const line = screen.getByTestId('bulk-result-talents');
+		expect(line.textContent).toBe('bulk_tab.results.talent_preset');
+		expect(screen.getByTestId('bulk-gear-combo').firstElementChild).toBe(line);
+		expect(screen.getByTestId('gear-cells')).toBeTruthy();
+	});
+
+	it('names the current talents plainly, without the talent preset wording', () => {
+		renderRow({ talents: { label: 'bulk_tab.results.current_talents', talentsString: '3030500130', isCurrent: true } });
+
+		expect(screen.getByTestId('bulk-result-talents').textContent).toBe('bulk_tab.results.current_talents');
+	});
+
+	it('shows no talent line when the encounter ran one setup', () => {
+		renderRow({ talents: null });
+
+		expect(screen.queryByTestId('bulk-result-talents')).toBeNull();
+	});
+
+	it('says the gear is unchanged for the current gear with another talent setup, and offers Equip', () => {
+		renderRow({ gearUnchanged: true, talents: { label: 'Arms', talentsString: '3030500130', isCurrent: false } });
+
+		expect(screen.getByTestId('bulk-result-gear-unchanged').textContent).toBe('bulk_tab.results.gear_unchanged');
+		expect(screen.queryByTestId('gear-cells')).toBeNull();
+		expect(screen.getByTestId('results-reference')).toBeTruthy();
+		expect(screen.getByTestId('bulk-equip-btn').hasAttribute('data-hidden')).toBe(false);
 	});
 });

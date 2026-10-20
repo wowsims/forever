@@ -8,10 +8,23 @@ import { stDevToConf95 } from '@sim/utils/math';
 
 import { encounterLabel } from './encounters';
 import { formatBulkItemLabel } from './format';
+import { talentsLabel } from './talents';
 
 export const BULK_RESULTS_CSV_FILE_NAME = 'wowsims-batch-results.csv';
 
-const COLUMNS = ['encounter', 'duration', 'variation', 'rank', 'current_gear', 'dps', 'dps_margin_95', 'diff', 'diff_pct'] as const;
+const COLUMNS = [
+	'encounter',
+	'duration',
+	'variation',
+	'rank',
+	'current_gear',
+	'dps',
+	'dps_margin_95',
+	'diff',
+	'diff_pct',
+	'talents',
+	'talents_string',
+] as const;
 
 const slotHeaders = (slot: ItemSlot): string[] => {
 	const name = translateSlotName(slot);
@@ -46,6 +59,8 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string
 				stDevToConf95(result.dpsMetrics.stdev, iterations),
 				diff,
 				diffPct,
+				talentsLabel(result.talents),
+				result.talents.talentsString,
 				...slots.flatMap(slot => slotCells(result.gear.getEquippedItem(slot))),
 			];
 		});

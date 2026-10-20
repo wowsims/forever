@@ -4,7 +4,7 @@ import { ResultReferenceDiff } from '@features/results/components/ResultMetricLi
 import { ResultMetricValue } from '@features/results/components/ResultMetricValue';
 import { ItemSpec } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import type { TopGearResult } from '@sim/bulk/types';
+import type { BulkRankedResult } from '@sim/bulk/types';
 import { getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
@@ -17,7 +17,9 @@ import clsx from 'clsx';
 import { type ReactNode, useId } from 'react';
 
 import { formatBulkDps } from '../../model/format';
+import { bulkResultKey, equipBulkResult } from '../../model/results';
 import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from '../../model/swappable_slots';
+import { formatTalentsSummary, talentsLabel } from '../../model/talents';
 
 export interface BulkResultRowViewProps {
 	showDamage: boolean;
@@ -27,11 +29,26 @@ export interface BulkResultRowViewProps {
 	isBase: boolean;
 	delta: DeltaText;
 	significance: string;
+	/** The row's talent setup, named when the encounter ran more than one; null shows none. */
+	talents: { label: string; talentsString: string; isCurrent: boolean } | null;
+	/** The current gear with another talent setup: says so in place of the gear cells. */
+	gearUnchanged: boolean;
 	onEquip: () => void;
 	children: ReactNode;
 }
 
-export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, significance, onEquip, children }: BulkResultRowViewProps) => {
+export const BulkResultRowView = ({
+	showDamage,
+	avg,
+	plusMinus,
+	isBase,
+	delta,
+	significance,
+	talents,
+	gearUnchanged,
+	onEquip,
+	children,
+}: BulkResultRowViewProps) => {
 	const marginTooltipId = useId();
 	const deltaTooltipId = useId();
 
@@ -59,7 +76,18 @@ export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, s
 				)}
 			</div>
 			<div className="flex min-w-0 flex-1 flex-wrap gap-1 max-md:order-last max-md:basis-full" data-testid="bulk-gear-combo">
-				{children}
+				{talents && (
+					<div className="basis-full text-sm wrap-break-word" data-testid="bulk-result-talents">
+						{talents.isCurrent ? talents.label : i18n.t('bulk_tab.results.talent_preset', { name: talents.label })}
+					</div>
+				)}
+				{gearUnchanged ? (
+					<span className="text-sm text-muted" data-testid="bulk-result-gear-unchanged">
+						{i18n.t('bulk_tab.results.gear_unchanged')}
+					</span>
+				) : (
+					children
+				)}
 			</div>
 			<div className="ml-auto flex shrink-0 justify-end">
 				<Button className={clsx(isBase && 'hidden')} data-testid="bulk-equip-btn" data-hidden={isBase ? '' : undefined} onClick={onEquip}>
@@ -71,13 +99,14 @@ export const BulkResultRowView = ({ showDamage, avg, plusMinus, isBase, delta, s
 };
 
 export interface BulkResultRowProps {
-	result: TopGearResult;
-	baseResult: TopGearResult;
+	result: BulkRankedResult;
+	baseResult: BulkRankedResult;
 	iterations: number;
+	showTalents: boolean;
 	onActivateTab: (id: string) => void;
 }
 
-export const BulkResultRow = ({ result, baseResult, iterations, onActivateTab }: BulkResultRowProps) => {
+export const BulkResultRow = ({ result, baseResult, iterations, showTalents, onActivateTab }: BulkResultRowProps) => {
 	const host = useSimHost();
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 
@@ -85,7 +114,8 @@ export const BulkResultRow = ({ result, baseResult, iterations, onActivateTab }:
 	// it describes this row's own mean; tie grouping uses the much tighter paired error of
 	// the difference between rows — both are correct, they answer different questions.
 	const plusMinusDps = stDevToConf95(result.dpsMetrics.stdev, iterations);
-	const isBaseResult = result.gear.equals(baseResult.gear);
+	const isBaseResult = bulkResultKey(result) === bulkResultKey(baseResult);
+	const gearUnchanged = !isBaseResult && result.gear.equals(baseResult.gear);
 
 	const test = zTest(iterations, result.dpsMetrics.avg, result.dpsMetrics.stdev, iterations, baseResult.dpsMetrics.avg, baseResult.dpsMetrics.stdev);
 	const delta = formatDeltaText(baseResult.dpsMetrics.avg, result.dpsMetrics.avg, 2, undefined, !test.isDiff, true);
@@ -102,10 +132,23 @@ export const BulkResultRow = ({ result, baseResult, iterations, onActivateTab }:
 			isBase={isBaseResult}
 			delta={delta}
 			significance={formatSignificance(test)}
+			talents={
+				showTalents
+					? {
+							label: talentsLabel(result.talents),
+							talentsString: formatTalentsSummary(result.talents.talentsString),
+							isCurrent: result.talents.isCurrent,
+						}
+					: null
+			}
+			gearUnchanged={gearUnchanged}
 			onEquip={() => {
-				host.player.setGear(result.gear);
+				const talentsChanged = equipBulkResult(host.player, result);
 				onActivateTab('gear-tab');
-				toastManager.add({ variant: 'success', body: i18n.t('bulk_tab.results.gear_equipped') });
+				toastManager.add({
+					variant: 'success',
+					body: talentsChanged ? i18n.t('bulk_tab.results.gear_talents_equipped') : i18n.t('bulk_tab.results.gear_equipped'),
+				});
 			}}>
 			{!isBaseResult &&
 				resultAsSpec.items.map((spec, idx) => {

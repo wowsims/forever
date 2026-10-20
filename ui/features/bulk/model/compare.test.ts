@@ -1,9 +1,10 @@
 import { DistributionMetrics } from '@generated/proto/api';
 import { ItemSlot, ItemType } from '@generated/proto/common';
 import { UIEnchant, UIItem } from '@generated/proto/ui';
-import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkRankedResult } from '@sim/bulk/types';
 import { EquippedItem } from '@sim/proto/equipped_item';
 import { Gear } from '@sim/proto/gear';
+import { BULK_COMPARE_TALENT_ENTRIES, CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
 import { describe, expect, it } from 'vitest';
 
 import { changedItemLabels, compareMatrix, gainTint, type MatrixRow } from './compare';
@@ -14,7 +15,11 @@ const equipped = (id: number, enchant?: UIEnchant) =>
 // A set wearing `head` and, when given, `hands`; two sets built from the same ids are the same set to the gear identity key.
 const gearSet = (head: number, hands?: EquippedItem) => new Gear({ [ItemSlot.ItemSlotHead]: equipped(head), [ItemSlot.ItemSlotHands]: hands ?? null });
 
-const result = (gear: Gear, avg: number): TopGearResult => ({ gear, dpsMetrics: DistributionMetrics.create({ avg, stdev: 1 }) });
+const result = (gear: Gear, avg: number): BulkRankedResult => ({
+	gear,
+	dpsMetrics: DistributionMetrics.create({ avg, stdev: 1 }),
+	talents: CURRENT_TALENT_SETUP,
+});
 
 const CURRENT = gearSet(1);
 const A = gearSet(2);
@@ -30,7 +35,7 @@ const entry = (name: string, duration: number | null, ranked: Array<[Gear, numbe
 		isCurrent: false,
 		duration,
 		durationVariation: duration === null ? null : 5,
-		results: { chains, originalGearResults: base, iterations: 100 },
+		results: { chains, originalGearResults: base, iterations: 100, talentSetups: 1 },
 	};
 };
 
@@ -110,6 +115,31 @@ describe('compareMatrix', () => {
 		const [current, set] = compareMatrix([entry('Solo', 60, [[A, 990]])]).rows;
 
 		expect([current.cells[0]!.best, set.cells[0]!.best]).toEqual([true, false]);
+	});
+
+	it('keys a set by its gear and talents, so the current gear with another setup is a set of its own', () => {
+		const { rows } = compareMatrix(BULK_COMPARE_TALENT_ENTRIES);
+		const helm = (row: MatrixRow) => (row.set ? row.set.gear.getEquippedItem(ItemSlot.ItemSlotHead)!.id : null);
+
+		expect(rows.map(row => [row.set?.number ?? null, helm(row), row.talents.name])).toEqual([
+			[null, null, ''],
+			[1, 2, 'Arms'],
+			[2, 1, 'Arms'],
+			[3, 3, ''],
+		]);
+		expect(rows[0].talents).toBe(CURRENT_TALENT_SETUP);
+		expect(rows.map(row => row.cells.map(cell => (cell ? cell.rank : 'gap')))).toEqual([
+			[null, null],
+			[1, 2],
+			[2, 'gap'],
+			[3, 1],
+		]);
+	});
+
+	it('shows talents only when an encounter ran more than one setup', () => {
+		expect(compareMatrix(ENTRIES).showTalents).toBe(false);
+		expect(compareMatrix(BULK_COMPARE_TALENT_ENTRIES).showTalents).toBe(true);
+		expect(compareMatrix([...ENTRIES, BULK_COMPARE_TALENT_ENTRIES[0]]).showTalents).toBe(true);
 	});
 });
 

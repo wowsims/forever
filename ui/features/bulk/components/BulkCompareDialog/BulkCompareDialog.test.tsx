@@ -4,8 +4,12 @@
 // The fixture, in display order: Council (1:30) ranks S1 1,030, S2 1,020, S3 990; Patchwerk (5:00) S2 1,100, S4 1,090,
 // S5 1,080; Ragnaros (health-based) S6 12,500, S1 1,150, S2 1,120. The current gear does 1,000 in each, and every result
 // spreads ±10 a fight.
+//
+// The talent fixture runs the current talents and Arms in Council and Patchwerk: S1 is helm 2 with Arms, S2 the current
+// gear with Arms, S3 helm 3 with the current talents.
+import type { BulkEncounterResults } from '@sim/bulk/types';
 import { SimHostProvider } from '@sim/context/SimHostContext';
-import { makeBulkCompareHost } from '@testing/storybook/fixtures/bulk-compare';
+import { BULK_COMPARE_TALENT_ENTRIES, makeBulkCompareHost } from '@testing/storybook/fixtures/bulk-compare';
 import { render, screen, within } from '@testing-library/react';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { describe, expect, it } from 'vitest';
@@ -14,11 +18,11 @@ import { BulkCompareDialog } from './BulkCompareDialog';
 
 const rootElem = document.createElement('div');
 
-const mount = () => {
+const mount = (entries?: BulkEncounterResults[]) => {
 	document.body.appendChild(rootElem);
 	render(
 		<PortalContainerContext value={rootElem}>
-			<SimHostProvider host={makeBulkCompareHost()}>
+			<SimHostProvider host={makeBulkCompareHost(entries)}>
 				<BulkCompareDialog open onOpenChange={() => {}} />
 			</SimHostProvider>
 		</PortalContainerContext>,
@@ -74,5 +78,26 @@ describe('BulkCompareDialog', () => {
 		expect(cells(s1)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_rank bulk_tab.compare.readout_spread · +30.00 (+3.00%)');
 		expect(cells(s3)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_rank bulk_tab.compare.readout_spread · -10.00 (-1.00%)');
 		expect(cells(current)[0].getAttribute('data-tooltip-content')).toBe('bulk_tab.compare.readout_current bulk_tab.compare.readout_spread');
+	});
+
+	it('names the talent setup under each row’s label when the batch ran more than one', () => {
+		mount(BULK_COMPARE_TALENT_ENTRIES);
+
+		const rows = bodyRows();
+		expect(rows.map(row => within(row).getByRole('rowheader').textContent)).toEqual([
+			'bulk_tab.results.current_gearbulk_tab.results.current_talents',
+			'bulk_tab.compare.short_setArmsHelm 2',
+			'bulk_tab.compare.short_setArmsbulk_tab.results.gear_unchanged',
+			'bulk_tab.compare.short_setbulk_tab.results.current_talentsHelm 3',
+		]);
+		expect(shown(rows[2])).toEqual(['+3.00%', 'gap']);
+	});
+
+	it('names no talent setup when every encounter ran one', () => {
+		mount();
+
+		const [current, s1] = bodyRows();
+		expect(within(current).getByRole('rowheader').textContent).toBe('bulk_tab.results.current_gear');
+		expect(within(s1).getByRole('rowheader').textContent).toBe('bulk_tab.compare.short_setHelm 3');
 	});
 });

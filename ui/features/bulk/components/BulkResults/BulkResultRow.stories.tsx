@@ -30,10 +30,12 @@ const meta = {
 		isBase: false,
 		delta: { text: '+42.10 (3.07%)', tone: 'positive' },
 		significance: 'Difference is significantly different (Z = 5.214).',
+		talents: null,
+		gearUnchanged: false,
 		onEquip: fn(),
 		children: [cell('inv_sword_39', 'Thunderfury, Blessed Blade of the Windseeker', 80), cell('inv_jewelry_ring_36', 'Band of Accuria', 78)],
 	},
-	argTypes: { children: { control: false }, delta: { control: 'object' } },
+	argTypes: { children: { control: false }, delta: { control: 'object' }, talents: { control: 'object' } },
 } satisfies Meta<typeof BulkResultRowView>;
 
 export default meta;
@@ -51,6 +53,20 @@ export const NotSignificant: Story = {
 export const CurrentGear: Story = { args: { avg: 1370.27, isBase: true, children: null } };
 
 export const DamageHidden: Story = { args: { showDamage: false } };
+
+/** An encounter that ran more than one talent setup: the row names its own above the gear. */
+export const WithTalents: Story = { args: { talents: { label: 'Arms', talentsString: '30305001302-05050005025012251', isCurrent: false } } };
+
+/** The current gear with another talent setup: no gear changes, but a difference and an equip button for the talents. */
+export const CurrentGearOtherTalents: Story = {
+	args: {
+		avg: 1388.4,
+		delta: { text: '+18.13 (1.32%)', tone: 'positive' },
+		talents: { label: 'Arms', talentsString: '30305001302-05050005025012251', isCurrent: false },
+		gearUnchanged: true,
+		children: null,
+	},
+};
 
 /** The widest DPS line the column is sized for, next to a full set of seventeen slots wrapping across the remaining width. */
 export const WidestValueAllSlots: Story = {

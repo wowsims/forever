@@ -21,6 +21,7 @@ import { runBulkBatch } from '../../model/run';
 import { canRunBatch } from '../../model/selectors';
 import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/settings';
 import { Encounters } from '../Encounters';
+import { Talents } from '../Talents';
 import { CombinationsCount } from './CombinationsCount';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
 
@@ -38,6 +39,8 @@ export interface BulkSettingsViewProps {
 	onOpenGroupsChange: (groups: string[]) => void;
 	/** Null hides the group, as with power tools off. */
 	encounters: ReactNode;
+	/** Null hides the group, as with power tools off. */
+	talents: ReactNode;
 	enchants: ReactNode;
 	frozenItems: ReadonlyArray<ChoiceFieldProps<number>>;
 	/** Null for a player who cannot dual wield. */
@@ -52,6 +55,7 @@ export const BulkSettingsView = ({
 	openGroups,
 	onOpenGroupsChange,
 	encounters,
+	talents,
 	enchants,
 	frozenItems,
 	weaponFreeze,
@@ -76,6 +80,14 @@ export const BulkSettingsView = ({
 							title={i18n.t('bulk_tab.settings.groups.encounters')}
 							testId="bulk-settings-group-encounters">
 							{encounters}
+						</AccordionItem>
+					)}
+					{talents != null && (
+						<AccordionItem
+							value={BULK_SETTINGS_GROUP.talents}
+							title={i18n.t('bulk_tab.settings.groups.talents')}
+							testId="bulk-settings-group-talents">
+							{talents}
 						</AccordionItem>
 					)}
 					<AccordionItem
@@ -181,6 +193,7 @@ export const BulkSettings = () => {
 			openGroups={openGroups}
 			onOpenGroupsChange={setOpenGroups}
 			encounters={powerTools ? <Encounters /> : null}
+			talents={powerTools ? <Talents /> : null}
 			enchants={<EnchantPresets />}
 			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
 			weaponFreeze={

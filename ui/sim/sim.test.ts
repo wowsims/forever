@@ -11,6 +11,7 @@ import {
 	ReforgeOptimizeResult,
 	ReforgeSettings,
 } from '@generated/proto/api';
+import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import {
 	ConsumableType,
 	Encounter as EncounterProto,
@@ -554,6 +555,28 @@ describe('Sim.runBulkSim', () => {
 		expect(sent).toEqual(override);
 		expect(sent).not.toBe(override);
 		expect(sim.encounter.toProto()).toEqual(live);
+	});
+
+	it('sends override talents and their rotation on the request copy', async () => {
+		const sim = makeEmptyBulkSim();
+		const rotation = APLRotation.create({ type: APLRotationType.TypeAuto, priorityList: [APLListItem.create({ hide: true })] });
+
+		await sim.runBulkSim(() => {}, BulkSettings.create(), undefined, undefined, { talentsString: '05-3', rotation });
+
+		const sent = mocks.bulkSimAsync.mock.calls[0][0].baseRequest.raid.parties[0].players[0];
+		expect(sent.talentsString).toBe('05-3');
+		expect(sent.rotation).toEqual(rotation);
+		expect(sent.rotation).not.toBe(rotation);
+	});
+
+	it('draws the same content seed with and without a talents override', async () => {
+		const sim = makeEmptyBulkSim();
+
+		await sim.runBulkSim(() => {}, BulkSettings.create());
+		const plain = sim.getLastUsedRngSeed();
+		await sim.runBulkSim(() => {}, BulkSettings.create(), undefined, undefined, { talentsString: '05-3', rotation: APLRotation.create() });
+
+		expect(sim.getLastUsedRngSeed()).toBe(plain);
 	});
 
 	it('drops the WASM candidates that repeat the baseline or one another', async () => {

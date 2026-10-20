@@ -2,22 +2,20 @@ import { enchantPresetPool } from '@features/enchant-presets/model/enchant_prese
 import { BulkSettings, ProgressMetrics } from '@generated/proto/api';
 import type { Encounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { BulkEncounterResults, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
+import { BulkEncounterResults, BulkSimProgressConfig, BulkTalentsOverride } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
-import type { Gear } from '@sim/proto/gear';
-import { getGearIdentityKey } from '@sim/proto/items';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { RequestTypes } from '@sim/sim_signal_manager';
-import { bulkSimHighStageFloor } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
 
 import { trackEvent } from '../../../tracking/utils';
 import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
 import { bulkEncounterRuns, encounterLabel, encounterLength, formatEncounterSummary, pickableBulkEncounters } from './encounters';
 import { BulkProgress, candidateGearProgress, simProgress } from './progress';
+import { type BulkTalentRun, rankEncounterResults } from './results';
 import { createBulkSettingsProto } from './settings';
-import { buildTieChains } from './tie_chains';
+import { bulkTalentRuns, pickableBulkTalents, talentsLabel } from './talents';
 
 // The stored settings plus the enchant pool, which is derived from the presets and never stored.
 const bulkRequestSettings = (player: Player<any>): BulkSettings => ({ ...createBulkSettingsProto(player), enchants: enchantPresetPool(player) });
@@ -39,9 +37,9 @@ interface BulkRun {
 }
 
 interface BulkEncounterSteps {
-	/** One per encounter the batch runs, one array for the whole run. */
+	/** One per encounter and talent setup the batch runs, encounter outer, one array for the whole run. */
 	labels: readonly string[];
-	/** 0-based encounter being run. */
+	/** 0-based index into `labels` of the run in progress. */
 	running: number;
 }
 
@@ -152,6 +150,7 @@ const runCoreBulkSim = async (
 	signal: AbortSignal,
 	bulkSettings: BulkSettings,
 	encounter: Encounter,
+	talents?: BulkTalentsOverride,
 ): Promise<CoreBulkSimResult> => {
 	const { player } = host;
 	return runCoreBulkSimImpl(
@@ -165,18 +164,8 @@ const runCoreBulkSim = async (
 		signal,
 		bulkSettings,
 		encounter,
+		talents,
 	);
-};
-
-const rankResults = (bulkSimResult: CoreBulkSimResult, baseGear: Gear) => {
-	const { referenceDpsMetrics, topGearResults } = bulkSimResult;
-	const originalGearKey = getGearIdentityKey(baseGear.asSpec());
-	const rankedResults = topGearResults.filter(result => getGearIdentityKey(result.gear.asSpec()) !== originalGearKey);
-	const originalGearResults: TopGearResult = { gear: baseGear, dpsMetrics: referenceDpsMetrics };
-	rankedResults.push(originalGearResults);
-	rankedResults.sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
-	const iterations = Math.max(1, bulkSimResult.iterations || bulkSimHighStageFloor());
-	return { chains: buildTieChains(rankedResults, originalGearResults, iterations), originalGearResults, iterations };
 };
 
 const abortBulkSimWork = async (host: IndividualSimHost<any>) => {
@@ -228,8 +217,26 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 	run.isCancelling = false;
 	const encounterRuns = bulkEncounterRuns(sim.encounter.toProto(), pickableBulkEncounters(host), bulkState(player).encounters, sim.getShowPowerTools());
+	const talentRuns = bulkTalentRuns(
+		player.getPlayerSpec(),
+		player.getTalentsString(),
+		pickableBulkTalents(host),
+		bulkState(player).talents,
+		sim.getShowPowerTools(),
+	).map(talents => ({
+		talents,
+		override: talents.isCurrent
+			? undefined
+			: { talentsString: talents.talentsString, rotation: player.getResolvedAplRotationForTalents(talents.talentsString) },
+	}));
 	run.steps = {
-		labels: encounterRuns.map(encounterRun => `${encounterLabel(encounterRun)} · ${formatEncounterSummary(encounterRun.encounter)}`),
+		labels: encounterRuns.flatMap(encounterRun =>
+			talentRuns.map(({ talents }) =>
+				talentRuns.length === 1
+					? `${encounterLabel(encounterRun)} · ${formatEncounterSummary(encounterRun.encounter)}`
+					: `${encounterLabel(encounterRun)} · ${talentsLabel(talents)}`,
+			),
+		),
 		running: 0,
 	};
 	// The progress dialog mounts on `isRunning` and takes the steps from the progress there, before the first stage reports.
@@ -254,17 +261,21 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 
 		await refreshBulkCombinations(host);
 
-		for (const [index, encounterRun] of encounterRuns.entries()) {
-			throwIfBulkAborted(player, abortSignal);
-			run.steps = { ...run.steps, running: index };
-			setCandidateGearProgress(player);
-			run.simStart = new Date().getTime();
-			const bulkSimResult = await runCoreBulkSim(host, abortSignal, bulkSettings, encounterRun.encounter);
+		for (const [encounterIndex, encounterRun] of encounterRuns.entries()) {
+			const finished: BulkTalentRun[] = [];
+			for (const [setupIndex, { talents, override }] of talentRuns.entries()) {
+				throwIfBulkAborted(player, abortSignal);
+				run.steps = { ...run.steps, running: encounterIndex * talentRuns.length + setupIndex };
+				setCandidateGearProgress(player);
+				run.simStart = new Date().getTime();
+				finished.push({ talents, result: await runCoreBulkSim(host, abortSignal, bulkSettings, encounterRun.encounter, override) });
+			}
+			// Pushed only once every setup finished, so a cancel or error mid-encounter drops the encounter.
 			entries.push({
 				name: encounterRun.name,
 				isCurrent: encounterRun.isCurrent,
 				...encounterLength(encounterRun.encounter),
-				results: rankResults(bulkSimResult, baseGear),
+				results: rankEncounterResults(finished, baseGear),
 			});
 		}
 	} catch (error) {

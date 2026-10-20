@@ -21,6 +21,7 @@ export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
 
 	const { results: shown } = results[selected];
 	const iterations = shown.iterations;
+	const showTalents = shown.talentSetups > 1;
 	return (
 		<div>
 			{shown.chains.map((chain, chainIdx) =>
@@ -32,6 +33,7 @@ export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
 								result={result}
 								baseResult={shown.originalGearResults}
 								iterations={iterations}
+								showTalents={showTalents}
 								onActivateTab={onActivateTab}
 							/>
 						))}
@@ -42,6 +44,7 @@ export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
 						result={chain[0]}
 						baseResult={shown.originalGearResults}
 						iterations={iterations}
+						showTalents={showTalents}
 						onActivateTab={onActivateTab}
 					/>
 				),

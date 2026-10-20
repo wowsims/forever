@@ -448,6 +448,18 @@ message BulkEncounterRef {
 	bool preset = 2;
 }
 
+// Local storage data for the saved talent setups the bulk sim also runs every gear set against. The current talents
+// always run first and are not stored here.
+message BulkTalentSelection {
+	repeated BulkTalentRef talents = 1;
+}
+
+// A spec preset talent setup or a user-saved one, by name.
+message BulkTalentRef {
+	string name = 1;
+	bool preset = 2;
+}
+
 // Local storage data for a saved encounter.
 message SavedEncounter {
 	Encounter encounter = 1;

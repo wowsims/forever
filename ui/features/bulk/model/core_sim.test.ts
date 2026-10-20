@@ -1,3 +1,4 @@
+import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Encounter } from '@generated/proto/common';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -22,5 +23,14 @@ describe('runCoreBulkSim', () => {
 		await runCoreBulkSim(context(runBulkSim), new AbortController().signal, {} as never, encounter);
 
 		expect(runBulkSim.mock.calls[0][3]).toEqual(encounter);
+	});
+
+	it('passes the talents override to the sim', async () => {
+		const runBulkSim = vi.fn(async (..._args: unknown[]) => RESULT);
+		const override = { talentsString: '05-3', rotation: APLRotation.create({ type: APLRotationType.TypeAuto }) };
+
+		await runCoreBulkSim(context(runBulkSim), new AbortController().signal, {} as never, Encounter.create(), override);
+
+		expect(runBulkSim.mock.calls[0][4]).toEqual(override);
 	});
 });

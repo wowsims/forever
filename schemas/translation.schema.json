@@ -4282,12 +4282,15 @@
 								"encounters": {
 									"type": "string"
 								},
+								"talents": {
+									"type": "string"
+								},
 								"frozen_slots": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["encounters", "enchants", "frozen_slots"]
+							"required": ["encounters", "talents", "enchants", "frozen_slots"]
 						},
 						"encounters": {
 							"type": "object",
@@ -4310,9 +4313,6 @@
 								"duplicate": {
 									"type": "string"
 								},
-								"count": {
-									"type": "string"
-								},
 								"health_summary": {
 									"type": "string"
 								},
@@ -4324,17 +4324,78 @@
 								}
 							},
 							"additionalProperties": false,
+							"required": ["description", "current", "presets", "saved", "empty", "duplicate", "health_summary", "targets_one", "targets_other"]
+						},
+						"talents": {
+							"type": "object",
+							"properties": {
+								"description": {
+									"type": "string"
+								},
+								"current": {
+									"type": "string"
+								},
+								"presets": {
+									"type": "string"
+								},
+								"saved": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"duplicate": {
+									"type": "string"
+								},
+								"no_points": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["description", "current", "presets", "saved", "empty", "duplicate", "no_points"]
+						},
+						"runs": {
+							"type": "object",
+							"properties": {
+								"encounters": {
+									"type": "string"
+								},
+								"encounters_one": {
+									"type": "string"
+								},
+								"encounters_other": {
+									"type": "string"
+								},
+								"talents": {
+									"type": "string"
+								},
+								"talents_one": {
+									"type": "string"
+								},
+								"talents_other": {
+									"type": "string"
+								},
+								"total": {
+									"type": "string"
+								},
+								"total_one": {
+									"type": "string"
+								},
+								"total_other": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
 							"required": [
-								"description",
-								"current",
-								"presets",
-								"saved",
-								"empty",
-								"duplicate",
-								"count",
-								"health_summary",
-								"targets_one",
-								"targets_other"
+								"encounters",
+								"encounters_one",
+								"encounters_other",
+								"talents",
+								"talents_one",
+								"talents_other",
+								"total",
+								"total_one",
+								"total_other"
 							]
 						},
 						"iterations": {
@@ -4475,6 +4536,8 @@
 						"total_iterations_tooltip",
 						"groups",
 						"encounters",
+						"talents",
+						"runs",
 						"iterations",
 						"freeze_ring",
 						"freeze_trinket",
@@ -4611,6 +4674,12 @@
 						"gear_equipped": {
 							"type": "string"
 						},
+						"gear_talents_equipped": {
+							"type": "string"
+						},
+						"gear_unchanged": {
+							"type": "string"
+						},
 						"current_gear": {
 							"type": "string"
 						},
@@ -4629,6 +4698,12 @@
 						"current": {
 							"type": "string"
 						},
+						"current_talents": {
+							"type": "string"
+						},
+						"talent_preset": {
+							"type": "string"
+						},
 						"export_csv": {
 							"type": "string"
 						}
@@ -4638,12 +4713,16 @@
 						"run_simulation",
 						"equip_button",
 						"gear_equipped",
+						"gear_talents_equipped",
+						"gear_unchanged",
 						"current_gear",
 						"margin_of_error",
 						"tied_group",
 						"encounters",
 						"encounters_caption",
 						"current",
+						"current_talents",
+						"talent_preset",
 						"export_csv"
 					]
 				},

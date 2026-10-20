@@ -34,6 +34,8 @@ const meta = {
 				isBase={false}
 				delta={{ text: '+42.10 (3.07%)', tone: 'positive' }}
 				significance="Difference is not significant (Z = 0.412)."
+				talents={null}
+				gearUnchanged={false}
 				onEquip={fn()}>
 				{cell('inv_sword_39', 'Thunderfury, Blessed Blade of the Windseeker', 80)}
 			</BulkResultRowView>,
@@ -45,6 +47,8 @@ const meta = {
 				isBase={false}
 				delta={{ text: '+39.64 (2.89%)', tone: 'positive' }}
 				significance="Difference is not significant (Z = 0.412)."
+				talents={null}
+				gearUnchanged={false}
 				onEquip={fn()}>
 				{cell('inv_jewelry_ring_36', 'Band of Accuria', 78)}
 			</BulkResultRowView>,

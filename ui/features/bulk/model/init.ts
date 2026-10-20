@@ -5,6 +5,7 @@ import type { EquippedItem } from '@sim/proto/equipped_item';
 import {
 	loadStoredBulkEncounters,
 	loadStoredBulkSettings,
+	loadStoredBulkTalents,
 	loadStoredEnchantPresets,
 	patchBulkState,
 	seedBulkSettings,
@@ -49,6 +50,11 @@ const loadSettings = (player: Player<any>) => {
 	const encounters = loadStoredBulkEncounters(player);
 	if (encounters != null) {
 		patchBulkState(player, { encounters: encounters.encounters });
+	}
+
+	const talents = loadStoredBulkTalents(player);
+	if (talents != null) {
+		patchBulkState(player, { talents: talents.talents });
 	}
 };
 

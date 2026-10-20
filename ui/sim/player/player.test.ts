@@ -1,4 +1,5 @@
 import { AuraStats as AuraStatsProto, SpellStats as SpellStatsProto, UnitMetadata as UnitMetadataProto } from '@generated/proto/api';
+import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs } from '@generated/proto/buffs';
 import { ActionID as ActionIdProto, Class, ConsumesSpec, ItemRandomSuffix, PseudoStat, Spec, Stat, WeaponType } from '@generated/proto/common';
 import { UIItem as Item } from '@generated/proto/ui';
@@ -6,8 +7,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ActionId } from '../proto/action_id';
 import { Stats } from '../proto/stats';
-import { adjustImbues, adjustSwapImbues } from '../proto/utils';
+import { adjustImbues, adjustSwapImbues, getTalentTreePoints } from '../proto/utils';
+import { playerTalentStringToProto } from '../talents/factory';
 import { Player, UnitMetadata } from './player';
+import { PlayerSpecs } from './specs';
 
 // getDebuffStats reads nothing but the raid's debuffs, so the method is called against that one
 // dependency rather than against a constructed Player, which needs a whole sim behind it.
@@ -143,6 +146,69 @@ describe('Player.getRandomSuffixes', () => {
 
 	it('skips an option missing from the database', () => {
 		expect(suffixesOf([1, 100, 2]).map(suffix => suffix.id)).toEqual([1, 2]);
+	});
+});
+
+describe('Player.getResolvedAplRotationForTalents', () => {
+	const SPEC = PlayerSpecs.DpsWarrior;
+	const LIVE = '30305001102';
+	const LIVE_TALENTS = playerTalentStringToProto(SPEC, LIVE);
+	const CUSTOM = APLRotation.create({ type: APLRotationType.TypeAPL, priorityList: [APLListItem.create({ hide: true })] });
+
+	// Only what resolving a rotation reads, with the live talents already parsed into the cache.
+	const makePlayer = ({
+		type,
+		rotation = APLRotation.create({ type }),
+		generate = null,
+	}: {
+		type: APLRotationType;
+		rotation?: APLRotation;
+		generate?: ((player: Player<any>) => APLRotation) | null;
+	}) =>
+		Object.assign(Object.create(Player.prototype), {
+			slice: () => ({ talentsString: LIVE }),
+			aplRotation_: rotation,
+			autoRotationGenerator: type === APLRotationType.TypeAuto ? generate : null,
+			simpleRotationGenerator: type === APLRotationType.TypeSimple ? generate : null,
+			specTypeFunctions: { rotationCreate: () => ({}) },
+			playerSpec: SPEC,
+			talents: LIVE_TALENTS,
+		}) as Player<any>;
+
+	it("resolves an Auto rotation from the given talents and leaves the player's talents alone", () => {
+		const generated = APLRotation.create({ type: APLRotationType.TypeAuto, priorityList: [APLListItem.create({ hide: true })] });
+		const seen: unknown[] = [];
+		const player = makePlayer({
+			type: APLRotationType.TypeAuto,
+			generate: p => {
+				seen.push(p.getTalentsString(), p.getTalentTreePoints(), p.getTalents());
+				return generated;
+			},
+		});
+
+		expect(player.getResolvedAplRotationForTalents('05-3')).toEqual(generated);
+		expect(seen).toEqual(['05-3', getTalentTreePoints('05-3'), playerTalentStringToProto(SPEC, '05-3')]);
+		expect(player.getTalentsString()).toBe(LIVE);
+		expect(player.getTalents()).toBe(LIVE_TALENTS);
+	});
+
+	it('resolves a Simple rotation from the given talents', () => {
+		const seen: string[] = [];
+		const player = makePlayer({
+			type: APLRotationType.TypeSimple,
+			generate: p => {
+				seen.push(p.getTalentsString());
+				return APLRotation.create();
+			},
+		});
+
+		player.getResolvedAplRotationForTalents('05-3');
+
+		expect(seen).toEqual(['05-3']);
+	});
+
+	it('returns a custom APL as it is, whatever the talents', () => {
+		expect(makePlayer({ type: APLRotationType.TypeAPL, rotation: CUSTOM }).getResolvedAplRotationForTalents('05-3')).toBe(CUSTOM);
 	});
 });
 

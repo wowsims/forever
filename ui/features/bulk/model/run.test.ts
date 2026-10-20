@@ -1,7 +1,8 @@
 import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions, BulkSettings } from '@generated/proto/api';
+import { APLRotation } from '@generated/proto/apl';
 import { Encounter, ItemSlot, Target } from '@generated/proto/common';
-import { BulkEncounterRef, SavedEncounter, UIEnchant } from '@generated/proto/ui';
+import { BulkEncounterRef, BulkTalentRef, SavedEncounter, SavedTalents, UIEnchant } from '@generated/proto/ui';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { patchSlice } from '@sim/state/sim_store';
@@ -41,6 +42,11 @@ describe('bulk requests', () => {
 const GEAR = { asSpec: () => ({ items: [] }) };
 const CORE_RESULT = { referenceDpsMetrics: { avg: 1000, stdev: 1 }, topGearResults: [], iterations: 100, metrics: {} };
 const SAVED_KEY = 'saved-encounters';
+const SAVED_TALENTS_KEY = 'saved-talents';
+const LIVE = '30305001302';
+const ARMS = '3030500130';
+const FURY = '-0505000540501';
+const FURY_EDITED = '-0505000530501';
 
 const CURRENT = Encounter.create({ duration: 180, durationVariation: 5, targets: [Target.create()] });
 const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, useHealth: true, targets: [Target.create()] });
@@ -48,8 +54,27 @@ const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets:
 
 const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
 
-const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('Same as current'), ref('Gone'), ref('Council')], powerTools = true) => {
-	const player = makeBulkPlayer({ getGear: () => GEAR, setGearAsync: vi.fn(async () => {}) });
+const tref = (name: string, preset = false) => BulkTalentRef.create({ name, preset });
+
+const writeSavedTalents = (host: IndividualSimHost<any>, record: Record<string, string>) =>
+	host.sim.env.storage.setItem(
+		SAVED_TALENTS_KEY,
+		JSON.stringify(
+			Object.fromEntries(Object.entries(record).map(([name, talentsString]) => [name, SavedTalents.toJson(SavedTalents.create({ talentsString }))])),
+		),
+	);
+
+const batchHost = (
+	checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('Same as current'), ref('Gone'), ref('Council')],
+	powerTools = true,
+	checkedTalents: BulkTalentRef[] = [],
+) => {
+	const player = makeBulkPlayer({
+		getGear: () => GEAR,
+		getTalentsString: () => LIVE,
+		getResolvedAplRotationForTalents: vi.fn((s: string) => APLRotation.create({ simple: { specRotationJson: s } })),
+		setGearAsync: vi.fn(async () => {}),
+	});
 	patchSlice(player.sim.store, 'ui', { showPowerTools: powerTools });
 	const saved = { 'Same as current': CURRENT, Council: COUNCIL };
 	player.sim.env.storage.setItem(
@@ -58,8 +83,8 @@ const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('S
 			Object.fromEntries(Object.entries(saved).map(([name, encounter]) => [name, SavedEncounter.toJson(SavedEncounter.create({ encounter }))])),
 		),
 	);
-	patchBulkState(player, { encounters: checked });
-	return {
+	patchBulkState(player, { encounters: checked, talents: checkedTalents });
+	const host = {
 		player,
 		sim: {
 			store: player.sim.store,
@@ -70,13 +95,23 @@ const batchHost = (checked: BulkEncounterRef[] = [ref('Patchwerk', true), ref('S
 			getBulkCombinationCount: async () => ({ combinations: 1, iterations: 1 }),
 			getShowPowerTools: () => player.sim.store.getState().ui.showPowerTools,
 		},
-		individualConfig: { presets: { encounters: [{ name: 'Patchwerk', encounter: PATCHWERK }] } },
+		individualConfig: {
+			presets: {
+				encounters: [{ name: 'Patchwerk', encounter: PATCHWERK }],
+				talents: [{ name: 'Arms', data: SavedTalents.create({ talentsString: ARMS }) }],
+			},
+		},
 		getSavedEncounterStorageKey: () => SAVED_KEY,
+		getSavedTalentsStorageKey: () => SAVED_TALENTS_KEY,
 		handleCrash: (e: unknown) => Promise.reject(e),
 	} as unknown as IndividualSimHost<any>;
+	writeSavedTalents(host, { Fury: FURY });
+	return host;
 };
 
 const overrides = () => vi.mocked(runCoreBulkSim).mock.calls.map(call => call[3]);
+
+const talentOverrides = () => vi.mocked(runCoreBulkSim).mock.calls.map(call => call[4]?.talentsString);
 
 const steps = (host: IndividualSimHost<any>) => bulkProgress(host.player)!.steps;
 
@@ -198,5 +233,79 @@ describe('runBulkBatch', () => {
 		]);
 		const { labels } = steps(host);
 		expect(labels[1]).toBe('Patchwerk · bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets');
+	});
+
+	it('runs every talent setup inside each encounter, the current talents first and without an override', async () => {
+		const host = batchHost([ref('Council')], true, [tref('Arms', true)]);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(vi.mocked(runCoreBulkSim).mock.calls.map(call => [call[3].duration, call[4]?.talentsString])).toEqual([
+			[180, undefined],
+			[180, ARMS],
+			[90, undefined],
+			[90, ARMS],
+		]);
+		expect(vi.mocked(runCoreBulkSim).mock.calls[1][4]!.rotation).toEqual(APLRotation.create({ simple: { specRotationJson: ARMS } }));
+		expect(bulkState(host.player).results!.map(entry => entry.results.talentSetups)).toEqual([2, 2]);
+	});
+
+	it('runs a saved setup with the talents it holds when the batch starts', async () => {
+		const host = batchHost([], true, [tref('Fury')]);
+		writeSavedTalents(host, { Fury: FURY_EDITED });
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(talentOverrides()).toEqual([undefined, FURY_EDITED]);
+	});
+
+	it('runs the current talents alone with power tools off, keeping the checked setups', async () => {
+		const checkedTalents = [tref('Arms', true), tref('Fury')];
+		const host = batchHost([], false, checkedTalents);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(talentOverrides()).toEqual([undefined]);
+		expect(bulkState(host.player).talents).toEqual(checkedTalents);
+	});
+
+	it('drops an encounter whose talent runs did not all finish', async () => {
+		const host = batchHost([ref('Council')], true, [tref('Arms', true)]);
+		vi.mocked(runCoreBulkSim)
+			.mockResolvedValueOnce(CORE_RESULT as never)
+			.mockResolvedValueOnce(CORE_RESULT as never)
+			.mockResolvedValueOnce(CORE_RESULT as never)
+			.mockImplementationOnce(async () => {
+				await cancelBulkBatch(host);
+				throw new Error('Bulk Sim Aborted');
+			});
+
+		await runBulkBatch(host);
+
+		expect(bulkState(host.player).results!.map(entry => entry.isCurrent)).toEqual([true]);
+	});
+
+	it('labels one step per encounter and talent setup, encounter outer', async () => {
+		const host = batchHost([ref('Council')], true, [tref('Arms', true)]);
+		const seen: number[] = [];
+		const record = () => seen.push(steps(host).running);
+		host.sim.waitForInit = async () => {
+			record();
+		};
+		vi.mocked(runCoreBulkSim).mockImplementation(async () => {
+			record();
+			return CORE_RESULT as never;
+		});
+
+		await runBulkBatch(host);
+
+		expect(seen).toEqual([0, 0, 1, 2, 3]);
+		const { labels } = steps(host);
+		expect(labels).toHaveLength(4);
+		expect(labels[1]).toBe('bulk_tab.results.current · Arms');
+		expect(labels[2]).toBe('Council · bulk_tab.results.current_talents');
 	});
 });

@@ -26,6 +26,7 @@ import {
 	StatWeightsTarget,
 	StatWeightsTargetMetric,
 } from '@generated/proto/api';
+import { APLRotation } from '@generated/proto/apl';
 import {
 	ArmorType,
 	ConsumableType,
@@ -47,6 +48,7 @@ import { SimRequest } from '@worker/types';
 
 import { hasTouch } from '../shared/pointer';
 import { makeBulkGearDatabase, makeBulkItemDatabaseFromSpecs } from './bulk/gear_database';
+import type { BulkTalentsOverride } from './bulk/types';
 import { dedupeGearSets, throwIfAborted } from './bulk/utils';
 import { CURRENT_PHASE, LOCAL_STORAGE_PREFIX } from './constants/other';
 import { Player, UnitMetadata } from './player/player';
@@ -381,6 +383,7 @@ export class Sim {
 		bulkSettings: BulkSettings,
 		abortSignal?: AbortSignal,
 		encounterOverride?: EncounterProto,
+		talentsOverride?: BulkTalentsOverride,
 	): Promise<BulkSimResult | ErrorOutcome> {
 		this.requireRunnableSetup();
 
@@ -398,6 +401,10 @@ export class Sim {
 			baseRequest.simOptions!.debug = false;
 
 			const player = baseRequest.raid!.parties[0].players[0];
+			if (talentsOverride) {
+				player.talentsString = talentsOverride.talentsString;
+				player.rotation = APLRotation.clone(talentsOverride.rotation);
+			}
 			const isEnchanter = [player.profession1, player.profession2].includes(Profession.Enchanting);
 
 			const baselineGear = Sim.prepareGear(this.raid.getActivePlayers()[0].getGear(), isEnchanter);

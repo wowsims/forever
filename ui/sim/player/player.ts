@@ -1001,6 +1001,17 @@ export class Player<SpecType extends Spec> {
 		}
 	}
 
+	// The rotation for simming with `talentsString` in place of the player's talents. The generators run on a
+	// view whose slice reports that talents string and whose parsed-talents cache starts empty, so the player
+	// itself is never written.
+	getResolvedAplRotationForTalents(talentsString: string): APLRotation {
+		const view: Player<SpecType> = Object.create(this, {
+			slice: { value: () => ({ ...this.slice(), talentsString }) },
+			talents: { value: null, writable: true },
+		});
+		return view.getResolvedAplRotation(true);
+	}
+
 	getTalents(): SpecTalents<SpecType> {
 		if (this.talents == null) {
 			this.talents = playerTalentStringToProto(this.playerSpec, this.getTalentsString()) as SpecTalents<SpecType>;

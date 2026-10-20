@@ -1,12 +1,12 @@
 import { Encounter, ItemSlot, Target } from '@generated/proto/common';
-import { BulkEncounterRef, SavedEncounter } from '@generated/proto/ui';
+import { BulkEncounterRef, BulkTalentRef, SavedEncounter, SavedTalents } from '@generated/proto/ui';
 import { BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { bulkState, loadStoredBulkEncounters, patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
-import { createSimStore, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
+import { bulkState, loadStoredBulkEncounters, loadStoredBulkTalents, patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
+import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { memoryEnv } from '@testing/sim/memory_env';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -28,22 +28,45 @@ const RING = { id: 1, equals: () => false } as unknown as EquippedItem;
 const SAVED_ENCOUNTERS_KEY = 'test-saved-encounters';
 const CURRENT = { duration: 180, durationVariation: 5, targets: [Target.create()] };
 
+const SAVED_TALENTS_KEY = 'test-saved-talents';
+const LIVE = '30305001302';
+const ARMS = '3030500130';
+const FURY = '-0505000540501';
+
 interface MountOptions {
 	reforger?: unknown;
 	presets?: Array<{ name: string; encounter: Encounter }>;
 	saved?: Record<string, Encounter>;
 	checked?: BulkEncounterRef[];
+	talentPresets?: Array<{ name: string; data: SavedTalents }>;
+	savedTalents?: Record<string, string>;
+	checkedTalents?: BulkTalentRef[];
+	talentsString?: string;
+	iterations?: number;
 	powerTools?: boolean;
 }
 
-const mount = ({ reforger = null, presets = [], saved = {}, checked = [], powerTools = true }: MountOptions = {}) => {
+const mount = ({
+	reforger = null,
+	presets = [],
+	saved = {},
+	checked = [],
+	talentPresets = [],
+	savedTalents = {},
+	checkedTalents = [],
+	talentsString = LIVE,
+	iterations = 0,
+	powerTools = true,
+}: MountOptions = {}) => {
 	const record = Object.entries(saved).map(([name, encounter]) => [name, SavedEncounter.toJson(SavedEncounter.create({ encounter }))]);
 	localStorage.setItem(SAVED_ENCOUNTERS_KEY, JSON.stringify(Object.fromEntries(record)));
+	const talentRecord = Object.entries(savedTalents).map(([name, talents]) => [name, SavedTalents.toJson(SavedTalents.create({ talentsString: talents }))]);
+	localStorage.setItem(SAVED_TALENTS_KEY, JSON.stringify(Object.fromEntries(talentRecord)));
 	const store = createSimStore();
 	patchSlice(store, 'encounter', CURRENT);
 	patchSlice(store, 'ui', { showPowerTools: powerTools });
 	const gear = { getEquippedItem: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotFinger1 ? RING : null) };
-	seedKeyed(store, 'players', STORE_KEY, { gear, v: zeroVersions(PLAYER_FIELDS) } as never);
+	seedKeyed(store, 'players', STORE_KEY, { gear, talentsString, v: zeroVersions(PLAYER_FIELDS) } as never);
 	const player = {
 		sim: { store, isNative: false, env: memoryEnv() },
 		storeKey: STORE_KEY,
@@ -51,15 +74,16 @@ const mount = ({ reforger = null, presets = [], saved = {}, checked = [], powerT
 		getPlayerSpec: () => PlayerSpecs.DpsWarrior,
 	} as unknown as Player<any>;
 	seedBulkSettings(player);
-	patchBulkState(player, { encounters: checked });
+	patchBulkState(player, { encounters: checked, talents: checkedTalents, iterations });
 	const host = {
 		player,
 		sim: player.sim,
 		reforger,
 		reforgeOptions: null,
-		individualConfig: { presets: { encounters: presets } },
+		individualConfig: { presets: { encounters: presets, talents: talentPresets } },
 		getStorageKey: (key: string) => `test-${key}`,
 		getSavedEncounterStorageKey: () => SAVED_ENCOUNTERS_KEY,
+		getSavedTalentsStorageKey: () => SAVED_TALENTS_KEY,
 	} as never;
 	const { container } = render(
 		<SimHostProvider host={host}>
@@ -77,6 +101,12 @@ const mount = ({ reforger = null, presets = [], saved = {}, checked = [], powerT
 	const openGroup = (group: string) => fireEvent.click(container.querySelector(`[data-testid="bulk-settings-group-${group}-trigger"]`)!);
 	return { player, container, pick, openGroup };
 };
+
+const box = (name: string) => screen.getByRole('checkbox', { name });
+// The texts a checkbox is described by: the row's summary, then the duplicate reason when there is one.
+const descriptions = (name: string) => (box(name).getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent);
+const hasLabelTooltip = (name: string) => screen.getByText(name, { selector: 'label' }).hasAttribute('data-tooltip-id');
+const totalIterations = () => screen.getByTestId('bulk-total-iterations').textContent;
 
 beforeEach(() => {
 	localStorage.clear();
@@ -111,13 +141,14 @@ describe('BulkSettings', () => {
 		expect(JSON.parse(localStorage.getItem('test-__bulkSettingsGroups')!)).toEqual(['freezes']);
 	});
 
-	it('shows only the encounter, enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
+	it('shows only the encounter, talent, enchant and frozen slot groups, even for a spec with the gear optimizer', () => {
 		const { container } = mount({ reforger: { settings: {} } });
 
 		const triggers = [...container.querySelectorAll('[data-testid^="bulk-settings-group-"][data-testid$="-trigger"]')];
 
 		expect(triggers.map(trigger => trigger.getAttribute('data-testid'))).toEqual([
 			'bulk-settings-group-encounters-trigger',
+			'bulk-settings-group-talents-trigger',
 			'bulk-settings-group-enchants-trigger',
 			'bulk-settings-group-freezes-trigger',
 		]);
@@ -136,10 +167,6 @@ describe('BulkSettings encounters group', () => {
 		return mounted;
 	};
 	const rows = () => screen.queryAllByTestId('bulk-encounter');
-	const box = (name: string) => screen.getByRole('checkbox', { name });
-	// The texts a checkbox is described by: the encounter summary, then the duplicate reason when there is one.
-	const descriptions = (name: string) => (box(name).getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent);
-	const hasLabelTooltip = (name: string) => screen.getByText(name, { selector: 'label' }).hasAttribute('data-tooltip-id');
 
 	it('lists the presets, then the saved encounters, under their headings, each with its summary as a tooltip', () => {
 		openEncounters({ presets: [{ name: 'Patchwerk', encounter: PATCHWERK }], saved: { Council: COUNCIL } });
@@ -222,25 +249,151 @@ describe('BulkSettings encounters group', () => {
 	});
 
 	it('counts every encounter the batch will run', () => {
-		mount({ presets: [{ name: 'Patchwerk', encounter: PATCHWERK }], saved: { Council: COUNCIL }, checked: [ref('Patchwerk', true), ref('Council')] });
+		mount({
+			presets: [{ name: 'Patchwerk', encounter: PATCHWERK }],
+			saved: { Council: COUNCIL },
+			checked: [ref('Patchwerk', true), ref('Council')],
+			iterations: 100,
+		});
 
-		expect(screen.getByTestId('bulk-encounters-count').textContent).toBe('× 3');
+		expect(screen.getByTestId('bulk-runs-count').textContent).toBe('bulk_tab.settings.runs.total');
+		expect(totalIterations()).toBe('300');
 	});
 
 	it('hides the group and counts the current encounter alone with power tools off, keeping the checked ones', () => {
 		const checked = [ref('Patchwerk', true), ref('Council')];
 		const presets = [{ name: 'Patchwerk', encounter: PATCHWERK }];
-		const { player, container } = mount({ presets, saved: { Council: COUNCIL }, checked, powerTools: false });
+		const { player, container } = mount({ presets, saved: { Council: COUNCIL }, checked, iterations: 100, powerTools: false });
 		const trigger = () => container.querySelector('[data-testid="bulk-settings-group-encounters-trigger"]');
 
 		expect(trigger()).toBeNull();
-		expect(screen.queryByTestId('bulk-encounters-count')).toBeNull();
+		expect(screen.queryByTestId('bulk-runs-count')).toBeNull();
+		expect(totalIterations()).toBe('100');
 		expect(bulkState(player).encounters).toEqual(checked);
 
 		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
 
 		expect(trigger()).not.toBeNull();
-		expect(screen.getByTestId('bulk-encounters-count').textContent).toBe('× 3');
+		expect(screen.getByTestId('bulk-runs-count').textContent).toBe('bulk_tab.settings.runs.total');
+		expect(totalIterations()).toBe('300');
+	});
+});
+
+describe('BulkSettings talents group', () => {
+	const tref = (name: string, preset = false) => BulkTalentRef.create({ name, preset });
+	const preset = (name: string, talentsString: string) => ({ name, data: SavedTalents.create({ talentsString }) });
+	const ARMS_PRESET = preset('Arms', ARMS);
+	const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, targets: [Target.create()] });
+
+	const openTalents = (options: MountOptions = {}) => {
+		const mounted = mount(options);
+		mounted.openGroup('talents');
+		return mounted;
+	};
+	const rows = () => screen.queryAllByTestId('bulk-talent');
+
+	it('lists the preset talents, then the saved ones, under their headings, each with its talent string as a tooltip', () => {
+		openTalents({ talentPresets: [ARMS_PRESET], savedTalents: { Fury: FURY } });
+
+		expect(rows()).toHaveLength(2);
+		expect(rows().map(row => row.querySelector('label')?.textContent)).toEqual(['Arms', 'Fury']);
+		expect(descriptions('Arms')).toEqual([`${ARMS}.`]);
+		expect(descriptions('Fury')).toEqual([`${FURY}.`]);
+		expect(hasLabelTooltip('Arms')).toBe(true);
+		expect(hasLabelTooltip('Fury')).toBe(true);
+		expect(screen.getByText('bulk_tab.settings.talents.presets')).toBeTruthy();
+		expect(screen.getByText('bulk_tab.settings.talents.saved')).toBeTruthy();
+		expect(screen.queryByText('bulk_tab.settings.talents.empty')).toBeNull();
+	});
+
+	it('shows the current talents as a ticked, locked row that follows the live talents', () => {
+		const { player } = openTalents();
+		const name = 'bulk_tab.settings.talents.current';
+		const current = box(name);
+
+		expect(current.getAttribute('aria-checked')).toBe('true');
+		expect(current.getAttribute('aria-disabled')).toBe('true');
+		expect(hasLabelTooltip(name)).toBe(true);
+		expect(descriptions(name)).toEqual([`${LIVE}.`]);
+
+		act(() => patchKeyed(player.sim.store, 'players', STORE_KEY, { talentsString: ARMS }));
+
+		expect(descriptions(name)).toEqual([`${ARMS}.`]);
+	});
+
+	it('stores the checked setups in list order', () => {
+		const { player } = openTalents({ talentPresets: [ARMS_PRESET], savedTalents: { Fury: FURY } });
+
+		fireEvent.click(box('Fury'));
+		fireEvent.click(box('Arms'));
+
+		const expected = [tref('Arms', true), tref('Fury')];
+		expect(bulkState(player).talents).toEqual(expected);
+		expect(loadStoredBulkTalents(player)?.talents).toEqual(expected);
+		expect(box('Fury').getAttribute('aria-checked')).toBe('true');
+	});
+
+	it('hides a setup equal to the current talents and keeps its stored state', () => {
+		const { player } = openTalents({ savedTalents: { 'Same as current': `${LIVE}000--`, Fury: FURY }, checkedTalents: [tref('Same as current')] });
+
+		expect(rows()).toHaveLength(1);
+		expect(screen.queryByRole('checkbox', { name: 'Same as current' })).toBeNull();
+
+		fireEvent.click(box('Fury'));
+
+		expect(bulkState(player).talents).toEqual([tref('Same as current'), tref('Fury')]);
+	});
+
+	it('marks the checkbox of a checked setup equal to an earlier checked one', () => {
+		openTalents({
+			talentPresets: [ARMS_PRESET],
+			savedTalents: { 'Arms again': `${ARMS}0`, Fury: FURY },
+			checkedTalents: [tref('Arms', true), tref('Arms again')],
+		});
+
+		expect(['Arms', 'Arms again', 'Fury'].map(name => box(name).getAttribute('aria-invalid'))).toEqual([null, 'true', null]);
+		expect(descriptions('Arms again')).toEqual([`${ARMS}0.`, 'bulk_tab.settings.talents.duplicate']);
+		expect(descriptions('Fury')).toEqual([`${FURY}.`]);
+		expect(descriptions('Arms')).toEqual([`${ARMS}.`]);
+	});
+
+	it('points to the saved talents when there is nothing to pick', () => {
+		openTalents();
+
+		expect(rows()).toHaveLength(0);
+		expect(screen.getByText('bulk_tab.settings.talents.empty')).toBeTruthy();
+		expect(screen.getByTestId('bulk-talent-current')).toBeTruthy();
+	});
+
+	it('counts every encounter and talent setup the batch will run', () => {
+		mount({
+			presets: [{ name: 'Patchwerk', encounter: PATCHWERK }],
+			checked: [BulkEncounterRef.create({ name: 'Patchwerk', preset: true })],
+			talentPresets: [ARMS_PRESET],
+			checkedTalents: [tref('Arms', true)],
+			iterations: 100,
+		});
+		const runs = screen.getByTestId('bulk-runs-count');
+
+		expect(runs.textContent).toBe('bulk_tab.settings.runs.total');
+		expect(runs.previousElementSibling!.textContent).toBe('bulk_tab.settings.runs.encounters × bulk_tab.settings.runs.talents');
+		expect(totalIterations()).toBe('400');
+	});
+
+	it('hides the group and runs the current talents alone with power tools off, keeping the checked setups', () => {
+		const checkedTalents = [tref('Arms', true)];
+		const { player, container } = mount({ talentPresets: [ARMS_PRESET], checkedTalents, iterations: 100, powerTools: false });
+		const trigger = () => container.querySelector('[data-testid="bulk-settings-group-talents-trigger"]');
+
+		expect(trigger()).toBeNull();
+		expect(screen.queryByTestId('bulk-runs-count')).toBeNull();
+		expect(totalIterations()).toBe('100');
+		expect(bulkState(player).talents).toEqual(checkedTalents);
+
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+
+		expect(trigger()).not.toBeNull();
+		expect(totalIterations()).toBe('200');
 	});
 });
 
@@ -263,6 +416,7 @@ const renderSettings = (props: Partial<BulkSettingsViewProps> = {}) => {
 			canRun
 			openGroups={['freezes']}
 			encounters={null}
+			talents={null}
 			enchants={null}
 			frozenItems={[RING_VIEW]}
 			weaponFreeze={null}

@@ -1,9 +1,10 @@
-import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkRankedResult, TopGearResult } from '@sim/bulk/types';
 import { REPO_RELEASES_URL } from '@sim/constants/other';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
+import { CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -63,7 +64,7 @@ describe('BulkTabBody', () => {
 		const set = { getItemSlots: () => [], getEquippedItem: () => null, equals: (other: unknown) => other === set };
 		return set;
 	};
-	const result = (avg: number) => ({ gear: gear(), dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
+	const result = (avg: number) => ({ gear: gear(), dpsMetrics: { avg, stdev: 1 }, talents: CURRENT_TALENT_SETUP }) as unknown as BulkRankedResult;
 
 	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`; a null length is a health-based encounter.
 	const entry = (name: string, length: [duration: number, variation: number] | null, best: number, isCurrent = false): BulkEncounterResults => {
@@ -73,7 +74,7 @@ describe('BulkTabBody', () => {
 			isCurrent,
 			duration: length?.[0] ?? null,
 			durationVariation: length?.[1] ?? null,
-			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100 },
+			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100, talentSetups: 1 },
 		};
 	};
 

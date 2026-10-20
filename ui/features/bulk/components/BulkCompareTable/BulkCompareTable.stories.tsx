@@ -21,9 +21,10 @@ interface StoryRow extends Omit<BulkCompareTableRow, 'cells'> {
 // A cell `gainPct` over the current gear's DPS; null is a gap.
 const cell = (gainPct: number | null, best = false): StoryCell | null => (gainPct === null ? null : { gainPct, best });
 
-const row = (key: string, label: string, changes: string[], cells: Array<StoryCell | null>): StoryRow => ({
+const row = (key: string, label: string, changes: string[], cells: Array<StoryCell | null>, talents: string | null = null): StoryRow => ({
 	key,
 	label,
+	talents,
 	changes,
 	cells,
 });
@@ -115,6 +116,21 @@ const GAIN_ROWS = [
 	row('set-5', 'S5', ['Kiss of the Spider', 'Frozen Heart of the Mountain'], [cell(5.27), cell(4.26), cell(3.59), cell(4.23)]),
 ];
 
+// Two talent setups in each encounter: every row names its setup, and the current gear with Arms is a set with no item
+// changes.
+const TALENT_ROWS = [
+	row(
+		'current',
+		'Current gear',
+		[],
+		GAIN_COLUMNS.map(() => cell(0)),
+		'Current talents',
+	),
+	row('set-1', 'S1', ['Slayer’s Crest'], [cell(9.4, true), cell(7.9, true), cell(6.8, true), cell(7.2, true)], 'Arms'),
+	row('set-2', 'S2', ['No gear changes'], [cell(3.1), cell(2.6), cell(2.2), cell(2.5)], 'Arms'),
+	row('set-3', 'S3', ['Slayer’s Crest'], [cell(6.07), cell(4.85), cell(4.29), cell(4.63)], 'Current talents'),
+];
+
 const meta = {
 	title: 'Features/Bulk/BulkCompareTable',
 	component: BulkCompareTable,
@@ -132,6 +148,10 @@ export const EightEncounters: Story = {};
 // Every set gains, so every cell but the current gear's is green, the largest gain darkest, and the legend starts at 0%.
 export const AllGains: Story = {
 	args: tableArgs(GAIN_COLUMNS, GAIN_CURRENT_DPS, GAIN_ROWS),
+};
+
+export const TalentSetups: Story = {
+	args: tableArgs(GAIN_COLUMNS, GAIN_CURRENT_DPS, TALENT_ROWS),
 };
 
 // Narrower than the columns need, so the table scrolls sideways under its fixed set column.

@@ -19,7 +19,7 @@ import {
 	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
+import { type BulkEnchantPreset, type BulkEncounterRef, type BulkTalentRef, DatabaseFilters } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
@@ -236,6 +236,8 @@ export interface BulkSlice {
 	enchantPresets: readonly BulkEnchantPreset[];
 	// The checked saved encounters, in list order; the current encounter is read live and never stored here.
 	encounters: readonly BulkEncounterRef[];
+	// The checked saved talent setups, in list order; the current talents are read live and never stored here.
+	talents: readonly BulkTalentRef[];
 	combinations: number;
 	iterations: number;
 	combinationsPending: boolean;

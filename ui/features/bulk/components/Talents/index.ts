@@ -1,0 +1,1 @@
+export { Talents } from './Talents';
