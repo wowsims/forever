@@ -624,8 +624,8 @@ func TestValueUnknownIDs(t *testing.T) {
 		"Spell Full Cooldown for an unknown spell":       rot.newValueSpellFullCooldown(&proto.APLValueSpellFullCooldown{SpellId: spell}, nil),
 		"Spell In Flight for an unknown spell":           rot.newValueSpellInFlight(&proto.APLValueSpellInFlight{SpellId: spell}, nil),
 		"exported Spell In Flight for an unknown spell":  rot.NewValueSpellInFlight(&proto.APLValueSpellInFlight{SpellId: spell}, nil),
-		"Spell Hit Capped for an unknown spell":          rot.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: spell}, nil),
-		"Spell Expertise Capped for an unknown spell":    rot.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: spell}, nil),
+		"Spell Is Hit Capped for an unknown spell":       rot.newValueSpellIsHitCapped(&proto.APLValueSpellIsHitCapped{SpellId: spell}, nil),
+		"Spell Is Expertise Capped for an unknown spell": rot.newValueSpellIsExpertiseCapped(&proto.APLValueSpellIsExpertiseCapped{SpellId: spell}, nil),
 
 		"Boss Spell Is Casting for a spell the boss does not know":    rot.newValueBossSpellIsCasting(&proto.APLValueBossSpellIsCasting{SpellId: spell}, nil),
 		"Boss Spell Time To Ready for a spell the boss does not know": rot.newValueBossSpellTimeToReady(&proto.APLValueBossSpellTimeToReady{SpellId: spell}, nil),
@@ -1449,10 +1449,10 @@ func registerCapTestSpells(char *Character) {
 
 // Against the level 63 target a level 60 attacker with no weapon skill bonus misses a special 8% of the time
 // and a spell 17%.
-func TestValueSpellHitCapped(t *testing.T) {
+func TestValueSpellIsHitCapped(t *testing.T) {
 	sim, fw, rot := setupFakeRageRotationWith(registerCapTestSpells)
 	hitCapped := func(id ActionID) APLValue {
-		return rot.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: id.ToProto()}, nil)
+		return rot.newValueSpellIsHitCapped(&proto.APLValueSpellIsHitCapped{SpellId: id.ToProto()}, nil)
 	}
 	special := hitCapped(testMeleeSpecialActionID)
 	rend := hitCapped(fakeRendActionID)
@@ -1498,10 +1498,10 @@ func TestValueSpellHitCapped(t *testing.T) {
 
 // Against the level 63 target a level 60 attacker with no weapon skill bonus is dodged 6.5% of the time
 // and parried 14%.
-func TestValueSpellExpertiseCapped(t *testing.T) {
+func TestValueSpellIsExpertiseCapped(t *testing.T) {
 	sim, fw, rot := setupFakeRageRotationWith(registerCapTestSpells)
 	expertiseCapped := func(id ActionID) APLValue {
-		return rot.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: id.ToProto()}, nil)
+		return rot.newValueSpellIsExpertiseCapped(&proto.APLValueSpellIsExpertiseCapped{SpellId: id.ToProto()}, nil)
 	}
 	special := expertiseCapped(testMeleeSpecialActionID)
 
@@ -1544,10 +1544,10 @@ func TestValueSpellCappedAtFloatRemainder(t *testing.T) {
 	fw.AddStatDynamic(sim, stats.ExpertisePercent, 6)
 	fw.PseudoStats.InFrontOfTarget = false
 	id := testMeleeSpecialActionID.ToProto()
-	if !rot.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: id}, nil).GetBool(sim) {
+	if !rot.newValueSpellIsHitCapped(&proto.APLValueSpellIsHitCapped{SpellId: id}, nil).GetBool(sim) {
 		t.Errorf("Hit Capped(melee special) with 6%% hit against a level 62 target: got false, want true")
 	}
-	if !rot.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: id}, nil).GetBool(sim) {
+	if !rot.newValueSpellIsExpertiseCapped(&proto.APLValueSpellIsExpertiseCapped{SpellId: id}, nil).GetBool(sim) {
 		t.Errorf("Expertise Capped behind a level 62 target with 6%% expertise: got false, want true")
 	}
 }

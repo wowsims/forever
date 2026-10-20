@@ -475,28 +475,28 @@ const capTolerance = 1e-9
 // Whether the spell cannot miss the current target: the spell table's miss for magic, the weapon miss of a
 // special for melee and ranged, which leaves out the dual-wield penalty of auto attacks. It reads the table
 // alone, so a spell that always hits or rolls its miss through another spell reads as its table does.
-type APLValueSpellHitCapped struct {
+type APLValueSpellIsHitCapped struct {
 	DefaultAPLValueImpl
 	spell     *Spell
 	targetRef UnitReference
 	magic     bool
 }
 
-func (rot *APLRotation) newValueSpellHitCapped(config *proto.APLValueSpellHitCapped, _ *proto.UUID) APLValue {
+func (rot *APLRotation) newValueSpellIsHitCapped(config *proto.APLValueSpellIsHitCapped, _ *proto.UUID) APLValue {
 	spell := rot.GetAPLSpell(config.SpellId)
 	if spell == nil {
 		return nil
 	}
-	return &APLValueSpellHitCapped{
+	return &APLValueSpellIsHitCapped{
 		spell:     spell,
 		targetRef: rot.GetTargetUnit(nil),
 		magic:     spell.rolledDefenseType() == DefenseTypeMagic,
 	}
 }
-func (value *APLValueSpellHitCapped) Type() proto.APLValueType {
+func (value *APLValueSpellIsHitCapped) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
-func (value *APLValueSpellHitCapped) GetBool(_ *Simulation) bool {
+func (value *APLValueSpellIsHitCapped) GetBool(_ *Simulation) bool {
 	spell := value.spell
 	attackTable := spell.Unit.AttackTables[value.targetRef.Get().UnitIndex]
 	if value.magic {
@@ -504,35 +504,35 @@ func (value *APLValueSpellHitCapped) GetBool(_ *Simulation) bool {
 	}
 	return spell.physicalMissChanceNoDWPenalty(attackTable) <= capTolerance
 }
-func (value *APLValueSpellHitCapped) String() string {
-	return fmt.Sprintf("Hit Capped(%s)", value.spell.ActionID)
+func (value *APLValueSpellIsHitCapped) String() string {
+	return fmt.Sprintf("Is Hit Capped(%s)", value.spell.ActionID)
 }
 
 // Whether the current target can neither dodge the spell nor, while the unit stands in front of it, parry it.
 // Only the melee table has dodge and parry, so anything else is capped. It reads the table alone, so a
 // special whose outcome never rolls dodge or parry still counts them.
-type APLValueSpellExpertiseCapped struct {
+type APLValueSpellIsExpertiseCapped struct {
 	DefaultAPLValueImpl
 	spell     *Spell
 	targetRef UnitReference
 	melee     bool
 }
 
-func (rot *APLRotation) newValueSpellExpertiseCapped(config *proto.APLValueSpellExpertiseCapped, _ *proto.UUID) APLValue {
+func (rot *APLRotation) newValueSpellIsExpertiseCapped(config *proto.APLValueSpellIsExpertiseCapped, _ *proto.UUID) APLValue {
 	spell := rot.GetAPLSpell(config.SpellId)
 	if spell == nil {
 		return nil
 	}
-	return &APLValueSpellExpertiseCapped{
+	return &APLValueSpellIsExpertiseCapped{
 		spell:     spell,
 		targetRef: rot.GetTargetUnit(nil),
 		melee:     spell.rolledDefenseType() == DefenseTypeMelee,
 	}
 }
-func (value *APLValueSpellExpertiseCapped) Type() proto.APLValueType {
+func (value *APLValueSpellIsExpertiseCapped) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
-func (value *APLValueSpellExpertiseCapped) GetBool(_ *Simulation) bool {
+func (value *APLValueSpellIsExpertiseCapped) GetBool(_ *Simulation) bool {
 	if !value.melee {
 		return true
 	}
@@ -544,6 +544,6 @@ func (value *APLValueSpellExpertiseCapped) GetBool(_ *Simulation) bool {
 	}
 	return !spell.Unit.PseudoStats.InFrontOfTarget || target.GetTotalParryChanceAsDefender(spell, attackTable) <= capTolerance
 }
-func (value *APLValueSpellExpertiseCapped) String() string {
-	return fmt.Sprintf("Expertise Capped(%s)", value.spell.ActionID)
+func (value *APLValueSpellIsExpertiseCapped) String() string {
+	return fmt.Sprintf("Is Expertise Capped(%s)", value.spell.ActionID)
 }

@@ -6287,7 +6287,7 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "full_description"]
 								},
-								"hit_capped": {
+								"is_hit_capped": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -6303,7 +6303,7 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "full_description"]
 								},
-								"expertise_capped": {
+								"is_expertise_capped": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7251,8 +7251,8 @@
 								"spell_known",
 								"current_cost",
 								"can_cast",
-								"hit_capped",
-								"expertise_capped",
+								"is_hit_capped",
+								"is_expertise_capped",
 								"is_ready",
 								"time_to_ready",
 								"cast_time",
