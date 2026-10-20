@@ -56,26 +56,28 @@ func (value *APLValueMultipleCdUsages) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueMultipleCdUsages) GetBool(sim *Simulation) bool {
+	baseSpell := value.baseSpell
+	hasBaseSpell := baseSpell != nil && baseSpell.RelatedSelfBuff != nil
+	if !hasBaseSpell && !value.alignCdEnd {
+		return true
+	}
+
 	totalTime := sim.Duration
 	remainingTime := sim.GetRemainingDuration()
-	castOffset := value.offset.GetDuration(sim)
 
 	targetSpell := value.targetSpell
 	targetSpellCD := targetSpell.CD.Duration
 	targetSpellDuration := value.targetSpell.RelatedSelfBuff.Duration
-	targetSpellEffectiveTime := targetSpellCD + targetSpellDuration
-
-	maxUses := 1 + int(float64(totalTime)/float64(targetSpellCD))
 	canGetFullDurationAtEncounterEnd := remainingTime <= targetSpellDuration
-	canGetSecondUptimeWithinRemainingTime := remainingTime >= targetSpellEffectiveTime
 
-	baseSpell := value.baseSpell
-	if baseSpell == nil || baseSpell.RelatedSelfBuff == nil {
-		if value.alignCdEnd {
-			return canGetFullDurationAtEncounterEnd || canGetSecondUptimeWithinRemainingTime
-		}
-		return true
+	if !hasBaseSpell {
+		return canGetFullDurationAtEncounterEnd || remainingTime > targetSpellCD+targetSpellDuration/2
 	}
+
+	castOffset := value.offset.GetDuration(sim)
+	targetSpellEffectiveTime := targetSpellCD + targetSpellDuration
+	maxUses := 1 + int(float64(totalTime)/float64(targetSpellCD))
+	canGetSecondUptimeWithinRemainingTime := remainingTime >= targetSpellEffectiveTime
 
 	baseSpellAura := baseSpell.RelatedSelfBuff
 	baseSpellIsReady := baseSpell.CD.IsReady(sim)

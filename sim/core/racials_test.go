@@ -570,6 +570,9 @@ func TestSkyborneRacials(t *testing.T) {
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)
 		}
+		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; at.CritMultiplier != 1 {
+			t.Errorf("%s: Elemental Insight states no critical damage against elementals, got x%0.4f", race, at.CritMultiplier)
+		}
 
 		hasReadLeyLine := fw.GetSpell(ActionID{SpellID: 1259705}) != nil
 		hasSkysight := fw.GetSpell(ActionID{SpellID: 1259686}) != nil
