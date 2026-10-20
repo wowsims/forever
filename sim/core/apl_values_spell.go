@@ -441,17 +441,19 @@ func (value *APLValueSpellExpectedDpet) GetFloat(sim *Simulation) float64 {
 		damage += spell.ExpectedInitialDamage(sim, target)
 	}
 	if dot := spell.Dot(target); dot != nil {
+		channeled := spell.Flags.Matches(SpellFlagChanneled)
+		tickPeriod := dot.CalcTickPeriod()
 		// A channel ticks from the start of the cast, a DoT from when it lands.
 		firstTickFrom := landsAt
-		if spell.Flags.Matches(SpellFlagChanneled) {
+		if channeled {
 			firstTickFrom = 0
 		}
-		ticks := int32(min(time.Duration(dot.ExpectedTickCount()), (remaining-firstTickFrom)/dot.CalcTickPeriod()))
+		ticks := int32(min(time.Duration(dot.ExpectedTickCount()), (remaining-firstTickFrom)/tickPeriod))
 		if spell.expectedTickDamageInternal != nil {
 			damage += spell.ExpectedTickDamage(sim, target) * float64(ticks)
 		}
-		if spell.Flags.Matches(SpellFlagChanneled) {
-			cast.CastTime = dot.CalcTickPeriod() * time.Duration(ticks)
+		if channeled {
+			cast.CastTime = tickPeriod * time.Duration(ticks)
 		}
 	}
 

@@ -1323,9 +1323,10 @@ func TestValueSpellExpectedDpet(t *testing.T) {
 		"Spell Expected DPET without an expected damage calculator": rot.newValueSpellExpectedDpet(config, nil),
 	})
 
-	rend.expectedInitialDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
+	hit600 := func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
 		return &SpellResult{Damage: 600}
 	}
+	rend.expectedInitialDamageInternal = hit600
 	dpet := rot.newValueSpellExpectedDpet(config, nil)
 	if dpet == nil {
 		t.Fatalf("Expected Spell Expected DPET to resolve once the spell has an expected initial damage calculator")
@@ -1378,9 +1379,7 @@ func TestValueSpellExpectedDpet(t *testing.T) {
 		t.Errorf("2 of 5 ticks of 150 channeled every 3s in the last 7s = %f, want 50", got)
 	}
 	rend.Flags &^= SpellFlagChanneled
-	rend.expectedInitialDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
-		return &SpellResult{Damage: 600}
-	}
+	rend.expectedInitialDamageInternal = hit600
 	rend.DefaultCast.CastTime = 2 * time.Second
 	sim.CurrentTime = sim.Duration - 9*time.Second
 	if got := dpet.GetFloat(sim); got != 450 {
