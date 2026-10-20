@@ -1,6 +1,6 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { ConsumesSpec, Profession, Race, Stat } from '@generated/proto/common';
+import { ConsumesSpec, Profession, PseudoStat, Race, Stat } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
@@ -49,38 +49,26 @@ export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearJso
 	tooltip: 'Pre-raid leather with The Unstoppable Force, Wolfshead Helm and full enchants.',
 });
 
-// EP estimates with agility as 1. Hit is weighed 2% below the 8% cap.
-// Feral attack power uses attack power's weight through the form-only dependency.
-export const Level60Ep = Stats.fromMap({
-	[Stat.StatStrength]: 0.98,
-	[Stat.StatAgility]: 1,
-	[Stat.StatAttackPower]: 0.41,
-	[Stat.StatFeralAttackPower]: 0.41,
-	[Stat.StatPhysicalDamage]: 3.72,
-	[Stat.StatHitRating]: 0.73,
-	[Stat.StatExpertiseRating]: 0.69,
-	[Stat.StatCritRating]: 0.72,
-	[Stat.StatHasteRating]: 0.38,
-	[Stat.StatArmorPenetration]: 0.12,
-});
+// DPS weights for Dream, Cat 9/35/7 and 180s ±120s, averaged across the four races.
+// Rating weights measure hit at 7% and expertise at 5.5%.
+export const DefaultEp = Stats.fromMap(
+	{
+		[Stat.StatStrength]: 0.5699,
+		[Stat.StatAgility]: 0.5815,
+		[Stat.StatAttackPower]: 0.2351,
+		[Stat.StatFeralAttackPower]: 0.2351,
+		[Stat.StatPhysicalDamage]: 2.1248,
+		[Stat.StatHitRating]: 4.8332 / 10,
+		[Stat.StatExpertiseRating]: 4.57 / 10,
+		[Stat.StatCritRating]: 5.9088 / 14,
+		[Stat.StatHasteRating]: 4.1595 / 10,
+	},
+	{
+		[PseudoStat.PseudoStatMainHandDps]: 2.2704,
+	},
+);
 
-export const Level60EpWeights = PresetUtils.makePresetEpWeights('Level 60', Level60Ep);
-
-// EP estimates with agility as 1. Hit is weighed 2% below the 8% cap.
-export const PreRaidEp = Stats.fromMap({
-	[Stat.StatStrength]: 0.97,
-	[Stat.StatAgility]: 1,
-	[Stat.StatAttackPower]: 0.39,
-	[Stat.StatFeralAttackPower]: 0.39,
-	[Stat.StatPhysicalDamage]: 3.56,
-	[Stat.StatHitRating]: 0.75,
-	[Stat.StatExpertiseRating]: 0.73,
-	[Stat.StatCritRating]: 0.75,
-	[Stat.StatHasteRating]: 0.43,
-	[Stat.StatArmorPenetration]: 0.13,
-});
-
-export const PreRaidEpWeights = PresetUtils.makePresetEpWeights('Pre-raid', PreRaidEp);
+export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Feral Cat', DefaultEp);
 
 // The cat stays in Cat Form: Shifting Power, Rip, Rake and Shred, Faerie Fire for Omen of Clarity,
 // and a self-Innervate when mana would run short.
