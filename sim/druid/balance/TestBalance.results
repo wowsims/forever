@@ -550,6 +550,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-IdoloftheDream-220606"
+ value: {
+  dps: 594.50081
+  tps: 423.39251
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-JomGabbar-23570"
  value: {
   dps: 552.96858

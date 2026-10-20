@@ -6,6 +6,14 @@ import (
 )
 
 func init() {
+	core.NewItemEffect(220606, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(446212)
+		aura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(row)))
+		spelldata.ParseEffects(character, aura, row)
+		character.ItemSwap.RegisterProc(220606, aura)
+	})
+
 	// Idol of the Moon. Its equip spell states the bonus as A_OVERRIDE_CLASS_SCRIPTS, which has no
 	// parse row; the effect's class flags name Moonfire.
 	core.NewItemEffect(23197, func(agent core.Agent) {

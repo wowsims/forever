@@ -788,3 +788,62 @@ func TestFaerieFireOmenEligibilityByForm(t *testing.T) {
 		})
 	}
 }
+
+func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
+	row := spelldata.MustFind(9896)
+	period := row.PeriodicDamageEffect().Period()
+	extension := spelldata.MustFind(446212).EffectN(1).TimeValue()
+	for _, item := range []int32{0, 220606} {
+		for _, points := range []int32{4, 5} {
+			t.Run(fmt.Sprintf("item=%d/points=%d", item, points), func(t *testing.T) {
+				sim, cat := newCatWearing(t, furorTalents, nil, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: item})
+				for iteration := range 2 {
+					if iteration != 0 {
+						sim.Cleanup()
+						sim.Reset()
+					}
+					cat.AddComboPoints(sim, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
+					dot := cat.Rip.Dot(cat.CurrentTarget)
+					dot.Apply(sim)
+					want := row.Duration()
+					if item != 0 {
+						want += extension
+					}
+					if dot.Duration != want || dot.TickPeriod() != period {
+						t.Fatalf("Rip duration/period = %v/%v, want %v/%v", dot.Duration, dot.TickPeriod(), want, period)
+					}
+					base := row.PeriodicDamageEffect().AverageAt(60) + float64(row.PeriodicDamageEffect().PointsPerResource)*float64(points)
+					if dot.SnapshotBaseDamage != base {
+						t.Fatalf("Rip base tick damage = %v, want %v", dot.SnapshotBaseDamage, base)
+					}
+					if cat.Rake.Dot(cat.CurrentTarget).BaseDuration() != spelldata.MustFind(9904).Duration() {
+						t.Fatal("Rip idol changed Rake duration")
+					}
+					wantTicks := int32(want / period)
+					if iteration != 0 {
+						for dot.TickCount() == 0 {
+							if sim.Step() {
+								t.Fatal("simulation ended before Rip ticked")
+							}
+						}
+						dot.Apply(sim)
+						if dot.Duration != want {
+							t.Fatal("refresh changed Rip duration")
+						}
+						wantTicks++
+					}
+					for dot.IsActive() {
+						if sim.Step() {
+							t.Fatal("simulation ended before Rip expired")
+						}
+					}
+					metrics := cat.Rip.SpellMetrics[cat.CurrentTarget.UnitIndex]
+					ticks := metrics.Ticks + metrics.CritTicks
+					if ticks != wantTicks {
+						t.Fatalf("Rip dealt %d ticks, want %d", ticks, wantTicks)
+					}
+				}
+			})
+		}
+	}
+}

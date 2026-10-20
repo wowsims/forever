@@ -1,5 +1,6 @@
 {
 "items":[
+{"id":220606, "name":"Idol of the Dream", "icon":"inv_relics_idolofferocity", "type":14, "rangedWeaponType":6, "phase":1, "quality":3, "scalingOptions":{"0":{"randPropPoints":19, "ilvl":60}}, "itemEffects":[{"buffId":446212, "buffName":"Improved Rip (446212)"}]},
 {"id":720,"name":"Brawler Gloves","icon":"inv_gauntlets_05","type":7,"armorType":2,"phase":1,"quality":3,"scalingOptions":{"0":{"randPropPoints":12,"stats":{"0":8,"2":7,"27":62},"ilvl":28}}},
 {"id":727,"name":"Notched Shortsword","icon":"inv_sword_04","type":13,"weaponType":9,"handType":2,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12736,12740,12741,12742,12743,12744,12759,12917,12920],"weaponSpeed":2.1,"phase":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":1,"weaponDamageMin":8,"weaponDamageMax":15,"unroundedDps":5.5072365,"ilvl":10,"reducedCasterWeaponDamage":{"weaponDamageMin":5,"weaponDamageMax":10,"unroundedDps":3.671491}}}},
 {"id":744,"name":"Thunderbrew's Boot Flask","icon":"inv_drink_01","type":12,"phase":1,"quality":2,"unique":true,"scalingOptions":{"0":{"randPropPoints":14,"stats":{"13":8},"ilvl":44}},"itemEffects":[{"buffId":12257,"buffName":"Breath of Fire (12257)","effectDurationMs":5000,"onUse":{"cooldownMs":300000}}]},

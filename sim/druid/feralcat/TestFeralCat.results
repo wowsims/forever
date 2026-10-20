@@ -545,6 +545,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-IdoloftheDream-220606"
+ value: {
+  dps: 645.04484
+  tps: 345.22414
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-IdoloftheMoon-23197"
  value: {
   dps: 631.15846

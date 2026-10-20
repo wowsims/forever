@@ -465,7 +465,6 @@ var ItemDenyList = map[int32]struct{}{
 	217314: {}, // Moonsight Rifle
 	217315: {}, // Precision Bow
 	219345: {}, // Infernal Lasso
-	220606: {}, // Idol of the Dream
 	220794: {}, // Knight's Plate Hauberk
 	220795: {}, // Knight-Lieutenant's Plate Pauldrons
 	220796: {}, // Blood Guard's Plate Pauldrons
