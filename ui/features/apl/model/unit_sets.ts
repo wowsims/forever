@@ -3,6 +3,12 @@ import { Player } from '@sim/player/player';
 
 export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
 
+const ownPetRefs = (player: Player<any>) =>
+	player
+		.getPetMetadatas()
+		.asList()
+		.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) }));
+
 export const unitSets: Record<
 	UNIT_SET,
 	{
@@ -15,10 +21,7 @@ export const unitSets: Record<
 		getUnits: player => {
 			return [
 				undefined,
-				player
-					.getPetMetadatas()
-					.asList()
-					.map((petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
+				ownPetRefs(player),
 				UnitReference.create({ type: UnitType.CurrentTarget }),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
@@ -37,23 +40,14 @@ export const unitSets: Record<
 				undefined,
 				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.Self }),
-				player
-					.getPetMetadatas()
-					.asList()
-					.map((petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
+				ownPetRefs(player),
 			].flat();
 		},
 	},
-	// A pet without the resource the value reads gets the sim's validation warning.
+	// Lists every own pet. One without the resource the value reads fails validation, and the condition holding the value then counts as always true.
 	self_and_pets: {
 		getUnits: player => {
-			return [
-				undefined,
-				player
-					.getPetMetadatas()
-					.asList()
-					.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
-			].flat();
+			return [undefined, ownPetRefs(player)].flat();
 		},
 	},
 	targets: {
