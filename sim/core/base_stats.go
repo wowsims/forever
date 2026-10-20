@@ -48,21 +48,20 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 var RaceOffsets = map[proto.Race]stats.Stats{
 	proto.Race_RaceUnknown: stats.Stats{},
 	proto.Race_RaceHuman:   stats.Stats{},
-	// Agility, Strength, Intellect and Stamina follow the game's current race
-	// table. That table has no Spirit, so the Spirit offsets are the original
-	// game's until a character sheet confirms them.
+	// Read from level 1 naked warrior character sheets against a Human one
+	// (2026-10-20). No race changes Spirit.
 	proto.Race_RaceOrc: {
 		stats.Agility:   -3,
 		stats.Strength:  3,
 		stats.Intellect: -1,
-		stats.Spirit:    3,
+		stats.Spirit:    0,
 		stats.Stamina:   1,
 	},
 	proto.Race_RaceDwarf: {
 		stats.Agility:   -2,
 		stats.Strength:  2,
 		stats.Intellect: -1,
-		stats.Spirit:    -1,
+		stats.Spirit:    0,
 		stats.Stamina:   1,
 	},
 	proto.Race_RaceNightElf: {
@@ -76,14 +75,14 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 		stats.Agility:   -1,
 		stats.Strength:  2,
 		stats.Intellect: -2,
-		stats.Spirit:    5,
+		stats.Spirit:    0,
 		stats.Stamina:   1,
 	},
 	proto.Race_RaceTauren: {
 		stats.Agility:   -2,
 		stats.Strength:  2,
 		stats.Intellect: -2,
-		stats.Spirit:    2,
+		stats.Spirit:    0,
 		stats.Stamina:   2,
 	},
 	proto.Race_RaceGnome: {
@@ -97,7 +96,7 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 		stats.Agility:   2,
 		stats.Strength:  1,
 		stats.Intellect: -3,
-		stats.Spirit:    1,
+		stats.Spirit:    0,
 		stats.Stamina:   0,
 	},
 	// Read from level 1 naked character sheets (2026-09-22): four Human/High
