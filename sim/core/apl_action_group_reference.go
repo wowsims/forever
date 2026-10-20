@@ -177,17 +177,21 @@ func (action *APLActionGroupReference) Execute(sim *Simulation) {
 	if action.group == nil {
 		return
 	}
-	if action.entry != nil && action.entry.condition != nil {
-		action.rot.groupConditions = append(action.rot.groupConditions, action.entry.condition)
-		defer func() { action.rot.groupConditions = action.rot.groupConditions[:len(action.rot.groupConditions)-1] }()
+	condition := action.entry.condition
+	if condition != nil {
+		action.rot.groupConditions = append(action.rot.groupConditions, condition)
 	}
 
 	// Execute the first ready action in the group
 	for _, groupAction := range action.group.actions {
 		if groupAction.IsReady(sim) {
 			groupAction.Execute(sim)
-			return
+			break
 		}
+	}
+
+	if condition != nil {
+		action.rot.groupConditions = action.rot.groupConditions[:len(action.rot.groupConditions)-1]
 	}
 }
 

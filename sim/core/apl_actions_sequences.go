@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 
@@ -125,7 +124,7 @@ type APLActionStrictSequence struct {
 	hookedQueueAction *PendingAction
 	hookedOnAction    func(*Simulation)
 
-	gates []APLValue // A Strict Multidot's conditions; the sequence ends when one is false as its next cast can go out.
+	gate APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -207,12 +206,12 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		case *APLActionChannelSpell:
 			castReady = cast.spell.CanCast(sim, cast.target.Get())
 		}
-		if action.curIdx > 0 && len(action.gates) > 0 {
-			// A queued cast fires without the gates read again, so a gated cast waits until it can go out.
+		if action.curIdx > 0 && action.gate != nil {
+			// A queued cast fires without the gate read again, so a gated cast waits until it can go out.
 			if !castReady {
 				return nil
 			}
-			if slices.ContainsFunc(action.gates, func(gate APLValue) bool { return !gate.GetBool(sim) }) {
+			if !action.gate.GetBool(sim) {
 				action.relinquishControl()
 				return action.unit.Rotation.getNextAction(sim)
 			}

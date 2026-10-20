@@ -168,8 +168,7 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 	return newAPLActionEntry(condition, impl)
 }
 
-// Entries parsed from the rotation config are built here, so the actions that read their own entry's
-// condition get it.
+// Builds a rotation entry and hands it to the actions that read their own entry's condition.
 func newAPLActionEntry(condition APLValue, impl APLActionImpl) *APLAction {
 	action := &APLAction{
 		condition: condition,

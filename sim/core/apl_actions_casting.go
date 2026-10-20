@@ -389,14 +389,20 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	return len(action.readyActions) > 0
 }
 func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
-	gates := slices.Clone(action.unit.Rotation.groupConditions)
-	if action.entry != nil && action.entry.condition != nil {
-		gates = append(gates, action.entry.condition)
+	groupConditions := action.unit.Rotation.groupConditions
+	var gate APLValue
+	if len(groupConditions) > 0 || action.entry.condition != nil {
+		vals := make([]APLValue, 0, len(groupConditions)+1)
+		vals = append(vals, groupConditions...)
+		if action.entry.condition != nil {
+			vals = append(vals, action.entry.condition)
+		}
+		gate = &APLValueAnd{vals: vals}
 	}
 	sequence := APLActionStrictSequence{
 		unit:       action.unit,
 		subactions: action.readyActions,
-		gates:      gates,
+		gate:       gate,
 	}
 	sequence.Execute(sim)
 }

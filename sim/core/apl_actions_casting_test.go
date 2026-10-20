@@ -26,18 +26,17 @@ func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
 			Action:    &proto.APLAction_StrictMultidot{StrictMultidot: &proto.APLActionStrictMultidot{SpellId: ActionID{SpellID: dotID}.ToProto(), MaxDots: 2}},
 		}}
 	}
-	groupRefTo := func(name string, condition *proto.APLValue) *proto.APLListItem {
+	groupRef := func(name string, condition *proto.APLValue) *proto.APLListItem {
 		return &proto.APLListItem{Action: &proto.APLAction{
 			Condition: condition,
 			Action:    &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: name}},
 		}}
 	}
-	groupRef := func(condition *proto.APLValue) *proto.APLListItem { return groupRefTo("dots", condition) }
 	group := func(item *proto.APLListItem) []*proto.APLGroup {
 		return []*proto.APLGroup{{Name: "dots", Actions: []*proto.APLListItem{item}}}
 	}
 	nested := []*proto.APLGroup{
-		{Name: "outer", Actions: []*proto.APLListItem{groupRef(firstSecond)}},
+		{Name: "outer", Actions: []*proto.APLListItem{groupRef("dots", firstSecond)}},
 		{Name: "dots", Actions: []*proto.APLListItem{multidot(nil)}},
 	}
 	sequence := &proto.APLListItem{Action: &proto.APLAction{
@@ -53,9 +52,9 @@ func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
 	}{
 		{"without a condition", multidot(nil), nil, []int32{0, 1}},
 		{"with a condition on its entry", multidot(firstSecond), nil, []int32{0}},
-		{"with a condition on its entry in a group", groupRef(nil), group(multidot(firstSecond)), []int32{0}},
-		{"with a condition on the group reference", groupRef(firstSecond), group(multidot(nil)), []int32{0}},
-		{"with a condition on a nested group reference", groupRefTo("outer", nil), nested, []int32{0}},
+		{"with a condition on its entry in a group", groupRef("dots", nil), group(multidot(firstSecond)), []int32{0}},
+		{"with a condition on the group reference", groupRef("dots", firstSecond), group(multidot(nil)), []int32{0}},
+		{"with a condition on a nested group reference", groupRef("outer", nil), nested, []int32{0}},
 		{"with a condition on an outer sequence", sequence, nil, []int32{0, 1}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
