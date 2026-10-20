@@ -1,2136 +1,2405 @@
 {
-	"type": "TypeAPL",
-	"prepullActions": [
-		{
-			"action": {
-				"groupReference": {
-					"groupName": "Prepull opener"
-				}
-			},
-			"doAtValue": {
-				"const": {
-					"val": "-1s"
-				}
-			}
-		}
-	],
-	"valueVariables": [
-		{
-			"name": "Shift Energy ceiling",
-			"value": {
-				"const": {
-					"val": "50"
-				}
-			}
-		},
-		{
-			"name": "Bite minimum CP",
-			"value": {
-				"const": {
-					"val": "4"
-				}
-			}
-		},
-		{
-			"name": "Bite Energy ceiling",
-			"value": {
-				"const": {
-					"val": "55"
-				}
-			}
-		},
-		{
-			"name": "Rip minimum CP",
-			"value": {
-				"const": {
-					"val": "4"
-				}
-			}
-		},
-		{
-			"name": "Terminal window",
-			"value": {
-				"cmp": {
-					"op": "OpLt",
-					"lhs": {
-						"remainingTime": {}
-					},
-					"rhs": {
-						"const": {
-							"val": "6s"
-						}
-					}
-				}
-			}
-		},
-		{
-			"name": "Shift now",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Shift Energy ceiling"
-									}
-								}
-							}
-						},
-						{
-							"spellCanCast": {
-								"spellId": {
-									"spellId": 1322605
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Rake due",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 9904
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGt",
-								"lhs": {
-									"remainingTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "6s"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Rip due",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"currentComboPoints": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Rip minimum CP"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 9896
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Terminal window"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Bite allowed",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"currentComboPoints": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Bite minimum CP"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Bite Energy ceiling"
-									}
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "Terminal window"
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Reserve refresh Energy",
-			"value": {
-				"or": {
-					"vals": [
-						{
-							"and": {
-								"vals": [
-									{
-										"cmp": {
-											"op": "OpGe",
-											"lhs": {
-												"currentComboPoints": {}
-											},
-											"rhs": {
-												"variableRef": {
-													"name": "Rip minimum CP"
-												}
-											}
-										}
-									},
-									{
-										"dotIsActive": {
-											"spellId": {
-												"spellId": 9896
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "2s"
-												}
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Terminal window"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"math": {
-															"op": "OpSub",
-															"lhs": {
-																"currentEnergy": {}
-															},
-															"rhs": {
-																"spellCurrentCost": {
-																	"spellId": {
-																		"spellId": 9830
-																	}
-																}
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"and": {
-								"vals": [
-									{
-										"dotIsActive": {
-											"spellId": {
-												"spellId": 9904
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "2s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"math": {
-															"op": "OpSub",
-															"lhs": {
-																"currentEnergy": {}
-															},
-															"rhs": {
-																"spellCurrentCost": {
-																	"spellId": {
-																		"spellId": 9830
-																	}
-																}
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Free global 1.0s",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"gcdTimeToReady": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"spellId": 1322605
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "1.0s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"math": {
-										"op": "OpAdd",
-										"lhs": {
-											"currentEnergy": {}
-										},
-										"rhs": {
-											"const": {
-												"val": "10"
-											}
-										}
-									}
-								},
-								"rhs": {
-									"spellCurrentCost": {
-										"spellId": {
-											"spellId": 9830
-										}
-									}
-								}
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rake due"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rip due"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Bite allowed"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 22829
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"dotIsActive": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGt",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1.0s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"dotIsActive": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGt",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1.0s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Free global 1.5s",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"gcdTimeToReady": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"spellId": 1322605
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "1.5s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"math": {
-										"op": "OpAdd",
-										"lhs": {
-											"currentEnergy": {}
-										},
-										"rhs": {
-											"const": {
-												"val": "15"
-											}
-										}
-									}
-								},
-								"rhs": {
-									"spellCurrentCost": {
-										"spellId": {
-											"spellId": 9830
-										}
-									}
-								}
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rake due"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rip due"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Bite allowed"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 22829
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"dotIsActive": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGt",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1.5s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"dotIsActive": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGt",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1.5s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Elune's Light now",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"spellId": 1259799
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGt",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"spellId": 417141
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "15s"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Shadowmeld into Ravage",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"spellId": 20580
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"gcdTimeToReady": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"spellIsReady": {
-								"spellId": {
-									"spellId": 20580
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Reserve refresh Energy"
-									}
-								}
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 16870
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGe",
-											"lhs": {
-												"currentEnergy": {}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9867
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Energized now",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"spellId": 1259705
-								}
-							}
-						},
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"spellIsReady": {
-								"spellId": {
-									"spellId": 1259705
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "30"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"currentMana": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "1400"
-									}
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "Free global 1.5s"
-							}
-						}
-					]
-				}
-			}
-		}
-	],
-	"priorityList": [
-		{
-			"notes": "Ravage opener",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 9913
-									}
-								}
-							},
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 16870
-									}
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9867
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 768
-											}
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 9634
-											}
-										}
-									}
-								}
-							},
-							{
-								"and": {
-									"vals": [
-										{
-											"cmp": {
-												"op": "OpLt",
-												"lhs": {
-													"currentMana": {}
-												},
-												"rhs": {
-													"const": {
-														"val": "1400"
-													}
-												}
-											}
-										},
-										{
-											"cmp": {
-												"op": "OpLt",
-												"lhs": {
-													"currentMana": {}
-												},
-												"rhs": {
-													"math": {
-														"op": "OpMul",
-														"lhs": {
-															"remainingTime": {}
-														},
-														"rhs": {
-															"const": {
-																"val": "50"
-															}
-														}
-													}
-												}
-											}
-										}
-									]
-								}
-							},
-							{
-								"spellCanCast": {
-									"spellId": {
-										"spellId": 29166
-									}
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 29166
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"not": {
-						"val": {
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						}
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 768
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"autocastOtherCooldowns": {}
-			}
-		},
-		{
-			"notes": "Return to Cat",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 768
-											}
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 9634
-											}
-										}
-									}
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 768
-					}
-				}
-			}
-		},
-		{
-			"notes": "Berserk with Rake",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"variableRef": {
-											"name": "Shift now"
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"and": {
-											"vals": [
-												{
-													"variableRef": {
-														"name": "Rip due"
-													}
-												},
-												{
-													"spellCanCast": {
-														"spellId": {
-															"spellId": 9896
-														}
-													}
-												}
-											]
-										}
-									}
-								}
-							},
-							{
-								"variableRef": {
-									"name": "Rake due"
-								}
-							},
-							{
-								"spellCanCast": {
-									"spellId": {
-										"spellId": 9904
-									}
-								}
-							}
-						]
-					}
-				},
-				"strictSequence": {
-					"actions": [
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 417141
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 9904
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"notes": "Berserk with Shred",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"variableRef": {
-											"name": "Shift now"
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"and": {
-											"vals": [
-												{
-													"variableRef": {
-														"name": "Rip due"
-													}
-												},
-												{
-													"spellCanCast": {
-														"spellId": {
-															"spellId": 9896
-														}
-													}
-												}
-											]
-										}
-									}
-								}
-							},
-							{
-								"and": {
-									"vals": [
-										{
-											"not": {
-												"val": {
-													"variableRef": {
-														"name": "Rake due"
-													}
-												}
-											}
-										},
-										{
-											"not": {
-												"val": {
-													"variableRef": {
-														"name": "Reserve refresh Energy"
-													}
-												}
-											}
-										}
-									]
-								}
-							},
-							{
-								"spellCanCast": {
-									"spellId": {
-										"spellId": 9830
-									}
-								}
-							}
-						]
-					}
-				},
-				"strictSequence": {
-					"actions": [
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 417141
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 9830
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Elune's Light now"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 1259799
-					}
-				}
-			},
-			"notes": "Elune's Light outside Berserk"
-		},
-		{
-			"notes": "Shift below ceiling",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Shift now"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 1322605
-					}
-				}
-			}
-		},
-		{
-			"notes": "Tea threshold",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpLe",
-									"lhs": {
-										"currentEnergy": {}
-									},
-									"rhs": {
-										"const": {
-											"val": "20"
-										}
-									}
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"itemId": 7676
-					}
-				}
-			}
-		},
-		{
-			"notes": "Mighty Rage Potion",
-			"action": {
-				"condition": {
-					"auraIsActive": {
-						"auraId": {
-							"spellId": 768
-						}
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"otherId": "OtherActionOffensivePotion"
-					}
-				}
-			}
-		},
-		{
-			"notes": "Terminal Bite",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"variableRef": {
-									"name": "Bite allowed"
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 22829
-					}
-				}
-			}
-		},
-		{
-			"notes": "Maintain Rip",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"variableRef": {
-									"name": "Rip due"
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9896
-					}
-				}
-			}
-		},
-		{
-			"notes": "Maintain Rake",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"variableRef": {
-									"name": "Rake due"
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9904
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Shadowmeld into Ravage"
-					}
-				},
-				"strictSequence": {
-					"actions": [
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 20580
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 9867
-								}
-							}
-						}
-					]
-				}
-			},
-			"notes": "Shadowmeld into Ravage"
-		},
-		{
-			"notes": "Shred",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"variableRef": {
-											"name": "Reserve refresh Energy"
-										}
-									}
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9830
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"spellIsKnown": {
-									"spellId": {
-										"itemId": 10646
-									}
-								}
-							},
-							{
-								"variableRef": {
-									"name": "Free global 1.5s"
-								}
-							},
-							{
-								"spellIsReady": {
-									"spellId": {
-										"itemId": 10646
-									}
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpGe",
-									"lhs": {
-										"currentMana": {}
-									},
-									"rhs": {
-										"spellCurrentCost": {
-											"spellId": {
-												"spellId": 768
-											}
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 417141
-											}
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"variableRef": {
-											"name": "Reserve refresh Energy"
-										}
-									}
-								}
-							}
-						]
-					}
-				},
-				"strictSequence": {
-					"actions": [
-						{
-							"cancelAura": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"itemId": 10646
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 768
-								}
-							}
-						}
-					]
-				}
-			},
-			"notes": "Sapper in a free global"
-		},
-		{
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Energized now"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 1259705
-					}
-				}
-			},
-			"notes": "Read Ley Line in a free global"
-		},
-		{
-			"notes": "Faerie Fire filler",
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"variableRef": {
-									"name": "Free global 1.0s"
-								}
-							},
-							{
-								"auraIcdIsReady": {
-									"auraId": {
-										"spellId": 16864
-									}
-								}
-							},
-							{
-								"or": {
-									"vals": [
-										{
-											"not": {
-												"val": {
-													"spellIsKnown": {
-														"spellId": {
-															"itemId": 10646
-														}
-													}
-												}
-											}
-										},
-										{
-											"not": {
-												"val": {
-													"spellIsReady": {
-														"spellId": {
-															"itemId": 10646
-														}
-													}
-												}
-											}
-										},
-										{
-											"not": {
-												"val": {
-													"variableRef": {
-														"name": "Free global 1.5s"
-													}
-												}
-											}
-										}
-									]
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9907
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsActive": {
-									"auraId": {
-										"spellId": 768
-									}
-								}
-							},
-							{
-								"spellIsReady": {
-									"spellId": {
-										"spellId": 29166
-									}
-								}
-							},
-							{
-								"and": {
-									"vals": [
-										{
-											"cmp": {
-												"op": "OpLt",
-												"lhs": {
-													"currentMana": {}
-												},
-												"rhs": {
-													"const": {
-														"val": "1400"
-													}
-												}
-											}
-										},
-										{
-											"cmp": {
-												"op": "OpLt",
-												"lhs": {
-													"currentMana": {}
-												},
-												"rhs": {
-													"math": {
-														"op": "OpMul",
-														"lhs": {
-															"remainingTime": {}
-														},
-														"rhs": {
-															"const": {
-																"val": "50"
-															}
-														}
-													}
-												}
-											}
-										}
-									]
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpLe",
-									"lhs": {
-										"gcdTimeToReady": {}
-									},
-									"rhs": {
-										"const": {
-											"val": "0s"
-										}
-									}
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpLe",
-									"lhs": {
-										"currentEnergy": {}
-									},
-									"rhs": {
-										"const": {
-											"val": "30"
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 16870
-											}
-										}
-									}
-								}
-							},
-							{
-								"not": {
-									"val": {
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 417141
-											}
-										}
-									}
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpGe",
-									"lhs": {
-										"remainingTime": {}
-									},
-									"rhs": {
-										"const": {
-											"val": "15s"
-										}
-									}
-								}
-							}
-						]
-					}
-				},
-				"cancelAura": {
-					"auraId": {
-						"spellId": 768
-					}
-				}
-			}
-		}
-	],
-	"groups": [
-		{
-			"name": "Prepull opener",
-			"actions": [
-				{
-					"action": {
-						"castSpell": {
-							"spellId": {
-								"spellId": 9913
-							}
-						},
-						"condition": {
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 16870
-								}
-							}
-						}
-					}
-				}
-			]
-		}
-	]
+  "type": "TypeAPL",
+  "prepullActions": [
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 9913
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-1s"
+        }
+      }
+    }
+  ],
+  "valueVariables": [
+    {
+      "name": "The fight is ending",
+      "value": {
+        "cmp": {
+          "op": "OpLt",
+          "lhs": {
+            "remainingTime": {}
+          },
+          "rhs": {
+            "const": {
+              "val": "6s"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Shifting Power is ready at or below its energy ceiling",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "50"
+                  }
+                }
+              }
+            },
+            {
+              "spellCanCast": {
+                "spellId": {
+                  "spellId": 1322605
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rake is missing and has time to tick",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "not": {
+                "val": {
+                  "dotIsActive": {
+                    "spellId": {
+                      "spellId": 9904
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "6s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "There is energy and time for Shred then Rip next global",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "math": {
+                        "op": "OpAdd",
+                        "lhs": {
+                          "spellCurrentCost": {
+                            "spellId": {
+                              "spellId": 9830
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "spellCurrentCost": {
+                            "spellId": {
+                              "spellId": 9896
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "10"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "7s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Use the Rip fallback when building first would delay it",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "4"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "There is energy and time for Shred then Rip next global"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rip has enough combo points, including the fallback",
+      "value": {
+        "or": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "5"
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Use the Rip fallback when building first would delay it"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rip is missing and has time to tick",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "variableRef": {
+                "name": "Rip has enough combo points, including the fallback"
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "dotIsActive": {
+                    "spellId": {
+                      "spellId": 9896
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "The fight is ending"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "A finishing Bite is worthwhile",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "5"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "55"
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "The fight is ending"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Save energy for the next bleed refresh",
+      "value": {
+        "or": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "variableRef": {
+                      "name": "Rip has enough combo points, including the fallback"
+                    }
+                  },
+                  {
+                    "dotIsActive": {
+                      "spellId": {
+                        "spellId": 9896
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "2s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "The fight is ending"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "currentEnergy": {}
+                              },
+                              "rhs": {
+                                "spellCurrentCost": {
+                                  "spellId": {
+                                    "spellId": 9830
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "10"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "and": {
+                "vals": [
+                  {
+                    "dotIsActive": {
+                      "spellId": {
+                        "spellId": 9904
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "2s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "currentEnergy": {}
+                              },
+                              "rhs": {
+                                "spellCurrentCost": {
+                                  "spellId": {
+                                    "spellId": 9830
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "10"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "A utility cast will not delay Cat attacks",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 1322605
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1.5s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "currentEnergy": {}
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "15"
+                      }
+                    }
+                  }
+                },
+                "rhs": {
+                  "spellCurrentCost": {
+                    "spellId": {
+                      "spellId": 9830
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Rake is missing and has time to tick"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Rip is missing and has time to tick"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "A finishing Bite is worthwhile"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 22829
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "dotIsActive": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "1.5s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "dotIsActive": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "1.5s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Elune\u2019s Light is available, outside Berserk and away from its next use",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 1259799
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 417141
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "15s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "spellIsKnown": {
+                      "spellId": {
+                        "spellId": 20580
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "gcdTimeToReady": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "spellIsReady": {
+                      "spellId": {
+                        "spellId": 20580
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Save energy for the next bleed refresh"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "auraIsActive": {
+                            "auraId": {
+                              "spellId": 16870
+                            }
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpGe",
+                            "lhs": {
+                              "currentEnergy": {}
+                            },
+                            "rhs": {
+                              "spellCurrentCost": {
+                                "spellId": {
+                                  "spellId": 9867
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Read Ley Line is ready: restore needed mana in a free utility window",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 1259705
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "spellId": 1259705
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "30"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "currentMana": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1400"
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A utility cast will not delay Cat attacks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bite in the final window with enough combo points",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "2"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Prowl is active: open with Ravage",
+      "value": {
+        "auraIsActive": {
+          "auraId": {
+            "spellId": 9913
+          }
+        }
+      }
+    },
+    {
+      "name": "Outside Cat Form: return after utility casts",
+      "value": {
+        "not": {
+          "val": {
+            "auraIsActive": {
+              "auraId": {
+                "spellId": 768
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Ready for Berserk followed by Rake",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Shifting Power is ready at or below its energy ceiling"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "and": {
+                    "vals": [
+                      {
+                        "variableRef": {
+                          "name": "Rip is missing and has time to tick"
+                        }
+                      },
+                      {
+                        "spellCanCast": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Rake is missing and has time to tick"
+              }
+            },
+            {
+              "spellCanCast": {
+                "spellId": {
+                  "spellId": 9904
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ready for Berserk followed by Shred",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Shifting Power is ready at or below its energy ceiling"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "and": {
+                    "vals": [
+                      {
+                        "variableRef": {
+                          "name": "Rip is missing and has time to tick"
+                        }
+                      },
+                      {
+                        "spellCanCast": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "and": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Rake is missing and has time to tick"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Save energy for the next bleed refresh"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "spellCanCast": {
+                "spellId": {
+                  "spellId": 9830
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Use Thistle Tea at or below its energy ceiling",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "20"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "In Cat Form: use the selected offensive potion",
+      "value": {
+        "auraIsActive": {
+          "auraId": {
+            "spellId": 768
+          }
+        }
+      }
+    },
+    {
+      "name": "Bite near fight end when Rip is no longer worthwhile",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A finishing Bite is worthwhile"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Clearcasting is active: Shred before refreshing bleeds",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 16870
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rip when missing: build to the target CP if the next-global Rip is funded",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Rip is missing and has time to tick"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rake when missing and enough fight time remains",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Rake is missing and has time to tick"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shred without spending energy reserved for bleeds or later Berserk",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Save energy for the next bleed refresh"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sapper is ready and fits a free utility window",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 10646
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A utility cast will not delay Cat attacks"
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "itemId": 10646
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentMana": {}
+                },
+                "rhs": {
+                  "spellCurrentCost": {
+                    "spellId": {
+                      "spellId": 768
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Save energy for the next bleed refresh"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Innervate when mana is low and enough fight time remains",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "spellId": 29166
+                }
+              }
+            },
+            {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "currentMana": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "1400"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "currentMana": {}
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpMul",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "50"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "30"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "15s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Major Mana Potion has room for its base restore",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "selectedPotion": {
+                "potionId": {
+                  "itemId": 13444
+                }
+              }
+            },
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 13444
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "itemId": 13444
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "maxMana": {}
+                    },
+                    "rhs": {
+                      "currentMana": {}
+                    }
+                  }
+                },
+                "rhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "const": {
+                        "val": "2250"
+                      }
+                    },
+                    "rhs": {
+                      "math": {
+                        "op": "OpMul",
+                        "lhs": {
+                          "currentManaRegen": {}
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "5"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Current mana may not last until the next potion opportunity",
+      "value": {
+        "or": {
+          "vals": [
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Judgement of Wisdom is supporting mana"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "currentMana": {}
+                },
+                "rhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "math": {
+                        "op": "OpMul",
+                        "lhs": {
+                          "math": {
+                            "op": "OpDiv",
+                            "lhs": {
+                              "min": {
+                                "vals": [
+                                  {
+                                    "remainingTime": {}
+                                  },
+                                  {
+                                    "const": {
+                                      "val": "120s"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "1s"
+                              }
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "20"
+                          }
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "math": {
+                        "op": "OpMul",
+                        "lhs": {
+                          "spellCurrentCost": {
+                            "spellId": {
+                              "spellId": 1322605
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Judgement of Wisdom is supporting mana",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsKnown": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 20355,
+                  "tag": -1
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 20355,
+                  "tag": -1
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Berserk before a builder; pool energy or use Clearcasting for later uses",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "gcdTimeToReady": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "spellIsKnown": {
+                      "spellId": {
+                        "spellId": 417141
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "spellTimeToReady": {
+                          "spellId": {
+                            "spellId": 417141
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "spellCanCast": {
+                      "spellId": {
+                        "spellId": 417141
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "variableRef": {
+                                "name": "Bite in the final window with enough combo points"
+                              }
+                            },
+                            {
+                              "spellCanCast": {
+                                "spellId": {
+                                  "spellId": 22829
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "variableRef": {
+                                  "name": "Prowl is active: open with Ravage"
+                                }
+                              },
+                              {
+                                "spellCanCast": {
+                                  "spellId": {
+                                    "spellId": 9867
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "not": {
+                                  "val": {
+                                    "variableRef": {
+                                      "name": "Prowl is active: open with Ravage"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "or": {
+                                  "vals": [
+                                    {
+                                      "variableRef": {
+                                        "name": "Ready for Berserk followed by Rake"
+                                      }
+                                    },
+                                    {
+                                      "variableRef": {
+                                        "name": "Ready for Berserk followed by Shred"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "variableRef": {
+                                "name": "Bite near fight end when Rip is no longer worthwhile"
+                              }
+                            },
+                            {
+                              "spellCanCast": {
+                                "spellId": {
+                                  "spellId": 22829
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pool energy for a later Berserk",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "currentTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "30s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 417141
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "15s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "180s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "60"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Throw EZ-Thro Thorium Grenade in a free window after the opener",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 260816
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 9913
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A utility cast will not delay Cat attacks"
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "itemId": 260816
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "priorityList": [
+    {
+      "notes": "Berserk before a builder; pool energy or use Clearcasting for later uses",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Berserk before a builder; pool energy or use Clearcasting for later uses"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 417141
+          }
+        }
+      }
+    },
+    {
+      "notes": "Prowl is active: open with Ravage",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Prowl is active: open with Ravage"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9867
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Outside Cat Form: return after utility casts"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 768
+          }
+        }
+      },
+      "notes": "Outside Cat Form: return after utility casts"
+    },
+    {
+      "notes": "Bite in the final window with enough combo points",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Bite in the final window with enough combo points"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 22829
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "autocastOtherCooldowns": {}
+      },
+      "notes": "Use other available cooldowns"
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "variableRef": {
+                  "name": "Major Mana Potion has room for its base restore"
+                }
+              },
+              {
+                "variableRef": {
+                  "name": "Current mana may not last until the next potion opportunity"
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 13444
+          },
+          "target": {
+            "type": "Self"
+          }
+        }
+      },
+      "notes": "Use Major Mana Potion when it fits and the remaining fight needs mana"
+    },
+    {
+      "notes": "Elune\u2019s Light is available, outside Berserk and away from its next use",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Elune\u2019s Light is available, outside Berserk and away from its next use"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259799
+          }
+        }
+      }
+    },
+    {
+      "notes": "Shifting Power is ready at or below its energy ceiling",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shifting Power is ready at or below its energy ceiling"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1322605
+          }
+        }
+      }
+    },
+    {
+      "notes": "Use Thistle Tea at or below its energy ceiling",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Use Thistle Tea at or below its energy ceiling"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 7676
+          }
+        }
+      }
+    },
+    {
+      "notes": "In Cat Form: use the selected offensive potion",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "In Cat Form: use the selected offensive potion"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "otherId": "OtherActionOffensivePotion"
+          }
+        }
+      }
+    },
+    {
+      "notes": "Bite near fight end when Rip is no longer worthwhile",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Bite near fight end when Rip is no longer worthwhile"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 22829
+          }
+        }
+      }
+    },
+    {
+      "notes": "Clearcasting is active: Shred before refreshing bleeds",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Clearcasting is active: Shred before refreshing bleeds"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9830
+          }
+        }
+      }
+    },
+    {
+      "notes": "Rip when missing: build to the target CP if the next-global Rip is funded",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Rip when missing: build to the target CP if the next-global Rip is funded"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9896
+          }
+        }
+      }
+    },
+    {
+      "notes": "Rake when missing and enough fight time remains",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Rake when missing and enough fight time remains"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9904
+          }
+        }
+      }
+    },
+    {
+      "notes": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy"
+          }
+        },
+        "strictSequence": {
+          "actions": [
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 9867
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "notes": "Shred without spending energy reserved for bleeds or later Berserk",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shred without spending energy reserved for bleeds or later Berserk"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9830
+          }
+        }
+      }
+    },
+    {
+      "notes": "Sapper is ready and fits a free utility window",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Sapper is ready and fits a free utility window"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 10646
+          }
+        }
+      }
+    },
+    {
+      "notes": "Throw EZ-Thro Thorium Grenade in a free window after the opener",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Throw EZ-Thro Thorium Grenade in a free window after the opener"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 260816
+          }
+        }
+      }
+    },
+    {
+      "notes": "Read Ley Line is ready: restore needed mana in a free utility window",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Read Ley Line is ready: restore needed mana in a free utility window"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259705
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Innervate when mana is low and enough fight time remains"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 29166
+          }
+        }
+      },
+      "notes": "Innervate when mana is low and enough fight time remains"
+    }
+  ],
+  "groups": []
 }

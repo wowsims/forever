@@ -296,8 +296,8 @@ func TestJVMESSapperOnlyWhenSelected(t *testing.T) {
 			if got, want := castsOf(player.Actions, 768), thrown+castsOf(player.Actions, spellInnervate); got != want {
 				t.Errorf("Cat Form casts = %d, want %d for Sapper and Innervate", got, want)
 			}
-			if castsOf(player.Actions, 9907) == 0 {
-				t.Error("Faerie Fire was never cast")
+			if castsOf(player.Actions, 9907) != 0 {
+				t.Error("Faerie Fire was cast despite the supplied armor debuff")
 			}
 		})
 	}
@@ -322,8 +322,8 @@ func TestJVMESUsesAvailableRacials(t *testing.T) {
 					t.Errorf("racial %d casts = %d for %s", racial.id, casts, race)
 				}
 			}
-			if melds, ravages := castsOf(player.Actions, 20580), castsOf(player.Actions, 9867); melds != ravages {
-				t.Errorf("Shadowmeld casts = %d, Ravage casts = %d without prepull Clearcasting", melds, ravages)
+			if melds, ravages := castsOf(player.Actions, 20580), castsOf(player.Actions, 9867); ravages != melds+request.SimOptions.Iterations {
+				t.Errorf("Shadowmeld casts = %d, Ravage casts = %d, want one opener per iteration plus each Shadowmeld", melds, ravages)
 			}
 			if forms, innervates := castsOf(player.Actions, 768), castsOf(player.Actions, spellInnervate); forms != innervates {
 				t.Errorf("Cat Form casts = %d, Innervate casts = %d without Sapper", forms, innervates)
