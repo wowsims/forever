@@ -15,7 +15,7 @@
 	{"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"groupReference":{"groupName":"Sunder Armor"}}},
 	{"hide":true,"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"groupReference":{"groupName":"Sunder Armor: Refresh"}}},
 	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"otherId":"OtherActionOffensivePotion"},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
-	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"otherId":"OtherActionResourcePotion"},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},	{"action":{"groupReference":{"groupName":"CD: Racials"}}},
+	{"action":{"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},	{"action":{"groupReference":{"groupName":"CD: Racials"}}},
 	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"spellId":12328},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"spellId":12328}}}},
 	{"action":{"condition":{"and":{"vals":[{"actionGroupUsed":{"name":"Recklessness ON/OFF"}},{"multipleCdUsages":{"targetSpellId":{"spellId":1719},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}}]}},"castSpell":{"spellId":{"spellId":1719}}}},
 	{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}}]}},"castSpell":{"spellId":{"spellId":12723}}}},
