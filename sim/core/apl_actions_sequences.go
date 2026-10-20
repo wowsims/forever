@@ -123,6 +123,8 @@ type APLActionStrictSequence struct {
 	// The queue action currently hooked to advance this sequence, and the callback it replaced.
 	hookedQueueAction *PendingAction
 	hookedOnAction    func(*Simulation)
+
+	parent *APLAction // A Strict Multidot's list entry; the sequence ends once its condition is false.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -194,6 +196,10 @@ func (action *APLActionStrictSequence) current() *APLAction {
 	return action.subactions[action.curIdx]
 }
 func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction {
+	if action.parent != nil && action.parent.condition != nil && !action.parent.condition.GetBool(sim) {
+		action.relinquishControl()
+		return action.unit.Rotation.getNextAction(sim)
+	}
 	if nextAction := action.current(); nextAction.IsReady(sim) {
 		castReady := action.unit.GCD.IsReady(sim)
 		switch cast := nextAction.impl.(type) {

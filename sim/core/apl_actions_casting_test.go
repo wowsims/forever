@@ -1,12 +1,57 @@
 package core
 
 import (
+	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
+
+func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
+	request := fakeRageSimRequest()
+	request.Encounter.Targets = append(request.Encounter.Targets, request.Encounter.Targets[0])
+	sim := setupFakeRageSimFrom(request)
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	var castOn []int32
+	sim.Environment.State = Constructed
+	dot := fw.RegisterSpell(SpellConfig{
+		ActionID: ActionID{SpellID: 910104},
+		Flags:    SpellFlagAPL,
+		Cast:     CastConfig{DefaultCast: Cast{GCD: GCDDefault}},
+		Dot:      DotConfig{Aura: Aura{Label: "Test Dot"}, NumberOfTicks: 5, TickLength: 3 * time.Second},
+		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+			castOn = append(castOn, target.UnitIndex)
+			spell.Dot(target).Apply(sim)
+		},
+	})
+	sim.Environment.State = Finalized
+	dot.finalize()
+	sim.Cleanup()
+	sim.Reset()
+
+	ct := &channelTest{sim: sim, fw: fw, rot: fw.Rotation}
+	action := ct.rot.newAPLAction(&proto.APLAction{
+		Condition: &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
+			Op:  proto.APLValueCompare_OpLt,
+			Lhs: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
+			Rhs: constValue("1s"),
+		}}},
+		Action: &proto.APLAction_StrictMultidot{StrictMultidot: &proto.APLActionStrictMultidot{SpellId: dot.ActionID.ToProto(), MaxDots: 2}},
+	})
+	action.Finalize(ct.rot)
+	ct.rot.priorityList = []*APLAction{action}
+	sim.PrePull()
+	sim.Step()
+	fw.AutoAttacks.CancelAutoSwing(sim)
+
+	ct.runUntil(5 * time.Second)
+	if !slices.Equal(castOn, []int32{0}) {
+		t.Errorf("a condition true only for the first second should dot only the first target at 0s, dotted targets %v", castOn)
+	}
+}
 
 // A cast whose range is shorter than the distance the character starts at warns, unless something in
 // the rotation moves the character closer.

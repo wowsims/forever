@@ -169,6 +169,9 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 		condition: condition,
 		impl:      impl,
 	}
+	if multidot, ok := impl.(*APLActionStrictMultidot); ok {
+		multidot.parent = action
+	}
 
 	return action
 }

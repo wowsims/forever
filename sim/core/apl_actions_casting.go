@@ -292,6 +292,7 @@ type APLActionStrictMultidot struct {
 	targets      []*Unit
 	actions      []*APLAction
 	readyActions []*APLAction
+	parent       *APLAction // The list entry holding this action, whose condition every dot of the chain must pass.
 }
 
 func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMultidot) APLActionImpl {
@@ -391,6 +392,7 @@ func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
 	sequence := APLActionStrictSequence{
 		unit:       action.unit,
 		subactions: action.readyActions,
+		parent:     action.parent,
 	}
 	sequence.Execute(sim)
 }
