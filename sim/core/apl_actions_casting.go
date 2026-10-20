@@ -292,7 +292,7 @@ type APLActionStrictMultidot struct {
 	targets      []*Unit
 	actions      []*APLAction
 	readyActions []*APLAction
-	parent       *APLAction // The entry holding this action, whose condition the chain re-checks before each cast after the first.
+	entry        *APLAction // The entry holding this action, whose condition the chain re-checks before each cast after the first.
 }
 
 func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMultidot) APLActionImpl {
@@ -389,12 +389,9 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	return len(action.readyActions) > 0
 }
 func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
-	// The rotation's executing entry differs from the parent when the parent sits in a referenced group.
-	var gates []APLValue
-	for _, entry := range []*APLAction{action.parent, action.unit.Rotation.executing} {
-		if entry != nil && entry.condition != nil && !slices.Contains(gates, entry.condition) {
-			gates = append(gates, entry.condition)
-		}
+	gates := slices.Clone(action.unit.Rotation.groupConditions)
+	if action.entry != nil && action.entry.condition != nil {
+		gates = append(gates, action.entry.condition)
 	}
 	sequence := APLActionStrictSequence{
 		unit:       action.unit,

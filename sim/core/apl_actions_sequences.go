@@ -125,7 +125,7 @@ type APLActionStrictSequence struct {
 	hookedQueueAction *PendingAction
 	hookedOnAction    func(*Simulation)
 
-	gates []APLValue // A Strict Multidot's conditions; the sequence ends when one is false as its next cast is ready.
+	gates []APLValue // A Strict Multidot's conditions; the sequence ends when one is false as its next cast can go out.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -198,10 +198,6 @@ func (action *APLActionStrictSequence) current() *APLAction {
 }
 func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction {
 	if nextAction := action.current(); nextAction.IsReady(sim) {
-		if action.curIdx > 0 && slices.ContainsFunc(action.gates, func(gate APLValue) bool { return !gate.GetBool(sim) }) {
-			action.relinquishControl()
-			return action.unit.Rotation.getNextAction(sim)
-		}
 		castReady := action.unit.GCD.IsReady(sim)
 		switch cast := nextAction.impl.(type) {
 		case *APLActionCastSpell:
@@ -210,6 +206,16 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 			castReady = cast.spell.CanCast(sim, cast.target.Get())
 		case *APLActionChannelSpell:
 			castReady = cast.spell.CanCast(sim, cast.target.Get())
+		}
+		if action.curIdx > 0 && len(action.gates) > 0 {
+			// A queued cast fires without the gates read again, so a gated cast waits until it can go out.
+			if !castReady {
+				return nil
+			}
+			if slices.ContainsFunc(action.gates, func(gate APLValue) bool { return !gate.GetBool(sim) }) {
+				action.relinquishControl()
+				return action.unit.Rotation.getNextAction(sim)
+			}
 		}
 		if castReady {
 			action.advanceSequence()

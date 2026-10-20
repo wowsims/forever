@@ -168,14 +168,18 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 	return newAPLActionEntry(condition, impl)
 }
 
-// Every entry of the rotation, in the priority list, a group or a sequence, is built here.
+// Entries parsed from the rotation config are built here, so the actions that read their own entry's
+// condition get it.
 func newAPLActionEntry(condition APLValue, impl APLActionImpl) *APLAction {
 	action := &APLAction{
 		condition: condition,
 		impl:      impl,
 	}
-	if multidot, ok := impl.(*APLActionStrictMultidot); ok {
-		multidot.parent = action
+	switch impl := impl.(type) {
+	case *APLActionStrictMultidot:
+		impl.entry = action
+	case *APLActionGroupReference:
+		impl.entry = action
 	}
 	return action
 }

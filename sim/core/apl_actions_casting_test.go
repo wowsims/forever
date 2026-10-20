@@ -10,8 +10,9 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on the
-// group reference it sits under, turns false before the second dot.
+// A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on a
+// group reference it sits under at any depth, turns false before the second dot. An outer Sequence's
+// condition only decides whether the sequence starts.
 func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
 	const dotID = 910104
 	firstSecond := &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
@@ -25,15 +26,24 @@ func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
 			Action:    &proto.APLAction_StrictMultidot{StrictMultidot: &proto.APLActionStrictMultidot{SpellId: ActionID{SpellID: dotID}.ToProto(), MaxDots: 2}},
 		}}
 	}
-	groupRef := func(condition *proto.APLValue) *proto.APLListItem {
+	groupRefTo := func(name string, condition *proto.APLValue) *proto.APLListItem {
 		return &proto.APLListItem{Action: &proto.APLAction{
 			Condition: condition,
-			Action:    &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: "dots"}},
+			Action:    &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: name}},
 		}}
 	}
+	groupRef := func(condition *proto.APLValue) *proto.APLListItem { return groupRefTo("dots", condition) }
 	group := func(item *proto.APLListItem) []*proto.APLGroup {
 		return []*proto.APLGroup{{Name: "dots", Actions: []*proto.APLListItem{item}}}
 	}
+	nested := []*proto.APLGroup{
+		{Name: "outer", Actions: []*proto.APLListItem{groupRef(firstSecond)}},
+		{Name: "dots", Actions: []*proto.APLListItem{multidot(nil)}},
+	}
+	sequence := &proto.APLListItem{Action: &proto.APLAction{
+		Condition: firstSecond,
+		Action:    &proto.APLAction_Sequence{Sequence: &proto.APLActionSequence{Actions: []*proto.APLAction{multidot(nil).Action}}},
+	}}
 
 	for _, tc := range []struct {
 		name   string
@@ -45,6 +55,8 @@ func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
 		{"with a condition on its entry", multidot(firstSecond), nil, []int32{0}},
 		{"with a condition on its entry in a group", groupRef(nil), group(multidot(firstSecond)), []int32{0}},
 		{"with a condition on the group reference", groupRef(firstSecond), group(multidot(nil)), []int32{0}},
+		{"with a condition on a nested group reference", groupRefTo("outer", nil), nested, []int32{0}},
+		{"with a condition on an outer sequence", sequence, nil, []int32{0, 1}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			request := fakeRageSimRequest()

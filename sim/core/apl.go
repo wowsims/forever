@@ -34,8 +34,8 @@ type APLRotation struct {
 	// Action currently controlling this rotation (only used for certain actions, such as StrictSequence).
 	controllingActions []APLActionImpl
 
-	// The entry DoNextAction is executing; a Strict Multidot started inside it re-checks its condition.
-	executing *APLAction
+	// The conditions of the Group References whose group is executing; a Strict Multidot started there re-checks them.
+	groupConditions []APLValue
 
 	// Value that should evaluate to 'true' if the current channel is to be interrupted.
 	// Will be nil when there is no active channel.
@@ -469,9 +469,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
 
-		apl.executing = nextAction
 		nextAction.Execute(sim)
-		apl.executing = nil
 		// Shoot has no GCD to end the pass; any later cast would cut it.
 		if apl.unit.Wand.wanding() {
 			i++
