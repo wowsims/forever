@@ -44,7 +44,7 @@ export const unitSets: Record<
 			].flat();
 		},
 	},
-	// Lists every own pet. One without the resource the value reads fails validation, and the condition holding the value then counts as always true.
+	// Lists every own pet. The sim drops a value read from a pet without that resource, so a bare action condition counts as always true and an And or Or loses that branch.
 	self_and_pets: {
 		getUnits: player => {
 			return [undefined, ownPetRefs(player)].flat();
