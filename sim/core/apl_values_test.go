@@ -18,11 +18,16 @@ func setupFakeRageRotation() (*Simulation, *FakeRageWarrior, *APLRotation) {
 // Auras and spells only register while the environment is constructing, so register runs with the
 // state set back to Constructed on the already reset sim.
 func setupFakeRageRotationWith(register func(char *Character)) (*Simulation, *FakeRageWarrior, *APLRotation) {
-	sim, fw, rot := setupFakeRageRotation()
+	return setupFakeRageRotationFrom(fakeRageSimRequest(), register)
+}
+
+func setupFakeRageRotationFrom(request *proto.RaidSimRequest, register func(char *Character)) (*Simulation, *FakeRageWarrior, *APLRotation) {
+	sim := setupFakeRageSimFrom(request)
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
 	sim.Environment.State = Constructed
 	register(&fw.Character)
 	sim.Environment.State = Finalized
-	return sim, fw, rot
+	return sim, fw, fw.Rotation
 }
 
 const (
@@ -1524,29 +1529,25 @@ func TestValueSpellExpertiseCapped(t *testing.T) {
 	}
 }
 
-// Against a level 62 target the special's miss and dodge are 0.05 + 10*0.001, which sums to a hair over
-// 0.06, so 6% hit and 6% expertise reach the cap only within a float remainder.
+// Against a level 62 target the special's miss and dodge are 0.05 + 10*0.001, which sums to slightly above
+// 0.06 in floats, so 6% hit and 6% expertise reach the cap only within that remainder.
 func TestValueSpellCappedAtFloatRemainder(t *testing.T) {
 	request := fakeRageSimRequest()
 	request.Encounter.Targets[0].Level = 62
-	sim := setupFakeRageSimFrom(request)
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	sim.Environment.State = Constructed
-	registerCapTestSpells(&fw.Character)
-	sim.Environment.State = Finalized
+	sim, fw, rot := setupFakeRageRotationFrom(request, registerCapTestSpells)
 	special := fw.GetSpell(testMeleeSpecialActionID)
 	if miss := special.physicalMissChanceNoDWPenalty(fw.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]); miss <= 0.06 {
-		t.Fatalf("the special's miss against a level 62 target = %v, want a hair over 0.06", miss)
+		t.Fatalf("the special's miss against a level 62 target = %v, want slightly above 0.06", miss)
 	}
 
 	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 6)
 	fw.AddStatDynamic(sim, stats.ExpertisePercent, 6)
 	fw.PseudoStats.InFrontOfTarget = false
 	id := testMeleeSpecialActionID.ToProto()
-	if !fw.Rotation.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: id}, nil).GetBool(sim) {
+	if !rot.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: id}, nil).GetBool(sim) {
 		t.Errorf("Hit Capped(melee special) with 6%% hit against a level 62 target: got false, want true")
 	}
-	if !fw.Rotation.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: id}, nil).GetBool(sim) {
+	if !rot.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: id}, nil).GetBool(sim) {
 		t.Errorf("Expertise Capped behind a level 62 target with 6%% expertise: got false, want true")
 	}
 }

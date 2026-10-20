@@ -6295,10 +6295,13 @@
 										},
 										"tooltip": {
 											"type": "string"
+										},
+										"full_description": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["label", "tooltip"]
+									"required": ["label", "tooltip", "full_description"]
 								},
 								"expertise_capped": {
 									"type": "object",
@@ -6308,10 +6311,13 @@
 										},
 										"tooltip": {
 											"type": "string"
+										},
+										"full_description": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["label", "tooltip"]
+									"required": ["label", "tooltip", "full_description"]
 								},
 								"is_ready": {
 									"type": "object",

@@ -909,6 +909,22 @@ func (spell *Spell) CritDamageMultiplier(at *AttackTable) float64 {
 	return (base*spell.CritMultiplierPct*spell.Unit.PseudoStats.CritDamageMultiplier*tableMultiplier-1)*(spell.CritMultiplierAdditive+1) + 1
 }
 
+// The table the spell's outcome rolls, as a DefenseType. Auto shots roll the ranged weapon table whatever their
+// DefenseType, which for a wand's shots is Magic, and a spell without a DefenseType goes by its proc mask.
+func (spell *Spell) rolledDefenseType() DefenseType {
+	switch {
+	case spell.ProcMask.Matches(ProcMaskRangedAuto):
+		return DefenseTypeRanged
+	case spell.DefenseType != DefenseTypeNone:
+		return spell.DefenseType
+	case spell.ProcMask.Matches(ProcMaskRanged):
+		return DefenseTypeRanged
+	case spell.ProcMask.Matches(ProcMaskMelee):
+		return DefenseTypeMelee
+	}
+	return DefenseTypeMagic
+}
+
 // Time until either the cast is finished or GCD is ready again, whichever is longer
 func (spell *Spell) EffectiveCastTime() time.Duration {
 	// TODO: this is wrong for spells like shadowfury, that have a GCD of less than 1s

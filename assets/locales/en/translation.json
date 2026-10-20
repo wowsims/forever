@@ -1783,11 +1783,13 @@
 				},
 				"hit_capped": {
 					"label": "Hit Capped",
-					"tooltip": "<b>True</b> if the spell cannot miss the current target, otherwise <b>False</b>. Melee and ranged attacks are checked against the special-attack (soft) hit cap, so the dual-wield penalty of auto attacks is not counted. Wand shots miss on the ranged weapon table and count physical and ranged hit. Other spells count spell hit and school hit, and a binary spell also counts the target's resistance."
+					"tooltip": "<b>True</b> if the spell cannot miss the current target, otherwise <b>False</b>.",
+					"full_description": "<p>Melee and ranged attacks use the special-attack (soft) hit cap, without the dual-wield penalty of auto attacks. Wand shots count physical and ranged hit. Other spells count spell hit and school hit, and a binary spell also counts the target's resistance.</p><p>The check reads only the spell's defense type. It does not know that shouts and seals always hit, or that Judgement rolls its miss through another spell.</p>"
 				},
 				"expertise_capped": {
 					"label": "Expertise Capped",
-					"tooltip": "<b>True</b> if the current target can neither dodge the attack nor parry it, otherwise <b>False</b>. Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>."
+					"tooltip": "<b>True</b> if the current target can neither dodge nor parry the spell, otherwise <b>False</b>.",
+					"full_description": "<p>Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>.</p><p>The check reads only the spell's defense type, so it still counts dodge and parry for specials that never roll them, such as Backstab, Ambush and Overpower.</p>"
 				},
 				"is_ready": {
 					"label": "Is Ready",
