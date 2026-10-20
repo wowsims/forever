@@ -2008,7 +2008,7 @@
 					"target_spell": "Target Spell",
 					"target_spell_tooltip": "The spell (ie. Death Wish) you want to fit within the cooldown of the Base Spell.",
 					"align_cd_end": "Align target spell to encounter end",
-					"align_cd_end_tooltip": "When checked will try to align the CD usage to the end of the encounter. This is useful for cooldowns/specs that benefit for example from execute."
+					"align_cd_end_tooltip": "When checked, aligns the target spell to the end of the encounter, which is useful for cooldowns or specs that benefit from execute. Without a base spell it casts early whenever holding it would lose a use, and otherwise holds it until its buff runs to the end of the encounter."
 				},
 				"selected_potion": {
 					"label": "Selected Potion",

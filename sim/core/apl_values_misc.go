@@ -72,7 +72,7 @@ func (value *APLValueMultipleCdUsages) GetBool(sim *Simulation) bool {
 	baseSpell := value.baseSpell
 	if baseSpell == nil || baseSpell.RelatedSelfBuff == nil {
 		if value.alignCdEnd {
-			return canGetFullDurationAtEncounterEnd || canGetSecondUptimeWithinRemainingTime
+			return canGetFullDurationAtEncounterEnd || remainingTime > targetSpellCD
 		}
 		return true
 	}

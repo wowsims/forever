@@ -1510,14 +1510,17 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		t.Fatal("a target spell with a related self buff should construct")
 	}
 
-	// With a 60s cooldown and a 10s buff, the aligned value only holds while a second full use still
-	// fits (70s left) or the buff would still be running at the end (10s left).
+	// With a 60s cooldown and a 10s buff, the aligned value casts while more than one cooldown is left (a
+	// later use still starts before the end) or the buff would run to the end, and holds in between.
 	for _, tc := range []struct {
 		elapsed time.Duration
 		aligned bool
 	}{
 		{0, true},
+		{119 * time.Second, true},
 		{120 * time.Second, false},
+		{150 * time.Second, false},
+		{170 * time.Second, true},
 		{175 * time.Second, true},
 	} {
 		sim.CurrentTime = tc.elapsed
@@ -1527,6 +1530,27 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		if got := aligned.GetBool(sim); got != tc.aligned {
 			t.Errorf("at %s aligned to the end of combat: got %t, want %t", tc.elapsed, got, tc.aligned)
 		}
+	}
+
+	// The cooldown is read when the value is evaluated, so a cooldown change applies at once.
+	target.CD.Duration = 30 * time.Second
+	sim.CurrentTime = 149 * time.Second
+	if !aligned.GetBool(sim) {
+		t.Error("with 31s left and a 30s cooldown, aligned should cast")
+	}
+
+	target.CD.Duration = time.Minute
+	sim.Duration = 8 * time.Second
+	sim.CurrentTime = 0
+	if !aligned.GetBool(sim) {
+		t.Error("with a fight shorter than the buff, aligned should cast")
+	}
+
+	target.CD.Duration = 5 * time.Second
+	sim.Duration = 180 * time.Second
+	sim.CurrentTime = 100 * time.Second
+	if !aligned.GetBool(sim) {
+		t.Error("with a cooldown shorter than the buff, aligned should cast")
 	}
 }
 
