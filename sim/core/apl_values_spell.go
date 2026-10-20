@@ -468,3 +468,92 @@ func (value *APLValueSpellExpectedDpet) GetFloat(sim *Simulation) float64 {
 func (value *APLValueSpellExpectedDpet) String() string {
 	return fmt.Sprintf("Spell Expected DPET(%s)", value.spell.ActionID)
 }
+
+// The table a spell's outcome rolls, as a DefenseType. Auto shots roll the ranged weapon table whatever their
+// DefenseType, which for a wand's shots is Magic, and a spell without a DefenseType goes by its proc mask.
+func rolledDefenseType(spell *Spell) DefenseType {
+	switch {
+	case spell.ProcMask.Matches(ProcMaskRangedAuto):
+		return DefenseTypeRanged
+	case spell.DefenseType != DefenseTypeNone:
+		return spell.DefenseType
+	case spell.ProcMask.Matches(ProcMaskRanged):
+		return DefenseTypeRanged
+	case spell.ProcMask.Matches(ProcMaskMelee):
+		return DefenseTypeMelee
+	}
+	return DefenseTypeMagic
+}
+
+// The float remainder the table's summed base chances can leave over the stat that caps them.
+const capTolerance = 1e-9
+
+// Whether the spell cannot miss the current target: the spell table's miss for magic, the weapon miss of a
+// special for melee and ranged, which leaves out the dual-wield penalty of auto attacks.
+type APLValueSpellHitCapped struct {
+	DefaultAPLValueImpl
+	spell     *Spell
+	targetRef UnitReference
+}
+
+func (rot *APLRotation) newValueSpellHitCapped(config *proto.APLValueSpellHitCapped, _ *proto.UUID) APLValue {
+	spell := rot.GetAPLSpell(config.SpellId)
+	if spell == nil {
+		return nil
+	}
+	return &APLValueSpellHitCapped{
+		spell:     spell,
+		targetRef: rot.GetTargetUnit(nil),
+	}
+}
+func (value *APLValueSpellHitCapped) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueSpellHitCapped) GetBool(_ *Simulation) bool {
+	spell := value.spell
+	attackTable := spell.Unit.AttackTables[value.targetRef.Get().UnitIndex]
+	if rolledDefenseType(spell) == DefenseTypeMagic {
+		return spell.SpellChanceToMiss(attackTable) <= capTolerance
+	}
+	return spell.physicalMissChanceNoDWPenalty(attackTable) <= capTolerance
+}
+func (value *APLValueSpellHitCapped) String() string {
+	return fmt.Sprintf("Hit Capped(%s)", value.spell.ActionID)
+}
+
+// Whether the current target can neither dodge the spell nor, while the unit stands in front of it, parry it.
+// Only the melee table has dodge and parry, so anything else is capped.
+type APLValueSpellExpertiseCapped struct {
+	DefaultAPLValueImpl
+	spell     *Spell
+	targetRef UnitReference
+}
+
+func (rot *APLRotation) newValueSpellExpertiseCapped(config *proto.APLValueSpellExpertiseCapped, _ *proto.UUID) APLValue {
+	spell := rot.GetAPLSpell(config.SpellId)
+	if spell == nil {
+		return nil
+	}
+	return &APLValueSpellExpertiseCapped{
+		spell:     spell,
+		targetRef: rot.GetTargetUnit(nil),
+	}
+}
+func (value *APLValueSpellExpertiseCapped) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueSpellExpertiseCapped) GetBool(_ *Simulation) bool {
+	spell := value.spell
+	if rolledDefenseType(spell) != DefenseTypeMelee {
+		return true
+	}
+	target := value.targetRef.Get()
+	attackTable := spell.Unit.AttackTables[target.UnitIndex]
+	if !spell.Flags.Matches(SpellFlagCannotBeDodged) && target.GetTotalDodgeChanceAsDefender(spell, attackTable) > capTolerance {
+		return false
+	}
+	return !spell.Unit.PseudoStats.InFrontOfTarget || target.GetTotalParryChanceAsDefender(spell, attackTable) <= capTolerance
+}
+func (value *APLValueSpellExpertiseCapped) String() string {
+	return fmt.Sprintf("Expertise Capped(%s)", value.spell.ActionID)
+}

@@ -592,9 +592,14 @@ func (result *SpellResult) applyAttackTableMiss(spell *Spell, attackTable *Attac
 	return false
 }
 
+// The weapon miss that specials and ranged attacks roll: the hand's miss less physical hit, without the
+// dual-wield penalty of auto attacks.
+func (spell *Spell) physicalMissChanceNoDWPenalty(attackTable *AttackTable) float64 {
+	return max(0, attackTable.Hand(spell).BaseMissChance-spell.PhysicalHitChance(attackTable))
+}
+
 func (result *SpellResult) applyAttackTableMissNoDWPenalty(spell *Spell, attackTable *AttackTable, roll float64, chance *float64) bool {
-	missChance := attackTable.Hand(spell).BaseMissChance - spell.PhysicalHitChance(attackTable)
-	*chance = max(0, missChance)
+	*chance = spell.physicalMissChanceNoDWPenalty(attackTable)
 
 	if roll < *chance {
 		result.Outcome = OutcomeMiss

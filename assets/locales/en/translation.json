@@ -1781,6 +1781,14 @@
 					"tooltip": "<b>True</b> if all requirements for casting the spell are currently met, otherwise <b>False</b>.",
 					"full_description": "<p>The <b>Cast Spell</b> action does not need to be conditioned on this, because it applies this check automatically.</p>"
 				},
+				"hit_capped": {
+					"label": "Hit Capped",
+					"tooltip": "<b>True</b> if the spell cannot miss the current target, otherwise <b>False</b>. Melee and ranged attacks are checked against the special-attack (soft) hit cap, so the dual-wield penalty of auto attacks is not counted. Wand shots miss on the ranged weapon table and count physical and ranged hit. Other spells count spell hit and school hit, and a binary spell also counts the target's resistance."
+				},
+				"expertise_capped": {
+					"label": "Expertise Capped",
+					"tooltip": "<b>True</b> if the current target can neither dodge the attack nor parry it, otherwise <b>False</b>. Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>."
+				},
 				"is_ready": {
 					"label": "Is Ready",
 					"tooltip": "<b>True</b> if the spell is not on cooldown, otherwise <b>False</b>."

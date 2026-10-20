@@ -619,6 +619,8 @@ func TestValueUnknownIDs(t *testing.T) {
 		"Spell Full Cooldown for an unknown spell":       rot.newValueSpellFullCooldown(&proto.APLValueSpellFullCooldown{SpellId: spell}, nil),
 		"Spell In Flight for an unknown spell":           rot.newValueSpellInFlight(&proto.APLValueSpellInFlight{SpellId: spell}, nil),
 		"exported Spell In Flight for an unknown spell":  rot.NewValueSpellInFlight(&proto.APLValueSpellInFlight{SpellId: spell}, nil),
+		"Spell Hit Capped for an unknown spell":          rot.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: spell}, nil),
+		"Spell Expertise Capped for an unknown spell":    rot.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: spell}, nil),
 
 		"Boss Spell Is Casting for a spell the boss does not know":    rot.newValueBossSpellIsCasting(&proto.APLValueBossSpellIsCasting{SpellId: spell}, nil),
 		"Boss Spell Time To Ready for a spell the boss does not know": rot.newValueBossSpellTimeToReady(&proto.APLValueBossSpellTimeToReady{SpellId: spell}, nil),
@@ -1406,6 +1408,146 @@ func TestValueSpellExpectedDpet(t *testing.T) {
 	rend.DefaultCast.GCD = 0
 	if got := dpet.GetFloat(sim); got != 0 {
 		t.Errorf("a spell with neither a cast time nor a GCD = %f, want 0", got)
+	}
+}
+
+var (
+	testMeleeSpecialActionID = ActionID{SpellID: 910101}
+	testFireSpellActionID    = ActionID{SpellID: 910102}
+	testWandShotActionID     = ActionID{SpellID: 910103}
+)
+
+func registerCapTestSpells(char *Character) {
+	char.RegisterSpell(SpellConfig{
+		ActionID:    testMeleeSpecialActionID,
+		SpellSchool: SpellSchoolPhysical,
+		DefenseType: DefenseTypeMelee,
+		ProcMask:    ProcMaskMeleeMHSpecial,
+		Flags:       SpellFlagAPL,
+	})
+	char.RegisterSpell(SpellConfig{
+		ActionID:       testFireSpellActionID,
+		SpellSchool:    SpellSchoolFire,
+		DefenseType:    DefenseTypeMagic,
+		ProcMask:       ProcMaskSpellDamage,
+		Flags:          SpellFlagAPL,
+		ClassSpellMask: 1,
+	})
+	char.RegisterSpell(SpellConfig{
+		ActionID:    testWandShotActionID,
+		SpellSchool: SpellSchoolFire,
+		DefenseType: DefenseTypeMagic,
+		ProcMask:    ProcMaskRangedAuto,
+		Flags:       SpellFlagAPL,
+	})
+}
+
+// Against the level 63 target a level 60 attacker with no weapon skill bonus misses a special 8% of the time
+// and a spell 17%.
+func TestValueSpellHitCapped(t *testing.T) {
+	sim, fw, rot := setupFakeRageRotationWith(registerCapTestSpells)
+	hitCapped := func(id ActionID) APLValue {
+		return rot.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: id.ToProto()}, nil)
+	}
+	special := hitCapped(testMeleeSpecialActionID)
+	rend := hitCapped(fakeRendActionID)
+	fire := hitCapped(testFireSpellActionID)
+	wand := hitCapped(testWandShotActionID)
+
+	if !fw.AutoAttacks.IsDualWielding {
+		t.Fatal("the fake warrior should dual wield")
+	}
+
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 7)
+	if special.GetBool(sim) {
+		t.Errorf("Hit Capped(melee special) with 7%% hit: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 1)
+	if !special.GetBool(sim) {
+		t.Errorf("Hit Capped(melee special) with 8%% hit while dual wielding: got false, want true")
+	}
+	if !rend.GetBool(sim) {
+		t.Errorf("Hit Capped(Rend), a melee special without a DefenseType, with 8%% hit: got false, want true")
+	}
+	if !wand.GetBool(sim) {
+		t.Errorf("Hit Capped(wand shot) with 8%% physical hit: got false, want true")
+	}
+	if fire.GetBool(sim) {
+		t.Errorf("Hit Capped(Fire spell) with 8%% physical hit: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, -8)
+
+	fw.AddStatDynamic(sim, stats.SpellHitPercent, 10)
+	if fire.GetBool(sim) {
+		t.Errorf("Hit Capped(Fire spell) with 10%% spell hit: got true, want false")
+	}
+	fw.PseudoStats.SchoolBonusHitChance[stats.SchoolIndexFire] = 7
+	if !fire.GetBool(sim) {
+		t.Errorf("Hit Capped(Fire spell) with 10%% spell hit and 7%% Fire hit: got false, want true")
+	}
+	fw.AddStatDynamic(sim, stats.SpellHitPercent, 7)
+	if wand.GetBool(sim) {
+		t.Errorf("Hit Capped(wand shot) with 17%% spell hit and no physical hit: got true, want false")
+	}
+}
+
+// Against the level 63 target a level 60 attacker with no weapon skill bonus is dodged 6.5% of the time
+// and parried 14%.
+func TestValueSpellExpertiseCapped(t *testing.T) {
+	sim, fw, rot := setupFakeRageRotationWith(registerCapTestSpells)
+	expertiseCapped := func(id ActionID) APLValue {
+		return rot.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: id.ToProto()}, nil)
+	}
+	special := expertiseCapped(testMeleeSpecialActionID)
+
+	if !expertiseCapped(testFireSpellActionID).GetBool(sim) || !expertiseCapped(testWandShotActionID).GetBool(sim) {
+		t.Errorf("Expertise Capped of a Fire spell and a wand shot without expertise: got false, want true")
+	}
+
+	fw.PseudoStats.InFrontOfTarget = false
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 6)
+	if special.GetBool(sim) {
+		t.Errorf("Expertise Capped behind the target with 6%% expertise: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 1)
+	if !special.GetBool(sim) {
+		t.Errorf("Expertise Capped behind the target with 7%% expertise: got false, want true")
+	}
+
+	fw.PseudoStats.InFrontOfTarget = true
+	if special.GetBool(sim) {
+		t.Errorf("Expertise Capped in front of the target with 7%% expertise: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 7)
+	if !special.GetBool(sim) {
+		t.Errorf("Expertise Capped in front of the target with 14%% expertise: got false, want true")
+	}
+}
+
+// Against a level 62 target the special's miss and dodge are 0.05 + 10*0.001, which sums to a hair over
+// 0.06, so 6% hit and 6% expertise reach the cap only within a float remainder.
+func TestValueSpellCappedAtFloatRemainder(t *testing.T) {
+	request := fakeRageSimRequest()
+	request.Encounter.Targets[0].Level = 62
+	sim := setupFakeRageSimFrom(request)
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	sim.Environment.State = Constructed
+	registerCapTestSpells(&fw.Character)
+	sim.Environment.State = Finalized
+	special := fw.GetSpell(testMeleeSpecialActionID)
+	if miss := special.physicalMissChanceNoDWPenalty(fw.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]); miss <= 0.06 {
+		t.Fatalf("the special's miss against a level 62 target = %v, want a hair over 0.06", miss)
+	}
+
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 6)
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 6)
+	fw.PseudoStats.InFrontOfTarget = false
+	id := testMeleeSpecialActionID.ToProto()
+	if !fw.Rotation.newValueSpellHitCapped(&proto.APLValueSpellHitCapped{SpellId: id}, nil).GetBool(sim) {
+		t.Errorf("Hit Capped(melee special) with 6%% hit against a level 62 target: got false, want true")
+	}
+	if !fw.Rotation.newValueSpellExpertiseCapped(&proto.APLValueSpellExpertiseCapped{SpellId: id}, nil).GetBool(sim) {
+		t.Errorf("Expertise Capped behind a level 62 target with 6%% expertise: got false, want true")
 	}
 }
 

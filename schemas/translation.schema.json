@@ -6287,6 +6287,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "full_description"]
 								},
+								"hit_capped": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"expertise_capped": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"is_ready": {
 									"type": "object",
 									"properties": {
@@ -7219,6 +7245,8 @@
 								"spell_known",
 								"current_cost",
 								"can_cast",
+								"hit_capped",
+								"expertise_capped",
 								"is_ready",
 								"time_to_ready",
 								"cast_time",
