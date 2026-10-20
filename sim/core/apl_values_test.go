@@ -1511,41 +1511,32 @@ func TestValueMultipleCdUsages(t *testing.T) {
 	}
 
 	// With a 60s cooldown and a 10s buff, the aligned value casts while a later use would still get at least
-	// half its buff (more than 65s left) or the buff would run to the end, and holds in between.
+	// half its buff (more than 65s left) or the buff would run to the end, and holds in between. The
+	// cooldown is read when the value is evaluated, so a cooldown change applies at once.
 	for _, tc := range []struct {
-		elapsed time.Duration
-		aligned bool
+		elapsed  time.Duration
+		cooldown time.Duration
+		fight    time.Duration
+		aligned  bool
 	}{
-		{0, true},
-		{114 * time.Second, true},
-		{115 * time.Second, false},
-		{119 * time.Second, false},
-		{120 * time.Second, false},
-		{150 * time.Second, false},
-		{170 * time.Second, true},
-		{175 * time.Second, true},
+		{0, time.Minute, 180 * time.Second, true},
+		{114 * time.Second, time.Minute, 180 * time.Second, true},
+		{115 * time.Second, time.Minute, 180 * time.Second, false},
+		{119 * time.Second, time.Minute, 180 * time.Second, false},
+		{120 * time.Second, time.Minute, 180 * time.Second, false},
+		{150 * time.Second, time.Minute, 180 * time.Second, false},
+		{170 * time.Second, time.Minute, 180 * time.Second, true},
+		{175 * time.Second, time.Minute, 180 * time.Second, true},
+		{144 * time.Second, 30 * time.Second, 180 * time.Second, true},
+		{0, time.Minute, 8 * time.Second, true},
 	} {
-		sim.CurrentTime = tc.elapsed
+		target.CD.Duration, sim.Duration, sim.CurrentTime = tc.cooldown, tc.fight, tc.elapsed
 		if !always.GetBool(sim) {
-			t.Errorf("at %s without a base spell: got false, want true", tc.elapsed)
+			t.Errorf("at %s of %s without a base spell: got false, want true", tc.elapsed, tc.fight)
 		}
 		if got := aligned.GetBool(sim); got != tc.aligned {
-			t.Errorf("at %s aligned to the end of combat: got %t, want %t", tc.elapsed, got, tc.aligned)
+			t.Errorf("at %s of %s with a %s cooldown aligned to the end of combat: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
 		}
-	}
-
-	// The cooldown is read when the value is evaluated, so a cooldown change applies at once.
-	target.CD.Duration = 30 * time.Second
-	sim.CurrentTime = 144 * time.Second
-	if !aligned.GetBool(sim) {
-		t.Error("with 36s left and a 30s cooldown, aligned should cast")
-	}
-
-	target.CD.Duration = time.Minute
-	sim.Duration = 8 * time.Second
-	sim.CurrentTime = 0
-	if !aligned.GetBool(sim) {
-		t.Error("with a fight shorter than the buff, aligned should cast")
 	}
 
 	target.CD.Duration = 5 * time.Second
