@@ -66,7 +66,7 @@ dps_results: {
  key: "TestDestruction-AllItems-Admiral'sHat-10030"
  value: {
   dps: 696.82859
-  tps: 409.67682
+  tps: 409.61734
   dtps: 8.71685
   hps: 9.05673
  }

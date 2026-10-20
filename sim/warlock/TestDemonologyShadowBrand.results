@@ -66,7 +66,7 @@ dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Admiral'sHat-10030"
  value: {
   dps: 757.51549
-  tps: 463.82407
+  tps: 463.78398
   dtps: 10.60541
   hps: 7.90759
  }

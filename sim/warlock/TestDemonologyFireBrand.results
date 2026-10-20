@@ -66,7 +66,7 @@ dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Admiral'sHat-10030"
  value: {
   dps: 772.28286
-  tps: 451.15978
+  tps: 451.06838
   dtps: 9.12462
   hps: 10.04926
  }

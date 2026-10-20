@@ -57,7 +57,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-Admiral'sHat-10030"
  value: {
   dps: 674.35232
-  tps: 356.40835
+  tps: 356.28952
   dtps: 9.04886
   hps: 18.18139
  }

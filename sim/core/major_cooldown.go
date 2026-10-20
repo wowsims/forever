@@ -21,6 +21,7 @@ const (
 	CooldownTypeDPS
 	CooldownTypeExplosive
 	CooldownTypeSurvival
+	CooldownTypeHealing
 )
 
 func (ct CooldownType) Matches(other CooldownType) bool {
