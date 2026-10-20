@@ -1,8 +1,8 @@
 character_stats_results: {
  key: "TestHolyPaladin-default"
  value: {
-  final_stats: 272
-  final_stats: 200
+  final_stats: 275
+  final_stats: 201
   final_stats: 422
   final_stats: 301
   final_stats: 364
@@ -15,7 +15,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 204
-  final_stats: 976
+  final_stats: 982
   final_stats: 50
   final_stats: 0
   final_stats: 10
@@ -28,7 +28,7 @@ character_stats_results: {
   final_stats: 34
   final_stats: 0
   final_stats: 0
-  final_stats: 7681.2
+  final_stats: 7683.2
   final_stats: 120
   final_stats: 5421
   final_stats: 5747
@@ -42,12 +42,12 @@ character_stats_results: {
   final_stats: 1120
   final_stats: 4
   final_stats: 4
-  final_stats: 14.32
+  final_stats: 14.3706
   final_stats: 14.0267
   final_stats: 5.8
   final_stats: 0
   final_stats: 0
-  final_stats: 11.62
+  final_stats: 11.6706
   final_stats: 5.8
   final_stats: 0
   final_stats: 0

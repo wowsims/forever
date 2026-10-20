@@ -48,44 +48,47 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 var RaceOffsets = map[proto.Race]stats.Stats{
 	proto.Race_RaceUnknown: stats.Stats{},
 	proto.Race_RaceHuman:   stats.Stats{},
+	// Agility, Strength, Intellect and Stamina follow the game's current race
+	// table. That table has no Spirit, so the Spirit offsets are the original
+	// game's until a character sheet confirms them.
 	proto.Race_RaceOrc: {
 		stats.Agility:   -3,
 		stats.Strength:  3,
-		stats.Intellect: -3,
+		stats.Intellect: -1,
 		stats.Spirit:    3,
-		stats.Stamina:   2,
+		stats.Stamina:   1,
 	},
 	proto.Race_RaceDwarf: {
-		stats.Agility:   -4,
+		stats.Agility:   -2,
 		stats.Strength:  2,
 		stats.Intellect: -1,
 		stats.Spirit:    -1,
-		stats.Stamina:   3,
+		stats.Stamina:   1,
 	},
 	proto.Race_RaceNightElf: {
-		stats.Agility:   5,
-		stats.Strength:  -3,
+		stats.Agility:   2,
+		stats.Strength:  -2,
 		stats.Intellect: 0,
 		stats.Spirit:    0,
-		stats.Stamina:   -1,
+		stats.Stamina:   0,
 	},
 	proto.Race_RaceUndead: {
-		stats.Agility:   -2,
-		stats.Strength:  -1,
+		stats.Agility:   -1,
+		stats.Strength:  2,
 		stats.Intellect: -2,
 		stats.Spirit:    5,
 		stats.Stamina:   1,
 	},
 	proto.Race_RaceTauren: {
-		stats.Agility:   -5,
-		stats.Strength:  5,
-		stats.Intellect: -5,
+		stats.Agility:   -2,
+		stats.Strength:  2,
+		stats.Intellect: -2,
 		stats.Spirit:    2,
 		stats.Stamina:   2,
 	},
 	proto.Race_RaceGnome: {
-		stats.Agility:   3,
-		stats.Strength:  -5,
+		stats.Agility:   1,
+		stats.Strength:  -3,
 		stats.Intellect: 3,
 		stats.Spirit:    0,
 		stats.Stamina:   -1,
@@ -93,9 +96,9 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 	proto.Race_RaceTroll: {
 		stats.Agility:   2,
 		stats.Strength:  1,
-		stats.Intellect: -4,
+		stats.Intellect: -3,
 		stats.Spirit:    1,
-		stats.Stamina:   1,
+		stats.Stamina:   0,
 	},
 	// Read from level 1 naked character sheets (2026-09-22): four Human/High
 	// Order pairs (warrior, hunter, mage, rogue) give the same delta, and a
