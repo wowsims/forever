@@ -34,6 +34,9 @@ type APLRotation struct {
 	// Action currently controlling this rotation (only used for certain actions, such as StrictSequence).
 	controllingActions []APLActionImpl
 
+	// The entry DoNextAction is executing; a Strict Multidot started inside it re-checks its condition.
+	executing *APLAction
+
 	// Value that should evaluate to 'true' if the current channel is to be interrupted.
 	// Will be nil when there is no active channel.
 	interruptChannelIf APLValue
@@ -466,7 +469,9 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
 
+		apl.executing = nextAction
 		nextAction.Execute(sim)
+		apl.executing = nil
 		// Shoot has no GCD to end the pass; any later cast would cut it.
 		if apl.unit.Wand.wanding() {
 			i++
@@ -655,16 +660,11 @@ func (rot *APLRotation) newAPLActionWithGroupVars(config *proto.APLAction, group
 		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
 	}
 
-	action := &APLAction{
-		condition: condition,
-		impl:      rot.newAPLActionImpl(config),
-	}
-
-	if action.impl == nil {
+	impl := rot.newAPLActionImpl(config)
+	if impl == nil {
 		return nil
-	} else {
-		return action
 	}
+	return newAPLActionEntry(condition, impl)
 }
 
 // Re-resolve variable references in an APLValue with updated group variables

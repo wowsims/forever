@@ -10,46 +10,78 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
+// A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on the
+// group reference it sits under, turns false before the second dot.
 func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
-	request := fakeRageSimRequest()
-	request.Encounter.Targets = append(request.Encounter.Targets, request.Encounter.Targets[0])
-	sim := setupFakeRageSimFrom(request)
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	var castOn []int32
-	sim.Environment.State = Constructed
-	dot := fw.RegisterSpell(SpellConfig{
-		ActionID: ActionID{SpellID: 910104},
-		Flags:    SpellFlagAPL,
-		Cast:     CastConfig{DefaultCast: Cast{GCD: GCDDefault}},
-		Dot:      DotConfig{Aura: Aura{Label: "Test Dot"}, NumberOfTicks: 5, TickLength: 3 * time.Second},
-		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			castOn = append(castOn, target.UnitIndex)
-			spell.Dot(target).Apply(sim)
-		},
-	})
-	sim.Environment.State = Finalized
-	dot.finalize()
-	sim.Cleanup()
-	sim.Reset()
+	const dotID = 910104
+	firstSecond := &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
+		Op:  proto.APLValueCompare_OpLt,
+		Lhs: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
+		Rhs: constValue("1s"),
+	}}}
+	multidot := func(condition *proto.APLValue) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{
+			Condition: condition,
+			Action:    &proto.APLAction_StrictMultidot{StrictMultidot: &proto.APLActionStrictMultidot{SpellId: ActionID{SpellID: dotID}.ToProto(), MaxDots: 2}},
+		}}
+	}
+	groupRef := func(condition *proto.APLValue) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{
+			Condition: condition,
+			Action:    &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: "dots"}},
+		}}
+	}
+	group := func(item *proto.APLListItem) []*proto.APLGroup {
+		return []*proto.APLGroup{{Name: "dots", Actions: []*proto.APLListItem{item}}}
+	}
 
-	ct := &channelTest{sim: sim, fw: fw, rot: fw.Rotation}
-	action := ct.rot.newAPLAction(&proto.APLAction{
-		Condition: &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
-			Op:  proto.APLValueCompare_OpLt,
-			Lhs: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
-			Rhs: constValue("1s"),
-		}}},
-		Action: &proto.APLAction_StrictMultidot{StrictMultidot: &proto.APLActionStrictMultidot{SpellId: dot.ActionID.ToProto(), MaxDots: 2}},
-	})
-	action.Finalize(ct.rot)
-	ct.rot.priorityList = []*APLAction{action}
-	sim.PrePull()
-	sim.Step()
-	fw.AutoAttacks.CancelAutoSwing(sim)
+	for _, tc := range []struct {
+		name   string
+		first  *proto.APLListItem
+		groups []*proto.APLGroup
+		castOn []int32
+	}{
+		{"without a condition", multidot(nil), nil, []int32{0, 1}},
+		{"with a condition on its entry", multidot(firstSecond), nil, []int32{0}},
+		{"with a condition on its entry in a group", groupRef(nil), group(multidot(firstSecond)), []int32{0}},
+		{"with a condition on the group reference", groupRef(firstSecond), group(multidot(nil)), []int32{0}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			request := fakeRageSimRequest()
+			request.Encounter.Targets = append(request.Encounter.Targets, request.Encounter.Targets[0])
+			sim := setupFakeRageSimFrom(request)
+			fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+			var castOn []int32
+			sim.Environment.State = Constructed
+			dot := fw.RegisterSpell(SpellConfig{
+				ActionID: ActionID{SpellID: dotID},
+				Flags:    SpellFlagAPL,
+				Cast:     CastConfig{DefaultCast: Cast{GCD: GCDDefault}},
+				Dot:      DotConfig{Aura: Aura{Label: "Test Dot"}, NumberOfTicks: 5, TickLength: 3 * time.Second},
+				ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+					castOn = append(castOn, target.UnitIndex)
+					spell.Dot(target).Apply(sim)
+				},
+			})
+			sim.Environment.State = Finalized
+			dot.finalize()
+			fw.Rotation = fw.newAPLRotation(&proto.APLRotation{
+				Type:         proto.APLRotation_TypeAPL,
+				Groups:       tc.groups,
+				PriorityList: []*proto.APLListItem{tc.first},
+			})
+			sim.Cleanup()
+			sim.Reset()
+			sim.PrePull()
+			sim.Step()
+			fw.AutoAttacks.CancelAutoSwing(sim)
 
-	ct.runUntil(5 * time.Second)
-	if !slices.Equal(castOn, []int32{0}) {
-		t.Errorf("a condition true only for the first second should dot only the first target at 0s, dotted targets %v", castOn)
+			ct := &channelTest{sim: sim, fw: fw, rot: fw.Rotation}
+			ct.runUntil(5 * time.Second)
+			if !slices.Equal(castOn, tc.castOn) {
+				t.Errorf("dotted targets %v, want %v", castOn, tc.castOn)
+			}
+		})
 	}
 }
 

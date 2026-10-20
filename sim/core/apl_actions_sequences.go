@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -124,7 +125,7 @@ type APLActionStrictSequence struct {
 	hookedQueueAction *PendingAction
 	hookedOnAction    func(*Simulation)
 
-	parent *APLAction // A Strict Multidot's list entry; the sequence ends once its condition is false.
+	gates []APLValue // A Strict Multidot's conditions; the sequence ends when one is false as its next cast is ready.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -196,11 +197,11 @@ func (action *APLActionStrictSequence) current() *APLAction {
 	return action.subactions[action.curIdx]
 }
 func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction {
-	if action.parent != nil && action.parent.condition != nil && !action.parent.condition.GetBool(sim) {
-		action.relinquishControl()
-		return action.unit.Rotation.getNextAction(sim)
-	}
 	if nextAction := action.current(); nextAction.IsReady(sim) {
+		if action.curIdx > 0 && slices.ContainsFunc(action.gates, func(gate APLValue) bool { return !gate.GetBool(sim) }) {
+			action.relinquishControl()
+			return action.unit.Rotation.getNextAction(sim)
+		}
 		castReady := action.unit.GCD.IsReady(sim)
 		switch cast := nextAction.impl.(type) {
 		case *APLActionCastSpell:
