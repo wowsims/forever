@@ -396,8 +396,9 @@ func (value *APLValueSpellInFlight) String() string {
 	return fmt.Sprintf("SpellInFlight(%s)", value.spell.ActionID)
 }
 
-// The expected damage of one full cast if cast now, its hit and all its ticks, over the time the cast
-// costs the caster: the cast time or channel, or the GCD when that is longer.
+// The expected damage of one full cast if cast now, its hit and its ticks, over the time the cast
+// costs the caster: the cast time or channel, or the GCD when that is longer. Only what lands before the
+// fight ends counts, and a channel costs only the ticks it gets in.
 type APLValueSpellExpectedDpet struct {
 	DefaultAPLValueImpl
 	spell     *Spell
@@ -429,12 +430,22 @@ func (value *APLValueSpellExpectedDpet) GetFloat(sim *Simulation) float64 {
 		cast.CastTime = spell.CastTime().Round(time.Millisecond)
 	}
 
+	remaining := sim.GetRemainingDuration()
+	if cast.CastTime > remaining {
+		return 0
+	}
+
 	var damage float64
 	if spell.expectedInitialDamageInternal != nil {
 		damage += spell.ExpectedInitialDamage(sim, target)
 	}
 	if dot := spell.Dot(target); dot != nil {
-		ticks := dot.ExpectedTickCount()
+		// A channel ticks from the start of the cast, a DoT from the end of it.
+		firstTickFrom := cast.CastTime
+		if spell.Flags.Matches(SpellFlagChanneled) {
+			firstTickFrom = 0
+		}
+		ticks := min(dot.ExpectedTickCount(), int32((remaining-firstTickFrom)/dot.CalcTickPeriod()))
 		if spell.expectedTickDamageInternal != nil {
 			damage += spell.ExpectedTickDamage(sim, target) * float64(ticks)
 		}
