@@ -137,6 +137,7 @@ func RegisterAllOnUseCds() {
 	})
 
 	// AttackPower / RangedAttackPower
+	shared.NewSimpleStatActive(14554)  // Cloudkeeper Legplates - https://www.wowhead.com/forever/spell=18787
 	shared.NewSimpleStatActive(21180)  // Earthstrike - https://www.wowhead.com/forever/spell=25891
 	shared.NewSimpleStatActive(23041)  // Slayer's Crest - https://www.wowhead.com/forever/spell=28777
 	shared.NewSimpleStatActive(249470) // Molten Heart of the Mountain - https://www.wowhead.com/forever/spell=1249113
