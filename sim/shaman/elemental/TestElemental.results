@@ -313,7 +313,7 @@ dps_results: {
  key: "TestElemental-AllItems-DreadmistRaiment"
  value: {
   dps: 483.91168
-  tps: 342.6049
+  tps: 343.96311
   dtps: 5.63045
   hps: 8.74034
  }
@@ -1202,7 +1202,7 @@ dps_results: {
  key: "TestElemental-Settings-Dwarf-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 2451.77693
-  tps: 2129.48219
+  tps: 1694.72758
   dtps: 9.66727
  }
 }
@@ -1247,7 +1247,7 @@ dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 2494.5387
-  tps: 2158.9224
+  tps: 1724.16779
   dtps: 9.66727
  }
 }
@@ -1292,7 +1292,7 @@ dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 2446.56144
-  tps: 2135.48894
+  tps: 1692.55425
   dtps: 8.7235
  }
 }

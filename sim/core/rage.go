@@ -270,8 +270,7 @@ func (rb *rageBar) reset(_ *Simulation) {
 // Each rage gained is ThreatPerRageGained threat times the unit's threat multiplier at the time, split
 // between the targets in combat at the time.
 func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64) {
-	targets := float64(len(sim.Encounter.ActiveTargetUnits))
-	rb.rageGainSpell.ApplyAOEThreatIgnoreMultipliers(gain * ThreatPerRageGained * rb.rageGainSpell.unitThreatMultiplier() / targets)
+	rb.rageGainSpell.applySplitThreat(sim, gain*ThreatPerRageGained*rb.rageGainSpell.unitThreatMultiplier())
 	rb.rageGainSpell.SpellMetrics[0].Casts++
 }
 

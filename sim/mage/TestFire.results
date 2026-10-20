@@ -898,7 +898,7 @@ dps_results: {
  key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 837.7089
-  tps: 1119.56811
+  tps: 588.67071
  }
 }
 dps_results: {
@@ -919,7 +919,7 @@ dps_results: {
  key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 441.31165
-  tps: 647.46126
+  tps: 432.54344
  }
 }
 dps_results: {
@@ -940,7 +940,7 @@ dps_results: {
  key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 870.71326
-  tps: 1173.29181
+  tps: 612.96465
  }
 }
 dps_results: {
@@ -961,7 +961,7 @@ dps_results: {
  key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 483.93868
-  tps: 705.69287
+  tps: 474.01754
  }
 }
 dps_results: {

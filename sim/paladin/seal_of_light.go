@@ -21,12 +21,12 @@ var judgementOfLightHealIDs = map[int32]int32{1: 20267, 2: 20341, 3: 20342, 4: 2
 // spell's duration. Only one Judgement per Paladin can be active at any one time.
 func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 	judgementID := int32(rank.EffectN(2).BaseValue())
-	healRank := spellData.SealOfLightTriggered.ByID(judgementOfLightHealIDs[rank.RankNumber()])
+	healID := judgementOfLightHealIDs[rank.RankNumber()]
 	judgementAuras := paladin.newJudgementAuras(func(target *core.Unit) *core.Aura {
 		return buffs.NewSpellDataJudgementOfLightAuraRank(target, &paladin.Unit, buffs.JudgementRank{
 			SpellID: judgementID,
 			Rank:    rank.RankNumber(),
-			Value:   healRank.HealEffect().Average(),
+			HealID:  healID,
 		})
 	})
 

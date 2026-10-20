@@ -850,6 +850,14 @@ func (spell *Spell) ApplyAOEThreatIgnoreMultipliers(threatAmount float64) {
 		spell.SpellMetrics[target.UnitIndex].TotalThreat += threatAmount
 	}
 }
+
+// Threat no single enemy draws, such as a heal's or a resource gain's, split between the targets in
+// combat at the time.
+func (spell *Spell) applySplitThreat(sim *Simulation, threat float64) {
+	if targets := len(sim.Encounter.ActiveTargetUnits); targets > 0 {
+		spell.ApplyAOEThreatIgnoreMultipliers(threat / float64(targets))
+	}
+}
 func (spell *Spell) ApplyAOEThreat(threatAmount float64) {
 	spell.ApplyAOEThreatIgnoreMultipliers(threatAmount * spell.unitThreatMultiplier())
 }

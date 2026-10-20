@@ -30,6 +30,7 @@ type manaBar struct {
 	JowManaMetrics        *ResourceMetrics
 	VtManaMetrics         *ResourceMetrics
 	JowiseManaMetrics     *ResourceMetrics
+	manaGainSpell         *Spell // Holds the threat mana gains make.
 
 	ReplenishmentAura *Aura
 
@@ -67,8 +68,7 @@ func (character *Character) EnableManaBarWithModifier() {
 		character.AddStatDependency(stats.Intellect, stats.Mana, 15)
 	}
 
-	// Not a real spell, just holds metrics from mana gain threat.
-	character.RegisterSpell(SpellConfig{
+	character.manaGainSpell = character.RegisterSpell(SpellConfig{
 		ActionID: ActionID{OtherID: proto.OtherAction_OtherActionManaGain},
 	})
 
@@ -121,6 +121,20 @@ func (unit *Unit) AddMana(sim *Simulation, amount float64, metrics *ResourceMetr
 
 	unit.currentMana = newMana
 	unit.Metrics.ManaGained += newMana - oldMana
+	unit.addManaGainThreat(sim, newMana-oldMana, metrics)
+}
+
+// Each mana gained is ThreatPerManaGained threat, split between the targets in combat at the time.
+// Regen makes none, and neither does a source marked NoThreat. Vampiric Touch's mana is the priest's
+// threat, which the priest code adds.
+func (mb *manaBar) addManaGainThreat(sim *Simulation, gain float64, metrics *ResourceMetrics) {
+	if gain <= 0 || mb.manaGainSpell == nil || metrics.NoThreat ||
+		metrics.ActionID.SameActionIgnoreTag(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}) ||
+		metrics.ActionID.SameActionIgnoreTag(ActionID{SpellID: 34917}) {
+		return
+	}
+	mb.manaGainSpell.SpellMetrics[0].Casts++
+	mb.manaGainSpell.applySplitThreat(sim, gain*ThreatPerManaGained)
 }
 
 func (unit *Unit) SpendMana(sim *Simulation, amount float64, metrics *ResourceMetrics) {
@@ -145,30 +159,6 @@ func (mb *manaBar) doneIteration(sim *Simulation) {
 	}
 
 	mb.EndOOMEvent(sim)
-
-	manaGainSpell := mb.unit.GetSpell(ActionID{OtherID: proto.OtherAction_OtherActionManaGain})
-
-	for _, resourceMetrics := range mb.unit.Metrics.resources {
-		if resourceMetrics.Type != proto.ResourceType_ResourceTypeMana {
-			continue
-		}
-		if resourceMetrics.ActionID.SameActionIgnoreTag(ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}) {
-			continue
-		}
-		if resourceMetrics.NoThreat {
-			continue
-		}
-		if resourceMetrics.ActionID.SameActionIgnoreTag(ActionID{SpellID: 34917}) {
-			// Vampiric Touch mana threat goes to the priest, so it's handled in the priest code.
-			continue
-		}
-		if resourceMetrics.ActualGainForCurrentIteration() <= 0 {
-			continue
-		}
-
-		manaGainSpell.SpellMetrics[0].Casts += resourceMetrics.EventsForCurrentIteration()
-		manaGainSpell.ApplyAOEThreatIgnoreMultipliers(resourceMetrics.ActualGainForCurrentIteration() * ThreatPerManaGained)
-	}
 }
 
 // Returns the rate of mana regen per second from mp5.

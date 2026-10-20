@@ -257,7 +257,7 @@ dps_results: {
  key: "TestShadowPriest-AllItems-DreadmistRaiment"
  value: {
   dps: 698.86765
-  tps: 353.1709
+  tps: 353.85914
   dtps: 5.26819
   hps: 7.78758
  }
@@ -1025,7 +1025,7 @@ dps_results: {
  key: "TestShadowPriest-Settings-Dwarf-testing-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 846.88149
-  tps: 624.88723
+  tps: 441.90758
   dtps: 5.43045
  }
 }
@@ -1069,7 +1069,7 @@ dps_results: {
  key: "TestShadowPriest-Settings-NightElf-testing-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 853.12629
-  tps: 628.18962
+  tps: 445.20998
   dtps: 5.43045
  }
 }
@@ -1113,7 +1113,7 @@ dps_results: {
  key: "TestShadowPriest-Settings-Troll-testing-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 850.01233
-  tps: 628.67707
+  tps: 443.51524
   dtps: 4.80336
  }
 }
@@ -1157,7 +1157,7 @@ dps_results: {
  key: "TestShadowPriest-Settings-Undead-testing-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 850.62687
-  tps: 624.67471
+  tps: 443.67575
   dtps: 5.27865
  }
 }
@@ -1180,7 +1180,7 @@ dps_results: {
  key: "TestShadowPriest-Settings-Undead-testing-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 361.10363
-  tps: 350.41699
+  tps: 257.65476
  }
 }
 dps_results: {

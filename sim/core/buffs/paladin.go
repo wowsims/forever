@@ -92,13 +92,13 @@ type JudgementRank struct {
 	SpellID int32
 	Rank    int32
 	Value   float64
+	HealID  int32 // Judgement of Light's heal, whose row states the amount.
 }
 
 var (
 	JudgementOfTheCrusaderMaxRank = JudgementRank{SpellID: judgementOfTheCrusaderSpell.ID,
 		Value: amount(judgementOfTheCrusaderSpell.Effect(dbcenums.A_MOD_DAMAGE_TAKEN, int32(core.SpellSchoolHoly)))}
-	JudgementOfLightMaxRank = JudgementRank{SpellID: judgementOfLightSpell.ID,
-		Value: amount(spelldata.MustFind(judgementOfLightHealID).HealEffect())}
+	JudgementOfLightMaxRank  = JudgementRank{SpellID: judgementOfLightSpell.ID, HealID: judgementOfLightHealID}
 	JudgementOfWisdomMaxRank = JudgementRank{SpellID: judgementOfWisdomSpell.ID,
 		Value: amount(spelldata.MustFind(judgementOfWisdomManaID).EnergizeEffect())}
 )
@@ -177,10 +177,20 @@ func NewSpellDataJudgementOfLightAuraRank(target *core.Unit, caster *core.Unit, 
 
 // Whoever lands a damaging melee hit on the judged target rolls the row's chance to be healed for
 // the rank's amount. The caster's proc chance mods, e.g. Improved Judgement of Light, raise that
-// chance; the raid's copy has no caster.
+// chance; the raid's copy has no caster. The heal is the attacker's own spell, so its threat goes to
+// the attacker.
 func AttachJudgementOfLightHeal(aura *core.Aura, caster *core.Unit, rank JudgementRank) *core.Aura {
-	healthMetrics := aura.Unit.NewHealthMetrics(core.ActionID{SpellID: rank.SpellID})
-	heal := rank.Value
+	healRow := spelldata.MustFind(rank.HealID)
+	heal := healRow.HealEffect().Average()
+	for _, unit := range aura.Unit.Env.Raid.AllUnits {
+		config := spelldata.SpellConfig(unit, healRow, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(),
+			spelldata.Flags(core.SpellFlagProc))
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealHealing(sim, target, heal, spell.OutcomeAlwaysHit)
+		}
+		unit.GetOrRegisterSpell(config)
+	}
+	healID := core.ActionID{SpellID: healRow.ID}
 
 	return aura.AttachProcTrigger(core.ProcTrigger{
 		Name:                aura.Label + " - Heal",
@@ -192,7 +202,7 @@ func AttachJudgementOfLightHeal(aura *core.Aura, caster *core.Unit, rank Judgeme
 		ProcSpellClassFlags: spelldata.MustFind(rank.SpellID).ClassFlags,
 		Caster:              caster,
 		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			spell.Unit.GainHealth(sim, heal, healthMetrics)
+			spell.Unit.GetSpell(healID).Cast(sim, spell.Unit)
 		},
 	})
 }

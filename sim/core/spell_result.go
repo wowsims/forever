@@ -739,8 +739,6 @@ func (spell *Spell) calcHealingInternal(sim *Simulation, target *Unit, baseHeali
 			target.LogLabel(), spell.ActionID, spell.HealingPower(target), baseHealing, afterCasterMods, afterTargetMods, afterOutcome, afterPostOutcome)
 	}
 
-	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, attackTable)
-
 	return result
 }
 func (spell *Spell) CalcHealing(sim *Simulation, target *Unit, baseHealing float64, outcomeApplier OutcomeApplier) *SpellResult {
@@ -782,7 +780,14 @@ func (spell *Spell) dealHealingInternal(sim *Simulation, isPeriodic bool, result
 		spell.SpellMetrics[result.Target.UnitIndex].TotalCritHealing += result.Damage
 	}
 	spell.SpellMetrics[result.Target.UnitIndex].TotalHealing += result.Damage
-	spell.SpellMetrics[result.Target.UnitIndex].TotalThreat += result.Threat
+	// Only the health the heal restores makes threat, ThreatPerHealingDone a point, split between the
+	// enemies in combat.
+	healed := result.Damage
+	if result.Target.HasHealthBar() {
+		healed = max(0, min(healed, result.Target.MaxHealth()-result.Target.CurrentHealth()))
+	}
+	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, healed*ThreatPerHealingDone, spell.Unit.AttackTables[result.Target.UnitIndex])
+	spell.applySplitThreat(sim, result.Threat)
 	kind := proto.HitKind_HitKindHeal
 	switch {
 	case isPeriodic && result.DidCrit():
