@@ -76,10 +76,6 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 
 export const DefaultDebuffs = Debuffs.create({
 	judgementOfWisdom: true,
-	sunderArmor: true,
-	faerieFire: true,
-	giftOfArthas: true,
-	exposeArmor: true,
 });
 
 // Each build file holds the talents, demons, consumables, buffs and rotation of one tree and playstyle.

@@ -11,11 +11,7 @@
     "manaSpringTotem": "TristateEffectRegular"
   },
   "debuffs": {
-    "judgementOfWisdom": true,
-    "sunderArmor": true,
-    "faerieFire": true,
-    "giftOfArthas": true,
-    "exposeArmor": true
+    "judgementOfWisdom": true
   },
   "player": {
     "apiVersion": 2,
