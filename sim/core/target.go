@@ -369,8 +369,8 @@ type AttackTable struct {
 	OH     AttackTableHand
 	Ranged AttackTableHand
 
-	// All "Apply Aura: Mod All Damage Done Against Creature" effects in Vanilla and TBC also increase the CritMultiplier.
-	// Explicitly for hunters' "Monster Slaying" and "Humanoid Slaying", but likewise for rogues' "Murder", or trolls' "Beastslaying".
+	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects, such as effect 1 of Humanoid Slaying 19151 and Monster
+	// Slaying 24294. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise damage alone.
 	CritMultiplier float64
 
 	DamageDealtMultiplier       float64 // attacker buff, applied in applyAttackerModifiers()
