@@ -1390,6 +1390,16 @@ func TestValueSpellExpectedDpet(t *testing.T) {
 	if got := dpet.GetFloat(sim); got != 0 {
 		t.Errorf("a 2s cast in the last 1s = %f, want 0", got)
 	}
+	rend.MissileMinDuration = time.Second
+	sim.CurrentTime = sim.Duration - 8500*time.Millisecond
+	if got := dpet.GetFloat(sim); got != 375 {
+		t.Errorf("a 600 hit and 1 of 5 ticks of 150 after a 2s cast and 1s travel in the last 8.5s = %f, want 375", got)
+	}
+	sim.CurrentTime = sim.Duration - 2500*time.Millisecond
+	if got := dpet.GetFloat(sim); got != 0 {
+		t.Errorf("a 2s cast with 1s travel in the last 2.5s = %f, want 0", got)
+	}
+	rend.MissileMinDuration = 0
 	sim.CurrentTime = 0
 	rend.expectedInitialDamageInternal = nil
 	rend.DefaultCast.CastTime = 0
