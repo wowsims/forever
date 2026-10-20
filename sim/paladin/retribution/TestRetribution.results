@@ -207,6 +207,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-CloudkeeperLegplates-14554"
+ value: {
+  dps: 794.77969
+  tps: 683.87316
+  dtps: 7.52788
+  hps: 22.37361
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 805.08718

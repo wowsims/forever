@@ -225,6 +225,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-CloudkeeperLegplates-14554"
+ value: {
+  dps: 413.80888
+  tps: 458.549
+  dtps: 433.63185
+  hps: 30.82194
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 407.13847
