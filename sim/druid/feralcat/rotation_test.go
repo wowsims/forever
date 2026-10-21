@@ -10,6 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // Same tree as the cat UI default. Shifting Power is the 11th feral talent.
@@ -304,7 +305,7 @@ func TestJVMESSapperOnlyWhenSelected(t *testing.T) {
 }
 
 func TestJVMESUsesAvailableRacials(t *testing.T) {
-	for _, race := range []proto.Race{proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceTauren} {
+	for _, race := range []proto.Race{proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne, proto.Race_RaceTauren} {
 		t.Run(race.String(), func(t *testing.T) {
 			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
 			request := sweepRequest(powershiftTalents, rotation, false, 10)
@@ -375,6 +376,158 @@ func TestJVMESShadowmeldUsesClearcasting(t *testing.T) {
 			}
 			if melds == 0 || pendingRavage {
 				t.Fatalf("Shadowmeld casts = %d, unfinished Ravage = %v", melds, pendingRavage)
+			}
+		})
+	}
+}
+
+func TestJVMESRavageOpener(t *testing.T) {
+	for _, tc := range []struct {
+		name         string
+		talents      string
+		clearcasting bool
+		berserk      bool
+	}{
+		{"paid Ravage", powershiftTalents, false, true},
+		{"Clearcasting Ravage", powershiftTalents, true, true},
+		{"without Berserk", "05002-55000032021032212050-055", false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			request := sweepRequest(tc.talents, rotation, false, 1)
+			request.Raid.Parties[0].Players[0].GetFeralCatDruid().Options.PrepullClearcasting = tc.clearcasting
+			request.SimOptions.Debug = true
+			result := core.RunSim(request, nil, simsignals.CreateSignals())
+			if result.Error != nil {
+				t.Fatal(result.Error.Message)
+			}
+			berserk := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: 417141}")
+			ravage := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: 9867}")
+			if ravage < 0 {
+				t.Fatal("the opener did not cast Ravage at pull")
+			}
+			if tc.berserk && (berserk < 0 || ravage < berserk) {
+				t.Fatal("the opener did not cast Berserk before Ravage")
+			}
+			if !tc.berserk && berserk >= 0 {
+				t.Fatal("Berserk was cast without the talent")
+			}
+		})
+	}
+}
+
+func TestJVMESResourcePotionOnlyWhenSelected(t *testing.T) {
+	for _, potion := range []int32{0, 13444, 13442} {
+		t.Run(strconv.Itoa(int(potion)), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			request := sweepRequest(powershiftTalents, rotation, false, 10)
+			request.Encounter.Duration = 300
+			request.Raid.Debuffs.JudgementOfWisdom = false
+			cat := request.Raid.Parties[0].Players[0]
+			cat.Consumables = &proto.ConsumesSpec{OffensivePotId: 13442, ConjuredId: 7676}
+			cat.Consumables.ResourcePotId = potion
+			if potion == 13442 {
+				cat.Consumables.OffensivePotId = 0
+			}
+			player := runCat(t, request)
+			used := itemCastsOf(player.Actions, 13444)
+			if potion == 13444 && used == 0 {
+				t.Error("The selected mana potion was never used without Judgement of Wisdom")
+			}
+			if potion != 13444 && used != 0 {
+				t.Errorf("Mana potion casts = %d without a resource potion selected", used)
+			}
+			if itemCastsOf(player.Actions, 13442) == 0 {
+				t.Error("The offensive potion was never used")
+			}
+			for _, resource := range player.Resources {
+				if resource.Id.GetItemId() == 13444 && resource.Type == proto.ResourceType_ResourceTypeMana && resource.Gain != resource.ActualGain {
+					t.Errorf("Mana potion restored %v of %v mana", resource.ActualGain, resource.Gain)
+				}
+			}
+		})
+	}
+}
+
+func TestJVMESManaBudgetAccountsForFightEndAndWisdom(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		duration float64
+		wisdom   bool
+		want     int32
+	}{
+		{"short fight with Wisdom", 30, true, 9830},
+		{"long fight with Wisdom", 180, true, 9850},
+		{"short fight without Wisdom", 30, false, 9850},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			saved := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			condition := &proto.APLValue{Value: &proto.APLValue_VariableRef{VariableRef: &proto.APLValueVariableRef{Name: "Current mana may not last until the next potion opportunity"}}}
+			rotation := &proto.APLRotation{ValueVariables: saved.ValueVariables, PriorityList: []*proto.APLListItem{castWhen(9850, condition), castWhen(9830, nil)}}
+			request := sweepRequest(powershiftTalents, rotation, false, 1)
+			request.Encounter.Duration = tc.duration
+			request.Raid.Debuffs.JudgementOfWisdom = tc.wisdom
+			computed := core.ComputeStats(&proto.ComputeStatsRequest{Raid: request.Raid, Encounter: request.Encounter})
+			if computed.ErrorResult != "" {
+				t.Fatal(computed.ErrorResult)
+			}
+			mana := computed.RaidStats.Parties[0].Players[0].FinalStats.Stats[stats.Mana]
+			request.Raid.Parties[0].Players[0].BonusStats = &proto.UnitStats{Stats: stats.Stats{stats.Mana: 1500 - mana}.ToProtoArray()}
+			request.SimOptions.Debug = true
+			result := core.RunSim(request, nil, simsignals.CreateSignals())
+			if result.Error != nil {
+				t.Fatal(result.Error.Message)
+			}
+			for _, line := range strings.Split(result.Logs, "\n") {
+				if strings.Contains(line, "Casting {SpellID: 9850}") || strings.Contains(line, "Casting {SpellID: 9830}") {
+					if !strings.Contains(line, "Casting {SpellID: "+strconv.Itoa(int(tc.want))+"}") {
+						t.Errorf("First builder = %s, want spell %d", line, tc.want)
+					}
+					return
+				}
+			}
+			t.Fatal("No builder was cast")
+		})
+	}
+}
+
+func TestJVMESBerserkImmediatelyPrecedesACatAttack(t *testing.T) {
+	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
+		t.Run(race.String(), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			request := sweepRequest(powershiftTalents, rotation, false, 1)
+			request.Encounter.Duration = 210
+			request.Raid.Parties[0].Players[0].Race = race
+			request.SimOptions.Debug = true
+			result := core.RunSim(request, nil, simsignals.CreateSignals())
+			if result.Error != nil {
+				t.Fatal(result.Error.Message)
+			}
+			lines := strings.Split(result.Logs, "\n")
+			uses := 0
+			for i, line := range lines {
+				if !strings.Contains(line, "Casting {SpellID: 417141}") {
+					continue
+				}
+				uses++
+				at := line[:strings.Index(line, "]")+1]
+				found := false
+				for _, next := range lines[i+1:] {
+					if !strings.Contains(next, "Casting ") || strings.Contains(next, "GCD = 0s") {
+						continue
+					}
+					found = strings.HasPrefix(next, at) && (strings.Contains(next, "Casting {SpellID: 9867}") || strings.Contains(next, "Casting {SpellID: 9904}") || strings.Contains(next, "Casting {SpellID: 9830}"))
+					if !found {
+						t.Errorf("Berserk at %s was followed by %s", at, next)
+					}
+					break
+				}
+				if !found {
+					t.Error("Berserk was not immediately followed by a Cat builder")
+				}
+			}
+			if uses < 2 {
+				t.Fatal("the fixture did not exercise a later Berserk activation")
 			}
 		})
 	}
