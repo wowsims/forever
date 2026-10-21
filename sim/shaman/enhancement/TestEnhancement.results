@@ -56,10 +56,10 @@ character_stats_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 671.92615
-  tps: 355.14248
-  dtps: 9.06186
-  hps: 18.1475
+  dps: 669.95953
+  tps: 354.23311
+  dtps: 8.94971
+  hps: 18.13056
  }
 }
 dps_results: {
@@ -173,8 +173,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-CloakofFire-14134"
  value: {
-  dps: 675.25314
-  tps: 356.81971
+  dps: 675.33611
+  tps: 356.86037
   dtps: 9.40096
   hps: 18.07972
  }
@@ -317,8 +317,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Earthstrike-21180"
  value: {
-  dps: 700.4111
-  tps: 369.08135
+  dps: 700.41953
+  tps: 369.08548
   dtps: 9.81148
   hps: 18.09667
  }
@@ -623,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-JomGabbar-23570"
  value: {
-  dps: 703.57815
-  tps: 370.6332
+  dps: 703.67101
+  tps: 370.6787
   dtps: 9.81148
   hps: 18.09667
  }
@@ -839,8 +839,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 710.43675
-  tps: 373.99391
+  dps: 710.44458
+  tps: 373.99775
   dtps: 9.81148
   hps: 18.09667
  }
@@ -920,10 +920,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 695.01127
-  tps: 366.1414
-  dtps: 9.4748
-  hps: 18.07972
+  dps: 697.77034
+  tps: 367.79906
+  dtps: 9.87315
+  hps: 18.09667
  }
 }
 dps_results: {
@@ -947,8 +947,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 703.2515
-  tps: 370.52518
+  dps: 703.26972
+  tps: 370.5341
   dtps: 10.0736
   hps: 18.09667
  }
@@ -1046,10 +1046,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 690.52499
-  tps: 364.28197
-  dtps: 9.06384
-  hps: 18.16444
+  dps: 688.51101
+  tps: 363.42002
+  dtps: 9.14048
+  hps: 18.09667
  }
 }
 dps_results: {
@@ -1100,8 +1100,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 694.93536
-  tps: 366.46121
+  dps: 694.92525
+  tps: 366.45626
   dtps: 10.12603
   hps: 18.09667
  }
@@ -1109,8 +1109,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-ZandalarianHeroMedallion-19949"
  value: {
-  dps: 692.39436
-  tps: 365.15314
+  dps: 692.39863
+  tps: 365.15523
   dtps: 9.81148
   hps: 18.09667
  }
@@ -1118,8 +1118,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-Average-Default"
  value: {
-  dps: 696.81785
-  tps: 367.19906
+  dps: 696.81795
+  tps: 367.19911
   dtps: 9.0588
   hps: 18.13016
  }

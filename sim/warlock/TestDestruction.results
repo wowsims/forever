@@ -1140,9 +1140,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Average-Default"
  value: {
-  dps: 645.83498
-  tps: 376.95594
-  dtps: 9.13482
+  dps: 645.84655
+  tps: 376.9625
+  dtps: 9.13257
   hps: 8.17831
  }
 }

@@ -381,13 +381,16 @@ func (mcdm *majorCooldownManager) GetMatchingStatBuffCooldownAuras(statTypesToMa
 	return matchingAuras
 }
 
-func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldown {
+// The first ready cooldown, in ready time order, that firesNow allows at this moment and whose own
+// conditions pass. One that may not fire yet, such as an explosive waiting for a GCD to start or
+// another cooldown waiting for one to end, does not hold back the cooldowns after it.
+func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation, firesNow func(*MajorCooldown) bool) *MajorCooldown {
 	if sim.CurrentTime < mcdm.minReady {
 		return nil
 	}
 
 	for _, mcd := range mcdm.majorCooldowns {
-		if !mcd.IsReady(sim) {
+		if !mcd.IsReady(sim) || !firesNow(mcd) {
 			continue
 		}
 		if mcd.shouldActivateHelper(sim, mcdm.character) {
