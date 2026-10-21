@@ -382,14 +382,14 @@ func (mcdm *majorCooldownManager) GetMatchingStatBuffCooldownAuras(statTypesToMa
 }
 
 // The first ready cooldown, by ready time and then priority, whose own conditions pass and that may
-// fire on this side of the GCD: an explosive only while it runs, any other once it is ready, a reactive
-// one either way.
+// fire at this point of the GCD: an explosive only while it runs and, when the shortest GCD would cover
+// its cast, only while what is left of it does, any other once it is ready, a reactive one either way.
 func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldown {
 	if sim.CurrentTime < mcdm.minReady {
 		return nil
 	}
 
-	gcdReady := mcdm.character.GCD.IsReady(sim)
+	gcdLeft := mcdm.character.GCD.TimeToReady(sim)
 	for _, mcd := range mcdm.majorCooldowns {
 		if !mcd.IsReady(sim) {
 			continue
@@ -397,9 +397,18 @@ func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldo
 		// Explicitly check for GCD because MCDs are usually desired to be cast immediately
 		// before the next spell, rather than immediately after the previous spell. This is
 		// true even for MCDs which do not require the GCD. The one exception to this rule
-		// is Engineering explosives, which should instead be cast right *after* incurring
-		// a GCD, since they are off-GCD but have small cast times.
-		if gcdReady == mcd.Type.Matches(CooldownTypeExplosive) && !mcd.Spell.Flags.Matches(SpellFlagReactive) {
+		// is explosives, which should instead be cast right *after* incurring a GCD, since
+		// they are off-GCD but have small cast times. One whose cast fits in the shortest GCD
+		// also waits while less of the GCD is left than its cast, so that it never delays the
+		// next spell; a longer one, which the shortest GCD would not cover, goes whenever the
+		// GCD runs.
+		switch {
+		case mcd.Spell.Flags.Matches(SpellFlagReactive):
+		case mcd.Type.Matches(CooldownTypeExplosive):
+			if castTime := mcd.Spell.CastTime(); gcdLeft == 0 || gcdLeft < castTime && castTime <= GCDMin {
+				continue
+			}
+		case gcdLeft > 0:
 			continue
 		}
 		if mcd.shouldActivateHelper(sim, mcdm.character) {
