@@ -725,6 +725,12 @@ func TestValueSpellCastState(t *testing.T) {
 	if fullCD.GetDuration(sim) != time.Minute {
 		t.Errorf("Full Cooldown = %s, want 1m0s", fullCD.GetDuration(sim))
 	}
+	rend.SharedCD.Duration = 120 * time.Second
+	sharedFullCD := rot.newValueSpellFullCooldown(&proto.APLValueSpellFullCooldown{SpellId: rendID}, nil)
+	if sharedFullCD.GetDuration(sim) != 120*time.Second {
+		t.Errorf("Full Cooldown of a spell with only a 120s shared cooldown = %s, want 2m0s", sharedFullCD.GetDuration(sim))
+	}
+	rend.SharedCD.Duration = 0
 
 	sim.CurrentTime = 90 * time.Second
 	cdSpell.casts = 3
@@ -1674,22 +1680,26 @@ func TestValueMultipleCdUsages(t *testing.T) {
 	}
 
 	// The UI sends an empty base spell id when none is picked, which counts as no base spell.
-	rot.curValidations = nil
-	emptyBase := rot.newValueMultipleCdUsages(&proto.APLValueMultipleCdUsages{BaseSpellId: &proto.ActionID{}, TargetSpellId: targetID, AlignCdEnd: true}, nil)
-	if emptyBase == nil {
-		t.Fatal("an empty base spell id should construct")
-	}
-	if len(rot.curValidations) != 0 {
-		t.Errorf("an empty base spell id should log no validation, got %v", rot.curValidations)
-	}
-	for name, baseID := range map[string]*proto.ActionID{
-		"an unknown base spell":                    ActionID{SpellID: 999999}.ToProto(),
-		"a base spell without a related self buff": plain.ActionID.ToProto(),
+	for _, tc := range []struct {
+		name        string
+		base        *proto.ActionID
+		wantWarning bool
+	}{
+		{"an empty base spell id", &proto.ActionID{}, false},
+		{"an unknown base spell", ActionID{SpellID: 999999}.ToProto(), true},
+		{"a base spell without a related self buff", plain.ActionID.ToProto(), true},
 	} {
 		rot.curValidations = nil
-		rot.newValueMultipleCdUsages(&proto.APLValueMultipleCdUsages{BaseSpellId: baseID, TargetSpellId: targetID, AlignCdEnd: true}, nil)
-		if len(rot.curValidations) == 0 || !strings.HasSuffix(rot.curValidations[len(rot.curValidations)-1].Validation, "Ignoring the base spell and offset.") {
-			t.Errorf("%s should log the ignored base spell warning, got %v", name, rot.curValidations)
+		value := rot.newValueMultipleCdUsages(&proto.APLValueMultipleCdUsages{BaseSpellId: tc.base, TargetSpellId: targetID, AlignCdEnd: true}, nil)
+		if value == nil {
+			t.Errorf("%s should construct", tc.name)
+		}
+		if !tc.wantWarning {
+			if len(rot.curValidations) != 0 {
+				t.Errorf("%s should log no validation, got %v", tc.name, rot.curValidations)
+			}
+		} else if len(rot.curValidations) == 0 || !strings.HasSuffix(rot.curValidations[len(rot.curValidations)-1].Validation, "Ignoring the base spell and offset.") {
+			t.Errorf("%s should log the ignored base spell warning, got %v", tc.name, rot.curValidations)
 		}
 	}
 	rot.curValidations = nil
@@ -1720,9 +1730,6 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		}
 		if got := aligned.GetBool(sim); got != tc.aligned {
 			t.Errorf("at %s of %s with a %s cooldown aligned to the end of combat: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
-		}
-		if got := emptyBase.GetBool(sim); got != tc.aligned {
-			t.Errorf("at %s of %s with a %s cooldown and an empty base spell id: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
 		}
 	}
 

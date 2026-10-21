@@ -674,6 +674,11 @@ func (spell *Spell) ReadyAt() time.Duration {
 	return BothTimersReadyAt(spell.CD.Timer, spell.SharedCD.Timer)
 }
 
+// The longer of the spell's own cooldown and its shared category cooldown.
+func (spell *Spell) FullCooldown() time.Duration {
+	return max(spell.CD.Duration, spell.SharedCD.Duration)
+}
+
 func (spell *Spell) IsReady(sim *Simulation) bool {
 	if spell == nil {
 		return false
