@@ -2470,6 +2470,14 @@ func RegisterAllProcs() {
 			{ItemID: 1728, ItemName: "Teebu's Blazing Longsword"},
 		})
 
+	// When struck in combat has a 3% chance to encase the caster in bone, increasing armor by 150 for 20s.
+	// https://www.wowhead.com/forever/spell=18828
+	// trigger 19409 (3%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 18828
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 19409, BuffSpellID: 18828},
+		[]shared.ItemVariant{
+			{ItemID: 1979, ItemName: "Wall of the Dead"},
+		})
+
 	// Sends a shadowy bolt at the enemy causing 231 Shadow damage.
 	// https://www.wowhead.com/forever/spell=18211
 	// trigger 18211 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
