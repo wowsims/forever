@@ -153,10 +153,6 @@ func (rogue *Rogue) ApplyAdditiveEnergyRegenBonus(sim *core.Simulation, incremen
 }
 
 func (rogue *Rogue) Reset(sim *core.Simulation) {
-	for _, mcd := range rogue.GetMajorCooldowns() {
-		mcd.Disable()
-	}
-
 	rogue.MultiplyEnergyRegenSpeed(sim, 1.0+rogue.AdditiveEnergyRegenBonus)
 }
 

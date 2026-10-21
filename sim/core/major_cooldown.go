@@ -66,9 +66,6 @@ type MajorCooldown struct {
 
 	// Number of times this MCD was used so far in the current iteration.
 	numUsages int
-
-	// Whether this MCD is currently disabled.
-	disabled bool
 }
 
 func (mcd *MajorCooldown) ReadyAt() time.Duration {
@@ -92,37 +89,12 @@ func (mcd *MajorCooldown) TimeToNextCast(sim *Simulation) time.Duration {
 	return timeToReady
 }
 
-func (mcd *MajorCooldown) IsEnabled() bool {
-	return !mcd.disabled
-}
-
-func (mcd *MajorCooldown) Enable() {
-	if mcd != nil && mcd.disabled {
-		mcd.disabled = false
-	}
-}
-
-func (mcd *MajorCooldown) Disable() {
-	if mcd != nil && !mcd.disabled {
-		mcd.disabled = true
-	}
-}
-
 func (mcd *MajorCooldown) GetTimings() []time.Duration {
 	return mcd.timings
 }
 
-// Public version of TryActivate for manual activation by Agent code.
-// Note that this version will work even if the MCD is disabled.
+// Uses this cooldown if its conditions pass, and returns whether it did.
 func (mcd *MajorCooldown) TryActivate(sim *Simulation, character *Character) bool {
-	return mcd.tryActivateHelper(sim, character)
-}
-
-func (mcd *MajorCooldown) tryActivateInternal(sim *Simulation, character *Character) bool {
-	if mcd.disabled {
-		return false
-	}
-
 	return mcd.tryActivateHelper(sim, character)
 }
 
@@ -410,8 +382,8 @@ func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldo
 	return nil
 }
 
-// This function should be called if the CD for a major cooldown changes outside
-// of the TryActivate() call.
+// Re-sorts the cooldowns and caches the earliest ready time. Autocast calls it after each use, and
+// anything else that changes a major cooldown's ready time must call it too.
 func (mcdm *majorCooldownManager) UpdateMajorCooldowns() {
 	if len(mcdm.majorCooldowns) == 0 {
 		mcdm.minReady = NeverExpires
