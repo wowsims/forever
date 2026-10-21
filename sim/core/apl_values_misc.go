@@ -31,9 +31,9 @@ func (rot *APLRotation) newValueMultipleCdUsages(config *proto.APLValueMultipleC
 
 	if hasBaseSpell && (baseSpell == nil || baseSpell.RelatedSelfBuff == nil) {
 		if baseSpell == nil {
-			rot.ValidationMessage(proto.LogLevel_Warning, "%s is not known. Only using offset to delay CD usage.", ProtoToActionID(config.BaseSpellId))
+			rot.ValidationMessage(proto.LogLevel_Warning, "%s is not known. Ignoring the base spell and offset.", ProtoToActionID(config.BaseSpellId))
 		} else {
-			rot.ValidationMessage(proto.LogLevel_Warning, "%s does not have a related self buff. Only using offset to delay CD usage.", ProtoToActionID(config.BaseSpellId))
+			rot.ValidationMessage(proto.LogLevel_Warning, "%s does not have a related self buff. Ignoring the base spell and offset.", ProtoToActionID(config.BaseSpellId))
 		}
 
 	}
@@ -70,7 +70,8 @@ func (value *APLValueMultipleCdUsages) GetBool(sim *Simulation) bool {
 	remainingTime := sim.GetRemainingDuration()
 
 	targetSpell := value.targetSpell
-	targetSpellCD := targetSpell.CD.Duration
+	// Potions only have a shared category lockout, so the longer of the two is the cooldown.
+	targetSpellCD := max(targetSpell.CD.Duration, targetSpell.SharedCD.Duration)
 	targetSpellDuration := value.targetSpell.RelatedSelfBuff.Duration
 	canGetFullDurationAtEncounterEnd := remainingTime <= targetSpellDuration
 

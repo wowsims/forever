@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
@@ -1681,6 +1682,16 @@ func TestValueMultipleCdUsages(t *testing.T) {
 	if len(rot.curValidations) != 0 {
 		t.Errorf("an empty base spell id should log no validation, got %v", rot.curValidations)
 	}
+	for name, baseID := range map[string]*proto.ActionID{
+		"an unknown base spell":                    ActionID{SpellID: 999999}.ToProto(),
+		"a base spell without a related self buff": plain.ActionID.ToProto(),
+	} {
+		rot.curValidations = nil
+		rot.newValueMultipleCdUsages(&proto.APLValueMultipleCdUsages{BaseSpellId: baseID, TargetSpellId: targetID, AlignCdEnd: true}, nil)
+		if len(rot.curValidations) == 0 || !strings.HasSuffix(rot.curValidations[len(rot.curValidations)-1].Validation, "Ignoring the base spell and offset.") {
+			t.Errorf("%s should log the ignored base spell warning, got %v", name, rot.curValidations)
+		}
+	}
 	rot.curValidations = nil
 
 	// With a 60s cooldown and a 10s buff, the aligned value casts while a later use would still get at least
@@ -1714,6 +1725,24 @@ func TestValueMultipleCdUsages(t *testing.T) {
 			t.Errorf("at %s of %s with a %s cooldown and an empty base spell id: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
 		}
 	}
+
+	// A spell with only a shared category lockout, like a potion, counts that lockout as its cooldown.
+	target.CD.Duration, target.SharedCD.Duration, sim.Duration = 0, 120*time.Second, 300*time.Second
+	for _, tc := range []struct {
+		remaining time.Duration
+		aligned   bool
+	}{
+		{126 * time.Second, true},
+		{125 * time.Second, false},
+		{10 * time.Second, true},
+		{11 * time.Second, false},
+	} {
+		sim.CurrentTime = sim.Duration - tc.remaining
+		if got := aligned.GetBool(sim); got != tc.aligned {
+			t.Errorf("with %s left and a 120s shared cooldown aligned to the end of combat: got %t, want %t", tc.remaining, got, tc.aligned)
+		}
+	}
+	target.SharedCD.Duration = 0
 
 	target.CD.Duration = 5 * time.Second
 	sim.Duration = 180 * time.Second
