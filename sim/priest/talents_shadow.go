@@ -195,7 +195,7 @@ func (priest *Priest) applyEarlyDemise() {
 		return
 	}
 
-	// The sim tracks the target's health as the execute phases 90, 45, 35, 25 and 20.
+	// The sim tracks the target's health as the execute phases 35 and 20.
 	threshold := int32(spellData.EarlyDemise.EffectAt(2).ValueAt(priest.Talents.EarlyDemise))
 	critMod := priest.AddDynamicMod(core.SpellModConfig{
 		Kind:       core.SpellMod_BonusCrit_Percent,

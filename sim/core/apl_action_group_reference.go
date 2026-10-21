@@ -12,6 +12,8 @@ type APLActionGroupReference struct {
 	variables map[string]*proto.APLValue
 	group     *APLGroup
 	matched   bool
+	rot       *APLRotation
+	entry     *APLAction // The entry holding this reference, whose condition a Strict Multidot chain in the group re-checks.
 }
 
 func (rot *APLRotation) newActionGroupReference(config *proto.APLActionGroupReference) APLActionImpl {
@@ -33,6 +35,7 @@ func (rot *APLRotation) newActionGroupReference(config *proto.APLActionGroupRefe
 	return &APLActionGroupReference{
 		groupName: config.GroupName,
 		variables: vars,
+		rot:       rot,
 	}
 }
 
@@ -174,13 +177,21 @@ func (action *APLActionGroupReference) Execute(sim *Simulation) {
 	if action.group == nil {
 		return
 	}
+	condition := action.entry.condition
+	if condition != nil {
+		action.rot.groupConditions = append(action.rot.groupConditions, condition)
+	}
 
 	// Execute the first ready action in the group
 	for _, groupAction := range action.group.actions {
 		if groupAction.IsReady(sim) {
 			groupAction.Execute(sim)
-			return
+			break
 		}
+	}
+
+	if condition != nil {
+		action.rot.groupConditions = action.rot.groupConditions[:len(action.rot.groupConditions)-1]
 	}
 }
 

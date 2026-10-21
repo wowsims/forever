@@ -1,12 +1,100 @@
 package core
 
 import (
+	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
+
+// A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on a
+// group reference it sits under at any depth, turns false before the second dot. An outer Sequence's
+// condition only decides whether the sequence starts.
+func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
+	const dotID = 910104
+	firstSecond := &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
+		Op:  proto.APLValueCompare_OpLt,
+		Lhs: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
+		Rhs: constValue("1s"),
+	}}}
+	multidot := func(condition *proto.APLValue) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{
+			Condition: condition,
+			Action:    &proto.APLAction_StrictMultidot{StrictMultidot: &proto.APLActionStrictMultidot{SpellId: ActionID{SpellID: dotID}.ToProto(), MaxDots: 2}},
+		}}
+	}
+	groupRef := func(name string, condition *proto.APLValue) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{
+			Condition: condition,
+			Action:    &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: name}},
+		}}
+	}
+	group := func(item *proto.APLListItem) []*proto.APLGroup {
+		return []*proto.APLGroup{{Name: "dots", Actions: []*proto.APLListItem{item}}}
+	}
+	nested := []*proto.APLGroup{
+		{Name: "outer", Actions: []*proto.APLListItem{groupRef("dots", firstSecond)}},
+		{Name: "dots", Actions: []*proto.APLListItem{multidot(nil)}},
+	}
+	sequence := &proto.APLListItem{Action: &proto.APLAction{
+		Condition: firstSecond,
+		Action:    &proto.APLAction_Sequence{Sequence: &proto.APLActionSequence{Actions: []*proto.APLAction{multidot(nil).Action}}},
+	}}
+
+	for _, tc := range []struct {
+		name   string
+		first  *proto.APLListItem
+		groups []*proto.APLGroup
+		castOn []int32
+	}{
+		{"without a condition", multidot(nil), nil, []int32{0, 1}},
+		{"with a condition on its entry", multidot(firstSecond), nil, []int32{0}},
+		{"with a condition on its entry in a group", groupRef("dots", nil), group(multidot(firstSecond)), []int32{0}},
+		{"with a condition on the group reference", groupRef("dots", firstSecond), group(multidot(nil)), []int32{0}},
+		{"with a condition on a nested group reference", groupRef("outer", nil), nested, []int32{0}},
+		{"with a condition on an outer sequence", sequence, nil, []int32{0, 1}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			request := fakeRageSimRequest()
+			request.Encounter.Targets = append(request.Encounter.Targets, request.Encounter.Targets[0])
+			sim := setupFakeRageSimFrom(request)
+			fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+			var castOn []int32
+			sim.Environment.State = Constructed
+			dot := fw.RegisterSpell(SpellConfig{
+				ActionID: ActionID{SpellID: dotID},
+				Flags:    SpellFlagAPL,
+				Cast:     CastConfig{DefaultCast: Cast{GCD: GCDDefault}},
+				Dot:      DotConfig{Aura: Aura{Label: "Test Dot"}, NumberOfTicks: 5, TickLength: 3 * time.Second},
+				ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+					castOn = append(castOn, target.UnitIndex)
+					spell.Dot(target).Apply(sim)
+				},
+			})
+			sim.Environment.State = Finalized
+			dot.finalize()
+			fw.Rotation = fw.newAPLRotation(&proto.APLRotation{
+				Type:         proto.APLRotation_TypeAPL,
+				Groups:       tc.groups,
+				PriorityList: []*proto.APLListItem{tc.first},
+			})
+			sim.Cleanup()
+			sim.Reset()
+			sim.PrePull()
+			sim.Step()
+			fw.AutoAttacks.CancelAutoSwing(sim)
+
+			ct := &channelTest{sim: sim, fw: fw, rot: fw.Rotation}
+			ct.runUntil(5 * time.Second)
+			if !slices.Equal(castOn, tc.castOn) {
+				t.Errorf("dotted targets %v, want %v", castOn, tc.castOn)
+			}
+		})
+	}
+}
 
 // A cast whose range is shorter than the distance the character starts at warns, unless something in
 // the rotation moves the character closer.

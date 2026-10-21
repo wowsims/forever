@@ -177,6 +177,8 @@ message APLValue {
         APLValueSpellFullCooldown spell_full_cooldown = 116;
         APLValueSpellInFlight spell_in_flight = 118;
         APLValueSpellExpectedDpet spell_expected_dpet = 109;
+        APLValueSpellIsHitCapped spell_is_hit_capped = 25;
+        APLValueSpellIsExpertiseCapped spell_is_expertise_capped = 29;
 
         // Aura values
         APLValueAuraIsKnown aura_is_known = 73;
@@ -468,10 +470,9 @@ message APLValueIsExecutePhase {
     enum ExecutePhaseThreshold {
         Unknown = 0;
         E20 = 1;
-        E25 = 2;
         E35 = 3;
-        E45 = 4;
-		E90 = 5;
+        reserved 2, 4, 5;
+        reserved "E25", "E45", "E90";
     }
     ExecutePhaseThreshold threshold = 1;
 }
@@ -616,6 +617,12 @@ message APLValueSpellInFlight{
 message APLValueSpellExpectedDpet {
 	ActionID spell_id = 1;
 	UnitReference target_unit = 2;
+}
+message APLValueSpellIsHitCapped {
+	ActionID spell_id = 1;
+}
+message APLValueSpellIsExpertiseCapped {
+	ActionID spell_id = 1;
 }
 
 message APLValueAuraIsKnown {

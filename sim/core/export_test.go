@@ -28,7 +28,7 @@ func NewGeneratedDebuffTestTarget() *Unit {
 		Index:       0,
 		Level:       63,
 		auraTracker: newAuraTracker(),
-		Env:         &Environment{MeasuringStats: true},
+		Env:         &Environment{MeasuringStats: true, Raid: &Raid{}},
 	}
 	target.PseudoStats = stats.NewPseudoStats()
 	return target

@@ -3683,46 +3683,7 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
-						"execute_duration_25": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
 						"execute_duration_35": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
-						"execute_duration_45": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
-						"duration_below_high_hp": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -3984,10 +3945,7 @@
 						"duration",
 						"duration_variation",
 						"execute_duration_20",
-						"execute_duration_25",
 						"execute_duration_35",
-						"execute_duration_45",
-						"duration_below_high_hp",
 						"encounter_preset",
 						"zone",
 						"area_types",
@@ -6287,6 +6245,38 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "full_description"]
 								},
+								"is_hit_capped": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										},
+										"full_description": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip", "full_description"]
+								},
+								"is_expertise_capped": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										},
+										"full_description": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip", "full_description"]
+								},
 								"is_ready": {
 									"type": "object",
 									"properties": {
@@ -7219,6 +7209,8 @@
 								"spell_known",
 								"current_cost",
 								"can_cast",
+								"is_hit_capped",
+								"is_expertise_capped",
 								"is_ready",
 								"time_to_ready",
 								"cast_time",
@@ -7338,21 +7330,12 @@
 								"e20": {
 									"type": "string"
 								},
-								"e25": {
-									"type": "string"
-								},
 								"e35": {
-									"type": "string"
-								},
-								"e45": {
-									"type": "string"
-								},
-								"e90": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["e20", "e25", "e35", "e45", "e90"]
+							"required": ["e20", "e35"]
 						},
 						"totem_types": {
 							"type": "object",
@@ -9899,12 +9882,22 @@
 						"windfury_over_flametongue": {
 							"type": "string"
 						},
+						"elemental_stormstrike": {
+							"type": "string"
+						},
 						"label": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["profession_requirement", "unspent_talent_points", "broken_talents", "windfury_over_flametongue", "label"]
+					"required": [
+						"profession_requirement",
+						"unspent_talent_points",
+						"broken_talents",
+						"windfury_over_flametongue",
+						"elemental_stormstrike",
+						"label"
+					]
 				},
 				"buttons": {
 					"type": "object",

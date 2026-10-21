@@ -1020,21 +1020,9 @@
 				"label": "Execute Duration 20 (%)",
 				"tooltip": "Percentage of the total encounter duration, for which the targets will be considered to be in execute range (< 20% HP) for the purpose of effects like Warrior Execute."
 			},
-			"execute_duration_25": {
-				"label": "Execute Duration 25 (%)",
-				"tooltip": "Percentage of the total encounter duration, for which the targets will be considered to be in execute range (< 25% HP)."
-			},
 			"execute_duration_35": {
 				"label": "Execute Duration 35 (%)",
 				"tooltip": "Percentage of the total encounter duration, for which the targets will be considered to be in execute range (< 35% HP)."
-			},
-			"execute_duration_45": {
-				"label": "Execute Duration 45 (%)",
-				"tooltip": "Percentage of the total encounter duration, for which the targets will be considered to be in execute range (< 45% HP)."
-			},
-			"duration_below_high_hp": {
-				"label": "Duration spent below high-HP regime (%)",
-				"tooltip": "Percentage of the total encounter duration, for which the targets are considered out of range for effects like <90% HP or <80% HP."
 			},
 			"encounter_preset": {
 				"label": "Encounter",
@@ -1781,6 +1769,16 @@
 					"tooltip": "<b>True</b> if all requirements for casting the spell are currently met, otherwise <b>False</b>.",
 					"full_description": "<p>The <b>Cast Spell</b> action does not need to be conditioned on this, because it applies this check automatically.</p>"
 				},
+				"is_hit_capped": {
+					"label": "Is Hit Capped",
+					"tooltip": "<b>True</b> if the spell cannot miss the current target, otherwise <b>False</b>.",
+					"full_description": "<p>Melee and ranged attacks use the special-attack (soft) hit cap, without the dual-wield penalty of auto attacks. Wand shots count physical and ranged hit. Other spells count spell hit and school hit, and a binary spell also counts the target's resistance.</p><p>The check reads only the spell's defense type. It does not know that shouts and seals always hit, or that Judgement rolls its miss through another spell.</p>"
+				},
+				"is_expertise_capped": {
+					"label": "Is Expertise Capped",
+					"tooltip": "<b>True</b> if the current target can neither dodge nor parry the spell, otherwise <b>False</b>.",
+					"full_description": "<p>Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>.</p><p>The check reads only the spell's defense type, so it still counts dodge and parry for specials that never roll them, such as Backstab, Ambush and Overpower.</p>"
+				},
 				"is_ready": {
 					"label": "Is Ready",
 					"tooltip": "<b>True</b> if the spell is not on cooldown, otherwise <b>False</b>."
@@ -2008,7 +2006,7 @@
 					"target_spell": "Target Spell",
 					"target_spell_tooltip": "The spell (ie. Death Wish) you want to fit within the cooldown of the Base Spell.",
 					"align_cd_end": "Align target spell to encounter end",
-					"align_cd_end_tooltip": "When checked will try to align the CD usage to the end of the encounter. This is useful for cooldowns/specs that benefit for example from execute."
+					"align_cd_end_tooltip": "When checked, aligns the target spell to the end of the encounter, which is useful for cooldowns or specs that benefit from execute. Without a base spell it casts early while a later use would still get at least half its buff before the encounter ends, and otherwise holds it until its buff runs to the end of the encounter. The offset only applies with a base spell."
 				},
 				"selected_potion": {
 					"label": "Selected Potion",
@@ -2063,10 +2061,7 @@
 			},
 			"execute_phases": {
 				"e20": "20%",
-				"e25": "25%",
-				"e35": "35%",
-				"e45": "45%",
-				"e90": "90%"
+				"e35": "35%"
 			},
 			"totem_types": {
 				"earth": "Earth",
@@ -2774,7 +2769,8 @@
 			"profession_requirement": "{{itemName}} requires {{professionName}}, but it is not selected.",
 			"unspent_talent_points": "You have {{count}} unspent talent point(s).",
 			"broken_talents": "These talents are missing their tier or prerequisite points, so the build is not possible in game. The sim still applies them: {{talents}}.",
-			"windfury_over_flametongue": "Windfury Totem and Flametongue Totem do not stack: only Windfury Totem applies."
+			"windfury_over_flametongue": "Windfury Totem and Flametongue Totem do not stack: only Windfury Totem applies.",
+			"elemental_stormstrike": "Stormstrike is selected, which points to a hybrid Enhancement build. Use the Enhancement sim to sim it."
 		},
 		"buttons": {
 			"simulate": "Simulate",

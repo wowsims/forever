@@ -21,7 +21,7 @@
   "player": {
     "apiVersion": 2,
     "name": "Player",
-    "race": "RaceTroll",
+    "race": "RaceWindshaperSkyborne",
     "class": "ClassShaman",
     "equipment": {
       "items": [
@@ -57,8 +57,6 @@
         9155,
         250338,
         250341,
-        250351,
-        13452,
         250337
       ],
       "resourcePotId": 13444
@@ -102,11 +100,13 @@
         {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10438}}}},
         {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10587}}}},
         {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":408345}}}},
+        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":16166}}}},
+        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20572}}}},
+        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20554}}}},
         {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10605}}}},
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":1326047}}}},
         {"action":{"multidot":{"spellId":{"spellId":10448,"rank":5},"maxDots":3,"maxOverlap":{"const":{"val":"0ms"}}}}},
         {"action":{"condition":{"and":{"vals":[{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
-        {"action":{"castSpell":{"spellId":{"spellId":16166}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}},"castSpell":{"spellId":{"spellId":10392,"rank":8}}}},
         {"action":{"castSpell":{"spellId":{"spellId":15208}}}}
       ]
@@ -121,10 +121,7 @@
     "duration": 180,
     "durationVariation": 5,
     "executeProportion20": 0.2,
-    "executeProportion25": 0.25,
     "executeProportion35": 0.35,
-    "executeProportion45": 0.45,
-    "executeProportion90": 0.9,
     "targets": [
       {
         "id": 31146,

@@ -57,36 +57,12 @@ const EXECUTE_BANDS: Array<Field> = [
 		set: (e: Encounter, v: number) => e.setExecuteProportion20(v / 100),
 	},
 	{
-		id: 'encounter-execute-proportion-25',
-		key: 'execute_duration_25',
-		label: 'execute_25',
-		category: 'execute',
-		get: (e: Encounter) => e.getExecuteProportion25() * 100,
-		set: (e: Encounter, v: number) => e.setExecuteProportion25(v / 100),
-	},
-	{
 		id: 'encounter-execute-proportion-35',
 		key: 'execute_duration_35',
 		label: 'execute_35',
 		category: 'execute',
 		get: (e: Encounter) => e.getExecuteProportion35() * 100,
 		set: (e: Encounter, v: number) => e.setExecuteProportion35(v / 100),
-	},
-	{
-		id: 'encounter-execute-proportion-45',
-		key: 'execute_duration_45',
-		label: 'execute_45',
-		category: 'execute',
-		get: (e: Encounter) => e.getExecuteProportion45() * 100,
-		set: (e: Encounter, v: number) => e.setExecuteProportion45(v / 100),
-	},
-	{
-		id: 'encounter-execute-proportion-90',
-		key: 'duration_below_high_hp',
-		label: 'execute_90',
-		category: 'execute',
-		get: (e: Encounter) => e.getExecuteProportion90() * 100,
-		set: (e: Encounter, v: number) => e.setExecuteProportion90(v / 100),
 	},
 ];
 

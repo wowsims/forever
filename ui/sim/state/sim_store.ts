@@ -51,10 +51,7 @@ export interface EncounterSlice {
 	duration: number;
 	durationVariation: number;
 	executeProportion20: number;
-	executeProportion25: number;
 	executeProportion35: number;
-	executeProportion45: number;
-	executeProportion90: number;
 	useHealth: boolean;
 	areaTypes: Array<AreaType>;
 	zoneId: number;

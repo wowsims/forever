@@ -104,7 +104,6 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		} else {
 			sim.encounter.applyDefaults();
 		}
-		sim.encounter.setExecuteProportion90(config.defaults.other?.highHpThreshold || 0.9);
 		if (config.defaults.other?.healingModel) {
 			player.setHealingModel(config.defaults.other.healingModel);
 		}

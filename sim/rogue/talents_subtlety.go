@@ -241,24 +241,24 @@ func (rogue *Rogue) registerQuietus() {
 		return
 	}
 
-	// Talent data is just dummy auras. Need to implement the effects by ClassMask
-
+	// The talent's effects are dummy auras: effect 1 is the damage bonus, effect 2 the health threshold.
 	rank := spellData.Quietus.Rank(rogue.Talents.Quietus)
+	threshold := int32(spellData.Quietus.EffectAt(2).ValueAt(rogue.Talents.Quietus))
 
 	executeBonus := rogue.RegisterAura(core.Aura{
 		Label:    "Quietus Damage Bonus",
-		ActionID: core.ActionID{SpellID: rank.ID}, // Use the talent's spell ID.
+		ActionID: core.ActionID{SpellID: rank.ID},
 		Duration: core.NeverExpires,
 	}).AttachSpellMod(core.SpellModConfig{
 		Kind:       core.SpellMod_DamageDone_Flat,
-		ClassMask:  RogueSpellQuietus, // Set to the spells the bonus should affect.
+		ClassMask:  RogueSpellQuietus,
 		FloatValue: spellData.Quietus.EffectAt(1).FractionAt(rogue.Talents.Quietus),
 	})
 
 	rogue.RegisterResetEffect(func(sim *core.Simulation) {
 		executeBonus.Deactivate(sim)
 		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
-			if isExecute == 35 { // Change to the desired threshold.
+			if isExecute <= threshold && !executeBonus.IsActive() {
 				executeBonus.Activate(sim)
 			}
 		})

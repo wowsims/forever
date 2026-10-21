@@ -592,9 +592,14 @@ func (result *SpellResult) applyAttackTableMiss(spell *Spell, attackTable *Attac
 	return false
 }
 
+// The weapon miss that specials and ranged attacks roll: the hand's miss less physical hit, without the
+// dual-wield penalty of auto attacks.
+func (spell *Spell) physicalMissChanceNoDWPenalty(attackTable *AttackTable) float64 {
+	return max(0, attackTable.Hand(spell).BaseMissChance-spell.PhysicalHitChance(attackTable))
+}
+
 func (result *SpellResult) applyAttackTableMissNoDWPenalty(spell *Spell, attackTable *AttackTable, roll float64, chance *float64) bool {
-	missChance := attackTable.Hand(spell).BaseMissChance - spell.PhysicalHitChance(attackTable)
-	*chance = max(0, missChance)
+	*chance = spell.physicalMissChanceNoDWPenalty(attackTable)
 
 	if roll < *chance {
 		result.Outcome = OutcomeMiss
@@ -883,7 +888,7 @@ func (spell *Spell) OutcomeExpectedMeleeWhite(_ *Simulation, result *SpellResult
 
 func (spell *Spell) OutcomeExpectedMeleeWeaponSpecialHitAndCrit(_ *Simulation, result *SpellResult, attackTable *AttackTable) {
 	hand := attackTable.Hand(spell)
-	missChance := max(0, hand.BaseMissChance-spell.PhysicalHitChance(attackTable))
+	missChance := spell.physicalMissChanceNoDWPenalty(attackTable)
 	dodgeChance := TernaryFloat64(spell.Flags.Matches(SpellFlagCannotBeDodged), 0, max(0, hand.BaseDodgeChance-spell.DodgeParrySuppression()-spell.Unit.PseudoStats.DodgeReduction))
 	parryChance := TernaryFloat64(spell.Unit.PseudoStats.InFrontOfTarget, max(0, hand.BaseParryChance-spell.DodgeParrySuppression()), 0)
 	blockChance := TernaryFloat64(spell.Unit.PseudoStats.InFrontOfTarget, hand.BaseBlockChance, 0)

@@ -6,8 +6,5 @@ export const ENCOUNTER_DEFAULTS = {
 	duration: 180,
 	durationVariation: 5,
 	executeProportion20: 0.2,
-	executeProportion25: 0.25,
 	executeProportion35: 0.35,
-	executeProportion45: 0.45,
-	executeProportion90: 0.9,
 } as const;

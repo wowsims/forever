@@ -1,3 +1,4 @@
+import { savedEncounterCodec } from '@features/encounter/hooks/useSavedEncounter';
 import { Encounter } from '@generated/proto/common';
 import { BulkEncounterRef, BulkEncounterSelection, SavedEncounter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -77,7 +78,7 @@ const storedSavedEncounters = (host: IndividualSimHost<any>) => {
 	} catch {
 		return [];
 	}
-	return savedDataEntries(record, SavedEncounter);
+	return savedDataEntries(record, savedEncounterCodec);
 };
 
 export const pickableBulkEncounters = (host: IndividualSimHost<any>): BulkEncounterEntry[] =>
