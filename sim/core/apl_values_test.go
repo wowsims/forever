@@ -1672,6 +1672,17 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		t.Fatal("a target spell with a related self buff should construct")
 	}
 
+	// The UI sends an empty base spell id when none is picked, which counts as no base spell.
+	rot.curValidations = nil
+	emptyBase := rot.newValueMultipleCdUsages(&proto.APLValueMultipleCdUsages{BaseSpellId: &proto.ActionID{}, TargetSpellId: targetID, AlignCdEnd: true}, nil)
+	if emptyBase == nil {
+		t.Fatal("an empty base spell id should construct")
+	}
+	if len(rot.curValidations) != 0 {
+		t.Errorf("an empty base spell id should log no validation, got %v", rot.curValidations)
+	}
+	rot.curValidations = nil
+
 	// With a 60s cooldown and a 10s buff, the aligned value casts while a later use would still get at least
 	// half its buff (more than 65s left) or the buff would run to the end, and holds in between. The
 	// cooldown is read when the value is evaluated, so a cooldown change applies at once.
@@ -1698,6 +1709,9 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		}
 		if got := aligned.GetBool(sim); got != tc.aligned {
 			t.Errorf("at %s of %s with a %s cooldown aligned to the end of combat: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
+		}
+		if got := emptyBase.GetBool(sim); got != tc.aligned {
+			t.Errorf("at %s of %s with a %s cooldown and an empty base spell id: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
 		}
 	}
 

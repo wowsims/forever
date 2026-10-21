@@ -18,14 +18,18 @@ type APLValueMultipleCdUsages struct {
 }
 
 func (rot *APLRotation) newValueMultipleCdUsages(config *proto.APLValueMultipleCdUsages, _ *proto.UUID) APLValue {
-	baseSpell := rot.GetAPLSpell(config.BaseSpellId)
+	hasBaseSpell := config.BaseSpellId != nil && !ProtoToActionID(config.BaseSpellId).IsEmptyAction()
+	var baseSpell *Spell
+	if hasBaseSpell {
+		baseSpell = rot.GetAPLSpell(config.BaseSpellId)
+	}
 
 	targetSpell := rot.GetAPLSpell(config.TargetSpellId)
 	if targetSpell == nil {
 		return nil
 	}
 
-	if config.BaseSpellId != nil && (baseSpell == nil || baseSpell.RelatedSelfBuff == nil) {
+	if hasBaseSpell && (baseSpell == nil || baseSpell.RelatedSelfBuff == nil) {
 		if baseSpell == nil {
 			rot.ValidationMessage(proto.LogLevel_Warning, "%s is not known. Only using offset to delay CD usage.", ProtoToActionID(config.BaseSpellId))
 		} else {
