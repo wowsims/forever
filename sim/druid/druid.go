@@ -29,6 +29,9 @@ type Druid struct {
 
 	MHAutoSpell *core.Spell
 
+	// The main hand's damage per second above the paw's own, granted as Feral Attack Power.
+	feralWeaponAP float64
+
 	Barkskin             *DruidSpell
 	Bash                 *DruidSpell
 	Berserk              *DruidSpell
@@ -128,12 +131,15 @@ func (druid *Druid) Initialize() {
 	druid.keepHealthPercentAcrossForms()
 	druid.AutoUnshift = druid.ClearForm
 	druid.registerProwlBreakingCasts()
+	druid.feralWeaponAP = druid.feralAttackPowerFromMainHand()
+	druid.AddStat(stats.FeralAttackPower, druid.feralWeaponAP)
 
 	druid.Env.RegisterPostFinalizeEffect(func() {
 		druid.MHAutoSpell = druid.AutoAttacks.MHAuto()
 	})
 
 	druid.RegisterItemSwapCallback([]proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}, func(sim *core.Simulation, slot proto.ItemSlot) {
+		druid.applyFeralWeaponStats(sim)
 		switch {
 		case druid.InForm(Cat):
 			druid.AutoAttacks.SetMH(druid.GetCatWeapon())

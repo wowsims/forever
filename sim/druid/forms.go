@@ -73,26 +73,60 @@ func (druid *Druid) ClearForm(sim *core.Simulation) {
 	}
 }
 
+// The paw swings its own damage range; the equipped weapon's range never reaches it. The level 60
+// ranges are 43-66 for the cat and 109-165 for the bear, matching the game files' weapon damage
+// tables (one-hand row 54.48532, two-hand row 54.809654 average damage per second); a level 20 cat
+// shows 21-30 in game. A weapon's damage per second above the two-hand row's 54.8 becomes Feral
+// Attack Power (applyFeralWeaponStats); enchants, stones and bonus damage per second add flat.
+const (
+	catPawDamageMin  = 43.0
+	catPawDamageMax  = 66.0
+	bearPawDamageMin = 109.0
+	bearPawDamageMax = 165.0
+	pawDPSFloor      = 54.8
+)
+
 func (druid *Druid) GetCatWeapon() core.Weapon {
-	return druid.feralWeapon(1)
+	return druid.feralWeapon(1, catPawDamageMin, catPawDamageMax)
 }
 
-// The paw swings the equipped weapon's damage per second at the form's speed. Enchant and stone damage
-// is added whole, after the scaling.
-func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
-	paw := core.Weapon{
+func (druid *Druid) feralWeapon(swingSpeed, damageMin, damageMax float64) core.Weapon {
+	flat := druid.PseudoStats.BonusMHDps * swingSpeed
+	if item := druid.GetMHWeapon(); item != nil {
+		flat += item.Enchant.WeaponDamage + item.TempEnchantWeaponDamage
+	}
+	return core.Weapon{
+		BaseDamageMin:        damageMin + flat,
+		BaseDamageMax:        damageMax + flat,
 		SwingSpeed:           swingSpeed,
 		NormalizedSwingSpeed: swingSpeed,
 		AttackPowerPerDPS:    core.DefaultAttackPowerPerDPS,
 		MaxRange:             core.MaxMeleeRange,
 	}
-	if item := druid.GetMHWeapon(); item != nil {
-		flat := item.Enchant.WeaponDamage + item.TempEnchantWeaponDamage
-		bonusDps := druid.PseudoStats.BonusMHDps
-		paw.BaseDamageMin = (item.WeaponDamageMin/item.SwingSpeed+bonusDps)*swingSpeed + flat
-		paw.BaseDamageMax = (item.WeaponDamageMax/item.SwingSpeed+bonusDps)*swingSpeed + flat
+}
+
+// A weapon deals its own damage per second in the feral forms only above the paw's 54.8, as attack
+// power: (weapon damage per second - 54.8) * 14. Below the floor the weapon adds nothing in form.
+func (druid *Druid) feralAttackPowerFromMainHand() float64 {
+	item := druid.GetMHWeapon()
+	if item == nil {
+		return 0
 	}
-	return paw
+	dps := (item.WeaponDamageMin + item.WeaponDamageMax) / 2 / item.SwingSpeed
+	if dps <= pawDPSFloor {
+		return 0
+	}
+	return (dps - pawDPSFloor) * core.DefaultAttackPowerPerDPS
+}
+
+// Rereads the main hand after a swap and rebalances the Feral Attack Power it grants.
+func (druid *Druid) applyFeralWeaponStats(sim *core.Simulation) {
+	delta := druid.feralAttackPowerFromMainHand() - druid.feralWeaponAP
+	if delta == 0 {
+		return
+	}
+	druid.AddStatDynamic(sim, stats.FeralAttackPower, delta)
+	druid.feralWeaponAP += delta
 }
 
 // A bear's auto attack takes the two-hander rage factor: a combat log shows 11.25 rage a swing at the
@@ -101,7 +135,7 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
-	return druid.feralWeapon(2.5)
+	return druid.feralWeapon(2.5, bearPawDamageMin, bearPawDamageMax)
 }
 
 func (druid *Druid) RegisterCatFormAura() {
