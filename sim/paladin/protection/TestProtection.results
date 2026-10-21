@@ -1395,6 +1395,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-WalloftheDead-1979"
+ value: {
+  dps: 403.82683
+  tps: 448.37232
+  dtps: 461.20454
+  hps: 30.77111
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-WarmthofForgiveness-23027"
  value: {
   dps: 407.00985

@@ -1387,6 +1387,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-WalloftheDead-1979"
+ value: {
+  dps: 809.96583
+  tps: 292.78556
+  dtps: 4.79236
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-WarmthofForgiveness-23027"
  value: {
   dps: 806.9257
