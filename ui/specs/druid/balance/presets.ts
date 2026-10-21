@@ -12,7 +12,7 @@ import PreBiSGearJson from './gear_sets/prebis.gear.json';
 
 export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultAPL);
 
-export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', SavedTalents.create({ talentsString: '5532220115501351--505' }));
+export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', SavedTalents.create({ talentsString: '5232220115501351--505003' }));
 
 // Dungeon drops, world-drop greens with the "of Magic" suffix and crafted items whose reagents include no
 // raid materials; no reputation or PvP rewards, and no Scourge Invasion drops. The neck is a Dire Maul
