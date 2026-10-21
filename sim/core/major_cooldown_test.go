@@ -28,20 +28,11 @@ func init() {
 			player.Spec = spec.(*proto.Player_Mage)
 		},
 	)
-	RegisterAgentFactory(
-		proto.Player_RestorationShaman{},
-		proto.Spec_SpecRestorationShaman,
-		func(char *Character, _ *proto.Player, _ *proto.Raid) Agent {
-			return &fakeExplosiveCaster{fakeCooldownMage{Character: *char, casts: map[int32]int{}}}
-		},
-		func(player *proto.Player, spec interface{}) {
-			player.Spec = spec.(*proto.Player_RestorationShaman)
-		},
-	)
 }
 
-// A stand-in with one survival and one DPS major cooldown, each off the GCD on a 10 s cooldown, which
-// counts how often each is used.
+// A stand-in with one survival and one DPS major cooldown, each off the GCD on a 10 s cooldown, an
+// explosive with a cast time on a 20 s cooldown, a spell whose cast time is longer than the GCD and an
+// instant spell on the GCD, which counts how often each is used.
 type fakeCooldownMage struct {
 	Character
 	casts map[int32]int
@@ -56,6 +47,23 @@ func (m *fakeCooldownMage) OnEncounterStart(_ *Simulation) {}
 func (m *fakeCooldownMage) Initialize() {
 	m.registerCooldown(fakeDefensiveID, CooldownTypeSurvival)
 	m.registerCooldown(fakeOffensiveID, CooldownTypeDPS)
+	m.AddMajorCooldown(MajorCooldown{
+		Spell: m.RegisterSpell(SpellConfig{
+			ActionID: ActionID{SpellID: fakeExplosiveID},
+			Flags:    SpellFlagNoOnCastComplete,
+			Cast: CastConfig{
+				DefaultCast: Cast{CastTime: time.Second},
+				CD:          Cooldown{Timer: m.NewTimer(), Duration: 20 * time.Second},
+			},
+			ApplyEffects: func(_ *Simulation, _ *Unit, _ *Spell) {
+				m.casts[fakeExplosiveID]++
+			},
+		}),
+		Type:     CooldownTypeDPS | CooldownTypeExplosive,
+		Priority: CooldownPriorityLow,
+	})
+	m.registerSpell(fakeHardcastID, 2*time.Second)
+	m.registerSpell(fakeInstantID, 0)
 }
 
 func (m *fakeCooldownMage) registerCooldown(id int32, cdType CooldownType) {
@@ -70,34 +78,7 @@ func (m *fakeCooldownMage) registerCooldown(id int32, cdType CooldownType) {
 	m.AddMajorCooldown(MajorCooldown{Spell: spell, Type: cdType})
 }
 
-// A stand-in with the DPS cooldown above, an explosive with a cast time, a spell whose cast time is
-// longer than the GCD and an instant spell on the GCD.
-type fakeExplosiveCaster struct {
-	fakeCooldownMage
-}
-
-func (m *fakeExplosiveCaster) Initialize() {
-	m.registerCooldown(fakeOffensiveID, CooldownTypeDPS)
-	m.AddMajorCooldown(MajorCooldown{
-		Spell: m.RegisterSpell(SpellConfig{
-			ActionID: ActionID{SpellID: fakeExplosiveID},
-			Flags:    SpellFlagNoOnCastComplete,
-			Cast: CastConfig{
-				DefaultCast: Cast{CastTime: time.Second},
-				CD:          Cooldown{Timer: m.NewTimer(), Duration: time.Minute},
-			},
-			ApplyEffects: func(_ *Simulation, _ *Unit, _ *Spell) {
-				m.casts[fakeExplosiveID]++
-			},
-		}),
-		Type:     CooldownTypeDPS | CooldownTypeExplosive,
-		Priority: CooldownPriorityLow,
-	})
-	m.registerSpell(fakeHardcastID, 2*time.Second)
-	m.registerSpell(fakeInstantID, 0)
-}
-
-func (m *fakeExplosiveCaster) registerSpell(id int32, castTime time.Duration) {
+func (m *fakeCooldownMage) registerSpell(id int32, castTime time.Duration) {
 	m.RegisterSpell(SpellConfig{
 		ActionID: ActionID{SpellID: id},
 		Flags:    SpellFlagAPL,
@@ -120,7 +101,9 @@ func castRotation(id int32) *proto.APLRotation {
 	}}}
 }
 
-// Runs one 60 s iteration with a stand-in per rotation, the raid listing the given tanks, and returns
+const cooldownMagesDuration = 55 * time.Second
+
+// Runs one 55 s iteration with a stand-in per rotation, the raid listing the given tanks, and returns
 // the stand-ins.
 func runCooldownMages(t *testing.T, tanks []*proto.UnitReference, rotations ...*proto.APLRotation) []*fakeCooldownMage {
 	t.Helper()
@@ -144,7 +127,7 @@ func runCooldownMages(t *testing.T, tanks []*proto.UnitReference, rotations ...*
 		},
 		Encounter: &proto.Encounter{
 			Targets:  []*proto.Target{{Name: "target", Level: 63, MobType: proto.MobType_MobTypeHumanoid}},
-			Duration: 60,
+			Duration: cooldownMagesDuration.Seconds(),
 		},
 	}, simsignals.CreateSignals())
 	sim.runOnce()
@@ -194,46 +177,22 @@ func TestSurvivalCooldownCastByTheRotationForANonTank(t *testing.T) {
 	}
 }
 
-const explosiveCasterDuration = 55 * time.Second
-
-// Runs one iteration with the explosive caster on the given rotation, and returns it.
-func runExplosiveCaster(t *testing.T, rotation ...*proto.APLRotation) *fakeExplosiveCaster {
-	t.Helper()
-	var list []*proto.APLListItem
-	for _, part := range rotation {
-		list = append(list, part.PriorityList...)
-	}
-	sim := NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid: &proto.Raid{Parties: []*proto.Party{{Buffs: &proto.PartyBuffs{}, Players: []*proto.Player{{
-			Name:      "Caster",
-			Class:     proto.Class_ClassShaman,
-			Race:      proto.Race_RaceHuman,
-			Buffs:     &proto.IndividualBuffs{},
-			Spec:      &proto.Player_RestorationShaman{},
-			Equipment: &proto.EquipmentSpec{},
-			Rotation:  &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PriorityList: list},
-		}}}}},
-		Encounter: &proto.Encounter{
-			Targets:  []*proto.Target{{Name: "target", Level: 63, MobType: proto.MobType_MobTypeHumanoid}},
-			Duration: explosiveCasterDuration.Seconds(),
-		},
-	}, simsignals.CreateSignals())
-	sim.runOnce()
-	return sim.Raid.Parties[0].Players[0].(*fakeExplosiveCaster)
-}
-
 // How often a cooldown is used when it goes off each time it is ready.
-func usesWhenAlwaysReady(caster *fakeExplosiveCaster, id int32) int {
-	return int(explosiveCasterDuration/caster.GetMajorCooldown(ActionID{SpellID: id}).Spell.CD.Duration) + 1
+func usesWhenAlwaysReady(caster *fakeCooldownMage, id int32) int {
+	return int(cooldownMagesDuration/caster.GetMajorCooldown(ActionID{SpellID: id}).Spell.CD.Duration) + 1
 }
 
 // A rotation of hardcasts never leaves an explosive the GCD it waits for, and the cooldowns sorted after
 // it still go off each time they are ready.
 func TestExplosiveDoesNotHoldBackTheOtherCooldowns(t *testing.T) {
-	caster := runExplosiveCaster(t, autocastRotation(), castRotation(fakeHardcastID))
+	rotation := autocastRotation()
+	rotation.PriorityList = append(rotation.PriorityList, castRotation(fakeHardcastID).PriorityList...)
+	caster := runCooldownMages(t, nil, rotation)[0]
 	if caster.casts[fakeHardcastID] == 0 {
 		t.Fatalf("the rotation never cast its spell")
+	}
+	if n := caster.casts[fakeExplosiveID]; n != 0 {
+		t.Fatalf("the explosive was used %d times, want 0: a rotation of hardcasts leaves it no GCD", n)
 	}
 	if got, want := caster.casts[fakeOffensiveID], usesWhenAlwaysReady(caster, fakeOffensiveID); got != want {
 		t.Errorf("the DPS cooldown was used %d times, want %d: once each time it was ready", got, want)
@@ -243,9 +202,14 @@ func TestExplosiveDoesNotHoldBackTheOtherCooldowns(t *testing.T) {
 // Autocast checked only while the GCD runs never fires the DPS cooldown sorted first, and the explosive
 // after it still goes off each time it is ready.
 func TestCooldownWaitingForTheGCDDoesNotHoldBackAnExplosive(t *testing.T) {
-	caster := runExplosiveCaster(t, castRotation(fakeInstantID), autocastRotation())
+	rotation := castRotation(fakeInstantID)
+	rotation.PriorityList = append(rotation.PriorityList, autocastRotation().PriorityList...)
+	caster := runCooldownMages(t, nil, rotation)[0]
 	if caster.casts[fakeInstantID] == 0 {
 		t.Fatalf("the rotation never cast its spell")
+	}
+	if n := caster.casts[fakeOffensiveID]; n != 0 {
+		t.Fatalf("the DPS cooldown was used %d times, want 0: autocast only ever runs during the GCD", n)
 	}
 	if got, want := caster.casts[fakeExplosiveID], usesWhenAlwaysReady(caster, fakeExplosiveID); got != want {
 		t.Errorf("the explosive was used %d times, want %d: once each time it was ready", got, want)

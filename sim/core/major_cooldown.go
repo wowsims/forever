@@ -381,16 +381,25 @@ func (mcdm *majorCooldownManager) GetMatchingStatBuffCooldownAuras(statTypesToMa
 	return matchingAuras
 }
 
-// The first ready cooldown, in ready time order, that firesNow allows at this moment and whose own
-// conditions pass. One that may not fire yet, such as an explosive waiting for a GCD to start or
-// another cooldown waiting for one to end, does not hold back the cooldowns after it.
-func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation, firesNow func(*MajorCooldown) bool) *MajorCooldown {
+// The first ready cooldown, by ready time and then priority, whose own conditions pass and that may
+// fire on this side of the GCD: an explosive only while it runs, any other once it is ready, a reactive
+// one either way.
+func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldown {
 	if sim.CurrentTime < mcdm.minReady {
 		return nil
 	}
 
+	gcdReady := mcdm.character.GCD.IsReady(sim)
 	for _, mcd := range mcdm.majorCooldowns {
-		if !mcd.IsReady(sim) || !firesNow(mcd) {
+		if !mcd.IsReady(sim) {
+			continue
+		}
+		// Explicitly check for GCD because MCDs are usually desired to be cast immediately
+		// before the next spell, rather than immediately after the previous spell. This is
+		// true even for MCDs which do not require the GCD. The one exception to this rule
+		// is Engineering explosives, which should instead be cast right *after* incurring
+		// a GCD, since they are off-GCD but have small cast times.
+		if gcdReady == mcd.Type.Matches(CooldownTypeExplosive) && !mcd.Spell.Flags.Matches(SpellFlagReactive) {
 			continue
 		}
 		if mcd.shouldActivateHelper(sim, mcdm.character) {
