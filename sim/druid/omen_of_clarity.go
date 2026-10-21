@@ -15,6 +15,9 @@ func (druid *Druid) registerOmenOfClarity() {
 			aura.Deactivate(sim)
 		}
 	}
+	druid.ClearcastingAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+		druid.ReactToEvent(sim, false, true)
+	})
 
 	omen := spellData.OmenOfClarity.Highest()
 	trigger := spelldata.ProcTrigger(&druid.Character, omen, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

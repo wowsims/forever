@@ -665,6 +665,20 @@ func TestPrepullClearcastingStartsTheFightClearcasting(t *testing.T) {
 	}
 }
 
+func TestClearcastingWakesTheRotationInsideTheGCD(t *testing.T) {
+	sim, cat := newCat(t, furorTalents, nil)
+	for sim.CurrentTime < 2*time.Second {
+		sim.Step()
+	}
+	cat.GCD.Set(sim.CurrentTime + core.GCDDefault)
+	cat.SetGCDTimer(sim, cat.GCD.ReadyAt())
+	cat.ClearcastingAura.Deactivate(sim)
+	cat.ClearcastingAura.Activate(sim)
+	if got, want := cat.NextRotationActionAt(), sim.CurrentTime+cat.ReactionTime; got != want {
+		t.Fatalf("next rotation evaluation after Clearcasting = %v, want %v", got, want)
+	}
+}
+
 func TestFurorPausesEnergyInBear(t *testing.T) {
 	for rank := 0; rank <= 5; rank++ {
 		for _, dire := range []bool{false, true} {
