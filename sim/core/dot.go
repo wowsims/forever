@@ -192,10 +192,9 @@ func (dot *Dot) HastedTickCount() int32 {
 }
 
 func (dot *Dot) ExpectedTickCount() int32 {
-	tickCount := dot.BaseTickCount
+	tickCount := dot.calculateTickCount(dot.BaseDuration(), dot.BaseTickLength)
 	if (dot.affectedByCastSpeed || dot.affectedByRealHaste) && !dot.hasteReducesDuration {
-		tickPeriod := dot.CalcTickPeriod()
-		tickCount = dot.calculateTickCount(dot.BaseDuration(), tickPeriod)
+		tickCount = dot.calculateTickCount(dot.BaseDuration(), dot.CalcTickPeriod())
 	}
 	return tickCount
 }

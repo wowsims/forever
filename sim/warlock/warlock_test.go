@@ -7,6 +7,7 @@ import (
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -17,65 +18,44 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-func TestAffliction(t *testing.T) {
-	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
-		{
-			Class:      proto.Class_ClassWarlock,
-			Race:       proto.Race_RaceOrc,
-			OtherRaces: []proto.Race{proto.Race_RaceHuman},
-			SpecOptions: core.SpecOptionsCombo{Label: "Affliction", SpecOptions: &proto.Player_Warlock{
-				Warlock: &proto.Warlock{
-					Options: &proto.Warlock_Options{
-						ClassOptions: &proto.WarlockOptions{
-							Summon:       proto.WarlockOptions_Imp,
-							Armor:        proto.WarlockOptions_DemonArmor,
-							CurseOptions: proto.WarlockOptions_Elements,
-							SoulShards:   32,
-						},
-					},
-				},
-			}},
-			GearSet:  core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", "preraid"),
-			Talents:  "25550320135201351--053",
-			Rotation: core.GetAplRotation("../../ui/specs/warlock/dps/apls", "affliction"),
-			ItemFilter: core.ItemFilter{
-				WeaponTypes: []proto.WeaponType{
-					proto.WeaponType_WeaponTypeDagger,
-					proto.WeaponType_WeaponTypeStaff,
-					proto.WeaponType_WeaponTypeSword,
-				},
-				ArmorType: proto.ArmorType_ArmorTypeCloth,
-				RangedWeaponTypes: []proto.RangedWeaponType{
-					proto.RangedWeaponType_RangedWeaponTypeWand,
-				},
-				EnchantBlacklist: []int32{2673, 3225, 3273},
-				IDBlacklist:      []int32{28556},
-			},
-		},
-	}))
+// Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
+// its talents, demons, consumables and rotation, on the preraid gear set.
+func TestDemonologyFireBrand(t *testing.T) {
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
+}
+
+func TestDemonologyShadowBrand(t *testing.T) {
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceHuman)
 }
 
 func TestDestruction(t *testing.T) {
+	runBuildSuite(t, "Destruction", "destro", proto.Race_RaceGnome)
+}
+
+func TestAffliction(t *testing.T) {
+	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceHuman)
+}
+
+func TestAfflictionWrack(t *testing.T) {
+	runBuildSuite(t, "Wrack", "aff_wrack", proto.Race_RaceHuman)
+}
+
+func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto.Race) {
+	build := core.GetTestBuildFromJSON(proto.Class_ClassWarlock, "../../ui/specs/warlock/dps/builds", buildFile, core.ItemFilter{}, nil, nil)
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
-			Class:      proto.Class_ClassWarlock,
-			Race:       proto.Race_RaceOrc,
-			OtherRaces: []proto.Race{proto.Race_RaceGnome},
-			SpecOptions: core.SpecOptionsCombo{Label: "Destruction", SpecOptions: &proto.Player_Warlock{
-				Warlock: &proto.Warlock{
-					Options: &proto.Warlock_Options{
-						ClassOptions: &proto.WarlockOptions{
-							SacrificedDemon: proto.WarlockOptions_Imp,
-							Armor:           proto.WarlockOptions_DemonArmor,
-							CurseOptions:    proto.WarlockOptions_Elements,
-							SoulShards:      32,
-						},
-					},
-				},
-			}},
-			GearSet:  core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", "preraid"),
-			Talents:  "03-0050203001-0550355103100351",
-			Rotation: core.GetAplRotation("../../ui/specs/warlock/dps/apls", "destruction"),
+			Class:       proto.Class_ClassWarlock,
+			Race:        build.Race,
+			OtherRaces:  []proto.Race{otherRace},
+			SpecOptions: core.SpecOptionsCombo{Label: label, SpecOptions: build.SpecOptions.SpecOptions},
+			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", "preraid"),
+			Talents:     build.Talents,
+			Consumables: build.Consumables,
+			Profession1: build.Profession1,
+			Profession2: build.Profession2,
+			Rotation:    core.RotationCombo{Label: buildFile, Rotation: build.Rotation.Rotation},
+			// The UI preset's distance, from which the demon walks in
+			StartingDistance: 20,
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
 					proto.WeaponType_WeaponTypeDagger,
@@ -95,8 +75,26 @@ func TestDestruction(t *testing.T) {
 
 // A reset sim of one ungeared warlock with no rotation.
 func newWarlockSim(talents string, options *proto.WarlockOptions, encounter *proto.Encounter) (*core.Simulation, *Warlock) {
-	player := &proto.Player{
-		Name:          "Warlock",
+	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", talents, options), &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
+	sim := newWarlockRaidSim(raid, encounter)
+	return sim, sim.Raid.Parties[0].Players[0].(*Warlock)
+}
+
+// A reset sim of this raid.
+func newWarlockRaidSim(raid *proto.Raid, encounter *proto.Encounter) *core.Simulation {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       raid,
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim
+}
+
+// An ungeared warlock with no rotation.
+func warlockPlayer(name string, talents string, options *proto.WarlockOptions) *proto.Player {
+	return &proto.Player{
+		Name:          name,
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassWarlock,
 		Equipment:     &proto.EquipmentSpec{},
@@ -104,13 +102,6 @@ func newWarlockSim(talents string, options *proto.WarlockOptions, encounter *pro
 		Spec:          &proto.Player_Warlock{Warlock: &proto.Warlock{Options: &proto.Warlock_Options{ClassOptions: options}}},
 		Rotation:      &proto.APLRotation{},
 	}
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  encounter,
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	return sim, sim.Raid.Parties[0].Players[0].(*Warlock)
 }
 
 func stepFor(sim *core.Simulation, d time.Duration) {
@@ -181,7 +172,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 	newSim := func(resistance float64) (*core.Simulation, *Warlock, *core.Unit) {
 		encounter := core.MakeSingleTargetEncounter(0)
 		encounter.Duration = 3600
-		encounter.ExecuteProportion_90, encounter.ExecuteProportion_45, encounter.ExecuteProportion_35 = 1, 1, 1
+		encounter.ExecuteProportion_35 = 1
 		encounter.Targets[0].Stats[stats.FireResistance] = resistance
 		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
 		sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
@@ -243,8 +234,8 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 	}
 }
 
-// Bane of Agony's ticks are set at cast: Amplify Curse (talent 9) raises the base that ramps in thirds, and the
-// spell power share is the spell power at cast, on every tick alike. Each tick leaves its base and share in
+// Bane of Agony's ticks are set at cast: the base ramps in thirds, the spell power share is the spell power at
+// cast on every tick alike, and Amplify Curse (talent 9) raises both. Each tick leaves its base and share in
 // the dot's snapshot base, which the last tick clears as the dot ends, so the test reads the first 11.
 func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -295,10 +286,140 @@ func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
 	coefficient := dot.BonusCoefficient
 	ampShare := share + 500*coefficient
 	for i, ramp := range []float64{0.5, 1, 1.5} {
-		want := base*ramp*warlock.AmplifyCurseMultiplier + ampShare
+		want := (base*ramp + ampShare) * warlock.AmplifyCurseMultiplier
 		if got := amplified[4*i]; math.Abs(got-want) > 1e-6 {
-			t.Errorf("amplified third %d tick %.3f, want %.3f: the base %.3f amplified, plus the share at cast %.3f",
+			t.Errorf("amplified third %d tick %.3f, want %.3f: the base %.3f plus the share at cast %.3f, amplified",
 				i+1, got, want, base*ramp, ampShare)
 		}
 	}
+}
+
+// Casting Bane of Agony spends Amplify Curse. The tooltip names it, but neither of Amplify Curse's class masks in
+// the game files does.
+func TestBaneOfAgonySpendsAmplifyCurse(t *testing.T) {
+	sim, warlock := newWarlockSim("000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+
+	warlock.AmplifyCurseAura.Activate(sim)
+	if !warlock.BaneOfAgony.Cast(sim, target) {
+		t.Fatalf("Bane of Agony did not cast")
+	}
+	if warlock.AmplifyCurseAura.IsActive() {
+		t.Fatalf("Amplify Curse is still up after a Bane of Agony cast")
+	}
+}
+
+// The Imp's Blood Pact is up on the party's players while the Imp is out, counts in the stats with the Imp out at
+// the start, and drops when the Imp is dismissed or sacrificed. A Blood Pact ticked in the party buffs adds nothing
+// while the Imp's is up and takes over once it drops. With two Imps in the party one Blood Pact counts, and it
+// stays up while either Imp is out.
+func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
+	bloodPact := buffs.BloodPactValue(0)
+	encounter := core.MakeSingleTargetEncounter(0)
+	imp := &proto.WarlockOptions{Summon: proto.WarlockOptions_Imp}
+	voidwalker := &proto.WarlockOptions{Summon: proto.WarlockOptions_Voidwalker}
+	bloodPactOf := func(member *Warlock, warlock *Warlock) *core.Aura {
+		return member.GetAura("Blood Pact-" + warlock.Label)
+	}
+	party := func(players ...*proto.Player) *proto.Raid {
+		return &proto.Raid{Parties: []*proto.Party{{Players: players, Buffs: &proto.PartyBuffs{}}}, Buffs: &proto.RaidBuffs{}, Debuffs: &proto.Debuffs{}}
+	}
+	_, alone := newWarlockSim("", imp, encounter)
+	withImp := alone.GetStat(stats.Stamina)
+
+	t.Run("summon and dismiss", func(t *testing.T) {
+		sim, warlock := newWarlockSim("", imp, encounter)
+		aura := bloodPactOf(warlock, warlock)
+		if aura == nil {
+			t.Fatalf("A warlock with an Imp registers no Blood Pact of its own")
+		}
+		if !aura.IsActive() {
+			t.Fatalf("Blood Pact is not up with the Imp out at the start")
+		}
+
+		warlock.summonDemon(sim, warlock.Voidwalker)
+		if aura.IsActive() {
+			t.Errorf("Blood Pact is still up after the Voidwalker replaces the Imp")
+		}
+		if got := withImp - warlock.GetStat(stats.Stamina); math.Abs(got-bloodPact) > 1e-9 {
+			t.Errorf("dismissing the Imp lowers Stamina by %.2f, want Blood Pact's %.2f", got, bloodPact)
+		}
+
+		warlock.summonDemon(sim, warlock.Imp)
+		if !aura.IsActive() {
+			t.Errorf("Blood Pact is not up after the Imp is summoned again")
+		}
+	})
+
+	t.Run("ticked takes over", func(t *testing.T) {
+		raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", imp), &proto.PartyBuffs{BloodPact: true}, &proto.RaidBuffs{}, &proto.Debuffs{})
+		sim := newWarlockRaidSim(raid, encounter)
+		ticked := sim.Raid.Parties[0].Players[0].(*Warlock)
+		if got := ticked.GetStat(stats.Stamina); math.Abs(got-withImp) > 1e-9 {
+			t.Errorf("Stamina %.2f with the Imp and a ticked Blood Pact, want the Imp's alone %.2f", got, withImp)
+		}
+		ticked.summonDemon(sim, ticked.Voidwalker)
+		if got := ticked.GetStat(stats.Stamina); math.Abs(got-withImp) > 1e-9 {
+			t.Errorf("Stamina %.2f after the Imp leaves with a ticked Blood Pact, want the ticked one's %.2f", got, withImp)
+		}
+	})
+
+	t.Run("sacrifice", func(t *testing.T) {
+		sim, sacrificer := newWarlockSim("-0000000001", imp, encounter)
+		if !sacrificer.Talents.DemonicSacrifice {
+			t.Fatalf("the talents string takes no Demonic Sacrifice")
+		}
+		if !sacrificer.DemonicSacrifice.Cast(sim, &sacrificer.Unit) {
+			t.Fatalf("Demonic Sacrifice cannot be cast with the Imp out")
+		}
+		if bloodPactOf(sacrificer, sacrificer).IsActive() {
+			t.Errorf("Blood Pact is still up after the Imp is sacrificed")
+		}
+	})
+
+	t.Run("sheet", func(t *testing.T) {
+		sheetStamina := func(options *proto.WarlockOptions) float64 {
+			raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", options), &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
+			result := core.ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: encounter})
+			return result.RaidStats.Parties[0].Players[0].FinalStats.Stats[stats.Stamina]
+		}
+		if got := sheetStamina(imp) - sheetStamina(voidwalker); math.Abs(got-bloodPact) > 1e-9 {
+			t.Errorf("the Imp out at the start adds %.2f Stamina to the stats, want Blood Pact's %.2f", got, bloodPact)
+		}
+	})
+
+	t.Run("party member", func(t *testing.T) {
+		sim := newWarlockRaidSim(party(warlockPlayer("Warlock", "", imp), warlockPlayer("Second Warlock", "", voidwalker)), encounter)
+		owner, member := sim.Raid.Parties[0].Players[0].(*Warlock), sim.Raid.Parties[0].Players[1].(*Warlock)
+		if !bloodPactOf(member, owner).IsActive() {
+			t.Errorf("Blood Pact is not up on a party member with the Imp out")
+		}
+		owner.summonDemon(sim, owner.Voidwalker)
+		if bloodPactOf(member, owner).IsActive() {
+			t.Errorf("Blood Pact is still up on a party member after the Imp is dismissed")
+		}
+	})
+
+	t.Run("two warlocks", func(t *testing.T) {
+		sim := newWarlockRaidSim(party(warlockPlayer("Warlock", "", imp), warlockPlayer("Second Warlock", "", imp)), encounter)
+		first, second := sim.Raid.Parties[0].Players[0].(*Warlock), sim.Raid.Parties[0].Players[1].(*Warlock)
+		before := []float64{first.GetStat(stats.Stamina), second.GetStat(stats.Stamina)}
+
+		first.summonDemon(sim, first.Voidwalker)
+		for i, player := range []*Warlock{first, second} {
+			if !bloodPactOf(player, second).IsActive() {
+				t.Errorf("the second warlock's Blood Pact is not up on %s after the first dismisses its Imp", player.Label)
+			}
+			if got := player.GetStat(stats.Stamina); math.Abs(got-before[i]) > 1e-9 {
+				t.Errorf("%s has %.2f Stamina after the first Imp leaves, want %.2f from the second's Blood Pact", player.Label, got, before[i])
+			}
+		}
+
+		second.summonDemon(sim, second.Voidwalker)
+		for i, player := range []*Warlock{first, second} {
+			if got := before[i] - player.GetStat(stats.Stamina); math.Abs(got-bloodPact) > 1e-9 {
+				t.Errorf("%s loses %.2f Stamina once both Imps are gone, want Blood Pact's %.2f", player.Label, got, bloodPact)
+			}
+		}
+	})
 }

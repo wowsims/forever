@@ -7,6 +7,7 @@ import (
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -126,17 +127,23 @@ func init() {
 	})
 
 	// The four buffs below go on at full strength and lose a stack each time their trigger fires. Each
-	// takes its trigger and duration from the on-use row; the stacks are a second, scripted row that
-	// is not in the spell store, so the count and the amount a stack carries are stated here with
+	// takes its trigger and duration from the on-use row; the stacks are a second, scripted row. Where
+	// the spell store lacks that row, the count and the amount a stack carries are stated here with
 	// the row they come from.
 
 	// Zandalarian Hero Badge: 2000 armor and 30 defense, less 200 armor and 3 defense for each melee
-	// or ranged hit taken. Brittle Armor 24575: 200 armor and 3 Defense a stack, 10 stacks.
+	// or ranged hit taken. Brittle Armor 24575 states the armor (A_MOD_ARMOR_NO_MODS), the defense
+	// and the count of a stack.
 	core.NewItemEffect(19948, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(24574)
-		perStack := stats.Stats{stats.Armor: 200, stats.DefenseRating: 3 * core.DefenseRatingPerDefenseLevel}
-		registerCountdownOnUse(character, 19948, row, 10, perStack, core.CooldownTypeSurvival, spelldata.ProcTrigger(character, row, nil))
+		stack := spelldata.MustFind(24575)
+		perStack := stats.Stats{
+			stats.ArmorNoMods:   stack.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints,
+			stats.DefenseRating: stack.FirstAura(dbcenums.A_MOD_SKILL).BasePoints * core.DefenseRatingPerDefenseLevel,
+		}
+		registerCountdownOnUse(character, 19948, row, int32(stack.MaxStack), perStack, core.CooldownTypeSurvival,
+			spelldata.ProcTrigger(character, row, nil))
 	})
 
 	// Zandalarian Hero Medallion: 40 melee and ranged damage, less 2 for each hit dealt. Restless

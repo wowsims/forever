@@ -14,15 +14,15 @@ message PriestTalents {
     int32 twin_disciplines = 3;
     int32 silent_resolve = 4;
     int32 holy_precision = 5;
-    int32 improved_power_word_shield = 6;
+    int32 mental_strength = 6;
     int32 martyrdom = 7;
     int32 mental_agility = 8;
     bool inner_focus = 9;
-    int32 meditation = 10;
-    int32 improved_inner_fire = 11;
-    int32 mental_strength = 12;
-    bool soul_warding = 13;
-    int32 improved_mana_burn = 14;
+    int32 improved_power_word_shield = 10;
+    int32 meditation = 11;
+    int32 improved_inner_fire = 12;
+    int32 improved_mana_burn = 13;
+    bool soul_warding = 14;
     bool penance = 15;
     int32 renewed_hope = 16;
     int32 divine_aegis = 17;
@@ -49,21 +49,20 @@ message PriestTalents {
     int32 shadow_focus = 36;
     int32 blackout = 37;
     int32 spirit_tap = 38;
-    int32 shadow_affinity = 39;
+    int32 improved_mind_blast = 39;
     int32 improved_shadow_word_pain = 40;
     int32 shadow_reach = 41;
-    int32 improved_mind_blast = 42;
-    int32 improved_psychic_scream = 43;
-    bool mind_flay = 44;
-    int32 improved_mind_flay = 45;
-    int32 improved_fade = 46;
-    bool vampiric_embrace = 47;
-    int32 shadow_weaving = 48;
-    bool silence = 49;
-    int32 devouring_contagion = 50;
-    int32 early_demise = 51;
-    int32 darkness = 52;
-    bool shadowform = 53;
+    int32 improved_psychic_scream = 42;
+    bool mind_flay = 43;
+    int32 improved_mind_flay = 44;
+    int32 dark_inspiration = 45;
+    bool vampiric_embrace = 46;
+    int32 shadow_weaving = 47;
+    bool silence = 48;
+    int32 devouring_contagion = 49;
+    int32 early_demise = 50;
+    int32 darkness = 51;
+    bool shadowform = 52;
 }
 
 // END GENERATED

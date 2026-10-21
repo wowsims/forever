@@ -160,6 +160,24 @@ func TestBerserkLiftsPrimalBiteCooldownOnlyWhileUp(t *testing.T) {
 	}
 }
 
+// Berserk's tooltip "removes its cooldown": a Primal Bite cooldown already running when Berserk starts
+// ends with it.
+func TestBerserkClearsARunningPrimalBiteCooldown(t *testing.T) {
+	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
+	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("primal bite did not cast")
+	}
+	sim.CurrentTime += 2 * time.Second
+	if bear.PrimalBite.IsReady(sim) {
+		t.Fatal("primal bite is ready 2 s after a cast without berserk")
+	}
+	bear.BerserkAura.Activate(sim)
+	if !bear.PrimalBite.IsReady(sim) {
+		t.Errorf("primal bite is on cooldown until %v once berserk starts", bear.PrimalBite.ReadyAt())
+	}
+}
+
 func TestFrenziedRegenerationSpendsRageForHealth(t *testing.T) {
 	sim, bear := newBear(t)
 	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
@@ -333,9 +351,13 @@ func TestBearFormsRaiseThreatByHalf(t *testing.T) {
 	}
 }
 
+// Natural Reaction 5/5, which the Bear preset leaves out.
+const naturalReactionTalents = "0500220000000000-55200322120132012551-0000000000000000"
+
 // Natural Reaction 5/5 (417051): every dodge in a bear form grants 417053's 5 rage.
 func TestNaturalReactionGivesRageOnDodges(t *testing.T) {
 	req := bearRequest(bearAPL(bestBearAPL), 20)
+	req.Raid.Parties[0].Players[0].TalentsString = naturalReactionTalents
 	result := core.RunSim(req, nil, simsignals.CreateSignals())
 	if result.Error != nil {
 		t.Fatal(result.Error.Message)

@@ -910,6 +910,15 @@ func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, gr
 	vals := MapSlice(config.Vals, func(val *proto.APLValue) APLValue {
 		return rot.coerceTo(rot.newAPLValueWithContext(val, groupVariables), proto.APLValueType_ValueTypeBool)
 	})
+	hadUnresolved := false
+	for _, val := range vals {
+		if val == nil {
+			hadUnresolved = true
+		}
+	}
+	if hadUnresolved {
+		rot.ValidationMessage(proto.LogLevel_Warning, "A condition branch in this 'And' check could not be resolved and was dropped.")
+	}
 	vals = FilterSlice(vals, func(val APLValue) bool { return val != nil })
 	if len(vals) == 0 {
 		return nil

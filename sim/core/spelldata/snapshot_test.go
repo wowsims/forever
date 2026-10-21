@@ -322,15 +322,19 @@ func TestGeneratedOverrideRow(t *testing.T) {
 	}
 }
 
-// Frostbolt and Slam state the flag that pushes the cast back; EZ-Thro Bronze Mortar does not.
+// Frostbolt and Slam state the flag that pushes the cast back, and Slam's row also carries the
+// attribute that keeps it from being pushed back. EZ-Thro Bronze Mortar states neither.
 func TestGeneratedInterruptFlags(t *testing.T) {
 	withGeneratedStore(t)
 
-	for id, want := range map[int32]uint32{116: 15, 11605: 15, 1269268: 5} {
+	for id, want := range map[int32]struct {
+		flags      uint32
+		pushedBack bool
+	}{116: {15, true}, 11605: {15, false}, 1269268: {5, false}} {
 		s := MustFind(id)
-		if s.InterruptFlags != want || s.PushedBack() != (want == 15) {
-			t.Errorf("%s (%d) states interrupt flags %d, pushed back %v; want %d", s.Name, id,
-				s.InterruptFlags, s.PushedBack(), want)
+		if s.InterruptFlags != want.flags || s.PushedBack() != want.pushedBack {
+			t.Errorf("%s (%d) states interrupt flags %d, pushed back %v; want %d, pushed back %v", s.Name, id,
+				s.InterruptFlags, s.PushedBack(), want.flags, want.pushedBack)
 		}
 	}
 }

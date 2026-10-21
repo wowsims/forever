@@ -15,24 +15,30 @@ func init() {
 }
 
 func TestRogue(t *testing.T) {
-	t.Skip("class talents and abilities are stubbed pending their Forever implementations; " +
-		"the expected .results numbers cannot be meaningful until then")
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
-			Class:      proto.Class_ClassRogue,
-			Race:       proto.Race_RaceHuman,
-			OtherRaces: []proto.Race{proto.Race_RaceOrc},
-			GearSet:    core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "preraid"),
+			Class:         proto.Class_ClassRogue,
+			Race:          proto.Race_RaceHuman,
+			OtherRaces:    []proto.Race{proto.Race_RaceOrc},
+			GearSet:       core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1_muti"),
 			OtherGearSets: []core.GearSetCombo{
-				core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1"),
-				//core.GetGearSet("../../../ui/specs/rogue/combat/gear_sets", "p4_combat"),
+				//core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1"),
 			},
-			Talents:     DefaultTalents,
+			Talents: DefaultTalents,
+			OtherTalentSets: []core.TalentsCombo{
+				{
+					Label:   "Subtlety BS",
+					Talents: "0053031-3203-4320203300013211051",
+				},
+				{
+					Label:   "Asn Muti",
+					Talents: "00532310151501031-302303202014",
+				},
+			},
 			Consumables: DefaultConsumables,
 			SpecOptions: core.SpecOptionsCombo{Label: "Rogue", SpecOptions: DefaultOptions},
 
-			Rotation:       core.GetAplRotation("../../ui/specs/rogue/dps/apls", "default"),
-			OtherRotations: []core.RotationCombo{},
+			Rotation: core.GetAplRotation("../../ui/specs/rogue/dps/apls", "default"),
 			ItemFilter: core.ItemFilter{
 				ArmorType: proto.ArmorType_ArmorTypeLeather,
 				WeaponTypes: []proto.WeaponType{
@@ -40,6 +46,7 @@ func TestRogue(t *testing.T) {
 					proto.WeaponType_WeaponTypeFist,
 					proto.WeaponType_WeaponTypeMace,
 					proto.WeaponType_WeaponTypeSword,
+					proto.WeaponType_WeaponTypeAxe,
 				},
 				HandTypes: []proto.HandType{
 					proto.HandType_HandTypeMainHand,
@@ -59,11 +66,13 @@ var DefaultOptions = &proto.Player_Rogue{
 	},
 }
 
-var DefaultTalents = "00532012502-023305200005015002321151"
+var DefaultTalents = "005323101012-32030320201515231"
 
 var DefaultConsumables = &proto.ConsumesSpec{
-	FlaskId:        274274, // Flask of Natural Aggression
-	FoodId:         250072, // Swiftstrike Steak
-	OffensivePotId: 250943, // Major Frenzy Potion
-	ConjuredId:     7676,
+	FlaskId:         274274, // Flask of Natural Aggression
+	FoodId:          250072, // Swiftstrike Steak
+	OffensivePotId:  250943, // Major Frenzy Potion
+	ConjuredId:      7676,
+	MhWeaponImbueId: 8928, // Instant Poison VI
+	OhWeaponImbueId: 8985, // Deadly Poison IV
 }

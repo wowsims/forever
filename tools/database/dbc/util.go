@@ -255,7 +255,8 @@ func EquipSpellFolds(spellID int) bool {
 // Adds the stat ConvertEffectAuraToStatIndex names for an equip spell's aura to out, value points of
 // it, and reports whether it named one. A FoldStats effect alone adds. A resistance to every magic
 // school is each of the five resistances, a spell whose description says "forms only" gives feral
-// attack power, and armor penetration and spell piercing count as positive.
+// attack power, flat damage done is each stat spelldata.DamageDoneStats names for its mask, and armor
+// penetration and spell piercing count as positive.
 func addEquipAuraStat(out *stats.Stats, effect SpellEffect, value float64) bool {
 	if EquipEffectFold(effect) != FoldStats {
 		return false
@@ -266,6 +267,12 @@ func addEquipAuraStat(out *stats.Stats, effect SpellEffect, value float64) bool 
 	}
 	if strings.Contains(dbcInstance.Spells[effect.SpellID].Description, "forms only") {
 		stat = proto.Stat_StatFeralAttackPower
+	} else if effect.EffectAura == dbcenums.A_MOD_DAMAGE_DONE {
+		damage := spelldata.DamageDoneStats(int32(effect.EffectMiscValues[0]))
+		for _, school := range damage {
+			out[school] += value
+		}
+		return len(damage) > 0
 	}
 	switch stat {
 	case -2:
@@ -383,7 +390,11 @@ func ConvertEffectAuraToStatIndex(effectAura EffectAuraType, effectMisc int) pro
 	case dbcenums.A_MOD_RANGED_ATTACK_POWER:
 		return proto.Stat_StatRangedAttackPower
 	case dbcenums.A_MOD_DAMAGE_DONE:
-		return ConvertSpellDamageFlagToSchoolDamageStat(effectMisc)
+		// The first stat spelldata.DamageDoneStats names; a mask of several schools names more.
+		if damage := spelldata.DamageDoneStats(int32(effectMisc)); len(damage) > 0 {
+			return proto.Stat(damage[0])
+		}
+		return -1
 	case dbcenums.A_MOD_HEALING_DONE:
 		return proto.Stat_StatHealingPower
 	case dbcenums.A_MOD_INCREASE_HEALTH, dbcenums.A_MOD_INCREASE_HEALTH_2:
@@ -397,8 +408,13 @@ func ConvertEffectAuraToStatIndex(effectAura EffectAuraType, effectMisc int) pro
 		return -1
 	case dbcenums.A_MOD_TARGET_RESISTANCE:
 		return ConvertTargetResistanceFlagToPenetrationStat(effectMisc)
-	case dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS:
+	case dbcenums.A_MOD_RESISTANCE:
 		return ConvertResistanceFlagToResistanceStat(effectMisc)
+	case dbcenums.A_MOD_ARMOR_NO_MODS:
+		if sts := spelldata.ArmorNoModsStats(int32(effectMisc)); len(sts) == 1 {
+			return proto.Stat(sts[0])
+		}
+		return -1
 	case dbcenums.A_MOD_RATING:
 		return ConvertModRatingFlagToRatingStat(effectMisc)
 	case dbcenums.A_MOD_SHIELD_BLOCKVALUE:

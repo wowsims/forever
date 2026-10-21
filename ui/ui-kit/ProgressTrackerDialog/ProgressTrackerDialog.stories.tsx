@@ -1,12 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
+import { ProgressStepList } from './ProgressStepList';
 import { ProgressTrackerDialog } from './ProgressTrackerDialog';
 import type { ProgressTrackerHandle, ProgressTrackerProgress } from './types';
 
 const SAMPLE: ProgressTrackerProgress = { title: '3 / 12 simulations complete', current: 30, total: 120 };
 
 const pushSample = (handle: ProgressTrackerHandle | null) => handle?.setProgress(SAMPLE);
+
+const STEPS = ['Current · 3:00 ±5s · 1 target', 'Patchwerk · 5:00 ±30s · 1 target', 'Council · 4:00 ±10s · 3 targets'];
 
 const meta = {
 	title: 'Kit/ProgressTrackerDialog',
@@ -20,6 +23,7 @@ const meta = {
 	argTypes: {
 		state: { control: false },
 		warning: { control: false },
+		belowBar: { control: false },
 		ref: { control: false },
 	},
 } satisfies Meta<typeof ProgressTrackerDialog>;
@@ -37,6 +41,15 @@ export const WithProgress: Story = {
 
 export const WithTimeRemaining: Story = {
 	args: { hasProgressBar: true, ref: handle => handle?.setProgress({ ...SAMPLE, secondsRemaining: 95 }) },
+};
+
+export const WithStepsBelowBar: Story = {
+	args: {
+		hasProgressBar: true,
+		ref: pushSample,
+		belowBar: <ProgressStepList labels={STEPS} running={1} />,
+		state: { stage: 'running', message: '1,200 / 4,000 iterations complete' },
+	},
 };
 
 export const WithWarning: Story = {

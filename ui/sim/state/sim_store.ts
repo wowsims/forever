@@ -19,12 +19,12 @@ import {
 	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { type BulkEnchantPreset, DatabaseFilters } from '@generated/proto/ui';
+import { type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
 import type { BulkSimItemSlot } from '../bulk/constants_auto_gen';
-import type { BulkPickerEntry, BulkResults } from '../bulk/types';
+import type { BulkEncounterResults, BulkPickerEntry } from '../bulk/types';
 import { ENCOUNTER_DEFAULTS } from '../constants/encounter';
 import { CURRENT_PHASE } from '../constants/other';
 import type { EquippedItem } from '../proto/equipped_item';
@@ -51,10 +51,7 @@ export interface EncounterSlice {
 	duration: number;
 	durationVariation: number;
 	executeProportion20: number;
-	executeProportion25: number;
 	executeProportion35: number;
-	executeProportion45: number;
-	executeProportion90: number;
 	useHealth: boolean;
 	areaTypes: Array<AreaType>;
 	zoneId: number;
@@ -234,12 +231,15 @@ export interface BulkSlice {
 	frozenWeaponSlot: ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand | undefined;
 	weaponTypeFilters: ReadonlyMap<ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand, WeaponType[]>;
 	enchantPresets: readonly BulkEnchantPreset[];
+	// The checked saved encounters, in list order; the current encounter is read live and never stored here.
+	encounters: readonly BulkEncounterRef[];
 	combinations: number;
 	iterations: number;
 	combinationsPending: boolean;
 	isRunning: boolean;
 	started: boolean;
-	results: BulkResults | null;
+	// One per finished encounter of the last run, the current one first.
+	results: readonly BulkEncounterResults[] | null;
 	// The gear the last batch started from. The set-bonus feasibility check judges against it, not
 	// against the candidate gear a run swaps in and out of the player.
 	runGear: Gear | null;

@@ -107,7 +107,7 @@ export class FeralBearDruid extends PlayerSpec<Spec.SpecFeralBearDruid> {
 
 	static launch: SimStatus = {
 		phase: CURRENT_PHASE,
-		status: LaunchStatus.Alpha,
+		status: LaunchStatus.Unlaunched,
 	};
 
 	readonly specIndex = FeralBearDruid.specIndex;

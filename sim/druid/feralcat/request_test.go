@@ -61,11 +61,11 @@ func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool,
 					Rotation: rotation,
 				}},
 				Buffs: &proto.PartyBuffs{
-					BattleShout:     proto.TristateEffect_TristateEffectRegular,
 					ManaSpringTotem: proto.TristateEffect_TristateEffectRegular,
 				},
 			}},
 			Buffs: &proto.RaidBuffs{
+				BattleShout:              proto.TristateEffect_TristateEffectRegular,
 				ArcaneBrilliance:         true,
 				PrayerOfSpirit:           true,
 				GiftOfTheWild:            true,

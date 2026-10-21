@@ -1,0 +1,987 @@
+character_stats_results: {
+ key: "TestFire-CharacterStats-Default"
+ value: {
+  final_stats: 107
+  final_stats: 155
+  final_stats: 355
+  final_stats: 433
+  final_stats: 456
+  final_stats: 590
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 18
+  final_stats: 345
+  final_stats: 369
+  final_stats: 50
+  final_stats: 0
+  final_stats: 29
+  final_stats: 70
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 1978
+  final_stats: 0
+  final_stats: 4740
+  final_stats: 7428
+  final_stats: 109
+  final_stats: 42
+  final_stats: 42
+  final_stats: 42
+  final_stats: 42
+  final_stats: 75
+  final_stats: 0
+  final_stats: 1120
+  final_stats: 2.9
+  final_stats: 2.9
+  final_stats: 21.167
+  final_stats: 20.4744
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+  final_stats: 11.167
+  final_stats: 0
+  final_stats: 0
+  final_stats: 0
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-AdaptiveCombatAssistant-272437"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Admiral'sHat-10030"
+ value: {
+  dps: 854.15039
+  tps: 601.37834
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 786.94646
+  tps: 554.01342
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ArcaniteChampion-12790"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ArenaGrandMaster-19024"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-BadgeoftheSwarmguard-21670"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-BladeofHanna-2801"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-BlazefuryMedallion-17111"
+ value: {
+  dps: 838.33172
+  tps: 589.74613
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-BlazingRapier-12777"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-BristleconeCloak-275833"
+ value: {
+  dps: 855.10262
+  tps: 602.18511
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-CelestialOrb-7515"
+ value: {
+  dps: 856.86964
+  tps: 605.10888
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-CloakofFire-14134"
+ value: {
+  dps: 850.79631
+  tps: 598.4094
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 844.00928
+  tps: 593.33368
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ColdBasiliskEye-5079"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-DarkmoonCard:BlueDragon-19288"
+ value: {
+  dps: 786.30483
+  tps: 553.90675
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-DarkmoonCard:Heroism-19287"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-DarkmoonCard:Maelstrom-19289"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-DeathmistRaiment"
+ value: {
+  dps: 888.16392
+  tps: 621.17007
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Defender'sGripStabilizer-272440"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Defiler'sTalisman-20072"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Defiler'sTalisman-21115"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Defiler'sTalisman-21116"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Doombringer-13053"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-DormantHeartoftheMountain-249473"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-DreadmistRaiment"
+ value: {
+  dps: 849.72977
+  tps: 595.02409
+  hps: 12.11741
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EarthenSigil-20525"
+ value: {
+  dps: 786.19471
+  tps: 554.30375
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Earthstrike-21180"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ElectrifiedDagger-19100"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Enchant2HWeapon-GrandArcanist-7941"
+ value: {
+  dps: 927.40202
+  tps: 650.74279
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Enchant:FieryBlaze-36"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantChest-Absorption-8220"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantChest-LesserAbsorption-63"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantChest-MinorAbsorption-44"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantCloak-Subtlety-2621"
+ value: {
+  dps: 870.71326
+  tps: 601.29518
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantGloves-Threat-2613"
+ value: {
+  dps: 870.71326
+  tps: 624.63413
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantWeapon-Crusader-1900"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantWeapon-GrandSorcerer-7942"
+ value: {
+  dps: 896.42017
+  tps: 630.08623
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantWeapon-Insight-8216"
+ value: {
+  dps: 871.51252
+  tps: 613.2374
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantWeapon-Recovery-8721"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantWeapon-Revelation-8217"
+ value: {
+  dps: 889.52154
+  tps: 625.80776
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnigmaVestments"
+ value: {
+  dps: 1001.26759
+  tps: 697.85494
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EssenceofthePureFlame-18815"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EverlookDeliveryBot-274760"
+ value: {
+  dps: 796.43853
+  tps: 560.35664
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EverlookPathcarver-274759"
+ value: {
+  dps: 811.55247
+  tps: 572.63234
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EyeofDiminution-23001"
+ value: {
+  dps: 803.63252
+  tps: 566.22684
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EyeofMoam-21473"
+ value: {
+  dps: 810.06631
+  tps: 569.44227
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EyeoftheDead-23047"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FetishofChitinousSpikes-21488"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FetishoftheSandReaver-21647"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FlameSearedSignet-282080"
+ value: {
+  dps: 852.37932
+  tps: 599.21371
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FrostfireRegalia"
+ value: {
+  dps: 1152.56329
+  tps: 656.04148
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Frostguard-12797"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FrozenHeartoftheMountain-249469"
+ value: {
+  dps: 815.88055
+  tps: 574.87196
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FurbolgMedicinePouch-16768"
+ value: {
+  dps: 845.80515
+  tps: 595.76666
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-GlacialBlade-19099"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-GlyphofDeflection-23040"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-GoblinConstructionHelmet-10543"
+ value: {
+  dps: 854.15039
+  tps: 601.37834
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-GoldenBanana-270226"
+ value: {
+  dps: 786.59678
+  tps: 553.99123
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-GutRipper-2164"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Hameya'sSlayer-15814"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-HanzoSword-8190"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Hazza'rah'sCharmofMagic-19959"
+ value: {
+  dps: 787.26605
+  tps: 554.19984
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-HeartoftheScale-13164"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-HibernationCrystal-20636"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Illusionist'sAttire"
+ value: {
+  dps: 834.67956
+  tps: 587.33362
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-JomGabbar-23570"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-KissoftheSpider-22954"
+ value: {
+  dps: 815.07867
+  tps: 574.41379
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 850.59184
+  tps: 597.30181
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Linken'sBoomerang-11905"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 784.70376
+  tps: 554.23293
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Loatheb'sReflection-23042"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 866.35211
+  tps: 610.64298
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Magister'sRegalia"
+ value: {
+  dps: 865.38526
+  tps: 609.16549
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MajorRecombobulator-18637"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MarkofResolution-17759"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MarkoftheChampion-23206"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MarkoftheChampion-23207"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MindQuickeningGem-19339"
+ value: {
+  dps: 812.37867
+  tps: 573.19111
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-MoltenHeartoftheMountain-249470"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Nightblade-1982"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-OrbofFire-12805"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-PetrifiedScarab-21685"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-PhantomBlade-7961"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 848.35752
+  tps: 596.52286
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-RobeoftheArchmage-14152"
+ value: {
+  dps: 882.63828
+  tps: 621.918
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SerenityField-272439"
+ value: {
+  dps: 795.55318
+  tps: 559.7479
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ShardoftheFallenStar-21891"
+ value: {
+  dps: 799.05555
+  tps: 563.82529
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Slayer'sCrest-23041"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SmokingHeartoftheMountain-11811"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 901.2919
+  tps: 630.23703
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 784.70376
+  tps: 554.23293
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TalismanofArathor-20071"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TalismanofArathor-21117"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TalismanofArathor-21118"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TalismanofAscendance-22678"
+ value: {
+  dps: 815.53675
+  tps: 573.03379
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Teebu'sBlazingLongsword-1728"
+ value: {
+  dps: 784.70376
+  tps: 554.23293
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TheBurrower'sShell-23558"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TheLobotomizer-19324"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TheRestrainedEssenceofSapphiron-23046"
+ value: {
+  dps: 830.08693
+  tps: 582.90103
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Thunderbrew'sBootFlask-744"
+ value: {
+  dps: 791.31135
+  tps: 558.08356
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ToySoldier-274386"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 790.29727
+  tps: 556.36793
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-VestmentsoftheDevout"
+ value: {
+  dps: 821.32684
+  tps: 578.72177
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 862.75201
+  tps: 603.07479
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-WarmthofForgiveness-23027"
+ value: {
+  dps: 786.60767
+  tps: 555.01441
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-WeaknessAnalyzer-272438"
+ value: {
+  dps: 798.74177
+  tps: 561.84741
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Witchfury-13051"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-WrathofCenarius-21190"
+ value: {
+  dps: 873.65602
+  tps: 613.2414
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ZandalarianHeroBadge-19948"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ZandalarianHeroCharm-19950"
+ value: {
+  dps: 801.04427
+  tps: 563.65507
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ZandalarianHeroMedallion-19949"
+ value: {
+  dps: 786.45358
+  tps: 553.80173
+ }
+}
+dps_results: {
+ key: "TestFire-Average-Default"
+ value: {
+  dps: 856.55323
+  tps: 604.54368
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
+ value: {
+  dps: 837.7089
+  tps: 588.67071
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-FullBuffs-0.0yards-LongSingleTarget"
+ value: {
+  dps: 837.7089
+  tps: 588.67071
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-FullBuffs-0.0yards-ShortSingleTarget"
+ value: {
+  dps: 892.20274
+  tps: 626.58588
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
+ value: {
+  dps: 441.31165
+  tps: 432.54344
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-NoBuffs-0.0yards-LongSingleTarget"
+ value: {
+  dps: 441.31165
+  tps: 432.54344
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-Gnome-p1Arcane-Default-deepFire-NoBuffs-0.0yards-ShortSingleTarget"
+ value: {
+  dps: 589.99803
+  tps: 583.94281
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-FullBuffs-0.0yards-LongSingleTarget"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-FullBuffs-0.0yards-ShortSingleTarget"
+ value: {
+  dps: 881.50871
+  tps: 620.32141
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
+ value: {
+  dps: 483.93868
+  tps: 474.01754
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-NoBuffs-0.0yards-LongSingleTarget"
+ value: {
+  dps: 483.93868
+  tps: 474.01754
+ }
+}
+dps_results: {
+ key: "TestFire-Settings-HighOrderSkyborne-p1Arcane-Default-deepFire-NoBuffs-0.0yards-ShortSingleTarget"
+ value: {
+  dps: 579.82219
+  tps: 572.80491
+ }
+}
+dps_results: {
+ key: "TestFire-SwitchInFrontOfTarget-Default"
+ value: {
+  dps: 870.71326
+  tps: 612.96465
+ }
+}

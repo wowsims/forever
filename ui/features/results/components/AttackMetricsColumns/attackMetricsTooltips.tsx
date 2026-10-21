@@ -38,8 +38,25 @@ const damageBreakdownGroup = (metric: ActionMetrics, { crush }: AttackBreakdownO
 	};
 };
 
+/** The values a class or spec records on the action, one row per key, or no group when it records none. */
+export const customMetricsGroups = (metric: ActionMetrics): Array<MetricsCombinedTooltipGroup> => {
+	const customMetrics = metric.customMetrics;
+	if (!customMetrics.length) return [];
+	return [
+		{
+			name: i18n.t('results_tab.details.custom_metrics.group'),
+			spellSchool: metric.spellSchool,
+			totalPercentage: 100,
+			data: customMetrics.map(({ key, ...entry }) => ({
+				name: i18n.t(`results_tab.details.custom_metrics.${key}`, { defaultValue: key }),
+				...entry,
+			})),
+		},
+	];
+};
+
 const castsGroup = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}): MetricsCombinedTooltipGroup => {
-	const landed = metric.landedHits || metric.casts;
+	const landed = metric.landedRolls || metric.casts - metric.totalMisses;
 	const blocked = metric.blocks + metric.blockedCrits;
 	return {
 		spellSchool: metric.spellSchool,
@@ -47,7 +64,7 @@ const castsGroup = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {
 		data: [
 			{
 				name: i18n.t('results_tab.details.attack_types.hit'),
-				value: (metric.landedHits || metric.casts - metric.totalMisses) - blocked - (crush ? metric.crushes : 0),
+				value: landed - blocked - (crush ? metric.crushes : 0),
 				percentage: (landed / (landed + metric.totalMisses)) * 100,
 			},
 			{
@@ -142,11 +159,11 @@ export const threatTooltip = (metric: ActionMetrics, value: number, showThreatMe
 	showThreatMetrics && value ? <MetricsCombinedTooltip headerValues={amountHeader()} groups={[threatGroup(metric, value)]} /> : null;
 
 export const damageBreakdownTooltip = (metric: ActionMetrics, options?: AttackBreakdownOptions) => (
-	<MetricsCombinedTooltip headerValues={amountHeader()} groups={[damageBreakdownGroup(metric, options)]} />
+	<MetricsCombinedTooltip headerValues={amountHeader()} groups={[damageBreakdownGroup(metric, options), ...customMetricsGroups(metric)]} />
 );
 
 export const castsTooltip = (metric: ActionMetrics, options?: AttackBreakdownOptions) =>
-	(!metric.landedHits && !metric.totalMisses) || metric.isPassiveAction ? null : <MetricsCombinedTooltip groups={[castsGroup(metric, options)]} />;
+	(!metric.landedRolls && !metric.totalMisses) || metric.isPassiveAction ? null : <MetricsCombinedTooltip groups={[castsGroup(metric, options)]} />;
 
 export const hitsTooltip = (metric: ActionMetrics, options?: AttackBreakdownOptions) =>
 	!metric.landedHits && !metric.landedTicks ? null : <MetricsCombinedTooltip groups={hitGroups(metric, options)} />;

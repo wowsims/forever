@@ -22,6 +22,7 @@ until the next regeneration at most:
 | `ThreatPerSpellLevel`             | flat threat of the value times the rank's spell level, onto `Spell.FlatThreat` | the spell gains a threat effect          |
 | `APCoefDirect` / `APCoefPeriodic` | an attack power coefficient the game files keep in script                      | the game files state one on that effect  |
 | `APCoefThreat`                    | the attack power share of the threat effect                                    | the game files state one on it           |
+| `SPCoefDirect`                    | a spell power coefficient the direct effect does not state                     | the game files state one on that effect  |
 | `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                                     | the tooltip states a chance of its own   |
 | `DurationMs`                      | an aura duration                                                               | the game files state a `SpellDuration`   |
 | `ICDMs`                           | the internal cooldown between two procs, onto `Spell.ICDMs`                    | the row states a `ProcCategoryRecovery`  |
@@ -83,8 +84,18 @@ tooltip says is doubled has no reader yet.
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or
 replace a consumable itself are in [Consumables](../consumables.md).
 
-`tools/database/overrides/extra_spells.go` is the other hand-kept list: spells the generator
+`tools/database/overrides/extra_spells.go` is another hand-kept list: spells the generator
 force-includes although no class, item, enchant or set reaches them. It is empty today. Each entry
 states a reason and a source like an override, and the generator refuses one without a reason. The
 extras are added while the store renders, so adding one without regenerating fails the check rather
 than shipping a store that does not match its source.
+
+`overrides.HandTriggers` (`tools/database/overrides/hand_triggers.go`) links a spell to one a
+server-side handler casts off it, which no effect, `$<id>` token or skill line names. The store adds
+each link to `Triggered()` and `Drivers()` beside the edges the effects state, and the closure follows
+it, so the linked spell is carried. Caustic Smog Potion's cloud 1252526 creates an area trigger and
+nothing else, and the link to 1252543 is what lets `shared.DamageCloudOf` find the damage it puts on
+the enemies inside. An entry states a reason and a source, and the generator refuses one without a
+reason. It also refuses an entry the game files have caught up with: once an effect of the spell
+states the linked spell as its `TriggerID`, the regeneration fails with `the hand trigger ... is
+stale` until the entry is removed.

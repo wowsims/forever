@@ -51,3 +51,13 @@ export const NotSignificant: Story = {
 export const CurrentGear: Story = { args: { avg: 1370.27, isBase: true, children: null } };
 
 export const DamageHidden: Story = { args: { showDamage: false } };
+
+/** The widest DPS line the column is sized for, next to a full set of seventeen slots wrapping across the remaining width. */
+export const WidestValueAllSlots: Story = {
+	args: {
+		avg: 9999.99,
+		plusMinus: 1,
+		delta: { text: '+1,234.56 (14.08%)', tone: 'positive' },
+		children: Array.from({ length: 17 }, (_, index) => cell(index % 2 ? 'inv_jewelry_ring_36' : 'inv_sword_39', `Slot ${index + 1}`, 78)),
+	},
+};

@@ -63,6 +63,11 @@ whose `EffectBasePointsF` is fractional (about one in 55) keeps its fraction und
 either way, and `Min`/`Max` stay whole. Reading `BaseValue()` and doing the arithmetic in float64
 gives a different answer on those rows.
 
+**A talent's curve can disagree with its own row.** A `Talent` rank takes its base points from the
+curve, and on some talents the curve states a positive number where the row and the tooltip state a
+reduction. The ladder keeps the curve's sign, which is what applies in game, as [The store](store.md)
+describes; compare `Highest()` against `MustFind(id)` to find such a talent.
+
 **A row with more than one effect has to name the one it means.** `Ladder.ValueAt` panics rather than
 read the first of several, and `Effect(aura, misc)` panics when two effects match. Both follow the same
 rule: a caller says which effect it means with `EffectAt(n)` or `EffectN(n)`.

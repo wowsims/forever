@@ -51,7 +51,8 @@ ui/
                      the top level rather than under app/. alias @i18n
   specs/<class>/<spec>/   spec data, presets. alias @specs. No html on disk: the one page at
                      ui/index_template.html is served (dev) and emitted (build) at every
-                     /forever/<class>/<spec>/ by tools/vite/spec_pages.mts
+                     /forever/<class>/<spec>/ by tools/vite/spec_pages.mts, which writes
+                     each spec's title, description and URL into its head
   styles/            main.css (the stylesheet body), style.css (the production entry: main.css
                      plus the @source not lines that keep stories, tests, testing/storybook,
                      design-system and Markdown out of it), theme/ (tokens + the 18 spec themes,

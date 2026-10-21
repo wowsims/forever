@@ -127,6 +127,64 @@ type ActionMetrics struct {
 
 	// Metrics for this action, for each possible target.
 	Targets []TargetedActionMetrics
+
+	rangeSources [][]*hitRanges // One slice per spell and split feeding this action, indexed by target.
+}
+
+const numHitKinds = int(proto.HitKind_HitKindShield) + 1
+
+// Value ranges of one spell split against one target, accumulated over all iterations.
+type hitRanges struct {
+	kinds  [numHitKinds]valueRange
+	custom []customMetric
+}
+
+type customMetric struct {
+	key string
+	valueRange
+}
+
+func (hr *hitRanges) customRange(key string) *valueRange {
+	for i := range hr.custom {
+		if hr.custom[i].key == key {
+			return &hr.custom[i].valueRange
+		}
+	}
+	hr.custom = append(hr.custom, customMetric{key: key})
+	return &hr.custom[len(hr.custom)-1].valueRange
+}
+
+func (actionMetrics *ActionMetrics) hitRangesToProto(targetIdx int, tam *proto.TargetedActionMetrics) {
+	var merged hitRanges
+	for _, source := range actionMetrics.rangeSources {
+		hr := source[targetIdx]
+		if hr == nil {
+			continue
+		}
+		for k := range merged.kinds {
+			merged.kinds[k].merge(&hr.kinds[k])
+		}
+		for i := range hr.custom {
+			cm := &hr.custom[i]
+			merged.customRange(cm.key).merge(&cm.valueRange)
+		}
+	}
+
+	for k := range merged.kinds {
+		if merged.kinds[k].n == 0 {
+			continue
+		}
+		if tam.Ranges == nil {
+			tam.Ranges = make(map[int32]*proto.DistributionMetrics)
+		}
+		tam.Ranges[int32(k)] = merged.kinds[k].toProto()
+	}
+	for i := range merged.custom {
+		if merged.custom[i].n == 0 {
+			continue
+		}
+		tam.CustomMetrics = append(tam.CustomMetrics, &proto.CustomActionMetric{Key: merged.custom[i].key, Range: merged.custom[i].toProto()})
+	}
 }
 
 type tmiListItem struct {
@@ -136,8 +194,10 @@ type tmiListItem struct {
 
 func (actionMetrics *ActionMetrics) ToProto(actionID ActionID) *proto.ActionMetrics {
 	targetMetrics := make([]*proto.TargetedActionMetrics, 0, len(actionMetrics.Targets))
-	for _, tam := range actionMetrics.Targets {
-		targetMetrics = append(targetMetrics, tam.ToProto())
+	for i, tam := range actionMetrics.Targets {
+		tamProto := tam.ToProto()
+		actionMetrics.hitRangesToProto(i, tamProto)
+		targetMetrics = append(targetMetrics, tamProto)
 	}
 
 	id := actionID.ToProto()
@@ -155,6 +215,7 @@ func (actionMetrics *ActionMetrics) ToProto(actionID ActionID) *proto.ActionMetr
 type SpellMetrics struct {
 	Casts             int32
 	Misses            int32
+	TickMisses        int32
 	Hits              int32
 	ResistedHits      int32
 	Crits             int32
@@ -194,6 +255,7 @@ type TargetedActionMetrics struct {
 
 	Casts             int32
 	Misses            int32
+	TickMisses        int32
 	Hits              int32
 	ResistedHits      int32
 	Crits             int32
@@ -242,6 +304,7 @@ func (tam *TargetedActionMetrics) ToProto() *proto.TargetedActionMetrics {
 		CritTicks:              tam.CritTicks,
 		ResistedCritTicks:      tam.ResistedCritTicks,
 		Misses:                 tam.Misses,
+		TickMisses:             tam.TickMisses,
 		Dodges:                 tam.Dodges,
 		Parries:                tam.Parries,
 		Blocks:                 tam.Blocks,
@@ -355,7 +418,7 @@ func (unit *Unit) NewGenericMetric(actionID ActionID) *ResourceMetrics {
 }
 
 // Adds the results of a spell to the character metrics.
-func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID, spellMetrics []SpellMetrics) {
+func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID, spellMetrics []SpellMetrics, ranges []*hitRanges) {
 	actionMetrics, ok := unitMetrics.actions[actionID]
 
 	// no targets, nothing to add here
@@ -381,12 +444,17 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 		}
 	}
 
+	if len(ranges) > 0 && !slices.ContainsFunc(actionMetrics.rangeSources, func(s []*hitRanges) bool { return &s[0] == &ranges[0] }) {
+		actionMetrics.rangeSources = append(actionMetrics.rangeSources, ranges)
+	}
+
 	for i, spellTargetMetrics := range spellMetrics {
 		tam := &actionMetrics.Targets[i]
 		if !spell.Flags.Matches(SpellFlagPassiveSpell) {
 			tam.Casts += spellTargetMetrics.Casts
 		}
 		tam.Misses += spellTargetMetrics.Misses
+		tam.TickMisses += spellTargetMetrics.TickMisses
 		tam.Hits += spellTargetMetrics.Hits
 		tam.ResistedHits += spellTargetMetrics.ResistedHits
 		tam.Crits += spellTargetMetrics.Crits

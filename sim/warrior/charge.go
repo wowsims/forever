@@ -19,7 +19,7 @@ func (warrior *Warrior) registerCharge() {
 
 	chargeRage := rank.EnergizeEffect().Tenths() + spellData.ImprovedCharge.TenthsAt(warrior.Talents.ImprovedCharge)
 
-	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
+	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagMovesToTarget))
 	// The APL names Charge by the spell the talent replaces.
 	config.ActionID = actionID
 

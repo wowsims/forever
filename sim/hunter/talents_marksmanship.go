@@ -129,9 +129,17 @@ func (hunter *Hunter) registerImprovedArcaneShot() {
 }
 
 // Effect 2 is a dummy restating the bonus. The row states a stack of one, which would keep the
-// parse off a pseudo-stat multiplier.
+// parse off a pseudo-stat multiplier. With a pet out the server takes the 20% back off both units,
+// so the hunter nets 1 and the pet, which never had it, is divided by 1.2: a level 30 Cat at 1.3 s
+// and 152 attack power reads 36-48 against the model's 43.7-57.8, where the hidden pet row's flat
+// -20 (415372) would read 35-46.
 func (hunter *Hunter) registerLoneWolf() {
-	if !hunter.Talents.LoneWolf || hunter.Pet != nil {
+	if !hunter.Talents.LoneWolf {
+		return
+	}
+
+	if hunter.Pet != nil {
+		hunter.Pet.PseudoStats.DamageDealtMultiplier /= spellData.LoneWolf.EffectAt(1).MultiplierAt(1)
 		return
 	}
 
@@ -168,14 +176,13 @@ func (hunter *Hunter) registerRapidRecuperation() {
 	hunter.rapidRecuperationAura = buff
 
 	// The proc shape with no roll: 1223987 fires on a ranged ability and names Serpent Sting only
-	// in its tooltip, so the listener is narrowed to it by hand. The sting's application carries no
-	// proc mask and deals no damage of its own, which the listener has to accept.
+	// in its tooltip, so the listener is narrowed to it by hand. The sting's application deals no
+	// damage of its own, which the listener has to accept.
 	trigger := spelldata.ProcTrigger(&hunter.Character, rank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			hunter.gainRapidRecuperation(sim, hit)
 		})
 	trigger.Name = "Rapid Recuperation - Trigger"
-	trigger.ProcMask = core.ProcMaskEmpty
 	trigger.ClassFlags = serpentStingRank.ClassFlags
 	trigger.RequireDamageDealt = false
 

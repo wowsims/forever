@@ -7,6 +7,9 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
+// Threat per point of health a heal restores, before the spell's and the unit's threat multipliers.
+const ThreatPerHealingDone = 0.5
+
 type healthBar struct {
 	unit *Unit
 

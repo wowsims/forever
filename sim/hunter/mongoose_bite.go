@@ -8,7 +8,7 @@ import (
 
 var mongooseBiteRank = spellData.MongooseBite.Highest()
 
-// The window a dodge opens: the aura Defensive State fires on the dodge.
+// The window the hunter's own dodge opens: the aura Defensive State fires when the hunter dodges an attack.
 var mongooseBiteWindow = spellData.DefensiveStateTriggered.Highest()
 
 func (hunter *Hunter) registerMongooseBite() {
@@ -17,8 +17,10 @@ func (hunter *Hunter) registerMongooseBite() {
 	hunter.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Mongoose Bite - Trigger",
 		TriggerImmediately: true,
-		Outcome:            core.OutcomeDodge,
-		Callback:           core.CallbackOnSpellHitDealt,
+		// Defensive State (13358) hears melee swings and abilities taken, not ranged attacks.
+		ProcMask: core.ProcMaskMelee,
+		Outcome:  core.OutcomeDodge,
+		Callback: core.CallbackOnSpellHitTaken,
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			hunter.MongooseBiteAura.Activate(sim)
 		},

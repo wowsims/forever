@@ -5,6 +5,7 @@ import { StoryBoolean } from '@testing/storybook/fixtures/settings_reforge_bulk'
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
+import { EncountersView } from '../Encounters';
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
 import { CombinationsCountView } from './CombinationsCount';
 
@@ -51,11 +52,12 @@ const meta = {
 	tags: ['autodocs'],
 	render: args => <StatefulBulkSettings {...args} />,
 	args: {
-		combinationsCount: <CombinationsCountView pending={false} combinations={48} iterations={96000} iterationsLimit={1000000} />,
+		combinationsCount: <CombinationsCountView pending={false} combinations={48} iterations={96000} iterationsLimit={1000000} encounters={1} />,
 		canRun: true,
 		onRun: fn(),
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
+		encounters: <EncountersView currentSummary="3:00 ±5s · 1 target" presets={[]} saved={[]} onCheckedChange={fn()} />,
 		enchants: (
 			<EnchantPresetsView
 				presets={[
@@ -78,6 +80,7 @@ const meta = {
 	},
 	argTypes: {
 		combinationsCount: { control: false },
+		encounters: { control: false },
 		enchants: { control: false },
 		frozenItems: { control: false },
 		weaponFreeze: { control: false },

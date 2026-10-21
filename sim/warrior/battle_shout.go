@@ -15,9 +15,9 @@ const ShoutExpirationThreshold = time.Second * 3
 var battleShoutRank = spellData.BattleShout.Highest()
 
 func (warrior *Warrior) registerBattleShout() {
-	// A warrior that shouts builds a copy of its own; one that shouts nothing
-	// gets the isPlayer=false constructor, whose aura is the party's external
-	// copy, and what that copy is worth is the party's Battle Shout state's to say.
+	// A warrior that shouts builds its own copy. One that never shouts gets the
+	// isPlayer=false constructor, whose aura is the raid's external copy, and the
+	// raid's Battle Shout state sets what that copy is worth.
 	castsOwnShout := warrior.UseBattleShout
 
 	// Three pieces of Battlegear of Wrath add a flat 30 to the shout. HasBsT2 is
@@ -32,16 +32,16 @@ func (warrior *Warrior) registerBattleShout() {
 	}
 
 	auras := warrior.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
-		// The party's Battle Shout registers the external copy before this runs, and that copy
+		// The raid's Battle Shout registers the external copy before this runs, and that copy
 		// keeps the build phase it was registered with.
-		partyShout := !castsOwnShout && unit.GetAuraByID(core.ActionID{SpellID: battleShoutRank.ID}.WithTag(-1)) != nil
+		raidShout := !castsOwnShout && unit.GetAuraByID(core.ActionID{SpellID: battleShoutRank.ID}.WithTag(-1)) != nil
 
 		// Booming Voice widens the radius and lowers the cost only, so the aura takes no talent points.
 		aura := buffs.NewSpellDataBattleShoutAura(unit, castsOwnShout, 0)
 		if shoutsWithTheSet {
 			buffs.AddGeneratedFlatBonus(aura, stats.AttackPower, battleShoutBase, buffs.BattleShoutT2Bonus)
 		}
-		if !partyShout {
+		if !raidShout {
 			aura.BuildPhase = core.Ternary(castsOwnShout, core.CharacterBuildPhaseBuffs, core.CharacterBuildPhaseNone)
 		}
 		return aura

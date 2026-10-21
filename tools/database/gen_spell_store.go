@@ -281,7 +281,7 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 		inStore[id] = true
 	}
 
-	hand, err := storeHandTriggers(inStore)
+	hand, err := storeHandTriggers(tables, inStore)
 	if err != nil {
 		return nil, err
 	}
@@ -314,13 +314,18 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 
 // The trigger edges the server-side handlers make and the data does not state, by the spell
 // that casts them, where the store carries both ends. The store merges them into Drivers() and
-// Triggered() beside the edges its effects state; an entry without a reason is refused, the way an
-// extra spell is.
-func storeHandTriggers(inStore map[int32]bool) (map[int32][]overrides.HandTrigger, error) {
+// Triggered() beside the edges its effects state. An entry without a reason is refused, the way an
+// extra spell is, and so is one the game files have caught up with: an effect of the spell triggers
+// the other itself.
+func storeHandTriggers(tables *spellTables, inStore map[int32]bool) (map[int32][]overrides.HandTrigger, error) {
 	hand := map[int32][]overrides.HandTrigger{}
 	for _, link := range overrides.HandTriggers {
 		if link.Reason == "" {
 			return nil, fmt.Errorf("the hand trigger %d -> %d states no reason", link.Spell, link.Triggers)
+		}
+		if slices.ContainsFunc(tables.Effects[link.Spell], func(e storeEffect) bool { return e.TriggerID == link.Triggers }) {
+			return nil, fmt.Errorf("the hand trigger %d -> %d is stale: an effect of %d triggers %d itself, so the entry goes",
+				link.Spell, link.Triggers, link.Spell, link.Triggers)
 		}
 		if inStore[link.Spell] && inStore[link.Triggers] {
 			hand[link.Spell] = append(hand[link.Spell], link)

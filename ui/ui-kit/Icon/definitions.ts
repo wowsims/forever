@@ -61,12 +61,26 @@ import {
 	faSpinner,
 	faStairs,
 	faStar,
+	faTableCells,
 	faTriangleExclamation,
 	faUser,
 	faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 
 import type { IconStyle } from './types';
+
+// FontAwesome Free has no World of Warcraft logo. This is the logo as a single path in a 20 by 20 box, its ring and W filled with the text colour.
+const faWow: IconDefinition = {
+	prefix: 'fab',
+	iconName: 'wow' as IconDefinition['iconName'],
+	icon: [
+		20,
+		20,
+		[],
+		'',
+		'M20 10.027a10.3 10.3 0 0 0 -1.752 -5.686V1.894a0.143 0.143 0 0 0 -0.133 -0.133H15.667a9.953 9.953 0 0 0 -11.3 0H1.919a0.118 0.118 0 0 0 -0.133 0.133v2.414a10 10 0 0 0 0 11.4v2.414a0.143 0.143 0 0 0 0.133 0.133h2.448a10.061 10.061 0 0 0 11.371 -0.033h2.414a0.153 0.153 0 0 0 0.133 -0.167h0V15.646A9.913 9.913 0 0 0 20 10.027Zm-18.676 0a8.662 8.662 0 1 1 8.662 8.662h0A8.647 8.647 0 0 1 1.324 10.027ZM4.233 5.332h3.271a6.129 6.129 0 0 0 -0.1 1.124c0.133 1.452 1.09 5.486 1.09 5.486l1.552 -6.276l1.59 6.148s0.957 -5.424 0.957 -5.786a1.014 1.014 0 0 0 -0.4 -0.7h3.471a3.57 3.57 0 0 0 -0.99 1.586c-0.3 1.19 -1.357 7.2 -1.357 7.571a2.213 2.213 0 0 0 0.4 1.09h-3.238a4.052 4.052 0 0 0 0.1 -0.89c0 -0.562 -0.5 -3.171 -0.5 -3.171s-0.662 2.71 -0.662 3.2a1.9 1.9 0 0 0 0.2 0.857h-3.271s0.629 -0.462 0.629 -0.89c-0.067 -1.224 -1.786 -7.6 -1.919 -8.1A2.071 2.071 0 0 0 4.233 5.332Z',
+	],
+};
 
 /** The kit's curated icon set, keyed by canonical FontAwesome 7 name: add an icon by importing its definition and adding it here. */
 export const DEFINITIONS = {
@@ -124,8 +138,10 @@ export const DEFINITIONS = {
 	spinner: faSpinner,
 	stairs: faStairs,
 	star: faStar,
+	'table-cells': faTableCells,
 	'triangle-exclamation': faTriangleExclamation,
 	user: faUser,
+	wow: faWow,
 	xmark: faXmark,
 } as const satisfies Record<string, IconDefinition>;
 

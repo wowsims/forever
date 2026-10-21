@@ -217,7 +217,7 @@ func (w *chainWalker) resolveTriggered(spellID int, matches func(*spelldata.Spel
 		return s.ID
 	}
 	for _, se := range effects {
-		if se.EffectTriggerSpell == 0 {
+		if !se.CastsItsTrigger() {
 			continue
 		}
 		if found := w.resolveTriggered(se.EffectTriggerSpell, matches); found != 0 {

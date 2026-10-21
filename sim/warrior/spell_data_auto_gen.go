@@ -162,7 +162,7 @@ var spellData = generatedSpellData{
 	BloodrageTriggered:              spelldata.Ranked(29131),
 	Bloodthirst:                     spelldata.Ranked(23881, 23892, 23893, 23894),
 	Bloodthrill:                     spelldata.Talent(1289682, 5),
-	BloodthrillTriggered:            spelldata.Ranked(1282733, 1289681),
+	BloodthrillTriggered:            spelldata.Ranked(1282733),
 	BoomingVoice:                    spelldata.Talent(12321, 5),
 	ChallengingShout:                spelldata.Ranked(1161),
 	Charge:                          spelldata.Ranked(100, 6178, 11578),

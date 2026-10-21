@@ -59,15 +59,15 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "improvedPowerWordShield",
-        "fancyName": "Improved Power Word: Shield",
+        "fieldName": "mentalStrength",
+        "fancyName": "Mental Strength",
         "location": {
           "rowIdx": 1,
           "colIdx": 2
         },
-        "spellId": 14748,
-        "definitionId": 135376,
-        "maxPoints": 3
+        "spellId": 18551,
+        "definitionId": 135367,
+        "maxPoints": 5
       },
       {
         "fieldName": "martyrdom",
@@ -103,6 +103,17 @@
         "maxPoints": 1
       },
       {
+        "fieldName": "improvedPowerWordShield",
+        "fancyName": "Improved Power Word: Shield",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 2
+        },
+        "spellId": 14748,
+        "definitionId": 135376,
+        "maxPoints": 3
+      },
+      {
         "fieldName": "meditation",
         "fancyName": "Meditation",
         "location": {
@@ -125,15 +136,15 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "mentalStrength",
-        "fancyName": "Mental Strength",
+        "fieldName": "improvedManaBurn",
+        "fancyName": "Improved Mana Burn",
         "location": {
           "rowIdx": 3,
           "colIdx": 1
         },
-        "spellId": 18551,
-        "definitionId": 135367,
-        "maxPoints": 5
+        "spellId": 14750,
+        "definitionId": 135368,
+        "maxPoints": 2
       },
       {
         "fieldName": "soulWarding",
@@ -146,20 +157,9 @@
         "definitionId": 135369,
         "maxPoints": 1,
         "prereqLocation": {
-          "rowIdx": 1,
+          "rowIdx": 2,
           "colIdx": 2
         }
-      },
-      {
-        "fieldName": "improvedManaBurn",
-        "fancyName": "Improved Mana Burn",
-        "location": {
-          "rowIdx": 3,
-          "colIdx": 3
-        },
-        "spellId": 14750,
-        "definitionId": 135368,
-        "maxPoints": 2
       },
       {
         "fieldName": "penance",
@@ -454,15 +454,15 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "shadowAffinity",
-        "fancyName": "Shadow Affinity",
+        "fieldName": "improvedMindBlast",
+        "fancyName": "Improved Mind Blast",
         "location": {
           "rowIdx": 1,
           "colIdx": 0
         },
-        "spellId": 15318,
+        "spellId": 15273,
         "definitionId": 135361,
-        "maxPoints": 3
+        "maxPoints": 5
       },
       {
         "fieldName": "improvedShadowWordPain",
@@ -485,17 +485,6 @@
         "spellId": 17322,
         "definitionId": 135359,
         "maxPoints": 2
-      },
-      {
-        "fieldName": "improvedMindBlast",
-        "fancyName": "Improved Mind Blast",
-        "location": {
-          "rowIdx": 2,
-          "colIdx": 0
-        },
-        "spellId": 15273,
-        "definitionId": 135357,
-        "maxPoints": 5
       },
       {
         "fieldName": "improvedPsychicScream",
@@ -539,15 +528,15 @@
         }
       },
       {
-        "fieldName": "improvedFade",
-        "fancyName": "Improved Fade",
+        "fieldName": "darkInspiration",
+        "fancyName": "Dark Inspiration",
         "location": {
           "rowIdx": 3,
           "colIdx": 0
         },
-        "spellId": 15274,
+        "spellId": 1326159,
         "definitionId": 135353,
-        "maxPoints": 2
+        "maxPoints": 5
       },
       {
         "fieldName": "vampiricEmbrace",

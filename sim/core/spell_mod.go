@@ -944,16 +944,24 @@ func removePowerCostFlat(mod *SpellMod, spell *Spell) {
 	}
 }
 
+// Holds CD.Duration at 0 and keeps what the mods take below it in cdFlatDeficit, so removing a mod
+// gives back exactly what applying it took.
+func addCooldownFlat(spell *Spell, value time.Duration) {
+	cooldown := spell.CD.Duration + spell.cdFlatDeficit + value
+	spell.CD.Duration = max(0, cooldown)
+	spell.cdFlatDeficit = min(0, cooldown)
+}
+
 func applyCooldownFlat(mod *SpellMod, spell *Spell) {
-	spell.CD.Duration += mod.timeValue
+	addCooldownFlat(spell, mod.timeValue)
 }
 
 func removeCooldownFlat(mod *SpellMod, spell *Spell) {
-	spell.CD.Duration -= mod.timeValue
+	addCooldownFlat(spell, -mod.timeValue)
 }
 
 func applyCooldownMultiplier(mod *SpellMod, spell *Spell) {
-	if mod.floatValue == 0 {
+	if mod.floatValue <= 0 {
 		spell.cdMultiplierZeroes++
 		return
 	}
@@ -961,7 +969,7 @@ func applyCooldownMultiplier(mod *SpellMod, spell *Spell) {
 }
 
 func removeCooldownMultiplier(mod *SpellMod, spell *Spell) {
-	if mod.floatValue == 0 {
+	if mod.floatValue <= 0 {
 		spell.cdMultiplierZeroes--
 		return
 	}

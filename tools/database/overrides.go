@@ -96,296 +96,31 @@ var ItemOverrides = []*proto.UIItem{
 		Id:             22632, // Atiesh, Greatstaff of the Guardian: party mana regeneration
 		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
 	},
-	// Naxxramas tier 3 armor comes from class quests that take a token, and the game files leave every
-	// piece open to every class: only the set's ring names its class. Each piece takes its ring's class.
-	{
-		Id:             22416, // Dreadnaught Breastplate
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22417, // Dreadnaught Legplates
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22418, // Dreadnaught Helmet
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22419, // Dreadnaught Pauldrons
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22420, // Dreadnaught Sabatons
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22421, // Dreadnaught Gauntlets
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22422, // Dreadnaught Waistguard
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22423, // Dreadnaught Bracers
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarrior},
-	},
-	{
-		Id:             22424, // Redemption Wristguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22425, // Redemption Tunic
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22426, // Redemption Handguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22427, // Redemption Legguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22428, // Redemption Headpiece
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22429, // Redemption Spaulders
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22430, // Redemption Boots
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22431, // Redemption Girdle
-		ClassAllowlist: []proto.Class{proto.Class_ClassPaladin},
-	},
-	{
-		Id:             22436, // Cryptstalker Tunic
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22437, // Cryptstalker Legguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22438, // Cryptstalker Headpiece
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22439, // Cryptstalker Spaulders
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22440, // Cryptstalker Boots
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22441, // Cryptstalker Handguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22442, // Cryptstalker Girdle
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22443, // Cryptstalker Wristguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassHunter},
-	},
-	{
-		Id:             22476, // Bonescythe Breastplate
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22477, // Bonescythe Legplates
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22478, // Bonescythe Helmet
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22479, // Bonescythe Pauldrons
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22480, // Bonescythe Sabatons
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22481, // Bonescythe Gauntlets
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22482, // Bonescythe Waistguard
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22483, // Bonescythe Bracers
-		ClassAllowlist: []proto.Class{proto.Class_ClassRogue},
-	},
-	{
-		Id:             22512, // Robe of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22513, // Leggings of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22514, // Circlet of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22515, // Shoulderpads of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22516, // Sandals of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22517, // Gloves of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22518, // Belt of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22519, // Bindings of Faith
-		ClassAllowlist: []proto.Class{proto.Class_ClassPriest},
-	},
-	{
-		Id:             22464, // Earthshatter Tunic
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22465, // Earthshatter Legguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22466, // Earthshatter Headpiece
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22467, // Earthshatter Spaulders
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22468, // Earthshatter Boots
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22469, // Earthshatter Handguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22470, // Earthshatter Girdle
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22471, // Earthshatter Wristguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassShaman},
-	},
-	{
-		Id:             22496, // Frostfire Robe
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22497, // Frostfire Leggings
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22498, // Frostfire Circlet
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22499, // Frostfire Shoulderpads
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22500, // Frostfire Sandals
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22501, // Frostfire Gloves
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22502, // Frostfire Belt
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22503, // Frostfire Bindings
-		ClassAllowlist: []proto.Class{proto.Class_ClassMage},
-	},
-	{
-		Id:             22504, // Plagueheart Robe
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22505, // Plagueheart Leggings
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22506, // Plagueheart Circlet
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22507, // Plagueheart Shoulderpads
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22508, // Plagueheart Sandals
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22509, // Plagueheart Gloves
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22510, // Plagueheart Belt
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22511, // Plagueheart Bindings
-		ClassAllowlist: []proto.Class{proto.Class_ClassWarlock},
-	},
-	{
-		Id:             22488, // Dreamwalker Tunic
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22489, // Dreamwalker Legguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22490, // Dreamwalker Headpiece
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22491, // Dreamwalker Spaulders
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22492, // Dreamwalker Boots
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22493, // Dreamwalker Handguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22494, // Dreamwalker Girdle
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
-	{
-		Id:             22495, // Dreamwalker Wristguards
-		ClassAllowlist: []proto.Class{proto.Class_ClassDruid},
-	},
+}
+
+// Each Naxxramas tier 3 armor piece comes from its own class's quest, and the game files open every
+// one to every class: AllowableClass is 32767, or 1535 on Dreadnaught's and most of Bonescythe's. Only
+// the set's ring names the class, so each piece of the set takes it. Keyed by item set id.
+var ItemSetClasses = map[int32]proto.Class{
+	521: proto.Class_ClassDruid,   // Dreamwalker Raiment
+	523: proto.Class_ClassWarrior, // Dreadnaught's Battlegear
+	524: proto.Class_ClassRogue,   // Bonescythe Armor
+	525: proto.Class_ClassPriest,  // Vestments of Faith
+	526: proto.Class_ClassMage,    // Frostfire Regalia
+	527: proto.Class_ClassShaman,  // The Earthshatterer
+	528: proto.Class_ClassPaladin, // Redemption Armor
+	529: proto.Class_ClassWarlock, // Plagueheart Raiment
+	530: proto.Class_ClassHunter,  // Cryptstalker Armor
+}
+
+// Every item of a set in ItemSetClasses gets that class as its whole allowlist. It replaces the list
+// rather than merging, so the ring, which already names the class, does not name it twice.
+func ApplyItemSetClasses(db *WowDatabase) {
+	for _, item := range db.Items {
+		if class, ok := ItemSetClasses[item.SetId]; ok {
+			item.ClassAllowlist = []proto.Class{class}
+		}
+	}
 }
 
 // Keep these sorted by item ID.
@@ -465,7 +200,6 @@ var ItemDenyList = map[int32]struct{}{
 	217314: {}, // Moonsight Rifle
 	217315: {}, // Precision Bow
 	219345: {}, // Infernal Lasso
-	220606: {}, // Idol of the Dream
 	220794: {}, // Knight's Plate Hauberk
 	220795: {}, // Knight-Lieutenant's Plate Pauldrons
 	220796: {}, // Blood Guard's Plate Pauldrons
@@ -1383,12 +1117,31 @@ var ConsumableAllowList = []int32{
 	13454, // Greater Arcane Elixir
 	12662, // Demonic Rune
 	5206,  // Bogling Root
+	12217, // Dragonbreath Chili, whose proc sim/common/forever registers by hand
 	// The Natural flasks, whose zone bonus sim/common/forever registers by hand
 	274273, // Flask of Natural Accuracy
 	274274, // Flask of Natural Aggression
 	274275, // Flask of Natural Precision
 	274276, // Flask of Natural Swiftness
 }
+
+// Weapon imbues a class builds itself: they ship whatever the imbue builder makes of their rows, and
+// the generated imbue registrations leave them out. Keep these sorted by item ID.
+var ClassBuiltImbues = map[int32]struct{}{
+	// The poisons sim/rogue builds from the rank each hand's imbue casts
+	2892:  {}, // Deadly Poison
+	2893:  {}, // Deadly Poison II
+	6947:  {}, // Instant Poison
+	6949:  {}, // Instant Poison II
+	6950:  {}, // Instant Poison III
+	8926:  {}, // Instant Poison IV
+	8927:  {}, // Instant Poison V
+	8928:  {}, // Instant Poison VI
+	8984:  {}, // Deadly Poison III
+	8985:  {}, // Deadly Poison IV
+	20844: {}, // Deadly Poison V
+}
+
 var ConsumableDenyList = []int32{
 	// Not obtainable in the game
 	5265,  // Watered-down Beer
@@ -1446,6 +1199,14 @@ var ConsumableExclusiveGroups = []ConsumableGroup{
 		8423,  // Cerebral Cortex Compound
 		8424,  // Gizzard Gum
 		20079, // Spirit of Zanza
+	}},
+	{Group: ConsumableGroupKey{Key: "Rum", Name: "Rum"}, Items: []int32{
+		17048, // Rumsey Rum
+		18269, // Gordok Green Grog
+		18284, // Kreeg's Stout Beatdown
+		20709, // Rumsey Rum Light
+		21114, // Rumsey Rum Dark
+		21151, // Rumsey Rum Black Label
 	}},
 	{Group: ConsumableGroupKey{Key: "Hit food", Name: "Hit food"}, Items: []int32{
 		22237, // Dark Desire
@@ -1563,7 +1324,7 @@ var SharedSpellsIcons = []int32{
 	23563, // Enhanced Battle Shout
 	25076, // Cobra Reflexes
 	21564, // Prayer of Fortitude
-	25895, // Greater Blessing of Salvation
+	25895, // Mass Salvation
 	25916, // Greater Blessing of Might
 	25918, // Greater Blessing of Wisdom
 	27681, // Prayer of Spirit

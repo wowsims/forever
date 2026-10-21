@@ -88,6 +88,21 @@ describe('unitOptionModels', () => {
 		expect(petModel?.submenu).toEqual([refToValue(ownerRef, player, targetUI)]);
 	});
 
+	it('offers self and own pets only for self_and_pets', () => {
+		const player: any = makePlayer({} as any);
+		player.getPetMetadatas = () => ({ asList: () => [{}, {}] });
+		player.sim.raid.getActivePlayers = () => [{ getRaidIndex: () => 1 }];
+		player.sim.encounter.targetsMetadata.asList = () => [{}];
+		player.sim.getUnitMetadata = () => undefined;
+
+		const self = UnitReference.create({ type: UnitType.Self });
+		expect(unitOptionModels('self_and_pets', player).map(model => model.unit.value)).toEqual([
+			undefined,
+			UnitReference.create({ type: UnitType.Pet, index: 0, owner: self }),
+			UnitReference.create({ type: UnitType.Pet, index: 1, owner: self }),
+		]);
+	});
+
 	it('gives a non-pet unit no submenu', () => {
 		const player: any = makePlayer({} as any);
 		player.getPetMetadatas = () => ({ asList: () => [] });

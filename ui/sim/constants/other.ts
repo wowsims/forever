@@ -32,12 +32,18 @@ export const ISSUES_REPO: string = import.meta.env.VITE_GITHUB_REPOSITORY;
 export const REPO_NEW_ISSUE_URL = `https://github.com/${ISSUES_REPO}/issues/new`;
 export const REPO_CHOOSE_NEW_ISSUE_URL = `${REPO_NEW_ISSUE_URL}/choose`;
 
+export const WOWSIMS_URL = 'https://www.wowsims.com/';
+export const DISCORD_URL = 'https://discord.gg/p3DgvmnDCS';
+export const GITHUB_ORG_URL = 'https://github.com/wowsims/';
+export const ADDON_URL = 'https://www.curseforge.com/wow/addons/wowsimsexporter';
+export const PATREON_URL = 'https://www.patreon.com/wowsims';
+
 export const SOCIALS = [
-	{ key: 'discord', href: 'https://discord.gg/p3DgvmnDCS', className: 'ui-social-link', icon: 'discord', tooltip: 'info.discord' },
+	{ key: 'discord', href: DISCORD_URL, className: 'ui-social-link', icon: 'discord', tooltip: 'info.discord' },
 	{ key: 'github', href: REPO_URL, className: 'ui-social-link', icon: 'github', tooltip: 'info.github' },
 	{
 		key: 'patreon',
-		href: 'https://patreon.com/wowsims',
+		href: PATREON_URL,
 		className: 'ui-social-link',
 		icon: 'patreon',
 		tooltip: 'info.patreon',

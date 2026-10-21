@@ -84,9 +84,11 @@ func (paladin *Paladin) applyImprovedSeals() {
 		return
 	}
 
-	// The Seal of Command proc takes the talent through its weapon percent, see registerSealOfCommand.
+	// The row names the Righteousness and Fury hits and the damaging Judgements only. The Seal of Command
+	// proc takes the talent through its weapon percent, see registerSealOfCommand.
 	paladin.AddStaticMod(core.SpellModConfig{
-		ClassMask:  (SpellMaskSealProcs &^ SpellMaskSealOfCommandProc) | SpellMaskAllJudgements,
+		ClassMask: SpellMaskSealOfRighteousnessProc | SpellMaskSealOfFuryProc |
+			SpellMaskJudgementOfRighteousness | SpellMaskJudgementOfCommand | SpellMaskJudgementOfFury,
 		Kind:       core.SpellMod_DirectDamageDone_Pct,
 		FloatValue: spellData.ImprovedSeals.FractionAt(paladin.Talents.ImprovedSeals),
 	})
@@ -180,26 +182,16 @@ func (paladin *Paladin) applyDivinePrecision() {
 
 // Consecrated Ground - Gives your Holy spells 5/10% increased damage against the first 4 enemies
 // that enter your Consecration.
+//
+// The bonus is the Holy damage from caster mod on the mark Consecration lays on those enemies, which
+// states 0 points: the server sets them from the talent's rank, and registerConsecrationMark reads them
+// from here. A flat multiplier on every Holy hit, after the crit.
 func (paladin *Paladin) applyConsecratedGround() {
 	if paladin.Talents.ConsecratedGround == 0 {
 		return
 	}
 
-	rank := spellData.ConsecratedGround.Highest()
-	multiplier := spellData.ConsecratedGround.MultiplierAt(paladin.Talents.ConsecratedGround)
-
-	paladin.consecratedGroundAuras = paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		return target.GetOrRegisterAura(core.Aura{
-			Label:    "Consecrated Ground" + paladin.Label,
-			ActionID: core.ActionID{SpellID: rank.ID},
-			Duration: spellData.ConsecratedGroundTriggered.Highest().Duration(),
-		}).AttachDDBC(0, 1, &paladin.AttackTables, func(_ *core.Simulation, spell *core.Spell, _ *core.AttackTable) float64 {
-			if spell.SpellSchool.Matches(core.SpellSchoolHoly) {
-				return multiplier
-			}
-			return 1
-		})
-	})
+	paladin.consecratedGroundPoints = spellData.ConsecratedGround.Rank(paladin.Talents.ConsecratedGround).EffectN(1)
 }
 
 // Holy Power - Increases the critical strike chance of your Holy Shock and Holy Strike spells by

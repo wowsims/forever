@@ -28,7 +28,8 @@ func (s *Spell) IsChanneled() bool {
 
 // Whether damage taken while casting the spell pushes its cast back.
 func (s *Spell) PushedBack() bool {
-	return s.InterruptFlags&dbcenums.SPELL_INTERRUPT_FLAG_PUSHBACK != 0
+	return s.InterruptFlags&dbcenums.SPELL_INTERRUPT_FLAG_PUSHBACK != 0 &&
+		!s.HasAttr(dbcenums.ATTR_INDEX_EX_6, dbcenums.ATTR_EX_6_NO_PUSHBACK)
 }
 
 // Whether completing a cast of the spell leaves the melee swing timer running instead of starting
@@ -69,6 +70,17 @@ func (s *Spell) ClassSpellsOnly() bool {
 // Whether the game files bar the spell from critting, which picks the no-crit hit table.
 func (s *Spell) CannotCrit() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_2, dbcenums.ATTR_EX_2_CANT_CRIT)
+}
+
+// Whether the game files flag the spell Always Hit, which picks an outcome with no miss roll.
+func (s *Spell) AlwaysHits() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)
+}
+
+// Whether the game files flag the spell Fixed Travel Time, which makes its Speed the missile's flight
+// time in seconds rather than yards per second.
+func (s *Spell) FixedTravelTime() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_9, dbcenums.ATTR_EX_9_FIXED_TRAVEL_TIME)
 }
 
 // Whether the spell's hits count as a proc, which is what a listener that cannot proc from procs

@@ -157,11 +157,15 @@ func spellCrit(spell *spelldata.Spell) map[string]float64 {
 }
 
 func fiveComboPointArmor(spell *spelldata.Spell) map[string]float64 {
-	return map[string]float64{"stat Armor": float64(auraEffect(spell, dbcenums.A_MOD_RESISTANCE).PointsPerResource) * 5}
+	return map[string]float64{"stat ArmorNoMods": float64(auraEffect(spell, dbcenums.A_MOD_ARMOR_NO_MODS).PointsPerResource) * 5}
 }
 
 func flatArmor(spell *spelldata.Spell) map[string]float64 {
-	return map[string]float64{"stat Armor": auraEffect(spell, dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS).Mean()}
+	effect := auraEffect(spell, dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS)
+	if effect.ArmorNoMods() {
+		return map[string]float64{"stat ArmorNoMods": effect.Mean()}
+	}
+	return map[string]float64{"stat Armor": effect.Mean()}
 }
 
 func lessPushback(spell *spelldata.Spell) map[string]float64 {
@@ -173,8 +177,9 @@ func attachesNothing(*spelldata.Spell) map[string]float64 {
 }
 
 // The rows a talent prices the improved state of: Restorative Totems on Mana Spring, Guardian
-// Totems on Stoneskin Totem, and Vindication's talent on its debuff.
-var talentPricedRows = []string{"mana_spring_totem", "stoneskin_totem", "vindication"}
+// Totems on Stoneskin Totem, Vindication's talent on its debuff, and Dark Inspiration's talent on
+// its buff.
+var talentPricedRows = []string{"mana_spring_totem", "stoneskin_totem", "vindication", "dark_inspiration"}
 
 // The ranks of the class tree node the talent spell sits on, 0 when it sits on none.
 func talentNodeRanks(t *testing.T, talent int32) int32 {

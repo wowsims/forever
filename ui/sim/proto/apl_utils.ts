@@ -2,6 +2,7 @@ import { APLAction, APLPrepullAction, APLRotation, APLRotation_Type } from '@gen
 import { ActionID as ActionIdProto, Cooldowns, Spec } from '@generated/proto/common';
 
 import { Player } from '../player/player';
+import { simpleSpecRotationFromJson } from './spec_functions';
 
 type APLRenameTarget =
 	| { type: 'variable'; oldName: string; newName: string }
@@ -87,12 +88,12 @@ export const isEqualAPLRotation = (player: Player<Spec>, rotation?: APLRotation,
 
 	const matchable = matchableRotation(rotation);
 	const otherMatchable = matchableRotation(otherRotation);
-	if (otherMatchable?.type === APLRotation_Type.TypeSimple && otherMatchable?.simple?.specRotationJson) {
+	if (otherMatchable?.type === APLRotation_Type.TypeSimple && otherMatchable.simple) {
 		return (
 			!!matchable?.simple &&
 			player.specTypeFunctions.rotationEquals(
-				player.specTypeFunctions.rotationFromJson(JSON.parse(otherMatchable.simple.specRotationJson)),
-				player.specTypeFunctions.rotationFromJson(JSON.parse(matchable.simple.specRotationJson)),
+				simpleSpecRotationFromJson(player.specTypeFunctions, otherMatchable.simple.specRotationJson),
+				simpleSpecRotationFromJson(player.specTypeFunctions, matchable.simple.specRotationJson),
 			) &&
 			// Cooldown timings are part of a Simple rotation, so two that differ only there are not
 			// the same rotation. Without this the mage mana-gem and Serpent-Coil builds report as

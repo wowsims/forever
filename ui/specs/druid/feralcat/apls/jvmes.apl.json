@@ -1,2395 +1,2384 @@
 {
-	"type": "TypeAPL",
-	"prepullActions": [
-		{
-			"action": {
-				"castSpell": {
-					"spellId": {
-						"spellId": 9913
-					}
-				}
-			},
-			"doAtValue": {
-				"const": {
-					"val": "-1s"
-				}
-			}
-		}
-	],
-	"valueVariables": [
-		{
-			"name": "Shifting Power energy ceiling",
-			"value": {
-				"const": {
-					"val": "45"
-				}
-			}
-		},
-		{
-			"name": "Finishing Bite minimum combo points",
-			"value": {
-				"const": {
-					"val": "4"
-				}
-			}
-		},
-		{
-			"name": "Finishing Bite energy ceiling",
-			"value": {
-				"const": {
-					"val": "55"
-				}
-			}
-		},
-		{
-			"name": "Rip minimum combo points",
-			"value": {
-				"const": {
-					"val": "4"
-				}
-			}
-		},
-		{
-			"name": "The fight is ending",
-			"value": {
-				"cmp": {
-					"op": "OpLt",
-					"lhs": {
-						"remainingTime": {}
-					},
-					"rhs": {
-						"const": {
-							"val": "6s"
-						}
-					}
-				}
-			}
-		},
-		{
-			"name": "Shifting Power is ready at 45 energy or below",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Shifting Power energy ceiling"
-									}
-								}
-							}
-						},
-						{
-							"spellCanCast": {
-								"spellId": {
-									"spellId": 1322605
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Rake is missing and has time to tick",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 9904
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGt",
-								"lhs": {
-									"remainingTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "6s"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Rip is missing and has time to tick",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"currentComboPoints": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Rip minimum combo points"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 9896
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "The fight is ending"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "A finishing Bite is worthwhile",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"currentComboPoints": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Finishing Bite minimum combo points"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Finishing Bite energy ceiling"
-									}
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "The fight is ending"
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Save energy for the next bleed refresh",
-			"value": {
-				"or": {
-					"vals": [
-						{
-							"and": {
-								"vals": [
-									{
-										"cmp": {
-											"op": "OpGe",
-											"lhs": {
-												"currentComboPoints": {}
-											},
-											"rhs": {
-												"variableRef": {
-													"name": "Rip minimum combo points"
-												}
-											}
-										}
-									},
-									{
-										"dotIsActive": {
-											"spellId": {
-												"spellId": 9896
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "2s"
-												}
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "The fight is ending"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"math": {
-															"op": "OpSub",
-															"lhs": {
-																"currentEnergy": {}
-															},
-															"rhs": {
-																"spellCurrentCost": {
-																	"spellId": {
-																		"spellId": 9830
-																	}
-																}
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"and": {
-								"vals": [
-									{
-										"dotIsActive": {
-											"spellId": {
-												"spellId": 9904
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"math": {
-															"op": "OpSub",
-															"lhs": {
-																"currentEnergy": {}
-															},
-															"rhs": {
-																"spellCurrentCost": {
-																	"spellId": {
-																		"spellId": 9830
-																	}
-																}
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "10"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "A utility cast will not delay Cat attacks",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"gcdTimeToReady": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"spellId": 1322605
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "1.5s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"math": {
-										"op": "OpAdd",
-										"lhs": {
-											"currentEnergy": {}
-										},
-										"rhs": {
-											"const": {
-												"val": "15"
-											}
-										}
-									}
-								},
-								"rhs": {
-									"spellCurrentCost": {
-										"spellId": {
-											"spellId": 9830
-										}
-									}
-								}
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rake is missing and has time to tick"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rip is missing and has time to tick"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "A finishing Bite is worthwhile"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 22829
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"dotIsActive": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGt",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1.5s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"dotIsActive": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpGt",
-											"lhs": {
-												"dotRemainingTime": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "1.5s"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"currentEnergy": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "15"
-														}
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 9904
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Elune\u2019s Light is available, outside Berserk and away from its next use",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"spellId": 1259799
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGt",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"spellId": 417141
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "15s"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"and": {
-								"vals": [
-									{
-										"spellIsKnown": {
-											"spellId": {
-												"spellId": 20580
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"gcdTimeToReady": {}
-											},
-											"rhs": {
-												"const": {
-													"val": "0s"
-												}
-											}
-										}
-									},
-									{
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 768
-											}
-										}
-									},
-									{
-										"spellIsReady": {
-											"spellId": {
-												"spellId": 20580
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Save energy for the next bleed refresh"
-												}
-											}
-										}
-									},
-									{
-										"or": {
-											"vals": [
-												{
-													"auraIsActive": {
-														"auraId": {
-															"spellId": 16870
-														}
-													}
-												},
-												{
-													"cmp": {
-														"op": "OpGe",
-														"lhs": {
-															"currentEnergy": {}
-														},
-														"rhs": {
-															"spellCurrentCost": {
-																"spellId": {
-																	"spellId": 9867
-																}
-															}
-														}
-													}
-												}
-											]
-										}
-									}
-								]
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Pool energy for a later Berserk"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Read Ley Line is ready: restore needed mana in a free utility window",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"spellId": 1259705
-								}
-							}
-						},
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"spellIsReady": {
-								"spellId": {
-									"spellId": 1259705
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "30"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"currentMana": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "1400"
-									}
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "A utility cast will not delay Cat attacks"
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Final second: Bite with at least 2 combo points",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"remainingTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "1s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"currentComboPoints": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "2"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Prowl is active: open with Ravage",
-			"value": {
-				"auraIsActive": {
-					"auraId": {
-						"spellId": 9913
-					}
-				}
-			}
-		},
-		{
-			"name": "Outside form with too little mana: Innervate",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 768
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 9634
-										}
-									}
-								}
-							}
-						},
-						{
-							"and": {
-								"vals": [
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"currentMana": {}
-											},
-											"rhs": {
-												"const": {
-													"val": "1400"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"currentMana": {}
-											},
-											"rhs": {
-												"math": {
-													"op": "OpMul",
-													"lhs": {
-														"remainingTime": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "50"
-														}
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"spellCanCast": {
-								"spellId": {
-									"spellId": 29166
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Outside Cat Form: return after utility casts",
-			"value": {
-				"not": {
-					"val": {
-						"auraIsActive": {
-							"auraId": {
-								"spellId": 768
-							}
-						}
-					}
-				}
-			}
-		},
-		{
-			"name": "Ready for Berserk followed by Rake",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Shifting Power is ready at 45 energy or below"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"and": {
-										"vals": [
-											{
-												"variableRef": {
-													"name": "Rip is missing and has time to tick"
-												}
-											},
-											{
-												"spellCanCast": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										]
-									}
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "Rake is missing and has time to tick"
-							}
-						},
-						{
-							"spellCanCast": {
-								"spellId": {
-									"spellId": 9904
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Ready for Berserk followed by Shred",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Shifting Power is ready at 45 energy or below"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"and": {
-										"vals": [
-											{
-												"variableRef": {
-													"name": "Rip is missing and has time to tick"
-												}
-											},
-											{
-												"spellCanCast": {
-													"spellId": {
-														"spellId": 9896
-													}
-												}
-											}
-										]
-									}
-								}
-							}
-						},
-						{
-							"and": {
-								"vals": [
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Rake is missing and has time to tick"
-												}
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Save energy for the next bleed refresh"
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"spellCanCast": {
-								"spellId": {
-									"spellId": 9830
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Cat Form at 20 energy or below: use Thistle Tea",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "20"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "In Cat Form: use the selected offensive potion",
-			"value": {
-				"auraIsActive": {
-					"auraId": {
-						"spellId": 768
-					}
-				}
-			}
-		},
-		{
-			"name": "Less than 6 seconds left: Bite with 4+ combo points and at most 55 energy",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "A finishing Bite is worthwhile"
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Clearcasting is active: Shred before refreshing bleeds",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"and": {
-								"vals": [
-									{
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 768
-											}
-										}
-									},
-									{
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 16870
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Pool energy for a later Berserk"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Rip is missing: apply with 4+ combo points and at least 6 seconds left",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "Rip is missing and has time to tick"
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Rake is missing: apply with more than 6 seconds left",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "Rake is missing and has time to tick"
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Shred without spending energy reserved for bleeds or later Berserk",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"and": {
-								"vals": [
-									{
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 768
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"variableRef": {
-													"name": "Save energy for the next bleed refresh"
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Pool energy for a later Berserk"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Sapper is ready and fits a free utility window",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"itemId": 10646
-								}
-							}
-						},
-						{
-							"variableRef": {
-								"name": "A utility cast will not delay Cat attacks"
-							}
-						},
-						{
-							"spellIsReady": {
-								"spellId": {
-									"itemId": 10646
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"currentMana": {}
-								},
-								"rhs": {
-									"spellCurrentCost": {
-										"spellId": {
-											"spellId": 768
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Save energy for the next bleed refresh"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Mana is low: leave Cat to Innervate with 15+ seconds left",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsActive": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"spellIsReady": {
-								"spellId": {
-									"spellId": 29166
-								}
-							}
-						},
-						{
-							"and": {
-								"vals": [
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"currentMana": {}
-											},
-											"rhs": {
-												"const": {
-													"val": "1400"
-												}
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLt",
-											"lhs": {
-												"currentMana": {}
-											},
-											"rhs": {
-												"math": {
-													"op": "OpMul",
-													"lhs": {
-														"remainingTime": {}
-													},
-													"rhs": {
-														"const": {
-															"val": "50"
-														}
-													}
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"gcdTimeToReady": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "30"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"remainingTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "15s"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Major Mana Potion has room for its base restore",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"selectedPotion": {
-								"potionId": {
-									"itemId": 13444
-								}
-							}
-						},
-						{
-							"spellIsKnown": {
-								"spellId": {
-									"itemId": 13444
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"gcdTimeToReady": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"itemId": 13444
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGe",
-								"lhs": {
-									"math": {
-										"op": "OpSub",
-										"lhs": {
-											"maxMana": {}
-										},
-										"rhs": {
-											"currentMana": {}
-										}
-									}
-								},
-								"rhs": {
-									"math": {
-										"op": "OpAdd",
-										"lhs": {
-											"const": {
-												"val": "2250"
-											}
-										},
-										"rhs": {
-											"math": {
-												"op": "OpMul",
-												"lhs": {
-													"currentManaRegen": {}
-												},
-												"rhs": {
-													"const": {
-														"val": "5"
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Current mana may not last until the next potion opportunity",
-			"value": {
-				"or": {
-					"vals": [
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Judgement of Wisdom is supporting mana"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"currentMana": {}
-								},
-								"rhs": {
-									"math": {
-										"op": "OpAdd",
-										"lhs": {
-											"math": {
-												"op": "OpMul",
-												"lhs": {
-													"math": {
-														"op": "OpDiv",
-														"lhs": {
-															"min": {
-																"vals": [
-																	{
-																		"remainingTime": {}
-																	},
-																	{
-																		"const": {
-																			"val": "120s"
-																		}
-																	}
-																]
-															}
-														},
-														"rhs": {
-															"const": {
-																"val": "1s"
-															}
-														}
-													}
-												},
-												"rhs": {
-													"const": {
-														"val": "20"
-													}
-												}
-											}
-										},
-										"rhs": {
-											"math": {
-												"op": "OpMul",
-												"lhs": {
-													"spellCurrentCost": {
-														"spellId": {
-															"spellId": 1322605
-														}
-													}
-												},
-												"rhs": {
-													"const": {
-														"val": "1"
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Judgement of Wisdom is supporting mana",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"auraIsKnown": {
-								"sourceUnit": {
-									"type": "CurrentTarget"
-								},
-								"auraId": {
-									"spellId": 20355,
-									"tag": -1
-								}
-							}
-						},
-						{
-							"auraIsActive": {
-								"sourceUnit": {
-									"type": "CurrentTarget"
-								},
-								"auraId": {
-									"spellId": 20355,
-									"tag": -1
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Berserk is ready for a builder; later uses have 60 energy or Clearcasting",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"and": {
-								"vals": [
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"gcdTimeToReady": {}
-											},
-											"rhs": {
-												"const": {
-													"val": "0s"
-												}
-											}
-										}
-									},
-									{
-										"spellIsKnown": {
-											"spellId": {
-												"spellId": 417141
-											}
-										}
-									},
-									{
-										"auraIsActive": {
-											"auraId": {
-												"spellId": 768
-											}
-										}
-									},
-									{
-										"cmp": {
-											"op": "OpLe",
-											"lhs": {
-												"spellTimeToReady": {
-													"spellId": {
-														"spellId": 417141
-													}
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "0s"
-												}
-											}
-										}
-									},
-									{
-										"spellCanCast": {
-											"spellId": {
-												"spellId": 417141
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"and": {
-													"vals": [
-														{
-															"variableRef": {
-																"name": "Final second: Bite with at least 2 combo points"
-															}
-														},
-														{
-															"spellCanCast": {
-																"spellId": {
-																	"spellId": 22829
-																}
-															}
-														}
-													]
-												}
-											}
-										}
-									},
-									{
-										"or": {
-											"vals": [
-												{
-													"and": {
-														"vals": [
-															{
-																"variableRef": {
-																	"name": "Prowl is active: open with Ravage"
-																}
-															},
-															{
-																"spellCanCast": {
-																	"spellId": {
-																		"spellId": 9867
-																	}
-																}
-															}
-														]
-													}
-												},
-												{
-													"and": {
-														"vals": [
-															{
-																"not": {
-																	"val": {
-																		"variableRef": {
-																			"name": "Prowl is active: open with Ravage"
-																		}
-																	}
-																}
-															},
-															{
-																"or": {
-																	"vals": [
-																		{
-																			"variableRef": {
-																				"name": "Ready for Berserk followed by Rake"
-																			}
-																		},
-																		{
-																			"variableRef": {
-																				"name": "Ready for Berserk followed by Shred"
-																			}
-																		}
-																	]
-																}
-															}
-														]
-													}
-												}
-											]
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"and": {
-													"vals": [
-														{
-															"variableRef": {
-																"name": "Less than 6 seconds left: Bite with 4+ combo points and at most 55 energy"
-															}
-														},
-														{
-															"spellCanCast": {
-																"spellId": {
-																	"spellId": 22829
-																}
-															}
-														}
-													]
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"variableRef": {
-										"name": "Pool energy for a later Berserk"
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Pool energy for a later Berserk",
-			"value": {
-				"and": {
-					"vals": [
-						{
-							"cmp": {
-								"op": "OpGt",
-								"lhs": {
-									"currentTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "30s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"spellTimeToReady": {
-										"spellId": {
-											"spellId": 417141
-										}
-									}
-								},
-								"rhs": {
-									"const": {
-										"val": "0s"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 417141
-										}
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpGt",
-								"lhs": {
-									"remainingTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "15s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"remainingTime": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "180s"
-									}
-								}
-							}
-						},
-						{
-							"cmp": {
-								"op": "OpLt",
-								"lhs": {
-									"currentEnergy": {}
-								},
-								"rhs": {
-									"const": {
-										"val": "60"
-									}
-								}
-							}
-						},
-						{
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"auraId": {
-											"spellId": 16870
-										}
-									}
-								}
-							}
-						}
-					]
-				}
-			}
-		}
-	],
-	"priorityList": [
-		{
-			"notes": "Use Berserk before a builder; on later uses, pool to 60 energy or Clearcasting",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Berserk is ready for a builder; later uses have 60 energy or Clearcasting"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 417141
-					}
-				}
-			}
-		},
-		{
-			"notes": "Open with Ravage from Prowl, even without Clearcasting",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Prowl is active: open with Ravage"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9867
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Outside form with too little mana: Innervate"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 29166
-					}
-				}
-			},
-			"notes": "Cast Innervate when outside form and mana is needed"
-		},
-		{
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Outside Cat Form: return after utility casts"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 768
-					}
-				}
-			},
-			"notes": "Return to Cat after utility casts"
-		},
-		{
-			"notes": "Bite in the final second with at least 2 combo points",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Final second: Bite with at least 2 combo points"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 22829
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"autocastOtherCooldowns": {}
-			},
-			"notes": "Use other available cooldowns"
-		},
-		{
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"variableRef": {
-									"name": "Major Mana Potion has room for its base restore"
-								}
-							},
-							{
-								"variableRef": {
-									"name": "Current mana may not last until the next potion opportunity"
-								}
-							}
-						]
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"itemId": 13444
-					},
-					"target": {
-						"type": "Self"
-					}
-				}
-			},
-			"notes": "Use Major Mana Potion when it fits and the remaining fight needs mana"
-		},
-		{
-			"notes": "Use Elune\u2019s Light outside Berserk, away from its next use",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Elune\u2019s Light is available, outside Berserk and away from its next use"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 1259799
-					}
-				}
-			}
-		},
-		{
-			"notes": "Use Shifting Power at 45 energy or below",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Shifting Power is ready at 45 energy or below"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 1322605
-					}
-				}
-			}
-		},
-		{
-			"notes": "Use Thistle Tea at 20 energy or below",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Cat Form at 20 energy or below: use Thistle Tea"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"itemId": 7676
-					}
-				}
-			}
-		},
-		{
-			"notes": "Use the selected offensive potion in Cat Form",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "In Cat Form: use the selected offensive potion"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"otherId": "OtherActionOffensivePotion"
-					}
-				}
-			}
-		},
-		{
-			"notes": "Bite with less than 6 seconds left, at least 4 combo points and 55 energy or below",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Less than 6 seconds left: Bite with 4+ combo points and at most 55 energy"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 22829
-					}
-				}
-			}
-		},
-		{
-			"notes": "Spend Clearcasting on Shred before refreshing bleeds",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Clearcasting is active: Shred before refreshing bleeds"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9830
-					}
-				}
-			}
-		},
-		{
-			"notes": "Apply missing Rip with at least 4 combo points and 6 seconds remaining",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Rip is missing: apply with 4+ combo points and at least 6 seconds left"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9896
-					}
-				}
-			}
-		},
-		{
-			"notes": "Apply missing Rake with more than 6 seconds remaining",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Rake is missing: apply with more than 6 seconds left"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9904
-					}
-				}
-			}
-		},
-		{
-			"notes": "Use Shadowmeld into Ravage when available and bleed energy is covered",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Shadowmeld is ready: Ravage without spending reserved bleed or Berserk energy"
-					}
-				},
-				"strictSequence": {
-					"actions": [
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 20580
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 9867
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"notes": "Shred unless saving energy for bleeds or a later Berserk",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Shred without spending energy reserved for bleeds or later Berserk"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 9830
-					}
-				}
-			}
-		},
-		{
-			"notes": "Use Sapper and return to Cat in a free utility window",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Sapper is ready and fits a free utility window"
-					}
-				},
-				"strictSequence": {
-					"actions": [
-						{
-							"cancelAura": {
-								"auraId": {
-									"spellId": 768
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"itemId": 10646
-								}
-							}
-						},
-						{
-							"castSpell": {
-								"spellId": {
-									"spellId": 768
-								}
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"notes": "Use Read Ley Line for needed mana in a free utility window",
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Read Ley Line is ready: restore needed mana in a free utility window"
-					}
-				},
-				"castSpell": {
-					"spellId": {
-						"spellId": 1259705
-					}
-				}
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"variableRef": {
-						"name": "Mana is low: leave Cat to Innervate with 15+ seconds left"
-					}
-				},
-				"cancelAura": {
-					"auraId": {
-						"spellId": 768
-					}
-				}
-			},
-			"notes": "Leave Cat to Innervate when mana is low and at least 15 seconds remain"
-		}
-	],
-	"groups": []
+  "type": "TypeAPL",
+  "prepullActions": [
+    {
+      "action": {
+        "castSpell": {
+          "spellId": {
+            "spellId": 9913
+          }
+        }
+      },
+      "doAtValue": {
+        "const": {
+          "val": "-1s"
+        }
+      }
+    }
+  ],
+  "valueVariables": [
+    {
+      "name": "The fight is ending",
+      "value": {
+        "cmp": {
+          "op": "OpLt",
+          "lhs": {
+            "remainingTime": {}
+          },
+          "rhs": {
+            "const": {
+              "val": "6s"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Shifting Power is ready at or below its energy ceiling",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "50"
+                  }
+                }
+              }
+            },
+            {
+              "spellCanCast": {
+                "spellId": {
+                  "spellId": 1322605
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rake is missing and has time to tick",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "not": {
+                "val": {
+                  "dotIsActive": {
+                    "spellId": {
+                      "spellId": 9904
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "6s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "There is energy and time for Shred then Rip next global",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "math": {
+                        "op": "OpAdd",
+                        "lhs": {
+                          "spellCurrentCost": {
+                            "spellId": {
+                              "spellId": 9830
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "spellCurrentCost": {
+                            "spellId": {
+                              "spellId": 9896
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "10"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "7s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Use the Rip fallback when building first would delay it",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "4"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "There is energy and time for Shred then Rip next global"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rip has enough combo points, including the fallback",
+      "value": {
+        "or": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "5"
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Use the Rip fallback when building first would delay it"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rip is missing and has time to tick",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "variableRef": {
+                "name": "Rip has enough combo points, including the fallback"
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "dotIsActive": {
+                    "spellId": {
+                      "spellId": 9896
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "The fight is ending"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "A finishing Bite is worthwhile",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "5"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "55"
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "The fight is ending"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Save energy for the next bleed refresh",
+      "value": {
+        "or": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "variableRef": {
+                      "name": "Rip has enough combo points, including the fallback"
+                    }
+                  },
+                  {
+                    "dotIsActive": {
+                      "spellId": {
+                        "spellId": 9896
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "2s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "The fight is ending"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "currentEnergy": {}
+                              },
+                              "rhs": {
+                                "spellCurrentCost": {
+                                  "spellId": {
+                                    "spellId": 9830
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "10"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "and": {
+                "vals": [
+                  {
+                    "dotIsActive": {
+                      "spellId": {
+                        "spellId": 9904
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "2s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "math": {
+                              "op": "OpSub",
+                              "lhs": {
+                                "currentEnergy": {}
+                              },
+                              "rhs": {
+                                "spellCurrentCost": {
+                                  "spellId": {
+                                    "spellId": 9830
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "10"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "A utility cast will not delay Cat attacks",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 1322605
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1.5s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "currentEnergy": {}
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "15"
+                      }
+                    }
+                  }
+                },
+                "rhs": {
+                  "spellCurrentCost": {
+                    "spellId": {
+                      "spellId": 9830
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Rake is missing and has time to tick"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Rip is missing and has time to tick"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "A finishing Bite is worthwhile"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 22829
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "dotIsActive": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "1.5s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "dotIsActive": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "dotRemainingTime": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "1.5s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "currentEnergy": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15"
+                            }
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellCurrentCost": {
+                          "spellId": {
+                            "spellId": 9904
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Elune\u2019s Light is available, outside Berserk and away from its next use",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 1259799
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 417141
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "15s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shadowmeld on Clearcasting: Ravage before other builders or bleeds",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 16870
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 9913
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "currentTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Read Ley Line is ready: restore needed mana in a free utility window",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 1259705
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "spellId": 1259705
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "30"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "currentMana": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1400"
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A utility cast will not delay Cat attacks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bite in the final window with enough combo points",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentComboPoints": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "2"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Prowl is active: open with Ravage",
+      "value": {
+        "auraIsActive": {
+          "auraId": {
+            "spellId": 9913
+          }
+        }
+      }
+    },
+    {
+      "name": "Outside Cat Form: return after utility casts",
+      "value": {
+        "not": {
+          "val": {
+            "auraIsActive": {
+              "auraId": {
+                "spellId": 768
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Ready for Berserk followed by Rake",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Shifting Power is ready at or below its energy ceiling"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "and": {
+                    "vals": [
+                      {
+                        "variableRef": {
+                          "name": "Rip is missing and has time to tick"
+                        }
+                      },
+                      {
+                        "spellCanCast": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Rake is missing and has time to tick"
+              }
+            },
+            {
+              "spellCanCast": {
+                "spellId": {
+                  "spellId": 9904
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ready for Berserk followed by Shred",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Shifting Power is ready at or below its energy ceiling"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "and": {
+                    "vals": [
+                      {
+                        "variableRef": {
+                          "name": "Rip is missing and has time to tick"
+                        }
+                      },
+                      {
+                        "spellCanCast": {
+                          "spellId": {
+                            "spellId": 9896
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "and": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Rake is missing and has time to tick"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Save energy for the next bleed refresh"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "spellCanCast": {
+                "spellId": {
+                  "spellId": 9830
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Use Thistle Tea at or below its energy ceiling",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "20"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "In Cat Form: use the selected offensive potion",
+      "value": {
+        "auraIsActive": {
+          "auraId": {
+            "spellId": 768
+          }
+        }
+      }
+    },
+    {
+      "name": "Bite near fight end when Rip is no longer worthwhile",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A finishing Bite is worthwhile"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Clearcasting is active: Shred before refreshing bleeds",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 16870
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rip when missing: build to the target CP if the next-global Rip is funded",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Rip is missing and has time to tick"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rake when missing and enough fight time remains",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "Rake is missing and has time to tick"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Shred without spending energy reserved for bleeds or later Berserk",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "variableRef": {
+                          "name": "Save energy for the next bleed refresh"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Sapper is ready and fits a free utility window",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 10646
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A utility cast will not delay Cat attacks"
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "itemId": 10646
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "currentMana": {}
+                },
+                "rhs": {
+                  "spellCurrentCost": {
+                    "spellId": {
+                      "spellId": 768
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Save energy for the next bleed refresh"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Innervate when mana is low and enough fight time remains",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsActive": {
+                "auraId": {
+                  "spellId": 768
+                }
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "spellId": 29166
+                }
+              }
+            },
+            {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "currentMana": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "1400"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "currentMana": {}
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpMul",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "50"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "30"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "15s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Major Mana Potion has room for its base restore",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "selectedPotion": {
+                "potionId": {
+                  "itemId": 13444
+                }
+              }
+            },
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 13444
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "gcdTimeToReady": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "itemId": 13444
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "math": {
+                    "op": "OpSub",
+                    "lhs": {
+                      "maxMana": {}
+                    },
+                    "rhs": {
+                      "currentMana": {}
+                    }
+                  }
+                },
+                "rhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "const": {
+                        "val": "2250"
+                      }
+                    },
+                    "rhs": {
+                      "math": {
+                        "op": "OpMul",
+                        "lhs": {
+                          "currentManaRegen": {}
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "5"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Current mana may not last until the next potion opportunity",
+      "value": {
+        "or": {
+          "vals": [
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Judgement of Wisdom is supporting mana"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "currentMana": {}
+                },
+                "rhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "math": {
+                        "op": "OpMul",
+                        "lhs": {
+                          "math": {
+                            "op": "OpDiv",
+                            "lhs": {
+                              "min": {
+                                "vals": [
+                                  {
+                                    "remainingTime": {}
+                                  },
+                                  {
+                                    "const": {
+                                      "val": "120s"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "1s"
+                              }
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "20"
+                          }
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "math": {
+                        "op": "OpMul",
+                        "lhs": {
+                          "spellCurrentCost": {
+                            "spellId": {
+                              "spellId": 1322605
+                            }
+                          }
+                        },
+                        "rhs": {
+                          "const": {
+                            "val": "1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Judgement of Wisdom is supporting mana",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "auraIsKnown": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 20355,
+                  "tag": -1
+                }
+              }
+            },
+            {
+              "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 20355,
+                  "tag": -1
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Berserk before a builder; pool energy or use Clearcasting for later uses",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "gcdTimeToReady": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "spellIsKnown": {
+                      "spellId": {
+                        "spellId": 417141
+                      }
+                    }
+                  },
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 768
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "spellTimeToReady": {
+                          "spellId": {
+                            "spellId": 417141
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "0s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "spellCanCast": {
+                      "spellId": {
+                        "spellId": 417141
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "variableRef": {
+                                "name": "Bite in the final window with enough combo points"
+                              }
+                            },
+                            {
+                              "spellCanCast": {
+                                "spellId": {
+                                  "spellId": 22829
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "variableRef": {
+                                  "name": "Prowl is active: open with Ravage"
+                                }
+                              },
+                              {
+                                "spellCanCast": {
+                                  "spellId": {
+                                    "spellId": 9867
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "not": {
+                                  "val": {
+                                    "variableRef": {
+                                      "name": "Prowl is active: open with Ravage"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "or": {
+                                  "vals": [
+                                    {
+                                      "variableRef": {
+                                        "name": "Ready for Berserk followed by Rake"
+                                      }
+                                    },
+                                    {
+                                      "variableRef": {
+                                        "name": "Ready for Berserk followed by Shred"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "and": {
+                          "vals": [
+                            {
+                              "variableRef": {
+                                "name": "Bite near fight end when Rip is no longer worthwhile"
+                              }
+                            },
+                            {
+                              "spellCanCast": {
+                                "spellId": {
+                                  "spellId": 22829
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Pool energy for a later Berserk"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pool energy for a later Berserk",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "currentTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "30s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLe",
+                "lhs": {
+                  "spellTimeToReady": {
+                    "spellId": {
+                      "spellId": 417141
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "0s"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 417141
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "15s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "remainingTime": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "180s"
+                  }
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "currentEnergy": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "60"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 16870
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Throw EZ-Thro Thorium Grenade in a free window after the opener",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 260816
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "auraIsActive": {
+                    "auraId": {
+                      "spellId": 9913
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "variableRef": {
+                "name": "A utility cast will not delay Cat attacks"
+              }
+            },
+            {
+              "spellIsReady": {
+                "spellId": {
+                  "itemId": 260816
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "priorityList": [
+    {
+      "notes": "Berserk before a builder; pool energy or use Clearcasting for later uses",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Berserk before a builder; pool energy or use Clearcasting for later uses"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 417141
+          }
+        }
+      }
+    },
+    {
+      "notes": "Prowl is active: open with Ravage",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Prowl is active: open with Ravage"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9867
+          }
+        }
+      }
+    },
+    {
+      "notes": "Shadowmeld on Clearcasting: Ravage before other builders or bleeds",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shadowmeld on Clearcasting: Ravage before other builders or bleeds"
+          }
+        },
+        "strictSequence": {
+          "actions": [
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 20580
+                }
+              }
+            },
+            {
+              "castSpell": {
+                "spellId": {
+                  "spellId": 9867
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Outside Cat Form: return after utility casts"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 768
+          }
+        }
+      },
+      "notes": "Outside Cat Form: return after utility casts"
+    },
+    {
+      "notes": "Bite in the final window with enough combo points",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Bite in the final window with enough combo points"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 22829
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "autocastOtherCooldowns": {}
+      },
+      "notes": "Use other available cooldowns"
+    },
+    {
+      "action": {
+        "condition": {
+          "and": {
+            "vals": [
+              {
+                "variableRef": {
+                  "name": "Major Mana Potion has room for its base restore"
+                }
+              },
+              {
+                "variableRef": {
+                  "name": "Current mana may not last until the next potion opportunity"
+                }
+              }
+            ]
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 13444
+          },
+          "target": {
+            "type": "Self"
+          }
+        }
+      },
+      "notes": "Use Major Mana Potion when it fits and the remaining fight needs mana"
+    },
+    {
+      "notes": "Elune\u2019s Light is available, outside Berserk and away from its next use",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Elune\u2019s Light is available, outside Berserk and away from its next use"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259799
+          }
+        }
+      }
+    },
+    {
+      "notes": "Shifting Power is ready at or below its energy ceiling",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shifting Power is ready at or below its energy ceiling"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1322605
+          }
+        }
+      }
+    },
+    {
+      "notes": "Use Thistle Tea at or below its energy ceiling",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Use Thistle Tea at or below its energy ceiling"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 7676
+          }
+        }
+      }
+    },
+    {
+      "notes": "In Cat Form: use the selected offensive potion",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "In Cat Form: use the selected offensive potion"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "otherId": "OtherActionOffensivePotion"
+          }
+        }
+      }
+    },
+    {
+      "notes": "Bite near fight end when Rip is no longer worthwhile",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Bite near fight end when Rip is no longer worthwhile"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 22829
+          }
+        }
+      }
+    },
+    {
+      "notes": "Clearcasting is active: Shred before refreshing bleeds",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Clearcasting is active: Shred before refreshing bleeds"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9830
+          }
+        }
+      }
+    },
+    {
+      "notes": "Rip when missing: build to the target CP if the next-global Rip is funded",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Rip when missing: build to the target CP if the next-global Rip is funded"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9896
+          }
+        }
+      }
+    },
+    {
+      "notes": "Rake when missing and enough fight time remains",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Rake when missing and enough fight time remains"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9904
+          }
+        }
+      }
+    },
+    {
+      "notes": "Shred without spending energy reserved for bleeds or later Berserk",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Shred without spending energy reserved for bleeds or later Berserk"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 9830
+          }
+        }
+      }
+    },
+    {
+      "notes": "Sapper is ready and fits a free utility window",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Sapper is ready and fits a free utility window"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 10646
+          }
+        }
+      }
+    },
+    {
+      "notes": "Throw EZ-Thro Thorium Grenade in a free window after the opener",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Throw EZ-Thro Thorium Grenade in a free window after the opener"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "itemId": 260816
+          }
+        }
+      }
+    },
+    {
+      "notes": "Read Ley Line is ready: restore needed mana in a free utility window",
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Read Ley Line is ready: restore needed mana in a free utility window"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 1259705
+          }
+        }
+      }
+    },
+    {
+      "action": {
+        "condition": {
+          "variableRef": {
+            "name": "Innervate when mana is low and enough fight time remains"
+          }
+        },
+        "castSpell": {
+          "spellId": {
+            "spellId": 29166
+          }
+        }
+      },
+      "notes": "Innervate when mana is low and enough fight time remains"
+    }
+  ],
+  "groups": []
 }

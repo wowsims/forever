@@ -43,7 +43,8 @@ Each sim is served at `/forever/$CLASS/$SPEC/` and these pages used to be writte
 
 Vite serves those pages now (`tools/vite/spec_pages.mts`), in both `vite build` and the dev
 server, so there is nothing to generate or list. `ui/index_template.html` carries nothing
-per-spec, so it is processed once and served at every spec URL; a directory becomes a sim page as
+per-spec, so it is processed once and served at every spec URL, with each spec's title, description
+and URL written into its head; a directory becomes a sim page as
 soon as it holds `ui/specs/$CLASS/$SPEC/spec.ts` (or `spec.tsx`). See `ui/README.md` for the whole
 picture.
 

@@ -22,33 +22,41 @@ const renderRow = (props: Partial<BulkResultRowViewProps> = {}) => {
 };
 
 describe('BulkResultRowView', () => {
-	it('shows the average, its margin of error and the difference from the current gear', () => {
+	it('shows the average with its unit and margin of error, then the difference from the current gear as a pill', () => {
 		renderRow();
 
-		expect(screen.getByTestId('topline-result-avg').textContent).toBe('1,234.5');
-		expect(screen.getByTestId('results-sim-dps').textContent).toContain('±12');
+		expect(screen.getByTestId('topline-result-avg').textContent).toBe('1,234.50 sidebar.results.metrics.dps.label');
+		const margin = screen.getByTestId('topline-result-stdev');
+		expect(margin.textContent).toBe('(12)');
+		expect(margin.hasAttribute('data-tooltip-id')).toBe(true);
 		const diff = screen.getByTestId('results-reference-diff');
 		expect(diff.textContent).toBe('+34.50 (2.88%)');
-		expect(diff.hasAttribute('data-tooltip-id')).toBe(true);
+		expect(diff.getAttribute('data-tooltip-content')).toBe('Difference is significantly different (Z = 4.200).');
+		expect(screen.getByTestId('results-reference').textContent).toBe('+34.50 (2.88%)');
 	});
 
-	it('colours the difference by its tone', () => {
+	it('tones the difference pill by its sign and significance', () => {
 		renderRow({ delta: { text: '-10.00 (1.00%)', tone: 'negative' } });
+		expect(screen.getByTestId('results-reference').getAttribute('data-tone')).toBe('negative');
+		expect(screen.getByTestId('results-reference-diff').getAttribute('data-sign')).toBe('negative');
+	});
 
-		expect(screen.getByTestId('results-reference-diff').getAttribute('data-tone')).toBe('negative');
+	it('draws a not significant difference in the neutral tone', () => {
+		renderRow({ delta: { text: '+0.41 (0.03%)', tone: null } });
+		expect(screen.getByTestId('results-reference').getAttribute('data-tone')).toBe('neutral');
 	});
 
 	it('leaves the margin out when a run has no spread', () => {
 		renderRow({ plusMinus: 0 });
 
-		expect(screen.getByTestId('results-sim-dps').textContent).not.toContain('±');
+		expect(screen.queryByTestId('topline-result-stdev')).toBeNull();
 	});
 
-	it('labels the current gear instead of a difference and hides its equip button', () => {
+	it('labels the current gear above its value, with no difference pill, and hides its equip button', () => {
 		renderRow({ isBase: true });
 
-		expect(screen.queryByTestId('results-reference-diff')).toBeNull();
-		expect(screen.getByTestId('results-reference').textContent).toBe('bulk_tab.results.current_gear');
+		expect(screen.queryByTestId('results-reference')).toBeNull();
+		expect(screen.getByTestId('results-sim-dps').firstElementChild!.textContent).toBe('bulk_tab.results.current_gear');
 		expect(screen.getByTestId('bulk-equip-btn').hasAttribute('data-hidden')).toBe(true);
 	});
 

@@ -62,14 +62,38 @@ describe('HealingMetricsTable', () => {
 		expect(container.querySelectorAll('td[data-primary-metric] [data-testid="metrics-total-bar-fill"]')).toHaveLength(1);
 	});
 
-	it('opens the healing breakdown with its average column from the primary-metric cell', async () => {
+	it('opens the healing breakdown with its average, min and max columns from the primary-metric cell', async () => {
 		result = playerResult([metric('Healing Touch')]);
 		const { container } = render(<HealingMetricsTable />);
 
 		fireEvent.mouseEnter(container.querySelector('td[data-primary-metric]')!);
 		await waitFor(() => expect(tooltipTable()).toBeTruthy());
-		expect([...tooltipTable()!.querySelectorAll('thead th')]).toHaveLength(3);
+		expect([...tooltipTable()!.querySelectorAll('thead th')].map(th => th.textContent)).toEqual([
+			'results_tab.details.tooltip_table.type',
+			'results_tab.details.tooltip_table.amount',
+			'results_tab.details.tooltip_table.min',
+			'results_tab.details.tooltip_table.average',
+			'results_tab.details.tooltip_table.max',
+		]);
 		expect(metricsTooltipRowNames()).toEqual(['results_tab.details.attack_types.hit', 'results_tab.details.attack_types.critical_hit']);
+	});
+
+	it('adds a spec metrics group to the healing breakdown, with the share the action gives each value', async () => {
+		result = playerResult([
+			metric('Prayer of Healing', { customMetrics: [{ key: 'divine_aegis', value: 30, percentage: 30, average: 410, min: 300, max: 520 }] }),
+		]);
+		const { container } = render(<HealingMetricsTable />);
+
+		fireEvent.mouseEnter(container.querySelector('td[data-primary-metric]')!);
+		await waitFor(() => expect(tooltipTable()).toBeTruthy());
+		expect(metricsTooltipRowNames()).toEqual([
+			'results_tab.details.attack_types.hit',
+			'results_tab.details.attack_types.critical_hit',
+			'results_tab.details.custom_metrics.group',
+			'divine_aegis',
+		]);
+		const aegis = [...tooltipTable()!.querySelectorAll<HTMLTableRowElement>('tbody tr')].at(-1)!;
+		expect(aegis.cells[1].firstElementChild?.firstElementChild?.textContent).toMatch(/^30(\.0+)?\s?%$/);
 	});
 
 	it('keeps a threat tooltip shut while threat metrics are hidden, and opens it once they are shown', async () => {

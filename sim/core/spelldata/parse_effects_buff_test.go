@@ -107,6 +107,24 @@ func TestFlatDamageTakenNeedsAField(t *testing.T) {
 	}
 }
 
+// Flat damage done names a stat for each school of a mask, except that every magic school is spell
+// damage and every school is physical and spell damage. Spellstone's 36 is fire and shadow.
+func TestDamageDoneStatsPerSchool(t *testing.T) {
+	for mask, want := range map[int32][]stats.Stat{
+		1:   {stats.PhysicalDamage},
+		32:  {stats.ShadowDamage},
+		36:  {stats.FireDamage, stats.ShadowDamage},
+		5:   {stats.PhysicalDamage, stats.FireDamage},
+		126: {stats.SpellDamage},
+		127: {stats.PhysicalDamage, stats.SpellDamage},
+		0:   nil,
+	} {
+		if got := DamageDoneStats(mask); !slices.Equal(got, want) {
+			t.Errorf("mask %d names %v, want %v", mask, got, want)
+		}
+	}
+}
+
 // Demoralizing Shout rank 5 on a level 63 boss: without a character the unit's own level prices it,
 // three levels too high, and Level prices it at the caster's.
 func TestLevelPricesADebuffOnABoss(t *testing.T) {
@@ -274,7 +292,7 @@ func TestExclusiveSingleAura(t *testing.T) {
 func TestExclusiveFollowsTheStacks(t *testing.T) {
 	sim := &core.Simulation{}
 	target := buffTestWarrior()
-	before := target.GetStat(stats.Armor)
+	before := target.GetStat(stats.ArmorNoMods)
 
 	row := buffRow(11597, auraEffect(dbcenums.A_MOD_ARMOR_NO_MODS, miscArmor, -450))
 	row.MaxStack = 5
@@ -292,12 +310,12 @@ func TestExclusiveFollowsTheStacks(t *testing.T) {
 	if effect.Priority != 900 {
 		t.Errorf("the debuff bids %v at two stacks, want 900", effect.Priority)
 	}
-	if got := target.GetStat(stats.Armor) - before; got != -900 {
+	if got := target.GetStat(stats.ArmorNoMods) - before; got != -900 {
 		t.Errorf("armor at two stacks: %v, want -900", got)
 	}
 
 	aura.Deactivate(sim)
-	if got := target.GetStat(stats.Armor); got != before {
+	if got := target.GetStat(stats.ArmorNoMods); got != before {
 		t.Errorf("armor after the debuff fell off: %v, want %v", got, before)
 	}
 }

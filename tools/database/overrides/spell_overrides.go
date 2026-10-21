@@ -30,6 +30,10 @@ const (
 	// The same for the ticking effect.
 	APCoefPeriodic
 
+	// The spell-power coefficient of the direct effect, onto Effect.SPCoef. Fails when the game files
+	// state an EffectBonusCoefficient there.
+	SPCoefDirect
+
 	// A proc chance in percent, onto Spell.ProcChance. Fails when the tooltip states a chance of
 	// its own through $h or $mN, because then the game files already say where the roll is.
 	ProcChancePct
@@ -70,6 +74,8 @@ func (f Field) String() string {
 		return "APCoefDirect"
 	case APCoefPeriodic:
 		return "APCoefPeriodic"
+	case SPCoefDirect:
+		return "SPCoefDirect"
 	case ProcChancePct:
 		return "ProcChancePct"
 	case DurationMs:
@@ -222,6 +228,15 @@ var Spells = []Override{
 		Value:   10000,
 		Reason:  "Shadow Oil: no proc on 425 landed hits within 10 s of the last one, 80 on 633 after; procs at least 10.26 s apart, none on hits from 9.98 s",
 		Source:  "wcl:Y4mTwRvPtqAn36CB/1-9, 2026-10-07",
+	},
+
+	// A spell-power coefficient the damage effect does not state.
+	{
+		SpellID: 1240047,
+		Field:   SPCoefDirect,
+		Value:   1.0 / 7, // TODO: Measure Ice Lance's spell power coefficient in game.
+		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game; TBC's 1/7 until measured",
+		Source:  "tbc-carryover",
 	},
 
 	// Seal of Light and Judgement of Light, measured in game at level 30 on Rank 1 across two combat

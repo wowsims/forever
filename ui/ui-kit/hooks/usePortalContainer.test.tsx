@@ -73,10 +73,7 @@ const relative = (file: string) => path.relative(path.resolve(here, '../../..'),
 
 const IMPORTS_HOOK = /usePortalContainer/;
 
-const PORTAL_EXCEPTIONS: Record<string, string> = {
-	'app/landing/LandingClassMenu.tsx':
-		"keepMounted, one per class (34 on the page): each class's spec links sit in the document at rest, directly after that class's trigger, for a crawler or screen reader reading the page top to bottom. Moving all 34 to the shared root would detach every list from its heading and append it at the document end, changing that reading order. The landing page carries no sidebar/z-1 stacking context, so the sidebar-clipping bug this unit fixes elsewhere does not apply here. Kept local to its own wrapper div.",
-};
+const PORTAL_EXCEPTIONS: Record<string, string> = {};
 
 const OVERLAY_PORTAL_EXCEPTIONS: Record<string, string> = {
 	'app/SimTabs.tsx': 'a layout slot for the tab panes, not an overlay',

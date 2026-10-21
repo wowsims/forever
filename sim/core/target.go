@@ -18,10 +18,7 @@ type Encounter struct {
 	ActiveTargetUnits []*Unit
 
 	ExecuteProportion_20 float64
-	ExecuteProportion_25 float64
 	ExecuteProportion_35 float64
-	ExecuteProportion_45 float64
-	ExecuteProportion_90 float64
 
 	// Every kind of area the fight is in, deduplicated.
 	AreaTypes []proto.AreaType
@@ -52,19 +49,14 @@ func (encounter *Encounter) InArea(areaType proto.AreaType) bool {
 }
 
 func NewEncounter(options *proto.Encounter) Encounter {
-	options.ExecuteProportion_25 = max(options.ExecuteProportion_25, options.ExecuteProportion_20)
-	options.ExecuteProportion_35 = max(options.ExecuteProportion_35, options.ExecuteProportion_25)
-	options.ExecuteProportion_45 = max(options.ExecuteProportion_45, options.ExecuteProportion_35)
+	options.ExecuteProportion_35 = max(options.ExecuteProportion_35, options.ExecuteProportion_20)
 	totalTargetCount := max(len(options.Targets), 1)
 
 	encounter := Encounter{
 		Duration:             DurationFromSeconds(options.Duration),
 		DurationVariation:    DurationFromSeconds(options.DurationVariation),
 		ExecuteProportion_20: max(options.ExecuteProportion_20, 0),
-		ExecuteProportion_25: max(options.ExecuteProportion_25, 0),
 		ExecuteProportion_35: max(options.ExecuteProportion_35, 0),
-		ExecuteProportion_45: max(options.ExecuteProportion_45, 0),
-		ExecuteProportion_90: max(options.ExecuteProportion_90, 0),
 		AreaTypes:            areaTypeSet(options.AreaTypes),
 		AllTargets:           make([]*Target, 0, totalTargetCount),
 		ActiveTargets:        make([]*Target, 0, totalTargetCount),
@@ -369,8 +361,8 @@ type AttackTable struct {
 	OH     AttackTableHand
 	Ranged AttackTableHand
 
-	// All "Apply Aura: Mod All Damage Done Against Creature" effects in Vanilla and TBC also increase the CritMultiplier.
-	// Explicitly for hunters' "Monster Slaying" and "Humanoid Slaying", but likewise for rogues' "Murder", or trolls' "Beastslaying".
+	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects, such as effect 1 of Humanoid Slaying 19151 and Monster
+	// Slaying 24294. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise damage alone.
 	CritMultiplier float64
 
 	DamageDealtMultiplier       float64 // attacker buff, applied in applyAttackerModifiers()
@@ -424,11 +416,7 @@ func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
 		levelDiff := combatLevelDiff(defender, attacker)
 		levelDelta := -0.002 * float64(levelDiff)
 
-		if levelDiff > 0 {
-			table.BaseSpellMissChance = 0.04 - 0.01*float64(levelDiff)
-		} else {
-			table.BaseSpellMissChance = spellMissChance(-levelDiff)
-		}
+		table.BaseSpellMissChance = spellMissChance(-levelDiff)
 		table.BaseCrushChance = TernaryFloat64(levelDiff >= 3, 0.15, 0)
 
 		table.MH = AttackTableHand{
@@ -449,8 +437,13 @@ func combatLevelDiff(attacker *Unit, defender *Unit) int32 {
 	return min(defender.Level-attacker.Level, 3)
 }
 
+// The level-based spell miss for the defender's level minus the attacker's: 4% at equal level, one point
+// per level either side, 0% at -4 and below, and 17% at +3 and above.
 func spellMissChance(levelDiff int32) float64 {
-	return UnitLevelFloat64(levelDiff, 0.04, 0.05, 0.06, 0.17)
+	if levelDiff >= 3 {
+		return 0.17
+	}
+	return max(0, 0.04+0.01*float64(levelDiff))
 }
 
 // The parts of an attack table that depend on the weapon skill of the attacking hand.
@@ -463,7 +456,7 @@ type AttackTableHand struct {
 	GlanceMultiplierMin  float64
 	GlanceMultiplierMax  float64
 	MeleeCritSuppression float64
-	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill, which a wand shot rolls.
+	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill.
 }
 
 func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTableHand {

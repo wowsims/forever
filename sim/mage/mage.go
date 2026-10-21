@@ -10,7 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{18, 17, 19}
+var TalentTreeSizes = [3]int{19, 17, 19}
 
 type Mage struct {
 	core.Character
@@ -24,17 +24,12 @@ type Mage struct {
 	ClearCasting       *core.Aura
 	PresenceOfMindAura *core.Aura
 	ArcanePowerAura    *core.Aura
+	FingersOfFrostAura *core.Aura
 
 	ImprovedScorchAuras core.AuraArray
+	WintersChillAuras   core.AuraArray
 
-	ArcaneBlast     *core.Spell
-	Ignite          *core.Spell
-	FireBlast       *core.Spell
-	FlameOrbExplode *core.Spell
-	Flamestrike     []*core.Spell
-	FlamestrikeBW   *core.Spell
-	FrostfireOrb    *core.Spell
-	Pyroblast       *core.Spell
+	Ignite *core.Spell
 }
 
 func (mage *Mage) GetCharacter() *core.Character {
@@ -70,11 +65,6 @@ func (mage *Mage) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 }
 
 func (mage *Mage) Initialize() {
-	// ImprovedScorchAuras is filled by the port of registerScorchSpell: the
-	// game files' Fire Vulnerability (22959) is A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER,
-	// so it raises the fire damage this mage deals rather than the damage the
-	// target takes: the port parses it onto each target's aura with
-	// spelldata.ParseEffects and FromCaster.
 	mage.registerPassives()
 	mage.registerSpells()
 }
@@ -84,32 +74,31 @@ func (mage *Mage) registerPassives() {
 }
 
 func (mage *Mage) registerSpells() {
-	mage.registerArcaneBlastSpell()
 	mage.registerArcaneExplosionSpell()
 	mage.registerArcaneMissilesSpell()
 	mage.registerArmorSpells()
 	mage.registerBlizzardSpell()
 	mage.registerConeOfColdSpell()
 	mage.registerFrostboltSpell()
+	mage.registerFrostBlastSpell()
 	mage.registerEvocation()
 	mage.registerFireballSpell()
 	mage.registerFireBlastSpell()
+	mage.registerFlamestrikeSpells()
+	mage.registerFrostfireBoltSpell()
 	mage.registerFrostNovaSpell()
 	mage.registerManaGems()
 	mage.registerScorchSpell()
+	mage.registerDefensiveSpells()
 	shared.RegisterShoot(&mage.Character)
+}
 
-	FlameStrikeRankMap.Each(func(_ int32, rankConfig *spelldata.Spell) { mage.registerFlamestrike(rankConfig) })
-
-	//TalentSpells
-	mage.registerPresenceOfMindSpell()
-	mage.registerArcanePowerSpell()
-
-	mage.registerBlastWaveSpell()
-	mage.registerPyroblastSpell()
-	mage.registerCombustionSpell()
-
-	mage.registerColdSnapSpell()
+// A damage effect's amount per target, for the AoE damage calls; core spreads a spell-school hit
+// itself (DirectVariance).
+func rollDamage(e *spelldata.Effect) core.BaseDamageCalculator {
+	return func(sim *core.Simulation, _ *core.Spell) float64 {
+		return e.DirectAmount(sim)
+	}
 }
 
 func (mage *Mage) Reset(sim *core.Simulation) {
@@ -138,7 +127,17 @@ func NewMage(character *core.Character, options *proto.Player) *Mage {
 	return mage
 }
 
-// Agent is a generic way to access underlying mage on any of the agents.
+// The slots on the mage's attack table against a target for what raises only its own attacks there:
+// one per FromCaster parse, and Fire Power.
+const (
+	DDBC_FireVulnerability int = iota
+	DDBC_WintersChill
+	DDBC_FirePower
+
+	DDBC_Total
+)
+
+// The underlying mage of any of the mage agents.
 type MageAgent interface {
 	GetMage() *Mage
 }
@@ -151,6 +150,7 @@ const (
 	MageSpellArcanePower
 	MageSpellArcaneMissilesCast
 	MageSpellArcaneMissilesTick
+	MageSpellArcaneWrath
 	MageSpellBlastWave
 	MageSpellBlizzard
 	MageSpellColdSnap
@@ -158,10 +158,13 @@ const (
 	MageSpellEvocation
 	MageSpellFireBlast
 	MageSpellFireball
+	MageSpellFireballDot
 	MageSpellFlamestrike
 	MageSpellFlamestrikeDot
 	MageSpellFrostArmor
+	MageSpellIceArmor
 	MageSpellFrostbolt
+	MageSpellFrostBlast
 	MageSpellFrostNova
 	MageSpellIceBarrier
 	MageSpellIceBlock
@@ -169,7 +172,6 @@ const (
 	MageSpellIgnite
 	MageSpellMageArmor
 	MageSpellManaGems
-	MageSpellMoltenArmor
 	MageSpellPresenceOfMind
 	MageSpellPyroblast
 	MageSpellPyroblastDot
@@ -177,19 +179,19 @@ const (
 	MageSpellManaGem
 	MageSpellCombustion
 
-	// TODO: Forever abilities the sim does not model yet; see the stub file named for each.
 	MageSpellFrostfireBolt
+	MageSpellFrostfireBoltDot
 
 	MageSpellLast
 	MageSpellsAll  = MageSpellLast<<1 - 1
-	MageSpellFrost = MageSpellFrostbolt | MageSpellBlizzard | MageSpellFrostNova | MageSpellConeOfCold | MageSpellIceLance
+	MageSpellFrost = MageSpellFrostbolt | MageSpellFrostBlast | MageSpellBlizzard | MageSpellFrostNova | MageSpellConeOfCold | MageSpellIceLance
 	MageSpellFire  = MageSpellFireball | MageSpellCombustion |
 		MageSpellFireBlast | MageSpellFlamestrike | MageSpellIgnite | MageSpellPyroblast | MageSpellScorch
-	MageSpellsAllDamaging = MageSpellArcaneBlast | MageSpellArcaneExplosion | MageSpellArcaneMissilesTick | MageSpellBlizzard |
-		MageSpellFireBlast | MageSpellFireball | MageSpellFlamestrike | MageSpellFrostbolt |
+	MageSpellsAllDamaging = MageSpellArcaneBlast | MageSpellArcaneExplosion | MageSpellArcaneMissilesTick | MageSpellArcaneWrath | MageSpellBlizzard |
+		MageSpellBlastWave | MageSpellConeOfCold | MageSpellFireBlast | MageSpellFireball | MageSpellFireballDot |
+		MageSpellFlamestrike | MageSpellFlamestrikeDot | MageSpellFrostbolt | MageSpellFrostBlast | MageSpellFrostfireBolt | MageSpellFrostfireBoltDot | MageSpellFrostNova |
 		MageSpellIceLance | MageSpellPyroblast | MageSpellPyroblastDot | MageSpellScorch
-	MageSpellInstantCast = MageSpellArcaneMissilesCast | MageSpellArcaneMissilesTick | MageSpellFireBlast | MageSpellArcaneExplosion | MageSpellPyroblastDot |
+	MageSpellInstantCast = MageSpellArcaneMissilesCast | MageSpellArcaneMissilesTick | MageSpellFireBlast | MageSpellArcaneExplosion | MageSpellPyroblastDot | MageSpellFireballDot |
 		MageSpellCombustion | MageSpellConeOfCold | MageSpellIceLance | MageSpellManaGems | MageSpellPresenceOfMind
 	MageSpellExtraResult = MageSpellArcaneMissilesTick | MageSpellBlizzard
-	FireSpellIgnitable   = MageSpellFireball | MageSpellScorch | MageSpellPyroblast
 )

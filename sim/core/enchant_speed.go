@@ -7,8 +7,9 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The haste pseudo stats of an item and of its enchant multiply the wearer's melee, ranged and cast
-// speed while the item is equipped. Each item and each enchanted item applies its own.
+// The haste pseudo stats of an item, of its enchant and of its temporary enchants multiply the
+// wearer's melee, ranged and cast speed while the item is equipped. Each item and each enchant on an
+// item applies its own, an enchant's aura up while the slot's item carries the enchant's id.
 func (character *Character) registerEquipSpeedAuras() {
 	registerItem, registerEnchant := character.ItemSwap.RegisterProcWithSlots, character.ItemSwap.RegisterEnchantProcWithSlots
 	for i := range character.Equipment {
@@ -16,6 +17,8 @@ func (character *Character) registerEquipSpeedAuras() {
 		equipped := &character.Equipment[i]
 		character.registerSpeedAura(slot, "Item", equipped.ID, equipped.PseudoStats, true, registerItem)
 		character.registerSpeedAura(slot, "Enchant", equipped.Enchant.EffectID, equipped.Enchant.PseudoStats, true, registerEnchant)
+		character.registerSpeedAura(slot, "Temporary Enchant", equipped.TempEnchant, equipped.TempEnchantPseudoStats, true, registerEnchant)
+		character.registerSpeedAura(slot, "Weapon Imbue", equipped.WeaponImbue, equipped.WeaponImbuePseudoStats, true, registerEnchant)
 		if !character.ItemSwap.IsEnabled() {
 			continue
 		}
@@ -26,6 +29,12 @@ func (character *Character) registerEquipSpeedAuras() {
 		}
 		if swapped.Enchant.EffectID != equipped.Enchant.EffectID {
 			character.registerSpeedAura(slot, "Enchant", swapped.Enchant.EffectID, swapped.Enchant.PseudoStats, false, registerEnchant)
+		}
+		if swapped.TempEnchant != equipped.TempEnchant {
+			character.registerSpeedAura(slot, "Temporary Enchant", swapped.TempEnchant, swapped.TempEnchantPseudoStats, false, registerEnchant)
+		}
+		if swapped.WeaponImbue != equipped.WeaponImbue {
+			character.registerSpeedAura(slot, "Weapon Imbue", swapped.WeaponImbue, swapped.WeaponImbuePseudoStats, false, registerEnchant)
 		}
 	}
 }

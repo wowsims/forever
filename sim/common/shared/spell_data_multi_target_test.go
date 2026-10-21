@@ -117,6 +117,57 @@ func TestSingleTargetDamageHitsOnlyItsTarget(t *testing.T) {
 	}
 }
 
+// The ticks of the row's damage over time each target took once the use and the whole damage over
+// time ran out, from a test trinket against the given number of targets.
+func ticksPerTarget(t *testing.T, itemID int32, spellID int32, targetCount int) []int32 {
+	t.Helper()
+	row := spelldata.MustFind(spellID)
+	sim, caster := newOnUseSimAgainst(t, NewSpellDataDamageOnUse,
+		map[int32]*proto.ItemEffect{itemID: testOnUse(spellID, 60000, 0, 0)}, &proto.ItemSpec{}, targetCount)
+	spell := onUseSpell(t, caster, itemID)
+
+	if !spell.Cast(sim, sim.Encounter.ActiveTargetUnits[0]) {
+		t.Fatalf("spell %d could not be used", spellID)
+	}
+	stepPast(t, sim, sim.CurrentTime+row.CastTime()+row.Duration()+time.Second)
+
+	ticks := make([]int32, targetCount)
+	for i, target := range sim.Encounter.ActiveTargetUnits {
+		ticks[i] = spell.SpellMetrics[target.UnitIndex].Ticks
+	}
+	return ticks
+}
+
+// Ez-Thro Radiation Bomb's 435968 hits every enemy in its area and puts its damage over time on each
+// one the hit lands on.
+func TestAreaDamageOverTimeGoesOnEveryEnemyTheHitLandsOn(t *testing.T) {
+	row := spelldata.MustFind(435968)
+	want := int32(row.Duration() / row.PeriodicDamageEffect().Period())
+	for i, got := range ticksPerTarget(t, 991112, row.ID, 3) {
+		if got != want {
+			t.Errorf("target %d took %d ticks, want %d", i, got, want)
+		}
+	}
+}
+
+// Poison Cloud 11790 deals only damage over time, to every enemy in its area up to the row's
+// MaxTargets: one target more than the cap takes none.
+func TestAreaDamageOverTimeWithoutAHitStopsAtTheRowsMaxTargets(t *testing.T) {
+	row := spelldata.MustFind(11790)
+	if row.DamageEffect() != spelldata.NilEffect || row.MaxTargets == 0 {
+		t.Fatalf("11790 deals a hit or states no MaxTargets, nothing to check")
+	}
+	want := int32(row.Duration() / row.PeriodicDamageEffect().Period())
+	for i, got := range ticksPerTarget(t, 991113, row.ID, int(row.MaxTargets)+1) {
+		if i < int(row.MaxTargets) && got != want {
+			t.Errorf("target %d took %d ticks, want %d", i, got, want)
+		}
+		if i >= int(row.MaxTargets) && got != 0 {
+			t.Errorf("target %d, past the row's %d, took %d ticks, want none", i, row.MaxTargets, got)
+		}
+	}
+}
+
 // Chain Lightning 21179 jumps to its chain targets, each keeping the row's share of the damage the one
 // before it took, and a target past the chain takes none. A copy without its variance and with three
 // chain targets makes the jumps exact.

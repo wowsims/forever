@@ -22,8 +22,8 @@ import P1MeleeGearJson from './gear_sets/p1_melee.gear.json';
 
 // The same armor twice, with the weapons each playstyle swings: a two-hander to weave with, which
 // is also the better pair of stats at range, and two one-handers to stand in melee with.
-export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson);
-export const P1MeleeGear = PresetUtils.makePresetGear('P1 Dual Wield', P1MeleeGearJson);
+export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
+export const P1MeleeGear = PresetUtils.makePresetGear('P1 Dual Wield', P1MeleeGearJson, { devOnly: true });
 
 // The priority list of each playstyle. Their "Use ..." variables are the simple rotation's toggles.
 export const PlaystyleAPLs: Record<Playstyle, any> = {
@@ -56,7 +56,7 @@ export const DefaultRotation = WeaveAPLRotation;
 
 export const DefaultSimpleRotation = Hunter_Rotation.create({
 	playstyle: Playstyle.Weave,
-	timeToWeave: 400,
+	timeToWeave: 200,
 	useMulti: true,
 	useArcane: true,
 });
@@ -71,7 +71,7 @@ export const BeastMasteryWeaveTalents = talents('BM Weave', '5320001505101251-00
 export const MarksmanshipTalents = talents('MM', '5-005355251152205-5');
 export const BeastMasteryTalents = talents('BM', '5320001505101251-0053250001-4');
 export const SurvivalTalents = talents('SV', '1-00531500114-52225303000021005');
-export const SurvivalMeleeTalents = talents('SV Melee', '53200005021-005005-5502000300500201');
+export const SurvivalMeleeTalents = talents('SV Melee', '53200005021-005003-5502000300500221');
 
 const classOptions = {
 	ammo: HunterOptions_Ammo.ThoriumHeadedArrow,
@@ -92,17 +92,15 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
 });
 
-export const DefaultPartyBuffs = PartyBuffs.create({
-	battleShout: TristateEffect.TristateEffectRegular,
-});
+export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	arcaneBrilliance: true,
 	prayerOfSpirit: true,
 	giftOfTheWild: true,
-	prayerOfFortitude: true,
 	graceOfAirTotem: true,
 	strengthOfEarthTotem: true,
+	battleShout: TristateEffect.TristateEffectRegular,
 	leaderOfThePack: true,
 });
 
@@ -128,7 +126,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 });
 
 export const OtherDefaults = {
-	distanceFromTarget: 11,
+	distanceFromTarget: 12,
 	iterationCount: 25000,
 	profession1: Profession.Engineering,
 	profession2: Profession.Blacksmithing,
@@ -152,11 +150,11 @@ const build = (
 
 // Gear, talents, rotation, pet and distance together, one per tree and playstyle.
 export const Builds = [
-	build('SV Weave', P1Gear, SurvivalWeaveTalents, WeaveAPLRotation, NoPetOptions, 11),
-	build('MM Weave', P1Gear, MarksmanshipWeaveTalents, WeaveAPLRotation, NoPetOptions, 11),
-	build('BM Weave', P1Gear, BeastMasteryWeaveTalents, WeaveHawkAPLRotation, PetOptions, 11),
-	build('MM', P1Gear, MarksmanshipTalents, TurretAPLRotation, NoPetOptions, 11),
-	build('BM', P1Gear, BeastMasteryTalents, TurretHawkAPLRotation, PetOptions, 11),
-	build('SV', P1Gear, SurvivalTalents, TurretMultiAPLRotation, NoPetOptions, 11),
+	build('SV Weave', P1Gear, SurvivalWeaveTalents, WeaveAPLRotation, NoPetOptions, 12),
+	build('MM Weave', P1Gear, MarksmanshipWeaveTalents, WeaveAPLRotation, NoPetOptions, 12),
+	build('BM Weave', P1Gear, BeastMasteryWeaveTalents, WeaveHawkAPLRotation, PetOptions, 12),
+	build('MM', P1Gear, MarksmanshipTalents, TurretAPLRotation, NoPetOptions, 12),
+	build('BM', P1Gear, BeastMasteryTalents, TurretHawkAPLRotation, PetOptions, 12),
+	build('SV', P1Gear, SurvivalTalents, TurretMultiAPLRotation, NoPetOptions, 12),
 	build('SV Melee', P1MeleeGear, SurvivalMeleeTalents, MeleeAPLRotation, PetOptions, 5),
 ];

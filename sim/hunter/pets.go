@@ -29,24 +29,29 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 	proto.HunterOptions_FasterAttackVII: spellData.FasterAttackVII,
 }
 
-// Classic's level 60 pet (wowsims/classic sim/hunter/pet.go): the game files carry no pet base stats.
+// A tamed pet's own armor, health and weapon are the creature values for its level in the game files
+// (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel, core.CreatureAutoAttackDpsMaxLevel), and its own
+// attack power is 30% of the creature dps as attack power, 14 a point of dps, with nothing from Strength:
+// 36, 61 and 103 on the sheets of a level 11 Carrion Bird, a level 17 Cat and a level 30 pet, each the
+// creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it.
+// TODO: Health is one reading, 550 with Great Stamina 2 at 35 owner Stamina, which the creature health
+// fits with ~1.1 health a point of the owner's Stamina, and half of it with the warlock's 7.5. The creature
+// health is kept until a second reading at another Stamina.
 var petBaseStats = stats.Stats{
-	stats.Strength:    136,
-	stats.Agility:     100,
-	stats.Stamina:     274,
-	stats.Intellect:   50,
-	stats.Spirit:      80,
-	stats.AttackPower: -20, // Apparently pets and warriors have a AP penalty.
+	stats.Health:      core.CreatureHealthMaxLevel,
+	stats.Armor:       core.CreatureArmorMaxLevel,
+	stats.AttackPower: 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel,
 }
 
-func addPetStatDependencies(pet *core.Character) {
-	pet.AddStatDependency(stats.Strength, stats.AttackPower, 2.0)
-}
+// The swing before attack power is the creature dps over the 2.0 s, spanning 20% either side: a level 11
+// Carrion Bird's 20-27 at 44 attack power and 2.0 s, and a level 17 Cat's 28-37 and 27-37 at 75 and 72,
+// swinging at 1.5 s with Faster Attack III, are the creature dps plus attack power over 14, over the swing
+// as sped up, with the Cat's +10%. The sheet leaves happiness out.
+const petSwingAverage = core.CreatureAutoAttackDpsMaxLevel * 2
 
-// Classic's 18.17-27.66 damage a second of a 2 s swing.
 var petSwing = core.Weapon{
-	BaseDamageMin: 18.17 * 2,
-	BaseDamageMax: 27.66 * 2,
+	BaseDamageMin: petSwingAverage * (1 - 0.2),
+	BaseDamageMax: petSwingAverage * (1 + 0.2),
 	SwingSpeed:    2,
 	MaxRange:      core.MaxMeleeRange,
 }
@@ -84,11 +89,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		family:      family,
 	}
 
-	// Agility gives the pet no crit. In game a level 30 pet crits at its owner's melee crit plus its
-	// skill over the target's defense, with no crit of its own.
-	addPetStatDependencies(&hp.Character)
-
-	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +50% a rank.
+	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +10% a rank.
 	hp.EnableFocusBar(spellData.BestialDiscipline.EffectAt(1).MultiplierAt(hunter.Talents.BestialDiscipline))
 
 	// Normalized in ApplyTalents to the Faster or Slower Attack passive's swing.
@@ -105,9 +106,11 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 }
 
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
-// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power and the owner's
-// higher crit (inheritedCrit). Not linear, so the pet snapshots them; registerStatInheritance
-// says when.
+// them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power, the owner's
+// higher crit (inheritedCrit), the owner's higher hit and the owner's expertise, the armor, attack
+// power and crit read on a level 17 pet sheet at two gear states. Not linear, so the pet snapshots them;
+// registerStatInheritance says when.
+// TODO: The health a point of Stamina is not read; see petBaseStats.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
 		return stats.Stats{
@@ -115,6 +118,11 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 			stats.Armor:               ownerStats[stats.Armor] * 0.3,
 			stats.AttackPower:         max(ownerStats[stats.AttackPower], ownerStats[stats.RangedAttackPower]) * 0.1,
 			stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats),
+			// The owner's hit whole, the higher of melee and ranged, as crit is.
+			stats.PhysicalHitPercent: max(0, ownerStats[stats.PhysicalHitPercent], ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent]),
+			// TODO: 415429 effect 17 (A_MOD_COMBAT_RESULT_CHANCE2, misc 4) states expertise without an
+			// amount; the full share is unmeasured.
+			stats.ExpertisePercent: ownerStats[stats.ExpertisePercent],
 		}
 	}
 }
@@ -122,6 +130,8 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 // The higher of the melee and ranged crit the in-game character sheet shows, at least 0. Melee is the
 // owner's physical crit; ranged adds the ranged crit. Each loses 0.04% a point of its weapon's skill
 // below the level-based maximum.
+// TODO: A level 17 pet sheet read the owner's ranged crit whole at 84 of 85 bow skill, where this
+// takes 0.04% off; a reading at a skill well below the maximum decides.
 func (hunter *Hunter) inheritedCrit(ownerStats stats.Stats) float64 {
 	mhSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetMHWeapon())
 	rangedSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetRangedWeapon())

@@ -178,7 +178,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 
 	// Flat damage done, which the sim keeps as a stat per school.
 	dbcenums.A_MOD_DAMAGE_DONE: func(p *parser, e *Effect, v float64) *attachment {
-		return p.statsBuff(damageDoneStats(e.Misc), v)
+		return p.statsBuff(DamageDoneStats(e.Misc), v)
 	},
 	// The cost of the spells of the schools the mask names, in core's multiplicative cost bucket.
 	// Whether a second stack multiplies again or adds again is not stated, so a stacking row is
@@ -397,15 +397,14 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_RESISTANCE: func(p *parser, e *Effect, v float64) *attachment {
 		return p.statsBuff(resistanceStats(e.Misc), v)
 	},
-	// Flat armor on the same armor bit, which the class armor buffs and debuffs state. It lands on
-	// Armor, outside the percent armor modifiers: they scale the rest of the unit's armor and add this
-	// after. A mask naming any other school is skipped whole.
+	// Flat armor on the same armor bit, which the class armor buffs and debuffs state, as ArmorNoMods.
+	// A mask naming any other school is skipped whole.
 	dbcenums.A_MOD_ARMOR_NO_MODS: func(p *parser, e *Effect, v float64) *attachment {
-		sts := armorNoModsStats(e.Misc)
+		sts := ArmorNoModsStats(e.Misc)
 		if sts == nil {
 			return skipped(fmt.Sprintf("misc %d is not armor alone, the only school the row takes", e.Misc))
 		}
-		return p.statsBuffWith(sts, v, p.addUnmultipliedStats)
+		return p.statsBuff(sts, v)
 	},
 
 	// The game files state the armor ladder twice, once on base armor and once on bonus armor, and the
@@ -942,18 +941,14 @@ func (p *parser) statBuff(stat stats.Stat, v float64) *attachment {
 // Flat stats, which follow the stacks: the attachment keeps what it has handed out and adds the
 // difference, so a level of 2 is worth twice the game files' amount.
 func (p *parser) statsBuff(sts []stats.Stat, v float64) *attachment {
-	return p.statsBuffWith(sts, v, p.addStats)
-}
-
-func (p *parser) statsBuffWith(sts []stats.Stat, v float64, add func(sts []stats.Stat) func(sim *core.Simulation, delta float64)) *attachment {
 	if len(sts) == 0 {
 		return nil
 	}
 
-	a := additive("stat "+statNames(sts), v, add(sts))
+	a := additive("stat "+statNames(sts), v, p.addStats(sts))
 	a.stats = sts
 	for _, stat := range sts {
-		part := additive("stat "+stat.StatName(), v, add([]stats.Stat{stat}))
+		part := additive("stat "+stat.StatName(), v, p.addStats([]stats.Stat{stat}))
 		part.key, part.stat, part.statBid = stat.StatName(), stat, true
 		a.parts = append(a.parts, part)
 	}
@@ -1084,18 +1079,6 @@ func (p *parser) addStats(sts []stats.Stat) func(sim *core.Simulation, delta flo
 		} else {
 			p.unit.AddStatsDynamic(sim, bonus)
 		}
-	}
-}
-
-// Stats the stats' own multipliers leave alone. The unit records the share before the stats change,
-// so the recompute that follows already keeps it out of the multipliers.
-func (p *parser) addUnmultipliedStats(sts []stats.Stat) func(sim *core.Simulation, delta float64) {
-	add := p.addStats(sts)
-	return func(sim *core.Simulation, delta float64) {
-		for _, stat := range sts {
-			p.unit.AddUnmultiplied(stat, delta)
-		}
-		add(sim, delta)
 	}
 }
 
@@ -1408,19 +1391,27 @@ func (e *Effect) TotalStatPercentStats() []stats.Stat {
 }
 
 // The stats a flat damage mask names: the sim keeps one stat for physical damage and one for magic,
-// plus a stat per magic school, so a mask of every school is the first two together.
-func damageDoneStats(mask int32) []stats.Stat {
-	switch {
-	case mask == miscAllSchools:
+// plus a stat per magic school, so a mask of every school is the first two together, a mask of every
+// magic school is the second alone, and any other mask names a stat for each school it states: the
+// Spellstones' 36 is fire and shadow damage. The item generator reads the aura's stats by the same rule.
+func DamageDoneStats(mask int32) []stats.Stat {
+	switch mask {
+	case miscAllSchools:
 		return []stats.Stat{stats.PhysicalDamage, stats.SpellDamage}
-	case mask == miscMagicSchool:
+	case miscMagicSchool:
 		return []stats.Stat{stats.SpellDamage}
-	case mask == int32(core.SpellSchoolPhysical):
-		return []stats.Stat{stats.PhysicalDamage}
-	case isOneSchool(mask):
-		return []stats.Stat{core.SpellSchool(mask).SchoolDamage()}
 	}
-	return nil
+
+	var out []stats.Stat
+	if mask&int32(core.SpellSchoolPhysical) != 0 {
+		out = append(out, stats.PhysicalDamage)
+	}
+	for bit := int32(core.SpellSchoolHoly); bit <= int32(core.SpellSchoolArcane); bit <<= 1 {
+		if mask&bit != 0 {
+			out = append(out, core.SpellSchool(bit).SchoolDamage())
+		}
+	}
+	return out
 }
 
 // The stats a resistance mask names: school 1 is armor, and holy has no resistance stat to take.
@@ -1441,12 +1432,18 @@ func resistanceStats(mask int32) []stats.Stat {
 	return out
 }
 
-// The stats an A_MOD_ARMOR_NO_MODS mask names: armor for school 1 alone, nothing for any other mask.
-func armorNoModsStats(mask int32) []stats.Stat {
+// The stats an A_MOD_ARMOR_NO_MODS mask names: ArmorNoMods for school 1 alone, nothing for any other
+// mask. The item generator reads the aura's armor by the same rule.
+func ArmorNoModsStats(mask int32) []stats.Stat {
 	if mask == miscArmor {
-		return []stats.Stat{stats.Armor}
+		return []stats.Stat{stats.ArmorNoMods}
 	}
 	return nil
+}
+
+// Whether the effect states armor alone with A_MOD_ARMOR_NO_MODS.
+func (e *Effect) ArmorNoMods() bool {
+	return e.Aura == dbcenums.A_MOD_ARMOR_NO_MODS && len(ArmorNoModsStats(e.Misc)) > 0
 }
 
 // The ratings a combat rating mask names, read bit by bit, so a mask naming several ratings gives each

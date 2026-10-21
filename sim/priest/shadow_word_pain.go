@@ -7,5 +7,7 @@ import (
 var ShadowWordPainRankMap = spellData.ShadowWordPain
 
 func (priest *Priest) registerShadowWordPainSpell(_ int32, rank *spelldata.Spell) {
-	priest.RegisterSpell(priest.periodicDamageSpellConfig(rank, PriestSpellShadowWordPain))
+	config := priest.periodicDamageSpellConfig(rank, PriestSpellShadowWordPain)
+	priest.attachPowerInLightMarker(&config)
+	priest.RegisterSpell(config)
 }

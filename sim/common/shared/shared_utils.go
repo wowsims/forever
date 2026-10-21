@@ -664,12 +664,19 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 // time and the amount it rolls. What the row cannot state is that it is a proc's spell: out of the
 // rotation and not a cast of its own. Its hits reach the damage listeners as a proc's do, so a
 // listener with Can Proc From Procs hears them (Vengeance off a Lightning Strike crit).
+//
+// Used from an item instead, a row that states Always Hit rolls no miss, and crits the way damage to
+// its own caster does (casterDamageOutcome): Dragonfire Potion's 1252554 always lands. A proc's row
+// keeps its miss: the bit on a triggered row stops a second roll in the chain, and the sim folds the
+// chain into one spell that rolls once.
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
 
 	defenseType := damageDefenseType(config.DefenseType, config.SpellSchool, false)
 	config.DefenseType = defenseType
 	outcome := damageOutcome(defenseType, damage.CannotCrit(), OutcomeDefault)
+	application := damageOutcome(defenseType, true, OutcomeDefault)
+	alwaysHits := !asProc && damage.AlwaysHits()
 	effect := damage.DamageEffect()
 	config.DirectVariance = effect.DirectVariance()
 	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
@@ -677,46 +684,89 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		config.DirectVariance = 0
 	}
 
+	// Bound once per spell: binding the outcomes per cast would allocate.
+	var boundSpell *core.Spell
+	var hitOutcome, applicationOutcome core.OutcomeApplier
+	bind := func(spell *core.Spell) {
+		if boundSpell == spell {
+			return
+		}
+		boundSpell = spell
+		if alwaysHits {
+			hitOutcome, applicationOutcome = casterDamageOutcome(spell, damage.CannotCrit()), spell.OutcomeAlwaysHit
+			return
+		}
+		hitOutcome, applicationOutcome = GetOutcome(spell, outcome), GetOutcome(spell, application)
+	}
+
 	single := make(core.SpellResultSlice, 1)
 	debuff := debuffOnLanding(character, damage)
 	periodic := damage.PeriodicDamageEffect()
 	if periodic == spelldata.NilEffect {
 		multiTarget := effect.HitsAnArea() || effect.ChainTargets > 1
-		// Bound once per spell: the batch keeps the outcome, so binding it per cast would allocate.
-		var batchSpell *core.Spell
-		var batchOutcome core.OutcomeApplier
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			bind(spell)
 			if multiTarget {
-				if batchSpell != spell {
-					batchSpell, batchOutcome = spell, GetOutcome(spell, outcome)
-				}
-				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, batchOutcome), debuff)
+				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), debuff)
 				return
 			}
-			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), GetOutcome(spell, outcome))
+			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome)
 			dealOneOnArrival(sim, spell, target, single, debuff)
 		}
 		return config
 	}
 
-	after := afterDealt(applyDotIfLanded)
+	// The damage over time lands only with the hit that applies it, which is its one hit roll: the
+	// direct hit where the row deals one, else a roll of its own on the hit table of the spell's
+	// defense type, without the crit an application cannot deal. The hit and the damage over time
+	// each reach every active enemy where their own effect covers an area (the row's MaxTargets of
+	// them from the target out, where it states one), else the target alone. An enemy the damage over
+	// time reaches and the hit does not rolls its own application.
+	config.Dot = spelldata.DotConfig(damage, periodic)
+	areaHit, areaDot := effect.HitsAnArea(), periodic.HitsAnArea()
+	after := applyDotIfLanded(areaDot)
 	if debuff != nil {
+		applyDot := after
 		after = func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
-			applyDotIfLanded(sim, spell, target, results)
+			applyDot(sim, spell, target, results)
 			debuff(sim, spell, target, results)
 		}
 	}
-
-	// The damage over time lands only with the hit that applies it, which is its one hit roll: the
-	// direct hit where the row deals one, else a roll of its own on the hit table of the spell's
-	// defense type, without the crit an application cannot deal.
-	config.Dot = spelldata.DotConfig(damage, periodic)
-	application := damageOutcome(defenseType, true, OutcomeDefault)
+	var rolls core.SpellResultSlice
+	if areaDot && !areaHit {
+		rolls = make(core.SpellResultSlice, 0, len(character.Env.AllUnits))
+	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		if effect == spelldata.NilEffect {
-			single[0] = spell.CalcOutcome(sim, target, GetOutcome(spell, application))
-		} else {
-			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), GetOutcome(spell, outcome))
+		bind(spell)
+		switch {
+		case areaHit:
+			dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), after)
+			return
+		case areaDot:
+			rolls = rolls[:0]
+			if effect != spelldata.NilEffect {
+				rolls = append(rolls, spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome))
+			}
+			reached := sim.Environment.ActiveTargetCount()
+			if damage.MaxTargets > 0 {
+				reached = min(reached, int32(damage.MaxTargets))
+			}
+			enemy := target
+			if !enemy.IsEnabled() {
+				enemy = sim.Environment.NextActiveTargetUnit(enemy)
+			}
+			for range reached {
+				if effect == spelldata.NilEffect || enemy != target {
+					rolls = append(rolls, spell.CalcOutcome(sim, enemy, applicationOutcome))
+				}
+				enemy = sim.Environment.NextActiveTargetUnit(enemy)
+			}
+			dealOnArrival(sim, spell, target, rolls, after)
+			return
+		case effect == spelldata.NilEffect:
+			single[0] = spell.CalcOutcome(sim, target, applicationOutcome)
+		default:
+			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome)
 		}
 		dealOneOnArrival(sim, spell, target, single, after)
 	}
@@ -778,10 +828,15 @@ func dealResults(sim *core.Simulation, spell *core.Spell, target *core.Unit, res
 	}
 }
 
-// The damage over time goes on with the hit that carries it, or on its own where there is none.
-func applyDotIfLanded(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
-	if len(results) == 0 || results[0].Landed() {
-		spell.Dot(target).Apply(sim)
+// The damage over time goes on with the roll that carries it: over an area, on every enemy whose roll
+// landed and that is still active when it lands; else on the target alone, where its roll landed.
+func applyDotIfLanded(area bool) afterDealt {
+	return func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
+		for _, result := range results {
+			if result.Landed() && (area && result.Target.IsEnabled() || !area && result.Target == target) {
+				spell.Dot(result.Target).Apply(sim)
+			}
+		}
 	}
 }
 

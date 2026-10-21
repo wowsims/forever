@@ -27,6 +27,7 @@ func TestOverridesBakeOntoTheRow(t *testing.T) {
 		{SpellID: 10, Field: overrides.FlatThreat, Value: 200, Reason: "measured"},
 		{SpellID: 10, Field: overrides.APCoefDirect, Value: 0.2, Reason: "measured"},
 		{SpellID: 10, Field: overrides.APCoefPeriodic, Value: 0.1, Reason: "measured"},
+		{SpellID: 10, Field: overrides.SPCoefDirect, Value: 0.3, Reason: "measured"},
 		{SpellID: 10, Field: overrides.DurationMs, Value: 15000, Reason: "measured"},
 		{SpellID: 10, Field: overrides.ICDMs, Value: 10000, Reason: "measured"},
 		{SpellID: 10, Field: overrides.Hint, Value: float64(core.ProcHintCrit), Reason: "measured"},
@@ -44,6 +45,10 @@ func TestOverridesBakeOntoTheRow(t *testing.T) {
 	if row.Effects[0].APCoef != 0.2 || row.Effects[1].APCoef != 0.1 {
 		t.Errorf("the effects read %v direct and %v periodic attack power",
 			row.Effects[0].APCoef, row.Effects[1].APCoef)
+	}
+	if row.Effects[0].SPCoef != 0.3 || row.Effects[1].SPCoef != 0 {
+		t.Errorf("the effects read %v direct and %v periodic spell power",
+			row.Effects[0].SPCoef, row.Effects[1].SPCoef)
 	}
 	if row.ProcChanceSource != procChancePPM {
 		t.Errorf("a PPM override leaves the chance source at %s", row.ProcChanceSource)
@@ -150,6 +155,20 @@ func TestOverridesRefuseWhatTheGameFilesState(t *testing.T) {
 			}}},
 			list:  []overrides.Override{{SpellID: 10, Field: overrides.APCoefDirect, Value: 0.2, Reason: "measured"}},
 			wants: "now states 0.5 attack power on its direct effect",
+		},
+		{
+			name: "a game files spell-power coefficient",
+			rows: []storeSpell{{ID: 10, Effects: []storeEffect{
+				{Index: 0, Type: dbcenums.E_SCHOOL_DAMAGE, SPCoef: 0.5},
+			}}},
+			list:  []overrides.Override{{SpellID: 10, Field: overrides.SPCoefDirect, Value: 0.2, Reason: "measured"}},
+			wants: "now states 0.5 spell power on its direct effect",
+		},
+		{
+			name:  "no direct effect to carry a spell-power coefficient",
+			rows:  []storeSpell{{ID: 10}},
+			list:  []overrides.Override{{SpellID: 10, Field: overrides.SPCoefDirect, Value: 0.2, Reason: "measured"}},
+			wants: "no direct effect to carry a spell-power coefficient",
 		},
 		{
 			name:  "no effect to carry the coefficient",
@@ -278,6 +297,34 @@ func TestShippedOverridesAreWellFormed(t *testing.T) {
 			t.Errorf("enchant %d's rate on %d is a %s of %v and states reason %q and source %q",
 				proc.EnchantID, proc.SpellID, proc.Kind, proc.Value, proc.Reason, proc.Source)
 		}
+	}
+}
+
+// A hand trigger goes into the store while its spell's effects leave the link unstated, and is
+// refused once one of them triggers the linked spell itself. Each case runs over every shipped
+// entry, with only the first entry's spell stating the link in the stale case.
+func TestAHandTriggerTheGameFilesStateIsStale(t *testing.T) {
+	link := overrides.HandTriggers[0]
+	tablesWith := func(trigger int32) (*spellTables, map[int32]bool) {
+		tables := newSpellTables()
+		tables.Effects[link.Spell] = []storeEffect{{SpellID: link.Spell, Type: dbcenums.E_DUMMY, TriggerID: trigger}}
+		inStore := map[int32]bool{}
+		for _, l := range overrides.HandTriggers {
+			inStore[l.Spell], inStore[l.Triggers] = true, true
+		}
+		return tables, inStore
+	}
+
+	hand, err := storeHandTriggers(tablesWith(0))
+	if err != nil {
+		t.Fatalf("an unstated link is refused: %v", err)
+	}
+	if got := hand[link.Spell]; len(got) == 0 || got[0].Triggers != link.Triggers {
+		t.Errorf("the store links %d to %v, want %d", link.Spell, got, link.Triggers)
+	}
+
+	if _, err := storeHandTriggers(tablesWith(link.Triggers)); err == nil || !strings.Contains(err.Error(), "stale") {
+		t.Errorf("a link %d's effect states is not refused as stale: %v", link.Spell, err)
 	}
 }
 

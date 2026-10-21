@@ -6,10 +6,13 @@ import { describe, expect, it } from 'vitest';
 
 import {
 	applyOwnerClassLabels,
+	type IconPickerStatOption,
 	inDisplayOrder,
+	isMultiIconOption,
 	type PickerStatOptions,
 	relevantStatOptions,
 	type RenderableStatOptions,
+	statOptionGroup,
 	statOptionScope,
 } from './stat_options';
 
@@ -27,6 +30,9 @@ const untagged = option([]);
 const strengthOfEarth = option([Stat.StatStrength], 'Strength of Earth');
 const fortitude = option([Stat.StatStamina], 'Fortitude');
 const options = [manaSpring, manaTide, untagged, strengthOfEarth, fortitude];
+
+// The icon config a fixture row carries, as a group names its members.
+const iconConfig = (row: PickerStatOptions | RenderableStatOptions) => row.config as IconPickerStatOption['config'];
 
 const lists = (parts: { include?: Array<unknown>; exclude?: Array<unknown> } = {}) => ({
 	includeBuffDebuffInputs: parts.include ?? [],
@@ -150,6 +156,33 @@ describe('relevantStatOptions', () => {
 	});
 });
 
+describe('relevantStatOptions on a group', () => {
+	const flametongue = option([Stat.StatAttackPower], 'Flametongue');
+	const battleShout = option([Stat.StatAttackPower], 'Battle Shout');
+	const furiousHowl = option([Stat.StatAttackPower], 'Furious Howl');
+	const [attackPower] = inDisplayOrder([battleShout, furiousHowl], [statOptionGroup('Attack Power', [iconConfig(battleShout), iconConfig(furiousHowl)])]);
+	const inputLabels = (row: PickerStatOptions | undefined) => (row && isMultiIconOption(row) ? row.config.inputs.map(input => input.label) : []);
+
+	it('drops the members the spec excludes and keeps the rest under the group label', () => {
+		const [shown] = relevantStatOptions([attackPower], lists({ exclude: [furiousHowl.config] }), new Set([Stat.StatAttackPower]));
+
+		expect(shown.config.label).toBe('Attack Power');
+		expect(inputLabels(shown)).toEqual(['Battle Shout']);
+	});
+
+	it('drops the group with its last member', () => {
+		expect(
+			relevantStatOptions([attackPower, flametongue], lists({ exclude: [battleShout.config, furiousHowl.config] }), new Set([Stat.StatAttackPower])),
+		).toEqual([flametongue]);
+	});
+
+	it('offers the group when the spec includes one of its members', () => {
+		const [shown] = relevantStatOptions([attackPower], lists({ include: [furiousHowl.config] }), new Set());
+
+		expect(shown).toBe(attackPower);
+	});
+});
+
 describe('statOptionScope', () => {
 	const defaultStats = (parts: Parameters<typeof specStats>[0]) => statOptionScope(options, specStats(parts)).defaults.map(stat => stat.getStat());
 
@@ -215,6 +248,18 @@ describe('applyOwnerClassLabels', () => {
 		expect(shown[0]).toBe(unlabelledWarriorRow);
 	});
 
+	it("marks a group's owned members, not the group, and returns a group with none untouched", () => {
+		const [attackPower] = inDisplayOrder(
+			[battleShout, arcaneBrilliance],
+			[statOptionGroup('Group', [iconConfig(battleShout), iconConfig(arcaneBrilliance)])],
+		);
+		const [shown] = applyOwnerClassLabels([attackPower], playerOf(Class.ClassWarrior));
+
+		expect(shown.config.label).toBe('Group');
+		expect(isMultiIconOption(shown) && shown.config.inputs.map(input => input.label)).toEqual(['settings_tab.external_label', 'Arcane Brilliance']);
+		expect(applyOwnerClassLabels([attackPower], playerOf(Class.ClassPriest))[0]).toBe(attackPower);
+	});
+
 	it('runs after relevantStatOptions, so a spec excluding a row by its config still drops it', () => {
 		const shown = applyOwnerClassLabels(
 			relevantStatOptions([battleShout, arcaneBrilliance], lists({ exclude: [battleShout.config] }), new Set()),
@@ -241,6 +286,22 @@ describe('inDisplayOrder', () => {
 		expect(() => inDisplayOrder([prebuiltBattleShout, prebuiltSunderArmor], [prebuiltBattleShout.config])).toThrowError(
 			'the display order leaves out Sunder Armor',
 		);
+	});
+
+	it("builds a group from the prebuilt rows it names, with every member's stats, and counts its members as placed", () => {
+		const shout = { ...prebuiltBattleShout, stats: [Stat.StatAttackPower] } as RenderableStatOptions;
+		const sunder = { ...prebuiltSunderArmor, stats: [Stat.StatAttackPower, Stat.StatArmor] } as RenderableStatOptions;
+		const [group] = inDisplayOrder([shout, sunder], [statOptionGroup('Warrior', [iconConfig(shout), iconConfig(sunder)])]);
+
+		expect(group.config.label).toBe('Warrior');
+		expect(group.stats).toEqual([Stat.StatAttackPower, Stat.StatArmor]);
+		expect(isMultiIconOption(group) && group.members).toEqual([shout, sunder]);
+	});
+
+	it('reports a group member with no prebuilt row', () => {
+		expect(() =>
+			inDisplayOrder([prebuiltSunderArmor], [statOptionGroup('Warrior', [iconConfig(prebuiltSunderArmor), iconConfig(prebuiltBattleShout)])]),
+		).toThrowError('the display order names Battle Shout, which no prebuilt row carries');
 	});
 
 	it('reports a config with no prebuilt row', () => {

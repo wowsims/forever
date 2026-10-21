@@ -1,19 +1,178 @@
 @layer components {
+	.ui-landing-root {
+		@apply md:[--font-size-root:16px];
+	}
+
+	.ui-landing-container {
+		@apply mx-auto w-full max-w-landing px-6 min-[992px]:px-12;
+	}
+
+	.ui-landing-brand {
+		@apply m-0 flex items-center gap-2 p-0 whitespace-nowrap text-white no-underline;
+
+		&:hover .ui-landing-brand-logo {
+			@apply scale-110 rotate-360;
+		}
+	}
+
+	.ui-landing-brand-logo {
+		@apply w-landing-logo transition-transform duration-600 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none;
+	}
+
+	.ui-landing-hero-title {
+		@apply m-0 mb-4 text-[clamp(2rem,4vw,3.25rem)] leading-[1.1] font-extrabold text-white motion-safe:animate-landing-rise-in-slow;
+	}
+
+	.ui-landing-hero-blurb {
+		@apply m-0 mb-6 text-[1.05rem] leading-[1.6] text-white/80 motion-safe:animate-landing-rise-in-slow;
+		--ui-landing-rise-in-delay: 350ms;
+	}
+
 	.ui-landing-nav-link {
-		@apply text-white hover:text-brand focus:text-brand;
+		@apply flex items-center text-sm whitespace-nowrap text-white hover:text-brand focus:text-brand max-md:py-2;
 	}
 
-	.ui-landing-sim-link-dropdown {
-		@apply relative mr-[25%] w-full max-w-1/4 grow basis-1/4 max-lg:mr-0 max-lg:max-w-1/2 max-lg:basis-1/2 max-md:basis-full;
+	.ui-landing-nav-badge {
+		@apply flex items-center hover:opacity-85 focus:opacity-85 max-md:py-2;
 	}
 
-	.ui-landing-sim-link-cell {
-		@apply flex w-full no-underline hover:bg-black/50 data-highlighted:bg-black/50 data-popup-open:bg-black/50;
-		@apply max-lg:mr-0 max-lg:max-w-1/2 max-lg:grow max-lg:basis-1/2 max-md:max-w-none max-md:basis-full;
+	.ui-landing-action {
+		@apply relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-solid border-white/20 bg-background/75 px-landing-action-x py-landing-action-y text-base font-bold text-white no-underline transition-[background-color,border-color,transform] duration-200;
+		@apply hover:-translate-y-landing-action-lift hover:border-white/40 hover:bg-landing-action-hover hover:text-white;
+		@apply focus-visible:-translate-y-landing-action-lift focus-visible:border-white/40 focus-visible:bg-landing-action-hover focus-visible:text-white;
+		@apply motion-safe:animate-landing-rise-in;
+		--ui-landing-rise-in-delay: 450ms;
+
+		&:nth-child(2) {
+			--ui-landing-rise-in-delay: 520ms;
+		}
+
+		&:nth-child(3) {
+			--ui-landing-rise-in-delay: 590ms;
+		}
+
+		&::after {
+			@apply pointer-events-none absolute inset-0 -translate-x-full bg-landing-sheen content-[''];
+		}
+
+		&:is(:hover, :focus-visible)::after {
+			@apply translate-x-full transition-transform duration-600 motion-reduce:transition-none;
+		}
 	}
 
-	.ui-landing-sim-link-popup {
-		@apply w-(--anchor-width) border border-solid border-surface-border bg-black/50 outline-none max-lg:bg-surface-raised;
+	.ui-landing-action-discord {
+		@apply border-discord bg-discord hover:border-discord-hover hover:bg-discord-hover focus-visible:border-discord-hover focus-visible:bg-discord-hover;
+	}
+
+	.ui-landing-action-addon {
+		@apply border-brand/60 text-brand hover:border-brand hover:bg-brand/12 hover:text-brand focus-visible:border-brand focus-visible:bg-brand/12 focus-visible:text-brand;
+	}
+
+	.ui-landing-class-card {
+		@apply relative isolate flex min-h-50 w-full overflow-hidden rounded-landing-card border border-solid border-white/8 p-0 text-left text-white no-underline transition-[transform,box-shadow,border-color] duration-200 motion-safe:animate-landing-rise-in;
+		--ui-landing-card-accent: var(--color-white);
+		--ui-landing-rise-in-delay: calc(var(--ui-landing-card-index, 0) * 70ms + 300ms);
+		background: linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--ui-landing-card-accent) 25%, var(--color-background)),
+			color-mix(in srgb, var(--color-background) 50%, var(--color-black))
+		);
+		box-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--color-black) 35%, transparent);
+
+		&[data-class='druid'] {
+			--ui-landing-card-accent: var(--color-class-druid);
+		}
+
+		&[data-class='hunter'] {
+			--ui-landing-card-accent: var(--color-class-hunter);
+		}
+
+		&[data-class='mage'] {
+			--ui-landing-card-accent: var(--color-class-mage);
+		}
+
+		&[data-class='paladin'] {
+			--ui-landing-card-accent: var(--color-class-paladin);
+		}
+
+		&[data-class='priest'] {
+			--ui-landing-card-accent: var(--color-class-priest);
+		}
+
+		&[data-class='rogue'] {
+			--ui-landing-card-accent: var(--color-class-rogue);
+		}
+
+		&[data-class='shaman'] {
+			--ui-landing-card-accent: var(--color-class-shaman);
+		}
+
+		&[data-class='warlock'] {
+			--ui-landing-card-accent: var(--color-class-warlock);
+		}
+
+		&[data-class='warrior'] {
+			--ui-landing-card-accent: var(--color-class-warrior);
+		}
+
+		&::before {
+			@apply absolute inset-y-0 left-0 z-2 bg-(--ui-landing-card-accent) content-[''];
+			width: calc(var(--radius-landing-card) / 2);
+		}
+
+		&::after {
+			@apply absolute inset-0 z-0 content-[''];
+			background:
+				linear-gradient(
+					to top,
+					color-mix(in srgb, var(--color-black) 92%, transparent),
+					color-mix(in srgb, var(--color-black) 55%, transparent) 45%,
+					color-mix(in srgb, var(--color-black) 10%, transparent)
+				),
+				color-mix(in srgb, var(--color-black) 40%, transparent);
+		}
+
+		&:is(:hover, :focus-within) {
+			@apply -translate-y-1 border-(--ui-landing-card-accent) text-white;
+			box-shadow:
+				0 0.75rem 2rem color-mix(in srgb, var(--color-black) 50%, transparent),
+				0 0 1.5rem color-mix(in srgb, var(--ui-landing-card-accent) 35%, transparent);
+
+			& .ui-landing-class-card-cover {
+				@apply scale-105;
+			}
+
+			& .ui-landing-class-card-sheen {
+				@apply translate-x-full transition-transform duration-800 motion-reduce:transition-none;
+			}
+		}
+	}
+
+	.ui-landing-class-card-cover {
+		@apply absolute inset-0 -z-1 bg-(image:--theme-background-image) bg-cover bg-center bg-no-repeat transition-transform duration-400 motion-reduce:transition-none;
+	}
+
+	.ui-landing-class-card-body {
+		@apply relative z-1 flex w-full flex-col justify-between gap-4 p-6;
+	}
+
+	.ui-landing-class-card-title {
+		@apply self-start rounded-full bg-black/55 py-1 pr-4 pl-1 text-(--ui-landing-card-accent);
+
+		& .ui-sim-link-content {
+			--sim-link-padding-x: 0;
+			--sim-link-padding-y: 0;
+		}
+	}
+
+	.ui-landing-class-card-sheen {
+		@apply pointer-events-none absolute inset-0 z-3 -translate-x-full bg-landing-sheen;
+	}
+
+	.ui-landing-spec-pill {
+		@apply inline-flex items-center gap-2 rounded-full border border-solid border-(--ui-landing-card-accent)/50 bg-black/55 py-1 pr-4 pl-1 text-sm font-medium text-white no-underline transition-[background-color,border-color] duration-200;
+		@apply hover:border-(--ui-landing-card-accent) hover:bg-(--ui-landing-card-accent)/25 hover:text-white focus-visible:border-(--ui-landing-card-accent) focus-visible:bg-(--ui-landing-card-accent)/25 focus-visible:text-white;
+		@apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-landing-card-accent) focus-visible:outline-solid;
 	}
 
 	.ui-landing-language-popup {

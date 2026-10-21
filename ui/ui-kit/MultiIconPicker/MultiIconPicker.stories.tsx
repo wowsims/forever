@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KEPT_TOOLTIP } from '@testing/storybook/fixtures/kept';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
+import { IconEnumPickerDirection } from '@ui-kit/IconEnumPicker';
 import { IconPicker } from '@ui-kit/IconPicker';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -20,7 +21,13 @@ const BUFFS = [
 	icon('spell_nature_lightningshield', 'Trueshot Aura', 20906),
 ];
 
-const MultiIconPickerStory = ({ onClear, keptTooltip, initial }: Pick<MultiIconPickerProps, 'onClear' | 'keptTooltip'> & { initial: Array<number> }) => {
+const MultiIconPickerStory = ({
+	onClear,
+	keptTooltip,
+	direction,
+	numColumns,
+	initial,
+}: Pick<MultiIconPickerProps, 'onClear' | 'keptTooltip' | 'direction' | 'numColumns'> & { initial: Array<number> }) => {
 	const [values, setValues] = useState(initial);
 	const first = values.findIndex(value => value > 0);
 	return (
@@ -29,6 +36,8 @@ const MultiIconPickerStory = ({ onClear, keptTooltip, initial }: Pick<MultiIconP
 			icon={first >= 0 ? BUFFS[first] : undefined}
 			active={first >= 0}
 			keptTooltip={keptTooltip}
+			direction={direction}
+			numColumns={numColumns}
 			onClear={() => {
 				setValues(values.map(() => 0));
 				onClear();
@@ -87,4 +96,10 @@ export const Active: Story = {
 export const Kept: Story = {
 	args: { keptTooltip: KEPT_TOOLTIP },
 	render: ({ onClear, keptTooltip }) => <MultiIconPickerStory onClear={onClear} keptTooltip={keptTooltip} initial={[0, 1, 0]} />,
+};
+export const Vertical: Story = {
+	args: { direction: IconEnumPickerDirection.Vertical, numColumns: 2 },
+	render: ({ onClear, direction, numColumns }) => (
+		<MultiIconPickerStory onClear={onClear} direction={direction} numColumns={numColumns} initial={[1, 0, 0]} />
+	),
 };

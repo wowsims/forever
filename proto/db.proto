@@ -100,7 +100,8 @@ message Consumable {
 	// The world event the consumable belongs to, by name, which the settings list it under. Empty for
 	// one available all year.
 	string holiday = 21;
-	// The classes of a potion, which the settings offer it under. Empty on anything else.
+	// The classes of a potion, which the settings offer it under, and of a miscellaneous consumable,
+	// which the settings split its row by. Empty on anything else.
 	repeated PotionClass potion_classes = 22;
 	// What the on-use grants only against a target of these mob types, which stats leaves out.
 	repeated MobTypeStats mob_type_stats = 23;

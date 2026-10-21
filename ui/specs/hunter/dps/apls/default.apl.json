@@ -12,6 +12,7 @@
 				"autocastOtherCooldowns": {}
 			}
 		},
+		{ "action": { "castSpell": { "spellId": { "spellId": 14266, "tag": 1 } } } },
 		{
 			"action": {
 				"castSpell": { "spellId": { "spellId": 14325 } },
@@ -28,6 +29,18 @@
 			"action": {
 				"condition": { "cmp": { "op": "OpLe", "lhs": { "unitDistance": { "sourceUnit": { "type": "Self" } } }, "rhs": { "variableRef": { "name": "Melee range" } } } },
 				"castSpell": { "spellId": { "spellId": 1317257 } }
+			}
+		},
+		{
+			"action": {
+				"condition": { "cmp": { "op": "OpLe", "lhs": { "unitDistance": { "sourceUnit": { "type": "Self" } } }, "rhs": { "variableRef": { "name": "Melee range" } } } },
+				"castSpell": { "spellId": { "spellId": 14305 } }
+			}
+		},
+		{
+			"action": {
+				"condition": { "cmp": { "op": "OpLe", "lhs": { "unitDistance": { "sourceUnit": { "type": "Self" } } }, "rhs": { "variableRef": { "name": "Melee range" } } } },
+				"castSpell": { "spellId": { "spellId": 14268 } }
 			}
 		},
 		{ "action": { "condition": { "variableRef": { "name": "Melee weave" } }, "groupReference": { "groupName": "Weave" } } },
@@ -252,7 +265,7 @@
 										"cmp": {
 											"op": "OpLe",
 											"lhs": { "autoTimeToNext": { "autoType": "MainHandAuto" } },
-											"rhs": { "variableRef": { "name": "Move duration" } }
+											"rhs": { "math": { "op": "OpSub", "lhs": { "variableRef": { "name": "Move duration" } }, "rhs": { "inputDelay": {} } } }
 										}
 									},
 									{
@@ -284,9 +297,9 @@
 	],
 	"valueVariables": [
 		{ "name": "Melee weave", "value": { "const": { "val": "true" } } },
-		{ "name": "Time to weave", "value": { "const": { "val": "400ms" } } },
+		{ "name": "Time to weave", "value": { "const": { "val": "100ms" } } },
 		{ "name": "Melee range", "value": { "const": { "val": "5.00" } } },
-		{ "name": "Ranged range", "value": { "const": { "val": "11.00" } } },
+		{ "name": "Ranged range", "value": { "const": { "val": "12.00" } } },
 		{ "name": "Starting weave distance", "value": { "variableRef": { "name": "Ranged range" } } },
 		{
 			"name": "Move duration",
@@ -312,20 +325,7 @@
 		},
 		{
 			"name": "Wait at melee",
-			"value": {
-				"max": {
-					"vals": [
-						{ "inputDelay": {} },
-						{
-							"math": {
-								"op": "OpSub",
-								"lhs": { "variableRef": { "name": "Time to weave" } },
-								"rhs": { "math": { "op": "OpMul", "lhs": { "variableRef": { "name": "Move duration" } }, "rhs": { "const": { "val": "2" } } } }
-							}
-						}
-					]
-				}
-			}
+			"value": { "max": { "vals": [{ "inputDelay": {} }, { "variableRef": { "name": "Time to weave" } }] } }
 		},
 		{
 			"name": "Auto Shot wait",

@@ -14,10 +14,10 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	// Entrapment (19184) roots on a trap the sim does not place.
 	hunter.registerSavageStrikes()
 	hunter.registerSurvivalist()
-	// Improved Wing Clip (19228) is a root chance on a snare the sim does not cast.
+	// Improved Wing Clip (19228) is a root chance on Wing Clip, which a boss shrugs off.
 
 	// Tier 3
-	// Clever Traps (19239): the sim places no traps.
+	hunter.registerCleverTraps()
 	hunter.registerSurefooted()
 	// Deterrence (19263) is parry and dodge the sim's targets do not test.
 
@@ -29,7 +29,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	// Tier 5
 	hunter.registerResourcefulness()
 	// Expose Prey: mongoose_bite.go
-	// Survivalist's Discipline (1310496) shortens the trap and Deterrence cooldowns, none registered.
+	hunter.registerSurvivalistsDiscipline()
 	hunter.registerStriderKick()
 
 	// Tier 6
@@ -113,6 +113,16 @@ func (hunter *Hunter) registerResourcefulness() {
 	trigger.Outcome = core.OutcomeCrit
 
 	hunter.MakeProcTriggerAura(trigger)
+}
+
+// The cooldown mod matches every trap's placement spell and Deterrence; the sim registers only the
+// Immolation and Explosive Trap placements, and their shared category cooldown shortens with them.
+func (hunter *Hunter) registerSurvivalistsDiscipline() {
+	if hunter.Talents.SurvivalistsDiscipline == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&hunter.Character, spellData.SurvivalistsDiscipline.Rank(hunter.Talents.SurvivalistsDiscipline))
 }
 
 var striderKickRank = spellData.StriderKick.Highest()
@@ -199,4 +209,14 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 	}
 
 	hunter.MakeProcTriggerAura(trigger)
+}
+
+// Effect 1 lengthens the crowd control traps, which the sim does not place; effect 2 raises the
+// Immolation and Explosive Trap damage.
+func (hunter *Hunter) registerCleverTraps() {
+	if hunter.Talents.CleverTraps == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&hunter.Character, spellData.CleverTraps.Rank(hunter.Talents.CleverTraps), spelldata.Effects(2))
 }

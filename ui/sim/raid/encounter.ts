@@ -102,33 +102,12 @@ export class Encounter {
 		if (newExecuteProportion20 == this.enc.executeProportion20) return;
 		this.set({ executeProportion20: newExecuteProportion20 });
 	}
-	getExecuteProportion25(): number {
-		return this.enc.executeProportion25;
-	}
-	setExecuteProportion25(newExecuteProportion25: number) {
-		if (newExecuteProportion25 == this.enc.executeProportion25) return;
-		this.set({ executeProportion25: newExecuteProportion25 });
-	}
 	getExecuteProportion35(): number {
 		return this.enc.executeProportion35;
 	}
 	setExecuteProportion35(newExecuteProportion35: number) {
 		if (newExecuteProportion35 == this.enc.executeProportion35) return;
 		this.set({ executeProportion35: newExecuteProportion35 });
-	}
-	getExecuteProportion45(): number {
-		return this.enc.executeProportion45;
-	}
-	setExecuteProportion45(newExecuteProportion45: number) {
-		if (newExecuteProportion45 == this.enc.executeProportion45) return;
-		this.set({ executeProportion45: newExecuteProportion45 });
-	}
-	getExecuteProportion90(): number {
-		return this.enc.executeProportion90;
-	}
-	setExecuteProportion90(newExecuteProportion90: number) {
-		if (newExecuteProportion90 == this.enc.executeProportion90) return;
-		this.set({ executeProportion90: newExecuteProportion90 });
 	}
 	getUseHealth(): boolean {
 		return this.enc.useHealth;
@@ -184,10 +163,7 @@ export class Encounter {
 			duration: enc.duration,
 			durationVariation: enc.durationVariation,
 			executeProportion20: enc.executeProportion20,
-			executeProportion25: enc.executeProportion25,
 			executeProportion35: enc.executeProportion35,
-			executeProportion45: enc.executeProportion45,
-			executeProportion90: enc.executeProportion90,
 			useHealth: enc.useHealth,
 			areaTypes: enc.areaTypes,
 			zoneId: enc.zoneId,
@@ -201,10 +177,7 @@ export class Encounter {
 			this.setDuration(proto.duration);
 			this.setDurationVariation(proto.durationVariation);
 			this.setExecuteProportion20(proto.executeProportion20);
-			this.setExecuteProportion25(proto.executeProportion25);
 			this.setExecuteProportion35(proto.executeProportion35);
-			this.setExecuteProportion45(proto.executeProportion45);
-			this.setExecuteProportion90(proto.executeProportion90);
 			this.setUseHealth(proto.useHealth);
 			this.setAreaTypes(proto.areaTypes, proto.zoneId);
 			// Clone so edits in the Advanced Encounter picker cannot mutate the

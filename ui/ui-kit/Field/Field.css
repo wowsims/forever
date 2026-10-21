@@ -96,6 +96,15 @@
 
 		.ui-boolean-picker-input {
 			@apply size-6 cursor-pointer;
+
+			> .ui-boolean-picker-indicator {
+				@apply text-sm;
+			}
+		}
+
+		.ui-boolean-picker.ui-field > .ui-field-label,
+		&.ui-boolean-picker.ui-field > .ui-field-label {
+			@apply text-xs leading-(--text-xs--line-height);
 		}
 	}
 

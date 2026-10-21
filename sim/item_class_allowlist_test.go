@@ -3,7 +3,9 @@
 package sim
 
 import (
+	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/assets/database"
@@ -83,5 +85,51 @@ func TestClassRestrictedOnUseRegistersOnlyForItsClass(t *testing.T) {
 		DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{ClassOptions: &proto.WarriorOptions{}}}}}
 	if onUseFor(warrior) != nil {
 		t.Errorf("a warrior wearing item %d has its on-use", charmID)
+	}
+}
+
+// Every gear set and build the specs ship holds only items its class may use; the class is the folder
+// the spec sits in, ui/specs/<class>/<spec>/gear_sets or ui/specs/<class>/<spec>/builds.
+func TestGearSetsHoldOnlyTheirClassItems(t *testing.T) {
+	gearFiles, err := filepath.Glob("../ui/specs/*/*/gear_sets/*.gear.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	buildFiles, err := filepath.Glob("../ui/specs/*/*/builds/*.build.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(gearFiles) == 0 || len(buildFiles) == 0 {
+		t.Fatalf("found %d gear sets and %d builds under ../ui/specs", len(gearFiles), len(buildFiles))
+	}
+	for _, file := range slices.Concat(gearFiles, buildFiles) {
+		className := strings.Split(filepath.ToSlash(file), "/")[3]
+		classValue, ok := proto.Class_value["Class"+strings.ToUpper(className[:1])+className[1:]]
+		if !ok {
+			t.Errorf("%s: %s is not a class", file, className)
+			continue
+		}
+		class := proto.Class(classValue)
+
+		dir, name := filepath.Dir(file), filepath.Base(file)
+		var equipment *proto.EquipmentSpec
+		if build, ok := strings.CutSuffix(name, ".build.json"); ok {
+			equipment = core.GetTestBuildFromJSON(class, dir, build, core.ItemFilter{}, nil, nil).GearSet.GearSet
+		} else {
+			equipment = core.GetGearSet(dir, strings.TrimSuffix(name, ".gear.json")).GearSet
+		}
+		for _, spec := range equipment.GetItems() {
+			if spec.Id == 0 {
+				continue
+			}
+			item := core.GetItemByID(spec.Id)
+			if item == nil {
+				t.Errorf("%s: item %d is not in the sim's database", file, spec.Id)
+				continue
+			}
+			if !item.UsableBy(class) {
+				t.Errorf("%s: item %d %s may only be used by %v, not %v", file, item.ID, item.Name, item.ClassAllowlist, class)
+			}
+		}
 	}
 }

@@ -16,9 +16,10 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Test imbues shaped like three of the game's: an oil like Brilliant Wizard Oil 20749 (Effect 54,
+// Test imbues shaped like four of the game's: an oil like Brilliant Wizard Oil 20749 (Effect 54,
 // healing, spell damage and a spell crit percent), a stone like Dense Sharpening Stone 12404 (Effect
-// 54, flat weapon damage) and a firestone like Firestone 13699 (Effect 360, fire spell damage). The
+// 54, flat weapon damage), a firestone like Firestone 13699 (Effect 360, fire spell damage) and a
+// spellstone like Major Spellstone 13603 (Effect 360, fire and shadow damage and 2% cast speed). The
 // main set wears two test one-handers, and the item swap set two others.
 const (
 	swapTestOil int32 = 991531 + iota
@@ -28,6 +29,7 @@ const (
 	swapTestOffHand
 	swapTestSwapMainHand
 	swapTestSwapOffHand
+	swapTestSpellstone
 )
 
 var registerSwapTestImbues = sync.OnceFunc(func() {
@@ -43,9 +45,13 @@ var registerSwapTestImbues = sync.OnceFunc(func() {
 				TemporaryEnchant: &proto.SimEnchant{EffectId: 991542, WeaponDamage: 8}},
 			{Id: swapTestFirestone, Name: "Test Firestone", Type: proto.ConsumableType_ConsumableTypeWeaponImbue,
 				TemporaryEnchant: &proto.SimEnchant{EffectId: 991543, Stats: stats.Stats{stats.FireDamage: 14}.ToProtoArray()}},
+			{Id: swapTestSpellstone, Name: "Test Spellstone", Type: proto.ConsumableType_ConsumableTypeWeaponImbue,
+				TemporaryEnchant: &proto.SimEnchant{EffectId: 991544,
+					Stats:       stats.Stats{stats.FireDamage: 21, stats.ShadowDamage: 21}.ToProtoArray(),
+					PseudoStats: pseudoStats(proto.PseudoStat_PseudoStatSpellHastePercent, 2)}},
 		},
 	})
-	for _, id := range []int32{swapTestOil, swapTestStone, swapTestFirestone} {
+	for _, id := range []int32{swapTestOil, swapTestStone, swapTestFirestone, swapTestSpellstone} {
 		NewSpellDataTemporaryEnchant(id, SchoolPiercing{})
 	}
 })
@@ -53,6 +59,26 @@ var registerSwapTestImbues = sync.OnceFunc(func() {
 // A mage wearing the main set, with the item swap set when swap is true.
 func newImbueSwapSim(t *testing.T, consumes *proto.ConsumesSpec, swap bool) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return newImbueSwapSimOf(imbueSwapPlayer(consumes, swap))
+}
+
+func newImbueSwapSimOf(player *proto.Player) (*core.Simulation, *core.Character) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       imbueSwapRaid(player),
+		Encounter:  imbueSwapEncounter,
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+var imbueSwapEncounter = &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 600}
+
+func imbueSwapRaid(player *proto.Player) *proto.Raid {
+	return &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}}
+}
+
+func imbueSwapPlayer(consumes *proto.ConsumesSpec, swap bool) *proto.Player {
 	registerSwapTestImbues()
 
 	player := testMage()
@@ -65,14 +91,7 @@ func newImbueSwapSim(t *testing.T, consumes *proto.ConsumesSpec, swap bool) (*co
 		player.EnableItemSwap = true
 		player.ItemSwap = &proto.ItemSwap{Items: testHands(&proto.ItemSpec{Id: swapTestSwapMainHand}, &proto.ItemSpec{Id: swapTestSwapOffHand})}
 	}
-
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 600},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+	return player
 }
 
 // What the consumable's enchant puts on the item: its stats and its percent pseudo-stats.
@@ -106,6 +125,83 @@ func TestTemporaryEnchantStatsApplyPerEnchantedHand(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// The spellstone's cast speed multiplies the wearer's spell haste while the weapon carrying it is
+// worn, arriving and leaving with the swap weapon, also when the swap weapon is a second copy of the
+// main set's; the oil states no speed and gets no speed aura.
+func TestTemporaryEnchantHasteFollowsTheEnchantedHand(t *testing.T) {
+	_, bare := newImbueSwapSim(t, &proto.ConsumesSpec{}, false)
+	for _, tc := range []struct {
+		name     string
+		consumes *proto.ConsumesSpec
+		want     float64
+	}{
+		{"a spellstone", &proto.ConsumesSpec{MhWeaponImbueId: swapTestSpellstone}, 1.02},
+		{"an oil", &proto.ConsumesSpec{MhImbueId: swapTestOil}, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			_, imbued := newImbueSwapSim(t, tc.consumes, false)
+			if got := imbued.TotalSpellHasteMultiplier() / bare.TotalSpellHasteMultiplier(); !core.WithinToleranceFloat64(tc.want, got, 1e-9) {
+				t.Errorf("spell haste multiplied by %v, want %v", got, tc.want)
+			}
+		})
+	}
+	_, stoned := newImbueSwapSim(t, &proto.ConsumesSpec{MhWeaponImbueId: swapTestSpellstone}, false)
+	if auraByLabel(stoned, "Weapon Imbue 991544 Speed (ItemSlotMainHand)") == nil {
+		t.Error("the spellstone's cast speed has no speed aura on the main hand")
+	}
+	_, oiled := newImbueSwapSim(t, &proto.ConsumesSpec{MhImbueId: swapTestOil}, false)
+	if auraByLabel(oiled, "Temporary Enchant 991541 Speed (ItemSlotMainHand)") != nil {
+		t.Error("the oil, which states no speed, registered a speed aura")
+	}
+
+	sameWeapon := imbueSwapPlayer(&proto.ConsumesSpec{SwapMhWeaponImbueId: swapTestSpellstone}, true)
+	sameWeapon.ItemSwap.Items = testHands(&proto.ItemSpec{Id: swapTestMainHand}, &proto.ItemSpec{Id: swapTestOffHand})
+	for name, player := range map[string]*proto.Player{
+		"another weapon":      imbueSwapPlayer(&proto.ConsumesSpec{SwapMhWeaponImbueId: swapTestSpellstone}, true),
+		"a copy of the first": sameWeapon,
+	} {
+		t.Run("swapping to "+name, func(t *testing.T) {
+			sim, character := newImbueSwapSimOf(player)
+			mainSet := character.TotalSpellHasteMultiplier()
+			character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+			if got := character.TotalSpellHasteMultiplier() / mainSet; !core.WithinToleranceFloat64(1.02, got, 1e-9) {
+				t.Errorf("swapping in the spellstone multiplied spell haste by %v, want 1.02", got)
+			}
+			character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+			if got := character.TotalSpellHasteMultiplier(); !core.WithinToleranceFloat64(mainSet, got, 1e-9) {
+				t.Errorf("swapping back left spell haste at %v, want the main set's %v", got, mainSet)
+			}
+		})
+	}
+}
+
+// On the hand from the start, the spellstone is gear on the character sheet: its fire and shadow
+// damage and its cast speed show in the gear column, and the later columns add no more of them.
+func TestTemporaryEnchantSpeedShowsAsGearOnTheSheet(t *testing.T) {
+	sheet := func(consumes *proto.ConsumesSpec) *proto.PlayerStats {
+		request := &proto.ComputeStatsRequest{Raid: imbueSwapRaid(imbueSwapPlayer(consumes, false)), Encounter: imbueSwapEncounter}
+		return core.ComputeStats(request).RaidStats.Parties[0].Players[0]
+	}
+	bare, stoned := sheet(&proto.ConsumesSpec{}), sheet(&proto.ConsumesSpec{MhWeaponImbueId: swapTestSpellstone})
+
+	for _, stat := range []stats.Stat{stats.FireDamage, stats.ShadowDamage} {
+		if got := stoned.GearStats.Stats[stat] - bare.GearStats.Stats[stat]; got != 21 {
+			t.Errorf("%s: the gear column gains %v, want the spellstone's 21", stat.StatName(), got)
+		}
+	}
+	haste := proto.PseudoStat_PseudoStatSpellHastePercent
+	for column, sheets := range map[string][2]*proto.UnitStats{
+		"gear":     {bare.GearStats, stoned.GearStats},
+		"consumes": {bare.ConsumesStats, stoned.ConsumesStats},
+		"final":    {bare.FinalStats, stoned.FinalStats},
+	} {
+		want := ((1+sheets[0].PseudoStats[haste]/100)*1.02 - 1) * 100
+		if got := sheets[1].PseudoStats[haste]; !core.WithinToleranceFloat64(want, got, 1e-9) {
+			t.Errorf("the %s column shows %v%% spell haste, want %v%%, the spellstone's 2%% on the bare wearer's", column, got, want)
+		}
 	}
 }
 

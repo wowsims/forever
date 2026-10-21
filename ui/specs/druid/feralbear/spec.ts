@@ -31,6 +31,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		Stat.StatFeralAttackPower,
 		Stat.StatArmor,
 		Stat.StatBonusArmor,
+		Stat.StatArmorNoMods,
 		Stat.StatDodgeRating,
 		Stat.StatDefenseRating,
 		Stat.StatHitRating,
@@ -52,6 +53,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			Stat.StatAttackPower,
 			Stat.StatArmor,
 			Stat.StatBonusArmor,
+			Stat.StatArmorNoMods,
 			Stat.StatDodgeRating,
 			Stat.StatDefenseRating,
 			Stat.StatNatureResistance,
@@ -92,9 +94,9 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			prayerOfSpirit: true,
 			windfuryTotem: true,
 			strengthOfEarthTotem: true,
+			battleShout: TristateEffect.TristateEffectRegular,
 		}),
 		partyBuffs: PartyBuffs.create({
-			battleShout: TristateEffect.TristateEffectRegular,
 			manaSpringTotem: TristateEffect.TristateEffectRegular,
 		}),
 		individualBuffs: IndividualBuffs.create({

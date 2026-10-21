@@ -74,7 +74,7 @@ func syntheticBuffRows() []ResolvedBuff {
 				Field: "battle_shout", Category: "SynthBattleShout",
 				SingleAura: true, Driver: true,
 			},
-			Scope: buffmanifest.ScopeParty, Proto: buffmanifest.ProtoTristate,
+			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoTristate,
 			Go: "SynthBattleShout", Name: "Battle Shout",
 			SpellID: 25289, CastSpellID: 25289, DurationMs: 180000, Supported: true,
 			Spell: spell(25289, core.SpellSchoolPhysical, 180000, aura(dbcenums.A_MOD_ATTACK_POWER, 0, 139)),
@@ -319,7 +319,7 @@ func TestRenderedBuffFilesCompile(t *testing.T) {
 		"\tnewGeneratedExternalCD(char, NewSpellDataSynthInnervatesAura(&char.Unit, false, 0),"+
 		" generatedExternalCD{NumSources: individual.Innervates,"+
 		" Cooldown: SynthInnervatesCooldown(), Type: core.CooldownTypeMana})\n}\n\n"+
-		"func driveSynthBattleShout(char *core.Character, _ *proto.PartyBuffs) {\n"+
+		"func driveSynthBattleShout(char *core.Character, _ *proto.RaidBuffs) {\n"+
 		"\tapplyFixedShoutAura(char, NewSpellDataSynthBattleShoutAura(&char.Unit, false, 0),"+
 		" SynthBattleShoutCategory)\n}\n\n"+
 		"func driveSynthSunderArmor(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) {\n"+

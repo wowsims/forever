@@ -253,8 +253,8 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if individual.GreaterBlessingOfKings {
 		core.MakePermanent(NewSpellDataSynthBlessingOfKingsAura(&char.Unit, false, 0))
 	}
-	if party.BattleShout != proto.TristateEffect_TristateEffectMissing {
-		driveSynthBattleShout(char, party)
+	if raid.BattleShout != proto.TristateEffect_TristateEffectMissing {
+		driveSynthBattleShout(char, raid)
 	}
 	if party.DevotionAura {
 		core.MakePermanent(NewSpellDataSynthDevotionAura(&char.Unit, false, 0))

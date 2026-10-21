@@ -9,9 +9,16 @@ import (
 )
 
 const (
-	SpellFlagBuilder  = core.SpellFlagAgentReserved2
-	SpellFlagFinisher = core.SpellFlagAgentReserved3
-	SpellFlagSealFate = core.SpellFlagAgentReserved4
+	SpellFlagBuilder     = core.SpellFlagAgentReserved2
+	SpellFlagFinisher    = core.SpellFlagAgentReserved3
+	SpellFlagColdBlooded = core.SpellFlagAgentReserved4
+)
+
+// Damage Done By Caster setup
+const (
+	DDBC_Hemorrhage = iota
+
+	DDBC_Total
 )
 
 var TalentTreeSizes = [3]int{17, 17, 19}
@@ -27,10 +34,7 @@ type Rogue struct {
 	Options              *proto.RogueOptions
 	AssassinationOptions *proto.Rogue_Options
 
-	SliceAndDiceBonusFlat    float64 // The flat bonus Attack Speed bonus before Mastery is applied
 	AdditiveEnergyRegenBonus float64
-
-	sliceAndDiceDurations [6]time.Duration
 
 	Backstab       *core.Spell
 	BladeFlurry    *core.Spell
@@ -58,10 +62,6 @@ type Rogue struct {
 	Rupture      *core.Spell
 	SliceAndDice *core.Spell
 
-	deadlyPoisonPPHM  *core.DynamicProcManager
-	woundPoisonPPHM   *core.DynamicProcManager
-	instantPoisonPPHM *core.DynamicProcManager
-
 	AdrenalineRushAura   *core.Aura
 	BladeFlurryAura      *core.Aura
 	ExposeArmorAuras     core.AuraArray
@@ -69,12 +69,14 @@ type Rogue struct {
 	MasterOfSubtletyAura *core.Aura
 	ShadowstepAura       *core.Aura
 	StealthAura          *core.Aura
+	CutthroatAura        *core.Aura
 
 	WoundPoisonDebuffAuras core.AuraArray
 
-	ruthlessnessMetrics      *core.ResourceMetrics
-	ruthlessnessChance       float64
-	relentlessStrikesMetrics *core.ResourceMetrics
+	ruthlessnessMetrics               *core.ResourceMetrics
+	ruthlessnessChance                float64
+	relentlessStrikesMetrics          *core.ResourceMetrics
+	puncturingWoundsComboPointMetrics *core.ResourceMetrics
 
 	HasPvpEnergy              bool
 	DeathmantleBonus          float64
@@ -125,16 +127,18 @@ func (rogue *Rogue) Initialize() {
 	rogue.registerEviscerate()
 	rogue.registerExposeArmorSpell()
 	rogue.registerGarrote()
-	rogue.registerDeadlyPoisonSpell()
-	rogue.registerInstantPoisonSpell()
-	rogue.registerWoundPoisonSpell()
 	rogue.registerRupture()
 	rogue.registerSinisterStrikeSpell()
 	rogue.registerSliceAndDice()
 	rogue.registerVanishSpell()
 	rogue.registerStealthAura()
+	rogue.registerKickSpell()
+	rogue.registerFeintSpell()
 
-	rogue.ruthlessnessMetrics = rogue.NewComboPointMetrics(core.ActionID{SpellID: 14161})
+	ruthRank := spellData.Ruthlessness.Rank(rogue.Talents.Ruthlessness)
+	if ruthRank != nil {
+		rogue.ruthlessnessMetrics = rogue.NewComboPointMetrics(core.ActionID{SpellID: ruthRank.ID})
+	}
 	// Forever states a flat SpellAuraOptions.ProcChance of 100 on the talent spell and puts the
 	// real per-rank chance on the effect, so ProcChanceAt would read 100% at every rank.
 	rogue.ruthlessnessChance = spellData.Ruthlessness.FractionAt(rogue.Talents.Ruthlessness)
@@ -191,8 +195,6 @@ func NewRogue(character *core.Character, options *proto.Player, talents string) 
 		AutoSwingMelee: true,
 	})
 
-	rogue.applyPoisons()
-
 	rogue.AddStatDependency(stats.Strength, stats.AttackPower, 1)
 	rogue.AddStatDependency(stats.Agility, stats.AttackPower, 1)
 	rogue.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[character.Class])
@@ -230,6 +232,10 @@ func (rogue *Rogue) HasThrown() bool {
 // Check if the rogue is considered in "stealth" for the purpose of casting abilities
 func (rogue *Rogue) IsStealthed() bool {
 	return rogue.StealthAura.IsActive()
+}
+
+func (rogue *Rogue) FinisherExtraCastCondition(sim *core.Simulation, target *core.Unit) bool {
+	return rogue.ComboPoints() > 0
 }
 
 func RegisterRogue() {
@@ -290,4 +296,5 @@ const (
 	RogueSpellLethality      = RogueSpellSinisterStrike | RogueSpellGouge | RogueSpellBackstab | RogueSpellGhostlyStrike | RogueSpellMutilateHit | RogueSpellHemorrhage
 	RogueSpellDirectFinisher = RogueSpellEviscerate
 	RogueSpellFinisher       = RogueSpellDirectFinisher | RogueSpellSliceAndDice | RogueSpellRupture | RogueSpellExposeArmor
+	RogueSpellQuietus        = RogueSpellSinisterStrike | RogueSpellHemorrhage | RogueSpellGhostlyStrike
 )

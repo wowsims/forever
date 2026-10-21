@@ -1,6 +1,6 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { ConsumesSpec, Profession, Race, Stat } from '@generated/proto/common';
+import { ConsumesSpec, Profession, PseudoStat, Race, Stat } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
@@ -38,6 +38,7 @@ export const OtherDefaults = {
 
 // Leather at 60 with no set bonus and no proc. The stand-in the rotation was tuned on.
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
+	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',
 });
 
@@ -46,41 +47,30 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJso
 // Baron, Swiftwalker Boots, Tarnished Elven Ring, Blackhand's Breadth and Hand of Justice, which the item
 // database does not carry.
 export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearJson, {
+	devOnly: true,
 	tooltip: 'Pre-raid leather with The Unstoppable Force, Wolfshead Helm and full enchants.',
 });
 
-// EP estimates with agility as 1. Hit is weighed 2% below the 8% cap.
-// Feral attack power uses attack power's weight through the form-only dependency.
-export const Level60Ep = Stats.fromMap({
-	[Stat.StatStrength]: 0.98,
-	[Stat.StatAgility]: 1,
-	[Stat.StatAttackPower]: 0.41,
-	[Stat.StatFeralAttackPower]: 0.41,
-	[Stat.StatPhysicalDamage]: 3.72,
-	[Stat.StatHitRating]: 0.73,
-	[Stat.StatExpertiseRating]: 0.69,
-	[Stat.StatCritRating]: 0.72,
-	[Stat.StatHasteRating]: 0.38,
-	[Stat.StatArmorPenetration]: 0.12,
-});
+// DPS weights for Dream, Cat 9/35/7 and 180s ±120s, averaged across the four races.
+// Rating weights measure hit at 7% and expertise at 5.5%.
+export const DefaultEp = Stats.fromMap(
+	{
+		[Stat.StatStrength]: 0.5699,
+		[Stat.StatAgility]: 0.5815,
+		[Stat.StatAttackPower]: 0.2351,
+		[Stat.StatFeralAttackPower]: 0.2351,
+		[Stat.StatPhysicalDamage]: 2.1248,
+		[Stat.StatHitRating]: 4.8332 / 10,
+		[Stat.StatExpertiseRating]: 4.57 / 10,
+		[Stat.StatCritRating]: 5.9088 / 14,
+		[Stat.StatHasteRating]: 4.1595 / 10,
+	},
+	{
+		[PseudoStat.PseudoStatMainHandDps]: 2.2704,
+	},
+);
 
-export const Level60EpWeights = PresetUtils.makePresetEpWeights('Level 60', Level60Ep);
-
-// EP estimates with agility as 1. Hit is weighed 2% below the 8% cap.
-export const PreRaidEp = Stats.fromMap({
-	[Stat.StatStrength]: 0.97,
-	[Stat.StatAgility]: 1,
-	[Stat.StatAttackPower]: 0.39,
-	[Stat.StatFeralAttackPower]: 0.39,
-	[Stat.StatPhysicalDamage]: 3.56,
-	[Stat.StatHitRating]: 0.75,
-	[Stat.StatExpertiseRating]: 0.73,
-	[Stat.StatCritRating]: 0.75,
-	[Stat.StatHasteRating]: 0.43,
-	[Stat.StatArmorPenetration]: 0.13,
-});
-
-export const PreRaidEpWeights = PresetUtils.makePresetEpWeights('Pre-raid', PreRaidEp);
+export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Feral Cat', DefaultEp);
 
 // The cat stays in Cat Form: Shifting Power, Rip, Rake and Shred, Faerie Fire for Omen of Clarity,
 // and a self-Innervate when mana would run short.
@@ -91,7 +81,7 @@ export const SHADOWMELD_APL = PresetUtils.makePresetAPLRotation('Monocat, Shadow
 // from 60 to 300 seconds.
 export const ENERGIZED_APL = PresetUtils.makePresetAPLRotation('Monocat, Energized (High Order Skyborne)', EnergizedApl);
 // Uses Thistle Tea and optional Sapper, with racial actions gated by availability.
-// Opens with Berserk and Ravage from Prowl; Shadowmeld enables Ravage during combat.
+// Opens with Berserk and Ravage from Prowl; during combat, Shadowmeld enables Ravage on Clearcasting.
 export const JVMES_APL = {
 	...PresetUtils.makePresetAPLRotation('Monocat, adaptive racials and Sapper', JvmesApl),
 	tooltip:
@@ -103,27 +93,11 @@ export const POUNCE_APL = PresetUtils.makePresetAPLRotation('Pounce opener', Pou
 // of the fight do not need. Needs the Primal Bite talent.
 export const BEARWEAVE_APL = PresetUtils.makePresetAPLRotation('Bearweave', BearweaveApl);
 
-// Naturalist funds the full Predatory Strikes prerequisite for Rend and Tear.
-export const CatTalents = PresetUtils.makePresetTalents('Monocat', SavedTalents.create({ talentsString: '050022-55000032021031212051-054' }));
-// Primal Bite takes one additional point from Naturalist.
-export const BearweaveTalents = PresetUtils.makePresetTalents('Bearweave', SavedTalents.create({ talentsString: '050022-55000032021131212051-053' }));
-// Natural Shapeshifter and Reflection in place of the Balance points' melee hit and crit. About 47 DPS
-// behind Monocat at 180 seconds.
-export const ManaEfficientTalents = PresetUtils.makePresetTalents(
-	'Mana Efficient 0/35/16',
-	SavedTalents.create({ talentsString: '0000000000000000-35200032121032212051-0550330000000000' }),
-);
-// Tanks and plays cat on one set of talents: Thick Hide and Primal Bite, no Furor or Naturalist. About 34 DPS
-// behind Monocat at 180 seconds.
-export const HybridTalents = PresetUtils.makePresetTalents(
-	'Hybrid 9/42/0',
-	SavedTalents.create({ talentsString: '0500220000000000-35230332121132212051-0000000000000000' }),
-);
+// Naturalist in place of Natural Shapeshifter.
+export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-35200032121131212051-052' }));
+export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-05230332121131212051-04' }));
 
-// A bear form forfeits Furor's energy, so a trip costs the energy the cat went in with. Ahead of
-// Monocat only on a fight of 45 seconds exactly (+3.3); with the length varying by 15% it is 2.1
-// behind at 45 seconds and 6 to 7 behind from 60 seconds on.
 export const BearweaveBuild = PresetUtils.makePresetBuild('Bearweave (45s fights)', {
-	talents: BearweaveTalents,
+	talents: CatTalents,
 	rotation: BEARWEAVE_APL,
 });

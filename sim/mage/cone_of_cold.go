@@ -1,45 +1,41 @@
 package mage
 
-var coneOfColdRank = spellData.ConeOfCold.Highest()
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
+// Only the highest rank is registered: the mage casts the rank configured here, not every rank
+// spellData.ConeOfCold lists.
 func (mage *Mage) registerConeOfColdSpell() {
-	panic("To be implemented")
+	mage.registerConeOfColdRank(spellData.ConeOfCold.Len(), spellData.ConeOfCold.Highest())
+}
 
-	// The TBC implementation, kept for the port:
-	//
-	// coneOfColdCoefficient := 0.1930000037 // Per https://wago.tools/db2/SpellEffect?build=2.5.5.65295&filter%5BSpellID%5D=exact%253A120 Field "EffetBonusCoefficient"
-	//
-	// mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: coneOfColdRank.ID},
-	// 	SpellSchool:    coneOfColdRank.SpellSchool(),
-	// 	DefenseType:    coneOfColdRank.DefenseTypeCore(),
-	// 	ProcMask:       core.ProcMaskSpellDamage,
-	// 	Flags:          core.SpellFlagAPL | core.SpellFlagBinary,
-	// 	ClassSpellMask: MageSpellConeOfCold,
-	// 	ClassFlags:     coneOfColdRank.ClassFlags,
-	//
-	// 	ManaCost: core.ManaCostOptions{
-	// 		FlatCost: int32(coneOfColdRank.Cost()),
-	// 	},
-	//
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			GCD: coneOfColdRank.GCD(),
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    mage.NewTimer(),
-	// 			Duration: max(coneOfColdRank.Cooldown(), coneOfColdRank.CategoryCooldown()),
-	// 		},
-	// 	},
-	//
-	// 	DamageMultiplier: 1,
-	// 	BonusCoefficient: coneOfColdCoefficient,
-	// 	ThreatMultiplier: 1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-	// 		baseDamage := coneOfColdRank.DamageEffect().Average(core.CharacterLevel)
-	// 		spell.CalcAndDealAoeDamage(sim, baseDamage, spell.OutcomeMagicHitAndCrit)
-	// 	},
-	// })
+// The slow (effect 1) does nothing to a boss.
+func (mage *Mage) registerConeOfColdRank(_ int32, rank *spelldata.Spell) {
+	// Binary: a spell with a non-damage effect (the slow) is resisted whole or not at all, which the
+	// row does not state.
+	config := spelldata.SpellConfig(&mage.Unit, rank,
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagBinary))
+	config.ClassSpellMask = MageSpellConeOfCold
+
+	damage := rank.DamageEffect()
+
+	// Winter's Chill raises the coefficient against each target by that target's own stacks, which
+	// this hit then spends, so each target is calculated on its own.
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
+			bonusCoefficient := mage.wintersChillCoefficient(aoeTarget)
+
+			spell.BonusCoefficient += bonusCoefficient
+			result := spell.CalcAndDealDamage(sim, aoeTarget, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+			spell.BonusCoefficient -= bonusCoefficient
+
+			if result.Landed() {
+				mage.consumeWintersChill(sim, aoeTarget)
+			}
+		}
+	}
+
+	mage.RegisterSpell(config)
 }

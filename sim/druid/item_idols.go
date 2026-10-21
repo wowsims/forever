@@ -8,7 +8,6 @@ import (
 //
 // TODO: Items without full game files data are not registered here:
 //   - Idol of Shifting Tides 263411 (1270470, shapeshifting spells cost 40 less mana).
-//   - Mystic Mushroom 249396 (1248751, Spirit +5%).
 //   - Mark of Urs'endris 263435 (1270490, armor from items +4%, base and bonus).
 func init() {
 	// Idol of Health
@@ -48,6 +47,14 @@ func init() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291061},
 		[]shared.ItemVariant{
 			{ItemID: 272430, ItemName: "Swarming Idol"},
+		})
+
+	// Mystic Mushroom
+	//
+	// Increases your Spirit by 5%.
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1248751},
+		[]shared.ItemVariant{
+			{ItemID: 249396, ItemName: "Mystic Mushroom"},
 		})
 
 	// Idol of Swiftness

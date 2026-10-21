@@ -1,6 +1,8 @@
 package hunter
 
 import (
+	"math"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core"
@@ -85,12 +87,16 @@ func TestPetDemoralizingScreechSharesTheRaidsDemoralizingSlot(t *testing.T) {
 // A hunter with no gear and a pet of the family, up for the whole fight, against one target carrying
 // the raid's debuffs.
 func newPetSim(petType proto.HunterOptions_PetType, debuffs *proto.Debuffs) (*core.Simulation, *HunterPet, *core.Unit) {
+	return newPetSimWithTalents(DefaultBMTalents, petType, debuffs)
+}
+
+func newPetSimWithTalents(talents string, petType proto.HunterOptions_PetType, debuffs *proto.Debuffs) (*core.Simulation, *HunterPet, *core.Unit) {
 	player := &proto.Player{
 		Name:          "Pet",
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassHunter,
 		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: DefaultBMTalents,
+		TalentsString: talents,
 		Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{
 			ClassOptions: &proto.HunterOptions{PetType: petType, PetUptime: 1},
 		}}},
@@ -167,5 +173,36 @@ func TestQuiversMatchTheOptions(t *testing.T) {
 		if _, ok := quivers[name]; !ok {
 			t.Errorf("HunterOptions.QuiverBonus %s names no generated quiver", name)
 		}
+	}
+}
+
+// With a pet out, Lone Wolf divides the pet's damage by 1.2 and gives the hunter nothing; without
+// one, the hunter has the row's 20%.
+func TestLoneWolfCutsThePetsDamage(t *testing.T) {
+	withoutLoneWolf := strings.Replace(DefaultMMTalents, "25115", "25015", 1)
+	sim, pet, _ := newPetSimWithTalents(withoutLoneWolf, proto.HunterOptions_Cat, nil)
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	if hunter.Talents.LoneWolf {
+		t.Fatalf("talents %s take Lone Wolf, want the Marksmanship set without it", withoutLoneWolf)
+	}
+	petBase := pet.PseudoStats.DamageDealtMultiplier
+	hunterBase := hunter.PseudoStats.DamageDealtMultiplier
+
+	sim, pet, _ = newPetSimWithTalents(DefaultMMTalents, proto.HunterOptions_Cat, nil)
+	hunter = sim.Raid.Parties[0].Players[0].(*Hunter)
+	if !hunter.Talents.LoneWolf {
+		t.Fatalf("talents %s leave out Lone Wolf", DefaultMMTalents)
+	}
+	if got := pet.PseudoStats.DamageDealtMultiplier / petBase; math.Abs(got-1/1.2) > 1e-9 {
+		t.Errorf("Lone Wolf multiplies the pet's damage by %v, want 1/1.2", got)
+	}
+	if got := hunter.PseudoStats.DamageDealtMultiplier / hunterBase; got != 1 {
+		t.Errorf("Lone Wolf with a pet out multiplies the hunter's damage by %v, want 1", got)
+	}
+
+	sim, _, _ = newPetSimWithTalents(DefaultMMTalents, proto.HunterOptions_PetNone, nil)
+	hunter = sim.Raid.Parties[0].Players[0].(*Hunter)
+	if got := hunter.PseudoStats.DamageDealtMultiplier / hunterBase; math.Abs(got-1.2) > 1e-9 {
+		t.Errorf("Lone Wolf without a pet multiplies the hunter's damage by %v, want 1.2", got)
 	}
 }

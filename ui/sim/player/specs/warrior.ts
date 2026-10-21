@@ -62,7 +62,7 @@ export class ProtectionWarrior extends PlayerSpec<Spec.SpecProtectionWarrior> {
 
 	static launch: SimStatus = {
 		phase: CURRENT_PHASE,
-		status: LaunchStatus.Alpha,
+		status: LaunchStatus.Unlaunched,
 	};
 
 	readonly specIndex = ProtectionWarrior.specIndex;

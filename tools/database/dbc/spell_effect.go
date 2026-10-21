@@ -135,6 +135,24 @@ func (effect *SpellEffect) IsDummy() bool {
 	return effect.EffectAura == dbcenums.A_DUMMY || effect.EffectAura == dbcenums.A_PERIODIC_DUMMY
 }
 
+// Reports whether a chain walk may follow the effect to its trigger. A removal names the aura it
+// removes, and the conditional auras cast theirs only at a stack count or a power or health threshold
+// the walk does not check.
+func (effect *SpellEffect) CastsItsTrigger() bool {
+	if effect.EffectTriggerSpell == 0 || effect.EffectType == dbcenums.E_REMOVE_AURA || effect.EffectType == dbcenums.E_REMOVE_AURA_2 {
+		return false
+	}
+
+	switch effect.EffectAura {
+	case dbcenums.A_TRIGGER_SPELL_ON_STACK_AMOUNT,
+		dbcenums.A_TRIGGER_SPELL_ON_POWER_PCT,
+		dbcenums.A_TRIGGER_SPELL_ON_POWER_AMOUNT,
+		dbcenums.A_TRIGGER_SPELL_ON_HEALTH_BELOW_PCT:
+		return false
+	}
+	return true
+}
+
 // The aura types capable of resolving to stats. resolveStatsSpell walks a trigger chain looking for
 // one of these to decide which spell an item's stats are read off, so anything ParseStatEffect
 // learns to resolve has to be listed here as well or the chain walk stops short of it. The reverse
@@ -251,26 +269,12 @@ func (effect *SpellEffect) ParseStatEffect(scalesWithIlvl bool, ilvl int) (stats
 		// if Coefficient is not set, we fall back to EffectBasePoints
 		effectStats[stat] = float64(effect.EffectBasePoints + effect.EffectDieSides)
 	case effect.EffectAura == dbcenums.A_MOD_DAMAGE_DONE && effect.EffectType == dbcenums.E_APPLY_AURA:
-		school := SpellSchool(effect.EffectMiscValues[0])
-		if school == ALL_SPELL_DAMAGE {
-			stat := ConvertEffectAuraToStatIndex(effect.EffectAura, effect.EffectMiscValues[0])
+		for _, stat := range spelldata.DamageDoneStats(int32(effect.EffectMiscValues[0])) {
 			if effect.Coefficient != 0 && effect.ScalingType != 0 {
 				effectStats[stat] = effect.CalcCoefficientStatValue(core.TernaryInt(scalesWithIlvl, ilvl, 0))
-				break
+				continue
 			}
-			// Apply spell power, A_MOD_HEALING_DONE is also a possibility for healing power
 			effectStats[stat] += float64(effect.EffectBasePoints + effect.EffectDieSides)
-		} else {
-			for schoolType, stat := range SpellSchoolToSpellDamageStat {
-				if school.Has(schoolType) && stat > -1 {
-					if effect.Coefficient != 0 && effect.ScalingType != 0 {
-						effectStats[stat] = effect.CalcCoefficientStatValue(core.TernaryInt(scalesWithIlvl, ilvl, 0))
-						continue
-					}
-					// Apply spell power, A_MOD_HEALING_DONE is also a possibility for healing power
-					effectStats[stat] += float64(effect.EffectBasePoints + effect.EffectDieSides)
-				}
-			}
 		}
 	case effect.EffectAura == dbcenums.A_MOD_HEALING_DONE && effect.EffectType == dbcenums.E_APPLY_AURA:
 		if effect.Coefficient != 0 && effect.ScalingType != 0 {
@@ -279,7 +283,15 @@ func (effect *SpellEffect) ParseStatEffect(scalesWithIlvl bool, ilvl int) (stats
 		}
 		// Apply spell power, A_MOD_HEALING_DONE is also a possibility for healing power
 		effectStats[proto.Stat_StatHealingPower] = float64(effect.EffectBasePoints + effect.EffectDieSides)
-	case effect.EffectAura == dbcenums.A_MOD_RESISTANCE || effect.EffectAura == dbcenums.A_MOD_ARMOR_NO_MODS:
+	case effect.EffectAura == dbcenums.A_MOD_ARMOR_NO_MODS:
+		for _, stat := range spelldata.ArmorNoModsStats(int32(effect.EffectMiscValues[0])) {
+			if effect.Coefficient != 0 && scalesWithIlvl {
+				effectStats[stat] = effect.CalcCoefficientStatValue(ilvl)
+				continue
+			}
+			effectStats[stat] += float64(effect.EffectBasePoints + effect.EffectDieSides)
+		}
+	case effect.EffectAura == dbcenums.A_MOD_RESISTANCE:
 		school := SpellSchool(effect.EffectMiscValues[0])
 		for schoolType, stat := range SpellSchoolToResistanceStat {
 			if school.Has(schoolType) && stat > -1 {

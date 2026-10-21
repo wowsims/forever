@@ -29,6 +29,12 @@
 		&[data-disabled] {
 			@apply pointer-events-none opacity-50;
 		}
+
+		&[aria-invalid='true'],
+		&[aria-invalid='true']:focus,
+		&[aria-invalid='true'][data-checked] {
+			@apply border-danger;
+		}
 	}
 
 	.ui-boolean-picker-indicator {

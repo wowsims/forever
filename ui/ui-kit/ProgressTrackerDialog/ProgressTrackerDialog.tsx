@@ -15,12 +15,25 @@ export interface ProgressTrackerDialogProps {
 	className?: string;
 	warning?: ReactNode;
 	hasProgressBar?: boolean;
+	/** Rendered right under the progress bar, above the elapsed time. */
+	belowBar?: ReactNode;
 	onCancel?: () => void;
 	ref?: Ref<ProgressTrackerHandle>;
 	testId?: string;
 }
 
-export const ProgressTrackerDialog = ({ open, title, state, className, warning, hasProgressBar, onCancel, ref, testId }: ProgressTrackerDialogProps) => {
+export const ProgressTrackerDialog = ({
+	open,
+	title,
+	state,
+	className,
+	warning,
+	hasProgressBar,
+	belowBar,
+	onCancel,
+	ref,
+	testId,
+}: ProgressTrackerDialogProps) => {
 	const [run, setRun] = useState(() => ({ open, startedAt: Date.now() }));
 	if (run.open !== open) setRun({ open, startedAt: open ? Date.now() : run.startedAt });
 
@@ -43,6 +56,7 @@ export const ProgressTrackerDialog = ({ open, title, state, className, warning, 
 					</div>
 				)}
 				{hasProgressBar && <HandleProgressBar running={open} ref={ref} />}
+				{belowBar}
 				<div>
 					<strong>{i18n.t('common.elapsed_time')}:</strong> <ElapsedTime running={open} startedAt={run.startedAt} />
 				</div>

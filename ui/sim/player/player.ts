@@ -40,7 +40,7 @@ import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
 import { canEquipEnchant, canEquipItem, enchantAppliesToItem, isPVPItem } from '../proto/items';
-import { specTypeFunctions, withSpec } from '../proto/spec_functions';
+import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
 import { AL_CATEGORY_HARD_MODE, emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
@@ -717,10 +717,11 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setConsumes(newConsumes: ConsumesSpec) {
-		if (ConsumesSpec.equals(this.slice().consumables, newConsumes)) return;
+		const adjustedConsumes = this.itemSwapSettings.getGear().adjustSwapImbues(this.getGear().adjustImbues(newConsumes));
+		if (ConsumesSpec.equals(this.slice().consumables, adjustedConsumes)) return;
 
 		// Make a defensive copy
-		this.patch('consumables', ConsumesSpec.clone(newConsumes));
+		this.patch('consumables', ConsumesSpec.clone(adjustedConsumes));
 	}
 
 	equipItem(slot: ItemSlot, newItem: EquippedItem | null) {
@@ -880,8 +881,7 @@ export class Player<SpecType extends Spec> {
 		// DW Penalty is a fixed 19%
 		const dualWieldHitCap = oneHandHitCap + 19;
 		const hasOffhandWeapon = this.isDualWielding();
-		// Due to warrior HS bug, hit cap for crit cap calculation is the one-hand hit cap, not the dual-wield one
-		const meleeHitCap = hasOffhandWeapon && this.getClass() != Class.ClassWarrior ? dualWieldHitCap : oneHandHitCap;
+		const meleeHitCap = hasOffhandWeapon ? dualWieldHitCap : oneHandHitCap;
 		const dodgeCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandDodgePercent] || 0;
 		const parryCap = this.getInFrontOfTarget() ? currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandParryPercent] || 0 : 0;
 		const expertiseCap = dodgeCap + parryCap;
@@ -939,18 +939,7 @@ export class Player<SpecType extends Spec> {
 	}
 
 	getSimpleRotation(): SpecRotation<SpecType> {
-		const jsonStr = this.aplRotation_.simple?.specRotationJson || '';
-		if (!jsonStr) {
-			return this.specTypeFunctions.rotationCreate();
-		}
-
-		try {
-			const json = JSON.parse(jsonStr);
-			return this.specTypeFunctions.rotationFromJson(json);
-		} catch (e) {
-			console.warn(`Error parsing rotation spec options: ${e}\n\nSpec options: '${jsonStr}'`);
-			return this.specTypeFunctions.rotationCreate();
-		}
+		return simpleSpecRotationFromJson(this.specTypeFunctions, this.aplRotation_.simple?.specRotationJson || '');
 	}
 
 	setSimpleRotation(newRotation: SpecRotation<SpecType>) {

@@ -39,13 +39,17 @@ describe('isEqualAPLRotation', () => {
 		expect(isEqualAPLRotation(player, undefined, undefined)).toBe(true);
 	});
 
-	// The Simple branch does reach the player, so it needs the two codec hooks it calls.
+	// The Simple branch does reach the player, so it needs the three codec hooks it calls.
 	const simplePlayer = {
-		specTypeFunctions: { rotationFromJson: (json: unknown) => json, rotationEquals: (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b) },
+		specTypeFunctions: {
+			rotationCreate: () => ({}),
+			rotationFromJson: (json: unknown) => json,
+			rotationEquals: (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b),
+		},
 	} as unknown as Player<Spec>;
 
-	const simple = (cooldowns: Cooldowns) =>
-		APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson: '{"spec":"Fury"}', cooldowns } });
+	const simple = (cooldowns: Cooldowns, specRotationJson = '{"spec":"Fury"}') =>
+		APLRotation.create({ type: APLRotation_Type.TypeSimple, simple: { specRotationJson, cooldowns } });
 
 	it('separates Simple rotations that differ only in cooldown timings', () => {
 		const a = simple(Cooldowns.create({ cooldowns: [{ id: ActionID.create(), timings: [10] }] }));
@@ -53,6 +57,15 @@ describe('isEqualAPLRotation', () => {
 
 		expect(isEqualAPLRotation(simplePlayer, a, b)).toBe(false);
 		expect(isEqualAPLRotation(simplePlayer, a, simple(Cooldowns.clone(a.simple!.cooldowns!)))).toBe(true);
+	});
+
+	it('reads an empty spec json as the default spec rotation', () => {
+		const picked = Cooldowns.create({ cooldowns: [{ id: ActionID.create() }] });
+		const current = simple(picked, '');
+
+		expect(isEqualAPLRotation(simplePlayer, current, simple(picked))).toBe(false);
+		expect(isEqualAPLRotation(simplePlayer, current, simple(picked, '{}'))).toBe(true);
+		expect(isEqualAPLRotation(simplePlayer, simple(picked, '{}'), current)).toBe(true);
 	});
 });
 

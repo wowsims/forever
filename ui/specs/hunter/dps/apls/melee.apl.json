@@ -12,6 +12,7 @@
 				"autocastOtherCooldowns": {}
 			}
 		},
+		{ "action": { "castSpell": { "spellId": { "spellId": 14266, "tag": 1 } } } },
 		{
 			"action": {
 				"castSpell": { "spellId": { "spellId": 14325 } },
@@ -20,7 +21,9 @@
 		},
 		{ "action": { "castSpell": { "spellId": { "spellId": 14271 } } } },
 		{ "action": { "castSpell": { "spellId": { "spellId": 1317257 } } } },
-		{ "action": { "condition": { "variableRef": { "name": "Use Summon Hawk" } }, "castSpell": { "spellId": { "spellId": 1293527 } } } }
+		{ "action": { "castSpell": { "spellId": { "spellId": 14305 } } } },
+		{ "action": { "condition": { "variableRef": { "name": "Use Summon Hawk" } }, "castSpell": { "spellId": { "spellId": 1293527 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 14268 } } } }
 	],
 	"groups": [
 		{ "name": "Move to starting range", "actions": [{ "action": { "move": { "rangeFromTarget": { "variableRef": { "name": "Melee range" } } } } }] }

@@ -677,10 +677,12 @@ func (t *spellTables) loadReagents(db *sql.DB) error {
 	})
 }
 
-// EffectMiscValue_0/_1, EffectSpellClassMask_0..3, EffectRadiusIndex_0 and ImplicitTarget_0/_1 are
+// EffectMiscValue_0/_1, EffectSpellClassMask_0..3, EffectRadiusIndex_0/_1 and ImplicitTarget_0/_1 are
 // generated columns over the JSON arrays, so each is named rather than reached through SELECT *.
-// RadiusMin and RadiusMax are SpellRadius' own columns: two radius rows state a Radius with no
-// maximum, and those read as zero here rather than as a radius the game files do not state there.
+// RadiusMin and RadiusMax are SpellRadius' own columns, both from the radius slot with the larger
+// maximum, the first on a tie: most areas around the caster state theirs in the second slot only
+// (Arcane Explosion's [22,15]). Two radius rows state a Radius with no maximum, and those read as
+// zero here rather than as a radius the game files do not state there.
 func (t *spellTables) loadEffects(db *sql.DB) error {
 	return eachRow(db, `
 		SELECT e.SpellID, e.ID, e.EffectIndex, e.Effect, e.EffectAura,
@@ -688,7 +690,9 @@ func (t *spellTables) loadEffects(db *sql.DB) error {
 		       COALESCE(e.Variance, 0), COALESCE(e.EffectBonusCoefficient, 0),
 		       COALESCE(e.BonusCoefficientFromAP, 0), COALESCE(e.PvpMultiplier, 0),
 		       COALESCE(e.EffectAmplitude, 0), COALESCE(e.EffectAuraPeriod, 0),
-		       COALESCE(r.RadiusMin, 0), COALESCE(r.RadiusMax, 0),
+		       CASE WHEN COALESCE(r1.RadiusMax, 0) > COALESCE(r0.RadiusMax, 0)
+		            THEN COALESCE(r1.RadiusMin, 0) ELSE COALESCE(r0.RadiusMin, 0) END,
+		       MAX(COALESCE(r0.RadiusMax, 0), COALESCE(r1.RadiusMax, 0)),
 		       COALESCE(e.EffectMiscValue_0, 0), COALESCE(e.EffectMiscValue_1, 0),
 		       COALESCE(e.EffectSpellClassMask_0, 0), COALESCE(e.EffectSpellClassMask_1, 0),
 		       COALESCE(e.EffectSpellClassMask_2, 0), COALESCE(e.EffectSpellClassMask_3, 0),
@@ -698,7 +702,8 @@ func (t *spellTables) loadEffects(db *sql.DB) error {
 		       COALESCE(e.ImplicitTarget_0, 0), COALESCE(e.ImplicitTarget_1, 0),
 		       COALESCE(e.EffectAttributes, 0)
 		FROM SpellEffect e
-		LEFT JOIN SpellRadius r ON r.ID = e.EffectRadiusIndex_0
+		LEFT JOIN SpellRadius r0 ON r0.ID = e.EffectRadiusIndex_0
+		LEFT JOIN SpellRadius r1 ON r1.ID = e.EffectRadiusIndex_1
 		WHERE e.DifficultyID = 0
 		ORDER BY e.SpellID, e.EffectIndex, e.ID`, func(rows *sql.Rows) error {
 		var e storeEffect

@@ -65,7 +65,7 @@ import {
 	WarriorTalents,
 } from '@generated/proto/warrior';
 
-import type { SpecOptions, SpecTypeFunctions } from './spec_types';
+import type { SpecOptions, SpecRotation, SpecTypeFunctions } from './spec_types';
 import { UnknownRotation, UnknownSpecOptions, UnknownTalents } from './spec_types';
 
 export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
@@ -665,5 +665,23 @@ export function withSpec<SpecType extends Spec>(spec: Spec, player: Player, spec
 			return copy;
 		default:
 			return copy;
+	}
+}
+
+/**
+ * The spec rotation a Simple rotation's json stores. An empty json is the spec's default rotation: a Simple
+ * rotation gets its json only once a rotation option is set, so picking a cooldown first leaves it empty.
+ */
+export function simpleSpecRotationFromJson<SpecType extends Spec>(functions: SpecTypeFunctions<SpecType>, jsonStr: string): SpecRotation<SpecType> {
+	if (!jsonStr) {
+		return functions.rotationCreate();
+	}
+
+	try {
+		const json = JSON.parse(jsonStr);
+		return functions.rotationFromJson(json);
+	} catch (e) {
+		console.warn(`Error parsing rotation spec options: ${e}\n\nSpec options: '${jsonStr}'`);
+		return functions.rotationCreate();
 	}
 }

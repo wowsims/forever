@@ -117,41 +117,39 @@ const GroupedGearPresets = () => {
 					},
 				]
 			: []),
-		...(gearPresets.length
-			? [
-					{
-						title: i18n.t('gear_tab.gear_sets.title'),
-						items: ready
-							? gearPresets.map((preset, index) => ({
-									key: preset.name,
-									phase: preset.phase,
-									group: preset.group,
-									node: (
-										<Chip
-											label={preset.name}
-											active={SavedGearSet.equals(gearData[index], current)}
-											disabled={!!preset.enableWhen && !preset.enableWhen(player)}
-											tooltip={preset.tooltip}
-											chipTooltipId={gearTooltipId}
-											onSelect={() => loadGearPreset(preset)}
-										/>
-									),
-								}))
-							: [],
-						// An empty title renders an empty heading, which puts the user's own saved sets under
-						// the grouped presets without repeating "Gear Sets".
-						footer: (
-							<SavedDataPanel
-								title=""
-								className="mt-4"
-								nameLabel={i18n.t('gear_tab.gear_sets.gear_set_name')}
-								saveButtonText={i18n.t('gear_tab.gear_sets.save_gear_set')}
-								{...savedPanel}
+		// Kept with no gear presets, which a production build has once its dev-only gearsets are dropped:
+		// the footer holds the user's own saved sets.
+		{
+			title: i18n.t('gear_tab.gear_sets.title'),
+			items: ready
+				? gearPresets.map((preset, index) => ({
+						key: preset.name,
+						phase: preset.phase,
+						group: preset.group,
+						node: (
+							<Chip
+								label={preset.name}
+								active={SavedGearSet.equals(gearData[index], current)}
+								disabled={!!preset.enableWhen && !preset.enableWhen(player)}
+								tooltip={preset.tooltip}
+								chipTooltipId={gearTooltipId}
+								onSelect={() => loadGearPreset(preset)}
 							/>
 						),
-					},
-				]
-			: []),
+					}))
+				: [],
+			// An empty title renders an empty heading, which puts the user's own saved sets under
+			// the grouped presets without repeating "Gear Sets".
+			footer: (
+				<SavedDataPanel
+					title=""
+					className="mt-4"
+					nameLabel={i18n.t('gear_tab.gear_sets.gear_set_name')}
+					saveButtonText={i18n.t('gear_tab.gear_sets.save_gear_set')}
+					{...savedPanel}
+				/>
+			),
+		},
 	];
 
 	return (

@@ -32,14 +32,20 @@ func checkAttackTableValues(t *testing.T, when string, values []attackTableValue
 func TestPlayerAttackTableAgainstEachTargetLevel(t *testing.T) {
 	for _, tc := range []struct {
 		level                                   int32
-		miss, dodge, parry                      float64
+		miss, dodge, parry, block               float64
 		glance, glanceMin, glanceMax, critSuppr float64
 		auraCritSuppr, spellMiss                float64
 	}{
-		{60, 0.05, 0.05, 0.05, 0.10, 0.91, 0.99, 0, 0, 0.04},
-		{61, 0.055, 0.055, 0.055, 0.20, 0.91, 0.99, 0.01, 0, 0.05},
-		{62, 0.06, 0.06, 0.06, 0.30, 0.80, 0.90, 0.02, 0, 0.06},
-		{63, 0.08, 0.065, 0.14, 0.40, 0.55, 0.75, 0.03, 0.018, 0.17},
+		{55, 0.025, 0.025, 0.025, 0.025, 0, 0.91, 0.99, -0.01, 0, 0},
+		{56, 0.03, 0.03, 0.03, 0.03, 0, 0.91, 0.99, -0.008, 0, 0},
+		{57, 0.035, 0.035, 0.035, 0.035, 0, 0.91, 0.99, -0.006, 0, 0.01},
+		{58, 0.04, 0.04, 0.04, 0.04, 0, 0.91, 0.99, -0.004, 0, 0.02},
+		{59, 0.045, 0.045, 0.045, 0.045, 0, 0.91, 0.99, -0.002, 0, 0.03},
+		{60, 0.05, 0.05, 0.05, 0.05, 0.10, 0.91, 0.99, 0, 0, 0.04},
+		{61, 0.055, 0.055, 0.055, 0.05, 0.20, 0.91, 0.99, 0.01, 0, 0.05},
+		{62, 0.06, 0.06, 0.06, 0.05, 0.30, 0.80, 0.90, 0.02, 0, 0.06},
+		{63, 0.08, 0.065, 0.14, 0.05, 0.40, 0.55, 0.75, 0.03, 0.018, 0.17},
+		{64, 0.08, 0.065, 0.14, 0.05, 0.40, 0.55, 0.75, 0.03, 0.018, 0.17},
 	} {
 		attacker, defender := attackTableUnits(PlayerUnit, 60, EnemyUnit, tc.level)
 		table := NewAttackTable(attacker, defender)
@@ -47,7 +53,7 @@ func TestPlayerAttackTableAgainstEachTargetLevel(t *testing.T) {
 			BaseMissChance:       tc.miss,
 			BaseDodgeChance:      tc.dodge,
 			BaseParryChance:      tc.parry,
-			BaseBlockChance:      0.05,
+			BaseBlockChance:      tc.block,
 			BaseGlanceChance:     tc.glance,
 			GlanceMultiplierMin:  tc.glanceMin,
 			GlanceMultiplierMax:  tc.glanceMax,
@@ -198,13 +204,13 @@ func TestWandSkillSetsTheRangedHandsSpellMiss(t *testing.T) {
 		{285, 60, 0.17},
 		{275, 60, 0.17},
 		{305, 63, 0.06},
-		{310, 60, 0.04},
+		{310, 60, 0.02},
 		{310, 65, 0.05},
 		{315, 65, 0.04},
 		{303, 61, 0.04},
 		{303, 62, 0.05},
 		{308, 62, 0.04},
-		{312, 61, 0.04},
+		{312, 61, 0.03},
 	} {
 		character := NewCharacter(&Party{}, 0, &proto.Player{
 			Name:         "Wand Tester",

@@ -1,7 +1,13 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { Player } from '@sim/player/player';
 
-export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'targets' | 'players';
+export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
+
+const ownPetRefs = (player: Player<any>) =>
+	player
+		.getPetMetadatas()
+		.asList()
+		.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) }));
 
 export const unitSets: Record<
 	UNIT_SET,
@@ -15,10 +21,7 @@ export const unitSets: Record<
 		getUnits: player => {
 			return [
 				undefined,
-				player
-					.getPetMetadatas()
-					.asList()
-					.map((petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
+				ownPetRefs(player),
 				UnitReference.create({ type: UnitType.CurrentTarget }),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
@@ -37,11 +40,14 @@ export const unitSets: Record<
 				undefined,
 				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.Self }),
-				player
-					.getPetMetadatas()
-					.asList()
-					.map((petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) })),
+				ownPetRefs(player),
 			].flat();
+		},
+	},
+	// Lists every own pet. The sim drops a value read from a pet without that resource, so a bare action condition counts as always true and an And or Or loses that branch.
+	self_and_pets: {
+		getUnits: player => {
+			return [undefined, ownPetRefs(player)].flat();
 		},
 	},
 	targets: {

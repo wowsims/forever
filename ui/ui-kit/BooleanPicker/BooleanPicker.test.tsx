@@ -125,4 +125,13 @@ describe('BooleanPicker', () => {
 		render(<Harness label={undefined} testId="sw-stat-toggle" />);
 		expect(screen.getByTestId('sw-stat-toggle')).toBe(checkbox());
 	});
+
+	it('points the checkbox at the text it is described by, and at nothing without it', () => {
+		const { unmount } = render(<Harness aria-describedby="swap-note" />);
+		expect(checkbox().getAttribute('aria-describedby')).toBe('swap-note');
+		unmount();
+
+		render(<Harness />);
+		expect(checkbox().hasAttribute('aria-describedby')).toBe(false);
+	});
 });

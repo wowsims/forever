@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
+import { IconEnumPickerDirection } from '@ui-kit/IconEnumPicker';
 import { describe, expect, it, vi } from 'vitest';
 
 import { MultiIconPicker, type MultiIconPickerProps } from './MultiIconPicker';
@@ -132,5 +133,26 @@ describe('MultiIconPicker', () => {
 		expect(trigger().parentElement!.hasAttribute('data-kept')).toBe(true);
 		expect(trigger().hasAttribute('data-tooltip-id')).toBe(false);
 		expect(screen.getByTestId('icon-swatch-kept').getAttribute('data-tooltip-content')).toBe('Kept');
+	});
+
+	it('opens its menu to the right as a row by default', () => {
+		mount();
+		open();
+		expect(menu().className).toContain('grid-flow-col');
+		expect(screen.getByTestId('multi-icon-picker-positioner').getAttribute('data-side')).toBe('right');
+	});
+
+	it('opens a vertical menu below, in the columns it is given', () => {
+		mount({ direction: IconEnumPickerDirection.Vertical, numColumns: 2 });
+		open();
+		expect(menu().className).not.toContain('grid-flow-col');
+		expect(menu().style.gridTemplateColumns).toBe('repeat(2, 1fr)');
+		expect(screen.getByTestId('multi-icon-picker-positioner').getAttribute('data-side')).toBe('bottom');
+	});
+
+	it('carries its tooltip on the trigger, which it names when there is no label', () => {
+		mount({ label: undefined, tooltip: 'Defensive' });
+		expect(trigger().getAttribute('data-tooltip-content')).toBe('Defensive');
+		expect(trigger().getAttribute('aria-label')).toBe('Defensive');
 	});
 });

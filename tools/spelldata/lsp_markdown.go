@@ -53,6 +53,10 @@ func exprMarkdown(result *exprResult, hover chainHover, links bool) string {
 	called := ""
 	if n := len(hover.chain.segments); n > 0 {
 		called = hover.chain.segments[n-1].text(true)
+		// An index reads as the accessor it indexes: `Refs()[0]`.
+		if hover.chain.segments[n-1].index && n > 1 {
+			called = hover.chain.segments[n-2].text(true) + called
+		}
 	}
 
 	// Only show the rank selector when the cursor is actually on the
@@ -108,7 +112,9 @@ func exprMarkdown(result *exprResult, hover chainHover, links bool) string {
 	// Accessors on a Ladder.Each virtual rank should render only the
 	// resolved spell/rank heading and the value under the cursor.
 	// The full spell card and evaluation trail are redundant here.
-	if hover.rank != nil && hover.parameter != nil && len(hover.chain.segments) > 0 {
+	// Another name bound to a row or an effect renders in full, as any bound name does.
+	if hover.rank != nil && hover.parameter != nil && len(hover.chain.segments) > 0 &&
+		(hover.name == "" || hover.name == hover.rank.parameter || result.kind == kindValue) {
 		fmt.Fprintf(&md, "### %s\n\n", c.heading())
 		fmt.Fprintf(&md, "`%s` = **%s**\n\n", called, result.value)
 		return md.String()
@@ -122,7 +128,7 @@ func exprMarkdown(result *exprResult, hover chainHover, links bool) string {
 		fmt.Fprintf(&md, "`%s` = **%s** of %s\n\n", called, result.value, c.heading())
 		fmt.Fprintf(&md, "`%s`\n", result.trail)
 		if result.readEffect > 0 {
-			effectTable(&md, c.Effects, true)
+			effectParagraphs(&md, c.Effects, true)
 		}
 		if len(result.accessors) > 0 {
 			md.WriteString("\n")

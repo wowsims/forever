@@ -18,11 +18,16 @@ func setupFakeRageRotation() (*Simulation, *FakeRageWarrior, *APLRotation) {
 // Auras and spells only register while the environment is constructing, so register runs with the
 // state set back to Constructed on the already reset sim.
 func setupFakeRageRotationWith(register func(char *Character)) (*Simulation, *FakeRageWarrior, *APLRotation) {
-	sim, fw, rot := setupFakeRageRotation()
+	return setupFakeRageRotationFrom(fakeRageSimRequest(), register)
+}
+
+func setupFakeRageRotationFrom(request *proto.RaidSimRequest, register func(char *Character)) (*Simulation, *FakeRageWarrior, *APLRotation) {
+	sim := setupFakeRageSimFrom(request)
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
 	sim.Environment.State = Constructed
 	register(&fw.Character)
 	sim.Environment.State = Finalized
-	return sim, fw, rot
+	return sim, fw, fw.Rotation
 }
 
 const (
@@ -259,12 +264,10 @@ func TestValueEncounter(t *testing.T) {
 		want      bool
 	}{
 		{proto.APLValueIsExecutePhase_E20, 20, true},
-		{proto.APLValueIsExecutePhase_E20, 25, false},
-		{proto.APLValueIsExecutePhase_E25, 25, true},
-		{proto.APLValueIsExecutePhase_E35, 45, false},
-		{proto.APLValueIsExecutePhase_E45, 45, true},
-		{proto.APLValueIsExecutePhase_E90, 100, true},
-		{proto.APLValueIsExecutePhase_E90, 90, false},
+		{proto.APLValueIsExecutePhase_E20, 35, false},
+		{proto.APLValueIsExecutePhase_E35, 20, true},
+		{proto.APLValueIsExecutePhase_E35, 35, true},
+		{proto.APLValueIsExecutePhase_E35, 100, false},
 	}
 	for _, tt := range thresholds {
 		value := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: tt.threshold}, nil)
@@ -274,7 +277,8 @@ func TestValueEncounter(t *testing.T) {
 		}
 	}
 	wantNoValue(t, map[string]APLValue{
-		"Is Execute Phase with an unknown threshold": rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{}, nil),
+		"Is Execute Phase with an unknown threshold":         rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{}, nil),
+		"Is Execute Phase with a threshold outside the enum": rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: 4}, nil),
 	})
 }
 
@@ -619,6 +623,8 @@ func TestValueUnknownIDs(t *testing.T) {
 		"Spell Full Cooldown for an unknown spell":       rot.newValueSpellFullCooldown(&proto.APLValueSpellFullCooldown{SpellId: spell}, nil),
 		"Spell In Flight for an unknown spell":           rot.newValueSpellInFlight(&proto.APLValueSpellInFlight{SpellId: spell}, nil),
 		"exported Spell In Flight for an unknown spell":  rot.NewValueSpellInFlight(&proto.APLValueSpellInFlight{SpellId: spell}, nil),
+		"Spell Is Hit Capped for an unknown spell":       rot.newValueSpellIsHitCapped(&proto.APLValueSpellIsHitCapped{SpellId: spell}, nil),
+		"Spell Is Expertise Capped for an unknown spell": rot.newValueSpellIsExpertiseCapped(&proto.APLValueSpellIsExpertiseCapped{SpellId: spell}, nil),
 
 		"Boss Spell Is Casting for a spell the boss does not know":    rot.newValueBossSpellIsCasting(&proto.APLValueBossSpellIsCasting{SpellId: spell}, nil),
 		"Boss Spell Time To Ready for a spell the boss does not know": rot.newValueBossSpellTimeToReady(&proto.APLValueBossSpellTimeToReady{SpellId: spell}, nil),
@@ -1314,6 +1320,237 @@ func TestValueDotPercentIncrease(t *testing.T) {
 	}
 }
 
+func TestValueSpellExpectedDpet(t *testing.T) {
+	sim, fw, rot := setupFakeRageRotation()
+	rend := fw.GetSpell(fakeRendActionID)
+	config := &proto.APLValueSpellExpectedDpet{SpellId: fakeRendActionID.ToProto()}
+
+	wantNoValue(t, map[string]APLValue{
+		"Spell Expected DPET without an expected damage calculator": rot.newValueSpellExpectedDpet(config, nil),
+	})
+
+	hit600 := func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
+		return &SpellResult{Damage: 600}
+	}
+	rend.expectedInitialDamageInternal = hit600
+	dpet := rot.newValueSpellExpectedDpet(config, nil)
+	if dpet == nil {
+		t.Fatalf("Expected Spell Expected DPET to resolve once the spell has an expected initial damage calculator")
+	}
+
+	rend.IgnoreHaste = false
+	rend.DefaultCast.GCD = GCDDefault
+	rend.DefaultCast.CastTime = 2 * time.Second
+	if got := dpet.GetFloat(sim); got != 300 {
+		t.Errorf("a 600 hit with a 2s cast = %f, want 300", got)
+	}
+
+	rend.expectedTickDamageInternal = func(_ *Simulation, _ *Unit, _ *Spell, _ bool) *SpellResult {
+		return &SpellResult{Damage: 150}
+	}
+	if got := dpet.GetFloat(sim); got != 675 {
+		t.Errorf("a 600 hit and 5 ticks of 150 with a 2s cast = %f, want 675", got)
+	}
+
+	rend.expectedInitialDamageInternal = nil
+	rend.DefaultCast.CastTime = 0
+	if got := dpet.GetFloat(sim); got != 500 {
+		t.Errorf("5 ticks of 150 on an instant with a 1.5s GCD = %f, want 500", got)
+	}
+
+	rend.Flags |= SpellFlagChanneled
+	if got := dpet.GetFloat(sim); got != 50 {
+		t.Errorf("5 ticks of 150 channeled every 3s = %f, want 50", got)
+	}
+
+	rend.Flags &^= SpellFlagChanneled
+	dot := rend.Dot(sim.Encounter.AllTargetUnits[0])
+	dot.BaseDurationFlat = 6 * time.Second
+	if got := dpet.GetFloat(sim); got != 700 {
+		t.Errorf("7 ticks of 150 (two ticks of extra base duration) on an instant with a 1.5s GCD = %f, want 700", got)
+	}
+	dot.BaseDurationFlat = 0
+
+	sim.CurrentTime = sim.Duration - 7*time.Second
+	if got := dpet.GetFloat(sim); got != 200 {
+		t.Errorf("2 of 5 ticks of 150 landing in the last 7s on an instant with a 1.5s GCD = %f, want 200", got)
+	}
+	sim.CurrentTime = sim.Duration - 6*time.Second
+	if got := dpet.GetFloat(sim); got != 200 {
+		t.Errorf("2 of 5 ticks of 150 in the last 6s, the second on the last moment of the fight = %f, want 200", got)
+	}
+	rend.Flags |= SpellFlagChanneled
+	sim.CurrentTime = sim.Duration - 7*time.Second
+	if got := dpet.GetFloat(sim); got != 50 {
+		t.Errorf("2 of 5 ticks of 150 channeled every 3s in the last 7s = %f, want 50", got)
+	}
+	rend.Flags &^= SpellFlagChanneled
+	rend.expectedInitialDamageInternal = hit600
+	rend.DefaultCast.CastTime = 2 * time.Second
+	sim.CurrentTime = sim.Duration - 9*time.Second
+	if got := dpet.GetFloat(sim); got != 450 {
+		t.Errorf("a 600 hit and 2 of 5 ticks of 150 after a 2s cast in the last 9s = %f, want 450", got)
+	}
+	sim.CurrentTime = sim.Duration - time.Second
+	if got := dpet.GetFloat(sim); got != 0 {
+		t.Errorf("a 2s cast in the last 1s = %f, want 0", got)
+	}
+	rend.MissileMinDuration = time.Second
+	sim.CurrentTime = sim.Duration - 8500*time.Millisecond
+	if got := dpet.GetFloat(sim); got != 375 {
+		t.Errorf("a 600 hit and 1 of 5 ticks of 150 after a 2s cast and 1s travel in the last 8.5s = %f, want 375", got)
+	}
+	sim.CurrentTime = sim.Duration - 2500*time.Millisecond
+	if got := dpet.GetFloat(sim); got != 0 {
+		t.Errorf("a 2s cast with 1s travel in the last 2.5s = %f, want 0", got)
+	}
+	rend.MissileMinDuration = 0
+	sim.CurrentTime = 0
+	rend.expectedInitialDamageInternal = nil
+	rend.DefaultCast.CastTime = 0
+
+	rend.DefaultCast.GCD = 0
+	if got := dpet.GetFloat(sim); got != 0 {
+		t.Errorf("a spell with neither a cast time nor a GCD = %f, want 0", got)
+	}
+}
+
+var (
+	testMeleeSpecialActionID = ActionID{SpellID: 910101}
+	testFireSpellActionID    = ActionID{SpellID: 910102}
+	testWandShotActionID     = ActionID{SpellID: 910103}
+)
+
+func registerCapTestSpells(char *Character) {
+	char.RegisterSpell(SpellConfig{
+		ActionID:    testMeleeSpecialActionID,
+		SpellSchool: SpellSchoolPhysical,
+		DefenseType: DefenseTypeMelee,
+		ProcMask:    ProcMaskMeleeMHSpecial,
+		Flags:       SpellFlagAPL,
+	})
+	char.RegisterSpell(SpellConfig{
+		ActionID:       testFireSpellActionID,
+		SpellSchool:    SpellSchoolFire,
+		DefenseType:    DefenseTypeMagic,
+		ProcMask:       ProcMaskSpellDamage,
+		Flags:          SpellFlagAPL,
+		ClassSpellMask: 1,
+	})
+	char.RegisterSpell(SpellConfig{
+		ActionID:    testWandShotActionID,
+		SpellSchool: SpellSchoolFire,
+		DefenseType: DefenseTypeMagic,
+		ProcMask:    ProcMaskRangedAuto,
+		Flags:       SpellFlagAPL,
+	})
+}
+
+// Against the level 63 target a level 60 attacker with no weapon skill bonus misses a special 8% of the time
+// and a spell 17%.
+func TestValueSpellIsHitCapped(t *testing.T) {
+	sim, fw, rot := setupFakeRageRotationWith(registerCapTestSpells)
+	hitCapped := func(id ActionID) APLValue {
+		return rot.newValueSpellIsHitCapped(&proto.APLValueSpellIsHitCapped{SpellId: id.ToProto()}, nil)
+	}
+	special := hitCapped(testMeleeSpecialActionID)
+	rend := hitCapped(fakeRendActionID)
+	fire := hitCapped(testFireSpellActionID)
+	wand := hitCapped(testWandShotActionID)
+
+	if !fw.AutoAttacks.IsDualWielding {
+		t.Fatal("the fake warrior should dual wield")
+	}
+
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 7)
+	if special.GetBool(sim) {
+		t.Errorf("Hit Capped(melee special) with 7%% hit: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 1)
+	if !special.GetBool(sim) {
+		t.Errorf("Hit Capped(melee special) with 8%% hit while dual wielding: got false, want true")
+	}
+	if !rend.GetBool(sim) {
+		t.Errorf("Hit Capped(Rend), a melee special without a DefenseType, with 8%% hit: got false, want true")
+	}
+	if !wand.GetBool(sim) {
+		t.Errorf("Hit Capped(wand shot) with 8%% physical hit: got false, want true")
+	}
+	if fire.GetBool(sim) {
+		t.Errorf("Hit Capped(Fire spell) with 8%% physical hit: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, -8)
+
+	fw.AddStatDynamic(sim, stats.SpellHitPercent, 10)
+	if fire.GetBool(sim) {
+		t.Errorf("Hit Capped(Fire spell) with 10%% spell hit: got true, want false")
+	}
+	fw.PseudoStats.SchoolBonusHitChance[stats.SchoolIndexFire] = 7
+	if !fire.GetBool(sim) {
+		t.Errorf("Hit Capped(Fire spell) with 10%% spell hit and 7%% Fire hit: got false, want true")
+	}
+	fw.AddStatDynamic(sim, stats.SpellHitPercent, 7)
+	if wand.GetBool(sim) {
+		t.Errorf("Hit Capped(wand shot) with 17%% spell hit and no physical hit: got true, want false")
+	}
+}
+
+// Against the level 63 target a level 60 attacker with no weapon skill bonus is dodged 6.5% of the time
+// and parried 14%.
+func TestValueSpellIsExpertiseCapped(t *testing.T) {
+	sim, fw, rot := setupFakeRageRotationWith(registerCapTestSpells)
+	expertiseCapped := func(id ActionID) APLValue {
+		return rot.newValueSpellIsExpertiseCapped(&proto.APLValueSpellIsExpertiseCapped{SpellId: id.ToProto()}, nil)
+	}
+	special := expertiseCapped(testMeleeSpecialActionID)
+
+	if !expertiseCapped(testFireSpellActionID).GetBool(sim) || !expertiseCapped(testWandShotActionID).GetBool(sim) {
+		t.Errorf("Expertise Capped of a Fire spell and a wand shot without expertise: got false, want true")
+	}
+
+	fw.PseudoStats.InFrontOfTarget = false
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 6)
+	if special.GetBool(sim) {
+		t.Errorf("Expertise Capped behind the target with 6%% expertise: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 1)
+	if !special.GetBool(sim) {
+		t.Errorf("Expertise Capped behind the target with 7%% expertise: got false, want true")
+	}
+
+	fw.PseudoStats.InFrontOfTarget = true
+	if special.GetBool(sim) {
+		t.Errorf("Expertise Capped in front of the target with 7%% expertise: got true, want false")
+	}
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 7)
+	if !special.GetBool(sim) {
+		t.Errorf("Expertise Capped in front of the target with 14%% expertise: got false, want true")
+	}
+}
+
+// Against a level 62 target the special's miss and dodge are 0.05 + 10*0.001, which sums to slightly above
+// 0.06 in floats, so 6% hit and 6% expertise reach the cap only within that remainder.
+func TestValueSpellCappedAtFloatRemainder(t *testing.T) {
+	request := fakeRageSimRequest()
+	request.Encounter.Targets[0].Level = 62
+	sim, fw, rot := setupFakeRageRotationFrom(request, registerCapTestSpells)
+	special := fw.GetSpell(testMeleeSpecialActionID)
+	if miss := special.physicalMissChanceNoDWPenalty(fw.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]); miss <= 0.06 {
+		t.Fatalf("the special's miss against a level 62 target = %v, want slightly above 0.06", miss)
+	}
+
+	fw.AddStatDynamic(sim, stats.PhysicalHitPercent, 6)
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, 6)
+	fw.PseudoStats.InFrontOfTarget = false
+	id := testMeleeSpecialActionID.ToProto()
+	if !rot.newValueSpellIsHitCapped(&proto.APLValueSpellIsHitCapped{SpellId: id}, nil).GetBool(sim) {
+		t.Errorf("Hit Capped(melee special) with 6%% hit against a level 62 target: got false, want true")
+	}
+	if !rot.newValueSpellIsExpertiseCapped(&proto.APLValueSpellIsExpertiseCapped{SpellId: id}, nil).GetBool(sim) {
+		t.Errorf("Expertise Capped behind a level 62 target with 6%% expertise: got false, want true")
+	}
+}
+
 func TestValueSequences(t *testing.T) {
 	sim, fw, rot := setupFakeRageRotation()
 	castSpell := &APLActionCastSpell{spell: fw.GetSpell(fakeCategorySpellActionIDs[0])}
@@ -1415,22 +1652,41 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		t.Fatal("a target spell with a related self buff should construct")
 	}
 
-	// With a 60s cooldown and a 10s buff, the aligned value only holds while a second full use still
-	// fits (70s left) or the buff would still be running at the end (10s left).
+	// With a 60s cooldown and a 10s buff, the aligned value casts while a later use would still get at least
+	// half its buff (more than 65s left) or the buff would run to the end, and holds in between. The
+	// cooldown is read when the value is evaluated, so a cooldown change applies at once.
 	for _, tc := range []struct {
-		elapsed time.Duration
-		aligned bool
+		elapsed  time.Duration
+		cooldown time.Duration
+		fight    time.Duration
+		aligned  bool
 	}{
-		{0, true},
-		{120 * time.Second, false},
-		{175 * time.Second, true},
+		{0, time.Minute, 180 * time.Second, true},
+		{114 * time.Second, time.Minute, 180 * time.Second, true},
+		{115 * time.Second, time.Minute, 180 * time.Second, false},
+		{119 * time.Second, time.Minute, 180 * time.Second, false},
+		{120 * time.Second, time.Minute, 180 * time.Second, false},
+		{150 * time.Second, time.Minute, 180 * time.Second, false},
+		{170 * time.Second, time.Minute, 180 * time.Second, true},
+		{175 * time.Second, time.Minute, 180 * time.Second, true},
+		{144 * time.Second, 30 * time.Second, 180 * time.Second, true},
+		{0, time.Minute, 8 * time.Second, true},
 	} {
-		sim.CurrentTime = tc.elapsed
+		target.CD.Duration, sim.Duration, sim.CurrentTime = tc.cooldown, tc.fight, tc.elapsed
 		if !always.GetBool(sim) {
-			t.Errorf("at %s without a base spell: got false, want true", tc.elapsed)
+			t.Errorf("at %s of %s without a base spell: got false, want true", tc.elapsed, tc.fight)
 		}
 		if got := aligned.GetBool(sim); got != tc.aligned {
-			t.Errorf("at %s aligned to the end of combat: got %t, want %t", tc.elapsed, got, tc.aligned)
+			t.Errorf("at %s of %s with a %s cooldown aligned to the end of combat: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
+		}
+	}
+
+	target.CD.Duration = 5 * time.Second
+	sim.Duration = 180 * time.Second
+	for elapsed := time.Duration(0); elapsed < 180*time.Second; elapsed += time.Second {
+		sim.CurrentTime = elapsed
+		if !aligned.GetBool(sim) {
+			t.Errorf("at %s with a cooldown shorter than the buff, aligned should cast", elapsed)
 		}
 	}
 }

@@ -15,6 +15,9 @@ type APLRotation struct {
 	valueVariables []*APLValueVariable
 	resetActions   []*APLAction
 
+	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
+	canMoveCloserValue bool
+
 	// Shared variable caches: all APLValueVariableRef instances for the same
 	// variable name share the same cache (but each has its own expression tree).
 	variableCaches map[string]*variableCache
@@ -30,6 +33,9 @@ type APLRotation struct {
 
 	// Action currently controlling this rotation (only used for certain actions, such as StrictSequence).
 	controllingActions []APLActionImpl
+
+	// The conditions of the Group References whose group is executing; a Strict Multidot started there re-checks them.
+	groupConditions []APLValue
 
 	// Value that should evaluate to 'true' if the current channel is to be interrupted.
 	// Will be nil when there is no active channel.
@@ -318,7 +324,7 @@ func (rot *APLRotation) getStats() *proto.APLStats {
 	// Perform one final round of validation after post-finalize effects.
 	for i, action := range rot.prepullActions {
 		rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
-			action.impl.PostFinalize(rot)
+			rot.postFinalize(action)
 		})
 	}
 
@@ -327,14 +333,14 @@ func (rot *APLRotation) getStats() *proto.APLStats {
 		// Parse actions in the group
 		for actionIdx, action := range group.actions {
 			rot.doAndRecordWarnings(&rot.groupListValidations[groupIdx][rot.groupListIdxMap[groupIdx][actionIdx]], false, func() {
-				action.impl.PostFinalize(rot)
+				rot.postFinalize(action)
 			})
 		}
 	}
 
 	for i, action := range rot.priorityList {
 		rot.doAndRecordWarnings(&rot.priorityListValidations[rot.priorityListIdxMap[i]], false, func() {
-			action.impl.PostFinalize(rot)
+			rot.postFinalize(action)
 		})
 	}
 
@@ -413,7 +419,7 @@ func (rot *APLRotation) reset(sim *Simulation) {
 // and leverage the community's existing familiarity.
 // https://github.com/simulationcraft/simc/wiki/ActionLists
 func (apl *APLRotation) DoNextAction(sim *Simulation) {
-	if sim.CurrentTime < 0 {
+	if sim.CurrentTime < 0 && !apl.unit.engagedBeforePull {
 		return
 	}
 
@@ -647,16 +653,16 @@ func (rot *APLRotation) newAPLActionWithGroupVars(config *proto.APLAction, group
 		return nil
 	}
 
-	action := &APLAction{
-		condition: rot.coerceTo(rot.newAPLValueWithContext(config.Condition, groupVars), proto.APLValueType_ValueTypeBool),
-		impl:      rot.newAPLActionImpl(config),
+	condition := rot.coerceTo(rot.newAPLValueWithContext(config.Condition, groupVars), proto.APLValueType_ValueTypeBool)
+	if config.Condition != nil && config.Condition.Value != nil && condition == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
 	}
 
-	if action.impl == nil {
+	impl := rot.newAPLActionImpl(config)
+	if impl == nil {
 		return nil
-	} else {
-		return action
 	}
+	return newAPLActionEntry(condition, impl)
 }
 
 // Re-resolve variable references in an APLValue with updated group variables

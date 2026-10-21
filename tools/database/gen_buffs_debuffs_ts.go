@@ -273,7 +273,11 @@ func buffInput(row ResolvedBuff) (*tsBuffInput, error) {
 			return nil, fmt.Errorf("an int32 debuff has no multistate factory in ui/features/inputs/icon_inputs.ts")
 		}
 		input.Factory = "makeMultistate" + scopes[row.Scope] + "Input"
+		// A field a talent prices counts its ranks from 0.
 		numStates, ok := buffInputNumStates[row.Field]
+		if !ok && row.TalentRanks > 0 {
+			numStates, ok = int(row.TalentRanks)+1, true
+		}
 		if !ok {
 			return nil, fmt.Errorf("an int32 row needs a numStates entry in buffInputNumStates")
 		}

@@ -68,6 +68,8 @@ func RegisterPotionsAndConjured() {
 		250947, // Greater Mender's Potion
 		250948, // Superior Mender's Potion
 		250949, // Major Mender's Potion
+		250951, // Caustic Smog Potion
+		250953, // Dragonfire Potion
 		250954, // Potion of Elemental Purging
 		250955, // Potion of Beast Slaying
 		255663, // Windstone

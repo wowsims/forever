@@ -1,14 +1,16 @@
 import { makeBooleanIndividualBuffInput, makeBooleanPartyBuffInput } from '@features/inputs/icon_inputs';
 import { Class, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { Party } from '@sim/raid/party';
 
 import * as Generated from './buffs_debuffs_auto_gen';
-import { IconPickerStatOption, inDisplayOrder } from './stat_options';
+import { IconPickerStatOption, inDisplayOrder, statOptionGroup } from './stat_options';
 
 // Every buff the game files resolve to a spell has its input generated from the manifest;
 // the rows below are the ones it cannot produce, and the registries at the end of this file
-// interleave the two.
+// interleave the two. Buffs whose whole effect bids in one exclusive category in the sim, so that
+// only the strongest applies, share a group.
 export * from './buffs_debuffs_auto_gen';
 
 // The generated const takes its name from the proto field; the specs name the buff.
@@ -20,7 +22,7 @@ export const ManaTideTotem = Generated.ManaTideTotems;
 export const GreaterBlessingOfSalvation = makeBooleanIndividualBuffInput({
 	actionId: ActionId.fromSpellId(25895),
 	fieldName: 'greaterBlessingOfSalvation',
-	label: 'Greater Blessing of Salvation',
+	label: 'Mass Salvation',
 	showWhen: player => !player.getPlayerSpec().isTankSpec && !player.getPlayerSpec().isHealingSpec,
 });
 export const GreaterBlessingOfLight = makeBooleanIndividualBuffInput({
@@ -42,7 +44,6 @@ export const RetributionAura = makeBooleanPartyBuffInput({
 
 export const PARTY_BUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_PARTY_BUFFS_CONFIG, [
 	Generated.BloodPact,
-	Generated.BattleShout,
 	Generated.DevotionAura,
 	Generated.ManaSpringTotem,
 	Generated.ManaTideTotems,
@@ -52,6 +53,7 @@ export const PARTY_BUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_PARTY_BUFFS
 		ownerClass: Class.ClassPaladin,
 	},
 	Generated.ConcentrationAura,
+	Generated.DarkInspiration,
 	Generated.AtieshMage,
 	Generated.AtieshWarlock,
 	Generated.AtieshDruid,
@@ -74,20 +76,16 @@ export const BUFFS_CONFIG = inDisplayOrder(
 		Generated.GreaterBlessingOfWisdom,
 		{ config: GreaterBlessingOfSalvation, stats: [] },
 		{ config: GreaterBlessingOfLight, stats: [Stat.StatHealingPower], ownerClass: Class.ClassPaladin },
-		Generated.PrayerOfShadowProtection,
-		Generated.FireResistanceAura,
-		Generated.FrostResistanceAura,
-		Generated.ShadowResistanceAura,
-		Generated.FireResistanceTotem,
-		Generated.FrostResistanceTotem,
-		Generated.NatureResistanceTotem,
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.shadow_resistance'), [Generated.PrayerOfShadowProtection, Generated.ShadowResistanceAura]),
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.fire_resistance'), [Generated.FireResistanceAura, Generated.FireResistanceTotem]),
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.frost_resistance'), [Generated.FrostResistanceAura, Generated.FrostResistanceTotem]),
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.nature_resistance'), [Generated.NatureResistanceTotem, Generated.AspectOfTheWild]),
 		Generated.StrengthOfEarthTotem,
 		Generated.GraceOfAirTotem,
 		Generated.WindfuryTotem,
 		Generated.FlametongueTotem,
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.attack_power'), [Generated.BattleShout, Generated.FuriousHowl]),
 		Generated.TrueshotAura,
-		Generated.FuriousHowl,
-		Generated.AspectOfTheWild,
 		Generated.LeaderOfThePack,
 		Generated.MoonkinAura,
 		Generated.Innervates,
@@ -101,23 +99,21 @@ export const DEBUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_DEBUFFS_CONFIG,
 	Generated.JudgementOfLight,
 	Generated.JudgementOfWisdom,
 	Generated.CurseOfElements,
-	Generated.CurseOfRecklessness,
 	Generated.CurseOfWeakness,
-	Generated.FaerieFire,
-	Generated.DustCloud,
-	Generated.ExposeArmor,
-	Generated.SunderArmor,
+	statOptionGroup(i18n.t('settings_tab.debuffs.major_armor_reduction'), [Generated.SunderArmor, Generated.ExposeArmor]),
+	statOptionGroup(i18n.t('settings_tab.debuffs.minor_armor_reduction'), [Generated.FaerieFire, Generated.CurseOfRecklessness, Generated.DustCloud]),
 	Generated.ArmorShatter,
 	Generated.GiftOfArthas,
-	Generated.DemoralizingRoar,
-	Generated.DemoralizingShout,
-	Generated.HexOfWeakness,
-	Generated.DemoralizingScreech,
-	Generated.Vindication,
-	Generated.ThunderClap,
-	Generated.Thunderfury,
-	Generated.InsectSwarm,
-	Generated.ScorpidSting,
+	statOptionGroup(i18n.t('settings_tab.debuffs.attack_power_reduction'), [
+		Generated.DemoralizingShout,
+		Generated.DemoralizingRoar,
+		Generated.DemoralizingScreech,
+		Generated.HexOfWeakness,
+		Generated.Vindication,
+	]),
+	// Thunderfury's Cyclone slows attacks in Thunder Clap's category; its nature resistance cut applies on its own.
+	statOptionGroup(i18n.t('settings_tab.debuffs.attack_speed_reduction'), [Generated.ThunderClap, Generated.Thunderfury]),
+	statOptionGroup(i18n.t('settings_tab.debuffs.hit_chance_reduction'), [Generated.InsectSwarm, Generated.ScorpidSting]),
 ]);
 
 export const DEBUFFS_MISC_CONFIG = [] as IconPickerStatOption[];

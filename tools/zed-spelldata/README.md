@@ -5,8 +5,8 @@ a name bound to a ladder chain, a `spelldata.SpellConfig` call or a `core.SpellM
 as the game files' row, the value the chain reads, the config the resolver builds or the mod's fields and
 the weapon they require; a code action picks the rank a `Ladder.Each` callback parameter hovers as. The
 extension only starts the server,
-`go -C <worktree root> run ./tools/spelldata -lsp`; everything else is in `tools/spelldata` (see its
-README).
+`go -C <worktree root> run ./tools/spelldata/launch -lsp`, which regenerates stale protos and builds the
+server first; everything else is in `tools/spelldata` (see its README).
 
 ## Install
 
@@ -35,7 +35,11 @@ reads through the parameter: _editor: toggle code actions_ (`ctrl-.`) lists
 rank picked; the pick lasts until the server restarts.
 
 The server compiles the store in, so after regenerating `sim/core/spelldata` or editing
-`tools/spelldata`, run _editor: restart language server_ (it restarts gopls too).
+`tools/spelldata`, run _editor: restart language server_ (it restarts gopls too). A restart also
+regenerates `sim/core/proto` when a pull moved the `.proto` files. Where the server does not build, Zed
+shows the build error as a notification and keeps the server, so a restart after the fix starts it.
+
+A change to `src/lib.rs` takes effect after _zed: install dev extension_ again.
 
 The server logs each hover's trace as a log message: open _dev: open language server logs_, pick
 `wowsims-spelldata` and _Server Logs_ to read it. To silence the trace, set the server's initialization

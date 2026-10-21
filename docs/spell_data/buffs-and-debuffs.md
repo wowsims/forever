@@ -326,7 +326,7 @@ when no trait node prices one, and the icon that state shows. Battlegear of Wrat
 218's `ItemSetSpell` at three pieces (2336) is 23563, an `A_ADD_FLAT_MODIFIER` of 30 against every
 effect of the Battle Shout family, which raises the shout from 139 attack power to 169. The two halves
 of that are modelled separately. The warrior's own cast reads the `has_bs_t2` class option (the user's
-word that this warrior wears the set, not the equipped gear). The party's copy is `battle_shout`'s
+word that this warrior wears the set, not the equipped gear). The raid's copy is `battle_shout`'s
 improved state, which `driveBattleShout` reads because the resolver has no curve to give it. Both call `AddGeneratedFlatBonus`, which raises what the aura
 applies and what it bids for its category together, so the stronger of the two copies is the one the
 character sheet shows. It is told what the buff is worth without the bonus, because the aura belongs

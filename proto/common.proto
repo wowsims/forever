@@ -255,6 +255,10 @@ enum Stat {
 
 	StatPhysicalDamage = 37;
 
+	// Armor that neither the percent armor modifiers nor the scaling of armor
+	// from items touch, which A_MOD_ARMOR_NO_MODS states. It adds to Armor.
+	StatArmorNoMods = 38;
+
 	// DO NOT add new stats here without discussing it first; new stats come
 	// with a performance penalty.
 
@@ -623,21 +627,14 @@ message Encounter {
 	double duration_variation = 2;
 
 	// The ratio of the encounter duration, between 0 and 1, for which the targets
-	// will be in execute range (<= 20%) for the purposes of Warrior Execute, Mage Molten
-	// Fury, etc.
+	// will be in execute range (<= 20%), e.g. for Execute and Hammer of Wrath.
 	double execute_proportion_20 = 3;
 
-	// Key for Affliction warlock Drain Soul
-	double execute_proportion_25 = 7;
-
-	// Same as execute_proportion but for 35%.
+	// Same as execute_proportion_20 but for 35%, e.g. for Quietus and Decimation.
 	double execute_proportion_35 = 4;
 
-	// Same as execute_proportion but for 45%.
-	double execute_proportion_45 = 10;
-
-	// Same as execute_proportion but for > 90%.
-	double execute_proportion_90 = 8;
+	reserved 7, 8, 10;
+	reserved "execute_proportion_25", "execute_proportion_45", "execute_proportion_90";
 
 	// If set, will use the targets health value instead of a duration for fight length.
 	bool use_health = 5;
@@ -709,7 +706,7 @@ enum PotionClass {
 	PotionClassUnknown = 0;
 	PotionClassResource = 1; // Restores mana, rage or energy, or buffs only mana regen.
 	PotionClassDefensive = 2; // Heals, absorbs, or buffs armor, avoidance, health or a resistance.
-	PotionClassOffensive = 3; // Buffs anything else, such as spell power or attack power.
+	PotionClassOffensive = 3; // Buffs anything else, such as spell power or attack power, or deals damage.
 }
 
 

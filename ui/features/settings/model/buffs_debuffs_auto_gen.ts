@@ -10,6 +10,7 @@ import {
 	makeMultistateIndividualBuffInput,
 	makeMultistatePartyBuffInput,
 	makeTristatePartyBuffInput,
+	makeTristateRaidBuffInput,
 } from '@features/inputs/icon_inputs';
 
 import type { RenderableStatOptions } from './stat_options';
@@ -18,13 +19,6 @@ export const BloodPact = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(11767),
 	fieldName: 'bloodPact',
 	label: 'Blood Pact',
-});
-
-export const BattleShout = makeTristatePartyBuffInput({
-	actionId: ActionId.fromSpellId(25289),
-	impId: ActionId.fromSpellId(23563),
-	fieldName: 'battleShout',
-	label: 'Battle Shout',
 });
 
 export const DevotionAura = makeBooleanPartyBuffInput({
@@ -104,6 +98,13 @@ export const AdmiralsHat = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(12022),
 	fieldName: 'admiralsHat',
 	label: "Admiral's Hat",
+});
+
+export const DarkInspiration = makeMultistatePartyBuffInput({
+	actionId: ActionId.fromSpellId(1326168),
+	numStates: 6,
+	fieldName: 'darkInspiration',
+	label: 'Dark Inspiration',
 });
 
 export const ArcaneBrilliance = makeBooleanRaidBuffInput({
@@ -194,6 +195,13 @@ export const FlametongueTotem = makeBooleanRaidBuffInput({
 	actionId: ActionId.fromSpellId(16387),
 	fieldName: 'flametongueTotem',
 	label: 'Flametongue Totem',
+});
+
+export const BattleShout = makeTristateRaidBuffInput({
+	actionId: ActionId.fromSpellId(25289),
+	impId: ActionId.fromSpellId(23563),
+	fieldName: 'battleShout',
+	label: 'Battle Shout',
 });
 
 export const TrueshotAura = makeBooleanRaidBuffInput({
@@ -477,6 +485,11 @@ export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 		ownerClass: Class.ClassShaman,
 	},
 	{
+		config: BattleShout,
+		stats: [Stat.StatAttackPower],
+		ownerClass: Class.ClassWarrior,
+	},
+	{
 		config: TrueshotAura,
 		stats: [Stat.StatRangedAttackPower],
 		ownerClass: Class.ClassHunter,
@@ -508,11 +521,6 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		config: BloodPact,
 		stats: [Stat.StatStamina],
 		ownerClass: Class.ClassWarlock,
-	},
-	{
-		config: BattleShout,
-		stats: [Stat.StatAttackPower],
-		ownerClass: Class.ClassWarrior,
 	},
 	{
 		config: DevotionAura,
@@ -566,6 +574,11 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: AdmiralsHat,
 		stats: [Stat.StatStamina],
+	},
+	{
+		config: DarkInspiration,
+		stats: [Stat.StatSpirit],
+		ownerClass: Class.ClassPriest,
 	},
 ];
 

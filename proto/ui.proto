@@ -436,6 +436,18 @@ message BulkEnchantPresets {
 	repeated BulkEnchantPreset presets = 1;
 }
 
+// Local storage data for the saved encounters the bulk sim also runs against. The current encounter always runs first
+// and is not stored here.
+message BulkEncounterSelection {
+	repeated BulkEncounterRef encounters = 1;
+}
+
+// A spec preset encounter or a user-saved one, by name.
+message BulkEncounterRef {
+	string name = 1;
+	bool preset = 2;
+}
+
 // Local storage data for a saved encounter.
 message SavedEncounter {
 	Encounter encounter = 1;

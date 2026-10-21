@@ -78,6 +78,17 @@ func applyOverride(s *storeSpell, o overrides.Override) error {
 	case overrides.APCoefThreat:
 		return applyAPCoefOverride(s, o, s.threatEffect(), "threat")
 
+	case overrides.SPCoefDirect:
+		e := s.directEffect()
+		if e == nil {
+			return fmt.Errorf("spell %d has no direct effect to carry a spell-power coefficient", s.ID)
+		}
+		if e.SPCoef != 0 {
+			return fmt.Errorf("spell %d now states %v spell power on its direct effect, so its hand-supplied coefficient is stale",
+				s.ID, e.SPCoef)
+		}
+		e.SPCoef = o.Value
+
 	case overrides.ProcChancePct:
 		if s.tooltipStatesChance {
 			return fmt.Errorf("spell %d states its own proc chance in the tooltip, so the hand-supplied %v%% is stale",

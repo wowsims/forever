@@ -397,7 +397,7 @@ func (character *Character) initialize(agent Agent) {
 				}
 			}
 
-			if sim.CurrentTime < 0 {
+			if sim.CurrentTime < 0 && !character.engagedBeforePull {
 				return
 			}
 

@@ -202,9 +202,13 @@ func (druid *Druid) applyBerserk() {
 	row := spellData.Berserk.Highest()
 	druid.BerserkAura = druid.RegisterAura(spelldata.AuraConfig(row))
 	// Crit on the builder mask and Primal Bite's cooldown. Jump targets and fear immunity are not parsed.
-	// TODO: Ingame test needed -- whether Berserk clears a Primal Bite cooldown already running; the row
-	// states only -100% on the cooldown, which reaches Primal Bites cast while Berserk is up.
 	spelldata.ParseEffects(&druid.Character, druid.BerserkAura, row)
+	// TODO: Ingame confirmation needed -- whether Berserk clears a running Primal Bite cooldown
+	druid.BerserkAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+		if druid.PrimalBite != nil {
+			druid.PrimalBite.CD.Reset()
+		}
+	})
 	config := spelldata.SpellConfig(&druid.Unit, row)
 	config.Flags |= core.SpellFlagAPL
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {

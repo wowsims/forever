@@ -51,7 +51,7 @@ func (w *chainWalker) resolveDamageEffect(spellID int) *DamageEffect {
 	}
 
 	for _, se := range effects {
-		if se.EffectTriggerSpell == 0 {
+		if !se.CastsItsTrigger() {
 			continue
 		}
 

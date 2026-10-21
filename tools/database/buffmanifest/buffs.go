@@ -143,6 +143,19 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
+	// The improved state is a warrior wearing three pieces of Battlegear of Wrath, whose set spell
+	// 23563 adds 30 to every effect of the shout. No set spell is resolved, so driveBattleShout adds it.
+	{
+		Field:      "battle_shout",
+		SpellID:    25289,
+		Category:   "BattleShout",
+		SingleAura: true,
+		Driver:     true,
+		ImpAction:  &ActionRef{SpellID: 23563},
+		Stats: []proto.Stat{
+			proto.Stat_StatAttackPower,
+		},
+	},
 	// TODO: rank 5 states 50 ranged attack power and rank 4 states 75; in-game testing has to say
 	// which one the top rank grants.
 	{
@@ -195,24 +208,14 @@ var Raid = []BuffSpec{
 }
 
 var Party = []BuffSpec{
+	// The Imp's copy and a ticked one bid per stat, both staying up, so the ticked one applies again
+	// once the Imp leaves.
 	{
-		Field:   "blood_pact",
-		SpellID: 11767,
+		Field:    "blood_pact",
+		SpellID:  11767,
+		Category: "BloodPact",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
-		},
-	},
-	// The improved state is a warrior wearing three pieces of Battlegear of Wrath, whose set spell
-	// 23563 adds 30 to every effect of the shout. No set spell is resolved, so driveBattleShout adds it.
-	{
-		Field:      "battle_shout",
-		SpellID:    25289,
-		Category:   "BattleShout",
-		SingleAura: true,
-		Driver:     true,
-		ImpAction:  &ActionRef{SpellID: 23563},
-		Stats: []proto.Stat{
-			proto.Stat_StatAttackPower,
 		},
 	},
 	{
@@ -349,6 +352,19 @@ var Party = []BuffSpec{
 		SingleAura: true,
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
+		},
+	},
+	// A shadow priest's talent 1326159 raises the buff for 10 s on Mind Blast and a full Mind Flay;
+	// the party's copy is up for the fight, and the field is the talent's rank. It bids per stat, so a
+	// priest's stronger copy holds the Spirit while it is up and the party's holds it again after.
+	{
+		Field:    "dark_inspiration",
+		SpellID:  1326168,
+		Talent:   1326159,
+		Category: "DarkInspiration",
+		Proto:    ProtoInt32,
+		Stats: []proto.Stat{
+			proto.Stat_StatSpirit,
 		},
 	},
 }

@@ -32,12 +32,18 @@
 						"description": {
 							"type": "string"
 						},
+						"heading": {
+							"type": "string"
+						},
+						"allSpecs": {
+							"type": "string"
+						},
 						"welcomeDescription": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["title", "description", "welcomeDescription"]
+					"required": ["title", "description", "heading", "allSpecs", "welcomeDescription"]
 				},
 				"header": {
 					"type": "object",
@@ -45,19 +51,57 @@
 						"wowsims": {
 							"type": "string"
 						},
-						"expansion": {
+						"subtitle": {
 							"type": "string"
 						},
-						"supportDevs": {
+						"discord": {
+							"type": "string"
+						},
+						"github": {
+							"type": "string"
+						},
+						"addon": {
+							"type": "string"
+						},
+						"patreon": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["wowsims", "expansion", "supportDevs"]
+					"required": ["wowsims", "subtitle", "discord", "github", "addon", "patreon"]
+				},
+				"actions": {
+					"type": "object",
+					"properties": {
+						"discord": {
+							"type": "string"
+						},
+						"github": {
+							"type": "string"
+						},
+						"addon": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["discord", "github", "addon"]
+				},
+				"footer": {
+					"type": "object",
+					"properties": {
+						"copyright": {
+							"type": "string"
+						},
+						"disclaimer": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["copyright", "disclaimer"]
 				}
 			},
 			"additionalProperties": false,
-			"required": ["navigation", "home", "header"]
+			"required": ["navigation", "home", "header", "actions", "footer"]
 		},
 		"common": {
 			"type": "object",
@@ -754,6 +798,9 @@
 						"bonus_armor": {
 							"type": "string"
 						},
+						"armor_no_mods": {
+							"type": "string"
+						},
 						"health": {
 							"type": "string"
 						},
@@ -965,6 +1012,7 @@
 						"spell_power",
 						"armor",
 						"bonus_armor",
+						"armor_no_mods",
 						"health",
 						"mana",
 						"mp5",
@@ -1610,6 +1658,12 @@
 				"description": {
 					"type": "string"
 				},
+				"title_class": {
+					"type": "string"
+				},
+				"description_class": {
+					"type": "string"
+				},
 				"basic_bis_disclaimer": {
 					"type": "string"
 				},
@@ -1750,6 +1804,8 @@
 			"required": [
 				"title",
 				"description",
+				"title_class",
+				"description_class",
 				"basic_bis_disclaimer",
 				"healing_sim_disclaimer",
 				"notice_native_download",
@@ -2157,6 +2213,41 @@
 						"not_yet_implemented": {
 							"type": "string"
 						},
+						"not_fully_supported": {
+							"type": "string"
+						},
+						"partial_set_bonus": {
+							"type": "object",
+							"properties": {
+								"grovekeeper_eclipse_4": {
+									"type": "string"
+								},
+								"wildheart_raiment_5": {
+									"type": "string"
+								},
+								"implements_of_unspoken_names_3": {
+									"type": "string"
+								},
+								"dreadnaughts_battlegear_4": {
+									"type": "string"
+								},
+								"dreadnaughts_battlegear_8": {
+									"type": "string"
+								},
+								"battleplate_of_glory_3": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"grovekeeper_eclipse_4",
+								"wildheart_raiment_5",
+								"implements_of_unspoken_names_3",
+								"dreadnaughts_battlegear_4",
+								"dreadnaughts_battlegear_8",
+								"battleplate_of_glory_3"
+							],
+							"additionalProperties": false
+						},
 						"set_bonus_warnings": {
 							"type": "string"
 						},
@@ -2175,6 +2266,8 @@
 						"will_not_be_implemented",
 						"unvalidated_rate",
 						"not_yet_implemented",
+						"not_fully_supported",
+						"partial_set_bonus",
 						"set_bonus_warnings",
 						"set_bonus_piece",
 						"area_stats"
@@ -2236,6 +2329,18 @@
 						},
 						"stamina": {
 							"type": "string"
+						},
+						"fire_resistance": {
+							"type": "string"
+						},
+						"frost_resistance": {
+							"type": "string"
+						},
+						"shadow_resistance": {
+							"type": "string"
+						},
+						"nature_resistance": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -2250,7 +2355,11 @@
 						"spell_power",
 						"spell_haste",
 						"crit_percent",
-						"stamina"
+						"stamina",
+						"fire_resistance",
+						"frost_resistance",
+						"shadow_resistance",
+						"nature_resistance"
 					]
 				},
 				"party_buffs": {
@@ -2358,10 +2467,39 @@
 						},
 						"spell_dmg": {
 							"type": "string"
+						},
+						"major_armor_reduction": {
+							"type": "string"
+						},
+						"minor_armor_reduction": {
+							"type": "string"
+						},
+						"attack_power_reduction": {
+							"type": "string"
+						},
+						"hit_chance_reduction": {
+							"type": "string"
+						},
+						"attack_speed_reduction": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["title", "tooltip", "misc", "armor_reduction", "phys_dmg_reduction", "cast_speed", "phys_dmg", "spell_dmg"]
+					"required": [
+						"title",
+						"tooltip",
+						"misc",
+						"armor_reduction",
+						"phys_dmg_reduction",
+						"cast_speed",
+						"phys_dmg",
+						"spell_dmg",
+						"major_armor_reduction",
+						"minor_armor_reduction",
+						"attack_power_reduction",
+						"hit_chance_reduction",
+						"attack_speed_reduction"
+					]
 				},
 				"other": {
 					"type": "object",
@@ -3319,10 +3457,16 @@
 							"properties": {
 								"title": {
 									"type": "string"
+								},
+								"offensive": {
+									"type": "string"
+								},
+								"defensive": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title"]
+							"required": ["title", "offensive", "defensive"]
 						}
 					},
 					"additionalProperties": false,
@@ -3539,46 +3683,7 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
-						"execute_duration_25": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
 						"execute_duration_35": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
-						"execute_duration_45": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
-						"duration_below_high_hp": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -3840,10 +3945,7 @@
 						"duration",
 						"duration_variation",
 						"execute_duration_20",
-						"execute_duration_25",
 						"execute_duration_35",
-						"execute_duration_45",
-						"duration_below_high_hp",
 						"encounter_preset",
 						"zone",
 						"area_types",
@@ -4034,9 +4136,6 @@
 				"title": {
 					"type": "string"
 				},
-				"description": {
-					"type": "string"
-				},
 				"download_native": {
 					"type": "string"
 				},
@@ -4138,12 +4237,63 @@
 								"enchants": {
 									"type": "string"
 								},
+								"encounters": {
+									"type": "string"
+								},
 								"frozen_slots": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["enchants", "frozen_slots"]
+							"required": ["encounters", "enchants", "frozen_slots"]
+						},
+						"encounters": {
+							"type": "object",
+							"properties": {
+								"description": {
+									"type": "string"
+								},
+								"current": {
+									"type": "string"
+								},
+								"presets": {
+									"type": "string"
+								},
+								"saved": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"duplicate": {
+									"type": "string"
+								},
+								"count": {
+									"type": "string"
+								},
+								"health_summary": {
+									"type": "string"
+								},
+								"targets_one": {
+									"type": "string"
+								},
+								"targets_other": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"description",
+								"current",
+								"presets",
+								"saved",
+								"empty",
+								"duplicate",
+								"count",
+								"health_summary",
+								"targets_one",
+								"targets_other"
+							]
 						},
 						"iterations": {
 							"type": "string"
@@ -4282,6 +4432,7 @@
 						"total_iterations",
 						"total_iterations_tooltip",
 						"groups",
+						"encounters",
 						"iterations",
 						"freeze_ring",
 						"freeze_trinket",
@@ -4426,10 +4577,63 @@
 						},
 						"tied_group": {
 							"type": "string"
+						},
+						"encounters": {
+							"type": "string"
+						},
+						"encounters_caption": {
+							"type": "string"
+						},
+						"current": {
+							"type": "string"
+						},
+						"export_csv": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["run_simulation", "equip_button", "gear_equipped", "current_gear", "margin_of_error", "tied_group"]
+					"required": [
+						"run_simulation",
+						"equip_button",
+						"gear_equipped",
+						"current_gear",
+						"margin_of_error",
+						"tied_group",
+						"encounters",
+						"encounters_caption",
+						"current",
+						"export_csv"
+					]
+				},
+				"compare": {
+					"type": "object",
+					"properties": {
+						"button": { "type": "string" },
+						"title": { "type": "string" },
+						"short_set": { "type": "string" },
+						"readout_rank": { "type": "string" },
+						"readout_current": { "type": "string" },
+						"readout_spread": { "type": "string" },
+						"not_ranked": { "type": "string" },
+						"table_caption": { "type": "string" },
+						"table_set": { "type": "string" },
+						"table_legend_best": { "type": "string" },
+						"table_legend_gap": { "type": "string" }
+					},
+					"additionalProperties": false,
+					"required": [
+						"button",
+						"title",
+						"short_set",
+						"readout_rank",
+						"readout_current",
+						"readout_spread",
+						"not_ranked",
+						"table_caption",
+						"table_set",
+						"table_legend_best",
+						"table_legend_gap"
+					]
 				},
 				"import_modal": {
 					"type": "object",
@@ -4451,7 +4655,6 @@
 			"additionalProperties": false,
 			"required": [
 				"title",
-				"description",
 				"download_native",
 				"tabs",
 				"actions",
@@ -4462,6 +4665,7 @@
 				"warning",
 				"picker",
 				"results",
+				"compare",
 				"import_modal"
 			]
 		},
@@ -5245,6 +5449,19 @@
 										"move_duration_tooltip"
 									]
 								},
+								"pet_attack": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"custom_rotation": {
 									"type": "object",
 									"properties": {
@@ -5325,6 +5542,7 @@
 								"trigger_icd",
 								"item_swap",
 								"move",
+								"pet_attack",
 								"custom_rotation",
 								"warlock_cast_assigned_curse",
 								"group_reference"
@@ -6027,6 +6245,38 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "full_description"]
 								},
+								"is_hit_capped": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										},
+										"full_description": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip", "full_description"]
+								},
+								"is_expertise_capped": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										},
+										"full_description": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip", "full_description"]
+								},
 								"is_ready": {
 									"type": "object",
 									"properties": {
@@ -6197,6 +6447,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"spell_in_flight": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"spell_expected_dpet": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -6816,19 +7079,6 @@
 									"required": ["label", "tooltip"],
 									"additionalProperties": false
 								},
-								"dot_crit_percent_increase": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"required": ["label", "tooltip"],
-									"additionalProperties": false
-								},
 								"dot_tick_rate_percent_increase": {
 									"type": "object",
 									"properties": {
@@ -6959,6 +7209,8 @@
 								"spell_known",
 								"current_cost",
 								"can_cast",
+								"is_hit_capped",
+								"is_expertise_capped",
 								"is_ready",
 								"time_to_ready",
 								"cast_time",
@@ -6973,6 +7225,7 @@
 								"channel_clip_delay",
 								"input_delay",
 								"spell_in_flight",
+								"spell_expected_dpet",
 								"aura_known",
 								"aura_active",
 								"aura_active_with_reaction_time",
@@ -7016,7 +7269,6 @@
 								"selected_conjured",
 								"offset",
 								"dot_base_duration",
-								"dot_crit_percent_increase",
 								"dot_tick_rate_percent_increase",
 								"variable_ref",
 								"variable_placeholder",
@@ -7078,21 +7330,12 @@
 								"e20": {
 									"type": "string"
 								},
-								"e25": {
-									"type": "string"
-								},
 								"e35": {
-									"type": "string"
-								},
-								"e45": {
-									"type": "string"
-								},
-								"e90": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["e20", "e25", "e35", "e45", "e90"]
+							"required": ["e20", "e35"]
 						},
 						"totem_types": {
 							"type": "object",
@@ -7384,6 +7627,9 @@
 										"expected_dot_spells": {
 											"type": "string"
 										},
+										"expected_damage_spells": {
+											"type": "string"
+										},
 										"spells_with_travelTime": {
 											"type": "string"
 										}
@@ -7403,6 +7649,7 @@
 										"non_instant_spells",
 										"friendly_spells",
 										"expected_dot_spells",
+										"expected_damage_spells",
 										"spells_with_travelTime"
 									]
 								},
@@ -7656,6 +7903,26 @@
 						"rogue": {
 							"type": "object",
 							"properties": {
+								"use_backstab": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label"]
+								},
+								"use_expose_armor": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label"]
+								},
 								"apply_poisons_manually": {
 									"type": "object",
 									"properties": {
@@ -7691,7 +7958,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["apply_poisons_manually", "subtlety"]
+							"required": ["use_backstab", "use_expose_armor", "apply_poisons_manually", "subtlety"]
 						},
 						"shaman": {
 							"type": "object",
@@ -7971,6 +8238,9 @@
 							"type": "string"
 						},
 						"target_number": {
+							"type": "string"
+						},
+						"group_ranks": {
 							"type": "string"
 						},
 						"damage": {
@@ -8808,6 +9078,9 @@
 								},
 								"critical_block": {
 									"type": "string"
+								},
+								"shield": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -8832,7 +9105,8 @@
 								"crush",
 								"glance",
 								"block",
-								"critical_block"
+								"critical_block",
+								"shield"
 							]
 						},
 						"tooltip_table": {
@@ -8845,6 +9119,12 @@
 									"type": "string"
 								},
 								"average": {
+									"type": "string"
+								},
+								"min": {
+									"type": "string"
+								},
+								"max": {
 									"type": "string"
 								},
 								"amount": {
@@ -8861,7 +9141,19 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["type", "count", "average", "amount", "per_cast", "per_hit", "ticks"]
+							"required": ["type", "count", "average", "min", "max", "amount", "per_cast", "per_hit", "ticks"]
+						},
+						"custom_metrics": {
+							"type": "object",
+							"properties": {
+								"group": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": {
+								"type": "string"
+							},
+							"required": ["group"]
 						},
 						"unit": {
 							"type": "string"
@@ -8897,6 +9189,7 @@
 						"sim_1_death",
 						"all_targets",
 						"target_number",
+						"group_ranks",
 						"damage",
 						"timeline",
 						"logs",
@@ -8905,6 +9198,7 @@
 						"tooltips",
 						"attack_types",
 						"tooltip_table",
+						"custom_metrics",
 						"unit",
 						"damage_result"
 					]
@@ -9547,6 +9841,9 @@
 				},
 				"native_sim_outdated": {
 					"type": "string"
+				},
+				"forever_notice": {
+					"type": "string"
 				}
 			},
 			"additionalProperties": false,
@@ -9560,7 +9857,8 @@
 				"status",
 				"options",
 				"download_native_sim",
-				"native_sim_outdated"
+				"native_sim_outdated",
+				"forever_notice"
 			]
 		},
 		"sidebar": {
@@ -9584,12 +9882,22 @@
 						"windfury_over_flametongue": {
 							"type": "string"
 						},
+						"elemental_stormstrike": {
+							"type": "string"
+						},
 						"label": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["profession_requirement", "unspent_talent_points", "broken_talents", "windfury_over_flametongue", "label"]
+					"required": [
+						"profession_requirement",
+						"unspent_talent_points",
+						"broken_talents",
+						"windfury_over_flametongue",
+						"elemental_stormstrike",
+						"label"
+					]
 				},
 				"buttons": {
 					"type": "object",
@@ -10698,7 +11006,13 @@
 						"bonus_prefix": {
 							"type": "string"
 						},
+						"rating_suffix": {
+							"type": "string"
+						},
 						"points_suffix": {
+							"type": "string"
+						},
+						"percent_label": {
 							"type": "string"
 						},
 						"percent_suffix": {
@@ -10717,7 +11031,9 @@
 						"crit_cap",
 						"tank_caps",
 						"bonus_prefix",
+						"rating_suffix",
 						"points_suffix",
+						"percent_label",
 						"percent_suffix"
 					]
 				}

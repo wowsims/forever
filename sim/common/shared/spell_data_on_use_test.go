@@ -459,3 +459,32 @@ func TestOnUseHealReachesTheHealingListeners(t *testing.T) {
 		t.Errorf("the listener heard %d heals, want the on-use's heal once", *heard)
 	}
 }
+
+// Dragonfire Potion's 1252554 states Always Hit. Used from an item it lands for a wearer who cannot
+// hit anything, and its damage over time goes on with it; the same row cast as a proc's spell rolls
+// its hit and misses.
+func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
+	const neckID, itemID int32 = 991021, 991022
+	const dragonfire int32 = 1252554
+	if !spelldata.MustFind(dragonfire).AlwaysHits() {
+		t.Fatalf("%d states no Always Hit, nothing to check", dragonfire)
+	}
+	neck, _ := listeningNeck(neckID, core.CallbackOnSpellHitDealt, dragonfire)
+	sim, caster := newOnUseSimWearing(t, NewSpellDataDamageOnUse, map[int32]*proto.ItemEffect{itemID: testOnUse(dragonfire, 600000, 0, 0)}, neck)
+	caster.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: -1000})
+	target := sim.Encounter.ActiveTargetUnits[0]
+
+	onUse := onUseSpell(t, caster, itemID)
+	onUse.Cast(sim, target)
+	stepPast(t, sim, sim.CurrentTime+onUse.TravelTime()+time.Millisecond)
+	if metrics := onUse.SpellMetrics[target.UnitIndex]; metrics.Hits != 1 || metrics.Misses != 0 || !onUse.Dot(target).IsActive() {
+		t.Errorf("the on-use took %d hits and %d misses, damage over time up %v; want the hit and its damage over time",
+			metrics.Hits, metrics.Misses, onUse.Dot(target).IsActive())
+	}
+
+	proc := caster.GetSpell(core.ActionID{SpellID: dragonfire})
+	proc.Cast(sim, target)
+	if metrics := proc.SpellMetrics[target.UnitIndex]; metrics.Misses != 1 || metrics.Hits != 0 {
+		t.Errorf("the proc's spell took %d hits and %d misses, want it to miss", metrics.Hits, metrics.Misses)
+	}
+}

@@ -52,7 +52,8 @@ const offeredTo =
 		((consumable.lvl >= player.sim.getMinConsumableLvl(consumable.type) && relevance.relevant(consumable, player)) || picked(player)) &&
 		(!includeIf || includeIf(consumable, player));
 
-// Defaults are the stats and percents the spec weighs consumables by; the universe adds every one a
+// Defaults are the stats and percents the spec weighs consumables by and the stats it displays, as the
+// buffs' filter counts them (a pseudo-stat by its root rating); the universe adds every one a
 // consumable grants. A default no consumable grants (a resource stat the restore rule reads) stays
 // in the universe, so the defaults show in full. What the consumables grant is worked out once per
 // database, as it walks every consumable, and the scope once per player and database, so the
@@ -69,7 +70,9 @@ export const consumableFilterScope = (player: Player<any>, db: Database): StatFi
 		grantedByDatabase.set(db, granted);
 	}
 	const specConfig = player.getSpecConfig();
-	const defaults = unitStatsOf({ stats: consumableStatsOf(specConfig), pseudoStats: consumablePseudoStatsOf(specConfig) });
+	const displayed = (specConfig.displayStats ?? []).filter(unitStat => unitStat.hasRootStat()).map(unitStat => unitStat.getRootStat());
+	const stats = consumableStatsOf({ epStats: [...specConfig.epStats, ...displayed], consumableStats: specConfig.consumableStats });
+	const defaults = unitStatsOf({ stats, pseudoStats: consumablePseudoStatsOf(specConfig) });
 	const pool = new Set([...defaults, ...granted].map(stat => stat.getKey()));
 	const scope = { defaults, universe: UnitStat.getAll().filter(stat => pool.has(stat.getKey())) };
 	scopeByPlayer.set(player, { db, scope });
@@ -81,6 +84,9 @@ const STORE_FIELDS: Array<StoreField> = ['consumables', 'gear', 'profession1', '
 // Every field a consumable picker reads: `itemSwap` because the swap imbues' includeIf reads the swap
 // weapons and their showWhen whether item swap is on. The toggles read only STORE_FIELDS.
 export const CONSUMABLE_PICKER_FIELDS: ReadonlyArray<StoreField> = [...STORE_FIELDS, 'itemSwap'];
+
+// The columns a consumable menu lays its offers out in, by how many there are.
+export const consumableColumns = (offered: number): number => (offered > 10 ? 3 : offered > 5 ? 2 : 1);
 
 export const makeConsumableInput = (consumables: ReadonlyArray<Consumable>, relevance: ConsumableRelevance, options: ConsumableInputOptions) =>
 	consumablePicker(
@@ -134,10 +140,7 @@ function consumablePicker(
 	return {
 		type: 'iconEnum',
 		tooltip: options.tooltip,
-		numColumns: (p: Player<any>) => {
-			const offered = values.filter(value => value.showWhen!(p)).length;
-			return offered > 10 ? 3 : offered > 5 ? 2 : 1;
-		},
+		numColumns: (p: Player<any>) => consumableColumns(values.filter(value => value.showWhen!(p)).length),
 		values: (player: Player<any>) => {
 			const order = consumableOrderOf(player);
 			return ordered([order.weights, order.mobType, order.zoneId], () => [none, ...orderedByEp(values, value => byId.get(value.value)!, order)]);
@@ -163,7 +166,7 @@ function consumablePicker(
 export type ConsumeToggle = InputHelpers.TypedIconPickerConfig<Player<any>, boolean> & { consumable: Consumable };
 
 // A consumable picked any number at a time into the spec's extra ids.
-export function makeIdListInput(consumable: Consumable, relevance: ConsumableRelevance): ConsumeToggle {
+export function makeIdListInput(consumable: Consumable, relevance: ConsumableRelevance, includeIf?: ConsumableInputOptions['includeIf']): ConsumeToggle {
 	const picked = (player: Player<any>) => player.getConsumes().extraIds.includes(consumable.id);
 	return {
 		consumable,
@@ -171,7 +174,7 @@ export function makeIdListInput(consumable: Consumable, relevance: ConsumableRel
 		actionId: ActionId.fromItemId(consumable.id),
 		states: 2,
 		storeField: STORE_FIELDS,
-		showWhen: offeredTo(consumable, relevance, picked),
+		showWhen: offeredTo(consumable, relevance, picked, includeIf),
 		keptBy: (player: Player<any>, value: boolean) => value && !relevance.relevant(consumable, player),
 		getValue: picked,
 		setValue: (player: Player<any>, newValue: boolean) => {

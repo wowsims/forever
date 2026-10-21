@@ -17,8 +17,8 @@ var hawkSummon = spellData.SummonHawkTriggered.ByID(1293248)
 // The tooltip's ${$s1+($rap*($s4/100))}: effect 4 is the share of ranged attack power.
 var summonHawkAPShare = summonHawkRank.EffectN(4).Percent()
 
-// A hawk the dive leaves behind: a guardian with a pet's base stats and swing, summoned at the
-// enemy by the cast.
+// A hawk the dive leaves behind: a guardian with a pet's base stats and swing damage, summoned at
+// the enemy by the cast.
 type HawkPet struct {
 	core.Pet
 }
@@ -32,10 +32,11 @@ func (hawk *HawkPet) ExecuteCustomRotation(sim *core.Simulation) {
 	hawk.WaitUntil(sim, sim.CurrentTime+hawkSummon.Duration())
 }
 
-// Effect 3 is the number of hawks up at once. Hunter Guardian Hawk Pet Scaling 01 (1293586) gives
-// each its owner's attack speed, damage done and melee crit chance, all of each; the row is not in
-// the store. The crit is the tamed pet's, the higher of melee and ranged (inheritedCrit), with none
-// from Agility; no hawk logs yet.
+// Effect 3 is the number of hawks up at once. A hawk's swing follows its owner's ranged speed while
+// it is up, a quiver's and Quick Shots' included; Berserking's attack speed does not reach it in
+// game. Its crit is the tamed pet's, the higher of melee and ranged (inheritedCrit), with none from
+// Agility. The row that scales a hawk, Hunter Guardian Hawk Pet Scaling 01 (1293586), is not in the
+// store.
 func (hunter *Hunter) newHawks() []*HawkPet {
 	if !hunter.Talents.SummonHawk {
 		return nil
@@ -50,13 +51,15 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 			StatInheritance: func(ownerStats stats.Stats) stats.Stats {
 				return stats.Stats{stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats)}
 			},
-			IsGuardian:                      true,
-			IsDynamic:                       true,
-			HasDynamicMeleeSpeedInheritance: true,
+			IsGuardian:                       true,
+			IsDynamic:                        true,
+			HasDynamicRangedSpeedInheritance: true,
 		})}
-		addPetStatDependencies(&hawk.Character)
+		swing := petSwing
+		// 2.5 s in game, before the owner's ranged speed.
+		swing.SwingSpeed = 2.5
 		hawk.EnableAutoAttacks(hawk, core.AutoAttackOptions{
-			MainHand:       petSwing,
+			MainHand:       swing,
 			AutoSwingMelee: true,
 		})
 		// The damage done is the owner's as the hawk is summoned, on top of the hawk's own.

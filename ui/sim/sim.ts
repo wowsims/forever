@@ -29,6 +29,7 @@ import {
 import {
 	ArmorType,
 	ConsumableType,
+	Encounter as EncounterProto,
 	EquipmentSpec,
 	Faction,
 	Profession,
@@ -375,7 +376,12 @@ export class Sim {
 		return gear;
 	}
 
-	async runBulkSim(onProgress: WorkerProgressCallback, bulkSettings: BulkSettings, abortSignal?: AbortSignal): Promise<BulkSimResult | ErrorOutcome> {
+	async runBulkSim(
+		onProgress: WorkerProgressCallback,
+		bulkSettings: BulkSettings,
+		abortSignal?: AbortSignal,
+		encounterOverride?: EncounterProto,
+	): Promise<BulkSimResult | ErrorOutcome> {
 		this.requireRunnableSetup();
 
 		const signals = this.signalManager.registerRunning(RequestTypes.BulkSim);
@@ -384,6 +390,9 @@ export class Sim {
 
 			const requestId = generateRequestId(SimRequest.bulkSimAsync);
 			const baseRequest = this.makeRaidSimRequest();
+			if (encounterOverride) {
+				baseRequest.encounter = EncounterProto.clone(encounterOverride);
+			}
 			baseRequest.requestId = requestId;
 			baseRequest.simOptions!.debugFirstIteration = false;
 			baseRequest.simOptions!.debug = false;

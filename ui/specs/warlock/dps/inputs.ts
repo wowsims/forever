@@ -43,10 +43,10 @@ export const PetInput = <SpecType extends WarlockSpecs>() =>
 		numColumns: 5,
 		values: [
 			{ value: Summon.NoSummon, tooltip: 'No Pet' },
-			{ actionId: ActionId.fromSpellId(691), value: Summon.Felhunter },
 			{ actionId: ActionId.fromSpellId(688), value: Summon.Imp },
-			{ actionId: ActionId.fromSpellId(712), value: Summon.Succubus },
 			{ actionId: ActionId.fromSpellId(697), value: Summon.Voidwalker },
+			{ actionId: ActionId.fromSpellId(712), value: Summon.Succubus },
+			{ actionId: ActionId.fromSpellId(691), value: Summon.Felhunter },
 		],
 		storeField: 'player:*' as const,
 		setValue: (player: Player<SpecType>, newValue: Summon) => settleDemons(player, { field: 'summon', value: newValue }),
@@ -72,12 +72,11 @@ export const DemonicSacrificeInput = <SpecType extends WarlockSpecs>() =>
 		numColumns: 5,
 		values: [
 			{ value: Summon.NoSummon, tooltip: 'No Sacrifice' },
-			// The effect's icon, with the demon sacrificed for it written on it: the effects name no demon.
-			// Short enough to fit the swatch.
-			{ actionId: ActionId.fromSpellId(18789), value: Summon.Imp, text: 'Imp' },
-			{ actionId: ActionId.fromSpellId(18791), value: Summon.Succubus, text: 'Succ' },
-			{ actionId: ActionId.fromSpellId(18792), value: Summon.Voidwalker, text: 'Void' },
-			{ actionId: ActionId.fromSpellId(18790), value: Summon.Felhunter, text: 'Fel' },
+			// The demon's summon icon, with the tooltip of the effect sacrificing it gives.
+			{ actionId: ActionId.fromSpellId(688), buffActionId: ActionId.fromSpellId(18789), value: Summon.Imp },
+			{ actionId: ActionId.fromSpellId(697), buffActionId: ActionId.fromSpellId(18792), value: Summon.Voidwalker },
+			{ actionId: ActionId.fromSpellId(712), buffActionId: ActionId.fromSpellId(18791), value: Summon.Succubus },
+			{ actionId: ActionId.fromSpellId(691), buffActionId: ActionId.fromSpellId(18790), value: Summon.Felhunter },
 		],
 		// `talentsString` too, so untalenting Demonic Sacrifice hides the picker straight away.
 		storeField: ['specOptions', 'talentsString'] as const,

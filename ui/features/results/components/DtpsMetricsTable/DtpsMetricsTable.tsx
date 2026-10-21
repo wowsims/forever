@@ -4,8 +4,8 @@ import { percentOf } from '@sim/utils/math';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
-import { useSimResult } from '../../hooks/useSimResult';
-import { buildMetricRows, indexMetricRows, type MetricGrouping, type MetricRow } from '../../model/grouping';
+import { useActionRows } from '../../hooks/useActionRows';
+import { indexMetricRows } from '../../model/grouping';
 import type { SimResultData } from '../../model/result_data';
 import {
 	type AttackBreakdownOptions,
@@ -23,8 +23,6 @@ const helper = createMetricsColumnHelper<ActionMetrics>();
 
 /** Crushing blows land on the player, so this is the one table whose breakdowns carry them. */
 const TAKEN: AttackBreakdownOptions = { crush: true };
-
-const NO_ROWS: Array<MetricRow<ActionMetrics>> = [];
 
 const TOOLTIP = {
 	damageTaken: 'dtps-metrics-damage-taken',
@@ -47,15 +45,10 @@ const dtpsGroups = (resultData: SimResultData): Array<Array<ActionMetrics>> => {
 	return ActionMetrics.groupById([...targetActions, ...resultData.result.getOwnSideDamageOn(player)]);
 };
 
-const grouping: MetricGrouping<ActionMetrics> = {
-	merge: metrics => ActionMetrics.merge(metrics, { removeTag: true, actionIdOverride: metrics[0].unit?.petActionId || undefined }),
-	shouldCollapse: () => true,
-};
+const shouldCollapse = () => true;
 
 export const DtpsMetricsTable = () => {
-	const resultData = useSimResult();
-
-	const rows = useMemo(() => (resultData ? buildMetricRows(dtpsGroups(resultData), grouping) : NO_ROWS), [resultData]);
+	const { resultData, rows } = useActionRows(dtpsGroups, shouldCollapse);
 	const metricsByRowId = useMemo(() => indexMetricRows(rows), [rows]);
 	const maxDamage = useMetricMax(rows, metric => metric.damage);
 	const damageTaken = resultData?.result.getRaidIndexedPlayers(resultData.filter)[0]?.totalDamageTaken;

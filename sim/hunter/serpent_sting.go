@@ -8,17 +8,17 @@ import (
 var serpentStingRank = spellData.SerpentSting.Highest()
 
 // TODO: In-game testing required. The row states no attack power share on the tick; the Forever
-// notes say 15% of ranged attack power over the duration, 3% a tick, read at each tick.
-const serpentStingTickAPShare = 0.03
+// notes say 10% of ranged attack power over the duration, 2% a tick, read at each tick.
+const serpentStingTickAPShare = 0.02
 
 func (hunter *Hunter) registerSerpentSting() {
 	tick := serpentStingRank.PeriodicEffect()
 
 	config := spelldata.SpellConfig(&hunter.Unit, serpentStingRank, spelldata.Flags(core.SpellFlagAPL))
-	// A cast, not a proc, but one that must not read as a ranged hit to on-hit listeners; what the
-	// sting's application should count as is a separate question. Matches only listeners that
-	// state no mask.
-	config.ProcMask = core.ProcMaskEmpty
+	// A ranged ability, as the game files' ranged-ability procs (Rapid Recuperation) see it, so the
+	// ticks crit at the ranged crit. The application deals no damage, so the on-hit listeners that
+	// require damage skip it, and the ticks reach only periodic listeners.
+	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 

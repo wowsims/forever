@@ -185,6 +185,38 @@ func (rsrc *raidSimResultCombiner) combineDistMetrics(base *proto.DistributionMe
 	CombineDistributionMetrics(base, add, isLast, weight)
 }
 
+func valueRangeFromProto(m *proto.DistributionMetrics) *valueRange {
+	n := m.GetAggregatorData().GetN()
+	if n == 0 {
+		return &valueRange{}
+	}
+	return &valueRange{n: int(n), mean: m.Avg, m2: m.Stdev * m.Stdev * float64(n), min: m.Min, max: m.Max}
+}
+
+func combineHitRanges(base, add *proto.DistributionMetrics) *proto.DistributionMetrics {
+	merged := valueRangeFromProto(base)
+	merged.merge(valueRangeFromProto(add))
+	return merged.toProto()
+}
+
+func combineTargetHitRanges(base, add *proto.TargetedActionMetrics) {
+	for kind, addRange := range add.Ranges {
+		if base.Ranges == nil {
+			base.Ranges = make(map[int32]*proto.DistributionMetrics, len(add.Ranges))
+		}
+		base.Ranges[kind] = combineHitRanges(base.Ranges[kind], addRange)
+	}
+	for _, addCustom := range add.CustomMetrics {
+		idx := slices.IndexFunc(base.CustomMetrics, func(c *proto.CustomActionMetric) bool { return c.Key == addCustom.Key })
+		if idx < 0 {
+			base.CustomMetrics = append(base.CustomMetrics, &proto.CustomActionMetric{Key: addCustom.Key})
+			idx = len(base.CustomMetrics) - 1
+		}
+		baseCustom := base.CustomMetrics[idx]
+		baseCustom.Range = combineHitRanges(baseCustom.Range, addCustom.Range)
+	}
+}
+
 func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add *proto.ActionMetrics) {
 	actionIndex, ok := rsrc.actionIndexByUnit[unit]
 	if !ok {
@@ -233,6 +265,7 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 		baseTgt.CritTicks += addTgt.CritTicks
 		baseTgt.ResistedCritTicks += addTgt.ResistedCritTicks
 		baseTgt.Misses += addTgt.Misses
+		baseTgt.TickMisses += addTgt.TickMisses
 		baseTgt.Dodges += addTgt.Dodges
 		baseTgt.Parries += addTgt.Parries
 		baseTgt.Crushes += addTgt.Crushes
@@ -256,6 +289,7 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 		baseTgt.CritHealing += addTgt.CritHealing
 		baseTgt.Shielding += addTgt.Shielding
 		baseTgt.CastTimeMs += addTgt.CastTimeMs
+		combineTargetHitRanges(baseTgt, addTgt)
 	}
 }
 

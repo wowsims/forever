@@ -8,6 +8,7 @@ import { ToastArea, toastManager } from '@ui-kit/Toast';
 import clsx from 'clsx';
 import { type ReactNode, type RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+import { ForeverNotice } from './ForeverNotice';
 import { SimTitleDropdown } from './header/SimTitleDropdown';
 import { SimToolbar } from './header/SimToolbar';
 import type { SimHostObject } from './individual_sim_ui';
@@ -63,6 +64,7 @@ export const SimShell = ({ domRef, host, sim, className, spec, noticeText, known
 				data-testid="sim-ui"
 				{...simUiAttributes({ spec })}>
 				<div className="flex h-full min-h-screen flex-col" data-testid="sim-root">
+					<ForeverNotice host={host} />
 					{noticeText ? (
 						<div className="relative mb-0 w-full border border-transparent bg-overlay p-4 text-center" data-testid="notices-banner">
 							{noticeText}

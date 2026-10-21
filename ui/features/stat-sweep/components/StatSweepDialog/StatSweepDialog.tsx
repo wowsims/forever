@@ -13,7 +13,13 @@ import { subscribeStatSweepChange } from '@sim/state/subscriptions';
 import { sum } from '@sim/utils/math';
 import { Button } from '@ui-kit/Button';
 import { Dialog } from '@ui-kit/Dialog';
-import { ProgressTrackerDialog, type ProgressTrackerHandle, type ProgressTrackerProgress } from '@ui-kit/ProgressTrackerDialog';
+import {
+	HandleProgressStepList,
+	type ProgressStepListHandle,
+	ProgressTrackerDialog,
+	type ProgressTrackerHandle,
+	type ProgressTrackerProgress,
+} from '@ui-kit/ProgressTrackerDialog';
 import { downloadString } from '@ui-kit/utils/dom';
 import { type Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
@@ -22,7 +28,6 @@ import { offeredSweepMetrics, shownSweepMetric, statSweepCsv, type StatSweepProg
 import { StatSweepChart } from '../StatSweepChart';
 import { StatSweepHistory } from '../StatSweepHistory';
 import { StatSweepPanel } from '../StatSweepPanel';
-import { HandleStatSweepStatList, type StatSweepStatListHandle } from '../StatSweepStatList';
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
 
@@ -86,7 +91,7 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 	const { player, unitStats, statOptions, metrics, metric, range, step, showSpread, precision, selectedStats, selectedKeys, labelOf, runnable } =
 		useSweepSetup(settings);
 	const progressRef = useRef<ProgressTrackerHandle>(null);
-	const statListRef = useRef<StatSweepStatListHandle>(null);
+	const statListRef = useRef<ProgressStepListHandle>(null);
 	const sweep = useStatSweep();
 	const defaultIterations = useSimStore('iterations');
 
@@ -169,8 +174,9 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 					open
 					testId="stat-sweep-progress-dialog"
 					title={t('title')}
-					state={{ stage: 'running', message: <HandleStatSweepStatList ref={statListRef} labels={selectedKeys.map(labelOf)} /> }}
+					state={{ stage: 'running' }}
 					hasProgressBar
+					belowBar={<HandleProgressStepList ref={statListRef} labels={selectedKeys.map(labelOf)} />}
 					onCancel={sweep.cancel}
 				/>
 			)}

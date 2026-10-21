@@ -5,10 +5,10 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Bane of Agony's ticks are set at cast. Amplify Curse raises the base, and the base ramps in thirds: the
-// first third of the ticks at half, the second at the base, the last at one and a half. The spell power share
-// is the spell power at cast, the same on every tick: it neither ramps nor takes Amplify Curse. Damage
-// multipliers apply as each tick lands.
+// Bane of Agony's ticks are set at cast. The base ramps in thirds: the first third of the ticks at half, the
+// second at the base, the last at one and a half. The spell power share is the spell power at cast, the same
+// on every tick, and does not ramp. Amplify Curse raises the whole tick, base and share. Damage multipliers
+// apply as each tick lands.
 func (warlock *Warlock) registerBaneOfAgony() {
 	rankedSpell := spellData.BaneOfAgony.ByID(11713)
 	agonyTick := rankedSpell.PeriodicEffect()
@@ -42,7 +42,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 
 	// Sets the dot's snapshot to a tick of the cast at the ramp, with the damage multipliers of now.
 	setTick := func(target *core.Unit, dot *core.Dot, cast agonyCast, ramp float64) {
-		dot.SnapshotBaseDamage = agonyTick.Average()*ramp*cast.ampMult + cast.spellPowerShare
+		dot.SnapshotBaseDamage = (agonyTick.Average()*ramp + cast.spellPowerShare) * cast.ampMult
 		dot.SnapshotAttackerMultiplier = dot.Spell.AttackerDamageMultiplier(warlock.AttackTables[target.UnitIndex], true) *
 			dot.PeriodicDamageMultiplier
 	}

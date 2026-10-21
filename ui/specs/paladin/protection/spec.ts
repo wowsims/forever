@@ -39,6 +39,7 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 		Stat.StatParryRating,
 		Stat.StatArmor,
 		Stat.StatBonusArmor,
+		Stat.StatArmorNoMods,
 	],
 	epPseudoStats: [PseudoStat.PseudoStatMainHandDps],
 	// Reference stat against which to calculate EP. I think all classes use either spell power or attack power.
@@ -50,6 +51,7 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 			Stat.StatMana,
 			Stat.StatArmor,
 			Stat.StatBonusArmor,
+			Stat.StatArmorNoMods,
 			Stat.StatStamina,
 			Stat.StatStrength,
 			Stat.StatSpellDamage,

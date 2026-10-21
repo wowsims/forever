@@ -170,10 +170,15 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	}
 
 	statsToWeigh := stats.ProtoArrayToStatsList(swr.StatsToWeigh)
+	// An Armor weight is per point of armor from items, which the armor modifiers scale, so armor
+	// they leave alone is weighed beside it.
+	if slices.Contains(statsToWeigh, stats.Armor) && !slices.Contains(statsToWeigh, stats.ArmorNoMods) {
+		statsToWeigh = append(statsToWeigh, stats.ArmorNoMods)
+	}
 	for _, s := range statsToWeigh {
 		stat := stats.UnitStatFromStat(s)
 		statMod := defaultStatMod
-		if stat.EqualsStat(stats.Armor) || stat.EqualsStat(stats.BonusArmor) || stat.EqualsStat(stats.ArmorPenetration) {
+		if stat.EqualsStat(stats.Armor) || stat.EqualsStat(stats.BonusArmor) || stat.EqualsStat(stats.ArmorNoMods) || stat.EqualsStat(stats.ArmorPenetration) {
 			statMod = defaultStatMod * 10
 		}
 		statModsHigh[stat] = statMod
@@ -336,13 +341,6 @@ func calcStatWeights(swcr *proto.StatWeightsCalcRequest) (*StatWeightsResult, *p
 		}
 
 		modLow, modHigh := statPairs.StatData.ModLow, statPairs.StatData.ModHigh
-		if stat.IsPseudoStat() {
-			statName := proto.PseudoStat_name[int32(stat.PseudoStatIdx())]
-			if strings.Contains(statName, "SchoolHit") {
-				modLow *= HitRatingPerHitPercent
-				modHigh *= HitRatingPerHitPercent
-			}
-		}
 
 		// Check for hard caps. Hard caps will have results identical to the baseline because RNG is fixed.
 		// When we find a hard-capped stat, just skip it (will return 0).

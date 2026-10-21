@@ -151,6 +151,29 @@ func TestChanceOnHitDamageOverTimeRoutesAsDamage(t *testing.T) {
 	}
 }
 
+// A damage spell behind a trigger the game casts only on a condition is not found from the spell that
+// holds the condition. Blade of Hanna's 1325535 stacks 1325509 on each swing, and 1325509 casts Perfected
+// Form 1325508 only at 30 stacks, so neither routes to a proc, while 1325508 still resolves its own
+// damage. 1325508's removal of 1325509 is no link back to it.
+func TestDamageBehindAStackCountRoutesNoProc(t *testing.T) {
+	withDBCInputs(t)
+	dbc.GetDBC()
+
+	const triggerSpellID, stackSpellID, damageSpellID = 1325535, 1325509, 1325508
+
+	for _, spellID := range []int{triggerSpellID, stackSpellID} {
+		if shape, id := pickNoStatShape(spellID, int32(spellID)); shape != ShapeStats || id != 0 {
+			t.Errorf("spell %d routed to shape %v with id %d, want shape %v with id 0", spellID, shape, id, ShapeStats)
+		}
+	}
+	if got := dbc.ResolveDamageEffect(damageSpellID); got == nil || got.SpellID != damageSpellID {
+		t.Errorf("spell %d resolved %v, want its own damage", damageSpellID, got)
+	}
+	if got := dbc.ResolveTriggered(damageSpellID, func(s *spelldata.Spell) bool { return s.ID == stackSpellID }); got != 0 {
+		t.Errorf("spell %d reached spell %d through the aura it removes, want no link", damageSpellID, got)
+	}
+}
+
 // A trigger's ProcChance column reaches the item's proc only where it is a roll, below 100: Green Whelp
 // Armor 7375's 9160 rolls its column, while Storm Gauntlets 12632's 16615 states the 100 or more that
 // fires on its own condition and leaves the proc stating no chance.
@@ -530,7 +553,7 @@ func TestOnUseStatBuffListsTheProcItCarries(t *testing.T) {
 		t.Fatalf("parsed as %v, want the stat on-use registered", got)
 	}
 
-	entry := groups["Armor"].Entries[0]
+	entry := groups["ArmorNoMods"].Entries[0]
 	if want := "the proc the buff carries, 23781 (E_HEAL)"; !entry.Supported || entry.NotSimulated != want {
 		t.Errorf("supported %v, not simulated %q; want registered with %q", entry.Supported, entry.NotSimulated, want)
 	}

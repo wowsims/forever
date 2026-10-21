@@ -204,6 +204,35 @@ func TestOnlyTheFirstOfTheZanzaGroupApplies(t *testing.T) {
 	}
 }
 
+// The Rum group holds Rumsey Rum Black Label 21151 (25804, Stamina) and Kreeg's Stout Beatdown 18284
+// (22790, Spirit and less Intellect): only the first the spec names is up, and it stacks with the food,
+// Runn Tum Tuber Surprise 18254 (Intellect).
+func TestOnlyTheFirstOfTheRumGroupAppliesBesideTheFood(t *testing.T) {
+	const blackLabel, kreegs, tuber int32 = 21151, 18284, 18254
+	for _, id := range []int32{blackLabel, kreegs, tuber} {
+		registerStatConsumable(t, id)
+	}
+
+	for _, tc := range []struct {
+		name string
+		ids  []int32
+	}{
+		{"Rumsey Rum Black Label then Kreeg's Stout Beatdown", []int32{blackLabel, kreegs}},
+		{"Kreeg's Stout Beatdown then Rumsey Rum Black Label", []int32{kreegs, blackLabel}},
+	} {
+		gain := statGain(&proto.ConsumesSpec{ExtraIds: tc.ids}, &proto.RaidBuffs{})
+		if first := soloGain(tc.ids[0]); !gain.EqualsWithTolerance(first, 1e-9) {
+			t.Errorf("%s: %v, want the first one's alone: %v", tc.name, gain, first)
+		}
+	}
+
+	food := statGain(&proto.ConsumesSpec{FoodId: tuber}, &proto.RaidBuffs{})
+	both := statGain(&proto.ConsumesSpec{FoodId: tuber, ExtraIds: []int32{blackLabel}}, &proto.RaidBuffs{})
+	if want := food.Add(soloGain(blackLabel)); !both.EqualsWithTolerance(want, 1e-9) {
+		t.Errorf("Runn Tum Tuber Surprise and Rumsey Rum Black Label add %v, want both: %v", both, want)
+	}
+}
+
 // Juju Power 12451 (16323) joins the Strength elixirs, Elixir of Greater Strength 9206 (11405) among
 // them. An elixir the spec names comes before its extra ids.
 func TestAJujuAndAnElixirOfItsGroupDoNotStack(t *testing.T) {

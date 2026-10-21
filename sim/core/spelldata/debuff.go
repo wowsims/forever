@@ -35,9 +35,9 @@ func debuffsAStat(e *Effect) bool {
 	case dbcenums.A_MOD_RESISTANCE:
 		return len(resistanceStats(e.Misc)) > 0
 	case dbcenums.A_MOD_ARMOR_NO_MODS:
-		return len(armorNoModsStats(e.Misc)) > 0
+		return e.ArmorNoMods()
 	case dbcenums.A_MOD_DAMAGE_DONE:
-		return len(damageDoneStats(e.Misc)) > 0
+		return len(DamageDoneStats(e.Misc)) > 0
 	case dbcenums.A_MOD_ATTACK_POWER, dbcenums.A_MOD_RANGED_ATTACK_POWER:
 		return true
 	}

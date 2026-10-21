@@ -73,6 +73,7 @@ export const IconEnumPicker = <T,>({
 				testId: testId ?? 'icon-enum-picker-root',
 				...(rooted ? { ref: controlRef, 'aria-labelledby': labelId } : {}),
 				...tooltipAnchorProps(tooltip ? tooltipId : undefined, tooltip),
+				...(selectedHidden ? undefined : selected?.wowhead),
 			}}
 			side={horizontal ? 'right' : 'bottom'}
 			portalProps={{ 'data-testid': 'icon-enum-picker-portal' }}

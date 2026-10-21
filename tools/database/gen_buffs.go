@@ -87,8 +87,9 @@ type ResolvedBuff struct {
 	TalentSpellID  int32
 	TalentPosition int32
 	// TalentDivisor prices a row whose talent states its effect only in its tooltip, as
-	// ${$m1/-N*$<SpellID>m1}: rank m1 of N is worth m1/N of every amount the spell attaches. 0 for
-	// a talent priced by a spell modifier.
+	// ${$m1/-N*$<SpellID>m1}: rank m1 of N is worth m1/N of every amount the spell attaches. A row
+	// whose own tooltip shows the talent's $<Talent>s1 takes the node's ranks as N. 0 for a talent
+	// priced by a spell modifier.
 	TalentDivisor int32
 
 	ScopeFromClient buffmanifest.BuffScope
@@ -343,7 +344,9 @@ func (row *ResolvedBuff) hasDamageShield() bool {
 // its ranks. The one spell modifier of it whose class mask reaches the buff's
 // spell is the improvement; one that modifies misc 1 scales the duration,
 // anything else the value. Where none reaches it, a tooltip term naming the
-// buff's spell prices the value by rank: see tooltipTalentDivisor.
+// buff's spell prices the value by rank (see tooltipTalentDivisor), or the
+// buff's own tooltip shows the talent's amount as $<talent>s1, which the buff's
+// row states at full rank, and each rank is its share of the node's ranks.
 func resolveTalent(t *spellTables, nodes []traitNode, row *ResolvedBuff) error {
 	id := row.Talent
 	if id == 0 {
@@ -366,6 +369,9 @@ func resolveTalent(t *spellTables, nodes []traitNode, row *ResolvedBuff) error {
 	}
 	if position < 0 {
 		divisor := tooltipTalentDivisor(t.Descriptions[id], row.SpellID)
+		if divisor == 0 && strings.Contains(t.Descriptions[row.SpellID], fmt.Sprintf("$%ds1", id)) {
+			divisor = nodes[node].MaxRanks
+		}
 		if divisor == 0 {
 			return fmt.Errorf("talent %d has no spell modifier that reaches spell %d", id, row.SpellID)
 		}
@@ -807,7 +813,8 @@ func buffConstructor(row ResolvedBuff, rendered buffRow) string {
 }
 
 // The apply block: the condition the proto field is read by, and the call that
-// puts the buff on the unit. A kind whose behaviour is a cooldown, a proc or an
+// puts the buff on the unit. An int32 field a talent prices is the talent's
+// rank, up to the node's ranks. A kind whose behaviour is a cooldown, a proc or an
 // uptime calls a driver of a fixed name that sim/core/buffs/drivers.go declares,
 // and so does a row the manifest marks as driven. A driver is handed the whole
 // scope message rather than its own field, because a driven buff often reads a
@@ -830,6 +837,9 @@ func buffApply(row ResolvedBuff, spellVar string) (string, string, bool) {
 		points = fmt.Sprintf("core.GetTristateValueInt32(%s, 0, %d)", access, row.TalentRanks)
 	case buffmanifest.ProtoInt32, buffmanifest.ProtoDouble:
 		cond, points = access+" > 0", "0"
+		if row.Proto == buffmanifest.ProtoInt32 && row.TalentRanks > 0 {
+			points = fmt.Sprintf("min(%s, %d)", access, row.TalentRanks)
+		}
 	default:
 		return "", "", false
 	}

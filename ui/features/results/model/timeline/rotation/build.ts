@@ -168,7 +168,7 @@ function resourceItems(resourceType: ResourceType, logs: Array<ResourceGroupLog>
 
 	return resourceLogs.map((group, i) => {
 		const start = group.timestamp;
-		const width = (resourceLogs[i + 1]?.timestamp || duration) - start;
+		const width = (resourceLogs[i + 1]?.timestamp ?? duration) - start;
 		const base = startValue(group);
 		const percent = ((group.valueAfter / base) * 100).toFixed(0);
 		return {

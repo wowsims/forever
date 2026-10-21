@@ -123,7 +123,7 @@ func TestPresetTalentsAreLegal(t *testing.T) {
 			}
 		}
 	}
-	for name, talents := range map[string]string{"catTalents": catTalents, "bearweaveTalents": bearweaveTalents} {
+	for name, talents := range map[string]string{"catTalents": catTalents} {
 		if err := talentsLegal(trees, talents); err != nil {
 			t.Errorf("%s %s: %v", name, talents, err)
 		}

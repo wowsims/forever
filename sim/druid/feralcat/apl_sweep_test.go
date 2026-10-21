@@ -267,13 +267,8 @@ func manaShort() *proto.APLValue {
 // BestCatAPL is the list ui/specs/druid/feralcat/apls/default.apl.json holds.
 var bestCatAPL = aplTune{elune: "after", omen: true, innervate: true, rakePool: "1s", biteEnd: true, biteLow: "3s", rakeCut: "6s", ccShred: true}
 
-// The cat UI's default talents (presets.ts CatTalents), and the ones bearweaveAPL is played with: one
-// more point out of Rend and Tear into Primal Bite. Genesis stays at 5, which Nature's Majesty and
-// Nature's Reach need below them.
-const (
-	catTalents       = DefaultTalents
-	bearweaveTalents = BearweaveTalents
-)
+// The cat UI's default talents (presets.ts CatTalents), which the Bearweave build plays as well.
+const catTalents = DefaultTalents
 
 // weaveTune is one bear trip. energyMax is the most energy the cat goes into bear with, spLeft the
 // least Shifting Power cooldown left, manaPerSecond the mana kept back per second of fight left on
@@ -554,7 +549,7 @@ func TestCatAPLPresetHasNoWarningsOnTheDefaultCat(t *testing.T) {
 func TestBearweaveAPLPresetHasNoWarningsOnItsTalents(t *testing.T) {
 	preset := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "bearweave").Rotation
 	req := uiDefaultCat(preset)
-	req.Raid.Parties[0].Players[0].TalentsString = bearweaveTalents
+	req.Raid.Parties[0].Players[0].TalentsString = catTalents
 	if warnings := withoutIdleAutocast(preset, aplWarnings(t, preset, req)); len(warnings) != 0 {
 		t.Errorf("preset warnings by line: %v", warnings)
 	}

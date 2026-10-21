@@ -16,10 +16,12 @@ import (
 var PaladinAuraCategory = "PaladinAura"
 
 // Blood Pact
+var BloodPactCategory = "BloodPact"
 var bloodPactSpell = spelldata.MustFind(11767)
 var bloodPactMeta = &Meta{
-	Label: "Blood Pact",
-	Spell: bloodPactSpell,
+	Label:    "Blood Pact",
+	Spell:    bloodPactSpell,
+	Category: BloodPactCategory,
 }
 
 func BloodPactValue(talentPoints int32) float64 {
@@ -30,26 +32,6 @@ func BloodPactDuration(talentPoints int32) time.Duration {
 }
 func NewSpellDataBloodPactAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
 	return newBuff(unit, bloodPactMeta, isPlayer, talentPoints)
-}
-
-// Battle Shout
-var BattleShoutCategory = "BattleShout"
-var battleShoutSpell = spelldata.MustFind(25289)
-var battleShoutMeta = &Meta{
-	Label:      "Battle Shout",
-	Spell:      battleShoutSpell,
-	Category:   BattleShoutCategory,
-	SingleAura: true,
-}
-
-func BattleShoutValue(talentPoints int32) float64 {
-	return battleShoutMeta.Value(talentPoints)
-}
-func BattleShoutDuration(talentPoints int32) time.Duration {
-	return battleShoutMeta.Duration(talentPoints)
-}
-func NewSpellDataBattleShoutAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, battleShoutMeta, isPlayer, talentPoints)
 }
 
 // Devotion Aura
@@ -294,6 +276,28 @@ func AdmiralsHatDuration(talentPoints int32) time.Duration {
 }
 func NewSpellDataAdmiralsHatAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
 	return newBuff(unit, admiralsHatMeta, isPlayer, talentPoints)
+}
+
+// Dark Inspiration
+var DarkInspirationCategory = "DarkInspiration"
+var darkInspirationSpell = spelldata.MustFind(1326168)
+var darkInspirationMeta = &Meta{
+	Label:         "Dark Inspiration",
+	Spell:         darkInspirationSpell,
+	Category:      DarkInspirationCategory,
+	Talent:        spelldata.Talent(1326159, 5),
+	TalentEffect:  1,
+	TalentDivisor: 5,
+}
+
+func DarkInspirationValue(talentPoints int32) float64 {
+	return darkInspirationMeta.Value(talentPoints)
+}
+func DarkInspirationDuration(talentPoints int32) time.Duration {
+	return darkInspirationMeta.Duration(talentPoints)
+}
+func NewSpellDataDarkInspirationAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, darkInspirationMeta, isPlayer, talentPoints)
 }
 
 // Arcane Brilliance
@@ -579,6 +583,26 @@ func NewSpellDataFlametongueTotemAura(unit *core.Unit, isPlayer bool, talentPoin
 	return newBuff(unit, flametongueTotemMeta, isPlayer, talentPoints)
 }
 
+// Battle Shout
+var BattleShoutCategory = "BattleShout"
+var battleShoutSpell = spelldata.MustFind(25289)
+var battleShoutMeta = &Meta{
+	Label:      "Battle Shout",
+	Spell:      battleShoutSpell,
+	Category:   BattleShoutCategory,
+	SingleAura: true,
+}
+
+func BattleShoutValue(talentPoints int32) float64 {
+	return battleShoutMeta.Value(talentPoints)
+}
+func BattleShoutDuration(talentPoints int32) time.Duration {
+	return battleShoutMeta.Duration(talentPoints)
+}
+func NewSpellDataBattleShoutAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, battleShoutMeta, isPlayer, talentPoints)
+}
+
 // Trueshot Aura
 var trueshotAuraSpell = spelldata.MustFind(20906)
 var trueshotAuraMeta = &Meta{
@@ -724,10 +748,10 @@ func NewSpellDataGreaterBlessingOfWisdomAura(unit *core.Unit, isPlayer bool, tal
 	return newBuff(unit, greaterBlessingOfWisdomMeta, isPlayer, talentPoints)
 }
 
-// Greater Blessing of Salvation
+// Mass Salvation
 var greaterBlessingOfSalvationSpell = spelldata.MustFind(25895)
 var greaterBlessingOfSalvationMeta = &Meta{
-	Label: "Greater Blessing of Salvation",
+	Label: "Mass Salvation",
 	Spell: greaterBlessingOfSalvationSpell,
 }
 
@@ -827,9 +851,6 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if party.BloodPact {
 		core.MakePermanent(NewSpellDataBloodPactAura(&char.Unit, false, 0))
 	}
-	if party.BattleShout != proto.TristateEffect_TristateEffectMissing {
-		driveBattleShout(char, party)
-	}
 	if party.DevotionAura {
 		core.MakePermanent(NewSpellDataDevotionAura(&char.Unit, false, 0))
 	}
@@ -865,6 +886,9 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	}
 	if party.AdmiralsHat {
 		core.MakePermanent(NewSpellDataAdmiralsHatAura(&char.Unit, false, 0))
+	}
+	if party.DarkInspiration > 0 {
+		core.MakePermanent(NewSpellDataDarkInspirationAura(&char.Unit, false, min(party.DarkInspiration, 5)))
 	}
 	if raid.ArcaneBrilliance {
 		core.MakePermanent(NewSpellDataArcaneBrillianceAura(&char.Unit, false, 0))
@@ -910,6 +934,9 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	}
 	if raid.FlametongueTotem {
 		driveFlametongueTotem(char, raid)
+	}
+	if raid.BattleShout != proto.TristateEffect_TristateEffectMissing {
+		driveBattleShout(char, raid)
 	}
 	if raid.TrueshotAura {
 		core.MakePermanent(NewSpellDataTrueshotAura(&char.Unit, false, 0))

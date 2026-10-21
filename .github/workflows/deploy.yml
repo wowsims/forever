@@ -23,7 +23,7 @@ jobs:
 
     build-and-deploy:
         needs: tests
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
         permissions:
             contents: write
             pull-requests: write
@@ -37,7 +37,6 @@ jobs:
               uses: actions/setup-go@v6
               with:
                   go-version: 1.25.x
-                  cache: false
 
             - name: Install Protoc
               uses: arduino/setup-protoc@v3
@@ -52,12 +51,14 @@ jobs:
               uses: actions/setup-node@v5
               with:
                   node-version: 22
+                  cache: npm
 
             - name: Install npm dependencies
               run: npm ci
 
-            - name: Install binaryen
-              run: sudo apt-get update && sudo apt-get install -y binaryen
+            # The deploy action copies the build with rsync.
+            - name: Install binaryen and rsync
+              run: sudo apt-get update && sudo apt-get install -y binaryen rsync
 
             - name: Build 🔧
               run: |

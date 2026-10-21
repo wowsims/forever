@@ -18,9 +18,6 @@ func (paladin *Paladin) registerHolyWrath(_ int32, rank *spelldata.Spell) {
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = SpellMaskHolyWrath
-	// The 20 yd area is SpellRadius 9 on effect 1's EffectRadiusIndex_1, which the store does not carry.
-	// TODO: Read rank.EffectN(1).RadiusMax once the store falls back to EffectRadiusIndex_1.
-	config.MaxRange = 20
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		results := []*core.SpellResult{}

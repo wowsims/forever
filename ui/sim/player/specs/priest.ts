@@ -9,7 +9,7 @@ export class DpsPriest extends PlayerSpec<Spec.SpecDpsPriest> {
 	static specIndex = 0;
 	static specID = Spec.SpecDpsPriest as Spec.SpecDpsPriest;
 	static classID = Class.ClassPriest as Class.ClassPriest;
-	static friendlyName = 'Shadow';
+	static friendlyName = 'DPS';
 	static simLink = getSpecSitePath('priest', 'dps');
 
 	static isTankSpec = false;

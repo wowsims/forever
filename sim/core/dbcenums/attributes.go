@@ -82,6 +82,7 @@ const (
 	ATTR_EX_5_TREAT_AS_AREA_EFFECT          uint32 = 0x8000
 	ATTR_EX_5_REQ_LINE_OF_SIGHT             uint32 = 0x4000000
 	ATTR_EX_6_IGNORE_FOR_MOD_TIME_RATE      uint32 = 0x10
+	ATTR_EX_6_NO_PUSHBACK                   uint32 = 0x8000
 	ATTR_EX_6_DISABLE_PLAYER_MULT           uint32 = 0x20000000
 	ATTR_EX_7_NO_DODGE                      uint32 = 0x800000
 	ATTR_EX_7_NO_PARRY                      uint32 = 0x1000000
@@ -117,6 +118,7 @@ const (
 	ATTR_INDEX_EX_4  int = 4
 	ATTR_INDEX_EX_6  int = 6
 	ATTR_INDEX_EX_8  int = 8
+	ATTR_INDEX_EX_9  int = 9
 	ATTR_INDEX_EX_11 int = 11
 	ATTR_INDEX_EX_12 int = 12
 )

@@ -12,8 +12,20 @@ vi.mock('@i18n/localization', () => ({
 }));
 
 vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
-	MISSING_ITEM_EFFECTS: new Map([[1, ['Does a thing.']]]),
+	MISSING_ITEM_EFFECTS: new Map([
+		[1, ['Does a thing.']],
+		[90003, ['Procs a thing.']],
+	]),
 	MISSING_ENCHANT_EFFECTS: new Map([[2, ['Enchants a thing.']]]),
+	MISSING_SET_BONUSES: new Map([
+		[
+			9999,
+			new Map([
+				[2, ['Grants a bonus.']],
+				[6, ['Grants another.', 'And a third.']],
+			]),
+		],
+	]),
 	UNVALIDATED_RATE_ITEMS: new Map([
 		[1, { kind: 'ppm', origin: 'vanilla' }],
 		[3, { kind: 'ppm', origin: 'vanilla' }],
@@ -90,22 +102,68 @@ describe('the item notice table', () => {
 describe('registerSetBonusNotices', () => {
 	const SET_ID = 9999;
 	const ITEM_IDS = [90001, 90002];
+	const PIECE_WITH_EFFECT = 90003;
+	const effectNotice = ITEM_NOTICES.get(PIECE_WITH_EFFECT);
 
 	afterEach(() => {
 		ITEM_IDS.forEach(id => ITEM_NOTICES.delete(id));
+		ITEM_NOTICES.set(PIECE_WITH_EFFECT, effectNotice!);
 	});
 
-	it('names the piece count and the rate warning of each unvalidated bonus on every item of the set', () => {
+	// Each piece count's line with the tooltip lists nested under it taken out, and those tooltips.
+	const setBonusPieces = (node: ReactNode) => {
+		const { container } = render(<>{node}</>);
+		const heading = [...container.querySelectorAll('p')].find(p => p.textContent?.trim() === 'gear_tab.item_notices.set_bonus_warnings');
+		return [...(heading?.nextElementSibling?.children ?? [])].map(piece => ({
+			text: [...piece.childNodes]
+				.filter(child => child.nodeName !== 'UL')
+				.map(child => child.textContent)
+				.join('')
+				.trim(),
+			tooltips: [...piece.querySelectorAll('li')].map(tooltip => tooltip.textContent),
+		}));
+	};
+
+	it('names each piece count with its missing effects and rate warnings on every item of the set', () => {
 		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? ITEM_IDS : []) } as unknown as Database);
 
 		for (const id of ITEM_IDS) {
-			const { heading, items } = notice(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown]);
-			expect(heading?.trim()).toBe('gear_tab.item_notices.set_bonus_warnings');
-			expect(items).toEqual([
-				`gear_tab.item_notices.set_bonus_piece ${TBC_CHANCE_WARNING}`,
-				`gear_tab.item_notices.set_bonus_piece ${VANILLA_PPM_WARNING}`,
+			expect(setBonusPieces(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown])).toEqual([
+				{
+					text: `gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.not_yet_implemented ${TBC_CHANCE_WARNING}`,
+					tooltips: ['Grants a bonus.'],
+				},
+				{ text: `gear_tab.item_notices.set_bonus_piece ${VANILLA_PPM_WARNING}`, tooltips: [] },
+				{
+					text: 'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.not_yet_implemented',
+					tooltips: ['Grants another.', 'And a third.'],
+				},
 			]);
 		}
+	});
+
+	it('keeps the missing item effect notice of a set piece and adds the set notice after it', () => {
+		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? [PIECE_WITH_EFFECT] : []) } as unknown as Database);
+
+		const node = ITEM_NOTICES.get(PIECE_WITH_EFFECT)?.[Spec.SpecUnknown];
+		expect(paragraphs(node).map(text => text?.trim())).toEqual([
+			'gear_tab.item_notices.missing_effect.item_listed',
+			'gear_tab.item_notices.set_bonus_warnings',
+		]);
+		expect(notice(node).items[0]).toBe('Procs a thing.');
+		expect(setBonusPieces(node)).toHaveLength(3);
+	});
+
+	it('names what a partly implemented bonus leaves out', () => {
+		const GROVEKEEPER_ECLIPSE = 2114;
+		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === GROVEKEEPER_ECLIPSE ? ITEM_IDS : []) } as unknown as Database);
+
+		expect(setBonusPieces(ITEM_NOTICES.get(ITEM_IDS[0])?.[Spec.SpecUnknown])).toEqual([
+			{
+				text: 'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.not_fully_supported gear_tab.item_notices.partial_set_bonus.grovekeeper_eclipse_4',
+				tooltips: [],
+			},
+		]);
 	});
 
 	it('writes no notice on the items of a set the list does not name', () => {

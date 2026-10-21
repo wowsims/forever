@@ -54,6 +54,13 @@ func (unit *Unit) SetGCDTimer(sim *Simulation, gcdReadyAt time.Duration) {
 	}
 
 	unit.GCD.Set(gcdReadyAt)
+
+	// A queued spell that lands during a Wait keeps the Wait's earlier wake, so the rotation can
+	// still act off the GCD, such as a weaver walking out of melee.
+	if waitEnd := unit.NextRotationActionAt(); waitEnd > sim.CurrentTime && waitEnd < gcdReadyAt &&
+		unit.Rotation.HasBlockingControllingAction() {
+		return
+	}
 	unit.SetRotationTimer(sim, gcdReadyAt)
 }
 

@@ -161,6 +161,16 @@ func (s *Spell) PeriodicDamageEffect() *Effect {
 	return s.FirstAura(dbcenums.A_PERIODIC_DAMAGE)
 }
 
+// Whether the spell deals damage to an enemy: a damage effect or a periodic damage effect that hits one.
+func (s *Spell) DamagesAnEnemy() bool {
+	for _, e := range []*Effect{s.DamageEffect(), s.PeriodicDamageEffect()} {
+		if e != NilEffect && e.HitsAnEnemy() {
+			return true
+		}
+	}
+	return false
+}
+
 // The A_SCHOOL_ABSORB aura the spell applies, or NilEffect where it applies none. Its Misc is the mask
 // of the schools it absorbs, in core.SpellSchool's bits.
 func (s *Spell) AbsorbEffect() *Effect {

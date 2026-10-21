@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -32,8 +33,10 @@ type Paladin struct {
 	// Twist of Light: one Echo per seal that leaves one, keyed by the Echo's spell id.
 	echoes map[int32]*sealEcho
 
-	// Consecrated Ground: the targets the talent's bonus is active on, one aura per enemy.
-	consecratedGroundAuras core.AuraArray
+	// The mark Consecration lays on its bonus targets, one aura per enemy, which carries Consecrated Ground.
+	consecrationMarks core.AuraArray
+	// Consecrated Ground: the talent rank's points for the mark's damage from caster mod; nil without it.
+	consecratedGroundPoints *spelldata.Effect
 
 	// Light's Vigil: one entry per rank, so Holy Shock can find the vigil it consumes.
 	lightsVigils []*lightsVigil
@@ -75,6 +78,7 @@ func (paladin *Paladin) Initialize() {
 	paladin.registerAuras()
 
 	HolyStrikeRankMap.Each(paladin.registerHolyStrike)
+	paladin.registerConsecrationMark()
 	ConsecrationRankMap.Each(paladin.registerConsecration)
 	ExorcismRankMap.Each(paladin.registerExorcism)
 	HammerOfWrathRankMap.Each(paladin.registerHammerOfWrath)

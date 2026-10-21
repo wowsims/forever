@@ -12,9 +12,13 @@ warrior.RegisterSpell(config)
 ```
 
 The row fills the `ActionID`, `Rank` (from "Rank 4", which is what flips `HasRanks` in the APL UI),
-`SpellSchool`, `DefenseType`, `ClassFlags`, `MissileSpeed` and `MinRange`/`MaxRange`. It fills the
-cast: the cast time, the GCD where the row sits in the global cooldown category, its own cooldown and
-the category one it shares. It fills the cost out of the first bar it states, with rage divided off the
+`SpellSchool`, `DefenseType`, `ClassFlags`, `MissileSpeed`, `MissileMinDuration` and
+`MinRange`/`MaxRange`. After the options, an area centred on the caster or a cone from it gives a
+cast its radius as `MaxRange` and a proc (`Proc()`) none; see `SpellConfig`. A row with Fixed Travel Time states its flight time in seconds as its Speed, so it gets no
+`MissileSpeed` and that time as its `MissileMinDuration`, or its own MinDuration where that is
+longer: Dragonfire Potion's 1252554 lands 1 s after use at any distance. It fills the cast:
+the cast time, the GCD where the row sits in the global cooldown category, its own cooldown and the
+category one it shares. It fills the cost out of the first bar it states, with rage divided off the
 0-1000 bar, and the refund the Discount Power On Miss attribute states. `CastRequirement` gets the
 forms, caster auras, weapon, shield and out-of-combat state the game files require (see below). That is
 why Pummel needs no Berserker Stance condition and Shield Bash needs no shield check. `Flags` gets

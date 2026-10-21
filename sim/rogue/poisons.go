@@ -2,247 +2,162 @@ package rogue
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-func (rogue *Rogue) applyPoisons() {
-	if rogue.Consumables.MhWeaponImbueId == 0 && rogue.Consumables.OhWeaponImbueId == 0 {
+// The poison items whose weapon imbue casts a rank of Deadly or Instant Poison. Each is the item's
+// consumable effect, in place of the generic imbue builder, which would apply Deadly Poison's
+// stacking damage over time as one.
+var (
+	deadlyPoisonItemIDs  = []int32{2892, 2893, 8984, 8985, 20844}
+	instantPoisonItemIDs = []int32{6947, 6949, 6950, 8926, 8927, 8928}
+)
+
+func init() {
+	for _, itemID := range deadlyPoisonItemIDs {
+		core.NewConsumableEffect(itemID, func(agent core.Agent) {
+			if rogueAgent, ok := agent.(RogueAgent); ok {
+				rogueAgent.GetRogue().applyDeadlyPoison(core.GetConsumableByID(itemID))
+			}
+		})
+	}
+	for _, itemID := range instantPoisonItemIDs {
+		core.NewConsumableEffect(itemID, func(agent core.Agent) {
+			if rogueAgent, ok := agent.(RogueAgent); ok {
+				rogueAgent.GetRogue().applyInstantPoison(core.GetConsumableByID(itemID))
+			}
+		})
+	}
+}
+
+// Whether a hand of the main set or of the item swap set carries the consumable's imbue.
+func (rogue *Rogue) carriesImbue(consumable core.Consumable) bool {
+	if consumable.TemporaryEnchant == nil {
+		return false
+	}
+	enchantID := consumable.TemporaryEnchant.EffectID
+	for _, slot := range []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand} {
+		if rogue.Equipment[slot].HasTempEnchant(enchantID) || rogue.ItemSwap.GetUnequippedItemBySlot(slot).HasTempEnchant(enchantID) {
+			return true
+		}
+	}
+	return false
+}
+
+// The rank of the ladder the consumable's imbue casts, 0 where it casts none of them.
+func poisonRank(ladder spelldata.Ladder, consumable core.Consumable) int32 {
+	var rank int32
+	if consumable.TemporaryEnchant == nil {
+		return rank
+	}
+	for _, effect := range consumable.TemporaryEnchant.EnchantEffects {
+		ladder.Each(func(n int32, s *spelldata.Spell) {
+			if s.ID == effect.BuffId {
+				rank = n
+			}
+		})
+	}
+	return rank
+}
+
+// The highest rank of the ladder that any imbue the rogue carries casts. Both hands and both weapon
+// sets share the one poison spell, so a lower rank on another weapon procs at this one.
+func (rogue *Rogue) highestPoisonRank(ladder spelldata.Ladder) *spelldata.Spell {
+	var highest int32
+	for _, id := range rogue.SelectedConsumableIDs() {
+		consumable := core.GetConsumableByID(id)
+		if rank := poisonRank(ladder, consumable); rank > highest && rogue.carriesImbue(consumable) {
+			highest = rank
+		}
+	}
+	return ladder.Rank(highest)
+}
+
+// Casts the poison off the melee hits of the weapons carrying the consumable's imbue, at their own
+// speeds, following the weapons through an item swap.
+func (rogue *Rogue) registerPoisonProc(consumable core.Consumable, chance float64, poison *core.Spell) {
+	rogue.MakeProcTriggerAura(core.ProcTrigger{
+		Name:                consumable.Name,
+		ActionID:            core.ActionID{ItemID: consumable.Id},
+		Outcome:             core.OutcomeLanded,
+		Callback:            core.CallbackOnSpellHitDealt,
+		TriggerImmediately:  true,
+		ProcMask:            core.ProcMaskMelee,
+		IsWeaponProc:        true,
+		ProcSpellClassFlags: poison.ClassFlags,
+		DPM: rogue.NewDynamicLegacyProcForTempEnchant(consumable.TemporaryEnchant.EffectID, 0, func(core.ProcMask) float64 {
+			return chance
+		}),
+		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			poison.Cast(sim, result.Target)
+		},
+	})
+}
+
+func (rogue *Rogue) registerDeadlyPoisonSpell(deadlyPoisonRank *spelldata.Spell) {
+	config := spelldata.SpellConfig(&rogue.Unit, deadlyPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
+	config.ClassSpellMask = RogueSpellDeadlyPoison
+	tick := deadlyPoisonRank.PeriodicEffect()
+	numTicks := deadlyPoisonRank.Duration().Seconds() / tick.Period().Seconds()
+	apScaling := 0.0045 / numTicks // Confirmed by Zirene
+
+	config.Dot = spelldata.DotConfig(deadlyPoisonRank, tick)
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		stacks := dot.GetStacks()
+		baseTick := tick.Average()
+		apFactor := dot.Spell.MeleeAttackPower(target) * apScaling
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, (baseTick+apFactor)*float64(stacks), deadlyPoisonRank.TickOutcome(dot))
+	}
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
+		if !result.Landed() {
+			return
+		}
+
+		dot := spell.Dot(target)
+		if dot.IsActive() {
+			dot.Refresh(sim)
+			dot.AddStack(sim)
+		} else {
+			dot.Apply(sim)
+			dot.SetStacks(sim, 1)
+		}
+	}
+
+	rogue.DeadlyPoison = rogue.RegisterSpell(config)
+}
+
+func (rogue *Rogue) registerInstantPoisonSpell(instantPoisonRank *spelldata.Spell) {
+	ipBaseDamage := instantPoisonRank.DamageEffect().Average()
+	config := spelldata.SpellConfig(&rogue.Unit, instantPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
+	config.ClassSpellMask = RogueSpellInstantPoison
+	apScaling := 0.005 // Confirmed by Zirene
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealDamage(sim, target, ipBaseDamage+apScaling*spell.MeleeAttackPower(target), spell.OutcomeMagicHitAndCrit)
+	}
+
+	rogue.InstantPoison = rogue.RegisterSpell(config)
+}
+
+func (rogue *Rogue) applyDeadlyPoison(consumable core.Consumable) {
+	if !rogue.carriesImbue(consumable) {
 		return
 	}
-	rogue.applyDeadlyPoison()
-	rogue.applyWoundPoison()
-	rogue.applyInstantPoison()
-}
-
-// TODO: To be implemented. Deadly Poison pins spell 27187 directly in the TBC body; the implementation
-// needs review before it's uncommented.
-func (rogue *Rogue) registerDeadlyPoisonSpell() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// procMask := rogue.getPoisonProcMask(deadlyImbueID)
-	// if procMask == core.ProcMaskUnknown {
-	// 	return
-	// }
-	// rogue.DeadlyPoison = rogue.GetOrRegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 27187},
-	// 	SpellSchool:    core.SpellSchoolNature,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskSpellDamageProc,
-	// 	ClassSpellMask: RogueSpellDeadlyPoison,
-	// 	ClassFlags:     spellData.DeadlyPoison.Highest().ClassFlags,
-	// 	Flags:          core.SpellFlagPoison | core.SpellFlagPassiveSpell | core.SpellFlagProc,
-	//
-	// 	DamageMultiplier:         1,
-	// 	DamageMultiplierAdditive: 1,
-	// 	ThreatMultiplier:         1,
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label:     "Deadly Poison",
-	// 			MaxStacks: 5,
-	// 			Duration:  time.Second * 12,
-	// 		},
-	// 		NumberOfTicks: 4,
-	// 		TickLength:    time.Second * 3,
-	//
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			base := 45.0 * float64(dot.GetStacks())
-	// 			dot.Spell.CalcAndDealPeriodicDamage(sim, target, base, dot.OutcomeTick)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
-	// 		if !result.Landed() {
-	// 			return
-	// 		}
-	//
-	// 		dot := spell.Dot(target)
-	// 		if dot.IsActive() {
-	// 			dot.Refresh(sim)
-	// 			dot.AddStack(sim)
-	// 		} else {
-	// 			dot.Apply(sim)
-	// 			dot.SetStacks(sim, 1)
-	// 		}
-	// 	},
-	// })
-}
-
-// TODO: To be implemented. Wound Poison pins spell 27189 directly in the TBC body; the implementation
-// needs review before it's uncommented.
-func (rogue *Rogue) registerWoundPoisonSpell() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// procMask := rogue.getPoisonProcMask(woundImbueID)
-	// if procMask == core.ProcMaskUnknown {
-	// 	return
-	// }
-	// woundPoisonDebuffAura := core.Aura{
-	// 	Label:     "Wound Poison",
-	// 	ActionID:  core.ActionID{SpellID: 27189},
-	// 	Duration:  time.Second * 15,
-	// 	MaxStacks: 5,
-	// 	// Wound Healing Debuff NYI
-	// }
-	//
-	// rogue.WoundPoisonDebuffAuras = rogue.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-	// 	return target.RegisterAura(woundPoisonDebuffAura)
-	// })
-	//
-	// wpBaseDamage := 65.0
-	//
-	// wpConfig := core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 27189},
-	// 	SpellSchool:    core.SpellSchoolNature,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskSpellDamageProc,
-	// 	ClassSpellMask: RogueSpellWoundPoison,
-	// 	ClassFlags:     spellData.WoundPoison.Highest().ClassFlags,
-	// 	Flags:          core.SpellFlagPoison | core.SpellFlagPassiveSpell | core.SpellFlagProc,
-	//
-	// 	DamageMultiplier:         1,
-	// 	DamageMultiplierAdditive: 1,
-	// 	ThreatMultiplier:         1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcAndDealDamage(sim, target, wpBaseDamage, spell.OutcomeMagicHitAndCrit)
-	//
-	// 		if result.Landed() {
-	// 			rogue.WoundPoisonDebuffAuras.Get(target).Activate(sim)
-	// 		}
-	// 	},
-	// }
-	//
-	// rogue.WoundPoison = rogue.RegisterSpell(wpConfig)
-}
-
-// TODO: To be implemented. Instant Poison pins spell 26890 directly in the TBC body; the implementation
-// needs review before it's uncommented.
-func (rogue *Rogue) registerInstantPoisonSpell() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// procMask := rogue.getPoisonProcMask(instantImbueID)
-	// if procMask == core.ProcMaskUnknown {
-	// 	return
-	// }
-	// ipBaseDamage := 146.0
-	// ipRange := 48
-	//
-	// ipConfig := core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 26890},
-	// 	SpellSchool:    core.SpellSchoolNature,
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	ProcMask:       core.ProcMaskSpellDamageProc,
-	// 	ClassSpellMask: RogueSpellInstantPoison,
-	// 	ClassFlags:     spellData.InstantPoison.Highest().ClassFlags,
-	// 	Flags:          core.SpellFlagPoison | core.SpellFlagPassiveSpell | core.SpellFlagProc,
-	//
-	// 	DamageMultiplier:         1,
-	// 	DamageMultiplierAdditive: 1,
-	// 	ThreatMultiplier:         1,
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		spell.CalcAndDealDamage(sim, target, ipBaseDamage+sim.RandomFloat("Instant Poison")*float64(ipRange), spell.OutcomeMagicHitAndCrit)
-	// 	},
-	// }
-	//
-	// rogue.InstantPoison = rogue.RegisterSpell(ipConfig)
-}
-
-func (rogue *Rogue) getPoisonProcMask(poisonId int32) core.ProcMask {
-	var mask core.ProcMask
-	if rogue.Consumables.MhWeaponImbueId == poisonId {
-		mask |= core.ProcMaskMeleeMH
+	if rogue.DeadlyPoison == nil {
+		rogue.registerDeadlyPoisonSpell(rogue.highestPoisonRank(spellData.DeadlyPoison))
 	}
-	if rogue.Consumables.OhWeaponImbueId == poisonId {
-		mask |= core.ProcMaskMeleeOH
+	rogue.registerPoisonProc(consumable, 0.3, rogue.DeadlyPoison)
+}
+
+func (rogue *Rogue) applyInstantPoison(consumable core.Consumable) {
+	if !rogue.carriesImbue(consumable) {
+		return
 	}
-	return mask
-}
-
-// TODO: To be implemented. The TBC body needs review against Forever's tooltip/values before it's
-// brought back.
-func (rogue *Rogue) applyDeadlyPoison() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// procMask := rogue.getPoisonProcMask(deadlyImbueID)
-	// if procMask == core.ProcMaskUnknown {
-	// 	return
-	// }
-	// pph := 0.3 + spellData.ImprovedPoisons.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CHANCE_OF_SUCCESS)).FractionAt(rogue.Talents.ImprovedPoisons)
-	// rogue.deadlyPoisonPPHM = rogue.NewFixedProcChanceManager(pph, procMask)
-	//
-	// rogue.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:               "Deadly Poison",
-	// 	Outcome:            core.OutcomeLanded,
-	// 	Callback:           core.CallbackOnSpellHitDealt,
-	// 	TriggerImmediately: true,
-	// 	ProcMask:           procMask,
-	// 	IsWeaponProc:       true,
-	// 	DPM:                rogue.deadlyPoisonPPHM,
-	//
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		rogue.DeadlyPoison.Cast(sim, result.Target)
-	// 	},
-	// })
-}
-
-// TODO: To be implemented. The TBC body needs review against Forever's tooltip/values before it's
-// brought back.
-func (rogue *Rogue) applyWoundPoison() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// procMask := rogue.getPoisonProcMask(woundImbueID)
-	// if procMask == core.ProcMaskUnknown {
-	// 	return
-	// }
-	// pph := 0.3 + spellData.ImprovedPoisons.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CHANCE_OF_SUCCESS)).FractionAt(rogue.Talents.ImprovedPoisons)
-	// rogue.woundPoisonPPHM = rogue.NewFixedProcChanceManager(pph, procMask)
-	//
-	// rogue.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:               "Wound Poison",
-	// 	Outcome:            core.OutcomeLanded,
-	// 	Callback:           core.CallbackOnSpellHitDealt,
-	// 	TriggerImmediately: true,
-	// 	ProcMask:           procMask,
-	// 	IsWeaponProc:       true,
-	// 	DPM:                rogue.woundPoisonPPHM,
-	//
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		rogue.WoundPoison.Cast(sim, result.Target)
-	// 	},
-	// })
-}
-
-// TODO: To be implemented. The TBC body needs review against Forever's tooltip/values before it's
-// brought back.
-func (rogue *Rogue) applyInstantPoison() {
-	panic("To be implemented")
-
-	// The TBC implementation, kept for the port:
-	// procMask := rogue.getPoisonProcMask(instantImbueID)
-	// if procMask == core.ProcMaskUnknown {
-	// 	return
-	// }
-	// pph := 0.2 + spellData.ImprovedPoisons.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CHANCE_OF_SUCCESS)).FractionAt(rogue.Talents.ImprovedPoisons)
-	// rogue.instantPoisonPPHM = rogue.NewFixedProcChanceManager(pph, procMask)
-	//
-	// rogue.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:               "Instant Poison",
-	// 	Outcome:            core.OutcomeLanded,
-	// 	Callback:           core.CallbackOnSpellHitDealt,
-	// 	TriggerImmediately: true,
-	// 	ProcMask:           procMask,
-	// 	IsWeaponProc:       true,
-	// 	DPM:                rogue.instantPoisonPPHM,
-	//
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		rogue.InstantPoison.Cast(sim, result.Target)
-	// 	},
-	// })
+	if rogue.InstantPoison == nil {
+		rogue.registerInstantPoisonSpell(rogue.highestPoisonRank(spellData.InstantPoison))
+	}
+	rogue.registerPoisonProc(consumable, 0.2, rogue.InstantPoison) //Confirmed in game 9/30/2026
 }

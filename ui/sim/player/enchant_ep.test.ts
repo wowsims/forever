@@ -37,10 +37,22 @@ describe('Player.computeEnchantEP', () => {
 		expect(computeEnchantEP(striking, ItemSlot.ItemSlotMainHand, null)).toBe(0);
 		expect(computeEnchantEP(striking)).toBe(0);
 	});
+
+	it('values ArmorNoMods at its own weight, with no scale', () => {
+		const armorWeights = Stats.fromMap({ [Stat.StatArmor]: 0.5, [Stat.StatArmorNoMods]: 0.125 });
+		const armor = (stat: Stat) => Enchant.create({ effectId: 1504, stats: new Stats().withStat(stat, 125).asProtoArray() });
+		expect(computeEnchantEP(armor(Stat.StatArmorNoMods), undefined, undefined, armorWeights)).toBeCloseTo(125 * 0.125);
+		expect(computeEnchantEP(armor(Stat.StatArmor), undefined, undefined, armorWeights)).toBeCloseTo(125 * 0.5);
+	});
 });
 
 describe('Player.computeEnchantEP on percent pseudo stats', () => {
 	const ratingWeights = Stats.fromMap({ [Stat.StatDodgeRating]: 2, [Stat.StatCritRating]: 3, [Stat.StatHitRating]: 5 }, {});
+
+	it('values a school hit percent at its per percent weight', () => {
+		const schoolWeights = Stats.fromMap({}, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 23.2 });
+		expect(enchantEP(1, { [PseudoStat.PseudoStatSchoolHitPercentHoly]: 1 }, schoolWeights)).toBeCloseTo(23.2);
+	});
 
 	it('values 2622 Enchant Cloak - Dodge at the dodge rating weight', () => {
 		expect(enchantEP(2622, { [PseudoStat.PseudoStatDodgePercent]: 1 }, ratingWeights)).toBeCloseTo(Mechanics.DODGE_RATING_PER_DODGE_PERCENT * 2);

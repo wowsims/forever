@@ -14,7 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Prints DPS EP for the UI's default cat: the Pre-raid set, Monocat talents and APL, its buffs,
+// Prints DPS EP for the UI's default cat: the Pre-raid set, Cat talents and Monocat APL, its buffs,
 // debuffs and consumables, a level 63 target, 180s, normalized to agility. The UI default is over the
 // special-attack hit cap, so hit is weighed again with the hit taken 2% below the cap.
 // Pass the UI's iteration count; stat weights then split it above and below the baseline.

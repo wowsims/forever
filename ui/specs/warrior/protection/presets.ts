@@ -23,17 +23,17 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 // cloak, the first ring and Defender's Grip Stabilizer are sold by the Undermine Trader in Stranglethorn Vale; Beads
 // of Ogre Might is a Dire Maul quest reward. Horned Pauldron, the Dawn Armor pattern, the second ring and the
 // Sentinel's Gloves plans have no known source.
-export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson);
+export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson, { devOnly: true });
 
 // The same sources with no defense floor: the most threat that survives the default target on the default healing.
 // Heart of the Scale drops in Lower Blackrock Spire; Cutthroat's Signet is sold by the Undermine Trader.
-export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson);
+export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson, { devOnly: true });
 
 export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '35300003-05-050531120300021351' }));
 
 // Measured on each gear set with the Protection talents: 0.6 x the threat weights (Strength = 1) plus 1.15 x the
 // TMI weights (Stamina = 1). On the defense cap gear, defense is its value past the cap; on the threat gear, hit is
-// its value past the 8% cap.
+// its value past the 8% cap. ArmorNoMods weighs as Armor, since nothing in the build scales armor.
 export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS (Defense Cap)',
 	Stats.fromMap(
@@ -54,6 +54,7 @@ export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 			[Stat.StatParryRating]: 0.18,
 			[Stat.StatArmor]: 0.05,
 			[Stat.StatBonusArmor]: 0.05,
+			[Stat.StatArmorNoMods]: 0.05,
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 2.16,
@@ -81,6 +82,7 @@ export const PreBiSThreatEpWeights = PresetUtils.makePresetEpWeights(
 			[Stat.StatParryRating]: 0.15,
 			[Stat.StatArmor]: 0.05,
 			[Stat.StatBonusArmor]: 0.05,
+			[Stat.StatArmorNoMods]: 0.05,
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 2.29,

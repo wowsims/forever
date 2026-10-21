@@ -197,6 +197,10 @@ message TargetedActionMetrics {
 	// # of times this action was a Miss.
 	int32 misses = 7;
 
+	// # of times a tick of this action rolled a Miss. Only ticks that roll their own hit count here; a DoT whose
+	// hit rolls once on its cast keeps that miss in misses.
+	int32 tick_misses = 39;
+
 	// # of times this action was a Dodge.
 	int32 dodges = 8;
 
@@ -271,6 +275,40 @@ message TargetedActionMetrics {
 
 	// Total time spent casting this action, in milliseconds, either from hard casts, GCD, or channeling.
 	double cast_time_ms = 26;
+
+	// Per-value avg, stdev, min and max of each outcome this action landed on this target, keyed by HitKind.
+	// Only kinds with at least one value are present; hist and all_values stay empty.
+	map<int32, DistributionMetrics> ranges = 37;
+
+	// Values a class or spec records on this action, one entry per key.
+	repeated CustomActionMetric custom_metrics = 38;
+}
+
+// The outcome a range in TargetedActionMetrics.ranges covers. The resisted kinds are partial resists.
+enum HitKind {
+	HitKindHit = 0;
+	HitKindResistedHit = 1;
+	HitKindCrit = 2;
+	HitKindResistedCrit = 3;
+	HitKindTick = 4;
+	HitKindResistedTick = 5;
+	HitKindCritTick = 6;
+	HitKindResistedCritTick = 7;
+	HitKindGlance = 8;
+	HitKindBlock = 9;
+	HitKindBlockedCrit = 10;
+	HitKindCrush = 11;
+	HitKindHeal = 12;
+	HitKindCritHeal = 13;
+	HitKindHealTick = 14;
+	HitKindCritHealTick = 15;
+	HitKindShield = 16;
+}
+
+message CustomActionMetric {
+	// Names the label under results_tab.details.custom_metrics in the locale files.
+	string key = 1;
+	DistributionMetrics range = 2;
 }
 
 message AggregatorData {
@@ -595,6 +633,7 @@ message SpellStats {
 	bool has_cast_time = 9; // Whether this spell has a cast time or not.
 	bool is_friendly = 10; // Whether this spell should be cast on player units
 	bool has_expected_tick = 11; // Whether this spell supports expected damage calculations
+	bool has_expected_initial = 17; // Whether this spell supports expected initial damage calculations
 	bool has_missile_speed = 12; // Whether this spell has a missile speed
 	bool has_ranks = 13; // Whether this spell has a rank
 	bool is_potion = 14; // Whether this spell is a potion

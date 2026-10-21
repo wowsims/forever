@@ -49,7 +49,7 @@ message APLGroup {
 	repeated APLValueVariable variables = 3; // Variables that can be used in this group
 }
 
-// NextIndex: 30
+// NextIndex: 31
 message APLAction {
     APLValue condition = 1; // If set, action will only execute if value is true or != 0.
 
@@ -84,6 +84,7 @@ message APLAction {
         APLActionItemSwap item_swap = 17;
         APLActionMove move = 21;
         APLActionMoveDuration move_duration = 22;
+        APLActionPetAttack pet_attack = 30;
 
         // Class or Spec-specific actions
         APLActionGuardianHotwDpsRotation guardian_hotw_dps_rotation = 27;
@@ -98,7 +99,7 @@ message APLAction {
 }
 
 
-// NextIndex: 135
+// NextIndex: 136
 message APLValue {
 	UUID uuid = 85;
 
@@ -175,6 +176,9 @@ message APLValue {
         APLValueSpellGCDHastedDuration spell_gcd_hasted_duration = 115;
         APLValueSpellFullCooldown spell_full_cooldown = 116;
         APLValueSpellInFlight spell_in_flight = 118;
+        APLValueSpellExpectedDpet spell_expected_dpet = 109;
+        APLValueSpellIsHitCapped spell_is_hit_capped = 25;
+        APLValueSpellIsExpertiseCapped spell_is_expertise_capped = 29;
 
         // Aura values
         APLValueAuraIsKnown aura_is_known = 73;
@@ -207,7 +211,6 @@ message APLValue {
         APLValueDotTimeToNextTick dot_time_to_next_tick = 117;
         APLValueDotBaseDuration dot_base_duration = 114;
 		APLValueDotPercentIncrease dot_percent_increase = 101;
-		APLValueDotPercentIncrease dot_crit_percent_increase = 109;
         APLValueDotPercentIncrease dot_tick_rate_percent_increase = 110;
 
         // Sequence values
@@ -385,6 +388,11 @@ message APLActionMoveDuration {
     APLValue duration = 1;
 }
 
+// Before the pull, sets the player's pets out on the target: from then on they run their rotations, walking in
+// to their range first, and swing once in reach.
+message APLActionPetAttack {
+}
+
 message APLActionCustomRotation {
 }
 
@@ -462,10 +470,9 @@ message APLValueIsExecutePhase {
     enum ExecutePhaseThreshold {
         Unknown = 0;
         E20 = 1;
-        E25 = 2;
         E35 = 3;
-        E45 = 4;
-		E90 = 5;
+        reserved 2, 4, 5;
+        reserved "E25", "E45", "E90";
     }
     ExecutePhaseThreshold threshold = 1;
 }
@@ -605,6 +612,16 @@ message APLValueSpellFullCooldown{
     ActionID spell_id = 1;
 }
 message APLValueSpellInFlight{
+	ActionID spell_id = 1;
+}
+message APLValueSpellExpectedDpet {
+	ActionID spell_id = 1;
+	UnitReference target_unit = 2;
+}
+message APLValueSpellIsHitCapped {
+	ActionID spell_id = 1;
+}
+message APLValueSpellIsExpertiseCapped {
 	ActionID spell_id = 1;
 }
 

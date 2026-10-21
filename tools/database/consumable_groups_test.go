@@ -73,6 +73,9 @@ func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 	}{
 		{"Spirit of Zanza", 20079, "Zanza", "Zanza"},
 		{"R.O.I.D.S., grouped by category in its rows, Zanza by the override", 8410, "Zanza", "Zanza"},
+		{"Rumsey Rum Black Label, a food, takes Rum and leaves the food pick", 21151, "Rum", "Rum"},
+		{"Gordok Green Grog", 18269, "Rum", "Rum"},
+		{"Kreeg's Stout Beatdown", 18284, "Rum", "Rum"},
 		{"Fire-toasted Bun", 23327, "Hit food", "Hit food"},
 		{"Dark Desire", 22237, "Hit food", "Hit food"},
 		{"Flask of the Titans stacks with everything", 13510, "", ""},

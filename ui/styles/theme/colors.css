@@ -41,8 +41,12 @@
 	--color-cancel-hover: #ea937d;
 	--color-cancel-active: #eb9985;
 
-	--color-brand: #e0a335;
-	--color-expansion: #23c88c;
+	--color-brand: #f8b700;
+	--color-expansion: #4fc3f7;
+	--color-discord: #5865f2;
+	--color-discord-hover: #4752c4;
+	--color-landing-sheen-tint: rgb(255 250 235 / 0.3);
+	--color-landing-action-hover: color-mix(in srgb, var(--color-background) 75%, var(--color-white) 10%);
 
 	--color-muted: #dee2e6bf;
 	--color-link: #a5b1d6;

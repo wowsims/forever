@@ -6,7 +6,7 @@ option go_package = "./proto";
 import "common.proto";
 
 // Buffs that affect the entire raid.
-// Next index: 21
+// Next index: 22
 message RaidBuffs {
 	bool arcane_brilliance = 1;
 	bool prayer_of_spirit = 2;
@@ -23,31 +23,32 @@ message RaidBuffs {
 	bool grace_of_air_totem = 13;
 	bool windfury_totem = 14;
 	bool flametongue_totem = 15;
-	bool trueshot_aura = 16;
-	bool furious_howl = 17;
-	bool aspect_of_the_wild = 18;
-	bool leader_of_the_pack = 19;
-	bool moonkin_aura = 20;
+	TristateEffect battle_shout = 16;
+	bool trueshot_aura = 17;
+	bool furious_howl = 18;
+	bool aspect_of_the_wild = 19;
+	bool leader_of_the_pack = 20;
+	bool moonkin_aura = 21;
 }
 
 // Buffs that affect a single party.
 // Next index: 16
 message PartyBuffs {
 	bool blood_pact = 1;
-	TristateEffect battle_shout = 2;
-	bool devotion_aura = 3;
-	TristateEffect mana_spring_totem = 4;
-	int32 mana_tide_totems = 5;
-	bool retribution_aura = 6;
-	double retribution_aura_spell_power = 7;
-	bool concentration_aura = 8;
-	int32 atiesh_mage = 9;
-	int32 atiesh_warlock = 10;
-	int32 atiesh_druid = 11;
-	int32 atiesh_priest = 12;
-	TristateEffect stoneskin_totem = 13;
-	bool darkspear = 14;
-	bool admirals_hat = 15;
+	bool devotion_aura = 2;
+	TristateEffect mana_spring_totem = 3;
+	int32 mana_tide_totems = 4;
+	bool retribution_aura = 5;
+	double retribution_aura_spell_power = 6;
+	bool concentration_aura = 7;
+	int32 atiesh_mage = 8;
+	int32 atiesh_warlock = 9;
+	int32 atiesh_druid = 10;
+	int32 atiesh_priest = 11;
+	TristateEffect stoneskin_totem = 12;
+	bool darkspear = 13;
+	bool admirals_hat = 14;
+	int32 dark_inspiration = 15;
 }
 
 // These are usually individual actions taken by other Characters.

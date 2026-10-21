@@ -327,10 +327,6 @@ func (value *APLValueDotPercentIncrease) GetFloat(sim *Simulation) float64 {
 	return math.Round((value.spell.ExpectedTickDamage(sim, target)/expectedDamage)*100000)/100000 - 1
 }
 
-type APLValueDotCritPercentIncrease struct {
-	*APLValueDotIncreaseCheck
-}
-
 type APLValueDotTickRatePercentIncrease struct {
 	*APLValueDotIncreaseCheck
 }

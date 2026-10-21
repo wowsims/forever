@@ -196,6 +196,12 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellFullCooldown(config.GetSpellFullCooldown(), config.Uuid)
 	case *proto.APLValue_SpellInFlight:
 		value = rot.newValueSpellInFlight(config.GetSpellInFlight(), config.Uuid)
+	case *proto.APLValue_SpellExpectedDpet:
+		value = rot.newValueSpellExpectedDpet(config.GetSpellExpectedDpet(), config.Uuid)
+	case *proto.APLValue_SpellIsHitCapped:
+		value = rot.newValueSpellIsHitCapped(config.GetSpellIsHitCapped(), config.Uuid)
+	case *proto.APLValue_SpellIsExpertiseCapped:
+		value = rot.newValueSpellIsExpertiseCapped(config.GetSpellIsExpertiseCapped(), config.Uuid)
 
 	// Auras
 	case *proto.APLValue_AuraIsKnown:

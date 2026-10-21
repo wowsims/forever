@@ -286,8 +286,7 @@ export class ActionId {
 				break;
 			case 'Fireball':
 			case 'Flamestrike':
-				if (tag == 1) name += ` (${i18n.t('common.action_tags.blast_wave')})`;
-				break;
+			case 'Frostfire Bolt':
 			case 'Pyroblast':
 			case 'Combustion':
 				if (tag) name += ` (${i18n.t('common.action_tags.dot')})`;
@@ -565,6 +564,15 @@ export class ActionId {
 			case 'Penance':
 				if (tag === 1) {
 					name += ' (Heal)';
+				}
+				break;
+			case 'Hack and Slash':
+				if (tag == 1) {
+					name += ' (Axe/Sword)';
+				} else if (tag == 2) {
+					name += ' (Fist/Dagger)';
+				} else if (tag == 3) {
+					name += ' (Mace)';
 				}
 				break;
 			default:

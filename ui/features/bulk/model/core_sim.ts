@@ -1,4 +1,5 @@
 import { BulkSettings, DistributionMetrics, ProgressMetrics } from '@generated/proto/api';
+import type { Encounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import { bulkSimStageToOptimisationStage, cleanBulkDpsMetrics, getCoreBulkSimTrackingMetrics } from '@sim/bulk/utils';
@@ -20,7 +21,12 @@ export interface CoreBulkSimResult {
 	metrics: Record<string, string | number>;
 }
 
-export async function runCoreBulkSim(context: CoreBulkSimContext, signal: AbortSignal, bulkSettings: BulkSettings): Promise<CoreBulkSimResult> {
+export async function runCoreBulkSim(
+	context: CoreBulkSimContext,
+	signal: AbortSignal,
+	bulkSettings: BulkSettings,
+	encounter: Encounter,
+): Promise<CoreBulkSimResult> {
 	context.throwIfBulkAborted(signal);
 	context.debugOptimisationRound('core bulk sim started');
 
@@ -43,7 +49,7 @@ export async function runCoreBulkSim(context: CoreBulkSimContext, signal: AbortS
 		});
 	};
 
-	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal), signal);
+	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal, encounter), signal);
 	if (!result || (result && 'type' in result)) {
 		throw new Error(result?.message);
 	}

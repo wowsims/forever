@@ -36,7 +36,8 @@ export const ConnectedMultiIconPicker = <ModObject,>({ modObject, config, subscr
 	const actionId = firstActiveActionId(config, modObject);
 	const hidden = !!config.showWhen && !config.showWhen(modObject as unknown as Player<any>);
 
-	const icon = useResolvedIcon(config.categoryId ?? actionId ?? undefined);
+	// With nothing on and no category icon, the first input's icon stands for the group.
+	const icon = useResolvedIcon(config.categoryId ?? actionId ?? config.inputs[0]?.actionId);
 
 	if (hidden) return null;
 
@@ -45,11 +46,15 @@ export const ConnectedMultiIconPicker = <ModObject,>({ modObject, config, subscr
 			label={config.label}
 			icon={icon}
 			active={!!actionId}
+			direction={config.direction}
+			tooltip={config.tooltip}
+			numColumns={config.numColumns?.(modObject)}
 			keptTooltip={keptTooltipOf(config, modObject, !!actionId)}
 			onClear={onClear}
 			testId={testId}>
+			{/* The menu is a row of bare swatches: each input's label would sit beside its icon, and the icon's tooltip names it. */}
 			{config.inputs.map((input, index) => (
-				<ConnectedIconPicker key={index} modObject={modObject} config={input} />
+				<ConnectedIconPicker key={index} modObject={modObject} config={{ ...input, label: undefined }} />
 			))}
 		</MultiIconPicker>
 	);

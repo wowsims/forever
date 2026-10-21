@@ -6,6 +6,8 @@ import type { InputConfig, KeptInput, StoreBinding } from '../../input';
 export interface IconEnumValueConfig<ModObject, T> extends Pick<IconEnumOption<T>, 'value' | 'color' | 'iconUrl' | 'text' | 'tooltip'> {
 	// Shows the icon for this id; takes precedence over color and iconUrl.
 	actionId?: ActionId;
+	// Shows the tooltip of the buff this id applies when hovering the option, under `actionId`'s icon.
+	buffActionId?: ActionId;
 	showWhen?: (obj: ModObject) => boolean;
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -208,6 +209,48 @@ func TestExprValueText(t *testing.T) {
 	}
 }
 
+// An argument that is a chain of its own is read before the call, a conversion to an integer type
+// dropping the fraction, and an index reads one entry of the rows a call answers.
+func TestExprArgumentChainAndIndex(t *testing.T) {
+	seal := ladderOf(t, "paladin/SealOfFury").Highest()
+	judgementID := int32(seal.EffectN(3).BaseValue())
+	rank := int32(seal.Refs()[0].EffectN(1).Tenths())
+	if float64(rank) == seal.Refs()[0].EffectN(1).Tenths() {
+		t.Fatalf("Tenths() = %d has no fraction to drop", rank)
+	}
+	cases := []struct{ expr, trail, value string }{
+		{
+			expr:  "spellData.SealOfFuryTriggered.ByID(int32(spellData.SealOfFury.Highest().EffectN(3).BaseValue()))",
+			trail: fmt.Sprintf("spellData.SealOfFuryTriggered.ByID(%d)", judgementID),
+			value: strconv.Itoa(int(judgementID)),
+		},
+		{
+			expr:  "spellData.SealOfFury.Highest().Refs()[1].ID",
+			trail: "spellData.SealOfFury.Highest().Refs()[1].ID",
+			value: strconv.Itoa(int(seal.Refs()[1].ID)),
+		},
+		{
+			expr:  "spellData.SealOfFury.Rank(int32(spellData.SealOfFury.Highest().Refs()[0].EffectN(1).Tenths())).ID",
+			trail: fmt.Sprintf("spellData.SealOfFury.Rank(%d).ID", rank),
+			value: strconv.Itoa(int(ladderOf(t, "paladin/SealOfFury").Rank(rank).ID)),
+		},
+	}
+	for _, c := range cases {
+		var out bytes.Buffer
+		if err := run([]string{"-expr", c.expr, "-package", "paladin", "-json"}, &out); err != nil {
+			t.Errorf("%s: %v", c.expr, err)
+			continue
+		}
+		var got exprJSON
+		if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+			t.Fatalf("%s: %v", c.expr, err)
+		}
+		if got.Trail != c.trail || got.Value != c.value {
+			t.Errorf("%s: trail %q value %q, want %q %q", c.expr, got.Trail, got.Value, c.trail, c.value)
+		}
+	}
+}
+
 func TestExprChainRefused(t *testing.T) {
 	cases := []struct {
 		expr string
@@ -222,7 +265,8 @@ func TestExprChainRefused(t *testing.T) {
 		{"spellData.Execute.Highest().EffectN(1).AverageAt(4294967356)", "4294967356 is not the int32 it takes"},
 		{"spellData.Execute.Highest().EffectN([]int{1}[0])", "[]int{…}[0] is not a literal"},
 		{"spelldata.MustFind(4294978870)", "4294978870 is not the int32 it takes"},
-		{"spellData.Execute.Highest().Refs()", "a []*spelldata.Spell is not a value to read"},
+		{"spellData.Execute.Highest().Refs()[0]", "the list has no index 0: it holds 0"},
+		{"spellData.Execute.Highest().EffectN(1)[0]", "a *spelldata.Effect is not a list to index"},
 		{"spellData.Execute.Highest().ChainAmp", `"ChainAmp" is not a field of *spelldata.Spell`},
 		{"spellData.Execute.Highest() + 1", "is not a chain of accessor calls"},
 		{"spellData.Execute", "names a ladder, not a rank"},

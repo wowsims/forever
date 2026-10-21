@@ -584,7 +584,7 @@ func TestEveryTableRow(t *testing.T) {
 		{dbcenums.A_MOD_RESISTANCE, 1, 100, "stat Armor", 100, false},
 		{dbcenums.A_MOD_BASE_RESISTANCE_PCT, 1, 10, "equip-scaling Armor", 1.1, false},
 		{dbcenums.A_MOD_RESISTANCE_PCT, 1, 8, "multiply-stat Armor", 1.08, false},
-		{dbcenums.A_MOD_ARMOR_NO_MODS, 1, -450, "stat Armor", -450, false},
+		{dbcenums.A_MOD_ARMOR_NO_MODS, 1, -450, "stat ArmorNoMods", -450, false},
 		{dbcenums.A_MOD_RESISTANCE, 16, 30, "stat FrostResistance", 30, false},
 		{dbcenums.A_MOD_RESISTANCE, 127, 30,
 			"stat Armor, stat FireResistance, stat NatureResistance, stat FrostResistance, stat ShadowResistance, stat ArcaneResistance", 30, false},

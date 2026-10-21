@@ -25,10 +25,11 @@ ranks: a click hovers it as that rank until the server restarts.
 
 ## How it answers
 
-This extension is a language client. It starts `go run ./tools/spelldata -lsp` in the workspace folder
-holding `go.mod`, and the server does all the reading: the id patterns, the ladder families, the names a
-package folder binds (read from the open buffers first, then disk), the substitution and the markdown.
-The first hover of a session waits for `go run` to compile, a few seconds; the rest answer in-process.
+This extension is a language client. It starts `go run ./tools/spelldata/launch -lsp` in the workspace
+folder holding `go.mod`, which regenerates stale protos and builds the server, and the server does all
+the reading: the id patterns, the ladder families, the names a package folder binds (read from the open
+buffers first, then disk), the substitution and the markdown.
+The first hover of a session waits for the server to build, a few seconds; the rest answer in-process.
 The server compiles the store in, so restart it (_Developer: Restart Extension Host_, or reload the
 window) after regenerating `sim/core/spelldata`.
 

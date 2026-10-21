@@ -10,6 +10,18 @@
 			@apply gap-2;
 		}
 
+		&[data-orientation='vertical'] {
+			@apply flex flex-col;
+
+			& > .ui-button {
+				@apply justify-start text-left;
+			}
+
+			&:not([data-gap]) > .ui-button ~ .ui-button {
+				@apply -mt-px ml-0;
+			}
+		}
+
 		&[data-size='sm'] > .ui-button {
 			@apply px-2 py-1;
 		}

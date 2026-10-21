@@ -1,6 +1,6 @@
 # Reading a row by hand
 
-The druid, mage, priest, rogue and warlock read the store by hand. A class file names the ladder it
+The druid, priest, rogue and warlock read the store by hand. A class file names the ladder it
 needs, picks a rank, and reads every field the registration wants straight into a plain expression,
 with no resolver in between. In these classes' files **a row is a source of numbers only**: they use
 no `spelldata.SpellConfig`, `AuraConfig`, `DotConfig`, `ProcTrigger`, `ParseEffects` or

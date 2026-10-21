@@ -83,6 +83,9 @@ type Unit struct {
 	// Whether this unit is able to perform actions.
 	enabled bool
 
+	// A pet its owner set on the target before the pull: its rotation and swings run before 0.
+	engagedBeforePull bool
+
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
 	// effects from items / abilities.
@@ -144,10 +147,11 @@ type Unit struct {
 	// Pets owned by this Unit.
 	PetAgents []PetAgent
 
-	DynamicStatsPets      []*Pet
-	DynamicMeleeSpeedPets []*Pet
-	DynamicCastSpeedPets  []*Pet
-	RegenInheritancePets  []*Pet
+	DynamicStatsPets       []*Pet
+	DynamicMeleeSpeedPets  []*Pet
+	DynamicRangedSpeedPets []*Pet
+	DynamicCastSpeedPets   []*Pet
+	RegenInheritancePets   []*Pet
 
 	// AutoAttacks is the manager for auto attack swings.
 	// Must be enabled to use, with "EnableAutoAttacks()".
@@ -656,6 +660,13 @@ func (unit *Unit) updateRangedAttackSpeed() {
 func (unit *Unit) MultiplyRangedSpeed(sim *Simulation, amount float64) {
 	unit.PseudoStats.RangedSpeedMultiplier *= amount
 	unit.updateRangedAttackSpeed()
+
+	// The pets that take the owner's ranged speed take each change at once, not at the next pet
+	// heartbeat.
+	for _, pet := range unit.DynamicRangedSpeedPets {
+		pet.dynamicRangedSpeedInheritance(sim, amount)
+	}
+
 	unit.AutoAttacks.UpdateSwingTimers(sim)
 }
 
@@ -845,6 +856,8 @@ func AddRatingConversions(sdm *stats.StatDependencyManager) {
 // structs) and to NPCs (represented as Target structs).
 func (unit *Unit) addUniversalStatDependencies() {
 	AddRatingConversions(&unit.StatDependencyManager)
+	// A_MOD_ARMOR_NO_MODS armor, which no percent armor modifier scales.
+	unit.AddUnmultipliedStatDependency(stats.ArmorNoMods, stats.Armor)
 }
 
 func (unit *Unit) finalize() {
@@ -908,6 +921,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	unit.engagedBeforePull = false
 	unit.Metrics.reset()
 	unit.ResetStatDeps()
 	unit.statsWithoutDeps = unit.initialStatsWithoutDeps
@@ -935,6 +949,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 
 	unit.DynamicStatsPets = unit.DynamicStatsPets[:0]
 	unit.DynamicMeleeSpeedPets = unit.DynamicMeleeSpeedPets[:0]
+	unit.DynamicRangedSpeedPets = unit.DynamicRangedSpeedPets[:0]
 	clear(unit.SpellsInFlight)
 
 	if unit.Type != PetUnit {
@@ -1007,28 +1022,40 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 		Name: unit.Label,
 	}
 
-	metadata.Spells = MapSlice(unit.Spellbook, func(spell *Spell) *proto.SpellStats {
-		// The rank rides on the id so the UI names it without a database entry for the spell.
-		id := spell.ActionID.ToProto()
-		id.Rank = spell.Rank
-		return &proto.SpellStats{
-			Id: id,
+	// The rank rides on the id so the UI can group a spell's ranks; the tooltips the UI fetches do not
+	// always state one. An aura takes the rank of the spell sharing its id.
+	ranks := map[ActionID]int32{}
+	rankedID := func(actionID ActionID) *proto.ActionID {
+		id := actionID.ToProto()
+		id.Rank = ranks[actionID]
+		return id
+	}
+	for _, spell := range unit.Spellbook {
+		if spell.Rank > 0 {
+			ranks[spell.ActionID] = spell.Rank
+		}
+	}
 
-			IsCastable:      spell.Flags.Matches(SpellFlagAPL),
-			IsChanneled:     spell.Flags.Matches(SpellFlagChanneled),
-			IsMajorCooldown: spell.Flags.Matches(SpellFlagMCD),
-			HasDot:          spell.dots != nil || spell.aoeDot != nil || (spell.RelatedDotSpell != nil && (spell.RelatedDotSpell.dots != nil || spell.RelatedDotSpell.aoeDot != nil)),
-			HasShield:       spell.shields != nil || spell.selfShield != nil,
-			PrepullOnly:     spell.Flags.Matches(SpellFlagPrepullOnly),
-			EncounterOnly:   spell.Flags.Matches(SpellFlagEncounterOnly),
-			HasCastTime:     spell.DefaultCast.CastTime > 0,
-			IsFriendly:      spell.Flags.Matches(SpellFlagHelpful),
-			IsPotion:        spell.Flags.Matches(SpellFlagPotion),
-			IsConjured:      spell.Flags.Matches(SpellFlagConjured),
-			HasExpectedTick: spell.expectedTickDamageInternal != nil,
-			HasMissileSpeed: spell.MissileSpeed > 0.0 || spell.MissileMinDuration > 0,
-			HasRanks:        spell.Rank > 0,
-			Category:        spell.category(),
+	metadata.Spells = MapSlice(unit.Spellbook, func(spell *Spell) *proto.SpellStats {
+		return &proto.SpellStats{
+			Id: rankedID(spell.ActionID),
+
+			IsCastable:         spell.Flags.Matches(SpellFlagAPL),
+			IsChanneled:        spell.Flags.Matches(SpellFlagChanneled),
+			IsMajorCooldown:    spell.Flags.Matches(SpellFlagMCD),
+			HasDot:             spell.dots != nil || spell.aoeDot != nil || (spell.RelatedDotSpell != nil && (spell.RelatedDotSpell.dots != nil || spell.RelatedDotSpell.aoeDot != nil)),
+			HasShield:          spell.shields != nil || spell.selfShield != nil,
+			PrepullOnly:        spell.Flags.Matches(SpellFlagPrepullOnly),
+			EncounterOnly:      spell.Flags.Matches(SpellFlagEncounterOnly),
+			HasCastTime:        spell.DefaultCast.CastTime > 0,
+			IsFriendly:         spell.Flags.Matches(SpellFlagHelpful),
+			IsPotion:           spell.Flags.Matches(SpellFlagPotion),
+			IsConjured:         spell.Flags.Matches(SpellFlagConjured),
+			HasExpectedTick:    spell.expectedTickDamageInternal != nil,
+			HasExpectedInitial: spell.expectedInitialDamageInternal != nil,
+			HasMissileSpeed:    spell.MissileSpeed > 0.0 || spell.MissileMinDuration > 0,
+			HasRanks:           spell.Rank > 0,
+			Category:           spell.category(),
 		}
 	})
 
@@ -1037,7 +1064,7 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 	})
 	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
 		return &proto.AuraStats{
-			Id:                 aura.ActionID.ToProto(),
+			Id:                 rankedID(aura.ActionID),
 			MaxStacks:          aura.MaxStacks,
 			HasIcd:             aura.Icd != nil,
 			HasExclusiveEffect: len(aura.ExclusiveEffects) > 0,

@@ -41,8 +41,9 @@ func (priest *Priest) registerDisciplineTalents() {
 	priest.applyPowerInfusion()
 }
 
-// Your Smite and Penance spells deal X% increased damage to targets afflicted with your Holy Fire.
-// The marker on each target is up while any rank of this priest's Holy Fire burns it (holy_fire.go).
+// Your Smite and Penance spells deal X% increased damage to targets afflicted with your Holy Fire or Shadow Word: Pain.
+// The marker on each target is up while any rank of this priest's Holy Fire or Shadow Word: Pain is on it
+// (attachPowerInLightMarker).
 func (priest *Priest) applyPowerInLight() {
 	if priest.Talents.PowerInLight == 0 {
 		return
@@ -60,6 +61,28 @@ func (priest *Priest) applyPowerInLight() {
 			return 1
 		})
 	})
+}
+
+// Switches the target's Power in Light marker from a Holy Fire or Shadow Word: Pain rank's dot. A dot
+// that drops leaves the marker on while another of them is still up; a replaced rank's dot expires
+// before the new rank's dot gains, so the marker ends up on.
+func (priest *Priest) attachPowerInLightMarker(config *core.SpellConfig) {
+	if priest.powerInLightAuras == nil {
+		return
+	}
+
+	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
+		priest.powerInLightAuras.Get(aura.Unit).Activate(sim)
+	}
+	// The dropping dot already reads inactive here.
+	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
+		for _, spell := range priest.Spellbook {
+			if spell.Matches(PriestSpellHolyFire|PriestSpellShadowWordPain) && spell.Dot(aura.Unit).IsActive() {
+				return
+			}
+		}
+		priest.powerInLightAuras.Get(aura.Unit).Deactivate(sim)
+	}
 }
 
 // Wand damage, +13% / +25%: the wand's shots are the priest's only ranged autos. The row's school mask
@@ -222,13 +245,16 @@ func (priest *Priest) applyPenance() {
 	spellData.Penance.Each(priest.registerPenance)
 }
 
-// Your critical heals create a protective shield on the target, absorbing X% of the amount healed. Lasts 12 sec.
+// Your non-periodic critical heals create a protective shield on the target, absorbing X% of the amount healed.
+// Shields up to 20 damage per level and lasts 12 sec.
 func (priest *Priest) applyDivineAegis() {
 	if priest.Talents.DivineAegis == 0 {
 		return
 	}
 
 	shieldFraction := spellData.DivineAegis.EffectAt(1).FractionAt(priest.Talents.DivineAegis)
+	// The tooltip prices the cap as $s2*$pl, the second effect's points per caster level.
+	maxShield := spellData.DivineAegis.EffectAt(2).ValueAt(priest.Talents.DivineAegis) * float64(priest.Level)
 	shields := priest.NewAllyDamageAbsorptionAuraArray(func(target *core.Unit) *core.DamageAbsorptionAura {
 		return target.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{
 			Aura: core.Aura{
@@ -241,8 +267,8 @@ func (priest *Priest) applyDivineAegis() {
 	})
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Divine Aegis",
-		Callback: core.CallbackOnHealDealt | core.CallbackOnPeriodicHealDealt,
-		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+		Callback: core.CallbackOnHealDealt,
+		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if !result.DidCrit() {
 				return
 			}
@@ -253,7 +279,11 @@ func (priest *Priest) applyDivineAegis() {
 			} else {
 				shield.Activate(sim)
 			}
-			shield.ShieldStrength += strength
+			before := shield.ShieldStrength
+			shield.ShieldStrength = min(before+strength, maxShield)
+			if gained := shield.ShieldStrength - before; gained > 0 {
+				spell.RecordCustomMetric(result.Target, "divine_aegis", gained)
+			}
 			shield.SetStacks(sim, max(1, int32(shield.ShieldStrength)))
 		},
 	})

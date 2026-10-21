@@ -9,6 +9,7 @@ const meta = {
 	tags: ['autodocs'],
 	argTypes: {
 		size: { control: 'select', options: [undefined, 'sm', 'xs'] },
+		orientation: { control: 'select', options: ['horizontal', 'vertical'] },
 		className: { control: 'text' },
 	},
 	render: args => (
@@ -26,3 +27,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const Small: Story = { args: { size: 'sm' } };
 export const Spaced: Story = { args: { gap: true } };
+export const Vertical: Story = {
+	args: { orientation: 'vertical' },
+	decorators: [
+		Story => (
+			<div className="w-64">
+				<Story />
+			</div>
+		),
+	],
+};

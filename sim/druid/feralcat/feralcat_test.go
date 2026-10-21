@@ -35,7 +35,7 @@ func TestFeralCat(t *testing.T) {
 			}}},
 		},
 		OtherTalentSets: []core.TalentsCombo{
-			{Label: "Bearweave", Talents: BearweaveTalents},
+			{Label: "Hybrid", Talents: HybridTalents},
 		},
 		Rotation: core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "default"),
 		OtherRotations: []core.RotationCombo{
@@ -77,9 +77,9 @@ func BenchmarkSimulate(b *testing.B) {
 	core.RaidBenchmark(b, rsr)
 }
 
-// The cat UI's Monocat and Bearweave presets (presets.ts CatTalents and BearweaveTalents).
-const DefaultTalents = "050022-55000032021031212051-054"
-const BearweaveTalents = "050022-55000032021131212051-053"
+// The cat UI's Cat and Hybrid presets (presets.ts CatTalents and HybridTalents).
+const DefaultTalents = "050022-35200032121131212051-05002"
+const HybridTalents = "050022-05230332121131212051-04"
 
 var DefaultSpecOptions = &proto.Player_FeralCatDruid{
 	FeralCatDruid: &proto.FeralCatDruid{

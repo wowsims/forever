@@ -1,4 +1,5 @@
 import i18n from '@i18n/config';
+import { WOWSIMS_URL } from '@sim/constants/other';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -22,7 +23,7 @@ describe('LandingHeader', () => {
 
 	it('opens every external nav link in a new tab with no opener', () => {
 		render(<LandingHeader />);
-		const names = [i18n.t('info.discord'), i18n.t('info.github'), i18n.t('info.patreon')];
+		const names = [i18n.t('landing.header.discord'), i18n.t('landing.header.github'), i18n.t('landing.header.addon'), i18n.t('landing.header.patreon')];
 
 		names.forEach(name => {
 			const link = screen.getByRole('link', { name });
@@ -31,8 +32,11 @@ describe('LandingHeader', () => {
 		});
 	});
 
-	it('does not turn the logo into a link', () => {
+	it('links the brand to wowsims.com in the same tab', () => {
 		render(<LandingHeader />);
-		expect(screen.getByTestId('wowsims-title').closest('a')).toBeNull();
+		const brand = screen.getByTestId('landing-brand');
+		expect(brand.getAttribute('href')).toBe(WOWSIMS_URL);
+		expect(brand.getAttribute('target')).toBeNull();
+		expect(screen.getByTestId('wowsims-title').closest('a')).toBe(brand);
 	});
 });

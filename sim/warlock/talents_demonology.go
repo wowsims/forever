@@ -240,10 +240,10 @@ func (warlock *Warlock) applyDecimation() {
 	})
 	spelldata.ParseEffects(&warlock.Character, executeAura, rank, spelldata.Effects(4))
 
-	// TODO: The row states the threshold as effect 3 (35); the sim's execute phases are fixed, and 35 is one.
+	threshold := int32(rank.EffectN(3).BasePoints)
 	warlock.RegisterResetEffect(func(sim *core.Simulation) {
 		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
-			if isExecute == 35 {
+			if isExecute <= threshold && !executeAura.IsActive() {
 				executeAura.Activate(sim)
 			}
 		})

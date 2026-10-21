@@ -1,7 +1,7 @@
 import { Emitter } from '@sim/state/events';
 import { createSimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { TabPanel } from '@ui-kit/TabNav';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -250,14 +250,14 @@ describe('DetailedResults', () => {
 });
 
 const TABS: Array<DetailedResultsTabConfig> = [
-	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage' },
+	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage', groupsRanks: true },
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
 ];
 
 const SlotReader = () => <span data-testid="slot-reader">{useDrStickySlot()?.getAttribute('data-testid') ?? 'none'}</span>;
 
 const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
-	const handlers = { onActiveIdChange: vi.fn(), onSimulateIteration: vi.fn(), onSimulateDeath: vi.fn() };
+	const handlers = { onActiveIdChange: vi.fn(), onSimulateIteration: vi.fn(), onSimulateDeath: vi.fn(), onGroupRanksChange: vi.fn() };
 	const view = render(
 		<DetailedResultsView
 			tabs={TABS}
@@ -266,6 +266,7 @@ const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
 			iterationDisabled={false}
 			deathDisabled
 			targetPicker={<span data-testid="filter-slot" />}
+			groupRanks
 			{...handlers}
 			{...props}>
 			<TabPanel value="damageTab">damage pane</TabPanel>
@@ -320,6 +321,22 @@ describe('DetailedResultsView', () => {
 
 		expect(onActiveIdChange).toHaveBeenCalledWith('logTab');
 		expect(screen.getByTestId('results-filter').contains(screen.getByTestId('filter-slot'))).toBe(true);
+	});
+
+	it('puts the group ranks toggle in the toolbar row, and reports a change', () => {
+		const { onGroupRanksChange } = mount();
+
+		const toggle = within(screen.getByTestId('results-filter')).getByRole('checkbox');
+		expect(toggle.getAttribute('aria-checked')).toBe('true');
+		fireEvent.click(toggle);
+
+		expect(onGroupRanksChange).toHaveBeenCalledWith(false);
+	});
+
+	it('shows the group ranks toggle only on a tab whose table groups ranks', () => {
+		mount({ activeId: 'logTab' });
+
+		expect(within(screen.getByTestId('results-filter')).queryByRole('checkbox')).toBeNull();
 	});
 
 	it('hands the panes the sticky slot under the toolbar', () => {

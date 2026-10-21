@@ -199,6 +199,8 @@ type Item struct {
 	TempEnchantWeaponDamage float64
 	WeaponImbue             int32        // The Effect 360 imbue (poison, firestone, class imbue), beside the Effect 54 TempEnchant.
 	TempEnchantStats        *stats.Stats // The stats the TempEnchant and the WeaponImbue put on the item, counted with its enchant's.
+	TempEnchantPseudoStats  []float64    // The TempEnchant's pseudo stats, whose haste registerEquipSpeedAuras applies.
+	WeaponImbuePseudoStats  []float64    // The WeaponImbue's pseudo stats, whose haste registerEquipSpeedAuras applies.
 	ScalingOptions          map[int32]*proto.ScalingItemProperties
 	RandPropPoints          int32
 	ItemEffects             []*proto.ItemEffect

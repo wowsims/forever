@@ -3,7 +3,7 @@ import type { RenderableStatOptions } from '@features/settings/model/stat_option
 import { withSelection } from '@features/stat-filters/model/stat_filters';
 import { APLRotation } from '@generated/proto/apl';
 import { PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { Stat, TristateEffect } from '@generated/proto/common';
+import { Stat } from '@generated/proto/common';
 import { UnitStat } from '@sim/proto/stats';
 import { patchSlice } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
@@ -45,7 +45,8 @@ const SPEC = {
 	autoRotation: () => APLRotation.create(),
 	presets: { epWeights: [] },
 	displayStats: [UnitStat.fromStat(Stat.StatStrength)],
-	epStats: [Stat.StatAttackPower],
+	// Stamina keeps Blood Pact on offer, so the Party Buffs section renders between the raid buffs and the debuffs.
+	epStats: [Stat.StatAttackPower, Stat.StatStamina],
 	includeBuffDebuffInputs: [] as unknown[],
 	excludeBuffDebuffInputs: [] as unknown[],
 	otherInputs: { inputs: [] },
@@ -101,7 +102,7 @@ describe('SettingsTabBody buff and debuff filters', () => {
 });
 
 describe('SettingsTabBody sections', () => {
-	const noPartyBuffStats = { displayStats: [], epStats: [Stat.StatSpirit] };
+	const noPartyBuffStats = { displayStats: [], epStats: [Stat.StatIntellect] };
 
 	it('leaves Party Buffs out when the filter offers no party buff and none is picked', async () => {
 		await setup(noPartyBuffStats);
@@ -113,7 +114,7 @@ describe('SettingsTabBody sections', () => {
 		const { player } = await setup(noPartyBuffStats);
 		const party = player.getParty()!;
 
-		act(() => party.setBuffs(PartyBuffs.create({ battleShout: TristateEffect.TristateEffectRegular })));
+		act(() => party.setBuffs(PartyBuffs.create({ bloodPact: true })));
 		expect(section('party_buffs')).not.toBeNull();
 
 		act(() => party.setBuffs(PartyBuffs.create()));
@@ -135,8 +136,9 @@ describe('SettingsTabBody sections', () => {
 describe('SettingsTabBody offered flags', () => {
 	it('reads no option again for a write to an unrelated slice, and still follows the raid', async () => {
 		const spies = [...BUFFS_CONFIG, ...PARTY_BUFFS_CONFIG, ...DEBUFFS_CONFIG, ...DEBUFFS_MISC_CONFIG]
-			.filter(option => 'getValue' in option.config)
-			.map(option => vi.spyOn(option.config as { getValue: (player: unknown) => unknown }, 'getValue'));
+			.flatMap(option => ('inputs' in option.config ? option.config.inputs : [option.config]))
+			.filter(config => 'getValue' in config)
+			.map(config => vi.spyOn(config as { getValue: (player: unknown) => unknown }, 'getValue'));
 		const reads = () => spies.reduce((total, spy) => total + spy.mock.calls.length, 0);
 		const { sim, player } = await setup({ excludeBuffDebuffInputs: [GreaterBlessingOfSalvation] });
 		act(() => sim.setFilters(withSelection(sim.getFilters(), 'buffs', [])));

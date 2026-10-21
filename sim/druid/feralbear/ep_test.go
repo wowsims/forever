@@ -39,6 +39,7 @@ func TestDefaultEp(t *testing.T) {
 		proto.Stat_StatFeralAttackPower,
 		proto.Stat_StatArmor,
 		proto.Stat_StatBonusArmor,
+		proto.Stat_StatArmorNoMods,
 		proto.Stat_StatDodgeRating,
 		proto.Stat_StatDefenseRating,
 		proto.Stat_StatHitRating,

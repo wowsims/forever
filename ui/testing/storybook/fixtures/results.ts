@@ -2,6 +2,7 @@ import {
 	ActionMetrics,
 	DistributionMetrics,
 	EncounterMetrics,
+	HitKind,
 	Party,
 	PartyMetrics,
 	Player,
@@ -36,6 +37,9 @@ const distribution = (avg: number) => {
 		hist: Object.fromEntries(counts.map((count, step) => [Math.round(avg + (step - 2) * stdev), count])),
 	});
 };
+
+export const valueRange = (n: number, avg: number, stdev: number, min: number, max: number) =>
+	DistributionMetrics.create({ avg, stdev, min, max, aggregatorData: { n, sumSq: 0 } });
 
 export interface SimRunOptions {
 	// Multiplies every damage and threat figure, so a second run reads as a change against the first.
@@ -77,6 +81,11 @@ export const makeSimRun = ({ dpsScale = 1 }: SimRunOptions = {}): { request: Rai
 				critDamage: 2_628_200 * dpsScale,
 				glanceDamage: 289_875 * dpsScale,
 				threat,
+				ranges: {
+					[HitKind.HitKindHit]: valueRange(3_800, 773, 40, 650, 900),
+					[HitKind.HitKindCrit]: valueRange(1_700, 1_546, 80, 1_300, 1_800),
+				},
+				customMetrics: [{ key: 'divine_aegis', range: valueRange(200, 410, 50, 300, 520) }],
 			}),
 		],
 	});

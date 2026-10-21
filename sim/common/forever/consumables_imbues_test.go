@@ -36,6 +36,18 @@ func weaponSlots(mainHand, offHand int32) []*proto.ItemSpec {
 
 func stonedWarrior(t *testing.T, consumes *proto.ConsumesSpec, swapped []*proto.ItemSpec) (*core.Simulation, *core.Character) {
 	t.Helper()
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       stonedRaid(consumes, swapped),
+		Encounter:  stonedEncounter,
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+var stonedEncounter = &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 63}}, Duration: 180}
+
+func stonedRaid(consumes *proto.ConsumesSpec, swapped []*proto.ItemSpec) *proto.Raid {
 	player := &proto.Player{
 		Name: "Consumer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceOrc,
 		Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
@@ -49,13 +61,7 @@ func stonedWarrior(t *testing.T, consumes *proto.ConsumesSpec, swapped []*proto.
 		player.EnableItemSwap = true
 		player.ItemSwap = &proto.ItemSwap{Items: swapped}
 	}
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 63}}, Duration: 180},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+	return &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}}
 }
 
 // The A_MOD_WEAPON_CRIT_PERCENT amount of 22755, the spell Elemental Sharpening Stone 18262 puts on
@@ -97,6 +103,26 @@ func TestElementalSharpeningStoneCritReachesItsOwnHand(t *testing.T) {
 				t.Errorf("the stone adds %v%% main-hand and %v%% off-hand crit, want %v and %v", mh, oh, wantMH, wantOH)
 			}
 		})
+	}
+}
+
+// The stone's crit on the main hand shows on the character sheet as a consumable: the consumes
+// column gains it over the buffs column, and the gear column is a bare warrior's.
+func TestElementalSharpeningStoneCritShowsAsAConsumableOnTheSheet(t *testing.T) {
+	sheet := func(consumes *proto.ConsumesSpec) *proto.PlayerStats {
+		request := &proto.ComputeStatsRequest{Raid: stonedRaid(consumes, nil), Encounter: stonedEncounter}
+		return core.ComputeStats(request).RaidStats.Parties[0].Players[0]
+	}
+	bare, stoned := sheet(&proto.ConsumesSpec{}), sheet(&proto.ConsumesSpec{MhImbueId: elementalSharpener})
+
+	crit := proto.PseudoStat_PseudoStatMeleeCritPercent
+	if got, want := stoned.GearStats.PseudoStats[crit], bare.GearStats.PseudoStats[crit]; got != want {
+		t.Errorf("the gear column shows %v%% main-hand crit, want the bare warrior's %v%%", got, want)
+	}
+	gained := (stoned.ConsumesStats.PseudoStats[crit] - stoned.BuffsStats.PseudoStats[crit]) -
+		(bare.ConsumesStats.PseudoStats[crit] - bare.BuffsStats.PseudoStats[crit])
+	if want := stoneCrit(t); !core.WithinToleranceFloat64(want, gained, 1e-9) {
+		t.Errorf("the consumes column gains %v%% main-hand crit from the stone, want %v%%", gained, want)
 	}
 }
 

@@ -27,6 +27,22 @@ type StoredRecord = Record<string, JsonValue>;
 const parseStoredRecord = (value: unknown): StoredRecord | undefined =>
 	value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as StoredRecord) : undefined;
 
+// The entries of a parsed slot, for a reader outside React; anything but a record holds none.
+export const savedDataEntries = <T>(value: unknown, codec: SavedDataCodec<T>): Array<SavedDataEntry<T>> => {
+	const stored = parseStoredRecord(value);
+	const parsed: Array<SavedDataEntry<T>> = [];
+	for (const name in stored) {
+		try {
+			const data = codec.fromJson(stored[name]);
+			parsed.push({ name, data, json: JSON.stringify(codec.toJson(data)) });
+		} catch (error) {
+			// One unreadable entry must not cost the user the rest of the slot.
+			console.warn('Failed parsing saved data: ', stored[name], error);
+		}
+	}
+	return parsed;
+};
+
 // One saved-data slot: `Record<name, toJson(data)>` under one key, which is the shape every
 // `SavedDataManager` has always written. Only the key and the codec vary between slots.
 export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSavedDataResult<T> => {
@@ -37,19 +53,7 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 	const storedRef = useRef(stored);
 	storedRef.current = stored;
 
-	const entries = useMemo(() => {
-		const parsed: Array<SavedDataEntry<T>> = [];
-		for (const name in stored) {
-			try {
-				const data = codecRef.current.fromJson(stored[name]);
-				parsed.push({ name, data, json: JSON.stringify(codecRef.current.toJson(data)) });
-			} catch (error) {
-				// One unreadable entry must not cost the user the rest of the slot.
-				console.warn('Failed parsing saved data: ', stored[name], error);
-			}
-		}
-		return parsed;
-	}, [stored]);
+	const entries = useMemo(() => savedDataEntries(stored, codecRef.current), [stored]);
 
 	// Both writes patch the stored record rather than rebuilding it from `entries`, which would
 	// silently drop every entry the codec rejected the moment the user saves anything else.

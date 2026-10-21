@@ -18,9 +18,9 @@ export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', SavedTal
 // raid materials; no reputation or PvP rewards, and no Scourge Invasion drops. The neck is a Dire Maul
 // quest reward. The cloak, the rings, the trinkets and the idol are sold by the Undermine Trader in
 // Stranglethorn Vale. The staff, and the Pristine Scale and Fel Leather the leggings take, have no known source.
-export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson);
+export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson, { devOnly: true });
 
-export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson);
+export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
 
 // Measured on the P1 gear with the Moonkin talents and the default consumables and buffs.
 export const P1EpWeights = PresetUtils.makePresetEpWeights(

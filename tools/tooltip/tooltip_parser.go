@@ -755,6 +755,8 @@ func (s SimpleSpellValue) String(ctx *TooltipContext) string {
 		fallthrough
 	case "t":
 		return fmt.Sprintf("%.1f", value/float64(time.Second))
+	case "S":
+		fallthrough
 	case "s":
 		fallthrough
 	case "A":

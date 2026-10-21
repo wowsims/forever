@@ -17,14 +17,14 @@ type SchoolPiercing struct {
 }
 
 // A temporary enchant consumable, applied to each hand core put its enchant on, in the main set or
-// the item swap set. Its stats and flat weapon damage are core's, on the item carrying the enchant.
-// Each combat spell is cast off the hits of the weapons carrying the enchant at the chance its row
-// states. The equip spells named are the enchant's that grant no stat of the enchant's own, such as
-// Consecrated Sharpening Stone's 28893: their auras are parsed onto an aura per hand, since each
-// weapon carries its own copy of the equip aura, and an aura bound to a matching weapon reaches that
-// hand's attacks alone. An equip spell that procs, such as Scroll of Imbue Manablade's 1308913, is a
-// listener built from its row instead. The piercing is a stat slot of the enchant that has no place
-// in the stat array, held by the same per-hand aura.
+// the item swap set. Its stats, speed percents and flat weapon damage are core's, on the item
+// carrying the enchant. Each combat spell is cast off the hits of the weapons carrying the enchant at
+// the chance its row states. The equip spells named are the enchant's that grant no stat of the
+// enchant's own, such as Consecrated Sharpening Stone's 28893: their auras are parsed onto an aura
+// per hand, since each weapon carries its own copy of the equip aura, and an aura bound to a matching
+// weapon reaches that hand's attacks alone. An equip spell that procs, such as Scroll of Imbue
+// Manablade's 1308913, is a listener built from its row instead. The piercing is a stat slot of the
+// enchant that has no place in the stat array, held by the same per-hand aura.
 func NewSpellDataTemporaryEnchant(itemID int32, piercing SchoolPiercing, equipSpellIDs ...int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -99,10 +99,13 @@ func registerTemporaryEnchantHand(character *core.Character, consumable core.Con
 	if len(equipSpells) == 1 {
 		actionID = core.ActionID{SpellID: equipSpells[0].ID}
 	}
+	equipped := character.Equipment[slot].HasTempEnchant(enchantID)
 	aura := character.RegisterAura(core.Aura{
 		Label:    fmt.Sprintf("%s (%s)", consumable.Name, core.Ternary(slot == proto.ItemSlot_ItemSlotMainHand, "Main Hand", "Off Hand")),
 		ActionID: actionID.WithTag(int32(slot)),
 		Duration: core.NeverExpires,
+		// On the hand from the start, the enchant's equip spells show among the sheet's consumables.
+		BuildPhase: core.Ternary(equipped, core.CharacterBuildPhaseConsumes, core.CharacterBuildPhaseNone),
 	})
 	if piercing.Amount != 0 {
 		aura.AttachAdditivePseudoStatBuff(&character.PseudoStats.SchoolSpellPiercing[piercing.School], piercing.Amount)
@@ -112,7 +115,7 @@ func registerTemporaryEnchantHand(character *core.Character, consumable core.Con
 		spelldata.ParseEffects(character, aura, row, spelldata.OnHand(hand), spelldata.Count(1))
 	}
 
-	if character.Equipment[slot].HasTempEnchant(enchantID) {
+	if equipped {
 		core.MakePermanent(aura)
 	}
 	character.ItemSwap.RegisterEnchantProcWithSlots(enchantID, aura, []proto.ItemSlot{slot})

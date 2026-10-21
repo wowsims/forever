@@ -203,6 +203,21 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Reduces the cast time of spells and effects that revive targets by 20%.
+	// https://www.wowhead.com/forever/spell=1293540
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 7720, ItemName: "Whitemane's Chapeau"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Disarm target's weapon for 10s.
 	// https://www.wowhead.com/forever/spell=13534
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -278,6 +293,34 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293980, BuffSpellID: 18083},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 9419, ItemName: "Galgann's Firehammer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to targets below 25% health.
+	// https://www.wowhead.com/forever/spell=10373
+	// unsupported: states no rate
+	// trigger 10373 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 10373, BuffSpellID: 10373, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 9425, ItemName: "Pendulum of Doom -  - "},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Each swing alternates your attack speed between 100% faster and 50% slower.
+	// https://www.wowhead.com/forever/spell=1293881
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 9425, ItemName: "Pendulum of Doom -  - "},
 	// })
 
 	// TODO: Manual implementation required
@@ -2161,6 +2204,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Wounds the target for 168 damage.
+	// https://www.wowhead.com/forever/spell=1294226
+	// unsupported: states no rate
+	// trigger 1294226 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1294226, BuffSpellID: 1294226, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 274484, ItemName: "Axe of Inevitable Ruin"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// https://www.wowhead.com/forever/spell=1318317
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
 	//	Callback:           core.CallbackEmpty,
@@ -2428,15 +2484,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18107, BuffSpellID: 18107, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 2164, ItemName: "Gut Ripper"},
-		})
-
-	// Each melee hit grants you a stack of Improving Form. At 30 stacks perfect your form, inflicting 490 Physical
-	// damage to your current target and increasing all your stats by 20 for 20s.
-	// https://www.wowhead.com/forever/spell=1325509
-	// trigger 1325535 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto) -> buff 1325508
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1325535, BuffSpellID: 1325508},
-		[]shared.ItemVariant{
-			{ItemID: 2801, ItemName: "Blade of Hanna"},
 		})
 
 	// Fires a Searing Arrow at the target for 28 Fire damage.
@@ -2897,6 +2944,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=1297455
 	// Not simulated: Wintersaber Hide Lined Gloves: "Mount Speed" (1315778) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=1315778
+	// Not simulated: Ankle Slicers: "Sliced Ankle" (1316346) - ignored aura type 33
+	// https://www.wowhead.com/forever/spell=1316346
 	// Not simulated: Mithril Blacksmith Hammer: "Concussed" (1318163) - ignored aura type 33
 	// https://www.wowhead.com/forever/spell=1318163
 }

@@ -166,6 +166,52 @@ func init() {
 		character.ItemSwap.RegisterProc(2243, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Blade of Hanna
+	// https://www.wowhead.com/forever/item=2801/blade-of-hanna
+	//
+	// Equip: Each melee hit grants you a stack of Improving Form. At 30 stacks perfect your form,
+	// inflicting 490 Physical damage to your current target and increasing all your stats by 20 for
+	// 20 sec.
+	//
+	// 1325535 adds a stack of 1325509 on each main-hand swing. At the stack count 1325509's second
+	// effect names, 1325508 deals its damage, applies its stats and removes the stacks. No row states
+	// a cooldown.
+	core.NewItemEffect(2801, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		stackRow := spelldata.MustFind(1325509)
+		perfectedRow := spelldata.MustFind(1325508)
+		damage := perfectedRow.DamageEffect()
+		threshold := stackRow.EffectN(2).Misc
+
+		perfected := character.RegisterAura(spelldata.AuraConfig(perfectedRow, spelldata.Label("Blade of Hanna Perfected Form")))
+		spelldata.ParseEffects(character, perfected, perfectedRow, spelldata.Effects(2))
+
+		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
+		if perfectedRow.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
+			perfected.Activate(sim)
+		}
+		perfectForm := character.RegisterSpell(config)
+
+		stacks := character.RegisterAura(spelldata.AuraConfig(stackRow, spelldata.Label("Blade of Hanna Improving Form")))
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1325535), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			stacks.Activate(sim)
+			stacks.AddStack(sim)
+			if stacks.GetStacks() >= threshold {
+				stacks.Deactivate(sim)
+				perfectForm.Cast(sim, result.Target)
+			}
+		})
+		trigger.Name = "Blade of Hanna"
+		trigger.ActionID = core.ActionID{ItemID: 2801}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(2801, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Heartseeking Crossbow
 	// https://www.wowhead.com/forever/item=13040/heartseeking-crossbow
 	//

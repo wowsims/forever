@@ -21,7 +21,7 @@ impl zed::Extension for SpelldataExtension {
                 "-C".to_string(),
                 worktree.root_path(),
                 "run".to_string(),
-                "./tools/spelldata".to_string(),
+                "./tools/spelldata/launch".to_string(),
                 "-lsp".to_string(),
             ],
             env: worktree.shell_env(),

@@ -6,9 +6,11 @@ import { BulkResultTieGroup } from './BulkResultTieGroup';
 
 export interface BulkResultsProps {
 	onActivateTab: (id: string) => void;
+	/** Index of the finished encounter whose ranking to show. */
+	selected: number;
 }
 
-export const BulkResults = ({ onActivateTab }: BulkResultsProps) => {
+export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
 	const results = useBulkState(slice => slice.results);
 	const started = useBulkState(slice => slice.started);
 
@@ -17,17 +19,18 @@ export const BulkResults = ({ onActivateTab }: BulkResultsProps) => {
 		return started ? null : <div className="flex items-center justify-center p-6">{i18n.t('bulk_tab.results.run_simulation')}</div>;
 	}
 
-	const iterations = results.iterations;
+	const { results: shown } = results[selected];
+	const iterations = shown.iterations;
 	return (
-		<>
-			{results.chains.map((chain, chainIdx) =>
+		<div>
+			{shown.chains.map((chain, chainIdx) =>
 				chain.length > 1 ? (
 					<BulkResultTieGroup key={chainIdx}>
 						{chain.map((result, idx) => (
 							<BulkResultRow
 								key={idx}
 								result={result}
-								baseResult={results.originalGearResults}
+								baseResult={shown.originalGearResults}
 								iterations={iterations}
 								onActivateTab={onActivateTab}
 							/>
@@ -37,12 +40,12 @@ export const BulkResults = ({ onActivateTab }: BulkResultsProps) => {
 					<BulkResultRow
 						key={chainIdx}
 						result={chain[0]}
-						baseResult={results.originalGearResults}
+						baseResult={shown.originalGearResults}
 						iterations={iterations}
 						onActivateTab={onActivateTab}
 					/>
 				),
 			)}
-		</>
+		</div>
 	);
 };

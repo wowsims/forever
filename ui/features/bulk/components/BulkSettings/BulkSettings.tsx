@@ -4,6 +4,7 @@ import i18n from '@i18n/config';
 import { BulkSimItemSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { usePlayer, useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
+import { useUiStore } from '@sim/hooks/useUiStore';
 import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
@@ -19,6 +20,7 @@ import { frozenItemSlot } from '../../model/picker_groups';
 import { runBulkBatch } from '../../model/run';
 import { canRunBatch } from '../../model/selectors';
 import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/settings';
+import { Encounters } from '../Encounters';
 import { CombinationsCount } from './CombinationsCount';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
 
@@ -34,6 +36,8 @@ export interface BulkSettingsViewProps {
 	onRun: () => void;
 	openGroups: string[];
 	onOpenGroupsChange: (groups: string[]) => void;
+	/** Null hides the group, as with power tools off. */
+	encounters: ReactNode;
 	enchants: ReactNode;
 	frozenItems: ReadonlyArray<ChoiceFieldProps<number>>;
 	/** Null for a player who cannot dual wield. */
@@ -47,13 +51,14 @@ export const BulkSettingsView = ({
 	onRun,
 	openGroups,
 	onOpenGroupsChange,
+	encounters,
 	enchants,
 	frozenItems,
 	weaponFreeze,
 	onFrozenWeaponSlotChange,
 }: BulkSettingsViewProps) => (
 	<TabPanelColumns.Right>
-		<div className="sticky top-sim-header pt-6 lg:max-h-bulk-settings-max-h lg:overflow-y-auto">
+		<div className="sticky top-sim-header lg:max-h-bulk-settings-max-h lg:overflow-y-auto">
 			<Box padding="md" className="grid gap-6 bg-background" testId="bulk-settings-container">
 				<RunCard
 					testId="bulk-run-card"
@@ -65,6 +70,14 @@ export const BulkSettingsView = ({
 					{combinationsCount}
 				</RunCard>
 				<Accordion value={openGroups} onValueChange={onOpenGroupsChange} variant="boxed">
+					{encounters != null && (
+						<AccordionItem
+							value={BULK_SETTINGS_GROUP.encounters}
+							title={i18n.t('bulk_tab.settings.groups.encounters')}
+							testId="bulk-settings-group-encounters">
+							{encounters}
+						</AccordionItem>
+					)}
 					<AccordionItem
 						value={BULK_SETTINGS_GROUP.enchants}
 						title={i18n.t('bulk_tab.settings.groups.enchants')}
@@ -135,6 +148,7 @@ export const BulkSettings = () => {
 	const frozenWeaponSlot = useBulkState(slice => slice.frozenWeaponSlot);
 	const canRun = useBulkState(slice => canRunBatch(slice, bulkCombinationsLimit(player.sim.isNative)));
 	const gear = usePlayerStore('gear');
+	const powerTools = useUiStore('showPowerTools');
 	const [openGroups, setOpenGroups] = useBulkSettingsGroups();
 
 	// Clearing a frozen item whose slot no longer holds it writes to the store; that is not safe
@@ -166,6 +180,7 @@ export const BulkSettings = () => {
 			onRun={() => void runBulkBatch(host)}
 			openGroups={openGroups}
 			onOpenGroupsChange={setOpenGroups}
+			encounters={powerTools ? <Encounters /> : null}
 			enchants={<EnchantPresets />}
 			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
 			weaponFreeze={

@@ -213,6 +213,7 @@ const (
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist, e.g. a wand's shots.
 	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000).
+	SpellFlagMovesToTarget                                  // The cast moves the caster to its target, e.g. Charge. Not enforced, just a signal for the APL validation.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

@@ -148,6 +148,9 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 	}
 
 	condition := rot.coerceTo(rot.newAPLValue(config.Condition), proto.APLValueType_ValueTypeBool)
+	if config.Condition != nil && config.Condition.Value != nil && condition == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
+	}
 
 	// If condition is const false, this action can never fire — prune it.
 	// Track the impl so its spells are still removed from MCD auto-casting.
@@ -162,11 +165,21 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 		}
 	}
 
+	return newAPLActionEntry(condition, impl)
+}
+
+// Builds a rotation entry and hands it to the actions that read their own entry's condition.
+func newAPLActionEntry(condition APLValue, impl APLActionImpl) *APLAction {
 	action := &APLAction{
 		condition: condition,
 		impl:      impl,
 	}
-
+	switch impl := impl.(type) {
+	case *APLActionStrictMultidot:
+		impl.entry = action
+	case *APLActionGroupReference:
+		impl.entry = action
+	}
 	return action
 }
 
@@ -243,6 +256,8 @@ func (rot *APLRotation) newAPLActionImpl(config *proto.APLAction) APLActionImpl 
 		return rot.newActionMove(config.GetMove())
 	case *proto.APLAction_MoveDuration:
 		return rot.newActionMoveDuration(config.GetMoveDuration())
+	case *proto.APLAction_PetAttack:
+		return rot.newActionPetAttack(config.GetPetAttack())
 	case *proto.APLAction_CustomRotation:
 		return rot.newActionCustomRotation(config.GetCustomRotation())
 	case *proto.APLAction_GroupReference:

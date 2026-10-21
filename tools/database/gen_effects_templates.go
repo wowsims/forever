@@ -379,6 +379,27 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 {{- end }}
 ])
 
+// Keyed by set id, then by the bonus's piece count; the tooltips of the spells the sim leaves out.
+export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
+{{- range .MissingSetBonuses }}
+	[
+		{{(index . 0).ID}}, // {{ (index . 0).Name }}
+		new Map([
+			{{- range $bonus := . }}
+			[
+				{{ $bonus.Pieces }},
+				[
+					{{- range $i, $tooltip := $bonus.Tooltips }}
+					"{{ jsString $tooltip }}", // {{ index $bonus.Spells $i }} - https://www.wowhead.com/forever/spell={{ index $bonus.Spells $i }}
+					{{- end }}
+				],
+			],
+			{{- end }}
+		]),
+	],
+{{- end }}
+])
+
 // A proc rate the game files do not state and nobody has measured on Forever, and where it comes from.
 export type UnvalidatedRate = { kind: 'ppm' | 'chance'; origin: 'vanilla' | 'tbc' | 'unknown' }
 

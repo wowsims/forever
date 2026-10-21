@@ -56,7 +56,7 @@ export const BulkItemPickerView = ({ slot, item, state, onOpen, onRemove }: Bulk
 			className="ui-bulk-item-cell mb-0"
 			onOpen={onOpen}
 			action={
-				<div className="ml-2 grid grid-flow-col [align-items:start] gap-1">
+				<div className="ml-2 grid shrink-0 grid-flow-col [align-items:start] gap-1">
 					{state === 'frozen' && (
 						<>
 							<Icon

@@ -88,6 +88,67 @@ describe('ConnectedIconEnumPicker', () => {
 		expect(optionAnchor(1).getAttribute('href')).toBe(ActionId.makeSpellUrl(7302));
 	});
 
+	it('shows a value’s buffActionId buff tooltip under its actionId’s icon, on the option and on the selection, from the start', async () => {
+		const tooltipData = vi
+			.spyOn(ActionId, 'makeSpellTooltipData')
+			.mockImplementation(async (id, params) => `spell=${id}${params?.useBuffAura ? '&buff=1' : ''}`);
+		const options = new Options();
+		options.value = 2;
+		mount(
+			options,
+			configFor({
+				values: [{ value: 0 }, { actionId: frostId, value: 1 }, { actionId: moltenId, buffActionId: ActionId.fromSpellId(18789), value: 2 }],
+			}),
+		);
+		await act(async () => {});
+		expect(iconOf(button())).toBe('molten.jpg');
+		expect(button().getAttribute('href')).toBe(ActionId.makeSpellUrl(18789));
+		expect(button().getAttribute('data-wowhead')).toBe('spell=18789&buff=1');
+		expect(tooltipData.mock.calls.map(([id]) => id)).toEqual([18789]);
+
+		open();
+		expect(button().getAttribute('data-wowhead')).toBe('spell=18789&buff=1');
+		expect(optionAnchor(2).getAttribute('data-wowhead')).toBe('spell=18789&buff=1');
+		await act(async () => {});
+		expect(iconOf(optionAnchor(2))).toBe('molten.jpg');
+		expect(optionAnchor(1).hasAttribute('data-wowhead')).toBe(false);
+		expect(optionAnchor(1).getAttribute('href')).toBe(ActionId.makeSpellUrl(7302));
+		expect(tooltipData).toHaveBeenCalledTimes(1);
+	});
+
+	it('leaves an option whose buff tooltip lookup fails without one, keeps the others, and surfaces the failure', async () => {
+		const failure = new Error('lookup failed');
+		vi.spyOn(ActionId, 'makeSpellTooltipData').mockImplementation(async id => {
+			if (id === 18790) throw failure;
+			return `spell=${id}`;
+		});
+		const unhandled: Array<unknown> = [];
+		const onUnhandledRejection = (error: unknown) => unhandled.push(error);
+		process.on('unhandledRejection', onUnhandledRejection);
+
+		try {
+			mount(
+				new Options(),
+				configFor({
+					values: [
+						{ value: 0 },
+						{ actionId: moltenId, buffActionId: ActionId.fromSpellId(18789), value: 1 },
+						{ actionId: frostId, buffActionId: ActionId.fromSpellId(18790), value: 2 },
+					],
+				}),
+			);
+			await act(async () => {});
+			await act(async () => await new Promise(resolve => setImmediate(resolve)));
+
+			open();
+			expect(optionAnchor(1).getAttribute('data-wowhead')).toBe('spell=18789');
+			expect(optionAnchor(2).hasAttribute('data-wowhead')).toBe(false);
+			expect(unhandled).toEqual([failure]);
+		} finally {
+			process.removeListener('unhandledRejection', onUnhandledRejection);
+		}
+	});
+
 	it('fills the selected option at mount, the others once the menu first opens, and a hidden one never', async () => {
 		const fill = vi.spyOn(ActionId.prototype, 'fill').mockImplementation(async function (this: ActionId) {
 			return filled(this, `Spell ${this.spellId}`, `${this.spellId}.jpg`);

@@ -26,12 +26,12 @@ import (
 // 30 to every effect of the Battle Shout family.
 var BattleShoutT2Bonus = spelldata.MustFind(23563).EffectN(1).BaseValue()
 
-// The party's Battle Shout is the external caster's copy, which chains behind
+// The raid's Battle Shout is the external caster's copy, which chains behind
 // the player's own shout rather than being up from the start. Its improved state
 // says that warrior shouted with the set on.
-func driveBattleShout(char *core.Character, party *proto.PartyBuffs) {
+func driveBattleShout(char *core.Character, raid *proto.RaidBuffs) {
 	aura := NewSpellDataBattleShoutAura(&char.Unit, false, 0)
-	if party.BattleShout == proto.TristateEffect_TristateEffectImproved {
+	if raid.BattleShout == proto.TristateEffect_TristateEffectImproved {
 		AddGeneratedFlatBonus(aura, stats.AttackPower, BattleShoutValue(0), BattleShoutT2Bonus)
 	}
 	applyFixedShoutAura(char, aura, BattleShoutCategory)

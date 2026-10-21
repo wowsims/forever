@@ -47,9 +47,14 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 	})
 
 	config := spelldata.SpellConfig(&priest.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
+	alwaysHits := rank.AlwaysHits()
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
+		outcome := spell.OutcomeMagicHit
+		if alwaysHits {
+			outcome = spell.OutcomeAlwaysHit
+		}
+		result := spell.CalcAndDealOutcome(sim, target, outcome)
 		if result.Landed() {
 			veAuras.Get(target).Activate(sim)
 		}

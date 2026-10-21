@@ -366,3 +366,56 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
 }
+
+// Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
+// that brings the stacks to the count the row names casts Perfected Form 1325508: its damage once,
+// its +20 to every stat for the row's duration, and the stacks gone so they build again.
+func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 2801, 1)
+	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertiseRating: 1000, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
+	enemy := character.CurrentTarget
+
+	stackRow, perfectedRow := spelldata.MustFind(1325509), spelldata.MustFind(1325508)
+	threshold := stackRow.EffectN(2).Misc
+	stacks := character.GetAuraByID(core.ActionID{SpellID: stackRow.ID})
+	buff := character.GetAuraByID(core.ActionID{SpellID: perfectedRow.ID})
+	perfect := character.GetSpell(core.ActionID{SpellID: perfectedRow.ID})
+	if stacks == nil || buff == nil || perfect == nil || threshold != 30 {
+		t.Fatalf("2801 registers no Improving Form, Perfected Form aura or spell, or the row names %d stacks, want 30", threshold)
+	}
+
+	for range threshold - 1 {
+		dealHit(t, sim, character, meleeSwing(&character.Unit))
+	}
+	if got := stacks.GetStacks(); got != threshold-1 {
+		t.Errorf("after %d swings Improving Form has %d stacks, want %d", threshold-1, got, threshold-1)
+	}
+	if got := perfect.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+		t.Errorf("before the %dth swing Perfected Form cast %d times, want none", threshold, got)
+	}
+
+	before := character.GetStats()
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := perfect.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || !damageInRange(got, perfectedRow.DamageEffect()) {
+		t.Errorf("the %dth swing cast Perfected Form %d times for %v, want once for the row's %v", threshold, got.Casts, got.TotalDamage, perfectedRow.DamageEffect().Average())
+	}
+	if stacks.IsActive() {
+		t.Errorf("Improving Form kept %d stacks after Perfected Form, want none", stacks.GetStacks())
+	}
+	if !buff.IsActive() || buff.Duration != perfectedRow.Duration() {
+		t.Errorf("Perfected Form is up %v for %v, want up for the row's %v", buff.IsActive(), buff.Duration, perfectedRow.Duration())
+	}
+	for _, stat := range []stats.Stat{stats.Strength, stats.Agility, stats.Stamina, stats.Intellect, stats.Spirit} {
+		if got := gained(character, before, stat); !statNear(got, 20) {
+			t.Errorf("Perfected Form grants %v %s, want 20", got, stat.StatName())
+		}
+	}
+
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := stacks.GetStacks(); got != 1 {
+		t.Errorf("the swing after Perfected Form left Improving Form at %d stacks, want 1", got)
+	}
+	if got := perfect.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+		t.Errorf("Perfected Form cast %d times by the end, want once", got)
+	}
+}

@@ -1,4 +1,5 @@
 import type { StatWeightValues } from '@generated/proto/api';
+import type { UnitStats } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { UnitStat } from '@sim/proto/stats';
 import { TableCell } from '@ui-kit/Table';
@@ -11,6 +12,7 @@ export interface StatWeightCellsProps {
 	statWeights?: StatWeightValues;
 	iterations: number;
 	epRatio: number;
+	/** In the stored unit, like the weights; the cells show both per rating point. */
 	epDelta: number;
 	cellClassName: string;
 }
@@ -22,9 +24,11 @@ const NotApplicable = () => (
 );
 
 export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelta, cellClassName }: StatWeightCellsProps) => {
+	const shown = (values: UnitStats) => stat.convertEpToRatingScale(stat.getProtoValue(values));
+	const shownDelta = stat.convertEpToRatingScale(epDelta);
 	const unused = !!statWeights && epRatio === 0;
-	const rounded = epDelta.toFixed(2);
-	const delta = !statWeights || unused || rounded === '0.00' ? undefined : epDelta > 0 ? 'positive' : 'negative';
+	const rounded = shownDelta.toFixed(2);
+	const delta = !statWeights || unused || rounded === '0.00' ? undefined : shownDelta > 0 ? 'positive' : 'negative';
 
 	return (
 		<>
@@ -34,11 +38,7 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 				className={['text-right in-data-[stats-type=ep]:hidden', cellClassName, unused && 'text-white/70']}
 				data-unused={unused ? '' : undefined}>
 				{statWeights ? (
-					<StatWeightValue
-						value={stat.getProtoValue(statWeights.weights!)}
-						stdev={stat.getProtoValue(statWeights.weightsStdev!)}
-						iterations={iterations}
-					/>
+					<StatWeightValue value={shown(statWeights.weights!)} stdev={shown(statWeights.weightsStdev!)} iterations={iterations} />
 				) : (
 					<NotApplicable />
 				)}
@@ -50,8 +50,8 @@ export const StatWeightCells = ({ stat, statWeights, iterations, epRatio, epDelt
 				data-unused={unused ? '' : undefined}>
 				{statWeights ? (
 					<StatWeightValue
-						value={stat.getProtoValue(statWeights.epValues!)}
-						stdev={stat.getProtoValue(statWeights.epValuesStdev!)}
+						value={shown(statWeights.epValues!)}
+						stdev={shown(statWeights.epValuesStdev!)}
 						iterations={iterations}
 						className={toneTextClass(delta)}
 						sign={delta}

@@ -18,9 +18,9 @@ var (
 
 // Puts the temporary enchant each imbue the spec names on its hand, where the enchant takes that
 // hand's weapon. It runs before the weapons are built, and a weapon built from a hand's item takes
-// the enchant's flat weapon damage; the enchant's stats count among the item's equipment stats, so
-// they leave with the weapon on an item swap. The consumable's registered effect then applies the
-// rest of the enchant to the hands carrying it.
+// the enchant's flat weapon damage; the enchant's stats count among the item's equipment stats and
+// its speed percents among the item's speed auras, so both leave with the weapon on an item swap. The
+// consumable's registered effect then applies the rest of the enchant to the hands carrying it.
 //
 // The item swap set takes the same path with the swap imbue ids and the swap weapons.
 func applyTemporaryEnchants(mhImbueID, ohImbueID, mhWeaponImbueID, ohWeaponImbueID int32, equipment *Equipment) {
@@ -48,10 +48,12 @@ func applyTemporaryEnchant(itemID int32, slot proto.ItemSlot, equipment *Equipme
 	item.TempEnchantStats = &sum
 	if consumable.Type == proto.ConsumableType_ConsumableTypeWeaponImbue {
 		item.WeaponImbue = enchant.EffectID
+		item.WeaponImbuePseudoStats = enchant.PseudoStats
 		return
 	}
 	item.TempEnchant = enchant.EffectID
 	item.TempEnchantWeaponDamage = enchant.WeaponDamage
+	item.TempEnchantPseudoStats = enchant.PseudoStats
 }
 
 // Whether the temporary enchant's SpellEquippedItems masks take the item in this slot.

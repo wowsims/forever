@@ -48,7 +48,7 @@ func (dot *Dot) OutcomeTickMagicHit(sim *Simulation, result *SpellResult, attack
 	} else {
 		result.Outcome = OutcomeMiss
 		result.Damage = 0
-		dot.Spell.SpellMetrics[result.Target.UnitIndex].Misses++
+		dot.Spell.SpellMetrics[result.Target.UnitIndex].TickMisses++
 	}
 }
 
@@ -86,17 +86,14 @@ func (spell *Spell) outcomeMagicHitAndCrit(sim *Simulation, result *SpellResult,
 	}
 }
 
-// Rolls the hand's spell miss, with the level difference taken from its skill, then the hand's physical crit,
-// for the spell's own crit multiplier: a wand shot.
-func (spell *Spell) OutcomeMagicHitAndRangedCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
-	if sim.Proc(1-spell.spellChanceToMiss(attackTable, attackTable.Hand(spell).BaseSpellMissChance), "Magical Hit Roll") {
-		if !result.applyAttackTableCritSeparateRoll(sim, spell, attackTable, true) {
-			result.applyAttackTableHit(spell, true)
-		}
-	} else {
-		result.Outcome = OutcomeMiss
-		result.Damage = 0
-		spell.SpellMetrics[result.Target.UnitIndex].Misses++
+// Rolls the hand's weapon miss, which physical and ranged hit lower, then the caster's spell crit, for the
+// spell's own crit multiplier: a wand shot.
+func (spell *Spell) OutcomeRangedHitAndMagicCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
+	roll := sim.RandomFloat("White Hit Table")
+	chance := 0.0
+
+	if !result.applyAttackTableMissNoDWPenalty(spell, attackTable, roll, &chance) {
+		spell.outcomeMagicCrit(sim, result, attackTable, true)
 	}
 }
 
@@ -219,7 +216,7 @@ func (spell *Spell) OutcomeTickMagicHitAndCrit(sim *Simulation, result *SpellRes
 	} else {
 		result.Outcome = OutcomeMiss
 		result.Damage = 0
-		spell.SpellMetrics[result.Target.UnitIndex].Misses++
+		spell.SpellMetrics[result.Target.UnitIndex].TickMisses++
 	}
 }
 
@@ -595,9 +592,14 @@ func (result *SpellResult) applyAttackTableMiss(spell *Spell, attackTable *Attac
 	return false
 }
 
+// The weapon miss that specials and ranged attacks roll: the hand's miss less physical hit, without the
+// dual-wield penalty of auto attacks.
+func (spell *Spell) physicalMissChanceNoDWPenalty(attackTable *AttackTable) float64 {
+	return max(0, attackTable.Hand(spell).BaseMissChance-spell.PhysicalHitChance(attackTable))
+}
+
 func (result *SpellResult) applyAttackTableMissNoDWPenalty(spell *Spell, attackTable *AttackTable, roll float64, chance *float64) bool {
-	missChance := attackTable.Hand(spell).BaseMissChance - spell.PhysicalHitChance(attackTable)
-	*chance = max(0, missChance)
+	*chance = spell.physicalMissChanceNoDWPenalty(attackTable)
 
 	if roll < *chance {
 		result.Outcome = OutcomeMiss
@@ -886,7 +888,7 @@ func (spell *Spell) OutcomeExpectedMeleeWhite(_ *Simulation, result *SpellResult
 
 func (spell *Spell) OutcomeExpectedMeleeWeaponSpecialHitAndCrit(_ *Simulation, result *SpellResult, attackTable *AttackTable) {
 	hand := attackTable.Hand(spell)
-	missChance := max(0, hand.BaseMissChance-spell.PhysicalHitChance(attackTable))
+	missChance := spell.physicalMissChanceNoDWPenalty(attackTable)
 	dodgeChance := TernaryFloat64(spell.Flags.Matches(SpellFlagCannotBeDodged), 0, max(0, hand.BaseDodgeChance-spell.DodgeParrySuppression()-spell.Unit.PseudoStats.DodgeReduction))
 	parryChance := TernaryFloat64(spell.Unit.PseudoStats.InFrontOfTarget, max(0, hand.BaseParryChance-spell.DodgeParrySuppression()), 0)
 	blockChance := TernaryFloat64(spell.Unit.PseudoStats.InFrontOfTarget, hand.BaseBlockChance, 0)

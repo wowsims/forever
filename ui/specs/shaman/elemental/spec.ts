@@ -1,10 +1,12 @@
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation } from '@generated/proto/apl';
 import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
+import { subscribePlayerField } from '@sim/state/subscriptions';
 
 import * as ShamanInputs from '../shared/inputs';
 import * as Presets from './presets';
@@ -16,7 +18,12 @@ export default defineSpec<Spec.SpecElementalShaman>({
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Shaman),
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
-	warnings: [],
+	warnings: [
+		simUI => ({
+			updateOn: subscribePlayerField(simUI.player, 'talentsString'),
+			getContent: () => (simUI.player.getTalents().stormstrike ? i18n.t('sidebar.warnings.elemental_stormstrike') : ''),
+		}),
+	],
 
 	// All stats for which EP should be calculated.
 	epStats: [

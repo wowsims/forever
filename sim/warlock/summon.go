@@ -45,7 +45,12 @@ func (warlock *Warlock) summonDemon(sim *core.Simulation, pet *WarlockPet) {
 		warlock.ActivePet.Disable(sim)
 	}
 	warlock.ActivePet = pet
+	// The demon appears beside the warlock, however close it stood when dismissed
+	pet.DistanceFromTarget = warlock.DistanceFromTarget
 	pet.Enable(sim, pet)
+	for _, aura := range pet.partyAuras {
+		aura.Activate(sim)
+	}
 
 	if sacrificed := warlock.sacrificedDemon; sacrificed != proto.WarlockOptions_NoSummon && (!warlock.Talents.DemonicPact || pet.summon == sacrificed) {
 		warlock.DemonicSacrificeAuras[sacrificed].Deactivate(sim)

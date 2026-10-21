@@ -85,11 +85,20 @@ describe('ConnectedMultiIconPicker', () => {
 		expect(buffs.values.mark).toBe(1);
 	});
 
-	it('takes the button image from the first active child, not the last', () => {
+	it("renders each input as a bare swatch, without the input's label", () => {
+		const buffs = new Buffs();
+		mount(buffs, configFor({ inputs: [input('kings', kingsId, { label: 'Blessing of Kings' }), input('mark', markId)] }));
+		open();
+
+		expect(within(menu()).getAllByTestId('icon-picker-root')).toHaveLength(2);
+		expect(within(menu()).queryByText('Blessing of Kings')).toBeNull();
+	});
+
+	it('takes the button image from the first active child, not the last, and from the first child while none is on', () => {
 		const buffs = new Buffs();
 		mount(buffs);
 		expect(trigger().hasAttribute('data-active')).toBe(false);
-		expect(backgroundIcon()).toBe('');
+		expect(backgroundIcon()).toBe('kings.jpg');
 
 		act(() => buffs.set('emperor', 1));
 		expect(trigger().hasAttribute('data-active')).toBe(true);
@@ -102,7 +111,7 @@ describe('ConnectedMultiIconPicker', () => {
 		act(() => buffs.set('kings', 0));
 		act(() => buffs.set('emperor', 0));
 		expect(trigger().hasAttribute('data-active')).toBe(false);
-		expect(backgroundIcon()).toBe('');
+		expect(backgroundIcon()).toBe('kings.jpg');
 	});
 
 	it('uses the improved id at state 2', () => {

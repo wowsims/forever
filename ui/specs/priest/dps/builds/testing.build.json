@@ -1,0 +1,146 @@
+{
+  "apiVersion": 2,
+  "raidBuffs": {
+    "arcaneBrilliance": true,
+    "prayerOfSpirit": true,
+    "giftOfTheWild": true,
+    "prayerOfFortitude": true,
+    "moonkinAura": true
+  },
+  "debuffs": {
+    "judgementOfTheCrusader": true,
+    "judgementOfWisdom": true,
+    "curseOfElements": true
+  },
+  "partyBuffs": {
+    "manaSpringTotem": "TristateEffectRegular"
+  },
+  "player": {
+    "apiVersion": 2,
+    "name": "Player",
+    "race": "RaceHuman",
+    "class": "ClassPriest",
+    "equipment": {
+      "items": [
+        {"id":14332,"randomSuffix":12761},
+        {"id":23125},
+        {"id":14112},
+        {"id":272411},
+        {"id":14136,"enchant":8492},
+        {"id":10248,"randomSuffix":12761,"enchant":1901},
+        {"id":18407,"enchant":8492},
+        {"id":10255,"randomSuffix":12761},
+        {"id":10252,"randomSuffix":12761,"enchant":8492},
+        {"id":10247,"randomSuffix":12761,"enchant":8492},
+        {"id":272407},
+        {"id":275973},
+        {"id":272438},
+        {"id":270225},
+        {"id":22688,"enchant":8217},
+        {"id":15942,"randomSuffix":12761},
+        {"id":15283,"randomSuffix":12761}
+      ]
+    },
+    "consumables": {
+      "flaskId": 13512,
+      "foodId": 13931,
+      "conjuredId": 12662,
+      "mhImbueId": 20749,
+      "elixirIds": [
+        9264,
+        13454,
+        250328,
+        250337,
+        250338,
+        250341
+      ],
+      "resourcePotId": 13444,
+      "offensivePotId": 250937
+    },
+    "bonusStats": {
+      "apiVersion": 2,
+      "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    },
+    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
+    "buffs": {
+      "greaterBlessingOfKings": true,
+      "greaterBlessingOfWisdom": true
+    },
+    "dpsPriest": {
+      "options": {
+        "classOptions": {
+          "armor": "InnerFire",
+          "preShadowform": true
+        }
+      }
+    },
+    "talentsString": "00530320103--50052201251302051",
+    "profession1": "Enchanting",
+    "profession2": "Tailoring",
+    "cooldowns": {
+    },
+    "rotation": {
+      "type": "TypeAPL",
+      "prepullActions": [
+        {"action":{"condition":{"variableRef":{"name":"Troll"}},"castSpell":{"spellId":{"spellId":19312,"rank":6}}},"doAtValue":{"const":{"val":"-3s"}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10947,"rank":9}}},"doAtValue":{"const":{"val":"-1.5s"}}}
+      ],
+      "priorityList": [
+        {"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{"spellId":15473}}}}},"castSpell":{"spellId":{"spellId":15473}}}},
+        {"action":{"condition":{"variableRef":{"name":"Dark Sac"}},"castSpell":{"spellId":{"spellId":1277328}}}},
+        {"action":{"condition":{"variableRef":{"name":"Night Elf"}},"castSpell":{"spellId":{"spellId":1259799}}}},
+        {"action":{"condition":{"variableRef":{"name":"Gnome"}},"castSpell":{"spellId":{"spellId":1259823}}}},
+        {"action":{"autocastOtherCooldowns":{}}},
+        {"action":{"condition":{"variableRef":{"name":"SWP Refresh"}},"castSpell":{"spellId":{"spellId":10894}}}},
+        {"action":{"condition":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":19280}}}}},"castSpell":{"spellId":{"spellId":19280}}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10947}}}},
+        {"action":{"castSpell":{"spellId":{"spellId":1309636}}}},
+        {"hide":true,"action":{"castSpell":{"spellId":{"spellId":15286}}}},
+        {"hide":true,"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"spellExpectedDpet":{"spellId":{"spellId":19305,"rank":7}}},"rhs":{"spellExpectedDpet":{"spellId":{"spellId":18807,"rank":6}}}}},{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":10947,"rank":9}}},"rhs":{"const":{"val":"4s"}}}}]}},"castSpell":{"spellId":{"spellId":19305}}}},
+        {"hide":true,"action":{"strictSequence":{"actions":[{"castSpell":{"spellId":{"spellId":14751}}},{"castSpell":{"spellId":{"spellId":19305,"rank":7}}}]}}},
+        {"action":{"strictSequence":{"actions":[{"castSpell":{"spellId":{"spellId":14751}}},{"castSpell":{"spellId":{"spellId":18807,"rank":6}}}]}}},
+        {"action":{"channelSpell":{"spellId":{"spellId":18807},"interruptIf":{"or":{"vals":[{"variableRef":{"name":"MF3"}}]}}}}}
+      ],
+      "groups": [
+        {"name":"Cooldowns","actions":[{"action":{}},{"action":{}},{"action":{}},{"action":{}}]}
+      ],
+      "valueVariables": [
+        {"name":"Dark Sac","value":{"cmp":{"op":"OpLe","lhs":{"currentMana":{}},"rhs":{"const":{"val":"2000"}}}}},
+        {"name":"Inner Focus Rules","value":{"and":{"vals":[{"not":{"val":{"spellIsReady":{"spellId":{"spellId":10947}}}}},{"cmp":{"op":"OpGe","lhs":{"currentTime":{}},"rhs":{"const":{"val":"4.5s"}}}}]}}},
+        {"name":"SWP Refresh","value":{"not":{"val":{"dotIsActive":{"spellId":{"spellId":10894}}}}}},
+        {"name":"Troll","value":{"spellIsKnown":{"spellId":{"spellId":19312,"rank":6}}}},
+        {"name":"Night Elf","value":{"or":{"vals":[{"cmp":{"op":"OpEq","lhs":{"currentTime":{}},"rhs":{"const":{"val":"3s"}}}},{"cmp":{"op":"OpGe","lhs":{"currentTime":{}},"rhs":{"const":{"val":"180s"}}}},{"spellIsKnown":{"spellId":{"spellId":1259799}}}]}}},
+        {"name":"Gnome","value":{"or":{"vals":[{"cmp":{"op":"OpEq","lhs":{"currentTime":{}},"rhs":{"const":{"val":"3s"}}}},{"cmp":{"op":"OpGe","lhs":{"currentTime":{}},"rhs":{"const":{"val":"120s"}}}},{"spellIsKnown":{"spellId":{"spellId":1259823}}}]}}},
+        {"name":"MF3","value":{"cmp":{"op":"OpEq","lhs":{"spellChanneledTicks":{"spellId":{"spellId":18807,"rank":6}}},"rhs":{"const":{"val":"3"}}}}},
+        {"name":"MF2","value":{"cmp":{"op":"OpEq","lhs":{"spellChanneledTicks":{"spellId":{"spellId":18807,"rank":6}}},"rhs":{"const":{"val":"2"}}}}}
+      ]
+    },
+    "reactionTimeMs": 100,
+    "channelClipDelayMs": 100,
+    "distanceFromTarget": 20,
+    "healingModel": {
+    }
+  },
+  "encounter": {
+    "apiVersion": 2,
+    "duration": 180,
+    "durationVariation": 5,
+    "executeProportion20": 0.2,
+    "executeProportion35": 0.35,
+    "targets": [
+      {
+        "id": 31146,
+        "name": "Raid Target",
+        "level": 63,
+        "mobType": "MobTypeMechanical",
+        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],
+        "minBaseDamage": 2601,
+        "damageSpread": 0.5,
+        "swingSpeed": 2,
+        "parryHaste": true,
+        "canCrush": true
+      }
+    ]
+  }
+}

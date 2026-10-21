@@ -1,8 +1,15 @@
 package mage
 
+import (
+	"math"
+
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
+
 func (mage *Mage) registerFireTalents() {
 	// Tier 1
-	mage.registerWakeOfFire()
+	mage.registerImprovedFireBlast()
 	mage.registerIncineration()
 	mage.registerImprovedFireball()
 
@@ -24,289 +31,283 @@ func (mage *Mage) registerFireTalents() {
 
 	// Tier 5
 	mage.registerCriticalMass()
-	// Blast Wave implemented in blast_wave.go; registered unconditionally
-	// from registerSpells (its own Talents.BlastWave guard is inside that file).
+	mage.registerBlastWaveTalent()
 
 	// Tier 6
 	mage.registerFirePower()
 
 	// Tier 7
-	// Combustion implemented in combustion.go; registered unconditionally
-	// from registerSpells (its own Talents.Combustion guard is inside that file).
+	mage.registerCombustionTalent()
 }
 
-// registerWakeOfFire implements Wake of Fire, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (mage *Mage) registerWakeOfFire() {
-	if mage.Talents.WakeOfFire == 0 {
+func (mage *Mage) registerImprovedFireBlast() {
+	if mage.Talents.ImprovedFireBlast == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&mage.Character, spellData.ImprovedFireBlast.Rank(mage.Talents.ImprovedFireBlast))
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerIncineration() {
 	if mage.Talents.Incineration == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.Incineration == 0 {
-	// 	return
-	// }
-	//
-	// mage.AddStaticMod(core.SpellModConfig{
-	// 	ClassMask:  MageSpellFireBlast | MageSpellScorch,
-	// 	FloatValue: spellData.Incineration.ValueAt(mage.Talents.Incineration),
-	// 	Kind:       core.SpellMod_BonusCrit_Percent,
-	// })
+	spelldata.ParseStatic(&mage.Character, spellData.Incineration.Rank(mage.Talents.Incineration))
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerImprovedFireball() {
 	if mage.Talents.ImprovedFireball == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.ImprovedFireball == 0 {
-	// 	return
-	// }
-	//
-	// mage.AddStaticMod(core.SpellModConfig{
-	// 	ClassMask: MageSpellFireball,
-	// 	TimeValue: time.Millisecond * time.Duration(spellData.ImprovedFireball.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CASTING_TIME)).ValueAt(mage.Talents.ImprovedFireball)),
-	// 	Kind:      core.SpellMod_CastTime_Flat,
-	// })
+	spelldata.ParseStatic(&mage.Character, spellData.ImprovedFireball.Rank(mage.Talents.ImprovedFireball))
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
+// A Fire spell's crit burns the target for a share of its damage (11119, 8% per point) over 4 sec.
+// The DoT (412538) stacks to 1, so it rolls: a new crit adds its share to what the current DoT has
+// not ticked yet and restarts it over the full duration.
 func (mage *Mage) registerIgnite() {
 	if mage.Talents.Ignite == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.Ignite == 0 {
-	// 	return
-	// }
-	// igniteDamageMultiplier := float64(mage.Talents.Ignite) * .08
-	//
-	// igniteSpell := mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:         core.ActionID{SpellID: 12846},
-	// 	SpellSchool:      core.SpellSchoolFire,
-	// 	ProcMask:         core.ProcMaskSpellDamage,
-	// 	ClassSpellMask:   MageSpellIgnite,
-	// 	ClassFlags:       spellData.IgniteTriggered.Highest().ClassFlags,
-	// 	Flags:            core.SpellFlagIgnoreModifiers | core.SpellFlagNoSpellMods | core.SpellFlagNoOnCastComplete | core.SpellFlagIgnoreResists | core.SpellFlagProc,
-	// 	DamageMultiplier: 1,
-	// 	ThreatMultiplier: 1,
-	//
-	// 	Dot: core.DotConfig{
-	// 		Aura: core.Aura{
-	// 			Label:     "Ignite",
-	// 			Tag:       "IgniteDot",
-	// 			MaxStacks: math.MaxInt32,
-	// 		},
-	// 		NumberOfTicks: 2,
-	// 		TickLength:    2 * time.Second,
-	// 		OnTick: func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 			dot.Spell.CalcAndDealPeriodicDamage(sim, target, dot.SnapshotBaseDamage, dot.OutcomeTick)
-	// 		},
-	// 	},
-	//
-	// 	ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		spell.Dot(target).Apply(sim)
-	// 	},
-	// })
-	//
-	// refreshIgnite := func(sim *core.Simulation, target *core.Unit, damagePerTick float64) {
-	// 	dot := igniteSpell.Dot(target)
-	// 	igniteSpell.Cast(sim, target)
-	// 	dot.SnapshotBaseDamage = damagePerTick
-	// 	dot.Aura.SetStacks(sim, int32(dot.SnapshotBaseDamage))
-	// }
-	//
-	// procTrigger := core.ProcTrigger{
-	// 	Name:               "Ignite Talent",
-	// 	CanProcFromProcs:   true, // 11119, 11120, 12846-12848 carry the bit.
-	// 	Callback:           core.CallbackOnSpellHitDealt,
-	// 	ProcMask:           core.ProcMaskSpellDamage,
-	// 	ClassSpellMask:     FireSpellIgnitable,
-	// 	Outcome:            core.OutcomeCrit,
-	// 	TriggerImmediately: true,
-	// 	Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		target := result.Target
-	// 		dot := igniteSpell.Dot(target)
-	// 		outstandingDamage := dot.OutstandingDmg()
-	// 		if dot.RemainingTicks() <= 0 {
-	// 			outstandingDamage = 0
-	// 		}
-	//
-	// 		newDamage := result.Damage * igniteDamageMultiplier
-	// 		totalDamage := outstandingDamage + newDamage
-	// 		damagePerTick := totalDamage / float64(dot.BaseTickCount)
-	//
-	// 		refreshIgnite(sim, target, damagePerTick)
-	// 	},
-	// }
-	// igniteSpell.Unit.MakeProcTriggerAura(procTrigger)
-	// mage.Ignite = igniteSpell
-	//
-	// // This is needed because we want to listen for the spell "cast" event that refreshes the Dot
-	// mage.Ignite.Flags ^= core.SpellFlagNoOnCastComplete
+	igniteFraction := spellData.Ignite.FractionAt(mage.Talents.Ignite)
+	igniteDot := spellData.IgniteTriggered.Highest()
+
+	// The damage is already the crit's, after every modifier and resist, so the ticks take none again.
+	config := spelldata.SpellConfig(&mage.Unit, igniteDot, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(),
+		spelldata.Flags(core.SpellFlagIgnoreModifiers|core.SpellFlagNoSpellMods|core.SpellFlagIgnoreResists|core.SpellFlagProc))
+	config.ClassSpellMask = MageSpellIgnite
+
+	config.Dot = spelldata.DotConfig(igniteDot, igniteDot.EffectN(1))
+	// The stacks show the damage per tick, which an APL can read; the row's 1 is the rolling cap.
+	config.Dot.Aura.MaxStacks = math.MaxInt32
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, dot.SnapshotBaseDamage, dot.OutcomeTick)
+	}
+
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.Dot(target).Apply(sim)
+	}
+
+	mage.Ignite = mage.RegisterSpell(config)
+
+	trigger := spelldata.ProcTrigger(&mage.Character, spellData.Ignite.Rank(mage.Talents.Ignite),
+		func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			target := result.Target
+			dot := mage.Ignite.Dot(target)
+			totalDamage := dot.OutstandingDmg() + result.Damage*igniteFraction
+
+			mage.Ignite.Cast(sim, target)
+			dot.SnapshotBaseDamage = totalDamage / float64(dot.BaseTickCount)
+			dot.Aura.SetStacks(sim, int32(dot.SnapshotBaseDamage))
+		})
+	trigger.Name = "Ignite - Trigger"
+	trigger.TriggerImmediately = true
+	// "Your critical strikes from Fire damage spells": the school, so Frostfire Bolt counts.
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spell.SpellSchool.Matches(core.SpellSchoolFire)
+	}
+
+	mage.MakeProcTriggerAura(trigger)
 }
 
-// registerFlameThrowing implements Flame Throwing, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
 func (mage *Mage) registerFlameThrowing() {
 	if mage.Talents.FlameThrowing == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&mage.Character, spellData.FlameThrowing.Rank(mage.Talents.FlameThrowing))
 }
 
-// registerImpact implements Impact, new in Forever.
+// "Gives your Fire spells a 10% chance to stun the target for 2 sec."
 //
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// Not modelled: the proc (12355) is an A_MOD_STUN, which a boss the sim fights is immune to, the same
+// reason Frostbite's freeze is not modelled.
 func (mage *Mage) registerImpact() {
 	if mage.Talents.Impact == 0 {
 		return
 	}
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerBurningSoul() {
 	if mage.Talents.BurningSoul == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.BurningSoul == 0 {
-	// 	return
-	// }
-	//
-	// mage.AddStaticMod(core.SpellModConfig{
-	// 	School:     core.SpellSchoolFire,
-	// 	FloatValue: -.05 * float64(mage.Talents.BurningSoul),
-	// 	Kind:       core.SpellMod_ThreatMultiplier_Pct,
-	// })
+	// Effect 1 is pushback, which the sim does not model. Effect 2 is the threat, on misc 4, the Fire
+	// school.
+	spelldata.ParseStatic(&mage.Character, spellData.BurningSoul.Rank(mage.Talents.BurningSoul), spelldata.Effects(2))
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerImprovedFlamestrike() {
 	if mage.Talents.ImprovedFlamestrike == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.ImprovedFlamestrike == 0 {
-	// 	return
-	// }
-	//
-	// mage.AddStaticMod(core.SpellModConfig{
-	// 	ClassMask:  MageSpellFlamestrike,
-	// 	FloatValue: spellData.ImprovedFlamestrike.ValueAt(mage.Talents.ImprovedFlamestrike),
-	// 	Kind:       core.SpellMod_BonusCrit_Percent,
-	// })
+	spelldata.ParseStatic(&mage.Character, spellData.ImprovedFlamestrike.Rank(mage.Talents.ImprovedFlamestrike))
 }
 
-// registerPyroblastTalent implements the Forever talent gate for Pyroblast.
-//
-// TODO: Forever makes Pyroblast a talent; the baseline registration in
-// pyroblast.go (registerPyroblastSpell, called unconditionally from
-// registerSpells) is untouched and should be gated on this field.
 func (mage *Mage) registerPyroblastTalent() {
 	if !mage.Talents.Pyroblast {
 		return
 	}
+
+	mage.registerPyroblastSpell()
 }
 
-// registerImprovedFireWard implements Improved Fire Ward, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+func (mage *Mage) registerBlastWaveTalent() {
+	if !mage.Talents.BlastWave {
+		return
+	}
+
+	mage.registerBlastWaveSpell()
+}
+
+func (mage *Mage) registerCombustionTalent() {
+	if !mage.Talents.Combustion {
+		return
+	}
+
+	mage.registerCombustionSpell()
+}
+
+// Improved Fire Ward, a chance for Fire Ward to reflect Fire spells (effect 1, a flat modifier on
+// Fire Ward's effect 2). The reflect needs an enemy casting Fire at the mage, so it is not modelled.
 func (mage *Mage) registerImprovedFireWard() {
 	if mage.Talents.ImprovedFireWard == 0 {
 		return
 	}
 }
 
-// registerHeatingUp implements Heating Up, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
 func (mage *Mage) registerHeatingUp() {
 	if !mage.Talents.HeatingUp {
 		return
 	}
+
+	heatingUpBuff := spellData.HeatingUpTriggered.Highest()
+
+	config := spelldata.AuraConfig(heatingUpBuff)
+
+	// A Pyroblast consumes every stack, checked in game, unless Presence of Mind made it instant.
+	// Presence of Mind may drop before or after this runs on the same cast, so the time it has been
+	// down tells both apart.
+	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if spell.Matches(MageSpellPyroblast) && mage.PresenceOfMindAura.TimeInactive(sim) != 0 {
+			aura.Deactivate(sim)
+		}
+	}
+
+	heatingUpAura := mage.RegisterAura(config)
+
+	spelldata.ParseEffects(&mage.Character, heatingUpAura, heatingUpBuff, spelldata.Effects(1))
+
+	addStack := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		heatingUpAura.Activate(sim)
+		heatingUpAura.AddStack(sim)
+	}
+
+	trigger := spelldata.ProcTrigger(&mage.Character, spellData.HeatingUp.Rank(1), addStack)
+	trigger.Name = "Heating Up - Trigger"
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spellData.Fireball.Contains(spell) || spellData.FrostfireBolt.Contains(spell) ||
+			spellData.FireBlast.Contains(spell) || spellData.Scorch.Contains(spell)
+	}
+
+	mage.MakeProcTriggerAura(trigger)
+
+	// "Fire Blast grants an additional stack every time it deals damage", crit or not, so a crit
+	// grants two.
+	fireBlastTrigger := trigger
+	fireBlastTrigger.Name = "Heating Up - Fire Blast Trigger"
+	fireBlastTrigger.Outcome = core.OutcomeLanded
+	fireBlastTrigger.RequireDamageDealt = true
+	fireBlastTrigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spellData.FireBlast.Contains(spell)
+	}
+
+	mage.MakeProcTriggerAura(fireBlastTrigger)
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerMasterOfElements() {
 	if mage.Talents.MasterOfElements == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.MasterOfElements == 0 {
-	// 	return
-	// }
-	//
-	// refundCoeff := spellData.MasterOfElements.FractionAt(mage.Talents.MasterOfElements)
-	// manaMetrics := mage.NewManaMetrics(core.ActionID{SpellID: 29076})
-	//
-	// mage.MakeProcTriggerAura(core.ProcTrigger{
-	// 	Name:           "Master of Elements",
-	// 	Duration:       core.NeverExpires,
-	// 	ClassSpellMask: MageSpellFire | MageSpellFrost,
-	// 	Outcome:        core.OutcomeCrit,
-	// 	Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-	// 		if spell.CurCast.Cost == 0 {
-	// 			return
-	// 		}
-	// 		mage.AddMana(sim, spell.DefaultCast.Cost*refundCoeff, manaMetrics)
-	// 	},
-	// })
+	refundFraction := spellData.MasterOfElements.FractionAt(mage.Talents.MasterOfElements)
+	manaMetrics := mage.NewManaMetrics(core.ActionID{SpellID: 29077})
+
+	trigger := spelldata.ProcTrigger(&mage.Character,
+		spellData.MasterOfElements.Rank(mage.Talents.MasterOfElements),
+		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			mage.AddMana(sim, float64(spell.Cost.BaseCost)*refundFraction, manaMetrics)
+		})
+	trigger.Name = "Master of Elements - Trigger"
+
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		if !spell.SpellSchool.Matches(core.SpellSchoolFire | core.SpellSchoolFrost) {
+			return false
+		}
+		return spell.Cost != nil && spell.Cost.BaseCost > 0
+	}
+
+	mage.MakeProcTriggerAura(trigger)
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
 func (mage *Mage) registerCriticalMass() {
 	if mage.Talents.CriticalMass == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.CriticalMass == 0 {
-	// 	return
-	// }
-	//
-	// mage.AddStaticMod(core.SpellModConfig{
-	// 	SpellFlag:  core.SpellFlag(core.SpellSchoolFire),
-	// 	FloatValue: spellData.CriticalMass.ValueAt(mage.Talents.CriticalMass),
-	// 	Kind:       core.SpellMod_BonusCrit_Percent,
-	// })
+	spelldata.ParseStatic(&mage.Character, spellData.CriticalMass.Rank(mage.Talents.CriticalMass))
 }
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
+// The most Fire effects Fire Power counts, from its tooltip's "up to a maximum increase of ${$s1*4}%".
+const firePowerMaxEffects = 4
+
+// "Increases the damage done by your Fire spells by 1/2/3% per your Fire effects on the target, up to
+// a maximum increase of 12%. Effects which mix multiple schools of magic do not qualify."
+//
+// Both effects are dummies, so the count is by hand: Ignite, Improved Scorch and the Fireball and
+// Pyroblast DoTs, each counted once. Impact's stun is not modelled, so it never counts, and the
+// Frostfire Bolt DoT mixes schools; Frostfire Bolt still takes the bonus as a Fire spell. Ignite
+// ignores every modifier, so it takes none.
 func (mage *Mage) registerFirePower() {
 	if mage.Talents.FirePower == 0 {
 		return
 	}
 
-	// The TBC implementation, kept for the port:
-	// if mage.Talents.FirePower == 0 {
-	// 	return
-	// }
-	//
-	// mage.AddStaticMod(core.SpellModConfig{
-	// 	School:     core.SpellSchoolFire,
-	// 	FloatValue: spellData.FirePower.Effect(dbcenums.A_ADD_PCT_MODIFIER, int32(dbcenums.SPELLMOD_DAMAGE)).FractionAt(mage.Talents.FirePower),
-	// 	Kind:       core.SpellMod_DamageDone_Flat,
-	// })
-}
+	perEffect := spellData.FirePower.Rank(mage.Talents.FirePower).EffectN(1).Percent()
 
-// ------ FROST TALENTS ------
+	var fireEffects []*core.Spell
+	mage.Env.RegisterPreFinalizeEffect(func() {
+		for _, spell := range mage.Spellbook {
+			if spell.Matches(MageSpellIgnite | MageSpellFireballDot | MageSpellPyroblastDot) {
+				fireEffects = append(fireEffects, spell)
+			}
+		}
+	})
+
+	mage.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+		return core.MakePermanent(target.RegisterAura(core.Aura{
+			Label: "Fire Power - " + mage.Label,
+		})).AttachDDBC(DDBC_FirePower, DDBC_Total, &mage.AttackTables, func(_ *core.Simulation, spell *core.Spell, _ *core.AttackTable) float64 {
+			if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) {
+				return 1
+			}
+
+			count := 0
+			if mage.ImprovedScorchAuras.Get(target).IsActive() {
+				count++
+			}
+			for _, effect := range fireEffects {
+				if effect.Dot(target).IsActive() {
+					count++
+				}
+			}
+
+			return 1 + perEffect*float64(min(count, firePowerMaxEffects))
+		})
+	})
+}

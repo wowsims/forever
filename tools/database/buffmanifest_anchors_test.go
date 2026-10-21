@@ -36,6 +36,12 @@ func openBuffTestDB(t *testing.T) *DBHelper {
 	return helper
 }
 
+// The rows of a class family whose spell no skill line grants, which are pinned by hand, each with
+// what grants it instead.
+var unanchoredBuffs = map[string]string{
+	"dark_inspiration": "the shadow talent 1326159 triggers it, and the trait tree's node grants the talent",
+}
+
 func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	db := openBuffTestDB(t).db
 
@@ -44,9 +50,17 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 
+	fields := map[string]bool{}
 	for _, row := range resolveCommittedBuffs(t) {
+		fields[row.Field] = true
 		// A row without a castable family - an item's aura, an elixir's debuff - is pinned by hand.
 		if row.Name == "" {
+			continue
+		}
+		if _, unanchored := unanchoredBuffs[row.Field]; unanchored {
+			if runes[row.SpellID] {
+				t.Errorf("%s: spell %d is granted by a rune, which is a class rune and not a raid buff", row.Field, row.SpellID)
+			}
 			continue
 		}
 
@@ -78,6 +92,11 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		}
 		if runes[aura] {
 			t.Errorf("%s: spell %d is granted by a rune, which is a class rune and not a raid buff", row.Field, aura)
+		}
+	}
+	for field := range unanchoredBuffs {
+		if !fields[field] {
+			t.Errorf("unanchoredBuffs names %q, which is no manifest field", field)
 		}
 	}
 }

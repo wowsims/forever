@@ -417,6 +417,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	// produce a negative diff.
 	wa.pendingSwingDelay = max(0, sim.CurrentTime-wa.naturalReadyAt)
 	wa.naturalReadyAt = wa.swingAt
+	wa.logSwingDelay(sim, attackSpell, isRanged)
 
 	attackSpell.Cast(sim, wa.unit.CurrentTarget)
 
@@ -425,6 +426,22 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	}
 
 	return wa.swingAt
+}
+
+// logSwingDelay logs how late a player's swing went off against an uncontested rotation, for the
+// timeline's delay band. It names the spell the swing casts, so a queued Heroic Strike or Raptor
+// Strike carries the delay too. Under 1ms is rounding and stays silent.
+func (wa *WeaponAttack) logSwingDelay(sim *Simulation, spell *Spell, isRanged bool) {
+	if sim.Log == nil || wa.unit.Type != PlayerUnit || wa.pendingSwingDelay <= time.Millisecond {
+		return
+	}
+	readyAt := sim.CurrentTime - wa.pendingSwingDelay
+	if isRanged {
+		readyAt -= RangedSwingWindup // when the windup could have started
+	}
+	if readyAt > 0 {
+		wa.unit.Log(sim, "%s delayed by %s, was ready at %s", spell.ActionID, wa.pendingSwingDelay, readyAt)
+	}
 }
 
 func (wa *WeaponAttack) requirementFails(sim *Simulation) bool {
@@ -574,15 +591,6 @@ func (unit *Unit) EnableAutoAttacks(agent Agent, options AutoAttackOptions) {
 		BonusCoefficient:         options.Ranged.GetBonusCoefficient(),
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			// Emit an "auto delayed" log line whenever the ranged auto fired
-			// later than it would have in an uncontested rotation. Below 1ms
-			// is treated as rounding noise so the common case stays silent.
-			delay := unit.AutoAttacks.RangedPendingSwingDelay()
-			readyAt := sim.CurrentTime - RangedSwingWindup - delay // when the windup could have started
-			if sim.Log != nil && delay > time.Millisecond && readyAt > 0 {
-				spell.Unit.Log(sim, "%s delayed by %s, was ready at %s", spell.ActionID, delay, readyAt)
-			}
-
 			baseDamage := spell.Unit.RangedWeaponDamage(sim, spell.RangedAttackPower(target))
 
 			result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedHitAndCrit)
@@ -654,6 +662,7 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 			aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
 			aa.oh.previousSwing = -aa.OffhandSwingSpeed()
 			aa.oh.swingAt = DurationFromSeconds(aa.oh.SwingSpeed / 2)
+			aa.oh.naturalReadyAt = aa.oh.swingAt
 		}
 
 		// Each enemy opens at its own point in its swing timer, so a pack does not swing in volleys.
@@ -665,6 +674,7 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 			if aa.IsDualWielding {
 				aa.oh.previousSwing += offset
 				aa.oh.swingAt += offset
+				aa.oh.naturalReadyAt += offset
 			}
 		}
 	}
@@ -707,6 +717,7 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 			}
 			if aa.oh.swingAt == NeverExpires {
 				aa.oh.swingAt = DurationFromSeconds(aa.oh.curSwingSpeed / 2)
+				aa.oh.naturalReadyAt = aa.oh.swingAt
 			}
 		}
 
@@ -733,7 +744,7 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 func (wa *WeaponAttack) IsInRange() bool {
 	maxRange := wa.MaxRange
 	if wa.spell != nil && wa.spell.MaxRange != 0 {
-		maxRange = wa.spell.MaxRange * wa.spell.RangeMultiplier
+		maxRange = wa.spell.EffectiveMaxRange()
 	}
 	return (wa.MinRange == 0. || wa.MinRange <= wa.unit.DistanceFromTarget) && (maxRange == 0. || maxRange >= wa.unit.DistanceFromTarget)
 }
@@ -776,7 +787,11 @@ func (aa *AutoAttacks) EnableMeleeSwing(sim *Simulation) {
 		return
 	}
 
-	aa.mh.swingAt = max(aa.mh.swingAt, sim.CurrentTime, 0)
+	earliest := sim.CurrentTime
+	if !aa.mh.unit.engagedBeforePull {
+		earliest = max(earliest, 0)
+	}
+	aa.mh.swingAt = max(aa.mh.swingAt, earliest)
 	if aa.mh.IsInRange() && !aa.mh.enabled {
 		aa.mh.enabled = true
 		aa.mh.addWeaponAttack(sim, aa.mh.unit.TotalMeleeHasteMultiplier())
@@ -812,7 +827,10 @@ func (aa *AutoAttacks) EnableRangedSwing(sim *Simulation) {
 	}
 
 	aa.ranged.swingAt = max(aa.ranged.swingAt, sim.CurrentTime, 0)
-	aa.ranged.naturalReadyAt = aa.ranged.swingAt
+	// Keep the old natural time on a return to ranged, so the timeline shows what the weave cost.
+	if aa.ranged.naturalReadyAt == 0 {
+		aa.ranged.naturalReadyAt = aa.ranged.swingAt
+	}
 	if aa.ranged.IsInRange() {
 		aa.ranged.enabled = true
 		aa.ranged.addWeaponAttack(sim, aa.ranged.unit.TotalRangedHasteMultiplier())

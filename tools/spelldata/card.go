@@ -114,16 +114,18 @@ func (c card) writeMarkdown(md *strings.Builder) {
 		}
 	}
 
-	effectTable(md, c.Effects, false)
+	effectParagraphs(md, c.Effects, false)
 	fmt.Fprintf(md, "\n[Wowhead](%s)\n", c.Wowhead)
 }
 
-// Each effect's wording over its game files row, which needs the hover to render HTML for the break.
-func effectTable(md *strings.Builder, effects []Line, onlyRead bool) {
+// Each effect's wording over its game files row, a paragraph each: a table cell holds no line break
+// short of HTML, which not every editor renders, and a long row then scrolls the hover sideways. The
+// row's fields are one inline code span each, so it wraps between fields.
+func effectParagraphs(md *strings.Builder, effects []Line, onlyRead bool) {
 	if len(effects) == 0 {
 		return
 	}
-	md.WriteString("\n---\n| # | effect |\n|--:|:--|\n")
+	md.WriteString("\n---\n")
 	for i, effect := range effects {
 		if onlyRead && !effect.Read {
 			continue
@@ -132,6 +134,10 @@ func effectTable(md *strings.Builder, effects []Line, onlyRead bool) {
 		if effect.Read {
 			marker += " ▶"
 		}
-		fmt.Fprintf(md, "| %s | %s<br>%s |\n", marker, cell(effect.Human), codeCell(effect.Literal))
+		fields := strings.Fields(effect.Literal)
+		for i, field := range fields {
+			fields[i] = "`" + field + "`"
+		}
+		fmt.Fprintf(md, "\n**%s** · %s  \n%s\n", marker, effect.Human, strings.Join(fields, " "))
 	}
 }

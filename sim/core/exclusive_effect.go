@@ -30,8 +30,9 @@ func ExclusiveStatCategory(category string, key string, multiplicative bool) str
 // Within each ExclusiveCategory, the ExclusiveEffect with the highest Priority
 // AND isEnabled == true is the one whose effect is applied.
 type ExclusiveEffect struct {
-	Aura     *Aura
-	Priority float64
+	Aura       *Aura
+	Priority   float64
+	YieldsTies bool // The effect takes the category from an active effect only by outbidding it, never on an equal bid.
 
 	OnGain   func(*ExclusiveEffect, *Simulation)
 	OnExpire func(*ExclusiveEffect, *Simulation)
@@ -157,7 +158,7 @@ func (ee *ExclusiveEffect) Activate(sim *Simulation) bool {
 
 	if ee.Category.activeEffect == nil {
 		ee.Category.SetActive(sim, ee)
-	} else if ee.Priority > ee.Category.activeEffect.Priority || (ee.Priority == ee.Category.activeEffect.Priority && !ee.Category.activeEffect.keepsTie(sim, ee)) {
+	} else if ee.Priority > ee.Category.activeEffect.Priority || (ee.Priority == ee.Category.activeEffect.Priority && !ee.YieldsTies && !ee.Category.activeEffect.keepsTie(sim, ee)) {
 		if ee.Category.SingleAura && ee.Category.activeEffect != ee {
 			ee.Category.activeEffect.Aura.Deactivate(sim)
 		}

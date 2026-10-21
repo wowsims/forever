@@ -7,6 +7,7 @@ import {
 	makeConsumableInput,
 	makeIdListInput,
 } from '@features/settings/model/consumables';
+import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { shownStatsReader, type StatFilterScope } from '@features/stat-filters/model/stat_filters';
 import { ConsumableType, ItemSlot, PotionClass } from '@generated/proto/common';
 import type { Consumable } from '@generated/proto/db';
@@ -32,8 +33,12 @@ export interface ConsumeConfigs {
 	// holding a scroll and no elixir, and the rest.
 	elixirs: Array<ConsumeConfig>;
 	scrolls: Array<ConsumeConfig>;
-	groups: Array<ConsumeConfig>;
+	// Those holding a food, picked beside the food (Rum), and those holding none (Zanza).
+	foodGroups: Array<ConsumeConfig>;
+	miscGroups: Array<ConsumeConfig>;
 	food: ConsumeConfig;
+	// A food that stacks with the food pick, offered to the specs that hit in melee.
+	dragonbreathChili?: ConsumeToggle;
 	// A world event's consumables: one pick per exclusive group holding one, and the rest each on its own.
 	holidayGroups: Array<ConsumeConfig>;
 	holiday: Array<ConsumeToggle>;
@@ -48,10 +53,15 @@ export interface ConsumeConfigs {
 	swapOhImbue: ConsumeConfig;
 	swapMhWeaponImbue: ConsumeConfig;
 	swapOhWeaponImbue: ConsumeConfig;
-	miscellaneous: Array<ConsumeToggle>;
+	// The rest, split as the generator classes them: defensive where it is only that, offensive otherwise.
+	miscOffensive: Array<ConsumeToggle>;
+	miscDefensive: Array<ConsumeToggle>;
 }
 
-type GroupRow = 'elixirs' | 'scrolls' | 'holiday' | 'groups';
+const defensiveOnly = (consumable: Consumable): boolean =>
+	consumable.potionClasses.includes(PotionClass.PotionClassDefensive) && !consumable.potionClasses.includes(PotionClass.PotionClassOffensive);
+
+type GroupRow = 'elixirs' | 'scrolls' | 'holiday' | 'food' | 'miscellaneous';
 
 // The shown stats of the consumables slot, read from the store's filters on each call; the same object
 // comes back while the slot holds the same stats, so relevance stays cached.
@@ -88,9 +98,11 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		else map.set(key, [consumable]);
 	};
 	const holiday: Array<Consumable> = [];
+	let chili: Consumable | undefined;
 	for (const consumable of all) {
 		if (consumable.groupKey) add(byGroup, consumable.groupKey, consumable);
 		else if (consumable.holiday) holiday.push(consumable);
+		else if (consumable.id === DragonbreathChili.id) chili = consumable;
 		else add(bySlot, consumableSlot(consumable), consumable);
 	}
 	const inSlot = (slot: ConsumableSlot) => bySlot.get(slot) ?? [];
@@ -106,7 +118,9 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 				? 'scrolls'
 				: group.some(consumable => consumable.holiday)
 					? 'holiday'
-					: 'groups';
+					: holds(group, ConsumableType.ConsumableTypeFood)
+						? 'food'
+						: 'miscellaneous';
 	const groupInputs = (row: GroupRow) =>
 		groups.filter(group => rowOf(group) === row).map(group => makeConsumableGroupInput(group, relevance, group[0].groupName));
 	const explosives = inSlot(ConsumableSlot.Explosive);
@@ -116,6 +130,7 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	const fitsSwapWeaponIn = fitsHandOf((p, slot) => p.itemSwapSettings.getItem(slot));
 	const swapOn = (p: Player<any>) => p.itemSwapSettings.getEnableItemSwap();
 	// The potion already picked stays offered, so a pick outside the class can still be seen and cleared.
+	const hitsInMelee = (_: Consumable, p: Player<any>) => p.getPlayerSpec().isMeleeDpsSpec || p.getPlayerSpec().isTankSpec;
 	const ofPotionClass =
 		(potionClass: PotionClass, field: 'offensivePotId' | 'defensivePotId' | 'resourcePotId') => (consumable: Consumable, p: Player<any>) =>
 			consumable.potionClasses.includes(potionClass) || p.getConsumes()[field] === consumable.id;
@@ -140,8 +155,11 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		flask: input(ConsumableSlot.Flask, { consumesFieldName: 'flaskId' }),
 		elixirs: groupInputs('elixirs'),
 		scrolls: groupInputs('scrolls'),
-		groups: groupInputs('groups'),
+		foodGroups: groupInputs('food'),
+		miscGroups: groupInputs('miscellaneous'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),
+		// Its worth is damage, which no stat the filter shows speaks to.
+		dragonbreathChili: chili && makeIdListInput(chili, { relevant: () => true }, hitsInMelee),
 		holidayGroups: groupInputs('holiday'),
 		holiday: holiday.map(consumable => makeIdListInput(consumable, relevance)),
 		explosive: input(
@@ -194,6 +212,11 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 			includeIf: fitsSwapWeaponIn(ItemSlot.ItemSlotOffHand),
 			showWhen: swapOn,
 		}),
-		miscellaneous: inSlot(ConsumableSlot.Extra).map(consumable => makeIdListInput(consumable, relevance)),
+		miscOffensive: inSlot(ConsumableSlot.Extra)
+			.filter(consumable => !defensiveOnly(consumable))
+			.map(consumable => makeIdListInput(consumable, relevance)),
+		miscDefensive: inSlot(ConsumableSlot.Extra)
+			.filter(defensiveOnly)
+			.map(consumable => makeIdListInput(consumable, relevance)),
 	};
 };

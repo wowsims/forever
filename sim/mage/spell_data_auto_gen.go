@@ -12,9 +12,10 @@ import (
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Arcane Concentration: effect 1 of spell 11213 has no rank curve and is held at its base points
 //   Fingers of Frost: effect 1 of spell 400647 has no rank curve and is held at its base points
+//   Fire Power: effect 1 of spell 11124 has no rank curve and is held at its base points
 //   Heating Up: effect 0 of spell 400624 has no rank curve and is held at its base points
-//   Missile Barrage: effect 0, 1 of spell 400588 has no rank curve and is held at its base points
-//   Piercing Ice: effect 1 of spell 11151 has no rank curve and is held at its base points
+//   Missile Barrage: effect 1 of spell 400588 has no rank curve and is held at its base points
+//   Winter's Chill: effect 2 of spell 11180 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
 	AmplifyMagic                 spelldata.Ladder
@@ -37,6 +38,7 @@ type generatedSpellData struct {
 	ArcaneResilience             spelldata.Ladder
 	ArcaneShielding              spelldata.Ladder
 	ArcaneSubtlety               spelldata.Ladder
+	ArcaneWrath                  spelldata.Ladder
 	ArcticReach                  spelldata.Ladder
 	BlastWave                    spelldata.Ladder
 	Blink                        spelldata.Ladder
@@ -49,6 +51,7 @@ type generatedSpellData struct {
 	Combustion                   spelldata.Ladder
 	CombustionTriggered          spelldata.Ladder
 	ConeOfCold                   spelldata.Ladder
+	ConeOfColdTriggered          spelldata.Ladder
 	ConjureFood                  spelldata.Ladder
 	ConjureManaAgate             spelldata.Ladder
 	ConjureManaAgateTriggered    spelldata.Ladder
@@ -78,9 +81,11 @@ type generatedSpellData struct {
 	FlamestrikeTriggered         spelldata.Ladder
 	FrostArmor                   spelldata.Ladder
 	FrostArmorTriggered          spelldata.Ladder
+	FrostBlast                   spelldata.Ladder
 	FrostChanneling              spelldata.Ladder
 	FrostNova                    spelldata.Ladder
 	FrostWard                    spelldata.Ladder
+	FrostWardTriggered           spelldata.Ladder
 	FrostWarding                 spelldata.Ladder
 	Frostbite                    spelldata.Ladder
 	FrostbiteTriggered           spelldata.Ladder
@@ -91,6 +96,7 @@ type generatedSpellData struct {
 	IceArmor                     spelldata.Ladder
 	IceArmorTriggered            spelldata.Ladder
 	IceBarrier                   spelldata.Ladder
+	IceBarrierTriggered          spelldata.Ladder
 	IceBlock                     spelldata.Ladder
 	IceLance                     spelldata.Ladder
 	IceShards                    spelldata.Ladder
@@ -103,6 +109,7 @@ type generatedSpellData struct {
 	ImprovedChanneling           spelldata.Ladder
 	ImprovedConeOfCold           spelldata.Ladder
 	ImprovedCounterspell         spelldata.Ladder
+	ImprovedFireBlast            spelldata.Ladder
 	ImprovedFireWard             spelldata.Ladder
 	ImprovedFireball             spelldata.Ladder
 	ImprovedFlamestrike          spelldata.Ladder
@@ -118,7 +125,6 @@ type generatedSpellData struct {
 	MissileBarrage               spelldata.Ladder
 	MissileBarrageTriggered      spelldata.Ladder
 	Permafrost                   spelldata.Ladder
-	PiercingIce                  spelldata.Ladder
 	Polymorph                    spelldata.Ladder
 	PolymorphCow                 spelldata.Ladder
 	PortalDarnassus              spelldata.Ladder
@@ -140,8 +146,6 @@ type generatedSpellData struct {
 	TeleportStormwind            spelldata.Ladder
 	TeleportThunderBluff         spelldata.Ladder
 	TeleportUndercity            spelldata.Ladder
-	WakeOfFire                   spelldata.Ladder
-	WakeOfFireTriggered          spelldata.Ladder
 	WandSpecialization           spelldata.Ladder
 	WintersChill                 spelldata.Ladder
 	WintersChillTriggered        spelldata.Ladder
@@ -168,6 +172,7 @@ var spellData = generatedSpellData{
 	ArcaneResilience:             spelldata.Talent(28574, 2),
 	ArcaneShielding:              spelldata.Talent(11252, 2),
 	ArcaneSubtlety:               spelldata.Talent(11210, 2),
+	ArcaneWrath:                  spelldata.Ranked(1326079, 1326080, 1326081, 1326082),
 	ArcticReach:                  spelldata.Talent(16757, 2),
 	BlastWave:                    spelldata.Ranked(11113, 13018, 13019, 13020, 13021),
 	Blink:                        spelldata.Ranked(1953),
@@ -180,6 +185,7 @@ var spellData = generatedSpellData{
 	Combustion:                   spelldata.Ranked(11129),
 	CombustionTriggered:          spelldata.Ranked(28682),
 	ConeOfCold:                   spelldata.Ranked(120, 8492, 10159, 10160, 10161),
+	ConeOfColdTriggered:          spelldata.Ranked(10161),
 	ConjureFood:                  spelldata.Ranked(587, 597, 990, 6129, 10144, 10145, 28612),
 	ConjureManaAgate:             spelldata.Ranked(759),
 	ConjureManaAgateTriggered:    spelldata.Ranked(5405),
@@ -191,16 +197,16 @@ var spellData = generatedSpellData{
 	ConjureManaRubyTriggered:     spelldata.Ranked(10058),
 	ConjureWater:                 spelldata.Ranked(5504, 5505, 5506, 6127, 10138, 10139, 10140, 468766),
 	Counterspell:                 spelldata.Ranked(2139),
-	CriticalMass:                 spelldata.Talent(11115, 3),
+	CriticalMass:                 spelldata.Talent(11115, 5),
 	DampenMagic:                  spelldata.Ranked(604, 8450, 8451, 10173, 10174),
-	ElementalPrecision:           spelldata.Talent(29438, 5),
+	ElementalPrecision:           spelldata.Talent(29438, 3),
 	Evocation:                    spelldata.Ranked(12051),
 	ExpandedIntellect:            spelldata.Ranked(436949),
 	Felfire:                      spelldata.Ranked(24530),
 	FingersOfFrost:               spelldata.Talent(400647, 2),
 	FingersOfFrostTriggered:      spelldata.Ranked(400669),
 	FireBlast:                    spelldata.Ranked(2136, 2137, 2138, 8412, 8413, 10197, 10199),
-	FirePower:                    spelldata.Talent(11124, 5),
+	FirePower:                    spelldata.Talent(11124, 3),
 	FireVulnerability:            spelldata.Ranked(22959),
 	FireWard:                     spelldata.Ranked(543, 8457, 8458, 10223, 10225),
 	Fireball:                     spelldata.Ranked(133, 143, 145, 3140, 8400, 8401, 8402, 10148, 10149, 10150, 10151, 25306),
@@ -209,9 +215,11 @@ var spellData = generatedSpellData{
 	FlamestrikeTriggered:         spelldata.Ranked(1279983, 1279985, 1279987, 1279988, 1279989, 1279990),
 	FrostArmor:                   spelldata.Ranked(168, 7300, 7301),
 	FrostArmorTriggered:          spelldata.Ranked(6136),
+	FrostBlast:                   spelldata.Ranked(1326053, 1326054, 1326055),
 	FrostChanneling:              spelldata.Talent(11160, 3),
 	FrostNova:                    spelldata.Ranked(122, 865, 6131, 10230),
 	FrostWard:                    spelldata.Ranked(6143, 8461, 8462, 10177, 28609),
+	FrostWardTriggered:           spelldata.Ranked(11189),
 	FrostWarding:                 spelldata.Talent(11189, 2),
 	Frostbite:                    spelldata.Talent(11071, 3),
 	FrostbiteTriggered:           spelldata.Ranked(12494),
@@ -222,6 +230,7 @@ var spellData = generatedSpellData{
 	IceArmor:                     spelldata.Ranked(7302, 7320, 10219, 10220),
 	IceArmorTriggered:            spelldata.Ranked(7321),
 	IceBarrier:                   spelldata.Ranked(11426, 13031, 13032, 13033),
+	IceBarrierTriggered:          spelldata.Ranked(11189, 1326891),
 	IceBlock:                     spelldata.Ranked(11958),
 	IceLance:                     spelldata.Ranked(1312002, 400640, 1240044, 1240045, 1240046, 1240047),
 	IceShards:                    spelldata.Talent(11207, 5),
@@ -234,6 +243,7 @@ var spellData = generatedSpellData{
 	ImprovedChanneling:           spelldata.Talent(11237, 5),
 	ImprovedConeOfCold:           spelldata.Talent(11190, 3),
 	ImprovedCounterspell:         spelldata.Talent(11255, 2),
+	ImprovedFireBlast:            spelldata.Talent(11078, 2),
 	ImprovedFireWard:             spelldata.Talent(11094, 2),
 	ImprovedFireball:             spelldata.Talent(11069, 5),
 	ImprovedFlamestrike:          spelldata.Talent(11108, 3),
@@ -246,10 +256,9 @@ var spellData = generatedSpellData{
 	MagicAbsorption:              spelldata.Talent(29441, 2),
 	ManaShield:                   spelldata.Ranked(1463, 8494, 8495, 10191, 10192, 10193),
 	MasterOfElements:             spelldata.Talent(29074, 3),
-	MissileBarrage:               spelldata.Talent(400588, 1),
+	MissileBarrage:               spelldata.Talent(400588, 2),
 	MissileBarrageTriggered:      spelldata.Ranked(400589),
 	Permafrost:                   spelldata.Talent(11175, 3),
-	PiercingIce:                  spelldata.Talent(11151, 3),
 	Polymorph:                    spelldata.Ranked(118, 12824, 12825, 12826),
 	PolymorphCow:                 spelldata.Ranked(28270),
 	PortalDarnassus:              spelldata.Ranked(11419),
@@ -271,8 +280,6 @@ var spellData = generatedSpellData{
 	TeleportStormwind:            spelldata.Ranked(3561),
 	TeleportThunderBluff:         spelldata.Ranked(3566),
 	TeleportUndercity:            spelldata.Ranked(3563),
-	WakeOfFire:                   spelldata.Talent(11078, 2),
-	WakeOfFireTriggered:          spelldata.Ranked(1312934),
 	WandSpecialization:           spelldata.Talent(6057, 2),
 	WintersChill:                 spelldata.Talent(11180, 5),
 	WintersChillTriggered:        spelldata.Ranked(12579),

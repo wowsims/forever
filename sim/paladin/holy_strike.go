@@ -18,8 +18,9 @@ var HolyStrikeRankMap = spellData.HolyStrike
 //
 // The spell power coefficient sits on the flat effect, but the paladin's own spell power goes
 // through the weapon percent, as it does for the Seal of Command proc: Rank 3's 0.429 at 32% is
-// 0.137 per point of spell power. The Holy damage the target takes extra, Judgement of the Crusader
-// and the damage-against-mob-type gear, is added after the percent at the full coefficient.
+// 0.137 per point of spell power. The damage-against-mob-type gear is added after the percent at
+// the full coefficient, and the Holy damage the target takes extra, Judgement of the Crusader, is
+// taken at the full coefficient after the done multipliers, where core adds it.
 func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	coefficient := rank.DamageEffect().Coeff()
 
@@ -27,14 +28,13 @@ func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	// hand below rather than letting CalcDamage add it on top.
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ClassSpellMask = SpellMaskHolyStrike
+	config.TakenBonusCoefficient = coefficient
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 		baseDamage := rank.WeaponStrike(sim, spell, weaponDamage, coefficient*spell.SpellDamage(target))
 
-		targetBonus := target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly] +
-			spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
-		baseDamage += coefficient * targetBonus
+		baseDamage += coefficient * spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
 
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 	}

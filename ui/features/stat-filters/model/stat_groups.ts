@@ -65,6 +65,7 @@ export const STAT_GROUPS: ReadonlyArray<{ key: StatGroupKey; stats: ReadonlyArra
 		stats: [
 			UnitStat.fromStat(Stat.StatArmor),
 			UnitStat.fromStat(Stat.StatBonusArmor),
+			UnitStat.fromStat(Stat.StatArmorNoMods),
 			UnitStat.fromStat(Stat.StatDefenseRating),
 			UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent),
 			UnitStat.fromPseudoStat(PseudoStat.PseudoStatParryPercent),

@@ -1013,6 +1013,12 @@ func chainHoverAt(f *parsedFile, nodes []ast.Node, at int, declarations map[stri
 			continue
 		}
 
+		// The cursor on an argument chain is on that chain, which a node further in states.
+		if row := c.root.byID; row != nil && row.argumentCovers(at) ||
+			slices.ContainsFunc(c.segments, func(seg segment) bool { return seg.argumentCovers(at) }) {
+			continue
+		}
+
 		if row := c.root.byID; row != nil && row.covers(at) {
 			trace.add("segment %s", row.text(false))
 			return resolved(&chain{root: c.root}, "", declarations, trace)
@@ -1027,7 +1033,7 @@ func chainHoverAt(f *parsedFile, nodes []ast.Node, at int, declarations map[stri
 			break
 		}
 		trace.add("ident %s", c.root.name)
-		return resolved(&chain{root: c.root}, "", declarations, trace)
+		return resolved(&chain{root: c.root}, c.root.name, declarations, trace)
 	}
 
 	var ident *ast.Ident
@@ -1119,17 +1125,25 @@ func virtualParameterForChain(c *chain, declarations map[string]declaration) (*p
 }
 
 func resolved(c *chain, name string, declarations map[string]declaration, trace *tracer) (chainHover, bool) {
+	return resolvedWithin(c, name, declarations, maxSubstitutions, trace)
+}
+
+// resolved, reading argument chains at most depth deep: a name bound through its own argument, which an
+// unsaved buffer can state, would otherwise recurse without end.
+func resolvedWithin(c *chain, name string, declarations map[string]declaration, depth int, trace *tracer) (chainHover, bool) {
 	var parameter *parameterSource
 	var parameterName string
 	var parameterLadder *chain
 
 	current := c
+	seen := map[string]bool{}
 
-	for current.root.name != "" {
+	for current.root.name != "" && !seen[current.root.name] {
 		declaration, ok := declarations[current.root.name]
 		if !ok {
 			break
 		}
+		seen[current.root.name] = true
 
 		if declaration.parameter != nil {
 			parameter = declaration.parameter
@@ -1145,23 +1159,10 @@ func resolved(c *chain, name string, declarations map[string]declaration, trace 
 		//
 		// The numeric value of n is intentionally not resolved here.
 		// The existing virtual-rank state supplies the selected rank later.
-		// if source, name, ok := virtualParameterForChain(declaration.chain, declarations); ok {
-		// 	parameter = source
-		// 	parameterName = name
-		// 	parameterLadder = source.chain
-		// 	current = declaration.chain
-		// 	break
-		// }
-
-		if source, name, ok := virtualParameterForChain(declaration.chain, declarations); ok {
+		if source, name, ok := virtualParameterForChain(declaration.chain, declarations); ok && parameter == nil {
 			parameter = source
 			parameterName = name
 			parameterLadder = source.chain
-			current = &chain{
-				root:     declaration.chain.root,
-				segments: append(slices.Clip(declaration.chain.segments), current.segments...),
-			}
-			break
 		}
 
 		trace.add("  %s = %s  (%s:%d)", current.root.name, declaration.chain.text(false), trace.rel(declaration.file), declaration.line)
@@ -1170,6 +1171,16 @@ func resolved(c *chain, name string, declarations map[string]declaration, trace 
 			root:     declaration.chain.root,
 			segments: append(slices.Clip(declaration.chain.segments), current.segments...),
 		}
+	}
+
+	// An argument chain can read through the callback parameter too:
+	//
+	//	judgementRank := spellData.SealOfFuryTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
+	current, through := resolveArguments(current, declarations, depth, trace)
+	if parameter == nil && through.rank != nil {
+		parameter = through.parameter
+		parameterName = through.rank.parameter
+		parameterLadder = through.rank.ladder
 	}
 
 	// A Ladder.Each callback parameter is a virtual spell rank.
@@ -1199,7 +1210,47 @@ func resolved(c *chain, name string, declarations map[string]declaration, trace 
 // The chain with every name the package binds substituted by the chain it stands for, down to a
 // ladder: at most maxSubstitutions names deep, and never through a name twice.
 func resolveChain(c *chain, declarations map[string]declaration, trace *tracer) (*chain, error) {
-	return resolveFrom(c, declarations, maxSubstitutions, map[string]bool{}, trace)
+	c, err := resolveFrom(c, declarations, maxSubstitutions, map[string]bool{}, trace)
+	if err != nil {
+		return nil, err
+	}
+	c, _ = resolveArguments(c, declarations, maxSubstitutions, trace)
+	return c, nil
+}
+
+// The chain with each argument chain resolved the way a hovered chain is, on copies: the declaration
+// cache shares its chains between hovers. Answers the hover of the first argument that reads through
+// a Ladder.Each callback parameter, whose rank the whole chain then reads at. Arguments nested deeper
+// than depth stay as written.
+func resolveArguments(c *chain, declarations map[string]declaration, depth int, trace *tracer) (*chain, chainHover) {
+	var through chainHover
+	resolve := func(seg *segment) {
+		if depth <= 0 || !slices.ContainsFunc(seg.args, func(arg argument) bool { return arg.chain != nil }) {
+			return
+		}
+		seg.args = slices.Clone(seg.args)
+		for i, arg := range seg.args {
+			if arg.chain == nil {
+				continue
+			}
+			hover, _ := resolvedWithin(arg.chain, "", declarations, depth-1, trace)
+			seg.args[i].chain = hover.chain
+			if through.rank == nil && hover.rank != nil {
+				through = hover
+			}
+		}
+	}
+
+	out := &chain{root: c.root, segments: slices.Clone(c.segments)}
+	if c.root.byID != nil {
+		row := *c.root.byID
+		resolve(&row)
+		out.root.byID = &row
+	}
+	for i := range out.segments {
+		resolve(&out.segments[i])
+	}
+	return out, through
 }
 
 func resolveFrom(c *chain, declarations map[string]declaration, depth int, seen map[string]bool, trace *tracer) (*chain, error) {

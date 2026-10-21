@@ -100,8 +100,13 @@ type APLValueIsExecutePhase struct {
 	threshold proto.APLValueIsExecutePhase_ExecutePhaseThreshold
 }
 
-func (rot *APLRotation) newValueIsExecutePhase(config *proto.APLValueIsExecutePhase, _ *proto.UUID) APLValue {
-	if config.Threshold == proto.APLValueIsExecutePhase_Unknown {
+func (rot *APLRotation) newValueIsExecutePhase(config *proto.APLValueIsExecutePhase, uuid *proto.UUID) APLValue {
+	switch config.Threshold {
+	case proto.APLValueIsExecutePhase_Unknown:
+		return nil
+	case proto.APLValueIsExecutePhase_E20, proto.APLValueIsExecutePhase_E35:
+	default:
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Unknown execute phase threshold")
 		return nil
 	}
 	return &APLValueIsExecutePhase{
@@ -114,17 +119,8 @@ func (value *APLValueIsExecutePhase) Type() proto.APLValueType {
 func (value *APLValueIsExecutePhase) GetBool(sim *Simulation) bool {
 	if value.threshold == proto.APLValueIsExecutePhase_E20 {
 		return sim.IsExecutePhase20()
-	} else if value.threshold == proto.APLValueIsExecutePhase_E25 {
-		return sim.IsExecutePhase25()
-	} else if value.threshold == proto.APLValueIsExecutePhase_E35 {
-		return sim.IsExecutePhase35()
-	} else if value.threshold == proto.APLValueIsExecutePhase_E45 {
-		return sim.IsExecutePhase45()
-	} else if value.threshold == proto.APLValueIsExecutePhase_E90 {
-		return sim.IsExecutePhase90()
-	} else {
-		panic("Should never reach here")
 	}
+	return sim.IsExecutePhase35()
 }
 func (value *APLValueIsExecutePhase) String() string {
 	return "Is Execute Phase"

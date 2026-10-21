@@ -11,7 +11,18 @@ import {
 	ReforgeOptimizeResult,
 	ReforgeSettings,
 } from '@generated/proto/api';
-import { ConsumableType, EquipmentSpec, ItemRandomSuffix, ItemSlot, ItemSpec, ItemType, Profession, Stat } from '@generated/proto/common';
+import {
+	ConsumableType,
+	Encounter as EncounterProto,
+	EquipmentSpec,
+	ItemRandomSuffix,
+	ItemSlot,
+	ItemSpec,
+	ItemType,
+	Profession,
+	Stat,
+	Target,
+} from '@generated/proto/common';
 import { UIEnchant, UIItem } from '@generated/proto/ui';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -524,6 +535,25 @@ describe('Sim.runBulkSim', () => {
 
 		expect(mocks.bulkCandidates).not.toHaveBeenCalled();
 		expect(mocks.bulkSimAsync.mock.calls[0][0].candidates).toEqual([]);
+	});
+
+	it('sends an override encounter whole and leaves the live encounter as it is', async () => {
+		const sim = makeEmptyBulkSim();
+		const live = sim.encounter.toProto();
+		const override = EncounterProto.create({
+			duration: 90,
+			durationVariation: 10,
+			useHealth: true,
+			executeProportion20: 0.5,
+			targets: [Target.create(), Target.create()],
+		});
+
+		await sim.runBulkSim(() => {}, BulkSettings.create(), undefined, override);
+
+		const sent = mocks.bulkSimAsync.mock.calls[0][0].baseRequest.encounter;
+		expect(sent).toEqual(override);
+		expect(sent).not.toBe(override);
+		expect(sim.encounter.toProto()).toEqual(live);
 	});
 
 	it('drops the WASM candidates that repeat the baseline or one another', async () => {

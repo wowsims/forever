@@ -1,7 +1,9 @@
 import i18n from '@i18n/config';
 import { Field } from '@ui-kit/Field';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
+import { IconEnumPickerDirection } from '@ui-kit/IconEnumPicker';
 import { IconMenu, type IconSwatchProps } from '@ui-kit/IconSwatch';
+import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { isRightClick } from '@ui-kit/utils/dom';
 import clsx from 'clsx';
 import { Children, type MouseEvent, type ReactNode, useId, useRef } from 'react';
@@ -11,13 +13,31 @@ export interface MultiIconPickerProps extends Pick<IconSwatchProps, 'keptTooltip
 	icon?: ResolvedIcon;
 	active: boolean;
 	onClear: () => void;
+	/** Horizontal, the default, opens the menu to the right as a row; vertical opens it below, in `numColumns` columns. */
+	direction?: IconEnumPickerDirection;
+	numColumns?: number;
+	/** Shown on hovering the trigger, and its name where there is no label. */
+	tooltip?: string;
 	/** One menu entry per child, each an icon toggle; a child that renders nothing takes no entry. The popup unmounts while closed, and the children with it. */
 	children: ReactNode;
 	testId?: string;
 }
 
-export const MultiIconPicker = ({ label, icon, active, onClear, children, keptTooltip, testId }: MultiIconPickerProps) => {
+export const MultiIconPicker = ({
+	label,
+	icon,
+	active,
+	onClear,
+	direction = IconEnumPickerDirection.Horizontal,
+	numColumns,
+	tooltip,
+	children,
+	keptTooltip,
+	testId,
+}: MultiIconPickerProps) => {
 	const labelId = useId();
+	const tooltipId = useId();
+	const horizontal = direction === IconEnumPickerDirection.Horizontal;
 	const controlRef = useRef<HTMLAnchorElement>(null);
 	const menu = (
 		<IconMenu
@@ -31,18 +51,23 @@ export const MultiIconPicker = ({ label, icon, active, onClear, children, keptTo
 				// points the popup's `aria-labelledby` at the trigger, and accessible-name resolution does not chase a
 				// second `aria-labelledby` hop through that id, so this literal string is what names the popup,
 				// independently of the trigger's own `aria-labelledby` below.
-				'aria-label': label,
+				'aria-label': label ?? tooltip,
 				...(label ? { ref: controlRef, 'aria-labelledby': labelId } : {}),
+				...tooltipAnchorProps(tooltip ? tooltipId : undefined, tooltip),
 				onContextMenu: (event: MouseEvent) => event.preventDefault(),
 				onMouseDown: (event: MouseEvent) => {
 					if (isRightClick(event.nativeEvent)) onClear();
 				},
 			}}
-			side="right"
+			side={horizontal ? 'right' : 'bottom'}
 			positionerProps={{ 'data-testid': 'multi-icon-picker-positioner' }}
-			className="grid-flow-col"
+			className={clsx(horizontal && 'grid-flow-col')}
 			// `role="group"`, not the `menu` Base UI would give it. A menu's children must be menuitems, and these are icon toggles — `Menu.Item` would close the popup on every click, and toggling several buffs in one visit is the whole point of this control.
-			popupProps={{ role: 'group', 'data-testid': 'multi-icon-picker-menu' }}>
+			popupProps={{
+				role: 'group',
+				'data-testid': 'multi-icon-picker-menu',
+				style: { gridTemplateColumns: !horizontal && numColumns ? `repeat(${numColumns}, 1fr)` : undefined },
+			}}>
 			<li>
 				<a
 					className="ui-icon-picker-swatch p-0 filter-[opacity(0.7)] hover:filter-none"
@@ -57,7 +82,19 @@ export const MultiIconPicker = ({ label, icon, active, onClear, children, keptTo
 		</IconMenu>
 	);
 
-	if (!label) return menu;
+	const triggerTooltip = tooltip && <Tooltip id={tooltipId} />;
 
-	return <Field role="group" label={label} layout="icon" leading={menu} labelId={labelId} controlRef={controlRef} />;
+	if (!label)
+		return (
+			<>
+				{menu}
+				{triggerTooltip}
+			</>
+		);
+
+	return (
+		<Field role="group" label={label} layout="icon" leading={menu} labelId={labelId} controlRef={controlRef}>
+			{triggerTooltip}
+		</Field>
+	);
 };

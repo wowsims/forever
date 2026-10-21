@@ -1,65 +1,57 @@
 package mage
 
-// TODO: To be implemented. TBC body below needs no porting; kept commented until this class's port is reviewed.
-func (mage *Mage) registerPresenceOfMindSpell() {
-	panic("To be implemented")
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
+)
 
-	// The TBC implementation, kept for the port:
-	// if !mage.Talents.PresenceOfMind {
-	// 	return
-	// }
-	//
-	// presenceOfMindMod := mage.AddDynamicMod(core.SpellModConfig{
-	// 	ClassMask:  MageSpellsAll ^ (MageSpellInstantCast | MageSpellBlizzard | MageSpellEvocation),
-	// 	FloatValue: -1,
-	// 	Kind:       core.SpellMod_CastTime_Pct,
-	// })
-	//
-	// var pomSpell *core.Spell
-	// mage.PresenceOfMindAura = mage.RegisterAura(core.Aura{
-	// 	Label:    "Presence of Mind",
-	// 	ActionID: core.ActionID{SpellID: 12043},
-	// 	Duration: time.Hour,
-	// 	OnGain: func(aura *core.Aura, sim *core.Simulation) {
-	// 		presenceOfMindMod.Activate()
-	// 	},
-	// 	OnExpire: func(aura *core.Aura, sim *core.Simulation) {
-	// 		presenceOfMindMod.Deactivate()
-	// 		pomSpell.CD.Use(sim)
-	// 	},
-	// 	OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-	// 		if !spell.Matches(MageSpellsAll ^ (MageSpellInstantCast | MageSpellEvocation)) {
-	// 			return
-	// 		}
-	// 		if spell.DefaultCast.CastTime == 0 {
-	// 			return
-	// 		}
-	// 		aura.Deactivate(sim)
-	// 	},
-	// })
-	//
-	// pomSpell = mage.RegisterSpell(core.SpellConfig{
-	// 	ActionID:       core.ActionID{SpellID: 12043},
-	// 	DefenseType:    core.DefenseTypeMagic,
-	// 	Flags:          core.SpellFlagNoOnCastComplete,
-	// 	ClassSpellMask: MageSpellPresenceOfMind,
-	// 	Cast: core.CastConfig{
-	// 		DefaultCast: core.Cast{
-	// 			NonEmpty: true,
-	// 		},
-	// 		CD: core.Cooldown{
-	// 			Timer:    mage.NewTimer(),
-	// 			Duration: time.Second * 180,
-	// 		},
-	// 	},
-	// 	ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-	// 		mage.PresenceOfMindAura.Activate(sim)
-	// 	},
-	// 	RelatedSelfBuff: mage.PresenceOfMindAura,
-	// })
-	//
-	// mage.AddMajorCooldown(core.MajorCooldown{
-	// 	Spell: pomSpell,
-	// 	Type:  core.CooldownTypeDPS,
-	// })
+var presenceOfMindRank = spellData.PresenceOfMind.Highest()
+
+// Presence of Mind
+// https://www.wowhead.com/forever/spell=12043
+//
+// "When activated, your next Mage spell with a casting time less than 10 sec becomes an instant
+// cast spell." The row's -100% cast time names the spells it reaches, and the one charge is
+// spent by the first of them cast.
+func (mage *Mage) registerPresenceOfMindSpell() {
+	castTimeEffect := presenceOfMindRank.EffectN(1)
+
+	var pomSpell *core.Spell
+
+	config := spelldata.AuraConfig(presenceOfMindRank)
+
+	// The row is Disabled While Active (Attr0 0x2000000): the cooldown starts when the charge is spent.
+	config.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
+		pomSpell.CD.Use(sim)
+		mage.UpdateMajorCooldowns()
+	}
+
+	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if spell.MatchesFlags(castTimeEffect.ClassFlags) && spell.DefaultCast.CastTime > 0 {
+			aura.Deactivate(sim)
+		}
+	}
+
+	mage.PresenceOfMindAura = mage.RegisterAura(config)
+	spelldata.ParseEffects(&mage.Character, mage.PresenceOfMindAura, presenceOfMindRank, spelldata.IgnoreStacks())
+
+	spellConfig := spelldata.SpellConfig(&mage.Unit, presenceOfMindRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagNoOnCastComplete))
+	spellConfig.ClassSpellMask = MageSpellPresenceOfMind
+
+	spellConfig.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
+		return !mage.PresenceOfMindAura.IsActive()
+	}
+
+	spellConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		mage.PresenceOfMindAura.Activate(sim)
+	}
+
+	spellConfig.RelatedSelfBuff = mage.PresenceOfMindAura
+
+	pomSpell = mage.RegisterSpell(spellConfig)
+
+	mage.AddMajorCooldown(core.MajorCooldown{
+		Spell: pomSpell,
+		Type:  core.CooldownTypeDPS,
+	})
 }

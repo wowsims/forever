@@ -89,7 +89,7 @@ func resolveStatDelta(sdm *stats.StatDependencyManager, baseStats core.UnitStats
 	if isEmptyUnitStats(delta) {
 		return delta
 	}
-	delta.Stats = sdm.ApplyStatDependenciesToChange(delta.Stats)
+	delta.Stats = sdm.ApplyStatDependencies(delta.Stats)
 	for _, conversion := range core.RatingConversions {
 		rating := delta.Stats[conversion.Rating]
 		if conversion.Step == 0 || rating == 0 {

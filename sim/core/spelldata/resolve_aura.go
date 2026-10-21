@@ -61,9 +61,10 @@ func Permanent() AuraOpt {
 }
 
 // What the game files state about a periodic effect of a spell, as the dot core registers. The
-// ticks are the row's duration over the effect's period. The default OnTick deals the effect's own
-// Average at the caster's level, on the stats and multipliers in force at the tick; a caller
-// replaces OnTick for a heal or a value the game files do not state. OnSnapshot is nil.
+// ticks are the row's duration over the effect's period. The default OnTick deals one roll of the
+// effect at the caster's level (its Average where it states no spread), on the stats and multipliers
+// in force at the tick; a caller replaces OnTick for a heal or a value the game files do not state.
+// OnSnapshot is nil.
 //
 // The tick rolls no hit (TickOutcome): a dot's hit is rolled once, by the cast or proc that applies
 // it, so a caller whose application rolls none rolls it there.
@@ -101,6 +102,6 @@ func DotConfig(s *Spell, e *Effect, opts ...AuraOpt) core.DotConfig {
 
 func PeriodicDamageTick(e *Effect, outcome func(*core.Dot) core.OutcomeApplier) core.OnTick {
 	return func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, e.Average(), outcome(dot))
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, e.Roll(sim), outcome(dot))
 	}
 }

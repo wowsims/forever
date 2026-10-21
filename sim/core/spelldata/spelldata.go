@@ -28,8 +28,8 @@ type Spell struct {
 	// SpellMisc.SchoolMask, which core.SpellSchool states in the same bits.
 	School core.SpellSchool
 
-	// SpellMisc.Speed: how fast the missile flies, in yards per second. Zero, with no MinDuration,
-	// hits on cast.
+	// SpellMisc.Speed: how fast the missile flies, in yards per second, or its flight time in seconds
+	// where the row states Fixed Travel Time (FixedTravelTime). Zero, with no MinDuration, hits on cast.
 	Speed float32
 
 	// SpellMisc.MinDuration: the shortest the missile flies, in seconds, however close the target.
@@ -224,7 +224,7 @@ type Effect struct {
 	Amplitude float32
 	PeriodMs  int32
 
-	// SpellRadius through EffectRadiusIndex_0.
+	// SpellRadius through EffectRadiusIndex_0 or _1, whichever has the larger maximum.
 	RadiusMin, RadiusMax float32
 
 	// EffectMiscValue_0/_1. What they mean is the aura's business: a stat for A_MOD_STAT, a stat

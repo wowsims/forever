@@ -18,6 +18,17 @@ export const SCHOOL_HIT_PERCENT_PSEUDO_STATS = [
 	PseudoStat.PseudoStatSchoolHitPercentShadow,
 ];
 
+// The ratings the game shows as a percentage, and the rating one percentage point costs.
+const RATING_PER_PERCENT = new Map<Stat, number>([
+	[Stat.StatHitRating, Mechanics.HIT_RATING_PER_HIT_PERCENT],
+	[Stat.StatCritRating, Mechanics.CRIT_RATING_PER_CRIT_PERCENT],
+	[Stat.StatHasteRating, Mechanics.HASTE_RATING_PER_HASTE_PERCENT],
+	[Stat.StatExpertiseRating, Mechanics.EXPERTISE_RATING_PER_EXPERTISE_PERCENT],
+	[Stat.StatDodgeRating, Mechanics.DODGE_RATING_PER_DODGE_PERCENT],
+	[Stat.StatParryRating, Mechanics.PARRY_RATING_PER_PARRY_PERCENT],
+	[Stat.StatBlockRating, Mechanics.BLOCK_RATING_PER_BLOCK_PERCENT],
+]);
+
 export class UnitStat {
 	private readonly stat: Stat | null;
 	private readonly pseudoStat: PseudoStat | null;
@@ -100,25 +111,19 @@ export class UnitStat {
 	// The rating a percentage point of this stat costs, or null where a rating representation does not
 	// make sense for the stat in question (Strength for example).
 	private ratingPerPercent(): number | null {
-		if (this.linkedToStat(Stat.StatHitRating) || this.isSchoolHitPercent()) {
+		if (this.isSchoolHitPercent()) {
 			return Mechanics.HIT_RATING_PER_HIT_PERCENT;
-		} else if (this.linkedToStat(Stat.StatCritRating)) {
-			return Mechanics.CRIT_RATING_PER_CRIT_PERCENT;
-		} else if (this.linkedToStat(Stat.StatHasteRating)) {
-			return Mechanics.HASTE_RATING_PER_HASTE_PERCENT;
-		} else if (this.linkedToStat(Stat.StatExpertiseRating)) {
-			return Mechanics.EXPERTISE_RATING_PER_EXPERTISE_PERCENT;
 		} else if (this.linkedToStat(Stat.StatDefenseRating)) {
 			return Mechanics.DEFENSE_RATING_PER_DEFENSE_LEVEL;
-		} else if (this.linkedToStat(Stat.StatDodgeRating)) {
-			return Mechanics.DODGE_RATING_PER_DODGE_PERCENT;
-		} else if (this.linkedToStat(Stat.StatParryRating)) {
-			return Mechanics.PARRY_RATING_PER_PARRY_PERCENT;
-		} else if (this.linkedToStat(Stat.StatBlockRating)) {
-			return Mechanics.BLOCK_RATING_PER_BLOCK_PERCENT;
 		} else {
-			return null;
+			return this.rootStat === null ? null : (RATING_PER_PERCENT.get(this.rootStat) ?? null);
 		}
+	}
+
+	// Whether the stat is, or is rooted at, a rating the game shows as a percentage. Defense is not:
+	// its rating buys defense skill.
+	isPercentRating(): boolean {
+		return this.rootStat !== null && RATING_PER_PERCENT.has(this.rootStat);
 	}
 
 	// Convert a UnitStat value from its Rating representation to a percentage representation
@@ -180,12 +185,15 @@ export class UnitStat {
 		}
 	}
 
+	// The rating points one stored EP weight unit of this stat covers. A percent pseudo-stat rooted at a rating
+	// (hit, crit, haste, expertise, dodge, parry, block, in every hand) or a school hit percent is weighted per
+	// percentage point.
+	epRatingScale(): number {
+		return this.isPseudoStat() && (this.isPercentRating() || this.isSchoolHitPercent()) ? this.convertPercentToRating(1)! : 1;
+	}
+
 	convertEpToRatingScale(epValue: number): number {
-		if (this.isPseudoStat() && PseudoStat[this.pseudoStat!].includes('Percent')) {
-			return this.convertRatingToPercent(epValue) ?? epValue;
-		} else {
-			return epValue;
-		}
+		return epValue / this.epRatingScale();
 	}
 
 	getProtoValue(proto: UnitStats): number {
@@ -351,6 +359,7 @@ const displayStatOrder: Array<UnitStat> = [
 	UnitStat.fromStat(Stat.StatMana),
 	UnitStat.fromStat(Stat.StatArmor),
 	UnitStat.fromStat(Stat.StatBonusArmor),
+	UnitStat.fromStat(Stat.StatArmorNoMods),
 	UnitStat.fromStat(Stat.StatStamina),
 	UnitStat.fromStat(Stat.StatStrength),
 	UnitStat.fromStat(Stat.StatAgility),

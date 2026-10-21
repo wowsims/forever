@@ -32,6 +32,16 @@ export interface BulkResults {
 	iterations: number;
 }
 
+export interface BulkEncounterResults {
+	/** Empty for the current encounter, which the views label themselves. */
+	name: string;
+	isCurrent: boolean;
+	/** Seconds; null for a health-based encounter, which has no set length. */
+	duration: number | null;
+	durationVariation: number | null;
+	results: BulkResults;
+}
+
 export interface BulkSimRoundConfig {
 	currentRound: number;
 	totalRounds: number;

@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
+	"math"
 	"path/filepath"
 	"reflect"
 	"slices"
@@ -52,11 +53,13 @@ func (r root) text(resolved bool) string {
 	return r.name
 }
 
-// One `.Name(args)` of a chain, or a bare `.Name` where the caller wrote no call.
+// One `.Name(args)` of a chain, a bare `.Name` where the caller wrote no call, or an index `[n]` into
+// the list the segment before it answered, its one argument the index.
 type segment struct {
 	name       string
 	args       []argument
 	call       bool
+	index      bool
 	start, end int
 }
 
@@ -65,30 +68,59 @@ type segment struct {
 //
 // A Ladder.Each callback parameter is deferred until evalExpr has the virtual rank context.
 // Parameter contains the identifier name when value is nil.
+//
+// An argument can be a chain of its own, bare or under a numeric conversion:
+// `ByID(int32(rank.EffectN(3).BaseValue()))`. evalExpr reads it to its value before the call, and start
+// and end say where it sits, so a hover on it answers for the inner chain.
 type argument struct {
 	source    string
 	value     constant.Value
 	parameter string
+
+	chain      *chain
+	convert    string
+	start, end int
 }
 
 // The segment as written, or with every argument resolved to its value.
 func (s segment) text(resolved bool) string {
+	if s.index {
+		return "[" + s.args[0].text(resolved) + "]"
+	}
 	if !s.call {
 		return s.name
 	}
 	parts := make([]string, 0, len(s.args))
 	for _, arg := range s.args {
-		if resolved && arg.value != nil {
-			parts = append(parts, arg.value.String())
-		} else {
-			parts = append(parts, arg.source)
-		}
+		parts = append(parts, arg.text(resolved))
 	}
 	return s.name + "(" + strings.Join(parts, ", ") + ")"
 }
 
+func (a argument) text(resolved bool) string {
+	if resolved && a.value != nil {
+		return a.value.String()
+	}
+	return a.source
+}
+
+// The segment as it follows the one before it in a chain.
+func (s segment) link(resolved bool) string {
+	if s.index {
+		return s.text(resolved)
+	}
+	return "." + s.text(resolved)
+}
+
 func (s segment) covers(at int) bool {
 	return at >= s.start && at <= s.end
+}
+
+// Whether at falls inside an argument that is a chain of its own, which answers for itself.
+func (s segment) argumentCovers(at int) bool {
+	return slices.ContainsFunc(s.args, func(arg argument) bool {
+		return arg.chain != nil && at >= arg.start && at <= arg.end
+	})
 }
 
 // Whether the chain opens on a ladder or a row rather than on a name.
@@ -100,7 +132,7 @@ func (c *chain) text(resolved bool) string {
 	var out strings.Builder
 	out.WriteString(c.root.text(resolved))
 	for _, seg := range c.segments {
-		out.WriteString("." + seg.text(resolved))
+		out.WriteString(seg.link(resolved))
 	}
 	return out.String()
 }
@@ -120,6 +152,8 @@ type exprResult struct {
 
 	value     string
 	accessors []string
+	// What the last accessor answered, which an argument chain hands to the call it sits in.
+	answer reflect.Value
 }
 
 // The chain a text states, its offsets counted from the start of the text.
@@ -132,8 +166,8 @@ func parseChain(text string) (*chain, error) {
 }
 
 // The chain an expression states, with offset turning a node's position into the caller's offsets.
-// Anything that is not a name followed by selectors and calls - an operator, a conversion, an index - is
-// refused whole, and so is an argument that is not a constant.
+// Anything that is not a name followed by selectors, calls and constant indexes - an operator, a
+// conversion - is refused whole, and so is an argument that is neither a constant nor a chain.
 func walkChain(node ast.Expr, offset func(token.Pos) int) (*chain, error) {
 	switch n := node.(type) {
 	case *ast.Ident:
@@ -163,14 +197,11 @@ func walkChain(node ast.Expr, offset func(token.Pos) int) (*chain, error) {
 		seg := segment{name: sel.Sel.Name, call: true, start: offset(sel.X.End()), end: offset(n.End())}
 
 		for _, arg := range n.Args {
-			value, err := evalConst(arg)
+			parsed, err := chainArgument(arg, offset)
 			if err != nil {
 				return nil, err
 			}
-			seg.args = append(seg.args, argument{
-				source: types.ExprString(arg),
-				value:  value,
-			})
+			seg.args = append(seg.args, parsed)
 		}
 
 		if c.root.name == "spelldata" && len(c.segments) == 0 && (seg.name == "MustFind" || seg.name == "Find") && len(seg.args) == 1 {
@@ -179,8 +210,64 @@ func walkChain(node ast.Expr, offset func(token.Pos) int) (*chain, error) {
 		}
 		c.segments = append(c.segments, seg)
 		return c, nil
+
+	case *ast.IndexExpr:
+		c, err := walkChain(n.X, offset)
+		if err != nil {
+			return nil, err
+		}
+		return appendIndex(c, n, offset)
 	}
 	return nil, fmt.Errorf("%s is not a chain of accessor calls: write spellData.<Family> and the accessors on it", types.ExprString(node))
+}
+
+func appendIndex(c *chain, n *ast.IndexExpr, offset func(token.Pos) int) (*chain, error) {
+	value, err := evalConst(n.Index)
+	if err != nil {
+		return nil, err
+	}
+	c.segments = append(c.segments, segment{
+		args:  []argument{{source: types.ExprString(n.Index), value: value}},
+		index: true,
+		start: offset(n.X.End()),
+		end:   offset(n.End()),
+	})
+	return c, nil
+}
+
+// A constant, else a chain that opens on a ladder, a row or a name, bare or under a conversion to a
+// number type. A lone name is refused with the constant's error: it is no chain to read.
+func chainArgument(arg ast.Expr, offset func(token.Pos) int) (argument, error) {
+	source := types.ExprString(arg)
+	value, err := evalConst(arg)
+	if err == nil {
+		return argument{source: source, value: value}, nil
+	}
+
+	inner, convert := arg, ""
+	if call, ok := arg.(*ast.CallExpr); ok && len(call.Args) == 1 {
+		if ident, ok := call.Fun.(*ast.Ident); ok && numberType(ident.Name) != nil {
+			inner, convert = call.Args[0], ident.Name
+		}
+	}
+	c, chainErr := walkChain(inner, offset)
+	if chainErr != nil || (c.root.name != "" && len(c.segments) == 0) {
+		return argument{}, err
+	}
+	return argument{source: source, chain: c, convert: convert, start: offset(arg.Pos()), end: offset(arg.End())}, nil
+}
+
+// The basic number type a name stands for in Go's universe scope, or nil.
+func numberType(name string) *types.Basic {
+	typeName, ok := types.Universe.Lookup(name).(*types.TypeName)
+	if !ok {
+		return nil
+	}
+	basic, ok := typeName.Type().(*types.Basic)
+	if !ok || basic.Info()&types.IsNumeric == 0 {
+		return nil
+	}
+	return basic
 }
 
 func walkChainWithParameter(node ast.Expr, offset func(token.Pos) int, parameter string) (*chain, error) {
@@ -206,6 +293,16 @@ func walkChainWithParameter(node ast.Expr, offset func(token.Pos) int, parameter
 		for _, arg := range n.Args {
 			source := types.ExprString(arg)
 
+			ident, ok := arg.(*ast.Ident)
+			if !ok {
+				parsed, err := chainArgument(arg, offset)
+				if err != nil {
+					return nil, err
+				}
+				seg.args = append(seg.args, parsed)
+				continue
+			}
+
 			value, err := evalConst(arg)
 			if err == nil {
 				seg.args = append(seg.args, argument{
@@ -213,11 +310,6 @@ func walkChainWithParameter(node ast.Expr, offset func(token.Pos) int, parameter
 					value:  value,
 				})
 				continue
-			}
-
-			ident, ok := arg.(*ast.Ident)
-			if !ok {
-				return nil, err
 			}
 
 			// Rank(...) inside a virtual-rank evaluation uses the rank
@@ -239,11 +331,6 @@ func walkChainWithParameter(node ast.Expr, offset func(token.Pos) int, parameter
 				source:    source,
 				parameter: ident.Name,
 			})
-
-			seg.args = append(seg.args, argument{
-				source:    source,
-				parameter: ident.Name,
-			})
 		}
 
 		if c.root.name == "spelldata" && len(c.segments) == 0 &&
@@ -254,6 +341,13 @@ func walkChainWithParameter(node ast.Expr, offset func(token.Pos) int, parameter
 
 		c.segments = append(c.segments, seg)
 		return c, nil
+
+	case *ast.IndexExpr:
+		c, err := walkChainWithParameter(n.X, offset, parameter)
+		if err != nil {
+			return nil, err
+		}
+		return appendIndex(c, n, offset)
 
 	default:
 		return walkChain(node, offset)
@@ -270,6 +364,11 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string, virtual *vir
 			result, err = nil, fmt.Errorf("%v", r)
 		}
 	}()
+
+	c, err = readArguments(index, c, pkg, virtual)
+	if err != nil {
+		return nil, err
+	}
 
 	var family *ladderFamily
 	var res *exprResult
@@ -338,7 +437,7 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string, virtual *vir
 		if err != nil {
 			return nil, err
 		}
-		res.trail += "." + seg.text(true)
+		res.trail += seg.link(true)
 		res.owner = baseTypeName(current.Type())
 
 		switch value := answer.Interface().(type) {
@@ -363,6 +462,7 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string, virtual *vir
 		current = answer
 	}
 
+	res.answer = current
 	switch value := current.Interface().(type) {
 	case *spelldata.Spell:
 		res.kind, res.value = kindSpell, strconv.Itoa(int(value.ID))
@@ -382,6 +482,69 @@ func evalExpr(index map[string]*ladderFamily, c *chain, pkg string, virtual *vir
 		res.kind, res.value = kindValue, text
 	}
 	return res, nil
+}
+
+// The chain with each argument that is a chain of its own read to its value, on copies: the
+// declaration cache shares its chains between hovers.
+func readArguments(index map[string]*ladderFamily, c *chain, pkg string, virtual *virtualRank) (*chain, error) {
+	read := func(seg *segment) error {
+		if !slices.ContainsFunc(seg.args, func(arg argument) bool { return arg.chain != nil }) {
+			return nil
+		}
+		seg.args = slices.Clone(seg.args)
+		for i, arg := range seg.args {
+			if arg.chain == nil {
+				continue
+			}
+			value, err := chainValue(index, arg, pkg, virtual)
+			if err != nil {
+				return err
+			}
+			seg.args[i].value = value
+		}
+		return nil
+	}
+
+	out := &chain{root: c.root, segments: slices.Clone(c.segments)}
+	if c.root.byID != nil {
+		row := *c.root.byID
+		if err := read(&row); err != nil {
+			return nil, err
+		}
+		out.root.byID = &row
+	}
+	for i := range out.segments {
+		if err := read(&out.segments[i]); err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+
+// The number an argument chain answers, converted the way Go converts a variable: a float to an
+// integer type drops its fraction.
+func chainValue(index map[string]*ladderFamily, arg argument, pkg string, virtual *virtualRank) (constant.Value, error) {
+	result, err := evalExpr(index, arg.chain, pkg, virtual)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", arg.source, err)
+	}
+
+	answer := result.answer
+	var value constant.Value
+	switch {
+	case answer.CanInt():
+		value = constant.MakeInt64(answer.Int())
+	case answer.CanUint():
+		value = constant.MakeUint64(answer.Uint())
+	case answer.CanFloat():
+		value = constant.MakeFloat64(answer.Float())
+		if basic := numberType(arg.convert); basic != nil && basic.Info()&types.IsInteger != 0 {
+			value = constant.MakeFloat64(math.Trunc(answer.Float()))
+		}
+	default:
+		return nil, fmt.Errorf("%s answers a %s, not a number", arg.source, answer.Type())
+	}
+	return value, nil
 }
 
 // Rank and ByID refused in the ladder's own terms, where the store would answer Nil or panic.
@@ -444,7 +607,7 @@ func rankArgument(recv reflect.Value, seg segment, virtual *virtualRank) (int32,
 	// Set Rank / Change Rank markdown control. The argument to
 	// Rank(...) or an *At accessor may therefore be the callback's
 	// rank parameter rather than a constant.
-	if virtual != nil {
+	if virtual != nil && seg.args[0].parameter != "" {
 		return virtual.rank, virtual.rank > 0
 	}
 
@@ -474,6 +637,20 @@ func argumentValue(arg argument, virtual *virtualRank) (constant.Value, error) {
 
 func callSegment(recv reflect.Value, seg segment, virtual *virtualRank) (reflect.Value, error) {
 	owner := recv.Type().String()
+	if seg.index {
+		list := reflect.Indirect(recv)
+		if list.Kind() != reflect.Slice && list.Kind() != reflect.Array {
+			return reflect.Value{}, fmt.Errorf("a %s is not a list to index", owner)
+		}
+		value, err := argumentValue(seg.args[0], virtual)
+		if err != nil {
+			return reflect.Value{}, err
+		}
+		if i, exact := intValue(value); exact && i >= 0 && i < int64(list.Len()) {
+			return list.Index(int(i)), nil
+		}
+		return reflect.Value{}, fmt.Errorf("the list has no index %s: it holds %d", seg.args[0].source, list.Len())
+	}
 	if !seg.call {
 		row := reflect.Indirect(recv)
 		if row.Kind() == reflect.Struct {
@@ -578,6 +755,15 @@ func formatValue(v reflect.Value) (string, error) {
 		return strconv.FormatBool(value), nil
 	case string:
 		return value, nil
+	case []*spelldata.Spell:
+		if len(value) == 0 {
+			return "none", nil
+		}
+		titles := make([]string, len(value))
+		for i, s := range value {
+			titles[i] = fmt.Sprintf("[%d] %s", i, title(s))
+		}
+		return strings.Join(titles, ", "), nil
 	}
 
 	switch {

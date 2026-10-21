@@ -22,8 +22,9 @@ type Hunter struct {
 	Hawks    []*HawkPet
 	nextHawk int // The hawk the next Summon Hawk sends.
 
-	RapidFire    *core.Spell
-	RaptorStrike *core.Spell
+	RapidFire         *core.Spell
+	RaptorStrike      *core.Spell
+	raptorStrikeQueue *core.Aura
 
 	AspectOfTheHawkAura  *core.Aura
 	AspectOfTheBeastAura *core.Aura
@@ -117,8 +118,10 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerArcaneShot()
 	hunter.registerMultiShot()
 	hunter.registerSerpentSting()
+	hunter.registerTraps()
 	hunter.registerScorpidSting()
 	hunter.registerRaptorStrike()
+	hunter.registerWingClip()
 	hunter.registerMongooseBite()
 	hunter.registerRapidFire()
 	hunter.registerAspects()

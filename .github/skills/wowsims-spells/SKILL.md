@@ -25,7 +25,7 @@ the snippets in them are pinned by `sim/core/spelldata/example_test.go`.
 | `sim/common/forever/*_auto_gen.go`                   | Generated item, enchant and consumable registrations; hand-written effects sit beside them (`items_*.go`, `consumables_*.go`).                   |
 | `sim/common/shared`                                  | The builders that run consumables and item effects from their rows.                                                                              |
 
-The warrior, hunter, paladin and shaman build on the resolvers; the druid, mage, priest, rogue and warlock
+The warrior, hunter, mage, paladin and shaman build on the resolvers; the druid, priest, rogue and warlock
 read rows by hand, one value at a time. Grep `spelldata.SpellConfig` / `spelldata.Parse` in the class
 folder to see which way the code you touch goes, and match it.
 

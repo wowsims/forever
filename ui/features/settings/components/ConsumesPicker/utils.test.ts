@@ -38,6 +38,7 @@ const grouped = (type: ConsumableType) => (id: number, name: string, stats: Arra
 const elixir = grouped(ConsumableType.ConsumableTypeElixir);
 const scroll = grouped(ConsumableType.ConsumableTypeScroll);
 const other = grouped(ConsumableType.ConsumableTypeOther);
+const food = grouped(ConsumableType.ConsumableTypeFood);
 const meleeHit = (food: Consumable) =>
 	Consumable.create({
 		...food,
@@ -93,6 +94,9 @@ const CONSUMABLES = [
 	scroll(2289, 'Scroll of Strength II', strength(9), '29/0', 'Strength'),
 	scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'),
 	scroll(1180, 'Scroll of Stamina', statArray(Stat.StatStamina, 4), '29/2', 'Stamina'),
+	Consumable.create({ id: 12217, name: 'Dragonbreath Chili', type: ConsumableType.ConsumableTypeFood }),
+	food(21151, 'Rumsey Rum Black Label', statArray(Stat.StatStamina, 15), 'Rum', 'Rum'),
+	other(18269, 'Gordok Green Grog', statArray(Stat.StatStamina, 10), 'Rum', 'Rum'),
 	other(8410, 'R.O.I.D.S.', strength(25), 'Zanza', 'Zanza'),
 	other(20079, 'Spirit of Zanza', statArray(Stat.StatSpirit, 50), 'Zanza', 'Zanza'),
 	during('Midsummer Fire Festival', meleeHit(other(23327, 'Fire-toasted Bun', [], 'Hit food', 'Hit food'))),
@@ -101,7 +105,8 @@ const CONSUMABLES = [
 		'Midsummer Fire Festival',
 		Consumable.create({ id: 23326, name: 'Midsummer Sausage', type: ConsumableType.ConsumableTypeOther, stats: statArray(Stat.StatSpellDamage, 23) }),
 	),
-	Consumable.create({ id: 4376, name: 'Flame Deflector', type: ConsumableType.ConsumableTypeDevice }),
+	Consumable.create({ id: 4376, name: 'Flame Deflector', type: ConsumableType.ConsumableTypeDevice, potionClasses: [PotionClass.PotionClassDefensive] }),
+	Consumable.create({ id: 1400, name: 'Swiftfeather Token', type: ConsumableType.ConsumableTypeOther, potionClasses: [PotionClass.PotionClassOffensive] }),
 ];
 
 const db = { getConsumables: () => CONSUMABLES, getSpellEffect: () => undefined } as unknown as Database;
@@ -124,6 +129,8 @@ interface PlayerState {
 	epWeights: Stats;
 	mobType: MobType;
 	zoneId: number;
+	meleeDps: boolean;
+	tank: boolean;
 }
 
 const playerOf = (state: Partial<PlayerState> = {}) => {
@@ -140,6 +147,8 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		epWeights: new Stats(),
 		mobType: MobType.MobTypeHumanoid,
 		zoneId: 0,
+		meleeDps: true,
+		tank: false,
 		...state,
 	};
 	const inHand = (slot: ItemSlot, mainHand?: UIItem, offHand?: UIItem) => {
@@ -157,6 +166,7 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		},
 		getClass: () => full.cls,
 		getSpec: () => full.spec,
+		getPlayerSpec: () => ({ isMeleeDpsSpec: full.meleeDps, isTankSpec: full.tank }),
 		getRace: () => Race.RaceOrc,
 		hasProfession: (profession: Profession) => full.professions.includes(profession),
 		getEquippedItem: (slot: ItemSlot) => inHand(slot, full.mainHand, full.offHand),
@@ -178,6 +188,8 @@ const offered = (config: ConsumeConfig, player: Player<any>) =>
 		.map(value => value.value);
 const toggled = (toggles: ReadonlyArray<ConsumeToggle>, player: Player<any>) =>
 	toggles.filter(toggle => !toggle.showWhen || toggle.showWhen(player)).map(toggle => toggle.actionId.itemId);
+// Both halves of the miscellaneous row.
+const misc = (configs: ReturnType<typeof consumeConfigs>) => [...configs.miscOffensive, ...configs.miscDefensive];
 const marked = (config: ConsumeConfig | ConsumeToggle, player: Player<any>) =>
 	config.type === 'icon' ? config.keptBy!(player, config.getValue(player)) : config.keptBy!(player, config.getValue(player));
 
@@ -204,13 +216,14 @@ describe('consumeConfigs', () => {
 		expect(offered(configs.flask, player)).toEqual([13510]);
 		expect(configs.elixirs.map(config => offered(config, player))).toEqual([[6662, 9206, 12451, 2289, 10310], [], [12820]]);
 		expect(configs.scrolls.map(config => offered(config, player))).toEqual([[]]);
-		expect(configs.groups.map(config => offered(config, player))).toEqual([[8410]]);
 		expect(offered(configs.food, player)).toEqual([238637]);
+		expect(configs.foodGroups.map(config => offered(config, player))).toEqual([[]]);
+		expect(configs.miscGroups.map(config => offered(config, player))).toEqual([[8410]]);
 		expect(configs.holidayGroups.map(config => offered(config, player))).toEqual([[]]);
 		expect(toggled(configs.holiday, player)).toEqual([]);
 		expect(offered(configs.explosive, player)).toEqual([18588]);
 		expect(toggled(configs.explosiveExtras, player)).toEqual([10646]);
-		expect(toggled(configs.miscellaneous, player)).toEqual([4376]);
+		expect(toggled(misc(configs), player)).toEqual([4376]);
 	});
 
 	it('hides a consumable below the minimum level set for its type only', () => {
@@ -373,13 +386,58 @@ describe('consumeConfigs', () => {
 
 	it('labels each group as db.json does and hides one that offers the player nothing', () => {
 		const { player } = playerOf();
-		const { elixirs, scrolls, groups } = consumeConfigs(player, db);
+		const { elixirs, scrolls, foodGroups, miscGroups } = consumeConfigs(player, db);
 		expect(elixirs.map(config => config.tooltip)).toEqual(['Strength', 'Intellect', 'Attack Power']);
 		expect(elixirs.map(config => iconEnumPickerShown(config, player))).toEqual([true, false, true]);
 		expect(scrolls.map(config => config.tooltip)).toEqual(['Stamina']);
 		expect(scrolls.map(config => iconEnumPickerShown(config, player))).toEqual([false]);
-		expect(groups.map(config => config.tooltip)).toEqual(['Zanza']);
-		expect(groups.map(config => iconEnumPickerShown(config, player))).toEqual([true]);
+		expect(foodGroups.map(config => config.tooltip)).toEqual(['Rum']);
+		expect(foodGroups.map(config => iconEnumPickerShown(config, player))).toEqual([false]);
+		expect(miscGroups.map(config => config.tooltip)).toEqual(['Zanza']);
+		expect(miscGroups.map(config => iconEnumPickerShown(config, player))).toEqual([true]);
+	});
+
+	it('picks one rum, a food or not, beside the food and the misc toggles', () => {
+		const { player, state } = playerOf({ epStats: [Stat.StatStrength, Stat.StatStamina] });
+		const configs = consumeConfigs(player, db);
+		const [rum] = configs.foodGroups;
+		expect(offered(rum, player)).toEqual([18269, 21151]);
+		expect(offered(configs.food, player)).toEqual([238637]);
+		expect(toggled(misc(configs), player)).not.toContain(18269);
+		configs.food.setValue(player, 238637);
+		rum.setValue(player, 21151);
+		rum.setValue(player, 18269);
+		expect([state.consumes.foodId, state.consumes.extraIds]).toEqual([238637, [18269]]);
+	});
+
+	it('offers what grants a stat the spec displays, as the buffs do, though its EP leaves the stat out', () => {
+		const weighed = playerOf().player;
+		expect(iconEnumPickerShown(consumeConfigs(weighed, db).foodGroups[0], weighed)).toBe(false);
+		const { player } = playerOf({ displayStats: [UnitStat.fromStat(Stat.StatStamina)] });
+		const configs = consumeConfigs(player, db);
+		expect(offered(configs.foodGroups[0], player)).toEqual([18269, 21151]);
+		expect(configs.scrolls.map(config => offered(config, player))).toEqual([[1180]]);
+	});
+
+	it('splits the miscellaneous row as the generator classes each consumable', () => {
+		const { player } = playerOf();
+		const { miscOffensive, miscDefensive } = consumeConfigs(player, db);
+		expect(miscDefensive.map(toggle => toggle.consumable.id)).toEqual([4376]);
+		expect(miscOffensive.map(toggle => toggle.consumable.id)).toEqual([1400]);
+	});
+
+	it('offers Dragonbreath Chili beside the food to the specs that hit in melee', () => {
+		const chiliOf = (player: Player<any>) => consumeConfigs(player, db).dragonbreathChili!;
+		const melee = playerOf();
+		expect(offered(consumeConfigs(melee.player, db).food, melee.player)).not.toContain(12217);
+		expect(toggled([chiliOf(melee.player)], melee.player)).toEqual([12217]);
+		const tank = playerOf({ meleeDps: false, tank: true }).player;
+		expect(toggled([chiliOf(tank)], tank)).toEqual([12217]);
+		const caster = playerOf({ cls: Class.ClassMage, spec: Spec.SpecMage, meleeDps: false }).player;
+		expect(toggled([chiliOf(caster)], caster)).toEqual([]);
+
+		chiliOf(melee.player).setValue(melee.player, true);
+		expect(melee.state.consumes.extraIds).toEqual([12217]);
 	});
 
 	it('lists the holiday consumables apart: a group holding one as one pick, the rest each as a toggle', () => {
@@ -388,7 +446,7 @@ describe('consumeConfigs', () => {
 		const configs = consumeConfigs(player, db);
 		expect(configs.holidayGroups.map(config => config.tooltip)).toEqual(['Hit food']);
 		expect(toggled(configs.holiday, player)).toEqual([23326]);
-		expect(toggled(configs.miscellaneous, player)).not.toContain(23326);
+		expect(toggled(misc(configs), player)).not.toContain(23326);
 	});
 
 	it('shows the Hit food to a spec that shows melee hit', () => {
@@ -461,9 +519,9 @@ describe('consumeConfigs', () => {
 		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds: [9206] }) });
 		const configs = consumeConfigs(player, db);
 		configs.scrolls[0].setValue(player, 1180);
-		configs.groups[0].setValue(player, 8410);
+		configs.miscGroups[0].setValue(player, 8410);
 		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[9206], [1180, 8410]]);
-		configs.groups[0].setValue(player, 20079);
+		configs.miscGroups[0].setValue(player, 20079);
 		configs.scrolls[0].setValue(player, 0);
 		expect(state.consumes.extraIds).toEqual([20079]);
 	});
@@ -545,11 +603,11 @@ describe('consumeConfigs under the consumables stat filter', () => {
 		const { player, state } = agilityWarrior();
 		const configs = consumeConfigs(player, agilityDb);
 		expect(offered(configs.elixirs[1], player)).toEqual([9187]);
-		expect(toggled(configs.miscellaneous, player)).toContain(21023);
+		expect(toggled(misc(configs), player)).toContain(21023);
 
 		state.filters = hiding(player, agilityDb, Stat.StatAgility);
 		expect(offered(configs.elixirs[1], player)).toEqual([]);
-		expect(toggled(configs.miscellaneous, player)).not.toContain(21023);
+		expect(toggled(misc(configs), player)).not.toContain(21023);
 		expect(offered(configs.elixirs[0], player)).toEqual([6662, 9206, 12451, 2289, 10310]);
 	});
 
@@ -559,7 +617,7 @@ describe('consumeConfigs under the consumables stat filter', () => {
 		const clone = vi.spyOn(DatabaseFilters, 'clone');
 
 		offered(configs.elixirs[1], player);
-		toggled(configs.miscellaneous, player);
+		toggled(misc(configs), player);
 
 		expect(clone).not.toHaveBeenCalled();
 		clone.mockRestore();
@@ -573,7 +631,7 @@ describe('consumeConfigs under the consumables stat filter', () => {
 		state.filters = hiding(player, agilityDb, Stat.StatAgility);
 		expect(offered(configs.elixirs[1], player)).toEqual([9187]);
 		expect(marked(configs.elixirs[1], player)).toBe(true);
-		const snack = configs.miscellaneous.find(toggle => toggle.actionId.itemId === 21023)!;
+		const snack = misc(configs).find(toggle => toggle.actionId.itemId === 21023)!;
 		expect(snack.showWhen!(player)).toBe(true);
 		expect(marked(snack, player)).toBe(true);
 		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[9187], [21023]]);

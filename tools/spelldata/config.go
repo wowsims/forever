@@ -161,7 +161,7 @@ func evalDeclaredExpr(expr ast.Expr, declarations map[string]declaration, pkg st
 		if err != nil {
 			return nil, nil, err
 		}
-		c = resolved
+		c, _ = resolveArguments(resolved, declarations, maxSubstitutions, trace)
 	} else {
 		c, err = resolveChain(c, declarations, trace)
 		if err != nil {

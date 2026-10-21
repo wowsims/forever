@@ -21,6 +21,11 @@ const (
 	agilityWeaponID
 	attackPowerShoulderID
 	critShoulderID
+	plainArmorEnchantID
+	armorNoModsEnchantID
+	armorScalingNeckID
+	hitRatingWristID
+	holyHitWristID
 )
 
 const (
@@ -37,6 +42,8 @@ func addFixtureEnchants() {
 	crit := make([]float64, len(proto.PseudoStat_name))
 	crit[proto.PseudoStat_PseudoStatMeleeCritPercent] = 1
 	crit[proto.PseudoStat_PseudoStatRangedCritPercent] = 1
+	holyHit := make([]float64, len(proto.PseudoStat_name))
+	holyHit[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = 1
 	core.AddToDatabase(&proto.SimDatabase{Enchants: []*proto.SimEnchant{
 		{EffectId: agilityWristID, Type: proto.ItemType_ItemTypeWrist, Stats: stat(proto.Stat_StatAgility, 7)},
 		{EffectId: strengthWristID, Type: proto.ItemType_ItemTypeWrist, Stats: stat(proto.Stat_StatStrength, 7)},
@@ -45,6 +52,8 @@ func addFixtureEnchants() {
 		{EffectId: agilityWeaponID, Type: proto.ItemType_ItemTypeWeapon, Stats: stat(proto.Stat_StatAgility, 15)},
 		{EffectId: attackPowerShoulderID, Type: proto.ItemType_ItemTypeShoulder, Stats: stat(proto.Stat_StatAttackPower, attackPowerShoulderAP)},
 		{EffectId: critShoulderID, Type: proto.ItemType_ItemTypeShoulder, Stats: stat(proto.Stat_StatAttackPower, critShoulderAP), PseudoStats: crit},
+		{EffectId: hitRatingWristID, Type: proto.ItemType_ItemTypeWrist, Stats: stat(proto.Stat_StatHitRating, core.HitRatingPerHitPercent)},
+		{EffectId: holyHitWristID, Type: proto.ItemType_ItemTypeWrist, PseudoStats: holyHit},
 	}})
 }
 
@@ -179,6 +188,92 @@ func TestOptimizeValuesAPercentEnchantThroughItsRating(t *testing.T) {
 	}
 	if got, want := result.GetScore(), critShoulderAP+core.CritRatingPerCritPercent*critRatingEP; math.Abs(got-want) > 1e-9 {
 		t.Errorf("score %v, want %v", got, want)
+	}
+}
+
+// A school hit weight is per percent, so a percent of Holy hit, reached through hit rating or carried
+// by the enchant, is worth what its ten hit rating are worth under a hit rating weight a tenth as large.
+func TestOptimizeValuesSchoolHitPerPercent(t *testing.T) {
+	addFixtureEnchants()
+	const holyHitEP = 23.2
+	for _, tc := range []struct {
+		name    string
+		enchant int32
+		weight  func(*proto.UnitStats)
+	}{
+		{"hit rating under a HitRating weight", hitRatingWristID, func(w *proto.UnitStats) {
+			w.Stats[proto.Stat_StatHitRating] = holyHitEP / core.HitRatingPerHitPercent
+		}},
+		{"hit rating under a Holy hit weight", hitRatingWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = holyHitEP }},
+		{"Holy hit under a Holy hit weight", holyHitWristID, func(w *proto.UnitStats) { w.PseudoStats[proto.PseudoStat_PseudoStatSchoolHitPercentHoly] = holyHitEP }},
+	} {
+		request := enchantRequest(protectionWarriorRaid("preraid"), nil, wrist(tc.enchant))
+		tc.weight(request.PreCapEpWeights)
+		result := optimize(t, request)
+		if got := slotEnchant(result, proto.ItemSlot_ItemSlotWrist); got != tc.enchant {
+			t.Errorf("%s: wrist enchant %d, want %d", tc.name, got, tc.enchant)
+		}
+		if got := result.GetScore(); math.Abs(got-holyHitEP) > 1e-9 {
+			t.Errorf("%s: score %v, want %v", tc.name, got, holyHitEP)
+		}
+	}
+}
+
+// An enchant's ArmorNoMods is worth its own weight per point, with no scale, and its Armor the Armor
+// weight. A fixture neck triples the armor from items and then doubles the armor, a percent armor
+// modifier, which leaves the ArmorNoMods whole in the cap space's armor as it does on the sheet.
+func TestOptimizeValuesArmorNoModsAtItsOwnWeight(t *testing.T) {
+	const armor = 120
+	values := func(stat proto.Stat) []float64 {
+		values := make([]float64, len(proto.Stat_name))
+		values[stat] = armor
+		return values
+	}
+	core.AddToDatabase(&proto.SimDatabase{
+		Items: []*proto.SimItem{{Id: armorScalingNeckID, Name: "Test Armor Scaling Neck", Type: proto.ItemType_ItemTypeNeck,
+			ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}},
+		Enchants: []*proto.SimEnchant{
+			{EffectId: plainArmorEnchantID, Type: proto.ItemType_ItemTypeChest, Stats: values(proto.Stat_StatArmor)},
+			{EffectId: armorNoModsEnchantID, Type: proto.ItemType_ItemTypeChest, Stats: values(proto.Stat_StatArmorNoMods)},
+		},
+	})
+	if !core.HasItemEffect(armorScalingNeckID) {
+		core.NewItemEffect(armorScalingNeckID, func(agent core.Agent) {
+			character := agent.GetCharacter()
+			character.ApplyEquipScaling(stats.Armor, 3)
+			character.MultiplyStat(stats.Armor, 2)
+		})
+	}
+	raid := protectionWarriorRaid("preraid")
+	raid.Parties[0].Players[0].Equipment.Items[proto.ItemSlot_ItemSlotNeck] = &proto.ItemSpec{Id: armorScalingNeckID}
+
+	baseResult, sdm, sheet := computeReforgeStatsAndDeps(&proto.ComputeStatsRequest{Raid: protopkg.Clone(raid).(*proto.Raid)})
+	if baseResult.ErrorResult != "" {
+		t.Fatalf("ComputeStats: %s", baseResult.ErrorResult)
+	}
+	o := &reforgeOptimizer{statDeps: sdm, sheet: sheet, baseStats: protoToCoreUnitStats(baseResult.RaidStats.Parties[0].Players[0].FinalStats)}
+	capCoeffs := o.resolveCapCoeffs(rawUnitStatsFromStats(stats.Stats{stats.ArmorNoMods: armor}))
+	if got := capCoeffs[statCoeffKey(proto.Stat_StatArmor)]; math.Abs(got-armor) > 1e-9 {
+		t.Errorf("%v ArmorNoMods moves the cap space's armor by %v, want all of it", armor, got)
+	}
+
+	const armorEP, armorNoModsEP = 2, 0.25
+	weights := map[proto.Stat]float64{proto.Stat_StatArmor: armorEP, proto.Stat_StatArmorNoMods: armorNoModsEP}
+	for _, tc := range []struct {
+		enchant int32
+		want    float64
+	}{
+		{plainArmorEnchantID, armor * armorEP},
+		{armorNoModsEnchantID, armor * armorNoModsEP},
+	} {
+		chest := &proto.BulkEnchantSlotOptions{Slot: proto.ItemSlot_ItemSlotChest, EffectIds: []int32{tc.enchant}}
+		result := optimize(t, enchantRequest(protopkg.Clone(raid).(*proto.Raid), weights, chest))
+		if got := slotEnchant(result, proto.ItemSlot_ItemSlotChest); got != tc.enchant {
+			t.Errorf("chest enchant %d, want %d", got, tc.enchant)
+		}
+		if got := result.GetScore(); math.Abs(got-tc.want) > 1e-9 {
+			t.Errorf("enchant %d scores %v, want %v", tc.enchant, got, tc.want)
+		}
 	}
 }
 

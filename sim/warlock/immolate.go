@@ -32,7 +32,7 @@ func (warlock *Warlock) registerImmolate() {
 
 	// Calculate expected damage from the row's average hit and tick
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcDamage(sim, target, immolateHit.Average(), spell.OutcomeExpectedMagicHitAndCrit)
+		return spell.CalcDamage(sim, target, immolateHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcPeriodicDamage(sim, target, immolateTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)

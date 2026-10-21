@@ -59,6 +59,11 @@ presets by the `make*` helpers in `ui/app/preset_utils.ts`. EP weights, talents 
 no glyphs and no per-talent enum) and anything that needs a callback such as `onLoad` stay TS in `presets.ts`. Rules
 that several specs of one class share live in `ui/specs/<class>/shared/`; only the classes that need it have one.
 
+**Every new gearset passes `devOnly: true`** to `makePresetGear`, and a `makePresetBuildFromJSON` build takes that
+gearset as its `gear`, until the gearset is released. Without the flag it shows on wowsims.com: `spec_entry.tsx` drops
+dev-only gear outside the dev server and the Cloudflare Pages previews (`isPreviewOrDevMode` in `ui/sim/utils/env.ts`).
+Removing the flag is the release, so a change does it only when asked to release that gearset.
+
 Two traps:
 
 - **A shared `DerivedSetting` must be typed `DerivedSetting<any>`.** `Player<S>` is invariant in `S`, so

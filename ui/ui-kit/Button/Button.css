@@ -199,6 +199,28 @@
 		}
 	}
 
+	.ui-button-outline-secondary {
+		@apply border-secondary text-foreground;
+
+		&:where(:not([data-disabled])) {
+			&:hover {
+				@apply border-secondary-hover bg-secondary-hover text-white;
+			}
+
+			&:focus-visible {
+				@apply border-secondary-hover bg-secondary-hover text-white;
+			}
+
+			&:active {
+				@apply border-secondary-active bg-secondary-active text-white;
+			}
+		}
+
+		&:focus-visible {
+			@apply shadow-focus-secondary;
+		}
+	}
+
 	.ui-button-outline-light {
 		@apply border-light text-light;
 

@@ -112,7 +112,7 @@ describe('TalentsPicker container', () => {
 describe('TalentsPicker round trip', () => {
 	// A valid Forever mage build: 51 points, Fire left empty so the codec's empty-run
 	// handling stays covered.
-	const MAGE_DEFAULT = '2552252231221--2555';
+	const MAGE_DEFAULT = '25502252231221--25352';
 
 	it('hands a real Forever default back byte-identically, empty middle tree and all', () => {
 		talentsString = MAGE_DEFAULT;
