@@ -18,7 +18,7 @@ func TestSpiritRegenIsTheSameForEveryClass(t *testing.T) {
 	}{
 		{proto.Class_ClassPriest, proto.Race_RaceNightElf, 125, 6.25 + 125.0/8},
 		{proto.Class_ClassMage, proto.Race_RaceGnome, 120, 6.25 + 120.0/8},
-		{proto.Class_ClassPaladin, proto.Race_RaceDwarf, 75, 6.25 + 75.0/8},
+		{proto.Class_ClassPaladin, proto.Race_RaceDwarf, 74, 6.25 + 74.0/8},
 		{proto.Class_ClassDruid, proto.Race_RaceNightElf, 110, 6.25 + 110.0/8},
 	} {
 		t.Run(tc.class.String(), func(t *testing.T) {

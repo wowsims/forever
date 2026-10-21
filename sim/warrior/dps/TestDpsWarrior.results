@@ -3,8 +3,8 @@ character_stats_results: {
  value: {
   final_stats: 339
   final_stats: 250
-  final_stats: 493
-  final_stats: 104
+  final_stats: 495
+  final_stats: 102
   final_stats: 139
   final_stats: 48
   final_stats: 0
@@ -14,7 +14,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 163
+  final_stats: 167
   final_stats: 1110
   final_stats: 50
   final_stats: 0
@@ -30,7 +30,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 5687
   final_stats: 450
-  final_stats: 6439
+  final_stats: 6459
   final_stats: 0
   final_stats: 87
   final_stats: 27
@@ -446,7 +446,7 @@ dps_results: {
   dps: 455.88433
   tps: 269.48796
   dtps: 3.05866
-  hps: 60.38656
+  hps: 60.44433
  }
 }
 dps_results: {
@@ -624,7 +624,7 @@ dps_results: {
  key: "TestDpsWarrior-AllItems-GoldenBanana-270226"
  value: {
   dps: 458.07828
-  tps: 270.7632
+  tps: 270.76242
   dtps: 3.05866
   hps: 41.75111
  }
