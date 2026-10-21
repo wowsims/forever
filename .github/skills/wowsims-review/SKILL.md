@@ -156,3 +156,7 @@ fences closed and no `<em>` stands where an asterisk was meant.
 After the findings, two lists: **checked, not findings** (what was examined and holds), and **hand numbers
 that stay**, each with its reason. On a self-review, fix the findings, rerun the gates, and put both lists in
 the PR body.
+
+The review ends with the `humanizer:humanizer` skill when the harness knows it: run it over the review text,
+the comments to post, and any PR body, commit message or code comment the review added or rewrote, before
+anything is posted or pushed. The rewrite changes prose only; findings, numbers, code and paths stay.
