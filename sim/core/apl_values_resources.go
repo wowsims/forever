@@ -115,7 +115,7 @@ func (value *APLValueCurrentMana) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeFloat
 }
 func (value *APLValueCurrentMana) GetFloat(sim *Simulation) float64 {
-	// During a cast bar, the mana left once the cast pays its cost, as the cost checks read it.
+	// During a hardcast, the mana left once the cast pays its cost, as the cost checks read it.
 	return value.unit.Get().manaAfterHardcast(sim)
 }
 func (value *APLValueCurrentMana) String() string {

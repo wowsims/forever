@@ -688,8 +688,8 @@ func (spell *Spell) TimeToReady(sim *Simulation) time.Duration {
 	return MaxTimeToReady(spell.CD.Timer, spell.SharedCD.Timer, sim)
 }
 
-// The time until the spell is ready as the unit's rotation reads it: during a cast bar that holds the
-// rotation, the cooldowns the casting spell starts when it lands read as running from the bar's end.
+// The time until the spell is ready as the unit's rotation reads it: during a hardcast that holds the
+// rotation, the cooldowns the casting spell starts when it lands read as running from the cast end.
 func (spell *Spell) rotationTimeToReady(sim *Simulation) time.Duration {
 	timeToReady := spell.TimeToReady(sim)
 	if spell.Unit.Hardcast.Expires > sim.CurrentTime {
@@ -699,7 +699,7 @@ func (spell *Spell) rotationTimeToReady(sim *Simulation) time.Duration {
 }
 
 // How long the cooldown or shared cooldown the spell shares with the running cast keeps it from being ready
-// once that cast lands at the bar's end; zero when it shares neither or the cast does not hold the rotation.
+// once that cast lands at the cast end; zero when it shares neither or the cast does not hold the rotation.
 func (spell *Spell) cooldownAfterLanding(sim *Simulation) time.Duration {
 	hc := &spell.Unit.Hardcast
 	cast := hc.spell

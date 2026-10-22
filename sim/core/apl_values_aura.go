@@ -12,7 +12,7 @@ type auraReading struct {
 	active    bool
 	remaining time.Duration
 	stacks    int32
-	landing   bool // Read as the unit's running cast bar leaves it when it lands.
+	landing   bool // Read as the unit's running hardcast leaves it when it lands.
 }
 
 func (unit *Unit) readAura(sim *Simulation, aura *Aura) auraReading {
@@ -30,8 +30,8 @@ func readDot(sim *Simulation, dot *Dot) auraReading {
 	return dot.Spell.Unit.readLanding(sim, dot.Aura, dot.freshDuration)
 }
 
-// While the unit's cast bar runs for the aura's own spell on the aura's unit, the rotation reads the aura as
-// if the cast had landed at the bar's end: up for duration from then and, for a stacking aura, with one more
+// While the unit hardcasts the aura's own spell on the aura's unit, the rotation reads the aura as if the
+// cast had landed at the cast end: up for duration from then and, for a stacking aura, with one more
 // stack up to its maximum, or one. Any other aura, a proc the cast triggers among them, reads as it is.
 func (unit *Unit) readLanding(sim *Simulation, aura *Aura, duration func() time.Duration) auraReading {
 	hc := &unit.Hardcast

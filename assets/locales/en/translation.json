@@ -1819,7 +1819,7 @@
 				},
 				"is_casting": {
 					"label": "Is Casting",
-					"tooltip": "<b>True</b> while the cast bar of this spell runs, otherwise <b>False</b>. The rotation picks its next spell just before a cast bar ends, before this one lands, so this guards lines that read what the spell will do. A channel is <b>Is Channeling</b>."
+					"tooltip": "<b>True</b> if this spell is currently being cast, otherwise <b>False</b>. The rotation picks its next spell just before a cast ends, before this one lands, so this guards lines that read what the spell will do. A channel is <b>Is Channeling</b>."
 				},
 				"is_channeling": {
 					"label": "Is Channeling",

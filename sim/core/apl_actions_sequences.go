@@ -128,7 +128,7 @@ type APLActionStrictSequence struct {
 	hookedOnAction    func(*Simulation)
 
 	gate              APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
-	yieldsToCooldowns bool     // A Strict Multidot's: while its step waits behind a cast bar, major cooldowns go at the bar's end.
+	yieldsToCooldowns bool     // A Strict Multidot's: while its step waits on a hardcast, major cooldowns go at the cast end.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {

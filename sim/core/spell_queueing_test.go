@@ -91,7 +91,7 @@ func (action *gatedAction) IsReady(sim *Simulation) bool {
 // and a Drain Life channel. The instants, the major cooldowns and the channel also note their names in order.
 // Blast is a 2 s cast with an 8 s cooldown and a 4 s cooldown it shares with the instant shock, both starting
 // when it lands.
-type castBarTest struct {
+type hardcastTest struct {
 	*channelTest
 	slow, nuke, offGCD, short         *Spell
 	slowAt, nukeAt, offGCDAt, shortAt []time.Duration
@@ -106,7 +106,7 @@ type castBarTest struct {
 }
 
 // The config, noting name in the test's order as its effects apply.
-func (cb *castBarTest) ordered(name string, config SpellConfig) SpellConfig {
+func (cb *hardcastTest) ordered(name string, config SpellConfig) SpellConfig {
 	applyEffects := config.ApplyEffects
 	config.ApplyEffects = func(sim *Simulation, target *Unit, spell *Spell) {
 		cb.order = append(cb.order, name)
@@ -115,8 +115,8 @@ func (cb *castBarTest) ordered(name string, config SpellConfig) SpellConfig {
 	return config
 }
 
-func newCastBarTest(cooldowns ...*testCooldown) *castBarTest {
-	cb := &castBarTest{}
+func newHardcastTest(cooldowns ...*testCooldown) *hardcastTest {
+	cb := &hardcastTest{}
 	cb.channelTest = newChannelTest(func(ct *channelTest, char *Character) *Spell {
 		cb.slowAura = char.RegisterAura(Aura{Label: "Slow Cast Aura", ActionID: ActionID{SpellID: 910141}, Duration: time.Minute})
 		slow := recordedSpellConfig(910140, &cb.slowAt)
@@ -145,10 +145,10 @@ func newCastBarTest(cooldowns ...*testCooldown) *castBarTest {
 		shock := recordedSpellConfig(910145, &[]time.Duration{})
 		shock.Cast = CastConfig{DefaultCast: Cast{GCD: GCDDefault}, SharedCD: Cooldown{Timer: sharedTimer, Duration: 4 * time.Second}}
 		cb.shock = char.RegisterSpell(shock)
-		dotCast := fakeWarlockDot(910160, "Cast Bar Dot", ClassFlags{}, SpellFlagAPL)
+		dotCast := fakeWarlockDot(910160, "Hardcast Dot", ClassFlags{}, SpellFlagAPL)
 		dotCast.Cast = CastConfig{DefaultCast: Cast{GCD: GCDDefault, CastTime: 2 * time.Second}}
 		cb.dotCast = char.RegisterSpell(dotCast)
-		cb.buff = char.RegisterAura(Aura{Label: "Cast Bar Buff", ActionID: ActionID{SpellID: 910161}, Duration: 10 * time.Second, MaxStacks: 3})
+		cb.buff = char.RegisterAura(Aura{Label: "Hardcast Buff", ActionID: ActionID{SpellID: 910161}, Duration: 10 * time.Second, MaxStacks: 3})
 		buffCast := recordedSpellConfig(910161, &[]time.Duration{})
 		buffCast.Flags |= SpellFlagHelpful
 		buffCast.Cast = CastConfig{DefaultCast: Cast{GCD: GCDDefault, CastTime: 2 * time.Second}}
@@ -179,16 +179,16 @@ func newCastBarTest(cooldowns ...*testCooldown) *castBarTest {
 }
 
 // The slow cast, only as the rotation's first action at 0.
-func (cb *castBarTest) slowAtPull() APLActionImpl {
+func (cb *hardcastTest) slowAtPull() APLActionImpl {
 	return &gatedAction{APLActionImpl: cb.castOf(cb.slow), ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}
 }
 
-func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
+func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 	const castEnd = 2 * time.Second
 	earlyLook := castEnd - SpellBatchWindow
 
-	t.Run("the rotation looks one batch before the cast bar ends and its pick goes off at the end", func(t *testing.T) {
-		cb := newCastBarTest()
+	t.Run("the rotation looks one batch before the hardcast ends and its pick goes off at the cast end", func(t *testing.T) {
+		cb := newHardcastTest()
 		probe := &lookProbe{}
 		cb.start(probe, cb.slowAtPull(), cb.castOf(cb.nuke))
 
@@ -207,7 +207,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 	})
 
 	t.Run("the pick does not see the aura the ending cast puts up", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		slowIfNoAura := &gatedAction{APLActionImpl: cb.castOf(cb.slow), ready: func(*Simulation) bool { return !cb.slowAura.IsActive() }}
 		cb.start(slowIfNoAura, cb.castOf(cb.nuke))
 
@@ -221,7 +221,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 	})
 
 	t.Run("a spell off the GCD waits at the cast end until the pick has gone off", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		cb.offGCD.CD.Set(1500 * time.Millisecond)
 		cb.start(cb.castOf(cb.offGCD), cb.slowAtPull(), cb.castOf(cb.nuke))
 
@@ -233,7 +233,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 	})
 
 	t.Run("a move below the pick waits for it at the cast end", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		slowTwice := &gatedAction{APLActionImpl: cb.castOf(cb.slow), ready: func(*Simulation) bool { return len(cb.slowAt) < 2 }}
 		move := cb.rot.newActionMove(&proto.APLActionMove{RangeFromTarget: constValue("20")})
 		cb.start(slowTwice, move)
@@ -250,7 +250,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 
 	t.Run("a major cooldown off the GCD goes at the cast end, ahead of the pick", func(t *testing.T) {
 		potion := &testCooldown{}
-		cb := newCastBarTest(potion)
+		cb := newHardcastTest(potion)
 		cb.start(cb.autocastAction(), cb.slowAtPull(), cb.castOf(cb.nuke))
 
 		cb.runUntil(castEnd)
@@ -262,7 +262,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 
 	t.Run("an explosive goes in the cast-end pass right after a queued channel starts", func(t *testing.T) {
 		explosive := &testCooldown{explosive: true}
-		cb := newCastBarTest(explosive)
+		cb := newHardcastTest(explosive)
 		cb.start(cb.autocastAction(), cb.slowAtPull(), cb.channelOf(cb.drain, "false", false))
 
 		cb.runUntil(castEnd)
@@ -273,7 +273,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 
 	t.Run("a major cooldown on the GCD takes the pick's place at the cast end", func(t *testing.T) {
 		onGCD := &testCooldown{gcd: GCDDefault}
-		cb := newCastBarTest(onGCD)
+		cb := newHardcastTest(onGCD)
 		cb.start(cb.autocastAction(), cb.slowAtPull(), cb.castOf(cb.nuke))
 
 		cb.runUntil(castEnd + GCDDefault + 1)
@@ -283,7 +283,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 	})
 
 	t.Run("a look with nothing to queue looks again at the cast end", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		probe := &lookProbe{}
 		after := &timedStubAction{readyAt: castEnd}
 		cb.start(probe, cb.slowAtPull(), after)
@@ -299,7 +299,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 			return slices.ContainsFunc(probe.lookedAt, func(at time.Duration) bool { return at > end-SpellBatchWindow-1 && at < end })
 		}
 
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		probe := &lookProbe{}
 		cb.start(probe, cb.castOf(cb.nuke))
 		cb.runUntil(GCDDefault)
@@ -307,7 +307,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 			t.Fatalf("after an instant the rotation should look when the GCD ends at 1.5 s, looked at %v", probe.lookedAt)
 		}
 
-		cb = newCastBarTest()
+		cb = newHardcastTest()
 		probe = &lookProbe{}
 		shortAtPull := &gatedAction{APLActionImpl: cb.castOf(cb.short), ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}
 		cb.start(probe, shortAtPull)
@@ -329,7 +329,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 
 	t.Run("a major cooldown goes at the cast end inside a sequence of casts", func(t *testing.T) {
 		potion := &testCooldown{}
-		cb := newCastBarTest(potion)
+		cb := newHardcastTest(potion)
 		slow := &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: cb.slow.ActionID.ToProto()}}}
 		sequence := cb.rot.newActionSequence(&proto.APLActionSequence{Actions: []*proto.APLAction{slow, slow}})
 		cb.start(cb.autocastAction(), sequence)
@@ -343,9 +343,9 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 		}
 	})
 
-	t.Run("a major cooldown goes at the cast end ahead of a Strict Multidot cast queued behind the bar", func(t *testing.T) {
+	t.Run("a major cooldown goes at the cast end ahead of a Strict Multidot cast queued after the hardcast", func(t *testing.T) {
 		potion := &testCooldown{}
-		cb := newCastBarTest(potion)
+		cb := newHardcastTest(potion)
 		strictMultidot := cb.rot.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: cb.dotCast.ActionID.ToProto(), MaxDots: 1})
 		cb.start(cb.autocastAction(), cb.slowAtPull(), strictMultidot)
 
@@ -358,8 +358,8 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 		}
 	})
 
-	t.Run("a pet's cast bar keeps the look at its end", func(t *testing.T) {
-		cb := newCastBarTest()
+	t.Run("a pet's hardcast keeps the look at the cast end", func(t *testing.T) {
+		cb := newHardcastTest()
 		probe := &lookProbe{}
 		nukeAfterPull := &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool { return sim.CurrentTime > 0 }}
 		cb.start(probe, nukeAfterPull)
@@ -374,7 +374,7 @@ func TestRotationQueuesBeforeCastBarEnds(t *testing.T) {
 	})
 
 	t.Run("a pushback after the early look drops the queued cast and looks again before the new end", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		// Nothing would queue the instant again at the old end.
 		nukeOffOldEnd := &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool { return sim.CurrentTime != castEnd }}
 		cb.start(cb.slowAtPull(), nukeOffOldEnd)
@@ -405,7 +405,7 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 	earlyLook := castEnd - SpellBatchWindow
 
 	t.Run("the cast's own dot reads as landed at the cast end", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		spellID := cb.dotCast.ActionID.ToProto()
 		isActive := cb.rot.newValueDotIsActive(&proto.APLValueDotIsActive{SpellId: spellID}, nil)
 		remaining := cb.rot.newValueDotRemainingTime(&proto.APLValueDotRemainingTime{SpellId: spellID}, nil)
@@ -444,7 +444,7 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 	})
 
 	t.Run("the cast's own buff reads as landed, other auras as they are", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		auraValues := func(id ActionID) (APLValue, APLValue, APLValue) {
 			return cb.rot.newValueAuraIsActive(&proto.APLValueAuraIsActive{AuraId: id.ToProto()}, nil),
 				cb.rot.newValueAuraRemainingTime(&proto.APLValueAuraRemainingTime{AuraId: id.ToProto()}, nil),
@@ -478,7 +478,7 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 	})
 
 	t.Run("the cooldowns the cast starts as it lands read as running from the cast end", func(t *testing.T) {
-		cb := newCastBarTest()
+		cb := newHardcastTest()
 		isReady := func(spell *Spell) APLValue {
 			return cb.rot.newValueSpellIsReady(&proto.APLValueSpellIsReady{SpellId: spell.ActionID.ToProto()}, nil)
 		}
@@ -518,8 +518,8 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		}
 	})
 
-	t.Run("Spell Is Casting is true for the cast bar only", func(t *testing.T) {
-		cb := newCastBarTest()
+	t.Run("Spell Is Casting is true for the hardcast only", func(t *testing.T) {
+		cb := newHardcastTest()
 		isCasting := func(spell *Spell) APLValue {
 			return cb.rot.newValueSpellIsCasting(&proto.APLValueSpellIsCasting{SpellId: spell.ActionID.ToProto()}, nil)
 		}
