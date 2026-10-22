@@ -10,6 +10,8 @@ func (priest *Priest) registerPrayerOfMending(_ int32, rank *spelldata.Spell) {
 	triggerAura := spellData.PrayerOfMendingTriggered.ByID(401877)
 
 	config := spelldata.SpellConfig(&priest.Unit, rank, spelldata.Magic(core.ProcMaskSpellHealing))
+	// The cast row omits DefenseType, but its healing crits use the magic critical multiplier.
+	config.DefenseType = core.DefenseTypeMagic
 	config.ClassSpellMask = PriestSpellPrayerOfMending
 	config.BonusCoefficient = heal.Coeff()
 	var spell *core.Spell

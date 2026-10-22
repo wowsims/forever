@@ -75,7 +75,7 @@ const BuffSections = ({ gearPlanner }: { gearPlanner: boolean }) => {
 					<RaidBuffs options={options.partyBuffs} miscOptions={[]} />
 				</BuffSection>
 			)}
-			{!gearPlanner && (
+			{!gearPlanner && !config.hideDebuffs && (
 				<BuffSection
 					section="debuffs"
 					empty={!offersDebuffs}
@@ -91,6 +91,8 @@ export const SettingsTabBody = () => {
 	const host = useSimHost();
 	const config = useSpecConfig();
 	const ready = useSimReady();
+	const SettingsComponentUnderPlayer = config.settingsComponentUnderPlayer;
+	const healingInputs = config.healingInputs?.inputs ?? [];
 
 	const itemSwapSlots = config.itemSwapSlots || [];
 	const hasOtherSettings = config.otherInputs.inputs.length > 0 || itemSwapSlots.length > 0;
@@ -117,6 +119,7 @@ export const SettingsTabBody = () => {
 								config={{ header: { title: i18n.t('settings_tab.player.title') } }}>
 								<PlayerSettings iconInputs={config.playerIconInputs} inputs={config.playerInputs?.inputs ?? []} />
 							</ContentBlock>
+							{!gearPlanner && SettingsComponentUnderPlayer && <SettingsComponentUnderPlayer />}
 						</>
 					)}
 				</TabPanelColumns.Col>
@@ -130,13 +133,20 @@ export const SettingsTabBody = () => {
 								rootDataAttributes={{ 'data-block': 'consumes-settings' }}
 								config={{ header: { title: i18n.t('settings_tab.consumables.title') } }}
 								headerChildren={<ConsumesFilters />}>
-								<ConsumesPicker encounterConsumes={!gearPlanner} />
+								<ConsumesPicker encounterConsumes={true} />
 							</ContentBlock>
 							{hasOtherSettings && (
 								<ContentBlock
 									rootDataAttributes={{ 'data-block': 'other-settings' }}
 									config={{ header: { title: i18n.t('settings_tab.other.title') } }}>
 									<OtherSettings inputs={config.otherInputs.inputs} itemSlots={itemSwapSlots} />
+								</ContentBlock>
+							)}
+							{!gearPlanner && healingInputs.length > 0 && (
+								<ContentBlock
+									rootDataAttributes={{ 'data-block': 'healing-inputs' }}
+									config={{ header: { title: i18n.t('settings_tab.healing_inputs.title') } }}>
+									<OtherSettings inputs={healingInputs} itemSlots={[]} />
 								</ContentBlock>
 							)}
 						</>

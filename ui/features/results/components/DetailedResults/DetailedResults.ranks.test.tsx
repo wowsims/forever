@@ -39,6 +39,7 @@ const renderPane = async () => {
 		{ spellId: FROSTBOLT, damage: 50 },
 	]);
 	const view = renderWithHost(<DetailedResults resultsManager={{ currentChangeEmitter, getRunData: () => ({ run }) } as never} />, {
+		player: { getPlayerSpec: () => ({ isHealingSpec: false }) },
 		sim: {
 			store: createSimStore(),
 			getShowDamageMetrics: () => true,

@@ -1,6 +1,7 @@
 import { Raid as RaidProto } from '@generated/proto/api';
 import { Debuffs, RaidBuffs } from '@generated/proto/buffs';
 import { Class, UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
+import { HealingSimSettings } from '@generated/proto/ui';
 
 import { Player } from '../player/player';
 import { Sim } from '../sim';
@@ -145,6 +146,15 @@ export class Raid {
 		if (this.raidState.targetDummies == newTargetDummies) return;
 
 		this.patchRaid({ targetDummies: newTargetDummies });
+	}
+
+	getHealingSettings(): HealingSimSettings {
+		return HealingSimSettings.clone(this.raidState.healingSettings);
+	}
+
+	setHealingSettings(settings: HealingSimSettings) {
+		if (HealingSimSettings.equals(this.raidState.healingSettings, settings)) return;
+		this.patchRaid({ healingSettings: HealingSimSettings.clone(settings) });
 	}
 
 	getNumActiveParties(): number {

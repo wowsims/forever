@@ -13,11 +13,14 @@ type UnitReference struct {
 	Type               proto.UnitReference_Type
 	fixedUnit          *Unit
 	targetLookupSource *Unit
+	randomHealTarget   **Unit
 }
 
 func (ur UnitReference) Get() *Unit {
 	if ur.fixedUnit != nil {
 		return ur.fixedUnit
+	} else if ur.randomHealTarget != nil {
+		return *ur.randomHealTarget
 	} else if ur.targetLookupSource != nil {
 		switch ur.Type {
 		case proto.UnitReference_PreviousTarget:
@@ -58,6 +61,18 @@ func NewUnitReference(ref *proto.UnitReference, contextUnit *Unit) UnitReference
 func (rot *APLRotation) getUnit(ref *proto.UnitReference, defaultRef *proto.UnitReference) UnitReference {
 	if ref == nil || ref.Type == proto.UnitReference_Unknown {
 		return NewUnitReference(defaultRef, rot.unit)
+	} else if ref.Type == proto.UnitReference_RandomHealTarget {
+		rot.usesRandomHealTarget = true
+		if rot.randomHealTarget == nil {
+			if targets := rot.unit.Env.Raid.GetTargetDummies(); len(targets) > 0 {
+				rot.randomHealTarget = &targets[0].Unit
+			}
+		}
+		unitRef := UnitReference{Type: ref.Type, randomHealTarget: &rot.randomHealTarget}
+		if unitRef.Get() == nil {
+			rot.ValidationMessage(proto.LogLevel_Warning, "No heal target found for random heal target reference")
+		}
+		return unitRef
 	} else {
 		unitRef := NewUnitReference(ref, rot.unit)
 		if unitRef.Get() == nil {
@@ -66,6 +81,7 @@ func (rot *APLRotation) getUnit(ref *proto.UnitReference, defaultRef *proto.Unit
 		return unitRef
 	}
 }
+
 func (rot *APLRotation) GetSourceUnit(ref *proto.UnitReference) UnitReference {
 	return rot.getUnit(ref, &proto.UnitReference{Type: proto.UnitReference_Self})
 }

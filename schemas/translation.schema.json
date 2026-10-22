@@ -1699,9 +1699,6 @@
 				"basic_bis_disclaimer": {
 					"type": "string"
 				},
-				"healing_sim_disclaimer": {
-					"type": "string"
-				},
 				"notice_native_download": {
 					"type": "object",
 					"properties": {
@@ -1839,7 +1836,6 @@
 				"title_class",
 				"description_class",
 				"basic_bis_disclaimer",
-				"healing_sim_disclaimer",
 				"notice_native_download",
 				"crash_modal",
 				"unlaunched",
@@ -3504,6 +3500,29 @@
 					"additionalProperties": false,
 					"required": ["title", "filters", "potions", "elixirs", "food", "holiday", "engineering", "imbue", "weaponImbue", "scrolls", "miscellaneous"]
 				},
+				"healing_settings": {
+					"type": "object",
+					"properties": {
+						"title": { "type": "string" },
+						"assignment": { "type": "string" },
+						"tank_healing": { "type": "string" },
+						"raid_healing": { "type": "string" },
+						"group_size": { "type": "string" },
+						"dungeon_group": { "type": "string" },
+						"ten_player": { "type": "string" },
+						"twenty_player": { "type": "string" }
+					},
+					"additionalProperties": false,
+					"required": ["title", "assignment", "tank_healing", "raid_healing", "group_size", "dungeon_group", "ten_player", "twenty_player"]
+				},
+				"healing_inputs": {
+					"type": "object",
+					"properties": {
+						"title": { "type": "string" }
+					},
+					"additionalProperties": false,
+					"required": ["title"]
+				},
 				"encounter": {
 					"type": "object",
 					"properties": {
@@ -4074,6 +4093,8 @@
 				"debuffs",
 				"other",
 				"consumables",
+				"healing_settings",
+				"healing_inputs",
 				"encounter",
 				"player",
 				"saved_encounters",
@@ -7596,6 +7617,12 @@
 								},
 								"groups": {
 									"type": "string"
+								},
+								"heal_target": {
+									"type": "string"
+								},
+								"group": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -7640,7 +7667,9 @@
 								"external_cooldowns",
 								"external_debuffs",
 								"variables",
-								"groups"
+								"groups",
+								"heal_target",
+								"group"
 							]
 						},
 						"item_swap_sets": {
@@ -7799,10 +7828,16 @@
 										"next_target": {
 											"type": "string"
 										},
+										"random_heal_target": {
+											"type": "string"
+										},
 										"player": {
 											"type": "string"
 										},
 										"target": {
+											"type": "string"
+										},
+										"heal_target": {
 											"type": "string"
 										},
 										"pet": {
@@ -7810,7 +7845,17 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["self", "current_target", "previous_target", "next_target", "player", "target", "pet"]
+									"required": [
+										"self",
+										"current_target",
+										"previous_target",
+										"next_target",
+										"random_heal_target",
+										"player",
+										"target",
+										"heal_target",
+										"pet"
+									]
 								},
 								"placeholder_tooltip": {
 									"type": "string"
@@ -8314,8 +8359,64 @@
 						"target_number": {
 							"type": "string"
 						},
+						"healer_target": {
+							"type": "string"
+						},
+						"heal_target_number": {
+							"type": "string"
+						},
 						"group_ranks": {
 							"type": "string"
+						},
+						"healing_spells": {
+							"type": "object",
+							"properties": {
+								"rank": { "type": "string" },
+								"rank_label": { "type": "string" },
+								"normal": { "type": "string" },
+								"critical": { "type": "string" },
+								"crit_chance": { "type": "string" },
+								"absorb": { "type": "string" },
+								"divine_aegis": { "type": "string" },
+								"proc_uptimes": { "type": "string" },
+								"inspiration": { "type": "string" },
+								"uptime_note": { "type": "string" },
+								"proc": { "type": "string" },
+								"target": { "type": "string" },
+								"uptime": { "type": "string" },
+								"min": { "type": "string" },
+								"mean": { "type": "string" },
+								"max": { "type": "string" },
+								"per_tick": { "type": "string" },
+								"normal_tick": { "type": "string" },
+								"crit_tick": { "type": "string" },
+								"periodic_tooltip": { "type": "string" },
+								"no_spells": { "type": "string" }
+							},
+							"additionalProperties": false,
+							"required": [
+								"rank",
+								"rank_label",
+								"normal",
+								"critical",
+								"crit_chance",
+								"absorb",
+								"divine_aegis",
+								"proc_uptimes",
+								"inspiration",
+								"uptime_note",
+								"proc",
+								"target",
+								"uptime",
+								"min",
+								"mean",
+								"max",
+								"per_tick",
+								"normal_tick",
+								"crit_tick",
+								"periodic_tooltip",
+								"no_spells"
+							]
 						},
 						"damage": {
 							"type": "object",
@@ -8787,6 +8888,9 @@
 								"healing": {
 									"type": "string"
 								},
+								"healing_spells": {
+									"type": "string"
+								},
 								"threat": {
 									"type": "string"
 								},
@@ -8813,7 +8917,19 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "log"]
+							"required": [
+								"damage",
+								"healing",
+								"healing_spells",
+								"threat",
+								"damage_taken",
+								"buffs",
+								"debuffs",
+								"casts",
+								"resources",
+								"timeline",
+								"log"
+							]
 						},
 						"columns": {
 							"type": "object",
@@ -9263,7 +9379,10 @@
 						"sim_1_death",
 						"all_targets",
 						"target_number",
+						"healer_target",
+						"heal_target_number",
 						"group_ranks",
+						"healing_spells",
 						"damage",
 						"timeline",
 						"logs",
@@ -9837,6 +9956,9 @@
 								"show_threat_metrics": {
 									"type": "string"
 								},
+								"show_damage_metrics": {
+									"type": "string"
+								},
 								"show_experimental": {
 									"type": "string"
 								},
@@ -9852,6 +9974,9 @@
 								"show_threat_metrics_tooltip": {
 									"type": "string"
 								},
+								"show_damage_metrics_tooltip": {
+									"type": "string"
+								},
 								"show_experimental_tooltip": {
 									"type": "string"
 								},
@@ -9862,11 +9987,13 @@
 							"additionalProperties": false,
 							"required": [
 								"show_threat_metrics",
+								"show_damage_metrics",
 								"show_experimental",
 								"show_power_tools",
 								"show_power_tools_tooltip",
 								"show_quick_swap",
 								"show_threat_metrics_tooltip",
+								"show_damage_metrics_tooltip",
 								"show_experimental_tooltip",
 								"show_quick_swap_tooltip"
 							]

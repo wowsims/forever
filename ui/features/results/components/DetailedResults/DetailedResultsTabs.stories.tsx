@@ -25,5 +25,5 @@ type Story = StoryObj<typeof meta>;
 export const AllTabs: Story = {};
 
 export const DamageOnly: Story = {
-	args: { tabs: DETAILED_RESULTS_TABS.filter(tab => !['threatTab', 'healingTab', 'damageTakenTab'].includes(tab.id)) },
+	args: { tabs: DETAILED_RESULTS_TABS.filter(tab => !['threatTab', 'healingTab', 'healingSpellsTab', 'damageTakenTab'].includes(tab.id)) },
 };

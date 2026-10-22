@@ -205,7 +205,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			// do not add channeled time here as they have variable cast length
 			// cast time for channels is handled in dot.OnExpire
 			if !isChanneled {
-				spell.SpellMetrics[target.UnitIndex].TotalCastTime += effectiveTime
+				spell.SpellMetrics[target.UnitIndex].TotalCastTime += spell.CurCast.CastTime
 			}
 
 			spell.Unit.SetGCDTimer(sim, max(sim.CurrentTime+effectiveTime, spell.Unit.NextGCDAt()))

@@ -16,7 +16,10 @@ let result: SimResultData | null = null;
 let showThreatMetrics = true;
 
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
-vi.mock('../MetricsTable/MetricsActionCell', () => ({ MetricsActionCell: ({ name }: { name: string }) => <span>{name}</span> }));
+vi.mock('../MetricsTable/MetricsActionCell', () => ({
+	MetricsActionCell: ({ name, expandable, onToggle }: { name: string; expandable: boolean; onToggle: () => void }) =>
+		expandable ? <button onClick={onToggle}>{name}</button> : <span>{name}</span>,
+}));
 vi.mock('@sim/context/SimHostContext', async importOriginal => ({
 	...(await importOriginal<typeof import('@sim/context/SimHostContext')>()),
 	// `useDisplayMetrics` reads all three flags through one subscription; only threat varies per case here.
@@ -25,6 +28,18 @@ vi.mock('@sim/context/SimHostContext', async importOriginal => ({
 vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions());
 
 const playerResult = playerMetricsResult('getHealingActions');
+
+const taggedActionId = (spellId: number, tag: number, name: string) => ({
+	spellId,
+	itemId: 0,
+	tag,
+	name,
+	toStringIgnoringTag: () => `${spellId}`,
+	toString: () => `${spellId}:${tag}`,
+	withoutTag() {
+		return { ...this, tag: 0 };
+	},
+});
 
 describe('HealingMetricsTable', () => {
 	beforeEach(() => {
@@ -46,6 +61,20 @@ describe('HealingMetricsTable', () => {
 		const { container } = render(<HealingMetricsTable />);
 
 		expect(rows(container).map(row => row.cells[0].textContent)).toEqual(['Rejuvenation', 'Healing Touch']);
+	});
+
+	it('groups tagged proc healing under its source while leaving Penance tag 1 as a normal action', () => {
+		result = playerResult([
+			metric('Prayer of Healing', { actionId: taggedActionId(100, 0, 'Prayer of Healing'), hps: 8 }),
+			metric('Divine Aegis', { actionId: taggedActionId(900, 100, 'Divine Aegis'), hps: 4 }),
+			metric('Penance', { actionId: taggedActionId(200, 1, 'Penance'), hps: 6 }),
+		]);
+		const { container } = render(<HealingMetricsTable />);
+
+		expect(rows(container).map(row => row.cells[0].textContent)).toEqual(['Prayer of Healing', 'Penance', 'Divine Aegis', 'Prayer of Healing']);
+		expect(rows(container)[1].cells[0].textContent).toBe('Penance');
+		expect(rows(container)[2].cells[0].textContent).toBe('Divine Aegis');
+		expect(rows(container)[3].cells[0].textContent).toBe('Prayer of Healing');
 	});
 
 	it('draws the shielding overlay as a second bar fill', () => {

@@ -122,6 +122,13 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	}
 
 	raidProto := SinglePlayerRaidProto(swr.Player, swr.PartyBuffs, swr.RaidBuffs, swr.Debuffs)
+	if swr.Raid != nil && len(swr.Raid.Parties) > 0 && swr.Raid.Parties[0] != nil && len(swr.Raid.Parties[0].Players) > 0 {
+		raidProto = googleProto.Clone(swr.Raid).(*proto.Raid)
+		raidProto.Parties[0].Players[0] = swr.Player
+		raidProto.Buffs = swr.RaidBuffs
+		raidProto.Debuffs = swr.Debuffs
+		raidProto.Parties[0].Buffs = swr.PartyBuffs
+	}
 	raidProto.Tanks = swr.Tanks
 
 	swr.SimOptions.SaveAllValues = true

@@ -7,6 +7,7 @@ import (
 
 func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 	healFraction := rank.EffectN(1).Percent()
+	healingBySource := make(map[*core.Spell]*core.Spell)
 
 	veAuras := priest.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return target.RegisterAura(spelldata.AuraConfig(rank, spelldata.RankLabel(rank, &priest.Unit)))
@@ -14,14 +15,20 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 
 	// The party heal 15290 the debuff casts, a heal with no base of its own on the caster's party.
 	// TODO: Read the heal off row 15290 once the store carries it.
-	heal := priest.RegisterSpell(core.SpellConfig{
-		ActionID:         core.ActionID{SpellID: 15290},
-		SpellSchool:      core.SpellSchoolShadow,
-		DefenseType:      core.DefenseTypeMagic,
-		ProcMask:         core.ProcMaskSpellHealing,
-		Flags:            core.SpellFlagHelpful | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1, // TODO: Verify in game whether the heal causes threat.
+	priest.OnSpellRegistered(func(sourceSpell *core.Spell) {
+		if !sourceSpell.Matches(PriestShadowSpells) {
+			return
+		}
+
+		healingBySource[sourceSpell] = priest.RegisterSpell(core.SpellConfig{
+			ActionID:         core.ActionID{SpellID: 15290, Tag: sourceSpell.ActionID.SpellID},
+			SpellSchool:      core.SpellSchoolShadow,
+			DefenseType:      core.DefenseTypeMagic,
+			ProcMask:         core.ProcMaskSpellHealing,
+			Flags:            core.SpellFlagHelpful | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1, // TODO: Verify in game whether the heal causes threat.
+		})
 	})
 
 	priest.MakeProcTriggerAura(core.ProcTrigger{
@@ -35,7 +42,12 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 		},
 		// Each party member's heal is a heal of its own, which on-heal listeners hear one by one.
 		// TODO: Verify in game that each member's heal rolls Revelation separately, not once per damage event.
-		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+		Handler: func(sim *core.Simulation, sourceSpell *core.Spell, result *core.SpellResult) {
+			heal := healingBySource[sourceSpell]
+			if heal == nil {
+				return
+			}
+
 			amount := result.Damage * healFraction
 			for _, agent := range priest.Party.PlayersAndPets {
 				member := &agent.GetCharacter().Unit

@@ -67,6 +67,7 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 	const playerMetrics = players[0];
 	const spec = playerMetrics.spec?.specID;
 	const isTank = TANK_SPECS.includes(spec);
+	const isHealer = playerMetrics.spec?.isHealingSpec ?? false;
 
 	if (playerMetrics.getTargetIndex(filter) === null) {
 		const { chanceOfDeath, dps: dpsMetrics, tps: tpsMetrics, dtps: dtpsMetrics, tmi: tmiMetrics } = playerMetrics;
@@ -101,8 +102,23 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 	}
 
 	if (!isTank) {
-		resultColumns.push(column('tto', playerMetrics.tto.avg, { stdev: playerMetrics.tto.stdev, unit: 'seconds' }));
-		resultColumns.push(column('hps', playerMetrics.hps.avg, { stdev: playerMetrics.hps.stdev }));
+		if (!isHealer) {
+			resultColumns.push(column('tto', playerMetrics.tto.avg, { stdev: playerMetrics.tto.stdev, unit: 'seconds' }));
+		}
+		const targetIndex = playerMetrics.getTargetIndex(filter);
+		const hps =
+			targetIndex == null
+				? playerMetrics.hps.avg
+				: (() => {
+						const targetActions = playerMetrics
+							.getPlayerAndPetActions()
+							.filter(action =>
+								action.targets.some(target => target.data.unitIndex === targetIndex && (target.healing > 0 || target.shielding > 0)),
+							)
+							.map(action => action.forTarget(filter));
+						return targetActions.length ? ActionMetrics.merge(targetActions).hps : 0;
+					})();
+		resultColumns.push(column('hps', hps));
 	}
 
 	if (simResult.request.encounter?.useHealth) {
@@ -117,12 +133,20 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 		resultColumns.push(column('oom', secondsOOM, { unit: 'seconds', extraClass: DANGER_TEXT[dangerLevel] }));
 	}
 
-	if (!displayMetrics) return resultColumns;
+	const visibleColumns = displayMetrics
+		? resultColumns.filter(({ metric }) => {
+				const category = resultMetricCategories[metric];
+				return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
+			})
+		: resultColumns;
+	if (!isHealer) return visibleColumns;
 
-	// Threat per second is the one threat metric every spec shows; the rest follow the setting.
-	return resultColumns.filter(({ metric }) => {
-		if (metric === 'tps') return true;
-		const category = resultMetricCategories[metric];
-		return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
-	});
+	const healingMetricIndex = visibleColumns.findIndex(({ metric }) => metric === 'hps');
+	if (healingMetricIndex <= 0) return visibleColumns;
+
+	return [
+		...visibleColumns.slice(healingMetricIndex, healingMetricIndex + 1),
+		...visibleColumns.slice(0, healingMetricIndex),
+		...visibleColumns.slice(healingMetricIndex + 1),
+	];
 };

@@ -26,7 +26,13 @@ vi.mock('../ResultsFilter', async importOriginal => ({
 const run = vi.hoisted(() => ({ targets: 3 }));
 vi.mock('@sim/proto/sim_result', async importOriginal => ({
 	...(await importOriginal<typeof import('@sim/proto/sim_result')>()),
-	SimResult: { fromProto: () => Promise.resolve({ getTargets: () => Array.from({ length: run.targets }, (_, index) => ({ index })) }) },
+	SimResult: {
+		fromProto: () =>
+			Promise.resolve({
+				getTargets: () => Array.from({ length: run.targets }, (_, index) => ({ index })),
+				getRaidIndexedPlayers: () => [],
+			}),
+	},
 }));
 
 // Every pane below is React now, so they are prop readers rather than islands: what this pane owes
@@ -67,6 +73,7 @@ let runData: unknown = null;
 
 const renderPane = () =>
 	renderWithHost(<DetailedResults resultsManager={{ currentChangeEmitter, getRunData: () => runData } as never} />, {
+		player: { getPlayerSpec: () => ({ isHealingSpec: false }) },
 		sim: {
 			store: createSimStore(),
 			getShowDamageMetrics: () => metrics.damage,

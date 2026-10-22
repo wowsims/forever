@@ -12,7 +12,7 @@ const castGroups = (resultData: SimResultData): Array<Array<ActionMetrics>> => {
 	const players = resultData.result.getRaidIndexedPlayers(resultData.filter);
 	if (!players.length) return [];
 
-	const player = players[0];
+	const player = players.find(candidate => candidate.spec?.isHealingSpec) ?? players[0];
 	const actions = player.actions.filter(action => action.casts != 0).map(action => action.forTarget(resultData.filter));
 	const petGroups = player.pets
 		.map(pet => pet.actions.filter(action => action.casts != 0).map(action => action.forTarget(resultData.filter)))

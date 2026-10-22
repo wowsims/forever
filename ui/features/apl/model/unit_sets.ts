@@ -1,7 +1,32 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
+import { HealingSimSettings_Assignment as HealingAssignment } from '@generated/proto/ui';
 import { Player } from '@sim/player/player';
+import { MAX_PARTY_SIZE } from '@sim/raid/party';
 
 export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
+
+export const healingTargetIndices = (player: Player<any>): Array<number> => {
+	if (!player.getPlayerSpec().isHealingSpec) return [];
+
+	const raid = player.sim.raid;
+	const targetCount = raid.getTargetDummies();
+	if (targetCount <= 0) return [];
+
+	const activeSlotCount = raid.getNumActiveParties() * MAX_PARTY_SIZE;
+	return raid
+		.getPlayers()
+		.slice(0, activeSlotCount)
+		.flatMap((raidPlayer, index) => (raidPlayer ? [] : [index]))
+		.slice(0, targetCount);
+};
+
+export const healingTargetsAreGrouped = (player: Player<any>): boolean => {
+	const settings = player.sim.raid.getHealingSettings();
+	return settings.groupSize !== 5 && settings.assignment === HealingAssignment.RaidHealing;
+};
+
+export const healingRandomTargetEnabled = (player: Player<any>): boolean =>
+	player.getPlayerSpec().isHealingSpec && player.sim.raid.getHealingSettings().assignment === HealingAssignment.RaidHealing;
 
 const ownPetRefs = (player: Player<any>) =>
 	player
@@ -29,6 +54,7 @@ export const unitSets: Record<
 					.getActivePlayers()
 					.filter(filter => filter != player)
 					.map(mapPlayer => UnitReference.create({ type: UnitType.Player, index: mapPlayer.getRaidIndex() })),
+				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
 				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 			].flat();
 		},
@@ -41,6 +67,7 @@ export const unitSets: Record<
 				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.Self }),
 				ownPetRefs(player),
+				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
 			].flat();
 		},
 	},
@@ -58,6 +85,7 @@ export const unitSets: Record<
 				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
+				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
 			].flat();
 		},
 	},
@@ -67,6 +95,7 @@ export const unitSets: Record<
 			return [
 				undefined,
 				player.sim.raid.getActivePlayers().map(player => UnitReference.create({ type: UnitType.Player, index: player.getRaidIndex() })),
+				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
 			].flat();
 		},
 	},

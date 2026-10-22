@@ -8,12 +8,14 @@ import (
 )
 
 type APLRotation struct {
-	unit           *Unit
-	prepullActions []*APLAction
-	priorityList   []*APLAction
-	groups         []*APLGroup
-	valueVariables []*APLValueVariable
-	resetActions   []*APLAction
+	unit                 *Unit
+	randomHealTarget     *Unit
+	usesRandomHealTarget bool
+	prepullActions       []*APLAction
+	priorityList         []*APLAction
+	groups               []*APLGroup
+	valueVariables       []*APLValueVariable
+	resetActions         []*APLAction
 
 	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
 	canMoveCloserValue bool
@@ -426,6 +428,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	if apl.inLoop {
 		return
 	}
+	apl.updateRandomHealTarget(sim)
 
 	// An event at a cast's last instant, such as a rage tick, wakes the rotation before the cast's
 	// own completion runs; the cast completes first.
@@ -464,7 +467,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	apl.unit.UpdatePosition(sim, false)
 	free := apl.unit.GCD.IsReady(sim) && apl.unit.Hardcast.Expires <= sim.CurrentTime
 	apl.unit.costBlocked = false
-	for nextAction := apl.getNextAction(sim); nextAction != nil; i, nextAction = i+1, apl.getNextAction(sim) {
+	for nextAction := apl.getNextAction(sim); nextAction != nil; i++ {
 		if i > 1000 {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
@@ -475,6 +478,8 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			i++
 			break
 		}
+		apl.updateRandomHealTarget(sim)
+		nextAction = apl.getNextAction(sim)
 	}
 	apl.inLoop = false
 
@@ -502,6 +507,24 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 
 		apl.unit.WaitUntil(sim, nextEvaluation)
 	}
+}
+
+func (apl *APLRotation) updateRandomHealTarget(sim *Simulation) {
+	if !apl.usesRandomHealTarget {
+		return
+	}
+
+	targets := sim.Raid.GetTargetDummies()
+	if len(targets) == 0 {
+		apl.randomHealTarget = nil
+		return
+	}
+
+	index := int(sim.RandomFloat("APL Random Heal Target") * float64(len(targets)))
+	if index >= len(targets) {
+		index = len(targets) - 1
+	}
+	apl.randomHealTarget = &targets[index].Unit
 }
 
 func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {

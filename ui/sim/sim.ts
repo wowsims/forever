@@ -641,6 +641,7 @@ export class Sim {
 
 			const request = StatWeightsRequest.create({
 				player: playerProto,
+				raid: this.raid.toProto(false, true),
 				raidBuffs: this.raid.getBuffs(),
 				partyBuffs: player.getParty()!.getBuffs(),
 				debuffs: this.raid.getDebuffs(),
@@ -693,8 +694,12 @@ export class Sim {
 	getUnitMetadata(ref: UnitReference | undefined, contextPlayer: Player<any> | null, defaultRef: UnitReference): UnitMetadata | undefined {
 		if (!ref || ref.type == UnitType.Unknown) {
 			return this.getUnitMetadata(defaultRef, contextPlayer, defaultRef);
+		} else if (ref.type == UnitType.RandomHealTarget) {
+			return contextPlayer?.getPlayerSpec().isHealingSpec ? contextPlayer.getMetadata() : undefined;
 		} else if (ref.type == UnitType.Player) {
-			return this.raid.getPlayerFromUnitReference(ref)?.getMetadata();
+			const player = this.raid.getPlayerFromUnitReference(ref);
+			if (player) return player.getMetadata();
+			return contextPlayer?.getPlayerSpec().isHealingSpec ? contextPlayer.getMetadata() : undefined;
 		} else if (ref.type == UnitType.Target) {
 			return this.encounter.targetsMetadata.asList()[ref.index];
 		} else if (ref.type == UnitType.Pet) {

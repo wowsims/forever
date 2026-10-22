@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimResultData } from '../../model/result_data';
 import { ResultsFilter } from './ResultsFilter';
-import { ALL_UNITS, hasTarget, simResultFilter } from './utils';
+import { ALL_UNITS, hasTarget, simResultFilter, targetOptions } from './utils';
 
 let resultData: SimResultData | null = null;
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => resultData }));
@@ -12,11 +12,29 @@ vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => resultData }));
 const resultWith = (...targets: Array<{ index: number; iconUrl?: string; classColor?: string }>) =>
 	({
 		result: {
+			getRaidIndexedPlayers: () => [],
 			getTargets: () => targets,
 			getTargetWithEncounterIndex: (index: number) => targets.find(target => target.index === index) ?? null,
 		},
 		filter: {},
 	}) as never as SimResultData;
+
+const healingResultWith = (heals: Array<{ unitIndex: number; healing: number; shielding: number }>, healerIndex = 0) =>
+	({
+		getRaidIndexedPlayers: () => [
+			{
+				spec: { isHealingSpec: true },
+				unitIndex: healerIndex,
+				getHealingActions: () => [
+					{
+						targets: heals.map(({ unitIndex, healing, shielding }) => ({ data: { unitIndex }, healing, shielding })),
+					},
+				],
+			},
+		],
+		getTargets: () => [],
+		getTargetWithEncounterIndex: () => null,
+	}) as never as SimResultData['result'];
 
 const mount = (target: number, onTargetChange = vi.fn()) => render(<ResultsFilter target={target} onTargetChange={onTargetChange} />);
 
@@ -95,6 +113,31 @@ describe('the filter the pane emits', () => {
 
 		expect(hasTarget(result, ALL_UNITS)).toBe(true);
 		expect(hasTarget(result, 1)).toBe(true);
+		expect(hasTarget(result, 2)).toBe(false);
+	});
+});
+
+describe('healing target options', () => {
+	it('labels the healer separately and numbers targets that received healing or shielding', () => {
+		const result = healingResultWith([
+			{ unitIndex: 0, healing: 20, shielding: 0 },
+			{ unitIndex: 2, healing: 50, shielding: 0 },
+			{ unitIndex: 4, healing: 0, shielding: 35 },
+			{ unitIndex: 6, healing: 0, shielding: 0 },
+		]);
+
+		expect(targetOptions(result).map(option => [option.value, option.label])).toEqual([
+			[ALL_UNITS, 'results_tab.details.all_targets'],
+			[0, 'results_tab.details.healer_target'],
+			[2, 'results_tab.details.heal_target_number'],
+			[4, 'results_tab.details.heal_target_number'],
+		]);
+	});
+
+	it('recognizes healed dummies as valid targets after a run', () => {
+		const result = healingResultWith([{ unitIndex: 3, healing: 25, shielding: 0 }]);
+
+		expect(hasTarget(result, 3)).toBe(true);
 		expect(hasTarget(result, 2)).toBe(false);
 	});
 });

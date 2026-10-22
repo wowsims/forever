@@ -12,5 +12,6 @@ export { PlayerSettings } from './components/PlayerSettings';
 export type { PlayerSettingsProps } from './components/PlayerSettings';
 export { RaidBuffs } from './components/RaidBuffs';
 export type { RaidBuffsProps } from './components/RaidBuffs';
+export { HealingSettings } from './components/HealingSettings';
 export { SavedSettings } from './components/SavedSettings';
 export { useAvailableCooldowns } from './hooks/useAvailableCooldowns';

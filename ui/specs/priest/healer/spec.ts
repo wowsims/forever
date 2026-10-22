@@ -1,7 +1,10 @@
+import * as InputHelpers from '@features/inputs/input_helpers';
+import { HealingSettings } from '@features/settings';
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import { APLRotation } from '@generated/proto/apl';
 import { Debuffs } from '@generated/proto/buffs';
 import { PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { PrayerOfHealingMode } from '@generated/proto/priest';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
@@ -11,17 +14,14 @@ import { defineSpec } from '@sim/spec_config';
 import * as PriestInputs from '../shared/inputs';
 import * as Presets from './presets';
 
-// Note: Not used until healing sim available
-// const oneToFiveValues = [1, 2, 3, 4, 5].map(value => ({ name: String(value), value }));
+const oneToFiveValues = [1, 2, 3, 4, 5].map(value => ({ name: String(value), value }));
 
 export default defineSpec<Spec.SpecHealerPriest>({
 	spec: Spec.SpecHealerPriest,
 	enableHealing: true,
-
 	className: 'healer-priest-sim-ui',
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Priest),
-	// List any known bugs / issues here and they'll be shown on the site.
-	knownIssues: ['Holy Specialization does not show the extra crit percent'],
+	knownIssues: ['Healing sim is Experimental, all results should be taken with a grain of salt', 'Downranking Penalty is not implemented yet'],
 
 	// All stats for which EP should be calculated.
 	epStats: [Stat.StatIntellect, Stat.StatSpirit, Stat.StatHealingPower, Stat.StatCritRating, Stat.StatHasteRating, Stat.StatMP5, Stat.StatMana],
@@ -32,6 +32,9 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		[Stat.StatHealth, Stat.StatMana, Stat.StatStamina, Stat.StatIntellect, Stat.StatSpirit, Stat.StatHealingPower, Stat.StatSpellDamage, Stat.StatMP5],
 		[PseudoStat.PseudoStatSpellCritPercent, PseudoStat.PseudoStatSpellHastePercent],
 	),
+	modifyDisplayStats: player => ({
+		talents: new Stats().addPseudoStat(PseudoStat.PseudoStatSpellCritPercent, player.getTalents().holySpecialization),
+	}),
 
 	defaults: {
 		// Default equipped gear.
@@ -66,45 +69,53 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		BuffDebuffInputs.AtieshPriest,
 		BuffDebuffInputs.AtieshWarlock,
 	],
-	// Inputs to include in the 'Other' section on the settings tab.
-	otherInputs: {
+	// Spell-specific controls shown in the Healing Inputs section.
+	healingInputs: {
 		inputs: [
-			// NOTE: These inputs won't drive anything until there's an actual healing sim, best not to show
-			// InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
-			// 	fieldName: 'holyNovaHealTargets',
-			// 	label: 'Holy Nova heal targets',
-			// 	labelTooltip: "Number of party members, including the priest, randomly selected to receive Holy Nova's heal.",
-			// 	getValue: player => player.getSpecOptions().holyNovaHealTargets || 5,
-			// 	values: oneToFiveValues,
-			// }),
-			// InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, PrayerOfHealingMode>({
-			// 	fieldName: 'prayerOfHealingMode',
-			// 	label: 'Prayer of Healing targets',
-			// 	labelTooltip: 'Randomly models movement by choosing between one and five party members on each cast.',
-			// 	values: [
-			// 		{ name: 'Full party', value: PrayerOfHealingMode.FullParty },
-			// 		{ name: 'Dynamic', value: PrayerOfHealingMode.Dynamic },
-			// 	],
-			// }),
-			// InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
-			// 	fieldName: 'prayerOfMendingJumps',
-			// 	label: 'Prayer of Mending heals',
-			// 	labelTooltip: 'Number of heals per cast, the first one included. Each heal spends one of the 5 charges.',
-			// 	getValue: player => player.getSpecOptions().prayerOfMendingJumps || 5,
-			// 	values: oneToFiveValues,
-			// }),
-			// InputHelpers.makeSpecOptionsNumberInput<Spec.SpecHealerPriest>({
-			// 	fieldName: 'prayerOfMendingDelay',
-			// 	label: 'Prayer of Mending delay (seconds)',
-			// 	labelTooltip: 'Time between each heal and jump. The first heal occurs after this delay.',
-			// 	getValue: player => player.getSpecOptions().prayerOfMendingDelay ?? 2.5,
-			// 	float: true,
-			// 	positive: true,
-			// 	max: 5,
-			// 	maxDecimalDigits: 2,
-			// }),
+			InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
+				fieldName: 'holyNovaHealTargets',
+				label: 'Holy Nova heal targets',
+				labelTooltip: "Number of party members, including the priest, randomly selected to receive Holy Nova's heal.",
+				getValue: player => player.getSpecOptions().holyNovaHealTargets || 5,
+				values: oneToFiveValues,
+				showWhen: player => player.getTalents().holyNova,
+				storeField: ['specOptions', 'talentsString'] as const,
+			}),
+			InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, PrayerOfHealingMode>({
+				fieldName: 'prayerOfHealingMode',
+				label: 'Prayer of Healing targets',
+				labelTooltip: 'Randomly models movement by choosing between one and five party members on each cast.',
+				values: [
+					{ name: 'Full party', value: PrayerOfHealingMode.FullParty },
+					{ name: 'Dynamic', value: PrayerOfHealingMode.Dynamic },
+				],
+			}),
+			InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
+				fieldName: 'prayerOfMendingJumps',
+				label: 'Prayer of Mending heals',
+				labelTooltip: 'Number of heals per cast, the first one included. Each heal spends one of the 5 charges.',
+				getValue: player => player.getSpecOptions().prayerOfMendingJumps || 5,
+				values: oneToFiveValues,
+				showWhen: player => player.getTalents().prayerOfMending,
+				storeField: ['specOptions', 'talentsString'] as const,
+			}),
+			InputHelpers.makeSpecOptionsNumberInput<Spec.SpecHealerPriest>({
+				fieldName: 'prayerOfMendingDelay',
+				label: 'Prayer of Mending delay (seconds)',
+				labelTooltip: 'Time between each heal and jump. The first heal occurs after this delay.',
+				getValue: player => player.getSpecOptions().prayerOfMendingDelay ?? 2.5,
+				float: true,
+				positive: true,
+				max: 5,
+				maxDecimalDigits: 2,
+				showWhen: player => player.getTalents().prayerOfMending,
+				storeField: ['specOptions', 'talentsString'] as const,
+			}),
 		],
 	},
+	otherInputs: { inputs: [] },
+	settingsComponentUnderPlayer: HealingSettings,
+	hideDebuffs: true,
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
 		showExecuteProportion: false,
@@ -115,13 +126,18 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		// Preset talents that the user can quickly select.
 		talents: [Presets.DiscTalents, Presets.HolyTalents],
 		// Preset rotations that the user can quickly select.
-		rotations: [],
+		rotations: [Presets.ROTATION_DISC_DEFAULT, Presets.ROTATION_HOLY_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
 		gear: [],
 	},
 
-	autoRotation: (_: Player<Spec.SpecHealerPriest>): APLRotation => {
-		return APLRotation.create();
+	autoRotation: (priest: Player<Spec.SpecHealerPriest>): APLRotation => {
+		const [disc, holy] = priest.getTalentTreePoints();
+
+		if (disc > holy) {
+			return Presets.ROTATION_DISC_DEFAULT.rotation.rotation!;
+		}
+		return Presets.ROTATION_HOLY_DEFAULT.rotation.rotation!;
 	},
 
 	// The gear optimizer.

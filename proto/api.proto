@@ -131,6 +131,11 @@ message Raid {
 
 	// Extra fake players to add. Currently only used by healing sims.
 	int32 target_dummies = 6;
+
+	reserved 8;
+	reserved "healing_targets";
+	reserved 9;
+	reserved "healing_tank_target";
 }
 
 message SimOptions {
@@ -725,6 +730,7 @@ message StatWeightsRequest {
 	// Unset runs the request's iteration count once. Set, the first pass runs a fixed count the sim picks
 	// and the request's count plays no part.
 	StatWeightsTarget target = 12;
+	Raid raid = 13;
 }
 
 // The ± each targeted EP runs extra iterations to reach.

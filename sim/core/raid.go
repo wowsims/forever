@@ -328,6 +328,11 @@ func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats
 
 		// Apply all buffs to the players in this party.
 		for playerIdx, player := range party.Players {
+			char := player.GetCharacter()
+			if _, isTargetDummy := player.(*TargetDummy); isTargetDummy {
+				char.EnableHealthBar()
+				continue
+			}
 			if playerIdx >= len(partyConfig.Players) {
 				// This happens for target dummies.
 				continue
@@ -338,7 +343,6 @@ func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats
 				individualBuffs = playerConfig.Buffs
 			}
 
-			char := player.GetCharacter()
 			char.EnableHealthBar()
 			char.trackChanceOfDeath(playerConfig.HealingModel)
 			partyStats.Players[char.PartyIndex] = char.applyAllEffects(player, raidBuffs, partyBuffs, individualBuffs)

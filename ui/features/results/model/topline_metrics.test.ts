@@ -21,6 +21,7 @@ const player = (overrides: Record<string, unknown> = {}) => ({
 	spec: PlayerSpecs.Mage,
 	unitIndex: 0,
 	getTargetIndex: () => null,
+	getPlayerAndPetActions: () => [],
 	dps: dist(1000, 10),
 	tps: dist(500, 5),
 	dtps: dist(50, 1),
@@ -81,11 +82,11 @@ describe('toplineResultMetrics', () => {
 		expect(toplineResultMetrics(result)[0]).toMatchObject({ metric: 'dps', average: 400, stdev: undefined });
 	});
 
-	it('keeps tps while the other threat metrics follow the setting', () => {
+	it('hides tps when threat metrics are disabled', () => {
 		const result = simResult([player()]);
 		const displayMetrics = { damage: true, threat: false, healing: true };
 
-		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'tto', 'hps']);
+		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tto', 'hps']);
 	});
 
 	it('omits the merged columns a filtered encounter has no actions for', () => {

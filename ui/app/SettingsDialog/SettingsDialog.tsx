@@ -28,6 +28,9 @@ export interface SettingsDialogViewProps {
 	onLanguageChange: (language: string) => void;
 	showThreatMetrics: boolean;
 	onShowThreatMetricsChange: (show: boolean) => void;
+	/** Present for healer sims, which hide damage metrics by default. */
+	showDamageMetrics?: boolean;
+	onShowDamageMetricsChange?: (show: boolean) => void;
 	showExperimental: boolean;
 	onShowExperimentalChange: (show: boolean) => void;
 	showPowerTools: boolean;
@@ -68,6 +71,8 @@ export const SettingsDialogView = ({
 	onLanguageChange,
 	showThreatMetrics,
 	onShowThreatMetricsChange,
+	showDamageMetrics,
+	onShowDamageMetricsChange,
 	showExperimental,
 	onShowExperimentalChange,
 	showPowerTools,
@@ -135,6 +140,18 @@ export const SettingsDialogView = ({
 						onChange={onShowThreatMetricsChange}
 					/>
 				</div>
+				{showDamageMetrics !== undefined && onShowDamageMetricsChange && (
+					<div className="w-1/2 pr-2" data-testid="show-damage-metrics-picker">
+						<BooleanPicker
+							id="simui-show-damage-metrics"
+							label={i18n.t('info.options.feature_toggles.show_damage_metrics')}
+							labelTooltip={i18n.t('info.options.feature_toggles.show_damage_metrics_tooltip')}
+							layout="inline"
+							value={showDamageMetrics}
+							onChange={onShowDamageMetricsChange}
+						/>
+					</div>
+				)}
 				<div className="w-1/2 pr-2" data-testid="show-experimental-picker">
 					<BooleanPicker
 						id="simui-show-experimental"
@@ -192,11 +209,13 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 	const fixedRngSeed = useSimStore('fixedRngSeed');
 	const lastUsedRngSeed = useSimStore('lastUsedRngSeed');
 	const language = useUiStore('language');
+	const showDamageMetrics = useUiStore('showDamageMetrics');
 	const showThreatMetrics = useUiStore('showThreatMetrics');
 	const showExperimental = useUiStore('showExperimental');
 	const showPowerTools = useUiStore('showPowerTools');
 	const showQuickSwap = useUiStore('showQuickSwap');
 	const wasmConcurrency = useUiStore('wasmConcurrency');
+	const isHealingSpec = host.player.getPlayerSpec().isHealingSpec;
 
 	// Local sim has native threading, so the row is only meaningful on wasm. It starts shown because
 	// the answer is a promise.
@@ -224,6 +243,11 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 		sim.setShowExperimental(show);
 	};
 
+	const setShowDamageMetrics = (show: boolean) => {
+		trackEvent({ action: 'settings', category: 'show-damage-metrics', label: 'update', value: show });
+		sim.setShowDamageMetrics(show);
+	};
+
 	const setShowPowerTools = (show: boolean) => {
 		trackEvent({ action: 'settings', category: 'show-power-tools', label: 'update', value: show });
 		sim.setShowPowerTools(show);
@@ -245,6 +269,8 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 			onLanguageChange={setLanguage}
 			showThreatMetrics={showThreatMetrics}
 			onShowThreatMetricsChange={show => sim.setShowThreatMetrics(show)}
+			showDamageMetrics={isHealingSpec ? showDamageMetrics : undefined}
+			onShowDamageMetricsChange={isHealingSpec ? setShowDamageMetrics : undefined}
 			showExperimental={showExperimental}
 			onShowExperimentalChange={setShowExperimental}
 			showPowerTools={showPowerTools}

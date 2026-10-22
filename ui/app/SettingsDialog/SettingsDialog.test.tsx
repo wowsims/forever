@@ -62,7 +62,7 @@ class FakeSim {
 }
 
 const mount = (sim: FakeSim, applyDefaults = vi.fn()) => {
-	const host = { applyDefaults } as never;
+	const host = { applyDefaults, player: { getPlayerSpec: () => ({ isHealingSpec: false }) } } as never;
 	const rendered = renderWithHost(<SettingsDialog open onOpenChange={() => {}} host={host} />, { sim });
 	return { ...rendered, applyDefaults };
 };

@@ -135,11 +135,6 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 			registerSetBonusNotices(this.sim.db);
 			registerAreaStatsNotices(this.sim.db);
 			this.loadSettings();
-
-			// Gear planners never simulate, so the healing-sim disclaimer does not apply to them.
-			if (this.player.getPlayerSpec().isHealingSpec && !isDevMode() && !this.simDisabled) {
-				alert(i18n.t('sim.healing_sim_disclaimer'));
-			}
 		});
 
 		this.sim.simResultEmitter.on(simResult => {
