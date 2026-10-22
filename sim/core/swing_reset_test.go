@@ -60,8 +60,8 @@ func NewFakeSwingCaster(char *Character, _ *proto.Player, _ *proto.Raid) Agent {
 	}
 
 	fc.EnableAutoAttacks(fc, AutoAttackOptions{
-		MainHand:       Weapon{SwingSpeed: fakeMHSwingSpeed},
-		OffHand:        Weapon{SwingSpeed: fakeOHSwingSpeed},
+		MainHand:       Weapon{SwingSpeed: fakeMHSwingSpeed, MaxRange: MaxMeleeRange},
+		OffHand:        Weapon{SwingSpeed: fakeOHSwingSpeed, MaxRange: MaxMeleeRange},
 		AutoSwingMelee: true,
 	})
 

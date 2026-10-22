@@ -2,6 +2,7 @@ package core
 
 import (
 	"math"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -9,10 +10,11 @@ import (
 
 type MovementAction struct {
 	PendingAction
-	srcPosition  float64       // starting position
-	moveDistance float64       // distance moved, optional
-	startTime    time.Duration // starting time of the movement
-	speed        float64       // theoretical movement speed, can be 0
+	srcPosition  float64        // starting position
+	moveDistance float64        // distance moved, optional
+	startTime    time.Duration  // starting time of the movement
+	speed        float64        // theoretical movement speed, can be 0
+	meleeEdge    *PendingAction // wakes the unit where the walk crosses melee range
 }
 
 func (action *MovementAction) GetCurrentPosition(sim *Simulation) float64 {
@@ -28,10 +30,14 @@ func (unit *Unit) initMovement() {
 
 		OnGain: func(aura *Aura, sim *Simulation) {
 			unit.Moving = true
+			sim.movingUnits = append(sim.movingUnits, unit)
 			unit.AutoAttacks.cancelRangedWindup(sim)
 		},
 		OnExpire: func(aura *Aura, sim *Simulation) {
 			unit.Moving = false
+			if i := slices.Index(sim.movingUnits, unit); i != -1 {
+				sim.movingUnits = slices.Delete(sim.movingUnits, i, i+1)
+			}
 			unit.movementAction = nil
 			unit.AutoAttacks.resumeHeldRangedSwing(sim)
 		},
@@ -118,6 +124,9 @@ func (unit *Unit) FinalizeMovement(sim *Simulation) {
 func registerMovementAction(unit *Unit, sim *Simulation, speed float64, endTime time.Duration, moveDistance float64) {
 	if unit.movementAction != nil {
 		unit.movementAction.Cancel(sim)
+		if unit.movementAction.meleeEdge != nil {
+			unit.movementAction.meleeEdge.Cancel(sim)
+		}
 	} else {
 		unit.moveSpell.Cast(sim, unit.CurrentTarget)
 	}
@@ -137,6 +146,19 @@ func registerMovementAction(unit *Unit, sim *Simulation, speed float64, endTime 
 	unit.OnMovement(sim, unit.DistanceFromTarget, MovementStart)
 	unit.movementAction = &movementAction
 	sim.AddPendingAction(&movementAction.PendingAction)
+
+	// Every event sees the current position, but a melee swing has to start or stop where the walk
+	// crosses melee range even when nothing else happens there, so the walk wakes the unit on the line.
+	// A ranged auto needs no wake, as it never fires on the move.
+	edge, src, dest := unit.AutoAttacks.mh.MaxRange, movementAction.srcPosition, movementAction.srcPosition+moveDistance
+	if unit.AutoAttacks.AutoSwingMelee && speed != 0 && edge != dest && (edge-src)*(edge-dest) <= 0 {
+		movementAction.meleeEdge = &PendingAction{
+			// A hair past the line, as standing on it is still in range.
+			NextActionAt: sim.CurrentTime + DurationFromSeconds((edge-src)/speed) + time.Microsecond,
+			OnAction:     func(sim *Simulation) {}, // advance moves the unit there
+		}
+		sim.AddPendingAction(movementAction.meleeEdge)
+	}
 }
 
 type MovementUpdateType byte

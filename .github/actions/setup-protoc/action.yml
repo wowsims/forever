@@ -1,0 +1,32 @@
+name: Install Protoc
+description: Puts a pinned protoc release on the PATH, restored from the Actions cache when an earlier run saved it.
+inputs:
+    version:
+        description: The protobuf release, without the leading v.
+        default: '36.2'
+runs:
+    using: composite
+    steps:
+        - name: Restore protoc
+          id: cache
+          uses: actions/cache@v5
+          with:
+              path: ${{ runner.temp }}/protoc
+              key: protoc-${{ inputs.version }}-${{ runner.os }}-${{ runner.arch }}
+
+        # A pinned version goes straight to the release asset; a version range would need a GitHub API
+        # call to resolve, and that call times out on some runs.
+        - name: Download protoc
+          if: steps.cache.outputs.cache-hit != 'true'
+          shell: bash
+          env:
+              PROTOC_VERSION: ${{ inputs.version }}
+          run: |
+              curl -fsSL --retry 5 --retry-all-errors -o "$RUNNER_TEMP/protoc.zip" "https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/protoc-$PROTOC_VERSION-linux-x86_64.zip"
+              rm -rf "$RUNNER_TEMP/protoc"
+              python3 -m zipfile -e "$RUNNER_TEMP/protoc.zip" "$RUNNER_TEMP/protoc"
+              chmod +x "$RUNNER_TEMP/protoc/bin/protoc"
+
+        - name: Add protoc to the PATH
+          shell: bash
+          run: echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"

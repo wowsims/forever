@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
@@ -724,6 +725,12 @@ func TestValueSpellCastState(t *testing.T) {
 	if fullCD.GetDuration(sim) != time.Minute {
 		t.Errorf("Full Cooldown = %s, want 1m0s", fullCD.GetDuration(sim))
 	}
+	rend.SharedCD.Duration = 120 * time.Second
+	sharedFullCD := rot.newValueSpellFullCooldown(&proto.APLValueSpellFullCooldown{SpellId: rendID}, nil)
+	if sharedFullCD.GetDuration(sim) != 120*time.Second {
+		t.Errorf("Full Cooldown of a spell with only a 120s shared cooldown = %s, want 2m0s", sharedFullCD.GetDuration(sim))
+	}
+	rend.SharedCD.Duration = 0
 
 	sim.CurrentTime = 90 * time.Second
 	cdSpell.casts = 3
@@ -1672,6 +1679,31 @@ func TestValueMultipleCdUsages(t *testing.T) {
 		t.Fatal("a target spell with a related self buff should construct")
 	}
 
+	// The UI sends an empty base spell id when none is picked, which counts as no base spell.
+	for _, tc := range []struct {
+		name        string
+		base        *proto.ActionID
+		wantWarning bool
+	}{
+		{"an empty base spell id", &proto.ActionID{}, false},
+		{"an unknown base spell", ActionID{SpellID: 999999}.ToProto(), true},
+		{"a base spell without a related self buff", plain.ActionID.ToProto(), true},
+	} {
+		rot.curValidations = nil
+		value := rot.newValueMultipleCdUsages(&proto.APLValueMultipleCdUsages{BaseSpellId: tc.base, TargetSpellId: targetID, AlignCdEnd: true}, nil)
+		if value == nil {
+			t.Errorf("%s should construct", tc.name)
+		}
+		if !tc.wantWarning {
+			if len(rot.curValidations) != 0 {
+				t.Errorf("%s should log no validation, got %v", tc.name, rot.curValidations)
+			}
+		} else if len(rot.curValidations) == 0 || !strings.HasSuffix(rot.curValidations[len(rot.curValidations)-1].Validation, "Ignoring the base spell and offset.") {
+			t.Errorf("%s should log the ignored base spell warning, got %v", tc.name, rot.curValidations)
+		}
+	}
+	rot.curValidations = nil
+
 	// With a 60s cooldown and a 10s buff, the aligned value casts while a later use would still get at least
 	// half its buff (more than 65s left) or the buff would run to the end, and holds in between. The
 	// cooldown is read when the value is evaluated, so a cooldown change applies at once.
@@ -1700,6 +1732,24 @@ func TestValueMultipleCdUsages(t *testing.T) {
 			t.Errorf("at %s of %s with a %s cooldown aligned to the end of combat: got %t, want %t", tc.elapsed, tc.fight, tc.cooldown, got, tc.aligned)
 		}
 	}
+
+	// A spell with only a shared category lockout, like a potion, counts that lockout as its cooldown.
+	target.CD.Duration, target.SharedCD.Duration, sim.Duration = 0, 120*time.Second, 300*time.Second
+	for _, tc := range []struct {
+		remaining time.Duration
+		aligned   bool
+	}{
+		{126 * time.Second, true},
+		{125 * time.Second, false},
+		{10 * time.Second, true},
+		{11 * time.Second, false},
+	} {
+		sim.CurrentTime = sim.Duration - tc.remaining
+		if got := aligned.GetBool(sim); got != tc.aligned {
+			t.Errorf("with %s left and a 120s shared cooldown aligned to the end of combat: got %t, want %t", tc.remaining, got, tc.aligned)
+		}
+	}
+	target.SharedCD.Duration = 0
 
 	target.CD.Duration = 5 * time.Second
 	sim.Duration = 180 * time.Second

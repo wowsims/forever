@@ -373,6 +373,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	// A ready ranged auto first winds up, which runs through casts. Moving
 	// cancels it (see initMovement).
 	if isRanged && wa.windupEnd == 0 {
+		wa.unit.AutoAttacks.meleeAttackOn = false // starting a ranged auto turns the melee attack off
 		wa.windupEnd = sim.CurrentTime + RangedSwingWindup
 		wa.naturalReadyAt += RangedSwingWindup
 		wa.swingAt = wa.windupEnd
@@ -483,6 +484,8 @@ type AutoAttacks struct {
 
 	// Wakes a melee-weaver's rotation when an out-of-range MH swing comes ready.
 	meleeWeaveWakeup *PendingAction
+
+	meleeAttackOn bool // The melee attack is toggled on, which starting a ranged auto turns off.
 }
 
 // Options for initializing auto attacks.
@@ -641,6 +644,7 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 	}
 
 	aa.meleeWeaveWakeup = nil
+	aa.meleeAttackOn = false
 
 	aa.mh.enabled = false
 	aa.oh.enabled = false
@@ -750,6 +754,21 @@ func (wa *WeaponAttack) IsInRange() bool {
 	return (wa.MinRange == 0. || wa.MinRange <= wa.unit.DistanceFromTarget) && (maxRange == 0. || maxRange >= wa.unit.DistanceFromTarget)
 }
 
+// Toggles the melee attack on. For a unit that also shoots, the off hand's next swing comes no sooner
+// than half a swing from now, out of range or not, so starting the attack on the way in brings it
+// closer to ready by the time the unit arrives.
+func (aa *AutoAttacks) StartMeleeAttack(sim *Simulation) {
+	if !aa.AutoSwingMelee || aa.meleeAttackOn {
+		return
+	}
+	aa.meleeAttackOn = true
+	if aa.IsDualWielding && aa.AutoSwingRanged {
+		aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
+		aa.oh.swingAt = max(aa.oh.swingAt, sim.CurrentTime+aa.oh.curSwingDuration/2)
+		aa.oh.naturalReadyAt = max(aa.oh.naturalReadyAt, aa.oh.swingAt) // the game's rule, no delay on the timeline
+	}
+}
+
 // Starts or stops the ranged auto attack when the target has come into or gone out of its range.
 func (aa *AutoAttacks) UpdateRangedRange(sim *Simulation) {
 	if !aa.AutoSwingRanged {
@@ -799,13 +818,8 @@ func (aa *AutoAttacks) EnableMeleeSwing(sim *Simulation) {
 	}
 
 	if aa.IsDualWielding && !aa.oh.enabled {
-		var offset time.Duration
-		// When entering melee range from ranged, the offhand will start at half the swing duration
-		if aa.AutoSwingRanged {
-			aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
-			offset = aa.oh.curSwingDuration / 2
-		}
-		aa.oh.swingAt = max(aa.oh.swingAt, sim.CurrentTime+offset, 0)
+		aa.StartMeleeAttack(sim) // on arrival, when it was not started on the way in
+		aa.oh.swingAt = max(aa.oh.swingAt, sim.CurrentTime, 0)
 		if aa.oh.IsInRange() {
 			aa.oh.enabled = true
 			aa.oh.addWeaponAttack(sim, aa.oh.unit.TotalMeleeHasteMultiplier())

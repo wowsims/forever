@@ -46,17 +46,8 @@ jobs:
               with:
                   go-version: 1.25.x
 
-            # arduino/setup-protoc has no Node 24 release, so protoc comes straight from the protobuf
-            # releases.
             - name: Install Protoc
-              env:
-                  PROTOC_VERSION: '36.2'
-              run: |
-                  curl -fsSL -o "$RUNNER_TEMP/protoc.zip" "https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/protoc-$PROTOC_VERSION-linux-x86_64.zip"
-                  rm -rf "$RUNNER_TEMP/protoc"
-                  python3 -m zipfile -e "$RUNNER_TEMP/protoc.zip" "$RUNNER_TEMP/protoc"
-                  chmod +x "$RUNNER_TEMP/protoc/bin/protoc"
-                  echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"
+              uses: ./.github/actions/setup-protoc
 
             - name: Install Protoc Go plugin
               run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest

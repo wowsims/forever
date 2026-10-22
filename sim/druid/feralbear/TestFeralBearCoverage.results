@@ -3,7 +3,7 @@ casts_results: {
  value: {
   casts: {
    key: "other_id:OtherActionAttack tag:1"
-   value: 68
+   value: 64
   }
   casts: {
    key: "other_id:OtherActionAttack tag:2"
@@ -23,7 +23,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:1235827 rank:3"
-   value: 8
+   value: 10
   }
   casts: {
    key: "spell_id:1238073 rank:4"
@@ -87,7 +87,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:8983 rank:3"
-   value: 2
+   value: 3
   }
   casts: {
    key: "spell_id:9634"
@@ -119,7 +119,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:9881 tag:1 rank:7"
-   value: 8
+   value: 10
   }
   casts: {
    key: "spell_id:9892 rank:3"
@@ -139,11 +139,11 @@ casts_results: {
   }
   casts: {
    key: "spell_id:9907 rank:4"
-   value: 4
+   value: 5
   }
   casts: {
    key: "spell_id:9908 rank:5"
-   value: 28
+   value: 27
   }
   casts: {
    key: "spell_id:9910 rank:6"

@@ -49,7 +49,7 @@ message APLGroup {
 	repeated APLValueVariable variables = 3; // Variables that can be used in this group
 }
 
-// NextIndex: 31
+// NextIndex: 32
 message APLAction {
     APLValue condition = 1; // If set, action will only execute if value is true or != 0.
 
@@ -85,6 +85,7 @@ message APLAction {
         APLActionMove move = 21;
         APLActionMoveDuration move_duration = 22;
         APLActionPetAttack pet_attack = 30;
+        APLActionStartAttack start_attack = 31;
 
         // Class or Spec-specific actions
         APLActionGuardianHotwDpsRotation guardian_hotw_dps_rotation = 27;
@@ -99,7 +100,7 @@ message APLAction {
 }
 
 
-// NextIndex: 137
+// NextIndex: 138
 message APLValue {
 	UUID uuid = 85;
 
@@ -231,6 +232,7 @@ APLValueWarlockAssignedCurseIsActive warlock_assigned_curse_is_active = 59;
 		APLValueWarlockActivePet warlock_active_pet = 135;
 		APLValueProtectionPaladinDamageTakenLastGlobal protection_paladin_damage_taken_last_global = 100;
 		APLValueDruidBleedIsActive druid_bleed_is_active = 68;
+		APLValueDruidExcessEnergy druid_excess_energy = 137;
 
 		// Variable reference
 		APLValueVariableRef variable_ref = 111;
@@ -392,6 +394,11 @@ message APLActionMoveDuration {
 // Before the pull, sets the player's pets out on the target: from then on they run their rotations, walking in
 // to their range first, and swing once in reach.
 message APLActionPetAttack {
+}
+
+// Turns the melee attack on, as the Attack button does in game. Starting it on the way in starts the off
+// hand's half swing early; starting a ranged auto turns it off again.
+message APLActionStartAttack {
 }
 
 message APLActionCustomRotation {
@@ -775,6 +782,8 @@ message APLValueWarlockActivePet {
 message APLValueDruidBleedIsActive {
 	UnitReference target_unit = 1;
 }
+// The cat's energy above what its pending Rip and Rake refreshes need held back.
+message APLValueDruidExcessEnergy {}
 message APLValueAfflictionCurrentSnapshot {
 	ActionID spell_id = 1;
 	UnitReference target_unit = 2;

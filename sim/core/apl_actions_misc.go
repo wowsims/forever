@@ -349,6 +349,28 @@ func (action *APLActionPetAttack) String() string {
 	return "Pet Attack()"
 }
 
+type APLActionStartAttack struct {
+	defaultAPLActionImpl
+	aa *AutoAttacks
+}
+
+func (rot *APLRotation) newActionStartAttack(_ *proto.APLActionStartAttack) APLActionImpl {
+	if !rot.unit.AutoAttacks.AutoSwingMelee {
+		rot.ValidationMessage(proto.LogLevel_Warning, "No melee attack to start.")
+		return nil
+	}
+	return &APLActionStartAttack{aa: &rot.unit.AutoAttacks}
+}
+func (action *APLActionStartAttack) IsReady(_ *Simulation) bool {
+	return !action.aa.meleeAttackOn
+}
+func (action *APLActionStartAttack) Execute(sim *Simulation) {
+	action.aa.StartMeleeAttack(sim)
+}
+func (action *APLActionStartAttack) String() string {
+	return "Start Attack()"
+}
+
 type APLActionCustomRotation struct {
 	defaultAPLActionImpl
 	unit  *Unit

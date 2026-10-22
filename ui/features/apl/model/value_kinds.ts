@@ -46,6 +46,7 @@ import {
 	APLValueDotTickFrequency,
 	APLValueDotTimeToNextTick,
 	APLValueDruidBleedIsActive,
+	APLValueDruidExcessEnergy,
 	APLValueEncounterInArea,
 	APLValueEnergyTimeToTarget,
 	APLValueFrontOfTarget,
@@ -1104,6 +1105,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 			return !isPrepull && (spec === Spec.SpecFeralCatDruid || spec === Spec.SpecFeralBearDruid);
 		},
 		fields: [unitFieldConfig('targetUnit', 'targets')],
+	}),
+	druidExcessEnergy: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.druid_excess_energy.label'),
+		submenu: ['feral_druid'],
+		shortDescription: i18n.t('rotation_tab.apl.values.druid_excess_energy.tooltip'),
+		newValue: APLValueDruidExcessEnergy.create,
+		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() === Spec.SpecFeralCatDruid,
+		fields: [],
 	}),
 	variableRef: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.variable_ref.label'),

@@ -1546,6 +1546,10 @@
 					"label": "Pet Attack",
 					"tooltip": "Works like /petattack in-game. Tells the pet to move/attack."
 				},
+				"start_attack": {
+					"label": "Start Attack",
+					"tooltip": "Works like /startattack in game. Turns the melee attack on, from any range: the off hand's first swing comes half a swing later, so starting it on the way in has the off hand nearer ready on arrival. Starting Auto Shot turns it off again."
+				},
 				"custom_rotation": {
 					"label": "Custom Rotation",
 					"tooltip": "INTERNAL ONLY"
@@ -1939,6 +1943,10 @@
 				"druid_bleed_is_active": {
 					"label": "Bleed Is Active",
 					"tooltip": "<b>True</b> if one of your bleeds is on the target, or if <b>Assume Bleed Always Active</b> is enabled, otherwise <b>False</b>."
+				},
+				"druid_excess_energy": {
+					"label": "Excess Energy",
+					"tooltip": "Your current Energy minus what you need to keep for your upcoming Rip and Rake refreshes, after counting the Energy you will regenerate before each one. Spend on a builder only while it covers the builder's cost."
 				},
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",

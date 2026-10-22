@@ -258,6 +258,8 @@ func (rot *APLRotation) newAPLActionImpl(config *proto.APLAction) APLActionImpl 
 		return rot.newActionMoveDuration(config.GetMoveDuration())
 	case *proto.APLAction_PetAttack:
 		return rot.newActionPetAttack(config.GetPetAttack())
+	case *proto.APLAction_StartAttack:
+		return rot.newActionStartAttack(config.GetStartAttack())
 	case *proto.APLAction_CustomRotation:
 		return rot.newActionCustomRotation(config.GetCustomRotation())
 	case *proto.APLAction_GroupReference:

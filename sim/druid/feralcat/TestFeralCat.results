@@ -1534,7 +1534,7 @@ dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-Hybrid-BleedAssumed-bearweave-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 608.87673
-  tps: 331.4329
+  tps: 331.43582
   hps: 45.66528
  }
 }
@@ -1542,7 +1542,7 @@ dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-Hybrid-BleedAssumed-bearweave-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 608.87673
-  tps: 331.4329
+  tps: 331.43582
   hps: 45.66528
  }
 }
@@ -1804,7 +1804,7 @@ dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-Hybrid-Standard-bearweave-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 607.84932
-  tps: 330.92228
+  tps: 330.9252
   hps: 45.66528
  }
 }
@@ -1812,7 +1812,7 @@ dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-Hybrid-Standard-bearweave-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 607.84932
-  tps: 330.92228
+  tps: 330.9252
   hps: 45.66528
  }
 }

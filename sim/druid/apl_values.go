@@ -11,6 +11,8 @@ func (druid *Druid) NewAPLValue(rot *core.APLRotation, config *proto.APLValue) c
 	switch config.Value.(type) {
 	case *proto.APLValue_DruidBleedIsActive:
 		return druid.newValueDruidBleedIsActive(rot, config.GetDruidBleedIsActive())
+	case *proto.APLValue_DruidExcessEnergy:
+		return &APLValueDruidExcessEnergy{druid: druid}
 	default:
 		return nil
 	}
@@ -44,4 +46,21 @@ func (value *APLValueDruidBleedIsActive) GetBool(_ *core.Simulation) bool {
 
 func (value *APLValueDruidBleedIsActive) String() string {
 	return fmt.Sprintf("Bleed Is Active(%s)", value.target.Get().Label)
+}
+
+type APLValueDruidExcessEnergy struct {
+	core.DefaultAPLValueImpl
+	druid *Druid
+}
+
+func (value *APLValueDruidExcessEnergy) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeFloat
+}
+
+func (value *APLValueDruidExcessEnergy) GetFloat(sim *core.Simulation) float64 {
+	return value.druid.excessEnergy(sim)
+}
+
+func (value *APLValueDruidExcessEnergy) String() string {
+	return "Excess Energy()"
 }

@@ -1001,6 +1001,69 @@
 				},
 				{
 					"action": {
+						"startAttack": {},
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"cmp": {
+											"op": "OpLe",
+											"lhs": {
+												"variableRef": {
+													"name": "Time to walk in"
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "0s"
+												}
+											}
+										}
+									},
+									{
+										"variableRef": {
+											"name": "Weave fits"
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"autoTimeToNext": {
+													"autoType": "RangedAuto"
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "500ms"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"unitDistance": {
+													"sourceUnit": {
+														"type": "Self"
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "5"
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					}
+				},
+				{
+					"action": {
 						"move": {
 							"rangeFromTarget": {
 								"variableRef": {

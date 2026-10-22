@@ -42,6 +42,11 @@ func (qs *QueuedSpell) InitiateQueue(sim *Simulation, spell *Spell, target *Unit
 		if qs.castFn == nil {
 			qs.castFn = func(sim *Simulation) {
 				qs.spell.castForRotation(sim, qs.target, qs.channelAction)
+				// The rotation goes on from a queued instant at once, as it does after one it casts itself, so
+				// an action off the GCD, such as a move, does not wait for the next GCD.
+				if unit := qs.spell.Unit; unit.Hardcast.Expires <= sim.CurrentTime {
+					unit.SetRotationTimer(sim, sim.CurrentTime)
+				}
 			}
 		}
 		pa := &PendingAction{

@@ -5494,6 +5494,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"start_attack": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"custom_rotation": {
 									"type": "object",
 									"properties": {
@@ -5575,6 +5588,7 @@
 								"item_swap",
 								"move",
 								"pet_attack",
+								"start_attack",
 								"custom_rotation",
 								"warlock_cast_assigned_curse",
 								"group_reference"
@@ -6798,6 +6812,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"druid_excess_energy": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"dot_is_active_on_all_targets": {
 									"type": "object",
 									"properties": {
@@ -7292,6 +7319,7 @@
 								"any_stat_buff_cooldowns_min_duration",
 								"dot_is_active",
 								"druid_bleed_is_active",
+								"druid_excess_energy",
 								"dot_is_active_on_all_targets",
 								"dot_remaining_time",
 								"dot_lowest_remaining_time",
