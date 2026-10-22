@@ -477,6 +477,7 @@ func (character *Character) Finalize() {
 
 				// Re-schedule the cast at the new Expires time
 				character.newHardcastAction(sim)
+				character.lookAgainAfterPushback(sim)
 			},
 		})
 	}

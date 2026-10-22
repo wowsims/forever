@@ -273,6 +273,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			}
 
 			spell.Unit.newHardcastAction(sim)
+			spell.Unit.lookBeforeCastEnd(sim)
 			return true
 		}
 

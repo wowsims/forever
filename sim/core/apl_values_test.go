@@ -635,6 +635,7 @@ func TestValueUnknownIDs(t *testing.T) {
 		"Spell Cast Time for an unknown spell":           rot.newValueSpellCastTime(&proto.APLValueSpellCastTime{SpellId: spell}, nil),
 		"Spell Travel Time for an unknown spell":         rot.newValueSpellTravelTime(&proto.APLValueSpellTravelTime{SpellId: spell}, nil),
 		"Spell CPM for an unknown spell":                 rot.newValueSpellCPM(&proto.APLValueSpellCPM{SpellId: spell}, nil),
+		"Spell Is Casting for an unknown spell":          rot.newValueSpellIsCasting(&proto.APLValueSpellIsCasting{SpellId: spell}, nil),
 		"Spell Is Channeling for an unknown spell":       rot.newValueSpellIsChanneling(&proto.APLValueSpellIsChanneling{SpellId: spell}, nil),
 		"Spell Channeled Ticks for an unknown spell":     rot.newValueSpellChanneledTicks(&proto.APLValueSpellChanneledTicks{SpellId: spell}, nil),
 		"Spell Current Cost for an unknown spell":        rot.newValueSpellCurrentCost(&proto.APLValueSpellCurrentCost{SpellId: spell}, nil),

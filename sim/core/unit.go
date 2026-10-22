@@ -975,6 +975,7 @@ func (unit *Unit) startPull(sim *Simulation) {
 
 	if unit.Type == PlayerUnit {
 		unit.SetGCDTimer(sim, max(0, unit.GCD.ReadyAt()))
+		unit.lookBeforeCastEnd(sim)
 	}
 }
 

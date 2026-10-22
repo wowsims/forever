@@ -161,6 +161,33 @@ func (value *APLValueSpellCPM) String() string {
 	return fmt.Sprintf("CPM(%s)", value.spell.ActionID)
 }
 
+type APLValueSpellIsCasting struct {
+	DefaultAPLValueImpl
+	spell *Spell
+}
+
+func (rot *APLRotation) newValueSpellIsCasting(config *proto.APLValueSpellIsCasting, _ *proto.UUID) APLValue {
+	spell := rot.GetAPLSpell(config.SpellId)
+	if spell == nil {
+		return nil
+	}
+	return &APLValueSpellIsCasting{
+		spell: spell,
+	}
+}
+func (value *APLValueSpellIsCasting) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+
+// True while the spell's cast bar runs, its last batch too. A channel reads false: it is Spell Is Channeling.
+func (value *APLValueSpellIsCasting) GetBool(sim *Simulation) bool {
+	hc := &value.spell.Unit.Hardcast
+	return hc.Expires > sim.CurrentTime && !hc.IsChanneled && hc.ActionID.SameAction(value.spell.ActionID)
+}
+func (value *APLValueSpellIsCasting) String() string {
+	return fmt.Sprintf("IsCasting(%s)", value.spell.ActionID)
+}
+
 type APLValueSpellIsChanneling struct {
 	DefaultAPLValueImpl
 	spell *Spell

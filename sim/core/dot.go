@@ -166,6 +166,11 @@ func (dot *Dot) recomputeAuraDuration(_ *Simulation) {
 	dot.Duration = dot.tickPeriod * time.Duration(dot.remainingTicks)
 }
 
+// The duration an application now would give the dot.
+func (dot *Dot) freshDuration() time.Duration {
+	return dot.CalcTickPeriod() * time.Duration(dot.ExpectedTickCount())
+}
+
 // TickPeriod is how fast the snapshotted dot ticks.
 func (dot *Dot) TickPeriod() time.Duration {
 	return dot.tickPeriod

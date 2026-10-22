@@ -256,8 +256,7 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 	if action.spell.Flags.Matches(SpellFlagHelpful) {
 		for i := int32(0); i < action.maxDots; i++ {
 			target := sim.Raid.AllPlayerUnits[i]
-			dot := action.spell.Dot(target)
-			if (!dot.IsActive() || dot.RemainingDuration(sim) < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
+			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
 			}
@@ -265,8 +264,7 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 	} else {
 		for i := int32(0); i < action.maxDots; i++ {
 			target := sim.Encounter.AllTargetUnits[i]
-			dot := action.spell.Dot(target)
-			if (!dot.IsActive() || dot.RemainingDuration(sim) < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
+			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
 			}
@@ -372,14 +370,14 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	var previousTarget *Unit
 	for i := int32(0); i < action.maxDots; i++ {
 		target := action.targets[i]
-		dot := action.spell.Dot(target)
-		if (!dot.IsActive() || dot.RemainingDuration(sim) < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
+		dot := readDot(sim, action.spell.Dot(target))
+		if (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 			action.readyActions = append(action.readyActions, action.actions[i])
 			previousTarget = target
 		} else if previousTarget != nil {
-			previousDot := action.spell.Dot(previousTarget)
+			previousDot := readDot(sim, action.spell.Dot(previousTarget))
 			// Take the previous Dot + Cast Time into account for the overlap check
-			if (!previousDot.IsActive() || dot.RemainingDuration(sim)-action.spell.EffectiveCastTime() <= previousDot.RemainingDuration(sim)) && action.spell.CanCastOrQueue(sim, target) {
+			if (!previousDot.active || dot.remaining-action.spell.EffectiveCastTime() <= previousDot.remaining) && action.spell.CanCastOrQueue(sim, target) {
 				action.readyActions = append(action.readyActions, action.actions[i])
 				previousTarget = target
 			}
@@ -400,9 +398,10 @@ func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
 		gate = &APLValueAnd{vals: vals}
 	}
 	sequence := APLActionStrictSequence{
-		unit:       action.unit,
-		subactions: action.readyActions,
-		gate:       gate,
+		unit:              action.unit,
+		subactions:        action.readyActions,
+		gate:              gate,
+		yieldsToCooldowns: true,
 	}
 	sequence.Execute(sim)
 }

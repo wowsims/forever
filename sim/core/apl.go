@@ -464,12 +464,20 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	apl.unit.UpdatePosition(sim, false)
 	free := apl.unit.GCD.IsReady(sim) && apl.unit.Hardcast.Expires <= sim.CurrentTime
 	apl.unit.costBlocked = false
-	for nextAction := apl.getNextAction(sim); nextAction != nil; i, nextAction = i+1, apl.getNextAction(sim) {
+	for nextAction := apl.getNextAction(sim); ; i, nextAction = i+1, apl.getNextAction(sim) {
 		if i > 1000 {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
 
-		nextAction.Execute(sim)
+		// The cast queued behind the bar that just ended goes off first in this pass, a major cooldown alone
+		// ahead of it; what the rotation puts after the GCD it starts, such as an explosive, still goes now.
+		if apl.unit.castQueuedBehindBarDue(sim) && (nextAction == nil || !apl.isMajorCooldown(sim, nextAction)) {
+			apl.unit.fireQueuedCastBehindBar(sim)
+		} else if nextAction != nil {
+			nextAction.Execute(sim)
+		} else {
+			break
+		}
 		// Shoot has no GCD to end the pass; any later cast would cut it.
 		if apl.unit.Wand.wanding() {
 			i++
@@ -488,7 +496,12 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 		}
 	}
 
-	if sim.Log != nil && i == 0 {
+	// A look under a cast bar, at its end with the next cast queued behind it, or as that cast goes off, waits
+	// on that cast, so it logs no idle pass and no pause.
+	underCastBar := apl.unit.castBarHoldsRotation(sim)
+	waitsOnCast := underCastBar || apl.unit.castQueuedBehindBar() || apl.unit.castQueuedBehindBarWentOff(sim)
+
+	if sim.Log != nil && i == 0 && !waitsOnCast {
 		apl.unit.Log(sim, "No available actions!")
 	}
 
@@ -500,7 +513,21 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			nextEvaluation = max(nextEvaluation, apl.unit.NextGCDAt())
 		}
 
-		apl.unit.WaitUntil(sim, nextEvaluation)
+		// Under a cast bar that holds the rotation, the next look is one batch before the bar ends, or the
+		// end itself once past that, whether or not this look queued a cast.
+		if underCastBar {
+			if lookAt := apl.unit.Hardcast.Expires - SpellBatchWindow; sim.CurrentTime < lookAt {
+				nextEvaluation = min(max(sim.CurrentTime+apl.unit.ReactionTime, lookAt), apl.unit.Hardcast.Expires)
+			} else {
+				nextEvaluation = apl.unit.Hardcast.Expires
+			}
+		}
+
+		if waitsOnCast {
+			apl.unit.SetRotationTimer(sim, nextEvaluation)
+		} else {
+			apl.unit.WaitUntil(sim, nextEvaluation)
+		}
 	}
 }
 
@@ -518,6 +545,28 @@ func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 	}
 
 	return nil
+}
+
+// A major cooldown, or a group whose first ready action is one.
+func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool {
+	switch impl := action.impl.(type) {
+	case *APLActionAutocastOtherCooldowns:
+		return true
+	case *APLActionCastSpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionCastFriendlySpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionGroupReference:
+		if impl.group == nil {
+			return false
+		}
+		for _, groupAction := range impl.group.actions {
+			if groupAction.IsReady(sim) {
+				return apl.isMajorCooldown(sim, groupAction)
+			}
+		}
+	}
+	return false
 }
 
 // HasBlockingControllingAction reports whether the rotation is currently parked

@@ -170,6 +170,7 @@ message APLValue {
         APLValueSpellCastTime spell_cast_time = 35;
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
+        APLValueSpellIsCasting spell_is_casting = 30;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -600,6 +601,9 @@ message APLValueSpellTravelTime {
     ActionID spell_id = 1;
 }
 message APLValueSpellCPM {
+    ActionID spell_id = 1;
+}
+message APLValueSpellIsCasting {
     ActionID spell_id = 1;
 }
 message APLValueSpellIsChanneling {

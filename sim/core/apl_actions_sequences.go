@@ -69,7 +69,10 @@ func (action *APLActionSequence) Execute(sim *Simulation) {
 			action.curIdx++
 			queueAction.OnAction = oldFunc
 		}
-		action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
+		// Behind a cast bar the rotation still looks at its end, where major cooldowns can go.
+		if !action.unit.QueuedSpell.behindCast {
+			action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
+		}
 	}
 
 	action.unit.Rotation.inSequence = false
@@ -124,7 +127,8 @@ type APLActionStrictSequence struct {
 	hookedQueueAction *PendingAction
 	hookedOnAction    func(*Simulation)
 
-	gate APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
+	gate              APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
+	yieldsToCooldowns bool     // A Strict Multidot's: while its step waits behind a cast bar, major cooldowns go at the bar's end.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -232,8 +236,20 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		// and return nil to wait for the GCD to become ready.
 		queueAction := action.unit.QueuedSpell.queueAction
 		action.hookQueueAction(queueAction)
-		action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
+		if !action.yieldsToCooldowns || !action.unit.QueuedSpell.behindCast {
+			action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
+		}
 
+		return nil
+	} else if action.yieldsToCooldowns && action.hookedQueueAction != nil && action.unit.castQueuedBehindBar() {
+		// The step queued behind the bar goes off in the cast-end pass; ahead of it only a major cooldown,
+		// the rotation's first ready action, may go.
+		rot := action.unit.Rotation
+		for _, priorityAction := range rot.priorityList {
+			if priorityAction.IsReady(sim) {
+				return Ternary(rot.isMajorCooldown(sim, priorityAction), priorityAction, nil)
+			}
+		}
 		return nil
 	} else if action.unit.GCD.TimeToReady(sim) <= MaxSpellQueueWindow {
 		// If the GCD is ready when the next subaction isn't, it means the sequence is bad

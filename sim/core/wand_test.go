@@ -110,7 +110,7 @@ func (ct *channelTest) autocastAction() APLActionImpl {
 func (ct *channelTest) start(actions ...APLActionImpl) {
 	ct.rot.priorityList = nil
 	for _, impl := range actions {
-		action := &APLAction{impl: impl}
+		action := newAPLActionEntry(nil, impl)
 		action.Finalize(ct.rot)
 		ct.rot.priorityList = append(ct.rot.priorityList, action)
 	}
@@ -149,10 +149,11 @@ func recordedSpellConfig(id int32, castAt *[]time.Duration) SpellConfig {
 
 // A one-minute major cooldown, on the GCD when gcd is set, ready from 3 s.
 type testCooldown struct {
-	gcd      time.Duration
-	priority int32
-	spell    *Spell
-	castAt   []time.Duration
+	gcd       time.Duration
+	priority  int32
+	explosive bool // An explosive, which goes right after the GCD starts.
+	spell     *Spell
+	castAt    []time.Duration
 }
 
 func newCooldownShootTest(cooldowns ...*testCooldown) *channelTest {
