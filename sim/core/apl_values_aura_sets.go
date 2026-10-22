@@ -74,7 +74,7 @@ func (value *APLValueAllItemStatProcsActive) Type() proto.APLValueType {
 }
 func (value *APLValueAllItemStatProcsActive) GetBool(sim *Simulation) bool {
 	for _, aura := range value.matchingAuras {
-		if (!aura.activeOrPending() || (aura.GetStacks() < aura.MaxStacks)) && aura.CanProc(sim) {
+		if (!aura.IsActive() || (aura.GetStacks() < aura.MaxStacks)) && aura.CanProc(sim) {
 			return false
 		}
 	}
@@ -102,7 +102,7 @@ func (value *APLValueAnyItemStatProcsActive) Type() proto.APLValueType {
 }
 func (value *APLValueAnyItemStatProcsActive) GetBool(sim *Simulation) bool {
 	for _, aura := range value.matchingAuras {
-		if aura.activeOrPending() && (aura.GetStacks() == aura.MaxStacks) {
+		if aura.IsActive() && (aura.GetStacks() == aura.MaxStacks) {
 			return true
 		}
 	}

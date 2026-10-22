@@ -331,7 +331,6 @@ func (warlock *Warlock) applyDemonicBrand() {
 		Outcome:  core.OutcomeLanded,
 		// In the logs the brand lands in the same batch as Searing Pain's hit.
 		TriggerImmediately: true,
-		ActivatesAuras:     warlock.DemonicBrandAuras,
 		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return spellData.SearingPain.Contains(spell)
 		},

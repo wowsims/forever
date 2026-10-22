@@ -19,7 +19,6 @@ type APLValueAuraIsActive struct {
 	aura                AuraReference
 	reactionTime        time.Duration
 	includeReactionTime bool
-	ownSpells           []*Spell // The player's APL spells that apply the aura: the same id, or the aura as their RelatedSelfBuff.
 }
 
 func (rot *APLRotation) newValueAuraIsActive(config *proto.APLValueAuraIsActive, _ *proto.UUID) APLValue {
@@ -30,18 +29,10 @@ func (rot *APLRotation) newValueAuraIsActive(config *proto.APLValueAuraIsActive,
 	if aura.Get() == nil {
 		return nil
 	}
-	actionID := ProtoToActionID(config.AuraId)
-	var ownSpells []*Spell
-	for _, spell := range rot.unit.Spellbook {
-		if spell.Flags.Matches(SpellFlagAPL) && (spell.ActionID.SameAction(actionID) || (spell.RelatedSelfBuff != nil && spell.RelatedSelfBuff.ActionID.SameAction(actionID))) {
-			ownSpells = append(ownSpells, spell)
-		}
-	}
 	return &APLValueAuraIsActive{
 		aura:                aura,
 		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
-		ownSpells:           ownSpells,
 	}
 }
 func (value *APLValueAuraIsActive) Type() proto.APLValueType {
@@ -49,36 +40,10 @@ func (value *APLValueAuraIsActive) Type() proto.APLValueType {
 }
 func (value *APLValueAuraIsActive) GetBool(sim *Simulation) bool {
 	aura := value.aura.Get()
-	if aura == nil {
-		return false
+	if value.includeReactionTime {
+		return aura.IsActive() && aura.TimeActive(sim) >= value.reactionTime
 	}
-	if !value.includeReactionTime {
-		return aura.activeOrPending()
-	}
-	// The player knows at once that an aura their own cast put up is there, and reacts only to it running out;
-	// any other aura, such as a proc, takes the reaction time to notice as it lands.
-	if aura.pendingOwnActivations > 0 {
-		return true
-	}
-	if value.castByPlayer(aura) {
-		return aura.IsActive() || (aura.expired && aura.TimeInactive(sim) < value.reactionTime)
-	}
-	return aura.IsActive() && aura.TimeActive(sim) >= value.reactionTime
-}
-
-// Whether one of the player's spells was cast, or a guaranteed declared proc off a unit's own APL spell put the
-// aura up, refreshed it or changed its stacks, as the aura landed or while it was up. A proc sharing a spell's id,
-// such as the Revenge window, starts before that spell is cast, so it stays a proc.
-func (value *APLValueAuraIsActive) castByPlayer(aura *Aura) bool {
-	if aura.lastOwnProcAt >= aura.startTime {
-		return true
-	}
-	for _, spell := range value.ownSpells {
-		if spell.lastAppliedAt >= aura.startTime {
-			return true
-		}
-	}
-	return false
+	return aura.IsActive()
 }
 func (value *APLValueAuraIsActive) String() string {
 	return fmt.Sprintf("Aura Active(%s)", value.aura.String())
@@ -111,13 +76,10 @@ func (value *APLValueAuraIsInactive) Type() proto.APLValueType {
 }
 func (value *APLValueAuraIsInactive) GetBool(sim *Simulation) bool {
 	aura := value.aura.Get()
-	if aura == nil {
-		return true
-	}
 	if value.includeReactionTime {
-		return !aura.IsActive() && aura.pendingOwnActivations == 0 && aura.TimeInactive(sim) >= value.reactionTime
+		return !aura.IsActive() && aura.TimeInactive(sim) >= value.reactionTime
 	}
-	return !aura.activeOrPending()
+	return !aura.IsActive()
 }
 func (value *APLValueAuraIsInactive) String() string {
 	return fmt.Sprintf("Aura Inactive(%s)", value.aura.String())
