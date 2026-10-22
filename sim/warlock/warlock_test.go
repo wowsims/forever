@@ -21,11 +21,11 @@ func init() {
 // Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
 // its talents, demons, consumables and rotation, on the preraid gear set.
 func TestDemonologyFireBrand(t *testing.T) {
-	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceOrc)
 }
 
 func TestDemonologyShadowBrand(t *testing.T) {
-	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceHuman)
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceOrc)
 }
 
 func TestDestruction(t *testing.T) {
@@ -33,7 +33,7 @@ func TestDestruction(t *testing.T) {
 }
 
 func TestAffliction(t *testing.T) {
-	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceHuman)
+	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceOrc)
 }
 
 func TestAfflictionWrack(t *testing.T) {
