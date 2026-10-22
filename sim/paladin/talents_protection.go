@@ -277,12 +277,15 @@ func (paladin *Paladin) applyIronCreed() {
 		Duration: rank.Duration(),
 	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, 1-reduction)
 
-	// The row hears any melee special and names its ability only in the tooltip.
+	// The row hears any melee special and names its ability only in the tooltip. In game a Holy
+	// Strike that misses or is avoided still grants the reduction, so the trigger hears every outcome.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.IronCreed.Rank(paladin.Talents.IronCreed), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		ironCreed.Activate(sim)
 	})
 	trigger.Name = "Iron Creed - Trigger" + paladin.Label
 	trigger.ClassSpellMask = SpellMaskHolyStrike
+	trigger.Outcome = core.OutcomeEmpty
+	trigger.RequireDamageDealt = false
 	trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 		return paladin.RighteousFuryAura.IsActive()
 	}

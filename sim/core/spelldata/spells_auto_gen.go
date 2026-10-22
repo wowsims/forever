@@ -36663,9 +36663,9 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1334079, SpellID: 1306613, Type: dbcenums.E_ENERGIZE, BasePoints: 40, Variance: 0.125, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1306620, Name: "Frozen", School: 16, Attr: [17]uint32{0: 0x40000000, 1: 0x88, 6: 0x200000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 3000, MaxRange: 5, DefenseType: 1, DispelType: 1, PreventionType: 1, Labels: []int16{17},
+	{ID: 1306620, Name: "Frozen", School: 16, Attr: [17]uint32{0: 0x40000000, 1: 0x88, 6: 0x200000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 3000, MaxRange: 5, DefenseType: 1, DispelType: 1, Mechanic: 7, PreventionType: 1, Labels: []int16{17},
 		Effects: []Effect{
-			{ID: 1334087, SpellID: 1306620, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ROOT, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Mechanic: 7, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1334087, SpellID: 1306620, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ROOT, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 1306749, Name: "Steadfast", School: 1, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 10000, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 10}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{

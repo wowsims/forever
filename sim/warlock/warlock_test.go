@@ -165,6 +165,18 @@ func TestDemonCritIsTheWarlocksSpellCrit(t *testing.T) {
 	check("a pet update after +5% spell crit")
 }
 
+// A demon takes the warlock's spell hit whole as spell hit, and 8/17 of it as melee hit.
+func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
+	_, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	inherited := warlock.petStatInheritance(0)(stats.Stats{stats.SpellHitPercent: 17})
+	if got := inherited[stats.SpellHitPercent]; got != 17 {
+		t.Errorf("demon spell hit %.4f%% from 17%% spell hit, want 17%%", got)
+	}
+	if got := inherited[stats.PhysicalHitPercent]; got != 8 {
+		t.Errorf("demon melee hit %.4f%% from 17%% spell hit, want 8%%", got)
+	}
+}
+
 // In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands,
 // before a Shadow Bolt reaches the target; a miss or a full resist grants nothing, and the bolt's impact
 // grants nothing either.

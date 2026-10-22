@@ -169,8 +169,10 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 			// TODO: Measured on the Sayaad only.
 			stats.SpellDamage: spellDamage * 0.10,
 
-			// TODO: Assumed 1:1, not yet measured.
-			stats.PhysicalHitPercent: ownerStats[stats.SpellHitPercent],
+			// The warlock's spell hit whole, and 8/17 of it as melee hit:
+			// https://github.com/ClassicWoWCommunity/forever-bugs/issues/394#issuecomment-6302980919
+			// TODO: Not yet read on a pet sheet in game.
+			stats.PhysicalHitPercent: ownerStats[stats.SpellHitPercent] * 8 / 17,
 			stats.SpellHitPercent:    ownerStats[stats.SpellHitPercent],
 
 			// A demon takes the warlock's spell crit as its melee and spell crit, with no crit of its own:

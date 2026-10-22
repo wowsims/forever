@@ -11098,7 +11098,7 @@
 {"id":14293,"name":"Lesser Magic Wand","icon":"inv_staff_02"},
 {"id":14301,"name":"Immolation Trap","icon":"spell_fire_flameshock","rank":5,"hasBuff":true},
 {"id":14305,"name":"Immolation Trap","icon":"spell_fire_flameshock","rank":5},
-{"id":14315,"name":"Explosive Trap Effect","icon":"spell_fire_selfdestruct","rank":3,"hasBuff":true},
+{"id":14315,"name":"Explosive Trap","icon":"spell_fire_selfdestruct","rank":3,"hasBuff":true},
 {"id":14317,"name":"Explosive Trap","icon":"spell_fire_selfdestruct","rank":3},
 {"id":14325,"name":"Hunter's Mark","icon":"ability_hunter_snipershot","rank":4,"hasBuff":true},
 {"id":14520,"name":"Mental Agility","icon":"ability_hibernation"},

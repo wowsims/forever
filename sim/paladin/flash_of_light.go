@@ -17,6 +17,8 @@ func (paladin *Paladin) registerFlashOfLight(_ int32, rank *spelldata.Spell) {
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellHealing))
 	config.ClassSpellMask = SpellMaskFlashOfLight
+	// In game Flash of Light makes 0.25 threat a point healed, half of what other heals make.
+	config.ThreatMultiplier = 0.5
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		amount := heal.Average() + paladin.flashOfLightBonusHealing

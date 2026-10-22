@@ -300,6 +300,19 @@ func TestTheHuntersOwnMarkCarriesTheMarkTag(t *testing.T) {
 	}
 }
 
+// A pet takes the hunter's ranged hit whole as melee hit, and 17/8 of it as spell hit.
+func TestPetHitIsTheHuntersRangedHit(t *testing.T) {
+	_, pet, _ := newPetSim(proto.HunterOptions_Cat, nil)
+
+	inherited := pet.hunterOwner.makeStatInheritance()(stats.Stats{stats.PhysicalHitPercent: 3, stats.RangedHitPercent: 1})
+	if got := inherited[stats.PhysicalHitPercent]; got != 4 {
+		t.Errorf("pet melee hit %.4f%% from 4%% ranged hit, want 4%%", got)
+	}
+	if got := inherited[stats.SpellHitPercent]; got != 8.5 {
+		t.Errorf("pet spell hit %.4f%% from 4%% ranged hit, want 8.5%%", got)
+	}
+}
+
 // Lacerating Strikes refreshes the way Deep Wounds does: a bite while the bleed is up adds the unticked
 // damage to the new bleed and keeps the first bite's tick timer.
 func TestLaceratingStrikesRollsItsUntickedDamageIntoTheNextBite(t *testing.T) {
