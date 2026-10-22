@@ -119,11 +119,6 @@ type CharacterIterationMetrics struct {
 	FirstOOMTimestamp time.Duration // Timestamp at which unit first went OOM.
 }
 
-// The mana spent so far this iteration beyond what was gained back.
-func (metrics *CharacterIterationMetrics) NetManaSpent() float64 {
-	return metrics.ManaSpent - metrics.ManaGained
-}
-
 type ActionMetrics struct {
 	IsMelee     bool // True if melee action, false if spell action.
 	IsPassive   bool // True if action is applied/cast as a result of another action
@@ -551,7 +546,7 @@ func (unitMetrics *UnitMetrics) doneIteration(unit *Unit, sim *Simulation) {
 		timeToOOM := unitMetrics.FirstOOMTimestamp
 		if !unitMetrics.WentOOM {
 			// If we didn't actually go OOM in this iteration, infer TTO based on remaining mana.
-			manaSpentPerSecond := unitMetrics.NetManaSpent() / encounterDurationSeconds
+			manaSpentPerSecond := (unitMetrics.ManaSpent - unitMetrics.ManaGained) / encounterDurationSeconds
 			if manaSpentPerSecond > 0 {
 				remainingTTO := DurationFromSeconds(unit.CurrentMana() / manaSpentPerSecond)
 				timeToOOM = DurationFromSeconds(encounterDurationSeconds) + remainingTTO
