@@ -11,7 +11,7 @@ type QueuedSpell struct {
 	castFn      func(*Simulation)
 
 	channelAction *APLActionChannelSpell // The channel action that queued the spell, which its cast carries when it fires.
-	behindCast    bool                   // Queued under a cast bar that holds the rotation, as the cast that follows it.
+	afterHardcast bool                   // Queued under a hardcast that holds the rotation, as the cast that follows it.
 
 	// Stores the time at which QueueSpell() was called to ensure that only one spell can be queued up per timestep
 	QueueInitiatedAt time.Duration
@@ -22,7 +22,7 @@ func (qs *QueuedSpell) Cancel(sim *Simulation) {
 	if (qs.queueAction != nil) && !qs.queueAction.consumed {
 		qs.queueAction.Cancel(sim)
 		qs.queueAction = nil
-		qs.behindCast = false
+		qs.afterHardcast = false
 	}
 
 	qs.channelAction = nil
@@ -108,8 +108,8 @@ func (spell *Spell) CanQueue(sim *Simulation, target *Unit) bool {
 		return false
 	}
 
-	// A spell off the GCD goes once a cast bar that holds the rotation ends, ahead of the cast queued behind it.
-	if spell.DefaultCast.EffectiveTime() == 0 && spell.Unit.castBarHoldsRotation(sim) {
+	// A spell off the GCD goes once a hardcast that holds the rotation ends, ahead of the spell queued after it.
+	if spell.DefaultCast.EffectiveTime() == 0 && spell.Unit.hardcastHoldsRotation(sim) {
 		return false
 	}
 
@@ -121,33 +121,35 @@ func (spell *Spell) CanCastOrQueue(sim *Simulation, target *Unit) bool {
 	return spell.Unit.CanQueueSpell(sim) && !spell.waitsForQueuedCast(sim) && spell.CanQueue(sim, target)
 }
 
-// Once a cast bar ends, the cast queued behind it is the rotation's next one: until it goes off, no other
-// spell that starts the GCD or a cast bar is cast or queued. A major cooldown still goes, in its place.
+// Once a hardcast ends, the spell queued after it is the rotation's next one: until it goes off, no other
+// spell that starts the GCD or a hardcast is cast or queued. A major cooldown still goes, in its place.
 func (spell *Spell) waitsForQueuedCast(sim *Simulation) bool {
-	return spell.Unit.castQueuedBehindBar() && spell.Unit.Hardcast.Expires <= sim.CurrentTime &&
+	return spell.Unit.spellQueuedAfterHardcast() && spell.Unit.Hardcast.Expires <= sim.CurrentTime &&
 		spell.DefaultCast.EffectiveTime() > 0 && !spell.Flags.Matches(SpellFlagMCD)
 }
 
-// Whether a cast queued under a cast bar has yet to go off.
-func (unit *Unit) castQueuedBehindBar() bool {
+// Whether a spell queued under a hardcast has yet to go off.
+func (unit *Unit) spellQueuedAfterHardcast() bool {
 	qs := unit.QueuedSpell
-	return qs != nil && qs.behindCast && !qs.queueAction.IsConsumed()
+	return qs != nil && qs.afterHardcast && !qs.queueAction.IsConsumed()
 }
 
-// Whether a cast queued under a cast bar went off at this instant, on its own or in the cast-end look.
-func (unit *Unit) castQueuedBehindBarWentOff(sim *Simulation) bool {
+// Whether the spell queued after a hardcast went off at this instant, on its own or in the cast-end look.
+// Other queued spells do not count.
+func (unit *Unit) queuedSpellWentOff(sim *Simulation) bool {
 	qs := unit.QueuedSpell
-	return qs != nil && qs.behindCast && qs.queueAction.IsConsumed() && qs.queueAction != nil &&
+	return qs != nil && qs.afterHardcast && qs.queueAction.IsConsumed() && qs.queueAction != nil &&
 		(qs.queueAction.NextActionAt == sim.CurrentTime || qs.queueAction.NextActionAt == sim.CurrentTime+1)
 }
 
-// Whether the cast queued behind a cast bar that has ended is due to go off.
-func (unit *Unit) castQueuedBehindBarDue(sim *Simulation) bool {
-	return unit.castQueuedBehindBar() && unit.Hardcast.Expires <= sim.CurrentTime && unit.QueuedSpell.queueAction.NextActionAt <= sim.CurrentTime+1
+// Whether the spell queued after a hardcast that has ended is due to go off. Other queued spells go off
+// through their own pending action.
+func (unit *Unit) queuedSpellDue(sim *Simulation) bool {
+	return unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime && unit.QueuedSpell.queueAction.NextActionAt <= sim.CurrentTime+1
 }
 
-// Casts the spell queued behind a cast bar that has ended, as its pending action would.
-func (unit *Unit) fireQueuedCastBehindBar(sim *Simulation) {
+// Casts the spell queued after a hardcast that has ended, as its pending action would.
+func (unit *Unit) castDueQueuedSpell(sim *Simulation) {
 	queueAction := unit.QueuedSpell.queueAction
 	queueAction.Cancel(sim)
 	queueAction.consumed = true
@@ -172,7 +174,7 @@ func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *AP
 		// Schedule the cast to go off without delay
 		spell.Unit.QueueSpell(sim, spell, target, queueTime)
 		spell.Unit.QueuedSpell.channelAction = channelAction
-		spell.Unit.QueuedSpell.behindCast = spell.Unit.castBarHoldsRotation(sim)
+		spell.Unit.QueuedSpell.afterHardcast = spell.Unit.hardcastHoldsRotation(sim)
 	} else {
 		// Fallback to make sure there is always log output
 		spell.castForRotation(sim, target, channelAction)

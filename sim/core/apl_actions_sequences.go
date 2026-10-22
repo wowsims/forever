@@ -69,8 +69,8 @@ func (action *APLActionSequence) Execute(sim *Simulation) {
 			action.curIdx++
 			queueAction.OnAction = oldFunc
 		}
-		// Behind a cast bar the rotation still looks at its end, where major cooldowns can go.
-		if !action.unit.QueuedSpell.behindCast {
+		// After a hardcast the rotation still looks at its end, where major cooldowns can go.
+		if !action.unit.QueuedSpell.afterHardcast {
 			action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
 		}
 	}
@@ -236,13 +236,13 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		// and return nil to wait for the GCD to become ready.
 		queueAction := action.unit.QueuedSpell.queueAction
 		action.hookQueueAction(queueAction)
-		if !action.yieldsToCooldowns || !action.unit.QueuedSpell.behindCast {
+		if !action.yieldsToCooldowns || !action.unit.QueuedSpell.afterHardcast {
 			action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
 		}
 
 		return nil
-	} else if action.yieldsToCooldowns && action.hookedQueueAction != nil && action.unit.castQueuedBehindBar() {
-		// The step queued behind the bar goes off in the cast-end pass; ahead of it only a major cooldown,
+	} else if action.yieldsToCooldowns && action.hookedQueueAction != nil && action.unit.spellQueuedAfterHardcast() {
+		// The step queued after the hardcast goes off in the cast-end pass; ahead of it only a major cooldown,
 		// the rotation's first ready action, may go.
 		rot := action.unit.Rotation
 		for _, priorityAction := range rot.priorityList {

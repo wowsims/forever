@@ -64,20 +64,20 @@ func (unit *Unit) SetGCDTimer(sim *Simulation, gcdReadyAt time.Duration) {
 	unit.SetRotationTimer(sim, gcdReadyAt)
 }
 
-// Whether a player's cast bar holds the rotation, the GCD ending with it. The rotation then looks one batch
-// before the bar ends and queues its next cast for the end, without the outcome of this one. After a cast the
-// GCD outlasts, the rotation looks when the GCD ends; a channel or a cast no longer than the batch keeps the
-// look at its end, and pets and enemies keep theirs at the cast end.
-func (unit *Unit) castBarHoldsRotation(sim *Simulation) bool {
+// Whether a player's hardcast holds the rotation, the GCD ending with it. The rotation then looks one batch
+// before the hardcast ends and queues its next cast for the end, without the outcome of this one. After a
+// cast the GCD outlasts, the rotation looks when the GCD ends; a channel or a cast no longer than the batch
+// keeps the look at its end, and pets and enemies keep theirs at the cast end.
+func (unit *Unit) hardcastHoldsRotation(sim *Simulation) bool {
 	hc := &unit.Hardcast
 	return unit.Type == PlayerUnit && hc.Expires > sim.CurrentTime && !hc.IsChanneled && hc.CastTime > SpellBatchWindow &&
 		unit.GCD.ReadyAt() <= hc.Expires
 }
 
-// Moves the rotation's wake at the end of a cast bar that holds it to one batch before. An interactive
+// Moves the rotation's wake at the end of a hardcast that holds it to one batch before. An interactive
 // sim asks for input once the GCD is ready, so it keeps the wake at the end.
 func (unit *Unit) lookBeforeCastEnd(sim *Simulation) {
-	if unit.rotationAction == nil || sim.Options.Interactive || !unit.castBarHoldsRotation(sim) {
+	if unit.rotationAction == nil || sim.Options.Interactive || !unit.hardcastHoldsRotation(sim) {
 		return
 	}
 	if lookAt := unit.Hardcast.Expires - SpellBatchWindow; unit.NextRotationActionAt() == unit.Hardcast.Expires && lookAt > sim.CurrentTime {
@@ -85,10 +85,10 @@ func (unit *Unit) lookBeforeCastEnd(sim *Simulation) {
 	}
 }
 
-// A cast queued for the end of a bar that a hit pushed back is dropped, and the rotation looks again one
-// batch before the new end.
+// A spell queued for the end of a hardcast that a hit pushed back is dropped, and the rotation looks again
+// one batch before the new end.
 func (unit *Unit) lookAgainAfterPushback(sim *Simulation) {
-	if !unit.castQueuedBehindBar() {
+	if !unit.spellQueuedAfterHardcast() {
 		return
 	}
 	unit.CancelQueuedSpell(sim)

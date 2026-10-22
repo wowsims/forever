@@ -469,10 +469,10 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
 
-		// The cast queued behind the bar that just ended goes off first in this pass, a major cooldown alone
-		// ahead of it; what the rotation puts after the GCD it starts, such as an explosive, still goes now.
-		if apl.unit.castQueuedBehindBarDue(sim) && (nextAction == nil || !apl.isMajorCooldown(sim, nextAction)) {
-			apl.unit.fireQueuedCastBehindBar(sim)
+		// The spell queued after the hardcast that just ended goes off first in this pass, a major cooldown
+		// alone ahead of it; what the rotation puts after the GCD it starts, such as an explosive, still goes now.
+		if apl.unit.queuedSpellDue(sim) && (nextAction == nil || !apl.isMajorCooldown(sim, nextAction)) {
+			apl.unit.castDueQueuedSpell(sim)
 		} else if nextAction != nil {
 			nextAction.Execute(sim)
 		} else {
@@ -496,10 +496,10 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 		}
 	}
 
-	// A look while a cast bar holds the rotation, at its end with the next cast queued behind it, or as that cast
-	// goes off, waits on that cast, so it logs no idle pass and no pause.
-	castBarHoldsRotation := apl.unit.castBarHoldsRotation(sim)
-	waitsOnCast := castBarHoldsRotation || apl.unit.castQueuedBehindBar() || apl.unit.castQueuedBehindBarWentOff(sim)
+	// A look while a hardcast holds the rotation, at its end with the next spell queued after it, or as that
+	// spell goes off, waits on that spell, so it logs no idle pass and no pause.
+	hardcastHoldsRotation := apl.unit.hardcastHoldsRotation(sim)
+	waitsOnCast := hardcastHoldsRotation || apl.unit.spellQueuedAfterHardcast() || apl.unit.queuedSpellWentOff(sim)
 
 	if sim.Log != nil && i == 0 && !waitsOnCast {
 		apl.unit.Log(sim, "No available actions!")
@@ -513,9 +513,9 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			nextEvaluation = max(nextEvaluation, apl.unit.NextGCDAt())
 		}
 
-		// Under a cast bar that holds the rotation, the next look is one batch before the bar ends, or the
-		// end itself once past that, whether or not this look queued a cast.
-		if castBarHoldsRotation {
+		// Under a hardcast that holds the rotation, the next look is one batch before it ends, or the end
+		// itself once past that, whether or not this look queued a cast.
+		if hardcastHoldsRotation {
 			if lookAt := apl.unit.Hardcast.Expires - SpellBatchWindow; sim.CurrentTime < lookAt {
 				nextEvaluation = min(max(sim.CurrentTime+apl.unit.ReactionTime, lookAt), apl.unit.Hardcast.Expires)
 			} else {
