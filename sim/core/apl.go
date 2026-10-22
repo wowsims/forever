@@ -496,10 +496,10 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 		}
 	}
 
-	// A look under a cast bar, at its end with the next cast queued behind it, or as that cast goes off, waits
-	// on that cast, so it logs no idle pass and no pause.
-	underCastBar := apl.unit.castBarHoldsRotation(sim)
-	waitsOnCast := underCastBar || apl.unit.castQueuedBehindBar() || apl.unit.castQueuedBehindBarWentOff(sim)
+	// A look while a cast bar holds the rotation, at its end with the next cast queued behind it, or as that cast
+	// goes off, waits on that cast, so it logs no idle pass and no pause.
+	castBarHoldsRotation := apl.unit.castBarHoldsRotation(sim)
+	waitsOnCast := castBarHoldsRotation || apl.unit.castQueuedBehindBar() || apl.unit.castQueuedBehindBarWentOff(sim)
 
 	if sim.Log != nil && i == 0 && !waitsOnCast {
 		apl.unit.Log(sim, "No available actions!")
@@ -515,7 +515,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 
 		// Under a cast bar that holds the rotation, the next look is one batch before the bar ends, or the
 		// end itself once past that, whether or not this look queued a cast.
-		if underCastBar {
+		if castBarHoldsRotation {
 			if lookAt := apl.unit.Hardcast.Expires - SpellBatchWindow; sim.CurrentTime < lookAt {
 				nextEvaluation = min(max(sim.CurrentTime+apl.unit.ReactionTime, lookAt), apl.unit.Hardcast.Expires)
 			} else {
