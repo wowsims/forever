@@ -300,6 +300,33 @@ func TestTheHuntersOwnMarkCarriesTheMarkTag(t *testing.T) {
 	}
 }
 
+// A pet takes the hunter's ranged hit whole as melee hit, and 17/8 of it as spell hit.
+func TestPetHitIsTheHuntersRangedHit(t *testing.T) {
+	player := &proto.Player{
+		Name:          "Pet Hit",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassHunter,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: DefaultSVTalents,
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+
+	inherited := hunter.makeStatInheritance()(stats.Stats{stats.PhysicalHitPercent: 3, stats.RangedHitPercent: 1})
+	if got := inherited[stats.PhysicalHitPercent]; got != 4 {
+		t.Errorf("pet melee hit %.4f%% from 4%% ranged hit, want 4%%", got)
+	}
+	if got := inherited[stats.SpellHitPercent]; got != 8.5 {
+		t.Errorf("pet spell hit %.4f%% from 4%% ranged hit, want 8.5%%", got)
+	}
+}
+
 // Lacerating Strikes refreshes the way Deep Wounds does: a bite while the bleed is up adds the unticked
 // damage to the new bleed and keeps the first bite's tick timer.
 func TestLaceratingStrikesRollsItsUntickedDamageIntoTheNextBite(t *testing.T) {
