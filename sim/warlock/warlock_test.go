@@ -172,7 +172,7 @@ func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
 	if got := inherited[stats.SpellHitPercent]; got != 17 {
 		t.Errorf("demon spell hit %.4f%% from 17%% spell hit, want 17%%", got)
 	}
-	if got := inherited[stats.PhysicalHitPercent]; math.Abs(got-8) > 1e-9 {
+	if got := inherited[stats.PhysicalHitPercent]; got != 8 {
 		t.Errorf("demon melee hit %.4f%% from 17%% spell hit, want 8%%", got)
 	}
 }

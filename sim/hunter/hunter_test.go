@@ -302,23 +302,9 @@ func TestTheHuntersOwnMarkCarriesTheMarkTag(t *testing.T) {
 
 // A pet takes the hunter's ranged hit whole as melee hit, and 17/8 of it as spell hit.
 func TestPetHitIsTheHuntersRangedHit(t *testing.T) {
-	player := &proto.Player{
-		Name:          "Pet Hit",
-		Race:          proto.Race_RaceOrc,
-		Class:         proto.Class_ClassHunter,
-		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: DefaultSVTalents,
-		Spec:          DefaultOptions,
-		Rotation:      &proto.APLRotation{},
-	}
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  core.MakeSingleTargetEncounter(0),
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	_, pet, _ := newPetSim(proto.HunterOptions_Cat, nil)
 
-	inherited := hunter.makeStatInheritance()(stats.Stats{stats.PhysicalHitPercent: 3, stats.RangedHitPercent: 1})
+	inherited := pet.hunterOwner.makeStatInheritance()(stats.Stats{stats.PhysicalHitPercent: 3, stats.RangedHitPercent: 1})
 	if got := inherited[stats.PhysicalHitPercent]; got != 4 {
 		t.Errorf("pet melee hit %.4f%% from 4%% ranged hit, want 4%%", got)
 	}
