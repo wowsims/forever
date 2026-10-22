@@ -104,7 +104,7 @@ func (spell *Spell) CanQueue(sim *Simulation, target *Unit) bool {
 	}
 
 	// Spells that are within one SQW of coming off cooldown can also be queued
-	if MaxTimeToReady(spell.CD.Timer, spell.SharedCD.Timer, sim) > MaxSpellQueueWindow {
+	if spell.rotationTimeToReady(sim) > MaxSpellQueueWindow {
 		return false
 	}
 
@@ -118,7 +118,18 @@ func (spell *Spell) CanQueue(sim *Simulation, target *Unit) bool {
 
 // Helper function for APL checks to prevent infinite loops
 func (spell *Spell) CanCastOrQueue(sim *Simulation, target *Unit) bool {
-	return spell.Unit.CanQueueSpell(sim) && !spell.waitsForQueuedCast(sim) && spell.CanQueue(sim, target)
+	return !spell.heldByQueuedSpell(sim) && spell.CanQueue(sim, target)
+}
+
+// Whether a queued spell keeps the spell from being cast or queued now: one queued at this instant, or the
+// one queued after a hardcast that has ended.
+func (spell *Spell) heldByQueuedSpell(sim *Simulation) bool {
+	return !spell.Unit.CanQueueSpell(sim) || spell.waitsForQueuedCast(sim)
+}
+
+// Whether a queued spell may hold back the unit's casts now, so that a rotation look checks for it.
+func (unit *Unit) queuedSpellHoldsCasts(sim *Simulation) bool {
+	return !unit.CanQueueSpell(sim) || unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime
 }
 
 // Once a hardcast ends, the spell queued after it is the rotation's next one: until it goes off, no other

@@ -189,8 +189,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-DeathmistRaiment"
  value: {
-  dps: 885.50292
-  tps: 619.28823
+  dps: 883.88042
+  tps: 618.27218
  }
 }
 dps_results: {

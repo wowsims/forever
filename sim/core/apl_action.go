@@ -9,6 +9,7 @@ import (
 type APLAction struct {
 	condition APLValue
 	impl      APLActionImpl
+	spell     *Spell // The spell a cast action casts or queues, whose queue check runs before the condition.
 }
 
 func (action *APLAction) Finalize(rot *APLRotation) {
@@ -25,6 +26,11 @@ func (action *APLAction) Finalize(rot *APLRotation) {
 
 func (action *APLAction) IsReady(sim *Simulation) bool {
 	return (action.condition == nil || action.condition.GetBool(sim)) && action.impl.IsReady(sim)
+}
+
+// Whether a queued spell holds back the action's cast, which is then not ready whatever its condition says.
+func (action *APLAction) heldByQueuedSpell(sim *Simulation) bool {
+	return action.spell != nil && action.spell.heldByQueuedSpell(sim)
 }
 
 func (action *APLAction) Execute(sim *Simulation) {
@@ -175,8 +181,19 @@ func newAPLActionEntry(condition APLValue, impl APLActionImpl) *APLAction {
 		impl:      impl,
 	}
 	switch impl := impl.(type) {
+	case *APLActionCastSpell:
+		action.spell = impl.spell
+	case *APLActionCastFriendlySpell:
+		action.spell = impl.spell
+	case *APLActionChannelSpell:
+		action.spell = impl.spell
+	case *APLActionMultidot:
+		action.spell = impl.spell
+	case *APLActionMultishield:
+		action.spell = impl.spell
 	case *APLActionStrictMultidot:
 		impl.entry = action
+		action.spell = impl.spell
 	case *APLActionGroupReference:
 		impl.entry = action
 	}

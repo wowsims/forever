@@ -25,6 +25,7 @@ type Hardcast struct {
 	Pushback    bool
 	ResetsSwing bool // The melee swing waits out the cast, then starts a full swing when it completes.
 	CastTime    time.Duration
+	spell       *Spell // The spell being cast, whose cooldowns start when it lands.
 }
 
 // A hit pushes a cast back by SpellPushbackDuration, but never leaves more than the full cast time to
@@ -98,12 +99,10 @@ type CastFunc func(*Simulation, *Unit)
 type CastSuccessFunc func(*Simulation, *Unit) bool
 
 func (spell *Spell) castFailureHelper(sim *Simulation, message string, vals ...any) bool {
-	formatString := spell.ActionID.String() + " failed to cast: " + message
-
 	if sim.CurrentTime < 0 && spell.Unit.Rotation != nil {
-		spell.Unit.Rotation.ValidationMessage(proto.LogLevel_Warning, formatString, vals)
+		spell.Unit.Rotation.ValidationMessage(proto.LogLevel_Warning, spell.ActionID.String()+" failed to cast: "+message, vals)
 	} else if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
-		spell.Unit.Log(sim, fmt.Sprintf(formatString, vals...))
+		spell.Unit.Log(sim, fmt.Sprintf(spell.ActionID.String()+" failed to cast: "+message, vals...))
 	}
 
 	return false
@@ -270,6 +269,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 				Pushback:    spell.Flags.Matches(SpellFlagPushback),
 				ResetsSwing: !isChanneled && !spell.Flags.Matches(SpellFlagKeepsSwingTimer),
 				CastTime:    spell.CurCast.CastTime,
+				spell:       spell,
 			}
 
 			spell.Unit.newHardcastAction(sim)

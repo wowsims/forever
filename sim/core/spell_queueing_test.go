@@ -89,10 +89,14 @@ func (action *gatedAction) IsReady(sim *Simulation) bool {
 // an instant off it with a one-minute cooldown and a 1 s cast on the GCD, each recording when it lands; and two
 // more 2 s casts: one applying its own 5 s dot, one putting up its own 10 s buff of up to 3 stacks on the caster;
 // and a Drain Life channel. The instants, the major cooldowns and the channel also note their names in order.
+// Blast is a 2 s cast with an 8 s cooldown and a 4 s cooldown it shares with the instant shock, both starting
+// when it lands.
 type castBarTest struct {
 	*channelTest
 	slow, nuke, offGCD, short         *Spell
 	slowAt, nukeAt, offGCDAt, shortAt []time.Duration
+	blast, shock                      *Spell
+	blastAt                           []time.Duration
 	slowAura                          *Aura
 	dotCast, buffCast                 *Spell
 	buff                              *Aura
@@ -130,6 +134,17 @@ func newCastBarTest(cooldowns ...*testCooldown) *castBarTest {
 		short := recordedSpellConfig(910143, &cb.shortAt)
 		short.Cast = CastConfig{DefaultCast: Cast{GCD: GCDDefault, CastTime: time.Second}}
 		cb.short = char.RegisterSpell(short)
+		sharedTimer := char.NewTimer()
+		blast := recordedSpellConfig(910144, &cb.blastAt)
+		blast.Cast = CastConfig{
+			DefaultCast: Cast{GCD: GCDDefault, CastTime: 2 * time.Second},
+			CD:          Cooldown{Timer: char.NewTimer(), Duration: 8 * time.Second},
+			SharedCD:    Cooldown{Timer: sharedTimer, Duration: 4 * time.Second},
+		}
+		cb.blast = char.RegisterSpell(blast)
+		shock := recordedSpellConfig(910145, &[]time.Duration{})
+		shock.Cast = CastConfig{DefaultCast: Cast{GCD: GCDDefault}, SharedCD: Cooldown{Timer: sharedTimer, Duration: 4 * time.Second}}
+		cb.shock = char.RegisterSpell(shock)
 		dotCast := fakeWarlockDot(910160, "Cast Bar Dot", ClassFlags{}, SpellFlagAPL)
 		dotCast.Cast = CastConfig{DefaultCast: Cast{GCD: GCDDefault, CastTime: 2 * time.Second}}
 		cb.dotCast = char.RegisterSpell(dotCast)
@@ -150,7 +165,7 @@ func newCastBarTest(cooldowns ...*testCooldown) *castBarTest {
 		}
 		return fakeShoot(char, &ct.shots)
 	})
-	for _, spell := range []*Spell{cb.slow, cb.nuke, cb.offGCD, cb.short, cb.dotCast, cb.buffCast, cb.drain} {
+	for _, spell := range []*Spell{cb.slow, cb.nuke, cb.offGCD, cb.short, cb.blast, cb.shock, cb.dotCast, cb.buffCast, cb.drain} {
 		spell.finalize()
 	}
 	cb.fw.majorCooldownManager.finalize()
@@ -459,6 +474,47 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		cb.runUntil(5*castEnd - SpellBatchWindow)
 		if otherActive.GetBool(cb.sim) {
 			t.Fatalf("the aura of another id that the slow cast puts up should read as down until it lands")
+		}
+	})
+
+	t.Run("the cooldowns the cast starts as it lands read as running from the cast end", func(t *testing.T) {
+		cb := newCastBarTest()
+		isReady := func(spell *Spell) APLValue {
+			return cb.rot.newValueSpellIsReady(&proto.APLValueSpellIsReady{SpellId: spell.ActionID.ToProto()}, nil)
+		}
+		timeToReady := func(spell *Spell) APLValue {
+			return cb.rot.newValueSpellTimeToReady(&proto.APLValueSpellTimeToReady{SpellId: spell.ActionID.ToProto()}, nil)
+		}
+		blastReady, blastTimeToReady, shockTimeToReady := isReady(cb.blast), timeToReady(cb.blast), timeToReady(cb.shock)
+		offGCDReady, offGCDTimeToReady := isReady(cb.offGCD), timeToReady(cb.offGCD)
+		cb.start(cb.castOf(cb.blast), cb.castOf(cb.nuke))
+
+		cb.runUntil(time.Second)
+		if !cb.blast.IsReady(cb.sim) {
+			t.Fatalf("the blast's own cooldown should only start when it lands at 2 s")
+		}
+		if blastReady.GetBool(cb.sim) || blastTimeToReady.GetDuration(cb.sim) != castEnd+8*time.Second-time.Second {
+			t.Fatalf("at 1 s the rotation should read the blast as ready at 10 s, 8 s from its cast end, read ready %t in %v", blastReady.GetBool(cb.sim), blastTimeToReady.GetDuration(cb.sim))
+		}
+		if shockTimeToReady.GetDuration(cb.sim) != castEnd+4*time.Second-time.Second {
+			t.Fatalf("at 1 s the shock should read the 4 s cooldown it shares with the blast as running from 2 s, read ready in %v", shockTimeToReady.GetDuration(cb.sim))
+		}
+		if !offGCDReady.GetBool(cb.sim) || offGCDTimeToReady.GetDuration(cb.sim) != 0 {
+			t.Fatalf("a spell on a cooldown of its own should read as it is, ready now, read ready %t in %v", offGCDReady.GetBool(cb.sim), offGCDTimeToReady.GetDuration(cb.sim))
+		}
+
+		cb.runUntil(earlyLook)
+		if cb.fw.QueuedSpell == nil || cb.fw.QueuedSpell.spell != cb.nuke {
+			t.Fatalf("at 1.99 s the rotation should queue the instant below the blast, whose cooldown starts as it lands")
+		}
+		cb.runUntil(castEnd)
+		if !slices.Equal(cb.blastAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
+			t.Fatalf("the blast should land at 2 s and the instant go off as it ends, blast at %v, instant at %v", cb.blastAt, cb.nukeAt)
+		}
+
+		cb.runUntil(castEnd + time.Second)
+		if cb.blast.IsReady(cb.sim) || blastReady.GetBool(cb.sim) || blastTimeToReady.GetDuration(cb.sim) != 7*time.Second {
+			t.Fatalf("after the blast lands its cooldown should run until 10 s, 7 s left at 3 s, read ready %t in %v", blastReady.GetBool(cb.sim), blastTimeToReady.GetDuration(cb.sim))
 		}
 	})
 

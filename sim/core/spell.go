@@ -688,6 +688,37 @@ func (spell *Spell) TimeToReady(sim *Simulation) time.Duration {
 	return MaxTimeToReady(spell.CD.Timer, spell.SharedCD.Timer, sim)
 }
 
+// The time until the spell is ready as the unit's rotation reads it: during a cast bar that holds the
+// rotation, the cooldowns the casting spell starts when it lands read as running from the bar's end.
+func (spell *Spell) rotationTimeToReady(sim *Simulation) time.Duration {
+	timeToReady := spell.TimeToReady(sim)
+	if spell.Unit.Hardcast.Expires > sim.CurrentTime {
+		timeToReady = max(timeToReady, spell.cooldownAfterLanding(sim))
+	}
+	return timeToReady
+}
+
+// How long the cooldown or shared cooldown the spell shares with the running cast keeps it from being ready
+// once that cast lands at the bar's end; zero when it shares neither or the cast does not hold the rotation.
+func (spell *Spell) cooldownAfterLanding(sim *Simulation) time.Duration {
+	hc := &spell.Unit.Hardcast
+	cast := hc.spell
+	if cast == nil {
+		return 0
+	}
+	var cooldown time.Duration
+	if spell.CD.Timer != nil && spell.CD.Timer == cast.CD.Timer {
+		cooldown = time.Duration(float64(cast.CD.Duration) * cast.CooldownMultiplier())
+	}
+	if spell.SharedCD.Timer != nil && spell.SharedCD.Timer == cast.SharedCD.Timer {
+		cooldown = max(cooldown, time.Duration(float64(cast.SharedCD.Duration)*cast.CooldownMultiplier()))
+	}
+	if cooldown <= 0 || !spell.Unit.hardcastHoldsRotation(sim) {
+		return 0
+	}
+	return hc.Expires + cooldown - sim.CurrentTime
+}
+
 // Returns whether a call to Cast() would be successful, without actually
 // doing a cast.
 func (spell *Spell) CanCast(sim *Simulation, target *Unit) bool {

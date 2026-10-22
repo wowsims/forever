@@ -538,8 +538,9 @@ func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 		return apl.controllingActions[len(apl.controllingActions)-1].GetNextAction(sim)
 	}
 
+	held := apl.unit.queuedSpellHoldsCasts(sim)
 	for _, action := range apl.priorityList {
-		if action.IsReady(sim) {
+		if !(held && action.heldByQueuedSpell(sim)) && action.IsReady(sim) {
 			return action
 		}
 	}

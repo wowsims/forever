@@ -63,8 +63,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 708.13465
-  tps: 437.30043
+  dps: 705.49755
+  tps: 435.53556
  }
 }
 dps_results: {
@@ -133,29 +133,29 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-BristleconeCloak-275833"
  value: {
-  dps: 716.26513
-  tps: 441.83104
+  dps: 713.4652
+  tps: 439.91441
  }
 }
 dps_results: {
  key: "TestArcane-AllItems-CelestialOrb-7515"
  value: {
-  dps: 710.84495
-  tps: 439.41111
+  dps: 711.99381
+  tps: 439.76093
  }
 }
 dps_results: {
  key: "TestArcane-AllItems-CloakofFire-14134"
  value: {
-  dps: 718.28554
-  tps: 443.59002
+  dps: 717.18874
+  tps: 442.77257
  }
 }
 dps_results: {
  key: "TestArcane-AllItems-CloakofFlames-3475"
  value: {
-  dps: 725.0791
-  tps: 447.17884
+  dps: 722.27917
+  tps: 445.2622
  }
 }
 dps_results: {
@@ -238,8 +238,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-DreadmistRaiment"
  value: {
-  dps: 709.67048
-  tps: 435.53829
+  dps: 709.49406
+  tps: 435.44365
   hps: 14.7862
  }
 }
@@ -421,15 +421,15 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 718.9843
-  tps: 443.52318
+  dps: 716.2903
+  tps: 441.7211
  }
 }
 dps_results: {
  key: "TestArcane-AllItems-FrostfireRegalia"
  value: {
-  dps: 952.30029
-  tps: 485.71072
+  dps: 952.06304
+  tps: 485.58217
  }
 }
 dps_results: {
@@ -470,8 +470,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 708.13465
-  tps: 437.30043
+  dps: 705.49755
+  tps: 435.53556
  }
 }
 dps_results: {
@@ -582,8 +582,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 771.31278
-  tps: 481.21141
+  dps: 767.11211
+  tps: 478.62379
  }
 }
 dps_results: {
@@ -673,15 +673,15 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-RingofSaviors-1447"
  value: {
-  dps: 715.91536
-  tps: 441.77982
+  dps: 713.23259
+  tps: 439.9846
  }
 }
 dps_results: {
  key: "TestArcane-AllItems-RobeoftheArchmage-14152"
  value: {
-  dps: 744.01066
-  tps: 458.50259
+  dps: 741.2632
+  tps: 456.62993
  }
 }
 dps_results: {
@@ -729,8 +729,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 763.26001
-  tps: 467.0726
+  dps: 760.6888
+  tps: 465.65795
  }
 }
 dps_results: {
@@ -806,8 +806,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 699.22188
-  tps: 434.7951
+  dps: 698.43608
+  tps: 433.9564
  }
 }
 dps_results: {
@@ -841,8 +841,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-VestmentsoftheVirtuous"
  value: {
-  dps: 728.86192
-  tps: 445.63754
+  dps: 728.67165
+  tps: 445.53612
  }
 }
 dps_results: {
@@ -869,8 +869,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 740.59983
-  tps: 455.73556
+  dps: 737.52029
+  tps: 453.70131
  }
 }
 dps_results: {
@@ -897,8 +897,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-Average-Default"
  value: {
-  dps: 725.78002
-  tps: 450.56105
+  dps: 725.66161
+  tps: 450.48587
  }
 }
 dps_results: {
@@ -925,15 +925,15 @@ dps_results: {
 dps_results: {
  key: "TestArcane-Settings-Gnome-p1Arcane-Default-arcaneFrostFill-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 418.8372
-  tps: 360.53179
+  dps: 418.73606
+  tps: 360.48019
  }
 }
 dps_results: {
  key: "TestArcane-Settings-Gnome-p1Arcane-Default-arcaneFrostFill-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 418.8372
-  tps: 360.53179
+  dps: 418.73606
+  tps: 360.48019
  }
 }
 dps_results: {

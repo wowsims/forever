@@ -56,7 +56,7 @@ func (value *APLValueSpellIsReady) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueSpellIsReady) GetBool(sim *Simulation) bool {
-	return value.spell.IsReady(sim) || (value.spell.TimeToReady(sim) <= MaxSpellQueueWindow)
+	return value.spell.rotationTimeToReady(sim) <= MaxSpellQueueWindow
 }
 func (value *APLValueSpellIsReady) String() string {
 	return fmt.Sprintf("Is Ready(%s)", value.spell.ActionID)
@@ -80,10 +80,10 @@ func (value *APLValueSpellTimeToReady) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration
 }
 func (value *APLValueSpellTimeToReady) GetDuration(sim *Simulation) time.Duration {
-	return value.spell.TimeToReady(sim)
+	return value.spell.rotationTimeToReady(sim)
 }
 func (value *APLValueSpellTimeToReady) GetFloat(sim *Simulation) float64 {
-	return value.spell.TimeToReady(sim).Seconds()
+	return value.spell.rotationTimeToReady(sim).Seconds()
 }
 func (value *APLValueSpellTimeToReady) String() string {
 	return fmt.Sprintf("Time To Ready(%s)", value.spell.ActionID)
