@@ -126,11 +126,7 @@ func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 	threshold, expectedMana := 0.0, 0.0
 	char.Env.RegisterPostFinalizeEffect(func() {
 		threshold = innervateManaThreshold(char)
-		// Spell 29166 states +400% spirit regen on the mana bar (aura 110), which prices the mana the
-		// metrics record.
-		expectedMana = char.SpiritManaRegenPerSecond() *
-			core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue()) *
-			aura.Duration.Seconds()
+		expectedMana = InnervateMana(&char.Unit, aura)
 	})
 
 	const ticks = 10
@@ -153,6 +149,14 @@ func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 			return char.CurrentMana() <= threshold
 		},
 	})
+}
+
+// The mana an Innervate brings the unit while the aura lasts: spell 29166 states +400% spirit regen
+// on the mana bar (aura 110).
+func InnervateMana(unit *core.Unit, aura *core.Aura) float64 {
+	return unit.SpiritManaRegenPerSecond() *
+		core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue()) *
+		aura.Duration.Seconds()
 }
 
 // A mage burns mana fast enough that waiting for a flat thousand left would

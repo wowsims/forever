@@ -25,7 +25,6 @@
 	],
 	"priorityList": [
 		{ "action": { "autocastOtherCooldowns": {} } },
-		{ "action": { "condition": { "cmp": { "op": "OpLt", "lhs": { "currentManaPercent": {} }, "rhs": { "const": { "val": "10%" } } } }, "castSpell": { "spellId": { "spellId": 29166 } } } },
 		{ "action": { "condition": { "not": { "val": { "dotIsActive": { "spellId": { "spellId": 9835 } } } } }, "castSpell": { "spellId": { "spellId": 9835 } } } },
 		{ "action": { "condition": { "not": { "val": { "dotIsActive": { "spellId": { "spellId": 24977 } } } } }, "castSpell": { "spellId": { "spellId": 24977 } } } },
 		{ "action": { "condition": { "cmp": { "op": "OpGe", "lhs": { "numberTargets": {} }, "rhs": { "const": { "val": "4" } } } }, "castSpell": { "spellId": { "spellId": 17402 } } } },
