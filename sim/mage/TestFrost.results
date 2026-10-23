@@ -925,15 +925,15 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 220.93044
-  tps: 228.74533
+  dps: 220.93266
+  tps: 228.73998
  }
 }
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 220.93044
-  tps: 228.74533
+  dps: 220.93266
+  tps: 228.73998
  }
 }
 dps_results: {
@@ -967,15 +967,15 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 223.63077
-  tps: 231.48098
+  dps: 223.62567
+  tps: 231.48148
  }
 }
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 223.63077
-  tps: 231.48098
+  dps: 223.62567
+  tps: 231.48148
  }
 }
 dps_results: {
