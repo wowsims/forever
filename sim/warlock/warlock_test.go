@@ -437,8 +437,8 @@ func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
 }
 
 // Bane Is Active On All Targets counts any of the warlock's Banes on each target that is up, and Assigned Curse
-// Is Active On All Targets the assigned curse; a target that is down is skipped, and with no curse assigned the
-// value is dropped.
+// Is Active On All Targets the assigned curse. A target that is down is skipped, and with no curse assigned the
+// curse value reads false.
 func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 	down := core.FreshDefaultTargetConfig()
 	down.DisabledAtStart = true
@@ -474,8 +474,8 @@ func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 		t.Errorf("Assigned Curse Is Active On All Targets is false with Curse of the Elements on both targets that are up")
 	}
 
-	_, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
-	if value := warlock.NewAPLValue(warlock.Rotation, curseValue); value != nil {
-		t.Errorf("Assigned Curse Is Active On All Targets builds %s with no curse assigned, want no value", value)
+	sim, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
+	if warlock.NewAPLValue(warlock.Rotation, curseValue).GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is true with no curse assigned")
 	}
 }
