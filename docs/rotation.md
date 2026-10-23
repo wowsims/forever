@@ -2,8 +2,7 @@
 
 The rotation (the APL) picks what follows a hardcast at the cast end, before the cast's outcome applies.
 A player with spell queueing commits to the next cast before the current one lands and only sees the
-result afterwards; the sim does the same. This page shows the flow, what the pick can and cannot see,
-and which APL lines need `Spell Is Casting`.
+result afterwards; the sim does the same.
 
 ## The flow
 
