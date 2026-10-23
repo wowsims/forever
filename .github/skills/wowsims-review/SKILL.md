@@ -102,6 +102,11 @@ Each of these has a section in `references/defects.md`.
   iteration's reset.
 - **Whose state.** An effect on several targets reads each hit target's auras, not the primary target's; a
   tagged aura counts only this caster's; a map read for a key it may lack does not default to 0.
+- **What a preset line sees.** The rotation picks the cast after a hardcast before that cast lands
+  (`docs/rotation.md`): a line that reads an aura of another id the landing changes, a proc, a stack it
+  spends or a buff it refreshes, re-queues the spell unless it carries `not(Spell Is Casting(X))`; a line
+  refreshing the cast's own dot needs no guard. Judge a preset's cast counts from a debug log, not from
+  the line as written.
 
 ## 5. Tests
 

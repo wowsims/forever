@@ -58,6 +58,11 @@ weapon-bound talents of the classes still to port.
 Where the sim and the game files disagree, decide rather than assume ("When a sim number disagrees" in
 `wowsims-spells`), and record the decision at the call site.
 
+A preset rotation is written against `docs/rotation.md`: the pick after a hardcast does not see that
+cast's outcome, so a line that reads a proc, a stack or a buff of another id the landing changes carries
+`not(Spell Is Casting(X))`, while a line refreshing the cast's own dot does not. Check the preset's cast
+counts in a debug log before taking its DPS.
+
 ## Keeping the branch merged
 
 A port lives on one branch for a while, and master moves under it.
