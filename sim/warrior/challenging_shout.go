@@ -14,7 +14,7 @@ func (warrior *Warrior) registerChallengingShout() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
-			spell.CalcAndDealOutcome(sim, aoeTarget, spell.OutcomeAlwaysHit)
+			spell.CalcAndDealOutcome(sim, aoeTarget, spell.OutcomeMagicHit)
 		}
 	}
 

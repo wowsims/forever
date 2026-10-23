@@ -186,8 +186,6 @@ var ItemSetDreadnaughtsBattlegear = core.NewItemSet(core.ItemSet{
 				FloatValue: dreadnaughtRevenge.EffectN(1).BaseValue(),
 			})
 		},
-		// TODO: both spells resolve on OutcomeAlwaysHit, so the bonus changes nothing until they
-		// roll against the spell hit table.
 		4: shared.ParsedSetBonus(dreadnaughtTauntHit),
 		6: shared.ParsedSetBonus(dreadnaughtAbilityHit),
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
