@@ -6994,6 +6994,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"warlock_assigned_curse_is_active_on_all_targets": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"warlock_bane_is_active_on_all_targets": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"warlock_is_assigned_curse": {
 									"type": "object",
 									"properties": {
@@ -7347,6 +7373,8 @@
 								"warlock_assigned_curse_is_active",
 								"warlock_is_assigned_curse",
 								"warlock_active_pet",
+								"warlock_assigned_curse_is_active_on_all_targets",
+								"warlock_bane_is_active_on_all_targets",
 								"protection_paladin_damage_taken_last_global",
 								"aura_remaining_icd",
 								"aura_icd_is_ready",

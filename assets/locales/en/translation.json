@@ -1996,6 +1996,14 @@
 					"label": "Assigned Curse Is Active",
 					"tooltip": "Returns true is assigned curse is active on target"
 				},
+				"warlock_assigned_curse_is_active_on_all_targets": {
+					"label": "Assigned Curse Is Active On All Targets",
+					"tooltip": "<b>True</b> while your assigned curse is on every target, otherwise <b>False</b>. With no curse assigned it is <b>False</b>."
+				},
+				"warlock_bane_is_active_on_all_targets": {
+					"label": "Bane Is Active On All Targets",
+					"tooltip": "<b>True</b> while one of your Banes (Agony, Doom or Havoc) is on every target, otherwise <b>False</b>. A target holds one Bane at a time."
+				},
 				"warlock_is_assigned_curse": {
 					"label": "Is Assigned Curse",
 					"tooltip": "True if the warlock is assigned the specified curse"

@@ -100,7 +100,7 @@ message APLAction {
 }
 
 
-// NextIndex: 138
+// NextIndex: 140
 message APLValue {
 	UUID uuid = 85;
 
@@ -231,6 +231,8 @@ message APLValue {
 APLValueWarlockAssignedCurseIsActive warlock_assigned_curse_is_active = 59;
 		APLValueWarlockIsAssignedCurse warlock_is_assigned_curse = 129;
 		APLValueWarlockActivePet warlock_active_pet = 135;
+		APLValueWarlockBaneIsActiveOnAllTargets warlock_bane_is_active_on_all_targets = 138;
+		APLValueWarlockAssignedCurseIsActiveOnAllTargets warlock_assigned_curse_is_active_on_all_targets = 139;
 		APLValueProtectionPaladinDamageTakenLastGlobal protection_paladin_damage_taken_last_global = 100;
 		APLValueDruidBleedIsActive druid_bleed_is_active = 68;
 		APLValueDruidExcessEnergy druid_excess_energy = 137;
@@ -782,6 +784,10 @@ message APLValueWarlockIsAssignedCurse {
 message APLValueWarlockActivePet {
 	WarlockOptions.Summon summon = 1;
 }
+// True while one of the warlock's Banes is on every target that is up: a target holds one Bane at a time.
+message APLValueWarlockBaneIsActiveOnAllTargets {}
+// True while the assigned curse is on every target that is up; false with no curse assigned.
+message APLValueWarlockAssignedCurseIsActiveOnAllTargets {}
 // True while one of the druid's bleeds is up on the target, or while the druid assumes a bleed.
 message APLValueDruidBleedIsActive {
 	UnitReference target_unit = 1;

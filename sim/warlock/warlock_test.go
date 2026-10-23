@@ -435,3 +435,46 @@ func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
 		}
 	})
 }
+
+// Bane Is Active On All Targets counts any of the warlock's Banes on each target that is up, and Assigned Curse
+// Is Active On All Targets the assigned curse; a target that is down is skipped, and no assigned curse is false.
+func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
+	down := core.FreshDefaultTargetConfig()
+	down.DisabledAtStart = true
+	encounter := &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget(), core.NewDefaultTarget(), down}}
+	baneValue := &proto.APLValue{Value: &proto.APLValue_WarlockBaneIsActiveOnAllTargets{WarlockBaneIsActiveOnAllTargets: &proto.APLValueWarlockBaneIsActiveOnAllTargets{}}}
+	curseValue := &proto.APLValue{Value: &proto.APLValue_WarlockAssignedCurseIsActiveOnAllTargets{WarlockAssignedCurseIsActiveOnAllTargets: &proto.APLValueWarlockAssignedCurseIsActiveOnAllTargets{}}}
+
+	// Bane of Havoc is the 13th destruction talent.
+	sim, warlock := newWarlockSim("--0000000000001", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_Elements}, encounter)
+	first, second := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
+	bane, curse := warlock.NewAPLValue(nil, baneValue), warlock.NewAPLValue(nil, curseValue)
+
+	warlock.BaneOfDoom.Dot(first).Apply(sim)
+	if bane.GetBool(sim) {
+		t.Errorf("Bane Is Active On All Targets is true with Doom on the first target alone")
+	}
+	warlock.BaneOfAgony.Dot(second).Apply(sim)
+	if !bane.GetBool(sim) {
+		t.Errorf("Bane Is Active On All Targets is false with Doom on the first target, Agony on the second and the third down")
+	}
+	warlock.BaneOfAgony.Dot(second).Deactivate(sim)
+	warlock.BaneOfHavocAuras.Get(second).Activate(sim)
+	if !bane.GetBool(sim) {
+		t.Errorf("Bane Is Active On All Targets is false with Havoc in place of Agony on the second target")
+	}
+
+	warlock.CurseOfElementsAuras.Get(first).Activate(sim)
+	if curse.GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is true with Curse of the Elements on the first target alone")
+	}
+	warlock.CurseOfElementsAuras.Get(second).Activate(sim)
+	if !curse.GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is false with Curse of the Elements on both targets that are up")
+	}
+
+	sim, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
+	if warlock.NewAPLValue(nil, curseValue).GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is true with no curse assigned")
+	}
+}
