@@ -437,7 +437,8 @@ func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
 }
 
 // Bane Is Active On All Targets counts any of the warlock's Banes on each target that is up, and Assigned Curse
-// Is Active On All Targets the assigned curse; a target that is down is skipped, and no assigned curse is false.
+// Is Active On All Targets the assigned curse; a target that is down is skipped, and with no curse assigned the
+// value is dropped.
 func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 	down := core.FreshDefaultTargetConfig()
 	down.DisabledAtStart = true
@@ -448,7 +449,7 @@ func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 	// Bane of Havoc is the 13th destruction talent.
 	sim, warlock := newWarlockSim("--0000000000001", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_Elements}, encounter)
 	first, second := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
-	bane, curse := warlock.NewAPLValue(nil, baneValue), warlock.NewAPLValue(nil, curseValue)
+	bane, curse := warlock.NewAPLValue(warlock.Rotation, baneValue), warlock.NewAPLValue(warlock.Rotation, curseValue)
 
 	warlock.BaneOfDoom.Dot(first).Apply(sim)
 	if bane.GetBool(sim) {
@@ -473,8 +474,8 @@ func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 		t.Errorf("Assigned Curse Is Active On All Targets is false with Curse of the Elements on both targets that are up")
 	}
 
-	sim, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
-	if warlock.NewAPLValue(nil, curseValue).GetBool(sim) {
-		t.Errorf("Assigned Curse Is Active On All Targets is true with no curse assigned")
+	_, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
+	if value := warlock.NewAPLValue(warlock.Rotation, curseValue); value != nil {
+		t.Errorf("Assigned Curse Is Active On All Targets builds %s with no curse assigned, want no value", value)
 	}
 }
