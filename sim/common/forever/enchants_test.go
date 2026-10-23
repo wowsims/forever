@@ -290,6 +290,14 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	if buff.IsActive() {
 		t.Error("a channel whose own hit landed was cut short before its first tick and Revelation's charge is still up")
 	}
+
+	drain := druid.drain.Dot(target)
+	druid.drain.SkipCastAndApplyEffects(sim, target)
+	charge()
+	stepWhile(drain.IsActive)
+	if buff.IsActive() {
+		t.Error("the charge came while a channel it covers was running, the channel ended and the charge is still up")
+	}
 }
 
 // A hunter's buff 1323410 also procs off the ranged shots its mask names, and not off a shot outside it.

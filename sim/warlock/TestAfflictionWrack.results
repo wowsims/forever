@@ -456,9 +456,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 576.18487
-  tps: 326.6328
-  dtps: 8.8055
+  dps: 575.31506
+  tps: 326.25098
+  dtps: 8.84807
   hps: 6.27456
  }
 }

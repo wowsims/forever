@@ -351,8 +351,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 657.45166
-  tps: 345.09782
+  dps: 657.13114
+  tps: 344.94077
  }
 }
 dps_results: {
