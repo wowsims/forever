@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -17,6 +18,9 @@ type APLRotation struct {
 
 	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
 	canMoveCloserValue bool
+
+	majorCooldownActionsKnown bool         // majorCooldownActions is set once, as it depends only on the rotation.
+	majorCooldownActions      []*APLAction // The priority list's actions that can be a major cooldown going ahead of the spell queued after a hardcast.
 
 	// Shared variable caches: all APLValueVariableRef instances for the same
 	// variable name share the same cache (but each has its own expression tree).
@@ -464,7 +468,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	apl.unit.UpdatePosition(sim, false)
 	free := apl.unit.GCD.IsReady(sim) && apl.unit.Hardcast.Expires <= sim.CurrentTime
 	apl.unit.costBlocked = false
-	for nextAction := apl.getNextAction(sim); ; i, nextAction = i+1, apl.getNextAction(sim) {
+	for nextAction := apl.firstAction(sim); ; i, nextAction = i+1, apl.getNextAction(sim) {
 		if i > 1000 {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
@@ -543,7 +547,51 @@ func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 	return nil
 }
 
-// A major cooldown, or a group whose first ready action is one.
+// The pass's first action. With the spell queued after a hardcast due and no major cooldown ready to go
+// ahead of it, there is none, and the spell goes off without a look at the priority list.
+func (apl *APLRotation) firstAction(sim *Simulation) *APLAction {
+	if apl.unit.queuedSpellDue(sim) && len(apl.controllingActions) == 0 {
+		apl.evalGeneration++ // The variable refs in the major cooldowns' conditions read the state after the cast landed.
+		if !apl.majorCooldownMayGo(sim) {
+			return nil
+		}
+	}
+	return apl.getNextAction(sim)
+}
+
+// Whether an action of the priority list that can be a major cooldown is ready.
+func (apl *APLRotation) majorCooldownMayGo(sim *Simulation) bool {
+	if !apl.majorCooldownActionsKnown {
+		apl.majorCooldownActionsKnown = true
+		apl.majorCooldownActions = FilterSlice(apl.priorityList, canBeMajorCooldown)
+	}
+	for _, action := range apl.majorCooldownActions {
+		if action.IsReady(sim) {
+			return true
+		}
+	}
+	return false
+}
+
+// Whether isMajorCooldown can accept the action: an autocast, a cast of a major cooldown, or a group holding
+// one of these. The two must agree, or a major cooldown misses its turn ahead of the spell queued after a
+// hardcast.
+func canBeMajorCooldown(action *APLAction) bool {
+	switch impl := action.impl.(type) {
+	case *APLActionAutocastOtherCooldowns:
+		return true
+	case *APLActionCastSpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionCastFriendlySpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionGroupReference:
+		return impl.group != nil && slices.ContainsFunc(impl.group.actions, canBeMajorCooldown)
+	}
+	return false
+}
+
+// A major cooldown, or a group whose first ready action is one. canBeMajorCooldown must accept every action
+// this accepts.
 func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool {
 	switch impl := action.impl.(type) {
 	case *APLActionAutocastOtherCooldowns:

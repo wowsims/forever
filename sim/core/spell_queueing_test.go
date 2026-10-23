@@ -325,6 +325,51 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 		}
 	})
 
+	t.Run("the pick goes off at the cast end without a look at the list unless a major cooldown is ready to go ahead of it", func(t *testing.T) {
+		// Never ready; counts the looks at the cast end after the slow cast lands and before the picked instant
+		// goes off, and those after it.
+		probeAtCastEnd := func(cb *hardcastTest, before, after *int) APLActionImpl {
+			return &gatedAction{APLActionImpl: &lookProbe{}, ready: func(sim *Simulation) bool {
+				if sim.CurrentTime == castEnd && len(cb.slowAt) == 1 {
+					*Ternary(len(cb.nukeAt) == 0, before, after)++
+				}
+				return false
+			}}
+		}
+
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		potion.spell.CD.Set(time.Minute)
+		var before, after int
+		cb.start(cb.castOf(potion.spell), cb.autocastAction(), probeAtCastEnd(cb, &before, &after), cb.slowAtPull(), cb.castOf(cb.nuke))
+		cb.runUntil(castEnd)
+		if !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) || len(potion.castAt) != 0 || before != 0 || after == 0 {
+			t.Fatalf("with the potion on its cooldown the instant picked at the 2 s cast end should go off with no look at the list before it and one after, instant at %v, the potion at %v, looks before %d, after %d", cb.nukeAt, potion.castAt, before, after)
+		}
+
+		group := func(cb *hardcastTest, potion *testCooldown) APLActionImpl {
+			cb.rot.groups = append(cb.rot.groups, &APLGroup{name: "cooldowns", actions: []*APLAction{newAPLActionEntry(nil, cb.castOf(potion.spell))}})
+			return cb.rot.newActionGroupReference(&proto.APLActionGroupReference{GroupName: "cooldowns"})
+		}
+		for _, line := range []struct {
+			name   string
+			action func(cb *hardcastTest, potion *testCooldown) APLActionImpl
+		}{
+			{"Cast Spell line", func(cb *hardcastTest, potion *testCooldown) APLActionImpl { return cb.castOf(potion.spell) }},
+			{"Autocast Other Cooldowns line", func(cb *hardcastTest, _ *testCooldown) APLActionImpl { return cb.autocastAction() }},
+			{"group reference holding its Cast Spell line", group},
+		} {
+			potion := &testCooldown{}
+			cb := newHardcastTest(potion)
+			var before, after int
+			cb.start(probeAtCastEnd(cb, &before, &after), line.action(cb, potion), cb.slowAtPull(), cb.castOf(cb.nuke))
+			cb.runUntil(castEnd)
+			if !slices.Equal(cb.order, []string{"cooldown", "nuke"}) || !slices.Equal(potion.castAt, []time.Duration{castEnd}) || before == 0 {
+				t.Fatalf("the potion, ready from 1.5 s, should go through its %s at the 2 s cast end ahead of the instant picked there after a look at the list, in the order %v, the potion at %v, looks before the instant %d", line.name, cb.order, potion.castAt, before)
+			}
+		}
+	})
+
 	t.Run("a pick with nothing to queue leaves the cast-end look to act after the cast lands", func(t *testing.T) {
 		cb := newHardcastTest()
 		probe := &lookProbe{}

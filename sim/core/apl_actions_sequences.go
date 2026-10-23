@@ -260,6 +260,9 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 // rotation's first ready action, goes ahead of it.
 func (action *APLActionStrictSequence) cooldownAheadOfStep(sim *Simulation) *APLAction {
 	rot := action.unit.Rotation
+	if !rot.majorCooldownMayGo(sim) {
+		return nil
+	}
 	for _, priorityAction := range rot.priorityList {
 		if priorityAction.IsReady(sim) {
 			return Ternary(rot.isMajorCooldown(sim, priorityAction), priorityAction, nil)
