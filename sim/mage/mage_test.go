@@ -49,7 +49,7 @@ func fireSuite() core.CharacterSuiteConfig {
 }
 
 func frostSuite() core.CharacterSuiteConfig {
-	return mageSuite(FireTalents, "frost")
+	return mageSuite(FrostTalents, "frost")
 }
 
 func mageSuite(talents string, apl string) core.CharacterSuiteConfig {
