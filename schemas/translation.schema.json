@@ -9904,6 +9904,9 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip", "off", "firefox_note"]
 						},
+						"restart_tour": {
+							"type": "string"
+						},
 						"restore_defaults": {
 							"type": "object",
 							"properties": {
@@ -9922,7 +9925,7 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["title", "fixed_rng_seed", "language", "feature_toggles", "use_multiple_cpu_cores", "restore_defaults"]
+					"required": ["title", "fixed_rng_seed", "language", "feature_toggles", "use_multiple_cpu_cores", "restart_tour", "restore_defaults"]
 				},
 				"download_native_sim": {
 					"type": "string"
@@ -9948,6 +9951,53 @@
 				"native_sim_outdated",
 				"forever_notice"
 			]
+		},
+		"onboarding": {
+			"type": "object",
+			"properties": {
+				"label": {
+					"type": "string"
+				},
+				"progress": {
+					"type": "string"
+				},
+				"start": {
+					"type": "string"
+				},
+				"next": {
+					"type": "string"
+				},
+				"previous": {
+					"type": "string"
+				},
+				"skip": {
+					"type": "string"
+				},
+				"skip_step": {
+					"type": "string"
+				},
+				"finish": {
+					"type": "string"
+				},
+				"steps": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "object",
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"body": {
+								"type": "string"
+							}
+						},
+						"additionalProperties": false,
+						"required": ["title", "body"]
+					}
+				}
+			},
+			"additionalProperties": false,
+			"required": ["label", "progress", "start", "next", "previous", "skip", "skip_step", "finish", "steps"]
 		},
 		"sidebar": {
 			"type": "object",

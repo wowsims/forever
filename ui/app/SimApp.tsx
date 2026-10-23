@@ -1,3 +1,4 @@
+import { OnboardingProvider } from '@features/onboarding';
 import { EpWeightsDialog } from '@features/stat-weights/components/EpWeightsDialog';
 import { OpenEpWeightsContext } from '@features/stat-weights/hooks/useEpWeightsDialog';
 import type { Spec } from '@generated/proto/common';
@@ -13,6 +14,7 @@ import { SimHostObject } from './individual_sim_ui';
 import { knownIssuesFor } from './known_issues';
 import { SettingsDialog } from './SettingsDialog';
 import { SimShell } from './SimShell';
+import { ONBOARDING_STORAGE_KEY } from './storage_keys';
 import type { ShellDom } from './types/shell_dom';
 
 export interface SimAppProps<SpecType extends Spec> {
@@ -39,27 +41,30 @@ export const SimApp = <SpecType extends Spec>({ player, def }: SimAppProps<SpecT
 	return (
 		<PortalContainerContext value={rootEl}>
 			<SimHostProvider host={simUI}>
-				<OpenEpWeightsContext value={openEpWeights}>
-					<SimShell
-						domRef={domRef}
-						host={simUI}
-						sim={player.sim}
-						className={def.className}
-						spec={player.getPlayerSpec()}
-						knownIssues={knownIssuesFor(player.getPlayerSpec().launch, def.spec, def.knownIssues)}
-						onOpenSettings={() => {
-							trackPageView('Options', '/settings-menu');
-							setSettingsOpen(true);
-						}}
-					/>
-					{simUI && (
-						<>
-							<CrashReportDialog opener={simUI.crashReport} />
-							<EpWeightsDialog open={epWeightsOpen} onOpenChange={setEpWeightsOpen} settings={simUI.statWeightActionSettings} />
-							<SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} host={simUI} />
-						</>
-					)}
-				</OpenEpWeightsContext>
+				{/* Around the options dialog too, which can open the tour again. */}
+				<OnboardingProvider storage={player.sim.env.storage} storageKey={ONBOARDING_STORAGE_KEY}>
+					<OpenEpWeightsContext value={openEpWeights}>
+						<SimShell
+							domRef={domRef}
+							host={simUI}
+							sim={player.sim}
+							className={def.className}
+							spec={player.getPlayerSpec()}
+							knownIssues={knownIssuesFor(player.getPlayerSpec().launch, def.spec, def.knownIssues)}
+							onOpenSettings={() => {
+								trackPageView('Options', '/settings-menu');
+								setSettingsOpen(true);
+							}}
+						/>
+						{simUI && (
+							<>
+								<CrashReportDialog opener={simUI.crashReport} />
+								<EpWeightsDialog open={epWeightsOpen} onOpenChange={setEpWeightsOpen} settings={simUI.statWeightActionSettings} />
+								<SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} host={simUI} />
+							</>
+						)}
+					</OpenEpWeightsContext>
+				</OnboardingProvider>
 			</SimHostProvider>
 		</PortalContainerContext>
 	);

@@ -1,0 +1,29 @@
+@layer components {
+	.ui-tour {
+		@apply pointer-events-none fixed inset-0 z-tour;
+	}
+
+	.ui-tour-shield {
+		@apply pointer-events-auto absolute inset-0;
+	}
+
+	.ui-tour[data-waiting] .ui-tour-shield {
+		@apply pointer-events-none;
+	}
+
+	.ui-tour-dim {
+		@apply absolute inset-0 fill-black/60;
+	}
+
+	.ui-tour-ring {
+		@apply absolute top-0 left-0 border-2 border-primary transition-[transform,width,height] duration-200 ease-out motion-reduce:transition-none;
+	}
+
+	.ui-tour-positioner {
+		@apply z-tour-card;
+	}
+
+	.ui-tour-card {
+		@apply flex w-86 max-w-(--available-width) flex-col gap-2 border border-surface-border bg-overlay bg-clip-padding p-4 text-white shadow-popup;
+	}
+}

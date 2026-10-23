@@ -15,7 +15,7 @@ export const GearTabBody = () => {
 			<TabPanelColumns.Left variant="auto-columns">
 				<GearPicker ready={ready} />
 			</TabPanelColumns.Left>
-			<TabPanelColumns.Right>
+			<TabPanelColumns.Right testId="gear-presets">
 				<GearPresets />
 			</TabPanelColumns.Right>
 			<SelectorModal state={selector} />

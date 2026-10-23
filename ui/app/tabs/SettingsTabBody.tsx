@@ -142,9 +142,9 @@ export const SettingsTabBody = () => {
 						</>
 					)}
 				</TabPanelColumns.Col>
-				<TabPanelColumns.Col>{ready && <BuffSections gearPlanner={gearPlanner} />}</TabPanelColumns.Col>
+				<TabPanelColumns.Col testId="buff-settings">{ready && <BuffSections gearPlanner={gearPlanner} />}</TabPanelColumns.Col>
 			</TabPanelColumns.Left>
-			<TabPanelColumns.Right>
+			<TabPanelColumns.Right testId="settings-presets">
 				<PresetConfigurationPicker categories={gearPlanner ? GEAR_PLANNER_PRESETS : SETTINGS_PRESETS} />
 				{!gearPlanner && <SavedEncounter />}
 				<SavedSettings />
