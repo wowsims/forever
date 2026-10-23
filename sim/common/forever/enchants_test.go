@@ -294,6 +294,10 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	drain := druid.drain.Dot(target)
 	druid.drain.SkipCastAndApplyEffects(sim, target)
 	charge()
+	sim.Step()
+	if !drain.IsActive() || !buff.IsActive() {
+		t.Fatal("the charge came while a channel it covers was running, and it is gone before that channel ended")
+	}
 	stepWhile(drain.IsActive)
 	if buff.IsActive() {
 		t.Error("the charge came while a channel it covers was running, the channel ended and the charge is still up")
