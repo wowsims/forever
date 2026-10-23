@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 8
   final_stats: 8
   final_stats: 30.0464
@@ -174,7 +175,7 @@ dps_results: {
  key: "TestRetribution-AllItems-BlessedPlate"
  value: {
   dps: 740.49552
-  tps: 638.73836
+  tps: 638.64881
   dtps: 8.2436
   hps: 22.18146
  }
@@ -1011,7 +1012,7 @@ dps_results: {
  key: "TestRetribution-AllItems-RingofSaviors-1447"
  value: {
   dps: 793.71461
-  tps: 682.63058
+  tps: 682.59082
   dtps: 6.96369
   hps: 22.61982
  }
@@ -1236,7 +1237,7 @@ dps_results: {
  key: "TestRetribution-AllItems-ToySoldier-274386"
  value: {
   dps: 794.27159
-  tps: 683.26149
+  tps: 683.21544
   dtps: 7.39088
   hps: 22.42174
  }

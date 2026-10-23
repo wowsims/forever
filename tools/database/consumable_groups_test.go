@@ -103,6 +103,7 @@ func TestElixirGroupNamesWhatTheAuraGrants(t *testing.T) {
 		{dbcenums.A_MOD_RESISTANCE, 1, "22/1", "Armor"},
 		{dbcenums.A_MOD_ATTACK_POWER, 0, "99/0", "Attack Power"},
 		{dbcenums.A_PERIODIC_ENERGIZE, 0, "24/0", "Mana Regeneration"},
+		{dbcenums.A_MOD_HEALTH_REGEN_IN_COMBAT, 0, "161/0", "Health Regeneration"},
 	} {
 		if got, want := ElixirGroup(tc.aura, tc.misc), (ConsumableGroupKey{Key: tc.key, Name: tc.name}); got != want {
 			t.Errorf("aura %v misc %d: group %+v, want %+v", tc.aura, tc.misc, got, want)

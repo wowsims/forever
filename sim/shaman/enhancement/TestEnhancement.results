@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 67
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 8.2
   final_stats: 8.2
   final_stats: 35.8036
@@ -804,7 +805,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-RingofSaviors-1447"
  value: {
   dps: 680.29525
-  tps: 359.20058
+  tps: 359.03321
   dtps: 9.5769
   hps: 18.04583
  }
@@ -1002,7 +1003,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-ToySoldier-274386"
  value: {
   dps: 685.23883
-  tps: 361.46926
+  tps: 361.25691
   dtps: 9.54161
   hps: 18.06278
  }

@@ -21,6 +21,7 @@ const STAT_NAMES: Record<Stat, string> = {
 	[Stat.StatHealth]: 'health',
 	[Stat.StatBonusArmor]: 'armorBonus',
 	[Stat.StatArmorNoMods]: '',
+	[Stat.StatHP5]: '',
 	[Stat.StatHealingPower]: 'healing',
 	[Stat.StatSpellDamage]: 'spellDamage',
 	[Stat.StatArcaneDamage]: 'arcaneDamage',

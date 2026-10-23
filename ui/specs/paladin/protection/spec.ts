@@ -48,6 +48,7 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 	displayStats: UnitStat.createDisplayStatArray(
 		[
 			Stat.StatHealth,
+			Stat.StatHP5,
 			Stat.StatMana,
 			Stat.StatArmor,
 			Stat.StatBonusArmor,

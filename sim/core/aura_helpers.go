@@ -370,7 +370,7 @@ func (aura *StatBuffAura) CanProc(sim *Simulation) bool {
 
 // The stats a buff to any of makes a survival cooldown.
 var SurvivalStats = []stats.Stat{stats.Armor, stats.ArmorNoMods, stats.BlockPercent, stats.BlockValue, stats.DodgeRating, stats.ParryRating,
-	stats.DodgePercent, stats.ParryPercent, stats.Health, stats.ArcaneResistance, stats.FireResistance, stats.FrostResistance,
+	stats.DodgePercent, stats.ParryPercent, stats.Health, stats.HP5, stats.ArcaneResistance, stats.FireResistance, stats.FrostResistance,
 	stats.NatureResistance, stats.ShadowResistance}
 
 // The stats a buff to only these makes a mana cooldown.

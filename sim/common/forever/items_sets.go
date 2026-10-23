@@ -45,11 +45,13 @@ var ItemSetImperialPlate = core.NewItemSet(core.ItemSet{
 	},
 })
 
+var blessedPlateRegen = spelldata.MustFind(1302375) // 4pc: 20 health every 5 sec to the party
+
 // Blacksmithing - Plate
 // https://www.wowhead.com/forever/item-set=1968/blessed-plate
 //
-// New in Forever. The 4-piece bonus restores 20 health every 5 sec to party members within 10
-// yards; the sim has no health regeneration stat, so it is left out.
+// New in Forever. The 4-piece bonus restores 20 health every 5 sec to party members within 30
+// yards; the sim gives it to the wearer alone and does not model the party reach.
 var ItemSetBlessedPlate = core.NewItemSet(core.ItemSet{
 	ID:    1968,
 	Name:  "Blessed Plate",
@@ -67,6 +69,7 @@ var ItemSetBlessedPlate = core.NewItemSet(core.ItemSet{
 				AttachStatBuff(stats.Strength, 20).
 				ExposeToAPL(1252009)
 		},
+		4: shared.ParsedSetBonus(blessedPlateRegen),
 		5: func(_ core.Agent, setBonusAura *core.Aura) {
 			// Improves your chance to hit by 2%.
 			setBonusAura.

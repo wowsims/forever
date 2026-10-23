@@ -7,7 +7,7 @@ export type StatGroupKey = 'primary' | 'attributes' | 'physical' | 'spell' | 'de
 
 /** The groups the character stats panel and the stat filters sort stats into, each in display order. */
 export const STAT_GROUPS: ReadonlyArray<{ key: StatGroupKey; stats: ReadonlyArray<UnitStat> }> = [
-	{ key: 'primary', stats: [UnitStat.fromStat(Stat.StatHealth), UnitStat.fromStat(Stat.StatMana)] },
+	{ key: 'primary', stats: [UnitStat.fromStat(Stat.StatHealth), UnitStat.fromStat(Stat.StatHP5), UnitStat.fromStat(Stat.StatMana)] },
 	{
 		key: 'attributes',
 		stats: [

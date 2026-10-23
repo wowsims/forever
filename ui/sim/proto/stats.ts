@@ -356,6 +356,7 @@ const CHANNEL_PSEUDO_STATS = new Set([...RATING_CHANNELS.values()].flatMap(({ ch
 
 const displayStatOrder: Array<UnitStat> = [
 	UnitStat.fromStat(Stat.StatHealth),
+	UnitStat.fromStat(Stat.StatHP5),
 	UnitStat.fromStat(Stat.StatMana),
 	UnitStat.fromStat(Stat.StatArmor),
 	UnitStat.fromStat(Stat.StatBonusArmor),

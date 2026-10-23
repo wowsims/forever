@@ -10,18 +10,66 @@ import (
 // Threat per point of health a heal restores, before the spell's and the unit's threat multipliers.
 const ThreatPerHealingDone = 0.5
 
+// Regen ticks every 2.02 s, the game's measured timer, counted from the pull and never in the
+// prepull; each tick credits 2 s of HP5.
+const healthRegenTickDuration = time.Millisecond * 2020
+
 type healthBar struct {
 	unit *Unit
 
 	currentHealth float64
 
 	DamageTakenHealthMetrics *ResourceMetrics
+	healthRegenMetrics       *ResourceMetrics
+	nextHealthTick           time.Duration // NeverExpires once a tick finds no HP5, until HP5 returns.
 }
 
 func (unit *Unit) EnableHealthBar() {
 	unit.healthBar = healthBar{
 		unit:                     unit,
 		DamageTakenHealthMetrics: unit.NewHealthMetrics(ActionID{OtherID: proto.OtherAction_OtherActionDamageTaken}),
+		healthRegenMetrics:       unit.NewHealthMetrics(ActionID{OtherID: proto.OtherAction_OtherActionHealthRegen}),
+	}
+}
+
+func (hb *healthBar) RunTask(sim *Simulation) time.Duration {
+	if sim.CurrentTime < hb.nextHealthTick {
+		return hb.nextHealthTick
+	}
+	unit := hb.unit
+	hp5 := unit.GetStat(stats.HP5)
+	if hp5 <= 0 {
+		hb.nextHealthTick = NeverExpires
+		return hb.nextHealthTick
+	}
+	if unit.IsEnabled() && !unit.Metrics.Died && hb.currentHealth < hb.MaxHealth() {
+		hb.GainHealth(sim, hp5*2/5, hb.healthRegenMetrics)
+	}
+	hb.nextHealthTick += healthRegenTickDuration
+	return hb.nextHealthTick
+}
+
+// Starts the ticks asleep and wakes them at the pull's first tick if the unit has HP5.
+func (hb *healthBar) enable(sim *Simulation) {
+	hb.nextHealthTick = NeverExpires
+	sim.AddTask(hb)
+	hb.wakeHealthRegen(sim)
+}
+
+// Wakes sleeping ticks at the next tick boundary; the part of a tick before it earns nothing.
+func (hb *healthBar) wakeHealthRegen(sim *Simulation) {
+	if hb.nextHealthTick != NeverExpires || hb.unit.GetStat(stats.HP5) <= 0 {
+		return
+	}
+	hb.nextHealthTick = (max(sim.CurrentTime, 0)/healthRegenTickDuration + 1) * healthRegenTickDuration
+	sim.RescheduleTask(hb.nextHealthTick)
+}
+
+func (sim *Simulation) enableHealthTicks() {
+	for _, unit := range sim.Raid.AllUnits {
+		if unit.HasHealthBar() {
+			unit.healthBar.enable(sim)
+		}
 	}
 }
 
@@ -98,12 +146,13 @@ func (hb *healthBar) RemoveHealth(sim *Simulation, amount float64) {
 
 // Used for dynamic updates to maximum health from "Last Stand" effects
 func (hb *healthBar) UpdateMaxHealth(sim *Simulation, bonusHealth float64, metrics *ResourceMetrics) {
-	hb.unit.AddStatsDynamic(sim, stats.Stats{stats.Health: bonusHealth})
-
 	if bonusHealth >= 0 {
+		hb.unit.AddStatsDynamic(sim, stats.Stats{stats.Health: bonusHealth})
 		hb.GainHealth(sim, bonusHealth, metrics)
 	} else {
+		// The health goes before the maximum drops, so the cap at the lower maximum does not take it twice.
 		hb.RemoveHealth(sim, max(0, min(-bonusHealth, hb.currentHealth-1))) // Last Stand effects always leave the player with at least 1 HP when they expire
+		hb.unit.AddStatsDynamic(sim, stats.Stats{stats.Health: bonusHealth})
 	}
 }
 

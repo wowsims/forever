@@ -358,12 +358,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		6323, // Baron's Scepter
-		[
-			"Cause party members within 30 yds to regenerate 4 health every 5 sec.", // 1292142 - https://www.wowhead.com/forever/spell=1292142
-		]
-	],
-	[
 		6331, // Howling Blade
 		[
 			"Reduces target's attack power by 30 for 30s.", // 13490 - https://www.wowhead.com/forever/spell=13490
@@ -4699,17 +4693,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				6,
 				[
 					"Consuming Holy Power increases your Spell Power by 13% per Holy Power consumed for 10s.", // 1240573 - https://www.wowhead.com/forever/spell=1240573
-				],
-			],
-		]),
-	],
-	[
-		1968, // Blessed Plate
-		new Map([
-			[
-				4,
-				[
-					"All party members within 30 yds are blessed, restoring 20 health every 5 sec.", // 1302375 - https://www.wowhead.com/forever/spell=1302375
 				],
 			],
 		]),

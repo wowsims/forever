@@ -609,6 +609,7 @@ func TestEveryTableRow(t *testing.T) {
 		{dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, 127, -10, "damage-taken", 0.9, false},
 		{dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, 4, -10, "damage-taken-by-school", 0.9, false},
 		{dbcenums.A_MOD_POWER_REGEN, 0, 8, "stat MP5", 8, false},
+		{dbcenums.A_MOD_HEALTH_REGEN_IN_COMBAT, 0, 15, "stat HP5", 15, false},
 		{dbcenums.A_MOD_MANA_REGEN_INTERRUPT, 0, 50, "spirit-regen-casting", 0.5, false},
 		{dbcenums.A_MOD_POWER_REGEN_PERCENT, 0, 400, "spirit-regen", 5, false},
 		{dbcenums.A_MOD_ATTACK_POWER, 0, 50, "stat AttackPower", 50, false},

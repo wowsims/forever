@@ -346,6 +346,8 @@ func (effect *SpellEffect) ParseStatEffect(scalesWithIlvl bool, ilvl int) (stats
 			break
 		}
 		effectStats[proto.Stat_StatMP5] = float64(effect.EffectBasePoints + effect.EffectDieSides)
+	case effect.EffectAura == dbcenums.A_MOD_HEALTH_REGEN_IN_COMBAT && effect.EffectType == dbcenums.E_APPLY_AURA:
+		effectStats[proto.Stat_StatHP5] = float64(effect.EffectBasePoints + effect.EffectDieSides)
 	}
 
 	return effectStats, effectStats != stats.Stats{}

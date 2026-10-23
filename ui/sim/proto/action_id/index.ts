@@ -135,6 +135,10 @@ export class ActionId {
 				baseName = i18n.t('settings_tab.other.incoming_hps.label');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_renew.jpg';
 				break;
+			case OtherAction.OtherActionHealthRegen:
+				baseName = i18n.t('common.action_names.health_regen');
+				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeHealth];
+				break;
 			case OtherAction.OtherActionResourcePotion:
 				baseName = i18n.t('settings_tab.consumables.potions.resource');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_potion_76.jpg';

@@ -37,7 +37,9 @@ func RegisterAllStatConsumables() {
 		3012,   // Scroll of Agility
 		3013,   // Scroll of Protection
 		3220,   // Blood Sausage
+		3382,   // Minor Troll's Blood Elixir
 		3383,   // Elixir of Wisdom
+		3388,   // Lesser Troll's Blood Elixir
 		3389,   // Elixir of Lesser Defense
 		3390,   // Elixir of Lesser Agility
 		3391,   // Elixir of Ogre Strength
@@ -51,6 +53,7 @@ func RegisterAllStatConsumables() {
 		3728,   // Tasty Lion Steak
 		3729,   // Soothing Turtle Bisque
 		3825,   // Elixir of Lesser Fortitude
+		3826,   // Troll's Blood Elixir
 		4419,   // Scroll of Intellect III
 		4421,   // Scroll of Protection III
 		4422,   // Scroll of Stamina III
@@ -151,6 +154,7 @@ func RegisterAllStatConsumables() {
 		18269,  // Gordok Green Grog
 		18284,  // Kreeg's Stout Beatdown
 		19318,  // Bottled Alterac Spring Water
+		20004,  // Major Troll's Blood Elixir
 		20007,  // Mageblood Elixir
 		20074,  // Heavy Crocolisk Stew
 		20079,  // Spirit of Zanza
@@ -215,6 +219,7 @@ func RegisterAllStatConsumables() {
 		250333, // Greater Cleric's Elixir
 		250334, // Elixir of Fortitude
 		250335, // Elixir of Greater Fortitude
+		250336, // Elixir of Wicked Regeneration
 		250337, // Elixir of the Owl
 		250338, // Elixir of Sages
 		250339, // Minor Mageblood Elixir

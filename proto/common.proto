@@ -191,7 +191,7 @@ enum Profession {
 // the Go Stats array to be larger than the size of the Stat enum proto, but the
 // shared indices between the two must exactly match.
 //
-// NextIndex: 38;
+// NextIndex: 40;
 enum Stat {
 	// Primary attributes ("main stat")
 	StatStrength = 0;
@@ -258,6 +258,9 @@ enum Stat {
 	// Armor that neither the percent armor modifiers nor the scaling of armor
 	// from items touch, which A_MOD_ARMOR_NO_MODS states. It adds to Armor.
 	StatArmorNoMods = 38;
+
+	// Health regenerated per 5 seconds.
+	StatHP5 = 39;
 
 	// DO NOT add new stats here without discussing it first; new stats come
 	// with a performance penalty.
@@ -781,6 +784,7 @@ enum OtherAction {
 	OtherActionResourcePotion = 24;
 	OtherActionDefensivePotion = 25;
 	OtherActionOffensivePotion = 26;
+	OtherActionHealthRegen = 27;
 }
 
 message ActionID {
