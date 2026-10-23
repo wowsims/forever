@@ -119,8 +119,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 671.71797
-  tps: 393.50792
+  dps: 671.27717
+  tps: 393.25287
   dtps: 8.67999
   hps: 7.49483
  }
@@ -155,17 +155,17 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Champion'sDreadgear"
  value: {
-  dps: 729.202
-  tps: 423.75396
-  dtps: 8.92505
+  dps: 737.63652
+  tps: 428.30535
+  dtps: 8.51455
  }
 }
 dps_results: {
  key: "TestAffliction-AllItems-Champion'sThreads"
  value: {
-  dps: 669.07228
-  tps: 391.60547
-  dtps: 9.03491
+  dps: 669.4228
+  tps: 391.70462
+  dtps: 8.71459
  }
 }
 dps_results: {
@@ -269,8 +269,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DemonheartRaiment"
  value: {
-  dps: 647.89448
-  tps: 380.47886
+  dps: 647.9598
+  tps: 380.50724
   dtps: 8.76661
  }
 }
@@ -438,9 +438,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 687.31431
-  tps: 402.2303
-  dtps: 8.6172
+  dps: 687.36522
+  tps: 402.31753
+  dtps: 8.42325
   hps: 7.49483
  }
 }
@@ -474,9 +474,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EverlookDeliveryBot-274760"
  value: {
-  dps: 684.619
-  tps: 400.33806
-  dtps: 8.81371
+  dps: 686.67608
+  tps: 401.5105
+  dtps: 8.84514
   hps: 7.35945
  }
 }
@@ -537,16 +537,16 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-FieldMarshal'sThreads"
  value: {
-  dps: 704.87268
-  tps: 409.61584
-  dtps: 8.6941
+  dps: 707.55215
+  tps: 411.47674
+  dtps: 8.88174
  }
 }
 dps_results: {
  key: "TestAffliction-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 674.18376
-  tps: 394.63152
+  dps: 674.15707
+  tps: 394.61657
   dtps: 8.58574
   hps: 7.40559
  }
@@ -698,17 +698,17 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-LieutenantCommander'sDreadgear"
  value: {
-  dps: 729.202
-  tps: 423.75396
-  dtps: 8.92505
+  dps: 737.63652
+  tps: 428.30535
+  dtps: 8.51455
  }
 }
 dps_results: {
  key: "TestAffliction-AllItems-LieutenantCommander'sThreads"
  value: {
-  dps: 669.07228
-  tps: 391.60547
-  dtps: 9.03491
+  dps: 669.4228
+  tps: 391.70462
+  dtps: 8.71459
  }
 }
 dps_results: {
@@ -847,8 +847,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-RingofSaviors-1447"
  value: {
-  dps: 670.1682
-  tps: 392.42713
+  dps: 670.14169
+  tps: 392.41228
   dtps: 8.58574
   hps: 7.40559
  }
@@ -875,7 +875,7 @@ dps_results: {
  key: "TestAffliction-AllItems-ShardoftheFallenStar-21891"
  value: {
   dps: 692.14798
-  tps: 404.45159
+  tps: 404.55821
   dtps: 8.55495
   hps: 7.27021
  }
@@ -1078,9 +1078,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Warlord'sThreads"
  value: {
-  dps: 704.87268
-  tps: 409.61584
-  dtps: 8.6941
+  dps: 707.55215
+  tps: 411.47674
+  dtps: 8.88174
  }
 }
 dps_results: {
@@ -1104,8 +1104,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 688.69054
-  tps: 402.60791
+  dps: 688.66403
+  tps: 402.59307
   dtps: 8.58574
   hps: 7.40559
  }
@@ -1140,10 +1140,10 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Average-Default"
  value: {
-  dps: 700.36304
-  tps: 408.99832
-  dtps: 8.47573
-  hps: 7.22793
+  dps: 700.37472
+  tps: 409.00567
+  dtps: 8.47685
+  hps: 7.22881
  }
 }
 dps_results: {
@@ -1176,25 +1176,25 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Human-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 499.549
-  tps: 442.78334
+  dps: 499.08477
+  tps: 442.41196
   hps: 7.32998
  }
 }
 dps_results: {
  key: "TestAffliction-Settings-Human-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 388.48441
-  tps: 338.7956
-  hps: 5.67295
+  dps: 386.2561
+  tps: 337.268
+  hps: 5.55963
  }
 }
 dps_results: {
  key: "TestAffliction-Settings-Human-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 383.70085
-  tps: 313.42896
-  hps: 5.3201
+  dps: 387.72189
+  tps: 316.57449
+  hps: 5.08444
  }
 }
 dps_results: {
@@ -1235,17 +1235,17 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 388.66342
-  tps: 340.5671
+  dps: 384.15545
+  tps: 336.83565
   hps: 5.93508
  }
 }
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 388.60652
-  tps: 318.24452
-  hps: 5.33039
+  dps: 389.57955
+  tps: 319.16312
+  hps: 5.56604
  }
 }
 dps_results: {
