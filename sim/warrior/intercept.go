@@ -20,7 +20,7 @@ func (warrior *Warrior) registerIntercept() {
 	// Like Thunder Clap, the stun rolls on the spell hit table and crits for 1.5x. Its row's spell power
 	// share of 1 is not read.
 	stunConfig := spelldata.SpellConfig(&warrior.Unit, interceptStun, spelldata.Proc())
-	stunConfig.ProcMask = core.ProcMaskRangedSpecial
+	stunConfig.ProcMask = core.ProcMaskEmpty
 	stunConfig.DamageMultiplier = 1
 	stunConfig.ThreatMultiplier = 1
 	stun := warrior.RegisterSpell(stunConfig)
