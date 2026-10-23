@@ -14,7 +14,7 @@ func (warrior *Warrior) registerTaunt() {
 	config.Cast.DefaultCast.NonEmpty = true
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHit)
+		spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
 	}
 
 	warrior.Taunt = warrior.RegisterSpell(config)
