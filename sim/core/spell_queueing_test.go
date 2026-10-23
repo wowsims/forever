@@ -403,6 +403,25 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 		}
 	})
 
+	t.Run("a major cooldown goes at the cast end ahead of a Strict Sequence step queued after the hardcast", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		castOf := func(spell *Spell) *proto.APLAction {
+			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
+		}
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(cb.slow), castOf(cb.nuke)}})
+		cb.start(cb.autocastAction(), strictSequence)
+
+		cb.runUntil(castEnd)
+		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) ||
+			!slices.Equal(cb.order, []string{"cooldown", "nuke"}) {
+			t.Fatalf("at the 2 s cast end the potion, ready from 1.5 s, should go ahead of the sequence's instant queued there, the potion at %v, instant at %v, in the order %v", potion.castAt, cb.nukeAt, cb.order)
+		}
+		if len(cb.rot.controllingActions) != 0 {
+			t.Fatalf("the Strict Sequence should hand the rotation back once its last step went off")
+		}
+	})
+
 	t.Run("a prepull cast ending at the pull gets its pick at 0 before it lands", func(t *testing.T) {
 		// The pick at 0 goes before the cast's outcome, as at any cast end; a prepull action at 0 completes
 		// the cast first, so it runs after the pick.

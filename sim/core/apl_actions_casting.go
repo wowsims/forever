@@ -398,10 +398,9 @@ func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
 		gate = &APLValueAnd{vals: vals}
 	}
 	sequence := APLActionStrictSequence{
-		unit:              action.unit,
-		subactions:        action.readyActions,
-		gate:              gate,
-		yieldsToCooldowns: true,
+		unit:       action.unit,
+		subactions: action.readyActions,
+		gate:       gate,
 	}
 	sequence.Execute(sim)
 }

@@ -127,8 +127,7 @@ type APLActionStrictSequence struct {
 	hookedQueueAction *PendingAction
 	hookedOnAction    func(*Simulation)
 
-	gate              APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
-	yieldsToCooldowns bool     // A Strict Multidot's: while its step waits on a hardcast, major cooldowns go at the cast end.
+	gate APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -236,7 +235,7 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		// and return nil to wait for the GCD to become ready.
 		queueAction := action.unit.QueuedSpell.queueAction
 		action.hookQueueAction(queueAction)
-		if !action.yieldsToCooldowns || !action.unit.QueuedSpell.afterHardcast {
+		if !action.unit.QueuedSpell.afterHardcast {
 			action.unit.SetRotationTimer(sim, queueAction.NextActionAt+time.Duration(1))
 		} else if !action.unit.hardcastRuns(sim) {
 			// The cast-end pass, after the pick at this instant queued the step and the hardcast landed.
@@ -244,7 +243,7 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		}
 
 		return nil
-	} else if action.yieldsToCooldowns && action.hookedQueueAction != nil && action.unit.spellQueuedAfterHardcast() {
+	} else if action.hookedQueueAction != nil && action.unit.spellQueuedAfterHardcast() {
 		return action.cooldownAheadOfStep(sim)
 	} else if action.unit.GCD.TimeToReady(sim) <= MaxSpellQueueWindow {
 		// If the GCD is ready when the next subaction isn't, it means the sequence is bad
@@ -257,8 +256,8 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 	}
 }
 
-// The step queued after the hardcast goes off in the cast-end pass; ahead of it only a major cooldown, the
-// rotation's first ready action, may go.
+// A step queued at the pick, after the hardcast, goes off in the cast-end pass; a major cooldown, the
+// rotation's first ready action, goes ahead of it.
 func (action *APLActionStrictSequence) cooldownAheadOfStep(sim *Simulation) *APLAction {
 	rot := action.unit.Rotation
 	for _, priorityAction := range rot.priorityList {
