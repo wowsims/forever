@@ -176,7 +176,8 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			return spell.castFailureHelper(sim, "GCD on cooldown for %s, curTime = %s", spell.Unit.GCD.TimeToReady(sim), sim.CurrentTime)
 		}
 
-		if hc := spell.Unit.Hardcast; hc.Expires > sim.CurrentTime {
+		if spell.Unit.hardcastRuns(sim) {
+			hc := &spell.Unit.Hardcast
 			return spell.castFailureHelper(sim, "casting/channeling %v for %s, curTime = %s", hc.ActionID, hc.Expires-sim.CurrentTime, sim.CurrentTime)
 		}
 
@@ -273,7 +274,6 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			}
 
 			spell.Unit.newHardcastAction(sim)
-			spell.Unit.lookBeforeCastEnd(sim)
 			return true
 		}
 

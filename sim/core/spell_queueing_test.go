@@ -183,26 +183,35 @@ func (cb *hardcastTest) slowAtPull() APLActionImpl {
 	return &gatedAction{APLActionImpl: cb.castOf(cb.slow), ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}
 }
 
-func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
-	const castEnd = 2 * time.Second
-	earlyLook := castEnd - SpellBatchWindow
+// The instant's action, noting how many slow casts had landed each time the rotation examines it at `at`.
+func (cb *hardcastTest) nukeNotingLandings(at time.Duration, landed *[]int) APLActionImpl {
+	return &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool {
+		if sim.CurrentTime == at {
+			*landed = append(*landed, len(cb.slowAt))
+		}
+		return true
+	}}
+}
 
-	t.Run("the rotation looks one batch before the hardcast ends and its pick goes off at the cast end", func(t *testing.T) {
+func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
+	const castEnd = 2 * time.Second
+
+	t.Run("the rotation picks at the cast end before the cast lands and its pick goes off as the cast ends", func(t *testing.T) {
 		cb := newHardcastTest()
 		probe := &lookProbe{}
-		cb.start(probe, cb.slowAtPull(), cb.castOf(cb.nuke))
+		var landed []int
+		cb.start(probe, cb.slowAtPull(), cb.nukeNotingLandings(castEnd, &landed))
 
-		cb.runUntil(earlyLook - 1)
-		if probe.looked(earlyLook) || cb.fw.QueuedSpell != nil {
-			t.Fatalf("the rotation should not look before 1.99 s, looked at %v", probe.lookedAt)
-		}
-		cb.runUntil(earlyLook)
-		if !probe.looked(earlyLook) || cb.fw.QueuedSpell == nil || cb.fw.QueuedSpell.spell != cb.nuke || len(cb.slowAt) != 0 {
-			t.Fatalf("at 1.99 s, before the 2 s cast lands, the rotation should look and queue the instant, looked at %v, cast landed at %v", probe.lookedAt, cb.slowAt)
+		cb.runUntil(castEnd - 1)
+		if !slices.Equal(probe.lookedAt, []time.Duration{0}) || cb.fw.QueuedSpell != nil {
+			t.Fatalf("the rotation should not look during the 2 s cast, looked at %v", probe.lookedAt)
 		}
 		cb.runUntil(castEnd)
+		if !probe.looked(castEnd) || len(landed) < 2 || landed[0] != 0 || slices.Contains(landed[1:], 0) {
+			t.Fatalf("at the 2 s cast end the rotation should pick the instant before the cast lands and look again after, looked at %v, casts landed when the instant was examined: %v", probe.lookedAt, landed)
+		}
 		if !slices.Equal(cb.slowAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
-			t.Fatalf("the cast should land at 2 s and the queued instant go off as it ends, cast at %v, instant at %v", cb.slowAt, cb.nukeAt)
+			t.Fatalf("the cast should land at 2 s and the instant go off as it ends, cast at %v, instant at %v", cb.slowAt, cb.nukeAt)
 		}
 	})
 
@@ -213,10 +222,10 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 
 		cb.runUntil(2 * castEnd)
 		if !slices.Equal(cb.slowAt, []time.Duration{castEnd, 2 * castEnd}) {
-			t.Fatalf("with the aura down at the 1.99 s look the cast should be queued again and land twice, at 2 s and 4 s, landed at %v", cb.slowAt)
+			t.Fatalf("with the aura down at the 2 s pick the cast should be queued again and land twice, at 2 s and 4 s, landed at %v", cb.slowAt)
 		}
 		if !slices.Equal(cb.nukeAt, []time.Duration{2 * castEnd}) {
-			t.Fatalf("the second cast's look, with the aura up, should queue the instant for its end, the instant went off at %v", cb.nukeAt)
+			t.Fatalf("the second cast's pick, with the aura up, should queue the instant for its end, the instant went off at %v", cb.nukeAt)
 		}
 	})
 
@@ -228,7 +237,7 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 		cb.runUntil(castEnd)
 		if !slices.Equal(cb.offGCDAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) ||
 			!slices.Equal(cb.order, []string{"nuke", "off the GCD"}) {
-			t.Fatalf("the spell off the GCD, ready from 1.5 s, should go at the 2 s cast end right after the instant queued at 1.99 s, off the GCD at %v, instant at %v, in the order %v", cb.offGCDAt, cb.nukeAt, cb.order)
+			t.Fatalf("the spell off the GCD, ready from 1.5 s, should go at the 2 s cast end right after the instant picked there, off the GCD at %v, instant at %v, in the order %v", cb.offGCDAt, cb.nukeAt, cb.order)
 		}
 	})
 
@@ -240,7 +249,7 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 
 		cb.runUntil(castEnd)
 		if cb.fw.Moving || cb.fw.Hardcast.ActionID != cb.slow.ActionID || cb.fw.Hardcast.Expires != 2*castEnd {
-			t.Fatalf("at the 2 s cast end the slow cast queued at 1.99 s should start before the move below it, moving %t, casting %v until %v", cb.fw.Moving, cb.fw.Hardcast.ActionID, cb.fw.Hardcast.Expires)
+			t.Fatalf("at the 2 s cast end the slow cast picked there should start before the move below it, moving %t, casting %v until %v", cb.fw.Moving, cb.fw.Hardcast.ActionID, cb.fw.Hardcast.Expires)
 		}
 		cb.runUntil(2 * castEnd)
 		if !slices.Equal(cb.slowAt, []time.Duration{castEnd, 2 * castEnd}) {
@@ -256,18 +265,18 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 		cb.runUntil(castEnd)
 		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) ||
 			!slices.Equal(cb.order, []string{"cooldown", "nuke"}) {
-			t.Fatalf("the potion, ready from 1.5 s, should go at the 2 s cast end ahead of the instant queued at 1.99 s, the potion at %v, instant at %v, in the order %v", potion.castAt, cb.nukeAt, cb.order)
+			t.Fatalf("the potion, ready from 1.5 s, should go at the 2 s cast end ahead of the instant picked there, the potion at %v, instant at %v, in the order %v", potion.castAt, cb.nukeAt, cb.order)
 		}
 	})
 
-	t.Run("an explosive goes in the cast-end pass right after a queued channel starts", func(t *testing.T) {
+	t.Run("an explosive goes in the cast-end pass right after a picked channel starts", func(t *testing.T) {
 		explosive := &testCooldown{explosive: true}
 		cb := newHardcastTest(explosive)
 		cb.start(cb.autocastAction(), cb.slowAtPull(), cb.channelOf(cb.drain, "false", false))
 
 		cb.runUntil(castEnd)
 		if cb.fw.ChanneledDot == nil || !slices.Equal(explosive.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.order, []string{"drain", "cooldown"}) {
-			t.Fatalf("the channel queued at 1.99 s should start at the 2 s cast end and the explosive, ready from 1.5 s, go right after it, the explosive at %v, in the order %v", explosive.castAt, cb.order)
+			t.Fatalf("the channel picked at the 2 s cast end should start there and the explosive, ready from 1.5 s, go right after it, the explosive at %v, in the order %v", explosive.castAt, cb.order)
 		}
 	})
 
@@ -278,42 +287,78 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 
 		cb.runUntil(castEnd + GCDDefault + 1)
 		if !slices.Equal(onGCD.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd + GCDDefault}) {
-			t.Fatalf("the cooldown on the GCD should go at the 2 s cast end in place of the queued instant, which goes when its GCD ends at 3.5 s, the cooldown at %v, instant at %v", onGCD.castAt, cb.nukeAt)
+			t.Fatalf("the cooldown on the GCD should go at the 2 s cast end in place of the picked instant, which goes when its GCD ends at 3.5 s, the cooldown at %v, instant at %v", onGCD.castAt, cb.nukeAt)
 		}
 	})
 
-	t.Run("a look with nothing to queue looks again at the cast end", func(t *testing.T) {
+	t.Run("a major cooldown's own cast line goes at the cast end, ahead of the pick", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		cb.start(cb.castOf(potion.spell), cb.slowAtPull(), cb.castOf(cb.nuke))
+
+		cb.runUntil(castEnd)
+		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) ||
+			!slices.Equal(cb.order, []string{"cooldown", "nuke"}) {
+			t.Fatalf("the potion's Cast Spell line, ready from 1.5 s, should go at the 2 s cast end ahead of the instant picked there, the potion at %v, instant at %v, in the order %v", potion.castAt, cb.nukeAt, cb.order)
+		}
+	})
+
+	t.Run("the pick leaves a major cooldown on the GCD to the cast end, where it takes the pick's place", func(t *testing.T) {
+		onGCD := &testCooldown{gcd: GCDDefault}
+		cb := newHardcastTest(onGCD)
+		cb.start(cb.castOf(onGCD.spell), cb.slowAtPull(), cb.castOf(cb.nuke))
+
+		cb.runUntil(castEnd + GCDDefault + 1)
+		if !slices.Equal(onGCD.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd + GCDDefault}) {
+			t.Fatalf("the cooldown's Cast Spell line should go at the 2 s cast end in place of the picked instant, which goes when its GCD ends at 3.5 s, the cooldown at %v, instant at %v", onGCD.castAt, cb.nukeAt)
+		}
+
+		// Ready only until the slow cast's aura goes up as the cast lands.
+		onGCD = &testCooldown{gcd: GCDDefault}
+		cb = newHardcastTest(onGCD)
+		untilLanded := &gatedAction{APLActionImpl: cb.castOf(onGCD.spell), ready: func(*Simulation) bool { return !cb.slowAura.IsActive() }}
+		cb.start(untilLanded, cb.slowAtPull(), cb.castOf(cb.nuke))
+
+		cb.runUntil(castEnd + GCDDefault + 1)
+		if len(onGCD.castAt) != 0 || !slices.Equal(cb.nukeAt, []time.Duration{castEnd, castEnd + GCDDefault}) {
+			t.Fatalf("the pick should not queue the cooldown, which the landed cast's aura rules out at the 2 s cast end, so the picked instant goes then and again at 3.5 s, the cooldown at %v, instant at %v", onGCD.castAt, cb.nukeAt)
+		}
+	})
+
+	t.Run("a pick with nothing to queue leaves the cast-end look to act after the cast lands", func(t *testing.T) {
 		cb := newHardcastTest()
 		probe := &lookProbe{}
 		after := &timedStubAction{readyAt: castEnd}
 		cb.start(probe, cb.slowAtPull(), after)
 
 		cb.runUntil(castEnd)
-		if !probe.looked(earlyLook) || !probe.looked(castEnd) || !slices.Equal(after.ranAt, []time.Duration{castEnd}) {
-			t.Fatalf("the rotation should look at 1.99 s and again at the 2 s cast end, where the action ready from 2 s runs, looked at %v, the action ran at %v", probe.lookedAt, after.ranAt)
+		if !slices.Equal(probe.lookedAt, []time.Duration{0, castEnd}) || !slices.Equal(after.ranAt, []time.Duration{castEnd}) {
+			t.Fatalf("the rotation should look at the 2 s cast end only, where the action ready from 2 s runs, looked at %v, the action ran at %v", probe.lookedAt, after.ranAt)
 		}
 	})
 
-	t.Run("instants, channels and casts shorter than the GCD keep the look at their end", func(t *testing.T) {
-		lookedEarly := func(probe *lookProbe, end time.Duration) bool {
-			return slices.ContainsFunc(probe.lookedAt, func(at time.Duration) bool { return at > end-SpellBatchWindow-1 && at < end })
-		}
-
+	t.Run("after an instant, a channel or a cast shorter than the GCD the look stays where it was, after the outcome", func(t *testing.T) {
 		cb := newHardcastTest()
 		probe := &lookProbe{}
 		cb.start(probe, cb.castOf(cb.nuke))
 		cb.runUntil(GCDDefault)
-		if lookedEarly(probe, GCDDefault) || !probe.looked(GCDDefault) {
+		if !slices.Equal(probe.lookedAt, []time.Duration{0, GCDDefault}) {
 			t.Fatalf("after an instant the rotation should look when the GCD ends at 1.5 s, looked at %v", probe.lookedAt)
 		}
 
 		cb = newHardcastTest()
 		probe = &lookProbe{}
+		examinedAtCastEnd := 0
 		shortAtPull := &gatedAction{APLActionImpl: cb.castOf(cb.short), ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}
-		cb.start(probe, shortAtPull)
+		cb.start(probe, shortAtPull, &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool {
+			if sim.CurrentTime == time.Second {
+				examinedAtCastEnd++
+			}
+			return false
+		}})
 		cb.runUntil(GCDDefault)
-		if lookedEarly(probe, time.Second) || !probe.looked(GCDDefault) || !slices.Equal(cb.shortAt, []time.Duration{time.Second}) {
-			t.Fatalf("after a 1 s cast on the 1.5 s GCD the rotation should look when the GCD ends, looked at %v, the cast landed at %v", probe.lookedAt, cb.shortAt)
+		if !slices.Equal(probe.lookedAt, []time.Duration{0, GCDDefault}) || !slices.Equal(cb.shortAt, []time.Duration{time.Second}) || examinedAtCastEnd != 0 {
+			t.Fatalf("after a 1 s cast on the 1.5 s GCD the rotation should look when the GCD ends, not at the cast end, looked at %v, the cast landed at %v, examined the instant at 1 s %d times", probe.lookedAt, cb.shortAt, examinedAtCastEnd)
 		}
 
 		var drainTicks []time.Duration
@@ -322,7 +367,7 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 		drainAtPull := &gatedAction{APLActionImpl: ct.channelOf(drain, "false", false), ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}
 		ct.start(probe, drainAtPull)
 		ct.runUntil(5 * time.Second)
-		if lookedEarly(probe, 5*time.Second) || !probe.looked(5*time.Second) || len(drainTicks) != 5 {
+		if !probe.looked(5*time.Second) || len(drainTicks) != 5 {
 			t.Fatalf("after a 5 s channel the rotation should look when it ends, looked at %v, ticks at %v", probe.lookedAt, drainTicks)
 		}
 	})
@@ -339,7 +384,7 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 			t.Fatalf("the sequence's two casts should land at 2 s and 4 s, landed at %v", cb.slowAt)
 		}
 		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) {
-			t.Fatalf("the potion, ready from 1.5 s, should go at the first cast's end at 2 s, ahead of the second cast queued at 1.99 s, went at %v", potion.castAt)
+			t.Fatalf("the potion, ready from 1.5 s, should go at the first cast's end at 2 s, ahead of the second cast picked there, went at %v", potion.castAt)
 		}
 	})
 
@@ -351,58 +396,86 @@ func TestRotationQueuesBeforeHardcastEnds(t *testing.T) {
 
 		cb.runUntil(castEnd)
 		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || cb.fw.Hardcast.ActionID != cb.dotCast.ActionID || cb.fw.Hardcast.Expires != 2*castEnd {
-			t.Fatalf("at the 2 s cast end the potion, ready from 1.5 s, should go and the dot cast queued at 1.99 s start after it, the potion at %v, casting %v until %v", potion.castAt, cb.fw.Hardcast.ActionID, cb.fw.Hardcast.Expires)
+			t.Fatalf("at the 2 s cast end the potion, ready from 1.5 s, should go and the dot cast picked there start after it, the potion at %v, casting %v until %v", potion.castAt, cb.fw.Hardcast.ActionID, cb.fw.Hardcast.Expires)
 		}
 		if len(cb.rot.controllingActions) != 0 {
 			t.Fatalf("the Strict Multidot should hand the rotation back once its cast went off")
 		}
 	})
 
-	t.Run("a pet's hardcast keeps the look at the cast end", func(t *testing.T) {
+	t.Run("a prepull cast ending at the pull gets its pick at 0 before it lands", func(t *testing.T) {
+		// The pick at 0 goes before the cast's outcome, as at any cast end; a prepull action at 0 completes
+		// the cast first, so it runs after the pick.
+		cb := newHardcastTest()
+		var landed []int
+		cb.sim.CurrentTime = -castEnd
+		cb.castOf(cb.slow).Execute(cb.sim)
+		cb.start(cb.nukeNotingLandings(0, &landed))
+
+		cb.runUntil(0)
+		if len(landed) < 2 || landed[0] != 0 || slices.Contains(landed[1:], 0) || !slices.Equal(cb.slowAt, []time.Duration{0}) || !slices.Equal(cb.nukeAt, []time.Duration{0}) {
+			t.Fatalf("the cast from -2 s should land at 0 with the instant picked before it lands and going off at 0, casts landed when the instant was examined: %v, cast at %v, instant at %v", landed, cb.slowAt, cb.nukeAt)
+		}
+	})
+
+	t.Run("a pet's hardcast keeps the look at the cast end, after the cast lands", func(t *testing.T) {
 		cb := newHardcastTest()
 		probe := &lookProbe{}
-		nukeAfterPull := &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool { return sim.CurrentTime > 0 }}
+		var landed []int
+		nukeAfterPull := &gatedAction{APLActionImpl: cb.nukeNotingLandings(castEnd, &landed), ready: func(sim *Simulation) bool { return sim.CurrentTime > 0 }}
 		cb.start(probe, nukeAfterPull)
 		cb.runUntil(0)
 		cb.fw.Type = PetUnit
 		cb.castOf(cb.slow).Execute(cb.sim)
 
 		cb.runUntil(castEnd)
-		if probe.looked(earlyLook) || !probe.looked(castEnd) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
-			t.Fatalf("a pet should look when its 2 s cast ends, not at 1.99 s, looked at %v, the instant went off at %v", probe.lookedAt, cb.nukeAt)
+		if !probe.looked(castEnd) || len(landed) == 0 || slices.Contains(landed, 0) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
+			t.Fatalf("a pet should look once its 2 s cast has landed, looked at %v, casts landed when the instant was examined: %v, the instant went off at %v", probe.lookedAt, landed, cb.nukeAt)
 		}
 	})
 
-	t.Run("a pushback after the early look drops the queued cast and looks again before the new end", func(t *testing.T) {
+	t.Run("a pushback drops the cast queued at the old end for a fresh pick at the new end", func(t *testing.T) {
 		cb := newHardcastTest()
-		// Nothing would queue the instant again at the old end.
-		nukeOffOldEnd := &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool { return sim.CurrentTime != castEnd }}
-		cb.start(cb.slowAtPull(), nukeOffOldEnd)
+		var landed []int
+		cb.start(cb.slowAtPull(), cb.castOf(cb.nuke))
 
-		cb.runUntil(earlyLook + 5*time.Millisecond)
-		if cb.fw.QueuedSpell == nil || cb.fw.QueuedSpell.spell != cb.nuke {
-			t.Fatalf("the instant should be queued at 1.99 s")
-		}
+		cb.runUntil(castEnd - 5*time.Millisecond)
 		hc := &cb.fw.Hardcast
 		pushback := hc.pushBack(cb.sim.CurrentTime)
 		cb.fw.newHardcastAction(cb.sim)
-		cb.fw.lookAgainAfterPushback(cb.sim)
 		newEnd := castEnd + pushback
+		cb.rot.priorityList[1] = newAPLActionEntry(nil, cb.nukeNotingLandings(newEnd, &landed))
 
-		cb.runUntil(newEnd - SpellBatchWindow - 1)
-		if len(cb.nukeAt) != 0 || cb.fw.rotationCast.spell != cb.slow {
-			t.Fatalf("pushed back to %v, the slow cast should still run with nothing cast at the old end, instant at %v", newEnd, cb.nukeAt)
+		cb.runUntil(castEnd)
+		if cb.fw.QueuedSpell == nil || cb.fw.QueuedSpell.spell != cb.nuke || len(cb.nukeAt) != 0 || cb.fw.rotationCast.spell != cb.slow {
+			t.Fatalf("at the old 2 s end the rotation should queue the instant under the running cast, pushed back to %v, instant at %v", newEnd, cb.nukeAt)
 		}
+		queuedAtOldEnd := cb.fw.QueuedSpell.queueAction
 		cb.runUntil(newEnd)
+		if len(landed) < 2 || landed[0] != 0 || slices.Contains(landed[1:], 0) || !queuedAtOldEnd.cancelled {
+			t.Fatalf("at the new end %v the rotation should drop the instant queued at 2 s and pick again before the cast lands, casts landed when the instant was examined: %v", newEnd, landed)
+		}
 		if !slices.Equal(cb.slowAt, []time.Duration{newEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{newEnd}) {
-			t.Fatalf("the cast should land at the new end %v and the instant, queued again before it, go then, cast at %v, instant at %v", newEnd, cb.slowAt, cb.nukeAt)
+			t.Fatalf("the cast should land at the new end %v and the instant picked there go then, cast at %v, instant at %v", newEnd, cb.slowAt, cb.nukeAt)
 		}
 	})
 }
 
+// Never ready; each time the rotation looks at it at the end of the hardcast of unit, before the hardcast
+// lands, notes what read says.
+func readAtPick(unit *Unit, read func(sim *Simulation) bool, reads *[]bool) APLActionImpl {
+	return &gatedAction{APLActionImpl: &timedStubAction{readyAt: time.Minute}, ready: func(sim *Simulation) bool {
+		if unit.Hardcast.Expires == sim.CurrentTime {
+			*reads = append(*reads, read(sim))
+		}
+		return false
+	}}
+}
+
 func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 	const castEnd = 2 * time.Second
-	earlyLook := castEnd - SpellBatchWindow
+	const beforeEnd = 10 * time.Millisecond
+	lateInCast := castEnd - beforeEnd
 
 	t.Run("the cast's own dot reads as landed at the cast end", func(t *testing.T) {
 		cb := newHardcastTest()
@@ -415,11 +488,12 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		tickFrequency := cb.rot.newValueDotTickFrequency(&proto.APLValueDotTickFrequency{SpellId: spellID}, nil)
 		timeToNextTick := cb.rot.newValueDotTimeToNextTick(&proto.APLValueDotTimeToNextTick{SpellId: spellID}, nil)
 		dot := cb.dotCast.Dot(cb.fw.CurrentTarget)
-		cb.start(&timedStubAction{readyAt: time.Minute})
+		var atPick []bool
+		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) bool { return !dot.IsActive() && isActive.GetBool(sim) }, &atPick))
 		cb.runUntil(0)
 		cb.castOf(cb.dotCast).Execute(cb.sim)
 
-		for _, at := range []time.Duration{time.Second, earlyLook} {
+		for _, at := range []time.Duration{time.Second, lateInCast} {
 			cb.runUntil(at)
 			if dot.IsActive() {
 				t.Fatalf("the dot itself should only go up when the cast lands at 2 s, up at %v", at)
@@ -435,7 +509,11 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			}
 		}
 		if multidot.IsReady(cb.sim) || !cb.castOf(cb.dotCast).IsReady(cb.sim) {
-			t.Fatalf("at 1.99 s the cast could be queued again, but Multidot should read its dot as landed and not cast it")
+			t.Fatalf("late in the 2 s cast the dot cast could be queued again, but Multidot should read its dot as landed and not cast it")
+		}
+		cb.runUntil(castEnd)
+		if !slices.Equal(atPick, []bool{true}) {
+			t.Fatalf("the pick at the 2 s cast end should read the dot as up before it goes up, read %v", atPick)
 		}
 		cb.runUntil(castEnd + time.Second)
 		if !dot.IsActive() || remaining.GetDuration(cb.sim) != 4*time.Second {
@@ -457,21 +535,21 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		cb.runUntil(0)
 		cb.buffCast.Cast(cb.sim, &cb.fw.Unit)
 
-		cb.runUntil(earlyLook)
-		if cb.buff.IsActive() || !buffActive.GetBool(cb.sim) || buffInactive.GetBool(cb.sim) || buffRemaining.GetDuration(cb.sim) != castEnd+10*time.Second-earlyLook || buffStacks.GetInt(cb.sim) != 1 {
-			t.Fatalf("at 1.99 s the buff should read as up with one stack until 12 s, read %t (inactive %t), %v left, %d stacks", buffActive.GetBool(cb.sim), buffInactive.GetBool(cb.sim), buffRemaining.GetDuration(cb.sim), buffStacks.GetInt(cb.sim))
+		cb.runUntil(lateInCast)
+		if cb.buff.IsActive() || !buffActive.GetBool(cb.sim) || buffInactive.GetBool(cb.sim) || buffRemaining.GetDuration(cb.sim) != castEnd+10*time.Second-lateInCast || buffStacks.GetInt(cb.sim) != 1 {
+			t.Fatalf("late in the 2 s cast the buff should read as up with one stack until 12 s, read %t (inactive %t), %v left, %d stacks", buffActive.GetBool(cb.sim), buffInactive.GetBool(cb.sim), buffRemaining.GetDuration(cb.sim), buffStacks.GetInt(cb.sim))
 		}
 		cb.runUntil(castEnd)
 		cb.runUntil(2 * castEnd)
 		cb.buffCast.Cast(cb.sim, &cb.fw.Unit)
-		cb.runUntil(3*castEnd - SpellBatchWindow)
+		cb.runUntil(3*castEnd - beforeEnd)
 		if cb.buff.GetStacks() != 1 || buffStacks.GetInt(cb.sim) != 2 {
 			t.Fatalf("during the second cast the buff's one stack should read as two, read %d", buffStacks.GetInt(cb.sim))
 		}
 
 		cb.runUntil(4 * castEnd)
 		cb.castOf(cb.slow).Execute(cb.sim)
-		cb.runUntil(5*castEnd - SpellBatchWindow)
+		cb.runUntil(5*castEnd - beforeEnd)
 		if otherActive.GetBool(cb.sim) {
 			t.Fatalf("the aura of another id that the slow cast puts up should read as down until it lands")
 		}
@@ -503,13 +581,9 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			t.Fatalf("a spell on a cooldown of its own should read as it is, ready now, read ready %t in %v", offGCDReady.GetBool(cb.sim), offGCDTimeToReady.GetDuration(cb.sim))
 		}
 
-		cb.runUntil(earlyLook)
-		if cb.fw.QueuedSpell == nil || cb.fw.QueuedSpell.spell != cb.nuke {
-			t.Fatalf("at 1.99 s the rotation should queue the instant below the blast, whose cooldown starts as it lands")
-		}
 		cb.runUntil(castEnd)
 		if !slices.Equal(cb.blastAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
-			t.Fatalf("the blast should land at 2 s and the instant go off as it ends, blast at %v, instant at %v", cb.blastAt, cb.nukeAt)
+			t.Fatalf("the blast should land at 2 s and the instant below it, picked at the cast end as the blast's cooldown is about to start, go off as it ends, blast at %v, instant at %v", cb.blastAt, cb.nukeAt)
 		}
 
 		cb.runUntil(castEnd + time.Second)
@@ -524,15 +598,19 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			return cb.rot.newValueSpellIsCasting(&proto.APLValueSpellIsCasting{SpellId: spell.ActionID.ToProto()}, nil)
 		}
 		slowCasting, nukeCasting := isCasting(cb.slow), isCasting(cb.nuke)
-		cb.start(&timedStubAction{readyAt: time.Minute})
+		var atPick []bool
+		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) bool { return len(cb.slowAt) == 0 && slowCasting.GetBool(sim) }, &atPick))
 		cb.runUntil(0)
 		cb.castOf(cb.slow).Execute(cb.sim)
 
-		cb.runUntil(earlyLook)
+		cb.runUntil(lateInCast)
 		if !slowCasting.GetBool(cb.sim) || nukeCasting.GetBool(cb.sim) {
-			t.Fatalf("at 1.99 s only the slow cast should be casting")
+			t.Fatalf("late in the 2 s cast only the slow cast should be casting")
 		}
 		cb.runUntil(castEnd)
+		if !slices.Equal(atPick, []bool{true}) {
+			t.Fatalf("the pick at the 2 s cast end should read the slow cast as casting before it lands, read %v", atPick)
+		}
 		if slowCasting.GetBool(cb.sim) {
 			t.Fatalf("once the cast lands at 2 s it should no longer be casting")
 		}
@@ -557,15 +635,19 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		})
 		mana := ct.rot.newValueCurrentMana(&proto.APLValueCurrentMana{}, nil)
 		manaPercent := ct.rot.newValueCurrentManaPercent(&proto.APLValueCurrentManaPercent{}, nil)
-		ct.start(&timedStubAction{readyAt: time.Minute})
+		var atPick []bool
+		ct.start(readAtPick(&ct.fw.Unit, func(sim *Simulation) bool { return mana.GetFloat(sim) == ct.fw.CurrentMana()-100 }, &atPick))
 		ct.runUntil(0)
 		paid.Cast(ct.sim, ct.fw.CurrentTarget)
 
-		ct.runUntil(earlyLook)
+		ct.runUntil(lateInCast)
 		if want := ct.fw.CurrentMana() - 100; mana.GetFloat(ct.sim) != want || manaPercent.GetFloat(ct.sim) != want/ct.fw.MaxMana() {
 			t.Fatalf("during the 2 s cast mana should read %.1f, what is left once it pays 100, read %.1f (%.4f)", want, mana.GetFloat(ct.sim), manaPercent.GetFloat(ct.sim))
 		}
 		ct.runUntil(castEnd)
+		if !slices.Equal(atPick, []bool{true}) {
+			t.Fatalf("the pick at the 2 s cast end should read the mana left once the cast pays, before it pays, read %v", atPick)
+		}
 		if mana.GetFloat(ct.sim) != ct.fw.CurrentMana() {
 			t.Fatalf("once the cast pays at 2 s mana should read as it is, %.1f, read %.1f", ct.fw.CurrentMana(), mana.GetFloat(ct.sim))
 		}

@@ -108,8 +108,10 @@ func (spell *Spell) CanQueue(sim *Simulation, target *Unit) bool {
 		return false
 	}
 
-	// A spell off the GCD goes once a hardcast that holds the rotation ends, ahead of the spell queued after it.
-	if spell.DefaultCast.EffectiveTime() == 0 && spell.Unit.hardcastHoldsRotation(sim) {
+	// Under a hardcast that holds the rotation, a spell off the GCD and a major cooldown are not queued: they
+	// decide in the cast-end pass, once the cast has landed. A spell off the GCD goes there after the spell
+	// queued after the hardcast, a major cooldown ahead of it or, on the GCD, in its place.
+	if (spell.DefaultCast.EffectiveTime() == 0 || spell.Flags.Matches(SpellFlagMCD)) && spell.Unit.hardcastHoldsRotation(sim) {
 		return false
 	}
 
@@ -121,10 +123,14 @@ func (spell *Spell) CanCastOrQueue(sim *Simulation, target *Unit) bool {
 	return !spell.heldByQueuedSpell(sim) && spell.CanQueue(sim, target)
 }
 
-// Whether a queued spell keeps the spell from being cast or queued now: one queued at this instant, or the
-// one queued after a hardcast that has ended.
+// Whether a queued spell keeps the spell from being cast or queued now: once a hardcast has ended, the spell
+// queued after it, which holds only spells on the GCD or with a cast time and lets a major cooldown go;
+// otherwise one queued at this instant.
 func (spell *Spell) heldByQueuedSpell(sim *Simulation) bool {
-	return !spell.Unit.CanQueueSpell(sim) || spell.waitsForQueuedCast(sim)
+	if unit := spell.Unit; unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime {
+		return spell.waitsForQueuedCast(sim)
+	}
+	return !spell.Unit.CanQueueSpell(sim)
 }
 
 // Whether a queued spell may hold back the unit's casts now, so that a rotation look checks for it.

@@ -179,10 +179,12 @@ func (value *APLValueSpellIsCasting) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 
-// True while the spell is hardcast, its last batch too. A channel reads false: it is Spell Is Channeling.
+// True while the spell is hardcast, through the rotation's pick at its end. A channel reads false: it is
+// Spell Is Channeling.
 func (value *APLValueSpellIsCasting) GetBool(sim *Simulation) bool {
-	hc := &value.spell.Unit.Hardcast
-	return hc.Expires > sim.CurrentTime && !hc.IsChanneled && hc.ActionID.SameAction(value.spell.ActionID)
+	unit := value.spell.Unit
+	hc := &unit.Hardcast
+	return unit.hardcastRuns(sim) && !hc.IsChanneled && hc.ActionID.SameAction(value.spell.ActionID)
 }
 func (value *APLValueSpellIsCasting) String() string {
 	return fmt.Sprintf("IsCasting(%s)", value.spell.ActionID)

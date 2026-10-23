@@ -182,7 +182,8 @@ type Unit struct {
 	// Used for applying the effect of a hardcast spell when casting finishes.
 	//  For channeled spells, only Expires is set.
 	// No more than one cast may be active at any given time.
-	Hardcast Hardcast
+	Hardcast         Hardcast
+	pickingAtCastEnd bool // The rotation is picking what follows the hardcast at its end, before it lands.
 	// Aura that reduces dodge/parry/block to 0 while casting.
 	HardcastAvoidanceAura *Aura
 
@@ -917,6 +918,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 
 	unit.resetCDs(sim)
 	unit.Hardcast.Expires = startingCDTime
+	unit.pickingAtCastEnd = false
 	unit.ChanneledDot = nil
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
@@ -975,7 +977,6 @@ func (unit *Unit) startPull(sim *Simulation) {
 
 	if unit.Type == PlayerUnit {
 		unit.SetGCDTimer(sim, max(0, unit.GCD.ReadyAt()))
-		unit.lookBeforeCastEnd(sim)
 	}
 }
 

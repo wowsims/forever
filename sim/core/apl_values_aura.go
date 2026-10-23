@@ -35,7 +35,7 @@ func readDot(sim *Simulation, dot *Dot) auraReading {
 // stack up to its maximum, or one. Any other aura, a proc the cast triggers among them, reads as it is.
 func (unit *Unit) readLanding(sim *Simulation, aura *Aura, duration func() time.Duration) auraReading {
 	hc := &unit.Hardcast
-	if hc.Expires <= sim.CurrentTime || hc.IsChanneled || hc.Target != aura.Unit || hc.ActionID.IsEmptyAction() ||
+	if !unit.hardcastRuns(sim) || hc.IsChanneled || hc.Target != aura.Unit || hc.ActionID.IsEmptyAction() ||
 		!hc.ActionID.SameActionIgnoreTag(aura.ActionID) {
 		return auraReading{active: aura.IsActive(), remaining: aura.RemainingDuration(sim), stacks: aura.GetStacks()}
 	}

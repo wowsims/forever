@@ -692,7 +692,7 @@ func (spell *Spell) TimeToReady(sim *Simulation) time.Duration {
 // rotation, the cooldowns the casting spell starts when it lands read as running from the cast end.
 func (spell *Spell) rotationTimeToReady(sim *Simulation) time.Duration {
 	timeToReady := spell.TimeToReady(sim)
-	if spell.Unit.Hardcast.Expires > sim.CurrentTime {
+	if spell.Unit.hardcastRuns(sim) {
 		timeToReady = max(timeToReady, spell.cooldownAfterLanding(sim))
 	}
 	return timeToReady
@@ -727,7 +727,7 @@ func (spell *Spell) CanCast(sim *Simulation, target *Unit) bool {
 	}
 
 	// While casting or channeling, no other action is possible
-	if spell.Unit.Hardcast.Expires > sim.CurrentTime {
+	if spell.Unit.hardcastRuns(sim) {
 		//if sim.Log != nil {
 		//	sim.Log("Cant cast because already casting/channeling")
 		//}

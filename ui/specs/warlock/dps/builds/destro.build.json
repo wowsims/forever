@@ -364,6 +364,17 @@
         },
         {
           "action": {
+            "condition": {
+              "not": {
+                "val": {
+                  "dotIsActive": {
+                    "spellId": {
+                      "spellId": 25309
+                    }
+                  }
+                }
+              }
+            },
             "strictMultidot": {
               "spellId": {
                 "spellId": 25309
@@ -381,6 +392,17 @@
         },
         {
           "action": {
+            "condition": {
+              "not": {
+                "val": {
+                  "dotIsActive": {
+                    "spellId": {
+                      "spellId": 25311
+                    }
+                  }
+                }
+              }
+            },
             "strictMultidot": {
               "spellId": {
                 "spellId": 25311

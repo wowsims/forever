@@ -513,14 +513,9 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			nextEvaluation = max(nextEvaluation, apl.unit.NextGCDAt())
 		}
 
-		// Under a hardcast that holds the rotation, the next look is one batch before it ends, or the end
-		// itself once past that, whether or not this look queued a cast.
+		// Under a hardcast that holds the rotation, the next look is at its end, where the pick is made.
 		if hardcastHoldsRotation {
-			if lookAt := apl.unit.Hardcast.Expires - SpellBatchWindow; sim.CurrentTime < lookAt {
-				nextEvaluation = min(max(sim.CurrentTime+apl.unit.ReactionTime, lookAt), apl.unit.Hardcast.Expires)
-			} else {
-				nextEvaluation = apl.unit.Hardcast.Expires
-			}
+			nextEvaluation = apl.unit.Hardcast.Expires
 		}
 
 		if waitsOnCast {
