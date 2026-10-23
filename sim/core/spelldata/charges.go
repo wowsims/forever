@@ -23,8 +23,7 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 		resetFirstHit()
 		channel := character.ChanneledDot
 		// A channel with no ticks left only waits out the GCD.
-		channelHit = channel != nil && channel.RemainingTicks() > 0 && !character.Wand.IsShoot(channel.Spell) &&
-			channel.Spell.MatchesFlags(classFlags)
+		channelHit = channel != nil && channel.RemainingTicks() > 0 && channel.Spell.MatchesFlags(classFlags)
 	})
 
 	character.OnChannelEnd(func(sim *core.Simulation, _ *core.Dot) {
