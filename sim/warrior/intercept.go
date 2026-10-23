@@ -8,7 +8,8 @@ import (
 var interceptRank = spellData.Intercept.Highest()
 
 // The damage sits on the stun the charge triggers, not on Intercept itself.
-var interceptStunDamage = interceptRank.EffectN(2).Trigger().DamageEffect().Average()
+var interceptStun = interceptRank.EffectN(2).Trigger()
+var interceptStunDamage = interceptStun.DamageEffect().Average()
 
 func (warrior *Warrior) registerIntercept() {
 	actionID := core.ActionID{SpellID: interceptRank.ID}
@@ -18,9 +19,11 @@ func (warrior *Warrior) registerIntercept() {
 	var interceptTarget *core.Unit
 
 	config := spelldata.SpellConfig(&warrior.Unit, interceptRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagMovesToTarget))
+	// Intercept's own row has no defense type, so the damage rolls with the stun row's.
+	config.DefenseType = interceptStun.DefenseTypeCore()
 
 	aura := warrior.registerDashAura("Intercept", actionID, config.Cast.CD.Duration, func(sim *core.Simulation) {
-		spell.CalcAndDealDamage(sim, interceptTarget, interceptStunDamage, spell.OutcomeAlwaysHit)
+		spell.CalcAndDealDamage(sim, interceptTarget, interceptStunDamage, spell.OutcomeMagicHit)
 	})
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
