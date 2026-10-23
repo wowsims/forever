@@ -45,15 +45,15 @@ of it in the same way.
 
 The pick reads the running cast as landed as it was meant to:
 
-| Read                                                                      | At the pick                                 |
-| ------------------------------------------------------------------------- | ------------------------------------------- |
-| The cast's own dot (`Dot Is Active`, `Dot Remaining Time`, Multidot)      | up, with a fresh duration from the cast end |
-| The aura with the cast's own id (`Aura Is Active`, `Aura Remaining Time`) | up; a stacking aura has one stack more      |
-| The cast's cooldown and shared cooldown (`Spell Is Ready`, `Time To Ready`) | running from the cast end                 |
-| `Current Mana`, `Current Mana %`                                          | after the cast's cost                       |
-| `Spell Is Casting` of that spell                                          | true                                        |
-| Everything that happened before the cast end                              | as it is                                    |
-| A dot or aura that runs out at the cast end                               | down                                        |
+| Read                                                                        | At the pick                                 |
+| --------------------------------------------------------------------------- | ------------------------------------------- |
+| The cast's own dot (`Dot Is Active`, `Dot Remaining Time`, Multidot)        | up, with a fresh duration from the cast end |
+| The aura with the cast's own id (`Aura Is Active`, `Aura Remaining Time`)   | up; a stacking aura has one stack more      |
+| The cast's cooldown and shared cooldown (`Spell Is Ready`, `Time To Ready`) | running from the cast end                   |
+| `Current Mana`, `Current Mana %`                                            | after the cast's cost                       |
+| `Spell Is Casting` of that spell                                            | true                                        |
+| Everything that happened before the cast end                                | as it is                                    |
+| A dot or aura that runs out at the cast end                                 | down                                        |
 
 It does not see what the landing decides: the hit roll, the damage, a proc the landing triggers, a
 stack it adds to or takes from an aura with another id, a debuff with another id.
@@ -66,14 +66,14 @@ and a Strict Multidot read the running Immolate as landed and wait.
 A line that reads an aura with another id, which the running cast will change when it lands, re-queues
 the same spell unless it is guarded with `not(Spell Is Casting(X))`:
 
-| Line                                                     | Why the guard                                         |
-| -------------------------------------------------------- | ----------------------------------------------------- |
-| Searing Pain if Demonic Brand is down                    | the brand is a proc of the landing                    |
-| Pyroblast at 3 Heating Up stacks                         | the landing Pyroblast spends the stacks               |
-| Scorch at 4 Fire Vulnerability stacks                    | the landing Scorch adds the fifth                     |
-| Arcane Blast when its buff is about to run out           | the landing Arcane Blast refreshes it                 |
-| Starfire on the last Eclipse stack                       | the landing Starfire spends it                        |
-| Hamstring when Windfury is down, while Slam is casting   | Slam's landing puts the Windfury proc up              |
+| Line                                                   | Why the guard                            |
+| ------------------------------------------------------ | ---------------------------------------- |
+| Searing Pain if Demonic Brand is down                  | the brand is a proc of the landing       |
+| Pyroblast at 3 Heating Up stacks                       | the landing Pyroblast spends the stacks  |
+| Scorch at 4 Fire Vulnerability stacks                  | the landing Scorch adds the fifth        |
+| Arcane Blast when its buff is about to run out         | the landing Arcane Blast refreshes it    |
+| Starfire on the last Eclipse stack                     | the landing Starfire spends it           |
+| Hamstring when Windfury is down, while Slam is casting | Slam's landing puts the Windfury proc up |
 
 Lines that must re-queue the spell behind itself stay unguarded: a filler (Shadow Bolt after Shadow
 Bolt), Scorch while it builds the first four stacks, Arcane Blast while it builds its own stacks.
