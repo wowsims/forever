@@ -36,7 +36,8 @@ func (warrior *Warrior) registerCharge() {
 }
 
 // TODO: Manual review needed -- the run speed and the callers' overshoot are the sim's movement model.
-func (warrior *Warrior) registerDashAura(label string, actionID core.ActionID, duration time.Duration, onEnd func(sim *core.Simulation)) *core.Aura {
+// The arrival callback runs only on reaching the target, never when the aura runs out or the iteration is torn down.
+func (warrior *Warrior) registerDashAura(label string, actionID core.ActionID, duration time.Duration, onArrive func(sim *core.Simulation)) *core.Aura {
 	aura := warrior.RegisterAura(core.Aura{
 		Label:    label,
 		ActionID: actionID,
@@ -46,15 +47,15 @@ func (warrior *Warrior) registerDashAura(label string, actionID core.ActionID, d
 		},
 		OnExpire: func(_ *core.Aura, sim *core.Simulation) {
 			warrior.MultiplyMovementSpeed(sim, 1.0/3.0)
-			if onEnd != nil {
-				onEnd(sim)
-			}
 		},
 	})
 
 	warrior.RegisterMovementCallback(func(sim *core.Simulation, _ float64, kind core.MovementUpdateType) {
 		if kind == core.MovementEnd && aura.IsActive() {
 			aura.Deactivate(sim)
+			if onArrive != nil {
+				onArrive(sim)
+			}
 		}
 	})
 
