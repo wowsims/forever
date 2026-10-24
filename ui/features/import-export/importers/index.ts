@@ -1,4 +1,6 @@
 export { ADDON_IMPORTER } from './addon';
+export { ARMORY_LINK_PARAM, importArmoryCharacter, parseArmoryParam } from './armory';
+export type { ArmoryLookup, ArmoryRegion } from './armory';
 export { BULK_GEAR_IMPORTER } from './bulk_gear';
 export { finishIndividualImport } from './finish_individual_import';
 export type { IndividualImport } from './finish_individual_import';

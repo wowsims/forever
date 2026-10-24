@@ -42,6 +42,8 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, o
 			open={open}
 			onOpenChange={onOpenChange}
 			testId="importer"
+			size="md"
+			verticalAlign="center"
 			title={title}
 			footer={
 				<div className="flex gap-2">

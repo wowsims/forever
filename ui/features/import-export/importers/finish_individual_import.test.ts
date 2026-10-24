@@ -75,6 +75,14 @@ describe('finishIndividualImport', () => {
 		expect(toasts[0].body).toBe('import.talents_not_imported');
 	});
 
+	// The Armory import builds its string against these trees, so that one is applied.
+	it('applies a talent string built against these trees, without the warning', async () => {
+		await finishIndividualImport(host, parsed({ talentsForTheseTrees: true }));
+
+		expect(player.setTalentsString).toHaveBeenCalledWith('05002001-0550000502-05032');
+		expect(toasts).toEqual([{ variant: 'success', body: 'import.success' }]);
+	});
+
 	// `--` is what an empty three-tree talent string looks like: the import carried no talents, so
 	// there is nothing to warn about either.
 	it('says nothing when the export carried no talents at all', async () => {

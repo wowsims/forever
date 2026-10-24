@@ -2662,6 +2662,20 @@
 			"outdated": "Addon is not up to date. Addon version : '{{version}}', Latest version : '{{latest}}'",
 			"below_max_level": "The character you imported is level {{level}}. The Sim is intended to be used for max level only, so you might be missing certain items."
 		},
+		"armory": {
+			"title": "Armory Import",
+			"description": "Look up a character on the Armory and import its gear, race, talents and professions. It does NOT import buffs, debuffs, consumes, rotation, or custom stats.",
+			"region": "Region",
+			"realm": "Realm",
+			"name": "Character name",
+			"unmatched_talents": "Some talents on the Armory match no talent in the sim's trees and were not imported (spell IDs: {{ids}}).",
+			"errors": {
+				"missing_fields": "Enter a realm and a character name.",
+				"unreachable": "Could not reach the Armory service at {{url}}.",
+				"not_found": "No character named {{name}} on {{realm}}.",
+				"lookup_failed": "The Armory lookup failed ({{status}}): {{error}}"
+			}
+		},
 		"error": "Import error:",
 		"success": "Import successful!",
 		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
@@ -2686,7 +2700,8 @@
 			"talents_not_imported": "Sixty Upgrades exports do not carry talent ranks, so talents were not imported. Set them on the Talents tab."
 		},
 		"menu": {
-			"addon": "Addon"
+			"addon": "Addon",
+			"armory": "Armory"
 		}
 	},
 	"export": {

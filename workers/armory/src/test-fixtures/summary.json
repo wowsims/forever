@@ -1,0 +1,16 @@
+{
+	"name": "Erlyn",
+	"level": 60,
+	"character_class": {
+		"id": 8,
+		"name": "Mage"
+	},
+	"race": {
+		"id": 1,
+		"name": "Human"
+	},
+	"realm": {
+		"slug": "classicbetapve2",
+		"name": "ClassicBetaPvE2"
+	}
+}

@@ -3,7 +3,7 @@ import { initBulk } from '@features/bulk/model/init';
 import { watchTargetDummies } from '@features/encounter/model/target_dummies';
 import { repairTargetInputs } from '@features/encounter/model/target_inputs';
 import { registerAreaStatsNotices, registerSetBonusNotices } from '@features/gear/item_notices';
-import { createLink } from '@features/import-export';
+import { ARMORY_LINK_PARAM, createLink, importArmoryCharacter, parseArmoryParam } from '@features/import-export';
 import { ReforgeSidebarGroup } from '@features/reforge/components/ReforgePanel';
 import { createReforgeOptimizer, type ReforgeOptimizerModel, type ReforgeOptimizerOptions } from '@features/reforge/model/reforge_optimizer';
 import { ResultsPanelStore } from '@features/results/components/SimResultsPanel';
@@ -135,6 +135,9 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 			registerSetBonusNotices(this.sim.db);
 			registerAreaStatsNotices(this.sim.db);
 			this.loadSettings();
+			if (isDevMode()) {
+				this.importArmoryFromLink();
+			}
 
 			// Gear planners never simulate, so the healing-sim disclaimer does not apply to them.
 			if (this.player.getPlayerSpec().isHealingSpec && !isDevMode() && !this.simDisabled) {
@@ -275,6 +278,22 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 			autosaveSubscribe,
 			statWeightSettings: this.statWeightActionSettings,
 			statSweepSettings: this.statSweepSettings,
+		});
+	}
+
+	// A `?armory=` link imports that character over the saved settings. Dev-only until the WoW Forever
+	// Profile API namespace is published; see workers/armory.
+	private importArmoryFromLink() {
+		const lookup = parseArmoryParam(this.sim.env.location.search);
+		if (!lookup) return;
+
+		// Dropped first, so a reload or a link copied from the address bar does not import again.
+		const url = new URL(window.location.href);
+		url.searchParams.delete(ARMORY_LINK_PARAM);
+		window.history.replaceState(window.history.state, '', url);
+
+		importArmoryCharacter(this, lookup).catch(error => {
+			toastManager.add({ variant: 'error', body: `${i18n.t('import.error')} ${error?.message || error}` });
 		});
 	}
 

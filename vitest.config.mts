@@ -22,7 +22,7 @@ export default defineConfig({
 	test: {
 		environment: 'happy-dom',
 		setupFiles: [path.resolve(here, 'vitest.setup.ts')],
-		include: ['ui/**/*.test.ts', 'ui/**/*.test.tsx'],
+		include: ['ui/**/*.test.ts', 'ui/**/*.test.tsx', 'workers/*/src/**/*.test.ts'],
 		restoreMocks: true,
 		// Vitest empties every CSS import it does not include, `?raw` too; SPEC_THEMES and COLOR_TOKENS parse these.
 		css: { include: [/\/ui\/styles\/theme\/(specs|colors)\.css\?raw$/] },

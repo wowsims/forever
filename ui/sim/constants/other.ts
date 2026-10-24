@@ -37,6 +37,8 @@ export const DISCORD_URL = 'https://discord.gg/p3DgvmnDCS';
 export const GITHUB_ORG_URL = 'https://github.com/wowsims/';
 export const ADDON_URL = 'https://www.curseforge.com/wow/addons/wowsimsexporter';
 export const PATREON_URL = 'https://www.patreon.com/wowsims';
+// The Armory Worker (workers/armory), run locally with `npm run dev` there. The Armory import is dev-only for now.
+export const ARMORY_API_URL = 'http://localhost:8787';
 
 export const SOCIALS = [
 	{ key: 'discord', href: DISCORD_URL, className: 'ui-social-link', icon: 'discord', tooltip: 'info.discord' },

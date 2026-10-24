@@ -1,5 +1,6 @@
 import {
 	AddonImporterDialog,
+	ArmoryImporterDialog,
 	CLI_EXPORTER,
 	exporterDialog,
 	JSON_EXPORTER,
@@ -13,6 +14,7 @@ import {
 } from '@features/import-export';
 import i18n from '@i18n/config';
 import { useSimReady } from '@sim/hooks/useSimReady';
+import { isDevMode } from '@sim/utils/env';
 
 import { ImportExportKind } from './header/import_export';
 import { ImportExportItem, ImportExportMenu } from './header/ImportExportMenu';
@@ -40,6 +42,8 @@ export const SimImportExport = () => {
 						<ImportExportItem label="60U" dialog={SixtyUpgradesImporterDialog} />
 						<ImportExportItem label="WoWHead" dialog={WowheadImporterDialog} />
 						<ImportExportItem label={i18n.t('import.menu.addon')} dialog={AddonImporterDialog} />
+						{/* Dev-only until the WoW Forever Profile API namespace is published; see workers/armory. */}
+						{isDevMode() && <ImportExportItem label={i18n.t('import.menu.armory')} dialog={ArmoryImporterDialog} />}
 					</>
 				)}
 			</ImportExportMenu>
