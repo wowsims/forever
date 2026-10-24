@@ -7,9 +7,9 @@ import (
 
 var serpentStingRank = spellData.SerpentSting.Highest()
 
-// TODO: In-game testing required. The row states no attack power share on the tick; the Forever
-// notes say 10% of ranged attack power over the duration, 2% a tick, read at each tick.
-const serpentStingTickAPShare = 0.02
+// The row states no attack power share on the tick. In game each tick adds 0.032 of ranged attack
+// power, read at each tick, and spell power adds nothing.
+const serpentStingTickAPShare = 0.032
 
 func (hunter *Hunter) registerSerpentSting() {
 	tick := serpentStingRank.PeriodicEffect()
