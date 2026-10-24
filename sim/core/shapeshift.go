@@ -1,6 +1,9 @@
 package core
 
 import (
+	"cmp"
+	"slices"
+
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 )
@@ -118,4 +121,32 @@ func (spell *Spell) castRequirementFailure(sim *Simulation, target *Unit) (reaso
 		return "a more powerful spell is active", false
 	}
 	return "", unshift
+}
+
+// The unit's shift spells the APL can cast, one per form, in form id order.
+func (unit *Unit) shiftForms() []*Spell {
+	var shifts []*Spell
+	for _, spell := range unit.Spellbook {
+		if spell.ShiftsTo == 0 || !spell.Flags.Matches(SpellFlagAPL) || slices.ContainsFunc(shifts, func(s *Spell) bool { return s.ShiftsTo == spell.ShiftsTo }) {
+			continue
+		}
+		shifts = append(shifts, spell)
+	}
+	slices.SortFunc(shifts, func(a, b *Spell) int { return cmp.Compare(a.ShiftsTo, b.ShiftsTo) })
+	return shifts
+}
+
+// Whether the spell casts the aura: it names the aura as its buff or shares its id.
+func castsAura(spell *Spell, aura *Aura) bool {
+	return spell.RelatedSelfBuff == aura || spell.ActionID == aura.ActionID
+}
+
+// The spell of the unit that casts the aura.
+func (unit *Unit) auraSpell(aura *Aura) *Spell {
+	for _, spell := range unit.Spellbook {
+		if castsAura(spell, aura) {
+			return spell
+		}
+	}
+	return nil
 }

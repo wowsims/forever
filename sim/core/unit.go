@@ -1021,7 +1021,8 @@ func (unit *Unit) GetMetadata() *proto.UnitMetadata {
 // casters are the units whose spells can cast this unit's auras, which decides an aura's category.
 func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 	metadata := &proto.UnitMetadata{
-		Name: unit.Label,
+		Name:        unit.Label,
+		ShiftSpells: MapSlice(unit.shiftForms(), func(shift *Spell) *proto.ActionID { return shift.ActionID.ToProto() }),
 	}
 
 	// The rank rides on the id so the UI can group a spell's ranks; the tooltips the UI fetches do not
@@ -1058,6 +1059,7 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 			HasMissileSpeed:    spell.MissileSpeed > 0.0 || spell.MissileMinDuration > 0,
 			HasRanks:           spell.Rank > 0,
 			Category:           spell.category(),
+			Group:              spell.MenuGroup,
 		}
 	})
 
@@ -1065,12 +1067,17 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 		return !aura.ActionID.IsEmptyAction()
 	})
 	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
+		group := aura.MenuGroup
+		if spell := unit.auraSpell(aura); spell != nil && group == "" {
+			group = spell.MenuGroup
+		}
 		return &proto.AuraStats{
 			Id:                 rankedID(aura.ActionID),
 			MaxStacks:          aura.MaxStacks,
 			HasIcd:             aura.Icd != nil,
 			HasExclusiveEffect: len(aura.ExclusiveEffects) > 0,
 			Category:           auraCategory(aura, casters),
+			Group:              group,
 		}
 	})
 

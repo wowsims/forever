@@ -176,6 +176,38 @@ describe('UnitMetadata ranks', () => {
 		expect(await ranksOf([actionId(25304, 11), actionId(2120, 1), actionId(2121, 2)])).toEqual({ spells: ranks, auras: ranks });
 	});
 
+	it('reports an update when an entry keeps its ActionID but its group changes', async () => {
+		const id = actionId(25304, 0);
+		const send = (group: string) =>
+			UnitMetadataProto.create({ spells: [SpellStatsProto.create({ id, group })], auras: [AuraStatsProto.create({ id, group })] });
+		const metadata = new UnitMetadata();
+
+		await metadata.update(send('a'));
+		expect(await metadata.update(send('a'))).toBe(false);
+		expect(await metadata.update(send('b'))).toBe(true);
+		expect(metadata.getSpells()[0].data.group).toBe('b');
+		expect(metadata.getAuras()[0].data.group).toBe('b');
+	});
+
+	it('reports an update when only a talent rank changes', async () => {
+		const send = (rank: number) =>
+			UnitMetadataProto.create({ spells: [SpellStatsProto.create({ id: actionId(25304, 0) })], talents: [actionId(2120, rank)] });
+		const metadata = new UnitMetadata();
+
+		await metadata.update(send(2));
+		expect(await metadata.update(send(3))).toBe(true);
+		expect(metadata.getTalents().map(id => [id.spellId, id.rank])).toEqual([[2120, 3]]);
+	});
+
+	it('keeps the shift spells in the order the sim lists them', async () => {
+		const metadata = new UnitMetadata();
+		await metadata.update(UnitMetadataProto.create({ shiftSpells: [actionId(25304, 0), actionId(2120, 0)] }));
+		expect(metadata.getShiftSpells().map(id => [id.spellId, id.baseName])).toEqual([
+			[25304, 'Frostbolt'],
+			[2120, 'Flamestrike'],
+		]);
+	});
+
 	// A spell and its DoT, registered as a second spell under another tag, count apart.
 	it('counts one spell under two tags as two', async () => {
 		const ranks = { '25304|0': 0, '25304|1': 0 };

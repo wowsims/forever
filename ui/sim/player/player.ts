@@ -94,12 +94,16 @@ export class UnitMetadata {
 	private auras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;
+	private shiftSpells: Array<ActionId>;
+	private last: UnitMetadataProto;
 
 	constructor() {
 		this.name = '';
 		this.auras = [];
 		this.spells = [];
 		this.talents = [];
+		this.shiftSpells = [];
+		this.last = UnitMetadataProto.create();
 	}
 
 	getName(): string {
@@ -119,47 +123,40 @@ export class UnitMetadata {
 		return this.talents.slice();
 	}
 
+	/** The spells the APL can cast that shift the unit into a form, in form id order. */
+	getShiftSpells(): Array<ActionId> {
+		return this.shiftSpells.slice();
+	}
+
 	// Returns whether any updates were made.
 	async update(metadata: UnitMetadataProto): Promise<boolean> {
-		let newSpells = metadata!.spells.map(spell => {
+		if (UnitMetadataProto.equals(metadata, this.last)) return false;
+		const newSpells = metadata!.spells.map(spell => {
 			return {
 				data: spell,
 				id: ActionId.fromProto(spell.id!),
 			};
 		});
-		let newAuras = metadata!.auras.map(aura => {
+		const newAuras = metadata!.auras.map(aura => {
 			return {
 				data: aura,
 				id: ActionId.fromProto(aura.id!),
 			};
 		});
 
-		const talentsFill = Promise.all(metadata.talents.map(talent => ActionId.fromProto(talent).fill()));
-		await Promise.all([...newSpells, ...newAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
-		const newTalents = (await talentsFill).sort((a, b) => stringComparator(a.name, b.name));
+		const [newTalents, newShiftSpells] = await Promise.all([
+			Promise.all(metadata.talents.map(talent => ActionId.fromProto(talent).fill())),
+			Promise.all(metadata.shiftSpells.map(id => ActionId.fromProto(id).fill())),
+			...[...newSpells, ...newAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))),
+		]);
 
-		newSpells = dropLoneRanks(newSpells).sort((a, b) => stringComparator(a.id.name, b.id.name));
-		newAuras = dropLoneRanks(newAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
-
-		let anyUpdates = false;
-		if (metadata.name != this.name) {
-			this.name = metadata.name;
-			anyUpdates = true;
-		}
-		if (newSpells.length != this.spells.length || newSpells.some((newSpell, i) => !newSpell.id.equals(this.spells[i].id))) {
-			this.spells = newSpells;
-			anyUpdates = true;
-		}
-		if (newAuras.length != this.auras.length || newAuras.some((newAura, i) => !newAura.id.equals(this.auras[i].id))) {
-			this.auras = newAuras;
-			anyUpdates = true;
-		}
-		if (newTalents.length != this.talents.length || newTalents.some((talent, i) => !talent.equalsAtRank(this.talents[i]))) {
-			this.talents = newTalents;
-			anyUpdates = true;
-		}
-
-		return anyUpdates;
+		this.last = metadata;
+		this.name = metadata.name;
+		this.spells = dropLoneRanks(newSpells).sort((a, b) => stringComparator(a.id.name, b.id.name));
+		this.auras = dropLoneRanks(newAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
+		this.talents = newTalents.sort((a, b) => stringComparator(a.name, b.name));
+		this.shiftSpells = newShiftSpells;
+		return true;
 	}
 }
 

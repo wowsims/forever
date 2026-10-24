@@ -100,6 +100,7 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 		MissileMinDuration: s.MissileMinDuration(),
 
 		CastRequirement: s.CastRequirement(),
+		ShiftsTo:        s.ShapeshiftForm(),
 	}
 	applyCost(&config, s)
 	// A row with Fixed Travel Time flies for its Speed in seconds at any distance: Dragonfire Potion's

@@ -5,6 +5,7 @@ package spelldata
 // the links, masks and effect kinds of a handful of rows; no amount is pinned.
 
 import (
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"slices"
 	"strings"
@@ -369,6 +370,20 @@ func TestGeneratedStanceAndAuraRestriction(t *testing.T) {
 		if got := MustFind(id).ShapeshiftForm(); got != want {
 			t.Errorf("spell %d puts the caster in form %d, want %d", id, got, want)
 		}
+	}
+}
+
+// Battle Stance's and Shadowform's configs state the form they shift to, with no menu group.
+func TestConfigsCarryTheFormData(t *testing.T) {
+	withGeneratedStore(t)
+
+	battleStance := SpellConfig(&core.Unit{}, MustFind(2457))
+	if battleStance.ShiftsTo != dbcenums.FORM_BATTLE_STANCE || battleStance.MenuGroup != "" {
+		t.Errorf("Battle Stance ShiftsTo = %d, MenuGroup = %q; want %d and none", battleStance.ShiftsTo, battleStance.MenuGroup, dbcenums.FORM_BATTLE_STANCE)
+	}
+	shadowform := SpellConfig(&core.Unit{}, MustFind(15473))
+	if shadowform.ShiftsTo != dbcenums.FORM_SHADOWFORM || shadowform.MenuGroup != "" {
+		t.Errorf("Shadowform ShiftsTo = %d, MenuGroup = %q; want %d and none", shadowform.ShiftsTo, shadowform.MenuGroup, dbcenums.FORM_SHADOWFORM)
 	}
 }
 

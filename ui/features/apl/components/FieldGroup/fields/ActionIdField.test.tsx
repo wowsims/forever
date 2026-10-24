@@ -3,7 +3,7 @@ import { APLRotation, APLValue } from '@generated/proto/apl';
 import { ActionID, UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { ActionId } from '@sim/proto/action_id';
-import { makePlayer } from '@testing/apl/player';
+import { makePlayer, stubMetadata } from '@testing/apl/player';
 import { source } from '@testing/apl/source';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,7 +35,7 @@ const setup = () => {
 		spell(named(2, 'Prepull Spell'), { prepullOnly: true }),
 		spell(named(3, 'Encounter Spell'), { encounterOnly: true }),
 	];
-	player.sim.getUnitMetadata = () => ({ getSpells: () => spells, getAuras: () => [], getName: () => '' });
+	player.sim.getUnitMetadata = () => stubMetadata({ getSpells: () => spells });
 };
 
 const mount = (isPrepull: boolean) =>
@@ -105,7 +105,7 @@ describe('ActionIdField — the unit named by unitRefField', () => {
 	it('reads the unit named by unitRefField on mount', async () => {
 		setup();
 		const reads: Array<string> = [];
-		const metadata = { getSpells: () => [], getAuras: () => [], getName: () => '' };
+		const metadata = stubMetadata();
 		player.sim.getUnitMetadata = (ref: UnitReference | undefined) => {
 			reads.push(ref ? `${UnitType[ref.type]}:${ref.index}` : 'none');
 			return metadata;

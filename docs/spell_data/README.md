@@ -9,6 +9,7 @@ warlock read rows by hand, one value at a time, with no resolver in between. Gre
 
 - [The store](store.md)
 - [Building an ability](building-an-ability.md)
+- [Groups in the APL picker](apl-picker-groups.md)
 - [Auras and dots](auras-and-dots.md)
 - [Talents and auras: ParseStatic and ParseEffects](talents-and-auras.md)
 - [Weapon requirements and the one rating](weapon-requirements.md)

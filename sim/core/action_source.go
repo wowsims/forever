@@ -78,7 +78,7 @@ func auraCategory(aura *Aura, casters []*Unit) proto.ActionCategory {
 	isConsumable, isMajorCooldown := false, false
 	for _, caster := range casters {
 		for _, spell := range caster.Spellbook {
-			if spell.RelatedSelfBuff != aura && spell.ActionID != aura.ActionID {
+			if !castsAura(spell, aura) {
 				continue
 			}
 			isConsumable = isConsumable || spell.Flags.Matches(SpellFlagPotion|SpellFlagConjured)

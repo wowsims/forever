@@ -619,6 +619,7 @@ message AuraStats {
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
 	ActionCategory category = 5;
+	string group = 6; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
 }
 message SpellStats {
 	ActionID id = 1;
@@ -639,6 +640,7 @@ message SpellStats {
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
 	ActionCategory category = 16;
+	string group = 18; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
 }
 message APLValidation {
 	LogLevel log_level = 1;
@@ -666,6 +668,7 @@ message UnitMetadata {
 	repeated AuraStats auras = 2;
 	// The talents the unit has points in, each at the rank it holds.
 	repeated ActionID talents = 4;
+	repeated ActionID shift_spells = 5; // The spells the APL can cast that shift the unit into a form, one per form, in form id order.
 }
 message PetStats {
 	UnitMetadata metadata = 1;
