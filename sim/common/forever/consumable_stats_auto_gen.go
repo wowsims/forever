@@ -238,6 +238,11 @@ func RegisterAllStatConsumables() {
 		268913, // Expiring Crocolisk Steak
 		274971, // Briny Seafood Stew
 		274976, // Plain Ol' Paletusk
+		289082, // Elixir of Endless Intellect
+		289083, // Elixir of Endless Power
+		289084, // Elixir of Endless Healing
+		289087, // Elixir of Endless Opportunity
+		289321, // Elixir of Endless Mana
 	} {
 		shared.NewSpellDataStatConsumable(itemID)
 	}
