@@ -105,6 +105,8 @@ type Druid struct {
 
 type SelfBuffs struct {
 	InnervateTarget *proto.UnitReference
+	// The cast still goes out. The mana stays off this druid.
+	GiftInnervate bool
 }
 
 func (druid *Druid) GetCharacter() *core.Character {

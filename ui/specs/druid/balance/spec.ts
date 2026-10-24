@@ -6,6 +6,7 @@ import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
+import * as BalanceInputs from './inputs';
 import * as Presets from './presets';
 
 export default defineSpec<Spec.SpecBalanceDruid>({
@@ -75,6 +76,9 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 
 	// IconInputs to include in the 'Player' section on the settings tab.
 	playerIconInputs: [],
+	playerInputs: {
+		inputs: [BalanceInputs.InnervateAssignmentInput],
+	},
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [],
 	excludeBuffDebuffInputs: [],

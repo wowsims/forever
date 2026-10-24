@@ -831,6 +831,12 @@
 				"label": "Cannot Shred Target",
 				"tooltip": "Alternative to \"In Front of Target\" for modeling bosses that do not Parry or Block, but which you still cannot Shred."
 			},
+			"innervate_assignment": {
+				"label": "Innervate",
+				"tooltip": "Self keeps the mana. Someone else still casts Innervate on your rotation, and the mana stays off you.",
+				"self": "Self",
+				"other": "Someone else"
+			},
 			"show_1h_weapons": {
 				"label": "1H",
 				"tooltip": "Show one-handed weapons"

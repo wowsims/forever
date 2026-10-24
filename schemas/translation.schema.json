@@ -2979,6 +2979,17 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"innervate_assignment": {
+							"type": "object",
+							"properties": {
+								"label": { "type": "string" },
+								"tooltip": { "type": "string" },
+								"self": { "type": "string" },
+								"other": { "type": "string" }
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip", "self", "other"]
+						},
 						"show_1h_weapons": {
 							"type": "object",
 							"properties": {
@@ -3269,6 +3280,7 @@
 						"assume_bleed_active",
 						"prepull_clearcasting",
 						"cannot_shred_target",
+						"innervate_assignment",
 						"show_1h_weapons",
 						"show_2h_weapons",
 						"show_all_enchants",

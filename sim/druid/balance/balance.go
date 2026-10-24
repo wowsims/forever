@@ -39,6 +39,7 @@ func NewBalanceDruid(character *core.Character, options *proto.Player) *BalanceD
 	if balanceOptions.Options.ClassOptions.InnervateTarget != nil {
 		moonkin.SelfBuffs.InnervateTarget = balanceOptions.Options.ClassOptions.InnervateTarget
 	}
+	moonkin.SelfBuffs.GiftInnervate = balanceOptions.Options.InnervateAssignment != proto.InnervateAssignment_InnervateAssignmentSelf
 
 	moonkin.RegisterMoonkinFormAura()
 	moonkin.RegisterMoonkinFormSpell()
