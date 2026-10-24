@@ -1,0 +1,27 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{ "action": { "castSpell": { "spellId": { "spellId": 990201 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 990203 }, "target": { "type": "CurrentTarget" } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 990202 } } } },
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "auraId": { "spellId": 990205 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 990205 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 990204 } }
+			}
+		},
+		{
+			"action": {
+				"condition": { "auraIsActive": { "sourceUnit": { "type": "Pet", "owner": { "type": "Self" } }, "auraId": { "spellId": 990201 } } },
+				"castSpell": { "spellId": { "spellId": 990205 } }
+			}
+		}
+	]
+}

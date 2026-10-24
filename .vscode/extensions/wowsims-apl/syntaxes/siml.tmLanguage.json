@@ -1,0 +1,160 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "SIML",
+	"scopeName": "source.siml",
+	"patterns": [
+		{
+			"name": "comment.line.triple-slash.documentation.siml",
+			"match": "///.*$"
+		},
+		{
+			"name": "comment.line.double-slash.siml",
+			"match": "//.*$"
+		},
+		{
+			"match": "^(group)\\s*(\"(?:[^\"\\\\]|\\\\.)*\")\\s*(:)",
+			"captures": {
+				"1": {
+					"name": "keyword.other.section.siml"
+				},
+				"2": {
+					"name": "entity.name.section.group.siml"
+				},
+				"3": {
+					"name": "punctuation.separator.colon.siml"
+				}
+			}
+		},
+		{
+			"match": "^\\s*(settings|gear|item_swap|consumables|buffs|party_buffs|raid_buffs|debuffs|encounter|sim|apl|simple|cooldowns|prepull|priority)\\s*(:)",
+			"captures": {
+				"1": {
+					"name": "entity.name.section.siml"
+				},
+				"2": {
+					"name": "punctuation.separator.colon.siml"
+				}
+			}
+		},
+		{
+			"match": "^\\s*(#)(?=\\s)",
+			"captures": {
+				"1": {
+					"name": "keyword.other.hidden.siml"
+				}
+			}
+		},
+		{
+			"match": "^\\s*(def)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?:\\(([^()]*)\\))?\\s*(?==)",
+			"captures": {
+				"1": {
+					"name": "keyword.control.siml"
+				},
+				"2": {
+					"name": "entity.name.function.siml"
+				},
+				"3": {
+					"name": "meta.parameters.siml",
+					"patterns": [
+						{
+							"name": "variable.parameter.siml",
+							"match": "[A-Za-z_][A-Za-z0-9_]*"
+						}
+					]
+				}
+			}
+		},
+		{
+			"include": "#value"
+		}
+	],
+	"repository": {
+		"value": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.siml",
+					"begin": "\"",
+					"end": "\"|$",
+					"patterns": [
+						{
+							"name": "constant.character.escape.siml",
+							"match": "\\\\(?:[\"\\\\/bfnrt]|u[0-9A-Fa-f]{4})"
+						}
+					]
+				},
+				{
+					"name": "meta.embedded.block.json.siml",
+					"begin": "`",
+					"end": "`",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.raw.begin.siml"
+						}
+					},
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.raw.end.siml"
+						}
+					},
+					"patterns": [
+						{
+							"include": "source.json"
+						}
+					]
+				},
+				{
+					"name": "variable.other.siml",
+					"match": "\\$(?:\\{[^}\\n]*\\}|[A-Za-z_][A-Za-z0-9_]*)"
+				},
+				{
+					"name": "variable.parameter.placeholder.siml",
+					"match": "%(?:\\{[^}\\n]*\\}|[A-Za-z_][A-Za-z0-9_]*)"
+				},
+				{
+					"name": "constant.numeric.siml",
+					"match": "(?<![A-Za-z0-9_.])[0-9]+(?:\\.[0-9]+)?(?:%|(?:ns|us|µs|ms|s|m|h)(?:[0-9]+(?:\\.[0-9]+)?(?:ns|us|µs|ms|s|m|h))*)?(?![A-Za-z0-9_])"
+				},
+				{
+					"name": "support.function.head.siml",
+					"match": "\\b(?:aura|dot|spell|boss_spell|sequence)(?=\\s*\\()"
+				},
+				{
+					"name": "keyword.other.action.siml",
+					"match": "\\b(?:cast|channel|wait|move|group|sequence|schedule)(?![A-Za-z0-9_])"
+				},
+				{
+					"name": "keyword.operator.word.siml",
+					"match": "\\b(?:and|or|not)(?![A-Za-z0-9_])"
+				},
+				{
+					"name": "constant.language.siml",
+					"match": "\\b(?:true|false|none)(?![A-Za-z0-9_])"
+				},
+				{
+					"name": "keyword.control.siml",
+					"match": "\\b(?:siml|spec|talents|use|var|with|if|on|until|recast|recheck|for|other|item|when|def)(?![A-Za-z0-9_])"
+				},
+				{
+					"name": "variable.language.unit.siml",
+					"match": "\\b(?:all_players|all_targets|next_target|previous_target|self|target|unknown_unit|(?:pet|player|target)[1-9][0-9]*)(?![A-Za-z0-9_])"
+				},
+				{
+					"name": "entity.name.function.siml",
+					"match": "\\b[a-z_][a-z0-9_]*(?=\\()"
+				},
+				{
+					"name": "keyword.operator.comparison.siml",
+					"match": "==|!=|>=|<=|>|<"
+				},
+				{
+					"name": "keyword.operator.arithmetic.siml",
+					"match": "[+\\-*/]"
+				},
+				{
+					"name": "keyword.operator.assignment.siml",
+					"match": "="
+				}
+			]
+		}
+	}
+}

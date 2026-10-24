@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+
+// A name in the table where a kind goes says what it names.
+priority:
+  hunters_mark
+  cast x if hunters_mark

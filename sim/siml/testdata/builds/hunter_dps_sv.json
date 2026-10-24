@@ -1,0 +1,668 @@
+{
+	"settings": {
+		"iterations": 25000
+	},
+	"raidBuffs": {
+		"arcaneBrilliance": true,
+		"prayerOfSpirit": true,
+		"giftOfTheWild": true,
+		"strengthOfEarthTotem": true,
+		"graceOfAirTotem": true,
+		"battleShout": "TristateEffectRegular",
+		"leaderOfThePack": true
+	},
+	"debuffs": {
+		"judgementOfLight": true,
+		"judgementOfWisdom": true,
+		"curseOfElements": true,
+		"curseOfRecklessness": true,
+		"faerieFire": true,
+		"exposeArmor": true,
+		"sunderArmor": true,
+		"giftOfArthas": true,
+		"insectSwarm": true
+	},
+	"player": {
+		"race": "RaceOrc",
+		"class": "ClassHunter",
+		"equipment": {
+			"items": [
+				{
+					"id": 16428,
+					"enchant": 2586
+				},
+				{
+					"id": 21809
+				},
+				{
+					"id": 13116
+				},
+				{
+					"id": 21187,
+					"enchant": 7667
+				},
+				{
+					"id": 19685,
+					"enchant": 1891
+				},
+				{
+					"id": 19687,
+					"enchant": 7656
+				},
+				{
+					"id": 19686,
+					"enchant": 8206
+				},
+				{
+					"id": 20216
+				},
+				{
+					"id": 22690,
+					"enchant": 2586
+				},
+				{
+					"id": 18506,
+					"enchant": 904
+				},
+				{
+					"id": 272408
+				},
+				{
+					"id": 21182
+				},
+				{
+					"id": 272437
+				},
+				{
+					"id": 270276
+				},
+				{
+					"id": 250619,
+					"enchant": 2646
+				},
+				{},
+				{
+					"id": 22347,
+					"enchant": 8720
+				}
+			]
+		},
+		"consumables": {
+			"foodId": 250072,
+			"conjuredId": 12662,
+			"explosiveId": 18588,
+			"extraIds": [10646, 10310],
+			"elixirIds": [13452, 250341],
+			"resourcePotId": 13444
+		},
+		"buffs": {
+			"greaterBlessingOfKings": true
+		},
+		"hunter": {
+			"options": {
+				"classOptions": {
+					"quiverBonus": "AncientSinewWrappedLamina",
+					"ammo": "ThoriumHeadedArrow",
+					"petUptime": 1,
+					"cobraReflexes": true,
+					"petAggression": 5,
+					"petAttackSpeed": "FasterAttackII"
+				}
+			}
+		},
+		"talentsString": "1-00531500114-52225303000021005",
+		"profession1": "Engineering",
+		"profession2": "Blacksmithing",
+		"rotation": {
+			"type": "TypeAPL",
+			"prepullActions": [
+				{
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 14325,
+								"rank": 4
+							}
+						}
+					},
+					"doAtValue": {
+						"const": {
+							"val": "-22s"
+						}
+					}
+				},
+				{
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 25296,
+								"rank": 7
+							}
+						}
+					},
+					"doAtValue": {
+						"const": {
+							"val": "-20s"
+						}
+					}
+				},
+				{
+					"action": {
+						"move": {
+							"rangeFromTarget": {
+								"variableRef": {
+									"name": "Pull range"
+								}
+							}
+						}
+					},
+					"doAtValue": {
+						"const": {
+							"val": "-19s"
+						}
+					}
+				}
+			],
+			"priorityList": [
+				{
+					"action": {
+						"condition": {
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"currentTime": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "5s"
+									}
+								}
+							}
+						},
+						"autocastOtherCooldowns": {}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"sourceUnit": {
+											"type": "CurrentTarget"
+										},
+										"auraId": {
+											"spellId": 14325
+										}
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 14325,
+								"rank": 4
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Aimed Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 20904,
+								"rank": 6
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"not": {
+								"val": {
+									"dotIsActive": {
+										"spellId": {
+											"spellId": 25295,
+											"rank": 9
+										}
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 25295,
+								"rank": 9
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Use Sniper Shot"
+										}
+									},
+									{
+										"or": {
+											"vals": [
+												{
+													"auraIsActive": {
+														"auraId": {
+															"spellId": 3045
+														}
+													}
+												},
+												{
+													"auraIsActive": {
+														"auraId": {
+															"spellId": 6150
+														}
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1310786,
+								"rank": 3
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"and": {
+											"vals": [
+												{
+													"variableRef": {
+														"name": "Use Summon Hawk"
+													}
+												},
+												{
+													"variableRef": {
+														"name": "Use Arcane Shot"
+													}
+												}
+											]
+										}
+									},
+									{
+										"sequenceIsComplete": {
+											"sequenceName": "HHA"
+										}
+									}
+								]
+							}
+						},
+						"resetSequence": {
+							"sequenceName": "HHA"
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Use Summon Hawk"
+										}
+									},
+									{
+										"variableRef": {
+											"name": "Use Arcane Shot"
+										}
+									}
+								]
+							}
+						},
+						"sequence": {
+							"name": "HHA",
+							"actions": [
+								{
+									"castSpell": {
+										"spellId": {
+											"spellId": 1293527,
+											"rank": 4
+										}
+									}
+								},
+								{
+									"castSpell": {
+										"spellId": {
+											"spellId": 1293527,
+											"rank": 4
+										}
+									}
+								},
+								{
+									"castSpell": {
+										"spellId": {
+											"spellId": 14287,
+											"rank": 8
+										}
+									}
+								}
+							]
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Use Summon Hawk"
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Use Arcane Shot"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1293527,
+								"rank": 4
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Use Arcane Shot"
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Use Summon Hawk"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 14287,
+								"rank": 8
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Multi-Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 2643
+							}
+						}
+					}
+				},
+				{
+					"notes": "Start of the fight: get to my spot without losing an Auto Shot.",
+					"action": {
+						"condition": {
+							"cmp": {
+								"op": "OpNe",
+								"lhs": {
+									"unitDistance": {
+										"sourceUnit": {
+											"type": "Self"
+										}
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "Shoot spot"
+									}
+								}
+							}
+						},
+						"groupReference": {
+							"groupName": "Walk in"
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"name": "Walk in",
+					"actions": [
+						{
+							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.",
+							"action": {
+								"condition": {
+									"not": {
+										"val": {
+											"and": {
+												"vals": [
+													{
+														"spellInRange": {
+															"spellId": {
+																"spellId": 14287,
+																"rank": 8
+															}
+														}
+													},
+													{
+														"or": {
+															"vals": [
+																{
+																	"variableRef": {
+																		"name": "Auto Shot due"
+																	}
+																},
+																{
+																	"variableRef": {
+																		"name": "Just shot"
+																	}
+																}
+															]
+														}
+													}
+												]
+											}
+										}
+									}
+								},
+								"move": {
+									"rangeFromTarget": {
+										"variableRef": {
+											"name": "Shoot spot"
+										}
+									},
+									"recheckWhileMoving": true
+								}
+							}
+						},
+						{
+							"notes": "Standing for my Auto Shot.",
+							"action": {
+								"wait": {
+									"duration": {
+										"inputDelay": {}
+									}
+								}
+							}
+						}
+					]
+				}
+			],
+			"valueVariables": [
+				{
+					"name": "Shoot spot",
+					"value": {
+						"const": {
+							"val": "12"
+						}
+					}
+				},
+				{
+					"name": "Use Aimed Shot",
+					"value": {
+						"const": {
+							"val": "false"
+						}
+					}
+				},
+				{
+					"name": "Use Multi-Shot",
+					"value": {
+						"const": {
+							"val": "true"
+						}
+					}
+				},
+				{
+					"name": "Use Arcane Shot",
+					"value": {
+						"const": {
+							"val": "true"
+						}
+					}
+				},
+				{
+					"name": "Use Sniper Shot",
+					"value": {
+						"const": {
+							"val": "false"
+						}
+					}
+				},
+				{
+					"name": "Use Summon Hawk",
+					"value": {
+						"const": {
+							"val": "false"
+						}
+					}
+				},
+				{
+					"name": "Pull range",
+					"value": {
+						"const": {
+							"val": "25"
+						}
+					}
+				},
+				{
+					"name": "Auto Shot due",
+					"value": {
+						"cmp": {
+							"op": "OpGe",
+							"lhs": {
+								"autoTimeSinceLast": {
+									"autoType": "RangedAuto"
+								}
+							},
+							"rhs": {
+								"math": {
+									"op": "OpSub",
+									"lhs": {
+										"math": {
+											"op": "OpSub",
+											"lhs": {
+												"autoSwingTime": {
+													"autoType": "Ranged"
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "500ms"
+												}
+											}
+										}
+									},
+									"rhs": {
+										"inputDelay": {}
+									}
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "Just shot",
+					"value": {
+						"cmp": {
+							"op": "OpLt",
+							"lhs": {
+								"autoTimeSinceLast": {
+									"autoType": "RangedAuto"
+								}
+							},
+							"rhs": {
+								"inputDelay": {}
+							}
+						}
+					}
+				}
+			]
+		},
+		"reactionTimeMs": 100,
+		"distanceFromTarget": 12
+	},
+	"encounter": {
+		"duration": 180,
+		"durationVariation": 5,
+		"executeProportion20": 0.2,
+		"executeProportion35": 0.35,
+		"targets": [
+			{
+				"id": 31146,
+				"name": "Raid Target",
+				"level": 63,
+				"mobType": "MobTypeMechanical",
+				"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 3731, 0, 1428900, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				"minBaseDamage": 2601,
+				"damageSpread": 0.5,
+				"swingSpeed": 2,
+				"parryHaste": true,
+				"canCrush": true
+			}
+		]
+	}
+}

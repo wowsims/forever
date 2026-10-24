@@ -77,7 +77,7 @@ ui/
                      inputs.ts, saved_panel.ts, results-metrics.ts, timeline_rotation.ts and
                      chart-js-mock.ts helpers. A module under testing/sim/ imports neither
                      @features nor @ui-kit. alias @testing, for tests and stories only
-  types/             ambient .d.ts (i18n-loader.d.ts)
+  types/             ambient .d.ts (i18n-loader.d.ts, siml.d.ts)
   index_template.html   the one spec page; tracking/ the analytics shim
   canonical_classes.test.ts, no_class_hooks.test.ts, no_raw_controls.test.ts,
   no_testid_wrappers.test.ts, class_hook_allowlist.json,
@@ -189,14 +189,11 @@ convenience. The preset shapes
 (`PresetGear`, `PresetEpWeights`, …) live in `ui/sim/presets/types.ts`; `app/preset_utils.ts`
 holds the `make*` builders and re-exports the types.
 
-Preset gear, APLs and builds live as JSON under `ui/specs/<class>/<spec>/`: gear in
-`gear_sets/*.gear.json`, APLs in `apls/*.apl.json` and builds in `builds/*.build.json`. The spec's
-`presets.ts` imports them and passes them to `makePresetGear`, `makePresetAPLRotation` and
-`makePresetBuildFromJSON`. Talents and EP weights are TS literals in `presets.ts`:
-`makePresetTalents` wraps a `SavedTalents` holding the `talentsString`, and `makePresetEpWeights`
-takes the weights as `Stats.fromMap(...)`. An `onLoad` handler goes in a preset's options.
-`makePresetEpWeightsFromJSON` builds an EP preset from JSON that stores enum fields by name
-(e.g. `"StatCritRating"`) and resolves them through `Stat`/`PseudoStat`, though no spec calls it.
+Gear, APLs and builds live in files under `ui/specs/<class>/<spec>/`, never as TS literals. The hunter writes them,
+and its defaults (`defaults.siml`), in SIML (`sim/siml/SPEC.md`), which `tools/vite/siml.mts` imports as each message's
+JSON; the other specs keep JSON files (`*.gear.json`, `*.apl.json`, `*.build.json`) until they move. EP weights and talents are TS presets in `presets.ts`:
+`PresetUtils.makePresetEpWeights` over a `Stats` map, and a talent preset is a `SavedTalents`, whose one field is the
+`talentsString`. An `onLoad` handler goes in a preset's options.
 
 `@i18n/*` resolves to `ui/i18n/*`, a top-level leaf that `app/` does not own. Sim, ui-kit and
 features reach it through that alias. `ui/i18n/**/*.{ts,tsx}` has its own `no-restricted-imports`
@@ -233,7 +230,7 @@ import { defineSpec } from '@sim/spec_config';
 export default defineSpec<Spec.SpecDpsWarrior>({
     spec: Spec.SpecDpsWarrior,          // identity
     className, cssScheme, epStats, displayStats, …,  // everything IndividualSimUIConfig declares
-    defaults: { … },
+    defaults: { ...PresetUtils.specDefaultsFromSettings(Spec.SpecDpsWarrior, Defaults), epWeights, … },
     presets: { … },
     reforge: { getEPDefaults, updateSoftCaps },      // optional — wires ReforgeOptimizer
     enableHealing: false,                            // optional — overrides the tank/healer default
@@ -338,12 +335,10 @@ in `rollupOptions.input`) instead of one near-identical chunk per page.
 landing page translates through `i18n.t` as it renders and calls `updateLandingPageMetadata` for
 its title and `<meta name="description">`.
 
-Anything shared by several specs of the same class lives in `ui/specs/<class>/shared/`, under a
-fixed name: `inputs.ts` for the input configs its specs share, and `presets.ts` for encounter
-presets, EP-breakpoint tables and a class's `DefaultRaidBuffs` where its specs share one raid-buff
-default. Only the classes that need it have the directory: `shaman/shared/inputs.ts` and
-`warrior/shared/{inputs,presets}.ts`. Druid's four specs and paladin's three share nothing at this
-level, so there is no `druid/shared/` or `paladin/shared/`.
+Input configs shared by several specs of the same class live in `ui/specs/<class>/shared/inputs.ts`.
+Only the classes whose specs share them have the directory: `priest/shared/`, `shaman/shared/` and
+`warrior/shared/`. Druid's four specs and paladin's three share nothing at this level, so there is no
+`druid/shared/` or `paladin/shared/`.
 
 If a rule ever has to be shared as a `DerivedSetting`, declare it `DerivedSetting<any>`. `Player<S>`
 is invariant in `S`, so a rule typed against a spec union is not assignable into any one spec's

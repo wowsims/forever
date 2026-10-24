@@ -1,0 +1,37 @@
+Hunter's Mark	hunters_mark
+Saf-T Ultra Precision Scope	saf_t_ultra_precision_scope
+Ez-Thro Dynamite II	ez_thro_dynamite_ii
+Lieutenant Commander's Chain Helmet	lieutenant_commanders_chain_helmet
+Enchant Cloak - Agility	enchant_cloak_agility
+Enchant 2H Weapon - Agility	enchant_2h_weapon_agility
+Slayer's Crest	slayers_crest
+Jom Gabbar	jom_gabbar
+Scroll of Strength IV	scroll_of_strength_iv
+Fahrad’s Reloading Repeater	fahrads_reloading_repeater
+Gri'lek's Charm of Might	grileks_charm_of_might
+Nat Pagle's Extreme Anglin' Boots	nat_pagles_extreme_anglin_boots
+'Quoted'	quoted
+it’s'’	its
+Mol'dar ' s Moxie	moldar_s_moxie
+Rank 3: Charge	rank_3_charge
+AQ40 Trinket	aq40_trinket
+3.5% Crit	3_5_crit
+100	100
+Mark of the Wild (Rank 7)	mark_of_the_wild_rank_7
+Atiesh, Greatstaff of the Guardian	atiesh_greatstaff_of_the_guardian
+Flask of Supreme Power/Distilled Wisdom	flask_of_supreme_power_distilled_wisdom
+A -- B	a_b
+__double__underscores__	double_underscores
+snake_case_already	snake_case_already
+[Shadow Bolt]	shadow_bolt
+"Quoted" Name	quoted_name
+`backtick`	backtick
+--- . ---	
+BloodFury	bloodfury
+HEROIC STRIKE	heroic_strike
+Pokémon Badge	pok_mon_badge
+Ünïcödé	n_c_d
+Naïve — Approach	na_ve_approach
+—	
+x	x
+Fire🔥Ball	fire_ball

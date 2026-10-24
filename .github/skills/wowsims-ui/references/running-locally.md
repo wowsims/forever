@@ -1,9 +1,9 @@
 # Running the sim locally
 
-**Source of truth:** `vite.config.mts`, `vite.build-workers.mts`, `tools/vite/spec_pages.mts`, `tools/vite/build_info.mts`,
-the `devserver` / `rundevserver` / `devmode` / `host` targets in the makefile, `ui/worker/local_worker.ts`, and for
-Storybook `.storybook/main.ts` and the `storybook:*` scripts in `package.json`. Read a target before copying a command
-from here:
+**Source of truth:** `vite.config.mts`, `vite.build-workers.mts`, `tools/vite/spec_pages.mts`, `tools/vite/siml.mts`,
+`tools/vite/build_info.mts`, the `devserver` / `rundevserver` / `devmode` / `host` targets in the makefile,
+`ui/worker/local_worker.ts`, and for Storybook `.storybook/main.ts` and the `storybook:*` scripts in `package.json`. Read
+a target before copying a command from here:
 
 ```
 /usr/bin/grep -n "^devserver:\|^rundevserver:\|^devmode:\|^host:" -A8 makefile
@@ -13,6 +13,25 @@ from here:
 
 `npm start` is `cross-env WATCH=1 make devmode`: it builds the Go dev server, runs `vite serve --host` and the worker
 build beside it, and reloads the Go binary through `air`. Use it unless you need one of the setups below.
+
+## `.siml` imports need Go
+
+`tools/vite/siml.mts` reads every `.siml` import (the presets under `ui/specs`) with the Go reader: the first one
+starts `wowsimcli siml serve -names sim/siml/names.json`, one per vite or vitest process, which answers each file
+over stdin and stdout until the process ends. It runs the binary `$WOWSIMCLI` names, else `bin/wowsimcli` when that
+file exists, else `go run ./cmd/wowsimcli` from the repository root, so the dev server, `vitest`, Storybook and
+`vite build` all need Go on the PATH. `make` builds `bin/wowsimcli` and rebuilds it when a Go file under `sim`,
+`cmd/wowsimcli` or `tools/spelldata` changes, and skips it when `$WOWSIMCLI` is set (`make bin/wowsimcli` on its own); the plugin does not check its age, so after a Go change
+outside `make`, rebuild it or delete it. It stays out of `dist`, which the pull request preview uploads whole to
+Cloudflare Pages, and Pages refuses a file over 25 MiB. `go run` costs about 0.3 s once the build cache holds the package, and a few
+seconds before; CI builds the binary once and exports `WOWSIMCLI`:
+
+```
+go build -o /tmp/wowsimcli ./cmd/wowsimcli && export WOWSIMCLI=/tmp/wowsimcli
+```
+
+No `with_db` tag is needed: the server reads the name table from `sim/siml/names.json`, again when it changes. A
+change to the Go reader itself takes effect on the next vite start, once the binary it runs is rebuilt.
 
 ## Two things a plain vite dev server cannot do
 
@@ -53,7 +72,7 @@ The Go host serves `dist/forever` from disk and answers the worker's sim request
 reference swap and timeline tooltips all work. The short form:
 
 ```
-make dist/forever/.dirstamp       # wasm, workers, the vite bundle, protos and the asset copy
+make dist/forever/.dirstamp       # wasm, workers, the vite bundle, protos, the SIML name table and the asset copy
 make devserver                    # go build -o wowsimforever ./sim/web
 tail -f /dev/null | ./wowsimforever --usefs=true --launch=false --host=":<port>"
 ```
@@ -101,7 +120,8 @@ Go host, the worker bundles or `dist/`: stories render against stub hosts.
 
 `.storybook/main.ts` collects `ui/**/*.mdx` and `ui/**/*.stories.tsx` and points the vite builder at
 `.storybook/vite.config.ts`. The builder would load `vite.config.mts` by default, which carries the site build's plugins;
-the Storybook config takes only `UI_ALIASES` from it, plus React, Tailwind and the i18next loader. `staticDirs` serves
+the Storybook config takes only `UI_ALIASES` from it, plus React, Tailwind, the i18next loader and the SIML plugin (`simlPlugin`, which
+`vitest.config.mts` registers too). `staticDirs` serves
 `assets/` under `/forever/assets`, where fonts and spec backgrounds are root-absolute. `.storybook/preview.tsx` imports
 `.storybook/storybook.css` (the Storybook stylesheet entry, see `ui/STYLING.md`), the i18n config and
 `ui/shared/page_boot.ts`, stubs `gtag`, and adds the spec toolbar and the `withSimUi` frame;

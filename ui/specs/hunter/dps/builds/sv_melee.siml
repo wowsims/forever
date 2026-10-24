@@ -1,0 +1,15 @@
+siml 1
+spec hunter
+talents "53200005021-005003-5502000300500221"
+use "../gear_sets/p1_melee.gear.siml"
+use "../apls/melee.apl.siml"
+
+settings:
+  distance_from_target 5
+  quiver_bonus ancient_sinew_wrapped_lamina
+  ammo thorium_headed_arrow
+  pet_type raptor
+  pet_uptime 1
+  cobra_reflexes
+  pet_aggression 5
+  pet_attack_speed faster_attack_ii

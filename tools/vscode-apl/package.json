@@ -1,0 +1,142 @@
+{
+	"name": "wowsims-apl",
+	"displayName": "WoWSims SIML",
+	"description": "The SIML language for rotations, gear sets and sim setups (*.siml): the repository's SIML language server (wowsimcli siml lsp) with diagnostics, completion, hover, navigation, formatting and code actions, and a panel that shows, edits and sims an .apl.siml rotation beside it.",
+	"version": "0.1.0",
+	"private": true,
+	"publisher": "wowsims",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.91.0"
+	},
+	"main": "./out/extension.js",
+	"activationEvents": [
+		"onWebviewPanel:wowsims-apl.editor",
+		"onLanguage:siml"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "wowsims-apl.openToSide",
+				"title": "WoWSims: Open APL Editor to the Side",
+				"icon": "$(list-tree)"
+			},
+			{
+				"command": "wowsims-apl.sim",
+				"title": "WoWSims: Sim This APL",
+				"icon": "$(play)"
+			},
+			{
+				"command": "wowsims-apl.compare",
+				"title": "WoWSims: Compare APL With Saved",
+				"icon": "$(diff)"
+			},
+			{
+				"command": "wowsims-apl.insertPattern",
+				"title": "WoWSims: Insert APL Pattern"
+			},
+			{
+				"command": "wowsims-apl.restartServer",
+				"title": "WoWSims: Restart SIML Server"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "wowsims-apl.openToSide",
+					"when": "resourceFilename =~ /\\.apl\\.siml$/",
+					"group": "navigation"
+				},
+				{
+					"command": "wowsims-apl.sim",
+					"when": "resourceFilename =~ /\\.apl\\.siml$/",
+					"group": "navigation"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "wowsims-apl.openToSide",
+					"when": "resourceFilename =~ /\\.apl\\.siml$/"
+				},
+				{
+					"command": "wowsims-apl.sim",
+					"when": "resourceFilename =~ /\\.apl\\.siml$/"
+				},
+				{
+					"command": "wowsims-apl.compare",
+					"when": "resourceFilename =~ /\\.apl\\.siml$/"
+				},
+				{
+					"command": "wowsims-apl.insertPattern",
+					"when": "resourceFilename =~ /\\.apl\\.siml$/"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "wowsims-apl.openToSide",
+				"key": "ctrl+k a",
+				"mac": "cmd+k a",
+				"when": "editorTextFocus && resourceFilename =~ /\\.apl\\.siml$/"
+			}
+		],
+		"configuration": {
+			"title": "WoWSims SIML",
+			"properties": {
+				"wowsims-apl.goBinary": {
+					"type": "string",
+					"default": "go",
+					"description": "The go binary that builds the SIML server (cmd/wowsimcli). `go` searches the PATH, then GOROOT and the usual install directories; set a full path if none of them has it. A full path that does not exist falls back to the same search."
+				},
+				"wowsims-apl.server": {
+					"type": "string",
+					"default": "",
+					"description": "A wowsimcli binary built with --tags=with_db to run as the SIML server (`wowsimcli siml lsp`) instead of the one the extension builds from the repository. Run WoWSims: Restart SIML Server after changing it."
+				},
+				"wowsims-apl.simIterations": {
+					"type": "number",
+					"default": 1000,
+					"minimum": 1,
+					"maximum": 100000,
+					"description": "Iterations per sim run from the editor."
+				},
+				"wowsims-apl.simSettingsFile": {
+					"type": "string",
+					"default": "",
+					"description": "Settings exported from the site, as JSON or SIML, which supply the character (gear, talents, race, consumables, buffs, encounter) for sims from the editor; a preset build (builds/*.siml) is loaded over its spec's defaults.siml. Empty uses the spec's defaults.siml, with the one preset build whose rotation is the saved file's loaded over it as the site loads a build."
+				}
+			}
+		},
+		"languages": [
+			{
+				"id": "siml",
+				"aliases": [
+					"SIML"
+				],
+				"extensions": [
+					".siml"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "siml",
+				"scopeName": "source.siml",
+				"path": "./syntaxes/siml.tmLanguage.json"
+			}
+		]
+	},
+	"scripts": {
+		"build": "node scripts/build.mjs",
+		"check": "node scripts/build.mjs --check",
+		"test": "node --test --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON test/*.test.mjs"
+	},
+	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"@types/vscode": "~1.91.0",
+		"esbuild": "0.28.2",
+		"typescript": "^5.9.3",
+		"vscode-languageclient": "10.1.1"
+	}
+}

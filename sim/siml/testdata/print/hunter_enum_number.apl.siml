@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+priority:
+  cast multi_shot if aura_is_active(hunters_mark, source_unit=`{"type":77}`)

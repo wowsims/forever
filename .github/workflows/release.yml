@@ -59,7 +59,8 @@ jobs:
 
             - name: Build 🔧
               run: |
-                  make clean && VERSION=${{ github.event.inputs.tag }} make release
+                  make clean
+                  VERSION=${{ github.event.inputs.tag }} make release
 
             - name: Release
               uses: ncipollo/release-action@v1

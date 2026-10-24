@@ -1,0 +1,16 @@
+5:13 error unknown-kind
+6:13 error unknown-kind
+7:3 error unknown-kind
+8:13 error unknown-kind
+9:14 error wrong-type
+10:21 error unknown-property
+11:13 error unknown-kind
+12:20 error unknown-kind
+13:20 error unknown-kind
+14:31 error unknown-field
+15:60 error duplicate-field
+16:47 error duplicate-field
+17:47 error positional-not-allowed
+18:26 error positional-not-allowed
+19:31 error positional-not-allowed
+20:84 error duplicate-field

@@ -1,0 +1,4 @@
+siml 1
+spec hunter
+
+use "rotation.apl.siml" with $use_summon_hawk = true

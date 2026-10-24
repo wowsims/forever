@@ -6,6 +6,7 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/wowsims/forever/sim/core/itemfit"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -488,41 +489,20 @@ func EnchantAppliesToItem(effectID int32, item Item) bool {
 
 // Takes no lock: it runs under the read lock through fittingEnchantRow.
 func enchantRowAppliesToItem(enchant Enchant, item Item) bool {
-	if enchant.EnchantType == proto.EnchantType_EnchantTypeTwoHand && item.HandType != proto.HandType_HandTypeTwoHand {
-		return false
-	}
-	if enchant.EnchantType == proto.EnchantType_EnchantTypeStaff && item.WeaponType != proto.WeaponType_WeaponTypeStaff {
-		return false
-	}
-	if (enchant.EnchantType == proto.EnchantType_EnchantTypeShield) != (item.WeaponType == proto.WeaponType_WeaponTypeShield) {
-		return false
-	}
-	if (enchant.EnchantType == proto.EnchantType_EnchantTypeOffHand) != (item.WeaponType == proto.WeaponType_WeaponTypeOffHand) {
-		return false
-	}
-	if enchant.Type == proto.ItemType_ItemTypeRanged {
-		if item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeBow && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeCrossbow && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeGun {
-			return false
-		}
-	} else if item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeUnknown && item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeWand {
-		return false
-	}
-	return CheckSliceOverlap(eligibleEnchantSlots(enchant), EligibleSlotsForItem(&item))
+	return itemfit.EnchantFits(enchant.fit(), item.fit())
 }
 
-func eligibleEnchantSlots(enchant Enchant) []proto.ItemSlot {
-	types := append([]proto.ItemType{enchant.Type}, enchant.ExtraTypes...)
-	slots := make([]proto.ItemSlot, 0, len(types)*2)
-	for _, itemType := range types {
-		if typeSlots, ok := ItemTypeToSlotsMap[itemType]; ok {
-			slots = append(slots, typeSlots...)
-			continue
-		}
-		if itemType == proto.ItemType_ItemTypeWeapon {
-			slots = append(slots, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand)
-		}
-	}
-	return slots
+// The slots an enchant's item types reach; a weapon enchant reaches both hands.
+func EligibleEnchantSlots(enchant Enchant) []proto.ItemSlot {
+	return itemfit.EnchantSlots(enchant.fit())
+}
+
+func (enchant Enchant) fit() itemfit.Enchant {
+	return itemfit.Enchant{Type: enchant.Type, EnchantType: enchant.EnchantType, ExtraTypes: enchant.ExtraTypes}
+}
+
+func (item Item) fit() itemfit.Item {
+	return itemfit.Item{Type: item.Type, HandType: item.HandType, WeaponType: item.WeaponType, RangedType: item.RangedWeaponType}
 }
 
 func (enchant Enchant) sameSlotRules(other Enchant) bool {
@@ -783,43 +763,12 @@ func ItemTypeToSlot(it proto.ItemType) proto.ItemSlot {
 
 // gen_db -gen=go-to-ts writes this to the UI as ITEM_TYPE_TO_SLOTS, read by getEligibleItemSlots in
 // ui/sim/proto/items.ts.
-var ItemTypeToSlotsMap = map[proto.ItemType][]proto.ItemSlot{
-	proto.ItemType_ItemTypeUnknown:  {},
-	proto.ItemType_ItemTypeHead:     {proto.ItemSlot_ItemSlotHead},
-	proto.ItemType_ItemTypeNeck:     {proto.ItemSlot_ItemSlotNeck},
-	proto.ItemType_ItemTypeShoulder: {proto.ItemSlot_ItemSlotShoulder},
-	proto.ItemType_ItemTypeBack:     {proto.ItemSlot_ItemSlotBack},
-	proto.ItemType_ItemTypeChest:    {proto.ItemSlot_ItemSlotChest},
-	proto.ItemType_ItemTypeWrist:    {proto.ItemSlot_ItemSlotWrist},
-	proto.ItemType_ItemTypeHands:    {proto.ItemSlot_ItemSlotHands},
-	proto.ItemType_ItemTypeWaist:    {proto.ItemSlot_ItemSlotWaist},
-	proto.ItemType_ItemTypeLegs:     {proto.ItemSlot_ItemSlotLegs},
-	proto.ItemType_ItemTypeFeet:     {proto.ItemSlot_ItemSlotFeet},
-	proto.ItemType_ItemTypeFinger:   {proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2},
-	proto.ItemType_ItemTypeTrinket:  {proto.ItemSlot_ItemSlotTrinket1, proto.ItemSlot_ItemSlotTrinket2},
-	proto.ItemType_ItemTypeRanged:   {proto.ItemSlot_ItemSlotRanged},
-	// ItemType_ItemTypeWeapon is excluded intentionally - the slot cannot be decided based on type alone for weapons.
-}
+var ItemTypeToSlotsMap = itemfit.TypeSlots
 
 // The item slots an item can occupy.
 func EligibleSlotsForItem(item *Item) []proto.ItemSlot {
 	if item == nil {
 		return nil
 	}
-	if slots, ok := ItemTypeToSlotsMap[item.Type]; ok {
-		return slots
-	}
-
-	if item.Type == proto.ItemType_ItemTypeWeapon {
-		switch item.HandType {
-		case proto.HandType_HandTypeTwoHand, proto.HandType_HandTypeMainHand:
-			return []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}
-		case proto.HandType_HandTypeOffHand:
-			return []proto.ItemSlot{proto.ItemSlot_ItemSlotOffHand}
-		case proto.HandType_HandTypeOneHand:
-			return []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}
-		}
-	}
-
-	return nil
+	return itemfit.ItemSlots(item.fit())
 }

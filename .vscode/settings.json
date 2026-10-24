@@ -49,15 +49,12 @@
 		"editor.formatOnSave": false,
 		"editor.defaultFormatter": "oxc.oxc-vscode"
 	},
+	"[siml]": {
+		"editor.defaultFormatter": "wowsims.wowsims-apl",
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2
+	},
 	"json.schemas": [
-		{
-			"fileMatch": ["*.apl.json"],
-			"url": "./schemas/apl_rotation.schema.json"
-		},
-		{
-			"fileMatch": ["*.gear.json"],
-			"url": "./schemas/gear.schema.json"
-		},
 		{
 			"fileMatch": ["assets/locales/**/translation.json"],
 			"url": "./schemas/translation.schema.json"

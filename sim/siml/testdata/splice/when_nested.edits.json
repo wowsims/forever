@@ -1,0 +1,12 @@
+[
+	{ "op": "set", "path": ["priorityList", 1, "action", "condition", "and", "vals", 3, "cmp", "rhs", "const", "val"], "value": "5s" },
+	{
+		"op": "set",
+		"path": ["priorityList", 2, "action", "condition"],
+		"value": {
+			"and": {
+				"vals": [{ "variableRef": { "name": "a" } }, { "cmp": { "op": "OpGt", "lhs": { "currentTime": {} }, "rhs": { "const": { "val": "3s" } } } }]
+			}
+		}
+	}
+]

@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+// An aura the spec knows only as an internal cooldown trigger reads in icd_is_ready, internal_cooldown and
+// trigger_icd, and nowhere else.
+priority:
+  cast aimed_shot if aura(icd_trigger).icd_is_ready
+  cast aimed_shot if aura(icd_trigger).internal_cooldown < 1s
+  trigger_icd(icd_trigger)
+  cast aimed_shot if aura(icd_trigger).is_active
+  // An item works the same way.
+  cast aimed_shot if aura(item.icd_item).icd_is_ready
+  cast aimed_shot if aura(item.icd_item).is_active
+  cast item.icd_item

@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -26,8 +27,10 @@ import (
 	proto "github.com/wowsims/forever/sim/core/proto"
 	reforgeoptimizer "github.com/wowsims/forever/sim/core/reforge_optimizer"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/siml"
 
 	googleProto "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func init() {
@@ -129,6 +132,48 @@ var handlers = map[string]apiHandler{
 		triggered := simsignals.AbortById(requestId)
 		return &proto.AbortResponse{RequestId: requestId, WasTriggered: triggered}
 	}},
+	"/simlParse": simlHandler(func() *proto.SimlParseRequest { return &proto.SimlParseRequest{} }, siml.ParseRequest),
+	"/simlPrint": simlHandler(func() *proto.SimlPrintRequest { return &proto.SimlPrintRequest{} }, siml.PrintRequest),
+}
+
+// The site the server serves, which holds the name table SIML requests read with.
+var siteFS fs.FS
+
+var (
+	simlNamesMu    sync.Mutex
+	simlNamesTable *siml.Names
+)
+
+// sim/siml/names.json, as the site serves it, read on the first SIML request that finds it: the server is built
+// without the with_db tag, so it holds no table of its own.
+func simlNames() (*siml.Names, error) {
+	simlNamesMu.Lock()
+	defer simlNamesMu.Unlock()
+	if simlNamesTable != nil {
+		return simlNamesTable, nil
+	}
+	data, err := fs.ReadFile(siteFS, "forever/siml_names.json")
+	if err != nil {
+		return nil, err
+	}
+	names, err := siml.ParseNames(data)
+	if err == nil {
+		simlNamesTable = names
+	}
+	return names, err
+}
+
+// The handler of a SIML request. When the name table does not read, the result's error says why.
+func simlHandler[Req, Res googleProto.Message](newReq func() Req, handle func(Req, *siml.Names) Res) apiHandler {
+	return apiHandler{msg: func() googleProto.Message { return newReq() }, handle: func(msg googleProto.Message) googleProto.Message {
+		names, err := simlNames()
+		result := handle(msg.(Req), names)
+		if err != nil {
+			m := result.ProtoReflect()
+			m.Set(m.Descriptor().Fields().ByName("error"), protoreflect.ValueOfString("the SIML name table does not read: "+err.Error()))
+		}
+		return result
+	}}
 }
 
 var asyncAPIHandlers = map[string]asyncAPIHandler{
@@ -364,9 +409,11 @@ func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName 
 	if useFS {
 		log.Printf("Using local file system for development.")
 		fs = http.FileServer(http.Dir("./dist"))
+		siteFS = os.DirFS("./dist")
 	} else {
 		log.Printf("Embedded file server running.")
 		fs = http.FileServer(http.FS(dist.FS))
+		siteFS = dist.FS
 	}
 
 	for route := range handlers {

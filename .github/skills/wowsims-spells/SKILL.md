@@ -133,6 +133,7 @@ go run ./tools/spelldata 11574                     # one row; -family warrior/Ex
 go run ./tools/database/gen_spelldata              # rewrite the store, the forms and every class file
 go run ./tools/database/gen_spelldata -check       # name what is stale, write nothing (make spelldata-check)
 go run tools/database/gen_db/*.go -outDir=./assets -gen=db   # db.json, db.bin, registrations, talent files
+make siml-names                           # add newly registered spells to the SIML name table; commit it with them
 go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database needed
 go test --tags=with_db ./sim/<class>/ -count=1     # without the tag: "No DB data for enchant"
 git status --porcelain -- '*.results'              # empty unless a number was meant to move
@@ -142,6 +143,14 @@ git status --porcelain -- '*.results'              # empty unless a number was m
 loses its file: check for a `D` afterwards, or `cp` the one `.tmp` you mean. An `rtk`-wrapped `go test`
 can exit 0 on a failing run, so read the summary line. Before committing a spell change, run the
 `wowsims-review` pass over the diff.
+
+## Names in SIML files
+
+Registering a spell adds its name to the SIML name table, `sim/siml/names.json`, when you run `make siml-names` (or `make siml`); builds read the committed table and never regenerate it, so commit the table with the spell. The rotations under `ui/specs` name spells and auras by this table, which the generator writes from what the sim registers: each spell id and tag gets a name from its game name (Hunter's Mark is `hunters_mark`) and lists the specs that register it. `TestTableKeepsItsEntries` in `sim/siml/gen`, which `go test --tags=with_db ./sim/...` runs, logs the names the table lacks and fails only when a committed entry comes back changed. Deploy and release build from the committed table, so a spell left out of it has no name on the site, and prints as a raw ref, until the table is regenerated and committed.
+
+The table is append-only. A name keeps its spell id, tag and rank whatever the sim registers later, and a regeneration changes only its `registeredBy` list. A spell registered under another id or tag therefore gets a new name, with a qualifier because the old entry keeps the plain one (`sim/siml/SPEC.md` §7.4 lists them). The old name stays pinned, the generator reports it (`stale: warrior.spell.eye_for_an_eye is pinned to spell 9799; the sim registers spell 25997`), and a rotation that still writes it fails the repository check, `siml fmt -check ui/specs`. A class spell whose plain name a shared entry already holds (a gear proc named after a class spell) gets a qualified name too, and the class's files keep meaning the shared spell by the plain one; the generator reports it on a `qualified:` line, and running it with the `-repin` that line names on the committed table (`git checkout sim/siml/names.json` first, when `make siml-names` has written the new entry) gives the class the plain name. `go run --tags=with_db ./sim/siml/cmd/simlnames -w -repin <class>.<namespace>.<name>` is the only way a name changes meaning: it names the entry again from what the sim registers now, prints the old and new meaning, lists the `ui/specs` files that use the name, and adds a `<name>: was …, now …` line to the repin record, `sim/siml/gen/repinned.txt`, which is committed with the table. Without `-w` it prints the table instead of writing it. On a pull request CI runs `go run ./sim/siml/cmd/simlnames -base HEAD^1`, which fails on any name of the base branch's table that means something else now, unless the pull request adds the name's line to the record. A name the generator added for a spell that is registered no more, and that `HEAD`'s table does not hold, it drops again on its next run, so work in progress leaves no name behind once it is undone.
+
+In a `.siml` file, the SIML language server (`wowsimcli siml lsp`, which `tools/vscode-apl` starts) shows a spell's row on a hover over its name, as `tools/spelldata -lsp` does in Go.
 
 ## When a sim number disagrees with the game files
 

@@ -1,0 +1,4 @@
+siml 1
+spec hunter
+use "../../parse/hunter_default.apl.siml" with $nope = 1, $use_summon_hawk = true
+use "../../parse/hunter_p1.gear.siml" with $x = 1

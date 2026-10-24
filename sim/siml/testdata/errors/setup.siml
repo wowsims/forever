@@ -1,0 +1,25 @@
+siml 1
+spec hunter
+
+settings:
+  race orcs
+  distance_from_target 11s
+  quiver_bonus 3
+  pet_uptime "full"
+  cobra_reflex
+  name "A", "B"
+  healing_model(hps=1, nope=2)
+  healing_model(hps=2)
+  weapon_skills(skill=axes, 3)
+  `{"race": "RaceOrc", "nope": 1}`
+
+consumables:
+  offensive_pot falcons_call
+  food steak
+  extra=[falcons_call]
+
+buffs: battle_shout
+
+encounter:
+  targets(stats(armor=1, armour=2))
+  targets(stats(armor=1, armor=2), target_inputs=[], target_inputs(label="x"))

@@ -1,0 +1,64 @@
+# The names simlnames -repin gave another meaning, one line each, as the run reports them (sim/siml/SPEC.md §7.4).
+# The check against a pull request's base branch accepts a name of the base's table that means something else, or
+# nothing, only when the pull request adds the name's line here. simlnames -w -repin writes the lines; keep them.
+hunter.aura.windfury_totem: was spell 10610 tag -1, now nothing
+hunter.aura.windfury_totem_10612: was spell 10612 tag -1, now nothing
+hunter.aura.windfury_totem_10614: was spell 10614 tag -1, now nothing
+hunter.pet_aura.windfury_totem: was spell 10610 tag -1, now nothing
+hunter.pet_aura.windfury_totem_10612: was spell 10612 tag -1, now nothing
+hunter.pet_aura.windfury_totem_10614: was spell 10614 tag -1, now nothing
+paladin.aura.windfury_totem: was spell 10610 tag -1, now nothing
+paladin.aura.windfury_totem_10612: was spell 10612 tag -1, now nothing
+paladin.aura.windfury_totem_10614: was spell 10614 tag -1, now nothing
+shaman.aura.windfury_totem_10610: was spell 10610 tag -1, now nothing
+shaman.aura.windfury_totem_10612: was spell 10612 tag -1, now nothing
+shaman.aura.windfury_totem_10614_external: was spell 10614 tag -1, now nothing
+warrior.aura.windfury_totem: was spell 10610 tag -1, now nothing
+warrior.aura.windfury_totem_10612: was spell 10612 tag -1, now nothing
+warrior.aura.windfury_totem_10614: was spell 10614 tag -1, now nothing
+shaman.spell.mana_tide_totem: was spell 17359 rank 3, now spell 1325256 rank 4
+shaman.spell.mana_tide_totem_rank4: was spell 1325256 rank 4, now nothing
+shaman.spell.lava_burst: was spell 1238300 rank 3, now spell 1326047 rank 4
+shaman.spell.lava_burst_rank2: was spell 1238299 rank 2, now nothing
+shaman.spell.lava_burst_rank4: was spell 1326047 rank 4, now nothing
+shaman.aura.mana_tide: was spell 17360, now spell 1325257
+shaman.aura.mana_tide_1325257_external: was spell 1325257 tag -1, now nothing
+shaman.aura.mana_tide_1325257_tag0: was spell 1325257, now nothing
+shaman.aura.mana_tide_external: was spell 17360 tag -1, now spell 1325257 tag -1
+shaman.spell.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+shaman.spell.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+hunter.aura.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+hunter.aura.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+hunter.pet_aura.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+hunter.pet_aura.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+hunter.spell.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+hunter.spell.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+warrior.aura.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+warrior.aura.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+warrior.spell.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+warrior.spell.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+paladin.aura.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+paladin.aura.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+paladin.spell.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+paladin.spell.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+priest.aura.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+priest.aura.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+priest.spell.mana_tide: was spell 17360 tag -1, now spell 1325257 tag -1
+priest.spell.mana_tide_1325257: was spell 1325257 tag -1, now nothing
+shared.aura.critical_weapon_2: was spell 22755, now spell 22755 tag 14
+shared.aura.critical_weapon_2_tag14: was spell 22755 tag 14, now nothing
+shared.aura.increase_spell_dam_undead_58: was spell 28890, now spell 28890 tag 14
+shared.aura.increase_spell_dam_undead_58_tag14: was spell 28890 tag 14, now nothing
+shared.aura.undead_slayer_99: was spell 28893, now spell 28893 tag 14
+shared.aura.undead_slayer_99_tag14: was spell 28893 tag 14, now nothing
+mage.spell.arcane_missiles: was spell 25345 rank 8, now spell 10212 rank 7
+mage.spell.arcane_missiles_25346: was spell 25346 rank 8, now nothing
+mage.spell.fireball_25306_tag0: was spell 25306 rank 12, now nothing
+mage.spell.fireball_tag1: was spell 25306 tag 1 rank 12, now spell 10151 tag 1 rank 11
+mage.spell.frostbolt_rank11: was spell 25304 rank 11, now nothing
+mage.target_aura.arcane_missiles: was spell 25345, now spell 10212
+mage.target_aura.arcane_missiles_10212: was spell 10212, now nothing
+mage.target_aura.fireball_25306: was spell 25306, now nothing
+shared.spell.fireball: was spell 18082, now nothing
+shared.spell.frostbolt: was spell 13439, now nothing
+shared.target_aura.fireball: was spell 133, now nothing

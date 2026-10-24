@@ -436,7 +436,8 @@
 					"never",
 					{
 						"css": "always",
-						"json": "always"
+						"json": "always",
+						"siml": "always"
 					}
 				]
 			},

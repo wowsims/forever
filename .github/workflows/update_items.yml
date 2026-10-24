@@ -124,6 +124,11 @@ jobs:
                   go test ./tools/database/
                   npm run type-check
 
+            # The SIML name table names every item, enchant and suffix of the database and every spell the sim
+            # registers, so the pull request carries the names a new row adds (sim/siml/SPEC.md §7.4).
+            - name: Regenerate the SIML name table
+              run: go run --tags=with_db ./sim/siml/cmd/simlnames -w
+
             # New item rows can move .results numbers, and the pull request is where they are reviewed,
             # so a failing test still opens it: the summary goes into its body and the job fails after.
             - name: Run the Go tests 🧪
@@ -167,7 +172,7 @@ jobs:
 
                       - Build: ${{ steps.build.outputs.version }}
                       - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
-                      - Ran `make db CLASSES=none SHARED=0 --cdn`; the Go builds, the generator tests pass and the UI type-checks
+                      - Ran `make db CLASSES=none SHARED=0 --cdn` and `simlnames`; the Go builds, the generator tests pass and the UI type-checks
 
                       ${{ steps.tests.outputs.summary }}
 

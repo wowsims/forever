@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+consumables:
+  offensive_pot major_frenzy_potion
+  flask flask_of_the_titans
+  food swiftstrike_steak
+  conjured demonic_rune
+  explosive ez_thro_dynamite_ii
+  mh_imbue elemental_sharpening_stone
+  potions major_frenzy_potion, major_mana_potion
+  extra goblin_sapper_charge
+  extra scroll_of_strength_iv
+  elixir_ids elixir_of_the_mongoose, greater_mageblood_elixir

@@ -53,7 +53,7 @@ resolver builds for that call. Each field shows the step that filled it (the row
 the row pick is substituted through the package's declarations.
 
 The same reading is available as an editor hover. `go run ./tools/spelldata -lsp` is a language server
-on stdio. A hover on an id in any of the forms Go, APL JSON and TS state it (`MustFind(11574)`,
+on stdio. A hover on an id in any of the forms Go, JSON and TS state it (`MustFind(11574)`,
 `SpellID: 11574`, `"spellId": 11574`, `fromSpellId(23563)`) shows the row, with the header and the
 effects as tables. In Go, a `spellData.<Family>` token shows the ladder, a name bound to a ladder chain
 shows the rank or the value it reads (substituted through the names it stands on, read from the open

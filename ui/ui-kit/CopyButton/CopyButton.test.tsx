@@ -67,6 +67,14 @@ describe('CopyButton', () => {
 		expect(button(container).querySelector('svg')?.getAttribute('data-icon')).toBe('copy');
 	});
 
+	it('copies nothing while disabled', () => {
+		const { container } = render(<CopyButton getContent={() => 'payload'} disabled />);
+
+		expect(button(container).disabled).toBe(true);
+		act(() => void fireEvent.click(button(container)));
+		expect(copied).toEqual([]);
+	});
+
 	it('anchors a tooltip only when it is given one', () => {
 		const { container } = render(<CopyButton getContent={() => 'x'} />);
 		expect(button(container).getAttribute('data-tooltip-id')).toBeNull();

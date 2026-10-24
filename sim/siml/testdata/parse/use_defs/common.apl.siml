@@ -1,0 +1,4 @@
+siml 1
+spec hunter
+
+def at_range = self.unit_distance > 5

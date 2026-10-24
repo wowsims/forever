@@ -1,0 +1,62 @@
+siml 1
+spec hunter
+use "weave_common.apl.siml" with $wait_at_melee = max(input_delay, $time_to_weave)
+
+var ${Melee weave} = true
+var ${Time to weave} = 100ms
+var ${Use Aimed Shot} = false
+var ${Use Multi-Shot} = true
+var ${Use Arcane Shot} = true
+var ${Use Summon Hawk} = false
+
+prepull:
+  -22s cast hunters_mark
+  -20s cast aspect_of_the_hawk
+  -19s move $pull_range
+
+priority:
+  autocast_other_cooldowns if current_time >= 5s and at_range
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast raptor_strike_tag1
+  cast mongoose_bite
+  cast strider_kick
+  cast immolation_trap_14305 if in_melee
+  cast wing_clip
+  cast serpent_sting if not dot(serpent_sting).is_active
+  reset_sequence("HHA") if hawk_and_arcane and sequence("HHA").is_complete
+  sequence "HHA" [cast summon_hawk, cast summon_hawk, cast arcane_shot] if hawk_and_arcane
+  cast summon_hawk if $use_summon_hawk and not $use_arcane_shot
+  cast arcane_shot if $use_arcane_shot and not $use_summon_hawk
+  cast multi_shot if $use_multi_shot
+  cast aimed_shot
+      if $use_aimed_shot
+      and (spell(aimed_shot).cast_time + $time_to_melee <= auto_time_to_next(main_hand_auto) or not $melee_weave)
+  /// Start of the fight, before the first weave: get to my spot without losing an Auto Shot.
+  group "Walk in" if self.unit_distance != $shoot_spot and $not_weaving_yet
+  group "Weave" if $melee_weave
+
+group "Weave":
+  wait gcd_time_to_ready if gcd_time_to_ready > 0s and gcd_time_to_ready <= 400ms
+  wait kick_wait if kick_soon
+  wait min(400ms, max(input_delay, 0s))
+      if at_range
+      and gcd_is_ready
+      and ($use_arcane_shot and shot_soon(arcane_shot) or $use_multi_shot and shot_soon(multi_shot))
+  wait min($wait_at_melee - auto_time_since_last(main_hand_auto), max(gcd_time_to_ready, input_delay))
+  wait min(auto_time_to_next(main_hand_auto) + input_delay, max(gcd_time_to_ready, input_delay))
+      if in_melee
+      and auto_time_to_next(main_hand_auto) <= min($time_to_range, auto_swing_time(main_hand) / 2)
+  when walk_in_now:
+    wait input_delay - auto_time_since_last(ranged_auto)
+    start_attack
+    move $melee_spot
+  move $shoot_spot
+  wait min($time_to_walk_in, max(gcd_time_to_ready, input_delay))
+      if $time_to_walk_in > 0s
+      and $weave_fits
+
+group "Walk in":
+  /// Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.
+  move $shoot_spot recheck if not shot_due_here
+  /// Standing for my Auto Shot.
+  wait input_delay

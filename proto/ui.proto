@@ -491,3 +491,45 @@ message DetailedResultsUpdate {
 		SimSettings settings = 2;
 	}
 }
+
+// SIML (sim/siml/SPEC.md), read and written by the sim for the site.
+
+// A problem in a SIML text, at lines and columns counted from 1; columns count UTF-16 code units.
+message SimlDiagnostic {
+	int32 start_line = 1;
+	int32 start_col = 2;
+	int32 end_line = 3;
+	int32 end_col = 4;
+	bool warning = 5; // An error otherwise.
+	string code = 6; // A code of SPEC.md §13, such as unknown-name.
+	string message = 7;
+}
+
+// Reads text as the file at path, whose double extension gives its kind. A use line is refused.
+message SimlParseRequest {
+	string path = 1;
+	string text = 2;
+}
+
+message SimlParseResult {
+	IndividualSimSettings settings = 1; // Unset when the text has an error.
+	Spec spec = 2; // The spec line's spec; SpecUnknown when the text writes none.
+	repeated string categories = 3; // The site's category letters of the sections the text holds.
+	repeated SimlDiagnostic diagnostics = 4; // The errors and warnings.
+	string error = 5; // Set when the text could not be read at all.
+}
+
+// Prints settings as a file of section (apl, gear, ..., or "" for a full setup) for spec. A full setup writes the
+// sections of categories, or with none every section that holds something.
+message SimlPrintRequest {
+	string section = 1;
+	Spec spec = 2;
+	IndividualSimSettings settings = 3;
+	repeated string categories = 4;
+}
+
+message SimlPrintResult {
+	string text = 1; // Empty when the print does not read back.
+	repeated SimlDiagnostic diagnostics = 2; // Why the print does not read back.
+	string error = 3;
+}

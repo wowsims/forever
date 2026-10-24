@@ -1,6 +1,6 @@
 ---
 name: wowsims-spec-implementation
-description: 'Use when picking up a WoWSims Forever "[Spec] Implement ..." tracking issue, porting a class or spec onto the spell data store and resolvers, or producing the talent and ability checklist for a spec that has no issue yet: deciding which game files content is actually live in Forever, working the checklist family by family, keeping a long-running class branch merged with master, and proving the work with tests that can actually see it. Use it whenever the task names a class or spec to implement or port, even without the word "issue". Single spell, proc or consumable fixes outside a port are wowsims-spells.'
+description: 'Use when picking up a WoWSims Forever "[Spec] Implement ..." tracking issue, porting a class or spec onto the spell data store and resolvers, or producing the talent and ability checklist for a spec that has no issue yet: deciding which game files content is actually live in Forever, working the checklist family by family, writing its SIML rotations and gear sets, keeping a long-running class branch merged with master, and proving the work with tests that can actually see it. Use it whenever the task names a class or spec to implement or port, even without the word "issue". Single spell, proc or consumable fixes outside a port are wowsims-spells.'
 argument-hint: 'Name the spec and the issue number to work from.'
 ---
 
@@ -58,6 +58,60 @@ weapon-bound talents of the classes still to port.
 Where the sim and the game files disagree, decide rather than assume ("When a sim number disagrees" in
 `wowsims-spells`), and record the decision at the call site.
 
+## Rotations, gear sets and builds
+
+A spec's presets are files under `ui/specs/<class>/<spec>/`. The hunter writes them in SIML, which
+`sim/siml/SPEC.md` describes, and the other specs keep JSON until their developers move them; `core.GetAplRotation`
+and `core.GetGearSet` read an `.apl.siml` or `.gear.siml` when one is there and the JSON otherwise. To move a spec,
+print each JSON file with `go run --tags=with_db ./cmd/wowsimcli siml print -kind apl|gear|siml -spec <field>`,
+check it with `siml verify`, and write the spec's `defaults.siml` as the hunter's is written.
+
+- `apls/<name>.apl.siml` holds a rotation. It opens with `siml 1` and `spec <field>`, the spec's field in the `spec`
+  oneof of `Player` in `proto/api.proto`: `hunter`, `dps_warrior`, `enhancement_shaman`.
+- `gear_sets/<name>.gear.siml` holds one slot row per item: `main_hand arcanite_reaper + weapon_crusader`.
+- `builds/<name>.siml` holds a whole setup, or a preset build the
+  site offers, which states only what it changes over `defaults.siml`. A `use` line takes a gear set or a rotation
+  from its own file, by a path from the build's folder: `use "../gear_sets/p1.gear.siml"`.
+- Rotations that share variables and defs `use` one file that holds only those, as the hunter's weave rotations use
+  `apls/weave_common.apl.siml` (SPEC.md §9): its defs and variables read in each rotation, which adds its own and
+  sets a shared variable's value with `use … with`.
+- `defaults.siml` holds the setup the spec's page starts with, a whole setup in the same form, with what the page
+  sets on top of it stated: the race, `reaction_time_ms 100`, the rotation type (`apl: type auto` when the spec has
+  no default rotation), for a tank `in_front_of_target` and `tanks player1`, and for a healer `target_dummies 9`.
+  `spec.ts` reads it through `PresetUtils.specDefaultsFromSettings`, and `wowsimcli siml sim` sims a rotation on it,
+  with the preset build that uses the rotation loaded over it; `wowsimcli sim --infile` loads a preset build over it
+  the same way.
+
+Every spell, aura, item and enchant is written by its name in the name table, `sim/siml/names.json`:
+`cast mortal_strike`, `target.aura(sunder_armor).num_stacks`, `cast item.goblin_sapper_charge`. A spell or aura has
+a name once the sim registers it, so register the spells first, then run `make siml-names` and commit
+the table with them. A `qualified:` line in its report needs a repin; `wowsims-spells`, "Names in SIML files", has
+how the table, repins and the repin record work. The site's Rotation tab writes a rotation with
+**Export SIML**. `make vscode-apl` builds the editor extension, which completes the names the file's spec registers
+(`tools/vscode-apl/README.md`). A name the table does not hold fails, with the names close to it:
+
+```
+$ go run --tags=with_db ./cmd/wowsimcli siml parse x.apl.siml
+x.apl.siml:5:8 unknown-name no spell is named mortal_strik; did you mean mortal_strike?
+x.apl.siml does not load
+```
+
+`presets.ts` imports each file through `tools/vite/siml.mts` as the JSON of its message: an `APLRotation`, an
+`EquipmentSpec`, or an `IndividualSimSettings` for a build.
+
+```ts
+import DefaultApl from './apls/default.apl.siml';
+import TestingBuildJson from './builds/testing.siml';
+import PreBiSGearJson from './gear_sets/prebis.gear.siml';
+
+export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson);
+export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.SpecEnhancementShaman, TestingBuildJson);
+```
+
+The Go suite reads the same files, for example `core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms")`
+and `core.GetGearSet("../../../ui/specs/warrior/dps/gear_sets", "p1_arms")`.
+
 A preset rotation is written against `docs/rotation.md`: the pick after a hardcast does not see that
 cast's outcome, so a line that reads a proc, a stack or a buff of another id the landing changes carries
 `not(Spell Is Casting(X))`, while a line refreshing the cast's own dot does not. Check the preset's cast
@@ -81,7 +135,14 @@ A port lives on one branch for a while, and master moves under it.
 go test --tags=with_db ./sim/<class>/... -count=1
 git status --porcelain -- '*.results'      # empty unless a number was meant to move
 make spelldata-check                       # the generated files match the database (needs wowsims.db)
+go run --tags=with_db ./cmd/wowsimcli siml fmt -check ui/specs/<class>   # each file reads and is in canonical form; -w writes it
 ```
+
+`siml fmt -check` fails on a `.siml` file under `ui/specs` that does not read cleanly, is not in canonical form, sits
+outside its class folder, or names a spell or aura its spec does not register; `go test --tags=with_db
+./cmd/wowsimcli/...` runs it over every file under `ui/specs`. `./sim/...` includes `sim/siml/gen`, whose
+`TestTableKeepsItsEntries` fails when a committed entry of the name table comes back changed and logs the names it
+lacks; `make siml-names` adds them.
 
 **A .results file that cannot move proves nothing.** Before reading a pass as evidence, grep the class's
 .results for the spell id you changed: a suite whose rotation never casts the spell passes whatever the

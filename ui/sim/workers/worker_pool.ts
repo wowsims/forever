@@ -24,6 +24,7 @@ import {
 	StatWeightsTopUpPlan,
 	StatWeightsTopUpRequest,
 } from '@generated/proto/api';
+import { SimlParseRequest, SimlParseResult, SimlPrintRequest, SimlPrintResult } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { AsyncSimRequest, SimRequest, WorkerReceiveMessage, WorkerSendMessage } from '@worker/types';
 
@@ -227,6 +228,14 @@ export class WorkerPool {
 	async raidSimResultCombination(request: RaidSimResultCombinationRequest): Promise<RaidSimResult> {
 		const result = await this.makeApiCall(SimRequest.raidSimResultCombination, RaidSimResultCombinationRequest.toBinary(request));
 		return RaidSimResult.fromBinary(result);
+	}
+
+	async simlParse(request: SimlParseRequest): Promise<SimlParseResult> {
+		return SimlParseResult.fromBinary(await this.makeApiCall(SimRequest.simlParse, SimlParseRequest.toBinary(request)));
+	}
+
+	async simlPrint(request: SimlPrintRequest): Promise<SimlPrintResult> {
+		return SimlPrintResult.fromBinary(await this.makeApiCall(SimRequest.simlPrint, SimlPrintRequest.toBinary(request)));
 	}
 
 	/**

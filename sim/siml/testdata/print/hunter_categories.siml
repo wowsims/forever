@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+talents ""
+
+gear:
+  head       lieutenant_commanders_chain_helmet
+
+consumables: offensive_pot major_frenzy_potion
+
+sim:
+
+apl:

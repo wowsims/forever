@@ -1,13 +1,16 @@
 package core
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/siml"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -234,11 +237,27 @@ func CharacterBenchmark(b *testing.B, config CharacterSuiteConfig) {
 	b.ReportMetric(dps, "dps")
 }
 
+// Reads a preset under ui/specs that a spec writes in SIML, with the files its use lines name: nil when there is no
+// such file, and the spec's JSON is read instead. One that does not read panics with its diagnostics.
+func readSIMLPreset(path string) *siml.File {
+	f, err := siml.ReadFile(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		panic(err)
+	}
+	return f
+}
+
 // The gear sets and encounter builds were removed with the rest of the TBC presets, so a
 // missing file is now an expected state rather than a broken checkout. log.Fatalf killed
 // the whole process and took the test output with it; returning an empty combo lets the
 // suite run and report a normal failure instead.
 func GetAplRotation(dir string, file string) RotationCombo {
+	if f := readSIMLPreset(dir + "/" + file + ".apl.siml"); f != nil {
+		return RotationCombo{Label: file, Rotation: f.Rotation()}
+	}
 	filePath := dir + "/" + file + ".apl.json"
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -250,6 +269,9 @@ func GetAplRotation(dir string, file string) RotationCombo {
 }
 
 func GetGearSet(dir string, file string) GearSetCombo {
+	if f := readSIMLPreset(dir + "/" + file + ".gear.siml"); f != nil {
+		return GearSetCombo{Label: file, GearSet: f.Equipment()}
+	}
 	filePath := dir + "/" + file + ".gear.json"
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -261,6 +283,9 @@ func GetGearSet(dir string, file string) GearSetCombo {
 }
 
 func GetItemSwapGearSet(dir string, file string) ItemSwapSetCombo {
+	if f := readSIMLPreset(dir + "/" + file + ".gear.siml"); f != nil {
+		return ItemSwapSetCombo{Label: file, ItemSwap: &proto.ItemSwap{Items: f.Equipment().Items}}
+	}
 	filePath := dir + "/" + file + ".gear.json"
 	data, err := os.ReadFile(filePath)
 	if err != nil {

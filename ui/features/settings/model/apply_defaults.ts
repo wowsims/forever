@@ -1,6 +1,7 @@
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Cooldowns, ItemSwap, Profession, type Spec } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
+import { Stats } from '@sim/proto/stats';
 import type { StatSweepSettings } from '@sim/settings/stat_sweep_settings';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -95,10 +96,15 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		player.setDistanceFromTarget(config.defaults.other?.distanceFromTarget || 0);
 		player.setChannelClipDelay(config.defaults.other?.channelClipDelay || 0);
 		player.setReactionTime(config.defaults.other?.reactionTime || 100);
+		// A spec whose defaults come from defaults.siml states where it stands, its dummies and its tanks there.
+		const fromFile = !!config.defaults.settings;
+		if (fromFile) player.setInFrontOfTarget(!!config.defaults.other?.inFrontOfTarget);
 
 		host.reforger?.applyDefaults();
 
-		sim.raid.setTargetDummies(healingSpec ? 9 : 0);
+		// A fight from defaults.siml brings its own count, where 0 is left out of the file.
+		const encounter = config.defaults.encounter;
+		sim.raid.setTargetDummies(fromFile && encounter ? (encounter.targetDummies ?? 0) : healingSpec ? 9 : 0);
 		if (config.defaults.encounter?.encounter) {
 			sim.encounter.fromProto(config.defaults.encounter.encounter);
 		} else {
@@ -114,7 +120,9 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 			sim.setIterations(config.defaults.other!.iterationCount!);
 		}
 
-		if (tankSpec) {
+		if (fromFile) {
+			sim.raid.setTanks(config.defaults.other?.tanks ?? []);
+		} else if (tankSpec) {
 			sim.raid.setTanks([player.makeUnitReference()]);
 		} else {
 			sim.raid.setTanks([]);
@@ -123,8 +131,27 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		host.statWeightActionSettings.applyDefaults();
 		host.statSweepSettings.applyDefaults();
 
+		applyFileDefaults(host);
+
 		if (config.defaultBuild) {
 			applyBuild(config.defaultBuild, host);
 		}
 	});
+}
+
+// What the spec's defaults.siml sets that has no field of its own in `defaults`: the cooldowns, bonus stats, EP
+// ratios, reference stats and reforge settings. A section the file does not hold keeps what the defaults above set.
+function applyFileDefaults<SpecType extends Spec>({ player, reforger, individualConfig: config }: DefaultsHost<SpecType>) {
+	const settings = config.defaults.settings;
+	if (!settings) {
+		return;
+	}
+	const file = settings.player;
+	if (file?.cooldowns) player.setSimpleCooldowns(file.cooldowns);
+	if (file?.bonusStats) player.setBonusStats(Stats.fromProto(file.bonusStats));
+	if (settings.epRatios.length) player.setEpRatios(settings.epRatios);
+	if (settings.dpsRefStat) player.setRefStat('dpsRefStat', settings.dpsRefStat);
+	if (settings.healRefStat) player.setRefStat('healRefStat', settings.healRefStat);
+	if (settings.tankRefStat) player.setRefStat('tankRefStat', settings.tankRefStat);
+	if (settings.reforgeSettings) reforger?.applyPresetSettings(settings.reforgeSettings);
 }

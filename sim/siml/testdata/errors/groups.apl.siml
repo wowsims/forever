@@ -1,0 +1,20 @@
+siml 1
+spec hunter
+
+priority:
+  group "Missing"
+  group "A" with %p = 1, %q = 2
+  reset_sequence("Missing")
+  cast x if sequence("Also missing").is_ready and sequence("S").is_complete
+  group_reference("Generic missing")
+
+group "A":
+  cast x if %p
+  group "B"
+
+group "B":
+  sequence "S" [cast x]
+  group "A"
+
+group "C":
+  group "C"

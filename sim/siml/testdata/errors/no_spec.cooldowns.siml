@@ -1,0 +1,5 @@
+siml 1
+
+// With no spec line, a class's names mean nothing.
+cooldowns(id=hunter_shot)
+cooldowns(id=shared_shot)

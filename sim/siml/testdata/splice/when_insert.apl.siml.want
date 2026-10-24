@@ -1,0 +1,18 @@
+siml 1
+spec hunter
+
+var $a = true
+var $b = true
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  when $a and $b:
+    cast rapid_fire
+    cast aimed_shot if current_time > 1s
+    cast mongoose_bite if current_time > 4s
+  cast aspect_of_the_hawk
+  when $a and $b:
+    cast multi_shot
+    cast serpent_sting if current_time > 2s
+  cast rapid_fire
+  cast arcane_shot

@@ -1,0 +1,185 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"variableRef": {
+								"name": "exact"
+							}
+						},
+						"rhs": {
+							"variableRef": {
+								"name": "Exact"
+							}
+						}
+					}
+				},
+				"groupReference": {
+					"groupName": "G"
+				}
+			}
+		},
+		{
+			"action": {
+				"groupReference": {
+					"groupName": "G",
+					"variables": [
+						{
+							"name": "p",
+							"value": {
+								"variableRef": {
+									"name": "Melee weave"
+								}
+							}
+						},
+						{
+							"name": "Q r",
+							"value": {
+								"const": {
+									"val": "1s"
+								}
+							}
+						}
+					]
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "G",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Melee weave"
+										}
+									},
+									{
+										"variablePlaceholder": {
+											"name": "p"
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"variablePlaceholder": {
+													"name": "Q r"
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "0s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpEq",
+											"lhs": {
+												"variableRef": {
+													"name": "exact"
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "1"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 5
+							}
+						}
+					}
+				}
+			],
+			"variables": [
+				{
+					"name": "Melee weave",
+					"value": {
+						"const": {
+							"val": "false"
+						}
+					}
+				},
+				{
+					"name": "In group",
+					"value": {
+						"variableRef": {
+							"name": "Melee weave"
+						}
+					}
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "Melee weave",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "exact",
+			"value": {
+				"const": {
+					"val": "1"
+				}
+			}
+		},
+		{
+			"name": "Exact",
+			"value": {
+				"const": {
+					"val": "2"
+				}
+			}
+		},
+		{
+			"name": "weave_again",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"variableRef": {
+								"name": "Melee weave"
+							}
+						},
+						{
+							"variableRef": {
+								"name": "Melee weave"
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "raw",
+			"value": {
+				"const": {
+					"val": "3"
+				}
+			}
+		}
+	]
+}

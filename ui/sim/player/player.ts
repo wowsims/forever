@@ -92,12 +92,15 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 export class UnitMetadata {
 	private name: string;
 	private auras: Array<AuraStats>;
+	// Internal cooldown triggers with no aura of their own; only icd_is_ready finds them.
+	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;
 
 	constructor() {
 		this.name = '';
 		this.auras = [];
+		this.icdAuras = [];
 		this.spells = [];
 		this.talents = [];
 	}
@@ -108,6 +111,10 @@ export class UnitMetadata {
 
 	getAuras(): Array<AuraStats> {
 		return this.auras.slice();
+	}
+
+	getIcdAuras(): Array<AuraStats> {
+		return this.icdAuras.slice();
 	}
 
 	getSpells(): Array<SpellStats> {
@@ -135,11 +142,14 @@ export class UnitMetadata {
 		});
 
 		const talentsFill = Promise.all(metadata.talents.map(talent => ActionId.fromProto(talent).fill()));
-		await Promise.all([...newSpells, ...newAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
+		let newIcdAuras = metadata!.icdAuras.map(aura => ({ data: aura, id: ActionId.fromProto(aura.id!) }));
+
+		await Promise.all([...newSpells, ...newAuras, ...newIcdAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
 		const newTalents = (await talentsFill).sort((a, b) => stringComparator(a.name, b.name));
 
 		newSpells = dropLoneRanks(newSpells).sort((a, b) => stringComparator(a.id.name, b.id.name));
 		newAuras = dropLoneRanks(newAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
+		newIcdAuras = dropLoneRanks(newIcdAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
 
 		let anyUpdates = false;
 		if (metadata.name != this.name) {
@@ -152,6 +162,10 @@ export class UnitMetadata {
 		}
 		if (newAuras.length != this.auras.length || newAuras.some((newAura, i) => !newAura.id.equals(this.auras[i].id))) {
 			this.auras = newAuras;
+			anyUpdates = true;
+		}
+		if (newIcdAuras.length != this.icdAuras.length || newIcdAuras.some((newAura, i) => !newAura.id.equals(this.icdAuras[i].id))) {
+			this.icdAuras = newIcdAuras;
 			anyUpdates = true;
 		}
 		if (newTalents.length != this.talents.length || newTalents.some((talent, i) => !talent.equalsAtRank(this.talents[i]))) {

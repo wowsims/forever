@@ -117,7 +117,37 @@ make spelldata
 # Needs no game files database and no sim that builds; make sim/core/proto/api.pb.go runs it before protoc
 go run ./tools/gen_buffs_proto
 
-# Run one sim from a RaidSimRequest in protojson and print the RaidSimResult
+# Run one sim from a RaidSimRequest in protojson, or from an x.siml (the request built as the site builds it;
+# with no encounter, against one default target), and print the RaidSimResult
+# A preset build, which names no race, is loaded over its spec's defaults.siml as the site loads it, and the command
+# says so; an auto or simple rotation, which the site builds into an APL, sims only the APL rows the file holds
 # Nothing migrates an input file: export the settings from the UI again after a proto change
-go run ./cmd/wowsimcli sim --infile input.json
+go run --tags=with_db ./cmd/wowsimcli sim --infile input.json
+
+# SIML files (sim/siml/SPEC.md); the siml commands need the name table, built in with --tags=with_db
+go run --tags=with_db ./cmd/wowsimcli siml parse [-json] x.apl.siml               # check a file loads, or print its proto
+go run --tags=with_db ./cmd/wowsimcli siml print -kind apl -spec hunter x.apl.json # print a JSON file as SIML
+go run --tags=with_db ./cmd/wowsimcli siml fmt -check ui/specs                    # list files not canonical or failing the check (SPEC.md §7.4)
+go run --tags=with_db ./cmd/wowsimcli siml verify x.apl.json x.apl.siml           # check a print reads back as its JSON
+
+# Sim the text of an .apl.siml for the APL editor: a JSON request on stdin, DPS, row counts, spells and a timeline
+# as JSON on stdout (the request and result are described in cmd/wowsimcli/cmd/siml_sim.go)
+echo '{"siml": "...", "path": "ui/specs/hunter/dps/apls/default.apl.siml"}' | go run --tags=with_db ./cmd/wowsimcli siml sim
+
+# The SIML language server on stdin and stdout, run from the repository root; the VS Code extension builds and starts
+# it (tools/vscode-apl/README.md)
+go run --tags=with_db ./cmd/wowsimcli siml lsp
+# Write the extension's TextMate grammar, which make vscode-apl does
+go run ./cmd/wowsimcli siml grammar -o .vscode/extensions/wowsims-apl/syntaxes/siml.tmLanguage.json
+# Write the wowsims-siml skill, the short guide with every action, value and accessor from proto/apl.proto, which make
+# siml does
+go run ./cmd/wowsimcli siml llm -o .github/skills/wowsims-siml/SKILL.md
+
+# Add names for newly registered spells and new database rows to the SIML name table; commit it with the change
+make siml-names
+# Before committing, and after a change to proto/apl.proto: the name table as above, the wowsims-siml skill, then siml
+# fmt -check over ui/specs
+make siml
+# The wowsimcli vite reads .siml imports with (tools/vite/siml.mts); make builds it, and rebuilds it after a Go change
+make bin/wowsimcli
 ```

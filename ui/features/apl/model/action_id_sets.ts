@@ -122,7 +122,12 @@ export const actionIdSets: Record<
 	},
 	icd_auras: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.icd_auras'),
-		getActionIDs: async metadata => auraOptions(metadata.getAuras(), aura => aura.data.hasIcd),
+		getActionIDs: async metadata => {
+			// A trigger listed by the id of the aura it applies is that aura's entry once.
+			const listed = new Set(metadata.getAuras().map(aura => aura.id.toString()));
+			const triggers = metadata.getIcdAuras().filter(aura => !listed.has(aura.id.toString()));
+			return auraOptions([...metadata.getAuras(), ...triggers], aura => aura.data.hasIcd);
+		},
 	},
 	exclusive_effect_auras: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.exclusive_effect_auras'),
