@@ -56,1056 +56,1056 @@ character_stats_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 675.66641
-  tps: 284.15853
-  dtps: 4.78251
+  dps: 675.86137
+  tps: 284.16843
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-AegisoftheScarletCommander-7726"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-AnkhofLife-1713"
  value: {
-  dps: 686.43876
-  tps: 290.32111
-  dtps: 4.98616
+  dps: 686.62176
+  tps: 290.37154
+  dtps: 5.00455
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Annihilator-12798"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ArcaneInfusedGem-19336"
  value: {
-  dps: 688.06127
-  tps: 291.63598
-  dtps: 4.79838
+  dps: 688.23874
+  tps: 291.61459
+  dtps: 4.82433
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ArcaniteChampion-12790"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 693.42711
-  tps: 295.26929
-  dtps: 4.78251
+  dps: 693.62462
+  tps: 295.28124
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BarbaricBelt-4264"
  value: {
-  dps: 681.62598
-  tps: 287.5763
-  dtps: 4.78251
+  dps: 681.82223
+  tps: 287.58723
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sBoots-22061"
  value: {
-  dps: 694.87273
-  tps: 290.35294
-  dtps: 4.78251
+  dps: 695.07587
+  tps: 290.36459
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sCap-22013"
  value: {
-  dps: 688.97641
-  tps: 290.35177
-  dtps: 4.73756
+  dps: 689.53862
+  tps: 290.50475
+  dtps: 4.6983
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sGloves-22015"
  value: {
-  dps: 692.86996
-  tps: 290.52588
-  dtps: 4.62119
+  dps: 693.60512
+  tps: 290.60203
+  dtps: 4.58193
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BlackGraspoftheDestroyer-22194"
  value: {
-  dps: 685.46341
-  tps: 290.38814
-  dtps: 4.30627
+  dps: 686.08694
+  tps: 290.71868
+  dtps: 4.60054
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BladeofHanna-2801"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 689.8
-  tps: 292.44767
-  dtps: 4.78251
+  dps: 689.99855
+  tps: 292.46045
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BlazingEmblem-2802"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BlazingRapier-12777"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BloodGuard'sChainGauntlets-16530"
  value: {
-  dps: 684.68117
-  tps: 289.17517
-  dtps: 4.81724
+  dps: 684.86641
+  tps: 289.21437
+  dtps: 4.83229
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BloodGuard'sChainVices-22862"
  value: {
-  dps: 691.30229
-  tps: 292.83525
-  dtps: 4.78251
+  dps: 691.50019
+  tps: 292.84745
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BloodTalon-12795"
  value: {
-  dps: 669.31521
-  tps: 280.4461
-  dtps: 4.78251
+  dps: 669.50932
+  tps: 280.45531
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 671.57951
-  tps: 283.33709
-  dtps: 4.44376
+  dps: 671.42876
+  tps: 283.28856
+  dtps: 4.52162
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BramblebarkBarrier-275649"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-BristleconeCloak-275833"
  value: {
-  dps: 679.28969
-  tps: 286.2646
-  dtps: 4.78251
+  dps: 679.48557
+  tps: 286.27524
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-CloakofFire-14134"
  value: {
-  dps: 679.28969
-  tps: 286.2646
-  dtps: 4.78251
+  dps: 679.48557
+  tps: 286.27524
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-CloakofFlames-3475"
  value: {
-  dps: 679.39674
-  tps: 286.33953
-  dtps: 4.78251
+  dps: 679.59262
+  tps: 286.35017
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ColdBasiliskEye-5079"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-CryptstalkerArmor"
  value: {
-  dps: 776.07218
-  tps: 334.51175
+  dps: 776.2335
+  tps: 334.55747
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DarkmantleArmor"
  value: {
-  dps: 684.98967
-  tps: 288.07444
-  dtps: 4.66098
+  dps: 685.54285
+  tps: 288.2536
+  dtps: 4.62668
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Darkspear-12802"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DeathmistRaiment"
  value: {
-  dps: 614.63688
-  tps: 252.81099
+  dps: 614.88443
+  tps: 252.96831
   dtps: 4.70688
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Defender'sGripStabilizer-272440"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Doombringer-13053"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DormantHeartoftheMountain-249473"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.71595
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.67669
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DragonscaleBreastplate-8367"
  value: {
-  dps: 670.58974
-  tps: 281.42082
-  dtps: 4.55617
+  dps: 670.77831
+  tps: 281.4587
+  dtps: 4.52186
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-DreadmistRaiment"
  value: {
-  dps: 601.03724
-  tps: 245.7234
-  dtps: 3.95746
+  dps: 601.40365
+  tps: 245.83389
+  dtps: 3.9553
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EarthenSigil-20525"
  value: {
-  dps: 686.48052
-  tps: 291.48068
+  dps: 686.6762
+  tps: 291.49537
   dtps: 4.59609
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Earthstrike-21180"
  value: {
-  dps: 698.34082
-  tps: 297.0366
-  dtps: 4.78251
+  dps: 698.54829
+  tps: 297.05811
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EbonHand-19170"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 694.21933
-  tps: 293.35112
-  dtps: 4.70325
+  dps: 694.87248
+  tps: 293.49723
+  dtps: 4.664
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantBoots-MinorSpeed-911"
  value: {
-  dps: 687.17179
-  tps: 290.15449
-  dtps: 4.78251
+  dps: 687.36886
+  tps: 290.16609
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantChest-Absorption-8220"
  value: {
-  dps: 686.86936
-  tps: 289.92041
-  dtps: 4.69954
+  dps: 687.06052
+  tps: 289.96037
+  dtps: 4.66523
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantChest-LesserAbsorption-63"
  value: {
-  dps: 686.86936
-  tps: 289.92041
-  dtps: 4.69954
+  dps: 687.06052
+  tps: 289.96037
+  dtps: 4.66523
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantChest-MinorAbsorption-44"
  value: {
-  dps: 686.86936
-  tps: 289.92041
-  dtps: 4.69954
+  dps: 687.06052
+  tps: 289.96037
+  dtps: 4.66523
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantCloak-Subtlety-2621"
  value: {
-  dps: 687.17179
-  tps: 284.63067
-  dtps: 4.78251
+  dps: 687.36886
+  tps: 284.64199
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantGloves-Threat-2613"
  value: {
-  dps: 684.44129
-  tps: 294.5588
-  dtps: 4.78251
+  dps: 684.63799
+  tps: 294.57037
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Crusader-1900"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Recovery-8721"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 676.78269
-  tps: 284.87907
-  dtps: 4.78251
+  dps: 676.97813
+  tps: 284.88935
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EssenceofthePureFlame-18815"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EverlookDeliveryBot-274760"
  value: {
-  dps: 689.29317
-  tps: 292.37553
-  dtps: 4.78251
+  dps: 689.49068
+  tps: 292.38748
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EyeofDiminution-23001"
  value: {
-  dps: 697.48538
-  tps: 293.80243
-  dtps: 4.62119
+  dps: 698.32269
+  tps: 293.94083
+  dtps: 4.58193
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EyeofMoam-21473"
  value: {
-  dps: 687.87928
-  tps: 291.38581
-  dtps: 4.87978
+  dps: 688.07679
+  tps: 291.39776
+  dtps: 4.83562
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FeralheartRaiment"
  value: {
-  dps: 629.5004
-  tps: 262.55753
-  dtps: 3.41872
+  dps: 630.02935
+  tps: 262.59262
+  dtps: 3.45268
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Ferra'sCollar-18355"
  value: {
-  dps: 691.29414
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 691.49564
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FetishofChitinousSpikes-21488"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FetishoftheSandReaver-21647"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FieryWarAxe-870"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 684.33001
-  tps: 288.99691
-  dtps: 4.78251
+  dps: 684.5003
+  tps: 289.01551
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FlurryAxe-871"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ForceReactiveDisk-18168"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Frostguard-12797"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 686.52657
-  tps: 290.43891
-  dtps: 4.71595
+  dps: 686.72408
+  tps: 290.45087
+  dtps: 4.67669
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-FurbolgMedicinePouch-16768"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GauntletsoftheSea-8346"
  value: {
-  dps: 682.55411
-  tps: 288.08545
-  dtps: 4.78251
+  dps: 682.75051
+  tps: 288.09651
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-General'sChainGloves-16571"
  value: {
-  dps: 699.26226
-  tps: 295.60646
-  dtps: 4.69447
+  dps: 700.02042
+  tps: 295.74549
+  dtps: 4.65522
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GirdleofReprisal-11861"
  value: {
-  dps: 681.62598
-  tps: 287.5763
-  dtps: 4.78251
+  dps: 681.82223
+  tps: 287.58723
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GlacialBlade-19099"
  value: {
-  dps: 694.21933
-  tps: 293.35112
-  dtps: 4.70325
+  dps: 694.87248
+  tps: 293.49723
+  dtps: 4.664
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GlyphofDeflection-23040"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GnomishHarmPreventionBelt-10721"
  value: {
-  dps: 681.62598
-  tps: 287.5763
-  dtps: 4.78251
+  dps: 681.82223
+  tps: 287.58723
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 675.66641
-  tps: 284.15853
-  dtps: 4.78251
+  dps: 675.86137
+  tps: 284.16843
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GoldenBanana-270226"
  value: {
-  dps: 687.41102
-  tps: 290.90871
-  dtps: 4.78251
+  dps: 687.60853
+  tps: 290.92066
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GrandMarshal'sAegis-18825"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Graverobber'sShovel-273817"
  value: {
-  dps: 691.69068
-  tps: 292.62083
-  dtps: 4.78251
+  dps: 691.88864
+  tps: 292.63313
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GrimReaper-13054"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 669.31521
-  tps: 280.4461
-  dtps: 4.78251
+  dps: 669.50932
+  tps: 280.45531
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-GutRipper-2164"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 669.31521
-  tps: 280.4461
-  dtps: 4.78251
+  dps: 669.50932
+  tps: 280.45531
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HandofEdwardtheOdd-2243"
  value: {
-  dps: 692.24265
-  tps: 292.92127
-  dtps: 4.88781
+  dps: 692.43625
+  tps: 292.93312
+  dtps: 4.88576
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HanzoSword-8190"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HeartseekingCrossbow-13040"
  value: {
-  dps: 678.55915
-  tps: 285.91914
-  dtps: 4.43344
+  dps: 677.53346
+  tps: 285.93112
+  dtps: 4.45113
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HelmofFire-8348"
  value: {
-  dps: 687.49067
-  tps: 290.05009
-  dtps: 4.56748
+  dps: 687.94509
+  tps: 290.10886
+  dtps: 4.59343
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-HighWarlord'sShieldWall-18826"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-JomGabbar-23570"
  value: {
-  dps: 701.44664
-  tps: 298.8941
-  dtps: 4.78251
+  dps: 701.64243
+  tps: 298.90799
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 701.29632
-  tps: 298.85481
+  dps: 701.07982
+  tps: 299.00118
   dtps: 4.55101
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Knight-Lieutenant'sChainGauntlets-16403"
  value: {
-  dps: 684.68117
-  tps: 289.17517
-  dtps: 4.81724
+  dps: 684.86641
+  tps: 289.21437
+  dtps: 4.83229
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Knight-Lieutenant'sChainVices-23279"
  value: {
-  dps: 691.30229
-  tps: 292.83525
-  dtps: 4.78251
+  dps: 691.50019
+  tps: 292.84745
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-LapidisTankardofTidesippe-4696"
  value: {
-  dps: 690.67594
-  tps: 291.5101
+  dps: 690.87184
+  tps: 291.52552
   dtps: 4.8203
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 686.76608
-  tps: 292.50737
+  dps: 687.33922
+  tps: 292.63426
   dtps: 4.27743
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 669.31521
-  tps: 280.4461
-  dtps: 4.78251
+  dps: 669.50932
+  tps: 280.45531
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.64132
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.60698
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 690.8712
-  tps: 292.15521
-  dtps: 4.78251
+  dps: 691.06897
+  tps: 292.16737
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Magister'sRegalia"
  value: {
-  dps: 609.23876
-  tps: 250.48569
-  dtps: 4.43859
+  dps: 609.67836
+  tps: 250.28411
+  dtps: 4.33184
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MajorRecombobulator-18637"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ManualCrowdPummeler-9449"
  value: {
-  dps: 691.85274
-  tps: 292.08238
-  dtps: 4.73756
+  dps: 692.41768
+  tps: 292.23728
+  dtps: 4.6983
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MarkofResolution-17759"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheChampion-23206"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheChampion-23207"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheRedFlight-282778"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Marshal'sChainGrips-16463"
  value: {
-  dps: 699.26226
-  tps: 295.60646
-  dtps: 4.69447
+  dps: 700.02042
+  tps: 295.74549
+  dtps: 4.65522
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 688.75955
-  tps: 291.85403
-  dtps: 4.71595
+  dps: 688.95754
+  tps: 291.86632
+  dtps: 4.67669
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Nightblade-1982"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Nightfall-19169"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ObsidianMailTunic-22191"
  value: {
-  dps: 676.1295
-  tps: 282.89049
+  dps: 676.76054
+  tps: 283.02801
   dtps: 4.65411
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-OrbofFire-12805"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PetrifiedScarab-21685"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PhantomBlade-7961"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PremierChainGauntlets-272495"
  value: {
-  dps: 687.48201
-  tps: 291.25749
-  dtps: 4.78251
+  dps: 687.67935
+  tps: 291.26925
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PremierChainmailGauntlets-272715"
  value: {
-  dps: 687.48201
-  tps: 291.25749
-  dtps: 4.78251
+  dps: 687.67935
+  tps: 291.26925
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PremierChampion'sChainGloves-272536"
  value: {
-  dps: 689.34959
-  tps: 292.25641
-  dtps: 4.78251
+  dps: 689.54731
+  tps: 292.26847
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PremierGrandMarshal'sAegis-272838"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PremierHighWarlord'sShieldWall-272591"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-PremierLieutenantCommander'sChainmailGrips-272772"
  value: {
-  dps: 689.34959
-  tps: 292.25641
-  dtps: 4.78251
+  dps: 689.54731
+  tps: 292.26847
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Ravager-7717"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Renataki'sCharmofBeasts-19953"
  value: {
-  dps: 689.38719
-  tps: 293.2185
-  dtps: 4.77739
+  dps: 690.44672
+  tps: 293.27
+  dtps: 4.71256
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-RingofSaviors-1447"
  value: {
-  dps: 684.33001
-  tps: 288.99691
-  dtps: 4.78251
+  dps: 684.5003
+  tps: 289.01551
+  dtps: 4.74326
  }
 }
 dps_results: {
@@ -1125,1188 +1125,1188 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-SerenityField-272439"
  value: {
-  dps: 686.44287
-  tps: 290.39566
-  dtps: 4.77631
+  dps: 686.64246
+  tps: 290.37428
+  dtps: 4.80226
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ShadowcraftArmor"
  value: {
-  dps: 661.49459
-  tps: 277.22684
-  dtps: 4.56132
+  dps: 661.87362
+  tps: 277.3256
+  dtps: 4.54181
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 689.20604
-  tps: 292.43093
-  dtps: 4.79838
+  dps: 689.38351
+  tps: 292.40954
+  dtps: 4.82433
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 697.49181
-  tps: 296.56175
-  dtps: 4.78251
+  dps: 697.69857
+  tps: 296.58257
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.71595
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.67669
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 613.27003
-  tps: 251.35897
-  dtps: 4.3819
+  dps: 613.4555
+  tps: 251.33354
+  dtps: 4.24576
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-StormGauntlets-12632"
  value: {
-  dps: 679.28969
-  tps: 286.2646
-  dtps: 4.78251
+  dps: 679.48557
+  tps: 286.27524
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-SwordofZeal-6622"
  value: {
-  dps: 669.31521
-  tps: 280.4461
-  dtps: 4.78251
+  dps: 669.50932
+  tps: 280.45531
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Teebu'sBlazingLongsword-1728"
  value: {
-  dps: 669.31521
-  tps: 280.4461
-  dtps: 4.78251
+  dps: 669.50932
+  tps: 280.45531
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TheGreenTower-1204"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TheNeedler-13060"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ThrashBlade-17705"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 686.45678
-  tps: 290.38291
-  dtps: 4.81724
+  dps: 686.64276
+  tps: 290.42278
+  dtps: 4.83229
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Thunderstrike-17223"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ToySoldier-274386"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 597.25736
-  tps: 244.52386
-  dtps: 3.02501
+  dps: 598.25565
+  tps: 244.929
+  dtps: 3.04091
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-VestmentsoftheVirtuous"
  value: {
-  dps: 600.19602
-  tps: 243.69933
+  dps: 600.60372
+  tps: 243.7442
   dtps: 0.63134
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-VileProtector-7747"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-WalloftheDead-1979"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 686.42217
-  tps: 291.77472
-  dtps: 4.6695
+  dps: 686.61968
+  tps: 291.76731
+  dtps: 4.68043
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 686.8035
-  tps: 290.67989
-  dtps: 4.84638
+  dps: 687.06195
+  tps: 290.74303
+  dtps: 4.80713
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-WildheartRaiment"
  value: {
-  dps: 600.38149
-  tps: 246.48265
-  dtps: 3.15656
+  dps: 601.36884
+  tps: 246.79607
+  dtps: 3.38969
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Witchfury-13051"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 684.33001
-  tps: 288.99691
-  dtps: 4.78251
+  dps: 684.5003
+  tps: 289.01551
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ZandalarianHeroBadge-19948"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 686.45473
-  tps: 290.38863
-  dtps: 4.78251
+  dps: 686.65224
+  tps: 290.40058
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ZandalarianHeroMedallion-19949"
  value: {
-  dps: 690.62537
-  tps: 293.30807
-  dtps: 4.78251
+  dps: 690.8325
+  tps: 293.32676
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-Average-Default"
  value: {
-  dps: 694.18408
-  tps: 294.12208
-  dtps: 4.54182
+  dps: 694.16364
+  tps: 294.10597
+  dtps: 4.54485
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bat-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 945.125
-  tps: 471.87637
-  dtps: 1.99573
+  dps: 944.67701
+  tps: 471.83054
+  dtps: 1.7709
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bat-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 689.619
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 689.81651
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bat-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 718.28962
-  tps: 301.07794
+  dps: 718.40895
+  tps: 301.06501
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bat-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 299.46574
-  tps: 146.47986
+  dps: 299.69111
+  tps: 146.70741
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bat-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 284.99532
-  tps: 132.99219
+  dps: 285.13363
+  tps: 132.87571
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bat-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 354.57282
-  tps: 185.89445
+  dps: 354.43047
+  tps: 185.88197
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bear-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 930.71777
-  tps: 472.39952
-  dtps: 1.8825
+  dps: 930.46641
+  tps: 472.26864
+  dtps: 1.63768
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bear-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 664.79728
-  tps: 291.93053
-  dtps: 4.46135
+  dps: 665.78101
+  tps: 292.07698
+  dtps: 4.39779
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bear-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 692.43756
-  tps: 299.62346
+  dps: 693.04863
+  tps: 300.01141
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bear-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 290.15406
-  tps: 146.22914
+  dps: 289.77062
+  tps: 145.90333
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bear-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 269.01707
-  tps: 132.18716
+  dps: 269.4831
+  tps: 132.47687
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Bear-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 340.7267
-  tps: 184.78054
+  dps: 340.10453
+  tps: 185.12177
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-BirdOfPrey-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 953.42236
-  tps: 470.57664
-  dtps: 1.91626
+  dps: 952.74278
+  tps: 470.18762
+  dtps: 1.70535
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-BirdOfPrey-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 701.14412
-  tps: 290.37009
+  dps: 701.59821
+  tps: 290.46352
   dtps: 4.40047
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-BirdOfPrey-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 730.77536
-  tps: 297.02425
+  dps: 731.58748
+  tps: 297.52662
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-BirdOfPrey-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 304.85138
-  tps: 145.47848
+  dps: 305.09847
+  tps: 145.44986
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-BirdOfPrey-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 292.83489
-  tps: 133.36091
+  dps: 292.21706
+  tps: 132.95272
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-BirdOfPrey-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 367.26129
-  tps: 186.37331
+  dps: 366.94539
+  tps: 185.75457
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Boar-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 908.15115
-  tps: 472.58272
-  dtps: 2.48345
+  dps: 908.69806
+  tps: 472.458
+  dtps: 1.92609
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Boar-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 652.08011
-  tps: 292.45594
+  dps: 652.0729
+  tps: 292.46753
   dtps: 4.6886
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Boar-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 679.25045
-  tps: 300.62772
+  dps: 679.25742
+  tps: 300.62697
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Boar-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 275.06727
-  tps: 146.3916
+  dps: 275.3582
+  tps: 146.33869
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Boar-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 263.31627
-  tps: 133.03218
+  dps: 263.7841
+  tps: 132.88782
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Boar-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 333.74364
-  tps: 185.93252
+  dps: 334.07163
+  tps: 185.90433
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CarrionBird-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 938.95336
-  tps: 471.24696
-  dtps: 2.25253
+  dps: 939.05421
+  tps: 470.88945
+  dtps: 1.97346
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CarrionBird-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 688.71309
-  tps: 293.09686
-  dtps: 4.6888
+  dps: 689.6476
+  tps: 293.72184
+  dtps: 4.51728
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CarrionBird-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 719.10479
-  tps: 300.46868
+  dps: 718.51236
+  tps: 300.46114
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CarrionBird-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 297.35685
-  tps: 146.5698
+  dps: 296.83146
+  tps: 146.26154
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CarrionBird-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 284.63172
-  tps: 132.44471
+  dps: 284.54241
+  tps: 132.44744
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CarrionBird-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 358.54179
-  tps: 186.31562
+  dps: 357.69679
+  tps: 186.15337
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Cat-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 968.66483
-  tps: 472.96184
-  dtps: 2.11241
+  dps: 968.32131
+  tps: 472.85559
+  dtps: 2.38828
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Cat-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 711.00199
-  tps: 293.10549
-  dtps: 4.81841
+  dps: 710.66518
+  tps: 293.5384
+  dtps: 4.7293
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Cat-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 743.71162
-  tps: 301.72583
+  dps: 742.73851
+  tps: 301.55574
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Cat-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 313.5816
-  tps: 146.50187
+  dps: 313.64364
+  tps: 146.37484
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Cat-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 297.59151
-  tps: 132.75705
+  dps: 297.62837
+  tps: 132.95015
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Cat-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 373.30394
-  tps: 186.39065
+  dps: 372.70562
+  tps: 186.33262
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CoreHound-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 958.43323
-  tps: 473.02072
-  dtps: 1.75417
+  dps: 958.14846
+  tps: 473.29164
+  dtps: 1.9067
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CoreHound-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 690.92625
-  tps: 292.63419
-  dtps: 4.70888
+  dps: 690.3008
+  tps: 292.76416
+  dtps: 4.67067
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CoreHound-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
   dps: 722.95433
-  tps: 302.7464
+  tps: 302.74698
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CoreHound-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 317.96704
-  tps: 146.86383
+  dps: 318.25601
+  tps: 146.8152
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CoreHound-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 289.62585
-  tps: 132.60179
+  dps: 289.22223
+  tps: 132.92044
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-CoreHound-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 363.28518
-  tps: 186.19854
+  dps: 363.54019
+  tps: 186.209
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crab-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 925.53583
-  tps: 471.26162
-  dtps: 1.37344
+  dps: 925.2303
+  tps: 471.21635
+  dtps: 1.65734
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crab-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 671.87229
-  tps: 292.44057
-  dtps: 4.62955
+  dps: 671.27219
+  tps: 292.42483
+  dtps: 4.77044
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crab-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 701.77838
-  tps: 302.37961
+  dps: 700.65261
+  tps: 301.33937
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crab-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 289.19034
-  tps: 145.77342
+  dps: 289.32936
+  tps: 145.77346
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crab-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 275.56145
-  tps: 132.00058
+  dps: 275.68942
+  tps: 131.95678
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crab-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 348.41546
-  tps: 185.87832
+  dps: 348.69908
+  tps: 185.39329
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crocilisk-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 934.55138
-  tps: 472.22774
-  dtps: 2.22927
+  dps: 933.91958
+  tps: 471.81347
+  dtps: 2.61794
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crocilisk-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 681.17684
-  tps: 291.97417
-  dtps: 4.65231
+  dps: 681.59689
+  tps: 291.54511
+  dtps: 4.69052
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crocilisk-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 715.52155
-  tps: 302.0513
+  dps: 714.04203
+  tps: 300.94298
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crocilisk-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 295.66121
-  tps: 145.60309
+  dps: 295.89858
+  tps: 145.62503
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crocilisk-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 281.25732
-  tps: 132.75105
+  dps: 282.08374
+  tps: 132.79904
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Crocilisk-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 353.67441
-  tps: 186.14279
+  dps: 354.05322
+  tps: 185.61741
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Fox-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 932.7751
-  tps: 471.03092
-  dtps: 2.6243
+  dps: 933.96718
+  tps: 471.22825
+  dtps: 2.42222
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Fox-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 682.05699
-  tps: 292.75254
-  dtps: 4.64812
+  dps: 681.60814
+  tps: 292.87226
+  dtps: 4.67476
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Fox-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 722.90664
-  tps: 301.19348
+  dps: 723.68927
+  tps: 301.77802
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Fox-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 293.97154
-  tps: 146.36718
+  dps: 294.32074
+  tps: 146.55945
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Fox-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 279.09277
-  tps: 133.03826
+  dps: 278.6564
+  tps: 132.80071
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Fox-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 355.88398
-  tps: 185.59157
+  dps: 354.25655
+  tps: 185.449
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Gorilla-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 933.96129
-  tps: 472.20795
-  dtps: 1.97362
+  dps: 934.40096
+  tps: 472.1353
+  dtps: 1.96405
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Gorilla-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 681.4302
-  tps: 293.06309
-  dtps: 4.62041
+  dps: 680.51736
+  tps: 292.82552
+  dtps: 4.59639
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Gorilla-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 710.91856
+  dps: 710.88048
   tps: 303.74734
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Gorilla-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 296.54784
-  tps: 146.47615
+  dps: 296.10421
+  tps: 146.37854
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Gorilla-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 282.205
-  tps: 132.75564
+  dps: 281.90894
+  tps: 132.53066
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Gorilla-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 350.79234
+  dps: 350.70122
   tps: 185.4414
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Hyena-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 930.63479
-  tps: 472.78704
-  dtps: 2.81967
+  dps: 930.21503
+  tps: 472.58036
+  dtps: 2.5835
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Hyena-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 678.13247
-  tps: 291.66625
-  dtps: 5.02539
+  dps: 677.8628
+  tps: 291.3153
+  dtps: 5.05134
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Hyena-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 703.75301
-  tps: 298.78316
+  dps: 704.46535
+  tps: 299.24127
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Hyena-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 294.14217
-  tps: 146.60942
+  dps: 294.6126
+  tps: 146.66363
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Hyena-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 280.28205
-  tps: 132.36092
+  dps: 279.99963
+  tps: 132.0259
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Hyena-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 352.62187
-  tps: 186.73483
+  dps: 351.99074
+  tps: 186.4306
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Raptor-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 970.32378
-  tps: 473.59308
-  dtps: 2.57967
+  dps: 970.35643
+  tps: 473.40215
+  dtps: 2.29529
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Raptor-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 715.55154
-  tps: 291.97926
-  dtps: 4.57939
+  dps: 715.4635
+  tps: 292.11376
+  dtps: 4.60146
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Raptor-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 747.42348
-  tps: 299.93566
+  dps: 747.76558
+  tps: 300.18122
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Raptor-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 314.85535
-  tps: 145.94807
+  dps: 315.61375
+  tps: 146.16112
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Raptor-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 303.69446
-  tps: 132.77799
+  dps: 303.24485
+  tps: 132.53372
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Raptor-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 381.29403
-  tps: 186.17005
+  dps: 381.40169
+  tps: 186.18034
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Scorpid-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 921.05373
-  tps: 473.55636
-  dtps: 2.47372
+  dps: 920.20192
+  tps: 473.6454
+  dtps: 2.78631
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Scorpid-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 663.15907
-  tps: 292.57456
-  dtps: 4.56861
+  dps: 662.84594
+  tps: 292.32276
+  dtps: 4.62991
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Scorpid-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 686.43707
-  tps: 301.5583
+  dps: 686.48229
+  tps: 301.38712
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Scorpid-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 288.31259
-  tps: 145.51667
+  dps: 287.83574
+  tps: 145.5664
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Scorpid-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 274.89355
-  tps: 132.74677
+  dps: 273.87869
+  tps: 132.25518
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Scorpid-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 344.97733
-  tps: 186.83762
+  dps: 345.26266
+  tps: 186.91751
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Spider-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 950.45804
-  tps: 472.76827
-  dtps: 2.26793
+  dps: 949.6423
+  tps: 472.62287
+  dtps: 2.31264
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Spider-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 693.53887
-  tps: 292.18869
-  dtps: 4.61637
+  dps: 694.13572
+  tps: 292.48142
+  dtps: 4.68451
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Spider-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 718.98664
-  tps: 298.59716
+  dps: 719.96456
+  tps: 299.0931
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Spider-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 301.81347
-  tps: 145.09088
+  dps: 301.97621
+  tps: 145.37611
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Spider-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 287.70817
-  tps: 132.53601
+  dps: 287.95649
+  tps: 132.39862
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Spider-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 358.9157
-  tps: 186.38115
+  dps: 358.5459
+  tps: 186.17068
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Tallstrider-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 925.14413
-  tps: 471.70292
-  dtps: 2.69356
+  dps: 925.93419
+  tps: 471.84913
+  dtps: 2.65696
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Tallstrider-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 668.99589
-  tps: 290.74023
+  dps: 669.00619
+  tps: 290.63582
   dtps: 4.63068
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Tallstrider-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 696.75292
-  tps: 300.07742
+  dps: 696.79284
+  tps: 300.06375
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Tallstrider-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 303.08404
-  tps: 152.93842
+  dps: 302.60095
+  tps: 152.46727
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Tallstrider-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 288.71851
-  tps: 138.91911
+  dps: 288.28876
+  tps: 138.62546
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Tallstrider-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 359.42549
-  tps: 192.59257
+  dps: 360.09504
+  tps: 192.67942
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Turtle-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 906.15292
-  tps: 471.87637
-  dtps: 1.99573
+  dps: 905.80148
+  tps: 471.83054
+  dtps: 1.7709
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Turtle-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 650.92969
-  tps: 291.42991
-  dtps: 4.78251
+  dps: 651.09543
+  tps: 291.44186
+  dtps: 4.74326
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Turtle-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 678.25865
-  tps: 301.07794
+  dps: 678.35109
+  tps: 301.06501
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Turtle-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 276.85458
-  tps: 146.47986
+  dps: 277.07949
+  tps: 146.70741
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Turtle-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 262.53684
-  tps: 132.99219
+  dps: 262.63708
+  tps: 132.87571
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Turtle-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 330.27934
-  tps: 185.89445
+  dps: 330.15582
+  tps: 185.88197
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-WindSerpent-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 951.04303
-  tps: 471.90594
+  dps: 950.55124
+  tps: 471.89858
   dtps: 1.82661
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-WindSerpent-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 700.74772
-  tps: 292.74179
-  dtps: 4.82088
+  dps: 701.11473
+  tps: 292.54713
+  dtps: 4.80232
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-WindSerpent-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 728.0846
-  tps: 300.44564
+  dps: 727.9648
+  tps: 300.43329
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-WindSerpent-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 307.97355
-  tps: 146.35723
+  dps: 308.10089
+  tps: 146.20518
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-WindSerpent-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 293.88925
-  tps: 132.63744
+  dps: 294.16819
+  tps: 132.51319
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-WindSerpent-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 366.1792
-  tps: 185.67266
+  dps: 366.89186
+  tps: 185.66085
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Wolf-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 938.7785
-  tps: 471.66935
-  dtps: 0.95677
+  dps: 939.24228
+  tps: 471.59992
+  dtps: 1.15006
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Wolf-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 686.52339
-  tps: 293.05385
-  dtps: 4.80767
+  dps: 685.56163
+  tps: 292.80014
+  dtps: 4.89957
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Wolf-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 716.15834
-  tps: 303.66809
+  dps: 716.12025
+  tps: 303.61892
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Wolf-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 298.22359
-  tps: 146.39966
+  dps: 298.1654
+  tps: 146.38861
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Wolf-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 284.35548
-  tps: 132.76392
+  dps: 283.86369
+  tps: 132.5416
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-p1-Wolf-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 353.25556
+  dps: 353.1528
   tps: 185.4414
  }
 }
 dps_results: {
  key: "TestHunterPets-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 661.33521
-  tps: 292.19858
-  dtps: 4.80528
+  dps: 661.53126
+  tps: 291.99753
+  dtps: 4.76603
  }
 }

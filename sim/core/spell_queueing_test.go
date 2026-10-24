@@ -717,3 +717,39 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		}
 	})
 }
+
+// A rotation with a move keeps looking through the GCD once an event wakes it: after an event at 0.5 s under the
+// GCD of the instant cast at the pull (as an Auto Shot, a swing or a proc would), a walk whose condition turns true
+// at 0.9 s starts then rather than at the GCD's end.
+func TestMoveConditionTurningTrueDuringTheGcdStartsTheWalk(t *testing.T) {
+	cb := newHardcastTest()
+	fromNinth := cb.rot.newAPLValue(&proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
+		Op:  proto.APLValueCompare_OpGe,
+		Lhs: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
+		Rhs: constValue("0.9s"),
+	}}})
+	nukeAtPull := &gatedAction{APLActionImpl: cb.castOf(cb.nuke), ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}
+	cb.rot.priorityList = nil
+	for _, action := range []*APLAction{
+		newAPLActionEntry(fromNinth, cb.rot.newActionMove(&proto.APLActionMove{RangeFromTarget: constValue("20")})),
+		newAPLActionEntry(nil, nukeAtPull),
+	} {
+		action.Finalize(cb.rot)
+		cb.rot.priorityList = append(cb.rot.priorityList, action)
+	}
+	cb.sim.PrePull()
+	cb.sim.Step()
+	cb.fw.AutoAttacks.CancelAutoSwing(cb.sim)
+	cb.sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{
+		DoAt:     500 * time.Millisecond,
+		OnAction: func(sim *Simulation) { cb.fw.ReactToEvent(sim, false, true) },
+	}))
+
+	cb.runUntil(950 * time.Millisecond)
+	if cb.fw.GCD.IsReady(cb.sim) {
+		t.Fatalf("the instant's GCD should still run at 0.95 s, the instant went off at %v", cb.nukeAt)
+	}
+	if !cb.fw.Moving {
+		t.Fatalf("at 0.95 s the walk whose condition turned true at 0.9 s should have started, under the GCD, at %.1f yd", cb.fw.DistanceFromTarget)
+	}
+}
