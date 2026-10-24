@@ -847,3 +847,81 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 		}
 	}
 }
+
+func TestCatChargeRunIn(t *testing.T) {
+	sim, cat := newCat(t, withFeralDigit(powershiftTalents, 8, '1'), nil)
+	for i := 0; i < 2; i++ {
+		if i > 0 {
+			sim.Cleanup()
+			sim.Reset()
+		}
+		cat.DistanceFromTarget = 25
+		energy := cat.CurrentEnergy()
+		cat.Prowl.Cast(sim, cat.CurrentTarget)
+		cat.ClearcastingAura.Activate(sim)
+		if !cat.FeralCharge.Cast(sim, cat.CurrentTarget) {
+			t.Fatal("Cat Charge did not cast at 25 yards")
+		}
+		if !cat.ClearcastingAura.IsActive() {
+			t.Error("Cat Charge consumed Clearcasting")
+		}
+		if cat.ProwlAura.IsActive() {
+			t.Error("Charge did not break Prowl")
+		}
+		if cat.CurrentEnergy() != energy || cat.CurrentRage() != 0 {
+			t.Error("Cat Charge spent resources")
+		}
+		if cat.NextGCDAt() != time.Second {
+			t.Errorf("GCD ends at %v, want 1s", cat.NextGCDAt())
+		}
+		for sim.CurrentTime < 312500*time.Microsecond {
+			if sim.Step() {
+				break
+			}
+		}
+		if cat.DistanceFromTarget != 0 || cat.Moving {
+			t.Errorf("landing: distance=%v moving=%t", cat.DistanceFromTarget, cat.Moving)
+		}
+		for cat.AutoAttacks.MHAuto().SpellMetrics[cat.CurrentTarget.UnitIndex].Casts == 0 {
+			if sim.Step() {
+				t.Fatal("simulation ended before the first auto-attack")
+			}
+		}
+		if sim.CurrentTime < 462500*time.Microsecond || sim.CurrentTime > 1062500*time.Microsecond {
+			t.Errorf("first auto-attack at %v, want travel plus 150–750ms", sim.CurrentTime)
+		}
+		for !sim.Step() {
+		}
+	}
+}
+
+func TestProwlSpeedChangePreservesMovementDestination(t *testing.T) {
+	sim, cat := newCat(t, "0000000000000000-00200000000000000000-0000000000000000", nil)
+	cat.DistanceFromTarget = 25
+	sim.CurrentTime = -time.Second
+	if !cat.Prowl.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Prowl did not cast")
+	}
+	sim.CurrentTime = 0
+	if !cat.Dash.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Dash did not cast")
+	}
+	if !cat.ProwlAura.IsActive() || !cat.CatFormAura.IsActive() {
+		t.Fatal("Dash removed Prowl or Cat Form")
+	}
+	cat.MoveTo(4, sim)
+	for sim.CurrentTime < time.Second {
+		if sim.Step() {
+			t.Fatal("simulation ended before Prowl expired")
+		}
+	}
+	cat.ProwlAura.Deactivate(sim)
+	for cat.Moving {
+		if sim.Step() {
+			t.Fatal("simulation ended before arrival")
+		}
+	}
+	if math.Abs(cat.DistanceFromTarget-4) > 1e-6 {
+		t.Fatalf("arrived at %g yards, want 4", cat.DistanceFromTarget)
+	}
+}

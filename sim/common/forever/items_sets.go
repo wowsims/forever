@@ -3,9 +3,29 @@ package forever
 import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
+
+func arathiLeatherSet(id int32, name string) *core.ItemSet {
+	return core.NewItemSet(core.ItemSet{
+		ID: id, Name: name,
+		Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotFeet},
+		Bonuses: map[int32]core.ApplySetBonus{
+			2: shared.ParsedSetBonus(spelldata.MustFind(7503)),
+			3: shared.ParsedSetBonus(spelldata.MustFind(7597)),
+		},
+	})
+}
+
+// Arathi Basin reputation - Horde leather
+// https://www.wowhead.com/forever/item-set=486/the-defilers-purpose
+var ItemSetDefilersPurpose = arathiLeatherSet(486, "The Defiler's Purpose")
+
+// Arathi Basin reputation - Alliance leather
+// https://www.wowhead.com/forever/item-set=471/the-highlanders-purpose
+var ItemSetHighlandersPurpose = arathiLeatherSet(471, "The Highlander's Purpose")
 
 // Blacksmithing - Plate
 // https://www.wowhead.com/forever/item-set=321/imperial-plate

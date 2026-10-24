@@ -1275,11 +1275,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 681.70388
+  tps: 285.0361
+  dtps: 4.68286
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheGreenTower-1204"
  value: {
   dps: 689.619
   tps: 291.42991
   dtps: 4.78251
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 681.70388
+  tps: 285.0361
+  dtps: 4.68286
  }
 }
 dps_results: {

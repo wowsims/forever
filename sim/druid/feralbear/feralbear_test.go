@@ -101,7 +101,7 @@ func BenchmarkSimulate(b *testing.B) {
 	core.RaidBenchmark(b, rsr)
 }
 
-// The bear UI's Bear and Hybrid presets (presets.ts BearTalents and HybridTalents).
+// Fixed allocations for the class benchmark.
 const DefaultTalents = "050022-15230332121132012051-04"
 const HybridTalents = "050022-05230332121131212051-04"
 

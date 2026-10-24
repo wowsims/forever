@@ -1661,12 +1661,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		263435, // Mark of Urs'endris
-		[
-			"Increases your Armor contribution from items by 4%.", // 1270490 - https://www.wowhead.com/forever/spell=1270490
-		]
-	],
-	[
 		263436, // Firestorm Totem
 		[
 			"Reduces the mana cost of your totems by 5%.", // 1270492 - https://www.wowhead.com/forever/spell=1270492
@@ -2170,12 +2164,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		277950, // Wastewanderer Rations
 		[
 			"Your Well Fed buffs metabolize 50% slower. This effect is increased by an additional 50% in Wasteland areas.", // 1302968 - https://www.wowhead.com/forever/spell=1302968
-		]
-	],
-	[
-		279251, // Idol of the Ursine Twins
-		[
-			"Your Lacerate hits have a 10% chance to reset the cooldown on Primal Bite.", // 1306483 - https://www.wowhead.com/forever/spell=1306483
 		]
 	],
 	[
@@ -3488,23 +3476,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		471, // The Highlander's Purpose
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
 		472, // The Highlander's Will
 		new Map([
 			[
@@ -3722,23 +3693,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		486, // The Defiler's Purpose
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
 				],
 			],
 		]),

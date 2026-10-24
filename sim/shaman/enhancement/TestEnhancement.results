@@ -945,6 +945,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 675.74188
+  tps: 356.36743
+  dtps: 8.72415
+  hps: 17.89333
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 675.74188
+  tps: 356.36743
+  dtps: 8.72415
+  hps: 17.89333
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
   dps: 700.59611

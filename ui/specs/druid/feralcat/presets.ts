@@ -1,38 +1,61 @@
 import * as PresetUtils from '@app/preset_utils';
-import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { ConsumesSpec, Profession, PseudoStat, Race, Stat } from '@generated/proto/common';
+import { ConsumesSpec, Encounter, Profession, PseudoStat, Race, Stat } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
-import BearweaveApl from './apls/bearweave.apl.json';
-import DefaultApl from './apls/default.apl.json';
-import EnergizedApl from './apls/energized.apl.json';
 import JvmesApl from './apls/jvmes.apl.json';
-import PounceApl from './apls/pounce.apl.json';
-import RavageApl from './apls/ravage.apl.json';
-import ShadowmeldApl from './apls/shadowmeld.apl.json';
 import Level60GearJson from './gear_sets/default.gear.json';
 import PreRaidGearJson from './gear_sets/pre_raid.gear.json';
 
 // Another raid member's bleed keeps Rend and Tear up.
-export const DefaultOptions = FeralDruidOptions.create({ assumeBleedActive: true });
+export const DefaultOptions = FeralDruidOptions.fromJson({ assumeBleedActive: true });
 
-export const DefaultConsumables = ConsumesSpec.create({
-	resourcePotId: Consumables.MightyRagePotion.id,
-	flaskId: Consumables.FlaskOfNaturalPrecision.id,
-	elixirIds: [Consumables.ElixirOfTheMongoose.id],
-	foodId: Consumables.SwiftstrikeSteak.id,
-	mhImbueId: Consumables.ElementalSharpeningStone.id,
-	conjuredId: Consumables.ThistleTea.id,
-	extraIds: [Consumables.JujuPower.id, Consumables.JujuMight.id, Consumables.GroundScorpokAssay.id],
+export const DefaultConsumables = ConsumesSpec.fromJson({
+	flaskId: 274274,
+	foodId: 250072,
+	conjuredId: 12662,
+	explosiveId: 260816,
+	mhImbueId: 12643,
+	swapMhImbueId: 12643,
+	extraIds: [12460, 8412, 10646],
+	elixirIds: [250328, 250338, 250329, 250341, 250351],
+	resourcePotId: 13444,
+	offensivePotId: 13442,
 });
 
+export const DefaultEncounter = PresetUtils.makePresetEncounter(
+	'Mount Hyjal',
+	Encounter.fromJson({
+		apiVersion: 2,
+		duration: 180,
+		durationVariation: 5,
+		executeProportion20: 0.2,
+		executeProportion35: 0.35,
+		targets: [
+			{
+				id: 31146,
+				name: 'Raid Target',
+				level: 63,
+				mobType: 'MobTypeMechanical',
+				stats: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 3731, 0, 1428900, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				minBaseDamage: 2601,
+				damageSpread: 0.5,
+				swingSpeed: 2,
+				parryHaste: true,
+				canCrush: true,
+			},
+		],
+		areaTypes: ['AreaTypeForestGrassland', 'AreaTypeMountainous'],
+		zoneId: 616,
+	}),
+);
+
 export const OtherDefaults = {
-	distanceFromTarget: 0,
+	distanceFromTarget: 25,
 	profession1: Profession.Engineering,
 	profession2: Profession.Enchanting,
-	race: Race.RaceNightElf,
+	race: Race.RaceTauren,
 	reactionTime: 250,
 };
 
@@ -42,10 +65,6 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJso
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',
 });
 
-// Pre-raid leather on a Night Elf with The Unstoppable Force and Wolfshead Helm. Shifting Cloak, Dunestalker's
-// Boots, Ferocious Watcher's Signet and the two hit and attack power trinkets stand in for Cape of the Black
-// Baron, Swiftwalker Boots, Tarnished Elven Ring, Blackhand's Breadth and Hand of Justice, which the item
-// database does not carry.
 export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearJson, {
 	devOnly: true,
 	tooltip: 'Pre-raid leather with The Unstoppable Force, Wolfshead Helm and full enchants.',
@@ -72,32 +91,12 @@ export const DefaultEp = Stats.fromMap(
 
 export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Feral Cat', DefaultEp);
 
-// The cat stays in Cat Form: Shifting Power, Rip, Rake and Shred, Faerie Fire for Omen of Clarity,
-// and a self-Innervate when mana would run short.
-export const MONOCAT_APL = PresetUtils.makePresetAPLRotation('Monocat', DefaultApl);
-// Monocat with Shadowmeld into Ravage on cooldown, for a Night Elf.
-export const SHADOWMELD_APL = PresetUtils.makePresetAPLRotation('Monocat, Shadowmeld Ravage (Night Elf)', ShadowmeldApl);
-// Monocat with Read Ley Line, for a High Order Skyborne: cast in an idle GCD under 1400 mana. 0 to 4 DPS
-// from 60 to 300 seconds.
-export const ENERGIZED_APL = PresetUtils.makePresetAPLRotation('Monocat, Energized (High Order Skyborne)', EnergizedApl);
 // Uses Thistle Tea and optional Sapper, with racial actions gated by availability.
-// Opens with Berserk and Ravage from Prowl; during combat, Shadowmeld enables Ravage on Clearcasting.
+// Uses Dash for the approach; Sapper can be used without leaving Cat Form.
 export const JVMES_APL = {
 	...PresetUtils.makePresetAPLRotation('Monocat, adaptive racials and Sapper', JvmesApl),
 	tooltip:
-		'Opens with Berserk and Ravage, maintains bleeds, and saves Bite for fight end. Later Berserks pool to 60 energy or Clearcasting when time permits. Named conditions explain racial abilities, optional Sapper and resource use.',
+		'Maintains Faerie Fire and bleeds, pools for later Berserks, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',
 };
-export const RAVAGE_APL = PresetUtils.makePresetAPLRotation('Ravage opener', RavageApl);
-export const POUNCE_APL = PresetUtils.makePresetAPLRotation('Pounce opener', PounceApl);
-// Monocat with Dire Bear trips for Primal Bite and Maul, only on mana the Shifting Powers to the end
-// of the fight do not need. Needs the Primal Bite talent.
-export const BEARWEAVE_APL = PresetUtils.makePresetAPLRotation('Bearweave', BearweaveApl);
-
-// Naturalist in place of Natural Shapeshifter.
-export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-35200032121131212051-052' }));
+export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-35200032121131212051-05200' }));
 export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-35230332121132212051-' }));
-
-export const BearweaveBuild = PresetUtils.makePresetBuild('Bearweave (45s fights)', {
-	talents: CatTalents,
-	rotation: BEARWEAVE_APL,
-});

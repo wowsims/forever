@@ -2,7 +2,7 @@ import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ItemSlot, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
+import { ItemSlot, ItemSpec, ItemSwap, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
@@ -73,8 +73,11 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 
 	defaults: {
 		gear: Presets.Level60Gear.gear,
+		itemSwap: ItemSwap.create({
+			items: Array.from({ length: 17 }, (_, slot) => ItemSpec.create(slot === ItemSlot.ItemSlotMainHand ? { id: 9449, enchant: 1900 } : {})),
+		}),
 		encounter: Presets.Level60Encounter,
-		epWeights: Presets.Level60SurvivalEp,
+		epWeights: Presets.BalancedEp,
 		statCaps: (() => {
 			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8);
 			const expCap = new Stats().withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
@@ -83,35 +86,31 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		})(),
 		other: Presets.OtherDefaults,
 		consumables: Presets.DefaultConsumables,
-		rotationType: APLRotationType.TypeAuto,
+		rotationType: APLRotationType.TypeAPL,
+		aplRotation: Presets.ROTATION_ADAPTIVE.rotation.rotation!,
 		talents: Presets.BearTalents.data,
 		specOptions: Presets.DefaultOptions,
-		raidBuffs: RaidBuffs.create({
+		raidBuffs: RaidBuffs.fromJson({
 			arcaneBrilliance: true,
+			prayerOfSpirit: true,
 			giftOfTheWild: true,
 			prayerOfFortitude: true,
 			prayerOfShadowProtection: true,
-			prayerOfSpirit: true,
-			windfuryTotem: true,
 			strengthOfEarthTotem: true,
-			battleShout: TristateEffect.TristateEffectRegular,
+			graceOfAirTotem: true,
+			windfuryTotem: true,
+			battleShout: 'TristateEffectRegular',
 		}),
-		partyBuffs: PartyBuffs.create({
-			manaSpringTotem: TristateEffect.TristateEffectRegular,
-		}),
-		individualBuffs: IndividualBuffs.create({
-			greaterBlessingOfKings: true,
-			greaterBlessingOfMight: true,
-			thorns: true,
-		}),
-		debuffs: Debuffs.create({
-			exposeArmor: true,
-			faerieFire: true,
-			giftOfArthas: false,
-			curseOfRecklessness: true,
-			insectSwarm: true,
+		partyBuffs: PartyBuffs.fromJson({ devotionAura: true, manaSpringTotem: 'TristateEffectRegular', retributionAura: true }),
+		individualBuffs: IndividualBuffs.fromJson({ greaterBlessingOfKings: true, greaterBlessingOfMight: true, thorns: true }),
+		debuffs: Debuffs.fromJson({
+			judgementOfLight: true,
 			judgementOfWisdom: true,
+
+			faerieFire: false,
+			exposeArmor: true,
 			sunderArmor: true,
+			vindication: true,
 		}),
 	},
 
@@ -123,6 +122,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			FeralBearInputs.StartingRage,
 			FeralBearInputs.AssumeBleedActive,
 			OtherInputs.InputDelay,
+			OtherInputs.DistanceFromTarget,
 			OtherInputs.TankAssignment,
 			OtherInputs.InspirationUptime,
 			OtherInputs.IncomingHps,
@@ -141,16 +141,16 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	},
 
 	presets: {
-		epWeights: [Presets.Level60SurvivalEpWeights, Presets.Level60ThreatEpWeights, Presets.Level60DpsEpWeights],
+		epWeights: [Presets.BalancedEpWeights],
 		talents: [Presets.BearTalents, Presets.HybridTalents],
-		rotations: [Presets.ROTATION_DEFAULT],
+		rotations: [Presets.ROTATION_ADAPTIVE],
 		gear: [Presets.Level60Gear],
 		encounters: [Presets.Level60Encounter],
 	},
 
-	// Auto is the APL preset, which queues Maul on every rage gain instead of only after a GCD.
+	// Auto uses the adaptive rotation.
 	autoRotation: (_player: Player<Spec.SpecFeralBearDruid>): APLRotation => {
-		return Presets.ROTATION_DEFAULT.rotation.rotation!;
+		return Presets.ROTATION_ADAPTIVE.rotation.rotation!;
 	},
 
 	reforge: {},

@@ -1242,6 +1242,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 899.89751
+  tps: 656.2787
+  dtps: 9.61498
+  hps: 19.74028
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 899.89751
+  tps: 656.2787
+  dtps: 9.61498
+  hps: 19.74028
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheLobotomizer-19324"
  value: {
   dps: 904.51944

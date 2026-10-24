@@ -67,7 +67,6 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		player.applySharedDefaults();
 		player.setRace(config.defaults.other?.race || player.getPlayerClass().races[0]);
 		player.setGear(sim.db.lookupEquipmentSpec(config.defaults.gear));
-		player.setConsumes(config.defaults.consumables);
 		applyDefaultRotation(player, config);
 		player.setTalentsString(config.defaults.talents.talentsString);
 		player.setSpecOptions(config.defaults.specOptions);
@@ -81,6 +80,7 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		if (config.defaults.itemSwap) {
 			player.itemSwapSettings.setItemSwapSettings(true, sim.db.lookupItemSwap(config.defaults.itemSwap || ItemSwap.create()));
 		}
+		player.setConsumes(config.defaults.consumables);
 
 		const defaultRatios = player.getDefaultEpRatios(tankSpec, healingSpec);
 		player.setEpRatios(defaultRatios);

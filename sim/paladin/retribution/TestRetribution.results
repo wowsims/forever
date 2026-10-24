@@ -1188,6 +1188,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 816.23314
+  tps: 702.58862
+  dtps: 7.73977
+  hps: 22.93939
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 816.23314
+  tps: 702.58862
+  dtps: 7.73977
+  hps: 22.93939
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-TheNeedler-13060"
  value: {
   dps: 815.24154

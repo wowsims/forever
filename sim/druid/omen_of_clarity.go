@@ -11,6 +11,9 @@ func (druid *Druid) registerOmenOfClarity() {
 	spelldata.ParseEffects(&druid.Character, druid.ClearcastingAura, clearRow)
 	mask := clearRow.EffectN(1).ClassFlags
 	druid.ClearcastingAura.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if druid.InForm(Cat) && spellData.FeralCharge.Contains(spell) {
+			return
+		}
 		if mask.Matches(spell.ClassFlags) {
 			aura.Deactivate(sim)
 		}

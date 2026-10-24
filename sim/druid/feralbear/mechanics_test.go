@@ -3,6 +3,7 @@
 package feralbear
 
 import (
+	"fmt"
 	"math"
 	"testing"
 	"time"
@@ -10,9 +11,220 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
 )
+
+func equippedBear(t *testing.T, items []*proto.ItemSpec) (*core.Simulation, *GuardianDruid) {
+	t.Helper()
+	req := bearNakedRequest()
+	player := req.Raid.Parties[0].Players[0]
+	player.Equipment.Items = items
+	player.Rotation = &proto.APLRotation{}
+	player.TalentsString = "000000-000000000001"
+	req.Raid.Tanks = nil
+	sim := core.NewSim(req, simsignals.CreateSignals())
+	sim.Reset()
+	bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+	bear.AutoAttacks.CancelAutoSwing(sim)
+	return sim, bear
+}
+
+func bearItemSlots() []*proto.ItemSpec {
+	items := make([]*proto.ItemSpec, 17)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 21188
+	return items
+}
+
+func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
+	for _, set := range []struct {
+		name string
+		ids  []int32
+	}{{"The Defiler's Purpose", []int32{20194, 20190, 20186}},
+		{"The Highlander's Purpose", []int32{20059, 20045, 20052}}} {
+		for count := 1; count <= 3; count++ {
+			items := bearItemSlots()
+			for i, slot := range []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotFeet} {
+				if i < count {
+					items[slot].Id = set.ids[i]
+				}
+			}
+			sim, bear := equippedBear(t, items)
+			for _, bonus := range []struct {
+				count int
+				stat  stats.Stat
+				row   int32
+			}{{2, stats.Stamina, 7503}, {3, stats.PhysicalCritPercent, 7597}} {
+				aura := bear.GetAura(fmt.Sprintf("%s %dP", set.name, bonus.count))
+				if count < bonus.count {
+					if aura != nil && aura.IsActive() {
+						t.Fatal("set bonus activated without enough pieces")
+					}
+					continue
+				}
+				if aura == nil || !aura.IsActive() {
+					t.Fatal("equipped set bonus is inactive")
+				}
+				before := bear.GetStat(bonus.stat)
+				aura.Deactivate(sim)
+				want := spelldata.MustFind(bonus.row).EffectN(1).BaseValue()
+				if got := before - bear.GetStat(bonus.stat); math.Abs(got-want) > 1e-8 {
+					t.Errorf("%s bonus changed stat by %g, want %g", set.name, got, want)
+				}
+			}
+		}
+	}
+}
+
+func TestUrsendrisScalesOnlyItemArmorAcrossForms(t *testing.T) {
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotChest].Id = 252484
+	items[proto.ItemSlot_ItemSlotRanged].Id = 263435
+	sim, bear := equippedBear(t, items)
+	aura := bear.GetAuraByID(core.ActionID{SpellID: 1270490})
+	if aura == nil || !aura.IsActive() {
+		t.Fatal("armor idol is inactive")
+	}
+	for _, form := range []druid.DruidForm{druid.DireBear, druid.Cat, druid.Humanoid, druid.Bear} {
+		bear.ClearForm(sim)
+		switch form {
+		case druid.DireBear:
+			bear.DireBearFormAura.Activate(sim)
+		case druid.Bear:
+			bear.BearFormAura.Activate(sim)
+		case druid.Cat:
+			bear.CatFormAura.Activate(sim)
+		}
+		armor := bear.GetStat(stats.Armor)
+		aura.Deactivate(sim)
+		equip := bear.EquipStats()
+		want := (equip[stats.Armor] + equip[stats.BonusArmor]) * spelldata.MustFind(1270490).EffectN(1).Percent()
+		if got := armor - bear.GetStat(stats.Armor); math.Abs(got-want) > 1e-8 {
+			t.Errorf("form %v armor delta %g, want %g", form, got, want)
+		}
+		aura.Activate(sim)
+		if math.Abs(bear.GetStat(stats.Armor)-armor) > 1e-8 {
+			t.Fatal("idol activation accumulated armor")
+		}
+	}
+	sim.Cleanup()
+	sim.Reset()
+	if !aura.IsActive() {
+		t.Fatal("idol did not reset")
+	}
+}
+
+func TestUrsendrisReportedArmorMatchesCombat(t *testing.T) {
+	req := bearNakedRequest()
+	player := req.Raid.Parties[0].Players[0]
+	player.Rotation = &proto.APLRotation{}
+	player.Equipment.Items = bearItemSlots()
+	player.Equipment.Items[proto.ItemSlot_ItemSlotChest].Id = 252484
+	player.Equipment.Items[proto.ItemSlot_ItemSlotRanged].Id = 263435
+	sheet := core.ComputeStats(&proto.ComputeStatsRequest{Raid: req.Raid, Encounter: req.Encounter})
+	sim := core.NewSim(req, simsignals.CreateSignals())
+	sim.Reset()
+	bear := sim.Raid.Parties[0].Players[0].GetCharacter()
+	want := bear.GetStats().FloorGameStats()[stats.Armor]
+	got := sheet.RaidStats.Parties[0].Players[0].FinalStats.Stats[stats.Armor]
+	if math.Abs(got-want) > 1e-8 {
+		t.Errorf("reported armor %g, combat armor %g", got, want)
+	}
+}
+
+func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
+	req := bearNakedRequest()
+	player := req.Raid.Parties[0].Players[0]
+	player.Rotation = &proto.APLRotation{}
+	player.Equipment.Items = bearItemSlots()
+	player.Equipment.Items[proto.ItemSlot_ItemSlotChest].Id = 252484
+	player.Equipment.Items[proto.ItemSlot_ItemSlotRanged].Id = 263435
+	swapped := bearItemSlots()
+	swapped[proto.ItemSlot_ItemSlotRanged].Id = 279251
+	player.EnableItemSwap = true
+	player.ItemSwap = &proto.ItemSwap{Items: swapped}
+	req.Raid.Tanks = nil
+	sim := core.NewSim(req, simsignals.CreateSignals())
+	sim.Reset()
+	bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+	armor := bear.GetAuraByID(core.ActionID{SpellID: 1270490})
+	reset := bear.GetAura(spelldata.MustFind(1306483).Name)
+	if armor == nil || reset == nil {
+		t.Fatal("an equipped or swap effect was not registered")
+	}
+	if !armor.IsActive() || reset.IsActive() {
+		t.Fatal("main equipment activated the wrong effects")
+	}
+	initialArmor := bear.GetStat(stats.Armor)
+	for range 3 {
+		bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+		if armor.IsActive() || !reset.IsActive() {
+			t.Fatal("swapped equipment activated the wrong effects")
+		}
+		if bear.GetStat(stats.Armor) >= initialArmor {
+			t.Fatal("removing the armor idol did not reduce armor")
+		}
+		bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+		if !armor.IsActive() || reset.IsActive() {
+			t.Fatal("restoring main equipment activated the wrong effects")
+		}
+		if math.Abs(bear.GetStat(stats.Armor)-initialArmor) > 1e-8 {
+			t.Fatal("repeated swaps accumulated armor")
+		}
+	}
+}
+
+func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
+	for _, kind := range []string{"hit", "zero", "miss", "periodic", "swipe"} {
+		t.Run(kind, func(t *testing.T) {
+			items := bearItemSlots()
+			items[proto.ItemSlot_ItemSlotRanged].Id = 279251
+			sim, bear := equippedBear(t, items)
+			resets := 0
+			const trials = 1000
+			for range trials {
+				bear.PrimalBite.CD.Set(sim.CurrentTime + time.Hour)
+				result := &core.SpellResult{Target: bear.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100}
+				if kind == "miss" {
+					result.Outcome = core.OutcomeMiss
+					result.Damage = 0
+				}
+				if kind == "zero" {
+					result.Damage = 0
+				}
+				switch kind {
+				case "periodic":
+					bear.Unit.OnPeriodicDamageDealt(sim, bear.Lacerate.Spell, result)
+				case "swipe":
+					bear.Unit.OnSpellHitDealt(sim, bear.Swipe.Spell, result)
+				default:
+					bear.Unit.OnSpellHitDealt(sim, bear.Lacerate.Spell, result)
+				}
+				until := sim.CurrentTime + 2*core.SpellBatchWindow
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})
+				for sim.CurrentTime < until {
+					sim.Step()
+				}
+				if bear.PrimalBite.CD.IsReady(sim) {
+					resets++
+				}
+			}
+			if kind == "hit" || kind == "zero" {
+				chance := float64(spelldata.MustFind(1306483).ProcChance) / 100
+				want := trials * chance
+				if math.Abs(float64(resets)-want) > 5*math.Sqrt(trials*chance*(1-chance)) {
+					t.Errorf("Lacerate resets %d, expected around %g", resets, want)
+				}
+			} else if resets != 0 {
+				t.Errorf("%s caused %d resets", kind, resets)
+			}
+		})
+	}
+}
 
 func newBear(t *testing.T) (*core.Simulation, *GuardianDruid) {
 	return newBearWithTalents(t, "0000000000000000-00000000000000000000-0000000000000000")
@@ -176,6 +388,50 @@ func TestBerserkClearsARunningPrimalBiteCooldown(t *testing.T) {
 	if !bear.PrimalBite.IsReady(sim) {
 		t.Errorf("primal bite is on cooldown until %v once berserk starts", bear.PrimalBite.ReadyAt())
 	}
+}
+
+func TestBearBerserkCastLeavesTheAttackGlobalUnchanged(t *testing.T) {
+	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
+	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Primal Bite did not cast")
+	}
+	ready := bear.GCD.ReadyAt()
+	if !bear.Berserk.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Berserk did not cast during the attack global")
+	}
+	if bear.GCD.ReadyAt() != ready {
+		t.Fatal("Berserk changed the attack global")
+	}
+	if !bear.PrimalBite.IsReady(sim) {
+		t.Fatal("Berserk left Primal Bite on cooldown")
+	}
+	t.Logf("Berserk GCD=%s; attack global ready at %s; Primal Bite ready=%v", bear.Berserk.DefaultCast.GCD, ready, bear.PrimalBite.IsReady(sim))
+}
+
+func TestBearBarkskinReducesPhysicalDamageWithoutLeavingForm(t *testing.T) {
+	sim, bear := newBear(t)
+	before := bear.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexPhysical]
+	if !bear.Barkskin.Cast(sim, &bear.Unit) {
+		t.Fatal("Barkskin did not cast")
+	}
+	if !bear.InForm(druid.Bear) {
+		t.Fatal("Barkskin left Bear")
+	}
+	aura := bear.Barkskin.RelatedSelfBuff
+	if aura == nil || !aura.IsActive() {
+		t.Fatal("Barkskin aura is inactive")
+	}
+	want := 1 + spelldata.MustFind(spellBarkskin).EffectN(2).Percent()
+	got := bear.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexPhysical] / before
+	if math.Abs(got-want) > 1e-9 {
+		t.Fatalf("physical damage multiplier %g, want %g", got, want)
+	}
+	aura.Deactivate(sim)
+	if math.Abs(bear.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexPhysical]-before) > 1e-9 {
+		t.Fatal("Barkskin modifier remained after expiration")
+	}
+	t.Logf("Barkskin physical damage multiplier=%g, GCD=%s, cooldown=%s", got, bear.Barkskin.DefaultCast.GCD, bear.Barkskin.CD.Duration)
 }
 
 func TestFrenziedRegenerationSpendsRageForHealth(t *testing.T) {
@@ -434,5 +690,195 @@ func TestThickHideArmorIsLevelTimesRank(t *testing.T) {
 		if got := armorAt(rank) - base; math.Abs(got-want) > 1e-6 {
 			t.Errorf("Thick Hide %d/3 adds %g armor in Dire Bear Form, want %g", rank, got, want)
 		}
+	}
+}
+
+func TestMaulQueueSpendsRageAtTheSwing(t *testing.T) {
+	sim, bear := newBear(t)
+	before := bear.CurrentRage()
+	if !bear.Maul.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Maul did not queue")
+	}
+	if bear.CurrentRage() != before {
+		t.Fatal("queueing Maul spent rage")
+	}
+	for sim.CurrentTime < 100*time.Millisecond {
+		if sim.Step() {
+			break
+		}
+	}
+	maul := bear.TryMaul(sim, nil)
+	if maul == nil {
+		t.Fatal("queued Maul was missing")
+	}
+	cost := maul.Cost.GetCurrentCost()
+	if !maul.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("funded Maul did not cast")
+	}
+	if got := bear.CurrentRage(); got >= before || got < before-cost {
+		t.Errorf("swing rage %g, expected cost or avoidance refund from %g", got, before)
+	}
+}
+
+func TestMaulFallsBackWhenTheQueuedSwingIsUnaffordable(t *testing.T) {
+	sim, bear := newBear(t)
+	if !bear.Maul.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Maul did not queue")
+	}
+	for sim.CurrentTime < 100*time.Millisecond {
+		if sim.Step() {
+			break
+		}
+	}
+	bear.SpendRage(sim, bear.CurrentRage(), bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if bear.TryMaul(sim, nil) != nil {
+		t.Fatal("unaffordable Maul replaced the swing")
+	}
+}
+
+func TestLacerateApplicationRestartsTheTickClock(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	dot := bear.Lacerate.Dot(target)
+	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
+	for range 30 {
+		before := dot.GetStacks()
+		bear.AddRage(sim, 50, metrics)
+		bear.Lacerate.Cast(sim, target)
+		if before > 0 && dot.GetStacks() > before {
+			if got := dot.NextTickAt(); got != sim.CurrentTime+dot.TickPeriod() {
+				t.Fatalf("next Lacerate tick %s, want %s", got, sim.CurrentTime+dot.TickPeriod())
+			}
+			return
+		}
+		sim.CurrentTime += 1500 * time.Millisecond
+	}
+	t.Fatal("two Lacerates did not land")
+}
+
+func TestSapperPreservesFormsAndResources(t *testing.T) {
+	for _, form := range []druid.DruidForm{druid.Cat, druid.Bear, druid.DireBear} {
+		t.Run(fmt.Sprint(form), func(t *testing.T) {
+			req := bearNakedRequest()
+			p := req.Raid.Parties[0].Players[0]
+			p.Profession1 = proto.Profession_Engineering
+			p.Consumables = &proto.ConsumesSpec{ExtraIds: []int32{10646}}
+			p.Rotation = &proto.APLRotation{}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.ClearForm(sim)
+			switch form {
+			case druid.Cat:
+				bear.CatFormAura.Activate(sim)
+			case druid.Bear:
+				bear.BearFormAura.Activate(sim)
+			case druid.DireBear:
+				bear.DireBearFormAura.Activate(sim)
+			}
+			mana, energy, gcd, health := bear.CurrentMana(), bear.CurrentEnergy(), bear.GCD.ReadyAt(), bear.CurrentHealth()
+			sapper := bear.GetSpell(core.ActionID{ItemID: 10646})
+			if !sapper.Cast(sim, bear.CurrentTarget) {
+				t.Fatal("Sapper failed in form")
+			}
+			if !bear.InForm(form) || bear.CurrentMana() != mana || bear.CurrentEnergy() != energy || bear.GCD.ReadyAt() != gcd {
+				t.Fatal("Sapper changed form, mana, energy or GCD")
+			}
+			if bear.CurrentHealth() >= health || sapper.SpellMetrics[bear.CurrentTarget.UnitIndex].TotalDamage == 0 {
+				t.Fatal("Sapper did not damage both the user and target")
+			}
+		})
+	}
+}
+
+func TestBearChargeMovement(t *testing.T) {
+	for _, distance := range []float64{8, 25} {
+		t.Run(fmt.Sprintf("distance_%g", distance), func(t *testing.T) {
+			req := bearNakedRequest()
+			req.Raid.Tanks = nil
+			player := req.Raid.Parties[0].Players[0]
+			player.TalentsString = "000000-000000001001"
+			player.Rotation = &proto.APLRotation{}
+			player.DistanceFromTarget = distance
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			for iteration := 0; iteration < 2; iteration++ {
+				sim.Reset()
+				speed := bear.GetMovementSpeed()
+				bear.AddRage(sim, 20, bear.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRefund}))
+				rage := bear.CurrentRage()
+				gcd := bear.NextGCDAt()
+				if !bear.FeralCharge.Cast(sim, bear.CurrentTarget) {
+					t.Fatal("Bear Charge did not cast")
+				}
+				if bear.CurrentRage() != rage-bear.FeralCharge.DefaultCast.Cost {
+					t.Fatal("Charge spent the wrong amount of rage")
+				}
+				if bear.NextGCDAt() != gcd {
+					t.Fatal("Bear Charge triggered the global cooldown")
+				}
+				if !bear.Moving || bear.DistanceFromTarget != distance || bear.GetMovementSpeed() != speed*3 {
+					t.Fatal("Charge did not begin accelerated movement from the starting distance")
+				}
+				if bear.AutoAttacks.MHAuto().SpellMetrics[bear.CurrentTarget.UnitIndex].Casts != 0 {
+					t.Fatal("Charge triggered an out-of-range swing")
+				}
+				for bear.Moving {
+					if sim.Step() {
+						t.Fatal("simulation ended during Charge")
+					}
+				}
+				if bear.DistanceFromTarget != core.MaxMeleeRange-1 || math.Abs(bear.GetMovementSpeed()-speed) > 1e-9 {
+					t.Fatal("Charge did not finish in melee and restore movement speed")
+				}
+				if sim.CurrentTime <= 0 || sim.CurrentTime > time.Second+time.Millisecond {
+					t.Fatalf("unexpected arrival time %s", sim.CurrentTime)
+				}
+				for bear.AutoAttacks.MHAuto().SpellMetrics[bear.CurrentTarget.UnitIndex].Casts == 0 {
+					if sim.Step() {
+						t.Fatal("simulation ended before the first melee swing")
+					}
+				}
+				if sim.CurrentTime > time.Second+time.Millisecond {
+					t.Fatal("Charge added a landing swing delay")
+				}
+				for !sim.Step() {
+				}
+				sim.Cleanup()
+			}
+		})
+	}
+}
+
+func TestBearChargeRequiresRangeRageAndTalent(t *testing.T) {
+	for _, tc := range []struct {
+		name           string
+		distance, rage float64
+		talents        string
+	}{
+		{"too_close", 5, 20, "000000-000000001001"},
+		{"too_far", 26, 20, "000000-000000001001"},
+		{"no_rage", 25, 0, "000000-000000001001"},
+		{"no_talent", 25, 20, "000000-000000000001"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			req := bearNakedRequest()
+			req.Raid.Tanks = nil
+			player := req.Raid.Parties[0].Players[0]
+			player.Rotation = &proto.APLRotation{}
+			player.TalentsString = tc.talents
+			player.DistanceFromTarget = tc.distance
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.AddRage(sim, tc.rage, bear.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRefund}))
+			speed := bear.GetMovementSpeed()
+			if bear.FeralCharge.Cast(sim, bear.CurrentTarget) {
+				t.Fatal("Charge cast without meeting its requirements")
+			}
+			if bear.Moving || bear.DistanceFromTarget != tc.distance || bear.GetMovementSpeed() != speed || bear.CurrentRage() != tc.rage {
+				t.Fatal("Failed Charge changed movement or rage")
+			}
+		})
 	}
 }

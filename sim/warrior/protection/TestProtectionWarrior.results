@@ -1305,12 +1305,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 470.45717
+  tps: 1039.48696
+  dtps: 305.61633
+  hps: 36.51306
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-TheGreenTower-1204"
  value: {
   dps: 467.76141
   tps: 1033.19829
   dtps: 309.4772
   hps: 36.88583
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 470.45717
+  tps: 1039.48696
+  dtps: 305.61633
+  hps: 36.51306
  }
 }
 dps_results: {
