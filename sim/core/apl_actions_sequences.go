@@ -245,6 +245,9 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		return nil
 	} else if action.hookedQueueAction != nil && action.unit.spellQueuedAfterHardcast() {
 		return action.cooldownAheadOfStep(sim)
+	} else if spell := action.current().spell; spell != nil && spell.waitsForCastEnd(sim) {
+		// The step goes in the cast-end pass, once the hardcast has landed.
+		return nil
 	} else if action.unit.GCD.TimeToReady(sim) <= MaxSpellQueueWindow {
 		// If the GCD is ready when the next subaction isn't, it means the sequence is bad
 		// so reset and exit the sequence.

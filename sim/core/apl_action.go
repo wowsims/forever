@@ -205,6 +205,8 @@ func removeFromMajorCooldowns(action APLActionImpl, character *Character) {
 		character.removeInitialMajorCooldown(castSpellAction.spell.ActionID)
 	} else if castFriendlySpellAction, ok := action.(*APLActionCastFriendlySpell); ok {
 		character.removeInitialMajorCooldown(castFriendlySpellAction.spell.ActionID)
+	} else if channelSpellAction, ok := action.(*APLActionChannelSpell); ok {
+		character.removeInitialMajorCooldown(channelSpellAction.spell.ActionID)
 	}
 }
 
