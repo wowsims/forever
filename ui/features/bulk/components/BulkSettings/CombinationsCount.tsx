@@ -20,9 +20,11 @@ export interface CombinationsCountViewProps {
 	iterations: number;
 	iterationsLimit: number;
 	encounters: number;
+	// Why the selection gives no combination, shown under the numbers.
+	error?: string | null;
 }
 
-export const CombinationsCountView = ({ pending, combinations, iterations, iterationsLimit, encounters }: CombinationsCountViewProps) => {
+export const CombinationsCountView = ({ pending, combinations, iterations, iterationsLimit, encounters, error }: CombinationsCountViewProps) => {
 	const tooltipId = useId();
 	const overLimit = !pending && iterations > iterationsLimit;
 	const warningText = i18n.t('bulk_tab.warning.iterations_limit', { limit: formatToNumber(iterationsLimit) });
@@ -68,6 +70,11 @@ export const CombinationsCountView = ({ pending, combinations, iterations, itera
 				)}
 				{pending ? <Spinner size="sm" /> : formatToNumber(iterations * encounters)}
 			</dd>
+			{!pending && error && (
+				<dd className="col-span-2 mb-0 text-danger" role="alert" data-testid="bulk-combinations-error">
+					{error}
+				</dd>
+			)}
 		</dl>
 	);
 };
@@ -77,6 +84,7 @@ export const CombinationsCount = () => {
 	const pending = useBulkState(slice => slice.combinationsPending);
 	const combinations = useBulkState(slice => slice.combinations);
 	const iterations = useBulkState(slice => slice.iterations);
+	const error = useBulkState(slice => slice.combinationsError);
 	const { current, entries, checked, powerTools } = useBulkEncounters();
 	const encounters = useMemo(() => bulkEncounterRuns(current, entries, checked, powerTools).length, [current, entries, checked, powerTools]);
 
@@ -87,6 +95,7 @@ export const CombinationsCount = () => {
 			iterations={iterations}
 			iterationsLimit={bulkIterationsLimit(sim.isNative)}
 			encounters={encounters}
+			error={error}
 		/>
 	);
 };

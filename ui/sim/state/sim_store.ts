@@ -235,6 +235,8 @@ export interface BulkSlice {
 	encounters: readonly BulkEncounterRef[];
 	combinations: number;
 	iterations: number;
+	// Why the selection gives no combination (the engine's reason), or null when it gives some.
+	combinationsError: string | null;
 	combinationsPending: boolean;
 	isRunning: boolean;
 	started: boolean;

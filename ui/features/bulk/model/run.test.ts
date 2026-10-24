@@ -36,6 +36,22 @@ describe('bulk requests', () => {
 			BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [AGILITY] }),
 		]);
 	});
+
+	it('keep a selection with no combination as its reason beside the count, not a crash, and clear it once it gives some', async () => {
+		const player = makeBulkPlayer({ getGear: () => ({ getEquippedItem: () => null }) });
+		const reason = 'no equippable pair of items available for grouped bulk slot 11';
+		const getBulkCombinationCount = vi.fn(async () => ({ combinations: 0, iterations: 0, error: { type: 0, message: reason } }));
+		const handleCrash = vi.fn();
+		const host = { player, sim: { getBulkCombinationCount }, handleCrash } as unknown as IndividualSimHost<any>;
+
+		await refreshBulkCombinations(host);
+		expect(handleCrash).not.toHaveBeenCalled();
+		expect(bulkState(player)).toMatchObject({ combinations: 0, iterations: 0, combinationsError: reason, combinationsPending: false });
+
+		getBulkCombinationCount.mockResolvedValue({ combinations: 4, iterations: 2000, error: undefined } as never);
+		await refreshBulkCombinations(host);
+		expect(bulkState(player)).toMatchObject({ combinations: 4, combinationsError: null });
+	});
 });
 
 const GEAR = { asSpec: () => ({ items: [] }) };
