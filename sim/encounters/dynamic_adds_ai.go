@@ -113,10 +113,7 @@ func makeDynamicAddsAI(isBoss bool) core.AIFactory {
 
 type DynamicAddsAI struct {
 	Target   *core.Target
-	BossUnit *core.Unit
-	AddUnits []*core.Unit
-	MainTank *core.Unit
-	OffTank  *core.Unit
+	AddUnits []*core.Unit // Every target after the first; the boss spawns and despawns them.
 
 	// Static parameters associated with a given preset
 	isBoss bool
@@ -130,11 +127,7 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 	ai.Target = target
 	ai.Target.AutoAttacks.MHConfig().ActionID.Tag = core.TernaryInt32(ai.isBoss, dynamicBossID, dynamicAddID)
 
-	ai.BossUnit = target.Env.Encounter.AllTargetUnits[0]
 	ai.AddUnits = target.Env.Encounter.AllTargetUnits[1:]
-
-	ai.MainTank = ai.BossUnit.CurrentTarget
-	ai.OffTank = ai.AddUnits[0].CurrentTarget
 
 	if ai.isBoss && len(config.TargetInputs) >= 3 {
 		ai.addLifetime = core.DurationFromSeconds(config.TargetInputs[1].NumberValue)
@@ -146,7 +139,8 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 	ai.Target.AutoAttacks.RandomizeMeleeTiming(sim)
 
-	if !ai.isBoss {
+	// An encounter can hold the add without the boss, or the boss without an add: then there is nothing to spawn.
+	if !ai.isBoss || len(ai.AddUnits) == 0 {
 		return
 	}
 
