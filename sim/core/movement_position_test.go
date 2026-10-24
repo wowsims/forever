@@ -62,3 +62,50 @@ func TestWalkAcrossMeleeRange(t *testing.T) {
 		}
 	})
 }
+
+// For a unit with a ranged auto, a main hand that came ready out of melee range with the melee attack on
+// swings on the first half-second retry after the server sees the unit arrive, the retries counted from
+// the later of the timer running out and the attack starting. An attack started on arrival swings at once.
+func TestReadySwingAfterTheWalkIn(t *testing.T) {
+	const walkInAt = 3200 * time.Millisecond // from 12 yd, on the line 1 s later
+	const onLine = walkInAt + time.Second
+
+	// Out of melee range from 1.714 s with the melee attack off, as an Auto Shot leaves it; the MH timer
+	// runs out at 2.6 s. attackOnAt < 0 leaves the attack off; swingAt > 0 moves the timer's end.
+	swingAfterWalkIn := func(t *testing.T, attackOnAt, swingAt time.Duration) time.Duration {
+		sim, fc := setupSwingResetSim(t)
+		aa := &fc.AutoAttacks
+		aa.AutoSwingRanged = true
+		aa.meleeAttackOn = false
+		fc.MoveTo(12, sim)
+		if attackOnAt >= 0 {
+			stepSwingSim(t, sim, attackOnAt)
+			aa.StartMeleeAttack(sim)
+		}
+		stepSwingSim(t, sim, walkInAt)
+		fc.MoveTo(0, sim)
+		fc.WaitUntil(sim, NeverExpires)
+		if swingAt > 0 {
+			aa.mh.swingAt = swingAt
+		}
+		stepSwingSim(t, sim, onLine+time.Second)
+		return aa.MainhandPreviousSwing()
+	}
+	for _, c := range []struct {
+		name                string
+		attackOnAt, swingAt time.Duration
+		want                time.Duration
+	}{
+		{"attack started after the timer ran out: retries from the attack, 3.7 s, 4.2 s, 4.7 s", walkInAt, 0, 4700 * time.Millisecond},
+		{"attack started before the timer ran out: retries from the timer, 3.1 s ... 4.6 s", 2 * time.Second, 0, 4600 * time.Millisecond},
+		{"attack started on arrival: swings at once", -1, 0, onLine},
+		{"timer runs out after the arrival but before the server sees it: half a second late", 2 * time.Second, onLine + 20*time.Millisecond, onLine + 520*time.Millisecond},
+		{"timer runs out after the server sees the arrival: on time", 2 * time.Second, onLine + 80*time.Millisecond, onLine + 80*time.Millisecond},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			if got := swingAfterWalkIn(t, c.attackOnAt, c.swingAt); got < c.want || got > c.want+time.Millisecond {
+				t.Fatalf("expected the MH swing at %v, got %v", c.want, got)
+			}
+		})
+	}
+}

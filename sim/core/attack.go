@@ -485,7 +485,8 @@ type AutoAttacks struct {
 	// Wakes a melee-weaver's rotation when an out-of-range MH swing comes ready.
 	meleeWeaveWakeup *PendingAction
 
-	meleeAttackOn bool // The melee attack is toggled on, which starting a ranged auto turns off.
+	meleeAttackOn   bool          // The melee attack is toggled on, which starting a ranged auto turns off.
+	meleeAttackOnAt time.Duration // When the melee attack was last toggled on.
 }
 
 // Options for initializing auto attacks.
@@ -762,6 +763,7 @@ func (aa *AutoAttacks) StartMeleeAttack(sim *Simulation) {
 		return
 	}
 	aa.meleeAttackOn = true
+	aa.meleeAttackOnAt = sim.CurrentTime
 	if aa.IsDualWielding && aa.AutoSwingRanged {
 		aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
 		aa.oh.swingAt = max(aa.oh.swingAt, sim.CurrentTime+aa.oh.curSwingDuration/2)
@@ -811,6 +813,11 @@ func (aa *AutoAttacks) EnableMeleeSwing(sim *Simulation) {
 	if !aa.mh.unit.engagedBeforePull {
 		earliest = max(earliest, 0)
 	}
+	// With the attack started on the way in, a swing that came ready before the server sees the unit
+	// arrive waits for the next retry. An attack started on arrival swings at once.
+	if aa.AutoSwingRanged && aa.meleeAttackOn && !aa.mh.enabled && sim.CurrentTime > 0 && aa.mh.swingAt < earliest+MeleeArrivalDelay {
+		aa.mh.swingAt = aa.meleeRetryAt(sim)
+	}
 	aa.mh.swingAt = max(aa.mh.swingAt, earliest)
 	if aa.mh.IsInRange() && !aa.mh.enabled {
 		aa.mh.enabled = true
@@ -830,6 +837,14 @@ func (aa *AutoAttacks) EnableMeleeSwing(sim *Simulation) {
 		sim.removeWeaponAttack(&aa.oh)
 		aa.oh.enabled = false
 	}
+}
+
+// The first retry of a main hand that came ready out of range, with the melee attack on, after the server
+// sees the unit arrive. The retries run from the later of the timer running out and the attack starting.
+func (aa *AutoAttacks) meleeRetryAt(sim *Simulation) time.Duration {
+	from := max(aa.meleeAttackOnAt, aa.mh.swingAt)
+	seen := sim.CurrentTime + MeleeArrivalDelay
+	return from + (seen-from+MeleeAutoRetryInterval-1)/MeleeAutoRetryInterval*MeleeAutoRetryInterval
 }
 
 func (aa *AutoAttacks) EnableRangedSwing(sim *Simulation) {

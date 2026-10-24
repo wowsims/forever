@@ -22,6 +22,13 @@ const SpellPushbackDuration = time.Millisecond * 500
 // reaction time after the move ends, as the player starts it again by hand.
 const RangedAutoRetryInterval = time.Millisecond * 500
 
+// How often a main hand that came ready out of melee range tries the swing again, counted from the later of
+// its timer running out and the melee attack turning on.
+const MeleeAutoRetryInterval = time.Millisecond * 500
+
+// How long after a unit gets in melee range the server sees it there.
+const MeleeArrivalDelay = time.Millisecond * 50
+
 // A ranged auto winds up for this long before it fires. Haste doesn't shorten it, only the rest of the swing.
 const RangedSwingWindup = time.Millisecond * 500
 
