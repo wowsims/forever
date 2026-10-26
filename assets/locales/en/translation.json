@@ -2717,7 +2717,30 @@
 			"talents_not_imported": "Sixty Upgrades exports do not carry talent ranks, so talents were not imported. Set them on the Talents tab."
 		},
 		"menu": {
-			"addon": "Addon"
+			"addon": "Addon",
+			"rotation_master": "Rotation Master"
+		},
+		"rotation_master": {
+			"title": "Rotation Master Import",
+			"description": "Replace the rotation with one from Rotation Master, the World of Warcraft addon, or from",
+			"site_link": "rotationmaster.neuromancy.net",
+			"feature_description": "This replaces the APL rotation and nothing else: gear, talents, buffs, consumes, the encounter and the other settings stay as they are. The report below says which steps are exact copies and which lost something.",
+			"instructions": "Paste the export string from the addon's Export box or from the website below, click 'Check' to see what it becomes, then 'Replace rotation'.",
+			"check_button": "Check",
+			"replace_button": "Replace rotation",
+			"replace_hidden_button": "Replace, hide steps that lost something",
+			"success": "Rotation replaced: {{actions}} actions and {{prepull}} pre-pull actions. Nothing else was changed.",
+			"result": "{{actions}} actions and {{prepull}} pre-pull actions ({{summary}}).",
+			"fidelity": {
+				"exact": "Exact",
+				"approximate": "Approximate",
+				"lossy": "Lossy",
+				"unsupported": "Unsupported"
+			},
+			"report": {
+				"attention": "Steps to check ({{count}})",
+				"exact": "Exact copies ({{count}})"
+			}
 		}
 	},
 	"export": {
@@ -2794,7 +2817,16 @@
 		"menu": {
 			"link": "Link",
 			"sixty_upgrades_ep": "60U EP",
-			"pawn_ep": "Pawn EP"
+			"pawn_ep": "Pawn EP",
+			"rotation_master": "Rotation Master"
+		},
+		"rotation_master": {
+			"title": "Rotation Master Export",
+			"description": "Export your APL as a Rotation Master rotation, to import in the addon or on",
+			"warning_title": "Fidelity may be lost",
+			"warning_message": "Rotation Master suggests your next action in the game; it has no fight length, cast times or simulator state. Conditions on those are left out and steps that are not exact copies are exported disabled. Check the report before relying on the export.",
+			"generated": "Your rotation is {{type}}: the simulator generated a priority list from it, and that is what was exported.",
+			"result": "{{steps}} steps, {{disabled}} disabled ({{summary}})."
 		}
 	},
 	"info": {

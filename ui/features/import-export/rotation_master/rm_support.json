@@ -1,0 +1,198 @@
+{
+	"format": "RotationMasterEditionSupport",
+	"version": 1,
+	"note": "Condition types the Rotation Master editor refuses per edition (and class), from the website condition catalog. A value is the catalog reason code.",
+	"editions": {
+		"era": {
+			"all": {
+				"RUNE": "unsupported",
+				"CREATURE": "invalid-type",
+				"SWING_TIME": "invalid-type",
+				"SWING_TIME_REMAIN": "invalid-type",
+				"RUNE_COOLDOWN": "unsupported"
+			},
+			"byClass": {
+				"WARRIOR": {
+					"TOTEM_REMAIN": "class"
+				},
+				"PALADIN": {
+					"TOTEM_REMAIN": "class"
+				},
+				"HUNTER": {
+					"TOTEM_REMAIN": "class"
+				},
+				"ROGUE": {
+					"TOTEM_REMAIN": "class"
+				},
+				"PRIEST": {
+					"TOTEM_REMAIN": "class"
+				},
+				"DEATHKNIGHT": {
+					"TOTEM_REMAIN": "class"
+				},
+				"MAGE": {
+					"TOTEM_REMAIN": "class"
+				},
+				"WARLOCK": {
+					"TOTEM_REMAIN": "class"
+				},
+				"MONK": {
+					"TOTEM_REMAIN": "class"
+				},
+				"DRUID": {
+					"TOTEM_REMAIN": "class"
+				}
+			}
+		},
+		"tbc": {
+			"all": {
+				"RUNE": "unsupported",
+				"CREATURE": "invalid-type",
+				"SWING_TIME": "invalid-type",
+				"SWING_TIME_REMAIN": "invalid-type",
+				"RUNE_COOLDOWN": "unsupported"
+			},
+			"byClass": {
+				"WARRIOR": {
+					"TOTEM_REMAIN": "class"
+				},
+				"PALADIN": {
+					"TOTEM_REMAIN": "class"
+				},
+				"HUNTER": {
+					"TOTEM_REMAIN": "class"
+				},
+				"ROGUE": {
+					"TOTEM_REMAIN": "class"
+				},
+				"PRIEST": {
+					"TOTEM_REMAIN": "class"
+				},
+				"DEATHKNIGHT": {
+					"TOTEM_REMAIN": "class"
+				},
+				"MAGE": {
+					"TOTEM_REMAIN": "class"
+				},
+				"WARLOCK": {
+					"TOTEM_REMAIN": "class"
+				},
+				"MONK": {
+					"TOTEM_REMAIN": "class"
+				},
+				"DRUID": {
+					"TOTEM_REMAIN": "class"
+				}
+			}
+		},
+		"progression": {
+			"all": {
+				"CREATURE": "invalid-type",
+				"SWING_TIME": "invalid-type",
+				"SWING_TIME_REMAIN": "invalid-type"
+			},
+			"byClass": {
+				"WARRIOR": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"PALADIN": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"HUNTER": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"ROGUE": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"PRIEST": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"SHAMAN": {
+					"RUNE": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"MAGE": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"WARLOCK": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"MONK": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"DRUID": {
+					"RUNE": "class",
+					"TOTEM_REMAIN": "class",
+					"RUNE_COOLDOWN": "class"
+				},
+				"DEATHKNIGHT": {
+					"TOTEM_REMAIN": "class"
+				}
+			}
+		},
+		"forever": {
+			"all": {
+				"MANAPCT": "unsupported",
+				"MANA": "unsupported",
+				"HEALTHPCT": "unsupported",
+				"HEALTH": "unsupported",
+				"POWER": "unsupported",
+				"RUNE": "unsupported",
+				"RUNE_ENGRAVED": "unsupported",
+				"CREATURE": "invalid-type",
+				"SWING_TIME": "invalid-type",
+				"SWING_TIME_REMAIN": "unsupported",
+				"RUNE_COOLDOWN": "unsupported",
+				"TT_HEALTH": "unsupported"
+			},
+			"byClass": {
+				"WARRIOR": {
+					"TOTEM_REMAIN": "class"
+				},
+				"PALADIN": {
+					"TOTEM_REMAIN": "class"
+				},
+				"HUNTER": {
+					"TOTEM_REMAIN": "class"
+				},
+				"ROGUE": {
+					"TOTEM_REMAIN": "class"
+				},
+				"PRIEST": {
+					"TOTEM_REMAIN": "class"
+				},
+				"DEATHKNIGHT": {
+					"TOTEM_REMAIN": "class"
+				},
+				"MAGE": {
+					"TOTEM_REMAIN": "class"
+				},
+				"WARLOCK": {
+					"TOTEM_REMAIN": "class"
+				},
+				"MONK": {
+					"TOTEM_REMAIN": "class"
+				},
+				"DRUID": {
+					"TOTEM_REMAIN": "class"
+				}
+			}
+		}
+	}
+}

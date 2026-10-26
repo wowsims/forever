@@ -116,6 +116,11 @@ export class Database {
 		this.loadProto(db);
 	}
 
+	/** The spells the database has an icon for, with their names and ranks (the ranks of a spell are what Rotation Master's spell ladders are built from). */
+	getSpellIcons(): IconData[] {
+		return Object.values(this.spellIcons);
+	}
+
 	// Add all data from the db proto into this database.
 	private loadProto(db: UIDatabase) {
 		db.items.forEach(item => {
