@@ -81,9 +81,6 @@ func (paladin *Paladin) registerSealSpell(cfg *sealConfig) *core.Spell {
 
 	config.RelatedSelfBuff = cfg.aura
 
-	// Judgement presses the seal's judgement, which holds the casts.
-	cfg.judgement.Flags |= core.SpellFlagPressed
-
 	cfg.spell = paladin.RegisterSpell(config)
 	return cfg.spell
 }

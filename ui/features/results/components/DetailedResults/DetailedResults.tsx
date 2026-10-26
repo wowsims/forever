@@ -17,7 +17,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 
 import { trackEvent } from '../../../../tracking/utils';
 import { GroupRanksContext } from '../../context/GroupRanksContext';
-import { HidePassivesContext } from '../../context/HidePassivesContext';
+import { ShowApmBreakdownContext } from '../../context/ShowApmBreakdownContext';
 import { useSimResult } from '../../hooks/useSimResult';
 import type { SimResultsManager } from '../../model/results_manager';
 import { AuraMetricsTable } from '../AuraMetricsTable';
@@ -37,7 +37,7 @@ import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS, type DetailedResul
 
 // The viewer's choice, shared by every spec page.
 const GROUP_RANKS_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-group-ranks.v1`;
-const HIDE_PASSIVES_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-hide-passives.v1`;
+const SHOW_APM_BREAKDOWN_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-apm-breakdown.v1`;
 
 const parseFlag = (value: unknown): boolean | undefined => (typeof value === 'boolean' ? value : undefined);
 
@@ -54,9 +54,9 @@ export interface DetailedResultsViewProps {
 	/** Whether the tables of the tabs marked `groupsRanks` join the ranks of a spell under one row. */
 	groupRanks: boolean;
 	onGroupRanksChange: (groupRanks: boolean) => void;
-	/** Whether the tables of the tabs marked `hidesPassives` leave out the actions the unit does not press itself. */
-	hidePassives: boolean;
-	onHidePassivesChange: (hidePassives: boolean) => void;
+	/** Whether the tables of the tabs marked `breaksDownApm` list only the player's presses, which APM counts. */
+	showApmBreakdown: boolean;
+	onShowApmBreakdownChange: (showApmBreakdown: boolean) => void;
 	/** One `DetailedResultsPane` per tab, its value the tab's id. */
 	children: ReactNode;
 }
@@ -73,8 +73,8 @@ export const DetailedResultsView = ({
 	targetPicker,
 	groupRanks,
 	onGroupRanksChange,
-	hidePassives,
-	onHidePassivesChange,
+	showApmBreakdown,
+	onShowApmBreakdownChange,
 	children,
 }: DetailedResultsViewProps) => {
 	const { ref: toolbarRef, stuck, className: stickyToolbarClassName } = useStickyToolbar<HTMLDivElement>();
@@ -112,14 +112,14 @@ export const DetailedResultsView = ({
 										onChange={onGroupRanksChange}
 									/>
 								)}
-								{activeTab?.hidesPassives && (
+								{activeTab?.breaksDownApm && (
 									<BooleanPicker
-										id="results-hide-passives"
+										id="results-show-apm-breakdown"
 										className="ml-4 group-data-no-results/dr:hidden"
-										label={i18n.t('results_tab.details.hide_passives')}
+										label={i18n.t('results_tab.details.show_apm_breakdown')}
 										layout="inline"
-										value={hidePassives}
-										onChange={onHidePassivesChange}
+										value={showApmBreakdown}
+										onChange={onShowApmBreakdownChange}
 									/>
 								)}
 							</div>
@@ -136,7 +136,7 @@ export const DetailedResultsView = ({
 							{i18n.t('results_tab.details.no_results')}
 						</div>
 						<GroupRanksContext.Provider value={groupRanks}>
-							<HidePassivesContext.Provider value={hidePassives}>{children}</HidePassivesContext.Provider>
+							<ShowApmBreakdownContext.Provider value={showApmBreakdown}>{children}</ShowApmBreakdownContext.Provider>
 						</GroupRanksContext.Provider>
 					</TabPanels>
 				</Tabs.Root>
@@ -172,7 +172,7 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	const [deathDisabled, setDeathDisabled] = useState(true);
 	const [target, setTarget] = useState(ALL_UNITS);
 	const [groupRanks, setGroupRanks] = useLocalStorageState(GROUP_RANKS_STORAGE_KEY, parseFlag, () => true);
-	const [hidePassives, setHidePassives] = useLocalStorageState(HIDE_PASSIVES_STORAGE_KEY, parseFlag, () => false);
+	const [showApmBreakdown, setShowApmBreakdown] = useLocalStorageState(SHOW_APM_BREAKDOWN_STORAGE_KEY, parseFlag, () => false);
 	const hasResults = useSimResult() !== null;
 
 	// `updateResults` is bound to the emitter, not to the filter, so the selection it reads is a ref.
@@ -305,8 +305,8 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 			}
 			groupRanks={groupRanks}
 			onGroupRanksChange={setGroupRanks}
-			hidePassives={hidePassives}
-			onHidePassivesChange={setHidePassives}>
+			showApmBreakdown={showApmBreakdown}
+			onShowApmBreakdownChange={setShowApmBreakdown}>
 			{showDamage && (
 				<DetailedResultsPane id="damageTab" className="[&_.ui-metrics-table]:text-xs" topline histogram>
 					<DamageMetricsTable />

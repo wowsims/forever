@@ -160,9 +160,6 @@ message ActionMetrics {
 
 	// True if action is applied/cast as a result of another action
 	bool is_passive = 5;
-
-	// True if the unit presses the action itself: a rotation spell (also one pressed through another spell), or a pet's own ability.
-	bool is_pressed = 6;
 }
 
 // Metrics for a specific action, when cast at a particular target.

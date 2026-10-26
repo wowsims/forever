@@ -139,12 +139,6 @@ func checkActionMetrics(t *testing.T, loc string, st []*proto.ActionMetrics, mt 
 			continue
 		}
 
-		if stAction.IsPressed != mtAction.IsPressed {
-			t.Logf("%s.Actions: %s expected IsPressed = %t but was %t in multi threaded results!", loc, stAction.Id.String(), stAction.IsPressed, mtAction.IsPressed)
-			t.Fail()
-			continue
-		}
-
 		compareValue(t, fmt.Sprintf("%s.Actions[%s]", loc, stAction.Id.String()), reflect.ValueOf(stAction.Targets), reflect.ValueOf(mtAction.Targets), absoluteFloatTolerance, relativeFloatTolerance)
 	}
 }

@@ -480,9 +480,14 @@ export class UnitMetrics {
 		return this.petActionId != null;
 	}
 
+	// The actions with button presses by the rotation on the filtered target, the ones APM counts.
+	apmActions(filter?: SimResultFilter): Array<ActionMetrics> {
+		return this.actions.map(action => action.forTarget(filter)).filter(action => action.manualCasts != 0);
+	}
+
 	// Actions per minute: the rotation's button presses on the filtered target, pets left out.
 	actionsPerMinute(filter?: SimResultFilter): number {
-		return sum(this.actions.map(action => action.forTarget(filter).manualCastsPerMinute));
+		return sum(this.apmActions(filter).map(action => action.manualCastsPerMinute));
 	}
 
 	// Returns the unit index of the target of this unit, as selected by the filter.
@@ -871,10 +876,6 @@ export class ActionMetrics {
 		return this.data.isPassive;
 	}
 
-	get isPressed() {
-		return this.data.isPressed;
-	}
-
 	get totalDamagePercent() {
 		const totalAvgDps = this.resultData.result.raidMetrics?.dps?.avg;
 		if (!totalAvgDps) return undefined;
@@ -1051,6 +1052,10 @@ export class ActionMetrics {
 	}
 
 	// Presses by the rotation, which a passive action can have too (Judgement is cast by hand and flagged passive).
+	get manualCasts() {
+		return this.combinedMetrics.manualCasts;
+	}
+
 	get manualCastsPerMinute() {
 		return this.combinedMetrics.manualCastsPerMinute;
 	}
@@ -1473,7 +1478,6 @@ export class ActionMetrics {
 			ActionMetricsProto.create({
 				isMelee: firstAction.isMeleeAction,
 				isPassive: isAllPassiveSpells,
-				isPressed: actions.some(action => action.isPressed),
 				targets: mergedTargets.map(t => t.data),
 				spellSchool: firstAction.spellSchool || undefined,
 			}),
@@ -1730,8 +1734,12 @@ class TargetedActionMetrics {
 		return this.casts / (this.duration / 60);
 	}
 
+	get manualCasts() {
+		return this.data.manualCasts / this.iterations;
+	}
+
 	get manualCastsPerMinute() {
-		return this.data.manualCasts / this.iterations / (this.duration / 60);
+		return this.manualCasts / (this.duration / 60);
 	}
 
 	get avgCastTimeMs() {

@@ -123,6 +123,7 @@ describe('actions per minute', () => {
 		const warrior = result.raidMetrics!.parties[0].players[0];
 		warrior.actions[0].targets = [press(TARGET, 600), press(PLAYER, 0)];
 		warrior.actions.push(ActionMetricsProto.create({ id: warrior.actions[0].id, isPassive: true, targets: [press(TARGET, 300), press(PLAYER, 0)] }));
+		warrior.actions.push(ActionMetricsProto.create({ id: warrior.actions[0].id, targets: [press(TARGET, 0), press(PLAYER, 0)] }));
 		warrior.pets = [
 			UnitMetricsProto.create({
 				name: 'Pet',
@@ -142,6 +143,13 @@ describe('actions per minute', () => {
 
 		expect(player.actionsPerMinute({ target: TARGET })).toBeCloseTo(3);
 		expect(player.actionsPerMinute({ target: PLAYER })).toBe(0);
+	});
+
+	it('lists the actions with presses on the filtered target as the ones APM counts', async () => {
+		const player = await withPresses();
+
+		expect(player.apmActions({ target: TARGET }).map(action => action.manualCastsPerMinute)).toEqual([2, 1]);
+		expect(player.apmActions({ target: PLAYER })).toEqual([]);
 	});
 });
 
