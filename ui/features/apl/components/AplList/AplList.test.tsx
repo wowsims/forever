@@ -1,11 +1,13 @@
 import { GroupList } from '@features/apl/components/GroupList';
 import { PriorityPane } from '@features/apl/components/PriorityPane';
+import { aplClipToText } from '@features/apl/model/clipboard';
 import { APLAction, APLGroup, APLListItem, APLPrepullAction, APLRotation, APLValue } from '@generated/proto/apl';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { dragEvent, FakeIntersectionObserver, place } from '@testing/apl/dom';
 import { makePlayer } from '@testing/apl/player';
 import { source } from '@testing/apl/source';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { toastManager } from '@ui-kit/Toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@sim/state/subscriptions', async () => {
@@ -44,6 +46,12 @@ const rowsOf = (testId: string) => Array.from(section(testId).querySelectorAll<H
 const priorityRows = () => rowsOf('apl-priority-list-picker-root');
 const prepullRows = () => rowsOf('apl-prepull-list-root');
 const namesShown = () => Array.from(document.querySelectorAll<HTMLInputElement>('[data-kind="resetSequence"] input')).map(input => input.value);
+
+/** A clipboard that reads back what was last written. */
+const stubClipboard = () => {
+	let clipboard = '';
+	vi.stubGlobal('navigator', { clipboard: { writeText: async (text: string) => void (clipboard = text), readText: async () => clipboard } });
+};
 
 const grab = (element: HTMLElement) => {
 	fireEvent.mouseDown(within(element).getAllByRole('button', { name: MOVE })[0]);
@@ -432,6 +440,99 @@ describe('AplList on the action groups pane', () => {
 		drop(groupItems()[0], 5);
 
 		expect(player.aplRotation.groups.map(group => group.name)).toEqual(['two', 'one']);
+	});
+
+	const pasteFromToolbar = () =>
+		act(async () => {
+			fireEvent.click(within(screen.getByTestId('apl-floating-action-bar-root')).getByTestId('apl-paste'));
+		});
+
+	it('pastes a copied group under the name the dialog starts on, the next free one', async () => {
+		stubClipboard();
+		setup({ groups: [APLGroup.create({ name: 'one', actions: [row('x')] })] });
+		mount(<GroupList />);
+
+		await openActions(groupItems()[0]);
+		await clickAction('apl-item-clipboard');
+		await pasteFromToolbar();
+		const dialog = screen.getByRole('dialog');
+		expect(within(dialog).getByRole('textbox')).toHaveProperty('value', 'one (2)');
+		await act(async () => {
+			fireEvent.click(within(dialog).getByRole('button', { name: 'rotation_tab.apl.floatingActionBar.paste' }));
+		});
+
+		expect(player.aplRotation.groups.map(group => group.name)).toEqual(['one', 'one (2)']);
+		expect(sequenceNames(player.aplRotation.groups[1].actions)).toEqual(['x']);
+	});
+
+	it('warns and adds nothing when the clipboard holds an action and the paste is for a group', async () => {
+		stubClipboard();
+		const toast = vi.spyOn(toastManager, 'add');
+		setup({ groups: [APLGroup.create({ name: 'one', actions: [row('x')] })] });
+		mount(<GroupList />);
+
+		await openActions(actionRows(groupItems()[0])[0]);
+		await clickAction('apl-item-clipboard');
+		await pasteFromToolbar();
+
+		expect(toast).toHaveBeenLastCalledWith(expect.objectContaining({ variant: 'warning', body: 'rotation_tab.apl.clipboard.wrong_kind' }));
+		expect(player.aplRotation.groups).toHaveLength(1);
+		expect(screen.queryByRole('dialog')).toBeNull();
+	});
+
+	it("pastes an action copied from one group into another group's actions", async () => {
+		stubClipboard();
+		setup({ groups: [APLGroup.create({ name: 'one', actions: [row('x')] }), APLGroup.create({ name: 'two', actions: [row('y')] })] });
+		mount(<GroupList />);
+
+		await openActions(actionRows(groupItems()[0])[0]);
+		await clickAction('apl-item-clipboard');
+		await act(async () => {
+			fireEvent.click(within(groupItems()[1]).getByTestId('apl-paste'));
+		});
+
+		const [one, two] = player.aplRotation.groups;
+		expect(sequenceNames(one.actions)).toEqual(['x']);
+		expect(sequenceNames(two.actions)).toEqual(['y', 'x']);
+	});
+
+	it('takes the copied text in a dialog when the page cannot read the clipboard', async () => {
+		vi.stubGlobal('navigator', {});
+		const text = aplClipToText({ kind: 'action', item: row('z') });
+		setup({ groups: [APLGroup.create({ name: 'one', actions: [row('x')] })] });
+		mount(<GroupList />);
+
+		await act(async () => {
+			fireEvent.click(within(groupItems()[0]).getByTestId('apl-paste'));
+		});
+		const dialog = screen.getByRole('dialog');
+		fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: text } });
+		await act(async () => {
+			fireEvent.click(within(dialog).getByRole('button', { name: 'rotation_tab.apl.floatingActionBar.paste' }));
+		});
+
+		expect(sequenceNames(player.aplRotation.groups[0].actions)).toEqual(['x', 'z']);
+	});
+
+	it('goes on from the text dialog to the name dialog for a group', async () => {
+		vi.stubGlobal('navigator', {});
+		const text = aplClipToText({ kind: 'group', item: APLGroup.create({ name: 'one', actions: [row('z')] }) });
+		setup({ groups: [APLGroup.create({ name: 'one', actions: [row('x')] })] });
+		mount(<GroupList />);
+
+		await pasteFromToolbar();
+		fireEvent.change(within(screen.getByRole('dialog')).getByRole('textbox'), { target: { value: text } });
+		await act(async () => {
+			fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'rotation_tab.apl.floatingActionBar.paste' }));
+		});
+		const dialog = screen.getByRole('dialog');
+		expect(within(dialog).getByRole('textbox')).toHaveProperty('value', 'one (2)');
+		await act(async () => {
+			fireEvent.click(within(dialog).getByRole('button', { name: 'rotation_tab.apl.floatingActionBar.paste' }));
+		});
+
+		expect(player.aplRotation.groups.map(group => group.name)).toEqual(['one', 'one (2)']);
+		expect(sequenceNames(player.aplRotation.groups[1].actions)).toEqual(['z']);
 	});
 
 	it('adds an action to a group through the add button inside its children', () => {

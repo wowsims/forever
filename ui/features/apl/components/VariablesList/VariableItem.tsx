@@ -5,6 +5,7 @@ import { uuidValidations } from '@features/apl/components/ListItemHeader/utils';
 import { NameDisplay } from '@features/apl/components/NameDisplay';
 import { ValuePicker } from '@features/apl/components/ValuePicker';
 import { AplProvider, useApl } from '@features/apl/context/AplContext';
+import { copyAplClip } from '@features/apl/hooks/useAplClipboard';
 import { useAplInput } from '@features/apl/hooks/useAplInput';
 import { rowSource } from '@features/apl/model/row_source';
 import type { InputConfig } from '@features/inputs/input';
@@ -59,7 +60,14 @@ export const VariableItem = ({ id, player, config, onCopy, onDelete }: VariableI
 			label={variableLabel}
 			title={<NameDisplay name={variable?.name || ''} onRename={() => setRenaming(true)} />}
 			aside={<AplValidations getValidations={subject => uuidValidations(subject, config.getValue(subject)?.value?.uuid?.value)} />}
-			actions={<AplItemActions label={variableLabel} onCopy={onCopy} onDelete={onDelete} />}
+			actions={
+				<AplItemActions
+					label={variableLabel}
+					onCopy={onCopy}
+					onCopyToClipboard={() => copyAplClip({ kind: 'variable', item: config.getValue(player) })}
+					onDelete={onDelete}
+				/>
+			}
 			testId="apl-variable-root">
 			<Tree.Item.Body>
 				<Field {...frameProps} density="compact" className={[frameProps.className, 'm-0']} testId="apl-list-item-picker-root" disabled={disabled}>

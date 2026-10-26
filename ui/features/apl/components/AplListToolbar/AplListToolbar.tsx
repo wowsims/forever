@@ -19,14 +19,16 @@ export interface AplListToolbarViewProps {
 		existingNames: () => Array<string>;
 	};
 	onCreate: (name?: string) => void;
+	/** When given, a paste button beside the new button appends the item the clipboard holds. */
+	onPaste?: () => void;
 	onReset: () => void;
 	className?: string;
 }
 
 /**
- * The sticky "new / reset" bar under an APL list.
+ * The sticky "new / paste / reset" bar under an APL list; the paste button shows only when `onPaste` is given.
  */
-export const AplListToolbarView = ({ itemName, nameDialog, onCreate, onReset, className }: AplListToolbarViewProps) => {
+export const AplListToolbarView = ({ itemName, nameDialog, onCreate, onPaste, onReset, className }: AplListToolbarViewProps) => {
 	const newLabel = i18n.t('rotation_tab.apl.floatingActionBar.new', { itemName });
 	const { ref: rootRef, stuck } = useStickyBottom<HTMLDivElement>();
 	const [naming, setNaming] = useState(false);
@@ -44,6 +46,12 @@ export const AplListToolbarView = ({ itemName, nameDialog, onCreate, onReset, cl
 				<Icon name="plus" />
 				{newLabel}
 			</ToolbarButton>
+			{onPaste && (
+				<ToolbarButton variant="outline-primary" className="ml-2" testId="apl-paste" onClick={onPaste}>
+					<Icon name="paste" />
+					{i18n.t('rotation_tab.apl.floatingActionBar.paste', { itemName })}
+				</ToolbarButton>
+			)}
 			<ToolbarButton variant="link-danger" size="sm" className="ml-auto" onClick={onReset}>
 				<Icon name="xmark" />
 				{i18n.t('rotation_tab.apl.floatingActionBar.reset')}

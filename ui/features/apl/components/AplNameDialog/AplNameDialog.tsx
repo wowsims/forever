@@ -44,11 +44,9 @@ export const AplNameDialog = ({
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [name, setName] = useState(defaultValue || '');
 
-	// Each opening starts from the value it was given, and focuses the field once it is on screen.
+	// Each opening starts from the value it was given; the dialog focuses the field (`initialFocus`).
 	useEffect(() => {
-		if (!open) return;
-		setName(defaultValue || '');
-		inputRef.current?.focus();
+		if (open) setName(defaultValue || '');
 	}, [open, defaultValue]);
 
 	const trimmed = name.trim();
@@ -69,6 +67,7 @@ export const AplNameDialog = ({
 				onCancel?.();
 				onClose();
 			}}
+			initialFocus={inputRef}
 			size="sm"
 			title={title}
 			footer={

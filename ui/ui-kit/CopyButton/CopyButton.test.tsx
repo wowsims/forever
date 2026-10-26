@@ -38,13 +38,13 @@ describe('CopyButton', () => {
 		expect(button(container).getAttribute('type')).toBe('button');
 	});
 
-	it('copies the content and swaps to the copied label and icon', () => {
+	it('copies the content and swaps to the copied label and icon', async () => {
 		const { container } = render(<CopyButton getContent={() => 'payload'} text="Copy me" />);
 
 		expect(button(container).textContent).toContain('Copy me');
 		expect(container.querySelector('svg')?.getAttribute('data-icon')).toBe('copy');
 
-		act(() => void fireEvent.click(button(container)));
+		await act(async () => void fireEvent.click(button(container)));
 
 		expect(copied).toEqual(['payload']);
 		expect(container.querySelector('svg')?.getAttribute('data-icon')).toBe('check');
