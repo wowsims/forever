@@ -110,6 +110,16 @@ leave the form.
 - A form spell (subtext "Shapeshift") is a single-rank ladder like a warrior stance, so
   `spellData.CatForm` exists.
 
+## Filing it in the APL picker
+
+The APL cast-spell and aura pickers file an entry under its category (`Cooldowns`, `Consumables`,
+`Talents`, ...), else under `Spell` or the top level. To file it in a submenu of its own, set `MenuGroup`
+on the `core.SpellConfig` or `core.Aura` to a lowercase_underscore key and add the label under
+`rotation_tab.apl.submenus.<key>` in the locale and its schema. The group wins over the category and is
+listed first. Nothing sets a group by default, and a spell and its aura are filed apart, so set it on
+each, and on every rank of a ranked spell. The warrior's stances (`sim/warrior/stances.go`) are filed
+under `Stances` this way.
+
 ## The three shapes a registration takes
 
 1. **The row, plus what no row states.** `sim/warrior/pummel.go` and `sim/warrior/slam.go`: the

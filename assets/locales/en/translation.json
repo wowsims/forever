@@ -2194,7 +2194,8 @@
 				"external_cooldowns": "External Cooldowns",
 				"external_debuffs": "External Debuffs",
 				"variables": "Variables",
-				"groups": "Groups"
+				"groups": "Groups",
+				"stances": "Stances"
 			},
 			"item_swap_sets": {
 				"main": "Main",

@@ -36,7 +36,7 @@ message ScalingItemProperties {
     int32 rand_prop_points = 1;
     double weapon_damage_min = 2;
     double weapon_damage_max = 3;
-    double unrounded_dps = 8;
+    float unrounded_dps = 8;
     map<int32, double> stats = 4; // for compactness
 	int32 ilvl = 6;
 	// The damage the weapon deals with a random suffix that reduces caster DPS; unset on items with no such suffix option.
@@ -49,7 +49,7 @@ message ScalingItemProperties {
 message ReducedCasterWeaponDamage {
 	double weapon_damage_min = 1;
 	double weapon_damage_max = 2;
-	double unrounded_dps = 3;
+	float unrounded_dps = 3;
 }
 
 message AreaStats {
