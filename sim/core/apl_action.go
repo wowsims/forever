@@ -123,8 +123,8 @@ type APLActionImpl interface {
 	// Called only while this action is controlling the rotation.
 	GetNextAction(sim *Simulation) *APLAction
 
-	// Swaps each value this action holds in its own fields for what replace gives for it.
-	ReplaceAPLValues(replace func(APLValue) APLValue)
+	// Re-resolve variable references with updated group variables.
+	ReResolveVariableRefs(*APLRotation, map[string]*proto.APLValue)
 
 	// Pretty-print string for debugging.
 	String() string
@@ -134,13 +134,13 @@ type APLActionImpl interface {
 type defaultAPLActionImpl struct {
 }
 
-func (impl defaultAPLActionImpl) GetInnerActions() []*APLAction            { return nil }
-func (impl defaultAPLActionImpl) GetAPLValues() []APLValue                 { return nil }
-func (impl defaultAPLActionImpl) Finalize(*APLRotation)                    {}
-func (impl defaultAPLActionImpl) PostFinalize(*APLRotation)                {}
-func (impl defaultAPLActionImpl) Reset(*Simulation)                        {}
-func (impl defaultAPLActionImpl) GetNextAction(*Simulation) *APLAction     { return nil }
-func (impl defaultAPLActionImpl) ReplaceAPLValues(func(APLValue) APLValue) {}
+func (impl defaultAPLActionImpl) GetInnerActions() []*APLAction                                  { return nil }
+func (impl defaultAPLActionImpl) GetAPLValues() []APLValue                                       { return nil }
+func (impl defaultAPLActionImpl) Finalize(*APLRotation)                                          {}
+func (impl defaultAPLActionImpl) PostFinalize(*APLRotation)                                      {}
+func (impl defaultAPLActionImpl) Reset(*Simulation)                                              {}
+func (impl defaultAPLActionImpl) GetNextAction(*Simulation) *APLAction                           { return nil }
+func (impl defaultAPLActionImpl) ReResolveVariableRefs(*APLRotation, map[string]*proto.APLValue) {}
 
 func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 	if config == nil {

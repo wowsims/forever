@@ -32,9 +32,6 @@ func (rot *APLRotation) newActionWait(config *proto.APLActionWait) APLActionImpl
 func (action *APLActionWait) GetAPLValues() []APLValue {
 	return []APLValue{action.duration}
 }
-func (action *APLActionWait) ReplaceAPLValues(replace func(APLValue) APLValue) {
-	action.duration = replace(action.duration)
-}
 func (action *APLActionWait) IsReady(sim *Simulation) bool {
 	return action.duration.GetDuration(sim) > 0
 }
@@ -79,9 +76,6 @@ func (rot *APLRotation) newActionWaitUntil(config *proto.APLActionWaitUntil) APL
 }
 func (action *APLActionWaitUntil) GetAPLValues() []APLValue {
 	return []APLValue{action.condition}
-}
-func (action *APLActionWaitUntil) ReplaceAPLValues(replace func(APLValue) APLValue) {
-	action.condition = replace(action.condition)
 }
 func (action *APLActionWaitUntil) IsReady(sim *Simulation) bool {
 	return !action.condition.GetBool(sim)
