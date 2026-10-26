@@ -117,3 +117,25 @@ func TestSpellInRange(t *testing.T) {
 		}
 	}
 }
+
+// A Move with no range, or a Move Duration with no duration, is left out of the rotation with a warning.
+func TestMoveWithoutValue(t *testing.T) {
+	sim := setupFakeRageSimFrom(fakeRageSimRequest())
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	rot := fw.newAPLRotation(&proto.APLRotation{
+		Type: proto.APLRotation_TypeAPL,
+		PriorityList: []*proto.APLListItem{
+			{Action: &proto.APLAction{Action: &proto.APLAction_Move{Move: &proto.APLActionMove{}}}},
+			{Action: &proto.APLAction{Action: &proto.APLAction_MoveDuration{MoveDuration: &proto.APLActionMoveDuration{}}}},
+		},
+	})
+
+	if len(rot.priorityList) != 0 {
+		t.Errorf("priority list has %d actions, want none", len(rot.priorityList))
+	}
+	for i, validations := range rot.priorityListValidations {
+		if len(validations) != 1 || validations[0].LogLevel != proto.LogLevel_Warning {
+			t.Errorf("action %d: validations = %v, want one warning", i, validations)
+		}
+	}
+}
