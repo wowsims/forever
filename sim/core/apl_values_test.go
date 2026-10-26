@@ -255,21 +255,16 @@ func TestValueVariables(t *testing.T) {
 	})
 }
 
-// A group reference fills the group's placeholders and variables in its actions' values, those of an action
-// inside a sequence included, as it does in their conditions. A value of a type the action cannot read is left
-// out with a warning, and a placeholder left unfilled is an error.
+// A group reference fills the group's placeholders in its actions' values, those of an action inside a sequence
+// included, as it does in their conditions, and checks what it builds as the constructors do. A fill of a type the
+// value cannot take, or one that is empty, leaves the placeholder reading zero with a warning, and a placeholder
+// left unfilled is an error.
 func TestGroupFillsActionValues(t *testing.T) {
 	placeholder := func(name string) *proto.APLValue {
 		return &proto.APLValue{Value: &proto.APLValue_VariablePlaceholder{VariablePlaceholder: &proto.APLValueVariablePlaceholder{Name: name}}}
 	}
-	variable := func(name string) *proto.APLValue {
-		return &proto.APLValue{Value: &proto.APLValue_VariableRef{VariableRef: &proto.APLValueVariableRef{Name: name}}}
-	}
 	reference := func(group string, variables ...*proto.APLValueVariable) *proto.APLListItem {
 		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: group, Variables: variables}}}}
-	}
-	wait := func(duration *proto.APLValue) *proto.APLListItem {
-		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: duration}}}}
 	}
 	move := func(moveRange *proto.APLValue) *proto.APLListItem {
 		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_Move{Move: &proto.APLActionMove{RangeFromTarget: moveRange}}}}
@@ -280,8 +275,7 @@ func TestGroupFillsActionValues(t *testing.T) {
 	sim := setupFakeRageSimFrom(fakeRageSimRequest())
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
 	rot := fw.newAPLRotation(&proto.APLRotation{
-		Type:           proto.APLRotation_TypeAPL,
-		ValueVariables: []*proto.APLValueVariable{{Name: "pause", Value: constValue("1s")}, {Name: "rest", Value: constValue("1s")}},
+		Type: proto.APLRotation_TypeAPL,
 		PriorityList: []*proto.APLListItem{
 			reference("filled",
 				&proto.APLValueVariable{Name: "time", Value: constValue("2s")},
@@ -289,21 +283,29 @@ func TestGroupFillsActionValues(t *testing.T) {
 				&proto.APLValueVariable{Name: "far", Value: constValue("3s")},
 				&proto.APLValueVariable{Name: "when", Value: constValue("true")},
 				&proto.APLValueVariable{Name: "yesNo", Value: yesNoValue()},
+				&proto.APLValueVariable{Name: "blank", Value: &proto.APLValue{}},
 			),
 			reference("unfilled"),
 		},
 		Groups: []*proto.APLGroup{
 			{
-				Name:      "filled",
-				Variables: []*proto.APLValueVariable{{Name: "pause", Value: constValue("3s")}, {Name: "rest", Value: yesNoValue()}},
+				Name: "filled",
 				Actions: []*proto.APLListItem{
-					wait(placeholder("time")),
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: placeholder("time")}}}},
 					move(placeholder("range")),
 					move(placeholder("far")),
 					{Action: &proto.APLAction{Action: &proto.APLAction_Sequence{Sequence: &proto.APLActionSequence{Name: "walk", Actions: []*proto.APLAction{moveDuration(placeholder("time"))}}}}},
 					{Action: moveDuration(placeholder("yesNo"))},
-					wait(variable("pause")),
-					wait(variable("rest")),
+					{Action: &proto.APLAction{
+						Condition: &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{Op: proto.APLValueCompare_OpGt, Lhs: placeholder("blank"), Rhs: constValue("1")}}},
+						Action:    &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: placeholder("blank")}},
+					}},
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: &proto.APLValue{Value: &proto.APLValue_Max{Max: &proto.APLValueMax{
+						Vals: []*proto.APLValue{placeholder("time"), {Value: &proto.APLValue_NumberTargets{NumberTargets: &proto.APLValueNumberTargets{}}}},
+					}}}}}}},
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{
+						Op: proto.APLValueMath_OpMul, Lhs: placeholder("time"), Rhs: placeholder("time"),
+					}}}}}}},
 				},
 			},
 			{Name: "unfilled", Actions: []*proto.APLListItem{move(placeholder("missing"))}},
@@ -322,40 +324,20 @@ func TestGroupFillsActionValues(t *testing.T) {
 		{"Move Duration in a sequence", inSequence.impl.(*APLActionMoveDuration).moveDuration.GetDuration(sim), 2 * time.Second},
 		{"its condition", inSequence.condition.GetBool(sim), true},
 		{"Move Duration of a yes/no", group[4].impl.(*APLActionMoveDuration).moveDuration.GetDuration(sim), time.Duration(0)},
-		{"Wait on a group variable", group[5].impl.(*APLActionWait).duration.GetDuration(sim), 3 * time.Second},
-		{"Wait on a yes/no group variable", group[6].impl.(*APLActionWait).duration.GetDuration(sim), time.Second},
+		{"Wait on an empty variable", group[5].impl.(*APLActionWait).duration.GetDuration(sim), time.Duration(0)},
+		{"a comparison of it", group[5].condition.GetBool(sim), false},
+		{"Wait on the longer of a duration and a count", group[6].impl.(*APLActionWait).duration.GetDuration(sim), 2 * time.Second},
+		{"Wait on a duration times a duration", group[7].impl.(*APLActionWait).duration.GetDuration(sim), time.Duration(0)},
 	} {
 		if tc.got != tc.want {
 			t.Errorf("%s reads %v, want %v", tc.name, tc.got, tc.want)
 		}
 	}
 
-	wantWarnings(t, "the filled reference", rot.priorityListValidations[0], "Cannot read a yes/no value as a duration", "Cannot read a yes/no value as a duration")
+	wantWarnings(t, "the filled reference", rot.priorityListValidations[0], "Cannot read a yes/no value as a duration", "variable 'blank'", "variable 'blank'", "Duration * Duration")
 	if validations := rot.priorityListValidations[1]; len(validations) != 1 || validations[0].LogLevel != proto.LogLevel_Error || !strings.Contains(validations[0].Validation, "placeholder 'missing'") {
 		t.Errorf("the unfilled reference: validations = %v, want the error naming 'missing'", validations)
 	}
-}
-
-// A constant read as another type holds what the wrapper reads, and text is not a number.
-func TestCoerceConstant(t *testing.T) {
-	sim, _, rot := setupFakeRageRotation()
-	coerce := func(val string, to proto.APLValueType) APLValue {
-		return rot.coerceTo(rot.newAPLValue(constValue(val)), to)
-	}
-	if got := coerce("3s", proto.APLValueType_ValueTypeFloat).GetFloat(sim); got != 3 {
-		t.Errorf("3s as a number reads %v, want 3", got)
-	}
-	if coerce("0", proto.APLValueType_ValueTypeBool).GetBool(sim) {
-		t.Errorf("0 as a yes/no value reads true, want false")
-	}
-	if got := coerce("true", proto.APLValueType_ValueTypeInt).GetInt(sim); got != 1 {
-		t.Errorf("true as a whole number reads %d, want 1", got)
-	}
-	rot.curValidations = nil
-	if got := coerce("far", proto.APLValueType_ValueTypeDuration); got != nil {
-		t.Errorf("far as a duration reads %v, want no value", got)
-	}
-	wantWarnings(t, "far as a duration", rot.curValidations, "Cannot read text as a duration")
 }
 
 func TestValueEncounter(t *testing.T) {

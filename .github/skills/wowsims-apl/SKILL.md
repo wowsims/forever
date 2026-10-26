@@ -51,13 +51,16 @@ A value or action reaches the rotation and the kind picker in five places, all i
 
 - **Nothing forces step 2.** The switch's `default` returns nil with no warning, so a oneof without a case is dropped
   like an unresolved value.
-- **A field reads its value through `coerceTo`** (`apl_values_operators.go`), which leaves out a value it cannot read
-  as the field's type, a yes/no value as a duration or text as a number, with a "Cannot read" warning. Move, Move
-  Duration, Wait, Wait Until and a prepull Do At then drop the line with a warning of their own.
+- **A field reads its value through `coerceTo`** (`apl_values_operators.go`), which leaves out a computed value it
+  cannot read as the field's type, a yes/no value as a duration or text as a number, with a "Cannot read" warning.
+  Move, Move Duration, Wait, Wait Until and a prepull Do At then drop the line with a warning of their own.
+- **A constant read as another type keeps the fields of its own type** (`coerceTo`): `3s` in a number field reads 0,
+  and `0` as yes/no reads true, as does any constant that is not empty.
 - **An action with a value field implements `GetAPLValues` and `ReplaceAPLValues`.** The first is how its values
-  are finalized and scanned for placeholders, the second how a Group Reference fills the group's placeholders and
-  variables in them (`apl_action_group_reference.go`); without it a placeholder there reads zero. A group variable
-  that overrides a value variable is read as the value variable's type (`reResolveVariableRefs`).
+  are finalized and scanned for placeholders, the second how a Group Reference fills them
+  (`apl_action_group_reference.go`); without it a placeholder there reads zero.
+- **A group's variables override value variables only in the conditions of its own actions**, not in their values
+  or inside a sequence (`reResolveVariableRefs`).
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
 - **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in

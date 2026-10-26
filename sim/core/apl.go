@@ -811,11 +811,7 @@ func (rot *APLRotation) reResolveVariableRefs(value APLValue, groupVars map[stri
 		// Re-resolve the variable reference with the updated group variables
 		if groupVars != nil {
 			if val, ok := groupVars[varRef.name]; ok {
-				// What reads the reference was built for its type, so a group value of another type is read as that type.
 				resolved := rot.newAPLValue(val)
-				if resolved != nil && varRef.Type() != proto.APLValueType_ValueTypeUnknown {
-					resolved = rot.coerceTo(resolved, varRef.Type())
-				}
 				if resolved != nil {
 					// Group override: update resolved value and use a private cache
 					// (not shared with global variable refs)
