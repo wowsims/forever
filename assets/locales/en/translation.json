@@ -2685,16 +2685,25 @@
 			"title": "Addon Import",
 			"description": "Import settings from the",
 			"addon_link": "WoWSims Exporter In-Game Addon",
-			"feature_description": "This feature imports gear, race, talents, and professions. It does NOT import buffs, debuffs, consumes, rotation, or custom stats.",
+			"feature_description": "This feature imports the gear, race, professions and rotation (an optional \"rotation\" entry in the same format as the JSON export) that the pasted text contains, and leaves everything else as it is. It does NOT import buffs, debuffs, consumes, or custom stats.",
 			"instructions": "To import, paste the output from the addon below and click, 'Import'.",
 			"upload_button": "Upload File",
 			"import_button": "Import",
 			"error_invalid_export": "Please use a valid Addon export.",
+			"error_nothing_to_import": "The pasted text has no gear, race, professions or rotation to import.",
+			"error_invalid_rotation": "The rotation in the pasted text is not a valid rotation.",
 			"outdated": "Addon is not up to date. Addon version : '{{version}}', Latest version : '{{latest}}'",
 			"below_max_level": "The character you imported is level {{level}}. The Sim is intended to be used for max level only, so you might be missing certain items."
 		},
 		"error": "Import error:",
 		"success": "Import successful!",
+		"success_sections": "Import successful! Applied: {{sections}}. Everything else was left as it was.",
+		"sections": {
+			"gear": "gear",
+			"race": "race",
+			"professions": "professions",
+			"rotation": "rotation"
+		},
 		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
 		"missing_ids": {
 			"title": "Import successful, but the following IDs were not found in the sim database:",

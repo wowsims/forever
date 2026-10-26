@@ -1,5 +1,8 @@
+import type { APLRotation } from '@generated/proto/apl';
 import type { Class, EquipmentSpec, Profession, Race } from '@generated/proto/common';
+import { IndividualSimSettings } from '@generated/proto/ui';
 import i18n from '@i18n/config';
+import { SimSettingCategories } from '@sim/constants/sim_settings';
 import { Database } from '@sim/proto/database';
 import { classNames } from '@sim/proto/names';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -16,17 +19,22 @@ export interface IndividualImport {
 	missingItems?: number[];
 }
 
+// What an import applies is what it carries: a field left out keeps the sim's current setting.
+export type PartialIndividualImport = Partial<IndividualImport> & { rotation?: APLRotation };
+
 export const finishIndividualImport = async (
 	host: IndividualSimHost<any>,
-	{ charClass, race, equipmentSpec, talentsStr, professions, missingEnchants = [], missingItems = [] }: IndividualImport,
+	{ charClass, race, equipmentSpec, talentsStr = '', professions = [], rotation, missingEnchants = [], missingItems = [] }: PartialIndividualImport,
 ): Promise<void> => {
-	if (charClass != host.player.getClass()) {
+	if (charClass !== undefined && charClass != host.player.getClass()) {
 		throw new Error(i18n.t('import.errors.wrong_class', { expected: host.player.getPlayerClass().friendlyName, found: classNames.get(charClass) }));
 	}
 
-	await Database.loadLeftoversIfNecessary(equipmentSpec);
+	if (equipmentSpec) {
+		await Database.loadLeftoversIfNecessary(equipmentSpec);
+	}
 
-	const gear = host.sim.db.lookupEquipmentSpec(equipmentSpec);
+	const gear = equipmentSpec && host.sim.db.lookupEquipmentSpec(equipmentSpec);
 
 	// A talent string is positional: digit i of tree t is talents[i] of whatever tree the exporter
 	// was built against. Forever's trees are a different set, so applying an imported string would
@@ -34,10 +42,18 @@ export const finishIndividualImport = async (
 	const importedTalents = !!talentsStr && talentsStr != '--';
 
 	batch(() => {
-		host.player.setRace(race);
-		host.player.setGear(gear);
+		if (race !== undefined) {
+			host.player.setRace(race);
+		}
+		if (gear) {
+			host.player.setGear(gear);
+		}
 		if (professions.length > 0) {
 			host.player.setProfessions(professions);
+		}
+		if (rotation) {
+			// The same path a JSON import takes for a rotation, so it is read the same way.
+			host.fromProto(IndividualSimSettings.create({ player: { rotation } }), [SimSettingCategories.Rotation]);
 		}
 	});
 
@@ -49,8 +65,17 @@ export const finishIndividualImport = async (
 		});
 	}
 
+	const applied = [
+		race !== undefined && i18n.t('import.sections.race'),
+		gear && i18n.t('import.sections.gear'),
+		professions.length > 0 && i18n.t('import.sections.professions'),
+		rotation && i18n.t('import.sections.rotation'),
+	].filter(Boolean);
+
 	if (missingItems.length == 0 && missingEnchants.length == 0) {
-		toastManager.add({ variant: 'success', body: i18n.t('import.success') });
+		// Say what was applied when the import did not carry everything, or carried a rotation.
+		const full = race !== undefined && gear && !rotation;
+		toastManager.add({ variant: 'success', body: full ? i18n.t('import.success') : i18n.t('import.success_sections', { sections: applied.join(', ') }) });
 	} else {
 		toastManager.add({
 			variant: 'info',

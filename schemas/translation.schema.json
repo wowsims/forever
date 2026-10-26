@@ -9600,6 +9600,12 @@
 						"error_invalid_export": {
 							"type": "string"
 						},
+						"error_nothing_to_import": {
+							"type": "string"
+						},
+						"error_invalid_rotation": {
+							"type": "string"
+						},
 						"outdated": {
 							"type": "string"
 						},
@@ -9617,6 +9623,8 @@
 						"upload_button",
 						"import_button",
 						"error_invalid_export",
+						"error_nothing_to_import",
+						"error_invalid_rotation",
 						"outdated",
 						"below_max_level"
 					]
@@ -9626,6 +9634,28 @@
 				},
 				"success": {
 					"type": "string"
+				},
+				"success_sections": {
+					"type": "string"
+				},
+				"sections": {
+					"type": "object",
+					"properties": {
+						"gear": {
+							"type": "string"
+						},
+						"race": {
+							"type": "string"
+						},
+						"professions": {
+							"type": "string"
+						},
+						"rotation": {
+							"type": "string"
+						}
+					},
+					"required": ["gear", "race", "professions", "rotation"],
+					"additionalProperties": false
 				},
 				"talents_not_imported": {
 					"type": "string"
@@ -9713,7 +9743,21 @@
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "json", "wowhead", "addon", "error", "success", "talents_not_imported", "missing_ids", "errors", "sixty_upgrades", "menu"]
+			"required": [
+				"title",
+				"json",
+				"wowhead",
+				"addon",
+				"error",
+				"success",
+				"success_sections",
+				"sections",
+				"talents_not_imported",
+				"missing_ids",
+				"errors",
+				"sixty_upgrades",
+				"menu"
+			]
 		},
 		"export": {
 			"type": "object",
