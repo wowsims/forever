@@ -397,6 +397,12 @@ func newDot(config Dot) *Dot {
 		}
 		sim.AddPendingAction(dot.tickAction)
 		if dot.isChanneled {
+			// Starting a channel ends the unit's running one with no further tick. That end clears the
+			// channel state and the rotation's interrupt condition, so it runs before this channel takes them.
+			if running := dot.Spell.Unit.ChanneledDot; running != nil {
+				running.stopTicking(sim)
+				running.Deactivate(sim)
+			}
 			dot.Spell.Unit.ChanneledDot = dot
 			if rotation := dot.Spell.Unit.Rotation; rotation != nil {
 				rotation.adoptChannelAction(dot)
@@ -420,8 +426,10 @@ func newDot(config Dot) *Dot {
 				dot.Spell.Unit.creditManaRegen(sim)
 			}
 			dot.Spell.Unit.ChanneledDot = nil
-			dot.Spell.Unit.Rotation.interruptChannelIf = nil
-			dot.Spell.Unit.Rotation.allowChannelRecastOnInterrupt = false
+			if rotation := dot.Spell.Unit.Rotation; rotation != nil {
+				rotation.interruptChannelIf = nil
+				rotation.allowChannelRecastOnInterrupt = false
+			}
 			// Note: even if clip delay is 0ms, always schedule rotation here so APL fires
 			// after ChanneledDot is cleared.
 			if dot.Spell.Unit.GCD.IsReady(sim) {
