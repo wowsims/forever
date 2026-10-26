@@ -516,3 +516,39 @@ func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
 		t.Error("200 main-hand specials never procced Windfury Totem, so the check above proves nothing")
 	}
 }
+
+// Heroic Strike goes off on the next swing, which casts it directly, so the press that queues it is the
+// manual cast. A press whose swing never fires still counts.
+func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
+	player := &proto.Player{
+		Name:          "Press Count",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
+		TalentsString: furyTalents,
+		Spec:          dpsOptions,
+		Rotation:      core.GetAplRotation("../../ui/specs/warrior/dps/apls", "fury").Rotation,
+	}
+	result := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
+	})
+
+	const heroicStrike = 25286 // The top rank, the one the Fury preset presses.
+	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
+		if action.Id.GetSpellId() != heroicStrike || action.Id.Tag != 0 {
+			continue
+		}
+		var presses, swings int32
+		for _, target := range action.Targets {
+			presses += target.ManualCasts
+			swings += target.Casts
+		}
+		if swings == 0 || presses < swings {
+			t.Errorf("Heroic Strike: ManualCasts = %d, Casts = %d, want at least as many presses as swings above 0", presses, swings)
+		}
+		return
+	}
+	t.Fatal("the result has no Heroic Strike action")
+}

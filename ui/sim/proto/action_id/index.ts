@@ -150,6 +150,8 @@ export class ActionId {
 			case OtherAction.OtherActionMove:
 				baseName = i18n.t('common.action_names.moving');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/inv_boots_cloth_03.jpg';
+				// Tag 1 holds the walks a spell or a pet's own logic causes, e.g. Charge's.
+				if (this.tag == 1) name = i18n.t('common.action_names.moving_from_spell');
 				break;
 			case OtherAction.OtherActionPrepull:
 				baseName = i18n.t('common.action_names.prepull');

@@ -387,6 +387,7 @@
 			"shoot": "Shoot",
 			"refund": "Refund",
 			"moving": "Moving",
+			"moving_from_spell": "Moving (from a spell)",
 			"prepull": "Prepull",
 			"encounter_start": "Encounter Start",
 			"minor_run_speed": "Minor Run Speed (8%)",
@@ -2401,6 +2402,8 @@
 			"all_targets": "All Targets",
 			"target_number": "Target {{number}}",
 			"group_ranks": "Group ranks",
+			"hide_passives": "Hide passives",
+			"pets": "Pets",
 			"damage": {
 				"dps_histogram": "DPS Histogram"
 			},
@@ -3250,6 +3253,10 @@
 				"tps": {
 					"label": "TPS",
 					"tooltip": "Threat Per Second"
+				},
+				"apm": {
+					"label": "APM",
+					"tooltip": "Actions Per Minute: the spells, abilities and items the rotation uses by hand per minute, plus the walks the rotation or the encounter starts. Abilities that queue for the next swing, such as Heroic Strike, count once when pressed. Procs, auto attacks, walks a spell such as Charge starts, and pets are not counted."
 				},
 				"dtps": {
 					"label": "DTPS",

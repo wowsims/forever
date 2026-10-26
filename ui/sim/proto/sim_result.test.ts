@@ -114,6 +114,37 @@ describe('damage done and damage taken from self-inflicted damage', () => {
 // This proto calls a blocked critical hit `blockedCrit*` where MoP's names the same three fields
 // `critBlock*`. Both names exist in the two codebases and neither is a type error against the
 // other's proto, so pin this one's.
+// makeSimRun() runs 100 iterations of 180 seconds, so 600 presses in total are 6 per iteration, 2 a minute.
+describe('actions per minute', () => {
+	const press = (unitIndex: number, manualCasts: number) => TargetedActionMetricsProto.create({ unitIndex, hits: 1, casts: manualCasts * 2, manualCasts });
+
+	const withPresses = async () => {
+		const { request, result } = makeSimRun();
+		const warrior = result.raidMetrics!.parties[0].players[0];
+		warrior.actions[0].targets = [press(TARGET, 600), press(PLAYER, 0)];
+		warrior.actions.push(ActionMetricsProto.create({ id: warrior.actions[0].id, isPassive: true, targets: [press(TARGET, 300), press(PLAYER, 0)] }));
+		warrior.pets = [
+			UnitMetricsProto.create({
+				name: 'Pet',
+				unitIndex: 2,
+				actions: [ActionMetricsProto.create({ id: warrior.actions[0].id, targets: [press(TARGET, 6000), press(PLAYER, 0)] })],
+			}),
+		];
+		return (await SimResult.makeNew(request, result)).getFirstPlayer()!;
+	};
+
+	it('sums the presses of every action of the player, a passive-flagged one among them, and leaves the pets out', async () => {
+		expect((await withPresses()).actionsPerMinute()).toBeCloseTo(3);
+	});
+
+	it('counts only the presses on the filtered target', async () => {
+		const player = await withPresses();
+
+		expect(player.actionsPerMinute({ target: TARGET })).toBeCloseTo(3);
+		expect(player.actionsPerMinute({ target: PLAYER })).toBe(0);
+	});
+});
+
 describe('TargetedActionMetrics blocked-crit and crush getters', () => {
 	const metrics = async (over: Partial<TargetedActionMetricsProto>) => {
 		const { request, result } = makeSimRun();

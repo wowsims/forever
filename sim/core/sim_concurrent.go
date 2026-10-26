@@ -238,6 +238,7 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 			Id:          add.Id,
 			IsMelee:     add.IsMelee,
 			IsPassive:   add.IsPassive,
+			IsPressed:   add.IsPressed,
 			Targets:     make([]*proto.TargetedActionMetrics, len(add.Targets)),
 			SpellSchool: add.SpellSchool,
 		}
@@ -256,6 +257,7 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 			panic("Unitidx doesn't match?!")
 		}
 		baseTgt.Casts += addTgt.Casts
+		baseTgt.ManualCasts += addTgt.ManualCasts
 		baseTgt.Hits += addTgt.Hits
 		baseTgt.ResistedHits += addTgt.ResistedHits
 		baseTgt.Crits += addTgt.Crits

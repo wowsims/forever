@@ -251,13 +251,20 @@ describe('DetailedResults', () => {
 
 const TABS: Array<DetailedResultsTabConfig> = [
 	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage', groupsRanks: true },
+	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', hidesPassives: true },
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
 ];
 
 const SlotReader = () => <span data-testid="slot-reader">{useDrStickySlot()?.getAttribute('data-testid') ?? 'none'}</span>;
 
 const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
-	const handlers = { onActiveIdChange: vi.fn(), onSimulateIteration: vi.fn(), onSimulateDeath: vi.fn(), onGroupRanksChange: vi.fn() };
+	const handlers = {
+		onActiveIdChange: vi.fn(),
+		onSimulateIteration: vi.fn(),
+		onSimulateDeath: vi.fn(),
+		onGroupRanksChange: vi.fn(),
+		onHidePassivesChange: vi.fn(),
+	};
 	const view = render(
 		<DetailedResultsView
 			tabs={TABS}
@@ -267,9 +274,11 @@ const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
 			deathDisabled
 			targetPicker={<span data-testid="filter-slot" />}
 			groupRanks
+			hidePassives
 			{...handlers}
 			{...props}>
 			<TabPanel value="damageTab">damage pane</TabPanel>
+			<TabPanel value="castsTab">casts pane</TabPanel>
 			<TabPanel value="logTab">
 				<SlotReader />
 			</TabPanel>
@@ -316,8 +325,8 @@ describe('DetailedResultsView', () => {
 		const { onActiveIdChange } = mount();
 
 		const tabs = screen.getAllByRole('tab');
-		expect(tabs.map(tab => tab.id)).toEqual(['damageTab-nav', 'logTab-nav']);
-		fireEvent.click(tabs[1]);
+		expect(tabs.map(tab => tab.id)).toEqual(['damageTab-nav', 'castsTab-nav', 'logTab-nav']);
+		fireEvent.click(tabs[2]);
 
 		expect(onActiveIdChange).toHaveBeenCalledWith('logTab');
 		expect(screen.getByTestId('results-filter').contains(screen.getByTestId('filter-slot'))).toBe(true);
@@ -337,6 +346,20 @@ describe('DetailedResultsView', () => {
 		mount({ activeId: 'logTab' });
 
 		expect(within(screen.getByTestId('results-filter')).queryByRole('checkbox')).toBeNull();
+	});
+
+	it('shows the hide passives toggle only on a tab whose table hides passives, and reports a change', () => {
+		const name = 'results_tab.details.hide_passives';
+		const damage = mount();
+		expect(screen.queryByRole('checkbox', { name })).toBeNull();
+		damage.unmount();
+
+		const { onHidePassivesChange } = mount({ activeId: 'castsTab' });
+		const toggle = within(screen.getByTestId('results-filter')).getByRole('checkbox', { name });
+		expect(toggle.getAttribute('aria-checked')).toBe('true');
+		fireEvent.click(toggle);
+
+		expect(onHidePassivesChange).toHaveBeenCalledWith(false);
 	});
 
 	it('hands the panes the sticky slot under the toolbar', () => {

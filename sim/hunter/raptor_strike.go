@@ -46,7 +46,8 @@ func (hunter *Hunter) registerRaptorStrike() {
 			return !hunter.raptorStrikeQueue.IsActive() && hunter.RaptorStrike.IsReady(sim) &&
 				hunter.CurrentMana() >= hunter.RaptorStrike.Cost.GetCurrentCost()
 		},
-		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			hunter.RaptorStrike.CountManualCast(target)
 			hunter.raptorStrikeQueue.Activate(sim)
 		},
 	})

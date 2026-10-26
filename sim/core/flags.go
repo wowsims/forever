@@ -214,6 +214,7 @@ const (
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist, e.g. a wand's shots.
 	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000).
 	SpellFlagMovesToTarget                                  // The cast moves the caster toward its target, e.g. Charge or Blink. Not enforced, just a signal for the APL validation.
+	SpellFlagPressed                                        // The rotation presses the spell through another, as Judgement casts the active seal's judgement, so its metrics count as pressed.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

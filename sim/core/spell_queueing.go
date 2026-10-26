@@ -208,13 +208,26 @@ type rotationCast struct {
 }
 
 // A cast by the rotation or a major cooldown: once it completes it restarts the wand's timer. The record
-// outlives the call only while the cast is still running.
+// outlives the call only while the cast is still running. A press that starts counts one ManualCast on its
+// target; a cast that calls Cast directly (a proc, a swing, a spell another spell casts) counts none. A
+// press that queues another spell for the next swing, which the swing then casts directly, credits the
+// queued spell through CountManualCast.
 func (spell *Spell) castForRotation(sim *Simulation, target *Unit, channelAction *APLActionChannelSpell) {
 	unit := spell.Unit
 	unit.rotationCast = rotationCast{spell: spell, channelAction: channelAction}
-	if !spell.Cast(sim, target) || unit.Hardcast.Expires <= sim.CurrentTime {
+	cast := spell.Cast(sim, target)
+	if cast {
+		spell.CountManualCast(target)
+	}
+	if !cast || unit.Hardcast.Expires <= sim.CurrentTime {
 		unit.endRotationCast()
 	}
+}
+
+// Counts one press the player makes by hand on this spell. A press that is not the cast of this spell itself,
+// such as the one that queues it for the next swing, credits it here.
+func (spell *Spell) CountManualCast(target *Unit) {
+	spell.SpellMetrics[target.UnitIndex].ManualCasts++
 }
 
 func (unit *Unit) endRotationCast() {

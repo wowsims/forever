@@ -45,8 +45,9 @@ func (unit *Unit) initMovement() {
 	})
 
 	unit.moveSpell = unit.GetOrRegisterSpell(SpellConfig{
-		ActionID: ActionID{OtherID: proto.OtherAction_OtherActionMove},
-		Flags:    SpellFlagMeleeMetrics,
+		ActionID:     ActionID{OtherID: proto.OtherAction_OtherActionMove},
+		Flags:        SpellFlagMeleeMetrics,
+		MetricSplits: 2, // 0 for the walks the player starts by hand, 1 for those a spell or a pet's own logic causes.
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
 			unit.moveAura.Activate(sim)
@@ -55,7 +56,12 @@ func (unit *Unit) initMovement() {
 	})
 }
 
+// A walk a spell or a pet's own logic causes, e.g. Charge's.
 func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
+	unit.moveTo(moveRange, sim, false)
+}
+
+func (unit *Unit) moveTo(moveRange float64, sim *Simulation, byHand bool) {
 	if moveRange == unit.DistanceFromTarget {
 		return
 	}
@@ -63,16 +69,26 @@ func (unit *Unit) MoveTo(moveRange float64, sim *Simulation) {
 	unit.UpdatePosition(sim, false)
 	moveDistance := moveRange - unit.DistanceFromTarget
 	timeToMove := time.Duration(math.Abs(moveDistance)/unit.GetMovementSpeed()*1000) * time.Millisecond
-	registerMovementAction(unit, sim, unit.GetMovementSpeed()*TernaryFloat64(moveDistance < 0, -1., 1.), sim.CurrentTime+timeToMove, moveDistance)
+	registerMovementAction(unit, sim, unit.GetMovementSpeed()*TernaryFloat64(moveDistance < 0, -1., 1.), sim.CurrentTime+timeToMove, moveDistance, byHand)
 }
 
+// A timed walk a spell or a pet's own logic causes.
 func (unit *Unit) MoveDuration(duration time.Duration, sim *Simulation) {
+	unit.moveDuration(duration, sim, false)
+}
+
+// A timed walk the player starts: the rotation's Move Duration or the encounter's movement.
+func (unit *Unit) MoveDurationByHand(duration time.Duration, sim *Simulation) {
+	unit.moveDuration(duration, sim, true)
+}
+
+func (unit *Unit) moveDuration(duration time.Duration, sim *Simulation, byHand bool) {
 	if duration == 0 {
 		return
 	}
 
 	unit.UpdatePosition(sim, false)
-	registerMovementAction(unit, sim, 0., sim.CurrentTime+duration, 0)
+	registerMovementAction(unit, sim, 0., sim.CurrentTime+duration, 0, byHand)
 }
 
 // Walks the unit to moveRange in duration, at the speed that takes instead of its run speed.
@@ -83,7 +99,7 @@ func (unit *Unit) MoveToOver(moveRange float64, duration time.Duration, sim *Sim
 
 	unit.UpdatePosition(sim, false)
 	moveDistance := moveRange - unit.DistanceFromTarget
-	registerMovementAction(unit, sim, moveDistance/duration.Seconds(), sim.CurrentTime+duration, moveDistance)
+	registerMovementAction(unit, sim, moveDistance/duration.Seconds(), sim.CurrentTime+duration, moveDistance, false)
 	unit.movementAction.keepsSpeed = true
 }
 
@@ -150,14 +166,20 @@ func (unit *Unit) FinalizeMovement(sim *Simulation) {
 	unit.OnMovement(sim, unit.DistanceFromTarget, MovementEnd)
 }
 
-func registerMovementAction(unit *Unit, sim *Simulation, speed float64, endTime time.Duration, moveDistance float64) {
+func registerMovementAction(unit *Unit, sim *Simulation, speed float64, endTime time.Duration, moveDistance float64, byHand bool) {
 	if unit.movementAction != nil {
 		unit.movementAction.Cancel(sim)
 		if unit.movementAction.meleeEdge != nil {
 			unit.movementAction.meleeEdge.Cancel(sim)
 		}
 	} else {
-		unit.moveSpell.Cast(sim, unit.CurrentTarget)
+		// SetMetricsSplit would tag the action id the log records, and the timeline draws every walk
+		// from those casts in one Moving row.
+		unit.moveSpell.recordInSplit(TernaryInt32(byHand, 0, 1))
+		// A walk by hand from standing is one press; turning a walk under way is none.
+		if unit.moveSpell.Cast(sim, unit.CurrentTarget) && byHand {
+			unit.moveSpell.CountManualCast(unit.CurrentTarget)
+		}
 	}
 
 	movementAction := MovementAction{

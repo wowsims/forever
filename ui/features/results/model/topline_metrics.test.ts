@@ -29,6 +29,7 @@ const player = (overrides: Record<string, unknown> = {}) => ({
 	tto: dist(30, 3),
 	chanceOfDeath: dist(1, 0.1),
 	secondsOomAvg: 0,
+	actionsPerMinute: () => 42,
 	...overrides,
 });
 
@@ -47,21 +48,21 @@ const keys = (result: never, options?: { showOutOfMana?: boolean }) => toplineRe
 
 describe('toplineResultMetrics', () => {
 	it('lists the whole-encounter metrics for a non-tank, with tto and hps last', () => {
-		expect(keys(simResult([player()]))).toEqual(['dps', 'tps', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
+		expect(keys(simResult([player()]))).toEqual(['dps', 'tps', 'apm', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
 	});
 
 	it('drops tto and hps for a tank spec', () => {
-		expect(keys(simResult([player({ spec: PlayerSpecs.FeralBearDruid })]))).toEqual(['dps', 'tps', 'dtps', 'tmi', 'cod']);
+		expect(keys(simResult([player({ spec: PlayerSpecs.FeralBearDruid })]))).toEqual(['dps', 'tps', 'apm', 'dtps', 'tmi', 'cod']);
 	});
 
 	// The tank list is the bear and the protection paladin only, so a protection warrior keeps the
 	// mana rows a tank would otherwise drop.
 	it('keeps tto and hps for a protection warrior', () => {
-		expect(keys(simResult([player({ spec: PlayerSpecs.ProtectionWarrior })]))).toEqual(['dps', 'tps', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
+		expect(keys(simResult([player({ spec: PlayerSpecs.ProtectionWarrior })]))).toEqual(['dps', 'tps', 'apm', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
 	});
 
 	it('suppresses chance of death for a protection paladin', () => {
-		expect(keys(simResult([player({ spec: PlayerSpecs.ProtectionPaladin })]))).toEqual(['dps', 'tps', 'dtps', 'tmi']);
+		expect(keys(simResult([player({ spec: PlayerSpecs.ProtectionPaladin })]))).toEqual(['dps', 'tps', 'apm', 'dtps', 'tmi']);
 	});
 
 	it('carries the metric, its label and its unit', () => {
@@ -71,13 +72,28 @@ describe('toplineResultMetrics', () => {
 		expect(metrics.find(metric => metric.metric === 'tmi')).toMatchObject({ unit: 'percentage' });
 	});
 
+	it('reads actions per minute for the filtered target', () => {
+		const filter = { target: 0 };
+		const actionsPerMinute = vi.fn(() => 37.5);
+		const metrics = toplineResultMetrics(simResult([player({ actionsPerMinute })]), filter);
+
+		expect(actionsPerMinute).toHaveBeenCalledWith(filter);
+		expect(metrics.find(metric => metric.metric === 'apm')).toMatchObject({ average: 37.5, stdev: undefined });
+	});
+
+	it('keeps apm whatever the display metrics are', () => {
+		const displayMetrics = { damage: false, threat: false, healing: false };
+
+		expect(toplineResultMetrics(simResult([player()]), undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['tps', 'apm']);
+	});
+
 	it('merges the filtered actions when a target is selected', () => {
 		const result = simResult([player({ getTargetIndex: () => 0 })], {
 			getRaidIndexedActionMetrics: () => [{ dps: 400, tps: 200 }],
 			getTargets: () => [{ actions: [{ forTarget: () => ({ dps: 30, tps: 0 }) }] }],
 		});
 
-		expect(keys(result)).toEqual(['dps', 'tps', 'dtps', 'tto', 'hps']);
+		expect(keys(result)).toEqual(['dps', 'tps', 'apm', 'dtps', 'tto', 'hps']);
 		expect(toplineResultMetrics(result)[0]).toMatchObject({ metric: 'dps', average: 400, stdev: undefined });
 	});
 
@@ -85,7 +101,7 @@ describe('toplineResultMetrics', () => {
 		const result = simResult([player()]);
 		const displayMetrics = { damage: true, threat: false, healing: true };
 
-		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'tto', 'hps']);
+		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'apm', 'tto', 'hps']);
 	});
 
 	it('omits the merged columns a filtered encounter has no actions for', () => {

@@ -346,7 +346,7 @@ func (action *APLActionMove) Execute(sim *Simulation) {
 		action.unit.Log(sim, "[DEBUG] Moving to %.1f yards", moveRange)
 	}
 
-	action.unit.MoveTo(moveRange, sim)
+	action.unit.moveTo(moveRange, sim, true)
 	if action.recheckWhileMoving && action.unit.Moving {
 		action.walk = action.unit.movementAction
 	}
@@ -454,7 +454,7 @@ func (rot *APLRotation) newActionMoveDuration(config *proto.APLActionMoveDuratio
 }
 
 func (action *APLActionMoveDuration) Execute(sim *Simulation) {
-	action.unit.MoveDuration(action.moveDuration.GetDuration(sim), sim)
+	action.unit.MoveDurationByHand(action.moveDuration.GetDuration(sim), sim)
 }
 
 func (action *APLActionMoveDuration) IsReady(sim *Simulation) bool {
