@@ -79,7 +79,7 @@ var DefaultOptions = &proto.Player_ProtectionWarrior{
 	},
 }
 
-var DefaultProtectionTalents = "35300003-05-050531120300021351"
+var DefaultProtectionTalents = "35301003002-03-050530120301011351"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	OffensivePotId: 250943, // Major Frenzy Potion
