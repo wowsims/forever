@@ -233,6 +233,17 @@
 										}
 									}
 								}
+							},
+							{
+								"not": {
+									"val": {
+										"auraIsActive": {
+											"auraId": {
+												"spellId": 1270842
+											}
+										}
+									}
+								}
 							}
 						]
 					}

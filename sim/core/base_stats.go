@@ -20,10 +20,10 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 // beyond the first 20.
 //
 // ClassBaseStats + RaceOffsets hold TRUE pre-racial base attributes: the
-// multiplier racials (The Human Spirit ×1.05 spirit, applied via MultiplyStat
+// multiplier racials (The Human Spirit ×1.1 spirit, applied via MultiplyStat
 // in racials.go) are NOT included here.
 // A naked character sheet shows floor(base × racial), e.g. human paladin
-// spirit 75 shows as 78; multipliers (racial, Kings, %-stat talents) stack
+// spirit 75 shows as 82; multipliers (racial, Kings, %-stat talents) stack
 // multiplicatively on the unfloored value with a single floor at the end.
 //
 // The game keeps one attribute row per race and class, but that table is a
