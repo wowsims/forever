@@ -591,8 +591,7 @@ func (spell *Spell) reset(sim *Simulation) {
 }
 
 func (spell *Spell) SetMetricsSplit(splitIdx int32) {
-	spell.SpellMetrics = spell.splitSpellMetrics[splitIdx]
-	spell.hitRanges = spell.splitHitRanges[splitIdx]
+	spell.recordInSplit(splitIdx)
 	spell.ActionID.Tag = splitIdx
 
 	// Also set the tag on any dots to have them line up in the timeline
@@ -606,6 +605,12 @@ func (spell *Spell) SetMetricsSplit(splitIdx int32) {
 	if spell.aoeDot != nil && spell.aoeDot.ActionID.SameActionIgnoreTag(spell.ActionID) {
 		spell.aoeDot.ActionID.Tag = splitIdx
 	}
+}
+
+// Points the spell's metrics at one split and leaves the action id the log records untagged.
+func (spell *Spell) recordInSplit(splitIdx int32) {
+	spell.SpellMetrics = spell.splitSpellMetrics[splitIdx]
+	spell.hitRanges = spell.splitHitRanges[splitIdx]
 }
 
 func (spell *Spell) GetMetricSplitCount() int {

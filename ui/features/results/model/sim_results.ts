@@ -19,6 +19,7 @@ export interface ResultMetrics {
 	dur: string;
 	hps: string;
 	tps: string;
+	apm: string;
 	tto: string;
 	oom: string;
 }

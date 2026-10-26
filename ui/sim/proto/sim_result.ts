@@ -480,6 +480,11 @@ export class UnitMetrics {
 		return this.petActionId != null;
 	}
 
+	// Actions per minute: the rotation's button presses on the filtered target, pets left out.
+	actionsPerMinute(filter?: SimResultFilter): number {
+		return sum(this.actions.map(action => action.forTarget(filter).manualCastsPerMinute));
+	}
+
 	// Returns the unit index of the target of this unit, as selected by the filter.
 	getTargetIndex(filter?: SimResultFilter): number | null {
 		if (!filter) {
@@ -866,6 +871,10 @@ export class ActionMetrics {
 		return this.data.isPassive;
 	}
 
+	get isPressed() {
+		return this.data.isPressed;
+	}
+
 	get totalDamagePercent() {
 		const totalAvgDps = this.resultData.result.raidMetrics?.dps?.avg;
 		if (!totalAvgDps) return undefined;
@@ -1039,6 +1048,11 @@ export class ActionMetrics {
 	get castsPerMinute() {
 		if (this.isPassiveAction) return 0;
 		return this.combinedMetrics.castsPerMinute;
+	}
+
+	// Presses by the rotation, which a passive action can have too (Judgement is cast by hand and flagged passive).
+	get manualCastsPerMinute() {
+		return this.combinedMetrics.manualCastsPerMinute;
 	}
 
 	get avgCastTimeMs() {
@@ -1459,6 +1473,7 @@ export class ActionMetrics {
 			ActionMetricsProto.create({
 				isMelee: firstAction.isMeleeAction,
 				isPassive: isAllPassiveSpells,
+				isPressed: actions.some(action => action.isPressed),
 				targets: mergedTargets.map(t => t.data),
 				spellSchool: firstAction.spellSchool || undefined,
 			}),
@@ -1715,6 +1730,10 @@ class TargetedActionMetrics {
 		return this.casts / (this.duration / 60);
 	}
 
+	get manualCastsPerMinute() {
+		return this.data.manualCasts / this.iterations / (this.duration / 60);
+	}
+
 	get avgCastTimeMs() {
 		return this.data.castTimeMs / this.iterations / this.casts;
 	}
@@ -1943,6 +1962,7 @@ class TargetedActionMetrics {
 		return new TargetedActionMetrics(
 			TargetedActionMetricsProto.create({
 				casts: sum(actions.map(a => a.data.casts)),
+				manualCasts: sum(actions.map(a => a.data.manualCasts)),
 				hits: sum(actions.map(a => a.data.hits)),
 				resistedHits: sum(actions.map(a => a.data.resistedHits)),
 				crits: sum(actions.map(a => a.data.crits)),

@@ -1378,6 +1378,9 @@
 						"moving": {
 							"type": "string"
 						},
+						"moving_from_spell": {
+							"type": "string"
+						},
 						"prepull": {
 							"type": "string"
 						},
@@ -1404,6 +1407,7 @@
 						"shoot",
 						"refund",
 						"moving",
+						"moving_from_spell",
 						"prepull",
 						"encounter_start",
 						"minor_run_speed",
@@ -8526,6 +8530,12 @@
 						"group_ranks": {
 							"type": "string"
 						},
+						"hide_passives": {
+							"type": "string"
+						},
+						"pets": {
+							"type": "string"
+						},
 						"damage": {
 							"type": "object",
 							"properties": {
@@ -9473,6 +9483,8 @@
 						"all_targets",
 						"target_number",
 						"group_ranks",
+						"hide_passives",
+						"pets",
 						"damage",
 						"timeline",
 						"logs",
@@ -10984,6 +10996,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"apm": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"dtps": {
 									"type": "object",
 									"properties": {
@@ -11090,7 +11115,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["dps", "hps", "tps", "dtps", "tmi", "cod", "dur", "tto", "oom"]
+							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "dur", "tto", "oom"]
 						},
 						"stop": {
 							"type": "string"
