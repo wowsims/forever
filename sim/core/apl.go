@@ -133,15 +133,11 @@ func (unit *Unit) newCustomRotation() *APLRotation {
 	})
 }
 
-// The time is read once, before the encounter starts, with no simulation to look at. A value that reads the
-// encounter (the current time, a unit's health) has nothing to give then.
-func prepullTime(value APLValue) (doAt time.Duration, known bool) {
-	defer func() {
-		if recover() != nil {
-			known = false
-		}
-	}()
-	return value.GetDuration(nil), true
+// Read before the encounter starts, with a nil sim. A value that reads the encounter (the current time, a
+// unit's health) panics then, and the time is unknown; the panic comes back as err.
+func prepullTime(value APLValue) (doAt time.Duration, err any) {
+	defer func() { err = recover() }()
+	return value.GetDuration(nil), nil
 }
 
 func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
@@ -174,10 +170,12 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		rotation.doAndRecordWarnings(&rotation.prepullValidations[prepullIdx], true, func() {
 			if !prepullItem.Hide {
 				doAtVal := rotation.coerceTo(rotation.newAPLValue(prepullItem.DoAtValue), proto.APLValueType_ValueTypeDuration)
-				if doAtVal != nil {
-					doAt, known := prepullTime(doAtVal)
-					if !known {
-						rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' cannot be read before the pull, ignoring this Prepull Action")
+				if doAtVal == nil {
+					rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' needs a time, ignoring this Prepull Action")
+				} else {
+					doAt, err := prepullTime(doAtVal)
+					if err != nil {
+						rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' cannot be read before the pull (%v), ignoring this Prepull Action", err)
 					} else if doAt > 0 {
 						rotation.ValidationMessage(proto.LogLevel_Warning, "Invalid time for 'Do At', ignoring this Prepull Action")
 					} else {
@@ -813,7 +811,11 @@ func (rot *APLRotation) reResolveVariableRefs(value APLValue, groupVars map[stri
 		// Re-resolve the variable reference with the updated group variables
 		if groupVars != nil {
 			if val, ok := groupVars[varRef.name]; ok {
+				// What reads the reference was built for its type, so a group value of another type is read as that type.
 				resolved := rot.newAPLValue(val)
+				if resolved != nil && varRef.Type() != proto.APLValueType_ValueTypeUnknown {
+					resolved = rot.coerceTo(resolved, varRef.Type())
+				}
 				if resolved != nil {
 					// Group override: update resolved value and use a private cache
 					// (not shared with global variable refs)

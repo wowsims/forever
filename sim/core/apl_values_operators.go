@@ -189,18 +189,54 @@ func (value *APLValueCoerced) String() string {
 	return value.inner.String()
 }
 
-// Wraps a value so that it is converted into a Boolean.
+// Whether the wrapper reads a value of one type as the other: text reads only as text or yes/no, and a
+// yes/no value reads as neither a duration nor text. An unknown type, as a placeholder's is until its group
+// fills it, reads as any type.
+func canCoerce(from proto.APLValueType, to proto.APLValueType) bool {
+	switch from {
+	case proto.APLValueType_ValueTypeString:
+		return to == proto.APLValueType_ValueTypeString || to == proto.APLValueType_ValueTypeBool
+	case proto.APLValueType_ValueTypeBool:
+		return to != proto.APLValueType_ValueTypeDuration && to != proto.APLValueType_ValueTypeString
+	}
+	return true
+}
+
+// What a value of each type is called in a warning.
+var aplValueTypeNames = map[proto.APLValueType]string{
+	proto.APLValueType_ValueTypeBool:     "a yes/no value",
+	proto.APLValueType_ValueTypeInt:      "a whole number",
+	proto.APLValueType_ValueTypeFloat:    "a number",
+	proto.APLValueType_ValueTypeDuration: "a duration",
+	proto.APLValueType_ValueTypeString:   "text",
+}
+
+// Wraps a value so that it is read as the new type. A value the wrapper cannot read so is left out with a
+// warning.
 func (rot *APLRotation) coerceTo(value APLValue, newType proto.APLValueType) APLValue {
 	if value == nil {
 		return nil
 	} else if value.Type() == newType {
 		return value
+	} else if !canCoerce(value.Type(), newType) {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Cannot read %s as %s", aplValueTypeNames[value.Type()], aplValueTypeNames[newType])
+		return nil
 	} else if constVal, ok := value.(*APLValueConst); ok {
-		// For the special case of APLValueConst, we can skip the wrapper and
-		// simply make a copy with a different type.
+		// A constant skips the wrapper: its copy holds what the wrapper reads, once. Text keeps what was written.
+		coerced := &APLValueCoerced{valueType: newType, inner: constVal}
 		newVal := &APLValueConst{}
 		*newVal = *constVal
 		newVal.valType = newType
+		switch newType {
+		case proto.APLValueType_ValueTypeBool:
+			newVal.boolVal = coerced.GetBool(nil)
+		case proto.APLValueType_ValueTypeInt:
+			newVal.intVal = coerced.GetInt(nil)
+		case proto.APLValueType_ValueTypeFloat:
+			newVal.floatVal = coerced.GetFloat(nil)
+		case proto.APLValueType_ValueTypeDuration:
+			newVal.durationVal = coerced.GetDuration(nil)
+		}
 		return newVal
 	} else {
 		return &APLValueCoerced{

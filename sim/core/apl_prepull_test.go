@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -67,24 +68,35 @@ func TestPrepullActionCondition(t *testing.T) {
 	}
 }
 
-// A 'Do At' value that reads the encounter, here the current time, has nothing to give before the pull: the action is left out with a warning.
-func TestPrepullDoAtReadsEncounter(t *testing.T) {
-	sim := setupFakeRageSimFrom(fakeRageSimRequest())
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	rot := fw.newAPLRotation(&proto.APLRotation{
-		Type: proto.APLRotation_TypeAPL,
-		PrepullActions: []*proto.APLPrepullAction{{
-			DoAtValue: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
+// A 'Do At' that reads the encounter, here the current time, or that is not a time leaves its prepull action out
+// with a warning. One that is a whole number of seconds is read as that many seconds.
+func TestPrepullDoAtValues(t *testing.T) {
+	currentTime := &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}}
+	minusTwo := &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{Op: proto.APLValueMath_OpMul, Lhs: constValue("-1"), Rhs: constValue("2")}}}
+	cases := []struct {
+		doAt *proto.APLValue
+		want []string
+	}{
+		{currentTime, []string{"cannot be read before the pull"}},
+		{yesNoValue(), []string{"Cannot read a yes/no value as a duration", "'Do At' needs a time"}},
+		{minusTwo, nil},
+	}
+	request := fakeRageSimRequest()
+	for _, tc := range cases {
+		request.Raid.Parties[0].Players[0].Rotation.PrepullActions = append(request.Raid.Parties[0].Players[0].Rotation.PrepullActions, &proto.APLPrepullAction{
+			DoAtValue: tc.doAt,
 			Action: &proto.APLAction{Action: &proto.APLAction_ChangeTarget{ChangeTarget: &proto.APLActionChangeTarget{
 				NewTarget: &proto.UnitReference{Type: proto.UnitReference_Target, Index: 0},
 			}}},
-		}},
-	})
-
-	if len(rot.prepullActions) != 0 {
-		t.Errorf("%d prepull actions, want none", len(rot.prepullActions))
+		})
 	}
-	if validations := rot.prepullValidations[0]; len(validations) != 1 || validations[0].LogLevel != proto.LogLevel_Warning {
-		t.Errorf("validations = %v, want one warning", validations)
+	sim := setupFakeRageSimFrom(request)
+	rot := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Rotation
+
+	for i, tc := range cases {
+		wantWarnings(t, fmt.Sprintf("Do At %d", i), rot.prepullValidations[i], tc.want...)
+	}
+	if len(rot.prepullActions) != 1 || len(sim.prepullActions) != 1 || sim.prepullActions[0].DoAt != -2*time.Second {
+		t.Errorf("%d prepull actions, want the one at -2s; the sim runs %v", len(rot.prepullActions), sim.prepullActions)
 	}
 }

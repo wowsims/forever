@@ -305,7 +305,7 @@ type APLActionMove struct {
 func (rot *APLRotation) newActionMove(config *proto.APLActionMove) APLActionImpl {
 	moveRange := rot.coerceTo(rot.newAPLValue(config.RangeFromTarget), proto.APLValueType_ValueTypeFloat)
 	if moveRange == nil {
-		rot.ValidationMessage(proto.LogLevel_Warning, "Move has no range from the target, ignoring this action")
+		rot.ValidationMessage(proto.LogLevel_Warning, "Move needs a range from the target, ignoring this action")
 		return nil
 	}
 	action := &APLActionMove{
@@ -317,6 +317,12 @@ func (rot *APLRotation) newActionMove(config *proto.APLActionMove) APLActionImpl
 		rot.recheckedMoves = append(rot.recheckedMoves, action)
 	}
 	return action
+}
+func (action *APLActionMove) GetAPLValues() []APLValue {
+	return []APLValue{action.moveRange}
+}
+func (action *APLActionMove) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.moveRange = replace(action.moveRange)
 }
 
 // At each look of the rotation during this action's walk: the walk stops where it is once the condition is
@@ -454,13 +460,19 @@ type APLActionMoveDuration struct {
 func (rot *APLRotation) newActionMoveDuration(config *proto.APLActionMoveDuration) APLActionImpl {
 	moveDuration := rot.coerceTo(rot.newAPLValue(config.Duration), proto.APLValueType_ValueTypeDuration)
 	if moveDuration == nil {
-		rot.ValidationMessage(proto.LogLevel_Warning, "Move Duration has no duration, ignoring this action")
+		rot.ValidationMessage(proto.LogLevel_Warning, "Move Duration needs a duration, ignoring this action")
 		return nil
 	}
 	return &APLActionMoveDuration{
 		unit:         rot.unit,
 		moveDuration: moveDuration,
 	}
+}
+func (action *APLActionMoveDuration) GetAPLValues() []APLValue {
+	return []APLValue{action.moveDuration}
+}
+func (action *APLActionMoveDuration) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.moveDuration = replace(action.moveDuration)
 }
 
 func (action *APLActionMoveDuration) Execute(sim *Simulation) {

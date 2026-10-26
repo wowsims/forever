@@ -92,17 +92,22 @@ func (action *APLActionGroupReference) Finalize(rot *APLRotation) {
 		return
 	}
 
+	// Every action of the group, those inside its sequences included, whose conditions and values may hold
+	// placeholders and variable references.
+	var actions []*APLAction
+	for _, groupAction := range action.group.actions {
+		actions = append(actions, groupAction.GetAllActions()...)
+	}
+
 	// Scan for VariablePlaceholder values in the group
 	placeholders := map[string]struct{}{}
-	for _, groupAction := range action.group.actions {
+	for _, groupAction := range actions {
 		// Check condition for placeholders
 		if groupAction.condition != nil {
 			action.scanForPlaceholders(groupAction.condition, placeholders)
 		}
 		// Check action implementation for placeholders
-		if groupAction.impl != nil {
-			action.scanActionForPlaceholders(groupAction.impl, placeholders)
-		}
+		action.scanActionForPlaceholders(groupAction.impl, placeholders)
 	}
 
 	// Check that all placeholders are set and provide detailed error messages
@@ -120,15 +125,11 @@ func (action *APLActionGroupReference) Finalize(rot *APLRotation) {
 	}
 
 	// Replace placeholder values with provided variables
-	for _, groupAction := range action.group.actions {
-		// Replace placeholders in condition
-		if groupAction.condition != nil {
-			groupAction.condition = action.replacePlaceholders(groupAction.condition, action.variables, rot)
-		}
-		// Replace placeholders in action implementation
-		if groupAction.impl != nil {
-			action.replaceActionPlaceholders(groupAction.impl, action.variables, rot)
-		}
+	for _, groupAction := range actions {
+		groupAction.condition = action.replacePlaceholders(groupAction.condition, action.variables, rot)
+		groupAction.impl.ReplaceAPLValues(func(value APLValue) APLValue {
+			return action.replacePlaceholders(value, action.variables, rot)
+		})
 	}
 
 	// Add all provided variables to the group's variables map
@@ -138,15 +139,11 @@ func (action *APLActionGroupReference) Finalize(rot *APLRotation) {
 	}
 
 	// Re-resolve variable references in group actions with the updated group variables
-	for _, groupAction := range action.group.actions {
-		// Re-resolve the condition if it contains variable references
-		if groupAction.condition != nil {
-			groupAction.condition = rot.reResolveVariableRefs(groupAction.condition, action.group.variables)
-		}
-		// Re-resolve any variable references in the action implementation
-		if groupAction.impl != nil {
-			groupAction.impl.ReResolveVariableRefs(rot, action.group.variables)
-		}
+	for _, groupAction := range actions {
+		groupAction.condition = rot.reResolveVariableRefs(groupAction.condition, action.group.variables)
+		groupAction.impl.ReplaceAPLValues(func(value APLValue) APLValue {
+			return rot.reResolveVariableRefs(value, action.group.variables)
+		})
 	}
 
 	// Finalize all actions in the group
@@ -308,11 +305,12 @@ func (action *APLActionGroupReference) replacePlaceholders(value APLValue, varia
 					vals:                newInnerValues,
 				}
 			case *APLValueCoerced:
-				return &APLValueCoerced{
-					DefaultAPLValueImpl: v.DefaultAPLValueImpl,
-					valueType:           v.valueType,
-					inner:               newInnerValues[0],
+				// The filled value read as the wrapper's type. One that cannot be read so, or that did not
+				// resolve, keeps the wrapper around the placeholder, which reads zero.
+				if coerced := rot.coerceTo(newInnerValues[0], v.valueType); coerced != nil {
+					return coerced
 				}
+				return value
 			default:
 				// For other value types, we can't easily create new instances
 				// so we'll return the original value
@@ -322,15 +320,6 @@ func (action *APLActionGroupReference) replacePlaceholders(value APLValue, varia
 	}
 
 	return value
-}
-
-func (action *APLActionGroupReference) replaceActionPlaceholders(actionImpl APLActionImpl, variables map[string]*proto.APLValue, rot *APLRotation) {
-	if actionImpl == nil {
-		return
-	}
-
-	// This is a simplified approach - in practice, you'd need to handle each action type specifically
-	// For now, we'll rely on the value replacement in the main flow
 }
 
 type APLValueActionGroupUsed struct {
