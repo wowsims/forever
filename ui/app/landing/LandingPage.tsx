@@ -12,7 +12,7 @@ export const LandingPage = () => (
 		<div id="homepage" className="flex min-h-full flex-col">
 			<LandingHeader />
 			<main className="grow">
-				<div className="ui-landing-container flex flex-col pt-12 pb-22">
+				<div className="ui-landing-container flex flex-col pt-12 pb-12">
 					<LandingHero />
 					<div className="grid auto-rows-fr grid-cols-landing-cards gap-6" id="sim-links">
 						{LANDING_CLASS_ORDER.map((classId, index) => (

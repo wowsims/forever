@@ -1,10 +1,11 @@
 import i18n from '@i18n/config';
-import { ADDON_URL, DISCORD_URL, GITHUB_ORG_URL, PATREON_URL, WOWSIMS_URL } from '@sim/constants/other';
+import { ADDON_URL, DISCORD_URL, GITHUB_ORG_URL, PATREON_URL } from '@sim/constants/other';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import clsx from 'clsx';
 import { useState } from 'react';
 
+import { LandingBrand } from './LandingBrand';
 import { LandingLanguageMenu } from './LandingLanguageMenu';
 
 const COLLAPSE_ID = 'homepageHeaderCollapse';
@@ -31,15 +32,7 @@ export const LandingHeader = () => {
 			<div className="ui-landing-container flex py-4">
 				<nav className="relative flex w-full flex-wrap items-center justify-between md:justify-start">
 					<div className="order-0 flex max-md:w-full max-md:items-center max-md:justify-between">
-						<Button href={WOWSIMS_URL} variant="unstyled" className="ui-landing-brand" data-testid="landing-brand">
-							<img className="ui-landing-brand-logo" src="/forever/assets/img/WoW-Simulator-Icon.png" alt="" />
-							<span className="flex flex-col leading-none">
-								<span className="text-xl font-bold text-brand" data-testid="wowsims-title">
-									{i18n.t('landing.header.wowsims')}
-								</span>
-								<small className="mt-[0.2rem] text-[0.7rem] font-normal text-white/65">{i18n.t('landing.header.subtitle')}</small>
-							</span>
-						</Button>
+						<LandingBrand />
 						{toggler('bars')}
 					</div>
 					<div
