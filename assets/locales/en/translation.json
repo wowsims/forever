@@ -306,12 +306,14 @@
 		},
 		"copy_button": {
 			"default_text": "Copy to Clipboard",
-			"copied": "Copied"
+			"copied": "Copied",
+			"manual_copy": "The browser blocked the clipboard. Copy the text below by hand."
 		},
 		"list_picker": {
 			"new_item": "New {{itemLabel}}",
 			"delete_item": "Delete {{itemLabel}}",
 			"copy_to_new": "Copy to New {{itemLabel}}",
+			"copy_to_clipboard": "Copy {{itemLabel}} to Clipboard",
 			"move_drag_drop": "Move (Drag+Drop)",
 			"item_actions": "{{itemLabel}} menu",
 			"warnings": "Warnings",
@@ -1337,8 +1339,21 @@
 					"overview": "Groups of actions that can be referenced in the Action Priority List (APL). Useful for organizing your APL and reusing common action sequences. Actions are performed in order from top to bottom within a group."
 				}
 			},
+			"clipboard": {
+				"copied": "{{itemName}} copied to the clipboard.",
+				"empty": "The clipboard holds no copied {{itemName}}.",
+				"paste_dialog": {
+					"label": "Copied text",
+					"description": "This page cannot read the clipboard. Paste the copied text here with Ctrl+V."
+				},
+				"places": {
+					"action": "the Priority List or a group's actions"
+				},
+				"wrong_kind": "The clipboard holds a copied {{held}}. Paste it under {{places}}."
+			},
 			"floatingActionBar": {
 				"new": "New {{itemName}}",
+				"paste": "Paste {{itemName}}",
 				"reset": "Reset APL"
 			},
 			"nameModal": {

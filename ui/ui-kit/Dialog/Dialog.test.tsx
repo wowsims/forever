@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Dialog } from './Dialog';
@@ -39,6 +39,20 @@ describe('Dialog', () => {
 		expect(host.contains(screen.getByRole('dialog'))).toBe(true);
 
 		host.remove();
+	});
+
+	it('focuses the initialFocus element on open, not the close button', async () => {
+		const Probe = () => {
+			const inputRef = useRef<HTMLInputElement>(null);
+			return (
+				<Dialog open onOpenChange={() => {}} title="Name" initialFocus={inputRef}>
+					<input ref={inputRef} aria-label="name" />
+				</Dialog>
+			);
+		};
+		render(<Probe />);
+
+		await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'name' })));
 	});
 
 	it('closes on the close button and on Escape', () => {

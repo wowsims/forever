@@ -1103,10 +1103,13 @@
 						},
 						"copied": {
 							"type": "string"
+						},
+						"manual_copy": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["default_text", "copied"]
+					"required": ["default_text", "copied", "manual_copy"]
 				},
 				"list_picker": {
 					"type": "object",
@@ -1118,6 +1121,9 @@
 							"type": "string"
 						},
 						"copy_to_new": {
+							"type": "string"
+						},
+						"copy_to_clipboard": {
 							"type": "string"
 						},
 						"move_drag_drop": {
@@ -1147,6 +1153,7 @@
 						"new_item",
 						"delete_item",
 						"copy_to_new",
+						"copy_to_clipboard",
 						"move_drag_drop",
 						"item_actions",
 						"warnings",
@@ -4806,10 +4813,52 @@
 							"additionalProperties": false,
 							"required": ["attributes", "header", "name", "newGroupName", "tooltips"]
 						},
+						"clipboard": {
+							"type": "object",
+							"properties": {
+								"copied": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"paste_dialog": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "description"]
+								},
+								"places": {
+									"type": "object",
+									"properties": {
+										"action": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["action"]
+								},
+								"wrong_kind": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["copied", "empty", "paste_dialog", "places", "wrong_kind"]
+						},
 						"floatingActionBar": {
 							"type": "object",
 							"properties": {
 								"new": {
+									"type": "string"
+								},
+								"paste": {
 									"type": "string"
 								},
 								"reset": {
@@ -4817,7 +4866,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["new", "reset"]
+							"required": ["new", "paste", "reset"]
 						},
 						"nameModal": {
 							"type": "object",
@@ -7984,6 +8033,7 @@
 					"additionalProperties": false,
 					"required": [
 						"actionGroups",
+						"clipboard",
 						"floatingActionBar",
 						"nameModal",
 						"prePullActions",
