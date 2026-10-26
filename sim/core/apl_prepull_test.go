@@ -66,3 +66,25 @@ func TestPrepullActionCondition(t *testing.T) {
 		t.Errorf("2 targets > 2: current target is %q, want the first target", current.Label)
 	}
 }
+
+// A 'Do At' value that reads the encounter, here the current time, has nothing to give before the pull: the action is left out with a warning.
+func TestPrepullDoAtReadsEncounter(t *testing.T) {
+	sim := setupFakeRageSimFrom(fakeRageSimRequest())
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	rot := fw.newAPLRotation(&proto.APLRotation{
+		Type: proto.APLRotation_TypeAPL,
+		PrepullActions: []*proto.APLPrepullAction{{
+			DoAtValue: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}},
+			Action: &proto.APLAction{Action: &proto.APLAction_ChangeTarget{ChangeTarget: &proto.APLActionChangeTarget{
+				NewTarget: &proto.UnitReference{Type: proto.UnitReference_Target, Index: 0},
+			}}},
+		}},
+	})
+
+	if len(rot.prepullActions) != 0 {
+		t.Errorf("%d prepull actions, want none", len(rot.prepullActions))
+	}
+	if validations := rot.prepullValidations[0]; len(validations) != 1 || validations[0].LogLevel != proto.LogLevel_Warning {
+		t.Errorf("validations = %v, want one warning", validations)
+	}
+}

@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -75,6 +76,17 @@ type APLRotation struct {
 	prepullIdxMap      []int
 	priorityListIdxMap []int
 	groupListIdxMap    [][]int
+}
+
+// The time is read once, before the encounter starts, with no simulation to look at. A value that reads the
+// encounter (the current time, a unit's health) has nothing to give then.
+func prepullTime(value APLValue) (doAt time.Duration, known bool) {
+	defer func() {
+		if recover() != nil {
+			known = false
+		}
+	}()
+	return value.GetDuration(nil), true
 }
 
 type APLGroup struct {
@@ -161,10 +173,12 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		prepullIdx := i // Save to local variable for correct lambda capture behavior
 		rotation.doAndRecordWarnings(&rotation.prepullValidations[prepullIdx], true, func() {
 			if !prepullItem.Hide {
-				doAtVal := rotation.newAPLValue(prepullItem.DoAtValue)
+				doAtVal := rotation.coerceTo(rotation.newAPLValue(prepullItem.DoAtValue), proto.APLValueType_ValueTypeDuration)
 				if doAtVal != nil {
-					doAt := doAtVal.GetDuration(nil)
-					if doAt > 0 {
+					doAt, known := prepullTime(doAtVal)
+					if !known {
+						rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' cannot be read before the pull, ignoring this Prepull Action")
+					} else if doAt > 0 {
 						rotation.ValidationMessage(proto.LogLevel_Warning, "Invalid time for 'Do At', ignoring this Prepull Action")
 					} else {
 						action := rotation.newAPLAction(prepullItem.Action)
