@@ -78,17 +78,6 @@ type APLRotation struct {
 	groupListIdxMap    [][]int
 }
 
-// The time is read once, before the encounter starts, with no simulation to look at. A value that reads the
-// encounter (the current time, a unit's health) has nothing to give then.
-func prepullTime(value APLValue) (doAt time.Duration, known bool) {
-	defer func() {
-		if recover() != nil {
-			known = false
-		}
-	}()
-	return value.GetDuration(nil), true
-}
-
 type APLGroup struct {
 	name         string
 	actions      []*APLAction
@@ -142,6 +131,17 @@ func (unit *Unit) newCustomRotation() *APLRotation {
 			},
 		},
 	})
+}
+
+// The time is read once, before the encounter starts, with no simulation to look at. A value that reads the
+// encounter (the current time, a unit's health) has nothing to give then.
+func prepullTime(value APLValue) (doAt time.Duration, known bool) {
+	defer func() {
+		if recover() != nil {
+			known = false
+		}
+	}()
+	return value.GetDuration(nil), true
 }
 
 func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
