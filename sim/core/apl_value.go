@@ -270,10 +270,13 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueDotTimeToNextTick(config.GetDotTimeToNextTick(), config.Uuid)
 	case *proto.APLValue_DotBaseDuration:
 		value = rot.newValueDotBaseDuration(config.GetDotBaseDuration(), config.Uuid)
+	// Disabled for now, with the DoT increase values in apl_values_dot.go.
 	case *proto.APLValue_DotPercentIncrease:
-		value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
+		rot.ValidationMessageByUUID(config.Uuid, proto.LogLevel_Warning, "Dot Damage Increase %% is disabled: combat restrictions in game keep addons from tracking it")
+		// value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
 	case *proto.APLValue_DotTickRatePercentIncrease:
-		value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
+		rot.ValidationMessageByUUID(config.Uuid, proto.LogLevel_Warning, "Dot Tick Rate Increase %% is disabled: combat restrictions in game keep addons from tracking it")
+		// value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
 
 	// Sequences
 	case *proto.APLValue_SequenceIsComplete:

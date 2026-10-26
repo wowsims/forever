@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -255,6 +254,9 @@ func (value *APLValueDotBaseDuration) String() string {
 	return fmt.Sprintf("Dot Base Duration(%s)", value.spell.ActionID)
 }
 
+// Disabled for now: combat restrictions in game keep addons from tracking a DoT's damage or tick rate increase,
+// so APLs cannot use these values.
+/*
 type APLValueDotIncreaseCheck struct {
 	DefaultAPLValueImpl
 	spell              *Spell
@@ -369,3 +371,4 @@ func (value *APLValueDotTickRatePercentIncrease) getTickRate(useSnapshot bool) f
 	}
 	return dot.CalcTickPeriod().Round(time.Millisecond).Seconds()
 }
+*/

@@ -924,6 +924,8 @@ func (spell *Spell) ExpectedInitialDamage(sim *Simulation, target *Unit) float64
 func (spell *Spell) ExpectedTickDamage(sim *Simulation, target *Unit) float64 {
 	return spell.expectedDamage(sim, target, spell.expectedTickDamageInternal, false)
 }
+
+// Kept for the DoT increase values, which are disabled for now in apl_values_dot.go.
 func (spell *Spell) ExpectedTickDamageFromCurrentSnapshot(sim *Simulation, target *Unit) float64 {
 	return spell.expectedDamage(sim, target, spell.expectedTickDamageInternal, true)
 }
