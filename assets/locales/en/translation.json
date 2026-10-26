@@ -27,8 +27,11 @@
 			"addon": "Get the Exporter addon"
 		},
 		"footer": {
-			"copyright": "© 2021-{{year}} WoWSims team",
-			"disclaimer": "A fan-made project, not affiliated with Blizzard Entertainment."
+			"copyright": "© {{startYear}}-{{year}} {{holder}}",
+			"disclaimer": "A fan-made project, not affiliated with Blizzard Entertainment.",
+			"sims": "Sims",
+			"addon": "Addon",
+			"patreon": "Patreon"
 		}
 	},
 	"common": {

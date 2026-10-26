@@ -94,10 +94,19 @@
 						},
 						"disclaimer": {
 							"type": "string"
+						},
+						"sims": {
+							"type": "string"
+						},
+						"addon": {
+							"type": "string"
+						},
+						"patreon": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["copyright", "disclaimer"]
+					"required": ["copyright", "disclaimer", "sims", "addon", "patreon"]
 				}
 			},
 			"additionalProperties": false,
