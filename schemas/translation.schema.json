@@ -8584,7 +8584,7 @@
 						"group_ranks": {
 							"type": "string"
 						},
-						"hide_passives": {
+						"show_apm_breakdown": {
 							"type": "string"
 						},
 						"pets": {
@@ -9537,7 +9537,7 @@
 						"all_targets",
 						"target_number",
 						"group_ranks",
-						"hide_passives",
+						"show_apm_breakdown",
 						"pets",
 						"damage",
 						"timeline",

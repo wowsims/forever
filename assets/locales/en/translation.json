@@ -2418,7 +2418,7 @@
 			"all_targets": "All Targets",
 			"target_number": "Target {{number}}",
 			"group_ranks": "Group ranks",
-			"hide_passives": "Hide passives",
+			"show_apm_breakdown": "Show APM breakdown",
 			"pets": "Pets",
 			"damage": {
 				"dps_histogram": "DPS Histogram"

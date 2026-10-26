@@ -2,36 +2,45 @@ import i18n from '@i18n/config';
 import { ActionMetrics, type UnitMetrics } from '@sim/proto/sim_result';
 import { useMemo } from 'react';
 
-import { useHidePassives } from '../../context/HidePassivesContext';
+import { useShowApmBreakdown } from '../../context/ShowApmBreakdownContext';
 import { useActionRows } from '../../hooks/useActionRows';
 import type { SimResultData } from '../../model/result_data';
 import { createMetricsColumnHelper, MetricsActionCell, MetricsTable } from '../MetricsTable';
 
 const helper = createMetricsColumnHelper<ActionMetrics>();
 
-// One pair of groups functions per toggle state, built once, so `useActionRows` sees stable functions.
-const castGroupsOf = (hidePassives: boolean) => {
-	const castsOf = (unit: UnitMetrics, resultData: SimResultData) =>
-		unit.actions.filter(action => action.casts != 0 && (!hidePassives || action.isPressed)).map(action => action.forTarget(resultData.filter));
-	const playerOf = (resultData: SimResultData): UnitMetrics | undefined => resultData.result.getRaidIndexedPlayers(resultData.filter)[0];
+const playerOf = (resultData: SimResultData): UnitMetrics | undefined => resultData.result.getRaidIndexedPlayers(resultData.filter)[0];
 
-	return {
-		player: (resultData: SimResultData): Array<Array<ActionMetrics>> => {
-			const player = playerOf(resultData);
-			return player ? ActionMetrics.groupById(castsOf(player, resultData)) : [];
-		},
-		pets: (resultData: SimResultData): Array<Array<ActionMetrics>> =>
-			(playerOf(resultData)?.pets ?? []).map(pet => castsOf(pet, resultData)).filter(group => group.length),
-	};
+const castsOf = (unit: UnitMetrics, resultData: SimResultData) =>
+	unit.actions.map(action => action.forTarget(resultData.filter)).filter(action => action.casts != 0);
+
+// One mode per toggle state, built once, so `useActionRows` sees stable functions.
+const ALL_CASTS = {
+	count: (metric: ActionMetrics) => metric.casts,
+	perMinute: (metric: ActionMetrics) => metric.castsPerMinute,
+	player: (resultData: SimResultData): Array<Array<ActionMetrics>> => {
+		const player = playerOf(resultData);
+		return player ? ActionMetrics.groupById(castsOf(player, resultData)) : [];
+	},
+	pets: (resultData: SimResultData): Array<Array<ActionMetrics>> =>
+		(playerOf(resultData)?.pets ?? []).map(pet => castsOf(pet, resultData)).filter(group => group.length),
 };
 
-const WITHOUT_PASSIVES = castGroupsOf(true);
-const WITH_PASSIVES = castGroupsOf(false);
+const APM_BREAKDOWN: typeof ALL_CASTS = {
+	count: metric => metric.manualCasts,
+	perMinute: metric => metric.manualCastsPerMinute,
+	player: resultData => {
+		const player = playerOf(resultData);
+		return player ? ActionMetrics.groupById(player.apmActions(resultData.filter)) : [];
+	},
+	// APM counts only the player's presses, so the breakdown has no pet table.
+	pets: () => [],
+};
 
 export const CastMetricsTable = () => {
-	const groups = useHidePassives() ? WITHOUT_PASSIVES : WITH_PASSIVES;
-	const { resultData, rows } = useActionRows(groups.player);
-	const { rows: petRows } = useActionRows(groups.pets);
+	const mode = useShowApmBreakdown() ? APM_BREAKDOWN : ALL_CASTS;
+	const { resultData, rows } = useActionRows(mode.player);
+	const { rows: petRows } = useActionRows(mode.pets);
 
 	const columns = useMemo(
 		() =>
@@ -49,18 +58,18 @@ export const CastMetricsTable = () => {
 						/>
 					),
 				}),
-				helper.accessor(row => row.metric.casts, {
+				helper.accessor(row => mode.count(row.metric), {
 					id: 'casts',
 					header: i18n.t('results_tab.details.columns.casts'),
 					cell: info => info.getValue().toFixed(1),
 				}),
-				helper.accessor(row => row.metric.castsPerMinute, {
+				helper.accessor(row => mode.perMinute(row.metric), {
 					id: 'cpm',
 					header: i18n.t('results_tab.details.columns.cpm'),
 					cell: info => info.getValue().toFixed(1),
 				}),
 			]),
-		[],
+		[mode],
 	);
 
 	return (

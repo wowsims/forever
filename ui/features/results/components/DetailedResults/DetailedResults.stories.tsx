@@ -12,13 +12,13 @@ const StatefulView = ({
 	onActiveIdChange,
 	groupRanks: initialGroupRanks,
 	onGroupRanksChange,
-	hidePassives: initialHidePassives,
-	onHidePassivesChange,
+	showApmBreakdown: initialShowApmBreakdown,
+	onShowApmBreakdownChange,
 	...props
 }: DetailedResultsViewProps) => {
 	const [activeId, setActiveId] = useState(initial);
 	const [groupRanks, setGroupRanks] = useState(initialGroupRanks);
-	const [hidePassives, setHidePassives] = useState(initialHidePassives);
+	const [showApmBreakdown, setShowApmBreakdown] = useState(initialShowApmBreakdown);
 	const change = (next: string) => {
 		setActiveId(next);
 		onActiveIdChange(next);
@@ -27,9 +27,9 @@ const StatefulView = ({
 		setGroupRanks(next);
 		onGroupRanksChange(next);
 	};
-	const changeHidePassives = (next: boolean) => {
-		setHidePassives(next);
-		onHidePassivesChange(next);
+	const changeShowApmBreakdown = (next: boolean) => {
+		setShowApmBreakdown(next);
+		onShowApmBreakdownChange(next);
 	};
 	return (
 		<DetailedResultsView
@@ -38,8 +38,8 @@ const StatefulView = ({
 			onActiveIdChange={change}
 			groupRanks={groupRanks}
 			onGroupRanksChange={changeGroupRanks}
-			hidePassives={hidePassives}
-			onHidePassivesChange={changeHidePassives}
+			showApmBreakdown={showApmBreakdown}
+			onShowApmBreakdownChange={changeShowApmBreakdown}
 		/>
 	);
 };
@@ -60,8 +60,8 @@ const meta = {
 		targetPicker: <span className="px-2">All units</span>,
 		groupRanks: true,
 		onGroupRanksChange: fn(),
-		hidePassives: false,
-		onHidePassivesChange: fn(),
+		showApmBreakdown: false,
+		onShowApmBreakdownChange: fn(),
 		children: DETAILED_RESULTS_TABS.map(tab => (
 			<TabPanel key={tab.id} value={tab.id} className="pt-0 pb-0">
 				<p className="p-4">The {tab.id} pane.</p>
@@ -98,10 +98,10 @@ export const RanksUngrouped: Story = {
 	},
 };
 
-export const PassivesHidden: Story = {
+export const ApmBreakdownShown: Story = {
 	args: { activeId: 'castsTab' },
 	play: async ({ args, canvasElement }) => {
-		await userEvent.click(within(canvasElement).getByRole('checkbox', { name: i18n.t('results_tab.details.hide_passives') }));
-		await expect(args.onHidePassivesChange).toHaveBeenCalledWith(true);
+		await userEvent.click(within(canvasElement).getByRole('checkbox', { name: i18n.t('results_tab.details.show_apm_breakdown') }));
+		await expect(args.onShowApmBreakdownChange).toHaveBeenCalledWith(true);
 	},
 };
