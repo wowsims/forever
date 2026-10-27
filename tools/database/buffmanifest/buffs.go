@@ -432,15 +432,23 @@ var Individual = []BuffSpec{
 		},
 		Label: "Power Infusions",
 	},
+	// Driven because the damage scales with the providing druid's Nature spell power.
 	{
 		Field:      "thorns",
 		SpellID:    9910,
 		Category:   "Thorns",
 		SingleAura: true,
+		Driver:     true,
 		Stats: []proto.Stat{
 			proto.Stat_StatDefenseRating,
 			proto.Stat_StatStamina,
 		},
+	},
+	{
+		Field:  "thorns_spell_power",
+		Kind:   KindFlag,
+		Proto:  ProtoDouble,
+		Reason: "the Nature spell power of the druid providing Thorns, which driveThorns scales the damage with; a sim input with no spell source, rendered under Other Inputs.",
 	},
 }
 

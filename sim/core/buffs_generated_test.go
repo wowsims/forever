@@ -1387,11 +1387,51 @@ func TestRetributionAuraCarriesThePartysSpellPower(t *testing.T) {
 		t.Fatalf("no aura is labelled %q; the unit has %v", "Retribution Aura (External)", auraLabels(char))
 	}
 
-	want := rowAmount(t, 10301, dbcenums.A_DAMAGE_SHIELD) + buffs.RetributionAuraSpellPowerCoefficient*450
+	want := rowAmount(t, 10301, dbcenums.A_DAMAGE_SHIELD) + buffs.DamageShieldSpellPowerCoefficient*450
 	category := char.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.RetributionAuraCategory)
 	if len(category.Effects()) != 1 || category.Effects()[0].Priority != want {
 		t.Errorf("the category has %d effects, first bid %v; want one bidding %v",
 			len(category.Effects()), category.Effects()[0].Priority, want)
+	}
+}
+
+// The individual copy cannot see the providing druid, so the spell power the buffs state is folded
+// into the damage it bids.
+func TestThornsCarriesTheBuffsSpellPower(t *testing.T) {
+	char := core.NewGeneratedBuffTestCharacter()
+
+	core.ApplyBuffEffects(char,
+		&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{Thorns: true, ThornsSpellPower: 450})
+
+	if char.GetAura("Thorns (External)") == nil {
+		t.Fatalf("no aura is labelled %q; the unit has %v", "Thorns (External)", auraLabels(char))
+	}
+
+	want := rowAmount(t, 9910, dbcenums.A_DAMAGE_SHIELD) + buffs.DamageShieldSpellPowerCoefficient*450
+	category := char.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.ThornsCategory)
+	if len(category.Effects()) != 1 || category.Effects()[0].Priority != want {
+		t.Errorf("the category has %d effects, first bid %v; want one bidding %v",
+			len(category.Effects()), category.Effects()[0].Priority, want)
+	}
+}
+
+// The druid's own copy reads the caster's Nature spell power when it deals the hit, so it ignores
+// the stated spell power and bids the row's damage alone.
+func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
+	char := core.NewGeneratedBuffTestCharacter()
+
+	buffs.NewSpellDataThornsAuraWithSpellPower(&char.Unit, true, 450)
+
+	shield := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 2})
+	if shield == nil {
+		t.Fatal("the druid's own Thorns registered no spell to deal its damage with")
+	}
+	if shield.BonusCoefficient != buffs.DamageShieldSpellPowerCoefficient {
+		t.Errorf("the shield scales with %v of spell power, want %v", shield.BonusCoefficient, buffs.DamageShieldSpellPowerCoefficient)
+	}
+	category := char.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.ThornsCategory)
+	if want := rowAmount(t, 9910, dbcenums.A_DAMAGE_SHIELD); len(category.Effects()) != 1 || category.Effects()[0].Priority != want {
+		t.Errorf("the category has %d effects; want one bidding %v", len(category.Effects()), want)
 	}
 }
 

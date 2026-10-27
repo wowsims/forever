@@ -57,32 +57,11 @@ func NewSpellDataShadowResistanceAuraRank(char *core.Character, rank PaladinAura
 	return newBuff(&char.Unit, paladinAuraMeta(shadowResistanceAuraMeta, rank), true, 0)
 }
 
-// Retribution Aura scales with the casting paladin's Holy spell power in Forever even though its
-// game files row carries no coefficient (every rank and Thorns are the same: EffectBonusCoefficient 0,
-// and the damage still moves with spell power in game). The coefficient is the 1.5 s cast-time
-// floor over 3.5, the AoE divisor because the shield hits every attacker, and the 0.42 penalty for
-// the aura effect: 6% of spell power, the ratio Blizzard states for the aura.
-const RetributionAuraSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
-
-// NewSpellDataRetributionAuraRank is the aura on the unit the shield protects. The self-cast variant reads
-// the paladin's own Holy spell power through the proc spell; the external (party-buff) variant
-// cannot see the providing paladin, so externalSpellPower stands in for it and the recipient's
-// own stats stay out of the damage.
+// The aura on the unit the shield protects, at the rank the paladin cast. The external
+// (party-buff) copy takes the providing paladin's Holy spell power as externalSpellPower.
 func NewSpellDataRetributionAuraRank(char *core.Character, isPlayer bool, rank PaladinAuraRank, externalSpellPower float64) *core.Aura {
-	m := paladinAuraMeta(retributionAuraMeta, rank)
-	label := m.label(isPlayer)
-	if char.HasAura(label) {
-		return char.GetAura(label)
-	}
-
-	damage, coefficient := rank.Value, RetributionAuraSpellPowerCoefficient
-	if !isPlayer {
-		damage, coefficient = rank.Value+RetributionAuraSpellPowerCoefficient*externalSpellPower, 0
-	}
-	aura := NewDamageShield(&char.Unit, label, m.actionID(isPlayer), core.NeverExpires, m.Category, m.SingleAura,
-		core.SpellSchoolHoly, damage, coefficient)
-	joinSharedCategory(aura, m.SharedCategory, isPlayer)
-	return aura
+	return newSpellPowerDamageShield(&char.Unit, paladinAuraMeta(retributionAuraMeta, rank), isPlayer, rank.Value,
+		externalSpellPower)
 }
 
 // One rank of a judgement debuff: the spell the target shows and the number its row states. The
