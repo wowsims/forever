@@ -6,8 +6,10 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../action_id', () => {
 	class ActionId {
 		readonly spellId: number;
+		readonly itemId: number;
 		constructor(readonly logString: string) {
 			this.spellId = parseInt(/SpellID: (\d+)/.exec(logString)?.[1] ?? '0');
+			this.itemId = parseInt(/ItemID: (\d+)/.exec(logString)?.[1] ?? '0');
 		}
 		static fromLogString(logString: string) {
 			return new ActionId(/\{.*?\}/.exec(logString)?.[0] ?? logString);
@@ -22,7 +24,7 @@ vi.mock('../action_id', () => {
 			return this.logString;
 		}
 		toStringIgnoringTag() {
-			return this.logString;
+			return this.logString.replace(/, Tag: \d+/, '');
 		}
 	}
 	return { ActionId };
@@ -107,5 +109,13 @@ describe('buildCastLogs', () => {
 
 		expect(castLogs.map(log => log.damageDealtLogs.map(ddl => ddl.amount))).toEqual([[100], [200]]);
 		expect(castLogs.map(log => log.travelTime.toFixed(2))).toEqual(['0.20', '0.20']);
+	});
+
+	it("puts Demonic Rune's hit on its user under the rune's use", async () => {
+		const lines = [...cast(1.0, '{ItemID: 12662}'), hit(1.0, 1000, '{ItemID: 12662, Tag: 1}')];
+
+		const castLogs = await castLogsOf(lines);
+
+		expect(castLogs.map(log => log.damageDealtLogs.map(ddl => ddl.amount))).toEqual([[1000]]);
 	});
 });
