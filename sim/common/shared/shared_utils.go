@@ -1667,8 +1667,6 @@ const (
 	OutcomeDefault                  = 0
 	OutcomeMeleeCanCrit OutcomeType = iota
 	OutcomeMeleeNoCrit
-	OutcomeMeleeNoBlockDodgeParry
-	OutcomeMeleeNoBlockDodgeParryCrit
 	OutcomeSpellCanCrit
 	OutcomeSpellNoCrit
 	OutcomeSpellNoMissCanCrit
@@ -1703,10 +1701,6 @@ func GetOutcome(spell *core.Spell, outcome OutcomeType) core.OutcomeApplier {
 		return spell.OutcomeMeleeSpecialHitAndCrit
 	case OutcomeMeleeNoCrit:
 		return spell.OutcomeMeleeSpecialHit
-	case OutcomeMeleeNoBlockDodgeParry:
-		return spell.OutcomeMeleeSpecialNoBlockDodgeParry
-	case OutcomeMeleeNoBlockDodgeParryCrit:
-		return spell.OutcomeMeleeSpecialNoBlockDodgeParryNoCrit
 	case OutcomeSpellCanCrit:
 		return spell.OutcomeMagicHitAndCrit
 	case OutcomeSpellNoMissCanCrit:

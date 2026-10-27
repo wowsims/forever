@@ -1638,6 +1638,12 @@ func TestValueSpellIsExpertiseCapped(t *testing.T) {
 	if !special.GetBool(sim) {
 		t.Errorf("Expertise Capped in front of the target with 14%% expertise: got false, want true")
 	}
+
+	fw.AddStatDynamic(sim, stats.ExpertisePercent, -14)
+	fw.GetSpell(testMeleeSpecialActionID).Flags |= SpellFlagNoActiveDefense
+	if !special.GetBool(sim) {
+		t.Errorf("Expertise Capped in front of the target without expertise, flagged No Active Defense: got false, want true")
+	}
 }
 
 // Against a level 62 target the special's miss and dodge are 0.05 + 10*0.001, which sums to slightly above

@@ -7,6 +7,9 @@ Each line is the rule the code follows, where it lives, and the pull request tha
 - **`ATTR_EX_3_ALWAYS_HIT` on a triggered row stops only that row's own roll; the sim skips the miss only when the row
   the player casts carries the bit, so Judgement of Command keeps the miss roll of its dummy 20968.**
   `sim/core/spelldata/attributes.go`, `AlwaysHits`.
+- **Whether a special can be dodged, parried or blocked follows the row's No Active Defense (`Attributes[0] 0x200000`),
+  which `rowFlags` turns into `SpellFlagNoActiveDefense`; the outcome function never encodes it, so Backstab and Feint,
+  whose rows lack the bit, can be dodged.** `sim/core/unit.go`, `GetTotalDodgeChanceAsDefender`, PR #712.
 - **A spell whose row has DefenseType magic and no Always Hit rolls `OutcomeMagicHit` even when it deals no damage
   (Taunt, Challenging Shout, Intimidating Shout, Growl, Challenging Roar); taunts carry `ProcMaskEmpty`.**
   `sim/warrior/taunt.go`, PR #649.
