@@ -1,8 +1,10 @@
+import type { EncounterDesign } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { UnitMetrics } from '@sim/proto/sim_result';
 
 import { TimelineChartSpec, TimelineDataset } from '../../../model/timeline/chart/types';
 import { majorCooldownAnnotations } from './annotations';
+import { scheduledMarkers } from './scheduled';
 import {
 	DPS_SERIES_ID,
 	dpsColor,
@@ -25,7 +27,7 @@ import {
 
 const timeAxis = (duration: number) => ({ x: timeScale(duration, i18n.t('results_tab.details.timeline.chart_options.time_axis')) });
 
-export function chartSpec(unit: UnitMetrics, duration: number): TimelineChartSpec {
+export function chartSpec(unit: UnitMetrics, duration: number, design?: EncounterDesign): TimelineChartSpec {
 	const datasets: Array<TimelineDataset> = [];
 	const scales: TimelineChartSpec['scales'] = timeAxis(duration);
 
@@ -53,5 +55,5 @@ export function chartSpec(unit: UnitMetrics, duration: number): TimelineChartSpe
 		scales[Y_RESOURCE_PCT] = resourcePctScale();
 	}
 
-	return { datasets, scales, duration, annotations: majorCooldownAnnotations(unit) };
+	return { datasets, scales, duration, annotations: { ...majorCooldownAnnotations(unit), scheduled: scheduledMarkers(design, duration) } };
 }

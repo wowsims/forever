@@ -8645,6 +8645,28 @@
 								"show_gcd": {
 									"type": "string"
 								},
+								"scheduled": {
+									"type": "object",
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"downtime": {
+											"type": "string"
+										},
+										"wave": {
+											"type": "string"
+										},
+										"amp": {
+											"type": "string"
+										},
+										"move": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["title", "downtime", "wave", "amp", "move"]
+								},
 								"chart_options": {
 									"type": "object",
 									"properties": {
@@ -8801,6 +8823,7 @@
 								"note",
 								"chart_types",
 								"show_gcd",
+								"scheduled",
 								"chart_options",
 								"tooltips",
 								"floatingActionBar",

@@ -28,9 +28,19 @@ export interface CooldownIcon {
 	url: string;
 }
 
+export type ScheduledKind = 'downtime' | 'wave' | 'amp' | 'move';
+
+/** A window of the encounter design at the logged iteration's duration; a move has `end === start`. */
+export interface ScheduledMarker {
+	kind: ScheduledKind;
+	start: number;
+	end: number;
+}
+
 export interface AnnotationSpec {
 	bands: Array<CooldownBand>;
 	icons: Array<CooldownIcon>;
+	scheduled: Array<ScheduledMarker>;
 }
 
 export interface TimelineChartSpec {

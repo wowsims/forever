@@ -3,12 +3,23 @@ import { distinct, stringComparator } from '@sim/utils/collections';
 import { Chart, Plugin } from 'chart.js';
 
 import { actionColors } from '../../../model/color_settings';
-import { AnnotationSpec } from '../../../model/timeline/chart/types';
+import { AnnotationSpec, ScheduledKind } from '../../../model/timeline/chart/types';
+import { cssVarColor } from './colors';
 
 const MAX_ALLOWED_DIST = 10;
 const ICON_SIZE = 20;
 const ICON_ROW_HEIGHT = 25;
 const BAND_OPACITY = 0.3;
+const SCHEDULED_STRIP_HEIGHT = 6;
+const SCHEDULED_ROW_HEIGHT = 9;
+
+// One row of strips along the top edge per kind, so they never cover the cooldown bands or each other.
+export const SCHEDULED_ROWS: ReadonlyArray<{ kind: ScheduledKind; token: string }> = [
+	{ kind: 'downtime', token: '--designer-lane-boss-bar' },
+	{ kind: 'wave', token: '--designer-lane-waves-bar' },
+	{ kind: 'amp', token: '--designer-lane-amps-bar' },
+	{ kind: 'move', token: '--designer-lane-moves-bar' },
+];
 
 const iconCache = new Map<string, HTMLImageElement>();
 
@@ -45,10 +56,45 @@ export function majorCooldownAnnotations(unit: UnitMetrics): AnnotationSpec {
 			color: actionColors[distinctMcdAuras.findIndex(dAura => dAura.actionId!.equalsIgnoringTag(log.actionId!)) % actionColors.length],
 		})),
 		icons: mcdLogs.map((log, i) => ({ time: log.timestamp, row: iconRows[i], url: log.actionId!.iconUrl })),
+		scheduled: [],
 	};
 }
 
-export function annotationsPlugin(getSpec: () => AnnotationSpec | null): Plugin<'line'> {
+function drawScheduled(chart: Chart, spec: AnnotationSpec, isVisible: (kind: ScheduledKind) => boolean) {
+	const { ctx, chartArea } = chart;
+	const scale = chart.scales.x;
+	ctx.save();
+	ctx.beginPath();
+	ctx.rect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+	ctx.clip();
+	SCHEDULED_ROWS.forEach(({ kind, token }, row) => {
+		if (!isVisible(kind)) return;
+		const color = cssVarColor(token);
+		const top = chartArea.top + row * SCHEDULED_ROW_HEIGHT;
+		ctx.fillStyle = color;
+		ctx.strokeStyle = color;
+		for (const marker of spec.scheduled) {
+			if (marker.kind !== kind) continue;
+			const left = scale.getPixelForValue(marker.start);
+			if (kind === 'move') {
+				const mid = top + SCHEDULED_STRIP_HEIGHT / 2;
+				ctx.beginPath();
+				ctx.moveTo(left, mid - SCHEDULED_STRIP_HEIGHT / 2);
+				ctx.lineTo(left + SCHEDULED_STRIP_HEIGHT / 2, mid);
+				ctx.lineTo(left, mid + SCHEDULED_STRIP_HEIGHT / 2);
+				ctx.lineTo(left - SCHEDULED_STRIP_HEIGHT / 2, mid);
+				ctx.closePath();
+				ctx.fill();
+			} else {
+				const right = scale.getPixelForValue(marker.end);
+				ctx.fillRect(left, top, Math.max(right - left, 1), SCHEDULED_STRIP_HEIGHT);
+			}
+		}
+	});
+	ctx.restore();
+}
+
+export function annotationsPlugin(getSpec: () => AnnotationSpec | null, isScheduledVisible: (kind: ScheduledKind) => boolean): Plugin<'line'> {
 	const hooked = new WeakSet<HTMLImageElement>();
 
 	const clipToChartArea = (chart: Chart) => {
@@ -80,6 +126,7 @@ export function annotationsPlugin(getSpec: () => AnnotationSpec | null): Plugin<
 		afterDatasetsDraw(chart) {
 			const spec = getSpec();
 			const scale = chart.scales.x;
+			if (spec?.scheduled.length && scale) drawScheduled(chart, spec, isScheduledVisible);
 			if (!spec?.icons.length || !scale) return;
 
 			const { ctx, chartArea } = chart;

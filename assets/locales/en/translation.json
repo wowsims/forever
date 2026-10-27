@@ -2440,6 +2440,13 @@
 					"threat": "Threat"
 				},
 				"show_gcd": "Show GCD",
+				"scheduled": {
+					"title": "Scheduled by the encounter design (jitter not shown):",
+					"downtime": "Target downtime",
+					"wave": "Add wave",
+					"amp": "Damage amp",
+					"move": "Move"
+				},
 				"chart_options": {
 					"time_axis": "Time (s)",
 					"waiting_for_data": "Waiting for data...",
