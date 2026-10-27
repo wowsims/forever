@@ -85,7 +85,6 @@ type generatedSpellData struct {
 	Entrapment                      spelldata.Ladder
 	ExplosiveTrap                   spelldata.Ladder
 	ExplosiveTrapTriggered          spelldata.Ladder
-	ExplosiveTrapEffect             spelldata.Ladder
 	ExposePrey                      spelldata.Ladder
 	ExposePreyTriggered             spelldata.Ladder
 	EyesOfTheBeast                  spelldata.Ladder
@@ -306,7 +305,6 @@ var spellData = generatedSpellData{
 	Entrapment:                      spelldata.Talent(19184, 5),
 	ExplosiveTrap:                   spelldata.Ranked(13813, 14316, 14317),
 	ExplosiveTrapTriggered:          spelldata.Ranked(13812, 14314, 14315),
-	ExplosiveTrapEffect:             spelldata.Ranked(13812, 14314, 14315),
 	ExposePrey:                      spelldata.Talent(1310532, 2),
 	ExposePreyTriggered:             spelldata.Ranked(1310726),
 	EyesOfTheBeast:                  spelldata.Ranked(1002),

@@ -64,7 +64,7 @@ func TestGeneratedRowsReadInTheSimsUnits(t *testing.T) {
 			return math.Round(amount * float64(points) / float64(vindicationMeta.TalentDivisor))
 		}},
 		{"DarkInspiration", DarkInspirationValue, darkInspirationMeta.Talent.Len(), func(t *testing.T, points int32) float64 {
-			pct := firstAura(t, darkInspirationSpell, dbcenums.A_MOD_PERCENT_STAT).Average()
+			pct := firstAura(t, darkInspirationSpell, dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE).Average()
 			if points > 0 {
 				pct = math.Round(pct * float64(points) / float64(darkInspirationMeta.TalentDivisor))
 			}

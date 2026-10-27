@@ -870,6 +870,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Sulfuras,HandofRagnaros-289295"
+ value: {
+  dps: 616.05528
+  tps: 329.17586
+  hps: 46.13972
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-SulfuronHammer-17193"
  value: {
   dps: 616.05528

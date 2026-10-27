@@ -145,6 +145,14 @@ func RegisterAllProcs() {
 			{ItemID: 282080, ItemName: "Flame Seared Signet"},
 		})
 
+	// Deals 7 Fire damage to anyone who strikes you with a melee attack.
+	// https://www.wowhead.com/forever/spell=21142
+	// equip: 21142 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 21142},
+		[]shared.ItemVariant{
+			{ItemID: 289295, ItemName: "Sulfuras, Hand of Ragnaros"},
+		})
+
 	// Procs
 
 	// TODO: Manual implementation required
@@ -336,6 +344,19 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 10506, ItemName: "Deepdive Helmet"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.
+	// https://www.wowhead.com/forever/spell=1293790
+	// unsupported: states no rate
+	// trigger 1293790 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293790, BuffSpellID: 1293790, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 10761, ItemName: "Coldrage Dagger"},
 	// })
 
 	// TODO: Manual implementation required
@@ -683,6 +704,19 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 17073, ItemName: "Earthshaker"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Steals 140 life from target enemy.
+	// https://www.wowhead.com/forever/spell=21170
+	// unsupported: states no rate; the damage spell's row states no damage
+	// trigger 21170 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21170, BuffSpellID: 21170, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 17074, ItemName: "Shadowstrike"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2373,6 +2407,63 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 285281, ItemName: "Arcanite Blacksmith Hammer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies.
+	// Each jump reduces that victim's Nature resistance by 25. Affects 5 targets. Your primary target is also
+	// consumed by a cyclone, slowing its attack speed by 20% for 12s.
+	// https://www.wowhead.com/forever/spell=21992
+	// unsupported: states no rate
+	// trigger 21992 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21992, BuffSpellID: 21992, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 289294, ItemName: "Thunderfury, Blessed Blade of the Windseeker"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Hurls a fiery ball that causes 303 Fire damage and an additional 75 damage over 10s.
+	// https://www.wowhead.com/forever/spell=21162
+	// unsupported: states no rate
+	// trigger 21162 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21162, BuffSpellID: 21162, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 289295, ItemName: "Sulfuras, Hand of Ragnaros"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases the critical effect chance of your Holy spells by 2%.
+	// https://www.wowhead.com/forever/spell=23236
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 289296, ItemName: "Benediction"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Grants the wielder 13 Defense, 300 Armor, 30 Attack Power, and 36 additional Attack Power against Dragonkin
+	// for 10s.
+	// https://www.wowhead.com/forever/spell=22850
+	// unsupported: states no rate
+	// trigger 22850 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 22850, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 289302, ItemName: "Quel'Serrar"},
 	// })
 
 	// Smites an enemy for 30 Holy damage.
