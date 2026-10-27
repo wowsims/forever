@@ -55,6 +55,18 @@ describe('ADDON_IMPORTER sections', () => {
 		expect(player.getGear()).toBe(gear);
 	});
 
+	it('applies Forever talents on their own and leaves race, professions and gear as they were', async () => {
+		const { player, host } = await startingSim();
+		const gear = player.getGear();
+
+		await ADDON_IMPORTER.onImport(host, JSON.stringify({ class: 'warrior', flavor: 'forever', talents: '05' }));
+
+		expect(player.getTalentsString()).toBe('05');
+		expect(player.getRace()).toBe(Race.RaceHuman);
+		expect(player.getProfessions()).toEqual([Profession.Engineering]);
+		expect(player.getGear()).toBe(gear);
+	});
+
 	it('keeps the current rotation when the export has none', async () => {
 		const { player, host } = await startingSim();
 		player.setAplRotation(APLRotation.fromJson(rotation));
@@ -99,6 +111,7 @@ describe('ADDON_IMPORTER sections', () => {
 
 	it.each([
 		['has no section to import', JSON.stringify({ class: 'warrior', talents: '05' }), 'import.addon.error_nothing_to_import'],
+		['is from Forever but has no talents', JSON.stringify({ class: 'warrior', flavor: 'forever', talents: '--' }), 'import.addon.error_nothing_to_import'],
 		['is not an object', '[1]', 'import.addon.error_invalid_export'],
 	])('rejects an export that %s', async (_name, data, message) => {
 		const { host } = await startingSim();
