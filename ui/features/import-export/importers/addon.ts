@@ -1,7 +1,9 @@
+import { APLRotation } from '@generated/proto/apl';
 import { Class, EquipmentSpec, Profession, Race } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { CHARACTER_LEVEL } from '@sim/constants/mechanics';
 import { Database } from '@sim/proto/database';
+import { fromJsonLenient } from '@sim/proto/lenient_json';
 import { nameToClass, nameToProfession, nameToRace } from '@sim/proto/names';
 import { toastManager } from '@ui-kit/Toast';
 
@@ -26,11 +28,20 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 	title: i18n.t('import.addon.title'),
 	allowFileUpload: true,
 	onImport: async (host, data) => {
-		let importJson: any | null;
+		let importJson: Record<string, any>;
 		try {
 			importJson = JSON.parse(data);
 		} catch {
 			throw new Error(i18n.t('import.addon.error_invalid_export'));
+		}
+		if (typeof importJson != 'object' || importJson === null || Array.isArray(importJson)) {
+			throw new Error(i18n.t('import.addon.error_invalid_export'));
+		}
+
+		// The class is required. Gear, race, professions and rotation are optional, and anything left out stays as it is.
+		const has = (key: string) => importJson[key] != null;
+		if (!['gear', 'race', 'professions', 'rotation'].some(has)) {
+			throw new Error(i18n.t('import.addon.error_nothing_to_import'));
 		}
 
 		const addonVersion = await WSE_VERSION;
@@ -56,27 +67,46 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 			throw new Error(i18n.t('import.errors.cannot_parse_class'));
 		}
 
-		const race = nameToRace((importJson['race'] as string) || '');
-		if (race == Race.RaceUnknown) {
-			throw new Error(i18n.t('import.errors.cannot_parse_race'));
+		let race: Race | undefined;
+		if (has('race')) {
+			race = nameToRace((importJson['race'] as string) || '');
+			if (race == Race.RaceUnknown) {
+				throw new Error(i18n.t('import.errors.cannot_parse_race'));
+			}
 		}
 
-		const professions = (importJson['professions'] as Array<{ name: string; level: number }>).map(profData => nameToProfession(profData.name));
-		professions.forEach((prof, i) => {
-			if (prof == Profession.ProfessionUnknown) {
-				throw new Error(i18n.t('import.errors.cannot_parse_profession', { profession: importJson['professions'][i] }));
-			}
-		});
+		let professions: Profession[] | undefined;
+		if (has('professions')) {
+			professions = (importJson['professions'] as Array<{ name: string; level: number }>).map(profData => nameToProfession(profData.name));
+			professions.forEach((prof, i) => {
+				if (prof == Profession.ProfessionUnknown) {
+					throw new Error(i18n.t('import.errors.cannot_parse_profession', { profession: importJson['professions'][i] }));
+				}
+			});
+		}
 
 		const talentsStr = (importJson['talents'] as string) || '';
 
-		await Database.get();
+		let equipmentSpec: EquipmentSpec | undefined;
+		if (has('gear')) {
+			await Database.get();
 
-		const gearJson = importJson['gear'];
-		gearJson.items = (gearJson.items as Array<any>).filter(item => item != null);
-		delete gearJson.version;
+			const gearJson = importJson['gear'];
+			gearJson.items = (gearJson.items as Array<any>).filter(item => item != null);
+			delete gearJson.version;
 
-		const equipmentSpec = EquipmentSpec.fromJson(gearJson, { ignoreUnknownFields: true });
+			equipmentSpec = EquipmentSpec.fromJson(gearJson, { ignoreUnknownFields: true });
+		}
+
+		// Same format as `player.rotation` in a JSON export.
+		let rotation: APLRotation | undefined;
+		if (has('rotation')) {
+			try {
+				rotation = fromJsonLenient(APLRotation, importJson['rotation']);
+			} catch {
+				throw new Error(i18n.t('import.addon.error_invalid_rotation'));
+			}
+		}
 
 		await finishIndividualImport(host, {
 			charClass,
@@ -84,6 +114,7 @@ export const ADDON_IMPORTER: ImporterDefinition = {
 			equipmentSpec,
 			talentsStr,
 			professions,
+			rotation,
 		});
 	},
 };
