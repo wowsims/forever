@@ -110,7 +110,7 @@ func (ct *channelTest) autocastAction() APLActionImpl {
 func (ct *channelTest) start(actions ...APLActionImpl) {
 	ct.rot.priorityList = nil
 	for _, impl := range actions {
-		action := &APLAction{impl: impl}
+		action := newAPLActionEntry(nil, impl)
 		action.Finalize(ct.rot)
 		ct.rot.priorityList = append(ct.rot.priorityList, action)
 	}
@@ -149,10 +149,11 @@ func recordedSpellConfig(id int32, castAt *[]time.Duration) SpellConfig {
 
 // A one-minute major cooldown, on the GCD when gcd is set, ready from 3 s.
 type testCooldown struct {
-	gcd      time.Duration
-	priority int32
-	spell    *Spell
-	castAt   []time.Duration
+	gcd       time.Duration
+	priority  int32
+	explosive bool // An explosive, which goes right after the GCD starts.
+	spell     *Spell
+	castAt    []time.Duration
 }
 
 func newCooldownShootTest(cooldowns ...*testCooldown) *channelTest {
@@ -777,6 +778,49 @@ func TestWandShootScheduler(t *testing.T) {
 			if !slices.Equal(ct.shots[:len(want)], want) {
 				t.Fatalf("channel %t: Shoot should shoot at %v, shots at %v", channel, want, ct.shots)
 			}
+		}
+	})
+}
+
+func TestStartingAChannelEndsTheRunningOne(t *testing.T) {
+	t.Run("Shoot in the instant a channel starts", func(t *testing.T) {
+		var drainTicks []time.Duration
+		ct, drain := newSpellShootTest(drainConfig(&drainTicks, CastConfig{DefaultCast: Cast{GCD: GCDDefault}}))
+		ct.start(&timedStubAction{readyAt: time.Minute})
+		ct.runUntil(0)
+
+		ct.castOf(drain).Execute(ct.sim)
+		ct.castOf(ct.spell).Execute(ct.sim)
+		if dot := ct.fw.ChanneledDot; dot == nil || dot.Spell != ct.spell || drain.Dot(ct.fw.CurrentTarget).IsActive() {
+			t.Fatalf("Shoot should end Drain Life and be the only channel")
+		}
+		ct.runUntil(5001 * time.Millisecond)
+		if len(drainTicks) != 0 || !slices.Equal(ct.shots, seconds(2)) || !slices.Equal(ct.channelEnd, seconds(0, 2)) {
+			t.Fatalf("Drain Life should end at 0 with no tick and Shoot fire its one shot a wand speed after the cast, ticks at %v, shots at %v, ended at %v",
+				drainTicks, ct.shots, ct.channelEnd)
+		}
+	})
+
+	t.Run("a channel off the GCD while another runs", func(t *testing.T) {
+		var drainTicks []time.Duration
+		var other *Spell
+		ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+			other = char.RegisterSpell(manaChannelConfig(5, false))
+			return char.RegisterSpell(drainConfig(&drainTicks, CastConfig{DefaultCast: Cast{GCD: GCDDefault}}))
+		})
+		other.finalize()
+		ct.start(&timedStubAction{readyAt: time.Minute})
+		ct.runUntil(0)
+
+		ct.castOf(ct.spell).Execute(ct.sim)
+		ct.castOf(other).Execute(ct.sim)
+		if dot := ct.fw.ChanneledDot; dot == nil || dot.Spell != other || ct.spell.Dot(ct.fw.CurrentTarget).IsActive() {
+			t.Fatalf("the second channel should end Drain Life and be the only channel")
+		}
+		ct.runUntil(5001 * time.Millisecond)
+		if len(drainTicks) != 0 || !slices.Equal(ct.channelEnd, seconds(0, 5)) {
+			t.Fatalf("Drain Life should end at 0 with no tick and the second channel run to its end at 5 s, Drain Life ticks at %v, ended at %v",
+				drainTicks, ct.channelEnd)
 		}
 	})
 }

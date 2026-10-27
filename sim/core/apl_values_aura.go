@@ -7,6 +7,48 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
+// An aura as the unit's rotation reads it.
+type auraReading struct {
+	active    bool
+	remaining time.Duration
+	stacks    int32
+	landing   bool // Read as the unit's running hardcast leaves it when it lands.
+}
+
+func (unit *Unit) readAura(sim *Simulation, aura *Aura) auraReading {
+	if aura == nil {
+		return auraReading{}
+	}
+	return unit.readLanding(sim, aura, func() time.Duration { return aura.Duration })
+}
+
+// A dot as its caster's rotation reads it, landing with the duration an application now would give it.
+func readDot(sim *Simulation, dot *Dot) auraReading {
+	if dot == nil {
+		return auraReading{}
+	}
+	return dot.Spell.Unit.readLanding(sim, dot.Aura, dot.freshDuration)
+}
+
+// While the unit hardcasts the aura's own spell on the aura's unit, the rotation reads the aura as if the
+// cast had landed at the cast end: up for duration from then and, for a stacking aura, with one more
+// stack up to its maximum, or one. Any other aura, a proc the cast triggers among them, reads as it is.
+func (unit *Unit) readLanding(sim *Simulation, aura *Aura, duration func() time.Duration) auraReading {
+	hc := &unit.Hardcast
+	if !unit.hardcastRuns(sim) || hc.IsChanneled || hc.Target != aura.Unit || hc.ActionID.IsEmptyAction() ||
+		!hc.ActionID.SameActionIgnoreTag(aura.ActionID) {
+		return auraReading{active: aura.IsActive(), remaining: aura.RemainingDuration(sim), stacks: aura.GetStacks()}
+	}
+	reading := auraReading{active: true, remaining: NeverExpires, stacks: aura.GetStacks(), landing: true}
+	if d := duration(); d != NeverExpires {
+		reading.remaining = hc.Expires + d - sim.CurrentTime
+	}
+	if aura.MaxStacks > 0 {
+		reading.stacks = TernaryInt32(aura.IsActive(), min(aura.GetStacks()+1, aura.MaxStacks), 1)
+	}
+	return reading
+}
+
 func (rot *APLRotation) newValueAuraIsKnown(config *proto.APLValueAuraIsKnown, uuid *proto.UUID) APLValue {
 	aura := rot.GetAPLAura(rot.GetSourceUnit(config.SourceUnit), config.AuraId)
 	return rot.newValueConst(&proto.APLValueConst{
@@ -16,10 +58,10 @@ func (rot *APLRotation) newValueAuraIsKnown(config *proto.APLValueAuraIsKnown, u
 
 type APLValueAuraIsActive struct {
 	DefaultAPLValueImpl
+	unit                *Unit
 	aura                AuraReference
 	reactionTime        time.Duration
 	includeReactionTime bool
-	ownSpells           []*Spell // The player's APL spells that apply the aura: the same id, or the aura as their RelatedSelfBuff.
 }
 
 func (rot *APLRotation) newValueAuraIsActive(config *proto.APLValueAuraIsActive, _ *proto.UUID) APLValue {
@@ -30,18 +72,11 @@ func (rot *APLRotation) newValueAuraIsActive(config *proto.APLValueAuraIsActive,
 	if aura.Get() == nil {
 		return nil
 	}
-	actionID := ProtoToActionID(config.AuraId)
-	var ownSpells []*Spell
-	for _, spell := range rot.unit.Spellbook {
-		if spell.Flags.Matches(SpellFlagAPL) && (spell.ActionID.SameAction(actionID) || (spell.RelatedSelfBuff != nil && spell.RelatedSelfBuff.ActionID.SameAction(actionID))) {
-			ownSpells = append(ownSpells, spell)
-		}
-	}
 	return &APLValueAuraIsActive{
+		unit:                rot.unit,
 		aura:                aura,
 		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
-		ownSpells:           ownSpells,
 	}
 }
 func (value *APLValueAuraIsActive) Type() proto.APLValueType {
@@ -49,36 +84,13 @@ func (value *APLValueAuraIsActive) Type() proto.APLValueType {
 }
 func (value *APLValueAuraIsActive) GetBool(sim *Simulation) bool {
 	aura := value.aura.Get()
-	if aura == nil {
-		return false
+	if reading := value.unit.readAura(sim, aura); reading.landing {
+		return reading.active
 	}
-	if !value.includeReactionTime {
-		return aura.activeOrPending()
+	if value.includeReactionTime {
+		return aura.IsActive() && aura.TimeActive(sim) >= value.reactionTime
 	}
-	// The player knows at once that an aura their own cast put up is there, and reacts only to it running out;
-	// any other aura, such as a proc, takes the reaction time to notice as it lands.
-	if aura.pendingOwnActivations > 0 {
-		return true
-	}
-	if value.castByPlayer(aura) {
-		return aura.IsActive() || (aura.expired && aura.TimeInactive(sim) < value.reactionTime)
-	}
-	return aura.IsActive() && aura.TimeActive(sim) >= value.reactionTime
-}
-
-// Whether one of the player's spells was cast, or a guaranteed declared proc off a unit's own APL spell put the
-// aura up, refreshed it or changed its stacks, as the aura landed or while it was up. A proc sharing a spell's id,
-// such as the Revenge window, starts before that spell is cast, so it stays a proc.
-func (value *APLValueAuraIsActive) castByPlayer(aura *Aura) bool {
-	if aura.lastOwnProcAt >= aura.startTime {
-		return true
-	}
-	for _, spell := range value.ownSpells {
-		if spell.lastAppliedAt >= aura.startTime {
-			return true
-		}
-	}
-	return false
+	return aura.IsActive()
 }
 func (value *APLValueAuraIsActive) String() string {
 	return fmt.Sprintf("Aura Active(%s)", value.aura.String())
@@ -86,6 +98,7 @@ func (value *APLValueAuraIsActive) String() string {
 
 type APLValueAuraIsInactive struct {
 	DefaultAPLValueImpl
+	unit                *Unit
 	aura                AuraReference
 	reactionTime        time.Duration
 	includeReactionTime bool
@@ -101,6 +114,7 @@ func (rot *APLRotation) newValueAuraIsInactive(config *proto.APLValueAuraIsInact
 	}
 
 	return &APLValueAuraIsInactive{
+		unit:                rot.unit,
 		aura:                aura,
 		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
@@ -111,13 +125,13 @@ func (value *APLValueAuraIsInactive) Type() proto.APLValueType {
 }
 func (value *APLValueAuraIsInactive) GetBool(sim *Simulation) bool {
 	aura := value.aura.Get()
-	if aura == nil {
-		return true
+	if reading := value.unit.readAura(sim, aura); reading.landing {
+		return !reading.active
 	}
 	if value.includeReactionTime {
-		return !aura.IsActive() && aura.pendingOwnActivations == 0 && aura.TimeInactive(sim) >= value.reactionTime
+		return !aura.IsActive() && aura.TimeInactive(sim) >= value.reactionTime
 	}
-	return !aura.activeOrPending()
+	return !aura.IsActive()
 }
 func (value *APLValueAuraIsInactive) String() string {
 	return fmt.Sprintf("Aura Inactive(%s)", value.aura.String())
@@ -125,6 +139,7 @@ func (value *APLValueAuraIsInactive) String() string {
 
 type APLValueAuraRemainingTime struct {
 	DefaultAPLValueImpl
+	unit *Unit
 	aura AuraReference
 }
 
@@ -137,6 +152,7 @@ func (rot *APLRotation) newValueAuraRemainingTime(config *proto.APLValueAuraRema
 		return nil
 	}
 	return &APLValueAuraRemainingTime{
+		unit: rot.unit,
 		aura: aura,
 	}
 }
@@ -144,8 +160,7 @@ func (value *APLValueAuraRemainingTime) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration
 }
 func (value *APLValueAuraRemainingTime) GetDuration(sim *Simulation) time.Duration {
-	aura := value.aura.Get()
-	return TernaryDuration(aura.IsActive(), aura.RemainingDuration(sim), 0)
+	return value.unit.readAura(sim, value.aura.Get()).remaining
 }
 func (value *APLValueAuraRemainingTime) String() string {
 	return fmt.Sprintf("Aura Remaining Time(%s)", value.aura.String())
@@ -153,6 +168,7 @@ func (value *APLValueAuraRemainingTime) String() string {
 
 type APLValueAuraNumStacks struct {
 	DefaultAPLValueImpl
+	unit                *Unit
 	aura                AuraReference
 	reactionTime        time.Duration
 	includeReactionTime bool
@@ -181,6 +197,7 @@ func (rot *APLRotation) newValueAuraNumStacks(config *proto.APLValueAuraNumStack
 	}
 
 	value := &APLValueAuraNumStacks{
+		unit:                rot.unit,
 		aura:                aura,
 		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
@@ -216,6 +233,9 @@ func (value *APLValueAuraNumStacks) GetInt(sim *Simulation) int32 {
 	aura := value.aura.Get()
 	if aura == nil {
 		return 0
+	}
+	if reading := value.unit.readAura(sim, aura); reading.landing {
+		return reading.stacks
 	}
 	history := &value.stackHistories[aura.Unit.UnitIndex]
 	if value.includeReactionTime {

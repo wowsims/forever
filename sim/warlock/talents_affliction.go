@@ -144,12 +144,16 @@ func (warlock *Warlock) applyPandemic() {
 }
 
 // --- Tier 4 ---
+
+// The class flags also name Lash of Pain, which the Succubus casts, so the row is parsed on the Succubus too.
 func (warlock *Warlock) applyMalevolence() {
 	if warlock.Talents.Malevolence == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&warlock.Character, spellData.Malevolence.Rank(warlock.Talents.Malevolence))
+	rank := spellData.Malevolence.Rank(warlock.Talents.Malevolence)
+	spelldata.ParseStatic(&warlock.Character, rank)
+	spelldata.ParseStatic(&warlock.Succubus.Character, rank)
 }
 
 func (warlock *Warlock) applyNightfall() {

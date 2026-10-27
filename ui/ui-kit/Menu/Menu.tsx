@@ -83,6 +83,9 @@ export const Menu = ({
 	children,
 }: MenuProps) => {
 	const portalContainer = usePortalContainer();
+	// Base UI focuses a hover-opened popup and, with `highlightItemOnHover`, the item under the pointer. Both are script
+	// focus, which Chrome paints as `:focus-visible` until the page has had a mouse focus, so the menu shows focus rings
+	// under the mouse. The pointer highlight is `:hover` in Menu.css instead, and the popup itself draws no outline.
 	const popup = (
 		<BaseMenu.Portal container={container ?? portalContainer ?? undefined} keepMounted={keepMounted} {...portalProps}>
 			<BaseMenu.Positioner
@@ -95,7 +98,7 @@ export const Menu = ({
 				{...positionerProps}>
 				<BaseMenu.Popup
 					render={popupRender ?? <ul />}
-					className={clsx('m-0 list-none p-0', SURFACE_CLASSES[surface], anchorWidth && 'ui-menu-anchor-width', className)}
+					className={clsx('m-0 list-none p-0 outline-none', SURFACE_CLASSES[surface], anchorWidth && 'ui-menu-anchor-width', className)}
 					{...popupProps}>
 					{children}
 				</BaseMenu.Popup>
@@ -106,7 +109,7 @@ export const Menu = ({
 	// The row owns the popup: Base UI leaves focus guards where the portal sits, and they belong inside the `li`, not between the list's rows.
 	if (submenu)
 		return (
-			<BaseMenu.SubmenuRoot>
+			<BaseMenu.SubmenuRoot highlightItemOnHover={false}>
 				<li role="none">
 					<BaseMenu.SubmenuTrigger render={triggerRender} nativeButton={isNativeButtonTrigger(triggerRender)} {...triggerProps}>
 						{trigger}
@@ -117,7 +120,7 @@ export const Menu = ({
 		);
 
 	return (
-		<BaseMenu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
+		<BaseMenu.Root open={open} onOpenChange={onOpenChange} modal={modal} highlightItemOnHover={false}>
 			<BaseMenu.Trigger render={triggerRender} nativeButton={isNativeButtonTrigger(triggerRender)} {...triggerProps}>
 				{trigger}
 			</BaseMenu.Trigger>

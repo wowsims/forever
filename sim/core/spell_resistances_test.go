@@ -81,7 +81,7 @@ func TestNoPartialResistKeepsTheWholeHit(t *testing.T) {
 
 // A hit the target resists in full is a miss: it is not landed, counts as a miss, and no hit or crit is counted.
 func TestFullResistIsAMiss(t *testing.T) {
-	sim, fw := setupFakeWarlockSim(proto.Race_RaceHuman)
+	sim, fw := setupFakeWarlockSim(proto.Race_RaceHuman, &proto.IndividualBuffs{})
 	target := fw.CurrentTarget
 	spell := fw.Corruption
 	target.stats[stats.ShadowResistance] = 1e12
@@ -102,10 +102,50 @@ func TestFullResistIsAMiss(t *testing.T) {
 	expected := spell.expectedDamage(sim, target, func(sim *Simulation, target *Unit, spell *Spell, _ bool) *SpellResult {
 		return spell.CalcDamage(sim, target, 100, spell.OutcomeExpectedMagicHitAndCrit)
 	}, false)
-	if expected != 0 {
-		t.Errorf("the expected damage of a fully resisted hit is %v, want 0", expected)
+	if expected > 1e-6 {
+		t.Errorf("the expected damage of a fully resisted hit is %v, want 0 up to the average resist left at 1e12", expected)
 	}
 	if got := spell.SpellMetrics[target.UnitIndex].Misses; got != 200 {
 		t.Errorf("an expected-damage call against a full resist counted %d misses, want 200 and none added", got)
+	}
+}
+
+// An expected-damage call takes the average resist as the multiplier and draws no random number, so
+// the next real roll is the one it would have been without the call. A real hit still rolls.
+func TestExpectedDamageUsesAverageResistWithoutRolling(t *testing.T) {
+	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	attackTable := NewAttackTable(attacker, defender)
+	spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow}
+
+	for _, resistance := range []float64{150, 540, 5000, -100} {
+		defender.stats[stats.ShadowResistance] = max(resistance, 0)
+		attacker.stats[stats.SpellPiercing] = 0
+		if resistance < 0 {
+			attacker.stats[stats.SpellPiercing] = -resistance
+		}
+		average := defender.averageResist(spell, attacker, false)
+
+		withCall := &Simulation{rand: NewSplitMix(7)}
+		without := &Simulation{rand: NewSplitMix(7)}
+
+		spell.expecting = true
+		multiplier, outcome := spell.ResistanceMultiplier(withCall, false, attackTable)
+		spell.expecting = false
+		if !WithinToleranceFloat64(1-average, multiplier, 1e-12) || outcome != OutcomeEmpty {
+			t.Errorf("resistance %v: expected multiplier %v with outcome %v, want %v and none", resistance, multiplier, outcome, 1-average)
+		}
+		if got, want := withCall.RandomFloat("Partial Resist"), without.RandomFloat("Partial Resist"); got != want {
+			t.Errorf("resistance %v: an expected-damage call moved the random stream, next roll %v, want %v", resistance, got, want)
+		}
+
+		distinct := map[float64]bool{}
+		for range 200 {
+			real, _ := spell.ResistanceMultiplier(withCall, false, attackTable)
+			distinct[real] = true
+		}
+		if len(distinct) < 2 && average != 0 && average < 0.9 {
+			t.Errorf("resistance %v: a real hit rolled only %v", resistance, distinct)
+		}
 	}
 }

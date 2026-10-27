@@ -12,16 +12,7 @@ func applyRaceEffects(agent Agent) {
 
 	switch character.Race {
 	case proto.Race_RaceDwarf:
-		// Earth Fury 1259719 holds while any weapon slot holds a mace, one- or two-handed, and follows
-		// item swaps.
-		earthFuryActive := false
-		character.NewEquipGate(EquipRequirement{SubclassMask: WeaponSubclassMask(proto.WeaponType_WeaponTypeMace)}, func(_ *Simulation, level float64) {
-			if (level > 0) == earthFuryActive {
-				return
-			}
-			earthFuryActive = level > 0
-			character.PseudoStats.CritDamageMultiplier *= Ternary(earthFuryActive, 1.02, 1/1.02)
-		}).SetLevel(nil, 1)
+		character.AddStats(stats.Stats{stats.PhysicalHitPercent: 1, stats.SpellHitPercent: 1}) // Artisan's Precision
 		applyDamageVersus(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20594}
@@ -59,8 +50,10 @@ func applyRaceEffects(agent Agent) {
 		applyExpansiveMind(character)
 		applyEureka(character)
 	case proto.Race_RaceHuman:
-		character.MultiplyStat(stats.Spirit, 1.05)
-		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 2, stats.SpellCritPercent: 2}) // Ruthless 20597
+		// TODO: The 26 October development notes set The Human Spirit 20598 to 10% and Ruthless 20597 to
+		// 1%; the game build still states 5% and 2%.
+		character.MultiplyStat(stats.Spirit, 1.1)
+		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1})
 	case proto.Race_RaceNightElf:
 		character.PseudoStats.BaseDodgeChance += 0.01
 		character.PseudoStats.MovementSpeedMultiplier *= 1.02
@@ -82,7 +75,7 @@ func applyRaceEffects(agent Agent) {
 				},
 			})
 	case proto.Race_RaceOrc:
-		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1}) // Savage 20574
+		applyCommand(character)
 
 		bloodFuryID := ActionID{SpellID: 20572}
 
@@ -164,8 +157,7 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeSurvival,
 		})
 	case proto.Race_RaceTauren:
-		character.MultiplyStat(stats.Health, 1.05)
-		character.PseudoStats.CritDamageMultiplier *= 1.02 // Endurance 20550
+		character.MultiplyStat(stats.Health, 1.05) // Endurance 20550
 	case proto.Race_RaceTroll:
 		applyDamageVersus(character, proto.MobType_MobTypeBeast)
 
@@ -204,83 +196,98 @@ func applyRaceEffects(agent Agent) {
 	case proto.Race_RaceHighOrderSkyborne:
 		applySkyborneSharedRacials(character)
 
-		energizedAura := character.RegisterAura(Aura{
-			Label:    "Energized",
-			ActionID: ActionID{SpellID: 1270842},
-			Duration: time.Second * 30, // SpellMisc 1270842 DurationIndex 9, 30000 ms
-			OnGain: func(aura *Aura, sim *Simulation) {
-				if aura.Unit.HasManaBar() {
-					aura.Unit.MultiplyManaRegenSpeed(sim, 2)
-				}
-			},
-			OnExpire: func(aura *Aura, sim *Simulation) {
-				if aura.Unit.HasManaBar() {
-					aura.Unit.MultiplyManaRegenSpeed(sim, 0.5)
-				}
-			},
+		// The sim tracks no health regeneration, so Energized raises mana regeneration only. Innervate
+		// takes its place: Read Leyline cannot be cast under it, and an Innervate that lands ends Energized.
+		// TODO: 15 s at +50% (+100% Attuned) is from the 26 October development notes; the game build
+		// states 30 s at +100% for 1270842.
+		energizedAura := registerSkyborneCasts(character, 1259705, time.Second*2, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
+			if character.HasManaBar() {
+				character.MultiplyManaRegenSpeed(sim, multiplier)
+			}
+		}, func(_ *Simulation, _ *Unit) bool {
+			return !character.HasActiveAuraWithTag(innervateTag)
 		})
-
-		character.RegisterSpell(SpellConfig{
-			ActionID: ActionID{SpellID: 1259705},
-			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
-			Cast: CastConfig{
-				DefaultCast: Cast{
-					GCD:      GCDDefault,
-					CastTime: DurationFromMillis(2000.0),
-				},
-				CD: Cooldown{
-					Timer:    character.NewTimer(),
-					Duration: time.Minute * 2,
-				},
-			},
-			ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
-				energizedAura.Activate(sim)
-			},
-
-			RelatedSelfBuff: energizedAura,
+		character.Env.RegisterPostFinalizeEffect(func() {
+			for _, innervate := range character.GetAurasWithTag(innervateTag) {
+				innervate.ApplyOnGain(func(_ *Aura, sim *Simulation) {
+					energizedAura.Deactivate(sim)
+				})
+			}
 		})
 	case proto.Race_RaceWindshaperSkyborne:
 		applySkyborneSharedRacials(character)
 
-		elementalBlessingAura := character.RegisterAura(Aura{
-			Label:    "Elemental Blessing",
-			ActionID: ActionID{SpellID: 1259688},
-			Duration: time.Second * 30,
-			OnGain: func(aura *Aura, sim *Simulation) {
-				aura.Unit.MultiplyMovementSpeed(sim, 1.1)
-			},
-			OnExpire: func(aura *Aura, sim *Simulation) {
-				aura.Unit.MultiplyMovementSpeed(sim, 1/1.1)
-			},
-		})
-
-		character.RegisterSpell(SpellConfig{
-			ActionID: ActionID{SpellID: 1259686},
-			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
-			Cast: CastConfig{
-				DefaultCast: Cast{
-					GCD:      GCDDefault,
-					CastTime: DurationFromMillis(500.0),
-				},
-				CD: Cooldown{
-					Timer:    character.NewTimer(),
-					Duration: time.Minute * 2,
-				},
-			},
-			ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
-				elementalBlessingAura.Activate(sim)
-			},
-
-			RelatedSelfBuff: elementalBlessingAura,
-		})
+		// TODO: 15 s at +15% (+30% Charged) is from the 26 October development notes; the game build
+		// states 30 s at +10% for 1259688.
+		registerSkyborneCasts(character, 1259686, time.Millisecond*500, Aura{Label: "Elemental Blessing", ActionID: ActionID{SpellID: 1259688}}, 1.15, 1.3, character.MultiplyMovementSpeed, nil)
 	}
 }
+
+// The tag every Innervate aura carries, the buffs package's InnervatesCategory.
+const innervateTag = "Innervate"
 
 func applySkyborneSharedRacials(character *Character) {
 	applyDamageVersus(character, proto.MobType_MobTypeElemental)
 
-	character.PseudoStats.AttackSpeedMultiplier *= 1.03 // Wind Blessed 1259710
-	character.PseudoStats.CastSpeedMultiplier *= 1.03
+	// TODO: Wind Blessed 1259710 is 2% in the 26 October development notes; the game build states 3%.
+	character.PseudoStats.AttackSpeedMultiplier *= 1.02
+	character.PseudoStats.CastSpeedMultiplier *= 1.02
+}
+
+// Read Leyline and Skysight each register twice on one cooldown: the plain cast, and tag 1 for a
+// character under the hour-long buff a cast at a Ley Line (Attuned) or at an elemental convergence
+// (Charged) grants, which doubles the effect. The buff lasts through death, so the APL picks the cast
+// the player holds for the whole fight. The aura lasts 15 s at the cast's multiplier, and an activation
+// with no cast takes the plain one.
+func registerSkyborneCasts(character *Character, spellID int32, castTime time.Duration, config Aura, plain, buffed float64, multiply func(sim *Simulation, multiplier float64), castCondition CanCastCondition) *Aura {
+	value, applied := plain, plain
+	config.Duration = time.Second * 15
+	config.OnGain = func(_ *Aura, sim *Simulation) {
+		applied = value
+		multiply(sim, applied)
+	}
+	config.OnExpire = func(_ *Aura, sim *Simulation) {
+		multiply(sim, 1/applied)
+		value = plain
+	}
+	aura := character.RegisterAura(config)
+
+	timer := character.NewTimer()
+	for tag, multiplier := range []float64{plain, buffed} {
+		character.RegisterSpell(SpellConfig{
+			ActionID: ActionID{SpellID: spellID, Tag: int32(tag)},
+			Flags:    SpellFlagAPL | SpellFlagNoOnCastComplete,
+			Cast: CastConfig{
+				DefaultCast: Cast{
+					GCD:      GCDDefault,
+					CastTime: castTime,
+				},
+				CD: Cooldown{
+					Timer:    timer,
+					Duration: time.Minute * 2,
+				},
+			},
+			ExtraCastCondition: castCondition,
+			ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
+				value = multiplier
+				aura.Activate(sim)
+			},
+
+			RelatedSelfBuff: aura,
+		})
+	}
+	return aura
+}
+
+// Command 20576 raises the damage of hunter and warlock pets by 5%. The game build has no row for it.
+// The pets exist from construction, and a pet's PseudoStats set after finalize do not survive a reset.
+func applyCommand(character *Character) {
+	if character.Class != proto.Class_ClassHunter && character.Class != proto.Class_ClassWarlock {
+		return
+	}
+	for _, pet := range character.Pets {
+		pet.PseudoStats.DamageDealtMultiplier *= 1.05
+	}
 }
 
 // Beast Slaying 20557, Big Game Hunter 1259721 and Elemental Insight 1259707 state one effect, aura 168:
@@ -403,6 +410,8 @@ func applyEureka(character *Character) {
 	})
 }
 
+// The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
+// of max health), 25 s ICD and chance are the row's values, typed in here.
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {

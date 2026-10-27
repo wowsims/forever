@@ -36,6 +36,7 @@
 		"ui/sim/talents/trees/*.json",
 		"assets/**",
 		"**/test-fixtures/*.json",
-		".vscode/extensions/*/out/**"
+		".vscode/extensions/*/out/**",
+		"skills-lock.json"
 	]
 }

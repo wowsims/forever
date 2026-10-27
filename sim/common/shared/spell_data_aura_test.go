@@ -26,11 +26,11 @@ const (
 	// Obsidian Mail Tunic 22191's equip spell: A_MOD_DAMAGE_TAKEN of magic schools, on the wearer.
 	spellDamageReduction int32 = 27518
 
-	// Beastmaster's Boots 22061 and Treads 226881: 27206 periodically casts 27205,
-	// A_MOD_DAMAGE_PERCENT_DONE on the pet. Beastmaster's Tunic 22060 and 226886: 27225 casts 27208,
-	// A_MOD_BASE_RESISTANCE_PCT of armor on the pet, the same way. Beastmaster's Cap 22013: 27038 casts
-	// 27039, A_MOD_INCREASE_HEALTH_PERCENT, and Beastmaster's Gloves 22015: 27043 casts 27042,
-	// A_MOD_WEAPON_CRIT_PERCENT, both on the pet the same way.
+	// Beastmaster's Treads 226881: 27206 periodically casts 27205, A_MOD_DAMAGE_PERCENT_DONE on the
+	// pet. Beastmaster's Tunic 226886: 27225 casts 27208, A_MOD_BASE_RESISTANCE_PCT of armor on the pet,
+	// the same way. Beastmaster's Cap 226887: 27038 casts 27039, A_MOD_INCREASE_HEALTH_PERCENT, and
+	// Beastmaster's Gauntlets 226883: 27043 casts 27042, A_MOD_WEAPON_CRIT_PERCENT, both on the pet the
+	// same way.
 	increasedPetDamage int32 = 27206
 	increasedPetArmor  int32 = 27225
 	increasedPetHealth int32 = 27038

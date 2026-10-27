@@ -2,65 +2,68 @@ syntax = "proto3";
 package proto;
 
 option go_package = "./proto";
+
+import "common.proto";
+
 // DO NOT REMOVE THE COMMENTS
 // BEGIN GENERATED
 // WarlockTalents message.
 message WarlockTalents {
     // Affliction
-    int32 improved_life_tap = 1;
-    int32 suppression = 2;
-    int32 improved_corruption = 3;
-    int32 grim_reach = 4;
-    int32 soul_harvest = 5;
-    int32 improved_drains = 6;
-    int32 improved_bane_of_agony = 7;
-    int32 fel_concentration = 8;
-    bool amplify_curse = 9;
-    int32 pandemic = 10;
-    int32 malevolence = 11;
-    int32 nightfall = 12;
-    bool curse_of_exhaustion = 13;
-    bool siphon_life = 14;
-    int32 soul_siphon = 15;
-    int32 shadow_mastery = 16;
-    bool wrack = 17;
+    int32 improved_life_tap = 1 [(talent_spell_id) = 18182];
+    int32 suppression = 2 [(talent_spell_id) = 18174];
+    int32 improved_corruption = 3 [(talent_spell_id) = 17810];
+    int32 grim_reach = 4 [(talent_spell_id) = 18218];
+    int32 soul_harvest = 5 [(talent_spell_id) = 437032];
+    int32 improved_drains = 6 [(talent_spell_id) = 403511];
+    int32 improved_bane_of_agony = 7 [(talent_spell_id) = 18827];
+    int32 fel_concentration = 8 [(talent_spell_id) = 17783];
+    bool amplify_curse = 9 [(talent_spell_id) = 18288];
+    int32 pandemic = 10 [(talent_spell_id) = 427712];
+    int32 malevolence = 11 [(talent_spell_id) = 1310949];
+    int32 nightfall = 12 [(talent_spell_id) = 18094];
+    bool curse_of_exhaustion = 13 [(talent_spell_id) = 18223];
+    bool siphon_life = 14 [(talent_spell_id) = 18265];
+    int32 soul_siphon = 15 [(talent_spell_id) = 17804];
+    int32 shadow_mastery = 16 [(talent_spell_id) = 18271];
+    bool wrack = 17 [(talent_spell_id) = 1316697];
     // Demonology
-    int32 improved_health_funnel = 18;
-    int32 improved_imp = 19;
-    int32 demonic_embrace = 20;
-    int32 unholy_power = 21;
-    int32 demonic_aegis = 22;
-    int32 improved_voidwalker = 23;
-    int32 fel_vitality = 24;
-    int32 demonic_energies = 25;
-    int32 improved_sayaad = 26;
-    bool demonic_sacrifice = 27;
-    int32 master_summoner = 28;
-    int32 decimation = 29;
-    bool fel_domination = 30;
-    int32 demonic_brand = 31;
-    int32 improved_felhunter = 32;
-    bool soul_link = 33;
-    int32 demonic_knowledge = 34;
-    int32 master_demonologist = 35;
-    bool demonic_pact = 36;
+    int32 improved_health_funnel = 18 [(talent_spell_id) = 18703];
+    int32 improved_imp = 19 [(talent_spell_id) = 18694];
+    int32 demonic_embrace = 20 [(talent_spell_id) = 18697];
+    int32 unholy_power = 21 [(talent_spell_id) = 18769];
+    int32 demonic_aegis = 22 [(talent_spell_id) = 1235316];
+    int32 improved_voidwalker = 23 [(talent_spell_id) = 18705];
+    int32 fel_vitality = 24 [(talent_spell_id) = 18731];
+    int32 demonic_energies = 25 [(talent_spell_id) = 1225214];
+    int32 improved_sayaad = 26 [(talent_spell_id) = 18754];
+    bool demonic_sacrifice = 27 [(talent_spell_id) = 18788];
+    int32 master_summoner = 28 [(talent_spell_id) = 18709];
+    int32 decimation = 29 [(talent_spell_id) = 440870];
+    bool fel_domination = 30 [(talent_spell_id) = 18708];
+    int32 demonic_brand = 31 [(talent_spell_id) = 1293695];
+    int32 improved_felhunter = 32 [(talent_spell_id) = 1225217];
+    bool soul_link = 33 [(talent_spell_id) = 19028];
+    int32 demonic_knowledge = 34 [(talent_spell_id) = 412732];
+    int32 master_demonologist = 35 [(talent_spell_id) = 23785];
+    bool demonic_pact = 36 [(talent_spell_id) = 425464];
     // Destruction
-    int32 destructive_reach = 37;
-    int32 improved_shadow_bolt = 38;
-    int32 bane = 39;
-    int32 molten_skin = 40;
-    int32 cataclysm = 41;
-    int32 aftermath = 42;
-    int32 ruin = 43;
-    bool shadowburn = 44;
-    int32 intensity = 45;
-    int32 agonizing_flames = 46;
-    bool conflagrate = 47;
-    int32 pyroclasm = 48;
-    bool bane_of_havoc = 49;
-    int32 fire_and_brimstone = 50;
-    int32 shadow_and_flame = 51;
-    bool incinerate = 52;
+    int32 destructive_reach = 37 [(talent_spell_id) = 17917];
+    int32 improved_shadow_bolt = 38 [(talent_spell_id) = 17793];
+    int32 bane = 39 [(talent_spell_id) = 17788];
+    int32 molten_skin = 40 [(talent_spell_id) = 1225220];
+    int32 cataclysm = 41 [(talent_spell_id) = 17778];
+    int32 aftermath = 42 [(talent_spell_id) = 18119];
+    int32 ruin = 43 [(talent_spell_id) = 17959];
+    bool shadowburn = 44 [(talent_spell_id) = 17877];
+    int32 intensity = 45 [(talent_spell_id) = 18135];
+    int32 agonizing_flames = 46 [(talent_spell_id) = 17927];
+    bool conflagrate = 47 [(talent_spell_id) = 1293817];
+    int32 pyroclasm = 48 [(talent_spell_id) = 18073];
+    bool bane_of_havoc = 49 [(talent_spell_id) = 1225228];
+    int32 fire_and_brimstone = 50 [(talent_spell_id) = 412751];
+    int32 shadow_and_flame = 51 [(talent_spell_id) = 426316];
+    bool incinerate = 52 [(talent_spell_id) = 412758];
 }
 
 // END GENERATED

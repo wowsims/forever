@@ -8,7 +8,7 @@ go run ./tools/spelldata 11574                  # one row: header, ladder call, 
 go run ./tools/spelldata Whirlwind [-all]       # every row with that name, then the highest rank (or all)
 go run ./tools/spelldata 11574 -json            # the same as JSON
 go run ./tools/spelldata -family warrior/Execute
-go run ./tools/spelldata -expr 'spellData.Execute.Highest().EffectN(1).Average(core.CharacterLevel)' -package warrior
+go run ./tools/spelldata -expr 'spellData.Execute.Highest().EffectN(1).Average()' -package warrior
 go run ./tools/spelldata -config 'spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))' -package warrior
 go run ./tools/spelldata -config 'core.SpellModConfig{Kind: core.SpellMod_BonusCrit_Percent, ProcMask: core.ProcMaskMelee, EquipSubclass: dbcenums.ITEM_SUBCLASS_BIT_WEAPON_1H_AXE | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE}'
 go run ./tools/spelldata -hover sim/warrior/execute.go 12:40   # the markdown an editor shows at line:column (1-based)

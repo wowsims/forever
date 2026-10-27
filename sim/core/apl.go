@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -20,6 +21,12 @@ type APLRotation struct {
 	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
 	canMoveCloserValue bool
 
+	hasMoveKnown bool // hasMove's answer is set once, as it depends only on the rotation.
+	hasMoveValue bool
+
+	majorCooldownActionsKnown bool         // majorCooldownActions is set once, as it depends only on the rotation.
+	majorCooldownActions      []*APLAction // The priority list's actions that can be a major cooldown going ahead of the spell queued after a hardcast.
+
 	// Shared variable caches: all APLValueVariableRef instances for the same
 	// variable name share the same cache (but each has its own expression tree).
 	variableCaches map[string]*variableCache
@@ -32,6 +39,9 @@ type APLRotation struct {
 	// Actions pruned by compile-time constant folding (const false condition).
 	// Their spells still need to be removed from MCD auto-casting.
 	prunedActions []APLActionImpl
+
+	// The moves that look again at their condition and range while their walk is under way.
+	recheckedMoves []*APLActionMove
 
 	// Action currently controlling this rotation (only used for certain actions, such as StrictSequence).
 	controllingActions []APLActionImpl
@@ -398,6 +408,18 @@ func (rot *APLRotation) allAPLActions() []*APLAction {
 	return actions
 }
 
+// Whether a Move sits anywhere in the rotation.
+func (rot *APLRotation) hasMove() bool {
+	if !rot.hasMoveKnown {
+		rot.hasMoveKnown = true
+		rot.hasMoveValue = slices.ContainsFunc(rot.allAPLActions(), func(action *APLAction) bool {
+			_, isMove := action.impl.(*APLActionMove)
+			return isMove
+		})
+	}
+	return rot.hasMoveValue
+}
+
 // Returns all action objects from the prepull as an unstructured list. Used for easily finding specific actions.
 func (rot *APLRotation) allPrepullActions() []*APLAction {
 	return Flatten(MapSlice(rot.prepullActions, func(action *APLAction) []*APLAction { return action.GetAllActions() }))
@@ -465,14 +487,28 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	apl.inLoop = true
 
 	apl.unit.UpdatePosition(sim, false)
+	if len(apl.recheckedMoves) > 0 {
+		apl.evalGeneration++
+		for _, move := range apl.recheckedMoves {
+			move.recheck(sim)
+		}
+	}
 	free := apl.unit.GCD.IsReady(sim) && apl.unit.Hardcast.Expires <= sim.CurrentTime
 	apl.unit.costBlocked = false
-	for nextAction := apl.getNextAction(sim); nextAction != nil; i++ {
+	for nextAction := apl.firstAction(sim); ; i++ {
 		if i > 1000 {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
 
-		nextAction.Execute(sim)
+		// The spell queued after the hardcast that just ended goes off first in this pass, a major cooldown
+		// alone ahead of it; what the rotation puts after the GCD it starts, such as an explosive, still goes now.
+		if apl.unit.queuedSpellDue(sim) && (nextAction == nil || !apl.isMajorCooldown(sim, nextAction)) {
+			apl.unit.castDueQueuedSpell(sim)
+		} else if nextAction != nil {
+			nextAction.Execute(sim)
+		} else {
+			break
+		}
 		// Shoot has no GCD to end the pass; any later cast would cut it.
 		if apl.unit.Wand.wanding() {
 			i++
@@ -493,7 +529,12 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 		}
 	}
 
-	if sim.Log != nil && i == 0 {
+	// A look while a hardcast holds the rotation, at its end with the next spell queued after it, or as that
+	// spell goes off, waits on that spell, so it logs no idle pass and no pause.
+	hardcastHoldsRotation := apl.unit.hardcastHoldsRotation(sim)
+	waitsOnCast := hardcastHoldsRotation || apl.unit.spellQueuedAfterHardcast() || apl.unit.queuedSpellWentOff(sim)
+
+	if sim.Log != nil && i == 0 && !waitsOnCast {
 		apl.unit.Log(sim, "No available actions!")
 	}
 
@@ -501,11 +542,22 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	if apl.unit.RotationTimer.IsReady(sim) {
 		nextEvaluation := sim.CurrentTime + apl.unit.ReactionTime
 
-		if !apl.unit.Moving {
+		// A rotation that moves keeps looking through the GCD, so a walk timed to a swing timer starts
+		// when its condition turns true, as a player watching the timer starts it.
+		if !apl.unit.Moving && !apl.hasMove() {
 			nextEvaluation = max(nextEvaluation, apl.unit.NextGCDAt())
 		}
 
-		apl.unit.WaitUntil(sim, nextEvaluation)
+		// Under a hardcast that holds the rotation, the next look is at its end, where the pick is made.
+		if hardcastHoldsRotation {
+			nextEvaluation = apl.unit.Hardcast.Expires
+		}
+
+		if waitsOnCast {
+			apl.unit.SetRotationTimer(sim, nextEvaluation)
+		} else {
+			apl.unit.WaitUntil(sim, nextEvaluation)
+		}
 	}
 }
 
@@ -534,13 +586,84 @@ func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 		return apl.controllingActions[len(apl.controllingActions)-1].GetNextAction(sim)
 	}
 
+	held := apl.unit.queuedSpellHoldsCasts(sim)
 	for _, action := range apl.priorityList {
-		if action.IsReady(sim) {
+		if !(held && action.heldByQueuedSpell(sim)) && action.IsReady(sim) {
 			return action
 		}
 	}
 
 	return nil
+}
+
+// The pass's first action. With the spell queued after a hardcast due and no major cooldown ready to go
+// ahead of it, there is none, and the spell goes off without a look at the priority list.
+func (apl *APLRotation) firstAction(sim *Simulation) *APLAction {
+	if apl.unit.queuedSpellDue(sim) && len(apl.controllingActions) == 0 {
+		apl.evalGeneration++ // The variable refs in the major cooldowns' conditions read the state after the cast landed.
+		if !apl.majorCooldownMayGo(sim) {
+			return nil
+		}
+	}
+	return apl.getNextAction(sim)
+}
+
+// Whether an action of the priority list that can be a major cooldown is ready.
+func (apl *APLRotation) majorCooldownMayGo(sim *Simulation) bool {
+	if !apl.majorCooldownActionsKnown {
+		apl.majorCooldownActionsKnown = true
+		apl.majorCooldownActions = FilterSlice(apl.priorityList, canBeMajorCooldown)
+	}
+	// A Strict Sequence asked whether it is ready marks the rotation as in a sequence. Nothing asked here
+	// runs, so the mark is put back.
+	inSequence := apl.inSequence
+	mayGo := slices.ContainsFunc(apl.majorCooldownActions, func(action *APLAction) bool { return action.IsReady(sim) })
+	apl.inSequence = inSequence
+	return mayGo
+}
+
+// Whether isMajorCooldown can accept the action: an autocast, a cast of a major cooldown, or a group holding
+// one of these. The two must agree, or a major cooldown misses its turn ahead of the spell queued after a
+// hardcast.
+func canBeMajorCooldown(action *APLAction) bool {
+	switch impl := action.impl.(type) {
+	case *APLActionAutocastOtherCooldowns:
+		return true
+	case *APLActionCastSpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionCastFriendlySpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionChannelSpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionGroupReference:
+		return impl.group != nil && slices.ContainsFunc(impl.group.actions, canBeMajorCooldown)
+	}
+	return false
+}
+
+// A major cooldown, or a group whose first ready action is one. canBeMajorCooldown must accept every action
+// this accepts.
+func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool {
+	switch impl := action.impl.(type) {
+	case *APLActionAutocastOtherCooldowns:
+		return true
+	case *APLActionCastSpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionCastFriendlySpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionChannelSpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionGroupReference:
+		if impl.group == nil {
+			return false
+		}
+		for _, groupAction := range impl.group.actions {
+			if groupAction.IsReady(sim) {
+				return apl.isMajorCooldown(sim, groupAction)
+			}
+		}
+	}
+	return false
 }
 
 // HasBlockingControllingAction reports whether the rotation is currently parked

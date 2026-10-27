@@ -40,7 +40,7 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string
 				encounter,
 				entry.duration ?? '',
 				entry.durationVariation ?? '',
-				index + 1,
+				index + 1, // The current gear's row takes a rank like any other.
 				result.gear.equals(base.gear) ? 'yes' : '',
 				avg,
 				stDevToConf95(result.dpsMetrics.stdev, iterations),

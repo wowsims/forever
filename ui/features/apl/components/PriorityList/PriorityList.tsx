@@ -2,8 +2,10 @@ import { AplItemActions, AplList, AplSectionTitle } from '@features/apl/componen
 import { AplListItem } from '@features/apl/components/AplListItem';
 import { AplListToolbar } from '@features/apl/components/AplListToolbar';
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
+import { AplPasteDialog } from '@features/apl/components/AplPasteDialog';
 import { ListItemHeader } from '@features/apl/components/ListItemHeader';
 import { uuidValidations } from '@features/apl/components/ListItemHeader/utils';
+import { copyAplClip, useAplPaste } from '@features/apl/hooks/useAplClipboard';
 import { useVariableExtraction } from '@features/apl/hooks/useVariableExtraction';
 import { aplItemId, PRIORITY } from '@features/apl/model/apply_move';
 import { freshUuids } from '@features/apl/model/fresh_uuids';
@@ -37,6 +39,7 @@ export const PriorityList = () => {
 			player.aplRotation.priorityList[index].action!.condition = reference;
 		},
 	);
+	const pasting = useAplPaste('action', rows);
 	const header = i18n.t('rotation_tab.apl.priorityList.header');
 	const label = i18n.t('rotation_tab.apl.priorityList.name');
 
@@ -74,6 +77,7 @@ export const PriorityList = () => {
 										<AplItemActions
 											label={label}
 											onCopy={() => rows.copy(index)}
+											onCopyToClipboard={() => copyAplClip({ kind: 'action', item: config.getValue(player) })}
 											onExtract={() => extraction.extract(index)}
 											canExtract={() => extraction.canExtract(index)}
 											onDelete={() => rows.remove(index)}
@@ -87,8 +91,9 @@ export const PriorityList = () => {
 						})}
 					</AplList.Rows>
 				)}
-				<AplListToolbar className="self-stretch" itemName={label} onCreate={() => rows.create()} />
+				<AplListToolbar className="self-stretch" itemName={label} onCreate={() => rows.create()} onPaste={pasting.paste} />
 				<AplNameDialog {...extraction.dialog} />
+				<AplPasteDialog {...pasting.textDialog} />
 			</Tree.Item.Children>
 		</AplList.Item>
 	);

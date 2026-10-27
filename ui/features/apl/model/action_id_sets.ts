@@ -21,7 +21,9 @@ export type ACTION_ID_SET =
 	| 'expected_damage_spells'
 	| 'spells_with_travelTime'
 	| 'potions'
-	| 'conjured_items';
+	| 'conjured_items'
+	| 'talents'
+	| 'talent_ranks';
 
 /** True when two or more of `spells` share `actionId`'s base name and tag — i.e. `actionId` has ranks. */
 const spellHasRanks = (actionId: ActionId, spells: Array<AuraStats | SpellStats>) =>
@@ -59,8 +61,8 @@ const CATEGORY_SUBMENUS: Array<[ActionCategory, string]> = [
 ];
 
 /**
- * Files `entries` under their category's submenu, one category after another, and hands back the
- * uncategorised rest for the caller to place.
+ * Files `entries` under the menu group the sim names, else under their category's submenu, one
+ * category after another, and hands back the uncategorised rest for the caller to place.
  *
  * The categories are emitted in a fixed order because the menu places a submenu where its first
  * option appears, and the metadata arrives sorted by name.
@@ -69,19 +71,22 @@ const categorise = <T extends AuraStats | SpellStats>(
 	entries: Array<T>,
 	toOption: (entry: T, submenu: Array<string | ActionId>) => ActionIdOption,
 	allEntries: Array<T> = entries,
-) => ({
-	categorised: CATEGORY_SUBMENUS.flatMap(([category, key]) =>
-		entries.filter(entry => entry.data.category === category).map(entry => toOption(entry, createSpellSubmenu(entry.id, allEntries, [key], entries))),
-	),
-	uncategorised: entries.filter(entry => !CATEGORY_SUBMENUS.some(([category]) => entry.data.category === category)),
-});
+) => {
+	const file = (entry: T, key: string) => toOption(entry, createSpellSubmenu(entry.id, allEntries, [key], entries));
+	const ungrouped = entries.filter(entry => !entry.data.menuGroup);
+	return {
+		grouped: entries.filter(entry => entry.data.menuGroup).map(entry => file(entry, entry.data.menuGroup)),
+		categorised: CATEGORY_SUBMENUS.flatMap(([category, key]) => ungrouped.filter(entry => entry.data.category === category).map(entry => file(entry, key))),
+		uncategorised: ungrouped.filter(entry => !CATEGORY_SUBMENUS.some(([category]) => entry.data.category === category)),
+	};
+};
 
 /** The auras `keep` passes; `allAuras`, the unfiltered list, decides whether an aura has ranks. */
 const auraOptions = (allAuras: Array<AuraStats>, keep: (aura: AuraStats) => boolean = () => true): Array<ActionIdOption> => {
 	const toOption = (aura: AuraStats, submenu: Array<string | ActionId>) => ({ value: aura.id, submenu });
 	const kept = allAuras.filter(keep);
-	const { categorised, uncategorised } = categorise(kept, toOption, allAuras);
-	return [...categorised, ...uncategorised.map(aura => toOption(aura, createSpellSubmenu(aura.id, allAuras, [], kept)))];
+	const { grouped, categorised, uncategorised } = categorise(kept, toOption, allAuras);
+	return [...grouped, ...categorised, ...uncategorised.map(aura => toOption(aura, createSpellSubmenu(aura.id, allAuras, [], kept)))];
 };
 
 /** The one list a spell may be cast from, for the spells the sim only accepts in one of them. */
@@ -89,7 +94,7 @@ export type LIST_SCOPE = 'prepull' | 'priority';
 
 export interface ActionIdOption {
 	value: ActionId;
-	/** The category submenus the spell or aura is filed under, then the highest rank its lower ranks sit behind. */
+	/** The menu group or category submenu the spell or aura is filed under, then the highest rank its lower ranks sit behind. */
 	submenu?: Array<string | ActionId>;
 	tooltip?: string;
 	/**
@@ -144,7 +149,7 @@ export const actionIdSets: Record<
 		getActionIDs: async metadata => {
 			const castableSpells = metadata.getSpells().filter(spell => spell.data.isCastable);
 			const toOption = (spell: SpellStats, submenu: Array<string | ActionId>) => ({ value: spell.id, submenu, listScope: listScopeOf(spell) });
-			const { categorised, uncategorised } = categorise(castableSpells, toOption);
+			const { grouped, categorised, uncategorised } = categorise(castableSpells, toOption);
 
 			const placeholders: Array<ActionId> = [
 				OtherAction.OtherActionOffensivePotion,
@@ -153,6 +158,7 @@ export const actionIdSets: Record<
 			].map(otherId => ActionId.fromOtherId(otherId));
 
 			return [
+				grouped,
 				uncategorised.map(spell => toOption(spell, createSpellSubmenu(spell.id, castableSpells, ['spell']))),
 				categorised,
 				placeholders.map(actionId => {
@@ -299,6 +305,25 @@ export const actionIdSets: Record<
 				};
 			});
 		},
+	},
+	// Each talent at the rank the player holds, with its lower ranks behind it. Every rank of a talent
+	// shares one spell id and the metadata carries only the held rank, so the lower ranks are built here.
+	talents: {
+		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.talents'),
+		getActionIDs: async metadata => {
+			const perTalent = await Promise.all(
+				metadata.getTalents().map(async held => {
+					const lowerRanks = await Promise.all(Array.from({ length: held.rank - 1 }, (_, i) => ActionId.fromSpellId(held.spellId, i + 1).fill()));
+					return [{ value: held }, ...lowerRanks.map(value => ({ value, submenu: [held] }))];
+				}),
+			);
+			return perTalent.flat();
+		},
+	},
+	// Each talent the player holds, once and without a rank, for the values that read the rank.
+	talent_ranks: {
+		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.talent_ranks'),
+		getActionIDs: async metadata => metadata.getTalents().map(held => ({ value: held.withoutRank() })),
 	},
 	spells_with_travelTime: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.spells_with_travelTime'),

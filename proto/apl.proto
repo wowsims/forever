@@ -100,7 +100,7 @@ message APLAction {
 }
 
 
-// NextIndex: 138
+// NextIndex: 143
 message APLValue {
 	UUID uuid = 85;
 
@@ -165,11 +165,13 @@ message APLValue {
         // Spell values
         APLValueSpellIsKnown spell_is_known = 74;
         APLValueSpellCanCast spell_can_cast = 19;
+        APLValueSpellInRange spell_in_range = 142;
         APLValueSpellIsReady spell_is_ready = 20;
         APLValueSpellTimeToReady spell_time_to_ready = 21;
         APLValueSpellCastTime spell_cast_time = 35;
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
+        APLValueSpellIsCasting spell_is_casting = 30;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -181,6 +183,10 @@ message APLValue {
         APLValueSpellExpectedDpet spell_expected_dpet = 109;
         APLValueSpellIsHitCapped spell_is_hit_capped = 25;
         APLValueSpellIsExpertiseCapped spell_is_expertise_capped = 29;
+
+        // Talent values
+        APLValueTalentIsKnown talent_is_known = 140;
+        APLValueTalentRank talent_rank = 141;
 
         // Aura values
         APLValueAuraIsKnown aura_is_known = 73;
@@ -230,6 +236,8 @@ message APLValue {
 APLValueWarlockAssignedCurseIsActive warlock_assigned_curse_is_active = 59;
 		APLValueWarlockIsAssignedCurse warlock_is_assigned_curse = 129;
 		APLValueWarlockActivePet warlock_active_pet = 135;
+		APLValueWarlockBaneIsActiveOnAllTargets warlock_bane_is_active_on_all_targets = 138;
+		APLValueWarlockAssignedCurseIsActiveOnAllTargets warlock_assigned_curse_is_active_on_all_targets = 139;
 		APLValueProtectionPaladinDamageTakenLastGlobal protection_paladin_damage_taken_last_global = 100;
 		APLValueDruidBleedIsActive druid_bleed_is_active = 68;
 		APLValueDruidExcessEnergy druid_excess_energy = 137;
@@ -385,6 +393,9 @@ message APLActionGuardianHotwDpsRotation {
 
 message APLActionMove {
     APLValue range_from_target = 1;
+    // While the walk is under way, the rotation looks again every reaction time: the walk stops where it is once
+    // the action's condition is false, and turns to the new range once the range changes.
+    bool recheck_while_moving = 2;
 }
 
 message APLActionMoveDuration {
@@ -577,7 +588,21 @@ message APLValueAutoTimeSinceLast {
 message APLValueSpellIsKnown {
     ActionID spell_id = 1;
 }
+// True when the player holds the talent at the id's rank or higher. The id is the talent's spell
+// (the talent_spell_id option on its field) with the rank in its rank field.
+message APLValueTalentIsKnown {
+    ActionID talent_id = 1;
+}
+// The rank the player holds in the talent, 0 without points. The id's rank is not read.
+message APLValueTalentRank {
+    ActionID talent_id = 1;
+}
 message APLValueSpellCanCast {
+    ActionID spell_id = 1;
+}
+// True while the unit stands within the spell's range: no closer than its minimum and no farther than its
+// maximum after range mods. A spell with no range is always in range.
+message APLValueSpellInRange {
     ActionID spell_id = 1;
 }
 message APLValueSpellIsReady {
@@ -600,6 +625,9 @@ message APLValueSpellTravelTime {
     ActionID spell_id = 1;
 }
 message APLValueSpellCPM {
+    ActionID spell_id = 1;
+}
+message APLValueSpellIsCasting {
     ActionID spell_id = 1;
 }
 message APLValueSpellIsChanneling {
@@ -778,6 +806,10 @@ message APLValueWarlockIsAssignedCurse {
 message APLValueWarlockActivePet {
 	WarlockOptions.Summon summon = 1;
 }
+// True while one of the warlock's Banes is on every target that is up: a target holds one Bane at a time.
+message APLValueWarlockBaneIsActiveOnAllTargets {}
+// True while the assigned curse is on every target that is up; false with no curse assigned.
+message APLValueWarlockAssignedCurseIsActiveOnAllTargets {}
 // True while one of the druid's bleeds is up on the target, or while the druid assumes a bleed.
 message APLValueDruidBleedIsActive {
 	UnitReference target_unit = 1;

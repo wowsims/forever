@@ -8,8 +8,8 @@
 
 		& .ui-item-picker-labels-container {
 			width: 100%;
+			min-width: 0;
 			padding-top: 0;
-			overflow: hidden;
 		}
 
 		/* The name gives way first: the notice beside it keeps its width, and the name truncates instead of pushing it out of the row. */

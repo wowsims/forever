@@ -59,9 +59,9 @@ var hawkSwing = core.Weapon{
 // it is up, a quiver's and Quick Shots' included; Berserking's attack speed does not reach it in
 // game. Its crit is half the tamed pet's, the higher of melee and ranged (inheritedCrit), with none
 // from Agility: 4340 swings with Ferocity 5/5 read 10 plus half the owner's crit against targets 2
-// levels below to 3 above it, and 0-Ferocity logs half the tamed pet's. Its hit and expertise are the
-// owner's as the tamed pet's are: 1% hit took a hawk from 1 miss in 32 swings to none in 515 against a
-// target 8 levels below it.
+// levels below to 3 above it, and 0-Ferocity logs half the tamed pet's. Its melee hit and expertise are
+// the tamed pet's: 1% hit took a hawk from 1 miss in 32 swings to none in 515 against a target 8
+// levels below it.
 func (hunter *Hunter) newHawks() []*HawkPet {
 	if !hunter.Talents.SummonHawk {
 		return nil
@@ -78,13 +78,14 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 					stats.Armor:               ownerStats[stats.Armor] * 0.3,
 					stats.AttackPower:         ownerStats[stats.RangedAttackPower] * 0.8,
 					stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats) * 0.5,
-					stats.PhysicalHitPercent:  max(0, ownerStats[stats.PhysicalHitPercent], ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent]),
+					stats.PhysicalHitPercent:  inheritedHit(ownerStats),
 					stats.ExpertisePercent:    ownerStats[stats.ExpertisePercent],
 				}
 			},
 			IsGuardian:                       true,
 			IsDynamic:                        true,
 			HasDynamicRangedSpeedInheritance: true,
+			StartsInMeleeRange:               true,
 		})}
 		hawk.EnableAutoAttacks(hawk, core.AutoAttackOptions{
 			MainHand:       hawkSwing,

@@ -2,42 +2,127 @@
   "apiVersion": 2,
   "raidBuffs": {
     "arcaneBrilliance": true,
+    "prayerOfSpirit": true,
     "giftOfTheWild": true,
     "prayerOfFortitude": true,
-    "prayerOfSpirit": true,
+    "graceOfAirTotem": true,
+    "windfuryTotem": true,
+    "leaderOfThePack": true,
     "moonkinAura": true
   },
-  "partyBuffs": {
-    "manaSpringTotem": "TristateEffectRegular"
-  },
+  "partyBuffs": {},
   "debuffs": {
-    "judgementOfWisdom": true
+    "judgementOfWisdom": true,
+    "faerieFire": true,
+    "exposeArmor": true,
+    "sunderArmor": true,
+    "giftOfArthas": true,
+    "curseOfWeakness": true
   },
   "player": {
     "apiVersion": 2,
     "name": "Player",
-    "race": "RaceOrc",
+    "race": "RaceHuman",
     "class": "ClassWarlock",
     "consumables": {
       "flaskId": 13512,
       "foodId": 13931,
       "conjuredId": 12662,
-      "mhImbueId": 20749,
-      "offensivePotId": 250937,
-      "explosiveId": 18588
+      "mhImbueId": 20750,
+      "potions": [
+        118,
+        858,
+        929,
+        1072,
+        1710,
+        2455,
+        2456,
+        3087,
+        3384,
+        3385,
+        3827,
+        3928,
+        6048,
+        6049,
+        6050,
+        6051,
+        6052,
+        6149,
+        9036,
+        9144,
+        13443,
+        13444,
+        13446,
+        13456,
+        13457,
+        13458,
+        13459,
+        13460,
+        13461,
+        14894,
+        17348,
+        17349,
+        17351,
+        17352,
+        18253,
+        18839,
+        18841,
+        250932,
+        250933,
+        250934,
+        250935,
+        250936,
+        250937,
+        250951,
+        250953,
+        250954,
+        255663,
+        268881,
+        268882,
+        268883,
+        274935,
+        282011,
+        282013
+      ],
+      "conjuredItems": [
+        1703,
+        5509,
+        5510,
+        5511,
+        5512,
+        9421,
+        11951,
+        11952,
+        12662,
+        15723,
+        17747
+      ],
+      "extraIds": [
+        18269,
+        10309
+      ],
+      "elixirIds": [
+        250341,
+        250335,
+        13454,
+        250337,
+        250347
+      ],
+      "mhWeaponImbueId": 13701,
+      "resourcePotId": 13444
     },
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true
+      "greaterBlessingOfWisdom": true,
+      "greaterBlessingOfSalvation": true
     },
     "warlock": {
       "options": {
         "classOptions": {
           "summon": "Imp",
           "armor": "DemonArmor",
-          "curseOptions": "Elements",
-          "soulShards": 32,
-          "sacrificedDemon": "Succubus"
+          "sacrificedDemon": "Succubus",
+          "soulShards": 32
         }
       }
     },
@@ -46,244 +131,74 @@
     "profession2": "Tailoring",
     "rotation": {
       "type": "TypeAPL",
-      "priorityList": [
+      "prepullActions": [
         {
           "action": {
-            "autocastOtherCooldowns": {}
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "or": {
-                "vals": [
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "dotIsActive": {
-                            "spellId": {
-                              "spellId": 603
-                            }
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpLe",
-                            "lhs": {
-                              "dotRemainingTime": {
-                                "spellId": {
-                                  "spellId": 603
-                                }
-                              }
-                            },
-                            "rhs": {
-                              "variableRef": {
-                                "name": "Boost window"
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "not": {
-                            "val": {
-                              "dotIsActive": {
-                                "spellId": {
-                                  "spellId": 603
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpLt",
-                            "lhs": {
-                              "remainingTime": {}
-                            },
-                            "rhs": {
-                              "variableRef": {
-                                "name": "Doom tick"
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
+            "castSpell": {
+              "spellId": {
+                "spellId": 17924
               }
-            },
-            "groupReference": {
-              "groupName": "Boosts"
             }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "dotIsActive": {
+          },
+          "doAtValue": {
+            "math": {
+              "op": "OpMul",
+              "lhs": {
+                "math": {
+                  "op": "OpAdd",
+                  "lhs": {
+                    "spellCastTime": {
                       "spellId": {
-                        "spellId": 603
+                        "spellId": 17924
                       }
                     }
                   },
-                  {
-                    "not": {
-                      "val": {
-                        "variableRef": {
-                          "name": "In execute"
-                        }
+                  "rhs": {
+                    "spellTravelTime": {
+                      "spellId": {
+                        "spellId": 17924
                       }
-                    }
-                  }
-                ]
-              }
-            },
-            "groupReference": {
-              "groupName": "Split Boosts"
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "not": {
-                      "val": {
-                        "dotIsActive": {
-                          "spellId": {
-                            "spellId": 603
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "cmp": {
-                      "op": "OpGe",
-                      "lhs": {
-                        "remainingTime": {}
-                      },
-                      "rhs": {
-                        "variableRef": {
-                          "name": "Doom tick"
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            },
-            "castSpell": {
-              "spellId": {
-                "spellId": 603
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "not": {
-                "val": {
-                  "auraIsActive": {
-                    "sourceUnit": {
-                      "type": "CurrentTarget"
-                    },
-                    "auraId": {
-                      "spellId": 1293696
                     }
                   }
                 }
-              }
-            },
-            "castSpell": {
-              "spellId": {
-                "spellId": 17923
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "not": {
-                      "val": {
-                        "dotIsActive": {
-                          "spellId": {
-                            "spellId": 603
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "not": {
-                      "val": {
-                        "dotIsActive": {
-                          "spellId": {
-                            "spellId": 11713
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "cmp": {
-                      "op": "OpLt",
-                      "lhs": {
-                        "remainingTime": {}
-                      },
-                      "rhs": {
-                        "variableRef": {
-                          "name": "Doom tick"
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            },
-            "castSpell": {
-              "spellId": {
-                "spellId": 11713
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "not": {
-                "val": {
-                  "dotIsActive": {
-                    "spellId": {
-                      "spellId": 25309
-                    }
-                  }
+              },
+              "rhs": {
+                "const": {
+                  "val": "-0.9"
                 }
               }
-            },
+            }
+          }
+        },
+        {
+          "action": {
+            "petAttack": {}
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-1s"
+            }
+          }
+        },
+        {
+          "action": {
             "castSpell": {
               "spellId": {
                 "spellId": 25309
               }
             }
+          },
+          "doAtValue": {
+            "const": {
+              "val": "-0.3s"
+            }
+          }
+        }
+      ],
+      "priorityList": [
+        {
+          "action": {
+            "autocastOtherCooldowns": {}
           }
         },
         {
@@ -299,31 +214,145 @@
           }
         },
         {
+          "hide": true,
           "action": {
             "condition": {
-              "cmp": {
-                "op": "OpLt",
-                "lhs": {
-                  "currentMana": {
-                    "sourceUnit": {
-                      "type": "Pet",
-                      "index": 0,
-                      "owner": {
-                        "type": "Self"
+              "or": {
+                "vals": [
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "auraIsActive": {
+                            "sourceUnit": {
+                              "type": "CurrentTarget"
+                            },
+                            "auraId": {
+                              "spellId": 603
+                            },
+                            "includeReactionTime": true
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpLe",
+                            "lhs": {
+                              "auraRemainingTime": {
+                                "sourceUnit": {
+                                  "type": "CurrentTarget"
+                                },
+                                "auraId": {
+                                  "spellId": 603
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "2s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "auraIsInactive": {
+                            "sourceUnit": {
+                              "type": "CurrentTarget"
+                            },
+                            "auraId": {
+                              "spellId": 603
+                            },
+                            "includeReactionTime": true
+                          }
+                        },
+                        {
+                          "not": {
+                            "val": {
+                              "spellIsReady": {
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpGt",
+                            "lhs": {
+                              "remainingTime": {}
+                            },
+                            "rhs": {
+                              "math": {
+                                "op": "OpAdd",
+                                "lhs": {
+                                  "spellTimeToReady": {
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "auraDuration": {
+                                    "sourceUnit": {
+                                      "type": "CurrentTarget"
+                                    },
+                                    "auraId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "remainingTime": {}
+                      },
+                      "rhs": {
+                        "variableRef": {
+                          "name": "Doom tick"
+                        }
                       }
                     }
                   }
+                ]
+              }
+            },
+            "groupReference": {
+              "groupName": "Cooldowns"
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGe",
+                "lhs": {
+                  "remainingTime": {}
                 },
                 "rhs": {
                   "variableRef": {
-                    "name": "Firebolt cost"
+                    "name": "Doom tick"
                   }
                 }
               }
             },
             "castSpell": {
               "spellId": {
-                "spellId": 11689
+                "spellId": 603
               }
             }
           }
@@ -331,24 +360,265 @@
         {
           "action": {
             "condition": {
-              "auraIsActive": {
-                "auraId": {
-                  "spellId": 440873
+              "and": {
+                "vals": [
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "not": {
+                            "val": {
+                              "auraIsActive": {
+                                "sourceUnit": {
+                                  "type": "CurrentTarget"
+                                },
+                                "auraId": {
+                                  "spellId": 1293696
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "cmp": {
+                            "op": "OpLt",
+                            "lhs": {
+                              "auraRemainingTime": {
+                                "sourceUnit": {
+                                  "type": "CurrentTarget"
+                                },
+                                "auraId": {
+                                  "spellId": 1293696
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "2.5s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "spellIsCasting": {
+                          "spellId": {
+                            "spellId": 17923
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 17923
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "spellExpectedDpet": {
+                    "spellId": {
+                      "spellId": 25309
+                    }
+                  }
+                },
+                "rhs": {
+                  "variableRef": {
+                    "name": "DPET Non DoT"
+                  }
                 }
               }
             },
-            "groupReference": {
-              "groupName": "Split Boosts"
+            "strictMultidot": {
+              "spellId": {
+                "spellId": 25309
+              },
+              "maxDots": 10,
+              "maxOverlap": {
+                "spellCastTime": {
+                  "spellId": {
+                    "spellId": 25309
+                  }
+                }
+              }
             }
           }
         },
         {
           "action": {
             "condition": {
-              "auraIsActive": {
-                "auraId": {
-                  "spellId": 440873
+              "and": {
+                "vals": [
+                  {
+                    "not": {
+                      "val": {
+                        "dotIsActive": {
+                          "spellId": {
+                            "spellId": 603
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLt",
+                            "lhs": {
+                              "remainingTime": {}
+                            },
+                            "rhs": {
+                              "variableRef": {
+                                "name": "Doom tick"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "not": {
+                            "val": {
+                              "spellIsReady": {
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpGt",
+                            "lhs": {
+                              "spellExpectedDpet": {
+                                "spellId": {
+                                  "spellId": 11713
+                                }
+                              }
+                            },
+                            "rhs": {
+                              "variableRef": {
+                                "name": "DPET Non DoT"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "strictMultidot": {
+              "spellId": {
+                "spellId": 11713
+              },
+              "maxDots": 10,
+              "maxOverlap": {
+                "spellCastTime": {
+                  "spellId": {
+                    "spellId": 11713
+                  }
                 }
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "spellExpectedDpet": {
+                    "spellId": {
+                      "spellId": 25311
+                    }
+                  }
+                },
+                "rhs": {
+                  "variableRef": {
+                    "name": "DPET Non DoT"
+                  }
+                }
+              }
+            },
+            "strictMultidot": {
+              "spellId": {
+                "spellId": 25311
+              },
+              "maxDots": 10,
+              "maxOverlap": {
+                "spellCastTime": {
+                  "spellId": {
+                    "spellId": 25311
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "auraIsActive": {
+                      "auraId": {
+                        "spellId": 440873
+                      },
+                      "includeReactionTime": true
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "remainingTime": {}
+                      },
+                      "rhs": {
+                        "math": {
+                          "op": "OpAdd",
+                          "lhs": {
+                            "spellCastTime": {
+                              "spellId": {
+                                "spellId": 17924
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "spellTravelTime": {
+                              "spellId": {
+                                "spellId": 17924
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
               }
             },
             "castSpell": {
@@ -361,19 +631,87 @@
         {
           "action": {
             "condition": {
-              "not": {
-                "val": {
-                  "dotIsActive": {
-                    "spellId": {
-                      "spellId": 25311
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "remainingTime": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "5s"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "spellExpectedDpet": {
+                          "spellId": {
+                            "spellId": 17926
+                          }
+                        }
+                      },
+                      "rhs": {
+                        "spellExpectedDpet": {
+                          "spellId": {
+                            "spellId": 17923
+                          }
+                        }
+                      }
                     }
                   }
-                }
+                ]
               }
             },
             "castSpell": {
               "spellId": {
-                "spellId": 25311
+                "spellId": 17926
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "cmp": {
+                      "op": "OpLt",
+                      "lhs": {
+                        "currentManaPercent": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "30%"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpGt",
+                      "lhs": {
+                        "remainingTime": {}
+                      },
+                      "rhs": {
+                        "const": {
+                          "val": "60s"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 11689
               }
             }
           }
@@ -397,165 +735,7 @@
           }
         }
       ],
-      "groups": [
-        {
-          "name": "Boosts",
-          "actions": [
-            {
-              "action": {
-                "castSpell": {
-                  "spellId": {
-                    "spellId": 20572
-                  }
-                }
-              }
-            },
-            {
-              "action": {
-                "castSpell": {
-                  "spellId": {
-                    "itemId": 250937
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          "name": "Split Boosts",
-          "actions": [
-            {
-              "action": {
-                "condition": {
-                  "or": {
-                    "vals": [
-                      {
-                        "variableRef": {
-                          "name": "In execute"
-                        }
-                      },
-                      {
-                        "cmp": {
-                          "op": "OpGe",
-                          "lhs": {
-                            "variableRef": {
-                              "name": "Time to execute"
-                            }
-                          },
-                          "rhs": {
-                            "const": {
-                              "val": "3m"
-                            }
-                          }
-                        }
-                      }
-                    ]
-                  }
-                },
-                "castSpell": {
-                  "spellId": {
-                    "spellId": 20554
-                  }
-                }
-              }
-            },
-            {
-              "action": {
-                "condition": {
-                  "or": {
-                    "vals": [
-                      {
-                        "variableRef": {
-                          "name": "In execute"
-                        }
-                      },
-                      {
-                        "cmp": {
-                          "op": "OpGe",
-                          "lhs": {
-                            "variableRef": {
-                              "name": "Time to execute"
-                            }
-                          },
-                          "rhs": {
-                            "const": {
-                              "val": "2m"
-                            }
-                          }
-                        }
-                      }
-                    ]
-                  }
-                },
-                "castSpell": {
-                  "spellId": {
-                    "spellId": 1259821
-                  }
-                }
-              }
-            }
-          ]
-        }
-      ],
       "valueVariables": [
-        {
-          "name": "Execute at",
-          "value": {
-            "const": {
-              "val": "35%"
-            }
-          }
-        },
-        {
-          "name": "Time to execute",
-          "value": {
-            "math": {
-              "op": "OpSub",
-              "lhs": {
-                "remainingTime": {}
-              },
-              "rhs": {
-                "math": {
-                  "op": "OpMul",
-                  "lhs": {
-                    "math": {
-                      "op": "OpAdd",
-                      "lhs": {
-                        "currentTime": {}
-                      },
-                      "rhs": {
-                        "remainingTime": {}
-                      }
-                    }
-                  },
-                  "rhs": {
-                    "variableRef": {
-                      "name": "Execute at"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "In execute",
-          "value": {
-            "cmp": {
-              "op": "OpLe",
-              "lhs": {
-                "variableRef": {
-                  "name": "Time to execute"
-                }
-              },
-              "rhs": {
-                "const": {
-                  "val": "0s"
-                }
-              }
-            }
-          }
-        },
         {
           "name": "Doom tick",
           "value": {
@@ -565,18 +745,39 @@
           }
         },
         {
-          "name": "Boost window",
+          "name": "DPET Non DoT",
           "value": {
-            "const": {
-              "val": "14s"
-            }
-          }
-        },
-        {
-          "name": "Firebolt cost",
-          "value": {
-            "const": {
-              "val": "115"
+            "max": {
+              "vals": [
+                {
+                  "spellExpectedDpet": {
+                    "spellId": {
+                      "spellId": 17924
+                    }
+                  }
+                },
+                {
+                  "spellExpectedDpet": {
+                    "spellId": {
+                      "spellId": 25307
+                    }
+                  }
+                },
+                {
+                  "spellExpectedDpet": {
+                    "spellId": {
+                      "spellId": 17923
+                    }
+                  }
+                },
+                {
+                  "spellExpectedDpet": {
+                    "spellId": {
+                      "spellId": 17926
+                    }
+                  }
+                }
+              ]
             }
           }
         }

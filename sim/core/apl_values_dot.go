@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -27,8 +26,7 @@ func (value *APLValueDotIsActive) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueDotIsActive) GetBool(sim *Simulation) bool {
-	resolvedDot := value.dot.Get()
-	return resolvedDot != nil && resolvedDot.IsActive()
+	return readDot(sim, value.dot.Get()).active
 }
 func (value *APLValueDotIsActive) String() string {
 	return fmt.Sprintf("Dot Is Active(%s)", value.dot.Get().Spell.ActionID)
@@ -76,7 +74,7 @@ func (value *APLValueDotIsActiveOnAllTargets) Type() proto.APLValueType {
 }
 func (value *APLValueDotIsActiveOnAllTargets) GetBool(sim *Simulation) bool {
 	for _, dot := range value.dots {
-		if !dot.IsActive() && dot.Unit.IsEnabled() {
+		if !readDot(sim, dot).active && dot.Unit.IsEnabled() {
 			return false
 		}
 	}
@@ -104,8 +102,7 @@ func (value *APLValueDotRemainingTime) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration
 }
 func (value *APLValueDotRemainingTime) GetDuration(sim *Simulation) time.Duration {
-	resolvedDot := value.dot.Get()
-	return TernaryDuration(resolvedDot.IsActive(), resolvedDot.RemainingDuration(sim), 0)
+	return readDot(sim, value.dot.Get()).remaining
 }
 func (value *APLValueDotRemainingTime) String() string {
 	return fmt.Sprintf("Dot Remaining Time(%s)", value.dot.Get().Spell.ActionID)
@@ -158,8 +155,8 @@ func (value *APLValueDotLowestRemainingTime) GetDuration(sim *Simulation) time.D
 		if !dot.Unit.IsEnabled() {
 			continue
 		}
-		if dot.IsActive() {
-			duration = min(duration, dot.RemainingDuration(sim))
+		if reading := readDot(sim, dot); reading.active {
+			duration = min(duration, reading.remaining)
 		} else {
 			return 0
 		}
@@ -190,7 +187,8 @@ func (value *APLValueDotTickFrequency) Type() proto.APLValueType {
 }
 func (value *APLValueDotTickFrequency) GetDuration(sim *Simulation) time.Duration {
 	dot := value.dot.Get()
-	return TernaryDuration(dot.IsActive(), dot.tickPeriod, dot.CalcTickPeriod())
+	reading := readDot(sim, dot)
+	return TernaryDuration(reading.active && !reading.landing, dot.tickPeriod, dot.CalcTickPeriod())
 }
 func (value *APLValueDotTickFrequency) String() string {
 	return fmt.Sprintf("Dot Tick Frequency(%s)", value.dot.Get().Spell.ActionID)
@@ -215,7 +213,11 @@ func (value *APLValueDotTimeToNextTick) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration
 }
 func (value *APLValueDotTimeToNextTick) GetDuration(sim *Simulation) time.Duration {
-	return value.dot.Get().TimeUntilNextTick(sim)
+	dot := value.dot.Get()
+	if reading := readDot(sim, dot); reading.landing {
+		return dot.Spell.Unit.Hardcast.Expires + dot.CalcTickPeriod() - sim.CurrentTime
+	}
+	return dot.TimeUntilNextTick(sim)
 }
 func (value *APLValueDotTimeToNextTick) String() string {
 	return fmt.Sprintf("Time To Next Tick(%s)", value.dot.Get().Spell.ActionID)
@@ -252,6 +254,9 @@ func (value *APLValueDotBaseDuration) String() string {
 	return fmt.Sprintf("Dot Base Duration(%s)", value.spell.ActionID)
 }
 
+// Disabled for now: combat restrictions in game keep addons from tracking a DoT's damage or tick rate increase,
+// so APLs cannot use these values.
+/*
 type APLValueDotIncreaseCheck struct {
 	DefaultAPLValueImpl
 	spell              *Spell
@@ -366,3 +371,4 @@ func (value *APLValueDotTickRatePercentIncrease) getTickRate(useSnapshot bool) f
 	}
 	return dot.CalcTickPeriod().Round(time.Millisecond).Seconds()
 }
+*/

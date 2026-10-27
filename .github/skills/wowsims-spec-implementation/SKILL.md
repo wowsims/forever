@@ -6,9 +6,9 @@ argument-hint: 'Name the spec and the issue number to work from.'
 
 # Implementing a spec for Forever
 
-Text written here follows `wowsims-conventions`. The data API, the docs map and the generators are in
-`wowsims-spells`; read it first. This skill is the part specific to a whole class: what belongs on the
-checklist, how to work it, and how to know it is done.
+Text written here follows `wowsims-conventions`. Read the router `wowsims-spells`, then the leaf each step
+names. This skill is the part specific to a whole class: what belongs on the checklist, how to work it, and
+how to know it is done.
 
 ## Where the checklist comes from
 
@@ -33,6 +33,13 @@ nothing else teaches, and the `// Not generated:` comment at the head of a class
 `spell_data_auto_gen.go` names them (`docs/spell_data/regenerating.md`). The issue's extract does not
 filter them, so the comparison is still yours.
 
+An ability is SoD-only when an `Engrave` spell reaches it (effect 54, enchant, aura 332 or trigger) and no
+trainer row or chain from one does; id range and skill line prove nothing, `AcquireMethod 0` alone is not a
+trainer row, and a live ability has a real learn level or a trait entry. Wowhead Forever's sources and stats
+on SoD- and Classic-range items are inherited, not observed in Forever, so a page proves nothing; a new
+Forever id, `envChange.status == "new"` or a Forever-range effect spell shows an item is live, and tooltip
+stats with no game files row stay unconfirmed.
+
 ## Traps in the checklist
 
 - **A new low rank shifts every rank above it.** Forever's Slam gains a rank 1 (1240193), so every older
@@ -42,6 +49,9 @@ filter them, so the comparison is still yours.
 - **Name and id answer different questions.** A talent missing from another build's ids may exist there
   under another id; check the other build's data before calling something new, rather than inferring it
   from what the sim registers.
+- **An id is absent only when every table says so.** Check it against ItemSparse, Item, SpellName and
+  SpellItemEnchantment together, and look for a rename: Curse of Agony and Curse of Doom are Bane of Agony
+  and Bane of Doom, Faerie Fire (Feral) folded into Faerie Fire, Mangle is one Bear-only spell.
 - **Counts in an issue body go stale.** Treat them as a starting point, and say what was filtered and
   why, so a re-run with different numbers is explainable.
 
@@ -49,26 +59,24 @@ filter them, so the comparison is still yours.
 
 Start from `sim/<class>/spell_data_auto_gen.go` and take every number the game files state from it
 instead of a literal; a literal that survives carries its reason on the line. Whether the class reads
-rows by hand or through the resolvers decides the idiom (see `wowsims-spells`); moving a class onto the
-resolvers follows `docs/spell_data/porting.md`, whose key steps are dumping the rows before touching a
-call site and isolating every .results move by reverting one change. A talent naming a weapon, and the
-one hit, crit and haste rating, are in `docs/spell_data/weapon-requirements.md`, including the
-weapon-bound talents of the classes still to port.
+rows by hand or through the resolvers decides the idiom (`wowsims-spell-store`
+`## Hand reads and resolvers`); moving a class onto the resolvers follows `docs/spell_data/porting.md`,
+whose key steps are dumping the rows before touching a call site and isolating every .results move by
+reverting one change. A talent naming a weapon, and the one hit, crit and haste rating, are
+`wowsims-abilities-auras` `## A talent's modifiers`, including the weapon-bound talents of the classes
+still to port. A stub's form, and when content is removed instead, is the silent no-op bullet of
+`wowsims-review` step 2.
 
-Where the sim and the game files disagree, decide rather than assume ("When a sim number disagrees" in
-`wowsims-spells`), and record the decision at the call site.
+Where the sim and the game files disagree, decide rather than assume
+(`wowsims-spells` `## When a sim number disagrees with the game files`), and record the decision at the
+call site. A preset rotation follows `wowsims-apl` `## Timing`, and its cast counts are judged as
+`## Presets` there says before its DPS is taken.
 
 ## Keeping the branch merged
 
-A port lives on one branch for a while, and master moves under it.
-
-- **Generated spell data conflicts:** take master's `sim/core/spelldata/spells_auto_gen.go` and
-  `assets/db_inputs/spell_store_inputs.json`, then rerun `gen_spelldata -classes=<class>`
-  (`docs/spell_data/partial-updates.md`). Merging the generated text by hand produces a store no input
-  describes.
-- **Proto field numbers and `db.json`:** master keeps its numbers and the branch renumbers, and a local
-  database behind master is spliced rather than regenerated; both are in "Consumables and items" and
-  "Regenerating" in `wowsims-spells`.
+A port lives on one branch while master moves under it: store and database conflicts are
+`wowsims-db-pipeline` `## A database behind master`, and proto field numbers on a merge are
+`wowsims-core-mechanics` `## Protos`.
 
 ## Verifying
 
@@ -78,15 +86,21 @@ git status --porcelain -- '*.results'      # empty unless a number was meant to 
 make spelldata-check                       # the generated files match the database (needs wowsims.db)
 ```
 
-**A .results file that cannot move proves nothing.** Before reading a pass as evidence, grep the class's
-.results for the spell id you changed: a suite whose rotation never casts the spell passes whatever the
-spell does. Where the suite cannot see a change, dump each constructed row against the literal it
-replaced, field by field; that is the check that finds the bugs.
+Whether a suite can see the change is `wowsims-testing` `## .results discipline`, and the rest of proving
+the work (the gates, `make update-tests`, where a test goes) is that skill too. Where the suite cannot see a
+change, dump each constructed row against the literal it replaced, field by field; that is the check that
+finds the bugs.
 
-Read the test summary line, not the exit code, and ignore the presence of `.results.tmp` files, which
-every run writes.
-
-**Before committing, run the `wowsims-review` pass over the diff**, ideally from a fresh agent: every
+**Run the `wowsims-review` pass over your own diff before committing**, ideally from a fresh agent: every
 number and hand-built config against its row and tooltip, the rules the rows cannot show, and every
 finding verified before it is fixed. The PR body carries its "checked, not findings" and "hand numbers
 that stay" lists.
+
+## Keeping this skill true
+
+The code is right where this skill and the code disagree; fix the skill in the same change. The "You changed →
+Update" table and the path check are in `references/maintenance.md`.
+
+A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill otherwise. A memory file is a pointer
+to this skill, not a second copy.

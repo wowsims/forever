@@ -60,7 +60,12 @@ export const LandingClassCard = ({ playerClass, index }: LandingClassCardProps) 
 			: specs.map(spec => ({ href: spec.simLink, iconPath: spec.getIcon('large'), label: translatePlayerSpec(spec) }));
 
 	return (
-		<div className="ui-landing-class-card" data-class={scheme} data-testid="class-card" style={{ '--ui-landing-card-index': index } as CSSProperties}>
+		<div
+			className="ui-landing-class-card"
+			data-class={scheme}
+			data-single-sim={specs.length === 1 ? '' : undefined}
+			data-testid="class-card"
+			style={{ '--ui-landing-card-index': index } as CSSProperties}>
 			<CardContent
 				coverClassName={SPEC_THEME_CLASS[coverSpec.specID as keyof typeof SPEC_THEME_CLASS]}
 				iconPath={classIconPath}

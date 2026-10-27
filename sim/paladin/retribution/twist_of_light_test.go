@@ -17,12 +17,12 @@ func TestTwistOfLightKeepsOneEcho(t *testing.T) {
 		Name:          "Twist of Light",
 		Race:          proto.Race_RaceHuman,
 		Class:         proto.Class_ClassPaladin,
-		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "twist_of_light").GearSet,
+		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
 		TalentsString: TwistOfLightTalents,
 		Spec: &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{
 			Options: &proto.RetributionPaladin_Options{ClassOptions: &proto.PaladinOptions{}},
 		}},
-		Rotation: core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "twist_of_light").Rotation,
+		Rotation: core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "default").Rotation,
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),

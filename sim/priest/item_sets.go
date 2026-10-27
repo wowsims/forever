@@ -175,11 +175,9 @@ func init() {
 		name               string
 		twoPiece, sixPiece int32
 	}{
-		{342, "Champion's Raiment", 14047, 14462},
 		{344, "Lieutenant Commander's Raiment", 14047, 14467},
 		{389, "Field Marshal's Raiment", 14467, 14047},
 		{390, "Warlord's Raiment", 14467, 14047},
-		{540, "Champion's Investiture", 14047, 14467},
 		{549, "Champion's Raiment", 14047, 14467},
 		{2072, "Champion's Investiture", 467550, 14467},
 		{2073, "Warlord's Investiture", 14467, 467550},

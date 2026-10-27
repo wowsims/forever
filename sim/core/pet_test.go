@@ -52,6 +52,35 @@ func TestPetAttackStartsThePetBeforeThePull(t *testing.T) {
 	}
 }
 
+// Command raises the damage of an orc hunter's or warlock's pets by 5%, and no other class's.
+func TestCommandRaisesHunterAndWarlockPetDamage(t *testing.T) {
+	petDamage := func(class proto.Class, race proto.Race) float64 {
+		sim := core.NewSim(&proto.RaidSimRequest{
+			SimOptions: &proto.SimOptions{RandomSeed: 100},
+			Raid: &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{{
+				Name:      "Owner",
+				Class:     class,
+				Race:      race,
+				Spec:      &proto.Player_Hunter{},
+				Equipment: &proto.EquipmentSpec{},
+			}}}}},
+			Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		return sim.Raid.Parties[0].Players[0].(*petOwner).pet.PseudoStats.DamageDealtMultiplier
+	}
+
+	for class, want := range map[proto.Class]float64{
+		proto.Class_ClassHunter:  1.05,
+		proto.Class_ClassWarlock: 1.05,
+		proto.Class_ClassShaman:  1,
+	} {
+		if got := petDamage(class, proto.Race_RaceOrc) / petDamage(class, proto.Race_RaceTroll); !core.WithinToleranceFloat64(want, got, 1e-9) {
+			t.Errorf("an orc %s's pet deals x%0.4f a troll's damage, want x%v", class, got, want)
+		}
+	}
+}
+
 // A dynamic pet inherits from its owner's totals: strength the owner gains reaches the pet at the
 // next pet heartbeat, and comes back off at the heartbeat after the owner loses it.
 func TestDynamicPetInheritsFromTheOwnersTotals(t *testing.T) {

@@ -130,7 +130,8 @@ code was ported from.
 ## generator-settings.json
 
 Lives at `tools/database/generator-settings.json` (with a PTR variant,
-`ptr-generator-settings.json`, differing only in `Product`) and drives what
+`ptr-generator-settings.json`, which lists the same tables minus
+`ItemXItemEffect`) and drives what
 gets extracted:
 
 - **`Settings.BaseDir` / `Product`** — where the WoW install lives and which

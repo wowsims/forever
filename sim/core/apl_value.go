@@ -172,6 +172,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellIsKnown(config.GetSpellIsKnown(), config.Uuid)
 	case *proto.APLValue_SpellCanCast:
 		value = rot.newValueSpellCanCast(config.GetSpellCanCast(), config.Uuid)
+	case *proto.APLValue_SpellInRange:
+		value = rot.newValueSpellInRange(config.GetSpellInRange(), config.Uuid)
 	case *proto.APLValue_SpellIsReady:
 		value = rot.newValueSpellIsReady(config.GetSpellIsReady(), config.Uuid)
 	case *proto.APLValue_SpellTimeToReady:
@@ -182,6 +184,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellTravelTime(config.GetSpellTravelTime(), config.Uuid)
 	case *proto.APLValue_SpellCpm:
 		value = rot.newValueSpellCPM(config.GetSpellCpm(), config.Uuid)
+	case *proto.APLValue_SpellIsCasting:
+		value = rot.newValueSpellIsCasting(config.GetSpellIsCasting(), config.Uuid)
 	case *proto.APLValue_SpellIsChanneling:
 		value = rot.newValueSpellIsChanneling(config.GetSpellIsChanneling(), config.Uuid)
 	case *proto.APLValue_SpellChanneledTicks:
@@ -204,6 +208,12 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellIsHitCapped(config.GetSpellIsHitCapped(), config.Uuid)
 	case *proto.APLValue_SpellIsExpertiseCapped:
 		value = rot.newValueSpellIsExpertiseCapped(config.GetSpellIsExpertiseCapped(), config.Uuid)
+
+	// Talents
+	case *proto.APLValue_TalentIsKnown:
+		value = rot.newValueTalentIsKnown(config.GetTalentIsKnown(), config.Uuid)
+	case *proto.APLValue_TalentRank:
+		value = rot.newValueTalentRank(config.GetTalentRank(), config.Uuid)
 
 	// Auras
 	case *proto.APLValue_AuraIsKnown:
@@ -260,10 +270,13 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueDotTimeToNextTick(config.GetDotTimeToNextTick(), config.Uuid)
 	case *proto.APLValue_DotBaseDuration:
 		value = rot.newValueDotBaseDuration(config.GetDotBaseDuration(), config.Uuid)
+	// Disabled for now, with the DoT increase values in apl_values_dot.go.
 	case *proto.APLValue_DotPercentIncrease:
-		value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
+		rot.ValidationMessageByUUID(config.Uuid, proto.LogLevel_Warning, "Dot Damage Increase %% is disabled: combat restrictions in game keep addons from tracking it")
+		// value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
 	case *proto.APLValue_DotTickRatePercentIncrease:
-		value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
+		rot.ValidationMessageByUUID(config.Uuid, proto.LogLevel_Warning, "Dot Tick Rate Increase %% is disabled: combat restrictions in game keep addons from tracking it")
+		// value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
 
 	// Sequences
 	case *proto.APLValue_SequenceIsComplete:

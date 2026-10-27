@@ -1,4 +1,4 @@
-import { useActivateTab } from '@features/hooks/useActivateTab';
+import { RESULTS_TAB_ID, useActivateTab } from '@features/hooks/useActivateTab';
 import { IterationsPicker } from '@features/results/components/IterationsPicker';
 import { SimResultsPanel } from '@features/results/components/SimResultsPanel';
 import { SimulateAction } from '@features/results/components/SimulateAction';
@@ -18,8 +18,6 @@ export interface SimRunCardProps {
 	host: SimHostObject<any> | null;
 	sim: Sim;
 }
-
-const RESULTS_TAB_ID = 'detailed-results-tab-tab';
 
 export const SimRunCard = ({ host, sim }: SimRunCardProps) => {
 	const activateTab = useActivateTab();

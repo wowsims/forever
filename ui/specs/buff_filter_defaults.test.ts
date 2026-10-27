@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { inputPicked } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from '@features/settings/components/ConsumesPicker/utils';
 import { BUFFS_CONFIG, DEBUFFS_CONFIG, DEBUFFS_MISC_CONFIG, PARTY_BUFFS_CONFIG } from '@features/settings/model/buffs_debuffs';
+import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { isMultiIconOption, type PickerStatOptions, relevantStatOptions, statOptionScope } from '@features/settings/model/stat_options';
 import { shownStats, type StatFilterSlot } from '@features/stat-filters/model/stat_filters';
 import { ConsumableType, type PseudoStat, Stat } from '@generated/proto/common';
@@ -103,10 +104,14 @@ const STAT_ONLY_TYPES = [
 ];
 
 // The consumables' stat rule, written out in full against the stats and percents the spec weighs
-// consumables by: the filter at its defaults must keep exactly the picks that fail it.
+// consumables by and the stats it displays: the filter at its defaults must keep exactly the picks
+// that fail it. Dragonbreath Chili's worth is damage, so it always passes.
 const consumableRule = (consumable: Consumable, player: Player<any>) => {
-	const stats = consumableStatsOf(player.getSpecConfig());
-	const pseudoStats = consumablePseudoStatsOf(player.getSpecConfig());
+	if (consumable.id === DragonbreathChili.id) return true;
+	const specConfig = player.getSpecConfig();
+	const displayed = (specConfig.displayStats ?? []).filter(stat => stat.hasRootStat()).map(stat => stat.getRootStat());
+	const stats = consumableStatsOf({ epStats: [...specConfig.epStats, ...displayed], consumableStats: specConfig.consumableStats });
+	const pseudoStats = consumablePseudoStatsOf(specConfig);
 	const conditionalStats = [...consumable.mobTypeStats, ...consumable.zoneStats].flatMap(({ stats }) =>
 		Object.entries(stats).flatMap(([stat, value]) => (value > 0 ? [Number(stat) as Stat] : [])),
 	);

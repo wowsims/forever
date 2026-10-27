@@ -21,11 +21,11 @@ func init() {
 // Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
 // its talents, demons, consumables and rotation, on the preraid gear set.
 func TestDemonologyFireBrand(t *testing.T) {
-	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceOrc)
 }
 
 func TestDemonologyShadowBrand(t *testing.T) {
-	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceHuman)
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceOrc)
 }
 
 func TestDestruction(t *testing.T) {
@@ -33,7 +33,7 @@ func TestDestruction(t *testing.T) {
 }
 
 func TestAffliction(t *testing.T) {
-	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceHuman)
+	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceOrc)
 }
 
 func TestAfflictionWrack(t *testing.T) {
@@ -163,6 +163,18 @@ func TestDemonCritIsTheWarlocksSpellCrit(t *testing.T) {
 	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 5})
 	stepFor(sim, core.PetUpdateInterval)
 	check("a pet update after +5% spell crit")
+}
+
+// A demon takes the warlock's spell hit whole as spell hit, and 8/17 of it as melee hit.
+func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
+	_, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	inherited := warlock.petStatInheritance(0)(stats.Stats{stats.SpellHitPercent: 17})
+	if got := inherited[stats.SpellHitPercent]; got != 17 {
+		t.Errorf("demon spell hit %.4f%% from 17%% spell hit, want 17%%", got)
+	}
+	if got := inherited[stats.PhysicalHitPercent]; got != 8 {
+		t.Errorf("demon melee hit %.4f%% from 17%% spell hit, want 8%%", got)
+	}
 }
 
 // In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands,
@@ -422,4 +434,48 @@ func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
 			}
 		}
 	})
+}
+
+// Bane Is Active On All Targets counts any of the warlock's Banes on each target that is up, and Assigned Curse
+// Is Active On All Targets the assigned curse. A target that is down is skipped, and with no curse assigned the
+// curse value reads false.
+func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
+	down := core.FreshDefaultTargetConfig()
+	down.DisabledAtStart = true
+	encounter := &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget(), core.NewDefaultTarget(), down}}
+	baneValue := &proto.APLValue{Value: &proto.APLValue_WarlockBaneIsActiveOnAllTargets{WarlockBaneIsActiveOnAllTargets: &proto.APLValueWarlockBaneIsActiveOnAllTargets{}}}
+	curseValue := &proto.APLValue{Value: &proto.APLValue_WarlockAssignedCurseIsActiveOnAllTargets{WarlockAssignedCurseIsActiveOnAllTargets: &proto.APLValueWarlockAssignedCurseIsActiveOnAllTargets{}}}
+
+	// Bane of Havoc is the 13th destruction talent.
+	sim, warlock := newWarlockSim("--0000000000001", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_Elements}, encounter)
+	first, second := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
+	bane, curse := warlock.NewAPLValue(warlock.Rotation, baneValue), warlock.NewAPLValue(warlock.Rotation, curseValue)
+
+	warlock.BaneOfDoom.Dot(first).Apply(sim)
+	if bane.GetBool(sim) {
+		t.Errorf("Bane Is Active On All Targets is true with Doom on the first target alone")
+	}
+	warlock.BaneOfAgony.Dot(second).Apply(sim)
+	if !bane.GetBool(sim) {
+		t.Errorf("Bane Is Active On All Targets is false with Doom on the first target, Agony on the second and the third down")
+	}
+	warlock.BaneOfAgony.Dot(second).Deactivate(sim)
+	warlock.BaneOfHavocAuras.Get(second).Activate(sim)
+	if !bane.GetBool(sim) {
+		t.Errorf("Bane Is Active On All Targets is false with Havoc in place of Agony on the second target")
+	}
+
+	warlock.CurseOfElementsAuras.Get(first).Activate(sim)
+	if curse.GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is true with Curse of the Elements on the first target alone")
+	}
+	warlock.CurseOfElementsAuras.Get(second).Activate(sim)
+	if !curse.GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is false with Curse of the Elements on both targets that are up")
+	}
+
+	sim, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
+	if warlock.NewAPLValue(warlock.Rotation, curseValue).GetBool(sim) {
+		t.Errorf("Assigned Curse Is Active On All Targets is true with no curse assigned")
+	}
 }

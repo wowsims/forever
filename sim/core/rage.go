@@ -6,6 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
+// Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
+// ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
 const ThreatPerRageGained = 5
 
 // Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit before any of the

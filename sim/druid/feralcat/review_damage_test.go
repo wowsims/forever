@@ -12,21 +12,39 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-func TestBiteDodgeConsumesEnergyAndKeepsComboPoints(t *testing.T) {
+func TestBiteDodgeKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 1
 	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+	want := cat.CurrentEnergy() - cat.FerociousBite.Cost.GetCurrentCost()
 	if !cat.FerociousBite.Cast(sim, target) {
 		t.Fatal("bite did not cast")
 	}
 	if cat.FerociousBite.SpellMetrics[target.UnitIndex].Dodges != 1 {
 		t.Fatal("bite was not dodged")
 	}
-	if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 5 {
-		t.Fatalf("dodged bite leaves energy=%g CP=%d, want 0 and 5", cat.CurrentEnergy(), cat.ComboPoints())
+	if cat.CurrentEnergy() != want || cat.ComboPoints() != 5 {
+		t.Fatalf("dodged bite leaves energy=%g CP=%d, want %g and 5", cat.CurrentEnergy(), cat.ComboPoints(), want)
 	}
 	t.Logf("dodged bite: energy=%g CP=%d", cat.CurrentEnergy(), cat.ComboPoints())
+}
+
+func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
+	sim, cat := newCat(t, "", nil)
+	target := cat.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+	if !cat.FerociousBite.Cast(sim, target) {
+		t.Fatal("bite did not cast")
+	}
+	if metrics := cat.FerociousBite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
+		t.Fatal("bite did not land")
+	}
+	if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
+		t.Fatalf("landed bite leaves energy=%g CP=%d, want 0 and 0", cat.CurrentEnergy(), cat.ComboPoints())
+	}
 }
 
 // Ravage 9867 and Pounce 9827 state No Active Defense: a target that dodges everything does not dodge them.

@@ -1,3 +1,4 @@
+import { useOnboardingRestart } from '@features/onboarding';
 import i18n from '@i18n/config';
 import { setLang, supportedLanguages } from '@i18n/locale_service';
 import { useSim } from '@sim/context/SimHostContext';
@@ -45,6 +46,8 @@ export interface SettingsDialogViewProps {
 	/** Shows the memory note under the worker picker. */
 	firefox: boolean;
 	onApplyDefaults: () => void;
+	/** Closes the dialog and opens the guided tour from its first card; absent where the page has no tour. */
+	onRestartTour?: () => void;
 }
 
 const LANGUAGE_OPTIONS: Array<ChoiceOption<string>> = Object.entries(supportedLanguages).map(([language, name]) => ({ value: language, label: name }));
@@ -85,6 +88,7 @@ export const SettingsDialogView = ({
 	maxWorkers,
 	firefox,
 	onApplyDefaults,
+	onRestartTour,
 }: SettingsDialogViewProps) => {
 	const restoreTooltipId = useId();
 
@@ -103,6 +107,11 @@ export const SettingsDialogView = ({
 			title={i18n.t('info.options.title')}
 			footer={
 				<>
+					{onRestartTour && (
+						<Button variant="outline-primary" className="mr-2" data-testid="restart-tour" onClick={onRestartTour}>
+							{i18n.t('info.options.restart_tour')}
+						</Button>
+					)}
 					<Button variant="primary" data-testid="restore-defaults" {...tooltipAnchorProps(restoreTooltipId)} onClick={onApplyDefaults}>
 						{i18n.t('info.options.restore_defaults.button')}
 					</Button>
@@ -216,6 +225,7 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 	const showQuickSwap = useUiStore('showQuickSwap');
 	const wasmConcurrency = useUiStore('wasmConcurrency');
 	const isHealingSpec = host.player.getPlayerSpec().isHealingSpec;
+	const restartTour = useOnboardingRestart();
 
 	// Local sim has native threading, so the row is only meaningful on wasm. It starts shown because
 	// the answer is a promise.
@@ -283,6 +293,13 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 			maxWorkers={navigator.hardwareConcurrency}
 			firefox={navigator.userAgent.toLowerCase().includes('firefox')}
 			onApplyDefaults={() => restoreDefaults(host)}
+			onRestartTour={
+				restartTour &&
+				(() => {
+					onOpenChange(false);
+					restartTour();
+				})
+			}
 		/>
 	);
 };

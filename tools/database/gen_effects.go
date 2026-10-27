@@ -608,7 +608,7 @@ var literalRates = []literalRate{
 	},
 	{
 		Gear:   "set bonus",
-		ID:     512,
+		ID:     1676,
 		Pieces: 4,
 		Kind:   overrides.RatePPM,
 		Origin: "unknown",

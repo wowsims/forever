@@ -23,6 +23,8 @@ func AddDefaultPresetEncounter() {
 			MobType:   proto.MobType_MobTypeMechanical,
 			TankIndex: 0,
 
+			// A level-63 creature's armor and health from ExpectedStat, the health times 300 for a boss
+			// (4763 x 300). The swings hit with Chromaggus's MinBaseDamage.
 			Stats: stats.Stats{
 				stats.Health:      1_428_900,
 				stats.Armor:       3731,

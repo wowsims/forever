@@ -94,14 +94,19 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 // row carries its own class flags, so Trial by Fire's cooldown reaches the cast and its damage the
 // hit, and Call of Flame and Elemental Fury name the hit alone.
 // The hit lacks Not a Proc, so only listeners that can proc from procs hear it. It reports as the
-// cast's spell tagged 1, so the results show the cast and its hits as one row.
+// cast's spell tagged 1, so the results show the cast and its hits as one row. The cast deals no
+// damage and the damage table leaves it out, so the hit holds the casts and the cast time: it is not
+// passive, so it counts a cast of its own for each Fire Nova, and the cast hands it its GCD and drops
+// its own count. The hit has no reach, which the cast's own settles.
 func (shaman *Shaman) registerFireNovaSpell() {
 	damage := fireNovaDamageRank.DamageEffect()
 
 	novaConfig := spelldata.SpellConfig(&shaman.Unit, fireNovaDamageRank,
 		spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Proc(),
+		spelldata.RemoveFlags(core.SpellFlagPassiveSpell),
 		spelldata.Flags(SpellFlagShamanSpell|core.SpellFlagProc))
+	novaConfig.MaxRange = 0
 	novaConfig.ActionID = core.ActionID{SpellID: fireNovaRank.ID, Tag: 1}
 	novaConfig.ClassSpellMask = SpellMaskFireNova
 	novaConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
@@ -117,8 +122,14 @@ func (shaman *Shaman) registerFireNovaSpell() {
 		totem := shaman.TotemAuras[FireTotem]
 		return totem != nil && totem.IsActive()
 	}
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		nova.Cast(sim, target)
+
+		castMetrics, novaMetrics := &spell.SpellMetrics[target.UnitIndex], &nova.SpellMetrics[target.UnitIndex]
+		castMetrics.TotalCastTime += spell.CurCast.EffectiveTime()
+		novaMetrics.TotalCastTime += castMetrics.TotalCastTime
+		castMetrics.TotalCastTime = 0
+		castMetrics.Casts--
 	}
 
 	shaman.FireNova = shaman.RegisterSpell(config)

@@ -291,6 +291,7 @@ func (r *valueRange) add(v float64) {
 	r.m2 += d * (v - r.mean)
 }
 
+// Chan's pairwise combine of two Welford ranges, so ranges merged across threads match a single-threaded run.
 func (r *valueRange) merge(o *valueRange) {
 	if o.n == 0 {
 		return

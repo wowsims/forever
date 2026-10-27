@@ -314,7 +314,7 @@ func TestGnomeEurekaReadsEachClassRow(t *testing.T) {
 // on a channel started before the buff and on one that runs on past its end. A periodic spell that is
 // not a channel takes no bonus, on the mask or off it.
 func TestGnomeWarlockEurekaChannel(t *testing.T) {
-	sim, fw := setupFakeWarlockSim(proto.Race_RaceGnome)
+	sim, fw := setupFakeWarlockSim(proto.Race_RaceGnome, &proto.IndividualBuffs{})
 	target := fw.CurrentTarget
 
 	eurekaSpell := fw.GetSpell(ActionID{SpellID: 1259821})
@@ -378,150 +378,38 @@ func TestGnomeWarlockEurekaChannel(t *testing.T) {
 	channelFrom(start+mods.Duration, "a Drain Life running past the end of Eureka!", boosted, boosted, 1, 1, 1)
 }
 
-const (
-	racialTestMaceID int32 = 991511 + iota
-	racialTestTwoHandMaceID
-)
-
-func addRacialTestMaces() {
-	mace := func(id int32, handType proto.HandType) *proto.SimItem {
-		return &proto.SimItem{
-			Id:             id,
-			Name:           "Test Mace",
-			Type:           proto.ItemType_ItemTypeWeapon,
-			WeaponType:     proto.WeaponType_WeaponTypeMace,
-			HandType:       handType,
-			WeaponSpeed:    2.6,
-			ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {WeaponDamageMin: 50, WeaponDamageMax: 90}},
-		}
-	}
-	addToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
-		mace(racialTestMaceID, proto.HandType_HandTypeOneHand),
-		mace(racialTestTwoHandMaceID, proto.HandType_HandTypeTwoHand),
-	}})
-}
-
-// The crit multipliers of a main-hand swing, a spell and a heal.
-func racialCritMultipliers(sim *Simulation, character *Character) map[string]float64 {
-	magic := func(id int32, procMask ProcMask, school SpellSchool) *Spell {
-		if spell := character.GetSpell(ActionID{SpellID: id}); spell != nil {
-			return spell
-		}
-		return character.RegisterSpell(SpellConfig{
-			ActionID:         ActionID{SpellID: id},
-			DefenseType:      DefenseTypeMagic,
-			ProcMask:         procMask,
-			SpellSchool:      school,
-			DamageMultiplier: 1,
-		})
-	}
-	attackTable := character.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
-	return map[string]float64{
-		"main-hand swing": character.AutoAttacks.MHAuto().CritDamageMultiplier(attackTable),
-		"spell":           magic(990801, ProcMaskSpellDamage, SpellSchoolFire).CritDamageMultiplier(attackTable),
-		"heal":            magic(990802, ProcMaskSpellHealing, SpellSchoolHoly).CritDamageMultiplier(nil),
-	}
-}
-
-// Endurance raises the crit damage bonus of attacks, spells and heals alike by 2% of the base
-// multiplier with any weapon or none, and Earth Fury does while any weapon slot holds a mace.
-func TestCritDamageRacials(t *testing.T) {
-	addRacialTestMaces()
-	bareHands := WeaponTestSlots(0, 0, 0)
-	sword := WeaponTestSlots(WeaponTestSwordID, 0, 0)
-
-	for _, tc := range []struct {
-		name    string
-		race    proto.Race
-		weapons []*proto.ItemSpec
-		want    float64
-	}{
-		{"tauren with bare hands", proto.Race_RaceTauren, bareHands, 1.02},
-		{"tauren with a sword", proto.Race_RaceTauren, sword, 1.02},
-		{"dwarf with a mace", proto.Race_RaceDwarf, WeaponTestSlots(racialTestMaceID, 0, 0), 1.02},
-		{"dwarf with a two-handed mace", proto.Race_RaceDwarf, WeaponTestSlots(racialTestTwoHandMaceID, 0, 0), 1.02},
-		{"dwarf with a mace in the off hand", proto.Race_RaceDwarf, WeaponTestSlots(WeaponTestDaggerID, racialTestMaceID, 0), 1.02},
-		{"dwarf with a sword", proto.Race_RaceDwarf, sword, 1},
-		{"dwarf with bare hands", proto.Race_RaceDwarf, bareHands, 1},
-	} {
-		human := racialCritMultipliers(NewWeaponTestSim(t, proto.Race_RaceHuman, tc.weapons, nil, nil))
-		for name, got := range racialCritMultipliers(NewWeaponTestSim(t, tc.race, tc.weapons, nil, nil)) {
-			if want := human[name] * tc.want; !WithinToleranceFloat64(want, got, 1e-9) {
-				t.Errorf("%s: a %s should crit for x%0.4f, got x%0.4f", tc.name, name, want, got)
-			}
-		}
-	}
-}
-
-// Earth Fury follows the weapons through an item swap in combat, and an iteration that ends on the
-// swapped weapons starts the next one with the crit damage it began with.
-func TestEarthFuryFollowsAnItemSwapInCombat(t *testing.T) {
-	addRacialTestMaces()
-	withMace := WeaponTestSlots(racialTestMaceID, WeaponTestDaggerID, WeaponTestBowID)
-	withSword := WeaponTestSlots(WeaponTestSwordID, WeaponTestDaggerID, WeaponTestBowID)
-
-	for _, tc := range []struct {
-		name              string
-		equipped, swapped []*proto.ItemSpec
-		before, after     float64
-	}{
-		{"mace swapped for a sword", withMace, withSword, 1.02, 1},
-		{"sword swapped for a mace", withSword, withMace, 1, 1.02},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			sim, dwarf := NewWeaponTestSim(t, proto.Race_RaceDwarf, tc.equipped, tc.swapped, nil)
-			base := racialCritMultipliers(NewWeaponTestSim(t, proto.Race_RaceHuman, tc.equipped, nil, nil))
-			check := func(when string, want float64) {
-				t.Helper()
-				for name, got := range racialCritMultipliers(sim, dwarf) {
-					if !WithinToleranceFloat64(base[name]*want, got, 1e-9) {
-						t.Errorf("%s at %v: a %s should crit for x%0.4f, got x%0.4f", when, sim.CurrentTime, name, base[name]*want, got)
-					}
-				}
-			}
-
-			sim.PrePull()
-			for sim.CurrentTime < 3*time.Second {
-				sim.Step()
-			}
-			check("before the swap", tc.before)
-			dwarf.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
-			check("after the swap", tc.after)
-
-			for sim.CurrentTime < 6*time.Second {
-				sim.Step()
-			}
-			dwarf.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
-			check("after the swap back", tc.before)
-
-			dwarf.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
-			sim.Cleanup()
-			sim.Reset()
-			check("in the next iteration", tc.before)
-		})
-	}
-}
-
-// Endurance carries no hit, so a tauren holds a human's physical and spell hit.
-func TestTaurenEnduranceGrantsNoHit(t *testing.T) {
+// Endurance carries no hit and no crit damage, Artisan's Precision 1% physical and spell hit.
+func TestHitAndCritDamageRacials(t *testing.T) {
 	_, human := setupRacialSim(proto.Race_RaceHuman)
-	_, tauren := setupRacialSim(proto.Race_RaceTauren)
-	for _, stat := range []stats.Stat{stats.PhysicalHitPercent, stats.SpellHitPercent} {
-		if got, want := tauren.GetStat(stat), human.GetStat(stat); got != want {
-			t.Errorf("a tauren should hold a human's %s %v, got %v", stat.StatName(), want, got)
+	for _, tc := range []struct {
+		race proto.Race
+		hit  float64
+	}{
+		{proto.Race_RaceTauren, 0},
+		{proto.Race_RaceDwarf, 1},
+	} {
+		_, character := setupRacialSim(tc.race)
+		for _, stat := range []stats.Stat{stats.PhysicalHitPercent, stats.SpellHitPercent} {
+			if got, want := character.GetStat(stat), human.GetStat(stat)+tc.hit; got != want {
+				t.Errorf("a %s should hold %s %v, got %v", tc.race, stat.StatName(), want, got)
+			}
+		}
+		if got := character.PseudoStats.CritDamageMultiplier; got != human.PseudoStats.CritDamageMultiplier {
+			t.Errorf("a %s should crit for a human's x%0.4f, got x%0.4f", tc.race, human.PseudoStats.CritDamageMultiplier, got)
 		}
 	}
 }
 
-// Ruthless and Savage raise the crit of every spell and attack whatever the character holds, bare
-// hands included. An undead has no crit racial, so at the same attributes it holds the crit without them.
-func TestRuthlessAndSavageNeedNoWeapon(t *testing.T) {
+// Ruthless raises the crit of every spell and attack whatever the character holds, bare hands
+// included. An undead and an orc have no crit racial, so at the same attributes they hold the crit
+// without it.
+func TestRuthlessNeedsNoWeapon(t *testing.T) {
 	for _, tc := range []struct {
 		race proto.Race
 		crit float64
 	}{
-		{proto.Race_RaceHuman, 2},
-		{proto.Race_RaceOrc, 1},
+		{proto.Race_RaceHuman, 1},
+		{proto.Race_RaceOrc, 0},
 	} {
 		for name, weapons := range map[string][]*proto.ItemSpec{
 			"bare hands": WeaponTestSlots(0, 0, 0),
@@ -564,8 +452,8 @@ func TestSkyborneRacials(t *testing.T) {
 		_, fw := setupRacialSim(race)
 
 		swingRatio := human.AutoAttacks.MainhandSwingSpeed().Seconds() / fw.AutoAttacks.MainhandSwingSpeed().Seconds()
-		if !WithinToleranceFloat64(1.03, swingRatio, 0.001) {
-			t.Errorf("%s: Wind Blessed should swing 3%% faster, got x%0.4f", race, swingRatio)
+		if !WithinToleranceFloat64(1.02, swingRatio, 0.001) {
+			t.Errorf("%s: Wind Blessed should swing 2%% faster, got x%0.4f", race, swingRatio)
 		}
 		if at := fw.AttackTables[fw.CurrentTarget.UnitIndex]; !WithinToleranceFloat64(1.05, at.DamageDealtMultiplier, 0.0001) {
 			t.Errorf("%s: Elemental Insight should grant 5%% damage against elementals, got x%0.4f", race, at.DamageDealtMultiplier)
@@ -577,7 +465,88 @@ func TestSkyborneRacials(t *testing.T) {
 		hasReadLeyLine := fw.GetSpell(ActionID{SpellID: 1259705}) != nil
 		hasSkysight := fw.GetSpell(ActionID{SpellID: 1259686}) != nil
 		if hasReadLeyLine != (race == proto.Race_RaceHighOrderSkyborne) || hasSkysight != (race == proto.Race_RaceWindshaperSkyborne) {
-			t.Errorf("%s: Read Ley Line is the High Order's and Skysight the Windshapers', got %t / %t", race, hasReadLeyLine, hasSkysight)
+			t.Errorf("%s: Read Leyline is the High Order's and Skysight the Windshapers', got %t / %t", race, hasReadLeyLine, hasSkysight)
+		}
+	}
+}
+
+// Read Leyline and Skysight each hold a plain cast and a tag 1 cast for an Attuned or Charged
+// character, on one cooldown: the plain one lasts 15 s at half the tagged one's bonus, and the aura
+// takes its bonus back off when it expires. An activation with no cast takes the plain bonus, also
+// after a tagged cast.
+func TestSkyborneCastsShareACooldown(t *testing.T) {
+	for _, tc := range []struct {
+		race    proto.Race
+		spellID int32
+		aura    string
+		value   func(*fakeDotWarlock) float64
+		plain   float64
+		buffed  float64
+	}{
+		{proto.Race_RaceHighOrderSkyborne, 1259705, "Energized", func(fw *fakeDotWarlock) float64 { return fw.manaRegenMultiplier }, 1.5, 2},
+		{proto.Race_RaceWindshaperSkyborne, 1259686, "Elemental Blessing", func(fw *fakeDotWarlock) float64 { return fw.PseudoStats.MovementSpeedMultiplier }, 1.15, 1.3},
+	} {
+		for tag, want := range []float64{tc.plain, tc.buffed} {
+			sim, fw := setupFakeWarlockSim(tc.race, &proto.IndividualBuffs{})
+			before := tc.value(fw)
+			cast := fw.GetSpell(ActionID{SpellID: tc.spellID, Tag: int32(tag)})
+			other := fw.GetSpell(ActionID{SpellID: tc.spellID, Tag: int32(1 - tag)})
+			if cast == nil || other == nil {
+				t.Fatalf("%s: spell %d should register tags 0 and 1", tc.race, tc.spellID)
+			}
+			cast.SkipCastAndApplyEffects(sim, fw.CurrentTarget)
+			cast.CD.Use(sim)
+
+			aura := fw.GetAura(tc.aura)
+			if !aura.IsActive() || aura.Duration != 15*time.Second {
+				t.Errorf("%s tag %d: %s should be up for 15s, got active %t for %v", tc.race, tag, tc.aura, aura.IsActive(), aura.Duration)
+			}
+			if got := tc.value(fw) / before; !WithinToleranceFloat64(want, got, 1e-9) {
+				t.Errorf("%s tag %d: %s should multiply by %v, got x%0.4f", tc.race, tag, tc.aura, want, got)
+			}
+			if other.CanCast(sim, fw.CurrentTarget) {
+				t.Errorf("%s tag %d: the other cast should share the cooldown", tc.race, tag)
+			}
+			aura.Deactivate(sim)
+			if got := tc.value(fw); !WithinToleranceFloat64(before, got, 1e-9) {
+				t.Errorf("%s tag %d: after %s ends the multiplier should be back at %v, got %v", tc.race, tag, tc.aura, before, got)
+			}
+
+			aura.Activate(sim)
+			if got := tc.value(fw) / before; !WithinToleranceFloat64(tc.plain, got, 1e-9) {
+				t.Errorf("%s tag %d: %s raised with no cast should multiply by %v, got x%0.4f", tc.race, tag, tc.aura, tc.plain, got)
+			}
+			aura.Deactivate(sim)
+		}
+	}
+}
+
+// Read Leyline cannot be cast under Innervate, and an Innervate that lands ends Energized.
+func TestInnervateReplacesEnergized(t *testing.T) {
+	sim, fw := setupFakeWarlockSim(proto.Race_RaceHighOrderSkyborne, &proto.IndividualBuffs{Innervates: 1})
+
+	innervates := fw.GetAurasWithTag(innervateTag)
+	if len(innervates) == 0 {
+		t.Fatalf("an Innervates buff should register an aura tagged %q", innervateTag)
+	}
+	readLeyline := fw.GetSpell(ActionID{SpellID: 1259705})
+	energized := fw.GetAura("Energized")
+
+	if !readLeyline.CanCast(sim, fw.CurrentTarget) {
+		t.Fatalf("Read Leyline should cast with no Innervate up")
+	}
+	readLeyline.SkipCastAndApplyEffects(sim, fw.CurrentTarget)
+	if !energized.IsActive() {
+		t.Fatalf("Read Leyline should raise Energized")
+	}
+	innervates[0].Activate(sim)
+	if energized.IsActive() {
+		t.Errorf("Innervate landing should end Energized")
+	}
+
+	for _, tag := range []int32{0, 1} {
+		if fw.GetSpell(ActionID{SpellID: 1259705, Tag: tag}).CanCast(sim, fw.CurrentTarget) {
+			t.Errorf("Read Leyline tag %d should not cast under Innervate", tag)
 		}
 	}
 }
@@ -684,6 +653,7 @@ func newFakeDotWarlock(char *Character, _ *proto.Player, _ *proto.Raid) Agent {
 func (fw *fakeDotWarlock) GetCharacter() *Character { return &fw.Character }
 
 func (fw *fakeDotWarlock) Initialize() {
+	fw.EnableManaBar()
 	fw.Corruption = fw.RegisterSpell(SpellConfig{
 		ActionID:         ActionID{SpellID: 172},
 		SpellSchool:      SpellSchoolShadow,
@@ -767,7 +737,7 @@ func (fw *fakeDotWarlock) OnEncounterStart(_ *Simulation) {}
 
 func setupTouchOfTheGraveWarlock(t *testing.T) (*Simulation, *fakeDotWarlock, *Aura) {
 	t.Helper()
-	sim, fw := setupFakeWarlockSim(proto.Race_RaceUndead)
+	sim, fw := setupFakeWarlockSim(proto.Race_RaceUndead, &proto.IndividualBuffs{})
 	aura := fw.GetAura("Touch of the Grave")
 	if aura == nil || !aura.IsActive() || aura.Icd == nil {
 		t.Fatalf("An undead warlock should carry an active Touch of the Grave with its cooldown")
@@ -775,14 +745,14 @@ func setupTouchOfTheGraveWarlock(t *testing.T) (*Simulation, *fakeDotWarlock, *A
 	return sim, fw, aura
 }
 
-func setupFakeWarlockSim(race proto.Race) (*Simulation, *fakeDotWarlock) {
+func setupFakeWarlockSim(race proto.Race, buffs *proto.IndividualBuffs) (*Simulation, *fakeDotWarlock) {
 	sim := NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 100},
 		Raid: SinglePlayerRaidProto(&proto.Player{
 			Name:      "Warlock",
 			Class:     proto.Class_ClassWarlock,
 			Race:      race,
-			Buffs:     &proto.IndividualBuffs{},
+			Buffs:     buffs,
 			Spec:      &proto.Player_Warlock{},
 			Equipment: &proto.EquipmentSpec{},
 			Rotation:  &proto.APLRotation{Type: proto.APLRotation_TypeAPL},

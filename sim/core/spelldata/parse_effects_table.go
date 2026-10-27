@@ -610,7 +610,11 @@ var flatModTable = map[dbcenums.SpellModOp]row{
 	dbcenums.SPELLMOD_EFFECT3: flatEffectAmount,
 }
 
-// A_ADD_PCT_MODIFIER: a percentage the game files state as an integer, handed over as a fraction.
+// A_ADD_PCT_MODIFIER: a percentage the game files state as an integer, handed over as a fraction. Two such
+// rows on one spell multiply, for cost, direct damage and periodic damage alike, and a flat
+// A_ADD_FLAT_MODIFIER on the same spell applies before any percent. The aura type decides which table a row
+// takes, whatever its tooltip reads: Unleashed Fury 19616 describes a percent and its row is a flat 107
+// modifier, so the flat value is what the sim applies and the tooltip's number is flagged, not adopted.
 var pctModTable = map[dbcenums.SpellModOp]row{
 	dbcenums.SPELLMOD_DAMAGE: func(p *parser, e *Effect, v float64) *attachment {
 		// Direct hits only: ticks take SPELLMOD_DOT, which a talent states beside it when it raises both.

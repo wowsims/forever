@@ -2,34 +2,20 @@
 	"type": "TypeAPL",
 	"prepullActions": [
 		{
-			"action": {
-				"castSpell": {
-					"spellId": {
-						"spellId": 10301,
-						"rank": 5
-					}
-				}
-			},
-			"doAtValue": {
-				"const": {
-					"val": "-10s"
-				}
-			}
+			"action": { "castSpell": { "spellId": { "spellId": 25780 } } },
+			"doAtValue": { "const": { "val": "-20s" } }
 		},
 		{
 			"action": {
-				"castSpell": {
-					"spellId": {
-						"spellId": 20308,
-						"rank": 6
-					}
-				}
+				"castSpell": { "spellId": { "spellId": 10301, "rank": 5 } }
 			},
-			"doAtValue": {
-				"const": {
-					"val": "-1.5s"
-				}
-			}
+			"doAtValue": { "const": { "val": "-18.5s" } }
+		},
+		{
+			"action": {
+				"castSpell": { "spellId": { "spellId": 20308, "rank": 6 } }
+			},
+			"doAtValue": { "const": { "val": "-17s" } }
 		}
 	],
 	"priorityList": [
@@ -159,12 +145,10 @@
 							{
 								"not": {
 									"val": {
-										"auraIsKnown": {
-											"sourceUnit": {
-												"type": "CurrentTarget"
-											},
-											"auraId": {
-												"spellId": 1310905
+										"talentIsKnown": {
+											"talentId": {
+												"spellId": 1310905,
+												"rank": 1
 											}
 										}
 									}
@@ -176,7 +160,7 @@
 										"type": "CurrentTarget"
 									},
 									"auraId": {
-										"spellId": 1310905
+										"spellId": 1280353
 									}
 								}
 							}

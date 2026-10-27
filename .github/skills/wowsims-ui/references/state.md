@@ -164,8 +164,8 @@ commit through `useCommitChange` (`ui/ui-kit/hooks/useCommitChange.ts`) on the n
 edit, or Enter), so typing writes nothing to the store until the edit is committed. `SearchField` commits per
 keystroke or when typing pauses, and `ChoiceField` (`ui/ui-kit/ChoiceField/ChoiceField.tsx`) on selection.
 
-**Lists.** `useListItems` (`ui/features/inputs/hooks/useListItems.ts`) binds an array field: `create`, `remove`,
-`copy`, `move` and each row's `itemConfig` write one fresh array through `config.setValue` and never mutate the array
+**Lists.** `useListItems` (`ui/features/inputs/hooks/useListItems.ts`) binds an array field: `create`, `append`,
+`remove`, `copy`, `move` and each row's `itemConfig` write one fresh array through `config.setValue` and never mutate the array
 they read. Rows find their item by key (`ui/features/inputs/list_ids.ts`), so a row keeps its item through a reorder
 and through a source that returns clones. The caller renders the array on the kit `Tree` (`ui/ui-kit/Tree/`) and wires
 `move` to `sortable.onMove`.

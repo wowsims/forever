@@ -77,6 +77,7 @@ func (mage *Mage) registerSpells() {
 	mage.registerArcaneExplosionSpell()
 	mage.registerArcaneMissilesSpell()
 	mage.registerArmorSpells()
+	mage.registerBlinkSpell()
 	mage.registerBlizzardSpell()
 	mage.registerConeOfColdSpell()
 	mage.registerFrostboltSpell()
@@ -115,7 +116,7 @@ func NewMage(character *core.Character, options *proto.Player) *Mage {
 		Options:   mageOptions,
 	}
 
-	core.FillTalentsProto(mage.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
+	mage.FillTalentsProto(mage.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 
 	mage.EnableManaBar()
 	mage.AddStatDependency(stats.Strength, stats.AttackPower, 1)

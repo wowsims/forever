@@ -64,7 +64,9 @@ Category filtering is shared with link import through `SimSettingCategories`. `L
 `withoutStatFilters` whatever the categories, and the JSON importer (`ui/features/import-export/importers/json.ts`)
 and the link import write the viewer's filters into the envelope with `withViewerStatFilters` before `fromProto`.
 Both helpers change the envelope they are given and return it. An envelope without filters needs nothing, since the
-defaults it loads keep the viewer's. The autosaved envelope keeps them.
+defaults it loads keep the viewer's. The autosaved envelope keeps them. There are five per-panel filters (EP,
+character stats, buffs, debuffs, consumables), an unset one meaning the spec default; a pick a filter hides stays
+offered, dimmed with a kept badge, and Restore defaults keeps the filters.
 
 ## What is gated
 

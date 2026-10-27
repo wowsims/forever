@@ -89,7 +89,6 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 		proc.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			auras.activate(sim, procDamageTarget(character, callback, spell, result))
 		}
-		proc.ActivatesAura = auras.wearer
 
 		triggerAura := source.registerTrigger(character, proc)
 		if auras.wearer == nil {
@@ -110,6 +109,10 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 // An item or enchant whose equip spell applies auras: the row's auras on the wearer and on each
 // summoned pet for as long as the item or the enchant is worn. An equip spell that only re-applies another aura on a period is read as
 // that aura.
+//
+// The generator emits no equip spell that states spell modifiers: each class registers its own through
+// this constructor in its item files, ported or not, and an item whose modifier has no sim value stays
+// in the missing effects list.
 func NewSpellDataEquipAura(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEquipAura)
 }

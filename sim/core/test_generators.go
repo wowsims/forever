@@ -394,6 +394,9 @@ func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.Comput
 			equipment.EquipItem(setItem)
 		}
 		label = strings.ReplaceAll(testSet.Name, " ", "")
+		if slices.ContainsFunc(generator.sets, func(other *ItemSet) bool { return other != testSet && other.Name == testSet.Name }) {
+			label = fmt.Sprintf("%s-%d", label, testSet.ID)
+		}
 	} else {
 		testEnchant := generator.enchants[testIdx-len(generator.items)-len(generator.sets)]
 		equipment.EquipEnchant(testEnchant)

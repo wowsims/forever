@@ -17,7 +17,7 @@ func TestSealOfLightHealsAtTheRowsRate(t *testing.T) {
 		Name:          "Seal of Light",
 		Race:          proto.Race_RaceHuman,
 		Class:         proto.Class_ClassPaladin,
-		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "twist_of_light").GearSet,
+		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
 		TalentsString: TwistOfLightTalents,
 		Spec: &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{
 			Options: &proto.RetributionPaladin_Options{ClassOptions: &proto.PaladinOptions{}},

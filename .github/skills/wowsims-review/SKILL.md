@@ -11,11 +11,11 @@ change reads it the way they meant it, so a self-review works best handed to a f
 this skill; the author then verifies each finding that comes back the way step 6 says, and fixes it.
 
 Every change gets steps 1, 2 and 5 to 7. Spell, talent, aura, dot and proc code under `sim/`, with the
-overrides and class ladders it reads, also gets steps 3 and 4. A UI change also runs the gates in the
-`wowsims-ui` skill's `references/verification.md`; generator internals are `wowsims-spells`' subject.
+overrides and class ladders it reads, also gets steps 3 and 4. A UI change also runs the gates in
+`.github/skills/wowsims-ui/references/verification.md`; generator internals are `wowsims-db-pipeline`'s subject.
 
-`references/defects.md` is the catalog for the spell steps: each defect class, with a case a review of a
-port found and the fix that reads the row.
+`references/defects.md` is the catalog for the spell steps: each defect class, with a case a review of a port found
+and the fix that reads the row. `references/rulings.md` holds the review's own rulings on orphans and kept helpers.
 
 ## 1. Inventory
 
@@ -32,21 +32,20 @@ constants that no generator reads.
 
 ## 2. Every change
 
-- **Production code that only a test or story uses.** AGENTS.md: tests and stories never add code to `sim/`
-  or `ui/` so a test can reach something. For each new export, prop, parameter, branch or `index.ts`
-  re-export, find a caller outside tests and stories; with none, the test changes instead (a fixture in
-  `ui/testing/` or the test file, a stub at the module boundary).
+- **Production code that only a test or story uses** (the rule is in `AGENTS.md`). For each new export, prop,
+  parameter, branch or `index.ts` re-export, find a caller outside tests and stories; with none, the test changes
+  instead (a fixture in `ui/testing/` or the test file, a stub at the module boundary).
 - **A comment that claims what the code no longer does.** A comment naming a read, a row, a file or a
   dependency is checked against the code after the diff; one the change made untrue is a finding.
-- **An item the request does not carry.** `sim/core/database_load.go` builds only with `with_db`, so the
-  Go tests see every item while the dev server and the WASM build know only the items in the request's
-  `SimDatabase`. `core.GetItemByID` for an item the player may not wear passes every test and is nil in the
-  app. Such a read needs the request to carry the item (`PARTY_BUFF_ITEM_IDS` in `ui/sim/proto/buff_items.ts`)
-  and a loud failure when it is missing, as `driveDarkspear` in `sim/core/buffs/drivers.go` panics.
+- **An item the request does not carry.** Check that a read of an item the player may not wear has the request
+  carry it (`wowsims-consumables-items` `## The request database`) and fails loudly when it is missing, as
+  `driveDarkspear` in `sim/core/buffs/drivers.go` panics.
 - **Orphans the change made.** A function with no caller, a mask naming a spell nothing registers, an empty
   body the change left behind: remove them in the same change.
-- **A live talent never becomes a silent no-op.** An unported talent or ability keeps its stub and a
-  `// TODO:`; an aura registered with no effect, or a cooldown that does nothing, is a finding.
+- **A live talent never becomes a silent no-op.** An unported talent or ability keeps its stub: the implementation
+  commented out in place under `panic("To be implemented")` and a `// TODO:` naming what is missing, never a deletion
+  or a silent return. Content Forever does not have is removed, not stubbed, once `tools/database/wowsims.db` shows no
+  data for it. An aura registered with no effect, or a cooldown that does nothing, is a finding.
 - **One copy of each rule.** Three channels differing only in their tick effect share one builder; a value
   built each iteration that never changes is built at registration.
 - **Text.** Every comment, doc line, test message, commit message and PR text the change adds or rewrites is
@@ -64,7 +63,9 @@ SPELLDATA_REPORT=1 go test --tags=with_db ./sim/<class>/ -run <Test> -count=1 -v
 
 `go run ./tools/spelldata` prints only the attributes `sim/core/spelldata/attributes.go` reads; the
 `SpellMisc` query shows the rest, such as "not usable in combat" (word 0, `0x10000000`). The Wowhead Forever
-tooltip shows the values scaled to level, which the `$s1`-style tooltip text does not.
+tooltip shows the values scaled to level, which the `$s1`-style tooltip text does not. Read the subject skill's
+`references/` folder (`rulings.md`, or the traps file where there is none; `wowsims-spells` names the subject skills),
+before judging a number the row does not decide.
 
 Then make three comparisons for each spell:
 
@@ -81,44 +82,36 @@ Then make three comparisons for each spell:
 
 ## 4. Rules the rows cannot show
 
-Each of these has a section in `references/defects.md`.
+The first seven have a section in `references/defects.md`.
 
-- **Core's order.** `cast.go` runs `applyEffects` before `OnCastComplete`, and a proc trigger's handler runs
-  inside `applyEffects` only with `TriggerImmediately`; without it, which is how `spelldata.ProcTrigger`
-  builds one, the handler runs a `SpellBatchWindow` later. Which of the two a buff's proc is decides whether
-  an `OnCastComplete` handler sees the cast that procced it, so a claim about order is proven at runtime,
-  never by reading the call order alone.
-- **What a cast spends, and when.** Check combo points, extra energy, and miss refunds independently:
-  Ferocious Bite retains combo points on failure but consumes its energy. A one-charge buff is consumed
-  by the cast it modifies. Use the row's `MissRefund()` unless verified spell-specific behavior differs.
-- **What scales.** A tick that should scale with stacks or combo points; a row's `PointsPerResource`; a flat
-  weapon bonus, which is added before the weapon percent multiplies it.
-- **How many targets.** An area effect (`Effect.HitsAnArea()`, `Spell.MaxTargets`) hits every enemy, and a
-  `SPELLMOD_JUMP_TARGETS` or tooltip "up to $s3 targets" is the total, not the extra.
-- **What the row forbids.** A form or stance requirement, the weapon or shield the row needs and the "not
-  usable in combat" bit, which `CastRequirement` enforces and `ExtraCastCondition` never restates.
-- **Hooks.** Each hook is attached once, on every path that needs it (every attack that breaks stealth, a
-  queued swing wired into the auto attacks for every spec that registers it), and not re-attached on each
-  iteration's reset.
-- **Whose state.** An effect on several targets reads each hit target's auras, not the primary target's; a
-  tagged aura counts only this caster's; a map read for a key it may lack does not default to 0.
+- **Core's order.** Check whether an `OnCastComplete` handler sees the cast that procced it, proven at runtime;
+  the mechanic is in `wowsims-core-mechanics` `## Cast order`.
+- **What a cast spends, and when.** Check combo points, energy and the miss refund one by one, and that a
+  one-charge buff goes with the cast it modifies; `wowsims-core-mechanics` `## What a cast spends`.
+- **What scales.** Check a tick against stacks and combo points, `PointsPerResource` and a flat weapon bonus;
+  `wowsims-core-mechanics` `## What scales`.
+- **How many targets.** Check that an area effect hits every enemy and an "up to" count is the total;
+  `wowsims-core-mechanics` `## How many targets`.
+- **What the row forbids.** Check that `ExtraCastCondition` restates no form, stance, weapon, shield or combat
+  requirement; `wowsims-core-mechanics` `## What the row forbids`.
+- **Hooks.** Check each hook is attached once, at registration, on every path that needs it;
+  `wowsims-core-mechanics` `## Hooks`.
+- **Whose state.** Check a multi-target effect reads each hit target, a tag counts only this caster's auras and a
+  missing map key is not 0; `wowsims-core-mechanics` `## Whose state`.
+- **What a preset line sees.** Check that a line reading something the running cast's landing changes
+  carries `not(Spell Is Casting(X))` (`wowsims-apl` `## Timing`), and that its cast counts were judged as
+  `wowsims-apl` `## Presets` says.
 
 ## 5. Tests
 
-- **Tests test logic, not data.** Outside `sim/<class>/`, a test asserts what an effect does (what it
-  modifies, when it fires, what it spends, how it scales), so a game build or hotfix that changes an amount
-  leaves it green and only a change in behaviour turns it red. Expected values come from the raw row
-  (`spelldata.MustFind(id).EffectN(i)`), not the generated accessor the production path reads, or a parse that
-  drops an effect still passes. A data precondition pins the column on a row copy (`editRow` in
-  `sim/common/shared/spell_data_heal_proc_test.go`, `withRows` in `sim/core/spelldata/spelldata_test.go`),
-  never `t.Skip`, so the test cannot pass while checking nothing. Test names and messages quote no game-file
-  numbers. A literal like `want 7` or `between 185 and 215` is a finding.
+- **Logic, not data.** Check each test the change adds or edits against `wowsims-testing` `## What a test asserts`.
 - **The class suites run** with no `t.Skip`, and a Forever talent string and gear set.
-- **The .results files carry the spell ids the change touches:** `grep <id> sim/<class>/*.results`. A file
-  that cannot move proves nothing.
-- **The cast counts are possible:** 18 Prowls, 9 Pounces and 9 Ravages in one 180-second iteration say an
-  opener repeats all fight.
-- **A moved .results file has one isolated cause per move,** found by reverting one change at a time.
+- **The suite can see the change.** Check its `.results` or a runtime print carries the spell the change touches;
+  `wowsims-testing` `## .results discipline`.
+- **The cast counts are possible.** Check them against the fight length and each spell's cooldown;
+  `wowsims-testing` `## .results discipline`.
+- **Each moved .results file has its own cause.** Check each move was isolated; `wowsims-testing`
+  `## .results discipline`.
 
 ## 6. Verify every finding
 
@@ -133,7 +126,9 @@ A finding with none is dropped, and so is one the evidence contradicts; list it 
 findings" instead. A finding about when something happens (an order, a consumption, a refund) needs the
 runtime print: reading the call order is how a withdrawn finding got posted. A suggested fix is applied in a
 worktree and passes `go vet --tags=with_db ./sim/<class>/` (or the UI gates), and the number it claims is
-printed at runtime before it is posted ("Checked: `maxEnergy=110` at rank 2").
+printed at runtime before it is posted ("Checked: `maxEnergy=110` at rank 2"). Findings and their fixes are checked
+on the PR head merged with origin/master, comparing `.results.tmp` at the merge with and without the fixes, since a
+master database update can change a row with no textual conflict.
 
 ## 7. Report
 
@@ -157,6 +152,16 @@ After the findings, two lists: **checked, not findings** (what was examined and 
 that stay**, each with its reason. On a self-review, fix the findings, rerun the gates, and put both lists in
 the PR body.
 
-The review ends with the `humanizer:humanizer` skill when the harness knows it: run it over the review text,
-the comments to post, and any PR body, commit message or code comment the review added or rewrote, before
-anything is posted or pushed. The rewrite changes prose only; findings, numbers, code and paths stay.
+The review ends with the `humanizer` skill: run it over the review text, the comments to post, and any PR body,
+commit message or code comment the review added or rewrote, before anything is posted or pushed. When the
+harness does not know the skill, run `npm run skills:install` first; it installs the skill for the agents on
+this machine. The rewrite changes prose only; findings, numbers, code and paths stay.
+
+## Keeping this skill true
+
+The code is right where this skill and the code disagree; fix the skill in the same change. The "You changed →
+Update" table and the path check are in `references/maintenance.md`.
+
+A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+to this skill, not a second copy.

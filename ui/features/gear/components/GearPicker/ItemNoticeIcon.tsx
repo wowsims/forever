@@ -13,9 +13,10 @@ export interface ItemNoticeIconViewProps {
 }
 
 export const ItemNoticeIconView = ({ level, children }: ItemNoticeIconViewProps) => (
-	<div className="relative z-1 inline">
+	<div className="relative z-1 flex items-center">
 		<NoticeIcon
 			level={level}
+			size="1x"
 			label={i18n.t(level === 'info' ? 'common.list_picker.additional_information' : 'common.list_picker.warnings')}
 			className="mr-2">
 			{children}

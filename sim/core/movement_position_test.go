@@ -25,6 +25,38 @@ func TestWalkPositionIsCurrentAtEveryEvent(t *testing.T) {
 	}
 }
 
+// A timed walk covers its distance in its own time, not at the run speed, and a speed change on the
+// way leaves its arrival alone.
+func TestTimedWalk(t *testing.T) {
+	sim, fc := setupSwingResetSim(t) // at 0 yd, one second in
+	start := sim.CurrentTime
+	fc.MoveToOver(12, time.Second, sim)
+	fc.WaitUntil(sim, NeverExpires)
+
+	seen := map[time.Duration]float64{}
+	look := func(at time.Duration, then func(*Simulation)) {
+		sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{
+			DoAt: start + at,
+			OnAction: func(sim *Simulation) {
+				seen[at] = fc.DistanceFromTarget
+				then(sim)
+			},
+		}))
+	}
+	look(time.Millisecond*500, func(sim *Simulation) { fc.MultiplyMovementSpeed(sim, 3) })
+	look(time.Millisecond*900, func(*Simulation) {})
+	stepSwingSim(t, sim, start+time.Second+time.Millisecond)
+
+	for at, expected := range map[time.Duration]float64{time.Millisecond * 500: 6, time.Millisecond * 900: 10.8} {
+		if math.Abs(seen[at]-expected) > 1e-9 {
+			t.Fatalf("expected %.1f yd after %v, got %.4f", expected, at, seen[at])
+		}
+	}
+	if fc.DistanceFromTarget != 12 || fc.Moving {
+		t.Fatalf("expected the walk done at 12 yd after 1s, got %.2f yd and moving %v", fc.DistanceFromTarget, fc.Moving)
+	}
+}
+
 // A walk across melee range stops or starts the melee swings on the line. The rotation is parked, as
 // under a GCD, so nothing else asks for the position on the way.
 func TestWalkAcrossMeleeRange(t *testing.T) {

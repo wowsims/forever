@@ -105,7 +105,8 @@ func (druid *Druid) applyOvergrowth() {
 
 var naturesGraceBuff = spellData.NaturesGraceTriggered.Highest()
 
-// A non-periodic spell crit grants cast speed and a shorter global cooldown for 3 seconds.
+// A non-periodic spell crit grants cast speed and a shorter global cooldown for 3 seconds. Nothing
+// spends the buff, and a global cooldown under it takes both the cast speed and the 10% cut (1.227 s).
 func (druid *Druid) applyNaturesGrace() {
 	if !druid.Talents.NaturesGrace {
 		return
@@ -122,6 +123,9 @@ func (druid *Druid) applyNaturesGrace() {
 	// only once the hit resolves. The direct hit and heal callbacks leave the periodic ones out. The
 	// buff comes a spell batch after the crit, so a cast that starts as the crit lands, such as the
 	// one queued behind a Starfire, is not hasted.
+	// TODO: Ingame research needed once characters reach level 60 -- whether a Hurricane tick crit
+	// grants it. Each tick is its own direct hit here and procs it, the way Blizzard's ticks roll
+	// Fingers of Frost in the logs.
 	trigger.Name = "Nature's Grace - Trigger"
 	trigger.Callback = core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt
 	trigger.Outcome = core.OutcomeCrit
@@ -149,6 +153,7 @@ func (druid *Druid) applyEclipse() {
 		Kind:       core.SpellMod_CastTime_Flat,
 		TimeValue:  rank.EffectN(2).TimeValue(),
 	})
+	// Every Starfire cast spends a charge, a missed one included.
 	aura.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 		if spellData.Starfire.Contains(spell) {
 			aura.RemoveStack(sim)

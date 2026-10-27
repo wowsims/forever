@@ -148,7 +148,7 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 		Talents:       &proto.WarriorTalents{},
 		WarriorInputs: inputs,
 	}
-	core.FillTalentsProto(warrior.Talents.ProtoReflect(), talents, TalentTreeSizes)
+	warrior.FillTalentsProto(warrior.Talents.ProtoReflect(), talents, TalentTreeSizes)
 
 	warrior.EnableRageBar(core.RageBarOptions{
 		MaxRage:            100,

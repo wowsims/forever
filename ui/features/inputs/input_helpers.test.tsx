@@ -9,6 +9,7 @@ import {
 	makeBooleanIconInput,
 	makeClassOptionsBooleanIconInput,
 	makeClassOptionsEnumIconInput,
+	makeRotationEnumIconInput,
 	makeSpecOptionsEnumIconInput,
 	makeTristateIconInput,
 } from './input_helpers';
@@ -93,6 +94,7 @@ describe('icon input factories', () => {
 			makeClassOptionsBooleanIconInput<any>({ ...frameProps, fieldName: 'primary' as never, id: ActionId.fromSpellId(1) }),
 		makeClassOptionsEnumIconInput: () => makeClassOptionsEnumIconInput<any, number>({ ...frameProps, fieldName: 'primary' as never, values: [] }),
 		makeSpecOptionsEnumIconInput: () => makeSpecOptionsEnumIconInput<any, number>({ ...frameProps, fieldName: 'primary' as never, values: [] }),
+		makeRotationEnumIconInput: () => makeRotationEnumIconInput<any, number>({ ...frameProps, fieldName: 'primary' as never, values: [] }),
 	};
 
 	// react-tooltip resolves anchors document-wide by id, so two pickers sharing one leaves every

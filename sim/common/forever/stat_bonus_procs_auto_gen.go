@@ -70,7 +70,7 @@ func RegisterAllProcs() {
 	// equip: 27225 keeps 27208 up (A_MOD_BASE_RESISTANCE_PCT)
 	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27225},
 	//	[]shared.ItemVariant{
-	//	{ItemID: 22060, ItemName: "Beastmaster's Tunic"},
+	//	{ItemID: 226886, ItemName: "Beastmaster's Tunic"},
 	// })
 
 	// Deals 7 Fire damage to anyone who strikes you with a melee attack.
@@ -89,20 +89,12 @@ func RegisterAllProcs() {
 			{ItemID: 18815, ItemName: "Essence of the Pure Flame"},
 		})
 
-	// Increases your pet's maximum health by 3%.
-	// https://www.wowhead.com/forever/spell=27038
-	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
+	// Spell Damage received is reduced by 10.
+	// https://www.wowhead.com/forever/spell=27518
+	// equip: 27518 (A_MOD_DAMAGE_TAKEN)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27518},
 		[]shared.ItemVariant{
-			{ItemID: 22013, ItemName: "Beastmaster's Cap"},
-		})
-
-	// Increases your pet's critical strike chance by 2%.
-	// https://www.wowhead.com/forever/spell=27043
-	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
-		[]shared.ItemVariant{
-			{ItemID: 22015, ItemName: "Beastmaster's Gloves"},
+			{ItemID: 22191, ItemName: "Obsidian Mail Tunic"},
 		})
 
 	// Increases damage dealt by your pet by 3%.
@@ -110,15 +102,23 @@ func RegisterAllProcs() {
 	// equip: 27206 keeps 27205 up (A_MOD_DAMAGE_PERCENT_DONE)
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27206},
 		[]shared.ItemVariant{
-			{ItemID: 22061, ItemName: "Beastmaster's Boots"},
+			{ItemID: 226881, ItemName: "Beastmaster's Treads"},
 		})
 
-	// Spell Damage received is reduced by 10.
-	// https://www.wowhead.com/forever/spell=27518
-	// equip: 27518 (A_MOD_DAMAGE_TAKEN)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27518},
+	// Increases your pet's critical strike chance by 2%.
+	// https://www.wowhead.com/forever/spell=27043
+	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
 		[]shared.ItemVariant{
-			{ItemID: 22191, ItemName: "Obsidian Mail Tunic"},
+			{ItemID: 226883, ItemName: "Beastmaster's Gauntlets"},
+		})
+
+	// Increases your pet's maximum health by 3%.
+	// https://www.wowhead.com/forever/spell=27038
+	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
+		[]shared.ItemVariant{
+			{ItemID: 226887, ItemName: "Beastmaster's Cap"},
 		})
 
 	// When struck in combat, inflicts 3 Nature damage to the attacker.
@@ -601,36 +601,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Increases the damage absorbed by your Mana Shield by 285.
-	// https://www.wowhead.com/forever/spell=23037
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 16487, ItemName: "Blood Guard's Silk Gloves"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases the duration of your Sprint ability by 3.0 sec.
-	// https://www.wowhead.com/forever/spell=23049
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 16498, ItemName: "Blood Guard's Leather Treads"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases the speed of your Ghost Wolf ability by 15%.
 	// https://www.wowhead.com/forever/spell=22801
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -803,21 +773,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 17608, ItemName: "Marshal's Satin Gloves"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Gives you a 50% chance to avoid interruption caused by damage while casting Mind Blast.
-	// https://www.wowhead.com/forever/spell=23043
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 17617, ItemName: "Blood Guard's Satin Gloves"},
 	// })
 
 	// TODO: Manual implementation required
@@ -1387,21 +1342,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Gives you a 50% chance to avoid interruption caused by damage while casting Mind Blast.
-	// https://www.wowhead.com/forever/spell=23043
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 22869, ItemName: "Blood Guard's Satin Handwraps"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases the damage absorbed by your Mana Shield by 285.
 	// https://www.wowhead.com/forever/spell=23037
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -1517,6 +1457,21 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 191312, ItemName: "Failsafe Phylactery"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// On landing a killing blow that grants experience or honor, your next attack will critically strike.
+	// https://www.wowhead.com/forever/spell=418509
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 208222, ItemName: "Old Guard Retaliator"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2905,12 +2860,14 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Gnomish Turban of Psychic Might: "Resist Silence 10" (26208) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=26208
-	// Not simulated: Darkmantle Boots: "Stealth 08" (27037) - ignored aura type 154
-	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Blood Guard's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Darkmantle Cap: "Stealth 08" (27037) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=27037
+	// Not simulated: Darkmantle Footpads: "Stealth 05" (1293068) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=1293068
 	// Not simulated: Premier Kodohide Gauntlets: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Premier Champion's Dragonhide Gloves: "Stealth Detection 10" (23217) - ignored aura type 17

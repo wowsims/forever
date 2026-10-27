@@ -41,6 +41,13 @@ export const applyBuild = (
 		if (epWeights) simUI.player.setEpWeights(epWeights.epWeights);
 		if (settings) {
 			if (settings.race) simUI.player.setRace(settings.race);
+			if (settings.playerOptions?.enableItemSwap !== undefined && settings.playerOptions?.itemSwap) {
+				simUI.player.itemSwapSettings.setItemSwapSettings(
+					settings.playerOptions.enableItemSwap,
+					simUI.sim.db.lookupItemSwap(settings.playerOptions.itemSwap),
+					Stats.fromProto(settings.playerOptions.itemSwap.prepullBonusStats),
+				);
+			}
 			if (settings.consumables) simUI.player.setConsumes(settings.consumables);
 			if (settings.playerOptions?.profession1) simUI.player.setProfession1(settings.playerOptions.profession1);
 			if (settings.playerOptions?.profession2) simUI.player.setProfession2(settings.playerOptions.profession2);
@@ -52,13 +59,6 @@ export const applyBuild = (
 			if (typeof settings.playerOptions?.reactionTimeMs === 'number') simUI.player.setReactionTime(settings.playerOptions.reactionTimeMs);
 			if (typeof settings.playerOptions?.channelClipDelayMs === 'number') simUI.player.setChannelClipDelay(settings.playerOptions.channelClipDelayMs);
 			if (typeof settings.playerOptions?.inFrontOfTarget === 'boolean') simUI.player.setInFrontOfTarget(settings.playerOptions.inFrontOfTarget);
-			if (settings.playerOptions?.enableItemSwap !== undefined && settings.playerOptions?.itemSwap) {
-				simUI.player.itemSwapSettings.setItemSwapSettings(
-					settings.playerOptions.enableItemSwap,
-					simUI.sim.db.lookupItemSwap(settings.playerOptions.itemSwap),
-					Stats.fromProto(settings.playerOptions.itemSwap.prepullBonusStats),
-				);
-			}
 			if (settings.specOptions) {
 				simUI.player.setSpecOptions({
 					...simUI.player.getSpecOptions(),

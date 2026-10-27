@@ -121,7 +121,7 @@ func (ai *MovementAI) ExecuteCustomRotation(sim *core.Simulation) {
 			pa.Priority = core.ActionPriorityPrePull + 1
 
 			pa.OnAction = func(sim *core.Simulation) {
-				player.MoveDuration(duration, sim)
+				player.MoveDurationByHand(duration, sim)
 			}
 
 			sim.AddPendingAction(pa)
@@ -131,7 +131,7 @@ func (ai *MovementAI) ExecuteCustomRotation(sim *core.Simulation) {
 			// 	return
 			// }
 		} else {
-			player.MoveDuration(duration, sim)
+			player.MoveDurationByHand(duration, sim)
 		}
 	}
 

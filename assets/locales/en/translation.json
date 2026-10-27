@@ -27,8 +27,11 @@
 			"addon": "Get the Exporter addon"
 		},
 		"footer": {
-			"copyright": "© 2021-{{year}} WoWSims team",
-			"disclaimer": "A fan-made project, not affiliated with Blizzard Entertainment."
+			"copyright": "© {{startYear}}-{{year}} {{holder}}",
+			"disclaimer": "A fan-made project, not affiliated with Blizzard Entertainment.",
+			"sims": "Sims",
+			"addon": "Addon",
+			"patreon": "Patreon"
 		}
 	},
 	"common": {
@@ -306,12 +309,14 @@
 		},
 		"copy_button": {
 			"default_text": "Copy to Clipboard",
-			"copied": "Copied"
+			"copied": "Copied",
+			"manual_copy": "The browser blocked the clipboard. Copy the text below by hand."
 		},
 		"list_picker": {
 			"new_item": "New {{itemLabel}}",
 			"delete_item": "Delete {{itemLabel}}",
 			"copy_to_new": "Copy to New {{itemLabel}}",
+			"copy_to_clipboard": "Copy {{itemLabel}} to Clipboard",
 			"move_drag_drop": "Move (Drag+Drop)",
 			"item_actions": "{{itemLabel}} menu",
 			"warnings": "Warnings",
@@ -387,6 +392,7 @@
 			"shoot": "Shoot",
 			"refund": "Refund",
 			"moving": "Moving",
+			"moving_from_spell": "Moving (from a spell)",
 			"prepull": "Prepull",
 			"encounter_start": "Encounter Start",
 			"minor_run_speed": "Minor Run Speed (8%)",
@@ -417,6 +423,8 @@
 			"crit": "Crit",
 			"agi": "Agi",
 			"damage": "Damage",
+			"attuned": "Attuned",
+			"charged": "Charged",
 			"wasted": "Wasted",
 			"raid": "raid",
 			"queue": "Queue",
@@ -829,6 +837,12 @@
 			"cannot_shred_target": {
 				"label": "Cannot Shred Target",
 				"tooltip": "Alternative to \"In Front of Target\" for modeling bosses that do not Parry or Block, but which you still cannot Shred."
+			},
+			"innervate_assignment": {
+				"label": "Innervate",
+				"tooltip": "Self keeps the mana. Someone else still casts Innervate on your rotation, and the mana stays off you.",
+				"self": "Self",
+				"other": "Someone else"
 			},
 			"show_1h_weapons": {
 				"label": "1H",
@@ -1342,8 +1356,21 @@
 					"overview": "Groups of actions that can be referenced in the Action Priority List (APL). Useful for organizing your APL and reusing common action sequences. Actions are performed in order from top to bottom within a group."
 				}
 			},
+			"clipboard": {
+				"copied": "{{itemName}} copied to the clipboard.",
+				"empty": "The clipboard holds no copied {{itemName}}.",
+				"paste_dialog": {
+					"label": "Copied text",
+					"description": "This page cannot read the clipboard. Paste the copied text here with Ctrl+V."
+				},
+				"places": {
+					"action": "the Priority List or a group's actions"
+				},
+				"wrong_kind": "The clipboard holds a copied {{held}}. Paste it under {{places}}."
+			},
 			"floatingActionBar": {
 				"new": "New {{itemName}}",
+				"paste": "Paste {{itemName}}",
 				"reset": "Reset APL"
 			},
 			"nameModal": {
@@ -1549,6 +1576,8 @@
 					"tooltip": "Starts a move to the desired range from target.",
 					"to_range": "to Range",
 					"to_range_tooltip": "Desired range from target.",
+					"recheck": "Re-check while moving",
+					"recheck_tooltip": "Looks again every reaction time while walking: stops where you are once the condition is false, and turns to the new range when it changes. The rest of the rotation keeps going meanwhile.",
 					"move_duration": "Move duration",
 					"duration": "Duration",
 					"duration_tooltip": "Amount of time the character should move.",
@@ -1790,6 +1819,14 @@
 					"label": "Spell Known",
 					"tooltip": "<b>True</b> if the spell is currently known, otherwise <b>False</b>."
 				},
+				"talent_known": {
+					"label": "Talent Known",
+					"tooltip": "<b>True</b> if the talent has at least the chosen rank, otherwise <b>False</b>."
+				},
+				"talent_rank": {
+					"label": "Talent Rank",
+					"tooltip": "The rank the player holds in the talent, <b>0</b> without points."
+				},
 				"current_cost": {
 					"label": "Current Cost",
 					"tooltip": "Returns current resource cost of spell"
@@ -1798,6 +1835,11 @@
 					"label": "Can Cast",
 					"tooltip": "<b>True</b> if all requirements for casting the spell are currently met, otherwise <b>False</b>.",
 					"full_description": "<p>The <b>Cast Spell</b> action does not need to be conditioned on this, because it applies this check automatically.</p>"
+				},
+				"in_range": {
+					"label": "In Range",
+					"tooltip": "<b>True</b> if you stand within the spell's range, otherwise <b>False</b>.",
+					"full_description": "<p>Checks the distance only: no closer than the spell's minimum range and no farther than its maximum, range talents included. A bow, gun or crossbow shot's minimum range is the dead zone, so Arcane Shot being in range means your Auto Shot can fire from here.</p>"
 				},
 				"is_hit_capped": {
 					"label": "Is Hit Capped",
@@ -1828,6 +1870,10 @@
 				"cpm": {
 					"label": "CPM",
 					"tooltip": "Casts Per Minute for the spell so far in the current iteration."
+				},
+				"is_casting": {
+					"label": "Is Casting",
+					"tooltip": "<b>True</b> if this spell is currently being cast, otherwise <b>False</b>. The rotation picks its next spell at the cast end, before this one lands, so this guards lines that read what the spell will do. A channel is <b>Is Channeling</b>."
 				},
 				"is_channeling": {
 					"label": "Is Channeling",
@@ -1875,7 +1921,7 @@
 				},
 				"aura_active": {
 					"label": "Aura Active",
-					"tooltip": "<b>True</b> if the aura is currently active, otherwise <b>False</b>. With reaction time, a proc only counts once it has been up for the player reaction time (configured in Settings), and your own auras still count for that long after they run out."
+					"tooltip": "<b>True</b> if the aura is currently active AND it has been active for at least as long as the player reaction time (configured in Settings), otherwise <b>False</b>."
 				},
 				"aura_active_with_reaction_time": {
 					"label": "[DEPRECATED] Aura Active (with Reaction Time)",
@@ -2003,6 +2049,14 @@
 				"warlock_assigned_curse_is_active": {
 					"label": "Assigned Curse Is Active",
 					"tooltip": "Returns true is assigned curse is active on target"
+				},
+				"warlock_assigned_curse_is_active_on_all_targets": {
+					"label": "Assigned Curse Is Active On All Targets",
+					"tooltip": "<b>True</b> while your assigned curse is on every target, otherwise <b>False</b>. With no curse assigned it is <b>False</b>."
+				},
+				"warlock_bane_is_active_on_all_targets": {
+					"label": "Bane Is Active On All Targets",
+					"tooltip": "<b>True</b> while one of your Banes (Agony, Doom or Havoc) is on every target, otherwise <b>False</b>. A target holds one Bane at a time."
 				},
 				"warlock_is_assigned_curse": {
 					"label": "Is Assigned Curse",
@@ -2159,7 +2213,8 @@
 				"variables": "Variables",
 				"groups": "Groups",
 				"heal_target": "Heal Target",
-				"group": "Group {{group}}"
+				"group": "Group {{group}}",
+				"stances": "Stances"
 			},
 			"item_swap_sets": {
 				"main": "Main",
@@ -2181,7 +2236,9 @@
 					"friendly_spells": "Friendly Spell",
 					"expected_dot_spells": "DoT Spell",
 					"expected_damage_spells": "Damage Spell",
-					"spells_with_travelTime": "Spell"
+					"spells_with_travelTime": "Spell",
+					"talents": "Talent",
+					"talent_ranks": "Talent"
 				},
 				"field_configs": {
 					"type": "Type",
@@ -2189,7 +2246,7 @@
 					"min_icd": "Min ICD",
 					"min_icd_tooltip": "If non-zero, filter out any procs that either lack an ICD or for which the ICD is smaller than the specified value (in seconds). This can be useful for certain snapshotting checks, since procs with low ICDs are often too weak to snapshot.",
 					"include_reaction_time": "Include Reaction Time",
-					"include_reaction_time_tooltip": "If checked, will use the configured <b>Input Delay</b>. For Aura Active, your own auras show up right away, but when they run out they only drop off after the delay.",
+					"include_reaction_time_tooltip": "If checked, will use the configured reaction time.",
 					"use_base_value": "Use base value",
 					"use_base_value_tooltip": "If checked, will compare the current DoT to the the base value (on encounter start) of the DoT.",
 					"variable_assignment_tooltip": "Value to assign to variable '{{variableName}}'"
@@ -2286,6 +2343,10 @@
 						"melee": "Melee"
 					}
 				},
+				"pull_range": {
+					"label": "Pull range (yd)",
+					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, melee range in melee), stopping for each Auto Shot you can fire on the way."
+				},
 				"time_to_weave": {
 					"label": "Time to weave (ms)",
 					"tooltip": "How long, in milliseconds, you stay in melee after the weave swing before walking back out. Never shorter than your input delay."
@@ -2309,6 +2370,31 @@
 				"use_hawk": {
 					"label": "Use Summon Hawk",
 					"tooltip": "Sends hawks between Arcane Shots, the two sharing a cooldown."
+				}
+			},
+			"paladin": {
+				"retribution": {
+					"aura": {
+						"label": "Aura",
+						"tooltip": "The aura you turn on before the pull."
+					},
+					"assigned_judge": {
+						"label": "Assigned judgement",
+						"tooltip": "The Judgement the raid assigned you. You cast it before the pull and judge it on your way in, then switch to your own seals. Leave it empty when no Judgement is assigned to you.",
+						"none": "No assigned judgement"
+					},
+					"non_twist_seal": {
+						"label": "Seal",
+						"tooltip": "The seal being kept up during the fight."
+					},
+					"pull_range": {
+						"label": "Starting range (yd)",
+						"tooltip": "Where you stand when the pull starts. From there you walk into melee range, judging on the way. Never less than {{min}} yd, one yard outside Judgement's range."
+					},
+					"delay_major_cds": {
+						"label": "Delay major cooldowns (s)",
+						"tooltip": "How many seconds into the fight to wait before trinkets and other cooldowns are used automatically."
+					}
 				}
 			},
 			"warrior": {
@@ -2355,6 +2441,8 @@
 			"healer_target": "Healer",
 			"heal_target_number": "Heal Target {{number}}",
 			"group_ranks": "Group ranks",
+			"show_apm_breakdown": "Show APM breakdown",
+			"pets": "Pets",
 			"damage": {
 				"dps_histogram": "DPS Histogram"
 			},
@@ -2818,6 +2906,7 @@
 				"off": "Off",
 				"firefox_note": "Too many workers can cause significant memory usage! If sim doesn't finish due to RAM running out use a lower number."
 			},
+			"restart_tour": "Restart Tour",
 			"restore_defaults": {
 				"button": "Restore Defaults",
 				"tooltip": "Restores all default settings (gear, consumes, buffs, talents, EP weights, etc). Saved settings are preserved.",
@@ -2828,6 +2917,158 @@
 		"native_sim_outdated": "Newer version of simulator available for download",
 		"forever_notice": "Forever sims are still changing rapidly and may have issues. If your results look wrong or your sim won't run, try restoring the default settings."
 	},
+		"onboarding": {
+			"label": "Tour",
+			"progress": "{{position}} / {{total}}",
+			"start": "Show me around",
+			"next": "Next",
+			"previous": "Back",
+			"skip": "Skip tour",
+			"skip_step": "Skip this step",
+			"finish": "Done",
+			"steps": {
+				"welcome": {
+					"title": "Welcome to WoWSims",
+					"body": "A short look around the page, from your gear to a finished sim. Move through it with the left and right arrow keys, or skip it any time; Sim Options can start it again."
+				},
+				"gear_tab": {
+					"title": "Gear",
+					"body": "This tab is your character's equipment: what you wear and the presets to start from."
+				},
+				"import": {
+					"title": "Import",
+					"body": "Bring in your character with the <addon>WoWSims Exporter addon</addon>, or a build from a link someone shared."
+				},
+				"gear_list": {
+					"title": "Your equipment",
+					"body": "Every slot with the item in it, its enchant and gems."
+				},
+				"gear_picker": {
+					"title": "Change an item",
+					"body": "Click a slot to open the gear picker. Choose the item there, then its enchant and gems."
+				},
+				"gear_presets": {
+					"title": "Gear sets",
+					"body": "Load a preset to start from, including sets from the community, or save your own and load it again later."
+				},
+				"enchants": {
+					"title": "Optimize enchants",
+					"body": "Let the sim choose your enchants for the best result. The cog next to it sets what it aims for."
+				},
+				"settings_tab": {
+					"title": "Settings",
+					"body": "Everything around your character for the sim: the fight, your race and professions, consumables, buffs and debuffs."
+				},
+				"encounter": {
+					"title": "Encounter",
+					"body": "The fight: how long it lasts, the target, and how much it varies."
+				},
+				"player": {
+					"title": "Player",
+					"body": "Your race, professions and the other things about your character that change the numbers."
+				},
+				"other": {
+					"title": "Spec settings",
+					"body": "Fight settings only this spec has."
+				},
+				"consumables": {
+					"title": "Consumables",
+					"body": "Potions, flasks, food and the rest you bring to the fight."
+				},
+				"buffs": {
+					"title": "Raid buffs and debuffs",
+					"body": "What your raid or party gives you, and the debuffs on the target."
+				},
+				"settings_presets": {
+					"title": "Save your settings",
+					"body": "Load a preset encounter or settings, or save your own and load them again later."
+				},
+				"talents_tab": {
+					"title": "Talents",
+					"body": "Pick your talents here, load a preset, or save your own build."
+				},
+				"rotation_tab": {
+					"title": "Rotation",
+					"body": "How the sim plays your character in the fight."
+				},
+				"rotation_auto": {
+					"title": "Automatic rotation",
+					"body": "Auto picks the community's best rotation for your talents, so most players can leave it as it is."
+				},
+				"rotation_type": {
+					"title": "Build your own",
+					"body": "Choose APL here to write your own rotation, action by action."
+				},
+				"rotation_presets": {
+					"title": "Preset rotations",
+					"body": "Click a preset to load a ready-made rotation. With APL selected, it shows the preset's full list of actions to read or change, and you can save your own here too."
+				},
+				"simulate": {
+					"title": "Run the sim",
+					"body": "Press Simulate to run the fight with everything you have set. The tour moves on by itself when the run finishes."
+				},
+				"result": {
+					"title": "Your result",
+					"body": "Your DPS from that run, and how much it varies from fight to fight. It updates every time you run the sim."
+				},
+				"results_tab": {
+					"title": "Results",
+					"body": "The details of the last run. Each tab shows one part of it."
+				},
+				"results_damage": {
+					"title": "Damage",
+					"body": "Damage by ability: how much each one did, how often it hit and crit."
+				},
+				"results_threat": {
+					"title": "Threat",
+					"body": "Threat by ability, for keeping the target on you or off you."
+				},
+				"results_healing": {
+					"title": "Healing",
+					"body": "Healing by ability."
+				},
+				"results_damage_taken": {
+					"title": "Damage taken",
+					"body": "What hit you, and how much of it you avoided."
+				},
+				"results_buffs": {
+					"title": "Buffs",
+					"body": "How often each buff was up on you."
+				},
+				"results_debuffs": {
+					"title": "Debuffs",
+					"body": "How often each debuff was up on the target."
+				},
+				"results_casts": {
+					"title": "Casts",
+					"body": "How many times you cast each ability."
+				},
+				"results_resources": {
+					"title": "Resources",
+					"body": "What you spent and gained, such as mana, rage or energy."
+				},
+				"results_timeline": {
+					"title": "Timeline",
+					"body": "One fight laid out over time: casts, buffs and resources."
+				},
+				"results_log": {
+					"title": "Log",
+					"body": "Every event of one fight, line by line."
+				},
+				"bulk_tab": {
+					"title": "Batch sim",
+					"body": "Sim many gear combinations at once to find the best of the items you have."
+				},
+				"stat_weights": {
+					"title": "Stat weights",
+					"body": "Work out how much each stat is worth to you, and set the weights the gear picker and enchant optimizer use."
+				},
+				"finish": {
+					"title": "You're set",
+					"body": "There is more to find on the page as you go. If you have a question or something looks wrong, ask us on <discord>Discord</discord>."
+				}
+			}
+		},
 	"sidebar": {
 		"iterations": "Iterations",
 		"warnings": {
@@ -3077,6 +3318,10 @@
 				"tps": {
 					"label": "TPS",
 					"tooltip": "Threat Per Second"
+				},
+				"apm": {
+					"label": "APM",
+					"tooltip": "Actions Per Minute: the spells, abilities and items the rotation uses by hand per minute, plus the walks the rotation or the encounter starts. Abilities that queue for the next swing, such as Heroic Strike, count once when pressed. Procs, auto attacks, walks a spell such as Charge starts, and pets are not counted."
 				},
 				"dtps": {
 					"label": "DTPS",

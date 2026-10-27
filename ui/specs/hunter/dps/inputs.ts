@@ -229,6 +229,12 @@ export const RotationInputs = {
 			],
 		}),
 		InputHelpers.makeRotationNumberInput<Spec.SpecHunter>({
+			fieldName: 'pullRange',
+			label: i18n.t('rotation_tab.options.hunter.pull_range.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.pull_range.tooltip'),
+			positive: true,
+		}),
+		InputHelpers.makeRotationNumberInput<Spec.SpecHunter>({
 			fieldName: 'timeToWeave',
 			label: i18n.t('rotation_tab.options.hunter.time_to_weave.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.time_to_weave.tooltip'),

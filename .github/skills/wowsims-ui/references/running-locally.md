@@ -76,6 +76,8 @@ with headless `playwright-core`. It is not a dependency of this repo, so use a l
 
 - Block `**/*wowhead.com/**` with `page.route` so tooltips and icons do not hang the page or redirect it.
 - Load with `waitUntil: 'load'` and then wait about 8 seconds; the page never reaches `networkidle`.
+- A fresh profile opens the onboarding tour, whose shield takes every click. Set the localStorage key `__forever_onboarding` to `skipped`
+  in `page.addInitScript` before the page loads.
 - Icon pickers open on hover, and their trigger is a Wowhead link, so a click navigates away. Hover, never click.
 - Screenshot the element (`locator.screenshot()`) rather than the page, and find it by its `data-testid`
   (`ui/STYLING.md` §5).
@@ -83,6 +85,10 @@ with headless `playwright-core`. It is not a dependency of this repo, so use a l
   browser.
 - To load a realistic build, edit the page's `…__currentSettings__` localStorage key, or paste an
   `IndividualSimSettings` JSON into Import → JSON, and reload.
+- A spec's preset builds are chips under `[data-testid=saved-data-presets]`. Every tab renders its own copy and only
+  the open tab's is visible, so pick with `filter({ visible: true })`.
+- Healer specs are gear planning only and run no sim, so show a healing metric on Shadow Priest with Discipline
+  talents; the mage registers only its highest ranks, so show rank grouping with Shadow Priest Smite.
 
 Compare against a build of the parent commit on a second port rather than a remembered element count.
 

@@ -1,9 +1,17 @@
 import { ReforgeSettings as ReforgeSettingsProto } from '@generated/proto/api';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
+import { ConsumesSpec, ItemSlot } from '@generated/proto/common';
 import type { PresetBuild } from '@sim/presets/types';
-import { describe, expect, it, vi } from 'vitest';
+import { DENSE_SHARPENING_STONE_ID } from '@sim/proto/sim_tables_auto_gen';
+import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { swapSet, SWORD, weaponsDatabase } from '@testing/sim/weapons';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { applyBuild } from './apply_build';
+
+vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
+
+beforeAll(() => serveDatabase(weaponsDatabase()));
 
 const setAplRotation = vi.fn();
 const modifyAplRotation = vi.fn((modify: (rotation: APLRotation) => void) => modify(live));
@@ -102,5 +110,26 @@ describe('applyBuild reforge settings', () => {
 
 		expect(applyPresetSettings).toHaveBeenCalledWith(reforgeSettings);
 		expect(fromProto).not.toHaveBeenCalled();
+	});
+});
+
+describe('applyBuild item swap settings', () => {
+	it("keeps a swap stone for the settings' swap weapon when the live swap set has none", async () => {
+		const { player, host } = await makeIndividualSim();
+
+		applyBuild(
+			{
+				name: 'Swap',
+				settings: {
+					name: 'Swap',
+					consumables: ConsumesSpec.create({ swapMhImbueId: DENSE_SHARPENING_STONE_ID }),
+					playerOptions: { enableItemSwap: true, itemSwap: swapSet({ mainHand: SWORD }) },
+				},
+			},
+			host,
+		);
+
+		expect(player.itemSwapSettings.getItem(ItemSlot.ItemSlotMainHand)?.item.id).toBe(SWORD);
+		expect(player.getConsumes().swapMhImbueId).toBe(DENSE_SHARPENING_STONE_ID);
 	});
 });

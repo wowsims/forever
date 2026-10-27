@@ -1,7 +1,16 @@
 import { GroupList } from '@features/apl/components/GroupList';
 import { PriorityPane } from '@features/apl/components/PriorityPane';
 import { VariablesList } from '@features/apl/components/VariablesList';
-import { APLAction, APLGroup, APLListItem, APLPrepullAction, APLRotation, APLValue, APLValueCompare_ComparisonOperator as Op } from '@generated/proto/apl';
+import {
+	APLAction,
+	APLActionMove,
+	APLGroup,
+	APLListItem,
+	APLPrepullAction,
+	APLRotation,
+	APLValue,
+	APLValueCompare_ComparisonOperator as Op,
+} from '@generated/proto/apl';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { withAplHost } from '@testing/storybook/fixtures/apl';
 import { expect, fireEvent, waitFor, within } from 'storybook/test';
@@ -18,7 +27,10 @@ const wait = (val: string) => APLAction.create({ action: { oneofKind: 'wait', wa
 const threeLevels = () =>
 	APLRotation.create({
 		prepullActions: [
-			APLPrepullAction.create({ action: { action: { oneofKind: 'move', move: { rangeFromTarget: constant('5') } } }, doAtValue: constant('-2s') }),
+			APLPrepullAction.create({
+				action: { action: { oneofKind: 'move', move: APLActionMove.create({ rangeFromTarget: constant('5') }) } },
+				doAtValue: constant('-2s'),
+			}),
 		],
 		priorityList: [
 			APLListItem.create({

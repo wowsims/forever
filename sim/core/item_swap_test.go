@@ -11,7 +11,7 @@ import (
 )
 
 func TestOnUseBuffDropsWhenItsItemIsSwappedOff(t *testing.T) {
-	const onUseMaceID, plainMaceID, hasteSpellID int32 = 990901, 990902, 990903
+	const onUseMaceID, plainMaceID, hasteSpellID int32 = 990911, 990912, 990913
 
 	// A swap in combat changes only the weapon slots, so the on-use is on a weapon.
 	twoHander := func(id int32) *proto.SimItem {

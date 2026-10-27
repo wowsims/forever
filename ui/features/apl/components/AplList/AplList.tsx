@@ -101,16 +101,18 @@ export interface AplItemActionsProps {
 	/** The translated singular the copy and delete labels name. */
 	label: string;
 	onCopy?: () => void;
+	/** Copies the item as text that a paste in any rotation reads back. */
+	onCopyToClipboard?: () => void;
 	onExtract?: () => void;
 	/** Read when the menu opens: the entry shows only for an item that holds a value to extract. */
 	canExtract?: () => boolean;
 	onDelete?: () => void;
-	/** The entries' testids are `${testIdPrefix}-copy`, `-extract` and `-delete`. */
+	/** The entries' testids are `${testIdPrefix}-copy`, `-clipboard`, `-extract` and `-delete`. */
 	testIdPrefix?: string;
 }
 
-/** The menu entries an APL item offers, in a fixed order: copy, extract to a variable, delete. */
-export const AplItemActions = ({ label, onCopy, onExtract, canExtract, onDelete, testIdPrefix = 'apl-item' }: AplItemActionsProps) => (
+/** The menu entries an APL item offers, in a fixed order: copy, copy to the clipboard, extract to a variable, delete. */
+export const AplItemActions = ({ label, onCopy, onCopyToClipboard, onExtract, canExtract, onDelete, testIdPrefix = 'apl-item' }: AplItemActionsProps) => (
 	<>
 		{onCopy && (
 			<Tree.Item.Action
@@ -118,6 +120,14 @@ export const AplItemActions = ({ label, onCopy, onExtract, canExtract, onDelete,
 				icon="copy"
 				testId={`${testIdPrefix}-copy`}
 				onClick={onCopy}
+			/>
+		)}
+		{onCopyToClipboard && (
+			<Tree.Item.Action
+				label={i18n.t('common.list_picker.copy_to_clipboard', { itemLabel: label })}
+				icon="clipboard"
+				testId={`${testIdPrefix}-clipboard`}
+				onClick={onCopyToClipboard}
 			/>
 		)}
 		{onExtract && (canExtract?.() ?? true) && (

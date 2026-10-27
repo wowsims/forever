@@ -165,8 +165,9 @@ func (action *APLActionGroupReference) IsReady(sim *Simulation) bool {
 	}
 
 	// Check if any action in the group is ready
+	held := action.rot.unit.queuedSpellHoldsCasts(sim)
 	for _, groupAction := range action.group.actions {
-		if groupAction.IsReady(sim) {
+		if !(held && groupAction.heldByQueuedSpell(sim)) && groupAction.IsReady(sim) {
 			return true
 		}
 	}

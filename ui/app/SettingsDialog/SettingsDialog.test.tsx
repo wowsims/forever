@@ -242,4 +242,17 @@ describe('SettingsDialogView', () => {
 
 		expect(handlers.onApplyDefaults).toHaveBeenCalledTimes(1);
 	});
+
+	it('offers to restart the tour only where the page has one', () => {
+		const onRestartTour = vi.fn();
+		const { rerender } = render(<SettingsDialogView {...props()} />);
+		expect(screen.queryByRole('button', { name: 'info.options.restart_tour' })).toBeNull();
+
+		rerender(<SettingsDialogView {...props({ onRestartTour })} />);
+		act(() => {
+			fireEvent.click(screen.getByRole('button', { name: 'info.options.restart_tour' }));
+		});
+
+		expect(onRestartTour).toHaveBeenCalledTimes(1);
+	});
 });

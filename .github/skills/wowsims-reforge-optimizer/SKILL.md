@@ -50,7 +50,9 @@ change.
   whose item takes enchants but none the presets list is skipped as unlisted; a listed proc the sim implements,
   combat or survival, skips the slot for every spec; otherwise the candidates are exactly the listed static
   enchants, with no EP filter. With the option on and no preset checked, Optimize Enchants is disabled.
-- `proc_kind` comes from gen_db (`tools/database/dbc/enchant.go`, overrides in `enchantProcKindOverrides`).
+- `proc_kind` comes from gen_db (`tools/database/dbc/enchant.go`, overrides in `enchantProcKindOverrides`). Go
+  (`sim/core/reforge_optimizer/enchants.go`) applies the same static-or-proc rule as `enchant_options.ts`, so the two
+  change together, and a spec with empty EP weights gets almost no picks.
 
 ## Candidates and baseline: the Go side
 
@@ -130,3 +132,7 @@ The optimizer's Go tests use the class-free `sim/core/testagent` (registered as 
 `sheet_delta_test.go`, with that spec's gear sets from `ui/specs`); the ones that build gear need the `with_db`
 tag. For a change to
 what the request carries, run the optimizer against the dev server as well.
+
+A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill otherwise. A memory file is a pointer
+to this skill, not a second copy.

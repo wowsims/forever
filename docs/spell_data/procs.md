@@ -61,6 +61,8 @@ already running keeps its length.
 | `WeaponSpeedPPM(n)` | the same, on the main hand's speed as Seal of the Crusader leaves it: the seal's faster swings each carry 1/1.4 of the chance and haste leaves it alone. Vindication rolls it |
 | `Chance(f)`         | a rate the caller states outright, manager included                                                                                                                           |
 | `ChanceFrom(e)`     | the chance an effect states, for a `$mN` the generator could not resolve                                                                                                      |
+| `WeaponProc()`      | the listener of a chance-on-hit effect or combat enchant: every landed weapon hit, the weapon deciding which                                                                  |
+| `ItemProcChance(s)` | an item or enchant proc rolls the column where it contradicts the effect's chance (Uther's Light 8397)                                                                        |
 
 A trigger that ends with neither a chance nor a manager panics and names the spell, because a row with
 no stated rate never means a listener that fires on every qualifying hit. A procs-per-minute rate with
@@ -128,7 +130,9 @@ shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 7711, BuffSpe
 	})
 ```
 
-`NewSpellDataProc` is the same for a proc whose buff is an aura. The trigger's row supplies what the
+`NewSpellDataProc` is the same for a proc whose buff is an aura, and `NewSpellDataHealProc`,
+`NewSpellDataAbsorbProc`, `NewSpellDataDebuffProc` and `NewSpellDataExtraAttackProc` are the heal,
+absorb, debuff and extra-attack shapes. The trigger's row supplies what the
 listener hears, how often it fires and its internal cooldown. The buff's row supplies how long the buff
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
 scaling lives. `IsWeaponProc` states the one shape no row describes: the game

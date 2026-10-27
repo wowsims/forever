@@ -287,6 +287,10 @@ message TargetedActionMetrics {
 
 	// Values a class or spec records on this action, one entry per key.
 	repeated CustomActionMetric custom_metrics = 38;
+
+	// # of times the rotation or a major cooldown pressed this action on this target, so procs, swings and
+	// spells cast by other spells never count. A cleave counts once, on the target it was pressed on.
+	int32 manual_casts = 40;
 }
 
 // The outcome a range in TargetedActionMetrics.ranges covers. The resisted kinds are partial resists.
@@ -624,6 +628,7 @@ message AuraStats {
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
 	ActionCategory category = 5;
+	string menu_group = 6; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
 }
 message SpellStats {
 	ActionID id = 1;
@@ -644,6 +649,7 @@ message SpellStats {
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
 	ActionCategory category = 16;
+	string menu_group = 18; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
 }
 message APLValidation {
 	LogLevel log_level = 1;
@@ -669,6 +675,8 @@ message UnitMetadata {
 	string name = 3;
 	repeated SpellStats spells = 1;
 	repeated AuraStats auras = 2;
+	// The talents the unit has points in, each at the rank it holds.
+	repeated ActionID talents = 4;
 }
 message PetStats {
 	UnitMetadata metadata = 1;

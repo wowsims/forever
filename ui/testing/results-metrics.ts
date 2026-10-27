@@ -3,14 +3,14 @@ import { ActionMetrics as ActionMetricsProto, TargetedActionMetrics as TargetedA
 import { ActionID } from '@generated/proto/common';
 import { IconData } from '@generated/proto/ui';
 import { Database } from '@sim/proto/database';
-import { ActionMetrics } from '@sim/proto/sim_result';
+import { ActionMetrics, UnitMetrics } from '@sim/proto/sim_result';
 import { makeSimRun } from '@testing/storybook/fixtures/results';
 import { vi } from 'vitest';
 
 const NONE = { value: 0, percentage: 0, average: 0 };
 
 /**
- * An `ActionMetrics` stand-in carrying every field the damage, damage-taken, threat and healing
+ * An `ActionMetrics` stand-in carrying every field the damage, damage-taken, threat, healing and cast
  * tables read. `forTarget` returns the metric itself, so a filtered read sees the same numbers.
  */
 export const actionMetric = (name: string, overrides: Record<string, unknown> = {}): ActionMetrics => {
@@ -32,6 +32,7 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 		spellSchool: null,
 		casts: 10,
 		isPassiveAction: false,
+		manualCasts: 10,
 		landedHits: 10,
 		landedTicks: 0,
 		landedRolls: 10,
@@ -107,6 +108,7 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 		shielding: 40,
 		totalHealingPercent: 50,
 		castsPerMinute: 20,
+		manualCastsPerMinute: 20,
 		avgCastTimeMs: 1500,
 		avgCastHealing: 10,
 		avgHitHealing: 10,
@@ -151,6 +153,17 @@ export const playerMetricsResult =
 				],
 			},
 		}) as unknown as SimResultData;
+
+/** `playerMetricsResult` for the cast table, which reads the player's and the pet's `actions` lists and the player's real `apmActions`. */
+export const castMetricsResult = (actions: Array<ActionMetrics>, petActions: Array<ActionMetrics> = []) =>
+	({
+		filter: {},
+		result: {
+			getRaidIndexedPlayers: () => [
+				{ actions, apmActions: UnitMetrics.prototype.apmActions, pets: petActions.length ? [{ name: 'Wolf', actions: petActions }] : [] },
+			],
+		},
+	}) as unknown as SimResultData;
 
 export const metricRows = (container: HTMLElement) => [...container.querySelectorAll<HTMLTableRowElement>('tbody tr')];
 

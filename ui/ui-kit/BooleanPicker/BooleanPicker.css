@@ -18,7 +18,7 @@
 	.ui-boolean-picker-input {
 		@apply relative size-8 shrink-0 interactive rounded-none border border-surface-border bg-surface;
 
-		&:focus {
+		&:focus-visible {
 			@apply border-input-focus-border shadow-focus-checkbox outline-none;
 		}
 
@@ -31,7 +31,7 @@
 		}
 
 		&[aria-invalid='true'],
-		&[aria-invalid='true']:focus,
+		&[aria-invalid='true']:focus-visible,
 		&[aria-invalid='true'][data-checked] {
 			@apply border-danger;
 		}

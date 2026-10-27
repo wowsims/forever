@@ -1,6 +1,17 @@
 import { AuraStats as AuraStatsProto, SpellStats as SpellStatsProto, UnitMetadata as UnitMetadataProto } from '@generated/proto/api';
 import { Debuffs } from '@generated/proto/buffs';
-import { ActionID as ActionIdProto, Class, ConsumesSpec, ItemRandomSuffix, PseudoStat, Spec, Stat, WeaponType } from '@generated/proto/common';
+import {
+	ActionID as ActionIdProto,
+	Class,
+	ConsumesSpec,
+	ItemRandomSuffix,
+	PseudoStat,
+	Spec,
+	Stat,
+	WeaponSkill,
+	WeaponSkillValue,
+	WeaponType,
+} from '@generated/proto/common';
 import { UIItem as Item } from '@generated/proto/ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -45,6 +56,31 @@ describe('Player.setConsumes', () => {
 		expect([storedConsumes.mhImbueId, storedConsumes.ohImbueId, storedConsumes.swapMhImbueId, storedConsumes.swapOhImbueId]).toEqual([
 			12404, 12643, 12643, 12404,
 		]);
+	});
+});
+
+describe('Player.setWeaponSkills', () => {
+	// Against the store's weapon skills, as setConsumes above: the method reads `slice()` and writes through `patch`.
+	const withSkills = (skills: WeaponSkillValue[]) => {
+		let stored = skills;
+		const patch = vi.fn((_field: string, next: WeaponSkillValue[]) => {
+			stored = next;
+		});
+		const player = { slice: () => ({ weaponSkills: stored }), patch } as unknown as Player<any>;
+		return { set: (next: WeaponSkillValue[]) => Player.prototype.setWeaponSkills.call(player, next), patch, stored: () => stored };
+	};
+	const swords = (value: number) => WeaponSkillValue.create({ skill: WeaponSkill.WeaponSkillSwords, value });
+
+	it('changes a skill already set to another value', () => {
+		const skills = withSkills([swords(305)]);
+		skills.set([swords(310)]);
+		expect(skills.stored()).toEqual([swords(310)]);
+	});
+
+	it('writes nothing when the skills are the same', () => {
+		const skills = withSkills([swords(305)]);
+		skills.set([swords(305)]);
+		expect(skills.patch).not.toHaveBeenCalled();
 	});
 });
 

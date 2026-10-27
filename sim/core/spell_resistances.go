@@ -42,6 +42,11 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		return 1, OutcomeEmpty
 	}
 
+	// The roll's mean is the average resist, so an expected-damage call uses it without drawing.
+	if spell.expecting {
+		return 1 - averageResist, OutcomeEmpty
+	}
+
 	tenths := rollResistTenths(sim, math.Abs(averageResist))
 	if tenths == 0 {
 		return 1, OutcomeEmpty

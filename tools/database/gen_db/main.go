@@ -463,6 +463,8 @@ func ApplyGlobalFilters(db *database.WowDatabase) {
 		return true
 	})
 
+	database.DropLowerSameNameSets(db)
+
 	db.ItemIcons = core.FilterMap(db.ItemIcons, func(_ int32, icon *proto.IconData) bool {
 		return icon.Name != "" && icon.Icon != ""
 	})

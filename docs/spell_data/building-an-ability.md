@@ -37,13 +37,13 @@ caller gates on `sim.Encounter.InArea(row.AreaType())`. A group that is a single
 is needed for the cooldown timers, so a config is built where the sim has a character rather than at
 package init.
 
-|               |                                                                                                                                                                       |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Melee(mask)` | the proc mask, `SpellFlagMeleeMetrics` and `SpellFlagAPL`, damage and threat multipliers of 1, and `IgnoreHaste`                                                      |
-| `Magic(mask)` | the proc mask, `SpellFlagAPL`, the multipliers, and `BonusCoefficient` from the damage effect's spell power share, or the heal's where the spell damages nothing      |
-| `Proc()`      | `SpellFlagPassiveSpell` and `SpellFlagNoOnCastComplete`, clears `SpellFlagAPL`, and empties the cast (cast time, GCD, cooldowns), every cost and the cast requirement |
-| `Flags(f)`    | ors in flags the game files do not state                                                                                                                              |
-| `Tag(n)`      | splits one spell id into several actions                                                                                                                              |
+|               |                                                                                                                                                                        |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Melee(mask)` | the proc mask, `SpellFlagMeleeMetrics` and `SpellFlagAPL`, a damage multiplier of 1, a threat multiplier of 1 (0 on a row that generates no threat), and `IgnoreHaste` |
+| `Magic(mask)` | the proc mask, `SpellFlagAPL`, the multipliers, and `BonusCoefficient` from the damage effect's spell power share, or the heal's where the spell damages nothing       |
+| `Proc()`      | `SpellFlagPassiveSpell` and `SpellFlagNoOnCastComplete`, clears `SpellFlagAPL`, and empties the cast (cast time, GCD, cooldowns), every cost and the cast requirement  |
+| `Flags(f)`    | ors in flags the game files do not state                                                                                                                               |
+| `Tag(n)`      | splits one spell id into several actions                                                                                                                               |
 
 The row is filled first and the options run on top in the order given, so an option sees what the row
 put there.
@@ -109,6 +109,16 @@ leave the form.
   whose row allows Defensive Stance.
 - A form spell (subtext "Shapeshift") is a single-rank ladder like a warrior stance, so
   `spellData.CatForm` exists.
+
+## Filing it in the APL picker
+
+The APL cast-spell and aura pickers file an entry under its category (`Cooldowns`, `Consumables`,
+`Talents`, ...), else under `Spell` or the top level. To file it in a submenu of its own, set `MenuGroup`
+on the `core.SpellConfig` or `core.Aura` to a lowercase_underscore key and add the label under
+`rotation_tab.apl.submenus.<key>` in the locale and its schema. The group wins over the category and is
+listed first. Nothing sets a group by default, and a spell and its aura are filed apart, so set it on
+each, and on every rank of a ranked spell. The warrior's stances (`sim/warrior/stances.go`) are filed
+under `Stances` this way.
 
 ## The three shapes a registration takes
 

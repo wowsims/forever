@@ -54,9 +54,9 @@ message {{$class}}Talents {
     // {{$tab.Name}}
 {{- range $talent := $tab.Talents }}
     {{- if eq $talent.MaxPoints 1 }}
-    bool {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }};
+    bool {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }} [(talent_spell_id) = {{ $talent.SpellID }}];
     {{- else }}
-    int32 {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }};
+    int32 {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }} [(talent_spell_id) = {{ $talent.SpellID }}];
     {{- end }}
 {{- end }}
 {{- end }}

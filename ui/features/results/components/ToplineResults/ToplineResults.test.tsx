@@ -30,6 +30,7 @@ const resultFor = (spec: unknown) =>
 					tto: dist(30),
 					chanceOfDeath: dist(1),
 					secondsOomAvg: 4,
+					actionsPerMinute: () => 42,
 				},
 			],
 			getRaidIndexedActionMetrics: () => [],
@@ -64,6 +65,7 @@ describe('ToplineResults', () => {
 		expect([...container.querySelectorAll('th')].map(cell => cell.getAttribute('data-metric'))).toEqual([
 			'dps',
 			'tps',
+			'apm',
 			'dtps',
 			'tmi',
 			'cod',

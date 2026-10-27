@@ -74,6 +74,7 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 
 		resultColumns.push(column('dps', dpsMetrics.avg, { stdev: dpsMetrics.stdev }));
 		resultColumns.push(column('tps', tpsMetrics.avg, { stdev: tpsMetrics.stdev }));
+		resultColumns.push(column('apm', playerMetrics.actionsPerMinute(filter)));
 		resultColumns.push(column('dtps', dtpsMetrics.avg, { stdev: dtpsMetrics.stdev }));
 
 		resultColumns.push(column('tmi', tmiMetrics.avg, { stdev: tmiMetrics.stdev, unit: 'percentage' }));
@@ -88,6 +89,7 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 			const { dps, tps } = ActionMetrics.merge(actions);
 			resultColumns.push(column('dps', dps));
 			resultColumns.push(column('tps', tps));
+			resultColumns.push(column('apm', playerMetrics.actionsPerMinute(filter)));
 		}
 
 		const targetActions = simResult

@@ -69,8 +69,9 @@ const ARMS_PRESET_OPTIONS = {
 // the second ring have no known source.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
 
-// The best build found on the Pre-BiS Fury gear over a three minute fight.
-export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30305013002-25053005052010501' }));
+// The best build on the Pre-BiS Fury gear over fights of 60 to 240 s. Enrage takes no points: with no tank
+// assigned the boss attacks no one, so the sim gives it no value.
+export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30305213002-15053105102210501' }));
 
 // Measured on the Pre-BiS Fury gear with the Fury talents.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(

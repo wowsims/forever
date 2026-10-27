@@ -1,3 +1,5 @@
+//go:build with_db
+
 package retribution
 
 import (

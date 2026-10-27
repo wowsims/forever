@@ -32,6 +32,7 @@ const initialBulkSlice = (): BulkSlice => ({
 	encounters: [],
 	combinations: 0,
 	iterations: 0,
+	combinationsError: null,
 	combinationsPending: false,
 	isRunning: false,
 	started: false,

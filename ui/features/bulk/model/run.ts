@@ -102,11 +102,22 @@ const calculateBulkCombinations = async (host: IndividualSimHost<any>) => {
 		const bulkSettings = bulkRequestSettings(player);
 		const combinationCountResult = await sim.getBulkCombinationCount(bulkSettings);
 
+		// A selection that gives no combination is the user's to change, shown beside the count, not a crash: the count
+		// runs again on every edit, so a crash here would alert on each one.
 		if (combinationCountResult.error) {
-			throw new Error(combinationCountResult.error.message || i18n.t('bulk_tab.notifications.combinations_failed'));
+			patchBulkState(player, {
+				combinations: 0,
+				iterations: 0,
+				combinationsError: combinationCountResult.error.message || i18n.t('bulk_tab.notifications.combinations_failed'),
+			});
+			return;
 		}
 
-		patchBulkState(player, { combinations: combinationCountResult.combinations, iterations: combinationCountResult.iterations });
+		patchBulkState(player, {
+			combinations: combinationCountResult.combinations,
+			iterations: combinationCountResult.iterations,
+			combinationsError: null,
+		});
 	} catch (e) {
 		host.handleCrash(e);
 	}

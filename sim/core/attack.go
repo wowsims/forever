@@ -540,6 +540,7 @@ func (unit *Unit) EnableAutoAttacks(agent Agent, options AutoAttackOptions) {
 		DefenseType: DefenseTypeMelee,
 		ProcMask:    Ternary(options.ProcMask == ProcMaskUnknown, ProcMaskMeleeMHAuto, options.ProcMask),
 		Flags:       SpellFlagMeleeMetrics | SpellFlagIncludeTargetBonusDamage | SpellFlagNoOnCastComplete,
+		MaxRange:    MaxMeleeRange,
 
 		DamageMultiplier:         1,
 		DamageMultiplierAdditive: 1,
@@ -565,6 +566,7 @@ func (unit *Unit) EnableAutoAttacks(agent Agent, options AutoAttackOptions) {
 		DefenseType: DefenseTypeMelee,
 		ProcMask:    Ternary(options.ProcMask == ProcMaskUnknown, ProcMaskMeleeOHAuto, options.ProcMask),
 		Flags:       SpellFlagMeleeMetrics | SpellFlagIncludeTargetBonusDamage | SpellFlagNoOnCastComplete,
+		MaxRange:    MaxMeleeRange,
 
 		DamageMultiplier:         1,
 		DamageMultiplierAdditive: 1,

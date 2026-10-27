@@ -64,6 +64,7 @@
 @import '../features/results/components/LogRunner/LogRunner.css';
 @import '../features/stat-weights/components/EpWeightsDialog/EpWeightsDialog.css';
 @import '../features/talents/components/TalentsPicker/TalentPicker.css';
+@import '../features/onboarding/components/OnboardingTour/OnboardingTour.css';
 
 @import '../app/header/SimTitleDropdown/SimTitleDropdown.css';
 @import '../app/landing/Landing.css';

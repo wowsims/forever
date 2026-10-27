@@ -7,6 +7,14 @@ const renderCount = (props: Partial<CombinationsCountViewProps> = {}) =>
 	render(<CombinationsCountView pending={false} combinations={12} iterations={24000} iterationsLimit={50000} encounters={1} {...props} />);
 
 describe('CombinationsCountView', () => {
+	it('says why the selection gives no combination, once the count is in', () => {
+		renderCount({ combinations: 0, iterations: 0, error: 'no equippable pair of items available for grouped bulk slot 11' });
+		expect(screen.getByTestId('bulk-combinations-error').textContent).toBe('no equippable pair of items available for grouped bulk slot 11');
+		cleanup();
+		renderCount({ pending: true, error: 'stale' });
+		expect(screen.queryByTestId('bulk-combinations-error')).toBeNull();
+	});
+
 	it('shows a spinner in place of both numbers while the count is pending', () => {
 		renderCount({ pending: true });
 

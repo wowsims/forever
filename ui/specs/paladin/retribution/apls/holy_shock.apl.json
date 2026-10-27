@@ -3,95 +3,57 @@
 	"prepullActions": [
 		{
 			"action": {
-				"castSpell": { "spellId": { "spellId": 10301, "rank": 5 } }
+				"groupReference": { "groupName": "Activate assigned aura" }
 			},
-			"doAtValue": { "const": { "val": "-10s" } }
+			"doAtValue": { "const": { "val": "-20s" } }
 		},
 		{
 			"action": {
-				"castSpell": { "spellId": { "spellId": 20308, "rank": 6 } }
+				"move": {
+					"rangeFromTarget": {
+						"variableRef": { "name": "Pull range" }
+					}
+				}
+			},
+			"doAtValue": { "const": { "val": "-20s" } }
+		},
+		{
+			"action": {
+				"condition": {
+					"not": {
+						"val": {
+							"variableRef": { "name": "Has assigned judgement" }
+						}
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 20293, "rank": 8 } }
+			},
+			"doAtValue": { "const": { "val": "-1.5s" } }
+		},
+		{
+			"action": {
+				"condition": { "variableRef": { "name": "Has assigned judgement" } },
+				"groupReference": { "groupName": "Cast assigned judgement" }
 			},
 			"doAtValue": { "const": { "val": "-1.5s" } }
 		}
 	],
 	"priorityList": [
-		{ "action": { "autocastOtherCooldowns": {} } },
+		{ "action": { "groupReference": { "groupName": "Move to melee" } } },
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGe",
+						"lhs": { "currentTime": {} },
+						"rhs": { "variableRef": { "name": "Delay Major CDs" } }
+					}
+				},
+				"autocastOtherCooldowns": {}
+			}
+		},
+		{ "action": { "groupReference": { "groupName": "MCP swap" } } },
 		{ "action": { "castSpell": { "spellId": { "spellId": 20271 } } } },
-		{
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"spellIsKnown": {
-									"spellId": { "itemId": 9449 }
-								}
-							},
-							{
-								"auraIsInactive": {
-									"auraId": { "spellId": 13494 },
-									"includeReactionTime": true
-								}
-							},
-							{ "activeItemSwapSet": { "swapSet": "Main" } },
-							{
-								"cmp": {
-									"op": "OpGt",
-									"lhs": {
-										"spellTimeToReady": {
-											"spellId": { "itemId": 9449 }
-										}
-									},
-									"rhs": { "const": { "val": "40s" } }
-								}
-							}
-						]
-					}
-				},
-				"itemSwap": { "swapSet": "Swap1" }
-			}
-		},
-		{
-			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"spellIsKnown": {
-									"spellId": { "itemId": 9449 }
-								}
-							},
-							{
-								"auraIsInactive": {
-									"auraId": { "spellId": 13494 },
-									"includeReactionTime": true
-								}
-							},
-							{ "activeItemSwapSet": { "swapSet": "Swap1" } },
-							{
-								"cmp": {
-									"op": "OpLe",
-									"lhs": {
-										"spellTimeToReady": {
-											"spellId": { "itemId": 9449 }
-										}
-									},
-									"rhs": { "const": { "val": "32s" } }
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpGt",
-									"lhs": { "remainingTime": {} },
-									"rhs": { "const": { "val": "35s" } }
-								}
-							}
-						]
-					}
-				},
-				"itemSwap": { "swapSet": "Main" }
-			}
-		},
 		{
 			"action": {
 				"castSpell": { "spellId": { "spellId": 20924, "rank": 5 } }
@@ -135,40 +97,6 @@
 		},
 		{
 			"action": {
-				"condition": {
-					"and": {
-						"vals": [
-							{
-								"cmp": {
-									"op": "OpLt",
-									"lhs": {
-										"auraRemainingTime": {
-											"auraId": {
-												"spellId": 20293,
-												"rank": 8
-											}
-										}
-									},
-									"rhs": {
-										"autoTimeToNext": {
-											"autoType": "MainHandAuto"
-										}
-									}
-								}
-							},
-							{
-								"auraIsInactive": {
-									"auraId": { "spellId": 20293, "rank": 8 }
-								}
-							}
-						]
-					}
-				},
-				"castSpell": { "spellId": { "spellId": 20293, "rank": 8 } }
-			}
-		},
-		{
-			"action": {
 				"castSpell": { "spellId": { "spellId": 10333, "rank": 8 } }
 			}
 		},
@@ -179,35 +107,12 @@
 						"vals": [
 							{
 								"spellIsReady": {
-									"spellId": { "spellId": 20930, "rank": 4 }
+									"spellId": { "spellId": 25902, "rank": 4 }
 								}
 							},
 							{
-								"or": {
-									"vals": [
-										{
-											"not": {
-												"val": {
-													"auraIsKnown": {
-														"sourceUnit": {
-															"type": "CurrentTarget"
-														},
-														"auraId": {
-															"spellId": 1310905
-														}
-													}
-												}
-											}
-										},
-										{
-											"auraIsActive": {
-												"sourceUnit": {
-													"type": "CurrentTarget"
-												},
-												"auraId": { "spellId": 1310905 }
-											}
-										}
-									]
+								"variableRef": {
+									"name": "Consecrated Ground check"
 								}
 							}
 						]
@@ -219,35 +124,482 @@
 		{
 			"action": {
 				"condition": {
-					"or": {
-						"vals": [
-							{
-								"not": {
-									"val": {
-										"auraIsKnown": {
-											"sourceUnit": {
-												"type": "CurrentTarget"
-											},
-											"auraId": { "spellId": 1310905 }
-										}
-									}
-								}
-							},
-							{
-								"auraIsActive": {
-									"sourceUnit": { "type": "CurrentTarget" },
-									"auraId": { "spellId": 1310905 }
-								}
-							}
-						]
-					}
+					"variableRef": { "name": "Consecrated Ground check" }
 				},
-				"castSpell": { "spellId": { "spellId": 20930, "rank": 4 } }
+				"castSpell": { "spellId": { "spellId": 25902, "rank": 4 } }
 			}
 		},
 		{
 			"action": {
 				"castSpell": { "spellId": { "spellId": 10314, "rank": 6 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": { "name": "Should refresh SoR" }
+				},
+				"castSpell": { "spellId": { "spellId": 20293, "rank": 8 } }
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Activate assigned aura",
+			"actions": [
+				{
+					"action": {
+						"castSpell": {
+							"spellId": { "spellId": 10301, "rank": 5 }
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cast assigned judgement",
+			"actions": [
+				{
+					"action": {
+						"castSpell": {
+							"spellId": { "spellId": 20308, "rank": 6 }
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Move to melee",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Has assigned judgement"
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"sequenceIsComplete": {
+													"sequenceName": "move to melee"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"sequence": {
+							"name": "move to melee",
+							"actions": [
+								{
+									"move": {
+										"rangeFromTarget": {
+											"variableRef": {
+												"name": "Melee range"
+											}
+										}
+									}
+								},
+								{
+									"waitUntil": {
+										"condition": {
+											"spellInRange": {
+												"spellId": { "spellId": 20271 }
+											}
+										}
+									}
+								},
+								{
+									"castSpell": {
+										"spellId": { "spellId": 20271 }
+									}
+								},
+								{
+									"castSpell": {
+										"spellId": {
+											"spellId": 20293,
+											"rank": 8
+										}
+									}
+								},
+								{
+									"waitUntil": {
+										"condition": {
+											"spellInRange": {
+												"spellId": {
+													"spellId": 10333,
+													"rank": 8
+												}
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Has assigned judgement"
+												}
+											}
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"sequenceIsComplete": {
+													"sequenceName": "move to melee 2"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"sequence": {
+							"name": "move to melee 2",
+							"actions": [
+								{
+									"move": {
+										"rangeFromTarget": {
+											"variableRef": {
+												"name": "Melee range"
+											}
+										}
+									}
+								},
+								{
+									"waitUntil": {
+										"condition": {
+											"spellInRange": {
+												"spellId": {
+													"spellId": 20924,
+													"rank": 5
+												}
+											}
+										}
+									}
+								},
+								{
+									"castSpell": {
+										"spellId": {
+											"spellId": 20924,
+											"rank": 5
+										}
+									}
+								},
+								{
+									"waitUntil": {
+										"condition": {
+											"spellInRange": {
+												"spellId": {
+													"spellId": 10333,
+													"rank": 8
+												}
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MCP swap",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"variableRef": { "name": "Should swap from MCP" }
+						},
+						"itemSwap": { "swapSet": "Swap1" }
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": { "name": "Should swap to MCP" }
+						},
+						"itemSwap": { "swapSet": "Main" }
+					}
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "Has assigned judgement",
+			"value": { "const": { "val": "true" } }
+		},
+		{ "name": "Delay Major CDs", "value": { "const": { "val": "0s" } } },
+		{ "name": "Pull range", "value": { "const": { "val": "25" } } },
+		{ "name": "Melee range", "value": { "const": { "val": "5" } } },
+		{
+			"name": "Should swap",
+			"value": {
+				"and": {
+					"vals": [
+						{ "spellIsKnown": { "spellId": { "itemId": 9449 } } },
+						{
+							"auraIsInactive": {
+								"auraId": { "spellId": 13494 },
+								"includeReactionTime": true
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"autoTimeSinceLast": {
+										"autoType": "MainHandAuto"
+									}
+								},
+								"rhs": { "const": { "val": "0.1s" } }
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Should swap from MCP",
+			"value": {
+				"and": {
+					"vals": [
+						{ "variableRef": { "name": "Should swap" } },
+						{ "activeItemSwapSet": { "swapSet": "Main" } },
+						{
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"spellTimeToReady": {
+										"spellId": { "itemId": 9449 }
+									}
+								},
+								"rhs": { "const": { "val": "40s" } }
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Should swap to MCP",
+			"value": {
+				"and": {
+					"vals": [
+						{ "variableRef": { "name": "Should swap" } },
+						{ "activeItemSwapSet": { "swapSet": "Swap1" } },
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"spellTimeToReady": {
+										"spellId": { "itemId": 9449 }
+									}
+								},
+								"rhs": { "const": { "val": "32s" } }
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGt",
+								"lhs": { "remainingTime": {} },
+								"rhs": { "const": { "val": "35s" } }
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Should refresh SoR",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"auraIsInactive": {
+								"auraId": { "spellId": 20293, "rank": 8 }
+							}
+						},
+						{
+							"and": {
+								"vals": [
+									{
+										"cmp": {
+											"op": "OpLe",
+											"lhs": {
+												"auraRemainingTime": {
+													"auraId": {
+														"spellId": 20293,
+														"rank": 8
+													}
+												}
+											},
+											"rhs": { "const": { "val": "10s" } }
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGe",
+											"lhs": {
+												"spellTimeToReady": {
+													"spellId": {
+														"spellId": 20924,
+														"rank": 5
+													}
+												}
+											},
+											"rhs": {
+												"spellGcdHastedDuration": {
+													"spellId": {
+														"spellId": 20293,
+														"rank": 8
+													}
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGe",
+											"lhs": {
+												"spellTimeToReady": {
+													"spellId": {
+														"spellId": 25902,
+														"rank": 4
+													}
+												}
+											},
+											"rhs": {
+												"spellGcdHastedDuration": {
+													"spellId": {
+														"spellId": 20293,
+														"rank": 8
+													}
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGe",
+											"lhs": {
+												"spellTimeToReady": {
+													"spellId": {
+														"spellId": 10333,
+														"rank": 8
+													}
+												}
+											},
+											"rhs": {
+												"spellGcdHastedDuration": {
+													"spellId": {
+														"spellId": 20293,
+														"rank": 8
+													}
+												}
+											}
+										}
+									},
+									{
+										"or": {
+											"vals": [
+												{
+													"and": {
+														"vals": [
+															{
+																"not": {
+																	"val": {
+																		"targetIsMobType": {
+																			"mobType": "MobTypeUndead"
+																		}
+																	}
+																}
+															},
+															{
+																"not": {
+																	"val": {
+																		"targetIsMobType": {
+																			"mobType": "MobTypeDemon"
+																		}
+																	}
+																}
+															}
+														]
+													}
+												},
+												{
+													"cmp": {
+														"op": "OpGe",
+														"lhs": {
+															"spellTimeToReady": {
+																"spellId": {
+																	"spellId": 10314,
+																	"rank": 6
+																}
+															}
+														},
+														"rhs": {
+															"spellGcdHastedDuration": {
+																"spellId": {
+																	"spellId": 20293,
+																	"rank": 8
+																}
+															}
+														}
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Consecrated Ground check",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"not": {
+								"val": {
+									"talentIsKnown": {
+										"talentId": {
+											"spellId": 1310905,
+											"rank": 1
+										}
+									}
+								}
+							}
+						},
+						{
+							"auraIsActive": {
+								"sourceUnit": { "type": "CurrentTarget" },
+								"auraId": { "spellId": 1280353 }
+							}
+						}
+					]
+				}
 			}
 		}
 	]

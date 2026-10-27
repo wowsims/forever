@@ -2,63 +2,66 @@ syntax = "proto3";
 package proto;
 
 option go_package = "./proto";
+
+import "common.proto";
+
 // DO NOT REMOVE THE COMMENTS
 // BEGIN GENERATED
 // ShamanTalents message.
 message ShamanTalents {
     // Elemental
-    int32 convection = 1;
-    int32 concussion = 2;
-    int32 elemental_devastation = 3;
-    int32 reverberation = 4;
-    int32 elemental_alacrity = 5;
-    int32 call_of_flame = 6;
-    bool elemental_focus = 7;
-    int32 elemental_warding = 8;
-    int32 trial_by_fire = 9;
-    int32 eye_of_the_storm = 10;
-    bool earthbound = 11;
-    int32 elemental_reach = 12;
-    bool lava_burst = 13;
-    int32 lightning_overload = 14;
-    int32 elemental_fury = 15;
-    bool elemental_mastery = 16;
+    int32 convection = 1 [(talent_spell_id) = 16039];
+    int32 concussion = 2 [(talent_spell_id) = 16035];
+    int32 elemental_devastation = 3 [(talent_spell_id) = 30160];
+    int32 reverberation = 4 [(talent_spell_id) = 16040];
+    int32 elemental_alacrity = 5 [(talent_spell_id) = 16578];
+    int32 call_of_flame = 6 [(talent_spell_id) = 16038];
+    bool elemental_focus = 7 [(talent_spell_id) = 16164];
+    int32 elemental_warding = 8 [(talent_spell_id) = 28996];
+    int32 trial_by_fire = 9 [(talent_spell_id) = 16086];
+    int32 eye_of_the_storm = 10 [(talent_spell_id) = 29062];
+    bool earthbound = 11 [(talent_spell_id) = 1222988];
+    int32 elemental_reach = 12 [(talent_spell_id) = 28999];
+    bool lava_burst = 13 [(talent_spell_id) = 408490];
+    int32 lightning_overload = 14 [(talent_spell_id) = 408438];
+    int32 elemental_fury = 15 [(talent_spell_id) = 16089];
+    bool elemental_mastery = 16 [(talent_spell_id) = 16166];
     // Enhancement
-    int32 earths_grasp = 17;
-    int32 thundering_strikes = 18;
-    int32 ancestral_knowledge = 19;
-    int32 guardian_totems = 20;
-    int32 mental_dexterity = 21;
-    int32 improved_ghost_wolf = 22;
-    int32 improved_lightning_shield = 23;
-    int32 elemental_weapons = 24;
-    bool shamanistic_focus = 25;
-    int32 anticipation = 26;
-    int32 toughness = 27;
-    int32 flurry = 28;
-    bool stormstrike = 29;
-    bool spirit_weapons = 30;
-    int32 mental_quickness = 31;
-    int32 improved_stormstrike = 32;
-    int32 maelstrom_weapon = 33;
-    bool rage_of_the_farseer = 34;
+    int32 earths_grasp = 17 [(talent_spell_id) = 16043];
+    int32 thundering_strikes = 18 [(talent_spell_id) = 16255];
+    int32 ancestral_knowledge = 19 [(talent_spell_id) = 17485];
+    int32 guardian_totems = 20 [(talent_spell_id) = 16258];
+    int32 mental_dexterity = 21 [(talent_spell_id) = 415140];
+    int32 improved_ghost_wolf = 22 [(talent_spell_id) = 16262];
+    int32 improved_lightning_shield = 23 [(talent_spell_id) = 16261];
+    int32 elemental_weapons = 24 [(talent_spell_id) = 16266];
+    bool shamanistic_focus = 25 [(talent_spell_id) = 1223030];
+    int32 anticipation = 26 [(talent_spell_id) = 16254];
+    int32 toughness = 27 [(talent_spell_id) = 16252];
+    int32 flurry = 28 [(talent_spell_id) = 16256];
+    bool stormstrike = 29 [(talent_spell_id) = 17364];
+    bool spirit_weapons = 30 [(talent_spell_id) = 16268];
+    int32 mental_quickness = 31 [(talent_spell_id) = 30812];
+    int32 improved_stormstrike = 32 [(talent_spell_id) = 1223031];
+    int32 maelstrom_weapon = 33 [(talent_spell_id) = 408498];
+    bool rage_of_the_farseer = 34 [(talent_spell_id) = 425336];
     // Restoration
-    int32 improved_healing_wave = 35;
-    int32 tidal_focus = 36;
-    int32 mindfulness = 37;
-    int32 natural_grace = 38;
-    int32 totemic_focus = 39;
-    int32 improved_reincarnation = 40;
-    int32 ancestral_healing = 41;
-    int32 healing_focus = 42;
-    bool water_shield = 43;
-    int32 tidal_mastery = 44;
-    int32 restorative_totems = 45;
-    bool mana_tide_totem = 46;
-    int32 healing_way = 47;
-    bool natures_swiftness = 48;
-    int32 purification = 49;
-    bool riptide = 50;
+    int32 improved_healing_wave = 35 [(talent_spell_id) = 16182];
+    int32 tidal_focus = 36 [(talent_spell_id) = 16179];
+    int32 mindfulness = 37 [(talent_spell_id) = 1223033];
+    int32 natural_grace = 38 [(talent_spell_id) = 29187];
+    int32 totemic_focus = 39 [(talent_spell_id) = 16173];
+    int32 improved_reincarnation = 40 [(talent_spell_id) = 16184];
+    int32 ancestral_healing = 41 [(talent_spell_id) = 16176];
+    int32 healing_focus = 42 [(talent_spell_id) = 16181];
+    bool water_shield = 43 [(talent_spell_id) = 408510];
+    int32 tidal_mastery = 44 [(talent_spell_id) = 16194];
+    int32 restorative_totems = 45 [(talent_spell_id) = 16187];
+    bool mana_tide_totem = 46 [(talent_spell_id) = 16190];
+    int32 healing_way = 47 [(talent_spell_id) = 29206];
+    bool natures_swiftness = 48 [(talent_spell_id) = 16188];
+    int32 purification = 49 [(talent_spell_id) = 16178];
+    bool riptide = 50 [(talent_spell_id) = 408521];
 }
 
 // END GENERATED

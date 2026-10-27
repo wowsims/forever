@@ -158,6 +158,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			spec == DpsWarriorSpec.DpsWarriorSpecFury ? Presets.FURY_DEFAULT_ROTATION.rotation.rotation! : Presets.ARMS_DEFAULT_ROTATION.rotation.rotation!,
 		);
 
+		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
+		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.
 		const recklessnessAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action.action.groupReference.groupName === 'Recklessness ON/OFF',
 		);
@@ -168,6 +170,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (stanceDanceAction) stanceDanceAction.hide = !useStanceDance;
 
+		// Help stacks to 5 and leaves the rest to the raid, restacking once the debuff falls off even with no raid Sunder;
+		// Maintain also refreshes; None casts none. Stacking and refreshing stay separate groups so the option can split them.
 		const sunderArmorAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Sunder Armor',
 		);
@@ -188,6 +192,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (rendWeaveAction) rendWeaveAction.hide = !useRend;
 
+		// Hamstring is woven for Windfury procs only while Windfury Totem is known: Fury below Overpower weaving, Arms above
+		// Execute while the Windfury buff is down.
 		const hamstringWeaveAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Hamstring Weave ON/OFF',
 		);

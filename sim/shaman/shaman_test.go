@@ -76,6 +76,61 @@ func TestFireNovaHitsAreProcs(t *testing.T) {
 	}
 }
 
+// The cast deals no damage, so the results show Fire Nova as its hit's row, which holds every cast
+// and its GCD; the cast's row holds neither, so no table counts a Fire Nova twice.
+func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
+	const fireNova, searingTotem = 408345, 10438
+	castSpell := func(id int32) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{
+			SpellId: &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: id}},
+		}}}}
+	}
+	player := &proto.Player{
+		Name:          "Fire Nova",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassShaman,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: enhancementTalents,
+		Spec:          &proto.Player_EnhancementShaman{EnhancementShaman: &proto.EnhancementShaman{Options: &proto.EnhancementShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
+		Rotation:      &proto.APLRotation{PriorityList: []*proto.APLListItem{castSpell(fireNova), castSpell(searingTotem)}},
+	}
+	result := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
+	})
+	if result.Error != nil {
+		t.Fatalf("the sim failed: %s", result.Error.Message)
+	}
+
+	var cast, hits *proto.ActionMetrics
+	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
+		if action.Id.GetSpellId() != fireNova {
+			continue
+		}
+		switch action.Id.Tag {
+		case 0:
+			cast = action
+		case 1:
+			hits = action
+		}
+	}
+	if cast == nil || hits == nil {
+		t.Fatalf("Fire Nova's cast %v, its hits %v; want both in the results", cast, hits)
+	}
+	if hits.IsPassive {
+		t.Error("Fire Nova's hits report as passive, so the results show no casts for them")
+	}
+	if casts, castTime := cast.Targets[0].Casts, cast.Targets[0].CastTimeMs; casts != 0 || castTime != 0 {
+		t.Errorf("Fire Nova's cast row holds %d casts and %v ms of cast time; want none", casts, castTime)
+	}
+	// Each Fire Nova is instant and takes a 1.5 s GCD.
+	hitCasts, castTime := hits.Targets[0].Casts, hits.Targets[0].CastTimeMs
+	if hitCasts == 0 || castTime != float64(hitCasts)*1500 {
+		t.Errorf("Fire Nova's hits hold %d casts and %v ms of cast time; want 1500 ms a cast, above 0 casts", hitCasts, castTime)
+	}
+}
+
 // Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
 // maximum mana, one globe every few seconds; a spell that does not crit spends none.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {

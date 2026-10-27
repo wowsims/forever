@@ -571,7 +571,8 @@ func (spell *Spell) DealPeriodicDamage(sim *Simulation, result *SpellResult) {
 }
 
 // Fires the caster's OnCastResult for a direct result, once per result. A missile deals it at its cast;
-// any other direct result as it is dealt.
+// any other direct result as it is dealt. A tick or a heal never deals it, and a proc that comes off
+// the cast's hit roll listens here (CallbackOnCastResult with TriggerImmediately).
 func (spell *Spell) DealCastResult(sim *Simulation, result *SpellResult) {
 	if result.castResultDealt {
 		return

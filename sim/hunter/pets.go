@@ -78,12 +78,11 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 
 	hp := &HunterPet{
 		Pet: core.NewPet(core.PetConfig{
-			Name:                  family.Name,
-			Owner:                 &hunter.Character,
-			BaseStats:             petBaseStats,
-			StatInheritance:       hunter.makeStatInheritance(),
-			EnabledOnStart:        true,
-			StartsAtOwnerDistance: true,
+			Name:            family.Name,
+			Owner:           &hunter.Character,
+			BaseStats:       petBaseStats,
+			StatInheritance: hunter.makeStatInheritance(),
+			EnabledOnStart:  true,
 		}),
 		hunterOwner: hunter,
 		family:      family,
@@ -107,19 +106,23 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
 // them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power, the owner's
-// higher crit (inheritedCrit), the owner's higher hit and the owner's expertise, the armor, attack
-// power and crit read on a level 17 pet sheet at two gear states. Not linear, so the pet snapshots them;
-// registerStatInheritance says when.
+// higher crit (inheritedCrit), the owner's ranged hit, 17/8 of it as spell hit, and the owner's
+// expertise, the armor, attack power and crit read on a level 17 pet sheet at two gear states. Not
+// linear, so the pet snapshots them; registerStatInheritance says when.
 // TODO: The health a point of Stamina is not read; see petBaseStats.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
+		hit := inheritedHit(ownerStats)
+
 		return stats.Stats{
 			stats.Health:              ownerStats[stats.Stamina] * 2,
 			stats.Armor:               ownerStats[stats.Armor] * 0.3,
 			stats.AttackPower:         max(ownerStats[stats.AttackPower], ownerStats[stats.RangedAttackPower]) * 0.1,
 			stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats),
-			// The owner's hit whole, the higher of melee and ranged, as crit is.
-			stats.PhysicalHitPercent: max(0, ownerStats[stats.PhysicalHitPercent], ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent]),
+			// https://github.com/ClassicWoWCommunity/forever-bugs/issues/394#issuecomment-6302980919
+			// TODO: Not yet read on a pet sheet in game.
+			stats.PhysicalHitPercent: hit,
+			stats.SpellHitPercent:    hit * 17 / 8,
 			// TODO: 415429 effect 17 (A_MOD_COMBAT_RESULT_CHANCE2, misc 4) states expertise without an
 			// amount; the full share is unmeasured.
 			stats.ExpertisePercent: ownerStats[stats.ExpertisePercent],
@@ -138,6 +141,11 @@ func (hunter *Hunter) inheritedCrit(ownerStats stats.Stats) float64 {
 	melee := ownerStats[stats.PhysicalCritPercent] + min(mhSkillBonus, 0)*0.04
 	ranged := ownerStats[stats.PhysicalCritPercent] + ownerStats[stats.RangedCritPercent] + min(rangedSkillBonus, 0)*0.04
 	return max(0, melee, ranged)
+}
+
+// The owner's ranged hit, at least 0: its physical hit plus its ranged-only hit.
+func inheritedHit(ownerStats stats.Stats) float64 {
+	return max(0, ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent])
 }
 
 // The server's HunterPetInheritance: the pet snapshots its owner's stats when summoned and again on
@@ -210,6 +218,8 @@ func (hp *HunterPet) OnEncounterStart(_ *core.Simulation) {
 
 func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	target := hp.CurrentTarget
+	// The pet starts beside the hunter and walks in to melee range before it acts, closing with
+	// Charge, Dash or Dive when it has one.
 	if hp.DistanceFromTarget > core.MaxMeleeRange {
 		for _, closer := range hp.closers {
 			if closer.CanCast(sim, target) {

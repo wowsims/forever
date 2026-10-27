@@ -123,12 +123,12 @@ export default defineSpec<Spec.SpecMage>({
 	presets: {
 		epWeights: [],
 		// Preset rotations that the user can quickly select.
-		rotations: [Presets.ArcaneFrostAplPreset, Presets.ArcaneFireAplPreset, Presets.FFBAplPreset, Presets.FireAplPreset],
+		rotations: [Presets.ArcaneFrostAplPreset, Presets.ArcaneFireAplPreset, Presets.FFBAplPreset, Presets.FireAplPreset, Presets.FrostAplPreset],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.ArcaneFrostTalents, Presets.ArcaneFireTalents, Presets.FFBTalents, Presets.FireTalents],
+		talents: [Presets.ArcaneFrostTalents, Presets.ArcaneFireTalents, Presets.FFBTalents, Presets.FireTalents, Presets.FrostTalents],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.P1ArcaneGear],
-		builds: [Presets.ArcaneFrostBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild],
+		builds: [Presets.ArcaneFrostBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild, Presets.FrostBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecMage>): APLRotation => {

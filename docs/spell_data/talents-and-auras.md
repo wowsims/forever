@@ -58,7 +58,7 @@ level.
 
 ```go
 spelldata.ParseEffects(nil, swAura, spellData.ShadowWeavingTriggered.Highest(),
-	spelldata.FromCaster(&priest.Unit, DDBC_ShadowWeaving, DDBC_Total))
+	spelldata.FromCaster(&priest.Unit, 0, 2))
 ```
 
 Defensive Stance uses both shapes at once (`sim/warrior/stances.go`). The stance passive is parsed onto

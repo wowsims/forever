@@ -153,10 +153,6 @@ func (rogue *Rogue) ApplyAdditiveEnergyRegenBonus(sim *core.Simulation, incremen
 }
 
 func (rogue *Rogue) Reset(sim *core.Simulation) {
-	for _, mcd := range rogue.GetMajorCooldowns() {
-		mcd.Disable()
-	}
-
 	rogue.MultiplyEnergyRegenSpeed(sim, 1.0+rogue.AdditiveEnergyRegenBonus)
 }
 
@@ -171,7 +167,7 @@ func NewRogue(character *core.Character, options *proto.Player, talents string) 
 		Options:   rogueOptions.Options.ClassOptions,
 	}
 
-	core.FillTalentsProto(rogue.Talents.ProtoReflect(), talents, TalentTreeSizes)
+	rogue.FillTalentsProto(rogue.Talents.ProtoReflect(), talents, TalentTreeSizes)
 
 	// Passive rogue threat reduction: https://wotlk.wowhead.com/spell=21184/rogue-passive-dnd
 	rogue.PseudoStats.ThreatMultiplier *= 1 + spellData.RoguePassive.Highest().EffectN(1).Percent()

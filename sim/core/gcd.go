@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -32,12 +33,53 @@ func (unit *Unit) newHardcastAction(sim *Simulation) {
 
 func (unit *Unit) completeDueHardcast(sim *Simulation) {
 	if hc := &unit.Hardcast; hc.Expires != startingCDTime && hc.Expires <= sim.CurrentTime {
+		unit.pickAtCastEnd(sim)
 		hc.Expires = startingCDTime
 		if hc.OnComplete != nil {
 			hc.OnComplete(sim, hc.Target)
 		}
 		unit.endRotationCast()
 	}
+}
+
+// Whether the unit's hardcast is still running: until its end and, at the end, while the rotation picks
+// what follows it.
+func (unit *Unit) hardcastRuns(sim *Simulation) bool {
+	return unit.Hardcast.Expires > sim.CurrentTime || unit.pickingAtCastEnd
+}
+
+// At the end of a hardcast that holds the rotation, the rotation due now picks its next cast before the
+// cast lands, so without its outcome, and queues it for after the cast, dropping any cast queued after
+// the hardcast earlier. The pick goes off in the rotation's pass at the cast end, a major cooldown ahead
+// of it; what the rotation would do after it waits for that pass. An interactive sim asks for input instead.
+func (unit *Unit) pickAtCastEnd(sim *Simulation) {
+	rot := unit.Rotation
+	if rot == nil || rot.inLoop || unit.rotationAction == nil || sim.Options.Interactive ||
+		(sim.CurrentTime < 0 && !unit.engagedBeforePull) || !unit.RotationTimer.IsReady(sim) {
+		return
+	}
+	unit.pickingAtCastEnd = true
+	if unit.hardcastHoldsRotation(sim) {
+		if unit.spellQueuedAfterHardcast() {
+			unit.CancelQueuedSpell(sim)
+		}
+		// A rotation look an action sets off here, such as on a rage gain, would complete the cast inside
+		// the pick.
+		rot.inLoop = true
+		unit.UpdatePosition(sim, false)
+		for i := 0; !unit.spellQueuedAfterHardcast(); i++ {
+			action := rot.getNextAction(sim)
+			if action == nil {
+				break
+			}
+			if i > 1000 {
+				panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", action))
+			}
+			action.Execute(sim)
+		}
+		rot.inLoop = false
+	}
+	unit.pickingAtCastEnd = false
 }
 
 func (unit *Unit) NextGCDAt() time.Duration {
@@ -62,6 +104,14 @@ func (unit *Unit) SetGCDTimer(sim *Simulation, gcdReadyAt time.Duration) {
 		return
 	}
 	unit.SetRotationTimer(sim, gcdReadyAt)
+}
+
+// Whether a player's hardcast holds the rotation, the GCD ending with it, so that the rotation picks what
+// follows it at the cast end. After a cast the GCD outlasts, the rotation looks when the GCD ends; after a
+// channel, or a pet's or an enemy's cast, it looks once the cast has landed.
+func (unit *Unit) hardcastHoldsRotation(sim *Simulation) bool {
+	hc := &unit.Hardcast
+	return unit.Type == PlayerUnit && unit.hardcastRuns(sim) && !hc.IsChanneled && unit.GCD.ReadyAt() <= hc.Expires
 }
 
 func (unit *Unit) SetRotationTimer(sim *Simulation, rotationReadyAt time.Duration) {

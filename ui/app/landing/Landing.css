@@ -29,15 +29,15 @@
 	}
 
 	.ui-landing-nav-link {
-		@apply flex items-center text-sm whitespace-nowrap text-white hover:text-brand focus:text-brand max-md:py-2;
+		@apply flex items-center text-sm whitespace-nowrap text-white hover:text-brand focus-visible:text-brand max-md:py-2;
 	}
 
 	.ui-landing-nav-badge {
-		@apply flex items-center hover:opacity-85 focus:opacity-85 max-md:py-2;
+		@apply flex items-center hover:opacity-85 focus-visible:opacity-85 max-md:py-2;
 	}
 
 	.ui-landing-action {
-		@apply relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-solid border-white/20 bg-background/75 px-landing-action-x py-landing-action-y text-base font-bold text-white no-underline transition-[background-color,border-color,transform] duration-200;
+		@apply relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-solid border-white/20 bg-background/75 px-landing-action-x py-landing-action-y text-base font-bold text-white no-underline transition-[background-color,border-color,translate] duration-200;
 		@apply hover:-translate-y-landing-action-lift hover:border-white/40 hover:bg-landing-action-hover hover:text-white;
 		@apply focus-visible:-translate-y-landing-action-lift focus-visible:border-white/40 focus-visible:bg-landing-action-hover focus-visible:text-white;
 		@apply motion-safe:animate-landing-rise-in;
@@ -69,7 +69,7 @@
 	}
 
 	.ui-landing-class-card {
-		@apply relative isolate flex min-h-50 w-full overflow-hidden rounded-landing-card border border-solid border-white/8 p-0 text-left text-white no-underline transition-[transform,box-shadow,border-color] duration-200 motion-safe:animate-landing-rise-in;
+		@apply relative isolate flex min-h-50 w-full overflow-hidden rounded-landing-card border border-solid border-white/8 p-0 text-left text-white no-underline transition-[translate,box-shadow,border-color] duration-200 motion-safe:animate-landing-rise-in;
 		--ui-landing-card-accent: var(--color-white);
 		--ui-landing-rise-in-delay: calc(var(--ui-landing-card-index, 0) * 70ms + 300ms);
 		background: linear-gradient(
@@ -116,8 +116,12 @@
 		}
 
 		&::before {
-			@apply absolute inset-y-0 left-0 z-2 bg-(--ui-landing-card-accent) content-[''];
+			@apply pointer-events-none absolute inset-y-0 left-0 z-2 bg-(--ui-landing-card-accent) content-[''];
 			width: calc(var(--radius-landing-card) / 2);
+		}
+
+		&[data-single-sim] .ui-landing-spec-pill::after {
+			@apply absolute inset-0 content-[''];
 		}
 
 		&::after {

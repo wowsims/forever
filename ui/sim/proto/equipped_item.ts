@@ -64,6 +64,7 @@ export class EquippedItem {
 	constructor({ item, enchant, randomSuffix }: EquippedItemOptions) {
 		this._item = item;
 		this._enchant = enchant || null;
+		// Nothing picks a default for an item with suffix options: only a suffix the item spec names applies.
 		this._randomSuffix = randomSuffix || null;
 	}
 

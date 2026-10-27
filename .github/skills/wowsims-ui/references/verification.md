@@ -63,15 +63,16 @@ List the opt-outs with `/usr/bin/grep -rn "smoke: false" ui --include=*.stories.
 
 ## What CI runs
 
-`.github/workflows/run_tests.yml` has two jobs:
+`.github/workflows/run_tests.yml` has three jobs, `build-ui`, `test-ui` and `test`:
 
-- **`build-ui`**: `npm ci` and `test:locales`, then `fmt`, `lint:js`, `lint:css`, `make ui/generated/proto/api.ts
-go-to-ts`, `type-check`, `test:unit`, `storybook:build`, and `make dist/forever/.dirstamp`, with `BUILD_COMMIT` set to
-  the pull request's head so the page's release names it rather than the merge commit. A pull request from this
+- **`build-ui`**: `make skills-check`, `npm ci` and `test:locales`, then `fmt`, `lint:js`, `lint:css`,
+  `make ui/generated/proto/api.ts go-to-ts`, `type-check`, `storybook:build`, and `make dist/forever/.dirstamp`, with
+  `BUILD_COMMIT` set to the pull request's head so the page's release names it rather than the merge commit. A pull request from this
   repository then gets its build deployed as a Cloudflare Pages preview at a hashed `*.wowsims-forever.pages.dev`
   address, linked from one comment on the pull request; fork pull requests skip it. `preview_cleanup.yml` deletes the
   deployments when the pull request closes.
-- **`test`**: the Go side (`go test --tags=with_db` over `./sim/...`, plus the buff generator tests), not the UI.
+- **`test-ui`**: `test:unit`, sharded, each shard after `make ui/generated/proto/api.ts go-to-ts`.
+- **`test`**: the Go side, sharded; its steps are `wowsims-testing` `## The gates`.
 
 The cheap UI gates run first, so a formatting slip reports in about a minute. `deploy.yml` and `release.yml` reuse the
 workflow through `workflow_call` with `needs: tests`, so every gate also blocks a deploy and a release.

@@ -15,9 +15,59 @@ func (warlock *Warlock) NewAPLValue(rot *core.APLRotation, config *proto.APLValu
 		return warlock.newValueWarlockActivePet(rot, config.GetWarlockActivePet())
 	case *proto.APLValue_WarlockAssignedCurseIsActive:
 		return warlock.newValueWarlockAssignedCurseIsActive(rot, config.GetWarlockAssignedCurseIsActive())
+	case *proto.APLValue_WarlockBaneIsActiveOnAllTargets:
+		return &APLValueWarlockActiveOnAllTargets{spells: warlock.Banes, label: "Bane Is Active On All Targets"}
+	case *proto.APLValue_WarlockAssignedCurseIsActiveOnAllTargets:
+		// With no curse assigned it holds no spell and reads false, with no validation warning.
+		value := &APLValueWarlockActiveOnAllTargets{label: "Assigned Curse Is Active On All Targets (none)"}
+		if curse := warlock.GetAssignedCurse(); curse != nil {
+			value.spells = []*core.Spell{curse}
+			value.label = fmt.Sprintf("Assigned Curse Is Active On All Targets (%s)", curse.ActionID)
+		}
+		return value
 	default:
 		return nil
 	}
+}
+
+// True while every target that is up holds one of the spells.
+type APLValueWarlockActiveOnAllTargets struct {
+	core.DefaultAPLValueImpl
+	spells []*core.Spell
+	label  string
+}
+
+func (x *APLValueWarlockActiveOnAllTargets) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+
+func (x *APLValueWarlockActiveOnAllTargets) GetBool(sim *core.Simulation) bool {
+	for _, target := range sim.Encounter.ActiveTargetUnits {
+		if !anyActiveOn(x.spells, target) {
+			return false
+		}
+	}
+	return true
+}
+
+func (x *APLValueWarlockActiveOnAllTargets) String() string {
+	return x.label
+}
+
+func anyActiveOn(spells []*core.Spell, target *core.Unit) bool {
+	for _, spell := range spells {
+		if activeOn(spell, target) {
+			return true
+		}
+	}
+	return false
+}
+
+// Whether the spell's dot or one of its debuffs is up on the target, read as it is: Banes and curses are
+// instant, so none is ever the running hardcast that the rotation reads as landed.
+func activeOn(spell *core.Spell, target *core.Unit) bool {
+	dot := spell.Dot(target)
+	return (dot != nil && dot.IsActive()) || spell.RelatedAuraArrays.AnyActive(target)
 }
 
 type APLValueWarlockAssignedCurseIsActive struct {
@@ -43,19 +93,7 @@ func (x *APLValueWarlockAssignedCurseIsActive) Type() proto.APLValueType {
 }
 
 func (x *APLValueWarlockAssignedCurseIsActive) GetBool(sim *core.Simulation) bool {
-	if x.spell == nil {
-		return false
-	}
-	target := x.target.Get()
-
-	// This warlock's own copy of the curse. The warlock cast it, so it counts as up the moment it lands, with
-	// no reaction time.
-	for _, auras := range x.spell.RelatedAuraArrays {
-		if aura := auras.Get(target); aura.IsActive() {
-			return true
-		}
-	}
-	return false
+	return x.spell != nil && activeOn(x.spell, x.target.Get())
 }
 
 func (x *APLValueWarlockAssignedCurseIsActive) String() string {

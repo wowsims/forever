@@ -3,63 +3,65 @@ package proto;
 
 option go_package = "./proto";
 
+import "common.proto";
+
 // DO NOT REMOVE THE COMMENTS
 // BEGIN GENERATED
 // HunterTalents message.
 message HunterTalents {
     // Beast Mastery
-    int32 deadly_aspects = 1;
-    int32 endurance_training = 2;
-    int32 focused_fire = 3;
-    int32 improved_aspect_of_the_monkey = 4;
-    int32 pathfinding = 5;
-    int32 improved_revive_pet = 6;
-    bool bestial_swiftness = 7;
-    int32 unleashed_fury = 8;
-    int32 improved_mend_pet = 9;
-    int32 ferocity = 10;
-    bool summon_hawk = 11;
-    int32 spirit_bond = 12;
-    bool intimidation = 13;
-    int32 bestial_discipline = 14;
-    int32 frenzy = 15;
-    bool bestial_wrath = 16;
+    int32 deadly_aspects = 1 [(talent_spell_id) = 19552];
+    int32 endurance_training = 2 [(talent_spell_id) = 19583];
+    int32 focused_fire = 3 [(talent_spell_id) = 1223755];
+    int32 improved_aspect_of_the_monkey = 4 [(talent_spell_id) = 19549];
+    int32 pathfinding = 5 [(talent_spell_id) = 19559];
+    int32 improved_revive_pet = 6 [(talent_spell_id) = 24443];
+    bool bestial_swiftness = 7 [(talent_spell_id) = 19596];
+    int32 unleashed_fury = 8 [(talent_spell_id) = 19616];
+    int32 improved_mend_pet = 9 [(talent_spell_id) = 19572];
+    int32 ferocity = 10 [(talent_spell_id) = 19598];
+    bool summon_hawk = 11 [(talent_spell_id) = 1293241];
+    int32 spirit_bond = 12 [(talent_spell_id) = 19578];
+    bool intimidation = 13 [(talent_spell_id) = 19577];
+    int32 bestial_discipline = 14 [(talent_spell_id) = 19590];
+    int32 frenzy = 15 [(talent_spell_id) = 19621];
+    bool bestial_wrath = 16 [(talent_spell_id) = 19574];
     // Marksmanship
-    int32 hawk_eye = 17;
-    int32 improved_concussive_shot = 18;
-    int32 lethal_attacks = 19;
-    int32 improved_stings = 20;
-    int32 efficiency = 21;
-    int32 careful_aim = 22;
-    int32 rapid_killing = 23;
-    int32 improved_arcane_shot = 24;
-    bool lone_wolf = 25;
-    bool trueshot_aura = 26;
-    int32 mortal_shots = 27;
-    int32 rapid_recuperation = 28;
-    int32 barrage = 29;
-    bool scatter_shot = 30;
-    int32 ranged_weapon_specialization = 31;
-    bool sniper_shot = 32;
+    int32 hawk_eye = 17 [(talent_spell_id) = 19498];
+    int32 improved_concussive_shot = 18 [(talent_spell_id) = 19407];
+    int32 lethal_attacks = 19 [(talent_spell_id) = 19426];
+    int32 improved_stings = 20 [(talent_spell_id) = 1310661];
+    int32 efficiency = 21 [(talent_spell_id) = 19416];
+    int32 careful_aim = 22 [(talent_spell_id) = 1223984];
+    int32 rapid_killing = 23 [(talent_spell_id) = 415405];
+    int32 improved_arcane_shot = 24 [(talent_spell_id) = 19454];
+    bool lone_wolf = 25 [(talent_spell_id) = 415370];
+    bool trueshot_aura = 26 [(talent_spell_id) = 1299346];
+    int32 mortal_shots = 27 [(talent_spell_id) = 19485];
+    int32 rapid_recuperation = 28 [(talent_spell_id) = 1223987];
+    int32 barrage = 29 [(talent_spell_id) = 19461];
+    bool scatter_shot = 30 [(talent_spell_id) = 19503];
+    int32 ranged_weapon_specialization = 31 [(talent_spell_id) = 19507];
+    bool sniper_shot = 32 [(talent_spell_id) = 1310687];
     // Survival
-    int32 improved_tracking = 33;
-    int32 deflection = 34;
-    int32 entrapment = 35;
-    int32 savage_strikes = 36;
-    int32 survivalist = 37;
-    int32 improved_wing_clip = 38;
-    int32 clever_traps = 39;
-    int32 surefooted = 40;
-    bool deterrence = 41;
-    int32 survival_tactics = 42;
-    int32 predators_edge = 43;
-    bool counterattack = 44;
-    int32 resourcefulness = 45;
-    int32 expose_prey = 46;
-    int32 survivalists_discipline = 47;
-    bool strider_kick = 48;
-    int32 lightning_reflexes = 49;
-    bool lacerating_strikes = 50;
+    int32 improved_tracking = 33 [(talent_spell_id) = 24293];
+    int32 deflection = 34 [(talent_spell_id) = 19295];
+    int32 entrapment = 35 [(talent_spell_id) = 19184];
+    int32 savage_strikes = 36 [(talent_spell_id) = 19159];
+    int32 survivalist = 37 [(talent_spell_id) = 19255];
+    int32 improved_wing_clip = 38 [(talent_spell_id) = 19228];
+    int32 clever_traps = 39 [(talent_spell_id) = 19239];
+    int32 surefooted = 40 [(talent_spell_id) = 19290];
+    bool deterrence = 41 [(talent_spell_id) = 19263];
+    int32 survival_tactics = 42 [(talent_spell_id) = 19376];
+    int32 predators_edge = 43 [(talent_spell_id) = 1310627];
+    bool counterattack = 44 [(talent_spell_id) = 19306];
+    int32 resourcefulness = 45 [(talent_spell_id) = 440529];
+    int32 expose_prey = 46 [(talent_spell_id) = 1310532];
+    int32 survivalists_discipline = 47 [(talent_spell_id) = 1310496];
+    bool strider_kick = 48 [(talent_spell_id) = 1317257];
+    int32 lightning_reflexes = 49 [(talent_spell_id) = 19168];
+    bool lacerating_strikes = 50 [(talent_spell_id) = 1310533];
 }
 
 // END GENERATED
@@ -162,6 +164,8 @@ message Hunter {
 		bool use_aimed = 6;
 		bool use_sniper = 7;
 		bool use_hawk = 8;
+		// Where the hunter stands at the pull, in yards; it walks to its spot from there. 0 is 25 yd.
+		int32 pull_range = 9;
 	}
 	message Options {
 		HunterOptions class_options = 1;

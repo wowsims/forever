@@ -40,7 +40,7 @@ also reads a pick followed by the store's own accessors: `-expr
 carries and the row, with the effect it read marked `(read)`.
 
 The worded line states each number in the unit the sim spends it in, written as the accessor that reads
-it: a plain amount is `Average(60)` and a range is `Min`/`Max`, a percentage is `Percent()`, rage is
+it: a plain amount is `Average()` and a range is `Min`/`Max`, a percentage is `Percent()`, rage is
 `Tenths()`, a time is `TimeValue()`, and a share of spell or attack power is `Coeff()`/`APCoeff()`. A
 dummy line states the row's number and says nothing about its meaning; it is the one shape that always
 needs the tooltip. When the printer has no wording for an effect's type or aura, the line says
@@ -201,16 +201,16 @@ paladin generates by 20% at 2/2 while Righteous Fury is off, where the tooltip s
 Will's Stun and Fear duration has the same shape, a positive curve under a reducing tooltip, and reads the
 curve too.
 
-|                                          |                                                                                          |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `Rank(n)`                                | the spell at rank n. Rank 0 is untaken and answers `Nil`, so no `if rank > 0` guard      |
-| `Highest()`                              | the top rank                                                                             |
-| `ByID(id)`                               | the rank with this spell id; panics on one the ladder does not carry                     |
-| `Len()`, `Each(fn)`                      | how many ranks, and each of them with its number                                         |
-| `Contains(spell)`                        | whether a registered spell's id is one of the ladder's ranks                             |
-| `ValueAt(rank)`                          | the rank's only effect in the game files' units; panics where the rank has more than one |
-| `FractionAt`, `MultiplierAt`, `TenthsAt` | the same over 100, as `1 +` that, and over 10                                            |
-| `EffectAt(n)`, `Effect(aura, misc)`      | one named effect across the ranks, carrying the same four readers                        |
+|                                          |                                                                                         |
+| ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Rank(n)`                                | the spell at rank n. Rank 0 is untaken and answers `Nil`, so no `if rank > 0` guard     |
+| `Highest()`                              | the ladder's last entry, which is not always its top rank                               |
+| `ByID(id)`                               | the rank with this spell id; panics on one the ladder does not carry                    |
+| `Len()`, `Each(fn)`                      | how many ranks, and each of them with its number                                        |
+| `Contains(spell)`                        | whether a registered spell's id is one of the ladder's ranks                            |
+| `ValueAt(rank)`                          | the rank's only effect in the game files' units; panics unless the rank has exactly one |
+| `FractionAt`, `MultiplierAt`, `TenthsAt` | the same over 100, as `1 +` that, and over 10                                           |
+| `EffectAt(n)`, `Effect(aura, misc)`      | one named effect across the ranks, carrying the same four readers                       |
 
 `MultiplierAt` takes its sign from the data: a talent the game files state as -2/-4/-6 gives 0.94 at rank
 3 and nobody writes the minus.

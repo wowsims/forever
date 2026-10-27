@@ -26,7 +26,8 @@
 		"test:unit": "vitest run",
 		"test:locales": "node ./test-locales.mjs",
 		"storybook:dev": "storybook dev -p 6006 --no-open",
-		"storybook:build": "storybook build --quiet"
+		"storybook:build": "storybook build --quiet",
+		"skills:install": "npx -y skills@1.7.4 add ./.github/skills -y && npx -y skills@1.7.4 add blader/humanizer -y"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.7.0",

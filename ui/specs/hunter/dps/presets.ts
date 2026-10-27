@@ -62,6 +62,7 @@ export const DefaultRotation = WeaveAPLRotation;
 export const DefaultSimpleRotation = Hunter_Rotation.create({
 	playstyle: Playstyle.Weave,
 	timeToWeave: 200,
+	pullRange: 25,
 	useMulti: true,
 	useArcane: true,
 });

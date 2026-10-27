@@ -22,7 +22,7 @@ protoc \
 
 3. Edit APL files
 
-The project settings file for vscode should now pick that up (.vscode/settings.json) should point the schema "jsonschema" directory. The extension ".apl.json" should activate the generated schema.
+The vscode project settings (.vscode/settings.json) map files ending in ".apl.json" to "schemas/apl_rotation.schema.json", so copy the generated "jsonschema/APLRotation.json" to that path.
 
 Create an APL file named "myrotation.apl.json" replacing `myrotation` with whatever name you prefer.
 

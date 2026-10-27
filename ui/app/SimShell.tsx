@@ -15,6 +15,7 @@ import type { SimHostObject } from './individual_sim_ui';
 import { SpecReleaseInfo } from './ReleaseInfo';
 import { simUiAttributes, simUiClasses } from './shell_classes';
 import { SimImportExport } from './SimImportExport';
+import { SimOnboarding } from './SimOnboarding';
 import { SimRunCard } from './SimRunCard';
 import { SimTabsPanels, SimTabsStrip } from './SimTabs';
 import { SimTabsSection } from './SimTabsSection';
@@ -108,6 +109,8 @@ export const SimShell = ({ domRef, host, sim, className, spec, noticeText, known
 								</main>
 							</div>
 						</div>
+						{/* Inside the tab root, which the tour opens tabs through. */}
+						<SimOnboarding host={host} simReady={simReady} />
 					</SimTabsSection>
 				</div>
 				<ToastArea manager={toastManager} />

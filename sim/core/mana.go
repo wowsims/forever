@@ -376,7 +376,7 @@ func newManaCost(spell *Spell, options ManaCostOptions) *SpellCost {
 // A running hardcast pays its cost when it completes; the mana left after that is what counts.
 func (unit *Unit) manaAfterHardcast(sim *Simulation) float64 {
 	mana := unit.CurrentMana()
-	if unit.Hardcast.Expires > sim.CurrentTime {
+	if unit.hardcastRuns(sim) {
 		mana -= unit.Hardcast.Cost
 	}
 	return mana

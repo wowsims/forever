@@ -256,6 +256,7 @@ func (rsrc *raidSimResultCombiner) addActionMetrics(unit *proto.UnitMetrics, add
 			panic("Unitidx doesn't match?!")
 		}
 		baseTgt.Casts += addTgt.Casts
+		baseTgt.ManualCasts += addTgt.ManualCasts
 		baseTgt.Hits += addTgt.Hits
 		baseTgt.ResistedHits += addTgt.ResistedHits
 		baseTgt.Crits += addTgt.Crits

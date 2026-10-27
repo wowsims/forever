@@ -15,15 +15,6 @@ func (warrior *Warrior) registerBerserkerRage() {
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: berserkerRageRank.ID})
 	rageGain := spellData.ImprovedBerserkerRage.EffectAt(1).TenthsAt(warrior.Talents.ImprovedBerserkerRage)
 
-	// Marks the talent for the APL's auraIsKnown, tagged with its points; the rage it adds is rageGain.
-	if warrior.Talents.ImprovedBerserkerRage > 0 {
-		core.MakePermanent(warrior.RegisterAura(core.Aura{
-			Label:    "Improved Berserker Rage",
-			ActionID: core.ActionID{SpellID: spellData.ImprovedBerserkerRage.Highest().ID}.WithTag(warrior.Talents.ImprovedBerserkerRage),
-			Source:   core.SourceTalent,
-		}))
-	}
-
 	auraConfig := spelldata.AuraConfig(berserkerRageRank)
 	auraConfig.OnGain = func(aura *core.Aura, sim *core.Simulation) {
 		warrior.MultiplyDamageTakenRageGen(berserkerRageDamageTakenRageMultiplier)

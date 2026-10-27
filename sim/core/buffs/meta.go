@@ -154,6 +154,8 @@ func newCasterDebuff(target *core.Unit, m *Meta, caster *core.Unit, tag string, 
 	return m.debuff(target, true, m.Label+"-"+caster.Label, tag, talentPoints)
 }
 
+// Every debuff lands and only the strongest in its category counts, so debuff rows leave SingleAura
+// false. Curse of Recklessness, Faerie Fire and Dust Cloud share MinorArmorReduction this way.
 func (m *Meta) debuff(target *core.Unit, isPlayer bool, label string, tag string, talentPoints int32) *core.Aura {
 	opts := m.Options(talentPoints)
 	if m.Category != "" {

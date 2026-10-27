@@ -30,7 +30,11 @@ func (unit *Unit) ExtraAttackProc(trigger *ProcTrigger, tagSpellID int32, count 
 			extraAttack.SetSpellSchool(mainHand.SpellSchool)
 			extraAttack.BonusCoefficient = mainHand.BonusCoefficient
 			for range count {
-				unit.AutoAttacks.MaybeReplaceMHSwing(sim, extraAttack).Cast(sim, target)
+				spell := unit.AutoAttacks.MaybeReplaceMHSwing(sim, extraAttack)
+				// Make sure to check range, since Judgement can proc WF
+				if spell.InRange() {
+					spell.Cast(sim, target)
+				}
 			}
 		})
 	}

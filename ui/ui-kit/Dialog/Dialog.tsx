@@ -4,7 +4,7 @@ import { Button } from '@ui-kit/Button';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import { Icon } from '@ui-kit/Icon';
 import clsx from 'clsx';
-import type { KeyboardEventHandler, ReactNode } from 'react';
+import type { KeyboardEventHandler, ReactNode, RefObject } from 'react';
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -12,6 +12,8 @@ export interface DialogProps {
 	open: boolean;
 	/** Not called for a close the user is not allowed to make — see `preventClose`. */
 	onOpenChange: (open: boolean) => void;
+	/** The element focused on open. Without it Base UI focuses the first tabbable element, the close button. */
+	initialFocus?: RefObject<HTMLElement | null>;
 	className?: string;
 	size?: DialogSize;
 	maxWidthClassName?: string;
@@ -40,6 +42,7 @@ export interface DialogProps {
 export const Dialog = ({
 	open,
 	onOpenChange,
+	initialFocus,
 	className,
 	size = 'lg',
 	maxWidthClassName,
@@ -82,6 +85,7 @@ export const Dialog = ({
 							verticalAlign === 'center' ? 'ui-dialog-centered' : 'ui-dialog-top',
 							className,
 						)}
+						initialFocus={initialFocus}
 						data-testid={testId ?? 'sim-dialog-popup'}
 						data-size={size}
 						onKeyDown={onKeyDown}>

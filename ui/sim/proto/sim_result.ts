@@ -480,6 +480,16 @@ export class UnitMetrics {
 		return this.petActionId != null;
 	}
 
+	// The actions with button presses by the rotation on the filtered target, the ones APM counts.
+	apmActions(filter?: SimResultFilter): Array<ActionMetrics> {
+		return this.actions.map(action => action.forTarget(filter)).filter(action => action.manualCasts != 0);
+	}
+
+	// Actions per minute: the rotation's button presses on the filtered target, pets left out.
+	actionsPerMinute(filter?: SimResultFilter): number {
+		return sum(this.apmActions(filter).map(action => action.manualCastsPerMinute));
+	}
+
 	// Returns the unit index of the target of this unit, as selected by the filter.
 	getTargetIndex(filter?: SimResultFilter): number | null {
 		if (!filter) {
@@ -1039,6 +1049,15 @@ export class ActionMetrics {
 	get castsPerMinute() {
 		if (this.isPassiveAction) return 0;
 		return this.combinedMetrics.castsPerMinute;
+	}
+
+	// Presses by the rotation, which a passive action can have too (Judgement is cast by hand and flagged passive).
+	get manualCasts() {
+		return this.combinedMetrics.manualCasts;
+	}
+
+	get manualCastsPerMinute() {
+		return this.combinedMetrics.manualCastsPerMinute;
 	}
 
 	get avgCastTimeMs() {
@@ -1715,6 +1734,14 @@ class TargetedActionMetrics {
 		return this.casts / (this.duration / 60);
 	}
 
+	get manualCasts() {
+		return this.data.manualCasts / this.iterations;
+	}
+
+	get manualCastsPerMinute() {
+		return this.manualCasts / (this.duration / 60);
+	}
+
 	get avgCastTimeMs() {
 		return this.data.castTimeMs / this.iterations / this.casts;
 	}
@@ -1943,6 +1970,7 @@ class TargetedActionMetrics {
 		return new TargetedActionMetrics(
 			TargetedActionMetricsProto.create({
 				casts: sum(actions.map(a => a.data.casts)),
+				manualCasts: sum(actions.map(a => a.data.manualCasts)),
 				hits: sum(actions.map(a => a.data.hits)),
 				resistedHits: sum(actions.map(a => a.data.resistedHits)),
 				crits: sum(actions.map(a => a.data.crits)),

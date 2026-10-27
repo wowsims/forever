@@ -97,7 +97,8 @@ func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
 				warrior.CurrentRage() >= srcSpell.Cost.GetCurrentCost() &&
 				warrior.queuedRealismICD.IsReady(sim)
 		},
-		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			srcSpell.CountManualCast(target)
 			if warrior.queuedRealismICD.Duration == 0 {
 				queueAura.Activate(sim)
 				return

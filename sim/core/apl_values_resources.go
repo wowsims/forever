@@ -115,7 +115,8 @@ func (value *APLValueCurrentMana) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeFloat
 }
 func (value *APLValueCurrentMana) GetFloat(sim *Simulation) float64 {
-	return value.unit.Get().CurrentMana()
+	// During a hardcast, the mana left once the cast pays its cost, as the cost checks read it.
+	return value.unit.Get().manaAfterHardcast(sim)
 }
 func (value *APLValueCurrentMana) String() string {
 	return "Current Mana"
@@ -145,7 +146,8 @@ func (value *APLValueCurrentManaPercent) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeFloat
 }
 func (value *APLValueCurrentManaPercent) GetFloat(sim *Simulation) float64 {
-	return value.unit.Get().CurrentManaPercent()
+	unit := value.unit.Get()
+	return unit.manaAfterHardcast(sim) / unit.MaxMana()
 }
 func (value *APLValueCurrentManaPercent) String() string {
 	return fmt.Sprintf("Current Mana %%")

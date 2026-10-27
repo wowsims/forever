@@ -322,7 +322,7 @@ func (rogue *Rogue) registerThousandCuts() {
 	trigger.ProcMask = core.ProcMaskUnknown
 	trigger.ClassSpellMask = RogueSpellRupture
 	trigger.TriggerImmediately = true
-	rogue.MakeProcTriggerAura(trigger).ExposeToAPL(thousandCutsRank.ID)
+	rogue.MakeProcTriggerAura(trigger)
 
 	rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Thousand Cuts - Cast Watcher",

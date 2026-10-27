@@ -28,4 +28,5 @@ Alternatively, you can choose from a specific relase on the [Releases](https://g
 - [Development Commands](docs/commands.md)
 - [Adding a New Sim](docs/adding_sim.md)
 - [Consumables](docs/consumables.md)
+- [The rotation at a cast end](docs/rotation.md)
 - [Internationalization](docs/i18n_guide.md)

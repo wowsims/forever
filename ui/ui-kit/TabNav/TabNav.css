@@ -4,7 +4,7 @@
 		@apply hover:text-link-hover;
 
 		&:focus-visible {
-			@apply focus-ring outline-0;
+			@apply focus-ring;
 		}
 
 		&[data-active] {
@@ -20,7 +20,7 @@
 
 	.ui-tab-nav {
 		@apply h-full border-current;
-		@apply focus:text-link-hover;
+		@apply focus-visible:text-link-hover;
 	}
 
 	.ui-tabs-sim {

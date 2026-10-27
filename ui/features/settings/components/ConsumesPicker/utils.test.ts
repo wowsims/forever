@@ -433,6 +433,8 @@ describe('consumeConfigs', () => {
 		expect(toggled([chiliOf(melee.player)], melee.player)).toEqual([12217]);
 		const tank = playerOf({ meleeDps: false, tank: true }).player;
 		expect(toggled([chiliOf(tank)], tank)).toEqual([12217]);
+		const hunter = playerOf({ cls: Class.ClassHunter, spec: Spec.SpecHunter, meleeDps: false }).player;
+		expect(toggled([chiliOf(hunter)], hunter)).toEqual([12217]);
 		const caster = playerOf({ cls: Class.ClassMage, spec: Spec.SpecMage, meleeDps: false }).player;
 		expect(toggled([chiliOf(caster)], caster)).toEqual([]);
 

@@ -4,6 +4,8 @@ export interface DetailedResultsTabConfig {
 	className?: string;
 	/** The tab's table reads the Group ranks toggle, which shows only while such a tab is open. */
 	groupsRanks?: boolean;
+	/** The tab's table reads the Show APM breakdown toggle, which shows only while such a tab is open. */
+	breaksDownApm?: boolean;
 }
 
 // Keep this tab disabled while it only reports spells used by the rotation: without downranking
@@ -19,7 +21,7 @@ const ALL_DETAILED_RESULTS_TABS: ReadonlyArray<DetailedResultsTabConfig> = [
 	{ id: 'damageTakenTab', labelKey: 'results_tab.details.tabs.damage_taken', groupsRanks: true },
 	{ id: 'buffsTab', labelKey: 'results_tab.details.tabs.buffs' },
 	{ id: 'debuffsTab', labelKey: 'results_tab.details.tabs.debuffs' },
-	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', groupsRanks: true },
+	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', groupsRanks: true, breaksDownApm: true },
 	{ id: 'resourcesTab', labelKey: 'results_tab.details.tabs.resources' },
 	{ id: 'timelineTab', labelKey: 'results_tab.details.tabs.timeline' },
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },

@@ -22,6 +22,26 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	procRank := rank.Refs()[0]
 	procDamage := procRank.DamageEffect()
 
+	if paladin.sealOfFuryTaunt == nil {
+		tauntRank := spellData.SealOfFuryTriggered.Rank(3)
+
+		tauntAuras := paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+			return target.GetOrRegisterAura(spelldata.AuraConfig(tauntRank))
+		})
+
+		tauntSpellConfig := spelldata.SpellConfig(&paladin.Unit, tauntRank, spelldata.Flags(core.SpellFlagNoOnCastComplete))
+		tauntSpellConfig.ProcMask = core.ProcMaskEmpty
+		tauntSpellConfig.Cast.DefaultCast.NonEmpty = true
+		tauntSpellConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+			if result.Landed() {
+				tauntAuras.Get(target).Activate(sim)
+			}
+		}
+
+		paladin.sealOfFuryTaunt = paladin.RegisterSpell(tauntSpellConfig)
+	}
+
 	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never
 	// dodged, parried or blocked.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
@@ -30,6 +50,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 

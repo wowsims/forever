@@ -18,6 +18,10 @@ casts_results: {
    value: 0
   }
   casts: {
+   key: "other_id:OtherActionMove tag:1"
+   value: 0
+  }
+  casts: {
    key: "other_id:OtherActionRageGain"
    value: 2
   }
@@ -176,6 +180,10 @@ casts_results: {
   }
   casts: {
    key: "other_id:OtherActionMove"
+   value: 0
+  }
+  casts: {
+   key: "other_id:OtherActionMove tag:1"
    value: 0
   }
   casts: {

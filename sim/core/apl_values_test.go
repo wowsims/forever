@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"strings"
 	"testing"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
+	googleproto "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func setupFakeRageRotation() (*Simulation, *FakeRageWarrior, *APLRotation) {
@@ -635,6 +638,7 @@ func TestValueUnknownIDs(t *testing.T) {
 		"Spell Cast Time for an unknown spell":           rot.newValueSpellCastTime(&proto.APLValueSpellCastTime{SpellId: spell}, nil),
 		"Spell Travel Time for an unknown spell":         rot.newValueSpellTravelTime(&proto.APLValueSpellTravelTime{SpellId: spell}, nil),
 		"Spell CPM for an unknown spell":                 rot.newValueSpellCPM(&proto.APLValueSpellCPM{SpellId: spell}, nil),
+		"Spell Is Casting for an unknown spell":          rot.newValueSpellIsCasting(&proto.APLValueSpellIsCasting{SpellId: spell}, nil),
 		"Spell Is Channeling for an unknown spell":       rot.newValueSpellIsChanneling(&proto.APLValueSpellIsChanneling{SpellId: spell}, nil),
 		"Spell Channeled Ticks for an unknown spell":     rot.newValueSpellChanneledTicks(&proto.APLValueSpellChanneledTicks{SpellId: spell}, nil),
 		"Spell Current Cost for an unknown spell":        rot.newValueSpellCurrentCost(&proto.APLValueSpellCurrentCost{SpellId: spell}, nil),
@@ -681,6 +685,123 @@ func TestValueSpellIsKnown(t *testing.T) {
 	unknown := rot.newValueSpellIsKnown(&proto.APLValueSpellIsKnown{SpellId: ActionID{SpellID: 1}.ToProto()}, nil)
 	if !known.GetBool(sim) || unknown.GetBool(sim) {
 		t.Fatalf("Is Known: Rend = %t, unknown = %t, want true, false", known.GetBool(sim), unknown.GetBool(sim))
+	}
+}
+
+// Three WarriorTalents fields picked by kind, with the spell ids their talent_spell_id options carry:
+// the first one-point talent with its point, the first ranked talent at 3 points, and the next ranked
+// talent with none. A talents string with every field in one tree sets field N from digit N.
+type testTalents struct {
+	single, ranked, untaken int32
+	fill                    func(char *Character)
+}
+
+func newTestTalents(t *testing.T) testTalents {
+	t.Helper()
+	fields := (&proto.WarriorTalents{}).ProtoReflect().Descriptor().Fields()
+	digits := []byte(strings.Repeat("0", fields.Len()))
+	spellID := func(fd protoreflect.FieldDescriptor) int32 {
+		return googleproto.GetExtension(fd.Options(), proto.E_TalentSpellId).(int32)
+	}
+
+	var tt testTalents
+	for i := range fields.Len() {
+		fd := fields.Get(i)
+		switch {
+		case fd.Kind() == protoreflect.BoolKind && tt.single == 0:
+			tt.single = spellID(fd)
+			digits[fd.Number()-1] = '1'
+		case fd.Kind() == protoreflect.Int32Kind && tt.ranked == 0:
+			tt.ranked = spellID(fd)
+			digits[fd.Number()-1] = '3'
+		case fd.Kind() == protoreflect.Int32Kind && tt.untaken == 0:
+			tt.untaken = spellID(fd)
+		}
+	}
+	if tt.single == 0 || tt.ranked == 0 || tt.untaken == 0 {
+		t.Fatalf("WarriorTalents lacks a one-point talent or two ranked talents with talent_spell_id: %+v", tt)
+	}
+
+	tt.fill = func(char *Character) {
+		char.FillTalentsProto((&proto.WarriorTalents{}).ProtoReflect(), string(digits), [3]int{fields.Len(), 0, 0})
+	}
+	return tt
+}
+
+func TestValueTalentIsKnown(t *testing.T) {
+	talents := newTestTalents(t)
+	sim, _, rot := setupFakeRageRotationWith(talents.fill)
+
+	talent := func(spellID int32, rank int32) *proto.ActionID {
+		id := ActionID{SpellID: spellID}.ToProto()
+		id.Rank = rank
+		return id
+	}
+	for _, tc := range []struct {
+		name string
+		id   *proto.ActionID
+		want bool
+	}{
+		{"one-point talent with no rank", talent(talents.single, 0), true},
+		{"one-point talent at its rank", talent(talents.single, 1), true},
+		{"ranked talent below the held rank", talent(talents.ranked, 1), true},
+		{"ranked talent at the held rank", talent(talents.ranked, 3), true},
+		{"ranked talent above the held rank", talent(talents.ranked, 4), false},
+		{"talent with no points", talent(talents.untaken, 1), false},
+	} {
+		rot.curValidations = nil
+		value := rot.newValueTalentIsKnown(&proto.APLValueTalentIsKnown{TalentId: tc.id}, nil)
+		if got := value.GetBool(sim); got != tc.want {
+			t.Errorf("%s: got %t, want %t", tc.name, got, tc.want)
+		}
+		if warned := len(rot.curValidations) > 0; warned == tc.want {
+			t.Errorf("%s: warned %t, want a warning only for an unknown talent", tc.name, warned)
+		}
+	}
+	rot.curValidations = nil
+}
+
+func TestValueTalentRank(t *testing.T) {
+	talents := newTestTalents(t)
+	sim, _, rot := setupFakeRageRotationWith(talents.fill)
+
+	for _, tc := range []struct {
+		name    string
+		spellID int32
+		want    int32
+	}{
+		{"one-point talent", talents.single, 1},
+		{"ranked talent", talents.ranked, 3},
+		{"talent with no points", talents.untaken, 0},
+	} {
+		rot.curValidations = nil
+		// The id's rank is not read, so one above the held rank changes nothing.
+		id := ActionID{SpellID: tc.spellID}.ToProto()
+		id.Rank = 5
+		value := rot.newValueTalentRank(&proto.APLValueTalentRank{TalentId: id}, nil)
+		if value.Type() != proto.APLValueType_ValueTypeInt || value.GetInt(sim) != tc.want {
+			t.Errorf("%s: got %s, want %d", tc.name, renderValue(sim, value), tc.want)
+		}
+		if warned := len(rot.curValidations) > 0; warned != (tc.want == 0) {
+			t.Errorf("%s: warned %t, want a warning only for a talent with no points", tc.name, warned)
+		}
+	}
+	rot.curValidations = nil
+}
+
+func TestPlayerMetadataTalents(t *testing.T) {
+	talents := newTestTalents(t)
+	_, fw, _ := setupFakeRageRotationWith(talents.fill)
+
+	playerStats := &proto.PlayerStats{}
+	fw.FillPlayerStats(playerStats)
+
+	got := map[int32]int32{}
+	for _, id := range playerStats.Metadata.Talents {
+		got[id.GetSpellId()] = id.Rank
+	}
+	if want := map[int32]int32{talents.single: 1, talents.ranked: 3}; !maps.Equal(got, want) {
+		t.Errorf("metadata talents = %v, want %v", got, want)
 	}
 }
 
@@ -1008,69 +1129,6 @@ func TestValueAuraReactionTime(t *testing.T) {
 	}
 }
 
-func TestValueAuraIsActiveOwnCastReactionTime(t *testing.T) {
-	// The window is a proc that shares its id with the spell it allows, as the Revenge window does.
-	var ownCast, window *Aura
-	var ownSpell, windowSpell *Spell
-	ownCastID, windowID := ActionID{SpellID: testPlainAuraID}, ActionID{SpellID: testStackAuraID}
-	sim, fw, rot := setupFakeRageRotationWith(func(char *Character) {
-		ownCast, window, _ = registerTestAuras(char)
-		ownSpell = char.RegisterSpell(SpellConfig{ActionID: ownCastID, Flags: SpellFlagAPL, ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
-			ownCast.Activate(sim)
-		}})
-		windowSpell = char.RegisterSpell(SpellConfig{ActionID: windowID, Flags: SpellFlagAPL, ApplyEffects: func(sim *Simulation, _ *Unit, _ *Spell) {
-			window.Deactivate(sim)
-		}})
-	})
-	ownSpell.finalize()
-	windowSpell.finalize()
-	fw.ReactionTime = 100 * time.Millisecond
-	target := fw.CurrentTarget
-
-	ownCastActive := rot.newValueAuraIsActive(&proto.APLValueAuraIsActive{AuraId: ownCastID.ToProto(), IncludeReactionTime: true}, nil)
-	windowActive := rot.newValueAuraIsActive(&proto.APLValueAuraIsActive{AuraId: windowID.ToProto(), IncludeReactionTime: true}, nil)
-
-	sim.CurrentTime = 500 * time.Millisecond
-	if ownCastActive.GetBool(sim) {
-		t.Errorf("before the first cast: own cast active = true, want false")
-	}
-
-	sim.CurrentTime = time.Second
-	ownSpell.applyEffects(sim, target)
-	window.Activate(sim)
-	if !ownCastActive.GetBool(sim) || windowActive.GetBool(sim) {
-		t.Errorf("as the auras land: own cast active = %t, window active = %t, want true, false", ownCastActive.GetBool(sim), windowActive.GetBool(sim))
-	}
-	sim.CurrentTime = time.Second + 200*time.Millisecond
-	if !windowActive.GetBool(sim) {
-		t.Errorf("past the reaction time: window active = false, want true")
-	}
-
-	sim.CurrentTime = 2 * time.Second
-	windowSpell.applyEffects(sim, target)
-	if windowActive.GetBool(sim) {
-		t.Errorf("window used up by its spell: window active = true, want false")
-	}
-
-	sim.CurrentTime = ownCast.ExpiresAt()
-	ownCast.Deactivate(sim)
-	sim.CurrentTime += 50 * time.Millisecond
-	if !ownCastActive.GetBool(sim) {
-		t.Errorf("inside the reaction time after running out: own cast active = false, want true")
-	}
-	sim.CurrentTime += 50 * time.Millisecond
-	if ownCastActive.GetBool(sim) {
-		t.Errorf("at the reaction time after running out: own cast active = true, want false")
-	}
-
-	ownSpell.applyEffects(sim, target)
-	sim.CurrentTime += time.Second
-	ownCast.Deactivate(sim)
-	if ownCastActive.GetBool(sim) {
-		t.Errorf("removed before running out: own cast active = true, want false")
-	}
-}
-
 func TestValueAuraNumStacksFollowsCurrentTarget(t *testing.T) {
 	request := fakeRageSimRequest()
 	request.Encounter.Targets = append(request.Encounter.Targets, &proto.Target{Name: "second target", Level: 63, MobType: proto.MobType_MobTypeHumanoid, SwingSpeed: 2})
@@ -1303,6 +1361,8 @@ func TestValueDots(t *testing.T) {
 	}
 }
 
+// Disabled for now, with the DoT increase values in apl_values_dot.go.
+/*
 func TestValueDotPercentIncrease(t *testing.T) {
 	sim, fw, rot := setupFakeRageRotation()
 	rend := fw.GetSpell(fakeRendActionID)
@@ -1344,6 +1404,31 @@ func TestValueDotPercentIncrease(t *testing.T) {
 	rend.Dot(sim.Encounter.AllTargetUnits[0]).Apply(sim)
 	if got := tickRate.GetFloat(sim); got != 0 {
 		t.Fatalf("Dot Tick Rate Percent Increase on an active dot without haste = %f, want 0", got)
+	}
+}
+*/
+
+func TestValueDotIncreaseDisabled(t *testing.T) {
+	_, _, rot := setupFakeRageRotation()
+	id := fakeRendActionID.ToProto()
+	configs := map[string]*proto.APLValue{
+		"Dot Percent Increase": {
+			Uuid:  &proto.UUID{Value: "dot-percent-increase"},
+			Value: &proto.APLValue_DotPercentIncrease{DotPercentIncrease: &proto.APLValueDotPercentIncrease{SpellId: id}},
+		},
+		"Dot Tick Rate Percent Increase": {
+			Uuid:  &proto.UUID{Value: "dot-tick-rate-percent-increase"},
+			Value: &proto.APLValue_DotTickRatePercentIncrease{DotTickRatePercentIncrease: &proto.APLValueDotPercentIncrease{SpellId: id}},
+		},
+	}
+
+	for name, config := range configs {
+		if value := rot.newAPLValue(config); value != nil {
+			t.Errorf("%s: got a value, want none", name)
+		}
+		if warnings := rot.uuidValidations[config.Uuid]; len(warnings) != 1 || warnings[0].LogLevel != proto.LogLevel_Warning {
+			t.Errorf("%s: validations = %v, want one warning", name, warnings)
+		}
 	}
 }
 

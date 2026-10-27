@@ -167,7 +167,7 @@ func NewWarlock(character *core.Character, options *proto.Player, warlockOptions
 		Options:   warlockOptions,
 	}
 
-	core.FillTalentsProto(warlock.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
+	warlock.FillTalentsProto(warlock.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 
 	warlock.resolveSacrifice()
 

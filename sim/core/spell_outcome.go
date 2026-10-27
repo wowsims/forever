@@ -297,6 +297,9 @@ func (spell *Spell) outcomeMeleeSpecialHit(sim *Simulation, result *SpellResult,
 	}
 }
 
+// The table of a school-damage special (effect 2): block and crit roll separately, so a blocked hit
+// can crit. A weapon-damage special (effects 17, 31, 58, 121) takes the weapon variant, where a block
+// stops the crit as on white hits; the damage effect type picks between them.
 func (spell *Spell) OutcomeMeleeSpecialHitAndCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
 	spell.outcomeMeleeSpecialHitAndCrit(sim, result, attackTable, true)
 }

@@ -57,14 +57,15 @@ func (rot *APLRotation) postFinalize(action *APLAction) {
 		}
 	}
 	for _, inner := range all {
-		if spell := castSpellOf(inner); spell != nil && !inGroup[inner] {
+		if spell := castSpellOf(inner.impl); spell != nil && !inGroup[inner] {
 			rot.warnIfNeverInRange(spell)
 		}
 	}
 }
 
-func castSpellOf(action *APLAction) *Spell {
-	switch impl := action.impl.(type) {
+// The spell a cast action casts or queues, nil for any other action.
+func castSpellOf(impl APLActionImpl) *Spell {
+	switch impl := impl.(type) {
 	case *APLActionCastSpell:
 		return impl.spell
 	case *APLActionCastFriendlySpell:
@@ -256,8 +257,7 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 	if action.spell.Flags.Matches(SpellFlagHelpful) {
 		for i := int32(0); i < action.maxDots; i++ {
 			target := sim.Raid.AllPlayerUnits[i]
-			dot := action.spell.Dot(target)
-			if (!dot.IsActive() || dot.RemainingDuration(sim) < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
+			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
 			}
@@ -265,8 +265,7 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 	} else {
 		for i := int32(0); i < action.maxDots; i++ {
 			target := sim.Encounter.AllTargetUnits[i]
-			dot := action.spell.Dot(target)
-			if (!dot.IsActive() || dot.RemainingDuration(sim) < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
+			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
 			}
@@ -372,14 +371,14 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	var previousTarget *Unit
 	for i := int32(0); i < action.maxDots; i++ {
 		target := action.targets[i]
-		dot := action.spell.Dot(target)
-		if (!dot.IsActive() || dot.RemainingDuration(sim) < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
+		dot := readDot(sim, action.spell.Dot(target))
+		if (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 			action.readyActions = append(action.readyActions, action.actions[i])
 			previousTarget = target
 		} else if previousTarget != nil {
-			previousDot := action.spell.Dot(previousTarget)
+			previousDot := readDot(sim, action.spell.Dot(previousTarget))
 			// Take the previous Dot + Cast Time into account for the overlap check
-			if (!previousDot.IsActive() || dot.RemainingDuration(sim)-action.spell.EffectiveCastTime() <= previousDot.RemainingDuration(sim)) && action.spell.CanCastOrQueue(sim, target) {
+			if (!previousDot.active || dot.remaining-action.spell.EffectiveCastTime() <= previousDot.remaining) && action.spell.CanCastOrQueue(sim, target) {
 				action.readyActions = append(action.readyActions, action.actions[i])
 				previousTarget = target
 			}
@@ -388,6 +387,9 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 
 	return len(action.readyActions) > 0
 }
+
+// The gate re-checks the entry's If and the If of every Group Reference above it, at any depth; the
+// Ifs of Sequence and Schedule wrappers only decide the start.
 func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
 	groupConditions := action.unit.Rotation.groupConditions
 	var gate APLValue

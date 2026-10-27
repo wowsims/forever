@@ -11,6 +11,7 @@ type QueuedSpell struct {
 	castFn      func(*Simulation)
 
 	channelAction *APLActionChannelSpell // The channel action that queued the spell, which its cast carries when it fires.
+	afterHardcast bool                   // Queued under a hardcast that holds the rotation, as the cast that follows it.
 
 	// Stores the time at which QueueSpell() was called to ensure that only one spell can be queued up per timestep
 	QueueInitiatedAt time.Duration
@@ -21,6 +22,7 @@ func (qs *QueuedSpell) Cancel(sim *Simulation) {
 	if (qs.queueAction != nil) && !qs.queueAction.consumed {
 		qs.queueAction.Cancel(sim)
 		qs.queueAction = nil
+		qs.afterHardcast = false
 	}
 
 	qs.channelAction = nil
@@ -42,6 +44,11 @@ func (qs *QueuedSpell) InitiateQueue(sim *Simulation, spell *Spell, target *Unit
 		if qs.castFn == nil {
 			qs.castFn = func(sim *Simulation) {
 				qs.spell.castForRotation(sim, qs.target, qs.channelAction)
+				// The rotation goes on from a queued instant at once, as it does after one it casts itself, so
+				// an action off the GCD, such as a move, does not wait for the next GCD.
+				if unit := qs.spell.Unit; unit.Hardcast.Expires <= sim.CurrentTime {
+					unit.SetRotationTimer(sim, sim.CurrentTime)
+				}
 			}
 		}
 		pa := &PendingAction{
@@ -97,16 +104,77 @@ func (spell *Spell) CanQueue(sim *Simulation, target *Unit) bool {
 	}
 
 	// Spells that are within one SQW of coming off cooldown can also be queued
-	if MaxTimeToReady(spell.CD.Timer, spell.SharedCD.Timer, sim) > MaxSpellQueueWindow {
+	if spell.rotationTimeToReady(sim) > MaxSpellQueueWindow {
+		return false
+	}
+
+	if spell.waitsForCastEnd(sim) {
 		return false
 	}
 
 	return spell.meetsCost(sim, false)
 }
 
+// Under a hardcast that holds the rotation, a spell off the GCD and a major cooldown are not queued: they
+// decide in the cast-end pass, once the cast has landed. A spell off the GCD goes there after the spell
+// queued after the hardcast, a major cooldown ahead of it or, on the GCD, in its place.
+func (spell *Spell) waitsForCastEnd(sim *Simulation) bool {
+	return (spell.DefaultCast.EffectiveTime() == 0 || spell.Flags.Matches(SpellFlagMCD)) && spell.Unit.hardcastHoldsRotation(sim)
+}
+
 // Helper function for APL checks to prevent infinite loops
 func (spell *Spell) CanCastOrQueue(sim *Simulation, target *Unit) bool {
-	return spell.Unit.CanQueueSpell(sim) && spell.CanQueue(sim, target)
+	return !spell.heldByQueuedSpell(sim) && spell.CanQueue(sim, target)
+}
+
+// Whether a queued spell keeps the spell from being cast or queued now: once a hardcast has ended, the spell
+// queued after it, which holds only spells on the GCD or with a cast time and lets a major cooldown go;
+// otherwise one queued at this instant.
+func (spell *Spell) heldByQueuedSpell(sim *Simulation) bool {
+	if unit := spell.Unit; unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime {
+		return spell.waitsForQueuedCast(sim)
+	}
+	return !spell.Unit.CanQueueSpell(sim)
+}
+
+// Whether a queued spell may hold back the unit's casts now, so that a rotation look checks for it.
+func (unit *Unit) queuedSpellHoldsCasts(sim *Simulation) bool {
+	return !unit.CanQueueSpell(sim) || unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime
+}
+
+// Once a hardcast ends, the spell queued after it is the rotation's next one: until it goes off, no other
+// spell that starts the GCD or a hardcast is cast or queued. A major cooldown still goes, in its place.
+func (spell *Spell) waitsForQueuedCast(sim *Simulation) bool {
+	return spell.Unit.spellQueuedAfterHardcast() && spell.Unit.Hardcast.Expires <= sim.CurrentTime &&
+		spell.DefaultCast.EffectiveTime() > 0 && !spell.Flags.Matches(SpellFlagMCD)
+}
+
+// Whether a spell queued under a hardcast has yet to go off.
+func (unit *Unit) spellQueuedAfterHardcast() bool {
+	qs := unit.QueuedSpell
+	return qs != nil && qs.afterHardcast && !qs.queueAction.IsConsumed()
+}
+
+// Whether the spell queued after a hardcast went off at this instant, on its own or in the cast-end look.
+// Other queued spells do not count.
+func (unit *Unit) queuedSpellWentOff(sim *Simulation) bool {
+	qs := unit.QueuedSpell
+	return qs != nil && qs.afterHardcast && qs.queueAction.IsConsumed() && qs.queueAction != nil &&
+		(qs.queueAction.NextActionAt == sim.CurrentTime || qs.queueAction.NextActionAt == sim.CurrentTime+1)
+}
+
+// Whether the spell queued after a hardcast that has ended is due to go off. Other queued spells go off
+// through their own pending action.
+func (unit *Unit) queuedSpellDue(sim *Simulation) bool {
+	return unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime && unit.QueuedSpell.queueAction.NextActionAt <= sim.CurrentTime+1
+}
+
+// Casts the spell queued after a hardcast that has ended, as its pending action would.
+func (unit *Unit) castDueQueuedSpell(sim *Simulation) {
+	queueAction := unit.QueuedSpell.queueAction
+	queueAction.Cancel(sim)
+	queueAction.consumed = true
+	queueAction.OnAction(sim)
 }
 
 func (spell *Spell) CastOrQueue(sim *Simulation, target *Unit) {
@@ -127,6 +195,7 @@ func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *AP
 		// Schedule the cast to go off without delay
 		spell.Unit.QueueSpell(sim, spell, target, queueTime)
 		spell.Unit.QueuedSpell.channelAction = channelAction
+		spell.Unit.QueuedSpell.afterHardcast = spell.Unit.hardcastHoldsRotation(sim)
 	} else {
 		// Fallback to make sure there is always log output
 		spell.castForRotation(sim, target, channelAction)
@@ -139,13 +208,26 @@ type rotationCast struct {
 }
 
 // A cast by the rotation or a major cooldown: once it completes it restarts the wand's timer. The record
-// outlives the call only while the cast is still running.
+// outlives the call only while the cast is still running. A press that starts counts one ManualCast on its
+// target; a cast that calls Cast directly (a proc, a swing, a spell another spell casts) counts none. A
+// press that queues another spell for the next swing, which the swing then casts directly, credits the
+// queued spell through CountManualCast.
 func (spell *Spell) castForRotation(sim *Simulation, target *Unit, channelAction *APLActionChannelSpell) {
 	unit := spell.Unit
 	unit.rotationCast = rotationCast{spell: spell, channelAction: channelAction}
-	if !spell.Cast(sim, target) || unit.Hardcast.Expires <= sim.CurrentTime {
+	cast := spell.Cast(sim, target)
+	if cast {
+		spell.CountManualCast(target)
+	}
+	if !cast || unit.Hardcast.Expires <= sim.CurrentTime {
 		unit.endRotationCast()
 	}
+}
+
+// Counts one press the player makes by hand on this spell. A press that is not the cast of this spell itself,
+// such as the one that queues it for the next swing, credits it here.
+func (spell *Spell) CountManualCast(target *Unit) {
+	spell.SpellMetrics[target.UnitIndex].ManualCasts++
 }
 
 func (unit *Unit) endRotationCast() {

@@ -376,6 +376,9 @@ export const actionKinds: { [f in NonNullable<APLActionKind>]: ActionKindModel<A
 				label: i18n.t('rotation_tab.apl.actions.move.to_range'),
 				labelTooltip: i18n.t('rotation_tab.apl.actions.move.to_range_tooltip'),
 			}),
+			booleanFieldConfig('recheckWhileMoving', i18n.t('rotation_tab.apl.actions.move.recheck'), {
+				labelTooltip: i18n.t('rotation_tab.apl.actions.move.recheck_tooltip'),
+			}),
 		],
 	}),
 	['moveDuration']: inputBuilder({

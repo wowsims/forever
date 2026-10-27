@@ -37,6 +37,7 @@ type SpellConfig struct {
 	Cast               CastConfig
 	ExtraCastCondition CanCastCondition
 	CastRequirement    CastRequirement
+	MenuGroup          string // A manual APL menu group, a rotation_tab.apl.submenus key.
 
 	// Optional range constraints. If supplied, these are used to modify the ExtraCastCondition above to additionally check for DistanceFromTarget.
 	MinRange     float64
@@ -129,6 +130,7 @@ type Spell struct {
 	ExtraCastCondition CanCastCondition
 
 	CastRequirement    CastRequirement
+	MenuGroup          string // A manual APL menu group, a rotation_tab.apl.submenus key.
 	hasCastRequirement bool
 	casterAuras        []*Aura
 	excludeCasterAuras []*Aura
@@ -154,7 +156,6 @@ type Spell struct {
 	SpellMetrics      []SpellMetrics
 	splitSpellMetrics [][]SpellMetrics // Used to split metrics by some condition.
 	casts             int              // Sum of casts on all targets, for efficient CPM calculation
-	lastAppliedAt     time.Duration    // When the spell last applied its effects; -NeverExpires if not yet this iteration.
 
 	// Performs the actions of this spell.
 	ApplyEffects ApplySpellResults
@@ -285,6 +286,7 @@ func (unit *Unit) RegisterSpell(config SpellConfig) *Spell {
 		IgnoreHaste:        config.Cast.IgnoreHaste,
 		ExtraCastCondition: config.ExtraCastCondition,
 		CastRequirement:    config.CastRequirement,
+		MenuGroup:          config.MenuGroup,
 		hasCastRequirement: config.CastRequirement != CastRequirement{},
 
 		castTimeFn: config.Cast.CastTime,
@@ -392,7 +394,7 @@ func (unit *Unit) RegisterSpell(config SpellConfig) *Spell {
 		spell.MaxRange = config.MaxRange
 		oldExtraCastCondition := spell.ExtraCastCondition
 		spell.ExtraCastCondition = func(sim *Simulation, target *Unit) bool {
-			if ((spell.MinRange != 0) && (spell.Unit.DistanceFromTarget < spell.MinRange)) || ((spell.MaxRange != 0) && (spell.Unit.DistanceFromTarget > spell.EffectiveMaxRange())) {
+			if !spell.InRange() {
 				/*if sim.Log != nil {
 					sim.Log("Cannot cast spell %s, out of range!", spell.ActionID)
 				}*/
@@ -445,6 +447,13 @@ func (spell *Spell) Dot(target *Unit) *Dot {
 		return nil
 	}
 	return spell.dots.Get(target)
+}
+
+// Whether the unit stands within the spell's range: no closer than MinRange and no farther than MaxRange
+// after the range mods. A range left at 0 does not limit.
+func (spell *Spell) InRange() bool {
+	distance := spell.Unit.DistanceFromTarget
+	return (spell.MinRange == 0 || distance >= spell.MinRange) && (spell.MaxRange == 0 || distance <= spell.EffectiveMaxRange())
 }
 
 // The distance the range check allows: MaxRange after the range mods.
@@ -577,7 +586,6 @@ func (spell *Spell) reset(sim *Simulation) {
 		}
 	}
 	spell.casts = 0
-	spell.lastAppliedAt = -NeverExpires
 	if spell.rechargeTimer != nil {
 		spell.rechargeTimer.Cancel(sim)
 		spell.rechargeTimer = nil
@@ -586,8 +594,7 @@ func (spell *Spell) reset(sim *Simulation) {
 }
 
 func (spell *Spell) SetMetricsSplit(splitIdx int32) {
-	spell.SpellMetrics = spell.splitSpellMetrics[splitIdx]
-	spell.hitRanges = spell.splitHitRanges[splitIdx]
+	spell.recordInSplit(splitIdx)
 	spell.ActionID.Tag = splitIdx
 
 	// Also set the tag on any dots to have them line up in the timeline
@@ -601,6 +608,12 @@ func (spell *Spell) SetMetricsSplit(splitIdx int32) {
 	if spell.aoeDot != nil && spell.aoeDot.ActionID.SameActionIgnoreTag(spell.ActionID) {
 		spell.aoeDot.ActionID.Tag = splitIdx
 	}
+}
+
+// Points the spell's metrics at one split and leaves the action id the log records untagged.
+func (spell *Spell) recordInSplit(splitIdx int32) {
+	spell.SpellMetrics = spell.splitSpellMetrics[splitIdx]
+	spell.hitRanges = spell.splitHitRanges[splitIdx]
 }
 
 func (spell *Spell) GetMetricSplitCount() int {
@@ -633,6 +646,8 @@ func (spell *Spell) rangesToRecord(target *Unit, value float64) *hitRanges {
 	return hr
 }
 
+// Called with the total each hit feeds, so a range follows its total: damage records in combat only,
+// heals and shields always.
 func (spell *Spell) recordHit(target *Unit, kind proto.HitKind, value float64) {
 	if hr := spell.rangesToRecord(target, value); hr != nil {
 		hr.kinds[kind].add(value)
@@ -690,6 +705,37 @@ func (spell *Spell) TimeToReady(sim *Simulation) time.Duration {
 	return MaxTimeToReady(spell.CD.Timer, spell.SharedCD.Timer, sim)
 }
 
+// The time until the spell is ready as the unit's rotation reads it: during a hardcast that holds the
+// rotation, the cooldowns the casting spell starts when it lands read as running from the cast end.
+func (spell *Spell) rotationTimeToReady(sim *Simulation) time.Duration {
+	timeToReady := spell.TimeToReady(sim)
+	if spell.Unit.hardcastRuns(sim) {
+		timeToReady = max(timeToReady, spell.cooldownAfterLanding(sim))
+	}
+	return timeToReady
+}
+
+// How long the cooldown or shared cooldown the spell shares with the running cast keeps it from being ready
+// once that cast lands at the cast end; zero when it shares neither or the cast does not hold the rotation.
+func (spell *Spell) cooldownAfterLanding(sim *Simulation) time.Duration {
+	hc := &spell.Unit.Hardcast
+	cast := hc.spell
+	if cast == nil {
+		return 0
+	}
+	var cooldown time.Duration
+	if spell.CD.Timer != nil && spell.CD.Timer == cast.CD.Timer {
+		cooldown = time.Duration(float64(cast.CD.Duration) * cast.CooldownMultiplier())
+	}
+	if spell.SharedCD.Timer != nil && spell.SharedCD.Timer == cast.SharedCD.Timer {
+		cooldown = max(cooldown, time.Duration(float64(cast.SharedCD.Duration)*cast.CooldownMultiplier()))
+	}
+	if cooldown <= 0 || !spell.Unit.hardcastHoldsRotation(sim) {
+		return 0
+	}
+	return hc.Expires + cooldown - sim.CurrentTime
+}
+
 // Returns whether a call to Cast() would be successful, without actually
 // doing a cast.
 func (spell *Spell) CanCast(sim *Simulation, target *Unit) bool {
@@ -698,7 +744,7 @@ func (spell *Spell) CanCast(sim *Simulation, target *Unit) bool {
 	}
 
 	// While casting or channeling, no other action is possible
-	if spell.Unit.Hardcast.Expires > sim.CurrentTime {
+	if spell.Unit.hardcastRuns(sim) {
 		//if sim.Log != nil {
 		//	sim.Log("Cant cast because already casting/channeling")
 		//}
@@ -833,7 +879,6 @@ func (spell *Spell) SkipCastAndApplyEffects(sim *Simulation, target *Unit) {
 func (spell *Spell) applyEffects(sim *Simulation, target *Unit) {
 	spell.SpellMetrics[target.UnitIndex].Casts++
 	spell.casts++
-	spell.lastAppliedAt = sim.CurrentTime
 
 	// Not sure if we want to split this flag into its own?
 	// Both are used to optimize away unneccesery calls and 99%
@@ -887,6 +932,8 @@ func (spell *Spell) ExpectedInitialDamage(sim *Simulation, target *Unit) float64
 func (spell *Spell) ExpectedTickDamage(sim *Simulation, target *Unit) float64 {
 	return spell.expectedDamage(sim, target, spell.expectedTickDamageInternal, false)
 }
+
+// Kept for the DoT increase values, which are disabled for now in apl_values_dot.go.
 func (spell *Spell) ExpectedTickDamageFromCurrentSnapshot(sim *Simulation, target *Unit) float64 {
 	return spell.expectedDamage(sim, target, spell.expectedTickDamageInternal, true)
 }
@@ -895,6 +942,8 @@ func (spell *Spell) ExpectedTickDamageFromCurrentSnapshot(sim *Simulation, targe
 // for 150%, melee and ranged attacks for 200%. Multiplicative modifiers (the slaying
 // talents on the attack table, SpellMod_CritMultiplier_Pct) scale that base; additive
 // ones (Ruin, Impale, SpellMod_CritMultiplier_Flat) scale only the bonus part above 100%.
+// Aura 163 (aura 50 for healing) multiplies PseudoStats.CritDamageMultiplier, so 2% gives 204% melee
+// and 153% spell crits, and Vengeance 5/5 on top gives (1.53 - 1) × 2 + 1 = 206%.
 // https://web.archive.org/web/20081014064638/http://elitistjerks.com/f31/t12595-relentless_earthstorm_diamond_-_melee_only/p4/
 func (spell *Spell) CritDamageMultiplier(at *AttackTable) float64 {
 	var base float64
