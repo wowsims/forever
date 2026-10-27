@@ -239,9 +239,9 @@ func applySkyborneSharedRacials(character *Character) {
 // Read Leyline and Skysight each register twice on one cooldown: the plain cast, and tag 1 for a
 // character under the hour-long buff a cast at a Ley Line (Attuned) or at an elemental convergence
 // (Charged) grants, which doubles the effect. The buff lasts through death, so the APL picks the cast
-// the player holds for the whole fight. Entering a raid removes the buff, so the tag 1 casts model fights
-// outside a raid. The aura lasts 15 s at the cast's multiplier, and an activation
-// with no cast takes the plain one.
+// the player holds for the whole fight. Entering a raid removes the buff, so the tag 1 casts model
+// fights outside a raid. The aura lasts 15 s at the cast's multiplier, and an activation with no cast
+// takes the plain one.
 func registerSkyborneCasts(character *Character, spellID int32, castTime time.Duration, config Aura, plain, buffed float64, multiply func(sim *Simulation, multiplier float64), castCondition CanCastCondition) *Aura {
 	value, applied := plain, plain
 	config.Duration = time.Second * 15

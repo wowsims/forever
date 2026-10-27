@@ -808,7 +808,7 @@ func TestTouchOfTheGraveIgnoresPeriodicTicks(t *testing.T) {
 	}
 }
 
-func TestTouchOfTheGraveProcsOnceIn25Seconds(t *testing.T) {
+func TestTouchOfTheGraveProcsOnceIn15Seconds(t *testing.T) {
 	sim, fw, aura := setupTouchOfTheGraveWarlock(t)
 	target := fw.CurrentTarget
 	drain := fw.GetSpell(ActionID{SpellID: 1260198})
@@ -819,30 +819,31 @@ func TestTouchOfTheGraveProcsOnceIn25Seconds(t *testing.T) {
 		t.Fatalf("Touch of the Grave should proc within 200 landed casts")
 	}
 	procAt := sim.CurrentTime
+	const icd = 15 * time.Second
 
 	procsAfter, done := false, false
 	at := func(when time.Duration, action func(sim *Simulation)) {
 		sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{DoAt: when, OnAction: action}))
 	}
-	// A proc from these hits would restart the cooldown, and the hits at 25 seconds could not proc.
-	at(procAt+25*time.Second-time.Millisecond, func(_ *Simulation) {
+	// A proc from these hits would restart the cooldown, and the hits at 15 seconds could not proc.
+	at(procAt+icd-time.Millisecond, func(_ *Simulation) {
 		for range 200 {
 			hit()
 		}
 	})
-	at(procAt+25*time.Second, func(sim *Simulation) {
-		procsAfter = touchOfTheGraveProcsWithin(sim, aura, 200, hit)
+	at(procAt+icd, func(sim *Simulation) {
+		procsAfter = aura.Icd.IsReady(sim) && touchOfTheGraveProcsWithin(sim, aura, 200, hit)
 	})
 	// Each drain lands one spell batch after its proc.
-	at(procAt+25*time.Second+2*SpellBatchWindow, func(_ *Simulation) { done = true })
+	at(procAt+icd+2*SpellBatchWindow, func(_ *Simulation) { done = true })
 	for !done && !sim.Step() {
 	}
 
 	if !procsAfter {
-		t.Errorf("Touch of the Grave should proc again on the first hits once 25 seconds have passed, and on none before")
+		t.Errorf("Touch of the Grave should proc again on the first hits once 15 seconds have passed, and on none before")
 	}
 	if got := drains(); got != 2 {
-		t.Errorf("Touch of the Grave should drain twice, at its first proc and 25 seconds later, got %d", got)
+		t.Errorf("Touch of the Grave should drain twice, at its first proc and 15 seconds later, got %d", got)
 	}
 }
 
