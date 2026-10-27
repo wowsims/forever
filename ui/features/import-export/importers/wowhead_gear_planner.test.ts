@@ -96,7 +96,7 @@ describe('the Wowhead gear planner link', () => {
 			talents: '05002001',
 			gear: { [ItemSlot.ItemSlotHead]: { id: 29011, enchantSpellId: 28909, randomSuffix: -5 } },
 		});
-		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910, randomSuffix: -5 })]);
+		expect(parsed.equipmentSpec?.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910, randomSuffix: -5 })]);
 	});
 
 	// A Wowhead link can carry gem ids, three bytes each, after an item: they are skipped, and the
@@ -124,12 +124,12 @@ describe('the Wowhead gear planner link', () => {
 
 		const parsed = await importLink(`https://www.wowhead.com/${WOWHEAD_DOMAIN}/gear-planner/warrior/human/${hash}`);
 
-		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910 }), ItemSpec.create({ id: 28773 })]);
+		expect(parsed.equipmentSpec?.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910 }), ItemSpec.create({ id: 28773 })]);
 	});
 
 	it('round-trips a bare item, leaving the optional fields off', async () => {
 		const parsed = await roundTrip({ talents: '05002001', gear: { [ItemSlot.ItemSlotMainHand]: { id: 28773 } } });
-		expect(parsed.equipmentSpec.items).toEqual([ItemSpec.create({ id: 28773 })]);
+		expect(parsed.equipmentSpec?.items).toEqual([ItemSpec.create({ id: 28773 })]);
 	});
 
 	// The ranged slot is slot id 18, and the last one the picker offers.
@@ -138,7 +138,7 @@ describe('the Wowhead gear planner link', () => {
 		const gear = Object.fromEntries(slots.map((slot, index) => [slot, { id: 28000 + index * 37 }]));
 		const parsed = await roundTrip({ talents: '05002001', gear });
 		expect(slots).toHaveLength(17);
-		expect(parsed.equipmentSpec.items.map(item => item.id)).toEqual(slots.map((_, index) => 28000 + index * 37));
+		expect(parsed.equipmentSpec?.items.map(item => item.id)).toEqual(slots.map((_, index) => 28000 + index * 37));
 	});
 
 	it('rejects a link that is not a gear planner link', async () => {
