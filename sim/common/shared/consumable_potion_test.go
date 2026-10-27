@@ -245,7 +245,7 @@ func TestConjuredRuneRestoresManaAtTheCostOfLife(t *testing.T) {
 	}
 }
 
-// 16666's damage to the user lands however poor the user's spell hit.
+// 16666's damage to the user lands however poor the user's spell hit, and counts no cast of its own.
 func TestConjuredRuneAlwaysHitsTheUser(t *testing.T) {
 	const runeID int32 = 992031
 	sim, drinker := newConsumableSim(t, manaUser(), &proto.ConsumesSpec{ConjuredId: runeID, ConjuredItems: []int32{runeID}}, 0,
@@ -263,6 +263,9 @@ func TestConjuredRuneAlwaysHitsTheUser(t *testing.T) {
 			t.Errorf("the rune cost %v health, want at least %v", lost, damage.Min())
 		}
 		drinker.GainHealth(sim, drinker.MaxHealth(), self.HealthMetrics(&drinker.Unit))
+	}
+	if casts := self.SpellMetrics[drinker.UnitIndex].Casts; casts != 0 {
+		t.Errorf("the rune's hit on its user counted %d casts, want none", casts)
 	}
 }
 

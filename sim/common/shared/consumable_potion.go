@@ -238,7 +238,9 @@ func registerSpellDataConsumable(itemID int32) {
 				gains[i].apply(sim)
 			}
 			if selfDamage != nil {
-				selfDamage.Cast(sim, &character.Unit)
+				// Applied without a cast, so the hit logs no cast and draws no timeline row of its own, like
+				// an explosive's hit on its thrower.
+				selfDamage.ApplyEffects(sim, &character.Unit, selfDamage)
 			}
 			if applyAura != nil {
 				applyAura(sim)
