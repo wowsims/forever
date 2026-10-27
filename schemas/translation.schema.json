@@ -4022,6 +4022,445 @@
 						},
 						"disabled_at_start": {
 							"type": "string"
+						},
+						"designer": {
+							"type": "object",
+							"properties": {
+								"timeline": {
+									"type": "string"
+								},
+								"lanes": {
+									"type": "object",
+									"properties": {
+										"boss": {
+											"type": "string"
+										},
+										"abilities": {
+											"type": "string"
+										},
+										"waves": {
+											"type": "string"
+										},
+										"moves": {
+											"type": "string"
+										},
+										"amps": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["boss", "abilities", "waves", "moves", "amps"]
+								},
+								"events": {
+									"type": "object",
+									"properties": {
+										"downtime": {
+											"type": "string"
+										},
+										"bossHealth": {
+											"type": "string"
+										},
+										"ability": {
+											"type": "string"
+										},
+										"wave": {
+											"type": "string"
+										},
+										"move": {
+											"type": "string"
+										},
+										"amp": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["downtime", "bossHealth", "ability", "wave", "move", "amp"]
+								},
+								"validation": {
+									"type": "object",
+									"properties": {
+										"endBeforeStart": {
+											"type": "string"
+										},
+										"outsideFight": {
+											"type": "string"
+										},
+										"overlap": {
+											"type": "string"
+										},
+										"healthIncreases": {
+											"type": "string"
+										},
+										"targetOutOfRange": {
+											"type": "string"
+										},
+										"waveOutOfRange": {
+											"type": "string"
+										},
+										"allTargetsDown": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": [
+										"endBeforeStart",
+										"outsideFight",
+										"overlap",
+										"healthIncreases",
+										"targetOutOfRange",
+										"waveOutOfRange",
+										"allTargetsDown"
+									]
+								},
+								"event_name": {
+									"type": "string"
+								},
+								"seconds": {
+									"type": "string"
+								},
+								"span_value": {
+									"type": "string"
+								},
+								"point_value": {
+									"type": "string"
+								},
+								"keyframe_value": {
+									"type": "string"
+								},
+								"state_selected": {
+									"type": "string"
+								},
+								"state_invalid": {
+									"type": "string"
+								},
+								"add": {
+									"type": "string"
+								},
+								"toolbar": {
+									"type": "object",
+									"properties": {
+										"zoom_in": {
+											"type": "string"
+										},
+										"zoom_out": {
+											"type": "string"
+										},
+										"fit": {
+											"type": "string"
+										},
+										"snap": {
+											"type": "string"
+										},
+										"snap_off": {
+											"type": "string"
+										},
+										"add_event": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["zoom_in", "zoom_out", "fit", "snap", "snap_off", "add_event"]
+								},
+								"panel": {
+									"type": "object",
+									"properties": {
+										"empty": {
+											"type": "string"
+										},
+										"remove": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["empty", "remove"]
+								},
+								"issues": {
+									"type": "object",
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"empty": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["title", "empty"]
+								},
+								"fields": {
+									"type": "object",
+									"properties": {
+										"target": {
+											"type": "string"
+										},
+										"start": {
+											"type": "string"
+										},
+										"start_jitter": {
+											"type": "string"
+										},
+										"end": {
+											"type": "string"
+										},
+										"end_jitter": {
+											"type": "string"
+										},
+										"clear_debuffs": {
+											"type": "string"
+										},
+										"at": {
+											"type": "string"
+										},
+										"at_jitter": {
+											"type": "string"
+										},
+										"health_percent": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										},
+										"template": {
+											"type": "string"
+										},
+										"count": {
+											"type": "string"
+										},
+										"spawn": {
+											"type": "string"
+										},
+										"spawn_jitter": {
+											"type": "string"
+										},
+										"lifetime": {
+											"type": "string"
+										},
+										"execute_20": {
+											"type": "string"
+										},
+										"execute_35": {
+											"type": "string"
+										},
+										"kill_share": {
+											"type": "string"
+										},
+										"yards": {
+											"type": "string"
+										},
+										"seconds": {
+											"type": "string"
+										},
+										"repeat_interval": {
+											"type": "string"
+										},
+										"repeat_jitter": {
+											"type": "string"
+										},
+										"repeat_count": {
+											"type": "string"
+										},
+										"amp_type": {
+											"type": "string"
+										},
+										"percent": {
+											"type": "string"
+										},
+										"targets": {
+											"type": "string"
+										},
+										"waves": {
+											"type": "string"
+										},
+										"ability_kind": {
+											"type": "string"
+										},
+										"school": {
+											"type": "string"
+										},
+										"min_damage": {
+											"type": "string"
+										},
+										"max_damage": {
+											"type": "string"
+										},
+										"cast_time": {
+											"type": "string"
+										},
+										"weapon_percent": {
+											"type": "string"
+										},
+										"proc_chance": {
+											"type": "string"
+										},
+										"extra_attacks": {
+											"type": "string"
+										},
+										"icd": {
+											"type": "string"
+										},
+										"swing_speed_multiplier": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": [
+										"target",
+										"start",
+										"start_jitter",
+										"end",
+										"end_jitter",
+										"clear_debuffs",
+										"at",
+										"at_jitter",
+										"health_percent",
+										"name",
+										"template",
+										"count",
+										"spawn",
+										"spawn_jitter",
+										"lifetime",
+										"execute_20",
+										"execute_35",
+										"kill_share",
+										"yards",
+										"seconds",
+										"repeat_interval",
+										"repeat_jitter",
+										"repeat_count",
+										"amp_type",
+										"percent",
+										"targets",
+										"waves",
+										"ability_kind",
+										"school",
+										"min_damage",
+										"max_damage",
+										"cast_time",
+										"weapon_percent",
+										"proc_chance",
+										"extra_attacks",
+										"icd",
+										"swing_speed_multiplier"
+									]
+								},
+								"tooltips": {
+									"type": "object",
+									"properties": {
+										"jitter": {
+											"type": "string"
+										},
+										"clear_debuffs": {
+											"type": "string"
+										},
+										"template": {
+											"type": "string"
+										},
+										"lifetime": {
+											"type": "string"
+										},
+										"execute_20": {
+											"type": "string"
+										},
+										"execute_35": {
+											"type": "string"
+										},
+										"kill_share": {
+											"type": "string"
+										},
+										"seconds": {
+											"type": "string"
+										},
+										"repeat_interval": {
+											"type": "string"
+										},
+										"repeat_count": {
+											"type": "string"
+										},
+										"targets": {
+											"type": "string"
+										},
+										"waves": {
+											"type": "string"
+										},
+										"swing_speed_multiplier": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": [
+										"jitter",
+										"clear_debuffs",
+										"template",
+										"lifetime",
+										"execute_20",
+										"execute_35",
+										"kill_share",
+										"seconds",
+										"repeat_interval",
+										"repeat_count",
+										"targets",
+										"waves",
+										"swing_speed_multiplier"
+									]
+								},
+								"amp_types": {
+									"type": "object",
+									"properties": {
+										"caster_buff": {
+											"type": "string"
+										},
+										"environment_buff": {
+											"type": "string"
+										},
+										"target_debuff": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["caster_buff", "environment_buff", "target_debuff"]
+								},
+								"ability_kinds": {
+									"type": "object",
+									"properties": {
+										"spell_hit": {
+											"type": "string"
+										},
+										"strike": {
+											"type": "string"
+										},
+										"thrash": {
+											"type": "string"
+										},
+										"swing_timing": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["spell_hit", "strike", "thrash", "swing_timing"]
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"timeline",
+								"lanes",
+								"events",
+								"validation",
+								"event_name",
+								"seconds",
+								"span_value",
+								"point_value",
+								"keyframe_value",
+								"state_selected",
+								"state_invalid",
+								"add",
+								"toolbar",
+								"panel",
+								"issues",
+								"fields",
+								"tooltips",
+								"amp_types",
+								"ability_kinds"
+							]
 						}
 					},
 					"additionalProperties": false,
@@ -4054,7 +4493,8 @@
 						"damage_spread",
 						"suppress_dodge",
 						"second_tank_index",
-						"disabled_at_start"
+						"disabled_at_start",
+						"designer"
 					]
 				},
 				"player": {
