@@ -77,6 +77,12 @@ func (s *Spell) AlwaysHits() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)
 }
 
+// Whether the game files flag the spell No Active Defense, which keeps dodge, parry and block out of
+// its hit roll.
+func (s *Spell) NoActiveDefense() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_NO_ACTIVE_DEFENSE)
+}
+
 // Whether the game files flag the spell Fixed Travel Time, which makes its Speed the missile's flight
 // time in seconds rather than yards per second.
 func (s *Spell) FixedTravelTime() bool {

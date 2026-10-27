@@ -30,7 +30,7 @@ func (druid *Druid) registerPounceSpell() {
 	}
 	// No Active Defense (Attributes 0x200000): it misses or lands, never dodged, parried or blocked.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialNoBlockDodgeParryNoCrit)
+		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
 		if result.Landed() {
 			stuns.Get(target).Activate(sim)
 			druid.PounceBleed.Dot(target).Apply(sim)

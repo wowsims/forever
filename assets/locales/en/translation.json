@@ -1841,7 +1841,7 @@
 				"is_expertise_capped": {
 					"label": "Is Expertise Capped",
 					"tooltip": "<b>True</b> if the current target can neither dodge nor parry the spell, otherwise <b>False</b>.",
-					"full_description": "<p>Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>.</p><p>The check reads only the spell's defense type, so it still counts dodge and parry for specials that never roll them, such as Backstab, Ambush and Overpower.</p>"
+					"full_description": "<p>Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>.</p><p>Specials that cannot be dodged, parried or blocked, such as Ambush, Garrote, Overpower and the seal judgements, also return <b>True</b>.</p>"
 				},
 				"is_ready": {
 					"label": "Is Ready",

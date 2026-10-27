@@ -564,8 +564,8 @@ func (value *APLValueSpellIsHitCapped) String() string {
 }
 
 // Whether the current target can neither dodge the spell nor, while the unit stands in front of it, parry it.
-// Only the melee table has dodge and parry, so anything else is capped. It reads the table alone, so a
-// special whose outcome never rolls dodge or parry still counts them.
+// Only the melee table has dodge and parry, so anything else is capped, as is a spell flagged No Active
+// Defense, which the target's chances read as zero. The outcome function the spell passes is not read.
 type APLValueSpellIsExpertiseCapped struct {
 	DefaultAPLValueImpl
 	spell     *Spell
@@ -594,7 +594,7 @@ func (value *APLValueSpellIsExpertiseCapped) GetBool(_ *Simulation) bool {
 	spell := value.spell
 	target := value.targetRef.Get()
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
-	if !spell.Flags.Matches(SpellFlagCannotBeDodged) && target.GetTotalDodgeChanceAsDefender(spell, attackTable) > capTolerance {
+	if target.GetTotalDodgeChanceAsDefender(spell, attackTable) > capTolerance {
 		return false
 	}
 	return !spell.Unit.PseudoStats.InFrontOfTarget || target.GetTotalParryChanceAsDefender(spell, attackTable) <= capTolerance

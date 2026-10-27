@@ -49,7 +49,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementConfig.BonusCoefficient = judgementDamage.Coeff()
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
 		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)

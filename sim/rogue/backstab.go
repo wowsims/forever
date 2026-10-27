@@ -19,12 +19,13 @@ func (rogue *Rogue) registerBackstabSpell() {
 		return !rogue.PseudoStats.InFrontOfTarget && rogue.HasDagger(core.MainHand)
 	}
 
+	// The row lacks No Active Defense, so the target can dodge it; from behind it is never parried or blocked.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
 		baseDamage := backstabBaseDamage +
 			spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 
-		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if result.Landed() {
 			rogue.AddComboPoints(sim, int32(comboPointGen), spell.ComboPointMetrics())
