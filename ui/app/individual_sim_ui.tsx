@@ -112,7 +112,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		this.sim = player.sim;
 		const launchStatus = player.getPlayerSpec().launch.status;
 		this.disabled = !isDevMode() && launchStatus === LaunchStatus.Unlaunched;
-		this.simDisabled = this.disabled || launchStatus === LaunchStatus.GearPlanner;
+		this.simDisabled = this.disabled || (!isDevMode() && launchStatus === LaunchStatus.GearPlanner);
 
 		this.sim.crashEmitter.on((error: SimError) => this.handleCrash(error));
 

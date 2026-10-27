@@ -108,19 +108,12 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 			resultColumns.push(column('tto', playerMetrics.tto.avg, { stdev: playerMetrics.tto.stdev, unit: 'seconds' }));
 		}
 		const targetIndex = playerMetrics.getTargetIndex(filter);
-		const hps =
-			targetIndex == null
-				? playerMetrics.hps.avg
-				: (() => {
-						const targetActions = playerMetrics
-							.getPlayerAndPetActions()
-							.filter(action =>
-								action.targets.some(target => target.data.unitIndex === targetIndex && (target.healing > 0 || target.shielding > 0)),
-							)
-							.map(action => action.forTarget(filter));
-						return targetActions.length ? ActionMetrics.merge(targetActions).hps : 0;
-					})();
-		resultColumns.push(column('hps', hps));
+		if (targetIndex == null) {
+			resultColumns.push(column('hps', playerMetrics.hps.avg, { stdev: playerMetrics.hps.stdev }));
+		} else {
+			const healedActions = playerMetrics.getHealingActionsOn(targetIndex);
+			resultColumns.push(column('hps', healedActions.length ? ActionMetrics.merge(healedActions).hps : 0));
+		}
 	}
 
 	if (simResult.request.encounter?.useHealth) {
@@ -137,6 +130,7 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 
 	const visibleColumns = displayMetrics
 		? resultColumns.filter(({ metric }) => {
+				if (metric === 'apm' || (metric === 'tps' && !isHealer)) return true;
 				const category = resultMetricCategories[metric];
 				return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
 			})

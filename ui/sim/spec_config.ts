@@ -156,7 +156,6 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	hideSimpleCooldowns?: boolean;
 	includeBuffDebuffInputs: Array<any>;
 	excludeBuffDebuffInputs: Array<any>;
-	healingInputs?: InputSection;
 	healingSpellOrder?: Array<string>;
 	// Spell IDs for proc auras to include in the healing results summary.
 	healingProcAuras?: Array<number>;

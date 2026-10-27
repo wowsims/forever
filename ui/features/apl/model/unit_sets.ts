@@ -34,6 +34,8 @@ const ownPetRefs = (player: Player<any>) =>
 		.asList()
 		.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) }));
 
+const healingTargetRefs = (player: Player<any>) => healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index }));
+
 export const unitSets: Record<
 	UNIT_SET,
 	{
@@ -54,7 +56,7 @@ export const unitSets: Record<
 					.getActivePlayers()
 					.filter(filter => filter != player)
 					.map(mapPlayer => UnitReference.create({ type: UnitType.Player, index: mapPlayer.getRaidIndex() })),
-				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
+				healingTargetRefs(player),
 				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 			].flat();
 		},
@@ -67,7 +69,7 @@ export const unitSets: Record<
 				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.Self }),
 				ownPetRefs(player),
-				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
+				healingTargetRefs(player),
 			].flat();
 		},
 	},
@@ -85,7 +87,7 @@ export const unitSets: Record<
 				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
-				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
+				healingTargetRefs(player),
 			].flat();
 		},
 	},
@@ -95,7 +97,7 @@ export const unitSets: Record<
 			return [
 				undefined,
 				player.sim.raid.getActivePlayers().map(player => UnitReference.create({ type: UnitType.Player, index: player.getRaidIndex() })),
-				healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index })),
+				healingTargetRefs(player),
 			].flat();
 		},
 	},

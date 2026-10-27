@@ -13,14 +13,34 @@ type UnitReference struct {
 	Type               proto.UnitReference_Type
 	fixedUnit          *Unit
 	targetLookupSource *Unit
-	randomHealTarget   **Unit
+	randomFriendly     *randomFriendlyTarget
+}
+
+// One target dummy for an action pick, shared by every reference in its conditions and cast.
+type randomFriendlyTarget struct {
+	units []*Unit
+	unit  *Unit
+}
+
+func newRandomFriendlyTarget(raid *Raid) *randomFriendlyTarget {
+	r := &randomFriendlyTarget{units: MapSlice(raid.GetTargetDummies(), func(dummy *TargetDummy) *Unit { return &dummy.Unit })}
+	if len(r.units) > 0 {
+		r.unit = r.units[0]
+	}
+	return r
+}
+
+func (r *randomFriendlyTarget) roll(sim *Simulation) {
+	if len(r.units) > 0 {
+		r.unit = r.units[int(sim.RandomFloat("APL Random Friendly Target")*float64(len(r.units)))]
+	}
 }
 
 func (ur UnitReference) Get() *Unit {
 	if ur.fixedUnit != nil {
 		return ur.fixedUnit
-	} else if ur.randomHealTarget != nil {
-		return *ur.randomHealTarget
+	} else if ur.randomFriendly != nil {
+		return ur.randomFriendly.unit
 	} else if ur.targetLookupSource != nil {
 		switch ur.Type {
 		case proto.UnitReference_PreviousTarget:
@@ -61,18 +81,14 @@ func NewUnitReference(ref *proto.UnitReference, contextUnit *Unit) UnitReference
 func (rot *APLRotation) getUnit(ref *proto.UnitReference, defaultRef *proto.UnitReference) UnitReference {
 	if ref == nil || ref.Type == proto.UnitReference_Unknown {
 		return NewUnitReference(defaultRef, rot.unit)
-	} else if ref.Type == proto.UnitReference_RandomHealTarget {
-		rot.usesRandomHealTarget = true
-		if rot.randomHealTarget == nil {
-			if targets := rot.unit.Env.Raid.GetTargetDummies(); len(targets) > 0 {
-				rot.randomHealTarget = &targets[0].Unit
-			}
+	} else if ref.Type == proto.UnitReference_RandomFriendlyTarget {
+		if rot.randomFriendlyTarget == nil {
+			rot.randomFriendlyTarget = newRandomFriendlyTarget(rot.unit.Env.Raid)
 		}
-		unitRef := UnitReference{Type: ref.Type, randomHealTarget: &rot.randomHealTarget}
-		if unitRef.Get() == nil {
-			rot.ValidationMessage(proto.LogLevel_Warning, "No heal target found for random heal target reference")
+		if rot.randomFriendlyTarget.unit == nil {
+			rot.ValidationMessage(proto.LogLevel_Warning, "No target dummy found for the random friendly target")
 		}
-		return unitRef
+		return UnitReference{Type: ref.Type, randomFriendly: rot.randomFriendlyTarget}
 	} else {
 		unitRef := NewUnitReference(ref, rot.unit)
 		if unitRef.Get() == nil {

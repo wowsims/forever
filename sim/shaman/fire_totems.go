@@ -126,7 +126,6 @@ func (shaman *Shaman) registerFireNovaSpell() {
 		nova.Cast(sim, target)
 
 		castMetrics, novaMetrics := &spell.SpellMetrics[target.UnitIndex], &nova.SpellMetrics[target.UnitIndex]
-		castMetrics.TotalCastTime += spell.CurCast.EffectiveTime()
 		novaMetrics.TotalCastTime += castMetrics.TotalCastTime
 		castMetrics.TotalCastTime = 0
 		castMetrics.Casts--

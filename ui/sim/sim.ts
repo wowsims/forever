@@ -641,7 +641,7 @@ export class Sim {
 
 			const request = StatWeightsRequest.create({
 				player: playerProto,
-				raid: this.raid.toProto(false, true),
+				raid: player.getPlayerSpec().isHealingSpec ? this.raid.toProto(false, true) : undefined,
 				raidBuffs: this.raid.getBuffs(),
 				partyBuffs: player.getParty()!.getBuffs(),
 				debuffs: this.raid.getDebuffs(),
@@ -694,11 +694,10 @@ export class Sim {
 	getUnitMetadata(ref: UnitReference | undefined, contextPlayer: Player<any> | null, defaultRef: UnitReference): UnitMetadata | undefined {
 		if (!ref || ref.type == UnitType.Unknown) {
 			return this.getUnitMetadata(defaultRef, contextPlayer, defaultRef);
-		} else if (ref.type == UnitType.RandomHealTarget) {
-			return contextPlayer?.getPlayerSpec().isHealingSpec ? contextPlayer.getMetadata() : undefined;
-		} else if (ref.type == UnitType.Player) {
+		} else if (ref.type == UnitType.Player || ref.type == UnitType.RandomFriendlyTarget) {
 			const player = this.raid.getPlayerFromUnitReference(ref);
 			if (player) return player.getMetadata();
+			// A heal target slot has no metadata of its own, so the healer's stands in.
 			return contextPlayer?.getPlayerSpec().isHealingSpec ? contextPlayer.getMetadata() : undefined;
 		} else if (ref.type == UnitType.Target) {
 			return this.encounter.targetsMetadata.asList()[ref.index];

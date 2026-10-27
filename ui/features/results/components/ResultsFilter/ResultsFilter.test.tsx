@@ -25,9 +25,9 @@ const healingResultWith = (heals: Array<{ unitIndex: number; healing: number; sh
 			{
 				spec: { isHealingSpec: true },
 				unitIndex: healerIndex,
-				getHealingActions: () => [
+				getPlayerAndPetActions: () => [
 					{
-						targets: heals.map(({ unitIndex, healing, shielding }) => ({ data: { unitIndex }, healing, shielding })),
+						targets: heals.map(({ unitIndex, healing, shielding }) => ({ data: { unitIndex }, healing: healing + shielding, shielding })),
 					},
 				],
 			},
@@ -118,6 +118,11 @@ describe('the filter the pane emits', () => {
 });
 
 describe('healing target options', () => {
+	it('keeps enemy targets alongside the healed friendly targets', () => {
+		const healing = healingResultWith([{ unitIndex: 2, healing: 25, shielding: 0 }], 1);
+		const result = { ...healing, getTargets: () => [{ index: 0 }] } as unknown as SimResultData['result'];
+		expect(targetOptions(result).map(option => option.value)).toEqual([ALL_UNITS, 0, 2]);
+	});
 	it('labels the healer separately and numbers targets that received healing or shielding', () => {
 		const result = healingResultWith([
 			{ unitIndex: 0, healing: 20, shielding: 0 },

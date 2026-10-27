@@ -22,6 +22,7 @@ const player = (overrides: Record<string, unknown> = {}) => ({
 	unitIndex: 0,
 	getTargetIndex: () => null,
 	getPlayerAndPetActions: () => [],
+	getHealingActionsOn: () => [],
 	dps: dist(1000, 10),
 	tps: dist(500, 5),
 	dtps: dist(50, 1),
@@ -82,10 +83,10 @@ describe('toplineResultMetrics', () => {
 		expect(metrics.find(metric => metric.metric === 'apm')).toMatchObject({ average: 37.5, stdev: undefined });
 	});
 
-	it('keeps apm whatever the display metrics are', () => {
+	it('keeps apm and non-healer tps whatever the display metrics are', () => {
 		const displayMetrics = { damage: false, threat: false, healing: false };
 
-		expect(toplineResultMetrics(simResult([player()]), undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['apm']);
+		expect(toplineResultMetrics(simResult([player()]), undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['tps', 'apm']);
 	});
 
 	it('merges the filtered actions when a target is selected', () => {
@@ -98,11 +99,18 @@ describe('toplineResultMetrics', () => {
 		expect(toplineResultMetrics(result)[0]).toMatchObject({ metric: 'dps', average: 400, stdev: undefined });
 	});
 
-	it('hides tps when threat metrics are disabled', () => {
+	it('keeps non-healer tps when threat metrics are disabled', () => {
 		const result = simResult([player()]);
 		const displayMetrics = { damage: true, threat: false, healing: true };
 
-		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'apm', 'tto', 'hps']);
+		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'apm', 'tto', 'hps']);
+	});
+
+	it('keeps HPS variance and hides healer threat when it is disabled', () => {
+		const result = simResult([player({ spec: PlayerSpecs.HealerPriest, getHealingActionsOn: () => [] })]);
+		const metrics = toplineResultMetrics(result, undefined, { displayMetrics: { damage: false, threat: false, healing: true } });
+		expect(metrics.map(metric => metric.metric)).not.toContain('tps');
+		expect(metrics[0]).toMatchObject({ metric: 'hps', average: 20, stdev: 2 });
 	});
 
 	it('omits the merged columns a filtered encounter has no actions for', () => {

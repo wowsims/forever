@@ -12,7 +12,7 @@ func (priest *Priest) registerPowerWordShield() {
 	})
 
 	// Every rank puts up the same shield on a target, so a cast of any rank replaces the one up. The
-	// applied shield is credited as shielding to the rank that cast it.
+	// rank receives credit for added capacity after subtracting the unused shield it replaces.
 	highest := spellData.PowerWordShield.Highest()
 	schools := core.SpellSchool(highest.AbsorbEffect().Misc)
 	absorbLabel := spelldata.Label(highest.Name + " - " + priest.Label)
@@ -56,10 +56,12 @@ func (priest *Priest) registerPowerWordShield() {
 			// or healing taken.
 			strength = (baseAbsorb.Average() + spell.BonusCoefficient*spell.HealingPower(target)) *
 				spell.DamageMultiplier * spell.DamageMultiplierAdditive
+			absorb := absorbs.Get(target)
+			gained := max(0, strength-absorb.ShieldStrength)
 			castBy[target.UnitIndex] = spell
-			absorbs.Get(target).Activate(sim)
+			absorb.Activate(sim)
 			spell.Shield(target).Activate(sim)
-			spell.RecordShielding(target, strength)
+			spell.RecordShielding(target, gained)
 			spell.SpellMetrics[target.UnitIndex].Hits++
 		}
 

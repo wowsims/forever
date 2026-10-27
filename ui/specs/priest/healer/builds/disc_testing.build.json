@@ -87,7 +87,6 @@
       }
     ]
   },
-  "targetDummies": 1,
   "healingSettings": {
     "groupSize": 10
   }

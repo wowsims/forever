@@ -2260,7 +2260,7 @@
 					"current_target": "Current Target",
 					"previous_target": "Previous Target",
 					"next_target": "Next Target",
-					"random_heal_target": "Random Heal Target",
+					"random_friendly_target": "Random Friendly Target",
 					"player": "Player",
 					"target": "Target",
 					"pet": "Pet",

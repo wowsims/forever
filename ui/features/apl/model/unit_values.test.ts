@@ -1,4 +1,5 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
+import { HealingSimSettings_Assignment as Assignment } from '@generated/proto/ui';
 import { ActionId, defaultTargetIcon, getPetIconFromName } from '@sim/proto/action_id';
 import { makePlayer } from '@testing/apl/player';
 import { describe, expect, it, vi } from 'vitest';
@@ -73,6 +74,19 @@ describe('withIconUrl', () => {
 });
 
 describe('unitOptionModels', () => {
+	it.each([Assignment.TankHealing, Assignment.RaidHealing])('offers random friendly targets only for raid healing (%i)', assignment => {
+		const player: any = makePlayer({} as any);
+		player.getPlayerSpec = () => ({ isHealingSpec: true });
+		Object.assign(player.sim.raid, {
+			getPlayers: () => [player, ...Array(9).fill(null)],
+			getTargetDummies: () => 9,
+			getNumActiveParties: () => 2,
+			getHealingSettings: () => ({ assignment, groupSize: 10 }),
+		});
+		const random = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.RandomFriendlyTarget);
+		expect(random).toHaveLength(assignment === Assignment.RaidHealing ? 1 : 0);
+		if (random.length) expect(random[0].unit.text).toBe(label('random_friendly_target'));
+	});
 	it.each([
 		['under its owner when the set uses target UI', 'aura_sources_targets_first', UnitReference.create({ type: UnitType.Self }), true],
 		['under the default unit when the set does not use target UI', 'aura_sources', undefined, undefined],

@@ -105,6 +105,18 @@ func TestDivineAegisMetricsOnlyRecordDirectCriticalHeals(t *testing.T) {
 	if got := divineAegis.SpellMetrics[target.UnitIndex].Hits; got != 1 {
 		t.Fatalf("Divine Aegis recorded %d hits after one critical heal, want 1", got)
 	}
+	fillShield := func() {
+		priest.OnHealDealt(sim, bindingHeal, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 1e9})
+		until := sim.CurrentTime + core.SpellBatchWindow
+		for sim.CurrentTime <= until && !sim.Step() {
+		}
+	}
+	fillShield()
+	capacity := divineAegis.SpellMetrics[target.UnitIndex].TotalShielding
+	fillShield()
+	if got := divineAegis.SpellMetrics[target.UnitIndex].TotalShielding; got != capacity {
+		t.Errorf("refreshing a full Divine Aegis shield changed credited capacity from %v to %v", capacity, got)
+	}
 
 	periodicSim, periodicHealer := newHealingMetricsTestSim(t)
 	periodicPriest := periodicHealer.GetPriest()
@@ -154,6 +166,26 @@ func TestPowerWordShieldRecordsAppliedAbsorbOnce(t *testing.T) {
 	}
 	if metrics.Hits != 1 {
 		t.Errorf("Power Word: Shield recorded %d hits for one applied shield, want 1", metrics.Hits)
+	}
+
+	spell.SkipCastAndApplyEffects(sim, target)
+	if got := spell.SpellMetrics[target.UnitIndex].TotalShielding; got != metrics.TotalShielding {
+		t.Errorf("replacing an unused shield changed credited capacity from %v to %v", metrics.TotalShielding, got)
+	}
+
+	var lowerRank *core.Spell
+	for _, candidate := range priest.Spellbook {
+		if candidate.Matches(priestpkg.PriestSpellPowerWordShield) && candidate.Rank < spell.Rank {
+			lowerRank = candidate
+			break
+		}
+	}
+	if lowerRank == nil {
+		t.Fatal("no lower rank of Power Word: Shield was registered")
+	}
+	lowerRank.SkipCastAndApplyEffects(sim, target)
+	if got := lowerRank.SpellMetrics[target.UnitIndex].TotalShielding; got != 0 {
+		t.Errorf("replacing an unused shield with a weaker one credited %v capacity, want 0", got)
 	}
 }
 

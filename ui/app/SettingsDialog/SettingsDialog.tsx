@@ -29,9 +29,9 @@ export interface SettingsDialogViewProps {
 	onLanguageChange: (language: string) => void;
 	showThreatMetrics: boolean;
 	onShowThreatMetricsChange: (show: boolean) => void;
-	/** Present for healer sims, which hide damage metrics by default. */
-	showDamageMetrics?: boolean;
-	onShowDamageMetricsChange?: (show: boolean) => void;
+	showDamageMetrics: boolean;
+	onShowDamageMetricsChange: (show: boolean) => void;
+	showDamageMetricsRow: boolean;
 	showExperimental: boolean;
 	onShowExperimentalChange: (show: boolean) => void;
 	showPowerTools: boolean;
@@ -76,6 +76,7 @@ export const SettingsDialogView = ({
 	onShowThreatMetricsChange,
 	showDamageMetrics,
 	onShowDamageMetricsChange,
+	showDamageMetricsRow,
 	showExperimental,
 	onShowExperimentalChange,
 	showPowerTools,
@@ -149,7 +150,7 @@ export const SettingsDialogView = ({
 						onChange={onShowThreatMetricsChange}
 					/>
 				</div>
-				{showDamageMetrics !== undefined && onShowDamageMetricsChange && (
+				{showDamageMetricsRow && (
 					<div className="w-1/2 pr-2" data-testid="show-damage-metrics-picker">
 						<BooleanPicker
 							id="simui-show-damage-metrics"
@@ -279,8 +280,9 @@ export const SettingsDialog = ({ open, onOpenChange, host }: SettingsDialogProps
 			onLanguageChange={setLanguage}
 			showThreatMetrics={showThreatMetrics}
 			onShowThreatMetricsChange={show => sim.setShowThreatMetrics(show)}
-			showDamageMetrics={isHealingSpec ? showDamageMetrics : undefined}
-			onShowDamageMetricsChange={isHealingSpec ? setShowDamageMetrics : undefined}
+			showDamageMetrics={showDamageMetrics}
+			onShowDamageMetricsChange={setShowDamageMetrics}
+			showDamageMetricsRow={isHealingSpec}
 			showExperimental={showExperimental}
 			onShowExperimentalChange={setShowExperimental}
 			showPowerTools={showPowerTools}

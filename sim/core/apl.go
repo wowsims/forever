@@ -10,8 +10,7 @@ import (
 
 type APLRotation struct {
 	unit                 *Unit
-	randomHealTarget     *Unit
-	usesRandomHealTarget bool
+	randomFriendlyTarget *randomFriendlyTarget // Shared by conditions and casts during one action pick.
 	prepullActions       []*APLAction
 	priorityList         []*APLAction
 	groups               []*APLGroup
@@ -450,7 +449,6 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	if apl.inLoop {
 		return
 	}
-	apl.updateRandomHealTarget(sim)
 
 	// An event at a cast's last instant, such as a rage tick, wakes the rotation before the cast's
 	// own completion runs; the cast completes first.
@@ -495,7 +493,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	}
 	free := apl.unit.GCD.IsReady(sim) && apl.unit.Hardcast.Expires <= sim.CurrentTime
 	apl.unit.costBlocked = false
-	for nextAction := apl.firstAction(sim); ; i++ {
+	for nextAction := apl.firstAction(sim); ; i, nextAction = i+1, apl.getNextAction(sim) {
 		if i > 1000 {
 			panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", nextAction))
 		}
@@ -514,8 +512,6 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 			i++
 			break
 		}
-		apl.updateRandomHealTarget(sim)
-		nextAction = apl.getNextAction(sim)
 	}
 	apl.inLoop = false
 
@@ -561,26 +557,11 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	}
 }
 
-func (apl *APLRotation) updateRandomHealTarget(sim *Simulation) {
-	if !apl.usesRandomHealTarget {
-		return
-	}
-
-	targets := sim.Raid.GetTargetDummies()
-	if len(targets) == 0 {
-		apl.randomHealTarget = nil
-		return
-	}
-
-	index := int(sim.RandomFloat("APL Random Heal Target") * float64(len(targets)))
-	if index >= len(targets) {
-		index = len(targets) - 1
-	}
-	apl.randomHealTarget = &targets[index].Unit
-}
-
 func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 	apl.evalGeneration++
+	if apl.randomFriendlyTarget != nil {
+		apl.randomFriendlyTarget.roll(sim)
+	}
 
 	if len(apl.controllingActions) != 0 {
 		return apl.controllingActions[len(apl.controllingActions)-1].GetNextAction(sim)

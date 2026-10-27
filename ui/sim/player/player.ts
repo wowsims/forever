@@ -127,13 +127,10 @@ export class UnitMetadata {
 				id: ActionId.fromProto(spell.id!),
 			};
 		});
-		const spellRanks = new Map(newSpells.map(({ id }) => [`${id.spellId}:${id.tag}`, id.rank]));
 		let newAuras = metadata!.auras.map(aura => {
-			const id = ActionId.fromProto(aura.id!);
-			const rank = spellRanks.get(`${id.spellId}:${id.tag}`);
 			return {
 				data: aura,
-				id: rank ? ActionId.fromProto({ ...aura.id!, rank }) : id,
+				id: ActionId.fromProto(aura.id!),
 			};
 		});
 

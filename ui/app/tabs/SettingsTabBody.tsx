@@ -92,13 +92,11 @@ export const SettingsTabBody = () => {
 	const config = useSpecConfig();
 	const ready = useSimReady();
 	const SettingsComponentUnderPlayer = config.settingsComponentUnderPlayer;
-	const healingInputs = config.healingInputs?.inputs ?? [];
 
 	const itemSwapSlots = config.itemSwapSlots || [];
 	const hasOtherSettings = config.otherInputs.inputs.length > 0 || itemSwapSlots.length > 0;
 	const selector = useSelectorModalState();
-	// A gear planner never runs an encounter, so only the sections that change the character's stats are shown:
-	// no encounter, debuffs or saved encounters, and no potions or explosives.
+	// With simulation disabled, only sections that change the character's stats are shown.
 	const gearPlanner = host.simDisabled;
 
 	return (
@@ -133,20 +131,13 @@ export const SettingsTabBody = () => {
 								rootDataAttributes={{ 'data-block': 'consumes-settings' }}
 								config={{ header: { title: i18n.t('settings_tab.consumables.title') } }}
 								headerChildren={<ConsumesFilters />}>
-								<ConsumesPicker encounterConsumes={true} />
+								<ConsumesPicker encounterConsumes={!gearPlanner} />
 							</ContentBlock>
 							{hasOtherSettings && (
 								<ContentBlock
 									rootDataAttributes={{ 'data-block': 'other-settings' }}
 									config={{ header: { title: i18n.t('settings_tab.other.title') } }}>
 									<OtherSettings inputs={config.otherInputs.inputs} itemSlots={itemSwapSlots} />
-								</ContentBlock>
-							)}
-							{!gearPlanner && healingInputs.length > 0 && (
-								<ContentBlock
-									rootDataAttributes={{ 'data-block': 'healing-inputs' }}
-									config={{ header: { title: i18n.t('settings_tab.healing_inputs.title') } }}>
-									<OtherSettings inputs={healingInputs} itemSlots={[]} />
 								</ContentBlock>
 							)}
 						</>

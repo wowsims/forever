@@ -342,10 +342,7 @@ message IndividualSimSettings {
 	UnitStats stat_caps = 16 [deprecated=true];
 	UnitStats breakpoint_limits = 17 [deprecated=true];
 	ReforgeSettings reforge_settings = 18;
-	reserved 19;
-	reserved 20;
-	reserved "healing_tank_target";
-	HealingSimSettings healing_settings = 21;
+	HealingSimSettings healing_settings = 19;
 }
 
 message HealingSimSettings {

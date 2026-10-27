@@ -5,11 +5,13 @@ import {
 	BulkSimResult,
 	ErrorOutcome,
 	ErrorOutcomeType,
+	Player as PlayerProto,
 	Raid as RaidProto,
 	RaidSimRequest,
 	RaidSimResult,
 	ReforgeOptimizeResult,
 	ReforgeSettings,
+	StatWeightsResult,
 } from '@generated/proto/api';
 import {
 	ConsumableType,
@@ -44,6 +46,7 @@ const mocks = vi.hoisted(() => ({
 	runConcurrentBulkSim: vi.fn(),
 	bulkSimAsync: vi.fn(),
 	bulkCandidates: vi.fn(),
+	statWeightsAsync: vi.fn(),
 	db: {} as Record<string, unknown>,
 }));
 
@@ -58,6 +61,7 @@ vi.mock('./workers/worker_pool', () => ({
 		reforgeOptimizeAsync = mocks.reforgeOptimizeAsync;
 		bulkSimAsync = mocks.bulkSimAsync;
 		bulkCandidates = mocks.bulkCandidates;
+		statWeightsAsync = mocks.statWeightsAsync;
 	},
 }));
 
@@ -111,6 +115,26 @@ const makeSim = ({ iterations = 100, profession = Profession.ProfessionUnknown, 
 	vi.spyOn(sim, 'makeRaidSimRequest').mockImplementation(() => makeRequest(iterations, profession));
 	return sim;
 };
+
+describe('Sim.statWeights', () => {
+	it.each([false, true])('includes the full roster only for healing specs (%s)', async isHealingSpec => {
+		const sim = makeSim();
+		const raid = RaidProto.create({ targetDummies: 9, numActiveParties: 2 });
+		vi.spyOn(sim.raid, 'toProto').mockReturnValue(raid);
+		vi.spyOn(sim.encounter, 'toProto').mockReturnValue(EncounterProto.create());
+		mocks.statWeightsAsync.mockReset().mockResolvedValue(StatWeightsResult.create());
+		const player = {
+			getParty: () => ({ getBuffs: () => undefined }),
+			getRaidIndex: () => 0,
+			getPlayerSpec: () => ({ isHealingSpec }),
+			toProto: () => PlayerProto.create(),
+		} as never;
+		await sim.statWeights(player, [Stat.StatHealingPower], [], Stat.StatHealingPower, vi.fn());
+		const request = mocks.statWeightsAsync.mock.calls[0][0];
+		expect(request.raid).toEqual(isHealingSpec ? raid : undefined);
+		expect(request.hpsReferenceStat).toBe(Stat.StatHealingPower);
+	});
+});
 
 describe('Sim.runSim', () => {
 	beforeEach(() => {

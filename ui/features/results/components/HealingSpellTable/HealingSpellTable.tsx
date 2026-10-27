@@ -1,16 +1,14 @@
 import { HitKind } from '@generated/proto/api';
 import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
-import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import { formatToNumber } from '@sim/utils/format';
-import { Accordion, AccordionItem } from '@ui-kit/Accordion';
-import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
-import { TooltipButton } from '@ui-kit/TooltipButton';
-import { WowheadIcon } from '@ui-kit/WowheadIcon';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { useSimResult } from '../../hooks/useSimResult';
+import { indexMetricRows, type MetricRow } from '../../model/grouping';
+import { MetricsCombinedTooltip } from '../MetricsCombinedTooltip';
+import { createMetricsColumnHelper, metricForAnchor, MetricsActionCell, MetricsTable, MetricTooltip } from '../MetricsTable';
 
 export interface HealingSpellTableViewProps {
 	spells: ReadonlyArray<HealingSpellRow>;
@@ -36,37 +34,27 @@ export interface HealingSpellRange {
 	max: number;
 }
 
-const displayAmount = (value: number | undefined) => formatToNumber(value ?? 0, { maximumFractionDigits: 1 });
-const displayOptionalAmount = (value: number | undefined) => (value === undefined ? '–' : displayAmount(value));
-const HealingSpellRankCell = ({ spell }: { spell: HealingSpellRow }) => {
-	const { iconUrl, href } = useActionId(spell.id);
-	const rankLabel = spell.rank
-		? i18n.t('results_tab.details.healing_spells.rank_label', { rank: spell.rank })
-		: i18n.t('results_tab.details.healing_spells.rank');
-
+type SpellMetric = HealingSpellRow & { order: number; group: boolean };
+type ProcUptime = NonNullable<HealingSpellTableViewProps['procUptimes']>[number];
+const helper = createMetricsColumnHelper<SpellMetric>();
+const procHelper = createMetricsColumnHelper<ProcUptime>();
+const label = (key: string) => i18n.t(`results_tab.details.healing_spells.${key}`);
+const displayAmount = (value: number | undefined) => (value === undefined ? '–' : formatToNumber(value, { maximumFractionDigits: 1 }));
+const rangeTooltip = (spell: SpellMetric, range: HealingSpellRange | undefined, name: string) => {
+	if (spell.group || !range) return null;
 	return (
-		<TableCell>
-			<span className="inline-flex items-center gap-2">
-				{iconUrl && <WowheadIcon href={href} iconUrl={iconUrl} label={spell.name} className="size-4 rounded-sm" />}
-				<span>{rankLabel}</span>
-			</span>
-		</TableCell>
-	);
-};
-
-const HealingSpellGroupTitle = ({ spell }: { spell: HealingSpellRow }) => {
-	const { iconUrl } = useActionId(spell.id);
-	return (
-		<span className="inline-flex items-center gap-2">
-			{iconUrl && <WowheadIcon as="div" iconUrl={iconUrl} label={spell.name} className="h-6 w-6 shrink-0 rounded-sm" />}
-			<span>{spell.name}</span>
-		</span>
+		<>
+			{spell.periodic && <p className="pb-2">{label('periodic_tooltip')}</p>}
+			<MetricsCombinedTooltip
+				headerValues={[undefined, label('mean')]}
+				groups={[{ totalPercentage: 100, data: [{ name, value: range.avg, percentage: 100, min: range.min, average: range.avg, max: range.max }] }]}
+			/>
+		</>
 	);
 };
 
 export const HealingSpellTableView = ({ spells, procUptimes = [], spellOrder = [] }: HealingSpellTableViewProps) => {
-	const [expanded, setExpanded] = useState<Array<string>>([]);
-	const groups = useMemo(() => {
+	const rows = useMemo((): Array<MetricRow<SpellMetric>> => {
 		const byName = new Map<string, Array<HealingSpellRow>>();
 		for (const spell of spells) {
 			const group = byName.get(spell.name) ?? [];
@@ -75,146 +63,104 @@ export const HealingSpellTableView = ({ spells, procUptimes = [], spellOrder = [
 		}
 		const order = new Map(spellOrder.map((name, index) => [name, index]));
 		return [...byName.entries()]
-			.map(([name, ranks]) => [name, ranks.sort((a, b) => a.rank - b.rank)] as const)
-			.sort(([nameA], [nameB]) => {
-				const orderA = order.get(nameA);
-				const orderB = order.get(nameB);
-				if (orderA !== undefined && orderB !== undefined) return orderA - orderB;
-				if (orderA !== undefined) return -1;
-				if (orderB !== undefined) return 1;
-				return nameA.localeCompare(nameB);
+			.sort(([a], [b]) => (order.get(a) ?? Infinity) - (order.get(b) ?? Infinity) || a.localeCompare(b))
+			.map(([, ranks], index) => {
+				ranks.sort((a, b) => a.rank - b.rank);
+				const metric = { ...ranks.at(-1)!, order: index, group: ranks.length > 1 };
+				return ranks.length === 1 ? { metric } : { metric, subRows: ranks.map(spell => ({ metric: { ...spell, order: spell.rank, group: false } })) };
 			});
 	}, [spells, spellOrder]);
+	const customKeys = useMemo(() => [...new Set(spells.flatMap(spell => Object.keys(spell.customMetrics ?? {})))], [spells]);
+	const columns = useMemo(
+		() =>
+			helper.columns([
+				helper.accessor(row => -row.metric.order, {
+					id: 'name',
+					header: i18n.t('results_tab.details.columns.name'),
+					cell: info => {
+						const spell = info.row.original.metric;
+						const name =
+							spell.group || !spell.rank
+								? spell.name
+								: `${spell.name} (${i18n.t('results_tab.details.healing_spells.rank_label', { rank: spell.rank })})`;
+						return (
+							<MetricsActionCell
+								name={name}
+								actionId={spell.id}
+								expandable={info.row.getCanExpand()}
+								expanded={info.row.getIsExpanded()}
+								onToggle={info.row.getToggleExpandedHandler()}
+							/>
+						);
+					},
+				}),
+				...(['normal', 'critical'] as const).map(kind =>
+					helper.accessor(row => row.metric[kind]?.avg, {
+						id: kind,
+						header: label(kind),
+						meta: { tooltipId: `healing-spell-${kind}` },
+						cell: info => (info.row.original.metric.group ? '–' : displayAmount(info.getValue())),
+					}),
+				),
+				helper.accessor(row => row.metric.critChance, {
+					id: 'crit-chance',
+					header: label('crit_chance'),
+					cell: info => (info.row.original.metric.group || info.row.original.metric.absorb ? '–' : `${displayAmount(info.getValue())}%`),
+				}),
+				...customKeys.map(key =>
+					helper.accessor(row => row.metric.customMetrics?.[key]?.avg, {
+						id: key,
+						header: i18n.t(`results_tab.details.custom_metrics.${key}`, { defaultValue: key }),
+						meta: { tooltipId: `healing-spell-custom-${key}` },
+						cell: info => (info.row.original.metric.group ? '–' : displayAmount(info.getValue())),
+					}),
+				),
+			]),
+		[customKeys],
+	);
+	const metricsByRowId = useMemo(() => indexMetricRows(rows), [rows]);
+	const forAnchor = metricForAnchor(metricsByRowId);
+	const procRows = useMemo(() => procUptimes.map(metric => ({ metric })), [procUptimes]);
+	const procColumns = useMemo(
+		() =>
+			procHelper.columns([
+				procHelper.accessor(row => row.metric.name, { id: 'name', header: label('proc'), cell: info => info.getValue() }),
+				procHelper.accessor(row => row.metric.target, { id: 'target', header: label('target'), cell: info => info.getValue() }),
+				procHelper.accessor(row => row.metric.uptime, { id: 'uptime', header: label('uptime'), cell: info => `${displayAmount(info.getValue())}%` }),
+			]),
+		[],
+	);
 
-	if (!groups.length) return <p className="p-4 text-sm opacity-70">{i18n.t('results_tab.details.healing_spells.no_spells')}</p>;
-
+	if (!rows.length) return <p className="p-4 text-sm opacity-70">{label('no_spells')}</p>;
 	return (
-		<div className="p-2">
-			<Accordion value={expanded} onValueChange={setExpanded} variant="boxed" testId="healing-spell-accordion">
-				{groups.map(([name, ranks]) => {
-					const first = ranks[0];
-					const isAbsorb = first.absorb;
-					const isPeriodic = first.periodic;
-					const visibleCustomMetrics = [...new Set(ranks.flatMap(spell => Object.keys(spell.customMetrics ?? {})))];
-					return (
-						<AccordionItem
-							key={name}
-							value={name}
-							title={<HealingSpellGroupTitle spell={first} />}
-							testId={`healing-spell-${name}`}
-							panelClassName="overflow-x-auto p-2">
-							<Table dense striped className="w-full table-fixed text-center" testId={`healing-spell-table-${name}`}>
-								<thead>
-									<TableRow>
-										<TableHeaderCell rowSpan={2}>
-											<span className="inline-flex items-center justify-center">
-												{i18n.t('results_tab.details.healing_spells.rank')}
-												<TooltipButton tooltip={i18n.t('results_tab.details.healing_spells.periodic_tooltip')} className="ml-1" />
-											</span>
-										</TableHeaderCell>
-										{isAbsorb ? (
-											<TableHeaderCell colSpan={3}>{i18n.t('results_tab.details.healing_spells.absorb')}</TableHeaderCell>
-										) : isPeriodic ? (
-											<TableHeaderCell colSpan={2}>{i18n.t('results_tab.details.healing_spells.per_tick')}</TableHeaderCell>
-										) : (
-											<>
-												<TableHeaderCell colSpan={3}>{i18n.t('results_tab.details.healing_spells.normal')}</TableHeaderCell>
-												<TableHeaderCell colSpan={3}>{i18n.t('results_tab.details.healing_spells.critical')}</TableHeaderCell>
-											</>
-										)}
-										{!isAbsorb && <TableHeaderCell rowSpan={2}>{i18n.t('results_tab.details.healing_spells.crit_chance')}</TableHeaderCell>}
-										{visibleCustomMetrics.map(key => (
-											<TableHeaderCell key={key} colSpan={3}>
-												{i18n.t(`results_tab.details.custom_metrics.${key}`, { defaultValue: key })}
-											</TableHeaderCell>
-										))}
-									</TableRow>
-									<TableRow>
-										{!isAbsorb &&
-											(isPeriodic ? ['normal_tick', 'crit_tick'] : ['min', 'mean', 'max']).map(column => (
-												<TableHeaderCell key={`normal-${column}`}>
-													{i18n.t(`results_tab.details.healing_spells.${column}`)}
-												</TableHeaderCell>
-											))}
-										{!isAbsorb &&
-											!isPeriodic &&
-											['min', 'mean', 'max'].map(column => (
-												<TableHeaderCell key={`crit-${column}`}>
-													{i18n.t(`results_tab.details.healing_spells.${column}`)}
-												</TableHeaderCell>
-											))}
-										{isAbsorb &&
-											['min', 'mean', 'max'].map(column => (
-												<TableHeaderCell key={`absorb-${column}`}>
-													{i18n.t(`results_tab.details.healing_spells.${column}`)}
-												</TableHeaderCell>
-											))}
-										{visibleCustomMetrics.flatMap(key =>
-											['min', 'mean', 'max'].map(column => (
-												<TableHeaderCell key={`${key}-${column}`}>
-													{i18n.t(`results_tab.details.healing_spells.${column}`)}
-												</TableHeaderCell>
-											)),
-										)}
-									</TableRow>
-								</thead>
-								<tbody>
-									{ranks.map(spell => {
-										return (
-											<TableRow key={spell.id.toString()}>
-												<HealingSpellRankCell spell={spell} />
-												{(isAbsorb || !isPeriodic
-													? [spell.normal?.min, spell.normal?.avg, spell.normal?.max]
-													: [spell.normal?.avg, spell.critical?.avg]
-												).map((value, index) => (
-													<TableCell key={`normal-${index}`}>{displayAmount(value)}</TableCell>
-												))}
-												{!isAbsorb &&
-													!isPeriodic &&
-													[spell.critical?.min, spell.critical?.avg, spell.critical?.max].map((value, index) => (
-														<TableCell key={`crit-${index}`}>{displayAmount(value)}</TableCell>
-													))}
-												{!isAbsorb && <TableCell>{displayAmount(spell.critChance)}%</TableCell>}
-												{visibleCustomMetrics.flatMap(key => {
-													const range = spell.customMetrics?.[key];
-													return [range?.min, range?.avg, range?.max].map((value, index) => (
-														<TableCell key={`${key}-${index}`}>{displayOptionalAmount(value)}</TableCell>
-													));
-												})}
-											</TableRow>
-										);
-									})}
-								</tbody>
-							</Table>
-						</AccordionItem>
-					);
-				})}
-			</Accordion>
-			{procUptimes.length > 0 && (
+		<>
+			<MetricsTable rootTestId="healing-spells-table" columns={columns} rows={rows} sortColumnId="name" hasResult />
+			<MetricTooltip
+				id="healing-spell-normal"
+				forAnchor={forAnchor}
+				body={spell => rangeTooltip(spell, spell.normal, label(spell.absorb ? 'absorb' : spell.periodic ? 'normal_tick' : 'normal'))}
+			/>
+			<MetricTooltip
+				id="healing-spell-critical"
+				forAnchor={forAnchor}
+				body={spell => rangeTooltip(spell, spell.critical, label(spell.periodic ? 'crit_tick' : 'critical'))}
+			/>
+			{customKeys.map(key => (
+				<MetricTooltip
+					key={key}
+					id={`healing-spell-custom-${key}`}
+					forAnchor={forAnchor}
+					body={spell => rangeTooltip(spell, spell.customMetrics?.[key], i18n.t(`results_tab.details.custom_metrics.${key}`, { defaultValue: key }))}
+				/>
+			))}
+			{procRows.length > 0 && (
 				<div className="mt-4">
-					<h3 className="px-2 pb-2 text-sm font-semibold">{i18n.t('results_tab.details.healing_spells.proc_uptimes')}</h3>
-					<Table dense striped testId="healing-proc-uptime-table">
-						<thead>
-							<TableRow>
-								<TableHeaderCell>{i18n.t('results_tab.details.healing_spells.proc')}</TableHeaderCell>
-								<TableHeaderCell>{i18n.t('results_tab.details.healing_spells.target')}</TableHeaderCell>
-								<TableHeaderCell>{i18n.t('results_tab.details.healing_spells.uptime')}</TableHeaderCell>
-							</TableRow>
-						</thead>
-						<tbody>
-							{procUptimes.map((proc, index) => (
-								<TableRow key={`${proc.name}-${proc.target}-${index}`}>
-									<TableCell>{proc.name}</TableCell>
-									<TableCell>{proc.target}</TableCell>
-									<TableCell>{`${proc.uptime.toFixed(2)}%`}</TableCell>
-								</TableRow>
-							))}
-						</tbody>
-					</Table>
+					<h3 className="px-2 pb-2 text-sm font-semibold">{label('proc_uptimes')}</h3>
+					<MetricsTable rootTestId="healing-proc-uptime-table" columns={procColumns} rows={procRows} sortColumnId="uptime" hasResult />
 				</div>
 			)}
-			<p className="pt-2 text-xs opacity-70">{i18n.t('results_tab.details.healing_spells.uptime_note')}</p>
-		</div>
+			<p className="pt-2 text-xs opacity-70">{label('uptime_note')}</p>
+		</>
 	);
 };
 
@@ -242,8 +188,7 @@ export const HealingSpellTable = () => {
 	}, [procAuraIds, resultData]);
 	const actions = useMemo(() => {
 		if (!resultData) return [];
-		const players = resultData.result.getRaidIndexedPlayers(resultData.filter);
-		const player = players.find(candidate => candidate.spec?.isHealingSpec) ?? players[0];
+		const player = resultData.result.getRaidIndexedPlayers(resultData.filter)[0];
 		if (!player) return [];
 		return player
 			.getHealingActions()
@@ -267,7 +212,7 @@ export const HealingSpellTable = () => {
 				const criticalRange = action.range(periodic ? HitKind.HitKindCritHealTick : HitKind.HitKindCritHeal);
 				return {
 					id: action.actionId,
-					name: action.name,
+					name: action.actionId.baseName || action.name,
 					rank: action.actionId.rank,
 					periodic,
 					absorb,

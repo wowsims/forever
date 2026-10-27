@@ -9,10 +9,7 @@ import { createMetricsColumnHelper, MetricsActionCell, MetricsTable } from '../M
 
 const helper = createMetricsColumnHelper<ActionMetrics>();
 
-const playerOf = (resultData: SimResultData): UnitMetrics | undefined => {
-	const players = resultData.result.getRaidIndexedPlayers(resultData.filter);
-	return players.find(player => player.spec?.isHealingSpec) ?? players[0];
-};
+const playerOf = (resultData: SimResultData): UnitMetrics | undefined => resultData.result.getRaidIndexedPlayers(resultData.filter)[0];
 
 const castsOf = (unit: UnitMetrics, resultData: SimResultData) =>
 	unit.actions.map(action => action.forTarget(resultData.filter)).filter(action => action.casts != 0);

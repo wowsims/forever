@@ -12,20 +12,19 @@ export interface DetailedResultsPaneProps {
 	topline?: boolean;
 	histogram?: boolean;
 	filling?: boolean;
-	showWithoutResults?: boolean;
 	children?: ReactNode;
 }
 
 const rowClassName = 'ui-dr-row group-data-no-results/dr:hidden';
 
-export const DetailedResultsPane = ({ id, className, topline, histogram, filling, showWithoutResults, children }: DetailedResultsPaneProps) => (
+export const DetailedResultsPane = ({ id, className, topline, histogram, filling, children }: DetailedResultsPaneProps) => (
 	<TabPanel value={id} className={clsx('pt-0 pb-0', filling && 'ui-dr-filling-pane', className)}>
 		{topline && (
 			<div data-testid="dr-row-topline" className={rowClassName}>
 				<ToplineResults />
 			</div>
 		)}
-		<div data-testid="dr-row" className={showWithoutResults ? undefined : rowClassName}>
+		<div data-testid="dr-row" className={rowClassName}>
 			{children}
 		</div>
 		{histogram && (

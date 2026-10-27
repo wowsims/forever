@@ -8016,7 +8016,7 @@
 										"next_target": {
 											"type": "string"
 										},
-										"random_heal_target": {
+										"random_friendly_target": {
 											"type": "string"
 										},
 										"player": {
@@ -8038,7 +8038,7 @@
 										"current_target",
 										"previous_target",
 										"next_target",
-										"random_heal_target",
+										"random_friendly_target",
 										"player",
 										"target",
 										"heal_target",

@@ -581,6 +581,13 @@ export class UnitMetrics {
 		return this.getActionsForDisplay();
 	}
 
+	getHealingActionsOn(unitIndex: number): Array<ActionMetrics> {
+		return this.getPlayerAndPetActions()
+			.filter(action => action.targets.some(target => target.data.unitIndex === unitIndex))
+			.map(action => action.forUnit(unitIndex))
+			.filter(action => action.healing > 0);
+	}
+
 	getResourceMetrics(resourceType: ResourceType): Array<ResourceMetrics> {
 		return this.resources.filter(resource => resource.type == resourceType);
 	}

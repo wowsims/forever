@@ -39,6 +39,7 @@ func NewTargetDummy(dummyIndex int, party *Party, partyIndex int) *TargetDummy {
 	td.GCD = td.NewTimer()
 	td.RotationTimer = td.NewTimer()
 	td.AddStats(td.baseStats)
+	td.EnableHealthBar()
 
 	return td
 }

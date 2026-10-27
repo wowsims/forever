@@ -32,6 +32,36 @@ func statWeightResult(dps float64) *proto.RaidSimResult {
 	return &proto.RaidSimResult{RaidMetrics: &proto.RaidMetrics{Parties: []*proto.PartyMetrics{{Players: []*proto.UnitMetrics{statWeightMetrics(dps)}}}}}
 }
 
+func TestStatWeightsRaidPreservesTheRequestedRoster(t *testing.T) {
+	request := weaponTesterStatWeightsRequest(2)
+	request.Raid = SinglePlayerRaidProto(request.Player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
+	request.Raid.TargetDummies = 9
+	request.Raid.NumActiveParties = 2
+	request.Raid.Parties = append(request.Raid.Parties, &proto.Party{Players: []*proto.Player{{Name: "Other party"}}})
+	request.Raid.Tanks = []*proto.UnitReference{{Type: proto.UnitReference_Player, Index: 1}}
+	request.Tanks = []*proto.UnitReference{{Type: proto.UnitReference_Player, Index: 0}}
+	original := googleProto.Clone(request.Raid).(*proto.Raid)
+	request.Player = googleProto.Clone(request.Player).(*proto.Player)
+	request.Player.Name = "Weighted player"
+
+	got := StatWeightsRaidProto(request)
+	want := googleProto.Clone(original).(*proto.Raid)
+	want.Parties[0].Players[0] = request.Player
+	want.Tanks = request.Tanks
+	if !googleProto.Equal(got, want) {
+		t.Errorf("stat-weight raid = %v, want the requested roster with the weighted player and tanks", got)
+	}
+	if !googleProto.Equal(request.Raid, original) {
+		t.Fatal("building the stat-weight raid changed the request's roster")
+	}
+	request.Raid = nil
+	want = SinglePlayerRaidProto(request.Player, request.PartyBuffs, request.RaidBuffs, request.Debuffs)
+	want.Tanks = request.Tanks
+	if !googleProto.Equal(StatWeightsRaidProto(request), want) {
+		t.Fatal("a request without a roster did not use the single-player raid")
+	}
+}
+
 // A stat's runs below and above the baseline; low is nil for a stat simulated above it only.
 type statWeightStatRuns struct {
 	statData  *proto.StatWeightsStatData

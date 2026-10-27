@@ -5,11 +5,14 @@ import { APLRotation } from '@generated/proto/apl';
 import { Debuffs } from '@generated/proto/buffs';
 import { PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PrayerOfHealingMode } from '@generated/proto/priest';
+import i18n from '@i18n/config';
+import { LaunchStatus } from '@sim/constants/other';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defaultHealerIndividualBuffs, defaultHealerPartyBuffs, defaultHealerRaidBuffs } from '@sim/proto/utils';
 import { defineSpec } from '@sim/spec_config';
+import { isDevMode } from '@sim/utils/env';
 
 import * as PriestInputs from '../shared/inputs';
 import * as Presets from './presets';
@@ -69,50 +72,54 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		BuffDebuffInputs.AtieshPriest,
 		BuffDebuffInputs.AtieshWarlock,
 	],
-	// Spell-specific controls shown in the Healing Inputs section.
-	healingInputs: {
-		inputs: [
-			InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
-				fieldName: 'holyNovaHealTargets',
-				label: 'Holy Nova heal targets',
-				labelTooltip: "Number of party members, including the priest, randomly selected to receive Holy Nova's heal.",
-				getValue: player => player.getSpecOptions().holyNovaHealTargets || 5,
-				values: oneToFiveValues,
-				showWhen: player => player.getTalents().holyNova,
-				storeField: ['specOptions', 'talentsString'] as const,
-			}),
-			InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, PrayerOfHealingMode>({
-				fieldName: 'prayerOfHealingMode',
-				label: 'Prayer of Healing targets',
-				labelTooltip: 'Randomly models movement by choosing between one and five party members on each cast.',
-				values: [
-					{ name: 'Full party', value: PrayerOfHealingMode.FullParty },
-					{ name: 'Dynamic', value: PrayerOfHealingMode.Dynamic },
-				],
-			}),
-			InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
-				fieldName: 'prayerOfMendingJumps',
-				label: 'Prayer of Mending heals',
-				labelTooltip: 'Number of heals per cast, the first one included. Each heal spends one of the 5 charges.',
-				getValue: player => player.getSpecOptions().prayerOfMendingJumps || 5,
-				values: oneToFiveValues,
-				showWhen: player => player.getTalents().prayerOfMending,
-				storeField: ['specOptions', 'talentsString'] as const,
-			}),
-			InputHelpers.makeSpecOptionsNumberInput<Spec.SpecHealerPriest>({
-				fieldName: 'prayerOfMendingDelay',
-				label: 'Prayer of Mending delay (seconds)',
-				labelTooltip: 'Time between each heal and jump. The first heal occurs after this delay.',
-				getValue: player => player.getSpecOptions().prayerOfMendingDelay ?? 2.5,
-				float: true,
-				positive: true,
-				max: 5,
-				maxDecimalDigits: 2,
-				showWhen: player => player.getTalents().prayerOfMending,
-				storeField: ['specOptions', 'talentsString'] as const,
-			}),
-		],
-	},
+	sections: [
+		{
+			id: 'healing-inputs',
+			title: i18n.t('settings_tab.healing_inputs.title'),
+			when: player => isDevMode() || player.getPlayerSpec().launch.status !== LaunchStatus.GearPlanner,
+			inputs: [
+				InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
+					fieldName: 'holyNovaHealTargets',
+					label: 'Holy Nova heal targets',
+					labelTooltip: "Number of party members, including the priest, randomly selected to receive Holy Nova's heal.",
+					getValue: player => player.getSpecOptions().holyNovaHealTargets || 5,
+					values: oneToFiveValues,
+					showWhen: player => player.getTalents().holyNova,
+					storeField: ['specOptions', 'talentsString'] as const,
+				}),
+				InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, PrayerOfHealingMode>({
+					fieldName: 'prayerOfHealingMode',
+					label: 'Prayer of Healing targets',
+					labelTooltip: 'Randomly models movement by choosing between one and five party members on each cast.',
+					values: [
+						{ name: 'Full party', value: PrayerOfHealingMode.FullParty },
+						{ name: 'Dynamic', value: PrayerOfHealingMode.Dynamic },
+					],
+				}),
+				InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
+					fieldName: 'prayerOfMendingJumps',
+					label: 'Prayer of Mending heals',
+					labelTooltip: 'Number of heals per cast, the first one included. Each heal spends one of the 5 charges.',
+					getValue: player => player.getSpecOptions().prayerOfMendingJumps || 5,
+					values: oneToFiveValues,
+					showWhen: player => player.getTalents().prayerOfMending,
+					storeField: ['specOptions', 'talentsString'] as const,
+				}),
+				InputHelpers.makeSpecOptionsNumberInput<Spec.SpecHealerPriest>({
+					fieldName: 'prayerOfMendingDelay',
+					label: 'Prayer of Mending delay (seconds)',
+					labelTooltip: 'Time between each heal and jump. The first heal occurs after this delay.',
+					getValue: player => player.getSpecOptions().prayerOfMendingDelay ?? 2.5,
+					float: true,
+					positive: true,
+					max: 5,
+					maxDecimalDigits: 2,
+					showWhen: player => player.getTalents().prayerOfMending,
+					storeField: ['specOptions', 'talentsString'] as const,
+				}),
+			],
+		},
+	],
 	otherInputs: { inputs: [] },
 	settingsComponentUnderPlayer: HealingSettings,
 	hideDebuffs: true,

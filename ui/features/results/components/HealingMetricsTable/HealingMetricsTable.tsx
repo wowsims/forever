@@ -9,7 +9,7 @@ import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
 import { useActionRows } from '../../hooks/useActionRows';
-import { filterMetricRows, indexMetricRows } from '../../model/grouping';
+import { buildMetricRows, filterMetricRows, indexMetricRows } from '../../model/grouping';
 import type { SimResultData } from '../../model/result_data';
 import { amountHeader, attackFormat, attackMetricsColumns, customMetricsGroups, threatTooltip, useMetricMax } from '../AttackMetricsColumns';
 import { MetricsCombinedTooltip, type MetricsCombinedTooltipGroup } from '../MetricsCombinedTooltip';
@@ -138,23 +138,15 @@ const isThreatOnly = (metric: ActionMetrics) => metric.hitAttempts == 0 && metri
 export const HealingMetricsTable = () => {
 	const sim = useSim();
 	const { threat: showThreatMetrics } = useDisplayMetrics(sim);
-	const groupsOf = useMemo(() => (resultData: SimResultData) => healingGroups(resultData), []);
-	const { resultData, rows: actionRows } = useActionRows(groupsOf);
+	const { resultData, rows: actionRows } = useActionRows(healingGroups);
 	const sourceMetrics = useMemo(() => healingSourceMetrics(resultData), [resultData]);
-	const sourceMetricsByProcId = sourceMetrics.byProcId;
 	const sourceRows = useMemo(
 		() =>
-			[...sourceMetricsByProcId.values()].flatMap(metrics =>
-				metrics.length
-					? [
-							{
-								metric: ActionMetrics.merge(metrics, { removeTag: true }),
-								subRows: metrics.map(metric => ({ metric })),
-							},
-						]
-					: [],
-			),
-		[sourceMetricsByProcId],
+			buildMetricRows([...sourceMetrics.byProcId.values()], {
+				merge: metrics => ActionMetrics.merge(metrics, { removeTag: true }),
+				shouldCollapse: () => false,
+			}),
+		[sourceMetrics],
 	);
 	const built = useMemo(() => [...actionRows, ...sourceRows], [actionRows, sourceRows]);
 	const sourceActionsByType = useMemo(() => {

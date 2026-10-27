@@ -1,5 +1,6 @@
 import { HealingSimSettings_Assignment as HealingAssignment } from '@generated/proto/ui';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createStore } from 'zustand/vanilla';
 
@@ -23,24 +24,25 @@ const setUp = (assignment: HealingAssignment, groupSize: number) => {
 		store.setState(state => ({ raid: { ...state.raid, healingSettings } })),
 	);
 	mocked.sim = { store, raid: { setTargetDummies, setHealingSettings } };
-	return { setTargetDummies };
+	return { setHealingSettings };
 };
 
-describe('HealingSettings target count', () => {
+describe('HealingSettings', () => {
 	beforeEach(() => {
 		mocked.sim = null;
 	});
 
-	it.each([
-		[HealingAssignment.TankHealing, 5, 4],
-		[HealingAssignment.TankHealing, 10, 1],
-		[HealingAssignment.TankHealing, 20, 2],
-		[HealingAssignment.RaidHealing, 10, 9],
-		[HealingAssignment.RaidHealing, 20, 19],
-	] as const)('sets target count for assignment %i and group size %i to %i', async (assignment, groupSize, expected) => {
-		const { setTargetDummies } = setUp(assignment, groupSize);
+	it('changes the raid size without replacing the assignment', async () => {
+		const { setHealingSettings } = setUp(HealingAssignment.TankHealing, 10);
 		render(<HealingSettings />);
+		await userEvent.click(within(screen.getByTestId('healing-group-size')).getByRole('combobox'));
+		await userEvent.click(screen.getByRole('option', { name: 'settings_tab.healing_settings.twenty_player' }));
+		expect(setHealingSettings).toHaveBeenCalledWith({ assignment: HealingAssignment.TankHealing, groupSize: 20 });
+	});
 
-		await waitFor(() => expect(setTargetDummies).toHaveBeenCalledWith(expected));
+	it('hides the assignment for a dungeon group', () => {
+		setUp(HealingAssignment.RaidHealing, 5);
+		render(<HealingSettings />);
+		expect(screen.queryByTestId('healing-assignment')).toBeNull();
 	});
 });

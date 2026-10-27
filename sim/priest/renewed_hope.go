@@ -24,17 +24,10 @@ func (priest *Priest) withRenewedHopeBolt(target *core.Unit, spell *core.Spell, 
 		return
 	}
 
-	bonusCrit := priest.renewedHopeCritBonus(spell)
+	bonusCrit := spellData.RenewedHope.Rank(priest.Talents.RenewedHope).EffectN(1).Percent()
 	spell.BonusCritPercent += bonusCrit
 	defer func() { spell.BonusCritPercent -= bonusCrit }()
 	apply()
-}
-
-func (priest *Priest) renewedHopeCritBonus(spell *core.Spell) float64 {
-	if priest.Talents.RenewedHope == 0 || spell.ClassSpellMask&priestRenewedHopeSpells == 0 {
-		return 0
-	}
-	return spellData.RenewedHope.Rank(priest.Talents.RenewedHope).EffectN(1).Percent()
 }
 
 func (priest *Priest) renewedHopeTargetAura(target *core.Unit, spell *core.Spell) *core.Aura {

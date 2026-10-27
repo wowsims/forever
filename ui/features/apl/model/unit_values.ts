@@ -44,8 +44,8 @@ export const refToValue = (ref: UnitReference | undefined, player: Player<any>, 
 			return { value: ref, icon: 'arrow-left', text: label('previous_target') };
 		case UnitType.NextTarget:
 			return { value: ref, icon: 'arrow-right', text: label('next_target') };
-		case UnitType.RandomHealTarget:
-			return { value: ref, icon: 'user', text: label('random_heal_target') };
+		case UnitType.RandomFriendlyTarget:
+			return { value: ref, icon: 'user', text: label('random_friendly_target') };
 		case UnitType.Player: {
 			const other = player.sim.raid.getPlayer(ref.index);
 			if (other) return { value: ref, iconUrl: other.getSpecIcon(), text: `${label('player')} ${ref.index + 1}` };
@@ -85,7 +85,7 @@ export interface UnitOptionModel {
 /** The unit set's options, each with the text, icon and colour it displays with; a pet's icon may still be an `ActionId` to resolve. */
 export const unitOptionModels = (unitSet: UNIT_SET, player: Player<any>): Array<UnitOptionModel> => {
 	const set = unitSets[unitSet];
-	const includesHealingTargets = unitSet === 'players' || unitSet === 'targets' || unitSet === 'aura_sources' || unitSet === 'aura_sources_targets_first';
+	const includesHealingTargets = unitSet !== 'self_and_pets';
 	const healingTargets = includesHealingTargets ? healingTargetIndices(player) : [];
 	const groupHealingTargets = includesHealingTargets && healingTargetsAreGrouped(player);
 	const models = set.getUnits(player).map(ref => {
@@ -100,7 +100,7 @@ export const unitOptionModels = (unitSet: UNIT_SET, player: Player<any>): Array<
 	});
 	if (healingTargets.length && healingRandomTargetEnabled(player)) {
 		models.push({
-			unit: refToValue(UnitReference.create({ type: UnitType.RandomHealTarget }), player, set.targetUI),
+			unit: refToValue(UnitReference.create({ type: UnitType.RandomFriendlyTarget }), player, set.targetUI),
 			submenu: ['heal_target'],
 		});
 	}

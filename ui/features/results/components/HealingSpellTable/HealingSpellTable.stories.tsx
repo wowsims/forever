@@ -5,6 +5,16 @@ import { HealingSpellTableView } from './HealingSpellTable';
 
 const spells = [
 	{
+		id: ActionId.fromSpellId(2061, 1),
+		name: 'Flash Heal',
+		rank: 1,
+		periodic: false,
+		absorb: false,
+		normal: { min: 200, avg: 220, max: 240 },
+		critical: { min: 300, avg: 330, max: 360 },
+		critChance: 18.4,
+	},
+	{
 		id: ActionId.fromSpellId(2061, 7),
 		name: 'Flash Heal',
 		rank: 7,
