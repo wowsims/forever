@@ -190,7 +190,8 @@ func (value *APLValueCoerced) String() string {
 }
 
 // Whether the wrapper reads a value of one type as the other: text reads only as text or yes/no, and a
-// yes/no value reads as neither a duration nor text. An unknown type, a placeholder's, reads as any type.
+// yes/no value reads as neither a duration nor text. An unknown type, as a placeholder's is until its group
+// fills it, reads as any type.
 func canCoerce(from proto.APLValueType, to proto.APLValueType) bool {
 	switch from {
 	case proto.APLValueType_ValueTypeString:
@@ -210,6 +211,10 @@ var aplValueTypeNames = map[proto.APLValueType]string{
 	proto.APLValueType_ValueTypeString:   "text",
 }
 
+func (rot *APLRotation) warnCannotCoerce(from proto.APLValueType, to proto.APLValueType) {
+	rot.ValidationMessage(proto.LogLevel_Warning, "Cannot read %s as %s", aplValueTypeNames[from], aplValueTypeNames[to])
+}
+
 // Wraps a value so that it is read as the new type. A value the wrapper cannot read so is left out with a
 // warning, since the wrapper's getters panic on it.
 func (rot *APLRotation) coerceTo(value APLValue, newType proto.APLValueType) APLValue {
@@ -225,7 +230,7 @@ func (rot *APLRotation) coerceTo(value APLValue, newType proto.APLValueType) APL
 		newVal.valType = newType
 		return newVal
 	} else if !canCoerce(value.Type(), newType) {
-		rot.ValidationMessage(proto.LogLevel_Warning, "Cannot read %s as %s", aplValueTypeNames[value.Type()], aplValueTypeNames[newType])
+		rot.warnCannotCoerce(value.Type(), newType)
 		return nil
 	} else {
 		return &APLValueCoerced{
@@ -398,9 +403,17 @@ func (value *APLValueCompare) String() string {
 
 type APLValueMath struct {
 	DefaultAPLValueImpl
-	op  proto.APLValueMath_MathOperator
-	lhs APLValue
-	rhs APLValue
+	op       proto.APLValueMath_MathOperator
+	lhs      APLValue
+	rhs      APLValue
+	unfilled bool // A side is a placeholder no group filled.
+}
+
+// A side of unknown type is a placeholder no group filled, which reads zero, and so does the operation on it:
+// the type rules below need both sides known.
+func newMath(op proto.APLValueMath_MathOperator, lhs APLValue, rhs APLValue) *APLValueMath {
+	unfilled := lhs.Type() == proto.APLValueType_ValueTypeUnknown || rhs.Type() == proto.APLValueType_ValueTypeUnknown
+	return &APLValueMath{op: op, lhs: lhs, rhs: rhs, unfilled: unfilled}
 }
 
 func (value *APLValueMath) GetInnerValues() []APLValue {
@@ -434,6 +447,9 @@ func (value *APLValueMath) Type() proto.APLValueType {
 	return lhsType
 }
 func (value *APLValueMath) GetInt(sim *Simulation) int32 {
+	if value.unfilled {
+		return 0
+	}
 	switch value.op {
 	case proto.APLValueMath_OpAdd:
 		return value.lhs.GetInt(sim) + value.rhs.GetInt(sim)
@@ -447,6 +463,9 @@ func (value *APLValueMath) GetInt(sim *Simulation) int32 {
 	return 0
 }
 func (value *APLValueMath) GetFloat(sim *Simulation) float64 {
+	if value.unfilled {
+		return 0
+	}
 	switch value.op {
 	case proto.APLValueMath_OpAdd:
 		return value.lhs.GetFloat(sim) + value.rhs.GetFloat(sim)
@@ -467,6 +486,9 @@ func (value *APLValueMath) GetFloat(sim *Simulation) float64 {
 	return 0
 }
 func (value *APLValueMath) GetDuration(sim *Simulation) time.Duration {
+	if value.unfilled {
+		return 0
+	}
 	switch value.op {
 	case proto.APLValueMath_OpAdd:
 		return value.lhs.GetDuration(sim) + value.rhs.GetDuration(sim)
@@ -858,6 +880,32 @@ func (rot *APLRotation) newValueCompare(config *proto.APLValueCompare, uuid *pro
 	}
 }
 
+// What is wrong with the operator on the two values, or "" when nothing is. A group reference checks what it
+// rebuilds with it too, once its placeholders are filled.
+func mathTypeProblem(op proto.APLValueMath_MathOperator, lhs APLValue, rhs APLValue) string {
+	if lhs.Type() == proto.APLValueType_ValueTypeBool || rhs.Type() == proto.APLValueType_ValueTypeBool {
+		return "Bool types not allowed in Math Operations!"
+	}
+
+	if lhs.Type() == proto.APLValueType_ValueTypeString || rhs.Type() == proto.APLValueType_ValueTypeString {
+		return "String types not allowed in Math Operations!"
+	}
+
+	// Disallow duration * duration
+	if op == proto.APLValueMath_OpMul &&
+		lhs.Type() == proto.APLValueType_ValueTypeDuration &&
+		rhs.Type() == proto.APLValueType_ValueTypeDuration {
+		return "Duration * Duration is not allowed!"
+	}
+	// Disallow int/float divided by duration
+	if op == proto.APLValueMath_OpDiv &&
+		(lhs.Type() == proto.APLValueType_ValueTypeInt || lhs.Type() == proto.APLValueType_ValueTypeFloat) &&
+		rhs.Type() == proto.APLValueType_ValueTypeDuration {
+		return "Cannot divide int or float by duration!"
+	}
+	return ""
+}
+
 func (rot *APLRotation) newValueMath(config *proto.APLValueMath, uuid *proto.UUID, groupVariables map[string]*proto.APLValue) APLValue {
 	lhs, rhs := rot.newAPLValue(config.Lhs), rot.newAPLValue(config.Rhs)
 	if config.Op == proto.APLValueMath_OpAdd || config.Op == proto.APLValueMath_OpSub {
@@ -867,36 +915,12 @@ func (rot *APLRotation) newValueMath(config *proto.APLValueMath, uuid *proto.UUI
 		return nil
 	}
 
-	if lhs.Type() == proto.APLValueType_ValueTypeBool || rhs.Type() == proto.APLValueType_ValueTypeBool {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Bool types not allowed in Math Operations!")
+	if problem := mathTypeProblem(config.Op, lhs, rhs); problem != "" {
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s", problem)
 		return nil
 	}
 
-	if lhs.Type() == proto.APLValueType_ValueTypeString || rhs.Type() == proto.APLValueType_ValueTypeString {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "String types not allowed in Math Operations!")
-		return nil
-	}
-
-	// Disallow duration * duration
-	if config.Op == proto.APLValueMath_OpMul &&
-		lhs.Type() == proto.APLValueType_ValueTypeDuration &&
-		rhs.Type() == proto.APLValueType_ValueTypeDuration {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Duration * Duration is not allowed!")
-		return nil
-	}
-	// Disallow int/float divided by duration
-	if config.Op == proto.APLValueMath_OpDiv &&
-		(lhs.Type() == proto.APLValueType_ValueTypeInt || lhs.Type() == proto.APLValueType_ValueTypeFloat) &&
-		rhs.Type() == proto.APLValueType_ValueTypeDuration {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Cannot divide int or float by duration!")
-		return nil
-	}
-
-	return &APLValueMath{
-		op:  config.Op,
-		lhs: lhs,
-		rhs: rhs,
-	}
+	return newMath(config.Op, lhs, rhs)
 }
 
 func (rot *APLRotation) newValueMax(config *proto.APLValueMax, _ *proto.UUID, groupVariables map[string]*proto.APLValue) APLValue {

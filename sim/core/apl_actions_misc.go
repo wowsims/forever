@@ -318,6 +318,12 @@ func (rot *APLRotation) newActionMove(config *proto.APLActionMove) APLActionImpl
 	}
 	return action
 }
+func (action *APLActionMove) GetAPLValues() []APLValue {
+	return []APLValue{action.moveRange}
+}
+func (action *APLActionMove) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.moveRange = replace(action.moveRange)
+}
 
 // At each look of the rotation during this action's walk: the walk stops where it is once the condition is
 // false, and turns to the range once it changes. A walk something else replaced or that ended is let go.
@@ -461,6 +467,12 @@ func (rot *APLRotation) newActionMoveDuration(config *proto.APLActionMoveDuratio
 		unit:         rot.unit,
 		moveDuration: moveDuration,
 	}
+}
+func (action *APLActionMoveDuration) GetAPLValues() []APLValue {
+	return []APLValue{action.moveDuration}
+}
+func (action *APLActionMoveDuration) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.moveDuration = replace(action.moveDuration)
 }
 
 func (action *APLActionMoveDuration) Execute(sim *Simulation) {
