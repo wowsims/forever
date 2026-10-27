@@ -1,3 +1,4 @@
+import { Player as PlayerProto } from '@generated/proto/api';
 import {
 	AreaType,
 	DesignBossAbility,
@@ -13,7 +14,6 @@ import {
 	Target as TargetProto,
 	TargetInput,
 } from '@generated/proto/common';
-import { Player as PlayerProto } from '@generated/proto/api';
 import { describe, expect, it } from 'vitest';
 
 import { SimSettingCategories } from '../constants/sim_settings';
