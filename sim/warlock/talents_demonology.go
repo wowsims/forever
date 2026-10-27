@@ -242,7 +242,7 @@ func (warlock *Warlock) applyDecimation() {
 
 	threshold := int32(rank.EffectN(3).BasePoints)
 	warlock.RegisterResetEffect(func(sim *core.Simulation) {
-		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
+		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, _ *core.Unit, isExecute int32) {
 			if isExecute <= threshold && !executeAura.IsActive() {
 				executeAura.Activate(sim)
 			}
@@ -271,8 +271,8 @@ func (warlock *Warlock) applyDecimation() {
 		ClassSpellMask: WarlockSpellShadowBolt | WarlockSpellSearingPain,
 		// In the logs the buff comes in the same batch as the cast.
 		TriggerImmediately: true,
-		ExtraCondition: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
-			return sim.IsExecutePhase35()
+		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+			return result.Target.IsExecutePhase35()
 		},
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			decimationAura.Activate(sim)

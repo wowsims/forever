@@ -21,8 +21,8 @@ func (paladin *Paladin) registerHammerOfWrath(_ int32, rank *spelldata.Spell) {
 	// it.
 	config.Cast.DefaultCast.GCDMin = rank.GCD()
 
-	config.ExtraCastCondition = func(sim *core.Simulation, _ *core.Unit) bool {
-		return sim.IsExecutePhase20()
+	config.ExtraCastCondition = func(_ *core.Simulation, target *core.Unit) bool {
+		return target.IsExecutePhase20()
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

@@ -45,11 +45,9 @@ type Simulation struct {
 
 	Log func(string, ...interface{})
 
-	executePhase int32 // 20 or 35 for the respective execute range, 100 otherwise
+	executePhaseCallbacks []func(sim *Simulation, target *Unit, phase int32)
 
-	executePhaseCallbacks []func(*Simulation, int32) // 2nd parameter is 35 for 35% and 20 for 20%
-
-	nextExecuteDuration time.Duration
+	nextExecuteDuration time.Duration // The earliest execute phase crossing of any target still to come.
 
 	endOfCombatDuration time.Duration
 
@@ -65,6 +63,7 @@ type Simulation struct {
 	movingUnits []*Unit // Units on a walk, whose position advance keeps current.
 
 	isInPrepull bool
+	isResetting bool // A health curve set now waits for the first advance, after the execute phase callbacks register.
 }
 
 func (sim *Simulation) rescheduleTracker(trackerTime time.Duration) {
@@ -385,6 +384,9 @@ var (
 // Reset will set sim back and erase all current state.
 // This is automatically called before every 'Run'.
 func (sim *Simulation) reset() {
+	sim.isResetting = true
+	defer func() { sim.isResetting = false }()
+
 	sim.Duration = sim.BaseDuration
 	if sim.DurationVariation != 0 {
 		variation := sim.DurationVariation * 2
@@ -394,13 +396,13 @@ func (sim *Simulation) reset() {
 	sim.pendingActions = sim.pendingActions[:0]
 	sim.pendingActions = append(sim.pendingActions, sentinelPendingAction)
 
-	sim.executePhase = 0
-	sim.nextExecutePhase()
 	sim.executePhaseCallbacks = nil
 
 	sim.endOfCombatDuration = sim.Duration
 
 	sim.CurrentTime = 0
+
+	sim.Encounter.resetExecutePhases(sim)
 
 	sim.trackers = sim.trackers[:0]
 	sim.minTrackerTime = NeverExpires
@@ -563,13 +565,8 @@ func (sim *Simulation) advance(nextTime time.Duration) {
 		sim.movingUnits[i].UpdatePosition(sim, false)
 	}
 
-	// this is a loop to handle duplicate ExecuteProportions, e.g. if they're both set to 100%, you reach
-	// execute phases 35% and 20% in the first advance() call.
-	for sim.CurrentTime >= sim.nextExecuteDuration {
-		sim.nextExecutePhase()
-		for _, callback := range sim.executePhaseCallbacks {
-			callback(sim, sim.executePhase)
-		}
+	if sim.CurrentTime >= sim.nextExecuteDuration {
+		sim.Encounter.advanceExecutePhases(sim)
 	}
 
 	if sim.CurrentTime >= sim.minTrackerTime {
@@ -579,33 +576,6 @@ func (sim *Simulation) advance(nextTime time.Duration) {
 		}
 	}
 }
-func (sim *Simulation) setupReverseExecute(phase int32, activeProportion float64) {
-	sim.executePhase = phase
-	// This calculates the duration for which the phase is active from the start
-	sim.nextExecuteDuration = time.Duration(activeProportion * float64(sim.Duration))
-}
-
-// nextExecutePhase updates nextExecuteDuration based on executePhase.
-func (sim *Simulation) nextExecutePhase() {
-	setup := func(phase int32, health float64) {
-		sim.executePhase = phase
-		sim.nextExecuteDuration = time.Duration((1 - health) * float64(sim.Duration))
-	}
-
-	sim.nextExecuteDuration = NeverExpires
-
-	switch sim.executePhase {
-	case 0: // initially waiting for 35%
-		setup(100, sim.Encounter.ExecuteProportion_35)
-	case 100: // at 35%, waiting for 20%
-		setup(35, sim.Encounter.ExecuteProportion_20)
-	case 35: // at 20%, done waiting
-		sim.executePhase = 20 // could also be used for end of fight handling
-	default:
-		panic(fmt.Sprintf("executePhase = %d invalid", sim.executePhase))
-	}
-}
-
 func (sim *Simulation) AddPendingAction(pa *PendingAction) {
 	//if pa.NextActionAt < sim.CurrentTime {
 	//	panic(fmt.Sprintf("Cant add action in the past: %s", pa.NextActionAt))
@@ -657,14 +627,9 @@ func (sim *Simulation) RunAfterCurrentEvent(action func(*Simulation)) {
 	sim.AddPendingAction(pa)
 }
 
-func (sim *Simulation) RegisterExecutePhaseCallback(callback func(sim *Simulation, isExecute int32)) {
+// The callback runs once for each target that enters an execute phase, with the phase it enters.
+func (sim *Simulation) RegisterExecutePhaseCallback(callback func(sim *Simulation, target *Unit, phase int32)) {
 	sim.executePhaseCallbacks = append(sim.executePhaseCallbacks, callback)
-}
-func (sim *Simulation) IsExecutePhase20() bool {
-	return sim.executePhase <= 20
-}
-func (sim *Simulation) IsExecutePhase35() bool {
-	return sim.executePhase <= 35
 }
 
 func (sim *Simulation) GetRemainingDuration() time.Duration {

@@ -146,6 +146,8 @@ type Target struct {
 	Unit
 
 	AI TargetAI
+
+	health healthCurve
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {

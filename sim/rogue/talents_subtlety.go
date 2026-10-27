@@ -257,7 +257,7 @@ func (rogue *Rogue) registerQuietus() {
 
 	rogue.RegisterResetEffect(func(sim *core.Simulation) {
 		executeBonus.Deactivate(sim)
-		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
+		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, _ *core.Unit, isExecute int32) {
 			if isExecute <= threshold && !executeBonus.IsActive() {
 				executeBonus.Activate(sim)
 			}

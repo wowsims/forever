@@ -203,7 +203,7 @@ func (priest *Priest) applyEarlyDemise() {
 		ClassMask:  PriestSpellShadowWordDeath,
 	})
 
-	onExecutePhase := func(_ *core.Simulation, isExecute int32) {
+	onExecutePhase := func(_ *core.Simulation, _ *core.Unit, isExecute int32) {
 		if isExecute <= threshold {
 			critMod.Activate()
 		}

@@ -188,7 +188,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		encounter.Targets[0].Stats[stats.FireResistance] = resistance
 		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
 		sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
-		for !sim.IsExecutePhase35() && !sim.Step() {
+		for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
 		}
 		warlock.DistanceFromTarget = 30
 		return sim, warlock, sim.Encounter.AllTargetUnits[0]
