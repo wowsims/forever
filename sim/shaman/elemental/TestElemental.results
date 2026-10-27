@@ -1275,46 +1275,46 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2464.02845
-  tps: 1702.52088
-  dtps: 8.75345
+  dps: 2449.48811
+  tps: 1692.95757
+  dtps: 9.21983
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 571.49581
-  tps: 403.20302
-  dtps: 8.46999
+  dps: 568.69683
+  tps: 401.17711
+  dtps: 7.98305
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 585.6932
-  tps: 415.57374
-  dtps: 8.63981
+  dps: 583.4822
+  tps: 413.85059
+  dtps: 8.50622
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 547.44046
-  tps: 531.09169
+  dps: 543.64362
+  tps: 527.6244
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 167.85172
-  tps: 159.35052
+  dps: 166.52729
+  tps: 158.4683
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 328.96591
-  tps: 313.46817
+  dps: 324.56526
+  tps: 309.7985
  }
 }
 dps_results: {

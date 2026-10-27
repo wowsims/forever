@@ -69,14 +69,28 @@ describe('finishIndividualImport', () => {
 		expect(toasts).toEqual([{ variant: 'success', body: 'import.success' }]);
 	});
 
-	// A talent string indexes the exporter's trees by position, and no exporter targets these
-	// trees, so applying one would spend the points on different talents.
-	it('never applies an imported talent string, and says so', async () => {
+	// A talent string indexes the exporter's trees by position, so applying one built for other
+	// trees would spend the points on different talents.
+	it('does not apply a talent string unless it is marked as built from these trees, and says so', async () => {
 		await finishIndividualImport(host, parsed({}));
 
 		expect(player.setTalentsString).not.toHaveBeenCalled();
 		expect(toasts[0].variant).toBe('warning');
 		expect(toasts[0].body).toBe('import.talents_not_imported');
+	});
+
+	it('applies a talent string built from these trees, without a warning', async () => {
+		await finishIndividualImport(host, parsed({ talentsMatchTrees: true }));
+
+		expect(player.setTalentsString).toHaveBeenCalledWith('05002001-0550000502-05032');
+		expect(toasts).toEqual([{ variant: 'success', body: 'import.success' }]);
+	});
+
+	it('sets nothing for a marked export that carried no talents', async () => {
+		await finishIndividualImport(host, parsed({ talentsMatchTrees: true, talentsStr: '--' }));
+
+		expect(player.setTalentsString).not.toHaveBeenCalled();
+		expect(toasts.every(toast => toast.variant !== 'warning')).toBe(true);
 	});
 
 	// `--` is what an empty three-tree talent string looks like: the import carried no talents, so

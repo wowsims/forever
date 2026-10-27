@@ -15,6 +15,8 @@ export interface IndividualImport {
 	race?: Race;
 	equipmentSpec?: EquipmentSpec;
 	talentsStr?: string;
+	// The exporter built talentsStr from this sim's trees, so it is safe to apply.
+	talentsMatchTrees?: boolean;
 	professions?: Profession[];
 	rotation?: APLRotation;
 	missingEnchants?: number[];
@@ -23,7 +25,17 @@ export interface IndividualImport {
 
 export const finishIndividualImport = async (
 	host: IndividualSimHost<any>,
-	{ charClass, race, equipmentSpec, talentsStr = '', professions = [], rotation, missingEnchants = [], missingItems = [] }: IndividualImport,
+	{
+		charClass,
+		race,
+		equipmentSpec,
+		talentsStr = '',
+		talentsMatchTrees = false,
+		professions = [],
+		rotation,
+		missingEnchants = [],
+		missingItems = [],
+	}: IndividualImport,
 ): Promise<void> => {
 	if (charClass != host.player.getClass()) {
 		throw new Error(i18n.t('import.errors.wrong_class', { expected: host.player.getPlayerClass().friendlyName, found: classNames.get(charClass) }));
@@ -35,9 +47,11 @@ export const finishIndividualImport = async (
 	const gear = equipmentSpec && host.sim.db.lookupEquipmentSpec(equipmentSpec);
 
 	// A talent string is positional: digit i of tree t is talents[i] of whatever tree the exporter
-	// was built against. Forever's trees are a different set, so applying an imported string would
-	// spend the points on other talents rather than fail. No exporter targets these trees yet.
+	// was built against. Forever's trees are a different set, so applying a string built for other
+	// trees would spend the points on other talents rather than fail. Only strings the exporter
+	// marks as built from these trees are applied.
 	const importedTalents = !!talentsStr && talentsStr != '--';
+	const applyTalents = importedTalents && talentsMatchTrees;
 
 	batch(() => {
 		if (race !== undefined) {
@@ -45,6 +59,9 @@ export const finishIndividualImport = async (
 		}
 		if (gear) {
 			host.player.setGear(gear);
+		}
+		if (applyTalents) {
+			host.player.setTalentsString(talentsStr);
 		}
 		if (professions.length > 0) {
 			host.player.setProfessions(professions);
@@ -55,7 +72,7 @@ export const finishIndividualImport = async (
 		host.fromProto(IndividualSimSettings.create({ player: { rotation } }), [SimSettingCategories.Rotation]);
 	}
 
-	if (importedTalents) {
+	if (importedTalents && !applyTalents) {
 		toastManager.add({
 			variant: 'warning',
 			body: i18n.t('import.talents_not_imported'),

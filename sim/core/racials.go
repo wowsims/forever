@@ -165,10 +165,12 @@ func applyRaceEffects(agent Agent) {
 
 		actionID := ActionID{SpellID: 20554}
 
+		// TODO: the 15 s duration is from the 27 October development notes; the game build states 10 s
+		// for 20554.
 		berserkingAura := character.RegisterAura(Aura{
 			Label:    "Berserking",
 			ActionID: actionID,
-			Duration: time.Second * 10,
+			Duration: time.Second * 15,
 		}).
 			AttachMultiplyAttackSpeed(1.1).
 			AttachMultiplyCastSpeed(1.1)
