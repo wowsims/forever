@@ -52,16 +52,6 @@ func runLifecycleUntil(sim *Simulation, until time.Duration) {
 	sim.advance(until)
 }
 
-// A target without an AI has no rotation action, which Disable cancels.
-// TODO: drop the stand-in once the GCD timer cancel skips a missing rotation action.
-func disableLifecycleTarget(sim *Simulation, target *Target) {
-	if target.rotationAction == nil {
-		target.rotationAction = &PendingAction{}
-		defer func() { target.rotationAction = nil }()
-	}
-	target.Disable(sim, false)
-}
-
 func mhSwingsOn(fw *FakeFearWarrior, target *Target) int32 {
 	return fw.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].Casts
 }
@@ -90,7 +80,7 @@ func TestDisablingTheOnlyTargetIdlesTheRaid(t *testing.T) {
 		t.Fatal("test setup: the warrior does not swing at the target")
 	}
 
-	disableLifecycleTarget(sim, target)
+	target.Disable(sim, false)
 	if sim.ActiveTargetCount() != 0 {
 		t.Fatalf("active targets: expected none, got %d", sim.ActiveTargetCount())
 	}
@@ -126,7 +116,7 @@ func TestDisablingTheTargetMovesTheRaidToTheNextOne(t *testing.T) {
 	aa := &fw.AutoAttacks
 
 	runLifecycleUntil(sim, 2*time.Second)
-	disableLifecycleTarget(sim, first)
+	first.Disable(sim, false)
 	if fw.CurrentTarget != &second.Unit {
 		t.Fatalf("current target after the first goes: expected the second, got %s", unitLabel(fw.CurrentTarget))
 	}
@@ -143,8 +133,8 @@ func TestDisablingTheTargetMovesTheRaidToTheNextOne(t *testing.T) {
 		t.Fatalf("current target after the first comes back: expected it kept on the second, got %s", unitLabel(fw.CurrentTarget))
 	}
 
-	disableLifecycleTarget(sim, first)
-	disableLifecycleTarget(sim, second)
+	first.Disable(sim, false)
+	second.Disable(sim, false)
 	if fw.CurrentTarget != &second.Unit {
 		t.Fatalf("current target with none left: expected it kept on the second, got %s", unitLabel(fw.CurrentTarget))
 	}
@@ -221,7 +211,7 @@ func TestDisablingTheTargetWakesTheRotationOfTheUnitsMoved(t *testing.T) {
 	runLifecycleUntil(sim, 2*time.Second)
 	fw.SetRotationTimer(sim, sim.CurrentTime+30*time.Second)
 
-	disableLifecycleTarget(sim, sim.Encounter.AllTargets[0])
+	sim.Encounter.AllTargets[0].Disable(sim, false)
 	if at, latest := fw.NextRotationActionAt(), sim.CurrentTime+fw.ReactionTime; at > latest {
 		t.Fatalf("next rotation look: expected it by %s, got %s", latest, at)
 	}
@@ -231,8 +221,8 @@ func TestActiveTargetWalksWithNoTargetEnabled(t *testing.T) {
 	sim, _ := setupLifecycleSim(lifecycleTargets(3))
 	targets := sim.Encounter.AllTargets
 
-	disableLifecycleTarget(sim, targets[0])
-	disableLifecycleTarget(sim, targets[2])
+	targets[0].Disable(sim, false)
+	targets[2].Disable(sim, false)
 	if next := targets[1].NextActiveTarget(); next != targets[1] {
 		t.Fatalf("next active target of the only enabled target: expected itself, got %s", targetLabel(next))
 	}
@@ -240,7 +230,7 @@ func TestActiveTargetWalksWithNoTargetEnabled(t *testing.T) {
 		t.Fatalf("previous active target: expected the second, got %s", targetLabel(prev))
 	}
 
-	disableLifecycleTarget(sim, targets[1])
+	targets[1].Disable(sim, false)
 	for _, target := range targets {
 		if next := target.NextActiveTarget(); next != nil {
 			t.Fatalf("next active target with none enabled: expected nil, got %s", targetLabel(next))
