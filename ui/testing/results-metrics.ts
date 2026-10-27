@@ -3,7 +3,7 @@ import { ActionMetrics as ActionMetricsProto, TargetedActionMetrics as TargetedA
 import { ActionID } from '@generated/proto/common';
 import { IconData } from '@generated/proto/ui';
 import { Database } from '@sim/proto/database';
-import { ActionMetrics } from '@sim/proto/sim_result';
+import { ActionMetrics, UnitMetrics } from '@sim/proto/sim_result';
 import { makeSimRun } from '@testing/storybook/fixtures/results';
 import { vi } from 'vitest';
 
@@ -21,7 +21,7 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 		spellSchool: null,
 		casts: 10,
 		isPassiveAction: false,
-		isPressed: true,
+		manualCasts: 10,
 		landedHits: 10,
 		landedTicks: 0,
 		landedRolls: 10,
@@ -97,6 +97,7 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 		shielding: 40,
 		totalHealingPercent: 50,
 		castsPerMinute: 20,
+		manualCastsPerMinute: 20,
 		avgCastTimeMs: 1500,
 		avgCastHealing: 10,
 		avgHitHealing: 10,
@@ -134,12 +135,14 @@ export const playerMetricsResult =
 			},
 		}) as unknown as SimResultData;
 
-/** `playerMetricsResult` for the cast table, which reads the player's and the pet's `actions` lists. */
+/** `playerMetricsResult` for the cast table, which reads the player's and the pet's `actions` lists and the player's real `apmActions`. */
 export const castMetricsResult = (actions: Array<ActionMetrics>, petActions: Array<ActionMetrics> = []) =>
 	({
 		filter: {},
 		result: {
-			getRaidIndexedPlayers: () => [{ actions, pets: petActions.length ? [{ name: 'Wolf', actions: petActions }] : [] }],
+			getRaidIndexedPlayers: () => [
+				{ actions, apmActions: UnitMetrics.prototype.apmActions, pets: petActions.length ? [{ name: 'Wolf', actions: petActions }] : [] },
+			],
 		},
 	}) as unknown as SimResultData;
 

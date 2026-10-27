@@ -570,6 +570,16 @@ export class ActionId {
 					name += ' (Heal)';
 				}
 				break;
+			case 'Read Leyline':
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.attuned')})`;
+				}
+				break;
+			case 'Skysight':
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.charged')})`;
+				}
+				break;
 			case 'Hack and Slash':
 				if (tag == 1) {
 					name += ' (Axe/Sword)';

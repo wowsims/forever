@@ -94,10 +94,19 @@
 						},
 						"disclaimer": {
 							"type": "string"
+						},
+						"sims": {
+							"type": "string"
+						},
+						"addon": {
+							"type": "string"
+						},
+						"patreon": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["copyright", "disclaimer"]
+					"required": ["copyright", "disclaimer", "sims", "addon", "patreon"]
 				}
 			},
 			"additionalProperties": false,
@@ -1495,6 +1504,12 @@
 						"damage": {
 							"type": "string"
 						},
+						"attuned": {
+							"type": "string"
+						},
+						"charged": {
+							"type": "string"
+						},
 						"wasted": {
 							"type": "string"
 						},
@@ -1589,6 +1604,8 @@
 						"crit",
 						"agi",
 						"damage",
+						"attuned",
+						"charged",
 						"wasted",
 						"raid",
 						"queue",
@@ -7755,6 +7772,9 @@
 								},
 								"groups": {
 									"type": "string"
+								},
+								"stances": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -7799,7 +7819,8 @@
 								"external_cooldowns",
 								"external_debuffs",
 								"variables",
-								"groups"
+								"groups",
+								"stances"
 							]
 						},
 						"item_swap_sets": {
@@ -8580,7 +8601,7 @@
 						"group_ranks": {
 							"type": "string"
 						},
-						"hide_passives": {
+						"show_apm_breakdown": {
 							"type": "string"
 						},
 						"pets": {
@@ -9533,7 +9554,7 @@
 						"all_targets",
 						"target_number",
 						"group_ranks",
-						"hide_passives",
+						"show_apm_breakdown",
 						"pets",
 						"damage",
 						"timeline",

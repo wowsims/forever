@@ -33,6 +33,8 @@ export const REPO_NEW_ISSUE_URL = `https://github.com/${ISSUES_REPO}/issues/new`
 export const REPO_CHOOSE_NEW_ISSUE_URL = `${REPO_NEW_ISSUE_URL}/choose`;
 
 export const WOWSIMS_URL = 'https://www.wowsims.com/';
+// The site list and footer content every WoWSims site shares, published by wowsims/wowsims.github.io
+export const VERSIONS_MANIFEST_URL = `${WOWSIMS_URL}versions.json`;
 export const DISCORD_URL = 'https://discord.gg/p3DgvmnDCS';
 export const GITHUB_ORG_URL = 'https://github.com/wowsims/';
 export const ADDON_URL = 'https://www.curseforge.com/wow/addons/wowsimsexporter';

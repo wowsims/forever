@@ -251,7 +251,7 @@ describe('DetailedResults', () => {
 
 const TABS: Array<DetailedResultsTabConfig> = [
 	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage', groupsRanks: true },
-	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', hidesPassives: true },
+	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', breaksDownApm: true },
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
 ];
 
@@ -263,7 +263,7 @@ const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
 		onSimulateIteration: vi.fn(),
 		onSimulateDeath: vi.fn(),
 		onGroupRanksChange: vi.fn(),
-		onHidePassivesChange: vi.fn(),
+		onShowApmBreakdownChange: vi.fn(),
 	};
 	const view = render(
 		<DetailedResultsView
@@ -274,7 +274,7 @@ const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
 			deathDisabled
 			targetPicker={<span data-testid="filter-slot" />}
 			groupRanks
-			hidePassives
+			showApmBreakdown
 			{...handlers}
 			{...props}>
 			<TabPanel value="damageTab">damage pane</TabPanel>
@@ -348,18 +348,18 @@ describe('DetailedResultsView', () => {
 		expect(within(screen.getByTestId('results-filter')).queryByRole('checkbox')).toBeNull();
 	});
 
-	it('shows the hide passives toggle only on a tab whose table hides passives, and reports a change', () => {
-		const name = 'results_tab.details.hide_passives';
+	it('shows the APM breakdown toggle only on a tab whose table breaks down APM, and reports a change', () => {
+		const name = 'results_tab.details.show_apm_breakdown';
 		const damage = mount();
 		expect(screen.queryByRole('checkbox', { name })).toBeNull();
 		damage.unmount();
 
-		const { onHidePassivesChange } = mount({ activeId: 'castsTab' });
+		const { onShowApmBreakdownChange } = mount({ activeId: 'castsTab' });
 		const toggle = within(screen.getByTestId('results-filter')).getByRole('checkbox', { name });
 		expect(toggle.getAttribute('aria-checked')).toBe('true');
 		fireEvent.click(toggle);
 
-		expect(onHidePassivesChange).toHaveBeenCalledWith(false);
+		expect(onShowApmBreakdownChange).toHaveBeenCalledWith(false);
 	});
 
 	it('hands the panes the sticky slot under the toolbar', () => {

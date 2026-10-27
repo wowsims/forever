@@ -174,7 +174,7 @@ type Item struct {
 	RangedWeaponType proto.RangedWeaponType
 	WeaponDamageMin  float64
 	WeaponDamageMax  float64
-	UnroundedDPS     float64
+	UnroundedDPS     float32
 	SwingSpeed       float64
 	QualityModifier  float64           // Per-item offset to weapon "average damage"; negative for caster weapons.
 	SpellSchool      proto.SpellSchool // The weapon's damage school; unset means physical.

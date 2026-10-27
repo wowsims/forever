@@ -27,8 +27,11 @@
 			"addon": "Get the Exporter addon"
 		},
 		"footer": {
-			"copyright": "© 2021-{{year}} WoWSims team",
-			"disclaimer": "A fan-made project, not affiliated with Blizzard Entertainment."
+			"copyright": "© {{startYear}}-{{year}} {{holder}}",
+			"disclaimer": "A fan-made project, not affiliated with Blizzard Entertainment.",
+			"sims": "Sims",
+			"addon": "Addon",
+			"patreon": "Patreon"
 		}
 	},
 	"common": {
@@ -420,6 +423,8 @@
 			"crit": "Crit",
 			"agi": "Agi",
 			"damage": "Damage",
+			"attuned": "Attuned",
+			"charged": "Charged",
 			"wasted": "Wasted",
 			"raid": "raid",
 			"queue": "Queue",
@@ -2194,7 +2199,8 @@
 				"external_cooldowns": "External Cooldowns",
 				"external_debuffs": "External Debuffs",
 				"variables": "Variables",
-				"groups": "Groups"
+				"groups": "Groups",
+				"stances": "Stances"
 			},
 			"item_swap_sets": {
 				"main": "Main",
@@ -2417,7 +2423,7 @@
 			"all_targets": "All Targets",
 			"target_number": "Target {{number}}",
 			"group_ranks": "Group ranks",
-			"hide_passives": "Hide passives",
+			"show_apm_breakdown": "Show APM breakdown",
 			"pets": "Pets",
 			"damage": {
 				"dps_histogram": "DPS Histogram"

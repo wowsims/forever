@@ -160,9 +160,6 @@ message ActionMetrics {
 
 	// True if action is applied/cast as a result of another action
 	bool is_passive = 5;
-
-	// True if the unit presses the action itself: a rotation spell (also one pressed through another spell), or a pet's own ability.
-	bool is_pressed = 6;
 }
 
 // Metrics for a specific action, when cast at a particular target.
@@ -626,6 +623,7 @@ message AuraStats {
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
 	ActionCategory category = 5;
+	string menu_group = 6; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
 }
 message SpellStats {
 	ActionID id = 1;
@@ -646,6 +644,7 @@ message SpellStats {
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
 	ActionCategory category = 16;
+	string menu_group = 18; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
 }
 message APLValidation {
 	LogLevel log_level = 1;

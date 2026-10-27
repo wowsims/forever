@@ -1203,7 +1203,7 @@ var SharedSpellsIcons = []int32{
 
 	1259686, // Skysight
 	1259688, // Elemental Blessing
-	1259705, // Read Ley Line
+	1259705, // Read Leyline
 	1259719, // Earth Fury
 	1259799, // Elune's Light
 	1259812, // Eureka!

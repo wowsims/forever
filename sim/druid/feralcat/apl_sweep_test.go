@@ -38,8 +38,9 @@ const (
 	spellEnrage     int32 = 5229
 	spellMaul       int32 = 9881
 	spellInnervate  int32 = 29166
-	// Read Ley Line, the High Order Skyborne's racial: Energized, twice the mana regeneration for 15s.
+	// Read Leyline, the High Order Skyborne's racial: Energized, 50% more mana regeneration for 15s.
 	spellEnergized int32 = 1259705
+	auraEnergized  int32 = 1270842
 )
 
 // aplTune is one candidate. elune is "after" (once Berserk's crit has fallen), "now" (as soon as it
@@ -237,10 +238,15 @@ func catAPL(tune aplTune) *proto.APLRotation {
 	if tune.innervate {
 		// Casting Innervate leaves Cat Form, so it waits for a free GCD with nothing to spend energy on;
 		// Cat Form follows.
-		list = append(list, castWhen(spellInnervate, and(inCat, vars.def("Mana short", manaShort()),
+		when := []*proto.APLValue{inCat, vars.def("Mana short", manaShort()),
 			cmp(proto.APLValueCompare_OpLe, currentEnergy(), konst("30")),
 			not(clearcasting), not(auraUp(spellBerserk)),
-			cmp(proto.APLValueCompare_OpGe, remainingTime(), konst("15s")))))
+			cmp(proto.APLValueCompare_OpGe, remainingTime(), konst("15s"))}
+		if tune.energized {
+			// Innervate landing ends Energized, so it waits for Energized to run out.
+			when = append(when, not(auraUp(auraEnergized)))
+		}
+		list = append(list, castWhen(spellInnervate, and(when...)))
 	}
 	if tune.omen {
 		list = append(list, castWhen(spellFF, omenFish))
