@@ -8,7 +8,8 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// Two pre-pull casts back to back, the second at the instant the first one ends. Both complete.
+// Two pre-pull casts back to back, the second at the instant the first one ends or pressed inside the
+// spell queue window before it ends. The spell has no cooldown. Both complete before the pull.
 func TestPrepullCastAtPreviousCastEnd(t *testing.T) {
 	castAt := func(doAt string) *proto.APLPrepullAction {
 		return &proto.APLPrepullAction{
@@ -18,17 +19,19 @@ func TestPrepullCastAtPreviousCastEnd(t *testing.T) {
 			}}},
 		}
 	}
-	request := fakeSwingCasterRequest()
-	request.Raid.Parties[0].Players[0].Rotation.PrepullActions = []*proto.APLPrepullAction{castAt("-5s"), castAt("-3s")}
+	for _, secondAt := range []string{"-3s", "-3.2s"} {
+		request := fakeSwingCasterRequest()
+		request.Raid.Parties[0].Players[0].Rotation.PrepullActions = []*proto.APLPrepullAction{castAt("-5s"), castAt(secondAt)}
 
-	sim := NewSim(request, simsignals.CreateSignals())
-	sim.Reset()
-	sim.PrePull()
-	fc := sim.Raid.Parties[0].Players[0].(*FakeSwingCaster)
-	stepSwingSim(t, sim, -time.Second/2)
+		sim := NewSim(request, simsignals.CreateSignals())
+		sim.Reset()
+		sim.PrePull()
+		fc := sim.Raid.Parties[0].Players[0].(*FakeSwingCaster)
+		stepSwingSim(t, sim, -time.Second/2)
 
-	if casts := fc.Resetting.SpellMetrics[0].Casts; casts != 2 {
-		t.Fatalf("expected both pre-pull casts complete by -1s, got %d", casts)
+		if casts := fc.Resetting.SpellMetrics[0].Casts; casts != 2 {
+			t.Fatalf("second cast at %s: expected both pre-pull casts complete by -0.5s, got %d", secondAt, casts)
+		}
 	}
 }
 
