@@ -10,6 +10,7 @@ import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/prot
 import {
 	type AreaType,
 	ConsumesSpec,
+	EncounterDesign,
 	Faction,
 	HealingModel,
 	type ItemSlot,
@@ -55,6 +56,7 @@ export interface EncounterSlice {
 	areaTypes: Array<AreaType>;
 	zoneId: number;
 	targets: Array<TargetProto>;
+	design: EncounterDesign;
 }
 
 // Raid-wide settings (owned by Raid; partyBuffs entries owned by each Party).
@@ -318,6 +320,7 @@ const initialState = (): SimState => ({
 		areaTypes: [],
 		zoneId: 0,
 		targets: [],
+		design: EncounterDesign.create(),
 	},
 	players: {},
 	reforge: {},

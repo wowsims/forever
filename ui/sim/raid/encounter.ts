@@ -1,6 +1,7 @@
 import {
 	AreaType,
 	Encounter as EncounterProto,
+	EncounterDesign,
 	MobType,
 	PresetEncounter,
 	PresetTarget,
@@ -59,7 +60,51 @@ export class Encounter {
 	setTargets(newTargets: Array<TargetProto>) {
 		// Always notifies: a same-reference write is stored as a fresh array so
 		// subscribers still see a change.
-		this.set({ targets: newTargets === this.enc.targets ? newTargets.slice() : newTargets });
+		const targets = newTargets === this.enc.targets ? newTargets.slice() : newTargets;
+		this.set({ targets, design: this.remapDesign(this.enc.targets, targets) });
+	}
+
+	// The design points at targets by index. Following each old target object to its new
+	// position keeps a reorder intact; a target that is gone becomes -1 so validation flags it.
+	private remapDesign(oldTargets: Array<TargetProto>, newTargets: Array<TargetProto>): EncounterDesign {
+		const design = this.enc.design;
+		const remap = (index: number) => {
+			const target = oldTargets[index];
+			return target ? newTargets.indexOf(target) : -1;
+		};
+		const moved = (index: number) => remap(index) !== index;
+		const touched =
+			design.downtimes.some(d => moved(d.targetIndex)) ||
+			design.bossAbilities.some(a => moved(a.targetIndex)) ||
+			design.damageAmps.some(a => a.targets?.targetIndices.some(moved));
+		// An empty DesignTargets means target 0, a position rather than an identity, so it stays as is.
+		if (!touched) return design;
+
+		const next = EncounterDesign.clone(design);
+		next.downtimes.forEach(d => (d.targetIndex = remap(d.targetIndex)));
+		next.bossAbilities.forEach(a => (a.targetIndex = remap(a.targetIndex)));
+		next.damageAmps.forEach(a => {
+			if (a.targets) a.targets.targetIndices = a.targets.targetIndices.map(remap);
+		});
+		return next;
+	}
+
+	getDesign(): EncounterDesign {
+		return this.enc.design;
+	}
+	setDesign(design: EncounterDesign) {
+		if (EncounterDesign.equals(design, this.enc.design)) return;
+		this.set({ design: EncounterDesign.clone(design) });
+	}
+	// Replace-on-write: the callback gets a clone, which becomes the stored design.
+	modifyDesign(modify: (design: EncounterDesign) => void) {
+		const clone = EncounterDesign.clone(this.enc.design);
+		modify(clone);
+		this.set({ design: clone });
+	}
+	hasDesign(): boolean {
+		const d = this.enc.design;
+		return d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length > 0;
 	}
 
 	// Target mutation with a single change event — the write path for the
@@ -138,7 +183,11 @@ export class Encounter {
 	// A preset's target proto is owned by `sim.db` and shared by every encounter naming that preset,
 	// so the store gets a clone: what it holds, it owns.
 	applyPreset(preset: PresetEncounter) {
-		this.set({ targets: preset.targets.map(presetTarget => (presetTarget.target ? TargetProto.clone(presetTarget.target) : TargetProto.create())) });
+		// The preset's design replaces the current one together with the targets.
+		this.set({
+			targets: preset.targets.map(presetTarget => (presetTarget.target ? TargetProto.clone(presetTarget.target) : TargetProto.create())),
+			design: preset.design ? EncounterDesign.clone(preset.design) : EncounterDesign.create(),
+		});
 
 		const zoneId = this.sim.db?.getNpc(preset.targets[0]?.target?.id ?? 0)?.zoneId ?? 0;
 		if (zoneId && this.sim.db.getZone(zoneId)?.areaTypes.length) this.setZone(zoneId);
@@ -160,6 +209,7 @@ export class Encounter {
 			areaTypes: enc.areaTypes,
 			zoneId: enc.zoneId,
 			targets: enc.targets,
+			design: this.hasDesign() ? enc.design : undefined,
 			apiVersion: CURRENT_API_VERSION,
 		});
 	}
@@ -174,6 +224,8 @@ export class Encounter {
 			// Clone so edits in the Advanced Encounter picker cannot mutate the
 			// saved entry's (or the config default's) own target protos.
 			this.setTargets(proto.targets.map(t => TargetProto.clone(t)));
+			// After the targets, whose reindexing would otherwise rewrite the loaded design.
+			this.setDesign(proto.design ? EncounterDesign.clone(proto.design) : EncounterDesign.create());
 		});
 	}
 

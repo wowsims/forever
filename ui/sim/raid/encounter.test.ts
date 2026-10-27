@@ -1,7 +1,24 @@
-import { AreaType, Encounter as EncounterProto, InputType, PresetEncounter, PresetTarget, Target as TargetProto, TargetInput } from '@generated/proto/common';
+import {
+	AreaType,
+	DesignBossAbility,
+	DesignDamageAmp,
+	DesignDowntime,
+	DesignTargets,
+	Encounter as EncounterProto,
+	EncounterDesign,
+	HealthKeyframe,
+	InputType,
+	PresetEncounter,
+	PresetTarget,
+	Target as TargetProto,
+	TargetInput,
+} from '@generated/proto/common';
+import { Player as PlayerProto } from '@generated/proto/api';
 import { describe, expect, it } from 'vitest';
 
+import { SimSettingCategories } from '../constants/sim_settings';
 import type { Sim } from '../sim';
+import { applyIndividualSimSettings, individualSimSettingsToProto } from '../state/serialization';
 import { createSimStore } from '../state/sim_store';
 import { Encounter } from './encounter';
 
@@ -123,5 +140,146 @@ describe('Encounter', () => {
 
 		expect(dbTarget.level).toBe(93);
 		expect(dbTarget.targetInputs[0].numberValue).toBe(3);
+	});
+
+	describe('design', () => {
+		const withThreeTargets = () => {
+			const encounter = makeEncounter();
+			encounter.setTargets([1, 2, 3].map(id => TargetProto.create({ id })));
+			encounter.setDesign(
+				EncounterDesign.create({
+					downtimes: [DesignDowntime.create({ targetIndex: 0 }), DesignDowntime.create({ targetIndex: 2 })],
+					bossAbilities: [DesignBossAbility.create({ targetIndex: 1 })],
+					damageAmps: [DesignDamageAmp.create({ targets: DesignTargets.create({ targetIndices: [1, 2] }) })],
+				}),
+			);
+			return encounter;
+		};
+		const indices = (encounter: Encounter) => {
+			const design = encounter.getDesign();
+			return {
+				downtimes: design.downtimes.map(d => d.targetIndex),
+				abilities: design.bossAbilities.map(a => a.targetIndex),
+				amps: design.damageAmps.map(a => a.targets?.targetIndices),
+			};
+		};
+
+		it('starts plain and counts any non-empty list as a design', () => {
+			const encounter = makeEncounter();
+			expect(encounter.hasDesign()).toBe(false);
+
+			encounter.modifyDesign(d => d.bossHealth.push(HealthKeyframe.create()));
+			expect(encounter.hasDesign()).toBe(true);
+		});
+
+		it('survives the proto round trip and the binary form links use, and clears on a proto without one', () => {
+			const encounter = withThreeTargets();
+			const other = makeEncounter();
+
+			other.fromProto(encounter.toProto());
+			expect(EncounterDesign.equals(other.getDesign(), encounter.getDesign())).toBe(true);
+			expect(other.getDesign()).not.toBe(encounter.getDesign());
+
+			// Links and saved entries carry the encounter as binary.
+			const third = makeEncounter();
+			third.fromProto(EncounterProto.fromBinary(EncounterProto.toBinary(encounter.toProto())));
+			expect(EncounterDesign.equals(third.getDesign(), encounter.getDesign())).toBe(true);
+
+			other.fromProto(EncounterProto.create({ targets: [Encounter.defaultTargetProto()] }));
+			expect(other.hasDesign()).toBe(false);
+		});
+
+		it('leaves a plain encounter without a design message, so it equals a preset proto that has none', () => {
+			const plain = makeEncounter().toProto();
+			expect(plain.design).toBeUndefined();
+			expect(EncounterProto.equals(plain, EncounterProto.create({ ...plain, design: undefined }))).toBe(true);
+		});
+
+		it('stores a copy of the design it is given', () => {
+			const encounter = makeEncounter();
+			const design = EncounterDesign.create({ bossHealth: [HealthKeyframe.create()] });
+			encounter.setDesign(design);
+			design.bossHealth.length = 0;
+			expect(encounter.getDesign().bossHealth).toHaveLength(1);
+		});
+
+		it('leaves an empty damage amp target list alone on reorder', () => {
+			const encounter = withThreeTargets();
+			encounter.modifyDesign(d => d.damageAmps.push(DesignDamageAmp.create({ targets: DesignTargets.create() })));
+			const [a, b, c] = encounter.getTargets();
+			encounter.setTargets([c, b, a]);
+			expect(encounter.getDesign().damageAmps[1].targets?.targetIndices).toEqual([]);
+		});
+
+		it('replaces the design with the preset design on applyPreset, and clears it for a preset without one', () => {
+			const encounter = withThreeTargets();
+			const design = EncounterDesign.create({ bossHealth: [HealthKeyframe.create({ healthPercent: 0.5 })] });
+
+			encounter.applyPreset(PresetEncounter.create({ targets: [PresetTarget.create({ target: TargetProto.create({ id: 5 }) })], design }));
+			expect(EncounterDesign.equals(encounter.getDesign(), design)).toBe(true);
+			expect(encounter.getDesign()).not.toBe(design);
+
+			encounter.applyPreset(presetEncounter());
+			expect(encounter.hasDesign()).toBe(false);
+		});
+
+		it('round-trips through the settings serialization of the Encounter category', () => {
+			const encounter = withThreeTargets();
+			const player = { toProto: () => PlayerProto.create(), fromProto: () => {}, getPlayerSpec: () => ({}) };
+			const categories = [SimSettingCategories.Encounter];
+
+			const settings = individualSimSettingsToProto({ player, sim: { encounter } } as never, categories);
+			const loaded = makeEncounter();
+			applyIndividualSimSettings({ player, sim: { raid: {}, encounter: loaded } } as never, settings, categories);
+
+			expect(EncounterDesign.equals(loaded.getDesign(), encounter.getDesign())).toBe(true);
+		});
+
+		it('setDesign writes nothing for an equal design', () => {
+			const encounter = withThreeTargets();
+			let writes = 0;
+			encounter.sim.store.subscribe(() => writes++);
+
+			encounter.setDesign(EncounterDesign.clone(encounter.getDesign()));
+			expect(writes).toBe(0);
+
+			encounter.setDesign(EncounterDesign.create());
+			expect(writes).toBe(1);
+		});
+
+		it('modifyDesign writes once and replaces the stored design', () => {
+			const encounter = withThreeTargets();
+			const before = encounter.getDesign();
+			let writes = 0;
+			encounter.sim.store.subscribe(() => writes++);
+
+			encounter.modifyDesign(d => {
+				d.downtimes.push(DesignDowntime.create({ targetIndex: 1 }));
+				d.bossHealth.push(HealthKeyframe.create());
+			});
+
+			expect(writes).toBe(1);
+			expect(encounter.getDesign()).not.toBe(before);
+			expect(before.downtimes).toHaveLength(2);
+			expect(encounter.getDesign().downtimes).toHaveLength(3);
+		});
+
+		it('follows a reordered target by identity', () => {
+			const encounter = withThreeTargets();
+			const [a, b, c] = encounter.getTargets();
+
+			encounter.setTargets([c, a, b]);
+
+			expect(indices(encounter)).toEqual({ downtimes: [1, 0], abilities: [2], amps: [[2, 0]] });
+		});
+
+		it('sets the index to -1 for a removed target', () => {
+			const encounter = withThreeTargets();
+			const [a, , c] = encounter.getTargets();
+
+			encounter.setTargets([a, c]);
+
+			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [-1], amps: [[-1, 1]] });
+		});
 	});
 });
