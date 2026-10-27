@@ -1,5 +1,6 @@
 import i18n from '@i18n/config';
 import type { CombatLog } from '@sim/proto/combat_log';
+import { Button } from '@ui-kit/Button';
 import type { Chart as ChartJS, ChartData, ChartOptions, Plugin } from 'chart.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
@@ -156,14 +157,14 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 					<li>{i18n.t('results_tab.details.timeline.scheduled.title')}</li>
 					{scheduledKinds.map(({ kind, token }) => (
 						<li key={kind}>
-							<button
-								type="button"
+							<Button
+								variant="unstyled"
 								aria-pressed={!hiddenKinds.current.has(kind)}
 								className={`flex cursor-pointer items-center gap-1 ${hiddenKinds.current.has(kind) ? 'line-through opacity-50' : ''}`}
 								onClick={() => toggleKind(kind)}>
 								<span aria-hidden className="inline-block size-2" style={{ backgroundColor: cssVarColor(token) }} />
 								{i18n.t(`results_tab.details.timeline.scheduled.${kind}`)}
-							</button>
+							</Button>
 						</li>
 					))}
 				</ul>
