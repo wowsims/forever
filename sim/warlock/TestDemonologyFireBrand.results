@@ -1185,8 +1185,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 984.1877
-  tps: 623.88394
+  dps: 989.45295
+  tps: 627.13425
   dtps: 8.51782
   hps: 9.6293
  }
@@ -1194,8 +1194,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 782.95888
-  tps: 452.1493
+  dps: 788.17821
+  tps: 455.33368
   dtps: 8.82792
   hps: 10.00951
  }
@@ -1212,16 +1212,16 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 595.11706
-  tps: 515.84041
+  dps: 597.65443
+  tps: 518.05174
   hps: 7.2004
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 493.27109
-  tps: 393.83692
+  dps: 495.89236
+  tps: 396.10322
   hps: 7.8964
  }
 }
