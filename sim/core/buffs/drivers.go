@@ -386,6 +386,12 @@ func driveRetributionAura(char *core.Character, party *proto.PartyBuffs) {
 	core.MakePermanent(NewSpellDataRetributionAuraRank(char, false, RetributionAuraMaxRank, party.RetributionAuraSpellPower))
 }
 
+// The individual Thorns' damage carries the providing druid's Nature spell
+// power, which the buffs state alongside it.
+func driveThorns(char *core.Character, individual *proto.IndividualBuffs) {
+	core.MakePermanent(NewSpellDataThornsAuraWithSpellPower(&char.Unit, false, individual.ThornsSpellPower))
+}
+
 // The blessing does nothing on its own: the paladin's Holy Light and Flash of
 // Light read their bonus off their own rows when the target carries it.
 func driveGreaterBlessingOfLight(char *core.Character, _ *proto.IndividualBuffs) {

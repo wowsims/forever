@@ -340,15 +340,17 @@ the row's `isPlayer=false` copy whenever the proto field is set, so a class port
 `AddPartyBuffs`/`AddRaidBuffs`, or the row states a `Category` with `SingleAura` and the two copies bid
 against each other, so the character sheet shows the buff once. The higher bid deactivates the other
 copy. On a tie the incumbent keeps the category when its remaining duration is the longer one, so a
-druid casting its own Thorns is turned away while the settings' permanent copy is up. Both deal the same
-22, so the character strikes back for the same amount either way. Battle Shout is the worked example.
+druid casting its own Thorns is turned away while the settings' permanent copy is up. The settings'
+copy bids its damage with `thorns_spell_power` folded in, and the druid's own copy bids the row's damage
+alone and adds its Nature spell power only when it deals the hit, so the settings' copy keeps the
+category even against a druid with more spell power. Battle Shout is the worked example.
 Neither copy is permanent, and the two are worth the same unless one side wears the tier 2 set, so
 `TestPlayerBattleShoutTakesTheCategoryOnATie` holds the player's own copy to the tie and
 `TestTheStrongerBattleShoutTakesTheCategory` holds the stronger one to the rest. The rows this decides
 are `thorns`, `leader_of_the_pack`, `moonkin_aura` and `trueshot_aura`: `sim/druid/druid.go`,
 `sim/druid/feralcat` and `sim/druid/feralbear` raise the raid's Leader of the Pack or Moonkin Aura
-from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and the druid's own Thorns waits on the
-druid port. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
+from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and `sim/druid/thorns.go` registers the
+druid's own Thorns. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
 druid registering its own copy of any of them has nothing to decide: the copy joins the same category
 and the two bid. Leader of the Pack and Moonkin Aura each have their own category: one raises melee and
 ranged crit, the other spell crit, so a raid that ticks both gets both. Only `trueshot_aura` is left

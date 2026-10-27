@@ -276,6 +276,9 @@ export const Thorns = makeBooleanIndividualBuffInput({
 	label: 'Thorns',
 });
 
+// thorns_spell_power: the Nature spell power of the druid providing Thorns, which driveThorns scales the damage with; a sim input with no spell source,
+// rendered under Other Inputs.
+
 export const HuntersMark = makeBooleanDebuffInput({
 	actionId: ActionId.fromSpellId(14325),
 	fieldName: 'huntersMark',

@@ -752,7 +752,11 @@
 			},
 			"retribution_aura_spell_power": {
 				"label": "Retribution Aura Spell Power",
-				"tooltip": "The Holy spell power of the paladin providing Retribution Aura. Each hit you take deals the aura's base damage plus about 13.6% of this."
+				"tooltip": "The Holy spell power of the paladin providing Retribution Aura. Each hit you take deals the aura's base damage plus 6% of this."
+			},
+			"thorns_spell_power": {
+				"label": "Thorns Spell Power",
+				"tooltip": "The Nature spell power of the druid providing Thorns. Each hit you take deals Thorns' base damage plus 6% of this."
 			},
 			"pet_uptime": {
 				"label": "Pet Uptime (%)",

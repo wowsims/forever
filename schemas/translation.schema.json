@@ -2736,6 +2736,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"thorns_spell_power": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"pet_uptime": {
 							"type": "object",
 							"properties": {
@@ -3294,6 +3307,7 @@
 						"burst_window",
 						"hp_percent_for_defensives",
 						"retribution_aura_spell_power",
+						"thorns_spell_power",
 						"pet_uptime",
 						"pet_type",
 						"ammo",

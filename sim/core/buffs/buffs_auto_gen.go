@@ -847,6 +847,8 @@ func NewSpellDataThornsAura(unit *core.Unit, isPlayer bool, talentPoints int32) 
 	return newDamageShield(unit, thornsMeta, isPlayer, talentPoints)
 }
 
+// func NewSpellDataThornsSpellPowerAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura // thorns_spell_power, KindFlag: the Nature spell power of the druid providing Thorns, which driveThorns scales the damage with; a sim input with no spell source, rendered under Other Inputs.
+
 func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *proto.PartyBuffs, individual *proto.IndividualBuffs) {
 	if party.BloodPact {
 		core.MakePermanent(NewSpellDataBloodPactAura(&char.Unit, false, 0))
@@ -975,6 +977,6 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 		drivePowerInfusions(char, individual)
 	}
 	if individual.Thorns {
-		core.MakePermanent(NewSpellDataThornsAura(&char.Unit, false, 0))
+		driveThorns(char, individual)
 	}
 }
