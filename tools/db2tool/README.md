@@ -37,15 +37,33 @@ Three modes:
   Hotfixes come from `--dbcache` or `tools/db2tool/caches/`; raidbots mirrors
   the live client's cache at
   https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin,
-  which is what the `Update DB` GitHub workflow feeds it.
+  which is what the `Update DB` GitHub workflow feeds it. When no cache for
+  the extracted build exists, `--carry-hotfixes` applies one from an older
+  build (see below).
 - **Offline mode (`--build <number|version>`)** — decodes pre-extracted `.db2`
   files (from `dbfilesclient/` or `--db2dir`) instead. No install required, no
   hotfixes unless `--dbcache` is given.
 
 Flags: `--settings/-s`, `--output/-o`, `--cdn`, `--region <r>`, `--build`,
 `--db2dir`, `--dbddir`, `--dbcache <file>` (pin specific hotfix caches for
-deterministic runs), `--no-hotfixes`, `--keys <file>` (community TACT key
-list).
+deterministic runs), `--no-hotfixes`, `--carry-hotfixes` (also apply caches
+of older builds), `--keys <file>` (community TACT key list).
+
+By default only a cache whose build is the extracted build applies. With
+`--carry-hotfixes`, which needs `--dbcache`, every cache given for an older
+build applies too, in ascending build order, then the extracted build's own
+last, so its records win. A cache for a newer build is never carried. A
+carried cache's rows decode with the extracted build's layout, so it applies
+only to a table whose `.dbd` lists both builds in the same version block; the
+run warns for every other table it holds records for, for a newer cache and
+for a carried cache that applies to no table.
+
+Every run prints one summary line, which the workflows read:
+`Hotfixes: build <extracted> up to push <push>`, with `, carried from build
+<cache>` for each carried cache that applied, or `Hotfixes: none applied for
+build <extracted>`. The push, which `BuildInfo.HotfixPush` records, is the
+highest server push across the extracted build's own cache and every carried
+cache that applied.
 
 ## Encrypted sections and TACT keys
 

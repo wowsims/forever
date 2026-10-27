@@ -815,6 +815,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Sulfuras,HandofRagnaros-289295"
+ value: {
+  dps: 770.1254
+  tps: 387.98416
+  dtps: 5.22873
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-SulfuronHammer-17193"
  value: {
   dps: 770.1254

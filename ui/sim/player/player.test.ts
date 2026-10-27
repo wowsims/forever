@@ -102,7 +102,7 @@ describe('Player.getDebuffStats', () => {
 	// The number has to be the one HuntersMarkValue states in sim/core/debuffs_auto_gen.go,
 	// or the sheet and the simulation disagree about the same debuff.
 	it("credits Hunter's Mark with the ranged attack power spell 14325 states", () => {
-		expect(debuffStats({ huntersMark: true }).getStat(Stat.StatRangedAttackPower)).toBe(71);
+		expect(debuffStats({ huntersMark: true }).getStat(Stat.StatRangedAttackPower)).toBe(143);
 		expect(debuffStats({ huntersMark: false }).getStat(Stat.StatRangedAttackPower)).toBe(0);
 	});
 });

@@ -12,7 +12,7 @@ Everything needed to implement **<Spec> <Class>** for Forever: Go backend logic 
 gear interactions and simulation settings, and the frontend components for configuring the spec and
 displaying its output. One checkbox per talent and per ability family.
 
-Datamined from game build `<build>` (`wow_classic_beta`), trait tree `<id>`: **N ability families**
+Datamined from game build `<build>` (`wowf`), trait tree `<id>`: **N ability families**
 and **N talents** after filtering. Counts and IDs are a starting point to verify against the game files,
 not gospel.
 

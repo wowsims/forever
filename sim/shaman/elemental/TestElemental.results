@@ -911,6 +911,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Sulfuras,HandofRagnaros-289295"
+ value: {
+  dps: 573.30111
+  tps: 405.13472
+  dtps: 7.80992
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-SulfuronHammer-17193"
  value: {
   dps: 573.30111

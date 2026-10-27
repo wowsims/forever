@@ -90,9 +90,11 @@ Proto field numbers on a merge are `wowsims-core-mechanics` `## Protos`.
 
 ## Hotfixes
 
-The header comments of `check_hotfixes.yml` and `update_items.yml` and the end of
-`docs/spell_data/partial-updates.md` §Commands describe the hotfix flow. A single-item hotfix is the items-only run
-Update Items performs, `make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache <DBCache.bin>"`. A checkout gets
+The end of `docs/spell_data/partial-updates.md` §Commands describes the hotfix flow, and `tools/db2tool/README.md`
+§Usage the carry rules. A single-item hotfix is the items-only run Update Items performs,
+`make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache <DBCache.bin> --carry-hotfixes"`. The cache is
+usually for an older build than the CDN serves and `--carry-hotfixes` carries it onto the extracted build, so that
+is the normal case, not a reason to wait. A checkout gets
 its `tools/database/wowsims.db` from `make db`, reading a WoW install (`WOW_DIR` or the settings' `BaseDir`), or from
 the same run with `DB2TOOL_FLAGS="--cdn"` and no install; the modes are `tools/db2tool/README.md` §Usage. Before
 dispatching Build and Deploy by hand, read its state: `gh api repos/wowsims/forever/actions/workflows/deploy.yml --jq .state`.
@@ -110,6 +112,9 @@ Reading another table once, what the tables hold and how a script reads them: `r
 - `InferPhase` in `tools/database/item_source_utils.go` has no callers and stays: `gen_db` stamps every item phase 1.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.
+- A hotfix that turns an effect into an `A_DUMMY` with its value kept usually moves it into a server script, and
+  `ParseEffects` then drops it without a word. When `.results` move after a regeneration, check the changed rows
+  for one before taking the change as live; Missile Barrage's tick length is applied by hand for this reason.
 
 ## Keeping this skill true
 

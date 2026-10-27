@@ -809,7 +809,7 @@ export class Player<SpecType extends Spec> {
 		// the sheet repeats the number and this is the second place to change;
 		// TestHuntersMarkOnTheCharacterSheetMatchesTheSim holds the two together.
 		if (debuffs.huntersMark) {
-			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 71);
+			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 143);
 		}
 
 		return debuffStats;

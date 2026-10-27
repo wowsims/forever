@@ -1,7 +1,7 @@
 name: Update DB
 
 # Regenerates everything derived from the game files without a WoW install:
-# db2tool reads the current wow_classic_beta build off Blizzard's CDN, overlays
+# db2tool reads the current wowf build off Blizzard's CDN, overlays
 # the latest hotfix cache (raidbots' mirror of the game files' DBCache.bin), and
 # every generator runs as it would after a local `make db` — the database
 # assets, the .proto talent enums, the auto-generated Go and TypeScript, the
@@ -14,7 +14,8 @@ on:
     #     - cron: '0 6 * * *'
 
 env:
-    PRODUCT: wow_classic_beta
+    PRODUCT: wowf
+    # Raidbots' Forever cache (docs/spell_data/partial-updates.md).
     DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin
 
 jobs:
@@ -53,7 +54,7 @@ jobs:
             # The version service names the build the CDN currently serves. Its
             # build config hash keys the download cache below, so a re-run for
             # the same build (new hotfixes only) fetches nothing from the CDN.
-            - name: Resolve the current beta build 🔎
+            - name: Resolve the current build 🔎
               id: build
               run: |
                   row=$(curl -fsS "https://us.version.battle.net/$PRODUCT/versions" | awk -F'|' '$1 == "us"')
@@ -85,20 +86,20 @@ jobs:
             - name: Bootstrap the Go protos and the dist stub 🧬
               run: make sim/core/proto/api.pb.go binary_dist/dist.go
 
-            # db2tool warns (and carries on) when the hotfix cache is for another
-            # build than the CDN serves, which happens around a build push; the
-            # pull request says which it was. The spell data change report goes
-            # into the pull request body.
+            # --carry-hotfixes carries an older build's cache onto the CDN
+            # build (docs/spell_data/partial-updates.md). db2tool's Hotfixes
+            # line, which names any carried build, and the spell data change
+            # report go into the pull request body.
             - name: Extract game files data and regenerate the database 🔧
               id: db
               run: |
                   set -o pipefail
-                  make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin" 2>&1 | tee "$RUNNER_TEMP/db.log"
-                  if grep -q 'none of the given --dbcache files hold hotfixes' "$RUNNER_TEMP/db.log"; then
-                      echo "hotfixes=NOT applied: the downloaded DBCache.bin is for a different build" >> "$GITHUB_OUTPUT"
-                  else
-                      echo "hotfixes=$(grep -m1 'Loaded hotfixes' "$RUNNER_TEMP/db.log" | sed 's/.*for build/applied, DBCache.bin for build/')" >> "$GITHUB_OUTPUT"
-                  fi
+                  make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
+                  line=$(grep -m1 '^Hotfixes: ' "$RUNNER_TEMP/db.log")
+                  case "$line" in
+                      "Hotfixes: none applied"*) echo "hotfixes=${line#Hotfixes: }" >> "$GITHUB_OUTPUT" ;;
+                      *) echo "hotfixes=applied (${line#Hotfixes: })" >> "$GITHUB_OUTPUT" ;;
+                  esac
                   {
                       echo "report<<REPORT_EOF"
                       python3 tools/spelldata_report_markdown.py < "$RUNNER_TEMP/db.log" || echo "The spell data change report could not be formatted; the build log has it."

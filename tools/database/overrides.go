@@ -1047,6 +1047,11 @@ var ConsumableDenyList = []int32{
 	238637, // Prowler Steak
 	238638, // Filet o' Flank
 	238639, // Sunrise Omelette
+	// Elixirs that stack to five by drinking more, which the sim has no stack ruling for
+	289082, // Elixir of Endless Intellect
+	289083, // Elixir of Endless Power
+	289084, // Elixir of Endless Healing
+	289087, // Elixir of Endless Opportunity
 }
 
 // Exclusive groups the server keeps that the rows do not state: the game files carry no stacking
