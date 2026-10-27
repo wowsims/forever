@@ -6,10 +6,9 @@ import { EnhancementShaman_Options as EnhancementShamanOptions, ShamanImbue } fr
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultApl from './apls/default.apl.json';
 import TestingBuildJson from './builds/testing.build.json';
 
-export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', TestingBuildJson.player.rotation);
 
 export const DefaultGear = PresetUtils.makePresetGear('Testing', TestingBuildJson.player.equipment, { devOnly: true });
 
@@ -18,7 +17,7 @@ export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.
 export const StandardTalents = {
 	name: 'Standard',
 	data: SavedTalents.create({
-		talentsString: '053503102-053030031005112251',
+		talentsString: TestingBuildJson.player.talentsString,
 	}),
 };
 
