@@ -1185,8 +1185,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 875.57963
-  tps: 525.44478
+  dps: 881.72076
+  tps: 528.84698
   dtps: 8.51685
   hps: 9.58808
  }
@@ -1194,8 +1194,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 669.66989
-  tps: 390.93551
+  dps: 674.9515
+  tps: 393.85506
   dtps: 8.52753
   hps: 7.41763
  }
@@ -1212,16 +1212,16 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 495.62281
-  tps: 438.87374
+  dps: 498.42145
+  tps: 441.09202
   hps: 7.24574
  }
 }
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 382.58779
-  tps: 334.51211
+  dps: 384.89575
+  tps: 336.3384
   hps: 5.93508
  }
 }

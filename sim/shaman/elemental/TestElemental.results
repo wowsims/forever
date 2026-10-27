@@ -1230,16 +1230,16 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2486.6444
-  tps: 1717.63923
+  dps: 2495.44785
+  tps: 1723.63481
   dtps: 8.88672
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 568.73991
-  tps: 399.6169
+  dps: 571.36987
+  tps: 401.33921
   dtps: 7.54148
  }
 }
@@ -1254,15 +1254,15 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 568.95551
-  tps: 552.38026
+  dps: 569.0014
+  tps: 552.42523
  }
 }
 dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 169.63767
-  tps: 160.74454
+  dps: 169.83157
+  tps: 160.9222
  }
 }
 dps_results: {

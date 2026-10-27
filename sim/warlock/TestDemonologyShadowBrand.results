@@ -1185,8 +1185,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-preraid-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 943.79377
-  tps: 600.33427
+  dps: 950.99425
+  tps: 604.97252
   dtps: 10.96812
   hps: 9.71917
  }
@@ -1194,8 +1194,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-preraid-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 775.06677
-  tps: 471.55189
+  dps: 780.78091
+  tps: 475.17173
   dtps: 10.48011
   hps: 7.74856
  }
@@ -1212,16 +1212,16 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-preraid-Shadow Brand-demo_shadow_brand-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 561.40852
-  tps: 502.16337
+  dps: 565.18667
+  tps: 505.63062
   hps: 7.49955
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-preraid-Shadow Brand-demo_shadow_brand-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 449.55771
-  tps: 387.4155
+  dps: 453.69617
+  tps: 391.3263
   hps: 6.22868
  }
 }

@@ -99,8 +99,8 @@ func TestBloodFuryIsPercentBased(t *testing.T) {
 	if !WithinToleranceFloat64(apBefore*1.1, fw.GetStat(stats.AttackPower), 0.01) {
 		t.Fatalf("Blood Fury should grant 10%% Attack Power: before %0.2f, after %0.2f", apBefore, fw.GetStat(stats.AttackPower))
 	}
-	if got := fw.GetSpell(ActionID{SpellID: 20572}).TimeToReady(sim); got != 3*time.Minute {
-		t.Fatalf("Blood Fury should be ready again 3 minutes after its cast, got %v", got)
+	if got := fw.GetSpell(ActionID{SpellID: 20572}).TimeToReady(sim); got != 2*time.Minute {
+		t.Fatalf("Blood Fury should be ready again 2 minutes after its cast, got %v", got)
 	}
 }
 
@@ -824,25 +824,25 @@ func TestTouchOfTheGraveProcsOnceIn25Seconds(t *testing.T) {
 	at := func(when time.Duration, action func(sim *Simulation)) {
 		sim.AddPendingAction(NewDelayedAction(DelayedActionOptions{DoAt: when, OnAction: action}))
 	}
-	// A proc from these hits would restart the cooldown, and the hits at 25 seconds could not proc.
-	at(procAt+25*time.Second-time.Millisecond, func(_ *Simulation) {
+	// A proc from these hits would restart the cooldown, and the hits at 15 seconds could not proc.
+	at(procAt+15*time.Second-time.Millisecond, func(_ *Simulation) {
 		for range 200 {
 			hit()
 		}
 	})
-	at(procAt+25*time.Second, func(sim *Simulation) {
+	at(procAt+15*time.Second, func(sim *Simulation) {
 		procsAfter = touchOfTheGraveProcsWithin(sim, aura, 200, hit)
 	})
 	// Each drain lands one spell batch after its proc.
-	at(procAt+25*time.Second+2*SpellBatchWindow, func(_ *Simulation) { done = true })
+	at(procAt+15*time.Second+2*SpellBatchWindow, func(_ *Simulation) { done = true })
 	for !done && !sim.Step() {
 	}
 
 	if !procsAfter {
-		t.Errorf("Touch of the Grave should proc again on the first hits once 25 seconds have passed, and on none before")
+		t.Errorf("Touch of the Grave should proc again on the first hits once 15 seconds have passed, and on none before")
 	}
 	if got := drains(); got != 2 {
-		t.Errorf("Touch of the Grave should drain twice, at its first proc and 25 seconds later, got %d", got)
+		t.Errorf("Touch of the Grave should drain twice, at its first proc and 15 seconds later, got %d", got)
 	}
 }
 
