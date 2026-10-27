@@ -26,6 +26,8 @@ const (
 	CallbackOnApplyEffects
 	CallbackOnPeriodicDamageTaken
 	CallbackOnCastResult
+	CallbackOnTargetDies // Any enemy's death. The handler and ExtraCondition get a nil spell and a result whose Target is the dying target; a deferred handler runs after the target is disabled.
+	CallbackOnKill       // A death the raid gets the kill for. The handler and ExtraCondition get a nil spell and a result whose Target is the dying target; a deferred handler runs after the target is disabled.
 
 	CallbackLast
 )
@@ -315,6 +317,30 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 	}
 	if config.Callback.Matches(CallbackOnCastResult) {
 		procAura.OnCastResult = callback
+	}
+
+	// A death has no spell and deals no damage, so only the ICD, the condition and the chance gate it.
+	// The handler gets a nil spell and a result of its own whose Target is the dead unit.
+	onDeath := func(aura *Aura, sim *Simulation, target *Unit) {
+		if icd.Duration != 0 && !icd.IsReady(sim) {
+			return
+		}
+		deathResult := SpellResult{Target: target}
+		if config.ExtraCondition != nil && !config.ExtraCondition(sim, nil, &deathResult) {
+			return
+		}
+		if !config.rolls(sim, unit, nil, ProcMaskUnknown) {
+			return
+		}
+
+		startICD(sim)
+		applyHandler(sim, nil, &deathResult)
+	}
+	if config.Callback.Matches(CallbackOnTargetDies) {
+		procAura.OnTargetDies = onDeath
+	}
+	if config.Callback.Matches(CallbackOnKill) {
+		procAura.OnKill = onDeath
 	}
 }
 

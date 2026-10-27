@@ -159,6 +159,10 @@ func (unit *Unit) ReactToEvent(sim *Simulation, randomizeReactionTime bool, addR
 // Call this to stop the GCD loop for a unit.
 // This is mostly used for pets that get summoned / expire.
 func (unit *Unit) CancelGCDTimer(sim *Simulation) {
+	if unit.rotationAction == nil {
+		return
+	}
+
 	unit.rotationAction.Cancel(sim)
 }
 
