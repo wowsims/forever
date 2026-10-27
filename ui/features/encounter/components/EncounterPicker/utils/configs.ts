@@ -6,9 +6,6 @@ import type { Raid } from '@sim/raid/raid';
 
 import { trackEvent } from '../../../../../tracking/utils';
 
-// Every field here is off limits while the encounter runs to a health target rather than a clock.
-const whileTimed = (encounter: Encounter) => () => !encounter.getUseHealth();
-
 interface Field {
 	id: string;
 	key: string;
@@ -18,7 +15,7 @@ interface Field {
 	set: (encounter: Encounter, value: number) => void;
 }
 
-const field = (encounter: Encounter, spec: Field): NumberFieldConfig<Encounter> => ({
+const field = (spec: Field): NumberFieldConfig<Encounter> => ({
 	id: spec.id,
 	label: i18n.t(`settings_tab.encounter.${spec.key}.label`),
 	labelTooltip: i18n.t(`settings_tab.encounter.${spec.key}.tooltip`),
@@ -28,10 +25,9 @@ const field = (encounter: Encounter, spec: Field): NumberFieldConfig<Encounter> 
 		trackEvent({ action: 'settings', category: spec.category, label: spec.label, value: newValue });
 		spec.set(subject, newValue);
 	},
-	enableWhen: whileTimed(encounter),
 });
 
-export const durationConfigs = (encounter: Encounter): Array<NumberFieldConfig<Encounter>> =>
+export const durationConfigs = (): Array<NumberFieldConfig<Encounter>> =>
 	(
 		[
 			{ id: 'encounter-duration', key: 'duration', label: 'duration', category: 'duration', get: e => e.getDuration(), set: (e, v) => e.setDuration(v) },
@@ -44,7 +40,7 @@ export const durationConfigs = (encounter: Encounter): Array<NumberFieldConfig<E
 				set: (e, v) => e.setDurationVariation(v),
 			},
 		] satisfies Array<Field>
-	).map(spec => field(encounter, spec));
+	).map(field);
 
 // Stored as a proportion, shown as a percentage.
 const EXECUTE_BANDS: Array<Field> = [
@@ -66,7 +62,7 @@ const EXECUTE_BANDS: Array<Field> = [
 	},
 ];
 
-export const executeConfigs = (encounter: Encounter): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(band => field(encounter, band));
+export const executeConfigs = (): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(field);
 
 export const numAlliesConfig = (player: Player<any>): NumberFieldConfig<Raid> => ({
 	id: 'encounter-num-allies',

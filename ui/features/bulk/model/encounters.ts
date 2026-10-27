@@ -24,7 +24,7 @@ interface BulkEncounterRun {
 
 type EncounterLength = Pick<BulkEncounterResults, 'duration' | 'durationVariation'>;
 
-type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth' | 'targets'>;
+type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' | 'targets'>;
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
 
@@ -35,17 +35,14 @@ const sameRef = (a: BulkEncounterRef, b: BulkEncounterRef) => a.name === b.name 
 
 const isBulkEncounterChecked = (checked: readonly BulkEncounterRef[], ref: BulkEncounterRef) => checked.some(item => sameRef(item, ref));
 
-// As the results store it: null for both on a health-based encounter, which has no set length.
-export const encounterLength = ({
+// As the results store it.
+export const encounterLength = ({ duration, durationVariation }: Pick<Encounter, 'duration' | 'durationVariation'>): EncounterLength => ({
 	duration,
 	durationVariation,
-	useHealth,
-}: Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth'>): EncounterLength =>
-	useHealth ? { duration: null, durationVariation: null } : { duration, durationVariation };
+});
 
-// "m:ss ±Ns", or "m:ss" alone when the variation is null; a health-based encounter shows how it ends.
+// "m:ss ±Ns", or "m:ss" alone when the variation is null.
 export const formatEncounterDuration = ({ duration, durationVariation }: EncounterLength): string => {
-	if (duration === null) return t('health_summary');
 	const length = formatDurationSeconds(duration, { separatorStyle: 'colon', minimumUnit: 'minutes' });
 	return durationVariation === null ? length : `${length} ±${durationVariation}s`;
 };

@@ -46,7 +46,7 @@ const meta = {
 		saved: [
 			savedRow('Council', '4:00 ±10s · 3 targets', true),
 			savedRow('Council, saved twice', '4:00 ±10s · 3 targets', true, true),
-			savedRow('Execute test', 'Health · 1 target'),
+			savedRow('Execute test', '10:00 ±30s · 1 target'),
 		],
 		onCheckedChange: fn(),
 	},

@@ -107,10 +107,6 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 		resultColumns.push(column('hps', playerMetrics.hps.avg, { stdev: playerMetrics.hps.stdev }));
 	}
 
-	if (simResult.request.encounter?.useHealth) {
-		resultColumns.push(column('dur', simResult.result.avgIterationDuration, { unit: 'seconds' }));
-	}
-
 	if (showOutOfMana) {
 		const secondsOOM = players[0].secondsOomAvg;
 		const percentOOM = secondsOOM / simResult.encounterMetrics.durationSeconds;

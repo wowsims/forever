@@ -59,7 +59,7 @@ const CORE_RESULT = { referenceDpsMetrics: { avg: 1000, stdev: 1 }, topGearResul
 const SAVED_KEY = 'saved-encounters';
 
 const CURRENT = Encounter.create({ duration: 180, durationVariation: 5, targets: [Target.create()] });
-const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, useHealth: true, targets: [Target.create()] });
+const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, targets: [Target.create()] });
 const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets: [Target.create()] });
 
 const ref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
@@ -119,7 +119,7 @@ describe('runBulkBatch', () => {
 		]);
 		expect(results.map(entry => [entry.duration, entry.durationVariation])).toEqual([
 			[180, 5],
-			[null, null],
+			[300, 30],
 			[90, 10],
 		]);
 	});
@@ -213,6 +213,6 @@ describe('runBulkBatch', () => {
 			[3, 2],
 		]);
 		const { labels } = steps(host);
-		expect(labels[1]).toBe('Patchwerk · bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets');
+		expect(labels[1]).toBe('Patchwerk · 5:00 ±30s · bulk_tab.settings.encounters.targets');
 	});
 });

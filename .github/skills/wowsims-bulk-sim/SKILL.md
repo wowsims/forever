@@ -146,7 +146,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   once power tools are back on. Results already on screen stay as they are.
 - With two or more finished encounters and power tools on, the encounter list offers Compare encounters: a table
   (`compareMatrix` in `ui/features/bulk/model/compare.ts`) with the current gear's row, then every set's, and a column
-  per encounter by fight length, health-based ones last. Each cell is the set's gain over the current gear (in % of the
+  per encounter by fight length. Each cell is the set's gain over the current gear (in % of the
   current gear's DPS), tinted on a diverging scale (`gainTint`, five steps either way, each a fifth of the table's
   largest gain or loss), with the encounter's best outlined and a dashed gap where the encounter did not rank the set;
   its tooltip gives the rank, DPS, fight-to-fight spread and gain. A set keeps one "S<N>" number across all

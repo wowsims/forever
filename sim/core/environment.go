@@ -288,9 +288,6 @@ func (env *Environment) reset(sim *Simulation) {
 	// Randomize heartbeat timer for pet stat inheritance.
 	env.heartbeatOffset = env.PrepullStartTime() - PetUpdateInterval + DurationFromSeconds(PetUpdateInterval.Seconds()*sim.RandomFloat("Pet Stat Inheritance"))
 
-	// Reset primary targets damage taken for tracking health fights.
-	env.Encounter.DamageTaken = 0
-
 	// Targets need to be reset before the raid, so that players can check for
 	// the presence of permanent target auras in their Reset handlers.
 	for _, target := range env.Encounter.AllTargets {

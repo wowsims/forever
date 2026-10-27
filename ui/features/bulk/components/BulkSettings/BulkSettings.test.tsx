@@ -172,9 +172,9 @@ describe('BulkSettings encounters group', () => {
 		expect(hasLabelTooltip(name)).toBe(true);
 		expect(descriptions(name)).toEqual(['3:00 ±5s · bulk_tab.settings.encounters.targets.']);
 
-		act(() => patchSlice(player.sim.store, 'encounter', { duration: 200, useHealth: true }));
+		act(() => patchSlice(player.sim.store, 'encounter', { duration: 200 }));
 
-		expect(descriptions(name)).toEqual(['bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets.']);
+		expect(descriptions(name)).toEqual(['3:20 ±5s · bulk_tab.settings.encounters.targets.']);
 	});
 
 	it('stores the checked refs in list order', () => {

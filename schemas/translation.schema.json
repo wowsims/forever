@@ -4357,9 +4357,6 @@
 								"count": {
 									"type": "string"
 								},
-								"health_summary": {
-									"type": "string"
-								},
 								"targets_one": {
 									"type": "string"
 								},
@@ -4368,18 +4365,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": [
-								"description",
-								"current",
-								"presets",
-								"saved",
-								"empty",
-								"duplicate",
-								"count",
-								"health_summary",
-								"targets_one",
-								"targets_other"
-							]
+							"required": ["description", "current", "presets", "saved", "empty", "duplicate", "count", "targets_one", "targets_other"]
 						},
 						"iterations": {
 							"type": "string"
@@ -11167,19 +11153,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"dur": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"tto": {
 									"type": "object",
 									"properties": {
@@ -11208,7 +11181,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "dur", "tto", "oom"]
+							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "tto", "oom"]
 						},
 						"stop": {
 							"type": "string"

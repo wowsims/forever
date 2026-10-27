@@ -31,7 +31,7 @@ against an in-memory `Env`.
 | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `ui`                    | `Sim`                              | show\* flags, language, `wasmConcurrency`: presentation                                             |
 | `sim`                   | `Sim`                              | iterations, phase, faction, `fixedRngSeed`, filters, `lastUsedRngSeed(+version)`, `metadataVersion` |
-| `encounter`             | `Encounter`                        | duration, execute proportions, `useHealth`, `targets` (replace-on-write)                            |
+| `encounter`             | `Encounter`                        | duration, execute proportions, `targets` (replace-on-write)                                         |
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, `partyBuffs[5]`, `composition[5][5]`        |
 | `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values, as `PlayerSlice`, plus a per-field version counter `v` keyed by `PLAYER_FIELDS`         |
 | `reforge[storeKey]`     | `ReforgeSettings`                  | gear-optimizer settings (`REFORGE_FIELDS`) and counters                                             |

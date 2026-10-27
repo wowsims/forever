@@ -14,8 +14,6 @@ interface ComparedSet {
 
 const gearKey = (gear: Gear) => getGearIdentityKey(gear.asSpec());
 
-const durationOrder = (entry: BulkEncounterResults) => entry.duration ?? Infinity;
-
 // The items the set wears where the current gear wears something else, an enchant change included. A pair of slots
 // whose two items only change places changes nothing.
 export const changedItemLabels = (gear: Gear, current: Gear, canDualWield: boolean): string[] => {
@@ -76,7 +74,7 @@ export interface MatrixRow {
 }
 
 interface CompareMatrix {
-	/** One per encounter by duration, shortest first; health-based ones last, in run order. */
+	/** One per encounter by duration, shortest first, equal lengths in run order. */
 	columns: BulkEncounterResults[];
 	/** The current gear's row, then every set's by number. */
 	rows: MatrixRow[];
@@ -90,7 +88,7 @@ interface CompareMatrix {
 export const compareMatrix = (entries: readonly BulkEncounterResults[]): CompareMatrix => {
 	const current = entries[0]?.results.originalGearResults.gear ?? null;
 	const currentKey = current ? gearKey(current) : '';
-	const columns = [...entries].sort((a, b) => durationOrder(a) - durationOrder(b));
+	const columns = [...entries].sort((a, b) => a.duration - b.duration);
 	const sets = new Map<string, ComparedSet>();
 	const rankings = columns.map(({ results: { chains, originalGearResults } }) => {
 		const results = chains.flat();

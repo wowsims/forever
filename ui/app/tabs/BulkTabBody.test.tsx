@@ -65,14 +65,14 @@ describe('BulkTabBody', () => {
 	};
 	const result = (avg: number) => ({ gear: gear(), dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
 
-	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`; a null length is a health-based encounter.
-	const entry = (name: string, length: [duration: number, variation: number] | null, best: number, isCurrent = false): BulkEncounterResults => {
+	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`.
+	const entry = (name: string, length: [duration: number, variation: number], best: number, isCurrent = false): BulkEncounterResults => {
 		const baseline = result(BASELINE_DPS);
 		return {
 			name,
 			isCurrent,
-			duration: length?.[0] ?? null,
-			durationVariation: length?.[1] ?? null,
+			duration: length[0],
+			durationVariation: length[1],
 			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100 },
 		};
 	};
@@ -103,7 +103,7 @@ describe('BulkTabBody', () => {
 	// ends, which never happens here, so `inert` marks the pane that is going away.
 	const paneOf = (element: Element) => element.closest('[data-testid="tab-pane"]')!;
 	const isShown = (element: Element) => !element.closest('[hidden], [inert]');
-	const THREE = [entry('', [180, 5], 1100, true), entry('Patchwerk', [300, 30], 1036.5), entry('Council', null, 1250)];
+	const THREE = [entry('', [180, 5], 1100, true), entry('Patchwerk', [300, 30], 1036.5), entry('Council', [90, 10], 1250)];
 
 	it('shows the batch settings inside the Setup pane and no encounter list', () => {
 		mount(null);
@@ -122,7 +122,7 @@ describe('BulkTabBody', () => {
 		expect(sidebarRows().map(row => row.textContent)).toEqual([
 			'bulk_tab.results.current 3:00 ±5s1,100.00 +100.00 (10.00%)',
 			'Patchwerk 5:00 ±30s1,036.50 +36.50 (3.65%)',
-			'Council bulk_tab.settings.encounters.health_summary1,250.00 +250.00 (25.00%)',
+			'Council 1:30 ±10s1,250.00 +250.00 (25.00%)',
 		]);
 		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
 		expect(shownBest()).toBe('1100');

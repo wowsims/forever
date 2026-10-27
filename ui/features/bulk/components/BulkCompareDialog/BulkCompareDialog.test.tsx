@@ -2,7 +2,7 @@
 // are told apart by their gains.
 //
 // The fixture, in display order: Council (1:30) ranks S1 1,030, S2 1,020, S3 990; Patchwerk (5:00) S2 1,100, S4 1,090,
-// S5 1,080; Ragnaros (health-based) S6 12,500, S1 1,150, S2 1,120. The current gear does 1,000 in each, and every result
+// S5 1,080; Ragnaros (10:00) S6 12,500, S1 1,150, S2 1,120. The current gear does 1,000 in each, and every result
 // spreads ±10 a fight.
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { makeBulkCompareHost } from '@testing/storybook/fixtures/bulk-compare';
@@ -39,7 +39,7 @@ describe('BulkCompareDialog', () => {
 		expect(screen.getByRole('dialog').querySelector('[aria-pressed]')).toBeNull();
 	});
 
-	it('gives every encounter a column by length, the health-based one last', () => {
+	it('gives every encounter a column by length', () => {
 		mount();
 
 		const headers = within(dialog().getAllByRole('row')[0]).getAllByRole('columnheader');

@@ -39,8 +39,8 @@ export const AdvancedEncounterModal = ({ open, onOpenChange }: AdvancedEncounter
 		};
 	}, [encounter]);
 
-	const duration = useMemo(() => durationConfigs(encounter), [encounter]);
-	const execute = useMemo(() => executeConfigs(encounter), [encounter]);
+	const duration = useMemo(() => durationConfigs(), []);
+	const execute = useMemo(() => executeConfigs(), []);
 
 	return (
 		<Dialog

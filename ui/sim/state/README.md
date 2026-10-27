@@ -24,7 +24,7 @@ event system.
 | ----------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `ui`                    | `Sim`                              | show* flags, language, wasmConcurrency (presentation; `Sim` keeps the derived getters)                      |
 | `sim`                   | `Sim`                              | iterations, phase, faction, fixedRngSeed, filters, lastUsedRngSeed(+version), metadataVersion               |
-| `encounter`             | `Encounter`                        | duration, execute proportions, useHealth, targets (replace-on-write)                                        |
+| `encounter`             | `Encounter`                        | duration, execute proportions, targets (replace-on-write)                                                   |
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, partyBuffs[5], composition[5][5] (player storeKeys) |
 | `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values (`PlayerSlice`) + per-field version counters (`v`, keyed by `PLAYER_FIELDS`)                     |
 | `reforge[storeKey]`     | `ReforgeSettings`                  | reforge-optimizer settings (`REFORGE_FIELDS`) + counters                                                    |

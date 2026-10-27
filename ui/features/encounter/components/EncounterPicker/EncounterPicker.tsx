@@ -60,8 +60,8 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const player = host.player;
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 
-	const duration = useMemo(() => durationConfigs(encounter), [encounter]);
-	const execute = useMemo(() => (showExecuteProportion ? executeConfigs(encounter) : []), [encounter, showExecuteProportion]);
+	const duration = useMemo(() => durationConfigs(), []);
+	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);
 	const preset = useMemo(() => presetEncounterConfig(encounter), [encounter]);
 	const allies = useMemo(() => numAlliesConfig(player), [player]);
 	const minBaseDamage = useMemo(() => minBaseDamageConfig(), []);
