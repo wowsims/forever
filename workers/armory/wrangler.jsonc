@@ -1,0 +1,14 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "wowsims-armory",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": { "enabled": true, "head_sampling_rate": 1 },
+	"vars": {
+		// The Profile API namespace, without the region: profile-classic1x (Classic Era) until the Forever one is published.
+		"PROFILE_NAMESPACE_PREFIX": "profile-classic1x",
+		// How the two parts of a Forever name are joined in the profile path; unknown until launch.
+		"NAME_PART_SEPARATOR": "-",
+	},
+}

@@ -1,0 +1,65 @@
+{
+	"equipped_items": [
+		{
+			"item": {
+				"id": 16914
+			},
+			"slot": {
+				"type": "HEAD",
+				"name": "Head"
+			},
+			"enchantments": [
+				{
+					"enchantment_id": 2588,
+					"enchantment_slot": {
+						"id": 0,
+						"type": "PERMANENT"
+					}
+				}
+			]
+		},
+		{
+			"item": {
+				"id": 18814
+			},
+			"slot": {
+				"type": "NECK",
+				"name": "Neck"
+			}
+		},
+		{
+			"item": {
+				"id": 19019
+			},
+			"slot": {
+				"type": "MAIN_HAND",
+				"name": "Main Hand"
+			},
+			"enchantments": [
+				{
+					"enchantment_id": 2504,
+					"enchantment_slot": {
+						"id": 0,
+						"type": "PERMANENT"
+					}
+				},
+				{
+					"enchantment_id": 2628,
+					"enchantment_slot": {
+						"id": 1,
+						"type": "TEMPORARY"
+					}
+				}
+			]
+		},
+		{
+			"item": {
+				"id": 6948
+			},
+			"slot": {
+				"type": "TABARD",
+				"name": "Tabard"
+			}
+		}
+	]
+}

@@ -11,6 +11,8 @@ export interface IndividualImport {
 	race: Race;
 	equipmentSpec: EquipmentSpec;
 	talentsStr: string;
+	// The talent string was built against this sim's trees (the Armory import), so it is applied.
+	talentsForTheseTrees?: boolean;
 	professions: Profession[];
 	missingEnchants?: number[];
 	missingItems?: number[];
@@ -18,7 +20,7 @@ export interface IndividualImport {
 
 export const finishIndividualImport = async (
 	host: IndividualSimHost<any>,
-	{ charClass, race, equipmentSpec, talentsStr, professions, missingEnchants = [], missingItems = [] }: IndividualImport,
+	{ charClass, race, equipmentSpec, talentsStr, talentsForTheseTrees = false, professions, missingEnchants = [], missingItems = [] }: IndividualImport,
 ): Promise<void> => {
 	if (charClass != host.player.getClass()) {
 		throw new Error(i18n.t('import.errors.wrong_class', { expected: host.player.getPlayerClass().friendlyName, found: classNames.get(charClass) }));
@@ -29,19 +31,23 @@ export const finishIndividualImport = async (
 	const gear = host.sim.db.lookupEquipmentSpec(equipmentSpec);
 
 	// A talent string is positional: digit i of tree t is talents[i] of whatever tree the exporter
-	// was built against. Forever's trees are a different set, so applying an imported string would
-	// spend the points on other talents rather than fail. No exporter targets these trees yet.
+	// was built against. Forever's trees are a different set, so applying another exporter's string
+	// would spend the points on other talents rather than fail. Only a string built against these
+	// trees is applied.
 	const importedTalents = !!talentsStr && talentsStr != '--';
 
 	batch(() => {
 		host.player.setRace(race);
 		host.player.setGear(gear);
+		if (talentsForTheseTrees) {
+			host.player.setTalentsString(talentsStr);
+		}
 		if (professions.length > 0) {
 			host.player.setProfessions(professions);
 		}
 	});
 
-	if (importedTalents) {
+	if (importedTalents && !talentsForTheseTrees) {
 		toastManager.add({
 			variant: 'warning',
 			body: i18n.t('import.talents_not_imported'),

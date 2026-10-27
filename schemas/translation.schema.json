@@ -9704,6 +9704,50 @@
 						"below_max_level"
 					]
 				},
+				"armory": {
+					"type": "object",
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"region": {
+							"type": "string"
+						},
+						"realm": {
+							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"unmatched_talents": {
+							"type": "string"
+						},
+						"errors": {
+							"type": "object",
+							"properties": {
+								"missing_fields": {
+									"type": "string"
+								},
+								"unreachable": {
+									"type": "string"
+								},
+								"not_found": {
+									"type": "string"
+								},
+								"lookup_failed": {
+									"type": "string"
+								}
+							},
+							"required": ["missing_fields", "unreachable", "not_found", "lookup_failed"],
+							"additionalProperties": false
+						}
+					},
+					"required": ["title", "description", "region", "realm", "name", "unmatched_talents", "errors"],
+					"additionalProperties": false
+				},
 				"error": {
 					"type": "string"
 				},
@@ -9789,14 +9833,30 @@
 					"properties": {
 						"addon": {
 							"type": "string"
+						},
+						"armory": {
+							"type": "string"
 						}
 					},
-					"required": ["addon"],
+					"required": ["addon", "armory"],
 					"additionalProperties": false
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "json", "wowhead", "addon", "error", "success", "talents_not_imported", "missing_ids", "errors", "sixty_upgrades", "menu"]
+			"required": [
+				"title",
+				"json",
+				"wowhead",
+				"addon",
+				"armory",
+				"error",
+				"success",
+				"talents_not_imported",
+				"missing_ids",
+				"errors",
+				"sixty_upgrades",
+				"menu"
+			]
 		},
 		"export": {
 			"type": "object",

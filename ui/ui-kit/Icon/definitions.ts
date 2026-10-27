@@ -1,5 +1,5 @@
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { faDiscord, faGithub, faPatreon } from '@fortawesome/free-brands-svg-icons';
+import { faBattleNet, faDiscord, faGithub, faPatreon } from '@fortawesome/free-brands-svg-icons';
 import {
 	faCircleCheck as faCircleCheckRegular,
 	faCircleQuestion as faCircleQuestionRegular,
@@ -95,6 +95,7 @@ export const DEFINITIONS = {
 	'arrows-rotate': faArrowsRotate,
 	ban: faBan,
 	bars: faBars,
+	'battle-net': faBattleNet,
 	bug: faBug,
 	bullseye: faBullseye,
 	calculator: faCalculator,

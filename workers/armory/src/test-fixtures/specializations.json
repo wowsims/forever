@@ -1,0 +1,67 @@
+{
+	"specialization_groups": [
+		{
+			"is_active": false,
+			"specializations": [
+				{
+					"specialization_name": "Arcane",
+					"talents": [
+						{
+							"talent": {
+								"id": 1
+							},
+							"spell_tooltip": {
+								"spell": {
+									"id": 6057
+								}
+							},
+							"talent_rank": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"is_active": true,
+			"specializations": [
+				{
+					"specialization_name": "Arcane",
+					"talents": [
+						{
+							"talent": {
+								"id": 135344
+							},
+							"spell_tooltip": {
+								"spell": {
+									"id": 11222
+								}
+							},
+							"talent_rank": 5
+						}
+					]
+				},
+				{
+					"specialization_name": "Fire",
+					"talents": [
+						{
+							"talent": {
+								"id": 2
+							},
+							"spell_tooltip": {
+								"spell": {
+									"id": 11069
+								}
+							},
+							"talent_rank": 3
+						},
+						{
+							"talent": {
+								"id": 3
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

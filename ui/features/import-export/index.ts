@@ -2,6 +2,7 @@ export { Exporter, exporterDialog } from './components/Exporter';
 export type { ExporterDialogProps, ExporterProps } from './components/Exporter';
 export {
 	AddonImporterDialog,
+	ArmoryImporterDialog,
 	BulkGearImporterDialog,
 	Importer,
 	JsonImporterDialog,
@@ -20,5 +21,15 @@ export {
 	WOWHEAD_GEAR_PLANNER_EXPORTER,
 } from './exporters';
 export type { ExportCategories, ExporterDefinition } from './exporters';
-export { ADDON_IMPORTER, BULK_GEAR_IMPORTER, finishIndividualImport, JSON_IMPORTER, SIXTY_UPGRADES_IMPORTER, WOWHEAD_GEAR_PLANNER_IMPORTER } from './importers';
-export type { ImporterDefinition, IndividualImport } from './importers';
+export {
+	ADDON_IMPORTER,
+	ARMORY_LINK_PARAM,
+	BULK_GEAR_IMPORTER,
+	importArmoryCharacter,
+	parseArmoryParam,
+	finishIndividualImport,
+	JSON_IMPORTER,
+	SIXTY_UPGRADES_IMPORTER,
+	WOWHEAD_GEAR_PLANNER_IMPORTER,
+} from './importers';
+export type { ArmoryLookup, ArmoryRegion, ImporterDefinition, IndividualImport } from './importers';

@@ -1,0 +1,3 @@
+# Copy to .dev.vars (git-ignored) and fill in from https://develop.battle.net/access/clients
+BLIZZARD_CLIENT_ID=
+BLIZZARD_CLIENT_SECRET=

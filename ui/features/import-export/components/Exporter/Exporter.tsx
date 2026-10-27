@@ -57,6 +57,8 @@ export const Exporter = ({
 			open={open}
 			onOpenChange={onOpenChange}
 			testId="exporter"
+			size="md"
+			verticalAlign="center"
 			title={title}
 			footer={
 				<>

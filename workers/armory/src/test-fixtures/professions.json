@@ -1,0 +1,16 @@
+{
+	"primaries": [
+		{
+			"profession": {
+				"id": 202,
+				"name": "Engineering"
+			}
+		},
+		{
+			"profession": {
+				"id": 333,
+				"name": "Enchanting"
+			}
+		}
+	]
+}
