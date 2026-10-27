@@ -123,6 +123,14 @@ message APLValue {
         APLValueIsExecutePhase is_execute_phase = 41;
         APLValueNumberTargets number_targets = 28;
         APLValueEncounterInArea encounter_in_area = 134;
+        APLValueTargetIsActive target_is_active = 31;
+        APLValueNumActiveAdds num_active_adds = 32;
+        APLValueTimeUntilTargetActive time_until_target_active = 33;
+        APLValueTimeUntilTargetDies time_until_target_dies = 34;
+        APLValueTimeUntilNextMove time_until_next_move = 36;
+        APLValueNextMoveDuration next_move_duration = 50;
+        APLValueAmpIsActive amp_is_active = 51;
+        APLValueTimeUntilAmp time_until_amp = 52;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
@@ -494,6 +502,25 @@ message APLValueIsExecutePhase {
         reserved "E25", "E45", "E90";
     }
     ExecutePhaseThreshold threshold = 1;
+    UnitReference target_unit = 2;
+}
+message APLValueTargetIsActive {
+    UnitReference target_unit = 1;
+}
+message APLValueNumActiveAdds {}
+message APLValueTimeUntilTargetActive {
+    UnitReference target_unit = 1;
+}
+message APLValueTimeUntilTargetDies {
+    UnitReference target_unit = 1;
+}
+message APLValueTimeUntilNextMove {}
+message APLValueNextMoveDuration {}
+message APLValueAmpIsActive {
+    DamageAmpType amp_type = 1;
+}
+message APLValueTimeUntilAmp {
+    DamageAmpType amp_type = 1;
 }
 
 message APLValueBossSpellTimeToReady {

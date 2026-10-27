@@ -639,8 +639,9 @@ message Encounter {
 	// Same as execute_proportion_20 but for 35%, e.g. for Quietus and Decimation.
 	double execute_proportion_35 = 4;
 
-	reserved 7, 8, 10;
-	reserved "execute_proportion_25", "execute_proportion_45", "execute_proportion_90";
+	// When set, the design's timeline drives the fight (the targets' windows, health and add waves) and the
+	// execute proportions are not read.
+	EncounterDesign design = 7;
 
 	// If set, will use the targets health value instead of a duration for fight length.
 	bool use_health = 5;
@@ -662,6 +663,104 @@ message PresetTarget {
 message PresetEncounter {
 	string path = 1;
 	repeated PresetTarget targets = 2;
+	EncounterDesign design = 3;
+}
+
+enum DamageAmpType {
+	DamageAmpTypeCasterBuff = 0;
+	DamageAmpTypeEnvironmentBuff = 1;
+	DamageAmpTypeTargetDebuff = 2;
+}
+
+// Times in an encounter design are fractions 0..1 of the rolled fight duration, unless a field says seconds.
+message DesignTime {
+	double at = 1;
+	double jitter = 2; // Plus or minus this fraction, rerolled each iteration and each repeat.
+}
+
+message DesignRepeat {
+	double interval = 1; // 0 is no repeat.
+	double jitter = 2;
+	int32 count = 3; // 0 repeats until the fight ends.
+}
+
+// Both lists empty is target 0, the boss.
+message DesignTargets {
+	repeated int32 target_indices = 1;
+	repeated int32 wave_indices = 2;
+}
+
+message EncounterDesign {
+	repeated DesignDowntime downtimes = 1;
+	repeated HealthKeyframe boss_health = 2;
+	repeated AddWave add_waves = 3;
+	repeated DesignMove moves = 4;
+	repeated DesignDamageAmp damage_amps = 5;
+	repeated DesignBossAbility boss_abilities = 6;
+}
+
+message DesignDowntime {
+	int32 target_index = 1;
+	DesignTime start = 2;
+	DesignTime end = 3;
+	bool clear_debuffs = 4;
+}
+
+message HealthKeyframe {
+	double at = 1;
+	double health_percent = 2; // 0..100, non-increasing over at.
+}
+
+message AddWave {
+	string name = 1;
+	Target target = 2; // Template copied from a preset target; the sim attaches no AI to it.
+	int32 count = 3;
+	DesignTime spawn = 4;
+	double lifetime = 5; // Fraction of the fight.
+	DesignRepeat repeat = 6;
+	double execute_proportion_20 = 7; // Fraction of the add's lifetime spent at or below 20% health.
+	double execute_proportion_35 = 8; // Same for 35%.
+	double kill_share = 9; // 0..1 chance the player lands the killing blow.
+}
+
+message DesignMove {
+	DesignTime at = 1;
+	double yards = 2;
+	double seconds = 3; // Used when yards is 0.
+	DesignRepeat repeat = 4;
+}
+
+message DesignDamageAmp {
+	DamageAmpType type = 1;
+	double percent = 2;
+	DesignTime start = 3;
+	DesignTime end = 4;
+	DesignRepeat repeat = 5;
+	DesignTargets targets = 6; // Read only for DamageAmpTypeTargetDebuff.
+}
+
+message DesignBossAbility {
+	enum Kind {
+		SpellHit = 0;
+		Strike = 1;
+		Thrash = 2;
+		SwingTiming = 3;
+	}
+
+	Kind kind = 1;
+	int32 target_index = 2;
+	DesignTime start = 3;
+	DesignTime end = 4;
+	DesignRepeat repeat = 5;
+	SpellSchool school = 6;
+	double min_damage = 7;
+	double max_damage = 8;
+	double cast_time = 9; // Seconds.
+	double weapon_percent = 10;
+	double proc_chance = 11;
+	int32 extra_attacks = 12;
+	double icd = 13; // Seconds.
+	double swing_speed_multiplier = 14; // SwingTiming: 0 pauses the swing, above 1 hastes it.
 }
 
 message ItemRandomSuffix {
@@ -777,6 +876,7 @@ enum OtherAction {
 	OtherActionRefund = 8; // Refund of a resource like Energy or Rage, when the ability didn't land.
 	OtherActionDamageTaken = 9; // Indicates damage taken; used for rage gen.
 	OtherActionHealingModel = 12; // Indicates healing received from healing model.
+	OtherActionDamageAmplifier = 13; // A damage amplifier window of an encounter design.
 	reserved 17;
 	reserved "OtherActionPotion";
 	OtherActionMove = 20; // Used by movement to be able to show it in timeline
