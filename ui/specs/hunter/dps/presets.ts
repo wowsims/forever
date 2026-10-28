@@ -61,7 +61,7 @@ export const DefaultRotation = WeaveAPLRotation;
 
 export const DefaultSimpleRotation = Hunter_Rotation.create({
 	playstyle: Playstyle.Weave,
-	timeToWeave: 200,
+	timeToWeave: 250,
 	pullRange: 25,
 	useMulti: true,
 	useArcane: true,
@@ -96,6 +96,8 @@ export const DefaultOptions = NoPetOptions;
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
+	greaterBlessingOfMight: true,
+	greaterBlessingOfWisdom: true,
 });
 
 export const DefaultPartyBuffs = PartyBuffs.create({});
@@ -106,6 +108,7 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 	giftOfTheWild: true,
 	graceOfAirTotem: true,
 	strengthOfEarthTotem: true,
+	windfuryTotem: true,
 	battleShout: TristateEffect.TristateEffectRegular,
 	leaderOfThePack: true,
 });
@@ -123,13 +126,24 @@ export const DefaultDebuffs = Debuffs.create({
 });
 
 export const DefaultConsumables = ConsumesSpec.create({
+	flaskId: Consumables.FlaskOfNaturalAggression.id,
 	elixirIds: [Consumables.ElixirOfTheMongoose.id, Consumables.GreaterMagebloodElixir.id],
 	foodId: Consumables.SwiftstrikeSteak.id,
 	resourcePotId: Consumables.MajorManaPotion.id,
+	offensivePotId: Consumables.MajorFrenzyPotion.id,
 	conjuredId: Consumables.DemonicRune.id,
 	explosiveId: Consumables.EzThroDynamiteII.id,
-	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.ScrollOfStrengthIV.id],
+	mhImbueId: Consumables.ElementalSharpeningStone.id,
+	extraIds: [
+		Consumables.GoblinSapperCharge.id,
+		Consumables.ScrollOfStrengthIV.id,
+		Consumables.JujuMight.id,
+		Consumables.DragonbreathChili.id,
+		Consumables.GroundScorpokAssay.id,
+	],
 });
+// Dual wielding sharpens the off hand too.
+const DualWieldConsumables = ConsumesSpec.create({ ...DefaultConsumables, ohImbueId: Consumables.ElementalSharpeningStone.id });
 
 export const OtherDefaults = {
 	distanceFromTarget: 12,
@@ -137,7 +151,7 @@ export const OtherDefaults = {
 	profession1: Profession.Engineering,
 	profession2: Profession.Blacksmithing,
 	race: Race.RaceOrc,
-	reactionTime: 100,
+	reactionTime: 250,
 };
 
 const build = (
@@ -147,12 +161,13 @@ const build = (
 	rotation: PresetUtils.PresetRotation,
 	options: HunterOptions,
 	distanceFromTarget: number,
+	consumables?: ConsumesSpec,
 ) =>
 	PresetUtils.makePresetBuild(name, {
 		gear,
 		talents: talentPreset,
 		rotation,
-		settings: { name, specOptions: options, playerOptions: { distanceFromTarget, reactionTimeMs: OtherDefaults.reactionTime } },
+		settings: { name, specOptions: options, consumables, playerOptions: { distanceFromTarget, reactionTimeMs: OtherDefaults.reactionTime } },
 	});
 
 // Gear, talents, rotation, pet and distance together, one per tree and playstyle.
@@ -163,5 +178,5 @@ export const Builds = [
 	build('MM', P1Gear, MarksmanshipTalents, TurretAPLRotation, NoPetOptions, 12),
 	build('BM', P1Gear, BeastMasteryTalents, TurretHawkAPLRotation, PetOptions, 12),
 	build('SV', P1Gear, SurvivalTalents, TurretMultiAPLRotation, NoPetOptions, 12),
-	build('SV Melee', P1MeleeGear, SurvivalMeleeTalents, MeleeAPLRotation, PetOptions, 5),
+	build('SV Melee', P1MeleeGear, SurvivalMeleeTalents, MeleeAPLRotation, PetOptions, 5, DualWieldConsumables),
 ];

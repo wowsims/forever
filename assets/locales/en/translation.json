@@ -2328,7 +2328,7 @@
 				},
 				"pull_range": {
 					"label": "Pull range (yd)",
-					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, melee range in melee), stopping for each Auto Shot you can fire on the way."
+					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, 13.2 yd when weaving, melee range in melee), stopping for each Auto Shot you can fire on the way."
 				},
 				"time_to_weave": {
 					"label": "Time to weave (ms)",

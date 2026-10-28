@@ -45,6 +45,7 @@ func TestHunter(t *testing.T) {
 			Consumables:      DefaultConsumables,
 			SpecOptions:      core.SpecOptionsCombo{Label: "Default", SpecOptions: DefaultOptions},
 			StartingDistance: 12,
+			ReactionTimeMs:   250,
 			Profession1:      proto.Profession_Engineering,
 			Profession2:      proto.Profession_Blacksmithing,
 
@@ -109,6 +110,7 @@ func TestHunterPets(t *testing.T) {
 			SpecOptions:      families[0],
 			OtherSpecOptions: families[1:],
 			StartingDistance: 12,
+			ReactionTimeMs:   250,
 			Rotation:         turretRotation,
 			ItemFilter:       core.ItemFilter{ArmorType: proto.ArmorType_ArmorTypeMail},
 		},
@@ -554,14 +556,16 @@ func TestAutoShotWaitsAReactionWhenTheWalkEndsOnTheMinimumRange(t *testing.T) {
 		sim.Step()
 	}
 
-	// Into melee before the next shot, then out to the minimum range, arriving after it came due.
-	hunter.MoveTo(core.MaxMeleeRange, sim)
+	// Into the deadzone past melee range, where no melee swing restarts the shot, before the next
+	// shot, then out to the minimum range, arriving after it came due.
+	deadzone := core.MaxMeleeRange + 1
+	hunter.MoveTo(deadzone, sim)
 	for i := 0; hunter.Moving && i < 10000; i++ {
 		sim.Step()
 	}
 	due := hunter.AutoAttacks.NextRangedAttackAt()
 	hunter.MoveTo(core.MinRangedRange, sim)
-	walkEnd := sim.CurrentTime + time.Duration((core.MinRangedRange-core.MaxMeleeRange)/hunter.GetMovementSpeed()*float64(time.Second))
+	walkEnd := sim.CurrentTime + time.Duration((core.MinRangedRange-deadzone)/hunter.GetMovementSpeed()*float64(time.Second))
 	if walkEnd <= due {
 		t.Fatalf("the walk out ends at %v, before the shot comes due at %v", walkEnd, due)
 	}
@@ -571,6 +575,41 @@ func TestAutoShotWaitsAReactionWhenTheWalkEndsOnTheMinimumRange(t *testing.T) {
 	}
 	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+core.RangedSwingWindup; (got - want).Abs() > time.Millisecond {
 		t.Errorf("a walk out ending on the minimum range at %v fires its shot at %v, want %v", walkEnd, got, want)
+	}
+}
+
+// A main-hand swing restarts Auto Shot: the next shot fires one full ranged swing after the melee
+// swing, the windup included.
+func TestMeleeSwingRestartsAutoShot(t *testing.T) {
+	player := &proto.Player{
+		Name:               "Swing",
+		Race:               proto.Race_RaceOrc,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		TalentsString:      DefaultMMTalents,
+		Spec:               DefaultOptions,
+		Rotation:           &proto.APLRotation{},
+		DistanceFromTarget: core.MaxMeleeRange,
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sim.PrePull()
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	for i := 0; sim.CurrentTime < time.Second && i < 10000; i++ {
+		sim.Step()
+	}
+
+	swing := hunter.AutoAttacks.MainhandSwingAt()
+	for i := 0; hunter.AutoAttacks.MainhandPreviousSwing() < swing && i < 10000; i++ {
+		sim.Step()
+	}
+	want := swing + hunter.AutoAttacks.RangedSwingSpeed() - core.RangedSwingWindup
+	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != want {
+		t.Errorf("after a melee swing at %v the next Auto Shot winds up at %v, want %v", swing, got, want)
 	}
 }
 
