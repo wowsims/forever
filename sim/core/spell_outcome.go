@@ -843,13 +843,25 @@ func (spell *Spell) OutcomeExpectedPhysicalCrit(_ *Simulation, result *SpellResu
 
 func (spell *Spell) OutcomeExpectedMeleeWhite(_ *Simulation, result *SpellResult, attackTable *AttackTable) {
 	hand := attackTable.Hand(spell)
-	missChance := spell.GetPhysicalMissChance(attackTable)
-	dodgeChance, parryChance, blockChance := spell.expectedDodgeParryBlock(result.Target, attackTable)
-	glanceChance := hand.BaseGlanceChance
-	whiteCritCap := 1.0 - missChance - dodgeChance - parryChance - glanceChance - blockChance
-	critChance := min(spell.PhysicalCritChance(attackTable), whiteCritCap)
-	averageMultiplier := 1.0 - missChance - dodgeChance - parryChance + (spell.CritDamageMultiplier(attackTable)-1)*critChance - glanceChance*(1.0-(hand.GlanceMultiplierMin+hand.GlanceMultiplierMax)/2) - blockChance*result.blockedFraction()
+	white := spell.whiteHitTable(result.Target, attackTable)
+	critChance := min(spell.PhysicalCritChance(attackTable), white.critRoom())
+	averageMultiplier := 1.0 - white.miss - white.dodge - white.parry + (spell.CritDamageMultiplier(attackTable)-1)*critChance - white.glance*(1.0-(hand.GlanceMultiplierMin+hand.GlanceMultiplierMax)/2) - white.block*result.blockedFraction()
 	result.Damage *= averageMultiplier
+}
+
+// The chances a white melee hit rolls before crit, as fractions; parry and block only from the front.
+type whiteHitTable struct {
+	miss, dodge, parry, glance, block float64
+}
+
+func (spell *Spell) whiteHitTable(target *Unit, attackTable *AttackTable) whiteHitTable {
+	white := whiteHitTable{miss: spell.GetPhysicalMissChance(attackTable), glance: attackTable.Hand(spell).BaseGlanceChance}
+	white.dodge, white.parry, white.block = spell.expectedDodgeParryBlock(target, attackTable)
+	return white
+}
+
+func (white whiteHitTable) critRoom() float64 {
+	return 1.0 - white.miss - white.dodge - white.parry - white.glance - white.block
 }
 
 func (spell *Spell) OutcomeExpectedMeleeWeaponSpecialHitAndCrit(_ *Simulation, result *SpellResult, attackTable *AttackTable) {

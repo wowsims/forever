@@ -83,9 +83,7 @@ export const shouldShowMeleeCritCap = (player: Player<any>): boolean => player.g
 
 export const shouldShowCritImmunity = (player: Player<any>): boolean => player.getPlayerSpec().isTankSpec;
 
-export const meleeCritCapDisplayString = (player: Player<any>): string => {
-	const playerCritCapDelta = player.getMeleeCritCap();
-
+export const meleeCritCapDisplayString = (playerCritCapDelta: number): string => {
 	if (playerCritCapDelta === 0.0) {
 		return i18n.t('sidebar.character_stats.crit_cap.exact');
 	}

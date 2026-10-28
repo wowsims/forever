@@ -11,6 +11,7 @@ import { WeaponSkillGroup, weaponSkillsInGroups } from '@sim/player/weapon_skill
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { createSimStore, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
+import { CRIT_CAP_INFO } from '@testing/storybook/fixtures/character-stats';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -24,19 +25,6 @@ const DISPLAY_STATS = [
 	UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent),
 	UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent),
 ];
-
-const CRIT_CAP_DELTA = -13;
-
-const CRIT_CAP_INFO = {
-	glancing: 24,
-	suppression: 4.8,
-	remainingMeleeHitCap: 0,
-	remainingExpertiseCap: 0,
-	debuffCrit: 0,
-	specSpecificOffset: 0,
-	baseCritCap: 43,
-	playerCritCapDelta: CRIT_CAP_DELTA,
-};
 
 interface SheetSetup {
 	displayStats: Array<UnitStat>;
@@ -85,16 +73,16 @@ const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inF
 
 const statsWhen = (settled: boolean) => (settled ? { finalStats: new Stats().toProto() } : {});
 
-const renderStats = (settled: boolean) =>
+const renderStats = (settled: boolean, player: Record<string, unknown> = {}) =>
 	renderSheet({
 		displayStats: DISPLAY_STATS,
 		currentStats: statsWhen(settled),
 		player: {
 			// Melee DPS but not a tank: the crit cap row is shown, the miss/avoidance/crit-immunity trio is not.
 			getPlayerSpec: () => ({ isTankSpec: false, isMeleeDpsSpec: true }),
-			getMeleeCritCap: () => CRIT_CAP_DELTA,
 			getMeleeCritCapInfo: () => CRIT_CAP_INFO,
 			getBaseDefense: () => 300,
+			...player,
 		},
 	});
 
@@ -272,7 +260,6 @@ describe('CharacterStats weapon skills', () => {
 			player: {
 				getClass: () => playerClass,
 				getPlayerSpec: () => ({ isTankSpec: false, isMeleeDpsSpec: true }),
-				getMeleeCritCap: () => CRIT_CAP_DELTA,
 				getMeleeCritCapInfo: () => CRIT_CAP_INFO,
 				getBaseDefense: () => 300,
 			},
@@ -328,7 +315,15 @@ describe('CharacterStats loading state', () => {
 		expect(view.container.querySelector('table')!.hasAttribute('aria-busy')).toBe(false);
 		expect(view.container.querySelectorAll('.ui-skeleton').length).toBe(0);
 		expect(view.container.querySelectorAll('[data-testid="stat-value-link"]').length).toBe(rows.length);
-		expect(critCapRow(rows).querySelector('[data-testid="stat-value-link"]')!.textContent).toContain('13.00%');
+		expect(critCapRow(rows).querySelector('[data-testid="stat-value-link"]')!.textContent).toContain(`${Math.abs(CRIT_CAP_INFO.delta).toFixed(2)}%`);
+	});
+
+	it('leaves the crit cap row out while the sim sends no melee crit cap', () => {
+		const { rows } = renderStats(true, { getMeleeCritCapInfo: () => undefined });
+
+		expect(rows.length).toBe(DISPLAY_STATS.length);
+		const labels = rows.map(row => row.querySelector('.ui-character-stats-label')!.textContent);
+		expect(labels).not.toContain(i18n.t('sidebar.character_stats.melee_crit_cap'));
 	});
 });
 
