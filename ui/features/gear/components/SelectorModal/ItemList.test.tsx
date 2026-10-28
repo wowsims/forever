@@ -1,10 +1,10 @@
-import { Class, ItemQuality, ItemSlot, ItemType, ScalingItemProperties, Stat } from '@generated/proto/common';
+import { Class, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { IndividualSimHost } from '@sim/sim_host';
-import { createSimStore, patchSlice, type SimStore } from '@sim/state/sim_store';
+import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
 import { storeSource as store } from '@testing/gear';
 import { fakeHost } from '@testing/sim/fake_host';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
@@ -272,6 +272,20 @@ describe('ItemList', () => {
 		patchSlice(realStore, 'sim', { phase: 2 });
 		const { container } = setup({ over: { itemData: [row(1, 'Alpha', 500, 1), row(2, 'Beta', 520, 5)] } });
 		expect(names(container)).toEqual(['Alpha']);
+	});
+
+	it('lists the rows again when the race changes, since the faction filter follows the race', () => {
+		const STORE_KEY = 0;
+		seedKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceOrc, v: zeroVersions(PLAYER_FIELDS) } as never);
+		Object.assign(host.player, {
+			storeKey: STORE_KEY,
+			filterItemData: (idxs: number[]) => (realStore.getState().players[STORE_KEY].race == Race.RaceOrc ? idxs.slice(1) : idxs),
+		});
+		const { container } = setup();
+		expect(names(container)).toEqual(['Beta', 'Gamma']);
+
+		act(() => patchKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceHuman }, ['race']));
+		expect(names(container)).toEqual(['Beta', 'Gamma', 'Alpha']);
 	});
 
 	it('marks the equipped row active and hands the row its EP against the equipped one', () => {

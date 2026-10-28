@@ -611,7 +611,7 @@
 {"id":5398,"name":"Canopy Leggings","icon":"inv_pants_02","type":9,"armorType":2,"quality":1,"scalingOptions":{"0":{"stats":{"27":29},"ilvl":5}}},
 {"id":5399,"name":"Tracking Boots","icon":"inv_boots_01","type":10,"armorType":3,"quality":1,"scalingOptions":{"0":{"stats":{"27":46},"ilvl":5}}},
 {"id":5405,"name":"Draped Cloak","icon":"inv_misc_cape_11","type":4,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":5},"ilvl":5}}},
-{"id":5411,"name":"Winterhoof Cleansing Totem","icon":"inv_staff_02","quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":1}}},
+{"id":5411,"name":"Winterhoof Cleansing Totem","icon":"inv_staff_02","quality":1,"unique":true,"factionRestriction":2,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":5419,"name":"Feral Bracers","icon":"inv_bracer_02","type":6,"armorType":2,"quality":1,"scalingOptions":{"0":{"stats":{"27":18},"ilvl":7}}},
 {"id":5458,"name":"Dirtwood Belt","icon":"inv_belt_04","type":8,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":10},"ilvl":10}}},
 {"id":5514,"name":"Mana Agate","icon":"inv_misc_gem_emerald_01","quality":1,"unique":true,"classAllowlist":[8],"sources":[{"crafted":{"spellId":759}}],"scalingOptions":{"0":{"ilvl":28}}},
