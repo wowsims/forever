@@ -1,4 +1,4 @@
-import { DamageAmpType, DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
+import { DamageAmpType, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import { addEvent } from './lanes';
@@ -60,7 +60,7 @@ describe('validateDesign', () => {
 		addEvent(design, 'amp');
 		design.damageAmps[0].percent = 0;
 		addEvent(design, 'wave');
-		design.addWaves[0].count = 65;
+		design.addWaves[0].adds = Array.from({ length: 65 }, () => Target.create());
 		addEvent(design, 'move');
 		design.moves[0].yards = 0;
 		expect(keys(design)).toEqual([
@@ -69,9 +69,16 @@ describe('validateDesign', () => {
 			`move0:error:${DESIGN_ISSUE_KEYS.moveGoesNowhere}`,
 		]);
 		design.damageAmps[0].percent = -10;
-		design.addWaves[0].count = 64;
+		design.addWaves[0].adds = Array.from({ length: 64 }, () => Target.create());
 		design.moves[0].seconds = 2;
 		expect(keys(design)).toEqual([`amp0:error:${DESIGN_ISSUE_KEYS.ampNotPositive}`]);
+	});
+
+	it('flags a wave that spawns no adds', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'wave');
+		design.addWaves[0].adds = [];
+		expect(keys(design)).toEqual([`wave0:error:${DESIGN_ISSUE_KEYS.noAdds}`]);
 	});
 
 	it('warns about a wave that spends more of its life below 20% than below 35%', () => {

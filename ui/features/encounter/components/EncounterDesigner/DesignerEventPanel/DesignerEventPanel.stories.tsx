@@ -1,4 +1,4 @@
-import { DamageAmpType, DesignBossAbility_Kind, type EncounterDesign } from '@generated/proto/common';
+import { DamageAmpType, DesignBossAbility_Kind, type EncounterDesign, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
 	customBossDesign,
@@ -46,6 +46,7 @@ const meta = {
 		baseSeconds: DESIGN_BASE_SECONDS,
 		targetNames: designTargetNames,
 		presetTargets: designPresetTargets,
+		newAdd: () => Target.clone(designPresetTargets[0].target!),
 		onChange: fn(),
 		onSelect: fn(),
 	},

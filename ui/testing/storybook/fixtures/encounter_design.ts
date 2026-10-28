@@ -39,8 +39,7 @@ export const dynamicAddsDesign = (): EncounterDesign =>
 		addWaves: [
 			{
 				name: 'Sons of Flame',
-				target: Target.clone(designPresetTargets[0].target!),
-				count: 2,
+				adds: [Target.clone(designPresetTargets[0].target!), Target.clone(designPresetTargets[0].target!)],
 				spawn: at(15 / 180, 2 / 180),
 				lifetime: 20 / 180,
 				repeat: { interval: 45 / 180, jitter: 3 / 180, count: 0 },
@@ -83,7 +82,7 @@ export const customBossDesign = (): EncounterDesign =>
 				kind: DesignBossAbility_Kind.SpellHit,
 				targetIndex: 0,
 				start: at(10 / 180),
-				end: at(12 / 180),
+				end: at(1),
 				repeat: { interval: 20 / 180, jitter: 0, count: 0 },
 				school: SpellSchool.SpellSchoolFire,
 				minDamage: 1800,
@@ -99,7 +98,7 @@ export const customBossDesign = (): EncounterDesign =>
 				kind: DesignBossAbility_Kind.Strike,
 				targetIndex: 0,
 				start: at(30 / 180),
-				end: at(31 / 180),
+				end: at(1),
 				repeat: { interval: 30 / 180, jitter: 0, count: 3 },
 				school: SpellSchool.SpellSchoolPhysical,
 				minDamage: 0,

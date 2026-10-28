@@ -4141,6 +4141,9 @@
 										},
 										"execute_order": {
 											"type": "string"
+										},
+										"no_adds": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4157,7 +4160,8 @@
 										"amp_not_positive",
 										"too_many_adds",
 										"move_goes_nowhere",
-										"execute_order"
+										"execute_order",
+										"no_adds"
 									]
 								},
 								"event_name": {
@@ -4266,6 +4270,12 @@
 										"adds_other": {
 											"type": "string"
 										},
+										"add_group": {
+											"type": "string"
+										},
+										"add_group_count": {
+											"type": "string"
+										},
 										"spawns": {
 											"type": "string"
 										},
@@ -4310,6 +4320,8 @@
 										"wave",
 										"adds_one",
 										"adds_other",
+										"add_group",
+										"add_group_count",
 										"spawns",
 										"spawns_jitter",
 										"lives",
@@ -4413,9 +4425,6 @@
 										"template": {
 											"type": "string"
 										},
-										"count": {
-											"type": "string"
-										},
 										"spawn": {
 											"type": "string"
 										},
@@ -4505,7 +4514,6 @@
 										"health_percent",
 										"name",
 										"template",
-										"count",
 										"spawn",
 										"spawn_jitter",
 										"lifetime",
@@ -4648,6 +4656,34 @@
 								},
 								"health_end": {
 									"type": "string"
+								},
+								"adds": {
+									"type": "object",
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"add": {
+											"type": "string"
+										},
+										"duplicate": {
+											"type": "string"
+										},
+										"remove": {
+											"type": "string"
+										},
+										"add_title": {
+											"type": "string"
+										},
+										"add_row": {
+											"type": "string"
+										},
+										"add_short": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["title", "add", "duplicate", "remove", "add_title", "add_row", "add_short"]
 								}
 							},
 							"additionalProperties": false,
@@ -4682,7 +4718,8 @@
 								"target_name",
 								"save",
 								"health_label",
-								"health_end"
+								"health_end",
+								"adds"
 							]
 						}
 					},

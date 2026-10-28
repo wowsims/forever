@@ -1,8 +1,9 @@
-import { DesignBossAbility_Kind, EncounterDesign, PresetTarget, Target } from '@generated/proto/common';
+import { DesignBossAbility_Kind, EncounterDesign, MobType, PresetTarget, Target } from '@generated/proto/common';
 import { describe, expect, it, vi } from 'vitest';
 
 import { defaultEvent } from '../../../model/design/lanes';
 import {
+	addsSummary,
 	defaultWaveTemplate,
 	type DesignFieldConfig,
 	designFieldConfigs,
@@ -23,7 +24,7 @@ vi.mock('@i18n/config', () => ({
 		},
 	},
 }));
-vi.mock('@i18n/localization', () => ({ translateSpellSchool: (school: number) => String(school) }));
+vi.mock('@i18n/localization', () => ({ translateSpellSchool: (school: number) => String(school), translateMobType: (type: number) => `mob${type}` }));
 
 const context: DesignFieldContext = { baseSeconds: 180, targetNames: ['Boss'], waveNames: [], presetTargets: [] };
 
@@ -128,6 +129,17 @@ describe('defaultWaveTemplate', () => {
 	});
 });
 
+describe('addsSummary', () => {
+	it('groups the adds by level and mob type, counting a group of more than one', () => {
+		const adds = [
+			Target.create({ level: 60, mobType: MobType.MobTypeBeast }),
+			Target.create({ level: 61, mobType: MobType.MobTypeDemon }),
+			Target.create({ level: 60, mobType: MobType.MobTypeBeast }),
+		];
+		expect(addsSummary(adds)).toBe(`adds(3,add_group_count(60,mob${MobType.MobTypeBeast},2), add_group(61,mob${MobType.MobTypeDemon},1))`);
+	});
+});
+
 describe('eventTooltip', () => {
 	const tip = (design: EncounterDesign, kind: Parameters<typeof eventName>[1]['kind']) => eventTooltip(design, { kind, index: 0 }, 180, ['Boss']);
 
@@ -151,9 +163,15 @@ describe('eventTooltip', () => {
 	});
 
 	it('describes a wave, a move, a downtime, an amp and a boss health segment', () => {
-		const wave = { ...defaultEvent('wave', 0.1), name: 'Add', spawn: { at: 10 / 180, jitter: 2 / 180 }, lifetime: 20 / 180 };
+		const wave = {
+			...defaultEvent('wave', 0.1),
+			adds: [Target.create({ level: 60 })],
+			name: 'Add',
+			spawn: { at: 10 / 180, jitter: 2 / 180 },
+			lifetime: 20 / 180,
+		};
 		expect(tip(EncounterDesign.create({ addWaves: [wave] }), 'wave')).toBe(
-			'wave(Add) · adds(1) · spawns_jitter(seconds(10),seconds(2)) · lives(seconds(20)) · kill_share(25)',
+			'wave(Add) · adds(1,add_group(60,mob0,1)) · spawns_jitter(seconds(10),seconds(2)) · lives(seconds(20)) · kill_share(25)',
 		);
 		const move = { ...defaultEvent('move'), yards: 5, repeat: { interval: 10 / 180, jitter: 0, count: 0 } };
 		expect(tip(EncounterDesign.create({ moves: [move] }), 'move')).toBe('move · move_yards(5,seconds(0.7)) · every(seconds(10))');

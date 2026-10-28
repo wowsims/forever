@@ -11,7 +11,7 @@ import {
 	Target,
 } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { translateSpellSchool } from '@i18n/localization';
+import { translateMobType, translateSpellSchool } from '@i18n/localization';
 import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
@@ -54,6 +54,21 @@ export const eventValueText = (design: EncounterDesign, ref: DesignEventRef, bas
 const TIP_SEPARATOR = ' · ';
 
 // What an event does, in seconds, on one line for its hover tooltip. Reads the times from `window` when one is given.
+// "3 adds (Lvl 60 Beast ×2, Lvl 61 Demon)": the adds grouped by level and mob type, in the order they first appear.
+export const addsSummary = (adds: ReadonlyArray<Target>): string => {
+	const groups = new Map<string, { level: number; type: string; count: number }>();
+	for (const add of adds) {
+		const key = `${add.level}:${add.mobType}`;
+		const group = groups.get(key) ?? { level: add.level, type: translateMobType(add.mobType), count: 0 };
+		group.count++;
+		groups.set(key, group);
+	}
+	const listed = [...groups.values()].map(group =>
+		designerText(group.count > 1 ? 'tip.add_group_count' : 'tip.add_group', { level: group.level, type: group.type, count: group.count }),
+	);
+	return designerText('tip.adds', { count: adds.length, groups: listed.join(', ') });
+};
+
 export const eventTooltip = (
 	design: EncounterDesign,
 	ref: DesignEventRef,
@@ -115,7 +130,7 @@ export const eventTooltip = (
 			const spawn = jitter > 0 ? tip('spawns_jitter', { at: sec(shown.start), jitter: sec(jitter) }) : tip('spawns', { at: sec(shown.start) });
 			return [
 				tip('wave', { name: eventName(design, ref) }),
-				tip('adds', { count: wave.count }),
+				addsSummary(wave.adds),
 				spawn,
 				tip('lives', { time: sec(shown.end - shown.start) }),
 				...every,
@@ -363,14 +378,14 @@ const bossHealthFields = (): Array<DesignFieldConfig<HealthKeyframe>> => [
 ];
 
 // The preset targets, and the add each preset encounter's waves copy: a wave's add is no target of the encounter, so the
-// targets alone leave it out. A wave's add is listed under its encounter's folder, by its name.
+// targets alone leave it out. An add is listed under its encounter's folder, by its name.
 export const designerPresetTargets = (encounters: ReadonlyArray<PresetEncounter>, targets: ReadonlyArray<PresetTarget>): Array<PresetTarget> => {
 	const byPath = new Map(targets.map(preset => [preset.path, preset]));
 	for (const encounter of encounters) {
 		const folder = encounter.path.slice(0, Math.max(0, encounter.path.indexOf('/')));
-		for (const wave of encounter.design?.addWaves ?? []) {
-			const path = `${folder}/${wave.target?.name}`;
-			if (wave.target && !byPath.has(path)) byPath.set(path, PresetTarget.create({ path, target: wave.target }));
+		for (const add of encounter.design?.addWaves.flatMap(wave => wave.adds) ?? []) {
+			const path = `${folder}/${add.name}`;
+			if (!byPath.has(path)) byPath.set(path, PresetTarget.create({ path, target: add }));
 		}
 	}
 	return [...byPath.values()];
@@ -386,26 +401,9 @@ export const defaultWaveTemplate = (presetTargets: ReadonlyArray<PresetTarget>, 
 	return preset?.target;
 };
 
+// The wave's adds are not fields: the panel lists them in `DesignerAdds`, each with its template and stats.
 const waveFields = (): Array<DesignFieldConfig<AddWave>> => [
 	nameField(),
-	{
-		type: 'choice',
-		id: 'template',
-		label: label('template'),
-		tooltip: tooltip('template'),
-		// An add whose stats were edited matches no preset and reads as custom.
-		options: context => [{ value: -1, label: i18n.t('common.custom') }, ...context.presetTargets.map((preset, value) => ({ value, label: preset.path }))],
-		get: (event, context) => context.presetTargets.findIndex(preset => !!event.target && !!preset.target && Target.equals(event.target, preset.target)),
-		set: (event, value, context) => {
-			const preset = context.presetTargets[value]?.target;
-			if (preset) event.target = Target.clone(preset);
-		},
-	},
-	plain(
-		'count',
-		event => event.count,
-		(event, value) => (event.count = Math.max(1, Math.round(value))),
-	),
 	...timeFields<'spawn', AddWave>('spawn', { at: 'spawn', jitter: 'spawn_jitter' }),
 	seconds(
 		'lifetime',

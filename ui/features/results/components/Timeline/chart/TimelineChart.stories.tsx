@@ -1,4 +1,4 @@
-import { AddWave, DesignDamageAmp, EncounterDesign } from '@generated/proto/common';
+import { AddWave, DesignDamageAmp, EncounterDesign, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { damageLog, dpsLog, HEROIC_STRIKE } from '@testing/storybook/fixtures/results-views';
 
@@ -39,7 +39,7 @@ const dpsSpec = (withDesign = false): TimelineChartSpec => {
 							addWaves: [
 								{
 									...AddWave.create(),
-									count: 2,
+									adds: [Target.create(), Target.create()],
 									spawn: { at: 0.1, jitter: 0 },
 									lifetime: 0.1,
 									repeat: { interval: 0.4, count: 1, jitter: 0 },

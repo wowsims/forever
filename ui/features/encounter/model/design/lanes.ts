@@ -14,6 +14,7 @@ import {
 	SpellSchool,
 } from '@generated/proto/common';
 import i18n from '@i18n/config';
+import { Encounter } from '@sim/raid/encounter';
 
 export type DesignLaneKind = 'boss' | 'abilities' | 'waves' | 'moves' | 'amps';
 export type DesignEventKind = 'downtime' | 'bossHealth' | 'ability' | 'wave' | 'move' | 'amp';
@@ -90,7 +91,7 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K, at = 0.4): Desi
 		},
 		wave: {
 			name: '',
-			count: 1,
+			adds: [Encounter.defaultTargetProto()],
 			spawn: time(start),
 			lifetime: DEFAULT_WIDTH,
 			repeat: noRepeat(),

@@ -30,7 +30,7 @@ beforeAll(() => {
 				PresetEncounter.create({
 					path: 'Default/Dynamic Adds',
 					targets: [PresetTarget.create({ path: 'Default/Dynamic Boss', target: Target.create({ id: 99000, name: 'Dynamic Boss' }) })],
-					design: EncounterDesign.create({ addWaves: [AddWave.create({ name: 'Add', target: DYNAMIC_ADD })] }),
+					design: EncounterDesign.create({ addWaves: [AddWave.create({ name: 'Add', adds: [DYNAMIC_ADD] })] }),
 				}),
 			],
 		}),
@@ -62,6 +62,8 @@ const press = (bar: HTMLElement, key: string, shiftKey = false) => act(() => voi
 
 const clickButton = (name: string) => act(async () => fireEvent.click(screen.getByRole('button', { name })));
 
+const clickFirst = (name: string) => act(async () => fireEvent.click(screen.getAllByRole('button', { name })[0]));
+
 const commit = (input: HTMLElement, value: string) => act(() => void fireEvent.change(input, { target: { value } }));
 
 // The first target is the one the picker never removes.
@@ -85,22 +87,23 @@ describe('EncounterDesigner', () => {
 			const dialog = await openDesigner();
 
 			await add('Add waves', 'Wave');
-			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Default/Dynamic Add');
 			await clickButton('Add stats');
+			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Default/Dynamic Add');
 			expect((within(dialog).getByLabelText('Health') as HTMLInputElement).value).toBe('5000');
 			await commit(within(dialog).getByLabelText('Health'), '7000');
 			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Custom');
 
 			await clickButton('Save');
 			const [wave] = encounter.getDesign().addWaves;
-			expect(wave.target?.name).toBe('Dynamic Add');
-			expect(wave.target?.stats[Stat.StatHealth]).toBe(7000);
+			expect(wave.adds).toHaveLength(1);
+			expect(wave.adds[0].name).toBe('Dynamic Add');
+			expect(wave.adds[0].stats[Stat.StatHealth]).toBe(7000);
 		}
 	});
 
 	it('adds a wave in the draft, moves and edits it, and saves it to the store as fractions', async () => {
 		const { encounter, baseSeconds } = await setup();
-		const dialog = await openDesigner();
+		await openDesigner();
 
 		await add('Add waves', 'Wave');
 		const bar = within(lane('Add waves')).getByRole('slider');
@@ -109,7 +112,9 @@ describe('EncounterDesigner', () => {
 
 		await press(bar, 'ArrowRight', true);
 		await press(bar, 'ArrowRight');
-		await commit(within(dialog).getByLabelText('Count'), '3');
+		await clickButton('Add an add');
+		await clickFirst('Duplicate add');
+		await clickFirst('Remove add');
 		expect(encounter.getDesign().addWaves).toEqual([]);
 
 		await clickButton('Save');
@@ -117,8 +122,7 @@ describe('EncounterDesigner', () => {
 		const [wave] = encounter.getDesign().addWaves;
 		expect(wave.spawn!.at).toBeCloseTo(0.4 + 6 / baseSeconds, 9);
 		expect(wave.lifetime).toBeCloseTo(0.1, 9);
-		expect(wave.count).toBe(3);
-		expect(wave.target).toEqual(DYNAMIC_ADD);
+		expect(wave.adds).toEqual([DYNAMIC_ADD, DYNAMIC_ADD]);
 	});
 
 	it('focuses the first add button on open, and moves focus into the event panel on Enter, not on a click', async () => {

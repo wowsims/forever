@@ -22,6 +22,7 @@ export const DESIGN_ISSUE_KEYS = {
 	tooManyKeyframes: key('too_many_keyframes'),
 	ampNotPositive: key('amp_not_positive'),
 	tooManyAdds: key('too_many_adds'),
+	noAdds: key('no_adds'),
 	moveGoesNowhere: key('move_goes_nowhere'),
 	executeOrder: key('execute_order'),
 } as const;
@@ -89,7 +90,8 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 		const from = wave.spawn?.at ?? 0;
 		if (wave.lifetime <= 0) add(ref, 'error', DESIGN_ISSUE_KEYS.endBeforeStart);
 		if (outside(from, from, wave.spawn?.jitter ?? 0)) add(ref, 'warning', DESIGN_ISSUE_KEYS.outsideFight);
-		if (wave.count > MAX_WAVE_ADDS) add(ref, 'error', DESIGN_ISSUE_KEYS.tooManyAdds);
+		if (wave.adds.length === 0) add(ref, 'error', DESIGN_ISSUE_KEYS.noAdds);
+		if (wave.adds.length > MAX_WAVE_ADDS) add(ref, 'error', DESIGN_ISSUE_KEYS.tooManyAdds);
 		if (wave.executeProportion20 > wave.executeProportion35) add(ref, 'warning', DESIGN_ISSUE_KEYS.executeOrder);
 	});
 

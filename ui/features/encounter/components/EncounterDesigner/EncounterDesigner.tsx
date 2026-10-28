@@ -34,6 +34,8 @@ export interface EncounterDesignerViewProps {
 	issues: ReadonlyArray<DesignIssue>;
 	targetNames: ReadonlyArray<string>;
 	presetTargets: ReadonlyArray<PresetTarget>;
+	/** A new add of a wave: the default template's copy. */
+	newAdd: () => Target;
 	panelRef?: Ref<HTMLElement>;
 	onSelect: (ref: DesignEventRef | undefined) => void;
 	onActivate: (ref: DesignEventRef) => void;
@@ -53,6 +55,7 @@ export const EncounterDesignerView = ({
 	issues,
 	targetNames,
 	presetTargets,
+	newAdd,
 	panelRef,
 	onSelect,
 	onActivate,
@@ -113,6 +116,7 @@ export const EncounterDesignerView = ({
 						baseSeconds={baseSeconds}
 						targetNames={targetNames}
 						presetTargets={presetTargets}
+						newAdd={newAdd}
 						onChange={onChange}
 						onSelect={onSelect}
 					/>
@@ -183,14 +187,13 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 		onOpenChange(nextOpen);
 	};
 
+	const newAdd = () => Target.clone(defaultWaveTemplate(presetTargets, encounter.sim.raid.getTanks().length) ?? Encounter.defaultTargetProto());
+
 	const add = (kind: DesignEventKind) => {
 		const next = EncounterDesign.clone(draft);
 		const ref = addEvent(next, kind);
-		// The sim spawns a wave's adds from its target, so a new wave starts with a preset target.
-		if (kind === 'wave') {
-			const template = defaultWaveTemplate(presetTargets, encounter.sim.raid.getTanks().length);
-			next.addWaves[ref.index].target = Target.clone(template ?? Encounter.defaultTargetProto());
-		}
+		// The sim spawns a wave's adds from their templates, so a new wave starts with one add from the default template.
+		if (kind === 'wave') next.addWaves[ref.index].adds = [newAdd()];
 		setDraft(next);
 		setSelected(ref);
 	};
@@ -208,6 +211,7 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 				<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
 			))}
 			targets={<TargetsPicker encounter={encounter} />}
+			newAdd={newAdd}
 			design={draft}
 			baseSeconds={baseSeconds}
 			selected={selected}

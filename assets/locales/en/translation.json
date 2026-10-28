@@ -1158,7 +1158,8 @@
 					"amp_not_positive": "Adds no damage, so the sim skips it.",
 					"too_many_adds": "Spawns more than 64 adds at once, so the sim skips the wave.",
 					"move_goes_nowhere": "Moves no yards for no time, so the sim skips it.",
-					"execute_order": "Spends more of its life below 20% than below 35%, so the sim raises the 35% share to match."
+					"execute_order": "Spends more of its life below 20% than below 35%, so the sim raises the 35% share to match.",
+					"no_adds": "Spawns no adds, so the sim skips the wave."
 				},
 				"event_name": "{{event}} {{number}}",
 				"seconds": "{{value}}s",
@@ -1193,8 +1194,10 @@
 					"icd": "{{time}} internal cooldown",
 					"swing_speed": "swing speed ×{{value}}",
 					"wave": "Add wave '{{name}}'",
-					"adds_one": "{{count}} add",
-					"adds_other": "{{count}} adds",
+					"adds_one": "{{count}} add ({{groups}})",
+					"adds_other": "{{count}} adds ({{groups}})",
+					"add_group": "Lvl {{level}} {{type}}",
+					"add_group_count": "Lvl {{level}} {{type}} ×{{count}}",
 					"spawns": "spawns {{at}}",
 					"spawns_jitter": "spawns {{at}} ± {{jitter}}",
 					"lives": "lives {{time}}",
@@ -1234,7 +1237,6 @@
 					"health_percent": "Health (%)",
 					"name": "Name",
 					"template": "Add template",
-					"count": "Count",
 					"spawn": "Spawn (s)",
 					"spawn_jitter": "Spawn jitter (s)",
 					"lifetime": "Lifetime (s)",
@@ -1293,7 +1295,16 @@
 				"target_name": "Target {{number}}",
 				"save": "Save",
 				"health_label": "{{from}} % → {{to}} %",
-				"health_end": "→ 0 %"
+				"health_end": "→ 0 %",
+				"adds": {
+					"title": "Adds",
+					"add": "Add an add",
+					"duplicate": "Duplicate add",
+					"remove": "Remove add",
+					"add_title": "Add {{number}}",
+					"add_row": "{{name}}, Lvl {{level}} {{type}}",
+					"add_short": "Add"
+				}
 			}
 		},
 		"player": {

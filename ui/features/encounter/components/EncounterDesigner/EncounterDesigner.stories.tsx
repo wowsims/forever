@@ -1,4 +1,4 @@
-import { EncounterDesign } from '@generated/proto/common';
+import { EncounterDesign, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
 	customBossDesign,
@@ -65,6 +65,7 @@ const meta = {
 		issues: [],
 		targetNames: designTargetNames,
 		presetTargets: designPresetTargets,
+		newAdd: () => Target.clone(designPresetTargets[0].target!),
 		onSelect: fn(),
 		onActivate: fn(),
 		onChange: fn(),

@@ -44,7 +44,7 @@ describe('lanes', () => {
 
 	it('uses the documented defaults', () => {
 		const wave = defaultEvent('wave');
-		expect([wave.count, wave.lifetime, wave.executeProportion20, wave.executeProportion35, wave.killShare]).toEqual([1, 0.1, 0.2, 0.35, 0.25]);
+		expect([wave.adds.length, wave.lifetime, wave.executeProportion20, wave.executeProportion35, wave.killShare]).toEqual([1, 0.1, 0.2, 0.35, 0.25]);
 		expect(defaultEvent('move').yards).toBe(5);
 		expect(defaultEvent('amp').percent).toBe(10);
 		expect(defaultEvent('ability').castTime).toBe(2);
@@ -202,7 +202,7 @@ describe('lanes', () => {
 			const move = addEvent(design, 'move', 0.1);
 			design.moves[0].name = 'Run';
 			expect(design.moves[duplicateEvent(design, move, 0.1).index].name).toContain('copy_name');
-			expect(design.addWaves[named.index].count).toBe(design.addWaves[0].count);
+			expect(design.addWaves[named.index].adds).toHaveLength(design.addWaves[0].adds.length);
 		});
 	});
 });
