@@ -1,5 +1,5 @@
-import { type ArmorType, ItemSlot, type RangedWeaponType, type WeaponType } from '@generated/proto/common';
-import { type DatabaseFilters, SourceFilterOption, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { type ArmorType, Faction, ItemSlot, type RangedWeaponType, type WeaponType } from '@generated/proto/common';
+import { type DatabaseFilters, FactionFilter, SourceFilterOption } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { sourceFilterI18nKeys } from '@i18n/entity_mapping';
 import { translateArmorType, translateRaidFilter, translateRangedWeaponType, translateSourceFilter, translateWeaponType } from '@i18n/localization';
@@ -7,7 +7,7 @@ import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Player } from '@sim/player/player';
 import { Sim } from '@sim/sim';
-import { subscribeSimField } from '@sim/state/subscriptions';
+import { subscribePlayerField, subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ChoiceField } from '@ui-kit/ChoiceField';
 import { Dialog } from '@ui-kit/Dialog';
@@ -15,10 +15,10 @@ import { NumberField } from '@ui-kit/TextField';
 
 import { MenuSection } from './MenuSection';
 
-const factionRestrictionsToLabels: Record<UIItem_FactionRestriction, string> = {
-	[UIItem_FactionRestriction.UNSPECIFIED]: i18n.t('gear_tab.gear_picker.filters.faction_labels.none'),
-	[UIItem_FactionRestriction.ALLIANCE_ONLY]: i18n.t('gear_tab.gear_picker.filters.faction_labels.alliance_only'),
-	[UIItem_FactionRestriction.HORDE_ONLY]: i18n.t('gear_tab.gear_picker.filters.faction_labels.horde_only'),
+const factionLabels: Record<Faction, string> = {
+	[Faction.Unknown]: i18n.t('gear_tab.gear_picker.filters.faction_labels.none'),
+	[Faction.Alliance]: i18n.t('gear_tab.gear_picker.filters.faction_labels.alliance_only'),
+	[Faction.Horde]: i18n.t('gear_tab.gear_picker.filters.faction_labels.horde_only'),
 };
 
 // A sorted copy, since `Sim.ALL_SOURCES` is shared. Both inputs are static, so the order is decided
@@ -42,6 +42,8 @@ export interface FiltersMenuViewProps {
 	weaponTypes: ReadonlyArray<WeaponType>;
 	rangedWeaponTypes: ReadonlyArray<RangedWeaponType>;
 	canDualWield: boolean;
+	/** The player's race's faction, which names the faction filter's default option. */
+	raceFaction: Faction;
 }
 
 export const FiltersMenuView = ({
@@ -54,6 +56,7 @@ export const FiltersMenuView = ({
 	weaponTypes,
 	rangedWeaponTypes,
 	canDualWield,
+	raceFaction,
 }: FiltersMenuViewProps) => {
 	const listToggle = (field: FilterListField, value: number, id: string, label: string) => (
 		<BooleanPicker
@@ -103,13 +106,14 @@ export const FiltersMenuView = ({
 				<ChoiceField
 					id="filters-faction-restriction"
 					label={i18n.t('gear_tab.gear_picker.filters.faction_restrictions')}
-					options={[UIItem_FactionRestriction.UNSPECIFIED, UIItem_FactionRestriction.ALLIANCE_ONLY, UIItem_FactionRestriction.HORDE_ONLY].map(
-						restriction => ({ value: restriction, label: factionRestrictionsToLabels[restriction] }),
-					)}
-					value={filters.factionRestriction}
+					options={[
+						{ value: FactionFilter.FactionFilterRace, label: factionLabels[raceFaction] },
+						{ value: FactionFilter.FactionFilterAny, label: factionLabels[Faction.Unknown] },
+					]}
+					value={filters.factionFilter}
 					onChange={value =>
 						onFiltersChange(next => {
-							next.factionRestriction = value;
+							next.factionFilter = value;
 						})
 					}
 				/>
@@ -203,6 +207,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 	const sim = player.sim;
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const playerClass = player.getPlayerClass();
+	const raceFaction = useStoreSubscribe(subscribePlayerField(player, 'race'), () => player.getFaction());
 
 	return (
 		<FiltersMenuView
@@ -219,6 +224,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 			weaponTypes={playerClass.weaponTypes.map(entry => entry.weaponType)}
 			rangedWeaponTypes={playerClass.rangedWeaponTypes}
 			canDualWield={player.getPlayerSpec().canDualWield}
+			raceFaction={raceFaction}
 		/>
 	);
 };
