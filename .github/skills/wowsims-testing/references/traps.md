@@ -8,6 +8,9 @@ Numbers that move or differ for a known reason, and CI behaviour a pull request 
   within noise of 0, so any timing change moves it.
 - `TestSpiritRegenIsTheSameForEveryClass` (`sim/core/mana_regen_test.go`) holds a naked Dwarf paladin's Spirit, so it
   moves with the Dwarf race offsets.
+- **A duration aura that a plain fight puts on a target moves the class `.results`**, even when nothing reads it: its
+  expiry adds a step to the fight and reorders the events at that time. Per-target state that only a target's death
+  reads is kept as an end time per target instead, as Shadowburn's Soul Shard window is (`sim/warlock/shadowburn.go`).
 
 ## Comparing runs
 

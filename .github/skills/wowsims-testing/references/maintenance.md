@@ -10,13 +10,13 @@ Re-derive a claim before repeating it, the gates with the print commands in §Th
 - the pin helpers: `grep -n 'func withRows\|func editRow' sim/core/spelldata/spelldata_test.go sim/common/shared/spell_data_heal_proc_test.go`
 - `references/traps.md`: `grep -n 'RandomSeed + i' sim/core/sim.go`, `grep -n DiscardUnknown cmd/wowsimcli/cmd/basic_sim.go`
 
-| You changed…                                                                                | Update                                    |
-| ------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| a step in `run_tests.yml`, a make test target, `database_load.go` or a tag                  | §The gates                                |
-| `test_suite.go`, `test_generators.go` or `proto/test.proto`                                 | §.results discipline                      |
-| a snapshot list, a `withDBCInputs` test or an ignored input                                 | `references/stale-inputs.md`              |
-| a pin helper, or where a kind of test lives                                                 | §What a test asserts, "Where things live" |
-| `feralbear_test.go`, `mana_regen_test.go`, `encounter.ts`'s fallback target, `basic_sim.go` | `references/traps.md`                     |
+| You changed…                                                                                                 | Update                                    |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| a step in `run_tests.yml`, a make test target, `database_load.go` or a tag                                   | §The gates                                |
+| `test_suite.go`, `test_generators.go` or `proto/test.proto`                                                  | §.results discipline                      |
+| a snapshot list, a `withDBCInputs` test or an ignored input                                                  | `references/stale-inputs.md`              |
+| a pin helper, or where a kind of test lives                                                                  | §What a test asserts, "Where things live" |
+| `feralbear_test.go`, `mana_regen_test.go`, `encounter.ts`'s fallback target, `basic_sim.go`, `shadowburn.go` | `references/traps.md`                     |
 
 Then run the shared path check:
 

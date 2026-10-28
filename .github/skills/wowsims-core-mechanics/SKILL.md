@@ -105,14 +105,16 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
   target move to target 0 when it is enabled, else the enabled target with the lowest index; with none left they keep
   the disabled target, their auto attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). Code that reads
-  the current target may meet a disabled one.
+  the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so a boss that
+  goes down mid-cast does not land the spell once it is back.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on the design rand,
   `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits the raid, `Disable` last. A death
   listener gets a nil spell; an aura on the dying target is checked in `ExtraCondition`, which runs inside `Die`. The
   proc side is `docs/spell_data/procs.md`, which also says why a rated trigger hears no death.
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target`, never the
-  encounter's first target, and an execute-phase callback names the target. A plain encounter keeps its old crossing
-  times; a design's health curve moves them.
+  encounter's first target, and an execute-phase callback names the target. A plain encounter's targets cross 35% and
+  20% at the encounter's execute proportions of the fight (`resetExecutePhases`); a design's health curve sets the
+  crossings of its boss and adds.
 - **An encounter design is a timeline of fractions of the rolled fight duration** (`encounter_design.go` and the
   `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
   sim's, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;

@@ -97,7 +97,9 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 
 - **A trigger named after its row never hears anything when the buff shares that name.** `ProcTrigger` names the
   trigger after the row, and `MakeProcTriggerAura` registers through `GetOrRegisterAura`, which hands back the
-  `AuraConfig` buff of the same label and drops the listener. Set `trigger.Name = "<X> - Trigger"` (PR #140).
+  `AuraConfig` buff of the same label and drops the listener. Set `trigger.Name = "<X> - Trigger"` (PR #140). A death
+  listener loses its kill or death the same way, so Rapid Killing (`sim/hunter/talents_marksmanship.go`) and Spirit
+  Tap (`sim/priest/talents_shadow.go`) name their triggers.
 - **A periodic listener built from a row never hears a bleed.** `DecodeProcTypeMask` files
   `PROC_FLAG_DEAL_HARMFUL_PERIODIC` under `ProcMaskSpellDamage`, and a bleed tick carries a melee mask. Set
   `trigger.ProcMask = core.ProcMaskUnknown` at the call site, as Thousand Cuts does (`sim/rogue/talents_subtlety.go`).

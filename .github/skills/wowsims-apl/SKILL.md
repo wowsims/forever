@@ -121,7 +121,8 @@ a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move D
 `Time Until Amp` (by damage amp type). Without a design the times are never, and `Next Move Duration` is 0.
 
 - **`Is Execute Phase` takes a target**, and `Current Health` and `Current Health %` on an enemy read its health
-  curve, so a design's boss and adds each have their own. Fights are time-based; there is no `use_health`.
+  curve, so a design's boss and adds each have their own. Fights are time-based: a fight lasts its rolled duration,
+  whatever the targets' health.
 
 ## Traps
 
