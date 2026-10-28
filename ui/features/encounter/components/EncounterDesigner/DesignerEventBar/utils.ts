@@ -38,13 +38,13 @@ export const barKeyAction = (event: BarKey, point: boolean): BarKeyAction | unde
 	}
 };
 
-export const editWindow = (window: TimeWindow, mode: AxisDragMode, deltaFraction: number, minWidth: number): TimeWindow => {
+export const editWindow = (window: TimeWindow, mode: AxisDragMode, deltaFraction: number, minWidth: number, openEnd = false): TimeWindow => {
 	switch (mode) {
 		case 'move':
-			return moveWindow(window.start, window.end, deltaFraction);
+			return moveWindow(window.start, window.end, deltaFraction, openEnd);
 		case 'start':
 			return resizeStart(window.start, window.end, deltaFraction, minWidth);
 		case 'end':
-			return resizeEnd(window.start, window.end, deltaFraction, minWidth);
+			return resizeEnd(window.start, window.end, deltaFraction, minWidth, openEnd);
 	}
 };

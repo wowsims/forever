@@ -2,7 +2,7 @@ import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, Desig
 import { DesignTime } from '@generated/proto/common';
 
 import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../../model/design/lanes';
-import { eventsOf, eventWindow, getEvent, laneOf, occurrences } from '../../../model/design/lanes';
+import { eventsOf, eventWindow, getEvent, isPointAbility, laneOf, occurrences } from '../../../model/design/lanes';
 import type { TimeWindow } from '../../../model/design/time';
 import type { DesignerEventBarShape } from '../DesignerEventBar';
 import { editEvent } from '../utils/configs';
@@ -23,9 +23,17 @@ export interface LaneEvent {
 	/** Every occurrence after the first, which the lane draws as ghosts. */
 	repeats: ReadonlyArray<TimeWindow>;
 	row: number;
+	/** The window may run past the fight's end, as a wave's lifetime does. */
+	openEnd: boolean;
 }
 
 const SHAPES: Partial<Record<DesignEventKind, DesignerEventBarShape>> = { bossHealth: 'dot', move: 'diamond' };
+
+const shapeOf = (design: EncounterDesign, ref: DesignEventRef): DesignerEventBarShape => {
+	const event = getEvent(design, ref);
+	if (ref.kind === 'ability' && event && isPointAbility(event as DesignBossAbility)) return 'diamond';
+	return SHAPES[ref.kind] ?? 'span';
+};
 
 const jitterOf = (design: EncounterDesign, ref: DesignEventRef): { start: number; end: number } => {
 	const event = getEvent(design, ref);
@@ -40,8 +48,13 @@ const jitterOf = (design: EncounterDesign, ref: DesignEventRef): { start: number
 			const jitter = (event as AddWave).spawn?.jitter ?? 0;
 			return { start: jitter, end: jitter };
 		}
+		case 'ability': {
+			const ability = event as DesignBossAbility;
+			const start = ability.start?.jitter ?? 0;
+			return { start, end: isPointAbility(ability) ? start : (ability.end?.jitter ?? 0) };
+		}
 		default: {
-			const timed = event as DesignDowntime | DesignBossAbility | DesignDamageAmp;
+			const timed = event as DesignDowntime | DesignDamageAmp;
 			return { start: timed.start?.jitter ?? 0, end: timed.end?.jitter ?? 0 };
 		}
 	}
@@ -71,7 +84,15 @@ export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind): Array
 			const found = eventWindow(design, ref);
 			const window = !found ? { start: 0, end: 0 } : 'at' in found ? { start: found.at, end: found.at } : found;
 			const all = occurrences(design, ref, MAX_OCCURRENCES);
-			return { ref, window, shape: SHAPES[kind] ?? 'span', jitter: jitterOf(design, ref), repeats: all.slice(1), row: 0 };
+			return {
+				ref,
+				window,
+				shape: shapeOf(design, ref),
+				jitter: jitterOf(design, ref),
+				repeats: all.slice(1),
+				row: 0,
+				openEnd: kind === 'wave',
+			};
 		}),
 	);
 	const rows = packRows(
@@ -101,8 +122,21 @@ export const withWindow = (design: EncounterDesign, ref: DesignEventRef, window:
 				wave.lifetime = window.end - window.start;
 				return;
 			}
+			case 'ability': {
+				const ability = event as DesignBossAbility;
+				const start = (ability.start ??= DesignTime.create());
+				const end = (ability.end ??= DesignTime.create());
+				// A point's end cuts its repeats, so it moves with the point and the repeats keep their reach.
+				if (isPointAbility(ability)) {
+					end.at += window.start - start.at;
+				} else {
+					end.at = window.end;
+				}
+				start.at = window.start;
+				return;
+			}
 			default: {
-				const timed = event as DesignDowntime | DesignBossAbility | DesignDamageAmp;
+				const timed = event as DesignDowntime | DesignDamageAmp;
 				(timed.start ??= DesignTime.create()).at = window.start;
 				(timed.end ??= DesignTime.create()).at = window.end;
 			}

@@ -52,4 +52,12 @@ describe('editWindow', () => {
 		expect(editWindow(window, 'start', 0.5, 0.05)).toEqual({ start: expect.closeTo(0.35), end: 0.4 });
 		expect(editWindow(window, 'end', -0.5, 0.05)).toEqual({ start: 0.2, end: expect.closeTo(0.25) });
 	});
+
+	it('keeps an open end past the fight when the window moves or its end grows', () => {
+		const pastTheEnd = { start: 0.9, end: 1.1 };
+		expect(editWindow(pastTheEnd, 'move', 0.02, 0.01, true)).toEqual({ start: expect.closeTo(0.92), end: expect.closeTo(1.12) });
+		expect(editWindow(pastTheEnd, 'end', 0.1, 0.01, true).end).toBeCloseTo(1.2);
+		expect(editWindow(window, 'move', 0.9, 0.01, true)).toEqual({ start: 1, end: expect.closeTo(1.2) });
+		expect(editWindow(window, 'move', 0.9, 0.01).end).toBe(1);
+	});
 });

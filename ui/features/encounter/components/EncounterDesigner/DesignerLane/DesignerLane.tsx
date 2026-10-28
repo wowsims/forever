@@ -160,6 +160,7 @@ export const DesignerLane = ({
 							window={event.window}
 							row={event.row}
 							shape={event.shape}
+							openEnd={event.openEnd}
 							jitter={event.jitter}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}

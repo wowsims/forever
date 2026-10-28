@@ -1,4 +1,4 @@
-import { EncounterDesign } from '@generated/proto/common';
+import { DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import type { DesignEventKind } from './lanes';
@@ -13,7 +13,7 @@ describe('lanes', () => {
 
 	it('builds label keys under the designer namespace', () => {
 		expect(laneLabelKey('waves')).toBe('settings_tab.encounter.designer.lanes.waves');
-		expect(eventLabelKey('bossHealth')).toBe('settings_tab.encounter.designer.events.bossHealth');
+		expect(eventLabelKey('bossHealth')).toBe('settings_tab.encounter.designer.events.boss_health');
 	});
 
 	it('defaults every kind inside the fight', () => {
@@ -76,6 +76,35 @@ describe('lanes', () => {
 			const ref = addEvent(design, 'move', 0.1);
 			design.moves[0].repeat = { interval: 0.2, jitter: 0.05, count: 2 };
 			expect(occurrences(design, ref, 10).map(o => o.start)).toEqual([0.1, 0.30000000000000004, 0.5]);
+		});
+
+		it('draws a spell hit or a strike as points that stop at its end, and a window as spans of its length', () => {
+			const design = EncounterDesign.create();
+			const ref = addEvent(design, 'ability', 0.1);
+			const ability = design.bossAbilities[0];
+			ability.end!.at = 0.35;
+			ability.repeat = { interval: 0.1, jitter: 0, count: 0 };
+			for (const kind of [DesignBossAbility_Kind.SpellHit, DesignBossAbility_Kind.Strike]) {
+				ability.kind = kind;
+				expect(eventWindow(design, ref)).toEqual({ at: 0.1 });
+				expect(occurrences(design, ref, 10).map(o => [o.start, o.end])).toEqual([
+					[0.1, 0.1],
+					[expect.closeTo(0.2), expect.closeTo(0.2)],
+					[expect.closeTo(0.3), expect.closeTo(0.3)],
+				]);
+			}
+			ability.end!.at = 0.05;
+			expect(occurrences(design, ref, 10)).toEqual([]);
+
+			ability.kind = DesignBossAbility_Kind.Thrash;
+			ability.end!.at = 0.15;
+			ability.repeat = { interval: 0.4, jitter: 0, count: 0 };
+			expect(eventWindow(design, ref)).toEqual({ start: 0.1, end: 0.15 });
+			expect(occurrences(design, ref, 10).map(o => [o.start, o.end - o.start])).toEqual([
+				[0.1, expect.closeTo(0.05)],
+				[expect.closeTo(0.5), expect.closeTo(0.05)],
+				[expect.closeTo(0.9), expect.closeTo(0.05)],
+			]);
 		});
 
 		it('runs to the end of the fight with count 0 and caps at maxCount', () => {

@@ -20,7 +20,7 @@ import { TargetsPicker } from '../TargetsPicker';
 import { DesignerEventPanel } from './DesignerEventPanel';
 import { DesignerIssues } from './DesignerIssues';
 import { DesignerTimeline } from './DesignerTimeline';
-import { designerText } from './utils/configs';
+import { defaultWaveTemplate, designerText } from './utils/configs';
 
 export interface EncounterDesignerViewProps {
 	open: boolean;
@@ -185,8 +185,11 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 	const add = (kind: DesignEventKind) => {
 		const next = EncounterDesign.clone(draft);
 		const ref = addEvent(next, kind);
-		// The sim spawns a wave's adds from its target, so a new wave starts with the first preset target.
-		if (kind === 'wave') next.addWaves[ref.index].target = Target.clone(presetTargets[0]?.target ?? Encounter.defaultTargetProto());
+		// The sim spawns a wave's adds from its target, so a new wave starts with a preset target.
+		if (kind === 'wave') {
+			const template = defaultWaveTemplate(presetTargets, encounter.sim.raid.getTanks().length);
+			next.addWaves[ref.index].target = Target.clone(template ?? Encounter.defaultTargetProto());
+		}
 		setDraft(next);
 		setSelected(ref);
 	};

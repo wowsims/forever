@@ -46,8 +46,17 @@ const LANE_OF: Record<DesignEventKind, DesignLaneKind> = {
 
 export const laneOf = (kind: DesignEventKind): DesignLaneKind => LANE_OF[kind];
 
+const EVENT_LABEL_KEYS: Record<DesignEventKind, string> = {
+	downtime: 'downtime',
+	bossHealth: 'boss_health',
+	ability: 'ability',
+	wave: 'wave',
+	move: 'move',
+	amp: 'amp',
+};
+
 export const laneLabelKey = (lane: DesignLaneKind): string => `settings_tab.encounter.designer.lanes.${lane}`;
-export const eventLabelKey = (kind: DesignEventKind): string => `settings_tab.encounter.designer.events.${kind}`;
+export const eventLabelKey = (kind: DesignEventKind): string => `settings_tab.encounter.designer.events.${EVENT_LABEL_KEYS[kind]}`;
 
 const time = (at: number): DesignTime => ({ at, jitter: 0 });
 const noRepeat = (): DesignRepeat => ({ interval: 0, jitter: 0, count: 0 });
@@ -133,6 +142,11 @@ const span = (start: DesignTime | undefined, end: DesignTime | undefined): Desig
 
 const repeatOf = (event: DesignEvent): DesignRepeat | undefined => ('repeat' in event ? event.repeat : undefined);
 
+// A spell hit or a strike happens at an instant, and its end only cuts its repeats; a thrash or swing timing window
+// lasts from its start to its end.
+export const isPointAbility = (ability: DesignBossAbility): boolean =>
+	ability.kind === DesignBossAbility_Kind.SpellHit || ability.kind === DesignBossAbility_Kind.Strike;
+
 export const eventWindow = (design: EncounterDesign, ref: DesignEventRef): DesignEventWindow | undefined => {
 	const event = getEvent(design, ref);
 	if (!event) return undefined;
@@ -146,28 +160,34 @@ export const eventWindow = (design: EncounterDesign, ref: DesignEventRef): Desig
 			const start = wave.spawn?.at ?? 0;
 			return { start, end: start + wave.lifetime };
 		}
+		case 'ability': {
+			const ability = event as DesignBossAbility;
+			return isPointAbility(ability) ? { at: ability.start?.at ?? 0 } : span(ability.start, ability.end);
+		}
 		default: {
-			const timed = event as DesignDowntime | DesignBossAbility | DesignDamageAmp;
+			const timed = event as DesignDowntime | DesignDamageAmp;
 			return span(timed.start, timed.end);
 		}
 	}
 };
 
 // Every occurrence a repeat produces, the first included, spaced by the interval with jitter ignored. The count is the
-// number of repeats after the first and 0 runs to the end of the fight; the result holds at most maxCount entries.
+// number of repeats after the first and 0 runs to the end of the fight; the result holds at most maxCount entries. A
+// spell hit or a strike stops at its end, as the sim fires only the occurrences that begin by it.
 export const occurrences = (design: EncounterDesign, ref: DesignEventRef, maxCount: number): { start: number; end: number }[] => {
 	const event = getEvent(design, ref);
 	const window = eventWindow(design, ref);
 	if (!event || !window || maxCount <= 0) return [];
 	const start = 'at' in window ? window.at : window.start;
 	const width = 'at' in window ? 0 : window.end - window.start;
+	const last = ref.kind === 'ability' && isPointAbility(event as DesignBossAbility) ? ((event as DesignBossAbility).end?.at ?? start) : Infinity;
 	const repeat = repeatOf(event);
 	const interval = repeat?.interval ?? 0;
 	const total = interval > 0 ? (repeat!.count > 0 ? repeat!.count + 1 : Infinity) : 1;
 	const result: { start: number; end: number }[] = [];
 	for (let i = 0; i < total && result.length < maxCount; i++) {
 		const from = start + i * interval;
-		if (i > 0 && from > 1) break;
+		if ((i > 0 && from > 1) || from > last) break;
 		result.push({ start: from, end: from + width });
 	}
 	return result;

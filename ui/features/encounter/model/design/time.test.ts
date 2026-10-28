@@ -38,4 +38,13 @@ describe('time', () => {
 		expect(resizeEnd(0.2, 0.4, -0.5, 0.05)).toEqual({ start: 0.2, end: 0.25 });
 		expect(resizeEnd(0.2, 0.4, 0.9, 0.05)).toEqual({ start: 0.2, end: 1 });
 	});
+
+	it('lets an open end run past the fight and stops only the start at its end', () => {
+		const past = moveWindow(0.9, 1.1, 0.05, true);
+		expect(past.start).toBeCloseTo(0.95);
+		expect(past.end).toBeCloseTo(1.15);
+		expect(moveWindow(0.9, 1.1, 0.5, true).start).toBe(1);
+		expect(resizeEnd(0.9, 1.1, 0.2, 0.05, true).end).toBeCloseTo(1.3);
+		expect(resizeStart(0.9, 1.3, 0.3, 0.05).start).toBe(1);
+	});
 });

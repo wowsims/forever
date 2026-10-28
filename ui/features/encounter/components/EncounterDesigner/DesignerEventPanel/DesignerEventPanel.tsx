@@ -65,7 +65,7 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 						key={id}
 						{...frame}
 						float={field.float}
-						positive={!field.negative}
+						positive
 						value={field.get(event, context)}
 						onChange={value => commit(e => field.set(e, value, context))}
 					/>

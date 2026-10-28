@@ -4061,7 +4061,7 @@
 										"downtime": {
 											"type": "string"
 										},
-										"bossHealth": {
+										"boss_health": {
 											"type": "string"
 										},
 										"ability": {
@@ -4078,46 +4078,66 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["downtime", "bossHealth", "ability", "wave", "move", "amp"]
+									"required": ["downtime", "boss_health", "ability", "wave", "move", "amp"]
 								},
 								"validation": {
 									"type": "object",
 									"properties": {
-										"endBeforeStart": {
+										"end_before_start": {
 											"type": "string"
 										},
-										"outsideFight": {
+										"outside_fight": {
 											"type": "string"
 										},
 										"overlap": {
 											"type": "string"
 										},
-										"healthIncreases": {
+										"downtime_overlap": {
 											"type": "string"
 										},
-										"targetOutOfRange": {
+										"health_increases": {
 											"type": "string"
 										},
-										"waveOutOfRange": {
+										"target_out_of_range": {
 											"type": "string"
 										},
-										"allTargetsDown": {
+										"wave_out_of_range": {
 											"type": "string"
 										},
-										"tooManyKeyframes": {
+										"all_targets_down": {
+											"type": "string"
+										},
+										"too_many_keyframes": {
+											"type": "string"
+										},
+										"amp_not_positive": {
+											"type": "string"
+										},
+										"too_many_adds": {
+											"type": "string"
+										},
+										"move_goes_nowhere": {
+											"type": "string"
+										},
+										"execute_order": {
 											"type": "string"
 										}
 									},
 									"additionalProperties": false,
 									"required": [
-										"endBeforeStart",
-										"outsideFight",
+										"end_before_start",
+										"outside_fight",
 										"overlap",
-										"healthIncreases",
-										"targetOutOfRange",
-										"waveOutOfRange",
-										"allTargetsDown",
-										"tooManyKeyframes"
+										"downtime_overlap",
+										"health_increases",
+										"target_out_of_range",
+										"wave_out_of_range",
+										"all_targets_down",
+										"too_many_keyframes",
+										"amp_not_positive",
+										"too_many_adds",
+										"move_goes_nowhere",
+										"execute_order"
 									]
 								},
 								"event_name": {

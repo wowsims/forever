@@ -56,7 +56,6 @@ export type DesignFieldConfig<E> =
 	| (FieldBase<E> & {
 			type: 'number';
 			float: boolean;
-			negative?: boolean;
 			get(event: E, context: DesignFieldContext): number;
 			set(event: E, value: number, context: DesignFieldContext): void;
 	  })
@@ -98,8 +97,8 @@ const plain = <E>(
 	name: string,
 	read: (event: E) => number,
 	write: (event: E, value: number) => void,
-	{ float = false, negative, ...extra }: Partial<FieldBase<E>> & { float?: boolean; negative?: boolean } = {},
-): DesignFieldConfig<E> => ({ type: 'number', float, negative, id: name, label: label(name), ...extra, get: read, set: (event, value) => write(event, value) });
+	{ float = false, ...extra }: Partial<FieldBase<E>> & { float?: boolean } = {},
+): DesignFieldConfig<E> => ({ type: 'number', float, id: name, label: label(name), ...extra, get: read, set: (event, value) => write(event, value) });
 
 // Stored as 0..1, shown as a percentage.
 const percent = <E>(
@@ -247,6 +246,16 @@ const bossHealthFields = (): Array<DesignFieldConfig<HealthKeyframe>> => [
 	),
 ];
 
+const DYNAMIC_ADD_PATH = 'Default/Dynamic Add';
+
+// The preset target a new wave's adds copy: the Dynamic Add, else the first preset that pulls no tank, else the first
+// preset. A tank index pulls a tank only when it names one of the raid's tanks, as the sim's tank setup reads it.
+export const defaultWaveTemplate = (presetTargets: ReadonlyArray<PresetTarget>, tankCount: number): Target | undefined => {
+	const pullsNoTank = ({ target }: PresetTarget) => !!target && (target.tankIndex < 0 || target.tankIndex >= tankCount);
+	const preset = presetTargets.find(({ path, target }) => path === DYNAMIC_ADD_PATH && !!target) ?? presetTargets.find(pullsNoTank) ?? presetTargets[0];
+	return preset?.target;
+};
+
 const waveFields = (): Array<DesignFieldConfig<AddWave>> => [
 	{
 		type: 'text',
@@ -332,8 +341,7 @@ const ampFields = (): Array<DesignFieldConfig<DesignDamageAmp>> => [
 		'percent',
 		event => event.percent,
 		(event, value) => (event.percent = value),
-		// A negative amp is a damage reduction window.
-		{ float: true, negative: true },
+		{ float: true },
 	),
 	...spanFields<DesignDamageAmp>(),
 	...repeatFields<DesignDamageAmp>(),

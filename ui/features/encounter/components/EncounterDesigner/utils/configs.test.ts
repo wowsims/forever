@@ -1,8 +1,8 @@
-import { DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
+import { DesignBossAbility_Kind, EncounterDesign, PresetTarget, Target } from '@generated/proto/common';
 import { describe, expect, it, vi } from 'vitest';
 
 import { defaultEvent } from '../../../model/design/lanes';
-import { type DesignFieldConfig, designFieldConfigs, type DesignFieldContext, editEvent, eventName, eventValueText } from './configs';
+import { defaultWaveTemplate, type DesignFieldConfig, designFieldConfigs, type DesignFieldContext, editEvent, eventName, eventValueText } from './configs';
 
 // Renders a string as its last key segment and its options, so a test reads which string and values were picked.
 vi.mock('@i18n/config', () => ({
@@ -37,7 +37,7 @@ describe('eventValueText', () => {
 	it('describes a span by its start and end, and a point by its time', () => {
 		expect(eventValueText(design, { kind: 'downtime', index: 0 }, 180)).toBe('span_value(event_name(downtime,1),seconds(90),seconds(108))');
 		expect(eventValueText(design, { kind: 'move', index: 0 }, 180)).toBe('point_value(event_name(move,1),seconds(90))');
-		expect(eventValueText(design, { kind: 'bossHealth', index: 0 }, 180)).toBe('keyframe_value(event_name(bossHealth,1),seconds(90),50)');
+		expect(eventValueText(design, { kind: 'bossHealth', index: 0 }, 180)).toBe('keyframe_value(event_name(boss_health,1),seconds(90),50)');
 	});
 
 	it('reads a given window over the stored one', () => {
@@ -88,5 +88,24 @@ describe('designFieldConfigs', () => {
 		expect(shown(DesignBossAbility_Kind.Thrash)).toEqual(expect.arrayContaining(['proc_chance', 'extra_attacks', 'icd']));
 		expect(shown(DesignBossAbility_Kind.SwingTiming)).toContain('swing_speed_multiplier');
 		expect(shown(DesignBossAbility_Kind.SwingTiming)).not.toContain('weapon_percent');
+	});
+});
+
+describe('defaultWaveTemplate', () => {
+	const preset = (path: string, tankIndex: number) => PresetTarget.create({ path, target: Target.create({ name: path, tankIndex }) });
+	const boss = preset('Default/Boss', 0);
+	const unTanked = preset('Default/Movement', -1);
+	const dynamicAdd = preset('Default/Dynamic Add', 1);
+
+	it('prefers the Dynamic Add, then the first preset that pulls no tank, then the first preset', () => {
+		expect(defaultWaveTemplate([boss, unTanked, dynamicAdd], 1)?.name).toBe('Default/Dynamic Add');
+		expect(defaultWaveTemplate([boss, unTanked], 1)?.name).toBe('Default/Movement');
+		expect(defaultWaveTemplate([boss], 1)?.name).toBe('Default/Boss');
+		expect(defaultWaveTemplate([], 1)).toBeUndefined();
+	});
+
+	it('counts a tank index past the raid tanks as pulling none', () => {
+		expect(defaultWaveTemplate([boss, preset('Default/Second', 1)], 1)?.name).toBe('Default/Second');
+		expect(defaultWaveTemplate([boss, unTanked], 0)?.name).toBe('Default/Boss');
 	});
 });

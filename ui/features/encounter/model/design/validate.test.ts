@@ -1,4 +1,4 @@
-import { DamageAmpType, EncounterDesign } from '@generated/proto/common';
+import { DamageAmpType, DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import { addEvent } from './lanes';
@@ -34,18 +34,64 @@ describe('validateDesign', () => {
 		downtime(design, 0.2, 0.4);
 		design.downtimes[0].start!.jitter = 0.25;
 		expect(keys(design)).toContain(`downtime0:warning:${DESIGN_ISSUE_KEYS.outsideFight}`);
-		addEvent(design, 'wave', 0.95);
-		design.addWaves[0].spawn!.at = 0.95;
+		addEvent(design, 'wave', 0.9);
+		design.addWaves[0].spawn!.jitter = 0.15;
 		expect(keys(design)).toContain(`wave0:warning:${DESIGN_ISSUE_KEYS.outsideFight}`);
 	});
 
-	it('flags overlapping downtimes on one target but not on different targets', () => {
+	it('lets a wave live past the fight end, which only its spawn must stay inside', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'wave');
+		Object.assign(design.addWaves[0], { spawn: { at: 0.95, jitter: 0 }, lifetime: 0.2 });
+		expect(keys(design)).toEqual([]);
+	});
+
+	it('warns about overlapping downtimes on one target but not on different targets', () => {
 		const design = EncounterDesign.create();
 		downtime(design, 0.2, 0.4);
 		downtime(design, 0.3, 0.5);
-		expect(keys(design, 2)).toContain(`downtime1:error:${DESIGN_ISSUE_KEYS.overlap}`);
+		expect(keys(design, 2)).toEqual([`downtime1:warning:${DESIGN_ISSUE_KEYS.downtimeOverlap}`]);
 		design.downtimes[1].targetIndex = 1;
-		expect(keys(design, 2).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.overlap))).toEqual([]);
+		expect(keys(design, 2).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.downtimeOverlap))).toEqual([]);
+	});
+
+	it('flags what the sim skips: an amp of 0% or less, a wave of more than 64 adds, a move of no yards and no seconds', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'amp');
+		design.damageAmps[0].percent = 0;
+		addEvent(design, 'wave');
+		design.addWaves[0].count = 65;
+		addEvent(design, 'move');
+		design.moves[0].yards = 0;
+		expect(keys(design)).toEqual([
+			`amp0:error:${DESIGN_ISSUE_KEYS.ampNotPositive}`,
+			`wave0:error:${DESIGN_ISSUE_KEYS.tooManyAdds}`,
+			`move0:error:${DESIGN_ISSUE_KEYS.moveGoesNowhere}`,
+		]);
+		design.damageAmps[0].percent = -10;
+		design.addWaves[0].count = 64;
+		design.moves[0].seconds = 2;
+		expect(keys(design)).toEqual([`amp0:error:${DESIGN_ISSUE_KEYS.ampNotPositive}`]);
+	});
+
+	it('warns about a wave that spends more of its life below 20% than below 35%', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'wave');
+		Object.assign(design.addWaves[0], { executeProportion20: 0.4, executeProportion35: 0.3 });
+		expect(keys(design)).toEqual([`wave0:warning:${DESIGN_ISSUE_KEYS.executeOrder}`]);
+	});
+
+	it('lets a spell hit or a strike end at its start, while a window must end after it', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'ability');
+		const ability = design.bossAbilities[0];
+		ability.end!.at = ability.start!.at;
+		expect(keys(design)).toEqual([]);
+		ability.end!.at = ability.start!.at - 0.1;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.endBeforeStart}`]);
+		ability.kind = DesignBossAbility_Kind.Thrash;
+		ability.end!.at = ability.start!.at;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.endBeforeStart}`]);
 	});
 
 	it('flags two moves at the same instant', () => {
@@ -66,7 +112,7 @@ describe('validateDesign', () => {
 		expect(keys(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.healthIncreases}`]);
 	});
 
-	it('flags the boss health keyframes the sim drops past its 8 curve points', () => {
+	it('flags the boss health keyframes the sim drops past its 8 curve points, its own start and end points included', () => {
 		const tooMany = (design: EncounterDesign) => keys(design).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.tooManyKeyframes));
 		// Listed latest first, so list order and time order differ.
 		const design = EncounterDesign.create();
@@ -74,9 +120,12 @@ describe('validateDesign', () => {
 			addEvent(design, 'bossHealth');
 			Object.assign(design.bossHealth[design.bossHealth.length - 1], { at: step / 10, healthPercent: 100 - step * 10 });
 		}
-		// The first keyframe is after the pull, so the sim's own start point takes one of the 8.
-		expect(tooMany(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		// The first keyframe is after the pull and the last one above 0% before the end, so the sim's own start and end
+		// points take two of the 8.
+		expect(tooMany(design)).toEqual([`bossHealth1:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`, `bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
 		design.bossHealth[7].at = 0;
+		expect(tooMany(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		design.bossHealth[0].healthPercent = 0;
 		expect(tooMany(design)).toEqual([]);
 		addEvent(design, 'bossHealth', 0.95);
 		design.bossHealth[8].healthPercent = 0;

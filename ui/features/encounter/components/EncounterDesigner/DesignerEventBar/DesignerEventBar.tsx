@@ -18,6 +18,8 @@ export interface DesignerEventBarProps {
 	/** The lane row, counted from 0, when the bar sits in a lane's grid. */
 	row: number;
 	shape: DesignerEventBarShape;
+	/** The end may be dragged past the fight's end, and a move stops only the start there. */
+	openEnd?: boolean;
 	/** The jitter around the start and the end, as fractions of the fight. */
 	jitter?: { start: number; end: number };
 	baseSeconds: number;
@@ -65,6 +67,7 @@ export const DesignerEventBar = ({
 	window,
 	row,
 	shape,
+	openEnd = false,
 	jitter,
 	baseSeconds,
 	snapSeconds,
@@ -94,7 +97,7 @@ export const DesignerEventBar = ({
 			onSelect();
 		},
 		onDelta: (seconds, mode) => {
-			const next = editWindow(origin.current, span ? mode : 'move', secondsToFraction(snap(seconds, snapSeconds), baseSeconds), minWidth);
+			const next = editWindow(origin.current, span ? mode : 'move', secondsToFraction(snap(seconds, snapSeconds), baseSeconds), minWidth, openEnd);
 			latest.current = next;
 			setPreview(next);
 		},
@@ -114,7 +117,7 @@ export const DesignerEventBar = ({
 		switch (action.type) {
 			case 'edit': {
 				const step = snapSeconds > 0 ? snapSeconds : 1;
-				const next = editWindow(window, action.mode, secondsToFraction(step * action.steps, baseSeconds), minWidth);
+				const next = editWindow(window, action.mode, secondsToFraction(step * action.steps, baseSeconds), minWidth, openEnd);
 				if (next.start !== window.start || next.end !== window.end) onChange(next);
 				return;
 			}

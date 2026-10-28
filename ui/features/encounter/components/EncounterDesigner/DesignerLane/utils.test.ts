@@ -1,4 +1,4 @@
-import { EncounterDesign } from '@generated/proto/common';
+import { DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import { defaultEvent } from '../../../model/design/lanes';
@@ -50,6 +50,20 @@ describe('laneEvents', () => {
 		expect(first.repeats.map(repeat => repeat.start)).toEqual([expect.closeTo(0.4), expect.closeTo(0.7)]);
 		expect(second.row).toBe(1);
 	});
+
+	it('draws a spell hit or a strike as a point and a window ability as a span, and opens only a wave past the end', () => {
+		const ability = (kind: DesignBossAbility_Kind) => ({ ...defaultEvent('ability', 0.2), kind });
+		const design = EncounterDesign.create({
+			bossAbilities: [ability(DesignBossAbility_Kind.SpellHit), ability(DesignBossAbility_Kind.Strike), ability(DesignBossAbility_Kind.Thrash)],
+			addWaves: [defaultEvent('wave', 0.2)],
+		});
+		expect(laneEvents(design, 'abilities').map(event => [event.shape, event.window.end - event.window.start, event.openEnd])).toEqual([
+			['diamond', 0, false],
+			['diamond', 0, false],
+			['span', expect.closeTo(0.1), false],
+		]);
+		expect(laneEvents(design, 'waves').map(event => event.openEnd)).toEqual([true]);
+	});
 });
 
 describe('withWindow', () => {
@@ -60,5 +74,15 @@ describe('withWindow', () => {
 		expect(wave.lifetime).toBeCloseTo(0.15);
 		expect(withWindow(design, { kind: 'move', index: 0 }, { start: 0.6, end: 0.6 }).moves[0].at?.at).toBe(0.6);
 		expect(design.addWaves[0].spawn?.at).toBe(0.2);
+	});
+
+	it('moves a spell hit with its end, so its repeats keep their reach, and sets a window ability from the window', () => {
+		const design = EncounterDesign.create({
+			bossAbilities: [defaultEvent('ability', 0.2), { ...defaultEvent('ability', 0.2), kind: DesignBossAbility_Kind.SwingTiming }],
+		});
+		const point = withWindow(design, { kind: 'ability', index: 0 }, { start: 0.5, end: 0.5 }).bossAbilities[0];
+		expect([point.start?.at, point.end?.at]).toEqual([0.5, expect.closeTo(0.6)]);
+		const span = withWindow(design, { kind: 'ability', index: 1 }, { start: 0.5, end: 0.7 }).bossAbilities[1];
+		expect([span.start?.at, span.end?.at]).toEqual([0.5, 0.7]);
 	});
 });
