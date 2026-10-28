@@ -17,6 +17,7 @@ import {
 	numberConfigs,
 	spellSchoolConfig,
 	statConfig,
+	tankIndexConfig,
 	type TargetFieldContext,
 } from '../../TargetsPicker/utils/configs';
 
@@ -29,8 +30,8 @@ export interface DesignerAddStatsProps {
 	idPrefix: string;
 }
 
-// The add reads none of the target's AI, preset or tank fields: the wave's template field picks the preset, and the sim
-// attaches no AI and no tank to an add.
+// The preset and AI fields stay off: an add's template field picks the preset, and the sim attaches no AI to an add. The
+// tank stays, since the sim reads the template's tank index to tell who an add attacks.
 const noSubscribe = (): StoreSubscribe => () => () => {};
 
 /** The fields of an encounter target that describe an add: who it is, its defences and how it attacks. The configs are the targets picker's own. */
@@ -47,6 +48,7 @@ export const DesignerAddStats = ({ target, onModify, idPrefix }: DesignerAddStat
 	const numbers = numberConfigs(context);
 	const booleans = booleanConfigs(context);
 	const spellSchool = spellSchoolConfig(context);
+	const tankIndex = tankIndexConfig(context);
 
 	const choice = (config: typeof level) => (
 		<ChoiceField
@@ -99,6 +101,7 @@ export const DesignerAddStats = ({ target, onModify, idPrefix }: DesignerAddStat
 					onChange={value => config.setValue(null, value)}
 				/>
 			))}
+			{choice(tankIndex)}
 			{choice(spellSchool)}
 		</FieldGrid>
 	);

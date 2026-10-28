@@ -26,7 +26,8 @@ const CUSTOM = -1;
 
 /** The adds one occurrence of a wave spawns: one row each, with its template and its own stats. */
 export const DesignerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix }: DesignerAddsProps) => {
-	const [open, setOpen] = useState<string[]>([]);
+	// The rows whose stats are open, by position: a removal or a copy shifts the positions after it, and the open ones with them.
+	const [open, setOpen] = useState<Array<number>>([]);
 	const templates = [{ value: CUSTOM, label: i18n.t('common.custom') }, ...presetTargets.map((preset, value) => ({ value, label: preset.path }))];
 
 	return (
@@ -55,21 +56,27 @@ export const DesignerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix }: 
 									variant="link"
 									size="sm"
 									aria-label={designerText('adds.duplicate')}
-									onClick={() => onEdit(list => list.splice(index + 1, 0, Target.clone(list[index])))}>
+									onClick={() => {
+										setOpen(current => current.map(row => (row > index ? row + 1 : row)));
+										onEdit(list => list.splice(index + 1, 0, Target.clone(list[index])));
+									}}>
 									<Icon name="copy" />
 								</Button>
 								<Button
 									variant="link-danger"
 									size="sm"
 									aria-label={designerText('adds.remove')}
-									onClick={() => onEdit(list => void list.splice(index, 1))}>
+									onClick={() => {
+										setOpen(current => current.filter(row => row !== index).map(row => (row > index ? row - 1 : row)));
+										onEdit(list => void list.splice(index, 1));
+									}}>
 									<Icon name="xmark" />
 								</Button>
 							</span>
 						</div>
 						<Accordion
-							value={open.filter(item => item === key)}
-							onValueChange={value => setOpen(current => [...current.filter(item => item !== key), ...value])}
+							value={open.includes(index) ? [key] : []}
+							onValueChange={value => setOpen(current => [...current.filter(row => row !== index), ...(value.length ? [index] : [])])}
 							density="compact">
 							<AccordionItem value={key} title={designerText('panel.add_stats')} testId={`${key}-stats`}>
 								<div className="flex flex-col gap-2">

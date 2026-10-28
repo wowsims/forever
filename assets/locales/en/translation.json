@@ -1176,7 +1176,7 @@
 					"delete": "Delete",
 					"edit": "Edit",
 					"rename": "Rename",
-					"rename_label": "Name"
+					"rename_label": "Event name"
 				},
 				"tip": {
 					"range": "{{start}}–{{end}}",

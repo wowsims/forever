@@ -2,19 +2,20 @@ import { EncounterDesign } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
 import { ContextMenu } from '@ui-kit/ContextMenu';
+import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 import { Icon } from '@ui-kit/Icon';
 import { MenuItem } from '@ui-kit/Menu';
 import { cssVars } from '@ui-kit/utils/css';
-import type { MouseEvent as ReactMouseEvent } from 'react';
+import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, TouchEvent as ReactTouchEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../../model/design/lanes';
-import { duplicateEvent, eventLabelKey, eventsOf, healthEndSegment, healthSegments, laneLabelKey, removeEvent } from '../../../model/design/lanes';
+import { getEvent, duplicateEvent, eventLabelKey, eventsOf, healthEndSegment, healthSegments, laneLabelKey, removeEvent } from '../../../model/design/lanes';
 import type { TimeWindow } from '../../../model/design/time';
 import { fractionToSeconds, secondsToFraction } from '../../../model/design/time';
 import { DesignerEventBar } from '../DesignerEventBar';
 import { designerText, editEvent, eventName, eventTooltip, eventValueText, formatSeconds, occurrenceName } from '../utils/configs';
-import { laneEventKinds, laneEvents, refKey, withWindow } from './utils';
+import { type LaneEvent, laneEventKinds, laneEvents, refKey, withWindow } from './utils';
 
 export interface DesignerLaneProps {
 	lane: DesignLaneKind;
@@ -71,6 +72,13 @@ export const DesignerLane = ({
 	const focusAfterRemoval = useRef<{ key: string | null; from: EncounterDesign; kind: DesignEventKind; length: number } | null>(null);
 	const [active, setActive] = useState<string>();
 	const [menuKey, setMenuKey] = useState<string>();
+	const [menuOpen, setMenuOpen] = useState(false);
+	const menuKeyAt = useRef<string | undefined>(undefined);
+	// An item's action puts focus where it wants it; a dismissal returns it to the bar the menu opened on.
+	const menuActed = useRef(false);
+	const renameAfterMenu = useRef<string | undefined>(undefined);
+	// The boss health segment being dragged, whose neighbours' shared edge follows it.
+	const [dragging, setDragging] = useState<{ index: number; window: TimeWindow } | null>(null);
 	const [renaming, setRenaming] = useState<string>();
 	// The copy a duplicate added, focused once it renders.
 	const focusAfterAdd = useRef<string | null>(null);
@@ -125,18 +133,52 @@ export const DesignerLane = ({
 		onSelect(copy);
 	};
 
-	const rename = (ref: DesignEventRef, name: string | undefined) => {
+	// A key ends the rename with focus on the field about to go, so the bar takes it; a click elsewhere has moved focus already.
+	const rename = (ref: DesignEventRef, name: string | undefined, refocus: boolean) => {
 		setRenaming(undefined);
 		if (name !== undefined && name !== eventName(design, ref)) onChange(editEvent(design, ref, event => (event.name = name)));
-		bars.current.get(refKey(ref))?.focus();
+		if (refocus) bars.current.get(refKey(ref))?.focus();
+	};
+
+	// The menu opens only on a bar, also for a touch long press, which Base UI opens without a contextmenu event.
+	const barKeyAt = (target: EventTarget) => (target as Element).closest<HTMLElement>('[data-key]')?.dataset.key;
+	const acted = (action: () => void) => () => {
+		menuActed.current = true;
+		action();
 	};
 
 	const menuEvent = events.find(event => refKey(event.ref) === menuKey);
 	const snapFraction = secondsToFraction(snapSeconds > 0 ? snapSeconds : 1, baseSeconds);
+	const segments = healthSegments(design);
 	const healthLabel = (ref: DesignEventRef) => {
-		const segment = healthSegments(design).find(found => found.index === ref.index);
-		return designerText('health_label', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100 });
+		const segment = segments.find(found => found.index === ref.index);
+		const curve = designerText('health_label', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100 });
+		const named = getEvent(design, ref)?.name;
+		return named ? `${named}: ${curve}` : curve;
 	};
+	// A segment dragged by its end, or its start handle, moves the edge it shares with its neighbour, which follows it.
+	const followed = (event: LaneEvent): TimeWindow => {
+		if (event.ref.kind !== 'bossHealth' || !dragging) return event.window;
+		const dragged = segments.find(found => found.index === dragging.index);
+		const mine = segments.find(found => found.index === event.ref.index);
+		if (!dragged || !mine || dragged === mine) return event.window;
+		if (mine.previous === dragged.index) return { start: dragging.window.end, end: event.window.end };
+		if (dragged.previous === mine.index) return { start: event.window.start, end: dragging.window.start };
+		return event.window;
+	};
+	// The window a boss health edit stores: the keyframe at the segment's end between its neighbours, or the one before the segment.
+	const adjustHealth =
+		(ref: DesignEventRef) =>
+		(next: TimeWindow, mode: AxisDragMode, from: TimeWindow): TimeWindow => {
+			const position = segments.findIndex(found => found.index === ref.index);
+			const segment = segments[position];
+			if (!segment) return from;
+			if (mode === 'start') {
+				if (segment.previous === undefined) return from;
+				return { start: Math.min(Math.max(next.start, segments[position - 1]?.start ?? 0), segment.end), end: from.end };
+			}
+			return { start: from.start, end: Math.min(Math.max(next.end, segment.start), segments[position + 1]?.end ?? 1) };
+		};
 	const endSegment = lane === 'boss' ? healthEndSegment(design) : undefined;
 	const endTip = endSegment
 		? designerText('tip.health', {
@@ -177,35 +219,53 @@ export const DesignerLane = ({
 			{/* One flat list placed on grid rows, so an edit that moves a bar to another row keeps the same element and its focus. */}
 			<ContextMenu
 				className="relative grid shrink-0 grow basis-designer-total auto-rows-(--designer-lane-height) grid-cols-1"
+				open={menuOpen}
+				onOpenChange={next => {
+					if (next && !menuKeyAt.current) return;
+					if (next) {
+						menuActed.current = false;
+						setMenuKey(menuKeyAt.current);
+					}
+					setMenuOpen(next);
+				}}
+				// The field takes focus once the menu has let go of it, or the menu's own focus handling blurs the field and ends the rename.
+				onOpenChangeComplete={next => {
+					if (next || !renameAfterMenu.current) return;
+					setRenaming(renameAfterMenu.current);
+					renameAfterMenu.current = undefined;
+				}}
+				finalFocus={() => (menuActed.current ? false : (bars.current.get(menuKey ?? '') ?? true))}
 				triggerProps={{
-					// Only a bar opens the menu; a right click on empty lane keeps the browser's own.
+					onPointerDownCapture: (event: ReactPointerEvent<HTMLElement>) => {
+						menuKeyAt.current = barKeyAt(event.target);
+					},
+					onTouchStartCapture: (event: ReactTouchEvent<HTMLElement>) => {
+						menuKeyAt.current = barKeyAt(event.target);
+					},
+					// A right click on empty lane keeps the browser's own menu.
 					onContextMenuCapture: (event: ReactMouseEvent<HTMLElement>) => {
-						const key = (event.target as Element).closest<HTMLElement>('[data-key]')?.dataset.key;
-						if (!key) {
-							event.stopPropagation();
-							return;
-						}
-						setMenuKey(key);
+						menuKeyAt.current = barKeyAt(event.target);
+						if (!menuKeyAt.current) event.stopPropagation();
 					},
 				}}
 				menu={
 					menuEvent && (
 						<>
-							<MenuItem layout="block" onClick={() => duplicate(menuEvent.ref, snapFraction)}>
+							<MenuItem layout="block" onClick={acted(() => duplicate(menuEvent.ref, snapFraction))}>
 								{designerText('menu.duplicate')}
 							</MenuItem>
-							<MenuItem layout="block" onClick={() => setRenaming(refKey(menuEvent.ref))}>
+							<MenuItem layout="block" onClick={acted(() => (renameAfterMenu.current = refKey(menuEvent.ref)))}>
 								{designerText('menu.rename')}
 							</MenuItem>
 							<MenuItem
 								layout="block"
-								onClick={() => {
+								onClick={acted(() => {
 									onSelect(menuEvent.ref);
 									onActivate(menuEvent.ref);
-								}}>
+								})}>
 								{designerText('menu.edit')}
 							</MenuItem>
-							<MenuItem layout="block" onClick={() => remove(menuEvent.ref)}>
+							<MenuItem layout="block" onClick={acted(() => remove(menuEvent.ref))}>
 								{designerText('menu.delete')}
 							</MenuItem>
 						</>
@@ -274,7 +334,7 @@ export const DesignerLane = ({
 							}}
 							name={eventName(design, event.ref)}
 							label={event.ref.kind === 'bossHealth' ? healthLabel(event.ref) : undefined}
-							window={event.window}
+							window={followed(event)}
 							row={event.row}
 							startFixed={event.startFixed}
 							openEnd={event.openEnd}
@@ -295,7 +355,9 @@ export const DesignerLane = ({
 							onRemove={() => remove(event.ref)}
 							onDuplicate={delta => duplicate(event.ref, delta)}
 							onRenameStart={() => setRenaming(key)}
-							onRename={name => rename(event.ref, name)}
+							onRename={(name, refocus) => rename(event.ref, name, refocus)}
+							adjust={event.ref.kind === 'bossHealth' ? adjustHealth(event.ref) : undefined}
+							onPreview={event.ref.kind === 'bossHealth' ? window => setDragging(window && { index: event.ref.index, window }) : undefined}
 							onSibling={direction => focusSibling(key, direction)}
 							onFocus={() => setActive(key)}
 						/>

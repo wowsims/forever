@@ -117,6 +117,7 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 			<FieldGrid>{shown.slice(0, templateEnd).map(renderField)}</FieldGrid>
 			{selected.kind === 'wave' && (
 				<DesignerAdds
+					key={prefix}
 					idPrefix={`${prefix}-add`}
 					adds={(event as AddWave).adds}
 					presetTargets={presetTargets}

@@ -154,7 +154,8 @@ export const withWindow = (design: EncounterDesign, ref: DesignEventRef, window:
 				// A walk of yards stretches the yards and a walk of seconds the seconds, whichever the move holds.
 				const seconds = (window.end - window.start) * baseSeconds;
 				if (Math.abs(seconds - moveSeconds(move)) > EPSILON) {
-					if (move.yards > 0) move.yards = seconds * PLAYER_RUN_SPEED;
+					// Whole yards: a second of walking is 7 of them, too coarse a step for a drag.
+					if (move.yards > 0) move.yards = Math.max(1, Math.round(seconds * PLAYER_RUN_SPEED));
 					else move.seconds = seconds;
 				}
 				return;

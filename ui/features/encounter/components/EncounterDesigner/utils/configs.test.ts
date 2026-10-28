@@ -174,7 +174,7 @@ describe('eventTooltip', () => {
 			'wave(Add) · adds(1,add_group(60,mob0,1)) · spawns_jitter(seconds(10),seconds(2)) · lives(seconds(20)) · kill_share(25)',
 		);
 		const move = { ...defaultEvent('move'), yards: 5, repeat: { interval: 10 / 180, jitter: 0, count: 0 } };
-		expect(tip(EncounterDesign.create({ moves: [move] }), 'move')).toBe('move · move_yards(5,seconds(0.7)) · every(seconds(10))');
+		expect(tip(EncounterDesign.create({ moves: [move] }), 'move')).toBe('move · at(seconds(72)) · move_yards(5,seconds(0.7)) · every(seconds(10))');
 		expect(tip(EncounterDesign.create({ downtimes: [defaultEvent('downtime', 0.5)] }), 'downtime')).toBe(
 			'downtime · Boss · range(seconds(90),seconds(108)) · clears_debuffs',
 		);

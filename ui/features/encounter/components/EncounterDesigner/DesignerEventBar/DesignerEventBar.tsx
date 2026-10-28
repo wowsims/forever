@@ -2,6 +2,7 @@ import { Input } from '@ui-kit/FormControl';
 import { usePointerAxisDrag } from '@ui-kit/hooks/usePointerAxisDrag';
 import { Icon } from '@ui-kit/Icon';
 import { cssVars } from '@ui-kit/utils/css';
+import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 import type { KeyboardEvent as ReactKeyboardEvent, Ref } from 'react';
 import { useRef, useState } from 'react';
 
@@ -48,8 +49,12 @@ export interface DesignerEventBarProps {
 	onDuplicate: (deltaFraction: number) => void;
 	/** Double click on the label, or F2. */
 	onRenameStart: () => void;
-	/** Enter or blur with the text; Escape with undefined. */
-	onRename: (name: string | undefined) => void;
+	/** Enter or blur with the text; Escape with undefined. `refocus` is for a key, which leaves focus on the field about to go. */
+	onRename: (name: string | undefined, refocus: boolean) => void;
+	/** Bounds an edit the way the commit will, so the bar previews what is stored: the window the edit gives, its mode and the window it started from. */
+	adjust?: (next: TimeWindow, mode: AxisDragMode, from: TimeWindow) => TimeWindow;
+	/** The window a drag is previewing, or null when it ends; neighbours that follow it read this. */
+	onPreview?: (window: TimeWindow | null) => void;
 	onSibling: (direction: -1 | 1) => void;
 	onFocus?: () => void;
 	ref?: Ref<HTMLDivElement>;
@@ -70,13 +75,25 @@ const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' | 'cent
 		/>
 	) : null;
 
-// Enter or leaving the field keeps the text, Escape drops it. Its keys and pointer stay off the bar, which would move or remove it.
-const RenameInput = ({ name, onRename }: { name: string; onRename: (name: string | undefined) => void }) => {
+// Enter or leaving the field keeps the text, Escape drops it. Its keys stay off the dialog, which Escape would close.
+const RenameInput = ({
+	name,
+	row,
+	start,
+	duration,
+	onRename,
+}: {
+	name: string;
+	row: number;
+	start: number;
+	duration: number;
+	onRename: DesignerEventBarProps['onRename'];
+}) => {
 	const done = useRef(false);
-	const finish = (value: string | undefined) => {
+	const finish = (value: string | undefined, refocus: boolean) => {
 		if (done.current) return;
 		done.current = true;
-		onRename(value);
+		onRename(value, refocus);
 	};
 	return (
 		<Input
@@ -84,16 +101,15 @@ const RenameInput = ({ name, onRename }: { name: string; onRename: (name: string
 			autoFocus
 			defaultValue={name}
 			aria-label={designerText('menu.rename_label')}
-			className="min-w-0 flex-1 px-1 text-xs"
+			className="absolute top-1 bottom-1 left-designer-pos z-3 col-start-1 row-(--row) w-timeline-segment min-w-32 px-1 text-xs"
+			style={cssVars({ '--row': `${row + 1} / span 1`, '--t': String(start), '--dur': String(duration) })}
 			onFocus={event => event.currentTarget.select()}
-			onPointerDown={event => event.stopPropagation()}
-			onClick={event => event.stopPropagation()}
 			onKeyDown={event => {
 				event.stopPropagation();
-				if (event.key === 'Enter') finish(event.currentTarget.value);
-				else if (event.key === 'Escape') finish(undefined);
+				if (event.key === 'Enter') finish(event.currentTarget.value, true);
+				else if (event.key === 'Escape') finish(undefined, true);
 			}}
-			onBlur={event => finish(event.currentTarget.value)}
+			onBlur={event => finish(event.currentTarget.value, false)}
 		/>
 	);
 };
@@ -124,6 +140,8 @@ export const DesignerEventBar = ({
 	onDuplicate,
 	onRenameStart,
 	onRename,
+	adjust,
+	onPreview,
 	onSibling,
 	onFocus,
 	ref,
@@ -136,6 +154,17 @@ export const DesignerEventBar = ({
 	const duplicating = useRef(false);
 	const cancelled = useRef(false);
 
+	// The window an edit gives, bounded as the commit will bound it.
+	const edit = (from: TimeWindow, mode: AxisDragMode, deltaFraction: number): TimeWindow => {
+		if (startFixed && mode === 'start') return from;
+		const next = editWindow(from, mode, deltaFraction, minWidth, openEnd);
+		return adjust ? adjust(next, mode, from) : next;
+	};
+	const showPreview = (next: TimeWindow | null) => {
+		setPreview(next);
+		onPreview?.(next);
+	};
+
 	const drag = usePointerAxisDrag({
 		pixelsPerSecond,
 		onStart: () => {
@@ -145,20 +174,16 @@ export const DesignerEventBar = ({
 		},
 		onDelta: (seconds, mode) => {
 			if (cancelled.current) return;
-			const next = editWindow(
-				origin.current,
-				duplicating.current ? 'move' : mode,
-				secondsToFraction(snap(seconds, snapSeconds), baseSeconds),
-				minWidth,
-				openEnd,
-			);
+			const delta = secondsToFraction(snap(seconds, snapSeconds), baseSeconds);
+			// A copy moves whole, whatever the stored event does when its body moves.
+			const next = duplicating.current ? editWindow(origin.current, 'move', delta, minWidth, openEnd) : edit(origin.current, mode, delta);
 			latest.current = next;
-			setPreview(next);
+			showPreview(next);
 		},
 		onEnd: commit => {
 			const next = latest.current;
 			latest.current = null;
-			setPreview(null);
+			showPreview(null);
 			const wasDuplicating = duplicating.current;
 			duplicating.current = false;
 			if (!commit || cancelled.current || !next) return;
@@ -172,7 +197,7 @@ export const DesignerEventBar = ({
 			event.stopPropagation();
 			cancelled.current = true;
 			latest.current = null;
-			setPreview(null);
+			showPreview(null);
 			return;
 		}
 		if (event.key === 'F2') {
@@ -188,7 +213,7 @@ export const DesignerEventBar = ({
 		switch (action.type) {
 			case 'edit': {
 				const step = snapSeconds > 0 ? snapSeconds : 1;
-				const next = editWindow(window, action.mode, secondsToFraction(step * action.steps, baseSeconds), minWidth, openEnd);
+				const next = edit(window, action.mode, secondsToFraction(step * action.steps, baseSeconds));
 				if (next.start !== window.start || next.end !== window.end) onChange(next);
 				return;
 			}
@@ -218,61 +243,65 @@ export const DesignerEventBar = ({
 		.filter(Boolean)
 		.join(', ');
 
+	const duration = fractionToSeconds(shown.end - shown.start, baseSeconds);
+
 	return (
-		<div
-			ref={ref}
-			role="slider"
-			tabIndex={tabIndex}
-			aria-label={name}
-			aria-orientation="horizontal"
-			aria-valuemin={0}
-			aria-valuemax={Math.round(baseSeconds)}
-			aria-valuenow={Math.round(start)}
-			aria-valuetext={valueTextWithState}
-			data-key={dataKey}
-			data-tooltip-id={tooltipId}
-			data-tip={tooltipText?.(shown)}
-			data-dragging={preview ? '' : undefined}
-			{...state}
-			className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-selected:z-2 ${BAR_CLASSES}`}
-			style={cssVars({
-				// An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
-				'--row': `${row + 1} / span 1`,
-				'--t': String(start),
-				'--dur': String(fractionToSeconds(shown.end - shown.start, baseSeconds)),
-			})}
-			onKeyDown={onKeyDown}
-			onClick={onSelect}
-			onFocus={onFocus}
-			{...drag}
-			onPointerDown={event => {
-				duplicating.current = event.altKey;
-				drag.onPointerDown(event);
-			}}>
-			<Whisker seconds={startJitter} at="start" />
-			<Whisker seconds={endJitter} at="end" />
-			{invalid && <Icon name="triangle-exclamation" className="ml-1 shrink-0" />}
-			{renaming ? (
-				<RenameInput name={name} onRename={onRename} />
-			) : (
-				<span className="min-w-0 truncate px-1" onDoubleClick={onRenameStart}>
-					{label ?? name}
-				</span>
-			)}
-			{/* At most a quarter of the bar each, so a short bar keeps a middle that moves it. */}
-			{!startFixed && <span aria-hidden="true" data-handle="start" className="absolute inset-y-0 left-0 w-1 max-w-1/4 cursor-ew-resize" />}
-			<span aria-hidden="true" data-handle="end" className="absolute inset-y-0 right-0 w-1 max-w-1/4 cursor-ew-resize" />
-			{copy && (
-				<span
-					aria-hidden="true"
-					data-copy=""
-					className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 rounded-sm border border-white bg-(--bar) opacity-70"
-					style={cssVars({
-						'--t': String(fractionToSeconds(copy.start - window.start, baseSeconds)),
-						'--dur': String(fractionToSeconds(copy.end - copy.start, baseSeconds)),
-					})}
-				/>
-			)}
-		</div>
+		<>
+			<div
+				ref={ref}
+				role="slider"
+				tabIndex={tabIndex}
+				aria-label={name}
+				aria-orientation="horizontal"
+				aria-valuemin={0}
+				aria-valuemax={Math.round(baseSeconds)}
+				aria-valuenow={Math.round(start)}
+				aria-valuetext={valueTextWithState}
+				data-key={dataKey}
+				data-tooltip-id={tooltipId}
+				data-tip={tooltipText?.(shown)}
+				data-dragging={preview ? '' : undefined}
+				{...state}
+				className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-selected:z-2 ${BAR_CLASSES}`}
+				style={cssVars({
+					// An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
+					'--row': `${row + 1} / span 1`,
+					'--t': String(start),
+					'--dur': String(duration),
+				})}
+				onKeyDown={onKeyDown}
+				onClick={onSelect}
+				onFocus={onFocus}
+				{...drag}
+				onPointerDown={event => {
+					duplicating.current = event.altKey;
+					drag.onPointerDown(event);
+				}}>
+				<Whisker seconds={startJitter} at="start" />
+				<Whisker seconds={endJitter} at="end" />
+				{invalid && <Icon name="triangle-exclamation" className="ml-1 shrink-0" />}
+				{!renaming && (
+					<span className="min-w-0 truncate px-1" onDoubleClick={onRenameStart}>
+						{label ?? name}
+					</span>
+				)}
+				{/* At most a quarter of the bar each, so a short bar keeps a middle that moves it. */}
+				{!startFixed && <span aria-hidden="true" data-handle="start" className="absolute inset-y-0 left-0 w-1 max-w-1/4 cursor-ew-resize" />}
+				<span aria-hidden="true" data-handle="end" className="absolute inset-y-0 right-0 w-1 max-w-1/4 cursor-ew-resize" />
+				{copy && (
+					<span
+						aria-hidden="true"
+						data-copy=""
+						className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 rounded-sm border border-white bg-(--bar) opacity-70"
+						style={cssVars({
+							'--t': String(fractionToSeconds(copy.start - window.start, baseSeconds)),
+							'--dur': String(fractionToSeconds(copy.end - copy.start, baseSeconds)),
+						})}
+					/>
+				)}
+			</div>
+			{/* Outside the slider, whose children are presentational: a text box assistive technology can reach. */}
+			{renaming && <RenameInput name={name} row={row} start={start} duration={duration} onRename={onRename} />}
+		</>
 	);
 };

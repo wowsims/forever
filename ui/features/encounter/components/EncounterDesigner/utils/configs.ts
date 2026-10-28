@@ -90,7 +90,8 @@ export const eventTooltip = (
 		case 'bossHealth': {
 			const segment = healthSegments(design).find(found => found.index === ref.index);
 			const covered = window ?? { start: segment?.start ?? 0, end: segment?.end ?? 0 };
-			return tip('health', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100, start: sec(covered.start), end: sec(covered.end) });
+			const curve = tip('health', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100, start: sec(covered.start), end: sec(covered.end) });
+			return [event.name, curve].filter(Boolean).join(TIP_SEPARATOR);
 		}
 		case 'downtime': {
 			const downtime = event as DesignDowntime;
@@ -140,7 +141,9 @@ export const eventTooltip = (
 		case 'move': {
 			const move = event as DesignMove;
 			const time = formatSeconds(Number(moveSeconds(move).toFixed(2)));
-			return [tip('move'), move.yards > 0 ? tip('move_yards', { yards: move.yards, time }) : time, ...every].join(TIP_SEPARATOR);
+			return [tip('move'), tip('at', { at: sec(shown.start) }), move.yards > 0 ? tip('move_yards', { yards: move.yards, time }) : time, ...every].join(
+				TIP_SEPARATOR,
+			);
 		}
 		default: {
 			const amp = event as DesignDamageAmp;
