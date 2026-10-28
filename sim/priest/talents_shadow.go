@@ -54,11 +54,27 @@ func (priest *Priest) applyBlackout() {}
 
 // Gives you a X% chance to increase your Spirit by Y% for 15 sec when an enemy afflicted by your Vampiric Embrace dies.
 // For the duration, 50% of your Mana regeneration will continue while casting.
-// TODO: Procs on a target's death, which the sim does not model.
+// The row hears a credited kill, so the buff rolls on a death the raid gets the kill for. Vampiric Embrace
+// is read off the dying target, which is still afflicted while the callback runs.
 func (priest *Priest) applySpiritTap() {
 	if priest.Talents.SpiritTap == 0 {
 		return
 	}
+
+	buff := spellData.SpiritTapTriggered.Highest()
+	aura := priest.RegisterAura(spelldata.AuraConfig(buff))
+	spelldata.ParseEffects(&priest.Character, aura, buff)
+
+	trigger := spelldata.ProcTrigger(&priest.Character, spellData.SpiritTap.Rank(priest.Talents.SpiritTap),
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			aura.Activate(sim)
+		})
+	trigger.Name = "Spirit Tap Trigger"
+	trigger.TriggerImmediately = true
+	trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		return priest.VampiricEmbrace != nil && priest.VampiricEmbrace.RelatedAuraArrays.AnyActive(result.Target)
+	}
+	priest.MakeProcTriggerAura(trigger)
 }
 
 // Increases the duration of your Shadow Word: Pain spell by 6 sec.

@@ -149,3 +149,78 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 		}
 	})
 }
+
+// Spirit Tap hears a credited kill and needs Vampiric Embrace on the dying target. A death without
+// the kill, and a kill of a target the priest has not afflicted, leave the buff off. The talent
+// at full rank rolls 100%.
+func TestSpiritTapProcsOnACreditedKillOfAnAfflictedTarget(t *testing.T) {
+	player := &proto.Player{
+		Name:      "Spirit Tap",
+		Race:      proto.Race_RaceTroll,
+		Class:     proto.Class_ClassPriest,
+		Equipment: shadowTestingBuild.GearSet.GearSet,
+		// Spirit Tap 5/5 and Vampiric Embrace in the Shadow tree.
+		TalentsString: "--00500000001",
+		Spec: &proto.Player_DpsPriest{
+			DpsPriest: &proto.DpsPriest{
+				Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+			},
+		},
+		Rotation: &proto.APLRotation{},
+	}
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig())
+
+	newSim := func(t *testing.T) (*core.Simulation, *Priest, *core.Aura) {
+		t.Helper()
+		sim := core.NewSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  encounter,
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+
+		priest := sim.Raid.Parties[0].Players[0].(*Priest)
+		if priest.Talents.SpiritTap != 5 || priest.VampiricEmbrace == nil {
+			t.Fatalf("the build has Spirit Tap %d and Vampiric Embrace %v, want 5 and the spell",
+				priest.Talents.SpiritTap, priest.VampiricEmbrace)
+		}
+		buff := priest.GetAura(spellData.SpiritTapTriggered.Highest().Name)
+		if buff == nil {
+			t.Fatal("the priest carries no Spirit Tap buff")
+		}
+		return sim, priest, buff
+	}
+	afflict := func(sim *core.Simulation, priest *Priest, target *core.Target) {
+		for _, auras := range priest.VampiricEmbrace.RelatedAuraArrays {
+			auras.Get(&target.Unit).Activate(sim)
+		}
+	}
+
+	t.Run("a credited kill of an afflicted target", func(t *testing.T) {
+		sim, priest, buff := newSim(t)
+		target := sim.Encounter.AllTargets[0]
+		afflict(sim, priest, target)
+		target.Die(sim, 1)
+		if !buff.IsActive() {
+			t.Error("Spirit Tap is off after a credited kill of a target with Vampiric Embrace")
+		}
+	})
+	t.Run("a death without the kill", func(t *testing.T) {
+		sim, priest, buff := newSim(t)
+		target := sim.Encounter.AllTargets[0]
+		afflict(sim, priest, target)
+		target.Die(sim, 0)
+		if buff.IsActive() {
+			t.Error("Spirit Tap is on after a death the raid got no kill for")
+		}
+	})
+	t.Run("a kill of a target without Vampiric Embrace", func(t *testing.T) {
+		sim, priest, buff := newSim(t)
+		afflict(sim, priest, sim.Encounter.AllTargets[1])
+		sim.Encounter.AllTargets[0].Die(sim, 1)
+		if buff.IsActive() {
+			t.Error("Spirit Tap is on after a kill of a target the priest has not afflicted")
+		}
+	})
+}
