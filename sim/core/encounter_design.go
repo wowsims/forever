@@ -30,6 +30,8 @@ type encounterDesign struct {
 	waves     []*designWave
 	targets   []designTargetState // Indexed by Target.Index, over every target of the encounter.
 
+	bossAbilities []*designBossAbility // Filled by registerBossAbilities, once the targets swing.
+
 	// Lookahead the movement and damage amp lanes keep current for the APL.
 	nextMoveAt       time.Duration // The start of the next move not yet started, or NeverExpires.
 	nextMoveDuration time.Duration // How long that move lasts, 0 without one.
@@ -381,6 +383,7 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 		if back {
 			target.Enable(sim)
 			design.reapplyAmps(sim, target)
+			design.reapplyBossAbilities(sim, target)
 		}
 		return
 	}

@@ -148,6 +148,7 @@ func (env *Environment) initialize(raidProto *proto.Raid, _ *proto.Encounter) *p
 			playerOrPet.Initialize()
 		}
 	}
+	env.Encounter.design.registerBossAbilities(&env.Encounter)
 
 	env.Encounter.design.registerLanes(env)
 
