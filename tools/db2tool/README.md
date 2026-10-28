@@ -37,8 +37,7 @@ Three modes:
   Hotfixes come from `--dbcache` or `tools/db2tool/caches/`; raidbots mirrors
   the live game's cache at
   https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin,
-  which is what the `Update DB` GitHub workflow feeds it, with the last beta
-  file carried under it. When no cache for
+  which is what the `Update DB` GitHub workflow feeds it. When no cache for
   the extracted build exists, `--carry-hotfixes` applies one from an older
   build (see below).
 - **Offline mode (`--build <number|version>`)** — decodes pre-extracted `.db2`

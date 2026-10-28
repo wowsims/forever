@@ -322,24 +322,24 @@ func TestEquipSpellStats(t *testing.T) {
 }
 
 // Healing items state spell power (45) and their extra healing (41) in separate slots, and the
-// two add up: 231622 Field Marshal's Satin Hood.
+// two add up: 240040 Inquisition Headpiece.
 func TestItemSpellPowerAddsToHealing(t *testing.T) {
 	withDBCInputs(t)
 
-	item, ok := dbc.GetDBC().Items[231622]
+	item, ok := dbc.GetDBC().Items[240040]
 	if !ok {
-		t.Fatal("item 231622 is not in the item inputs")
+		t.Fatal("item 240040 is not in the item inputs")
 	}
 	slot := func(mod int) float64 {
 		i := slices.Index(item.BonusStat, mod)
 		if i < 0 {
-			t.Fatalf("item 231622 states no stat %d", mod)
+			t.Fatalf("item 240040 states no stat %d", mod)
 		}
 		return item.GetScaledStat(i, item.ItemLevel)
 	}
 	spellPower, healing := slot(dbc.ITEM_MOD_SPELL_POWER), slot(dbc.ITEM_MOD_SPELL_HEALING_DONE)
 	if spellPower == 0 || healing == 0 {
-		t.Fatalf("item 231622 states spell power %v and healing %v, want both", spellPower, healing)
+		t.Fatalf("item 240040 states spell power %v and healing %v, want both", spellPower, healing)
 	}
 	got := item.GetStats(item.ItemLevel)
 	if got[stats.SpellDamage] != spellPower || got[stats.HealingPower] != spellPower+healing {

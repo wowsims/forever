@@ -1,21 +1,21 @@
 {
 	"items": [
-		{ "id": 14979, "randomSuffix": 12736, "enchant": 2543 },
+		{ "id": 10388, "randomSuffix": 12736, "enchant": 2543 },
 		{ "id": 22150 },
 		{ "id": 275737 },
-		{ "id": 272414, "enchant": 7667 },
+		{ "id": 18413, "enchant": 7667 },
 		{ "id": 252483, "enchant": 1891 },
 		{ "id": 10147, "randomSuffix": 12727, "enchant": 8214 },
 		{ "id": 250552, "enchant": 8206 },
-		{ "id": 226866 },
+		{ "id": 21994 },
 		{ "id": 10389, "randomSuffix": 12736, "enchant": 2543 },
-		{ "id": 14978, "randomSuffix": 12736, "enchant": 1887 },
+		{ "id": 10376, "randomSuffix": 12736, "enchant": 1887 },
 		{ "id": 272409 },
-		{ "id": 284716 },
+		{ "id": 15855 },
 		{ "id": 272440 },
 		{ "id": 10779 },
 		{ "id": 12798, "enchant": 1900 },
-		{ "id": 10271, "randomSuffix": 12736, "enchant": 1886 },
+		{ "id": 16998, "enchant": 1886 },
 		{ "id": 15289, "randomSuffix": 12736 }
 	]
 }

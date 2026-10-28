@@ -187,7 +187,7 @@ func catPowershiftRequest(talents string, rotation *proto.APLRotation, cannotShr
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand].Id = 866
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 1613
 	return &proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1, IsTest: true},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
