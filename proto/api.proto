@@ -160,6 +160,9 @@ message ActionMetrics {
 
 	// True if action is applied/cast as a result of another action
 	bool is_passive = 5;
+
+	// For a proc spell registered once per source, the spell or item that source is. Unset for every other action.
+	ActionID source_id = 6;
 }
 
 // Metrics for a specific action, when cast at a particular target.

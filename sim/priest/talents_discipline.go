@@ -265,7 +265,8 @@ func (priest *Priest) applyDivineAegis() {
 			ShieldStrengthCalculator: func(_ *core.Unit) float64 { return 0 },
 		})
 	})
-	aegisSpells := make(map[*core.Spell]func(*core.Simulation, *core.Unit, float64))
+	aegisSpells := make(map[*core.Spell]*core.Spell)
+	var pendingStrength float64
 	priest.OnSpellRegistered(func(sourceSpell *core.Spell) {
 		if !sourceSpell.ProcMask.Matches(core.ProcMaskSpellHealing) {
 			return
@@ -277,7 +278,6 @@ func (priest *Priest) applyDivineAegis() {
 			return
 		}
 
-		var shieldStrength float64
 		config := spelldata.SpellConfig(
 			&priest.Unit,
 			spellData.DivineAegisTriggered.Highest(),
@@ -290,6 +290,7 @@ func (priest *Priest) applyDivineAegis() {
 			sourceTag = -sourceSpell.ActionID.ItemID
 		}
 		config.ActionID.Tag = sourceTag
+		config.SourceActionID = sourceSpell.ActionID
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			shield := shields.Get(target)
 			if shield.IsActive() {
@@ -298,7 +299,7 @@ func (priest *Priest) applyDivineAegis() {
 				shield.Activate(sim)
 			}
 			previousStrength := shield.ShieldStrength
-			shield.ShieldStrength = min(previousStrength+shieldStrength, maxShield)
+			shield.ShieldStrength = min(previousStrength+pendingStrength, maxShield)
 			gained := shield.ShieldStrength - previousStrength
 			shield.SetStacks(sim, max(1, int32(shield.ShieldStrength)))
 			spell.RecordShielding(target, gained)
@@ -307,11 +308,7 @@ func (priest *Priest) applyDivineAegis() {
 				sourceSpell.RecordCustomMetric(target, "divine_aegis", gained)
 			}
 		}
-		aegisSpell := priest.RegisterSpell(config)
-		aegisSpells[sourceSpell] = func(sim *core.Simulation, target *core.Unit, amount float64) {
-			shieldStrength = amount
-			aegisSpell.Proc(sim, target)
-		}
+		aegisSpells[sourceSpell] = priest.RegisterSpell(config)
 	})
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:             "Divine Aegis",
@@ -321,11 +318,12 @@ func (priest *Priest) applyDivineAegis() {
 			if !result.DidCrit() {
 				return
 			}
-			proc := aegisSpells[spell]
-			if proc == nil {
+			aegisSpell := aegisSpells[spell]
+			if aegisSpell == nil {
 				return
 			}
-			proc(sim, result.Target, result.Damage*shieldFraction)
+			pendingStrength = result.Damage * shieldFraction
+			aegisSpell.Proc(sim, result.Target)
 		},
 	})
 }

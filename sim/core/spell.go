@@ -16,6 +16,7 @@ type CanCastCondition func(sim *Simulation, target *Unit) bool
 type SpellConfig struct {
 	// See definition of Spell (below) for comments on these.
 	ActionID
+	SourceActionID ActionID
 	SpellSchool    SpellSchool
 	DefenseType    DefenseType
 	ProcMask       ProcMask
@@ -85,6 +86,7 @@ type SpellConfig struct {
 type Spell struct {
 	// ID for this spell.
 	ActionID
+	SourceActionID ActionID // For a proc spell registered once per source, that source; the metrics report it as source_id.
 	//Rank of the spell.
 	Rank int32
 
@@ -268,6 +270,7 @@ func (unit *Unit) RegisterSpell(config SpellConfig) *Spell {
 
 	spell := &Spell{
 		ActionID:       config.ActionID,
+		SourceActionID: config.SourceActionID,
 		Rank:           config.Rank,
 		Unit:           unit,
 		SpellSchool:    config.SpellSchool,

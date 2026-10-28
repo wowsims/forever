@@ -46,13 +46,19 @@ describe('damage done and damage taken from self-inflicted damage', () => {
 				name: 'Pet',
 				unitIndex: 2,
 				actions: [
-					ActionMetricsProto.create({ id: player.actions[0].id, targets: [TargetedActionMetricsProto.create({ unitIndex: PLAYER, shielding: 40 })] }),
+					ActionMetricsProto.create({
+						id: player.actions[0].id,
+						targets: [
+							TargetedActionMetricsProto.create({ unitIndex: PLAYER, shielding: 40 }),
+							TargetedActionMetricsProto.create({ unitIndex: TARGET }),
+						],
+					}),
 				],
 			}),
 		];
-		const unit = (await SimResult.makeNew(request, result)).getFirstPlayer()!;
-		expect(unit.getHealingActionsOn(PLAYER).map(action => action.healing)).toEqual([120, 40]);
-		expect(unit.getHealingActionsOn(TARGET)).toEqual([]);
+		const simResult = await SimResult.makeNew(request, result);
+		expect(ActionMetrics.merge(simResult.getRaidIndexedActionMetrics({ target: PLAYER })).healing).toBe(160);
+		expect(ActionMetrics.merge(simResult.getRaidIndexedActionMetrics({ target: TARGET })).healing).toBe(0);
 	});
 	it('counts only the damage on the other side as damage done', async () => {
 		const [sapper] = (await playerAction({ damage: 1000 }, { damage: 500 })).getDamageActions();

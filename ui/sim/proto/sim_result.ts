@@ -581,13 +581,6 @@ export class UnitMetrics {
 		return this.getActionsForDisplay();
 	}
 
-	getHealingActionsOn(unitIndex: number): Array<ActionMetrics> {
-		return this.getPlayerAndPetActions()
-			.filter(action => action.targets.some(target => target.data.unitIndex === unitIndex))
-			.map(action => action.forUnit(unitIndex))
-			.filter(action => action.healing > 0);
-	}
-
 	getResourceMetrics(resourceType: ResourceType): Array<ResourceMetrics> {
 		return this.resources.filter(resource => resource.type == resourceType);
 	}
@@ -881,6 +874,11 @@ export class ActionMetrics {
 
 	get isPassiveAction() {
 		return this.data.isPassive;
+	}
+
+	// For a proc spell registered once per source, that source's spell or item. Ids only, with no name or icon.
+	get sourceActionId(): ActionId | null {
+		return this.data.sourceId ? ActionId.fromProto(this.data.sourceId) : null;
 	}
 
 	get totalDamagePercent() {
@@ -1478,6 +1476,8 @@ export class ActionMetrics {
 		const maxTargets = Math.max(...actions.map(action => action.targets.length));
 		const mergedTargets = [...Array(maxTargets).keys()].map(i => TargetedActionMetrics.merge(actions.map(action => action.targets[i])));
 		const isAllPassiveSpells = actions.every(action => action.isPassiveAction);
+		const sourceKey = (action: ActionMetrics) => action.sourceActionId?.equalityKey();
+		const sharesSource = actions.every(action => sourceKey(action) === sourceKey(firstAction));
 
 		return new ActionMetrics(
 			unit,
@@ -1487,6 +1487,7 @@ export class ActionMetrics {
 				isPassive: isAllPassiveSpells,
 				targets: mergedTargets.map(t => t.data),
 				spellSchool: firstAction.spellSchool || undefined,
+				sourceId: sharesSource ? firstAction.data.sourceId : undefined,
 			}),
 			firstAction.resultData,
 		);

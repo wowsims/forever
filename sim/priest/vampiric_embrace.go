@@ -22,6 +22,7 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 
 		healingBySource[sourceSpell] = priest.RegisterSpell(core.SpellConfig{
 			ActionID:         core.ActionID{SpellID: 15290, Tag: sourceSpell.ActionID.SpellID},
+			SourceActionID:   sourceSpell.ActionID,
 			SpellSchool:      core.SpellSchoolShadow,
 			DefenseType:      core.DefenseTypeMagic,
 			ProcMask:         core.ProcMaskSpellHealing,
