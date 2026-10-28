@@ -9,16 +9,16 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Flurry Axe 871's chance on hit, 18797, grants extra attacks. The tests roll it at 100%.
-const flurryAxe int32 = 18797
+// Thrash Blade's chance on hit, Thrash 21919, grants extra attacks. The tests roll it at 100%.
+const thrash int32 = 21919
 
 func withExtraAttackWeapon(t *testing.T, itemID int32) {
 	t.Helper()
 	withAuraItem(itemID, proto.ItemType_ItemTypeWeapon,
-		&proto.ItemEffect{BuffId: flurryAxe, Effect: &proto.ItemEffect_Proc{Proc: &proto.ProcEffect{}}})
-	everyHit(t, flurryAxe)
-	NewSpellDataExtraAttackProc(SpellDataProc{TriggerSpellID: flurryAxe, IsWeaponProc: true},
-		[]ItemVariant{{ItemID: itemID, ItemName: "Test Flurry Axe"}})
+		&proto.ItemEffect{BuffId: thrash, Effect: &proto.ItemEffect_Proc{Proc: &proto.ProcEffect{}}})
+	everyHit(t, thrash)
+	NewSpellDataExtraAttackProc(SpellDataProc{TriggerSpellID: thrash, IsWeaponProc: true},
+		[]ItemVariant{{ItemID: itemID, ItemName: "Test Thrash Blade"}})
 }
 
 // Each proc swings the main hand as often as the row grants, under the granting spell's tag, and the
@@ -31,16 +31,16 @@ func TestExtraAttackProcSwingsTheMainHandOncePerProc(t *testing.T) {
 	wielder := auraTesterAt(sim, 0)
 	target := sim.Encounter.ActiveTargetUnits[0]
 
-	extraAttack := wielder.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: flurryAxe})
+	extraAttack := wielder.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: thrash})
 	if extraAttack == nil {
 		t.Fatalf("no extra attack is registered under the granting spell's tag")
 	}
 
 	strikeAndStep(t, sim, wielder, target)
 	strikeAndStep(t, sim, wielder, target)
-	want := 2 * int32(spelldata.MustFind(flurryAxe).ExtraAttacksEffect().BasePoints)
+	want := 2 * int32(spelldata.MustFind(thrash).ExtraAttacksEffect().BasePoints)
 	if want == 0 {
-		t.Fatalf("18797 grants no extra attack, nothing to check")
+		t.Fatalf("21919 grants no extra attack, nothing to check")
 	}
 	if got := extraAttack.SpellMetrics[target.UnitIndex].Casts; got != want {
 		t.Errorf("two strikes at 100%% chance granted %d extra attacks, want %d", got, want)
@@ -62,7 +62,7 @@ func TestExtraAttackProcOnACharacterWithoutAutoAttacks(t *testing.T) {
 
 	landMainHandSwing(sim, caster, target)
 	stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow+time.Millisecond)
-	if extraAttack := caster.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: flurryAxe}); extraAttack != nil {
+	if extraAttack := caster.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: thrash}); extraAttack != nil {
 		t.Errorf("an extra attack is registered for a character with no main-hand swing to copy")
 	}
 }
@@ -75,7 +75,7 @@ func TestExtraAttackProcFollowsTheMainHandsSchool(t *testing.T) {
 	sim := newAuraSim(shaman("Wielder", map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: itemID}))
 	wielder := auraTesterAt(sim, 0)
 	target := sim.Encounter.ActiveTargetUnits[0]
-	extraAttack := wielder.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: flurryAxe})
+	extraAttack := wielder.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: thrash})
 
 	shadowWeapon := *wielder.AutoAttacks.MH()
 	shadowWeapon.SpellSchool = core.SpellSchoolShadow

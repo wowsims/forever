@@ -14,9 +14,8 @@ import (
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
-// A chance-on-hit item whose spell is a heal over time on the wearer routes to the heal shape. Julie's
-// Dagger registers on the rate its override gives it; Reforged Spear has none, and while the game files
-// state no rate for it stays commented out.
+// A chance-on-hit item whose spell is a heal over time on the wearer routes to the heal shape. Reforged
+// Spear has no rate, and while the game files state none for it stays commented out.
 func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -25,7 +24,6 @@ func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 		itemID  int
 		spellID int32
 	}{
-		{6660, 8348},      // Julie's Dagger: Julie's Blessing
 		{275645, 1297357}, // Reforged Spear
 	} {
 		item := instance.Items[tc.itemID]
@@ -86,6 +84,7 @@ func TestChanceOnHitExtraAttackRoutes(t *testing.T) {
 	instance := dbc.GetDBC()
 
 	const itemID, spellID = 871, 18797
+	skipWithoutItem(t, instance, itemID)
 	parsed, effect := parsedItem(t, instance, itemID, spellID)
 
 	groups := map[string]Group{}
@@ -111,15 +110,11 @@ func TestChanceOnHitDamageOverTimeRoutesAsDamage(t *testing.T) {
 		itemID  int
 		spellID int32
 	}{
-		{10772, 18075},    // Glutton's Cleaver: a bleed
 		{12777, 16898},    // Blazing Rapier: Fire
 		{12795, 13318},    // Blood Talon: Rend, a bleed
-		{13035, 17511},    // Serpent Slicer: a poison
-		{17002, 17511},    // Ichor Spitter: the same poison
+		{17002, 17511},    // Ichor Spitter: a poison
 		{15814, 16406},    // Hameya's Slayer: a bleed
 		{274963, 1295744}, // Rot-Covered Harpoon: a disease
-		{282561, 1314040}, // Siegebreaker's Blaster: Fire
-		{285102, 1317583}, // Darkmist Dirk: a poison
 	} {
 		s := spelldata.Find(tc.spellID)
 		if s.DamageEffect() != spelldata.NilEffect || s.PeriodicDamageEffect() == spelldata.NilEffect {
@@ -218,20 +213,22 @@ func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
 		{13060, 3},
 		{8190, 1},
 	} {
-		parsed, effect := parsedItem(t, instance, tc.itemID, 16405)
-		if got := effect.GetProc().GetPpm(); got != tc.ppm {
-			t.Errorf("item %d's effect states %v PPM, want %v", tc.itemID, got, tc.ppm)
-		}
+		t.Run(fmt.Sprint(tc.itemID), func(t *testing.T) {
+			skipWithoutItem(t, instance, tc.itemID)
+			parsed, effect := parsedItem(t, instance, tc.itemID, 16405)
+			if got := effect.GetProc().GetPpm(); got != tc.ppm {
+				t.Errorf("item %d's effect states %v PPM, want %v", tc.itemID, got, tc.ppm)
+			}
 
-		groups := map[string]Group{}
-		if got := TryParseProcEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
-			t.Errorf("item %d parsed as %v, want %v", tc.itemID, got, EffectParseResultSuccess)
-			continue
-		}
-		r := groups["Procs"].Entries[0].Proc
-		if r.ItemPPM != tc.ppm || len(r.Unsupported) != 0 || !strings.Contains(r.Summary, fmt.Sprintf("%v ppm on the item", tc.ppm)) {
-			t.Errorf("item %d routed with %v PPM, unsupported %q, summary %q", tc.itemID, r.ItemPPM, r.Unsupported, r.Summary)
-		}
+			groups := map[string]Group{}
+			if got := TryParseProcEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
+				t.Fatalf("item %d parsed as %v, want %v", tc.itemID, got, EffectParseResultSuccess)
+			}
+			r := groups["Procs"].Entries[0].Proc
+			if r.ItemPPM != tc.ppm || len(r.Unsupported) != 0 || !strings.Contains(r.Summary, fmt.Sprintf("%v ppm on the item", tc.ppm)) {
+				t.Errorf("item %d routed with %v PPM, unsupported %q, summary %q", tc.itemID, r.ItemPPM, r.Unsupported, r.Summary)
+			}
+		})
 	}
 }
 
@@ -274,13 +271,13 @@ func TestOnUseRoutesFromTheSpellItCasts(t *testing.T) {
 		heal    bool
 		reasons []string
 	}{
-		{219345, 443265, EffectParseResultSuccess, true, false, nil}, // Infernal Lasso: A_PERIODIC_DAMAGE, and a root it leaves out
-		{16768, 20631, EffectParseResultSuccess, false, true, nil},   // Furbolg Medicine Pouch: A_PERIODIC_HEAL on the wearer
-		{18637, 23064, EffectParseResultSuccess, false, true, nil},   // Major Recombobulator: E_HEAL on a friendly target
+		{8348, 10578, EffectParseResultSuccess, true, false, nil},  // Helm of Fire: E_SCHOOL_DAMAGE and A_PERIODIC_DAMAGE
+		{16768, 20631, EffectParseResultSuccess, false, true, nil}, // Furbolg Medicine Pouch: A_PERIODIC_HEAL on the wearer
+		{18637, 23064, EffectParseResultSuccess, false, true, nil}, // Major Recombobulator: E_HEAL on a friendly target
 		{14153, 18386, EffectParseResultRefused, false, true,
 			[]string{"the heal lands on implicit target 5, not the wearer"}}, // Robe of the Void, on the pet
-		{7734, 14537, EffectParseResultRefused, false, false,
-			[]string{"14537 deals no damage and heals no one (E_DUMMY)"}}, // Six Demon Bag
+		{10726, 13180, EffectParseResultRefused, false, false,
+			[]string{"13180 deals no damage and heals no one (E_DUMMY)"}}, // Gnomish Mind Control Cap
 	} {
 		item := instance.Items[tc.itemID]
 		parsed := item.ToUIItem()
@@ -469,45 +466,52 @@ func TestOnUseStatBuffWithWhatItsBuffStatesBeside(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
-	glyph, glyphEffect := parsedItem(t, instance, 23040, 28773)
-	blockValue := spelldata.MustFind(28773).FirstAura(dbcenums.A_MOD_BLOCK_VALUE_FLAT).BaseValue()
-	if got := dbc.EffectStats(glyphEffect)[int32(proto.Stat_StatBlockValue)]; got != blockValue || got == 0 {
-		t.Errorf("Glyph of Deflection's effect carries %v block value, want 28773's %v", got, blockValue)
-	}
-	groups := map[string]Group{}
-	if got := TryParseOnUseEffect(glyph, glyphEffect, instance, groups); got != EffectParseResultSuccess {
-		t.Errorf("Glyph of Deflection parsed as %v, want the stat on-use registered", got)
-	} else if entries := groups["BlockValue"].Entries; len(entries) != 1 || !entries[0].Supported || entries[0].Proc != nil {
-		t.Errorf("Glyph of Deflection's BlockValue entries %+v, want one flat on-use", entries)
-	}
+	t.Run("Glyph of Deflection", func(t *testing.T) {
+		glyph, glyphEffect := parsedItem(t, instance, 23040, 28773)
+		blockValue := spelldata.MustFind(28773).FirstAura(dbcenums.A_MOD_BLOCK_VALUE_FLAT).BaseValue()
+		if got := dbc.EffectStats(glyphEffect)[int32(proto.Stat_StatBlockValue)]; got != blockValue || got == 0 {
+			t.Errorf("Glyph of Deflection's effect carries %v block value, want 28773's %v", got, blockValue)
+		}
+		groups := map[string]Group{}
+		if got := TryParseOnUseEffect(glyph, glyphEffect, instance, groups); got != EffectParseResultSuccess {
+			t.Errorf("Glyph of Deflection parsed as %v, want the stat on-use registered", got)
+		} else if entries := groups["BlockValue"].Entries; len(entries) != 1 || !entries[0].Supported || entries[0].Proc != nil {
+			t.Errorf("Glyph of Deflection's BlockValue entries %+v, want one flat on-use", entries)
+		}
+	})
 
-	emblem, emblemEffect := parsedItem(t, instance, 2802, 13744)
-	groups = map[string]Group{}
-	if got := TryParseOnUseEffect(emblem, emblemEffect, instance, groups); got != EffectParseResultSuccess {
-		t.Fatalf("Blazing Emblem parsed as %v, want the absorb on-use registered", got)
-	}
-	fireResistance := spelldata.MustFind(13744).FirstAura(dbcenums.A_MOD_RESISTANCE).BaseValue()
-	if got := dbc.EffectStats(emblemEffect)[int32(proto.Stat_StatFireResistance)]; got != fireResistance || got == 0 {
-		t.Errorf("Blazing Emblem's effect carries %v Fire resistance, want 13744's %v", got, fireResistance)
-	}
-	if entries := groups["Absorbs"].Entries; len(entries) != 1 || !entries[0].Supported ||
-		entries[0].Proc.OnUseConstructor() != "NewSpellDataAbsorbOnUse" ||
-		entries[0].Proc.Summary != "on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)" {
-		t.Errorf("Blazing Emblem's Absorbs entries %+v, want one absorb on-use carrying the resistance", entries)
-	}
-	if _, listed := missingEffectsMap["ItemEffects"][2802]; listed {
-		t.Errorf("2802 is listed as missing an effect")
-	}
+	t.Run("Blazing Emblem", func(t *testing.T) {
+		skipWithoutItem(t, instance, 2802)
+		emblem, emblemEffect := parsedItem(t, instance, 2802, 13744)
+		groups := map[string]Group{}
+		if got := TryParseOnUseEffect(emblem, emblemEffect, instance, groups); got != EffectParseResultSuccess {
+			t.Fatalf("Blazing Emblem parsed as %v, want the absorb on-use registered", got)
+		}
+		fireResistance := spelldata.MustFind(13744).FirstAura(dbcenums.A_MOD_RESISTANCE).BaseValue()
+		if got := dbc.EffectStats(emblemEffect)[int32(proto.Stat_StatFireResistance)]; got != fireResistance || got == 0 {
+			t.Errorf("Blazing Emblem's effect carries %v Fire resistance, want 13744's %v", got, fireResistance)
+		}
+		if entries := groups["Absorbs"].Entries; len(entries) != 1 || !entries[0].Supported ||
+			entries[0].Proc.OnUseConstructor() != "NewSpellDataAbsorbOnUse" ||
+			entries[0].Proc.Summary != "on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)" {
+			t.Errorf("Blazing Emblem's Absorbs entries %+v, want one absorb on-use carrying the resistance", entries)
+		}
+		if _, listed := missingEffectsMap["ItemEffects"][2802]; listed {
+			t.Errorf("2802 is listed as missing an effect")
+		}
+	})
 
-	heart, heartEffect := parsedItem(t, instance, 13164, 17275)
-	groups = map[string]Group{}
-	if got := TryParseOnUseEffect(heart, heartEffect, instance, groups); got != EffectParseResultSuccess {
-		t.Fatalf("Heart of the Scale parsed as %v, want registered", got)
-	}
-	if entries := groups["Auras"].Entries; len(entries) != 1 || !entries[0].Supported ||
-		entries[0].Proc.OnUseConstructor() != "NewSpellDataAuraOnUse" {
-		t.Errorf("Heart of the Scale's Auras entries %+v, want one aura on-use", entries)
-	}
+	t.Run("Heart of the Scale", func(t *testing.T) {
+		heart, heartEffect := parsedItem(t, instance, 13164, 17275)
+		groups := map[string]Group{}
+		if got := TryParseOnUseEffect(heart, heartEffect, instance, groups); got != EffectParseResultSuccess {
+			t.Fatalf("Heart of the Scale parsed as %v, want registered", got)
+		}
+		if entries := groups["Auras"].Entries; len(entries) != 1 || !entries[0].Supported ||
+			entries[0].Proc.OnUseConstructor() != "NewSpellDataAuraOnUse" {
+			t.Errorf("Heart of the Scale's Auras entries %+v, want one aura on-use", entries)
+		}
+	})
 }
 
 // An item registers one effect, so an equip aura beside another effect of the item that registers is

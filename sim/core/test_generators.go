@@ -124,6 +124,7 @@ type SettingsCombos struct {
 	Cooldowns         *proto.Cooldowns
 	Profession1       proto.Profession
 	Profession2       proto.Profession
+	ReactionTimeMs    int32 // 100 when unset.
 }
 
 func (combos *SettingsCombos) NumTests() int {
@@ -206,7 +207,7 @@ func (combos *SettingsCombos) GetTest(testIdx int) (string, *proto.ComputeStatsR
 				ItemSwap:           itemSwapSetCombo.ItemSwap,
 				EnableItemSwap:     enableItemSwap,
 				DistanceFromTarget: startingDistance,
-				ReactionTimeMs:     100,
+				ReactionTimeMs:     TernaryInt32(combos.ReactionTimeMs != 0, combos.ReactionTimeMs, 100),
 				ChannelClipDelayMs: 50,
 			}, specOptionsCombo.SpecOptions),
 			buffsCombo.Party,
@@ -619,6 +620,7 @@ func FullCharacterTestSuiteGenerator(configs []CharacterSuiteConfig) []TestGener
 				StartingDistances: allStartingDistances,
 				Profession1:       Ternary(config.Profession1 != proto.Profession_ProfessionUnknown, config.Profession1, proto.Profession_Engineering),
 				Profession2:       config.Profession2,
+				ReactionTimeMs:    config.ReactionTimeMs,
 			},
 		})
 		// We only run these tests for the first test

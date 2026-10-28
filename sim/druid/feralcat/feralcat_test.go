@@ -149,7 +149,7 @@ func newFormScenario(t *testing.T) (*core.Simulation, *FeralDruid) {
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand].Id = 866
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 1613
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
 		Raid: core.SinglePlayerRaidProto(&proto.Player{

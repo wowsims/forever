@@ -124,18 +124,17 @@ func TestPhysicalCritSuppressionCountsOnlyAuraCrit(t *testing.T) {
 // target: every crit mod is aura crit, whatever its scope.
 func TestEveryCritModCountsAsAuraCrit(t *testing.T) {
 	for _, tc := range []struct {
-		name             string
-		mod              SpellModConfig
-		ranged           bool
-		wantSuppression  float64
-		sheetSuppression proto.PseudoStat
+		name            string
+		mod             SpellModConfig
+		ranged          bool
+		wantSuppression float64
 	}{
 		{"a sword-bound mod", SpellModConfig{ProcMask: ProcMaskMelee, EquipSubclass: WeaponSubclassMask(proto.WeaponType_WeaponTypeSword)},
-			false, 4.8, proto.PseudoStat_PseudoStatMeleeCritSuppressionPercent},
+			false, 4.8},
 		{"a ranged rating mod", SpellModConfig{ProcMask: ProcMaskRanged, DefenseType: DefenseTypeRanged, FromRating: true},
-			true, 4.8, proto.PseudoStat_PseudoStatRangedCritSuppressionPercent},
+			true, 4.8},
 		{"a mod on the main-hand auto alone", SpellModConfig{ProcMask: ProcMaskMeleeMHAuto},
-			false, 4.8, proto.PseudoStat_PseudoStatMeleeCritSuppressionPercent},
+			false, 4.8},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			_, character := NewWeaponTestSim(t, proto.Race_RaceUndead, WeaponTestSlots(WeaponTestSwordID, WeaponTestDaggerID, WeaponTestBowID), nil, nil)
@@ -156,7 +155,12 @@ func TestEveryCritModCountsAsAuraCrit(t *testing.T) {
 			if got := auto.physicalCritSuppression(table, critPercent+auto.BonusCritPercent) * 100; !WithinToleranceFloat64(tc.wantSuppression, got, 1e-9) {
 				t.Errorf("the auto loses %v%% crit, want %v%%", got, tc.wantSuppression)
 			}
-			if got := character.GetPseudoStatsProto()[tc.sheetSuppression]; !WithinToleranceFloat64(tc.wantSuppression, got, 1e-9) {
+			pseudoStats := character.GetPseudoStatsProto()
+			sheetSuppression := character.meleeCritCapProto(pseudoStats[proto.PseudoStat_PseudoStatMeleeCritPercent]).Suppression
+			if tc.ranged {
+				sheetSuppression = pseudoStats[proto.PseudoStat_PseudoStatRangedCritSuppressionPercent]
+			}
+			if got := sheetSuppression; !WithinToleranceFloat64(tc.wantSuppression, got, 1e-9) {
 				t.Errorf("the sheet shows %v%% suppression, want %v%%", got, tc.wantSuppression)
 			}
 		})

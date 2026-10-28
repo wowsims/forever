@@ -11,10 +11,10 @@ import (
 )
 
 // Two weapons stating their own procs-per-minute rate on the same trigger spell each get a manager
-// at their rate: Wound 16405 at 3 PPM on one, 1 PPM on the other, read off the item's effect entry
-// when the shape passes none.
+// at their rate: Forging Strike at 3 PPM on one, 1 PPM on the other, read off the item's effect
+// entry when the shape passes none.
 func TestWeaponProcRateComesFromTheItemEffect(t *testing.T) {
-	const trigger int32 = 16405
+	const trigger = forgingStrike
 	for _, tc := range []struct {
 		itemID int32
 		ppm    float64
@@ -33,7 +33,7 @@ func TestWeaponProcRateComesFromTheItemEffect(t *testing.T) {
 			AutoSwingMelee: true,
 		})
 
-		cfg := SpellDataProc{Name: "Test Wound Weapon", ItemID: tc.itemID, TriggerSpellID: trigger, BuffSpellID: trigger, IsWeaponProc: true}
+		cfg := SpellDataProc{Name: "Test Forging Strike Weapon", ItemID: tc.itemID, TriggerSpellID: trigger, BuffSpellID: trigger, IsWeaponProc: true}
 		config := spellDataProcListener(character, cfg, cfg.effectSource(), spelldata.MustFind(trigger))
 		if config.ProcChance != 0 || config.DPM == nil {
 			t.Fatalf("item %d: chance %v, manager %v; want a manager and no flat chance", tc.itemID, config.ProcChance, config.DPM)
@@ -49,7 +49,7 @@ func TestWeaponProcRateComesFromTheItemEffect(t *testing.T) {
 // procs-per-minute rate, rolls that chance on the hits of the hand that carries it and on no other's.
 // The same item in both hands registers once, so its one listener hears both hands.
 func TestFlatChanceWeaponProcRollsOnItsOwnHand(t *testing.T) {
-	const flatID, plainID, trigger int32 = 992611, 992612, 16405
+	const flatID, plainID, trigger int32 = 992611, 992612, forgingStrike
 	editRow(t, trigger, func(s *spelldata.Spell) {
 		s.RPPM, s.ProcChance, s.ProcChanceSource = 0, 50, spelldata.ProcChanceColumn
 	})
@@ -78,7 +78,7 @@ func TestFlatChanceWeaponProcRollsOnItsOwnHand(t *testing.T) {
 				AutoSwingMelee: true,
 			})
 
-			cfg := SpellDataProc{Name: "Test Flat Wound Weapon", ItemID: flatID, TriggerSpellID: trigger, BuffSpellID: trigger, IsWeaponProc: true}
+			cfg := SpellDataProc{Name: "Test Flat Strike Weapon", ItemID: flatID, TriggerSpellID: trigger, BuffSpellID: trigger, IsWeaponProc: true}
 			config := spellDataProcListener(character, cfg, cfg.effectSource(), spelldata.MustFind(trigger))
 			if config.ProcChance != 0 || config.DPM == nil {
 				t.Fatalf("chance %v, manager %v; want a manager bound to the weapon and no flat chance", config.ProcChance, config.DPM)
@@ -100,13 +100,13 @@ func TestFlatChanceWeaponProcRollsOnItsOwnHand(t *testing.T) {
 // An item swap that moves a flat-chance weapon from the main hand to the off hand moves its rolls
 // with it: before the swap it rolls on main-hand hits only, after it on off-hand hits only.
 func TestFlatChanceWeaponProcFollowsItsItemThroughASwap(t *testing.T) {
-	const flatID, plainID, otherPlainID, trigger int32 = 992613, 992614, 992615, 16405
+	const flatID, plainID, otherPlainID, trigger int32 = 992613, 992614, 992615, forgingStrike
 	editRow(t, trigger, func(s *spelldata.Spell) {
 		s.RPPM, s.ProcChance, s.ProcChanceSource = 0, 50, spelldata.ProcChanceColumn
 	})
 	stated := spelldata.MustFind(trigger).StatedChance()
 	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(flatID), testOneHander(plainID), testOneHander(otherPlainID)}})
-	registerSpellDataDamageProc(SpellDataProc{Name: "Test Flat Wound Weapon", ItemID: flatID,
+	registerSpellDataDamageProc(SpellDataProc{Name: "Test Flat Strike Weapon", ItemID: flatID,
 		TriggerSpellID: trigger, BuffSpellID: trigger, IsWeaponProc: true})
 
 	sim := newTestCasterSimAgainst(
@@ -114,7 +114,7 @@ func TestFlatChanceWeaponProcFollowsItsItemThroughASwap(t *testing.T) {
 		testHands(&proto.ItemSpec{Id: otherPlainID}, &proto.ItemSpec{Id: flatID}), 1,
 		func(player *proto.Player) { player.Spec = &proto.Player_EnhancementShaman{} })
 	caster := sim.Raid.Parties[0].Players[0].(*testCaster)
-	listener := caster.GetAura("Test Flat Wound Weapon")
+	listener := caster.GetAura("Test Flat Strike Weapon")
 	if listener == nil || listener.Dpm == nil {
 		t.Fatal("no listener with a manager is registered for the weapon")
 	}

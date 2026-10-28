@@ -676,6 +676,18 @@ message UnitMetadata {
 message PetStats {
 	UnitMetadata metadata = 1;
 }
+// The most crit the main-hand auto attack can land against the current target, all in percent: what the
+// white-hit table leaves after miss, dodge, parry, glancing and block.
+message MeleeCritCapInfo {
+	double glancing = 1;
+	double suppression = 2; // The crit the target takes off the sheet's crit, spec_offset counted; below 0 when a debuff adds crit.
+	double remaining_hit = 3; // The miss left after hit, the dual-wield penalty included.
+	double remaining_expertise = 4; // The dodge and parry left after expertise; parry only from the front.
+	double block = 5; // Only from the front.
+	double spec_offset = 6; // Crit a spec counts as taken that the sheet does not show.
+	double crit_cap = 7;
+	double delta = 8; // The sheet's melee crit less crit_cap.
+}
 message PlayerStats {
 	// Stats
 	UnitStats base_stats = 6;
@@ -695,6 +707,8 @@ message PlayerStats {
 
 	// The full skill per weapon skill, with every bonus the gear, talents and buffs add.
 	repeated WeaponSkillValue weapon_skills = 13;
+
+	MeleeCritCapInfo melee_crit_cap = 14; // Unset before the attack tables exist and without a main-hand auto attack.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

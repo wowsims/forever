@@ -92,9 +92,12 @@ Proto field numbers on a merge are `wowsims-core-mechanics` `## Protos`.
 
 The end of `docs/spell_data/partial-updates.md` §Commands describes the hotfix flow, and `tools/db2tool/README.md`
 §Usage the carry rules. A single-item hotfix is the items-only run Update Items performs,
-`make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache <DBCache.bin> --carry-hotfixes"`. The cache is
-usually for an older build than the CDN serves and `--carry-hotfixes` carries it onto the extracted build, so that
-is the normal case, not a reason to wait. A checkout gets
+`make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache <DBCache.bin> --carry-hotfixes"`, with raidbots'
+`forever` file. Only live `forever` files apply; a `classic_beta` file is never carried, so a row only the beta
+held stays out. A new `forever` file can be for an older build than the CDN serves and
+`--carry-hotfixes` carries it onto the extracted build, so that is the normal case, not a reason to wait. Update
+Items moves the items alone: a hotfix to a class, racial or shared row (Aspect of the Hawk, Trueshot Aura) reaches
+the store only through a run that takes that group, `make db` with the same flags. A checkout gets
 its `tools/database/wowsims.db` from `make db`, reading a WoW install (`WOW_DIR` or the settings' `BaseDir`), or from
 the same run with `DB2TOOL_FLAGS="--cdn"` and no install; the modes are `tools/db2tool/README.md` §Usage. Before
 dispatching Build and Deploy by hand, read its state: `gh api repos/wowsims/forever/actions/workflows/deploy.yml --jq .state`.
@@ -115,6 +118,9 @@ Reading another table once, what the tables hold and how a script reads them: `r
 - A hotfix that turns an effect into an `A_DUMMY` with its value kept usually moves it into a server script, and
   `ParseEffects` then drops it without a word. When `.results` move after a regeneration, check the changed rows
   for one before taking the change as live; Missile Barrage's tick length is applied by hand for this reason.
+- When a regeneration drops spells from the store, `make db`'s `gen_db` step panics with `spell N is not in the
+store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
+  ones. Run `go run tools/database/gen_db/*.go -outDir=./assets -gen=db` again; the second run compiles the new files.
 
 ## Keeping this skill true
 

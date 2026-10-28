@@ -40,7 +40,7 @@ func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, w
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand].Id = 866
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 1613
 	for slot, id := range worn {
 		items[slot].Id = id
 	}

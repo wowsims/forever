@@ -199,14 +199,19 @@ func (spell *Spell) PhysicalHitCheck(sim *Simulation, attackTable *AttackTable) 
 	return sim.Proc(1.0-spell.GetPhysicalMissChance(attackTable), "Physical Hit Roll")
 }
 func (spell *Spell) PhysicalCritChance(attackTable *AttackTable) float64 {
+	return max(spell.physicalCritChanceUnclamped(attackTable, 0), 0)
+}
+
+// The crit chance before the floor at 0, with extraCritPercent more crit on the spell.
+func (spell *Spell) physicalCritChanceUnclamped(attackTable *AttackTable, extraCritPercent float64) float64 {
 	critPercent := spell.Unit.stats[stats.PhysicalCritPercent] + spell.BonusCritPercent +
-		attackTable.critChanceByCaster(spell)
+		attackTable.critChanceByCaster(spell) + extraCritPercent
 
 	if spell.ProcMask.Matches(ProcMaskRanged) {
 		critPercent += spell.Unit.stats[stats.RangedCritPercent]
 	}
 
-	return max(critPercent/100-attackTable.Defender.PseudoStats.ReducedCritTakenPercent-spell.physicalCritSuppression(attackTable, critPercent), 0)
+	return critPercent/100 - attackTable.Defender.PseudoStats.ReducedCritTakenPercent - spell.physicalCritSuppression(attackTable, critPercent)
 }
 
 // The crit a physical attack with critPercent in total loses to the defender's level: the skill part of

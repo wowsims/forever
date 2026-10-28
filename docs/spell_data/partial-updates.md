@@ -135,11 +135,13 @@ takes only `-classes`, since it has no racial or shared files, and always writes
 The Update Items workflow (`.github/workflows/update_items.yml`) extracts the current build from the
 CDN (product `wowf`) with the latest hotfixes and runs `make db CLASSES=none SHARED=0`, so its pull
 request moves the items and leaves every class, the racials and the shared rows on their committed
-builds. Raidbots collects no `wowf` cache: it labels its Forever files `classic_beta`, and they are
-usually for an older build than the CDN serves, so `--carry-hotfixes` carries such a file onto the
-extracted build (the rules are in `tools/db2tool/README.md`). The Check Hotfixes workflow dispatches
-Update Items every hour that a new file appears for the CDN build or an older one; a pull request
-with the hotfixes applied that passes every test is merged and deployed without review.
+builds. Raidbots labels the live game's files `forever`. A new one can be for an older build than
+the CDN serves, so `--carry-hotfixes` carries such a file onto the extracted build (the rules are in
+`tools/db2tool/README.md`). Only `forever` files apply: the data follows the live game files and
+their hotfixes, so an item or spell only a beta cache held stays out. The
+Check Hotfixes workflow dispatches Update Items every hour that a new `forever` file appears for the
+CDN build or an older one; a pull request with the hotfixes applied that passes every test is merged
+and deployed without review.
 
 `db2tool` writes the `BuildInfo` table on every extraction: the game build, the product and
 `HotfixPush`, the highest hotfix push it applied (0 when it applied none, as in offline mode without

@@ -8,6 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/shaman"
 	"github.com/wowsims/forever/sim/shaman/enhancement"
 )
@@ -20,20 +21,76 @@ func init() {
 // The Enhancement suite's talents, which take Elemental Devastation.
 const enhancementTalents = "053503102-053030031005112251"
 
-// Fire Nova's hits are a spell the cast triggers, and the row lacks Not a Proc, so Elemental
-// Devastation, which cannot proc from procs, never hears their crits. It hears an Earth Shock's.
-func TestFireNovaHitsAreProcs(t *testing.T) {
+// The raid of one Enhancement shaman with the given talents.
+func enhancementRaid(talents string) *proto.Raid {
 	player := &proto.Player{
-		Name:          "Fire Nova",
+		Name:          "Enhancement",
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassShaman,
 		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: enhancementTalents,
+		TalentsString: talents,
 		Spec:          &proto.Player_EnhancementShaman{EnhancementShaman: &proto.EnhancementShaman{Options: &proto.EnhancementShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
 		Rotation:      &proto.APLRotation{},
 	}
+	return core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
+}
+
+// The melee crit cap counts the crit Elemental Devastation's buff grants as taken, and a shaman
+// without the talent counts none.
+func TestMeleeCritCapCountsElementalDevastation(t *testing.T) {
+	critCap := func(talents string) *proto.MeleeCritCapInfo {
+		t.Helper()
+		info := core.ComputeStats(&proto.ComputeStatsRequest{Raid: enhancementRaid(talents), Encounter: core.MakeSingleTargetEncounter(0)}).RaidStats.Parties[0].Players[0].MeleeCritCap
+		if info == nil {
+			t.Fatalf("talents %q: the sheet has no melee crit cap", talents)
+		}
+		return info
+	}
+
 	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	devastation := sham.GetAuraByID(core.ActionID{SpellID: 30165})
+	if devastation == nil {
+		t.Fatal("Elemental Devastation's buff is not registered")
+	}
+	before := sham.GetStat(stats.PhysicalCritPercent)
+	devastation.Activate(sim)
+	granted := sham.GetStat(stats.PhysicalCritPercent) - before
+	if granted <= 0 {
+		t.Fatalf("Elemental Devastation's buff grants %v crit, want above 0", granted)
+	}
+
+	if sham.PseudoStats.InFrontOfTarget {
+		t.Fatal("the shaman stands in front of the target, and the room below leaves out parry and block")
+	}
+	auto := sham.AutoAttacks.MHAuto()
+	table := sham.AttackTables[sham.CurrentTarget.UnitIndex]
+	critWithBuff := auto.PhysicalCritChance(table)
+	room := 1 - auto.GetPhysicalMissChance(table) - sham.CurrentTarget.GetTotalDodgeChanceAsDefender(auto, table) - table.MH.BaseGlanceChance
+
+	with := critCap(enhancementTalents)
+	if !core.WithinToleranceFloat64(granted, with.SpecOffset, 1e-9) {
+		t.Errorf("spec offset %v, want the buff's %v crit", with.SpecOffset, granted)
+	}
+	if want := 100*critWithBuff - 100*room; !core.WithinToleranceFloat64(want, with.Delta, 1e-9) {
+		t.Errorf("delta %v, want the crit the auto rolls with the buff up less the white-hit table's room for it, %v", with.Delta, want)
+	}
+	if without := critCap("-053030031005112251"); without.SpecOffset != 0 {
+		t.Errorf("without the talent the spec offset is %v, want 0", without.SpecOffset)
+	}
+
+}
+
+// Fire Nova's hits are a spell the cast triggers, and the row lacks Not a Proc, so Elemental
+// Devastation, which cannot proc from procs, never hears their crits. It hears an Earth Shock's.
+func TestFireNovaHitsAreProcs(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
 		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())

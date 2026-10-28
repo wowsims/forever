@@ -63,14 +63,14 @@ func catWithMainHand(t *testing.T, mainHand int32, consumes *proto.ConsumesSpec,
 	return sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Dense Weightstone 12643 puts enchant 1703's 8 weapon damage on Monk's Staff 866 (60-90, 2.4 s).
+// Dense Weightstone 12643 puts enchant 1703's 8 weapon damage on Spiritchaser Staff 1613 (75-113, 2.8 s).
 // The cat's paw uses the staff's table DPS and the form's variance; the stone adds 8 once.
 func TestCatPawTakesTheWeaponstoneOnce(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
 
 	paw := character.AutoAttacks.MH()
-	if wantMin, wantMax := 60/2.4+8, 38.0+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
+	if wantMin, wantMax := 26.0+8, 40.0+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
 		t.Errorf("the paw deals %.3f-%.3f, want %.3f-%.3f", paw.BaseDamageMin, paw.BaseDamageMax, wantMin, wantMax)
 	}
 }
@@ -78,15 +78,15 @@ func TestCatPawTakesTheWeaponstoneOnce(t *testing.T) {
 // A form swap rebuilds the paw from the main hand, as the druid's item swap callback does; the rebuilt
 // paw keeps the stone's 8, once.
 func TestCatPawKeepsTheWeaponstoneWhenRebuilt(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
 	cat := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
 
 	for range 2 {
 		character.AutoAttacks.SetMH(cat.GetCatWeapon())
 	}
 	paw := character.AutoAttacks.MH()
-	if wantMin, wantMax := 60/2.4+8, 38.0+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
+	if wantMin, wantMax := 26.0+8, 40.0+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
 		t.Errorf("the rebuilt paw deals %.3f-%.3f, want %.3f-%.3f", paw.BaseDamageMin, paw.BaseDamageMax, wantMin, wantMax)
 	}
 }
@@ -94,8 +94,8 @@ func TestCatPawKeepsTheWeaponstoneWhenRebuilt(t *testing.T) {
 // Bear Form uses the staff's table DPS and the form's variance at 2.5 seconds.
 // The stone adds 8 once, through shifts to the paw and back.
 func TestBearWeaponTakesTheWeaponstoneOnce(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
 	cat := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
 
 	for range 2 {
@@ -104,23 +104,23 @@ func TestBearWeaponTakesTheWeaponstoneOnce(t *testing.T) {
 	}
 	character.AutoAttacks.SetMH(cat.GetBearWeapon())
 	bear := character.AutoAttacks.MH()
-	if wantMin, wantMax := 62.0+8, 94.0+8; !approxEqual(bear.BaseDamageMin, wantMin) || !approxEqual(bear.BaseDamageMax, wantMax) || bear.SwingSpeed != 2.5 {
+	if wantMin, wantMax := 67.0+8, 101.0+8; !approxEqual(bear.BaseDamageMin, wantMin) || !approxEqual(bear.BaseDamageMax, wantMax) || bear.SwingSpeed != 2.5 {
 		t.Errorf("the bear weapon deals %.3f-%.3f at %.1f s, want %.3f-%.3f at 2.5 s",
 			bear.BaseDamageMin, bear.BaseDamageMax, bear.SwingSpeed, wantMin, wantMax)
 	}
 }
 
 // Windfury Totem's party aura reaches the cat like any other melee: its paw hears the Windfury
-// procs and keeps the stone: 60 / 2.4 + 8.
+// procs and keeps the stone: 26 + 8.
 func TestCatHearsWindfuryTotemAndKeepsItsMainHandImbue(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{WindfuryTotem: true})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{WindfuryTotem: true})
 
 	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != 1703 {
 		t.Errorf("the main hand carries temporary enchant %d, want Dense Weightstone's 1703", got)
 	}
-	if paw := character.AutoAttacks.MH(); !approxEqual(paw.BaseDamageMin, 60/2.4+8) {
-		t.Errorf("the paw deals %.3f at least, want %.3f", paw.BaseDamageMin, 60/2.4+8)
+	if paw := character.AutoAttacks.MH(); !approxEqual(paw.BaseDamageMin, 26.0+8) {
+		t.Errorf("the paw deals %.3f at least, want %.3f", paw.BaseDamageMin, 26.0+8)
 	}
 	if character.GetAura("Windfury Totem Trigger") == nil {
 		t.Error("the cat registers no Windfury Totem proc")
@@ -130,8 +130,8 @@ func TestCatHearsWindfuryTotemAndKeepsItsMainHandImbue(t *testing.T) {
 // Flametongue Totem's party aura reaches the cat the same way: its paw strikes totem fire and keeps
 // the stone.
 func TestCatHearsFlametongueTotemAndKeepsItsMainHandImbue(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{FlametongueTotem: true})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{FlametongueTotem: true})
 
 	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != 1703 {
 		t.Errorf("the main hand carries temporary enchant %d, want Dense Weightstone's 1703", got)
@@ -149,7 +149,7 @@ func approxEqual(a, b float64) bool {
 }
 
 func TestFeralEnchantsAndStonesAreIndependentOfWeaponSpeed(t *testing.T) {
-	for _, itemID := range []int32{866, 19323} {
+	for _, itemID := range []int32{1613, 19323} {
 		character := catWithMainHand(t, itemID, &proto.ConsumesSpec{MhImbueId: 12643}, &proto.RaidBuffs{})
 		druid := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
 		item := character.GetMHWeapon()

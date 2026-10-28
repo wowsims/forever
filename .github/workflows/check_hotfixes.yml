@@ -2,7 +2,7 @@ name: Check Hotfixes
 
 # Hotfixes reach only a logged-in game, so the one feed of them is raidbots' collection of the game's
 # DBCache.bin. Every hour this reads raidbots' list of collected files and dispatches Update Items with
-# the newest Forever file for the CDN build or an older one when it has not been seen before; Update
+# the newest `forever` file for the CDN build or an older one when it has not been seen before; Update
 # Items carries an older build's file onto the CDN build (see docs/spell_data/partial-updates.md).
 # Each upload has a URL of its own, so the file Update Items downloads is the one checked here.
 on:
@@ -30,14 +30,14 @@ jobs:
                   test -n "$cdn_build"
                   newest=$(curl -fsS "$DBCACHE_LIST_URL" | BUILD="$cdn_build" python3 -c '
                   import json, os, sys
-                  rows = [r for r in json.load(sys.stdin)["data"] if r["version"] == "classic_beta" and r["build"] <= int(os.environ["BUILD"])]
+                  rows = [r for r in json.load(sys.stdin)["data"] if r["version"] == "forever" and r["build"] <= int(os.environ["BUILD"])]
                   if rows:
                       r = max(rows, key=lambda r: r["created"])
                       print(r["build"], r["url"])
                   ')
                   read -r cache_build url <<< "$newest"
                   if [ -z "$url" ]; then
-                      echo "No classic_beta file for CDN build $cdn_build or an older one among the newest 100"
+                      echo "No forever file for CDN build $cdn_build or an older one among the newest 100"
                       exit 0
                   fi
                   echo "Newest DBCache.bin $url, build $cache_build; CDN build $cdn_build"

@@ -57,6 +57,12 @@ func (enh *EnhancementShaman) GetShaman() *shaman.Shaman {
 	return enh.Shaman
 }
 
+// The melee crit cap counts Elemental Devastation's crit as taken. The buff is up for almost every
+// swing, and the sheet shows its crit only while it is up.
+func (enh *EnhancementShaman) ModifyMeleeCritCap(info *proto.MeleeCritCapInfo) {
+	info.SpecOffset += enh.ElementalDevastationCritPercent()
+}
+
 func (enh *EnhancementShaman) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
 	enh.Shaman.AddRaidBuffs(raidBuffs)
 }
