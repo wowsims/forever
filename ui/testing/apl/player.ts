@@ -25,10 +25,8 @@ export const makePlayer = (rotation: APLRotation, notify: () => void = () => {})
 		sim: {
 			raid: {
 				getPlayer: () => undefined,
-				getPlayers: () => [],
 				getActivePlayers: () => [],
-				getTargetDummies: () => 0,
-				getNumActiveParties: () => 5,
+				getTargetDummySlots: () => [],
 				getHealingSettings: () => ({ assignment: HealingSimSettings_Assignment.TankHealing, groupSize: 5 }),
 				size: () => 1,
 			},

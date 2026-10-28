@@ -11,6 +11,7 @@ import { shallowArrayEquals } from '../state/subscriptions';
 import { sum } from '../utils/math';
 import { MAX_PARTY_SIZE, Party } from './party';
 export const MAX_NUM_PARTIES = 5;
+const MAX_TARGET_DUMMIES = 24;
 
 // Manages all the settings for a single Raid.
 export class Raid {
@@ -146,6 +147,14 @@ export class Raid {
 		if (this.raidState.targetDummies == newTargetDummies) return;
 
 		this.patchRaid({ targetDummies: newTargetDummies });
+	}
+
+	/** The raid slots the target dummies take, in the order the sim places them: the first empty slots of the active parties, 24 at most. */
+	getTargetDummySlots(): Array<number> {
+		return this.getPlayers()
+			.slice(0, this.getNumActiveParties() * MAX_PARTY_SIZE)
+			.flatMap((player, index) => (player ? [] : [index]))
+			.slice(0, Math.max(0, Math.min(MAX_TARGET_DUMMIES, this.getTargetDummies())));
 	}
 
 	getHealingSettings(): HealingSimSettings {

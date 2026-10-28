@@ -9,6 +9,7 @@ import { refToValue, unitOptionModels, withIconUrl } from './unit_values';
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 const label = (key: string) => `rotation_tab.apl.helpers.unit_labels.${key}`;
+const nineDummySlots = () => [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 describe('refToValue', () => {
 	it.each([
@@ -84,9 +85,7 @@ describe('unitOptionModels', () => {
 		const player: any = makePlayer({} as any);
 		player.getPlayerSpec = () => ({ isHealingSpec: true });
 		Object.assign(player.sim.raid, {
-			getPlayers: () => [player, ...Array(9).fill(null)],
-			getTargetDummies: () => 9,
-			getNumActiveParties: () => 2,
+			getTargetDummySlots: nineDummySlots,
 			getHealingSettings: () => ({ assignment, groupSize }),
 		});
 		const random = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.RandomFriendlyTarget);
@@ -98,16 +97,19 @@ describe('unitOptionModels', () => {
 		const player: any = makePlayer({} as any);
 		player.getPlayerSpec = () => ({ isHealingSpec: true });
 		Object.assign(player.sim.raid, {
-			getPlayers: () => [player, ...Array(9).fill(null)],
 			getPlayer: (index: number) => (index === 0 ? player : null),
-			getTargetDummies: () => 9,
-			getNumActiveParties: () => 2,
+			getTargetDummySlots: nineDummySlots,
 			getHealingSettings: () => ({ assignment: Assignment.RaidHealing, groupSize: 10 }),
 		});
 		const text = (index: number) => refToValue(UnitReference.create({ type: UnitType.Player, index }), player, false).text;
 		expect(text(1)).toBe(`${label('heal_target')} 1`);
 		expect(text(5)).toBe(`${label('heal_target')} 5`);
 		expect(text(9)).toBe(`${label('heal_target')} 9`);
+
+		const options = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.Player);
+		expect(options.map(model => [model.unit.text, model.submenu])).toEqual(
+			nineDummySlots().map((slot, i) => [`${label('heal_target')} ${i + 1}`, ['heal_target', `group_${slot < 5 ? 1 : 2}`]]),
+		);
 	});
 	it.each([
 		['under its owner when the set uses target UI', 'aura_sources_targets_first', UnitReference.create({ type: UnitType.Self }), true],

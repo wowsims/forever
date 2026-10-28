@@ -2,34 +2,16 @@ import { healingGroupSize } from '@features/encounter/model/target_dummies';
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { HealingSimSettings_Assignment as HealingAssignment } from '@generated/proto/ui';
 import { Player } from '@sim/player/player';
-import { MAX_PARTY_SIZE } from '@sim/raid/party';
 
 export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
 
-export const healingTargetIndices = (player: Player<any>): Array<number> => {
-	if (!player.getPlayerSpec().isHealingSpec) return [];
+/** The target dummy slots a healer's rotation offers as heal targets; other specs get none. */
+export const healTargetSlots = (player: Player<any>): Array<number> => (player.getPlayerSpec().isHealingSpec ? player.sim.raid.getTargetDummySlots() : []);
 
-	const raid = player.sim.raid;
-	const targetCount = raid.getTargetDummies();
-	if (targetCount <= 0) return [];
-
-	const activeSlotCount = raid.getNumActiveParties() * MAX_PARTY_SIZE;
-	return raid
-		.getPlayers()
-		.slice(0, activeSlotCount)
-		.flatMap((raidPlayer, index) => (raidPlayer ? [] : [index]))
-		.slice(0, targetCount);
-};
-
-export const healingTargetsAreGrouped = (player: Player<any>): boolean => {
+/** Raid healing files heal targets by group and offers a random friendly target. A dungeon group has no assignment to pick, so it never does. */
+export const isRaidHealing = (player: Player<any>): boolean => {
 	const settings = player.sim.raid.getHealingSettings();
-	return settings.groupSize !== 5 && settings.assignment === HealingAssignment.RaidHealing;
-};
-
-/** A dungeon group has no assignment to pick, so it never offers a random friendly target. */
-export const healingRandomTargetEnabled = (player: Player<any>): boolean => {
-	const settings = player.sim.raid.getHealingSettings();
-	return player.getPlayerSpec().isHealingSpec && healingGroupSize(settings) !== 5 && settings.assignment === HealingAssignment.RaidHealing;
+	return healingGroupSize(settings) !== 5 && settings.assignment === HealingAssignment.RaidHealing;
 };
 
 const ownPetRefs = (player: Player<any>) =>
@@ -38,7 +20,7 @@ const ownPetRefs = (player: Player<any>) =>
 		.asList()
 		.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) }));
 
-const healingTargetRefs = (player: Player<any>) => healingTargetIndices(player).map(index => UnitReference.create({ type: UnitType.Player, index }));
+const healingTargetRefs = (player: Player<any>) => healTargetSlots(player).map(index => UnitReference.create({ type: UnitType.Player, index }));
 
 export const unitSets: Record<
 	UNIT_SET,

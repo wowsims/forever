@@ -49,14 +49,11 @@ const renderUnit = ({ value: unit, label }: ChoiceOption<UnitValue>) => (
 export const UnitField = ({ player, config, unitSet }: UnitFieldProps) => {
 	const targetUI = unitSets[unitSet].targetUI;
 	const metadataVersion = useUnitMetadataVersion(player.sim);
-	const targetDummies = useStore(player.sim.store, state => state.raid.targetDummies);
-	const numActiveParties = useStore(player.sim.store, state => state.raid.numActiveParties);
-	const composition = useStore(player.sim.store, state => state.raid.composition);
-	const healingSettings = useStore(player.sim.store, state => state.raid.healingSettings);
+	const raid = useStore(player.sim.store, state => state.raid);
 	const models = useMemo(
 		() => unitOptionModels(unitSet, player),
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- unitOptionModels reads these through the player and raid facades.
-		[unitSet, player, metadataVersion, targetDummies, numActiveParties, composition, healingSettings],
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- unitOptionModels reads the metadata and the raid slice through the player and raid facades.
+		[unitSet, player, metadataVersion, raid],
 	);
 	const icons = useActionIds(models.map(({ unit }) => (typeof unit.iconUrl === 'string' ? undefined : unit.iconUrl)));
 	const choices = useMemo(() => {

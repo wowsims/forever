@@ -24,6 +24,8 @@ import {
 	Profession,
 	Stat,
 	Target,
+	UnitReference,
+	UnitReference_Type as UnitType,
 } from '@generated/proto/common';
 import { UIEnchant, UIItem } from '@generated/proto/ui';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
@@ -117,7 +119,7 @@ const makeSim = ({ iterations = 100, profession = Profession.ProfessionUnknown, 
 };
 
 describe('Sim.statWeights', () => {
-	it.each([false, true])('includes the full roster only for healing specs (%s)', async isHealingSpec => {
+	it('sends the whole raid, target dummies included, for every spec', async () => {
 		const sim = makeSim();
 		const raid = RaidProto.create({ targetDummies: 9, numActiveParties: 2 });
 		vi.spyOn(sim.raid, 'toProto').mockReturnValue(raid);
@@ -126,13 +128,28 @@ describe('Sim.statWeights', () => {
 		const player = {
 			getParty: () => ({ getBuffs: () => undefined }),
 			getRaidIndex: () => 0,
-			getPlayerSpec: () => ({ isHealingSpec }),
 			toProto: () => PlayerProto.create(),
 		} as never;
 		await sim.statWeights(player, [Stat.StatHealingPower], [], Stat.StatHealingPower, vi.fn());
 		const request = mocks.statWeightsAsync.mock.calls[0][0];
-		expect(request.raid).toEqual(isHealingSpec ? raid : undefined);
+		expect(request.raid).toEqual(raid);
 		expect(request.hpsReferenceStat).toBe(Stat.StatHealingPower);
+	});
+});
+
+describe('Sim.getUnitMetadata', () => {
+	it("lends a target dummy slot, and a random friendly target, the context player's metadata", () => {
+		const sim = new Sim({ env: makeEnv() });
+		const metadata = {};
+		const contextPlayer = { getMetadata: () => metadata } as never;
+		const lookUp = (type: UnitType, index = 0) =>
+			sim.getUnitMetadata(UnitReference.create({ type, index }), contextPlayer, UnitReference.create({ type: UnitType.Self }));
+
+		expect(lookUp(UnitType.RandomFriendlyTarget)).toBeUndefined();
+		sim.raid.setTargetDummies(2);
+		expect(lookUp(UnitType.Player, 1)).toBe(metadata);
+		expect(lookUp(UnitType.Player, 2)).toBeUndefined();
+		expect(lookUp(UnitType.RandomFriendlyTarget)).toBe(metadata);
 	});
 });
 

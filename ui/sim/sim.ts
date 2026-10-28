@@ -641,7 +641,7 @@ export class Sim {
 
 			const request = StatWeightsRequest.create({
 				player: playerProto,
-				raid: player.getPlayerSpec().isHealingSpec ? this.raid.toProto(false, true) : undefined,
+				raid: this.raid.toProto(false, true),
 				raidBuffs: this.raid.getBuffs(),
 				partyBuffs: player.getParty()!.getBuffs(),
 				debuffs: this.raid.getDebuffs(),
@@ -697,8 +697,10 @@ export class Sim {
 		} else if (ref.type == UnitType.Player || ref.type == UnitType.RandomFriendlyTarget) {
 			const player = this.raid.getPlayerFromUnitReference(ref);
 			if (player) return player.getMetadata();
-			// A heal target slot has no metadata of its own, so the healer's stands in.
-			return contextPlayer?.getPlayerSpec().isHealingSpec ? contextPlayer.getMetadata() : undefined;
+			// A target dummy has no metadata of its own, so the context player's stands in. A random friendly target is always a dummy.
+			const dummySlots = this.raid.getTargetDummySlots();
+			const isDummy = ref.type == UnitType.RandomFriendlyTarget ? dummySlots.length > 0 : dummySlots.includes(ref.index);
+			return isDummy ? contextPlayer?.getMetadata() : undefined;
 		} else if (ref.type == UnitType.Target) {
 			return this.encounter.targetsMetadata.asList()[ref.index];
 		} else if (ref.type == UnitType.Pet) {
