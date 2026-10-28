@@ -49,6 +49,7 @@ export const DefaultOptions = RetributionPaladinOptions.create({
 });
 
 export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '550030032101012--052252300012303' }));
+export const LightsVigilTalents = PresetUtils.makePresetTalents("Light's Vigil", SavedTalents.create({ talentsString: '55003003201121251--05225030201' }));
 export const TwistOfLightTalents = PresetUtils.makePresetTalents('Twist of Light', SavedTalents.create({ talentsString: '55003003--05225331101330321' }));
 
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
