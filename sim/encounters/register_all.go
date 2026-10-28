@@ -72,7 +72,7 @@ func dynamicAddTarget() *proto.Target {
 	return &proto.Target{
 		Id:        dynamicAddID,
 		Name:      "Dynamic Add",
-		Level:     63,
+		Level:     62,
 		MobType:   proto.MobType_MobTypeMechanical,
 		TankIndex: 1,
 
