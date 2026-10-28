@@ -187,7 +187,12 @@ export class Encounter {
 
 	matchesPreset(preset: PresetEncounter): boolean {
 		const targets = this.enc.targets;
-		return preset.targets.length == targets.length && targets.every((t, i) => TargetProto.equals(t, preset.targets[i].target));
+		// A preset without a design matches an empty one.
+		return (
+			preset.targets.length == targets.length &&
+			targets.every((t, i) => TargetProto.equals(t, preset.targets[i].target)) &&
+			EncounterDesign.equals(this.enc.design, preset.design ?? EncounterDesign.create())
+		);
 	}
 
 	// A preset's target proto is owned by `sim.db` and shared by every encounter naming that preset,
