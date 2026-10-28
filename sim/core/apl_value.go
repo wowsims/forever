@@ -103,6 +103,24 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 	case *proto.APLValue_EncounterInArea:
 		value = rot.newValueEncounterInArea(config.GetEncounterInArea(), config.Uuid)
 
+	// Encounter design
+	case *proto.APLValue_TargetIsActive:
+		value = rot.newValueTargetIsActive(config.GetTargetIsActive(), config.Uuid)
+	case *proto.APLValue_NumActiveAdds:
+		value = rot.newValueNumActiveAdds(config.GetNumActiveAdds(), config.Uuid)
+	case *proto.APLValue_TimeUntilTargetActive:
+		value = rot.newValueTimeUntilTargetActive(config.GetTimeUntilTargetActive(), config.Uuid)
+	case *proto.APLValue_TimeUntilTargetDies:
+		value = rot.newValueTimeUntilTargetDies(config.GetTimeUntilTargetDies(), config.Uuid)
+	case *proto.APLValue_TimeUntilNextMove:
+		value = rot.newValueTimeUntilNextMove(config.GetTimeUntilNextMove(), config.Uuid)
+	case *proto.APLValue_NextMoveDuration:
+		value = rot.newValueNextMoveDuration(config.GetNextMoveDuration(), config.Uuid)
+	case *proto.APLValue_AmpIsActive:
+		value = rot.newValueAmpIsActive(config.GetAmpIsActive(), config.Uuid)
+	case *proto.APLValue_TimeUntilAmp:
+		value = rot.newValueTimeUntilAmp(config.GetTimeUntilAmp(), config.Uuid)
+
 	// Boss
 	case *proto.APLValue_BossSpellIsCasting:
 		value = rot.newValueBossSpellIsCasting(config.GetBossSpellIsCasting(), config.Uuid)
