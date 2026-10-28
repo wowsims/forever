@@ -1,18 +1,16 @@
 import * as InputHelpers from '@features/inputs/input_helpers';
-import { HealingSettings } from '@features/settings';
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
+import { HealingSettingsSection } from '@features/settings/model/healing_inputs';
 import { APLRotation } from '@generated/proto/apl';
 import { Debuffs } from '@generated/proto/buffs';
 import { PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PrayerOfHealingMode } from '@generated/proto/priest';
 import i18n from '@i18n/config';
-import { LaunchStatus } from '@sim/constants/other';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defaultHealerIndividualBuffs, defaultHealerPartyBuffs, defaultHealerRaidBuffs } from '@sim/proto/utils';
 import { defineSpec } from '@sim/spec_config';
-import { isPreviewOrDevMode } from '@sim/utils/env';
 
 import * as PriestInputs from '../shared/inputs';
 import * as Presets from './presets';
@@ -73,10 +71,10 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		BuffDebuffInputs.AtieshWarlock,
 	],
 	sections: [
+		HealingSettingsSection,
 		{
 			id: 'healing-inputs',
 			title: i18n.t('settings_tab.healing_inputs.title'),
-			when: player => isPreviewOrDevMode(player.sim.env.location.hostname) || player.getPlayerSpec().launch.status !== LaunchStatus.GearPlanner,
 			inputs: [
 				InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
 					fieldName: 'holyNovaHealTargets',
@@ -121,8 +119,6 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		},
 	],
 	otherInputs: { inputs: [] },
-	settingsComponent: HealingSettings,
-	hideDebuffs: true,
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
 		showExecuteProportion: false,

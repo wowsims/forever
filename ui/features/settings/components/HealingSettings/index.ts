@@ -1,1 +1,0 @@
-export { HealingSettings } from './HealingSettings';

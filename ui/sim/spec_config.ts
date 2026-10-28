@@ -6,7 +6,7 @@ import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/prot
 import { ConsumesSpec, EquipmentSpec, HealingModel, ItemSlot, ItemSwap, Profession, PseudoStat, Race, Spec, Stat } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
 import type { SavedDataConfig } from '@ui-kit/SavedDataPanel/types';
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { Player, PlayerConfig, registerSpecConfig as registerPlayerConfig } from './player/player';
 import type { WeaponSkillGroup } from './player/weapon_skill_groups';
@@ -163,8 +163,6 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 
 	// Extra settings-tab sections, as data (e.g. Shaman totems).
 	sections?: Array<CustomSection<SpecType>>;
-	settingsComponent?: ComponentType;
-	hideDebuffs?: boolean;
 
 	encounterPicker: EncounterPickerConfig;
 

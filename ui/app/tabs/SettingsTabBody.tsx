@@ -75,7 +75,7 @@ const BuffSections = ({ gearPlanner }: { gearPlanner: boolean }) => {
 					<RaidBuffs options={options.partyBuffs} miscOptions={[]} />
 				</BuffSection>
 			)}
-			{!gearPlanner && !config.hideDebuffs && (
+			{!gearPlanner && (
 				<BuffSection
 					section="debuffs"
 					empty={!offersDebuffs}
@@ -91,7 +91,6 @@ export const SettingsTabBody = () => {
 	const host = useSimHost();
 	const config = useSpecConfig();
 	const ready = useSimReady();
-	const SettingsComponent = config.settingsComponent;
 
 	const itemSwapSlots = config.itemSwapSlots || [];
 	const hasOtherSettings = config.otherInputs.inputs.length > 0 || itemSwapSlots.length > 0;
@@ -123,10 +122,7 @@ export const SettingsTabBody = () => {
 				<TabPanelColumns.Col>
 					{ready && (
 						<>
-							{!gearPlanner && SettingsComponent && <SettingsComponent />}
-							{config.sections?.map(section => (
-								<CustomSection key={section.id} section={section} />
-							))}
+							{!gearPlanner && config.sections?.map(section => <CustomSection key={section.id} section={section} />)}
 							<ContentBlock
 								rootDataAttributes={{ 'data-block': 'consumes-settings' }}
 								config={{ header: { title: i18n.t('settings_tab.consumables.title') } }}
