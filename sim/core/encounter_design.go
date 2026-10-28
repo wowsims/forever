@@ -34,6 +34,7 @@ type encounterDesign struct {
 	nextMoveAt       time.Duration // The start of the next move not yet started, or NeverExpires.
 	nextMoveDuration time.Duration // How long that move lasts, 0 without one.
 	amps             [numDamageAmpTypes]designAmpLookahead
+	lanes            designLanes // The movement and damage amp lanes' state, built with the environment.
 }
 
 type designAmpLookahead struct {
@@ -379,6 +380,7 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 		state.latestEnd = 0
 		if back {
 			target.Enable(sim)
+			design.reapplyAmps(sim, target)
 		}
 		return
 	}
@@ -493,6 +495,7 @@ func (wave *designWave) spawn(sim *Simulation) {
 
 		target.SetHealthCurve(sim, sim.CurrentTime, lifetime, wave.knots[:]...)
 		target.Enable(sim)
+		wave.design.reapplyAmps(sim, target)
 	}
 	if sim.Log != nil {
 		sim.Log("Encounter design: wave %s spawned %d adds.", wave.name(), wave.count)

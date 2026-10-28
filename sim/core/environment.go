@@ -149,6 +149,8 @@ func (env *Environment) initialize(raidProto *proto.Raid, _ *proto.Encounter) *p
 		}
 	}
 
+	env.Encounter.design.registerLanes(env)
+
 	env.State = Initialized
 	return raidStats
 }
