@@ -123,9 +123,20 @@ def GenCreatureExpectedStats(dbPath: str, level: int):
     return {"Health": float(health), "Armor": float(armor), "AutoAttackDps": float(autoAttackDps)}
 
 
+def GenCreatureArmorByLevel(dbPath: str):
+    conn = sqlite3.connect(dbPath)
+    rows = conn.execute("SELECT Lvl, CreatureArmor FROM ExpectedStat WHERE ContentSetID = 0 ORDER BY Lvl").fetchall()
+    conn.close()
+
+    if not rows:
+        raise SystemExit("ExpectedStat has no creature rows")
+    return {int(level): float(armor) for level, armor in rows}
+
+
 class ClassStats:
     Expected: dict
     Creature: dict
+    CreatureArmorByLevel: dict
     MCritBase: dict
     SCritBase: dict
     CombatRatings: dict
@@ -172,6 +183,12 @@ import (
     output += f"const CreatureHealthMaxLevel = {cs.Creature['Health']!r}\n"
     output += f"const CreatureArmorMaxLevel = {cs.Creature['Armor']!r}\n"
     output += f"const CreatureAutoAttackDpsMaxLevel = {cs.Creature['AutoAttackDps']!r}\n"
+
+    output += "// ExpectedStat's creature armor at each level\n"
+    output += "var CreatureArmorByLevel = map[int32]float64{"
+    for level, armor in cs.CreatureArmorByLevel.items():
+        output += f"\n{level}: {armor!r},"
+    output += "\n}\n"
 
     output += '''var CritPerAgiMaxLevel = map[proto.Class]float64{
 proto.Class_ClassUnknown: 0.0,'''
@@ -236,6 +253,7 @@ if __name__ == "__main__":
     args = ClassStats()
     args.Expected = GenExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
     args.Creature = GenCreatureExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
+    args.CreatureArmorByLevel = GenCreatureArmorByLevel(BASE_DIR + DB_PATH)
     args.MCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + MELEE_CRIT_BASE)
     args.SCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + SPELL_CRIT_BASE)
     args.CombatRatings = GenNameIndexedDb(BASE_DIR + DIR_PATH + COMBAT_RATINGS)

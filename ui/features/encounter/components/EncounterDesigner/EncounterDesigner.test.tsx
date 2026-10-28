@@ -1,9 +1,11 @@
 import { AddWave, DesignDowntime, EncounterDesign, HealthKeyframe, MobType, PresetEncounter, PresetTarget, Stat, Target } from '@generated/proto/common';
 import { UIDatabase } from '@generated/proto/ui';
 import i18n from '@i18n/config';
+import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import { renderWithHost } from '@testing/react';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import english from '../../../../../assets/locales/en/translation.json';
@@ -99,6 +101,24 @@ describe('EncounterDesigner', () => {
 			expect(wave.adds[0].name).toBe('Dynamic Add');
 			expect(wave.adds[0].stats[Stat.StatHealth]).toBe(7000);
 		}
+	});
+
+	it("sets an add's armor to the game files' creature armor of the level picked in its stats, and saves it", async () => {
+		const { encounter } = await setup();
+		const dialog = await openDesigner();
+
+		await add('Add waves', 'Wave');
+		await clickButton('Add stats');
+		await userEvent.click(within(dialog).getByLabelText('Level'));
+		await userEvent.click(screen.getByRole('option', { name: '61' }));
+
+		expect(CREATURE_ARMOR_BY_LEVEL[61]).toBeGreaterThan(0);
+		expect((within(dialog).getByLabelText('Armor') as HTMLInputElement).value).toBe(String(CREATURE_ARMOR_BY_LEVEL[61]));
+
+		await clickButton('Save');
+		const [savedAdd] = encounter.getDesign().addWaves[0].adds;
+		expect(savedAdd.level).toBe(61);
+		expect(savedAdd.stats[Stat.StatArmor]).toBe(CREATURE_ARMOR_BY_LEVEL[61]);
 	});
 
 	it('adds a wave in the draft, moves and edits it, and saves it to the store as fractions', async () => {

@@ -9,6 +9,7 @@ import {
 	translateTargetInputLabel,
 	translateTargetInputTooltip,
 } from '@i18n/localization';
+import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import type { Encounter } from '@sim/raid/encounter';
 import { type StoreSubscribe, subscribeEncounterField } from '@sim/state/subscriptions';
 import { distinct } from '@sim/utils/collections';
@@ -145,6 +146,8 @@ export const levelConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget 
 		trackEvent({ action: 'settings', category: 'targets', label: 'level', value: newValue });
 		modifyTarget(target => {
 			target.level = newValue;
+			const armor = CREATURE_ARMOR_BY_LEVEL[newValue];
+			if (armor !== undefined) target.stats[Stat.StatArmor] = armor;
 		});
 	},
 });
