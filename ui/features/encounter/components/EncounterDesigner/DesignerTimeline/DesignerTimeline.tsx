@@ -40,6 +40,8 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 	const gutterRef = useRef<HTMLDivElement>(null);
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const zoomRef = useRef<ZoomController | null>(null);
+	const fitRef = useRef<(() => void) | null>(null);
+	const followsWidth = useRef(true);
 	const rulerRef = useRef<Ruler | null>(null);
 	const frameHandle = useRef<number | null>(null);
 	const duration = useRef(baseSeconds);
@@ -70,6 +72,18 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 		const rulerTrack = rulerTrackRef.current;
 		if (!root || !scroller || !rulerTrack) return;
 
+		// The whole fight shows at the scroller's width, and keeps showing as that width or the duration changes (the
+		// dialog's own scrollbar takes some width), until the user zooms; Fit returns to it.
+		let fitting = false;
+		let fittedWidth = 0;
+		const fit = () => {
+			followsWidth.current = true;
+			fittedWidth = scroller.clientWidth;
+			fitting = true;
+			zoomRef.current?.fitToWidth();
+			fitting = false;
+		};
+
 		rulerRef.current = new Ruler(rulerTrack);
 		const zoom = new ZoomController({
 			scroller,
@@ -78,22 +92,22 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 			inset: () => gutterRef.current?.offsetLeft ?? 0,
 			// Bars take the arrow keys, so the zoom never handles them and never scrolls vertically.
 			scrollVerticalBy: () => {},
-			onChange: schedule,
+			onChange: () => {
+				if (!fitting) followsWidth.current = false;
+				schedule();
+			},
 		});
 		zoom.setDuration(duration.current);
 		zoom.attach();
 		zoomRef.current = zoom;
+		fitRef.current = fit;
 
-		// The whole fight shows on the first frame the scroller has a width.
-		let fitted = false;
 		const observer = new ResizeObserver(() => {
-			if (!fitted && scroller.clientWidth > 0) {
-				fitted = true;
-				zoom.fitToWidth();
-			}
+			if (followsWidth.current && scroller.clientWidth > 0 && scroller.clientWidth !== fittedWidth) fit();
 			schedule();
 		});
 		observer.observe(root);
+		observer.observe(scroller);
 		scroller.addEventListener('scroll', schedule, { passive: true });
 
 		return () => {
@@ -103,6 +117,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 			observer.disconnect();
 			zoom.dispose();
 			zoomRef.current = null;
+			fitRef.current = null;
 			rulerRef.current = null;
 		};
 	}, [schedule]);
@@ -110,6 +125,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 	useEffect(() => {
 		duration.current = baseSeconds;
 		zoomRef.current?.setDuration(baseSeconds);
+		if (followsWidth.current) fitRef.current?.();
 		schedule();
 	}, [baseSeconds, schedule]);
 
@@ -126,7 +142,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 				onSnapChange={setSnapSeconds}
 				onZoomIn={() => zoomRef.current?.stepIn()}
 				onZoomOut={() => zoomRef.current?.stepOut()}
-				onFit={() => zoomRef.current?.fitToWidth()}
+				onFit={() => fitRef.current?.()}
 				onAdd={onAdd}
 			/>
 			<div className="flex h-6 shrink-0">

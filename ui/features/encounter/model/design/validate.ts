@@ -2,11 +2,12 @@ import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, Desig
 import { DamageAmpType } from '@generated/proto/common';
 
 import type { DesignEventRef } from './lanes';
-import { firesAtInstants } from './lanes';
-import { clamp01 } from './time';
+import { firesAtInstants, occurrences } from './lanes';
+import { clamp01, type TimeWindow } from './time';
 
 export type DesignIssueSeverity = 'error' | 'warning' | 'info';
-export type DesignIssue = { ref: DesignEventRef; severity: DesignIssueSeverity; key: string };
+/** A stretch of time the issue's text names comes in fractions of the fight. */
+export type DesignIssue = { ref: DesignEventRef; severity: DesignIssueSeverity; key: string; span?: TimeWindow };
 
 const key = (name: string) => `settings_tab.encounter.designer.validation.${name}`;
 
@@ -34,6 +35,8 @@ const MAX_HEALTH_POINTS = 16;
 
 // The most adds one wave spawns at once; the sim skips a wave with more.
 const MAX_WAVE_ADDS = 64;
+// The sim's cap on one repeating event's occurrences per iteration (designMaxOccurrences in sim/core/encounter_design.go).
+const MAX_OCCURRENCES = 1000;
 
 const outside = (from: number, to: number, startJitter: number, endJitter = startJitter) => from - startJitter < 0 || to + endJitter > 1;
 
@@ -41,7 +44,8 @@ const overlaps = (a: DesignDowntime, b: DesignDowntime) => (a.start?.at ?? 0) < 
 
 export const validateDesign = (design: EncounterDesign, targetCount: number): DesignIssue[] => {
 	const issues: DesignIssue[] = [];
-	const add = (ref: DesignEventRef, severity: DesignIssueSeverity, issueKey: string) => issues.push({ ref, severity, key: issueKey });
+	const add = (ref: DesignEventRef, severity: DesignIssueSeverity, issueKey: string, span?: TimeWindow) =>
+		issues.push({ ref, severity, key: issueKey, ...(span ? { span } : {}) });
 	const badTarget = (index: number) => index < 0 || index >= targetCount;
 
 	const checkSpan = (ref: DesignEventRef, start: DesignTime | undefined, end: DesignTime | undefined) => {
@@ -123,13 +127,33 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 			.forEach(({ index }) => add({ kind: 'bossHealth', index }, 'error', DESIGN_ISSUE_KEYS.tooManyKeyframes));
 	}
 
+	// The player idles where every target is down and no add is up. An add is up for each occurrence of a wave the sim
+	// spawns, from its spawn for its lifetime, with jitter ignored as the timeline draws it.
 	if (targetCount > 0) {
 		const covers = (downtime: DesignDowntime, at: number) => (downtime.start?.at ?? 0) <= at && at < (downtime.end?.at ?? 0);
-		const allDownAt = (at: number) =>
-			Array.from({ length: targetCount }, (_, target) => target).every(target => design.downtimes.some(d => d.targetIndex === target && covers(d, at)));
-		const instants = design.downtimes.map(d => d.start?.at ?? 0).filter(allDownAt);
+		const addLives = design.addWaves
+			.map((wave, index) => ({ wave, index }))
+			.filter(({ wave }) => wave.adds.length > 0 && wave.adds.length <= MAX_WAVE_ADDS && wave.lifetime > 0)
+			.flatMap(({ index }) => occurrences(design, { kind: 'wave', index }, MAX_OCCURRENCES));
+		const idleAt = (at: number) =>
+			Array.from({ length: targetCount }, (_, target) => target).every(target => design.downtimes.some(d => d.targetIndex === target && covers(d, at))) &&
+			!addLives.some(life => life.start <= at && at < life.end);
+		const edges = [...design.downtimes.flatMap(d => [d.start?.at ?? 0, d.end?.at ?? 0]), ...addLives.flatMap(life => [life.start, life.end])];
+
 		design.downtimes.forEach((downtime, index) => {
-			if (instants.some(at => covers(downtime, at))) add({ kind: 'downtime', index }, 'info', DESIGN_ISSUE_KEYS.allTargetsDown);
+			const from = downtime.start?.at ?? 0;
+			const to = downtime.end?.at ?? 0;
+			const cuts = [...new Set([from, to, ...edges.filter(at => from < at && at < to)])].sort((a, b) => a - b);
+			const stretches: TimeWindow[] = [];
+			// Between two neighbouring edges nothing changes, so the midpoint stands for the whole piece.
+			cuts.slice(1).forEach((end, i) => {
+				const start = cuts[i];
+				if (end <= start || !idleAt((start + end) / 2)) return;
+				const last = stretches.at(-1);
+				if (last?.end === start) last.end = end;
+				else stretches.push({ start, end });
+			});
+			stretches.forEach(span => add({ kind: 'downtime', index }, 'info', DESIGN_ISSUE_KEYS.allTargetsDown, span));
 		});
 	}
 

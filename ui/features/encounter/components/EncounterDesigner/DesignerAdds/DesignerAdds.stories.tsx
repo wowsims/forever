@@ -2,7 +2,7 @@ import { Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { designPresetTargets } from '@testing/storybook/fixtures/encounter_design';
 import { useState } from 'react';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { DesignerAdds, type DesignerAddsProps } from './DesignerAdds';
 
@@ -45,16 +45,28 @@ export const MixedAdds: Story = {
 	args: { adds: [template(), Target.clone(designPresetTargets[1].target!), template()] },
 };
 
-// A copy opens beside its original; removing a row closes nothing else.
+const editButtons = (canvasElement: HTMLElement) => within(canvasElement).getAllByRole('button', { name: /adds\.edit$|Edit add/ });
+
+// A new add opens its dialog; once it closes, a copy lands beside its original and a removal takes one row.
 export const AddCopyRemove: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		const rows = () => canvasElement.querySelectorAll('[data-testid$="-stats"]').length;
-		await userEvent.click(canvas.getByRole('button', { name: /^(.*)adds\.add$|Add an add/ }));
-		await expect(rows()).toBe(2);
+		await userEvent.click(canvas.getByRole('button', { name: /adds\.add$|Add an add/ }));
+		await userEvent.click(await screen.findByRole('button', { name: /adds\.done$|Done/ }));
+		await waitFor(() => expect(screen.queryByTestId('encounter-designer-add-dialog')).toBeNull());
+		await expect(editButtons(canvasElement)).toHaveLength(2);
 		await userEvent.click(canvas.getAllByRole('button', { name: /duplicate/i })[0]);
-		await expect(rows()).toBe(3);
+		await expect(editButtons(canvasElement)).toHaveLength(3);
 		await userEvent.click(canvas.getAllByRole('button', { name: /remove/i })[0]);
-		await expect(rows()).toBe(2);
+		await expect(editButtons(canvasElement)).toHaveLength(2);
+	},
+};
+
+// The add's template and stats open in a dialog over the list, titled with the add's name.
+export const EditDialog: Story = {
+	play: async ({ canvasElement }) => {
+		await userEvent.click(editButtons(canvasElement)[0]);
+		const dialog = await screen.findByTestId('encounter-designer-add-dialog');
+		await expect(within(dialog).getByTestId('sim-dialog-title').textContent).toBe(designPresetTargets[0].target!.name);
 	},
 };

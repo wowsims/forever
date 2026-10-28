@@ -4381,13 +4381,10 @@
 										},
 										"remove": {
 											"type": "string"
-										},
-										"add_stats": {
-											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["empty", "remove", "add_stats"]
+									"required": ["empty", "remove"]
 								},
 								"issues": {
 									"type": "object",
@@ -4693,10 +4690,16 @@
 										},
 										"add_short": {
 											"type": "string"
+										},
+										"edit": {
+											"type": "string"
+										},
+										"done": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["title", "add", "duplicate", "remove", "add_title", "add_row", "add_short"]
+									"required": ["title", "add", "duplicate", "remove", "add_title", "add_row", "add_short", "edit", "done"]
 								},
 								"health_hold": {
 									"type": "string"

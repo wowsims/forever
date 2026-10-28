@@ -1153,7 +1153,7 @@
 					"health_increases": "Boss health rises after an earlier keyframe.",
 					"target_out_of_range": "Names a target the encounter does not have.",
 					"wave_out_of_range": "Names a wave the design does not have.",
-					"all_targets_down": "Every target is down at once here, so the player idles.",
+					"all_targets_down": "Every target is down from {{from}} to {{to}}, so the player idles.",
 					"too_many_keyframes": "The sim's boss health curve holds 16 points, its own start and end points included, so it drops this keyframe.",
 					"amp_not_positive": "Adds no damage, so the sim skips it.",
 					"too_many_adds": "Spawns more than 64 adds at once, so the sim skips the wave.",
@@ -1222,8 +1222,7 @@
 				},
 				"panel": {
 					"empty": "Select an event on the timeline to edit it.",
-					"remove": "Remove",
-					"add_stats": "Add stats"
+					"remove": "Remove"
 				},
 				"issues": {
 					"title": "Issues",
@@ -1307,7 +1306,9 @@
 					"remove": "Remove add",
 					"add_title": "Add {{number}}",
 					"add_row": "{{name}}, Lvl {{level}} {{type}}",
-					"add_short": "Add"
+					"add_short": "Add",
+					"edit": "Edit add",
+					"done": "Done"
 				},
 				"health_hold": "Hold {{percent}} %"
 			}

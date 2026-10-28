@@ -1,4 +1,4 @@
-import { DamageAmpType, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
+import { AddWave, DamageAmpType, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import { addEvent } from './lanes';
@@ -163,8 +163,64 @@ describe('validateDesign', () => {
 		const result = keys(design, 2);
 		expect(result).toContain(`downtime0:info:${DESIGN_ISSUE_KEYS.allTargetsDown}`);
 		expect(result).toContain(`downtime1:info:${DESIGN_ISSUE_KEYS.allTargetsDown}`);
+		expect(idleSpans(design, 2)).toEqual([
+			[0, 0.3, 0.4],
+			[1, 0.3, 0.4],
+		]);
 		design.downtimes[1].start!.at = 0.45;
 		expect(keys(design, 2).filter(k => k.includes(':info:'))).toEqual([]);
+	});
+
+	const idleSpans = (design: EncounterDesign, targetCount = 1) =>
+		validateDesign(design, targetCount)
+			.filter(issue => issue.key === DESIGN_ISSUE_KEYS.allTargetsDown)
+			.map(issue => [issue.ref.index, issue.span!.start, issue.span!.end]);
+
+	const wave = (design: EncounterDesign, at: number, lifetime: number, { adds = 1, interval = 0 } = {}) =>
+		design.addWaves.push(
+			AddWave.create({
+				adds: Array.from({ length: adds }, () => Target.create()),
+				spawn: { at, jitter: 0 },
+				lifetime,
+				repeat: { interval, count: 0, jitter: 0 },
+			}),
+		);
+
+	it('reports no idle stretch where an add is up for the whole downtime', () => {
+		const design = EncounterDesign.create();
+		downtime(design, 0.4, 0.5);
+		wave(design, 0.35, 0.2);
+		expect(idleSpans(design)).toEqual([]);
+	});
+
+	it('names the part of a downtime no add covers, and each part when an add splits it', () => {
+		const design = EncounterDesign.create();
+		downtime(design, 0.4, 0.5);
+		wave(design, 0.45, 0.1);
+		expect(idleSpans(design)).toEqual([[0, 0.4, 0.45]]);
+
+		design.addWaves[0].spawn!.at = 0.4375;
+		design.addWaves[0].lifetime = 0.03125;
+		expect(idleSpans(design)).toEqual([
+			[0, 0.4, 0.4375],
+			[0, 0.46875, 0.5],
+		]);
+	});
+
+	it("counts each occurrence of a repeating wave as an add's life", () => {
+		const design = EncounterDesign.create();
+		downtime(design, 0.375, 0.5);
+		wave(design, 0.125, 0.0625, { interval: 0.25 });
+		expect(idleSpans(design)).toEqual([[0, 0.4375, 0.5]]);
+	});
+
+	it('counts no add of a wave the sim skips', () => {
+		const design = EncounterDesign.create();
+		downtime(design, 0.4, 0.5);
+		wave(design, 0.4, 0.1, { adds: 0 });
+		wave(design, 0.4, 0.1, { adds: 65 });
+		wave(design, 0.4, 0, {});
+		expect(idleSpans(design)).toEqual([[0, 0.4, 0.5]]);
 	});
 
 	it('flags a wave with no lifetime', () => {

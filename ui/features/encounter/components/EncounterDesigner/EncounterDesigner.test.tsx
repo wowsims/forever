@@ -89,12 +89,15 @@ describe('EncounterDesigner', () => {
 			const dialog = await openDesigner();
 
 			await add('Add waves', 'Wave');
-			await clickButton('Add stats');
-			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Default/Dynamic Add');
-			expect((within(dialog).getByLabelText('Health') as HTMLInputElement).value).toBe('5000');
-			await commit(within(dialog).getByLabelText('Health'), '7000');
-			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Custom');
+			await clickButton('Edit add');
+			const addDialog = screen.getByTestId('encounter-designer-add-dialog');
+			expect(within(addDialog).getByLabelText('Add template').textContent).toContain('Default/Dynamic Add');
+			expect((within(addDialog).getByLabelText('Health') as HTMLInputElement).value).toBe('5000');
+			await commit(within(addDialog).getByLabelText('Health'), '7000');
+			expect(within(addDialog).getByLabelText('Add template').textContent).toContain('Custom');
+			await clickButton('Done');
 
+			expect(within(dialog).queryByTestId('encounter-designer-add-dialog')).toBeNull();
 			await clickButton('Save');
 			const [wave] = encounter.getDesign().addWaves;
 			expect(wave.adds).toHaveLength(1);
@@ -103,22 +106,66 @@ describe('EncounterDesigner', () => {
 		}
 	});
 
-	it("sets an add's armor to the game files' creature armor of the level picked in its stats, and saves it", async () => {
+	const pickLevel = async (addDialog: HTMLElement, level: number) => {
+		await userEvent.click(within(addDialog).getByLabelText('Level'));
+		await userEvent.click(screen.getByRole('option', { name: String(level) }));
+	};
+
+	const armorField = (addDialog: HTMLElement) => (within(addDialog).getByLabelText('Armor') as HTMLInputElement).value;
+
+	it('edits a new add in a dialog over the designer: its level sets its armor, Escape hands focus back, and Save keeps the edits', async () => {
 		const { encounter } = await setup();
-		const dialog = await openDesigner();
-
+		await openDesigner();
 		await add('Add waves', 'Wave');
-		await clickButton('Add stats');
-		await userEvent.click(within(dialog).getByLabelText('Level'));
-		await userEvent.click(screen.getByRole('option', { name: '61' }));
 
+		await clickButton('Add an add');
+		let addDialog = screen.getByTestId('encounter-designer-add-dialog');
+		expect(within(addDialog).getByTestId('sim-dialog-title').textContent).toBe('Dynamic Add');
+		await pickLevel(addDialog, 61);
 		expect(CREATURE_ARMOR_BY_LEVEL[61]).toBeGreaterThan(0);
-		expect((within(dialog).getByLabelText('Armor') as HTMLInputElement).value).toBe(String(CREATURE_ARMOR_BY_LEVEL[61]));
+		expect(armorField(addDialog)).toBe(String(CREATURE_ARMOR_BY_LEVEL[61]));
+		await commit(within(addDialog).getByLabelText('Health'), '9000');
+		await act(async () => void fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' }));
+		await waitFor(() => expect(screen.queryByTestId('encounter-designer-add-dialog')).toBeNull());
+		expect(screen.getByTestId('encounter-designer')).toBeTruthy();
+
+		const edit = screen.getAllByRole('button', { name: 'Edit add' })[1];
+		await act(async () => {
+			edit.focus();
+			fireEvent.click(edit);
+		});
+		addDialog = screen.getByTestId('encounter-designer-add-dialog');
+		expect(armorField(addDialog)).toBe(String(CREATURE_ARMOR_BY_LEVEL[61]));
+		await act(async () => void fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' }));
+		await waitFor(() => expect(screen.queryByTestId('encounter-designer-add-dialog')).toBeNull());
+		expect(document.activeElement).toBe(edit);
 
 		await clickButton('Save');
+		const [first, second] = encounter.getDesign().addWaves[0].adds;
+		expect(first).toEqual(DYNAMIC_ADD);
+		expect(second.level).toBe(61);
+		expect(second.stats[Stat.StatArmor]).toBe(CREATURE_ARMOR_BY_LEVEL[61]);
+		expect(second.stats[Stat.StatHealth]).toBe(9000);
+	});
+
+	it("sets the armor of the Dynamic Adds preset's add to the game files' creature armor of the level picked", async () => {
+		const { encounter } = await setup();
+		await userEvent.click(screen.getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
+		await openDesigner();
+
+		await act(async () => fireEvent.click(within(lane('Add waves')).getAllByRole('slider')[0]));
+		await clickButton('Edit add');
+		const addDialog = screen.getByTestId('encounter-designer-add-dialog');
+		expect(within(addDialog).getByLabelText('Level').textContent).toContain('63');
+		await pickLevel(addDialog, 60);
+		expect(armorField(addDialog)).toBe(String(CREATURE_ARMOR_BY_LEVEL[60]));
+
+		await clickButton('Done');
+		await clickButton('Save');
 		const [savedAdd] = encounter.getDesign().addWaves[0].adds;
-		expect(savedAdd.level).toBe(61);
-		expect(savedAdd.stats[Stat.StatArmor]).toBe(CREATURE_ARMOR_BY_LEVEL[61]);
+		expect(savedAdd.level).toBe(60);
+		expect(savedAdd.stats[Stat.StatArmor]).toBe(CREATURE_ARMOR_BY_LEVEL[60]);
 	});
 
 	it('adds a wave in the draft, moves and edits it, and saves it to the store as fractions', async () => {
@@ -133,6 +180,7 @@ describe('EncounterDesigner', () => {
 		await press(bar, 'ArrowRight', true);
 		await press(bar, 'ArrowRight');
 		await clickButton('Add an add');
+		await clickButton('Done');
 		await clickFirst('Duplicate add');
 		await clickFirst('Remove add');
 		expect(encounter.getDesign().addWaves).toEqual([]);
@@ -388,5 +436,17 @@ describe('EncounterDesigner', () => {
 
 		await clickButton('Save');
 		expect(encounter.getDesign().moves).toHaveLength(2);
+	});
+
+	it('names in seconds the part of a boss downtime no add is up for', async () => {
+		const { baseSeconds } = await setup({
+			design: EncounterDesign.create({
+				downtimes: [DesignDowntime.create({ targetIndex: 0, start: { at: 0.25, jitter: 0 }, end: { at: 0.5, jitter: 0 } })],
+				addWaves: [AddWave.create({ adds: [DYNAMIC_ADD], spawn: { at: 0.375, jitter: 0 }, lifetime: 0.25 })],
+			}),
+		});
+		const dialog = await openDesigner();
+		const issues = within(dialog).getByRole('region', { name: 'Issues' });
+		expect(issues.textContent).toContain(`Every target is down from ${baseSeconds * 0.25}s to ${baseSeconds * 0.375}s, so the player idles.`);
 	});
 });

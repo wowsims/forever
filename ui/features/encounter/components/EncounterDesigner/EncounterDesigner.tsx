@@ -122,7 +122,7 @@ export const EncounterDesignerView = ({
 					/>
 				</div>
 			</div>
-			<DesignerIssues design={design} issues={issues} onSelect={onSelect} />
+			<DesignerIssues design={design} issues={issues} baseSeconds={baseSeconds} onSelect={onSelect} />
 		</Dialog>
 	);
 };
