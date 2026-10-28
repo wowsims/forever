@@ -9,6 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/warrior"
 	"github.com/wowsims/forever/sim/warrior/dps"
@@ -138,11 +139,17 @@ func shieldSpells(t *testing.T, war *core.Character) map[string]*core.Spell {
 	return spells
 }
 
+// The trainer's top rank and the rank Manual of Battle Shout VII teaches.
+const (
+	battleShoutTrainerRank = 11551
+	battleShoutBookRank    = 25289
+)
+
 // The warrior's own shout with three pieces of Battlegear of Wrath on, through
-// the class option: it raises what the shout bids for its category by the 30
+// the class option: it raises what either rank bids for its category by the 30
 // spell 23563 states.
 func TestWarriorShoutsForTheTierTwoBonus(t *testing.T) {
-	bidOf := func(hasT2 bool) float64 {
+	bidOf := func(hasT2 bool, label string) float64 {
 		t.Helper()
 
 		player := &proto.Player{
@@ -169,28 +176,97 @@ func TestWarriorShoutsForTheTierTwoBonus(t *testing.T) {
 			core.MakeSingleTargetEncounter(0), false, true)
 
 		war := env.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
-		aura := war.GetAura("Battle Shout (Player)")
+		aura := war.GetAura(label)
 		if aura == nil {
-			t.Fatal("the ally aura array holds no aura labelled \"Battle Shout (Player)\"")
+			t.Fatalf("the ally aura array holds no aura labelled %q", label)
 		}
 		return aura.ExclusiveEffects[0].Priority
 	}
 
-	bare, withSet := bidOf(false), bidOf(true)
+	for _, rank := range []struct {
+		spellID int32
+		label   string
+	}{
+		{battleShoutTrainerRank, "Battle Shout Rank 6 (Player)"},
+		{battleShoutBookRank, "Battle Shout Rank 7 (Player)"},
+	} {
+		bare, withSet := bidOf(false, rank.label), bidOf(true, rank.label)
 
-	if want := buffs.BattleShoutValue(0); bare != want {
-		t.Errorf("a warrior without the set bids %v, want the game files' %v", bare, want)
-	}
-	if want := bare + buffs.BattleShoutT2Bonus; withSet != want {
-		t.Errorf("a warrior wearing the set bids %v, want %v", withSet, want)
+		if want := buffs.BattleShoutRankValue(spelldata.MustFind(rank.spellID)); bare != want {
+			t.Errorf("%s: a warrior without the set bids %v, want the game files' %v", rank.label, bare, want)
+		}
+		if want := bare + buffs.BattleShoutT2Bonus; withSet != want {
+			t.Errorf("%s: a warrior wearing the set bids %v, want %v", rank.label, withSet, want)
+		}
 	}
 }
 
+// The class option decides which rank's own copy the character sheet shows; both ranks stay registered.
+func TestWarriorSheetShowsTheShoutRankTheOptionPicks(t *testing.T) {
+	for _, row := range []struct {
+		name         string
+		rank7        bool
+		wantOnSheet  string
+		wantOffSheet string
+	}{
+		{"off", false, "Battle Shout Rank 6 (Player)", "Battle Shout Rank 7 (Player)"},
+		{"on", true, "Battle Shout Rank 7 (Player)", "Battle Shout Rank 6 (Player)"},
+	} {
+		t.Run(row.name, func(t *testing.T) {
+			player := &proto.Player{
+				Name:          "Sheet",
+				Race:          proto.Race_RaceOrc,
+				Class:         proto.Class_ClassWarrior,
+				Equipment:     &proto.EquipmentSpec{},
+				TalentsString: furyTalents,
+				Spec: &proto.Player_DpsWarrior{
+					DpsWarrior: &proto.DpsWarrior{
+						Options: &proto.DpsWarrior_Options{
+							ClassOptions: &proto.WarriorOptions{
+								UseBattleShout:       true,
+								DefaultStance:        proto.WarriorStance_WarriorStanceBerserker,
+								HasBattleShoutRank_7: row.rank7,
+							},
+						},
+					},
+				},
+			}
+			env, _, _ := core.NewEnvironment(
+				core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+				core.MakeSingleTargetEncounter(0), false, true)
+			war := env.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+
+			for label, want := range map[string]core.CharacterBuildPhase{
+				row.wantOnSheet:  core.CharacterBuildPhaseBuffs,
+				row.wantOffSheet: core.CharacterBuildPhaseNone,
+			} {
+				aura := war.GetAura(label)
+				if aura == nil {
+					t.Fatalf("the warrior carries no aura labelled %q", label)
+				}
+				if aura.BuildPhase != want {
+					t.Errorf("%s has build phase %v, want %v", label, aura.BuildPhase, want)
+				}
+			}
+		})
+	}
+}
+
+// The shout the rotation casts by the rank's spell id.
+func battleShoutSpell(t *testing.T, war *dps.DpsWarrior, spellID int32) *core.Spell {
+	t.Helper()
+	spell := war.GetSpell(core.ActionID{SpellID: spellID})
+	if spell == nil {
+		t.Fatalf("the warrior registers no Battle Shout %d", spellID)
+	}
+	return spell
+}
+
 // How the warrior treats the Battle Shout category. The buff belongs to the
-// unit, so a 169 shout from the raid and one from the warrior standing next to
-// this one fill the same category. Casting a 139 shout the category would turn
-// away wastes a global and rage, and so does refreshing a copy with most of its
-// three minutes left.
+// unit, so the raid's shout with the set and one from the warrior standing
+// next to this one fill the same category. Casting a weaker
+// shout the category would turn away wastes a global and rage, and so does
+// refreshing a copy with most of its three minutes left.
 func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 	warriorProto := func(name string, hasT2 bool) *proto.Player {
 		return &proto.Player{
@@ -227,29 +303,33 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 
 	withSet := buffs.BattleShoutValue(0) + buffs.BattleShoutT2Bonus
 
-	t.Run("an improved external shout outbids a warrior without the set", func(t *testing.T) {
+	t.Run("the raid's Rank 7 with the set outbids either rank of a warrior without it", func(t *testing.T) {
 		sim := &core.Simulation{}
-		env := build(&proto.RaidBuffs{BattleShout: proto.TristateEffect_TristateEffectImproved}, warriorProto("Bare", false))
+		env := build(&proto.RaidBuffs{BattleShout: 3}, warriorProto("Bare", false))
 		war := env.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
 
-		external := war.GetAura("Battle Shout (External)")
+		external := war.GetAura("Battle Shout Rank 7 (External)")
 		if external == nil {
 			t.Fatal("the raid's copy is not registered")
 		}
+		raidBid := buffs.BattleShoutRankValue(spelldata.MustFind(battleShoutBookRank)) + buffs.BattleShoutT2Bonus
 		external.Activate(sim)
-		if !external.IsActive() || external.ExclusiveEffects[0].Priority != withSet {
+		if !external.IsActive() || external.ExclusiveEffects[0].Priority != raidBid {
 			t.Fatalf("the raid's copy is active %v at %v, want it up at %v",
-				external.IsActive(), external.ExclusiveEffects[0].Priority, withSet)
+				external.IsActive(), external.ExclusiveEffects[0].Priority, raidBid)
 		}
 
-		if war.BattleShout.ExtraCastCondition(sim, &war.Unit) {
-			t.Error("the warrior would shout for 139 while a 169 copy holds the category, wasting the global")
+		for _, spellID := range []int32{battleShoutTrainerRank, battleShoutBookRank} {
+			if battleShoutSpell(t, war, spellID).ExtraCastCondition(sim, &war.Unit) {
+				t.Errorf("the warrior would shout %d for %v while a %v copy holds the category, wasting the global",
+					spellID, buffs.BattleShoutRankValue(spelldata.MustFind(spellID)), raidBid)
+			}
 		}
 	})
 
 	// The copy holding the category is the warrior's own, shared with a raid
-	// member wearing the set, so it bids 169 while this warrior is worth 139.
-	// What decides the cast is how long it has left, not what it bids.
+	// member wearing the set, so it bids the set's 30 more than this warrior is
+	// worth. What decides the cast is how long it has left, not what it bids.
 	for _, row := range []struct {
 		name      string
 		remaining time.Duration
@@ -263,9 +343,9 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 			env := build(&proto.RaidBuffs{}, warriorProto("Set", true), warriorProto("Bare", false))
 			bare := env.Raid.Parties[0].Players[1].(*dps.DpsWarrior)
 
-			own := bare.GetAura("Battle Shout (Player)")
+			own := bare.GetAura("Battle Shout Rank 6 (Player)")
 			if own == nil {
-				t.Fatal("the warrior carries no aura labelled \"Battle Shout (Player)\"")
+				t.Fatal("the warrior carries no aura labelled \"Battle Shout Rank 6 (Player)\"")
 			}
 			own.Activate(sim)
 			if !own.IsActive() || own.ExclusiveEffects[0].Priority != withSet {
@@ -278,11 +358,62 @@ func TestWarriorShoutsOnlyWhenTheCategoryWillTakeIt(t *testing.T) {
 				t.Fatalf("the shared copy has %v left, want %v", got, row.remaining)
 			}
 
-			if got := bare.BattleShout.ExtraCastCondition(sim, &bare.Unit); got != row.want {
+			if got := battleShoutSpell(t, bare, battleShoutTrainerRank).ExtraCastCondition(sim, &bare.Unit); got != row.want {
 				t.Errorf("the warrior would cast: %v, want %v with %v left and a %v threshold",
 					got, row.want, row.remaining, warrior.ShoutExpirationThreshold)
 			}
 		})
+	}
+}
+
+// A warrior that never shouts shares the raid's copy of the rank the raid's state names, which keeps
+// the build phase the raid gave it so the character sheet shows it. The warrior registers the other
+// rank's copy itself, and that one stays off the sheet.
+func TestRaidShoutKeepsItsBuildPhaseOnAWarriorThatNeverShouts(t *testing.T) {
+	const rank6, rank7 = "Battle Shout Rank 6 (External)", "Battle Shout Rank 7 (External)"
+	for _, row := range []struct {
+		state     int32
+		raidLabel string
+		ownLabel  string
+	}{
+		{1, rank6, rank7},
+		{2, rank7, rank6},
+		{3, rank7, rank6},
+	} {
+		player := &proto.Player{
+			Name:          "Silent",
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassWarrior,
+			Equipment:     &proto.EquipmentSpec{},
+			TalentsString: furyTalents,
+			Spec: &proto.Player_DpsWarrior{
+				DpsWarrior: &proto.DpsWarrior{
+					Options: &proto.DpsWarrior_Options{
+						ClassOptions: &proto.WarriorOptions{DefaultStance: proto.WarriorStance_WarriorStanceBerserker},
+					},
+				},
+			},
+		}
+		env, _, _ := core.NewEnvironment(
+			core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{BattleShout: row.state}, &proto.Debuffs{}),
+			core.MakeSingleTargetEncounter(0), false, true)
+		war := env.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+
+		for _, want := range []struct {
+			label string
+			phase core.CharacterBuildPhase
+		}{
+			{row.raidLabel, core.CharacterBuildPhaseBuffs},
+			{row.ownLabel, core.CharacterBuildPhaseNone},
+		} {
+			aura := war.GetAura(want.label)
+			if aura == nil {
+				t.Fatalf("state %d: the warrior carries no aura labelled %q", row.state, want.label)
+			}
+			if aura.BuildPhase != want.phase {
+				t.Errorf("state %d: %q is in build phase %v, want %v", row.state, want.label, aura.BuildPhase, want.phase)
+			}
+		}
 	}
 }
 
@@ -412,7 +543,7 @@ func TestOverpowerAndRevengeWindowsOpenOnAvoidedMeleeHits(t *testing.T) {
 
 			window := war.OverpowerAura
 			if c.revenge {
-				window = war.GetAuraByID(core.ActionID{SpellID: 25288})
+				window = war.GetAuraByID(core.ActionID{SpellID: 5302})
 				if window == nil {
 					t.Fatal("the warrior has no Revenge window")
 				}
@@ -535,7 +666,7 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
 	})
 
-	const heroicStrike = 25286 // The top rank, the one the Fury preset presses.
+	const heroicStrike = 11567 // The trainer's top rank, the one the Fury preset presses by default.
 	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
 		if action.Id.GetSpellId() != heroicStrike || action.Id.Tag != 0 {
 			continue

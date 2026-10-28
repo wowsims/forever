@@ -42,6 +42,12 @@ var unanchoredBuffs = map[string]string{
 	"dark_inspiration": "the shadow talent 1326159 triggers it, and the trait tree's node grants the talent",
 }
 
+// The rows that pin the trainer's top rank, each with the rank above it that only a class book teaches,
+// which is the one the game files resolve.
+var trainerRankBuffs = map[string]int32{
+	"battle_shout": 25289, // Manual of Battle Shout VII
+}
+
 func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	db := openBuffTestDB(t).db
 
@@ -84,8 +90,12 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 			}
 		}
 
-		if row.SpellID != aura {
-			t.Errorf("%s: the manifest pins spell %d, the game files resolve %d", row.Field, row.SpellID, aura)
+		resolved := row.SpellID
+		if book, ok := trainerRankBuffs[row.Field]; ok {
+			resolved = book
+		}
+		if resolved != aura {
+			t.Errorf("%s: the manifest pins spell %d, which stands for %d; the game files resolve %d", row.Field, row.SpellID, resolved, aura)
 		}
 		if row.CastID != 0 && row.CastID != cast.SpellID {
 			t.Errorf("%s: the manifest pins cast %d, the game files resolve %d", row.Field, row.CastID, cast.SpellID)
@@ -97,6 +107,11 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	for field := range unanchoredBuffs {
 		if !fields[field] {
 			t.Errorf("unanchoredBuffs names %q, which is no manifest field", field)
+		}
+	}
+	for field := range trainerRankBuffs {
+		if !fields[field] {
+			t.Errorf("trainerRankBuffs names %q, which is no manifest field", field)
 		}
 	}
 }

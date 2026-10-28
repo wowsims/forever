@@ -62,7 +62,7 @@ var FullRaidBuffs = &proto.RaidBuffs{
 	GraceOfAirTotem:      true,
 	StrengthOfEarthTotem: true,
 	WindfuryTotem:        true,
-	BattleShout:          proto.TristateEffect_TristateEffectRegular,
+	BattleShout:          1, // Rank 6
 	TrueshotAura:         true,
 	LeaderOfThePack:      true,
 	MoonkinAura:          true,

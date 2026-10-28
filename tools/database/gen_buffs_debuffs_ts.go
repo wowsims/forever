@@ -35,6 +35,7 @@ var buffInputNumStates = map[string]int{
 // The rows whose settings input stays hand-written: it needs something no manifest
 // row carries, or the field has no input at all.
 var manualBuffInputs = map[string]string{
+	"battle_shout":                  "the hand-written input marks Rank 7 and the tier 2 set with an improved icon each, a second improved icon no manifest row carries.",
 	"greater_blessing_of_salvation": "the hand-written input hides itself for tank and healing specs, a role gate no manifest row carries.",
 	"greater_blessing_of_light":     "the hand-written input shows itself for tank and healing specs only, a role gate no manifest row carries.",
 	"retribution_aura":              "the hand-written input shows itself for tank specs only, since a damage shield only matters on the unit being hit; a role gate no manifest row carries.",

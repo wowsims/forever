@@ -65,7 +65,7 @@ func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool,
 				},
 			}},
 			Buffs: &proto.RaidBuffs{
-				BattleShout:              proto.TristateEffect_TristateEffectRegular,
+				BattleShout:              1, // Rank 6
 				ArcaneBrilliance:         true,
 				PrayerOfSpirit:           true,
 				GiftOfTheWild:            true,

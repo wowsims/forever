@@ -37,9 +37,15 @@ Each line is the rule the code follows, where it lives, and the pull request tha
 ## Registering
 
 - **Casters register every rank only when the implementation requires it, a question asked during integration (melee
-  registers `Highest()` only); each per-rank DoT or HoT is labelled with `spelldata.RankLabel(rank, &owner.Unit)` so
-  ranks never share one aura; category cooldowns already share one timer across ranks, so no hand `NewTimer()`.**
-  `sim/core/spelldata/resolve_aura.go`, PR #246.
+  registers `Highest()` only, apart from the class book ranks below); each per-rank DoT or HoT is labelled with
+  `spelldata.RankLabel(rank, &owner.Unit)` so ranks never share one aura; category cooldowns already share one timer
+  across ranks, so no hand `NewTimer()`.** `sim/core/spelldata/resolve_aura.go`, PR #246.
+- **A rank that only a class book teaches registers beside the trainer's top rank, and the rotation picks the rank by
+  spell id, the presets defaulting to the trainer's: Heroic Strike 11567 and 25286 (each with its own queue), Battle
+  Shout 11551 and 25289, Revenge 11601 and 25288 (one window, read by 5302). The raid's `battle_shout` has four
+  states (off, Rank 6, Rank 7, Rank 7 with the tier 2 set; no Rank 6 with the set), and the warrior's own copies are
+  labelled by rank.** `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`, `sim/warrior/revenge.go`,
+  `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, PR #736.
 - **Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is spent
   (`OnExpire` calls `CD.Use`) though the row has no cooldown-on-event bit.** `sim/priest/devouring_plague.go`,
   `sim/priest/talents_discipline.go`, PR #246.

@@ -40,12 +40,13 @@ func NewProtectionWarrior(character *core.Character, options *proto.Player) *Pro
 
 	war := &ProtectionWarrior{
 		Warrior: warrior.NewWarrior(character, protOptions.ClassOptions, options.TalentsString, warrior.WarriorInputs{
-			UseBattleShout: classOptions.UseBattleShout,
-			DefaultStance:  classOptions.DefaultStance,
-			StartingRage:   classOptions.StartingRage,
-			QueueDelay:     classOptions.QueueDelay,
-			StanceSnapshot: classOptions.StanceSnapshot,
-			HasBsT2:        classOptions.HasBsT2,
+			UseBattleShout:      classOptions.UseBattleShout,
+			DefaultStance:       classOptions.DefaultStance,
+			StartingRage:        classOptions.StartingRage,
+			QueueDelay:          classOptions.QueueDelay,
+			StanceSnapshot:      classOptions.StanceSnapshot,
+			HasBsT2:             classOptions.HasBsT2,
+			HasBattleShoutRank7: classOptions.HasBattleShoutRank_7,
 		}),
 		Options: protOptions,
 	}

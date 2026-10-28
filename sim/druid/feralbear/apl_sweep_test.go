@@ -86,7 +86,7 @@ func bearRequest(rotation *proto.APLRotation, iterations int32) *proto.RaidSimRe
 				},
 			}},
 			Buffs: &proto.RaidBuffs{
-				BattleShout:              proto.TristateEffect_TristateEffectRegular,
+				BattleShout:              1, // Rank 6
 				ArcaneBrilliance:         true,
 				GiftOfTheWild:            true,
 				PrayerOfFortitude:        true,

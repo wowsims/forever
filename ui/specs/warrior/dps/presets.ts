@@ -134,6 +134,8 @@ export const SIMPLE_ROTATION = DpsWarrior_Rotation.create({
 	useRecklessness: false,
 	useStanceDance: false,
 	useHamstring: true,
+	useHeroicStrikeRank9: false,
+	useBattleShoutRank7: false,
 });
 export const SIMPLE_DEFAULT_ROTATION = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecDpsWarrior, SIMPLE_ROTATION);
 export const SIMPLE_ARMS_DEFAULT_ROTATION = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecDpsWarrior, {
