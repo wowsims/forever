@@ -59,7 +59,7 @@ export interface DesignerLaneProps {
 	onAdd: (kind: DesignEventKind) => void;
 }
 
-const GHOST_CLASSES = 'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center overflow-hidden rounded-sm text-xs font-bold text-white';
+const GHOST_CLASSES = 'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center overflow-hidden rounded-xs text-xs font-bold text-white';
 
 // The ref a later event in the same list has once `removed` is gone from it.
 const afterRemoval = (ref: DesignEventRef, removed: DesignEventRef): DesignEventRef =>

@@ -65,7 +65,7 @@ export interface DesignerEventBarProps {
 const MIN_WIDTH_SECONDS = 1;
 
 const BAR_CLASSES =
-	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-sm border border-transparent bg-(--bar) data-selected:border-white data-invalid:border-dashed data-invalid:not-data-selected:border-danger';
+	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) data-selected:border-white data-invalid:border-dashed data-invalid:not-data-selected:border-danger';
 
 const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' | 'center' }) =>
 	seconds > 0 ? (
@@ -296,7 +296,7 @@ export const DesignerEventBar = ({
 					<span
 						aria-hidden="true"
 						data-copy=""
-						className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 rounded-sm border border-white bg-(--bar) opacity-70"
+						className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 rounded-xs border border-white bg-(--bar) opacity-70"
 						style={cssVars({
 							'--t': String(fractionToSeconds(copy.start - window.start, baseSeconds)),
 							'--dur': String(fractionToSeconds(copy.end - copy.start, baseSeconds)),
