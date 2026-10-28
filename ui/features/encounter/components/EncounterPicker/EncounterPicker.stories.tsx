@@ -66,6 +66,7 @@ const meta = {
 		),
 		targetInputs: null,
 		onAdvancedClick: fn(),
+		onDesignClick: fn(),
 	},
 	argTypes: {
 		duration: { control: false },

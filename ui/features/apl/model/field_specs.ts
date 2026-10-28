@@ -7,7 +7,7 @@ import {
 	APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold,
 	APLValueMath_MathOperator as MathOperator,
 } from '@generated/proto/apl';
-import { ActionID, AreaType, MobType, RangedWeaponType, Stat } from '@generated/proto/common';
+import { ActionID, AreaType, DamageAmpType, MobType, RangedWeaponType, Stat } from '@generated/proto/common';
 import { ShamanTotems_TotemType as TotemType } from '@generated/proto/shaman';
 import { WarlockOptions_CurseOptions as CurseOptions, WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
@@ -191,6 +191,15 @@ const AREA_TYPES: EnumTable = {
 		.map(areaType => ({ value: areaType, label: translateAreaType(areaType) })),
 };
 
+const DAMAGE_AMP_TYPES: EnumTable = {
+	defaultLabel: none(),
+	options: [
+		{ value: DamageAmpType.DamageAmpTypeCasterBuff, label: i18n.t('settings_tab.encounter.designer.amp_types.caster_buff') },
+		{ value: DamageAmpType.DamageAmpTypeEnvironmentBuff, label: i18n.t('settings_tab.encounter.designer.amp_types.environment_buff') },
+		{ value: DamageAmpType.DamageAmpTypeTargetDebuff, label: i18n.t('settings_tab.encounter.designer.amp_types.target_debuff') },
+	],
+};
+
 const newAplValue = () => APLValue.create({ uuid: { value: randomUUID() } });
 
 /**
@@ -269,6 +278,9 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return asEnum(descriptor.field, MOB_TYPES, () => MobType.MobTypeUnknown);
 		case 'areaType':
 			return asEnum(descriptor.field, AREA_TYPES, () => AreaType.AreaTypeForestGrassland);
+		case 'damageAmpType':
+			// The caster buff is 0, which fieldInputConfig reads as unset and replaces with this default, so it has to be the default to stay selectable.
+			return asEnum(descriptor.field, DAMAGE_AMP_TYPES, () => DamageAmpType.DamageAmpTypeCasterBuff);
 		case 'minIcd':
 			return {
 				kind: 'number',

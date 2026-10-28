@@ -20,7 +20,7 @@ import { SimSettingCategories } from '../constants/sim_settings';
 import type { Sim } from '../sim';
 import { applyIndividualSimSettings, individualSimSettingsToProto } from '../state/serialization';
 import { createSimStore } from '../state/sim_store';
-import { Encounter } from './encounter';
+import { Encounter, remapDesignTargets } from './encounter';
 
 const ZONES: Record<number, { id: number; name: string; areaTypes: Array<AreaType> }> = {
 	2677: { id: 2677, name: 'Blackwing Lair', areaTypes: [AreaType.AreaTypeCavernous, AreaType.AreaTypeVolcanic] },
@@ -280,6 +280,18 @@ describe('Encounter', () => {
 			encounter.setTargets([a, c]);
 
 			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [-1], amps: [[-1, 1]] });
+		});
+
+		it('keeps the index of a target replaced by a new object in place, and the design itself when nothing moves', () => {
+			const encounter = withThreeTargets();
+			const design = encounter.getDesign();
+			const [a, b, c] = encounter.getTargets();
+
+			expect(remapDesignTargets(design, [a, b, c], [a, b, c, TargetProto.create()])).toBe(design);
+			expect(remapDesignTargets(design, [a, b, c], [a, TargetProto.clone(b), c])).toBe(design);
+
+			encounter.setTargets([TargetProto.clone(a), c, b]);
+			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [2], amps: [[2, 1]] });
 		});
 	});
 });

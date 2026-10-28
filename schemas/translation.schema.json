@@ -4099,6 +4099,9 @@
 										},
 										"allTargetsDown": {
 											"type": "string"
+										},
+										"tooManyKeyframes": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4109,7 +4112,8 @@
 										"healthIncreases",
 										"targetOutOfRange",
 										"waveOutOfRange",
-										"allTargetsDown"
+										"allTargetsDown",
+										"tooManyKeyframes"
 									]
 								},
 								"event_name": {
@@ -4437,6 +4441,21 @@
 									},
 									"additionalProperties": false,
 									"required": ["spell_hit", "strike", "thrash", "swing_timing"]
+								},
+								"open": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"targets": {
+									"type": "string"
+								},
+								"target_name": {
+									"type": "string"
+								},
+								"save": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -4459,7 +4478,12 @@
 								"fields",
 								"tooltips",
 								"amp_types",
-								"ability_kinds"
+								"ability_kinds",
+								"open",
+								"title",
+								"targets",
+								"target_name",
+								"save"
 							]
 						}
 					},
@@ -6425,6 +6449,110 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"target_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"num_active_adds": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_dies": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_next_move": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"next_move_duration": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"amp_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_amp": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"unit_is_moving": {
 									"type": "object",
 									"properties": {
@@ -7861,6 +7989,14 @@
 								"boss_current_target",
 								"target_is_mob_type",
 								"encounter_in_area",
+								"target_is_active",
+								"num_active_adds",
+								"time_until_target_active",
+								"time_until_target_dies",
+								"time_until_next_move",
+								"next_move_duration",
+								"amp_is_active",
+								"time_until_amp",
 								"unit_is_moving",
 								"distance_to_unit",
 								"unit_movement_speed",

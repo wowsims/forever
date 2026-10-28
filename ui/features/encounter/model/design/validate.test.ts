@@ -66,6 +66,23 @@ describe('validateDesign', () => {
 		expect(keys(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.healthIncreases}`]);
 	});
 
+	it('flags the boss health keyframes the sim drops past its 8 curve points', () => {
+		const tooMany = (design: EncounterDesign) => keys(design).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.tooManyKeyframes));
+		// Listed latest first, so list order and time order differ.
+		const design = EncounterDesign.create();
+		for (let step = 8; step >= 1; step--) {
+			addEvent(design, 'bossHealth');
+			Object.assign(design.bossHealth[design.bossHealth.length - 1], { at: step / 10, healthPercent: 100 - step * 10 });
+		}
+		// The first keyframe is after the pull, so the sim's own start point takes one of the 8.
+		expect(tooMany(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		design.bossHealth[7].at = 0;
+		expect(tooMany(design)).toEqual([]);
+		addEvent(design, 'bossHealth', 0.95);
+		design.bossHealth[8].healthPercent = 0;
+		expect(tooMany(design)).toEqual([`bossHealth8:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+	});
+
 	it('flags targets out of range, including -1', () => {
 		const design = EncounterDesign.create();
 		downtime(design, 0.2, 0.4, 2);

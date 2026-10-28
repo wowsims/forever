@@ -19,6 +19,41 @@ import { Stats } from '../proto/stats';
 import { Sim } from '../sim';
 import { batch } from '../state/batch';
 import { EncounterSlice, SimStore } from '../state/sim_store';
+
+// The design points at targets by index. Following each old target object to its new position keeps a reorder
+// intact, and a target replaced by a new object at the same index (a field edit, a preset) keeps its place; a
+// target that is gone becomes -1 so validation flags it. Returns `design` itself when no index changes.
+export const remapDesignTargets = (
+	design: EncounterDesign,
+	oldTargets: ReadonlyArray<TargetProto>,
+	newTargets: ReadonlyArray<TargetProto>,
+): EncounterDesign => {
+	const before = new Set(oldTargets);
+	const after = new Set(newTargets);
+	const remap = (index: number) => {
+		const target = oldTargets[index];
+		if (!target) return -1;
+		if (after.has(target)) return newTargets.indexOf(target);
+		const replacement = newTargets[index];
+		return replacement && !before.has(replacement) ? index : -1;
+	};
+	const moved = (index: number) => remap(index) !== index;
+	const touched =
+		design.downtimes.some(d => moved(d.targetIndex)) ||
+		design.bossAbilities.some(a => moved(a.targetIndex)) ||
+		design.damageAmps.some(a => a.targets?.targetIndices.some(moved));
+	// An empty DesignTargets means target 0, a position rather than an identity, so it stays as is.
+	if (!touched) return design;
+
+	const next = EncounterDesign.clone(design);
+	next.downtimes.forEach(d => (d.targetIndex = remap(d.targetIndex)));
+	next.bossAbilities.forEach(a => (a.targetIndex = remap(a.targetIndex)));
+	next.damageAmps.forEach(a => {
+		if (a.targets) a.targets.targetIndices = a.targets.targetIndices.map(remap);
+	});
+	return next;
+};
+
 // Manages all the settings for an Encounter. State lives in the Zustand
 // store's `encounter` slice.
 export class Encounter {
@@ -61,32 +96,7 @@ export class Encounter {
 		// Always notifies: a same-reference write is stored as a fresh array so
 		// subscribers still see a change.
 		const targets = newTargets === this.enc.targets ? newTargets.slice() : newTargets;
-		this.set({ targets, design: this.remapDesign(this.enc.targets, targets) });
-	}
-
-	// The design points at targets by index. Following each old target object to its new
-	// position keeps a reorder intact; a target that is gone becomes -1 so validation flags it.
-	private remapDesign(oldTargets: Array<TargetProto>, newTargets: Array<TargetProto>): EncounterDesign {
-		const design = this.enc.design;
-		const remap = (index: number) => {
-			const target = oldTargets[index];
-			return target ? newTargets.indexOf(target) : -1;
-		};
-		const moved = (index: number) => remap(index) !== index;
-		const touched =
-			design.downtimes.some(d => moved(d.targetIndex)) ||
-			design.bossAbilities.some(a => moved(a.targetIndex)) ||
-			design.damageAmps.some(a => a.targets?.targetIndices.some(moved));
-		// An empty DesignTargets means target 0, a position rather than an identity, so it stays as is.
-		if (!touched) return design;
-
-		const next = EncounterDesign.clone(design);
-		next.downtimes.forEach(d => (d.targetIndex = remap(d.targetIndex)));
-		next.bossAbilities.forEach(a => (a.targetIndex = remap(a.targetIndex)));
-		next.damageAmps.forEach(a => {
-			if (a.targets) a.targets.targetIndices = a.targets.targetIndices.map(remap);
-		});
-		return next;
+		this.set({ targets, design: remapDesignTargets(this.enc.design, this.enc.targets, targets) });
 	}
 
 	getDesign(): EncounterDesign {

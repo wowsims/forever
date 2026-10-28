@@ -1151,7 +1151,8 @@
 					"healthIncreases": "Boss health rises after an earlier keyframe.",
 					"targetOutOfRange": "Names a target the encounter does not have.",
 					"waveOutOfRange": "Names a wave the design does not have.",
-					"allTargetsDown": "Every target is down at once here, so the player idles."
+					"allTargetsDown": "Every target is down at once here, so the player idles.",
+					"tooManyKeyframes": "The sim's boss health curve holds 8 points, its own start point included, so it drops this keyframe."
 				},
 				"event_name": "{{event}} {{number}}",
 				"seconds": "{{value}}s",
@@ -1241,7 +1242,12 @@
 					"strike": "Strike",
 					"thrash": "Thrash",
 					"swing_timing": "Swing timing"
-				}
+				},
+				"open": "Designer",
+				"title": "Encounter designer",
+				"targets": "Targets",
+				"target_name": "Target {{number}}",
+				"save": "Save"
 			}
 		},
 		"player": {
@@ -1808,6 +1814,38 @@
 				"encounter_in_area": {
 					"label": "In Area",
 					"tooltip": "True if the encounter's areas include the chosen area type"
+				},
+				"target_is_active": {
+					"label": "Target Is Active",
+					"tooltip": "True while the target is in the fight: spawned, alive and not in a downtime"
+				},
+				"num_active_adds": {
+					"label": "Active Adds",
+					"tooltip": "The number of targets other than the boss that are in the fight"
+				},
+				"time_until_target_active": {
+					"label": "Time Until Target Active",
+					"tooltip": "Seconds until the target next spawns or comes back from a downtime"
+				},
+				"time_until_target_dies": {
+					"label": "Time Until Target Dies",
+					"tooltip": "Seconds until the target dies on the encounter design's schedule"
+				},
+				"time_until_next_move": {
+					"label": "Time Until Next Move",
+					"tooltip": "Seconds until the next move in the encounter design starts"
+				},
+				"next_move_duration": {
+					"label": "Next Move Duration",
+					"tooltip": "How long the next move in the encounter design takes, in seconds"
+				},
+				"amp_is_active": {
+					"label": "Damage Amp Is Active",
+					"tooltip": "True while a damage amp of the chosen type is running"
+				},
+				"time_until_amp": {
+					"label": "Time Until Damage Amp",
+					"tooltip": "Seconds until the next damage amp of the chosen type starts"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",

@@ -2,6 +2,7 @@ import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, Desig
 import { DamageAmpType } from '@generated/proto/common';
 
 import type { DesignEventRef } from './lanes';
+import { clamp01 } from './time';
 
 export type DesignIssueSeverity = 'error' | 'warning' | 'info';
 export type DesignIssue = { ref: DesignEventRef; severity: DesignIssueSeverity; key: string };
@@ -16,7 +17,12 @@ export const DESIGN_ISSUE_KEYS = {
 	targetOutOfRange: key('targetOutOfRange'),
 	waveOutOfRange: key('waveOutOfRange'),
 	allTargetsDown: key('allTargetsDown'),
+	tooManyKeyframes: key('tooManyKeyframes'),
 } as const;
+
+// The sim's health curve holds 8 points in time order and drops the rest. Its own start point (0 s, 100%) comes first
+// when the first keyframe is after the pull; its own end point comes last, so it never displaces a keyframe.
+const MAX_HEALTH_POINTS = 8;
 
 const outside = (from: number, to: number, startJitter: number, endJitter = startJitter) => from - startJitter < 0 || to + endJitter > 1;
 
@@ -81,6 +87,11 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 			.reduce<typeof frame | undefined>((best, other) => (!best || other.at >= best.at ? other : best), undefined);
 		if (previous && frame.healthPercent > previous.healthPercent) add(ref, 'error', DESIGN_ISSUE_KEYS.healthIncreases);
 	});
+	const keyframesByTime = design.bossHealth.map((frame, index) => ({ at: clamp01(frame.at), index })).sort((a, b) => a.at - b.at || a.index - b.index);
+	const startPoints = keyframesByTime.length > 0 && keyframesByTime[0].at > 0 ? 1 : 0;
+	keyframesByTime
+		.slice(MAX_HEALTH_POINTS - startPoints)
+		.forEach(({ index }) => add({ kind: 'bossHealth', index }, 'error', DESIGN_ISSUE_KEYS.tooManyKeyframes));
 
 	if (targetCount > 0) {
 		const covers = (downtime: DesignDowntime, at: number) => (downtime.start?.at ?? 0) <= at && at < (downtime.end?.at ?? 0);

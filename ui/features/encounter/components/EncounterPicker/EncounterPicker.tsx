@@ -8,6 +8,7 @@ import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
+import { EncounterDesigner } from '../EncounterDesigner';
 import { TargetInputsPicker } from '../TargetsPicker';
 import { AreaTypesPicker } from './AreaTypesPicker';
 import { durationConfigs, executeConfigs, minBaseDamageConfig, numAlliesConfig, presetEncounterConfig, zoneConfig } from './utils/configs';
@@ -22,6 +23,7 @@ export interface EncounterPickerViewProps {
 	minBaseDamage?: ReactNode;
 	targetInputs: ReactNode;
 	onAdvancedClick: () => void;
+	onDesignClick: () => void;
 }
 
 export const EncounterPickerView = ({
@@ -34,6 +36,7 @@ export const EncounterPickerView = ({
 	minBaseDamage,
 	targetInputs,
 	onAdvancedClick,
+	onDesignClick,
 }: EncounterPickerViewProps) => (
 	<div className="flex flex-wrap gap-2" data-testid="encounter-picker-root">
 		<FieldGrid>{duration}</FieldGrid>
@@ -44,9 +47,14 @@ export const EncounterPickerView = ({
 		{allies}
 		{minBaseDamage}
 		{targetInputs}
-		<Button className="w-full" data-testid="advanced-button" onClick={onAdvancedClick}>
-			{i18n.t('settings_tab.encounter.advanced')}
-		</Button>
+		<div className="flex w-full gap-2">
+			<Button className="flex-1" data-testid="advanced-button" onClick={onAdvancedClick}>
+				{i18n.t('settings_tab.encounter.advanced')}
+			</Button>
+			<Button className="flex-1" data-testid="design-encounter-button" onClick={onDesignClick}>
+				{i18n.t('settings_tab.encounter.designer.open')}
+			</Button>
+		</div>
 	</div>
 );
 
@@ -68,6 +76,7 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const zone = useMemo(() => zoneConfig(encounter), [encounter]);
 
 	const [advancedOpen, setAdvancedOpen] = useState(false);
+	const [designerOpen, setDesignerOpen] = useState(false);
 
 	return (
 		<>
@@ -83,8 +92,10 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				minBaseDamage={player.getPlayerSpec().isTankSpec && <ConnectedNumberField modObject={encounter} config={minBaseDamage} />}
 				targetInputs={<TargetInputsPicker encounter={encounter} targetIndex={0} />}
 				onAdvancedClick={() => setAdvancedOpen(true)}
+				onDesignClick={() => setDesignerOpen(true)}
 			/>
 			<AdvancedEncounterModal open={advancedOpen} onOpenChange={setAdvancedOpen} />
+			<EncounterDesigner open={designerOpen} onOpenChange={setDesignerOpen} />
 		</>
 	);
 };
