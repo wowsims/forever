@@ -1,22 +1,120 @@
 {
 	"type": "TypeAPL",
 	"prepullActions": [
-		{ "action": { "castSpell": { "spellId": { "spellId": 14325 } } }, "doAtValue": { "const": { "val": "-22s" } } },
-		{ "action": { "castSpell": { "spellId": { "spellId": 1299447 } } }, "doAtValue": { "const": { "val": "-20s" } } },
-		{ "action": { "groupReference": { "groupName": "Move to starting range" } }, "doAtValue": { "const": { "val": "-19s" } } }
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14325
+					}
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-22s"
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 1299447
+					}
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-20s"
+				}
+			}
+		},
+		{
+			"action": {
+				"groupReference": {
+					"groupName": "Move to starting range"
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-19s"
+				}
+			}
+		}
 	],
 	"priorityList": [
 		{
+			"notes": "In melee range: turn on melee.",
 			"action": {
-				"condition": { "cmp": { "op": "OpGe", "lhs": { "currentTime": {} }, "rhs": { "const": { "val": "5s" } } } },
+				"condition": {
+					"cmp": {
+						"op": "OpLe",
+						"lhs": {
+							"unitDistance": {
+								"sourceUnit": {
+									"type": "Self"
+								}
+							}
+						},
+						"rhs": {
+							"variableRef": {
+								"name": "Melee range"
+							}
+						}
+					}
+				},
+				"startAttack": {}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGe",
+						"lhs": {
+							"currentTime": {}
+						},
+						"rhs": {
+							"const": {
+								"val": "5s"
+							}
+						}
+					}
+				},
 				"autocastOtherCooldowns": {}
 			}
 		},
-		{ "action": { "castSpell": { "spellId": { "spellId": 14266, "tag": 1 } } } },
 		{
 			"action": {
-				"castSpell": { "spellId": { "spellId": 14325 } },
-				"condition": { "not": { "val": { "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 14325 } } } } }
+				"castSpell": {
+					"spellId": {
+						"spellId": 14266,
+						"tag": 1
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14325
+					}
+				},
+				"condition": {
+					"not": {
+						"val": {
+							"auraIsActive": {
+								"sourceUnit": {
+									"type": "CurrentTarget"
+								},
+								"auraId": {
+									"spellId": 14325
+								}
+							}
+						}
+					}
+				}
 			}
 		},
 		{
@@ -25,36 +123,137 @@
 				"condition": {
 					"cmp": {
 						"op": "OpGt",
-						"lhs": { "unitDistance": { "sourceUnit": { "type": "Self" } } },
-						"rhs": { "variableRef": { "name": "Melee range" } }
+						"lhs": {
+							"unitDistance": {
+								"sourceUnit": {
+									"type": "Self"
+								}
+							}
+						},
+						"rhs": {
+							"variableRef": {
+								"name": "Melee range"
+							}
+						}
 					}
 				},
-				"groupReference": { "groupName": "Walk in" }
+				"groupReference": {
+					"groupName": "Walk in"
+				}
 			}
 		},
-		{ "action": { "castSpell": { "spellId": { "spellId": 14271 } } } },
-		{ "action": { "castSpell": { "spellId": { "spellId": 1317257 } } } },
-		{ "action": { "castSpell": { "spellId": { "spellId": 14305 } } } },
-		{ "action": { "condition": { "variableRef": { "name": "Use Summon Hawk" } }, "castSpell": { "spellId": { "spellId": 1293527 } } } },
-		{ "action": { "castSpell": { "spellId": { "spellId": 14268 } } } }
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14271
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 1317257
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14305
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Use Summon Hawk"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 1293527
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14268
+					}
+				}
+			}
+		}
 	],
 	"groups": [
-		{ "name": "Move to starting range", "actions": [{ "action": { "move": { "rangeFromTarget": { "variableRef": { "name": "Pull range" } } } } }] },
+		{
+			"name": "Move to starting range",
+			"actions": [
+				{
+					"action": {
+						"move": {
+							"rangeFromTarget": {
+								"variableRef": {
+									"name": "Pull range"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
 		{
 			"name": "Walk in",
 			"actions": [
 				{
 					"notes": "Instants on the way in.",
 					"action": {
-						"condition": { "not": { "val": { "dotIsActive": { "spellId": { "spellId": 25295, "rank": 9 } } } } },
-						"castSpell": { "spellId": { "spellId": 25295, "rank": 9 } }
+						"condition": {
+							"not": {
+								"val": {
+									"dotIsActive": {
+										"spellId": {
+											"spellId": 25295,
+											"rank": 9
+										}
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 25295,
+								"rank": 9
+							}
+						}
 					}
 				},
-				{ "action": { "castSpell": { "spellId": { "spellId": 14287, "rank": 8 } } } },
-				{ "action": { "castSpell": { "spellId": { "spellId": 2643 } } } },
 				{
-					"notes": "Too close to shoot: turn on melee.",
-					"action": { "condition": { "not": { "val": { "spellInRange": { "spellId": { "spellId": 14287 } } } } }, "startAttack": {} }
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 14287,
+								"rank": 8
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 2643
+							}
+						}
+					}
 				},
 				{
 					"notes": "Walk into melee, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.",
@@ -64,40 +263,133 @@
 								"val": {
 									"and": {
 										"vals": [
-											{ "spellInRange": { "spellId": { "spellId": 14287 } } },
-											{ "or": { "vals": [{ "variableRef": { "name": "Auto Shot due" } }, { "variableRef": { "name": "Just shot" } }] } }
+											{
+												"spellInRange": {
+													"spellId": {
+														"spellId": 14287
+													}
+												}
+											},
+											{
+												"or": {
+													"vals": [
+														{
+															"variableRef": {
+																"name": "Auto Shot due"
+															}
+														},
+														{
+															"variableRef": {
+																"name": "Just shot"
+															}
+														}
+													]
+												}
+											}
 										]
 									}
 								}
 							}
 						},
-						"move": { "rangeFromTarget": { "variableRef": { "name": "Melee range" } }, "recheckWhileMoving": true }
+						"move": {
+							"rangeFromTarget": {
+								"variableRef": {
+									"name": "Melee range"
+								}
+							},
+							"recheckWhileMoving": true
+						}
 					}
 				},
-				{ "notes": "Standing for my Auto Shot.", "action": { "wait": { "duration": { "inputDelay": {} } } } }
+				{
+					"notes": "Standing for my Auto Shot.",
+					"action": {
+						"wait": {
+							"duration": {
+								"inputDelay": {}
+							}
+						}
+					}
+				}
 			]
 		}
 	],
 	"valueVariables": [
-		{ "name": "Melee range", "value": { "const": { "val": "5.00" } } },
-		{ "name": "Use Summon Hawk", "value": { "const": { "val": "true" } } },
-		{ "name": "Pull range", "value": { "const": { "val": "25" } } },
+		{
+			"name": "Melee range",
+			"value": {
+				"const": {
+					"val": "5.00"
+				}
+			}
+		},
+		{
+			"name": "Use Summon Hawk",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "Pull range",
+			"value": {
+				"const": {
+					"val": "25"
+				}
+			}
+		},
 		{
 			"name": "Auto Shot due",
 			"value": {
 				"cmp": {
 					"op": "OpGe",
-					"lhs": { "autoTimeSinceLast": { "autoType": "RangedAuto" } },
+					"lhs": {
+						"autoTimeSinceLast": {
+							"autoType": "RangedAuto"
+						}
+					},
 					"rhs": {
 						"math": {
 							"op": "OpSub",
-							"lhs": { "math": { "op": "OpSub", "lhs": { "autoSwingTime": { "autoType": "Ranged" } }, "rhs": { "const": { "val": "500ms" } } } },
-							"rhs": { "inputDelay": {} }
+							"lhs": {
+								"math": {
+									"op": "OpSub",
+									"lhs": {
+										"autoSwingTime": {
+											"autoType": "Ranged"
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "500ms"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"inputDelay": {}
+							}
 						}
 					}
 				}
 			}
 		},
-		{ "name": "Just shot", "value": { "cmp": { "op": "OpLt", "lhs": { "autoTimeSinceLast": { "autoType": "RangedAuto" } }, "rhs": { "inputDelay": {} } } } }
+		{
+			"name": "Just shot",
+			"value": {
+				"cmp": {
+					"op": "OpLt",
+					"lhs": {
+						"autoTimeSinceLast": {
+							"autoType": "RangedAuto"
+						}
+					},
+					"rhs": {
+						"inputDelay": {}
+					}
+				}
+			}
+		}
 	]
 }

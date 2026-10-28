@@ -171,7 +171,7 @@ export default defineSpec<Spec.SpecHunter>({
 		const rotation = APLRotation.fromJson(hawksAtRange ? Presets.TurretHawkPlaystyleAPL : Presets.PlaystyleAPLs[simple.playstyle]);
 
 		const values: Record<string, string> = {
-			'Time to weave': `${simple.timeToWeave || 100}ms`,
+			'Time to weave': `${simple.timeToWeave || 250}ms`,
 			'Pull range': String(simple.pullRange || 25),
 			'Use Aimed Shot': String(simple.useAimed),
 			'Use Multi-Shot': String(simple.useMulti),
