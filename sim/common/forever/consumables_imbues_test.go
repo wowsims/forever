@@ -18,10 +18,10 @@ func init() {
 }
 
 const (
-	notchedShortsword  = 727  // a one-hand sword
-	smallHandBlade     = 816  // a one-hand dagger
-	aegisOfStormwind   = 1203 // a shield
-	elementalSharpener = 18262
+	notchedShortsword   = 727  // a one-hand sword
+	smallHandBlade      = 816  // a one-hand dagger
+	fireHardenedBuckler = 1276 // a shield
+	elementalSharpener  = 18262
 )
 
 func weaponSlots(mainHand, offHand int32) []*proto.ItemSpec {
@@ -148,7 +148,7 @@ func TestElementalSharpeningStoneTurnsOffWhenTheStonedWeaponSwapsAway(t *testing
 		name    string
 		swapped []*proto.ItemSpec
 	}{
-		{"swapped to a shield", weaponSlots(aegisOfStormwind, smallHandBlade)},
+		{"swapped to a shield", weaponSlots(fireHardenedBuckler, smallHandBlade)},
 		{"swapped to an empty hand", weaponSlots(0, smallHandBlade)},
 		{"swapped to a bare sword the stone fits", weaponSlots(notchedShortsword, smallHandBlade)},
 	} {

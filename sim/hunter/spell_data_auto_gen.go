@@ -13,7 +13,6 @@ import (
 //   Barrage: effect 1 of spell 19461 has no rank curve and is held at its base points
 //   Lacerating Strikes: effect 0 of spell 1310533 has no rank curve and is held at its base points
 //   Lone Wolf: effect 0, 1 of spell 415370 has no rank curve and is held at its base points
-//   Surefooted: effect 3 of spell 19290 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
 	AimedShot                       spelldata.Ladder
