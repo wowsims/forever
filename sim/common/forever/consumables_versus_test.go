@@ -101,7 +101,7 @@ func TestPotionOfDemonSlayingIsAPotion(t *testing.T) {
 // subclasses its SpellEquippedItems mask names; the enchant's equip spell 28893 grants melee and
 // ranged attack power against Undead, once per enchanted hand.
 func TestConsecratedSharpeningStoneCountsOncePerHandItTakes(t *testing.T) {
-	const sword, dagger, shield = 727, 816, 1203
+	const sword, dagger, shield = 727, 816, 1276
 	row := spelldata.MustFind(28893)
 	melee := row.FirstAura(dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS).Average()
 	ranged := row.FirstAura(dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS).Average()

@@ -13,7 +13,7 @@ on:
     workflow_dispatch:
         inputs:
             dbcache_url:
-                description: 'The DBCache.bin to apply (defaults to the latest raidbots classic_beta file)'
+                description: 'The DBCache.bin to apply (defaults to the latest raidbots forever file)'
                 required: false
                 type: string
 
@@ -24,7 +24,10 @@ concurrency:
 
 env:
     PRODUCT: wowf
-    DBCACHE_URL: ${{ inputs.dbcache_url || 'https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin' }}
+    DBCACHE_URL: ${{ inputs.dbcache_url || 'https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin' }}
+    # The last beta file (build 70532) holds items the beta looked up that the live file lacks; it is
+    # carried under the live one (docs/spell_data/partial-updates.md).
+    BETA_DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow%2F70532%2FenUS%2FDBCache-aBWtgUUog1pUdSFsVK1fE4.bin
 
 jobs:
     update-items:
@@ -89,6 +92,7 @@ jobs:
               run: |
                   mkdir -p tools/db2tool/caches
                   curl -fsSL -o tools/db2tool/caches/DBCache.bin "$DBCACHE_URL"
+                  curl -fsSL -o tools/db2tool/caches/BetaDBCache.bin "$BETA_DBCACHE_URL"
 
             # gen_db imports the Go protos, so they are generated from the committed .proto files
             # first. Taking no class, gen_db rewrites no .proto file, so they need no second pass.
@@ -106,7 +110,7 @@ jobs:
               id: db
               run: |
                   set -o pipefail
-                  make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
+                  make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --dbcache tools/db2tool/caches/BetaDBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
                   line=$(grep -m1 '^Hotfixes: ' "$RUNNER_TEMP/db.log")
                   case "$line" in
                       "Hotfixes: none applied"*) echo "hotfixes=${line#Hotfixes: }" >> "$GITHUB_OUTPUT" ;;
@@ -166,7 +170,7 @@ jobs:
                       The items spell data group and the item database, regenerated from the `${{ env.PRODUCT }}` build on Blizzard's CDN. Every class, the racials and the shared rows stay on their committed builds.
 
                       - Build: ${{ steps.build.outputs.version }}
-                      - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
+                      - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }}, with ${{ env.BETA_DBCACHE_URL }} carried)
                       - Ran `make db CLASSES=none SHARED=0 --cdn`; the Go builds, the generator tests pass and the UI type-checks
 
                       ${{ steps.tests.outputs.summary }}

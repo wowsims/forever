@@ -35,9 +35,10 @@ Three modes:
   encoded file) and kept under `tools/db2tool/cdncache/` (a few hundred MB
   per build, safe to delete), so a re-run of the same build is offline.
   Hotfixes come from `--dbcache` or `tools/db2tool/caches/`; raidbots mirrors
-  the live client's cache at
-  https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin,
-  which is what the `Update DB` GitHub workflow feeds it. When no cache for
+  the live game's cache at
+  https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin,
+  which is what the `Update DB` GitHub workflow feeds it, with the last beta
+  file carried under it. When no cache for
   the extracted build exists, `--carry-hotfixes` applies one from an older
   build (see below).
 - **Offline mode (`--build <number|version>`)** — decodes pre-extracted `.db2`
@@ -52,7 +53,8 @@ of older builds), `--keys <file>` (community TACT key list).
 By default only a cache whose build is the extracted build applies. With
 `--carry-hotfixes`, which needs `--dbcache`, every cache given for an older
 build applies too, in ascending build order, then the extracted build's own
-last, so its records win. A cache for a newer build is never carried. A
+last, so its records win. That holds for its invalid records too: a row the own
+cache marks invalid is dropped even when a carried cache adds it. A cache for a newer build is never carried. A
 carried cache's rows decode with the extracted build's layout, so it applies
 only to a table whose `.dbd` lists both builds in the same version block; the
 run warns for every other table it holds records for, for a newer cache and

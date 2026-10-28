@@ -64,6 +64,37 @@ FOREVER_CMD make test
 FOREVER_CMD make host
 ```
 
+## Podman (Fedora)
+
+Install Podman and the protobuf compiler if they are not already available:
+
+```sh
+sudo dnf install podman protobuf-compiler
+```
+
+From the repository root, build the development image and install the npm dependencies:
+
+```sh
+podman build --tag wowsims-forever .
+# The `:Z` volume option sets the SELinux label for the mounted repository.
+podman run --rm -v "$PWD:/forever:Z" -w /forever localhost/wowsims-forever:latest npm install
+```
+
+For convenience you can define these aliases to run project commands in the container:
+
+```sh
+alias FOREVER_CMD='podman run --rm -it -p 8080:8080 -v "$PWD:/forever:Z" -w /forever localhost/wowsims-forever:latest'
+alias FOREVER_WATCH_CMD='podman run --rm -it -p 8080:8080 -p 3333:3333 -p 5173:5173 -e WATCH=1 -v "$PWD:/forever:Z" -w /forever localhost/wowsims-forever:latest'
+```
+
+Then run the usual make targets:
+
+```sh
+FOREVER_CMD make proto
+FOREVER_CMD make test
+FOREVER_CMD make host
+```
+
 ## Windows
 
 If you want to develop on Windows, we recommend setting up a Ubuntu virtual machine (VM) or running Docker using [this guide](https://docs.docker.com/desktop/windows/wsl/ 'https://docs.docker.com/desktop/windows/wsl/') and then following the Ubuntu or Docker instructions, respectively.
