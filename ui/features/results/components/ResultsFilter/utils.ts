@@ -28,13 +28,15 @@ export const hasTarget = (result: SimResult, target: number): boolean =>
 /** Encounter targets followed by friendly units that received healing or shielding. */
 export const targetOptions = (result: SimResult): Array<ChoiceOption<number>> => {
 	const healers = result.getRaidIndexedPlayers().filter(player => player.spec?.isHealingSpec);
-	let healTargetNumber = 0;
 	const healerIndexes = new Set(healers.map(healer => healer.unitIndex));
+	// Dummies fill the raid slots after the healer in order, so a dummy keeps the number the rotation
+	// gives its slot whether or not it was healed.
+	const healTargetNumber = (index: number) => index + 1 - healers.filter(healer => healer.unitIndex < index).length;
 	const healingTargets = healingTargetIndexes(result).map((index): ChoiceOption<number> => ({
 		value: index,
 		label: healerIndexes.has(index)
 			? i18n.t('results_tab.details.healer_target')
-			: i18n.t('results_tab.details.heal_target_number', { number: ++healTargetNumber }),
+			: i18n.t('results_tab.details.heal_target_number', { number: healTargetNumber(index) }),
 	}));
 	const targets = result.getTargets().map((unit): ChoiceOption<number> => ({
 		value: unit.index,

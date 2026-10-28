@@ -1,3 +1,4 @@
+import { healingGroupSize } from '@features/encounter/model/target_dummies';
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { HealingSimSettings_Assignment as HealingAssignment } from '@generated/proto/ui';
 import { Player } from '@sim/player/player';
@@ -25,8 +26,11 @@ export const healingTargetsAreGrouped = (player: Player<any>): boolean => {
 	return settings.groupSize !== 5 && settings.assignment === HealingAssignment.RaidHealing;
 };
 
-export const healingRandomTargetEnabled = (player: Player<any>): boolean =>
-	player.getPlayerSpec().isHealingSpec && player.sim.raid.getHealingSettings().assignment === HealingAssignment.RaidHealing;
+/** A dungeon group has no assignment to pick, so it never offers a random friendly target. */
+export const healingRandomTargetEnabled = (player: Player<any>): boolean => {
+	const settings = player.sim.raid.getHealingSettings();
+	return player.getPlayerSpec().isHealingSpec && healingGroupSize(settings) !== 5 && settings.assignment === HealingAssignment.RaidHealing;
+};
 
 const ownPetRefs = (player: Player<any>) =>
 	player

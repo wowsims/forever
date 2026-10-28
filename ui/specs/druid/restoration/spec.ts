@@ -1,3 +1,4 @@
+import { HealingSettings } from '@features/settings';
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import { APLRotation } from '@generated/proto/apl';
 import { Debuffs } from '@generated/proto/buffs';
@@ -63,6 +64,7 @@ export default defineSpec<Spec.SpecRestorationDruid>({
 	otherInputs: {
 		inputs: [],
 	},
+	settingsComponent: HealingSettings,
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
 		showExecuteProportion: false,

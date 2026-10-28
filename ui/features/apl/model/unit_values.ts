@@ -51,10 +51,8 @@ export const refToValue = (ref: UnitReference | undefined, player: Player<any>, 
 			if (other) return { value: ref, iconUrl: other.getSpecIcon(), text: `${label('player')} ${ref.index + 1}` };
 			const healTargets = healingTargetIndices(player);
 			const healTargetIndex = healTargets.indexOf(ref.index);
-			const groupTargetIndex = healTargets
-				.filter(index => Math.floor(index / MAX_PARTY_SIZE) === Math.floor(ref.index / MAX_PARTY_SIZE))
-				.indexOf(ref.index);
-			return healTargetIndex >= 0 ? { value: ref, icon: 'user', text: `${label('target')} ${groupTargetIndex + 1}` } : { value: ref };
+			// Numbered across the whole raid, in the order the results filter numbers the same units.
+			return healTargetIndex >= 0 ? { value: ref, icon: 'user', text: `${label('heal_target')} ${healTargetIndex + 1}` } : { value: ref };
 		}
 		case UnitType.Target: {
 			const targetMetadata = player.sim.encounter.targetsMetadata.asList()[ref.index];

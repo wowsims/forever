@@ -74,18 +74,40 @@ describe('withIconUrl', () => {
 });
 
 describe('unitOptionModels', () => {
-	it.each([Assignment.TankHealing, Assignment.RaidHealing])('offers random friendly targets only for raid healing (%i)', assignment => {
+	it.each([
+		[Assignment.TankHealing, 10, 0],
+		[Assignment.RaidHealing, 10, 1],
+		[Assignment.RaidHealing, 20, 1],
+		[Assignment.RaidHealing, 5, 0],
+		[Assignment.TankHealing, 5, 0],
+	])('offers random friendly targets only for raid healing outside a dungeon (assignment %i, group size %i)', (assignment, groupSize, expected) => {
 		const player: any = makePlayer({} as any);
 		player.getPlayerSpec = () => ({ isHealingSpec: true });
 		Object.assign(player.sim.raid, {
 			getPlayers: () => [player, ...Array(9).fill(null)],
 			getTargetDummies: () => 9,
 			getNumActiveParties: () => 2,
-			getHealingSettings: () => ({ assignment, groupSize: 10 }),
+			getHealingSettings: () => ({ assignment, groupSize }),
 		});
 		const random = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.RandomFriendlyTarget);
-		expect(random).toHaveLength(assignment === Assignment.RaidHealing ? 1 : 0);
+		expect(random).toHaveLength(expected);
 		if (random.length) expect(random[0].unit.text).toBe(label('random_friendly_target'));
+	});
+
+	it('numbers heal targets across the whole raid, not per group', () => {
+		const player: any = makePlayer({} as any);
+		player.getPlayerSpec = () => ({ isHealingSpec: true });
+		Object.assign(player.sim.raid, {
+			getPlayers: () => [player, ...Array(9).fill(null)],
+			getPlayer: (index: number) => (index === 0 ? player : null),
+			getTargetDummies: () => 9,
+			getNumActiveParties: () => 2,
+			getHealingSettings: () => ({ assignment: Assignment.RaidHealing, groupSize: 10 }),
+		});
+		const text = (index: number) => refToValue(UnitReference.create({ type: UnitType.Player, index }), player, false).text;
+		expect(text(1)).toBe(`${label('heal_target')} 1`);
+		expect(text(5)).toBe(`${label('heal_target')} 5`);
+		expect(text(9)).toBe(`${label('heal_target')} 9`);
 	});
 	it.each([
 		['under its owner when the set uses target UI', 'aura_sources_targets_first', UnitReference.create({ type: UnitType.Self }), true],

@@ -136,6 +136,8 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		rotations: [Presets.ROTATION_DISC_DEFAULT, Presets.ROTATION_HOLY_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
 		gear: [],
+		// Preset builds that the user can quickly select.
+		builds: [Presets.DiscTestingBuild, Presets.HolyTestingBuild],
 	},
 
 	autoRotation: (priest: Player<Spec.SpecHealerPriest>): APLRotation => {

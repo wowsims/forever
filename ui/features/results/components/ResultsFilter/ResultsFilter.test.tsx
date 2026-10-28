@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -137,6 +138,19 @@ describe('healing target options', () => {
 			[2, 'results_tab.details.heal_target_number'],
 			[4, 'results_tab.details.heal_target_number'],
 		]);
+	});
+
+	it('numbers a heal target by its raid slot, as the rotation does, when an earlier dummy got no healing', () => {
+		const t = vi.spyOn(i18n, 't');
+		targetOptions(
+			healingResultWith([
+				{ unitIndex: 1, healing: 20, shielding: 0 },
+				{ unitIndex: 3, healing: 50, shielding: 0 },
+			]),
+		);
+		expect(t).toHaveBeenCalledWith('results_tab.details.heal_target_number', { number: 1 });
+		expect(t).toHaveBeenCalledWith('results_tab.details.heal_target_number', { number: 3 });
+		t.mockRestore();
 	});
 
 	it('recognizes healed dummies as valid targets after a run', () => {
