@@ -150,12 +150,17 @@ func TestAreaDamageOverTimeGoesOnEveryEnemyTheHitLandsOn(t *testing.T) {
 	}
 }
 
-// Poison Cloud 11790 deals only damage over time, to every enemy in its area up to the row's
-// MaxTargets: one target more than the cap takes none.
+// An area damage over time with no hit reaches every enemy in its area up to the row's MaxTargets:
+// one target more than the cap takes none. A copy of Ez-Thro Radiation Bomb's 435968 that keeps only
+// its damage over time and caps its targets stands in for the rows that state one.
 func TestAreaDamageOverTimeWithoutAHitStopsAtTheRowsMaxTargets(t *testing.T) {
-	row := spelldata.MustFind(11790)
+	editRow(t, 435968, func(s *spelldata.Spell) {
+		s.Effects = []spelldata.Effect{*s.PeriodicDamageEffect()}
+		s.MaxTargets = 3
+	})
+	row := spelldata.MustFind(435968)
 	if row.DamageEffect() != spelldata.NilEffect || row.MaxTargets == 0 {
-		t.Fatalf("11790 deals a hit or states no MaxTargets, nothing to check")
+		t.Fatalf("435968's copy deals a hit or states no MaxTargets, nothing to check")
 	}
 	want := int32(row.Duration() / row.PeriodicDamageEffect().Period())
 	for i, got := range ticksPerTarget(t, 991113, row.ID, int(row.MaxTargets)+1) {

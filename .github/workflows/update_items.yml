@@ -13,7 +13,7 @@ on:
     workflow_dispatch:
         inputs:
             dbcache_url:
-                description: 'The DBCache.bin to apply (defaults to the latest raidbots classic_beta file)'
+                description: 'The DBCache.bin to apply (defaults to the latest raidbots forever file)'
                 required: false
                 type: string
 
@@ -24,7 +24,7 @@ concurrency:
 
 env:
     PRODUCT: wowf
-    DBCACHE_URL: ${{ inputs.dbcache_url || 'https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin' }}
+    DBCACHE_URL: ${{ inputs.dbcache_url || 'https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin' }}
 
 jobs:
     update-items:
@@ -89,7 +89,6 @@ jobs:
               run: |
                   mkdir -p tools/db2tool/caches
                   curl -fsSL -o tools/db2tool/caches/DBCache.bin "$DBCACHE_URL"
-
             # gen_db imports the Go protos, so they are generated from the committed .proto files
             # first. Taking no class, gen_db rewrites no .proto file, so they need no second pass.
             # The UI type-check below reads the TS protos and the go-to-ts constants, which are not

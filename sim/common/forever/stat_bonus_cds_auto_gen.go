@@ -10,8 +10,6 @@ import (
 func RegisterAllOnUseCds() {
 
 	//
-	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)
-	// shared.NewSimpleStatActive(1404) // Tidal Charm - https://www.wowhead.com/forever/spell=835
 	// unsupported: 14530 deals no damage and heals no one (A_MOD_INCREASE_SPEED)
 	// shared.NewSimpleStatActive(2820) // Nifty Stopwatch - https://www.wowhead.com/forever/spell=14530
 	// unsupported: 1317740 deals no damage and heals no one (E_DUMMY)
@@ -23,12 +21,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(7189) // Goblin Rocket Boots - https://www.wowhead.com/forever/spell=8892
 	// unsupported: 9175 deals no damage and heals no one (A_MOD_INCREASE_SPEED)
 	// shared.NewSimpleStatActive(7391) // Swift Boots - https://www.wowhead.com/forever/spell=9175
-	// unsupported: 14537 deals no damage and heals no one (E_DUMMY)
-	// shared.NewSimpleStatActive(7734) // Six Demon Bag - https://www.wowhead.com/forever/spell=14537
-	// unsupported: 22641 deals no damage and heals no one (E_CHARGE, E_TRIGGER_SPELL)
-	// shared.NewSimpleStatActive(9394) // Horned Viking Helmet - https://www.wowhead.com/forever/spell=22641
-	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
-	// shared.NewSimpleStatActive(9404) // Olaf's All Purpose Shield - https://www.wowhead.com/forever/spell=12438
 	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
 	// shared.NewSimpleStatActive(10518) // Parachute Cloak - https://www.wowhead.com/forever/spell=12438
 	// unsupported: 22641 deals no damage and heals no one (E_CHARGE, E_TRIGGER_SPELL)
@@ -75,12 +67,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(276337) // Thaelemaches' Talisman - https://www.wowhead.com/forever/spell=1299440
 	// unsupported: 1302833 deals no damage and heals no one (A_MOD_SPEED_ALWAYS, E_DUMMY, E_FORCE_CAST)
 	// shared.NewSimpleStatActive(277844) // Mirage Mirror - https://www.wowhead.com/forever/spell=1302833
-	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
-	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
 
 	// Absorbs
-	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
-	shared.NewSpellDataAbsorbOnUse(2802) // Blazing Emblem - https://www.wowhead.com/forever/spell=13744
 	// on use: 10618 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(8367) // Dragonscale Breastplate - https://www.wowhead.com/forever/spell=10618
 	// on use: 12561 (A_SCHOOL_ABSORB)
@@ -107,8 +95,6 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(23558) // The Burrower's Shell - https://www.wowhead.com/forever/spell=29506
 	// on use: 1291097 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(272437) // Adaptive Combat Assistant - https://www.wowhead.com/forever/spell=1291097
-	// on use: 1314412 (A_SCHOOL_ABSORB)
-	shared.NewSpellDataAbsorbOnUse(282778) // Mark of the Red Flight - https://www.wowhead.com/forever/spell=1314412
 
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
@@ -117,7 +103,6 @@ func RegisterAllOnUseCds() {
 	shared.NewSimpleStatActive(23042) // Loatheb's Reflection - https://www.wowhead.com/forever/spell=28778
 
 	// ArmorNoMods
-	shared.NewSimpleStatActive(1447)  // Ring of Saviors - https://www.wowhead.com/forever/spell=18826
 	shared.NewSimpleStatActive(11811) // Smoking Heart of the Mountain - https://www.wowhead.com/forever/spell=1300752
 	// not simulated: the proc the buff carries, 23781 (E_HEAL)
 	shared.NewSimpleStatActive(19345) // Aegis of Preservation - https://www.wowhead.com/forever/spell=23780
@@ -137,7 +122,6 @@ func RegisterAllOnUseCds() {
 	})
 
 	// AttackPower / RangedAttackPower
-	shared.NewSimpleStatActive(14554)  // Cloudkeeper Legplates - https://www.wowhead.com/forever/spell=18787
 	shared.NewSimpleStatActive(21180)  // Earthstrike - https://www.wowhead.com/forever/spell=25891
 	shared.NewSimpleStatActive(23041)  // Slayer's Crest - https://www.wowhead.com/forever/spell=28777
 	shared.NewSimpleStatActive(249470) // Molten Heart of the Mountain - https://www.wowhead.com/forever/spell=1249113
@@ -219,8 +203,6 @@ func RegisterAllOnUseCds() {
 	shared.NewSimpleStatActive(23046) // The Restrained Essence of Sapphiron - https://www.wowhead.com/forever/spell=28779
 
 	// Heals
-	// on use: 1317424 (E_HEAL)
-	shared.NewSpellDataHealOnUse(1713) // Ankh of Life - https://www.wowhead.com/forever/spell=1317424
 	// on use: 10577 (E_HEAL)
 	shared.NewSpellDataHealOnUse(8346) // Gauntlets of the Sea - https://www.wowhead.com/forever/spell=10577
 	// on use: 18957 (A_PERIODIC_HEAL)
@@ -231,9 +213,6 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataHealOnUse(16768) // Furbolg Medicine Pouch - https://www.wowhead.com/forever/spell=20631
 	// on use: 23064 (E_HEAL); not simulated: E_DISPEL_MECHANIC, E_ENERGIZE
 	shared.NewSpellDataHealOnUse(18637) // Major Recombobulator - https://www.wowhead.com/forever/spell=23064
-
-	// MP5
-	shared.NewSimpleStatActive(4696) // Lapidis Tankard of Tidesippe - https://www.wowhead.com/forever/spell=1135
 
 	// Resources
 	// on use: 9174 (E_ENERGIZE)
@@ -252,16 +231,10 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(23027) // Warmth of Forgiveness - https://www.wowhead.com/forever/spell=28760
 
 	// Skipped
-	// Not simulated: Staff of Conjuring: "Conjure Food" (8736) - ignored effect type 24
-	// https://www.wowhead.com/forever/spell=8736
 	// Not simulated: Orb of Deception: "Orb of Deception" (16739) - ignored aura type 56
 	// https://www.wowhead.com/forever/spell=16739
-	// Not simulated: Dog Whistle: "Summon Tracking Hound" (9515) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=9515
 	// Not simulated: Spider Belt: "Immune Root" (9774) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=9774
-	// Not simulated: Enchanted Moonstalker Cloak: "Form of the Moonstalker" (6298) - ignored aura type 56
-	// https://www.wowhead.com/forever/spell=6298
 	// Not simulated: Ornate Mithril Boots: "Immune Root" (9774) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77
@@ -340,8 +313,6 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=23442
 	// Not simulated: Defender of the Barkskin: "Defender of the Barkskin" (1294063) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=1294063
-	// Not simulated: Graverobber's Shovel: "Dig" (1292560) - ignored effect type 24
-	// https://www.wowhead.com/forever/spell=1292560
 	// Not simulated: Greater Insignia of the Horde: "PvP Trinket" (438273) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=438273
 	// Not simulated: Greater Insignia of the Alliance: "PvP Trinket" (438273) - ignored aura type 77

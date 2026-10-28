@@ -423,6 +423,16 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 	wa.naturalReadyAt = wa.swingAt
 	wa.logSwingDelay(sim, attackSpell, isRanged)
 
+	// A melee swing restarts the ranged auto: the next one fires a full ranged swing after it, the
+	// windup included, wherever the player stands by then.
+	if !isRanged && wa.unit.AutoAttacks.AutoSwingRanged {
+		ranged := &wa.unit.AutoAttacks.ranged
+		ranged.updateSwingDuration(wa.unit.TotalRangedHasteMultiplier())
+		ranged.swingAt = sim.CurrentTime + ranged.curSwingDuration - RangedSwingWindup
+		ranged.naturalReadyAt = ranged.swingAt
+		sim.rescheduleWeaponAttack(ranged.swingAt)
+	}
+
 	attackSpell.Cast(sim, wa.unit.CurrentTarget)
 
 	if !sim.Options.Interactive && (wa.unit.Rotation != nil) && !wa.unit.Metrics.isTanking {

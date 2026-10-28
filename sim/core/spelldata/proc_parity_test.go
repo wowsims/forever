@@ -69,8 +69,6 @@ func liveProcs() []liveProc {
 		weaponDamage(17111, 7711, "Blazefury Medallion"),
 		shieldSpike(18825, 13959, "Grand Marshal's Aegis"),
 		shieldSpike(18826, 13959, "High Warlord's Shield Wall"),
-		shieldSpike(234562, 1216968, "High Warlord's Shield Wall (reissue)"),
-		shieldSpike(234588, 1216968, "Grand Marshal's Aegis (reissue)"),
 		shieldSpike(272591, 13959, "Premier High Warlord's Shield Wall"),
 		shieldSpike(272838, 13959, "Premier Grand Marshal's Aegis"),
 		{

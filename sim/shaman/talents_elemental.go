@@ -85,7 +85,7 @@ func (shaman *Shaman) applyElementalDevastation() {
 	// 30165 supplies the duration. The crit is the talent's own ladder, 3/6/9 by rank, which is
 	// what the tooltip of 30160 reads; the buff row states a flat 3.
 	critAura := shaman.RegisterAura(spelldata.AuraConfig(elementalDevastationBuff)).
-		AttachStatBuff(stats.PhysicalCritPercent, spellData.ElementalDevastation.ValueAt(shaman.Talents.ElementalDevastation))
+		AttachStatBuff(stats.PhysicalCritPercent, shaman.ElementalDevastationCritPercent())
 
 	// The row hears harmful spells with no roll, and the tooltip's "Critical Strikes with direct
 	// damage spells" makes the crit the outcome.
@@ -96,6 +96,11 @@ func (shaman *Shaman) applyElementalDevastation() {
 	trigger.Name = "Elemental Devastation - Trigger"
 
 	shaman.MakeProcTriggerAura(trigger)
+}
+
+// The physical crit Elemental Devastation's buff grants at the talent's rank, 0 without the talent.
+func (shaman *Shaman) ElementalDevastationCritPercent() float64 {
+	return spellData.ElementalDevastation.ValueAt(shaman.Talents.ElementalDevastation)
 }
 
 var clearcastingBuff = spellData.ElementalFocusTriggered.Highest()

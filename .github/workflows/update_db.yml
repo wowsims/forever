@@ -16,7 +16,7 @@ on:
 env:
     PRODUCT: wowf
     # Raidbots' Forever cache (docs/spell_data/partial-updates.md).
-    DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin
+    DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin
 
 jobs:
     update-db:
@@ -79,7 +79,6 @@ jobs:
               run: |
                   mkdir -p tools/db2tool/caches
                   curl -fsSL -o tools/db2tool/caches/DBCache.bin "$DBCACHE_URL"
-
             # gen_db imports the Go protos, so they are generated from the
             # committed .proto files first; `make proto` runs again further
             # down, once gen_db has rewritten the talent enums in them.

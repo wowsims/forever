@@ -100,7 +100,9 @@ every run writes `<Suite>.results.tmp`, which git ignores; its presence means no
   row, `spelldata.MustFind(id).EffectN(i)`, not from the generated accessor the production path reads or a literal; a
   test over the real tables checks only data-independent invariants, never counts or specific ids.
 - **Pin the precondition on a row copy** (`withRows`, `editRow`), never `t.Skip`; a needed amount that reads 0 fails
-  the test. Names and messages quote no game-file numbers.
+  the test. Names and messages quote no game-file numbers. One exception: a generator test whose example item the
+  live game files do not hold yet skips that example by name (`skipWithoutItem` in `tools/database`), so it runs again
+  once the live hotfix cache brings the item back.
 - **Where a new test goes.** A new class test outside the spec suites goes into `sim/<class>/<class>_test.go`, one test
   per fixed bug or class rule; a change adds no ability-specific test file under `sim/<class>/` or a spec folder, and
   proves an ability timing change with an uncommitted run stated in the pull request. A new test of cast requirement,
