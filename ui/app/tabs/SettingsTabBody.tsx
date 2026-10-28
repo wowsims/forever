@@ -91,7 +91,7 @@ export const SettingsTabBody = () => {
 	const host = useSimHost();
 	const config = useSpecConfig();
 	const ready = useSimReady();
-	const SettingsComponentUnderPlayer = config.settingsComponentUnderPlayer;
+	const SettingsComponent = config.settingsComponent;
 
 	const itemSwapSlots = config.itemSwapSlots || [];
 	const hasOtherSettings = config.otherInputs.inputs.length > 0 || itemSwapSlots.length > 0;
@@ -117,13 +117,13 @@ export const SettingsTabBody = () => {
 								config={{ header: { title: i18n.t('settings_tab.player.title') } }}>
 								<PlayerSettings iconInputs={config.playerIconInputs} inputs={config.playerInputs?.inputs ?? []} />
 							</ContentBlock>
-							{!gearPlanner && SettingsComponentUnderPlayer && <SettingsComponentUnderPlayer />}
 						</>
 					)}
 				</TabPanelColumns.Col>
 				<TabPanelColumns.Col>
 					{ready && (
 						<>
+							{!gearPlanner && SettingsComponent && <SettingsComponent />}
 							{config.sections?.map(section => (
 								<CustomSection key={section.id} section={section} />
 							))}

@@ -163,7 +163,7 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 
 	// Extra settings-tab sections, as data (e.g. Shaman totems).
 	sections?: Array<CustomSection<SpecType>>;
-	settingsComponentUnderPlayer?: ComponentType;
+	settingsComponent?: ComponentType;
 	hideDebuffs?: boolean;
 
 	encounterPicker: EncounterPickerConfig;

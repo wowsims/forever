@@ -121,7 +121,7 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		},
 	],
 	otherInputs: { inputs: [] },
-	settingsComponentUnderPlayer: HealingSettings,
+	settingsComponent: HealingSettings,
 	hideDebuffs: true,
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
