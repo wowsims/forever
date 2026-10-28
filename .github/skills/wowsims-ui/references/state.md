@@ -99,6 +99,13 @@ with `CONSUMABLE_ORDER_FIELDS`. Prefer it to a hand-built `subscribeAll([...])` 
 source each render, and `useStoreSubscribe` re-subscribes whenever the source identity changes. A named field is also
 greppable and cannot capture the wrong object.
 
+**The encounter design** is the store field `encounter:design` (`ui/sim/raid/encounter.ts`: `getDesign`, `setDesign`,
+`modifyDesign`, `hasDesign`), saved in the encounter proto only when it holds an event. The design points at targets by
+index, so `setTargets` runs `remapDesignTargets`, which follows each old target object to its new position and sends a
+removed target's events to -1, where `validateDesign` flags them; a preset matches the encounter by targets and design
+together. The designer dialog is `ui/features/encounter/components/EncounterDesigner/` over the model in
+`ui/features/encounter/model/design/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
+
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the
 slice. Use one only when nothing narrower works, and keep their number from growing:
 

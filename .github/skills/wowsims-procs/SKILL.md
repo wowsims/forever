@@ -65,6 +65,9 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
 - **Read the chance off the effect the tooltip names**, never a look-alike effect whose ladder happens to fit.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
+- **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
+  death; both are in `procs.md` (§ the two death bits), the order of a death in `wowsims-core-mechanics`
+  `## Targets and encounter designs`.
 
 ## Item and enchant procs
 

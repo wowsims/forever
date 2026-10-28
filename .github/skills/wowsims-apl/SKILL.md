@@ -113,6 +113,16 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   that comes that early is queued for the cast end (`QueueSpell` in `sim/core/spell_queueing.go`), so an action timed
   at a cast end still goes after the cast lands.
 
+## Encounter values
+
+The values that read an encounter design are in `sim/core/apl_values_design.go` and `apl_values_encounter.go`:
+`Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
+a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
+`Time Until Amp` (by damage amp type). Without a design the times are never, and `Next Move Duration` is 0.
+
+- **`Is Execute Phase` takes a target**, and `Current Health` and `Current Health %` on an enemy read its health
+  curve, so a design's boss and adds each have their own. Fights are time-based; there is no `use_health`.
+
 ## Traps
 
 - **An external buff copy registers as tag -1** (`actionID` in `sim/core/buffs/meta.go`): the raid's Battle Shout is
