@@ -639,8 +639,10 @@ message Encounter {
 	// Same as execute_proportion_20 but for 35%, e.g. for Quietus and Decimation.
 	double execute_proportion_35 = 4;
 
-	// When set, the design's timeline drives the fight (the targets' windows, health and add waves) and the
-	// execute proportions are not read.
+	// When set, the design's timeline drives the fight (the targets' windows, health and add waves). The execute
+	// proportions still shape the health of every target without its own curve: non-boss targets, and the boss
+	// when the design has no boss health keyframes. Add waves use their own proportions, and boss health
+	// keyframes replace these for target 0.
 	EncounterDesign design = 7;
 
 	// If type != Simple or Custom, then this may be empty.
@@ -753,8 +755,8 @@ message DesignBossAbility {
 	double min_damage = 7;
 	double max_damage = 8;
 	double cast_time = 9; // Seconds.
-	double weapon_percent = 10;
-	double proc_chance = 11;
+	double weapon_percent = 10; // Percent, 20 is 20%.
+	double proc_chance = 11; // Percent, 20 is 20%.
 	int32 extra_attacks = 12;
 	double icd = 13; // Seconds.
 	double swing_speed_multiplier = 14; // SwingTiming: 0 pauses the swing, above 1 hastes it.
