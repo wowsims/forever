@@ -263,11 +263,13 @@ func deactivateOthersOnTarget(sim *core.Simulation, group []*core.Spell, landing
 }
 
 // Slots in a target's per-caster damage multipliers (core.EnableDamageDoneByCaster / AttachDDBC), one per
-// warlock debuff that raises only this warlock's damage against the target. Each needs its own slot so one
-// debuff's expiry cannot clear another's, and every caller passes DDBC_Total so the slice is sized alike.
+// warlock effect that raises only this warlock's damage against the target: a debuff, or Decimation's bonus
+// against a target below 35%. Each needs its own slot so one debuff's expiry cannot clear another's, and every
+// caller passes DDBC_Total so the slice is sized alike.
 const (
 	DDBC_ShadowVulnerability int = iota
 	DDBC_Wrack
+	DDBC_Decimation
 	DDBC_Total
 )
 
