@@ -156,9 +156,6 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	hideSimpleCooldowns?: boolean;
 	includeBuffDebuffInputs: Array<any>;
 	excludeBuffDebuffInputs: Array<any>;
-	healingSpellOrder?: Array<string>;
-	// Spell IDs for proc auras to include in the healing results summary.
-	healingProcAuras?: Array<number>;
 	otherInputs: InputSection;
 	// Currently, many classes don't support item swapping, and only in certain slots.
 	// So enable it only where it is supported.

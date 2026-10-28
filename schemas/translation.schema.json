@@ -8652,56 +8652,6 @@
 						"group_ranks": {
 							"type": "string"
 						},
-						"healing_spells": {
-							"type": "object",
-							"properties": {
-								"rank": { "type": "string" },
-								"rank_label": { "type": "string" },
-								"normal": { "type": "string" },
-								"critical": { "type": "string" },
-								"crit_chance": { "type": "string" },
-								"absorb": { "type": "string" },
-								"divine_aegis": { "type": "string" },
-								"proc_uptimes": { "type": "string" },
-								"inspiration": { "type": "string" },
-								"uptime_note": { "type": "string" },
-								"proc": { "type": "string" },
-								"target": { "type": "string" },
-								"uptime": { "type": "string" },
-								"min": { "type": "string" },
-								"mean": { "type": "string" },
-								"max": { "type": "string" },
-								"per_tick": { "type": "string" },
-								"normal_tick": { "type": "string" },
-								"crit_tick": { "type": "string" },
-								"periodic_tooltip": { "type": "string" },
-								"no_spells": { "type": "string" }
-							},
-							"additionalProperties": false,
-							"required": [
-								"rank",
-								"rank_label",
-								"normal",
-								"critical",
-								"crit_chance",
-								"absorb",
-								"divine_aegis",
-								"proc_uptimes",
-								"inspiration",
-								"uptime_note",
-								"proc",
-								"target",
-								"uptime",
-								"min",
-								"mean",
-								"max",
-								"per_tick",
-								"normal_tick",
-								"crit_tick",
-								"periodic_tooltip",
-								"no_spells"
-							]
-						},
 						"show_apm_breakdown": {
 							"type": "string"
 						},
@@ -9178,9 +9128,6 @@
 								"healing": {
 									"type": "string"
 								},
-								"healing_spells": {
-									"type": "string"
-								},
 								"threat": {
 									"type": "string"
 								},
@@ -9207,19 +9154,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": [
-								"damage",
-								"healing",
-								"healing_spells",
-								"threat",
-								"damage_taken",
-								"buffs",
-								"debuffs",
-								"casts",
-								"resources",
-								"timeline",
-								"log"
-							]
+							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "log"]
 						},
 						"columns": {
 							"type": "object",
@@ -9672,7 +9607,6 @@
 						"healer_target",
 						"heal_target_number",
 						"group_ranks",
-						"healing_spells",
 						"show_apm_breakdown",
 						"pets",
 						"damage",

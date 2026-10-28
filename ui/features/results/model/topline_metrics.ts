@@ -130,7 +130,8 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 
 	const visibleColumns = displayMetrics
 		? resultColumns.filter(({ metric }) => {
-				if (metric === 'apm' || (metric === 'tps' && !isHealer)) return true;
+				// Threat per second and actions per minute are the metrics every spec shows; the rest follow the setting.
+				if (metric === 'tps' || metric === 'apm') return true;
 				const category = resultMetricCategories[metric];
 				return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
 			})

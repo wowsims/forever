@@ -73,7 +73,6 @@ let runData: unknown = null;
 
 const renderPane = () =>
 	renderWithHost(<DetailedResults resultsManager={{ currentChangeEmitter, getRunData: () => runData } as never} />, {
-		player: { getPlayerSpec: () => ({ isHealingSpec: false }) },
 		sim: {
 			store: createSimStore(),
 			getShowDamageMetrics: () => metrics.damage,

@@ -5,7 +5,7 @@ import { subscribeAll, subscribePlayerChange, subscribeRaidField } from '@sim/st
 
 export const healingGroupSize = ({ groupSize }: HealingSimSettings): number => (groupSize === 5 || groupSize === 20 ? groupSize : 10);
 
-const healingTargetDummies = (settings: HealingSimSettings): number => {
+export const healingTargetDummies = (settings: HealingSimSettings): number => {
 	const groupSize = healingGroupSize(settings);
 	if (groupSize === 5) return 4;
 	if (settings.assignment === HealingAssignment.TankHealing) return groupSize === 20 ? 2 : 1;

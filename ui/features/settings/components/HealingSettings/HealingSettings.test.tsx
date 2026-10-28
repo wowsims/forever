@@ -13,17 +13,15 @@ vi.mock('@sim/context/SimHostContext', () => ({ useSim: () => mocked.sim }));
 type StoreState = {
 	raid: {
 		healingSettings: { assignment: HealingAssignment; groupSize: number };
-		targetDummies: number;
 	};
 };
 
 const setUp = (assignment: HealingAssignment, groupSize: number) => {
-	const store = createStore<StoreState>(() => ({ raid: { healingSettings: { assignment, groupSize }, targetDummies: 99 } }));
-	const setTargetDummies = vi.fn((targetDummies: number) => store.setState(state => ({ raid: { ...state.raid, targetDummies } })));
+	const store = createStore<StoreState>(() => ({ raid: { healingSettings: { assignment, groupSize } } }));
 	const setHealingSettings = vi.fn((healingSettings: StoreState['raid']['healingSettings']) =>
 		store.setState(state => ({ raid: { ...state.raid, healingSettings } })),
 	);
-	mocked.sim = { store, raid: { setTargetDummies, setHealingSettings } };
+	mocked.sim = { store, raid: { setHealingSettings } };
 	return { setHealingSettings };
 };
 

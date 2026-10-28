@@ -1,3 +1,4 @@
+import { healingTargetDummies } from '@features/encounter/model/target_dummies';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Cooldowns, Profession, Spec } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
@@ -98,9 +99,9 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 
 		host.reforger?.applyDefaults();
 
-		// Healers get a full party of allies. Balance keeps one so Innervate can leave the druid.
+		// Healers follow their healing settings. Balance keeps one ally so Innervate can leave the druid.
 		if (healingSpec) {
-			sim.raid.setTargetDummies(9);
+			sim.raid.setTargetDummies(healingTargetDummies(sim.raid.getHealingSettings()));
 		} else if (player.getSpec() === Spec.SpecBalanceDruid) {
 			sim.raid.setTargetDummies(1);
 		} else {

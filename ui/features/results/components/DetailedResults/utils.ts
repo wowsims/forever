@@ -8,14 +8,8 @@ export interface DetailedResultsTabConfig {
 	breaksDownApm?: boolean;
 }
 
-// Keep this tab disabled while it only reports spells used by the rotation: without downranking
-// and spells absent from the rotation, the table is incomplete and not useful as a spell reference.
-// Re-enable it once both cases are supported.
-export const HEALING_SPELLS_RESULTS_ENABLED = false;
-
-const ALL_DETAILED_RESULTS_TABS: ReadonlyArray<DetailedResultsTabConfig> = [
+export const DETAILED_RESULTS_TABS: ReadonlyArray<DetailedResultsTabConfig> = [
 	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage', groupsRanks: true },
-	{ id: 'healingSpellsTab', labelKey: 'results_tab.details.tabs.healing_spells' },
 	{ id: 'threatTab', labelKey: 'results_tab.details.tabs.threat', groupsRanks: true },
 	{ id: 'healingTab', labelKey: 'results_tab.details.tabs.healing', groupsRanks: true },
 	{ id: 'damageTakenTab', labelKey: 'results_tab.details.tabs.damage_taken', groupsRanks: true },
@@ -27,10 +21,7 @@ const ALL_DETAILED_RESULTS_TABS: ReadonlyArray<DetailedResultsTabConfig> = [
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
 ];
 
-export const DETAILED_RESULTS_TABS = ALL_DETAILED_RESULTS_TABS.filter(tab => HEALING_SPELLS_RESULTS_ENABLED || tab.id !== 'healingSpellsTab');
-
 export const DEFAULT_DETAILED_RESULTS_TAB = 'damageTab';
-export const HEALING_SPELLS_RESULTS_TAB = 'healingSpellsTab';
 
 /** Ties a pane to the tab button that controls it. */
 export const tabButtonId = (tabId: string): string => `${tabId}-nav`;

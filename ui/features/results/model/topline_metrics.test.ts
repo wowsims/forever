@@ -83,7 +83,7 @@ describe('toplineResultMetrics', () => {
 		expect(metrics.find(metric => metric.metric === 'apm')).toMatchObject({ average: 37.5, stdev: undefined });
 	});
 
-	it('keeps apm and non-healer tps whatever the display metrics are', () => {
+	it('keeps apm whatever the display metrics are', () => {
 		const displayMetrics = { damage: false, threat: false, healing: false };
 
 		expect(toplineResultMetrics(simResult([player()]), undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['tps', 'apm']);
@@ -99,17 +99,17 @@ describe('toplineResultMetrics', () => {
 		expect(toplineResultMetrics(result)[0]).toMatchObject({ metric: 'dps', average: 400, stdev: undefined });
 	});
 
-	it('keeps non-healer tps when threat metrics are disabled', () => {
+	it('keeps tps while the other threat metrics follow the setting', () => {
 		const result = simResult([player()]);
 		const displayMetrics = { damage: true, threat: false, healing: true };
 
 		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'apm', 'tto', 'hps']);
 	});
 
-	it('keeps HPS variance and hides healer threat when it is disabled', () => {
+	it('keeps HPS variance and tps for a healer', () => {
 		const result = simResult([player({ spec: PlayerSpecs.HealerPriest, getHealingActionsOn: () => [] })]);
 		const metrics = toplineResultMetrics(result, undefined, { displayMetrics: { damage: false, threat: false, healing: true } });
-		expect(metrics.map(metric => metric.metric)).not.toContain('tps');
+		expect(metrics.map(metric => metric.metric)).toContain('tps');
 		expect(metrics[0]).toMatchObject({ metric: 'hps', average: 20, stdev: 2 });
 	});
 

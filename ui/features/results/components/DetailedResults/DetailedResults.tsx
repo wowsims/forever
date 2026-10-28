@@ -25,7 +25,6 @@ import { CastMetricsTable } from '../CastMetricsTable';
 import { DamageMetricsTable } from '../DamageMetricsTable';
 import { DtpsMetricsTable } from '../DtpsMetricsTable';
 import { HealingMetricsTable } from '../HealingMetricsTable';
-import { HealingSpellTable } from '../HealingSpellTable';
 import { LogRunner } from '../LogRunner';
 import { ResourceMetricsTable } from '../ResourceMetricsTable';
 import { ALL_UNITS, hasTarget, ResultsFilter, simResultFilter } from '../ResultsFilter';
@@ -34,13 +33,7 @@ import { Timeline } from '../Timeline';
 import { DrStickySlotContext } from './context/DrStickySlotContext';
 import { DetailedResultsPane } from './DetailedResultsPane';
 import { DetailedResultsTabs } from './DetailedResultsTabs';
-import {
-	DEFAULT_DETAILED_RESULTS_TAB,
-	DETAILED_RESULTS_TABS,
-	type DetailedResultsTabConfig,
-	HEALING_SPELLS_RESULTS_ENABLED,
-	HEALING_SPELLS_RESULTS_TAB,
-} from './utils';
+import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS, type DetailedResultsTabConfig } from './utils';
 
 // The viewer's choice, shared by every spec page.
 const GROUP_RANKS_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-group-ranks.v1`;
@@ -163,19 +156,16 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 
 	const settingsSubscribe = subscribeSimSettingsChange(sim);
 	const { damage: showDamage, threat: showThreat, healing: showHealing } = useDisplayMetrics(sim);
-	const isHealingSpec = host.player.getPlayerSpec().isHealingSpec;
-	const hasResults = useSimResult() !== null;
 
 	const visibleTabs = useMemo(
 		() =>
 			DETAILED_RESULTS_TABS.filter(tab => {
-				if (tab.id === HEALING_SPELLS_RESULTS_TAB) return HEALING_SPELLS_RESULTS_ENABLED && isHealingSpec && hasResults;
 				if (tab.id === 'damageTab') return showDamage;
 				if (tab.id === 'healingTab') return showHealing;
 				if (tab.id === 'threatTab' || tab.id === 'damageTakenTab') return showThreat;
 				return true;
 			}),
-		[hasResults, isHealingSpec, showDamage, showThreat, showHealing],
+		[showDamage, showThreat, showHealing],
 	);
 
 	const [activeId, setActiveId] = useState<string>(DEFAULT_DETAILED_RESULTS_TAB);
@@ -183,6 +173,7 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	const [target, setTarget] = useState(ALL_UNITS);
 	const [groupRanks, setGroupRanks] = useLocalStorageState(GROUP_RANKS_STORAGE_KEY, parseFlag, () => true);
 	const [showApmBreakdown, setShowApmBreakdown] = useLocalStorageState(SHOW_APM_BREAKDOWN_STORAGE_KEY, parseFlag, () => false);
+	const hasResults = useSimResult() !== null;
 
 	// `updateResults` is bound to the emitter, not to the filter, so the selection it reads is a ref.
 	const targetRef = useRef(target);
@@ -329,11 +320,6 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 			{showHealing && (
 				<DetailedResultsPane id="healingTab" className="[&_.ui-metrics-table]:text-xs" topline>
 					<HealingMetricsTable />
-				</DetailedResultsPane>
-			)}
-			{HEALING_SPELLS_RESULTS_ENABLED && isHealingSpec && hasResults && (
-				<DetailedResultsPane id={HEALING_SPELLS_RESULTS_TAB}>
-					<HealingSpellTable />
 				</DetailedResultsPane>
 			)}
 			{showThreat && (

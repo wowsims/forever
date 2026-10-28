@@ -2574,7 +2574,6 @@
 			"tabs": {
 				"damage": "Damage",
 				"healing": "Healing",
-				"healing_spells": "Healing Spells",
 				"threat": "Threat",
 				"damage_taken": "Damage Taken",
 				"buffs": "Buffs",
@@ -2583,29 +2582,6 @@
 				"resources": "Resources",
 				"timeline": "Timeline",
 				"log": "Log"
-			},
-			"healing_spells": {
-				"rank": "Rank",
-				"rank_label": "Rank {{rank}}",
-				"normal": "Normal",
-				"critical": "Crit",
-				"crit_chance": "Crit chance",
-				"absorb": "Absorb",
-				"divine_aegis": "Divine Aegis",
-				"proc_uptimes": "Healing proc uptimes",
-				"inspiration": "Inspiration",
-				"uptime_note": "Proc uptime uses the completed sim results and appears after a sim run.",
-				"proc": "Proc",
-				"target": "Target",
-				"uptime": "Uptime",
-				"min": "Min",
-				"mean": "Mean",
-				"max": "Max",
-				"per_tick": "Per tick",
-				"normal_tick": "Normal tick",
-				"crit_tick": "Crit tick",
-				"periodic_tooltip": "Periodic healing values are shown per tick for spells cast during this simulation.",
-				"no_spells": "No healing spells were cast on the selected target in this simulation."
 			},
 			"columns": {
 				"damage_done": "Damage done",
