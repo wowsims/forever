@@ -69,15 +69,16 @@ func addMovementEncounter() {
 }
 
 func dynamicAddTarget() *proto.Target {
+	const level = 62
 	return &proto.Target{
 		Id:        dynamicAddID,
 		Name:      "Dynamic Add",
-		Level:     62,
+		Level:     level,
 		MobType:   proto.MobType_MobTypeMechanical,
 		TankIndex: 1,
 
 		Stats: stats.Stats{
-			stats.Armor:       6193,
+			stats.Armor:       core.CreatureArmorByLevel[level],
 			stats.AttackPower: 320,
 		}.ToProtoArray(),
 
