@@ -1530,7 +1530,7 @@
 				},
 				"change_target": {
 					"label": "Change Target",
-					"tooltip": "Sets the current target, which is the target of auto attacks and most casts by default."
+					"tooltip": "Sets the current target, which is the target of auto attacks and most casts by default. Not ready while that unit is already the current target, except as a step of a sequence."
 				},
 				"activate_aura": {
 					"label": "Activate Aura",

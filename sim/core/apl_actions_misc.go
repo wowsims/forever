@@ -31,14 +31,24 @@ func (action *APLActionChangeTarget) Reset(sim *Simulation) {
 }
 func (action *APLActionChangeTarget) IsReady(sim *Simulation) bool {
 	// Prevent infinite loops by only allowing this action to be performed once at each timestamp.
-	return action.lastExecutedAt != sim.CurrentTime
+	// A change to the unit already targeted is not ready, so a line that returns to the main target
+	// needs no check that another unit is targeted. Inside a sequence such a step is ready and does
+	// nothing, so the sequence goes on.
+	if action.lastExecutedAt == sim.CurrentTime {
+		return false
+	}
+	return action.newTarget.Get() != action.unit.CurrentTarget || action.unit.Rotation.inSequence
 }
 func (action *APLActionChangeTarget) Execute(sim *Simulation) {
-	if sim.Log != nil {
-		action.unit.Log(sim, "Changing target to %s", action.newTarget.Get().Label)
-	}
-	action.unit.CurrentTarget = action.newTarget.Get()
 	action.lastExecutedAt = sim.CurrentTime
+	newTarget := action.newTarget.Get()
+	if newTarget == action.unit.CurrentTarget {
+		return
+	}
+	if sim.Log != nil {
+		action.unit.Log(sim, "Changing target to %s", newTarget.Label)
+	}
+	action.unit.CurrentTarget = newTarget
 }
 func (action *APLActionChangeTarget) String() string {
 	return fmt.Sprintf("Change Target(%s)", action.newTarget.Get().Label)
