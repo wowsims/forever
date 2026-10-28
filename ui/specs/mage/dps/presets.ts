@@ -68,6 +68,7 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 export const DefaultPartyBuffs = PartyBuffs.create({
 	manaSpringTotem: 2,
 	manaTideTotems: 1,
+	darkInspiration: 1,
 });
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
