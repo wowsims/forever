@@ -478,6 +478,52 @@ func TestMagicWeaponProcIsHeardByNoWeaponProc(t *testing.T) {
 	}
 }
 
+// A damage proc whose trigger carries the kill bit, Blazefury Medallion 17111's 7711 edited to hear a
+// killing blow alone. The kill passes the proc no spell and names the dying target, so its damage goes
+// to the next target still up, and with none left it casts nothing.
+func TestKillingBlowDamageProcHitsTheNextTarget(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		trinketID   int32
+		targetCount int
+		want        int32
+	}{
+		{"two targets", 991630, 2, 1},
+		{"one target", 991631, 1, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			editRow(t, 7711, func(s *spelldata.Spell) {
+				s.ProcFlags = [2]uint32{0x2, 0}
+				s.ProcHint = 0
+			})
+			core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: tc.trinketID, Name: "Test Killing Blow",
+				Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+			registerSpellDataDamageProc(SpellDataProc{Name: "Test Killing Blow", ItemID: tc.trinketID,
+				TriggerSpellID: 7711, BuffSpellID: 7712})
+
+			items := testHands(&proto.ItemSpec{}, &proto.ItemSpec{})
+			items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: tc.trinketID}
+			sim := newTestCasterSimAgainst(items, nil, tc.targetCount)
+			caster := sim.Raid.Parties[0].Players[0].(*testCaster)
+			dying := sim.Encounter.AllTargets[0]
+
+			dying.Die(sim, 1)
+
+			damage := mustGetSpell(t, caster, 7712)
+			if casts := damage.SpellMetrics[dying.UnitIndex].Casts; casts != 0 {
+				t.Errorf("the proc cast %d times on the dying target, want none", casts)
+			}
+			cast := int32(0)
+			for _, target := range sim.Encounter.AllTargets[1:] {
+				cast += damage.SpellMetrics[target.UnitIndex].Casts
+			}
+			if cast != tc.want {
+				t.Errorf("the proc cast %d times on the targets still up, want %d", cast, tc.want)
+			}
+		})
+	}
+}
+
 // Blazing Rapier 12777's chance-on-hit Blaze 16898 deals Fire every period for its duration and
 // nothing up front, and states no rate. Rolled at 100% for the test, the damage proc puts the damage
 // over time on the target the swing hit, and it ticks the row's duration over its period.

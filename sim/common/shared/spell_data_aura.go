@@ -62,7 +62,7 @@ func (auras *spellDataAuras) activate(sim *core.Simulation, target *core.Unit) {
 			aura.Activate(sim)
 		}
 	}
-	if auras.enemies != nil {
+	if auras.enemies != nil && target != nil {
 		applyDebuff(sim, auras.enemies.Get(target))
 	}
 }

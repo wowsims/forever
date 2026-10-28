@@ -261,6 +261,15 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 		info.Callback &= ^CallbackOnPeriodicDamageDealt
 	}
 
+	// The kill bit is the killing blow, which the kill roll credits; the target-dies bit is any enemy
+	// dying. In game these are two events, so a mask carrying both fires twice on a credited kill.
+	if word&dbcenums.PROC_FLAG_KILL != 0 {
+		info.Callback |= CallbackOnKill
+	}
+	if mask[1]&dbcenums.PROC_FLAG_2_TARGET_DIES != 0 {
+		info.Callback |= CallbackOnTargetDies
+	}
+
 	info.Unsupported = unsupportedProcFlags(mask)
 
 	return info
@@ -268,7 +277,6 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 var unsupportedProcFlagNames = map[uint32]string{
 	dbcenums.PROC_FLAG_HEARTBEAT:          "HEARTBEAT",
-	dbcenums.PROC_FLAG_KILL:               "KILL",
 	dbcenums.PROC_FLAG_TAKE_HELPFUL_SPELL: "TAKE_HELPFUL_SPELL",
 	dbcenums.PROC_FLAG_DEATH:              "DEATH",
 	dbcenums.PROC_FLAG_JUMP:               "JUMP",
@@ -283,8 +291,8 @@ var unsupportedProcFlagNames = map[uint32]string{
 // says, and on their own they leave the callback empty, which the caller refuses anyway.
 func unsupportedProcFlags(mask [2]uint32) []string {
 	// Everything from the death bit up is a state change rather than a hit, and of word 1 the sim
-	// models the main-hand restriction alone.
-	unsupported := mask[0] & (dbcenums.PROC_FLAG_HEARTBEAT | dbcenums.PROC_FLAG_KILL | dbcenums.PROC_FLAG_TAKE_HELPFUL_SPELL | ^(dbcenums.PROC_FLAG_DEATH - 1))
+	// models the target-dies bit and the main-hand restriction alone.
+	unsupported := mask[0] & (dbcenums.PROC_FLAG_HEARTBEAT | dbcenums.PROC_FLAG_TAKE_HELPFUL_SPELL | ^(dbcenums.PROC_FLAG_DEATH - 1))
 
 	var names []string
 	for bit := 0; bit < 32; bit++ {
@@ -299,7 +307,7 @@ func unsupportedProcFlags(mask [2]uint32) []string {
 		}
 	}
 
-	word1 := mask[1] &^ dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY
+	word1 := mask[1] &^ (dbcenums.PROC_FLAG_2_TARGET_DIES | dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY)
 	for bit := 0; bit < 32; bit++ {
 		if word1&(1<<bit) != 0 {
 			names = append(names, fmt.Sprintf("bit %d", 32+bit))

@@ -146,7 +146,13 @@ func NewProcStatBonusEffectWithDamageProc(config ProcStatBonusEffect, damage Dam
 		return ExtraSpellInfo{
 			Spell: procSpell,
 			Trigger: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-				procSpell.Cast(sim, result.Target)
+				target := result.Target
+				if spell == nil {
+					target = procDamageTarget(character, config.Callback, spell, result)
+				}
+				if target != nil {
+					procSpell.Cast(sim, target)
+				}
 			},
 		}
 	})
@@ -911,11 +917,15 @@ func procDamageHandler(character *core.Character, damageSpell *core.Spell, callb
 		casting = false
 	}
 	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		target := procDamageTarget(character, callback, spell, result)
+		if target == nil {
+			return
+		}
 		flags := core.SpellFlagNone
-		if meleeStrike && spell.ProcMask.Matches(core.ProcMaskMeleeOH) && !spell.ProcMask.Matches(core.ProcMaskMeleeMH) {
+		if meleeStrike && spell != nil && spell.ProcMask.Matches(core.ProcMaskMeleeOH) && !spell.ProcMask.Matches(core.ProcMaskMeleeMH) {
 			flags = core.SpellFlagSuppressWeaponProcs
 		}
-		cast(sim, procDamageTarget(character, callback, spell, result), flags)
+		cast(sim, target, flags)
 	}
 }
 
@@ -958,12 +968,25 @@ func weaponProcStrikeMask(defenseType core.DefenseType, flags core.SpellFlag, is
 	return core.ProcMaskEmpty
 }
 
-// Which unit the proc answers. What the result names depends on the callback, so the callback
-// decides whether it may be read at all.
+// Which unit the proc answers, nil where no enemy is left to answer. What the result names depends on
+// the callback, so the callback decides whether it may be read at all.
 func procDamageTarget(character *core.Character, callback core.AuraCallback, spell *core.Spell, result *core.SpellResult) *core.Unit {
 	target := character.CurrentTarget
 
 	switch {
+	case spell == nil && callback.Matches(core.CallbackOnKill|core.CallbackOnTargetDies):
+		// A death comes with no spell and a result naming the dying enemy, which takes nothing more.
+		// The current target stands while it is up and is not the one dying, else the next enemy
+		// still up.
+		dying := result.Target
+		if target != dying && target.IsEnabled() {
+			return target
+		}
+		if next := character.Env.NextActiveTarget(dying); next != nil && &next.Unit != dying {
+			return &next.Unit
+		}
+		return nil
+
 	case callback.Matches(core.CallbackOnSpellHitTaken):
 		// Here result.Target is the wearer - core dispatches hit-taken through
 		// result.Target.OnSpellHitTaken - so the retaliation goes to the attacker instead of

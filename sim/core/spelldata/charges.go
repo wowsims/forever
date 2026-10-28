@@ -39,6 +39,10 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 	spender.Name = name
 	spender.ClassFlags = classFlags
 	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		// A death the row's flags name is no cast, so it spends a charge of its own.
+		if spell == nil {
+			return true
+		}
 		// The channel's own hit lands before its dot starts, its ticks while it runs. A hit the wearer
 		// takes is not part of the channel.
 		channel := character.ChanneledDot
