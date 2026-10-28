@@ -48,7 +48,7 @@ export const VariablesList = () => {
 			<h6 className="mb-2 flex items-center gap-2">
 				<AplSectionTitle text={i18n.t('rotation_tab.apl.variables.header')} tooltip={i18n.t('rotation_tab.apl.variables.tooltips.overview')} />
 			</h6>
-			<AplList.Root group={APL_VARIABLES} testId="apl-variables-tree">
+			<AplList.Root group={APL_VARIABLES} density="default" testId="apl-variables-tree">
 				{variables.items.map((variable, index) => {
 					const id = aplItemId(variable, index);
 					return (
