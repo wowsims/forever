@@ -1382,6 +1382,9 @@
 						"rage_gain": {
 							"type": "string"
 						},
+						"damage_amplifier": {
+							"type": "string"
+						},
 						"attack": {
 							"type": "string"
 						},
@@ -1419,6 +1422,7 @@
 						"focus_tick",
 						"mana_gain",
 						"rage_gain",
+						"damage_amplifier",
 						"attack",
 						"shoot",
 						"refund",
@@ -1450,10 +1454,13 @@
 						"windfury": {
 							"type": "string"
 						},
-						"boss": {
+						"caster_buff": {
 							"type": "string"
 						},
-						"add": {
+						"environment_buff": {
+							"type": "string"
+						},
+						"target_debuff": {
 							"type": "string"
 						},
 						"no_stacks": {
@@ -1555,9 +1562,6 @@
 						"self": {
 							"type": "string"
 						},
-						"custom_boss": {
-							"type": "string"
-						},
 						"thrash": {
 							"type": "string"
 						},
@@ -1586,8 +1590,9 @@
 						"main_hand",
 						"off_hand",
 						"windfury",
-						"boss",
-						"add",
+						"caster_buff",
+						"environment_buff",
+						"target_debuff",
 						"no_stacks",
 						"one_stack",
 						"crits",
@@ -1621,7 +1626,6 @@
 						"hit",
 						"external",
 						"self",
-						"custom_boss",
 						"thrash",
 						"stacks",
 						"ticks",

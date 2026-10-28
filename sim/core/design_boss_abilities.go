@@ -8,7 +8,7 @@ import (
 )
 
 // Each ability's spells carry this plus the ability's index as their tag, which no spell id reaches, so an
-// extra attack's tag names no spell.
+// extra attack's tag names no spell. ENCOUNTER_DESIGN_ABILITY_TAG in ui/sim/proto/action_id/index.ts mirrors it.
 const designBossAbilityTag int32 = 2_000_000
 
 const (
