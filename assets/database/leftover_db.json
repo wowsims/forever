@@ -1056,7 +1056,7 @@
 {"id":271661,"name":"Thendal Novice's Boots","icon":"inv_boots_06","type":10,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":2},"ilvl":1}}},
 {"id":271663,"name":"Thendal Novice's Shirt","icon":"inv_chest_armor_skybornec60_a_01","quality":1,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":271665,"name":"Thendal Survivalist's Boots","icon":"inv_boots_06","type":10,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":2},"ilvl":1}}},
-{"id":271668,"name":"Thendal Survivalist's Shirt","icon":"inv_chest_armor_skybornec60_a_01","armorType":2,"quality":1,"scalingOptions":{"0":{"ilvl":1}}},
+{"id":271668,"name":"Thendal Survivalist's Shirt","icon":"inv_chest_armor_skybornec60_a_01","quality":1,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":271669,"name":"Thendal Warrior's Shirt","icon":"inv_chest_armor_skybornec60_a_01","quality":1,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":271671,"name":"Thendal Warrior's Boots","icon":"inv_boots_06","type":10,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":2},"ilvl":1}}},
 {"id":271673,"name":"Grove Scoundrel's Boots","icon":"inv_boots_06","type":10,"armorType":1,"quality":1,"scalingOptions":{"0":{"stats":{"27":2},"ilvl":1}}},

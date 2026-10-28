@@ -60,15 +60,12 @@ func RegisterAllStatConsumables() {
 		4457,   // Barbecued Buzzard Wing
 		4546,   // Call of the Raptor
 		4592,   // Longjaw Mud Snapper
-		4593,   // Bristle Whisker Catfish
-		4594,   // Rockscale Cod
 		4952,   // Stormstout
 		5095,   // Rainbow Fin Albacore
 		5206,   // Bogling Root
 		5342,   // Raptor Punch
 		5472,   // Kaldorei Spider Kabob
 		5474,   // Roasted Kodo Meat
-		5476,   // Fillet of Frenzy
 		5477,   // Strider Stew
 		5479,   // Crispy Lizard Tail
 		5480,   // Lean Venison
@@ -76,7 +73,6 @@ func RegisterAllStatConsumables() {
 		5997,   // Elixir of Minor Defense
 		6038,   // Giant Clam Scorcho
 		6290,   // Brilliant Smallfish
-		6316,   // Loch Frenzy Delight
 		6373,   // Elixir of Fire Power
 		6662,   // Elixir of Giant Growth
 		6887,   // Spotted Yellowtail
@@ -93,7 +89,6 @@ func RegisterAllStatConsumables() {
 		8424,   // Gizzard Gum
 		8949,   // Elixir of Agility
 		8951,   // Elixir of Defense
-		8957,   // Spinefin Halibut
 		9155,   // Arcane Elixir
 		9179,   // Elixir of Greater Intellect
 		9187,   // Elixir of Greater Agility
@@ -134,7 +129,6 @@ func RegisterAllStatConsumables() {
 		13927,  // Cooked Glossy Mightfish
 		13928,  // Grilled Squid
 		13929,  // Hot Smoked Bass
-		13930,  // Filet of Redgill
 		13931,  // Nightfin Soup
 		13932,  // Poached Sunscale Salmon
 		13933,  // Lobster Stew
