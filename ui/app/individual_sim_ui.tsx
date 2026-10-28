@@ -46,7 +46,7 @@ import {
 } from '@sim/state/storage_keys';
 import { subscribeAll, subscribeReforgeChange, subscribeSimChange } from '@sim/state/subscriptions';
 import { getEnumValues } from '@sim/utils/collections';
-import { isDevMode } from '@sim/utils/env';
+import { isDevMode, isPreviewOrDevMode } from '@sim/utils/env';
 import { WorkerProgressCallback } from '@sim/workers/worker_pool';
 import { toastManager } from '@ui-kit/Toast';
 import { createElement } from 'react';
@@ -112,7 +112,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		this.sim = player.sim;
 		const launchStatus = player.getPlayerSpec().launch.status;
 		this.disabled = !isDevMode() && launchStatus === LaunchStatus.Unlaunched;
-		this.simDisabled = this.disabled || (!isDevMode() && launchStatus === LaunchStatus.GearPlanner);
+		this.simDisabled = this.disabled || (!isPreviewOrDevMode(this.sim.env.location.hostname) && launchStatus === LaunchStatus.GearPlanner);
 
 		this.sim.crashEmitter.on((error: SimError) => this.handleCrash(error));
 

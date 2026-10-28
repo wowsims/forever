@@ -12,7 +12,7 @@ import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defaultHealerIndividualBuffs, defaultHealerPartyBuffs, defaultHealerRaidBuffs } from '@sim/proto/utils';
 import { defineSpec } from '@sim/spec_config';
-import { isDevMode } from '@sim/utils/env';
+import { isPreviewOrDevMode } from '@sim/utils/env';
 
 import * as PriestInputs from '../shared/inputs';
 import * as Presets from './presets';
@@ -76,7 +76,7 @@ export default defineSpec<Spec.SpecHealerPriest>({
 		{
 			id: 'healing-inputs',
 			title: i18n.t('settings_tab.healing_inputs.title'),
-			when: player => isDevMode() || player.getPlayerSpec().launch.status !== LaunchStatus.GearPlanner,
+			when: player => isPreviewOrDevMode(player.sim.env.location.hostname) || player.getPlayerSpec().launch.status !== LaunchStatus.GearPlanner,
 			inputs: [
 				InputHelpers.makeSpecOptionsEnumInput<Spec.SpecHealerPriest, number>({
 					fieldName: 'holyNovaHealTargets',
