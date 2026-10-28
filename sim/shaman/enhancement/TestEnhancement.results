@@ -819,6 +819,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-SpinalReaper-288901"
+ value: {
+  dps: 663.48221
+  tps: 497.56087
+  dtps: 7.13341
+  hps: 30.36444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 661.11807

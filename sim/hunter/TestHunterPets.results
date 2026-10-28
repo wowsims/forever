@@ -1171,6 +1171,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SpinalReaper-288901"
+ value: {
+  dps: 709.36742
+  tps: 296.34553
+  dtps: 4.58439
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-StormGauntlets-12632"
  value: {
   dps: 700.04207

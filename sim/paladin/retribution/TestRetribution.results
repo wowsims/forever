@@ -1071,6 +1071,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-SpinalReaper-288901"
+ value: {
+  dps: 860.87476
+  tps: 739.47375
+  dtps: 7.20874
+  hps: 23.20576
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-SteadfastLibram-279247"
  value: {
   dps: 856.03372

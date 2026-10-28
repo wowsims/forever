@@ -864,6 +864,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-OldGuardRetaliator-208222"
+ value: {
+  dps: 483.81388
+  tps: 285.25464
+  dtps: 3.05866
+  hps: 43.31
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-OrbofFire-12805"
  value: {
   dps: 481.76751
@@ -991,6 +1000,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-SmokingHeartoftheMountain-11811"
+ value: {
+  dps: 483.81388
+  tps: 285.25464
+  dtps: 3.05866
+  hps: 43.31
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-SpinalReaper-288901"
  value: {
   dps: 483.81388
   tps: 285.25464

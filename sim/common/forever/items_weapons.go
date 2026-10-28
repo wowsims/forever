@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -238,6 +239,39 @@ func init() {
 		trigger.ActionID = core.ActionID{ItemID: 13040}
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(13040, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Spinal Reaper
+	// https://www.wowhead.com/forever/item=288901/spinal-reaper
+	//
+	// Restores 150 mana or 20 rage when you kill a target that gives experience; this effect cannot
+	// occur more than once every 10 seconds.
+	//
+	// 21185 hears the killing blow and fires 21186, whose effect 1 states the mana and effect 2 the
+	// rage in tenths. A wearer with a rage bar and no mana bar gains the rage.
+	core.NewItemEffect(288901, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(21185)
+		gainID := core.ActionID{SpellID: 21186}
+
+		var gain core.ProcHandler
+		if character.HasRageBar() && !character.HasManaBar() {
+			rage := spelldata.MustFind(21186).EffectN(2).Tenths()
+			metrics := character.NewRageMetrics(gainID)
+			gain = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+				character.AddRage(sim, rage, metrics)
+			}
+		} else {
+			gain = shared.FiredSpellHandler(character, gainID, row)
+		}
+		if gain == nil {
+			return
+		}
+
+		trigger := spelldata.ProcTrigger(character, row, gain)
+		trigger.Name = "Spinal Reaper"
+		trigger.ActionID = core.ActionID{ItemID: 288901}
+		character.ItemSwap.RegisterProc(288901, character.MakeProcTriggerAura(trigger))
 	})
 
 	// Naga Heartpiercer
