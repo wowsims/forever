@@ -1,4 +1,4 @@
-import { AddWave, DesignDowntime, EncounterDesign, MobType, PresetEncounter, PresetTarget, Stat, Target } from '@generated/proto/common';
+import { AddWave, DesignDowntime, EncounterDesign, HealthKeyframe, MobType, PresetEncounter, PresetTarget, Stat, Target } from '@generated/proto/common';
 import { UIDatabase } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { renderWithHost } from '@testing/react';
@@ -245,6 +245,57 @@ describe('EncounterDesigner', () => {
 			await act(() => void fireEvent.keyDown(input, { key: 'Enter' }));
 			await clickButton('Save');
 			expect(encounter.getDesign().downtimes[0].name).toBe('From the menu');
+		});
+
+		const keyframe = (at: number, healthPercent: number) => HealthKeyframe.create({ at, healthPercent });
+		const bossDowntime = (start: number, end: number) =>
+			DesignDowntime.create({ targetIndex: 0, start: { at: start, jitter: 0 }, end: { at: end, jitter: 0 } });
+		const openMenu = async (bar: HTMLElement) => act(async () => void fireEvent.contextMenu(bar, { clientX: 10, clientY: 10 }));
+
+		it('holds the boss health across a boss downtime from its context menu, in one change', async () => {
+			const { encounter } = await setup({ design: EncounterDesign.create({ downtimes: [bossDowntime(0.4, 0.5)], bossHealth: [keyframe(0.8, 60)] }) });
+			await openDesigner();
+			const downtime = bars().find(bar => bar.getAttribute('aria-label') === 'Downtime 1')!;
+			await openMenu(downtime);
+			await act(async () => fireEvent.click(await screen.findByRole('menuitem', { name: 'Hold boss health here' })));
+			expect(within(lane('Boss')).getByText('Hold 80 %')).toBeTruthy();
+			await clickButton('Save');
+			expect(encounter.getDesign().bossHealth.map(entry => [entry.at, entry.healthPercent])).toEqual([
+				[0.8, 60],
+				[0.4, 80],
+				[0.5, 80],
+			]);
+		});
+
+		it('disables the hold while a keyframe lies inside the downtime, and says which', async () => {
+			await setup({ design: EncounterDesign.create({ downtimes: [bossDowntime(0.4, 0.5)], bossHealth: [keyframe(0.45, 80)] }) });
+			await openDesigner();
+			await openMenu(bars().find(bar => bar.getAttribute('aria-label') === 'Downtime 1')!);
+			const item = await screen.findByRole('menuitem', { name: 'Hold boss health here' });
+			expect(item.hasAttribute('data-disabled')).toBe(true);
+			expect(item.getAttribute('data-tip')).toBe('Boss health 1 at 81s is in the way');
+		});
+
+		it('offers the hold of a boss downtime only for the boss', async () => {
+			await setup({
+				targets: 2,
+				design: EncounterDesign.create({
+					downtimes: [DesignDowntime.create({ targetIndex: 1, start: { at: 0.4, jitter: 0 }, end: { at: 0.5, jitter: 0 } })],
+				}),
+			});
+			await openDesigner();
+			await openMenu(bars()[0]);
+			await screen.findByRole('menuitem', { name: 'Duplicate' });
+			expect(screen.queryByRole('menuitem', { name: 'Hold boss health here' })).toBeNull();
+		});
+
+		it('cuts a flat part off a boss health segment from its context menu', async () => {
+			await setup({ design: EncounterDesign.create({ bossHealth: [keyframe(0.5, 50)] }) });
+			await openDesigner();
+			await openMenu(bars()[0]);
+			await act(async () => fireEvent.click(await screen.findByRole('menuitem', { name: 'Hold health' })));
+			expect(bars()).toHaveLength(2);
+			expect(within(lane('Boss')).getByText('Hold 100 %')).toBeTruthy();
 		});
 
 		it('opens no menu on empty lane space', async () => {

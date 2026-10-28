@@ -289,3 +289,60 @@ export const duplicateEvent = (design: EncounterDesign, ref: DesignEventRef, del
 	list.push(copy);
 	return { kind: ref.kind, index: list.length - 1 };
 };
+
+/** The longest flat stretch `holdSegment` cuts off a segment's start. */
+const HOLD_SECONDS = 10;
+
+// Splits a boss health segment at its start into a flat part, held at the segment's start percent, and the rest, by a
+// keyframe at most HOLD_SECONDS in, or half the segment. Mutates the design, which is meant to be an immer draft.
+// Returns the new keyframe's ref, or undefined for a segment with no length to split.
+export const holdSegment = (design: EncounterDesign, ref: DesignEventRef, baseSeconds: number): DesignEventRef | undefined => {
+	const segment = healthSegments(design).find(found => found.index === ref.index);
+	if (!segment || segment.end <= segment.start) return undefined;
+	const at = segment.start + Math.min(HOLD_SECONDS / baseSeconds, (segment.end - segment.start) / 2);
+	design.bossHealth.push(HealthKeyframe.create({ at, healthPercent: segment.fromPercent }));
+	return { kind: 'bossHealth', index: design.bossHealth.length - 1 };
+};
+
+// The boss health the curve gives at a fraction of the fight: the sim's knots plus its own start (0 s, 100%) and end
+// (the fight's end, 0%) points, and the line between the two around it. 100% without a keyframe.
+export const healthAt = (design: EncounterDesign, at: number): number => {
+	const knots: Array<{ at: number; percent: number }> = healthKnots(design);
+	if (knots.length === 0) return 100;
+	if (knots[0].at > 0) knots.unshift({ at: 0, percent: 100 });
+	const last = knots[knots.length - 1];
+	if (last.at < 1 && last.percent > 0) knots.push({ at: 1, percent: 0 });
+	if (at <= knots[0].at) return knots[0].percent;
+	for (let i = 1; i < knots.length; i++) {
+		const after = knots[i];
+		if (at > after.at) continue;
+		const before = knots[i - 1];
+		return after.at === before.at ? after.percent : before.percent + ((at - before.at) / (after.at - before.at)) * (after.percent - before.percent);
+	}
+	return knots[knots.length - 1].percent;
+};
+
+// The keyframe strictly inside the downtime's window, which a hold across it would cross, if there is one.
+export const holdBlocker = (design: EncounterDesign, downtimeIndex: number): DesignEventRef | undefined => {
+	const downtime = design.downtimes[downtimeIndex];
+	if (!downtime) return undefined;
+	const [from, to] = [downtime.start?.at ?? 0, downtime.end?.at ?? 0];
+	const inside = healthKnots(design).find(knot => knot.at > from && knot.at < to);
+	return inside && { kind: 'bossHealth', index: inside.index };
+};
+
+// Holds the boss's health at what the curve gives at the downtime's start, by keyframes at its start and its end.
+// Mutates the design, which is meant to be an immer draft. Returns the two new refs, none for a hold a keyframe blocks
+// or a downtime of another target than the boss.
+export const holdDuringDowntime = (design: EncounterDesign, downtimeIndex: number): Array<DesignEventRef> => {
+	const downtime = design.downtimes[downtimeIndex];
+	if (!downtime || downtime.targetIndex !== 0 || holdBlocker(design, downtimeIndex)) return [];
+	const [from, to] = [downtime.start?.at ?? 0, downtime.end?.at ?? 0];
+	const healthPercent = healthAt(design, from);
+	design.bossHealth.push(HealthKeyframe.create({ at: from, healthPercent }), HealthKeyframe.create({ at: to, healthPercent }));
+	const last = design.bossHealth.length - 1;
+	return [
+		{ kind: 'bossHealth', index: last - 1 },
+		{ kind: 'bossHealth', index: last },
+	];
+};

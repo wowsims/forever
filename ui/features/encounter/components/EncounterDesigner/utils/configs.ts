@@ -22,6 +22,9 @@ import { fractionToSeconds, secondsToFraction } from '../../../model/design/time
 
 export const designerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.designer.${name}`, options);
 
+// A health percent as read, to a tenth: a hold across a downtime can start at a third of the way down a line.
+export const formatPercent = (percent: number): number => Number(percent.toFixed(1));
+
 export const formatSeconds = (seconds: number): string => designerText('seconds', { value: Number(seconds.toFixed(1)) });
 
 export const eventName = (design: EncounterDesign, ref: DesignEventRef): string => {
@@ -42,7 +45,13 @@ export const eventValueText = (design: EncounterDesign, ref: DesignEventRef, bas
 		const segment = healthSegments(design).find(found => found.index === ref.index);
 		const start = formatSeconds(fractionToSeconds(window?.start ?? segment?.start ?? 0, baseSeconds));
 		const end = formatSeconds(fractionToSeconds(window?.end ?? segment?.end ?? 0, baseSeconds));
-		return designerText('health_value', { name, from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100, start, end });
+		return designerText('health_value', {
+			name,
+			from: formatPercent(segment?.fromPercent ?? 100),
+			to: formatPercent(segment?.toPercent ?? 100),
+			start,
+			end,
+		});
 	}
 	const shown = window ?? ('at' in stored ? { start: stored.at, end: stored.at } : stored);
 	const at = formatSeconds(fractionToSeconds(shown.start, baseSeconds));
@@ -90,7 +99,12 @@ export const eventTooltip = (
 		case 'bossHealth': {
 			const segment = healthSegments(design).find(found => found.index === ref.index);
 			const covered = window ?? { start: segment?.start ?? 0, end: segment?.end ?? 0 };
-			const curve = tip('health', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100, start: sec(covered.start), end: sec(covered.end) });
+			const [from, to] = [segment?.fromPercent ?? 100, segment?.toPercent ?? 100];
+			const times = { start: sec(covered.start), end: sec(covered.end) };
+			const curve =
+				from === to
+					? tip('health_hold', { percent: formatPercent(from), ...times })
+					: tip('health', { from: formatPercent(from), to: formatPercent(to), ...times });
 			return [event.name, curve].filter(Boolean).join(TIP_SEPARATOR);
 		}
 		case 'downtime': {

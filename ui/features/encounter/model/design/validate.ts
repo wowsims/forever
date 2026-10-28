@@ -27,10 +27,10 @@ export const DESIGN_ISSUE_KEYS = {
 	executeOrder: key('execute_order'),
 } as const;
 
-// The sim's health curve holds 8 points in time order and drops the latest past them. Besides the keyframes it holds
+// The sim's health curve holds 16 points in time order and drops the latest past them. Besides the keyframes it holds
 // its own start point (0 s, 100%) when the first keyframe is after the pull, and its own end point (the fight's end,
-// 0%) when the last one is before the end and above 0%, so both count against the 8.
-const MAX_HEALTH_POINTS = 8;
+// 0%) when the last one is before the end and above 0%, so both count against the 16.
+const MAX_HEALTH_POINTS = 16;
 
 // The most adds one wave spawns at once; the sim skips a wave with more.
 const MAX_WAVE_ADDS = 64;

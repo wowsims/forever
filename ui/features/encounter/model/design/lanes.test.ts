@@ -10,8 +10,12 @@ import {
 	eventsOf,
 	eventWindow,
 	getEvent,
+	healthAt,
 	healthEndSegment,
 	healthSegments,
+	holdBlocker,
+	holdDuringDowntime,
+	holdSegment,
 	laneLabelKey,
 	laneOf,
 	moveSeconds,
@@ -203,6 +207,66 @@ describe('lanes', () => {
 			design.moves[0].name = 'Run';
 			expect(design.moves[duplicateEvent(design, move, 0.1).index].name).toContain('copy_name');
 			expect(design.addWaves[named.index].adds).toHaveLength(design.addWaves[0].adds.length);
+		});
+	});
+
+	describe('holding boss health', () => {
+		const keyframes = (...points: Array<[number, number]>) =>
+			EncounterDesign.create({ bossHealth: points.map(([at, healthPercent]) => ({ ...defaultEvent('bossHealth'), at, healthPercent })) });
+		const withDowntime = (design: EncounterDesign, start: number, end: number, targetIndex = 0) => {
+			design.downtimes.push({ ...defaultEvent('downtime'), targetIndex, start: { at: start, jitter: 0 }, end: { at: end, jitter: 0 } });
+			return design;
+		};
+
+		it('reads the curve with its own start and end points', () => {
+			expect(healthAt(EncounterDesign.create(), 0.3)).toBe(100);
+			const design = keyframes([0.5, 50]);
+			expect(healthAt(design, 0)).toBe(100);
+			expect(healthAt(design, 0.25)).toBe(75);
+			expect(healthAt(design, 0.75)).toBe(25);
+			expect(healthAt(design, 1)).toBe(0);
+		});
+
+		it('cuts a flat part of at most 10 s, or half the segment, off a segment start at its start percent', () => {
+			const design = keyframes([0.25, 90], [0.3, 60]);
+			const copy = holdSegment(design, { kind: 'bossHealth', index: 1 }, 180)!;
+			expect(copy).toEqual({ kind: 'bossHealth', index: 2 });
+			expect([design.bossHealth[2].at, design.bossHealth[2].healthPercent]).toEqual([expect.closeTo(0.275), 90]);
+			const long = holdSegment(design, { kind: 'bossHealth', index: 0 }, 180)!;
+			expect([design.bossHealth[long.index].at, design.bossHealth[long.index].healthPercent]).toEqual([expect.closeTo(10 / 180), 100]);
+		});
+
+		it('leaves a segment of no length alone', () => {
+			const design = keyframes([0.5, 50], [0.5, 40]);
+			expect(holdSegment(design, { kind: 'bossHealth', index: 1 }, 180)).toBeUndefined();
+			expect(design.bossHealth).toHaveLength(2);
+		});
+
+		it('holds the health the curve has at a boss downtime start across it, the implied start included', () => {
+			const design = withDowntime(keyframes([0.25, 90], [0.75, 30]), 0.4, 0.5);
+			const refs = holdDuringDowntime(design, 0);
+			expect(refs).toEqual([
+				{ kind: 'bossHealth', index: 2 },
+				{ kind: 'bossHealth', index: 3 },
+			]);
+			expect(design.bossHealth.slice(2).map(keyframe => [keyframe.at, keyframe.healthPercent])).toEqual([
+				[0.4, expect.closeTo(72)],
+				[0.5, expect.closeTo(72)],
+			]);
+			const implied = withDowntime(keyframes([0.5, 50]), 0.1, 0.2);
+			holdDuringDowntime(implied, 0);
+			expect(implied.bossHealth[1].healthPercent).toBeCloseTo(90);
+		});
+
+		it('names the keyframe in the way and holds nothing then, nor for another target than the boss', () => {
+			const blocked = withDowntime(keyframes([0.45, 80]), 0.4, 0.5);
+			expect(holdBlocker(blocked, 0)).toEqual({ kind: 'bossHealth', index: 0 });
+			expect(holdDuringDowntime(blocked, 0)).toEqual([]);
+			expect(blocked.bossHealth).toHaveLength(1);
+			const edge = withDowntime(keyframes([0.4, 80], [0.5, 70]), 0.4, 0.5);
+			expect(holdBlocker(edge, 0)).toBeUndefined();
+			const other = withDowntime(keyframes([0.9, 80]), 0.4, 0.5, 1);
+			expect(holdDuringDowntime(other, 0)).toEqual([]);
 		});
 	});
 });

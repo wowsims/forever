@@ -11,7 +11,7 @@ type HealthKnot struct {
 	Percent float64 // Health in percent, 0 to 100.
 }
 
-const maxHealthKnots = 8
+const maxHealthKnots = 16
 
 // A piecewise-linear health curve over [start, start+span], with the times it first reaches 35% and 20%.
 type healthCurve struct {

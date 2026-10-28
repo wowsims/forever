@@ -17,6 +17,8 @@ export interface DesignerEventBarProps {
 	label?: string;
 	/** Marks the bar for the lane's context menu, which finds the event it opened on. */
 	dataKey?: string;
+	/** A stretch with nothing to do, drawn fainter: a boss health segment that holds. */
+	flat?: boolean;
 	/** The label is a text field. */
 	renaming?: boolean;
 	/** A point event has `start === end`. Fractions of the fight. */
@@ -118,6 +120,7 @@ export const DesignerEventBar = ({
 	name,
 	label,
 	dataKey,
+	flat = false,
 	renaming = false,
 	window,
 	row,
@@ -258,11 +261,12 @@ export const DesignerEventBar = ({
 				aria-valuenow={Math.round(start)}
 				aria-valuetext={valueTextWithState}
 				data-key={dataKey}
+				data-flat={flat ? '' : undefined}
 				data-tooltip-id={tooltipId}
 				data-tip={tooltipText?.(shown)}
 				data-dragging={preview ? '' : undefined}
 				{...state}
-				className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-selected:z-2 ${BAR_CLASSES}`}
+				className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-flat:opacity-(--designer-hold-opacity) data-selected:z-2 ${BAR_CLASSES}`}
 				style={cssVars({
 					// An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
 					'--row': `${row + 1} / span 1`,

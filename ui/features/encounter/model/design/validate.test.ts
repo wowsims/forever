@@ -119,24 +119,24 @@ describe('validateDesign', () => {
 		expect(keys(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.healthIncreases}`]);
 	});
 
-	it('flags the boss health keyframes the sim drops past its 8 curve points, its own start and end points included', () => {
+	it('flags the boss health keyframes the sim drops past its 16 curve points, its own start and end points included', () => {
 		const tooMany = (design: EncounterDesign) => keys(design).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.tooManyKeyframes));
 		// Listed latest first, so list order and time order differ.
 		const design = EncounterDesign.create();
-		for (let step = 8; step >= 1; step--) {
+		for (let step = 16; step >= 1; step--) {
 			addEvent(design, 'bossHealth');
-			Object.assign(design.bossHealth[design.bossHealth.length - 1], { at: step / 10, healthPercent: 100 - step * 10 });
+			Object.assign(design.bossHealth[design.bossHealth.length - 1], { at: step / 20, healthPercent: 100 - step * 5 });
 		}
 		// The first keyframe is after the pull and the last one above 0% before the end, so the sim's own start and end
-		// points take two of the 8.
+		// points take two of the 16.
 		expect(tooMany(design)).toEqual([`bossHealth1:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`, `bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
-		design.bossHealth[7].at = 0;
+		design.bossHealth[15].at = 0;
 		expect(tooMany(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
 		design.bossHealth[0].healthPercent = 0;
 		expect(tooMany(design)).toEqual([]);
 		addEvent(design, 'bossHealth', 0.95);
-		design.bossHealth[8].healthPercent = 0;
-		expect(tooMany(design)).toEqual([`bossHealth8:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		design.bossHealth[16].healthPercent = 0;
+		expect(tooMany(design)).toEqual([`bossHealth16:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
 	});
 
 	it('flags targets out of range, including -1', () => {

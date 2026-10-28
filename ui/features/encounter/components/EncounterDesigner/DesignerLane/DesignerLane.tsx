@@ -10,11 +10,23 @@ import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../../model/design/lanes';
-import { duplicateEvent, eventLabelKey, eventsOf, getEvent, healthEndSegment, healthSegments, laneLabelKey, removeEvent } from '../../../model/design/lanes';
+import {
+	duplicateEvent,
+	eventLabelKey,
+	eventsOf,
+	getEvent,
+	healthEndSegment,
+	healthSegments,
+	holdBlocker,
+	holdDuringDowntime,
+	holdSegment,
+	laneLabelKey,
+	removeEvent,
+} from '../../../model/design/lanes';
 import type { TimeWindow } from '../../../model/design/time';
 import { fractionToSeconds, secondsToFraction } from '../../../model/design/time';
 import { DesignerEventBar } from '../DesignerEventBar';
-import { designerText, editEvent, eventName, eventTooltip, eventValueText, formatSeconds, occurrenceName } from '../utils/configs';
+import { designerText, editEvent, eventName, eventTooltip, eventValueText, formatPercent, formatSeconds, occurrenceName } from '../utils/configs';
 import { type LaneEvent, laneEventKinds, laneEvents, refKey, withWindow } from './utils';
 
 export interface DesignerLaneProps {
@@ -147,12 +159,40 @@ export const DesignerLane = ({
 		action();
 	};
 
+	// Boss health held by hand: a segment's start cut off as a flat part, or the curve's value kept across a downtime of the boss.
+	const hold = (ref: DesignEventRef) => {
+		const next = EncounterDesign.clone(design);
+		const copy = holdSegment(next, ref, baseSeconds);
+		if (!copy) return;
+		focusAfterAdd.current = refKey(copy);
+		onChange(next);
+		onSelect(copy);
+	};
+	const holdBoss = (ref: DesignEventRef) => {
+		const next = EncounterDesign.clone(design);
+		const [first] = holdDuringDowntime(next, ref.index);
+		if (!first) return;
+		onChange(next);
+		onSelect(first);
+	};
+
 	const menuEvent = events.find(event => refKey(event.ref) === menuKey);
+	const blocker = menuEvent?.ref.kind === 'downtime' ? holdBlocker(design, menuEvent.ref.index) : undefined;
+	const holdBlocked = blocker
+		? designerText('menu.hold_blocked', {
+				name: eventName(design, blocker),
+				at: formatSeconds(fractionToSeconds(design.bossHealth[blocker.index].at, baseSeconds)),
+			})
+		: undefined;
 	const snapFraction = secondsToFraction(snapSeconds > 0 ? snapSeconds : 1, baseSeconds);
 	const segments = healthSegments(design);
 	const healthLabel = (ref: DesignEventRef) => {
 		const segment = segments.find(found => found.index === ref.index);
-		const curve = designerText('health_label', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100 });
+		const [from, to] = [segment?.fromPercent ?? 100, segment?.toPercent ?? 100];
+		const curve =
+			from === to
+				? designerText('health_hold', { percent: formatPercent(from) })
+				: designerText('health_label', { from: formatPercent(from), to: formatPercent(to) });
 		const named = getEvent(design, ref)?.name;
 		return named ? `${named}: ${curve}` : curve;
 	};
@@ -179,10 +219,14 @@ export const DesignerLane = ({
 			}
 			return { start: from.start, end: Math.min(Math.max(next.end, segment.start), segments[position + 1]?.end ?? 1) };
 		};
+	const isHold = (ref: DesignEventRef) => {
+		const segment = ref.kind === 'bossHealth' ? segments.find(found => found.index === ref.index) : undefined;
+		return !!segment && segment.fromPercent === segment.toPercent;
+	};
 	const endSegment = lane === 'boss' ? healthEndSegment(design) : undefined;
 	const endTip = endSegment
 		? designerText('tip.health', {
-				from: endSegment.fromPercent,
+				from: formatPercent(endSegment.fromPercent),
 				to: 0,
 				start: formatSeconds(fractionToSeconds(endSegment.start, baseSeconds)),
 				end: formatSeconds(fractionToSeconds(endSegment.end, baseSeconds)),
@@ -265,6 +309,21 @@ export const DesignerLane = ({
 								})}>
 								{designerText('menu.edit')}
 							</MenuItem>
+							{menuEvent.ref.kind === 'bossHealth' && (
+								<MenuItem layout="block" onClick={acted(() => hold(menuEvent.ref))}>
+									{designerText('menu.hold_health')}
+								</MenuItem>
+							)}
+							{menuEvent.ref.kind === 'downtime' && design.downtimes[menuEvent.ref.index]?.targetIndex === 0 && (
+								<MenuItem
+									layout="block"
+									disabled={!!holdBlocked}
+									data-tooltip-id={holdBlocked ? tooltipId : undefined}
+									data-tip={holdBlocked}
+									onClick={acted(() => holdBoss(menuEvent.ref))}>
+									{designerText('menu.hold_boss_health')}
+								</MenuItem>
+							)}
 							<MenuItem layout="block" onClick={acted(() => remove(menuEvent.ref))}>
 								{designerText('menu.delete')}
 							</MenuItem>
@@ -334,6 +393,7 @@ export const DesignerLane = ({
 							}}
 							name={eventName(design, event.ref)}
 							label={event.ref.kind === 'bossHealth' ? healthLabel(event.ref) : undefined}
+							flat={isHold(event.ref)}
 							window={followed(event)}
 							row={event.row}
 							startFixed={event.startFixed}

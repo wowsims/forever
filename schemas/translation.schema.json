@@ -4211,10 +4211,19 @@
 										},
 										"rename_label": {
 											"type": "string"
+										},
+										"hold_health": {
+											"type": "string"
+										},
+										"hold_boss_health": {
+											"type": "string"
+										},
+										"hold_blocked": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["duplicate", "delete", "edit", "rename", "rename_label"]
+									"required": ["duplicate", "delete", "edit", "rename", "rename_label", "hold_health", "hold_boss_health", "hold_blocked"]
 								},
 								"tip": {
 									"type": "object",
@@ -4299,6 +4308,9 @@
 										},
 										"amp_value": {
 											"type": "string"
+										},
+										"health_hold": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4329,7 +4341,8 @@
 										"move",
 										"move_yards",
 										"amp",
-										"amp_value"
+										"amp_value",
+										"health_hold"
 									]
 								},
 								"add": {
@@ -4684,6 +4697,9 @@
 									},
 									"additionalProperties": false,
 									"required": ["title", "add", "duplicate", "remove", "add_title", "add_row", "add_short"]
+								},
+								"health_hold": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -4719,7 +4735,8 @@
 								"save",
 								"health_label",
 								"health_end",
-								"adds"
+								"adds",
+								"health_hold"
 							]
 						}
 					},

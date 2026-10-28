@@ -176,18 +176,37 @@ func TestDesignBossCurveStartsFullAndEndsDead(t *testing.T) {
 
 func TestDesignBossCurveKeepsTheKeyframesThatFit(t *testing.T) {
 	var keyframes []*proto.HealthKeyframe
-	for i := range 10 {
-		keyframes = append(keyframes, &proto.HealthKeyframe{At: 0.1 * float64(i+1), HealthPercent: 90 - 10*float64(i)})
+	for i := range 20 {
+		keyframes = append(keyframes, &proto.HealthKeyframe{At: 0.05 * float64(i+1), HealthPercent: 95 - 5*float64(i)})
 	}
 	sim, _ := setupDesignSim(designTestRequest(1, &proto.EncounterDesign{BossHealth: keyframes}), nil)
 	sim.Cleanup()
-	notes := logTimes(sim, "the first 8 are kept")
+	notes := logTimes(sim, "the first 16 are kept")
 	sim.runOnce()
 	if len(*notes) != 1 {
 		t.Errorf("too many keyframes: expected one log line, got %d", len(*notes))
 	}
 	if got, want := sim.Encounter.AllTargets[0].executeAt(35), designAt(0.65); got != want {
 		t.Errorf("35%% crossing from the kept knots: expected %s, got %s", want, got)
+	}
+}
+
+func TestDesignBossCurveKeepsTwelveKeyframes(t *testing.T) {
+	var keyframes []*proto.HealthKeyframe
+	for i := range 12 {
+		keyframes = append(keyframes, &proto.HealthKeyframe{At: 0.08 * float64(i+1), HealthPercent: 100 - 8*float64(i+1)})
+	}
+	sim, _ := setupDesignSim(designTestRequest(1, &proto.EncounterDesign{BossHealth: keyframes}), nil)
+	sim.Cleanup()
+	notes := logTimes(sim, "are kept")
+	sim.runOnce()
+	if len(*notes) != 0 {
+		t.Errorf("12 keyframes fit: expected no log line, got %d", len(*notes))
+	}
+	boss := sim.Encounter.AllTargets[0]
+	runLifecycleUntil(sim, designAt(0.72))
+	if got := boss.HealthPercent(sim); got != 100-8*9 {
+		t.Errorf("boss health at the ninth keyframe: expected %v, got %v", 100-8*9, got)
 	}
 }
 

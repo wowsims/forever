@@ -1154,7 +1154,7 @@
 					"target_out_of_range": "Names a target the encounter does not have.",
 					"wave_out_of_range": "Names a wave the design does not have.",
 					"all_targets_down": "Every target is down at once here, so the player idles.",
-					"too_many_keyframes": "The sim's boss health curve holds 8 points, its own start and end points included, so it drops this keyframe.",
+					"too_many_keyframes": "The sim's boss health curve holds 16 points, its own start and end points included, so it drops this keyframe.",
 					"amp_not_positive": "Adds no damage, so the sim skips it.",
 					"too_many_adds": "Spawns more than 64 adds at once, so the sim skips the wave.",
 					"move_goes_nowhere": "Moves no yards for no time, so the sim skips it.",
@@ -1176,7 +1176,10 @@
 					"delete": "Delete",
 					"edit": "Edit",
 					"rename": "Rename",
-					"rename_label": "Event name"
+					"rename_label": "Event name",
+					"hold_health": "Hold health",
+					"hold_boss_health": "Hold boss health here",
+					"hold_blocked": "{{name}} at {{at}} is in the way"
 				},
 				"tip": {
 					"range": "{{start}}–{{end}}",
@@ -1205,7 +1208,8 @@
 					"move": "Move",
 					"move_yards": "{{yards}} yd ({{time}})",
 					"amp": "Damage amp",
-					"amp_value": "{{type}} +{{percent}} %"
+					"amp_value": "{{type}} +{{percent}} %",
+					"health_hold": "Boss health holds at {{percent}} % from {{start}} to {{end}}"
 				},
 				"add": "Add {{event}}",
 				"toolbar": {
@@ -1304,7 +1308,8 @@
 					"add_title": "Add {{number}}",
 					"add_row": "{{name}}, Lvl {{level}} {{type}}",
 					"add_short": "Add"
-				}
+				},
+				"health_hold": "Hold {{percent}} %"
 			}
 		},
 		"player": {
