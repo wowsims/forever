@@ -245,7 +245,7 @@ var spellData = generatedSpellData{
 	LastingJudgement:              spelldata.Ranked(20359, 20360, 20361),
 	LayOnHands:                    spelldata.Ranked(633, 2800, 10310),
 	LightsVigil:                   spelldata.Ranked(1310911, 1311590, 1311595),
-	LightsVigilTriggered:          spelldata.Ranked(1310909, 1310912, 1310914, 1311591, 1311592, 1311593, 1311596, 1311597, 1311598),
+	LightsVigilTriggered:          spelldata.Ranked(1310909, 1310910, 1310912, 1310914, 1311591, 1311592, 1311593, 1311594, 1311596, 1311597, 1311598, 1311599),
 	MassSalvation:                 spelldata.Ranked(25895),
 	OneHandedWeaponSpecialization: spelldata.Talent(20196, 3),
 	Precision:                     spelldata.Talent(20189, 3),

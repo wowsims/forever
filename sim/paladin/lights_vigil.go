@@ -7,12 +7,13 @@ import (
 
 var LightsVigilRankMap = spellData.LightsVigil
 
-// The vigil aura, party heal and enemy strike each rank triggers. They sit in LightsVigilTriggered
-// in the order the game files list them, not by rank, so the pairing is by hand.
-var lightsVigilTriggered = map[int32]struct{ aura, heal, strike int32 }{
-	1: {aura: 1310909, heal: 1310912, strike: 1310914},
-	2: {aura: 1311593, heal: 1311591, strike: 1311592},
-	3: {aura: 1311597, heal: 1311596, strike: 1311598},
+// The ally's vigil aura, party heal, enemy mark and enemy strike each rank triggers. They sit in
+// LightsVigilTriggered in the order the game files list them, not by rank, so the pairing is by hand.
+// The mark reaches the store through a hand trigger, since no effect or tooltip of the rank names it.
+var lightsVigilTriggered = map[int32]struct{ aura, heal, mark, strike int32 }{
+	1: {aura: 1310909, heal: 1310912, mark: 1310910, strike: 1310914},
+	2: {aura: 1311593, heal: 1311591, mark: 1311594, strike: 1311592},
+	3: {aura: 1311597, heal: 1311596, mark: 1311599, strike: 1311598},
 }
 
 // One rank's vigils on enemies, the strike that consumes one, and the refund it gives.
@@ -34,12 +35,18 @@ type lightsVigil struct {
 // Vigil's Mana cost, or allied targets to heal their party for 700 to 740. You may only have one
 // Light's Vigil active per party.
 func (paladin *Paladin) registerLightsVigil() {
-	LightsVigilRankMap.Each(paladin.registerLightsVigilRank)
+	// Every rank refunds through the energize that Rank 3's mark casts. The Rank 1 and 2 marks name none.
+	refund := spelldata.MustFind(spellData.LightsVigilTriggered.ByID(lightsVigilTriggered[3].mark).EffectN(1).TriggerID)
+	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: refund.ID})
+
+	LightsVigilRankMap.Each(func(_ int32, rank *spelldata.Spell) {
+		paladin.registerLightsVigilRank(rank, manaMetrics)
+	})
 }
 
-func (paladin *Paladin) registerLightsVigilRank(_ int32, rank *spelldata.Spell) {
+func (paladin *Paladin) registerLightsVigilRank(rank *spelldata.Spell, manaMetrics *core.ResourceMetrics) {
 	triggered := lightsVigilTriggered[rank.RankNumber()]
-	auraRank := spellData.LightsVigilTriggered.ByID(triggered.aura)
+	markRank := spellData.LightsVigilTriggered.ByID(triggered.mark)
 	strikeRank := spellData.LightsVigilTriggered.ByID(triggered.strike)
 	strikeDamage := strikeRank.DamageEffect()
 
@@ -52,8 +59,8 @@ func (paladin *Paladin) registerLightsVigilRank(_ int32, rank *spelldata.Spell) 
 	vigil.auras = paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return target.GetOrRegisterAura(core.Aura{
 			Label:    rank.RankedLabel(&paladin.Unit),
-			ActionID: core.ActionID{SpellID: auraRank.ID},
-			Duration: auraRank.Duration(),
+			ActionID: core.ActionID{SpellID: markRank.ID},
+			Duration: markRank.Duration(),
 		})
 	})
 
@@ -64,7 +71,6 @@ func (paladin *Paladin) registerLightsVigilRank(_ int32, rank *spelldata.Spell) 
 	}
 	vigil.strike = paladin.RegisterSpell(strikeConfig)
 
-	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
 	vigil.strike.RelatedAuraArrays = vigil.auras.ToMap()
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))

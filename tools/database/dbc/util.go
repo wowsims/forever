@@ -67,6 +67,24 @@ func GetRacesFromRaceMask(mask int64) []proto.Race {
 	return result
 }
 
+// Restricts an item to one side when every playable race its AllowableRace mask names belongs to
+// that side. A mask that names both sides, or no playable race, restricts nothing.
+func GetFactionRestrictionFromRaceMask(mask int64) proto.UIItem_FactionRestriction {
+	var playable Race
+	for _, r := range playableRaces {
+		playable |= Race(mask) & (1 << r.bit)
+	}
+	alliance := AlliedRaces.Matches(playable)
+	horde := HordeRaces.Matches(playable)
+	if alliance && !horde {
+		return proto.UIItem_FACTION_RESTRICTION_ALLIANCE_ONLY
+	}
+	if horde && !alliance {
+		return proto.UIItem_FACTION_RESTRICTION_HORDE_ONLY
+	}
+	return proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED
+}
+
 func GetClassesFromClassMask(mask int) []proto.Class {
 	var result []proto.Class
 

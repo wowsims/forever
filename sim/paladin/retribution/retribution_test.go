@@ -43,7 +43,10 @@ func shockadinSuite() core.CharacterSuiteConfig {
 		GearSet:          core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock"),
 		ItemSwapSet:      core.GetItemSwapGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock_item_swap"),
 		Talents:          HolyShockTalents,
-		Rotation:         core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "holy_shock"),
+		OtherTalentSets: []core.TalentsCombo{
+			{Label: "LightsVigil", Talents: LightsVigilTalents},
+		},
+		Rotation: core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "holy_shock"),
 		ItemFilter: core.ItemFilter{
 			WeaponTypes: []proto.WeaponType{
 				proto.WeaponType_WeaponTypeAxe,
@@ -104,6 +107,7 @@ var DefaultSpecOptions = &proto.Player_RetributionPaladin{
 }
 
 var HolyShockTalents = "550030032101012--052252300012303"
+var LightsVigilTalents = "55003003201121251--05225030201"
 var TwistOfLightTalents = "55003003--05225331101330321"
 
 var DefaultConsumables = &proto.ConsumesSpec{

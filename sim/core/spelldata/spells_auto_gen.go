@@ -36390,6 +36390,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1340810, SpellID: 1310909, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 40, MaxLevel: 49, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
+	{ID: 1310910, Name: "Light's Vigil", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x4000000, 3: 0x40000280, 9: 0x8000, 13: 0x2000080, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, DurationMs: 30000, MaxRange: 100, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcCharges: 1, ProcFlags: [2]uint32{0: 0x20000}, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, Labels: []int16{26}, RefIDs: []int32{1310914}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1340811, SpellID: 1310910, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 40, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 1310911, Name: "Light's Vigil", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x50000, 5: 0x100, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 49, CastTimeMs: 1500, MaxRange: 20, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 2576, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, InterruptFlags: 15, Labels: []int16{26}, RefIDs: []int32{1310909, 1310914, 1310912}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1340812, SpellID: 1310911, Type: dbcenums.E_DUMMY, BaseLevel: 40, MaxLevel: 49, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
@@ -36471,6 +36475,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1341990, SpellID: 1311593, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 50, MaxLevel: 59, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
+	{ID: 1311594, Name: "Light's Vigil", Rank: "Rank 2", School: 2, Attr: [17]uint32{0: 0x4000000, 3: 0x40000280, 9: 0x8000, 13: 0x2000080, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, DurationMs: 30000, MaxRange: 100, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcCharges: 1, ProcFlags: [2]uint32{0: 0x20000}, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, Labels: []int16{26}, RefIDs: []int32{1311592}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1341991, SpellID: 1311594, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 50, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 1311595, Name: "Light's Vigil", Rank: "Rank 3", School: 2, Attr: [17]uint32{0: 0x50000, 5: 0x100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 69, CastTimeMs: 1500, MaxRange: 20, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 2576, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, InterruptFlags: 15, Labels: []int16{26}, RefIDs: []int32{1311597, 1311598, 1311596}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1341992, SpellID: 1311595, Type: dbcenums.E_DUMMY, BaseLevel: 60, MaxLevel: 69, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
@@ -36488,6 +36496,14 @@ var generatedSpells = []Spell{
 	{ID: 1311598, Name: "Light's Vigil", Rank: "Rank 3", School: 2, Attr: [17]uint32{0: 0x40000, 3: 0x40000200, 9: 0x8000, 13: 0x2000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, Labels: []int16{26},
 		Effects: []Effect{
 			{ID: 1341996, SpellID: 1311598, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 395, Variance: 0.07547169923782349, BaseLevel: 60, SPCoef: 0.42899999022483826, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 1311599, Name: "Light's Vigil", Rank: "Rank 3", School: 2, Attr: [17]uint32{0: 0x4000000, 3: 0x40000280, 9: 0x8000, 13: 0x2000080, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 30000, MaxRange: 100, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcCharges: 1, ProcFlags: [2]uint32{0: 0x20000}, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, Labels: []int16{26}, RefIDs: []int32{1311598}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1341997, SpellID: 1311599, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE, BaseLevel: 60, PvpMult: 1, TriggerID: 1311601, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 1311601, Name: "Light's Vigil", School: 1, Attr: [17]uint32{8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, Labels: []int16{26},
+		Effects: []Effect{
+			{ID: 1341999, SpellID: 1311601, Type: dbcenums.E_ENERGIZE, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 1311604, Name: "Holy Shock", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x50000, 3: 0x200, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxRange: 20, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{0: 2097152, 2: 536870912}}, Labels: []int16{26},
 		Effects: []Effect{
@@ -37635,7 +37651,10 @@ var generatedHandTriggers = map[int32][]int32{
 	408345:  {408428},  // Fire Nova Rank 5 hits for 408428, the level 52 Fire Nova Rank 5 row, as ranks 1 and 2 hit for theirs
 	1252526: {1252543}, // Caustic Smog Potion's cloud: 1252526's E_CREATE_AREATRIGGER (area trigger 39425) lasts 12 sec and puts 1252543 on the enemies inside it; the tooltip reads $1252543s1 Nature damage every $1252543t1 sec, and the potion's 1252525 names 1252543 among its tooltip references
 	1310905: {1280353}, // Consecrated Ground's talent aura (a dummy) rides the mark Consecration's ground puts on the first 4 enemies inside it, 1280353: same name and class set, the bonus damage's dummy with its 0.042 coefficient and a Holy damage from caster mod whose points the server sets from the talent; the tooltip names the Consecration rank 20924 instead. In the log the mark lands at the cast and drops 0.6 sec after the last tick
+	1310911: {1310910}, // Light's Vigil Rank 1 (two dummies on any target) marks an enemy with 1310910: same name, rank and class set, a 30 sec dummy aura on the enemy whose aura text reads Detonates for $1310914s1 Holy damage when struck by the caster's Holy Shock. The rank's references reach only the friendly aura, heal and strike
 	1311074: {1311077}, // Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, a mana energize whose tooltip reads Judging restores a portion of the Judged Seal's Mana cost
+	1311590: {1311594}, // Light's Vigil Rank 2 marks an enemy with 1311594, as Rank 1 marks with 1310910; its aura text reads $1311592s1, the rank's strike
+	1311595: {1311599}, // Light's Vigil Rank 3 marks an enemy with 1311599, as Rank 1 marks with 1310910; its aura text reads $1311598s1, the rank's strike, and its aura 231 casts the mana refund 1311601
 	1314103: {1314104}, // Improved Seal of Fury's talent aura (three dummies) casts the mana restore 1314104: same name and icon, a mana energize whose tooltip reads its numbers off 1314103 and whose aura text is Restoring Mana
 	1323967: {1323969}, // Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class set and icon, 3 charges heard on melee attacks, and its aura 231 casts the heal 1323968
 }

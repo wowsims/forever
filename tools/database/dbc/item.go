@@ -36,7 +36,7 @@ type Item struct {
 	ItemSetName           string
 	ItemSetId             int
 	ClassMask             int
-	RaceMask              int
+	RaceMask              int64
 	QualityModifier       float64
 	DamageType            int // ItemSparse.DamageType, the weapon's school in the game files' order.
 	RandomSuffixOptions   []int32
@@ -118,6 +118,10 @@ func (item *Item) ParseItemFlags(uiItem *proto.UIItem) {
 
 	if item.Flags1.Has(ALLIANCE_SPECIFIC) {
 		uiItem.FactionRestriction = proto.UIItem_FACTION_RESTRICTION_ALLIANCE_ONLY
+	}
+
+	if uiItem.FactionRestriction == proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED {
+		uiItem.FactionRestriction = GetFactionRestrictionFromRaceMask(item.RaceMask)
 	}
 
 	if item.Flags0.Has(UNIQUE_EQUIPPABLE) {
