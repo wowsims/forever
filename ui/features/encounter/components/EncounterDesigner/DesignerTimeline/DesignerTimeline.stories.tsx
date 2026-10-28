@@ -128,7 +128,9 @@ export const AxisEndsVisible: Story = {
 		const bounds = scroller.getBoundingClientRect();
 		const last = canvas.getAllByTestId('rotation-ruler-label').find(label => label.textContent === '180s')!;
 		await expect(last.getBoundingClientRect().right).toBeLessThanOrEqual(bounds.right + 0.5);
-		await expect(scroller.scrollWidth).toBeLessThanOrEqual(scroller.clientWidth + 1);
+		await expect(scroller.scrollWidth).toBeLessThanOrEqual(scroller.clientWidth);
+		// scrollWidth and clientWidth round alike, so only the boxes show a fraction of a pixel of overflow.
+		await expect(scroller.firstElementChild!.getBoundingClientRect().right).toBeLessThanOrEqual(bounds.right);
 
 		const lane = canvas.getByRole('group', { name: designerText('lanes.boss') });
 		const health = within(lane).getAllByRole('slider');
@@ -212,5 +214,40 @@ export const RenameInline: Story = {
 		await userEvent.type(second, 'Adds{Enter}');
 		await expect(args.onChange).toHaveBeenCalledTimes(1);
 		await waitFor(() => expect(canvas.getByRole('slider', { name: 'Adds' })).toBeVisible());
+	},
+};
+
+// Zoomed in past the width, a drag on empty lane space scrolls the lanes, and a drag on a bar still moves the bar.
+export const PanByDrag: Story = {
+	args: { design: customBossDesign() },
+	parameters: { smoke: false, smokeReason: 'Scrolls a laid-out scroller with pointer capture, which the DOM test environment does not have.' },
+	play: async ({ args, canvasElement }) => {
+		const canvas = within(canvasElement);
+		const zoomIn = canvas.getByRole('button', { name: designerText('toolbar.zoom_in') });
+		for (let step = 0; step < 3; step++) await userEvent.click(zoomIn);
+		const scroller = canvas.getByRole('region', { name: designerText('timeline') });
+		await waitFor(() => expect(scroller.scrollWidth).toBeGreaterThan(scroller.clientWidth + 400));
+
+		const drag = (target: HTMLElement, x: number, y: number, dx: number) => {
+			const pointer = { pointerId: 1, pointerType: 'mouse', button: 0, clientY: y };
+			fireEvent.pointerDown(target, { ...pointer, clientX: x });
+			fireEvent.pointerMove(target, { ...pointer, clientX: x + dx / 2 });
+			fireEvent.pointerMove(target, { ...pointer, clientX: x + dx });
+			fireEvent.pointerUp(target, { ...pointer, clientX: x + dx });
+		};
+		const moves = canvas.getByRole('group', { name: designerText('lanes.moves') });
+		const lane = moves.getBoundingClientRect();
+		scroller.scrollLeft = 0;
+		drag(moves, lane.right - 20, lane.top + 4, -200);
+		await expect(scroller.scrollLeft).toBe(200);
+
+		const bar = abilityBar(canvasElement);
+		const start = bar.getAttribute('aria-valuenow');
+		const box = bar.getBoundingClientRect();
+		// The bar runs to the end of the fight, so only an earlier start moves it.
+		drag(bar, box.left + 40, box.top + box.height / 2, -100);
+		await expect(scroller.scrollLeft).toBe(200);
+		await waitFor(() => expect(bar.getAttribute('aria-valuenow')).not.toBe(start));
+		await expect(args.onChange).toHaveBeenCalledTimes(1);
 	},
 };

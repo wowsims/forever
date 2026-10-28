@@ -13,6 +13,10 @@ export function densityForPps(pps: number): Density {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+// The width a fitted axis fills. clientWidth rounds a fractional box to the nearest pixel, up as often as down, and
+// content a fraction of a pixel wider than its scroller overflows it and shows a scrollbar.
+export const fitWidth = (scroller: HTMLElement) => Math.min(scroller.clientWidth, Math.floor(scroller.getBoundingClientRect().width));
+
 export interface ZoomConfig {
 	scroller: HTMLElement;
 	// --pps is read by the ruler as well as by the rows, and the ruler is portalled out of the pane.
@@ -79,7 +83,7 @@ export class ZoomController {
 
 	fitToWidth() {
 		const scroller = this.config.scroller;
-		const width = scroller.clientWidth - this.config.labelWidth() - 2 * this.inset();
+		const width = fitWidth(scroller) - this.config.labelWidth() - 2 * this.inset();
 		if (width <= 0 || this.duration <= 0) return;
 		this.zoomTo(width / this.duration);
 		scroller.scrollLeft = 0;

@@ -242,6 +242,20 @@ describe('EncounterDesigner', () => {
 			).toEqual([first + 3, first + 9]);
 		});
 
+		it('pans the timeline with a drag on empty lane space, and leaves the bars where they are', async () => {
+			const { dialog, first } = await withDowntime();
+			const timeline = within(dialog).getByRole('region', { name: 'Encounter timeline' });
+			timeline.scrollLeft = 500;
+			drag(lane('Boss'), -200);
+			expect(timeline.scrollLeft).toBe(700);
+			expect(bars().map(startOf)).toEqual([first]);
+			expect(bars()[0].hasAttribute('data-selected')).toBe(true);
+
+			drag(bars()[0], 300);
+			expect(timeline.scrollLeft).toBe(700);
+			expect(bars().map(startOf)).toEqual([first + 3]);
+		});
+
 		it('moves only the keyframe at the end of a boss health segment, and leaves the implied start alone', async () => {
 			await setup();
 			await openDesigner();

@@ -1,10 +1,13 @@
 import type { EncounterDesign } from '@generated/proto/common';
+import { usePointerPan } from '@ui-kit/hooks/usePointerPan';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { cssVars } from '@ui-kit/utils/css';
+import { findScrollParent } from '@ui-kit/utils/dom';
+import clsx from 'clsx';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { Ruler } from '../../../../results/components/Timeline/rotation/ruler';
-import { DEFAULT_PPS, ZoomController } from '../../../../results/components/Timeline/rotation/zoom';
+import { DEFAULT_PPS, fitWidth, ZoomController } from '../../../../results/components/Timeline/rotation/zoom';
 import type { DesignEventKind, DesignEventRef } from '../../../model/design/lanes';
 import { DESIGN_LANES } from '../../../model/design/lanes';
 import type { DesignIssue } from '../../../model/design/validate';
@@ -79,7 +82,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 		let fittedWidth = 0;
 		const fit = () => {
 			followsWidth.current = true;
-			fittedWidth = scroller.clientWidth;
+			fittedWidth = fitWidth(scroller);
 			fitting = true;
 			zoomRef.current?.fitToWidth();
 			fitting = false;
@@ -104,7 +107,8 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 		fitRef.current = fit;
 
 		const observer = new ResizeObserver(() => {
-			if (followsWidth.current && scroller.clientWidth > 0 && scroller.clientWidth !== fittedWidth) fit();
+			const width = fitWidth(scroller);
+			if (followsWidth.current && width > 0 && width !== fittedWidth) fit();
 			schedule();
 		});
 		observer.observe(root);
@@ -130,6 +134,8 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 		schedule();
 	}, [baseSeconds, schedule]);
 
+	// The scroller grows with its lanes, so the dialog's body is what moves them vertically.
+	const { panning, handlers: pan } = usePointerPan({ verticalScroller: () => (rootRef.current ? findScrollParent(rootRef.current) : null) });
 	const pixelsPerSecond = useCallback(() => zoomRef.current?.pps ?? DEFAULT_PPS, []);
 	const invalid = useMemo(() => new Set(issues.filter(issue => issue.severity !== 'info').map(issue => refKey(issue.ref))), [issues]);
 
@@ -153,7 +159,12 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 					<div ref={rulerTrackRef} className="ui-timeline-ruler-track" />
 				</div>
 			</div>
-			<div ref={scrollerRef} role="region" aria-label={designerText('timeline')} className="relative min-w-0 overflow-x-auto overflow-y-hidden">
+			<div
+				ref={scrollerRef}
+				role="region"
+				aria-label={designerText('timeline')}
+				className={clsx('relative min-w-0 cursor-grab overflow-x-auto overflow-y-hidden', panning && 'cursor-grabbing select-none')}
+				{...pan}>
 				<div className="w-designer-content-w min-w-full">
 					{DESIGN_LANES.map(lane => (
 						<DesignerLane
