@@ -2,7 +2,7 @@ import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, Desig
 import { DamageAmpType } from '@generated/proto/common';
 
 import type { DesignEventRef } from './lanes';
-import { isPointAbility } from './lanes';
+import { firesAtInstants } from './lanes';
 import { clamp01 } from './time';
 
 export type DesignIssueSeverity = 'error' | 'warning' | 'info';
@@ -64,7 +64,7 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 	// A spell hit or a strike fires at its start when its end is not before it, so only its start must be in the fight.
 	design.bossAbilities.forEach((ability: DesignBossAbility, index) => {
 		const ref: DesignEventRef = { kind: 'ability', index };
-		if (isPointAbility(ability)) {
+		if (firesAtInstants(ability)) {
 			const from = ability.start?.at ?? 0;
 			if ((ability.end?.at ?? 0) < from) add(ref, 'error', DESIGN_ISSUE_KEYS.endBeforeStart);
 			if (outside(from, from, ability.start?.jitter ?? 0)) add(ref, 'warning', DESIGN_ISSUE_KEYS.outsideFight);

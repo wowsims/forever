@@ -15,7 +15,6 @@ const meta = {
 		name: 'Wave 1',
 		window: { start: 20 / 180, end: 60 / 180 },
 		row: 0,
-		shape: 'span',
 		baseSeconds: DESIGN_BASE_SECONDS,
 		snapSeconds: 1,
 		pixelsPerSecond: () => PPS,
@@ -25,6 +24,9 @@ const meta = {
 		onSelect: fn(),
 		onActivate: fn(),
 		onRemove: fn(),
+		onDuplicate: fn(),
+		onRenameStart: fn(),
+		onRename: fn(),
 		onSibling: fn(),
 	},
 	decorators: [
@@ -53,10 +55,14 @@ export const Jitter: Story = { args: { jitter: { start: 4 / 180, end: 6 / 180 } 
 
 export const Short: Story = { args: { window: { start: 90 / 180, end: 90.5 / 180 } } };
 
-export const KeyframeDot: Story = {
-	args: { name: 'Boss health 2', shape: 'dot', window: { start: 0.5, end: 0.5 }, valueText: () => 'Boss health 2, 40% at 90s' },
+export const HealthSegment: Story = {
+	args: {
+		name: 'Boss health 1',
+		label: '100 % → 65 %',
+		startFixed: true,
+		window: { start: 0, end: 0.5 },
+		valueText: () => 'Boss health 1, 100 % to 65 % from 0s to 90s',
+	},
 };
 
-export const MoveDiamond: Story = {
-	args: { name: 'Move 1', shape: 'diamond', window: { start: 0.5, end: 0.5 }, jitter: { start: 3 / 180, end: 3 / 180 }, valueText: () => 'Move 1, at 90s' },
-};
+export const Renaming: Story = { args: { renaming: true } };

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
 	customBossDesign,
 	DESIGN_BASE_SECONDS,
+	designTargetNames,
 	dynamicAddsDesign,
 	movementDesign,
 	overlappingDowntimesDesign,
@@ -22,6 +23,8 @@ const meta = {
 		design: customBossDesign(),
 		baseSeconds: DESIGN_BASE_SECONDS,
 		snapSeconds: 1,
+		targetNames: designTargetNames,
+		tooltipId: 'designer-lane-tip',
 		pixelsPerSecond: () => PPS,
 		invalid: new Set<string>(),
 		onSelect: fn(),

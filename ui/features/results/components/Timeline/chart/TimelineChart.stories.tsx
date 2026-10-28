@@ -35,7 +35,7 @@ const dpsSpec = (withDesign = false): TimelineChartSpec => {
 					scheduled: scheduledMarkers(
 						{
 							...EncounterDesign.create(),
-							downtimes: [{ targetIndex: 0, start: { at: 0.3, jitter: 0 }, end: { at: 0.4, jitter: 0 }, clearDebuffs: true }],
+							downtimes: [{ name: '', targetIndex: 0, start: { at: 0.3, jitter: 0 }, end: { at: 0.4, jitter: 0 }, clearDebuffs: true }],
 							addWaves: [
 								{
 									...AddWave.create(),
@@ -46,7 +46,7 @@ const dpsSpec = (withDesign = false): TimelineChartSpec => {
 								},
 							],
 							damageAmps: [{ ...DesignDamageAmp.create(), percent: 20, start: { at: 0.6, jitter: 0 }, end: { at: 0.8, jitter: 0 } }],
-							moves: [{ at: { at: 0.5, jitter: 0 }, yards: 8, seconds: 0, repeat: { interval: 0, count: 0, jitter: 0 } }],
+							moves: [{ name: '', at: { at: 0.5, jitter: 0 }, yards: 8, seconds: 0, repeat: { interval: 0, count: 0, jitter: 0 } }],
 						},
 						DURATION,
 					),

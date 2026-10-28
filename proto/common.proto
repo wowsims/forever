@@ -703,11 +703,13 @@ message DesignDowntime {
 	DesignTime start = 2;
 	DesignTime end = 3;
 	bool clear_debuffs = 4;
+	string name = 5;
 }
 
 message HealthKeyframe {
 	double at = 1;
 	double health_percent = 2; // 0..100, non-increasing over at.
+	string name = 3;
 }
 
 message AddWave {
@@ -727,6 +729,7 @@ message DesignMove {
 	double yards = 2;
 	double seconds = 3; // Used when yards is 0.
 	DesignRepeat repeat = 4;
+	string name = 5;
 }
 
 message DesignDamageAmp {
@@ -736,6 +739,7 @@ message DesignDamageAmp {
 	DesignTime end = 4;
 	DesignRepeat repeat = 5;
 	DesignTargets targets = 6; // Read only for DamageAmpTypeTargetDebuff.
+	string name = 7;
 }
 
 message DesignBossAbility {
@@ -760,6 +764,7 @@ message DesignBossAbility {
 	int32 extra_attacks = 12;
 	double icd = 13; // Seconds.
 	double swing_speed_multiplier = 14; // SwingTiming: 0 pauses the swing, above 1 hastes it.
+	string name = 15;
 }
 
 message ItemRandomSuffix {

@@ -1,6 +1,7 @@
 import type { EncounterDesign } from '@generated/proto/common';
+import { Tooltip } from '@ui-kit/Tooltip';
 import { cssVars } from '@ui-kit/utils/css';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { Ruler } from '../../../../results/components/Timeline/rotation/ruler';
 import { DEFAULT_PPS, ZoomController } from '../../../../results/components/Timeline/rotation/zoom';
@@ -18,6 +19,8 @@ export interface DesignerTimelineProps {
 	baseSeconds: number;
 	selected?: DesignEventRef;
 	issues: ReadonlyArray<DesignIssue>;
+	/** The encounter's target names, which a downtime's tooltip reads. */
+	targetNames: ReadonlyArray<string>;
 	/** `undefined` clears the selection, as removing an event does. */
 	onSelect: (ref: DesignEventRef | undefined) => void;
 	/** Enter on a bar, after `onSelect`; a click or a drag only selects, so this is where focus may move to the panel. */
@@ -29,16 +32,18 @@ export interface DesignerTimelineProps {
 
 const LABEL_WIDTH = '12rem';
 
-export const DesignerTimeline = ({ design, baseSeconds, selected, issues, onSelect, onActivate, onChange, onAdd }: DesignerTimelineProps) => {
+export const DesignerTimeline = ({ design, baseSeconds, selected, issues, targetNames, onSelect, onActivate, onChange, onAdd }: DesignerTimelineProps) => {
 	const rootRef = useRef<HTMLDivElement>(null);
 	const cornerRef = useRef<HTMLDivElement>(null);
 	const rulerViewportRef = useRef<HTMLDivElement>(null);
 	const rulerTrackRef = useRef<HTMLDivElement>(null);
+	const gutterRef = useRef<HTMLDivElement>(null);
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const zoomRef = useRef<ZoomController | null>(null);
 	const rulerRef = useRef<Ruler | null>(null);
 	const frameHandle = useRef<number | null>(null);
 	const duration = useRef(baseSeconds);
+	const tooltipId = `designer-tip-${useId().replace(/:/g, '')}`;
 	const [snapSeconds, setSnapSeconds] = useState(1);
 
 	const draw = useCallback(() => {
@@ -51,6 +56,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, onSele
 			pps: zoom.pps,
 			duration: duration.current,
 			width: rulerViewportRef.current?.clientWidth ?? 0,
+			inset: gutterRef.current?.offsetLeft ?? 0,
 		});
 	}, []);
 
@@ -69,6 +75,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, onSele
 			scroller,
 			styleHosts: [root],
 			labelWidth: () => cornerRef.current?.offsetWidth ?? 0,
+			inset: () => gutterRef.current?.offsetLeft ?? 0,
 			// Bars take the arrow keys, so the zoom never handles them and never scrolls vertically.
 			scrollVerticalBy: () => {},
 			onChange: schedule,
@@ -125,11 +132,12 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, onSele
 			<div className="flex h-6 shrink-0">
 				<div ref={cornerRef} className="w-(--label-w) shrink-0 grow-0 basis-(--label-w)" />
 				<div ref={rulerViewportRef} className="relative min-w-0 shrink grow basis-0 overflow-hidden border-b border-white text-xs font-bold">
+					<div ref={gutterRef} aria-hidden="true" className="absolute left-(--designer-axis-gutter)" />
 					<div ref={rulerTrackRef} className="ui-timeline-ruler-track" />
 				</div>
 			</div>
 			<div ref={scrollerRef} role="region" aria-label={designerText('timeline')} className="relative min-w-0 overflow-x-auto overflow-y-hidden">
-				<div className="w-timeline-content-w min-w-full">
+				<div className="w-designer-content-w min-w-full">
 					{DESIGN_LANES.map(lane => (
 						<DesignerLane
 							key={lane}
@@ -137,6 +145,8 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, onSele
 							design={design}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}
+							targetNames={targetNames}
+							tooltipId={tooltipId}
 							pixelsPerSecond={pixelsPerSecond}
 							selected={selected}
 							invalid={invalid}
@@ -148,6 +158,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, onSele
 					))}
 				</div>
 			</div>
+			<Tooltip id={tooltipId} render={({ activeAnchor }) => activeAnchor?.getAttribute('data-tip')} />
 		</div>
 	);
 };

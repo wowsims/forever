@@ -1,5 +1,6 @@
-import type { PresetTarget } from '@generated/proto/common';
-import { EncounterDesign } from '@generated/proto/common';
+import type { AddWave, PresetTarget } from '@generated/proto/common';
+import { EncounterDesign, Target } from '@generated/proto/common';
+import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { ChoiceField } from '@ui-kit/ChoiceField';
@@ -7,10 +8,11 @@ import { FieldGrid } from '@ui-kit/FieldGrid';
 import { Icon } from '@ui-kit/Icon';
 import { MultiComboBox } from '@ui-kit/MultiComboBox';
 import { NumberField, StringField } from '@ui-kit/TextField';
-import type { Ref } from 'react';
+import { type Ref, useState } from 'react';
 
 import type { DesignEvent, DesignEventRef } from '../../../model/design/lanes';
 import { getEvent, removeEvent } from '../../../model/design/lanes';
+import { DesignerAddStats } from '../DesignerAddStats';
 import type { DesignFieldConfig, DesignFieldContext } from '../utils/configs';
 import { designerText, designFieldConfigs, editEvent, eventName } from '../utils/configs';
 
@@ -30,6 +32,7 @@ export interface DesignerEventPanelProps {
 
 export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames, presetTargets, onChange, onSelect, ref }: DesignerEventPanelProps) => {
 	const event = selected && getEvent(design, selected);
+	const [sections, setSections] = useState<string[]>([]);
 
 	if (!selected || !event)
 		return (
@@ -99,6 +102,9 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 	};
 
 	const fields = designFieldConfigs(selected.kind) as Array<DesignFieldConfig<DesignEvent>>;
+	const shown = fields.filter(field => field.show?.(event) ?? true);
+	// A wave's add stats follow its template, whose pick they refine; every other kind is one grid.
+	const templateEnd = selected.kind === 'wave' ? shown.findIndex(field => field.id === 'template') + 1 : shown.length;
 
 	return (
 		<section ref={ref} tabIndex={-1} aria-label={name} className="flex flex-col gap-2 outline-none">
@@ -108,7 +114,19 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 					<Icon name="xmark" /> {designerText('panel.remove')}
 				</Button>
 			</div>
-			<FieldGrid>{fields.filter(field => field.show?.(event) ?? true).map(renderField)}</FieldGrid>
+			<FieldGrid>{shown.slice(0, templateEnd).map(renderField)}</FieldGrid>
+			{selected.kind === 'wave' && (
+				<Accordion value={sections} onValueChange={setSections} density="compact">
+					<AccordionItem value="add-stats" title={designerText('panel.add_stats')} testId="encounter-designer-add-stats">
+						<DesignerAddStats
+							idPrefix={`${prefix}-add`}
+							target={(event as AddWave).target}
+							onModify={edit => commit(e => edit(((e as AddWave).target ??= Target.create())))}
+						/>
+					</AccordionItem>
+				</Accordion>
+			)}
+			<FieldGrid>{shown.slice(templateEnd).map(renderField)}</FieldGrid>
 		</section>
 	);
 };

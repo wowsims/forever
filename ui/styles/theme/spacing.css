@@ -71,6 +71,9 @@
 	--spacing-timeline-segment-floor: max(2px, calc(var(--pps) * var(--dur)));
 	--spacing-timeline-total: calc(var(--pps) * var(--duration));
 	--spacing-timeline-content-w: calc(var(--label-w) + var(--pps) * var(--duration));
+	--spacing-designer-pos: calc(var(--designer-axis-gutter) + var(--pps) * var(--t));
+	--spacing-designer-total: calc(var(--pps) * var(--duration) + 2 * var(--designer-axis-gutter));
+	--spacing-designer-content-w: calc(var(--label-w) + var(--pps) * var(--duration) + 2 * var(--designer-axis-gutter));
 	--spacing-timeline-row-h: calc(var(--row-h) * 1px);
 	--spacing-timeline-vspacer-h: calc(var(--vspacer-h, 0) * 1px);
 	--spacing-timeline-fill: calc(var(--fill) * 1%);

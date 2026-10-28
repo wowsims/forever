@@ -1,15 +1,19 @@
 import { EncounterDesign } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
+import { ContextMenu } from '@ui-kit/ContextMenu';
 import { Icon } from '@ui-kit/Icon';
+import { MenuItem } from '@ui-kit/Menu';
 import { cssVars } from '@ui-kit/utils/css';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../../model/design/lanes';
-import { eventLabelKey, eventsOf, laneLabelKey, removeEvent } from '../../../model/design/lanes';
-import { fractionToSeconds } from '../../../model/design/time';
-import { DesignerEventBar, type DesignerEventBarShape } from '../DesignerEventBar';
-import { designerText, eventName, eventValueText } from '../utils/configs';
+import { duplicateEvent, eventLabelKey, eventsOf, healthEndSegment, healthSegments, laneLabelKey, removeEvent } from '../../../model/design/lanes';
+import type { TimeWindow } from '../../../model/design/time';
+import { fractionToSeconds, secondsToFraction } from '../../../model/design/time';
+import { DesignerEventBar } from '../DesignerEventBar';
+import { designerText, editEvent, eventName, eventTooltip, eventValueText, formatSeconds, occurrenceName } from '../utils/configs';
 import { laneEventKinds, laneEvents, refKey, withWindow } from './utils';
 
 export interface DesignerLaneProps {
@@ -17,6 +21,9 @@ export interface DesignerLaneProps {
 	design: EncounterDesign;
 	baseSeconds: number;
 	snapSeconds: number;
+	targetNames: ReadonlyArray<string>;
+	/** The Tooltip every bar, ghost and tick anchors to. */
+	tooltipId: string;
 	pixelsPerSecond: () => number;
 	selected?: DesignEventRef;
 	/** `refKey`s of the events that carry an error or a warning. */
@@ -28,11 +35,9 @@ export interface DesignerLaneProps {
 	onAdd: (kind: DesignEventKind) => void;
 }
 
-const GHOST_CLASSES: Record<DesignerEventBarShape, string> = {
-	span: 'top-1 bottom-1 w-timeline-segment min-w-2 rounded-sm',
-	dot: 'top-1/2 size-(--designer-keyframe-size) -translate-1/2 rounded-full',
-	diamond: 'top-1/2 size-(--designer-keyframe-size) -translate-1/2 rotate-45',
-};
+const GHOST_CLASSES = 'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center overflow-hidden rounded-sm text-xs font-bold text-white';
+
+const TIP_SEPARATOR = ' · ';
 
 // The ref a later event in the same list has once `removed` is gone from it.
 const afterRemoval = (ref: DesignEventRef, removed: DesignEventRef): DesignEventRef =>
@@ -43,6 +48,8 @@ export const DesignerLane = ({
 	design,
 	baseSeconds,
 	snapSeconds,
+	targetNames,
+	tooltipId,
 	pixelsPerSecond,
 	selected,
 	invalid,
@@ -51,7 +58,7 @@ export const DesignerLane = ({
 	onChange,
 	onAdd,
 }: DesignerLaneProps) => {
-	const events = useMemo(() => laneEvents(design, lane), [design, lane]);
+	const events = useMemo(() => laneEvents(design, lane, baseSeconds), [design, lane, baseSeconds]);
 	// The DOM keeps kind-then-index order whatever the times are: reordering keyed nodes moves the focused one, and the browser blurs it.
 	const domOrder = useMemo(() => {
 		const kinds = laneEventKinds(lane);
@@ -63,6 +70,10 @@ export const DesignerLane = ({
 	// Where focus goes once a removal has rendered (a bar's key, or the add button for null), and the list length that shows it has.
 	const focusAfterRemoval = useRef<{ key: string | null; from: EncounterDesign; kind: DesignEventKind; length: number } | null>(null);
 	const [active, setActive] = useState<string>();
+	const [menuKey, setMenuKey] = useState<string>();
+	const [renaming, setRenaming] = useState<string>();
+	// The copy a duplicate added, focused once it renders.
+	const focusAfterAdd = useRef<string | null>(null);
 
 	const keys = events.map(event => refKey(event.ref));
 	const selectedKey = selected && keys.includes(refKey(selected)) ? refKey(selected) : undefined;
@@ -71,6 +82,10 @@ export const DesignerLane = ({
 
 	// The first render after a removal settles it: focus moves only when that render shows the event gone.
 	useEffect(() => {
+		if (focusAfterAdd.current && bars.current.has(focusAfterAdd.current)) {
+			bars.current.get(focusAfterAdd.current)?.focus();
+			focusAfterAdd.current = null;
+		}
 		const target = focusAfterRemoval.current;
 		if (!target) return;
 		focusAfterRemoval.current = null;
@@ -102,6 +117,37 @@ export const DesignerLane = ({
 		onChange(next);
 	};
 
+	const duplicate = (ref: DesignEventRef, deltaFraction: number) => {
+		const next = EncounterDesign.clone(design);
+		const copy = duplicateEvent(next, ref, deltaFraction);
+		focusAfterAdd.current = refKey(copy);
+		onChange(next);
+		onSelect(copy);
+	};
+
+	const rename = (ref: DesignEventRef, name: string | undefined) => {
+		setRenaming(undefined);
+		if (name !== undefined && name !== eventName(design, ref)) onChange(editEvent(design, ref, event => (event.name = name)));
+		bars.current.get(refKey(ref))?.focus();
+	};
+
+	const menuEvent = events.find(event => refKey(event.ref) === menuKey);
+	const snapFraction = secondsToFraction(snapSeconds > 0 ? snapSeconds : 1, baseSeconds);
+	const healthLabel = (ref: DesignEventRef) => {
+		const segment = healthSegments(design).find(found => found.index === ref.index);
+		return designerText('health_label', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100 });
+	};
+	const endSegment = lane === 'boss' ? healthEndSegment(design) : undefined;
+	const endTip = endSegment
+		? designerText('tip.health', {
+				from: endSegment.fromPercent,
+				to: 0,
+				start: formatSeconds(fractionToSeconds(endSegment.start, baseSeconds)),
+				end: formatSeconds(fractionToSeconds(endSegment.end, baseSeconds)),
+			})
+		: '';
+	const tip = (ref: DesignEventRef, window?: TimeWindow) => eventTooltip(design, ref, baseSeconds, targetNames, window);
+
 	return (
 		<div
 			role="group"
@@ -129,56 +175,133 @@ export const DesignerLane = ({
 				</div>
 			</div>
 			{/* One flat list placed on grid rows, so an edit that moves a bar to another row keeps the same element and its focus. */}
-			<div className="relative grid shrink-0 grow basis-timeline-total auto-rows-(--designer-lane-height) grid-cols-1">
+			<ContextMenu
+				className="relative grid shrink-0 grow basis-designer-total auto-rows-(--designer-lane-height) grid-cols-1"
+				triggerProps={{
+					// Only a bar opens the menu; a right click on empty lane keeps the browser's own.
+					onContextMenuCapture: (event: ReactMouseEvent<HTMLElement>) => {
+						const key = (event.target as Element).closest<HTMLElement>('[data-key]')?.dataset.key;
+						if (!key) {
+							event.stopPropagation();
+							return;
+						}
+						setMenuKey(key);
+					},
+				}}
+				menu={
+					menuEvent && (
+						<>
+							<MenuItem layout="block" onClick={() => duplicate(menuEvent.ref, snapFraction)}>
+								{designerText('menu.duplicate')}
+							</MenuItem>
+							<MenuItem layout="block" onClick={() => setRenaming(refKey(menuEvent.ref))}>
+								{designerText('menu.rename')}
+							</MenuItem>
+							<MenuItem
+								layout="block"
+								onClick={() => {
+									onSelect(menuEvent.ref);
+									onActivate(menuEvent.ref);
+								}}>
+								{designerText('menu.edit')}
+							</MenuItem>
+							<MenuItem layout="block" onClick={() => remove(menuEvent.ref)}>
+								{designerText('menu.delete')}
+							</MenuItem>
+						</>
+					)
+				}>
 				{Array.from({ length: rowCount }, (_, row) => (
 					<div key={row} aria-hidden="true" />
 				))}
-				{domOrder.flatMap(event =>
-					event.repeats.map((repeat, index) => (
+				{domOrder.flatMap(event => {
+					const name = eventName(design, event.ref);
+					const rowStyle = (window: TimeWindow) => ({
+						'--row': `${event.row + 1} / span 1`,
+						'--t': String(fractionToSeconds(window.start, baseSeconds)),
+						'--dur': String(fractionToSeconds(window.end - window.start, baseSeconds)),
+					});
+					const ghosts = event.repeats.map((repeat, index) => {
+						const label = occurrenceName(name, index + 2);
+						return (
+							<div
+								key={`${refKey(event.ref)}:${index}`}
+								aria-hidden="true"
+								data-tooltip-id={tooltipId}
+								data-tip={`${label}${TIP_SEPARATOR}${tip(event.ref, repeat)}`}
+								className={`absolute left-designer-pos col-start-1 row-(--row) bg-(--bar)/40 ${GHOST_CLASSES}`}
+								style={cssVars(rowStyle(repeat))}>
+								<span className="min-w-0 truncate pl-1">{name}</span>
+								<span className="shrink-0 px-1">{designerText('occurrence_number', { number: index + 2 })}</span>
+							</div>
+						);
+					});
+					// The ticks sit over their bar and take no pointer, so the bar's own grab and tooltip reach through them.
+					const ticks = event.ticks.map((at, index) => (
 						<div
-							key={`${refKey(event.ref)}:${index}`}
+							key={`${refKey(event.ref)}:tick:${index}`}
 							aria-hidden="true"
-							className={`pointer-events-none absolute left-timeline-pos col-start-1 row-(--row) bg-(--bar) opacity-40 ${GHOST_CLASSES[event.shape]}`}
-							style={cssVars({
-								'--row': `${event.row + 1} / span 1`,
-								'--t': String(fractionToSeconds(repeat.start, baseSeconds)),
-								'--dur': String(fractionToSeconds(repeat.end - repeat.start, baseSeconds)),
-							})}
+							className="pointer-events-none absolute top-1 bottom-1 left-designer-pos z-2 col-start-1 row-(--row) w-px bg-white"
+							style={cssVars({ '--row': `${event.row + 1} / span 1`, '--t': String(fractionToSeconds(at, baseSeconds)) })}
 						/>
-					)),
+					));
+					return [...ghosts, ...ticks];
+				})}
+				{endSegment && (
+					<div
+						role="img"
+						aria-label={endTip}
+						data-tooltip-id={tooltipId}
+						data-tip={endTip}
+						className={`absolute left-designer-pos col-start-1 row-(--row) border border-dashed border-white/50 bg-(--bar)/40 ${GHOST_CLASSES}`}
+						style={cssVars({
+							'--row': '1 / span 1',
+							'--t': String(fractionToSeconds(endSegment.start, baseSeconds)),
+							'--dur': String(fractionToSeconds(endSegment.end - endSegment.start, baseSeconds)),
+						})}>
+						<span className="min-w-0 truncate px-1">{designerText('health_end')}</span>
+					</div>
 				)}
 				{domOrder.map(event => {
 					const key = refKey(event.ref);
 					return (
 						<DesignerEventBar
 							key={key}
+							dataKey={key}
 							ref={element => {
 								if (element) bars.current.set(key, element);
 								else bars.current.delete(key);
 							}}
 							name={eventName(design, event.ref)}
+							label={event.ref.kind === 'bossHealth' ? healthLabel(event.ref) : undefined}
 							window={event.window}
 							row={event.row}
-							shape={event.shape}
+							startFixed={event.startFixed}
 							openEnd={event.openEnd}
 							jitter={event.jitter}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}
 							pixelsPerSecond={pixelsPerSecond}
 							valueText={window => eventValueText(design, event.ref, baseSeconds, window)}
+							tooltipId={tooltipId}
+							tooltipText={window => tip(event.ref, window)}
 							selected={key === selectedKey}
 							invalid={invalid.has(key)}
 							tabIndex={key === tabbable ? 0 : -1}
-							onChange={window => onChange(withWindow(design, event.ref, window))}
+							renaming={key === renaming}
+							onChange={window => onChange(withWindow(design, event.ref, window, baseSeconds))}
 							onSelect={() => onSelect(event.ref)}
 							onActivate={() => onActivate(event.ref)}
 							onRemove={() => remove(event.ref)}
+							onDuplicate={delta => duplicate(event.ref, delta)}
+							onRenameStart={() => setRenaming(key)}
+							onRename={name => rename(event.ref, name)}
 							onSibling={direction => focusSibling(key, direction)}
 							onFocus={() => setActive(key)}
 						/>
 					);
 				})}
-			</div>
+			</ContextMenu>
 		</div>
 	);
 };

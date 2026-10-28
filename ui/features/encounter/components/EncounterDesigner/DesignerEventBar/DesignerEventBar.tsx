@@ -1,3 +1,4 @@
+import { Input } from '@ui-kit/FormControl';
 import { usePointerAxisDrag } from '@ui-kit/hooks/usePointerAxisDrag';
 import { Icon } from '@ui-kit/Icon';
 import { cssVars } from '@ui-kit/utils/css';
@@ -9,15 +10,20 @@ import { fractionToSeconds, secondsToFraction, snap } from '../../../model/desig
 import { designerText } from '../utils/configs';
 import { barKeyAction, editWindow } from './utils';
 
-export type DesignerEventBarShape = 'span' | 'dot' | 'diamond';
-
 export interface DesignerEventBarProps {
 	name: string;
+	/** The text on the bar when it is not the name. */
+	label?: string;
+	/** Marks the bar for the lane's context menu, which finds the event it opened on. */
+	dataKey?: string;
+	/** The label is a text field. */
+	renaming?: boolean;
 	/** A point event has `start === end`. Fractions of the fight. */
 	window: TimeWindow;
 	/** The lane row, counted from 0, when the bar sits in a lane's grid. */
 	row: number;
-	shape: DesignerEventBarShape;
+	/** The start edge is fixed, as the boss health curve's implied first point is; it gets no start handle. */
+	startFixed?: boolean;
 	/** The end may be dragged past the fight's end, and a move stops only the start there. */
 	openEnd?: boolean;
 	/** The jitter around the start and the end, as fractions of the fight. */
@@ -27,6 +33,9 @@ export interface DesignerEventBarProps {
 	snapSeconds: number;
 	pixelsPerSecond: () => number;
 	valueText: (window: TimeWindow) => string;
+	/** What the event does, for the hover tooltip that `tooltipId` names. */
+	tooltipText?: (window: TimeWindow) => string;
+	tooltipId?: string;
 	selected?: boolean;
 	invalid?: boolean;
 	tabIndex: 0 | -1;
@@ -35,6 +44,12 @@ export interface DesignerEventBarProps {
 	/** Enter, after `onSelect`; a click or a drag only selects. */
 	onActivate: () => void;
 	onRemove: () => void;
+	/** Ctrl+D, or an Alt drag that ended: a copy of the event shifted by the fraction of the fight. */
+	onDuplicate: (deltaFraction: number) => void;
+	/** Double click on the label, or F2. */
+	onRenameStart: () => void;
+	/** Enter or blur with the text; Escape with undefined. */
+	onRename: (name: string | undefined) => void;
 	onSibling: (direction: -1 | 1) => void;
 	onFocus?: () => void;
 	ref?: Ref<HTMLDivElement>;
@@ -42,15 +57,8 @@ export interface DesignerEventBarProps {
 
 const MIN_WIDTH_SECONDS = 1;
 
-const SPAN_CLASSES =
+const BAR_CLASSES =
 	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-sm border border-transparent bg-(--bar) data-selected:border-white data-invalid:border-dashed data-invalid:not-data-selected:border-danger';
-const POINT_CLASSES = 'top-1/2 size-(--designer-keyframe-size) -translate-1/2';
-
-// The shape is its own element, so the diamond's rotation stays off the whisker beside it.
-const POINT_SHAPE_CLASSES: Record<Exclude<DesignerEventBarShape, 'span'>, string> = {
-	dot: 'rounded-full',
-	diamond: 'rotate-45',
-};
 
 const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' | 'center' }) =>
 	seconds > 0 ? (
@@ -62,17 +70,50 @@ const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' | 'cent
 		/>
 	) : null;
 
+// Enter or leaving the field keeps the text, Escape drops it. Its keys and pointer stay off the bar, which would move or remove it.
+const RenameInput = ({ name, onRename }: { name: string; onRename: (name: string | undefined) => void }) => {
+	const done = useRef(false);
+	const finish = (value: string | undefined) => {
+		if (done.current) return;
+		done.current = true;
+		onRename(value);
+	};
+	return (
+		<Input
+			type="text"
+			autoFocus
+			defaultValue={name}
+			aria-label={designerText('menu.rename_label')}
+			className="min-w-0 flex-1 px-1 text-xs"
+			onFocus={event => event.currentTarget.select()}
+			onPointerDown={event => event.stopPropagation()}
+			onClick={event => event.stopPropagation()}
+			onKeyDown={event => {
+				event.stopPropagation();
+				if (event.key === 'Enter') finish(event.currentTarget.value);
+				else if (event.key === 'Escape') finish(undefined);
+			}}
+			onBlur={event => finish(event.currentTarget.value)}
+		/>
+	);
+};
+
 export const DesignerEventBar = ({
 	name,
+	label,
+	dataKey,
+	renaming = false,
 	window,
 	row,
-	shape,
+	startFixed = false,
 	openEnd = false,
 	jitter,
 	baseSeconds,
 	snapSeconds,
 	pixelsPerSecond,
 	valueText,
+	tooltipText,
+	tooltipId,
 	selected,
 	invalid,
 	tabIndex,
@@ -80,6 +121,9 @@ export const DesignerEventBar = ({
 	onSelect,
 	onActivate,
 	onRemove,
+	onDuplicate,
+	onRenameStart,
+	onRename,
 	onSibling,
 	onFocus,
 	ref,
@@ -88,16 +132,26 @@ export const DesignerEventBar = ({
 	const origin = useRef(window);
 	const latest = useRef<TimeWindow | null>(null);
 	const minWidth = secondsToFraction(MIN_WIDTH_SECONDS, baseSeconds);
-	const span = shape === 'span';
+	// An Alt drag leaves the event where it is and drags a copy; Escape drops the drag.
+	const duplicating = useRef(false);
+	const cancelled = useRef(false);
 
 	const drag = usePointerAxisDrag({
 		pixelsPerSecond,
 		onStart: () => {
 			origin.current = window;
-			onSelect();
+			cancelled.current = false;
+			if (!duplicating.current) onSelect();
 		},
 		onDelta: (seconds, mode) => {
-			const next = editWindow(origin.current, span ? mode : 'move', secondsToFraction(snap(seconds, snapSeconds), baseSeconds), minWidth, openEnd);
+			if (cancelled.current) return;
+			const next = editWindow(
+				origin.current,
+				duplicating.current ? 'move' : mode,
+				secondsToFraction(snap(seconds, snapSeconds), baseSeconds),
+				minWidth,
+				openEnd,
+			);
 			latest.current = next;
 			setPreview(next);
 		},
@@ -105,12 +159,29 @@ export const DesignerEventBar = ({
 			const next = latest.current;
 			latest.current = null;
 			setPreview(null);
-			if (commit && next && (next.start !== window.start || next.end !== window.end)) onChange(next);
+			const wasDuplicating = duplicating.current;
+			duplicating.current = false;
+			if (!commit || cancelled.current || !next) return;
+			if (wasDuplicating) onDuplicate(next.start - window.start);
+			else if (next.start !== window.start || next.end !== window.end) onChange(next);
 		},
 	});
 
 	const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-		const action = barKeyAction(event, !span);
+		if (event.key === 'Escape' && preview) {
+			event.stopPropagation();
+			cancelled.current = true;
+			latest.current = null;
+			setPreview(null);
+			return;
+		}
+		if (event.key === 'F2') {
+			event.preventDefault();
+			event.stopPropagation();
+			onRenameStart();
+			return;
+		}
+		const action = barKeyAction(event);
 		if (!action) return;
 		event.preventDefault();
 		event.stopPropagation();
@@ -128,12 +199,17 @@ export const DesignerEventBar = ({
 				onSelect();
 				onActivate();
 				return;
+			case 'duplicate':
+				onDuplicate(secondsToFraction(snapSeconds > 0 ? snapSeconds : 1, baseSeconds));
+				return;
 			case 'sibling':
 				onSibling(action.direction);
 		}
 	};
 
-	const shown = preview ?? window;
+	// A copy being dragged shows beside the event, which keeps its own place.
+	const copy = preview && duplicating.current ? preview : null;
+	const shown = preview && !copy ? preview : window;
 	const start = fractionToSeconds(shown.start, baseSeconds);
 	const startJitter = fractionToSeconds(jitter?.start ?? 0, baseSeconds);
 	const endJitter = fractionToSeconds(jitter?.end ?? 0, baseSeconds);
@@ -153,10 +229,12 @@ export const DesignerEventBar = ({
 			aria-valuemax={Math.round(baseSeconds)}
 			aria-valuenow={Math.round(start)}
 			aria-valuetext={valueTextWithState}
-			data-shape={shape}
+			data-key={dataKey}
+			data-tooltip-id={tooltipId}
+			data-tip={tooltipText?.(shown)}
 			data-dragging={preview ? '' : undefined}
 			{...state}
-			className={`absolute left-timeline-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-selected:z-2 ${span ? SPAN_CLASSES : POINT_CLASSES}`}
+			className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-selected:z-2 ${BAR_CLASSES}`}
 			style={cssVars({
 				// An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
 				'--row': `${row + 1} / span 1`,
@@ -166,26 +244,34 @@ export const DesignerEventBar = ({
 			onKeyDown={onKeyDown}
 			onClick={onSelect}
 			onFocus={onFocus}
-			{...drag}>
-			{shape === 'span' ? (
-				<>
-					<Whisker seconds={startJitter} at="start" />
-					<Whisker seconds={endJitter} at="end" />
-					{invalid && <Icon name="triangle-exclamation" className="ml-1 shrink-0" />}
-					<span className="min-w-0 truncate px-1">{name}</span>
-					{/* At most a quarter of the bar each, so a short bar keeps a middle that moves it. */}
-					<span aria-hidden="true" data-handle="start" className="absolute inset-y-0 left-0 w-1 max-w-1/4 cursor-ew-resize" />
-					<span aria-hidden="true" data-handle="end" className="absolute inset-y-0 right-0 w-1 max-w-1/4 cursor-ew-resize" />
-				</>
+			{...drag}
+			onPointerDown={event => {
+				duplicating.current = event.altKey;
+				drag.onPointerDown(event);
+			}}>
+			<Whisker seconds={startJitter} at="start" />
+			<Whisker seconds={endJitter} at="end" />
+			{invalid && <Icon name="triangle-exclamation" className="ml-1 shrink-0" />}
+			{renaming ? (
+				<RenameInput name={name} onRename={onRename} />
 			) : (
-				<>
-					<span
-						aria-hidden="true"
-						{...state}
-						className={`absolute inset-0 border border-transparent bg-(--bar) data-invalid:not-data-selected:border-danger data-selected:border-white ${POINT_SHAPE_CLASSES[shape]}`}
-					/>
-					<Whisker seconds={startJitter} at="center" />
-				</>
+				<span className="min-w-0 truncate px-1" onDoubleClick={onRenameStart}>
+					{label ?? name}
+				</span>
+			)}
+			{/* At most a quarter of the bar each, so a short bar keeps a middle that moves it. */}
+			{!startFixed && <span aria-hidden="true" data-handle="start" className="absolute inset-y-0 left-0 w-1 max-w-1/4 cursor-ew-resize" />}
+			<span aria-hidden="true" data-handle="end" className="absolute inset-y-0 right-0 w-1 max-w-1/4 cursor-ew-resize" />
+			{copy && (
+				<span
+					aria-hidden="true"
+					data-copy=""
+					className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 rounded-sm border border-white bg-(--bar) opacity-70"
+					style={cssVars({
+						'--t': String(fractionToSeconds(copy.start - window.start, baseSeconds)),
+						'--dur': String(fractionToSeconds(copy.end - copy.start, baseSeconds)),
+					})}
+				/>
 			)}
 		</div>
 	);

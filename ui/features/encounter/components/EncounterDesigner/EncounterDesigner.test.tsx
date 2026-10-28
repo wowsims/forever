@@ -1,4 +1,4 @@
-import { DesignDowntime, EncounterDesign, MobType, PresetEncounter, PresetTarget, Target } from '@generated/proto/common';
+import { AddWave, DesignDowntime, EncounterDesign, MobType, PresetEncounter, PresetTarget, Stat, Target } from '@generated/proto/common';
 import { UIDatabase } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { renderWithHost } from '@testing/react';
@@ -11,6 +11,11 @@ import { EncounterPicker } from '../EncounterPicker';
 
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
 
+// The add of a preset encounter's wave, which no encounter lists as a target.
+const DYNAMIC_ADD = Target.create({ id: 99001, name: 'Dynamic Add', level: 63, mobType: MobType.MobTypeMechanical });
+DYNAMIC_ADD.stats = Array.from({ length: Math.max(...Object.values(Stat).filter(value => typeof value === 'number')) + 1 }, () => 0);
+DYNAMIC_ADD.stats[Stat.StatHealth] = 5000;
+
 const ADD = PresetTarget.create({
 	path: 'Molten Core/Son of Flame',
 	target: Target.create({ id: 12143, name: 'Son of Flame', level: 62, mobType: MobType.MobTypeElemental }),
@@ -18,7 +23,18 @@ const ADD = PresetTarget.create({
 
 // The fields, buttons and lanes are found by the names a player reads, so the suite loads the English strings.
 beforeAll(() => {
-	serveDatabase(UIDatabase.create({ encounters: [PresetEncounter.create({ path: 'Molten Core/Ragnaros', targets: [ADD] })] }));
+	serveDatabase(
+		UIDatabase.create({
+			encounters: [
+				PresetEncounter.create({ path: 'Molten Core/Ragnaros', targets: [ADD] }),
+				PresetEncounter.create({
+					path: 'Default/Dynamic Adds',
+					targets: [PresetTarget.create({ path: 'Default/Dynamic Boss', target: Target.create({ id: 99000, name: 'Dynamic Boss' }) })],
+					design: EncounterDesign.create({ addWaves: [AddWave.create({ name: 'Add', target: DYNAMIC_ADD })] }),
+				}),
+			],
+		}),
+	);
 	i18n.addResourceBundle('en', 'translation', english, true, true);
 });
 afterAll(() => {
@@ -63,6 +79,25 @@ const downtimeOn = (targetIndex: number) =>
 	EncounterDesign.create({ downtimes: [DesignDowntime.create({ targetIndex, start: { at: 0.2, jitter: 0 }, end: { at: 0.3, jitter: 0 } })] });
 
 describe('EncounterDesigner', () => {
+	it("offers the add of a preset encounter's wave as a template, and edits the add's stats in the saved design", async () => {
+		{
+			const { encounter } = await setup();
+			const dialog = await openDesigner();
+
+			await add('Add waves', 'Wave');
+			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Default/Dynamic Add');
+			await clickButton('Add stats');
+			expect((within(dialog).getByLabelText('Health') as HTMLInputElement).value).toBe('5000');
+			await commit(within(dialog).getByLabelText('Health'), '7000');
+			expect(within(dialog).getByLabelText('Add template').textContent).toContain('Custom');
+
+			await clickButton('Save');
+			const [wave] = encounter.getDesign().addWaves;
+			expect(wave.target?.name).toBe('Dynamic Add');
+			expect(wave.target?.stats[Stat.StatHealth]).toBe(7000);
+		}
+	});
+
 	it('adds a wave in the draft, moves and edits it, and saves it to the store as fractions', async () => {
 		const { encounter, baseSeconds } = await setup();
 		const dialog = await openDesigner();
@@ -83,7 +118,7 @@ describe('EncounterDesigner', () => {
 		expect(wave.spawn!.at).toBeCloseTo(0.4 + 6 / baseSeconds, 9);
 		expect(wave.lifetime).toBeCloseTo(0.1, 9);
 		expect(wave.count).toBe(3);
-		expect(wave.target).toEqual(ADD.target);
+		expect(wave.target).toEqual(DYNAMIC_ADD);
 	});
 
 	it('focuses the first add button on open, and moves focus into the event panel on Enter, not on a click', async () => {

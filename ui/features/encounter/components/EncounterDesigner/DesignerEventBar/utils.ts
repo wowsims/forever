@@ -7,21 +7,21 @@ export type BarKeyAction =
 	| { type: 'edit'; mode: AxisDragMode; steps: number }
 	| { type: 'remove' }
 	| { type: 'activate' }
+	| { type: 'duplicate' }
 	| { type: 'sibling'; direction: -1 | 1 };
 
 type BarKey = Pick<KeyboardEvent, 'key' | 'shiftKey' | 'altKey' | 'ctrlKey' | 'metaKey'>;
 
 const SHIFT_STEPS = 5;
 
-// Arrows move by one snap step, five with Shift. Alt resizes the end, Alt+Shift the start; a point has no ends to resize.
-export const barKeyAction = (event: BarKey, point: boolean): BarKeyAction | undefined => {
-	if (event.ctrlKey || event.metaKey) return undefined;
+// Arrows move by one snap step, five with Shift. Alt resizes the end, Alt+Shift the start. Ctrl or Cmd with D duplicates.
+export const barKeyAction = (event: BarKey): BarKeyAction | undefined => {
+	if (event.ctrlKey || event.metaKey) return event.key.toLowerCase() === 'd' && !event.altKey && !event.shiftKey ? { type: 'duplicate' } : undefined;
 	switch (event.key) {
 		case 'ArrowLeft':
 		case 'ArrowRight': {
 			const direction = event.key === 'ArrowLeft' ? -1 : 1;
 			if (!event.altKey) return { type: 'edit', mode: 'move', steps: direction * (event.shiftKey ? SHIFT_STEPS : 1) };
-			if (point) return undefined;
 			return { type: 'edit', mode: event.shiftKey ? 'start' : 'end', steps: direction };
 		}
 		case 'ArrowUp':

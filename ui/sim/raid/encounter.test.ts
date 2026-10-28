@@ -4,6 +4,7 @@ import {
 	DesignBossAbility,
 	DesignDamageAmp,
 	DesignDowntime,
+	DesignMove,
 	DesignTargets,
 	Encounter as EncounterProto,
 	EncounterDesign,
@@ -187,6 +188,29 @@ describe('Encounter', () => {
 
 			other.fromProto(EncounterProto.create({ targets: [Encounter.defaultTargetProto()] }));
 			expect(other.hasDesign()).toBe(false);
+		});
+
+		it('keeps the name of every event kind through the proto and binary round trip', () => {
+			const encounter = makeEncounter();
+			encounter.setDesign(
+				EncounterDesign.create({
+					downtimes: [DesignDowntime.create({ name: 'Phase 2' })],
+					bossHealth: [HealthKeyframe.create({ name: 'Enrage' })],
+					bossAbilities: [DesignBossAbility.create({ name: 'Cleave' })],
+					damageAmps: [DesignDamageAmp.create({ name: 'Buff' })],
+					moves: [DesignMove.create({ name: 'Run' })],
+				}),
+			);
+			const other = makeEncounter();
+			other.fromProto(EncounterProto.fromBinary(EncounterProto.toBinary(encounter.toProto())));
+			const design = other.getDesign();
+			expect([
+				design.downtimes[0].name,
+				design.bossHealth[0].name,
+				design.bossAbilities[0].name,
+				design.damageAmps[0].name,
+				design.moves[0].name,
+			]).toEqual(['Phase 2', 'Enrage', 'Cleave', 'Buff', 'Run']);
 		});
 
 		it('leaves a plain encounter without a design message, so it equals a preset proto that has none', () => {

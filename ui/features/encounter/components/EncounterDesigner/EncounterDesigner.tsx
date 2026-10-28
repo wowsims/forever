@@ -20,7 +20,7 @@ import { TargetsPicker } from '../TargetsPicker';
 import { DesignerEventPanel } from './DesignerEventPanel';
 import { DesignerIssues } from './DesignerIssues';
 import { DesignerTimeline } from './DesignerTimeline';
-import { defaultWaveTemplate, designerText } from './utils/configs';
+import { defaultWaveTemplate, designerPresetTargets, designerText } from './utils/configs';
 
 export interface EncounterDesignerViewProps {
 	open: boolean;
@@ -98,6 +98,7 @@ export const EncounterDesignerView = ({
 						baseSeconds={baseSeconds}
 						selected={selected}
 						issues={issues}
+						targetNames={targetNames}
 						onSelect={onSelect}
 						onActivate={onActivate}
 						onChange={onChange}
@@ -139,7 +140,7 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 	const baseSeconds = useStoreSubscribe(subscribeEncounterField(encounter, 'duration'), () => encounter.getDuration());
 	const targets = useStoreSubscribe(subscribeEncounterField(encounter, 'targets'), () => encounter.getTargets());
 	const targetNames = useMemo(() => targets.map((target, index) => target.name || designerText('target_name', { number: index + 1 })), [targets]);
-	const presetTargets = useMemo(() => encounter.sim.db.getAllPresetTargets(), [encounter]);
+	const presetTargets = useMemo(() => designerPresetTargets(encounter.sim.db.getAllPresetEncounters(), encounter.sim.db.getAllPresetTargets()), [encounter]);
 	const duration = useMemo(() => durationConfigs(), []);
 	const panelRef = useRef<HTMLElement>(null);
 

@@ -13,28 +13,30 @@ const key = (name: string, modifiers: { shiftKey?: boolean; altKey?: boolean; ct
 
 describe('barKeyAction', () => {
 	it('moves by one step, five with Shift', () => {
-		expect(barKeyAction(key('ArrowRight'), false)).toEqual({ type: 'edit', mode: 'move', steps: 1 });
-		expect(barKeyAction(key('ArrowLeft', { shiftKey: true }), false)).toEqual({ type: 'edit', mode: 'move', steps: -5 });
+		expect(barKeyAction(key('ArrowRight'))).toEqual({ type: 'edit', mode: 'move', steps: 1 });
+		expect(barKeyAction(key('ArrowLeft', { shiftKey: true }))).toEqual({ type: 'edit', mode: 'move', steps: -5 });
 	});
 
 	it('resizes the end with Alt and the start with Alt+Shift', () => {
-		expect(barKeyAction(key('ArrowRight', { altKey: true }), false)).toEqual({ type: 'edit', mode: 'end', steps: 1 });
-		expect(barKeyAction(key('ArrowLeft', { altKey: true, shiftKey: true }), false)).toEqual({ type: 'edit', mode: 'start', steps: -1 });
+		expect(barKeyAction(key('ArrowRight', { altKey: true }))).toEqual({ type: 'edit', mode: 'end', steps: 1 });
+		expect(barKeyAction(key('ArrowLeft', { altKey: true, shiftKey: true }))).toEqual({ type: 'edit', mode: 'start', steps: -1 });
 	});
 
-	it('does not resize a point', () => {
-		expect(barKeyAction(key('ArrowRight', { altKey: true }), true)).toBeUndefined();
-		expect(barKeyAction(key('ArrowRight'), true)).toEqual({ type: 'edit', mode: 'move', steps: 1 });
+	it('duplicates on Ctrl+D or Cmd+D and leaves the other chords alone', () => {
+		expect(barKeyAction(key('d', { ctrlKey: true }))).toEqual({ type: 'duplicate' });
+		expect(barKeyAction(key('D', { metaKey: true }))).toEqual({ type: 'duplicate' });
+		expect(barKeyAction(key('d'))).toBeUndefined();
+		expect(barKeyAction(key('d', { ctrlKey: true, shiftKey: true }))).toBeUndefined();
 	});
 
 	it('maps the other keys and leaves Ctrl and Meta chords alone', () => {
-		expect(barKeyAction(key('ArrowUp'), false)).toEqual({ type: 'sibling', direction: -1 });
-		expect(barKeyAction(key('ArrowDown'), false)).toEqual({ type: 'sibling', direction: 1 });
-		expect(barKeyAction(key('Delete'), false)).toEqual({ type: 'remove' });
-		expect(barKeyAction(key('Backspace'), false)).toEqual({ type: 'remove' });
-		expect(barKeyAction(key('Enter'), false)).toEqual({ type: 'activate' });
-		expect(barKeyAction(key('ArrowRight', { ctrlKey: true }), false)).toBeUndefined();
-		expect(barKeyAction(key('a'), false)).toBeUndefined();
+		expect(barKeyAction(key('ArrowUp'))).toEqual({ type: 'sibling', direction: -1 });
+		expect(barKeyAction(key('ArrowDown'))).toEqual({ type: 'sibling', direction: 1 });
+		expect(barKeyAction(key('Delete'))).toEqual({ type: 'remove' });
+		expect(barKeyAction(key('Backspace'))).toEqual({ type: 'remove' });
+		expect(barKeyAction(key('Enter'))).toEqual({ type: 'activate' });
+		expect(barKeyAction(key('ArrowRight', { ctrlKey: true }))).toBeUndefined();
+		expect(barKeyAction(key('a'))).toBeUndefined();
 	});
 });
 

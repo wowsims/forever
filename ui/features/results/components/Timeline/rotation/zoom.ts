@@ -18,6 +18,8 @@ export interface ZoomConfig {
 	// --pps is read by the ruler as well as by the rows, and the ruler is portalled out of the pane.
 	styleHosts: ReadonlyArray<HTMLElement>;
 	labelWidth: () => number;
+	// Pixels of empty axis before 0 s and after the duration; the track keeps its default of none.
+	inset?: () => number;
 	// The scroller is overflow-y hidden, so vertical keys have to move the page's scroller.
 	scrollVerticalBy: (delta: number) => void;
 	onChange: () => void;
@@ -46,14 +48,15 @@ export class ZoomController {
 		if (next === this.ppsValue) return;
 
 		const labelWidth = this.config.labelWidth();
+		const inset = this.inset();
 		const viewWidth = Math.max(0, scroller.clientWidth - labelWidth);
 		const anchorX =
 			anchorClientX == null ? labelWidth + viewWidth / 2 : clamp(anchorClientX - scroller.getBoundingClientRect().left, labelWidth, scroller.clientWidth);
-		const anchorTime = clamp((scroller.scrollLeft + anchorX - labelWidth) / this.ppsValue, 0, this.duration);
+		const anchorTime = clamp((scroller.scrollLeft + anchorX - labelWidth - inset) / this.ppsValue, 0, this.duration);
 
 		this.ppsValue = next;
 		this.apply();
-		scroller.scrollLeft = anchorTime * next + labelWidth - anchorX;
+		scroller.scrollLeft = anchorTime * next + labelWidth + inset - anchorX;
 		this.config.onChange();
 	}
 
@@ -76,7 +79,7 @@ export class ZoomController {
 
 	fitToWidth() {
 		const scroller = this.config.scroller;
-		const width = scroller.clientWidth - this.config.labelWidth();
+		const width = scroller.clientWidth - this.config.labelWidth() - 2 * this.inset();
 		if (width <= 0 || this.duration <= 0) return;
 		this.zoomTo(width / this.duration);
 		scroller.scrollLeft = 0;
@@ -140,6 +143,10 @@ export class ZoomController {
 
 	dispose() {
 		this.cleanups.splice(0).forEach(cleanup => cleanup());
+	}
+
+	private inset(): number {
+		return this.config.inset?.() ?? 0;
 	}
 
 	private apply() {

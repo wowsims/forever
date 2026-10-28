@@ -1175,12 +1175,24 @@
 				"precision": {
 					"type": "object",
 					"properties": {
-						"label": { "type": "string" },
-						"mode_iterations": { "type": "string" },
-						"mode_target": { "type": "string" },
-						"iterations": { "type": "string" },
-						"max_multiplier": { "type": "string" },
-						"max_multiplier_none": { "type": "string" }
+						"label": {
+							"type": "string"
+						},
+						"mode_iterations": {
+							"type": "string"
+						},
+						"mode_target": {
+							"type": "string"
+						},
+						"iterations": {
+							"type": "string"
+						},
+						"max_multiplier": {
+							"type": "string"
+						},
+						"max_multiplier_none": {
+							"type": "string"
+						}
 					},
 					"additionalProperties": false,
 					"required": ["label", "mode_iterations", "mode_target", "iterations", "max_multiplier", "max_multiplier_none"]
@@ -3027,10 +3039,18 @@
 						"innervate_assignment": {
 							"type": "object",
 							"properties": {
-								"label": { "type": "string" },
-								"tooltip": { "type": "string" },
-								"self": { "type": "string" },
-								"other": { "type": "string" }
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								},
+								"self": {
+									"type": "string"
+								},
+								"other": {
+									"type": "string"
+								}
 							},
 							"additionalProperties": false,
 							"required": ["label", "tooltip", "self", "other"]
@@ -4152,7 +4172,7 @@
 								"point_value": {
 									"type": "string"
 								},
-								"keyframe_value": {
+								"health_value": {
 									"type": "string"
 								},
 								"state_selected": {
@@ -4160,6 +4180,145 @@
 								},
 								"state_invalid": {
 									"type": "string"
+								},
+								"occurrence_name": {
+									"type": "string"
+								},
+								"occurrence_number": {
+									"type": "string"
+								},
+								"copy_name": {
+									"type": "string"
+								},
+								"menu": {
+									"type": "object",
+									"properties": {
+										"duplicate": {
+											"type": "string"
+										},
+										"delete": {
+											"type": "string"
+										},
+										"edit": {
+											"type": "string"
+										},
+										"rename": {
+											"type": "string"
+										},
+										"rename_label": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["duplicate", "delete", "edit", "rename", "rename_label"]
+								},
+								"tip": {
+									"type": "object",
+									"properties": {
+										"range": {
+											"type": "string"
+										},
+										"every": {
+											"type": "string"
+										},
+										"every_from": {
+											"type": "string"
+										},
+										"at": {
+											"type": "string"
+										},
+										"health": {
+											"type": "string"
+										},
+										"downtime": {
+											"type": "string"
+										},
+										"clears_debuffs": {
+											"type": "string"
+										},
+										"school_damage": {
+											"type": "string"
+										},
+										"cast": {
+											"type": "string"
+										},
+										"weapon": {
+											"type": "string"
+										},
+										"proc": {
+											"type": "string"
+										},
+										"extra_attacks": {
+											"type": "string"
+										},
+										"icd": {
+											"type": "string"
+										},
+										"swing_speed": {
+											"type": "string"
+										},
+										"wave": {
+											"type": "string"
+										},
+										"adds_one": {
+											"type": "string"
+										},
+										"adds_other": {
+											"type": "string"
+										},
+										"spawns": {
+											"type": "string"
+										},
+										"spawns_jitter": {
+											"type": "string"
+										},
+										"lives": {
+											"type": "string"
+										},
+										"kill_share": {
+											"type": "string"
+										},
+										"move": {
+											"type": "string"
+										},
+										"move_yards": {
+											"type": "string"
+										},
+										"amp": {
+											"type": "string"
+										},
+										"amp_value": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": [
+										"range",
+										"every",
+										"every_from",
+										"at",
+										"health",
+										"downtime",
+										"clears_debuffs",
+										"school_damage",
+										"cast",
+										"weapon",
+										"proc",
+										"extra_attacks",
+										"icd",
+										"swing_speed",
+										"wave",
+										"adds_one",
+										"adds_other",
+										"spawns",
+										"spawns_jitter",
+										"lives",
+										"kill_share",
+										"move",
+										"move_yards",
+										"amp",
+										"amp_value"
+									]
 								},
 								"add": {
 									"type": "string"
@@ -4197,10 +4356,13 @@
 										},
 										"remove": {
 											"type": "string"
+										},
+										"add_stats": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["empty", "remove"]
+									"required": ["empty", "remove", "add_stats"]
 								},
 								"issues": {
 									"type": "object",
@@ -4480,6 +4642,12 @@
 								},
 								"save": {
 									"type": "string"
+								},
+								"health_label": {
+									"type": "string"
+								},
+								"health_end": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -4492,9 +4660,14 @@
 								"seconds",
 								"span_value",
 								"point_value",
-								"keyframe_value",
+								"health_value",
 								"state_selected",
 								"state_invalid",
+								"occurrence_name",
+								"occurrence_number",
+								"copy_name",
+								"menu",
+								"tip",
 								"add",
 								"toolbar",
 								"panel",
@@ -4507,7 +4680,9 @@
 								"title",
 								"targets",
 								"target_name",
-								"save"
+								"save",
+								"health_label",
+								"health_end"
 							]
 						}
 					},
@@ -5168,17 +5343,39 @@
 				"compare": {
 					"type": "object",
 					"properties": {
-						"button": { "type": "string" },
-						"title": { "type": "string" },
-						"short_set": { "type": "string" },
-						"readout_rank": { "type": "string" },
-						"readout_current": { "type": "string" },
-						"readout_spread": { "type": "string" },
-						"not_ranked": { "type": "string" },
-						"table_caption": { "type": "string" },
-						"table_set": { "type": "string" },
-						"table_legend_best": { "type": "string" },
-						"table_legend_gap": { "type": "string" }
+						"button": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"short_set": {
+							"type": "string"
+						},
+						"readout_rank": {
+							"type": "string"
+						},
+						"readout_current": {
+							"type": "string"
+						},
+						"readout_spread": {
+							"type": "string"
+						},
+						"not_ranked": {
+							"type": "string"
+						},
+						"table_caption": {
+							"type": "string"
+						},
+						"table_set": {
+							"type": "string"
+						},
+						"table_legend_best": {
+							"type": "string"
+						},
+						"table_legend_gap": {
+							"type": "string"
+						}
 					},
 					"additionalProperties": false,
 					"required": [
@@ -11301,10 +11498,18 @@
 								"precision": {
 									"type": "object",
 									"properties": {
-										"iterations_tooltip": { "type": "string" },
-										"target_ci": { "type": "string" },
-										"target_ci_tooltip": { "type": "string" },
-										"max_multiplier_tooltip": { "type": "string" }
+										"iterations_tooltip": {
+											"type": "string"
+										},
+										"target_ci": {
+											"type": "string"
+										},
+										"target_ci_tooltip": {
+											"type": "string"
+										},
+										"max_multiplier_tooltip": {
+											"type": "string"
+										}
 									},
 									"additionalProperties": false,
 									"required": ["iterations_tooltip", "target_ci", "target_ci_tooltip", "max_multiplier_tooltip"]
@@ -11316,51 +11521,121 @@
 						"stat_sweep": {
 							"type": "object",
 							"properties": {
-								"title": { "type": "string" },
-								"settings": { "type": "string" },
+								"title": {
+									"type": "string"
+								},
+								"settings": {
+									"type": "string"
+								},
 								"stats": {
 									"type": "object",
 									"properties": {
-										"label": { "type": "string" },
-										"placeholder": { "type": "string" },
-										"empty": { "type": "string" },
-										"open": { "type": "string" },
-										"remove": { "type": "string" }
+										"label": {
+											"type": "string"
+										},
+										"placeholder": {
+											"type": "string"
+										},
+										"empty": {
+											"type": "string"
+										},
+										"open": {
+											"type": "string"
+										},
+										"remove": {
+											"type": "string"
+										}
 									},
 									"additionalProperties": false,
 									"required": ["label", "placeholder", "empty", "open", "remove"]
 								},
-								"range": { "type": "string" },
-								"step": { "type": "string" },
-								"run": { "type": "string" },
-								"progress": { "type": "string" },
-								"run_label": { "type": "string" },
-								"batch_label": { "type": "string" },
-								"capped_label": { "type": "string" },
-								"metric": { "type": "string" },
-								"show_spread": { "type": "string" },
-								"show_spread_tooltip": { "type": "string" },
-								"current_value": { "type": "string" },
-								"added_axis": { "type": "string" },
-								"tooltip_total": { "type": "string" },
-								"tooltip_value": { "type": "string" },
-								"tooltip_value_capped": { "type": "string" },
-								"band_key": { "type": "string" },
-								"empty": { "type": "string" },
-								"export_csv": { "type": "string" },
-								"stopped": { "type": "string" },
+								"range": {
+									"type": "string"
+								},
+								"step": {
+									"type": "string"
+								},
+								"run": {
+									"type": "string"
+								},
+								"progress": {
+									"type": "string"
+								},
+								"run_label": {
+									"type": "string"
+								},
+								"batch_label": {
+									"type": "string"
+								},
+								"capped_label": {
+									"type": "string"
+								},
+								"metric": {
+									"type": "string"
+								},
+								"show_spread": {
+									"type": "string"
+								},
+								"show_spread_tooltip": {
+									"type": "string"
+								},
+								"current_value": {
+									"type": "string"
+								},
+								"added_axis": {
+									"type": "string"
+								},
+								"tooltip_total": {
+									"type": "string"
+								},
+								"tooltip_value": {
+									"type": "string"
+								},
+								"tooltip_value_capped": {
+									"type": "string"
+								},
+								"band_key": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"export_csv": {
+									"type": "string"
+								},
+								"stopped": {
+									"type": "string"
+								},
 								"history": {
 									"type": "object",
 									"properties": {
-										"title": { "type": "string" },
-										"delete": { "type": "string" },
-										"delete_batch": { "type": "string" },
-										"show": { "type": "string" },
-										"hide": { "type": "string" },
-										"show_hidden": { "type": "string" },
-										"more_stats": { "type": "string" },
-										"metric": { "type": "string" },
-										"empty": { "type": "string" }
+										"title": {
+											"type": "string"
+										},
+										"delete": {
+											"type": "string"
+										},
+										"delete_batch": {
+											"type": "string"
+										},
+										"show": {
+											"type": "string"
+										},
+										"hide": {
+											"type": "string"
+										},
+										"show_hidden": {
+											"type": "string"
+										},
+										"more_stats": {
+											"type": "string"
+										},
+										"metric": {
+											"type": "string"
+										},
+										"empty": {
+											"type": "string"
+										}
 									},
 									"additionalProperties": false,
 									"required": ["title", "delete", "delete_batch", "show", "hide", "show_hidden", "more_stats", "metric", "empty"]
@@ -11368,10 +11643,18 @@
 								"precision": {
 									"type": "object",
 									"properties": {
-										"iterations_tooltip": { "type": "string" },
-										"target_ci": { "type": "string" },
-										"target_ci_tooltip": { "type": "string" },
-										"max_multiplier_tooltip": { "type": "string" }
+										"iterations_tooltip": {
+											"type": "string"
+										},
+										"target_ci": {
+											"type": "string"
+										},
+										"target_ci_tooltip": {
+											"type": "string"
+										},
+										"max_multiplier_tooltip": {
+											"type": "string"
+										}
 									},
 									"additionalProperties": false,
 									"required": ["iterations_tooltip", "target_ci", "target_ci_tooltip", "max_multiplier_tooltip"]

@@ -6,6 +6,7 @@ import {
 	MobType,
 	type PresetTarget,
 	SpellSchool,
+	Stat,
 	Target,
 } from '@generated/proto/common';
 
@@ -13,11 +14,17 @@ export const DESIGN_BASE_SECONDS = 180;
 
 export const designTargetNames: ReadonlyArray<string> = ['Ragnaros', 'Son of Flame'];
 
+// A target from the database carries a value for every stat.
+const fullStats = () => Array.from({ length: Math.max(...Object.values(Stat).filter(value => typeof value === 'number')) + 1 }, () => 0);
+
 export const designPresetTargets: ReadonlyArray<PresetTarget> = [
-	{ path: 'Molten Core/Son of Flame', target: Target.create({ id: 12143, name: 'Son of Flame', level: 62, mobType: MobType.MobTypeElemental }) },
+	{
+		path: 'Molten Core/Son of Flame',
+		target: Target.create({ id: 12143, name: 'Son of Flame', level: 62, mobType: MobType.MobTypeElemental, stats: fullStats() }),
+	},
 	{
 		path: 'Blackwing Lair/Death Talon Wyrmguard',
-		target: Target.create({ id: 12460, name: 'Death Talon Wyrmguard', level: 62, mobType: MobType.MobTypeDragonkin }),
+		target: Target.create({ id: 12460, name: 'Death Talon Wyrmguard', level: 62, mobType: MobType.MobTypeDragonkin, stats: fullStats() }),
 	},
 ];
 

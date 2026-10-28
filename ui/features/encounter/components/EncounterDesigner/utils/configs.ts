@@ -1,12 +1,22 @@
-import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, DesignMove, HealthKeyframe, PresetTarget } from '@generated/proto/common';
-import { DamageAmpType, DesignBossAbility_Kind, DesignRepeat, DesignTargets, DesignTime, EncounterDesign, SpellSchool, Target } from '@generated/proto/common';
+import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, DesignMove, HealthKeyframe, PresetEncounter } from '@generated/proto/common';
+import {
+	DamageAmpType,
+	DesignBossAbility_Kind,
+	DesignRepeat,
+	DesignTargets,
+	DesignTime,
+	EncounterDesign,
+	PresetTarget,
+	SpellSchool,
+	Target,
+} from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateSpellSchool } from '@i18n/localization';
 import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
 import type { DesignEvent, DesignEventKind, DesignEventRef } from '../../../model/design/lanes';
-import { eventLabelKey, eventWindow, getEvent } from '../../../model/design/lanes';
+import { eventLabelKey, eventWindow, firesAtInstants, getEvent, healthSegments, moveSeconds } from '../../../model/design/lanes';
 import type { TimeWindow } from '../../../model/design/time';
 import { fractionToSeconds, secondsToFraction } from '../../../model/design/time';
 
@@ -15,20 +25,114 @@ export const designerText = (name: string, options?: Record<string, string | num
 export const formatSeconds = (seconds: number): string => designerText('seconds', { value: Number(seconds.toFixed(1)) });
 
 export const eventName = (design: EncounterDesign, ref: DesignEventRef): string => {
-	const named = ref.kind === 'wave' ? design.addWaves[ref.index]?.name : '';
+	const named = getEvent(design, ref)?.name;
 	return named || designerText('event_name', { event: i18n.t(eventLabelKey(ref.kind)), number: ref.index + 1 });
 };
+
+// The first occurrence keeps the bare name; the repeats after it count from 2.
+export const occurrenceName = (name: string, occurrence: number): string =>
+	occurrence > 1 ? designerText('occurrence_name', { name, number: occurrence }) : name;
 
 // Reads the times from `window` when one is given, so a bar can describe where a drag has it.
 export const eventValueText = (design: EncounterDesign, ref: DesignEventRef, baseSeconds: number, window?: TimeWindow): string => {
 	const name = eventName(design, ref);
 	const stored = eventWindow(design, ref);
 	if (!stored) return name;
+	if (ref.kind === 'bossHealth') {
+		const segment = healthSegments(design).find(found => found.index === ref.index);
+		const start = formatSeconds(fractionToSeconds(window?.start ?? segment?.start ?? 0, baseSeconds));
+		const end = formatSeconds(fractionToSeconds(window?.end ?? segment?.end ?? 0, baseSeconds));
+		return designerText('health_value', { name, from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100, start, end });
+	}
 	const shown = window ?? ('at' in stored ? { start: stored.at, end: stored.at } : stored);
 	const at = formatSeconds(fractionToSeconds(shown.start, baseSeconds));
-	if (!('at' in stored)) return designerText('span_value', { name, start: at, end: formatSeconds(fractionToSeconds(shown.end, baseSeconds)) });
-	if (ref.kind === 'bossHealth') return designerText('keyframe_value', { name, at, health: (getEvent(design, ref) as HealthKeyframe).healthPercent });
+	if (!('at' in stored) || (ref.kind === 'move' && window))
+		return designerText('span_value', { name, start: at, end: formatSeconds(fractionToSeconds(shown.end, baseSeconds)) });
 	return designerText('point_value', { name, at });
+};
+
+const TIP_SEPARATOR = ' · ';
+
+// What an event does, in seconds, on one line for its hover tooltip. Reads the times from `window` when one is given.
+export const eventTooltip = (
+	design: EncounterDesign,
+	ref: DesignEventRef,
+	baseSeconds: number,
+	targetNames: ReadonlyArray<string>,
+	window?: TimeWindow,
+): string => {
+	const event = getEvent(design, ref);
+	if (!event) return '';
+	const tip = (key: string, options?: Record<string, string | number>) => designerText(`tip.${key}`, options);
+	const sec = (fraction: number) => formatSeconds(fractionToSeconds(fraction, baseSeconds));
+	const found = eventWindow(design, ref);
+	const stored = !found ? { start: 0, end: 0 } : 'at' in found ? { start: found.at, end: found.at } : found;
+	const shown = window ?? stored;
+	const range = tip('range', { start: sec(shown.start), end: sec(shown.end) });
+	const repeat = 'repeat' in event && event.repeat && event.repeat.interval > 0 ? sec(event.repeat.interval) : undefined;
+	const every = repeat ? [tip('every', { interval: repeat })] : [];
+	switch (ref.kind) {
+		case 'bossHealth': {
+			const segment = healthSegments(design).find(found => found.index === ref.index);
+			const covered = window ?? { start: segment?.start ?? 0, end: segment?.end ?? 0 };
+			return tip('health', { from: segment?.fromPercent ?? 100, to: segment?.toPercent ?? 100, start: sec(covered.start), end: sec(covered.end) });
+		}
+		case 'downtime': {
+			const downtime = event as DesignDowntime;
+			const target = targetNames[downtime.targetIndex] ?? designerText('target_name', { number: downtime.targetIndex + 1 });
+			return [tip('downtime'), target, range, downtime.clearDebuffs ? tip('clears_debuffs') : undefined].filter(Boolean).join(TIP_SEPARATOR);
+		}
+		case 'ability': {
+			const ability = event as DesignBossAbility;
+			const kind = designerText(`ability_kinds.${ABILITY_KINDS.find(([value]) => value === ability.kind)?.[1]}`);
+			const details: Array<string> = [];
+			switch (ability.kind) {
+				case DesignBossAbility_Kind.SpellHit:
+					details.push(
+						tip('school_damage', { school: translateSpellSchool(ability.school), min: ability.minDamage, max: ability.maxDamage }),
+						tip('cast', { time: formatSeconds(ability.castTime) }),
+					);
+					break;
+				case DesignBossAbility_Kind.Strike:
+					details.push(tip('weapon', { percent: ability.weaponPercent }));
+					break;
+				case DesignBossAbility_Kind.Thrash:
+					details.push(tip('proc', { chance: ability.procChance }));
+					if (ability.extraAttacks > 0) details.push(tip('extra_attacks', { count: ability.extraAttacks }));
+					if (ability.icd > 0) details.push(tip('icd', { time: formatSeconds(ability.icd) }));
+					break;
+				default:
+					details.push(tip('swing_speed', { value: ability.swingSpeedMultiplier }));
+			}
+			const when = firesAtInstants(ability)
+				? [repeat ? tip('every_from', { interval: repeat, start: sec(shown.start), end: sec(shown.end) }) : tip('at', { at: sec(shown.start) })]
+				: [range, ...every];
+			return [kind, ...details, ...when].join(TIP_SEPARATOR);
+		}
+		case 'wave': {
+			const wave = event as AddWave;
+			const jitter = wave.spawn?.jitter ?? 0;
+			const spawn = jitter > 0 ? tip('spawns_jitter', { at: sec(shown.start), jitter: sec(jitter) }) : tip('spawns', { at: sec(shown.start) });
+			return [
+				tip('wave', { name: eventName(design, ref) }),
+				tip('adds', { count: wave.count }),
+				spawn,
+				tip('lives', { time: sec(shown.end - shown.start) }),
+				...every,
+				tip('kill_share', { percent: Number((wave.killShare * 100).toFixed(1)) }),
+			].join(TIP_SEPARATOR);
+		}
+		case 'move': {
+			const move = event as DesignMove;
+			const time = formatSeconds(Number(moveSeconds(move).toFixed(2)));
+			return [tip('move'), move.yards > 0 ? tip('move_yards', { yards: move.yards, time }) : time, ...every].join(TIP_SEPARATOR);
+		}
+		default: {
+			const amp = event as DesignDamageAmp;
+			const type = designerText(`amp_types.${AMP_TYPES.find(([value]) => value === amp.type)?.[1]}`);
+			return [tip('amp'), tip('amp_value', { type, percent: amp.percent }), range, ...every].join(TIP_SEPARATOR);
+		}
+	}
 };
 
 export const editEvent = (design: EncounterDesign, ref: DesignEventRef, edit: (event: DesignEvent) => void): EncounterDesign => {
@@ -217,7 +321,18 @@ const SCHOOLS: ReadonlyArray<SpellSchool> = [
 	SpellSchool.SpellSchoolShadow,
 ];
 
+const nameField = <E extends { name: string }>(): DesignFieldConfig<E> => ({
+	type: 'text',
+	id: 'name',
+	label: label('name'),
+	get: event => event.name,
+	set: (event, value) => {
+		event.name = value;
+	},
+});
+
 const downtimeFields = (): Array<DesignFieldConfig<DesignDowntime>> => [
+	nameField(),
 	targetField(),
 	...spanFields(),
 	{
@@ -233,6 +348,7 @@ const downtimeFields = (): Array<DesignFieldConfig<DesignDowntime>> => [
 ];
 
 const bossHealthFields = (): Array<DesignFieldConfig<HealthKeyframe>> => [
+	nameField(),
 	seconds(
 		'at',
 		event => event.at,
@@ -246,6 +362,20 @@ const bossHealthFields = (): Array<DesignFieldConfig<HealthKeyframe>> => [
 	),
 ];
 
+// The preset targets, and the add each preset encounter's waves copy: a wave's add is no target of the encounter, so the
+// targets alone leave it out. A wave's add is listed under its encounter's folder, by its name.
+export const designerPresetTargets = (encounters: ReadonlyArray<PresetEncounter>, targets: ReadonlyArray<PresetTarget>): Array<PresetTarget> => {
+	const byPath = new Map(targets.map(preset => [preset.path, preset]));
+	for (const encounter of encounters) {
+		const folder = encounter.path.slice(0, Math.max(0, encounter.path.indexOf('/')));
+		for (const wave of encounter.design?.addWaves ?? []) {
+			const path = `${folder}/${wave.target?.name}`;
+			if (wave.target && !byPath.has(path)) byPath.set(path, PresetTarget.create({ path, target: wave.target }));
+		}
+	}
+	return [...byPath.values()];
+};
+
 const DYNAMIC_ADD_PATH = 'Default/Dynamic Add';
 
 // The preset target a new wave's adds copy: the Dynamic Add, else the first preset that pulls no tank, else the first
@@ -257,21 +387,14 @@ export const defaultWaveTemplate = (presetTargets: ReadonlyArray<PresetTarget>, 
 };
 
 const waveFields = (): Array<DesignFieldConfig<AddWave>> => [
-	{
-		type: 'text',
-		id: 'name',
-		label: label('name'),
-		get: event => event.name,
-		set: (event, value) => {
-			event.name = value;
-		},
-	},
+	nameField(),
 	{
 		type: 'choice',
 		id: 'template',
 		label: label('template'),
 		tooltip: tooltip('template'),
-		options: context => context.presetTargets.map((preset, value) => ({ value, label: preset.path })),
+		// An add whose stats were edited matches no preset and reads as custom.
+		options: context => [{ value: -1, label: i18n.t('common.custom') }, ...context.presetTargets.map((preset, value) => ({ value, label: preset.path }))],
 		get: (event, context) => context.presetTargets.findIndex(preset => !!event.target && !!preset.target && Target.equals(event.target, preset.target)),
 		set: (event, value, context) => {
 			const preset = context.presetTargets[value]?.target;
@@ -312,6 +435,7 @@ const waveFields = (): Array<DesignFieldConfig<AddWave>> => [
 ];
 
 const moveFields = (): Array<DesignFieldConfig<DesignMove>> => [
+	nameField(),
 	...timeFields<'at', DesignMove>('at', { at: 'at', jitter: 'at_jitter' }),
 	plain(
 		'yards',
@@ -331,6 +455,7 @@ const moveFields = (): Array<DesignFieldConfig<DesignMove>> => [
 const isTargetDebuff = (event: DesignDamageAmp) => event.type === DamageAmpType.DamageAmpTypeTargetDebuff;
 
 const ampFields = (): Array<DesignFieldConfig<DesignDamageAmp>> => [
+	nameField(),
 	enumField<DesignDamageAmp, DamageAmpType>(
 		'amp_type',
 		AMP_TYPES.map(([value, name]) => [value, designerText(`amp_types.${name}`)]),
@@ -380,6 +505,7 @@ const abilityFields = (): Array<DesignFieldConfig<DesignBossAbility>> => {
 	const spellHit = ofKind(DesignBossAbility_Kind.SpellHit);
 	const thrash = ofKind(DesignBossAbility_Kind.Thrash);
 	return [
+		nameField(),
 		enumField<DesignBossAbility, DesignBossAbility_Kind>(
 			'ability_kind',
 			ABILITY_KINDS.map(([value, name]) => [value, designerText(`ability_kinds.${name}`)]),

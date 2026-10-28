@@ -13,7 +13,7 @@ describe('scheduledMarkers', () => {
 	});
 
 	it('scales a downtime by the fight duration', () => {
-		const markers = scheduledMarkers(design({ downtimes: [{ targetIndex: 0, start: at(0.2), end: at(0.3), clearDebuffs: true }] }), 200);
+		const markers = scheduledMarkers(design({ downtimes: [{ name: '', targetIndex: 0, start: at(0.2), end: at(0.3), clearDebuffs: true }] }), 200);
 		expect(markers).toEqual([{ kind: 'downtime', start: 40, end: 60 }]);
 	});
 
@@ -37,12 +37,12 @@ describe('scheduledMarkers', () => {
 	});
 
 	it('marks a move as a point', () => {
-		const markers = scheduledMarkers(design({ moves: [{ at: at(0.5), yards: 5, seconds: 0, repeat: repeat(0, 0) }] }), 60);
+		const markers = scheduledMarkers(design({ moves: [{ name: '', at: at(0.5), yards: 5, seconds: 0, repeat: repeat(0, 0) }] }), 60);
 		expect(markers).toEqual([{ kind: 'move', start: 30, end: 30 }]);
 	});
 
 	it('skips an inverted window', () => {
-		const markers = scheduledMarkers(design({ downtimes: [{ targetIndex: 0, start: at(0.5), end: at(0.3), clearDebuffs: true }] }), 100);
+		const markers = scheduledMarkers(design({ downtimes: [{ name: '', targetIndex: 0, start: at(0.5), end: at(0.3), clearDebuffs: true }] }), 100);
 		expect(markers).toEqual([]);
 	});
 });

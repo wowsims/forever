@@ -13,6 +13,7 @@ import {
 	HealthKeyframe,
 	SpellSchool,
 } from '@generated/proto/common';
+import i18n from '@i18n/config';
 
 export type DesignLaneKind = 'boss' | 'abilities' | 'waves' | 'moves' | 'amps';
 export type DesignEventKind = 'downtime' | 'bossHealth' | 'ability' | 'wave' | 'move' | 'amp';
@@ -68,9 +69,10 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K, at = 0.4): Desi
 	const start = Math.min(Math.max(0, at), 1 - DEFAULT_WIDTH);
 	const end = start + DEFAULT_WIDTH;
 	const events: DesignEventMap = {
-		downtime: { targetIndex: 0, start: time(start), end: time(end), clearDebuffs: true },
-		bossHealth: { at: Math.min(Math.max(0, at), 1), healthPercent: 50 },
+		downtime: { name: '', targetIndex: 0, start: time(start), end: time(end), clearDebuffs: true },
+		bossHealth: { name: '', at: Math.min(Math.max(0, at), 1), healthPercent: 50 },
 		ability: {
+			name: '',
 			kind: DesignBossAbility_Kind.SpellHit,
 			targetIndex: 0,
 			start: time(start),
@@ -96,8 +98,9 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K, at = 0.4): Desi
 			executeProportion35: 0.35,
 			killShare: 0.25,
 		},
-		move: { at: time(start), yards: 5, seconds: 0, repeat: noRepeat() },
+		move: { name: '', at: time(start), yards: 5, seconds: 0, repeat: noRepeat() },
 		amp: {
+			name: '',
 			type: DamageAmpType.DamageAmpTypeCasterBuff,
 			percent: 10,
 			start: time(start),
@@ -142,10 +145,16 @@ const span = (start: DesignTime | undefined, end: DesignTime | undefined): Desig
 
 const repeatOf = (event: DesignEvent): DesignRepeat | undefined => ('repeat' in event ? event.repeat : undefined);
 
-// A spell hit or a strike happens at an instant, and its end only cuts its repeats; a thrash or swing timing window
-// lasts from its start to its end.
-export const isPointAbility = (ability: DesignBossAbility): boolean =>
+// A spell hit or a strike fires at its start and at each repeat that begins by its end; a thrash or swing timing
+// window lasts from its start to its end.
+export const firesAtInstants = (ability: DesignBossAbility): boolean =>
 	ability.kind === DesignBossAbility_Kind.SpellHit || ability.kind === DesignBossAbility_Kind.Strike;
+
+// The player run speed the sim walks a move's yards at (`GetMovementSpeed` in sim/core/movement.go), in yards per second.
+export const PLAYER_RUN_SPEED = 7;
+
+// A move's yards take precedence over its seconds, as the sim reads them.
+export const moveSeconds = (move: DesignMove): number => (move.yards > 0 ? move.yards / PLAYER_RUN_SPEED : move.seconds);
 
 export const eventWindow = (design: EncounterDesign, ref: DesignEventRef): DesignEventWindow | undefined => {
 	const event = getEvent(design, ref);
@@ -162,7 +171,7 @@ export const eventWindow = (design: EncounterDesign, ref: DesignEventRef): Desig
 		}
 		case 'ability': {
 			const ability = event as DesignBossAbility;
-			return isPointAbility(ability) ? { at: ability.start?.at ?? 0 } : span(ability.start, ability.end);
+			return span(ability.start, ability.end);
 		}
 		default: {
 			const timed = event as DesignDowntime | DesignDamageAmp;
@@ -173,14 +182,16 @@ export const eventWindow = (design: EncounterDesign, ref: DesignEventRef): Desig
 
 // Every occurrence a repeat produces, the first included, spaced by the interval with jitter ignored. The count is the
 // number of repeats after the first and 0 runs to the end of the fight; the result holds at most maxCount entries. A
-// spell hit or a strike stops at its end, as the sim fires only the occurrences that begin by it.
+// spell hit or a strike is an instant per occurrence and stops at its end, as the sim fires only the occurrences that
+// begin by it.
 export const occurrences = (design: EncounterDesign, ref: DesignEventRef, maxCount: number): { start: number; end: number }[] => {
 	const event = getEvent(design, ref);
 	const window = eventWindow(design, ref);
 	if (!event || !window || maxCount <= 0) return [];
 	const start = 'at' in window ? window.at : window.start;
-	const width = 'at' in window ? 0 : window.end - window.start;
-	const last = ref.kind === 'ability' && isPointAbility(event as DesignBossAbility) ? ((event as DesignBossAbility).end?.at ?? start) : Infinity;
+	const instants = ref.kind === 'ability' && firesAtInstants(event as DesignBossAbility);
+	const width = 'at' in window || instants ? 0 : window.end - window.start;
+	const last = instants ? ((event as DesignBossAbility).end?.at ?? start) : Infinity;
 	const repeat = repeatOf(event);
 	const interval = repeat?.interval ?? 0;
 	const total = interval > 0 ? (repeat!.count > 0 ? repeat!.count + 1 : Infinity) : 1;
@@ -191,4 +202,89 @@ export const occurrences = (design: EncounterDesign, ref: DesignEventRef, maxCou
 		result.push({ start: from, end: from + width });
 	}
 	return result;
+};
+
+export interface HealthSegment {
+	/** The keyframe the segment ends at. */
+	index: number;
+	/** The keyframe the segment starts at, or undefined when the sim adds the pull's 100% start point. */
+	previous: number | undefined;
+	fromPercent: number;
+	toPercent: number;
+	start: number;
+	end: number;
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+// The curve's knots as the sim builds them (`bossHealthKnots` in sim/core/encounter_design.go): clamped, in time order
+// (stable), never rising.
+const healthKnots = (design: EncounterDesign): Array<{ index: number; at: number; percent: number }> => {
+	const knots = design.bossHealth
+		.map((keyframe, index) => ({ index, at: clamp(keyframe.at, 0, 1), percent: clamp(keyframe.healthPercent, 0, 100) }))
+		.sort((a, b) => a.at - b.at || a.index - b.index);
+	for (let i = 1; i < knots.length; i++) knots[i].percent = Math.min(knots[i].percent, knots[i - 1].percent);
+	return knots;
+};
+
+// One segment per keyframe, from the keyframe before it in time (or the implied 0 s, 100% start) to the keyframe.
+export const healthSegments = (design: EncounterDesign): Array<HealthSegment> =>
+	healthKnots(design).map((knot, i, knots) => ({
+		index: knot.index,
+		previous: i > 0 ? knots[i - 1].index : undefined,
+		fromPercent: i > 0 ? knots[i - 1].percent : 100,
+		toPercent: knot.percent,
+		start: i > 0 ? knots[i - 1].at : 0,
+		end: knot.at,
+	}));
+
+// The segment the sim appends when the last keyframe is before the fight's end and above 0%: it falls to 0% at the end.
+export const healthEndSegment = (design: EncounterDesign): { start: number; end: number; fromPercent: number } | undefined => {
+	const last = healthKnots(design).at(-1);
+	return last && last.at < 1 && last.percent > 0 ? { start: last.at, end: 1, fromPercent: last.percent } : undefined;
+};
+
+const shiftTime = (time: DesignTime | undefined, delta: number) => {
+	if (time) time.at += delta;
+};
+
+// Appends a copy of the event to its list, shifted by deltaFraction but kept inside the fight, and returns the copy's
+// ref. A named event's copy is named "<name> (copy)". Mutates the design, which is meant to be an immer draft.
+export const duplicateEvent = (design: EncounterDesign, ref: DesignEventRef, deltaFraction: number): DesignEventRef => {
+	const source = getEvent(design, ref);
+	if (!source) return ref;
+	const copies: { [K in DesignEventKind]: (event: DesignEvent<K>) => DesignEvent<K> } = {
+		downtime: event => DesignDowntime.clone(event),
+		bossHealth: event => HealthKeyframe.clone(event),
+		ability: event => DesignBossAbility.clone(event),
+		wave: event => AddWave.clone(event),
+		move: event => DesignMove.clone(event),
+		amp: event => DesignDamageAmp.clone(event),
+	};
+	const copy = copies[ref.kind](source as never) as DesignEvent;
+	const window = eventWindow(design, ref)!;
+	const [from, to] = 'at' in window ? [window.at, window.at] : [window.start, ref.kind === 'wave' ? window.start : window.end];
+	const delta = clamp(deltaFraction, -from, 1 - to);
+	switch (ref.kind) {
+		case 'bossHealth':
+			(copy as HealthKeyframe).at += delta;
+			break;
+		case 'move':
+			shiftTime((copy as DesignMove).at, delta);
+			break;
+		case 'wave': {
+			const wave = copy as AddWave;
+			shiftTime(wave.spawn, delta);
+			break;
+		}
+		default: {
+			const timed = copy as DesignDowntime | DesignDamageAmp | DesignBossAbility;
+			shiftTime(timed.start, delta);
+			shiftTime(timed.end, delta);
+		}
+	}
+	if (copy.name) copy.name = i18n.t('settings_tab.encounter.designer.copy_name', { name: copy.name });
+	const list: DesignEvent[] = eventsOf(design, ref.kind);
+	list.push(copy);
+	return { kind: ref.kind, index: list.length - 1 };
 };

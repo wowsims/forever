@@ -1,2 +1,2 @@
 export { DesignerEventBar } from './DesignerEventBar';
-export type { DesignerEventBarProps, DesignerEventBarShape } from './DesignerEventBar';
+export type { DesignerEventBarProps } from './DesignerEventBar';

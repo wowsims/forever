@@ -1164,9 +1164,46 @@
 				"seconds": "{{value}}s",
 				"span_value": "{{name}}, {{start}} to {{end}}",
 				"point_value": "{{name}}, at {{at}}",
-				"keyframe_value": "{{name}}, {{health}}% at {{at}}",
+				"health_value": "{{name}}, {{from}} % to {{to}} % from {{start}} to {{end}}",
 				"state_selected": "selected",
 				"state_invalid": "has issues",
+				"occurrence_name": "{{name}} #{{number}}",
+				"occurrence_number": "#{{number}}",
+				"copy_name": "{{name}} (copy)",
+				"menu": {
+					"duplicate": "Duplicate",
+					"delete": "Delete",
+					"edit": "Edit",
+					"rename": "Rename",
+					"rename_label": "Name"
+				},
+				"tip": {
+					"range": "{{start}}–{{end}}",
+					"every": "every {{interval}}",
+					"every_from": "every {{interval}} from {{start}} to {{end}}",
+					"at": "at {{at}}",
+					"health": "Boss health {{from}} % → {{to}} % from {{start}} to {{end}}",
+					"downtime": "Downtime",
+					"clears_debuffs": "clears debuffs",
+					"school_damage": "{{school}} {{min}}–{{max}}",
+					"cast": "{{time}} cast",
+					"weapon": "{{percent}} % weapon damage",
+					"proc": "{{chance}} % proc chance",
+					"extra_attacks": "{{count}} extra attacks",
+					"icd": "{{time}} internal cooldown",
+					"swing_speed": "swing speed ×{{value}}",
+					"wave": "Add wave '{{name}}'",
+					"adds_one": "{{count}} add",
+					"adds_other": "{{count}} adds",
+					"spawns": "spawns {{at}}",
+					"spawns_jitter": "spawns {{at}} ± {{jitter}}",
+					"lives": "lives {{time}}",
+					"kill_share": "kill share {{percent}} %",
+					"move": "Move",
+					"move_yards": "{{yards}} yd ({{time}})",
+					"amp": "Damage amp",
+					"amp_value": "{{type}} +{{percent}} %"
+				},
 				"add": "Add {{event}}",
 				"toolbar": {
 					"zoom_in": "Zoom in",
@@ -1178,7 +1215,8 @@
 				},
 				"panel": {
 					"empty": "Select an event on the timeline to edit it.",
-					"remove": "Remove"
+					"remove": "Remove",
+					"add_stats": "Add stats"
 				},
 				"issues": {
 					"title": "Issues",
@@ -1253,7 +1291,9 @@
 				"title": "Encounter designer",
 				"targets": "Targets",
 				"target_name": "Target {{number}}",
-				"save": "Save"
+				"save": "Save",
+				"health_label": "{{from}} % → {{to}} %",
+				"health_end": "→ 0 %"
 			}
 		},
 		"player": {
@@ -3045,158 +3085,158 @@
 		"native_sim_outdated": "Newer version of simulator available for download",
 		"forever_notice": "Forever sims are still changing rapidly and may have issues. If your results look wrong or your sim won't run, try restoring the default settings."
 	},
-		"onboarding": {
-			"label": "Tour",
-			"progress": "{{position}} / {{total}}",
-			"start": "Show me around",
-			"next": "Next",
-			"previous": "Back",
-			"skip": "Skip tour",
-			"skip_step": "Skip this step",
-			"finish": "Done",
-			"steps": {
-				"welcome": {
-					"title": "Welcome to WoWSims",
-					"body": "A short look around the page, from your gear to a finished sim. Move through it with the left and right arrow keys, or skip it any time; Sim Options can start it again."
-				},
-				"gear_tab": {
-					"title": "Gear",
-					"body": "This tab is your character's equipment: what you wear and the presets to start from."
-				},
-				"import": {
-					"title": "Import",
-					"body": "Bring in your character with the <addon>WoWSims Exporter addon</addon>, or a build from a link someone shared."
-				},
-				"gear_list": {
-					"title": "Your equipment",
-					"body": "Every slot with the item in it, its enchant and gems."
-				},
-				"gear_picker": {
-					"title": "Change an item",
-					"body": "Click a slot to open the gear picker. Choose the item there, then its enchant and gems."
-				},
-				"gear_presets": {
-					"title": "Gear sets",
-					"body": "Load a preset to start from, including sets from the community, or save your own and load it again later."
-				},
-				"enchants": {
-					"title": "Optimize enchants",
-					"body": "Let the sim choose your enchants for the best result. The cog next to it sets what it aims for."
-				},
-				"settings_tab": {
-					"title": "Settings",
-					"body": "Everything around your character for the sim: the fight, your race and professions, consumables, buffs and debuffs."
-				},
-				"encounter": {
-					"title": "Encounter",
-					"body": "The fight: how long it lasts, the target, and how much it varies."
-				},
-				"player": {
-					"title": "Player",
-					"body": "Your race, professions and the other things about your character that change the numbers."
-				},
-				"other": {
-					"title": "Spec settings",
-					"body": "Fight settings only this spec has."
-				},
-				"consumables": {
-					"title": "Consumables",
-					"body": "Potions, flasks, food and the rest you bring to the fight."
-				},
-				"buffs": {
-					"title": "Raid buffs and debuffs",
-					"body": "What your raid or party gives you, and the debuffs on the target."
-				},
-				"settings_presets": {
-					"title": "Save your settings",
-					"body": "Load a preset encounter or settings, or save your own and load them again later."
-				},
-				"talents_tab": {
-					"title": "Talents",
-					"body": "Pick your talents here, load a preset, or save your own build."
-				},
-				"rotation_tab": {
-					"title": "Rotation",
-					"body": "How the sim plays your character in the fight."
-				},
-				"rotation_auto": {
-					"title": "Automatic rotation",
-					"body": "Auto picks the community's best rotation for your talents, so most players can leave it as it is."
-				},
-				"rotation_type": {
-					"title": "Build your own",
-					"body": "Choose APL here to write your own rotation, action by action."
-				},
-				"rotation_presets": {
-					"title": "Preset rotations",
-					"body": "Click a preset to load a ready-made rotation. With APL selected, it shows the preset's full list of actions to read or change, and you can save your own here too."
-				},
-				"simulate": {
-					"title": "Run the sim",
-					"body": "Press Simulate to run the fight with everything you have set. The tour moves on by itself when the run finishes."
-				},
-				"result": {
-					"title": "Your result",
-					"body": "Your DPS from that run, and how much it varies from fight to fight. It updates every time you run the sim."
-				},
-				"results_tab": {
-					"title": "Results",
-					"body": "The details of the last run. Each tab shows one part of it."
-				},
-				"results_damage": {
-					"title": "Damage",
-					"body": "Damage by ability: how much each one did, how often it hit and crit."
-				},
-				"results_threat": {
-					"title": "Threat",
-					"body": "Threat by ability, for keeping the target on you or off you."
-				},
-				"results_healing": {
-					"title": "Healing",
-					"body": "Healing by ability."
-				},
-				"results_damage_taken": {
-					"title": "Damage taken",
-					"body": "What hit you, and how much of it you avoided."
-				},
-				"results_buffs": {
-					"title": "Buffs",
-					"body": "How often each buff was up on you."
-				},
-				"results_debuffs": {
-					"title": "Debuffs",
-					"body": "How often each debuff was up on the target."
-				},
-				"results_casts": {
-					"title": "Casts",
-					"body": "How many times you cast each ability."
-				},
-				"results_resources": {
-					"title": "Resources",
-					"body": "What you spent and gained, such as mana, rage or energy."
-				},
-				"results_timeline": {
-					"title": "Timeline",
-					"body": "One fight laid out over time: casts, buffs and resources."
-				},
-				"results_log": {
-					"title": "Log",
-					"body": "Every event of one fight, line by line."
-				},
-				"bulk_tab": {
-					"title": "Batch sim",
-					"body": "Sim many gear combinations at once to find the best of the items you have."
-				},
-				"stat_weights": {
-					"title": "Stat weights",
-					"body": "Work out how much each stat is worth to you, and set the weights the gear picker and enchant optimizer use."
-				},
-				"finish": {
-					"title": "You're set",
-					"body": "There is more to find on the page as you go. If you have a question or something looks wrong, ask us on <discord>Discord</discord>."
-				}
+	"onboarding": {
+		"label": "Tour",
+		"progress": "{{position}} / {{total}}",
+		"start": "Show me around",
+		"next": "Next",
+		"previous": "Back",
+		"skip": "Skip tour",
+		"skip_step": "Skip this step",
+		"finish": "Done",
+		"steps": {
+			"welcome": {
+				"title": "Welcome to WoWSims",
+				"body": "A short look around the page, from your gear to a finished sim. Move through it with the left and right arrow keys, or skip it any time; Sim Options can start it again."
+			},
+			"gear_tab": {
+				"title": "Gear",
+				"body": "This tab is your character's equipment: what you wear and the presets to start from."
+			},
+			"import": {
+				"title": "Import",
+				"body": "Bring in your character with the <addon>WoWSims Exporter addon</addon>, or a build from a link someone shared."
+			},
+			"gear_list": {
+				"title": "Your equipment",
+				"body": "Every slot with the item in it, its enchant and gems."
+			},
+			"gear_picker": {
+				"title": "Change an item",
+				"body": "Click a slot to open the gear picker. Choose the item there, then its enchant and gems."
+			},
+			"gear_presets": {
+				"title": "Gear sets",
+				"body": "Load a preset to start from, including sets from the community, or save your own and load it again later."
+			},
+			"enchants": {
+				"title": "Optimize enchants",
+				"body": "Let the sim choose your enchants for the best result. The cog next to it sets what it aims for."
+			},
+			"settings_tab": {
+				"title": "Settings",
+				"body": "Everything around your character for the sim: the fight, your race and professions, consumables, buffs and debuffs."
+			},
+			"encounter": {
+				"title": "Encounter",
+				"body": "The fight: how long it lasts, the target, and how much it varies."
+			},
+			"player": {
+				"title": "Player",
+				"body": "Your race, professions and the other things about your character that change the numbers."
+			},
+			"other": {
+				"title": "Spec settings",
+				"body": "Fight settings only this spec has."
+			},
+			"consumables": {
+				"title": "Consumables",
+				"body": "Potions, flasks, food and the rest you bring to the fight."
+			},
+			"buffs": {
+				"title": "Raid buffs and debuffs",
+				"body": "What your raid or party gives you, and the debuffs on the target."
+			},
+			"settings_presets": {
+				"title": "Save your settings",
+				"body": "Load a preset encounter or settings, or save your own and load them again later."
+			},
+			"talents_tab": {
+				"title": "Talents",
+				"body": "Pick your talents here, load a preset, or save your own build."
+			},
+			"rotation_tab": {
+				"title": "Rotation",
+				"body": "How the sim plays your character in the fight."
+			},
+			"rotation_auto": {
+				"title": "Automatic rotation",
+				"body": "Auto picks the community's best rotation for your talents, so most players can leave it as it is."
+			},
+			"rotation_type": {
+				"title": "Build your own",
+				"body": "Choose APL here to write your own rotation, action by action."
+			},
+			"rotation_presets": {
+				"title": "Preset rotations",
+				"body": "Click a preset to load a ready-made rotation. With APL selected, it shows the preset's full list of actions to read or change, and you can save your own here too."
+			},
+			"simulate": {
+				"title": "Run the sim",
+				"body": "Press Simulate to run the fight with everything you have set. The tour moves on by itself when the run finishes."
+			},
+			"result": {
+				"title": "Your result",
+				"body": "Your DPS from that run, and how much it varies from fight to fight. It updates every time you run the sim."
+			},
+			"results_tab": {
+				"title": "Results",
+				"body": "The details of the last run. Each tab shows one part of it."
+			},
+			"results_damage": {
+				"title": "Damage",
+				"body": "Damage by ability: how much each one did, how often it hit and crit."
+			},
+			"results_threat": {
+				"title": "Threat",
+				"body": "Threat by ability, for keeping the target on you or off you."
+			},
+			"results_healing": {
+				"title": "Healing",
+				"body": "Healing by ability."
+			},
+			"results_damage_taken": {
+				"title": "Damage taken",
+				"body": "What hit you, and how much of it you avoided."
+			},
+			"results_buffs": {
+				"title": "Buffs",
+				"body": "How often each buff was up on you."
+			},
+			"results_debuffs": {
+				"title": "Debuffs",
+				"body": "How often each debuff was up on the target."
+			},
+			"results_casts": {
+				"title": "Casts",
+				"body": "How many times you cast each ability."
+			},
+			"results_resources": {
+				"title": "Resources",
+				"body": "What you spent and gained, such as mana, rage or energy."
+			},
+			"results_timeline": {
+				"title": "Timeline",
+				"body": "One fight laid out over time: casts, buffs and resources."
+			},
+			"results_log": {
+				"title": "Log",
+				"body": "Every event of one fight, line by line."
+			},
+			"bulk_tab": {
+				"title": "Batch sim",
+				"body": "Sim many gear combinations at once to find the best of the items you have."
+			},
+			"stat_weights": {
+				"title": "Stat weights",
+				"body": "Work out how much each stat is worth to you, and set the weights the gear picker and enchant optimizer use."
+			},
+			"finish": {
+				"title": "You're set",
+				"body": "There is more to find on the page as you go. If you have a question or something looks wrong, ask us on <discord>Discord</discord>."
 			}
-		},
+		}
+	},
 	"sidebar": {
 		"iterations": "Iterations",
 		"warnings": {

@@ -1,7 +1,6 @@
 import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
-import { Target as TargetProto } from '@generated/proto/common';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import type { Encounter } from '@sim/raid/encounter';
@@ -17,6 +16,7 @@ import {
 	booleanConfigs,
 	creatureFamiliesOf,
 	creatureFamilyConfig,
+	encounterTargetContext,
 	levelConfig,
 	mobTypeConfig,
 	npcConfig,
@@ -24,7 +24,6 @@ import {
 	spellSchoolConfig,
 	statConfig,
 	tankIndexConfig,
-	type TargetFieldContext,
 } from './utils/configs';
 
 export interface TargetPickerViewProps {
@@ -54,14 +53,7 @@ export interface TargetPickerProps {
 
 export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 	const { threat: showThreatMetrics } = useDisplayMetrics(encounter.sim);
-	const context = useMemo(
-		(): TargetFieldContext => ({
-			encounter,
-			targetIndex,
-			getTarget: () => encounter.getTarget(targetIndex) || TargetProto.create(),
-		}),
-		[encounter, targetIndex],
-	);
+	const context = useMemo(() => encounterTargetContext(encounter, targetIndex), [encounter, targetIndex]);
 
 	const npc = useMemo(() => npcConfig(context), [context]);
 	const ai = useMemo(() => aiConfig(context), [context]);

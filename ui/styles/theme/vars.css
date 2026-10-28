@@ -44,6 +44,7 @@
 	--designer-lane-moves-bar: var(--color-chart-series-1);
 	--designer-lane-amps-bar: var(--color-chart-series-5);
 	--designer-keyframe-size: --spacing(2);
+	--designer-axis-gutter: --spacing(6);
 	--designer-jitter-whisker: var(--color-foreground-disabled);
 
 	/* Table */

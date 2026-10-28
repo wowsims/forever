@@ -2,7 +2,17 @@ import { DesignBossAbility_Kind, EncounterDesign, PresetTarget, Target } from '@
 import { describe, expect, it, vi } from 'vitest';
 
 import { defaultEvent } from '../../../model/design/lanes';
-import { defaultWaveTemplate, type DesignFieldConfig, designFieldConfigs, type DesignFieldContext, editEvent, eventName, eventValueText } from './configs';
+import {
+	defaultWaveTemplate,
+	type DesignFieldConfig,
+	designFieldConfigs,
+	type DesignFieldContext,
+	editEvent,
+	eventName,
+	eventTooltip,
+	eventValueText,
+	occurrenceName,
+} from './configs';
 
 // Renders a string as its last key segment and its options, so a test reads which string and values were picked.
 vi.mock('@i18n/config', () => ({
@@ -20,6 +30,14 @@ const context: DesignFieldContext = { baseSeconds: 180, targetNames: ['Boss'], w
 const field = <E>(fields: Array<DesignFieldConfig<E>>, id: string) => fields.find(entry => entry.id === id)!;
 
 describe('eventName', () => {
+	it('uses the name of any kind, set or not, and counts the repeats from 2', () => {
+		const design = EncounterDesign.create({ downtimes: [{ ...defaultEvent('downtime'), name: 'Phase 2' }, defaultEvent('downtime')] });
+		expect(eventName(design, { kind: 'downtime', index: 0 })).toBe('Phase 2');
+		expect(eventName(design, { kind: 'downtime', index: 1 })).toBe('event_name(downtime,2)');
+		expect(occurrenceName('Phase 2', 1)).toBe('Phase 2');
+		expect(occurrenceName('Phase 2', 3)).toBe('occurrence_name(Phase 2,3)');
+	});
+
 	it('uses a wave name and falls back to the kind and position', () => {
 		const design = EncounterDesign.create({ addWaves: [{ ...defaultEvent('wave'), name: 'Sons of Flame' }, defaultEvent('wave')] });
 		expect(eventName(design, { kind: 'wave', index: 0 })).toBe('Sons of Flame');
@@ -37,7 +55,7 @@ describe('eventValueText', () => {
 	it('describes a span by its start and end, and a point by its time', () => {
 		expect(eventValueText(design, { kind: 'downtime', index: 0 }, 180)).toBe('span_value(event_name(downtime,1),seconds(90),seconds(108))');
 		expect(eventValueText(design, { kind: 'move', index: 0 }, 180)).toBe('point_value(event_name(move,1),seconds(90))');
-		expect(eventValueText(design, { kind: 'bossHealth', index: 0 }, 180)).toBe('keyframe_value(event_name(boss_health,1),seconds(90),50)');
+		expect(eventValueText(design, { kind: 'bossHealth', index: 0 }, 180)).toBe('health_value(event_name(boss_health,1),100,50,seconds(0),seconds(90))');
 	});
 
 	it('reads a given window over the stored one', () => {
@@ -107,5 +125,50 @@ describe('defaultWaveTemplate', () => {
 	it('counts a tank index past the raid tanks as pulling none', () => {
 		expect(defaultWaveTemplate([boss, preset('Default/Second', 1)], 1)?.name).toBe('Default/Second');
 		expect(defaultWaveTemplate([boss, unTanked], 0)?.name).toBe('Default/Boss');
+	});
+});
+
+describe('eventTooltip', () => {
+	const tip = (design: EncounterDesign, kind: Parameters<typeof eventName>[1]['kind']) => eventTooltip(design, { kind, index: 0 }, 180, ['Boss']);
+
+	it('describes a spell hit by what it deals, when it fires and how often', () => {
+		const ability = {
+			...defaultEvent('ability', 0.25),
+			minDamage: 3000,
+			maxDamage: 5000,
+			castTime: 2,
+			repeat: { interval: 25 / 180, jitter: 0, count: 0 },
+		};
+		ability.end!.at = 1;
+		expect(tip(EncounterDesign.create({ bossAbilities: [ability] }), 'ability')).toBe(
+			'spell_hit · school_damage(0,3000,5000) · cast(seconds(2)) · every_from(seconds(25),seconds(45),seconds(180))',
+		);
+	});
+
+	it('describes a window ability by its range', () => {
+		const thrash = { ...defaultEvent('ability', 0.2), kind: DesignBossAbility_Kind.Thrash, procChance: 20 };
+		expect(tip(EncounterDesign.create({ bossAbilities: [thrash] }), 'ability')).toBe('thrash · proc(20) · range(seconds(36),seconds(54))');
+	});
+
+	it('describes a wave, a move, a downtime, an amp and a boss health segment', () => {
+		const wave = { ...defaultEvent('wave', 0.1), name: 'Add', spawn: { at: 10 / 180, jitter: 2 / 180 }, lifetime: 20 / 180 };
+		expect(tip(EncounterDesign.create({ addWaves: [wave] }), 'wave')).toBe(
+			'wave(Add) · adds(1) · spawns_jitter(seconds(10),seconds(2)) · lives(seconds(20)) · kill_share(25)',
+		);
+		const move = { ...defaultEvent('move'), yards: 5, repeat: { interval: 10 / 180, jitter: 0, count: 0 } };
+		expect(tip(EncounterDesign.create({ moves: [move] }), 'move')).toBe('move · move_yards(5,seconds(0.7)) · every(seconds(10))');
+		expect(tip(EncounterDesign.create({ downtimes: [defaultEvent('downtime', 0.5)] }), 'downtime')).toBe(
+			'downtime · Boss · range(seconds(90),seconds(108)) · clears_debuffs',
+		);
+		expect(tip(EncounterDesign.create({ damageAmps: [defaultEvent('amp', 0.2)] }), 'amp')).toBe(
+			'amp · amp_value(caster_buff,10) · range(seconds(36),seconds(54))',
+		);
+		const health = EncounterDesign.create({ bossHealth: [{ ...defaultEvent('bossHealth', 0.5), healthPercent: 65 }] });
+		expect(tip(health, 'bossHealth')).toBe('health(100,65,seconds(0),seconds(90))');
+	});
+
+	it('reads a given window over the stored one', () => {
+		const downtime = EncounterDesign.create({ downtimes: [defaultEvent('downtime', 0.5)] });
+		expect(eventTooltip(downtime, { kind: 'downtime', index: 0 }, 180, ['Boss'], { start: 0.1, end: 0.2 })).toContain('range(seconds(18),seconds(36))');
 	});
 });
