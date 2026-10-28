@@ -4,7 +4,7 @@ character_stats_results: {
   final_stats: 116
   final_stats: 155
   final_stats: 311
-  final_stats: 272
+  final_stats: 294
   final_stats: 663.75
   final_stats: 231.12
   final_stats: 0
@@ -31,7 +31,7 @@ character_stats_results: {
   final_stats: 1902
   final_stats: 0
   final_stats: 4327
-  final_stats: 5176
+  final_stats: 5506
   final_stats: 87
   final_stats: 27
   final_stats: 27
@@ -43,7 +43,7 @@ character_stats_results: {
   final_stats: 1
   final_stats: 1
   final_stats: 13.75
-  final_stats: 10.3696
+  final_stats: 10.7392
   final_stats: 0
   final_stats: 0
   final_stats: 0
@@ -51,5 +51,20 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
+ }
+}
+dps_results: {
+ key: "TestHealerPriest-Disc-RaidHealing10"
+ value: {
+  tps: 146.80022
+  hps: 304.4445
+ }
+}
+dps_results: {
+ key: "TestHealerPriest-Holy-RaidHealing10"
+ value: {
+  tps: 382.11652
+  dtps: 7.36317
+  hps: 886.71567
  }
 }

@@ -46,35 +46,6 @@ func (party *Party) Size() int {
 	return len(party.Players)
 }
 
-func (party *Party) HasPlayer(unit *Unit) bool {
-	return slices.ContainsFunc(party.Players, func(agent Agent) bool { return &agent.GetCharacter().Unit == unit })
-}
-
-// A random party member other than exclude, or nil when no candidate remains.
-func (party *Party) GetRandomPlayer(sim *Simulation, label string, exclude *Unit) *Unit {
-	count := 0
-	for _, agent := range party.Players {
-		if &agent.GetCharacter().Unit != exclude {
-			count++
-		}
-	}
-	if count == 0 {
-		return nil
-	}
-	pick := int(sim.RandomFloat(label) * float64(count))
-	for _, agent := range party.Players {
-		unit := &agent.GetCharacter().Unit
-		if unit == exclude {
-			continue
-		}
-		if pick == 0 {
-			return unit
-		}
-		pick--
-	}
-	return nil
-}
-
 func (party *Party) areaTypes() []proto.AreaType {
 	if party.Raid == nil {
 		return nil
@@ -233,6 +204,30 @@ func NewRaid(raidConfig *proto.Raid, areaTypes []proto.AreaType) *Raid {
 	return raid
 }
 
+// A random raid player or target dummy other than exclude, or nil when no candidate remains.
+func (raid *Raid) GetRandomPlayer(sim *Simulation, label string, exclude *Unit) *Unit {
+	count := 0
+	for _, unit := range raid.AllPlayerUnits {
+		if unit != exclude {
+			count++
+		}
+	}
+	if count == 0 {
+		return nil
+	}
+	pick := int(sim.RandomFloat(label) * float64(count))
+	for _, unit := range raid.AllPlayerUnits {
+		if unit == exclude {
+			continue
+		}
+		if pick == 0 {
+			return unit
+		}
+		pick--
+	}
+	return nil
+}
+
 func (raid *Raid) Size() int {
 	totalPlayers := 0
 	for _, party := range raid.Parties {
@@ -356,17 +351,18 @@ func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats
 		}
 
 		// Apply all buffs to the players in this party.
-		for playerIdx, player := range party.Players {
+		for _, player := range party.Players {
 			if _, isTargetDummy := player.(*TargetDummy); isTargetDummy {
 				continue
 			}
-			playerConfig := partyConfig.Players[playerIdx]
+			char := player.GetCharacter()
+			// NewParty skips empty slots, so the config sits at the player's own slot.
+			playerConfig := partyConfig.Players[char.PartyIndex]
 			individualBuffs := &proto.IndividualBuffs{}
 			if playerConfig.Buffs != nil {
 				individualBuffs = playerConfig.Buffs
 			}
 
-			char := player.GetCharacter()
 			char.EnableHealthBar()
 			char.trackChanceOfDeath(playerConfig.HealingModel)
 			partyStats.Players[char.PartyIndex] = char.applyAllEffects(player, raidBuffs, partyBuffs, individualBuffs)

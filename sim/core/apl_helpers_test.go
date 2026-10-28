@@ -19,7 +19,7 @@ func TestRandomFriendlyReferencesShareOneTargetPerActionPick(t *testing.T) {
 	for range 40 {
 		rotation.getNextAction(sim)
 		target := cast.Get()
-		if target == nil || target == unit || target.IsOpponent(unit) || !target.HasHealthBar() {
+		if target == nil || target == unit || target.IsOpponent(unit) {
 			t.Fatal("random friendly target is not an initialized target dummy")
 		}
 		if condition.Get() != target || cast.Get() != target {

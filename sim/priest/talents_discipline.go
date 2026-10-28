@@ -270,6 +270,12 @@ func (priest *Priest) applyDivineAegis() {
 		if !sourceSpell.ProcMask.Matches(core.ProcMaskSpellHealing) {
 			return
 		}
+		// A heal whose row only heals over time or rules out crits, or whose id the store does not carry,
+		// never lands a direct critical heal. A spell with no spell id is an item's, and keeps its proc.
+		row := spelldata.Find(sourceSpell.ActionID.SpellID)
+		if sourceSpell.ActionID.SpellID != 0 && (row == spelldata.Nil || row.ProcHealEffect().Aura == dbcenums.A_PERIODIC_HEAL || row.CannotCrit()) {
+			return
+		}
 
 		var shieldStrength float64
 		config := spelldata.SpellConfig(

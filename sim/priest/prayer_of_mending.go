@@ -1,6 +1,8 @@
 package priest
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -17,7 +19,8 @@ func (priest *Priest) registerPrayerOfMending(_ int32, rank *spelldata.Spell) {
 	var spell *core.Spell
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
-		if priest.Party == nil || !priest.Party.HasPlayer(target) {
+		raid := priest.Env.Raid
+		if !slices.Contains(raid.AllPlayerUnits, target) {
 			target = &priest.Unit
 		}
 
@@ -37,11 +40,11 @@ func (priest *Priest) registerPrayerOfMending(_ int32, rank *spelldata.Spell) {
 			pa.NextActionAt = sim.CurrentTime + core.DurationFromSeconds(delay)
 			pa.OnAction = func(sim *core.Simulation) {
 				spell.CalcAndDealHealing(sim, healTarget, heal.Average(), spell.OutcomeHealingCrit)
-				if remainingJumps <= 0 || priest.Party == nil {
+				if remainingJumps <= 0 {
 					return
 				}
 
-				if nextTarget := priest.Party.GetRandomPlayer(sim, "Prayer of Mending jump target", healTarget); nextTarget != nil {
+				if nextTarget := raid.GetRandomPlayer(sim, "Prayer of Mending jump target", healTarget); nextTarget != nil {
 					scheduleHeal(sim, nextTarget, remainingJumps-1)
 				}
 			}

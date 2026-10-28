@@ -6,34 +6,44 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-func TestPartyRandomPlayerStaysInPartyAndExcludesTheCurrentTarget(t *testing.T) {
+func TestRaidRandomPlayerReachesEveryPartyAndExcludesTheCurrentTarget(t *testing.T) {
 	request := fakeRageSimRequest()
 	request.Raid.TargetDummies = 9
 	request.Raid.NumActiveParties = 2
 	request.Raid.Parties = append(request.Raid.Parties, &proto.Party{})
 	sim := setupFakeRageSimFrom(request)
-	party := sim.Raid.Parties[0]
-	exclude := &party.Players[0].GetCharacter().Unit
+	exclude := &sim.Raid.Parties[0].Players[0].GetCharacter().Unit
 	seen := make(map[*Unit]bool)
-	for range 40 {
-		unit := party.GetRandomPlayer(sim, "Party player test", exclude)
-		if unit == exclude || !party.HasPlayer(unit) {
-			t.Fatal("random player was the excluded unit or outside the party")
+	for range 200 {
+		unit := sim.Raid.GetRandomPlayer(sim, "Raid player test", exclude)
+		if unit == nil || unit == exclude {
+			t.Fatal("random player was missing or the excluded unit")
 		}
 		seen[unit] = true
 	}
-	if len(seen) != party.Size()-1 {
-		t.Errorf("visited %d party members, want %d", len(seen), party.Size()-1)
+	if len(seen) != len(sim.Raid.AllPlayerUnits)-1 {
+		t.Errorf("visited %d raid members, want %d", len(seen), len(sim.Raid.AllPlayerUnits)-1)
 	}
-	if party.HasPlayer(&sim.Raid.Parties[1].Players[0].GetCharacter().Unit) {
-		t.Fatal("a player from the other party matched this party")
+	if !seen[&sim.Raid.Parties[1].Players[0].GetCharacter().Unit] {
+		t.Fatal("never picked a member of the second party")
 	}
-	empty := &Party{}
-	if empty.GetRandomPlayer(sim, "Party player test", nil) != nil {
-		t.Fatal("an empty party returned a player")
+	lone := &Raid{AllPlayerUnits: []*Unit{exclude}}
+	if lone.GetRandomPlayer(sim, "Raid player test", exclude) != nil {
+		t.Fatal("a raid holding only the excluded player returned that player")
 	}
-	lone := &Party{Players: party.Players[:1]}
-	if lone.GetRandomPlayer(sim, "Party player test", exclude) != nil {
-		t.Fatal("a party containing only the excluded player returned that player")
+}
+
+func TestPlayerAfterAnEmptyPartySlotGetsItsOwnConfig(t *testing.T) {
+	request := fakeRageSimRequest()
+	party := request.Raid.Parties[0]
+	party.Players[0].Buffs = &proto.IndividualBuffs{GreaterBlessingOfKings: true}
+	party.Players = append([]*proto.Player{{}}, party.Players...)
+	sim := setupFakeRageSimFrom(request)
+	char := sim.Raid.Parties[0].Players[0].GetCharacter()
+	if char.PartyIndex != 1 {
+		t.Fatalf("player sits at party slot %d, want 1", char.PartyIndex)
+	}
+	if char.GetAura("Greater Blessing of Kings (External)") == nil {
+		t.Error("the player after an empty slot did not get the buffs from its own config")
 	}
 }
