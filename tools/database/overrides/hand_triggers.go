@@ -45,6 +45,28 @@ var HandTriggers = []HandTrigger{
 		Source: "combat log, Consecration Rank 2 with Consecrated Ground 2/2, 2026-10-17",
 	},
 	{
+		Spell:    1310911,
+		Triggers: 1310910,
+		Reason: "Light's Vigil Rank 1 (two dummies on any target) marks an enemy with 1310910: same name, rank and " +
+			"class set, a 30 sec dummy aura on the enemy whose aura text reads Detonates for $1310914s1 Holy damage " +
+			"when struck by the caster's Holy Shock. The rank's references reach only the friendly aura, heal and strike",
+		Source: "game-files-rows",
+	},
+	{
+		Spell:    1311590,
+		Triggers: 1311594,
+		Reason: "Light's Vigil Rank 2 marks an enemy with 1311594, as Rank 1 marks with 1310910; its aura text " +
+			"reads $1311592s1, the rank's strike",
+		Source: "game-files-rows",
+	},
+	{
+		Spell:    1311595,
+		Triggers: 1311599,
+		Reason: "Light's Vigil Rank 3 marks an enemy with 1311599, as Rank 1 marks with 1310910; its aura text " +
+			"reads $1311598s1, the rank's strike, and its aura 231 casts the mana refund 1311601",
+		Source: "game-files-rows",
+	},
+	{
 		Spell:    1323967,
 		Triggers: 1323969,
 		Reason: "Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class " +
