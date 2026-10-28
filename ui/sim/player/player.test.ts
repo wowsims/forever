@@ -2,11 +2,9 @@ import { AuraStats as AuraStatsProto, SpellStats as SpellStatsProto, UnitMetadat
 import { Debuffs } from '@generated/proto/buffs';
 import {
 	ActionID as ActionIdProto,
-	Class,
 	ConsumesSpec,
 	ItemRandomSuffix,
 	PseudoStat,
-	Spec,
 	Stat,
 	WeaponSkill,
 	WeaponSkillValue,
@@ -104,61 +102,6 @@ describe('Player.getDebuffStats', () => {
 	it("credits Hunter's Mark with the ranged attack power spell 14325 states", () => {
 		expect(debuffStats({ huntersMark: true }).getStat(Stat.StatRangedAttackPower)).toBe(143);
 		expect(debuffStats({ huntersMark: false }).getStat(Stat.StatRangedAttackPower)).toBe(0);
-	});
-});
-
-// The main-hand table the sim sends against a level 63 target, in percent.
-interface SheetTable {
-	miss: number;
-	dodge: number;
-	parry: number;
-	glance: number;
-	suppression: number;
-}
-const LEVEL_63_AT_300: SheetTable = { miss: 8, dodge: 6.5, parry: 14, glance: 40, suppression: 3 };
-const LEVEL_63_AT_285: SheetTable = { miss: 11, dodge: 8, parry: 23, glance: 70, suppression: 6 };
-
-// A rogue with one weapon and no hit, expertise or crit, behind the target unless placed in front.
-const critCapInfo = (table: SheetTable, { inFront = false, dualWield = false, playerClass = Class.ClassRogue } = {}) => {
-	const pseudoStats: Array<number> = [];
-	pseudoStats[PseudoStat.PseudoStatMainHandMissPercent] = table.miss;
-	pseudoStats[PseudoStat.PseudoStatMainHandDodgePercent] = table.dodge;
-	pseudoStats[PseudoStat.PseudoStatMainHandParryPercent] = table.parry;
-	pseudoStats[PseudoStat.PseudoStatMainHandGlancePercent] = table.glance;
-	pseudoStats[PseudoStat.PseudoStatMeleeCritSuppressionPercent] = table.suppression;
-	return Player.prototype.getMeleeCritCapInfo.call({
-		slice: () => ({ currentStats: { finalStats: { pseudoStats } } }),
-		getDebuffStats: () => new Stats(),
-		isDualWielding: () => dualWield,
-		getClass: () => playerClass,
-		getInFrontOfTarget: () => inFront,
-		getSpec: () => Spec.SpecRogue,
-	} as unknown as Player<any>);
-};
-
-describe('Player.getMeleeCritCapInfo', () => {
-	it.each<[number, SheetTable]>([
-		[300, LEVEL_63_AT_300],
-		[285, LEVEL_63_AT_285],
-	])('with %i main-hand weapon skill against a level 63 target, caps hit, dodge and crit on the table the sim sends', (_skill, table) => {
-		const info = critCapInfo(table);
-
-		expect(info.meleeHitCap).toBeCloseTo(table.miss);
-		expect(info.expertiseCap).toBeCloseTo(table.dodge);
-		expect(info.glancing).toBeCloseTo(table.glance);
-		expect(info.suppression).toBeCloseTo(table.suppression);
-		expect(info.baseCritCap).toBeCloseTo(100 - table.glance + table.suppression - table.miss - table.dodge);
-	});
-
-	it.each<[number, SheetTable]>([
-		[300, LEVEL_63_AT_300],
-		[285, LEVEL_63_AT_285],
-	])('with %i main-hand weapon skill, adds the parry of a level 63 target to the expertise cap from in front', (_skill, table) => {
-		expect(critCapInfo(table, { inFront: true }).expertiseCap).toBeCloseTo(table.dodge + table.parry);
-	});
-
-	it('adds the dual-wield miss to the hit cap, except for a warrior', () => {
-		expect(critCapInfo(LEVEL_63_AT_300, { dualWield: true }).meleeHitCap).toBeCloseTo(8 + 19);
 	});
 });
 

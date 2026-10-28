@@ -912,22 +912,7 @@
 						"ranged_crit_rating": {
 							"type": "string"
 						},
-						"melee_crit_suppression": {
-							"type": "string"
-						},
 						"ranged_crit_suppression": {
-							"type": "string"
-						},
-						"main_hand_miss": {
-							"type": "string"
-						},
-						"main_hand_dodge": {
-							"type": "string"
-						},
-						"main_hand_parry": {
-							"type": "string"
-						},
-						"main_hand_glance": {
 							"type": "string"
 						},
 						"healing_power": {
@@ -1056,12 +1041,7 @@
 						"off_hand_crit_rating",
 						"ranged_hit_rating",
 						"ranged_crit_rating",
-						"melee_crit_suppression",
 						"ranged_crit_suppression",
-						"main_hand_miss",
-						"main_hand_dodge",
-						"main_hand_parry",
-						"main_hand_glance",
 						"healing_power",
 						"spell_damage",
 						"arcane_damage",
@@ -11373,6 +11353,9 @@
 								"to_exp_cap": {
 									"type": "string"
 								},
+								"block": {
+									"type": "string"
+								},
 								"spec_offsets": {
 									"type": "string"
 								},
@@ -11384,7 +11367,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["glancing", "suppression", "to_hit_cap", "to_exp_cap", "spec_offsets", "final_crit_cap", "can_raise_by"]
+							"required": ["glancing", "suppression", "to_hit_cap", "to_exp_cap", "block", "spec_offsets", "final_crit_cap", "can_raise_by"]
 						},
 						"crit_cap": {
 							"type": "object",

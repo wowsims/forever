@@ -24,4 +24,4 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = { args: { info: { ...CRIT_CAP_INFO, specSpecificOffset: 1.5 }, pending: false } };
+export const Default: Story = { args: { info: { ...CRIT_CAP_INFO, specOffset: 1.5 }, pending: false } };

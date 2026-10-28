@@ -1,5 +1,5 @@
+import type { MeleeCritCapInfo } from '@generated/proto/api';
 import i18n from '@i18n/config';
-import type { MeleeCritCapInfo } from '@sim/player/player';
 import { Skeleton } from '@ui-kit/Skeleton';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { Tooltip } from '@ui-kit/Tooltip';
@@ -17,7 +17,7 @@ export interface CritCapRowProps {
 
 export const CritCapRow = ({ info, text, pending }: CritCapRowProps) => {
 	const id = useId();
-	const tone = info.playerCritCapDelta === 0 ? 'neutral' : info.playerCritCapDelta > 0 ? 'negative' : 'positive';
+	const tone = info.delta === 0 ? 'neutral' : info.delta > 0 ? 'negative' : 'positive';
 	return (
 		<TableRow testId="character-stats-table-row" className="ui-character-stats-row">
 			<TableCell className="ui-character-stats-label">{i18n.t('sidebar.character_stats.melee_crit_cap')}</TableCell>
@@ -27,7 +27,7 @@ export const CritCapRow = ({ info, text, pending }: CritCapRowProps) => {
 				) : (
 					<>
 						<div className="ui-stat-value-link-container" data-tone={tone}>
-							<TooltipAnchor tooltipId={id} testId="stat-value-link" className={critCapClass(info.playerCritCapDelta)}>
+							<TooltipAnchor tooltipId={id} testId="stat-value-link" className={critCapClass(info.delta)}>
 								{`${text} `}
 							</TooltipAnchor>
 						</div>
@@ -37,29 +37,25 @@ export const CritCapRow = ({ info, text, pending }: CritCapRowProps) => {
 								<>
 									<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.glancing')} value={`${info.glancing.toFixed(2)}%`} />
 									<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.suppression')} value={`${info.suppression.toFixed(2)}%`} />
-									<TooltipRow
-										label={i18n.t('sidebar.character_stats.attack_table.to_hit_cap')}
-										value={`${info.remainingMeleeHitCap.toFixed(2)}%`}
-									/>
+									<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.to_hit_cap')} value={`${info.remainingHit.toFixed(2)}%`} />
 									<TooltipRow
 										label={i18n.t('sidebar.character_stats.attack_table.to_exp_cap')}
-										value={`${info.remainingExpertiseCap.toFixed(2)}%`}
+										value={`${info.remainingExpertise.toFixed(2)}%`}
 									/>
-									<TooltipRow label={i18n.t('sidebar.character_stats.tooltip.debuffs')} value={`${info.debuffCrit.toFixed(2)}%`} />
-									{info.specSpecificOffset !== 0 && (
+									{info.block > 0 && (
+										<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.block')} value={`${info.block.toFixed(2)}%`} />
+									)}
+									{info.specOffset !== 0 && (
 										<TooltipRow
 											label={i18n.t('sidebar.character_stats.attack_table.spec_offsets')}
-											value={`${info.specSpecificOffset.toFixed(2)}%`}
+											value={`${info.specOffset.toFixed(2)}%`}
 										/>
 									)}
-									<TooltipRow
-										label={i18n.t('sidebar.character_stats.attack_table.final_crit_cap')}
-										value={`${info.baseCritCap.toFixed(2)}%`}
-									/>
+									<TooltipRow label={i18n.t('sidebar.character_stats.attack_table.final_crit_cap')} value={`${info.critCap.toFixed(2)}%`} />
 									<hr />
 									<TooltipRow
 										label={i18n.t('sidebar.character_stats.attack_table.can_raise_by')}
-										value={`${(info.remainingExpertiseCap + info.remainingMeleeHitCap).toFixed(2)}%`}
+										value={`${(info.remainingExpertise + info.remainingHit).toFixed(2)}%`}
 									/>
 								</>
 							}
