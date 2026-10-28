@@ -164,6 +164,62 @@ func TestDynamicAddsPresetEncounter(t *testing.T) {
 	}
 }
 
+// The encounter's metrics list the boss and then every add of every wave, each naming the wave and add it spawns
+// as, and an area spell cast while the adds are up damages each of them.
+func TestDesignAddsReachTheEncounterMetrics(t *testing.T) {
+	add := &proto.Target{Name: "Son of Flame", Level: 60, MobType: proto.MobType_MobTypeElemental}
+	design := &proto.EncounterDesign{AddWaves: []*proto.AddWave{
+		{Name: "Adds 1", Adds: []*proto.Target{add, add, add}, Spawn: &proto.DesignTime{}, Lifetime: 0.5},
+		{Name: "Adds 2", Adds: []*proto.Target{add}, Spawn: &proto.DesignTime{At: 0.5}, Lifetime: 0.5},
+	}}
+	arcaneExplosion := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{
+		SpellId: &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: 10202}},
+	}}}}
+	result := core.RunRaidSimConcurrent(&proto.RaidSimRequest{
+		Raid: &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{{
+			Name:      "Mage",
+			Class:     proto.Class_ClassMage,
+			Race:      proto.Race_RaceHuman,
+			Equipment: &proto.EquipmentSpec{},
+			Buffs:     &proto.IndividualBuffs{},
+			Spec:      &proto.Player_Mage{Mage: &proto.Mage{Options: &proto.Mage_Options{ClassOptions: &proto.MageOptions{}}}},
+			Rotation:  &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PriorityList: []*proto.APLListItem{arcaneExplosion}},
+		}}, Buffs: &proto.PartyBuffs{}}}, Buffs: &proto.RaidBuffs{}},
+		Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{StandardTarget}, Design: design},
+		SimOptions: &proto.SimOptions{Iterations: 8, IsTest: true},
+	})
+	if result.Error != nil {
+		t.Fatalf("the sim failed: %s", result.Error.Message)
+	}
+
+	targets := result.EncounterMetrics.Targets
+	if len(targets) != 5 {
+		t.Fatalf("encounter metrics: expected the boss and 4 adds, got %d targets", len(targets))
+	}
+	if targets[0].DesignAdd != nil {
+		t.Errorf("the boss: expected no design add, got %v", targets[0].DesignAdd)
+	}
+	wantAdds := [][2]int32{{0, 0}, {0, 1}, {0, 2}, {1, 0}}
+	for i, want := range wantAdds {
+		got := targets[i+1].DesignAdd
+		if got == nil || got.WaveIndex != want[0] || got.AddIndex != want[1] {
+			t.Errorf("target %d: expected wave %d add %d, got %v", i+2, want[0], want[1], got)
+		}
+	}
+
+	damage := map[int32]float64{}
+	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
+		for _, target := range action.Targets {
+			damage[target.UnitIndex] += target.Damage
+		}
+	}
+	for _, target := range targets {
+		if damage[target.UnitIndex] <= 0 {
+			t.Errorf("%s: expected damage from Arcane Explosion, got none", target.Name)
+		}
+	}
+}
+
 // The seconds of the debug log lines that contain text.
 func logTimes(logs string, text string) []float64 {
 	var times []float64

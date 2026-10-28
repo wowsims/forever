@@ -1,6 +1,7 @@
 import {
 	ActionMetrics as ActionMetricsProto,
 	AuraMetrics as AuraMetricsProto,
+	DesignAdd,
 	DistributionMetrics as DistributionMetricsProto,
 	EncounterMetrics as EncounterMetricsProto,
 	HitKind,
@@ -15,9 +16,10 @@ import {
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { Class, Encounter as EncounterProto, SpellSchool, Target as TargetProto } from '@generated/proto/common';
+import { Class, Encounter as EncounterProto, EncounterDesign, SpellSchool, Target as TargetProto } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { SimRun } from '@generated/proto/ui';
+import i18n from '@i18n/config';
 
 import { CacheHandler } from '../cache/cache_handler';
 import { PlayerClasses } from '../player/classes';
@@ -341,6 +343,8 @@ export class UnitMetrics {
 	readonly index: number;
 	readonly unitIndex: number;
 	readonly name: string;
+	// For a target an add wave of the encounter design spawns, the wave and the add it spawns as; null otherwise.
+	readonly designAddName: string | null;
 	readonly spec: PlayerSpec<any> | null;
 	readonly petActionId: ActionId | null;
 	readonly iconUrl: string;
@@ -432,6 +436,7 @@ export class UnitMetrics {
 		pets: Array<UnitMetrics>,
 		logs: Array<CombatLog>,
 		resultData: SimResultData,
+		designAddName: string | null = null,
 	) {
 		this.player = player;
 		this.target = target;
@@ -440,6 +445,7 @@ export class UnitMetrics {
 		this.index = index;
 		this.unitIndex = metrics.unitIndex;
 		this.name = metrics.name;
+		this.designAddName = designAddName;
 		this.spec = this.player ? getPlayerSpecFromPlayer(this.player) : null;
 		this.petActionId = petActionId;
 		this.iconUrl = this.isPlayer ? (this.spec?.getIcon('medium') ?? '') : this.isTarget ? defaultTargetIcon : '';
@@ -464,7 +470,7 @@ export class UnitMetrics {
 		if (this.target == null) {
 			return `${this.name} (#${this.index + 1})`;
 		} else {
-			return `${this.name} (${this.target.name})`;
+			return `${this.name} (${this.designAddName ?? this.target.name})`;
 		}
 	}
 
@@ -627,6 +633,7 @@ export class UnitMetrics {
 		metrics: UnitMetricsProto,
 		index: number,
 		logIndex: UnitLogIndex,
+		designAddName: string | null = null,
 	): Promise<UnitMetrics> {
 		const targetLogs = logIndex.target(index);
 
@@ -636,12 +643,27 @@ export class UnitMetrics {
 		const actions = await actionsPromise;
 		const auras = await aurasPromise;
 
-		const targetMetrics = new UnitMetrics(null, target, null, metrics, index, actions, auras, [], [], targetLogs, resultData);
+		const targetMetrics = new UnitMetrics(null, target, null, metrics, index, actions, auras, [], [], targetLogs, resultData, designAddName);
 		actions.forEach(action => (action.unit = targetMetrics));
 		auras.forEach(aura => (aura.unit = targetMetrics));
 		return targetMetrics;
 	}
 }
+
+// The add's template and its name as the encounter designer shows them: the wave's name, else "Wave N", then the
+// add's, else "Add N".
+const designAddTarget = (design: EncounterDesign | undefined, add: DesignAdd): { template: TargetProto; name: string } => {
+	const wave = design?.addWaves[add.waveIndex];
+	const template = wave?.adds[add.addIndex] ?? TargetProto.create();
+	const waveName =
+		wave?.name ||
+		i18n.t('settings_tab.encounter.designer.event_name', {
+			event: i18n.t('settings_tab.encounter.designer.events.wave'),
+			number: add.waveIndex + 1,
+		});
+	const addName = template.name || i18n.t('settings_tab.encounter.designer.adds.add_title', { number: add.addIndex + 1 });
+	return { template, name: `${waveName} · ${addName}` };
+};
 
 export class EncounterMetrics {
 	private readonly encounter: EncounterProto;
@@ -661,12 +683,26 @@ export class EncounterMetrics {
 		metrics: EncounterMetricsProto,
 		logIndex: UnitLogIndex,
 	): Promise<EncounterMetrics> {
-		const numTargets = Math.min(encounter.targets.length, metrics.targets.length);
+		// The sim lists the encounter's own targets, then every add slot of the design's waves. A target past the
+		// encounter's own without a design add is the stand-in of an encounter without targets.
+		const namesSeen = new Map<string, number>();
 		const targets = await Promise.all(
-			[...new Array(numTargets).keys()].map(i => UnitMetrics.makeNewTarget(resultData, encounter.targets[i], metrics.targets[i], i, logIndex)),
+			metrics.targets.map((targetMetrics, i) => {
+				if (i < encounter.targets.length) return UnitMetrics.makeNewTarget(resultData, encounter.targets[i], targetMetrics, i, logIndex);
+				if (!targetMetrics.designAdd) return null;
+				const { template, name } = designAddTarget(encounter.design, targetMetrics.designAdd);
+				const seen = (namesSeen.get(name) ?? 0) + 1;
+				namesSeen.set(name, seen);
+				const uniqueName = seen > 1 ? i18n.t('settings_tab.encounter.designer.occurrence_name', { name, number: seen }) : name;
+				return UnitMetrics.makeNewTarget(resultData, template, targetMetrics, i, logIndex, uniqueName);
+			}),
 		);
 
-		return new EncounterMetrics(encounter, metrics, targets);
+		return new EncounterMetrics(
+			encounter,
+			metrics,
+			targets.filter(target => target != null),
+		);
 	}
 
 	get durationSeconds() {

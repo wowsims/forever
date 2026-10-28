@@ -318,6 +318,25 @@ func TestDesignWaveSpawnsEachAddFromItsOwnTemplate(t *testing.T) {
 	}
 }
 
+func TestDesignMetricsNameTheAddOfEachPoolTarget(t *testing.T) {
+	wave := testAddWave(0, 0.1, 0.15, &proto.DesignRepeat{Interval: 0.1})
+	wave.Adds = []*proto.Target{designTestTarget(), nil, designTestTarget()}
+	encounter := NewEncounter(designTestRequest(1, &proto.EncounterDesign{AddWaves: []*proto.AddWave{wave}}).Encounter)
+
+	targets := encounter.GetMetricsProto().Targets
+	if len(targets) != 5 {
+		t.Fatalf("targets: expected the boss and two slots for each add with a target, got %d", len(targets))
+	}
+	if targets[0].DesignAdd != nil {
+		t.Errorf("the boss: expected no design add, got %v", targets[0].DesignAdd)
+	}
+	for i, wantAdd := range []int32{0, 0, 2, 2} {
+		if got := targets[i+1].DesignAdd; got == nil || got.WaveIndex != 0 || got.AddIndex != wantAdd {
+			t.Errorf("pool target %d: expected wave 0 add %d, got %v", i+1, wantAdd, got)
+		}
+	}
+}
+
 func TestDesignWaveRepeatsCountTimesOrUntilTheEnd(t *testing.T) {
 	for _, tc := range []struct {
 		count int32

@@ -48,6 +48,7 @@ type designAmpLookahead struct {
 // only if it was active when the first one took it down.
 type designTargetState struct {
 	wave            *designWave   // The wave whose pool holds the target, nil for the encounter's own targets.
+	addIndex        int32         // The index in the wave's adds of the add the target spawns as.
 	nextActiveAt    time.Duration // While downtimes hold the target: the latest end among them, or NeverExpires when it does not come back.
 	activeDowntimes int
 	latestEnd       time.Duration // The latest end among the running downtimes, NeverExpires for one that lasts the fight.
@@ -81,6 +82,7 @@ type designWave struct {
 	config    *proto.AddWave
 	pool      []*Target // perAdd slots for each add in turn, so add i holds pool[i*perAdd:(i+1)*perAdd].
 	perAdd    int
+	adds      []int32       // The index in config.Adds of add i, which skips the adds without a target.
 	knots     [4]HealthKnot // An add's health over its life, from the wave's execute proportions.
 	fractions []float64     // This iteration's spawns as fractions of the fight, in time order.
 	spawns    []time.Duration
@@ -137,6 +139,7 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 					continue
 				}
 				templates = append(templates, template)
+				wave.adds = append(wave.adds, int32(addIndex))
 			}
 			if len(templates) > 0 {
 				// The cap splits evenly, so every add keeps the same number of slots.
@@ -155,9 +158,10 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 
 	design.targets = make([]designTargetState, len(encounter.AllTargets))
 	for _, wave := range design.waves {
-		for _, target := range wave.pool {
+		for slot, target := range wave.pool {
 			state := &design.targets[target.Index]
 			state.wave = wave
+			state.addIndex = wave.adds[slot/wave.perAdd]
 			state.deathAction = PendingAction{
 				Priority: ActionPriorityDOT + 1, // A death frees its target before a spawn at the same time.
 				OnAction: func(sim *Simulation) { wave.despawn(sim, target) },
@@ -557,6 +561,18 @@ func (target *Target) DiesAt(sim *Simulation) time.Duration {
 		return sim.Duration
 	}
 	return NeverExpires
+}
+
+// The wave and add a pool target spawns as, nil for the encounter's own targets.
+func (encounter *Encounter) designAdd(target *Target) *proto.DesignAdd {
+	if encounter.design == nil {
+		return nil
+	}
+	state := &encounter.design.targets[target.Index]
+	if state.wave == nil {
+		return nil
+	}
+	return &proto.DesignAdd{WaveIndex: int32(state.wave.index), AddIndex: state.addIndex}
 }
 
 // The active targets other than the boss, target 0.

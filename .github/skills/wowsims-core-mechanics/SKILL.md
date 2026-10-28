@@ -121,6 +121,10 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
   add waves take targets from a pool allocated at construction. Design input never panics: what construction drops
   is logged at each reset (`constructNotes`).
+- **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
+  and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.design_add`, copied
+  by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from
+  them. Every slot is listed, whether or not it spawned in an iteration.
 - **Fights are time-based**: there is no health-based fight length, and a target's health is a curve over the fight,
   not damage taken.
 

@@ -179,6 +179,7 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 
 	for idx, target := range encounter.AllTargets {
 		metrics.Targets[idx] = target.GetMetricsProto()
+		metrics.Targets[idx].DesignAdd = encounter.designAdd(target)
 	}
 
 	return metrics
