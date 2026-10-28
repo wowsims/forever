@@ -714,8 +714,7 @@ message HealthKeyframe {
 
 message AddWave {
 	string name = 1;
-	Target target = 2; // Template copied from a preset target; the sim attaches no AI to it.
-	int32 count = 3;
+	repeated Target adds = 2; // One template per add the wave spawns each time, copied from a preset target; the sim attaches no AI to them.
 	DesignTime spawn = 4;
 	double lifetime = 5; // Fraction of the fight.
 	DesignRepeat repeat = 6;

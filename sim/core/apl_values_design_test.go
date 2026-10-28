@@ -71,7 +71,9 @@ func designHealthRequest(numTargets int, design *proto.EncounterDesign) *proto.R
 		target.Stats = designHealthStats()
 	}
 	for _, wave := range design.GetAddWaves() {
-		wave.Target.Stats = designHealthStats()
+		for _, add := range wave.Adds {
+			add.Stats = designHealthStats()
+		}
 	}
 	return request
 }

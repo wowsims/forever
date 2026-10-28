@@ -10,7 +10,7 @@ import (
 
 const (
 	designMaxOccurrences = 1000 // Occurrences of one repeating event per iteration; a repeat until the fight ends stops there.
-	designMaxPoolTargets = 64   // Targets one wave allocates; a wave whose count alone is more is skipped.
+	designMaxPoolTargets = 64   // Targets one wave allocates; a wave with more adds is skipped.
 )
 
 const numDamageAmpTypes = int(proto.DamageAmpType_DamageAmpTypeTargetDebuff) + 1
@@ -71,15 +71,16 @@ const (
 	downtimeStartPriority = ActionPriorityDOT + 1 // A downtime that starts as another ends keeps its target down.
 )
 
-// An add wave, whose pool holds the most adds it has alive at once. Each spawn takes the free pool targets with
-// the lowest index; a template TankIndex makes Enable pull that tank onto every add spawned. NextActiveAt and
-// DiesAt of an idle pool target report the wave's next spawn, the same for every idle target of the wave.
+// An add wave, whose pool holds, for each of its adds, the most lives of that add alive at once, each built from
+// the add's own template. Each spawn takes, for each add, the free slot of that add with the lowest index; a
+// template TankIndex makes Enable pull that tank onto every add spawned from it. NextActiveAt and DiesAt of an
+// idle pool target report the wave's next spawn, the same for every idle target of the wave.
 type designWave struct {
 	design    *encounterDesign
 	index     int
 	config    *proto.AddWave
-	pool      []*Target
-	count     int
+	pool      []*Target // perAdd slots for each add in turn, so add i holds pool[i*perAdd:(i+1)*perAdd].
+	perAdd    int
 	knots     [4]HealthKnot // An add's health over its life, from the wave's execute proportions.
 	fractions []float64     // This iteration's spawns as fractions of the fight, in time order.
 	spawns    []time.Duration
@@ -115,7 +116,7 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 	}
 
 	for index, config := range config.AddWaves {
-		wave := &designWave{design: design, index: index, config: config, count: int(config.Count)}
+		wave := &designWave{design: design, index: index, config: config}
 		p20 := Clamp(config.ExecuteProportion_20, 0, 1)
 		p35 := max(Clamp(config.ExecuteProportion_35, 0, 1), p20)
 		wave.knots = [4]HealthKnot{{At: 0, Percent: 100}, {At: 1 - p35, Percent: 35}, {At: 1 - p20, Percent: 20}, {At: 1, Percent: 0}}
@@ -129,12 +130,25 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 		if skip := wave.skipReason(); skip != "" {
 			design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s %s; skipped.", wave.name(), skip))
 		} else {
-			poolSize := wave.count * maxConcurrentOccurrences(config, occurrences)
-			if poolSize > designMaxPoolTargets {
-				poolSize = designMaxPoolTargets
-				wave.capped = true
+			templates := make([]*proto.Target, 0, len(config.Adds))
+			for addIndex, template := range config.Adds {
+				if template == nil {
+					design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s add %d has no target; skipped.", wave.name(), addIndex+1))
+					continue
+				}
+				templates = append(templates, template)
 			}
-			wave.pool = encounter.allocatePoolTargets(config.Target, poolSize)
+			if len(templates) > 0 {
+				// The cap splits evenly, so every add keeps the same number of slots.
+				wave.perAdd = maxConcurrentOccurrences(config, occurrences)
+				if len(templates)*wave.perAdd > designMaxPoolTargets {
+					wave.perAdd = designMaxPoolTargets / len(templates)
+					wave.capped = true
+				}
+				for _, template := range templates {
+					wave.pool = append(wave.pool, encounter.allocatePoolTargets(template, wave.perAdd)...)
+				}
+			}
 		}
 		design.waves = append(design.waves, wave)
 	}
@@ -419,12 +433,10 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 // Why the wave spawns nothing, or "" when it spawns.
 func (wave *designWave) skipReason() string {
 	switch {
-	case wave.config.Target == nil:
-		return "has no target"
-	case wave.count <= 0:
+	case len(wave.config.Adds) == 0:
 		return "spawns no adds"
-	case wave.count > designMaxPoolTargets:
-		return fmt.Sprintf("spawns %d adds at once, more than the %d a wave holds", wave.count, designMaxPoolTargets)
+	case len(wave.config.Adds) > designMaxPoolTargets:
+		return fmt.Sprintf("spawns %d adds at once, more than the %d a wave holds", len(wave.config.Adds), designMaxPoolTargets)
 	case wave.config.Lifetime <= 0:
 		return "has no lifetime"
 	}
@@ -450,8 +462,8 @@ func (wave *designWave) nextSpawnAt() time.Duration {
 	return NeverExpires
 }
 
-// Brings count free adds of the pool in, each on the wave's health curve over its lifetime and dying at its
-// end when that comes before the fight ends. With fewer than count free, the spawn is skipped.
+// Brings one free slot of each add in, each on the wave's health curve over its lifetime and dying at its end
+// when that comes before the fight ends. With an add that has no free slot, the spawn is skipped.
 func (wave *designWave) spawn(sim *Simulation) {
 	wave.next++
 	if wave.next < len(wave.spawns) {
@@ -459,31 +471,23 @@ func (wave *designWave) spawn(sim *Simulation) {
 		sim.AddPendingAction(&wave.action)
 	}
 
-	free := 0
-	for _, target := range wave.pool {
-		if !target.IsEnabled() {
-			free++
+	numAdds := len(wave.pool) / wave.perAdd
+	free := make([]*Target, 0, numAdds)
+	for slots := range slices.Chunk(wave.pool, wave.perAdd) {
+		if index := slices.IndexFunc(slots, func(target *Target) bool { return !target.IsEnabled() }); index >= 0 {
+			free = append(free, slots[index])
 		}
 	}
-	if free < wave.count {
+	if len(free) < numAdds {
 		if sim.Log != nil {
-			sim.Log("Encounter design: wave %s has %d of %d adds free; spawn skipped.", wave.name(), free, wave.count)
+			sim.Log("Encounter design: wave %s has %d of %d adds free; spawn skipped.", wave.name(), len(free), numAdds)
 		}
 		return
 	}
 
 	lifetime := wave.lifetime(sim)
 	diesAt := sim.CurrentTime + lifetime
-	spawned := 0
-	for _, target := range wave.pool {
-		if spawned == wave.count {
-			break
-		}
-		if target.IsEnabled() {
-			continue
-		}
-		spawned++
-
+	for _, target := range free {
 		state := &wave.design.targets[target.Index]
 		state.diesAt = diesAt
 		if state.deathQueued {
@@ -501,7 +505,7 @@ func (wave *designWave) spawn(sim *Simulation) {
 		wave.design.reapplyAmps(sim, target)
 	}
 	if sim.Log != nil {
-		sim.Log("Encounter design: wave %s spawned %d adds.", wave.name(), wave.count)
+		sim.Log("Encounter design: wave %s spawned %d adds.", wave.name(), numAdds)
 	}
 }
 

@@ -63,10 +63,13 @@ func designAt(fraction float64) time.Duration {
 }
 
 func testAddWave(count int32, spawn, lifetime float64, repeat *proto.DesignRepeat) *proto.AddWave {
+	adds := make([]*proto.Target, count)
+	for i := range adds {
+		adds[i] = designTestTarget()
+	}
 	return &proto.AddWave{
 		Name:                 "adds",
-		Target:               designTestTarget(),
-		Count:                count,
+		Adds:                 adds,
 		Spawn:                &proto.DesignTime{At: spawn},
 		Lifetime:             lifetime,
 		Repeat:               repeat,
@@ -250,6 +253,52 @@ func TestDesignWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
 	}
 }
 
+func TestDesignWaveSpawnsEachAddFromItsOwnTemplate(t *testing.T) {
+	wave := testAddWave(0, 0.1, 0.2, nil)
+	for i, mobType := range []proto.MobType{proto.MobType_MobTypeBeast, proto.MobType_MobTypeDemon, proto.MobType_MobTypeUndead} {
+		armor := make([]float64, int(stats.Armor)+1)
+		armor[stats.Armor] = float64(1000 * (i + 1))
+		wave.Adds = append(wave.Adds, &proto.Target{Name: fmt.Sprintf("add %d", i+1), Level: int32(60 + i), MobType: mobType, Stats: armor})
+	}
+	design := &proto.EncounterDesign{AddWaves: []*proto.AddWave{wave}}
+	kills := 0
+	var listener *Aura
+	sim, _ := setupDesignSim(designTestRequest(1, design), func(char *Character) {
+		listener = registerDeathListener(char, "Death Listener", nil, func(_ *Aura, _ *Simulation, _ *Unit) { kills++ })
+	})
+	listener.Activate(sim)
+
+	if got := len(sim.Encounter.AllTargets); got != 1+len(wave.Adds) {
+		t.Fatalf("targets: expected the boss and one slot per add, got %d", got)
+	}
+	adds := sim.Encounter.AllTargets[1:]
+	for i, add := range adds {
+		template := wave.Adds[i]
+		if add.Level != template.Level || add.MobType != template.MobType || add.GetStat(stats.Armor) != template.Stats[stats.Armor] {
+			t.Errorf("add %d: expected level %d, %s, armor %v from its template, got level %d, %s, armor %v",
+				i+1, template.Level, template.MobType, template.Stats[stats.Armor], add.Level, add.MobType, add.GetStat(stats.Armor))
+		}
+	}
+
+	runLifecycleUntil(sim, designAt(0.15))
+	if got := sim.Encounter.NumActiveAdds(); got != len(adds) {
+		t.Fatalf("after the spawn: expected %d adds, got %d", len(adds), got)
+	}
+	for i, add := range adds {
+		if got := add.DiesAt(sim); got != designAt(0.3) {
+			t.Errorf("add %d death: expected %s, got %s", i+1, designAt(0.3), got)
+		}
+	}
+
+	runLifecycleUntil(sim, designAt(0.3))
+	if got := sim.Encounter.NumActiveAdds(); got != 0 {
+		t.Errorf("after the despawn: expected no adds, got %d", got)
+	}
+	if kills != len(adds) {
+		t.Errorf("kills at a kill share of 1: expected %d, got %d", len(adds), kills)
+	}
+}
+
 func TestDesignWaveRepeatsCountTimesOrUntilTheEnd(t *testing.T) {
 	for _, tc := range []struct {
 		count int32
@@ -347,7 +396,8 @@ func TestDesignJitterIsDeterministicAndIndependentOfGear(t *testing.T) {
 func TestDesignPoolExhaustionSkipsTheSpawn(t *testing.T) {
 	design := &proto.EncounterDesign{AddWaves: []*proto.AddWave{
 		testAddWave(1, 0, 1, &proto.DesignRepeat{Interval: 0.01}),
-		{Name: "no template", Count: 1, Lifetime: 0.1},
+		{Name: "no adds", Lifetime: 0.1},
+		{Name: "no template", Adds: []*proto.Target{nil}, Lifetime: 0.1},
 		testAddWave(designMaxPoolTargets+1, 0.5, 0.1, nil),
 		testAddWave(1, 0.5, 0, nil),
 	}}
@@ -357,7 +407,7 @@ func TestDesignPoolExhaustionSkipsTheSpawn(t *testing.T) {
 	}
 	sim.Cleanup()
 	skipped := logTimes(sim, "spawn skipped")
-	skips := map[string]int{"has no target": 0, "more than the": 0, "has no lifetime": 0}
+	skips := map[string]int{"spawns no adds": 0, "has no target": 0, "more than the": 0, "has no lifetime": 0}
 	logged := sim.Log
 	sim.Log = func(message string, vals ...interface{}) {
 		line := fmt.Sprintf(message, vals...)

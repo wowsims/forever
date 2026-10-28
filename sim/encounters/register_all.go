@@ -103,8 +103,7 @@ func addDynamicAddsEncounter() {
 	}, &proto.EncounterDesign{
 		AddWaves: []*proto.AddWave{{
 			Name:                 "Add",
-			Target:               dynamicAddTarget(),
-			Count:                1,
+			Adds:                 []*proto.Target{dynamicAddTarget()},
 			Spawn:                &proto.DesignTime{At: fractionOfFight(10)},
 			Lifetime:             fractionOfFight(20),
 			Repeat:               &proto.DesignRepeat{Interval: fractionOfFight(30)},
