@@ -10,7 +10,7 @@ import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../../model/design/lanes';
-import { getEvent, duplicateEvent, eventLabelKey, eventsOf, healthEndSegment, healthSegments, laneLabelKey, removeEvent } from '../../../model/design/lanes';
+import { duplicateEvent, eventLabelKey, eventsOf, getEvent, healthEndSegment, healthSegments, laneLabelKey, removeEvent } from '../../../model/design/lanes';
 import type { TimeWindow } from '../../../model/design/time';
 import { fractionToSeconds, secondsToFraction } from '../../../model/design/time';
 import { DesignerEventBar } from '../DesignerEventBar';

@@ -1,8 +1,8 @@
 import { Input } from '@ui-kit/FormControl';
+import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 import { usePointerAxisDrag } from '@ui-kit/hooks/usePointerAxisDrag';
 import { Icon } from '@ui-kit/Icon';
 import { cssVars } from '@ui-kit/utils/css';
-import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 import type { KeyboardEvent as ReactKeyboardEvent, Ref } from 'react';
 import { useRef, useState } from 'react';
 
