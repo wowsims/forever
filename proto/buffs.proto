@@ -23,7 +23,7 @@ message RaidBuffs {
 	bool grace_of_air_totem = 13;
 	bool windfury_totem = 14;
 	bool flametongue_totem = 15;
-	TristateEffect battle_shout = 16;
+	int32 battle_shout = 16;
 	bool trueshot_aura = 17;
 	bool furious_howl = 18;
 	bool aspect_of_the_wild = 19;

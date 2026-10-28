@@ -54,7 +54,7 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfFortitude: true,
 	prayerOfShadowProtection: true,
 	windfuryTotem: true,
-	battleShout: TristateEffect.TristateEffectRegular,
+	battleShout: 1, // Rank 6
 	leaderOfThePack: true,
 });
 

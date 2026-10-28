@@ -116,7 +116,8 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 ## Traps
 
 - **An external buff copy registers as tag -1** (`actionID` in `sim/core/buffs/meta.go`): the raid's Battle Shout is
-  25289 tag -1, the player's own copy tag 0. Berserking is 20554 untagged (`sim/core/racials.go`).
+  11551 tag -1 at state 1 and 25289 tag -1 at states 2 and 3, the player's own copy of each rank tag 0. Berserking is 20554
+  untagged (`sim/core/racials.go`).
 - **A talent gate reads `Talent Is Known`**, which holds for the rank or higher (`sim/core/apl_values_talent.go`). An
   `auraIsKnown` on a talent id finds an aura only where the class registers a `core.MakePermanent` marker aura tagged
   with the points.

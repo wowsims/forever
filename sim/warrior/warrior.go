@@ -18,6 +18,8 @@ type WarriorInputs struct {
 	QueueDelay     int32
 	StanceSnapshot bool
 	HasBsT2        bool
+
+	HasBattleShoutRank7 bool
 }
 
 // The game files' SpellClassOptions for the Sweeping Strikes copy, a sim-only sub-spell that takes its
@@ -36,7 +38,6 @@ type Warrior struct {
 	// Current state
 	thunderClapEffectBonus float64
 
-	BattleShout       *core.Spell
 	DemoralizingShout *core.Spell
 	BattleStance      *core.Spell
 	DefensiveStance   *core.Spell
@@ -47,7 +48,6 @@ type Warrior struct {
 	MortalStrike                    *core.Spell
 	SweepingStrikesNormalizedAttack *core.Spell
 
-	HeroicStrike      *core.Spell
 	Cleave            *core.Spell
 	MockingBlow       *core.Spell
 	ChallengingShout  *core.Spell
@@ -60,7 +60,7 @@ type Warrior struct {
 	curQueuedAutoSpell *core.Spell
 	queuedRealismICD   *core.Cooldown
 
-	EnrageAura     *core.Aura
+	EnrageAura      *core.Aura
 	GoreDrinkerAura *core.Aura
 
 	SweepingStrikesAura *core.Aura

@@ -5,7 +5,9 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var revengeRank = spellData.Revenge.Highest()
+// Rank 5 is the top rank the trainer teaches; Rank 6 comes from Manual of Revenge VI.
+var revengeTrainerRank = spellData.Revenge.ByID(11601)
+var revengeBookRank = spellData.Revenge.ByID(25288)
 
 // The "high amount of threat" the game files state with no number: Revenge's threat is 2.25 times
 // its damage, measured in game on Rank 2.
@@ -13,15 +15,14 @@ var revengeRank = spellData.Revenge.Highest()
 const revengeThreatMultiplier = 2.25
 
 // The window a block, dodge or parry opens: the aura Defensive State (DND) fires on the hit taken.
+// The rotation reads it by that aura's id, whichever rank it casts.
 var revengeWindow = spellData.DefensiveStateTriggered.Highest()
 
 func (warrior *Warrior) registerRevenge() {
-	actionID := core.ActionID{SpellID: revengeRank.ID}
-
 	aura := warrior.RegisterAura(core.Aura{
 		Label:    "Revenge",
 		Duration: revengeWindow.Duration(),
-		ActionID: actionID,
+		ActionID: core.ActionID{SpellID: revengeWindow.ID},
 	})
 
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.DefensiveState.Highest(),
@@ -33,7 +34,12 @@ func (warrior *Warrior) registerRevenge() {
 	trigger.TriggerImmediately = true
 	warrior.MakeProcTriggerAura(trigger)
 
-	config := spelldata.SpellConfig(&warrior.Unit, revengeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	warrior.registerRevengeRank(revengeTrainerRank, aura)
+	warrior.registerRevengeRank(revengeBookRank, aura)
+}
+
+func (warrior *Warrior) registerRevengeRank(rank *spelldata.Spell, aura *core.Aura) {
+	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = revengeThreatMultiplier
 
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
@@ -41,7 +47,7 @@ func (warrior *Warrior) registerRevenge() {
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := revengeRank.DamageEffect().Roll(sim) + revengeRank.DamageEffect().APCoeff()*spell.MeleeAttackPower(target)
+		baseDamage := rank.DamageEffect().Roll(sim) + rank.DamageEffect().APCoeff()*spell.MeleeAttackPower(target)
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		aura.Deactivate(sim)
 

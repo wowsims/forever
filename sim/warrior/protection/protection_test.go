@@ -6,6 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 
+	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -40,6 +42,9 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 		Profession2:      proto.Profession_Blacksmithing,
 
 		Rotation: core.GetAplRotation("../../../ui/specs/warrior/protection/apls", "default"),
+		OtherRotations: []core.RotationCombo{
+			bookRanksRotation("default"),
+		},
 
 		IndividualBuffs: core.FullTankIndividualBuffs,
 
@@ -62,6 +67,26 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 			},
 		},
 	}
+}
+
+// The preset with its book rank variables on, so the ranks from the class books reach the results.
+func bookRanksRotation(preset string) core.RotationCombo {
+	rotation := core.GetAplRotation("../../../ui/specs/warrior/protection/apls", preset).Rotation
+	found := false
+	for _, variable := range rotation.ValueVariables {
+		if !strings.HasPrefix(variable.Name, "Manual: ") {
+			continue
+		}
+		if variable.Value.GetConst() == nil {
+			panic(fmt.Sprintf("the %s preset's variable %q is no const", preset, variable.Name))
+		}
+		variable.Value.GetConst().Val = "true"
+		found = true
+	}
+	if !found {
+		panic(fmt.Sprintf("the %s preset has no Manual variable", preset))
+	}
+	return core.RotationCombo{Label: preset + "_book_ranks", Rotation: rotation}
 }
 
 var DefaultOptions = &proto.Player_ProtectionWarrior{

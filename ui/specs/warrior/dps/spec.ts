@@ -1,7 +1,7 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
-import { APLRotation, APLRotation_Type, SimpleRotation } from '@generated/proto/apl';
+import { APLRotation, APLRotation_Type, APLValueVariable, SimpleRotation } from '@generated/proto/apl';
 import { Cooldowns, HandType, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { DpsWarriorSpec, WarriorSunder } from '@generated/proto/warrior';
 import * as Mechanics from '@sim/constants/mechanics';
@@ -90,7 +90,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 	// IconInputs to include in the 'Player' section on the settings tab.
 	// Icon pickers are not part of the `InputConfig` union, so the two Battle Shout icon toggles
 	// sit in the player icon row.
-	playerIconInputs: [WarriorInputs.ShoutPicker(), WarriorInputs.StancePicker(), WarriorInputs.BattleShoutT2()],
+	playerIconInputs: [WarriorInputs.ShoutPicker(), WarriorInputs.StancePicker(), WarriorInputs.BattleShoutT2(), WarriorInputs.BattleShoutRank7()],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [],
 	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
@@ -144,6 +144,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			useRecklessness = false,
 			useStanceDance = false,
 			useHamstring = true,
+			useHeroicStrikeRank9 = false,
+			useBattleShoutRank7 = false,
 		} = simple;
 
 		if (!spec) {
@@ -198,6 +200,15 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Hamstring Weave ON/OFF',
 		);
 		if (hamstringWeaveAction) hamstringWeaveAction.hide = !useHamstring;
+
+		// A Manual variable set to true casts the rank its Ruins of Ahn'Qiraj class book teaches; false casts the top trainer rank.
+		const values: Record<string, string> = {
+			'Manual: Heroic Strike IX': String(useHeroicStrikeRank9),
+			'Manual: Battle Shout VII': String(useBattleShoutRank7),
+		};
+		rotation.valueVariables = rotation.valueVariables.map(variable =>
+			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,
+		);
 
 		return APLRotation.create({
 			simple: SimpleRotation.create({}),

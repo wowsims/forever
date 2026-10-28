@@ -6,7 +6,7 @@
     "giftOfTheWild": true,
     "prayerOfFortitude": true,
     "graceOfAirTotem": true,
-    "battleShout": "TristateEffectRegular",
+    "battleShout": 1,
     "leaderOfThePack": true,
     "moonkinAura": true
   },
