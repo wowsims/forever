@@ -498,6 +498,7 @@ func (character *Character) FillPlayerStats(playerStats *proto.PlayerStats) {
 		ApiVersion:  GetCurrentProtoVersion(),
 	}
 	playerStats.WeaponSkills = character.weaponSkillsProto()
+	playerStats.MeleeCritCap = character.meleeCritCapProto(playerStats.FinalStats.PseudoStats[proto.PseudoStat_PseudoStatMeleeCritPercent])
 
 	character.clearBuildPhaseAuras(CharacterBuildPhaseAll)
 	playerStats.Sets = character.GetActiveSetBonusNames()

@@ -271,12 +271,7 @@
 			"off_hand_crit_rating": "Off Hand Crit Rating",
 			"ranged_hit_rating": "Ranged Hit Rating",
 			"ranged_crit_rating": "Ranged Crit Rating",
-			"melee_crit_suppression": "Melee Crit Suppression",
 			"ranged_crit_suppression": "Ranged Crit Suppression",
-			"main_hand_miss": "Main Hand Miss",
-			"main_hand_dodge": "Main Hand Dodge",
-			"main_hand_parry": "Main Hand Parry",
-			"main_hand_glance": "Main Hand Glance",
 			"healing_power": "Healing Power",
 			"spell_damage": "Spell Damage",
 			"arcane_damage": "Arcane Spell Damage",
@@ -751,7 +746,11 @@
 			},
 			"retribution_aura_spell_power": {
 				"label": "Retribution Aura Spell Power",
-				"tooltip": "The Holy spell power of the paladin providing Retribution Aura. Each hit you take deals the aura's base damage plus about 13.6% of this."
+				"tooltip": "The Holy spell power of the paladin providing Retribution Aura. Each hit you take deals the aura's base damage plus 6% of this."
+			},
+			"thorns_spell_power": {
+				"label": "Thorns Spell Power",
+				"tooltip": "The Nature spell power of the druid providing Thorns. Each hit you take deals Thorns' base damage plus 6% of this."
 			},
 			"pet_uptime": {
 				"label": "Pet Uptime (%)",
@@ -1849,7 +1848,7 @@
 				"is_expertise_capped": {
 					"label": "Is Expertise Capped",
 					"tooltip": "<b>True</b> if the current target can neither dodge nor parry the spell, otherwise <b>False</b>.",
-					"full_description": "<p>Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>.</p><p>The check reads only the spell's defense type, so it still counts dodge and parry for specials that never roll them, such as Backstab, Ambush and Overpower.</p>"
+					"full_description": "<p>Parry counts only when you are in front of the target. Spells and ranged attacks cannot be dodged or parried and always return <b>True</b>.</p><p>Specials that cannot be dodged, parried or blocked, such as Ambush, Garrote, Overpower and the seal judgements, also return <b>True</b>.</p>"
 				},
 				"is_ready": {
 					"label": "Is Ready",
@@ -2727,11 +2726,13 @@
 			"title": "Addon Import",
 			"description": "Import settings from the",
 			"addon_link": "WoWSims Exporter In-Game Addon",
-			"feature_description": "This feature imports gear, race, talents, and professions. It does NOT import buffs, debuffs, consumes, rotation, or custom stats.",
+			"feature_description": "This feature imports gear, race, professions and rotation. The class is required, and anything missing from the pasted text keeps its current value. It does NOT import buffs, debuffs, consumes, or custom stats.",
 			"instructions": "To import, paste the output from the addon below and click, 'Import'.",
 			"upload_button": "Upload File",
 			"import_button": "Import",
 			"error_invalid_export": "Please use a valid Addon export.",
+			"error_nothing_to_import": "The pasted text has no gear, race, professions or rotation to import.",
+			"error_invalid_rotation": "The rotation in the pasted text is not a valid rotation.",
 			"outdated": "Addon is not up to date. Addon version : '{{version}}', Latest version : '{{latest}}'",
 			"below_max_level": "The character you imported is level {{level}}. The Sim is intended to be used for max level only, so you might be missing certain items."
 		},
@@ -3371,6 +3372,7 @@
 				"suppression": "Suppression:",
 				"to_hit_cap": "To Hit Cap:",
 				"to_exp_cap": "To Exp Cap:",
+				"block": "Block:",
 				"spec_offsets": "Spec Offsets:",
 				"final_crit_cap": "Final Crit Cap:",
 				"can_raise_by": "Can Raise By:"

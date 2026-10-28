@@ -1,18 +1,19 @@
 name: Update Items
 
 # Moves the items onto the current game build without a WoW install, and nothing else: db2tool reads
-# the current wow_classic_beta build off Blizzard's CDN and overlays the latest hotfix cache, the same
-# way the Update DB workflow does. `make db CLASSES=none SHARED=0` then takes only the items spell data
-# group (the item, enchant and set-bonus rows, with the item database gen_db writes). Every class, the
-# racials and the shared rows stay on the build the committed inputs record (see
-# docs/spell_data/partial-updates.md). Whatever changed lands in a pull request; nothing changed means
-# no pull request. Check Hotfixes dispatches this when new hotfixes come out. A pull request with
+# the current wowf build off Blizzard's CDN and overlays the latest hotfix cache, the same way the
+# Update DB workflow does, and --carry-hotfixes carries an older build's cache onto the CDN build
+# (see docs/spell_data/partial-updates.md). `make db CLASSES=none SHARED=0` then takes
+# only the items spell data group (the item, enchant and set-bonus rows, with the item database gen_db
+# writes). Every class, the racials and the shared rows stay on the build the committed inputs record
+# (see docs/spell_data/partial-updates.md). Whatever changed lands in a pull request; nothing changed
+# means no pull request. Check Hotfixes dispatches this when new hotfixes come out. A pull request with
 # hotfixes applied that passes the Go tests here and the Run Tests suite is merged and deployed.
 on:
     workflow_dispatch:
         inputs:
             dbcache_url:
-                description: 'The DBCache.bin to apply (defaults to the latest for wow_classic_beta)'
+                description: 'The DBCache.bin to apply (defaults to the latest raidbots classic_beta file)'
                 required: false
                 type: string
 
@@ -22,7 +23,7 @@ concurrency:
     cancel-in-progress: false
 
 env:
-    PRODUCT: wow_classic_beta
+    PRODUCT: wowf
     DBCACHE_URL: ${{ inputs.dbcache_url || 'https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin' }}
 
 jobs:
@@ -63,7 +64,7 @@ jobs:
 
             # The version service names the build the CDN currently serves. Its build config hash keys
             # the download cache below, so a re-run for the same build fetches nothing from the CDN.
-            - name: Resolve the current beta build 🔎
+            - name: Resolve the current build 🔎
               id: build
               run: |
                   row=$(curl -fsS "https://us.version.battle.net/$PRODUCT/versions" | awk -F'|' '$1 == "us"')
@@ -99,19 +100,18 @@ jobs:
                   make sim/core/proto/api.pb.go ui/generated/proto/api.ts binary_dist/dist.go
                   go run ./tools/database/gen_db -gen=go-to-ts
 
-            # db2tool warns (and carries on) when the hotfix cache is for another build than the CDN
-            # serves, which happens around a build push; the pull request says which it was. The
-            # spell data change report goes into the pull request body.
+            # db2tool's Hotfixes line, which names any carried build, and the spell data change report
+            # go into the pull request body.
             - name: Extract game files data and regenerate the items 🔧
               id: db
               run: |
                   set -o pipefail
-                  make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin" 2>&1 | tee "$RUNNER_TEMP/db.log"
-                  if grep -q 'none of the given --dbcache files hold hotfixes' "$RUNNER_TEMP/db.log"; then
-                      echo "hotfixes=NOT applied: the downloaded DBCache.bin is for a different build" >> "$GITHUB_OUTPUT"
-                  else
-                      echo "hotfixes=$(grep -m1 'Loaded hotfixes' "$RUNNER_TEMP/db.log" | sed 's/.*for build/applied, DBCache.bin for build/')" >> "$GITHUB_OUTPUT"
-                  fi
+                  make db CLASSES=none SHARED=0 DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
+                  line=$(grep -m1 '^Hotfixes: ' "$RUNNER_TEMP/db.log")
+                  case "$line" in
+                      "Hotfixes: none applied"*) echo "hotfixes=${line#Hotfixes: }" >> "$GITHUB_OUTPUT" ;;
+                      *) echo "hotfixes=applied (${line#Hotfixes: })" >> "$GITHUB_OUTPUT" ;;
+                  esac
                   {
                       echo "report<<REPORT_EOF"
                       python3 tools/spelldata_report_markdown.py < "$RUNNER_TEMP/db.log" || echo "The spell data change report could not be formatted; the build log has it."

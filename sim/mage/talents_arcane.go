@@ -255,8 +255,14 @@ func (mage *Mage) registerMissileBarrage() {
 	// Missiles every 0.5 sec (effect 2) and the mana cost (effect 3). The sim counts a DoT's
 	// duration as its ticks times their length, so the halved tick alone halves the channel and
 	// keeps its 5 missiles: the row's -50% duration (effect 1) is already in it and is not applied
-	// again.
-	spelldata.ParseEffects(&mage.Character, buffAura, buffRank, spelldata.Effects(2, 3))
+	// again. Effect 2 is an A_DUMMY the server scripts; the script takes its -500 ms off the tick, so
+	// it applies here under effect 1's Arcane Missiles flags.
+	buffAura.AttachSpellMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DotTickLength_Flat,
+		ClassFlags: buffRank.EffectN(1).ClassFlags,
+		TimeValue:  buffRank.EffectN(2).TimeValue(),
+	})
+	spelldata.ParseEffects(&mage.Character, buffAura, buffRank, spelldata.Effects(3))
 
 	trigger := spelldata.ProcTrigger(&mage.Character, talentRank,
 		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {

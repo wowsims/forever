@@ -11,7 +11,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	hunter.registerDeflection()
 
 	// Tier 2
-	// Entrapment (19184) roots on a trap the sim does not place.
+	// Entrapment (19184) roots the targets a trap springs on, and the sim's targets do not move.
 	hunter.registerSavageStrikes()
 	hunter.registerSurvivalist()
 	// Improved Wing Clip (19228) is a root chance on Wing Clip, which a boss shrugs off.
@@ -22,7 +22,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	// Deterrence (19263) is parry and dodge the sim's targets do not test.
 
 	// Tier 4
-	// Survival Tactics (19376) is hit with traps and Feign Death, neither of which the sim casts.
+	hunter.registerSurvivalTactics()
 	hunter.registerPredatorsEdge()
 	// Counterattack (19306) needs a parry, which takes a target attacking the hunter.
 
@@ -166,8 +166,7 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 		return
 	}
 
-	// TODO: In-game testing required. The talent's dummy holds 40, read as the share of the bite's
-	// damage the bleed deals over its duration.
+	// The talent's dummy holds 40: the share of the bite's damage the bleed deals over its duration.
 	share := spellData.LaceratingStrikes.FractionAt(1)
 	tick := laceratingStrikesBleed.PeriodicEffect()
 
@@ -217,7 +216,7 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 	hunter.MakeProcTriggerAura(trigger)
 }
 
-// Effect 1 lengthens the crowd control traps, which the sim does not place; effect 2 raises the
+// Effect 1 lengthens Freezing and Frost Trap, which the sim does not place; effect 2 raises the
 // Immolation and Explosive Trap damage.
 func (hunter *Hunter) registerCleverTraps() {
 	if hunter.Talents.CleverTraps == 0 {
@@ -225,4 +224,14 @@ func (hunter *Hunter) registerCleverTraps() {
 	}
 
 	spelldata.ParseStatic(&hunter.Character, spellData.CleverTraps.Rank(hunter.Talents.CleverTraps), spelldata.Effects(2))
+}
+
+// Hit with Immolation and Explosive Trap. The talent also names Freezing Trap, Frost Trap and Feign
+// Death, which the sim does not cast.
+func (hunter *Hunter) registerSurvivalTactics() {
+	if hunter.Talents.SurvivalTactics == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&hunter.Character, spellData.SurvivalTactics.Rank(hunter.Talents.SurvivalTactics))
 }

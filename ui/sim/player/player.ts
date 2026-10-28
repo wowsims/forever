@@ -1,5 +1,6 @@
 import {
 	AuraStats as AuraStatsProto,
+	type MeleeCritCapInfo,
 	Player as PlayerProto,
 	PlayerStats,
 	SpellStats as SpellStatsProto,
@@ -189,23 +190,6 @@ export class UnitMetadataList {
 	asList(): Array<UnitMetadata> {
 		return this.metadatas.slice();
 	}
-}
-
-export interface MeleeCritCapInfo {
-	meleeCrit: number;
-	meleeHit: number;
-	expertise: number;
-	suppression: number;
-	glancing: number;
-	debuffCrit: number;
-	hasOffhandWeapon: boolean;
-	meleeHitCap: number;
-	expertiseCap: number;
-	remainingMeleeHitCap: number;
-	remainingExpertiseCap: number;
-	baseCritCap: number;
-	specSpecificOffset: number;
-	playerCritCapDelta: number;
 }
 
 export type AutoRotationGenerator<SpecType extends Spec> = (player: Player<SpecType>) => APLRotation;
@@ -809,7 +793,7 @@ export class Player<SpecType extends Spec> {
 		// the sheet repeats the number and this is the second place to change;
 		// TestHuntersMarkOnTheCharacterSheetMatchesTheSim holds the two together.
 		if (debuffs.huntersMark) {
-			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 71);
+			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 143);
 		}
 
 		return debuffStats;
@@ -884,63 +868,8 @@ export class Player<SpecType extends Spec> {
 		return (this.getGear().getEquippedItem(ItemSlot.ItemSlotOffHand)?.item.weaponSpeed ?? 0) > 0;
 	}
 
-	getMeleeCritCapInfo(): MeleeCritCapInfo {
-		const currentStats = this.slice().currentStats;
-		const debuffStats = this.getDebuffStats();
-		const debuffHit = debuffStats.getPseudoStat(PseudoStat.PseudoStatMeleeHitPercent) || 0;
-		const debuffCrit = debuffStats.getPseudoStat(PseudoStat.PseudoStatMeleeCritPercent) || 0;
-
-		const meleeCrit = (currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeCritPercent] || 0) + debuffCrit;
-		const meleeHit = (currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeHitPercent] || 0) + debuffHit;
-		const expertise = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatExpertisePercent] || 0;
-		const critSuppression = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeCritSuppressionPercent] || 0;
-		const glancing = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandGlancePercent] || 0;
-
-		const oneHandHitCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandMissPercent] || 0;
-		// DW Penalty is a fixed 19%
-		const dualWieldHitCap = oneHandHitCap + 19;
-		const hasOffhandWeapon = this.isDualWielding();
-		const meleeHitCap = hasOffhandWeapon ? dualWieldHitCap : oneHandHitCap;
-		const dodgeCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandDodgePercent] || 0;
-		const parryCap = this.getInFrontOfTarget() ? currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandParryPercent] || 0 : 0;
-		const expertiseCap = dodgeCap + parryCap;
-
-		const remainingMeleeHitCap = Math.max(meleeHitCap - meleeHit, 0.0);
-		const remainingDodgeCap = Math.max(dodgeCap - expertise, 0.0);
-		const remainingParryCap = Math.max(parryCap - expertise, 0.0);
-		const remainingExpertiseCap = remainingDodgeCap + remainingParryCap;
-
-		let specSpecificOffset = 0.0;
-		if (this.getSpec() === Spec.SpecEnhancementShaman) {
-			const player = this as unknown as Player<Spec.SpecEnhancementShaman>;
-			// Elemental Devastation uptime is near 100%
-			const ranks = player.getTalents().elementalDevastation;
-			specSpecificOffset = 3.0 * ranks;
-		}
-
-		const baseCritCap = 100.0 - glancing + critSuppression - remainingMeleeHitCap - remainingExpertiseCap - specSpecificOffset;
-		const playerCritCapDelta = meleeCrit - baseCritCap;
-
-		return {
-			meleeCrit,
-			meleeHit,
-			expertise,
-			suppression: critSuppression,
-			glancing,
-			debuffCrit,
-			hasOffhandWeapon,
-			meleeHitCap,
-			expertiseCap,
-			remainingMeleeHitCap,
-			remainingExpertiseCap,
-			baseCritCap,
-			specSpecificOffset,
-			playerCritCapDelta,
-		};
-	}
-
-	getMeleeCritCap() {
-		return this.getMeleeCritCapInfo().playerCritCapDelta;
+	getMeleeCritCapInfo(): MeleeCritCapInfo | undefined {
+		return this.slice().currentStats.meleeCritCap;
 	}
 
 	// In-place rotation mutation with a single change event — the write path for

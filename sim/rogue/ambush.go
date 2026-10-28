@@ -23,7 +23,7 @@ func (rogue *Rogue) registerAmbushSpell() {
 		baseDamage := ambushBaseDamage +
 			spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 
-		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if result.Landed() {
 			rogue.AddComboPoints(sim, int32(comboPointGen), spell.ComboPointMetrics())

@@ -480,6 +480,9 @@ export function buildCastLogs(logs: Array<CombatLog>): Array<CastLog> {
 		} else if (actionId.spellId === 27014) {
 			// Raptor Strike should be grouped with regular melee swings
 			return 'other-3-1';
+		} else if (actionId.itemId === 12662) {
+			// Demonic Rune's hit on its user, tag 1, is applied without a cast, so its damage goes on the use.
+			return actionId.toStringIgnoringTag();
 		} else {
 			return actionId.toString();
 		}

@@ -253,7 +253,10 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 	}
 
 	applyDefaultConfigOptions(config: IndividualSimUIConfig<SpecType>): IndividualSimUIConfig<SpecType> {
-		config.otherInputs.inputs = [...(this.player.getPlayerSpec().isTankSpec ? [OtherInputs.RetributionAuraSpellPower] : []), ...config.otherInputs.inputs];
+		config.otherInputs.inputs = [
+			...(this.player.getPlayerSpec().isTankSpec ? [OtherInputs.RetributionAuraSpellPower, OtherInputs.ThornsSpellPower] : []),
+			...config.otherInputs.inputs,
+		];
 
 		return config;
 	}

@@ -7,6 +7,8 @@ import (
 
 var aspectOfTheHawkRank = spellData.AspectOfTheHawk.Highest()
 var aspectOfTheBeastRank = spellData.AspectOfTheBeast.Highest()
+var aspectOfTheCheetahRank = spellData.AspectOfTheCheetah.Highest()
+var dazedRank = spellData.AspectOfTheCheetahTriggered.Highest()
 
 // The hastes the aspects proc: Quick Shots off Hawk, Quick Strikes off Beast.
 var quickShots = spellData.AspectOfTheHawkTriggered.Highest()
@@ -15,6 +17,7 @@ var quickStrikes = spellData.AspectOfTheBeastTriggered.Highest()
 func (hunter *Hunter) registerAspects() {
 	hunter.AspectOfTheHawkAura = hunter.registerAspect(aspectOfTheHawkRank)
 	hunter.AspectOfTheBeastAura = hunter.registerAspect(aspectOfTheBeastRank)
+	hunter.registerAspectOfTheCheetah()
 
 	hunter.registerDeadlyAspects()
 }
@@ -37,6 +40,32 @@ func (hunter *Hunter) registerAspect(row *spelldata.Spell) *core.Aura {
 	hunter.RegisterSpell(config)
 
 	return aura
+}
+
+// The parse has no row for movement speed, so effect 1 is set by hand, with Pathfinding's
+// SPELLMOD_EFFECT1 added to it. Effect 2 dazes the hunter when struck: a slow of its own, which
+// MultiplyMovementSpeed stacks on the aspect's speed.
+func (hunter *Hunter) registerAspectOfTheCheetah() {
+	speed := aspectOfTheCheetahRank.EffectN(1).Percent() + spellData.Pathfinding.EffectAt(1).FractionAt(hunter.Talents.Pathfinding)
+	aura := hunter.registerAspect(aspectOfTheCheetahRank)
+	aura.NewActiveMovementSpeedEffect(speed)
+
+	slow := 1 + dazedRank.EffectN(1).Percent()
+	dazed := hunter.RegisterAura(spelldata.AuraConfig(dazedRank))
+	dazed.OnGain = func(_ *core.Aura, sim *core.Simulation) {
+		hunter.MultiplyMovementSpeed(sim, slow)
+	}
+	dazed.OnExpire = func(_ *core.Aura, sim *core.Simulation) {
+		hunter.MultiplyMovementSpeed(sim, 1/slow)
+	}
+
+	daze := spelldata.ProcTrigger(&hunter.Character, aspectOfTheCheetahRank,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			dazed.Activate(sim)
+		})
+	daze.Name = "Aspect of the Cheetah - Dazed"
+	daze.TriggerImmediately = true
+	aura.AttachProcTrigger(daze)
 }
 
 // Deadly Aspects is the chance the aspects' own procs fire with: the Hawk and Beast rows state the

@@ -1036,6 +1036,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Sulfuras,HandofRagnaros-289295"
+ value: {
+  dps: 449.96121
+  tps: 759.55631
+  dtps: 374.19063
+  hps: 84.32285
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SulfuronHammer-17193"
  value: {
   dps: 449.96121

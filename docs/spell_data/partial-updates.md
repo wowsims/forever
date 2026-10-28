@@ -133,21 +133,25 @@ go run tools/database/gen_db/*.go -outDir=./assets -gen=db -classes=druid  # the
 takes only `-classes`, since it has no racial or shared files, and always writes the item database.
 
 The Update Items workflow (`.github/workflows/update_items.yml`) extracts the current build from the
-CDN with the latest hotfixes and runs `make db CLASSES=none SHARED=0`, so its pull request moves the
-items and leaves every class, the racials and the shared rows on their committed builds. The Check
-Hotfixes workflow dispatches it every hour that the hotfix cache changed; a pull request with the
-hotfixes applied that passes every test is merged and deployed without review.
+CDN (product `wowf`) with the latest hotfixes and runs `make db CLASSES=none SHARED=0`, so its pull
+request moves the items and leaves every class, the racials and the shared rows on their committed
+builds. Raidbots collects no `wowf` cache: it labels its Forever files `classic_beta`, and they are
+usually for an older build than the CDN serves, so `--carry-hotfixes` carries such a file onto the
+extracted build (the rules are in `tools/db2tool/README.md`). The Check Hotfixes workflow dispatches
+Update Items every hour that a new file appears for the CDN build or an older one; a pull request
+with the hotfixes applied that passes every test is merged and deployed without review.
 
 `db2tool` writes the `BuildInfo` table on every extraction: the game build, the product and
 `HotfixPush`, the highest hotfix push it applied (0 when it applied none, as in offline mode without
-`--dbcache` or with `--no-hotfixes`). In offline mode pass the full version, `--build 1.60.1.70170`;
-a bare build number is recorded as given, with a warning. Stamp a database extracted without
-`BuildInfo` instead of extracting it again, since a new extraction can pick up hotfixes the committed
-rows do not have. Stamp the push `db2tool` printed for that extraction, or 0 when it is not known; a
-database whose `BuildInfo` has no `HotfixPush` column reads as 0:
+`--dbcache` or with `--no-hotfixes`; with `--carry-hotfixes`, the highest across every cache that
+applied). In offline mode pass the full version, `--build 1.60.1.70170`; a bare build number is
+recorded as given, with a warning. Stamp a database extracted without `BuildInfo` instead of
+extracting it again, since a new extraction can pick up hotfixes the committed rows do not have.
+Stamp the push `db2tool` printed for that extraction, or 0 when it is not known; a database whose
+`BuildInfo` has no `HotfixPush` column reads as 0:
 
 ```
-sqlite3 tools/database/wowsims.db "CREATE TABLE BuildInfo (Version TEXT NOT NULL, Product TEXT NOT NULL, HotfixPush INTEGER NOT NULL); INSERT INTO BuildInfo VALUES ('1.60.1.70235','wow_classic_beta',112426);"
+sqlite3 tools/database/wowsims.db "CREATE TABLE BuildInfo (Version TEXT NOT NULL, Product TEXT NOT NULL, HotfixPush INTEGER NOT NULL); INSERT INTO BuildInfo VALUES ('1.60.1.70235','wowf',112426);"
 sqlite3 tools/database/wowsims.db "SELECT * FROM BuildInfo"
 ```
 

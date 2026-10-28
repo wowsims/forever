@@ -62,9 +62,10 @@ func TestJudgementOfLightHealsOnlyOnDamagingMeleeHits(t *testing.T) {
 			SpellSchool:      core.SpellSchoolPhysical,
 			DefenseType:      core.DefenseTypeMelee,
 			ProcMask:         core.ProcMaskMeleeMHSpecial,
+			Flags:            core.SpellFlagNoActiveDefense,
 			DamageMultiplier: 1,
 			ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-				spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeMeleeSpecialNoBlockDodgeParryNoCrit)
+				spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeMeleeSpecialHit)
 			},
 		})
 		if !healedWithin(sim, fw, target, strike, 200) {
@@ -79,8 +80,9 @@ func TestJudgementOfLightHealsOnlyOnDamagingMeleeHits(t *testing.T) {
 			SpellSchool: core.SpellSchoolPhysical,
 			DefenseType: core.DefenseTypeMelee,
 			ProcMask:    core.ProcMaskMeleeMHSpecial,
+			Flags:       core.SpellFlagNoActiveDefense,
 			ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-				spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialNoBlockDodgeParryNoCrit)
+				spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
 			},
 		})
 		if healedWithin(sim, fw, target, sunder, 200) {

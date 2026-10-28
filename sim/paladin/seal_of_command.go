@@ -48,7 +48,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		if !target.PseudoStats.Stunned {
 			baseDamage /= 2
 		}
-		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 

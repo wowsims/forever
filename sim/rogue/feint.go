@@ -11,9 +11,10 @@ var feintRank = spellData.Feint.Rank(4)
 func (rogue *Rogue) registerFeintSpell() {
 	config := spelldata.SpellConfig(&rogue.Unit, feintRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
+	// The row lacks No Active Defense, so the target can dodge it and, from the front, parry it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
-		result := spell.CalcAndDealDamage(sim, target, 0, spell.OutcomeMeleeSpecialNoBlockDodgeParryNoCrit)
+		result := spell.CalcAndDealDamage(sim, target, 0, spell.OutcomeMeleeSpecialHit)
 
 		if !result.Landed() {
 			spell.IssueRefund(sim)

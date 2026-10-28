@@ -15,6 +15,7 @@ const (
 	FORM_BATTLE_STANCE        ShapeshiftForm = 17
 	FORM_DEFENSIVE_STANCE     ShapeshiftForm = 18
 	FORM_BERSERKER_STANCE     ShapeshiftForm = 19
+	FORM_ZOMBIE               ShapeshiftForm = 21
 	FORM_METAMORPHOSIS        ShapeshiftForm = 22
 	FORM_SHADOWFORM           ShapeshiftForm = 28
 	FORM_STEALTH              ShapeshiftForm = 30

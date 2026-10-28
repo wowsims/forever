@@ -465,6 +465,68 @@ func TestWeaponSpecialBlockPreventsTheCrit(t *testing.T) {
 	}
 }
 
+// A spell with SpellFlagNoActiveDefense skips the dodge, parry and block rolls while the target would
+// otherwise avoid every attack that way.
+func TestNoActiveDefenseSkipsDodgeParryAndBlock(t *testing.T) {
+	attacker, defender := attackTableUnits(PlayerUnit, 60, EnemyUnit, 63)
+	attacker.PseudoStats.InFrontOfTarget = true
+	table := NewAttackTable(attacker, defender)
+
+	for _, tc := range []struct {
+		name    string
+		hand    AttackTableHand
+		avoided func(SpellMetrics) int32
+		outcome HitOutcome
+	}{
+		{"dodge", AttackTableHand{BaseDodgeChance: 1}, func(m SpellMetrics) int32 { return m.Dodges }, OutcomeDodge},
+		{"parry", AttackTableHand{BaseParryChance: 1}, func(m SpellMetrics) int32 { return m.Parries }, OutcomeParry},
+		{"block", AttackTableHand{BaseBlockChance: 1}, func(m SpellMetrics) int32 { return m.Blocks }, OutcomeBlock},
+	} {
+		table.MH = tc.hand
+
+		for _, flags := range []SpellFlag{SpellFlagNone, SpellFlagNoActiveDefense} {
+			sim := &Simulation{rand: NewSplitMix(42)}
+			spell := &Spell{Unit: attacker, ProcMask: ProcMaskMeleeMHSpecial, DefenseType: DefenseTypeMelee, Flags: flags, CritMultiplierPct: 1, SpellMetrics: make([]SpellMetrics, 1)}
+			result := &SpellResult{Target: defender, Damage: 100}
+			spell.OutcomeMeleeWeaponSpecialHitAndCrit(sim, result, table)
+
+			avoided := tc.avoided(spell.SpellMetrics[0])
+			if flags == SpellFlagNone {
+				if !result.Outcome.Matches(tc.outcome) || avoided != 1 {
+					t.Errorf("%s without the flag: outcome %v with %d counted, want the %s", tc.name, result.Outcome, avoided, tc.name)
+				}
+			} else if !result.Outcome.Matches(OutcomeHit) || avoided != 0 {
+				t.Errorf("%s with the flag: outcome %v with %d counted, want a hit", tc.name, result.Outcome, avoided)
+			}
+		}
+	}
+}
+
+// An enemy's flagged attack meets no dodge, parry or block from a player, through the same chances its rolls read.
+func TestNoActiveDefenseZeroesAPlayersAvoidance(t *testing.T) {
+	attacker, defender := attackTableUnits(EnemyUnit, 63, PlayerUnit, 60)
+	defender.PseudoStats.BaseDodgeChance = 0.1
+	defender.PseudoStats.BaseParryChance = 0.1
+	defender.PseudoStats.BaseBlockChance = 0.1
+	table := NewAttackTable(attacker, defender)
+
+	// A level 63 enemy's hand adds -0.6% dodge, 4.4% parry and 4.4% block to the player's 10% each.
+	for _, tc := range []struct {
+		flags               SpellFlag
+		dodge, parry, block float64
+	}{
+		{SpellFlagNone, 0.094, 0.144, 0.144},
+		{SpellFlagNoActiveDefense, 0, 0, 0},
+	} {
+		spell := &Spell{Unit: attacker, ProcMask: ProcMaskMeleeMHAuto, DefenseType: DefenseTypeMelee, Flags: tc.flags}
+		checkAttackTableValues(t, tc.flags.String(), []attackTableValue{
+			{"dodge", defender.GetTotalDodgeChanceAsDefender(spell, table), tc.dodge},
+			{"parry", defender.GetTotalParryChanceAsDefender(spell, table), tc.parry},
+			{"block", defender.GetTotalBlockChanceAsDefender(spell, table), tc.block},
+		})
+	}
+}
+
 func TestExpectedWhiteDamageUsesTheGlanceMidpoint(t *testing.T) {
 	attacker := &Unit{PseudoStats: stats.NewPseudoStats()}
 	target := &Unit{PseudoStats: stats.NewPseudoStats()}

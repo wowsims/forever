@@ -90,9 +90,11 @@ func applyRaceEffects(agent Agent) {
 			{Stat: stats.HealingPower, Multiplier: 1.1},
 		})
 
+		// TODO: the 2 minute cooldown is from the 27 October development notes; the game build states 3
+		// minutes for 20572.
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
-			Duration: time.Minute * 3,
+			Duration: time.Minute * 2,
 		}
 		bloodFuryAura.Icd = &bloodFuryCD
 
@@ -163,10 +165,12 @@ func applyRaceEffects(agent Agent) {
 
 		actionID := ActionID{SpellID: 20554}
 
+		// TODO: the 15 s duration is from the 27 October development notes; the game build states 10 s
+		// for 20554.
 		berserkingAura := character.RegisterAura(Aura{
 			Label:    "Berserking",
 			ActionID: actionID,
-			Duration: time.Second * 10,
+			Duration: time.Second * 15,
 		}).
 			AttachMultiplyAttackSpeed(1.1).
 			AttachMultiplyCastSpeed(1.1)
@@ -411,7 +415,8 @@ func applyEureka(character *Character) {
 }
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
-// of max health), 25 s ICD and chance are the row's values, typed in here.
+// of max health) and chance are the row's values, typed in here.
+// TODO: the 15 s ICD is from the 27 October development notes; the game build states 25 s.
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {
@@ -447,7 +452,7 @@ func applyTouchOfTheGrave(character *Character) {
 		ProcMask:   ProcMaskMelee | ProcMaskRanged | ProcMaskSpellDamage,
 		Outcome:    OutcomeLanded,
 		ProcChance: procChance,
-		ICD:        time.Second * 25,
+		ICD:        time.Second * 15,
 
 		RequireDamageComponent: true,
 
