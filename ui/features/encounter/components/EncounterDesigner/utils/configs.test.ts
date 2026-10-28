@@ -13,6 +13,8 @@ import {
 	eventTooltip,
 	eventValueText,
 	occurrenceName,
+	parseTip,
+	serializeTip,
 } from './configs';
 
 // Renders a string as its last key segment and its options, so a test reads which string and values were picked.
@@ -152,14 +154,18 @@ describe('eventTooltip', () => {
 			repeat: { interval: 25 / 180, jitter: 0, count: 0 },
 		};
 		ability.end!.at = 1;
-		expect(tip(EncounterDesign.create({ bossAbilities: [ability] }), 'ability')).toBe(
-			'spell_hit · school_damage(0,3000,5000) · cast(seconds(2)) · every_from(seconds(25),seconds(45),seconds(180))',
-		);
+		expect(tip(EncounterDesign.create({ bossAbilities: [ability] }), 'ability')).toEqual({
+			title: 'spell_hit',
+			lines: ['school_damage(0,3000,5000)', 'cast(seconds(2))', 'every_from(seconds(25),seconds(45),seconds(180))'],
+		});
 	});
 
 	it('describes a window ability by its range', () => {
 		const thrash = { ...defaultEvent('ability', 0.2), kind: DesignBossAbility_Kind.Thrash, procChance: 20 };
-		expect(tip(EncounterDesign.create({ bossAbilities: [thrash] }), 'ability')).toBe('thrash · proc(20) · range(seconds(36),seconds(54))');
+		expect(tip(EncounterDesign.create({ bossAbilities: [thrash] }), 'ability')).toEqual({
+			title: 'thrash',
+			lines: ['proc(20)', 'range(seconds(36),seconds(54))'],
+		});
 	});
 
 	it('describes a wave, a move, a downtime, an amp and a boss health segment', () => {
@@ -170,23 +176,40 @@ describe('eventTooltip', () => {
 			spawn: { at: 10 / 180, jitter: 2 / 180 },
 			lifetime: 20 / 180,
 		};
-		expect(tip(EncounterDesign.create({ addWaves: [wave] }), 'wave')).toBe(
-			'wave(Add) · adds(1,add_group(60,mob0,1)) · spawns_jitter(seconds(10),seconds(2)) · lives(seconds(20)) · kill_share(25)',
-		);
+		expect(tip(EncounterDesign.create({ addWaves: [wave] }), 'wave')).toEqual({
+			title: 'wave(Add)',
+			lines: ['adds(1,add_group(60,mob0,1))', 'spawns_jitter(seconds(10),seconds(2))', 'lives(seconds(20))', 'kill_share(25)'],
+		});
 		const move = { ...defaultEvent('move'), yards: 5, repeat: { interval: 10 / 180, jitter: 0, count: 0 } };
-		expect(tip(EncounterDesign.create({ moves: [move] }), 'move')).toBe('move · at(seconds(72)) · move_yards(5,seconds(0.7)) · every(seconds(10))');
-		expect(tip(EncounterDesign.create({ downtimes: [defaultEvent('downtime', 0.5)] }), 'downtime')).toBe(
-			'downtime · Boss · range(seconds(90),seconds(108)) · clears_debuffs',
-		);
-		expect(tip(EncounterDesign.create({ damageAmps: [defaultEvent('amp', 0.2)] }), 'amp')).toBe(
-			'amp · amp_value(caster_buff,10) · range(seconds(36),seconds(54))',
-		);
+		expect(tip(EncounterDesign.create({ moves: [move] }), 'move')).toEqual({
+			title: 'move',
+			lines: ['at(seconds(72))', 'move_yards(5,seconds(0.7))', 'every(seconds(10))'],
+		});
+		expect(tip(EncounterDesign.create({ downtimes: [defaultEvent('downtime', 0.5)] }), 'downtime')).toEqual({
+			title: 'downtime',
+			lines: ['Boss', 'range(seconds(90),seconds(108))', 'clears_debuffs'],
+		});
+		expect(tip(EncounterDesign.create({ damageAmps: [defaultEvent('amp', 0.2)] }), 'amp')).toEqual({
+			title: 'amp',
+			lines: ['amp_value(caster_buff,10)', 'range(seconds(36),seconds(54))'],
+		});
 		const health = EncounterDesign.create({ bossHealth: [{ ...defaultEvent('bossHealth', 0.5), healthPercent: 65 }] });
-		expect(tip(health, 'bossHealth')).toBe('health(100,65,seconds(0),seconds(90))');
+		expect(tip(health, 'bossHealth')).toEqual({ title: 'event_name(boss_health,1)', lines: ['health(100,65)', 'range(seconds(0),seconds(90))'] });
 	});
 
 	it('reads a given window over the stored one', () => {
 		const downtime = EncounterDesign.create({ downtimes: [defaultEvent('downtime', 0.5)] });
-		expect(eventTooltip(downtime, { kind: 'downtime', index: 0 }, 180, ['Boss'], { start: 0.1, end: 0.2 })).toContain('range(seconds(18),seconds(36))');
+		expect(eventTooltip(downtime, { kind: 'downtime', index: 0 }, 180, ['Boss'], { start: 0.1, end: 0.2 }).lines).toContain(
+			'range(seconds(18),seconds(36))',
+		);
+	});
+});
+
+describe('serializeTip', () => {
+	it('keeps the title and each rule on its own line through the attribute', () => {
+		const tip = { title: 'Adds #2 — Wave', lines: ['Lives 10s', 'Every 30s'] };
+		expect(serializeTip(tip)).toBe('Adds #2 — Wave\nLives 10s\nEvery 30s');
+		expect(parseTip(serializeTip(tip))).toEqual(tip);
+		expect(parseTip(undefined)).toBeUndefined();
 	});
 });

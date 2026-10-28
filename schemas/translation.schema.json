@@ -4228,6 +4228,9 @@
 								"tip": {
 									"type": "object",
 									"properties": {
+										"occurrence_title": {
+											"type": "string"
+										},
 										"range": {
 											"type": "string"
 										},
@@ -4311,10 +4314,17 @@
 										},
 										"health_hold": {
 											"type": "string"
+										},
+										"boss_health": {
+											"type": "string"
+										},
+										"health_sentence": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
 									"required": [
+										"occurrence_title",
 										"range",
 										"every",
 										"every_from",
@@ -4342,7 +4352,9 @@
 										"move_yards",
 										"amp",
 										"amp_value",
-										"health_hold"
+										"health_hold",
+										"boss_health",
+										"health_sentence"
 									]
 								},
 								"add": {

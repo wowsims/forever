@@ -60,9 +60,23 @@ export const eventValueText = (design: EncounterDesign, ref: DesignEventRef, bas
 	return designerText('point_value', { name, at });
 };
 
-const TIP_SEPARATOR = ' · ';
+// A hover tooltip: the title on the first line, then one line per rule.
+export interface EventTip {
+	title: string;
+	lines: ReadonlyArray<string>;
+}
 
-// What an event does, in seconds, on one line for its hover tooltip. Reads the times from `window` when one is given.
+// A tooltip anchor carries its text in one attribute, a line each; `parseTip` reads it back for the Tooltip to render.
+export const serializeTip = (tip: EventTip): string => [tip.title, ...tip.lines].join('\n');
+export const parseTip = (text: string | null | undefined): EventTip | undefined => {
+	if (!text) return undefined;
+	const [title, ...lines] = text.split('\n');
+	return { title, lines };
+};
+
+// "Adds #2 — Add wave 'Adds'": a repeat of an event leads its title with the occurrence.
+export const occurrenceTip = (tip: EventTip, label: string): EventTip => ({ ...tip, title: designerText('tip.occurrence_title', { label, title: tip.title }) });
+
 // "3 adds (Lvl 60 Beast ×2, Lvl 61 Demon)": the adds grouped by level and mob type, in the order they first appear.
 export const addsSummary = (adds: ReadonlyArray<Target>): string => {
 	const groups = new Map<string, { level: number; type: string; count: number }>();
@@ -84,9 +98,9 @@ export const eventTooltip = (
 	baseSeconds: number,
 	targetNames: ReadonlyArray<string>,
 	window?: TimeWindow,
-): string => {
+): EventTip => {
 	const event = getEvent(design, ref);
-	if (!event) return '';
+	if (!event) return { title: '', lines: [] };
 	const tip = (key: string, options?: Record<string, string | number>) => designerText(`tip.${key}`, options);
 	const sec = (fraction: number) => formatSeconds(fractionToSeconds(fraction, baseSeconds));
 	const found = eventWindow(design, ref);
@@ -95,22 +109,20 @@ export const eventTooltip = (
 	const range = tip('range', { start: sec(shown.start), end: sec(shown.end) });
 	const repeat = 'repeat' in event && event.repeat && event.repeat.interval > 0 ? sec(event.repeat.interval) : undefined;
 	const every = repeat ? [tip('every', { interval: repeat })] : [];
+	const built = (title: string, lines: ReadonlyArray<string | undefined>): EventTip => ({ title, lines: lines.filter((line): line is string => !!line) });
 	switch (ref.kind) {
 		case 'bossHealth': {
 			const segment = healthSegments(design).find(found => found.index === ref.index);
 			const covered = window ?? { start: segment?.start ?? 0, end: segment?.end ?? 0 };
 			const [from, to] = [segment?.fromPercent ?? 100, segment?.toPercent ?? 100];
-			const times = { start: sec(covered.start), end: sec(covered.end) };
 			const curve =
-				from === to
-					? tip('health_hold', { percent: formatPercent(from), ...times })
-					: tip('health', { from: formatPercent(from), to: formatPercent(to), ...times });
-			return [event.name, curve].filter(Boolean).join(TIP_SEPARATOR);
+				from === to ? tip('health_hold', { percent: formatPercent(from) }) : tip('health', { from: formatPercent(from), to: formatPercent(to) });
+			return built(eventName(design, ref), [curve, tip('range', { start: sec(covered.start), end: sec(covered.end) })]);
 		}
 		case 'downtime': {
 			const downtime = event as DesignDowntime;
 			const target = targetNames[downtime.targetIndex] ?? designerText('target_name', { number: downtime.targetIndex + 1 });
-			return [tip('downtime'), target, range, downtime.clearDebuffs ? tip('clears_debuffs') : undefined].filter(Boolean).join(TIP_SEPARATOR);
+			return built(tip('downtime'), [target, range, downtime.clearDebuffs ? tip('clears_debuffs') : undefined]);
 		}
 		case 'ability': {
 			const ability = event as DesignBossAbility;
@@ -137,32 +149,29 @@ export const eventTooltip = (
 			const when = firesAtInstants(ability)
 				? [repeat ? tip('every_from', { interval: repeat, start: sec(shown.start), end: sec(shown.end) }) : tip('at', { at: sec(shown.start) })]
 				: [range, ...every];
-			return [kind, ...details, ...when].join(TIP_SEPARATOR);
+			return built(kind, [...details, ...when]);
 		}
 		case 'wave': {
 			const wave = event as AddWave;
 			const jitter = wave.spawn?.jitter ?? 0;
 			const spawn = jitter > 0 ? tip('spawns_jitter', { at: sec(shown.start), jitter: sec(jitter) }) : tip('spawns', { at: sec(shown.start) });
-			return [
-				tip('wave', { name: eventName(design, ref) }),
+			return built(tip('wave', { name: eventName(design, ref) }), [
 				addsSummary(wave.adds),
 				spawn,
 				tip('lives', { time: sec(shown.end - shown.start) }),
 				...every,
 				tip('kill_share', { percent: Number((wave.killShare * 100).toFixed(1)) }),
-			].join(TIP_SEPARATOR);
+			]);
 		}
 		case 'move': {
 			const move = event as DesignMove;
 			const time = formatSeconds(Number(moveSeconds(move).toFixed(2)));
-			return [tip('move'), tip('at', { at: sec(shown.start) }), move.yards > 0 ? tip('move_yards', { yards: move.yards, time }) : time, ...every].join(
-				TIP_SEPARATOR,
-			);
+			return built(tip('move'), [tip('at', { at: sec(shown.start) }), move.yards > 0 ? tip('move_yards', { yards: move.yards, time }) : time, ...every]);
 		}
 		default: {
 			const amp = event as DesignDamageAmp;
 			const type = designerText(`amp_types.${AMP_TYPES.find(([value]) => value === amp.type)?.[1]}`);
-			return [tip('amp'), tip('amp_value', { type, percent: amp.percent }), range, ...every].join(TIP_SEPARATOR);
+			return built(tip('amp'), [tip('amp_value', { type, percent: amp.percent }), range, ...every]);
 		}
 	}
 };

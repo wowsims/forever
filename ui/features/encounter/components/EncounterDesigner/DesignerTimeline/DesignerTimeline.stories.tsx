@@ -144,11 +144,16 @@ const abilityBar = (canvasElement: HTMLElement) =>
 // The strings the lane builds, so the story reads the same under the stubbed locale of the smoke test.
 const SPELL_HIT_TIP = eventTooltip(customBossDesign(), { kind: 'ability', index: 0 }, DESIGN_BASE_SECONDS, designTargetNames);
 
+const expectTip = async () => {
+	await expect(await within(document.body).findByText(SPELL_HIT_TIP.title)).toBeVisible();
+	for (const line of SPELL_HIT_TIP.lines) await expect(within(document.body).getByText(line)).toBeVisible();
+};
+
 export const HoverTooltip: Story = {
 	args: { design: customBossDesign() },
 	play: async ({ canvasElement }) => {
 		await userEvent.hover(abilityBar(canvasElement));
-		await expect(await within(document.body).findByText(SPELL_HIT_TIP)).toBeVisible();
+		await expectTip();
 	},
 };
 
@@ -156,7 +161,7 @@ export const FocusTooltip: Story = {
 	args: { design: customBossDesign() },
 	play: async ({ canvasElement }) => {
 		abilityBar(canvasElement).focus();
-		await expect(await within(document.body).findByText(SPELL_HIT_TIP)).toBeVisible();
+		await expectTip();
 	},
 };
 

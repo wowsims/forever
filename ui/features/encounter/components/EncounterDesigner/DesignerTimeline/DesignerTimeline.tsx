@@ -10,6 +10,7 @@ import { DESIGN_LANES } from '../../../model/design/lanes';
 import type { DesignIssue } from '../../../model/design/validate';
 import { DesignerLane } from '../DesignerLane';
 import { refKey } from '../DesignerLane/utils';
+import { DesignerTip } from '../DesignerTip';
 import { DesignerToolbar } from '../DesignerToolbar';
 import { designerText } from '../utils/configs';
 
@@ -174,7 +175,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 					))}
 				</div>
 			</div>
-			<Tooltip id={tooltipId} render={({ activeAnchor }) => activeAnchor?.getAttribute('data-tip')} />
+			<Tooltip id={tooltipId} render={({ activeAnchor }) => <DesignerTip text={activeAnchor?.getAttribute('data-tip')} />} />
 		</div>
 	);
 };

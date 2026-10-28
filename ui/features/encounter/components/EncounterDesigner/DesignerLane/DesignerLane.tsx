@@ -26,7 +26,18 @@ import {
 import type { TimeWindow } from '../../../model/design/time';
 import { fractionToSeconds, secondsToFraction } from '../../../model/design/time';
 import { DesignerEventBar } from '../DesignerEventBar';
-import { designerText, editEvent, eventName, eventTooltip, eventValueText, formatPercent, formatSeconds, occurrenceName } from '../utils/configs';
+import {
+	designerText,
+	editEvent,
+	eventName,
+	eventTooltip,
+	eventValueText,
+	formatPercent,
+	formatSeconds,
+	occurrenceName,
+	occurrenceTip,
+	serializeTip,
+} from '../utils/configs';
 import { type LaneEvent, laneEventKinds, laneEvents, refKey, withWindow } from './utils';
 
 export interface DesignerLaneProps {
@@ -49,8 +60,6 @@ export interface DesignerLaneProps {
 }
 
 const GHOST_CLASSES = 'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center overflow-hidden rounded-sm text-xs font-bold text-white';
-
-const TIP_SEPARATOR = ' · ';
 
 // The ref a later event in the same list has once `removed` is gone from it.
 const afterRemoval = (ref: DesignEventRef, removed: DesignEventRef): DesignEventRef =>
@@ -225,14 +234,14 @@ export const DesignerLane = ({
 	};
 	const endSegment = lane === 'boss' ? healthEndSegment(design) : undefined;
 	const endTip = endSegment
-		? designerText('tip.health', {
+		? {
 				from: formatPercent(endSegment.fromPercent),
 				to: 0,
 				start: formatSeconds(fractionToSeconds(endSegment.start, baseSeconds)),
 				end: formatSeconds(fractionToSeconds(endSegment.end, baseSeconds)),
-			})
-		: '';
-	const tip = (ref: DesignEventRef, window?: TimeWindow) => eventTooltip(design, ref, baseSeconds, targetNames, window);
+			}
+		: undefined;
+	const tip = (ref: DesignEventRef, window?: TimeWindow) => serializeTip(eventTooltip(design, ref, baseSeconds, targetNames, window));
 
 	return (
 		<div
@@ -347,7 +356,7 @@ export const DesignerLane = ({
 								key={`${refKey(event.ref)}:${index}`}
 								aria-hidden="true"
 								data-tooltip-id={tooltipId}
-								data-tip={`${label}${TIP_SEPARATOR}${tip(event.ref, repeat)}`}
+								data-tip={serializeTip(occurrenceTip(eventTooltip(design, event.ref, baseSeconds, targetNames, repeat), label))}
 								className={`absolute left-designer-pos col-start-1 row-(--row) bg-(--bar)/40 ${GHOST_CLASSES}`}
 								style={cssVars(rowStyle(repeat))}>
 								<span className="min-w-0 truncate pl-1">{name}</span>
@@ -366,12 +375,15 @@ export const DesignerLane = ({
 					));
 					return [...ghosts, ...ticks];
 				})}
-				{endSegment && (
+				{endSegment && endTip && (
 					<div
 						role="img"
-						aria-label={endTip}
+						aria-label={designerText('tip.health_sentence', endTip)}
 						data-tooltip-id={tooltipId}
-						data-tip={endTip}
+						data-tip={serializeTip({
+							title: designerText('tip.boss_health'),
+							lines: [designerText('tip.health', endTip), designerText('tip.range', { start: endTip.start, end: endTip.end })],
+						})}
 						className={`absolute left-designer-pos col-start-1 row-(--row) border border-dashed border-white/50 bg-(--bar)/40 ${GHOST_CLASSES}`}
 						style={cssVars({
 							'--row': '1 / span 1',
