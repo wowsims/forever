@@ -72,7 +72,7 @@ func coverageRequest(bear bool, rotation *proto.APLRotation) *proto.RaidSimReque
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand].Id = 866
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 1613
 	player := &proto.Player{
 		Name: "Feral", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
 		TalentsString: coverageTalents,

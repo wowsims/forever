@@ -151,7 +151,7 @@ func (h *testHunter) Initialize() {
 
 func revelationWearer(t *testing.T, class proto.Class, spec any) (*core.Simulation, *core.Character) {
 	t.Helper()
-	items := weaponSlots(873, 0)
+	items := weaponSlots(1613, 0)
 	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceTauren,
@@ -345,7 +345,7 @@ func TestRevelationProcsOffAHuntersShots(t *testing.T) {
 // Enchant Weapon - Crusader 1900 rolls the procs per minute its enchant entry states for Holy Strength
 // 20007 on the enchanted weapon's speed, a chance between none and certain.
 func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
-	const crusader, holyStrength, weapon = 1900, 20007, 873
+	const crusader, holyStrength, weapon = 1900, 20007, 1613
 	items := weaponSlots(weapon, 0)
 	items[proto.ItemSlot_ItemSlotMainHand].Enchant = crusader
 	player := &proto.Player{

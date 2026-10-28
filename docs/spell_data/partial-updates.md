@@ -137,9 +137,8 @@ CDN (product `wowf`) with the latest hotfixes and runs `make db CLASSES=none SHA
 request moves the items and leaves every class, the racials and the shared rows on their committed
 builds. Raidbots labels the live game's files `forever`. A new one can be for an older build than
 the CDN serves, so `--carry-hotfixes` carries such a file onto the extracted build (the rules are in
-`tools/db2tool/README.md`). The last beta file, `classic_beta` build 70532, is carried under the live
-one on every run: it holds about 4,300 item rows the beta looked up that the live file lacks. A row
-the live file marks invalid still drops out, since the extracted build's own file applies last. The
+`tools/db2tool/README.md`). Only `forever` files apply: the data follows the live game files and
+their hotfixes, so an item or spell only a beta cache held stays out. The
 Check Hotfixes workflow dispatches Update Items every hour that a new `forever` file appears for the
 CDN build or an older one; a pull request with the hotfixes applied that passes every test is merged
 and deployed without review.

@@ -105,9 +105,8 @@ setx WOW_DIR "E:\World of Warcraft"
 
 # Same as make db but without a WoW install: reads the current build off Blizzard's CDN
 # and applies the hotfix cache you point it at (see tools/db2tool/README.md).
-# The "Update DB" GitHub workflow runs this with raidbots' mirror of the live DBCache.bin and
-# the last beta file carried under it (docs/spell_data/partial-updates.md).
-make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --dbcache tools/db2tool/caches/BetaDBCache.bin --carry-hotfixes"
+# The "Update DB" GitHub workflow runs this with raidbots' mirror of the live DBCache.bin.
+make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --carry-hotfixes"
 
 # Regenerate the spell store and the sim/<class>/spell_data_auto_gen.go tables from the game files
 # Also rewrites the buff and debuff files in sim/core/buffs, their settings inputs and proto/buffs.proto

@@ -40,13 +40,9 @@ const (
 	// target. The tests hand the proc a chance of their own.
 	spellVulnerability int32 = 23605
 
-	// Sword of Zeal 6622's chance on hit: 8191, physical damage done (A_MOD_DAMAGE_DONE) and armor
-	// (A_MOD_ARMOR_NO_MODS), which the test's item effect carries as 10 and 150. The tests hand the proc
-	// a chance of their own.
-	zeal int32 = 8191
-
-	// Savior's Sacrifice, Ring of Saviors 1447's on-use: armor on the wearer (A_MOD_ARMOR_NO_MODS).
-	saviorsSacrifice int32 = 18826
+	// Heart of the Mountain, Smoking Heart of the Mountain 11811's on-use: armor on the wearer
+	// (A_MOD_ARMOR_NO_MODS). The tests that make it a proc hand it a chance of their own.
+	heartOfTheMountain int32 = 1300752
 
 	// Lesser Arcane Amalgamation 1504's equip spell: armor on the wearer (A_MOD_ARMOR_NO_MODS).
 	arcaneAmalgamationArmor int32 = 15390
@@ -475,22 +471,22 @@ func TestNightfallRaisesTheTargetsSpellDamageTaken(t *testing.T) {
 	}
 }
 
-// Sword of Zeal's buff adds the item effect's 10 to each physical hit and 150 armor for its row's
-// duration.
-func TestSwordOfZealAddsPhysicalDamageAndArmor(t *testing.T) {
-	duration := spelldata.MustFind(zeal).Duration()
+// A weapon proc's buff on Heart of the Mountain's row adds the item effect's 10 to each physical hit
+// and 150 armor for the row's duration.
+func TestItemProcBuffAddsPhysicalDamageAndArmor(t *testing.T) {
+	duration := spelldata.MustFind(heartOfTheMountain).Duration()
 	const itemID int32 = 992302
 	withAuraItem(itemID, proto.ItemType_ItemTypeWeapon, &proto.ItemEffect{
-		BuffId:           zeal,
-		EffectDurationMs: 15000,
+		BuffId:           heartOfTheMountain,
+		EffectDurationMs: 20000,
 		Effect:           &proto.ItemEffect_Proc{Proc: &proto.ProcEffect{}},
 		ScalingOptions: map[int32]*proto.ScalingItemEffectProperties{0: {Stats: map[int32]float64{
 			int32(proto.Stat_StatArmorNoMods): 150, int32(proto.Stat_StatPhysicalDamage): 10,
 		}}},
 	})
-	everyHit(t, zeal)
-	NewSpellDataProc(SpellDataProc{TriggerSpellID: zeal, IsWeaponProc: true},
-		[]ItemVariant{{ItemID: itemID, ItemName: "Test Sword of Zeal"}})
+	everyHit(t, heartOfTheMountain)
+	NewSpellDataProc(SpellDataProc{TriggerSpellID: heartOfTheMountain, IsWeaponProc: true},
+		[]ItemVariant{{ItemID: itemID, ItemName: "Test Buff Weapon"}})
 
 	sim := newAuraSim(shaman("Wielder", map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: itemID}))
 	wielder := auraTesterAt(sim, 0)
@@ -500,26 +496,26 @@ func TestSwordOfZealAddsPhysicalDamageAndArmor(t *testing.T) {
 	strikeAndStep(t, sim, wielder, target)
 	procTime := sim.CurrentTime
 	if got := wielder.GetStat(stats.Armor) - armor; !core.WithinToleranceFloat64(150, got, 1e-6) {
-		t.Errorf("Zeal added %v armor, want 150", got)
+		t.Errorf("the buff added %v armor, want 150", got)
 	}
 	if got := dealt(sim, wielder.strike, target); !core.WithinToleranceFloat64(110, got, 1e-6) {
-		t.Errorf("with Zeal up a physical strike dealt %v, want 110", got)
+		t.Errorf("with the buff up a physical strike dealt %v, want 110", got)
 	}
 	if got := dealt(sim, wielder.bolt, target); !core.WithinToleranceFloat64(100, got, 1e-6) {
-		t.Errorf("with Zeal up an arcane bolt dealt %v, want 100", got)
+		t.Errorf("with the buff up an arcane bolt dealt %v, want 100", got)
 	}
 
 	stepPast(t, sim, procTime+duration-time.Millisecond)
 	if got := wielder.GetStat(stats.Armor) - armor; !core.WithinToleranceFloat64(150, got, 1e-6) {
-		t.Errorf("Zeal's armor is %v just before its %v run out, want 150", got, duration)
+		t.Errorf("the buff's armor is %v just before its %v run out, want 150", got, duration)
 	}
 	// The strike above procced again, a batch window after it landed.
 	stepPast(t, sim, procTime+duration+core.SpellBatchWindow+time.Millisecond)
 	if got := wielder.GetStat(stats.Armor) - armor; got != 0 {
-		t.Errorf("Zeal's armor is %v after its %v, want none", got, duration)
+		t.Errorf("the buff's armor is %v after its %v, want none", got, duration)
 	}
 	if got := dealt(sim, wielder.bolt, target); !core.WithinToleranceFloat64(100, got, 1e-6) {
-		t.Errorf("after Zeal an arcane bolt dealt %v, want 100", got)
+		t.Errorf("after the buff an arcane bolt dealt %v, want 100", got)
 	}
 }
 
@@ -546,8 +542,8 @@ func checkBuffArmor(t *testing.T, sim *core.Simulation, wearer *auraTester, buff
 // gains armor the modifiers scale. The wearer's neck doubles its armor.
 func TestNoModsArmorFromAnItemStaysOutOfThePercentArmorModifiers(t *testing.T) {
 	noModsArmorFixtures(t)
-	armor := spelldata.MustFind(saviorsSacrifice).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
-	needAmount(t, "18826's armor", armor)
+	armor := spelldata.MustFind(heartOfTheMountain).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
+	needAmount(t, "1300752's armor", armor)
 
 	// The stacking cases come last: they give the row a stack count for the rest of the test.
 	const stacks = 3
@@ -566,17 +562,17 @@ func TestNoModsArmorFromAnItemStaysOutOfThePercentArmorModifiers(t *testing.T) {
 	} {
 		itemID := 992312 + int32(i)
 		label := fmt.Sprintf("Test Armor %d", i)
-		entry := &proto.ItemEffect{BuffId: saviorsSacrifice, BuffName: label, EffectDurationMs: 20000,
+		entry := &proto.ItemEffect{BuffId: heartOfTheMountain, BuffName: label, EffectDurationMs: 20000,
 			ScalingOptions: map[int32]*proto.ScalingItemEffectProperties{0: {Stats: map[int32]float64{int32(tc.stat): armor}}}}
 		slot := proto.ItemSlot_ItemSlotTrinket1
 		if tc.proc {
 			entry.Effect = &proto.ItemEffect_Proc{Proc: &proto.ProcEffect{}}
 			withAuraItem(itemID, proto.ItemType_ItemTypeWeapon, entry)
-			everyHit(t, saviorsSacrifice)
+			everyHit(t, heartOfTheMountain)
 			if tc.stacks > 0 {
-				editRow(t, saviorsSacrifice, func(s *spelldata.Spell) { s.MaxStack = int16(tc.stacks) })
+				editRow(t, heartOfTheMountain, func(s *spelldata.Spell) { s.MaxStack = int16(tc.stacks) })
 			}
-			NewSpellDataProc(SpellDataProc{TriggerSpellID: saviorsSacrifice, IsWeaponProc: true},
+			NewSpellDataProc(SpellDataProc{TriggerSpellID: heartOfTheMountain, IsWeaponProc: true},
 				[]ItemVariant{{ItemID: itemID, ItemName: label}})
 			label += " Proc"
 			slot = proto.ItemSlot_ItemSlotMainHand
@@ -601,8 +597,8 @@ func TestNoModsArmorFromAnItemStaysOutOfThePercentArmorModifiers(t *testing.T) {
 // scale. The wearer's neck doubles its armor.
 func TestNoModsArmorFromAStackingOnUseStaysOutOfThePercentArmorModifiers(t *testing.T) {
 	noModsArmorFixtures(t)
-	armor := spelldata.MustFind(saviorsSacrifice).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
-	needAmount(t, "18826's armor", armor)
+	armor := spelldata.MustFind(heartOfTheMountain).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).BasePoints
+	needAmount(t, "1300752's armor", armor)
 
 	const stacks = 3
 	for i, tc := range []struct {
@@ -615,7 +611,7 @@ func TestNoModsArmorFromAStackingOnUseStaysOutOfThePercentArmorModifiers(t *test
 		itemID := 992331 + int32(i)
 		name := fmt.Sprintf("Test Stacking Armor %d", i)
 		withAuraItem(itemID, proto.ItemType_ItemTypeTrinket, &proto.ItemEffect{
-			BuffId: saviorsSacrifice, BuffName: name, EffectDurationMs: 20000, MaxCumulativeStacks: stacks,
+			BuffId: heartOfTheMountain, BuffName: name, EffectDurationMs: 20000, MaxCumulativeStacks: stacks,
 			Effect:         &proto.ItemEffect_OnUse{OnUse: &proto.OnUseEffect{CooldownMs: 120000}},
 			ScalingOptions: map[int32]*proto.ScalingItemEffectProperties{0: {Stats: map[int32]float64{int32(tc.stat): armor}}},
 		})

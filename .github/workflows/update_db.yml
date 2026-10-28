@@ -15,10 +15,8 @@ on:
 
 env:
     PRODUCT: wowf
-    # Raidbots' Forever cache, and the last beta file (build 70532) carried under it for the items the
-    # beta looked up that the live file lacks (docs/spell_data/partial-updates.md).
+    # Raidbots' Forever cache (docs/spell_data/partial-updates.md).
     DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin
-    BETA_DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow%2F70532%2FenUS%2FDBCache-aBWtgUUog1pUdSFsVK1fE4.bin
 
 jobs:
     update-db:
@@ -81,8 +79,6 @@ jobs:
               run: |
                   mkdir -p tools/db2tool/caches
                   curl -fsSL -o tools/db2tool/caches/DBCache.bin "$DBCACHE_URL"
-                  curl -fsSL -o tools/db2tool/caches/BetaDBCache.bin "$BETA_DBCACHE_URL"
-
             # gen_db imports the Go protos, so they are generated from the
             # committed .proto files first; `make proto` runs again further
             # down, once gen_db has rewritten the talent enums in them.
@@ -97,7 +93,7 @@ jobs:
               id: db
               run: |
                   set -o pipefail
-                  make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --dbcache tools/db2tool/caches/BetaDBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
+                  make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
                   line=$(grep -m1 '^Hotfixes: ' "$RUNNER_TEMP/db.log")
                   case "$line" in
                       "Hotfixes: none applied"*) echo "hotfixes=${line#Hotfixes: }" >> "$GITHUB_OUTPUT" ;;
@@ -177,7 +173,7 @@ jobs:
                       Game files data and everything generated from it, regenerated from the `${{ env.PRODUCT }}` build on Blizzard's CDN.
 
                       - Build: ${{ steps.build.outputs.version }}
-                      - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }}, with ${{ env.BETA_DBCACHE_URL }} carried)
+                      - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
                       - Ran `make db --cdn`, `make basestats`, `gen_spelldata`, `make proto` and `go-to-ts`; the Go builds, the generator tests pass and the UI type-checks
 
                       ${{ steps.tests.outputs.summary }}

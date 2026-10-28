@@ -114,20 +114,27 @@ func weaponProcListener(name string, mask core.ProcMask, handler core.ProcHandle
 	}
 }
 
-// Bloodpike 13057's Rend 18202 (a bleed, no hit) and Hanzo Sword 8190's Wound 16405 (a hit) at a chance
-// below 1, on both hands. A strike a main-hand swing cast is a main-hand special: the main hand's
-// weapon procs hear it, immediate and deferred alike, and its own weapon rolls again. A strike an
-// off-hand swing cast is heard by no weapon proc on either hand, its own weapon included. Auto
-// attacks' and Windfury Weapon's (Wound only, it needs damage) listeners hear neither. Swings of the
-// two hands in turn, unsettled, leave the main-hand strikes heard.
+// Two weapon procs' strikes on the melee table: Hameya's Slayer 15814's Rend 16406, a bleed with no
+// hit, and Hammer of Expertise 8708's Forging Strike 1317432, a hit.
+const (
+	rendStrike    int32 = 16406
+	forgingStrike int32 = 1317432
+)
+
+// Rend and Forging Strike at a chance below 1, on both hands. A strike a main-hand swing cast is a
+// main-hand special: the main hand's weapon procs hear it, immediate and deferred alike, and its own
+// weapon rolls again. A strike an off-hand swing cast is heard by no weapon proc on either hand, its
+// own weapon included. Auto attacks' and Windfury Weapon's (Forging Strike only, it needs damage)
+// listeners hear neither. Swings of the two hands in turn, unsettled, leave the main-hand strikes
+// heard.
 func TestWeaponProcStrikeIsHeardOnlyFromTheMainHand(t *testing.T) {
 	for _, tc := range []struct {
 		name                     string
 		weaponID, neckID, strike int32
 		windfury                 bool
 	}{
-		{"Rend", 991606, 991607, 18202, false},
-		{"Wound", 991608, 991609, 16405, true},
+		{"Rend", 991606, 991607, rendStrike, false},
+		{"Forging Strike", 991608, 991609, forgingStrike, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			const swings = 20
@@ -239,15 +246,15 @@ func TestWeaponProcStrikeIsHeardOnlyFromTheMainHand(t *testing.T) {
 	}
 }
 
-// Two test one-handers, each with its own row and rate: Wound 16405 in the main hand and Rend 18202
-// in the off hand, each measured on the weapon carrying it, so a wielder that dual wields carries
-// them. A strike a main-hand swing cast rolls the main-hand weapon's proc and never the off-hand
-// one's, and one an off-hand swing cast rolls neither: off-hand swings cast Rends that roll nothing,
-// and main-hand swings cast Wounds that roll Wound again and never Rend. The off-hand weapon's rate is
-// procs per minute in one case and a flat chance in its row's column in the other; both roll on the
-// off hand's hits only. The swings are the test's own, so the wielder's auto attacks are off.
+// Two test one-handers, each with its own row and rate: Forging Strike in the main hand and Rend in
+// the off hand, each measured on the weapon carrying it, so a wielder that dual wields carries them.
+// A strike a main-hand swing cast rolls the main-hand weapon's proc and never the off-hand one's, and
+// one an off-hand swing cast rolls neither: off-hand swings cast Rends that roll nothing, and
+// main-hand swings cast Forging Strikes that roll Forging Strike again and never Rend. The off-hand
+// weapon's rate is procs per minute in one case and a flat chance in its row's column in the other;
+// both roll on the off hand's hits only. The swings are the test's own, so the wielder's auto attacks
+// are off.
 func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
-	const wound, rend int32 = 16405, 18202
 	const swings = 20
 	for _, tc := range []struct {
 		name                  string
@@ -260,20 +267,20 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 		}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			editRow(t, wound, func(s *spelldata.Spell) { s.RPPM = 18 })
-			editRow(t, rend, tc.offHandRate)
+			editRow(t, forgingStrike, func(s *spelldata.Spell) { s.RPPM = 18 })
+			editRow(t, rendStrike, tc.offHandRate)
 			core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(tc.mainHandID), testOneHander(tc.offHandID)}})
-			registerSpellDataDamageProc(SpellDataProc{Name: "Test Wound Weapon", ItemID: tc.mainHandID,
-				TriggerSpellID: wound, BuffSpellID: wound, IsWeaponProc: true})
+			registerSpellDataDamageProc(SpellDataProc{Name: "Test Forging Strike Weapon", ItemID: tc.mainHandID,
+				TriggerSpellID: forgingStrike, BuffSpellID: forgingStrike, IsWeaponProc: true})
 			registerSpellDataDamageProc(SpellDataProc{Name: "Test Rend Weapon", ItemID: tc.offHandID,
-				TriggerSpellID: rend, BuffSpellID: rend, IsWeaponProc: true})
+				TriggerSpellID: rendStrike, BuffSpellID: rendStrike, IsWeaponProc: true})
 
 			sim := newTestCasterSimAgainst(testHands(&proto.ItemSpec{Id: tc.mainHandID}, &proto.ItemSpec{Id: tc.offHandID}), nil, 1,
 				func(player *proto.Player) { player.Spec = &proto.Player_EnhancementShaman{} })
 			caster := sim.Raid.Parties[0].Players[0].(*testCaster)
 			caster.AutoAttacks.CancelAutoSwing(sim)
 			target := sim.Encounter.ActiveTargetUnits[0]
-			woundSpell, rendSpell := mustGetSpell(t, caster, wound), mustGetSpell(t, caster, rend)
+			strikeSpell, rendSpell := mustGetSpell(t, caster, forgingStrike), mustGetSpell(t, caster, rendStrike)
 			casts := func(spell *core.Spell) int32 { return spell.SpellMetrics[target.UnitIndex].Casts }
 
 			for range swings {
@@ -283,20 +290,20 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 			if n := casts(rendSpell); n == 0 || n > swings {
 				t.Errorf("%d off-hand swings cast %d Rends, want some and at most one each: a Rend never rolls the off-hand weapon", swings, n)
 			}
-			if n := casts(woundSpell); n != 0 {
-				t.Errorf("Rends off-hand swings cast rolled the main-hand weapon's Wound %d times, want none", n)
+			if n := casts(strikeSpell); n != 0 {
+				t.Errorf("Rends off-hand swings cast rolled the main-hand weapon's Forging Strike %d times, want none", n)
 			}
 
-			rends, wounds := casts(rendSpell), casts(woundSpell)
+			rends, strikes := casts(rendSpell), casts(strikeSpell)
 			for range swings {
 				landSwing(sim, caster, target, core.ProcMaskMeleeMHAuto)
 			}
 			settleChains(t, sim)
 			if n := casts(rendSpell) - rends; n != 0 {
-				t.Errorf("%d main-hand swings and the Wounds they cast cast %d Rends, want none", swings, n)
+				t.Errorf("%d main-hand swings and the Forging Strikes they cast cast %d Rends, want none", swings, n)
 			}
-			if n := casts(woundSpell) - wounds; n <= swings {
-				t.Errorf("%d main-hand swings cast %d Wounds, want more: a Wound rolls the main-hand weapon again", swings, n)
+			if n := casts(strikeSpell) - strikes; n <= swings {
+				t.Errorf("%d main-hand swings cast %d Forging Strikes, want more: a Forging Strike rolls the main-hand weapon again", swings, n)
 			}
 		})
 	}
@@ -305,12 +312,12 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 // A strike whose own weapon procs on every hit and that always lands chains for as long as it is
 // rolled, each re-roll one spell batch after the strike that asked for it rather than inside it.
 func TestWeaponProcStrikeThatAlwaysProcsChainsOneBatchApart(t *testing.T) {
-	const weaponID, wound int32 = 991616, 16405
+	const weaponID int32 = 991616
 	const batches = 5
-	editRow(t, wound, alwaysProcs)
-	sim, caster, target := newSlowProcSim(t, weaponID, registerSpellDataDamageProc, wound, nil)
+	editRow(t, forgingStrike, alwaysProcs)
+	sim, caster, target := newSlowProcSim(t, weaponID, registerSpellDataDamageProc, forgingStrike, nil)
 	caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
-	strike := mustGetSpell(t, caster, wound)
+	strike := mustGetSpell(t, caster, forgingStrike)
 	metrics := &strike.SpellMetrics[target.UnitIndex]
 
 	landMainHandSwing(sim, caster, target)
@@ -326,14 +333,16 @@ func TestWeaponProcStrikeThatAlwaysProcsChainsOneBatchApart(t *testing.T) {
 	}
 }
 
-// Every landed Rend 18202 puts its bleed on the target, a Rend that its own strike chained included,
-// and no weapon proc hears the bleed's ticks. A test one-hander carries the row at a chance below 1,
-// and each swing lands once the last bleed has run out.
+// Every landed Rend puts its bleed on the target, a Rend that its own strike chained included, and
+// no weapon proc hears the bleed's ticks. A test one-hander carries a copy of the row at a chance
+// below 1, with a bleed short enough for every swing to fit the fight, and each swing lands once the
+// last bleed has run out.
 func TestWeaponProcStrikeChainAppliesEachLandedBleed(t *testing.T) {
-	const weaponID, neckID, rend int32 = 991612, 991613, 18202
+	const weaponID, neckID, rend int32 = 991612, 991613, rendStrike
 	const swings = 10
 	editRow(t, rend, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 90, spelldata.ProcChanceColumn
+		s.DurationMs = 12000
 	})
 	duration := spelldata.MustFind(rend).Duration()
 	withAuraItem(neckID, proto.ItemType_ItemTypeNeck)
@@ -393,10 +402,10 @@ func newOffHandProcSim(t *testing.T, weaponID, row int32, neck *proto.ItemSpec) 
 	return sim, caster, sim.Encounter.ActiveTargetUnits[0]
 }
 
-// Rend 18202 rolled at 100% in the off hand: the strike an off-hand swing casts puts its bleed on
-// the target and rolls its own weapon no more, where a roll that cannot fail would chain.
+// Rend rolled at 100% in the off hand: the strike an off-hand swing casts puts its bleed on the
+// target and rolls its own weapon no more, where a roll that cannot fail would chain.
 func TestOffHandWeaponProcStrikeAppliesItsBleed(t *testing.T) {
-	const weaponID, rend int32 = 991617, 18202
+	const weaponID, rend int32 = 991617, rendStrike
 	editRow(t, rend, alwaysProcs)
 	sim, caster, target := newOffHandProcSim(t, weaponID, rend, nil)
 	strike := mustGetSpell(t, caster, rend)
@@ -411,12 +420,12 @@ func TestOffHandWeaponProcStrikeAppliesItsBleed(t *testing.T) {
 	}
 }
 
-// Wound 16405 rolled at 100% in the off hand, given a missile speed: the strike an off-hand swing
+// Forging Strike rolled at 100% in the off hand, given a missile speed: the strike an off-hand swing
 // casts lands after its flight, and its own weapon and a main-hand weapon proc hear the landing no
 // more than they would an instant strike.
 func TestOffHandWeaponProcStrikeInFlightIsHeardByNoWeaponProc(t *testing.T) {
-	const weaponID, neckID, wound int32 = 991618, 991619, 16405
-	editRow(t, wound, func(s *spelldata.Spell) {
+	const weaponID, neckID int32 = 991618, 991619
+	editRow(t, forgingStrike, func(s *spelldata.Spell) {
 		alwaysProcs(s)
 		s.Speed = 20
 	})
@@ -425,29 +434,29 @@ func TestOffHandWeaponProcStrikeInFlightIsHeardByNoWeaponProc(t *testing.T) {
 	core.NewItemEffect(neckID, func(agent core.Agent) {
 		agent.GetCharacter().MakeProcTriggerAura(weaponProcListener("Test Oil", core.ProcMaskMeleeMH,
 			func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-				if spell.ActionID.SpellID == wound {
+				if spell.ActionID.SpellID == forgingStrike {
 					heard++
 				}
 			}))
 	})
-	sim, caster, target := newOffHandProcSim(t, weaponID, wound, &proto.ItemSpec{Id: neckID})
-	strike := mustGetSpell(t, caster, wound)
+	sim, caster, target := newOffHandProcSim(t, weaponID, forgingStrike, &proto.ItemSpec{Id: neckID})
+	strike := mustGetSpell(t, caster, forgingStrike)
 	caster.DistanceFromTarget = 20
 	metrics := &strike.SpellMetrics[target.UnitIndex]
 
 	landSwing(sim, caster, target, core.ProcMaskMeleeOHAuto)
 	if caster.SpellsInFlight[strike] != 1 || metrics.TotalDamage != 0 {
-		t.Fatalf("the Wound is not in flight after the swing")
+		t.Fatalf("the Forging Strike is not in flight after the swing")
 	}
 	settleChains(t, sim)
 	if caster.SpellsInFlight[strike] != 0 || metrics.TotalDamage == 0 {
-		t.Fatalf("the Wound did not land")
+		t.Fatalf("the Forging Strike did not land")
 	}
 	if metrics.Casts != 1 {
-		t.Errorf("the off-hand swing cast %d Wounds, want 1: its landing rolled its own weapon", metrics.Casts)
+		t.Errorf("the off-hand swing cast %d Forging Strikes, want 1: its landing rolled its own weapon", metrics.Casts)
 	}
 	if heard != 0 {
-		t.Errorf("the main-hand weapon proc heard %d Wounds, want none", heard)
+		t.Errorf("the main-hand weapon proc heard %d Forging Strikes, want none", heard)
 	}
 }
 

@@ -17,7 +17,6 @@ var arrows = map[string]generatedArrow{
 	"SharpArrow":         {Name: "Sharp Arrow", ItemID: 2515, DPS: 3.5},
 	"RazorArrow":         {Name: "Razor Arrow", ItemID: 3030, DPS: 7.5},
 	"FeatheredArrow":     {Name: "Feathered Arrow", ItemID: 3464, DPS: 9.5},
-	"PrecisionArrow":     {Name: "Precision Arrow", ItemID: 9399, DPS: 11.5},
 	"JaggedArrow":        {Name: "Jagged Arrow", ItemID: 11285, DPS: 13},
 	"ExplosiveArrow":     {Name: "Explosive Arrow", ItemID: 10579, DPS: 14.5},
 	"IceThreadedArrow":   {Name: "Ice Threaded Arrow", ItemID: 19316, DPS: 16.5},
