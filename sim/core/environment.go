@@ -298,6 +298,7 @@ func (env *Environment) reset(sim *Simulation) {
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}
+	env.Encounter.design.reset(sim)
 
 	env.Raid.reset(sim)
 }

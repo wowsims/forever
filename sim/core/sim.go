@@ -26,6 +26,7 @@ type Simulation struct {
 	Options *proto.SimOptions
 
 	rand        Rand
+	designRand  Rand // The encounter design's jitter and kill rolls, apart from the combat rolls.
 	rseed       int64
 	currentSeed int64
 
@@ -196,6 +197,7 @@ func newSimWithEnv(env *Environment, simOptions *proto.SimOptions, signals simsi
 		Options:     simOptions,
 
 		rand:        NewSplitMix(uint64(rseed)),
+		designRand:  NewSplitMix(uint64(designRandSeed(rseed))),
 		rseed:       rseed,
 		currentSeed: rseed,
 
@@ -242,6 +244,7 @@ func (sim *Simulation) reseedRands(i int64) {
 	rseed := sim.Options.RandomSeed + i
 	sim.currentSeed = rseed
 	sim.rand.Seed(rseed)
+	sim.designRand.Seed(designRandSeed(rseed))
 
 	if sim.isTest {
 		for label, rng := range sim.testRands {
