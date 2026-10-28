@@ -1,6 +1,7 @@
 package priest
 
 import (
+	"math"
 	"testing"
 
 	"github.com/wowsims/forever/sim/common"
@@ -223,4 +224,58 @@ func TestSpiritTapProcsOnACreditedKillOfAnAfflictedTarget(t *testing.T) {
 			t.Error("Spirit Tap is on after a kill of a target the priest has not afflicted")
 		}
 	})
+}
+
+// Early Demise reads the health of each Shadow Word: Death's own target: the crit bonus is on for a cast
+// at a target below its threshold and off for one at a target above it.
+func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig())
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name:      "Early Demise",
+			Race:      proto.Race_RaceTroll,
+			Class:     proto.Class_ClassPriest,
+			Equipment: &proto.EquipmentSpec{},
+			// Early Demise 2/2 in the Shadow tree.
+			TalentsString: "--000000000000002",
+			Spec: &proto.Player_DpsPriest{
+				DpsPriest: &proto.DpsPriest{
+					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+				},
+			},
+			Rotation: &proto.APLRotation{},
+		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	priest := sim.Raid.Parties[0].Players[0].(*Priest)
+	if priest.Talents.EarlyDemise != 2 {
+		t.Fatalf("the build has Early Demise %d, want 2", priest.Talents.EarlyDemise)
+	}
+	rank := spellData.ShadowWordDeath.Highest()
+	spell := priest.GetSpell(core.ActionID{SpellID: rank.ID})
+	if spell == nil {
+		t.Fatalf("the priest has no %s %d", rank.Name, rank.ID)
+	}
+	full, low := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargets[1]
+	low.SetHealthCurve(sim, 0, sim.Duration, core.HealthKnot{At: 0, Percent: 15}, core.HealthKnot{At: 1, Percent: 0})
+	base := spell.BonusCritPercent
+	bonus := spellData.EarlyDemise.EffectAt(1).ValueAt(2)
+
+	for _, c := range []struct {
+		target *core.Unit
+		want   float64
+	}{
+		{full, 0},
+		{&low.Unit, bonus},
+		{full, 0},
+	} {
+		spell.SkipCastAndApplyEffects(sim, c.target)
+		if got := spell.BonusCritPercent - base; math.Abs(got-c.want) > 1e-9 {
+			t.Errorf("Shadow Word: Death at %s has %v bonus crit, want %v", c.target.Label, got, c.want)
+		}
+	}
 }

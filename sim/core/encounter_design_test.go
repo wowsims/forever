@@ -183,7 +183,7 @@ func TestDesignBossCurveKeepsTheKeyframesThatFit(t *testing.T) {
 	if len(*notes) != 1 {
 		t.Errorf("too many keyframes: expected one log line, got %d", len(*notes))
 	}
-	if got, want := sim.Encounter.AllTargets[0].ExecuteAt(35), designAt(0.65); got != want {
+	if got, want := sim.Encounter.AllTargets[0].executeAt(35), designAt(0.65); got != want {
 		t.Errorf("35%% crossing from the kept knots: expected %s, got %s", want, got)
 	}
 }

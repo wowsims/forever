@@ -306,6 +306,9 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 		return
 	}
 
+	// A hardcast still running would land at its end, after the target has gone. The interrupt comes
+	// before the GCD stops, since it sets the GCD again.
+	target.Interrupt(sim)
 	target.CancelGCDTimer(sim)
 	target.AutoAttacks.CancelAutoSwing(sim)
 

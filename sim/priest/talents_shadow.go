@@ -1,6 +1,8 @@
 package priest
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -211,23 +213,34 @@ func (priest *Priest) applyEarlyDemise() {
 		return
 	}
 
-	// The sim tracks the target's health as the execute phases 35 and 20.
-	threshold := int32(spellData.EarlyDemise.EffectAt(2).ValueAt(priest.Talents.EarlyDemise))
 	critMod := priest.AddDynamicMod(core.SpellModConfig{
 		Kind:       core.SpellMod_BonusCrit_Percent,
 		FloatValue: spellData.EarlyDemise.EffectAt(1).ValueAt(priest.Talents.EarlyDemise),
 		ClassMask:  PriestSpellShadowWordDeath,
 	})
-
-	onExecutePhase := func(_ *core.Simulation, _ *core.Unit, isExecute int32) {
-		if isExecute <= threshold {
-			critMod.Activate()
-		}
-	}
-	priest.RegisterResetEffect(func(sim *core.Simulation) {
+	priest.RegisterResetEffect(func(_ *core.Simulation) {
 		critMod.Deactivate()
-		sim.RegisterExecutePhaseCallback(onExecutePhase)
 	})
+
+	// The threshold is the target's health, so the bonus follows the target of each Shadow Word: Death. The sim
+	// tracks a target's health as its execute phase, so only a 20% threshold can be read.
+	if threshold := spellData.EarlyDemise.EffectAt(2).ValueAt(priest.Talents.EarlyDemise); threshold != 20 {
+		panic(fmt.Sprintf("priest: Early Demise %d states a %.0f%% health threshold, and the sim tracks the 20%% phase only",
+			spellData.EarlyDemise.Rank(priest.Talents.EarlyDemise).ID, threshold))
+	}
+	core.MakePermanent(priest.RegisterAura(core.Aura{
+		Label: "Early Demise",
+		OnApplyEffects: func(_ *core.Aura, _ *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if !spell.Matches(PriestSpellShadowWordDeath) {
+				return
+			}
+			if target.IsExecutePhase20() {
+				critMod.Activate()
+			} else {
+				critMod.Deactivate()
+			}
+		},
+	}))
 }
 
 // Increases your Shadow damage done by X%

@@ -147,6 +147,56 @@ func TestDesignBossAbilityOfADisabledTargetDoesNothing(t *testing.T) {
 	}
 }
 
+// A downtime or a death that takes the boss away mid-hardcast stops the cast, so the spell hit does not land
+// once the boss is back; a later occurrence still does.
+func TestDesignSpellHitStopsWhenItsTargetGoesAway(t *testing.T) {
+	const castTime = 4 * time.Second
+	design := func(downtimes []*proto.DesignDowntime) *proto.EncounterDesign {
+		startAt, endAt := designWindow(0.1, 0.2)
+		return &proto.EncounterDesign{
+			Downtimes: downtimes,
+			BossAbilities: []*proto.DesignBossAbility{{
+				Kind:      proto.DesignBossAbility_SpellHit,
+				Start:     startAt,
+				End:       endAt,
+				Repeat:    &proto.DesignRepeat{Interval: 0.1},
+				MinDamage: 100,
+				MaxDamage: 100,
+				CastTime:  castTime.Seconds(),
+			}},
+		}
+	}
+	spellHits := func(hits []designHitTaken) []designHitTaken {
+		return designHitsOf(hits, func(id ActionID) bool { return id.SpellID == designSpellHitSpellID })
+	}
+
+	t.Run("downtime", func(t *testing.T) {
+		downtime := []*proto.DesignDowntime{{TargetIndex: 0, Start: &proto.DesignTime{At: 0.11}, End: &proto.DesignTime{At: 0.12}}}
+		_, hits := runDesignHitsTaken(t, designTestRequest(1, design(downtime)))
+		landed := spellHits(hits)
+		if len(landed) != 1 || landed[0].at != designAt(0.2)+castTime {
+			t.Errorf("expected only the hit of the occurrence after the downtime, at %s; got %v", designAt(0.2)+castTime, landed)
+		}
+	})
+
+	t.Run("death", func(t *testing.T) {
+		sim, hits := setupDesignHitsTaken(designTestRequest(1, design(nil)), nil)
+		boss := sim.Encounter.AllTargets[0]
+		runLifecycleUntil(sim, designAt(0.11))
+		if boss.Hardcast.Expires <= sim.CurrentTime {
+			t.Fatal("test setup: expected the boss mid-hardcast")
+		}
+		boss.Die(sim, 0)
+		if boss.Hardcast.Expires > sim.CurrentTime {
+			t.Errorf("the death left the hardcast running until %s", boss.Hardcast.Expires)
+		}
+		runLifecycleUntil(sim, sim.Duration)
+		if landed := spellHits(*hits); len(landed) != 0 {
+			t.Errorf("expected no hit from the dead boss, got %v", landed)
+		}
+	})
+}
+
 func TestDesignStrikeReplacesOneSwingPerOccurrence(t *testing.T) {
 	startAt, endAt := designWindow(0.1, 0.35)
 	design := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{{

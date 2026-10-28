@@ -55,10 +55,10 @@ func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 		target := sim.Encounter.AllTargets[0]
 		want35 := time.Duration((1 - tc.p35) * float64(sim.Duration))
 		want20 := time.Duration((1 - tc.p20) * float64(sim.Duration))
-		if got := target.ExecuteAt(35); got != want35 {
+		if got := target.executeAt(35); got != want35 {
 			t.Errorf("%v s with %v/%v: 35%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want35)
 		}
-		if got := target.ExecuteAt(20); got != want20 {
+		if got := target.executeAt(20); got != want20 {
 			t.Errorf("%v s with %v/%v: 20%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want20)
 		}
 	}
@@ -88,15 +88,15 @@ func TestHealthPercentInterpolatesAndClamps(t *testing.T) {
 		}
 	}
 
-	if got, want := target.ExecuteAt(35), 78750*time.Millisecond; got != want {
+	if got, want := target.executeAt(35), 78750*time.Millisecond; got != want {
 		t.Errorf("35%% at %v, want %v", got, want)
 	}
-	if got, want := target.ExecuteAt(20), 97500*time.Millisecond; got != want {
+	if got, want := target.executeAt(20), 97500*time.Millisecond; got != want {
 		t.Errorf("20%% at %v, want %v", got, want)
 	}
 
 	target.SetHealthCurve(sim, 0, 100*time.Second, HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 1, Percent: 50})
-	if got := target.ExecuteAt(35); got != NeverExpires {
+	if got := target.executeAt(35); got != NeverExpires {
 		t.Errorf("a curve that stays above 35%% reaches it at %v", got)
 	}
 }

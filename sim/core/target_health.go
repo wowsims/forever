@@ -98,7 +98,7 @@ func (target *Target) HealthPercent(sim *Simulation) float64 {
 }
 
 // The time the target's health curve reaches the 35% or 20% execute phase, or NeverExpires.
-func (target *Target) ExecuteAt(pct int32) time.Duration {
+func (target *Target) executeAt(pct int32) time.Duration {
 	switch pct {
 	case 35:
 		return target.health.executeAt35
