@@ -40,6 +40,7 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 		&raw.OverallQuality,
 		&raw.DmgVariance,
 		&raw.ItemLevel,
+		&raw.RequiredLevel,
 		&statValue,
 		&bonusStatString,
 		&raw.ArmorValue,
@@ -117,6 +118,7 @@ func LoadAndWriteRawItems(dbHelper *DBHelper, filter string, inputsDir string) (
 			s.OverallQualityID,
 			s.DmgVariance,
 			s.ItemLevel,
+			s.RequiredLevel,
 			s.StatPercentEditor as StatValue,
 			s.StatModifier_bonusStat as bonusStat,
 			0 as ArmorValue, -- Item.Resistances_* is absent from the game files: GetArmorValue computes

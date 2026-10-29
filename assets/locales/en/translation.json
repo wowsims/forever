@@ -529,8 +529,9 @@
 			"filters": {
 				"title": "Filters",
 				"general": "General",
-				"min_ilvl": "Min ILvl",
-				"max_ilvl": "Max ILvl",
+				"required_level": "Required Level",
+				"min_ilvl": "Min Item Level",
+				"max_ilvl": "Max Item Level",
 				"faction_restrictions": "Faction Restrictions",
 				"source": "Source",
 				"raids": "Raids",
