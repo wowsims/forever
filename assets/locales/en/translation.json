@@ -435,6 +435,8 @@
 			"hit": "Hit",
 			"external": "External",
 			"self": "self",
+			"shield": "Shield",
+			"amplified": "Amplified",
 			"custom_boss": "Custom Boss",
 			"thrash": "Thrash",
 			"stacks": "{{stacks}} Stacks",
@@ -2184,7 +2186,7 @@
 				},
 				"selected_potion": {
 					"label": "Selected Potion",
-					"tooltip": "Returns <b>True</b> if the potion is picked in any of the potion slots: offensive, defensive or resource."
+					"tooltip": "Returns <b>True</b> if the potion is picked in the chosen potion slot, or with <b>Any</b> in any of them: offensive, defensive or resource."
 				},
 				"selected_conjured": {
 					"label": "Selected Conjured",
@@ -3525,7 +3527,7 @@
 			"other": "Other"
 		},
 		"group_count": "{{group}} ({{shown}}/{{total}})",
-		"kept_tooltip": "This item is showing because you have it selected. Use the stat filters to permanently show it.",
+		"kept_tooltip": "This item is showing because you have it selected. Use the filters to permanently show it.",
 		"rating_label": "{{stat}} Rating",
 		"percent_label": "{{stat}} %"
 	}

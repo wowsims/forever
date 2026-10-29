@@ -22,7 +22,7 @@ export const FireAplPreset = PresetUtils.makePresetAPLRotation('Fire', deepFire)
 export const FrostAplPreset = PresetUtils.makePresetAPLRotation('Frost', frost);
 
 export const ArcaneFrostTalents = PresetUtils.makePresetTalents('Arcane Frost', SavedTalents.create({ talentsString: '050205203100311531-53-0533' }));
-export const ArcaneFireTalents = PresetUtils.makePresetTalents('Arcane Fire', SavedTalents.create({ talentsString: '050205203100311531-505103010001-003' }));
+export const ArcaneFireTalents = PresetUtils.makePresetTalents('Arcane Fire', SavedTalents.create({ talentsString: '050205203100311531-525000012001-003' }));
 export const FFBTalents = PresetUtils.makePresetTalents('FFB', SavedTalents.create({ talentsString: '-5550000123011303-2035010311013002' }));
 export const FireTalents = PresetUtils.makePresetTalents('Fire', SavedTalents.create({ talentsString: '0502052001001-55500001230133031-003' }));
 export const FrostTalents = PresetUtils.makePresetTalents('Frost', SavedTalents.create({ talentsString: '0502052011003--053500021100331251' }));

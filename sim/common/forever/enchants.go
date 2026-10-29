@@ -53,12 +53,11 @@ func init() {
 		character := agent.GetCharacter()
 		duration := time.Second * 15
 
-		createMongooseAuras := func(tag int32) *core.StatBuffAura {
-			labelSuffix := core.Ternary(tag == 1, " (MH)", " (OH)")
-			slot := core.Ternary(tag == 1, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand)
+		createMongooseAuras := func(slot proto.ItemSlot) *core.StatBuffAura {
+			labelSuffix := core.Ternary(slot == proto.ItemSlot_ItemSlotMainHand, " (MH)", " (OH)")
 			aura := character.NewTemporaryStatsAuraWrapped(
 				"Lightning Speed"+labelSuffix,
-				core.ActionID{SpellID: 28093}.WithTag(tag),
+				core.ActionID{SpellID: 28093}.WithHand(slot),
 				stats.Stats{stats.Agility: 120},
 				duration,
 				func(aura *core.Aura) {
@@ -75,8 +74,8 @@ func init() {
 			return aura
 		}
 
-		mhAuras := createMongooseAuras(1)
-		ohAuras := createMongooseAuras(2)
+		mhAuras := createMongooseAuras(proto.ItemSlot_ItemSlotMainHand)
+		ohAuras := createMongooseAuras(proto.ItemSlot_ItemSlotOffHand)
 
 		character.MakeProcTriggerAura(core.ProcTrigger{
 			Name:         "Enchant Weapon - Mongoose",

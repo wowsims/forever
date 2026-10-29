@@ -14,15 +14,15 @@
 	{"action":{"groupReference":{"groupName":"CD: Trinkets"}}},
 	{"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"groupReference":{"groupName":"Sunder Armor"}}},
 	{"hide":true,"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"groupReference":{"groupName":"Sunder Armor: Refresh"}}},
-	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"otherId":"OtherActionOffensivePotion"},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
+	{"action":{"condition":{"and":{"vals":[{"not":{"val":{"variableRef":{"name":"Offensive Potion: Rage"}}}},{"multipleCdUsages":{"targetSpellId":{"otherId":"OtherActionOffensivePotion"},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}}]}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
 	{"action":{"groupReference":{"groupName":"CD: Racials"}}},
 	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"spellId":12328},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"spellId":12328}}}},
 	{"action":{"condition":{"and":{"vals":[{"actionGroupUsed":{"name":"Recklessness ON/OFF"}},{"multipleCdUsages":{"targetSpellId":{"spellId":1719},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}}]}},"castSpell":{"spellId":{"spellId":1719}}}},
 	{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}}]}},"castSpell":{"spellId":{"spellId":12723}}}},
-	{"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":1680,"tag":1}}}},
+	{"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":1680,"tag":14}}}},
 	{"action":{"groupReference":{"groupName":"Overpower Weaving"}}},
 	{"action":{"condition":{"isExecutePhase":{"threshold":"E20"}},"castSpell":{"spellId":{"spellId":20662}}}},
-	{"action":{"castSpell":{"spellId":{"spellId":1680,"tag":1}}}},
+	{"action":{"castSpell":{"spellId":{"spellId":1680,"tag":14}}}},
 	{"action":{"castSpell":{"spellId":{"spellId":23894}}}},
 	{"action":{"condition":{"or":{"vals":[{"and":{"vals":[{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"not":{"val":{"isExecutePhase":{"threshold":"E20"}}}},{"cmp":{"op":"OpGe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"40"}}}}]}},{"and":{"vals":[{"variableRef":{"name":"Delay Check"}},{"cmp":{"op":"OpGt","lhs":{"currentRage":{}},"rhs":{"const":{"val":"60"}}}}]}}]}},"castSpell":{"spellId":{"spellId":25286,"tag":1}}}},
 	{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"or":{"vals":[{"cmp":{"op":"OpGe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"40"}}}}]}}]}},"castSpell":{"spellId":{"spellId":20569,"tag":1}}}},
@@ -30,7 +30,8 @@
 	{"action":{"condition":{"variableRef":{"name":"Rend: Can Cast"}},"castSpell":{"spellId":{"spellId":11574}}}},
 	{"action":{"condition":{"and":{"vals":[{"auraIsActive":{"auraId":{"spellId":2457}}},{"not":{"val":{"variableRef":{"name":"Battle Stance: Wanted"}}}}]}},"castSpell":{"spellId":{"spellId":2458}}}},
 	{"action":{"condition":{"and":{"vals":[{"actionGroupUsed":{"name":"Hamstring Weave ON/OFF"}},{"auraIsKnown":{"auraId":{"spellId":10612,"tag":-1}}},{"variableRef":{"name":"Delay Check"}},{"not":{"val":{"isExecutePhase":{"threshold":"E20"}}}}]}},"castSpell":{"spellId":{"spellId":7373}}}},
-	{"action":{"condition":{"or":{"vals":[{"not":{"val":{"or":{"vals":[{"selectedPotion":{"potionId":{"itemId":5631}}},{"selectedPotion":{"potionId":{"itemId":5633}}},{"selectedPotion":{"potionId":{"itemId":13442}}}]}}}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"30"}}}}]}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
+	{"action":{"condition":{"or":{"vals":[{"not":{"val":{"variableRef":{"name":"Resource Potion: Rage"}}}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"30"}}}}]}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
+	{"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Offensive Potion: Rage"}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"30"}}}}]}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
 	{"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentRage":{}},"rhs":{"const":{"val":"90"}}}},"castSpell":{"spellId":{"spellId":2687}}}},
 	{"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Delay Check"}},{"talentIsKnown":{"talentId":{"spellId":20500,"rank":1}}}]}},"castSpell":{"spellId":{"spellId":18499}}}},
 	{"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Delay Check"}},{"variableRef":{"name":"Battle Shout: No Raid Buff"}},{"cmp":{"op":"OpLe","lhs":{"auraRemainingTime":{"auraId":{"spellId":25289}}},"rhs":{"const":{"val":"10s"}}}}]}},"castSpell":{"spellId":{"spellId":25289}}}},
@@ -53,10 +54,12 @@
 	],
 	"valueVariables": [
 	{"name":"Battle Shout: No Raid Buff","value":{"not":{"val":{"or":{"vals":[{"auraIsKnown":{"auraId":{"spellId":11551,"tag":-1}}},{"auraIsKnown":{"auraId":{"spellId":25289,"tag":-1}}}]}}}}},
-	{"name":"Delay Check","value":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":23894}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":23894}}}}},{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":1680,"tag":1}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":1680,"tag":1}}}}}]}}},
+	{"name":"Delay Check","value":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":23894}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":23894}}}}},{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":1680,"tag":14}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":1680,"tag":14}}}}}]}}},
 	{"name":"Overpower: Can Cast","value":{"and":{"vals":[{"actionGroupUsed":{"name":"Overpower Weaving"}},{"auraIsActive":{"auraId":{"spellId":1282733},"includeReactionTime":true}},{"cmp":{"op":"OpGe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"5"}}}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"73"}}}},{"spellIsReady":{"spellId":{"spellId":11585}}}]}}},
 	{"name":"Rend: Can Cast","value":{"and":{"vals":[{"actionGroupUsed":{"name":"Rend Weave ON/OFF"}},{"not":{"val":{"isExecutePhase":{"threshold":"E20"}}}},{"not":{"val":{"dotIsActive":{"spellId":{"spellId":11574}}}}},{"cmp":{"op":"OpGe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"10"}}}}]}}},
 	{"name":"Battle Stance: Swap Ready","value":{"cmp":{"op":"OpLe","lhs":{"spellTimeToReady":{"spellId":{"spellId":2457}}},"rhs":{"const":{"val":"0s"}}}}},
-	{"name":"Battle Stance: Wanted","value":{"or":{"vals":[{"variableRef":{"name":"Overpower: Can Cast"}},{"variableRef":{"name":"Rend: Can Cast"}}]}}}
+	{"name":"Battle Stance: Wanted","value":{"or":{"vals":[{"variableRef":{"name":"Overpower: Can Cast"}},{"variableRef":{"name":"Rend: Can Cast"}}]}}},
+	{"name":"Resource Potion: Rage","value":{"or":{"vals":[{"selectedPotion":{"potionId":{"itemId":5631},"slot":"OtherActionResourcePotion"}},{"selectedPotion":{"potionId":{"itemId":5633},"slot":"OtherActionResourcePotion"}},{"selectedPotion":{"potionId":{"itemId":13442},"slot":"OtherActionResourcePotion"}}]}}},
+	{"name":"Offensive Potion: Rage","value":{"or":{"vals":[{"selectedPotion":{"potionId":{"itemId":5631},"slot":"OtherActionOffensivePotion"}},{"selectedPotion":{"potionId":{"itemId":5633},"slot":"OtherActionOffensivePotion"}},{"selectedPotion":{"potionId":{"itemId":13442},"slot":"OtherActionOffensivePotion"}}]}}}
 	]
 }

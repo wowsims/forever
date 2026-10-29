@@ -2,11 +2,11 @@ casts_results: {
  key: "TestFeralCatCoverage-Casts"
  value: {
   casts: {
-   key: "other_id:OtherActionAttack tag:1"
+   key: "other_id:OtherActionAttack tag:14"
    value: 178
   }
   casts: {
-   key: "other_id:OtherActionAttack tag:2"
+   key: "other_id:OtherActionAttack tag:15"
    value: 0
   }
   casts: {
@@ -171,11 +171,11 @@ casts_results: {
  key: "TestFeralCatCoverage-RavageCasts"
  value: {
   casts: {
-   key: "other_id:OtherActionAttack tag:1"
+   key: "other_id:OtherActionAttack tag:14"
    value: 178
   }
   casts: {
-   key: "other_id:OtherActionAttack tag:2"
+   key: "other_id:OtherActionAttack tag:15"
    value: 0
   }
   casts: {

@@ -1,4 +1,4 @@
-import { OtherAction } from '@generated/proto/common';
+import { ItemSlot, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
@@ -60,7 +60,7 @@ describe('wand shots', () => {
 
 	it('keeps the main-hand and off-hand autos in rows of their own', () => {
 		const attack = (tag: number) => ActionId.fromOtherId(OtherAction.OtherActionAttack, tag);
-		expect(castRows([castOf(attack(1), 1), castOf(attack(2), 1.5)])).toHaveLength(2);
+		expect(castRows([castOf(attack(ItemSlot.ItemSlotMainHand), 1), castOf(attack(ItemSlot.ItemSlotOffHand), 1.5)])).toHaveLength(2);
 	});
 
 	it('keeps the tags of a spell outside the grouped list in rows of their own', () => {

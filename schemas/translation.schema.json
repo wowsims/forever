@@ -1535,6 +1535,12 @@
 						"self": {
 							"type": "string"
 						},
+						"shield": {
+							"type": "string"
+						},
+						"amplified": {
+							"type": "string"
+						},
 						"custom_boss": {
 							"type": "string"
 						},
@@ -1601,6 +1607,8 @@
 						"hit",
 						"external",
 						"self",
+						"shield",
+						"amplified",
 						"custom_boss",
 						"thrash",
 						"stacks",

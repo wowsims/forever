@@ -149,7 +149,7 @@ time the menu opens. That is how the consumables follow their EP order (`ordered
 the picker subscribing to the EP fields.
 
 **Kept selections.** The icon, icon-enum and multi-icon configs implement `KeptInput.keptBy(obj, value)`
-(`ui/features/inputs/input.ts`): true when the stat filter hides a selection that stays offered because it is
+(`ui/features/inputs/input.ts`): true when a filter (the stat filter, or a consumable's minimum level) hides a selection that stays offered because it is
 selected. The adapter turns that into the kit's single `keptTooltip` prop through `keptTooltipOf`; present means kept.
 `IconSwatch` (`ui/ui-kit/IconSwatch/IconSwatch.tsx`) owns the dimmed swatch, the corner badge with the tooltip, and
 the `data-kept` attribute on the swatch box. `valuePicked` and `inputPicked` (same `utils.ts`) answer whether a value or

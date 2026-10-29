@@ -503,8 +503,8 @@ func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 // Every white swing uses a Flurry charge whatever its outcome, and a Heroic Strike or Cleave uses
 // one only when it misses.
 func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
-	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 1}
-	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 2}
+	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	heroicStrike := core.ActionID{SpellID: 11567}
 	cleave := core.ActionID{SpellID: 20569}
 	cases := []struct {

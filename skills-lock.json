@@ -15,7 +15,7 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "09a74e0f1112e4ecab28d878d93c5acba35cdb43a1c6bfe818f8f383168ed94f"
+      "computedHash": "d6ac5d8d574b414302c5527dab851c3529eb79647ae3e695c5700db91ec6a3c1"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "21f3a99af5dd2be0df2565fe1afc68c2a7187236b1387e835bfbe5ed00537aed"
+      "computedHash": "96bc0630b5d2a33f443fbe554fd45ec0681b6150c44bbbc6b777de4976ac5cb9"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -80,7 +80,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "e9043f93168e852f05a9fff3e8832c812eeab21230fb3f65fa10213a12865026"
+      "computedHash": "080a765f64088dddcfa8a2f924bf9d63ceb08d27e1452a399f13fa7448b76f8d"
     }
   }
 }
