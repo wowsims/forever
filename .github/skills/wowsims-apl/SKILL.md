@@ -53,6 +53,15 @@ A value or action reaches the rotation and the kind picker in five places, all i
 
 - **Nothing forces step 2.** The switch's `default` returns nil with no warning, so a oneof without a case is dropped
   like an unresolved value.
+- **A field reads its value through `coerceTo`** (`apl_values_operators.go`), which leaves out a computed value it
+  cannot read as the field's type, a yes/no value as a duration or text as a number, with a "Cannot read" warning.
+  Move, Move Duration, Wait, Wait Until and a prepull Do At then drop the line with a warning of their own.
+- **An action with a value field implements `GetAPLValues` and `ReplaceAPLValues`.** The first is how its values
+  are finalized and scanned for placeholders, the second how a Group Reference fills them
+  (`apl_action_group_reference.go`); without it a placeholder there reads zero. Multiple CD Usages' offset and Energy
+  Time To Target's energy are not inner values (`GetInnerValues`), so a placeholder there is neither found nor filled.
+- **A group's variables override value variables only in the conditions of its own actions**, not in their values
+  or inside a sequence (`reResolveVariableRefs`).
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
 - **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
@@ -118,7 +127,8 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   when an earlier prepull action moves the character. The hardcast itself rounds to the millisecond (`sim/core/cast.go`)
   and `Spell Cast Time` does not, so a Do At built from it can be up to half a millisecond off the cast end. A cast
   that comes that early is queued for the cast end (`QueueSpell` in `sim/core/spell_queueing.go`), so an action timed
-  at a cast end still goes after the cast lands.
+  at a cast end still goes after the cast lands. A Do At that reads the encounter (`Current Time`, a unit's health)
+  has no sim to read then: the line is left out with a warning that names the panic (`prepullTime`).
 - **A rotation with a Move line looks every reaction time (10 ms) through the GCD**, not once at its end
   (`hasMove` in `sim/core/apl.go`). Change Target costs nothing and has no GCD, so every Change Target line whose
   condition holds fires again on each look: a multi-target APL cycled targets 20 to 40 times a second (PR #734). Gate a
