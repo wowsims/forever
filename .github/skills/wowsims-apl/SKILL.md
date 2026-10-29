@@ -46,7 +46,9 @@ A value or action reaches the rotation and the kind picker in five places, all i
    `Type()`; the other getters panic. Core's switch sets `Uuid` by reflection; a class `NewAPLValue` returns before it,
    so a class value passes `config.Uuid` along itself (`sim/shaman/apl_values.go`).
 4. The entry in `valueKinds` or `actionKinds`: label, submenu, `includeIf` (prepull, spec) and fields. The mapped type
-   fails `npm run type-check` without one.
+   fails `npm run type-check` without one. Only boolean, number and string fields put their label in the row
+   (`INLINE_KINDS` in `ui/features/apl/components/FieldGroup/utils.ts`); a labelled enum or picker stacks its label
+   above the input and breaks the row, so a value's enum field goes unlabelled and lets its options name it.
 5. The label and tooltip keys in `assets/locales/en/translation.json`, which `ui/i18n/locale_keys.test.ts` checks.
 
 - **Nothing forces step 2.** The switch's `default` returns nil with no warning, so a oneof without a case is dropped
@@ -143,6 +145,11 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   (`Aura Remaining Time` above `GCD Time To Ready`). Swapping at the GCD drops the rage gained since a mid-GCD swap
   would have fired, about half a percent of DPS. Checking the spenders above Rend costs more DPS than the swaps it
   saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732).
+- **`Selected Potion` reads every potion slot unless its Slot is set** (`sim/core/apl_values_consumables.go`). A line
+  that treats one slot's potion differently reads that slot: the Fury and Arms presets read each placeholder's own slot
+  (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the
+  Resource Potion line's rage check, and an offensive potion beside a rage potion in another slot still aligns with the
+  cooldowns.
 
 ## Keeping this skill true
 

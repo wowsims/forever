@@ -15,8 +15,10 @@
 	{"action":{"groupReference":{"groupName":"CD: Trinkets"}}},
 	{"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"groupReference":{"groupName":"Sunder Armor"}}},
 	{"hide":true,"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"groupReference":{"groupName":"Sunder Armor: Refresh"}}},
-	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"otherId":"OtherActionOffensivePotion"},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
-	{"action":{"condition":{"or":{"vals":[{"not":{"val":{"or":{"vals":[{"selectedPotion":{"potionId":{"itemId":5631}}},{"selectedPotion":{"potionId":{"itemId":5633}}},{"selectedPotion":{"potionId":{"itemId":13442}}}]}}}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"15"}}}}]}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},	{"action":{"groupReference":{"groupName":"CD: Racials"}}},
+	{"action":{"condition":{"and":{"vals":[{"not":{"val":{"variableRef":{"name":"Offensive Potion: Rage"}}}},{"multipleCdUsages":{"targetSpellId":{"otherId":"OtherActionOffensivePotion"},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}}]}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
+	{"action":{"condition":{"or":{"vals":[{"not":{"val":{"variableRef":{"name":"Resource Potion: Rage"}}}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"15"}}}}]}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
+	{"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Offensive Potion: Rage"}},{"cmp":{"op":"OpLe","lhs":{"currentRage":{}},"rhs":{"const":{"val":"15"}}}}]}},"castSpell":{"spellId":{"otherId":"OtherActionOffensivePotion"}}}},
+	{"action":{"groupReference":{"groupName":"CD: Racials"}}},
 	{"action":{"condition":{"multipleCdUsages":{"targetSpellId":{"spellId":12328},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}},"castSpell":{"spellId":{"spellId":12328}}}},
 	{"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Recklessness: Used"}},{"multipleCdUsages":{"targetSpellId":{"spellId":1719},"offset":{"const":{"val":"0ms"}},"alignCdEnd":true}}]}},"castSpell":{"spellId":{"spellId":1719}}}},
 	{"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}}]}},"castSpell":{"spellId":{"spellId":12723}}}},
@@ -60,6 +62,8 @@
 	{"name":"Battle Shout: No Raid Buff","value":{"not":{"val":{"or":{"vals":[{"auraIsKnown":{"auraId":{"spellId":11551,"tag":-1}}},{"auraIsKnown":{"auraId":{"spellId":25289,"tag":-1}}}]}}}}},
 	{"name":"Delay Check","value":{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":21553}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":21553}}}}},{"or":{"vals":[{"not":{"val":{"actionGroupUsed":{"name":"Stance Dance ON/OFF"}}}},{"cmp":{"op":"OpGe","lhs":{"spellTimeToReady":{"spellId":{"spellId":1680,"tag":14}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":1680,"tag":14}}}}}]}}]}}},
 	{"name":"Battle Stance: Swap Ready","value":{"and":{"vals":[{"actionGroupUsed":{"name":"Stance Dance ON/OFF"}},{"not":{"val":{"isExecutePhase":{"threshold":"E20"}}}},{"auraIsActive":{"auraId":{"spellId":2458}}},{"cmp":{"op":"OpLe","lhs":{"spellTimeToReady":{"spellId":{"spellId":2457}}},"rhs":{"const":{"val":"0s"}}}}]}}},
-	{"name":"Recklessness: Used","value":{"and":{"vals":[{"actionGroupUsed":{"name":"Recklessness ON/OFF"}},{"actionGroupUsed":{"name":"Stance Dance ON/OFF"}}]}}}
+	{"name":"Recklessness: Used","value":{"and":{"vals":[{"actionGroupUsed":{"name":"Recklessness ON/OFF"}},{"actionGroupUsed":{"name":"Stance Dance ON/OFF"}}]}}},
+	{"name":"Resource Potion: Rage","value":{"or":{"vals":[{"selectedPotion":{"potionId":{"itemId":5631},"slot":"OtherActionResourcePotion"}},{"selectedPotion":{"potionId":{"itemId":5633},"slot":"OtherActionResourcePotion"}},{"selectedPotion":{"potionId":{"itemId":13442},"slot":"OtherActionResourcePotion"}}]}}},
+	{"name":"Offensive Potion: Rage","value":{"or":{"vals":[{"selectedPotion":{"potionId":{"itemId":5631},"slot":"OtherActionOffensivePotion"}},{"selectedPotion":{"potionId":{"itemId":5633},"slot":"OtherActionOffensivePotion"}},{"selectedPotion":{"potionId":{"itemId":13442},"slot":"OtherActionOffensivePotion"}}]}}}
 	]
 }
