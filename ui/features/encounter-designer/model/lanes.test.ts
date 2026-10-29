@@ -52,6 +52,7 @@ describe('lanes', () => {
 		expect(defaultEvent('move').yards).toBe(5);
 		expect(defaultEvent('amp').percent).toBe(10);
 		expect(defaultEvent('ability').castTime).toBe(2);
+		expect(defaultEvent('ability').weaponPercent).toBe(150);
 		const downtime = defaultEvent('downtime');
 		expect(downtime.clearDebuffs).toBe(true);
 		expect(downtime.end!.at - downtime.start!.at).toBeCloseTo(0.1);

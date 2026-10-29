@@ -115,7 +115,7 @@ func addDynamicAddsEncounter() {
 	})
 }
 
-// A tank example: the old Custom Boss defaults, with the abilities the old preset left switched off.
+// A tank example target. It ships with no boss abilities; the player adds them in the encounter designer.
 func addCustomBossEncounter() {
 	core.AddPresetTarget(&core.PresetTarget{
 		PathPrefix: "Default",
@@ -123,35 +123,7 @@ func addCustomBossEncounter() {
 	})
 	core.AddPresetEncounter("Custom Boss", []string{
 		"Default/Boss",
-	}, &proto.EncounterDesign{
-		BossAbilities: []*proto.DesignBossAbility{
-			{
-				Kind:         proto.DesignBossAbility_Thrash,
-				Start:        &proto.DesignTime{},
-				End:          &proto.DesignTime{At: 1},
-				ProcChance:   25,
-				ExtraAttacks: 1,
-				Icd:          5,
-			},
-			{
-				Kind:          proto.DesignBossAbility_Strike,
-				Start:         &proto.DesignTime{At: fractionOfFight(10)},
-				End:           &proto.DesignTime{At: 1},
-				Repeat:        &proto.DesignRepeat{Interval: fractionOfFight(10)},
-				WeaponPercent: 50,
-			},
-			{
-				Kind:      proto.DesignBossAbility_SpellHit,
-				Start:     &proto.DesignTime{At: fractionOfFight(25)},
-				End:       &proto.DesignTime{At: 1},
-				Repeat:    &proto.DesignRepeat{Interval: fractionOfFight(25)},
-				School:    proto.SpellSchool_SpellSchoolArcane,
-				MinDamage: 3000,
-				MaxDamage: 5000,
-				CastTime:  2,
-			},
-		},
-	})
+	}, nil)
 }
 
 func AddDefaultPresetEncounter() {

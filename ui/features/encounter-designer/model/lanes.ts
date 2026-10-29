@@ -83,7 +83,7 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K, at = 0.4): Desi
 			minDamage: 0,
 			maxDamage: 0,
 			castTime: 2,
-			weaponPercent: 0,
+			weaponPercent: 150,
 			procChance: 0,
 			extraAttacks: 0,
 			icd: 0,
