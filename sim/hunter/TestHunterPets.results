@@ -15,7 +15,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 203
-  final_stats: 1481
+  final_stats: 1457
   final_stats: 1640
   final_stats: 0
   final_stats: 37
@@ -1042,11 +1042,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 692.60059
+  tps: 294.35621
+  dtps: 2.97021
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheElements"
  value: {
   dps: 617.25709
   tps: 254.43423
   dtps: 1.91084
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 692.60059
+  tps: 294.35621
+  dtps: 2.97021
  }
 }
 dps_results: {

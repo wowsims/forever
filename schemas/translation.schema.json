@@ -2371,6 +2371,9 @@
 						"attack_power": {
 							"type": "string"
 						},
+						"attack_power_tooltip": {
+							"type": "string"
+						},
 						"attack_speed": {
 							"type": "string"
 						},
@@ -2407,6 +2410,7 @@
 						"misc",
 						"stats",
 						"attack_power",
+						"attack_power_tooltip",
 						"attack_speed",
 						"spell_power",
 						"spell_haste",
@@ -2977,6 +2981,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"has_battle_shout_rank_7": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"assume_bleed_active": {
 							"type": "object",
 							"properties": {
@@ -3322,6 +3339,7 @@
 						"starting_rage",
 						"stance_snapshot",
 						"has_bs_tier_2",
+						"has_battle_shout_rank_7",
 						"queue_delay",
 						"assume_bleed_active",
 						"prepull_clearcasting",
@@ -9096,10 +9114,74 @@
 									},
 									"additionalProperties": false,
 									"required": ["exhale_window"]
+								},
+								"rotation": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"demo_fire_brand": {
+											"type": "string"
+										},
+										"demo_shadow_brand": {
+											"type": "string"
+										},
+										"destro": {
+											"type": "string"
+										},
+										"sm_ruin": {
+											"type": "string"
+										},
+										"aff_wrack": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "demo_fire_brand", "demo_shadow_brand", "destro", "sm_ruin", "aff_wrack"]
+								},
+								"use_shadow_bolt_rank_10": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_immolate_rank_8": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_corruption_rank_7": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["affliction"]
+							"required": ["affliction", "rotation", "use_shadow_bolt_rank_10", "use_immolate_rank_8", "use_corruption_rank_7"]
 						},
 						"hunter": {
 							"type": "object",
@@ -9400,10 +9482,45 @@
 											},
 											"additionalProperties": false,
 											"required": ["label"]
+										},
+										"use_heroic_strike_rank_9": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip"]
+										},
+										"use_battle_shout_rank_7": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip"]
 										}
 									},
 									"additionalProperties": false,
-									"required": ["spec", "use_recklessness", "use_overpower", "use_rend", "use_stance_dance", "use_hamstring"]
+									"required": [
+										"spec",
+										"use_recklessness",
+										"use_overpower",
+										"use_rend",
+										"use_stance_dance",
+										"use_hamstring",
+										"use_heroic_strike_rank_9",
+										"use_battle_shout_rank_7"
+									]
 								}
 							},
 							"additionalProperties": false,

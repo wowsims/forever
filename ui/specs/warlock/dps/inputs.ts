@@ -1,6 +1,6 @@
 import * as InputHelpers from '@features/inputs/input_helpers';
 import { Spec } from '@generated/proto/common';
-import { WarlockOptions_Armor, WarlockOptions_CurseOptions, WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
+import { WarlockOptions_Armor, WarlockOptions_CurseOptions, WarlockOptions_Summon as Summon, WarlockRotation } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
@@ -119,5 +119,37 @@ export const CursesSection: CustomSection<Spec.SpecWarlock> = {
 		makeCursePicker<Spec.SpecWarlock>(WarlockOptions_CurseOptions.Elements, 1311680),
 		makeCursePicker<Spec.SpecWarlock>(WarlockOptions_CurseOptions.Recklessness, 11717),
 		makeCursePicker<Spec.SpecWarlock>(WarlockOptions_CurseOptions.Weakness, 11708),
+	],
+};
+
+// The simple rotation: a build's rotation, with the trainer's top rank cast in place of each book rank not chosen.
+export const RotationInputs = {
+	inputs: [
+		InputHelpers.makeRotationEnumInput<Spec.SpecWarlock, WarlockRotation>({
+			fieldName: 'rotation',
+			label: i18n.t('rotation_tab.options.warlock.rotation.label'),
+			values: [
+				{ name: i18n.t('rotation_tab.options.warlock.rotation.demo_fire_brand'), value: WarlockRotation.WarlockRotationDemoFireBrand },
+				{ name: i18n.t('rotation_tab.options.warlock.rotation.demo_shadow_brand'), value: WarlockRotation.WarlockRotationDemoShadowBrand },
+				{ name: i18n.t('rotation_tab.options.warlock.rotation.destro'), value: WarlockRotation.WarlockRotationDestro },
+				{ name: i18n.t('rotation_tab.options.warlock.rotation.sm_ruin'), value: WarlockRotation.WarlockRotationSmRuin },
+				{ name: i18n.t('rotation_tab.options.warlock.rotation.aff_wrack'), value: WarlockRotation.WarlockRotationAffWrack },
+			],
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecWarlock>({
+			fieldName: 'useShadowBoltRank10',
+			label: i18n.t('rotation_tab.options.warlock.use_shadow_bolt_rank_10.label'),
+			labelTooltip: i18n.t('rotation_tab.options.warlock.use_shadow_bolt_rank_10.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecWarlock>({
+			fieldName: 'useImmolateRank8',
+			label: i18n.t('rotation_tab.options.warlock.use_immolate_rank_8.label'),
+			labelTooltip: i18n.t('rotation_tab.options.warlock.use_immolate_rank_8.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecWarlock>({
+			fieldName: 'useCorruptionRank7',
+			label: i18n.t('rotation_tab.options.warlock.use_corruption_rank_7.label'),
+			labelTooltip: i18n.t('rotation_tab.options.warlock.use_corruption_rank_7.tooltip'),
+		}),
 	],
 };

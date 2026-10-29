@@ -5,17 +5,24 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var heroicStrikeRank = spellData.HeroicStrike.Highest()
+// Rank 8 is the top rank the trainer teaches; Rank 9 comes from Manual of Heroic Strike IX.
+var heroicStrikeTrainerRank = spellData.HeroicStrike.ByID(11567)
+var heroicStrikeBookRank = spellData.HeroicStrike.ByID(25286)
 
 var cleaveRank = spellData.Cleave.Highest()
 var cleaveTargets = int32(cleaveRank.DamageEffect().ChainTargets)
 
 func (warrior *Warrior) registerHeroicStrike() {
-	config := spelldata.SpellConfig(&warrior.Unit, heroicStrikeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	warrior.registerHeroicStrikeRank(heroicStrikeTrainerRank)
+	warrior.registerHeroicStrikeRank(heroicStrikeBookRank)
+}
+
+func (warrior *Warrior) registerHeroicStrikeRank(rank *spelldata.Spell) {
+	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.Flags &^= core.SpellFlagAPL
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := heroicStrikeRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		baseDamage := rank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if !result.Landed() {
@@ -23,8 +30,7 @@ func (warrior *Warrior) registerHeroicStrike() {
 		}
 	}
 
-	warrior.HeroicStrike = warrior.RegisterSpell(config)
-	warrior.makeQueueSpellsAndAura(warrior.HeroicStrike)
+	warrior.makeQueueSpellsAndAura(warrior.RegisterSpell(config))
 }
 
 func (warrior *Warrior) registerCleave() {

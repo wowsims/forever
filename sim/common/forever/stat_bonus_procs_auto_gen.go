@@ -2033,21 +2033,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Your Lacerate hits have a 10% chance to reset the cooldown on Primal Bite.
-	// https://www.wowhead.com/forever/spell=1306483
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 279251, ItemName: "Idol of the Ursine Twins"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Stun the target for 1s.
 	// https://www.wowhead.com/forever/spell=1318178
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{

@@ -4,6 +4,8 @@ import { EquipmentSpec, ItemSlot, PseudoStat, Spec, Stat } from '@generated/prot
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
+import { withSpellIds } from '@sim/proto/apl_utils';
+import type { SpecRotation } from '@sim/proto/spec_types';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 import { subscribeAll, subscribePlayerField } from '@sim/state/subscriptions';
@@ -65,6 +67,8 @@ export default defineSpec<Spec.SpecWarlock>({
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,
 
+		simpleRotation: Presets.DefaultSimpleRotation,
+
 		// Default talents.
 		talents: Presets.DemoFireBrandTalents.data,
 		// Default spec-specific settings.
@@ -93,6 +97,9 @@ export default defineSpec<Spec.SpecWarlock>({
 	playerInputs: {
 		inputs: [WarlockInputs.SoulShardsInput()],
 	},
+	rotationInputs: WarlockInputs.RotationInputs,
+	// `simpleRotation` below never reads its Cooldowns argument.
+	hideSimpleCooldowns: true,
 	// IconInputs to include in the 'Player' section on the settings tab.
 	playerIconInputs: [WarlockInputs.PetInput(), WarlockInputs.ArmorInput(), WarlockInputs.DemonicSacrificeInput()],
 
@@ -124,6 +131,17 @@ export default defineSpec<Spec.SpecWarlock>({
 
 	autoRotation: (_player: Player<Spec.SpecWarlock>): APLRotation => {
 		return Presets.DEMO_FIRE_BRAND_APL.rotation.rotation!;
+	},
+
+	// The chosen build's rotation, with every spell id of a book rank left unchosen (the cast, its dot and its
+	// aura) moved to the trainer's top rank.
+	simpleRotation: (_player: Player<Spec.SpecWarlock>, simple: SpecRotation<Spec.SpecWarlock>): APLRotation => {
+		const trainerRanks = new Map<number, number>();
+		if (!simple.useShadowBoltRank10) trainerRanks.set(25307, 11661);
+		if (!simple.useImmolateRank8) trainerRanks.set(25309, 11668);
+		if (!simple.useCorruptionRank7) trainerRanks.set(25311, 11672);
+
+		return withSpellIds(Presets.SimpleRotationApls[simple.rotation].rotation.rotation!, trainerRanks);
 	},
 	sections: [WarlockInputs.CursesSection],
 

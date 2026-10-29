@@ -34,7 +34,7 @@ func TestFeralBear(t *testing.T) {
 				}}},
 			},
 
-			Rotation: core.GetAplRotation("../../../ui/specs/druid/feralbear/apls", "default"),
+			Rotation: core.GetAplRotation("../../../ui/specs/druid/feralbear/apls", "adaptive"),
 
 			Consumables: DefaultConsumables,
 
@@ -87,7 +87,7 @@ func BenchmarkSimulate(b *testing.B) {
 				Equipment:     core.GetGearSet("../../../ui/specs/druid/feralbear/gear_sets", "default").GearSet,
 				Consumables:   DefaultConsumables,
 				Spec:          DefaultSpecOptions,
-				Rotation:      core.GetAplRotation("../../../ui/specs/druid/feralbear/apls", "default").Rotation,
+				Rotation:      core.GetAplRotation("../../../ui/specs/druid/feralbear/apls", "adaptive").Rotation,
 			},
 			nil, nil, nil,
 		),
@@ -101,9 +101,9 @@ func BenchmarkSimulate(b *testing.B) {
 	core.RaidBenchmark(b, rsr)
 }
 
-// The bear UI's Bear and Hybrid presets (presets.ts BearTalents and HybridTalents).
-const DefaultTalents = "050022-15230332121132012051-04"
-const HybridTalents = "050022-05230332121131212051-04"
+// Fixed allocations for the class benchmark.
+const DefaultTalents = "050022-25200302120132012051-055"
+const HybridTalents = "050022-35230332121132212051-"
 
 var DefaultSpecOptions = &proto.Player_FeralBearDruid{
 	FeralBearDruid: &proto.FeralBearDruid{

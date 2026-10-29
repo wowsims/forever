@@ -34,15 +34,15 @@ casts_results: {
    value: 1
   }
   casts: {
-   key: "spell_id:1238122"
-   value: 0
-  }
-  casts: {
    key: "spell_id:1259799"
    value: 0
   }
   casts: {
    key: "spell_id:1322605"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:16979"
    value: 0
   }
   casts: {
@@ -63,6 +63,10 @@ casts_results: {
   }
   casts: {
    key: "spell_id:29166"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:414924"
    value: 0
   }
   casts: {

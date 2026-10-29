@@ -3,22 +3,25 @@
 package feralcat
 
 import (
+	"math"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
-	"github.com/wowsims/forever/sim/core/stats"
+	googleProto "google.golang.org/protobuf/proto"
 )
 
-// Same tree as the cat UI default. Shifting Power is the 11th feral talent.
-const powershiftTalents = "05002-55000032021032212051-055"
+const powershiftTalents = DefaultTalents
+const catTalents = DefaultTalents
+const spellProwl int32 = 9913
 
-// The Monocat APL the cat UI sends by default.
+// Loads the same rotation offered by the Cat UI.
 func defaultCatRotation() *proto.APLRotation {
-	return catAPL(bestCatAPL)
+	return core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 }
 
 func TestMonocatStaysInCatForm(t *testing.T) {
@@ -82,6 +85,32 @@ func TestMonocatWithoutShiftingPowerTalent(t *testing.T) {
 	}
 }
 
+func TestAdaptiveDoesNotPoolForUntalentedBerserk(t *testing.T) {
+	rotation := defaultCatRotation()
+	request := catPowershiftRequest(withFeralDigit(powershiftTalents, 19, '0'), rotation, false)
+	request.SimOptions.Debug = true
+	request.Encounter.Duration = 120
+	baseline := core.RunSim(request, nil, simsignals.CreateSignals())
+	if baseline.Error != nil {
+		t.Fatal(baseline.Error.Message)
+	}
+	if castsOf(baseline.RaidMetrics.Parties[0].Players[0].Actions, spellBerserk) != 0 {
+		t.Fatal("Berserk was cast without the talent")
+	}
+	for _, variable := range rotation.ValueVariables {
+		if variable.Name == "Followup Berserk energy target" {
+			variable.Value.GetConst().Val = "1000"
+		}
+	}
+	changed := core.RunSim(request, nil, simsignals.CreateSignals())
+	if changed.Error != nil {
+		t.Fatal(changed.Error.Message)
+	}
+	if baseline.Logs != changed.Logs {
+		t.Fatal("changing the Berserk energy target changed casts without Berserk talented")
+	}
+}
+
 func TestMonocatClawsWhenShredCannotLand(t *testing.T) {
 	player := runCat(t, catPowershiftRequest(powershiftTalents, defaultCatRotation(), true))
 	if got := castsOf(player.Actions, 9830); got != 0 {
@@ -92,36 +121,7 @@ func TestMonocatClawsWhenShredCannotLand(t *testing.T) {
 	}
 }
 
-// Goblin Sapper Charge 10646 needs Engineering and cannot be used in Cat Form: the APL throws it and
-// casts Cat Form again. EZ-Thro Dark Bomb 260817 needs no profession and never leaves the form.
-func TestMonocatLeavesCatFormOnlyForEngineeringExplosives(t *testing.T) {
-	for _, c := range []struct {
-		name       string
-		itemID     int32
-		leavesForm bool
-	}{{"Goblin Sapper Charge", 10646, true}, {"EZ-Thro Dark Bomb", 260817, false}} {
-		request := catPowershiftRequest(powershiftTalents, defaultCatRotation(), false)
-		cat := request.Raid.Parties[0].Players[0]
-		cat.Profession1 = proto.Profession_Engineering
-		cat.Consumables = &proto.ConsumesSpec{ExtraIds: []int32{c.itemID}}
-		player := runCat(t, request)
-
-		thrown := itemCastsOf(player.Actions, c.itemID)
-		if thrown == 0 {
-			t.Errorf("%s was never thrown", c.name)
-		}
-		want := castsOf(player.Actions, spellInnervate)
-		if c.leavesForm {
-			want += thrown
-		}
-		if got := castsOf(player.Actions, 768); got != want {
-			t.Errorf("%s: cat form casts = %d after %d throws, want %d", c.name, got, thrown, want)
-		}
-	}
-}
-
-// Berserk's crit covers Shred and Rake, so the APL casts it in a sequence with one of them, at the
-// same moment.
+// Berserk activates at the same moment as the builder it buffs.
 func TestMonocatOpensBerserkWithABuilder(t *testing.T) {
 	request := catPowershiftRequest(powershiftTalents, defaultCatRotation(), false)
 	request.SimOptions.Debug = true
@@ -278,7 +278,7 @@ func castsOf(actions []*proto.ActionMetrics, spellID int32) int32 {
 func TestJVMESSapperOnlyWhenSelected(t *testing.T) {
 	for _, selected := range []bool{false, true} {
 		t.Run(strconv.FormatBool(selected), func(t *testing.T) {
-			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 			request := sweepRequest(powershiftTalents, rotation, false, 1)
 			cat := request.Raid.Parties[0].Players[0]
 			cat.Profession1 = proto.Profession_Engineering
@@ -294,38 +294,39 @@ func TestJVMESSapperOnlyWhenSelected(t *testing.T) {
 			if !selected && thrown != 0 {
 				t.Errorf("Sapper casts = %d without the consumable selected", thrown)
 			}
-			if got, want := castsOf(player.Actions, 768), thrown+castsOf(player.Actions, spellInnervate); got != want {
-				t.Errorf("Cat Form casts = %d, want %d for Sapper and Innervate", got, want)
+			if got, want := castsOf(player.Actions, 768), castsOf(player.Actions, spellInnervate); got != want {
+				t.Errorf("Cat Form casts = %d, want %d for Innervate", got, want)
 			}
 			if castsOf(player.Actions, 9907) != 0 {
 				t.Error("Faerie Fire was cast despite the supplied armor debuff")
 			}
+
 		})
 	}
 }
 
-func TestJVMESUsesAvailableRacials(t *testing.T) {
+func TestAdaptiveCatRacialSelection(t *testing.T) {
 	for _, race := range []proto.Race{proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne, proto.Race_RaceTauren} {
 		t.Run(race.String(), func(t *testing.T) {
-			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 			request := sweepRequest(powershiftTalents, rotation, false, 10)
 			request.Encounter.Duration = 300
 			cat := request.Raid.Parties[0].Players[0]
 			cat.Race = race
 			cat.Consumables = &proto.ConsumesSpec{ConjuredId: 7676}
 			player := runCat(t, request)
-			for _, racial := range []struct {
-				id   int32
-				race proto.Race
-			}{{1259799, proto.Race_RaceNightElf}, {20580, proto.Race_RaceNightElf}, {1259705, proto.Race_RaceHighOrderSkyborne}} {
-				casts := castsOf(player.Actions, racial.id)
-				if (casts > 0) != (race == racial.race) {
-					t.Errorf("racial %d casts = %d for %s", racial.id, casts, race)
+			if casts := castsOf(player.Actions, 1259799); (casts > 0) != (race == proto.Race_RaceNightElf) {
+				t.Errorf("Elune's Light casts = %d for %s", casts, race)
+			}
+			for _, spellID := range []int32{1259705, 20580} {
+				if casts := castsOf(player.Actions, spellID); casts != 0 {
+					t.Errorf("unwanted racial %d casts = %d", spellID, casts)
 				}
 			}
-			if melds, ravages := castsOf(player.Actions, 20580), castsOf(player.Actions, 9867); ravages != melds+request.SimOptions.Iterations {
-				t.Errorf("Shadowmeld casts = %d, Ravage casts = %d, want one opener per iteration plus each Shadowmeld", melds, ravages)
+			if got := castsOf(player.Actions, 9867); got != request.SimOptions.Iterations {
+				t.Errorf("Ravage casts = %d, want one Prowl opener per iteration", got)
 			}
+
 			if forms, innervates := castsOf(player.Actions, 768), castsOf(player.Actions, spellInnervate); forms != innervates {
 				t.Errorf("Cat Form casts = %d, Innervate casts = %d without Sapper", forms, innervates)
 			}
@@ -333,67 +334,35 @@ func TestJVMESUsesAvailableRacials(t *testing.T) {
 	}
 }
 
-func TestJVMESShadowmeldUsesClearcasting(t *testing.T) {
-	for _, prepull := range []bool{false, true} {
-		t.Run(strconv.FormatBool(prepull), func(t *testing.T) {
-			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
-			request := sweepRequest(powershiftTalents, rotation, false, 1)
-			request.Encounter.Duration = 300
-			request.SimOptions.Debug = true
-			player := request.Raid.Parties[0].Players[0]
-			player.Race = proto.Race_RaceNightElf
-			player.GetFeralCatDruid().Options.PrepullClearcasting = prepull
-			result := core.RunRaidSim(request)
-			if result.Error != nil {
-				t.Fatal(result.Error.Message)
-			}
-			active, combatProc, pendingRavage := false, false, false
-			melds := 0
-			for _, line := range strings.Split(result.Logs, "\n") {
-				if strings.Contains(line, "Aura gained: {SpellID: 16870}") {
-					active = true
-					combatProc = combatProc || !strings.HasPrefix(line, "[-")
-				}
-				if strings.Contains(line, "Casting {SpellID: 20580}") {
-					if !active || !combatProc {
-						t.Fatalf("Shadowmeld without an in-combat Clearcasting proc: %s", line)
-					}
-					melds++
-					pendingRavage = true
-				}
-				if pendingRavage && strings.Contains(line, "Casting {SpellID: 9867}") {
-					if !strings.Contains(line, "Cost = 0.000") {
-						t.Fatalf("Ravage after Shadowmeld spent energy: %s", line)
-					}
-					pendingRavage = false
-				}
-				if strings.Contains(line, "Aura faded: {SpellID: 16870}") {
-					if combatProc && melds == 0 {
-						t.Fatal("the first in-combat Clearcasting proc was spent before Shadowmeld")
-					}
-					active = false
-				}
-			}
-			if melds == 0 || pendingRavage {
-				t.Fatalf("Shadowmeld casts = %d, unfinished Ravage = %v", melds, pendingRavage)
-			}
-		})
+func TestJVMESDoesNotUseShadowmeld(t *testing.T) {
+	rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+	request := sweepRequest(powershiftTalents, rotation, false, 1)
+	request.Encounter.Duration = 300
+	request.Raid.Parties[0].Players[0].Race = proto.Race_RaceNightElf
+	player := runCat(t, request)
+	if castsOf(player.Actions, 20580) != 0 {
+		t.Fatal("Shadowmeld was cast")
 	}
 }
 
-func TestJVMESRavageOpener(t *testing.T) {
+func TestAdaptiveUnprowledOpenerUsesClearcastingForShredOtherwiseRake(t *testing.T) {
 	for _, tc := range []struct {
 		name         string
 		talents      string
 		clearcasting bool
 		berserk      bool
 	}{
-		{"paid Ravage", powershiftTalents, false, true},
-		{"Clearcasting Ravage", powershiftTalents, true, true},
+		{"paid Rake", powershiftTalents, false, true},
+		{"Clearcasting Shred", powershiftTalents, true, true},
 		{"without Berserk", "05002-55000032021032212050-055", false, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+			for _, variable := range rotation.ValueVariables {
+				if variable.Name == "Ravage approach without Clearcasting" || variable.Name == "Ravage approach with Clearcasting" {
+					variable.Value.GetConst().Val = "-1"
+				}
+			}
 			request := sweepRequest(tc.talents, rotation, false, 1)
 			request.Raid.Parties[0].Players[0].GetFeralCatDruid().Options.PrepullClearcasting = tc.clearcasting
 			request.SimOptions.Debug = true
@@ -402,12 +371,16 @@ func TestJVMESRavageOpener(t *testing.T) {
 				t.Fatal(result.Error.Message)
 			}
 			berserk := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: 417141}")
-			ravage := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: 9867}")
+			builderID := "9904"
+			if tc.clearcasting {
+				builderID = "9830"
+			}
+			ravage := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: "+builderID+"}")
 			if ravage < 0 {
-				t.Fatal("the opener did not cast Ravage at pull")
+				t.Fatal("the opener did not cast the expected builder at pull")
 			}
 			if tc.berserk && (berserk < 0 || ravage < berserk) {
-				t.Fatal("the opener did not cast Berserk before Ravage")
+				t.Fatal("the opener did not cast Berserk before the builder")
 			}
 			if !tc.berserk && berserk >= 0 {
 				t.Fatal("Berserk was cast without the talent")
@@ -416,32 +389,52 @@ func TestJVMESRavageOpener(t *testing.T) {
 	}
 }
 
-func TestJVMESResourcePotionOnlyWhenSelected(t *testing.T) {
-	for _, potion := range []int32{0, 13444, 13442} {
+func TestAdaptiveCatResourcePotionSelection(t *testing.T) {
+	for _, potion := range []int32{0, 13444, 13443} {
 		t.Run(strconv.Itoa(int(potion)), func(t *testing.T) {
-			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 			request := sweepRequest(powershiftTalents, rotation, false, 10)
 			request.Encounter.Duration = 300
 			request.Raid.Debuffs.JudgementOfWisdom = false
 			cat := request.Raid.Parties[0].Players[0]
 			cat.Consumables = &proto.ConsumesSpec{OffensivePotId: 13442, ConjuredId: 7676}
 			cat.Consumables.ResourcePotId = potion
-			if potion == 13442 {
-				cat.Consumables.OffensivePotId = 0
-			}
 			player := runCat(t, request)
-			used := itemCastsOf(player.Actions, 13444)
-			if potion == 13444 && used == 0 {
+			if potion == 13444 {
+				current := googleProto.Clone(request).(*proto.RaidSimRequest)
+				current.SimOptions.Iterations = 1
+				current.SimOptions.Debug = true
+				previous := googleProto.Clone(current).(*proto.RaidSimRequest)
+				for _, variable := range previous.Raid.Parties[0].Players[0].Rotation.ValueVariables {
+					if variable.Name == "Mana potion fits and is needed" {
+						selected := &proto.APLValue{Value: &proto.APLValue_SelectedPotion{SelectedPotion: &proto.APLValueSelectedPotion{PotionId: &proto.ActionID{RawId: &proto.ActionID_ItemId{ItemId: 13444}}}}}
+						variable.Value = and(selected, variable.Value)
+					}
+				}
+				before := core.RunRaidSim(previous)
+				after := core.RunRaidSim(current)
+				if before.Error != nil || after.Error != nil {
+					t.Fatalf("comparison errors: before=%v after=%v", before.Error, after.Error)
+				}
+				if before.Logs != after.Logs {
+					t.Error("Major Mana Potion combat log differs from the item-specific condition")
+				}
+			}
+			used := itemCastsOf(player.Actions, 13444) + itemCastsOf(player.Actions, 13443)
+			if potion != 0 {
+				used = itemCastsOf(player.Actions, potion)
+			}
+			if potion != 0 && used == 0 {
 				t.Error("The selected mana potion was never used without Judgement of Wisdom")
 			}
-			if potion != 13444 && used != 0 {
+			if potion == 0 && used != 0 {
 				t.Errorf("Mana potion casts = %d without a resource potion selected", used)
 			}
 			if itemCastsOf(player.Actions, 13442) == 0 {
 				t.Error("The offensive potion was never used")
 			}
 			for _, resource := range player.Resources {
-				if resource.Id.GetItemId() == 13444 && resource.Type == proto.ResourceType_ResourceTypeMana && resource.Gain != resource.ActualGain {
+				if potion != 0 && resource.Id.GetItemId() == potion && resource.Type == proto.ResourceType_ResourceTypeMana && math.Abs(resource.Gain-resource.ActualGain) > 1e-8 {
 					t.Errorf("Mana potion restored %v of %v mana", resource.ActualGain, resource.Gain)
 				}
 			}
@@ -449,86 +442,506 @@ func TestJVMESResourcePotionOnlyWhenSelected(t *testing.T) {
 	}
 }
 
-func TestJVMESManaBudgetAccountsForFightEndAndWisdom(t *testing.T) {
-	for _, tc := range []struct {
-		name     string
-		duration float64
-		wisdom   bool
-		want     int32
-	}{
-		{"short fight with Wisdom", 30, true, 9830},
-		{"long fight with Wisdom", 180, true, 9850},
-		{"short fight without Wisdom", 30, false, 9850},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			saved := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
-			condition := &proto.APLValue{Value: &proto.APLValue_VariableRef{VariableRef: &proto.APLValueVariableRef{Name: "Current mana may not last until the next potion opportunity"}}}
-			rotation := &proto.APLRotation{ValueVariables: saved.ValueVariables, PriorityList: []*proto.APLListItem{castWhen(9850, condition), castWhen(9830, nil)}}
-			request := sweepRequest(powershiftTalents, rotation, false, 1)
-			request.Encounter.Duration = tc.duration
-			request.Raid.Debuffs.JudgementOfWisdom = tc.wisdom
-			computed := core.ComputeStats(&proto.ComputeStatsRequest{Raid: request.Raid, Encounter: request.Encounter})
-			if computed.ErrorResult != "" {
-				t.Fatal(computed.ErrorResult)
-			}
-			mana := computed.RaidStats.Parties[0].Players[0].FinalStats.Stats[stats.Mana]
-			request.Raid.Parties[0].Players[0].BonusStats = &proto.UnitStats{Stats: stats.Stats{stats.Mana: 1500 - mana}.ToProtoArray()}
-			request.SimOptions.Debug = true
-			result := core.RunSim(request, nil, simsignals.CreateSignals())
-			if result.Error != nil {
-				t.Fatal(result.Error.Message)
-			}
-			for _, line := range strings.Split(result.Logs, "\n") {
-				if strings.Contains(line, "Casting {SpellID: 9850}") || strings.Contains(line, "Casting {SpellID: 9830}") {
-					if !strings.Contains(line, "Casting {SpellID: "+strconv.Itoa(int(tc.want))+"}") {
-						t.Errorf("First builder = %s, want spell %d", line, tc.want)
-					}
-					return
+func TestJVMESBerserkImmediatelyPrecedesACatAttack(t *testing.T) {
+	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
+		for _, cannotShred := range []bool{false, true} {
+			t.Run(race.String()+"/cannotShred="+strconv.FormatBool(cannotShred), func(t *testing.T) {
+				rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+				request := sweepRequest(powershiftTalents, rotation, cannotShred, 1)
+				request.Encounter.Duration = 210
+				request.Raid.Parties[0].Players[0].Race = race
+				request.SimOptions.Debug = true
+				result := core.RunSim(request, nil, simsignals.CreateSignals())
+				if result.Error != nil {
+					t.Fatal(result.Error.Message)
 				}
+				lines := strings.Split(result.Logs, "\n")
+				uses := 0
+				for i, line := range lines {
+					if !strings.Contains(line, "Casting {SpellID: 417141}") {
+						continue
+					}
+					uses++
+					at := line[:strings.Index(line, "]")+1]
+					found := false
+					for _, next := range lines[i+1:] {
+						if !strings.Contains(next, "Casting ") || strings.Contains(next, "GCD = 0s") {
+							continue
+						}
+						found = strings.HasPrefix(next, at) && (strings.Contains(next, "Casting {SpellID: 9867}") || strings.Contains(next, "Casting {SpellID: 9904}") || strings.Contains(next, "Casting {SpellID: 9830}") || strings.Contains(next, "Casting {SpellID: 9850}"))
+						if !found {
+							t.Errorf("Berserk at %s was followed by %s", at, next)
+						}
+						break
+					}
+					if !found {
+						t.Error("Berserk was not immediately followed by a Cat builder")
+					}
+				}
+				if uses < 2 {
+					t.Fatal("the fixture did not exercise a later Berserk activation")
+				}
+			})
+		}
+	}
+}
+
+func TestMonocatInstantExplosivesStayInCatForm(t *testing.T) {
+	for _, c := range []struct {
+		name       string
+		itemID     int32
+		leavesForm bool
+	}{{"Goblin Sapper Charge", 10646, false}, {"EZ-Thro Dark Bomb", 260817, false}} {
+		request := catPowershiftRequest(powershiftTalents, defaultCatRotation(), false)
+		cat := request.Raid.Parties[0].Players[0]
+		cat.Profession1 = proto.Profession_Engineering
+		cat.Consumables = &proto.ConsumesSpec{ExtraIds: []int32{c.itemID}}
+		player := runCat(t, request)
+
+		thrown := itemCastsOf(player.Actions, c.itemID)
+		if thrown == 0 {
+			t.Errorf("%s was never thrown", c.name)
+		}
+		want := castsOf(player.Actions, spellInnervate)
+		if c.leavesForm {
+			want += thrown
+		}
+		if got := castsOf(player.Actions, 768); got != want {
+			t.Errorf("%s: cat form casts = %d after %d throws, want %d", c.name, got, thrown, want)
+		}
+	}
+}
+
+func TestJVMESTeaRuneSelection(t *testing.T) {
+	for _, selected := range []int32{0, 7676, 12662} {
+		t.Run(strconv.Itoa(int(selected)), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+			req := sweepRequest(powershiftTalents, rotation, false, 1)
+			req.Encounter.Duration = 300
+			p := req.Raid.Parties[0].Players[0]
+			p.Consumables = &proto.ConsumesSpec{ConjuredId: selected, ConjuredItems: []int32{7676, 12662}}
+			player := runCat(t, req)
+			tea, rune := itemCastsOf(player.Actions, 7676), itemCastsOf(player.Actions, 12662)
+			t.Logf("Tea=%d Rune=%d", tea, rune)
+			if (selected == 0 && (tea != 0 || rune != 0)) || (selected == 7676 && (tea == 0 || rune != 0)) || (selected == 12662 && (tea == 0 || rune == 0)) {
+				t.Fatalf("selection %d: Tea=%d Rune=%d", selected, tea, rune)
 			}
-			t.Fatal("No builder was cast")
 		})
 	}
 }
 
-func TestJVMESBerserkImmediatelyPrecedesACatAttack(t *testing.T) {
-	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
-		t.Run(race.String(), func(t *testing.T) {
-			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "jvmes").Rotation
+func TestJVMESMaintainsFaerieFire(t *testing.T) {
+	for _, supplied := range []bool{false, true} {
+		t.Run(strconv.FormatBool(supplied), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 			request := sweepRequest(powershiftTalents, rotation, false, 1)
-			request.Encounter.Duration = 210
-			request.Raid.Parties[0].Players[0].Race = race
+			request.Raid.Debuffs.FaerieFire = supplied
+			request.Raid.Debuffs.CurseOfRecklessness = false
+			request.Encounter.Duration = 90
 			request.SimOptions.Debug = true
 			result := core.RunSim(request, nil, simsignals.CreateSignals())
 			if result.Error != nil {
 				t.Fatal(result.Error.Message)
 			}
-			lines := strings.Split(result.Logs, "\n")
-			uses := 0
-			for i, line := range lines {
-				if !strings.Contains(line, "Casting {SpellID: 417141}") {
-					continue
-				}
-				uses++
-				at := line[:strings.Index(line, "]")+1]
-				found := false
-				for _, next := range lines[i+1:] {
-					if !strings.Contains(next, "Casting ") || strings.Contains(next, "GCD = 0s") {
+			casts := castsOf(result.RaidMetrics.Parties[0].Players[0].Actions, 9907)
+			if supplied && casts != 0 {
+				t.Fatalf("Faerie Fire casts = %d with raid coverage", casts)
+			}
+			if !supplied && casts < 2 {
+				t.Fatalf("Faerie Fire casts = %d, want application and refresh", casts)
+			}
+			if !supplied {
+				for _, line := range strings.Split(result.Logs, "\n") {
+					if strings.HasPrefix(line, "[-") || !strings.Contains(line, "Casting {") {
 						continue
 					}
-					found = strings.HasPrefix(next, at) && (strings.Contains(next, "Casting {SpellID: 9867}") || strings.Contains(next, "Casting {SpellID: 9904}") || strings.Contains(next, "Casting {SpellID: 9830}"))
-					if !found {
-						t.Errorf("Berserk at %s was followed by %s", at, next)
+					if !strings.Contains(line, "SpellID: 9907") {
+						t.Errorf("first combat cast: %s", line)
 					}
 					break
 				}
-				if !found {
-					t.Error("Berserk was not immediately followed by a Cat builder")
-				}
-			}
-			if uses < 2 {
-				t.Fatal("the fixture did not exercise a later Berserk activation")
 			}
 		})
+	}
+}
+
+func TestAdaptiveMcpReturnsToMainWeapon(t *testing.T) {
+	for _, selected := range []bool{false, true} {
+		req := sweepRequest(powershiftTalents, core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation, false, 1)
+		req.Encounter.Duration = 60
+		req.Encounter.DurationVariation = 0
+		p := req.Raid.Parties[0].Players[0]
+		p.DistanceFromTarget = 25
+		mainID := p.Equipment.Items[proto.ItemSlot_ItemSlotMainHand].Id
+		p.EnableItemSwap = selected
+		if selected {
+			items := make([]*proto.ItemSpec, 17)
+			for i := range items {
+				items[i] = &proto.ItemSpec{}
+			}
+			items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 9449, Enchant: 1896}
+			p.ItemSwap = &proto.ItemSwap{Items: items}
+			p.Consumables = googleProto.Clone(p.Consumables).(*proto.ConsumesSpec)
+			p.Consumables.SwapMhImbueId = 12643
+		}
+		sim := core.NewSim(req, simsignals.CreateSignals())
+		for iteration := 0; iteration < 2; iteration++ {
+			sim.Reset()
+			sim.PrePull()
+			for sim.CurrentTime < 0 {
+				if sim.Step() {
+					t.Fatal("simulation ended before pull")
+				}
+			}
+			c := sim.Raid.Parties[0].Players[0].GetCharacter()
+			mcp := c.GetSpell(core.ActionID{ItemID: 9449})
+			if selected && c.Equipment[proto.ItemSlot_ItemSlotMainHand].ID != 9449 {
+				t.Fatal("MCP was not equipped before the pull")
+			}
+			for !sim.Step() {
+			}
+			if c.Equipment[proto.ItemSlot_ItemSlotMainHand].ID != mainID {
+				t.Fatal("main weapon was not restored")
+			}
+			if selected {
+				if mcp == nil {
+					t.Fatal("MCP was not registered")
+				}
+				casts := int32(0)
+				for _, metrics := range mcp.SpellMetrics {
+					casts += metrics.Casts
+				}
+				if casts != 1 {
+					t.Fatalf("MCP casts = %d, want one opener", casts)
+				}
+			}
+			sim.Cleanup()
+		}
+	}
+}
+
+func TestAdaptiveClawsWhenShredCannotLand(t *testing.T) {
+	for _, cannotShred := range []bool{false, true} {
+		t.Run(strconv.FormatBool(cannotShred), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+			req := sweepRequest("050022-35200032121131212051-052", rotation, cannotShred, 10)
+			player := runCat(t, req)
+			claws, shreds := castsOf(player.Actions, 9850), castsOf(player.Actions, 9830)
+			if cannotShred {
+				if claws == 0 || shreds != 0 || castsOf(player.Actions, 9896) == 0 {
+					t.Fatalf("Claw=%d Shred=%d Rip=%d when Shred cannot land", claws, shreds, castsOf(player.Actions, 9896))
+				}
+			} else if claws != 0 || shreds == 0 {
+				t.Fatalf("Claw=%d Shred=%d when Shred can land", claws, shreds)
+			}
+		})
+	}
+}
+
+func TestAdaptiveBleedsRespectExpiryReaction(t *testing.T) {
+	for _, id := range []int32{9904, 9896} {
+		t.Run(strconv.Itoa(int(id)), func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+			rotation.PrepullActions = nil
+			for _, item := range rotation.PriorityList {
+				if item.Action.GetCastSpell().GetSpellId().GetSpellId() == id {
+					rotation.PriorityList = []*proto.APLListItem{item}
+					break
+				}
+			}
+			req := sweepRequest(powershiftTalents, rotation, false, 1)
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+			cat.AutoAttacks.CancelAutoSwing(sim)
+			spell := cat.GetSpell(core.ActionID{SpellID: id})
+			sim.CurrentTime = time.Second
+			spell.Dot(cat.CurrentTarget).Apply(sim)
+			sim.CurrentTime = 20 * time.Second
+			cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			fillResource(sim, cat)
+			cat.SetGCDTimer(sim, 0)
+			before := spell.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts
+			spell.Dot(cat.CurrentTarget).Deactivate(sim)
+			for _, at := range []time.Duration{20 * time.Second, 20*time.Second + cat.ReactionTime - time.Nanosecond} {
+				sim.CurrentTime = at
+				cat.Rotation.DoNextAction(sim)
+				if got := spell.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts - before; got != 0 {
+					t.Fatalf("bleed refreshed before the expiry reaction elapsed: %d casts", got)
+				}
+			}
+			sim.CurrentTime = 20*time.Second + cat.ReactionTime
+			cat.Rotation.DoNextAction(sim)
+			if got := spell.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts - before; got != 1 {
+				t.Fatalf("bleed casts after the expiry reaction = %d, want one", got)
+			}
+		})
+	}
+}
+
+func TestAdaptiveChoosesTheApproachBeforeMoving(t *testing.T) {
+	for _, tc := range []struct {
+		name                                          string
+		distance                                      float64
+		clearcasting, externalFF, cannotShred, ravage bool
+	}{
+		{"paid Ravage nearby", 10, false, true, false, true},
+		{"paid approach too long", 18, false, true, false, false},
+		{"Clearcasting Ravage", 25, true, true, false, true},
+		{"Clearcasting approach too long", 50, true, true, false, false},
+		{"supply Faerie Fire first", 25, true, false, false, false},
+		{"target prevents Ravage", 0, true, true, true, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+			req := sweepRequest(powershiftTalents, rotation, tc.cannotShred, 1)
+			req.Encounter.Duration = 15
+			req.Encounter.DurationVariation = 0
+			req.Raid.Debuffs = googleProto.Clone(req.Raid.Debuffs).(*proto.Debuffs)
+			req.Raid.Debuffs.FaerieFire = tc.externalFF
+			pl := req.Raid.Parties[0].Players[0]
+			pl.DistanceFromTarget = tc.distance
+			pl.GetFeralCatDruid().Options.PrepullClearcasting = tc.clearcasting
+			m := runCat(t, req)
+			got := castsOf(m.Actions, 9867)
+			if (got > 0) != tc.ravage {
+				t.Fatalf("Ravage casts = %d, want opener %v", got, tc.ravage)
+			}
+			if castsOf(m.Actions, 9913) != 1 {
+				t.Fatal("Prowl was not prepared before the pull")
+			}
+			if castsOf(m.Actions, 9830)+castsOf(m.Actions, 9850)+castsOf(m.Actions, 9904) == 0 {
+				t.Fatal("rotation did not continue after the approach")
+			}
+		})
+	}
+}
+
+func TestAdaptiveSkyborneApproachUsesClearcasting(t *testing.T) {
+	for _, race := range []proto.Race{proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
+		for _, distance := range []float64{10, 25, 35} {
+			for _, clearcasting := range []bool{false, true} {
+				rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
+				req := sweepRequest(powershiftTalents, rotation, false, 1)
+				req.Encounter.Duration = 15
+				req.Encounter.DurationVariation = 0
+				req.Raid.Debuffs = googleProto.Clone(req.Raid.Debuffs).(*proto.Debuffs)
+				req.Raid.Debuffs.FaerieFire = true
+				pl := req.Raid.Parties[0].Players[0]
+				pl.Race = race
+				pl.DistanceFromTarget = distance
+				pl.GetFeralCatDruid().Options.PrepullClearcasting = clearcasting
+				m := runCat(t, req)
+				got := castsOf(m.Actions, 9867)
+				want := clearcasting && distance <= 25
+				if (got > 0) != want {
+					t.Errorf("%s distance=%g Clearcasting=%v: Ravage casts=%d, want opener %v", race, distance, clearcasting, got, want)
+				}
+			}
+		}
+	}
+}
+
+const (
+	spellCatForm int32 = 768
+	spellShred   int32 = 9830
+	spellClaw    int32 = 9850
+	spellRip     int32 = 9896
+	spellRake    int32 = 9904
+	spellFF      int32 = 9907
+	spellSP      int32 = 1322605
+	spellBerserk int32 = 417141
+	spellElune   int32 = 1259799
+	spellClear   int32 = 16870
+	itemSapper   int32 = 10646
+	itemTea      int32 = 7676
+
+	spellBite       int32 = 22829
+	spellDireBear   int32 = 9634
+	spellPrimalBite int32 = 1238073
+	spellEnrage     int32 = 5229
+	spellMaul       int32 = 9881
+	spellInnervate  int32 = 29166
+	// Read Ley Line, the High Order Skyborne's racial: Energized, twice the mana regeneration for 15s.
+	spellEnergized int32 = 1259705
+)
+
+// Fixed Cat consumables and professions for APL validation.
+func catValidationRequest(rotation *proto.APLRotation) *proto.ComputeStatsRequest {
+	req := sweepRequest(powershiftTalents, rotation, false, 1)
+	player := req.Raid.Parties[0].Players[0]
+	player.Profession1 = proto.Profession_Engineering
+	player.Profession2 = proto.Profession_Enchanting
+	player.Consumables = &proto.ConsumesSpec{
+		ResourcePotId: 13444,
+		ElixirIds:     []int32{13452, 13447},
+		FoodId:        250072,
+		MhImbueId:     12643,
+		ConjuredId:    7676,
+		ExtraIds:      []int32{10646, 10310},
+	}
+	return &proto.ComputeStatsRequest{Raid: req.Raid, Encounter: req.Encounter}
+}
+
+// aplWarnings is what the APL editor marks with a warning or an error, by line: the priority list
+// line's index, "prepull", "uuid", or a group's name and line, such as "Cooldowns 1". Information
+// (the blue icon) is left out.
+func aplWarnings(t *testing.T, preset *proto.APLRotation, req *proto.ComputeStatsRequest) map[string][]string {
+	t.Helper()
+	stats := core.ComputeStats(req).RaidStats.Parties[0].Players[0].RotationStats
+	warnings := map[string][]string{}
+	add := func(line string, validations []*proto.APLValidation) {
+		for _, v := range validations {
+			if v.LogLevel >= proto.LogLevel_Warning {
+				warnings[line] = append(warnings[line], v.Validation)
+			}
+		}
+	}
+	for i, action := range stats.PriorityList {
+		add(strconv.Itoa(i), action.Validations)
+	}
+	for i, group := range stats.Groups {
+		for j, action := range group.Actions {
+			add(preset.Groups[i%len(preset.Groups)].Name+" "+strconv.Itoa(j), action.Validations)
+		}
+	}
+	for _, action := range stats.PrepullActions {
+		add("prepull", action.Validations)
+	}
+	for _, uuid := range stats.UuidValidations {
+		add("uuid", uuid.Validations)
+	}
+	return warnings
+}
+
+// Every line of the preset, its groups' lines included, keyed as aplWarnings keys them.
+func aplLines(preset *proto.APLRotation) map[string]*proto.APLListItem {
+	lines := map[string]*proto.APLListItem{}
+	for i, item := range preset.PriorityList {
+		lines[strconv.Itoa(i)] = item
+	}
+	for _, group := range preset.Groups {
+		for j, item := range group.Actions {
+			lines[group.Name+" "+strconv.Itoa(j)] = item
+		}
+	}
+	return lines
+}
+
+// The autocast line is there for an on-use trinket the list does not name. With Innervate named,
+// a set with none leaves it nothing to cast, and the editor says so on that line.
+func withoutIdleAutocast(preset *proto.APLRotation, warnings map[string][]string) map[string][]string {
+	for key, item := range aplLines(preset) {
+		if item.Action.GetAutocastOtherCooldowns() == nil {
+			continue
+		}
+		var kept []string
+		for _, w := range warnings[key] {
+			if !strings.HasPrefix(w, "Autocast Other Cooldowns will not cast any spells") {
+				kept = append(kept, w)
+			}
+		}
+		if len(kept) == 0 {
+			delete(warnings, key)
+		} else {
+			warnings[key] = kept
+		}
+	}
+	return warnings
+}
+
+// Availability guards can report omitted optional spells; malformed conditions must still fail.
+func TestAdaptiveCatAvailabilityWarnings(t *testing.T) {
+	for _, consumes := range []bool{true, false} {
+		preset := defaultCatRotation()
+		req := catValidationRequest(preset)
+		if !consumes {
+			req.Raid.Parties[0].Players[0].Profession1 = proto.Profession_ProfessionUnknown
+			req.Raid.Parties[0].Players[0].Consumables = &proto.ConsumesSpec{}
+		}
+		expected := map[string]bool{
+			"Cat (#1) does not know talent {SpellID: 16958}":    true,
+			"Cat (#1) does not know spell {SpellID: 1259705}":   true,
+			"No aura found on Cat (#1) for: {SpellID: 1270842}": true,
+			"Cat (#1) does not know spell {SpellID: 1259686}":   true,
+			"Cat (#1) does not know spell {ItemID: 9449}":       true,
+			"Cat (#1) does not know spell {ItemID: 12662}":      true,
+			"Cat (#1) picks no potion for {OtherID: 26}":        true,
+			"No swap set configured in Settings.":               true,
+		}
+		if !consumes {
+			expected["Cat (#1) does not know spell {ItemID: 7676}"] = true
+			expected["Cat (#1) picks no potion for {OtherID: 24}"] = true
+		}
+		for line, messages := range withoutIdleAutocast(preset, aplWarnings(t, preset, req)) {
+			for _, message := range messages {
+				if !expected[message] {
+					t.Errorf("consumes=%t line %s: %s", consumes, line, message)
+				}
+			}
+		}
+		result := core.RunSim(&proto.RaidSimRequest{Raid: req.Raid, Encounter: req.Encounter, SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 20, IsTest: true}}, nil, simsignals.CreateSignals())
+		if result.Error != nil {
+			t.Fatal(result.Error.Message)
+		}
+		metrics := result.RaidMetrics.Parties[0].Players[0]
+		for _, id := range []int32{spellShred, spellRake, spellRip, spellSP} {
+			if castsOf(metrics.Actions, id) == 0 {
+				t.Errorf("consumes=%t spell %d was never cast", consumes, id)
+			}
+		}
+	}
+}
+
+func spellID(id int32) *proto.ActionID {
+	return &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: id}}
+}
+
+func comboPoints() *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_CurrentComboPoints{CurrentComboPoints: &proto.APLValueCurrentComboPoints{}}}
+}
+
+func TestAdaptiveInnervateWaitsForEnergized(t *testing.T) {
+	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceHighOrderSkyborne} {
+		for _, active := range []bool{false, true} {
+			if race == proto.Race_RaceTauren && active {
+				continue
+			}
+			rotation := defaultCatRotation()
+			rotation.PrepullActions = nil
+			for _, item := range rotation.PriorityList {
+				if item.Action.GetCastSpell().GetSpellId().GetSpellId() == spellInnervate {
+					rotation.PriorityList = []*proto.APLListItem{item}
+					break
+				}
+			}
+			req := sweepRequest(powershiftTalents, rotation, false, 1)
+			req.Raid.Parties[0].Players[0].Race = race
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+			cat.AutoAttacks.CancelAutoSwing(sim)
+			sim.CurrentTime = time.Second
+			cat.SetGCDTimer(sim, 0)
+			cat.SpendEnergy(sim, cat.CurrentEnergy(), cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+			cat.SpendMana(sim, cat.CurrentMana()-1000, cat.NewManaMetrics(core.ActionID{SpellID: 1}))
+			aura := cat.GetAuraByID(core.ActionID{SpellID: 1270842})
+			if active {
+				aura.Activate(sim)
+			}
+			cat.Rotation.DoNextAction(sim)
+			spell := cat.GetSpell(core.ActionID{SpellID: spellInnervate})
+			casts := int32(0)
+			for _, metrics := range spell.SpellMetrics {
+				casts += metrics.Casts
+			}
+			want := int32(1)
+			if active {
+				want = 0
+			}
+			if casts != want {
+				t.Errorf("race=%s Energized=%v: Innervate casts=%d, want %d", race, active, casts, want)
+			}
+		}
 	}
 }

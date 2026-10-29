@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { inputPicked } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from '@features/settings/components/ConsumesPicker/utils';
+import { applyIndividualDefaults, type DefaultsHost } from '@features/settings/model/apply_defaults';
 import { BUFFS_CONFIG, DEBUFFS_CONFIG, DEBUFFS_MISC_CONFIG, PARTY_BUFFS_CONFIG } from '@features/settings/model/buffs_debuffs';
 import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { isMultiIconOption, type PickerStatOptions, relevantStatOptions, statOptionScope } from '@features/settings/model/stat_options';
@@ -207,5 +208,17 @@ describe("a spec's default picks at the default stat filters", () => {
 		const picks = specs.flatMap(([, spec]) => consumablePicks(spec).picks);
 
 		expect(picks.length).toBeGreaterThan(0);
+	});
+});
+
+describe('default swap consumables', () => {
+	it.each(specs.filter(([, spec]) => spec.defaults.consumables.swapMhImbueId))('%s retains its swap imbue when applying defaults', async (_file, spec) => {
+		const { host, player } = await makeIndividualSim({ spec: spec.spec, config: spec });
+		const defaultsHost = Object.assign(host, {
+			statWeightActionSettings: { applyDefaults: () => {} },
+			statSweepSettings: { applyDefaults: () => {} },
+		}) as unknown as DefaultsHost<typeof spec.spec>;
+		applyIndividualDefaults(defaultsHost);
+		expect(player.getConsumes().swapMhImbueId).toBe(spec.defaults.consumables.swapMhImbueId);
 	});
 });

@@ -344,7 +344,8 @@ export function buildRotationModel({ player, targets, duration, showGcd }: Build
 		// scan, so with no player casts at all it never ran. Kept that way here: this is a
 		// performance change, and correcting it would move rows.
 		if (!actionId || playerCastKeys.size === 0) return true;
-		return !playerCastKeys.has(actionId.equalityKeyIgnoringTag()) && !auraAsResourceKeys.has(actionId.equalityKey());
+		const mapped = buffAuraToSpellIdMap[actionId.spellId] ?? actionId;
+		return !playerCastKeys.has(mapped.equalityKeyIgnoringTag()) && !auraAsResourceKeys.has(actionId.equalityKey());
 	});
 	if (buffsToShow.length > 0) {
 		const section = addSection('buffs', 'buffs', '', true, null);

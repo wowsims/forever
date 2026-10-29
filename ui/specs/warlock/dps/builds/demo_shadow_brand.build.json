@@ -203,6 +203,13 @@
         },
         {
           "action": {
+            "groupReference": {
+              "groupName": "SIngle/Multi Target Curse Logic"
+            }
+          }
+        },
+        {
+          "action": {
             "condition": {
               "and": {
                 "vals": [
@@ -235,6 +242,17 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "unitIsMoving": {
+                          "sourceUnit": {
+                            "type": "CurrentTarget"
+                          }
+                        }
+                      }
+                    }
                   }
                 ]
               }
@@ -253,7 +271,7 @@
           "action": {
             "condition": {
               "cmp": {
-                "op": "OpGe",
+                "op": "OpGt",
                 "lhs": {
                   "remainingTime": {}
                 },
@@ -267,6 +285,26 @@
             "castSpell": {
               "spellId": {
                 "spellId": 603
+              },
+              "target": {
+                "type": "Target"
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "variableRef": {
+                "name": "Searing Pain for Brand"
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 17923
+              },
+              "target": {
+                "type": "Target"
               }
             }
           }
@@ -287,7 +325,27 @@
               }
             },
             "groupReference": {
-              "groupName": "Single Target DoT/Curse Logic"
+              "groupName": "Single Target DoT Logic"
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "numberTargets": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1"
+                  }
+                }
+              }
+            },
+            "groupReference": {
+              "groupName": "Multi Target DoT Logic"
             }
           }
         },
@@ -366,102 +424,6 @@
               "and": {
                 "vals": [
                   {
-                    "cmp": {
-                      "op": "OpGt",
-                      "lhs": {
-                        "numberTargets": {}
-                      },
-                      "rhs": {
-                        "const": {
-                          "val": "1"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "or": {
-                      "vals": [
-                        {
-                          "not": {
-                            "val": {
-                              "dotIsActiveOnAllTargets": {
-                                "spellId": {
-                                  "spellId": 25311
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "not": {
-                            "val": {
-                              "dotIsActiveOnAllTargets": {
-                                "spellId": {
-                                  "spellId": 25309
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "not": {
-                            "val": {
-                              "warlockAssignedCurseIsActiveOnAllTargets": {}
-                            }
-                          }
-                        },
-                        {
-                          "not": {
-                            "val": {
-                              "warlockBaneIsActiveOnAllTargets": {}
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "groupReference": {
-              "groupName": "Multi Target DoT/Curse Logic"
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "variableRef": {
-                "name": "Searing Pain for Brand"
-              }
-            },
-            "castSpell": {
-              "spellId": {
-                "spellId": 17923
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "variableRef": {
-                "name": "in 5y range of 3T"
-              }
-            },
-            "castSpell": {
-              "spellId": {
-                "spellId": 11684
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "and": {
-                "vals": [
-                  {
                     "variableRef": {
                       "name": "Improved Shadow Bolt Known"
                     }
@@ -477,7 +439,8 @@
                     "auraIsActive": {
                       "auraId": {
                         "spellId": 1323392
-                      }
+                      },
+                      "includeReactionTime": true
                     }
                   },
                   {
@@ -490,7 +453,8 @@
                             },
                             "auraId": {
                               "spellId": 17794
-                            }
+                            },
+                            "includeReactionTime": true
                           }
                         },
                         {
@@ -529,6 +493,17 @@
                         }
                       ]
                     }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "spellIsCasting": {
+                          "spellId": {
+                            "spellId": 25307
+                          }
+                        }
+                      }
+                    }
                   }
                 ]
               }
@@ -536,6 +511,20 @@
             "castSpell": {
               "spellId": {
                 "spellId": 25307
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "variableRef": {
+                "name": "in 5y range of 3T"
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 11684
               }
             }
           }
@@ -674,7 +663,7 @@
       ],
       "groups": [
         {
-          "name": "Multi Target DoT/Curse Logic",
+          "name": "SIngle/Multi Target Curse Logic",
           "actions": [
             {
               "action": {
@@ -691,7 +680,33 @@
             {
               "action": {
                 "condition": {
-                  "warlockAssignedCurseIsActive": {}
+                  "and": {
+                    "vals": [
+                      {
+                        "warlockAssignedCurseIsActive": {}
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "warlockAssignedCurseIsActiveOnAllTargets": {}
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
                 },
                 "changeTarget": {
                   "newTarget": {
@@ -699,7 +714,12 @@
                   }
                 }
               }
-            },
+            }
+          ]
+        },
+        {
+          "name": "Multi Target DoT Logic",
+          "actions": [
             {
               "action": {
                 "condition": {
@@ -726,6 +746,19 @@
                             }
                           }
                         }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "5"
+                            }
+                          }
+                        }
                       }
                     ]
                   }
@@ -743,34 +776,63 @@
                   "and": {
                     "vals": [
                       {
-                        "warlockAssignedCurseIsActiveOnAllTargets": {}
-                      },
-                      {
-                        "or": {
+                        "and": {
                           "vals": [
                             {
-                              "auraIsActive": {
-                                "sourceUnit": {
-                                  "type": "CurrentTarget"
-                                },
-                                "auraId": {
-                                  "spellId": 603
-                                },
-                                "includeReactionTime": true
+                              "or": {
+                                "vals": [
+                                  {
+                                    "dotIsActive": {
+                                      "spellId": {
+                                        "spellId": 11713
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "dotIsActive": {
+                                      "spellId": {
+                                        "spellId": 603
+                                      }
+                                    }
+                                  }
+                                ]
                               }
                             },
                             {
-                              "auraIsActive": {
-                                "sourceUnit": {
-                                  "type": "CurrentTarget"
-                                },
-                                "auraId": {
-                                  "spellId": 11713
-                                },
-                                "includeReactionTime": true
+                              "not": {
+                                "val": {
+                                  "warlockBaneIsActiveOnAllTargets": {}
+                                }
+                              }
+                            },
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "warlockAssignedCurseIsActive": {}
+                                  },
+                                  {
+                                    "warlockIsAssignedCurse": {
+                                      "curseType": "NoCurse"
+                                    }
+                                  }
+                                ]
                               }
                             }
                           ]
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "5"
+                            }
+                          }
                         }
                       }
                     ]
@@ -839,34 +901,120 @@
                   "and": {
                     "vals": [
                       {
-                        "auraIsActive": {
-                          "sourceUnit": {
-                            "type": "CurrentTarget"
-                          },
-                          "auraId": {
-                            "spellId": 25311
-                          },
-                          "includeReactionTime": true
-                        }
-                      },
-                      {
-                        "not": {
-                          "val": {
-                            "spellCastTime": {
-                              "spellId": {
-                                "spellId": 25311
+                        "and": {
+                          "vals": [
+                            {
+                              "dotIsActive": {
+                                "spellId": {
+                                  "spellId": 25311
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "dotIsActiveOnAllTargets": {
+                                    "spellId": {
+                                      "spellId": 25311
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "and": {
+                                "vals": [
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "warlockAssignedCurseIsActive": {}
+                                        },
+                                        {
+                                          "warlockIsAssignedCurse": {
+                                            "curseType": "NoCurse"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "or": {
+                                            "vals": [
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 11713
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 603
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpLt",
+                                                "lhs": {
+                                                  "numberTargets": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "5"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
                               }
                             }
-                          }
+                          ]
                         }
                       },
                       {
-                        "not": {
-                          "val": {
-                            "variableRef": {
-                              "name": "in 5y range of 3T"
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "remainingTime": {}
+                                },
+                                "rhs": {
+                                  "dotBaseDuration": {
+                                    "spellId": {
+                                      "spellId": 25311
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "variableRef": {
+                                    "name": "in 5y range of 3T"
+                                  }
+                                }
+                              }
                             }
-                          }
+                          ]
                         }
                       }
                     ]
@@ -935,40 +1083,123 @@
                   "and": {
                     "vals": [
                       {
-                        "auraIsActive": {
-                          "sourceUnit": {
-                            "type": "CurrentTarget"
-                          },
-                          "auraId": {
-                            "spellId": 25309
-                          },
-                          "includeReactionTime": true
-                        }
-                      },
-                      {
-                        "not": {
-                          "val": {
-                            "spellIsCasting": {
-                              "spellId": {
-                                "spellId": 25309
+                        "and": {
+                          "vals": [
+                            {
+                              "dotIsActive": {
+                                "spellId": {
+                                  "spellId": 25309
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "dotIsActiveOnAllTargets": {
+                                    "spellId": {
+                                      "spellId": 25309
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "and": {
+                                "vals": [
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "warlockAssignedCurseIsActive": {}
+                                        },
+                                        {
+                                          "warlockIsAssignedCurse": {
+                                            "curseType": "NoCurse"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "or": {
+                                            "vals": [
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 11713
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 603
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpLt",
+                                                "lhs": {
+                                                  "numberTargets": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "5"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "dotIsActive": {
+                                      "spellId": {
+                                        "spellId": 25311
+                                      }
+                                    }
+                                  }
+                                ]
                               }
                             }
-                          }
+                          ]
                         }
                       },
                       {
                         "and": {
                           "vals": [
                             {
-                              "warlockAssignedCurseIsActiveOnAllTargets": {}
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "remainingTime": {}
+                                },
+                                "rhs": {
+                                  "dotBaseDuration": {
+                                    "spellId": {
+                                      "spellId": 25309
+                                    }
+                                  }
+                                }
+                              }
                             },
                             {
-                              "warlockBaneIsActiveOnAllTargets": {}
-                            },
-                            {
-                              "dotIsActiveOnAllTargets": {
-                                "spellId": {
-                                  "spellId": 25311
+                              "not": {
+                                "val": {
+                                  "variableRef": {
+                                    "name": "in 5y range of 3T"
+                                  }
                                 }
                               }
                             }
@@ -994,38 +1225,135 @@
                         "or": {
                           "vals": [
                             {
-                              "and": {
-                                "vals": [
-                                  {
-                                    "dotIsActive": {
-                                      "spellId": {
-                                        "spellId": 25311
-                                      }
-                                    }
-                                  },
-                                  {
-                                    "dotIsActive": {
-                                      "spellId": {
-                                        "spellId": 25309
-                                      }
-                                    }
-                                  }
-                                ]
-                              }
+                              "warlockAssignedCurseIsActiveOnAllTargets": {}
                             },
                             {
-                              "variableRef": {
-                                "name": "in 5y range of 3T"
+                              "warlockIsAssignedCurse": {
+                                "curseType": "NoCurse"
                               }
                             }
                           ]
                         }
                       },
                       {
-                        "warlockBaneIsActiveOnAllTargets": {}
+                        "or": {
+                          "vals": [
+                            {
+                              "warlockBaneIsActiveOnAllTargets": {}
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "cmp": {
+                                    "op": "OpLt",
+                                    "lhs": {
+                                      "numberTargets": {}
+                                    },
+                                    "rhs": {
+                                      "const": {
+                                        "val": "5"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
                       },
                       {
-                        "warlockAssignedCurseIsActiveOnAllTargets": {}
+                        "or": {
+                          "vals": [
+                            {
+                              "dotIsActiveOnAllTargets": {
+                                "spellId": {
+                                  "spellId": 25311
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "and": {
+                                    "vals": [
+                                      {
+                                        "cmp": {
+                                          "op": "OpGt",
+                                          "lhs": {
+                                            "remainingTime": {}
+                                          },
+                                          "rhs": {
+                                            "dotBaseDuration": {
+                                              "spellId": {
+                                                "spellId": 25311
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "not": {
+                                          "val": {
+                                            "variableRef": {
+                                              "name": "in 5y range of 3T"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "or": {
+                          "vals": [
+                            {
+                              "dotIsActiveOnAllTargets": {
+                                "spellId": {
+                                  "spellId": 25309
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "and": {
+                                    "vals": [
+                                      {
+                                        "cmp": {
+                                          "op": "OpGt",
+                                          "lhs": {
+                                            "remainingTime": {}
+                                          },
+                                          "rhs": {
+                                            "dotBaseDuration": {
+                                              "spellId": {
+                                                "spellId": 25309
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "not": {
+                                          "val": {
+                                            "variableRef": {
+                                              "name": "in 5y range of 3T"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
                       }
                     ]
                   }
@@ -1040,20 +1368,8 @@
           ]
         },
         {
-          "name": "Single Target DoT/Curse Logic",
+          "name": "Single Target DoT Logic",
           "actions": [
-            {
-              "action": {
-                "condition": {
-                  "not": {
-                    "val": {
-                      "warlockAssignedCurseIsActive": {}
-                    }
-                  }
-                },
-                "castWarlockAssignedCurse": {}
-              }
-            },
             {
               "action": {
                 "condition": {
@@ -1521,20 +1837,6 @@
             {
               "action": {
                 "condition": {
-                  "variableRef": {
-                    "name": "Searing Pain for Brand"
-                  }
-                },
-                "castSpell": {
-                  "spellId": {
-                    "spellId": 17923
-                  }
-                }
-              }
-            },
-            {
-              "action": {
-                "condition": {
                   "and": {
                     "vals": [
                       {
@@ -1552,7 +1854,7 @@
                           },
                           "rhs": {
                             "const": {
-                              "val": "22s"
+                              "val": "15s"
                             }
                           }
                         }
@@ -1568,10 +1870,14 @@
                         }
                       },
                       {
-                        "not": {
-                          "val": {
-                            "variableRef": {
-                              "name": "in 5y range of 3T"
+                        "cmp": {
+                          "op": "OpEq",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "1"
                             }
                           }
                         }
@@ -1762,6 +2068,40 @@
                       }
                     }
                   }
+                },
+                {
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "unitDistance": {
+                        "sourceUnit": {
+                          "type": "NextTarget"
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "5"
+                      }
+                    }
+                  }
+                },
+                {
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "unitDistance": {
+                        "sourceUnit": {
+                          "type": "PreviousTarget"
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "5"
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -1780,7 +2120,7 @@
                           "val": {
                             "auraIsActive": {
                               "sourceUnit": {
-                                "type": "CurrentTarget"
+                                "type": "Target"
                               },
                               "auraId": {
                                 "spellId": 1293696
@@ -1796,7 +2136,7 @@
                           "lhs": {
                             "auraRemainingTime": {
                               "sourceUnit": {
-                                "type": "CurrentTarget"
+                                "type": "Target"
                               },
                               "auraId": {
                                 "spellId": 1293696

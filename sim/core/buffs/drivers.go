@@ -27,47 +27,44 @@ import (
 var BattleShoutT2Bonus = spelldata.MustFind(23563).EffectN(1).BaseValue()
 
 // The raid's Battle Shout is the external caster's copy, which chains behind
-// the player's own shout rather than being up from the start. Its improved state
-// says that warrior shouted with the set on.
+// the player's own shout rather than being up from the start. Its state is the
+// shout that warrior casts: 1 the trainer's Rank 6, 2 Rank 7 from Manual of
+// Battle Shout VII, 3 Rank 7 with the set on.
 func driveBattleShout(char *core.Character, raid *proto.RaidBuffs) {
-	aura := NewSpellDataBattleShoutAura(&char.Unit, false, 0)
-	if raid.BattleShout == proto.TristateEffect_TristateEffectImproved {
-		AddGeneratedFlatBonus(aura, stats.AttackPower, BattleShoutValue(0), BattleShoutT2Bonus)
+	rank := core.Ternary(raid.BattleShout == 1, battleShoutSpell, battleShoutBookRank)
+	aura := NewSpellDataBattleShoutRankAura(&char.Unit, false, rank)
+	if raid.BattleShout >= 3 {
+		AddGeneratedFlatBonus(aura, stats.AttackPower, BattleShoutRankValue(rank), BattleShoutT2Bonus)
 	}
 	applyFixedShoutAura(char, aura, BattleShoutCategory)
 }
 
+// The external copy chains behind every copy of the player's own (tag 0), since a warrior registers
+// one per rank and the rotation picks which it casts.
 func applyFixedShoutAura(char *core.Character, aura *core.Aura, category string) {
 	aura.ApplyOnInit(func(aura *core.Aura, sim *core.Simulation) {
-		auras := char.GetAurasWithTag(category)
-		var playerAura *core.Aura
-		for _, bsAura := range auras {
-			if bsAura.ActionID.Tag == 0 {
-				playerAura = bsAura
-				break
+		for _, playerAura := range char.GetAurasWithTag(category) {
+			if playerAura.ActionID.Tag != 0 {
+				continue
 			}
+
+			playerAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+				pa := sim.GetConsumedPendingActionFromPool()
+				pa.NextActionAt = playerAura.ExpiresAt() + char.ReactionTime
+				pa.OnAction = func(sim *core.Simulation) {
+					aura.Activate(sim)
+
+					core.StartPeriodicAction(sim, core.PeriodicActionOptions{
+						Period:   aura.Duration + 1,
+						NumTicks: 1,
+						OnAction: func(sim *core.Simulation) {
+							aura.Activate(sim)
+						},
+					})
+				}
+				sim.AddPendingAction(pa)
+			})
 		}
-
-		if playerAura == nil {
-			return
-		}
-
-		playerAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-			pa := sim.GetConsumedPendingActionFromPool()
-			pa.NextActionAt = playerAura.ExpiresAt() + char.ReactionTime
-			pa.OnAction = func(sim *core.Simulation) {
-				aura.Activate(sim)
-
-				core.StartPeriodicAction(sim, core.PeriodicActionOptions{
-					Period:   aura.Duration + 1,
-					NumTicks: 1,
-					OnAction: func(sim *core.Simulation) {
-						aura.Activate(sim)
-					},
-				})
-			}
-			sim.AddPendingAction(pa)
-		})
 	})
 
 	applyFixedUptimeAura(aura, 1, aura.Duration+1, -1)

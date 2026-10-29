@@ -83,6 +83,7 @@ message WarriorOptions {
 	bool has_bs_t2 = 4;
 	bool use_battle_shout = 5;
 	int32 queue_delay = 6;
+	bool has_battle_shout_rank_7 = 7;
 }
 
 enum DpsWarriorSpec {
@@ -108,6 +109,9 @@ message DpsWarrior {
 		bool use_rend = 6;
 		bool use_stance_dance = 7;
 		bool use_hamstring = 8;
+		// The preset rotations cast the ranks the class books teach; each use_ rank field left false casts the trainer's top rank in its place.
+		bool use_heroic_strike_rank_9 = 9;
+		bool use_battle_shout_rank_7 = 10;
 	}
 
 	message Options {

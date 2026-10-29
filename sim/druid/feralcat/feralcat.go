@@ -46,7 +46,6 @@ func NewFeralCatDruid(character *core.Character, options *proto.Player) *FeralDr
 		// Base paw weapon.
 		MainHand:       cat.GetCatWeapon(),
 		AutoSwingMelee: true,
-		ReplaceMHSwing: cat.TryMaul,
 	})
 
 	cat.RegisterCatFormAura()

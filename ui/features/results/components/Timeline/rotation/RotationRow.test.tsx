@@ -41,6 +41,22 @@ describe('RotationRow', () => {
 		expect(onHide).toHaveBeenCalledWith('cast:a');
 	});
 
+	it('shows the full label as a title only when the column cuts it short', () => {
+		const label = mount().container.querySelector<HTMLElement>('[data-testid="rotation-label-text"]')!;
+		const widths = (scrollWidth: number, clientWidth: number) => {
+			Object.defineProperty(label, 'scrollWidth', { configurable: true, value: scrollWidth });
+			Object.defineProperty(label, 'clientWidth', { configurable: true, value: clientWidth });
+		};
+
+		widths(80, 80);
+		fireEvent.mouseEnter(label);
+		expect(label.hasAttribute('title')).toBe(false);
+
+		widths(200, 80);
+		fireEvent.mouseEnter(label);
+		expect(label.title).toBe('Fire Bolt');
+	});
+
 	it('resolves an aura row’s icon against the buff aura rather than the spell', () => {
 		const aura = { ...ROW, kind: 'aura' } as ContentRow;
 		expect(mount(aura, []).container.querySelector<HTMLElement>('[data-testid="rotation-row-icon"]')!.dataset.tooltipKind).toBe('buffAura');

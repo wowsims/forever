@@ -15,35 +15,24 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "arcaneFocus",
-        "fancyName": "Arcane Focus",
-        "location": {
-          "rowIdx": 0,
-          "colIdx": 1
-        },
-        "spellId": 11222,
-        "definitionId": 135344,
-        "maxPoints": 5
-      },
-      {
         "fieldName": "improvedChanneling",
         "fancyName": "Improved Channeling",
         "location": {
           "rowIdx": 0,
-          "colIdx": 2
+          "colIdx": 1
         },
         "spellId": 11237,
         "definitionId": 135343,
         "maxPoints": 5
       },
       {
-        "fieldName": "missileBarrage",
-        "fancyName": "Missile Barrage",
+        "fieldName": "arcaneResilience",
+        "fancyName": "Arcane Resilience",
         "location": {
           "rowIdx": 0,
-          "colIdx": 3
+          "colIdx": 2
         },
-        "spellId": 400588,
+        "spellId": 28574,
         "definitionId": 135332,
         "maxPoints": 2
       },
@@ -81,13 +70,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "arcaneResilience",
-        "fancyName": "Arcane Resilience",
+        "fieldName": "missileBarrage",
+        "fancyName": "Missile Barrage",
         "location": {
           "rowIdx": 1,
           "colIdx": 3
         },
-        "spellId": 28574,
+        "spellId": 400588,
         "definitionId": 135339,
         "maxPoints": 2
       },
@@ -231,17 +220,6 @@
     "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/tbc/41.jpg",
     "talents": [
       {
-        "fieldName": "improvedFireBlast",
-        "fancyName": "Improved Fire Blast",
-        "location": {
-          "rowIdx": 0,
-          "colIdx": 0
-        },
-        "spellId": 11078,
-        "definitionId": 135327,
-        "maxPoints": 2
-      },
-      {
         "fieldName": "incineration",
         "fancyName": "Incineration",
         "location": {
@@ -250,11 +228,11 @@
         },
         "spellId": 18459,
         "definitionId": 135326,
-        "maxPoints": 3
+        "maxPoints": 5
       },
       {
-        "fieldName": "improvedFireball",
-        "fancyName": "Improved Fireball",
+        "fieldName": "accelerant",
+        "fancyName": "Accelerant",
         "location": {
           "rowIdx": 0,
           "colIdx": 2
@@ -330,6 +308,17 @@
         "maxPoints": 1
       },
       {
+        "fieldName": "improvedFireBlast",
+        "fancyName": "Improved Fire Blast",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 3
+        },
+        "spellId": 11078,
+        "definitionId": 135327,
+        "maxPoints": 2
+      },
+      {
         "fieldName": "improvedScorch",
         "fancyName": "Improved Scorch",
         "location": {
@@ -386,7 +375,7 @@
         },
         "spellId": 11115,
         "definitionId": 135314,
-        "maxPoints": 5
+        "maxPoints": 3
       },
       {
         "fieldName": "blastWave",
@@ -454,8 +443,8 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "elementalPrecision",
-        "fancyName": "Elemental Precision",
+        "fieldName": "precision",
+        "fancyName": "Precision",
         "location": {
           "rowIdx": 0,
           "colIdx": 2

@@ -1044,3 +1044,30 @@ func (caster *Unit) NewAllyDamageAbsorptionAuraArray(makeAura func(*Unit) *Damag
 	}
 	return auras
 }
+
+// TODO: Manual review needed -- the run speed and the callers' overshoot are the sim's movement model.
+// The arrival callback runs only on reaching the target, never when the aura runs out or the iteration is torn down.
+func MakeDashAura(unit *Unit, label string, actionID ActionID, duration time.Duration, onArrive func(sim *Simulation)) *Aura {
+	aura := unit.RegisterAura(Aura{
+		Label:    label,
+		ActionID: actionID,
+		Duration: duration,
+		OnGain: func(_ *Aura, sim *Simulation) {
+			unit.MultiplyMovementSpeed(sim, 3.0)
+		},
+		OnExpire: func(_ *Aura, sim *Simulation) {
+			unit.MultiplyMovementSpeed(sim, 1.0/3.0)
+		},
+	})
+
+	unit.RegisterMovementCallback(func(sim *Simulation, _ float64, kind MovementUpdateType) {
+		if kind == MovementEnd && aura.IsActive() {
+			aura.Deactivate(sim)
+			if onArrive != nil {
+				onArrive(sim)
+			}
+		}
+	})
+
+	return aura
+}

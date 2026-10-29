@@ -15,7 +15,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 210
-  final_stats: 708
+  final_stats: 684
   final_stats: 50
   final_stats: 0
   final_stats: 20
@@ -895,11 +895,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 521.11217
+  tps: 369.79513
+  dtps: 8.30263
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TheElements"
  value: {
   dps: 487.90616
   tps: 345.81825
   dtps: 5.91763
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 521.11217
+  tps: 369.79513
+  dtps: 8.30263
  }
 }
 dps_results: {

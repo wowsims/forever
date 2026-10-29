@@ -5,17 +5,17 @@
       "source": "blader/humanizer",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "d85c4727f62296887c3206e32a99caeed7611af7c4701c1b9931897260e31a73"
+      "computedHash": "1e67c3a4a675bd0c961b1fd8ebb718174f9a61a547d9bedad2ade5eb99cce831"
     },
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "cd0e1e328bc1a63780897cae34cb9737236c1ca7098210c57e9d381df6d51f8d"
+      "computedHash": "4a0a736314c7ce02fd27d31df6e28b675a73b7907880b00ce810fb0625215f46"
     },
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "f2ad1cf5643ae5b66a2408e9189cbf5aef9d68c3872f6152209d1a7783cd1d75"
+      "computedHash": "ea886ee46799c5704e9b1955b3a85c2015c05d2c8cfc9bf291e1489ff5ecf0e4"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
@@ -65,7 +65,7 @@
     "wowsims-spell-store": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "e324e77489dc5d37815c2786b9bd0dd5529adb5981f77996cf3d9d190c02985b"
+      "computedHash": "0ffede2b655f4658748c218b1e090b04061f7fcec672e62735031042060a8254"
     },
     "wowsims-spells": {
       "source": "./.github/skills",

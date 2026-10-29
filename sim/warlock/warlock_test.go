@@ -185,6 +185,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		encounter := core.MakeSingleTargetEncounter(0)
 		encounter.Duration = 3600
 		encounter.ExecuteProportion_35 = 1
+		// A fresh target, since the default one is shared by every test in the package.
 		encounter.Targets[0] = core.FreshDefaultTargetConfig()
 		encounter.Targets[0].Stats[stats.FireResistance] = resistance
 		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
@@ -600,5 +601,34 @@ func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
 	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
 	if got := ratio(); math.Abs(got-want) > 1e-9 {
 		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that against the one above, want %.4f", got, want)
+	}
+}
+
+// The trainer's top ranks of Shadow Bolt, Immolate and Corruption register beside the book ranks, and
+// Conflagrate consumes an Immolate of the trainer's rank.
+func TestTrainerRanksBesideBookRanks(t *testing.T) {
+	sim, warlock := newWarlockSim("--0050355103101351", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+	for _, id := range []int32{11661, 25307, 11668, 25309, 11672, 25311} {
+		if warlock.GetSpell(core.ActionID{SpellID: id}) == nil {
+			t.Errorf("spell %d is not registered", id)
+		}
+	}
+
+	// The dot is applied directly and Conflagrate retried, since every hit roll keeps a 1% miss.
+	warlock.conflagrateKeepsImmolate = 0
+	immolate := warlock.GetSpell(core.ActionID{SpellID: 11668}).Dot(target)
+	immolate.Apply(sim)
+	if !warlock.Conflagrate.ExtraCastCondition(sim, target) {
+		t.Fatalf("Conflagrate cannot be cast on Immolate rank 7")
+	}
+	for range 20 {
+		if !immolate.IsActive() {
+			break
+		}
+		warlock.Conflagrate.SkipCastAndApplyEffects(sim, target)
+	}
+	if immolate.IsActive() {
+		t.Errorf("Immolate rank 7 still burns after 20 Conflagrates")
 	}
 }

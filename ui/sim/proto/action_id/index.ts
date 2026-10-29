@@ -2,6 +2,7 @@ import { APLActionItemSwap_SwapSet } from '@generated/proto/apl';
 import { ActionID as ActionIdProto, DamageAmpType, ItemRandomSuffix, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { IconData, UIItem as Item } from '@generated/proto/ui';
+import { WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
 
 import { CHARACTER_LEVEL } from '../../constants/mechanics';
@@ -534,6 +535,32 @@ export class ActionId {
 				}
 
 				break;
+			case 'Master Demonologist': {
+				// One aura per demon, tagged with the demon's Summon value.
+				const demon = {
+					[Summon.Imp]: 'imp',
+					[Summon.Voidwalker]: 'voidwalker',
+					[Summon.Succubus]: 'succubus',
+					[Summon.Felhunter]: 'felhunter',
+				}[tag];
+				if (demon) {
+					name += ` (${i18n.t(`rotation_tab.apl.summon_types.${demon}`)})`;
+				}
+				break;
+			}
+			// Demonic Sacrifice's effects, each named with the demon sacrificed for it.
+			case 'Burning Shadow':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.imp')} Sac)`;
+				break;
+			case 'Touch of Fire':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.succubus')} Sac)`;
+				break;
+			case 'Fel Energy':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.voidwalker')} Sac)`;
+				break;
+			case 'Fel Stamina':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.felhunter')} Sac)`;
+				break;
 			case 'Unstable Affliction':
 			case 'Corruption':
 				if (tag == 1) {
@@ -563,6 +590,15 @@ export class ActionId {
 				// A totem's hits report under the totem's spell, tagged 1, so they share its row.
 				if (tag === 1) {
 					name += ` (${i18n.t('common.action_names.attack')})`;
+				} else if (tag === -1) {
+					name += ` (${i18n.t('common.action_tags.external')})`;
+				}
+				break;
+			case 'Windfury Totem':
+				// The totem, its raid aura and the attack power its proc grants (10610) share one name.
+				if (this.spellId === 10610) {
+					const attackPower = i18n.t('common.stats.attack_power');
+					name += tag === -1 ? ` (${attackPower} - ${i18n.t('common.action_tags.external')})` : ` (${attackPower})`;
 				} else if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
 				}
@@ -939,4 +975,5 @@ export const resourceTypeToIcon: Record<ResourceType, string> = {
 // Use this to connect a buff row to a cast row in the timeline view
 export const buffAuraToSpellIdMap: Record<number, ActionId> = {
 	15036: ActionId.fromSpellId(16387), // The party's Flametongue Totem, on the row of the totem's strikes
+	1282733: ActionId.fromSpellId(11585), // Overpower's window after a dodge, on the Overpower row
 };

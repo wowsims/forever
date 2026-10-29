@@ -5,7 +5,7 @@ import type { APLRotation } from '@generated/proto/apl';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { TooltipButton } from '@ui-kit/TooltipButton';
-import { Tree, type TreeLayout, type TreeSortable } from '@ui-kit/Tree';
+import { Tree, type TreeDensity, type TreeLayout, type TreeSortable } from '@ui-kit/Tree';
 import { type ReactNode, useMemo } from 'react';
 
 export interface AplListRootProps {
@@ -15,6 +15,8 @@ export interface AplListRootProps {
 	isGroup?: boolean;
 	/** `inline` for a pane whose items are rows, as `Rows` lays out the rows under a section. */
 	layout?: TreeLayout;
+	/** `compact` (the default here, unlike the kit's) leaves the items unframed; `default` boxes each, as the rows under a section are. */
+	density?: TreeDensity;
 	testId?: string;
 	children: ReactNode;
 }
@@ -23,7 +25,7 @@ export interface AplListRootProps {
  * One APL pane's tree. Its items are the pane's top-level entries; a drop anywhere under it, the
  * nested lists included, goes through `applyMove` as one rotation write.
  */
-const Root = ({ group, isGroup, layout, testId, children }: AplListRootProps) => {
+const Root = ({ group, isGroup, layout, density = 'compact', testId, children }: AplListRootProps) => {
 	const player = usePlayer();
 	const sortable = useMemo<TreeSortable>(() => {
 		const offersKind: OffersKind = (kind, isPrepull) => actionKinds[kind as NonNullable<APLActionKind>]?.includeIf?.(player, isPrepull) ?? true;
@@ -43,7 +45,7 @@ const Root = ({ group, isGroup, layout, testId, children }: AplListRootProps) =>
 
 	return (
 		<AplProvider isGroup={isGroup}>
-			<Tree.Root group={group} sortable={sortable} density="compact" layout={layout} testId={testId}>
+			<Tree.Root group={group} sortable={sortable} density={density} layout={layout} testId={testId}>
 				<Tree.Items>{children}</Tree.Items>
 			</Tree.Root>
 		</AplProvider>

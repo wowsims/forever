@@ -18,6 +18,7 @@ import (
 //   Winter's Chill: effect 2 of spell 11180 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
+	Accelerant                   spelldata.Ladder
 	AmplifyMagic                 spelldata.Ladder
 	ArcaneBlast                  spelldata.Ladder
 	ArcaneBlastTriggered         spelldata.Ladder
@@ -25,7 +26,6 @@ type generatedSpellData struct {
 	ArcaneConcentration          spelldata.Ladder
 	ArcaneConcentrationTriggered spelldata.Ladder
 	ArcaneExplosion              spelldata.Ladder
-	ArcaneFocus                  spelldata.Ladder
 	ArcaneGeometry               spelldata.Ladder
 	ArcaneImpact                 spelldata.Ladder
 	ArcaneInstability            spelldata.Ladder
@@ -65,7 +65,6 @@ type generatedSpellData struct {
 	Counterspell                 spelldata.Ladder
 	CriticalMass                 spelldata.Ladder
 	DampenMagic                  spelldata.Ladder
-	ElementalPrecision           spelldata.Ladder
 	Evocation                    spelldata.Ladder
 	ExpandedIntellect            spelldata.Ladder
 	Felfire                      spelldata.Ladder
@@ -81,7 +80,6 @@ type generatedSpellData struct {
 	FlamestrikeTriggered         spelldata.Ladder
 	FrostArmor                   spelldata.Ladder
 	FrostArmorTriggered          spelldata.Ladder
-	FrostBlast                   spelldata.Ladder
 	FrostChanneling              spelldata.Ladder
 	FrostNova                    spelldata.Ladder
 	FrostWard                    spelldata.Ladder
@@ -111,7 +109,6 @@ type generatedSpellData struct {
 	ImprovedCounterspell         spelldata.Ladder
 	ImprovedFireBlast            spelldata.Ladder
 	ImprovedFireWard             spelldata.Ladder
-	ImprovedFireball             spelldata.Ladder
 	ImprovedFlamestrike          spelldata.Ladder
 	ImprovedFrostNova            spelldata.Ladder
 	ImprovedFrostbolt            spelldata.Ladder
@@ -133,6 +130,7 @@ type generatedSpellData struct {
 	PortalStormwind              spelldata.Ladder
 	PortalThunderBluff           spelldata.Ladder
 	PortalUndercity              spelldata.Ladder
+	Precision                    spelldata.Ladder
 	PresenceOfMind               spelldata.Ladder
 	Pyroblast                    spelldata.Ladder
 	RemoveLesserCurse            spelldata.Ladder
@@ -152,6 +150,7 @@ type generatedSpellData struct {
 }
 
 var spellData = generatedSpellData{
+	Accelerant:                   spelldata.Talent(11069, 5),
 	AmplifyMagic:                 spelldata.Ranked(1008, 8455, 10169, 10170),
 	ArcaneBlast:                  spelldata.Ranked(400574, 1239696, 1239697, 1239699, 1239700),
 	ArcaneBlastTriggered:         spelldata.Ranked(400573),
@@ -159,7 +158,6 @@ var spellData = generatedSpellData{
 	ArcaneConcentration:          spelldata.Talent(11213, 5),
 	ArcaneConcentrationTriggered: spelldata.Ranked(12536),
 	ArcaneExplosion:              spelldata.Ranked(1449, 8437, 8438, 8439, 10201, 10202),
-	ArcaneFocus:                  spelldata.Talent(11222, 5),
 	ArcaneGeometry:               spelldata.Talent(11247, 2),
 	ArcaneImpact:                 spelldata.Talent(11242, 3),
 	ArcaneInstability:            spelldata.Talent(15058, 3),
@@ -197,9 +195,8 @@ var spellData = generatedSpellData{
 	ConjureManaRubyTriggered:     spelldata.Ranked(10058),
 	ConjureWater:                 spelldata.Ranked(5504, 5505, 5506, 6127, 10138, 10139, 10140, 468766),
 	Counterspell:                 spelldata.Ranked(2139),
-	CriticalMass:                 spelldata.Talent(11115, 5),
+	CriticalMass:                 spelldata.Talent(11115, 3),
 	DampenMagic:                  spelldata.Ranked(604, 8450, 8451, 10173, 10174),
-	ElementalPrecision:           spelldata.Talent(29438, 3),
 	Evocation:                    spelldata.Ranked(12051),
 	ExpandedIntellect:            spelldata.Ranked(436949),
 	Felfire:                      spelldata.Ranked(24530),
@@ -215,7 +212,6 @@ var spellData = generatedSpellData{
 	FlamestrikeTriggered:         spelldata.Ranked(1279983, 1279985, 1279987, 1279988, 1279989, 1279990),
 	FrostArmor:                   spelldata.Ranked(168, 7300, 7301),
 	FrostArmorTriggered:          spelldata.Ranked(6136),
-	FrostBlast:                   spelldata.Ranked(1326053, 1326054, 1326055),
 	FrostChanneling:              spelldata.Talent(11160, 3),
 	FrostNova:                    spelldata.Ranked(122, 865, 6131, 10230),
 	FrostWard:                    spelldata.Ranked(6143, 8461, 8462, 10177, 28609),
@@ -245,13 +241,12 @@ var spellData = generatedSpellData{
 	ImprovedCounterspell:         spelldata.Talent(11255, 2),
 	ImprovedFireBlast:            spelldata.Talent(11078, 2),
 	ImprovedFireWard:             spelldata.Talent(11094, 2),
-	ImprovedFireball:             spelldata.Talent(11069, 5),
 	ImprovedFlamestrike:          spelldata.Talent(11108, 3),
 	ImprovedFrostNova:            spelldata.Talent(11165, 2),
 	ImprovedFrostbolt:            spelldata.Talent(11070, 5),
 	ImprovedScorch:               spelldata.Talent(11095, 3),
 	ImprovedScorchTriggered:      spelldata.Ranked(22959),
-	Incineration:                 spelldata.Talent(18459, 3),
+	Incineration:                 spelldata.Talent(18459, 5),
 	MageArmor:                    spelldata.Ranked(6117, 22782, 22783),
 	MagicAbsorption:              spelldata.Talent(29441, 2),
 	ManaShield:                   spelldata.Ranked(1463, 8494, 8495, 10191, 10192, 10193),
@@ -267,6 +262,7 @@ var spellData = generatedSpellData{
 	PortalStormwind:              spelldata.Ranked(10059),
 	PortalThunderBluff:           spelldata.Ranked(11420),
 	PortalUndercity:              spelldata.Ranked(11418),
+	Precision:                    spelldata.Talent(29438, 3),
 	PresenceOfMind:               spelldata.Ranked(12043),
 	Pyroblast:                    spelldata.Ranked(11366, 12505, 12522, 12523, 12524, 12525, 12526, 18809),
 	RemoveLesserCurse:            spelldata.Ranked(475),
