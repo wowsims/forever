@@ -1554,6 +1554,12 @@
 						"self": {
 							"type": "string"
 						},
+						"shield": {
+							"type": "string"
+						},
+						"amplified": {
+							"type": "string"
+						},
 						"thrash": {
 							"type": "string"
 						},
@@ -1618,6 +1624,8 @@
 						"hit",
 						"external",
 						"self",
+						"shield",
+						"amplified",
 						"thrash",
 						"stacks",
 						"ticks",

@@ -2,6 +2,7 @@ package warrior
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -11,7 +12,8 @@ func (warrior *Warrior) registerWhirlwind() {
 	// The tooltip of 1680 strikes with both melee weapons, and the row states only the one weapon
 	// damage effect, so the off-hand strike is a sub-spell on the same row.
 	ohConfig := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
-		spelldata.Melee(core.ProcMaskMeleeOHSpecial), spelldata.Proc(), spelldata.Tag(2))
+		spelldata.Melee(core.ProcMaskMeleeOHSpecial), spelldata.Proc())
+	ohConfig.ActionID = ohConfig.ActionID.WithHand(proto.ItemSlot_ItemSlotOffHand)
 
 	ohConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := warrior.OHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
@@ -22,8 +24,9 @@ func (warrior *Warrior) registerWhirlwind() {
 	whirlwindOH := warrior.RegisterSpell(ohConfig)
 
 	// TODO: In-game testing required for threat multiplier / threat bonus.
-	config := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
-		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Tag(1))
+	// The cast is the main-hand strike, so a rotation casts the main-hand copy.
+	config := spelldata.SpellConfig(&warrior.Unit, whirlwindRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ActionID = config.ActionID.WithHand(proto.ItemSlot_ItemSlotMainHand)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := warrior.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))

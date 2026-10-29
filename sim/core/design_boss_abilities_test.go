@@ -71,7 +71,7 @@ func designHitsOf(hits []designHitTaken, matches func(ActionID) bool) []designHi
 }
 
 func isBossMeleeSwing(id ActionID) bool {
-	return id.OtherID == proto.OtherAction_OtherActionAttack && id.Tag == 1
+	return id.OtherID == proto.OtherAction_OtherActionAttack && id.Tag == int32(proto.ItemSlot_ItemSlotMainHand)
 }
 
 func designWindow(start, end float64) (*proto.DesignTime, *proto.DesignTime) {

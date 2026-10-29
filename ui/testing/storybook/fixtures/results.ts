@@ -14,7 +14,7 @@ import {
 	TargetedActionMetrics,
 	UnitMetrics,
 } from '@generated/proto/api';
-import { ActionID, Class, Encounter, OtherAction, Race, Target } from '@generated/proto/common';
+import { ActionID, Class, Encounter, ItemSlot, OtherAction, Race, Target } from '@generated/proto/common';
 import { DpsWarrior } from '@generated/proto/warrior';
 import { SimResult } from '@sim/proto/sim_result';
 
@@ -66,7 +66,7 @@ export const makeSimRun = ({ dpsScale = 1 }: SimRunOptions = {}): { request: Rai
 	const target = Target.create({ id: 31146, name: 'Raid Target', level: 63 });
 
 	const mainHand = ActionMetrics.create({
-		id: ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: 1 }),
+		id: ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: ItemSlot.ItemSlotMainHand }),
 		isMelee: true,
 		targets: [
 			TargetedActionMetrics.create({

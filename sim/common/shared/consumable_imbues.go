@@ -102,7 +102,7 @@ func registerTemporaryEnchantHand(character *core.Character, consumable core.Con
 	equipped := character.Equipment[slot].HasTempEnchant(enchantID)
 	aura := character.RegisterAura(core.Aura{
 		Label:    fmt.Sprintf("%s (%s)", consumable.Name, core.Ternary(slot == proto.ItemSlot_ItemSlotMainHand, "Main Hand", "Off Hand")),
-		ActionID: actionID.WithTag(int32(slot)),
+		ActionID: actionID.WithHand(slot),
 		Duration: core.NeverExpires,
 		// On the hand from the start, the enchant's equip spells show among the sheet's consumables.
 		BuildPhase: core.Ternary(equipped, core.CharacterBuildPhaseConsumes, core.CharacterBuildPhaseNone),

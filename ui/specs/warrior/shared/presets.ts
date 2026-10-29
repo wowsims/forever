@@ -14,6 +14,7 @@ export const DefaultRaidBuffs = RaidBuffs.create({
 	giftOfTheWild: true,
 	strengthOfEarthTotem: true,
 	windfuryTotem: true,
+	graceOfAirTotem: true,
 	leaderOfThePack: true,
 });
 

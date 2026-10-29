@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -227,7 +228,7 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 	config.Flags |= SpellFlagBuilder | SpellFlagColdBlooded | core.SpellFlagPassiveSpell
 	config.Flags &^= core.SpellFlagAPL
 	config.SpellID = mutilateCastRank.ID
-	config.Tag = core.TernaryInt32(isMH, 1, 2)
+	config.ActionID = config.ActionID.WithHand(core.Ternary(isMH, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand))
 	for i := range config.ClassFlags.Mask {
 		config.ClassFlags.Mask[i] |= mutilateCastRank.ClassFlags.Mask[i]
 	}

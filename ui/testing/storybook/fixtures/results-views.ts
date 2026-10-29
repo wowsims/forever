@@ -28,7 +28,7 @@ import {
 import type { ResultMetric } from '@features/results/model/topline_metrics';
 import { toplineResultMetrics } from '@features/results/model/topline_metrics';
 import { ActionMetrics as ActionMetricsProto, ResourceMetrics as ResourceMetricsProto } from '@generated/proto/api';
-import { ActionID, OtherAction, SpellSchool } from '@generated/proto/common';
+import { ActionID, ItemSlot, OtherAction, SpellSchool } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { type ActionId, resourceTypeToIcon } from '@sim/proto/action_id';
 import type { AuraUptimeLog, CastLog, DamageLog, DpsLog, ResourceGroupLog, ResourceLog, ThreatLogGroup } from '@sim/proto/combat_log';
@@ -93,7 +93,7 @@ export const loadAttackRows = async (): Promise<AttackRowsFixture> => {
 	const { request, result } = makeSimRun();
 	const player = result.raidMetrics!.parties[0].players[0];
 	const offHand = ActionMetricsProto.clone(player.actions[0]);
-	offHand.id = ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: 2 });
+	offHand.id = ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: ItemSlot.ItemSlotOffHand });
 	for (const target of offHand.targets) {
 		target.damage /= 2;
 		target.critDamage /= 2;
@@ -114,7 +114,7 @@ export const loadRageResult = async (): Promise<{ resultData: SimResultData }> =
 	const otherId = (id: OtherAction, tag = 0) => ActionID.create({ rawId: { oneofKind: 'otherId', otherId: id }, tag });
 	result.raidMetrics!.parties[0].players[0].resources = [
 		ResourceMetricsProto.create({
-			id: otherId(OtherAction.OtherActionAttack, 1),
+			id: otherId(OtherAction.OtherActionAttack, ItemSlot.ItemSlotMainHand),
 			type: ResourceType.ResourceTypeRage,
 			events: 7_000,
 			gain: 98_000,
