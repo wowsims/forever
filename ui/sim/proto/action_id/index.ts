@@ -2,6 +2,7 @@ import { APLActionItemSwap_SwapSet } from '@generated/proto/apl';
 import { ActionID as ActionIdProto, ItemRandomSuffix, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { IconData, UIItem as Item } from '@generated/proto/ui';
+import { WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
 
 import { CHARACTER_LEVEL } from '../../constants/mechanics';
@@ -515,6 +516,32 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.mastery')})`;
 				}
 
+				break;
+			case 'Master Demonologist': {
+				// One aura per demon, tagged with the demon's Summon value.
+				const demon = {
+					[Summon.Imp]: 'imp',
+					[Summon.Voidwalker]: 'voidwalker',
+					[Summon.Succubus]: 'succubus',
+					[Summon.Felhunter]: 'felhunter',
+				}[tag];
+				if (demon) {
+					name += ` (${i18n.t(`rotation_tab.apl.summon_types.${demon}`)})`;
+				}
+				break;
+			}
+			// Demonic Sacrifice's effects, each named with the demon sacrificed for it.
+			case 'Burning Shadow':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.imp')} Sac)`;
+				break;
+			case 'Touch of Fire':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.succubus')} Sac)`;
+				break;
+			case 'Fel Energy':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.voidwalker')} Sac)`;
+				break;
+			case 'Fel Stamina':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.felhunter')} Sac)`;
 				break;
 			case 'Unstable Affliction':
 			case 'Corruption':
