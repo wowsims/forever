@@ -10,6 +10,7 @@ Re-derive a claim before repeating it:
 - the area reads: `grep -n 'MaxTargets has no\|func (e \*Effect) Hits' sim/core/spelldata/resolve_spell.go`
 - the tick outcome: `grep -n 'func (s \*Spell) TickOutcome' -A9 sim/core/spelldata/spell.go`
 - the tag reads: `grep -n 'func (at \*auraTracker) [A-Za-z]*WithTag' sim/core/aura.go`
+- the hand tags: `grep -n 'func (actionID ActionID) WithHand' -A2 sim/core/agent.go`; `grep -rn 'WithHand(' sim`
 - the panics: `grep -n 'Over 1000 registered\|ProcMask for spell\|Aura with 0 duration' sim/core/spell.go sim/core/aura.go`
 - the proto rules: `grep -n -A8 'message ProtoVersion' proto/common.proto`; `grep -n '^\s*optional ' proto/*.proto`
   prints nothing

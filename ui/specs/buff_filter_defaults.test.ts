@@ -106,7 +106,7 @@ const STAT_ONLY_TYPES = [
 
 // The consumables' stat rule, written out in full against the stats and percents the spec weighs
 // consumables by and the stats it displays: the filter at its defaults must keep exactly the picks
-// that fail it. Dragonbreath Chili's worth is damage, so it always passes.
+// that fail it or sit below the minimum level. Dragonbreath Chili's worth is damage, so it always passes.
 const consumableRule = (consumable: Consumable, player: Player<any>) => {
 	if (consumable.id === DragonbreathChili.id) return true;
 	const specConfig = player.getSpecConfig();
@@ -194,11 +194,13 @@ describe("a spec's default picks at the default stat filters", () => {
 					config.type === 'icon' ? config.keptBy?.(player, config.getValue(player)) : config.keptBy?.(player, config.getValue(player)),
 				)
 				.map(([field]) => field),
-			expected: picks.filter(({ consumable }) => !consumableRule(consumable, player)).map(({ field }) => field),
+			expected: picks
+				.filter(({ consumable }) => !consumableRule(consumable, player) || consumable.lvl < player.sim.getMinConsumableLvl(consumable.type))
+				.map(({ field }) => field),
 		};
 	};
 
-	it.each(specs)('%s: the consumables filter keeps exactly the picked consumables the stat rule leaves out', (_file, spec) => {
+	it.each(specs)('%s: the consumables filter keeps exactly the picked consumables the minimum level or the stat rule leaves out', (_file, spec) => {
 		const { kept, expected } = consumablePicks(spec);
 
 		expect(kept).toEqual(expected);

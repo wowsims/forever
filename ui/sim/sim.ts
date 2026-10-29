@@ -769,10 +769,10 @@ export class Sim {
 	static readonly DEFAULT_MIN_CONSUMABLE_LVL: Partial<Record<ConsumableType, number>> = {
 		[ConsumableType.ConsumableTypePotion]: 40,
 		[ConsumableType.ConsumableTypeFlask]: 0,
-		[ConsumableType.ConsumableTypeElixir]: 40,
+		[ConsumableType.ConsumableTypeElixir]: 35,
 		[ConsumableType.ConsumableTypeScroll]: 40,
 		[ConsumableType.ConsumableTypeExplosive]: 30,
-		[ConsumableType.ConsumableTypeImbue]: 40,
+		[ConsumableType.ConsumableTypeImbue]: 35,
 		[ConsumableType.ConsumableTypeWeaponImbue]: 40,
 	};
 	getMinConsumableLvl(type: ConsumableType): number {

@@ -43,12 +43,11 @@ func init() {
 		actionID := core.ActionID{SpellID: 20007}
 		healthMetrics := character.NewHealthMetrics(actionID)
 
-		createCrusaderAuras := func(tag int32) *core.StatBuffAura {
-			labelSuffix := core.Ternary(tag == 1, "(MH)", "(OH)")
-			slot := core.Ternary(tag == 1, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand)
+		createCrusaderAuras := func(slot proto.ItemSlot) *core.StatBuffAura {
+			labelSuffix := core.Ternary(slot == proto.ItemSlot_ItemSlotMainHand, "(MH)", "(OH)")
 			aura := character.NewTemporaryStatsAura(
 				fmt.Sprintf("Holy Strength %s", labelSuffix),
-				actionID.WithTag(tag),
+				actionID.WithHand(slot),
 				stats.Stats{stats.Strength: 100},
 				duration,
 			)
@@ -57,8 +56,8 @@ func init() {
 			return aura
 		}
 
-		mhAura := createCrusaderAuras(1)
-		ohAura := createCrusaderAuras(2)
+		mhAura := createCrusaderAuras(proto.ItemSlot_ItemSlotMainHand)
+		ohAura := createCrusaderAuras(proto.ItemSlot_ItemSlotOffHand)
 
 		character.MakeProcTriggerAura(core.ProcTrigger{
 			Name:         "Enchant Weapon - Crusader",

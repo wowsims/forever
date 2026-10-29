@@ -28,8 +28,8 @@ export interface InputFrame<ModObject> {
 }
 
 export interface KeptInput<ModObject, T> {
-	// Dims the swatch or trigger with the kept tooltip while it holds for the value the input shows: a selection the stat
-	// filter hides, still offered because it is selected. A multi icon's value is whether any of its inputs is on.
+	// Dims the swatch or trigger with the kept tooltip while it holds for the value the input shows: a selection the
+	// filters hide, still offered because it is selected. A multi icon's value is whether any of its inputs is on.
 	keptBy?: (obj: ModObject, value: T) => boolean;
 }
 
