@@ -61,7 +61,8 @@ type APLRotation struct {
 	// Used to avoid recursive APL loops.
 	inLoop bool
 
-	// Used to override MCD restrictions within sequences.
+	// Set while a sequence asks whether its step is ready or runs it: major cooldowns skip their GCD
+	// wait, and a Change Target to the current target is a step that does nothing.
 	inSequence bool
 
 	// Validation warnings that occur during proto parsing.

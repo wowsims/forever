@@ -101,7 +101,7 @@ func TestPotionOfDemonSlayingIsAPotion(t *testing.T) {
 // subclasses its SpellEquippedItems mask names; the enchant's equip spell 28893 grants melee and
 // ranged attack power against Undead, once per enchanted hand.
 func TestConsecratedSharpeningStoneCountsOncePerHandItTakes(t *testing.T) {
-	const sword, dagger, shield = 727, 816, 1276
+	const sword, dagger, shield = 2078, 4571, 1276
 	row := spelldata.MustFind(28893)
 	melee := row.FirstAura(dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS).Average()
 	ranged := row.FirstAura(dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS).Average()
@@ -134,7 +134,7 @@ func TestConsecratedSharpeningStoneCountsOncePerHandItTakes(t *testing.T) {
 // Blessed Wizard Oil 23123 puts enchant 2685 on the weapon, whose equip spell 28890 grants spell
 // damage against Undead.
 func TestBlessedWizardOilGrantsSpellDamageAgainstUndead(t *testing.T) {
-	const sword = 727
+	const sword = 2078
 	spellDamage := spelldata.MustFind(28890).FirstAura(dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS).Average()
 	if spellDamage == 0 {
 		t.Fatal("28890 states no spell damage against a creature type")

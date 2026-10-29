@@ -1,5 +1,5 @@
-import { ArmorType, ItemSlot, RangedWeaponType, WeaponType } from '@generated/proto/common';
-import { DatabaseFilters, SourceFilterOption, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { ArmorType, Faction, ItemSlot, RangedWeaponType, WeaponType } from '@generated/proto/common';
+import { DatabaseFilters, FactionFilter, SourceFilterOption } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { storeSource as store } from '@testing/gear';
 import { renderWithHost } from '@testing/react';
@@ -24,9 +24,13 @@ interface ClassStub {
 	canDualWield?: boolean;
 }
 
+const factionLabel = (label: string) => `gear_tab.gear_picker.filters.faction_labels.${label}`;
+const factionOptions = () => screen.getAllByRole('option');
+
 describe('FiltersMenu', () => {
 	let filters: DatabaseFilters;
 	let setFilters: ReturnType<typeof vi.fn>;
+	let raceFaction: Faction;
 	let rootElem: HTMLElement;
 
 	const setup = (
@@ -47,6 +51,7 @@ describe('FiltersMenu', () => {
 				},
 				getPlayerClass: () => ({ armorTypes, weaponTypes: weaponTypes.map(weaponType => ({ weaponType })), rangedWeaponTypes }),
 				getPlayerSpec: () => ({ canDualWield }),
+				getFaction: () => raceFaction,
 			},
 		});
 
@@ -65,6 +70,7 @@ describe('FiltersMenu', () => {
 
 	beforeEach(() => {
 		filters = DatabaseFilters.create({});
+		raceFaction = Faction.Horde;
 		setFilters = vi.fn((next: DatabaseFilters) => {
 			filters = next;
 		});
@@ -113,15 +119,33 @@ describe('FiltersMenu', () => {
 		fireEvent.click(rootElem.querySelector<HTMLInputElement>(`#filters-source-${source}`)!);
 		expect(setFilters.mock.calls[1][0].sources).not.toContain(source);
 
-		// The options run unspecified, alliance only, horde only.
 		await userEvent.click(rootElem.querySelector<HTMLElement>('#filters-faction-restriction')!);
-		expect(screen.getAllByRole('option')).toHaveLength(3);
+		expect(factionOptions().map(option => option.textContent)).toEqual([factionLabel('horde_only'), factionLabel('none')]);
 
-		await userEvent.click(screen.getAllByRole('option')[2]);
-		expect(setFilters.mock.lastCall![0].factionRestriction).toBe(UIItem_FactionRestriction.HORDE_ONLY);
+		await userEvent.click(factionOptions()[1]);
+		expect(setFilters.mock.lastCall![0].factionFilter).toBe(FactionFilter.FactionFilterAny);
 
 		fireEvent.click(rootElem.querySelector<HTMLButtonElement>('[data-testid="filters-menu"] [data-testid="sim-dialog-close"]')!);
 		expect(onOpenChange).toHaveBeenCalledWith(false);
+	});
+
+	it("names the race's faction by default, follows a race change, and goes back to it from any", async () => {
+		setup();
+		const trigger = () => rootElem.querySelector<HTMLElement>('#filters-faction-restriction')!;
+		expect(trigger().textContent).toContain(factionLabel('horde_only'));
+
+		raceFaction = Faction.Alliance;
+		act(() => store.notify());
+		expect(trigger().textContent).toContain(factionLabel('alliance_only'));
+
+		await userEvent.click(trigger());
+		await userEvent.click(factionOptions()[1]);
+		expect(setFilters.mock.lastCall![0].factionFilter).toBe(FactionFilter.FactionFilterAny);
+
+		act(() => store.notify());
+		await userEvent.click(trigger());
+		await userEvent.click(factionOptions()[0]);
+		expect(setFilters.mock.lastCall![0].factionFilter).toBe(FactionFilter.FactionFilterRace);
 	});
 });
 
@@ -138,6 +162,7 @@ const renderView = (props: Partial<FiltersMenuViewProps> = {}) => {
 			weaponTypes={[WeaponType.WeaponTypeAxe, WeaponType.WeaponTypeSword]}
 			rangedWeaponTypes={[RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeGun]}
 			canDualWield={false}
+			raceFaction={Faction.Horde}
 			{...props}
 		/>,
 	);
@@ -190,14 +215,14 @@ describe('FiltersMenuView', () => {
 				sources: [SourceFilterOption.SourceCrafting],
 				minIlvl: 0,
 				maxIlvl: 528,
-				factionRestriction: UIItem_FactionRestriction.HORDE_ONLY,
+				factionFilter: FactionFilter.FactionFilterAny,
 			}),
 		});
 		expect(input(`filters-source-${SourceFilterOption.SourceCrafting}`).checked).toBe(true);
 		expect(input('filters-min-ilvl').value).toBe('');
 		expect(input('filters-max-ilvl').value).toBe('528');
 		await userEvent.click(document.getElementById('filters-faction-restriction')!);
-		expect(screen.getAllByRole('option').map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'false', 'true']);
+		expect(factionOptions().map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'true']);
 	});
 
 	it('adds a ticked list entry and removes an unticked one', () => {
@@ -214,9 +239,9 @@ describe('FiltersMenuView', () => {
 	});
 
 	it('writes a faction pick', async () => {
-		const { lastEdit } = renderView();
+		const { lastEdit } = renderView({ filters: DatabaseFilters.create({ factionFilter: FactionFilter.FactionFilterAny }) });
 		await userEvent.click(document.getElementById('filters-faction-restriction')!);
-		await userEvent.click(screen.getAllByRole('option')[1]);
-		expect(lastEdit().factionRestriction).toBe(UIItem_FactionRestriction.ALLIANCE_ONLY);
+		await userEvent.click(factionOptions()[0]);
+		expect(lastEdit(DatabaseFilters.create({ factionFilter: FactionFilter.FactionFilterAny })).factionFilter).toBe(FactionFilter.FactionFilterRace);
 	});
 });

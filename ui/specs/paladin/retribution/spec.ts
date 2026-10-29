@@ -144,7 +144,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		epWeights: [Presets.TwistOfLightEpWeights, Presets.HolyShockEpWeights],
 		rotations: [Presets.SimpleRotation, Presets.DefaultAplPreset, Presets.HolyShockAplPreset],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.TwistOfLightTalents, Presets.HolyShockTalents],
+		talents: [Presets.TwistOfLightTalents, Presets.HolyShockTalents, Presets.LightsVigilTalents],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.DefaultGearPreset, Presets.HolyShockGearPreset],
 		settings: [Presets.DefaultSettings, Presets.HolyShockSettings],

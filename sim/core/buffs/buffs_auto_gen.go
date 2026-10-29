@@ -585,7 +585,7 @@ func NewSpellDataFlametongueTotemAura(unit *core.Unit, isPlayer bool, talentPoin
 
 // Battle Shout
 var BattleShoutCategory = "BattleShout"
-var battleShoutSpell = spelldata.MustFind(25289)
+var battleShoutSpell = spelldata.MustFind(11551)
 var battleShoutMeta = &Meta{
 	Label:      "Battle Shout",
 	Spell:      battleShoutSpell,
@@ -937,7 +937,7 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if raid.FlametongueTotem {
 		driveFlametongueTotem(char, raid)
 	}
-	if raid.BattleShout != proto.TristateEffect_TristateEffectMissing {
+	if raid.BattleShout > 0 {
 		driveBattleShout(char, raid)
 	}
 	if raid.TrueshotAura {

@@ -394,8 +394,8 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	if want := itemEntryPPM(t, 19287, 23682) * speed / 60; want <= 0 || want >= 1 || math.Abs(chance-want) > 1e-9 {
 		t.Errorf("the heal's chance on a main hand swing is %v, want the entry's procs per minute on the swing's speed, %v", chance, want)
 	}
-	// Ravager 7717 is only a weapon of another speed here.
-	armedSim, armed := trinketWarriorWielding(t, 19287, 7717, 0)
+	// Hammer of the Northern Wind 810 is only a weapon of another speed here.
+	armedSim, armed := trinketWarriorWielding(t, 19287, 810, 0)
 	armedChance, armedSpeed := procOf(armed).Dpm.Chance(core.ProcMaskMeleeMHAuto, armedSim), armed.AutoAttacks.MH().SwingSpeed
 	if armedSpeed == speed {
 		t.Fatalf("the weapon swings at the unarmed %v, want another speed", speed)

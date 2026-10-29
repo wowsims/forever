@@ -14,7 +14,7 @@ import (
 // Dragonbreath Chili 12217's 15852 rolls its chance on the eater's melee hits, at most once per its
 // internal cooldown, and casts 15851, whose fire damage stays within the row's roll.
 func TestDragonbreathChiliBreathesFireOnMeleeHits(t *testing.T) {
-	const sword = 727
+	const sword = 2078
 	trigger, breath := spelldata.MustFind(15852), spelldata.MustFind(15851)
 	if _, character := warriorWithConsumes(t, &proto.ConsumesSpec{}, sword, 0, proto.MobType_MobTypeHumanoid); character.GetSpell(core.ActionID{SpellID: breath.ID}) != nil {
 		t.Fatal("15851 is registered without the chili")

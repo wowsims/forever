@@ -90,7 +90,6 @@ message HunterOptions {
 		IceThreadedArrow   = 19316;
 		ExplosiveArrow     = 10579;
 		JaggedArrow        = 11285;
-		PrecisionArrow     = 9399;
 		FeatheredArrow     = 3464;
 		RazorArrow         = 3030;
 		SharpArrow         = 2515;

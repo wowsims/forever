@@ -1,4 +1,5 @@
 import { Class, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { describe, expect, it } from 'vitest';
 
@@ -89,13 +90,16 @@ describe('the buff registries', () => {
 		]);
 	});
 
-	// The sim lets only the strongest of each set apply, so a set is one picker whose inputs are the generated ones.
-	it('groups the buffs and debuffs that do not stack around the generated inputs themselves', () => {
+	// The sim lets only the strongest of each set apply, so a set is one picker whose inputs are the rows' own.
+	it('groups the buffs and debuffs that do not stack around the inputs themselves', () => {
 		const attackPower = groupWith(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout);
 		expect(attackPower && isMultiIconOption(attackPower) ? attackPower.config.inputs : []).toEqual([
 			BuffDebuffInputs.BattleShout,
 			BuffDebuffInputs.FuriousHowl,
 		]);
+		expect(attackPower && isMultiIconOption(attackPower) ? attackPower.config.tooltip : undefined).toBe(
+			i18n.t('settings_tab.raid_buffs.attack_power_tooltip'),
+		);
 		expect(groupWith(BuffDebuffInputs.DEBUFFS_CONFIG, BuffDebuffInputs.SunderArmor)?.stats).toEqual([Stat.StatAttackPower]);
 	});
 
@@ -103,15 +107,17 @@ describe('the buff registries', () => {
 		expect(BuffDebuffInputs.BUFFS_CONFIG[8].config).toBe(BuffDebuffInputs.GreaterBlessingOfSalvation);
 	});
 
-	// Off, the shout, and the shout from a warrior wearing three pieces of Battlegear of Wrath, whose
-	// set spell 23563 is the improved corner's icon: one picker rather than a second boolean next to it.
-	it('offers Battle Shout as a single three-state icon', () => {
-		expect(BuffDebuffInputs.BattleShout.states).toBe(3);
-		expect(BuffDebuffInputs.BattleShout.improvedId?.equals(ActionId.fromSpellId(23563))).toBe(true);
+	// Off, Rank 6, Rank 7 from Manual of Battle Shout VII, and Rank 7 from a warrior wearing three pieces of
+	// Battlegear of Wrath: the manual's icon lights from the second state on, the set spell 23563's on the third.
+	it('offers Battle Shout as one four-state icon whose improved icons are the manual and the set', () => {
+		expect(BuffDebuffInputs.BattleShout.states).toBe(4);
+		expect(BuffDebuffInputs.BattleShout.improvedId?.equals(ActionId.fromItemId(21298))).toBe(true);
+		expect(BuffDebuffInputs.BattleShout.improvedId2?.equals(ActionId.fromSpellId(23563))).toBe(true);
+		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout)?.ownerClass).toBe(Class.ClassWarrior);
 	});
 
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {
-		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout)?.ownerClass).toBe(Class.ClassWarrior);
+		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.FuriousHowl)?.ownerClass).toBe(Class.ClassHunter);
 		expect(BuffDebuffInputs.BUFFS_CONFIG[8].ownerClass).toBeUndefined();
 	});
 });

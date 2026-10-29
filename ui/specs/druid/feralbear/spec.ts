@@ -94,7 +94,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			prayerOfSpirit: true,
 			windfuryTotem: true,
 			strengthOfEarthTotem: true,
-			battleShout: TristateEffect.TristateEffectRegular,
+			battleShout: 1, // Rank 6
 		}),
 		partyBuffs: PartyBuffs.create({
 			manaSpringTotem: TristateEffect.TristateEffectRegular,

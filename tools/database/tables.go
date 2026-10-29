@@ -133,7 +133,7 @@ func LoadAndWriteRawItems(dbHelper *DBHelper, filter string, inputsDir string) (
 			COALESCE(itemset.Name_lang, '') as ItemSetName,
 			COALESCE(itemset.ID, 0) as ItemSetID,
 			s.AllowableClass as ClassMask,
-			s.AllowableRace_0 as RaceMask,
+			(s.AllowableRace_1 << 32) | (s.AllowableRace_0 & 0xFFFFFFFF) as RaceMask,
 			s.QualityModifier,
 			s.DamageType,
 			(SELECT group_concat(DISTINCT n.ChildItemBonusListID) ` + randomSuffixNodes + ` AND x.ItemID = i.ID) AS RandomSuffixOptions,

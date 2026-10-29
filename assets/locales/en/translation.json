@@ -532,7 +532,7 @@
 				"source": "Source",
 				"raids": "Raids",
 				"faction_labels": {
-					"none": "None",
+					"none": "Any",
 					"alliance_only": "Alliance only",
 					"horde_only": "Horde only"
 				}
@@ -644,6 +644,7 @@
 			},
 			"stats": "Stats",
 			"attack_power": "Attack Power",
+			"attack_power_tooltip": "Battle Shout: click to cycle Rank 6 (trainer), Rank 7 (Manual of Battle Shout VII), Rank 7 with three pieces of Battlegear of Wrath. Furious Howl shares its category; the stronger applies.",
 			"attack_speed": "Attack Speed",
 			"spell_power": "Spell Power",
 			"spell_haste": "Spell Haste",
@@ -820,6 +821,10 @@
 			"has_bs_tier_2": {
 				"label": "Battle Shout: Battlegear of Wrath",
 				"tooltip": "Three pieces of Battlegear of Wrath add 30 attack power to Battle Shout. Set this when the pieces arrive through an item swap rather than the worn set."
+			},
+			"has_battle_shout_rank_7": {
+				"label": "Battle Shout: Rank 7",
+				"tooltip": "Sets the character sheet's Battle Shout to Rank 7 (Manual of Battle Shout VII) instead of Rank 6. The rotation's Manual: Battle Shout VII variable picks the rank that is cast."
 			},
 			"queue_delay": {
 				"label": "HS/Cleave Queue Delay (ms)",
@@ -1542,7 +1547,7 @@
 				},
 				"change_target": {
 					"label": "Change Target",
-					"tooltip": "Sets the current target, which is the target of auto attacks and most casts by default."
+					"tooltip": "Sets the current target, which is the target of auto attacks and most casts by default. Not ready while that unit is already the current target, except as a step of a sequence."
 				},
 				"activate_aura": {
 					"label": "Activate Aura",
@@ -2344,7 +2349,7 @@
 				},
 				"pull_range": {
 					"label": "Pull range (yd)",
-					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, melee range in melee), stopping for each Auto Shot you can fire on the way."
+					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, 13.2 yd when weaving, melee range in melee), stopping for each Auto Shot you can fire on the way."
 				},
 				"time_to_weave": {
 					"label": "Time to weave (ms)",
@@ -2423,6 +2428,14 @@
 					},
 					"use_hamstring": {
 						"label": "Hamstring weave"
+					},
+					"use_heroic_strike_rank_9": {
+						"label": "Heroic Strike IX (Manual)",
+						"tooltip": "Casts Heroic Strike IX, taught by the Manual of Heroic Strike IX from Ruins of Ahn'Qiraj. Unchecked, the rotation casts the trainer's Heroic Strike VIII."
+					},
+					"use_battle_shout_rank_7": {
+						"label": "Battle Shout VII (Manual)",
+						"tooltip": "Casts Battle Shout VII, taught by the Manual of Battle Shout VII from Ruins of Ahn'Qiraj. Unchecked, the rotation casts the trainer's Battle Shout VI."
 					}
 				}
 			}

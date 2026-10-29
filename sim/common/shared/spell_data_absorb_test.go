@@ -169,6 +169,9 @@ func TestOnUseAbsorbRollsTheRowsSpread(t *testing.T) {
 // and all.
 func TestOnUseAbsorbCarriesTheStatsItsEffectStates(t *testing.T) {
 	const itemID, emblemSpell int32 = 991208, 13744
+	if spelldata.Find(emblemSpell) == spelldata.Nil {
+		t.Skip("spell 13744 is not in the live game files; this runs again once they hold it")
+	}
 	withoutSpread(t, emblemSpell)
 	row := spelldata.MustFind(emblemSpell)
 	amount, resistance := row.AbsorbEffect().Average(), row.FirstAura(dbcenums.A_MOD_RESISTANCE).Average()
@@ -267,21 +270,22 @@ func TestAbsorbProcShieldsTheWearerOnAMeleeHitTaken(t *testing.T) {
 	}
 }
 
-// Uther's Strength 11302's equip aura 8397 states one chance on an effect and another in its ProcChance
-// column. The item's proc rolls the column; a class spell stating both, Hack and Slash 13960, is not an
-// item proc and keeps the effect's.
+// Twin Blades of the Hakkari's equip aura 468256 states one chance on an effect and another in its
+// ProcChance column. A test item's proc on it rolls the column; a class spell stating both, Hack and
+// Slash 13960, is not an item proc and keeps the effect's.
 func TestItemProcRollsTheColumnOverAnEffectsChance(t *testing.T) {
 	_, caster := newOnUseSim(t, NewSpellDataAbsorbOnUse, nil)
 	column := func(s *spelldata.Spell) float64 { return float64(s.ProcChance) / 100 }
 
-	uther := spelldata.MustFind(8397)
-	if uther.StatedChance() == column(uther) || uther.StatedChance() <= 0 {
-		t.Fatalf("8397 states %v on its effect and %v in its column, want two chances", uther.StatedChance(), column(uther))
+	const itemID int32 = 992801
+	twinBlades := spelldata.MustFind(468256)
+	if twinBlades.StatedChance() == column(twinBlades) || twinBlades.StatedChance() <= 0 {
+		t.Fatalf("468256 states %v on its effect and %v in its column, want two chances", twinBlades.StatedChance(), column(twinBlades))
 	}
-	config := spellDataProcListener(&caster.Character, SpellDataProc{Name: "Uther's Strength", ItemID: 11302, TriggerSpellID: 8397},
-		effectSource{id: 11302}, uther)
-	if config.ProcChance != column(uther) || config.DPM != nil {
-		t.Errorf("the proc rolls %v (manager %v), want the column's %v", config.ProcChance, config.DPM != nil, column(uther))
+	config := spellDataProcListener(&caster.Character, SpellDataProc{Name: "Twin Blades of the Hakkari", ItemID: itemID, TriggerSpellID: 468256},
+		effectSource{id: itemID}, twinBlades)
+	if config.ProcChance != column(twinBlades) || config.DPM != nil {
+		t.Errorf("the proc rolls %v (manager %v), want the column's %v", config.ProcChance, config.DPM != nil, column(twinBlades))
 	}
 
 	hackAndSlash := spelldata.MustFind(13960)

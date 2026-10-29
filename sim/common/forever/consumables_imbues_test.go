@@ -18,8 +18,8 @@ func init() {
 }
 
 const (
-	notchedShortsword   = 727  // a one-hand sword
-	smallHandBlade      = 816  // a one-hand dagger
+	northernShortsword  = 2078 // a one-hand sword
+	warKnife            = 4571 // a one-hand dagger
 	fireHardenedBuckler = 1276 // a shield
 	elementalSharpener  = 18262
 )
@@ -52,7 +52,7 @@ func stonedRaid(consumes *proto.ConsumesSpec, swapped []*proto.ItemSpec) *proto.
 		Name: "Consumer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceOrc,
 		Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
 			ClassOptions: &proto.WarriorOptions{DefaultStance: proto.WarriorStance_WarriorStanceBerserker}}}},
-		Equipment:   &proto.EquipmentSpec{Items: weaponSlots(notchedShortsword, smallHandBlade)},
+		Equipment:   &proto.EquipmentSpec{Items: weaponSlots(northernShortsword, warKnife)},
 		Consumables: consumes,
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
@@ -148,9 +148,9 @@ func TestElementalSharpeningStoneTurnsOffWhenTheStonedWeaponSwapsAway(t *testing
 		name    string
 		swapped []*proto.ItemSpec
 	}{
-		{"swapped to a shield", weaponSlots(fireHardenedBuckler, smallHandBlade)},
-		{"swapped to an empty hand", weaponSlots(0, smallHandBlade)},
-		{"swapped to a bare sword the stone fits", weaponSlots(notchedShortsword, smallHandBlade)},
+		{"swapped to a shield", weaponSlots(fireHardenedBuckler, warKnife)},
+		{"swapped to an empty hand", weaponSlots(0, warKnife)},
+		{"swapped to a bare sword the stone fits", weaponSlots(northernShortsword, warKnife)},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			sim, character := stonedWarrior(t, &proto.ConsumesSpec{MhImbueId: elementalSharpener}, tc.swapped)
@@ -171,7 +171,7 @@ func TestElementalSharpeningStoneTurnsOffWhenTheStonedWeaponSwapsAway(t *testing
 // A stone the spec names for the item swap set's main hand reaches the main-hand attacks while that
 // weapon is worn, and no attack of the main set's.
 func TestElementalSharpeningStoneOnTheSwapWeaponTurnsOnWhenSwappedIn(t *testing.T) {
-	sim, character := stonedWarrior(t, &proto.ConsumesSpec{SwapMhImbueId: elementalSharpener}, weaponSlots(notchedShortsword, smallHandBlade))
+	sim, character := stonedWarrior(t, &proto.ConsumesSpec{SwapMhImbueId: elementalSharpener}, weaponSlots(northernShortsword, warKnife))
 	mhAuto, ohAuto := character.AutoAttacks.MHAuto(), character.AutoAttacks.OHAuto()
 	if mhAuto.BonusCritPercent != 0 || ohAuto.BonusCritPercent != 0 {
 		t.Fatalf("the main set's autos gain %v%% and %v%% crit, want none", mhAuto.BonusCritPercent, ohAuto.BonusCritPercent)
@@ -194,7 +194,7 @@ func TestElementalSharpeningStoneOnTheSwapWeaponTurnsOnWhenSwappedIn(t *testing.
 // one, 121. Each pierces its own school's resistance and neither adds SpellPiercing, which would
 // reach every school.
 func TestBaleImbuesPierceOneSchool(t *testing.T) {
-	const staff = 873
+	const staff = 1613
 	pierces := func(amount float64, want bool) bool {
 		if want {
 			return amount > 0
@@ -232,8 +232,8 @@ func TestProcImbuesRegisterTheirListeners(t *testing.T) {
 		name          string
 		listens       bool
 	}{
-		{277489, notchedShortsword, "Scroll of Imbue Spark", true},
-		{277498, smallHandBlade, "Scroll of Imbue Manablade", false},
+		{277489, northernShortsword, "Scroll of Imbue Spark", true},
+		{277498, warKnife, "Scroll of Imbue Manablade", false},
 	} {
 		_, character := warriorWithConsumes(t, &proto.ConsumesSpec{MhWeaponImbueId: c.imbue}, c.weapon, 0, proto.MobType_MobTypeUnknown)
 

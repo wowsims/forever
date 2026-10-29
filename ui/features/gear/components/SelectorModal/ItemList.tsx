@@ -3,6 +3,7 @@ import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
+import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { useSimStore } from '@sim/hooks/useSimStore';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { useUiStore } from '@sim/hooks/useUiStore';
@@ -145,6 +146,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const phase = useSimStore('phase');
+	const race = usePlayerStore('race');
 	const showEPValues = useUiStore('showEPValues');
 
 	const isFavourited = useCallback((row: ItemDataFields<ItemListType>) => isItemFavourited(filters, label, row), [filters, label]);
@@ -173,9 +175,10 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 		// `filters` is named here even though the body never reads it: `player.filterItemData` and
 		// `player.filterEnchantData` reach `sim.getFilters()` internally, so a filter change has to
 		// rebuild this. The lint calls it unnecessary; deleting it leaves correctness resting on
-		// `isFavourited` happening to close over `filters` too.
+		// `isFavourited` happening to close over `filters` too. `race` is named for the same reason:
+		// the faction filter follows the race unless the user picked a faction.
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
-	}, [itemData, player, sim, slot, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters]);
+	}, [itemData, player, sim, slot, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
 
 	const showEPOptions = tabSortsByEP(label, slot);
 	const equipped = equippedToItem(equippedItem);

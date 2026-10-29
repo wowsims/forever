@@ -184,13 +184,13 @@
           "action": {
             "castSpell": {
               "spellId": {
-                "spellId": 25309
+                "spellId": 25311
               }
             }
           },
           "doAtValue": {
             "const": {
-              "val": "-0.5s"
+              "val": "-0.1s"
             }
           }
         }
@@ -203,49 +203,53 @@
         },
         {
           "action": {
-            "condition": {
-              "not": {
-                "val": {
-                  "warlockAssignedCurseIsActive": {}
-                }
-              }
-            },
-            "castWarlockAssignedCurse": {}
+            "groupReference": {
+              "groupName": "SIngle/Multi Target Curse Logic"
+            }
           }
         },
         {
-          "hide": true,
           "action": {
             "condition": {
               "and": {
                 "vals": [
                   {
-                    "auraIsActive": {
-                      "sourceUnit": {
-                        "type": "CurrentTarget"
+                    "cmp": {
+                      "op": "OpGe",
+                      "lhs": {
+                        "numberTargets": {}
                       },
-                      "auraId": {
-                        "spellId": 603
-                      },
-                      "includeReactionTime": true
+                      "rhs": {
+                        "const": {
+                          "val": "3"
+                        }
+                      }
                     }
                   },
                   {
                     "cmp": {
-                      "op": "OpLe",
+                      "op": "OpGt",
                       "lhs": {
-                        "auraRemainingTime": {
+                        "unitDistance": {
                           "sourceUnit": {
                             "type": "CurrentTarget"
-                          },
-                          "auraId": {
-                            "spellId": 603
                           }
                         }
                       },
                       "rhs": {
                         "const": {
-                          "val": "15s"
+                          "val": "5"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "unitIsMoving": {
+                          "sourceUnit": {
+                            "type": "CurrentTarget"
+                          }
                         }
                       }
                     }
@@ -253,130 +257,13 @@
                 ]
               }
             },
-            "groupReference": {
-              "groupName": "Doom Tick Soon"
-            }
-          }
-        },
-        {
-          "hide": true,
-          "action": {
-            "condition": {
-              "or": {
-                "vals": [
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "auraIsActive": {
-                            "sourceUnit": {
-                              "type": "CurrentTarget"
-                            },
-                            "auraId": {
-                              "spellId": 603
-                            },
-                            "includeReactionTime": true
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpLe",
-                            "lhs": {
-                              "auraRemainingTime": {
-                                "sourceUnit": {
-                                  "type": "CurrentTarget"
-                                },
-                                "auraId": {
-                                  "spellId": 603
-                                }
-                              }
-                            },
-                            "rhs": {
-                              "const": {
-                                "val": "2s"
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "auraIsInactive": {
-                            "sourceUnit": {
-                              "type": "CurrentTarget"
-                            },
-                            "auraId": {
-                              "spellId": 603
-                            },
-                            "includeReactionTime": true
-                          }
-                        },
-                        {
-                          "not": {
-                            "val": {
-                              "spellIsReady": {
-                                "spellId": {
-                                  "spellId": 603
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpGt",
-                            "lhs": {
-                              "remainingTime": {}
-                            },
-                            "rhs": {
-                              "math": {
-                                "op": "OpAdd",
-                                "lhs": {
-                                  "spellTimeToReady": {
-                                    "spellId": {
-                                      "spellId": 603
-                                    }
-                                  }
-                                },
-                                "rhs": {
-                                  "auraDuration": {
-                                    "sourceUnit": {
-                                      "type": "CurrentTarget"
-                                    },
-                                    "auraId": {
-                                      "spellId": 603
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "cmp": {
-                      "op": "OpLe",
-                      "lhs": {
-                        "remainingTime": {}
-                      },
-                      "rhs": {
-                        "variableRef": {
-                          "name": "Doom tick"
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            },
-            "groupReference": {
-              "groupName": "Cooldowns"
+            "move": {
+              "rangeFromTarget": {
+                "const": {
+                  "val": "5"
+                }
+              },
+              "recheckWhileMoving": true
             }
           }
         },
@@ -384,7 +271,7 @@
           "action": {
             "condition": {
               "cmp": {
-                "op": "OpGe",
+                "op": "OpGt",
                 "lhs": {
                   "remainingTime": {}
                 },
@@ -398,7 +285,136 @@
             "castSpell": {
               "spellId": {
                 "spellId": 603
+              },
+              "target": {
+                "type": "Target"
               }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "variableRef": {
+                "name": "Searing Pain for Brand"
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 17923
+              },
+              "target": {
+                "type": "Target"
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpEq",
+                "lhs": {
+                  "numberTargets": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1"
+                  }
+                }
+              }
+            },
+            "groupReference": {
+              "groupName": "Single Target DoT Logic"
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "numberTargets": {}
+                },
+                "rhs": {
+                  "const": {
+                    "val": "1"
+                  }
+                }
+              }
+            },
+            "groupReference": {
+              "groupName": "Multi Target DoT Logic"
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "or": {
+                "vals": [
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLt",
+                            "lhs": {
+                              "variableRef": {
+                                "name": "Amount of Dooms left"
+                              }
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "not": {
+                            "val": {
+                              "dotIsActive": {
+                                "targetUnit": {
+                                  "type": "Target"
+                                },
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "dotIsActive": {
+                            "targetUnit": {
+                              "type": "Target"
+                            },
+                            "spellId": {
+                              "spellId": 603
+                            }
+                          }
+                        },
+                        {
+                          "variableRef": {
+                            "name": "in 5y range of 3T"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "groupReference": {
+              "groupName": "Cooldowns"
             }
           }
         },
@@ -423,7 +439,8 @@
                     "auraIsActive": {
                       "auraId": {
                         "spellId": 1323392
-                      }
+                      },
+                      "includeReactionTime": true
                     }
                   },
                   {
@@ -436,7 +453,8 @@
                             },
                             "auraId": {
                               "spellId": 17794
-                            }
+                            },
+                            "includeReactionTime": true
                           }
                         },
                         {
@@ -475,6 +493,17 @@
                         }
                       ]
                     }
+                  },
+                  {
+                    "not": {
+                      "val": {
+                        "spellIsCasting": {
+                          "spellId": {
+                            "spellId": 25307
+                          }
+                        }
+                      }
+                    }
                   }
                 ]
               }
@@ -489,60 +518,44 @@
         {
           "action": {
             "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "or": {
-                      "vals": [
-                        {
-                          "not": {
-                            "val": {
-                              "auraIsActive": {
-                                "sourceUnit": {
-                                  "type": "CurrentTarget"
-                                },
-                                "auraId": {
-                                  "spellId": 1293696
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpLt",
-                            "lhs": {
-                              "auraRemainingTime": {
-                                "sourceUnit": {
-                                  "type": "CurrentTarget"
-                                },
-                                "auraId": {
-                                  "spellId": 1293696
-                                }
-                              }
-                            },
-                            "rhs": {
-                              "const": {
-                                "val": "2.5s"
-                              }
-                            }
-                          }
+              "variableRef": {
+                "name": "in 5y range of 3T"
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 11684
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "cmp": {
+                "op": "OpGt",
+                "lhs": {
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "spellCastTime": {
+                        "spellId": {
+                          "spellId": 25307
                         }
-                      ]
-                    }
-                  },
-                  {
-                    "not": {
-                      "val": {
-                        "spellIsCasting": {
-                          "spellId": {
-                            "spellId": 17923
-                          }
+                      }
+                    },
+                    "rhs": {
+                      "spellTravelTime": {
+                        "spellId": {
+                          "spellId": 25307
                         }
                       }
                     }
                   }
-                ]
+                },
+                "rhs": {
+                  "remainingTime": {}
+                }
               }
             },
             "castSpell": {
@@ -555,243 +568,30 @@
         {
           "action": {
             "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "not": {
-                      "val": {
-                        "dotIsActive": {
-                          "spellId": {
-                            "spellId": 603
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "or": {
-                      "vals": [
-                        {
-                          "cmp": {
-                            "op": "OpLt",
-                            "lhs": {
-                              "remainingTime": {}
-                            },
-                            "rhs": {
-                              "variableRef": {
-                                "name": "Doom tick"
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "not": {
-                            "val": {
-                              "spellIsReady": {
-                                "spellId": {
-                                  "spellId": 603
-                                }
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "cmp": {
-                            "op": "OpGt",
-                            "lhs": {
-                              "spellExpectedDpet": {
-                                "spellId": {
-                                  "spellId": 11713
-                                }
-                              }
-                            },
-                            "rhs": {
-                              "variableRef": {
-                                "name": "DPET Non DoT"
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "strictMultidot": {
-              "spellId": {
-                "spellId": 11713
-              },
-              "maxDots": 10,
-              "maxOverlap": {
-                "spellCastTime": {
-                  "spellId": {
-                    "spellId": 11713
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
               "cmp": {
                 "op": "OpGt",
                 "lhs": {
-                  "spellExpectedDpet": {
-                    "spellId": {
-                      "spellId": 25311
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "spellCastTime": {
+                        "spellId": {
+                          "spellId": 17923
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "spellTravelTime": {
+                        "spellId": {
+                          "spellId": 17923
+                        }
+                      }
                     }
                   }
                 },
                 "rhs": {
-                  "variableRef": {
-                    "name": "DPET Non DoT"
-                  }
+                  "remainingTime": {}
                 }
-              }
-            },
-            "strictMultidot": {
-              "spellId": {
-                "spellId": 25311
-              },
-              "maxDots": 10,
-              "maxOverlap": {
-                "spellCastTime": {
-                  "spellId": {
-                    "spellId": 25311
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "cmp": {
-                "op": "OpGt",
-                "lhs": {
-                  "spellExpectedDpet": {
-                    "spellId": {
-                      "spellId": 25309
-                    }
-                  }
-                },
-                "rhs": {
-                  "variableRef": {
-                    "name": "DPET Non DoT"
-                  }
-                }
-              }
-            },
-            "strictMultidot": {
-              "spellId": {
-                "spellId": 25309
-              },
-              "maxDots": 10,
-              "maxOverlap": {
-                "spellCastTime": {
-                  "spellId": {
-                    "spellId": 25309
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "cmp": {
-                      "op": "OpLt",
-                      "lhs": {
-                        "remainingTime": {}
-                      },
-                      "rhs": {
-                        "const": {
-                          "val": "5s"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "cmp": {
-                      "op": "OpGt",
-                      "lhs": {
-                        "spellExpectedDpet": {
-                          "spellId": {
-                            "spellId": 17923
-                          }
-                        }
-                      },
-                      "rhs": {
-                        "spellExpectedDpet": {
-                          "spellId": {
-                            "spellId": 25307
-                          }
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            },
-            "castSpell": {
-              "spellId": {
-                "spellId": 17923
-              }
-            }
-          }
-        },
-        {
-          "action": {
-            "condition": {
-              "and": {
-                "vals": [
-                  {
-                    "cmp": {
-                      "op": "OpLt",
-                      "lhs": {
-                        "remainingTime": {}
-                      },
-                      "rhs": {
-                        "const": {
-                          "val": "5s"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "cmp": {
-                      "op": "OpGt",
-                      "lhs": {
-                        "spellExpectedDpet": {
-                          "spellId": {
-                            "spellId": 17926
-                          }
-                        }
-                      },
-                      "rhs": {
-                        "spellExpectedDpet": {
-                          "spellId": {
-                            "spellId": 17923
-                          }
-                        }
-                      }
-                    }
-                  }
-                ]
               }
             },
             "castSpell": {
@@ -861,12 +661,1335 @@
           }
         }
       ],
+      "groups": [
+        {
+          "name": "SIngle/Multi Target Curse Logic",
+          "actions": [
+            {
+              "action": {
+                "condition": {
+                  "not": {
+                    "val": {
+                      "warlockAssignedCurseIsActive": {}
+                    }
+                  }
+                },
+                "castWarlockAssignedCurse": {}
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "warlockAssignedCurseIsActive": {}
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "warlockAssignedCurseIsActiveOnAllTargets": {}
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "changeTarget": {
+                  "newTarget": {
+                    "type": "NextTarget"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Multi Target DoT Logic",
+          "actions": [
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 11713
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "5"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 11713
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "dotIsActive": {
+                                      "spellId": {
+                                        "spellId": 11713
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "dotIsActive": {
+                                      "spellId": {
+                                        "spellId": 603
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "warlockBaneIsActiveOnAllTargets": {}
+                                }
+                              }
+                            },
+                            {
+                              "or": {
+                                "vals": [
+                                  {
+                                    "warlockAssignedCurseIsActive": {}
+                                  },
+                                  {
+                                    "warlockIsAssignedCurse": {
+                                      "curseType": "NoCurse"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "5"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "changeTarget": {
+                  "newTarget": {
+                    "type": "NextTarget"
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 25311
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "dotBaseDuration": {
+                              "spellId": {
+                                "spellId": 25311
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "variableRef": {
+                              "name": "in 5y range of 3T"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 25311
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "dotIsActive": {
+                                "spellId": {
+                                  "spellId": 25311
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "dotIsActiveOnAllTargets": {
+                                    "spellId": {
+                                      "spellId": 25311
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "and": {
+                                "vals": [
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "warlockAssignedCurseIsActive": {}
+                                        },
+                                        {
+                                          "warlockIsAssignedCurse": {
+                                            "curseType": "NoCurse"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "or": {
+                                            "vals": [
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 11713
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 603
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpLt",
+                                                "lhs": {
+                                                  "numberTargets": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "5"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "remainingTime": {}
+                                },
+                                "rhs": {
+                                  "dotBaseDuration": {
+                                    "spellId": {
+                                      "spellId": 25311
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "variableRef": {
+                                    "name": "in 5y range of 3T"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "changeTarget": {
+                  "newTarget": {
+                    "type": "NextTarget"
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 25309
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "dotBaseDuration": {
+                              "spellId": {
+                                "spellId": 25309
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "variableRef": {
+                              "name": "in 5y range of 3T"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 25309
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "dotIsActive": {
+                                "spellId": {
+                                  "spellId": 25309
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "dotIsActiveOnAllTargets": {
+                                    "spellId": {
+                                      "spellId": 25309
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "and": {
+                                "vals": [
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "warlockAssignedCurseIsActive": {}
+                                        },
+                                        {
+                                          "warlockIsAssignedCurse": {
+                                            "curseType": "NoCurse"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "or": {
+                                      "vals": [
+                                        {
+                                          "or": {
+                                            "vals": [
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 11713
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "dotIsActive": {
+                                                  "spellId": {
+                                                    "spellId": 603
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "not": {
+                                            "val": {
+                                              "cmp": {
+                                                "op": "OpLt",
+                                                "lhs": {
+                                                  "numberTargets": {}
+                                                },
+                                                "rhs": {
+                                                  "const": {
+                                                    "val": "5"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "dotIsActive": {
+                                      "spellId": {
+                                        "spellId": 25311
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "remainingTime": {}
+                                },
+                                "rhs": {
+                                  "dotBaseDuration": {
+                                    "spellId": {
+                                      "spellId": 25309
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "variableRef": {
+                                    "name": "in 5y range of 3T"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "changeTarget": {
+                  "newTarget": {
+                    "type": "NextTarget"
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "or": {
+                          "vals": [
+                            {
+                              "warlockAssignedCurseIsActiveOnAllTargets": {}
+                            },
+                            {
+                              "warlockIsAssignedCurse": {
+                                "curseType": "NoCurse"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "or": {
+                          "vals": [
+                            {
+                              "warlockBaneIsActiveOnAllTargets": {}
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "cmp": {
+                                    "op": "OpLt",
+                                    "lhs": {
+                                      "numberTargets": {}
+                                    },
+                                    "rhs": {
+                                      "const": {
+                                        "val": "5"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "or": {
+                          "vals": [
+                            {
+                              "dotIsActiveOnAllTargets": {
+                                "spellId": {
+                                  "spellId": 25311
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "and": {
+                                    "vals": [
+                                      {
+                                        "cmp": {
+                                          "op": "OpGt",
+                                          "lhs": {
+                                            "remainingTime": {}
+                                          },
+                                          "rhs": {
+                                            "dotBaseDuration": {
+                                              "spellId": {
+                                                "spellId": 25311
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "not": {
+                                          "val": {
+                                            "variableRef": {
+                                              "name": "in 5y range of 3T"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "or": {
+                          "vals": [
+                            {
+                              "dotIsActiveOnAllTargets": {
+                                "spellId": {
+                                  "spellId": 25309
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "and": {
+                                    "vals": [
+                                      {
+                                        "cmp": {
+                                          "op": "OpGt",
+                                          "lhs": {
+                                            "remainingTime": {}
+                                          },
+                                          "rhs": {
+                                            "dotBaseDuration": {
+                                              "spellId": {
+                                                "spellId": 25309
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "not": {
+                                          "val": {
+                                            "variableRef": {
+                                              "name": "in 5y range of 3T"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "changeTarget": {
+                  "newTarget": {
+                    "type": "Target"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Single Target DoT Logic",
+          "actions": [
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 11713
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "dotBaseDuration": {
+                              "spellId": {
+                                "spellId": 11713
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 11713
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 25311
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "dotBaseDuration": {
+                              "spellId": {
+                                "spellId": 25311
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 25311
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "spellId": {
+                                "spellId": 25309
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpGt",
+                          "lhs": {
+                            "remainingTime": {}
+                          },
+                          "rhs": {
+                            "dotBaseDuration": {
+                              "spellId": {
+                                "spellId": 25309
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 25309
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cooldowns",
+          "actions": [
+            {
+              "action": {
+                "condition": {
+                  "or": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "15s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "dotIsActive": {
+                                "targetUnit": {
+                                  "type": "Target"
+                                },
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "targetUnit": {
+                                "type": "Target"
+                              },
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "itemId": 18820
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "or": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "30s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "dotIsActive": {
+                                "targetUnit": {
+                                  "type": "Target"
+                                },
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "targetUnit": {
+                                "type": "Target"
+                              },
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "itemId": 250937
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "or": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "8s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "dotIsActive": {
+                                "targetUnit": {
+                                  "type": "Target"
+                                },
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "targetUnit": {
+                                "type": "Target"
+                              },
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 1259821
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "or": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "15s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "dotIsActive": {
+                                "targetUnit": {
+                                  "type": "Target"
+                                },
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "targetUnit": {
+                                "type": "Target"
+                              },
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 20572
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "or": {
+                    "vals": [
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "15s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "dotIsActive": {
+                                "targetUnit": {
+                                  "type": "Target"
+                                },
+                                "spellId": {
+                                  "spellId": 603
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "dotIsActive": {
+                              "targetUnit": {
+                                "type": "Target"
+                              },
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 20554
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "dotRemainingTime": {
+                              "targetUnit": {
+                                "type": "Target"
+                              },
+                              "spellId": {
+                                "spellId": 603
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "15s"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "dotIsActive": {
+                          "targetUnit": {
+                            "type": "Target"
+                          },
+                          "spellId": {
+                            "spellId": 603
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpEq",
+                          "lhs": {
+                            "numberTargets": {}
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 25307
+                  }
+                }
+              }
+            },
+            {
+              "action": {
+                "condition": {
+                  "and": {
+                    "vals": [
+                      {
+                        "or": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "dotRemainingTime": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "22s"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "not": {
+                                "val": {
+                                  "dotIsActive": {
+                                    "targetUnit": {
+                                      "type": "Target"
+                                    },
+                                    "spellId": {
+                                      "spellId": 603
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "and": {
+                          "vals": [
+                            {
+                              "cmp": {
+                                "op": "OpLt",
+                                "lhs": {
+                                  "currentMana": {}
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "2600"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "cmp": {
+                                "op": "OpGt",
+                                "lhs": {
+                                  "remainingTime": {}
+                                },
+                                "rhs": {
+                                  "const": {
+                                    "val": "60s"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "castSpell": {
+                  "spellId": {
+                    "spellId": 11689
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
       "valueVariables": [
         {
           "name": "Doom tick",
           "value": {
-            "const": {
-              "val": "60s"
+            "dotBaseDuration": {
+              "spellId": {
+                "spellId": 603
+              }
             }
           }
         },
@@ -884,35 +2007,169 @@
           }
         },
         {
-          "name": "DPET Non DoT",
+          "name": "Amount of Dooms left",
           "value": {
-            "max": {
+            "math": {
+              "op": "OpDiv",
+              "lhs": {
+                "math": {
+                  "op": "OpSub",
+                  "lhs": {
+                    "remainingTime": {}
+                  },
+                  "rhs": {
+                    "const": {
+                      "val": "5s"
+                    }
+                  }
+                }
+              },
+              "rhs": {
+                "dotBaseDuration": {
+                  "spellId": {
+                    "spellId": 603
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "in 5y range of 3T",
+          "value": {
+            "and": {
               "vals": [
                 {
-                  "spellExpectedDpet": {
-                    "spellId": {
-                      "spellId": 17924
+                  "cmp": {
+                    "op": "OpGe",
+                    "lhs": {
+                      "numberTargets": {}
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "3"
+                      }
                     }
                   }
                 },
                 {
-                  "spellExpectedDpet": {
-                    "spellId": {
-                      "spellId": 25307
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "unitDistance": {
+                        "sourceUnit": {
+                          "type": "CurrentTarget"
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "5"
+                      }
                     }
                   }
                 },
                 {
-                  "spellExpectedDpet": {
-                    "spellId": {
-                      "spellId": 17923
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "unitDistance": {
+                        "sourceUnit": {
+                          "type": "NextTarget"
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "5"
+                      }
                     }
                   }
                 },
                 {
-                  "spellExpectedDpet": {
-                    "spellId": {
-                      "spellId": 17926
+                  "cmp": {
+                    "op": "OpLe",
+                    "lhs": {
+                      "unitDistance": {
+                        "sourceUnit": {
+                          "type": "PreviousTarget"
+                        }
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "5"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Searing Pain for Brand",
+          "value": {
+            "and": {
+              "vals": [
+                {
+                  "or": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "auraIsActive": {
+                              "sourceUnit": {
+                                "type": "Target"
+                              },
+                              "auraId": {
+                                "spellId": 1293696
+                              },
+                              "includeReactionTime": true
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "cmp": {
+                          "op": "OpLt",
+                          "lhs": {
+                            "auraRemainingTime": {
+                              "sourceUnit": {
+                                "type": "Target"
+                              },
+                              "auraId": {
+                                "spellId": 1293696
+                              }
+                            }
+                          },
+                          "rhs": {
+                            "const": {
+                              "val": "2.5s"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "not": {
+                    "val": {
+                      "spellIsCasting": {
+                        "spellId": {
+                          "spellId": 17923
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "not": {
+                    "val": {
+                      "variableRef": {
+                        "name": "in 5y range of 3T"
+                      }
                     }
                   }
                 }
