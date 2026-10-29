@@ -2092,7 +2092,7 @@
 				},
 				"selected_potion": {
 					"label": "Selected Potion",
-					"tooltip": "Returns <b>True</b> if the potion is picked in any of the potion slots: offensive, defensive or resource."
+					"tooltip": "Returns <b>True</b> if the potion is picked in the chosen potion slot, or with <b>Any</b> in any of them: offensive, defensive or resource."
 				},
 				"selected_conjured": {
 					"label": "Selected Conjured",
