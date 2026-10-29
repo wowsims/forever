@@ -11,6 +11,8 @@ type Extra struct {
 
 // The spells the generator adds to the store's roots by hand.
 var ExtraSpells = []Extra{
+	{SpellID: 16979, Reason: "Bear form Feral Charge", Source: "game files"},
+	{SpellID: 414924, Reason: "Cat form Feral Charge", Source: "game files"},
 	{SpellID: 1293697, Reason: "Demonic Brand's Shadow damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293697 description"},
 	{SpellID: 1293698, Reason: "Demonic Brand's Fire damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293698 description"},
 	{SpellID: 1249755, Reason: "Summoning Disorientation, a 6 sec stun; no skill line row reaches it and no summon row triggers it", Source: "Spell 1249755"},

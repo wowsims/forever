@@ -8,7 +8,8 @@ import (
 func (druid *Druid) registerDashSpell() {
 	rank := spellData.Dash.Highest()
 	druid.DashAura = druid.RegisterAura(spelldata.AuraConfig(rank))
-	movement := druid.DashAura.NewActiveMovementSpeedEffect(rank.EffectN(1).Percent())
+	// Dash and Feral Swiftness use the strongest movement bonus.
+	movement := druid.DashAura.NewPassiveMovementSpeedEffect(rank.EffectN(1).Percent())
 	druid.CatFormAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
 		movement.Deactivate(sim)
 	})

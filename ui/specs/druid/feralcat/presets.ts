@@ -1,17 +1,12 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { ConsumesSpec, Profession, PseudoStat, Race, Stat } from '@generated/proto/common';
+import { AreaType, ConsumesSpec, Profession, Race } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
-import { Stats } from '@sim/proto/stats';
+import { Encounter } from '@sim/raid/encounter';
 
-import BearweaveApl from './apls/bearweave.apl.json';
-import DefaultApl from './apls/default.apl.json';
-import EnergizedApl from './apls/energized.apl.json';
-import JvmesApl from './apls/jvmes.apl.json';
-import PounceApl from './apls/pounce.apl.json';
-import RavageApl from './apls/ravage.apl.json';
-import ShadowmeldApl from './apls/shadowmeld.apl.json';
+import { CatEp, HybridEp } from '../feral_ep';
+import AdaptiveApl from './apls/adaptive.apl.json';
 import Level60GearJson from './gear_sets/default.gear.json';
 import PreRaidGearJson from './gear_sets/pre_raid.gear.json';
 
@@ -19,20 +14,34 @@ import PreRaidGearJson from './gear_sets/pre_raid.gear.json';
 export const DefaultOptions = FeralDruidOptions.create({ assumeBleedActive: true });
 
 export const DefaultConsumables = ConsumesSpec.create({
-	resourcePotId: Consumables.MightyRagePotion.id,
-	flaskId: Consumables.FlaskOfNaturalPrecision.id,
-	elixirIds: [Consumables.ElixirOfTheMongoose.id],
+	flaskId: Consumables.FlaskOfNaturalAggression.id,
 	foodId: Consumables.SwiftstrikeSteak.id,
-	mhImbueId: Consumables.ElementalSharpeningStone.id,
-	conjuredId: Consumables.ThistleTea.id,
-	extraIds: [Consumables.JujuPower.id, Consumables.JujuMight.id, Consumables.GroundScorpokAssay.id],
+	conjuredId: Consumables.DemonicRune.id,
+	explosiveId: Consumables.EZThroDarkBomb.id,
+	mhImbueId: Consumables.DenseWeightstone.id,
+	swapMhImbueId: Consumables.DenseWeightstone.id,
+	extraIds: [Consumables.JujuMight.id, Consumables.GroundScorpokAssay.id, Consumables.GoblinSapperCharge.id],
+	elixirIds: [
+		Consumables.ElixirOfCunning.id,
+		Consumables.ElixirOfSages.id,
+		Consumables.ElixirOfThePhalanx.id,
+		Consumables.GreaterMagebloodElixir.id,
+		Consumables.ElixirOfTheGrizzly.id,
+	],
+	resourcePotId: Consumables.MajorManaPotion.id,
+	offensivePotId: Consumables.MightyRagePotion.id,
 });
 
+const encounter = Encounter.defaultEncounterProto();
+encounter.areaTypes = [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeMountainous];
+encounter.zoneId = 616;
+export const DefaultEncounter = PresetUtils.makePresetEncounter('Mount Hyjal', encounter);
+
 export const OtherDefaults = {
-	distanceFromTarget: 0,
+	distanceFromTarget: 25,
 	profession1: Profession.Engineering,
 	profession2: Profession.Enchanting,
-	race: Race.RaceNightElf,
+	race: Race.RaceTauren,
 	reactionTime: 250,
 };
 
@@ -42,62 +51,21 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJso
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',
 });
 
-// Pre-raid leather on a Night Elf with The Unstoppable Force and Wolfshead Helm. Shifting Cloak, Dunestalker's
-// Boots, Ferocious Watcher's Signet and the two hit and attack power trinkets stand in for Cape of the Black
-// Baron, Swiftwalker Boots, Tarnished Elven Ring, Blackhand's Breadth and Hand of Justice, which the item
-// database does not carry.
 export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearJson, {
 	devOnly: true,
 	tooltip: 'Pre-raid leather with The Unstoppable Force, Wolfshead Helm and full enchants.',
 });
 
-// DPS weights for Dream, Cat 9/35/7 and 180s ±120s, averaged across the four races.
-// Rating weights measure hit at 7% and expertise at 5.5%.
-export const DefaultEp = Stats.fromMap(
-	{
-		[Stat.StatStrength]: 0.5699,
-		[Stat.StatAgility]: 0.5815,
-		[Stat.StatAttackPower]: 0.2351,
-		[Stat.StatFeralAttackPower]: 0.2351,
-		[Stat.StatPhysicalDamage]: 2.1248,
-		[Stat.StatHitRating]: 4.8332 / 10,
-		[Stat.StatExpertiseRating]: 4.57 / 10,
-		[Stat.StatCritRating]: 5.9088 / 14,
-		[Stat.StatHasteRating]: 4.1595 / 10,
-	},
-	{
-		[PseudoStat.PseudoStatMainHandDps]: 2.2704,
-	},
-);
+export const DefaultEp = CatEp;
+export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Cat', DefaultEp);
+export const HybridEpWeights = PresetUtils.makePresetEpWeights('Hybrid', HybridEp);
 
-export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Feral Cat', DefaultEp);
-
-// The cat stays in Cat Form: Shifting Power, Rip, Rake and Shred, Faerie Fire for Omen of Clarity,
-// and a self-Innervate when mana would run short.
-export const MONOCAT_APL = PresetUtils.makePresetAPLRotation('Monocat', DefaultApl);
-// Monocat with Shadowmeld into Ravage on cooldown, for a Night Elf.
-export const SHADOWMELD_APL = PresetUtils.makePresetAPLRotation('Monocat, Shadowmeld Ravage (Night Elf)', ShadowmeldApl);
-// Monocat with Read Ley Line, for a High Order Skyborne: cast in an idle GCD under 1400 mana. 0 to 4 DPS
-// from 60 to 300 seconds.
-export const ENERGIZED_APL = PresetUtils.makePresetAPLRotation('Monocat, Energized (High Order Skyborne)', EnergizedApl);
 // Uses Thistle Tea and optional Sapper, with racial actions gated by availability.
-// Opens with Berserk and Ravage from Prowl; during combat, Shadowmeld enables Ravage on Clearcasting.
+// Uses Dash for the approach; Sapper can be used without leaving Cat Form.
 export const JVMES_APL = {
-	...PresetUtils.makePresetAPLRotation('Monocat, adaptive racials and Sapper', JvmesApl),
+	...PresetUtils.makePresetAPLRotation('Adaptive Cat', AdaptiveApl),
 	tooltip:
-		'Opens with Berserk and Ravage, maintains bleeds, and saves Bite for fight end. Later Berserks pool to 60 energy or Clearcasting when time permits. Named conditions explain racial abilities, optional Sapper and resource use.',
+		'Maintains Faerie Fire and bleeds, pools for later Berserks, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',
 };
-export const RAVAGE_APL = PresetUtils.makePresetAPLRotation('Ravage opener', RavageApl);
-export const POUNCE_APL = PresetUtils.makePresetAPLRotation('Pounce opener', PounceApl);
-// Monocat with Dire Bear trips for Primal Bite and Maul, only on mana the Shifting Powers to the end
-// of the fight do not need. Needs the Primal Bite talent.
-export const BEARWEAVE_APL = PresetUtils.makePresetAPLRotation('Bearweave', BearweaveApl);
-
-// Naturalist in place of Natural Shapeshifter.
-export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-35200032121131212051-052' }));
+export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-35200032121130212051-053' }));
 export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-35230332121132212051-' }));
-
-export const BearweaveBuild = PresetUtils.makePresetBuild('Bearweave (45s fights)', {
-	talents: CatTalents,
-	rotation: BEARWEAVE_APL,
-});

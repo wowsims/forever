@@ -900,6 +900,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 535.3219
+  tps: 314.99825
+  dtps: 2.96131
+  hps: 40.87
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 535.3219
+  tps: 314.99825
+  dtps: 2.96131
+  hps: 40.87
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
   dps: 528.60123

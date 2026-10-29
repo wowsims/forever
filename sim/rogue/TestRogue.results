@@ -742,6 +742,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 596.61852
+  tps: 296.5194
+  hps: 48.8
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 596.61852
+  tps: 296.5194
+  hps: 48.8
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
   dps: 594.80253

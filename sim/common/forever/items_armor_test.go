@@ -3,6 +3,8 @@
 package forever_test
 
 import (
+	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -33,9 +35,14 @@ func itemWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int
 		items[i] = &proto.ItemSpec{}
 	}
 	items[slot].Id = itemID
+	return itemWearerWithEquipment(t, class, &proto.EquipmentSpec{Items: items})
+}
+
+func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec) (*core.Simulation, *core.Character) {
+	t.Helper()
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceHuman,
-		Equipment:   &proto.EquipmentSpec{Items: items},
+		Equipment:   equipment,
 		Consumables: &proto.ConsumesSpec{},
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
@@ -245,5 +252,48 @@ func TestDemonForgedBreastplateDrainsTheAttacker(t *testing.T) {
 	}
 	if got, want := character.CurrentHealth()-health, metrics.TotalDamage*float64(leech.Amplitude); got != want {
 		t.Errorf("the drain healed the wearer for %v, want the effect's share of the %v it dealt, %v", got, metrics.TotalDamage, want)
+	}
+}
+
+func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
+	for _, set := range []struct {
+		name string
+		ids  []int32
+	}{{"The Defiler's Purpose", []int32{20194, 20190, 20186}},
+		{"The Highlander's Purpose", []int32{20059, 20045, 20052}}} {
+		for count := 1; count <= 3; count++ {
+			items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+			for i := range items {
+				items[i] = &proto.ItemSpec{}
+			}
+			for i, slot := range []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotFeet} {
+				if i < count {
+					items[slot].Id = set.ids[i]
+				}
+			}
+			sim, wearer := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items})
+			for _, bonus := range []struct {
+				count int
+				stat  stats.Stat
+				row   int32
+			}{{2, stats.Stamina, 7503}, {3, stats.PhysicalCritPercent, 7597}} {
+				aura := wearer.GetAura(fmt.Sprintf("%s %dP", set.name, bonus.count))
+				if count < bonus.count {
+					if aura != nil && aura.IsActive() {
+						t.Fatal("set bonus activated without enough pieces")
+					}
+					continue
+				}
+				if aura == nil || !aura.IsActive() {
+					t.Fatal("equipped set bonus is inactive")
+				}
+				before := wearer.GetStat(bonus.stat)
+				aura.Deactivate(sim)
+				want := spelldata.MustFind(bonus.row).EffectN(1).BaseValue()
+				if got := before - wearer.GetStat(bonus.stat); math.Abs(got-want) > 1e-8 {
+					t.Errorf("%s bonus changed stat by %g, want %g", set.name, got, want)
+				}
+			}
+		}
 	}
 }

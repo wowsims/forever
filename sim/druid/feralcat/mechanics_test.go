@@ -199,6 +199,114 @@ func TestCatQueuesMaulOntoTheBearSwing(t *testing.T) {
 	}
 }
 
+func TestCatSwingDoesNotRequestAMaulQueueCheck(t *testing.T) {
+	sim, cat := newCat(t, furorTalents, nil)
+	cat.ReactionTime = 250 * time.Millisecond
+	cat.SetRotationTimer(sim, 5*time.Second)
+	seen := false
+	swing := cat.AutoAttacks.MHAuto()
+	apply := swing.ApplyEffects
+	swing.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		seen = true
+		if at := cat.NextRotationActionAt(); at != 5*time.Second {
+			t.Fatalf("rotation before the Cat hit = %s, want 5s", at)
+		}
+		apply(sim, target, spell)
+	}
+	cat.AutoAttacks.EnableMeleeSwing(sim)
+	for !seen && !sim.Step() {
+	}
+	if !seen {
+		t.Fatal("Cat never swung")
+	}
+	if at := cat.NextRotationActionAt(); at != sim.CurrentTime+cat.ReactionTime {
+		t.Fatalf("rotation after the Cat hit = %s, want %s", at, sim.CurrentTime+cat.ReactionTime)
+	}
+	t.Logf("Cat swing at %s preserves the scheduled check before impact and schedules the post-hit check at %s", sim.CurrentTime, cat.NextRotationActionAt())
+}
+
+func TestCatSwingClearcastingStillReachesTheRotation(t *testing.T) {
+	rotation := core.APLRotationFromJsonString(`{"type":"TypeAPL","priorityList":[{"action":{"condition":{"auraIsActive":{"auraId":{"spellId":16870}}},"castSpell":{"spellId":{"spellId":9830}}}}]}`)
+	request := catPowershiftRequest(furorTalents, rotation, false)
+	request.Raid.Parties[0].Players[0].ReactionTimeMs = 250
+	sim := core.NewSim(request, simsignals.CreateSignals())
+	sim.Reset()
+	cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+	cat.SpendEnergy(sim, cat.CurrentEnergy(), cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+	cat.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_ProcChance_Flat, ClassFlags: spelldata.MustFind(16864).ClassFlags, FloatValue: 100}).Activate()
+	cat.AddStatDynamic(sim, stats.HitRating, 100*core.HitRatingPerHitPercent)
+	cat.AddStatDynamic(sim, stats.ExpertiseRating, 100*core.ExpertiseRatingPerExpertisePercent)
+	cat.SetRotationTimer(sim, 5*time.Second)
+	procAt, castAt := core.NeverExpires, core.NeverExpires
+	cat.ClearcastingAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) { procAt = sim.CurrentTime })
+	apply := cat.Shred.ApplyEffects
+	cat.Shred.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		castAt = sim.CurrentTime
+		if spell.CurCast.Cost != 0 {
+			t.Errorf("Clearcasting Shred costs %g", spell.CurCast.Cost)
+		}
+		apply(sim, target, spell)
+	}
+	cat.AutoAttacks.EnableMeleeSwing(sim)
+	for castAt == core.NeverExpires && sim.CurrentTime < time.Second && !sim.Step() {
+	}
+	if procAt != core.SpellBatchWindow || castAt != 250*time.Millisecond || cat.ClearcastingAura.IsActive() {
+		t.Fatalf("Clearcasting at %s, Shred at %s, proc active after Shred = %v", procAt, castAt, cat.ClearcastingAura.IsActive())
+	}
+	t.Logf("auto-triggered Clearcasting at %s is consumed by free Shred at %s", procAt, castAt)
+}
+
+func TestMaulQueueEndsWhenLeavingBear(t *testing.T) {
+	for _, dire := range []bool{false, true} {
+		for _, leaveAt := range []time.Duration{25 * time.Millisecond, 75 * time.Millisecond} {
+			t.Run(fmt.Sprintf("dire=%v/leave=%s", dire, leaveAt), func(t *testing.T) {
+				sim, cat := newCat(t, furorTalents, nil)
+				for iteration := range 2 {
+					if iteration != 0 {
+						sim.Cleanup()
+						sim.Reset()
+					}
+					cat.AutoAttacks.CancelAutoSwing(sim)
+					cat.ClearForm(sim)
+					form := cat.BearFormAura
+					if dire {
+						form = cat.DireBearFormAura
+					}
+					form.Activate(sim)
+					fillResource(sim, cat)
+					if !cat.Maul.Cast(sim, cat.CurrentTarget) {
+						t.Fatal("Maul did not queue")
+					}
+					sim.AddPendingAction(&core.PendingAction{NextActionAt: leaveAt, OnAction: func(sim *core.Simulation) {
+						cat.ClearForm(sim)
+						cat.CatFormAura.Activate(sim)
+					}})
+					for sim.CurrentTime < 100*time.Millisecond && !sim.Step() {
+					}
+					if cat.GetAura("Maul Queue Aura").IsActive() {
+						t.Fatal("Maul stayed queued in Cat Form")
+					}
+					cat.ClearForm(sim)
+					form.Activate(sim)
+					fillResource(sim, cat)
+					if got := cat.AutoAttacks.MaybeReplaceMHSwing(sim, nil); got != nil {
+						t.Fatal("a stale Maul queue survived Bear re-entry")
+					}
+					if !cat.Maul.Cast(sim, cat.CurrentTarget) {
+						t.Fatal("Maul could not queue after Bear re-entry")
+					}
+					until := sim.CurrentTime + 100*time.Millisecond
+					for sim.CurrentTime < until && !sim.Step() {
+					}
+					if got := cat.AutoAttacks.MaybeReplaceMHSwing(sim, nil); got == nil || got.ActionID.SpellID != 9881 {
+						t.Fatal("Maul did not replace the Bear swing after re-entry")
+					}
+				}
+			})
+		}
+	}
+}
+
 func TestCowerAndFaerieFireEndProwl(t *testing.T) {
 	for _, spell := range []struct {
 		name string
@@ -622,33 +730,65 @@ func resetCooldown(spell *core.Spell) {
 	}
 }
 
-// Shadowmeld 20580 lets a Night Elf Ravage in combat; the Ravage ends it, and in combat its cooldown is
-// 2 minutes.
-func TestShadowmeldAllowsRavageInCombat(t *testing.T) {
-	sim, cat := newCat(t, "", nil)
-	sim.CurrentTime = 10 * time.Second
-	fillResource(sim, cat)
-	if cat.Ravage.CanCast(sim, cat.CurrentTarget) {
-		t.Fatal("ravage could be cast without stealth")
-	}
-	if !cat.Shadowmeld.Cast(sim, cat.CurrentTarget) {
-		t.Fatal("shadowmeld did not cast in combat")
-	}
-	if !cat.Ravage.Cast(sim, cat.CurrentTarget) {
-		t.Fatal("ravage did not cast from shadowmeld")
-	}
-	if cat.ShadowmeldAura.IsActive() {
-		t.Error("ravage left the druid in shadowmeld")
-	}
-	if got := cat.Shadowmeld.ReadyAt() - sim.CurrentTime; got != 2*time.Minute {
-		t.Errorf("shadowmeld is ready in %v, want 2m", got)
+func TestProwlAttacksRejectShadowmeld(t *testing.T) {
+	for _, ability := range []struct {
+		name  string
+		spell func(*FeralDruid) *druid.DruidSpell
+	}{
+		{"Ravage", func(cat *FeralDruid) *druid.DruidSpell { return cat.Ravage }},
+		{"Pounce", func(cat *FeralDruid) *druid.DruidSpell { return cat.Pounce }},
+	} {
+		for _, at := range []time.Duration{-time.Second, 10 * time.Second} {
+			t.Run(fmt.Sprintf("%s/%s", ability.name, at), func(t *testing.T) {
+				sim, cat := newCat(t, "", nil)
+				sim.CurrentTime = at
+				fillResource(sim, cat)
+				attack := ability.spell(cat)
+				if attack.CanCast(sim, cat.CurrentTarget) {
+					t.Fatal("attack was available without Prowl")
+				}
+				if cat.Shadowmeld.Flags.Matches(core.SpellFlagAPL) {
+					t.Fatal("Shadowmeld was exposed in the APL spell picker")
+				}
+				if !cat.Shadowmeld.Cast(sim, cat.CurrentTarget) {
+					t.Fatal("Shadowmeld did not cast")
+				}
+				energy, gcd := cat.CurrentEnergy(), cat.GCD.ReadyAt()
+				if attack.CanCast(sim, cat.CurrentTarget) || attack.Cast(sim, cat.CurrentTarget) {
+					t.Fatal("Shadowmeld enabled an attack requiring Prowl")
+				}
+				if cat.CurrentEnergy() != energy || cat.GCD.ReadyAt() != gcd || !cat.ShadowmeldAura.IsActive() {
+					t.Fatal("rejected attack changed energy, the GCD or Shadowmeld")
+				}
+				if got := cat.Shadowmeld.ReadyAt() - sim.CurrentTime; got != 2*time.Minute {
+					t.Errorf("Shadowmeld is ready in %v, want 2m", got)
+				}
+				t.Logf("%s at %s: Shadowmeld active, attack rejected, energy and GCD unchanged", ability.name, at)
+			})
+		}
+		t.Run(ability.name+"/Prowl", func(t *testing.T) {
+			sim, cat := newCat(t, "", nil)
+			sim.CurrentTime = -time.Second
+			if !cat.Prowl.Cast(sim, cat.CurrentTarget) {
+				t.Fatal("Prowl did not cast before combat")
+			}
+			sim.CurrentTime = time.Second
+			fillResource(sim, cat)
+			if !ability.spell(cat).Cast(sim, cat.CurrentTarget) {
+				t.Fatal("attack did not cast from Prowl")
+			}
+			if cat.ProwlAura.IsActive() {
+				t.Fatal("attack left Prowl active")
+			}
+			t.Logf("%s cast from Prowl and ended it", ability.name)
+		})
 	}
 }
 
 // With Clearcasting at the Pull, the cat starts the fight with Clearcasting up.
 func TestPrepullClearcastingStartsTheFightClearcasting(t *testing.T) {
 	for _, on := range []bool{false, true} {
-		req := sweepRequest(catTalents, catAPL(bestCatAPL), false, 1)
+		req := sweepRequest(catTalents, defaultCatRotation(), false, 1)
 		req.SimOptions.Debug = true
 		req.Raid.Parties[0].Players[0].GetFeralCatDruid().Options.PrepullClearcasting = on
 		result := core.RunSim(req, nil, simsignals.CreateSignals())
@@ -845,5 +985,108 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func TestCatChargeRunIn(t *testing.T) {
+	sim, cat := newCat(t, withFeralDigit(powershiftTalents, 8, '1'), nil)
+	for i := 0; i < 2; i++ {
+		if i > 0 {
+			sim.Cleanup()
+			sim.Reset()
+		}
+		cat.DistanceFromTarget = 25
+		energy := cat.CurrentEnergy()
+		cat.Prowl.Cast(sim, cat.CurrentTarget)
+		cat.ClearcastingAura.Activate(sim)
+		if !cat.FeralCharge.Cast(sim, cat.CurrentTarget) {
+			t.Fatal("Cat Charge did not cast at 25 yards")
+		}
+		if !cat.ClearcastingAura.IsActive() {
+			t.Error("Cat Charge consumed Clearcasting")
+		}
+		if cat.ProwlAura.IsActive() {
+			t.Error("Charge did not break Prowl")
+		}
+		if cat.CurrentEnergy() != energy || cat.CurrentRage() != 0 {
+			t.Error("Cat Charge spent resources")
+		}
+		if cat.FeralCharge.TimeToReady(sim) != 30*time.Second {
+			t.Errorf("Cat Charge cooldown = %s, want 30s", cat.FeralCharge.TimeToReady(sim))
+		}
+		t.Logf("Cat Charge: GCD=%s cooldown=%s energy=%g Clearcasting=%t", cat.NextGCDAt()-sim.CurrentTime, cat.FeralCharge.TimeToReady(sim), cat.CurrentEnergy(), cat.ClearcastingAura.IsActive())
+		if cat.NextGCDAt() != 1500*time.Millisecond {
+			t.Errorf("GCD ends at %v, want 1.5s", cat.NextGCDAt())
+		}
+		for sim.CurrentTime < 312500*time.Microsecond {
+			if sim.Step() {
+				break
+			}
+		}
+		if cat.DistanceFromTarget != 0 || cat.Moving {
+			t.Errorf("landing: distance=%v moving=%t", cat.DistanceFromTarget, cat.Moving)
+		}
+		for cat.AutoAttacks.MHAuto().SpellMetrics[cat.CurrentTarget.UnitIndex].Casts == 0 {
+			if sim.Step() {
+				t.Fatal("simulation ended before the first auto-attack")
+			}
+		}
+		if sim.CurrentTime < 462500*time.Microsecond || sim.CurrentTime > 1062500*time.Microsecond {
+			t.Errorf("first auto-attack at %v, want travel plus 150–750ms", sim.CurrentTime)
+		}
+		for !sim.Step() {
+		}
+	}
+	sim.Cleanup()
+	sim.Reset()
+	cat.DistanceFromTarget = 25
+	cat.MoveTo(5, sim)
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: 100 * time.Millisecond, OnAction: func(*core.Simulation) {}})
+	for sim.CurrentTime < 100*time.Millisecond {
+		if sim.Step() {
+			t.Fatal("simulation ended during the approach")
+		}
+	}
+	if !cat.FeralCharge.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Cat Charge did not cast while running")
+	}
+	for cat.Moving {
+		if sim.Step() {
+			t.Fatal("simulation ended during Charge")
+		}
+	}
+	if cat.DistanceFromTarget != 0 {
+		t.Fatalf("Charge left the running Cat at %g yards", cat.DistanceFromTarget)
+	}
+}
+
+func TestProwlSpeedChangePreservesMovementDestination(t *testing.T) {
+	sim, cat := newCat(t, "0000000000000000-00200000000000000000-0000000000000000", nil)
+	cat.DistanceFromTarget = 25
+	sim.CurrentTime = -time.Second
+	if !cat.Prowl.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Prowl did not cast")
+	}
+	sim.CurrentTime = 0
+	if !cat.Dash.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("Dash did not cast")
+	}
+	if !cat.ProwlAura.IsActive() || !cat.CatFormAura.IsActive() {
+		t.Fatal("Dash removed Prowl or Cat Form")
+	}
+	cat.MoveTo(4, sim)
+	for sim.CurrentTime < time.Second {
+		if sim.Step() {
+			t.Fatal("simulation ended before Prowl expired")
+		}
+	}
+	cat.ProwlAura.Deactivate(sim)
+	for cat.Moving {
+		if sim.Step() {
+			t.Fatal("simulation ended before arrival")
+		}
+	}
+	if math.Abs(cat.DistanceFromTarget-4) > 1e-6 {
+		t.Fatalf("arrived at %g yards, want 4", cat.DistanceFromTarget)
 	}
 }

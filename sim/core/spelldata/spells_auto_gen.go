@@ -13724,6 +13724,12 @@ var generatedSpells = []Spell{
 			{ID: 694656, SpellID: 16972, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 50, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1344284, SpellID: 16972, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ATTACK_POWER, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 16979, Name: "Feral Charge (Bear)", School: 1, Attr: [17]uint32{0: 0x20040010, 1: 0x400, 7: 0x40000, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, MinRange: 8, MaxRange: 25, CooldownMs: 15000, CategoryCooldownMs: 15000, Category: 2182, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 1, 2: 16}}, StanceMask: 0x90, Labels: []int16{21}, RefIDs: []int32{19675},
+		Effects: []Effect{
+			{ID: 694091, SpellID: 16979, Type: dbcenums.E_CHARGE, BaseLevel: 20, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 694092, SpellID: 16979, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BaseLevel: 20, SPCoef: 1, PvpMult: 1, TriggerID: 19675, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		},
+		Powers: []Power{{Type: 1, Cost: 50}}},
 	{ID: 16982, Name: "Orb of Fire", Rank: "Rank 1", School: 4, Attr: [17]uint32{0: 0x180, 1: 0x10000000, 15: 0x2000}, SpellLevel: 45, DurationMs: -1, DefenseType: 1, ProcChance: 1, ProcFlags: [2]uint32{0: 0x14}, RefIDs: []int32{13441},
 		Effects: []Effect{
 			{ID: 694935, SpellID: 16982, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, PvpMult: 1, TriggerID: 13441, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -24773,6 +24779,11 @@ var generatedSpells = []Spell{
 	{ID: 414827, Name: "Ursine Rage", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: -1, MaxStack: 200, ProcChance: 101, StanceMask: 0x90, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1084261, SpellID: 414827, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DUMMY, BaseLevel: 60, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 414924, Name: "Feral Charge (Cat)", School: 1, Attr: [17]uint32{0: 0x20040010, 1: 0x400, 2: 0x100, 7: 0x40000, 9: 0x1000, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, MinRange: 8, MaxRange: 25, CategoryCooldownMs: 30000, GCDMs: 1500, Category: 2182, StartRecoveryCategory: 133, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7}, StanceMask: 0x1, Labels: []int16{21},
+		Effects: []Effect{
+			{ID: 1084427, SpellID: 414924, Type: 175 /* unnamed */, BaseLevel: 1, PvpMult: 1, Amplitude: 4, Misc: 5, Misc2: 150, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{65, 0}},
+			{ID: 1357608, SpellID: 414924, Index: 1, Type: dbcenums.E_DUMMY, BaseLevel: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 415012, Name: "Clastic Icon", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxStack: 200, ProcChance: 101, ProcFlags: [2]uint32{0: 0x2}, ClassFlags: core.ClassFlags{Family: 11}, Labels: []int16{2600}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{

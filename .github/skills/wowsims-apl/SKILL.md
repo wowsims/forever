@@ -92,7 +92,7 @@ preset names:
 with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`core.GetAplRotation`, or the `Rotation` of
 `core.GetTestBuildFromJSON`'s config), calls `core.ComputeStats`, and prints every `Validations` entry of
 `RotationStats`: `PrepullActions`, `PriorityList`, `Groups[i].Actions` and `UuidValidations`, as `bearAPLWarnings` in
-`sim/druid/feralbear/apl_sweep_test.go` does. Run it as `wowsims-testing` §The gates says, then delete it.
+`sim/druid/feralbear/rotation_test.go` does. Run it as `wowsims-testing` §The gates says, then delete it.
 
 ## Timing
 

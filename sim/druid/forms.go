@@ -171,12 +171,18 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 		druid.SetCurrentPowerBar(core.RageBar)
 		if !druid.Env.MeasuringStats {
 			druid.AutoAttacks.SetMH(druid.GetBearWeapon())
+			// A swing replacement also asks the rotation to queue an attack before the swing.
+			// Only Bear forms can queue Maul.
+			druid.AutoAttacks.SetReplaceMHSwing(druid.TryMaul)
 		}
-		druid.furorRageOnEnterBear(sim)
 		druid.PseudoStats.ThreatMultiplier *= bearFormThreatMultiplier
 	})
 	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
 		druid.PseudoStats.ThreatMultiplier /= bearFormThreatMultiplier
+		druid.AutoAttacks.SetReplaceMHSwing(nil)
+		if druid.maulQueueAura != nil {
+			druid.maulQueueAura.Deactivate(sim)
+		}
 		if druid.HasEnergyBar() && !druid.Env.MeasuringStats {
 			druid.EnergyPerTick = druid.furorEnergyPerTick
 			druid.rememberCatEnergy(sim, druid.furorStoredEnergy)
@@ -245,7 +251,7 @@ func (druid *Druid) registerShapeshiftSpell(rank *spelldata.Spell, aura *core.Au
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
-		return aura != nil && !aura.IsActive()
+		return aura != nil && (aura == druid.BearFormAura || aura == druid.DireBearFormAura || !aura.IsActive())
 	}
 	// A shift into Bear or Dire Bear Form starts the rage bar at 0, and Furor's rage comes on top. The
 	// starting form is not cast, so the pull keeps the starting rage.
@@ -259,6 +265,9 @@ func (druid *Druid) registerShapeshiftSpell(rank *spelldata.Spell, aura *core.Au
 			druid.SpendRage(sim, druid.CurrentRage(), rageMetrics)
 		}
 		aura.Activate(sim)
+		if rageMetrics != nil {
+			druid.furorRageOnEnterBear(sim)
+		}
 	}
 	return druid.RegisterSpell(config)
 }

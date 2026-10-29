@@ -2,14 +2,53 @@ package druid
 
 import (
 	"github.com/wowsims/forever/sim/common/shared"
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The idols' equip spells reach their spells by class flags.
 //
 // TODO: Items without full game files data are not registered here:
 //   - Idol of Shifting Tides 263411 (1270470, shapeshifting spells cost 40 less mana).
-//   - Mark of Urs'endris 263435 (1270490, armor from items +4%, base and bonus).
 func init() {
+	core.NewItemEffect(263435, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1270490)
+		config := spelldata.AuraConfig(row)
+		if character.HasItemEquipped(263435, []proto.ItemSlot{proto.ItemSlot_ItemSlotRanged}) {
+			config.BuildPhase = core.CharacterBuildPhaseGear
+		}
+		aura := character.RegisterAura(config)
+		spelldata.ParseEffects(character, aura, row)
+		// Bonus item armor uses a separate stat from the base armor parsed above.
+		bonus := 1 + row.FindEffect(dbcenums.E_APPLY_AURA, dbcenums.A_MOD_BONUS_ARMOR_PCT, 0).Percent()
+		aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+			character.ApplyDynamicEquipScaling(sim, stats.BonusArmor, bonus)
+		})
+		aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+			character.RemoveDynamicEquipScaling(sim, stats.BonusArmor, bonus)
+		})
+		character.ItemSwap.RegisterProc(263435, core.MakePermanent(aura))
+	})
+
+	core.NewItemEffect(279251, func(agent core.Agent) {
+		druid := agent.(DruidAgent).GetDruid()
+		row := spelldata.MustFind(1306483)
+		trigger := spelldata.ProcTrigger(&druid.Character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			druid.PrimalBite.CD.Reset()
+		})
+		trigger.Outcome = core.OutcomeLanded
+		// The first Lacerate hits for zero before it adds a stack, but still qualifies.
+		trigger.RequireDamageDealt = false
+		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return druid.PrimalBite != nil && spellData.Lacerate.Contains(spell)
+		}
+		druid.ItemSwap.RegisterProc(279251, druid.MakeProcTriggerAura(trigger))
+	})
+
 	// Idol of Health
 	// https://www.wowhead.com/forever/item=22399/idol-of-health
 	//

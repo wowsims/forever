@@ -12,7 +12,7 @@ Re-derive a claim before repeating it:
 - the preset loaders: `grep -n 'func GetAplRotation\|func GetTestBuildFromJSON' sim/core/test_utils.go`
 - the layouts: `ls -d ui/specs/*/*/apls ui/specs/*/*/builds`; Pet Attack: `grep -rln petAttack ui/specs/*/*/apls ui/specs/*/*/builds`
 - the option groups: `grep -n 'groupName ===' ui/specs/*/*/spec.ts`
-- the dump's shape: `grep -n 'func bearAPLWarnings' sim/druid/feralbear/apl_sweep_test.go`
+- the dump's shape: `grep -n 'func bearAPLWarnings' sim/druid/feralbear/rotation_test.go`
 
 | You changed…                                                       | Update                                                                    |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------- |
