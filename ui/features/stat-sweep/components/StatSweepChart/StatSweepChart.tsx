@@ -9,8 +9,9 @@ import { formatToNumber } from '@sim/utils/format';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import type { ChartData, ChartDataset, ChartOptions, Plugin } from 'chart.js';
-import { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Suspense, useMemo } from 'react';
+
+import { Line } from '../../../../shared/lazy_charts';
 
 export interface StatSweepSeries {
 	id: string;
@@ -265,7 +266,9 @@ export const StatSweepChart = ({ series, metric, metrics, onMetricChange, showSp
 			</div>
 			<div className="relative flex min-h-112 w-full min-w-0 flex-1 items-center justify-center lg:min-h-64">
 				{hasPoints ? (
-					<Line datasetIdKey="id" data={data} options={chartOptions} plugins={PLUGINS} />
+					<Suspense>
+						<Line datasetIdKey="id" data={data} options={chartOptions} plugins={PLUGINS} />
+					</Suspense>
 				) : (
 					<p className="mb-0 text-muted">{t('empty', { metric: label })}</p>
 				)}

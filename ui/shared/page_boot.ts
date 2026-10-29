@@ -1,11 +1,3 @@
-import { Chart, registerables } from 'chart.js';
-
-import { applyThemeFontDefaults } from './chart_fonts';
-
-Chart.register(...registerables);
-Chart.defaults.color = 'white';
-applyThemeFontDefaults();
-
 if (history.scrollRestoration) {
 	history.scrollRestoration = 'manual';
 } else {
