@@ -717,7 +717,7 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
 	})
 
-	const heroicStrike = 11567 // The trainer's top rank, the one the Fury preset presses by default.
+	const heroicStrike = 25286 // The class book's rank, the one the Fury preset presses.
 	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
 		if action.Id.GetSpellId() != heroicStrike || action.Id.Tag != 0 {
 			continue

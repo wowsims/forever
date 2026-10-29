@@ -5,9 +5,9 @@ import (
 	_ "github.com/wowsims/forever/sim/common" // imported to get item effects included.
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -54,7 +54,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 		OtherRotations: []core.RotationCombo{
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
 			armsStanceDanceRotation(),
-			bookRanksRotation("fury"),
+			trainerRanksRotation("fury"),
 		},
 
 		ItemFilter: core.ItemFilter{
@@ -85,24 +85,39 @@ func armsStanceDanceRotation() core.RotationCombo {
 	return core.RotationCombo{Label: "arms_stance_dance", Rotation: rotation}
 }
 
-// The preset with its book rank variables on, so the ranks from the class books reach the results.
-func bookRanksRotation(preset string) core.RotationCombo {
+// The preset with its class book ranks moved to the trainer's top ranks, as the simple rotation's toggles left
+// off move them, so the trainer ranks reach the results.
+func trainerRanksRotation(preset string) core.RotationCombo {
 	rotation := core.GetAplRotation("../../../ui/specs/warrior/dps/apls", preset).Rotation
-	found := false
-	for _, variable := range rotation.ValueVariables {
-		if !strings.HasPrefix(variable.Name, "Manual: ") {
-			continue
-		}
-		if variable.Value.GetConst() == nil {
-			panic(fmt.Sprintf("the %s preset's variable %q is no const", preset, variable.Name))
-		}
-		variable.Value.GetConst().Val = "true"
-		found = true
+	if withSpellIds(rotation.ProtoReflect(), map[int32]int32{25286: 11567, 25289: 11551}) == 0 {
+		panic(fmt.Sprintf("the %s preset names no book rank", preset))
 	}
-	if !found {
-		panic(fmt.Sprintf("the %s preset has no Manual variable", preset))
+	return core.RotationCombo{Label: preset + "_trainer_ranks", Rotation: rotation}
+}
+
+// Swaps every spell id that ids maps for the id it maps to, except an external buff copy (tag -1), and returns
+// how many it swapped.
+func withSpellIds(message protoreflect.Message, ids map[int32]int32) int {
+	if id, ok := message.Interface().(*proto.ActionID); ok {
+		if to, ok := ids[id.GetSpellId()]; ok && id.Tag != -1 {
+			id.RawId = &proto.ActionID_SpellId{SpellId: to}
+			return 1
+		}
+		return 0
 	}
-	return core.RotationCombo{Label: preset + "_book_ranks", Rotation: rotation}
+	swapped := 0
+	message.Range(func(field protoreflect.FieldDescriptor, value protoreflect.Value) bool {
+		switch {
+		case field.IsList() && field.Message() != nil:
+			for i := 0; i < value.List().Len(); i++ {
+				swapped += withSpellIds(value.List().Get(i).Message(), ids)
+			}
+		case field.Message() != nil && !field.IsMap():
+			swapped += withSpellIds(value.Message(), ids)
+		}
+		return true
+	})
+	return swapped
 }
 
 var DefaultOptions = &proto.Player_DpsWarrior{

@@ -1,13 +1,14 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
-import { APLRotation, APLRotation_Type, APLValueVariable, SimpleRotation } from '@generated/proto/apl';
+import { APLRotation, APLRotation_Type, SimpleRotation } from '@generated/proto/apl';
 import { Cooldowns, HandType, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { DpsWarriorSpec, WarriorSunder } from '@generated/proto/warrior';
 import * as Mechanics from '@sim/constants/mechanics';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
+import { withSpellIds } from '@sim/proto/apl_utils';
 import { SpecRotation } from '@sim/proto/spec_types';
 import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
@@ -156,8 +157,14 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			}
 		}
 
-		const rotation = APLRotation.clone(
+		// The presets cast the ranks the Ruins of Ahn'Qiraj class books teach; each rank left unchosen moves to the
+		// trainer's top rank.
+		const trainerRanks = new Map<number, number>();
+		if (!useHeroicStrikeRank9) trainerRanks.set(25286, 11567);
+		if (!useBattleShoutRank7) trainerRanks.set(25289, 11551);
+		const rotation = withSpellIds(
 			spec == DpsWarriorSpec.DpsWarriorSpecFury ? Presets.FURY_DEFAULT_ROTATION.rotation.rotation! : Presets.ARMS_DEFAULT_ROTATION.rotation.rotation!,
+			trainerRanks,
 		);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
@@ -200,15 +207,6 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Hamstring Weave ON/OFF',
 		);
 		if (hamstringWeaveAction) hamstringWeaveAction.hide = !useHamstring;
-
-		// A Manual variable set to true casts the rank its Ruins of Ahn'Qiraj class book teaches; false casts the top trainer rank.
-		const values: Record<string, string> = {
-			'Manual: Heroic Strike IX': String(useHeroicStrikeRank9),
-			'Manual: Battle Shout VII': String(useBattleShoutRank7),
-		};
-		rotation.valueVariables = rotation.valueVariables.map(variable =>
-			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,
-		);
 
 		return APLRotation.create({
 			simple: SimpleRotation.create({}),
