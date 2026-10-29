@@ -56,6 +56,7 @@ const CONSUMABLES = [
 		classAllowlist: [Class.ClassWarrior, Class.ClassDruid],
 		stats: strength(60),
 		potionClasses: [PotionClass.PotionClassResource, PotionClass.PotionClassOffensive],
+		resourceOnlyClasses: [Class.ClassWarrior],
 	}),
 	Consumable.create({ id: 9421, name: 'Major Healthstone', type: ConsumableType.ConsumableTypeConjured, categoryId: 1153, itemEffects: [onUse(1153)] }),
 	Consumable.create({ id: 13510, name: 'Flask of the Titans', type: ConsumableType.ConsumableTypeFlask, stats: strength(10) }),
@@ -202,11 +203,23 @@ describe('consumeConfigs', () => {
 	});
 
 	it('offers a potion in the picker of each of its classes only', () => {
-		const { player } = playerOf();
+		const { player } = playerOf({ cls: Class.ClassDruid, spec: Spec.SpecFeralCatDruid });
 		const configs = consumeConfigs(player, db);
 		expect(offered(configs.resourcePotion, player)).toEqual([13442]);
 		expect(offered(configs.defensivePotion, player)).toEqual([]);
 		expect(offered(configs.offensivePotion, player)).toEqual([13442]);
+	});
+
+	it('offers a potion that restores the class its own power as a resource potion alone', () => {
+		const { player } = playerOf();
+		const configs = consumeConfigs(player, db);
+		expect(offered(configs.resourcePotion, player)).toEqual([13442]);
+		expect(offered(configs.offensivePotion, player)).toEqual([]);
+	});
+
+	it('keeps offering a resource-only potion already picked as the offensive one', () => {
+		const { player } = playerOf({ consumes: ConsumesSpec.create({ offensivePotId: 13442 }) });
+		expect(offered(consumeConfigs(player, db).offensivePotion, player)).toEqual([13442]);
 	});
 
 	it('puts each consumable in its picker', () => {

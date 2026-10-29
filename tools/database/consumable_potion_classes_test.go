@@ -77,6 +77,37 @@ func TestPotionClassesFollowTheirEffectsAndStats(t *testing.T) {
 	}
 }
 
+func TestResourceAndOffensivePotionIsResourceAloneToTheClassItRestores(t *testing.T) {
+	const host int32 = 17531
+	onCaster := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}
+	for _, c := range []struct {
+		name      string
+		power     dbcenums.PowerType
+		granted   stats.Stats
+		allowlist []proto.Class
+		want      []proto.Class
+	}{
+		{"rage and strength to warriors and druids", dbcenums.POWER_RAGE, stats.Stats{stats.Strength: 1}, []proto.Class{proto.Class_ClassWarrior, proto.Class_ClassDruid}, []proto.Class{proto.Class_ClassWarrior}},
+		{"energy and agility to every class", dbcenums.POWER_ENERGY, stats.Stats{stats.Agility: 1}, nil, []proto.Class{proto.Class_ClassRogue}},
+		{"rage alone", dbcenums.POWER_RAGE, stats.Stats{}, []proto.Class{proto.Class_ClassWarrior}, nil},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			editRow(t, host, func(s *spelldata.Spell) {
+				s.Effects = []spelldata.Effect{{Type: dbcenums.E_ENERGIZE, Misc: int32(c.power), Target: onCaster}}
+			})
+			db := NewWowDatabase()
+			db.Consumables[1] = &proto.Consumable{Id: 1, Type: proto.ConsumableType_ConsumableTypePotion, Stats: c.granted.ToProtoArray(),
+				ClassAllowlist: c.allowlist, ItemEffects: []*proto.ItemEffect{{BuffId: host}}}
+			if err := AddPotionClasses(db); err != nil {
+				t.Fatal(err)
+			}
+			if got := db.Consumables[1].ResourceOnlyClasses; !slices.Equal(got, c.want) {
+				t.Errorf("resource only to %v, want %v", got, c.want)
+			}
+		})
+	}
+}
+
 func TestPotionClassesCountMobTypeStats(t *testing.T) {
 	const host int32 = 17531
 	editRow(t, host, func(s *spelldata.Spell) { s.Effects = nil })

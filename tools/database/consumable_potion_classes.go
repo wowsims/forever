@@ -27,7 +27,9 @@ var miscConsumableTypes = []proto.ConsumableType{
 // major cooldown manager files the buff under: any armor, avoidance, health or resistance, or Stamina
 // alone, defensive, mana regen alone resource, anything else offensive. A potion with no class fails. Runs after
 // AddUnparsedStats, so the stats against creature types, listed as mob type stats, and the hit and
-// crit percents count.
+// crit percents count. A potion of the resource and offensive classes is a resource potion alone to
+// the classes whose own power it restores (Mighty Rage Potion to a warrior), since a rotation casts it
+// by its resource logic.
 //
 // A miscellaneous consumable is classed the same way, for the settings to split its row. Its Stamina
 // counts as the health it brings, an aura of dodge, parry or block chance or of Defense skill, which
@@ -35,6 +37,7 @@ var miscConsumableTypes = []proto.ConsumableType{
 func AddPotionClasses(db *WowDatabase) error {
 	for id, consumable := range db.Consumables {
 		consumable.PotionClasses = nil
+		consumable.ResourceOnlyClasses = nil
 		potion := consumable.Type == proto.ConsumableType_ConsumableTypePotion
 		misc := slices.Contains(miscConsumableTypes, consumable.Type)
 		if !(potion || misc) || len(consumable.ItemEffects) == 0 {
@@ -49,8 +52,8 @@ func AddPotionClasses(db *WowDatabase) error {
 		}
 
 		row := spelldata.Find(consumable.ItemEffects[0].BuffId)
-		power, survival := shared.ConsumableRestores(row)
-		if power {
+		powers, survival := shared.ConsumableRestores(row)
+		if len(powers) > 0 {
 			add(proto.PotionClass_PotionClassResource)
 		}
 		if survival {
@@ -93,8 +96,40 @@ func AddPotionClasses(db *WowDatabase) error {
 		}
 		slices.Sort(classes)
 		consumable.PotionClasses = classes
+		if slices.Contains(classes, proto.PotionClass_PotionClassResource) && slices.Contains(classes, proto.PotionClass_PotionClassOffensive) {
+			consumable.ResourceOnlyClasses = restoredClasses(consumable.ClassAllowlist, powers)
+		}
 	}
 	return nil
+}
+
+// The power each class's bar shows (DisplayPower in ChrClasses), for the classes whose bar is not mana.
+var classPowers = map[proto.Class]dbcenums.PowerType{
+	proto.Class_ClassWarrior: dbcenums.POWER_RAGE,
+	proto.Class_ClassRogue:   dbcenums.POWER_ENERGY,
+}
+var playableClasses = []proto.Class{
+	proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassHunter, proto.Class_ClassRogue, proto.Class_ClassPriest,
+	proto.Class_ClassShaman, proto.Class_ClassMage, proto.Class_ClassWarlock, proto.Class_ClassDruid,
+}
+
+// The classes of the allowlist, every class where it is empty, whose own power is one of the powers. A
+// druid's is mana, so a rage potion's Strength stays offensive to a druid in cat form.
+func restoredClasses(allowlist []proto.Class, powers []dbcenums.PowerType) []proto.Class {
+	if len(allowlist) == 0 {
+		allowlist = playableClasses
+	}
+	var restored []proto.Class
+	for _, class := range allowlist {
+		power, ok := classPowers[class]
+		if !ok {
+			power = dbcenums.POWER_MANA
+		}
+		if slices.Contains(powers, power) {
+			restored = append(restored, class)
+		}
+	}
+	return restored
 }
 
 // The Defense skill, which A_MOD_SKILL names by its SkillLine id.

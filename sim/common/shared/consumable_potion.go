@@ -35,11 +35,14 @@ func ConsumableUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// Whether the parts of a consumable's spell the builder models restore power, and whether they heal
-// or absorb.
-func ConsumableRestores(row *spelldata.Spell) (power, survival bool) {
+// The powers the parts of a consumable's spell the builder models restore, and whether they heal or
+// absorb.
+func ConsumableRestores(row *spelldata.Spell) (powers []dbcenums.PowerType, survival bool) {
 	parts, _ := consumablePartsOf(row)
-	return len(parts.gains) > 0, parts.heal != nil || parts.absorb != nil
+	for _, e := range parts.gains {
+		powers = append(powers, dbcenums.PowerType(e.Misc))
+	}
+	return powers, parts.heal != nil || parts.absorb != nil
 }
 
 type consumableParts struct {

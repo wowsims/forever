@@ -132,10 +132,13 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	// A hunter weaves melee swings between shots.
 	const hitsInMelee = (_: Consumable, p: Player<any>) =>
 		p.getPlayerSpec().isMeleeDpsSpec || p.getPlayerSpec().isTankSpec || p.getClass() === Class.ClassHunter;
-	// The potion already picked stays offered, so a pick outside the class can still be seen and cleared.
+	// The potion already picked stays offered, so a pick outside the class can still be seen and cleared. A
+	// potion that restores the class's own power is a resource potion alone to it (Mighty Rage Potion to a warrior).
 	const ofPotionClass =
 		(potionClass: PotionClass, field: 'offensivePotId' | 'defensivePotId' | 'resourcePotId') => (consumable: Consumable, p: Player<any>) =>
-			consumable.potionClasses.includes(potionClass) || p.getConsumes()[field] === consumable.id;
+			(consumable.potionClasses.includes(potionClass) &&
+				!(potionClass === PotionClass.PotionClassOffensive && consumable.resourceOnlyClasses.includes(p.getClass()))) ||
+			p.getConsumes()[field] === consumable.id;
 
 	return {
 		offensivePotion: input(ConsumableSlot.Potion, {

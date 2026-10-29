@@ -107,6 +107,9 @@ message Consumable {
 	repeated MobTypeStats mob_type_stats = 23;
 	// What the on-use grants only while the encounter is in one of these zones, which stats leaves out.
 	repeated ZoneStats zone_stats = 24;
+	// On a potion of the resource and offensive classes, the classes whose own power it restores; the
+	// settings offer it to them as a resource potion alone. Empty on anything else.
+	repeated Class resource_only_classes = 25;
 }
 
 message ItemEffectRandPropPoints {
