@@ -149,7 +149,7 @@ export const DefaultOptions = WarriorOptions.create({
 		startingRage: 50,
 		useBattleShout: true,
 		defaultStance: WarriorStance.WarriorStanceBerserker,
-		hasBsT2: true,
+		hasBsT2: false,
 		stanceSnapshot: true,
 	},
 });
