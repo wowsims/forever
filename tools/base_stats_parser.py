@@ -50,6 +50,10 @@ BASE_LEVEL = int(GoConstant("CharacterLevel"))
 # The boss is three levels above the player; see defaultRaidBossLevel in sim/core/target.go.
 BOSS_LEVEL_OFFSET = 3
 
+# The creature levels a target can fight at: the boss and the adds below it.
+MIN_CREATURE_LEVEL = BASE_LEVEL - 2
+MAX_CREATURE_LEVEL = BASE_LEVEL + BOSS_LEVEL_OFFSET
+
 # ChrClasses.ID -> the proto.Class suffix. Hardcoded rather than read from the
 # game files so the generated identifiers cannot silently follow a renumbering.
 CLASS_IDS = {
@@ -125,11 +129,16 @@ def GenCreatureExpectedStats(dbPath: str, level: int):
 
 def GenCreatureArmorByLevel(dbPath: str):
     conn = sqlite3.connect(dbPath)
-    rows = conn.execute("SELECT Lvl, CreatureArmor FROM ExpectedStat WHERE ContentSetID = 0 ORDER BY Lvl").fetchall()
+    rows = conn.execute(
+        """SELECT Lvl, CreatureArmor FROM ExpectedStat
+           WHERE ContentSetID = 0 AND Lvl BETWEEN ? AND ?
+           ORDER BY Lvl""",
+        (MIN_CREATURE_LEVEL, MAX_CREATURE_LEVEL),
+    ).fetchall()
     conn.close()
 
-    if not rows:
-        raise SystemExit("ExpectedStat has no creature rows")
+    if len(rows) != MAX_CREATURE_LEVEL - MIN_CREATURE_LEVEL + 1:
+        raise SystemExit(f"ExpectedStat has {len(rows)} creature rows for levels {MIN_CREATURE_LEVEL}-{MAX_CREATURE_LEVEL}")
     return {int(level): float(armor) for level, armor in rows}
 
 
