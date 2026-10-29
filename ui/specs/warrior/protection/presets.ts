@@ -96,7 +96,7 @@ export const DefaultOptions = ProtectionWarriorOptions.create({
 		startingRage: 0,
 		useBattleShout: true,
 		defaultStance: WarriorStance.WarriorStanceDefensive,
-		hasBsT2: true,
+		hasBsT2: false,
 		stanceSnapshot: true,
 	},
 });

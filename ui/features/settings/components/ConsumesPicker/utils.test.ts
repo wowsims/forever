@@ -655,11 +655,24 @@ describe('consumeConfigs under the consumables stat filter', () => {
 		expect(offered(configs.resourcePotion, player)).toEqual([]);
 	});
 
-	it('leaves a pick the level filter keeps unmarked', () => {
-		const { player } = playerOf({ minLvl: { [ConsumableType.ConsumableTypeExplosive]: 41 }, consumes: ConsumesSpec.create({ explosiveId: 18588 }) });
+	it('marks a pick the level filter keeps, and unmarks it once the level shows it', () => {
+		const { player, state } = playerOf({ minLvl: { [ConsumableType.ConsumableTypeExplosive]: 41 }, consumes: ConsumesSpec.create({ explosiveId: 18588 }) });
 		const configs = consumeConfigs(player, db);
 		expect(offered(configs.explosive, player)).toEqual([18588]);
+		expect(marked(configs.explosive, player)).toBe(true);
+
+		state.minLvl = {};
 		expect(marked(configs.explosive, player)).toBe(false);
+	});
+
+	it('marks a toggle the level filter keeps', () => {
+		const { player, state } = playerOf({ professions: [Profession.Engineering], consumes: ConsumesSpec.create({ extraIds: [10646] }) });
+		const sapper = consumeConfigs(player, db).explosiveExtras.find(toggle => toggle.actionId.itemId === 10646)!;
+		expect(marked(sapper, player)).toBe(false);
+
+		state.minLvl = { [ConsumableType.ConsumableTypeExplosive]: 42 };
+		expect(sapper.showWhen!(player)).toBe(true);
+		expect(marked(sapper, player)).toBe(true);
 	});
 
 	it('leaves the potions a sim request lists to the spec stats', () => {
