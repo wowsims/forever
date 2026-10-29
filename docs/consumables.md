@@ -488,7 +488,7 @@ physical damage), and the percents `consumablePseudoStatsOf` names, and the play
 any stat some consumable grants. A warrior weighs no Stamina but displays it, so the Stamina scrolls
 and the rums start shown. The potions and conjured items a sim request lists
 (`relevantConsumableIds`) still follow the weighed stats alone. A consumable already picked stays offered below the minimum level or
-with its stats hidden, so it can be seen and cleared; with its stats hidden, it is marked as kept.
+with its stats hidden, so it can be seen and cleared, and it is marked as kept.
 
 Each picker and each row of toggles lists its consumables by the EP their stats and percents add at
 the player's EP weights, highest first (`orderedByEp`). A mob type stat counts only while the
