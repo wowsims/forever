@@ -415,8 +415,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 
 	// Capture how late this swing is vs. when it would have been ready in an
 	// uncontested rotation, then advance naturalReadyAt for the next cycle.
-	// Clamped to >=0 because PauseMelee / haste re-scheduling can in principle
-	// produce a negative diff.
+	// Clamped to >=0 because parry haste can bring a swing in before its uncontested time.
 	wa.pendingSwingDelay = max(0, sim.CurrentTime-wa.naturalReadyAt)
 	wa.naturalReadyAt = wa.swingAt
 	wa.logSwingDelay(sim, attackSpell, isRanged)
@@ -1004,23 +1003,27 @@ func (aa *AutoAttacks) UpdateSwingTimers(sim *Simulation) {
 		oldSwingSpeed := aa.mh.curSwingSpeed
 		aa.mh.updateSwingDuration(aa.mh.unit.TotalMeleeHasteMultiplier())
 		f := oldSwingSpeed / aa.mh.curSwingSpeed
-
-		if remainingSwingTime := aa.mh.swingAt - sim.CurrentTime; remainingSwingTime > 0 {
-			aa.mh.swingAt = sim.CurrentTime + time.Duration(float64(remainingSwingTime)*f)
-		}
-
-		sim.rescheduleWeaponAttack(aa.mh.swingAt)
+		aa.mh.rescaleSwing(sim, f)
 
 		if aa.IsDualWielding && aa.oh.enabled {
 			aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
-
-			if remainingSwingTime := aa.oh.swingAt - sim.CurrentTime; remainingSwingTime > 0 {
-				aa.oh.swingAt = sim.CurrentTime + time.Duration(float64(remainingSwingTime)*f)
-			}
-
-			sim.rescheduleWeaponAttack(aa.oh.swingAt)
+			aa.oh.rescaleSwing(sim, f)
 		}
 	}
+}
+
+// Stretches what is left of the running swing by the attack speed factor f. The uncontested ready time
+// stretches with it, so a haste change does not count as a swing delay.
+func (wa *WeaponAttack) rescaleSwing(sim *Simulation, f float64) {
+	rescale := func(at time.Duration) time.Duration {
+		if remaining := at - sim.CurrentTime; remaining > 0 {
+			return sim.CurrentTime + time.Duration(float64(remaining)*f)
+		}
+		return at
+	}
+	wa.swingAt = rescale(wa.swingAt)
+	wa.naturalReadyAt = rescale(wa.naturalReadyAt)
+	sim.rescheduleWeaponAttack(wa.swingAt)
 }
 
 // Desyncs the offhand swing

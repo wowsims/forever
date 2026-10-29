@@ -273,3 +273,36 @@ func TestRotationWokenAtCastEndFindsTheCastComplete(t *testing.T) {
 		t.Fatalf("MH swing: expected the completed cast to have reset it to %v, got %v", expected, mhSwingAt)
 	}
 }
+
+// A haste loss mid-swing pushes the swing back, but the swing still lands when the new attack
+// speed has it ready, so it carries no delay.
+func TestHasteLossMidSwingIsNoSwingDelay(t *testing.T) {
+	sim, fc := setupSwingResetSim(t)
+	aa := &fc.AutoAttacks
+
+	fc.MultiplyMeleeSpeed(sim, 1/1.3)
+	mhSwingAt, ohSwingAt := aa.MainhandSwingAt(), aa.OffhandSwingAt()
+	stepSwingSim(t, sim, max(mhSwingAt, ohSwingAt))
+
+	if aa.MainhandPreviousSwing() != mhSwingAt || aa.OffhandPreviousSwing() != ohSwingAt {
+		t.Fatalf("expected the MH swing at %v and the OH at %v, got %v and %v", mhSwingAt, ohSwingAt, aa.MainhandPreviousSwing(), aa.OffhandPreviousSwing())
+	}
+	if aa.mh.pendingSwingDelay != 0 || aa.oh.pendingSwingDelay != 0 {
+		t.Fatalf("expected no swing delay after a haste loss, got MH %v and OH %v", aa.mh.pendingSwingDelay, aa.oh.pendingSwingDelay)
+	}
+}
+
+// A haste gain mid-swing brings the swing in, and a delay on top of it still counts in full.
+func TestDelayAfterHasteGainIsTheWholeDelay(t *testing.T) {
+	sim, fc := setupSwingResetSim(t)
+	aa := &fc.AutoAttacks
+	const delay = 200 * time.Millisecond
+
+	fc.MultiplyMeleeSpeed(sim, 1.3)
+	aa.DelayMeleeBy(sim, delay)
+	stepSwingSim(t, sim, max(aa.MainhandSwingAt(), aa.OffhandSwingAt()))
+
+	if aa.mh.pendingSwingDelay != delay || aa.oh.pendingSwingDelay != delay {
+		t.Fatalf("expected a %v swing delay on each hand, got MH %v and OH %v", delay, aa.mh.pendingSwingDelay, aa.oh.pendingSwingDelay)
+	}
+}
