@@ -15,15 +15,15 @@ Re-derive a claim before repeating it:
 - the proto rules: `grep -n -A8 'message ProtoVersion' proto/common.proto`; `grep -n '^\s*optional ' proto/*.proto`
   prints nothing
 
-| You changed…                                                                   | Update                                                                            |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| the order in `cast.go` or `applyEffects`, the proc deferral                    | "Cast order", `wowsims-procs` §Building a trigger from a row                      |
-| `IssueRefund`, `MissRefund`, `WeaponStrike`, crit damage                       | "What a cast spends", "What scales"                                               |
-| the `CastRequirement` checks in `cast.go` or `spell.go`                        | "What the row forbids", `docs/spell_data/auras-and-dots.md`                       |
-| a tick outcome, `exclusive_effect.go`, tags, `MakePermanent`                   | "Whose state", "Auras and exclusive effects", `docs/spell_data/auras-and-dots.md` |
-| `ProtoVersion`, the proto toolchain, the field-number rule                     | "Protos"                                                                          |
-| target lifecycle, `target_death.go`, `target_health.go`, `encounter_design.go` | "Targets and encounter designs"                                                   |
-| a trap's code, a ruling's code or its measured number                          | `references/traps.md`, `references/rulings.md`                                    |
+| You changed…                                                                | Update                                                                            |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| the order in `cast.go` or `applyEffects`, the proc deferral                 | "Cast order", `wowsims-procs` §Building a trigger from a row                      |
+| `IssueRefund`, `MissRefund`, `WeaponStrike`, crit damage                    | "What a cast spends", "What scales"                                               |
+| the `CastRequirement` checks in `cast.go` or `spell.go`                     | "What the row forbids", `docs/spell_data/auras-and-dots.md`                       |
+| a tick outcome, `exclusive_effect.go`, tags, `MakePermanent`                | "Whose state", "Auras and exclusive effects", `docs/spell_data/auras-and-dots.md` |
+| `ProtoVersion`, the proto toolchain, the field-number rule                  | "Protos"                                                                          |
+| target lifecycle, `target_death.go`, `target_health.go`, `design_runner.go` | "Targets and encounter designs"                                                   |
+| a trap's code, a ruling's code or its measured number                       | `references/traps.md`, `references/rulings.md`                                    |
 
 Then run the shared path check:
 

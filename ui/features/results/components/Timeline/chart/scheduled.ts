@@ -1,4 +1,4 @@
-import { type DesignEventRef, eventsOf, occurrences } from '@features/encounter/model/design/lanes';
+import { type DesignEventRef, eventsOf, occurrences } from '@features/encounter-designer/model/lanes';
 import type { EncounterDesign } from '@generated/proto/common';
 
 import type { ScheduledKind, ScheduledMarker } from '../../../model/timeline/chart/types';

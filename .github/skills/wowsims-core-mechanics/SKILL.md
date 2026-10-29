@@ -120,7 +120,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   encounter's first target, and an execute-phase callback names the target. A plain encounter's targets cross 35% and
   20% at the encounter's execute proportions of the fight (`resetExecutePhases`); a design's health curve sets the
   crossings of its boss and adds.
-- **An encounter design is a timeline of fractions of the rolled fight duration** (`encounter_design.go` and the
+- **An encounter design is a timeline of fractions of the rolled fight duration** (`design_runner.go` and the
   `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
   sim's, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
   overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;

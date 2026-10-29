@@ -1,3 +1,4 @@
+import { EncounterDesigner } from '@features/encounter-designer';
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
 import i18n from '@i18n/config';
@@ -8,7 +9,6 @@ import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
-import { EncounterDesigner } from '../EncounterDesigner';
 import { TargetInputsPicker } from '../TargetsPicker';
 import { AreaTypesPicker } from './AreaTypesPicker';
 import { durationConfigs, executeConfigs, minBaseDamageConfig, numAlliesConfig, presetEncounterConfig, zoneConfig } from './utils/configs';

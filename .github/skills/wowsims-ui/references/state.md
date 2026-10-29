@@ -103,8 +103,8 @@ greppable and cannot capture the wrong object.
 `modifyDesign`, `hasDesign`), saved in the encounter proto only when it holds an event. The design points at targets by
 index, so `setTargets` runs `remapDesignTargets`, which follows each old target object to its new position and sends a
 removed target's events to -1, where `validateDesign` flags them; a preset matches the encounter by targets and design
-together. The designer dialog is `ui/features/encounter/components/EncounterDesigner/` over the model in
-`ui/features/encounter/model/design/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
+together. The designer dialog is `ui/features/encounter-designer/components/EncounterDesigner/` over the model in
+`ui/features/encounter-designer/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
 
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the
 slice. Use one only when nothing narrower works, and keep their number from growing:
