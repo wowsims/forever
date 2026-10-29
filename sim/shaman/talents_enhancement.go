@@ -133,6 +133,10 @@ func (shaman *Shaman) applyFlurry() {
 	// The row has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the white hits that spend a charge. Windfury Weapon's strikes are white in
 	// name only and spend none.
+	//
+	// TODO: Ingame test needed: only a landed white swing spends a charge here. Warrior Flurry, the
+	// same talent and buff shape, spends one on every white swing whatever its outcome, misses,
+	// dodges and parries included; a shaman log decides whether that holds here too.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if result.Outcome.Matches(core.OutcomeCrit) {
