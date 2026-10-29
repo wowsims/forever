@@ -1,9 +1,10 @@
 import { APLListItem, APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { ActionID, Cooldowns, type Spec } from '@generated/proto/common';
+import type { JsonValue } from '@protobuf-ts/runtime';
 import { describe, expect, it } from 'vitest';
 
 import type { Player } from '../player/player';
-import { hideScheduledCooldownCasts, isEqualAPLRotation, renameAPLReference } from './apl_utils';
+import { hideScheduledCooldownCasts, isEqualAPLRotation, renameAPLReference, withSpellIds } from './apl_utils';
 
 // Only the TypeSimple branch reaches the player, and none of these cases take it.
 const player = null as unknown as Player<Spec>;
@@ -143,5 +144,39 @@ describe('hideScheduledCooldownCasts', () => {
 
 	it('is a no-op for a scheduled cooldown the preset never casts directly', () => {
 		expect(hide(Cooldowns.create({ cooldowns: [cd(spell(ARCANE_POWER), [15])] }))).toEqual(preset());
+	});
+});
+
+describe('withSpellIds', () => {
+	const id = (spellId: number, tag = 0) => ({ spellId, tag });
+	const rotationJson = (from: number, external: number, other: number): JsonValue => ({
+		prepullActions: [{ action: { castSpell: { spellId: id(from) } }, doAtValue: { const: { val: '-1s' } } }],
+		priorityList: [
+			{
+				action: {
+					condition: {
+						and: {
+							vals: [
+								{ not: { val: { dotIsActive: { spellId: id(from) } } } },
+								{ auraIsActive: { auraId: id(from) } },
+								{ auraIsKnown: { auraId: id(external, -1) } },
+								{ spellIsReady: { spellId: id(other) } },
+							],
+						},
+					},
+					castSpell: { spellId: id(from, 1) },
+				},
+			},
+		],
+		groups: [{ name: 'Group', actions: [{ action: { castSpell: { spellId: id(from) } } }] }],
+	});
+	const rotation = (from: number, external: number, other: number) => APLRotation.fromJson(rotationJson(from, external, other));
+
+	it('swaps casts, queued casts, dots and auras, and leaves tag -1 and unmapped ids alone', () => {
+		const preset = rotation(100, 100, 300);
+		const swapped = withSpellIds(preset, new Map([[100, 200]]));
+
+		expect(APLRotation.toJson(swapped)).toEqual(APLRotation.toJson(rotation(200, 100, 300)));
+		expect(APLRotation.toJson(preset)).toEqual(APLRotation.toJson(rotation(100, 100, 300)));
 	});
 });

@@ -576,6 +576,15 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.external')})`;
 				}
 				break;
+			case 'Windfury Totem':
+				// The totem, its raid aura and the attack power its proc grants (10610) share one name.
+				if (this.spellId === 10610) {
+					const attackPower = i18n.t('common.stats.attack_power');
+					name += tag === -1 ? ` (${attackPower} - ${i18n.t('common.action_tags.external')})` : ` (${attackPower})`;
+				} else if (tag === -1) {
+					name += ` (${i18n.t('common.action_tags.external')})`;
+				}
+				break;
 			case 'Dummy Spell':
 				if (tag === 100000) {
 					[
@@ -960,4 +969,5 @@ export const resourceTypeToIcon: Record<ResourceType, string> = {
 // Use this to connect a buff row to a cast row in the timeline view
 export const buffAuraToSpellIdMap: Record<number, ActionId> = {
 	15036: ActionId.fromSpellId(16387), // The party's Flametongue Totem, on the row of the totem's strikes
+	1282733: ActionId.fromSpellId(11585), // Overpower's window after a dodge, on the Overpower row
 };

@@ -825,7 +825,7 @@
 			},
 			"has_battle_shout_rank_7": {
 				"label": "Battle Shout: Rank 7",
-				"tooltip": "Sets the character sheet's Battle Shout to Rank 7 (Manual of Battle Shout VII) instead of Rank 6. The rotation's Manual: Battle Shout VII variable picks the rank that is cast."
+				"tooltip": "Sets the character sheet's Battle Shout to Rank 7 (Manual of Battle Shout VII) instead of Rank 6. The rotation picks the rank that is cast: the simple rotation's Battle Shout VII toggle, or the rank chosen for the spell in the rotation editor."
 			},
 			"queue_delay": {
 				"label": "HS/Cleave Queue Delay (ms)",
@@ -2435,11 +2435,11 @@
 					},
 					"use_heroic_strike_rank_9": {
 						"label": "Heroic Strike IX (Manual)",
-						"tooltip": "Casts Heroic Strike IX, taught by the Manual of Heroic Strike IX from Ruins of Ahn'Qiraj. Unchecked, the rotation casts the trainer's Heroic Strike VIII."
+						"tooltip": "Casts Heroic Strike IX, taught by the Manual of Heroic Strike IX from Ruins of Ahn'Qiraj, in place of Heroic Strike VIII from the trainer."
 					},
 					"use_battle_shout_rank_7": {
 						"label": "Battle Shout VII (Manual)",
-						"tooltip": "Casts Battle Shout VII, taught by the Manual of Battle Shout VII from Ruins of Ahn'Qiraj. Unchecked, the rotation casts the trainer's Battle Shout VI."
+						"tooltip": "Casts Battle Shout VII, taught by the Manual of Battle Shout VII from Ruins of Ahn'Qiraj, in place of Battle Shout VI from the trainer."
 					}
 				}
 			}
