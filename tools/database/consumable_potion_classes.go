@@ -97,36 +97,33 @@ func AddPotionClasses(db *WowDatabase) error {
 		}
 		slices.Sort(classes)
 		consumable.PotionClasses = classes
-		if potion && slices.Contains(classes, proto.PotionClass_PotionClassResource) && slices.Contains(classes, proto.PotionClass_PotionClassOffensive) {
+		if potion && slices.Contains(classes, proto.PotionClass_PotionClassOffensive) {
 			consumable.ResourceOnlyClasses = restoredClasses(consumable.ClassAllowlist, powers)
 		}
 	}
 	return nil
 }
 
-// The power each class's bar shows (DisplayPower in ChrClasses), for the classes whose bar is not mana.
-var classPowers = map[proto.Class]dbcenums.PowerType{
-	proto.Class_ClassWarrior: dbcenums.POWER_RAGE,
-	proto.Class_ClassRogue:   dbcenums.POWER_ENERGY,
+// The power the class's bar shows (DisplayPower in ChrClasses).
+func classPower(class proto.Class) dbcenums.PowerType {
+	switch class {
+	case proto.Class_ClassWarrior:
+		return dbcenums.POWER_RAGE
+	case proto.Class_ClassRogue:
+		return dbcenums.POWER_ENERGY
+	}
+	return dbcenums.POWER_MANA
 }
 
 // The classes of the allowlist, every class where it is empty, whose own power is one of the powers. A
 // druid's is mana, so a rage potion stays in both pickers for a druid, whose bear casts it for the rage
 // from the offensive slot and whose cat for its Strength.
 func restoredClasses(allowlist []proto.Class, powers []dbcenums.PowerType) []proto.Class {
-	if len(allowlist) == 0 {
-		for _, class := range dbc.Classes {
-			allowlist = append(allowlist, class.ProtoClass)
-		}
-	}
 	var restored []proto.Class
-	for _, class := range allowlist {
-		power, ok := classPowers[class]
-		if !ok {
-			power = dbcenums.POWER_MANA
-		}
-		if slices.Contains(powers, power) {
-			restored = append(restored, class)
+	for _, class := range dbc.Classes {
+		allowed := len(allowlist) == 0 || slices.Contains(allowlist, class.ProtoClass)
+		if allowed && slices.Contains(powers, classPower(class.ProtoClass)) {
+			restored = append(restored, class.ProtoClass)
 		}
 	}
 	return restored

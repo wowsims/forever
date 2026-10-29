@@ -445,7 +445,7 @@ offensive. A potion of several classes, such as Major Rejuvenation Potion, is of
 of no class fails `gen_db`. A potion of the resource and offensive classes is resource alone to the
 classes whose own power it restores, since a rotation casts it by its resource logic: `AddPotionClasses`
 lists them in `resource_only_classes` (a warrior's power is rage, a rogue's energy, every other class's
-mana), and the Offensive picker leaves it out for them. Mighty Rage Potion 13442 is resource alone to a
+mana), and the pickers offer it to them under Resource alone. Mighty Rage Potion 13442 is resource alone to a
 warrior and both to a druid: Feral bear casts it for the rage from the offensive slot, Feral cat for
 its Strength. A picker keeps offering the
 potion already picked, so a pick outside its class can be seen and cleared.
