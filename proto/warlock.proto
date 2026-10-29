@@ -100,8 +100,23 @@ message WarlockOptions {
 	int32 soul_shards = 9;
 }
 
+// The build whose rotation the simple rotation runs. None runs Demo (Fire Brand), the rotation Auto runs.
+enum WarlockRotation {
+	WarlockRotationNone = 0;
+	WarlockRotationDemoFireBrand = 1;
+	WarlockRotationDemoShadowBrand = 2;
+	WarlockRotationDestro = 3;
+	WarlockRotationSmRuin = 4;
+	WarlockRotationAffWrack = 5;
+}
+
 message Warlock {
+	// The build rotations cast the ranks books teach; each use_ field left false casts the trainer's top rank in its place.
 	message Rotation {
+		WarlockRotation rotation = 1;
+		bool use_shadow_bolt_rank_10 = 2;
+		bool use_immolate_rank_8 = 3;
+		bool use_corruption_rank_7 = 4;
 	}
 
 	message Options {

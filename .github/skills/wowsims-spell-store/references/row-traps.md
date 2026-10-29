@@ -10,6 +10,10 @@ _Source of truth:_ the rows themselves, which `go run ./tools/spelldata <id>` pr
   almost everywhere, and `SkillLineAbility` rows come duplicated.
 - **A rank exists in Forever when it has a `SkillLineAbility` row and the Wowhead Forever tooltip names it.** Battle
   Shout 25289 and Heroic Strike 25286, level-60 ranks with high ids, are trained rows.
+- **A book rank's `SkillLineAbility` row looks like a trained one.** Shadow Bolt 25307, Immolate 25309 and Corruption
+  25311 are taught by the level-60 Grimoire of Shadow Bolt X, Immolate VIII and Corruption VII items, not by the
+  trainer. The item's `ItemEffect` row with `TriggerType` 6 names the rank it teaches, which tells a book rank from a
+  trained one. A second level-60 rank, or a rank off the ladder's level step, is the hint to check.
 - **Class lines hold rows that are not class spells.** Poisons is skill line 40 in CategoryID 9 with the rank numeral
   in the name, and talent passives sit in class lines as trained rows with `BaseLevel` 1; a real trained passive is
   taught past level 1.
