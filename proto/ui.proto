@@ -53,7 +53,7 @@ message UIFaction {
 // Contains all information about an Item needed by the UI.
 // Generally this will include everything needed by the sim, plus some
 // additional data for displaying / filtering.
-// Next tag: 35.
+// Next tag: 37.
 message UIItem {
 	int32 id = 1;
 	string name = 2;
@@ -78,6 +78,7 @@ message UIItem {
 	double weapon_speed = 14;
 
 	int32 ilvl = 15;
+	int32 req_lvl = 36; // The character level that can equip the item; 0 for none.
 	int32 phase = 16;
 	ItemQuality quality = 17;
 	double quality_modifier = 33; // Negative for caster weapons; used by Seal of Righteousness proc among others.
@@ -271,7 +272,7 @@ message StatFilters {
 	StatSelection consumables = 5;
 }
 
-// NextIndex: 27
+// NextIndex: 28
 message DatabaseFilters {
 	repeated ArmorType armor_types = 1;
 	repeated WeaponType weapon_types = 2;
@@ -281,6 +282,7 @@ message DatabaseFilters {
 	FactionFilter faction_filter = 19;
 	int32 min_ilvl = 20;
 	int32 max_ilvl = 21;
+	int32 max_required_level = 27; // Hides items that need a higher character level; 0 hides none.
 	// The consumable pickers hide a consumable below the level set for its ConsumableType (keyed by
 	// ConsumableType; Consumable.lvl). A type with no entry takes Sim.DEFAULT_MIN_CONSUMABLE_LVL.
 	map<int32, int32> min_consumable_lvl = 24;
