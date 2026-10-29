@@ -10,6 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/tools/database/dbc"
 )
 
 // The types the settings list in the miscellaneous row, picked any number at a time.
@@ -96,7 +97,7 @@ func AddPotionClasses(db *WowDatabase) error {
 		}
 		slices.Sort(classes)
 		consumable.PotionClasses = classes
-		if slices.Contains(classes, proto.PotionClass_PotionClassResource) && slices.Contains(classes, proto.PotionClass_PotionClassOffensive) {
+		if potion && slices.Contains(classes, proto.PotionClass_PotionClassResource) && slices.Contains(classes, proto.PotionClass_PotionClassOffensive) {
 			consumable.ResourceOnlyClasses = restoredClasses(consumable.ClassAllowlist, powers)
 		}
 	}
@@ -108,16 +109,15 @@ var classPowers = map[proto.Class]dbcenums.PowerType{
 	proto.Class_ClassWarrior: dbcenums.POWER_RAGE,
 	proto.Class_ClassRogue:   dbcenums.POWER_ENERGY,
 }
-var playableClasses = []proto.Class{
-	proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassHunter, proto.Class_ClassRogue, proto.Class_ClassPriest,
-	proto.Class_ClassShaman, proto.Class_ClassMage, proto.Class_ClassWarlock, proto.Class_ClassDruid,
-}
 
 // The classes of the allowlist, every class where it is empty, whose own power is one of the powers. A
-// druid's is mana, so a rage potion's Strength stays offensive to a druid in cat form.
+// druid's is mana, so a rage potion stays in both pickers for a druid, whose bear casts it for the rage
+// from the offensive slot and whose cat for its Strength.
 func restoredClasses(allowlist []proto.Class, powers []dbcenums.PowerType) []proto.Class {
 	if len(allowlist) == 0 {
-		allowlist = playableClasses
+		for _, class := range dbc.Classes {
+			allowlist = append(allowlist, class.ProtoClass)
+		}
 	}
 	var restored []proto.Class
 	for _, class := range allowlist {
