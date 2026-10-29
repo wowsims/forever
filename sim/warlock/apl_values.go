@@ -184,8 +184,7 @@ func (x *APLActionCastWarlockAssignedCurse) PostFinalize(*core.APLRotation)     
 func (x *APLActionCastWarlockAssignedCurse) GetNextAction(*core.Simulation) *core.APLAction {
 	return nil
 }
-func (x *APLActionCastWarlockAssignedCurse) ReResolveVariableRefs(*core.APLRotation, map[string]*proto.APLValue) {
-}
+func (x *APLActionCastWarlockAssignedCurse) ReplaceAPLValues(func(core.APLValue) core.APLValue) {}
 
 func (x *APLActionCastWarlockAssignedCurse) GetSpellFromAction(sim *core.Simulation) *core.Spell {
 	return x.warlock.GetAssignedCurse()
