@@ -1,10 +1,12 @@
 import { DistributionMetrics } from '@generated/proto/api';
+import { APLRotation } from '@generated/proto/apl';
 import { Class, ItemSlot, ItemType, Spec } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
-import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkPlayerSettingsSetup, BulkRankedResult, BulkRotationSetup, BulkTalentSetup } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
 import { EquippedItem } from '@sim/proto/equipped_item';
 import { Gear } from '@sim/proto/gear';
+import { Stats } from '@sim/proto/stats';
 import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { createSimStore } from '@sim/state/sim_store';
@@ -19,9 +21,25 @@ export const compareGearSet = (id: number) =>
 
 const CURRENT = compareGearSet(1);
 
-const result = (gear: Gear, avg: number): TopGearResult => ({ gear, dpsMetrics: DistributionMetrics.create({ avg, stdev: 10 }) });
+export const CURRENT_TALENT_SETUP: BulkTalentSetup = { name: '', talentsString: '0000000000', isCurrent: true };
 
-// An encounter ranking the sets with the given helm ids at the given DPS, and the current gear at 1000, best first.
+export const CURRENT_ROTATION_SETUP: BulkRotationSetup = { name: '', isCurrent: true, rotation: APLRotation.create() };
+
+export const CURRENT_SETTINGS_SETUP: BulkPlayerSettingsSetup = { name: '', isCurrent: true, settings: null };
+
+const ARMS_TALENT_SETUP: BulkTalentSetup = { name: 'Arms', talentsString: '3030500130', isCurrent: false };
+
+const result = (gear: Gear, avg: number, talents = CURRENT_TALENT_SETUP): BulkRankedResult => ({
+	gear,
+	dpsMetrics: DistributionMetrics.create({ avg, stdev: 10 }),
+	talents,
+	rotation: CURRENT_ROTATION_SETUP,
+	gearSetup: null,
+	settings: null,
+});
+
+// An encounter ranking the sets with the given helm ids at the given DPS, and the current gear at 1000, best first, all
+// with the current talents.
 const encounter = (name: string, duration: number | null, ranked: Array<[number, number]>): BulkEncounterResults => {
 	const base = result(CURRENT, 1000);
 	const results = [...ranked.map(([id, avg]) => result(compareGearSet(id), avg)), base].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
@@ -30,7 +48,7 @@ const encounter = (name: string, duration: number | null, ranked: Array<[number,
 		isCurrent: false,
 		duration,
 		durationVariation: duration === null ? null : 5,
-		results: { chains: results.map(ranking => [ranking]), originalGearResults: base, iterations: 100 },
+		results: { chains: results.map(ranking => [ranking]), originalGearResults: base, referenceIsCurrent: true, currentGear: CURRENT, iterations: 100 },
 	};
 };
 
@@ -52,6 +70,48 @@ export const BULK_COMPARE_ENTRIES: BulkEncounterResults[] = [
 		[3, 1150],
 		[2, 1120],
 	]),
+];
+
+// A Builds set of the gear set `gearSet` wearing the helm `id`, under the current rotation and settings.
+const buildResult = (gearSet: string, id: number, avg: number, talents = CURRENT_TALENT_SETUP): BulkRankedResult => ({
+	...result(compareGearSet(id), avg, talents),
+	gearSetup: { gearSet, gear: compareGearSet(id), bonusStats: new Stats() },
+	settings: CURRENT_SETTINGS_SETUP,
+});
+
+// An encounter as a Builds batch with the Current bundle unticked stores it: no current gear's row, the sets best first,
+// the best the reference.
+const bestEncounter = (name: string, duration: number | null, ranked: BulkRankedResult[]): BulkEncounterResults => {
+	const results = [...ranked].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
+	return {
+		name,
+		isCurrent: false,
+		duration,
+		durationVariation: duration === null ? null : 5,
+		results: {
+			chains: results.map(ranking => [ranking]),
+			originalGearResults: results[0],
+			referenceIsCurrent: false,
+			currentGear: CURRENT,
+			iterations: 100,
+		},
+	};
+};
+
+// Three bundles over three encounters with the Current bundle unticked; display order Council, Patchwerk, Ragnaros. Fury
+// is best in Patchwerk and Ragnaros, Arms in Council, and Raid ranks only in the timed two.
+export const BULK_COMPARE_BEST_ENTRIES: BulkEncounterResults[] = [
+	bestEncounter('Patchwerk', 300, [
+		buildResult('Pre-BiS (Fury)', 2, 1100),
+		buildResult('Raid', 4, 1080),
+		buildResult('Pre-BiS (Arms)', 3, 1040, ARMS_TALENT_SETUP),
+	]),
+	bestEncounter('Council', 90, [
+		buildResult('Pre-BiS (Arms)', 3, 1030, ARMS_TALENT_SETUP),
+		buildResult('Pre-BiS (Fury)', 2, 1020),
+		buildResult('Raid', 4, 990),
+	]),
+	bestEncounter('Ragnaros', null, [buildResult('Pre-BiS (Fury)', 2, 1150), buildResult('Pre-BiS (Arms)', 3, 1120, ARMS_TALENT_SETUP)]),
 ];
 
 // A host whose batch results are `entries`, over a real store, for the comparison views. Its player cannot dual wield.

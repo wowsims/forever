@@ -1,14 +1,14 @@
-import { savedEncounterCodec } from '@features/encounter/hooks/useSavedEncounter';
 import { Encounter } from '@generated/proto/common';
 import { BulkEncounterRef, BulkEncounterSelection, SavedEncounter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import type { BulkEncounterResults } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkEncounterSetup } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
 import type { PresetEncounter } from '@sim/presets/types';
 import { bulkState, patchBulkState, storeBulkEncounters } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { formatDurationSeconds } from '@sim/utils/format';
-import { savedDataEntries } from '@ui-kit/hooks/useSavedData';
+
+import { checkedRefsAfter, keyedOnce, sameRef, storedSavedData } from './saved_refs';
 
 export interface BulkEncounterEntry {
 	ref: BulkEncounterRef;
@@ -16,24 +16,11 @@ export interface BulkEncounterEntry {
 	encounter: Encounter;
 }
 
-interface BulkEncounterRun {
-	name: string;
-	encounter: Encounter;
-	isCurrent: boolean;
-}
-
 type EncounterLength = Pick<BulkEncounterResults, 'duration' | 'durationVariation'>;
 
 type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth' | 'targets'>;
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
-
-// The sim stamps its api version on every encounter it hands out, while presets and older saves carry another one.
-const sameEncounter = (a: Encounter, b: Encounter) => Encounter.equals({ ...a, apiVersion: 0 }, { ...b, apiVersion: 0 });
-
-const sameRef = (a: BulkEncounterRef, b: BulkEncounterRef) => a.name === b.name && a.preset === b.preset;
-
-const isBulkEncounterChecked = (checked: readonly BulkEncounterRef[], ref: BulkEncounterRef) => checked.some(item => sameRef(item, ref));
 
 // As the results store it: null for both on a health-based encounter, which has no set length.
 export const encounterLength = ({
@@ -50,6 +37,7 @@ export const formatEncounterDuration = ({ duration, durationVariation }: Encount
 	return durationVariation === null ? length : `${length} ±${durationVariation}s`;
 };
 
+// "3:00 ±5s · 1 target". An encounter with no target still runs one.
 export const formatEncounterSummary = (encounter: EncounterSummaryFields): string =>
 	`${formatEncounterDuration(encounterLength(encounter))} · ${t('targets', { count: Math.max(1, encounter.targets.length) })}`;
 
@@ -70,66 +58,50 @@ export const bulkEncounterEntries = (
 	...saved.flatMap(({ name, data }) => entry(name, false, data.encounter)),
 ];
 
-// The record the Saved Encounters panel writes, read as that panel reads it.
-const storedSavedEncounters = (host: IndividualSimHost<any>) => {
-	let record: unknown;
-	try {
-		record = JSON.parse(host.sim.env.storage.getItem(host.getSavedEncounterStorageKey()) ?? '{}');
-	} catch {
-		return [];
-	}
-	return savedDataEntries(record, savedEncounterCodec);
-};
-
 export const pickableBulkEncounters = (host: IndividualSimHost<any>): BulkEncounterEntry[] =>
-	bulkEncounterEntries(host.individualConfig.presets.encounters, storedSavedEncounters(host));
+	bulkEncounterEntries(host.individualConfig.presets.encounters, storedSavedData(host, host.getSavedEncounterStorageKey(), SavedEncounter));
 
-interface BulkEncounterListItem extends BulkEncounterEntry {
+// The proto version, the zone the areas came from and the target names change nothing the sim reads.
+const encounterContentKey = keyedOnce((encounter: Encounter) =>
+	Encounter.toJsonString({ ...encounter, apiVersion: 0, zoneId: 0, targets: encounter.targets.map(target => ({ ...target, name: '' })) }),
+);
+
+// The current encounter's ref: checked when listed, like every other encounter's.
+export const CURRENT_ENCOUNTER_REF = BulkEncounterRef.create();
+
+export const currentEncounterChecked = (checked: readonly BulkEncounterRef[]): boolean => checked.some(ref => sameRef(ref, CURRENT_ENCOUNTER_REF));
+
+interface BulkEncounterRow extends BulkEncounterEntry {
 	checked: boolean;
-	duplicate: boolean;
+	duplicateOf: string | null;
 }
 
-// The rows the Encounters group shows, in list order. One equal to the current encounter is left out, since the current
-// one runs anyway; a checked one equal to an earlier checked row is flagged. A checked ref whose encounter no longer
-// exists has no row.
-export const bulkEncounterList = (
-	current: Encounter,
-	entries: readonly BulkEncounterEntry[],
-	checked: readonly BulkEncounterRef[],
-): BulkEncounterListItem[] => {
-	const picked: Encounter[] = [];
-	return entries
-		.filter(entry => !sameEncounter(entry.encounter, current))
-		.map(entry => {
-			const isChecked = isBulkEncounterChecked(checked, entry.ref);
-			const duplicate = isChecked && picked.some(earlier => sameEncounter(earlier, entry.encounter));
-			if (isChecked) picked.push(entry.encounter);
-			return { ...entry, checked: isChecked, duplicate };
-		});
+// Every entry in list order, each checked by its stored ref. One that sims the same as the current encounter while that
+// is checked, or as an earlier checked row, names it, cannot run, and keeps its stored checked state, so it is back once
+// the other row changes.
+export const bulkEncounterList = (current: Encounter, entries: readonly BulkEncounterEntry[], checked: readonly BulkEncounterRef[]): BulkEncounterRow[] => {
+	const picked = new Map<string, string>(currentEncounterChecked(checked) ? [[encounterContentKey(current), t('current')]] : []);
+	return entries.map(entry => {
+		const content = encounterContentKey(entry.encounter);
+		const isChecked = checked.some(ref => sameRef(ref, entry.ref));
+		const duplicateOf = picked.get(content) ?? null;
+		if (duplicateOf === null && isChecked) picked.set(content, entry.name);
+		return { ...entry, checked: isChecked, duplicateOf };
+	});
 };
 
-// The current encounter runs first, unnamed, then every checked row the list neither leaves out nor flags. Without power
-// tools the current one runs alone; the checked ones stay stored for when they are back on.
-export const bulkEncounterRuns = (
-	current: Encounter,
-	entries: readonly BulkEncounterEntry[],
-	checked: readonly BulkEncounterRef[],
-	powerTools: boolean,
-): BulkEncounterRun[] => [
-	{ name: '', encounter: current, isCurrent: true },
-	...(powerTools
-		? bulkEncounterList(current, entries, checked)
-				.filter(item => item.checked && !item.duplicate)
-				.map(({ name, encounter }) => ({ name, encounter, isCurrent: false }))
-		: []),
+// The current encounter runs first while it is checked, unnamed, then every checked row the list shows that duplicates
+// none, in list order.
+export const bulkEncounterRuns = (current: Encounter, entries: readonly BulkEncounterEntry[], checked: readonly BulkEncounterRef[]): BulkEncounterSetup[] => [
+	...(currentEncounterChecked(checked) ? [{ name: '', isCurrent: true, encounter: current }] : []),
+	...bulkEncounterList(current, entries, checked)
+		.filter(row => row.checked && row.duplicateOf === null)
+		.map(({ name, encounter }) => ({ name, isCurrent: false, encounter })),
 ];
 
-// Rewritten from every pickable ref, rows hidden as equal to the current encounter included, so the stored order
-// follows the list, a hidden row keeps its state, and refs to deleted encounters go.
-// No `settings` bump: the encounters change neither the combination count nor the stored BulkSettings.
+// No `settings` bump: the encounters change neither the Gear mode's combination count nor the stored BulkSettings.
 export const setBulkEncounterChecked = (player: Player<any>, ref: BulkEncounterRef, checked: boolean, pickable: readonly BulkEncounterRef[]) => {
-	const current = bulkState(player).encounters;
-	const encounters = pickable.filter(item => (sameRef(item, ref) ? checked : isBulkEncounterChecked(current, item)));
+	const encounters = checkedRefsAfter(bulkState(player).encounters, ref, checked, [CURRENT_ENCOUNTER_REF, ...pickable]);
 	patchBulkState(player, { encounters });
 	storeBulkEncounters(player, BulkEncounterSelection.create({ encounters }));
 };

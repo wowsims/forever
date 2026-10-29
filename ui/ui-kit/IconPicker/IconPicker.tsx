@@ -7,7 +7,8 @@ import { type MouseEvent, useId, useRef } from 'react';
 
 import { ImprovedAnchor } from './ImprovedAnchor';
 
-export interface IconPickerProps extends FieldFrameProps, ControlledProps<number>, Pick<IconSwatchProps, 'keptTooltip'> {
+/** No `size`: the control is an icon swatch, not a form-height control. */
+export interface IconPickerProps extends Omit<FieldFrameProps, 'size'>, ControlledProps<number>, Pick<IconSwatchProps, 'keptTooltip'> {
 	/** The number of states the icon cycles through: 2 is on/off, 0 is unlimited. */
 	states: number;
 	icon?: ResolvedIcon;

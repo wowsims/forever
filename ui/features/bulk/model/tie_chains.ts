@@ -37,8 +37,8 @@ const pairTied = (upper: TopGearResult, lower: TopGearResult, baseline: TopGearR
  * all-pairs: A ties B and B ties C puts all three in one chain even where A and C would separate,
  * which is what "the table cannot order these" means for a ranked list.
  */
-export const buildTieChains = (results: readonly TopGearResult[], baseline: TopGearResult | null, iterations: number): TopGearResult[][] => {
-	const chains: TopGearResult[][] = [];
+export const buildTieChains = <T extends TopGearResult>(results: readonly T[], baseline: T | null, iterations: number): T[][] => {
+	const chains: T[][] = [];
 	for (const result of results) {
 		const currentChain = chains[chains.length - 1];
 		const previousResult = currentChain?.[currentChain.length - 1];

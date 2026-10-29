@@ -98,7 +98,7 @@ describe('AplList on the priority pane', () => {
 		expect(prepullRows()).toHaveLength(1);
 		expect(priorityRows()).toHaveLength(2);
 		expect(namesShown()).toEqual(['p', 'a', 'b']);
-		expect(priorityRows()[0].querySelector('[data-testid="apl-list-item-picker-root"]')!.getAttribute('data-density')).toBe('compact');
+		expect(priorityRows()[0].querySelector('[data-testid="apl-list-item-picker-root"]')!.getAttribute('data-size')).toBe('xs');
 	});
 
 	it('hides a row through its eye with one notification, and keeps the row’s menu usable', () => {

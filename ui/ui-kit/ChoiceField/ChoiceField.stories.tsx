@@ -85,6 +85,30 @@ export const Default: Story = {
 		await expect(within(canvasElement).getByRole('combobox').textContent).toBe('Undead');
 	},
 };
+export const Sizes: Story = {
+	render: args => (
+		<div className="flex flex-col items-start gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<ChoiceFieldStory key={size} {...args} id={`choice-field-${size}`} label={`Mob Type (${size})`} size={size} />
+			))}
+		</div>
+	),
+};
+export const Invalid: Story = { args: { invalid: true } };
+export const DescribedByAMessage: Story = {
+	args: { invalid: true, 'aria-describedby': 'choice-field-story-message' },
+	render: args => (
+		<div className="grid gap-2">
+			<ChoiceFieldStory {...args} />
+			<p id="choice-field-story-message" className="mb-0 text-xs text-danger">
+				Already in the list
+			</p>
+		</div>
+	),
+	play: async ({ canvasElement }) => {
+		await expect(within(canvasElement).getByRole('combobox').getAttribute('aria-describedby')).toBe('choice-field-story-message');
+	},
+};
 export const Link: Story = { args: { variant: 'link', label: undefined, placeholder: 'Mob type' } };
 export const WithIcons: Story = { args: { variant: 'link', label: undefined, options: UNITS, value: 2, placeholder: 'Unit' } };
 export const WithSubmenu: Story = { args: { variant: 'link', label: undefined, options: VALUE_KINDS, value: 3, placeholder: 'No condition' } };

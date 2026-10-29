@@ -1,8 +1,9 @@
+import { BulkModeMenu } from '@features/bulk/components/BulkModeMenu';
 import { BULK_TAB_ID, RESULTS_TAB_ID } from '@features/hooks/useActivateTab';
 import { DetailedResults } from '@features/results/components/DetailedResults';
 import i18n from '@i18n/config';
 import { SimTabPane } from '@ui-kit/SimTabPane';
-import { type ReactNode, useMemo } from 'react';
+import { type ReactElement, type ReactNode, useMemo } from 'react';
 
 import type { SimHostObject } from './individual_sim_ui';
 import { SimTabDef } from './SimTabDef';
@@ -17,6 +18,8 @@ export interface SimTabsSectionProps {
 	host: SimHostObject<any> | null;
 	children: ReactNode;
 }
+
+const renderBulkTab = (tab: ReactElement) => <BulkModeMenu tab={tab} />;
 
 // The pane list is built once per host, so `SimTabsPanels` keeps the same elements (and every
 // `keepMounted` pane's state) across a shell re-render that has nothing to do with the tabs — the
@@ -56,7 +59,7 @@ export const SimTabsSection = ({ host, children }: SimTabsSectionProps) => {
 									<DetailedResults resultsManager={host.raidSimResultsManager} />
 								</div>
 							</SimTabDef>
-							<SimTabDef id={BULK_TAB_ID} title={i18n.t('bulk_tab.title')}>
+							<SimTabDef id={BULK_TAB_ID} title={i18n.t('bulk_tab.title')} renderTab={renderBulkTab}>
 								<SimTabPane id={BULK_TAB_ID} className="p-0">
 									<BulkTabBody />
 								</SimTabPane>

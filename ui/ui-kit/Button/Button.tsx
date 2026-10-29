@@ -1,23 +1,21 @@
 import { Button as BaseButton } from '@base-ui/react/button';
 import { externalRel } from '@sim/utils/links';
+// From its own module: the Field index imports this Button.
+import { useControlSize } from '@ui-kit/Field/hooks/useField';
 import { Spinner } from '@ui-kit/Spinner';
 import clsx from 'clsx';
 
 import type { ButtonProps, ButtonWithHref } from './types';
 
-const SIZE_CLASS = {
-	default: 'ui-button-md',
-	sm: 'ui-button-sm',
-	xs: 'ui-button-xs',
-	none: undefined,
-} as const;
-
 const hasHref = (props: ButtonProps): props is ButtonWithHref => props.href !== undefined;
 
 export const Button = (props: ButtonProps) => {
+	const controlSize = useControlSize(props.size === 'none' ? undefined : props.size);
 	const variant = props.variant === undefined ? (props.iconOnly ? null : 'primary') : props.variant;
 	const isLink = variant === 'link' || variant === 'link-danger';
 	const base = props.iconOnly ? 'ui-button-icon' : isLink ? 'ui-button-link' : 'ui-button';
+	// A link is text with no form height, so only its own size changes it, never a Field's.
+	const size = variant === 'unstyled' || props.iconOnly || props.size === 'none' ? undefined : isLink ? props.size : controlSize;
 	const classes =
 		variant === 'unstyled'
 			? props.className
@@ -25,7 +23,6 @@ export const Button = (props: ButtonProps) => {
 					base,
 					// `ui-button-link` is the link colour; an iconOnly link keeps it on top of the frameless base.
 					variant && (variant !== 'link' || props.iconOnly) && `ui-button-${variant}`,
-					!props.iconOnly && SIZE_CLASS[props.size ?? 'default'],
 					props.className,
 				);
 	const busy = props.loading || undefined;
@@ -52,7 +49,7 @@ export const Button = (props: ButtonProps) => {
 			...labelProps
 		} = props;
 		return (
-			<label className={classes} aria-busy={busy} {...labelProps}>
+			<label className={classes} data-size={size} aria-busy={busy} {...labelProps}>
 				{content}
 			</label>
 		);
@@ -71,7 +68,7 @@ export const Button = (props: ButtonProps) => {
 			...anchorProps
 		} = props;
 		return (
-			<a className={classes} aria-busy={busy} {...anchorProps} rel={externalRel(anchorProps.href, anchorProps.rel)}>
+			<a className={classes} data-size={size} aria-busy={busy} {...anchorProps} rel={externalRel(anchorProps.href, anchorProps.rel)}>
 				{content}
 			</a>
 		);
@@ -90,7 +87,7 @@ export const Button = (props: ButtonProps) => {
 		...buttonProps
 	} = props;
 	return (
-		<BaseButton className={classes} type={type} aria-busy={busy} {...buttonProps}>
+		<BaseButton className={classes} type={type} data-size={size} aria-busy={busy} {...buttonProps}>
 			{content}
 		</BaseButton>
 	);

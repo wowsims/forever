@@ -67,7 +67,7 @@ export const BulkItemSearch = ({ ready }: BulkItemSearchProps) => {
 					onItemSelect={item => addBulkItem(player, ItemSpec.create({ id: item.id }))}
 					clearable
 					clearLabel={i18n.t('bulk_tab.search.clear_search')}
-					clearClassName="z-2 -ml-px flex items-center border border-surface-border bg-surface px-(--input-padding-x) py-(--input-padding-y)"
+					clearClassName="z-2 -ml-px flex items-center border border-surface-border bg-surface p-2"
 					listTestId="bulk-gear-search-results"
 					footer={
 						<>

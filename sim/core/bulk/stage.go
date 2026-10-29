@@ -55,8 +55,8 @@ type BulkSimStageResult struct {
 	Metrics    *proto.BulkSimStageMetrics
 }
 
-func shouldRunBulkSimStage(config BulkSimStageConfig, candidateCount int) bool {
-	maxSurvivors := getBulkSimStageMaxSurvivors(config, candidateCount)
+func shouldRunBulkSimStage(config BulkSimStageConfig, candidateCount int, topResults int) bool {
+	maxSurvivors := getBulkSimStageMaxSurvivors(config, candidateCount, topResults)
 	return maxSurvivors == 0 || candidateCount > maxSurvivors || candidateCount < BulkSimMinCombinations && config.Stage == proto.BulkSimStage_BulkSimStageHigh
 }
 
@@ -205,10 +205,13 @@ func getBulkSimStageIterations(config BulkSimStageConfig, baselineMetrics *proto
 	return max(config.MinIterations, targetIterations)
 }
 
-func getBulkSimStageMaxSurvivors(config BulkSimStageConfig, candidateCount int) int {
+// 0 for a stage that does not cull. The stage's cap is at least the run's top results, so culling never leaves fewer
+// candidates than the run shows.
+func getBulkSimStageMaxSurvivors(config BulkSimStageConfig, candidateCount int, topResults int) int {
 	if config.MaxSurvivors == 0 {
 		return 0
 	}
+	maxSurvivors := max(config.MaxSurvivors, topResults)
 
 	var scaleReference int
 	switch config.Stage {
@@ -217,15 +220,15 @@ func getBulkSimStageMaxSurvivors(config BulkSimStageConfig, candidateCount int) 
 	case proto.BulkSimStage_BulkSimStageMedium:
 		scaleReference = BulkSimMediumStageSurvivorScaleReference
 	default:
-		return config.MaxSurvivors
+		return maxSurvivors
 	}
 
 	if candidateCount <= scaleReference {
-		return config.MaxSurvivors
+		return maxSurvivors
 	}
 
 	scale := math.Sqrt(float64(candidateCount) / float64(scaleReference))
-	return max(config.MaxSurvivors, int(math.Ceil(float64(config.MaxSurvivors)*scale)))
+	return max(maxSurvivors, int(math.Ceil(float64(config.MaxSurvivors)*scale)))
 }
 
 // runBulkSimFinalistStage adds lockstep iterations to the displayed top results (and the

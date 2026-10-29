@@ -135,7 +135,7 @@ and `STYLING.md` cover placement and co-located CSS.
 - `sim/`: code that needs `window` or `document` does not belong here. Inject an `Env` adapter instead.
 - `ui-kit/`: reusable widgets that know nothing about the sim. No `@sim` import is allowed except `@sim/utils/**` and `@sim/constants/**` (lint-enforced), so the kit never names the `Player`, `Sim` or `ActionId` types. The kit contract:
     - **Controlled.** A picker takes `value`/`onChange`/`disabled` plus `FieldFrameProps` (`ui/ui-kit/Field/types.ts`) and holds no store state; `features/inputs/` binds it to the store.
-    - **One field shell.** `Field` renders the label, tooltip, description and layout for every picker, with `density="compact"`, `role`/`aria-labelledby` for a field that names a group, an optional clear button and an `after` slot.
+    - **One field shell.** `Field` renders the label, tooltip, description and layout for every picker, with `size` (the control size every control inside takes, see `ui/STYLING.md`), `role`/`aria-labelledby` for a field that names a group, an optional clear button and an `after` slot.
     - **Icons arrive resolved.** An icon prop is a `ResolvedIcon` (`iconUrl`, `name`, optional `href`). The caller resolves it (`useResolvedIcon`, `useActionIds` in `ui/sim/hooks/`) and the kit paints it with `resolvedIconStyle` (`ui/ui-kit/utils/icons.ts`).
     - **`testId` everywhere**, forwarded to the element that carries the identity (`STYLING.md` §5).
     - **A story and a test per folder.** `Box` has a story and no test.

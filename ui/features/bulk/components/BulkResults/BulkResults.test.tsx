@@ -1,13 +1,14 @@
-import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkRankedResult } from '@sim/bulk/types';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { createSimStore } from '@sim/state/sim_store';
+import { CURRENT_ROTATION_SETUP, CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./BulkResultRow', () => ({
-	BulkResultRow: ({ iterations }: { iterations: number }) => <div data-testid="row" data-iterations={iterations} />,
+	BulkResultRow: ({ results }: { results: { iterations: number } }) => <div data-testid="row" data-iterations={results.iterations} />,
 }));
 
 const { BulkResults } = await import('./BulkResults');
@@ -15,7 +16,14 @@ const { BulkResults } = await import('./BulkResults');
 const STORE_KEY = 9;
 const RUN_ITERATIONS = 30000;
 
-const result = (avg: number) => ({ gear: {}, dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
+const result = (avg: number) =>
+	({
+		gear: {},
+		dpsMetrics: { avg, stdev: 1 },
+		talents: CURRENT_TALENT_SETUP,
+		rotation: CURRENT_ROTATION_SETUP,
+		settings: null,
+	}) as unknown as BulkRankedResult;
 
 const entry = (iterations: number): BulkEncounterResults => {
 	const baseline = result(1000);
@@ -24,7 +32,7 @@ const entry = (iterations: number): BulkEncounterResults => {
 		isCurrent: true,
 		duration: 180,
 		durationVariation: 5,
-		results: { chains: [[result(1100)], [baseline]], originalGearResults: baseline, iterations },
+		results: { chains: [[result(1100)], [baseline]], originalGearResults: baseline, referenceIsCurrent: true, currentGear: baseline.gear, iterations },
 	};
 };
 

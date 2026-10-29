@@ -41,7 +41,7 @@ export const EnchantPresetsView = ({ presets, onCheckedChange, onNew, onEdit, on
 								className="min-w-0 flex-1"
 								label={preset.name}
 								layout="inline"
-								density="compact"
+								size="xs"
 								value={preset.checked}
 								onChange={checked => onCheckedChange(preset.name, checked)}
 							/>

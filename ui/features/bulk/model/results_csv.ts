@@ -1,4 +1,5 @@
 import type { ItemSlot } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { translateSlotName } from '@i18n/localization';
 import type { BulkEncounterResults } from '@sim/bulk/types';
 import { ActionId } from '@sim/proto/action_id';
@@ -6,12 +7,33 @@ import type { EquippedItem } from '@sim/proto/equipped_item';
 import { type CsvValue, toCsv } from '@sim/utils/csv';
 import { stDevToConf95 } from '@sim/utils/math';
 
+import { changedEnchantLabels } from './compare';
 import { encounterLabel } from './encounters';
 import { formatBulkItemLabel } from './format';
+import { gearSetupLabel } from './gear_setups';
+import { rotationLabel } from './rotations';
+import { settingsLabel } from './settings_entries';
+import { talentsLabel } from './talents';
 
 export const BULK_RESULTS_CSV_FILE_NAME = 'wowsims-batch-results.csv';
 
-const COLUMNS = ['encounter', 'duration', 'variation', 'rank', 'current_gear', 'dps', 'dps_margin_95', 'diff', 'diff_pct'] as const;
+const COLUMNS = [
+	'encounter',
+	'duration',
+	'variation',
+	'rank',
+	'current_gear',
+	'dps',
+	'dps_margin_95',
+	'diff',
+	'diff_pct',
+	'talents',
+	'talents_string',
+	'gear_set',
+	'changed_enchants',
+	'rotation',
+	'settings',
+] as const;
 
 const slotHeaders = (slot: ItemSlot): string[] => {
 	const name = translateSlotName(slot);
@@ -29,23 +51,30 @@ const slotCells = (equipped: EquippedItem | null): CsvValue[] => {
 export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string => {
 	const slots: ItemSlot[] = entries[0]?.results.originalGearResults.gear.getItemSlots() ?? [];
 	const rows = entries.flatMap(entry => {
-		const { chains, originalGearResults: base, iterations } = entry.results;
+		const { chains, originalGearResults: base, currentGear, iterations } = entry.results;
 		const encounter = encounterLabel(entry);
 		return chains.flat().map((result, index): CsvValue[] => {
 			const avg = result.dpsMetrics.avg;
 			const diff = avg - base.dpsMetrics.avg;
-			// The percentage is taken against the smaller of the two, as the result rows show it.
-			const diffPct = (diff / (Math.min(avg, base.dpsMetrics.avg) || 1)) * 100;
+			// In percent of the reference's DPS, as the result rows show it.
+			const diffPct = (diff / (base.dpsMetrics.avg || 1)) * 100;
 			return [
 				encounter,
 				entry.duration ?? '',
 				entry.durationVariation ?? '',
 				index + 1, // The current gear's row takes a rank like any other.
-				result.gear.equals(base.gear) ? 'yes' : '',
+				result.gear.equals(currentGear) ? 'yes' : '',
 				avg,
 				stDevToConf95(result.dpsMetrics.stdev, iterations),
 				diff,
 				diffPct,
+				talentsLabel(result.talents),
+				result.talents.talentsString,
+				// The Builds reference row wears the current gear, which no gear setup stands for.
+				result.gearSetup ? gearSetupLabel(result.gearSetup) : result.settings ? i18n.t('bulk_tab.results.current_gear') : '',
+				changedEnchantLabels(result).join('; '),
+				rotationLabel(result.rotation),
+				result.settings ? settingsLabel(result.settings) : '',
 				...slots.flatMap(slot => slotCells(result.gear.getEquippedItem(slot))),
 			];
 		});

@@ -19,7 +19,7 @@ import {
 	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
+import { type BulkBuildBundle, type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
@@ -220,6 +220,9 @@ export interface StatSweepSlice {
 	v: { settings: number };
 }
 
+// Gear runs the current encounter and talents alone; Builds runs the ticked bundles on the ticked encounters.
+export type BulkMode = 'gear' | 'builds';
+
 // Bulk (batch) sim tab, one slice per player. The autosave and the combination
 // count react to the `v` counters, never to the entry: the run fields are
 // written without a bump because the combination count writes them itself.
@@ -231,10 +234,20 @@ export interface BulkSlice {
 	frozenWeaponSlot: ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand | undefined;
 	weaponTypeFilters: ReadonlyMap<ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand, WeaponType[]>;
 	enchantPresets: readonly BulkEnchantPreset[];
-	// The checked saved encounters, in list order; the current encounter is read live and never stored here.
+	// The names of the enchant presets Builds mode runs every gear set with, in list order; not the Gear mode's checked ones.
+	buildEnchantPresets: readonly string[];
+	// The bundles Builds mode lists below the Current bundle, in list order.
+	bundles: readonly BulkBuildBundle[];
+	// Whether the Current bundle runs; unticked, each encounter's best row stands as the reference.
+	currentBundleChecked: boolean;
+	// The checked encounters Builds mode runs, in list order; the current one, read live, is checked by its empty-name ref.
 	encounters: readonly BulkEncounterRef[];
+	// Picked in the top navigation; Builds counts only with power tools on.
+	mode: BulkMode;
+	// How many results each mode ranks per encounter while power tools are on; 0 is All. Without power tools Gear ranks 5.
+	gearTopResults: number;
+	buildsTopResults: number;
 	combinations: number;
-	iterations: number;
 	// Why the selection gives no combination (the engine's reason), or null when it gives some.
 	combinationsError: string | null;
 	combinationsPending: boolean;

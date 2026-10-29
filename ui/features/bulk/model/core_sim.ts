@@ -1,7 +1,6 @@
 import { BulkSettings, DistributionMetrics, ProgressMetrics } from '@generated/proto/api';
-import type { Encounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
+import { BulkSimOverrides, BulkSimProgressConfig, TopGearResult } from '@sim/bulk/types';
 import { bulkSimStageToOptimisationStage, cleanBulkDpsMetrics, getCoreBulkSimTrackingMetrics } from '@sim/bulk/utils';
 import type { IndividualSimHost } from '@sim/sim_host';
 
@@ -25,7 +24,7 @@ export async function runCoreBulkSim(
 	context: CoreBulkSimContext,
 	signal: AbortSignal,
 	bulkSettings: BulkSettings,
-	encounter: Encounter,
+	overrides: BulkSimOverrides,
 ): Promise<CoreBulkSimResult> {
 	context.throwIfBulkAborted(signal);
 	context.debugOptimisationRound('core bulk sim started');
@@ -49,7 +48,7 @@ export async function runCoreBulkSim(
 		});
 	};
 
-	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal, encounter), signal);
+	const result = await context.runWithBulkAbort(context.simUI.sim.runBulkSim(updateProgress, bulkSettings, signal, overrides), signal);
 	if (!result || (result && 'type' in result)) {
 		throw new Error(result?.message);
 	}
