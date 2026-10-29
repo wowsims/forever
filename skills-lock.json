@@ -15,7 +15,7 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "955809f6305f53bd30f7d9cd4ed512ce32d0c2398a7cebbd08a0a95f069ed327"
+      "computedHash": "a3023262fc1cd583f644fe6657302f25d7648080530d5ca79d9f047a7ef1d472"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",

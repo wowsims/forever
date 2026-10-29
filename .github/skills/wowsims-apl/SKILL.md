@@ -112,6 +112,13 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   and `Spell Cast Time` does not, so a Do At built from it can be up to half a millisecond off the cast end. A cast
   that comes that early is queued for the cast end (`QueueSpell` in `sim/core/spell_queueing.go`), so an action timed
   at a cast end still goes after the cast lands.
+- **A rotation with a Move line looks every reaction time (10 ms) through the GCD**, not once at its end
+  (`hasMove` in `sim/core/apl.go`). Change Target costs nothing and has no GCD, so every Change Target line whose
+  condition holds fires again on each look: a multi-target APL cycled targets 20 to 40 times a second (PR #734). Gate a
+  Change Target on what the new target needs, such as a DoT the current target already has and some target lacks.
+  A Change Target to the current target is not ready (`APLActionChangeTarget.IsReady`).
+- **`GCD Is Ready` is true from 400 ms before the GCD ends** (`MaxSpellQueueWindow`, `APLValueGCDIsReady`), so a
+  line gated on it fires on every look in that window. `GCD Time To Ready` ≤ `0ms` holds only at the GCD's end.
 
 ## Traps
 
