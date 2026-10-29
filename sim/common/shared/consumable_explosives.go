@@ -6,7 +6,6 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -115,12 +114,6 @@ func NewSpellDataExplosive(itemID int32) {
 			config := consumableDamageSpell(character, itemID, row)
 			config.ActionID = core.ActionID{ItemID: itemID}
 			config.Flags |= core.SpellFlagExplosive
-			// The row of every Engineering explosive but Goblin Sapper Charge's 13241 marks it not usable
-			// in a shapeshift form, which the row's cast requirement already carries. In game the sapper
-			// cannot be used in one either: a druid leaves the form to throw it.
-			if consumable.RequiredProfession == proto.Profession_Engineering {
-				config.CastRequirement.NotShapeshifted = true
-			}
 			config.Cast = consumableCast(character, itemEffect, row)
 			if self := row.CasterDamageEffect(); self != spelldata.NilEffect {
 				selfSpell := registerCasterDamageSpell(character, core.SpellConfig{

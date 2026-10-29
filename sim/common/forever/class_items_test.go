@@ -13,6 +13,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/core/testagent"
+	"github.com/wowsims/forever/sim/druid"
+	"github.com/wowsims/forever/sim/druid/feralbear"
 	_ "github.com/wowsims/forever/sim/hunter" // registers the hunter's item effects.
 	"github.com/wowsims/forever/sim/priest"
 	"github.com/wowsims/forever/sim/shaman"
@@ -30,6 +32,7 @@ var (
 )
 
 func init() {
+	feralbear.RegisterFeralBearDruid()
 	enhancement.RegisterEnhancementShaman()
 	priest.RegisterPriest()
 
@@ -510,5 +513,181 @@ func TestTotemOfTheStormLetsLightningBoltGrantMaelstromWeapon(t *testing.T) {
 	if got := float64(granted) / float64(landed); math.Abs(got-want) > 0.015 {
 		t.Errorf("%d of %d landed Lightning Bolts (%v cast) granted a stack, %.3f a bolt, want %.3f",
 			granted, landed, bolt.DefaultCast.CastTime, got, want)
+	}
+}
+
+func bearItemRequest() *proto.RaidSimRequest {
+	return &proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1, IsTest: true},
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name: "Bear", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
+			TalentsString: "000000-000000000001",
+			Equipment:     &proto.EquipmentSpec{Items: bearItemSlots()},
+			Consumables:   &proto.ConsumesSpec{}, Buffs: &proto.IndividualBuffs{}, Rotation: &proto.APLRotation{},
+			Spec: &proto.Player_FeralBearDruid{FeralBearDruid: &proto.FeralBearDruid{Options: &proto.FeralBearDruid_Options{}}},
+		}, &proto.PartyBuffs{}, nil, nil),
+		Encounter: &proto.Encounter{Duration: 60, Targets: []*proto.Target{{Name: "target", Level: 60}}},
+	}
+}
+
+func equippedBear(t *testing.T, items []*proto.ItemSpec) (*core.Simulation, *druid.Druid) {
+	t.Helper()
+	req := bearItemRequest()
+	player := req.Raid.Parties[0].Players[0]
+	player.Equipment.Items = items
+	sim := core.NewSim(req, simsignals.CreateSignals())
+	sim.Reset()
+	bear := sim.Raid.Parties[0].Players[0].(druid.DruidAgent).GetDruid()
+	bear.AutoAttacks.CancelAutoSwing(sim)
+	return sim, bear
+}
+
+func bearItemSlots() []*proto.ItemSpec {
+	items := make([]*proto.ItemSpec, 17)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 21188
+	return items
+}
+
+func TestUrsendrisScalesOnlyItemArmorAcrossForms(t *testing.T) {
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotChest].Id = 252484
+	items[proto.ItemSlot_ItemSlotRanged].Id = 263435
+	sim, bear := equippedBear(t, items)
+	aura := bear.GetAuraByID(core.ActionID{SpellID: 1270490})
+	if aura == nil || !aura.IsActive() {
+		t.Fatal("armor idol is inactive")
+	}
+	for _, form := range []druid.DruidForm{druid.DireBear, druid.Cat, druid.Humanoid, druid.Bear} {
+		bear.ClearForm(sim)
+		switch form {
+		case druid.DireBear:
+			bear.DireBearFormAura.Activate(sim)
+		case druid.Bear:
+			bear.BearFormAura.Activate(sim)
+		case druid.Cat:
+			bear.CatFormAura.Activate(sim)
+		}
+		armor := bear.GetStat(stats.Armor)
+		aura.Deactivate(sim)
+		equip := bear.EquipStats()
+		want := equip[stats.Armor]*spelldata.MustFind(1270490).EffectN(1).Percent() + equip[stats.BonusArmor]*spelldata.MustFind(1270490).EffectN(2).Percent()
+		if got := armor - bear.GetStat(stats.Armor); math.Abs(got-want) > 1e-8 {
+			t.Errorf("form %v armor delta %g, want %g", form, got, want)
+		}
+		aura.Activate(sim)
+		if math.Abs(bear.GetStat(stats.Armor)-armor) > 1e-8 {
+			t.Fatal("idol activation accumulated armor")
+		}
+	}
+	sim.Cleanup()
+	sim.Reset()
+	if !aura.IsActive() {
+		t.Fatal("idol did not reset")
+	}
+}
+
+func TestUrsendrisReportedArmorMatchesCombat(t *testing.T) {
+	req := bearItemRequest()
+	player := req.Raid.Parties[0].Players[0]
+	player.Equipment.Items[proto.ItemSlot_ItemSlotChest].Id = 252484
+	player.Equipment.Items[proto.ItemSlot_ItemSlotRanged].Id = 263435
+	sheet := core.ComputeStats(&proto.ComputeStatsRequest{Raid: req.Raid, Encounter: req.Encounter})
+	sim := core.NewSim(req, simsignals.CreateSignals())
+	sim.Reset()
+	bear := sim.Raid.Parties[0].Players[0].GetCharacter()
+	want := bear.GetStats().FloorGameStats()[stats.Armor]
+	got := sheet.RaidStats.Parties[0].Players[0].FinalStats.Stats[stats.Armor]
+	if math.Abs(got-want) > 1e-8 {
+		t.Errorf("reported armor %g, combat armor %g", got, want)
+	}
+}
+
+func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
+	req := bearItemRequest()
+	player := req.Raid.Parties[0].Players[0]
+	player.Equipment.Items[proto.ItemSlot_ItemSlotChest].Id = 252484
+	player.Equipment.Items[proto.ItemSlot_ItemSlotRanged].Id = 263435
+	swapped := bearItemSlots()
+	swapped[proto.ItemSlot_ItemSlotRanged].Id = 279251
+	player.EnableItemSwap = true
+	player.ItemSwap = &proto.ItemSwap{Items: swapped}
+	sim := core.NewSim(req, simsignals.CreateSignals())
+	sim.Reset()
+	bear := sim.Raid.Parties[0].Players[0].(druid.DruidAgent).GetDruid()
+	armor := bear.GetAuraByID(core.ActionID{SpellID: 1270490})
+	reset := bear.GetAura(spelldata.MustFind(1306483).Name)
+	if armor == nil || reset == nil {
+		t.Fatal("an equipped or swap effect was not registered")
+	}
+	if !armor.IsActive() || reset.IsActive() {
+		t.Fatal("main equipment activated the wrong effects")
+	}
+	initialArmor := bear.GetStat(stats.Armor)
+	for range 3 {
+		bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+		if armor.IsActive() || !reset.IsActive() {
+			t.Fatal("swapped equipment activated the wrong effects")
+		}
+		if bear.GetStat(stats.Armor) >= initialArmor {
+			t.Fatal("removing the armor idol did not reduce armor")
+		}
+		bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+		if !armor.IsActive() || reset.IsActive() {
+			t.Fatal("restoring main equipment activated the wrong effects")
+		}
+		if math.Abs(bear.GetStat(stats.Armor)-initialArmor) > 1e-8 {
+			t.Fatal("repeated swaps accumulated armor")
+		}
+	}
+}
+
+func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
+	for _, kind := range []string{"hit", "zero", "miss", "periodic", "swipe"} {
+		t.Run(kind, func(t *testing.T) {
+			items := bearItemSlots()
+			items[proto.ItemSlot_ItemSlotRanged].Id = 279251
+			sim, bear := equippedBear(t, items)
+			resets := 0
+			const trials = 1000
+			for range trials {
+				bear.PrimalBite.CD.Set(sim.CurrentTime + time.Hour)
+				result := &core.SpellResult{Target: bear.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100}
+				if kind == "miss" {
+					result.Outcome = core.OutcomeMiss
+					result.Damage = 0
+				}
+				if kind == "zero" {
+					result.Damage = 0
+				}
+				switch kind {
+				case "periodic":
+					bear.Unit.OnPeriodicDamageDealt(sim, bear.Lacerate.Spell, result)
+				case "swipe":
+					bear.Unit.OnSpellHitDealt(sim, bear.Swipe.Spell, result)
+				default:
+					bear.Unit.OnSpellHitDealt(sim, bear.Lacerate.Spell, result)
+				}
+				until := sim.CurrentTime + 2*core.SpellBatchWindow
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})
+				for sim.CurrentTime < until {
+					sim.Step()
+				}
+				if bear.PrimalBite.CD.IsReady(sim) {
+					resets++
+				}
+			}
+			if kind == "hit" || kind == "zero" {
+				chance := float64(spelldata.MustFind(1306483).ProcChance) / 100
+				want := trials * chance
+				if math.Abs(float64(resets)-want) > 5*math.Sqrt(trials*chance*(1-chance)) {
+					t.Errorf("Lacerate resets %d, expected around %g", resets, want)
+				}
+			} else if resets != 0 {
+				t.Errorf("%s caused %d resets", kind, resets)
+			}
+		})
 	}
 }

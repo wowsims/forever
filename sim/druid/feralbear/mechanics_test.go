@@ -3,6 +3,7 @@
 package feralbear
 
 import (
+	"fmt"
 	"math"
 	"testing"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
 )
@@ -176,6 +178,50 @@ func TestBerserkClearsARunningPrimalBiteCooldown(t *testing.T) {
 	if !bear.PrimalBite.IsReady(sim) {
 		t.Errorf("primal bite is on cooldown until %v once berserk starts", bear.PrimalBite.ReadyAt())
 	}
+}
+
+func TestBearBerserkCastLeavesTheAttackGlobalUnchanged(t *testing.T) {
+	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
+	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Primal Bite did not cast")
+	}
+	ready := bear.GCD.ReadyAt()
+	if !bear.Berserk.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Berserk did not cast during the attack global")
+	}
+	if bear.GCD.ReadyAt() != ready {
+		t.Fatal("Berserk changed the attack global")
+	}
+	if !bear.PrimalBite.IsReady(sim) {
+		t.Fatal("Berserk left Primal Bite on cooldown")
+	}
+	t.Logf("Berserk GCD=%s; attack global ready at %s; Primal Bite ready=%v", bear.Berserk.DefaultCast.GCD, ready, bear.PrimalBite.IsReady(sim))
+}
+
+func TestBearBarkskinReducesPhysicalDamageWithoutLeavingForm(t *testing.T) {
+	sim, bear := newBear(t)
+	before := bear.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexPhysical]
+	if !bear.Barkskin.Cast(sim, &bear.Unit) {
+		t.Fatal("Barkskin did not cast")
+	}
+	if !bear.InForm(druid.Bear) {
+		t.Fatal("Barkskin left Bear")
+	}
+	aura := bear.Barkskin.RelatedSelfBuff
+	if aura == nil || !aura.IsActive() {
+		t.Fatal("Barkskin aura is inactive")
+	}
+	want := 1 + spelldata.MustFind(spellBarkskin).EffectN(2).Percent()
+	got := bear.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexPhysical] / before
+	if math.Abs(got-want) > 1e-9 {
+		t.Fatalf("physical damage multiplier %g, want %g", got, want)
+	}
+	aura.Deactivate(sim)
+	if math.Abs(bear.PseudoStats.SchoolDamageTakenMultiplier[stats.SchoolIndexPhysical]-before) > 1e-9 {
+		t.Fatal("Barkskin modifier remained after expiration")
+	}
+	t.Logf("Barkskin physical damage multiplier=%g, GCD=%s, cooldown=%s", got, bear.Barkskin.DefaultCast.GCD, bear.Barkskin.CD.Duration)
 }
 
 func TestFrenziedRegenerationSpendsRageForHealth(t *testing.T) {
@@ -356,7 +402,7 @@ const naturalReactionTalents = "0500220000000000-55200322120132012551-0000000000
 
 // Natural Reaction 5/5 (417051): every dodge in a bear form grants 417053's 5 rage.
 func TestNaturalReactionGivesRageOnDodges(t *testing.T) {
-	req := bearRequest(bearAPL(bestBearAPL), 20)
+	req := bearRequest(selectedAdaptiveBearAPL(), 20)
 	req.Raid.Parties[0].Players[0].TalentsString = naturalReactionTalents
 	result := core.RunSim(req, nil, simsignals.CreateSignals())
 	if result.Error != nil {
@@ -402,7 +448,7 @@ func TestSwipeGainsThreePercentOfAttackPower(t *testing.T) {
 // defense, which the form scales too. The UI's bear has Thick Hide 3/3 and gear with bonus armor and
 // defense.
 func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
-	sim := core.NewSim(bearRequest(bearAPL(bestBearAPL), 1), simsignals.CreateSignals())
+	sim := core.NewSim(bearRequest(selectedAdaptiveBearAPL(), 1), simsignals.CreateSignals())
 	sim.Reset()
 	bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 	inBear := bear.GetStat(stats.Armor)
@@ -434,5 +480,195 @@ func TestThickHideArmorIsLevelTimesRank(t *testing.T) {
 		if got := armorAt(rank) - base; math.Abs(got-want) > 1e-6 {
 			t.Errorf("Thick Hide %d/3 adds %g armor in Dire Bear Form, want %g", rank, got, want)
 		}
+	}
+}
+
+func TestMaulQueueSpendsRageAtTheSwing(t *testing.T) {
+	sim, bear := newBear(t)
+	before := bear.CurrentRage()
+	if !bear.Maul.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Maul did not queue")
+	}
+	if bear.CurrentRage() != before {
+		t.Fatal("queueing Maul spent rage")
+	}
+	for sim.CurrentTime < 100*time.Millisecond {
+		if sim.Step() {
+			break
+		}
+	}
+	maul := bear.TryMaul(sim, nil)
+	if maul == nil {
+		t.Fatal("queued Maul was missing")
+	}
+	cost := maul.Cost.GetCurrentCost()
+	if !maul.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("funded Maul did not cast")
+	}
+	if got := bear.CurrentRage(); got >= before || got < before-cost {
+		t.Errorf("swing rage %g, expected cost or avoidance refund from %g", got, before)
+	}
+}
+
+func TestMaulFallsBackWhenTheQueuedSwingIsUnaffordable(t *testing.T) {
+	sim, bear := newBear(t)
+	if !bear.Maul.Cast(sim, bear.CurrentTarget) {
+		t.Fatal("Maul did not queue")
+	}
+	for sim.CurrentTime < 100*time.Millisecond {
+		if sim.Step() {
+			break
+		}
+	}
+	bear.SpendRage(sim, bear.CurrentRage(), bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if bear.TryMaul(sim, nil) != nil {
+		t.Fatal("unaffordable Maul replaced the swing")
+	}
+}
+
+func TestLacerateApplicationRestartsTheTickClock(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	dot := bear.Lacerate.Dot(target)
+	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
+	for range 30 {
+		before := dot.GetStacks()
+		bear.AddRage(sim, 50, metrics)
+		bear.Lacerate.Cast(sim, target)
+		if before > 0 && dot.GetStacks() > before {
+			if got := dot.NextTickAt(); got != sim.CurrentTime+dot.TickPeriod() {
+				t.Fatalf("next Lacerate tick %s, want %s", got, sim.CurrentTime+dot.TickPeriod())
+			}
+			return
+		}
+		sim.CurrentTime += 1500 * time.Millisecond
+	}
+	t.Fatal("two Lacerates did not land")
+}
+
+func TestSapperPreservesFormsAndResources(t *testing.T) {
+	for _, form := range []druid.DruidForm{druid.Cat, druid.Bear, druid.DireBear} {
+		t.Run(fmt.Sprint(form), func(t *testing.T) {
+			req := bearNakedRequest()
+			p := req.Raid.Parties[0].Players[0]
+			p.Profession1 = proto.Profession_Engineering
+			p.Consumables = &proto.ConsumesSpec{ExtraIds: []int32{10646}}
+			p.Rotation = &proto.APLRotation{}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.ClearForm(sim)
+			switch form {
+			case druid.Cat:
+				bear.CatFormAura.Activate(sim)
+			case druid.Bear:
+				bear.BearFormAura.Activate(sim)
+			case druid.DireBear:
+				bear.DireBearFormAura.Activate(sim)
+			}
+			mana, energy, gcd, health := bear.CurrentMana(), bear.CurrentEnergy(), bear.GCD.ReadyAt(), bear.CurrentHealth()
+			sapper := bear.GetSpell(core.ActionID{ItemID: 10646})
+			if !sapper.Cast(sim, bear.CurrentTarget) {
+				t.Fatal("Sapper failed in form")
+			}
+			if !bear.InForm(form) || bear.CurrentMana() != mana || bear.CurrentEnergy() != energy || bear.GCD.ReadyAt() != gcd {
+				t.Fatal("Sapper changed form, mana, energy or GCD")
+			}
+			if bear.CurrentHealth() >= health || sapper.SpellMetrics[bear.CurrentTarget.UnitIndex].TotalDamage == 0 {
+				t.Fatal("Sapper did not damage both the user and target")
+			}
+		})
+	}
+}
+
+func TestBearChargeMovement(t *testing.T) {
+	for _, distance := range []float64{8, 25} {
+		t.Run(fmt.Sprintf("distance_%g", distance), func(t *testing.T) {
+			req := bearNakedRequest()
+			req.Raid.Tanks = nil
+			player := req.Raid.Parties[0].Players[0]
+			player.TalentsString = "000000-000000001001"
+			player.Rotation = &proto.APLRotation{}
+			player.DistanceFromTarget = distance
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			for iteration := 0; iteration < 2; iteration++ {
+				sim.Reset()
+				speed := bear.GetMovementSpeed()
+				bear.AddRage(sim, 20, bear.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRefund}))
+				rage := bear.CurrentRage()
+				gcd := bear.NextGCDAt()
+				if !bear.FeralCharge.Cast(sim, bear.CurrentTarget) {
+					t.Fatal("Bear Charge did not cast")
+				}
+				if bear.CurrentRage() != rage-bear.FeralCharge.DefaultCast.Cost {
+					t.Fatal("Charge spent the wrong amount of rage")
+				}
+				if bear.NextGCDAt() != gcd {
+					t.Fatal("Bear Charge triggered the global cooldown")
+				}
+				if !bear.Moving || bear.DistanceFromTarget != distance || bear.GetMovementSpeed() != speed*3 {
+					t.Fatal("Charge did not begin accelerated movement from the starting distance")
+				}
+				if bear.AutoAttacks.MHAuto().SpellMetrics[bear.CurrentTarget.UnitIndex].Casts != 0 {
+					t.Fatal("Charge triggered an out-of-range swing")
+				}
+				for bear.Moving {
+					if sim.Step() {
+						t.Fatal("simulation ended during Charge")
+					}
+				}
+				if bear.DistanceFromTarget != core.MaxMeleeRange-1 || math.Abs(bear.GetMovementSpeed()-speed) > 1e-9 {
+					t.Fatal("Charge did not finish in melee and restore movement speed")
+				}
+				if sim.CurrentTime <= 0 || sim.CurrentTime > time.Second+time.Millisecond {
+					t.Fatalf("unexpected arrival time %s", sim.CurrentTime)
+				}
+				for bear.AutoAttacks.MHAuto().SpellMetrics[bear.CurrentTarget.UnitIndex].Casts == 0 {
+					if sim.Step() {
+						t.Fatal("simulation ended before the first melee swing")
+					}
+				}
+				if sim.CurrentTime > time.Second+time.Millisecond {
+					t.Fatal("Charge added a landing swing delay")
+				}
+				for !sim.Step() {
+				}
+				sim.Cleanup()
+			}
+		})
+	}
+}
+
+func TestBearChargeRequiresRangeRageAndTalent(t *testing.T) {
+	for _, tc := range []struct {
+		name           string
+		distance, rage float64
+		talents        string
+	}{
+		{"too_close", 5, 20, "000000-000000001001"},
+		{"too_far", 26, 20, "000000-000000001001"},
+		{"no_rage", 25, 0, "000000-000000001001"},
+		{"no_talent", 25, 20, "000000-000000000001"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			req := bearNakedRequest()
+			req.Raid.Tanks = nil
+			player := req.Raid.Parties[0].Players[0]
+			player.Rotation = &proto.APLRotation{}
+			player.TalentsString = tc.talents
+			player.DistanceFromTarget = tc.distance
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.AddRage(sim, tc.rage, bear.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRefund}))
+			speed := bear.GetMovementSpeed()
+			if bear.FeralCharge.Cast(sim, bear.CurrentTarget) {
+				t.Fatal("Charge cast without meeting its requirements")
+			}
+			if bear.Moving || bear.DistanceFromTarget != tc.distance || bear.GetMovementSpeed() != speed || bear.CurrentRage() != tc.rage {
+				t.Fatal("Failed Charge changed movement or rage")
+			}
+		})
 	}
 }

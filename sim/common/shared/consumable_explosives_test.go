@@ -213,15 +213,10 @@ func TestCrystalChargeLandsAfterItsFlight(t *testing.T) {
 	}
 }
 
-// An explosive that requires Engineering cannot be used in a shapeshift form, which the game files do
-// not mark on its spell; one anyone can throw, such as the dynamite, keeps no such requirement.
-func TestEngineeringExplosivesCannotBeUsedShapeshifted(t *testing.T) {
-	_, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExplosiveId: testDynamiteID, ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 1)
-	if sapper := onUseSpell(t, caster, goblinSapperID); !sapper.CastRequirement.NotShapeshifted {
-		t.Error("the Engineering sapper can be used in a shapeshift form")
-	}
-	if dynamite := onUseSpell(t, caster, testDynamiteID); dynamite.CastRequirement.NotShapeshifted {
-		t.Error("the dynamite, which needs no profession, cannot be used in a shapeshift form")
+func TestSapperAllowsShapeshiftedUse(t *testing.T) {
+	_, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 1)
+	if sapper := onUseSpell(t, caster, goblinSapperID); sapper.CastRequirement.NotShapeshifted {
+		t.Error("Sapper requires leaving form")
 	}
 }
 

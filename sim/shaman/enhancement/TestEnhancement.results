@@ -846,12 +846,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 641.20835
+  tps: 481.38233
+  dtps: 7.19811
+  hps: 30.58472
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TheElements"
  value: {
   dps: 604.00144
   tps: 455.12717
   dtps: 7.20118
   hps: 29.92389
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 641.20835
+  tps: 481.38233
+  dtps: 7.19811
+  hps: 30.58472
  }
 }
 dps_results: {
