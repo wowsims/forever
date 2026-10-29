@@ -10,10 +10,10 @@ import (
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
 const ThreatPerRageGained = 5
 
-// Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit before any of the
-// defender's mitigation (armor, block and absorbs included), c is the rage conversion value at the attacker's level
-// (230.6 at 60) and A is the armor reduction the game assumes in place of the defender's own. The defender's level,
-// health and armor play no part.
+// Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
+// damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor, resistances, flat damage
+// taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level (230.6 at 60) and A is the
+// armor reduction the game assumes in place of the defender's own. The defender's level, health and armor play no part.
 const DamageTakenRageFactor = 2.5
 
 // A by the attacker's level: 20% up to level 42, 30% at 44, 36% at 46 and 38% at 50, measured on combat logs, and
@@ -99,7 +99,7 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 		}
 
 		attackerLevel := spell.Unit.Level
-		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * result.PreMitigationDamage /
+		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * result.PreArmorDamage /
 			rageConversion(attackerLevel) * unit.rageBar.damageTakenRageMultiplier
 
 		unit.AddRage(sim, generatedRage, rageFromDamageTakenMetrics)
