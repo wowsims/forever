@@ -122,15 +122,14 @@ one row of each family against what core reads back. [Weapon requirements and th
 covers how a rating mask is read and which hit and crit rows become mods on one weapon's attacks.
 
 A spell school's hit talent states `SPELLMOD_RESIST_MISS_CHANCE` on the class flags of that school's
-spells: Arcane Focus 11222, Elemental Precision 29438 (Fire and Frost), Shadow Focus 15260, Holy
-Precision 1309957 and Divine Precision 1310904. Parse it, and the mod raises the hit of exactly the
-spells the flags name, on whichever table they roll: Divine Precision reaches Holy Strike's melee roll.
-Class flags carry no school, so the character sheet cannot place that hit in a school's row on its own.
-For a talent whose spells are the class's main spells of a school, the class passes the schools its
-tooltip names, `spelldata.ShowAsSchoolHit(core.SpellSchoolFire | core.SpellSchoolFrost)`. The mod then
-carries them as `ShowAsSchoolHit`, and the sheet adds the hit to those schools' rows while the mod is
-active: from the talents stage on for a `ParseStatic` in `ApplyTalents`, and while the aura is up for a
-`ParseEffects`. It changes no spell the mod reaches, so the row is the hit of the talent's spells: a
+spells: Shadow Focus 15260, Holy Precision 1309957 and Divine Precision 1310904. Parse it, and the
+mod raises the hit of exactly the spells the flags name, on whichever table they roll: Divine
+Precision reaches Holy Strike's melee roll. Class flags carry no school, so the character sheet cannot
+place that hit in a school's row on its own. For a talent whose spells are the class's main spells of
+a school, the class passes the schools its tooltip names,
+`spelldata.ShowAsSchoolHit(core.SpellSchoolShadow)`. The mod then carries them as `ShowAsSchoolHit`,
+and the sheet adds the hit to those schools' rows while the mod is active: from the talents stage on
+for a `ParseStatic` in `ApplyTalents`, and while the aura is up for a `ParseEffects`. It changes no spell the mod reaches, so the row is the hit of the talent's spells: a
 spell of the school the flags miss, such as Holy Shield's damage under Divine Precision, keeps the base
 spell hit, and the reforge optimizer's hit caps read the row as it stands. A row that attaches no hit
 modifier panics with the option; a Nil row, an untaken rank, parses nothing. `PseudoStats.SchoolBonusHitChance`
