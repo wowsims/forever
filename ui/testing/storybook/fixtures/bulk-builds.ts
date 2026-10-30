@@ -3,7 +3,7 @@ import type { BulkBundleDialogViewProps } from '@features/bulk/components/BulkBu
 import type { BulkBundleListProps } from '@features/bulk/components/BulkBundleList';
 import type { BulkCheckRow } from '@features/bulk/components/BulkCheckList';
 import type { EncounterListViewProps } from '@features/bulk/components/EncounterList';
-import type { SavedRef } from '@features/bulk/model/saved_refs';
+import type { SavedRef } from '@features/bulk/model/builds/saved_refs';
 import i18n from '@i18n/config';
 import { fn } from 'storybook/test';
 

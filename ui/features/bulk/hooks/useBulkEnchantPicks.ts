@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { bulkEnchantPickEntries } from '../model/enchant_picks';
+import { bulkEnchantPickEntries } from '../model/builds/enchant_picks';
 import { useBulkState } from './useBulkState';
 
 export const useBulkEnchantPicks = () => {

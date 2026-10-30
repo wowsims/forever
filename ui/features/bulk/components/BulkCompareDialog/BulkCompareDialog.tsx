@@ -8,13 +8,13 @@ import { Dialog } from '@ui-kit/Dialog';
 import { useMemo } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { changedEnchantLabels, changedItemLabels, compareMatrix, type GainTint, type MatrixCell } from '../../model/compare';
-import { encounterLabel, formatEncounterDuration } from '../../model/encounters';
-import { formatBulkDps } from '../../model/format';
-import { gearSetupLabel } from '../../model/gear_setups';
-import { rotationLabel } from '../../model/rotations';
-import { settingsLabel } from '../../model/settings_entries';
-import { talentsLabel } from '../../model/talents';
+import { encounterLabel, formatEncounterDuration } from '../../model/builds/encounters';
+import { gearSetupLabel } from '../../model/builds/gear_setups';
+import { rotationLabel } from '../../model/builds/rotations';
+import { settingsLabel } from '../../model/builds/settings_entries';
+import { talentsLabel } from '../../model/builds/talents';
+import { changedEnchantLabels, changedItemLabels, compareMatrix, type GainTint, type MatrixCell } from '../../model/results/compare';
+import { formatBulkDps } from '../../model/results/format';
 import { BulkCompareTable, type BulkCompareTableProps } from '../BulkCompareTable';
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.compare.${key}`, options);

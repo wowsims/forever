@@ -11,10 +11,10 @@ import { useId } from 'react';
 
 import { useBulkMode } from '../../hooks/useBulkMode';
 import { useBulkState } from '../../hooks/useBulkState';
-import type { BulkBuildsCount } from '../../model/builds';
-import { bulkIterationsLimit } from '../../model/limits';
+import type { BulkBuildsCount } from '../../model/builds/builds';
+import { bulkIterationsLimit } from '../../model/run/limits';
+import { bulkTopResults } from '../../model/run/top_results';
 import { bulkGearIterations } from '../../model/selectors';
-import { bulkTopResults } from '../../model/top_results';
 
 type CombinationsCountBuilds = Pick<BulkBuildsCount, 'setups' | 'bundles' | 'encounters' | 'runs' | 'builds' | 'totalIterations' | 'largestRequestIterations'>;
 

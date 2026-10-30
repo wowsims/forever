@@ -4,7 +4,7 @@ import { Icon } from '@ui-kit/Icon';
 import { downloadString } from '@ui-kit/utils/dom';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { BULK_RESULTS_CSV_FILE_NAME, bulkResultsCsv } from '../../model/results_csv';
+import { BULK_RESULTS_CSV_FILE_NAME, bulkResultsCsv } from '../../model/results/results_csv';
 
 export interface BulkResultsCsvButtonViewProps {
 	onExport: () => void;

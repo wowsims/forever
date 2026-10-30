@@ -11,7 +11,7 @@ type Listener = (progress: unknown) => void;
 
 const run = vi.hoisted(() => ({ progress: null as unknown, listeners: new Set<Listener>() }));
 
-vi.mock('../../model/run', () => ({
+vi.mock('../../model/run/run', () => ({
 	bulkProgress: () => run.progress,
 	subscribeBulkProgress: (_player: unknown, listener: Listener) => {
 		run.listeners.add(listener);

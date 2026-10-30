@@ -22,7 +22,7 @@ import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { compareGearSet } from '@testing/storybook/fixtures/bulk-compare';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import english from '../../../../assets/locales/en/translation.json';
+import english from '../../../../../assets/locales/en/translation.json';
 import {
 	addBulkBundle,
 	bulkBundleList,

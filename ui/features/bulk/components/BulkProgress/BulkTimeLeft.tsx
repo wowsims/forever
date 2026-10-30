@@ -3,8 +3,8 @@ import { usePlayer } from '@sim/context/SimHostContext';
 import { formatDurationSeconds } from '@sim/utils/format';
 import { useEffect, useState } from 'react';
 
-import { batchSecondsRemaining, roundSecondsRemaining, smoothSecondsRemaining } from '../../model/progress';
-import { bulkProgress } from '../../model/run';
+import { batchSecondsRemaining, roundSecondsRemaining, smoothSecondsRemaining } from '../../model/run/progress';
+import { bulkProgress } from '../../model/run/run';
 
 const TICK_MS = 1000;
 

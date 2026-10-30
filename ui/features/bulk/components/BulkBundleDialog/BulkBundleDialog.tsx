@@ -5,8 +5,8 @@ import { ChoiceField } from '@ui-kit/ChoiceField';
 import { Dialog } from '@ui-kit/Dialog';
 import { useId, useState } from 'react';
 
-import { type bundleOptions, CURRENT_REF } from '../../model/bundles';
-import { sameRef, type SavedRef } from '../../model/saved_refs';
+import { type bundleOptions, CURRENT_REF } from '../../model/builds/bundles';
+import { sameRef, type SavedRef } from '../../model/builds/saved_refs';
 
 type PickerId = 'gearSet' | 'talents' | 'rotation' | 'settings';
 

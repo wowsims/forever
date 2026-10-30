@@ -4,7 +4,7 @@ import { bulkState, patchBulkState, storeBulkTopResults } from '@sim/settings/bu
 import type { BulkMode, BulkSlice } from '@sim/state/sim_store';
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from '@sim/wasm/bulk_sim/constants_auto_gen';
 
-import { bulkRunsBuilds } from './mode';
+import { bulkRunsBuilds } from '../mode';
 
 /** How many results a batch ranks per encounter; 0 is All. With power tools off Gear ranks 5, whatever is stored. */
 export const bulkTopResults = (powerTools: boolean, slice: Pick<BulkSlice, 'mode' | 'gearTopResults' | 'buildsTopResults'>): number => {

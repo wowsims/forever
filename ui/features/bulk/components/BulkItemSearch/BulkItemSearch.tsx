@@ -8,8 +8,8 @@ import { ContentBlock } from '@ui-kit/ContentBlock';
 import { NumberField } from '@ui-kit/TextField';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { addBulkItem } from '../../model/items';
-import { type BulkSearchResult, byIlvlDescending, MAX_SEARCH_RESULTS, searchBulkItems } from '../../model/search';
+import { addBulkItem } from '../../model/gear/items';
+import { type BulkSearchResult, byIlvlDescending, MAX_SEARCH_RESULTS, searchBulkItems } from '../../model/gear/search';
 import { BulkItemSearchRow } from './BulkItemSearchRow';
 
 export interface BulkItemSearchProps {

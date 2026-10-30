@@ -34,9 +34,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 import english from '../../../../../assets/locales/en/translation.json';
 import { BulkBuildsProvider } from '../../context/BulkBuildsContext';
-import { setBulkCurrentBundleChecked } from '../../model/bundles';
-import { setBulkEnchantPickChecked } from '../../model/enchant_picks';
-import { CURRENT_ENCOUNTER_REF, setBulkEncounterChecked } from '../../model/encounters';
+import { setBulkCurrentBundleChecked } from '../../model/builds/bundles';
+import { setBulkEnchantPickChecked } from '../../model/builds/enchant_picks';
+import { CURRENT_ENCOUNTER_REF, setBulkEncounterChecked } from '../../model/builds/encounters';
 import { BuildBundles } from '../BuildBundles';
 import type { BulkSettingsViewProps } from './BulkSettings';
 
@@ -61,12 +61,12 @@ vi.mock('@sim/bulk/utils', async () => {
 	const actual = await vi.importActual<typeof import('@sim/bulk/utils')>('@sim/bulk/utils');
 	return { ...actual, getBulkPlayerCanDualWield: () => true, getBulkFreezeWeaponTypes: () => [] };
 });
-vi.mock('../../model/run', () => ({ runBulkBatch: vi.fn() }));
+vi.mock('../../model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
 // Passing the web limit takes some hundred candidates in one run, so the warning case sets a limit of its own.
-vi.mock('../../model/limits', async () => {
-	const actual = await vi.importActual<typeof import('../../model/limits')>('../../model/limits');
+vi.mock('../../model/run/limits', async () => {
+	const actual = await vi.importActual<typeof import('../../model/run/limits')>('../../model/run/limits');
 	return { ...actual, bulkIterationsLimit: (isNative: boolean | undefined) => limits.iterations ?? actual.bulkIterationsLimit(isNative) };
 });
 

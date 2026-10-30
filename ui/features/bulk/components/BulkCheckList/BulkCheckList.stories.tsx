@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import type { SavedRef } from '../../model/saved_refs';
+import type { SavedRef } from '../../model/builds/saved_refs';
 import { BulkCheckList, type BulkCheckListProps, type BulkCheckRow } from './BulkCheckList';
 
 const StatefulCheckList = (props: BulkCheckListProps) => {

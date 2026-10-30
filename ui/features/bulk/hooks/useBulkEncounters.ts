@@ -5,7 +5,7 @@ import { useSimHost, useSpecPresets } from '@sim/context/SimHostContext';
 import { useMemo } from 'react';
 import { useStore } from 'zustand';
 
-import { bulkEncounterEntries, type BulkEncounterEntry } from '../model/encounters';
+import { bulkEncounterEntries, type BulkEncounterEntry } from '../model/builds/encounters';
 import { useBulkState } from './useBulkState';
 
 // The same sources the batch resolves when it starts: the spec's preset encounters, the user's saved ones and the live

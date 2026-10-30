@@ -4,7 +4,7 @@ import type { ProgressTrackerHandle } from '@ui-kit/ProgressTrackerDialog';
 import { ProgressTrackerDialog } from '@ui-kit/ProgressTrackerDialog';
 import { useEffect, useRef, useState } from 'react';
 
-import { bulkProgress, cancelBulkBatch, subscribeBulkProgress } from '../../model/run';
+import { bulkProgress, cancelBulkBatch, subscribeBulkProgress } from '../../model/run/run';
 import { BulkIterations } from './BulkIterations';
 import { type BulkProgressStepsHandle, HandleBulkProgressSteps } from './BulkProgressSteps';
 import { BulkTimeLeft } from './BulkTimeLeft';

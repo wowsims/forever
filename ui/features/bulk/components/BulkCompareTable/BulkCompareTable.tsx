@@ -5,7 +5,7 @@ import { cssVars } from '@ui-kit/utils/css';
 import clsx from 'clsx';
 import { useId } from 'react';
 
-import type { GainTint } from '../../model/compare';
+import type { GainTint } from '../../model/results/compare';
 import { BulkEnchantsDiffer } from '../BulkEnchantsDiffer';
 import { type BulkSetupKind, BulkSetupLabel } from '../BulkSetupLabel';
 

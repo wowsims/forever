@@ -5,7 +5,7 @@ import { Spinner } from '@ui-kit/Spinner';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { type Ref, useImperativeHandle, useState } from 'react';
 
-import type { BulkBuildStep } from '../../model/builds';
+import type { BulkBuildStep } from '../../model/builds/builds';
 
 export interface BulkProgressStepsProps {
 	rows: readonly BulkBuildStep[];

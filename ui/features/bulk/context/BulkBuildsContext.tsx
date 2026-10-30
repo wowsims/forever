@@ -17,10 +17,10 @@ import {
 	bulkPlanRuns,
 	bulkRunningPlans,
 	type ResolveBuildRotation,
-} from '../model/builds';
-import { bulkBundleRuns } from '../model/bundles';
-import { bulkEnchantPickRuns } from '../model/enchant_picks';
-import { bulkEncounterRuns } from '../model/encounters';
+} from '../model/builds/builds';
+import { bulkBundleRuns } from '../model/builds/bundles';
+import { bulkEnchantPickRuns } from '../model/builds/enchant_picks';
+import { bulkEncounterRuns } from '../model/builds/encounters';
 
 interface BulkBuildsPlan {
 	/** What the bundles are read from, as the batch resolves them when it starts. */

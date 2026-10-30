@@ -1,7 +1,7 @@
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { useId } from 'react';
 
-import type { SavedRef } from '../../model/saved_refs';
+import type { SavedRef } from '../../model/builds/saved_refs';
 
 export interface BulkCheckRow {
 	ref: SavedRef;

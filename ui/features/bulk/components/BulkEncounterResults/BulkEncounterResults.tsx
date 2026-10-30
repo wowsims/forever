@@ -7,8 +7,8 @@ import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import type { ReactNode } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { encounterLabel, formatEncounterDuration } from '../../model/encounters';
-import { formatBulkDps } from '../../model/format';
+import { encounterLabel, formatEncounterDuration } from '../../model/builds/encounters';
+import { formatBulkDps } from '../../model/results/format';
 
 interface BulkEncounterResultRow {
 	label: string;

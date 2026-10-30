@@ -7,13 +7,13 @@ import type { EquippedItem } from '@sim/proto/equipped_item';
 import { type CsvValue, toCsv } from '@sim/utils/csv';
 import { stDevToConf95 } from '@sim/utils/math';
 
+import { encounterLabel } from '../builds/encounters';
+import { gearSetupLabel } from '../builds/gear_setups';
+import { rotationLabel } from '../builds/rotations';
+import { settingsLabel } from '../builds/settings_entries';
+import { talentsLabel } from '../builds/talents';
 import { changedEnchantLabels } from './compare';
-import { encounterLabel } from './encounters';
 import { formatBulkItemLabel } from './format';
-import { gearSetupLabel } from './gear_setups';
-import { rotationLabel } from './rotations';
-import { settingsLabel } from './settings_entries';
-import { talentsLabel } from './talents';
 
 export const BULK_RESULTS_CSV_FILE_NAME = 'wowsims-batch-results.csv';
 

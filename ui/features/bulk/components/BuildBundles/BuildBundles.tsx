@@ -17,8 +17,8 @@ import {
 	replaceBulkBundle,
 	setBulkBundleChecked,
 	setBulkCurrentBundleChecked,
-} from '../../model/bundles';
-import { bulkEnchantPickList, formatEnchantPickSummary, setBulkEnchantPickChecked } from '../../model/enchant_picks';
+} from '../../model/builds/bundles';
+import { bulkEnchantPickList, formatEnchantPickSummary, setBulkEnchantPickChecked } from '../../model/builds/enchant_picks';
 import { BulkBundleDialog } from '../BulkBundleDialog';
 import { BulkBundleList, type BulkBundleListProps } from '../BulkBundleList';
 import { BulkCheckList, type BulkCheckRow } from '../BulkCheckList';

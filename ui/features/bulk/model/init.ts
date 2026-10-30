@@ -17,9 +17,9 @@ import {
 import type { IndividualSimHost } from '@sim/sim_host';
 import { subscribeAll, subscribeBulkChange, subscribePlayerField } from '@sim/state/subscriptions';
 
-import { addBulkItems, loadEquippedBulkItems, seedBulkPickerGroups } from './items';
-import { refreshBulkCombinations } from './run';
-import { type BulkFrozenSlot, createBulkSettingsProto, setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkWeaponTypeFilter } from './settings';
+import { addBulkItems, loadEquippedBulkItems, seedBulkPickerGroups } from './gear/items';
+import { type BulkFrozenSlot, createBulkSettingsProto, setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkWeaponTypeFilter } from './gear/settings';
+import { refreshBulkCombinations } from './run/run';
 
 const equippedItemForFrozenSlot = (player: Player<any>, bulkSlot: BulkFrozenSlot, itemSlot: number): EquippedItem | null => {
 	const slots = BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(bulkSlot);

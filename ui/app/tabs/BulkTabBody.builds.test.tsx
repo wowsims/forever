@@ -1,4 +1,4 @@
-import { CURRENT_ENCOUNTER_REF } from '@features/bulk/model/encounters';
+import { CURRENT_ENCOUNTER_REF } from '@features/bulk/model/builds/encounters';
 import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Encounter, EquipmentSpec, ItemSlot, ItemSpec, ItemType, Race, Target } from '@generated/proto/common';

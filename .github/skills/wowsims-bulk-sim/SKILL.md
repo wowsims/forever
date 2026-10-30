@@ -30,15 +30,15 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   helpers).
 - Browser stage loop: `ui/sim/wasm/bulk_sim/` (`index`, `stage`, `batch`, `merge`, `statistics`, `progress`,
   `carry_over`, `estimate`, `types`), a line-for-line mirror of `sim/core/bulk`.
-- Feature: `ui/features/bulk/model/run.ts` (`runBulkBatch`, cancel, combination refresh), `core_sim.ts`,
-  `tie_chains.ts`, `settings.ts`; components under `ui/features/bulk/components/`; the tab is
+- Feature: `ui/features/bulk/model/run/run.ts` (`runBulkBatch`, cancel, combination refresh), `run/core_sim.ts`,
+  `results/tie_chains.ts`, `gear/settings.ts`; components under `ui/features/bulk/components/`; the tab is
   `ui/app/tabs/BulkTabBody.tsx`. `ui/sim/settings/bulk_settings.ts` stores the settings, the enchant presets, the
   mode and the Builds picks.
-- Builds mode, `ui/features/bulk/model/`: `builds.ts` (the planner: `bulkGearSetSetups`, `bulkBundlePlans`,
+- Builds mode, `ui/features/bulk/model/builds/`: `builds.ts` (the planner: `bulkGearSetSetups`, `bulkBundlePlans`,
   `bulkBuildPlan`, `bulkPlanRuns`, `bulkBuildsCount`), `bundles.ts` (the bundle list, its rows and storage),
   `encounters.ts`, `settings_entries.ts`, `gear_sets.ts`, `enchant_picks.ts`, `gear_setups.ts`, `talents.ts`,
-  `rotations.ts`, `saved_refs.ts`, `results.ts`, `results_csv.ts`, `compare.ts`. The plan, its `sameAs` and the count
-  are built once per change in `ui/features/bulk/context/BulkBuildsContext.tsx`: `BulkBuildsProvider` wraps the Setup
+  `rotations.ts`, `saved_refs.ts`; its results in `ui/features/bulk/model/results/` (`results.ts`, `results_csv.ts`,
+  `compare.ts`). The plan, its `sameAs` and the count are built once per change in `ui/features/bulk/context/BulkBuildsContext.tsx`: `BulkBuildsProvider` wraps the Setup
   pane in `BulkTabBody.tsx`, and `useBulkBuildsPlan` (null outside Builds) hands them to the Builds column and the run
   card.
 - Enchant presets: `ui/features/enchant-presets/` (model, `EnchantPresets` tiles and dialog).
@@ -340,7 +340,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   `bulk-build-enchant-presets.v1` (the enchant presets checked in Builds, apart from Gear mode's pick in
   `bulk-enchant-presets.v1`) and `bulk-mode.v1`. None of the Builds picks bumps the slice's `settings` counter.
 - With two or more finished encounters and power tools on, the encounter list offers Compare encounters: a table
-  (`compareMatrix` in `ui/features/bulk/model/compare.ts`) with the current gear's row, then every set's, and a column
+  (`compareMatrix` in `ui/features/bulk/model/results/compare.ts`) with the current gear's row, then every set's, and a column
   per encounter by fight length, health-based ones last. Each cell is the set's gain over the current gear (in % of
   the current gear's DPS), tinted on a diverging scale (`gainTint`, five steps either way, each a fifth of the table's
   largest gain or loss), with the encounter's best outlined and a dashed gap where the encounter did not rank the set;
@@ -350,7 +350,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   set keeps one "S<N>" number across all encounters, by `bulkResultKey`. Under its number a Builds set names every
   part of its bundle, the gear set with the enchants it changes, the talents, the rotation and the settings; a
   Gear-mode set lists the items it changes (`changedItemLabels`); rings, trinkets or a dual wielder's weapons that
-  only change places count as unchanged, as in the result rows (`ui/features/bulk/model/swappable_slots.ts`).
+  only change places count as unchanged, as in the result rows (`ui/features/bulk/model/gear/swappable_slots.ts`).
 - The Setup/Results tab strip spans the batch tab, and each pane has its own columns. Setup holds the settings
   sidebar, which in Builds is the run card alone. Results holds the ranking and the encounter list
   (`BulkEncounterResults`, a vertical, neutral-tone `ToggleGroup`), shown for one finished encounter too; picking a

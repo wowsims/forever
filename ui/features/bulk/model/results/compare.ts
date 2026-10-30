@@ -11,9 +11,9 @@ import type {
 } from '@sim/bulk/types';
 import type { Gear } from '@sim/proto/gear';
 
+import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from '../gear/swappable_slots';
 import { formatBulkItemLabel } from './format';
 import { bulkResultKey } from './results';
-import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from './swappable_slots';
 
 interface ComparedSet {
 	key: string;

@@ -6,10 +6,10 @@ import type { IndividualSimHost } from '@sim/sim_host';
 import { batch } from '@sim/state/batch';
 import { bulkSimHighStageFloor } from '@sim/wasm/bulk_sim/estimate';
 
-import type { CoreBulkSimResult } from './core_sim';
-import { bonusStatsKey } from './gear_setups';
-import { rotationKey } from './rotations';
-import { settingsContentKey } from './settings_entries';
+import { bonusStatsKey } from '../builds/gear_setups';
+import { rotationKey } from '../builds/rotations';
+import { settingsContentKey } from '../builds/settings_entries';
+import type { CoreBulkSimResult } from '../run/core_sim';
 import { buildTieChains } from './tie_chains';
 
 export interface BulkFinishedRequest {

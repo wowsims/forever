@@ -1,7 +1,7 @@
 import type { BulkSlice } from '@sim/state/sim_store';
 import { estimateBulkSimIterations } from '@sim/wasm/bulk_sim/estimate';
 
-import type { BulkBuildsCount } from './builds';
+import type { BulkBuildsCount } from './builds/builds';
 
 /** The Gear run's minimum iterations at its top results (0 for All); 0 while the count reports an error. */
 export const bulkGearIterations = (slice: BulkSlice, topResults: number): number =>

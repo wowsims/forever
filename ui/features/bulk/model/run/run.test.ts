@@ -29,15 +29,15 @@ import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIEnchant } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
-import { compareMatrix } from './compare';
+import { setBulkMode } from '../mode';
+import { compareMatrix } from '../results/compare';
 import { runCoreBulkSim } from './core_sim';
-import { setBulkMode } from './mode';
 import { bulkProgress, cancelBulkBatch, refreshBulkCombinations, runBulkBatch } from './run';
 import { setBulkTopResults } from './top_results';
 
 // i18n is not mocked: the test loader has no resources, so every label reads as its key.
 vi.mock('./core_sim', () => ({ runCoreBulkSim: vi.fn() }));
-vi.mock('../../../tracking/utils', () => ({ trackEvent: () => {} }));
+vi.mock('../../../../tracking/utils', () => ({ trackEvent: () => {} }));
 // The stub host has none of the getters the live settings are read from, so they read as the defaults.
 vi.mock('@features/settings/model/saved_settings', async importOriginal => {
 	const { SavedSettings: Settings } = await import('@generated/proto/ui');

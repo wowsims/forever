@@ -4,8 +4,14 @@ import { usePlayer } from '@sim/context/SimHostContext';
 import { useMemo } from 'react';
 
 import { useBulkEncounters } from '../../hooks/useBulkEncounters';
-import { bulkEncounterList, CURRENT_ENCOUNTER_REF, currentEncounterChecked, formatEncounterSummary, setBulkEncounterChecked } from '../../model/encounters';
-import type { SavedRef } from '../../model/saved_refs';
+import {
+	bulkEncounterList,
+	CURRENT_ENCOUNTER_REF,
+	currentEncounterChecked,
+	formatEncounterSummary,
+	setBulkEncounterChecked,
+} from '../../model/builds/encounters';
+import type { SavedRef } from '../../model/builds/saved_refs';
 import { BulkCheckList, type BulkCheckListProps, type BulkCheckRow } from '../BulkCheckList';
 
 export interface EncounterListViewProps {

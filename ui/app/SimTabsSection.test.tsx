@@ -21,7 +21,7 @@ vi.mock('@sim/bulk/utils', async () => {
 	const actual = await vi.importActual<typeof import('@sim/bulk/utils')>('@sim/bulk/utils');
 	return { ...actual, getBulkPlayerCanDualWield: () => false };
 });
-vi.mock('@features/bulk/model/run', () => ({ runBulkBatch: vi.fn() }));
+vi.mock('@features/bulk/model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
 vi.mock('@features/results/components/DetailedResults', () => ({ DetailedResults: () => null }));

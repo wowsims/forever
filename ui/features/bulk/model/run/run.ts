@@ -14,16 +14,16 @@ import { BULK_SIM_DEFAULT_TOP_RESULTS } from '@sim/wasm/bulk_sim/constants_auto_
 import { estimateBulkSimIterations } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
 
-import { trackEvent } from '../../../tracking/utils';
-import { bulkBuildPlan, type BulkBuildStep, bulkBuildStep, bulkBundlePlans, bulkGearSetSetups, bulkPlanRuns } from './builds';
-import { bulkBundleRuns, pickableBulkBundleParts } from './bundles';
+import { trackEvent } from '../../../../tracking/utils';
+import { bulkBuildPlan, type BulkBuildStep, bulkBuildStep, bulkBundlePlans, bulkGearSetSetups, bulkPlanRuns } from '../builds/builds';
+import { bulkBundleRuns, pickableBulkBundleParts } from '../builds/bundles';
+import { bulkEnchantPickEntries, bulkEnchantPickRuns } from '../builds/enchant_picks';
+import { bulkEncounterRuns, encounterLength, pickableBulkEncounters } from '../builds/encounters';
+import { createBulkSettingsProto } from '../gear/settings';
+import { bulkRunsBuilds } from '../mode';
+import { type BulkFinishedRequest, rankEncounterResults } from '../results/results';
 import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
-import { bulkEnchantPickEntries, bulkEnchantPickRuns } from './enchant_picks';
-import { bulkEncounterRuns, encounterLength, pickableBulkEncounters } from './encounters';
-import { bulkRunsBuilds } from './mode';
 import { BulkProgress, type BulkRequestIterations, type BulkStepsTiming, candidateGearProgress, requestIterationsProgress, simProgress } from './progress';
-import { type BulkFinishedRequest, rankEncounterResults } from './results';
-import { createBulkSettingsProto } from './settings';
 import { bulkTopResults } from './top_results';
 
 // The stored settings plus the enchant pool, which is derived from the presets and never stored.

@@ -11,11 +11,11 @@ import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { useSimReady } from '@sim/hooks/useSimReady';
 import { useMemo } from 'react';
 
-import type { BulkBundleParts, CurrentBundle } from '../model/bundles';
-import { bulkGearSetEntries, type BulkGearSetEntry } from '../model/gear_sets';
-import { bulkRotationEntries } from '../model/rotations';
-import { bulkSettingsEntries } from '../model/settings_entries';
-import { bulkTalentEntries } from '../model/talents';
+import type { BulkBundleParts, CurrentBundle } from '../model/builds/bundles';
+import { bulkGearSetEntries, type BulkGearSetEntry } from '../model/builds/gear_sets';
+import { bulkRotationEntries } from '../model/builds/rotations';
+import { bulkSettingsEntries } from '../model/builds/settings_entries';
+import { bulkTalentEntries } from '../model/builds/talents';
 import { useBulkState } from './useBulkState';
 
 const NO_GEAR_SETS: BulkGearSetEntry[] = [];

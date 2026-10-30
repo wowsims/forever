@@ -6,8 +6,8 @@ import { NumberField } from '@ui-kit/TextField';
 
 import { useBulkMode } from '../../hooks/useBulkMode';
 import { useBulkState } from '../../hooks/useBulkState';
-import { bulkCombinationsLimit } from '../../model/limits';
-import { setBulkTopResults } from '../../model/top_results';
+import { bulkCombinationsLimit } from '../../model/run/limits';
+import { setBulkTopResults } from '../../model/run/top_results';
 
 export interface BulkTopResultsFieldViewProps {
 	/** 0 is All. */

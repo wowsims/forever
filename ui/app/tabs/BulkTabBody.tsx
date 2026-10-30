@@ -12,7 +12,7 @@ import { BulkBuildsProvider } from '@features/bulk/context/BulkBuildsContext';
 import { useBulkMode } from '@features/bulk/hooks/useBulkMode';
 import { useBulkResultSelection } from '@features/bulk/hooks/useBulkResultSelection';
 import { useBulkState } from '@features/bulk/hooks/useBulkState';
-import { addBulkItems, clearBulkItems } from '@features/bulk/model/items';
+import { addBulkItems, clearBulkItems } from '@features/bulk/model/gear/items';
 import { SelectorModal } from '@features/gear/components/SelectorModal';
 import { OpenSelectorModalContext, useSelectorModalState } from '@features/gear/hooks/useSelectorModal';
 import { useActivateTab } from '@features/hooks/useActivateTab';

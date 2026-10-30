@@ -3,8 +3,8 @@ import { usePlayer } from '@sim/context/SimHostContext';
 import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 
-import type { BulkProgress } from '../../model/progress';
-import { bulkProgress, subscribeBulkProgress } from '../../model/run';
+import type { BulkProgress } from '../../model/run/progress';
+import { bulkProgress, subscribeBulkProgress } from '../../model/run/run';
 
 /** Subscribes to the run's own ticks, so a tick commits this leaf and never the dialog. */
 export const BulkIterations = () => {

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { type GainScale, type GainTint, gainTint } from '../../model/compare';
+import { type GainScale, type GainTint, gainTint } from '../../model/results/compare';
 import {
 	BulkCompareTable,
 	type BulkCompareTableCell,
