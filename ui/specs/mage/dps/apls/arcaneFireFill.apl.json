@@ -13,7 +13,7 @@
 		{"action":{"condition":{"spellIsReady":{"spellId":{"spellId":1326082}}},"strictSequence":{"actions":[{"castSpell":{"spellId":{"spellId":12043}}},{"castSpell":{"spellId":{"spellId":1326082}}}]}}},
 		{"action":{"condition":{"or":{"vals":[{"cmp":{"op":"OpLt","lhs":{"auraNumStacks":{"auraId":{"spellId":400573}}},"rhs":{"const":{"val":"3"}}}},{"cmp":{"op":"OpLt","lhs":{"auraRemainingTime":{"auraId":{"spellId":400573}}},"rhs":{"spellCastTime":{"spellId":{"spellId":1239700}}}}}]}},"castSpell":{"spellId":{"spellId":1239700}}}},
 		{"action":{"castSpell":{"spellId":{"spellId":1326082}}}},
-		{"action":{"castSpell":{"spellId":{"spellId":1239700}}}},
+		{"action":{"condition":{"cmp":{"op":"OpGe","lhs":{"currentManaPercent":{}},"rhs":{"math":{"op":"OpAdd","lhs":{"const":{"val":"20%"}},"rhs":{"math":{"op":"OpMul","lhs":{"math":{"op":"OpDiv","lhs":{"remainingTime":{}},"rhs":{"const":{"val":"1s"}}}},"rhs":{"const":{"val":"1.3%"}}}}}}}},"castSpell":{"spellId":{"spellId":1239700}}}},
 		{"action":{"castSpell":{"spellId":{"spellId":10207}}}}
 	],
 	"groups": [

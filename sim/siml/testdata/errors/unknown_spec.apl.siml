@@ -1,0 +1,7 @@
+siml 1
+spec huntr
+
+// A spec line that names no spec sets no class, so the file reads only the shared names.
+priority:
+  cast hunter_shot
+  cast shared_shot

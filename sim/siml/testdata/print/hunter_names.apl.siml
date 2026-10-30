@@ -1,0 +1,24 @@
+siml 1
+spec hunter
+
+priority:
+  cast hunter_shot
+  cast hunter_shot
+  cast jom_gabbar
+  cast steady_shot_tag1
+  cast `{"spellId":900001,"tag":2}`
+  cast `{"spellId":900099}`
+  cast item.goblin_sapper_charge
+  cast `{"itemId":10646,"rank":1}`
+  cast `{"itemId":900099}`
+  cast other.offensive_potion
+  cast x
+      if aura(steady_shot).is_active
+      and target.aura(steady_shot).is_active
+      and pet1.aura(`{"spellId":900001}`).is_active
+  cast x
+      if pet1.aura(frenzy).is_active
+      and aura_is_active(frenzy, source_unit=`{"type":"Pet","owner":{"type":"Target"}}`)
+      and boss_spell(x).is_casting
+      and boss_spell(`{"spellId":900001}`).is_casting
+  cancel_aura(steady_shot) if selected_potion(item.major_frenzy_potion)

@@ -1,0 +1,6 @@
+[
+	{ "op": "set", "path": ["prepullActions", 0, "hide"], "value": true },
+	{ "op": "set", "path": ["priorityList", 0, "hide"], "value": true },
+	{ "op": "inline", "path": ["priorityList", 1, "action", "condition"] },
+	{ "op": "insert", "path": ["valueVariables"], "index": 3, "value": { "name": "var1", "value": { "const": { "val": "0" } } } }
+]

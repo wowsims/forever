@@ -1,0 +1,3 @@
+# The names simlnames -repin gave another meaning, one line each, as the run reports them (sim/siml/SPEC.md §7.4).
+# The check against a pull request's base branch accepts a name of the base's table that means something else, or
+# nothing, only when the pull request adds the name's line here. simlnames -w -repin writes the lines; keep them.

@@ -1,0 +1,7 @@
+siml 1
+
+// A slot row holds the gear, and a section the file kind does not hold is an error.
+head       lionheart_helm
+
+priority:
+  cast item.lionheart_helm

@@ -1,0 +1,18 @@
+siml 1
+spec hunter
+
+sim:
+  iterations 25000
+  phase 2
+  fixed_rng_seed 9007199254740993
+  show_damage_metrics, show_ep_values, use_custom_ep_values
+  language "en"
+  faction horde
+  filters(armor_types=[leather, mail], min_ilvl=60, min_consumable_lvl=`{"6":50}`, one_handed_weapons, favorite_items=[19019, 17182])
+  ep_weights_stats(stats(agility=2.1, attack_power=1), pseudo_stats(ranged_dps=12.5))
+  ep_ratios 1, 0.5
+  dps_ref_stat attack_power
+  tank_ref_stat stamina
+  reforge_settings(use_soft_cap_breakpoints, frozen_item_slots=[ranged, trinket2], ep_stats=[agility, attack_power])
+  stat_caps(stats(hit_rating=9))
+  `{"showThreatMetrics": true, "healRefStat": "StatSpellDamage"}`

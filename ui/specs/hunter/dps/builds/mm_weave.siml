@@ -1,0 +1,16 @@
+siml 1
+spec hunter
+talents "-205305031150001-5502000300502201"
+use "../gear_sets/p1.gear.siml"
+use "../apls/default.apl.siml"
+
+// No pet: Lone Wolf wants none out.
+settings:
+  reaction_time_ms 250
+  distance_from_target 12
+  quiver_bonus ancient_sinew_wrapped_lamina
+  ammo thorium_headed_arrow
+  pet_uptime 1
+  cobra_reflexes
+  pet_aggression 5
+  pet_attack_speed faster_attack_ii

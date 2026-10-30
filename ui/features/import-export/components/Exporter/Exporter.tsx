@@ -6,8 +6,9 @@ import { CopyButton } from '@ui-kit/CopyButton';
 import { Dialog } from '@ui-kit/Dialog';
 import { TextArea } from '@ui-kit/FormControl';
 import { Icon } from '@ui-kit/Icon';
+import { toastManager } from '@ui-kit/Toast';
 import { downloadString } from '@ui-kit/utils/dom';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { trackPageView } from '../../../../tracking/utils';
 import { defaultExportCategories, type ExporterDefinition } from '../../exporters';
@@ -34,8 +35,30 @@ export const Exporter = ({
 	const [categoryRevision, setCategoryRevision] = useState(0);
 	const onCategoryChange = useCallback(() => setCategoryRevision(revision => revision + 1), []);
 
-	const data = useMemo(
-		() => (open ? getData(host, categories.current) : ''),
+	const [data, setData] = useState('');
+	useEffect(
+		() => {
+			const result = open ? getData(host, categories.current) : '';
+			if (typeof result === 'string') {
+				setData(result);
+				return;
+			}
+			let live = true;
+			setData('');
+			result.then(
+				text => {
+					if (live) setData(text);
+				},
+				(error: unknown) => {
+					if (!live) return;
+					const message = error instanceof Error ? error.message : String(error);
+					toastManager.add({ variant: 'error', body: i18n.t('export.error', { message }) });
+				},
+			);
+			return () => {
+				live = false;
+			};
+		},
 		// `categories` is a ref, so the revision counter is what says its contents moved.
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
 		[open, categoryRevision, host, getData],
@@ -60,15 +83,17 @@ export const Exporter = ({
 			title={title}
 			footer={
 				<>
+					{/* An exporter whose text comes later has none until it arrives, and none at all when it fails. */}
 					<CopyButton
 						getContent={() => dataRef.current}
+						disabled={!data}
 						variant="primary"
 						className="w-48"
 						text={i18n.t('export.json.copy_button')}
 						tooltip={i18n.t('export.json.copy_tooltip')}
 					/>
 					{allowDownload && (
-						<Button className="ml-2 w-48" onClick={() => downloadString(dataRef.current, downloadFileName, downloadMimeType)}>
+						<Button className="ml-2 w-48" disabled={!data} onClick={() => downloadString(dataRef.current, downloadFileName, downloadMimeType)}>
 							<Icon name="download" style="base" />
 							{i18n.t('export.json.download_button')}
 						</Button>

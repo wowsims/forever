@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"math"
 	"testing"
 	"time"
@@ -115,5 +116,41 @@ func TestSpellInRange(t *testing.T) {
 		if got := inRange.GetBool(sim); got != tc.want {
 			t.Errorf("at %v yd with range x%v: in range %v, want %v", tc.distance, tc.rangeMultiplier, got, tc.want)
 		}
+	}
+}
+
+// A Move, a Move Duration, a Wait or a Wait Until without a value it can read is left out of the rotation with
+// a warning saying why.
+func TestMoveAndWaitWithoutValue(t *testing.T) {
+	yesNo := yesNoValue()
+	text := &proto.APLValue{Value: &proto.APLValue_VariableRef{VariableRef: &proto.APLValueVariableRef{Name: "text"}}}
+	cases := []struct {
+		action *proto.APLAction
+		want   []string
+	}{
+		{&proto.APLAction{Action: &proto.APLAction_Move{Move: &proto.APLActionMove{}}}, []string{"Move needs a range"}},
+		{&proto.APLAction{Action: &proto.APLAction_Move{Move: &proto.APLActionMove{RangeFromTarget: text}}}, []string{"Cannot read text as a number", "Move needs a range"}},
+		{&proto.APLAction{Action: &proto.APLAction_MoveDuration{MoveDuration: &proto.APLActionMoveDuration{}}}, []string{"Move Duration needs a duration"}},
+		{&proto.APLAction{Action: &proto.APLAction_MoveDuration{MoveDuration: &proto.APLActionMoveDuration{Duration: yesNo}}}, []string{"Cannot read a yes/no value as a duration", "Move Duration needs a duration"}},
+		{&proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{}}}, []string{"Wait needs a duration"}},
+		{&proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: yesNo}}}, []string{"Cannot read a yes/no value as a duration", "Wait needs a duration"}},
+		{&proto.APLAction{Action: &proto.APLAction_WaitUntil{WaitUntil: &proto.APLActionWaitUntil{}}}, []string{"Wait Until needs a condition"}},
+	}
+	config := &proto.APLRotation{
+		Type:           proto.APLRotation_TypeAPL,
+		ValueVariables: []*proto.APLValueVariable{{Name: "text", Value: constValue("far")}},
+	}
+	for _, tc := range cases {
+		config.PriorityList = append(config.PriorityList, &proto.APLListItem{Action: tc.action})
+	}
+	sim := setupFakeRageSimFrom(fakeRageSimRequest())
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	rot := fw.newAPLRotation(config)
+
+	if len(rot.priorityList) != 0 {
+		t.Errorf("priority list has %d actions, want none", len(rot.priorityList))
+	}
+	for i, tc := range cases {
+		wantWarnings(t, fmt.Sprintf("action %d", i), rot.priorityListValidations[i], tc.want...)
 	}
 }

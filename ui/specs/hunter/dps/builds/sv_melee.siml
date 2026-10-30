@@ -1,0 +1,33 @@
+siml 1
+spec hunter
+talents "53200005021-005003-5502000300500221"
+use "../gear_sets/p1_melee.gear.siml"
+use "../apls/melee.apl.siml"
+
+settings:
+  reaction_time_ms 250
+  distance_from_target 5
+  quiver_bonus ancient_sinew_wrapped_lamina
+  ammo thorium_headed_arrow
+  pet_type raptor
+  pet_uptime 1
+  cobra_reflexes
+  pet_aggression 5
+  pet_attack_speed faster_attack_ii
+
+// Dual wielding sharpens the off hand too.
+consumables:
+  flask flask_of_natural_aggression
+  food swiftstrike_steak
+  conjured demonic_rune
+  explosive ez_thro_dynamite_ii
+  mh_imbue elemental_sharpening_stone
+  oh_imbue elemental_sharpening_stone
+  extra goblin_sapper_charge,
+      scroll_of_strength_iv,
+      juju_might,
+      dragonbreath_chili,
+      ground_scorpok_assay
+  elixir elixir_of_the_mongoose, greater_mageblood_elixir
+  resource_pot major_mana_potion
+  offensive_pot major_frenzy_potion

@@ -529,8 +529,9 @@
 			"filters": {
 				"title": "Filters",
 				"general": "General",
-				"min_ilvl": "Min ILvl",
-				"max_ilvl": "Max ILvl",
+				"required_level": "Required Level",
+				"min_ilvl": "Min Item Level",
+				"max_ilvl": "Max Item Level",
 				"faction_restrictions": "Faction Restrictions",
 				"source": "Source",
 				"raids": "Raids",
@@ -2390,6 +2391,12 @@
 				"name_exists": "Rotation with name {{name}} already exists."
 			}
 		},
+		"siml": {
+			"title": "SIML",
+			"tooltip": "SIML is the sim's text format. Export the rotation to read or edit it as text, and import it back.",
+			"export_button": "Export SIML",
+			"import_button": "Import SIML"
+		},
 		"options": {
 			"rogue": {
 				"use_backstab": {
@@ -2848,6 +2855,22 @@
 			"outdated": "Addon is not up to date. Addon version : '{{version}}', Latest version : '{{latest}}'",
 			"below_max_level": "The character you imported is level {{level}}. The Sim is intended to be used for max level only, so you might be missing certain items."
 		},
+		"siml": {
+			"title": "SIML Import",
+			"description": "Import settings from SIML, the sim's text format, as the SIML Export writes it.",
+			"instructions": "To import, upload a .siml file or paste its text below, then click, 'Import'. Only what the text holds is loaded: a rotation alone leaves the gear and talents as they are.",
+			"error_problems": "The SIML does not read:",
+			"error_empty": "The SIML holds nothing to import: no section and no talents line.",
+			"error_unknown_type": "The rotation's type is unknown: write type apl, simple or auto, or leave the type line out.",
+			"error_nothing_here": "The SIML holds only the encounter, which this page does not import.",
+			"warning_spec": "This SIML is written for spec {{file}}, and this page is for spec {{page}}. It was imported anyway.",
+			"warnings": "The SIML was imported, with warnings:"
+		},
+		"siml_rotation": {
+			"title": "SIML Rotation Import",
+			"description": "Import a rotation written in SIML, as the Rotation tab's Export SIML writes it.",
+			"instructions": "To import, upload a .apl.siml file or paste its text below, then click, 'Import'. Only the rotation is replaced."
+		},
 		"error": "Import error:",
 		"success": "Import successful!",
 		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
@@ -2877,6 +2900,7 @@
 	},
 	"export": {
 		"title": "Export",
+		"error": "Export error: {{message}}",
 		"link": {
 			"title": "Link Export",
 			"description": "Export settings as a shareable link.",
@@ -2912,6 +2936,13 @@
 			"instructions": "Copy the command below to run simulations from the command line.",
 			"copy_button": "Copy",
 			"copy_tooltip": "Copy to clipboard"
+		},
+		"siml": {
+			"title": "SIML Export",
+			"error_unreadable": "The SIML printed here does not read back, so it is not given out: {{problems}}"
+		},
+		"siml_rotation": {
+			"title": "SIML Rotation Export"
 		},
 		"categories": {
 			"gear": {

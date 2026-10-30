@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+
+def near = 2
+
+priority:
+  cast multi_shot if $undefined_thing >

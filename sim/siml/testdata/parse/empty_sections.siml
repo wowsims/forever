@@ -1,0 +1,34 @@
+siml 1
+spec warlock
+
+settings:
+
+gear:
+
+item_swap:
+
+consumables:
+
+buffs:
+
+party_buffs:
+
+raid_buffs:
+
+debuffs:
+
+encounter:
+
+sim:
+
+apl:
+
+simple:
+
+cooldowns:
+
+prepull:
+
+priority:
+
+group "Empty":

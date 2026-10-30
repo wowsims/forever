@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+def opener_done = sequence("Opener  A").is_complete and current_time > 1s
+
+priority:
+  sequence "Opener  A" [cast arcane_shot, cast multi_shot]
+  cast aimed_shot if opener_done

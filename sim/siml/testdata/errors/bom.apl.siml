@@ -1,0 +1,6 @@
+﻿﻿siml 1
+spec hunter
+
+// Only the first byte order mark is skipped, and columns count from the character after it.
+priority:
+  cast hunter_shot

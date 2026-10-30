@@ -62,7 +62,7 @@ message UIFaction {
 // Contains all information about an Item needed by the UI.
 // Generally this will include everything needed by the sim, plus some
 // additional data for displaying / filtering.
-// Next tag: 35.
+// Next tag: 37.
 message UIItem {
 	int32 id = 1;
 	string name = 2;
@@ -87,6 +87,7 @@ message UIItem {
 	double weapon_speed = 14;
 
 	int32 ilvl = 15;
+	int32 req_lvl = 36; // The character level that can equip the item; 0 for none.
 	int32 phase = 16;
 	ItemQuality quality = 17;
 	double quality_modifier = 33; // Negative for caster weapons; used by Seal of Righteousness proc among others.
@@ -280,7 +281,7 @@ message StatFilters {
 	StatSelection consumables = 5;
 }
 
-// NextIndex: 27
+// NextIndex: 28
 message DatabaseFilters {
 	repeated ArmorType armor_types = 1;
 	repeated WeaponType weapon_types = 2;
@@ -290,6 +291,7 @@ message DatabaseFilters {
 	FactionFilter faction_filter = 19;
 	int32 min_ilvl = 20;
 	int32 max_ilvl = 21;
+	int32 max_required_level = 27; // Hides items that need a higher character level; 0 hides none.
 	// The consumable pickers hide a consumable below the level set for its ConsumableType (keyed by
 	// ConsumableType; Consumable.lvl). A type with no entry takes Sim.DEFAULT_MIN_CONSUMABLE_LVL.
 	map<int32, int32> min_consumable_lvl = 24;
@@ -591,4 +593,46 @@ message DetailedResultsUpdate {
 		// Update sim settings.
 		SimSettings settings = 2;
 	}
+}
+
+// SIML (sim/siml/SPEC.md), read and written by the sim for the site.
+
+// A problem in a SIML text, at lines and columns counted from 1; columns count UTF-16 code units.
+message SimlDiagnostic {
+	int32 start_line = 1;
+	int32 start_col = 2;
+	int32 end_line = 3;
+	int32 end_col = 4;
+	bool warning = 5; // An error otherwise.
+	string code = 6; // A code of SPEC.md §13, such as unknown-name.
+	string message = 7;
+}
+
+// Reads text as the file at path, whose double extension gives its kind. A use line is refused.
+message SimlParseRequest {
+	string path = 1;
+	string text = 2;
+}
+
+message SimlParseResult {
+	IndividualSimSettings settings = 1; // Unset when the text has an error.
+	Spec spec = 2; // The spec line's spec; SpecUnknown when the text writes none.
+	repeated string categories = 3; // The site's category letters of the sections the text holds.
+	repeated SimlDiagnostic diagnostics = 4; // The errors and warnings.
+	string error = 5; // Set when the text could not be read at all.
+}
+
+// Prints settings as a file of section (apl, gear, ..., or "" for a full setup) for spec. A full setup writes the
+// sections of categories, or with none every section that holds something.
+message SimlPrintRequest {
+	string section = 1;
+	Spec spec = 2;
+	IndividualSimSettings settings = 3;
+	repeated string categories = 4;
+}
+
+message SimlPrintResult {
+	string text = 1; // Empty when the print does not read back.
+	repeated SimlDiagnostic diagnostics = 2; // Why the print does not read back.
+	string error = 3;
 }

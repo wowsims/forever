@@ -1,0 +1,131 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"or": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "long"
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"variableRef": {
+											"name": "bracket"
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"max": {
+								"vals": [
+									{
+										"const": {
+											"val": "1s"
+										}
+									},
+									{
+										"const": {
+											"val": "2s"
+										}
+									}
+								]
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "0s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "long",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"currentTime": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "1s"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLt",
+								"lhs": {
+									"currentTime": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "2s"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "bracket",
+			"value": {
+				"max": {
+					"vals": [
+						{
+							"const": {
+								"val": "1s"
+							}
+						},
+						{
+							"const": {
+								"val": "2s"
+							}
+						}
+					]
+				}
+			}
+		}
+	]
+}

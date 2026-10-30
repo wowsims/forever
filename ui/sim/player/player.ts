@@ -102,12 +102,15 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 export class UnitMetadata {
 	private name: string;
 	private auras: Array<AuraStats>;
+	// Internal cooldown triggers with no aura of their own; only icd_is_ready finds them.
+	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;
 
 	constructor() {
 		this.name = '';
 		this.auras = [];
+		this.icdAuras = [];
 		this.spells = [];
 		this.talents = [];
 	}
@@ -118,6 +121,10 @@ export class UnitMetadata {
 
 	getAuras(): Array<AuraStats> {
 		return this.auras.slice();
+	}
+
+	getIcdAuras(): Array<AuraStats> {
+		return this.icdAuras.slice();
 	}
 
 	getSpells(): Array<SpellStats> {
@@ -145,11 +152,14 @@ export class UnitMetadata {
 		});
 
 		const talentsFill = Promise.all(metadata.talents.map(talent => ActionId.fromProto(talent).fill()));
-		await Promise.all([...newSpells, ...newAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
+		let newIcdAuras = metadata!.icdAuras.map(aura => ({ data: aura, id: ActionId.fromProto(aura.id!) }));
+
+		await Promise.all([...newSpells, ...newAuras, ...newIcdAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
 		const newTalents = (await talentsFill).sort((a, b) => stringComparator(a.name, b.name));
 
 		newSpells = dropLoneRanks(newSpells).sort((a, b) => stringComparator(a.id.name, b.id.name));
 		newAuras = dropLoneRanks(newAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
+		newIcdAuras = dropLoneRanks(newIcdAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
 
 		let anyUpdates = false;
 		if (metadata.name != this.name) {
@@ -162,6 +172,10 @@ export class UnitMetadata {
 		}
 		if (newAuras.length != this.auras.length || newAuras.some((newAura, i) => !newAura.id.equals(this.auras[i].id))) {
 			this.auras = newAuras;
+			anyUpdates = true;
+		}
+		if (newIcdAuras.length != this.icdAuras.length || newIcdAuras.some((newAura, i) => !newAura.id.equals(this.icdAuras[i].id))) {
+			this.icdAuras = newIcdAuras;
 			anyUpdates = true;
 		}
 		if (newTalents.length != this.talents.length || newTalents.some((talent, i) => !talent.equalsAtRank(this.talents[i]))) {
@@ -1254,6 +1268,14 @@ export class Player<SpecType extends Spec> {
 		[RaidFilterOption.RaidNaxx]: 3456,
 	};
 
+	// The game files give a quest reward no required level, since the quest carries it. Such an item is placed
+	// by its item level, which tracks the level that equips it: 60 from item level 60, 5 below it otherwise.
+	static requiredLevelOf(item: Item): number {
+		if (item.reqLvl != 0) return item.reqLvl;
+		const ilvl = item.scalingOptions?.[0].ilvl || item.ilvl;
+		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
+	}
+
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1261,6 +1283,9 @@ export class Player<SpecType extends Spec> {
 			return itemData.filter(itemElem => filterFunc(getItemFunc(itemElem)));
 		};
 
+		if (filters.maxRequiredLevel != 0) {
+			itemData = filterItems(itemData, item => Player.requiredLevelOf(item) <= filters.maxRequiredLevel);
+		}
 		if (filters.minIlvl != 0) {
 			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) >= filters.minIlvl);
 		}

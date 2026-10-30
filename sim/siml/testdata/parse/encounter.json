@@ -1,0 +1,49 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {}
+	},
+	"encounter": {
+		"duration": 180,
+		"durationVariation": 5,
+		"executeProportion20": 0.2,
+		"executeProportion35": 0.35,
+		"useHealth": true,
+		"targets": [
+			{
+				"id": 31146,
+				"name": "Raid Target",
+				"level": 63,
+				"mobType": "MobTypeMechanical",
+				"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 3731, 0, 1299000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				"minBaseDamage": 15113,
+				"damageSpread": 0.5,
+				"swingSpeed": 2,
+				"parryHaste": true,
+				"canCrush": true,
+				"spellSchool": "SpellSchoolFire",
+				"targetInputs": [
+					{
+						"label": "Enraged",
+						"boolValue": true
+					},
+					{
+						"inputType": "Enum",
+						"label": "Phase",
+						"enumValue": 1,
+						"enumOptions": ["One", "Two"]
+					}
+				]
+			},
+			{
+				"id": 12435,
+				"name": "Razorgore the Untamed",
+				"level": 63,
+				"mobType": "MobTypeDragonkin",
+				"disabledAtStart": true
+			}
+		],
+		"areaTypes": ["AreaTypeStrongholdsCities", "AreaTypeCavernous"],
+		"zoneId": 2677
+	}
+}

@@ -1,0 +1,24 @@
+siml 1
+spec hunter
+
+// Every literal form and every value short form of SPEC.md §6.5.
+var $times = 1.5s + 400ms + 1m30s + 1h2m3.5s + 10µs + 5us + 3ns + 2m + 1h
+var $numbers = 5.00 + 7 + 30% + -22s + -1 + 0.25
+var $strings = "text" == "with \"quotes\" and \\ and \n"
+var $bools = true and false
+var $none = none
+var ${Two words} = $times
+var $refs = ${Two words} + $two_words + $numbers
+var $logic = $bools and $refs or not $none and $strings
+var $runs = $a and $b and $c or $d or $e
+var $calls = and($bools) or or() and not($none)
+var $kept = ($bools and $refs) and $none or ($strings or $refs)
+var $compares = $a == $b and $a != $b and $a >= $b and $a > $b and $a <= $b and $a < $b
+var $math = $a + $b - $c * $d / $e - ($a - $b) * ($c + $d)
+var $lists = max($a, $b, 1s) + min($a, input_delay)
+var $precedence = not $a == $b + 1 * 2
+var $a = 1
+var $b = 2
+var $c = 3
+var $d = 4
+var $e = 5

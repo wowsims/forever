@@ -53,6 +53,14 @@ describe('aura sets', () => {
 	it('categorises the filtered sets the same way', async () => {
 		expect(menu(await actionIdSets.stackable_auras.getActionIDs(metadata(auras)))).toEqual(['Flurry > talents']);
 	});
+
+	it("lists an internal cooldown trigger that shares its aura's id once", async () => {
+		const clearcasting = aura(named(8, 'Clearcasting'), ActionCategory.ActionCategoryUnknown, { hasIcd: true });
+		const trigger = aura(named(8, 'Clearcasting'), ActionCategory.ActionCategoryUnknown, { hasIcd: true });
+		const omen = aura(named(9, 'Omen of Clarity'), ActionCategory.ActionCategoryUnknown, { hasIcd: true });
+		const withTriggers = { ...metadata([clearcasting]), getIcdAuras: () => [trigger, omen] } as unknown as UnitMetadata;
+		expect(menu(await actionIdSets.icd_auras.getActionIDs(withTriggers))).toEqual(['Clearcasting', 'Omen of Clarity']);
+	});
 });
 
 describe('castable_spells', () => {

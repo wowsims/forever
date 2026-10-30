@@ -1,0 +1,5 @@
+{
+	"type": "TypeAuto",
+	"priorityList": [{ "action": { "castSpell": { "spellId": { "spellId": 900001 } } } }],
+	"valueVariables": [{ "name": "x", "value": { "const": { "val": "1" } } }]
+}
