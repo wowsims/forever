@@ -1,4 +1,6 @@
 import { EncounterPicker } from '@features/encounter/components/EncounterPicker';
+import { JSON_IMPORTER } from '@features/import-export/importers/json';
+import { Player as PlayerProto } from '@generated/proto/api';
 import {
 	AddWave,
 	DesignDowntime,
@@ -11,13 +13,15 @@ import {
 	Stat,
 	Target,
 } from '@generated/proto/common';
-import { UIDatabase } from '@generated/proto/ui';
+import { IndividualSimSettings, UIDatabase } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import { Encounter } from '@sim/raid/encounter';
 import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
 import { renderWithHost } from '@testing/react';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { memoryEnv } from '@testing/sim/memory_env';
+import { loadSettings, STORAGE_KEY } from '@testing/sim/stat_filters';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -64,12 +68,16 @@ const stored = (spec?: string): Record<string, unknown> => JSON.parse(window.loc
 const storeEncounters = (encounters: Array<EncounterProto>, spec?: string) =>
 	window.localStorage.setItem(myEncountersKey(spec), JSON.stringify(Object.fromEntries(encounters.map(proto => [proto.name, EncounterProto.toJson(proto)]))));
 
+const renderPicker = ({ sim, player }: Awaited<ReturnType<typeof makeIndividualSim>>, spec = 'warrior') =>
+	renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player, getStorageKey: specKey(spec), individualConfig: { defaults: {} } });
+
 const setup = async ({ targets = 1, design = EncounterDesign.create(), spec = 'warrior' } = {}) => {
-	const { sim, player } = await makeIndividualSim();
+	const built = await makeIndividualSim();
+	const { sim } = built;
 	sim.encounter.setTargets(Array.from({ length: targets }, (_, index) => Target.create({ id: index + 1, name: `Target ${index + 1}` })));
 	sim.encounter.setDesign(design);
-	renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player, getStorageKey: specKey(spec), individualConfig: { defaults: {} } });
-	return { encounter: sim.encounter, baseSeconds: sim.encounter.getDuration() };
+	const view = renderPicker(built, spec);
+	return { encounter: sim.encounter, baseSeconds: sim.encounter.getDuration(), host: built.host, view };
 };
 
 const openDesigner = async () => {
@@ -502,18 +510,30 @@ describe('My encounters', () => {
 		await userEvent.click(choice());
 		await userEvent.click(screen.getByRole('option', { name }));
 	};
-	// The options the open list files under My encounters, or none when it has no such group.
-	const listedOwn = async () => {
-		await userEvent.click(choice());
-		const group = screen.queryAllByRole('group').find(group => within(group).queryByText('My encounters'));
-		const names = group
-			? within(group)
-					.getAllByRole('option')
-					.map(option => option.textContent)
-			: [];
+	const readList = async <T,>(read: () => T, field = choice()) => {
+		await userEvent.click(field);
+		const value = read();
 		await act(async () => void fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' }));
-		return names;
+		return value;
 	};
+	const ownGroup = () => screen.queryAllByRole('group').find(group => within(group).queryByText('My encounters'));
+	// The options the list files under My encounters, or none when it has no such group.
+	const listedOwn = (field?: HTMLElement) =>
+		readList(() => {
+			const group = ownGroup();
+			return group
+				? within(group)
+						.getAllByRole('option')
+						.map(option => option.textContent)
+				: [];
+		}, field);
+	const checked = () =>
+		readList(() =>
+			screen
+				.getAllByRole('option')
+				.filter(option => option.getAttribute('aria-selected') === 'true')
+				.map(option => option.textContent),
+		);
 	const nameField = (dialog: HTMLElement) => within(dialog).getByLabelText('Name') as HTMLInputElement;
 
 	it('starts a named blank encounter from the +, and Save adds it to My encounters and selects it', async () => {
@@ -645,5 +665,66 @@ describe('My encounters', () => {
 		storeEncounters([own('Two adds', 200)], 'mage');
 		await setup();
 		expect(await listedOwn()).toEqual([]);
+	});
+
+	it('lists My encounters in the Advanced dialog too, loads the entry picked there, and marks it edited the same way', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		const { encounter } = await setup();
+
+		await clickButton('Advanced');
+		const dialog = screen.getByTestId('advanced-encounter-picker-modal');
+		const field = () => within(dialog).getByLabelText('Encounter');
+		expect(await listedOwn(field())).toEqual(['Two adds']);
+		await userEvent.click(field());
+		await userEvent.click(within(ownGroup()!).getByRole('option', { name: 'Two adds' }));
+
+		expect(encounter.getDuration()).toBe(200);
+		expect(field().textContent).toBe('Two adds');
+		await commit(within(dialog).getByLabelText('Duration'), '230');
+		expect(field().textContent).toBe('Two adds (edited)');
+	});
+
+	it('reads an import under the name of an entry as imported, and Save adds it under a free name and leaves the entry as it was', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		const { encounter, host } = await setup();
+		await pick('Two adds');
+		expect(await checked()).toEqual(['Two adds']);
+
+		const shared = IndividualSimSettings.create({ player: PlayerProto.create(), encounter: { ...own('Two adds', 150), myEncounter: true } });
+		await act(() => JSON_IMPORTER.onImport(host, IndividualSimSettings.toJsonString(shared)));
+		expect(encounter.getDuration()).toBe(150);
+		expect(choice().textContent).toBe('Two adds (imported)');
+		expect(await checked()).toEqual([]);
+
+		const dialog = await openDesigner();
+		expect(within(dialog).queryByRole('button', { name: 'Delete' })).toBeNull();
+		await clickButton('Save');
+		expect(Object.keys(stored())).toEqual(['Two adds', 'Two adds (2)']);
+		expect(EncounterProto.fromJson(stored()['Two adds'] as never).duration).toBe(200);
+		expect(EncounterProto.fromJson(stored()['Two adds (2)'] as never).duration).toBe(150);
+		expect(choice().textContent).toBe('Two adds (2)');
+
+		await pick('Two adds');
+		expect(choice().textContent).toBe('Two adds');
+		expect(await checked()).toEqual(['Two adds']);
+	});
+
+	it('keeps the picked entry selected through a reload of the autosaved settings', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		const { host, view } = await setup();
+		await pick('Two adds');
+		await commit(screen.getByLabelText('Duration'), '230');
+		view.unmount();
+
+		// What the page autosaves, loaded into a fresh page.
+		const env = memoryEnv();
+		env.storage.setItem(STORAGE_KEY, IndividualSimSettings.toJsonString(host.toProto()));
+		const reloaded = await makeIndividualSim({ env });
+		loadSettings(reloaded);
+		renderPicker(reloaded);
+
+		expect(reloaded.sim.encounter.getDuration()).toBe(230);
+		expect(choice().textContent).toBe('Two adds (edited)');
+		expect(await checked()).toEqual(['Two adds']);
 	});
 });

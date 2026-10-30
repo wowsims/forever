@@ -1,24 +1,22 @@
 import { EncounterDesigner } from '@features/encounter-designer';
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
-import { Encounter as EncounterProto } from '@generated/proto/common';
+import type { Encounter as EncounterProto } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
-import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
-import { subscribeEncounterChange } from '@sim/state/subscriptions';
 import { Button } from '@ui-kit/Button';
 import { ContentBlock } from '@ui-kit/ContentBlock';
 import { FieldGrid } from '@ui-kit/FieldGrid';
 import { Icon } from '@ui-kit/Icon';
 import { type ReactNode, useMemo, useState } from 'react';
 
-import { useMyEncounters } from '../../hooks/useMyEncounters';
+import { useEncounterChoice } from '../../hooks/useEncounterChoice';
 import { newEncounterProto } from '../../model/my_encounters';
 import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
 import { TargetInputsPicker } from '../TargetsPicker';
 import { AreaTypesPicker } from './AreaTypesPicker';
-import { durationConfigs, encounterChoiceConfig, encounterChoices, executeConfigs, minBaseDamageConfig, numAlliesConfig, zoneConfig } from './utils/configs';
+import { durationConfigs, executeConfigs, minBaseDamageConfig, numAlliesConfig, zoneConfig } from './utils/configs';
 
 export interface EncounterPickerViewProps {
 	duration: ReactNode;
@@ -83,28 +81,20 @@ export interface EncounterPickerProps {
 	showExecuteProportion: boolean;
 }
 
+const CHOICE_FIELD = { id: 'encounter-preset-encouter', extraClassNames: ['w-full'] };
+
 export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps) => {
 	const host = useSimHost();
 	const encounter = host.sim.encounter;
 	const player = host.player;
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
-	const { entries: own } = useMyEncounters();
+	const choice = useEncounterChoice(encounter, CHOICE_FIELD);
 
 	const duration = useMemo(() => durationConfigs(), []);
 	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);
-	const choice = useMemo(() => encounterChoiceConfig(encounter, own), [encounter, own]);
-	const choices = useMemo(() => encounterChoices(encounter.sim.db.getAllPresetEncounters(), own), [encounter, own]);
 	const allies = useMemo(() => numAlliesConfig(player), [player]);
 	const minBaseDamage = useMemo(() => minBaseDamageConfig(), []);
 	const zone = useMemo(() => zoneConfig(encounter), [encounter]);
-
-	// The selected entry reads as edited while the encounter differs from what the list holds for it.
-	const current = useStoreSubscribe(subscribeEncounterChange(encounter), () => ({
-		name: encounter.getName(),
-		json: JSON.stringify(EncounterProto.toJson(encounter.toProto())),
-	}));
-	const entry = own.find(entry => entry.name === current.name);
-	const edited = !!entry && entry.json !== current.json;
 
 	const [advancedOpen, setAdvancedOpen] = useState(false);
 	const [designerOpen, setDesignerOpen] = useState(false);
@@ -129,17 +119,7 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				execute={showExecuteProportion && execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)}
 				zone={<ConnectedChoiceField modObject={encounter} config={zone} />}
 				areaTypes={<AreaTypesPicker encounter={encounter} />}
-				preset={
-					showDamage && (
-						<ConnectedChoiceField
-							modObject={encounter}
-							config={choice}
-							options={choices}
-							placeholder={current.name}
-							renderValue={edited ? () => i18n.t('settings_tab.encounter.encounter_preset.edited', { name: current.name }) : undefined}
-						/>
-					)
-				}
+				preset={showDamage && <ConnectedChoiceField {...choice} />}
 				allies={player.canEnableTargetDummies() && <ConnectedNumberField modObject={host.sim.raid} config={allies} />}
 				minBaseDamage={player.getPlayerSpec().isTankSpec && <ConnectedNumberField modObject={encounter} config={minBaseDamage} />}
 				targetInputs={<TargetInputsPicker encounter={encounter} targetIndex={0} />}

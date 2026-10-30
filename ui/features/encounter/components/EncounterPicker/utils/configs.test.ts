@@ -19,7 +19,7 @@ const dynamicAdds = presetFor(2, EncounterDesign.create({ bossHealth: [HealthKey
 const setup = () => {
 	const db = { getAllPresetEncounters: () => [raidTarget, dynamicAdds], getZone: () => null, getNpc: () => null };
 	const encounter = new Encounter({ store: createSimStore(), db } as unknown as Sim);
-	return { encounter, config: encounterChoiceConfig(encounter, []) };
+	return { encounter, config: encounterChoiceConfig(encounter, [], { id: 'encounter' }) };
 };
 
 const RAID_TARGET = 'preset:0';

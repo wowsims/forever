@@ -92,31 +92,35 @@ export const minBaseDamageConfig = (): NumberFieldConfig<Encounter> => ({
 
 export const CUSTOM_ENCOUNTER = 'custom';
 const presetChoice = (index: number) => `preset:${index}`;
-export const ownChoice = (name: string) => `own:${name}`;
+const ownChoice = (name: string) => `own:${name}`;
 
 // The choice reads the store alone, never `own`: the input caches it until the next store write, so a
-// list captured here would answer one write late. A named encounter is the entry of its name, listed
-// or not (an import shows its name until it is saved); an unnamed one is the preset it matches.
+// list captured here would answer one write late. An entry of My encounters is the option of its name,
+// listed or not; any other named encounter (an import) is no option, so the field shows its placeholder;
+// an unnamed one is the preset it matches.
 export const encounterChoiceConfig = (
 	encounter: Encounter,
 	own: ReadonlyArray<SavedDataEntry<EncounterProto>>,
+	field: Pick<InputConfig<Encounter, string>, 'extraClassNames'> & { id: string },
 ): InputConfig<Encounter, string> & { id: string } => {
 	const presets = encounter.sim.db.getAllPresetEncounters();
 	return {
-		id: 'encounter-preset-encouter',
+		...field,
 		label: i18n.t('settings_tab.encounter.encounter_preset.label'),
-		extraClassNames: ['w-full'],
 		storeField: 'encounter:*',
 		getValue: (subject: Encounter) => {
-			if (subject.getName()) return ownChoice(subject.getName());
+			if (subject.getName()) return subject.isMyEncounter() ? ownChoice(subject.getName()) : '';
 			const index = presets.findIndex(preset => subject.matchesPreset(preset));
 			return index === -1 ? CUSTOM_ENCOUNTER : presetChoice(index);
 		},
 		setValue: (subject: Encounter, choice: string) => {
 			const preset = presets.findIndex((_, index) => presetChoice(index) === choice);
-			if (preset !== -1) return subject.applyPreset(presets[preset]);
+			if (preset !== -1) {
+				trackEvent({ action: 'settings', category: 'encounter', label: 'preset', value: presets[preset].path });
+				return subject.applyPreset(presets[preset]);
+			}
 			const entry = own.find(entry => ownChoice(entry.name) === choice);
-			if (entry) subject.fromProto(entry.data);
+			if (entry) subject.fromProto({ ...entry.data, myEncounter: true });
 		},
 	};
 };

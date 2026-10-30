@@ -3842,10 +3842,13 @@
 								},
 								"edited": {
 									"type": "string"
+								},
+								"imported": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["label", "tooltip", "presets", "own", "edited"]
+							"required": ["label", "tooltip", "presets", "own", "edited", "imported"]
 						},
 						"new_encounter": {
 							"type": "string"

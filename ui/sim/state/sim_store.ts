@@ -50,6 +50,7 @@ export interface UISlice {
 // before mutating, so subscribers can use reference equality.
 export interface EncounterSlice {
 	name: string;
+	myEncounter: boolean;
 	duration: number;
 	durationVariation: number;
 	executeProportion20: number;
@@ -318,6 +319,7 @@ const initialState = (): SimState => ({
 	// Encounter constructor writes the default target on construction.
 	encounter: {
 		name: '',
+		myEncounter: false,
 		...ENCOUNTER_DEFAULTS,
 		areaTypes: [],
 		zoneId: 0,

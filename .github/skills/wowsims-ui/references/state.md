@@ -106,11 +106,14 @@ removed target's events to -1, where `validateDesign` flags them; a preset match
 together. The designer dialog is `ui/features/encounter-designer/components/EncounterDesigner/` over the model in
 `ui/features/encounter-designer/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
 
-**The encounter name** (`encounter:name`) ties the encounter to My encounters, the player's designed encounters in a
-per-spec `useSavedData` slot keyed by name (`ui/features/encounter/hooks/useMyEncounters.ts`). The encounter picker
-reads a named encounter as the entry of that name and an unnamed one as the preset it matches: `applyPreset` clears the
-name, and `matchesPreset` never matches a named encounter. The designer's Save updates the entry it opened on, Save as
-copy adds one under a free name, and an import carries the name without adding an entry.
+**The encounter name** (`encounter:name`) and the mark `encounter:myEncounter` tie the encounter to My encounters, the
+player's designed encounters in a per-spec `useSavedData` slot keyed by name
+(`ui/features/encounter/hooks/useMyEncounters.ts`). Picking an entry, or storing one from the designer, sets the mark;
+`applyPreset` clears the name and the mark, and `matchesPreset` never matches a named encounter. The mark is in the
+encounter proto, so the autosave keeps it through a reload, and `withoutMyEncounter`
+(`ui/sim/state/my_encounter_sharing.ts`) drops it from every export and import, so an imported encounter under an entry's
+name reads as imported, and its Save adds a new entry under a free name. Both encounter choices, the picker's and the
+Advanced dialog's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`).
 
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the
 slice. Use one only when nothing narrower works, and keep their number from growing:

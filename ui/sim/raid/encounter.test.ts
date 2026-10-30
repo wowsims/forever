@@ -161,7 +161,7 @@ describe('Encounter', () => {
 			expect(other.getName()).toBe('Phase two');
 		});
 
-		it('keeps a named encounter from matching a preset, and clears the name when a preset is applied', () => {
+		it('keeps a named encounter from matching a preset, and clears the name and the My encounters mark when a preset is applied', () => {
 			const preset = presetEncounter();
 			const encounter = makeEncounter();
 			encounter.applyPreset(preset);
@@ -170,9 +170,23 @@ describe('Encounter', () => {
 			encounter.setName('Mine');
 			expect(encounter.matchesPreset(preset)).toBe(false);
 
+			encounter.setMyEncounter(true);
 			encounter.applyPreset(preset);
 			expect(encounter.getName()).toBe('');
+			expect(encounter.isMyEncounter()).toBe(false);
 			expect(encounter.matchesPreset(preset)).toBe(true);
+		});
+
+		it('carries the My encounters mark through the proto, and loses it on a proto without one', () => {
+			const encounter = makeEncounter();
+			encounter.setName('Mine');
+			encounter.setMyEncounter(true);
+			const other = makeEncounter();
+
+			other.fromProto(EncounterProto.fromJsonString(EncounterProto.toJsonString(encounter.toProto())));
+			expect(other.isMyEncounter()).toBe(true);
+			other.fromProto(EncounterProto.create({ name: 'Mine', targets: [Encounter.defaultTargetProto()] }));
+			expect(other.isMyEncounter()).toBe(false);
 		});
 	});
 

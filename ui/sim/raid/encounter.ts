@@ -142,6 +142,15 @@ export class Encounter {
 		this.set({ name });
 	}
 
+	// Whether the encounter is the My encounters entry of its name, which an import of the same name is not.
+	isMyEncounter(): boolean {
+		return this.enc.myEncounter;
+	}
+	setMyEncounter(myEncounter: boolean) {
+		if (myEncounter == this.enc.myEncounter) return;
+		this.set({ myEncounter });
+	}
+
 	getDurationVariation(): number {
 		return this.enc.durationVariation;
 	}
@@ -210,6 +219,7 @@ export class Encounter {
 		// The preset's design replaces the current one together with the targets.
 		this.set({
 			name: '',
+			myEncounter: false,
 			targets: preset.targets.map(presetTarget => (presetTarget.target ? TargetProto.clone(presetTarget.target) : TargetProto.create())),
 			design: preset.design ? EncounterDesign.clone(preset.design) : EncounterDesign.create(),
 		});
@@ -228,6 +238,7 @@ export class Encounter {
 		const enc = this.enc;
 		return EncounterProto.create({
 			name: enc.name,
+			myEncounter: enc.myEncounter,
 			duration: enc.duration,
 			durationVariation: enc.durationVariation,
 			executeProportion20: enc.executeProportion20,
@@ -243,6 +254,7 @@ export class Encounter {
 	fromProto(proto: EncounterProto) {
 		batch(() => {
 			this.setName(proto.name);
+			this.setMyEncounter(proto.myEncounter);
 			this.setDuration(proto.duration);
 			this.setDurationVariation(proto.durationVariation);
 			this.setExecuteProportion20(proto.executeProportion20);

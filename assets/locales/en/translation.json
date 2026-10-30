@@ -1061,7 +1061,8 @@
 				"tooltip": "Selects a preset encounter configuration.",
 				"presets": "Presets",
 				"own": "My encounters",
-				"edited": "{{name}} (edited)"
+				"edited": "{{name}} (edited)",
+				"imported": "{{name}} (imported)"
 			},
 			"new_encounter": "New encounter",
 			"unique_name": "{{name}} ({{number}})",

@@ -67,14 +67,16 @@ describe('JSON_IMPORTER', () => {
 		expect(sim.getFilters().statFilters).toBeUndefined();
 	});
 
-	it("carries the encounter's name from one sim's export into another sim", async () => {
+	it("carries the encounter's name from one sim's settings into another sim, and never as one of My encounters", async () => {
 		const sender = await makeIndividualSim();
 		sender.sim.encounter.setName('Phase two');
+		sender.sim.encounter.setMyEncounter(true);
 		const { sim, host } = await makeIndividualSim();
 
 		await JSON_IMPORTER.onImport(host, IndividualSimSettings.toJsonString(sender.host.toProto()));
 
 		expect(sim.encounter.getName()).toBe('Phase two');
+		expect(sim.encounter.isMyEncounter()).toBe(false);
 	});
 
 	it('applies only the rotation from a rotation-only export', async () => {

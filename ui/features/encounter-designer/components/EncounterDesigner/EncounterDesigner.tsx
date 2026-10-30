@@ -179,6 +179,7 @@ export interface EncounterDesignerProps {
 
 interface EncounterSnapshot {
 	name: string;
+	myEncounter: boolean;
 	duration: number;
 	durationVariation: number;
 	targets: Array<Target>;
@@ -210,6 +211,7 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced }: EncounterDes
 		if (open) {
 			setSnapshot({
 				name: encounter.getName(),
+				myEncounter: encounter.isMyEncounter(),
 				duration: encounter.getDuration(),
 				durationVariation: encounter.getDurationVariation(),
 				targets,
@@ -251,19 +253,24 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced }: EncounterDes
 		setSelected(ref);
 	};
 
-	// The entry the designer opened on, matched by the name the encounter had then.
-	const entry = snapshot && !replaced ? myEncounters.entries.find(entry => entry.name === snapshot.name) : undefined;
+	// The entry the designer opened on: the encounter was marked as one, under the name it had then.
+	const entry = snapshot?.myEncounter && !replaced ? myEncounters.entries.find(entry => entry.name === snapshot.name) : undefined;
 
+	// The list holds an entry without the mark, which the encounter takes once it is stored.
 	const store = (replacing?: string) => {
-		encounter.setDesign(draft);
-		const taken = myEncounters.entries.map(entry => entry.name).filter(name => name !== replacing);
-		encounter.setName(uniqueEncounterName(encounter.getName() || i18n.t('settings_tab.encounter.new_encounter'), taken));
-		myEncounters.save(encounter.getName(), encounter.toProto(), replacing);
+		batch(() => {
+			encounter.setDesign(draft);
+			const taken = myEncounters.entries.map(entry => entry.name).filter(name => name !== replacing);
+			encounter.setName(uniqueEncounterName(encounter.getName() || i18n.t('settings_tab.encounter.new_encounter'), taken));
+			encounter.setMyEncounter(true);
+		});
+		myEncounters.save(encounter.getName(), { ...encounter.toProto(), myEncounter: false }, replacing);
 		onOpenChange(false);
 	};
 
-	// Save updates the entry the designer opened on, and adds a new or imported named encounter; an encounter that
-	// opened without a name (a preset, or one edited by hand) only goes to the sim.
+	// Save updates the entry the designer opened on, and adds a new or imported named encounter, under a free name
+	// when an entry has it already; an encounter that opened without a name (a preset, or one edited by hand) only
+	// goes to the sim.
 	const save = () => {
 		if (entry || replaced || snapshot?.name) return store(entry?.name);
 		encounter.setDesign(draft);

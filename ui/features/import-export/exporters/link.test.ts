@@ -23,12 +23,15 @@ describe('createLink', () => {
 		expect(sim.getFilters().statFilters).toBeDefined();
 	});
 
-	it("carries the encounter's name", async () => {
+	it("carries the encounter's name, and leaves out that it is one of My encounters", async () => {
 		const { sim, host } = await makeIndividualSim();
 		sim.encounter.setName('Phase two');
+		sim.encounter.setMyEncounter(true);
 
 		const url = new URL(createLink(host, [SimSettingCategories.Encounter]));
 
 		expect(tryParseUrlLocation(url)!.settings.encounter!.name).toBe('Phase two');
+		expect(tryParseUrlLocation(url)!.settings.encounter!.myEncounter).toBe(false);
+		expect(sim.encounter.isMyEncounter()).toBe(true);
 	});
 });

@@ -624,6 +624,10 @@ message Encounter {
 	// The name the player gave the encounter in the designer, for the UI only; empty for a preset.
 	string name = 5;
 
+	// The encounter is the My encounters entry of its name, for the UI only. Exports and imports clear it, so an
+	// imported encounter never reads as an entry of the same name.
+	bool my_encounter = 8;
+
 	double duration = 1;
 
 	// Variation in the duration
