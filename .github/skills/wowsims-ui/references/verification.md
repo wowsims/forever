@@ -132,6 +132,10 @@ the PR what you ran or clicked, with the screenshots.
 For a kit or stylesheet change, also diff the production CSS against the parent commit's, as `ui/STYLING.md` §7
 describes: a new selector with no source change behind it is a class leaking in from a story, fixture or docs page.
 
+happy-dom applies the `inert` attribute to focus only. A click inside an inert subtree still reaches its handlers in a
+unit test, so such a test asserts `inert` and the refused focus, and a real browser checks that clicks are blocked.
+`AplEntryView` (`ui/features/apl/components/AplEntryView/`) is the case that hit it.
+
 ## A fresh checkout needs generated files first
 
 `type-check` and every build need files that Go tooling generates and a fresh checkout lacks: `ui/generated/proto/*`

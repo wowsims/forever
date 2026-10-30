@@ -1,4 +1,10 @@
-import { fireEvent, render, within } from '@testing-library/react';
+import type { AplRun } from '@features/apl/model/apl_entry';
+import { RaidSimRequest } from '@generated/proto/api';
+import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
+import type { AplTestPlayer } from '@testing/apl/player';
+import { renderWithHost } from '@testing/react';
+import { makeAplStoryPlayer } from '@testing/storybook/fixtures/apl';
+import { fireEvent, within } from '@testing-library/react';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,6 +14,7 @@ import { Timeline } from './Timeline';
 const state = vi.hoisted(() => ({
 	result: null as SimResultData | null,
 	models: [] as Array<unknown>,
+	aplRuns: [] as Array<unknown>,
 	specs: [] as Array<unknown>,
 	built: 0,
 	charted: 0,
@@ -27,8 +34,9 @@ vi.mock('./chart/build', () => ({
 	},
 }));
 vi.mock('./rotation/RotationTrack', () => ({
-	RotationTrack: ({ model }: { model: unknown }) => {
+	RotationTrack: ({ model, aplRun }: { model: unknown; aplRun: unknown }) => {
 		state.models.push(model);
+		state.aplRuns.push(aplRun);
 		return <div data-testid="rotation-pane" />;
 	},
 }));
@@ -50,6 +58,17 @@ const resultFor = (requestId: string, playerId: string, filter: unknown = {}) =>
 		filter,
 	}) as unknown as SimResultData;
 
+// A run of one player at raid index 0; the request holds its own copy of `rotation`, as a real request does.
+const runOf = (requestId: string, rotation: APLRotation) =>
+	({
+		...resultFor(requestId, 'p1'),
+		result: {
+			...resultFor(requestId, 'p1').result,
+			request: RaidSimRequest.create({ requestId, raid: { parties: [{ players: [{ rotation }] }] } }),
+			getRaidIndexedPlayers: () => [{ id: 'p1', index: 0 }],
+		},
+	}) as unknown as SimResultData;
+
 const viewButton = (container: HTMLElement, view: 'rotation' | 'dps') =>
 	within(container).getByRole('button', { name: `results_tab.details.timeline.chart_types.${view}` });
 
@@ -61,15 +80,25 @@ const emit = (next: SimResultData | null, rerender: () => void) => {
 beforeEach(() => {
 	state.result = null;
 	state.models.length = 0;
+	state.aplRuns.length = 0;
 	state.specs.length = 0;
 	state.built = 0;
 	state.charted = 0;
 });
 
-const mount = (active: boolean) => {
-	const view = render(<Timeline active={active} />);
+// The APL test player bumps the store's rotation counter on every write, as the real one does.
+const livePlayer = (rotation = APLRotation.create({ type: APLRotation_Type.TypeAPL })): AplTestPlayer => {
+	const player = makeAplStoryPlayer(rotation);
+	player.getResolvedAplRotation = () => player.aplRotation;
+	return player;
+};
+
+const mount = (active: boolean, player = livePlayer()) => {
+	const view = renderWithHost(<Timeline active={active} />, { player });
 	return { ...view, again: (next = active) => view.rerender(<Timeline active={next} />) };
 };
+
+const lastAplRun = () => state.aplRuns.at(-1) as AplRun | undefined;
 
 describe('Timeline', () => {
 	it('holds a run that lands while the tab is closed, and draws it when the tab opens', () => {
@@ -141,6 +170,29 @@ describe('Timeline', () => {
 			fireEvent.click(viewButton(view.container, 'dps'));
 		});
 		expect(state.charted).toBe(1);
+	});
+
+	it('hands the track the rotation an APL run ran, unchanged right after the run', () => {
+		const rotation = APLRotation.create({ type: APLRotation_Type.TypeAPL, priorityList: [{ notes: 'ran' }] });
+		const view = mount(true, livePlayer(APLRotation.clone(rotation)));
+		emit(runOf('a', rotation), view.again);
+
+		expect(lastAplRun()?.rotation.priorityList[0].notes).toBe('ran');
+		expect(lastAplRun()?.changedSinceRun()).toBe(false);
+	});
+
+	it('marks the run changed once the rotation is edited, keeping the rotation as it ran, without drawing the track again', () => {
+		const rotation = APLRotation.create({ type: APLRotation_Type.TypeAPL, priorityList: [{ notes: 'ran' }] });
+		const player = livePlayer(APLRotation.clone(rotation));
+		const view = mount(true, player);
+		emit(runOf('a', rotation), view.again);
+		expect(lastAplRun()?.changedSinceRun()).toBe(false);
+		const drawn = state.aplRuns.length;
+
+		act(() => player.modifyAplRotation(live => live.priorityList.push({ notes: 'added' } as never)));
+		expect(state.aplRuns).toHaveLength(drawn);
+		expect(lastAplRun()?.changedSinceRun()).toBe(true);
+		expect(lastAplRun()?.rotation.priorityList).toHaveLength(1);
 	});
 
 	it('mounts only the pane that is showing', () => {

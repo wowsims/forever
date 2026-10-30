@@ -1,5 +1,9 @@
+import { type AplRun, runRotation } from '@features/apl/model/apl_entry';
+import { APLRotation } from '@generated/proto/apl';
 import i18n from '@i18n/config';
+import { usePlayer } from '@sim/context/SimHostContext';
 import type { UnitMetrics } from '@sim/proto/sim_result';
+import { memoLast } from '@sim/utils/misc';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Icon } from '@ui-kit/Icon';
 import { NOTICE_COLOR } from '@ui-kit/Notice';
@@ -37,6 +41,16 @@ export const Timeline = ({ active }: TimelineProps) => {
 	// A cleared result still emits, with an empty raid.
 	const player = useMemo(() => (shown ? (shown.result.getRaidIndexedPlayers(shown.filter)[0] ?? null) : null), [shown]);
 	const duration = shown ? shown.result.result.firstIterationDuration || 1 : 1;
+
+	const simPlayer = usePlayer();
+	const aplRun = useMemo((): AplRun | undefined => {
+		const rotation = shown && player ? runRotation(shown.result, player) : undefined;
+		if (!rotation) return undefined;
+		// The editor changes the rotation in place, so its counter in the store is the only sign of an edit.
+		const version = () => simPlayer.sim.store.getState().players[simPlayer.storeKey]?.v.rotation;
+		const compared = memoLast<boolean>();
+		return { rotation, changedSinceRun: () => compared([version()], () => !APLRotation.equals(rotation, simPlayer.getResolvedAplRotation(true))) };
+	}, [shown, player, simPlayer]);
 
 	// The unit walk is inside the guard, not beside it: a result the model cannot be built from
 	// leaves the rotation empty rather than taking the whole Results tab down with it.
@@ -90,7 +104,7 @@ export const Timeline = ({ active }: TimelineProps) => {
 					</div>
 				) : (
 					<div className="m-auto" data-testid="rotation-plot">
-						<RotationTrack model={model} active={active} />
+						<RotationTrack model={model} active={active} aplRun={aplRun} />
 					</div>
 				)}
 			</div>

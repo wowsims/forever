@@ -1,5 +1,7 @@
-import { APLRotation_Type as APLRotationType } from '@generated/proto/apl';
+import { requestAplReveal } from '@features/apl/model/reveal';
+import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { renderWithHost } from '@testing/react';
+import { act, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Everything the panes mount besides the Cooldowns block and the sidebar's SIML actions; none of it is under test here.
@@ -49,6 +51,33 @@ describe('RotationTabBody simple pane', () => {
 	it('hides it when the spec has no available cooldowns', () => {
 		available = [];
 		expect(cooldownBlock(setup().container)).toBeNull();
+	});
+});
+
+describe('RotationTabBody APL sub-tabs', () => {
+	const rotation = APLRotation.create({
+		priorityList: [APLListItem.create()],
+		groups: [{ name: 'execute', actions: [APLListItem.create()], variables: [] }],
+	});
+
+	const panes = (container: HTMLElement) => [...container.querySelectorAll<HTMLElement>('[data-testid="tab-pane"]')];
+	const openPane = (container: HTMLElement) => panes(container).find(pane => !pane.hidden)?.id;
+
+	it('opens Action Groups for a group entry and Priority List for a priority entry', async () => {
+		const { container } = renderWithHost(<RotationTabBody rotationType={APLRotationType.TypeAPL} />, {
+			player: { aplRotation: rotation, hasSimpleRotationGenerator: () => false },
+		});
+		expect(openPane(container)).toBe('apl-priority-list');
+
+		act(() => {
+			requestAplReveal(rotation, [{ kind: 'group', group: 0, index: 0 }]);
+		});
+		await waitFor(() => expect(openPane(container)).toBe('apl-action-groups'));
+
+		act(() => {
+			requestAplReveal(rotation, [{ kind: 'priority', index: 0 }]);
+		});
+		await waitFor(() => expect(openPane(container)).toBe('apl-priority-list'));
 	});
 });
 

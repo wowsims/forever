@@ -65,6 +65,9 @@ type APLRotation struct {
 	// wait, and a Change Target to the current target is a step that does nothing.
 	inSequence bool
 
+	// The path of the entry whose action is running, kept only while the sim logs; empty outside one.
+	runningEntryPath string
+
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
 	curValidations          []*proto.APLValidation
@@ -89,6 +92,7 @@ type APLGroup struct {
 	actions      []*APLAction
 	variables    map[string]*proto.APLValue
 	referencedBy *APLActionGroupReference
+	configIdx    int // The group's index in the config's groups, shared by its copies.
 }
 
 type APLValueVariable struct {
@@ -228,6 +232,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		group := &APLGroup{
 			name:      groupConfig.Name,
 			variables: make(map[string]*proto.APLValue),
+			configIdx: slices.Index(config.Groups, groupConfig),
 		}
 
 		for _, varConfig := range groupConfig.Variables {
@@ -345,6 +350,8 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		}
 	}
 
+	rotation.assignEntryPaths(config)
+
 	return rotation
 }
 
@@ -444,6 +451,7 @@ func (rot *APLRotation) allPrepullActions() []*APLAction {
 func (rot *APLRotation) reset(sim *Simulation) {
 	rot.controllingActions = rot.controllingActions[:0]
 	rot.inLoop = false
+	rot.runningEntryPath = ""
 	rot.interruptChannelIf = nil
 	rot.allowChannelRecastOnInterrupt = false
 	rot.evalGeneration++ // Invalidate any variable caches from previous iteration or initialization

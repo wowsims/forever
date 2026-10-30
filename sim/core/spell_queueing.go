@@ -12,6 +12,7 @@ type QueuedSpell struct {
 
 	channelAction *APLActionChannelSpell // The channel action that queued the spell, which its cast carries when it fires.
 	afterHardcast bool                   // Queued under a hardcast that holds the rotation, as the cast that follows it.
+	entryPath     string                 // The path of the APL entry that queued the spell, which its cast carries when it fires.
 
 	// Stores the time at which QueueSpell() was called to ensure that only one spell can be queued up per timestep
 	QueueInitiatedAt time.Duration
@@ -26,6 +27,7 @@ func (qs *QueuedSpell) Cancel(sim *Simulation) {
 	}
 
 	qs.channelAction = nil
+	qs.entryPath = ""
 	qs.QueueInitiatedAt = -NeverExpires
 }
 
@@ -43,6 +45,7 @@ func (qs *QueuedSpell) InitiateQueue(sim *Simulation, spell *Spell, target *Unit
 	if qs.queueAction == nil {
 		if qs.castFn == nil {
 			qs.castFn = func(sim *Simulation) {
+				qs.spell.Unit.setRotationCastEntryPath(qs.entryPath)
 				qs.spell.castForRotation(sim, qs.target, qs.channelAction)
 				// The rotation goes on from a queued instant at once, as it does after one it casts itself, so
 				// an action off the GCD, such as a move, does not wait for the next GCD.
@@ -182,7 +185,9 @@ func (spell *Spell) CastOrQueue(sim *Simulation, target *Unit) {
 }
 
 func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *APLActionChannelSpell) {
+	entryPath := spell.Unit.currentEntryPath()
 	if spell.CanCast(sim, target) {
+		spell.Unit.setRotationCastEntryPath(entryPath)
 		spell.castForRotation(sim, target, channelAction)
 	} else if spell.CanQueue(sim, target) {
 		// Determine which timer the spell is waiting on
@@ -195,9 +200,11 @@ func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *AP
 		// Schedule the cast to go off without delay
 		spell.Unit.QueueSpell(sim, spell, target, queueTime)
 		spell.Unit.QueuedSpell.channelAction = channelAction
+		spell.Unit.QueuedSpell.entryPath = entryPath
 		spell.Unit.QueuedSpell.afterHardcast = spell.Unit.hardcastHoldsRotation(sim)
 	} else {
 		// Fallback to make sure there is always log output
+		spell.Unit.setRotationCastEntryPath(entryPath)
 		spell.castForRotation(sim, target, channelAction)
 	}
 }
@@ -205,6 +212,35 @@ func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *AP
 type rotationCast struct {
 	spell         *Spell                 // Until its effects apply or its hardcast ends, completed or not.
 	channelAction *APLActionChannelSpell // The channel action that cast it, whose interruptIf and allowRecast the channel it starts takes.
+}
+
+// The path of the APL entry running now, kept only while the sim logs; empty outside one.
+func (unit *Unit) currentEntryPath() string {
+	if unit.Rotation == nil {
+		return ""
+	}
+	return unit.Rotation.runningEntryPath
+}
+
+// Hands the APL entry path to the next rotation cast, which holds it until its Cast returns.
+func (unit *Unit) setRotationCastEntryPath(entryPath string) {
+	if entryPath != "" {
+		unit.rotationCastEntryPath = entryPath
+	}
+}
+
+// The suffix a Casting log line ends with: the APL entry path of the rotation cast. Only the rotation cast itself
+// carries it, so a spell cast while it runs, such as one its effects cast, names no entry path. A spell a press
+// credited, such as one queued for the next swing, names the press's entry path once, on its next Casting line.
+func (spell *Spell) aplEntrySuffix() string {
+	if unit := spell.Unit; spell == unit.rotationCast.spell && unit.rotationCastEntryPath != "" {
+		return " APL: " + unit.rotationCastEntryPath
+	}
+	if entryPath := spell.creditedEntryPath; entryPath != "" {
+		spell.creditedEntryPath = ""
+		return " APL: " + entryPath
+	}
+	return ""
 }
 
 // A cast by the rotation or a major cooldown: once it completes it restarts the wand's timer. The record
@@ -216,6 +252,7 @@ func (spell *Spell) castForRotation(sim *Simulation, target *Unit, channelAction
 	unit := spell.Unit
 	unit.rotationCast = rotationCast{spell: spell, channelAction: channelAction}
 	cast := spell.Cast(sim, target)
+	unit.rotationCastEntryPath = ""
 	if cast {
 		spell.CountManualCast(target)
 	}
@@ -228,6 +265,12 @@ func (spell *Spell) castForRotation(sim *Simulation, target *Unit, channelAction
 // such as the one that queues it for the next swing, credits it here.
 func (spell *Spell) CountManualCast(target *Unit) {
 	spell.SpellMetrics[target.UnitIndex].ManualCasts++
+	// The press's entry path goes with its credit. A walk picked in a nested rotation pass runs its own entry path,
+	// so it takes none from the cast in flight.
+	running := spell.Unit.currentEntryPath()
+	if entryPath := spell.Unit.rotationCastEntryPath; entryPath != "" && (running == "" || running == entryPath) {
+		spell.creditedEntryPath = entryPath
+	}
 }
 
 func (unit *Unit) endRotationCast() {
