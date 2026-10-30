@@ -75,6 +75,7 @@ export const applyBuild = (
 			if (encounter.healingModel) simUI.player.setHealingModel(encounter.healingModel);
 			if (encounter.tanks) simUI.sim.raid.setTanks(encounter.tanks);
 			if (encounter.targetDummies !== undefined) simUI.sim.raid.setTargetDummies(encounter.targetDummies);
+			if (encounter.healingSettings) simUI.sim.raid.setHealingSettings(encounter.healingSettings);
 		}
 		if (reforgeSettings && simUI.reforger) {
 			simUI.reforger.applyPresetSettings(reforgeSettings);

@@ -79,7 +79,7 @@
 					]
 				},
 				{ "path": "player.*.options", "flatten": "spec_options" },
-				{ "path": "", "fields": ["tanks"] }
+				{ "path": "", "fields": ["tanks", "healing_settings"] }
 			],
 			"presence": "player.*.options"
 		},

@@ -320,12 +320,12 @@ func getCritChance(rawChance float64, target *Unit) float64 {
 func (spell *Spell) HealingPower(target *Unit) float64 {
 	return spell.Unit.GetStat(stats.HealingPower) + target.PseudoStats.BonusHealingTaken
 }
-func (spell *Spell) HealingCritChance() float64 {
-	return (spell.Unit.GetStat(stats.SpellCritPercent) + spell.BonusCritPercent) / 100
+func (spell *Spell) HealingCritChance(target *Unit) float64 {
+	return min(spell.SpellCritChance(target), 1)
 }
 
-func (spell *Spell) HealingCritCheck(sim *Simulation) bool {
-	critChance := spell.HealingCritChance()
+func (spell *Spell) HealingCritCheck(sim *Simulation, target *Unit) bool {
+	critChance := spell.HealingCritChance(target)
 	return sim.RandomFloat("Healing Crit Roll") < critChance
 }
 
@@ -756,6 +756,7 @@ func (spell *Spell) CalcHealing(sim *Simulation, target *Unit, baseHealing float
 	}
 	return spell.calcHealingInternal(sim, target, baseHealing, spell.CasterHealingMultiplier(), outcomeApplier)
 }
+
 func (spell *Spell) CalcPeriodicHealing(sim *Simulation, target *Unit, baseHealing float64, outcomeApplier OutcomeApplier) *SpellResult {
 	var dot *Dot
 	if spell.aoeDot != nil {

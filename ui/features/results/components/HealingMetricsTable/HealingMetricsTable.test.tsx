@@ -1,3 +1,7 @@
+import { ActionID } from '@generated/proto/common';
+import { IconData } from '@generated/proto/ui';
+import { Database } from '@sim/proto/database';
+import { ActionMetrics, SimResult } from '@sim/proto/sim_result';
 import {
 	actionMetric as metric,
 	metricRows as rows,
@@ -5,6 +9,7 @@ import {
 	metricsTooltipTable as tooltipTable,
 	mockActionMetricsMerge,
 	playerMetricsResult,
+	spellActionsRun,
 } from '@testing/results-metrics';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -16,7 +21,26 @@ let result: SimResultData | null = null;
 let showThreatMetrics = true;
 
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => result }));
-vi.mock('../MetricsTable/MetricsActionCell', () => ({ MetricsActionCell: ({ name }: { name: string }) => <span>{name}</span> }));
+vi.mock('../MetricsTable/MetricsActionCell', () => ({
+	MetricsActionCell: ({
+		name,
+		actionId,
+		expandable,
+		onToggle,
+	}: {
+		name: string;
+		actionId: { iconUrl?: string };
+		expandable: boolean;
+		onToggle: () => void;
+	}) =>
+		expandable ? (
+			<button data-icon={actionId.iconUrl} onClick={onToggle}>
+				{name}
+			</button>
+		) : (
+			<span data-icon={actionId.iconUrl}>{name}</span>
+		),
+}));
 vi.mock('@sim/context/SimHostContext', async importOriginal => ({
 	...(await importOriginal<typeof import('@sim/context/SimHostContext')>()),
 	// `useDisplayMetrics` reads all three flags through one subscription; only threat varies per case here.
@@ -25,6 +49,28 @@ vi.mock('@sim/context/SimHostContext', async importOriginal => ({
 vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions());
 
 const playerResult = playerMetricsResult('getHealingActions');
+
+const taggedActionId = (spellId: number, tag: number, name: string) => ({
+	spellId,
+	itemId: 0,
+	tag,
+	name,
+	toStringIgnoringTag: () => `${spellId}`,
+	toString: () => `${spellId}:${tag}`,
+	equals: (other: { spellId: number; itemId: number; tag: number }) => other.spellId === spellId && other.itemId === 0 && other.tag === tag,
+	withoutTag() {
+		return { ...this, tag: 0 };
+	},
+});
+
+const sourceId = (spellId: number) => ({ spellId, itemId: 0, tag: 0 });
+
+// The actions on one player unit, whose action list a proc row reads its source's name from.
+const onePlayer = (actions: Array<ActionMetrics>) => {
+	const unit = { isPet: false, petActionId: null, actions };
+	actions.forEach(action => Object.assign(action, { unit }));
+	return actions;
+};
 
 describe('HealingMetricsTable', () => {
 	beforeEach(() => {
@@ -46,6 +92,77 @@ describe('HealingMetricsTable', () => {
 		const { container } = render(<HealingMetricsTable />);
 
 		expect(rows(container).map(row => row.cells[0].textContent)).toEqual(['Rejuvenation', 'Healing Touch']);
+	});
+
+	it('keeps a row per source under the proc spell, named after its source, and leaves Penance tag 1 a normal action', () => {
+		result = playerResult(
+			onePlayer([
+				metric('Prayer of Healing', { actionId: taggedActionId(100, 0, 'Prayer of Healing'), hps: 8 }),
+				metric('Flash Heal', { actionId: taggedActionId(300, 0, 'Flash Heal'), hps: 2 }),
+				metric('Divine Aegis', { actionId: taggedActionId(900, 100, 'Divine Aegis'), sourceActionId: sourceId(100), hps: 4 }),
+				metric('Divine Aegis', { actionId: taggedActionId(900, 300, 'Divine Aegis'), sourceActionId: sourceId(300), hps: 3 }),
+				metric('Penance', { actionId: taggedActionId(200, 1, 'Penance'), hps: 6 }),
+			]),
+		);
+		const { container } = render(<HealingMetricsTable />);
+
+		expect(rows(container).map(row => row.cells[0].textContent)).toEqual([
+			'Prayer of Healing',
+			'Divine Aegis',
+			'Prayer of Healing',
+			'Flash Heal',
+			'Penance',
+			'Flash Heal',
+		]);
+	});
+
+	it('names the joined row of real proc metrics after the proc spell, with its icon, and each source row after its source', async () => {
+		vi.mocked(ActionMetrics.merge).mockRestore();
+		const spells: Record<number, { name: string; icon: string; rank?: number }> = {
+			2060: { name: 'Heal', icon: 'spell_holy_heal', rank: 3 },
+			2061: { name: 'Flash Heal', icon: 'spell_holy_flashheal', rank: 4 },
+			431624: { name: 'Divine Aegis', icon: 'spell_holy_devineaegis' },
+		};
+		vi.spyOn(Database, 'getSpellIconData').mockImplementation(spellId => Promise.resolve(IconData.create({ id: spellId, ...spells[spellId] })));
+		const run = spellActionsRun([
+			{ spellId: 2060, damage: 0 },
+			{ spellId: 2061, damage: 0 },
+			{ spellId: 431624, tag: 2060, damage: 0 },
+			{ spellId: 431624, tag: 2061, damage: 0 },
+		]);
+		const actions = run.result.raidMetrics!.parties[0].players[0].actions;
+		[400, 300, 250, 100].forEach((healing, index) => (actions[index].targets[0].healing = healing));
+		actions[2].sourceId = ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 2060 } });
+		actions[3].sourceId = ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 2061 } });
+		result = { result: await SimResult.makeNew(run.request, run.result), filter: {} } as unknown as SimResultData;
+		const { container } = render(<HealingMetricsTable />);
+
+		const names = rows(container).map(row => [
+			row.cells[0].textContent,
+			row.cells[0]
+				.querySelector('[data-icon]')
+				?.getAttribute('data-icon')
+				?.match(/(\w+)\.jpg$/)?.[1],
+		]);
+		expect(names).toEqual([
+			['Heal (common.action_tags.rank)', 'spell_holy_heal'],
+			['Divine Aegis', 'spell_holy_devineaegis'],
+			['Heal (common.action_tags.rank)', 'spell_holy_heal'],
+			['Flash Heal (common.action_tags.rank)', 'spell_holy_flashheal'],
+			['Flash Heal (common.action_tags.rank)', 'spell_holy_flashheal'],
+		]);
+	});
+
+	it('keeps a lone source under the proc spell, named after a damage spell that heals nothing itself', () => {
+		result = playerResult(
+			onePlayer([
+				metric('Shadow Word: Pain', { actionId: taggedActionId(589, 0, 'Shadow Word: Pain'), hps: 0 }),
+				metric('Vampiric Embrace', { actionId: taggedActionId(15290, 589, 'Vampiric Embrace'), sourceActionId: sourceId(589), hps: 5 }),
+			]),
+		);
+		const { container } = render(<HealingMetricsTable />);
+
+		expect(rows(container).map(row => row.cells[0].textContent)).toEqual(['Vampiric Embrace', 'Shadow Word: Pain']);
 	});
 
 	it('draws the shielding overlay as a second bar fill', () => {

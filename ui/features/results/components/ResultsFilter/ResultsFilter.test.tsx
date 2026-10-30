@@ -1,10 +1,11 @@
+import i18n from '@i18n/config';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimResultData } from '../../model/result_data';
 import { ResultsFilter } from './ResultsFilter';
-import { ALL_UNITS, hasTarget, simResultFilter } from './utils';
+import { ALL_UNITS, hasTarget, simResultFilter, targetOptions } from './utils';
 
 let resultData: SimResultData | null = null;
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => resultData }));
@@ -12,11 +13,42 @@ vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => resultData }));
 const resultWith = (...targets: Array<{ index: number; iconUrl?: string; classColor?: string }>) =>
 	({
 		result: {
+			result: { raidMetrics: { parties: [] } },
+			getRaidIndexedPlayers: () => [],
 			getTargets: () => targets,
 			getTargetWithEncounterIndex: (index: number) => targets.find(target => target.index === index) ?? null,
 		},
 		filter: {},
 	}) as never as SimResultData;
+
+// A healer in raid slot 0 and nine target dummies after it. Unit indexes count the encounter target
+// first, so the healer is unit 1 and the dummies units 2-10. The result's player list leaves the
+// dummies out; only the raw party metrics carry them, under the names the sim gives them.
+const HEALER_INDEX = 1;
+const healerMetrics = { name: 'Healer', unitIndex: HEALER_INDEX, pets: [{ name: 'Wolf', unitIndex: 11, pets: [] }] };
+const dummyMetrics = Array.from({ length: 9 }, (_, i) => ({ name: `Target Dummy ${i + 1}`, unitIndex: HEALER_INDEX + 1 + i, pets: [] }));
+
+const healingResultWith = (heals: Array<{ unitIndex: number; healing: number; shielding: number }>) =>
+	({
+		result: {
+			raidMetrics: {
+				parties: [{ players: [healerMetrics, ...dummyMetrics.slice(0, 4)] }, { players: dummyMetrics.slice(4) }],
+			},
+		},
+		getRaidIndexedPlayers: () => [
+			{
+				spec: { isHealingSpec: true },
+				unitIndex: HEALER_INDEX,
+				getPlayerAndPetActions: () => [
+					{
+						targets: heals.map(({ unitIndex, healing, shielding }) => ({ data: { unitIndex }, healing: healing + shielding, shielding })),
+					},
+				],
+			},
+		],
+		getTargets: () => [{ index: 0 }],
+		getTargetWithEncounterIndex: () => null,
+	}) as never as SimResultData['result'];
 
 const mount = (target: number, onTargetChange = vi.fn()) => render(<ResultsFilter target={target} onTargetChange={onTargetChange} />);
 
@@ -95,6 +127,55 @@ describe('the filter the pane emits', () => {
 
 		expect(hasTarget(result, ALL_UNITS)).toBe(true);
 		expect(hasTarget(result, 1)).toBe(true);
+		expect(hasTarget(result, 2)).toBe(false);
+	});
+});
+
+describe('healing target options', () => {
+	it('keeps enemy targets alongside the healed friendly targets', () => {
+		const result = healingResultWith([{ unitIndex: 2, healing: 25, shielding: 0 }]);
+		expect(targetOptions(result).map(option => option.value)).toEqual([ALL_UNITS, 0, 2]);
+	});
+	it('labels the healer separately and numbers targets that received healing or shielding', () => {
+		const result = healingResultWith([
+			{ unitIndex: 1, healing: 20, shielding: 0 },
+			{ unitIndex: 2, healing: 50, shielding: 0 },
+			{ unitIndex: 4, healing: 0, shielding: 35 },
+			{ unitIndex: 6, healing: 0, shielding: 0 },
+		]);
+
+		expect(targetOptions(result).map(option => [option.value, option.label])).toEqual([
+			[ALL_UNITS, 'results_tab.details.all_targets'],
+			[0, 'results_tab.details.target_number'],
+			[1, 'results_tab.details.healer_target'],
+			[2, 'results_tab.details.heal_target_number'],
+			[4, 'results_tab.details.heal_target_number'],
+		]);
+	});
+
+	it('numbers a heal target as the rotation does when an earlier dummy got no healing', () => {
+		const t = vi.spyOn(i18n, 't');
+		targetOptions(
+			healingResultWith([
+				{ unitIndex: 3, healing: 20, shielding: 0 },
+				{ unitIndex: 7, healing: 50, shielding: 0 },
+			]),
+		);
+		expect(t).toHaveBeenCalledWith('results_tab.details.heal_target_number', { number: 2 });
+		expect(t).toHaveBeenCalledWith('results_tab.details.heal_target_number', { number: 6 });
+		t.mockRestore();
+	});
+
+	it('labels a healed friendly unit that is not a target dummy by its name', () => {
+		const result = healingResultWith([{ unitIndex: 11, healing: 30, shielding: 0 }]);
+
+		expect(targetOptions(result).find(option => option.value === 11)?.label).toBe('Wolf');
+	});
+
+	it('recognizes healed dummies as valid targets after a run', () => {
+		const result = healingResultWith([{ unitIndex: 3, healing: 25, shielding: 0 }]);
+
+		expect(hasTarget(result, 3)).toBe(true);
 		expect(hasTarget(result, 2)).toBe(false);
 	});
 });

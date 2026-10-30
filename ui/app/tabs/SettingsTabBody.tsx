@@ -95,8 +95,7 @@ export const SettingsTabBody = () => {
 	const itemSwapSlots = config.itemSwapSlots || [];
 	const hasOtherSettings = config.otherInputs.inputs.length > 0 || itemSwapSlots.length > 0;
 	const selector = useSelectorModalState();
-	// A gear planner never runs an encounter, so only the sections that change the character's stats are shown:
-	// no encounter, debuffs or saved encounters, and no potions or explosives.
+	// With simulation disabled, only sections that change the character's stats are shown.
 	const gearPlanner = host.simDisabled;
 
 	return (
@@ -123,9 +122,7 @@ export const SettingsTabBody = () => {
 				<TabPanelColumns.Col>
 					{ready && (
 						<>
-							{config.sections?.map(section => (
-								<CustomSection key={section.id} section={section} />
-							))}
+							{!gearPlanner && config.sections?.map(section => <CustomSection key={section.id} section={section} />)}
 							<ContentBlock
 								rootDataAttributes={{ 'data-block': 'consumes-settings' }}
 								config={{ header: { title: i18n.t('settings_tab.consumables.title') } }}

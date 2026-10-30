@@ -1,3 +1,4 @@
+import { healingTargetDummies } from '@features/encounter/model/target_dummies';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Cooldowns, Profession, Spec } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
@@ -102,9 +103,16 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 
 		host.reforger?.applyDefaults();
 
-		// defaults.siml writes the count in raid_buffs:, and leaves 0 out. Healers get a full party of allies; Balance
-		// keeps one so Innervate can leave the druid.
-		sim.raid.setTargetDummies(fromFile ? config.defaults.settings!.targetDummies : healingSpec ? 9 : player.getSpec() === Spec.SpecBalanceDruid ? 1 : 0);
+		// Healing assignments set healer targets; defaults.siml supplies the dummy count for other specs.
+		if (healingSpec) {
+			sim.raid.setTargetDummies(healingTargetDummies(sim.raid.getHealingSettings()));
+		} else if (fromFile) {
+			sim.raid.setTargetDummies(config.defaults.settings!.targetDummies);
+		} else if (player.getSpec() === Spec.SpecBalanceDruid) {
+			sim.raid.setTargetDummies(1);
+		} else {
+			sim.raid.setTargetDummies(0);
+		}
 		if (config.defaults.encounter?.encounter) {
 			sim.encounter.fromProto(config.defaults.encounter.encounter);
 		} else {

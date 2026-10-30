@@ -1,4 +1,5 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
+import { HealingSimSettings_Assignment as Assignment } from '@generated/proto/ui';
 import { ActionId, defaultTargetIcon, getPetIconFromName } from '@sim/proto/action_id';
 import { makePlayer } from '@testing/apl/player';
 import { describe, expect, it, vi } from 'vitest';
@@ -8,6 +9,7 @@ import { refToValue, unitOptionModels, withIconUrl } from './unit_values';
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 const label = (key: string) => `rotation_tab.apl.helpers.unit_labels.${key}`;
+const nineDummySlots = () => [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 describe('refToValue', () => {
 	it.each([
@@ -73,6 +75,42 @@ describe('withIconUrl', () => {
 });
 
 describe('unitOptionModels', () => {
+	it.each([
+		[Assignment.TankHealing, 10, 0],
+		[Assignment.RaidHealing, 10, 1],
+		[Assignment.RaidHealing, 20, 1],
+		[Assignment.RaidHealing, 5, 0],
+		[Assignment.TankHealing, 5, 0],
+	])('offers random friendly targets only for raid healing outside a dungeon (assignment %i, group size %i)', (assignment, groupSize, expected) => {
+		const player: any = makePlayer({} as any);
+		player.getPlayerSpec = () => ({ isHealingSpec: true });
+		Object.assign(player.sim.raid, {
+			getTargetDummySlots: nineDummySlots,
+			getHealingSettings: () => ({ assignment, groupSize }),
+		});
+		const random = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.RandomFriendlyTarget);
+		expect(random).toHaveLength(expected);
+		if (random.length) expect(random[0].unit.text).toBe(label('random_friendly_target'));
+	});
+
+	it('numbers heal targets across the whole raid, not per group', () => {
+		const player: any = makePlayer({} as any);
+		player.getPlayerSpec = () => ({ isHealingSpec: true });
+		Object.assign(player.sim.raid, {
+			getPlayer: (index: number) => (index === 0 ? player : null),
+			getTargetDummySlots: nineDummySlots,
+			getHealingSettings: () => ({ assignment: Assignment.RaidHealing, groupSize: 10 }),
+		});
+		const text = (index: number) => refToValue(UnitReference.create({ type: UnitType.Player, index }), player, false).text;
+		expect(text(1)).toBe(`${label('heal_target')} 1`);
+		expect(text(5)).toBe(`${label('heal_target')} 5`);
+		expect(text(9)).toBe(`${label('heal_target')} 9`);
+
+		const options = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.Player);
+		expect(options.map(model => [model.unit.text, model.submenu])).toEqual(
+			nineDummySlots().map((slot, i) => [`${label('heal_target')} ${i + 1}`, ['heal_target', `group_${slot < 5 ? 1 : 2}`]]),
+		);
+	});
 	it.each([
 		['under its owner when the set uses target UI', 'aura_sources_targets_first', UnitReference.create({ type: UnitType.Self }), true],
 		['under the default unit when the set does not use target UI', 'aura_sources', undefined, undefined],

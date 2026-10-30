@@ -11,13 +11,17 @@ func (priest *Priest) registerPrayerOfHealing(_ int32, rank *spelldata.Spell) {
 
 	config := spelldata.SpellConfig(&priest.Unit, rank, spelldata.Magic(core.ProcMaskSpellHealing))
 	config.ClassSpellMask = PriestSpellPrayerOfHealing
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		if priest.Party == nil || len(priest.Party.Players) == 0 {
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		party := priest.Party
+		if targetAgent := priest.Env.Raid.GetPlayerFromUnit(target); targetAgent != nil {
+			party = targetAgent.GetCharacter().Party
+		}
+		if party == nil || len(party.Players) == 0 {
 			return
 		}
 
-		targets := make([]*core.Unit, 0, min(5, len(priest.Party.Players)))
-		for _, member := range priest.Party.Players {
+		targets := make([]*core.Unit, 0, min(5, len(party.Players)))
+		for _, member := range party.Players {
 			targets = append(targets, &member.GetCharacter().Unit)
 		}
 

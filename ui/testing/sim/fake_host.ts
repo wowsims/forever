@@ -9,7 +9,7 @@ export type FakeHostParts = Partial<Record<keyof IndividualSimHost<any>, unknown
 
 export const fakeHost = (parts: FakeHostParts = {}): IndividualSimHost<any> =>
 	({
-		player: {},
+		player: { getPlayerSpec: () => ({ isHealingSpec: false }) },
 		sim: {},
 		disabled: false,
 		simDisabled: false,

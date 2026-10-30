@@ -13,7 +13,7 @@ import {
 	Stat,
 	UnitReference,
 } from '@generated/proto/common';
-import { IndividualSimSettings, SavedRotation, SavedTalents } from '@generated/proto/ui';
+import { HealingSimSettings, IndividualSimSettings, SavedRotation, SavedTalents } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import type {
@@ -194,12 +194,14 @@ export const makePresetEncounter = (
 	healingModel?: HealingModel,
 	tanks?: UnitReference[],
 	targetDummies?: number,
+	healingSettings?: HealingSimSettings,
 	options?: PresetEncounterOptions,
 ): PresetEncounter => {
 	return {
 		name,
 		encounter,
 		targetDummies,
+		healingSettings,
 		tanks,
 		healingModel,
 		...options,
@@ -327,6 +329,7 @@ export const makePresetBuildFromJSON = (
 			simSettings.player?.healingModel,
 			simSettings.tanks,
 			simSettings.targetDummies,
+			simSettings.healingSettings,
 			options,
 		);
 	}

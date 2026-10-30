@@ -121,8 +121,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		swr.Player.BonusStats.PseudoStats = make([]float64, stats.PseudoStatsLen)
 	}
 
-	raidProto := SinglePlayerRaidProto(swr.Player, swr.PartyBuffs, swr.RaidBuffs, swr.Debuffs)
-	raidProto.Tanks = swr.Tanks
+	raidProto := StatWeightsRaidProto(swr)
 
 	swr.SimOptions.SaveAllValues = true
 

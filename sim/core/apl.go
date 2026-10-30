@@ -10,12 +10,13 @@ import (
 )
 
 type APLRotation struct {
-	unit           *Unit
-	prepullActions []*APLAction
-	priorityList   []*APLAction
-	groups         []*APLGroup
-	valueVariables []*APLValueVariable
-	resetActions   []*APLAction
+	unit                 *Unit
+	randomFriendlyTarget *randomFriendlyTarget // Shared by conditions and casts during one action pick.
+	prepullActions       []*APLAction
+	priorityList         []*APLAction
+	groups               []*APLGroup
+	valueVariables       []*APLValueVariable
+	resetActions         []*APLAction
 
 	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
 	canMoveCloserValue bool
@@ -584,6 +585,9 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 
 func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 	apl.evalGeneration++
+	if apl.randomFriendlyTarget != nil {
+		apl.randomFriendlyTarget.roll(sim)
+	}
 
 	if len(apl.controllingActions) != 0 {
 		return apl.controllingActions[len(apl.controllingActions)-1].GetNextAction(sim)

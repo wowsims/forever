@@ -6,11 +6,12 @@ import { showsOutOfMana, toplineResultMetrics } from './topline_metrics';
 
 vi.mock('@sim/proto/sim_result', async importOriginal => {
 	const actual = await importOriginal<typeof import('@sim/proto/sim_result')>();
-	const sum = (actions: Array<{ dps: number; tps: number }>, key: 'dps' | 'tps') => actions.reduce((total, action) => total + action[key], 0);
+	type Metric = { dps: number; tps: number; hps: number };
+	const sum = (actions: Array<Metric>, key: keyof Metric) => actions.reduce((total, action) => total + action[key], 0);
 	return {
 		...actual,
 		ActionMetrics: {
-			merge: (actions: Array<{ dps: number; tps: number }>) => ({ dps: sum(actions, 'dps'), tps: sum(actions, 'tps') }),
+			merge: (actions: Array<Metric>) => ({ dps: sum(actions, 'dps'), tps: sum(actions, 'tps'), hps: sum(actions, 'hps') }),
 		},
 	};
 });
@@ -21,6 +22,7 @@ const player = (overrides: Record<string, unknown> = {}) => ({
 	spec: PlayerSpecs.Mage,
 	unitIndex: 0,
 	getTargetIndex: () => null,
+	getPlayerAndPetActions: () => [],
 	dps: dist(1000, 10),
 	tps: dist(500, 5),
 	dtps: dist(50, 1),
@@ -89,7 +91,7 @@ describe('toplineResultMetrics', () => {
 
 	it('merges the filtered actions when a target is selected', () => {
 		const result = simResult([player({ getTargetIndex: () => 0 })], {
-			getRaidIndexedActionMetrics: () => [{ dps: 400, tps: 200 }],
+			getRaidIndexedActionMetrics: () => [{ dps: 400, tps: 200, hps: 0 }],
 			getTargets: () => [{ actions: [{ forTarget: () => ({ dps: 30, tps: 0 }) }] }],
 		});
 
@@ -102,6 +104,13 @@ describe('toplineResultMetrics', () => {
 		const displayMetrics = { damage: true, threat: false, healing: true };
 
 		expect(toplineResultMetrics(result, undefined, { displayMetrics }).map(metric => metric.metric)).toEqual(['dps', 'tps', 'apm', 'tto', 'hps']);
+	});
+
+	it('keeps HPS variance and tps for a healer', () => {
+		const result = simResult([player({ spec: PlayerSpecs.HealerPriest })]);
+		const metrics = toplineResultMetrics(result, undefined, { displayMetrics: { damage: false, threat: false, healing: true } });
+		expect(metrics.map(metric => metric.metric)).toContain('tps');
+		expect(metrics[0]).toMatchObject({ metric: 'hps', average: 20, stdev: 2 });
 	});
 
 	it('omits the merged columns a filtered encounter has no actions for', () => {

@@ -1,4 +1,5 @@
 import { APLRotation } from '@generated/proto/apl';
+import { HealingSimSettings_Assignment } from '@generated/proto/ui';
 import { createSimStore } from '@sim/state/sim_store';
 
 /**
@@ -22,13 +23,20 @@ export const makePlayer = (rotation: APLRotation, notify: () => void = () => {})
 		storeKey: 'p0',
 		secondaryResource: undefined,
 		sim: {
-			raid: { getPlayer: () => undefined, getActivePlayers: () => [], size: () => 1 },
+			raid: {
+				getPlayer: () => undefined,
+				getActivePlayers: () => [],
+				getTargetDummySlots: () => [],
+				getHealingSettings: () => ({ assignment: HealingSimSettings_Assignment.TankHealing, groupSize: 5 }),
+				size: () => 1,
+			},
 			encounter: { targetsMetadata: { asList: () => [] } },
 			getUnitMetadata: () => metadata,
 			store: createSimStore(),
 		},
 		getClass: () => 0,
 		getSpec: () => -1,
+		getPlayerSpec: () => ({ isHealingSpec: false }),
 		getRaid: () => ({ size: () => 1 }),
 		getSpecIcon: () => '',
 		shouldEnableTargetDummies: () => false,

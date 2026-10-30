@@ -160,6 +160,9 @@ message ActionMetrics {
 
 	// True if action is applied/cast as a result of another action
 	bool is_passive = 5;
+
+	// For a proc spell registered once per source, the spell or item that source is. Unset for every other action.
+	ActionID source_id = 6;
 }
 
 // Metrics for a specific action, when cast at a particular target.
@@ -750,6 +753,7 @@ message StatWeightsRequest {
 	// Unset runs the request's iteration count once. Set, the first pass runs a fixed count the sim picks
 	// and the request's count plays no part.
 	StatWeightsTarget target = 12;
+	Raid raid = 13;
 }
 
 // The ± each targeted EP runs extra iterations to reach.
