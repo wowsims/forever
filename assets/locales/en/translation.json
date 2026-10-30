@@ -1336,6 +1336,7 @@
 			"low_iteration_rounds": "Running low iteration rounds",
 			"medium_iteration_rounds": "Running medium iteration rounds",
 			"high_iteration_rounds": "Running high iteration rounds",
+			"iterations_complete": "{{completed}} / {{total}}<br />iterations complete",
 			"seconds_remaining": "{{seconds}} seconds remaining",
 			"finalist_iteration_rounds": "Running finalist tie-breaker rounds",
 			"title": "Bulk Sim",

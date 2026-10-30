@@ -80,6 +80,8 @@ export interface BulkProgress {
 	current?: number;
 	total?: number;
 	secondsRemaining?: number;
+	/** Only the sim stages carry these; the candidate stages report a time estimate alone. */
+	iterations?: { completed: number; total: number };
 }
 
 export interface CandidateGearProgressInput {
@@ -112,6 +114,7 @@ export const simProgress = (progress: ProgressMetrics, config: BulkSimProgressCo
 	const isBaselineRound = stageCurrentRound === 1;
 	const totalElapsedSeconds = (now - (config.aggregateStartedAt ?? simStart)) / 1000;
 	const completedIterations = config.aggregateCompletedIterations ?? progress.completedIterations;
+	const totalIterations = config.aggregateTotalIterations ?? progress.totalIterations;
 	const completedRoundsFromIterations = Math.max(
 		0,
 		config.aggregateTotalIterations && config.aggregateTotalIterations > 0
@@ -135,5 +138,6 @@ export const simProgress = (progress: ProgressMetrics, config: BulkSimProgressCo
 		current: completedRounds,
 		total: totalRounds,
 		secondsRemaining,
+		iterations: { completed: completedIterations, total: totalIterations },
 	};
 };

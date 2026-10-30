@@ -36,6 +36,12 @@ describe('simProgress', () => {
 		);
 		expect(progress?.total).toBe(2);
 		expect(progress?.current).toBeCloseTo(0.8);
+		expect(progress?.iterations).toEqual({ completed: 400, total: 1000 });
+	});
+
+	it('reports the stage’s own iteration counts without an aggregate', () => {
+		const progress = simProgress(metrics({ totalIterations: 100, completedIterations: 50 }), config(), 0, 1000);
+		expect(progress?.iterations).toEqual({ completed: 50, total: 100 });
 	});
 
 	it('switches to sim counts when the caller asks for them', () => {

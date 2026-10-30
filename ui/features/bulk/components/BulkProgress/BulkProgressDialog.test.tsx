@@ -56,6 +56,7 @@ const mount = (rows: object[]) => {
 
 const tick = (progress: object) =>
 	act(() => {
+		run.progress = progress;
 		for (const listener of run.listeners) listener(progress);
 	});
 
@@ -164,6 +165,37 @@ describe('BulkProgressDialog', () => {
 		tick({ ...progressAt(rows, 0), stage: 'sim', current: 3, total: 8, secondsRemaining: 30 });
 
 		expect(timeRemaining()).toBeNull();
+	});
+
+	it('counts the iterations done under the bar in a batch of one step, as they tick', () => {
+		i18n.addResourceBundle('en', 'translation', english, true, true);
+		try {
+			mount([CURRENT]);
+			const sim = { ...progressAt([CURRENT], 0), stage: 'sim', current: 3, total: 8, secondsRemaining: 30 };
+			expect(screen.queryByTestId('results-sim')).toBeNull();
+
+			tick({ ...sim, iterations: { completed: 400, total: 1000 } });
+			const message = screen.getByTestId('progress-tracker-modal-message');
+			expect(message.hidden).toBe(false);
+			expect(message.textContent).toBe('400 / 1000iterations complete');
+
+			tick({ ...sim, iterations: { completed: 650, total: 1000 } });
+			expect(screen.getByTestId('results-sim').textContent).toBe('650 / 1000iterations complete');
+
+			tick({ ...progressAt([CURRENT], 0), stage: 'preparing', current: 1, total: 4, secondsRemaining: 30 });
+			expect(screen.queryByTestId('results-sim')).toBeNull();
+		} finally {
+			i18n.removeResourceBundle('en', 'translation');
+		}
+	});
+
+	it('shows no iterations line in a batch of several steps', () => {
+		const rows = [CURRENT, LONG_FIGHT];
+		mount(rows);
+		tick({ ...progressAt(rows, 0), stage: 'sim', current: 3, total: 8, secondsRemaining: 30, iterations: { completed: 400, total: 1000 } });
+
+		expect(screen.queryByTestId('results-sim')).toBeNull();
+		expect(screen.getByTestId('progress-tracker-modal-message').hidden).toBe(true);
 	});
 
 	it('shows no step table for a batch of one step, which a Gear-mode batch always is, and the stage’s time left under its bar', () => {

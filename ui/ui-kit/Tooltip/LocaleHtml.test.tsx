@@ -51,6 +51,7 @@ const HTML_TAG = /<[a-zA-Z/][^>]*>/;
 // wrong. Every value spliced into these is a number, a duration, a stat or resource name or the engine's
 // reason text, none of which carries a tag.
 const INTERPOLATING_HTML_KEYS = [
+	'bulk_tab.progress.iterations_complete',
 	'results_tab.details.damage_result.damage_amount',
 	'results_tab.details.damage_result.health_amount',
 	'results_tab.details.logs.lines.aura_stacks',

@@ -4790,6 +4790,9 @@
 						"finalist_iteration_rounds": {
 							"type": "string"
 						},
+						"iterations_complete": {
+							"type": "string"
+						},
 						"seconds_remaining": {
 							"type": "string"
 						},
@@ -4825,6 +4828,7 @@
 						"medium_iteration_rounds",
 						"high_iteration_rounds",
 						"finalist_iteration_rounds",
+						"iterations_complete",
 						"seconds_remaining",
 						"title",
 						"status",
