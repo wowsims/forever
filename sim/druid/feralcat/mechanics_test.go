@@ -159,7 +159,7 @@ func TestProwlHoldsAutoAttacksUntilTheOpener(t *testing.T) {
 	if !cat.Prowl.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("prowl did not cast before the pull")
 	}
-	mh, _, _ := cat.AutoAttacks.SwingAt()
+	mh, _ := cat.AutoAttacks.SwingAt()
 	if mh != core.NeverExpires-time.Second {
 		t.Errorf("main-hand swing while prowling at %v, want held", mh)
 	}
@@ -174,7 +174,7 @@ func TestProwlHoldsAutoAttacksUntilTheOpener(t *testing.T) {
 	if cat.ProwlAura.IsActive() {
 		t.Error("pounce left the druid prowling")
 	}
-	if mh, _, _ := cat.AutoAttacks.SwingAt(); mh != 0 {
+	if mh, _ := cat.AutoAttacks.SwingAt(); mh != 0 {
 		t.Errorf("main-hand swing after the opener at %v, want 0", mh)
 	}
 }
@@ -333,7 +333,7 @@ func TestCowerAndFaerieFireEndProwl(t *testing.T) {
 			if cat.ProwlAura.IsActive() {
 				t.Errorf("%s left the druid prowling", spell.name)
 			}
-			if mh, _, _ := cat.AutoAttacks.SwingAt(); mh != 3*time.Second {
+			if mh, _ := cat.AutoAttacks.SwingAt(); mh != 3*time.Second {
 				t.Errorf("main-hand swing after %s at %v, want 3s", spell.name, mh)
 			}
 		})
