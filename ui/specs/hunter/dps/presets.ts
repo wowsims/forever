@@ -1,25 +1,27 @@
 import * as PresetUtils from '@app/preset_utils';
-import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, Race, Spec } from '@generated/proto/common';
-import {
-	Hunter_Options as HunterOptions,
-	Hunter_Rotation,
-	Hunter_Rotation_Playstyle as Playstyle,
-	HunterOptions_Ammo,
-	HunterOptions_PetAttackSpeed,
-	HunterOptions_PetType as PetType,
-	HunterOptions_QuiverBonus,
-} from '@generated/proto/hunter';
-import { SavedTalents } from '@generated/proto/ui';
+import { Spec } from '@generated/proto/common';
+import { Hunter_Rotation_Playstyle as Playstyle } from '@generated/proto/hunter';
 
-import CleanWeaveAPL from './apls/clean_weave.apl.json';
-import WeaveAPL from './apls/default.apl.json';
-import MeleeAPL from './apls/melee.apl.json';
-import TurretAPL from './apls/turret.apl.json';
-import TurretHawkAPL from './apls/turret_hawk.apl.json';
-import P1GearJson from './gear_sets/p1.gear.json';
-import P1MeleeGearJson from './gear_sets/p1_melee.gear.json';
+import CleanWeaveAPL from './apls/clean_weave.apl.siml';
+import WeaveAPL from './apls/default.apl.siml';
+import WeaveHawkAPL from './apls/default_hawks.apl.siml';
+import MeleeAPL from './apls/melee.apl.siml';
+import TurretAPL from './apls/turret.apl.siml';
+import TurretHawkAPL from './apls/turret_hawk.apl.siml';
+import TurretMultiAPL from './apls/turret_multi.apl.siml';
+import BmBuild from './builds/bm.siml';
+import BmWeaveBuild from './builds/bm_weave.siml';
+import MmBuild from './builds/mm.siml';
+import MmWeaveBuild from './builds/mm_weave.siml';
+import SvBuild from './builds/sv.siml';
+import SvMeleeBuild from './builds/sv_melee.siml';
+import SvWeaveBuild from './builds/sv_weave.siml';
+import DefaultsJson from './defaults.siml';
+import P1GearJson from './gear_sets/p1.gear.siml';
+import P1MeleeGearJson from './gear_sets/p1_melee.gear.siml';
+
+// The spec's defaults, from defaults.siml.
+export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecHunter, DefaultsJson);
 
 // The same armor twice, with the weapons each playstyle swings: a two-hander to weave with, which
 // is also the better pair of stats at range, and two one-handers to stand in melee with.
@@ -35,22 +37,11 @@ export const PlaystyleAPLs: Record<Playstyle, any> = {
 // At range with hawks out, the hawks go ahead of Serpent Sting and Aimed Shot.
 export const TurretHawkPlaystyleAPL: any = TurretHawkAPL;
 
-// An APL with some of its variables set, so one priority list serves several presets.
-const withVariables = (apl: any, values: Record<string, boolean>) => ({
-	...apl,
-	valueVariables: apl.valueVariables.map((variable: any) =>
-		variable.name in values ? { ...variable, value: { const: { val: String(values[variable.name]) } } } : variable,
-	),
-});
-
 export const TurretAPLRotation = PresetUtils.makePresetAPLRotation('Turret', TurretAPL);
-export const TurretMultiAPLRotation = PresetUtils.makePresetAPLRotation(
-	'Turret (Multi-Shot)',
-	withVariables(TurretAPL, { 'Use Aimed Shot': false, 'Use Multi-Shot': true }),
-);
+export const TurretMultiAPLRotation = PresetUtils.makePresetAPLRotation('Turret (Multi-Shot)', TurretMultiAPL);
 export const TurretHawkAPLRotation = PresetUtils.makePresetAPLRotation('Turret (Hawks)', TurretHawkAPL);
 export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave', WeaveAPL);
-export const WeaveHawkAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Hawks)', withVariables(WeaveAPL, { 'Use Summon Hawk': true }));
+export const WeaveHawkAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Hawks)', WeaveHawkAPL);
 // The weave with no toggles: every shot goes ahead of the weave, and a weave is a walk in for the next
 // swing that is back before the Auto Shot it delays is more than Max Auto Shot delay late (Max long weave
 // delay when one walk in and out outlasts an Auto Shot cycle). Walk times come from the run speed.
@@ -59,124 +50,28 @@ export const MeleeAPLRotation = PresetUtils.makePresetAPLRotation('Melee', Melee
 
 export const DefaultRotation = WeaveAPLRotation;
 
-export const DefaultSimpleRotation = Hunter_Rotation.create({
-	playstyle: Playstyle.Weave,
-	timeToWeave: 250,
-	pullRange: 25,
-	useMulti: true,
-	useArcane: true,
-});
-export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecHunter, DefaultSimpleRotation);
+// The simple rotation of the spec's defaults.
+export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecHunter, Defaults.simpleRotation!);
 
-const talents = (name: string, talentsString: string) => ({ name, data: SavedTalents.create({ talentsString }) });
-
-// The best build found for each tree and playstyle, on the P1 gear over a three minute fight.
-export const SurvivalWeaveTalents = talents('SV Weave', '-00530501114-550200030050220151');
-export const MarksmanshipWeaveTalents = talents('MM Weave', '-205305031150001-5502000300502201');
-export const BeastMasteryWeaveTalents = talents('BM Weave', '5320001505101251-0053250001-4');
-export const MarksmanshipTalents = talents('MM', '5-005355251152205-5');
-export const BeastMasteryTalents = talents('BM', '5320001505101251-0053250001-4');
-export const SurvivalTalents = talents('SV', '1-00531500114-52225303000021005');
-export const SurvivalMeleeTalents = talents('SV Melee', '53200005021-005003-5502000300500221');
-
-const classOptions = {
-	ammo: HunterOptions_Ammo.ThoriumHeadedArrow,
-	quiverBonus: HunterOptions_QuiverBonus.AncientSinewWrappedLamina,
-	petUptime: 1,
-	petAttackSpeed: HunterOptions_PetAttackSpeed.FasterAttackII,
-	cobraReflexes: true,
-	petAggression: 5,
+// A build from `json`, which leaves "in front of target" and item swap as the page has them: a .siml file has no
+// unset bool, so its settings: section turns both off.
+const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild => {
+	const preset = PresetUtils.makePresetBuildFromJSON(name, Spec.SpecHunter, json, { gear });
+	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings!.playerOptions!;
+	return { ...preset, settings: { ...preset.settings!, playerOptions } };
 };
 
-// Lone Wolf wants no pet out; the Beast Mastery builds bring the raptor.
-export const NoPetOptions = HunterOptions.create({ classOptions: { ...classOptions, petType: PetType.PetNone } });
-export const PetOptions = HunterOptions.create({ classOptions: { ...classOptions, petType: PetType.Raptor } });
-
-export const DefaultOptions = NoPetOptions;
-
-export const DefaultIndividualBuffs = IndividualBuffs.create({
-	greaterBlessingOfKings: true,
-	greaterBlessingOfMight: true,
-	greaterBlessingOfWisdom: true,
-});
-
-export const DefaultPartyBuffs = PartyBuffs.create({});
-
-export const DefaultRaidBuffs = RaidBuffs.create({
-	arcaneBrilliance: true,
-	prayerOfSpirit: true,
-	giftOfTheWild: true,
-	graceOfAirTotem: true,
-	strengthOfEarthTotem: true,
-	windfuryTotem: true,
-	battleShout: 1, // Rank 6
-	leaderOfThePack: true,
-});
-
-export const DefaultDebuffs = Debuffs.create({
-	curseOfElements: true,
-	curseOfRecklessness: true,
-	exposeArmor: true,
-	faerieFire: true,
-	giftOfArthas: true,
-	insectSwarm: true,
-	judgementOfLight: true,
-	judgementOfWisdom: true,
-	sunderArmor: true,
-});
-
-export const DefaultConsumables = ConsumesSpec.create({
-	flaskId: Consumables.FlaskOfNaturalAggression.id,
-	elixirIds: [Consumables.ElixirOfTheMongoose.id, Consumables.GreaterMagebloodElixir.id],
-	foodId: Consumables.SwiftstrikeSteak.id,
-	resourcePotId: Consumables.MajorManaPotion.id,
-	offensivePotId: Consumables.MajorFrenzyPotion.id,
-	conjuredId: Consumables.DemonicRune.id,
-	explosiveId: Consumables.EzThroDynamiteII.id,
-	mhImbueId: Consumables.ElementalSharpeningStone.id,
-	extraIds: [
-		Consumables.GoblinSapperCharge.id,
-		Consumables.ScrollOfStrengthIV.id,
-		Consumables.JujuMight.id,
-		Consumables.DragonbreathChili.id,
-		Consumables.GroundScorpokAssay.id,
-	],
-});
-// Dual wielding sharpens the off hand too.
-const DualWieldConsumables = ConsumesSpec.create({ ...DefaultConsumables, ohImbueId: Consumables.ElementalSharpeningStone.id });
-
-export const OtherDefaults = {
-	distanceFromTarget: 12,
-	iterationCount: 25000,
-	profession1: Profession.Engineering,
-	profession2: Profession.Blacksmithing,
-	race: Race.RaceOrc,
-	reactionTime: 250,
-};
-
-const build = (
-	name: string,
-	gear: PresetUtils.PresetGear,
-	talentPreset: { name: string; data: SavedTalents },
-	rotation: PresetUtils.PresetRotation,
-	options: HunterOptions,
-	distanceFromTarget: number,
-	consumables?: ConsumesSpec,
-) =>
-	PresetUtils.makePresetBuild(name, {
-		gear,
-		talents: talentPreset,
-		rotation,
-		settings: { name, specOptions: options, consumables, playerOptions: { distanceFromTarget, reactionTimeMs: OtherDefaults.reactionTime } },
-	});
-
-// Gear, talents, rotation, pet and distance together, one per tree and playstyle.
+// Gear, talents, rotation, pet and distance together, one per tree and playstyle: the best build found for each on
+// the P1 gear over a three minute fight.
 export const Builds = [
-	build('SV Weave', P1Gear, SurvivalWeaveTalents, WeaveAPLRotation, NoPetOptions, 12),
-	build('MM Weave', P1Gear, MarksmanshipWeaveTalents, WeaveAPLRotation, NoPetOptions, 12),
-	build('BM Weave', P1Gear, BeastMasteryWeaveTalents, WeaveHawkAPLRotation, PetOptions, 12),
-	build('MM', P1Gear, MarksmanshipTalents, TurretAPLRotation, NoPetOptions, 12),
-	build('BM', P1Gear, BeastMasteryTalents, TurretHawkAPLRotation, PetOptions, 12),
-	build('SV', P1Gear, SurvivalTalents, TurretMultiAPLRotation, NoPetOptions, 12),
-	build('SV Melee', P1MeleeGear, SurvivalMeleeTalents, MeleeAPLRotation, PetOptions, 5, DualWieldConsumables),
+	build('SV Weave', SvWeaveBuild, P1Gear),
+	build('MM Weave', MmWeaveBuild, P1Gear),
+	build('BM Weave', BmWeaveBuild, P1Gear),
+	build('MM', MmBuild, P1Gear),
+	build('BM', BmBuild, P1Gear),
+	build('SV', SvBuild, P1Gear),
+	build('SV Melee', SvMeleeBuild, P1MeleeGear),
 ];
+
+// Each build's talents, under its name.
+export const BuildTalents = Builds.map(build => build.talents!);

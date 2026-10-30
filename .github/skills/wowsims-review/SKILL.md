@@ -1,6 +1,6 @@
 ---
 name: wowsims-review
-description: 'Use when reviewing any WoWSims Forever change, in sim/, ui/, tools/ or docs: your own branch before a commit or a pull request, or someone else''s pull request. Use it whenever a diff, branch or PR is to be checked or audited, even when the request does not say "review". A fixed pass: test-only production code, stale comments, tests that pin data, unworn item reads and orphans on every change; for spell, talent, aura, dot and proc code, every number and hand-built config against its game files row and tooltip. Each finding is verified and comes with a drop-in fix. How text is written is `wowsims-conventions`.'
+description: 'Use when reviewing any WoWSims Forever change, in sim/, ui/, tools/ or docs: your own branch before a commit or a pull request, or someone else''s pull request. Use it whenever a diff, branch or PR is to be checked or audited, even when the request does not say "review". A fixed pass: test-only production code, stale comments, tests that pin data, unworn item reads and orphans on every change; for spell, talent, aura, dot and proc code, every number and hand-built config against its game files row and tooltip. Each finding is verified and comes with a drop-in fix. Also covers the SIML name table and rotations such a change moves, and a change to the SIML grammar. How text is written is `wowsims-conventions`.'
 argument-hint: 'Name the branch, the pull request number or the files to review.'
 ---
 
@@ -8,10 +8,11 @@ argument-hint: 'Name the branch, the pull request number or the files to review.
 
 The pass is the same on your own branch before a commit and on someone else's pull request. The author of a
 change reads it the way they meant it, so a self-review works best handed to a fresh agent with the diff and
-this skill; the author then verifies each finding that comes back the way step 6 says, and fixes it.
+this skill; the author then verifies each finding that comes back the way step 7 says, and fixes it.
 
-Every change gets steps 1, 2 and 5 to 7. Spell, talent, aura, dot and proc code under `sim/`, with the
-overrides and class ladders it reads, also gets steps 3 and 4. A UI change also runs the gates in
+Every change gets steps 1, 2, 5, 7 and 8. Spell, talent, aura, dot and proc code under `sim/`, with the
+overrides and class ladders it reads, also gets steps 3 and 4, and a change that moves the SIML name table, a rotation
+or gear set under `ui/specs`, or the SIML language gets step 6. A UI change also runs the gates in
 `.github/skills/wowsims-ui/references/verification.md`; generator internals are `wowsims-db-pipeline`'s subject.
 
 `references/defects.md` is the catalog for the spell steps: each defect class, with a case a review of a port found
@@ -113,7 +114,48 @@ The first seven have a section in `references/defects.md`.
 - **Each moved .results file has its own cause.** Check each move was isolated; `wowsims-testing`
   `## .results discipline`.
 
-## 6. Verify every finding
+## 6. SIML
+
+`sim/siml/SPEC.md` is the language. A spell change usually moves two kinds of SIML file.
+
+**The name table, `sim/siml/names.json`.** A regeneration only adds names; any other change to a name is a repin,
+which adds a line to `sim/siml/gen/repinned.txt`, and the pull request has to say it intends each one. How the table
+and repins work is in `wowsims-spells`, "Names in SIML files". Check it with:
+
+```
+go run ./sim/siml/cmd/simlnames -base "$(git merge-base origin/master HEAD)"   # passes unless a name changed without its record line
+git diff "$(git merge-base origin/master HEAD)" -- sim/siml/gen/repinned.txt   # the repins the change makes; read each one
+```
+
+**Rotations and gear sets, `ui/specs/**/*.siml`.** Their diff reads as SIML rows (`cast mortal_strike if …`,
+`main_hand arcanite_reaper + weapon_crusader`), so read each changed row for what it does. Check that each name means
+the thing intended: the table gives its id (`grep -n '"mortal_strike"' sim/siml/names.json`, one line per class and
+namespace), and for a spell `go run ./tools/spelldata <id>` gives its row. The repository check,
+`go run --tags=with_db ./cmd/wowsimcli siml fmt -check ui/specs`, fails on a spell or aura the file's spec does not
+register, and on an enchant that does not fit its slot.
+
+**A change to the protos.** SIML writes every APL kind and setup field from the protos (`SPEC.md` §8), so a new
+action, value or field needs no SIML edit, and a change that edits `sim/siml` only to add one is a finding. What a
+proto change does need: the `wowsims-siml` skill written again (`make siml`; `TestLLMTextIsCurrent` fails without it),
+and the `.siml` files under `ui/specs` that use a kind or field the change takes out or renames, which the
+repository check names, moved to the new form. A new value kind that reads a spell or an aura is named `<head>_<prop>`, with one
+`ActionID` field and at most one `UnitReference`, so it takes the accessor form (`proto/apl.proto` says so at the top);
+a finding otherwise.
+
+**The language.** A change to the grammar, the typing or the printer states the rule in `SPEC.md` and adds a corpus
+case under `sim/siml/testdata/` (`parse/`, `print/`, `format/` or `errors/`), which `sim/siml/conformance_test.go`
+runs. A change with no case is a finding. So is a change that gives existing text another meaning without a new `siml`
+major version (`SPEC.md` §14). A grammar change also updates the editor's partial parser, `sim/siml/lang_context.go`,
+which reads a statement up to the cursor for completion; `go test --tags=with_db ./sim/siml/...` runs its cases
+(`lang_db_test.go`).
+
+```
+go test ./sim/siml/...                     # the corpus; no database needed
+go test --tags=with_db ./sim/siml/...      # also the test that the table keeps its entries
+go test --tags=with_db ./cmd/wowsimcli/... # also the repository check of ui/specs
+```
+
+## 7. Verify every finding
 
 A finding is reported only with evidence of at least one of these kinds, named in the finding:
 
@@ -130,7 +172,7 @@ printed at runtime before it is posted ("Checked: `maxEnergy=110` at rank 2"). F
 on the PR head merged with origin/master, comparing `.results.tmp` at the merge with and without the fixes, since a
 master database update can change a row with no textual conflict.
 
-## 7. Report
+## 8. Report
 
 One entry per finding, most severe first: a wrong number, then missing behaviour, then hand code the store
 already states, then hygiene.

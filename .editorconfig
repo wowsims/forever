@@ -14,3 +14,9 @@ insert_final_newline = true
 indent_style = space
 indent_size = 2
 tab_width = 2
+
+# The canonical form of a SIML file has no tabs and indents by two spaces (sim/siml/SPEC.md §12.1)
+[*.siml]
+indent_style = space
+indent_size = 2
+tab_width = 2

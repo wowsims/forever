@@ -79,6 +79,11 @@ type APLRotation struct {
 	groupListIdxMap    [][]int
 }
 
+// Called with every action a sim that RunSimWithAPLHook runs executes: a row, a group reference's row and then the
+// row it ran from the group, and the actions inside a row. Tools that read a rotation's choices pass one, and find
+// the rows among the actions with APLRotation.RowPaths.
+type APLActionHook func(sim *Simulation, action *APLAction)
+
 type APLGroup struct {
 	name         string
 	actions      []*APLAction
@@ -857,4 +862,30 @@ func (rot *APLRotation) orphanValue(value APLValue) {
 	for _, inner := range value.GetInnerValues() {
 		rot.orphanValue(inner)
 	}
+}
+
+// The rows of the rotation by their JSON paths in the APL. A group referenced twice is parsed twice, and both
+// copies carry the path of the one in the APL.
+func (rot *APLRotation) RowPaths() map[*APLAction]string {
+	paths := map[*APLAction]string{}
+	for i, action := range rot.prepullActions {
+		paths[action] = PrepullRowPath(rot.prepullIdxMap[i])
+	}
+	for i, action := range rot.priorityList {
+		paths[action] = PriorityRowPath(rot.priorityListIdxMap[i])
+	}
+	for g, group := range rot.groups {
+		inAPL := slices.IndexFunc(rot.groups, func(other *APLGroup) bool { return other.name == group.name })
+		for i, action := range group.actions {
+			paths[action] = GroupRowPath(inAPL, rot.groupListIdxMap[g][i])
+		}
+	}
+	return paths
+}
+
+// The JSON path of a row in the APL.
+func PrepullRowPath(i int) string  { return fmt.Sprintf("prepullActions/%d", i) }
+func PriorityRowPath(i int) string { return fmt.Sprintf("priorityList/%d", i) }
+func GroupRowPath(group, i int) string {
+	return fmt.Sprintf("groups/%d/actions/%d", group, i)
 }

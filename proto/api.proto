@@ -672,6 +672,9 @@ message UnitMetadata {
 	repeated AuraStats auras = 2;
 	// The talents the unit has points in, each at the rank it holds.
 	repeated ActionID talents = 4;
+	// Proc triggers with an internal cooldown and no action of their own, by the action they proc from:
+	// the id icd_is_ready finds them by, which no other aura value does.
+	repeated AuraStats icd_auras = 5;
 }
 message PetStats {
 	UnitMetadata metadata = 1;

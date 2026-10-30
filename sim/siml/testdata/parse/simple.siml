@@ -1,0 +1,12 @@
+siml 1
+spec dps_warrior
+
+simple:
+  type single_target
+  spec=arms
+  use_recklessness, use_overpower
+  sunder_armor maintain
+  cooldowns(cooldowns(id=death_wish, timings=[0]), hp_percent_for_defensives=0.3)
+
+priority:
+  cast death_wish

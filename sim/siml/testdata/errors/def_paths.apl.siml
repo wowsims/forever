@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+// a2 reaches the error in a0 by four paths, and the call reports it once.
+def a0 = nope
+def a1 = a0 and a0
+def a2 = a1 and a1
+
+priority:
+  cast multi_shot if a2

@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+var $spot = 5
+def near = self.unit_distance <= 5

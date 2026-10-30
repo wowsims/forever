@@ -6,13 +6,19 @@ ui/**/*_auto_gen.ts
 !ui/features/settings/model/buffs_debuffs_auto_gen.ts
 !ui/features/settings/model/consumables_auto_gen.ts
 .dirstamp
+# What a simlnames run killed before it renames its output into place leaves behind.
+sim/siml/names-*.json
+sim/siml/gen/repinned-*.txt
 
 # IDE folders
 .idea
 .history
+# The SIML extension's panel page, which make vscode-apl builds.
+/.vscode/extensions/wowsims-apl/out/webview.*
 
 # binaries
 dist
+/bin/wowsimcli*
 binary_dist
 storybook-static
 *storybook.log

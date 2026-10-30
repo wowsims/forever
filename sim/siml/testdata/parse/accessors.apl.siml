@@ -1,0 +1,26 @@
+siml 1
+spec hunter
+
+// Every accessor head, with and without a unit, with the arguments on the property.
+priority:
+  cast x if aura(x).is_active
+  cast x if target.aura(x).is_active(include_reaction_time=true)
+  cast x if pet1.aura(x).num_stacks(include_reaction_time) >= 2
+  cast x if aura(x).should_refresh(max_overlap=2s)
+  cast x if target2.aura(x).remaining_time < 3s
+  cast x if dot(x).is_active
+  cast x if target.dot(x).remaining_time < 2s
+  cast x if dot(x).is_active_on_all_targets
+  cast x if dot(x).percent_increase(use_base_value=true) > 0
+  cast x if spell(x).is_ready
+  cast x if spell(x).cast_time < 1.5s
+  cast x if spell(other.attack).time_to_ready < 1s
+  cast x if boss_spell(x).is_casting
+  cast x if all_targets.boss_spell(x).time_to_ready < 5s
+  cast x if sequence("Opener").is_complete
+  cast x if sequence("Opener").time_to_ready > 0s
+  cast x if aura(none).is_known
+  cast x if aura(`{"spellId": 99, "tag": 2}`).is_active
+  cast x if aura_is_active(x, source_unit=target, include_reaction_time=true)
+  cast x if aura_is_active
+  sequence "Opener" [cast x]

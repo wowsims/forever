@@ -1,0 +1,34 @@
+[
+	{
+		"op": "insert",
+		"path": ["priorityList"],
+		"index": 1,
+		"value": {
+			"action": {
+				"condition": { "and": { "vals": [{ "variableRef": { "name": "a" } }, { "variableRef": { "name": "b" } }] } },
+				"castSpell": { "spellId": { "spellId": 3045 } }
+			}
+		}
+	},
+	{
+		"op": "insert",
+		"path": ["priorityList"],
+		"index": 3,
+		"value": {
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "variableRef": { "name": "a" } },
+							{ "variableRef": { "name": "b" } },
+							{ "cmp": { "op": "OpGt", "lhs": { "currentTime": {} }, "rhs": { "const": { "val": "4s" } } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 14271 } }
+			}
+		}
+	},
+	{ "op": "insert", "path": ["priorityList"], "index": 4, "value": { "action": { "castSpell": { "spellId": { "spellId": 25296 } } } } },
+	{ "op": "insert", "path": ["priorityList"], "index": 7, "value": { "action": { "castSpell": { "spellId": { "spellId": 3045 } } } } }
+]

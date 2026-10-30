@@ -1,0 +1,123 @@
+{
+	"settings": {
+		"iterations": 1000,
+		"filters": {
+			"minConsumableLvl": {
+				"6": 50
+			},
+			"favoriteEnchants": ["a`b"]
+		}
+	},
+	"raidBuffs": {
+		"arcaneBrilliance": true,
+		"battleShout": 2,
+		"leaderOfThePack": true,
+		"moonkinAura": true,
+		"trueshotAura": true,
+		"strengthOfEarthTotem": true,
+		"graceOfAirTotem": true,
+		"windfuryTotem": true
+	},
+	"partyBuffs": {
+		"bloodPact": true,
+		"devotionAura": true,
+		"manaSpringTotem": "TristateEffectRegular",
+		"retributionAura": true,
+		"concentrationAura": true
+	},
+	"debuffs": {
+		"huntersMark": true,
+		"judgementOfTheCrusader": true,
+		"judgementOfLight": true,
+		"judgementOfWisdom": true,
+		"curseOfElements": true
+	},
+	"player": {
+		"name": "Forms \"quoted\"",
+		"class": "ClassWarrior",
+		"equipment": {
+			"items": [
+				{
+					"id": 12640,
+					"enchant": 2586
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{
+					"id": 10377,
+					"randomSuffix": 12727
+				},
+				{},
+				{},
+				{
+					"id": 21205,
+					"randomSuffix": 12736,
+					"enchant": 2586
+				},
+				{},
+				{},
+				{},
+				{
+					"enchant": 1900
+				},
+				{},
+				{
+					"id": -5
+				}
+			]
+		},
+		"bonusStats": {
+			"stats": [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			"pseudoStats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		},
+		"itemSwap": {
+			"prepullBonusStats": {
+				"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7]
+			}
+		},
+		"consumables": {
+			"extraIds": [10646, 10310, 13452, 250341, 12662, 18588, 250943, 250072, 13444, 13510],
+			"elixirIds": [13452]
+		},
+		"dpsWarrior": {
+			"options": {
+				"classOptions": {
+					"defaultStance": "WarriorStanceBerserker",
+					"startingRage": 10,
+					"stanceSnapshot": true,
+					"hasBsT2": true,
+					"useBattleShout": true,
+					"queueDelay": 150
+				}
+			}
+		},
+		"rotation": {
+			"type": "TypeAPL",
+			"simple": {
+				"specRotationJson": "{\"spec\":\"DpsWarriorSpecArms\",\"useRecklessness\":true,\"sunderArmor\":\"WarriorSunderHelp\"}",
+				"cooldowns": {}
+			}
+		},
+		"cooldowns": {
+			"cooldowns": [
+				{
+					"id": {
+						"spellId": 12328
+					},
+					"timings": [30, 90]
+				},
+				{
+					"id": {
+						"itemId": 13444,
+						"tag": 1
+					}
+				}
+			]
+		},
+		"distanceFromTarget": "Infinity"
+	}
+}

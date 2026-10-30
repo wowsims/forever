@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+
+var $x = true
+
+priority:
+  cast x if $x
+
+// apl: after another header stays, and the lines under it are indented as in any section.
+apl:
+  var $y = false
+  type auto

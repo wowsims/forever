@@ -1,0 +1,6 @@
+siml 1
+// The armor, with a comment under the version line.
+head helm   // the helm
+  // above a slot row
+neck `{"id": 1}`
+gear: back cloak + agility

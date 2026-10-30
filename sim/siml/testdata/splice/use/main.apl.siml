@@ -1,0 +1,13 @@
+siml 1
+spec hunter
+use "common.apl.siml" with $wait = $time_to_weave
+
+var ${Time to weave} = 100ms
+def far = self.unit_distance > 8
+
+prepull:
+  -19s move $pull_range
+
+priority:
+  cast multi_shot if far
+  cast arcane_shot if at_range

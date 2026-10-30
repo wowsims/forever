@@ -86,7 +86,32 @@ declare global {
 	const bulkCandidates: SimRequestSync;
 	const raidSimRequestSplit: SimRequestSync;
 	const abortById: SimRequestSync;
+	const simlNames: (table: Uint8Array) => string;
+	const simlParse: SimRequestSync;
+	const simlPrint: SimRequestSync;
 }
+
+// The name table SIML is read and written with, fetched and handed to the sim on the first SIML request: lib.wasm
+// holds none of its own. A load that fails is tried again on the next request.
+let simlNamesLoad: Promise<void> | null = null;
+const loadSimlNames = (): Promise<void> =>
+	(simlNamesLoad ??= (async () => {
+		// Copied next to this worker by the makefile; the query is a hash of its contents (vite.build-workers.mts).
+		const response = await fetch(`siml_names.json?v=${import.meta.env.VITE_SIML_NAMES_VERSION}`);
+		if (!response.ok) throw new Error(`Failed to fetch the SIML name table: HTTP ${response.status}`);
+		const error = simlNames(new Uint8Array(await response.arrayBuffer()));
+		if (error) throw new Error(`The SIML name table does not read: ${error}`);
+	})().catch(error => {
+		simlNamesLoad = null;
+		throw error;
+	}));
+
+const withSimlNames =
+	(request: SimRequestSync) =>
+	async (inputData: Uint8Array): Promise<Uint8Array> => {
+		await loadSimlNames();
+		return request(inputData);
+	};
 
 // Wasm binary calls this function when its done loading.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -118,6 +143,8 @@ function setupWorkerInterface() {
 		raidSimRequestSplit: raidSimRequestSplit,
 		raidSimResultCombination: raidSimResultCombination,
 		abortById: abortById,
+		simlParse: withSimlNames(simlParse),
+		simlPrint: withSimlNames(simlPrint),
 	}).ready(true);
 }
 

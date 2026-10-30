@@ -1,0 +1,20 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {},
+		"rotation": {
+			"type": "TypeAPL",
+			"groups": [
+				{
+					"name": "Weave",
+					"actions": [
+						{ "action": { "castSpell": { "spellId": { "spellId": 900010 } } } },
+						{ "action": { "castSpell": { "spellId": { "spellId": 14287 } } } }
+					],
+					"variables": [{ "name": "Clip", "value": { "const": { "val": "0.5s" } } }]
+				},
+				{ "name": "Move to range", "actions": [{ "action": { "move": { "rangeFromTarget": { "const": { "val": "11" } } } } }] }
+			]
+		}
+	}
+}
