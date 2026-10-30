@@ -67,6 +67,16 @@ describe('JSON_IMPORTER', () => {
 		expect(sim.getFilters().statFilters).toBeUndefined();
 	});
 
+	it("carries the encounter's name from one sim's export into another sim", async () => {
+		const sender = await makeIndividualSim();
+		sender.sim.encounter.setName('Phase two');
+		const { sim, host } = await makeIndividualSim();
+
+		await JSON_IMPORTER.onImport(host, IndividualSimSettings.toJsonString(sender.host.toProto()));
+
+		expect(sim.encounter.getName()).toBe('Phase two');
+	});
+
 	it('applies only the rotation from a rotation-only export', async () => {
 		const settings = IndividualSimSettings.fromJson({ player: { cooldowns: {}, rotation: { type: 'TypeAuto' } } });
 		expect(await importedCategories(settings)).toEqual([SimSettingCategories.Rotation]);

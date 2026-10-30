@@ -17,17 +17,18 @@ const renderView = (props: Partial<EncounterPickerViewProps> = {}) =>
 	);
 
 describe('EncounterPickerView', () => {
-	it('lays out the fields in order, and leaves out the ones not given', () => {
-		const { getByTestId } = renderView({ execute: <span>execute</span>, allies: <span>allies</span> });
+	it('lays out the encounter choice first, then the designer buttons and the fields, and leaves out the ones not given', () => {
+		const { getByTestId } = renderView({ preset: <span>preset</span>, execute: <span>execute</span>, allies: <span>allies</span> });
 		const root = getByTestId('encounter-picker-root');
 		expect([...root.children].map(child => child.textContent)).toEqual([
+			'preset',
+			'settings_tab.encounter.designer.opensettings_tab.encounter.advanced',
 			'duration',
 			'execute',
 			'zone',
 			'area types',
 			'allies',
 			'target inputs',
-			'settings_tab.encounter.advancedsettings_tab.encounter.designer.open',
 		]);
 	});
 

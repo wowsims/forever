@@ -22,4 +22,13 @@ describe('createLink', () => {
 		expect(filters.minIlvl).toBe(50);
 		expect(sim.getFilters().statFilters).toBeDefined();
 	});
+
+	it("carries the encounter's name", async () => {
+		const { sim, host } = await makeIndividualSim();
+		sim.encounter.setName('Phase two');
+
+		const url = new URL(createLink(host, [SimSettingCategories.Encounter]));
+
+		expect(tryParseUrlLocation(url)!.settings.encounter!.name).toBe('Phase two');
+	});
 });

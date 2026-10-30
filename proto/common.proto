@@ -621,6 +621,9 @@ message Encounter {
 	// option within the ProtoVersion message at the top of this file.
 	int32 api_version = 9;
 
+	// The name the player gave the encounter in the designer, for the UI only; empty for a preset.
+	string name = 5;
+
 	double duration = 1;
 
 	// Variation in the duration

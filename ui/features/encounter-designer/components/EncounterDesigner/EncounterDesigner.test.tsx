@@ -1,8 +1,21 @@
 import { EncounterPicker } from '@features/encounter/components/EncounterPicker';
-import { AddWave, DesignDowntime, EncounterDesign, HealthKeyframe, MobType, PresetEncounter, PresetTarget, Stat, Target } from '@generated/proto/common';
+import {
+	AddWave,
+	DesignDowntime,
+	Encounter as EncounterProto,
+	EncounterDesign,
+	HealthKeyframe,
+	MobType,
+	PresetEncounter,
+	PresetTarget,
+	Stat,
+	Target,
+} from '@generated/proto/common';
 import { UIDatabase } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
+import { Encounter } from '@sim/raid/encounter';
+import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
 import { renderWithHost } from '@testing/react';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
@@ -42,12 +55,20 @@ beforeAll(() => {
 afterAll(() => {
 	i18n.removeResourceBundle('en', 'translation');
 });
+beforeEach(() => window.localStorage.clear());
 
-const setup = async ({ targets = 1, design = EncounterDesign.create() } = {}) => {
+// The host files My encounters under a key of its spec, as the sim page does.
+const specKey = (spec: string) => (part: string) => `__${spec}__${part}`;
+const myEncountersKey = (spec = 'warrior') => specKey(spec)(MY_ENCOUNTERS_STORAGE_KEY);
+const stored = (spec?: string): Record<string, unknown> => JSON.parse(window.localStorage.getItem(myEncountersKey(spec)) ?? '{}');
+const storeEncounters = (encounters: Array<EncounterProto>, spec?: string) =>
+	window.localStorage.setItem(myEncountersKey(spec), JSON.stringify(Object.fromEntries(encounters.map(proto => [proto.name, EncounterProto.toJson(proto)]))));
+
+const setup = async ({ targets = 1, design = EncounterDesign.create(), spec = 'warrior' } = {}) => {
 	const { sim, player } = await makeIndividualSim();
 	sim.encounter.setTargets(Array.from({ length: targets }, (_, index) => Target.create({ id: index + 1, name: `Target ${index + 1}` })));
 	sim.encounter.setDesign(design);
-	renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player });
+	renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player, getStorageKey: specKey(spec), individualConfig: { defaults: {} } });
 	return { encounter: sim.encounter, baseSeconds: sim.encounter.getDuration() };
 };
 
@@ -462,5 +483,167 @@ describe('EncounterDesigner', () => {
 		const dialog = await openDesigner();
 		const issues = within(dialog).getByRole('region', { name: 'Issues' });
 		expect(issues.textContent).toContain(`Every target is down from ${baseSeconds * 0.25}s to ${baseSeconds * 0.375}s, so the player idles.`);
+	});
+});
+
+describe('My encounters', () => {
+	const own = (name: string, duration: number) =>
+		EncounterProto.create({
+			...Encounter.defaultEncounterProto(),
+			name,
+			duration,
+			design: EncounterDesign.create({
+				downtimes: [DesignDowntime.create({ targetIndex: 0, start: { at: 0.2, jitter: 0 }, end: { at: 0.3, jitter: 0 } })],
+			}),
+		});
+
+	const choice = () => screen.getByLabelText('Encounter');
+	const pick = async (name: string) => {
+		await userEvent.click(choice());
+		await userEvent.click(screen.getByRole('option', { name }));
+	};
+	// The options the open list files under My encounters, or none when it has no such group.
+	const listedOwn = async () => {
+		await userEvent.click(choice());
+		const group = screen.queryAllByRole('group').find(group => within(group).queryByText('My encounters'));
+		const names = group
+			? within(group)
+					.getAllByRole('option')
+					.map(option => option.textContent)
+			: [];
+		await act(async () => void fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' }));
+		return names;
+	};
+	const nameField = (dialog: HTMLElement) => within(dialog).getByLabelText('Name') as HTMLInputElement;
+
+	it('starts a named blank encounter from the +, and Save adds it to My encounters and selects it', async () => {
+		const { encounter } = await setup();
+		await pick('Default/Dynamic Adds');
+
+		await clickButton('New encounter');
+		const dialog = screen.getByTestId('encounter-designer');
+		expect(nameField(dialog).value).toBe('New encounter');
+		expect(within(lane('Add waves')).queryAllByRole('slider')).toEqual([]);
+		expect(encounter.getTargets()).toEqual([Encounter.defaultTargetProto()]);
+		expect(within(dialog).queryByRole('button', { name: 'Save as copy' })).toBeNull();
+
+		await commit(nameField(dialog), 'Ragnaros practice');
+		await add('Boss', 'Downtime');
+		await clickButton('Save');
+
+		expect(Object.keys(stored())).toEqual(['Ragnaros practice']);
+		expect(EncounterProto.fromJson(stored()['Ragnaros practice'] as never).design!.downtimes).toHaveLength(1);
+		expect(choice().textContent).toBe('Ragnaros practice');
+		expect(await listedOwn()).toEqual(['Ragnaros practice']);
+	});
+
+	it('puts back what was selected on Cancel of a new encounter, and stores nothing', async () => {
+		const { encounter } = await setup();
+		await pick('Default/Dynamic Adds');
+
+		await clickButton('New encounter');
+		await clickButton('Cancel');
+
+		expect(stored()).toEqual({});
+		expect(encounter.getName()).toBe('');
+		expect(choice().textContent).toBe('Default/Dynamic Adds');
+	});
+
+	it('loads an entry picked from the list, and the designer opens on it again after another preset', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		const { encounter } = await setup();
+
+		await pick('Two adds');
+		expect(encounter.getDuration()).toBe(200);
+		await pick('Default/Dynamic Adds');
+		expect(encounter.getName()).toBe('');
+		await pick('Two adds');
+
+		const dialog = await openDesigner();
+		expect(nameField(dialog).value).toBe('Two adds');
+		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(dialog).getByRole('button', { name: 'Save as copy' })).toBeTruthy();
+		expect(within(dialog).getByRole('button', { name: 'Delete' })).toBeTruthy();
+	});
+
+	it('marks the picked entry edited once a field outside the designer changes it', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		await setup();
+		await pick('Two adds');
+		expect(choice().textContent).toBe('Two adds');
+
+		await commit(screen.getByLabelText('Duration'), '240');
+		expect(choice().textContent).toBe('Two adds (edited)');
+	});
+
+	it('updates the entry in place on Save, its new name included, and keeps its place in the list', async () => {
+		storeEncounters([own('First', 200), own('Second', 300)]);
+		await setup();
+		await pick('First');
+
+		const dialog = await openDesigner();
+		await commit(nameField(dialog), 'First, renamed');
+		await commit(within(dialog).getByLabelText('Duration'), '210');
+		await clickButton('Save');
+
+		expect(Object.keys(stored())).toEqual(['First, renamed', 'Second']);
+		expect(EncounterProto.fromJson(stored()['First, renamed'] as never).duration).toBe(210);
+		expect(choice().textContent).toBe('First, renamed');
+	});
+
+	it('adds a new entry under a free name on Save as copy, selects it, and leaves the original as it was', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		const { encounter } = await setup();
+		await pick('Two adds');
+
+		const dialog = await openDesigner();
+		await commit(within(dialog).getByLabelText('Duration'), '260');
+		await clickButton('Save as copy');
+
+		expect(Object.keys(stored())).toEqual(['Two adds', 'Two adds (2)']);
+		expect(EncounterProto.fromJson(stored()['Two adds'] as never).duration).toBe(200);
+		expect(EncounterProto.fromJson(stored()['Two adds (2)'] as never).duration).toBe(260);
+		expect(encounter.getName()).toBe('Two adds (2)');
+		expect(choice().textContent).toBe('Two adds (2)');
+	});
+
+	it('deletes the entry after a confirm inside the designer, and falls back to the default encounter', async () => {
+		storeEncounters([own('Two adds', 200)]);
+		const { encounter } = await setup();
+		await pick('Two adds');
+
+		await openDesigner();
+		await clickButton('Delete');
+		const confirm = screen.getByTestId('encounter-designer-delete-confirm');
+		expect(confirm.textContent).toContain('Delete Two adds from My encounters?');
+		expect(stored()).not.toEqual({});
+		await act(async () => fireEvent.click(within(confirm).getByRole('button', { name: 'Delete' })));
+
+		expect(stored()).toEqual({});
+		expect(screen.queryByTestId('encounter-designer')).toBeNull();
+		expect(EncounterProto.equals(encounter.toProto(), Encounter.defaultEncounterProto())).toBe(true);
+		expect(await listedOwn()).toEqual([]);
+	});
+
+	it('keeps a preset out of My encounters on Save, and adds a named encounter from an import', async () => {
+		const { encounter } = await setup();
+		await pick('Default/Dynamic Adds');
+		await openDesigner();
+		await clickButton('Save');
+		expect(stored()).toEqual({});
+
+		act(() => encounter.fromProto(own('Shared with me', 150)));
+		expect(choice().textContent).toBe('Shared with me');
+		expect(await listedOwn()).toEqual([]);
+		const dialog = await openDesigner();
+		expect(nameField(dialog).value).toBe('Shared with me');
+		await clickButton('Save');
+		expect(Object.keys(stored())).toEqual(['Shared with me']);
+	});
+
+	it("lists only the spec's own entries", async () => {
+		storeEncounters([own('Two adds', 200)], 'mage');
+		await setup();
+		expect(await listedOwn()).toEqual([]);
 	});
 });

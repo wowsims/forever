@@ -3833,10 +3833,25 @@
 								},
 								"tooltip": {
 									"type": "string"
+								},
+								"presets": {
+									"type": "string"
+								},
+								"own": {
+									"type": "string"
+								},
+								"edited": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["label", "tooltip"]
+							"required": ["label", "tooltip", "presets", "own", "edited"]
+						},
+						"new_encounter": {
+							"type": "string"
+						},
+						"unique_name": {
+							"type": "string"
 						},
 						"zone": {
 							"type": "object",
@@ -4692,6 +4707,18 @@
 								"save": {
 									"type": "string"
 								},
+								"save_copy": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"delete": {
+									"type": "string"
+								},
+								"delete_confirm": {
+									"type": "string"
+								},
 								"health_label": {
 									"type": "string"
 								},
@@ -4767,6 +4794,10 @@
 								"targets",
 								"target_name",
 								"save",
+								"save_copy",
+								"name",
+								"delete",
+								"delete_confirm",
 								"health_label",
 								"health_end",
 								"adds",
@@ -4783,6 +4814,8 @@
 						"execute_duration_20",
 						"execute_duration_35",
 						"encounter_preset",
+						"new_encounter",
+						"unique_name",
 						"zone",
 						"area_types",
 						"advanced",

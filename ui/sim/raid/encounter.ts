@@ -134,6 +134,14 @@ export class Encounter {
 		this.set({ targets });
 	}
 
+	getName(): string {
+		return this.enc.name;
+	}
+	setName(name: string) {
+		if (name == this.enc.name) return;
+		this.set({ name });
+	}
+
 	getDurationVariation(): number {
 		return this.enc.durationVariation;
 	}
@@ -187,8 +195,9 @@ export class Encounter {
 
 	matchesPreset(preset: PresetEncounter): boolean {
 		const targets = this.enc.targets;
-		// A preset without a design matches an empty one.
+		// A preset has no name, and one without a design matches an empty one.
 		return (
+			!this.enc.name &&
 			preset.targets.length == targets.length &&
 			targets.every((t, i) => TargetProto.equals(t, preset.targets[i].target)) &&
 			EncounterDesign.equals(this.enc.design, preset.design ?? EncounterDesign.create())
@@ -200,6 +209,7 @@ export class Encounter {
 	applyPreset(preset: PresetEncounter) {
 		// The preset's design replaces the current one together with the targets.
 		this.set({
+			name: '',
 			targets: preset.targets.map(presetTarget => (presetTarget.target ? TargetProto.clone(presetTarget.target) : TargetProto.create())),
 			design: preset.design ? EncounterDesign.clone(preset.design) : EncounterDesign.create(),
 		});
@@ -217,6 +227,7 @@ export class Encounter {
 	toProto(): EncounterProto {
 		const enc = this.enc;
 		return EncounterProto.create({
+			name: enc.name,
 			duration: enc.duration,
 			durationVariation: enc.durationVariation,
 			executeProportion20: enc.executeProportion20,
@@ -231,6 +242,7 @@ export class Encounter {
 
 	fromProto(proto: EncounterProto) {
 		batch(() => {
+			this.setName(proto.name);
 			this.setDuration(proto.duration);
 			this.setDurationVariation(proto.durationVariation);
 			this.setExecuteProportion20(proto.executeProportion20);

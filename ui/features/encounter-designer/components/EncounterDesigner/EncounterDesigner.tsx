@@ -1,7 +1,9 @@
 import { durationConfigs } from '@features/encounter/components/EncounterPicker/utils/configs';
 import { TargetsPicker } from '@features/encounter/components/TargetsPicker';
-import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
-import { EncounterDesign, type PresetTarget, Target } from '@generated/proto/common';
+import { useMyEncounters } from '@features/encounter/hooks/useMyEncounters';
+import { uniqueEncounterName } from '@features/encounter/model/my_encounters';
+import { ConnectedNumberField, ConnectedStringField } from '@features/inputs/components/ConnectedTextField';
+import { type Encounter as EncounterProto, EncounterDesign, type PresetTarget, Target } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
@@ -10,6 +12,7 @@ import { batch } from '@sim/state/batch';
 import { subscribeEncounterField } from '@sim/state/subscriptions';
 import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { Button } from '@ui-kit/Button';
+import { ConfirmPopover } from '@ui-kit/ConfirmPopover';
 import { Dialog } from '@ui-kit/Dialog';
 import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, type Ref, useMemo, useRef, useState } from 'react';
@@ -20,7 +23,7 @@ import { type DesignIssue, validateDesign } from '../../model/validate';
 import { DesignerEventPanel } from '../DesignerEventPanel';
 import { DesignerIssues } from '../DesignerIssues';
 import { DesignerTimeline } from '../DesignerTimeline';
-import { defaultWaveTemplate, designerPresetTargets, designerText } from './utils/configs';
+import { defaultWaveTemplate, designerPresetTargets, designerText, nameConfig } from './utils/configs';
 
 export interface EncounterDesignerViewProps {
 	open: boolean;
@@ -42,6 +45,12 @@ export interface EncounterDesignerViewProps {
 	onChange: (design: EncounterDesign) => void;
 	onAdd: (kind: DesignEventKind) => void;
 	onSave: () => void;
+	name: ReactNode;
+	/** Shows Save as copy, which stores the encounter as a new entry of My encounters. */
+	onSaveCopy?: () => void;
+	/** Shows Delete, which asks inside the dialog before it removes the entry `deleteName` names. */
+	onDelete?: () => void;
+	deleteName?: string;
 }
 
 export const EncounterDesignerView = ({
@@ -62,8 +71,14 @@ export const EncounterDesignerView = ({
 	onChange,
 	onAdd,
 	onSave,
+	name,
+	onSaveCopy,
+	onDelete,
+	deleteName,
 }: EncounterDesignerViewProps) => {
 	const [sections, setSections] = useState<string[]>([]);
+	const [deleteButton, setDeleteButton] = useState<HTMLButtonElement | null>(null);
+	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	// Opening focuses the first add button: the first tabbable element would be the Duration field in the header.
 	const initialFocus = useRef<HTMLElement | null>(null);
 	const findInitialFocus = (timeline: HTMLElement | null) => {
@@ -78,15 +93,43 @@ export const EncounterDesignerView = ({
 			size="full"
 			scrollContents
 			title={designerText('title')}
-			headerChildren={<FieldGrid className="mx-4 max-w-lg">{duration}</FieldGrid>}
+			headerChildren={
+				<FieldGrid className="mx-4 max-w-2xl">
+					{name}
+					{duration}
+				</FieldGrid>
+			}
 			footer={
-				<div className="flex gap-2">
-					<Button variant="outline-cancel" onClick={() => onOpenChange(false)}>
-						{i18n.t('common.cancel')}
-					</Button>
-					<Button variant="primary" onClick={onSave}>
-						{designerText('save')}
-					</Button>
+				<div className="flex w-full gap-2">
+					{onDelete && (
+						<>
+							<Button ref={setDeleteButton} variant="danger" onClick={() => setConfirmingDelete(true)}>
+								{designerText('delete')}
+							</Button>
+							<ConfirmPopover
+								open={confirmingDelete}
+								onOpenChange={setConfirmingDelete}
+								anchor={deleteButton}
+								confirmLabel={designerText('delete')}
+								onConfirm={onDelete}
+								testId="encounter-designer-delete-confirm">
+								{designerText('delete_confirm', { name: deleteName ?? '' })}
+							</ConfirmPopover>
+						</>
+					)}
+					<div className="ml-auto flex gap-2">
+						<Button variant="outline-cancel" onClick={() => onOpenChange(false)}>
+							{i18n.t('common.cancel')}
+						</Button>
+						{onSaveCopy && (
+							<Button variant="outline-primary" onClick={onSaveCopy}>
+								{designerText('save_copy')}
+							</Button>
+						)}
+						<Button variant="primary" onClick={onSave}>
+							{designerText('save')}
+						</Button>
+					</div>
 				</div>
 			}>
 			<Accordion value={sections} onValueChange={setSections} density="compact">
@@ -130,26 +173,32 @@ export const EncounterDesignerView = ({
 export interface EncounterDesignerProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	/** Opened on a new encounter from the +: Save adds it to My encounters, and Cancel loads this encounter back. */
+	replaced?: EncounterProto;
 }
 
 interface EncounterSnapshot {
+	name: string;
 	duration: number;
 	durationVariation: number;
 	targets: Array<Target>;
 	design: EncounterDesign;
 }
 
-export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps) => {
-	const encounter = useSimHost().sim.encounter;
+export const EncounterDesigner = ({ open, onOpenChange, replaced }: EncounterDesignerProps) => {
+	const host = useSimHost();
+	const encounter = host.sim.encounter;
+	const myEncounters = useMyEncounters();
 	const baseSeconds = useStoreSubscribe(subscribeEncounterField(encounter, 'duration'), () => encounter.getDuration());
 	const targets = useStoreSubscribe(subscribeEncounterField(encounter, 'targets'), () => encounter.getTargets());
 	const targetNames = useMemo(() => targets.map((target, index) => target.name || designerText('target_name', { number: index + 1 })), [targets]);
 	const presetTargets = useMemo(() => designerPresetTargets(encounter.sim.db.getAllPresetEncounters(), encounter.sim.db.getAllPresetTargets()), [encounter]);
 	const duration = useMemo(() => durationConfigs(), []);
+	const nameField = useMemo(() => nameConfig(), []);
 	const panelRef = useRef<HTMLElement>(null);
 
-	// Design edits stay in the draft until Save. The duration and target fields write to the store as they change,
-	// so each opening snapshots them, and every close but Save puts them back.
+	// Design edits stay in the draft until Save. The name, duration and target fields write to the store as they
+	// change, so each opening snapshots them, and every close but Save puts them back.
 	const [draft, setDraft] = useState(() => encounter.getDesign());
 	const [selected, setSelected] = useState<DesignEventRef>();
 	const [snapshot, setSnapshot] = useState<EncounterSnapshot>();
@@ -160,6 +209,7 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 		setSeenTargets(targets);
 		if (open) {
 			setSnapshot({
+				name: encounter.getName(),
 				duration: encounter.getDuration(),
 				durationVariation: encounter.getDurationVariation(),
 				targets,
@@ -176,8 +226,11 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 	const issues = useMemo(() => validateDesign(draft, targets.length), [draft, targets.length]);
 
 	const close = (nextOpen: boolean) => {
-		if (!nextOpen && snapshot) {
+		if (!nextOpen && replaced) {
+			encounter.fromProto(replaced);
+		} else if (!nextOpen && snapshot) {
 			batch(() => {
+				encounter.setName(snapshot.name);
 				encounter.setDuration(snapshot.duration);
 				encounter.setDurationVariation(snapshot.durationVariation);
 				if (encounter.getTargets() !== snapshot.targets) encounter.setTargets(snapshot.targets);
@@ -198,8 +251,28 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 		setSelected(ref);
 	};
 
-	const save = () => {
+	// The entry the designer opened on, matched by the name the encounter had then.
+	const entry = snapshot && !replaced ? myEncounters.entries.find(entry => entry.name === snapshot.name) : undefined;
+
+	const store = (replacing?: string) => {
 		encounter.setDesign(draft);
+		const taken = myEncounters.entries.map(entry => entry.name).filter(name => name !== replacing);
+		encounter.setName(uniqueEncounterName(encounter.getName() || i18n.t('settings_tab.encounter.new_encounter'), taken));
+		myEncounters.save(encounter.getName(), encounter.toProto(), replacing);
+		onOpenChange(false);
+	};
+
+	// Save updates the entry the designer opened on, and adds a new or imported named encounter; an encounter that
+	// opened without a name (a preset, or one edited by hand) only goes to the sim.
+	const save = () => {
+		if (entry || replaced || snapshot?.name) return store(entry?.name);
+		encounter.setDesign(draft);
+		onOpenChange(false);
+	};
+
+	const deleteEntry = () => {
+		myEncounters.remove(entry!.name);
+		encounter.fromProto(host.individualConfig.defaults.encounter?.encounter ?? Encounter.defaultEncounterProto());
 		onOpenChange(false);
 	};
 
@@ -207,6 +280,7 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 		<EncounterDesignerView
 			open={open}
 			onOpenChange={close}
+			name={<ConnectedStringField modObject={encounter} config={nameField} />}
 			duration={duration.map(config => (
 				<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
 			))}
@@ -224,6 +298,9 @@ export const EncounterDesigner = ({ open, onOpenChange }: EncounterDesignerProps
 			onChange={setDraft}
 			onAdd={add}
 			onSave={save}
+			onSaveCopy={replaced ? undefined : () => store()}
+			onDelete={entry && deleteEntry}
+			deleteName={entry?.name}
 		/>
 	);
 };

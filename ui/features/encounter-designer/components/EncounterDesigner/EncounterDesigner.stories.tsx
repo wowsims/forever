@@ -9,9 +9,9 @@ import {
 	emptyDesign,
 	overlappingDowntimesDesign,
 } from '@testing/storybook/fixtures/encounter_design';
-import { NumberField } from '@ui-kit/TextField';
+import { NumberField, StringField } from '@ui-kit/TextField';
 import { useState } from 'react';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 import type { DesignEventRef } from '../../model/lanes';
 import { addEvent } from '../../model/lanes';
@@ -53,6 +53,7 @@ const meta = {
 	args: {
 		open: true,
 		onOpenChange: fn(),
+		name: <StringField id="story-designer-name" label="Name" value="" onChange={fn()} />,
 		duration: (
 			<>
 				<NumberField id="story-designer-duration" label="Duration" value={DESIGN_BASE_SECONDS} onChange={fn()} />
@@ -73,6 +74,7 @@ const meta = {
 		onSave: fn(),
 	},
 	argTypes: {
+		name: { control: false },
 		duration: { control: false },
 		targets: { control: false },
 		design: { control: false },
@@ -92,3 +94,23 @@ export const DynamicAdds: Story = { args: { design: dynamicAddsDesign(), selecte
 export const CustomBoss: Story = { args: { design: customBossDesign(), selected: { kind: 'ability', index: 0 } } };
 
 export const WithIssues: Story = { args: { design: overlappingDowntimesDesign(), selected: { kind: 'downtime', index: 1 } } };
+
+// Opened on an entry of My encounters: Save as copy and Delete join Save, and Delete asks first.
+export const OwnEncounter: Story = {
+	args: {
+		name: <StringField id="story-designer-name" label="Name" value="Two adds" onChange={fn()} />,
+		design: dynamicAddsDesign(),
+		onSaveCopy: fn(),
+		onDelete: fn(),
+		deleteName: 'Two adds',
+	},
+	play: async ({ args }) => {
+		// The label ends in "delete" with or without the English strings loaded.
+		const deleteLabel = /delete$/i;
+		const body = within(document.body);
+		await userEvent.click(body.getByRole('button', { name: deleteLabel }));
+		const confirm = await body.findByTestId('encounter-designer-delete-confirm');
+		await userEvent.click(within(confirm).getByRole('button', { name: deleteLabel }));
+		await expect(args.onDelete).toHaveBeenCalledTimes(1);
+	},
+};

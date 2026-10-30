@@ -1058,8 +1058,13 @@
 			},
 			"encounter_preset": {
 				"label": "Encounter",
-				"tooltip": "Selects a preset encounter configuration."
+				"tooltip": "Selects a preset encounter configuration.",
+				"presets": "Presets",
+				"own": "My encounters",
+				"edited": "{{name}} (edited)"
 			},
+			"new_encounter": "New encounter",
+			"unique_name": "{{name}} ({{number}})",
 			"zone": {
 				"label": "Zone",
 				"tooltip": "Picks every kind of area the zone counts as; picking a preset boss fills it in from the boss's zone. Custom means the areas below were set by hand."
@@ -1303,6 +1308,10 @@
 				"targets": "Targets",
 				"target_name": "Target {{number}}",
 				"save": "Save",
+				"save_copy": "Save as copy",
+				"name": "Name",
+				"delete": "Delete",
+				"delete_confirm": "Delete {{name}} from My encounters?",
 				"health_label": "{{from}} % → {{to}} %",
 				"health_end": "→ 0 %",
 				"adds": {

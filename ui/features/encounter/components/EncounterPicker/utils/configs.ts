@@ -1,8 +1,12 @@
 import type { ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
+import type { InputConfig } from '@features/inputs/input';
+import type { Encounter as EncounterProto, PresetEncounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import type { Encounter } from '@sim/raid/encounter';
 import type { Raid } from '@sim/raid/raid';
+import type { ChoiceEntry } from '@ui-kit/ChoiceField';
+import type { SavedDataEntry } from '@ui-kit/hooks/useSavedData';
 
 import { trackEvent } from '../../../../../tracking/utils';
 
@@ -86,20 +90,47 @@ export const minBaseDamageConfig = (): NumberFieldConfig<Encounter> => ({
 		}),
 });
 
-export const presetEncounterConfig = (encounter: Encounter): ChoiceFieldConfig<Encounter> => {
+export const CUSTOM_ENCOUNTER = 'custom';
+const presetChoice = (index: number) => `preset:${index}`;
+export const ownChoice = (name: string) => `own:${name}`;
+
+// The choice reads the store alone, never `own`: the input caches it until the next store write, so a
+// list captured here would answer one write late. A named encounter is the entry of its name, listed
+// or not (an import shows its name until it is saved); an unnamed one is the preset it matches.
+export const encounterChoiceConfig = (
+	encounter: Encounter,
+	own: ReadonlyArray<SavedDataEntry<EncounterProto>>,
+): InputConfig<Encounter, string> & { id: string } => {
 	const presets = encounter.sim.db.getAllPresetEncounters();
 	return {
 		id: 'encounter-preset-encouter',
 		label: i18n.t('settings_tab.encounter.encounter_preset.label'),
 		extraClassNames: ['w-full'],
-		values: [{ name: i18n.t('common.custom'), value: -1 }, ...presets.map((preset, index) => ({ name: preset.path, value: index }))],
 		storeField: 'encounter:*',
-		getValue: (subject: Encounter) => presets.findIndex(preset => subject.matchesPreset(preset)),
-		setValue: (subject: Encounter, newValue: number) => {
-			if (newValue !== -1) subject.applyPreset(presets[newValue]);
+		getValue: (subject: Encounter) => {
+			if (subject.getName()) return ownChoice(subject.getName());
+			const index = presets.findIndex(preset => subject.matchesPreset(preset));
+			return index === -1 ? CUSTOM_ENCOUNTER : presetChoice(index);
+		},
+		setValue: (subject: Encounter, choice: string) => {
+			const preset = presets.findIndex((_, index) => presetChoice(index) === choice);
+			if (preset !== -1) return subject.applyPreset(presets[preset]);
+			const entry = own.find(entry => ownChoice(entry.name) === choice);
+			if (entry) subject.fromProto(entry.data);
 		},
 	};
 };
+
+export const encounterChoices = (presets: ReadonlyArray<PresetEncounter>, own: ReadonlyArray<SavedDataEntry<EncounterProto>>): Array<ChoiceEntry<string>> => [
+	{ value: CUSTOM_ENCOUNTER, label: i18n.t('common.custom') },
+	{
+		label: i18n.t('settings_tab.encounter.encounter_preset.presets'),
+		options: presets.map((preset, index) => ({ value: presetChoice(index), label: preset.path })),
+	},
+	...(own.length
+		? [{ label: i18n.t('settings_tab.encounter.encounter_preset.own'), options: own.map(entry => ({ value: ownChoice(entry.name), label: entry.name })) }]
+		: []),
+];
 
 export const zoneConfig = (encounter: Encounter): ChoiceFieldConfig<Encounter> => {
 	const zones = encounter.sim.db

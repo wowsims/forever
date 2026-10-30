@@ -1,3 +1,4 @@
+import type { StringFieldConfig } from '@features/inputs/configs';
 import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, DesignMove, HealthKeyframe, PresetEncounter } from '@generated/proto/common';
 import {
 	DamageAmpType,
@@ -12,6 +13,7 @@ import {
 } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateMobType, translateSpellSchool } from '@i18n/localization';
+import type { Encounter } from '@sim/raid/encounter';
 import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
@@ -21,6 +23,14 @@ import type { TimeWindow } from '../../../model/time';
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
 
 export const designerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.designer.${name}`, options);
+
+export const nameConfig = (): StringFieldConfig<Encounter> => ({
+	id: 'encounter-designer-name',
+	label: designerText('name'),
+	storeField: 'encounter:name',
+	getValue: encounter => encounter.getName(),
+	setValue: (encounter, name) => encounter.setName(name),
+});
 
 // A health percent as read, to a tenth: a hold across a downtime can start at a third of the way down a line.
 export const formatPercent = (percent: number): number => Number(percent.toFixed(1));

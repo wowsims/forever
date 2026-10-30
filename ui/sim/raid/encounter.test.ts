@@ -143,6 +143,39 @@ describe('Encounter', () => {
 		expect(dbTarget.targetInputs[0].numberValue).toBe(3);
 	});
 
+	describe('name', () => {
+		it('survives the proto, binary and JSON round trips, and clears on a proto without one', () => {
+			const encounter = makeEncounter();
+			encounter.setName('Phase two');
+			const other = makeEncounter();
+
+			other.fromProto(encounter.toProto());
+			expect(other.getName()).toBe('Phase two');
+			other.fromProto(EncounterProto.create({ targets: [Encounter.defaultTargetProto()] }));
+			expect(other.getName()).toBe('');
+
+			other.fromProto(EncounterProto.fromBinary(EncounterProto.toBinary(encounter.toProto())));
+			expect(other.getName()).toBe('Phase two');
+			other.applyDefaults();
+			other.fromProto(EncounterProto.fromJsonString(EncounterProto.toJsonString(encounter.toProto())));
+			expect(other.getName()).toBe('Phase two');
+		});
+
+		it('keeps a named encounter from matching a preset, and clears the name when a preset is applied', () => {
+			const preset = presetEncounter();
+			const encounter = makeEncounter();
+			encounter.applyPreset(preset);
+			expect(encounter.matchesPreset(preset)).toBe(true);
+
+			encounter.setName('Mine');
+			expect(encounter.matchesPreset(preset)).toBe(false);
+
+			encounter.applyPreset(preset);
+			expect(encounter.getName()).toBe('');
+			expect(encounter.matchesPreset(preset)).toBe(true);
+		});
+	});
+
 	describe('design', () => {
 		const withThreeTargets = () => {
 			const encounter = makeEncounter();
