@@ -1,0 +1,194 @@
+{
+	"player": {
+		"race": "RaceOrc",
+		"class": "ClassHunter",
+		"equipment": {
+			"items": [
+				{
+					"id": 16428,
+					"enchant": 2586
+				},
+				{
+					"id": 21809
+				},
+				{
+					"id": 19058
+				},
+				{
+					"id": 21187,
+					"enchant": 7667
+				},
+				{
+					"id": 19685,
+					"enchant": 1891
+				},
+				{
+					"id": 19687,
+					"enchant": 7656
+				},
+				{
+					"id": 19686,
+					"enchant": 8206
+				},
+				{
+					"id": 20216
+				},
+				{
+					"id": 22690,
+					"enchant": 2586
+				},
+				{
+					"id": 18506,
+					"enchant": 904
+				},
+				{
+					"id": 272408
+				},
+				{
+					"id": 21182
+				},
+				{
+					"id": 272437
+				},
+				{
+					"id": 270276
+				},
+				{
+					"id": 250619,
+					"enchant": 2646
+				},
+				{},
+				{
+					"id": 22347,
+					"enchant": 8720
+				}
+			]
+		},
+		"consumables": {
+			"offensivePotId": 250943
+		},
+		"hunter": {
+			"options": {
+				"classOptions": {
+					"quiverBonus": "AncientSinewWrappedLamina"
+				}
+			}
+		},
+		"talentsString": "-00530501114-550200030050220151",
+		"cooldowns": {
+			"cooldowns": [
+				{
+					"id": {
+						"spellId": 3045
+					},
+					"timings": [20]
+				}
+			]
+		},
+		"rotation": {
+			"type": "TypeAPL",
+			"priorityList": [
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "Use Arcane Shot"
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "Use Summon Hawk"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 14287,
+								"rank": 8
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Summon Hawk"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1293527,
+								"rank": 4
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Multi-Shot"
+							}
+						},
+						"wait": {
+							"duration": {
+								"variableRef": {
+									"name": "Time to weave"
+								}
+							}
+						}
+					}
+				}
+			],
+			"valueVariables": [
+				{
+					"name": "Use Summon Hawk",
+					"value": {
+						"const": {
+							"val": "true"
+						}
+					}
+				},
+				{
+					"name": "Use Multi-Shot",
+					"value": {
+						"const": {
+							"val": "true"
+						}
+					}
+				},
+				{
+					"name": "Use Arcane Shot",
+					"value": {
+						"not": {
+							"val": {
+								"variableRef": {
+									"name": "Use Multi-Shot"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "Time to weave",
+					"value": {
+						"const": {
+							"val": "400ms"
+						}
+					}
+				}
+			]
+		},
+		"distanceFromTarget": 11
+	}
+}

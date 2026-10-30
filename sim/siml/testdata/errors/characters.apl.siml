@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+
+// A character SIML reads nothing from, counted in UTF-16 code units, and literals that are no number.
+priority:
+  cast x if é > 1
+  cast x if 🔥 > 1
+  cast x if  > 1
+  cast x if 1e5 > 1
+  cast x if 1m30 > 1
+  cast x if 30%x > 1
+  cast x if "🔥" == "a" and @ > 1

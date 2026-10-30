@@ -1,0 +1,42 @@
+siml 1
+spec hunter
+
+var $a = true
+var $b = true
+
+// A when block reads as the rows it holds, each with its condition joined to the block's.
+priority:
+  cast x if current_time > 1s
+  when $a and $b:
+    // An and in the block and in the row: one and of their values, the block's first.
+    cast aimed_shot if current_time > 1s and current_time < 2s
+    // A row with no if reads with the block's condition as written.
+    cast multi_shot
+    /// A note above a row of a block is its note.
+    cast arcane_shot if current_time > 3s
+  when $a or $b:
+    // An or in the block is one value of the and.
+    cast x if current_time > 1s
+    cast x
+  when ($a and $b):
+    // Parentheses keep the block's and one value.
+    cast x if current_time > 1s
+  when $a:
+    when $b:
+      // Nested blocks join from the outside in.
+      cast x if current_time > 1s
+      cast x
+    // Parentheses keep the row's and one value.
+    cast multi_shot if (current_time > 1s and current_time < 2s)
+  # when $a:
+    // A hidden block hides every row in it.
+    cast x
+    # cast x if current_time > 1s
+  when $a:
+    // A raw row is the whole row: the block adds nothing to it.
+    `{"action": {"castSpell": {"spellId": {"spellId": 5}}}}`
+  cast x
+
+group "G":
+  when $a:
+    cast x if current_time > 1s

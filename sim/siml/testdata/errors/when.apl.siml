@@ -1,0 +1,27 @@
+siml 1
+spec hunter
+
+var $a = true
+// A when outside priority: and the groups is misplaced-when, and its body is not read.
+when $a:
+  cast nonsense
+
+prepull:
+  when $a:
+    -1s cast nonsense
+
+priority:
+  // A when with nothing in its body.
+  when $a:
+  /// A note above a when line is misplaced.
+  when $a:
+    cast x
+  // A when line ends with its colon.
+  when $a cast x
+  when $a: cast x
+  cast x
+
+group "G":
+  when $a:
+    var $b = 1
+    cast x

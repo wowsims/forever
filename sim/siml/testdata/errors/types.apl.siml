@@ -1,0 +1,23 @@
+siml 1
+spec hunter
+
+priority:
+  cast x if aura(x).should_refresh(max_overlap=[1s])
+  cast x if max(cast x)
+  cast x if aura(x).is_active(include_reaction_time=1)
+  cast x if action_group_used(group_name)
+  multidot(x, max_dots=2s)
+  multidot(x, max_dots=1.5)
+  multidot(x, max_dots=3000000000)
+  cast x if is_execute_phase(e21)
+  cast x if is_execute_phase("E20")
+  cast x if all_item_stat_procs_active(agilty)
+  cast x on targett
+  change_target(new_target=5)
+  cast x if spell("x").is_ready
+  cast x if sequence(x).is_complete
+  cast x if strict_sequence(x)
+  cast x if aura(x).is_active(include_reaction_time=`"yes"`)
+  cast `{"spellId": "five"}`
+  cast x if `{"nope": {}}`
+  change_target(new_target=`{"type": 9}`)

@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+use "common.apl.siml"
+
+priority:
+  sequence "Open" [cast multi_shot]
+  cast arcane_shot if $spot > 0

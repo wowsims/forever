@@ -83,8 +83,26 @@ jobs:
             - name: Generate TS sources 🧬
               run: make ui/generated/proto/api.ts go-to-ts
 
+            # Vite reads .siml imports with `wowsimcli siml serve` (tools/vite/siml.mts); one build here spares
+            # Storybook and the bundle a `go run` each.
+            - name: Build wowsimcli for the SIML imports
+              run: |
+                  go build -o "$RUNNER_TEMP/wowsimcli" ./cmd/wowsimcli
+                  echo "WOWSIMCLI=$RUNNER_TEMP/wowsimcli" >> "$GITHUB_ENV"
+
             - name: Type check 🧠
               run: npm run type-check
+
+            # `check` builds the SIML extension afresh and fails when the committed build in .vscode/extensions
+            # differs. The tests build the SIML server (`go build --tags=with_db ./cmd/wowsimcli`) as the extension
+            # does, and run the panel and the sims against it. They run one file at a time: the files build the server
+            # into one storage folder.
+            - name: Test the SIML extension
+              run: |
+                  cd tools/vscode-apl
+                  npm ci --no-audit --no-fund
+                  npm run check
+                  npm test
 
             - name: Build Storybook 📚
               run: npm run storybook:build
@@ -234,6 +252,12 @@ jobs:
             - name: Generate TS sources 🧬
               run: make ui/generated/proto/api.ts go-to-ts
 
+            # The tests import .siml presets, which Vite reads with `wowsimcli siml serve` (tools/vite/siml.mts).
+            - name: Build wowsimcli for the SIML imports
+              run: |
+                  go build -o "$RUNNER_TEMP/wowsimcli" ./cmd/wowsimcli
+                  echo "WOWSIMCLI=$RUNNER_TEMP/wowsimcli" >> "$GITHUB_ENV"
+
             - name: Unit tests (shard ${{ matrix.shard }}) 🧪
               run: npm run test:unit -- --shard=${{ matrix.shard }}/4
 
@@ -245,10 +269,13 @@ jobs:
             matrix:
                 shard: [0, 1, 2, 3]
         steps:
+            # Two commits deep, so a pull request's merge commit comes with its first parent, the base branch's
+            # commit the name table check reads.
             - name: Checkout 🛎️
               uses: actions/checkout@v5
               with:
                   ref: ${{ inputs.ref }}
+                  fetch-depth: 2
 
             - name: Install Go
               uses: actions/setup-go@v6
@@ -274,12 +301,31 @@ jobs:
             - name: Generate proto and dist stubs
               run: make sim/core/proto/api.pb.go binary_dist/dist.go
 
+            # TestTableKeepsItsEntries regenerates from the table the pull request holds, so it passes a table whose
+            # names changed meaning. This fails when a name of the base branch's table means something else, or nothing,
+            # unless the pull request adds the name's line to sim/siml/gen/repinned.txt, which simlnames -w -repin
+            # writes. A pull request is checked out as its merge commit, whose first parent is the base.
+            - name: Check the name table keeps its names
+              if: github.event_name == 'pull_request' && matrix.shard == 0
+              run: |
+                  git rev-parse --verify --quiet HEAD^2 > /dev/null || { echo "HEAD is not the pull request's merge commit"; exit 1; }
+                  go run ./sim/siml/cmd/simlnames -base HEAD^1
+
             # The buff manifest, the proto emitter and the buff generator's render and
             # TS tests need no game files database, and the database is not in the repo, so
             # the tests that do need it skip. One shard runs them.
             - name: Test the buff generator
               if: matrix.shard == 0
               run: go test ./tools/database/... ./tools/gen_buffs_proto/...
+
+            # The tools that read and sim SIML files, wowsimcli's check of the files under ui/specs among them, and
+            # sim/siml built without the with_db tag, which holds no name table. The test that the table keeps its
+            # entries runs with ./sim/... below.
+            - name: Test the SIML tools
+              if: matrix.shard == 0
+              run: |
+                  go test --tags=with_db ./cmd/wowsimcli/...
+                  go test ./sim/siml/...
 
             - name: Test (shard ${{ matrix.shard }})
               env:

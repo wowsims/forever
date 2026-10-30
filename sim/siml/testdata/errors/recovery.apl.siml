@@ -1,0 +1,12 @@
+@x
+siml 1
+spec hunter
+
+// A statement with a lexer error is not read, even when its readable tokens read; a parse error in front of a
+// lexer error is reported, and none at the end of the readable tokens.
+priority:
+  cast x !
+  @cast x
+  cast x foo !
+  cast x if (true) + !true
+  cast x

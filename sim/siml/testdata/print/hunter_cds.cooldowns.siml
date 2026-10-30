@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+cooldowns(id=hunter_shot, timings=[30])
+cooldowns(id=jom_gabbar)

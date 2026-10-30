@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+// Raw JSON is no unit prefix; a raw unit is the field's named argument.
+priority:
+  cast x if `{"type": "Pet"}`.current_health > 1
+  cast x if `{"type": "Pet"}`.aura(x).is_active
+  cast x if current_health(source_unit=`{"type": "Pet"}`) > 1

@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+def at_range = self.unit_distance > 5
+def spare = true
+
+var ${Pull range} = 25
+var $wait = 0s

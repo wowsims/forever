@@ -1,0 +1,15 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{ "action": { "wait": {} }, "doAtValue": { "const": { "val": "-1s" } } }
+	],
+	"priorityList": [
+		{ "action": { "wait": {} } },
+		{ "action": { "condition": { "gcdIsReady": {} }, "wait": {} } },
+		{ "hide": true, "action": { "move": {} } },
+		{ "notes": "Kept beside a raw step.", "action": { "move": {} } },
+		{ "hide": true }
+	],
+	"groups": [{ "name": "Empty" }, { "name": "", "actions": [{ "action": {} }] }]
+}

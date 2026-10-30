@@ -1,0 +1,9 @@
+siml 1
+head       helm
+head       helm
+helmet     helm
+offhand    helm
+ranged     `{"id": "x"}`
+waist      helm of_teh_tiger + falcons_call
+legs       of_the_tiger
+feet       helm + helm

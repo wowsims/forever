@@ -1,0 +1,24 @@
+siml 1
+spec hunter
+
+var $a = true
+var ${Use Arcane Shot} = true
+
+priority:
+  cast x
+  when $a and aura(rapid_fire).is_active:
+    // A body goes 2 deeper than its when line, and each row writes its own condition.
+    cast x if current_time > 1s
+    cast arcane_shot
+
+    when $use_arcane_shot
+        and target.aura(hunters_mark).is_active
+        and current_time > 10s
+        and current_time < 100s:
+      cast arcane_shot if (current_time > 1s and $a) // kept with its row
+  # when not $a:
+    cast x
+  when ($a and $use_arcane_shot):
+    // Parentheses that keep the block's and one value stay.
+    cast x
+  cast x

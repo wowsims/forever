@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+use "shared.apl.siml"
+use "near.apl.siml"
+use "far.apl.siml"
+
+// A used file's def reads its calls in this file, so a cycle may close here or across two used files.
+def filler = shared_filler
+def ready = shared_ready
+
+priority:
+  cast filler if ready and near_check

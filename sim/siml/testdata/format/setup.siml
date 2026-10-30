@@ -1,0 +1,27 @@
+// A setup in the layout format fixes.
+siml   1
+spec  hunter
+talents   "-00530501114-550200030050220151"   // the build
+
+
+settings:   race  orc  // a header line's body, with more below
+  profession1    engineering
+  // a comment inside a section
+  cobra_reflexes,pet_uptime=1
+  `{"ammo": "ThoriumHeadedArrow"}`
+
+
+buffs:    greater_blessing_of_kings   // kept on the header line
+raid_buffs:
+    arcane_brilliance
+consumables: elixir elixir_of_the_mongoose,greater_mageblood_elixir, flask_of_the_titans, goblin_sapper_charge
+encounter:
+  targets(id=1,
+     name="Target",   // inside a continuation
+     level=63)
+gear:
+  head  helm+falcons_call
+  waist   belt  of_the_tiger
+
+  bonus_stats( stats( agility = 5 ) )
+simple: time_to_weave   400

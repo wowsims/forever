@@ -66,12 +66,15 @@ List the opt-outs with `/usr/bin/grep -rn "smoke: false" ui --include=*.stories.
 `.github/workflows/run_tests.yml` has three jobs, `build-ui`, `test-ui` and `test`:
 
 - **`build-ui`**: `make skills-check`, `npm ci` and `test:locales`, then `fmt`, `lint:js`, `lint:css`,
-  `make ui/generated/proto/api.ts go-to-ts`, `type-check`, `storybook:build`, and `make dist/forever/.dirstamp`, with
-  `BUILD_COMMIT` set to the pull request's head so the page's release names it rather than the merge commit. A pull request from this
+  `make ui/generated/proto/api.ts go-to-ts`, a `go build` of `wowsimcli` exported as `WOWSIMCLI` for the SIML imports
+  (`running-locally.md`), `type-check`, the SIML extension's `npm run check` and `npm test` in `tools/vscode-apl`,
+  `storybook:build`, and `make dist/forever/.dirstamp`, with `BUILD_COMMIT` set to the pull request's head so the page's
+  release names it rather than the merge commit. A pull request from this
   repository then gets its build deployed as a Cloudflare Pages preview at a hashed `*.wowsims-forever.pages.dev`
   address, linked from one comment on the pull request; fork pull requests skip it. `preview_cleanup.yml` deletes the
   deployments when the pull request closes.
-- **`test-ui`**: `test:unit`, sharded, each shard after `make ui/generated/proto/api.ts go-to-ts`.
+- **`test-ui`**: `test:unit`, sharded, each shard after `make ui/generated/proto/api.ts go-to-ts` and the same
+  `wowsimcli` build for the SIML imports.
 - **`test`**: the Go side, sharded; its steps are `wowsims-testing` `## The gates`.
 
 The cheap UI gates run first, so a formatting slip reports in about a minute. `deploy.yml` and `release.yml` reuse the
@@ -133,7 +136,8 @@ describes: a new selector with no source change behind it is a class leaking in 
 
 `type-check` and every build need files that Go tooling generates and a fresh checkout lacks: `ui/generated/proto/*`
 (`make ui/generated/proto/api.ts`) and the untracked `*_auto_gen.ts` files among the ones `make go-to-ts` writes
-(`go run ./tools/database/gen_db -gen=go-to-ts`). Copying them from a built checkout also works. The makefile's
+(`go run ./tools/database/gen_db -gen=go-to-ts`). Copying them from a built checkout also works. Every build,
+`vitest` run and Storybook build also needs Go itself, for the `.siml` imports (`running-locally.md`). The makefile's
 `AUTO_GEN_FILES_TS` must list exactly what that generator writes; a stale entry makes every dependent `make` rerun
 `gen_db`. Compare the generator's outputs with the makefile and with what git tracks:
 

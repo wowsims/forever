@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+talents "-00530501114-550200030050220151"
+use "base.siml"
+
+gear:
+  head helm
+
+group "Opener":
+  cast hunters_mark

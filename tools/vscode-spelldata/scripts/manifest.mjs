@@ -1,14 +1,5 @@
-export const MANIFEST_KEYS = ['name', 'displayName', 'version', 'publisher', 'engines', 'main', 'activationEvents', 'contributes'];
+import * as common from '../../vscode-common/manifest.mjs';
 
-export function generatedManifest(pkg) {
-	const manifest = {};
-	for (const key of MANIFEST_KEYS) {
-		manifest[key] = pkg[key];
-	}
-	manifest['x-generated'] = 'make vscode-spelldata';
-	return manifest;
-}
-
-export function manifestText(pkg) {
-	return `${JSON.stringify(generatedManifest(pkg), null, '\t')}\n`;
-}
+export const MANIFEST_KEYS = common.MANIFEST_KEYS;
+export const generatedManifest = pkg => common.generatedManifest(pkg, 'vscode-spelldata');
+export const manifestText = pkg => common.manifestText(pkg, 'vscode-spelldata');

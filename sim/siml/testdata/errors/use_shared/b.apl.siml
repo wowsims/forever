@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+use "common.apl.siml"
+
+group "B":
+  cast arcane_shot if $spot > 1

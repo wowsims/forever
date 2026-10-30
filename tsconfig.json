@@ -8,6 +8,8 @@
 		"outDir": "dist/forever",
 		"pretty": false,
 		"allowJs": true,
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
 		"resolveJsonModule": true,
 		"types": ["node", "gtag.js", "golang-wasm-exec", "vite/client"],
 		"esModuleInterop": true,
@@ -35,6 +37,8 @@
 		".history",
 		"ui/generated/proto/*",
 		".vscode/extensions/wowsims-spelldata",
-		"tools/vscode-spelldata"
+		"tools/vscode-spelldata",
+		".vscode/extensions/wowsims-apl",
+		"tools/vscode-apl"
 	]
 }

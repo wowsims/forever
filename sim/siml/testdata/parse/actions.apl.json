@@ -1,0 +1,531 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14325,
+						"rank": 4
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 2643
+					},
+					"target": {
+						"type": "Target",
+						"index": 1
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"itemId": 13442
+					},
+					"target": {}
+				}
+			}
+		},
+		{
+			"action": {
+				"channelSpell": {
+					"spellId": {
+						"spellId": 14295
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"channelSpell": {
+					"spellId": {
+						"spellId": 14295
+					},
+					"target": {
+						"type": "CurrentTarget"
+					},
+					"interruptIf": {
+						"cmp": {
+							"op": "OpGt",
+							"lhs": {
+								"currentTime": {}
+							},
+							"rhs": {
+								"const": {
+									"val": "3s"
+								}
+							}
+						}
+					},
+					"allowRecast": true
+				}
+			}
+		},
+		{
+			"action": {
+				"wait": {
+					"duration": {
+						"const": {
+							"val": "1.5s"
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"wait": {
+					"duration": {
+						"math": {
+							"op": "OpMul",
+							"lhs": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"const": {
+											"val": "1s"
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "2s"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "2"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"waitUntil": {
+					"condition": {
+						"auraIsInactive": {
+							"auraId": {
+								"spellId": 3045
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"move": {
+					"rangeFromTarget": {
+						"const": {
+							"val": "11"
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"move": {
+					"rangeFromTarget": {
+						"const": {
+							"val": "12"
+						}
+					},
+					"recheckWhileMoving": true
+				}
+			}
+		},
+		{
+			"action": {
+				"moveDuration": {
+					"duration": {
+						"const": {
+							"val": "400ms"
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"groupReference": {
+					"groupName": "Weave"
+				}
+			}
+		},
+		{
+			"action": {
+				"groupReference": {
+					"groupName": "Weave",
+					"variables": [
+						{
+							"name": "range",
+							"value": {
+								"const": {
+									"val": "5.00"
+								}
+							}
+						},
+						{
+							"name": "Long name",
+							"value": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"variableRef": {
+											"name": "x"
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "1"
+										}
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"schedule": {
+					"schedule": "0s, 60s",
+					"innerAction": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 3045
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"schedule": {
+					"schedule": "30s",
+					"innerAction": {
+						"wait": {
+							"duration": {
+								"const": {
+									"val": "1s"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"sequence": {
+					"name": "HHA",
+					"actions": [
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 1293527,
+									"rank": 4
+								}
+							}
+						},
+						{
+							"condition": {
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							},
+							"castSpell": {
+								"spellId": {
+									"spellId": 14287,
+									"rank": 8
+								}
+							}
+						},
+						{}
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"sequence": {
+					"name": "Empty"
+				}
+			}
+		},
+		{
+			"action": {
+				"resetSequence": {
+					"sequenceName": "HHA"
+				}
+			}
+		},
+		{
+			"action": {
+				"autocastOtherCooldowns": {}
+			}
+		},
+		{
+			"action": {
+				"strictSequence": {
+					"actions": [
+						{
+							"itemSwap": {
+								"swapSet": "Swap1"
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 14325,
+									"rank": 4
+								}
+							}
+						},
+						{
+							"wait": {
+								"duration": {
+									"const": {
+										"val": "1s"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"castAllStatBuffCooldowns": {
+					"statType1": 18,
+					"statType2": 14,
+					"statType3": -1
+				}
+			}
+		},
+		{
+			"action": {
+				"multidot": {
+					"spellId": {
+						"spellId": 25295,
+						"rank": 9
+					},
+					"maxDots": 3,
+					"maxOverlap": {
+						"const": {
+							"val": "2s"
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 14287,
+						"rank": 8
+					},
+					"target": {
+						"type": "Self"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"waitUntil": {
+					"condition": {
+						"cmp": {
+							"op": "OpGt",
+							"lhs": {
+								"currentTime": {}
+							},
+							"rhs": {
+								"const": {
+									"val": "1s"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"sequence": {
+					"name": "Generic",
+					"actions": [
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 14287,
+									"rank": 8
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"schedule": {
+					"schedule": "1s",
+					"innerAction": {
+						"condition": {
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"currentTime": {}
+								},
+								"rhs": {
+									"const": {
+										"val": "1s"
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 14287,
+								"rank": 8
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"changeTarget": {
+					"newTarget": {
+						"type": "Target",
+						"index": 2
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"activateAuraWithStacks": {
+					"auraId": {
+						"spellId": 3045
+					},
+					"numStacks": 2
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"otherId": "OtherActionOffensivePotion"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"currentTime": {}
+						},
+						"rhs": {
+							"const": {
+								"val": "2s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 3044
+					}
+				}
+			}
+		},
+		{
+			"hide": true,
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 3044
+					}
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Weave",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"variablePlaceholder": {
+										"name": "Long name"
+									}
+								},
+								"rhs": {
+									"const": {
+										"val": "1"
+									}
+								}
+							}
+						},
+						"move": {
+							"rangeFromTarget": {
+								"variablePlaceholder": {
+									"name": "range"
+								}
+							}
+						}
+					}
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "x",
+			"value": {
+				"const": {
+					"val": "1"
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,20 @@
+siml 1
+spec hunter
+
+priority:
+  cast x if curent_time > 1s
+  cast x if aura_is_actve(x)
+  cast_spel(x)
+  cast x if autocast_other_cooldowns
+  wait_until(cast x)
+  cast x if aura(x).is_activ
+  cast x if auro(x).is_active
+  cast x if target.current_rage > 1
+  cast x if target.curent_health > 1
+  cast x if aura(x).is_active(include_reaction_tim=true)
+  cast x if aura(x).num_stacks(include_reaction_time=true, include_reaction_time=true) > 1
+  cast x if auto_time_to_next(main_hand_auto, auto_type=main_hand_auto) > 0s
+  cast x if auto_time_to_next(main_hand_auto, ranged_auto) > 0s
+  cast x if current_time(1s) > 0s
+  cast x if aura(x).is_active(true)
+  `{"castSpell": {"spellId": {"spellId": 1}}, "condition": {"gcdIsReady": {}}}` if true
