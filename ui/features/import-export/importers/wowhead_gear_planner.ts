@@ -151,6 +151,7 @@ export const WOWHEAD_SLOT_IDS: Record<ItemSlot, number> = {
 export const WOWHEAD_GEAR_PLANNER_IMPORTER: ImporterDefinition = {
 	title: i18n.t('import.wowhead.title'),
 	allowFileUpload: true,
+	holdsLink: true,
 	onImport: async (host, url) => {
 		const match = url.match(new RegExp(`www\\.wowhead\\.com/${WOWHEAD_DOMAIN}/gear-planner/([a-z\\-]+)/([a-z\\-]+)/([a-zA-Z0-9_\\-]+)`));
 		if (!match) {

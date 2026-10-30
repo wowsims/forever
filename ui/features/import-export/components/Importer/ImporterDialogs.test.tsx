@@ -79,7 +79,7 @@ describe('the SIML rotation importer dialog', () => {
 			toProto,
 			fromProto,
 		});
-		screen.getByTestId<HTMLTextAreaElement>('importer-textarea').value = text;
+		fireEvent.input(screen.getByTestId('importer-textarea'), { target: { value: text } });
 		fireEvent.click(screen.getByTestId('import-button'));
 		return fromProto;
 	};
