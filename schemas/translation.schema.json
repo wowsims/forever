@@ -8934,9 +8934,44 @@
 										},
 										"total": {
 											"type": "string"
+										},
+										"apl_entry": {
+											"type": "object",
+											"properties": {
+												"prepull": {
+													"type": "string"
+												},
+												"priority": {
+													"type": "string"
+												},
+												"group": {
+													"type": "string"
+												},
+												"step": {
+													"type": "string"
+												},
+												"open_hint": {
+													"type": "string"
+												},
+												"changed_hint": {
+													"type": "string"
+												}
+											},
+											"required": ["prepull", "priority", "group", "step", "open_hint", "changed_hint"],
+											"additionalProperties": false
 										}
 									},
-									"required": ["window", "cancelled", "cast_and_gcd_time", "gcd_time", "travel_time", "stack_at", "stack_range", "total"],
+									"required": [
+										"window",
+										"cancelled",
+										"cast_and_gcd_time",
+										"gcd_time",
+										"travel_time",
+										"stack_at",
+										"stack_range",
+										"total",
+										"apl_entry"
+									],
 									"additionalProperties": false
 								},
 								"delay_tooltip": {

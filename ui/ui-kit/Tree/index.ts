@@ -9,6 +9,8 @@ export const Tree = {
 	AddButton,
 };
 
+export { useTreeItem } from './hooks/useTreeItem';
+
 export type {
 	TreeAddButtonProps,
 	TreeDensity,

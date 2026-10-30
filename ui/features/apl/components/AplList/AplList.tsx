@@ -1,12 +1,14 @@
 import { AplProvider } from '@features/apl/context/AplContext';
+import { useAplReveal } from '@features/apl/hooks/useAplReveal';
 import { actionKinds, type APLActionKind } from '@features/apl/model/action_kinds';
 import { type AplMove, applyMove, canApplyMove, type MoveSource, type OffersKind, resolveMoveSource } from '@features/apl/model/apply_move';
-import type { APLRotation } from '@generated/proto/apl';
+import type { AplRevealRequest } from '@features/apl/model/reveal';
+import type { APLAction, APLListItem, APLPrepullAction, APLRotation } from '@generated/proto/apl';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { TooltipButton } from '@ui-kit/TooltipButton';
-import { Tree, type TreeDensity, type TreeLayout, type TreeSortable } from '@ui-kit/Tree';
-import { type ReactNode, useMemo } from 'react';
+import { Tree, type TreeDensity, type TreeLayout, type TreeSortable, useTreeItem } from '@ui-kit/Tree';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface AplListRootProps {
 	/** `APL_ROWS`, `APL_GROUPS` or `APL_VARIABLES`: which lists of the rotation the tree's moves land in. */
@@ -80,14 +82,25 @@ export interface AplListEntryProps {
 	disabled?: boolean;
 	/** A row the eye has switched off: its handle and title fade with its body. */
 	muted?: boolean;
+	/** For a section or a group: whether an entry a cast's click opens sits under it, so the item opens. */
+	revealOn?: (request: AplRevealRequest) => boolean;
 	testId?: string;
 	/** The item's `Tree.Item.Body` and/or `Tree.Item.Children`. */
 	children?: ReactNode;
 }
 
+const RevealOpen = ({ on }: { on: (request: AplRevealRequest) => boolean }) => {
+	const { setOpen } = useTreeItem();
+	useAplReveal(request => {
+		if (on(request)) setOpen(true);
+	});
+	return null;
+};
+
 /** One APL entry: the kit's handle, title, aside, trigger and menu around the body or children the caller gives. */
-const Item = ({ id, label, title, titleAs, aside, movable = true, actions, disabled, muted, testId, children }: AplListEntryProps) => (
+const Item = ({ id, label, title, titleAs, aside, movable = true, actions, disabled, muted, revealOn, testId, children }: AplListEntryProps) => (
 	<Tree.Item id={id} disabled={disabled} muted={muted} testId={testId}>
+		{revealOn && <RevealOpen on={revealOn} />}
 		<Tree.Item.Header>
 			{movable && <Tree.Item.Handle label={i18n.t('common.list_picker.move_drag_drop')} />}
 			{title !== undefined && <Tree.Item.Title as={titleAs}>{title}</Tree.Item.Title>}
@@ -151,6 +164,54 @@ export const AplItemActions = ({ label, onCopy, onCopyToClipboard, onExtract, ca
 		)}
 	</>
 );
+
+const FLASH_MS = 1500;
+
+export interface AplRevealTargetProps {
+	/** The rotation's own row or step inside, read when a cast's click comes. */
+	getItem: () => APLListItem | APLPrepullAction | APLAction | undefined;
+	children: ReactNode;
+}
+
+/**
+ * The body of a row or a sequence step, inside its `Tree.Item.Body`. When a cast's click opens an entry
+ * through it, it opens its item; when the entry is this one, it scrolls into view and flashes. The
+ * scroll waits a frame, for the tab, the sub-tab and the items above it to have opened.
+ */
+export const AplRevealTarget = ({ getItem, children }: AplRevealTargetProps) => {
+	const { setOpen } = useTreeItem();
+	const ref = useRef<HTMLDivElement>(null);
+	const [flash, setFlash] = useState(false);
+	const [reveals, setReveals] = useState(0);
+	useAplReveal(({ item, steps }) => {
+		const own = getItem();
+		const step = steps.indexOf(own as APLAction);
+		if (own !== item && step === -1) return;
+		setOpen(true);
+		if (own === item ? steps.length === 0 : step === steps.length - 1) setReveals(count => count + 1);
+	});
+	useEffect(() => {
+		if (!reveals) return;
+		const frame = requestAnimationFrame(() => {
+			ref.current?.scrollIntoView({ block: 'center' });
+			setFlash(true);
+		});
+		const timer = setTimeout(() => setFlash(false), FLASH_MS);
+		return () => {
+			cancelAnimationFrame(frame);
+			clearTimeout(timer);
+			setFlash(false);
+		};
+	}, [reveals]);
+	return (
+		<div
+			ref={ref}
+			data-flash={flash ? '' : undefined}
+			className="outline-2 outline-transparent transition-[background-color,outline-color] duration-500 outline-solid data-flash:bg-primary-dampened data-flash:outline-primary">
+			{children}
+		</div>
+	);
+};
 
 export const AplSectionTitle = ({ text, tooltip }: { text: string; tooltip: string }) => (
 	<>
