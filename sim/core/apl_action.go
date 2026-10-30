@@ -10,6 +10,8 @@ type APLAction struct {
 	condition APLValue
 	impl      APLActionImpl
 	spell     *Spell // The spell a cast action casts or queues, whose queue check runs before the condition.
+	entryPath string // The path of the config entry the action runs for; empty outside APL rotations.
+	rot       *APLRotation
 }
 
 func (action *APLAction) Finalize(rot *APLRotation) {
@@ -37,7 +39,24 @@ func (action *APLAction) Execute(sim *Simulation) {
 	if sim.aplActionExecuted != nil {
 		sim.aplActionExecuted(sim, action)
 	}
+	if sim.Log != nil {
+		action.executeLogged(sim)
+		return
+	}
 	action.impl.Execute(sim)
+}
+
+// While the sim logs, the action's entry path is the rotation's running entry path until the action returns.
+func (action *APLAction) executeLogged(sim *Simulation) {
+	rot := action.rot
+	if rot == nil {
+		action.impl.Execute(sim)
+		return
+	}
+	outer := rot.runningEntryPath
+	rot.runningEntryPath = action.entryPath
+	action.impl.Execute(sim)
+	rot.runningEntryPath = outer
 }
 
 // Returns this Action, along with all inner Actions.

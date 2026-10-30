@@ -378,7 +378,7 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		wa.naturalReadyAt += RangedSwingWindup
 		wa.swingAt = wa.windupEnd
 		if sim.Log != nil {
-			wa.unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, GCD = 0s, Effective Time = %s)", attackSpell.ActionID, RangedSwingWindup, RangedSwingWindup)
+			wa.unit.Log(sim, "Casting %s (Cost = 0.000, Cast Time = %s, GCD = 0s, Effective Time = %s)%s", attackSpell.ActionID, RangedSwingWindup, RangedSwingWindup, attackSpell.aplEntrySuffix())
 		}
 		return wa.swingAt
 	}

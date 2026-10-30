@@ -1,3 +1,7 @@
+import type { AplRun } from '@features/apl/model/apl_entry';
+import { requestAplReveal } from '@features/apl/model/reveal';
+import { ROTATION_TAB_ID, useActivateTab } from '@features/hooks/useActivateTab';
+import { usePlayer } from '@sim/context/SimHostContext';
 import { observeElementRect, useVirtualizer } from '@tanstack/react-virtual';
 import { usePointerPan } from '@ui-kit/hooks/usePointerPan';
 import { Tooltip } from '@ui-kit/Tooltip';
@@ -7,7 +11,7 @@ import type { RectObserver } from '@ui-kit/VirtualList';
 import { WINDOW_SCROLLER } from '@ui-kit/VirtualList';
 import clsx from 'clsx';
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useHoverTooltip } from '../../../hooks/useHoverTooltip';
@@ -32,6 +36,8 @@ import { DEFAULT_PPS, ZoomController } from './zoom';
 export interface RotationTrackProps {
 	model: RotationModel | null;
 	active: boolean;
+	/** Absent while the run shown holds no rotation for the unit. */
+	aplRun?: AplRun;
 }
 
 const NO_HIDDEN: ReadonlySet<string> = new Set();
@@ -61,7 +67,7 @@ const padScrollport =
 const PADDED_ELEMENT_RECT = padScrollport(observeElementRect);
 const PADDED_WINDOW_RECT = padScrollport(WINDOW_SCROLLER.observeElementRect!);
 
-export const RotationTrack = ({ model, active }: RotationTrackProps) => {
+export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps) => {
 	const rootRef = useRef<HTMLDivElement>(null);
 	const cornerRef = useRef<HTMLDivElement>(null);
 	const rulerViewportRef = useRef<HTMLDivElement>(null);
@@ -330,6 +336,21 @@ export const RotationTrack = ({ model, active }: RotationTrackProps) => {
 		else moveTip(event.clientX, bottom);
 	};
 
+	// Opens the entry that launched the cast, as long as the rotation is still the one that ran and the tooltip
+	// can place the entry in it. The entry resolves in the player's rotation, which then holds the run's rows,
+	// because the editor matches its rows by identity. A pan's click never arrives: `onClickCapture` stops it first.
+	const simPlayer = usePlayer();
+	const activateTab = useActivateTab();
+	const onItemClick = (event: ReactMouseEvent<HTMLDivElement>) => {
+		if (!aplRun) return;
+		const element = (event.target as Element).closest<HTMLElement>('[data-item-index]');
+		const rowKey = element?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
+		const row = element && rowKey && model?.byKey.has(rowKey) ? rowFor(rowKey) : null;
+		const item = row && row.kind !== 'header' && row.kind !== 'separator' ? row.items[Number(element!.dataset.itemIndex)] : null;
+		if (item?.kind !== 'cast' || !item.log.aplEntryPath || aplRun.changedSinceRun()) return;
+		if (requestAplReveal(simPlayer.aplRotation, item.log.aplEntryPath)) activateTab(ROTATION_TAB_ID);
+	};
+
 	// Horizontal cursor follow: a bar can be wider than the viewport, so its centre is no anchor.
 	const onItemMove = (event: ReactMouseEvent<HTMLDivElement>) => {
 		if (hover) moveTip(event.clientX);
@@ -375,6 +396,7 @@ export const RotationTrack = ({ model, active }: RotationTrackProps) => {
 				tabIndex={0}
 				onKeyDown={event => zoomRef.current?.onKeyDown(event)}
 				{...pan}
+				onClick={onItemClick}
 				onMouseOver={onItemOver}
 				onMouseMove={onItemMove}
 				onMouseLeave={hideTip}>
@@ -413,11 +435,11 @@ export const RotationTrack = ({ model, active }: RotationTrackProps) => {
 			)}
 			{hoveredItem && (
 				<div ref={tooltipRef} data-testid="timeline-hover-tooltip" className="ui-timeline-hover-tooltip">
-					<RowItemTooltip item={hoveredItem} />
+					<RowItemTooltip item={hoveredItem} aplRun={aplRun} />
 				</div>
 			)}
 			<RotationRowsToolbar model={model} hidden={hidden} onToggle={onToggle} onShowAll={onShowAll} />
 			<Tooltip id={hideTooltipId} />
 		</div>
 	);
-};
+});

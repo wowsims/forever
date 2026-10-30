@@ -2758,7 +2758,15 @@
 					"travel_time": "+ {{time}}s travel time",
 					"stack_at": "{{casts}} casts at {{time}}s",
 					"stack_range": "{{casts}} casts from {{start}}s to {{end}}s",
-					"total": "Total: {{total}} ({{dpet}} DPET)"
+					"total": "Total: {{total}} ({{dpet}} DPET)",
+					"apl_entry": {
+						"prepull": "Prepull #{{position}}",
+						"priority": "Priority list #{{position}}",
+						"group": "Group {{group}} › #{{position}}",
+						"step": "Step {{position}}",
+						"open_hint": "Click to open this line in Rotation",
+						"changed_hint": "The rotation has changed since this run"
+					}
 				},
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
 				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
