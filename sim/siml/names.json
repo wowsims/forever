@@ -976,6 +976,7 @@
         "shadowguard_19311": {"spellId": 19311, "registeredBy": ["dps_priest", "healer_priest"]},
         "shadowguard_19312": {"spellId": 19312, "registeredBy": ["dps_priest", "healer_priest"]},
         "spell_1260201": {"spellId": 1260201, "registeredBy": ["dps_priest", "healer_priest"], "icdOnlyBy": ["dps_priest", "healer_priest"]},
+        "spirit_tap": {"spellId": 15271, "registeredBy": ["dps_priest", "healer_priest"]},
         "stoneform": {"spellId": 20594, "registeredBy": ["dps_priest", "healer_priest"]},
         "stoneskin": {"spellId": 10405, "tag": -1, "registeredBy": ["dps_priest", "healer_priest"]},
         "strength_of_earth": {"spellId": 25362, "tag": -1, "registeredBy": ["dps_priest", "healer_priest"]},
@@ -1343,6 +1344,7 @@
         "prayer_of_shadow_protection": {"spellId": 27683, "tag": -1, "registeredBy": ["rogue"]},
         "prayer_of_spirit": {"spellId": 27681, "tag": -1, "registeredBy": ["rogue"]},
         "quietus": {"spellId": 1310728, "registeredBy": ["rogue"]},
+        "remorseless": {"spellId": 14143, "registeredBy": ["rogue"]},
         "retribution_aura": {"spellId": 10301, "tag": -1, "registeredBy": ["rogue"]},
         "seal_fate": {"spellId": 14186, "registeredBy": ["rogue"], "icdOnlyBy": ["rogue"]},
         "shadow_resistance_aura": {"spellId": 19896, "tag": -1, "registeredBy": ["rogue"]},
@@ -1657,6 +1659,7 @@
         "shadow_resistance_aura": {"spellId": 19896, "tag": -1, "registeredBy": ["warlock"]},
         "shadow_trance": {"spellId": 17941, "registeredBy": ["warlock"]},
         "shatter_curse": {"spellId": 1299026, "registeredBy": ["warlock"]},
+        "soul_harvest": {"spellId": 1242853, "registeredBy": ["warlock"]},
         "soul_link": {"spellId": 19028, "registeredBy": ["warlock"]},
         "spell_1260201": {"spellId": 1260201, "registeredBy": ["warlock"], "icdOnlyBy": ["warlock"]},
         "stoneskin": {"spellId": 10405, "tag": -1, "registeredBy": ["warlock"]},
@@ -12633,6 +12636,7 @@
       "potion_of_demon_slaying": {"spellId": 11406, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "potion_of_elemental_purging": {"spellId": 1252558, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "power_of_the_guardian_tag0": {"spellId": 28142, "registeredBy": ["mage"]},
+      "primal_bloodthirst": {"spellId": 418509, "registeredBy": ["dps_warrior", "protection_warrior"]},
       "rage_of_earth": {"spellId": 1309422, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "rapid_fire_28755": {"spellId": 28755, "registeredBy": ["hunter"]},
       "rapid_healing": {"spellId": 24546, "registeredBy": ["dps_priest", "healer_priest"]},
@@ -12834,8 +12838,8 @@
       "thunderfury_27648_tag0": {"spellId": 27648, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]}
     },
     "target_spell": {
-      "spell_18282": {"spellId": 18282, "tag": 100000, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
-      "spell_30619": {"spellId": 30619, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]}
+      "spell_18282": {"spellId": 18282, "tag": 100000, "registeredBy": []},
+      "spell_30619": {"spellId": 30619, "registeredBy": []}
     }
   },
   "suffixes": {

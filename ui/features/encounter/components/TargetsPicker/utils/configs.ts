@@ -9,8 +9,9 @@ import {
 	translateTargetInputLabel,
 	translateTargetInputTooltip,
 } from '@i18n/localization';
+import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import type { Encounter } from '@sim/raid/encounter';
-import { subscribeEncounterField } from '@sim/state/subscriptions';
+import { type StoreSubscribe, subscribeEncounterField } from '@sim/state/subscriptions';
 import { distinct } from '@sim/utils/collections';
 import { randomUUID } from '@sim/utils/misc';
 
@@ -61,7 +62,7 @@ const spellSchoolValues = [
 	SpellSchool.SpellSchoolShadow,
 ].map(value => ({ name: translateSpellSchool(value), value }));
 
-const targetId = (targetIndex: number, name: string) => `target-${targetIndex}-picker-${name}`;
+const targetId = (idPrefix: string, name: string) => `${idPrefix}-picker-${name}`;
 
 const equalTargetsIgnoreInputs = (target1: TargetProto | undefined, target2: TargetProto | undefined): boolean => {
 	if (!!target1 !== !!target2) return false;
@@ -71,22 +72,38 @@ const equalTargetsIgnoreInputs = (target1: TargetProto | undefined, target2: Tar
 	return TargetProto.equals(target1, modTarget2);
 };
 
+/** What the field configs read and write: one target, wherever it lives. */
 export interface TargetFieldContext {
-	encounter: Encounter;
-	targetIndex: number;
+	/** Starts every field id, so two pickers on a page never share one. */
+	idPrefix: string;
 	getTarget: () => TargetProto;
+	modifyTarget: (edit: (target: TargetProto) => void) => void;
+	storeSubscribe: () => StoreSubscribe;
 }
 
-const onTargets = (encounter: Encounter) => () => subscribeEncounterField(encounter, 'targets');
+/** An encounter's target, which the preset and AI fields also need the encounter for. */
+export interface EncounterTargetFieldContext extends TargetFieldContext {
+	encounter: Encounter;
+	targetIndex: number;
+}
 
-export const npcConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => {
+export const encounterTargetContext = (encounter: Encounter, targetIndex: number): EncounterTargetFieldContext => ({
+	encounter,
+	targetIndex,
+	idPrefix: `target-${targetIndex}`,
+	getTarget: () => encounter.getTarget(targetIndex) || TargetProto.create(),
+	modifyTarget: edit => encounter.modifyTarget(targetIndex, edit),
+	storeSubscribe: () => subscribeEncounterField(encounter, 'targets'),
+});
+
+export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget, storeSubscribe }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
 	const presetTargets = encounter.sim.db.getAllPresetTargets();
 	return {
-		id: targetId(targetIndex, 'npc'),
+		id: targetId(idPrefix, 'npc'),
 		label: i18n.t('settings_tab.encounter.npc.label'),
 		labelTooltip: i18n.t('settings_tab.encounter.npc.tooltip'),
 		values: [{ name: i18n.t('common.custom'), value: -1 }].concat(presetTargets.map((preset, index) => ({ name: preset.path, value: index }))),
-		storeSubscribe: onTargets(encounter),
+		storeSubscribe,
 		getValue: () => presetTargets.findIndex(preset => equalTargetsIgnoreInputs(getTarget(), preset.target)),
 		setValue: (_: null, newValue: number) => {
 			if (newValue === -1) return;
@@ -97,18 +114,18 @@ export const npcConfig = ({ encounter, targetIndex, getTarget }: TargetFieldCont
 	};
 };
 
-export const aiConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => {
+export const aiConfig = ({ encounter, idPrefix, getTarget, storeSubscribe, modifyTarget }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
 	const presetTargets = encounter.sim.db.getAllPresetTargets();
 	const byNpcId = distinct(presetTargets, (a, b) => a.target?.id === b.target?.id);
 	return {
-		id: targetId(targetIndex, 'ai'),
+		id: targetId(idPrefix, 'ai'),
 		label: i18n.t('settings_tab.encounter.ai.label'),
 		labelTooltip: i18n.t('settings_tab.encounter.ai.tooltip'),
 		values: [{ name: i18n.t('common.none'), value: 0 }].concat(byNpcId.map(preset => ({ name: preset.path, value: preset.target!.id }))),
-		storeSubscribe: onTargets(encounter),
+		storeSubscribe,
 		getValue: () => getTarget().id,
 		setValue: (_: null, newValue: number) => {
-			encounter.modifyTarget(targetIndex, target => {
+			modifyTarget(target => {
 				target.id = newValue;
 				trackEvent({ action: 'settings', category: 'targets', label: 'ai', value: target.name });
 				target.targetInputs = (presetTargets.find(preset => target.id === preset.target?.id)?.target?.targetInputs || []).map(input =>
@@ -119,29 +136,31 @@ export const aiConfig = ({ encounter, targetIndex, getTarget }: TargetFieldConte
 	};
 };
 
-export const levelConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
-	id: targetId(targetIndex, 'level'),
+export const levelConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+	id: targetId(idPrefix, 'level'),
 	label: i18n.t('settings_tab.encounter.level'),
 	values: [63, 62, 61, 60].map(value => ({ name: String(value), value })),
-	storeSubscribe: onTargets(encounter),
+	storeSubscribe,
 	getValue: () => getTarget().level,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'level', value: newValue });
-		encounter.modifyTarget(targetIndex, target => {
+		modifyTarget(target => {
 			target.level = newValue;
+			const armor = CREATURE_ARMOR_BY_LEVEL[newValue];
+			if (armor !== undefined) target.stats[Stat.StatArmor] = armor;
 		});
 	},
 });
 
-export const mobTypeConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
-	id: targetId(targetIndex, 'mob-type'),
+export const mobTypeConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+	id: targetId(idPrefix, 'mob-type'),
 	label: i18n.t('settings_tab.encounter.mob_type'),
 	values: mobTypeEnumValues,
-	storeSubscribe: onTargets(encounter),
+	storeSubscribe,
 	getValue: () => getTarget().mobType,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'mob_type', value: newValue });
-		encounter.modifyTarget(targetIndex, target => {
+		modifyTarget(target => {
 			target.mobType = newValue;
 			if (!creatureFamiliesOf(newValue).includes(target.creatureFamily)) {
 				target.creatureFamily = CreatureFamily.CreatureFamilyUnknown;
@@ -150,23 +169,23 @@ export const mobTypeConfig = ({ encounter, targetIndex, getTarget }: TargetField
 	},
 });
 
-export const creatureFamilyConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext, mobType: MobType): ChoiceFieldConfig<null> => ({
-	id: targetId(targetIndex, 'creature-family'),
+export const creatureFamilyConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext, mobType: MobType): ChoiceFieldConfig<null> => ({
+	id: targetId(idPrefix, 'creature-family'),
 	label: i18n.t('settings_tab.encounter.creature_family.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.creature_family.tooltip'),
 	values: [CreatureFamily.CreatureFamilyUnknown, ...creatureFamiliesOf(mobType)].map(value => ({ name: translateCreatureFamily(value), value })),
-	storeSubscribe: onTargets(encounter),
+	storeSubscribe,
 	getValue: () => getTarget().creatureFamily,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'creature_family', value: newValue });
-		encounter.modifyTarget(targetIndex, target => {
+		modifyTarget(target => {
 			target.creatureFamily = newValue;
 		});
 	},
 });
 
-export const tankIndexConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
-	id: targetId(targetIndex, 'tanked-by'),
+export const tankIndexConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+	id: targetId(idPrefix, 'tanked-by'),
 	label: i18n.t('settings_tab.encounter.tanked_by.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.tanked_by.tooltip'),
 	values: [
@@ -176,25 +195,25 @@ export const tankIndexConfig = ({ encounter, targetIndex, getTarget }: TargetFie
 		{ name: i18n.t('common.tanks.tank_3'), value: 2 },
 		{ name: i18n.t('common.tanks.tank_4'), value: 3 },
 	],
-	storeSubscribe: onTargets(encounter),
+	storeSubscribe,
 	getValue: () => getTarget().tankIndex,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'tank_index', value: newValue });
-		encounter.modifyTarget(targetIndex, target => {
+		modifyTarget(target => {
 			target.tankIndex = newValue;
 		});
 	},
 });
 
-export const statConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext, stat: Stat, tooltip: string) =>
+export const statConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext, stat: Stat, tooltip: string) =>
 	({
-		id: `target-${targetIndex}-picker-stats-${stat}`,
+		id: `${idPrefix}-picker-stats-${stat}`,
 		label: translateStat(stat),
 		labelTooltip: tooltip,
-		storeSubscribe: onTargets(encounter),
+		storeSubscribe,
 		getValue: () => getTarget().stats[stat],
 		setValue: (_: null, newValue: number) => {
-			encounter.modifyTarget(targetIndex, target => {
+			modifyTarget(target => {
 				target.stats[stat] = newValue;
 			});
 		},
@@ -241,17 +260,17 @@ const NUMBER_FIELDS: Array<NumberField> = [
 	},
 ];
 
-export const numberConfigs = ({ encounter, targetIndex, getTarget }: TargetFieldContext): Array<NumberFieldConfig<null>> =>
+export const numberConfigs = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): Array<NumberFieldConfig<null>> =>
 	NUMBER_FIELDS.map(field => ({
-		id: targetId(targetIndex, field.name),
+		id: targetId(idPrefix, field.name),
 		label: i18n.t(`settings_tab.encounter.${field.key}.label`),
 		labelTooltip: i18n.t(`settings_tab.encounter.${field.key}.tooltip`),
 		float: field.float,
-		storeSubscribe: onTargets(encounter),
+		storeSubscribe,
 		getValue: () => field.get(getTarget()),
 		setValue: (_: null, newValue: number) => {
 			trackEvent({ action: 'settings', category: 'targets', label: field.label, value: newValue });
-			encounter.modifyTarget(targetIndex, target => field.set(target, newValue));
+			modifyTarget(target => field.set(target, newValue));
 		},
 	}));
 
@@ -304,32 +323,32 @@ const BOOLEAN_FIELDS: Array<BooleanField> = [
 	},
 ];
 
-export const booleanConfigs = ({ encounter, targetIndex, getTarget }: TargetFieldContext): Array<BooleanPickerConfig<null>> =>
+export const booleanConfigs = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): Array<BooleanPickerConfig<null>> =>
 	BOOLEAN_FIELDS.map(field => ({
-		id: targetId(targetIndex, field.name),
+		id: targetId(idPrefix, field.name),
 		label: i18n.t(`settings_tab.encounter.${field.key}.label`),
 		labelTooltip: i18n.t(`settings_tab.encounter.${field.key}.tooltip`),
 		layout: 'inline',
 		reverse: true,
-		storeSubscribe: onTargets(encounter),
+		storeSubscribe,
 		getValue: () => field.get(getTarget()),
 		setValue: (_: null, newValue: boolean) => {
 			trackEvent({ action: 'settings', category: 'targets', label: field.label, value: newValue });
-			encounter.modifyTarget(targetIndex, target => field.set(target, newValue));
+			modifyTarget(target => field.set(target, newValue));
 		},
 		...(field.enabledWhen ? { enableWhen: () => field.enabledWhen!(getTarget()) } : {}),
 	}));
 
-export const spellSchoolConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
-	id: targetId(targetIndex, 'spell-school'),
+export const spellSchoolConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+	id: targetId(idPrefix, 'spell-school'),
 	label: i18n.t('settings_tab.encounter.spell_school.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.spell_school.tooltip'),
 	values: spellSchoolValues,
-	storeSubscribe: onTargets(encounter),
+	storeSubscribe,
 	getValue: () => getTarget().spellSchool,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'spell_school', value: newValue });
-		encounter.modifyTarget(targetIndex, target => {
+		modifyTarget(target => {
 			target.spellSchool = newValue;
 		});
 	},

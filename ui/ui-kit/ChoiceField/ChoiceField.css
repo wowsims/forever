@@ -55,6 +55,10 @@
 		@apply bg-surface-raised;
 	}
 
+	.ui-choice-field-section {
+		@apply px-2 pt-2 pb-1 text-sm font-bold text-muted;
+	}
+
 	.ui-unit-icon {
 		@apply mr-1 flex size-4 items-center justify-center;
 	}

@@ -1,14 +1,16 @@
 import i18n from '@i18n/config';
 import type { CombatLog } from '@sim/proto/combat_log';
+import { Button } from '@ui-kit/Button';
 import type { Chart as ChartJS, ChartData, ChartOptions, Plugin } from 'chart.js';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 
 import { useHoverTooltip } from '../../../hooks/useHoverTooltip';
-import type { AnnotationSpec, TimelineChartSpec, TimelineDataset, TimelinePoint, TooltipSpec } from '../../../model/timeline/chart/types';
-import { annotationsPlugin } from './annotations';
+import type { AnnotationSpec, ScheduledKind, TimelineChartSpec, TimelineDataset, TimelinePoint, TooltipSpec } from '../../../model/timeline/chart/types';
+import { annotationsPlugin, SCHEDULED_ROWS } from './annotations';
 import { ChartSeriesTooltip } from './ChartSeriesTooltip';
 import { ChartToolbar } from './ChartToolbar';
+import { cssVarColor } from './colors';
 import { THREAT_SERIES_ID } from './series';
 import { ChartZoom } from './zoom';
 
@@ -27,6 +29,9 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 	// dataset rebuild and a UI language change.
 	const seriesVisible = useRef(new Map<string, boolean>());
 	// datasetIndex + dataIndex, which a new result can reuse for a different log, so a rebuild clears it.
+	// Local to the chart like series visibility; the state only re-renders the legend.
+	const hiddenKinds = useRef(new Set<ScheduledKind>());
+	const [, setKindsVersion] = useState(0);
 	const tipKey = useRef('');
 	const suppressed = useRef(false);
 
@@ -104,7 +109,14 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 	}
 
 	const plugins = useRef<Array<Plugin<'line'>>>(undefined as never);
-	if (!plugins.current) plugins.current = [annotationsPlugin(() => annotations.current), zoom.current.plugin()];
+	if (!plugins.current)
+		plugins.current = [
+			annotationsPlugin(
+				() => annotations.current,
+				kind => !hiddenKinds.current.has(kind),
+			),
+			zoom.current.plugin(),
+		];
 
 	// chart.js has no noData equivalent and would draw a pair of empty axes, so the canvas is only
 	// mounted once there is a series to draw.
@@ -115,6 +127,14 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 	// result's series under the previous result's cooldown bands.
 	annotations.current = spec?.annotations ?? null;
 	if (spec) for (const dataset of spec.datasets) dataset.hidden = !isSeriesVisible(dataset.seriesId);
+
+	const scheduledKinds = SCHEDULED_ROWS.filter(row => spec?.annotations?.scheduled.some(marker => marker.kind === row.kind));
+
+	const toggleKind = (kind: ScheduledKind) => {
+		if (!hiddenKinds.current.delete(kind)) hiddenKinds.current.add(kind);
+		setKindsVersion(version => version + 1);
+		chartRef.current?.update('none');
+	};
 
 	const data = useMemo<ChartData<'line', Array<TimelinePoint>>>(() => ({ datasets: spec?.datasets ?? [] }), [spec]);
 	const options = useMemo<ChartOptions<'line'>>(() => ({ ...behaviour.current, scales: spec?.scales ?? {} }), [spec]);
@@ -132,6 +152,23 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 				onPanLeft={() => zoom.current.panBy(-PAN_STEP_PX)}
 				onPanRight={() => zoom.current.panBy(PAN_STEP_PX)}
 			/>
+			{hasData && scheduledKinds.length > 0 && (
+				<ul data-testid="timeline-scheduled-legend" className="m-0 flex list-none flex-wrap items-center gap-x-4 p-0 text-sm">
+					<li>{i18n.t('results_tab.details.timeline.scheduled.title')}</li>
+					{scheduledKinds.map(({ kind, token }) => (
+						<li key={kind}>
+							<Button
+								variant="unstyled"
+								aria-pressed={!hiddenKinds.current.has(kind)}
+								className={`flex cursor-pointer items-center gap-1 ${hiddenKinds.current.has(kind) ? 'line-through opacity-50' : ''}`}
+								onClick={() => toggleKind(kind)}>
+								<span aria-hidden className="inline-block size-2" style={{ backgroundColor: cssVarColor(token) }} />
+								{i18n.t(`results_tab.details.timeline.scheduled.${kind}`)}
+							</Button>
+						</li>
+					))}
+				</ul>
+			)}
 			{hasData && (
 				<div data-testid="timeline-chart-canvas" className="relative min-h-0 flex-1">
 					<Chart

@@ -144,6 +144,17 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 - **`GCD Is Ready` is true from 400 ms before the GCD ends** (`MaxSpellQueueWindow`, `APLValueGCDIsReady`), so a
   line gated on it fires on every look in that window. `GCD Time To Ready` ≤ `0ms` holds only at the GCD's end.
 
+## Encounter values
+
+The values that read an encounter design are in `sim/core/apl_values_design.go` and `apl_values_encounter.go`:
+`Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
+a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
+`Time Until Amp` (by damage amp type). Without a design the times are never, and `Next Move Duration` is 0.
+
+- **`Is Execute Phase` takes a target**, and `Current Health` and `Current Health %` on an enemy read its health
+  curve, so a design's boss and adds each have their own. Fights are time-based: a fight lasts its rolled duration,
+  whatever the targets' health.
+
 ## Traps
 
 - **An external buff copy registers as tag -1** (`actionID` in `sim/core/buffs/meta.go`): the raid's Battle Shout is

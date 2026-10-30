@@ -87,8 +87,12 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 		unit.UnitIndex = int32(unitIndex)
 	}
 
+	firstTarget := env.Encounter.AllTargetUnits[0]
+	if preferred := env.Encounter.preferredActiveTarget(); preferred != nil {
+		firstTarget = &preferred.Unit
+	}
 	for _, unit := range env.Raid.AllUnits {
-		unit.CurrentTarget = env.Encounter.ActiveTargetUnits[0]
+		unit.CurrentTarget = firstTarget
 	}
 
 	// Apply extra debuffs from raid.
@@ -100,17 +104,19 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 		})
 	}
 
-	tankTargetSet := map[*Unit]bool{}
+	tankFirstTarget := map[*Unit]*Target{}
 	// Assign target-of-target using Tanks field.
 	for _, target := range env.Encounter.AllTargets {
-		if target.Index < int32(len(encounterProto.Targets)) {
-			targetProto := encounterProto.Targets[target.Index]
-			env.setupTankTarget(target, targetProto.TankIndex, raidProto.Tanks, true, tankTargetSet)
+		if targetProto := env.Encounter.targetConfigs[target.Index]; targetProto != nil {
+			env.setupTankTarget(target, targetProto.TankIndex, raidProto.Tanks, true, tankFirstTarget)
 
 			if targetProto.SecondTankIndex != targetProto.TankIndex {
-				env.setupTankTarget(target, targetProto.SecondTankIndex, raidProto.Tanks, false, tankTargetSet)
+				env.setupTankTarget(target, targetProto.SecondTankIndex, raidProto.Tanks, false, tankFirstTarget)
 			}
 		}
+	}
+	for tankUnit, target := range tankFirstTarget {
+		tankUnit.CurrentTarget = &target.Unit
 	}
 
 	// A player in any tank slot is a tank, whether or not a target is assigned to it.
@@ -124,13 +130,9 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 }
 
 // The initialization phase.
-func (env *Environment) initialize(raidProto *proto.Raid, encounterProto *proto.Encounter) *proto.RaidStats {
+func (env *Environment) initialize(raidProto *proto.Raid, _ *proto.Encounter) *proto.RaidStats {
 	for _, target := range env.Encounter.AllTargets {
-		if target.Index < int32(len(encounterProto.Targets)) {
-			target.initialize(encounterProto.Targets[target.Index])
-		} else {
-			target.initialize(nil)
-		}
+		target.initialize(env.Encounter.targetConfigs[target.Index])
 	}
 
 	for _, party := range env.Raid.Parties {
@@ -146,6 +148,9 @@ func (env *Environment) initialize(raidProto *proto.Raid, encounterProto *proto.
 			playerOrPet.Initialize()
 		}
 	}
+	env.Encounter.design.registerBossAbilities(&env.Encounter)
+
+	env.Encounter.design.registerLanes(env)
 
 	env.State = Initialized
 	return raidStats
@@ -230,7 +235,7 @@ func (env *Environment) finalize(raidProto *proto.Raid, _ *proto.Encounter, raid
 	}
 }
 
-func (env *Environment) setupTankTarget(npc *Target, tankIndex int32, tankList []*proto.UnitReference, isFirstTank bool, tankHasTarget map[*Unit]bool) {
+func (env *Environment) setupTankTarget(npc *Target, tankIndex int32, tankList []*proto.UnitReference, isFirstTank bool, tankFirstTarget map[*Unit]*Target) {
 	if (tankIndex < 0) || (tankIndex >= int32(len(tankList))) {
 		return
 	}
@@ -253,10 +258,10 @@ func (env *Environment) setupTankTarget(npc *Target, tankIndex int32, tankList [
 		npc.SecondaryTarget = tankUnit
 	}
 
-	// Set the tank's target to the first unit tanked.
-	if !tankHasTarget[tankUnit] {
-		tankUnit.CurrentTarget = &npc.Unit
-		tankHasTarget[tankUnit] = true
+	// The tank's target is the first enabled unit it tanks, or the first unit it tanks when every one
+	// of them starts disabled.
+	if first, ok := tankFirstTarget[tankUnit]; !ok || (!first.IsEnabled() && npc.IsEnabled()) {
+		tankFirstTarget[tankUnit] = npc
 	}
 }
 
@@ -288,14 +293,15 @@ func (env *Environment) reset(sim *Simulation) {
 	// Randomize heartbeat timer for pet stat inheritance.
 	env.heartbeatOffset = env.PrepullStartTime() - PetUpdateInterval + DurationFromSeconds(PetUpdateInterval.Seconds()*sim.RandomFloat("Pet Stat Inheritance"))
 
-	// Reset primary targets damage taken for tracking health fights.
-	env.Encounter.DamageTaken = 0
-
 	// Targets need to be reset before the raid, so that players can check for
 	// the presence of permanent target auras in their Reset handlers.
+	env.Encounter.strandedSwings = env.Encounter.strandedSwings[:0]
+	env.Encounter.resetting = true
+	defer func() { env.Encounter.resetting = false }()
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}
+	env.Encounter.design.reset(sim)
 
 	env.Raid.reset(sim)
 }
@@ -321,14 +327,26 @@ func (env *Environment) GetTargetUnitByIndex(index int32) *Unit {
 func (env *Environment) NextActiveTarget(target *Unit) *Target {
 	return env.Encounter.AllTargets[target.Index].NextActiveTarget()
 }
+
+// The next active target's unit, or target itself when no target is active, so a unit reference
+// never comes back nil.
 func (env *Environment) NextActiveTargetUnit(target *Unit) *Unit {
-	return &env.NextActiveTarget(target).Unit
+	if next := env.NextActiveTarget(target); next != nil {
+		return &next.Unit
+	}
+	return target
 }
 func (env *Environment) PreviousActiveTarget(target *Unit) *Target {
 	return env.Encounter.AllTargets[target.Index].PreviousActiveTarget()
 }
+
+// The previous active target's unit, or target itself when no target is active, so a unit reference
+// never comes back nil.
 func (env *Environment) PreviousActiveTargetUnit(target *Unit) *Unit {
-	return &env.PreviousActiveTarget(target).Unit
+	if prev := env.PreviousActiveTarget(target); prev != nil {
+		return &prev.Unit
+	}
+	return target
 }
 func (env *Environment) GetActiveTargetUnits() []*Unit {
 	return env.Encounter.ActiveTargetUnits

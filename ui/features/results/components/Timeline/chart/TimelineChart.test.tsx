@@ -30,6 +30,25 @@ const dataset = (seriesId: string, label: string): TimelineDataset =>
 
 const spec = (...datasets: Array<TimelineDataset>): TimelineChartSpec => ({ datasets, scales: { x: {} }, annotations: null, duration: 30 });
 
+const withScheduled = (...kinds: Array<'downtime' | 'wave' | 'amp' | 'move'>): TimelineChartSpec => ({
+	...spec(dataset('dps', 'DPS')),
+	annotations: { bands: [], icons: [], scheduled: kinds.map(kind => ({ kind, start: 5, end: 10 })) },
+});
+
+const legend = (container: HTMLElement) => container.querySelector('[data-testid="timeline-scheduled-legend"]');
+
+// The strips a plugin pass fills, from a canvas context that records them.
+const drawnStrips = (chart: FakeChart) => {
+	const fills: Array<unknown> = [];
+	const ctx = new Proxy({ fillRect: (...args: Array<unknown>) => fills.push(args) } as Record<string, unknown>, {
+		get: (target, key: string) => target[key] ?? (() => {}),
+		set: () => true,
+	});
+	const fake = { ctx, chartArea: { left: 0, right: 100, top: 0, bottom: 100 }, scales: { x: { getPixelForValue: (value: number) => value } } };
+	for (const plugin of chart.config.plugins as Array<{ afterDatasetsDraw?: (chart: unknown) => void }>) plugin.afterDatasetsDraw?.(fake);
+	return fills.length;
+};
+
 const options = (chart: FakeChart) =>
 	chart.config.options as unknown as {
 		plugins: { legend: { onClick: (event: unknown, item: { datasetIndex: number }) => void }; tooltip: { external: (context: unknown) => void } };
@@ -136,5 +155,30 @@ describe('TimelineChart', () => {
 		expect(charts[0].updates).toBe(1);
 		fireEvent.click(buttons[0]);
 		expect(charts[0].updates).toBe(2);
+	});
+
+	it('lists only the scheduled kinds present, and nothing without a design', () => {
+		const withoutDesign = render(<TimelineChart spec={spec(dataset('dps', 'DPS'))} />);
+		expect(legend(withoutDesign.container)).toBeNull();
+		withoutDesign.unmount();
+
+		const { container } = render(<TimelineChart spec={withScheduled('wave', 'move')} />);
+		const entries = Array.from(legend(container)!.querySelectorAll('button')).map(button => button.textContent);
+		expect(entries).toEqual(['results_tab.details.timeline.scheduled.wave', 'results_tab.details.timeline.scheduled.move']);
+	});
+
+	it('hides and shows a scheduled kind from its legend entry', () => {
+		const { container } = render(<TimelineChart spec={withScheduled('downtime', 'wave')} />);
+		const [downtime] = Array.from(legend(container)!.querySelectorAll('button'));
+		expect(drawnStrips(charts[0])).toBe(2);
+
+		fireEvent.click(downtime);
+		expect(downtime.getAttribute('aria-pressed')).toBe('false');
+		expect(charts[0].updates).toBe(1);
+		expect(drawnStrips(charts[0])).toBe(1);
+
+		fireEvent.click(downtime);
+		expect(downtime.getAttribute('aria-pressed')).toBe('true');
+		expect(drawnStrips(charts[0])).toBe(2);
 	});
 });

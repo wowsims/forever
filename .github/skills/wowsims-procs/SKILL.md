@@ -65,6 +65,9 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
 - **Read the chance off the effect the tooltip names**, never a look-alike effect whose ladder happens to fit.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
+- **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
+  death; both are in `procs.md` (§ the two death bits), the order of a death in `wowsims-core-mechanics`
+  `## Targets and encounter designs`.
 
 ## Item and enchant procs
 
@@ -94,7 +97,9 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 
 - **A trigger named after its row never hears anything when the buff shares that name.** `ProcTrigger` names the
   trigger after the row, and `MakeProcTriggerAura` registers through `GetOrRegisterAura`, which hands back the
-  `AuraConfig` buff of the same label and drops the listener. Set `trigger.Name = "<X> - Trigger"` (PR #140).
+  `AuraConfig` buff of the same label and drops the listener. Set `trigger.Name = "<X> - Trigger"` (PR #140). A death
+  listener loses its kill or death the same way, so Rapid Killing (`sim/hunter/talents_marksmanship.go`) and Spirit
+  Tap (`sim/priest/talents_shadow.go`) name their triggers.
 - **A periodic listener built from a row never hears a bleed.** `DecodeProcTypeMask` files
   `PROC_FLAG_DEAL_HARMFUL_PERIODIC` under `ProcMaskSpellDamage`, and a bleed tick carries a melee mask. Set
   `trigger.ProcMask = core.ProcMaskUnknown` at the call site, as Thousand Cuts does (`sim/rogue/talents_subtlety.go`).

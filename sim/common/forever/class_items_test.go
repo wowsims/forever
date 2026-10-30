@@ -371,6 +371,38 @@ func TestRenatakisCharmOfBeastsResetsTheShots(t *testing.T) {
 	}
 }
 
+// Old Guard Retaliator 208222's 418509 hears a killing blow, and the next attack gets the crit chance
+// its dummy effect states. A death with no kill credit grants nothing, and the attack spends the buff.
+func TestOldGuardRetaliatorCritsTheAttackAfterAKill(t *testing.T) {
+	sim, warrior := modWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 208222)
+	target := sim.Encounter.AllTargets[0]
+	bonus := spelldata.MustFind(418509).EffectN(1).BaseValue()
+	buff := warrior.GetAuraByID(core.ActionID{SpellID: 418509})
+	if buff == nil || bonus <= 0 {
+		t.Fatalf("208222 registers no buff, or the row states a crit chance of %v", bonus)
+	}
+	base := warrior.GetStat(stats.PhysicalCritPercent)
+
+	target.Die(sim, 0)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if buff.IsActive() {
+		t.Error("a death with no kill credit put up the buff")
+	}
+
+	target.Enable(sim)
+	target.Die(sim, 1)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := warrior.GetStat(stats.PhysicalCritPercent) - base; !buff.IsActive() || got != bonus {
+		t.Errorf("after a killing blow the buff is up %v and adds %v crit, want up and %v", buff.IsActive(), got, bonus)
+	}
+
+	target.Enable(sim)
+	dealHit(t, sim, warrior, meleeSwing(&warrior.Unit))
+	if got := warrior.GetStat(stats.PhysicalCritPercent); buff.IsActive() || got != base {
+		t.Errorf("after the next attack the buff is up %v at %v crit, want gone and %v", buff.IsActive(), got, base)
+	}
+}
+
 // The PvP plate gloves' 22778 and Rage of Mugamba's 24428 state a flat modifier on Hamstring's cost
 // in tenths of rage, which comes off a warrior's Hamstring as whole rage.
 func TestPlateGlovesAndRageOfMugambaCutHamstringsRage(t *testing.T) {

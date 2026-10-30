@@ -113,7 +113,8 @@ func GetPresetTargetWithID(id int32) *PresetTarget {
 	return nil
 }
 
-func AddPresetEncounter(name string, targetPaths []string) {
+// The design, when not nil, becomes the preset encounter's design.
+func AddPresetEncounter(name string, targetPaths []string, design *proto.EncounterDesign) {
 	if len(targetPaths) == 0 {
 		log.Fatalf("Encounter must have targets!")
 	}
@@ -142,5 +143,6 @@ func AddPresetEncounter(name string, targetPaths []string) {
 	PresetEncounters = append(PresetEncounters, &proto.PresetEncounter{
 		Path:    path,
 		Targets: targetProtos,
+		Design:  design,
 	})
 }

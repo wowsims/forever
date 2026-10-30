@@ -377,6 +377,62 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
 }
 
+// Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
+// mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
+// death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing
+// either.
+func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
+	const reaper = 288901
+	if core.GetItemByID(reaper) == nil {
+		t.Skip("item 288901 is not in the live game files; this runs again once they hold it")
+	}
+	cooldown := spelldata.MustFind(21185).ICD()
+	gain := spelldata.MustFind(21186)
+	for _, tc := range []struct {
+		name  string
+		class proto.Class
+		want  float64
+	}{
+		{"mana", proto.Class_ClassWarlock, gain.EffectN(1).BaseValue()},
+		{"rage", proto.Class_ClassWarrior, gain.EffectN(2).Tenths()},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, character := modWearer(t, tc.class, proto.ItemSlot_ItemSlotMainHand, reaper)
+			target := sim.Encounter.AllTargets[0]
+			spent := character.NewManaMetrics(core.ActionID{SpellID: 993105})
+			// The power the death gives. Mana is spent first, which leaves room for the gain and holds
+			// off the regen for the moment the gain is measured.
+			gainOn := func(killShare float64) float64 {
+				if character.HasManaBar() {
+					character.SpendMana(sim, character.CurrentMana(), spent)
+				}
+				target.Enable(sim)
+				before := character.CurrentMana() + character.CurrentRage()
+				target.Die(sim, killShare)
+				stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+				return character.CurrentMana() + character.CurrentRage() - before
+			}
+
+			if tc.want <= 0 || cooldown <= 0 {
+				t.Fatalf("the rows state a gain of %v and a cooldown of %v, want both", tc.want, cooldown)
+			}
+			if got := gainOn(0); got != 0 {
+				t.Errorf("a death with no kill credit gave %v, want nothing", got)
+			}
+			if got := gainOn(1); got != tc.want {
+				t.Errorf("a killing blow gave %v, want %v", got, tc.want)
+			}
+			if got := gainOn(1); got != 0 {
+				t.Errorf("a second killing blow inside the cooldown gave %v, want nothing", got)
+			}
+			stepTo(t, sim, sim.CurrentTime+cooldown)
+			if got := gainOn(1); got != tc.want {
+				t.Errorf("a killing blow after the cooldown gave %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
 // that brings the stacks to the count the row names casts Perfected Form 1325508: its damage once,
 // its +20 to every stat for the row's duration, and the stacks gone so they build again.

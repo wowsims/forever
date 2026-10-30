@@ -15,12 +15,12 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "29777f043bef184fdb019c4338ee9e92f1288954b23c79d181571c603e43a084"
+      "computedHash": "a6cd41ed210077289114479405480b98fb1b550a26942cf521147e72abdc6b87"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "d5f0cd5c54e3a267c9830e826219718cf6c8f65b9ec57fa2d654c68d57546404"
+      "computedHash": "ce685551bc5e9818978e4fd50e55ae7746e1f1a5d3dc2bf2f7b0792ee66a879a"
     },
     "wowsims-consumables-items": {
       "source": "./.github/skills",
@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "96bc0630b5d2a33f443fbe554fd45ec0681b6150c44bbbc6b777de4976ac5cb9"
+      "computedHash": "cdf43a3523567e0a5a917669f6c59083e71918502de137b39620badd089761b2"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -45,7 +45,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "94badf1cca688e12f75ae7244354806f1bc62f12fa182bd8efac4e2f8bbdf3f2"
+      "computedHash": "4f2abc548581b1622b883859101c55b7fdd79e07a6357546794f465c62dfa85b"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -60,7 +60,7 @@
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "b649272635c1b7966ed961388ec747955f537f5bb7db684d83747a89d1317c67"
+      "computedHash": "3bd18906d7de977fc4402263888c660dad7ad9bb0b3b89223d736c886664881b"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
@@ -80,12 +80,12 @@
     "wowsims-testing": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "f83c6215bd967b757cecac684cccd7ec276dbe1b996f6abbcfe06f48a95bcd99"
+      "computedHash": "b9a31b37d990f59448527b77b0cc84d3eb8e2624b12a65acf62ea86c43196381"
     },
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "53c577a8aaf4488e9c02621281d66e6187391da057de45dd9f7f2d5882486386"
+      "computedHash": "02f4fa004b6585e060b391a885c3d85a96def28f1efc506e0f61fdec54ca3bd8"
     }
   }
 }

@@ -6,7 +6,7 @@ import { type PointerEvent, useRef } from 'react';
 
 import { OptionContent } from './OptionContent';
 import type { ChoiceEntry, ChoiceOption } from './types';
-import { isChoiceOption } from './utils';
+import { isChoiceOption, isChoiceSection } from './utils';
 
 export interface ChoiceMenuItemsProps<V> {
 	entries: ReadonlyArray<ChoiceEntry<V>>;
@@ -46,6 +46,15 @@ export const ChoiceMenuItems = <V,>({ entries, indexOf, tooltipId, onSelect, onC
 	return (
 		<>
 			{entries.map((entry, position) => {
+				if (isChoiceSection(entry))
+					return (
+						<li key={`section-${position}`} role="none">
+							<BaseMenu.Group render={<ul />} className="m-0 list-none p-0">
+								<BaseMenu.GroupLabel className="ui-choice-field-section">{entry.label}</BaseMenu.GroupLabel>
+								<ChoiceMenuItems entries={entry.options} indexOf={indexOf} tooltipId={tooltipId} onSelect={onSelect} onClose={onClose} />
+							</BaseMenu.Group>
+						</li>
+					);
 				const option = isChoiceOption(entry) ? entry : undefined;
 				if (option && !option.submenu)
 					return (

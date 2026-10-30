@@ -543,7 +543,6 @@ describe('Sim.runBulkSim', () => {
 		const override = EncounterProto.create({
 			duration: 90,
 			durationVariation: 10,
-			useHealth: true,
 			executeProportion20: 0.5,
 			targets: [Target.create(), Target.create()],
 		});

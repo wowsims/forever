@@ -31,7 +31,7 @@ against an in-memory `Env`.
 | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `ui`                    | `Sim`                              | show\* flags, language, `wasmConcurrency`: presentation                                             |
 | `sim`                   | `Sim`                              | iterations, phase, faction, `fixedRngSeed`, filters, `lastUsedRngSeed(+version)`, `metadataVersion` |
-| `encounter`             | `Encounter`                        | duration, execute proportions, `useHealth`, `targets` (replace-on-write)                            |
+| `encounter`             | `Encounter`                        | duration, execute proportions, `targets` (replace-on-write)                                         |
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, `partyBuffs[5]`, `composition[5][5]`        |
 | `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values, as `PlayerSlice`, plus a per-field version counter `v` keyed by `PLAYER_FIELDS`         |
 | `reforge[storeKey]`     | `ReforgeSettings`                  | gear-optimizer settings (`REFORGE_FIELDS`) and counters                                             |
@@ -98,6 +98,22 @@ against the host from context and folds an array into one `subscribeAll`, memois
 with `CONSUMABLE_ORDER_FIELDS`. Prefer it to a hand-built `subscribeAll([...])` in a render body: that builds a new
 source each render, and `useStoreSubscribe` re-subscribes whenever the source identity changes. A named field is also
 greppable and cannot capture the wrong object.
+
+**The encounter design** is the store field `encounter:design` (`ui/sim/raid/encounter.ts`: `getDesign`, `setDesign`,
+`modifyDesign`, `hasDesign`), saved in the encounter proto only when it holds an event. The design points at targets by
+index, so `setTargets` runs `remapDesignTargets`, which follows each old target object to its new position and sends a
+removed target's events to -1, where `validateDesign` flags them; a preset matches the encounter by targets and design
+together. The designer dialog is `ui/features/encounter-designer/components/EncounterDesigner/` over the model in
+`ui/features/encounter-designer/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
+
+**The encounter name** (`encounter:name`) and the mark `encounter:myEncounter` tie the encounter to My encounters, the
+player's designed encounters in a per-spec `useSavedData` slot keyed by name
+(`ui/features/encounter/hooks/useMyEncounters.ts`). Picking an entry, or storing one from the designer, sets the mark;
+`applyPreset` clears the name and the mark, and `matchesPreset` never matches a named encounter. The mark is in the
+encounter proto, so the autosave keeps it through a reload, and `withoutMyEncounter`
+(`ui/sim/state/my_encounter_sharing.ts`) drops it from every export and import, so an imported encounter under an entry's
+name reads as imported, and its Save adds a new entry under a free name. Both encounter choices, the picker's and the
+Advanced dialog's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`).
 
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the
 slice. Use one only when nothing narrower works, and keep their number from growing:

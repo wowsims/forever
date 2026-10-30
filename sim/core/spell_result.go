@@ -542,12 +542,6 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 		}
 	}
 
-	// Mark total damage done in raid so far for health based fights.
-	// Don't include damage done by EnemyUnits to Players
-	if result.Target.Type == EnemyUnit {
-		sim.Encounter.DamageTaken += result.Damage
-	}
-
 	if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 		if isPeriodic {
 			spell.Unit.Log(sim, "%s %s tick %s (SpellSchool: %d). (Threat: %0.3f)", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat)

@@ -1,6 +1,6 @@
 ---
 name: wowsims-core-mechanics
-description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
+description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, encounter designs, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
 ---
 
 # wowsims-core-mechanics
@@ -104,6 +104,34 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **Within an exclusive category the enabled effect with the highest `Priority` applies**; `YieldsTies` takes the
   category only by outbidding (`exclusive_effect.go`). The `SingleAura` reset is `wowsims-abilities-auras` §Buffs and
   debuffs.
+
+## Targets and encounter designs
+
+- **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
+  target move to target 0 when it is enabled, else the enabled target with the lowest index; with none left they keep
+  the disabled target, their auto attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). Code that reads
+  the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so a boss that
+  goes down mid-cast does not land the spell once it is back.
+- **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on the design rand,
+  `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits the raid, `Disable` last. A death
+  listener gets a nil spell; an aura on the dying target is checked in `ExtraCondition`, which runs inside `Die`. The
+  proc side is `docs/spell_data/procs.md`, which also says why a rated trigger hears no death.
+- **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target`, never the
+  encounter's first target, and an execute-phase callback names the target. A plain encounter's targets cross 35% and
+  20% at the encounter's execute proportions of the fight (`resetExecutePhases`); a design's health curve sets the
+  crossings of its boss and adds.
+- **An encounter design is a timeline of fractions of the rolled fight duration** (`design_runner.go` and the
+  `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
+  sim's, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
+  overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
+  add waves take targets from a pool allocated at construction. Design input never panics: what construction drops
+  is logged at each reset (`constructNotes`).
+- **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
+  and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.design_add`, copied
+  by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from
+  them. Every slot is listed, whether or not it spawned in an iteration.
+- **Fights are time-based**: there is no health-based fight length, and a target's health is a curve over the fight,
+  not damage taken.
 
 ## Protos
 

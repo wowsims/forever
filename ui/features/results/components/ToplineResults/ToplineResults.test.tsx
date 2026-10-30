@@ -35,7 +35,6 @@ const resultFor = (spec: unknown) =>
 			],
 			getRaidIndexedActionMetrics: () => [],
 			getTargets: () => [],
-			request: { encounter: { useHealth: false } },
 			result: { avgIterationDuration: 300 },
 			encounterMetrics: { durationSeconds: 300 },
 		},

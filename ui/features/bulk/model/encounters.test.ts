@@ -88,7 +88,6 @@ describe('formatEncounterDuration', () => {
 	it.each([
 		[{ duration: 90, durationVariation: 10 }, '1:30 ±10s'],
 		[{ duration: 300, durationVariation: null }, '5:00'],
-		[{ duration: null, durationVariation: null }, 'bulk_tab.settings.encounters.health_summary'],
 	])('formats %#', (length, label) => {
 		expect(formatEncounterDuration(length)).toBe(label);
 	});
@@ -99,7 +98,6 @@ describe('formatEncounterSummary', () => {
 		[encounter(180), '3:00 ±5s · bulk_tab.settings.encounters.targets:1'],
 		[encounter(90, 10, 3), '1:30 ±10s · bulk_tab.settings.encounters.targets:3'],
 		[encounter(600, 30, 0), '10:00 ±30s · bulk_tab.settings.encounters.targets:1'],
-		[{ ...encounter(180, 5, 2), useHealth: true }, 'bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets:2'],
 	])('formats %#', (proto, summary) => {
 		expect(formatEncounterSummary(proto)).toBe(summary);
 	});

@@ -11,7 +11,7 @@ import (
 func (rogue *Rogue) registerAssassinationTalents() {
 	// Tier 1
 	// Gouge NYI
-	// Remorseless Attacks NYI
+	rogue.registerRemorselessAttacks()
 	rogue.registerMalice()
 
 	// Tier 2
@@ -48,6 +48,31 @@ func (rogue *Rogue) registerImprovedEviscerate() {
 
 	spelldata.ParseStatic(&rogue.Character,
 		spellData.ImprovedEviscerate.Rank(rogue.Talents.ImprovedEviscerate))
+}
+
+var remorselessRank = spellData.RemorselessAttacksTriggered.Highest()
+
+// The talent row hears the killing blow, and a credited kill grants Remorseless. The buff row states
+// a flat 40% crit where the talent's effect 1 is 20/40% by rank, so the row is scaled by the ranks
+// taken. The spells its crit mod names spend its one charge.
+func (rogue *Rogue) registerRemorselessAttacks() {
+	if rogue.Talents.RemorselessAttacks == 0 {
+		return
+	}
+
+	buff := rogue.RegisterAura(spelldata.AuraConfig(remorselessRank))
+	spelldata.ParseEffects(&rogue.Character, buff, remorselessRank,
+		spelldata.ScaledByRanks(rogue.Talents.RemorselessAttacks, 2), spelldata.IgnoreStacks())
+	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
+	})
+	spelldata.AttachChargeSpender(&rogue.Character, buff, remorselessRank, "Remorseless Attacks - Spend")
+
+	rogue.MakeProcTriggerAura(spelldata.ProcTrigger(&rogue.Character,
+		spellData.RemorselessAttacks.Rank(rogue.Talents.RemorselessAttacks),
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Activate(sim)
+		}))
 }
 
 func (rogue *Rogue) registerMalice() {

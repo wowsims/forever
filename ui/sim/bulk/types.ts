@@ -36,8 +36,8 @@ export interface BulkEncounterResults {
 	/** Empty for the current encounter, which the views label themselves. */
 	name: string;
 	isCurrent: boolean;
-	/** Seconds; null for a health-based encounter, which has no set length. */
-	duration: number | null;
+	/** Seconds. */
+	duration: number;
 	durationVariation: number | null;
 	results: BulkResults;
 }

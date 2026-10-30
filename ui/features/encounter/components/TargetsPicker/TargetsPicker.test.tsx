@@ -1,4 +1,5 @@
-import { CreatureFamily, InputType, MobType, PresetTarget, Target as TargetProto, TargetInput } from '@generated/proto/common';
+import { CreatureFamily, InputType, MobType, PresetTarget, Stat, Target as TargetProto, TargetInput } from '@generated/proto/common';
+import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import type { Encounter } from '@sim/raid/encounter';
 import { act, createEvent, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -201,6 +202,20 @@ describe('TargetsPicker', () => {
 		await userEvent.click(screen.getByRole('option', { name: '62' }));
 
 		expect(encounter.targets.map(target => target.level)).toEqual([63, 62]);
+	});
+
+	it("sets the armor to the game files' creature armor of the new level, and the armor field shows it", async () => {
+		const target = TargetProto.create({ level: 63 });
+		target.stats[Stat.StatArmor] = 1234;
+		const encounter = new FakeEncounter([target]);
+		mount(encounter);
+
+		await userEvent.click(document.querySelector<HTMLElement>('#target-0-picker-level')!);
+		await userEvent.click(screen.getByRole('option', { name: '60' }));
+
+		expect(CREATURE_ARMOR_BY_LEVEL[60]).toBeGreaterThan(0);
+		expect(encounter.targets[0].stats[Stat.StatArmor]).toBe(CREATURE_ARMOR_BY_LEVEL[60]);
+		expect(document.querySelector<HTMLInputElement>(`#target-0-picker-stats-${Stat.StatArmor}`)!.value).toBe(String(CREATURE_ARMOR_BY_LEVEL[60]));
 	});
 
 	it('disables the dual-wield miss penalty until dual wield is on', () => {

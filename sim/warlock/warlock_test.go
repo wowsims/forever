@@ -190,7 +190,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		encounter.Targets[0].Stats[stats.FireResistance] = resistance
 		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
 		sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
-		for !sim.IsExecutePhase35() && !sim.Step() {
+		for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
 		}
 		warlock.DistanceFromTarget = 30
 		return sim, warlock, sim.Encounter.AllTargetUnits[0]
@@ -479,6 +479,128 @@ func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 	sim, warlock = newWarlockSim("", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_NoCurse}, encounter)
 	if warlock.NewAPLValue(warlock.Rotation, curseValue).GetBool(sim) {
 		t.Errorf("Assigned Curse Is Active On All Targets is true with no curse assigned")
+	}
+}
+
+// A reset sim of one warlock against two targets, so the first can die while the second stays up.
+func newTwoTargetWarlockSim(talents string, options *proto.WarlockOptions) (*core.Simulation, *Warlock, *core.Target, *core.Target) {
+	encounter := &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig()}}
+	sim, warlock := newWarlockSim(talents, options, encounter)
+	return sim, warlock, sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
+}
+
+// A target that dies with Drain Soul's channel on it returns a Soul Shard, whoever gets the kill; a death
+// with the channel on another target returns none.
+func TestDrainSoulShardWhenTheChannelledTargetDies(t *testing.T) {
+	sim, warlock, first, _ := newTwoTargetWarlockSim("", &proto.WarlockOptions{})
+	warlock.DrainSoul.Dot(&first.Unit).Apply(sim)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after the channelled target died with no kill credit, want 1", got)
+	}
+
+	sim, warlock, first, second := newTwoTargetWarlockSim("", &proto.WarlockOptions{})
+	warlock.DrainSoul.Dot(&second.Unit).Apply(sim)
+	first.Die(sim, 1)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+		t.Errorf("%d Soul Shards after a kill with the channel on the other target, want 0", got)
+	}
+}
+
+// A target that dies within Shadowburn's debuff window returns a Soul Shard, whoever gets the kill; once the
+// window has passed, or for a later spawn in the dead target's slot, its death returns none. Shadowburn is the
+// 8th destruction talent.
+func TestShadowburnShardWhenTheTargetDiesInTheWindow(t *testing.T) {
+	shadowburnOn := func() (*core.Simulation, *Warlock, *core.Target) {
+		sim, warlock, first, _ := newTwoTargetWarlockSim("--00000001", &proto.WarlockOptions{SoulShards: 1})
+		warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+		warlock.Shadowburn.SkipCastAndApplyEffects(sim, &first.Unit)
+		if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+			t.Fatalf("%d Soul Shards after Shadowburn, want its reagent spent", got)
+		}
+		return sim, warlock, first
+	}
+
+	sim, warlock, first := shadowburnOn()
+	stepFor(sim, time.Second)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after the target died 1 sec after Shadowburn with no kill credit, want 1", got)
+	}
+
+	// The same slot spawns again inside the first target's window and dies with no Shadowburn of its own.
+	first.Enable(sim)
+	stepFor(sim, time.Second)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after a respawn in the slot died within the window of its predecessor's Shadowburn, want 1", got)
+	}
+
+	sim, warlock, first = shadowburnOn()
+	stepFor(sim, spellData.Shadowburn.ByID(18871).Duration()+time.Second)
+	first.Die(sim, 1)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+		t.Errorf("%d Soul Shards after a kill past Shadowburn's window, want 0", got)
+	}
+}
+
+// A credited kill of a target with Drain Soul on it grants Soul Harvest (1242853) and its mana regen; a death
+// without the kill, or a kill without Drain Soul on the target, grants nothing. Soul Harvest 2/2 is the 5th
+// affliction talent.
+func TestSoulHarvestOnADrainSoulKill(t *testing.T) {
+	killWith := func(drainSoul bool, killShare float64) (*Warlock, *core.Aura) {
+		sim, warlock, first, _ := newTwoTargetWarlockSim("00002", &proto.WarlockOptions{})
+		if drainSoul {
+			warlock.DrainSoul.Dot(&first.Unit).Apply(sim)
+		}
+		first.Die(sim, killShare)
+		stepFor(sim, 2*core.SpellBatchWindow)
+		return warlock, warlock.GetAuraByID(core.ActionID{SpellID: 1242853})
+	}
+
+	if _, buff := killWith(true, 0); buff.IsActive() {
+		t.Errorf("Soul Harvest is up after the Drain Soul target died with no kill credit")
+	}
+	if _, buff := killWith(false, 1); buff.IsActive() {
+		t.Errorf("Soul Harvest is up after a kill with no Drain Soul on the target")
+	}
+
+	warlock, buff := killWith(true, 1)
+	if !buff.IsActive() {
+		t.Fatalf("Soul Harvest is not up after a credited kill of the Drain Soul target")
+	}
+	talent := spellData.SoulHarvest.Rank(2)
+	if got, want := warlock.PseudoStats.SpiritRegenMultiplier, 1+talent.EffectN(1).Percent(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("mana regen multiplier %.3f under Soul Harvest 2/2, want %.3f", got, want)
+	}
+	if got, want := warlock.PseudoStats.SpiritRegenRateCasting, talent.EffectN(2).Percent(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("mana regen while casting %.3f under Soul Harvest 2/2, want %.3f", got, want)
+	}
+}
+
+// Decimation's damage bonus counts against a target below 35% health and not against another target of the
+// same fight above it.
+func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
+	sim, warlock, first, second := newTwoTargetWarlockSim("-000000000002", &proto.WarlockOptions{})
+	ratio := func() float64 {
+		return warlock.ShadowBolt.ExpectedInitialDamage(sim, &first.Unit) / warlock.ShadowBolt.ExpectedInitialDamage(sim, &second.Unit)
+	}
+	if got := ratio(); math.Abs(got-1) > 1e-9 {
+		t.Fatalf("Shadow Bolt against the first target is %.4f times that against the second with both at full health, want 1", got)
+	}
+
+	first.SetHealthCurve(sim, sim.CurrentTime, time.Minute, core.HealthKnot{At: 0, Percent: 30})
+	if !first.IsExecutePhase35() || second.IsExecutePhase35() {
+		t.Fatalf("the first target is below 35%% %v and the second %v, want only the first", first.IsExecutePhase35(), second.IsExecutePhase35())
+	}
+	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
+	if got := ratio(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that against the one above, want %.4f", got, want)
 	}
 }
 

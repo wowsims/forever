@@ -24,5 +24,5 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Three finished encounters, one of them health-based, with sets that rank in one, two or all three of them. */
+/** Three finished encounters with sets that rank in one, two or all three of them. */
 export const Open: Story = {};

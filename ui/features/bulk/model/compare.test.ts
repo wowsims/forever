@@ -22,20 +22,20 @@ const B = gearSet(3);
 const C = gearSet(4);
 
 // An encounter ranking `ranked` and the current gear at 1000 DPS, best first, as the run stores it.
-const entry = (name: string, duration: number | null, ranked: Array<[Gear, number]>): BulkEncounterResults => {
+const entry = (name: string, duration: number, ranked: Array<[Gear, number]>): BulkEncounterResults => {
 	const base = result(CURRENT, 1000);
 	const chains = [...ranked.map(([gear, avg]) => result(gear, avg)), base].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg).map(ranking => [ranking]);
 	return {
 		name,
 		isCurrent: false,
 		duration,
-		durationVariation: duration === null ? null : 5,
+		durationVariation: 5,
 		results: { chains, originalGearResults: base, iterations: 100 },
 	};
 };
 
 const ENTRIES = [
-	entry('Patchwerk', null, [
+	entry('Patchwerk', 300, [
 		[C, 1100],
 		[A, 1050],
 	]),
@@ -49,7 +49,7 @@ const ENTRIES = [
 describe('compareMatrix', () => {
 	const cellsOf = (row: MatrixRow) => row.cells.map(cell => (cell ? [cell.gainPct, cell.tint, cell.best] : null));
 
-	it('orders the columns by duration, health-based last', () => {
+	it('orders the columns by duration', () => {
 		expect(compareMatrix(ENTRIES).columns.map(column => column.name)).toEqual(['Council', 'Current', 'Patchwerk']);
 	});
 

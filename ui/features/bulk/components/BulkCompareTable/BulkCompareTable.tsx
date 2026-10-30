@@ -9,7 +9,7 @@ import type { GainTint } from '../../model/compare';
 
 export interface BulkCompareTableColumn {
 	label: string;
-	/** The encounter's length as "m:ss", or how a health-based one ends. */
+	/** The encounter's length as "m:ss". */
 	length: string;
 }
 

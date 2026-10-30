@@ -1,9 +1,11 @@
 import {
 	ActionMetrics as ActionMetricsProto,
+	DesignAdd,
 	HitKind,
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
+import { AddWave, EncounterDesign, Target } from '@generated/proto/common';
 import { makeSimRun, valueRange as range } from '@testing/storybook/fixtures/results';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -369,5 +371,54 @@ describe('miss percent of ticks that roll their own hit', () => {
 
 		expect(action.missPercent).toBe(10);
 		expect(action.landedRolls).toBe(0);
+	});
+});
+
+describe('the targets of a run with add waves', () => {
+	// The fixture's boss, then the pool the sim appends: three slots of the named wave's one add, one of the
+	// unnamed wave's unnamed add, and the stand-in target the sim adds to an encounter without targets.
+	const runWithWaves = async () => {
+		const { request, result } = makeSimRun();
+		const son = Target.create({ name: 'Son of Flame', level: 60 });
+		request.encounter!.design = EncounterDesign.create({
+			addWaves: [AddWave.create({ name: 'Adds 1', adds: [son] }), AddWave.create({ adds: [Target.create()] })],
+		});
+		const pool = [
+			{ waveIndex: 0, addIndex: 0 },
+			{ waveIndex: 0, addIndex: 0 },
+			{ waveIndex: 0, addIndex: 0 },
+			{ waveIndex: 1, addIndex: 0 },
+		];
+		result.encounterMetrics!.targets.push(
+			...pool.map((add, i) => UnitMetricsProto.create({ name: `Target ${i + 2}`, unitIndex: i + 2, designAdd: DesignAdd.create(add) })),
+			UnitMetricsProto.create({ name: 'Target 6', unitIndex: 6 }),
+		);
+		return (await SimResult.makeNew(request, result)).getTargets();
+	};
+
+	it('lists the boss and every add slot as targets, each at its encounter index', async () => {
+		const targets = await runWithWaves();
+
+		expect(targets.map(target => target.index)).toEqual([0, 1, 2, 3, 4]);
+		expect(targets.every(target => target.isTarget)).toBe(true);
+	});
+
+	it('names an add by its wave and add, and the boss by neither', async () => {
+		const [boss, add] = await runWithWaves();
+
+		expect(boss.designAddName).toBeNull();
+		expect(add.designAddName).toBe('Adds 1 · Son of Flame');
+		expect(add.label).toBe('Target 2 (Adds 1 · Son of Flame)');
+	});
+
+	it('tells the slots of one add apart and names an unnamed wave and add as the designer does', async () => {
+		const names = (await runWithWaves()).slice(1).map(target => target.designAddName);
+
+		expect(names).toEqual([
+			'Adds 1 · Son of Flame',
+			'settings_tab.encounter.designer.occurrence_name',
+			'settings_tab.encounter.designer.occurrence_name',
+			'settings_tab.encounter.designer.event_name · settings_tab.encounter.designer.adds.add_title',
+		]);
 	});
 });

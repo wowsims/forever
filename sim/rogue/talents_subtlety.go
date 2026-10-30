@@ -1,6 +1,8 @@
 package rogue
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -255,14 +257,23 @@ func (rogue *Rogue) registerQuietus() {
 		FloatValue: spellData.Quietus.EffectAt(1).FractionAt(rogue.Talents.Quietus),
 	})
 
-	rogue.RegisterResetEffect(func(sim *core.Simulation) {
-		executeBonus.Deactivate(sim)
-		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
-			if isExecute <= threshold && !executeBonus.IsActive() {
-				executeBonus.Activate(sim)
+	// The threshold is the target's health, so the bonus follows the target of each cast it reaches.
+	if threshold != 35 {
+		panic(fmt.Sprintf("rogue: Quietus %d states a %d%% health threshold, and the sim tracks the 35%% phase only", rank.ID, threshold))
+	}
+	core.MakePermanent(rogue.RegisterAura(core.Aura{
+		Label: "Quietus",
+		OnApplyEffects: func(_ *core.Aura, sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if !spell.Matches(RogueSpellQuietus) {
+				return
 			}
-		})
-	})
+			if active := target.IsExecutePhase35(); active && !executeBonus.IsActive() {
+				executeBonus.Activate(sim)
+			} else if !active && executeBonus.IsActive() {
+				executeBonus.Deactivate(sim)
+			}
+		},
+	}))
 }
 
 func (rogue *Rogue) registerCutthroat() {
