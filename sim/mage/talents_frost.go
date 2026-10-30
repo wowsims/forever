@@ -164,7 +164,9 @@ func (mage *Mage) registerIceBlock() {
 }
 
 // "Increases the critical strike chance of all your spells against Frozen targets by 50%." The
-// amount is the talent's dummy effect, 17/33/50.
+// amount is the talent's dummy effect, 17/33/50. Fingers of Frost's charges give Blizzard's ticks no
+// bonus: in the logs they crit at the same rate with charges up as without, while direct spells gain
+// it. Those charges are the only way a target is Frozen here, so the ticks are left out.
 func (mage *Mage) registerShatter() {
 	if mage.Talents.Shatter == 0 {
 		return
@@ -174,7 +176,7 @@ func (mage *Mage) registerShatter() {
 
 	mage.addTargetCritBonus(
 		func(spell *core.Spell) bool {
-			return spell.ProcMask.Matches(core.ProcMaskSpellDamage)
+			return spell.ProcMask.Matches(core.ProcMaskSpellDamage) && !spell.Matches(MageSpellBlizzard)
 		},
 		func(target *core.Unit) float64 {
 			if mage.isFrozen(target) {
