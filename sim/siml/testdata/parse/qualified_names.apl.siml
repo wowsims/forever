@@ -1,0 +1,11 @@
+siml 1
+spec hunter
+
+// Names the table qualifies because their game names are reserved words (SPEC.md §4 note 6) read as names in
+// every position.
+priority:
+  cast aura_spell
+  cast none_spell on target
+  cast item_spell
+  cast pet1_spell if aura(target_spell).is_active and target.aura(target_spell).is_active
+  cast target_spell if pet1.aura(aura_spell).is_active

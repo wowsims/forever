@@ -40,7 +40,16 @@ import {
 	UnitReference_Type as UnitType,
 	WeaponType,
 } from '@generated/proto/common';
-import { DatabaseFilters, RaidFilterOption, SimSettings as SimSettingsProto, SourceFilterOption } from '@generated/proto/ui';
+import {
+	DatabaseFilters,
+	RaidFilterOption,
+	SimlParseRequest,
+	SimlParseResult,
+	SimlPrintRequest,
+	SimlPrintResult,
+	SimSettings as SimSettingsProto,
+	SourceFilterOption,
+} from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { getLang } from '@i18n/locale_service';
 import { SimRequest } from '@worker/types';
@@ -496,6 +505,15 @@ export class Sim {
 		return await this.workerPool.bulkCandidates(request);
 	}
 
+	// SIML (sim/siml/SPEC.md), read and written by the sim.
+	simlParse(request: SimlParseRequest): Promise<SimlParseResult> {
+		return this.workerPool.simlParse(request);
+	}
+
+	simlPrint(request: SimlPrintRequest): Promise<SimlPrintResult> {
+		return this.workerPool.simlPrint(request);
+	}
+
 	// Stats for a hypothetical gear set, without touching the player's own current stats or
 	// metadata. Used by the gear optimizer.
 	async getCharacterStatsForGear(gear: Gear): Promise<PlayerStats> {
@@ -775,10 +793,10 @@ export class Sim {
 	static readonly DEFAULT_MIN_CONSUMABLE_LVL: Partial<Record<ConsumableType, number>> = {
 		[ConsumableType.ConsumableTypePotion]: 40,
 		[ConsumableType.ConsumableTypeFlask]: 0,
-		[ConsumableType.ConsumableTypeElixir]: 40,
+		[ConsumableType.ConsumableTypeElixir]: 35,
 		[ConsumableType.ConsumableTypeScroll]: 40,
 		[ConsumableType.ConsumableTypeExplosive]: 30,
-		[ConsumableType.ConsumableTypeImbue]: 40,
+		[ConsumableType.ConsumableTypeImbue]: 35,
 		[ConsumableType.ConsumableTypeWeaponImbue]: 40,
 	};
 	getMinConsumableLvl(type: ConsumableType): number {

@@ -5,8 +5,13 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+// Rank 6 is the last rank the trainer teaches; rank 7 comes from the Grimoire of Corruption VII book.
 func (warlock *Warlock) registerCorruption() {
-	rankedSpell := spellData.Corruption.ByID(25311)
+	warlock.Corruption = warlock.registerCorruptionRank(spellData.Corruption.ByID(11672))
+	warlock.registerCorruptionRank(spellData.Corruption.ByID(25311))
+}
+
+func (warlock *Warlock) registerCorruptionRank(rankedSpell *spelldata.Spell) *core.Spell {
 	corruptionTick := rankedSpell.PeriodicEffect()
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
@@ -31,5 +36,5 @@ func (warlock *Warlock) registerCorruption() {
 		return spell.CalcPeriodicDamage(sim, target, corruptionTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
 	}
 
-	warlock.Corruption = warlock.RegisterSpell(config)
+	return warlock.RegisterSpell(config)
 }

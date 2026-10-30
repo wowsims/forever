@@ -3,7 +3,14 @@ import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
 import { ConsumesSpec, Profession, Spec, TristateEffect } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
-import { Warlock_Options as WarlockOptions, WarlockOptions_Armor, WarlockOptions_CurseOptions, WarlockOptions_Summon } from '@generated/proto/warlock';
+import {
+	Warlock_Options as WarlockOptions,
+	Warlock_Rotation as WarlockSimpleRotation,
+	WarlockOptions_Armor,
+	WarlockOptions_CurseOptions,
+	WarlockOptions_Summon,
+	WarlockRotation,
+} from '@generated/proto/warlock';
 
 import AffWrackBuildJson from './builds/aff_wrack.build.json';
 import DemoFireBrandBuildJson from './builds/demo_fire_brand.build.json';
@@ -20,6 +27,18 @@ export const DEMO_SHADOW_BRAND_APL = PresetUtils.makePresetAPLRotation('Demo (Sh
 export const DESTRO_APL = PresetUtils.makePresetAPLRotation('Destro', DestroBuildJson.player.rotation);
 export const SM_RUIN_APL = PresetUtils.makePresetAPLRotation('SM/Ruin', SmRuinBuildJson.player.rotation);
 export const AFF_WRACK_APL = PresetUtils.makePresetAPLRotation('Aff (Wrack)', AffWrackBuildJson.player.rotation);
+
+// The build rotation each simple rotation choice runs.
+export const SimpleRotationApls: Record<WarlockRotation, PresetUtils.PresetRotation> = {
+	[WarlockRotation.WarlockRotationNone]: DEMO_FIRE_BRAND_APL,
+	[WarlockRotation.WarlockRotationDemoFireBrand]: DEMO_FIRE_BRAND_APL,
+	[WarlockRotation.WarlockRotationDemoShadowBrand]: DEMO_SHADOW_BRAND_APL,
+	[WarlockRotation.WarlockRotationDestro]: DESTRO_APL,
+	[WarlockRotation.WarlockRotationSmRuin]: SM_RUIN_APL,
+	[WarlockRotation.WarlockRotationAffWrack]: AFF_WRACK_APL,
+};
+
+export const DefaultSimpleRotation = WarlockSimpleRotation.create({ rotation: WarlockRotation.WarlockRotationDemoFireBrand });
 
 const talentsOf = (name: string, json: { player: { talentsString: string } }) =>
 	PresetUtils.makePresetTalents(name, SavedTalents.create({ talentsString: json.player.talentsString }));

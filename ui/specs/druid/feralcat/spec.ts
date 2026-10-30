@@ -2,7 +2,7 @@ import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ItemSlot, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
+import { ItemSlot, ItemSpec, ItemSwap, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
@@ -21,7 +21,7 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 	warnings: [],
 
 	// Extra stats shown in consumables picker (beyond epStats).
-	consumableStats: [Stat.StatHasteRating, Stat.StatMana, Stat.StatSpirit, Stat.StatMP5],
+	consumableStats: [Stat.StatHasteRating, Stat.StatMana, Stat.StatSpirit, Stat.StatMP5, Stat.StatIntellect, Stat.StatStamina, Stat.StatArmor],
 
 	// All stats for which EP should be calculated.
 	epStats: [
@@ -63,6 +63,9 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 	defaults: {
 		// Default equipped gear.
 		gear: Presets.PreRaidGear.gear,
+		itemSwap: ItemSwap.create({
+			items: Array.from({ length: 17 }, (_, slot) => ItemSpec.create(slot === ItemSlot.ItemSlotMainHand ? { id: 9449, enchant: 1896 } : {})),
+		}),
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.DefaultEp,
 		statCaps: (() => {
@@ -72,7 +75,9 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,
 		// Default rotation settings.
-		rotationType: APLRotationType.TypeAuto,
+		rotationType: APLRotationType.TypeAPL,
+		aplRotation: Presets.JVMES_APL.rotation.rotation!,
+		encounter: Presets.DefaultEncounter,
 		// Genesis, nature's majesty, nature's reach, ferocity, heart of the wild, shredding attacks,
 		// savage fury, sharpened claws, shifting power, predatory strikes, improved shifting power,
 		// leader of the pack, natural instinct, rend and tear, berserk, furor, naturalist.
@@ -86,23 +91,14 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 			prayerOfSpirit: true,
 			giftOfTheWild: true,
 			prayerOfFortitude: true,
-			windfuryTotem: true,
 			strengthOfEarthTotem: true,
+			graceOfAirTotem: true,
+			windfuryTotem: true,
 			battleShout: 1, // Rank 6
 		}),
-		partyBuffs: PartyBuffs.create({
-			manaSpringTotem: TristateEffect.TristateEffectRegular,
-		}),
-		individualBuffs: IndividualBuffs.create({
-			greaterBlessingOfKings: true,
-			greaterBlessingOfMight: true,
-		}),
-		debuffs: Debuffs.create({
-			judgementOfWisdom: true,
-			faerieFire: true,
-			sunderArmor: true,
-			giftOfArthas: true,
-		}),
+		partyBuffs: PartyBuffs.create({ manaSpringTotem: TristateEffect.TristateEffectRegular }),
+		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: true, greaterBlessingOfSalvation: true }),
+		debuffs: Debuffs.create({ judgementOfWisdom: true, sunderArmor: true, giftOfArthas: true, vindication: true }),
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
@@ -129,26 +125,18 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 	},
 
 	presets: {
-		epWeights: [Presets.DefaultEpWeights],
+		epWeights: [Presets.DefaultEpWeights, Presets.HybridEpWeights],
 		// Preset talents that the user can quickly select.
 		talents: [Presets.CatTalents, Presets.HybridTalents],
-		rotations: [
-			Presets.MONOCAT_APL,
-			Presets.SHADOWMELD_APL,
-			Presets.ENERGIZED_APL,
-			Presets.RAVAGE_APL,
-			Presets.POUNCE_APL,
-			Presets.BEARWEAVE_APL,
-			Presets.JVMES_APL,
-		],
-		builds: [Presets.BearweaveBuild],
+		rotations: [Presets.JVMES_APL],
+		builds: [],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.PreRaidGear, Presets.Level60Gear],
 	},
 
-	// Auto is the Monocat APL.
+	// Auto uses the adaptive rotation.
 	autoRotation: (_player: Player<Spec.SpecFeralCatDruid>): APLRotation => {
-		return Presets.MONOCAT_APL.rotation.rotation!;
+		return Presets.JVMES_APL.rotation.rotation!;
 	},
 
 	hiddenMCDs: [],

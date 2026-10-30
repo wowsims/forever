@@ -1,0 +1,497 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"currentTime": {}
+						},
+						"rhs": {
+							"const": {
+								"val": "1s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "b"
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpLt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "2s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 20904,
+						"rank": 6
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "b"
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 2643
+					}
+				}
+			}
+		},
+		{
+			"notes": "A note above a row of a block is its note.",
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "b"
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "3s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 14287,
+						"rank": 8
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"or": {
+									"vals": [
+										{
+											"variableRef": {
+												"name": "a"
+											}
+										},
+										{
+											"variableRef": {
+												"name": "b"
+											}
+										}
+									]
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"or": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "b"
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"and": {
+									"vals": [
+										{
+											"variableRef": {
+												"name": "a"
+											}
+										},
+										{
+											"variableRef": {
+												"name": "b"
+											}
+										}
+									]
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "b"
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "b"
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"and": {
+									"vals": [
+										{
+											"cmp": {
+												"op": "OpGt",
+												"lhs": {
+													"currentTime": {}
+												},
+												"rhs": {
+													"const": {
+														"val": "1s"
+													}
+												}
+											}
+										},
+										{
+											"cmp": {
+												"op": "OpLt",
+												"lhs": {
+													"currentTime": {}
+												},
+												"rhs": {
+													"const": {
+														"val": "2s"
+													}
+												}
+											}
+										}
+									]
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 2643
+					}
+				}
+			}
+		},
+		{
+			"hide": true,
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "a"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"hide": true,
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentTime": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "1s"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "G",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "a"
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"currentTime": {}
+											},
+											"rhs": {
+												"const": {
+													"val": "1s"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 5
+							}
+						}
+					}
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "a",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "b",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		}
+	]
+}

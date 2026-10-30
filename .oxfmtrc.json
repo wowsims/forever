@@ -34,6 +34,7 @@
 		"ui/**/gear_sets/**/*.gear.json",
 		"ui/**/presets/**/*.json",
 		"ui/sim/talents/trees/*.json",
+		"sim/siml/names.json",
 		"assets/**",
 		"**/test-fixtures/*.json",
 		".vscode/extensions/*/out/**",

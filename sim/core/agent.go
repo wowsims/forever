@@ -115,6 +115,12 @@ func (actionID ActionID) WithTag(tag int32) ActionID {
 	return newID
 }
 
+// The copy of an action that one weapon hand carries, tagged with that hand's item slot, which the UI
+// names as the hand.
+func (actionID ActionID) WithHand(slot proto.ItemSlot) ActionID {
+	return actionID.WithTag(int32(slot))
+}
+
 func (actionID ActionID) ToProto() *proto.ActionID {
 	protoID := &proto.ActionID{
 		Tag: actionID.Tag,

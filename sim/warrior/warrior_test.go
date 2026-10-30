@@ -500,6 +500,57 @@ func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 	}
 }
 
+// Every white swing uses a Flurry charge whatever its outcome, and a Heroic Strike or Cleave uses
+// one only when it misses.
+func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
+	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
+	heroicStrike := core.ActionID{SpellID: 11567}
+	cleave := core.ActionID{SpellID: 20569}
+	cases := []struct {
+		name    string
+		spell   core.ActionID
+		outcome core.HitOutcome
+		start   int32
+		want    int32
+	}{
+		{"a missed main-hand swing uses a charge", mainHand, core.OutcomeMiss, 3, 2},
+		{"a dodged main-hand swing uses a charge", mainHand, core.OutcomeDodge, 3, 2},
+		{"a parried main-hand swing uses a charge", mainHand, core.OutcomeParry, 3, 2},
+		{"a missed off-hand swing uses a charge", offHand, core.OutcomeMiss, 3, 2},
+		{"a dodged off-hand swing uses a charge", offHand, core.OutcomeDodge, 3, 2},
+		{"a parried off-hand swing uses a charge", offHand, core.OutcomeParry, 3, 2},
+		{"a missed Heroic Strike uses a charge", heroicStrike, core.OutcomeMiss, 3, 2},
+		{"a dodged Heroic Strike uses none", heroicStrike, core.OutcomeDodge, 3, 3},
+		{"a parried Heroic Strike uses none", heroicStrike, core.OutcomeParry, 3, 3},
+		{"a landed Heroic Strike uses none", heroicStrike, core.OutcomeHit, 3, 3},
+		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
+		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
+		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			sim, warrior := orcWarriorSim(t, "p1_fury", furyTalents)
+			flurry := warrior.GetAura("Flurry")
+			spell := warrior.GetSpell(c.spell)
+			if flurry == nil || spell == nil {
+				t.Fatalf("Flurry %v, spell %v; want both registered", flurry, spell)
+			}
+			if c.start > 0 {
+				flurry.Activate(sim)
+				flurry.SetStacks(sim, c.start)
+			}
+
+			warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: c.outcome})
+
+			if got := flurry.GetStacks(); got != c.want {
+				t.Errorf("Flurry holds %d charges, want %d", got, c.want)
+			}
+		})
+	}
+}
+
 // Death Wish takes the global cooldown its row states and does not hold the rotation beyond it, so
 // an off-GCD ability can follow it at once.
 func TestDeathWishLeavesTheRotationFree(t *testing.T) {
@@ -666,7 +717,7 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
 	})
 
-	const heroicStrike = 11567 // The trainer's top rank, the one the Fury preset presses by default.
+	const heroicStrike = 25286 // The class book's rank, the one the Fury preset presses.
 	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
 		if action.Id.GetSpellId() != heroicStrike || action.Id.Tag != 0 {
 			continue

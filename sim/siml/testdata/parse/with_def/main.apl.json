@@ -1,0 +1,100 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "Use Arcane Shot"
+								}
+							},
+							{
+								"not": {
+									"val": {
+										"variableRef": {
+											"name": "Use Summon Hawk"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 14287,
+						"rank": 8
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Use Summon Hawk"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 1293527,
+						"rank": 4
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"variableRef": {
+						"name": "Use Multi-Shot"
+					}
+				},
+				"wait": {
+					"duration": {
+						"variableRef": {
+							"name": "Time to weave"
+						}
+					}
+				}
+			}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "Use Summon Hawk",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "Use Multi-Shot",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "Use Arcane Shot",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "Time to weave",
+			"value": {
+				"const": {
+					"val": "400ms"
+				}
+			}
+		}
+	]
+}

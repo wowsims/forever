@@ -55,7 +55,8 @@ func (hunter *Hunter) registerImmolationTrap() {
 	tick := immolationTrapEffectRank.PeriodicEffect()
 
 	config := spelldata.SpellConfig(&hunter.Unit, immolationTrapEffectRank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 
@@ -84,7 +85,8 @@ func (hunter *Hunter) registerExplosiveTrap() {
 	tickAPShare := trapTotalAPShare / float64(numberOfTicks)
 
 	config := spelldata.SpellConfig(&hunter.Unit, explosiveTrapEffectRank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 

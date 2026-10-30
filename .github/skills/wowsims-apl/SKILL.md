@@ -46,11 +46,22 @@ A value or action reaches the rotation and the kind picker in five places, all i
    `Type()`; the other getters panic. Core's switch sets `Uuid` by reflection; a class `NewAPLValue` returns before it,
    so a class value passes `config.Uuid` along itself (`sim/shaman/apl_values.go`).
 4. The entry in `valueKinds` or `actionKinds`: label, submenu, `includeIf` (prepull, spec) and fields. The mapped type
-   fails `npm run type-check` without one.
+   fails `npm run type-check` without one. Only boolean, number and string fields put their label in the row
+   (`INLINE_KINDS` in `ui/features/apl/components/FieldGroup/utils.ts`); a labelled enum or picker stacks its label
+   above the input and breaks the row, so a value's enum field goes unlabelled and lets its options name it.
 5. The label and tooltip keys in `assets/locales/en/translation.json`, which `ui/i18n/locale_keys.test.ts` checks.
 
 - **Nothing forces step 2.** The switch's `default` returns nil with no warning, so a oneof without a case is dropped
   like an unresolved value.
+- **A field reads its value through `coerceTo`** (`apl_values_operators.go`), which leaves out a computed value it
+  cannot read as the field's type, a yes/no value as a duration or text as a number, with a "Cannot read" warning.
+  Move, Move Duration, Wait, Wait Until and a prepull Do At then drop the line with a warning of their own.
+- **An action with a value field implements `GetAPLValues` and `ReplaceAPLValues`.** The first is how its values
+  are finalized and scanned for placeholders, the second how a Group Reference fills them
+  (`apl_action_group_reference.go`); without it a placeholder there reads zero. Multiple CD Usages' offset and Energy
+  Time To Target's energy are not inner values (`GetInnerValues`), so a placeholder there is neither found nor filled.
+- **A group's variables override value variables only in the conditions of its own actions**, not in their values
+  or inside a sequence (`reResolveVariableRefs`).
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
 - **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
@@ -58,6 +69,13 @@ A value or action reaches the rotation and the kind picker in five places, all i
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
   whose Information validation lists them; a rotation without it never casts them.
+- **With the combat log on, a `Casting` line of a rotation cast ends with ` APL: <path>`.** The path joins segments with
+  a spaced `>`, and every number is a 1-based config position that counts hidden rows: `prepull N`, `priority N`,
+  `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
+  Sequence or Strict Sequence). `assignEntryPaths` (`sim/core/apl_entry_path.go`) builds the paths, `aplEntrySuffix`
+  (`sim/core/spell_queueing.go`) writes them and `parseAplEntryPath` (`ui/sim/proto/combat_log/apl_entry_path.ts`) reads
+  them. Auto and Simple rotations, pets and boss AI log none. A queued spell and a next-swing attack carry the entry
+  path of the press that queued them.
 
 ## Presets
 
@@ -92,7 +110,7 @@ preset names:
 with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`core.GetAplRotation`, or the `Rotation` of
 `core.GetTestBuildFromJSON`'s config), calls `core.ComputeStats`, and prints every `Validations` entry of
 `RotationStats`: `PrepullActions`, `PriorityList`, `Groups[i].Actions` and `UuidValidations`, as `bearAPLWarnings` in
-`sim/druid/feralbear/apl_sweep_test.go` does. Run it as `wowsims-testing` §The gates says, then delete it.
+`sim/druid/feralbear/rotation_test.go` does. Run it as `wowsims-testing` §The gates says, then delete it.
 
 ## Timing
 
@@ -101,6 +119,11 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 - **A major cooldown's Cast Spell is ready only at a GCD-ready look** unless it is reactive or inside a sequence
   (`APLActionCastSpell.IsReady`), so an off-GCD cooldown can wait a GCD after its window opens; the first warrior major
   cooldown chance comes about 4.5 s into the fight (PR #653).
+- **A Strict Sequence starts only with the GCD within 400 ms and its first step ready**
+  (`APLActionStrictSequence.IsReady` in `sim/core/apl_actions_sequences.go`, `MaxSpellQueueWindow`), then holds the
+  rotation until its cast goes or its queued cast fires. If the cast can neither go nor be queued once the GCD is within
+  400 ms, the sequence ends and the pick goes on down the list. A spender above it that is ready first keeps it from
+  starting.
 - **`Aura Is Inactive` with reaction time is the refresh check** for an aura the rotation keeps up:
   `not(Aura Is Active)` with reaction time reads a fresh landing as inactive and recasts (`APLValueAuraIsInactive`).
 - **`Aura Num Stacks` with reaction time returns the previous stacks for a full reaction time after any change**, the
@@ -111,7 +134,15 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   when an earlier prepull action moves the character. The hardcast itself rounds to the millisecond (`sim/core/cast.go`)
   and `Spell Cast Time` does not, so a Do At built from it can be up to half a millisecond off the cast end. A cast
   that comes that early is queued for the cast end (`QueueSpell` in `sim/core/spell_queueing.go`), so an action timed
-  at a cast end still goes after the cast lands.
+  at a cast end still goes after the cast lands. A Do At that reads the encounter (`Current Time`, a unit's health)
+  has no sim to read then: the line is left out with a warning that names the panic (`prepullTime`).
+- **A rotation with a Move line looks every reaction time (10 ms) through the GCD**, not once at its end
+  (`hasMove` in `sim/core/apl.go`). Change Target costs nothing and has no GCD, so every Change Target line whose
+  condition holds fires again on each look: a multi-target APL cycled targets 20 to 40 times a second (PR #734). Gate a
+  Change Target on what the new target needs, such as a DoT the current target already has and some target lacks.
+  A Change Target to the current target is not ready (`APLActionChangeTarget.IsReady`).
+- **`GCD Is Ready` is true from 400 ms before the GCD ends** (`MaxSpellQueueWindow`, `APLValueGCDIsReady`), so a
+  line gated on it fires on every look in that window. `GCD Time To Ready` ≤ `0ms` holds only at the GCD's end.
 
 ## Traps
 
@@ -123,10 +154,19 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   with the points.
 - **Recklessness needs Berserker Stance** (ShapeshiftMask bit 18): Arms casts it only with the Stance Dance group on,
   and the dps suite never un-hides the Recklessness group, so the `.results` never show it (PR #653).
-- **The next GCD pick can strand an off-GCD stance swap.** The swap fires mid-GCD; a spender above the stance-locked
-  ability that takes the next GCD and leaves the swap condition false sends it back unused. Put the stance-locked
-  ability above those spenders: it cannot be cast outside the stance, so it wins only once the swap is done. Fury holds
-  Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732); Rend stays below them, since moving it up costs DPS.
+- **A stance swap and its ability go as one Strict Sequence.** The Fury and Arms presets put the Battle Stance swap
+  and Overpower or Rend in one Strict Sequence directly above the plain cast. The sequence checks the stance cooldown
+  with `Spell Time To Ready <= 0s`, since a Cast Spell queues a spell whose own cooldown ends within 400 ms
+  (`Spell.CanQueue` in `sim/core/spell_queueing.go`) and `Spell Is Ready` would let a queued swap fire without its
+  condition; the ability's cooldown the same way; the rage; and for Overpower the proc outlasting the GCD
+  (`Aura Remaining Time` above `GCD Time To Ready`). Swapping at the GCD drops the rage gained since a mid-GCD swap
+  would have fired, about half a percent of DPS. Checking the spenders above Rend costs more DPS than the swaps it
+  saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732).
+- **`Selected Potion` reads every potion slot unless its Slot is set** (`sim/core/apl_values_consumables.go`). A line
+  that treats one slot's potion differently reads that slot: the Fury and Arms presets read each placeholder's own slot
+  (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the
+  Resource Potion line's rage check, and an offensive potion beside a rage potion in another slot still aligns with the
+  cooldowns.
 
 ## Keeping this skill true
 

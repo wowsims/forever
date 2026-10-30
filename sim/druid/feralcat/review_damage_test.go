@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
 )
@@ -140,7 +141,7 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 }
 
 func TestCatShippedPresetRuns(t *testing.T) {
-	req := catPowershiftRequest(powershiftTalents, core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "default").Rotation, false)
+	req := catPowershiftRequest(powershiftTalents, core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation, false)
 	req.Raid.Parties[0].Players[0].Equipment = core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", "default").GearSet
 	player := runCat(t, req)
 	for _, id := range []int32{9830, 9904, 9896, 1322605} {
@@ -153,10 +154,13 @@ func TestCatShippedPresetRuns(t *testing.T) {
 	}
 }
 
-func TestCatStealthPresetsRun(t *testing.T) {
+func TestCatStealthOpenersRun(t *testing.T) {
 	for name, opener := range map[string]int32{"ravage": 9867, "pounce": 9827} {
 		t.Run(name, func(t *testing.T) {
-			req := catPowershiftRequest(powershiftTalents, core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", name).Rotation, false)
+			rotation := defaultCatRotation()
+			rotation.PrepullActions = []*proto.APLPrepullAction{{DoAtValue: konst("-1s"), Action: spellAction(spellProwl)}}
+			rotation.PriorityList = append([]*proto.APLListItem{castWhen(opener, auraUp(spellProwl))}, rotation.PriorityList...)
+			req := catPowershiftRequest(powershiftTalents, rotation, false)
 			req.Raid.Parties[0].Players[0].Equipment = core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", "default").GearSet
 			player := runCat(t, req)
 			if castsOf(player.Actions, opener) != 1 || castsOf(player.Actions, 9830) == 0 {

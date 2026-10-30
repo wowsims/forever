@@ -213,12 +213,14 @@ describe('FiltersMenuView', () => {
 		renderView({
 			filters: DatabaseFilters.create({
 				sources: [SourceFilterOption.SourceCrafting],
+				maxRequiredLevel: 40,
 				minIlvl: 0,
 				maxIlvl: 528,
 				factionFilter: FactionFilter.FactionFilterAny,
 			}),
 		});
 		expect(input(`filters-source-${SourceFilterOption.SourceCrafting}`).checked).toBe(true);
+		expect(input('filters-required-level').value).toBe('40');
 		expect(input('filters-min-ilvl').value).toBe('');
 		expect(input('filters-max-ilvl').value).toBe('528');
 		await userEvent.click(document.getElementById('filters-faction-restriction')!);

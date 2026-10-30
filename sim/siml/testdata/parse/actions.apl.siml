@@ -1,0 +1,42 @@
+siml 1
+spec hunter
+
+var $x = 1
+
+// Every short form of SPEC.md §6.4, then generic, bare and plain-argument kinds, raw steps and a raw row.
+priority:
+  none
+  cast hunters_mark
+  cast multi_shot on target2
+  cast item.mighty_rage_potion on none
+  channel volley
+  channel volley on target until current_time > 3s recast
+  wait 1.5s
+  wait (1s + 2s) * 2
+  wait until aura(rapid_fire).is_inactive
+  move 11
+  move 12 recheck
+  move for 400ms
+  group "Weave"
+  group "Weave" with %range = 5.00, %{Long name} = $x + 1
+  schedule "0s, 60s" cast rapid_fire
+  schedule "30s" wait 1s
+  sequence "HHA" [cast summon_hawk, cast arcane_shot if current_time > 1s, none]
+  sequence "Empty" []
+  reset_sequence("HHA")
+  autocast_other_cooldowns
+  strict_sequence(item_swap(swap1), cast hunters_mark, wait 1s)
+  cast_all_stat_buff_cooldowns(crit_rating, stat_type2=attack_power, stat_type3=-1)
+  multidot(serpent_sting, max_dots=3, max_overlap=2s)
+  cast_spell(arcane_shot, target=self)
+  wait_until(current_time > 1s)
+  sequence(name="Generic", actions=[cast arcane_shot])
+  schedule("1s", inner_action=cast arcane_shot if current_time > 1s)
+  change_target(new_target=target3)
+  activate_aura_with_stacks(rapid_fire, num_stacks=2)
+  cast other.offensive_potion
+  `{"castSpell": {"spellId": {"spellId": 3044}}}` if current_time > 2s
+  `{"action": {"castSpell": {"spellId": {"spellId": 3044}}}, "hide": true}`
+
+group "Weave":
+  move %range if %{Long name} > 1

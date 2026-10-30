@@ -307,6 +307,10 @@
 			"copied": "Copied",
 			"manual_copy": "The browser blocked the clipboard. Copy the text below by hand."
 		},
+		"code_text_area": {
+			"position_one": "Ln {{line}}, Col {{column}} · {{count}} line",
+			"position_other": "Ln {{line}}, Col {{column}} · {{count}} lines"
+		},
 		"list_picker": {
 			"new_item": "New {{itemLabel}}",
 			"delete_item": "Delete {{itemLabel}}",
@@ -435,6 +439,8 @@
 			"hit": "Hit",
 			"external": "External",
 			"self": "self",
+			"shield": "Shield",
+			"amplified": "Amplified",
 			"custom_boss": "Custom Boss",
 			"thrash": "Thrash",
 			"stacks": "{{stacks}} Stacks",
@@ -526,8 +532,9 @@
 			"filters": {
 				"title": "Filters",
 				"general": "General",
-				"min_ilvl": "Min ILvl",
-				"max_ilvl": "Max ILvl",
+				"required_level": "Required Level",
+				"min_ilvl": "Min Item Level",
+				"max_ilvl": "Max Item Level",
 				"faction_restrictions": "Faction Restrictions",
 				"source": "Source",
 				"raids": "Raids",
@@ -824,7 +831,7 @@
 			},
 			"has_battle_shout_rank_7": {
 				"label": "Battle Shout: Rank 7",
-				"tooltip": "Sets the character sheet's Battle Shout to Rank 7 (Manual of Battle Shout VII) instead of Rank 6. The rotation's Manual: Battle Shout VII variable picks the rank that is cast."
+				"tooltip": "Sets the character sheet's Battle Shout to Rank 7 (Manual of Battle Shout VII) instead of Rank 6. The rotation picks the rank that is cast: the simple rotation's Battle Shout VII toggle, or the rank chosen for the spell in the rotation editor."
 			},
 			"queue_delay": {
 				"label": "HS/Cleave Queue Delay (ms)",
@@ -2102,7 +2109,7 @@
 				},
 				"selected_potion": {
 					"label": "Selected Potion",
-					"tooltip": "Returns <b>True</b> if the potion is picked in any of the potion slots: offensive, defensive or resource."
+					"tooltip": "Returns <b>True</b> if the potion is picked in the chosen potion slot, or with <b>Any</b> in any of them: offensive, defensive or resource."
 				},
 				"selected_conjured": {
 					"label": "Selected Conjured",
@@ -2309,6 +2316,12 @@
 				"name_exists": "Rotation with name {{name}} already exists."
 			}
 		},
+		"siml": {
+			"title": "SIML",
+			"tooltip": "SIML is the sim's text format. Export the rotation to read or edit it as text, and import it back.",
+			"export_button": "Export SIML",
+			"import_button": "Import SIML"
+		},
 		"options": {
 			"rogue": {
 				"use_backstab": {
@@ -2335,6 +2348,26 @@
 						"label": "Soul Swap Exhale Window",
 						"tooltip": "How long, in milliseconds, before inhaled dots expire to exhale during multitarget encounters."
 					}
+				},
+				"rotation": {
+					"label": "Rotation",
+					"demo_fire_brand": "Demo (Fire Brand)",
+					"demo_shadow_brand": "Demo (Shadow Brand)",
+					"destro": "Destro",
+					"sm_ruin": "SM/Ruin",
+					"aff_wrack": "Aff (Wrack)"
+				},
+				"use_shadow_bolt_rank_10": {
+					"label": "Use Shadow Bolt Rank 10",
+					"tooltip": "Casts Shadow Bolt Rank 10, taught by the Grimoire of Shadow Bolt X, in place of Rank 9 from the trainer."
+				},
+				"use_immolate_rank_8": {
+					"label": "Use Immolate Rank 8",
+					"tooltip": "Casts Immolate Rank 8, taught by the Grimoire of Immolate VIII, in place of Rank 7 from the trainer."
+				},
+				"use_corruption_rank_7": {
+					"label": "Use Corruption Rank 7",
+					"tooltip": "Casts Corruption Rank 7, taught by the Grimoire of Corruption VII, in place of Rank 6 from the trainer."
 				}
 			},
 			"hunter": {
@@ -2431,11 +2464,11 @@
 					},
 					"use_heroic_strike_rank_9": {
 						"label": "Heroic Strike IX (Manual)",
-						"tooltip": "Casts Heroic Strike IX, taught by the Manual of Heroic Strike IX from Ruins of Ahn'Qiraj. Unchecked, the rotation casts the trainer's Heroic Strike VIII."
+						"tooltip": "Casts Heroic Strike IX, taught by the Manual of Heroic Strike IX from Ruins of Ahn'Qiraj, in place of Heroic Strike VIII from the trainer."
 					},
 					"use_battle_shout_rank_7": {
 						"label": "Battle Shout VII (Manual)",
-						"tooltip": "Casts Battle Shout VII, taught by the Manual of Battle Shout VII from Ruins of Ahn'Qiraj. Unchecked, the rotation casts the trainer's Battle Shout VI."
+						"tooltip": "Casts Battle Shout VII, taught by the Manual of Battle Shout VII from Ruins of Ahn'Qiraj, in place of Battle Shout VI from the trainer."
 					}
 				}
 			}
@@ -2511,7 +2544,15 @@
 					"travel_time": "+ {{time}}s travel time",
 					"stack_at": "{{casts}} casts at {{time}}s",
 					"stack_range": "{{casts}} casts from {{start}}s to {{end}}s",
-					"total": "Total: {{total}} ({{dpet}} DPET)"
+					"total": "Total: {{total}} ({{dpet}} DPET)",
+					"apl_entry": {
+						"prepull": "Prepull #{{position}}",
+						"priority": "Priority list #{{position}}",
+						"group": "Group {{group}} › #{{position}}",
+						"step": "Step {{position}}",
+						"open_hint": "Click to open this line in Rotation",
+						"changed_hint": "The rotation has changed since this run"
+					}
 				},
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
 				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
@@ -2749,6 +2790,22 @@
 			"outdated": "Addon is not up to date. Addon version : '{{version}}', Latest version : '{{latest}}'",
 			"below_max_level": "The character you imported is level {{level}}. The Sim is intended to be used for max level only, so you might be missing certain items."
 		},
+		"siml": {
+			"title": "SIML Import",
+			"description": "Import settings from SIML, the sim's text format, as the SIML Export writes it.",
+			"instructions": "To import, upload a .siml file or paste its text below, then click, 'Import'. Only what the text holds is loaded: a rotation alone leaves the gear and talents as they are.",
+			"error_problems": "The SIML does not read:",
+			"error_empty": "The SIML holds nothing to import: no section and no talents line.",
+			"error_unknown_type": "The rotation's type is unknown: write type apl, simple or auto, or leave the type line out.",
+			"error_nothing_here": "The SIML holds only the encounter, which this page does not import.",
+			"warning_spec": "This SIML is written for spec {{file}}, and this page is for spec {{page}}. It was imported anyway.",
+			"warnings": "The SIML was imported, with warnings:"
+		},
+		"siml_rotation": {
+			"title": "SIML Rotation Import",
+			"description": "Import a rotation written in SIML, as the Rotation tab's Export SIML writes it.",
+			"instructions": "To import, upload a .apl.siml file or paste its text below, then click, 'Import'. Only the rotation is replaced."
+		},
 		"error": "Import error:",
 		"success": "Import successful!",
 		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
@@ -2778,6 +2835,7 @@
 	},
 	"export": {
 		"title": "Export",
+		"error": "Export error: {{message}}",
 		"link": {
 			"title": "Link Export",
 			"description": "Export settings as a shareable link.",
@@ -2813,6 +2871,13 @@
 			"instructions": "Copy the command below to run simulations from the command line.",
 			"copy_button": "Copy",
 			"copy_tooltip": "Copy to clipboard"
+		},
+		"siml": {
+			"title": "SIML Export",
+			"error_unreadable": "The SIML printed here does not read back, so it is not given out: {{problems}}"
+		},
+		"siml_rotation": {
+			"title": "SIML Rotation Export"
 		},
 		"categories": {
 			"gear": {
@@ -3431,7 +3496,7 @@
 			"other": "Other"
 		},
 		"group_count": "{{group}} ({{shown}}/{{total}})",
-		"kept_tooltip": "This item is showing because you have it selected. Use the stat filters to permanently show it.",
+		"kept_tooltip": "This item is showing because you have it selected. Use the filters to permanently show it.",
 		"rating_label": "{{stat}} Rating",
 		"percent_label": "{{stat}} %"
 	}

@@ -1,0 +1,61 @@
+siml 1
+spec dps_warrior
+
+settings:
+  name "Forms \"quoted\""
+  distance_from_target `"Infinity"`
+  default_stance berserker
+  starting_rage 10
+  stance_snapshot, has_bs_t2, use_battle_shout
+  queue_delay 150
+
+gear:
+  head       lionheart_helm + falcons_call
+  waist      commanders_vambraces of_the_tiger
+  finger1    signet_ring_of_the_bronze_dragonflight_21205 of_defense + falcons_call
+  main_hand  `{"enchant":1900}`
+  ranged     `{"id":-5}`
+  bonus_stats(stats(strength=10, attack_power=-20))
+
+item_swap:
+  prepull_bonus_stats(stats=`[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7]`)
+
+consumables:
+  extra goblin_sapper_charge,
+      scroll_of_strength_iv,
+      elixir_of_the_mongoose,
+      greater_mageblood_elixir,
+      demonic_rune,
+      ez_thro_dynamite_ii,
+      major_frenzy_potion,
+      swiftstrike_steak,
+      major_mana_potion,
+      flask_of_the_titans
+  elixir elixir_of_the_mongoose
+
+party_buffs: blood_pact, devotion_aura, mana_spring_totem, retribution_aura, concentration_aura
+
+raid_buffs:
+  arcane_brilliance, strength_of_earth_totem, grace_of_air_totem, windfury_totem
+  battle_shout 2
+  trueshot_aura, leader_of_the_pack, moonkin_aura
+
+debuffs:
+  hunters_mark, judgement_of_the_crusader, judgement_of_light, judgement_of_wisdom
+  curse_of_elements
+
+sim:
+  iterations 1000
+  filters(min_consumable_lvl=`{"6":50}`, favorite_enchants=["a`b"])
+
+apl: type apl
+
+simple:
+  spec=arms
+  use_recklessness
+  sunder_armor help
+  cooldowns()
+
+cooldowns:
+  cooldowns(id=death_wish, timings=[30, 90])
+  cooldowns(id=`{"itemId":13444,"tag":1}`)

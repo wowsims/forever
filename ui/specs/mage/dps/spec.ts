@@ -88,7 +88,7 @@ export default defineSpec<Spec.SpecMage>({
 		// Default consumes settings.
 		consumables: DefaultConsumables,
 		// Default talents.
-		talents: Presets.ArcaneFrostTalents.data,
+		talents: Presets.ArcaneTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		other: Presets.OtherDefaults,
@@ -99,7 +99,7 @@ export default defineSpec<Spec.SpecMage>({
 		individualBuffs: DefaultIndividualBuffs,
 
 		rotationType: APLRotation_Type.TypeAPL,
-		aplRotation: Presets.ArcaneFrostAplPreset.rotation.rotation,
+		aplRotation: Presets.ArcaneAplPreset.rotation.rotation,
 
 		debuffs: DefaultDebuffs,
 	},
@@ -123,12 +123,12 @@ export default defineSpec<Spec.SpecMage>({
 	presets: {
 		epWeights: [],
 		// Preset rotations that the user can quickly select.
-		rotations: [Presets.ArcaneFrostAplPreset, Presets.ArcaneFireAplPreset, Presets.FFBAplPreset, Presets.FireAplPreset, Presets.FrostAplPreset],
+		rotations: [Presets.ArcaneAplPreset, Presets.ArcaneFireAplPreset, Presets.FFBAplPreset, Presets.FireAplPreset, Presets.FrostAplPreset],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.ArcaneFrostTalents, Presets.ArcaneFireTalents, Presets.FFBTalents, Presets.FireTalents, Presets.FrostTalents],
+		talents: [Presets.ArcaneTalents, Presets.ArcaneFireTalents, Presets.FFBTalents, Presets.FireTalents, Presets.FrostTalents],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.P1ArcaneGear],
-		builds: [Presets.ArcaneFrostBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild, Presets.FrostBuild],
+		builds: [Presets.ArcaneBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild, Presets.FrostBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecMage>): APLRotation => {
@@ -136,7 +136,7 @@ export default defineSpec<Spec.SpecMage>({
 		// if (numTargets >= 2) {
 		// 	return Presets.ROTATION_PRESET_CLEAVE.rotation.rotation!;
 		// } else {
-		return Presets.ArcaneFrostAplPreset.rotation.rotation!;
+		return Presets.ArcaneAplPreset.rotation.rotation!;
 		// }
 	},
 

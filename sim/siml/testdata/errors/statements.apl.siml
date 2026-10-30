@@ -1,0 +1,21 @@
+siml 1
+spec hunter
+/// a note above a var line
+var $v = 1
+
+  priority:
+    cast x
+spec mage
+foo:
+  cast x
+settings:
+priority:
+  none
+group "A":
+  none
+group "A":
+  # this line is a comment
+  var $w = 1
+prepull:
+  var $u = 2
+/// a note at the end

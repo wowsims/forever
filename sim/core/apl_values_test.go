@@ -46,6 +46,25 @@ func constValue(val string) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Const{Const: &proto.APLValueConst{Val: val}}}
 }
 
+// A yes/no value no constant stands in for.
+func yesNoValue() *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
+		Op: proto.APLValueCompare_OpLt, Lhs: &proto.APLValue{Value: &proto.APLValue_CurrentTime{CurrentTime: &proto.APLValueCurrentTime{}}}, Rhs: constValue("1s"),
+	}}}
+}
+
+// The validations are one warning per wanted text, in order, each containing it.
+func wantWarnings(t *testing.T, label string, validations []*proto.APLValidation, want ...string) {
+	t.Helper()
+	ok := len(validations) == len(want)
+	for i := 0; ok && i < len(want); i++ {
+		ok = validations[i].LogLevel == proto.LogLevel_Warning && strings.Contains(validations[i].Validation, want[i])
+	}
+	if !ok {
+		t.Errorf("%s: validations = %v, want warnings %q", label, validations, want)
+	}
+}
+
 func wantNoValue(t *testing.T, values map[string]APLValue) {
 	t.Helper()
 	for name, value := range values {
@@ -234,6 +253,105 @@ func TestValueVariables(t *testing.T) {
 		"Variable Ref to an unknown variable": rot.newValueVariableRef(&proto.APLValueVariableRef{Name: "missing"}, nil),
 		"Variable Placeholder without a name": rot.newValueVariablePlaceholder(&proto.APLValueVariablePlaceholder{}, nil),
 	})
+}
+
+// A group reference fills the group's placeholders in its actions' values, those of an action inside a sequence
+// included, as it does in their conditions, and checks what it builds as the constructors do. A fill of a type the
+// value cannot take, or one that is empty, leaves the placeholder reading zero with a warning, and a placeholder
+// left unfilled is an error.
+func TestGroupFillsActionValues(t *testing.T) {
+	placeholder := func(name string) *proto.APLValue {
+		return &proto.APLValue{Value: &proto.APLValue_VariablePlaceholder{VariablePlaceholder: &proto.APLValueVariablePlaceholder{Name: name}}}
+	}
+	reference := func(group string, variables ...*proto.APLValueVariable) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_GroupReference{GroupReference: &proto.APLActionGroupReference{GroupName: group, Variables: variables}}}}
+	}
+	move := func(moveRange *proto.APLValue) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_Move{Move: &proto.APLActionMove{RangeFromTarget: moveRange}}}}
+	}
+	moveDuration := func(duration *proto.APLValue) *proto.APLAction {
+		return &proto.APLAction{Condition: placeholder("when"), Action: &proto.APLAction_MoveDuration{MoveDuration: &proto.APLActionMoveDuration{Duration: duration}}}
+	}
+	sim := setupFakeRageSimFrom(fakeRageSimRequest())
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	rot := fw.newAPLRotation(&proto.APLRotation{
+		Type: proto.APLRotation_TypeAPL,
+		PriorityList: []*proto.APLListItem{
+			reference("filled",
+				&proto.APLValueVariable{Name: "time", Value: constValue("2s")},
+				&proto.APLValueVariable{Name: "range", Value: constValue("7")},
+				&proto.APLValueVariable{Name: "far", Value: constValue("3s")},
+				&proto.APLValueVariable{Name: "when", Value: constValue("true")},
+				&proto.APLValueVariable{Name: "yesNo", Value: yesNoValue()},
+				&proto.APLValueVariable{Name: "blank", Value: &proto.APLValue{}},
+			),
+			reference("unfilled"),
+		},
+		Groups: []*proto.APLGroup{
+			{
+				Name: "filled",
+				Actions: []*proto.APLListItem{
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: placeholder("time")}}}},
+					move(placeholder("range")),
+					move(placeholder("far")),
+					{Action: &proto.APLAction{Action: &proto.APLAction_Sequence{Sequence: &proto.APLActionSequence{Name: "walk", Actions: []*proto.APLAction{moveDuration(placeholder("time"))}}}}},
+					{Action: moveDuration(placeholder("yesNo"))},
+					{Action: &proto.APLAction{
+						Condition: &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{Op: proto.APLValueCompare_OpGt, Lhs: placeholder("blank"), Rhs: constValue("1")}}},
+						Action:    &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: placeholder("blank")}},
+					}},
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: &proto.APLValue{Value: &proto.APLValue_Max{Max: &proto.APLValueMax{
+						Vals: []*proto.APLValue{placeholder("time"), {Value: &proto.APLValue_NumberTargets{NumberTargets: &proto.APLValueNumberTargets{}}}},
+					}}}}}}},
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{
+						Op: proto.APLValueMath_OpMul, Lhs: placeholder("time"), Rhs: placeholder("time"),
+					}}}}}}},
+					{Action: &proto.APLAction{Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{Duration: &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{
+						Op: proto.APLValueMath_OpMul, Lhs: placeholder("blank"), Rhs: constValue("2s"),
+					}}}}}}},
+				},
+			},
+			{Name: "unfilled", Actions: []*proto.APLListItem{move(placeholder("missing"))}},
+		},
+	})
+
+	group := rot.groups[0].actions
+	inSequence := group[3].impl.(*APLActionSequence).subactions[0]
+	for _, tc := range []struct {
+		name      string
+		got, want any
+	}{
+		{"Wait", group[0].impl.(*APLActionWait).duration.GetDuration(sim), 2 * time.Second},
+		{"Move", group[1].impl.(*APLActionMove).moveRange.GetFloat(sim), 7.0},
+		{"Move on a duration", group[2].impl.(*APLActionMove).moveRange.GetFloat(sim), 3.0},
+		{"Move Duration in a sequence", inSequence.impl.(*APLActionMoveDuration).moveDuration.GetDuration(sim), 2 * time.Second},
+		{"its condition", inSequence.condition.GetBool(sim), true},
+		{"Move Duration of a yes/no", group[4].impl.(*APLActionMoveDuration).moveDuration.GetDuration(sim), time.Duration(0)},
+		{"Wait on an empty variable", group[5].impl.(*APLActionWait).duration.GetDuration(sim), time.Duration(0)},
+		{"a comparison of it", group[5].condition.GetBool(sim), false},
+		{"Wait on the longer of a duration and a count", group[6].impl.(*APLActionWait).duration.GetDuration(sim), 2 * time.Second},
+		{"Wait on a duration times a duration", group[7].impl.(*APLActionWait).duration.GetDuration(sim), time.Duration(0)},
+		{"Wait on an empty variable times a duration", group[8].impl.(*APLActionWait).duration.GetDuration(sim), time.Duration(0)},
+	} {
+		if tc.got != tc.want {
+			t.Errorf("%s reads %v, want %v", tc.name, tc.got, tc.want)
+		}
+	}
+
+	wantWarnings(t, "the filled reference", rot.priorityListValidations[0], "Cannot read a yes/no value as a duration", "variable 'blank'", "variable 'blank'", "Duration * Duration", "variable 'blank'")
+	if validations := rot.priorityListValidations[1]; len(validations) != 1 || validations[0].LogLevel != proto.LogLevel_Error || !strings.Contains(validations[0].Validation, "placeholder 'missing'") {
+		t.Errorf("the unfilled reference: validations = %v, want the error naming 'missing'", validations)
+	}
+}
+
+// A placeholder in Aura Should Refresh's overlap is filled like one in any other value.
+func TestGroupFillsAuraShouldRefreshOverlap(t *testing.T) {
+	_, _, rot := setupFakeRageRotation()
+	overlap := rot.coerceTo(&APLValueVariablePlaceholder{name: "time"}, proto.APLValueType_ValueTypeDuration)
+	filled := (&APLActionGroupReference{}).replacePlaceholders(&APLValueAuraShouldRefresh{maxOverlap: overlap}, map[string]*proto.APLValue{"time": constValue("2s")}, rot)
+	if got := filled.(*APLValueAuraShouldRefresh).maxOverlap.GetDuration(nil); got != 2*time.Second {
+		t.Errorf("the overlap reads %v, want 2s", got)
+	}
 }
 
 func TestValueEncounter(t *testing.T) {
@@ -965,6 +1083,16 @@ func TestValueSelectedConsumables(t *testing.T) {
 	if !selected.GetBool(sim) || !selectedOffensive.GetBool(sim) || other.GetBool(sim) {
 		t.Errorf("Selected Potion: resource pick = %t, offensive pick = %t, other = %t, want true, true, false",
 			selected.GetBool(sim), selectedOffensive.GetBool(sim), other.GetBool(sim))
+	}
+	inSlot := func(id int32, slot proto.OtherAction) bool {
+		return rot.newValueSelectedPotion(&proto.APLValueSelectedPotion{PotionId: ActionID{ItemID: id}.ToProto(), Slot: slot}, nil).GetBool(sim)
+	}
+	offensive := inSlot(102, proto.OtherAction_OtherActionOffensivePotion)
+	resourceInOffensive := inSlot(100, proto.OtherAction_OtherActionOffensivePotion)
+	offensiveInDefensive := inSlot(102, proto.OtherAction_OtherActionDefensivePotion)
+	if !offensive || resourceInOffensive || offensiveInDefensive {
+		t.Errorf("Selected Potion in a slot: offensive pick = %t, resource pick = %t, offensive pick in the defensive slot = %t, want true, false, false",
+			offensive, resourceInOffensive, offensiveInDefensive)
 	}
 
 	selectedConjured := rot.newValueSelectedConjured(&proto.APLValueSelectedConjured{ConjuredId: ActionID{ItemID: 200}.ToProto()}, nil)

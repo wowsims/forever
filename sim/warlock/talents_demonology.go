@@ -231,11 +231,11 @@ func (warlock *Warlock) applyDecimation() {
 	rank := spellData.Decimation.Rank(warlock.Talents.Decimation)
 	spelldata.ParseStatic(&warlock.Character, rank, spelldata.Effects(2))
 
-	// The execute bonus, up from the moment the fight reaches 35%
+	// The execute bonus, up from the moment the fight reaches 35%. It has no ActionID, so the rotation editor
+	// lists only the buff (440873) as Decimation's aura.
 	executeBonus := rank.EffectN(4)
 	executeAura := warlock.RegisterAura(core.Aura{
 		Label:    "Decimation - Execute",
-		ActionID: core.ActionID{SpellID: rank.ID},
 		Duration: core.NeverExpires,
 	})
 	spelldata.ParseEffects(&warlock.Character, executeAura, rank, spelldata.Effects(4))

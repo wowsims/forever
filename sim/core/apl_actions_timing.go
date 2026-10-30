@@ -20,6 +20,7 @@ func (rot *APLRotation) newActionWait(config *proto.APLActionWait) APLActionImpl
 	unit := rot.unit
 	durationVal := rot.coerceTo(rot.newAPLValue(config.Duration), proto.APLValueType_ValueTypeDuration)
 	if durationVal == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Wait needs a duration, ignoring this action")
 		return nil
 	}
 
@@ -30,6 +31,9 @@ func (rot *APLRotation) newActionWait(config *proto.APLActionWait) APLActionImpl
 }
 func (action *APLActionWait) GetAPLValues() []APLValue {
 	return []APLValue{action.duration}
+}
+func (action *APLActionWait) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.duration = replace(action.duration)
 }
 func (action *APLActionWait) IsReady(sim *Simulation) bool {
 	return action.duration.GetDuration(sim) > 0
@@ -64,6 +68,7 @@ func (rot *APLRotation) newActionWaitUntil(config *proto.APLActionWaitUntil) APL
 	unit := rot.unit
 	conditionVal := rot.coerceTo(rot.newAPLValue(config.Condition), proto.APLValueType_ValueTypeBool)
 	if conditionVal == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Wait Until needs a condition, ignoring this action")
 		return nil
 	}
 
@@ -74,6 +79,9 @@ func (rot *APLRotation) newActionWaitUntil(config *proto.APLActionWaitUntil) APL
 }
 func (action *APLActionWaitUntil) GetAPLValues() []APLValue {
 	return []APLValue{action.condition}
+}
+func (action *APLActionWaitUntil) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.condition = replace(action.condition)
 }
 func (action *APLActionWaitUntil) IsReady(sim *Simulation) bool {
 	return !action.condition.GetBool(sim)

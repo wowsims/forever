@@ -2,6 +2,7 @@ package hunter
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -56,7 +57,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 // The swing a main-hand auto becomes: the queued Raptor Strike when it can still be cast, the plain
 // swing otherwise. A swing that cannot cast it drops the queue.
 func (hunter *Hunter) TryRaptorStrike(sim *core.Simulation, mhSwingSpell *core.Spell) *core.Spell {
-	if mhSwingSpell.ActionID.Tag != 1 || !hunter.raptorStrikeQueue.IsActive() {
+	if mhSwingSpell.ActionID.Tag != int32(proto.ItemSlot_ItemSlotMainHand) || !hunter.raptorStrikeQueue.IsActive() {
 		return mhSwingSpell
 	}
 

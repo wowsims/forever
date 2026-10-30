@@ -222,6 +222,25 @@ func TestDivineAegisMetricsOnlyRecordDirectCriticalHeals(t *testing.T) {
 	if divineAegis == nil {
 		t.Fatal("Divine Aegis metrics were not registered for Binding Heal")
 	}
+	penanceBoltAegis := false
+	for _, aegis := range priest.Spellbook {
+		if aegis.ActionID.SpellID != divineAegisTriggeredID {
+			continue
+		}
+		source := priest.GetSpell(aegis.SourceActionID)
+		if source == nil {
+			t.Fatalf("Divine Aegis source %v was not registered", aegis.SourceActionID)
+		}
+		if source.Matches(PriestSpellPowerWordShield) || (source.Matches(PriestSpellPenance) && source.Flags.Matches(core.SpellFlagChanneled)) {
+			t.Errorf("Divine Aegis metrics were registered for %v, which lands no direct heal", source.ActionID)
+		}
+		if source.Matches(PriestSpellPenance) && source.ProcMask.Matches(core.ProcMaskSpellHealing) {
+			penanceBoltAegis = true
+		}
+	}
+	if !penanceBoltAegis {
+		t.Error("Divine Aegis metrics were not registered for Penance's healing bolt")
+	}
 
 	priest.OnHealDealt(sim, bindingHeal, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 100})
 	for sim.CurrentTime <= core.SpellBatchWindow && !sim.Step() {

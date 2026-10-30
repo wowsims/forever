@@ -1,0 +1,19 @@
+siml 1
+
+head       beaststalkers_cap
+neck       maelstroms_tendril + necklace_agility
+shoulder   beaststalkers_mantle
+back       shifting_cloak + cloak_lesser_agility
+chest      beaststalkers_tunic + chest_greater_stats
+wrist      beaststalkers_bindings + bracer_agility_7656
+hands      beaststalkers_gloves + gloves_superior_agility
+waist      beaststalkers_belt
+legs       beaststalkers_pants + forceful_rugged_armor_kit
+feet       beaststalkers_boots + boots_greater_agility
+finger1    cutthroats_signet
+finger2    selenium_loop of_agility
+trinket1   adaptive_combat_assistant
+trinket2   rune_of_the_guard_captain
+main_hand  annihilator + weapon_agility
+off_hand   heartseeker + weapon_agility
+ranged     fahrads_reloading_repeater + biznicks_247x128_accurascope

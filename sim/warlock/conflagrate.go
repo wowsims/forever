@@ -16,14 +16,14 @@ func (warlock *Warlock) registerConflagrate() {
 
 	// Needs this warlock's Immolate on the target. Immolate registers after the talents, so it is read here.
 	config.ExtraCastCondition = func(_ *core.Simulation, target *core.Unit) bool {
-		return warlock.Immolate != nil && warlock.Immolate.Dot(target).IsActive()
+		return warlock.activeImmolate(target) != nil
 	}
 
 	// Roll the damage and to hit, then consume the Immolate unless Shadow and Flame keeps it
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, conflagrateHit.Average(), spell.OutcomeMagicHitAndCrit)
 		if result.Landed() && !sim.Proc(warlock.conflagrateKeepsImmolate, "Shadow and Flame") {
-			warlock.Immolate.Dot(target).Deactivate(sim)
+			warlock.activeImmolate(target).Deactivate(sim)
 		}
 	}
 

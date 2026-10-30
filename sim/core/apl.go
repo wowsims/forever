@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -65,6 +66,9 @@ type APLRotation struct {
 	// wait, and a Change Target to the current target is a step that does nothing.
 	inSequence bool
 
+	// The path of the entry whose action is running, kept only while the sim logs; empty outside one.
+	runningEntryPath string
+
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
 	curValidations          []*proto.APLValidation
@@ -79,11 +83,17 @@ type APLRotation struct {
 	groupListIdxMap    [][]int
 }
 
+// Called with every action a sim that RunSimWithAPLHook runs executes: a row, a group reference's row and then the
+// row it ran from the group, and the actions inside a row. Tools that read a rotation's choices pass one, and find
+// the rows among the actions with APLRotation.RowPaths.
+type APLActionHook func(sim *Simulation, action *APLAction)
+
 type APLGroup struct {
 	name         string
 	actions      []*APLAction
 	variables    map[string]*proto.APLValue
 	referencedBy *APLActionGroupReference
+	configIdx    int // The group's index in the config's groups, shared by its copies.
 }
 
 type APLValueVariable struct {
@@ -134,6 +144,13 @@ func (unit *Unit) newCustomRotation() *APLRotation {
 	})
 }
 
+// Read before the encounter starts, with a nil sim. A value that reads the encounter (the current time, a
+// unit's health) panics then, and the time is unknown; the panic comes back as err.
+func prepullTime(value APLValue) (doAt time.Duration, err any) {
+	defer func() { err = recover() }()
+	return value.GetDuration(nil), nil
+}
+
 func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 	if config == nil {
 		return nil
@@ -163,10 +180,14 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		prepullIdx := i // Save to local variable for correct lambda capture behavior
 		rotation.doAndRecordWarnings(&rotation.prepullValidations[prepullIdx], true, func() {
 			if !prepullItem.Hide {
-				doAtVal := rotation.newAPLValue(prepullItem.DoAtValue)
-				if doAtVal != nil {
-					doAt := doAtVal.GetDuration(nil)
-					if doAt > 0 {
+				doAtVal := rotation.coerceTo(rotation.newAPLValue(prepullItem.DoAtValue), proto.APLValueType_ValueTypeDuration)
+				if doAtVal == nil {
+					rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' needs a time, ignoring this Prepull Action")
+				} else {
+					doAt, err := prepullTime(doAtVal)
+					if err != nil {
+						rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' cannot be read before the pull (%v), ignoring this Prepull Action", err)
+					} else if doAt > 0 {
 						rotation.ValidationMessage(proto.LogLevel_Warning, "Invalid time for 'Do At', ignoring this Prepull Action")
 					} else {
 						action := rotation.newAPLAction(prepullItem.Action)
@@ -212,6 +233,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		group := &APLGroup{
 			name:      groupConfig.Name,
 			variables: make(map[string]*proto.APLValue),
+			configIdx: slices.Index(config.Groups, groupConfig),
 		}
 
 		for _, varConfig := range groupConfig.Variables {
@@ -329,6 +351,8 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		}
 	}
 
+	rotation.assignEntryPaths(config)
+
 	return rotation
 }
 
@@ -428,6 +452,7 @@ func (rot *APLRotation) allPrepullActions() []*APLAction {
 func (rot *APLRotation) reset(sim *Simulation) {
 	rot.controllingActions = rot.controllingActions[:0]
 	rot.inLoop = false
+	rot.runningEntryPath = ""
 	rot.interruptChannelIf = nil
 	rot.allowChannelRecastOnInterrupt = false
 	rot.evalGeneration++ // Invalidate any variable caches from previous iteration or initialization
@@ -849,4 +874,30 @@ func (rot *APLRotation) orphanValue(value APLValue) {
 	for _, inner := range value.GetInnerValues() {
 		rot.orphanValue(inner)
 	}
+}
+
+// The rows of the rotation by their JSON paths in the APL. A group referenced twice is parsed twice, and both
+// copies carry the path of the one in the APL.
+func (rot *APLRotation) RowPaths() map[*APLAction]string {
+	paths := map[*APLAction]string{}
+	for i, action := range rot.prepullActions {
+		paths[action] = PrepullRowPath(rot.prepullIdxMap[i])
+	}
+	for i, action := range rot.priorityList {
+		paths[action] = PriorityRowPath(rot.priorityListIdxMap[i])
+	}
+	for g, group := range rot.groups {
+		inAPL := slices.IndexFunc(rot.groups, func(other *APLGroup) bool { return other.name == group.name })
+		for i, action := range group.actions {
+			paths[action] = GroupRowPath(inAPL, rot.groupListIdxMap[g][i])
+		}
+	}
+	return paths
+}
+
+// The JSON path of a row in the APL.
+func PrepullRowPath(i int) string  { return fmt.Sprintf("prepullActions/%d", i) }
+func PriorityRowPath(i int) string { return fmt.Sprintf("priorityList/%d", i) }
+func GroupRowPath(group, i int) string {
+	return fmt.Sprintf("groups/%d/actions/%d", group, i)
 }

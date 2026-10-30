@@ -271,11 +271,20 @@ func (priest *Priest) applyDivineAegis() {
 		if !sourceSpell.ProcMask.Matches(core.ProcMaskSpellHealing) {
 			return
 		}
-		// A heal whose row only heals over time or rules out crits, or whose id the store does not carry,
-		// never lands a direct critical heal. A spell with no spell id is an item's, and keeps its proc.
-		row := spelldata.Find(sourceSpell.ActionID.SpellID)
-		if sourceSpell.ActionID.SpellID != 0 && (row == spelldata.Nil || row.ProcHealEffect().Aura == dbcenums.A_PERIODIC_HEAL || row.CannotCrit()) {
+		// Penance's channel shares the heal bolt's spell id, but only the bolt lands a critical heal.
+		if sourceSpell.Matches(PriestSpellPenance) && sourceSpell.Flags.Matches(core.SpellFlagChanneled) {
 			return
+		}
+		// Item effects without a spell id can still land direct critical heals.
+		if sourceSpell.ActionID.SpellID != 0 {
+			row := spelldata.Find(sourceSpell.ActionID.SpellID)
+			if row == spelldata.Nil || row.CannotCrit() {
+				return
+			}
+			healEffect := row.ProcHealEffect()
+			if healEffect == spelldata.NilEffect || healEffect.Aura == dbcenums.A_PERIODIC_HEAL {
+				return
+			}
 		}
 
 		config := spelldata.SpellConfig(

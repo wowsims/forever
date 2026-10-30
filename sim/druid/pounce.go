@@ -23,10 +23,10 @@ func (druid *Druid) registerPounceSpell() {
 		return target.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label(rank.Name+" Stun")))
 	})
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	// The row's stealth requirement (ATTR_REQ_STEALTH) is not read by CastRequirement, so Prowl or
-	// Shadowmeld is checked here; "behind the target" is the tooltip's.
+	// CastRequirement does not enforce ATTR_REQ_STEALTH. These attacks require Prowl;
+	// Shadowmeld does not meet that requirement.
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
-		return druid.stealthed() && druid.BehindTarget()
+		return druid.ProwlAura.IsActive() && druid.BehindTarget()
 	}
 	// No Active Defense (Attributes 0x200000): it misses or lands, never dodged, parried or blocked.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

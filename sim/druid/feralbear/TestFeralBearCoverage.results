@@ -2,11 +2,11 @@ casts_results: {
  key: "TestFeralBearCoverage-Casts"
  value: {
   casts: {
-   key: "other_id:OtherActionAttack tag:1"
+   key: "other_id:OtherActionAttack tag:14"
    value: 69
   }
   casts: {
-   key: "other_id:OtherActionAttack tag:2"
+   key: "other_id:OtherActionAttack tag:15"
    value: 0
   }
   casts: {
@@ -34,15 +34,15 @@ casts_results: {
    value: 1
   }
   casts: {
-   key: "spell_id:1238122"
-   value: 0
-  }
-  casts: {
    key: "spell_id:1259799"
    value: 0
   }
   casts: {
    key: "spell_id:1322605"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:16979"
    value: 0
   }
   casts: {
@@ -63,6 +63,10 @@ casts_results: {
   }
   casts: {
    key: "spell_id:29166"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:414924"
    value: 0
   }
   casts: {

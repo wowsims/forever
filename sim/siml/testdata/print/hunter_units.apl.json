@@ -1,0 +1,25 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Self" } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "CurrentTarget" } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Target" } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Target", "index": 2 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Player", "index": 0 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Pet", "owner": { "type": "Self" } } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Pet", "index": 1 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Unknown" } } } },
+		{
+			"action": {
+				"condition": { "currentHealth": { "sourceUnit": { "type": "Pet", "owner": { "type": "Player" } } } },
+				"changeTarget": { "newTarget": { "type": "AllPlayers" } }
+			}
+		},
+		{
+			"action": {
+				"condition": { "auraIsActive": { "sourceUnit": { "type": "PreviousTarget" }, "auraId": { "spellId": 900001 } } },
+				"changeTarget": { "newTarget": {} }
+			}
+		}
+	]
+}

@@ -17,13 +17,13 @@ const (
 	SPELLMOD_CRITICAL_CHANCE           SpellModOp = 7  // critical strike chance - Arcane Impact, Improved Flamestrike, Incineration
 	SPELLMOD_ALL_EFFECTS               SpellModOp = 8  // every effect's value - Frost Warding, Magic Attunement, Demonic Aegis
 	SPELLMOD_NOT_LOSE_CASTING_TIME     SpellModOp = 9  // pushback taken while casting - Burning Soul, Fel Concentration, Intensity
-	SPELLMOD_CASTING_TIME              SpellModOp = 10 // cast time - Improved Fireball, Improved Frostbolt
+	SPELLMOD_CASTING_TIME              SpellModOp = 10 // cast time - Accelerant, Improved Frostbolt
 	SPELLMOD_COOLDOWN                  SpellModOp = 11 // cooldown - Improved Fire Blast, Improved Frost Nova, Ice Floes
 	SPELLMOD_EFFECT2                   SpellModOp = 12 // the second effect's value - Malediction, Mana Feed
 	SPELLMOD_IGNORE_ARMOR              SpellModOp = 13
 	SPELLMOD_COST                      SpellModOp = 14 // power cost - Frost Channeling, Cataclysm
 	SPELLMOD_CRIT_DAMAGE_BONUS         SpellModOp = 15 // critical strike damage bonus - Ice Shards, Ruin, Vengeance
-	SPELLMOD_RESIST_MISS_CHANCE        SpellModOp = 16 // chance to hit - Arcane Focus, Elemental Precision, Suppression
+	SPELLMOD_RESIST_MISS_CHANCE        SpellModOp = 16 // chance to hit - Shadow Focus, Suppression
 	SPELLMOD_JUMP_TARGETS              SpellModOp = 17 // chain targets
 	SPELLMOD_CHANCE_OF_SUCCESS         SpellModOp = 18 // Improved Poisons, Improved Nature's Grasp
 	SPELLMOD_ACTIVATION_TIME           SpellModOp = 19 // Improved Fire Totems

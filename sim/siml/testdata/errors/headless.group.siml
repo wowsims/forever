@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+// A group's lines go under its header, which names it.
+var $x = 1
+def d = true
+wait 1s if d
+
+group "A":
+  wait 2s

@@ -10,9 +10,9 @@ import { buildTalentGraph } from '../../model/tree_graph';
 import { TalentTreePicker, type TalentTreePickerProps } from './TalentTreePicker';
 
 // A full 51-point Forever mage build: Arcane and Frost spent, Fire empty.
-const MAGE_BUILD = '25502252231221--2555';
+const MAGE_BUILD = '250205223100311531--05352';
 // The same Arcane tree with four points left in row 0, which breaks every talent below it.
-const BROKEN_BUILD = '22002252231221--2555';
+const BROKEN_BUILD = '220205223100311531--05352';
 
 const graph = buildTalentGraph(mageTalentsConfig);
 

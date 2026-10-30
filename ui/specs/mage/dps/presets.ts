@@ -6,8 +6,8 @@ import { Mage_Options as MageOptions, MageArmor } from '@generated/proto/mage';
 import { SavedTalents } from '@generated/proto/ui';
 import type { PresetSettings } from '@sim/presets/types';
 
+import arcane from './apls/arcane.apl.json';
 import arcaneFire from './apls/arcaneFireFill.apl.json';
-import arcaneFrost from './apls/arcaneFrostFill.apl.json';
 import deepFire from './apls/deepFire.apl.json';
 import ffb from './apls/ffb.apl.json';
 import frost from './apls/frost.apl.json';
@@ -15,17 +15,17 @@ import P1ArcaneGearJson from './gear_sets/p1Arcane.gear.json';
 
 export const P1ArcaneGear = PresetUtils.makePresetGear('P1 Arcane', P1ArcaneGearJson, { devOnly: true });
 
-export const ArcaneFrostAplPreset = PresetUtils.makePresetAPLRotation('Arcane Frost', arcaneFrost);
+export const ArcaneAplPreset = PresetUtils.makePresetAPLRotation('Arcane', arcane);
 export const ArcaneFireAplPreset = PresetUtils.makePresetAPLRotation('Arcane Fire', arcaneFire);
 export const FFBAplPreset = PresetUtils.makePresetAPLRotation('FFB', ffb);
 export const FireAplPreset = PresetUtils.makePresetAPLRotation('Fire', deepFire);
 export const FrostAplPreset = PresetUtils.makePresetAPLRotation('Frost', frost);
 
-export const ArcaneFrostTalents = PresetUtils.makePresetTalents('Arcane Frost', SavedTalents.create({ talentsString: '0552205003100311531-03-0533' }));
-export const ArcaneFireTalents = PresetUtils.makePresetTalents('Arcane Fire', SavedTalents.create({ talentsString: '0502205003100311531-230510301001-003' }));
-export const FFBTalents = PresetUtils.makePresetTalents('FFB', SavedTalents.create({ talentsString: '-2355000013011503-2035010311013002' }));
-export const FireTalents = PresetUtils.makePresetTalents('Fire', SavedTalents.create({ talentsString: '05022050001001-23550000130135031-003' }));
-export const FrostTalents = PresetUtils.makePresetTalents('Frost', SavedTalents.create({ talentsString: '05022050011003--053500021100331251' }));
+export const ArcaneTalents = PresetUtils.makePresetTalents('Arcane', SavedTalents.create({ talentsString: '050205223101311531-5500003-003' }));
+export const ArcaneFireTalents = PresetUtils.makePresetTalents('Arcane Fire', SavedTalents.create({ talentsString: '050205203100311531-525000012001-003' }));
+export const FFBTalents = PresetUtils.makePresetTalents('FFB', SavedTalents.create({ talentsString: '-5550000123011303-2035010311013002' }));
+export const FireTalents = PresetUtils.makePresetTalents('Fire', SavedTalents.create({ talentsString: '0502052001001-55500001230133031-003' }));
+export const FrostTalents = PresetUtils.makePresetTalents('Frost', SavedTalents.create({ talentsString: '0502052011003--053500021100331251' }));
 
 /* export const ArcaneMageSimpleRotation = Mage_Rotation.create({
 	conserveStart: 20,
@@ -94,12 +94,12 @@ export const DefaultSettings: PresetSettings = {
 	playerOptions: OtherDefaults,
 };
 
-export const ArcaneFrostBuild = PresetUtils.makePresetBuild('Arcane Frost', {
+export const ArcaneBuild = PresetUtils.makePresetBuild('Arcane', {
 	group: 'Arcane',
 	gear: P1ArcaneGear,
-	talents: ArcaneFrostTalents,
+	talents: ArcaneTalents,
 	//rotationType: APLRotationType.TypeAuto,
-	rotation: ArcaneFrostAplPreset,
+	rotation: ArcaneAplPreset,
 	settings: DefaultSettings,
 });
 

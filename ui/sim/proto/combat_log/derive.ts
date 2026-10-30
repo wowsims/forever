@@ -1,3 +1,4 @@
+import { ItemSlot, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 
 import { bucket, getEnumValues, stringComparator } from '../../utils/collections';
@@ -394,6 +395,7 @@ function buildCastLog(
 		effectiveTime,
 		travelTime,
 		cancelTime,
+		aplEntryPath: castBeganLog.aplEntryPath,
 		castBeganLog,
 		castCancelledLog,
 		castCompletedLog,
@@ -479,7 +481,7 @@ export function buildCastLogs(logs: Array<CombatLog>): Array<CastLog> {
 			return actionId.toStringIgnoringTag();
 		} else if (actionId.spellId === 27014) {
 			// Raptor Strike should be grouped with regular melee swings
-			return 'other-3-1';
+			return `other-${OtherAction.OtherActionAttack}-${ItemSlot.ItemSlotMainHand}`;
 		} else if (actionId.itemId === 12662) {
 			// Demonic Rune's hit on its user, tag 1, is applied without a cast, so its damage goes on the use.
 			return actionId.toStringIgnoringTag();

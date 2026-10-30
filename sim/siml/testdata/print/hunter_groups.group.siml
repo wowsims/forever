@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+group "Weave":
+  var $Clip = 0.5s
+  cast hunter_shot
+  cast arcane_shot
+
+group "Move to range":
+  move 11

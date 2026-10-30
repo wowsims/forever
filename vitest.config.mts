@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vitest/config';
 
+import { simlPlugin } from './tools/vite/siml.mjs';
 import { UI_ALIASES } from './vite.config.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +16,7 @@ export default defineConfig({
 			...UI_ALIASES,
 		},
 	},
+	plugins: [simlPlugin()],
 	// Same JSX contract as the app.
 	oxc: {
 		jsx: { runtime: 'automatic', importSource: 'react' },

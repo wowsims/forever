@@ -37,11 +37,7 @@ func TestFeralCat(t *testing.T) {
 		OtherTalentSets: []core.TalentsCombo{
 			{Label: "Hybrid", Talents: HybridTalents},
 		},
-		Rotation: core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "default"),
-		OtherRotations: []core.RotationCombo{
-			core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "bearweave"),
-			core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "shadowmeld"),
-		},
+		Rotation:    core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive"),
 		Consumables: &proto.ConsumesSpec{},
 		ItemFilter: core.ItemFilter{
 			ArmorType: proto.ArmorType_ArmorTypeLeather,
@@ -63,7 +59,7 @@ func BenchmarkSimulate(b *testing.B) {
 				Equipment:     core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", "default").GearSet,
 				Consumables:   DefaultConsumables,
 				Spec:          DefaultSpecOptions,
-				Rotation:      core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "default").Rotation,
+				Rotation:      core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation,
 			},
 			nil, nil, nil,
 		),
@@ -78,8 +74,8 @@ func BenchmarkSimulate(b *testing.B) {
 }
 
 // The cat UI's Cat and Hybrid presets (presets.ts CatTalents and HybridTalents).
-const DefaultTalents = "050022-35200032121131212051-05002"
-const HybridTalents = "050022-05230332121131212051-04"
+const DefaultTalents = "050022-35200032121130212051-053"
+const HybridTalents = "050022-35230332121132212051-"
 
 var DefaultSpecOptions = &proto.Player_FeralCatDruid{
 	FeralCatDruid: &proto.FeralCatDruid{
@@ -112,7 +108,7 @@ func TestAvailableThistleTeaRequiresSelection(t *testing.T) {
 					Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
 					TalentsString: DefaultTalents, Spec: DefaultSpecOptions, Consumables: consumables,
 					Equipment: core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", "default").GearSet,
-					Rotation:  core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "default").Rotation,
+					Rotation:  core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation,
 				}, nil, nil, nil),
 				Encounter:  &proto.Encounter{Duration: 180, Targets: []*proto.Target{core.NewDefaultTarget()}},
 				SimOptions: &proto.SimOptions{Iterations: 1, RandomSeed: 101, IsTest: true},

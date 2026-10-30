@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { inputPicked } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from '@features/settings/components/ConsumesPicker/utils';
+import { applyIndividualDefaults, type DefaultsHost } from '@features/settings/model/apply_defaults';
 import { BUFFS_CONFIG, DEBUFFS_CONFIG, DEBUFFS_MISC_CONFIG, PARTY_BUFFS_CONFIG } from '@features/settings/model/buffs_debuffs';
 import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { isMultiIconOption, type PickerStatOptions, relevantStatOptions, statOptionScope } from '@features/settings/model/stat_options';
@@ -105,7 +106,7 @@ const STAT_ONLY_TYPES = [
 
 // The consumables' stat rule, written out in full against the stats and percents the spec weighs
 // consumables by and the stats it displays: the filter at its defaults must keep exactly the picks
-// that fail it. Dragonbreath Chili's worth is damage, so it always passes.
+// that fail it or sit below the minimum level. Dragonbreath Chili's worth is damage, so it always passes.
 const consumableRule = (consumable: Consumable, player: Player<any>) => {
 	if (consumable.id === DragonbreathChili.id) return true;
 	const specConfig = player.getSpecConfig();
@@ -193,11 +194,13 @@ describe("a spec's default picks at the default stat filters", () => {
 					config.type === 'icon' ? config.keptBy?.(player, config.getValue(player)) : config.keptBy?.(player, config.getValue(player)),
 				)
 				.map(([field]) => field),
-			expected: picks.filter(({ consumable }) => !consumableRule(consumable, player)).map(({ field }) => field),
+			expected: picks
+				.filter(({ consumable }) => !consumableRule(consumable, player) || consumable.lvl < player.sim.getMinConsumableLvl(consumable.type))
+				.map(({ field }) => field),
 		};
 	};
 
-	it.each(specs)('%s: the consumables filter keeps exactly the picked consumables the stat rule leaves out', (_file, spec) => {
+	it.each(specs)('%s: the consumables filter keeps exactly the picked consumables the minimum level or the stat rule leaves out', (_file, spec) => {
 		const { kept, expected } = consumablePicks(spec);
 
 		expect(kept).toEqual(expected);
@@ -207,5 +210,17 @@ describe("a spec's default picks at the default stat filters", () => {
 		const picks = specs.flatMap(([, spec]) => consumablePicks(spec).picks);
 
 		expect(picks.length).toBeGreaterThan(0);
+	});
+});
+
+describe('default swap consumables', () => {
+	it.each(specs.filter(([, spec]) => spec.defaults.consumables.swapMhImbueId))('%s retains its swap imbue when applying defaults', async (_file, spec) => {
+		const { host, player } = await makeIndividualSim({ spec: spec.spec, config: spec });
+		const defaultsHost = Object.assign(host, {
+			statWeightActionSettings: { applyDefaults: () => {} },
+			statSweepSettings: { applyDefaults: () => {} },
+		}) as unknown as DefaultsHost<typeof spec.spec>;
+		applyIndividualDefaults(defaultsHost);
+		expect(player.getConsumes().swapMhImbueId).toBe(spec.defaults.consumables.swapMhImbueId);
 	});
 });

@@ -1,0 +1,6 @@
+[
+	{ "op": "set", "path": ["valueVariables", 0, "name"], "value": "Multi-Shot" },
+	{ "op": "set", "path": ["priorityList", 0, "action", "condition", "variableRef", "name"], "value": "Multi-Shot" },
+	{ "op": "insert", "path": ["valueVariables"], "index": 2, "value": { "name": "Use Aimed Shot", "value": { "const": { "val": "false" } } } },
+	{ "op": "set", "path": ["valueVariables", 1, "value", "const", "val"], "value": "false" }
+]

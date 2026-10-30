@@ -1,0 +1,234 @@
+{
+	"keywords": [
+		"siml",
+		"spec",
+		"talents",
+		"use",
+		"var",
+		"with",
+		"if",
+		"on",
+		"until",
+		"recast",
+		"recheck",
+		"for",
+		"and",
+		"or",
+		"not",
+		"true",
+		"false",
+		"none",
+		"other",
+		"cast",
+		"channel",
+		"wait",
+		"move",
+		"group",
+		"sequence",
+		"schedule",
+		"item",
+		"when",
+		"def"
+	],
+	"heads": [
+		{ "name": "aura", "subject": "action_id" },
+		{ "name": "dot", "subject": "action_id" },
+		{ "name": "spell", "subject": "action_id" },
+		{ "name": "boss_spell", "subject": "action_id" },
+		{ "name": "sequence", "subject": "string" }
+	],
+	"units": {
+		"words": {
+			"self": { "type": "Self" },
+			"target": { "type": "CurrentTarget" },
+			"previous_target": { "type": "PreviousTarget" },
+			"next_target": { "type": "NextTarget" },
+			"all_targets": { "type": "AllTargets" },
+			"all_players": { "type": "AllPlayers" },
+			"unknown_unit": { "type": "Unknown" }
+		},
+		"indexed": { "target": "Target", "player": "Player", "pet": "Pet" }
+	},
+	"short": {
+		"action": ["cast_spell", "channel_spell", "wait", "wait_until", "move", "move_duration", "group_reference", "schedule", "sequence"],
+		"value": ["const", "and", "or", "not", "cmp", "math", "variable_ref", "variable_placeholder"]
+	},
+	"sections": [
+		{
+			"name": "settings",
+			"category": "m",
+			"body": ["entries"],
+			"sources": [
+				{
+					"path": "player",
+					"fields": [
+						"name",
+						"race",
+						"profession1",
+						"profession2",
+						"prof1_rank",
+						"prof2_rank",
+						"reaction_time_ms",
+						"channel_clip_delay_ms",
+						"in_front_of_target",
+						"distance_from_target",
+						"dark_intent_uptime",
+						"challenge_mode",
+						"weapon_skills",
+						"healing_model"
+					]
+				},
+				{ "path": "player.*.options", "flatten": "spec_options" },
+				{ "path": "", "fields": ["tanks"] }
+			],
+			"presence": "player.*.options"
+		},
+		{
+			"name": "gear",
+			"category": "g",
+			"body": ["slot_rows", "entries"],
+			"sources": [
+				{ "path": "player.equipment", "fields": ["items"] },
+				{ "path": "player", "fields": ["bonus_stats", "enable_item_swap"] }
+			],
+			"presence": "player.equipment"
+		},
+		{
+			"name": "item_swap",
+			"category": "g",
+			"body": ["slot_rows", "entries"],
+			"sources": [{ "path": "player.item_swap" }],
+			"presence": "player.item_swap"
+		},
+		{
+			"name": "consumables",
+			"category": "c",
+			"body": ["entries"],
+			"sources": [{ "path": "player.consumables" }],
+			"presence": "player.consumables"
+		},
+		{
+			"name": "buffs",
+			"category": "x",
+			"body": ["entries"],
+			"sources": [{ "path": "player.buffs" }],
+			"presence": "player.buffs"
+		},
+		{
+			"name": "party_buffs",
+			"category": "x",
+			"body": ["entries"],
+			"sources": [{ "path": "party_buffs" }],
+			"presence": "party_buffs"
+		},
+		{
+			"name": "raid_buffs",
+			"category": "x",
+			"body": ["entries"],
+			"sources": [{ "path": "raid_buffs" }, { "path": "", "fields": ["target_dummies"] }],
+			"presence": "raid_buffs"
+		},
+		{
+			"name": "debuffs",
+			"category": "x",
+			"body": ["entries"],
+			"sources": [{ "path": "debuffs" }],
+			"presence": "debuffs"
+		},
+		{
+			"name": "encounter",
+			"category": "e",
+			"body": ["entries"],
+			"sources": [{ "path": "encounter" }],
+			"presence": "encounter"
+		},
+		{
+			"name": "sim",
+			"category": "u",
+			"body": ["entries"],
+			"sources": [
+				{ "path": "settings" },
+				{
+					"path": "",
+					"fields": [
+						"ep_weights_stats",
+						"ep_ratios",
+						"dps_ref_stat",
+						"heal_ref_stat",
+						"tank_ref_stat",
+						"reforge_settings",
+						"stat_caps",
+						"breakpoint_limits"
+					]
+				}
+			],
+			"presence": "settings"
+		},
+		{
+			"name": "apl",
+			"category": "r",
+			"body": ["entries", "var"],
+			"sources": [{ "path": "player.rotation", "fields": ["type", "value_variables"] }]
+		},
+		{
+			"name": "simple",
+			"category": "r",
+			"body": ["entries"],
+			"sources": [
+				{ "path": "player.rotation.simple", "fields": ["spec_rotation_json"], "flatten": "spec_rotation_json" },
+				{ "path": "player.rotation.simple", "fields": ["cooldowns"] }
+			],
+			"presence": "player.rotation.simple"
+		},
+		{
+			"name": "cooldowns",
+			"category": "r",
+			"body": ["entries"],
+			"sources": [{ "path": "player.cooldowns" }],
+			"presence": "player.cooldowns"
+		},
+		{
+			"name": "prepull",
+			"category": "r",
+			"body": ["rows"],
+			"sources": [{ "path": "player.rotation", "fields": ["prepull_actions"] }]
+		},
+		{
+			"name": "priority",
+			"category": "r",
+			"body": ["rows"],
+			"sources": [{ "path": "player.rotation", "fields": ["priority_list"] }]
+		},
+		{
+			"name": "group",
+			"category": "r",
+			"body": ["var", "rows"],
+			"sources": [{ "path": "player.rotation", "fields": ["groups"] }]
+		}
+	],
+	"refs": {
+		"proto.ItemSpec.id": "item",
+		"proto.ItemSpec.enchant": "enchant",
+		"proto.ItemSpec.random_suffix": "suffix",
+		"proto.ConsumesSpec.*_id": "item",
+		"proto.ConsumesSpec.*_ids": "item",
+		"proto.ConsumesSpec.potions": "item",
+		"proto.ConsumesSpec.conjured_items": "item",
+		"*.stat_type1": "stat",
+		"*.stat_type2": "stat",
+		"*.stat_type3": "stat",
+		"proto.ActionID.spell_id": "number",
+		"proto.ActionID.item_id": "number",
+		"proto.Target.id": "number",
+		"proto.Encounter.zone_id": "number"
+	},
+	"indexed": {
+		"proto.UnitStats.stats": "proto.Stat",
+		"proto.UnitStats.pseudo_stats": "proto.PseudoStat",
+		"proto.Target.stats": "proto.Stat"
+	},
+	"flag_values": {
+		"proto.TristateEffect": "TristateEffectRegular"
+	},
+	"skip": ["proto.Player.database", "*.api_version", "type:proto.UUID"]
+}

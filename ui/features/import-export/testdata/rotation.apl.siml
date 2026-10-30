@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+
+var ${Use Summon Hawk} = false
+
+prepull:
+  -22s cast hunters_mark
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast summon_hawk if $use_summon_hawk
+  cast multi_shot

@@ -22,7 +22,7 @@ type Warlock struct {
 	DrainLife   *core.Spell
 	DrainSoul   *core.Spell
 	Hellfire    *core.Spell
-	Immolate    *core.Spell
+	Immolate    []*core.Spell // Every registered rank
 	Incinerate  *core.Spell
 	RainOfFire  *core.Spell
 	SearingPain *core.Spell

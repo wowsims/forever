@@ -9,7 +9,7 @@ func (mage *Mage) registerFrostTalents() {
 	// Tier 1
 	mage.registerFrostWarding()
 	mage.registerImprovedFrostbolt()
-	mage.registerElementalPrecision()
+	mage.registerPrecision()
 
 	// Tier 2
 	mage.registerIceShards()
@@ -68,15 +68,13 @@ func (mage *Mage) registerImprovedFrostbolt() {
 	spelldata.ParseStatic(&mage.Character, spellData.ImprovedFrostbolt.Rank(mage.Talents.ImprovedFrostbolt))
 }
 
-// "Improves your chance to hit with Frost and Fire spells by $s1%." The row's mask names the Fire and
-// Frost spells, Frostfire Bolt included.
-func (mage *Mage) registerElementalPrecision() {
-	if mage.Talents.ElementalPrecision == 0 {
+// "Improves your chance to hit with all spells by $s1%."
+func (mage *Mage) registerPrecision() {
+	if mage.Talents.Precision == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&mage.Character, spellData.ElementalPrecision.Rank(mage.Talents.ElementalPrecision),
-		spelldata.ShowAsSchoolHit(core.SpellSchoolFire|core.SpellSchoolFrost))
+	spelldata.ParseStatic(&mage.Character, spellData.Precision.Rank(mage.Talents.Precision))
 }
 
 func (mage *Mage) registerIceShards() {
@@ -166,7 +164,9 @@ func (mage *Mage) registerIceBlock() {
 }
 
 // "Increases the critical strike chance of all your spells against Frozen targets by 50%." The
-// amount is the talent's dummy effect, 17/33/50.
+// amount is the talent's dummy effect, 17/33/50. Fingers of Frost's charges give Blizzard's ticks no
+// bonus: in the logs they crit at the same rate with charges up as without, while direct spells gain
+// it. Those charges are the only way a target is Frozen here, so the ticks are left out.
 func (mage *Mage) registerShatter() {
 	if mage.Talents.Shatter == 0 {
 		return
@@ -176,7 +176,7 @@ func (mage *Mage) registerShatter() {
 
 	mage.addTargetCritBonus(
 		func(spell *core.Spell) bool {
-			return spell.ProcMask.Matches(core.ProcMaskSpellDamage)
+			return spell.ProcMask.Matches(core.ProcMaskSpellDamage) && !spell.Matches(MageSpellBlizzard)
 		},
 		func(target *core.Unit) float64 {
 			if mage.isFrozen(target) {
@@ -305,11 +305,12 @@ func (mage *Mage) registerFingersOfFrost() {
 // chance to apply Winter's Chill, increasing the target's damage taken from your next Cone of Cold by
 // 5% and it gains an additional 7% of your spell damage, stacking up to 5 times."
 //
-// The talent (11180) names no class mask, so the spells are checked here; its chance is effect 2,
-// which the resolver reads, and its stack cap effect 1. The debuff's (12579) damage taken is
-// A_MOD_SPELL_DAMAGE_FROM_CASTER on Cone of Cold's class flags, so it is parsed onto this mage's
-// attack table against the target; its spell damage is a dummy (effect 2), which Cone of Cold adds
-// to its coefficient per stack (wintersChillCoefficient). Cone of Cold spends the stacks on each
+// The tooltip still names Frost Blast, which the game files do not ship. The talent (11180) names no
+// class mask, so the spells are checked here; its chance is effect 2, which the resolver reads, and
+// its stack cap effect 1. The debuff's (12579) damage taken is A_MOD_SPELL_DAMAGE_FROM_CASTER on Cone
+// of Cold's class flags, so it is parsed onto this mage's attack table against the target; its spell
+// damage is a dummy (effect 2), which Cone of Cold adds to its coefficient per stack
+// (wintersChillCoefficient). Cone of Cold spends the stacks on each
 // target it lands on (consumeWintersChill). Each mage's debuff carries its own label.
 func (mage *Mage) registerWinterChill() {
 	if mage.Talents.WintersChill == 0 {
@@ -349,7 +350,7 @@ func (mage *Mage) registerWinterChill() {
 	trigger.Callback = core.CallbackOnSpellHitDealt
 	trigger.Outcome = core.OutcomeLanded
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spellData.Frostbolt.Contains(spell) || spellData.FrostBlast.Contains(spell)
+		return spellData.Frostbolt.Contains(spell)
 	}
 	mage.MakeProcTriggerAura(trigger)
 
@@ -385,8 +386,8 @@ func (mage *Mage) registerIceBarrier() {
 	mage.registerIceBarrierSpell()
 }
 
-// The Chill effects Permafrost's mask names (family 3, mask 0x100000): Frostbolt, Frost Blast, Cone
-// of Cold, Frostfire Bolt and the armors' Chilled.
+// The Chill effects Permafrost's mask names (family 3, mask 0x100000): Frostbolt, Cone of Cold,
+// Frostfire Bolt and the armors' Chilled.
 var chillFlags = spellData.Permafrost.Highest().EffectN(1).ClassFlags
 
 // Whether the spell applies a Chill effect: one the Chill mask names, or Blizzard with Improved

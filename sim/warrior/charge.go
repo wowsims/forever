@@ -1,8 +1,6 @@
 package warrior
 
 import (
-	"time"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -23,7 +21,7 @@ func (warrior *Warrior) registerCharge() {
 	// The APL names Charge by the spell the talent replaces.
 	config.ActionID = actionID
 
-	aura := warrior.registerDashAura("Charge", actionID, config.Cast.CD.Duration, nil)
+	aura := core.MakeDashAura(&warrior.Unit, "Charge", actionID, config.Cast.CD.Duration, nil)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		aura.Duration = spell.CD.Duration
@@ -33,31 +31,4 @@ func (warrior *Warrior) registerCharge() {
 	}
 
 	warrior.RegisterSpell(config)
-}
-
-// TODO: Manual review needed -- the run speed and the callers' overshoot are the sim's movement model.
-// The arrival callback runs only on reaching the target, never when the aura runs out or the iteration is torn down.
-func (warrior *Warrior) registerDashAura(label string, actionID core.ActionID, duration time.Duration, onArrive func(sim *core.Simulation)) *core.Aura {
-	aura := warrior.RegisterAura(core.Aura{
-		Label:    label,
-		ActionID: actionID,
-		Duration: duration,
-		OnGain: func(_ *core.Aura, sim *core.Simulation) {
-			warrior.MultiplyMovementSpeed(sim, 3.0)
-		},
-		OnExpire: func(_ *core.Aura, sim *core.Simulation) {
-			warrior.MultiplyMovementSpeed(sim, 1.0/3.0)
-		},
-	})
-
-	warrior.RegisterMovementCallback(func(sim *core.Simulation, _ float64, kind core.MovementUpdateType) {
-		if kind == core.MovementEnd && aura.IsActive() {
-			aura.Deactivate(sim)
-			if onArrive != nil {
-				onArrive(sim)
-			}
-		}
-	})
-
-	return aura
 }

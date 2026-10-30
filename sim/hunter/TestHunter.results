@@ -1017,12 +1017,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 752.83199
+  tps: 549.92562
+  dtps: 5.41811
+  hps: 13.65722
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheElements"
  value: {
   dps: 665.98032
   tps: 486.73644
   dtps: 5.40412
   hps: 13.77583
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 752.83199
+  tps: 549.92562
+  dtps: 5.41811
+  hps: 13.65722
  }
 }
 dps_results: {

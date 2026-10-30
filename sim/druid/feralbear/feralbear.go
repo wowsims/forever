@@ -55,7 +55,6 @@ func NewFeralBearDruid(character *core.Character, options *proto.Player) *Guardi
 		// Base paw weapon.
 		MainHand:       bear.GetBearWeapon(),
 		AutoSwingMelee: true,
-		ReplaceMHSwing: bear.TryMaul,
 	})
 
 	bear.RegisterBearFormAura()

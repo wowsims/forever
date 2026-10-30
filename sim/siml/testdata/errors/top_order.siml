@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+spec mage
+talents "a"
+priority:
+  none
+talents "b"
+use "x.siml"

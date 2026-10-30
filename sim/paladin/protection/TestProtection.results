@@ -1161,12 +1161,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-TheDefiler'sPurpose"
+ value: {
+  dps: 393.00552
+  tps: 659.60364
+  dtps: 379.1615
+  hps: 21.09583
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-TheElements"
  value: {
   dps: 369.67133
   tps: 633.72983
   dtps: 452.22777
   hps: 20.8925
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-TheHighlander'sPurpose"
+ value: {
+  dps: 393.00552
+  tps: 659.60364
+  dtps: 379.1615
+  hps: 21.09583
  }
 }
 dps_results: {

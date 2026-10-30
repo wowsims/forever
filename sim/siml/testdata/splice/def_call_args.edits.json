@@ -1,0 +1,1 @@
+[{ "op": "set", "path": ["priorityList", 3, "action", "condition", "and", "vals", 2], "call": "fits(multi_shot)" }]

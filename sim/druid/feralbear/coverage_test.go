@@ -54,7 +54,7 @@ func bearCoverageRequest() *proto.RaidSimRequest {
 						cast(5229),
 						cast(22842),
 						cast(6795),
-						cast(1238122),
+						cast(16979),
 						cast(22812),
 						castUnlessOnTarget(9907),
 						cast(417141),

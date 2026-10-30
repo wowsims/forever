@@ -40,7 +40,7 @@ func TestDefaultEp(t *testing.T) {
 		proto.Stat_StatArmorPenetration,
 	}
 	request := func(iterations int32) *proto.RaidSimRequest {
-		req := uiDefaultRaidSim(catTalents, catAPL(bestCatAPL), 180, 0, iterations)
+		req := catEPRequest(catTalents, defaultCatRotation(), 180, 0, iterations)
 		if gear := os.Getenv("EP_GEAR"); gear != "" {
 			req.Raid.Parties[0].Players[0].Equipment = core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", gear).GearSet
 		}
@@ -87,5 +87,53 @@ func TestDefaultEp(t *testing.T) {
 			stats.Stat(s).StatName(),
 			r.Dps.Weights.Stats[i], r.Dps.WeightsStdev.Stats[i],
 			r.Dps.EpValues.Stats[i], r.Dps.EpValuesStdev.Stats[i])
+	}
+}
+
+// Pre-raid Cat measurement fixture with fixed buffs, consumables and a level 63 target.
+func catEPRequest(talents string, rotation *proto.APLRotation, duration, variation float64, iterations int32) *proto.RaidSimRequest {
+	target := make([]float64, stats.SimStatsLen)
+	target[stats.AttackPower] = 320
+	target[stats.BlockValue] = 54
+	target[stats.Armor] = 3731
+	target[stats.Health] = 1299000
+	return &proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 101, Iterations: iterations},
+		Raid: &proto.Raid{
+			Parties: []*proto.Party{{
+				Players: []*proto.Player{{
+					Name:           "Cat",
+					Class:          proto.Class_ClassDruid,
+					Race:           proto.Race_RaceNightElf,
+					TalentsString:  talents,
+					ReactionTimeMs: 250,
+					Profession1:    proto.Profession_Engineering,
+					Profession2:    proto.Profession_Enchanting,
+					Equipment:      core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", "pre_raid").GearSet,
+					Consumables: &proto.ConsumesSpec{
+						ResourcePotId: 13442,  // Mighty Rage Potion
+						FlaskId:       274275, // Flask of Natural Precision
+						ElixirIds:     []int32{13452},
+						FoodId:        250072, // Swiftstrike Steak
+						MhImbueId:     18262,
+						ConjuredId:    7676,
+						ExtraIds:      []int32{12451, 12460, 8412},
+					},
+					Buffs:    &proto.IndividualBuffs{GreaterBlessingOfKings: true, GreaterBlessingOfMight: true},
+					Spec:     &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{Options: &proto.FeralCatDruid_Options{AssumeBleedActive: true}}},
+					Rotation: rotation,
+				}},
+				Buffs: &proto.PartyBuffs{
+					ManaSpringTotem: proto.TristateEffect_TristateEffectRegular,
+				},
+			}},
+			Buffs: &proto.RaidBuffs{BattleShout: 1, ArcaneBrilliance: true, PrayerOfSpirit: true, GiftOfTheWild: true, PrayerOfFortitude: true,
+				StrengthOfEarthTotem: true, WindfuryTotem: true},
+			Debuffs: &proto.Debuffs{JudgementOfWisdom: true, FaerieFire: true, SunderArmor: true, GiftOfArthas: true},
+		},
+		Encounter: &proto.Encounter{Duration: duration, DurationVariation: variation, Targets: []*proto.Target{{
+			Id: 31146, Name: "Raid Target", Level: 63, MobType: proto.MobType_MobTypeMechanical, Stats: target,
+			MinBaseDamage: 15113, DamageSpread: 0.5, SwingSpeed: 2, ParryHaste: true, CanCrush: true,
+		}}},
 	}
 }

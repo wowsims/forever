@@ -1,0 +1,12 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {},
+		"rotation": {
+			"type": "TypeAuto",
+			"simple": {
+				"specRotationJson": "{\"timeToWeave\":400}"
+			}
+		}
+	}
+}

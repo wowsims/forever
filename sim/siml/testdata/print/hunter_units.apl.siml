@@ -1,0 +1,15 @@
+siml 1
+spec hunter
+
+priority:
+  cast steady_shot on self
+  cast steady_shot on target
+  cast steady_shot on target1
+  cast steady_shot on target3
+  cast steady_shot on player1
+  cast steady_shot on pet1
+  cast steady_shot on `{"type":"Pet","index":1}`
+  cast steady_shot on none
+  change_target(new_target=all_players)
+      if current_health(source_unit=`{"type":"Pet","owner":{"type":"Player"}}`)
+  change_target(new_target=none) if previous_target.aura(steady_shot).is_active
