@@ -1,0 +1,45 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{ "action": { "castSpell": { "spellId": { "spellId": 900010 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900010, "rank": 3 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 29602 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001, "tag": 1 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900001, "tag": 2 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900099 } } } },
+		{ "action": { "castSpell": { "spellId": { "itemId": 10646 } } } },
+		{ "action": { "castSpell": { "spellId": { "itemId": 10646, "rank": 1 } } } },
+		{ "action": { "castSpell": { "spellId": { "itemId": 900099 } } } },
+		{ "action": { "castSpell": { "spellId": { "otherId": "OtherActionOffensivePotion" } } } },
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "auraId": { "spellId": 900001 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 900001 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "Pet", "owner": { "type": "Self" } }, "auraId": { "spellId": 900001 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "sourceUnit": { "type": "Pet", "owner": { "type": "Self" } }, "auraId": { "spellId": 19615 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "Pet", "owner": { "type": "Target" } }, "auraId": { "spellId": 19615 } } },
+							{ "bossSpellIsCasting": { "spellId": { "spellId": 5 } } },
+							{ "bossSpellIsCasting": { "spellId": { "spellId": 900001 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{ "action": { "condition": { "selectedPotion": { "potionId": { "itemId": 250943 } } }, "cancelAura": { "auraId": { "spellId": 900001 } } } }
+	]
+}

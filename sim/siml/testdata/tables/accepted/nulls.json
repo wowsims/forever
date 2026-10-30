@@ -1,0 +1,7 @@
+{
+	"classes": null,
+	"enchants": { "a": { "effectId": 1, "slots": null } },
+	"items": null,
+	"shared": { "spell": { "a": { "spellId": 1, "tag": null, "rank": null, "registeredBy": null } }, "aura": null },
+	"suffixes": null
+}

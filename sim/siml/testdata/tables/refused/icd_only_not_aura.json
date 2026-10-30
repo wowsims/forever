@@ -1,0 +1,1 @@
+{ "classes": { "hunter": { "spell": { "a": { "spellId": 1, "registeredBy": ["hunter"], "icdOnlyBy": ["hunter"] } } } } }

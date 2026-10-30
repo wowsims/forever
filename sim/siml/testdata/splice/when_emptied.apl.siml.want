@@ -1,0 +1,15 @@
+siml 1
+spec hunter
+
+var $a = true
+var $b = true
+
+priority:
+  // Only while both hold.
+  cast multi_shot if $a and $b
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  when $a:
+    cast aimed_shot
+  // Serpent Sting while b holds.
+  cast serpent_sting if true
+  cast arcane_shot

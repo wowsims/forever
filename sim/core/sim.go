@@ -30,6 +30,8 @@ type Simulation struct {
 	rseed       int64
 	currentSeed int64
 
+	aplActionExecuted APLActionHook // Set by RunSimWithAPLHook.
+
 	// Used for testing only, see RandomFloat().
 	isTest    bool
 	testRands map[string]Rand
@@ -111,10 +113,15 @@ func (sim *Simulation) RemoveTask(task Task) {
 }
 
 func RunSim(rsr *proto.RaidSimRequest, progress chan *proto.ProgressMetrics, signals simsignals.Signals) *proto.RaidSimResult {
-	return runSim(rsr, progress, false, signals)
+	return runSim(rsr, progress, false, signals, nil)
 }
 
-func runSim(rsr *proto.RaidSimRequest, progress chan *proto.ProgressMetrics, skipPresim bool, signals simsignals.Signals) (result *proto.RaidSimResult) {
+// RunSim, calling executed with each action the sim's APLs execute (APLActionHook). The presims do not call it.
+func RunSimWithAPLHook(rsr *proto.RaidSimRequest, signals simsignals.Signals, executed APLActionHook) *proto.RaidSimResult {
+	return runSim(rsr, nil, false, signals, executed)
+}
+
+func runSim(rsr *proto.RaidSimRequest, progress chan *proto.ProgressMetrics, skipPresim bool, signals simsignals.Signals, executed APLActionHook) (result *proto.RaidSimResult) {
 	if !rsr.SimOptions.IsTest {
 		defer func() {
 			if err := recover(); err != nil {
@@ -174,6 +181,7 @@ func runSim(rsr *proto.RaidSimRequest, progress chan *proto.ProgressMetrics, ski
 		}
 	}
 
+	sim.aplActionExecuted = executed
 	// using a variable here allows us to mutate it in the deferred recover, sending out error info
 	result = sim.run()
 

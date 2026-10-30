@@ -1,0 +1,14 @@
+{
+	"player": {
+		"race": "RaceTroll",
+		"class": "ClassHunter",
+		"hunter": {
+			"options": {
+				"classOptions": {
+					"quiverBonus": "AncientSinewWrappedLamina",
+					"petType": "Raptor"
+				}
+			}
+		}
+	}
+}

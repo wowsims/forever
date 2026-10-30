@@ -1,0 +1,3 @@
+siml 1
+spec hunter
+use "../use/base.apl.siml" with $use_summon_hawk = true, $time_to_weave = 350ms

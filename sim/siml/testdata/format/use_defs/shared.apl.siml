@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+var ${Ranged range} = 12
+def at_range = self.unit_distance > $ranged_range

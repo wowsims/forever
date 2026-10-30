@@ -3,8 +3,20 @@ import type * as InputHelpers from '@features/inputs/input_helpers';
 import type { ReforgeOptimizerOptions } from '@features/reforge/model/reforge_optimizer';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, EquipmentSpec, HealingModel, ItemSlot, ItemSwap, Profession, PseudoStat, Race, Spec, Stat } from '@generated/proto/common';
-import { SavedTalents } from '@generated/proto/ui';
+import {
+	ConsumesSpec,
+	EquipmentSpec,
+	HealingModel,
+	ItemSlot,
+	ItemSwap,
+	Profession,
+	PseudoStat,
+	Race,
+	Spec,
+	Stat,
+	type UnitReference,
+} from '@generated/proto/common';
+import { IndividualSimSettings, SavedTalents } from '@generated/proto/ui';
 import type { SavedDataConfig } from '@ui-kit/SavedDataPanel/types';
 import type { ReactNode } from 'react';
 
@@ -70,6 +82,8 @@ export interface OtherDefaults {
 	race?: Race;
 	// Applied by applyIndividualDefaults after the encounter defaults.
 	healingModel?: HealingModel;
+	inFrontOfTarget?: boolean;
+	tanks?: Array<UnitReference>;
 }
 
 export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConfig<SpecType> {
@@ -137,6 +151,10 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 		// The APL a TypeAPL spec loads with. Without it the priority list starts empty.
 		aplRotation?: APLRotation;
 		simpleRotation?: SpecRotation<SpecType>;
+
+		// The spec's defaults.siml as read. Applying the defaults reads from it the cooldowns, bonus stats, EP ratios,
+		// reference stats and reforge settings, which have no field of their own here.
+		settings?: IndividualSimSettings;
 
 		// Encounter applied by "Reset to Defaults" and on first load. Falls back to
 		// the generic single-target dummy when unset.
@@ -213,8 +231,9 @@ export function defineSpec<SpecType extends Spec>(def: SpecDefinition<SpecType>)
 }
 
 // Removes dev-only gearsets from the gear presets and from the builds, dropping a
-// build left empty. The default gear stays only when it is a production gearset
+// build left empty. The default gear stays only when it equals a production gearset
 // the spec lists, so a default taken from an unlisted preset is cleared as well.
+// Equal by value, as a spec's defaults.siml reads its gear into a message of its own.
 // `ui/app/spec_entry.tsx` applies it outside the dev server and the previews.
 export function withoutDevOnlyGear<SpecType extends Spec>(def: SpecDefinition<SpecType>): SpecDefinition<SpecType> {
 	const gear = def.presets.gear.filter(preset => !preset.devOnly);
@@ -222,9 +241,10 @@ export function withoutDevOnlyGear<SpecType extends Spec>(def: SpecDefinition<Sp
 		?.map(build => (build.gear?.devOnly ? { ...build, gear: undefined } : build))
 		.filter(({ name: _name, phase: _phase, group: _group, ...categories }) => Object.values(categories).some(value => value !== undefined));
 	const productionGear = [...gear, ...(builds ?? []).map(build => build.gear)].map(preset => preset?.gear);
+	const keepDefault = productionGear.some(listed => listed && EquipmentSpec.equals(listed, def.defaults.gear));
 	return {
 		...def,
-		defaults: { ...def.defaults, gear: productionGear.includes(def.defaults.gear) ? def.defaults.gear : EquipmentSpec.create() },
+		defaults: { ...def.defaults, gear: keepDefault ? def.defaults.gear : EquipmentSpec.create() },
 		presets: { ...def.presets, gear, builds },
 	};
 }

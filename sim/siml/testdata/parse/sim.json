@@ -1,0 +1,42 @@
+{
+	"settings": {
+		"iterations": 25000,
+		"phase": 2,
+		"fixedRngSeed": "9007199254740993",
+		"showDamageMetrics": true,
+		"showThreatMetrics": true,
+		"showEpValues": true,
+		"useCustomEpValues": true,
+		"language": "en",
+		"faction": "Horde",
+		"filters": {
+			"armorTypes": ["ArmorTypeLeather", "ArmorTypeMail"],
+			"minIlvl": 60,
+			"minConsumableLvl": {
+				"6": 50
+			},
+			"oneHandedWeapons": true,
+			"favoriteItems": [19019, 17182]
+		}
+	},
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {}
+	},
+	"epWeightsStats": {
+		"stats": [0, 2.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		"pseudoStats": [0, 0, 12.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	},
+	"epRatios": [1, 0.5],
+	"dpsRefStat": "StatAttackPower",
+	"healRefStat": "StatSpellDamage",
+	"tankRefStat": "StatStamina",
+	"statCaps": {
+		"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	},
+	"reforgeSettings": {
+		"useSoftCapBreakpoints": true,
+		"frozenItemSlots": ["ItemSlotRanged", "ItemSlotTrinket2"],
+		"epStats": ["StatAgility", "StatAttackPower"]
+	}
+}

@@ -1,0 +1,52 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {},
+		"rotation": {
+			"type": "TypeAPL",
+			"priorityList": [
+				{
+					"action": {
+						"condition": {
+							"or": {
+								"vals": [
+									{
+										"cmp": {
+											"op": "OpLt",
+											"lhs": {
+												"currentTime": {}
+											},
+											"rhs": {
+												"const": {
+													"val": "10s"
+												}
+											}
+										}
+									},
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"currentTime": {}
+											},
+											"rhs": {
+												"const": {
+													"val": "10s"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 5
+							}
+						}
+					}
+				}
+			]
+		}
+	}
+}

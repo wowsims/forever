@@ -1,0 +1,6 @@
+﻿siml 1
+spec hunter
+
+// One byte order mark at the start of the text is skipped (SPEC.md §2).
+priority:
+  cast hunter_shot

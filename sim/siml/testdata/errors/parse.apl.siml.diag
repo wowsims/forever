@@ -1,0 +1,8 @@
+5:15 error write-eq
+6:19 error chained-comparison
+7:20 error expected-if
+8:21 error args-on-head
+9:12 error parse
+10:7 error parse
+11:3 error bad-raw
+12:19 error parse

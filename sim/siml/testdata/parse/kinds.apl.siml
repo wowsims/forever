@@ -1,0 +1,33 @@
+siml 1
+spec hunter
+
+// Bare, unit-prefixed and generic kinds; stats by name and by number; enum values by short and proto name.
+priority:
+  cast x if current_time > 1s and current_time_percent < 50% and remaining_time > 10s and remaining_time_percent > 5%
+  cast x if number_targets > 1 and current_rage > 10 and current_energy > 20 and current_combo_points >= 5
+  cast x if max_health > 0 and max_mana > 0 and gcd_is_ready and gcd_time_to_ready < 0.1s and input_delay < 1s
+  cast x if is_execute_phase(e20) or is_execute_phase(threshold=e35)
+  cast x if auto_time_to_next(main_hand_auto) < 1s and auto_time_since_last(RangedAuto) > 0s
+  cast x if auto_swing_time(off_hand) == 0s
+  cast x if action_group_used("Stance Dance ON/OFF")
+  cast x if multiple_cd_usages(x, target_spell_id=item.y, offset=2s, align_cd_end)
+  cast x if selected_potion(other.offensive_potion) and selected_conjured(conjured_id=item.y)
+  cast x if energy_time_to_target(50) < 1s
+  cast x if totem_remaining_time(air, include_reaction_time=true) <= 0s
+  cast x if target_is_mob_type(undead) and encounter_in_area(forest_grassland)
+  cast x if all_item_stat_procs_active(agility, stat_type2=14, stat_type3=-1, min_icd_seconds=2.5)
+  cast x if num_stat_buff_cooldowns(stat_type1=StatAttackPower) > 0
+  cast x if target2.druid_bleed_is_active and warlock_is_assigned_curse(weakness) and warlock_active_pet(imp)
+  cast x if active_item_swap_set(swap1)
+  cast x if target.warlock_assigned_curse_is_active
+  activate_all_stat_buff_proc_auras(main, stat_type1=strength)
+  guardian_hotw_dps_rotation(hybrid)
+  cast other.other_action_wait
+  cast_warlock_assigned_curse(target=target)
+  custom_rotation
+  trigger_icd(item.y)
+  cancel_aura(item.y)
+  activate_aura(item.y)
+  multishield(x, max_shields=2, max_overlap=1s)
+  strict_multidot(x, max_dots=2)
+  cast_friendly_spell(x, target=player2)

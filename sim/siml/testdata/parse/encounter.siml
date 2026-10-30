@@ -1,0 +1,24 @@
+siml 1
+spec hunter
+
+encounter:
+  duration 180
+  duration_variation 5
+  execute_proportion_20 0.2
+  execute_proportion_35 0.35
+  targets(id=31146,
+      name="Raid Target",
+      level=63,
+      mob_type=mechanical,
+      stats(block_value=54, armor=3731, health=1299000),
+      min_base_damage=15113,
+      damage_spread=0.5,
+      swing_speed=2,
+      parry_haste,
+      can_crush,
+      spell_school=fire,
+      target_inputs(label="Enraged", bool_value),
+      target_inputs(input_type=enum, label="Phase", enum_value=1, enum_options=["One", "Two"]))
+  targets(id=12435, name="Razorgore the Untamed", level=63, mob_type=dragonkin, disabled_at_start)
+  area_types strongholds_cities, cavernous
+  zone_id 2677

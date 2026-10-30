@@ -67,7 +67,7 @@ const importLink = async (url: string): Promise<IndividualImport> => {
 	return imported[0];
 };
 
-const roundTrip = (exported: Exported) => importLink(exportLink(exported));
+const roundTrip = async (exported: Exported) => importLink(await exportLink(exported));
 
 describe('the Wowhead gear planner link', () => {
 	it('carries class and race in the path', async () => {

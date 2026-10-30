@@ -1,0 +1,18 @@
+siml 1
+spec dps_warrior
+
+buffs: greater_blessing_of_kings, greater_blessing_of_might
+
+party_buffs:
+  mana_spring_totem
+  mana_tide_totems 2
+  stoneskin_totem=missing
+
+raid_buffs:
+  arcane_brilliance, gift_of_the_wild
+  battle_shout=2, leader_of_the_pack
+  target_dummies 3
+
+debuffs:
+  hunters_mark, judgement_of_the_crusader, curse_of_recklessness, faerie_fire, expose_armor, sunder_armor
+  thunderfury false

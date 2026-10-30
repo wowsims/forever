@@ -1,0 +1,11 @@
+siml 1
+spec hunter
+
+// A spell the spec registers only uncastable is no subject of an action that casts, and reads in every other position.
+priority:
+  cast raptor_strike
+  cast raptor_strike_tag0
+  channel raptor_strike_tag0 on target
+  multidot(raptor_strike_tag0, max_dots=2)
+  cast_friendly_spell(raptor_strike_tag0, target=player2)
+  cast aimed_shot if spell(raptor_strike_tag0).is_ready and dot(raptor_strike_tag0).is_active

@@ -1,0 +1,3 @@
+siml 1
+spec hunter
+use "../../parse/use/base.apl.siml" with $use_summon_hawk = $nowhere, ${Use Summon Hawk} = false

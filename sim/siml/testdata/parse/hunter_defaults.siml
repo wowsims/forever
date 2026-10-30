@@ -1,0 +1,60 @@
+siml 1
+spec hunter
+talents "-00530501114-550200030050220151"
+
+settings:
+  race orc
+  profession1 engineering
+  profession2 blacksmithing
+  distance_from_target 12
+  quiver_bonus ancient_sinew_wrapped_lamina
+  ammo thorium_headed_arrow
+  pet_uptime 1
+  cobra_reflexes
+  pet_aggression 5
+  pet_attack_speed faster_attack_ii
+
+gear:
+  head       lieutenant_commanders_chain_helmet + falcons_call
+  neck       fury_of_the_forgotten_swarm
+  shoulder   golden_mantle_of_the_dawn
+  back       earthweave_cloak + cloak_agility
+  chest      primal_batskin_jerkin + chest_greater_stats
+  wrist      primal_batskin_bracers + bracer_agility_7656
+  hands      primal_batskin_gloves + gloves_greater_agility
+  waist      belt_of_preserved_heads
+  legs       leggings_of_the_plague_hunter + falcons_call
+  feet       mongoose_boots + boots_agility
+  finger1    cutthroats_signet
+  finger2    band_of_earthen_might
+  trinket1   adaptive_combat_assistant
+  trinket2   cleansed_vilebranch_icon
+  main_hand  legionite_glaive + enchant_2h_weapon_agility
+  ranged     fahrads_reloading_repeater + saf_t_ultra_precision_scope
+
+consumables:
+  offensive_pot major_frenzy_potion
+  food swiftstrike_steak
+  conjured demonic_rune
+  explosive ez_thro_dynamite_ii
+  extra goblin_sapper_charge, scroll_of_strength_iv
+  elixir elixir_of_the_mongoose, greater_mageblood_elixir
+
+buffs: greater_blessing_of_kings
+
+raid_buffs:
+  arcane_brilliance, prayer_of_spirit, gift_of_the_wild, prayer_of_fortitude
+  strength_of_earth_totem
+  grace_of_air_totem, battle_shout=1, leader_of_the_pack
+  prayer_of_shadow_protection
+
+debuffs:
+  judgement_of_light, judgement_of_wisdom, curse_of_elements, curse_of_recklessness, faerie_fire
+  expose_armor, sunder_armor, gift_of_arthas, insect_swarm
+
+sim: iterations 25000
+
+simple:
+  time_to_weave 400
+  use_multi, use_arcane
+  playstyle weave

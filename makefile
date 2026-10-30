@@ -10,16 +10,17 @@ ASSETS := $(patsubst assets/%,$(OUT_DIR)/assets/%,$(ASSETS_INPUT))
 # Recursive wildcard function. Needs to be '=' instead of ':=' because of recursion.
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 GOROOT := $(shell go env GOROOT)
-UI_SRC := $(shell find ui -name "*.ts" -o -name "*.tsx" -o -name "*.css" -o -name "*.html" -o -name "*.json")
+UI_SRC := $(shell find ui -name '*.ts' -o -name '*.tsx' -o -name '*.css' -o -name '*.html' -o -name '*.json' -o -name '*.siml')
 # The bundle names the commit it is built from and the last changes to each spec (tools/vite/build_info.mts),
 # so a commit or checkout rebuilds it: index changes on every commit and checkout, HEAD on a branch switch,
 # and --git-dir names a worktree's own folder.
 GIT_DIR := $(shell git rev-parse --git-dir 2>/dev/null)
 AUTO_GEN_FILES_TS := ui/sim/player/classes/capabilities_auto_gen.ts ui/sim/bulk/constants_auto_gen.ts ui/sim/wasm/bulk_sim/constants_auto_gen.ts ui/sim/proto/sim_tables_auto_gen.ts ui/sim/wasm/stat_weights_constants_auto_gen.ts
-AUTO_GEN_FILES_TS_DEPS := sim/core/base_stats.go sim/core/base_stats_auto_gen.go sim/core/bulk/candidates.go sim/core/bulk/statistics.go sim/core/consumes_imbues.go sim/core/database.go sim/core/statweight.go tools/database/gen_character_constants_ts.go tools/database/gen_bulksim_constants.ts.go tools/database/gen_sim_tables_ts.go tools/database/gen_stat_weight_constants_ts.go sim/core/proto/api.pb.go
+AUTO_GEN_FILES_TS_DEPS := sim/core/base_stats.go sim/core/base_stats_auto_gen.go sim/core/bulk/candidates.go sim/core/bulk/statistics.go sim/core/consumes_imbues.go sim/core/database.go sim/core/itemfit/itemfit.go sim/core/statweight.go tools/database/gen_character_constants_ts.go tools/database/gen_bulksim_constants.ts.go tools/database/gen_sim_tables_ts.go tools/database/gen_stat_weight_constants_ts.go sim/core/proto/api.pb.go
 
 $(OUT_DIR)/.dirstamp: \
   $(OUT_DIR)/lib.wasm.gz \
+  $(OUT_DIR)/siml_names.json \
   ui/generated/proto/api.ts \
   $(ASSETS) \
   $(OUT_DIR)/bundle/.dirstamp
@@ -31,12 +32,17 @@ $(OUT_DIR)/bundle/.dirstamp: \
   vite.config.mts \
   vite.build-workers.mts \
   tools/vite/spec_pages.mts \
+  tools/vite/siml.mts \
   tools/vite/build_info.mts \
   assets/db_inputs/spell_store_inputs.json \
   $(if $(GIT_DIR),$(GIT_DIR)/HEAD $(GIT_DIR)/index) \
   node_modules \
   tsconfig.json \
-  ui/generated/proto/api.ts
+  ui/generated/proto/api.ts \
+  sim/siml/names.json \
+  sim/siml/forms.json \
+  $(filter-out %_test.go,$(wildcard sim/siml/*.go)) \
+  $(if $(WOWSIMCLI),,| bin/wowsimcli$(BIN_EXT))
 	node_modules/typescript/bin/tsc --noEmit
 	npx tsx vite.build-workers.mts
 	npx vite build
@@ -52,6 +58,7 @@ clean:
 	  wowsimforever-arm64-darwin \
 	  wowsimforever-amd64-linux \
 	  dist \
+	  bin/wowsimcli$(BIN_EXT) \
 	  binary_dist \
 	  ui/generated/proto/*.ts \
 	  node_modules
@@ -62,6 +69,13 @@ ui/generated/proto/api.ts: proto/*.proto node_modules
 	npx protoc --ts_opt generate_dependencies --ts_out ui/generated/proto --proto_path proto proto/api.proto
 	npx protoc --ts_out ui/generated/proto --proto_path proto proto/test.proto
 	npx protoc --ts_out ui/generated/proto --proto_path proto proto/ui.proto
+
+# The SIML name table, generated from what the sim registers and the database. The build reads the committed table;
+# make siml-names regenerates it. The generator keeps every name the committed table holds and adds the new ones, so
+# commit the table with the change that adds them.
+.PHONY: siml-names
+siml-names: sim/core/proto/api.pb.go
+	go run --tags=with_db ./sim/siml/cmd/simlnames -w
 
 .PHONY: package.json
 
@@ -88,6 +102,20 @@ package-lock.json:
 node_modules: package-lock.json
 	npm ci
 
+# What tools/vite/siml.mts reads .siml imports with when $WOWSIMCLI is unset. It is built with the database and the name
+# table, so every siml command runs on it too. It stays out of dist: the pull request preview uploads all of dist to
+# Cloudflare Pages, which refuses a file over 25 MiB.
+bin/wowsimcli$(BIN_EXT): sim/core/proto/api.pb.go sim/siml/forms.json sim/siml/llm_head.txt sim/siml/names.json assets/database/db.bin assets/database/leftover_db.bin $(filter-out %_test.go,$(call rwildcard,sim,*.go) $(call rwildcard,cmd/wowsimcli,*.go) $(call rwildcard,tools/spelldata,*.go))
+	go build --tags=with_db -o $@ ./cmd/wowsimcli
+
+# Run before committing, and after a change to proto/apl.proto: refresh the SIML name table and the wowsims-siml
+# skill, then check the files under ui/specs read and are canonical. When the skill changes, npm run skills:install
+# records its hash in skills-lock.json, which is committed with it.
+.PHONY: siml
+siml: siml-names
+	go run ./cmd/wowsimcli siml llm -o .github/skills/wowsims-siml/SKILL.md
+	go run --tags=with_db ./cmd/wowsimcli siml fmt -check ui/specs
+
 # Generic rule for hosting any class directory
 .PHONY: host_%
 host_%: $(OUT_DIR) node_modules $(AUTO_GEN_FILES_TS)
@@ -101,7 +129,7 @@ wasm: $(OUT_DIR)/lib.wasm.gz
 # The main thread decompresses and compiles it once (see getSharedWasmModule in
 # ui/sim/workers/worker_pool.ts) and shares the compiled module with every worker.
 WASM_FEATURES := --enable-sign-ext --enable-nontrapping-float-to-int --enable-mutable-globals --enable-bulk-memory
-$(OUT_DIR)/lib.wasm.gz: sim/wasm/* sim/core/proto/api.pb.go $(filter-out sim/core/items/all_items.go, $(call rwildcard,sim,*.go))
+$(OUT_DIR)/lib.wasm.gz: sim/wasm/* sim/core/proto/api.pb.go sim/siml/forms.json $(filter-out sim/core/items/all_items.go, $(call rwildcard,sim,*.go))
 	@echo "Starting webassembly compile now..."
 	@if GOWASM=satconv,signext GOOS=js GOARCH=wasm go build -ldflags "-w -s" -o ./$(OUT_DIR)/lib.wasm ./sim/wasm/; then \
 		printf "\033[1;32mWASM compile successful.\033[0m\n"; \
@@ -116,6 +144,12 @@ $(OUT_DIR)/lib.wasm.gz: sim/wasm/* sim/core/proto/api.pb.go $(filter-out sim/cor
 		printf "\033[1;33mwasm-opt not found -- skipping optimization (install binaryen to enable).\033[0m\n"; \
 	fi
 	gzip -9 -f -n $(OUT_DIR)/lib.wasm
+
+# The SIML name table, which the site's workers and the web server read SIML with: lib.wasm and the server are built
+# without the with_db tag, so neither holds one.
+$(OUT_DIR)/siml_names.json: sim/siml/names.json
+	mkdir -p $(@D)
+	cp $< $@
 
 $(OUT_DIR)/assets/%: assets/%
 	mkdir -p $(@D)
@@ -153,7 +187,7 @@ buffs-proto:
 wowsimforever: binary_dist devserver
 
 .PHONY: devserver
-devserver: sim/core/proto/api.pb.go sim/web/*.go binary_dist/dist.go
+devserver: sim/core/proto/api.pb.go sim/web/*.go binary_dist/dist.go sim/siml/names.json $(OUT_DIR)/siml_names.json
 	@echo "Starting server compile now..."
 	@if go build -o wowsimforever$(BIN_EXT) ./sim/web ; then \
 		printf "\033[1;32mBuild Completed Successfully\033[0m\n"; \
@@ -391,3 +425,15 @@ webworkers:
 .PHONY: vscode-spelldata
 vscode-spelldata:
 	cd tools/vscode-spelldata && npm ci --no-audit --no-fund && npm run build
+
+# The SIML extension: its panel bundles the site's APL model with the generated protos and tables and the root
+# packages, and wowsimcli writes its grammar. The language server it starts, `wowsimcli siml lsp`, reads the name
+# table at run time.
+tools/vscode-apl/node_modules: tools/vscode-apl/package-lock.json
+	cd tools/vscode-apl && npm ci --no-audit --no-fund
+	touch $@
+
+.PHONY: vscode-apl
+vscode-apl: ui/generated/proto/api.ts $(AUTO_GEN_FILES_TS) sim/siml/names.json node_modules tools/vscode-apl/node_modules
+	cd tools/vscode-apl && npm run build
+	go run ./cmd/wowsimcli siml grammar -o .vscode/extensions/wowsims-apl/syntaxes/siml.tmLanguage.json

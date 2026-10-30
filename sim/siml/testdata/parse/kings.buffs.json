@@ -1,0 +1,8 @@
+{
+	"player": {
+		"buffs": {
+			"greaterBlessingOfKings": true,
+			"thorns": true
+		}
+	}
+}

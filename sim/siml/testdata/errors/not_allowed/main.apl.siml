@@ -1,0 +1,3 @@
+siml 1
+spec hunter
+use "../../parse/hunter_p1.gear.siml"

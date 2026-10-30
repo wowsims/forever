@@ -15,6 +15,7 @@ import (
 	proto "github.com/wowsims/forever/sim/core/proto"
 	reforgeoptimizer "github.com/wowsims/forever/sim/core/reforge_optimizer"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/siml"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	googleProto "google.golang.org/protobuf/proto"
 )
@@ -44,6 +45,13 @@ func main() {
 	js.Global().Set("statWeightCompute", js.FuncOf(statWeightCompute))
 	js.Global().Set("statWeightTopUpPlan", js.FuncOf(statWeightTopUpPlan))
 	js.Global().Set("abortById", js.FuncOf(abortById))
+	js.Global().Set("simlNames", js.FuncOf(setSimlNames))
+	js.Global().Set("simlParse", js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+		return simlCall(args, &proto.SimlParseRequest{}, siml.ParseRequest)
+	}))
+	js.Global().Set("simlPrint", js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+		return simlCall(args, &proto.SimlPrintRequest{}, siml.PrintRequest)
+	}))
 	js.Global().Call("wasmready")
 	<-c
 }
@@ -488,6 +496,38 @@ func abortById(this js.Value, args []js.Value) interface{} {
 	outArray := js.Global().Get("Uint8Array").New(len(outbytes))
 	js.CopyBytesToJS(outArray, outbytes)
 
+	return outArray
+}
+
+// The name table SIML requests read and write names with, which the worker hands over with simlNames before its first
+// request: lib.wasm is built without the with_db tag, so it holds none of its own.
+var simlNames *siml.Names
+
+// Reads args[0], the bytes of sim/siml/names.json, as the name table. Gives the error, or "" once it is read.
+func setSimlNames(this js.Value, args []js.Value) interface{} {
+	names, err := siml.ParseNames(getArgsBinary(args[0]))
+	if err != nil {
+		return js.ValueOf(err.Error())
+	}
+	simlNames = names
+	return js.ValueOf("")
+}
+
+// Answers the SIML request in args[0] with handle, which answers a request that comes before the name table with an
+// error, or nil when the request does not unmarshal.
+func simlCall[Req, Res googleProto.Message](args []js.Value, req Req, handle func(Req, *siml.Names) Res) interface{} {
+	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
+		log.Printf("Failed to parse request: %s", err)
+		return nil
+	}
+	result := handle(req, simlNames)
+	outbytes, err := googleProto.Marshal(result)
+	if err != nil {
+		log.Printf("[ERROR] Failed to marshal result: %s", err.Error())
+		return nil
+	}
+	outArray := js.Global().Get("Uint8Array").New(len(outbytes))
+	js.CopyBytesToJS(outArray, outbytes)
 	return outArray
 }
 

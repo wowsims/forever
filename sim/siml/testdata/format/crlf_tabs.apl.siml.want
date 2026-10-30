@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+
+// \r\n reads as \n, and a tab is one column of indentation.
+priority:
+  cast aimed_shot
+  cast multi_shot if aura(rapid_fire).is_active

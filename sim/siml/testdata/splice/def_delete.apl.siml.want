@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+var $a = true
+var $b = true
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  // Weave block.
+  when $a and $b:
+    cast aimed_shot if current_time > 1s
+    # cast multi_shot
+    cast serpent_sting if spell(serpent_sting).cast_time < 2s or not $a
+  cast arcane_shot

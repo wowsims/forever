@@ -1,0 +1,15 @@
+siml 1
+spec hunter
+
+// What the hunter's rotations share. Each def reads in the rotation that calls it, so $use_summon_hawk and
+// $use_arcane_shot are that rotation's variables.
+def in_melee = self.unit_distance <= 5
+def at_range = self.unit_distance > 5
+def hawk_and_arcane = $use_summon_hawk and $use_arcane_shot
+
+// The walk in at the pull: the hunter starts at Pull range and walks to its spot between Auto Shots.
+var ${Pull range} = 25
+var ${Auto Shot due} =
+    auto_time_since_last(ranged_auto) >= auto_swing_time(ranged) - 500ms - input_delay
+var ${Just shot} = auto_time_since_last(ranged_auto) < input_delay
+def shot_due_here = spell(arcane_shot).in_range and ($auto_shot_due or $just_shot)

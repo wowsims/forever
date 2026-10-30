@@ -1,0 +1,11 @@
+siml 1
+spec hunter
+
+// In a full file, a def goes at the top or under apl:.
+def late = current_time > 10s
+
+apl:
+  def early = current_time < 10s
+
+priority:
+  cast x if early or late
