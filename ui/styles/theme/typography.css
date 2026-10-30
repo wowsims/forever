@@ -20,6 +20,7 @@
 
 	--leading-tighter: 1.2;
 	--leading-heading: var(--leading-tighter);
+	--leading-code: 18px;
 
 	--text-2xs: 0.625rem;
 }

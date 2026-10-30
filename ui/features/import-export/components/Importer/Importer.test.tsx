@@ -84,7 +84,7 @@ describe('Importer', () => {
 	it('hands the textarea contents and the host to onImport, with no file name for typed text, then closes', async () => {
 		const { onImport, onOpenChange } = renderImporter();
 		const textarea = document.querySelector('textarea')!;
-		textarea.value = '{"player":{}}';
+		fireEvent.input(textarea, { target: { value: '{"player":{}}' } });
 
 		await clickImport();
 
@@ -129,7 +129,7 @@ describe('Importer', () => {
 	it('an upload replaces text the user has already typed', async () => {
 		const { onImport } = renderImporter();
 		const textarea = document.querySelector('textarea')!;
-		textarea.value = 'typed by hand';
+		fireEvent.input(textarea, { target: { value: 'typed by hand' } });
 
 		await upload('setup.siml', 'from the file');
 
@@ -137,13 +137,20 @@ describe('Importer', () => {
 		expect(onImport).toHaveBeenCalledWith(theHost, 'from the file', 'setup.siml', aSignal);
 	});
 
+	it('imports an uploaded file with its line breaks as line feeds', async () => {
+		const { onImport } = renderImporter();
+		await upload('setup.siml', 'siml 1\r\nspec hunter\rrace orc');
+
+		await clickImport();
+		expect(onImport).toHaveBeenCalledWith(theHost, 'siml 1\nspec hunter\nrace orc', 'setup.siml', aSignal);
+	});
+
 	// A typo fixed in an uploaded p1.gear.siml still reads as a gear file.
 	it('keeps the uploaded file name while the text is edited', async () => {
 		const { onImport } = renderImporter();
 		await upload('p1.gear.siml', 'siml 1\nhead x');
 		const textarea = document.querySelector('textarea')!;
-		textarea.value = 'siml 1\nhead y';
-		fireEvent.input(textarea);
+		fireEvent.input(textarea, { target: { value: 'siml 1\nhead y' } });
 		textarea.setSelectionRange(7, 11);
 		fireEvent.paste(textarea);
 
@@ -155,10 +162,8 @@ describe('Importer', () => {
 		const { onImport } = renderImporter();
 		await upload('rotation.apl.siml', 'from the file');
 		const textarea = document.querySelector('textarea')!;
-		textarea.value = '';
-		fireEvent.input(textarea);
-		textarea.value = 'typed';
-		fireEvent.input(textarea);
+		fireEvent.input(textarea, { target: { value: '' } });
+		fireEvent.input(textarea, { target: { value: 'typed' } });
 
 		await clickImport();
 		expect(onImport).toHaveBeenCalledWith(theHost, 'typed', undefined, aSignal);
@@ -170,8 +175,7 @@ describe('Importer', () => {
 		const textarea = document.querySelector('textarea')!;
 		textarea.select();
 		fireEvent.paste(textarea);
-		textarea.value = 'pasted';
-		fireEvent.input(textarea);
+		fireEvent.input(textarea, { target: { value: 'pasted' } });
 
 		await clickImport();
 		expect(onImport).toHaveBeenCalledWith(theHost, 'pasted', undefined, aSignal);
@@ -187,7 +191,7 @@ describe('Importer', () => {
 		await closeDialog();
 		await reopen();
 		expect(document.querySelector('[data-testid="importer-problems"]')).toBeNull();
-		document.querySelector('textarea')!.value = 'typed';
+		fireEvent.input(document.querySelector('textarea')!, { target: { value: 'typed' } });
 		await clickImport();
 		expect(onImport).toHaveBeenLastCalledWith(theHost, 'typed', undefined, aSignal);
 	});
@@ -200,7 +204,7 @@ describe('Importer', () => {
 		expect(onImport).toHaveBeenLastCalledWith(theHost, 'siml 1', 'p1.gear.siml', aSignal);
 
 		await reopen();
-		document.querySelector('textarea')!.value = 'typed';
+		fireEvent.input(document.querySelector('textarea')!, { target: { value: 'typed' } });
 		await clickImport();
 		expect(onImport).toHaveBeenLastCalledWith(theHost, 'typed', undefined, aSignal);
 	});
@@ -281,8 +285,8 @@ describe('Importer', () => {
 	it('puts the description above the textarea', () => {
 		renderImporter();
 		const body = document.querySelector('[data-testid="sim-dialog-body"] > div')!;
-		const [description, textarea] = Array.from(body.children);
+		const [description, box] = Array.from(body.children);
 		expect(description.textContent).toBe('how to');
-		expect(textarea.getAttribute('data-testid')).toBe('importer-textarea');
+		expect(box.contains(document.querySelector('[data-testid="importer-textarea"]'))).toBe(true);
 	});
 });

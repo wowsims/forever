@@ -2,6 +2,7 @@ import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { kebabCase } from '@sim/utils/format';
 import { Button } from '@ui-kit/Button';
+import { CodeTextArea } from '@ui-kit/CodeTextArea';
 import { CopyButton } from '@ui-kit/CopyButton';
 import { Dialog } from '@ui-kit/Dialog';
 import { TextArea } from '@ui-kit/FormControl';
@@ -27,10 +28,10 @@ export const Exporter = ({
 	downloadFileName = 'wowsims.json',
 	downloadMimeType,
 	selectCategories = false,
+	holdsLink = false,
 	getData,
 }: ExporterProps) => {
 	const host = useSimHost();
-	const textRef = useRef<HTMLTextAreaElement>(null);
 	const categories = useRef(defaultExportCategories());
 	const [categoryRevision, setCategoryRevision] = useState(0);
 	const onCategoryChange = useCallback(() => setCategoryRevision(revision => revision + 1), []);
@@ -67,10 +68,6 @@ export const Exporter = ({
 	dataRef.current = data;
 
 	useEffect(() => {
-		if (textRef.current) textRef.current.value = data;
-	}, [data]);
-
-	useEffect(() => {
 		if (!open) return;
 		trackPageView(title, `/export/${kebabCase(title)}`);
 	}, [open, title]);
@@ -101,8 +98,11 @@ export const Exporter = ({
 				</>
 			}>
 			{selectCategories && <ExporterCategoryPickers categories={categories.current} onChange={onCategoryChange} />}
-			{/* `defaultValue` for the mount, the effect above for a change while open: the popup mounts a commit after the effect first runs, so a ref write alone leaves the box empty. */}
-			<TextArea spellCheck={false} className="h-[60vh] w-full resize-none" data-testid="exporter-textarea" ref={textRef} defaultValue={data} />
+			{holdsLink ? (
+				<TextArea spellCheck={false} className="h-[60vh] w-full resize-none" data-testid="exporter-textarea" value={data} readOnly />
+			) : (
+				<CodeTextArea className="h-[60vh]" testId="exporter-textarea" value={data} readOnly />
+			)}
 		</Dialog>
 	);
 };

@@ -1100,6 +1100,19 @@
 					"additionalProperties": false,
 					"required": ["default_text", "copied", "manual_copy"]
 				},
+				"code_text_area": {
+					"type": "object",
+					"properties": {
+						"position_one": {
+							"type": "string"
+						},
+						"position_other": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["position_one", "position_other"]
+				},
 				"list_picker": {
 					"type": "object",
 					"properties": {
@@ -1684,6 +1697,7 @@
 				"stats",
 				"currency",
 				"copy_button",
+				"code_text_area",
 				"list_picker",
 				"precision",
 				"preset",

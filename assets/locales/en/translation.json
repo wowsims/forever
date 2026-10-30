@@ -307,6 +307,10 @@
 			"copied": "Copied",
 			"manual_copy": "The browser blocked the clipboard. Copy the text below by hand."
 		},
+		"code_text_area": {
+			"position_one": "Ln {{line}}, Col {{column}} · {{count}} line",
+			"position_other": "Ln {{line}}, Col {{column}} · {{count}} lines"
+		},
 		"list_picker": {
 			"new_item": "New {{itemLabel}}",
 			"delete_item": "Delete {{itemLabel}}",
