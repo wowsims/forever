@@ -1,4 +1,4 @@
-import { AplItemActions, AplList, AplSectionTitle } from '@features/apl/components/AplList';
+import { AplItemActions, AplList, AplRevealTarget, AplSectionTitle } from '@features/apl/components/AplList';
 import { AplListItem } from '@features/apl/components/AplListItem';
 import { AplListToolbar } from '@features/apl/components/AplListToolbar';
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
@@ -9,6 +9,7 @@ import { copyAplClip, useAplPaste } from '@features/apl/hooks/useAplClipboard';
 import { useVariableExtraction } from '@features/apl/hooks/useVariableExtraction';
 import { aplItemId, PRIORITY } from '@features/apl/model/apply_move';
 import { freshUuids } from '@features/apl/model/fresh_uuids';
+import type { AplRevealRequest } from '@features/apl/model/reveal';
 import { rotationSource } from '@features/apl/utils';
 import { useListItems } from '@features/inputs/hooks/useListItems';
 import { APLListItem } from '@generated/proto/apl';
@@ -18,6 +19,7 @@ import type { Player } from '@sim/player/player';
 import { Tree } from '@ui-kit/Tree';
 
 const newRow = () => APLListItem.create({ action: {} });
+const inPriorityList = (request: AplRevealRequest) => request.kind === 'priority';
 
 /** The rotation's priority list: a section of the priority pane's tree, one item per row. */
 export const PriorityList = () => {
@@ -50,6 +52,7 @@ export const PriorityList = () => {
 			title={<AplSectionTitle text={header} tooltip={i18n.t('rotation_tab.apl.priorityList.tooltips.overview')} />}
 			titleAs="h6"
 			movable={false}
+			revealOn={inPriorityList}
 			testId="apl-priority-list-picker-root">
 			<Tree.Item.Children>
 				{rows.items.length > 0 && (
@@ -84,7 +87,9 @@ export const PriorityList = () => {
 										/>
 									}>
 									<Tree.Item.Body>
-										<AplListItem player={player} config={config} />
+										<AplRevealTarget getItem={() => config.getValue(player)}>
+											<AplListItem player={player} config={config} />
+										</AplRevealTarget>
 									</Tree.Item.Body>
 								</AplList.Item>
 							);

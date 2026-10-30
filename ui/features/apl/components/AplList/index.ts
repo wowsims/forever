@@ -1,2 +1,2 @@
-export { AplItemActions, AplList, AplSectionTitle } from './AplList';
-export type { AplItemActionsProps, AplListEntryProps, AplListRootProps } from './AplList';
+export { AplItemActions, AplList, AplRevealTarget, AplSectionTitle } from './AplList';
+export type { AplItemActionsProps, AplListEntryProps, AplListRootProps, AplRevealTargetProps } from './AplList';

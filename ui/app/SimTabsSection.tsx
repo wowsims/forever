@@ -1,5 +1,5 @@
 import { BulkModeMenu } from '@features/bulk/components/BulkModeMenu';
-import { BULK_TAB_ID, RESULTS_TAB_ID } from '@features/hooks/useActivateTab';
+import { BULK_TAB_ID, RESULTS_TAB_ID, ROTATION_TAB_ID } from '@features/hooks/useActivateTab';
 import { DetailedResults } from '@features/results/components/DetailedResults';
 import i18n from '@i18n/config';
 import { SimTabPane } from '@ui-kit/SimTabPane';
@@ -50,7 +50,7 @@ export const SimTabsSection = ({ host, children }: SimTabsSectionProps) => {
 					{/* The three tabs that only mean something once a sim has run. A gear planner never runs one. */}
 					{!host.simDisabled && (
 						<>
-							<SimTabDef id="rotation-tab" title={i18n.t('rotation_tab.title')}>
+							<SimTabDef id={ROTATION_TAB_ID} title={i18n.t('rotation_tab.title')}>
 								<RotationTabPane />
 							</SimTabDef>
 							{/* Not a `SimTabPane`: the doubled id and the missing content container are what the stylesheets select on. */}

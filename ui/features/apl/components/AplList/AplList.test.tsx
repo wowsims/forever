@@ -1,8 +1,12 @@
+import { AplEntryView } from '@features/apl/components/AplEntryView';
 import { GroupList } from '@features/apl/components/GroupList';
 import { PriorityPane } from '@features/apl/components/PriorityPane';
+import { resolveAplEntry } from '@features/apl/model/apl_entry';
 import { aplClipToText } from '@features/apl/model/clipboard';
+import { requestAplReveal } from '@features/apl/model/reveal';
 import { APLAction, APLGroup, APLListItem, APLPrepullAction, APLRotation, APLValue } from '@generated/proto/apl';
 import { SimHostProvider } from '@sim/context/SimHostContext';
+import type { AplEntryPath } from '@sim/proto/combat_log';
 import { dragEvent, FakeIntersectionObserver, place } from '@testing/apl/dom';
 import { makePlayer } from '@testing/apl/player';
 import { source } from '@testing/apl/source';
@@ -561,5 +565,179 @@ describe('AplList on the action groups pane', () => {
 		expect(first.actions).toEqual([]);
 		expect(sequenceNames(second.actions)).toEqual(['x']);
 		expect(notifications).toBe(1);
+	});
+});
+
+describe('AplList opening the entry a cast was clicked for', () => {
+	const toggle = (element: HTMLElement) =>
+		act(() => {
+			fireEvent.click(within(element).getAllByRole('button', { name: TOGGLE })[0]);
+		});
+	const flashed = () => Array.from(document.querySelectorAll<HTMLElement>('[data-flash]'));
+	let scrolled: Array<Element>;
+
+	beforeEach(() => {
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'] });
+		scrolled = [];
+		vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+			scrolled.push(this);
+		});
+	});
+
+	afterEach(() => vi.useRealTimers());
+
+	const reveal = (...path: AplEntryPath) =>
+		act(() => {
+			requestAplReveal(player.aplRotation, path);
+		});
+
+	it('opens the collapsed section and row on the way to a nested sequence step, then scrolls to that step alone and flashes it for a moment', () => {
+		const sequence = (...actions: Array<APLAction>) => APLAction.create({ action: { oneofKind: 'sequence', sequence: { name: 'opener', actions } } });
+		setup({ priorityList: [row('x'), APLListItem.create({ action: sequence(reset('a'), sequence(reset('b'), reset('c'))) })] });
+		mount();
+		toggle(priorityRows()[1]);
+		toggle(section('apl-priority-list-picker-root'));
+
+		reveal({ kind: 'priority', index: 1 }, { kind: 'step', index: 1 }, { kind: 'step', index: 1 });
+
+		expect(section('apl-priority-list-picker-root').hasAttribute('data-open')).toBe(true);
+		expect(priorityRows()[1].hasAttribute('data-open')).toBe(true);
+		expect(flashed()).toEqual([]);
+
+		act(() => vi.advanceTimersByTime(20));
+		const steps = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="apl-action-list-item"]'));
+		expect(flashed()).toHaveLength(1);
+		expect(steps[3].contains(flashed()[0])).toBe(true);
+		expect(scrolled).toEqual(flashed());
+
+		act(() => vi.advanceTimersByTime(1500));
+		expect(flashed()).toEqual([]);
+	});
+
+	it('leaves a drawn entry of the same row still, since its steps are copies', () => {
+		const sequence = (...actions: Array<APLAction>) => APLAction.create({ action: { oneofKind: 'sequence', sequence: { name: 'opener', actions } } });
+		setup({ priorityList: [APLListItem.create({ action: sequence(reset('a'), reset('b')) })] });
+		const path: AplEntryPath = [
+			{ kind: 'priority', index: 0 },
+			{ kind: 'step', index: 1 },
+		];
+		mount(
+			<>
+				<PriorityPane />
+				<AplEntryView entry={resolveAplEntry(player.aplRotation, path)!} />
+			</>,
+		);
+
+		reveal(...path);
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(flashed()).toHaveLength(1);
+		expect(screen.getByTestId('apl-entry-view').contains(flashed()[0])).toBe(false);
+	});
+
+	it('reveals the same row again for a repeat of the same click', () => {
+		setup({ priorityList: [row('a'), row('b')] });
+		mount();
+		reveal({ kind: 'priority', index: 1 });
+		act(() => vi.advanceTimersByTime(1600));
+		toggle(priorityRows()[1]);
+		scrolled.length = 0;
+
+		reveal({ kind: 'priority', index: 1 });
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(priorityRows()[1].hasAttribute('data-open')).toBe(true);
+		expect(flashed()).toHaveLength(1);
+		expect(priorityRows()[1].contains(flashed()[0])).toBe(true);
+		expect(scrolled).toEqual(flashed());
+	});
+
+	it('opens the group a group row sits in, and leaves the priority row that referenced the group alone', () => {
+		setup({
+			priorityList: [row('ref')],
+			groups: [APLGroup.create({ name: 'one', actions: [row('x')] }), APLGroup.create({ name: 'two', actions: [row('y'), row('z')] })],
+		});
+		mount(<GroupList />);
+		const groups = () => Array.from(document.querySelectorAll<HTMLElement>('[data-testid="apl-group-editor-root"]'));
+		toggle(groups()[0]);
+		toggle(groups()[1]);
+
+		reveal({ kind: 'priority', index: 0 }, { kind: 'group', group: 1, index: 1 });
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(groups().map(group => group.hasAttribute('data-open'))).toEqual([false, true]);
+		expect(flashed()).toHaveLength(1);
+		expect(within(groups()[1]).getAllByTestId('tree-item')[1].contains(flashed()[0])).toBe(true);
+	});
+
+	it('opens only the pre-pull section for a pre-pull row, and flashes that row', () => {
+		setup({ prepullActions: [prepull('p')], priorityList: [row('x')] });
+		mount();
+		toggle(section('apl-prepull-list-root'));
+		toggle(section('apl-priority-list-picker-root'));
+
+		reveal({ kind: 'prepull', index: 0 });
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(section('apl-prepull-list-root').hasAttribute('data-open')).toBe(true);
+		expect(section('apl-priority-list-picker-root').hasAttribute('data-open')).toBe(false);
+		expect(flashed()).toHaveLength(1);
+		expect(prepullRows()[0].contains(flashed()[0])).toBe(true);
+	});
+
+	it('leaves the rotation as it is for a request made before it mounted', () => {
+		setup({ priorityList: [row('x')] });
+		reveal({ kind: 'priority', index: 0 });
+		mount();
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(flashed()).toEqual([]);
+		expect(scrolled).toEqual([]);
+	});
+
+	it('does not reveal again when a row above the revealed one is deleted and the rows below shift up', () => {
+		setup({ priorityList: [row('a'), row('b'), row('c')] });
+		mount();
+		reveal({ kind: 'priority', index: 1 });
+		act(() => vi.advanceTimersByTime(1600));
+		toggle(priorityRows()[2]);
+		scrolled.length = 0;
+
+		act(() => {
+			player.aplRotation.priorityList = player.aplRotation.priorityList.slice(1);
+			source.notify();
+		});
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(namesShown()).toEqual(['b', 'c']);
+		expect(priorityRows()[1].hasAttribute('data-open')).toBe(false);
+		expect(flashed()).toEqual([]);
+		expect(scrolled).toEqual([]);
+	});
+
+	it('does not open another group when a group above the revealed one is deleted', () => {
+		setup({
+			groups: [
+				APLGroup.create({ name: 'one', actions: [row('x')] }),
+				APLGroup.create({ name: 'two', actions: [row('y')] }),
+				APLGroup.create({ name: 'three', actions: [row('z')] }),
+			],
+		});
+		mount(<GroupList />);
+		const groups = () => Array.from(document.querySelectorAll<HTMLElement>('[data-testid="apl-group-editor-root"]'));
+		reveal({ kind: 'group', group: 1, index: 0 });
+		act(() => vi.advanceTimersByTime(1600));
+		groups().forEach(toggle);
+		scrolled.length = 0;
+
+		act(() => {
+			player.aplRotation.groups = player.aplRotation.groups.slice(1);
+			source.notify();
+		});
+		act(() => vi.advanceTimersByTime(20));
+
+		expect(groups().map(group => group.hasAttribute('data-open'))).toEqual([false, false]);
+		expect(flashed()).toEqual([]);
+		expect(scrolled).toEqual([]);
 	});
 });

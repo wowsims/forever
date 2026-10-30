@@ -1,7 +1,10 @@
+import { AplEntryView } from '@features/apl/components/AplEntryView';
+import { type AplRun, resolveAplEntry, type ResolvedAplEntry } from '@features/apl/model/apl_entry';
 import i18n from '@i18n/config';
 import { useSim } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { CastLog } from '@sim/proto/combat_log';
+import { useMemo } from 'react';
 
 import { DamageResult } from '../../DamageResult';
 
@@ -9,10 +12,28 @@ export interface CastTooltipProps {
 	log: CastLog;
 	/** The casts drawn under this one's icon, ending with `log`; their damage is listed together. */
 	stack?: ReadonlyArray<CastLog>;
+	/** Absent while the run shown holds no rotation for the unit. */
+	aplRun?: AplRun;
 }
 
-export const CastTooltip = ({ log, stack = [log] }: CastTooltipProps) => {
+const crumbText = (crumb: ResolvedAplEntry['crumbs'][number]) => {
+	const position = crumb.index + 1;
+	switch (crumb.kind) {
+		case 'prepull':
+			return i18n.t('results_tab.details.timeline.cast_tooltip.apl_entry.prepull', { position });
+		case 'priority':
+			return i18n.t('results_tab.details.timeline.cast_tooltip.apl_entry.priority', { position });
+		case 'group':
+			return i18n.t('results_tab.details.timeline.cast_tooltip.apl_entry.group', { group: crumb.groupName, position });
+		case 'step':
+			return i18n.t('results_tab.details.timeline.cast_tooltip.apl_entry.step', { position });
+	}
+};
+
+export const CastTooltip = ({ log, stack = [log], aplRun }: CastTooltipProps) => {
 	const { threat: showThreatMetrics } = useDisplayMetrics(useSim());
+	const rotation = aplRun?.rotation;
+	const entry = useMemo(() => (rotation && log.aplEntryPath ? resolveAplEntry(rotation, log.aplEntryPath) : null), [rotation, log.aplEntryPath]);
 	const travelTime = log.travelTime == 0 ? '' : ` ${i18n.t('results_tab.details.timeline.cast_tooltip.travel_time', { time: log.travelTime.toFixed(2) })}`;
 	// Two casts at the same timestamp can hand all of their damage to the later one, so the stack's
 	// damage is one list rather than one per cast.
@@ -75,6 +96,19 @@ export const CastTooltip = ({ log, stack = [log] }: CastTooltipProps) => {
 						</li>
 					))}
 				</ul>
+			)}
+			{entry && (
+				<div className="ui-timeline-tooltip-apl">
+					<span>{entry.crumbs.map(crumbText).join(' › ')}</span>
+					<div className="ui-timeline-tooltip-apl-preview">
+						<AplEntryView entry={entry} />
+					</div>
+					<span className="text-muted">
+						{aplRun?.changedSinceRun()
+							? i18n.t('results_tab.details.timeline.cast_tooltip.apl_entry.changed_hint')
+							: i18n.t('results_tab.details.timeline.cast_tooltip.apl_entry.open_hint')}
+					</span>
+				</div>
 			)}
 		</div>
 	);
