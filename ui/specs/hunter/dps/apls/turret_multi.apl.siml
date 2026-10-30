@@ -1,0 +1,4 @@
+siml 1
+spec hunter
+
+use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true

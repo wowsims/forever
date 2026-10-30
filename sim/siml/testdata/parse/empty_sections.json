@@ -1,0 +1,35 @@
+{
+	"settings": {},
+	"raidBuffs": {},
+	"debuffs": {},
+	"partyBuffs": {},
+	"player": {
+		"class": "ClassWarlock",
+		"equipment": {
+			"items": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+		},
+		"consumables": {},
+		"itemSwap": {
+			"items": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+		},
+		"buffs": {},
+		"warlock": {
+			"options": {
+				"classOptions": {}
+			}
+		},
+		"cooldowns": {},
+		"rotation": {
+			"type": "TypeSimple",
+			"simple": {
+				"specRotationJson": "{}"
+			},
+			"groups": [
+				{
+					"name": "Empty"
+				}
+			]
+		}
+	},
+	"encounter": {}
+}

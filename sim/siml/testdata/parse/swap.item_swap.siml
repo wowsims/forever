@@ -1,0 +1,4 @@
+siml 1
+
+main_hand  dual_wielders_axe
+prepull_bonus_stats(stats(agility=5))

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 
 import { exec as syncExec } from 'child_process';
+import { createHash } from 'crypto';
 import { promisify } from 'util';
 const execAsync = promisify(syncExec);
 import minimist from 'minimist';
@@ -63,11 +64,19 @@ const buildWorkers = async () => {
 
 	await copyHighsWasm();
 
+	// sim_worker.ts fetches the name table with this in its query, so a deploy that changes the table is not served a
+	// cached copy.
+	const simlNamesVersion = createHash('sha256')
+		.update(await fs.readFile(path.resolve(BASE_PATH, '../sim/siml/names.json')))
+		.digest('hex')
+		.slice(0, 16);
+
 	Object.entries(workers).forEach(async ([name, sourcePath]) => {
 		const baseConfig = getBaseConfig({ command: 'build', mode: 'production' });
 		await build({
 			...baseConfig,
 			configFile: false,
+			define: { 'import.meta.env.VITE_SIML_NAMES_VERSION': JSON.stringify(simlNamesVersion) },
 			plugins: [
 				{
 					name: 'add-wasm-exec-file',

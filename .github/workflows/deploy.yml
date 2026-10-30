@@ -73,7 +73,7 @@ jobs:
               run: |
                   git config --local user.name "github-actions[bot]"
                   git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                  if ! git diff --exit-code; then
+                  if ! git diff --exit-code -- .deployedprotoversion; then
                       git checkout -b github-actions
                       git add .deployedprotoversion
                       git commit -m "Auto-update .deployedprotoversion file due to API version increase"

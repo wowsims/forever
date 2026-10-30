@@ -1,0 +1,9 @@
+[
+	{ "op": "set", "path": ["groups", 0, "variables", 0, "value"], "value": { "const": { "val": "300ms" } } },
+	{
+		"op": "set",
+		"path": ["groups", 0, "actions", 1, "action", "condition"],
+		"value": { "cmp": { "op": "OpGe", "lhs": { "autoTimeSinceLast": { "autoType": "MainHandAuto" } }, "rhs": { "variableRef": { "name": "wait" } } } }
+	},
+	{ "op": "insert", "path": ["groups", 0, "actions"], "index": 2, "value": { "action": { "castSpell": { "spellId": { "spellId": 20904 } } } } }
+]

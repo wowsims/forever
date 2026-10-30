@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+use "shared.apl.siml"
+use "other.apl.siml"
+
+var $spot = 3
+def far = self.unit_distance > $spot
+
+priority:
+  cast multi_shot if near and far

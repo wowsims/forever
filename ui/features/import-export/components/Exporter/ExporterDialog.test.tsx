@@ -1,6 +1,18 @@
 import i18n from '@i18n/config';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+const toasts = vi.hoisted(() => [] as Array<{ variant: string; body: unknown }>);
+vi.mock('@ui-kit/Toast', async importOriginal => ({
+	...(await importOriginal<typeof import('@ui-kit/Toast')>()),
+	toastManager: {
+		add: (options: { variant: string; body: unknown }) => {
+			toasts.push(options);
+			return '';
+		},
+		close: () => {},
+	},
+}));
 
 // The exporters reach the addon importer, which asks GitHub for its version when its module loads.
 // Answered offline here, in `vi.hoisted` so it runs before the imports, no request is left open
@@ -53,5 +65,34 @@ describe('exporterDialog', () => {
 			if (own) Object.defineProperty(navigator, 'clipboard', own);
 			else Reflect.deleteProperty(navigator, 'clipboard');
 		}
+	});
+});
+
+describe('an exporter whose text comes later', () => {
+	it('offers Copy and Download only once its promise resolves', async () => {
+		let resolve: (text: string) => void = () => {};
+		const AsyncExporterDialog = exporterDialog({ title: 'Async Export', allowDownload: true, getData: () => new Promise<string>(r => (resolve = r)) });
+		renderWithHost(<AsyncExporterDialog open onOpenChange={() => {}} />);
+		const copy = screen.getByTestId<HTMLButtonElement>('copy-button');
+		const download = screen.getByRole<HTMLButtonElement>('button', { name: DOWNLOAD });
+		expect([copy.disabled, download.disabled]).toEqual([true, true]);
+
+		resolve('siml 1\n');
+		await waitFor(() => expect([copy.disabled, download.disabled]).toEqual([false, false]));
+	});
+
+	it('shows the text once its promise resolves', async () => {
+		const AsyncExporterDialog = exporterDialog({ title: 'Async Export', getData: () => Promise.resolve('siml 1\n') });
+		renderWithHost(<AsyncExporterDialog open onOpenChange={() => {}} />);
+		await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('exporter-textarea').value).toBe('siml 1\n'));
+	});
+
+	it('reports a rejected promise as an error toast', async () => {
+		toasts.length = 0;
+		const FailingExporterDialog = exporterDialog({ title: 'Failing Export', getData: () => Promise.reject(new Error('the chunk did not load')) });
+		renderWithHost(<FailingExporterDialog open onOpenChange={() => {}} />);
+		await waitFor(() => expect(toasts).toEqual([{ variant: 'error', body: i18n.t('export.error', { message: 'the chunk did not load' }) }]));
+		expect(screen.getByTestId<HTMLTextAreaElement>('exporter-textarea').value).toBe('');
+		expect(screen.getByTestId<HTMLButtonElement>('copy-button').disabled).toBe(true);
 	});
 });

@@ -1,0 +1,15 @@
+[
+	{
+		"op": "insert",
+		"path": ["prepullActions"],
+		"index": 0,
+		"value": { "action": { "castSpell": { "spellId": { "spellId": 25296 } } }, "doAtValue": { "const": { "val": "-20s" } } }
+	},
+	{
+		"op": "insert",
+		"path": ["prepullActions"],
+		"index": 0,
+		"value": { "action": { "castSpell": { "spellId": { "spellId": 14325 } } }, "doAtValue": { "const": { "val": "-22s" } } }
+	},
+	{ "op": "set", "path": ["priorityList", 1, "hide"], "value": true }
+]

@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+// An indented continuation ends at a blank line.
+priority:
+  cast x
+
+      if true

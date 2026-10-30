@@ -1,0 +1,39 @@
+{
+	"type": "TypeAuto",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpEq",
+						"lhs": {
+							"variableRef": {
+								"name": "x"
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "1"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "x",
+			"value": {
+				"const": {
+					"val": "1"
+				}
+			}
+		}
+	]
+}

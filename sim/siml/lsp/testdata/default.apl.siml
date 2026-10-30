@@ -1,0 +1,58 @@
+siml 1
+spec hunter
+
+var ${Melee weave} = true
+var ${Time to weave} = 400ms
+var ${Melee range} = 5.00
+var ${Ranged range} = 11.00
+var ${Starting weave distance} = $ranged_range
+var ${Move duration} = 1s * (($ranged_range - $melee_range) / 7)
+var ${Wait at melee} = max(input_delay, $time_to_weave - $move_duration * 2)
+var ${Auto Shot wait} = $move_duration + $wait_at_melee
+var ${Time to next weave} = auto_time_to_next(main_hand_auto)
+var ${Use Aimed Shot} = false
+var ${Use Multi-Shot} = true
+var ${Use Arcane Shot} = true
+var ${Use Summon Hawk} = false
+
+prepull:
+  -22s cast hunters_mark
+  -20s cast aspect_of_the_hawk
+  -19s group "Move to starting range"
+
+priority:
+  autocast_other_cooldowns if current_time >= 5s
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  group "Weave" if $melee_weave
+  cast mongoose_bite
+  cast strider_kick
+  cast serpent_sting if not dot(serpent_sting).is_active
+  reset_sequence("HHA") if ($use_summon_hawk and $use_arcane_shot) and sequence("HHA").is_complete
+  sequence "HHA" [cast summon_hawk, cast summon_hawk, cast arcane_shot]
+      if $use_summon_hawk
+      and $use_arcane_shot
+  cast summon_hawk if $use_summon_hawk and not $use_arcane_shot
+  cast arcane_shot if $use_arcane_shot and not $use_summon_hawk
+  cast multi_shot
+      if $use_multi_shot
+      and (spell(multi_shot).cast_time + $move_duration <= $time_to_next_weave or not $melee_weave)
+  cast aimed_shot
+      if $use_aimed_shot
+      and (spell(aimed_shot).cast_time + $move_duration <= $time_to_next_weave or not $melee_weave)
+  wait auto_time_to_next(main_hand_auto) - $move_duration
+      if $melee_weave
+      and auto_time_to_next(main_hand_auto) > $move_duration
+      and auto_time_to_next(ranged_auto) >= auto_time_to_next(main_hand_auto) - $move_duration + $auto_shot_wait
+
+group "Weave":
+  wait $wait_at_melee - auto_time_since_last(main_hand_auto)
+      if auto_time_since_last(main_hand_auto) < $wait_at_melee
+  move $starting_weave_distance
+      if auto_time_since_last(main_hand_auto) >= $wait_at_melee
+      and auto_time_to_next(main_hand_auto) > 0ms
+  move $melee_range
+      if auto_time_to_next(main_hand_auto) <= $move_duration
+      and auto_time_to_next(ranged_auto) >= $auto_shot_wait
+
+group "Move to starting range":
+  move $starting_weave_distance if $melee_weave

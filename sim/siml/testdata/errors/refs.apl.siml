@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+priority:
+  cast hunters_mrk
+  cast falcons_call
+  cast x if aura(other.nothing).is_active
+  cast x if selected_potion(cast x)

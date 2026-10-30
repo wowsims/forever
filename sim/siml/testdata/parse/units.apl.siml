@@ -1,0 +1,25 @@
+siml 1
+spec hunter
+
+// Every unit form of SPEC.md §6.6, in a cast's target, as a unit prefix, and in a generic argument.
+priority:
+  cast x on self
+  cast x on target
+  cast x on previous_target
+  cast x on next_target
+  cast x on all_targets
+  cast x on all_players
+  cast x on unknown_unit
+  cast x on target1
+  cast x on target2
+  cast x on player1
+  cast x on player3
+  cast x on pet1
+  cast x on pet2
+  cast x on none
+  cast x on `{"type": "Pet", "index": 1, "owner": {"type": "Player", "index": 2}}`
+  cast x if target.current_health_percent < 20% and current_health_percent < 50%
+  cast x if self.current_mana > 100 and player2.current_mana_percent > 10%
+  cast x if target.unit_is_moving or target3.unit_distance > 8 or target.boss_current_target
+  cast x if current_health(source_unit=pet1) > 1
+  change_target(new_target=next_target)

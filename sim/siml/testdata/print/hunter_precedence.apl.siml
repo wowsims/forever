@@ -1,0 +1,16 @@
+siml 1
+spec hunter
+
+var $a = 1
+var $b = 2
+var $and_in_and = ($a and $b) and $a
+var $or_in_and = ($a or $b) and $a
+var $and_in_or = $a and $b or $a
+var $not_and = not ($a and $b)
+var $not_cmp = not $a == $b
+var $cmp_of_not = (not $a) == $b
+var $cmp_in_cmp = ($a < $b) < $a
+var $sub_right = $a - ($b - $a)
+var $sub_left = $b - $a - $a
+var $mul_of_add = ($a + $b) * ($a / ($a * $b))
+var $negative = $a - -1.5s

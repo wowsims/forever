@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+var $x
+var ${y\nz} = 1
+
+priority:
+  cast x if $y_z

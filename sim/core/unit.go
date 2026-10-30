@@ -1062,18 +1062,27 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 		}
 	})
 
-	aplAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
-		return !aura.ActionID.IsEmptyAction()
-	})
-	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
+	auraStats := func(aura *Aura, id ActionID) *proto.AuraStats {
 		return &proto.AuraStats{
-			Id:                 rankedID(aura.ActionID),
+			Id:                 rankedID(id),
 			MaxStacks:          aura.MaxStacks,
 			HasIcd:             aura.Icd != nil,
 			HasExclusiveEffect: len(aura.ExclusiveEffects) > 0,
 			Category:           auraCategory(aura, casters),
 			MenuGroup:          aura.MenuGroup,
 		}
+	}
+	aplAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
+		return !aura.ActionID.IsEmptyAction()
+	})
+	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
+		return auraStats(aura, aura.ActionID)
+	})
+	icdAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
+		return aura.ActionID.IsEmptyAction() && aura.Icd != nil && !aura.ActionIDForProc.IsEmptyAction()
+	})
+	metadata.IcdAuras = MapSlice(icdAuras, func(aura *Aura) *proto.AuraStats {
+		return auraStats(aura, aura.ActionIDForProc)
 	})
 
 	return metadata

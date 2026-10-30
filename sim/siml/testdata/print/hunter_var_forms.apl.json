@@ -1,0 +1,117 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"variableRef": {
+									"name": "a}b\\c\nd"
+								}
+							},
+							{
+								"variableRef": {
+									"name": "}\\"
+								}
+							}
+						]
+					}
+				},
+				"groupReference": {
+					"groupName": "G",
+					"variables": [
+						{
+							"name": "p}q",
+							"value": {
+								"variableRef": {
+									"name": "unset"
+								}
+							}
+						},
+						{
+							"name": "r\ns",
+							"value": {
+								"const": {
+									"val": "1"
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"action": {
+				"groupReference": {
+					"groupName": "G",
+					"variables": [
+						{
+							"name": "p}q"
+						}
+					]
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "G",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"variablePlaceholder": {
+											"name": "p}q"
+										}
+									},
+									{
+										"variablePlaceholder": {
+											"name": "r\ns"
+										}
+									}
+								]
+							}
+						}
+					}
+				}
+			],
+			"variables": [
+				{
+					"name": "Group unset"
+				},
+				{
+					"name": "g\\h"
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "unset"
+		},
+		{
+			"name": "a}b\\c\nd",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		},
+		{
+			"name": "Two words"
+		},
+		{
+			"name": "}\\",
+			"value": {
+				"const": {
+					"val": "true"
+				}
+			}
+		}
+	]
+}

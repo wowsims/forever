@@ -4,7 +4,7 @@
 import { IndividualSimSettings } from '@generated/proto/ui';
 import pako from 'pako';
 
-import { SIM_CATEGORY_KEYS, SimSettingCategories } from '../constants/sim_settings';
+import { SIM_CATEGORY_OF_KEY, SimSettingCategories } from '../constants/sim_settings';
 import { getEnumValues } from '../utils/collections';
 
 export const LINK_CATEGORY_PARAM = 'i';
@@ -44,10 +44,7 @@ export function tryParseUrlLocation(loc: UrlLocation): UrlParseData | null {
 	const urlParams = new URLSearchParams(loc.search);
 	if (urlParams.has(LINK_CATEGORY_PARAM)) {
 		const categoryChars = urlParams.get(LINK_CATEGORY_PARAM)!.split('');
-		exportCategories = categoryChars
-			.map(char => [...SIM_CATEGORY_KEYS.entries()].find(e => e[1] == char))
-			.filter(e => e)
-			.map(e => e![0]);
+		exportCategories = categoryChars.map(char => SIM_CATEGORY_OF_KEY.get(char)).filter((c): c is SimSettingCategories => c !== undefined);
 	}
 
 	return {
