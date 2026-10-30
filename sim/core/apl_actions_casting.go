@@ -197,6 +197,9 @@ func (rot *APLRotation) newActionChannelSpell(config *proto.APLActionChannelSpel
 func (action *APLActionChannelSpell) GetAPLValues() []APLValue {
 	return []APLValue{action.interruptIf}
 }
+func (action *APLActionChannelSpell) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.interruptIf = replace(action.interruptIf)
+}
 func (action *APLActionChannelSpell) IsReady(sim *Simulation) bool {
 	return action.spell.CanCastOrQueue(sim, action.target.Get())
 }
@@ -247,6 +250,9 @@ func (rot *APLRotation) newActionMultidot(config *proto.APLActionMultidot) APLAc
 }
 func (action *APLActionMultidot) GetAPLValues() []APLValue {
 	return []APLValue{action.maxOverlap}
+}
+func (action *APLActionMultidot) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.maxOverlap = replace(action.maxOverlap)
 }
 func (action *APLActionMultidot) Reset(*Simulation) {
 	action.nextTarget = nil
@@ -361,6 +367,9 @@ func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMul
 func (action *APLActionStrictMultidot) GetAPLValues() []APLValue {
 	return []APLValue{action.maxOverlap}
 }
+func (action *APLActionStrictMultidot) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.maxOverlap = replace(action.maxOverlap)
+}
 func (action *APLActionStrictMultidot) Reset(*Simulation) {
 	action.readyActions = []*APLAction{}
 }
@@ -449,6 +458,9 @@ func (rot *APLRotation) newActionMultishield(config *proto.APLActionMultishield)
 }
 func (action *APLActionMultishield) GetAPLValues() []APLValue {
 	return []APLValue{action.maxOverlap}
+}
+func (action *APLActionMultishield) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.maxOverlap = replace(action.maxOverlap)
 }
 func (action *APLActionMultishield) Reset(*Simulation) {
 	action.nextTarget = nil

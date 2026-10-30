@@ -1959,6 +1959,9 @@
 								"general": {
 									"type": "string"
 								},
+								"required_level": {
+									"type": "string"
+								},
 								"min_ilvl": {
 									"type": "string"
 								},
@@ -1992,7 +1995,17 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "general", "min_ilvl", "max_ilvl", "faction_restrictions", "source", "raids", "faction_labels"]
+							"required": [
+								"title",
+								"general",
+								"required_level",
+								"min_ilvl",
+								"max_ilvl",
+								"faction_restrictions",
+								"source",
+								"raids",
+								"faction_labels"
+							]
 						},
 						"quick_popovers": {
 							"type": "object",

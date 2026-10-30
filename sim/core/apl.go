@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -133,6 +134,13 @@ func (unit *Unit) newCustomRotation() *APLRotation {
 	})
 }
 
+// Read before the encounter starts, with a nil sim. A value that reads the encounter (the current time, a
+// unit's health) panics then, and the time is unknown; the panic comes back as err.
+func prepullTime(value APLValue) (doAt time.Duration, err any) {
+	defer func() { err = recover() }()
+	return value.GetDuration(nil), nil
+}
+
 func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 	if config == nil {
 		return nil
@@ -162,10 +170,14 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		prepullIdx := i // Save to local variable for correct lambda capture behavior
 		rotation.doAndRecordWarnings(&rotation.prepullValidations[prepullIdx], true, func() {
 			if !prepullItem.Hide {
-				doAtVal := rotation.newAPLValue(prepullItem.DoAtValue)
-				if doAtVal != nil {
-					doAt := doAtVal.GetDuration(nil)
-					if doAt > 0 {
+				doAtVal := rotation.coerceTo(rotation.newAPLValue(prepullItem.DoAtValue), proto.APLValueType_ValueTypeDuration)
+				if doAtVal == nil {
+					rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' needs a time, ignoring this Prepull Action")
+				} else {
+					doAt, err := prepullTime(doAtVal)
+					if err != nil {
+						rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' cannot be read before the pull (%v), ignoring this Prepull Action", err)
+					} else if doAt > 0 {
 						rotation.ValidationMessage(proto.LogLevel_Warning, "Invalid time for 'Do At', ignoring this Prepull Action")
 					} else {
 						action := rotation.newAPLAction(prepullItem.Action)

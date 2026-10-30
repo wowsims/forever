@@ -7,7 +7,7 @@ import {
 	APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold,
 	APLValueMath_MathOperator as MathOperator,
 } from '@generated/proto/apl';
-import { ActionID, AreaType, DamageAmpType, MobType, RangedWeaponType, Stat } from '@generated/proto/common';
+import { ActionID, AreaType, DamageAmpType, MobType, OtherAction, RangedWeaponType, Stat } from '@generated/proto/common';
 import { ShamanTotems_TotemType as TotemType } from '@generated/proto/shaman';
 import { WarlockOptions_CurseOptions as CurseOptions, WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
@@ -139,6 +139,16 @@ const ITEM_SWAP_SETS: EnumTable = {
 	],
 };
 
+const POTION_SLOTS: EnumTable = {
+	defaultLabel: none(),
+	options: [
+		{ value: OtherAction.OtherActionNone, label: i18n.t('common.any') },
+		{ value: OtherAction.OtherActionOffensivePotion, label: i18n.t('settings_tab.consumables.potions.offensive') },
+		{ value: OtherAction.OtherActionDefensivePotion, label: i18n.t('settings_tab.consumables.potions.defensive') },
+		{ value: OtherAction.OtherActionResourcePotion, label: i18n.t('settings_tab.consumables.potions.resource') },
+	],
+};
+
 const COMPARISON_OPERATORS: EnumTable = {
 	defaultLabel: none(),
 	options: [
@@ -266,6 +276,10 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return asEnum(descriptor.field, STAT_TYPES, () => 0, i18n.t('rotation_tab.apl.helpers.field_configs.buff_type'));
 		case 'itemSwapSet':
 			return asEnum(descriptor.field, ITEM_SWAP_SETS, () => ItemSwapSet.Swap1);
+		case 'potionSlot':
+			// None is 0, which fieldInputConfig reads as unset and replaces with this default, so the
+			// default has to be None for every slot to stay selectable.
+			return asEnum(descriptor.field, POTION_SLOTS, () => OtherAction.OtherActionNone);
 		case 'comparisonOperator':
 			return asEnum(descriptor.field, COMPARISON_OPERATORS, () => ComparisonOperator.OpEq);
 		case 'mathOperator':

@@ -1226,6 +1226,14 @@ export class Player<SpecType extends Spec> {
 		[RaidFilterOption.RaidNaxx]: 3456,
 	};
 
+	// The game files give a quest reward no required level, since the quest carries it. Such an item is placed
+	// by its item level, which tracks the level that equips it: 60 from item level 60, 5 below it otherwise.
+	static requiredLevelOf(item: Item): number {
+		if (item.reqLvl != 0) return item.reqLvl;
+		const ilvl = item.scalingOptions?.[0].ilvl || item.ilvl;
+		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
+	}
+
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1233,6 +1241,9 @@ export class Player<SpecType extends Spec> {
 			return itemData.filter(itemElem => filterFunc(getItemFunc(itemElem)));
 		};
 
+		if (filters.maxRequiredLevel != 0) {
+			itemData = filterItems(itemData, item => Player.requiredLevelOf(item) <= filters.maxRequiredLevel);
+		}
 		if (filters.minIlvl != 0) {
 			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) >= filters.minIlvl);
 		}

@@ -17,6 +17,7 @@ type Item struct {
 	OverallQuality        ItemQuality
 	DmgVariance           float64
 	ItemLevel             int
+	RequiredLevel         int
 	ItemClass             int
 	ItemSubClass          int
 	StatAlloc             []float64
@@ -70,6 +71,7 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		WeaponSpeed:         float64(item.ItemDelay) / 1000,
 		NameDescription:     item.NameDescription,
 		LimitCategory:       int32(item.LimitCategory),
+		ReqLvl:              int32(item.RequiredLevel),
 		QualityModifier:     item.GetWeaponQualityModifier(),
 	}
 

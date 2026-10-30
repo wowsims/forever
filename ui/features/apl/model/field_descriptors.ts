@@ -31,6 +31,7 @@ type FieldDescriptorPayloads = {
 	autoSwingType: { field: string };
 	statType: { field: string };
 	itemSwapSet: { field: string };
+	potionSlot: { field: string };
 	minIcd: object;
 	reactionTime: object;
 	useDotBaseValue: object;
@@ -122,6 +123,10 @@ export function statTypeFieldConfig(field: string): Descriptor<'statType'> {
 
 export function itemSwapSetFieldConfig(field: string): Descriptor<'itemSwapSet'> {
 	return { type: 'itemSwapSet', field };
+}
+
+export function potionSlotFieldConfig(field: string): Descriptor<'potionSlot'> {
+	return { type: 'potionSlot', field };
 }
 
 export const minIcdInput: Descriptor<'minIcd'> = { type: 'minIcd' };
