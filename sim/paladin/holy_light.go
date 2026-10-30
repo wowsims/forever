@@ -20,7 +20,11 @@ func (paladin *Paladin) registerHolyLight(_ int32, rank *spelldata.Spell) {
 	config.ThreatMultiplier = 0.5
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealHealing(sim, target, heal.Average(), spell.OutcomeHealingCrit)
+		amount := heal.Average()
+		if paladin.hasOathOfLight(target) {
+			amount += paladin.oathOfLight.holyLight
+		}
+		spell.CalcAndDealHealing(sim, target, amount, spell.OutcomeHealingCrit)
 	}
 
 	paladin.RegisterSpell(config)

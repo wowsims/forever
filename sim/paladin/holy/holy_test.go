@@ -43,9 +43,9 @@ func TestHolyPaladin(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), generators)
 }
 
-// 36/15: Illumination, Divine Favor, Holy Shock, Holy Power and Light's Vigil, with Toughness,
-// Precision, Anticipation and Sacred Duty behind them.
-var StandardTalents = "55320030025131051-503050002"
+// 35/16: Illumination, Divine Favor, Oath of Light, Holy Shock, Boundless Light, Holy Power and
+// Light's Vigil, with Divine Intellect, Precision, Sacred Duty and Toughness behind them.
+var StandardTalents = "55320015022101251-503020005001"
 
 var FullConsumes = &proto.ConsumesSpec{
 	FlaskId:        13512,  // Flask of Supreme Power

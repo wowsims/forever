@@ -48,9 +48,8 @@ export const DefaultOptions = RetributionPaladinOptions.create({
 	classOptions: {},
 });
 
-export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '550030032101012--052252300012303' }));
-export const LightsVigilTalents = PresetUtils.makePresetTalents("Light's Vigil", SavedTalents.create({ talentsString: '55003003201121251--05225030201' }));
-export const TwistOfLightTalents = PresetUtils.makePresetTalents('Twist of Light', SavedTalents.create({ talentsString: '55003003--05225331101330321' }));
+export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '05025210221021--0523330110130033' }));
+export const UnsealedWrathTalents = PresetUtils.makePresetTalents('Unsealed Wrath', SavedTalents.create({ talentsString: '050250002-5-05233301101301351' }));
 
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	'Holy Shock',
@@ -76,8 +75,8 @@ export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-export const TwistOfLightEpWeights = PresetUtils.makePresetEpWeights(
-	'Twist of Light',
+export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
+	'Unsealed Wrath',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.4,
@@ -188,9 +187,9 @@ export const DefaultSettings = settings('Default', DefaultConsumables);
 export const HolyShockSettings = settings('Holy Shock', HolyShockConsumables, HolyShockItemSwap);
 
 // The Simple rotation picks the Default or the Holy Shock APL from the talents.
-export const DefaultBuild = PresetUtils.makePresetBuild('Twist of Light', {
+export const DefaultBuild = PresetUtils.makePresetBuild('Unsealed Wrath', {
 	gear: DefaultGearPreset,
-	talents: TwistOfLightTalents,
+	talents: UnsealedWrathTalents,
 	rotationType: APLRotationType.TypeSimple,
 	settings: DefaultSettings,
 });

@@ -29,7 +29,7 @@ export const SEAL_SPELLS: Partial<Record<PaladinSeal, RankedSpell>> = {
 
 const spellIcon = ({ spellId, rank }: RankedSpell) => ActionId.fromSpellId(spellId, rank);
 
-// One yard outside Judgement's 10 yd range. With an assigned judgement, the Twist of Light rotation's walk in
+// One yard outside Judgement's 10 yd range. With an assigned judgement, the default rotation's walk in
 // waits for Judgement to come into range, and a wait whose condition already holds never ends, so a start
 // inside that range never reaches melee.
 export const MIN_PULL_RANGE = 11;
@@ -73,8 +73,8 @@ export const RotationIconInputs = [
 			return seal;
 		},
 		showWhen: player => {
-			const { sealOfCommand, twistOfLight } = player.getTalents();
-			return !twistOfLight && sealOfCommand;
+			const { sealOfCommand, unsealedWrath } = player.getTalents();
+			return !unsealedWrath && sealOfCommand;
 		},
 		values: getEnumValues<PaladinSeal>(PaladinSeal)
 			.filter(value => value !== PaladinSeal.SealUnknown)

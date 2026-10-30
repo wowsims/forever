@@ -11,7 +11,7 @@ import (
 const SealCategory = "PaladinSeal"
 
 // One rank of one seal: the castable spell's row, the aura the cast puts up, the judgement it
-// unleashes, and the per-hit effect Twist of Light's Echo can replay.
+// unleashes, and the per-hit effect Unsealed Wrath's Echo can replay.
 type sealConfig struct {
 	rank      *spelldata.Spell
 	classMask int64
@@ -19,17 +19,14 @@ type sealConfig struct {
 	aura      *core.Aura
 	judgement *core.Spell
 
-	// Twist of Light: the Echo this seal leaves when replaced (0 for the seals that leave none),
-	// and what the Echo does to the target of the next melee attack (nil where the seal's effect
-	// has no place in the sim).
+	// Unsealed Wrath: the Echo that stores this seal (0 for the seals none stores), and what one
+	// stored copy does to the target when it is spent, with the seal's own chance (nil where the
+	// seal's effect has no place in the sim).
 	echoID int32
 	echo   func(sim *core.Simulation, target *core.Unit)
 }
 
-// Only one Twist of Light Echo is up at a time.
-const EchoCategory = "PaladinEcho"
-
-// The Echoes Twist of Light names, one per seal.
+// The Echoes Unsealed Wrath stores, one per seal.
 const (
 	echoOfCommandID       = 1311703
 	echoOfFuryID          = 1311701
@@ -37,8 +34,9 @@ const (
 	echoOfJusticeID       = 1311705
 )
 
-// One Echo: its aura on the paladin, and the seal rank whose effect it holds.
+// One Echo: its spell id, its aura on the paladin, and the seal rank whose effect it holds.
 type sealEcho struct {
+	id   int32
 	aura *core.Aura
 	seal *sealConfig
 }
@@ -86,20 +84,6 @@ func (paladin *Paladin) registerSealSpell(cfg *sealConfig) *core.Spell {
 }
 
 func (paladin *Paladin) applySeal(sim *core.Simulation, cfg *sealConfig) {
-	previous := paladin.currentSeal
-	if previous != nil && previous != cfg && previous.echoID != cfg.echoID && previous.aura.IsActive() {
-		if echo := paladin.echoes[previous.echoID]; echo != nil {
-			echo.seal = previous
-			echo.aura.Activate(sim)
-		}
-	}
-
-	// A seal and its own Echo are never up together: putting the seal back up drops its Echo.
-	if echo := paladin.echoes[cfg.echoID]; echo != nil && echo.aura.IsActive() {
-		echo.seal = nil
-		echo.aura.Deactivate(sim)
-	}
-
 	paladin.currentSeal = cfg
 	// The seal category drops whatever seal was up; recasting the same seal refreshes it.
 	cfg.aura.Activate(sim)

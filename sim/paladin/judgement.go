@@ -26,9 +26,6 @@ func (paladin *Paladin) registerJudgement() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		paladin.activeSeal().judgement.Cast(sim, target)
-		if paladin.swiftJudgementAura != nil {
-			paladin.swiftJudgementAura.Deactivate(sim)
-		}
 
 		// Let the rotation react when the cooldown ends, since nothing on the GCD marks it.
 		pa := sim.GetConsumedPendingActionFromPool()

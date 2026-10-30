@@ -385,8 +385,12 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		// kept its subtext on rank 1 alone, and leaving it as that one rank would let a 3-point
 		// talent be read past its own ladder. Below that the "Rank N" spells win - they state a cost
 		// and a cast time per rank, which the tree does not - and a family the resolver refused
-		// stays refused, since a tree node that grants an ability does not describe its ranks.
-		if t, ok := traits[name]; ok && resolveErr == nil && int(t.MaxRanks) > len(ladder) {
+		// stays refused, since a tree node that grants an ability does not describe its ranks. At an
+		// equal count the tree wins too when no "Rank N" spell is in it: those are a legacy talent's
+		// ranks (Shield Specialization 20148 and 20149 beside the tree's 20150), which state
+		// none of what the tree's spell does.
+		if t, ok := traits[name]; ok && resolveErr == nil &&
+			(int(t.MaxRanks) > len(ladder) || int(t.MaxRanks) == len(ladder) && !anyInTree(ladder, treeSpells)) {
 			ladder, points = map[int32]int32{}, t.Points
 			for rank := int32(1); rank <= t.MaxRanks; rank++ {
 				ladder[rank] = t.SpellID
@@ -412,6 +416,16 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	}
 
 	return ladders, skipped, partial, nil
+}
+
+// Whether any rank of the ladder is a spell the talent tree defines.
+func anyInTree(ladder map[int32]int32, treeSpells map[int32]bool) bool {
+	for _, id := range ladder {
+		if treeSpells[id] {
+			return true
+		}
+	}
+	return false
 }
 
 // A trailing roman numeral on a crafted imbue's name: "Deadly Poison IV", "Occult Poison I".

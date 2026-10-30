@@ -15,6 +15,13 @@ var HolyShieldRankMap = spellData.HolyShield
 // Increases chance to block by 30% for 10 sec, and deals 221 Holy damage for each attack blocked
 // while active. Damage caused by Holy Shield causes 20% additional threat.
 func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
+	// Rank 4 1239570 has only its name, effects, charges and trainer row in the game files: no school,
+	// cost, level or shield requirement, so it cannot be cast.
+	// TODO: Register Rank 4 once the game files state the rest of its row.
+	if rank.ID == 1239570 {
+		return
+	}
+
 	actionID := core.ActionID{SpellID: rank.ID}
 	damageEffect := rank.Effect(dbcenums.A_PROC_TRIGGER_DAMAGE, 0)
 	damage := damageEffect.Mean()
@@ -48,6 +55,19 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 			holyShieldAura.RemoveStack(sim)
 		},
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
+
+	// Shieldsworn: a Holy Strike that lands deals the shield's damage and spends no charge.
+	if paladin.Talents.Shieldsworn {
+		holyShieldAura.AttachProcTrigger(core.ProcTrigger{
+			Callback:           core.CallbackOnSpellHitDealt,
+			ClassSpellMask:     SpellMaskHolyStrike,
+			Outcome:            core.OutcomeLanded,
+			TriggerImmediately: true,
+			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+				procSpell.Cast(sim, result.Target)
+			},
+		})
+	}
 
 	// Steadfast Libram: more block value while the shield is up.
 	if paladin.holyShieldBlockValueMultiplier != 1 {

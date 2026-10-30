@@ -9,29 +9,29 @@ import (
 
 func (paladin *Paladin) registerHolyTalents() {
 	// Tier 1
+	paladin.applySpiritualFocus()
 	paladin.applyDivineStrength()
-	paladin.applyDivineIntellect()
 
 	// Tier 2
 	paladin.applyHealingLight()
-	paladin.applySpiritualFocus()
-	paladin.applyImprovedSeals()
-	// Unyielding Faith shortens Fear and Disorient effects, which the sim never suffers.
-
-	// Tier 3
-	// Voice of Truth grants immunity to Silence and Interrupt effects, which the sim never suffers.
 	paladin.applyReverence()
+	paladin.applyImprovedSeals()
 	paladin.applyPurifyingPower()
 
-	// Tier 4
-	paladin.applyInfusionOfLight()
-	paladin.applyIllumination()
+	// Tier 3
 	// Divine Favor registered in registerTalentSpells
+	paladin.applyIllumination()
+	paladin.applyHolyConduit()
+
+	// Tier 4
+	paladin.applyDivinePrecision()
+	paladin.applyInfusionOfLight()
+	// Oath of Light registered in registerTalentSpells
 
 	// Tier 5
-	paladin.applyDivinePrecision()
-	// Holy Shock registered in registerTalentSpells
 	paladin.applyConsecratedGround()
+	// Holy Shock registered in registerTalentSpells
+	// Boundless Light is read by the Holy Shock heal, see registerHolyShockRank.
 
 	// Tier 6
 	paladin.applyHolyPower()
@@ -49,15 +49,6 @@ func (paladin *Paladin) applyDivineStrength() {
 	spelldata.ParseStatic(&paladin.Character, spellData.DivineStrength.Rank(paladin.Talents.DivineStrength))
 }
 
-// Divine Intellect - Increases your total Intellect by 2/4/6/8/10%.
-func (paladin *Paladin) applyDivineIntellect() {
-	if paladin.Talents.DivineIntellect == 0 {
-		return
-	}
-
-	spelldata.ParseStatic(&paladin.Character, spellData.DivineIntellect.Rank(paladin.Talents.DivineIntellect))
-}
-
 // Healing Light - Increases the amount healed by your Holy Light, Flash of Light, and Holy Shock
 // spells by 4/8/12%.
 func (paladin *Paladin) applyHealingLight() {
@@ -68,7 +59,7 @@ func (paladin *Paladin) applyHealingLight() {
 	spelldata.ParseStatic(&paladin.Character, spellData.HealingLight.Rank(paladin.Talents.HealingLight))
 }
 
-// Spiritual Focus - Gives your Flash of Light, Holy Light, and Light's Vigil spells a 35/70% chance
+// Spiritual Focus - Gives your Flash of Light, Holy Light, and Light's Vigil spells a 14/28/42/56/70% chance
 // to not lose casting time when you take damage.
 func (paladin *Paladin) applySpiritualFocus() {
 	if paladin.Talents.SpiritualFocus == 0 {
@@ -78,7 +69,7 @@ func (paladin *Paladin) applySpiritualFocus() {
 	paladin.PseudoStats.PushbackChance -= spellData.SpiritualFocus.FractionAt(paladin.Talents.SpiritualFocus)
 }
 
-// Improved Seals - Increases the damage done by your Seals and Judgements by 5/10/15%.
+// Improved Seals - Increases the damage done by your Seals and Judgements by 3/6/9/12/15%.
 func (paladin *Paladin) applyImprovedSeals() {
 	if paladin.Talents.ImprovedSeals == 0 {
 		return
@@ -94,7 +85,7 @@ func (paladin *Paladin) applyImprovedSeals() {
 	})
 }
 
-// Reverence - Allows 10/20/30% of your Mana regeneration to continue while casting.
+// Reverence - Allows 15/30% of your Mana regeneration to continue while casting.
 func (paladin *Paladin) applyReverence() {
 	if paladin.Talents.Reverence == 0 {
 		return
@@ -171,13 +162,25 @@ func (paladin *Paladin) applyIllumination() {
 	paladin.MakeProcTriggerAura(trigger)
 }
 
-// Divine Precision - Improves your chance to hit with Holy spells by 6/12/18%.
+// Holy Conduit - Reduces the mana cost of your Consecration, Holy Wrath, Exorcism, and Hammer of
+// Wrath spells by 20/40%.
+func (paladin *Paladin) applyHolyConduit() {
+	if paladin.Talents.HolyConduit == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&paladin.Character, spellData.HolyConduit.Rank(paladin.Talents.HolyConduit))
+}
+
+// Divine Precision - Improves your chance to hit with Holy spells by 4/8%, and reduces the duration of
+// Silence effects on you by 10/20%. The sim never silences the paladin, so only the hit is read.
 func (paladin *Paladin) applyDivinePrecision() {
 	if paladin.Talents.DivinePrecision == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&paladin.Character, spellData.DivinePrecision.Rank(paladin.Talents.DivinePrecision), spelldata.ShowAsSchoolHit(core.SpellSchoolHoly))
+	spelldata.ParseStatic(&paladin.Character, spellData.DivinePrecision.Rank(paladin.Talents.DivinePrecision),
+		spelldata.Effects(1), spelldata.ShowAsSchoolHit(core.SpellSchoolHoly))
 }
 
 // Consecrated Ground - Gives your Holy spells 5/10% increased damage against the first 4 enemies
@@ -194,12 +197,19 @@ func (paladin *Paladin) applyConsecratedGround() {
 	paladin.consecratedGroundPoints = spellData.ConsecratedGround.Rank(paladin.Talents.ConsecratedGround).EffectN(1)
 }
 
-// Holy Power - Increases the critical strike chance of your Holy Shock and Holy Strike spells by
-// 3/6/9/12/15%, and all other spells by 1/2/3/4/5%.
+// Holy Power - Increases the critical strike healing bonus of your Holy spells by 10/20/30/40/50%.
+//
+// The row is A_MOD_CRITICAL_HEALING_AMOUNT on the Holy school, which scales the heal's base crit
+// multiplier as aura 50 does in CritDamageMultiplier: 5/5 makes a 150% heal crit 225%. Every paladin
+// heal is Holy.
 func (paladin *Paladin) applyHolyPower() {
 	if paladin.Talents.HolyPower == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&paladin.Character, spellData.HolyPower.Rank(paladin.Talents.HolyPower))
+	paladin.AddStaticMod(core.SpellModConfig{
+		ClassMask:  SpellMaskHealingSpells | SpellMaskLightsVigilHeal,
+		Kind:       core.SpellMod_CritMultiplier_Pct,
+		FloatValue: spellData.HolyPower.FractionAt(paladin.Talents.HolyPower),
+	})
 }
