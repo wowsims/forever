@@ -96,6 +96,20 @@ describe('useSavedData', () => {
 		expect(read()).toEqual({ stale: { value: 'nope' }, raid: { value: 1 }, solo: { value: 5 } });
 	});
 
+	it('renames an entry in place, keeping its position and the entries the codec rejects', () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		store({ raid: { value: 1 }, stale: { value: 'nope' }, solo: { value: 2 } });
+		const { result } = renderHook(() => useSavedData(KEY, codec));
+
+		act(() => result.current.save('raid night', { value: 4 }, 'raid'));
+
+		expect(Object.entries(read())).toEqual([
+			['raid night', { value: 4 }],
+			['stale', { value: 'nope' }],
+			['solo', { value: 2 }],
+		]);
+	});
+
 	it('removes one name and leaves the others', () => {
 		store({ raid: { value: 1 }, solo: { value: 2 } });
 		const { result } = renderHook(() => useSavedData(KEY, codec));

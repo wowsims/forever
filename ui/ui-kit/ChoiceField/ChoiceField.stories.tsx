@@ -33,6 +33,24 @@ const VALUE_KINDS: Array<ChoiceEntry<number>> = [
 	{ label: 'Resources »', submenu: [{ label: 'Mana »', submenu: [{ value: 3, label: 'Current Mana' }] }] },
 ];
 
+const ENCOUNTERS: Array<ChoiceEntry<number>> = [
+	{ value: -1, label: 'Custom' },
+	{
+		label: 'Presets',
+		options: [
+			{ value: 0, label: 'Raid Target' },
+			{ value: 1, label: 'Dynamic Adds' },
+		],
+	},
+	{
+		label: 'My encounters',
+		options: [
+			{ value: 10, label: 'Ragnaros practice' },
+			{ value: 11, label: 'Two adds' },
+		],
+	},
+];
+
 const ChoiceFieldStory = ({ value: initialValue, onChange, ...props }: ChoiceFieldProps<number>) => {
 	const [value, setValue] = useState(initialValue);
 	return (
@@ -88,6 +106,17 @@ export const Default: Story = {
 export const Link: Story = { args: { variant: 'link', label: undefined, placeholder: 'Mob type' } };
 export const WithIcons: Story = { args: { variant: 'link', label: undefined, options: UNITS, value: 2, placeholder: 'Unit' } };
 export const WithSubmenu: Story = { args: { variant: 'link', label: undefined, options: VALUE_KINDS, value: 3, placeholder: 'No condition' } };
+export const WithSections: Story = {
+	args: { label: 'Encounter', options: ENCOUNTERS, value: 0 },
+	play: async ({ args, canvasElement }) => {
+		const body = within(canvasElement.ownerDocument.body);
+		await userEvent.click(within(canvasElement).getByRole('combobox'));
+		const [, mine] = await body.findAllByRole('group');
+		await expect(within(mine).getByText('My encounters')).toBeTruthy();
+		await userEvent.click(within(mine).getByRole('option', { name: 'Two adds' }));
+		await expect(args.onChange).toHaveBeenLastCalledWith(11);
+	},
+};
 export const InAStartAlignedColumn: Story = {
 	decorators: [
 		Story => (
