@@ -20,7 +20,7 @@ const meta = {
 	args: {
 		item: withSource({
 			oneofKind: 'drop',
-			drop: { difficulty: DungeonDifficulty.DifficultyNormal, npcId: RAGNAROS.id, zoneId: MOLTEN_CORE.id, otherName: '', category: '' },
+			drop: { difficulty: DungeonDifficulty.DifficultyRaid, npcId: RAGNAROS.id, zoneId: MOLTEN_CORE.id, otherName: '', category: '' },
 		}),
 		sim,
 	},

@@ -1,7 +1,6 @@
 import { UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
-import { getPVPSeasonFromItem, isPVPItem } from '@sim/proto/items';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
@@ -26,26 +25,7 @@ const SourceLink = ({ href, children }: { href: string; children: ReactNode }) =
 );
 
 export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
-	const pvp = () => {
-		const season = getPVPSeasonFromItem(item);
-		if (!season) return null;
-		return (
-			<SourceLink href={ActionId.makeItemUrl(item.id)}>
-				<span>
-					{season}
-					<br />
-					{i18n.t('common.sources.pvp')}
-				</span>
-			</SourceLink>
-		);
-	};
-
-	if (!item.sources?.length) {
-		if (item.randomSuffixOptions.length)
-			return <SourceLink href={`${ActionId.makeItemUrl(item.id)}#dropped-by`}>{i18n.t('gear_tab.gear_picker.sources.world_drop')}</SourceLink>;
-		if (isPVPItem(item)) return pvp();
-		return null;
-	}
+	if (!item.sources?.length) return null;
 
 	let source = item.sources[0];
 	if (source.source.oneofKind === 'crafted') {
@@ -118,7 +98,8 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 		);
 	}
 
-	if (isPVPItem(item)) return pvp();
+	if (item.sources.some(entry => entry.source.oneofKind === 'pvp'))
+		return <SourceLink href={ActionId.makeItemUrl(item.id)}>{i18n.t('common.sources.pvp')}</SourceLink>;
 
 	if (source.source.oneofKind === 'soldBy') {
 		const src = source.source.soldBy;

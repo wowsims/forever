@@ -492,8 +492,7 @@ func TestSurvivalistsDisciplineShortensTheTrapCooldown(t *testing.T) {
 	}
 }
 
-// An Auto Shot that comes due while the hunter moves winds up a reaction time after the move ends,
-// as the player starts it again by hand, not at the hidden retry timer's next check.
+// An Auto Shot that comes due while the hunter moves winds up a reaction time after the move ends.
 func TestAutoShotWindsUpWhenTheMoveEnds(t *testing.T) {
 	player := &proto.Player{
 		Name:               "Shot",
@@ -525,7 +524,7 @@ func TestAutoShotWindsUpWhenTheMoveEnds(t *testing.T) {
 	for i := 0; sim.CurrentTime <= recast && i < 10000; i++ {
 		sim.Step()
 	}
-	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+core.RangedSwingWindup; got != want {
+	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+hunter.ApplyRangedSpeed(core.RangedSwingWindup); got != want {
 		t.Errorf("a shot due at %v during a move that ended at %v fires at %v, want %v", due, moveEnd, got, want)
 	}
 }
@@ -573,7 +572,7 @@ func TestAutoShotWaitsAReactionWhenTheWalkEndsOnTheMinimumRange(t *testing.T) {
 	for i := 0; sim.CurrentTime <= recast && i < 10000; i++ {
 		sim.Step()
 	}
-	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+core.RangedSwingWindup; (got - want).Abs() > time.Millisecond {
+	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+hunter.ApplyRangedSpeed(core.RangedSwingWindup); (got - want).Abs() > time.Millisecond {
 		t.Errorf("a walk out ending on the minimum range at %v fires its shot at %v, want %v", walkEnd, got, want)
 	}
 }
@@ -607,7 +606,7 @@ func TestMeleeSwingRestartsAutoShot(t *testing.T) {
 	for i := 0; hunter.AutoAttacks.MainhandPreviousSwing() < swing && i < 10000; i++ {
 		sim.Step()
 	}
-	want := swing + hunter.AutoAttacks.RangedSwingSpeed() - core.RangedSwingWindup
+	want := swing + hunter.AutoAttacks.RangedSwingSpeed() - hunter.ApplyRangedSpeed(core.RangedSwingWindup)
 	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != want {
 		t.Errorf("after a melee swing at %v the next Auto Shot winds up at %v, want %v", swing, got, want)
 	}

@@ -320,11 +320,7 @@ export const sourceFilterI18nKeys: Record<SourceFilterOption, string> = {
 	[SourceFilterOption.SourceSoldBy]: 'sold_by',
 	[SourceFilterOption.SourcePvp]: 'pvp',
 	[SourceFilterOption.SourceDungeon]: 'dungeon',
-	[SourceFilterOption.SourceDungeonH]: 'dungeon_h',
 	[SourceFilterOption.SourceRaid]: 'raid',
-	[SourceFilterOption.SourceRaidH]: 'raid_h',
-	[SourceFilterOption.SourceRaidRF]: 'raid_rf',
-	[SourceFilterOption.SourceRaidFlex]: 'raid_flex',
 };
 
 export const raidFilterI18nKeys: Record<RaidFilterOption, string> = {
