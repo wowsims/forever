@@ -99,6 +99,31 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 	return entries.map(entry => (entry.id.hasRank && ranks.get(keyOf(entry.id))!.size < 2 ? { ...entry, id: entry.id.withoutRank() } : entry));
 };
 
+/**
+ * The toggle that governs a source, or undefined when none does. An item shows while one of its sources is of a ticked
+ * kind. PvP is a tag the PvP check handles rather than a place, so unticking PvP hides every PvP item whatever its
+ * other sources, and a PvP source itself is kept when PvP is ticked. An item with no sources, or with a source no toggle
+ * covers, always shows.
+ */
+const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined => {
+	switch (source.oneofKind) {
+		case 'crafted':
+			return SourceFilterOption.SourceCrafting;
+		case 'quest':
+			return SourceFilterOption.SourceQuest;
+		case 'rep':
+			return SourceFilterOption.SourceReputation;
+		case 'soldBy':
+			return SourceFilterOption.SourceSoldBy;
+		case 'drop':
+			if (source.drop.difficulty == DungeonDifficulty.DifficultyRaid) return SourceFilterOption.SourceRaid;
+			if (source.drop.difficulty == DungeonDifficulty.DifficultyDungeon) return SourceFilterOption.SourceDungeon;
+			return undefined;
+		default:
+			return undefined;
+	}
+};
+
 export class UnitMetadata {
 	private name: string;
 	private auras: Array<AuraStats>;
@@ -1258,31 +1283,14 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => item.factionRestriction == kept || item.factionRestriction == UIItem_FactionRestriction.UNSPECIFIED);
 		}
 
-		// An item shows while one of its sources is of a ticked kind. PvP marks an item rather than placing it, so an
-		// unticked PvP hides every PvP item whatever its other sources. An item with no sources always shows.
-		const sourceOption = ({ source }: ItemSource): SourceFilterOption => {
-			switch (source.oneofKind) {
-				case 'crafted':
-					return SourceFilterOption.SourceCrafting;
-				case 'quest':
-					return SourceFilterOption.SourceQuest;
-				case 'rep':
-					return SourceFilterOption.SourceReputation;
-				case 'soldBy':
-					return SourceFilterOption.SourceSoldBy;
-				case 'pvp':
-					return SourceFilterOption.SourcePvp;
-				case 'drop':
-					return source.drop.difficulty == DungeonDifficulty.DifficultyRaid ? SourceFilterOption.SourceRaid : SourceFilterOption.SourceDungeon;
-				default:
-					return SourceFilterOption.SourceUnknown;
-			}
-		};
 		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
 		itemData = filterItems(itemData, item => {
 			if (!item.sources.length) return true;
 			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
-			return item.sources.some(itemSrc => filters.sources.includes(sourceOption(itemSrc)));
+			return item.sources.some(itemSrc => {
+				const option = sourceOption(itemSrc);
+				return option === undefined || filters.sources.includes(option);
+			});
 		});
 
 		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {

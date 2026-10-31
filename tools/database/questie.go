@@ -16,15 +16,11 @@ const questieDataURL = "https://raw.githubusercontent.com/Questie/QuestieDB/mast
 
 // Every item QuestieDB lists a reward quest or a vendor for, with each as a Quest or SoldBy source.
 func ReadQuestieData() *WowDatabase {
-	files := make([]string, 3)
-	for i, name := range []string{"foreverItemDB.lua", "foreverQuestDB.lua", "foreverNpcDB.lua"} {
-		src, err := tools.ReadWeb(questieDataURL + name)
-		if err != nil {
-			log.Fatalf("reading %s: %v", name, err)
-		}
-		files[i] = src
-	}
-	db, err := parseQuestieData(files[0], files[1], files[2])
+	db, err := parseQuestieData(
+		tools.ReadWebRequired(questieDataURL+"foreverItemDB.lua"),
+		tools.ReadWebRequired(questieDataURL+"foreverQuestDB.lua"),
+		tools.ReadWebRequired(questieDataURL+"foreverNpcDB.lua"),
+	)
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
@@ -109,20 +105,7 @@ func readQuestieFile(src, kind string) (map[string]int, map[int]*luaTable, error
 		keys[name] = int(index)
 	}
 
-	start := strings.Index(src, "QuestieDB."+kind+"Data = [[")
-	if start < 0 {
-		return nil, nil, fmt.Errorf("no QuestieDB.%sData", kind)
-	}
-	chunk := src[start+len("QuestieDB."+kind+"Data = [["):]
-	end := strings.Index(chunk, "]]")
-	if end < 0 {
-		return nil, nil, fmt.Errorf("QuestieDB.%sData has no closing ]]", kind)
-	}
-	chunk = strings.TrimSpace(chunk[:end])
-	if !strings.HasPrefix(chunk, "return") {
-		return nil, nil, fmt.Errorf("QuestieDB.%sData does not start with return", kind)
-	}
-	dataTable, err := parseLuaAfter(chunk, "return")
+	dataTable, err := parseLuaAfter(src, "QuestieDB."+kind+"Data = [[return")
 	if err != nil {
 		return nil, nil, fmt.Errorf("QuestieDB.%sData: %w", kind, err)
 	}
@@ -138,8 +121,7 @@ func readQuestieFile(src, kind string) (map[string]int, map[int]*luaTable, error
 	return keys, rows, nil
 }
 
-// A Lua table constructor: the positional values in order, nil included, and the [key] = value and name = value
-// fields. Numbers are float64 and strings string.
+// A Lua table constructor: the positional values in order, nil included, and and the [key] = value fields. Numbers are float64 and strings string.
 type luaTable struct {
 	list  []any
 	keyed map[any]any
@@ -184,8 +166,8 @@ func parseLuaAfter(src, marker string) (*luaTable, error) {
 	return table, nil
 }
 
-// Reads the subset of Lua literals QuestieDB writes: tables, quoted strings, numbers, nil, true and false, with
-// -- comments to the end of the line.
+// Reads the subset of Lua literals QuestieDB writes: tables, quoted strings, numbers and nil, with -- comments to
+// the end of the line.
 type luaParser struct {
 	src string
 	pos int
@@ -225,14 +207,9 @@ func (p *luaParser) value() (any, error) {
 	case c == '-' || c == '.' || (c >= '0' && c <= '9'):
 		return p.number()
 	}
-	for _, word := range []struct {
-		text  string
-		value any
-	}{{"nil", nil}, {"true", true}, {"false", false}} {
-		if strings.HasPrefix(p.src[p.pos:], word.text) {
-			p.pos += len(word.text)
-			return word.value, nil
-		}
+	if strings.HasPrefix(p.src[p.pos:], "nil") {
+		p.pos += len("nil")
+		return nil, nil
 	}
 	return nil, p.errorf("unexpected %q", p.src[p.pos])
 }
@@ -266,11 +243,6 @@ func (p *luaParser) table() (*luaTable, error) {
 				return nil, err
 			}
 			key = k
-		} else if name := p.name(); name != "" {
-			if err := p.expect('='); err != nil {
-				return nil, err
-			}
-			key = name
 		}
 
 		value, err := p.value()
@@ -284,28 +256,12 @@ func (p *luaParser) table() (*luaTable, error) {
 		}
 
 		p.skipSpace()
-		if p.pos < len(p.src) && (p.src[p.pos] == ',' || p.src[p.pos] == ';') {
+		if p.pos < len(p.src) && p.src[p.pos] == ',' {
 			p.pos++
 		} else if p.pos >= len(p.src) || p.src[p.pos] != '}' {
 			return nil, p.errorf("expected , or }")
 		}
 	}
-}
-
-// A field name before =, or "" when the field is positional; nil, true and false are values.
-func (p *luaParser) name() string {
-	end := p.pos
-	for end < len(p.src) && (p.src[end] == '_' || p.src[end] >= 'a' && p.src[end] <= 'z' || p.src[end] >= 'A' && p.src[end] <= 'Z' ||
-		end > p.pos && p.src[end] >= '0' && p.src[end] <= '9') {
-		end++
-	}
-	name := p.src[p.pos:end]
-	rest := strings.TrimLeft(p.src[end:], " \t\r\n")
-	if name == "" || !strings.HasPrefix(rest, "=") || strings.HasPrefix(rest, "==") {
-		return ""
-	}
-	p.pos = end
-	return name
 }
 
 func (p *luaParser) expect(c byte) error {
@@ -354,9 +310,7 @@ func (p *luaParser) string() (string, error) {
 
 func (p *luaParser) number() (float64, error) {
 	start := p.pos
-	for p.pos < len(p.src) && strings.IndexByte("0123456789.eE", p.src[p.pos]) >= 0 ||
-		p.pos < len(p.src) && p.src[p.pos] == '-' && (p.pos == start || p.src[p.pos-1] == 'e' || p.src[p.pos-1] == 'E') ||
-		p.pos < len(p.src) && p.src[p.pos] == '+' && p.pos > start && (p.src[p.pos-1] == 'e' || p.src[p.pos-1] == 'E') {
+	for p.pos < len(p.src) && strings.IndexByte("-.0123456789", p.src[p.pos]) >= 0 {
 		p.pos++
 	}
 	number, err := strconv.ParseFloat(p.src[start:p.pos], 64)

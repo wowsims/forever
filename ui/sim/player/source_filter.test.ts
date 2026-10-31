@@ -20,6 +20,7 @@ const RAID = Item.create({ id: 4, sources: [raidDrop] });
 const DUNGEON = Item.create({ id: 5, sources: [dungeonDrop] });
 const PVP_ONLY = Item.create({ id: 6, sources: [pvp] });
 const PVP_VENDOR = Item.create({ id: 7, sources: [soldBy, pvp] });
+const UNSORTED_DROP = Item.create({ id: 8, sources: [UIItemSource.create({ source: { oneofKind: 'drop', drop: DropSource.create() } })] });
 
 describe('Player.filterItemData source filter', () => {
 	const setup = async () => {
@@ -27,7 +28,11 @@ describe('Player.filterItemData source filter', () => {
 		sim.applyDefaults(false, false);
 		const listed = () =>
 			player
-				.filterItemData([NO_SOURCE, QUEST, QUEST_AND_VENDOR, RAID, DUNGEON, PVP_ONLY, PVP_VENDOR], item => item, ItemSlot.ItemSlotTrinket1)
+				.filterItemData(
+					[NO_SOURCE, QUEST, QUEST_AND_VENDOR, RAID, DUNGEON, PVP_ONLY, PVP_VENDOR, UNSORTED_DROP],
+					item => item,
+					ItemSlot.ItemSlotTrinket1,
+				)
 				.map(item => item.id);
 		const tick = (...sources: SourceFilterOption[]) => sim.setFilters({ ...sim.getFilters(), sources });
 		return { listed, tick };
@@ -35,30 +40,30 @@ describe('Player.filterItemData source filter', () => {
 
 	it('keeps every item while every source is ticked', async () => {
 		const { listed } = await setup();
-		expect(listed()).toEqual([1, 2, 3, 4, 5, 6, 7]);
+		expect(listed()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
 	});
 
 	it('keeps an item while one of its sources is ticked', async () => {
 		const { listed, tick } = await setup();
 		tick(SourceFilterOption.SourceSoldBy, SourceFilterOption.SourcePvp);
-		expect(listed()).toEqual([1, 3, 6, 7]);
+		expect(listed()).toEqual([1, 3, 6, 7, 8]);
 
 		tick(SourceFilterOption.SourceQuest);
-		expect(listed()).toEqual([1, 2, 3]);
+		expect(listed()).toEqual([1, 2, 3, 8]);
 	});
 
-	it('sorts a drop into Raid or Dungeon by its difficulty', async () => {
+	it('sorts a drop into Raid or Dungeon by its difficulty, and no toggle hides a drop with neither', async () => {
 		const { listed, tick } = await setup();
 		tick(SourceFilterOption.SourceRaid);
-		expect(listed()).toEqual([1, 4]);
+		expect(listed()).toEqual([1, 4, 8]);
 
 		tick(SourceFilterOption.SourceDungeon);
-		expect(listed()).toEqual([1, 5]);
+		expect(listed()).toEqual([1, 5, 8]);
 	});
 
 	it('hides every PvP item when PvP is unticked, whatever its other sources', async () => {
 		const { listed, tick } = await setup();
 		tick(SourceFilterOption.SourceSoldBy, SourceFilterOption.SourceQuest, SourceFilterOption.SourceRaid, SourceFilterOption.SourceDungeon);
-		expect(listed()).toEqual([1, 2, 3, 4, 5]);
+		expect(listed()).toEqual([1, 2, 3, 4, 5, 8]);
 	});
 });

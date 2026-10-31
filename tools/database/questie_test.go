@@ -26,7 +26,7 @@ const questieTestQuests = `QuestieDB.questKeys = {
 }
 
 QuestieDB.questData = [[return {
-[8561] = {"Conqueror's Crown",-1.5e1},
+[8561] = {"Conqueror's Crown",-15},
 }]]
 `
 
@@ -37,7 +37,7 @@ const questieTestNpcs = `QuestieDB.npcKeys = {
 }
 
 QuestieDB.npcData = [[return {
-[5] = {'Grizzle "Rings, Bands" O\'Hare',{[1519]={{25.06,38.2},{-1,.5}}},1519,true},
+[5] = {'Grizzle "Rings, Bands" O\'Hare',{[1519]={{25.06,38.2},{-1,.5}}},1519},
 [6] = {'Nowhere Vendor',nil,nil},
 }]]
 `
@@ -82,6 +82,8 @@ func TestParseQuestieDataRejectsMalformedLua(t *testing.T) {
 QuestieDB.itemData = [[return {[1] = {'Broken,nil,nil}}]]`,
 		"missing key": `QuestieDB.itemKeys = {['questRewards'] = 2}
 QuestieDB.itemData = [[return {}]]`,
+		"unexpected word": `QuestieDB.itemKeys = {['questRewards'] = 2, ['vendors'] = 3}
+QuestieDB.itemData = [[return {[1] = {'A',nil,true}}]]`,
 		"missing separator": `QuestieDB.itemKeys = {['questRewards'] = 2, ['vendors'] = 3}
 QuestieDB.itemData = [[return {[1] = {'A' nil}}]]`,
 	} {

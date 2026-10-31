@@ -162,6 +162,7 @@ func main() {
 	}
 
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
+	pruneQuestieVendors(questieDB, areaTableIDs)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -204,7 +205,7 @@ func main() {
 			db.MergeItem(atlaslootItem)
 		}
 	}
-	appendQuestieSources(db, questieDB, areaTableIDs)
+	appendQuestieSources(db, questieDB)
 
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
@@ -231,7 +232,7 @@ func main() {
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
-	// Source loaders added later must run before this.
+	// The PvP source follows from the item's name, so the names must be final here.
 	for _, item := range db.Items {
 		database.InferPvpSource(item)
 	}
@@ -355,19 +356,22 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 	}
 }
 
-// The quest and vendor sources go after the others, so a drop or craft source stays first and the gear picker shows
-// it. A vendor whose zone is not in the game files is left out.
-func appendQuestieSources(db, questie *database.WowDatabase, areaTableIDs map[int32]bool) {
-	for id, questieItem := range questie.Items {
-		item, ok := db.Items[id]
-		if !ok {
-			continue
-		}
-		sources := core.FilterSlice(questieItem.Sources, func(source *proto.UIItemSource) bool {
+// pruneQuestieVendors removes the vendors with no zone or a zone that is not in the game files.
+func pruneQuestieVendors(questie *database.WowDatabase, areaTableIDs map[int32]bool) {
+	for _, item := range questie.Items {
+		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
 			soldBy := source.GetSoldBy()
 			return soldBy == nil || areaTableIDs[soldBy.ZoneId]
 		})
-		item.Sources = append(slices.Clip(item.Sources), sources...)
+	}
+}
+
+// appendQuestieSources adds the quest and vendor sources to the items the database has.
+func appendQuestieSources(db, questie *database.WowDatabase) {
+	for id, questieItem := range questie.Items {
+		if item, ok := db.Items[id]; ok {
+			item.Sources = append(slices.Clip(item.Sources), questieItem.Sources...)
+		}
 	}
 }
 
