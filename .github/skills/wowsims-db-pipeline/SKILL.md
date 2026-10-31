@@ -67,6 +67,9 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
 - **The proc audit list is a gitignored baseline its own test writes.** After new spell rows arrive, rewrite
   `tools/database/unsupported_procs.txt` with `UPDATE_UNSUPPORTED_PROCS=1` on `TestEveryReachableProcIsSupportedOrListed`
   instead of reading its diff as a regression; `UPDATE_UNSUPPORTED_CONSUMABLES` does the same for the consumables.
+- **`gen_db` sets every item source; the UI infers none.** The gear picker shows and filters the sources in the
+  database and never derives one from an item's name or random suffixes, so a new rule (the PvP name list in
+  `InferPvpSource`) goes into the generator. An item with no source shows none; it is not a world drop.
 
 ## Overrides
 
