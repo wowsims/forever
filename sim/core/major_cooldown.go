@@ -254,7 +254,7 @@ func (mcdm *majorCooldownManager) AddMajorCooldown(mcd MajorCooldown) {
 	// A defensive cooldown that adds no damage or mana goes on its own only for a tank; a timing or an APL
 	// action still uses it for anyone. The tank slots are read before any cooldown is added.
 	defensiveOnly := mcd.Type.Matches(CooldownTypeSurvival) && !mcd.Type.Matches(CooldownTypeDPS|CooldownTypeMana)
-	if mcd.ShouldActivate == nil && defensiveOnly && !mcdm.character.isTank {
+	if defensiveOnly && !mcdm.character.isTank {
 		mcd.DisableAutocast = true
 	}
 	if mcd.DisableAutocast {
