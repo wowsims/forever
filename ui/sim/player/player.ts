@@ -37,6 +37,7 @@ import {
 	UIEnchant as Enchant,
 	UIItem as Item,
 	UIItem_FactionRestriction,
+	UIItemSource as ItemSource,
 } from '@generated/proto/ui';
 
 import * as Mechanics from '../constants/mechanics';
@@ -1257,30 +1258,32 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => item.factionRestriction == kept || item.factionRestriction == UIItem_FactionRestriction.UNSPECIFIED);
 		}
 
-		if (!filters.sources.includes(SourceFilterOption.SourceSoldBy)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'soldBy'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceCrafting)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'crafted'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceQuest)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'quest'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceReputation)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'rep'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourcePvp)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp'));
-		}
-
-		const dropsAt = (item: Item, difficulty: DungeonDifficulty) =>
-			item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty);
-		if (!filters.sources.includes(SourceFilterOption.SourceDungeon)) {
-			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyDungeon));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceRaid)) {
-			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyRaid));
-		}
+		// An item shows while one of its sources is of a ticked kind. PvP marks an item rather than placing it, so an
+		// unticked PvP hides every PvP item whatever its other sources. An item with no sources always shows.
+		const sourceOption = ({ source }: ItemSource): SourceFilterOption => {
+			switch (source.oneofKind) {
+				case 'crafted':
+					return SourceFilterOption.SourceCrafting;
+				case 'quest':
+					return SourceFilterOption.SourceQuest;
+				case 'rep':
+					return SourceFilterOption.SourceReputation;
+				case 'soldBy':
+					return SourceFilterOption.SourceSoldBy;
+				case 'pvp':
+					return SourceFilterOption.SourcePvp;
+				case 'drop':
+					return source.drop.difficulty == DungeonDifficulty.DifficultyRaid ? SourceFilterOption.SourceRaid : SourceFilterOption.SourceDungeon;
+				default:
+					return SourceFilterOption.SourceUnknown;
+			}
+		};
+		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
+		itemData = filterItems(itemData, item => {
+			if (!item.sources.length) return true;
+			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
+			return item.sources.some(itemSrc => filters.sources.includes(sourceOption(itemSrc)));
+		});
 
 		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {
 			const raidOption = parseInt(raidOptionStr) as RaidFilterOption;

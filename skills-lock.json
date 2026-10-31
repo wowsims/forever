@@ -40,7 +40,7 @@
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "05c833aa7183a468002f19b4ca6597088a8ce8ba09f7395376181042e74af47f"
+      "computedHash": "04c626f38c9fd7146275d22cec60764ad938f19cf6b2f7ec4f8e8d5a340e0f5e"
     },
     "wowsims-procs": {
       "source": "./.github/skills",
