@@ -7,7 +7,7 @@ import (
 )
 
 // The feral tree in its own order. Feral Charge, Lacerate, Primal Bite and Shifting Power are spells
-// whose cast condition is the talent; registerFeralKit registers them. Furor is read on entering Cat
+// whose cast condition is the talent; RegisterFeralSpells registers them. Furor is read on entering Cat
 // Form and the bear forms (forms.go), Ferocious Bite reads Predatory Discipline, AddRaidBuffs
 // publishes Leader of the Pack, and the melee specials read Rend and Tear when they deal damage.
 func (druid *Druid) registerFeralCombatTalents() {

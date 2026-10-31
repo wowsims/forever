@@ -83,7 +83,7 @@ func (cat *FeralDruid) Initialize() {
 		})
 	}
 	cat.Druid.Initialize()
-	cat.RegisterFeralCatSpells()
+	cat.RegisterFeralSpells()
 }
 
 func (cat *FeralDruid) ApplyTalents() {

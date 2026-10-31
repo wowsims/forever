@@ -86,7 +86,7 @@ func (bear *GuardianDruid) AddPartyBuffs(_ *proto.PartyBuffs) {
 
 func (bear *GuardianDruid) Initialize() {
 	bear.Druid.Initialize()
-	bear.RegisterFeralTankSpells()
+	bear.RegisterFeralSpells()
 }
 
 func (bear *GuardianDruid) Reset(sim *core.Simulation) {
