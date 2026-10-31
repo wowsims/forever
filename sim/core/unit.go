@@ -1077,7 +1077,7 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 		}
 	}
 	aplAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
-		return !aura.ActionID.IsEmptyAction()
+		return !aura.ActionID.IsEmptyAction() && !aura.HideFromAPL
 	})
 	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
 		return auraStats(aura, aura.ActionID)

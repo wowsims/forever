@@ -145,7 +145,6 @@ func (druid *Druid) Initialize() {
 
 func (druid *Druid) RegisterBaselineSpells() {
 	druid.registerInnervateCD()
-	druid.registerThornsSpell()
 	druid.registerFaerieFireSpell()
 	druid.registerOmenOfClarity()
 }
@@ -156,23 +155,22 @@ func (druid *Druid) RegisterBalanceSpells() {
 	druid.registerWrathSpell()
 	druid.registerHurricaneSpell()
 	druid.registerBarkskin()
+	druid.registerThornsSpell()
 }
 
-func (druid *Druid) RegisterFeralCatSpells() {
-	druid.registerFeralKit()
+// The feral specs take Thorns from the buff settings, so only restoration and balance register it.
+func (druid *Druid) RegisterRestorationSpells() {
+	druid.registerThornsSpell()
 }
 
-func (druid *Druid) RegisterFeralTankSpells() {
-	druid.registerFeralKit()
-	// A cat would spend a 1.5s GCD on it whenever it comes off cooldown.
+func (druid *Druid) RegisterFeralSpells() {
+	druid.registerBarkskin()
+	// A defensive major cooldown goes on its own only for a tank, so a cat spends a GCD on it only at a
+	// cooldown timing or from the APL.
 	druid.AddMajorCooldown(core.MajorCooldown{
 		Spell: druid.Barkskin.Spell,
 		Type:  core.CooldownTypeSurvival,
 	})
-}
-
-func (druid *Druid) registerFeralKit() {
-	druid.registerBarkskin()
 	druid.registerCatFormSpell()
 	druid.registerBearFormSpell()
 	druid.registerClawSpell()
@@ -198,6 +196,7 @@ func (druid *Druid) registerFeralKit() {
 	druid.registerGrowlSpell()
 	druid.registerChallengingRoarSpell()
 	druid.registerFeralChargeSpell()
+	druid.registerFeralMenuGroups()
 }
 
 func (druid *Druid) Reset(_ *core.Simulation) {

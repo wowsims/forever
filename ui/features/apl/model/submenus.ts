@@ -33,7 +33,8 @@ interface Submenu<V> {
  * its first option appears.
  *
  * Two flavours of path segment, both of which the APL pickers use:
- * - a **string** names a category submenu (`['resources', 'mana']`, two deep at most today);
+ * - a **string** names a category submenu, nested to any depth (`['resources', 'mana']`, or a class's
+ *   menu group such as `['spell', 'cat', 'stealth']`);
  * - a **value** makes the option carrying that value the submenu's own option, still selectable.
  */
 const choiceTree = <V>(options: ReadonlyArray<PathOption<V>>, equals: (a: V, b: V) => boolean): Array<ChoiceEntry<V>> => {

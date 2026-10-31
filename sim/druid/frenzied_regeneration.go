@@ -35,6 +35,14 @@ func (druid *Druid) registerFrenziedRegenerationSpell() {
 	druid.FrenziedRegeneration = druid.RegisterSpell(config)
 	druid.FrenziedRegenerationAura = druid.FrenziedRegeneration.SelfHot().Aura
 	druid.FrenziedRegeneration.RelatedSelfBuff = druid.FrenziedRegenerationAura
+	// It turns rage into health, so it goes only from the APL or at a cooldown timing. Queueing keeps an APL
+	// line able to queue it into the GCD, which a major cooldown otherwise waits out.
+	druid.AddMajorCooldown(core.MajorCooldown{
+		Spell:              druid.FrenziedRegeneration.Spell,
+		Type:               core.CooldownTypeSurvival,
+		AllowSpellQueueing: true,
+		Manual:             true,
+	})
 
 	for _, form := range []*core.Aura{druid.BearFormAura, druid.DireBearFormAura} {
 		if form != nil {

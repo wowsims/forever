@@ -61,22 +61,41 @@ const CATEGORY_SUBMENUS: Array<[ActionCategory, string]> = [
 ];
 
 /**
+ * The menu groups in the order they are listed, by a group path's last key. A nested group listed before
+ * its parent opens the parent's submenu, and one listed after it closes it. A group not listed follows the
+ * listed ones.
+ */
+const MENU_GROUP_ORDER = ['forms', 'cat', 'stealth', 'bear', 'utility', 'druid'];
+
+const menuGroupRank = (path: Array<string>) => {
+	const rank = MENU_GROUP_ORDER.indexOf(path[path.length - 1]);
+	return rank < 0 ? MENU_GROUP_ORDER.length : rank;
+};
+
+/**
  * Files `entries` under the menu group the sim names, else under their category's submenu, one
- * category after another, and hands back the uncategorised rest for the caller to place.
+ * category after another, and hands back the uncategorised rest for the caller to place. A menu group
+ * is a path of submenu keys joined by dots, such as `spell.cat.stealth`.
  *
- * The categories are emitted in a fixed order because the menu places a submenu where its first
- * option appears, and the metadata arrives sorted by name.
+ * The groups and categories are emitted in a fixed order because the menu places a submenu where its
+ * first option appears, and the metadata arrives sorted by name.
  */
 const categorise = <T extends AuraStats | SpellStats>(
 	entries: Array<T>,
 	toOption: (entry: T, submenu: Array<string | ActionId>) => ActionIdOption,
 	allEntries: Array<T> = entries,
 ) => {
-	const file = (entry: T, key: string) => toOption(entry, createSpellSubmenu(entry.id, allEntries, [key], entries));
+	const file = (entry: T, path: Array<string>) => toOption(entry, createSpellSubmenu(entry.id, allEntries, path, entries));
 	const ungrouped = entries.filter(entry => !entry.data.menuGroup);
+	const grouped = entries
+		.filter(entry => entry.data.menuGroup)
+		.map(entry => ({ entry, path: entry.data.menuGroup.split('.') }))
+		.sort((a, b) => menuGroupRank(a.path) - menuGroupRank(b.path));
 	return {
-		grouped: entries.filter(entry => entry.data.menuGroup).map(entry => file(entry, entry.data.menuGroup)),
-		categorised: CATEGORY_SUBMENUS.flatMap(([category, key]) => ungrouped.filter(entry => entry.data.category === category).map(entry => file(entry, key))),
+		grouped: grouped.map(({ entry, path }) => file(entry, path)),
+		categorised: CATEGORY_SUBMENUS.flatMap(([category, key]) =>
+			ungrouped.filter(entry => entry.data.category === category).map(entry => file(entry, [key])),
+		),
 		uncategorised: ungrouped.filter(entry => !CATEGORY_SUBMENUS.some(([category]) => entry.data.category === category)),
 	};
 };
