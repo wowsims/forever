@@ -34,7 +34,7 @@ func physicalMultiplier(character *core.Character) float64 {
 	return character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical]
 }
 
-// One-Handed Weapon Specialization 20196 and Two-Handed Weapon Specialization 20111 at 3/3 give their
+// The warrior's Two-Handed Weapon Specialization 12163 and the paladin's 20111 at 3/3 give their
 // percent on Physical and on the melee-defense Holy spells such as the Seal of Righteousness hit, and
 // nothing on a magic-defense Holy spell such as Consecration. A physical spell takes it through the
 // school multiplier alone.
@@ -45,7 +45,7 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 		row  *Spell
 		hand proto.HandType
 	}{
-		{Talent(20196, 3).Rank(3), proto.HandType_HandTypeOneHand},
+		{Talent(12163, 3).Rank(3), proto.HandType_HandTypeTwoHand},
 		{Talent(20111, 3).Rank(3), proto.HandType_HandTypeTwoHand},
 	} {
 		want := 1 + tc.row.EffectN(1).Percent()
@@ -159,7 +159,7 @@ func TestRangedWeaponDamageDoneRowIsARangedMod(t *testing.T) {
 func TestWeaponDamageDoneRowReportsItsMeleeDefensePart(t *testing.T) {
 	defer generatedStore()()
 
-	row := Talent(20196, 3).Rank(3)
+	row := Talent(12163, 3).Rank(3)
 	applied := DryRun(row).Applied
 	if len(applied) != 2 {
 		t.Fatalf("applied %+v, want the school multiplier and the melee-defense part", applied)

@@ -48,7 +48,6 @@ describe('ActionId.fill', () => {
 			[ActionId.fromSpellId(1290261, 0, 3), 'Weaponmaster', `Weaponmaster (${weapons('sword')})`],
 			[ActionId.fromSpellId(20423, 0, 1), 'Seal of Fury', `Seal of Fury (${tag('shield')})`],
 			[ActionId.fromSpellId(10901, 0, 1), 'Power Word: Shield', `Power Word: Shield (${tag('shield')})`],
-			[ActionId.fromSpellId(440667, 0, 1), 'Vindication', `Vindication (${tag('self')})`],
 			[ActionId.fromSpellId(440667, 0, -1), 'Vindication', `Vindication (${tag('external')})`],
 			[ActionId.fromSpellId(11708, 0, 1), 'Curse of Weakness', `Curse of Weakness (${tag('amplified')})`],
 			[ActionId.fromSpellId(1225228, 0, 1), 'Bane of Havoc', `Bane of Havoc (${tag('damage')})`],

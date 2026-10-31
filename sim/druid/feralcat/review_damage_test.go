@@ -48,6 +48,34 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	}
 }
 
+// Predatory Discipline 1328613: a landed bite keeps the extra energy and still deals its damage.
+func TestPredatoryDisciplineBiteKeepsExtraEnergy(t *testing.T) {
+	bite := func(talents string) float64 {
+		sim, cat := newCat(t, talents, nil)
+		target := cat.CurrentTarget
+		target.PseudoStats.BaseDodgeChance = 0
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		want := cat.CurrentEnergy() - cat.FerociousBite.Cost.GetCurrentCost()
+		if !cat.FerociousBite.Cast(sim, target) {
+			t.Fatal("bite did not cast")
+		}
+		if cat.ComboPoints() != 0 {
+			t.Fatalf("landed bite leaves CP=%d, want 0", cat.ComboPoints())
+		}
+		if talents != "" && cat.CurrentEnergy() != want {
+			t.Fatalf("bite with Predatory Discipline leaves energy=%g, want %g", cat.CurrentEnergy(), want)
+		}
+		return cat.FerociousBite.SpellMetrics[target.UnitIndex].TotalDamage
+	}
+	plain := bite("")
+	kept := bite("0000000000000000-00000000000010000000-0000000000000000")
+	if kept != plain {
+		t.Errorf("bite with Predatory Discipline dealt %g, want the untalented %g", kept, plain)
+	}
+}
+
 // Ravage 9867 and Pounce 9827 state No Active Defense: a target that dodges everything does not dodge them.
 func TestRavageAndPounceCannotBeDodged(t *testing.T) {
 	for _, opener := range []string{"Ravage", "Pounce"} {
@@ -170,10 +198,39 @@ func TestCatStealthOpenersRun(t *testing.T) {
 	}
 }
 
+func TestBleedImmuneTargetTakesNoRakeAndNoAssumedBleed(t *testing.T) {
+	const rendAndTear5 = "0000000000000000-00000000000100005000-0000000000000000"
+	sim, cat := newCat(t, rendAndTear5, nil)
+	target := cat.CurrentTarget
+	target.BleedImmune = true
+	fillResource(sim, cat)
+	cat.Rake.Cast(sim, target)
+	if cat.Rake.Dot(target).IsActive() || cat.Rake.SpellMetrics[target.UnitIndex].TotalDamage != 0 || cat.ComboPoints() != 0 {
+		t.Fatal("rake landed on a bleed-immune target")
+	}
+
+	shred := func(assume, immune bool) float64 {
+		sim, cat := newCat(t, rendAndTear5, nil)
+		cat.AssumeBleedActive = assume
+		cat.CurrentTarget.BleedImmune = immune
+		fillResource(sim, cat)
+		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		cat.CurrentTarget.PseudoStats.BaseDodgeChance = 0
+		if !cat.Shred.Cast(sim, cat.CurrentTarget) {
+			t.Fatal("shred did not cast")
+		}
+		return cat.Shred.SpellMetrics[cat.CurrentTarget.UnitIndex].TotalDamage
+	}
+	if plain, assumed, immune := shred(false, false), shred(true, false), shred(true, true); assumed <= plain*1.01 || immune != plain {
+		t.Fatalf("shred %g plain, %g with an assumed bleed, %g on a bleed-immune target", plain, assumed, immune)
+	}
+}
+
 // Rend and Tear raises Shred on a bleeding target, by the same amount under each of the cat's own
 // bleeds. With the bleed assumed, a target with no bleed of the cat's own takes the same raised Shred.
 func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
-	const rendAndTear5 = "0000000000000000-00000000000000000050-0000000000000000"
+	const rendAndTear5 = "0000000000000000-00000000000100005000-0000000000000000"
 	shred := func(assume bool, bleed func(*FeralDruid) *druid.DruidSpell) float64 {
 		sim, cat := newCat(t, rendAndTear5, nil)
 		cat.AssumeBleedActive = assume
@@ -212,7 +269,7 @@ func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 // Rend and Tear raises bleed ticks. A Rake or Rip tick counts its own bleed as the bleed on the target,
 // and the talent is the only difference between the two builds.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
-	const rendAndTear5 = "0000000000000000-00000000000000000050-0000000000000000"
+	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
 	tick := func(talents string, rip bool) float64 {
 		sim, cat := newCat(t, talents, nil)
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)

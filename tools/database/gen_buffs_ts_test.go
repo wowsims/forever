@@ -105,10 +105,10 @@ func TestRenderBuffsDebuffsTSSkips(t *testing.T) {
 			Reason: "no SpellName row for Misery.",
 		},
 		{
-			BuffSpec: buffmanifest.BuffSpec{Field: "greater_blessing_of_salvation"},
+			BuffSpec: buffmanifest.BuffSpec{Field: "greater_blessing_of_salvation", Kind: buffmanifest.KindFlag},
 			Scope:    buffmanifest.ScopeIndividual, Proto: buffmanifest.ProtoBool,
 			Go: "GreaterBlessingOfSalvation", Owner: proto.Class_ClassPaladin,
-			SpellID: 25895, DBName: "Greater Blessing of Salvation",
+			Reason: "the spell is gone from the game files.",
 		},
 	}
 
@@ -125,7 +125,7 @@ func TestRenderBuffsDebuffsTSSkips(t *testing.T) {
 	}
 	for _, comment := range []string{
 		"// misery: no SpellName row for Misery.",
-		"// greater_blessing_of_salvation: " + manualBuffInputs["greater_blessing_of_salvation"],
+		"// greater_blessing_of_salvation: the spell is gone from the game files.",
 	} {
 		if !strings.Contains(out, comment) {
 			t.Errorf("the rendered file is missing %q:\n%s", comment, out)

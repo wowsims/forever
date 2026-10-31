@@ -521,7 +521,7 @@ func bearItemRequest() *proto.RaidSimRequest {
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1, IsTest: true},
 		Raid: core.SinglePlayerRaidProto(&proto.Player{
 			Name: "Bear", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
-			TalentsString: "000000-000000000001",
+			TalentsString: "000000-0000000000010000001",
 			Equipment:     &proto.EquipmentSpec{Items: bearItemSlots()},
 			Consumables:   &proto.ConsumesSpec{}, Buffs: &proto.IndividualBuffs{}, Rotation: &proto.APLRotation{},
 			Spec: &proto.Player_FeralBearDruid{FeralBearDruid: &proto.FeralBearDruid{Options: &proto.FeralBearDruid_Options{}}},

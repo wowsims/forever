@@ -185,6 +185,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			Level:          options.Level,
 			MobType:        options.MobType,
 			CreatureFamily: options.CreatureFamily,
+			BleedImmune:    options.BleedImmune,
 			auraTracker:    newAuraTracker(),
 			stats:          unitStats,
 			PseudoStats:    stats.NewPseudoStats(),
@@ -201,6 +202,9 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
+	// A raid boss cannot be stunned: in Classic and Fresh logs every grenade and bomb with a stun
+	// comes back immune on a boss, its damage included.
+	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their
 	// player target. If there is a need to model a custom Crit % for a Target, this can be

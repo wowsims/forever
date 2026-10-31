@@ -59,6 +59,7 @@ type Warrior struct {
 	curQueueAura       *core.Aura
 	curQueuedAutoSpell *core.Spell
 	queuedRealismICD   *core.Cooldown
+	pendingQueue       *core.PendingAction
 
 	EnrageAura      *core.Aura
 	GoreDrinkerAura *core.Aura
@@ -119,6 +120,7 @@ func (warrior *Warrior) Initialize() {
 func (warrior *Warrior) Reset(_ *core.Simulation) {
 	warrior.curQueueAura = nil
 	warrior.curQueuedAutoSpell = nil
+	warrior.pendingQueue = nil
 
 	switch warrior.DefaultStance {
 	case proto.WarriorStance_WarriorStanceBattle:
@@ -162,6 +164,7 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 		AutoSwingMelee: true,
 		ReplaceMHSwing: warrior.TryHSOrCleave,
 	})
+	warrior.AutoAttacks.SetQueuedSwingCanceler(warrior.cancelQueuedAttack)
 
 	warrior.PseudoStats.CanParry = true
 
@@ -177,6 +180,17 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 	}
 
 	return warrior
+}
+
+// Drops the queued Heroic Strike or Cleave, and a press still waiting out the Queue Delay.
+func (warrior *Warrior) cancelQueuedAttack(sim *core.Simulation) {
+	if !warrior.pendingQueue.IsConsumed() {
+		warrior.pendingQueue.Cancel(sim)
+		warrior.pendingQueue = nil
+	}
+	if warrior.curQueueAura != nil {
+		warrior.curQueueAura.Deactivate(sim)
+	}
 }
 
 func (warrior *Warrior) CastNormalizedSweepingStrikesAttack(results core.SpellResultSlice, sim *core.Simulation) {

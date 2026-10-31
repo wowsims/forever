@@ -19,10 +19,10 @@ func TestRetribution(t *testing.T) {
 }
 
 func BenchmarkRetribution(b *testing.B) {
-	twist := retributionSuite()
+	unsealed := retributionSuite()
 	shock := shockadinSuite()
 
-	b.Run("Twist of Light", func(b *testing.B) { core.CharacterBenchmark(b, twist) })
+	b.Run("Unsealed Wrath", func(b *testing.B) { core.CharacterBenchmark(b, unsealed) })
 	b.Run("Holy Shock", func(b *testing.B) { core.CharacterBenchmark(b, shock) })
 }
 
@@ -43,10 +43,7 @@ func shockadinSuite() core.CharacterSuiteConfig {
 		GearSet:          core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock"),
 		ItemSwapSet:      core.GetItemSwapGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock_item_swap"),
 		Talents:          HolyShockTalents,
-		OtherTalentSets: []core.TalentsCombo{
-			{Label: "LightsVigil", Talents: LightsVigilTalents},
-		},
-		Rotation: core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "holy_shock"),
+		Rotation:         core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "holy_shock"),
 		ItemFilter: core.ItemFilter{
 			WeaponTypes: []proto.WeaponType{
 				proto.WeaponType_WeaponTypeAxe,
@@ -80,7 +77,7 @@ func retributionSuite() core.CharacterSuiteConfig {
 		Profession1:      proto.Profession_Engineering,
 		Profession2:      proto.Profession_Blacksmithing,
 		GearSet:          core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default"),
-		Talents:          TwistOfLightTalents,
+		Talents:          UnsealedWrathTalents,
 		Rotation:         core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "default"),
 		ItemFilter: core.ItemFilter{
 			WeaponTypes: []proto.WeaponType{
@@ -106,9 +103,8 @@ var DefaultSpecOptions = &proto.Player_RetributionPaladin{
 	},
 }
 
-var HolyShockTalents = "550030032101012--052252300012303"
-var LightsVigilTalents = "55003003201121251--05225030201"
-var TwistOfLightTalents = "55003003--05225331101330321"
+var HolyShockTalents = "05025210221021--0523330110130033"
+var UnsealedWrathTalents = "050250002-501-05233011201301351"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	ConjuredId: 12662, // Demonic Rune
@@ -128,4 +124,5 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	ExtraIds:       []int32{8410, 10646, 12217, 18269}, // R.O.I.D.S, Goblin Sapper Charge, Dragonbreath Chili, Gordok Green Grog
 	MhImbueId:      20749,                              // Brilliant Wizard Oil
 	OffensivePotId: 250937,                             // Major Spellblasting Potion
+	ResourcePotId:  13444,                              // Major Mana Potion
 }

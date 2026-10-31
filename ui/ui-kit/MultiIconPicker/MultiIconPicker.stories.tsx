@@ -55,6 +55,28 @@ const MultiIconPickerStory = ({
 	);
 };
 
+const BATTLE_SHOUT = icon('ability_warrior_battleshout', 'Battle Shout', 25289);
+const IMPROVED_BATTLE_SHOUT = icon('ability_warrior_battleshout', 'Improved Battle Shout', 12861);
+const ENHANCED_BATTLE_SHOUT = icon('ability_warrior_battleshout', 'Enhanced Battle Shout', 23563);
+
+const QuadstateStory = ({ onClear, initial }: Pick<MultiIconPickerProps, 'onClear'> & { initial: number }) => {
+	const [value, setValue] = useState(initial);
+	const state = { states: 4, value, improvedIcon: IMPROVED_BATTLE_SHOUT, improvedIcon2: ENHANCED_BATTLE_SHOUT };
+	return (
+		<MultiIconPicker
+			label="Attack Power"
+			icon={BATTLE_SHOUT}
+			active={value > 0}
+			state={value > 0 ? state : undefined}
+			onClear={() => {
+				setValue(0);
+				onClear();
+			}}>
+			<IconPicker {...state} icon={BATTLE_SHOUT} onChange={setValue} />
+		</MultiIconPicker>
+	);
+};
+
 const meta = {
 	title: 'Kit/MultiIconPicker',
 	component: MultiIconPicker,
@@ -67,6 +89,7 @@ const meta = {
 	},
 	argTypes: {
 		icon: { control: false },
+		state: { control: false },
 		children: { control: false },
 	},
 	render: ({ onClear }) => <MultiIconPickerStory onClear={onClear} initial={[0, 0, 0]} />,
@@ -102,4 +125,7 @@ export const Vertical: Story = {
 	render: ({ onClear, direction, numColumns }) => (
 		<MultiIconPickerStory onClear={onClear} direction={direction} numColumns={numColumns} initial={[1, 0, 0]} />
 	),
+};
+export const Quadstate: Story = {
+	render: ({ onClear }) => <QuadstateStory onClear={onClear} initial={2} />,
 };

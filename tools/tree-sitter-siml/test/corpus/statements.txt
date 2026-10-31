@@ -1,0 +1,152 @@
+================================================================================
+A deeper line continues a statement
+================================================================================
+
+siml 1
+spec hunter
+var ${Weave done} =
+    max(auto_time_to_next(main_hand_auto), $time_to_melee) + $time_to_range
+def fits(x) = spell(x).cast_time <= 1s
+    or not $melee_weave
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (version
+    (number))
+  (spec
+    (identifier))
+  (var_declaration
+    (variable)
+    (binary_expression
+      (call
+        (identifier)
+        (arguments
+          (call
+            (identifier)
+            (arguments
+              (identifier)))
+          (variable)))
+      (variable)))
+  (def_declaration
+    (identifier)
+    (parameters
+      (identifier))
+    (binary_expression
+      (binary_expression
+        (member
+          (call
+            (identifier)
+            (arguments
+              (identifier)))
+          (identifier))
+        (number))
+      (not_expression
+        (variable)))))
+
+================================================================================
+A blank line ends a statement, and a comment line never decides
+================================================================================
+
+priority:
+  cast aimed_shot
+      // the condition
+      if $use_aimed_shot
+  var $a = 1
+
+    var $b = 2
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier))
+      (comment)
+      (variable))
+    (var_declaration
+      (variable)
+      (number))
+    (var_declaration
+      (variable)
+      (number))))
+
+================================================================================
+A header never continues, and its body may be indented any amount
+================================================================================
+
+buffs: greater_blessing_of_kings
+    battle_shout
+priority:
+      cast x
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (section
+    (section_name)
+    (entry
+      (identifier))
+    (entry
+      (identifier)))
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier)))))
+
+================================================================================
+A deeper line that starts a header ends the statement
+================================================================================
+
+priority:
+  cast x
+    group "G":
+  cast y
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier))))
+  (group_section
+    (string)
+    (row
+      (cast_step
+        (identifier)))))
+
+================================================================================
+A use line with variables
+================================================================================
+
+siml 1
+spec hunter
+use "walk_in.apl.siml" with $shoot_spot = max($ranged_range, 11.67), ${Wait at melee} = 1s
+talents "5-005355251152205-5"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (version
+    (number))
+  (spec
+    (identifier))
+  (use
+    (string)
+    (variable_binding
+      (variable)
+      (call
+        (identifier)
+        (arguments
+          (variable)
+          (number))))
+    (variable_binding
+      (variable)
+      (number)))
+  (talents
+    (string)))

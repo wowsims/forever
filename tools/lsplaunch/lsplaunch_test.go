@@ -1,4 +1,4 @@
-package main
+package lsplaunch
 
 import (
 	"os"

@@ -27,7 +27,7 @@ message DruidTalents {
     bool moonkin_form = 16 [(talent_spell_id) = 24858];
     // Feral Combat
     int32 ferocity = 17 [(talent_spell_id) = 16934];
-    int32 heart_of_the_wild = 18 [(talent_spell_id) = 17003];
+    int32 furor = 18 [(talent_spell_id) = 17056];
     int32 feral_swiftness = 19 [(talent_spell_id) = 17002];
     int32 feral_instinct = 20 [(talent_spell_id) = 16947];
     int32 brutal_impact = 21 [(talent_spell_id) = 16940];
@@ -36,25 +36,25 @@ message DruidTalents {
     int32 savage_fury = 24 [(talent_spell_id) = 16998];
     bool feral_charge = 25 [(talent_spell_id) = 1238122];
     int32 sharpened_claws = 26 [(talent_spell_id) = 16942];
-    bool shifting_power = 27 [(talent_spell_id) = 1322605];
-    bool primal_bite = 28 [(talent_spell_id) = 407995];
-    int32 predatory_strikes = 29 [(talent_spell_id) = 16972];
+    int32 predatory_strikes = 27 [(talent_spell_id) = 16972];
+    bool lacerate = 28 [(talent_spell_id) = 1328617];
+    bool predatory_discipline = 29 [(talent_spell_id) = 1328613];
     int32 blood_frenzy = 30 [(talent_spell_id) = 16958];
-    int32 improved_shifting_power = 31 [(talent_spell_id) = 1322670];
-    bool leader_of_the_pack = 32 [(talent_spell_id) = 17007];
-    int32 natural_instinct = 33 [(talent_spell_id) = 1223242];
+    bool leader_of_the_pack = 31 [(talent_spell_id) = 17007];
+    int32 natural_instinct = 32 [(talent_spell_id) = 1223242];
+    int32 rend_and_tear = 33 [(talent_spell_id) = 1223246];
     int32 natural_reaction = 34 [(talent_spell_id) = 417051];
-    int32 rend_and_tear = 35 [(talent_spell_id) = 1223246];
-    bool berserk = 36 [(talent_spell_id) = 417141];
+    bool primal_bite = 35 [(talent_spell_id) = 407995];
+    bool shifting_power = 36 [(talent_spell_id) = 1322605];
     // Restoration
     int32 natures_focus = 37 [(talent_spell_id) = 17063];
-    int32 furor = 38 [(talent_spell_id) = 17056];
+    int32 heart_of_the_wild = 38 [(talent_spell_id) = 17003];
     int32 naturalist = 39 [(talent_spell_id) = 17069];
-    int32 subtlety = 40 [(talent_spell_id) = 17118];
+    int32 reflection = 40 [(talent_spell_id) = 17106];
     int32 natural_shapeshifter = 41 [(talent_spell_id) = 16833];
-    int32 reflection = 42 [(talent_spell_id) = 17106];
+    int32 subtlety = 42 [(talent_spell_id) = 17118];
     int32 gift_of_nature = 43 [(talent_spell_id) = 17104];
-    bool gift_of_the_earthmother = 44 [(talent_spell_id) = 414673];
+    bool bloom = 44 [(talent_spell_id) = 1328621];
     int32 tranquil_spirit = 45 [(talent_spell_id) = 24968];
     int32 improved_rejuvenation = 46 [(talent_spell_id) = 17111];
     bool swiftmend = 47 [(talent_spell_id) = 18562];

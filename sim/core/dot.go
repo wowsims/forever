@@ -91,7 +91,7 @@ func (dot *Dot) TakeSnapshot(sim *Simulation) {
 
 // Snapshots and activates the Dot
 func (dot *Dot) Apply(sim *Simulation) {
-	if dot.Spell.Flags&SpellFlagSupressDoTApply > 0 {
+	if dot.Spell.Flags&SpellFlagSupressDoTApply > 0 || dot.isImmuneBleed() {
 		return
 	}
 	if dot.rankGroup != nil && !dot.replaceOtherRanks(sim) {
@@ -102,6 +102,10 @@ func (dot *Dot) Apply(sim *Simulation) {
 	dot.TakeSnapshot(sim)
 	dot.recomputeAuraDuration(sim)
 	dot.Activate(sim)
+}
+
+func (dot *Dot) isImmuneBleed() bool {
+	return dot.Unit.BleedImmune && dot.Spell.Flags.Matches(SpellFlagBleed)
 }
 
 // A rank does not land while a higher rank from the same caster is up on the unit; otherwise it ends
@@ -238,6 +242,9 @@ func (dot *Dot) AddTick() {
 // Copy's the original DoT's period and duration to the current DoT.
 // This is only currently used for Mage's Impact DoT spreading and Enhancement's ImprovedLava Lash.
 func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
+	if dot.isImmuneBleed() {
+		return
+	}
 	dot.TakeSnapshot(sim)
 	dot.SnapshotBaseDamage = originaldot.SnapshotBaseDamage
 

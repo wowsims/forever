@@ -9,11 +9,11 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// Feral charge, shifting power, primal bite and berserk, plus furor and natural shapeshifter so the
+// Feral charge, primal bite and shifting power, plus furor and natural shapeshifter so the
 // form spells can both be paid for. Prowl is castable only before the pull, so each opener is its own
 // request: one prowls into Pounce, the other into Ravage. Both then leave cat form and come back so
 // both form spells are casts.
-const coverageTalents = "0000000000000000-00000000101100000001-0500300000000000"
+const coverageTalents = "0000000000000000-05000000100000000011-0000300000000000"
 
 func TestFeralCatCoverage(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), []core.TestGenerator{castsGen{
@@ -47,7 +47,6 @@ func catCoverageRequest(opener int32) *proto.RaidSimRequest {
 		}},
 		PriorityList: []*proto.APLListItem{
 			castWhen(opener, prowling),
-			castWhen(417141, not(prowling)),
 			castWhen(1322605, not(prowling)),
 			// Energy ticks jump over the gaps between these costs, so each builder and finisher
 			// owns a slice of the fight. Claw also builds combo points for the finishers.
@@ -57,8 +56,10 @@ func catCoverageRequest(opener int32) *proto.RaidSimRequest {
 			castWhen(9896, and(not(prowling), timeAtLeast("0.8"))),
 			castWhen(9850, and(not(prowling), or(timeBelow("0.2"), timeAtLeast("0.6")))),
 			// A late shift into dire bear spends the mana needed to shift back, so the form
-			// spells only run while claw still owns the fight.
-			castWhen(9634, and(not(prowling), not(auraUp(9634)), timeBelow("0.2"))),
+			// spells only run while claw still owns the fight, and only with the mana for both.
+			castWhen(9634, and(not(prowling), not(auraUp(9634)), timeBelow("0.2"), cmp(proto.APLValueCompare_OpGe,
+				&proto.APLValue{Value: &proto.APLValue_CurrentMana{CurrentMana: &proto.APLValueCurrentMana{}}},
+				&proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{Op: proto.APLValueMath_OpAdd, Lhs: spellCost(9634), Rhs: spellCost(768)}}}))),
 			castWhen(768, and(not(prowling), timeBelow("0.2"))),
 			castWhen(9892, not(prowling)),
 			castWhen(9821, not(prowling)),
@@ -156,6 +157,12 @@ func konst(val string) *proto.APLValue {
 
 func cmp(op proto.APLValueCompare_ComparisonOperator, lhs, rhs *proto.APLValue) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{Op: op, Lhs: lhs, Rhs: rhs}}}
+}
+
+func spellCost(id int32) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_SpellCurrentCost{SpellCurrentCost: &proto.APLValueSpellCurrentCost{
+		SpellId: &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: id}},
+	}}}
 }
 
 func sequence(ids ...int32) *proto.APLListItem {

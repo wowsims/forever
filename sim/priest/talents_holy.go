@@ -26,7 +26,7 @@ func (priest *Priest) registerHolyTalents() {
 	priest.applyHolyReach()
 	priest.applyImprovedHealing()
 	priest.applySearingLight()
-	priest.applyBindingHeal()
+	priest.applyHolyBinding()
 
 	// Tier 5
 	priest.applyLitanyOfLight()
@@ -178,13 +178,34 @@ func (priest *Priest) applySearingLight() {
 	})
 }
 
-// Grants Binding Heal.
-func (priest *Priest) applyBindingHeal() {
-	if !priest.Talents.BindingHeal {
+// Each time you heal a target other than yourself with Flash Heal, you are healed for X% as much.
+// This healing generates no threat.
+//
+// The talent's row is off in Shadowform, and every Flash Heal row refuses that form already.
+func (priest *Priest) applyHolyBinding() {
+	if !priest.Talents.HolyBinding {
 		return
 	}
 
-	spellData.BindingHeal.Each(priest.registerBindingHeal)
+	talent := spellData.HolyBinding.Rank(1)
+	share := talent.EffectN(1).Percent()
+
+	// The heal's row states a placeholder of 1; the talent's share sets the amount. The heal lacks Not a
+	// Proc. The share already carries the caster's healing mods, so only the priest's own healing taken
+	// mods apply to it.
+	selfHeal := priest.RegisterSpell(spelldata.SpellConfig(&priest.Unit, spelldata.MustFind(1328570),
+		spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(),
+		spelldata.Flags(core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)))
+
+	trigger := spelldata.ProcTrigger(&priest.Character, talent, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+		selfHeal.CalcAndDealHealing(sim, &priest.Unit, result.Damage*share, selfHeal.OutcomeHealing)
+	})
+	// The row's listener names no spell; the tooltip limits it to Flash Heal on another target.
+	trigger.ClassSpellMask = PriestSpellFlashHeal
+	trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		return result.Target != &priest.Unit
+	}
+	priest.MakeProcTriggerAura(trigger)
 }
 
 // When you cast a healing spell, gain Mana equal to 20% of the base cost of the spell if your previous heal was a different spell.
@@ -219,7 +240,6 @@ const priestLitanyOfLightHeals = PriestSpellFlashHeal |
 	PriestSpellLesserHeal |
 	PriestSpellHeal |
 	PriestSpellGreaterHeal |
-	PriestSpellBindingHeal |
 	PriestSpellRenew |
 	PriestSpellPenance |
 	PriestSpellPrayerOfHealing |
