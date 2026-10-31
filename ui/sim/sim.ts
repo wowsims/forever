@@ -790,7 +790,7 @@ export class Sim {
 		[ConsumableType.ConsumableTypeElixir]: 35,
 		[ConsumableType.ConsumableTypeScroll]: 40,
 		[ConsumableType.ConsumableTypeExplosive]: 30,
-		[ConsumableType.ConsumableTypeImbue]: 35,
+		[ConsumableType.ConsumableTypeImbue]: 24,
 		[ConsumableType.ConsumableTypeWeaponImbue]: 40,
 	};
 	getMinConsumableLvl(type: ConsumableType): number {
