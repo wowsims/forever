@@ -22,9 +22,9 @@ func (druid *Druid) registerInnervateCD() {
 	}
 	druid.Innervate = druid.RegisterSpell(config)
 	druid.AddMajorCooldown(core.MajorCooldown{
-		Spell:  druid.Innervate.Spell,
-		Type:   core.CooldownTypeMana,
-		Manual: true,
+		Spell:           druid.Innervate.Spell,
+		Type:            core.CooldownTypeMana,
+		DisableAutocast: true,
 	})
 }
 

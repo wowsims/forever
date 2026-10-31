@@ -61,8 +61,8 @@ type MajorCooldown struct {
 	// automatic timing.
 	ShouldActivate CooldownActivationCondition
 
-	// Goes only at a timing set in the cooldown settings or when the APL casts it, never on its own.
-	Manual bool
+	// Autocast Other Cooldowns uses it only at a timing set in the cooldown settings; otherwise only the APL casts it.
+	DisableAutocast bool
 
 	// Fixed timings at which to use this cooldown. If these are specified, they
 	// are used instead of ShouldActivate.
@@ -74,7 +74,7 @@ type MajorCooldown struct {
 
 // Whether Autocast Other Cooldowns can cast it: at a timing, or on its own.
 func (mcd *MajorCooldown) autocasts() bool {
-	return len(mcd.timings) > 0 || !mcd.Manual
+	return len(mcd.timings) > 0 || !mcd.DisableAutocast
 }
 
 func (mcd *MajorCooldown) ReadyAt() time.Duration {
@@ -255,9 +255,9 @@ func (mcdm *majorCooldownManager) AddMajorCooldown(mcd MajorCooldown) {
 	// action still uses it for anyone. The tank slots are read before any cooldown is added.
 	defensiveOnly := mcd.Type.Matches(CooldownTypeSurvival) && !mcd.Type.Matches(CooldownTypeDPS|CooldownTypeMana)
 	if mcd.ShouldActivate == nil && defensiveOnly && !mcdm.character.isTank {
-		mcd.Manual = true
+		mcd.DisableAutocast = true
 	}
-	if mcd.Manual {
+	if mcd.DisableAutocast {
 		mcd.ShouldActivate = func(_ *Simulation, _ *Character) bool { return false }
 	} else if mcd.ShouldActivate == nil {
 		mcd.ShouldActivate = func(_ *Simulation, _ *Character) bool { return true }

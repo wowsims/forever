@@ -41,7 +41,7 @@ func (druid *Druid) registerFrenziedRegenerationSpell() {
 		Spell:              druid.FrenziedRegeneration.Spell,
 		Type:               core.CooldownTypeSurvival,
 		AllowSpellQueueing: true,
-		Manual:             true,
+		DisableAutocast:    true,
 	})
 
 	for _, form := range []*core.Aura{druid.BearFormAura, druid.DireBearFormAura} {
