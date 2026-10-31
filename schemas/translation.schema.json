@@ -405,37 +405,12 @@
 						"dungeon": {
 							"type": "string"
 						},
-						"dungeon_h": {
-							"type": "string"
-						},
 						"raid": {
-							"type": "string"
-						},
-						"raid_h": {
-							"type": "string"
-						},
-						"raid_rf": {
-							"type": "string"
-						},
-						"raid_flex": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": [
-						"unknown",
-						"crafting",
-						"quest",
-						"sold_by",
-						"reputation",
-						"pvp",
-						"dungeon",
-						"dungeon_h",
-						"raid",
-						"raid_h",
-						"raid_rf",
-						"raid_flex"
-					]
+					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid"]
 				},
 				"raids": {
 					"type": "object",
@@ -1252,46 +1227,14 @@
 						"unknown": {
 							"type": "string"
 						},
-						"normal": {
+						"dungeon": {
 							"type": "string"
 						},
-						"heroic": {
-							"type": "string"
-						},
-						"celestial": {
-							"type": "string"
-						},
-						"raid_10": {
-							"type": "string"
-						},
-						"raid_10_heroic": {
-							"type": "string"
-						},
-						"raid_finder": {
-							"type": "string"
-						},
-						"raid_25": {
-							"type": "string"
-						},
-						"raid_25_heroic": {
-							"type": "string"
-						},
-						"raid_flex": {
+						"raid": {
 							"type": "string"
 						}
 					},
-					"required": [
-						"unknown",
-						"normal",
-						"heroic",
-						"celestial",
-						"raid_10",
-						"raid_10_heroic",
-						"raid_finder",
-						"raid_25",
-						"raid_25_heroic",
-						"raid_flex"
-					],
+					"required": ["unknown", "dungeon", "raid"],
 					"additionalProperties": false
 				},
 				"rep_levels": {
@@ -2149,16 +2092,6 @@
 							"required": ["favorite", "compare", "add_favorite", "remove_favorite", "add_to_batch", "remove_from_batch"],
 							"additionalProperties": false
 						},
-						"sources": {
-							"type": "object",
-							"properties": {
-								"world_drop": {
-									"type": "string"
-								}
-							},
-							"required": ["world_drop"],
-							"additionalProperties": false
-						},
 						"edit_slot": {
 							"type": "string"
 						}
@@ -2190,7 +2123,6 @@
 						"min_ranged_speed",
 						"max_ranged_speed",
 						"row_actions",
-						"sources",
 						"edit_slot"
 					]
 				},
