@@ -20,6 +20,7 @@ import (
 	"github.com/wowsims/forever/tools"
 	"github.com/wowsims/forever/tools/database"
 	"github.com/wowsims/forever/tools/database/dbc"
+	googleProto "google.golang.org/protobuf/proto"
 )
 
 // To do a full re-scrape, delete the previous output file first.
@@ -109,6 +110,8 @@ func main() {
 		repSources      map[int][]*proto.RepSource
 		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
+		raidZones       map[int32]bool
+		areaTableIDs    map[int32]bool
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -142,6 +145,8 @@ func main() {
 		atlaslootDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/atlasloot_db.json", inputsDir)))
 		return nil
 	})
+	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
+	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
@@ -189,6 +194,8 @@ func main() {
 		}
 	}
 
+	setDropDifficulties(db, raidZones, areaTableIDs)
+
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
 		routing := database.RouteConsumable(&consumable, instance)
@@ -220,7 +227,7 @@ func main() {
 	leftovers.WriteBinaryAndJson(fmt.Sprintf("%s/leftover_db.bin", dbDir), fmt.Sprintf("%s/leftover_db.json", dbDir))
 	ApplySimmableFilters(db)
 
-	database.GenerateItemEffects(instance, db, dropSources)
+	database.GenerateItemEffects(instance, db)
 	database.GenerateEnchantEffects(instance, db)
 	if err := database.GenerateConsumableRegistrations(instance, db, consumableRoutes); err != nil {
 		log.Fatalf("failed to generate the consumable registrations: %v", err)
@@ -292,13 +299,54 @@ func main() {
 	database.LoadAndWriteEnchantDescriptions("assets/enchants/descriptions.json", db, instance)
 
 	atlasDBProto := atlaslootDB.ToUIProto()
-	db.MergeZones(atlasDBProto.Zones)
-	db.MergeNpcs(atlasDBProto.Npcs)
+	for _, zone := range atlasDBProto.Zones {
+		if areaTableIDs[zone.Id] {
+			db.MergeZone(zone)
+		}
+	}
+	for _, npc := range atlasDBProto.Npcs {
+		if areaTableIDs[npc.ZoneId] && !dropNpcsNotInForever[npc.Id] {
+			db.MergeNpc(npc)
+		}
+	}
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
+}
+
+// Drop sources from NPCs that are not in Forever although their zone is.
+var dropNpcsNotInForever = map[int32]bool{
+	36296: true, // Apothecary Hummel, Shadowfang Keep.
+}
+
+// setDropDifficulties drops the drop sources of zones missing from the game files and of the NPCs in
+// dropNpcsNotInForever, sets the rest to Raid in a raid zone and Dungeon elsewhere, and removes the exact
+// duplicates this leaves.
+func setDropDifficulties(db *database.WowDatabase, raidZones, areaTableIDs map[int32]bool) {
+	for _, item := range db.Items {
+		var drops []*proto.DropSource
+		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
+			drop := source.GetDrop()
+			if drop == nil {
+				return true
+			}
+			if !areaTableIDs[drop.ZoneId] || dropNpcsNotInForever[drop.NpcId] {
+				return false
+			}
+			if raidZones[drop.ZoneId] {
+				drop.Difficulty = proto.DungeonDifficulty_DifficultyRaid
+			} else {
+				drop.Difficulty = proto.DungeonDifficulty_DifficultyDungeon
+			}
+			if slices.ContainsFunc(drops, func(seen *proto.DropSource) bool { return googleProto.Equal(seen, drop) }) {
+				return false
+			}
+			drops = append(drops, drop)
+			return true
+		})
+	}
 }
 
 func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {

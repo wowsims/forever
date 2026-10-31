@@ -125,11 +125,7 @@
 			"reputation": "Reputation",
 			"pvp": "PVP",
 			"dungeon": "Dungeon",
-			"dungeon_h": "Dungeon (H)",
-			"raid": "Raid",
-			"raid_h": "Raid (H)",
-			"raid_rf": "Raid (RF)",
-			"raid_flex": "Raid (Flex)"
+			"raid": "Raid"
 		},
 		"raids": {
 			"unknown": "Unknown",
@@ -351,15 +347,8 @@
 		},
 		"dungeon_difficulties": {
 			"unknown": "Unknown",
-			"normal": "N",
-			"heroic": "H",
-			"celestial": "CEL",
-			"raid_10": "10N",
-			"raid_10_heroic": "10H",
-			"raid_finder": "RF",
-			"raid_25": "RN",
-			"raid_25_heroic": "RH",
-			"raid_flex": "RFL"
+			"dungeon": "Dungeon",
+			"raid": "Raid"
 		},
 		"rep_levels": {
 			"unknown": "Unknown",

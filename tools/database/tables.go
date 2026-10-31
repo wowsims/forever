@@ -2145,7 +2145,7 @@ func ScanDropRow(rows *sql.Rows) (itemID int, ds *proto.DropSource, instanceName
 		return 0, nil, "", fmt.Errorf("scanning drop row: %w", err)
 	}
 
-	dropSource.Difficulty = parseDungeonDifficultyMask(mask, instanceType == 2)
+	dropSource.Difficulty = parseDungeonDifficulty(instanceType == 2)
 	return itemID, &dropSource, jiName, nil
 }
 
@@ -2381,4 +2381,44 @@ func tabDisplayName(labels map[[2]int]string, classMask, tabIdx int, fallback st
 		return name
 	}
 	return fallback
+}
+
+// LoadRaidZoneIDs returns the AreaTable ids of the raid zones. A Map with InstanceType 2 names its zone in
+// AreaTableID, or the zone's ContinentID is that Map. Both are needed: Onyxia's Lair has the Kalimdor
+// ContinentID and only Map 249 names it, while Stratholme, Scholomance and the other dungeon maps leave
+// AreaTableID 0 and are found through ContinentID.
+func LoadRaidZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
+	const query = `
+		SELECT ID FROM AreaTable
+		WHERE ID IN (SELECT AreaTableID FROM Map WHERE InstanceType = 2)
+		OR ContinentID IN (SELECT ID FROM Map WHERE InstanceType = 2)
+	`
+	ids, err := LoadRows(dbHelper.db, query, func(rows *sql.Rows) (int32, error) {
+		var id int32
+		return id, rows.Scan(&id)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("loading raid zones: %w", err)
+	}
+	raidZones := make(map[int32]bool, len(ids))
+	for _, id := range ids {
+		raidZones[id] = true
+	}
+	return raidZones, nil
+}
+
+// LoadAreaTableIDs returns every AreaTable id in the game files.
+func LoadAreaTableIDs(dbHelper *DBHelper) (map[int32]bool, error) {
+	ids, err := LoadRows(dbHelper.db, `SELECT ID FROM AreaTable`, func(rows *sql.Rows) (int32, error) {
+		var id int32
+		return id, rows.Scan(&id)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("loading AreaTable ids: %w", err)
+	}
+	areas := make(map[int32]bool, len(ids))
+	for _, id := range ids {
+		areas[id] = true
+	}
+	return areas, nil
 }

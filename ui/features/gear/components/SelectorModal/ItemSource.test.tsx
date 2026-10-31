@@ -1,8 +1,7 @@
 import { Profession } from '@generated/proto/common';
 import { DungeonDifficulty, RepLevel, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
 import { ActionId } from '@sim/proto/action_id';
-import { getPVPSeasonFromItem } from '@sim/proto/items';
-import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
+import { professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -35,12 +34,12 @@ describe('ItemSource', () => {
 		expect(container.textContent).toBe('gear_tab.gear_picker.sources.world_drop');
 	});
 
-	it('links to the pvp season for a gladiator item with no sources', () => {
-		const item = Item.create({ id: 200, name: "Wrathful Gladiator's Pauldrons", sources: [], randomSuffixOptions: [] });
+	it('links to the item page for a pvp item with no sources', () => {
+		const item = Item.create({ id: 200, name: "Knight-Captain's Plate Chestguard", sources: [], randomSuffixOptions: [] });
 		const { container, getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeItemUrl(200));
-		expect(container.textContent).toBe(`${getPVPSeasonFromItem(item)}common.sources.pvp`);
+		expect(container.textContent).toBe('common.sources.pvp');
 	});
 
 	it('renders nothing for a plain item with no sources, no suffixes, and no pvp name', () => {
@@ -91,7 +90,7 @@ describe('ItemSource', () => {
 				{
 					source: {
 						oneofKind: 'drop',
-						drop: { zoneId: 10, npcId: 20, difficulty: DungeonDifficulty.DifficultyRaid10H, otherName: '', category: 'Hard Mode' },
+						drop: { zoneId: 10, npcId: 20, difficulty: DungeonDifficulty.DifficultyRaid, otherName: '', category: 'Hard Mode' },
 					},
 				},
 			],
@@ -99,7 +98,7 @@ describe('ItemSource', () => {
 		const { container, getByRole } = mount(item, { zones: { 10: { id: 10, name: 'Icecrown Citadel' } }, npcs: { 20: { id: 20, name: 'The Lich King' } } });
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(20));
-		expect(container.textContent).toBe(`Icecrown Citadel (${difficultyNames.get(DungeonDifficulty.DifficultyRaid10H)})The Lich King - Hard Mode`);
+		expect(container.textContent).toBe('Icecrown Citadel (common.dungeon_difficulties.raid)The Lich King - Hard Mode');
 	});
 
 	it.each([

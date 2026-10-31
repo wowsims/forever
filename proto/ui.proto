@@ -123,18 +123,8 @@ enum Expansion {
 
 enum DungeonDifficulty {
 	DifficultyUnknown = 0;
-	DifficultyNormal = 1;
-	DifficultyHeroic = 2;
-	DifficultyTitanRuneAlpha = 7;
-	DifficultyTitanRuneBeta = 8;
-	DifficultyCelestial = 10;
-	DifficultyRaid10 = 3;
-	DifficultyRaid10H = 4;
-	DifficultyRaid25 = 5;
-	DifficultyRaid25H = 6;
-	DifficultyRaid25RF = 9;
-	DifficultyRaidFlex = 11;
-	DifficultyVendor = 12;
+	DifficultyDungeon = 1;
+	DifficultyRaid = 2;
 }
 
 enum RepLevel {
@@ -229,14 +219,10 @@ enum SourceFilterOption {
 	SourceCrafting = 1;
 	SourceQuest = 2;
 	SourceReputation = 3;
-	SourceSoldBy = 11;
 	SourcePvp = 4;
 	SourceDungeon = 5;
-	SourceDungeonH = 6;
+	SourceSoldBy = 6;
 	SourceRaid = 7;
-	SourceRaidH = 8;
-	SourceRaidRF = 9;
-	SourceRaidFlex = 10;
 }
 
 enum RaidFilterOption {

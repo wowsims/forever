@@ -70,19 +70,57 @@ export function canEquipItem<SpecType extends Spec>(item: Item, playerSpec: Play
 	return playerClass.armorTypes[0] >= item.armorType;
 }
 
-const pvpSeasonFromName: Record<string, string> = {
-	Wrathful: 'Season 8',
-	Bloodthirsty: 'Season 8.5',
-	Vicious: 'Season 9',
-	Ruthless: 'Season 10',
-	Cataclysmic: 'Season 11',
-};
+// Honor rank and battleground item name prefixes. "Premier " items are Forever's reissued PvP items and all count.
+const PVP_NAME_PREFIXES = [
+	"Private's ",
+	"Corporal's ",
+	"Sergeant's ",
+	"Master Sergeant's ",
+	"Sergeant Major's ",
+	"Knight-Lieutenant's ",
+	"Knight-Captain's ",
+	"Knight-Champion's ",
+	"Lieutenant Commander's ",
+	"Marshal's ",
+	"Field Marshal's ",
+	"Grand Marshal's ",
+	"Scout's ",
+	"Grunt's ",
+	"Senior Sergeant's ",
+	"First Sergeant's ",
+	"Stone Guard's ",
+	"Blood Guard's ",
+	"Legionnaire's ",
+	"Centurion's ",
+	"Champion's ",
+	"Lieutenant General's ",
+	"General's ",
+	"Warlord's ",
+	"High Warlord's ",
+	"Highlander's ",
+	"Defiler's ",
+	"Sentinel's ",
+	"Outrider's ",
+	'Stormpike ',
+	'Frostwolf ',
+	'Insignia of the ',
+];
 
-export const isPVPItem = (item: Item) => item?.name?.includes('Gladiator') || false;
+// PvE items whose names start with a PvP prefix.
+const PVE_ITEM_NAMES = new Set([
+	"Legionnaire's Leggings",
+	"Sentinel's Guard",
+	"Sentinel's Belt",
+	"Sentinel's Gauntlet",
+	"Sentinel's Plate",
+	"Scout's Dagger",
+	"Champion's Legplates",
+]);
 
-export const getPVPSeasonFromItem = (item: Item) => {
-	const seasonName = item.name.substring(0, item.name.indexOf(' '));
-	return pvpSeasonFromName[seasonName] || undefined;
+export const isPVPItem = (item: Item) => {
+	const name = item?.name;
+	if (!name || PVE_ITEM_NAMES.has(name)) return false;
+	return name.startsWith('Premier ') || PVP_NAME_PREFIXES.some(prefix => name.startsWith(prefix));
 };
 
 export function getEligibleItemSlots(item: Item): Array<ItemSlot> {
