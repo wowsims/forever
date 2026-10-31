@@ -57,6 +57,7 @@ type Unit struct {
 	Level int32 // Level of Unit, e.g. Bosses are 83.
 
 	MobType        proto.MobType
+	BleedImmune    bool // A bleed misses this unit, and its Dot does not land (SpellFlagBleed).
 	CreatureFamily proto.CreatureFamily
 
 	// Amount of time it takes for the human agent to react to in-game events.

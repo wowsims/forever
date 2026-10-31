@@ -405,6 +405,18 @@ func TestValueEncounter(t *testing.T) {
 	})
 }
 
+func TestValueTargetIsBleedImmune(t *testing.T) {
+	sim, _, rot := setupFakeRageRotation()
+	value := rot.newValueTargetIsBleedImmune(&proto.APLValueTargetIsBleedImmune{}, nil)
+	if value.GetBool(sim) {
+		t.Error("Target Is Bleed Immune = true on a target that takes bleeds")
+	}
+	sim.Encounter.AllTargetUnits[0].BleedImmune = true
+	if !value.GetBool(sim) {
+		t.Error("Target Is Bleed Immune = false on a bleed-immune target")
+	}
+}
+
 func TestValueTargetIsMobTypeAndEncounterInArea(t *testing.T) {
 	sim, _, rot := setupFakeRageRotation()
 	sim.Encounter.AreaTypes = []proto.AreaType{proto.AreaType_AreaTypeHaunted}

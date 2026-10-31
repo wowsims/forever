@@ -1,0 +1,16 @@
+{
+	"name": "tree-sitter-siml",
+	"version": "0.1.0",
+	"description": "The tree-sitter grammar of SIML, the text form of WoWSims Forever rotations, gear sets and sim setups",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"generate": "tree-sitter generate",
+		"test": "tree-sitter test",
+		"check": "node scripts/check.mjs"
+	},
+	"devDependencies": {
+		"tree-sitter-cli": "0.26.9"
+	}
+}

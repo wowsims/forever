@@ -106,7 +106,8 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 
 // A bear's auto attack takes the two-hander rage factor: a combat log shows 11.25 rage a swing at the
 // bear's 2.5 seconds, 4.5 rage per second of swing. No druid row states a rage multiplier of its own.
-// TODO: Ingame test needed -- whether a bear holding a one-hander takes the one-hand factor instead.
+// TODO: Ingame test needed -- whether a bear holding a one-hander takes the one-hand factor instead, and
+// whether a bear's crit doubles the whole swing as a two-hand warrior's does (measured on warriors only).
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
@@ -359,8 +360,8 @@ func (druid *Druid) RegisterMoonkinFormAura() {
 		return
 	}
 	druid.MoonkinFormAura = druid.registerFormAura(spellData.MoonkinForm.Highest(), druid.StartingForm.Matches(Moonkin))
-	// Moonkin Form (Passive) 24905 states the form's armor from items; its A_MOD_BONUS_ARMOR_PCT has no sim
-	// kind and is reported as skipped. The spell crit of Moonkin Aura 24907 is the raid buff AddRaidBuffs
+	// Moonkin Form (Passive) 24905 states the form's armor from items; its A_MOD_BONUS_ARMOR_PCT has no
+	// sim kind and is reported as skipped. The crit of Moonkin Aura 24907 is the raid buff AddRaidBuffs
 	// turns on.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinFormTriggered.ByID(24905))
 	// Of the form's own effects only Omen of Clarity's proc chance and proc cooldown have a sim kind.

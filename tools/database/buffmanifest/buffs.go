@@ -187,24 +187,26 @@ var Raid = []BuffSpec{
 			proto.Stat_StatNatureResistance,
 		},
 	},
-	// Melee and ranged crit only, so it stacks with Moonkin Aura's spell crit.
+	// Raises all crit, as Moonkin Aura below does; the two share one category, so only one counts.
 	{
 		Field:      "leader_of_the_pack",
 		SpellID:    24932,
 		CastID:     17007,
-		Category:   "LeaderOfThePack",
+		Category:   "RaidCrit",
 		SingleAura: true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
+			proto.Stat_StatSpellDamage,
 		},
 	},
 	{
 		Field:      "moonkin_aura",
 		SpellID:    24907,
 		TooltipID:  24858,
-		Category:   "MoonkinAura",
+		Category:   "RaidCrit",
 		SingleAura: true,
 		Stats: []proto.Stat{
+			proto.Stat_StatAttackPower,
 			proto.Stat_StatSpellDamage,
 		},
 	},
@@ -398,21 +400,17 @@ var Individual = []BuffSpec{
 			proto.Stat_StatMP5,
 		},
 	},
+	// The game files no longer have Greater Blessing of Salvation 25895 or Greater Blessing of Light
+	// 25890, so the two fields stay in saved settings and do nothing.
 	{
-		Field:   "greater_blessing_of_salvation",
-		SpellID: 25895,
+		Field:  "greater_blessing_of_salvation",
+		Kind:   KindFlag,
+		Reason: "Greater Blessing of Salvation 25895 is gone from the game files; the field stays for saved settings and applies nothing.",
 	},
-	// Raises the healing Holy Light and Flash of Light do through flat modifiers on those families.
-	// The paladin's heals read the bonus off their own rows and only look for the aura, which the
-	// category tags.
 	{
-		Field:    "greater_blessing_of_light",
-		SpellID:  25890,
-		Kind:     KindManual,
-		Category: "BlessingOfLight",
-		Stats: []proto.Stat{
-			proto.Stat_StatHealingPower,
-		},
+		Field:  "greater_blessing_of_light",
+		Kind:   KindFlag,
+		Reason: "Greater Blessing of Light 25890 is gone from the game files; the field stays for saved settings and applies nothing.",
 	},
 	{
 		Field:    "innervates",

@@ -6,12 +6,12 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The feral tree in its own order. Feral Charge, Shifting Power and Primal Bite are spells whose cast
-// condition is the talent; registerFeralKit registers them. AddRaidBuffs publishes Leader of the
-// Pack, and the melee specials read Rend and Tear when they deal damage.
+// The feral tree in its own order. Feral Charge, Lacerate, Primal Bite and Shifting Power are spells
+// whose cast condition is the talent; registerFeralKit registers them. Furor is read on entering Cat
+// Form and the bear forms (forms.go), Ferocious Bite reads Predatory Discipline, AddRaidBuffs
+// publishes Leader of the Pack, and the melee specials read Rend and Tear when they deal damage.
 func (druid *Druid) registerFeralCombatTalents() {
 	druid.applyFerocity()
-	druid.applyHeartOfTheWild()
 	druid.applyFeralSwiftness()
 	druid.applyFeralInstinct()
 	druid.applyBrutalImpact()
@@ -21,10 +21,8 @@ func (druid *Druid) registerFeralCombatTalents() {
 	druid.applySharpenedClaws()
 	druid.applyPredatoryStrikes()
 	druid.applyBloodFrenzy()
-	druid.applyImprovedShiftingPower()
 	druid.applyNaturalInstinct()
 	druid.applyNaturalReaction()
-	druid.applyBerserk()
 }
 
 func (druid *Druid) parseTalent(rank int32, ladder spelldata.Ladder) {
@@ -102,10 +100,6 @@ func (druid *Druid) applyShreddingAttacks() {
 	druid.parseTalent(druid.Talents.ShreddingAttacks, spellData.ShreddingAttacks)
 }
 
-func (druid *Druid) applyImprovedShiftingPower() {
-	druid.parseTalent(druid.Talents.ImprovedShiftingPower, spellData.ImprovedShiftingPower)
-}
-
 func (druid *Druid) applyPredatoryStrikes() {
 	if druid.Talents.PredatoryStrikes == 0 {
 		return
@@ -121,26 +115,6 @@ func (druid *Druid) applyPredatoryStrikes() {
 
 func (druid *Druid) applySavageFury() {
 	druid.parseTalent(druid.Talents.SavageFury, spellData.SavageFury)
-}
-
-func (druid *Druid) applyHeartOfTheWild() {
-	if druid.Talents.HeartOfTheWild == 0 {
-		return
-	}
-	// Effect 1 is the Intellect ($s1), which the parse reads from its stat mask. The bear Stamina ($s2)
-	// and cat Strength ($s3) are dummies the forms carry.
-	druid.parseTalent(druid.Talents.HeartOfTheWild, spellData.HeartOfTheWild)
-	row := spellData.HeartOfTheWild.Rank(druid.Talents.HeartOfTheWild)
-	strength := druid.NewDynamicMultiplyStat(stats.Strength, 1+row.EffectN(3).Percent())
-	if druid.CatFormAura != nil {
-		druid.CatFormAura.AttachStatDependency(strength)
-	}
-	stamina := druid.NewDynamicMultiplyStat(stats.Stamina, 1+row.EffectN(2).Percent())
-	for _, aura := range []*core.Aura{druid.BearFormAura, druid.DireBearFormAura} {
-		if aura != nil {
-			aura.AttachStatDependency(stamina)
-		}
-	}
 }
 
 func (druid *Druid) applyNaturalInstinct() {
@@ -193,31 +167,4 @@ func (druid *Druid) applyNaturalReaction() {
 	})
 	trigger.Outcome = core.OutcomeDodge
 	druid.MakeProcTriggerAura(trigger)
-}
-
-func (druid *Druid) applyBerserk() {
-	if !druid.Talents.Berserk {
-		return
-	}
-	row := spellData.Berserk.Highest()
-	druid.BerserkAura = druid.RegisterAura(spelldata.AuraConfig(row))
-	// Crit on the builder mask and Primal Bite's cooldown. Jump targets and fear immunity are not parsed.
-	spelldata.ParseEffects(&druid.Character, druid.BerserkAura, row)
-	// TODO: Ingame confirmation needed -- whether Berserk clears a running Primal Bite cooldown
-	druid.BerserkAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-		if druid.PrimalBite != nil {
-			druid.PrimalBite.CD.Reset()
-		}
-	})
-	config := spelldata.SpellConfig(&druid.Unit, row)
-	config.Flags |= core.SpellFlagAPL
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		druid.BerserkAura.Activate(sim)
-	}
-	config.RelatedSelfBuff = druid.BerserkAura
-	druid.Berserk = druid.RegisterSpell(config)
-	druid.AddMajorCooldown(core.MajorCooldown{
-		Spell: druid.Berserk.Spell,
-		Type:  core.CooldownTypeDPS,
-	})
 }

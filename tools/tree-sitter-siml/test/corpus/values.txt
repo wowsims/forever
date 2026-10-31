@@ -1,0 +1,128 @@
+================================================================================
+Precedence
+================================================================================
+
+priority:
+  cast x if not $a == 1 and $b or $c + 2 * 3 > -1.5s
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (not_expression
+            (binary_expression
+              (variable)
+              (number)))
+          (variable))
+        (binary_expression
+          (binary_expression
+            (variable)
+            (binary_expression
+              (number)
+              (number)))
+          (negative_number
+            (number)))))))
+
+================================================================================
+Accessors, unit prefixes and names
+================================================================================
+
+priority:
+  cast x if target.aura(sunder_armor).num_stacks(include_reaction_time=true) < 5
+  cast x if self.unit_distance > 1m30s and sequence("HHA").is_complete
+  cast x if none.current_health_percent < 30% and other.drums == item.drums
+  cast x if and($a) or not(true)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier))
+      (binary_expression
+        (member
+          (member
+            (identifier)
+            (identifier)
+            (arguments
+              (identifier)))
+          (identifier)
+          (arguments
+            (named_argument
+              (identifier)
+              (boolean))))
+        (number)))
+    (row
+      (cast_step
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (member
+            (identifier)
+            (identifier))
+          (number))
+        (member
+          (call
+            (identifier)
+            (arguments
+              (string)))
+          (identifier))))
+    (row
+      (cast_step
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (member
+            (none)
+            (identifier))
+          (number))
+        (binary_expression
+          (namespaced_name
+            (identifier))
+          (namespaced_name
+            (identifier)))))
+    (row
+      (cast_step
+        (identifier))
+      (binary_expression
+        (call
+          (identifier)
+          (arguments
+            (variable)))
+        (call
+          (identifier)
+          (arguments
+            (boolean)))))))
+
+================================================================================
+Placeholders, strings and raw values
+================================================================================
+
+priority:
+  cast x if %p and action_group_used("Stance Dance ON/OFF") and `{"const": {"val": "1"}}`
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier))
+      (binary_expression
+        (binary_expression
+          (placeholder)
+          (call
+            (identifier)
+            (arguments
+              (string))))
+        (raw
+          (json))))))

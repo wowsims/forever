@@ -15,6 +15,7 @@ var ExtraSpells = []Extra{
 	{SpellID: 414924, Reason: "Cat form Feral Charge", Source: "game files"},
 	{SpellID: 1293697, Reason: "Demonic Brand's Shadow damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293697 description"},
 	{SpellID: 1293698, Reason: "Demonic Brand's Fire damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293698 description"},
+	{SpellID: 1328570, Reason: "Holy Binding's self heal; nothing links it to the talent", Source: "Spell 1328570"},
 	{SpellID: 1249755, Reason: "Summoning Disorientation, a 6 sec stun; no skill line row reaches it and no summon row triggers it", Source: "Spell 1249755"},
 	// Enchant Weapon - Revelation 8217: its proc spell 1248806 names no trigger, and each class with
 	// spells to crit has a buff of its own, which the sim picks by the wearer's class.

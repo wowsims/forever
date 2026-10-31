@@ -185,6 +185,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			Level:          options.Level,
 			MobType:        options.MobType,
 			CreatureFamily: options.CreatureFamily,
+			BleedImmune:    options.BleedImmune,
 			auraTracker:    newAuraTracker(),
 			stats:          unitStats,
 			PseudoStats:    stats.NewPseudoStats(),

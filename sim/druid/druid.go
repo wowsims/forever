@@ -31,7 +31,6 @@ type Druid struct {
 
 	Barkskin             *DruidSpell
 	Bash                 *DruidSpell
-	Berserk              *DruidSpell
 	ChallengingRoar      *DruidSpell
 	Claw                 *DruidSpell
 	Cower                *DruidSpell
@@ -73,7 +72,6 @@ type Druid struct {
 	MoonkinForm  *DruidSpell
 
 	BearFormAura             *core.Aura
-	BerserkAura              *core.Aura
 	CatFormAura              *core.Aura
 	ClearcastingAura         *core.Aura
 	OmenOfClarityAura        *core.Aura // The proc trigger, whose ICD says when Omen of Clarity can proc again.

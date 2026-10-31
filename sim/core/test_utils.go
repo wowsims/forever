@@ -86,19 +86,16 @@ var FullPartyBuffs = &proto.PartyBuffs{
 }
 
 var FullIndividualBuffs = &proto.IndividualBuffs{
-	GreaterBlessingOfKings:     true,
-	GreaterBlessingOfSalvation: true,
-	GreaterBlessingOfWisdom:    true,
-	GreaterBlessingOfMight:     true,
-	GreaterBlessingOfLight:     true,
-	Thorns:                     true,
+	GreaterBlessingOfKings:  true,
+	GreaterBlessingOfWisdom: true,
+	GreaterBlessingOfMight:  true,
+	Thorns:                  true,
 }
 
 var FullTankIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfKings:  true,
 	GreaterBlessingOfWisdom: true,
 	GreaterBlessingOfMight:  true,
-	GreaterBlessingOfLight:  true,
 	Thorns:                  true,
 }
 

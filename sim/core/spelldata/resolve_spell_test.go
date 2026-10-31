@@ -207,6 +207,33 @@ func TestSpellConfigBleedMultipliers(t *testing.T) {
 	}
 }
 
+func TestSpellConfigMarksBleedDots(t *testing.T) {
+	for _, check := range []struct {
+		name string
+		row  Spell
+		want bool
+	}{
+		{"mechanic on the spell", Spell{ID: 1, Mechanic: dbcenums.MECHANIC_BLEED}, true},
+		{"mechanic on the periodic effect", Spell{ID: 1, Effects: []Effect{{Type: dbcenums.E_WEAPON_DAMAGE}, {Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, Mechanic: dbcenums.MECHANIC_BLEED}}}, true},
+		{"mechanic on another effect", Spell{ID: 1, Effects: []Effect{{Mechanic: dbcenums.MECHANIC_BLEED}}}, false},
+		{"periodic effect with no mechanic", Spell{ID: 1, Effects: []Effect{{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE}}}, false},
+	} {
+		t.Run(check.name, func(t *testing.T) {
+			if got := check.row.AppliesBleed(); got != check.want {
+				t.Errorf("AppliesBleed = %t, want %t", got, check.want)
+			}
+		})
+	}
+
+	withRows(t, resolverRows())
+	if !SpellConfig(testUnit(), Find(800)).Flags.Matches(core.SpellFlagBleed) {
+		t.Error("the bleed row's config carries no SpellFlagBleed")
+	}
+	if SpellConfig(testUnit(), Find(100)).Flags.Matches(core.SpellFlagBleed) {
+		t.Error("a row with no bleed carries SpellFlagBleed")
+	}
+}
+
 func TestSpellConfigRageCostAndRefund(t *testing.T) {
 	withRows(t, resolverRows())
 

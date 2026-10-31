@@ -103,7 +103,6 @@ export default defineSpec<Spec.SpecRogue>({
 		individualBuffs: IndividualBuffs.create({
 			greaterBlessingOfKings: true,
 			greaterBlessingOfMight: true,
-			greaterBlessingOfSalvation: true,
 		}),
 		debuffs: Debuffs.create({
 			curseOfRecklessness: true,

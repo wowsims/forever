@@ -145,8 +145,9 @@ func (mage *Mage) registerImprovedBlizzard() {
 	}
 }
 
-// "Increases the range of your Frostbolt and Blizzard spells and the radius of your Frost Nova and
-// Cone of Cold spells by 20%."
+// "Increases the range of your Frostbolt, Frost Blast, Ice Lance, and Blizzard spells and the radius of
+// your Frost Nova and Cone of Cold spells by 20%." The tooltip names Frost Blast, which the game files
+// do not ship.
 func (mage *Mage) registerArcticReach() {
 	if mage.Talents.ArcticReach == 0 {
 		return
@@ -303,7 +304,7 @@ func (mage *Mage) registerFingersOfFrost() {
 
 // "Gives your Frostbolt, Frost Blast, and Fingers of Frost empowered Ice Lance spells a 20/40/60/80/100%
 // chance to apply Winter's Chill, increasing the target's damage taken from your next Cone of Cold by
-// 5% and it gains an additional 7% of your spell damage, stacking up to 5 times."
+// 20% and it gains an additional 7% of your spell damage, stacking up to 5 times."
 //
 // The tooltip still names Frost Blast, which the game files do not ship. The talent (11180) names no
 // class mask, so the spells are checked here; its chance is effect 2, which the resolver reads, and

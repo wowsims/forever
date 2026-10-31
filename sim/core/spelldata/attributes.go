@@ -42,6 +42,12 @@ func (s *Spell) IsBleed() bool {
 	return s.Mechanic == dbcenums.MECHANIC_BLEED
 }
 
+// Whether the spell's periodic damage is a bleed: the mechanic sits on the spell, or on the effect
+// alone where the spell also hits directly.
+func (s *Spell) AppliesBleed() bool {
+	return s.IsBleed() || s.PeriodicDamageEffect().Mechanic == dbcenums.MECHANIC_BLEED
+}
+
 func (s *Spell) RefundsOnMiss() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_1, dbcenums.ATTR_EX_1_DISCOUNT_POWER_ON_MISS)
 }

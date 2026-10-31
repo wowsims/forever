@@ -4,6 +4,7 @@ package feralcat
 
 import (
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -29,7 +30,7 @@ func TestMonocatStaysInCatForm(t *testing.T) {
 	for _, c := range []struct {
 		name string
 		id   int32
-	}{{"Shifting Power", 1322605}, {"Shred", 9830}, {"Rip", 9896}, {"Rake", 9904}, {"Berserk", 417141}, {"Faerie Fire", 9907}} {
+	}{{"Shifting Power", 1322605}, {"Shred", 9830}, {"Rip", 9896}, {"Rake", 9904}, {"Faerie Fire", 9907}} {
 		if castsOf(player.Actions, c.id) == 0 {
 			t.Errorf("%s was never cast", c.name)
 		}
@@ -40,9 +41,9 @@ func TestMonocatStaysInCatForm(t *testing.T) {
 	}
 }
 
-// Ferocious Bite spends the combo points only once a Rip would not tick out, in the last 10 seconds.
+// Without Predatory Discipline, Ferocious Bite spends the combo points only once a Rip would not tick out.
 func TestMonocatBitesOnlyAtTheEnd(t *testing.T) {
-	request := catPowershiftRequest(powershiftTalents, defaultCatRotation(), false)
+	request := catPowershiftRequest(withFeralDigit(powershiftTalents, 12, '0'), defaultCatRotation(), false)
 	request.SimOptions.Debug = true
 	result := core.RunSim(request, nil, simsignals.CreateSignals())
 	if result.Error != nil {
@@ -67,6 +68,19 @@ func TestMonocatBitesOnlyAtTheEnd(t *testing.T) {
 	}
 }
 
+// With Predatory Discipline, the extra combo points two points of Blood Frenzy give go to Ferocious Bite while Rip ticks.
+func TestMonocatBitesSpareComboPointsWithBloodFrenzy(t *testing.T) {
+	endOnly := defaultCatRotation()
+	endOnly.PriorityList = slices.DeleteFunc(endOnly.PriorityList, func(item *proto.APLListItem) bool {
+		return item.Action.GetCondition().GetVariableRef().GetName() == "Midfight Bite is worthwhile"
+	})
+	spare := runCat(t, sweepRequest(catTalents, defaultCatRotation(), false, 100))
+	without := runCat(t, sweepRequest(catTalents, endOnly, false, 100))
+	if got, want := castsOf(spare.Actions, 22829), castsOf(without.Actions, 22829); got <= want {
+		t.Errorf("Ferocious Bite casts = %d with the midfight line, %d without it, want more with it", got, want)
+	}
+}
+
 func TestMonocatKeepsRakeUp(t *testing.T) {
 	player := runCat(t, catPowershiftRequest(powershiftTalents, defaultCatRotation(), false))
 	// Rake lasts 9 s, so a 90 s fight that keeps it up casts it about ten times.
@@ -76,38 +90,12 @@ func TestMonocatKeepsRakeUp(t *testing.T) {
 }
 
 func TestMonocatWithoutShiftingPowerTalent(t *testing.T) {
-	player := runCat(t, catPowershiftRequest(withFeralDigit(powershiftTalents, 10, '0'), defaultCatRotation(), false))
+	player := runCat(t, catPowershiftRequest(withFeralDigit(powershiftTalents, 19, '0'), defaultCatRotation(), false))
 	if got := castsOf(player.Actions, 1322605); got != 0 {
 		t.Fatalf("shifting power casts = %d, the talent is not taken", got)
 	}
 	if castsOf(player.Actions, 9896) == 0 {
 		t.Fatal("rip was never cast")
-	}
-}
-
-func TestAdaptiveDoesNotPoolForUntalentedBerserk(t *testing.T) {
-	rotation := defaultCatRotation()
-	request := catPowershiftRequest(withFeralDigit(powershiftTalents, 19, '0'), rotation, false)
-	request.SimOptions.Debug = true
-	request.Encounter.Duration = 120
-	baseline := core.RunSim(request, nil, simsignals.CreateSignals())
-	if baseline.Error != nil {
-		t.Fatal(baseline.Error.Message)
-	}
-	if castsOf(baseline.RaidMetrics.Parties[0].Players[0].Actions, spellBerserk) != 0 {
-		t.Fatal("Berserk was cast without the talent")
-	}
-	for _, variable := range rotation.ValueVariables {
-		if variable.Name == "Followup Berserk energy target" {
-			variable.Value.GetConst().Val = "1000"
-		}
-	}
-	changed := core.RunSim(request, nil, simsignals.CreateSignals())
-	if changed.Error != nil {
-		t.Fatal(changed.Error.Message)
-	}
-	if baseline.Logs != changed.Logs {
-		t.Fatal("changing the Berserk energy target changed casts without Berserk talented")
 	}
 }
 
@@ -118,41 +106,6 @@ func TestMonocatClawsWhenShredCannotLand(t *testing.T) {
 	}
 	if castsOf(player.Actions, 9850) == 0 || castsOf(player.Actions, 9896) == 0 {
 		t.Error("claw did not build combo points into rip")
-	}
-}
-
-// Berserk activates at the same moment as the builder it buffs.
-func TestMonocatOpensBerserkWithABuilder(t *testing.T) {
-	request := catPowershiftRequest(powershiftTalents, defaultCatRotation(), false)
-	request.SimOptions.Debug = true
-	result := core.RunSim(request, nil, simsignals.CreateSignals())
-	if result.Error != nil {
-		t.Fatal(result.Error.Message)
-	}
-	lines := strings.Split(result.Logs, "\n")
-	found := false
-	for i, line := range lines {
-		if !strings.Contains(line, "Casting {SpellID: 417141}") {
-			continue
-		}
-		found = true
-		at := line[:strings.Index(line, "]")+1]
-		builder := false
-		for _, next := range lines[i+1:] {
-			if !strings.HasPrefix(next, at) {
-				break
-			}
-			if strings.Contains(next, "Casting {SpellID: 9830}") || strings.Contains(next, "Casting {SpellID: 9904}") {
-				builder = true
-				break
-			}
-		}
-		if !builder {
-			t.Errorf("Berserk at %s is not followed by Shred or Rake", at)
-		}
-	}
-	if !found {
-		t.Fatal("Berserk was never cast")
 	}
 }
 
@@ -348,13 +301,10 @@ func TestJVMESDoesNotUseShadowmeld(t *testing.T) {
 func TestAdaptiveUnprowledOpenerUsesClearcastingForShredOtherwiseRake(t *testing.T) {
 	for _, tc := range []struct {
 		name         string
-		talents      string
 		clearcasting bool
-		berserk      bool
 	}{
-		{"paid Rake", powershiftTalents, false, true},
-		{"Clearcasting Shred", powershiftTalents, true, true},
-		{"without Berserk", "05002-55000032021032212050-055", false, false},
+		{"paid Rake", false},
+		{"Clearcasting Shred", true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
@@ -363,27 +313,19 @@ func TestAdaptiveUnprowledOpenerUsesClearcastingForShredOtherwiseRake(t *testing
 					variable.Value.GetConst().Val = "-1"
 				}
 			}
-			request := sweepRequest(tc.talents, rotation, false, 1)
+			request := sweepRequest(powershiftTalents, rotation, false, 1)
 			request.Raid.Parties[0].Players[0].GetFeralCatDruid().Options.PrepullClearcasting = tc.clearcasting
 			request.SimOptions.Debug = true
 			result := core.RunSim(request, nil, simsignals.CreateSignals())
 			if result.Error != nil {
 				t.Fatal(result.Error.Message)
 			}
-			berserk := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: 417141}")
 			builderID := "9904"
 			if tc.clearcasting {
 				builderID = "9830"
 			}
-			ravage := strings.Index(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: "+builderID+"}")
-			if ravage < 0 {
+			if !strings.Contains(result.Logs, "[0.00] [Cat (#1)] Casting {SpellID: "+builderID+"}") {
 				t.Fatal("the opener did not cast the expected builder at pull")
-			}
-			if tc.berserk && (berserk < 0 || ravage < berserk) {
-				t.Fatal("the opener did not cast Berserk before the builder")
-			}
-			if !tc.berserk && berserk >= 0 {
-				t.Fatal("Berserk was cast without the talent")
 			}
 		})
 	}
@@ -439,50 +381,6 @@ func TestAdaptiveCatResourcePotionSelection(t *testing.T) {
 				}
 			}
 		})
-	}
-}
-
-func TestJVMESBerserkImmediatelyPrecedesACatAttack(t *testing.T) {
-	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
-		for _, cannotShred := range []bool{false, true} {
-			t.Run(race.String()+"/cannotShred="+strconv.FormatBool(cannotShred), func(t *testing.T) {
-				rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
-				request := sweepRequest(powershiftTalents, rotation, cannotShred, 1)
-				request.Encounter.Duration = 210
-				request.Raid.Parties[0].Players[0].Race = race
-				request.SimOptions.Debug = true
-				result := core.RunSim(request, nil, simsignals.CreateSignals())
-				if result.Error != nil {
-					t.Fatal(result.Error.Message)
-				}
-				lines := strings.Split(result.Logs, "\n")
-				uses := 0
-				for i, line := range lines {
-					if !strings.Contains(line, "Casting {SpellID: 417141}") {
-						continue
-					}
-					uses++
-					at := line[:strings.Index(line, "]")+1]
-					found := false
-					for _, next := range lines[i+1:] {
-						if !strings.Contains(next, "Casting ") || strings.Contains(next, "GCD = 0s") {
-							continue
-						}
-						found = strings.HasPrefix(next, at) && (strings.Contains(next, "Casting {SpellID: 9867}") || strings.Contains(next, "Casting {SpellID: 9904}") || strings.Contains(next, "Casting {SpellID: 9830}") || strings.Contains(next, "Casting {SpellID: 9850}"))
-						if !found {
-							t.Errorf("Berserk at %s was followed by %s", at, next)
-						}
-						break
-					}
-					if !found {
-						t.Error("Berserk was not immediately followed by a Cat builder")
-					}
-				}
-				if uses < 2 {
-					t.Fatal("the fixture did not exercise a later Berserk activation")
-				}
-			})
-		}
 	}
 }
 
@@ -624,7 +522,7 @@ func TestAdaptiveClawsWhenShredCannotLand(t *testing.T) {
 	for _, cannotShred := range []bool{false, true} {
 		t.Run(strconv.FormatBool(cannotShred), func(t *testing.T) {
 			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
-			req := sweepRequest("050022-35200032121131212051-052", rotation, cannotShred, 10)
+			req := sweepRequest("050022-35200032123011125011-054", rotation, cannotShred, 10)
 			player := runCat(t, req)
 			claws, shreds := castsOf(player.Actions, 9850), castsOf(player.Actions, 9830)
 			if cannotShred {
@@ -750,7 +648,6 @@ const (
 	spellRake    int32 = 9904
 	spellFF      int32 = 9907
 	spellSP      int32 = 1322605
-	spellBerserk int32 = 417141
 	spellElune   int32 = 1259799
 	spellClear   int32 = 16870
 	itemSapper   int32 = 10646
@@ -758,7 +655,7 @@ const (
 
 	spellBite       int32 = 22829
 	spellDireBear   int32 = 9634
-	spellPrimalBite int32 = 1238073
+	spellPrimalBite int32 = 1238070
 	spellEnrage     int32 = 5229
 	spellMaul       int32 = 9881
 	spellInnervate  int32 = 29166
@@ -860,7 +757,6 @@ func TestAdaptiveCatAvailabilityWarnings(t *testing.T) {
 			req.Raid.Parties[0].Players[0].Consumables = &proto.ConsumesSpec{}
 		}
 		expected := map[string]bool{
-			"Cat (#1) does not know talent {SpellID: 16958}":    true,
 			"Cat (#1) does not know spell {SpellID: 1259705}":   true,
 			"No aura found on Cat (#1) for: {SpellID: 1270842}": true,
 			"Cat (#1) does not know spell {SpellID: 1259686}":   true,
@@ -943,5 +839,94 @@ func TestAdaptiveInnervateWaitsForEnergized(t *testing.T) {
 				t.Errorf("race=%s Energized=%v: Innervate casts=%d, want %d", race, active, casts, want)
 			}
 		}
+	}
+}
+
+func TestAdaptiveBitePoolsByComboPointsAndClearcasting(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		cp        int32
+		energy    float64
+		clearcast bool
+		ripLeft   time.Duration
+		want      int32
+	}{
+		{"four points below pool", 4, 84, false, 3 * time.Second, 0},
+		{"four points funded", 4, 85, false, 3 * time.Second, 1},
+		{"five points below pool", 5, 69, false, 3 * time.Second, 0},
+		{"five points funded", 5, 70, false, 3 * time.Second, 1},
+		{"four points clearcast below pool", 4, 59, true, 3 * time.Second, 0},
+		{"four points clearcast funded", 4, 60, true, 3 * time.Second, 1},
+		{"five points clearcast below pool", 5, 49, true, 3 * time.Second, 0},
+		{"five points clearcast funded", 5, 50, true, 3 * time.Second, 1},
+		{"Rip window too short", 5, 100, false, 1500 * time.Millisecond, 0},
+		{"Rip window funded", 5, 100, false, 2 * time.Second, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			rotation := defaultCatRotation()
+			rotation.PrepullActions = nil
+			rotation.PriorityList = slices.DeleteFunc(rotation.PriorityList, func(item *proto.APLListItem) bool {
+				return item.Action.GetCondition().GetVariableRef().GetName() != "Midfight Bite is worthwhile"
+			})
+			if len(rotation.PriorityList) != 1 {
+				t.Fatal("expected one midfight Bite action")
+			}
+			sim := core.NewSim(sweepRequest(catTalents, rotation, false, 1), simsignals.CreateSignals())
+			sim.Reset()
+			cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+			cat.AutoAttacks.CancelAutoSwing(sim)
+			sim.CurrentTime = 10 * time.Second
+			fillResource(sim, cat)
+			cat.SpendEnergy(sim, cat.CurrentEnergy()-tc.energy, cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, tc.cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			dot := cat.GetSpell(core.ActionID{SpellID: spellRip}).Dot(cat.CurrentTarget)
+			dot.Apply(sim)
+			dot.UpdateExpires(sim.CurrentTime + tc.ripLeft)
+			if tc.clearcast {
+				cat.GetAuraByID(core.ActionID{SpellID: spellClear}).Activate(sim)
+			}
+			cat.SetGCDTimer(sim, sim.CurrentTime)
+			cat.Rotation.DoNextAction(sim)
+			bite := cat.GetSpell(core.ActionID{SpellID: spellBite})
+			if got := bite.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts; got != tc.want {
+				t.Fatalf("Bite casts = %d, want %d", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestAdaptiveRipBuildLeavesTimeForNextGlobal(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		left time.Duration
+		want int32
+	}{
+		{"too late for Rip", 7500 * time.Millisecond, 0},
+		{"Rip now before the window closes", 8500 * time.Millisecond, 1},
+		{"time to build then Rip", 9500 * time.Millisecond, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			rotation := defaultCatRotation()
+			rotation.PrepullActions = nil
+			rotation.PriorityList = slices.DeleteFunc(rotation.PriorityList, func(item *proto.APLListItem) bool {
+				return item.Action.GetCastSpell().GetSpellId().GetSpellId() != spellRip
+			})
+			if len(rotation.PriorityList) != 1 {
+				t.Fatal("expected one Rip action")
+			}
+			sim := core.NewSim(sweepRequest(catTalents, rotation, false, 1), simsignals.CreateSignals())
+			sim.Reset()
+			cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+			cat.AutoAttacks.CancelAutoSwing(sim)
+			sim.CurrentTime = sim.Duration - tc.left
+			fillResource(sim, cat)
+			cat.AddComboPoints(sim, 4, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.SetGCDTimer(sim, sim.CurrentTime)
+			cat.Rotation.DoNextAction(sim)
+			rip := cat.GetSpell(core.ActionID{SpellID: spellRip})
+			if got := rip.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts; got != tc.want {
+				t.Fatalf("Rip casts = %d with %s left, want %d", got, tc.left, tc.want)
+			}
+		})
 	}
 }

@@ -5,7 +5,7 @@ import { isRightClick } from '@ui-kit/utils/dom';
 import clsx from 'clsx';
 import { type MouseEvent, useId, useRef } from 'react';
 
-import { ImprovedAnchor } from './ImprovedAnchor';
+import { improvedOverlay } from './improvedOverlay';
 
 /** No `size`: the control is an icon swatch, not a form-height control. */
 export interface IconPickerProps extends Omit<FieldFrameProps, 'size'>, ControlledProps<number>, Pick<IconSwatchProps, 'keptTooltip'> {
@@ -34,9 +34,6 @@ export const IconPicker = ({
 }: IconPickerProps) => {
 	const labelId = useId();
 	const controlRef = useRef<HTMLAnchorElement>(null);
-	const fillImproved1 = states >= 3 && !!improvedIcon;
-	const fillImproved2 = states >= 4 && !!improvedIcon2;
-	const showCounterText = !improvedIcon && (states > 3 || states === 0);
 	const rooted = hasFieldFrame(frameProps);
 
 	const handleLeftClick = () => {
@@ -72,18 +69,7 @@ export const IconPicker = ({
 		},
 	};
 
-	const badges = (fillImproved1 || fillImproved2) && (
-		<>
-			{/* Both badges stay visible in opposite corners: at a state below its own, a quadstate
-			    icon's grey second badge is the only affordance that a fourth state exists. */}
-			{fillImproved1 && improvedIcon && (
-				<ImprovedAnchor icon={improvedIcon} testId="icon-input-improved1" active={value > 1} disabled={disabled} corner="right" {...stateEvents} />
-			)}
-			{fillImproved2 && improvedIcon2 && (
-				<ImprovedAnchor icon={improvedIcon2} testId="icon-input-improved2" active={value > 2} disabled={disabled} corner="left" {...stateEvents} />
-			)}
-		</>
-	);
+	const { text, badges } = improvedOverlay({ states, value, improvedIcon, improvedIcon2, testIdPrefix: 'icon-input', disabled, events: stateEvents });
 
 	const swatch = (
 		<IconSwatch
@@ -91,8 +77,8 @@ export const IconPicker = ({
 			href={icon?.href}
 			active={value > 0}
 			disabled={disabled}
-			text={showCounterText ? String(value) : undefined}
-			badges={badges || undefined}
+			text={text}
+			badges={badges}
 			keptTooltip={keptTooltip}
 			className={clsx(value === 0 && 'grayscale', !rooted && className)}
 			testId={testId ?? 'icon-picker-root'}

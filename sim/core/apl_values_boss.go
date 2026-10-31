@@ -106,3 +106,25 @@ func (value *APLValueTargetIsMobType) GetBool(sim *Simulation) bool {
 func (value *APLValueTargetIsMobType) String() string {
 	return fmt.Sprintf("Is Mob Type(%s, %s)", value.target.Get().Label, value.mobType)
 }
+
+type APLValueTargetIsBleedImmune struct {
+	DefaultAPLValueImpl
+	target UnitReference
+}
+
+func (rot *APLRotation) newValueTargetIsBleedImmune(config *proto.APLValueTargetIsBleedImmune, _ *proto.UUID) APLValue {
+	target := rot.GetTargetUnit(config.TargetUnit)
+	if target.Get() == nil {
+		return nil
+	}
+	return &APLValueTargetIsBleedImmune{target: target}
+}
+func (value *APLValueTargetIsBleedImmune) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueTargetIsBleedImmune) GetBool(_ *Simulation) bool {
+	return value.target.Get().BleedImmune
+}
+func (value *APLValueTargetIsBleedImmune) String() string {
+	return fmt.Sprintf("Is Bleed Immune(%s)", value.target.Get().Label)
+}

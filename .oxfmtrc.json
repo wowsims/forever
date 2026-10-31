@@ -38,6 +38,7 @@
 		"assets/**",
 		"**/test-fixtures/*.json",
 		".vscode/extensions/*/out/**",
+		"tools/tree-sitter-siml/src/**",
 		"skills-lock.json"
 	]
 }
