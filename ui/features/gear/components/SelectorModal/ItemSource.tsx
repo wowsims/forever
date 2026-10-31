@@ -25,8 +25,6 @@ const SourceLink = ({ href, children }: { href: string; children: ReactNode }) =
 );
 
 export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
-	const pvp = () => <SourceLink href={ActionId.makeItemUrl(item.id)}>{i18n.t('common.sources.pvp')}</SourceLink>;
-
 	if (!item.sources?.length) return null;
 
 	let source = item.sources[0];
@@ -100,7 +98,8 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 		);
 	}
 
-	if (item.sources.some(entry => entry.source.oneofKind === 'pvp')) return pvp();
+	if (item.sources.some(entry => entry.source.oneofKind === 'pvp'))
+		return <SourceLink href={ActionId.makeItemUrl(item.id)}>{i18n.t('common.sources.pvp')}</SourceLink>;
 
 	if (source.source.oneofKind === 'soldBy') {
 		const src = source.source.soldBy;

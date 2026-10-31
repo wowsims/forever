@@ -1,6 +1,7 @@
 package database
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -103,12 +104,18 @@ var pveItemNames = map[string]bool{
 	"Sentinel's Belt":        true,
 	"Sentinel's Gauntlet":    true,
 	"Sentinel's Plate":       true,
+	"Sentinel's Boots":       true,
+	"Sentinel's Gloves":      true,
+	"Sentinel's Sabatons":    true,
+	"Sentinel's Waistguard":  true,
+	"Sentinel's Pauldrons":   true,
+	"Sentinel's Wristguards": true,
 	"Scout's Dagger":         true,
 	"Champion's Legplates":   true,
 }
 
 func isPvpItemName(name string) bool {
-	if name == "" || pveItemNames[name] {
+	if pveItemNames[name] {
 		return false
 	}
 	for _, prefix := range pvpNamePrefixes {
@@ -119,9 +126,10 @@ func isPvpItemName(name string) bool {
 	return false
 }
 
-// Appends a PvpSource after the item's other sources when its name is a PvP name.
+// Appends a PvpSource after the item's other sources when its name is a PvP name. Items of the same name can share
+// one Sources slice, so the append copies it.
 func InferPvpSource(item *proto.UIItem) {
 	if isPvpItemName(item.Name) {
-		item.Sources = append(item.Sources, &proto.UIItemSource{Source: &proto.UIItemSource_Pvp{Pvp: &proto.PvpSource{}}})
+		item.Sources = append(slices.Clip(item.Sources), &proto.UIItemSource{Source: &proto.UIItemSource_Pvp{Pvp: &proto.PvpSource{}}})
 	}
 }
