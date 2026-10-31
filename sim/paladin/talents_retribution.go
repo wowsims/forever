@@ -7,7 +7,6 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func (paladin *Paladin) registerRetributionTalents() {
@@ -17,29 +16,30 @@ func (paladin *Paladin) registerRetributionTalents() {
 
 	// Tier 2
 	paladin.applyImprovedJudgement()
-	paladin.applyHolyConduit()
 	paladin.applyConviction()
+	paladin.applySanctifiedJudgement()
 
 	// Tier 3
 	paladin.applyVindication()
-	paladin.applySanctifiedJudgement()
+	// Unyielding Faith shortens Fear and Disorient effects, which the sim never suffers.
 	// Seal of Command registered in registerTalentSpells
 	paladin.applyPursuitOfJustice()
 
 	// Tier 4
 	paladin.applyEyeForAnEye()
 	paladin.applySacredArbiter()
+	paladin.applyTwoHandedWeaponSpecialization()
 
 	// Tier 5
-	paladin.applyTwoHandedWeaponSpecialization()
+	// Turn Evil changes Turn Undead, which the sim does not model.
+	// Repentance has nothing the sim models.
 	paladin.applyVengeance()
 
 	// Tier 6
 	paladin.applyChampionOfTheLight()
-	paladin.applyInstrumentOfLaw()
 
 	// Tier 7
-	paladin.applyTwistOfLight()
+	paladin.applyUnsealedWrath()
 }
 
 // Deflection - Increases your Parry chance by 1/2/3/4/5%.
@@ -70,17 +70,7 @@ func (paladin *Paladin) applyImprovedJudgement() {
 	spelldata.ParseStatic(&paladin.Character, spellData.ImprovedJudgement.Rank(paladin.Talents.ImprovedJudgement))
 }
 
-// Holy Conduit - Reduces the mana cost of your Consecration, Holy Wrath, Exorcism, and Hammer of
-// Wrath spells by 20/40%.
-func (paladin *Paladin) applyHolyConduit() {
-	if paladin.Talents.HolyConduit == 0 {
-		return
-	}
-
-	spelldata.ParseStatic(&paladin.Character, spellData.HolyConduit.Rank(paladin.Talents.HolyConduit))
-}
-
-// Conviction - Improves your chance to get a critical strike with melee attacks by 1/2/3/4/5%.
+// Conviction - Improves your chance to get a critical strike with all spells and attacks by 2/4/6%.
 func (paladin *Paladin) applyConviction() {
 	if paladin.Talents.Conviction == 0 {
 		return
@@ -90,13 +80,12 @@ func (paladin *Paladin) applyConviction() {
 }
 
 // Vindication - Gives your damaging melee attacks a chance to reduce the target's Attack Power by
-// 68/136/204, and increase your Attack Power by 1/2/3% for 30 sec.
+// 68/136/204 for 30 sec.
 //
 // The game files state no rate: the ProcChance column reads 100. In game it is 5 procs a minute on
 // the weapon's speed, measured on swings at 1.6 and 3.6 speed under Seal of Righteousness and Seal of
 // the Crusader. The row's proc mask also hears melee specials, which roll the same chance and were not
-// measured. The target's debuff is a magic spell of its own that can miss; the paladin's buff comes
-// with every proc.
+// measured. The debuff is a magic spell of its own that can miss.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -105,20 +94,12 @@ func (paladin *Paladin) applyVindication() {
 	}
 
 	rank := spellData.VindicationTriggered.Highest()
-	points := spellData.Vindication.EffectAt(1).ValueAt(paladin.Talents.Vindication)
 
 	// The raid's Vindication row, priced at the paladin's ranks, so it bids against the raid's
 	// attack power reductions rather than stacking with them.
 	targetAuras := paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return buffs.NewSpellDataVindicationAura(target, true, paladin.Talents.Vindication)
 	})
-
-	attackPowerDep := paladin.NewDynamicMultiplyStat(stats.AttackPower, core.MultiplierFromPercent(points))
-	selfAura := paladin.RegisterAura(core.Aura{
-		Label:    "Vindication" + paladin.Label,
-		ActionID: core.ActionID{SpellID: rank.ID}.WithTag(1),
-		Duration: rank.Duration(),
-	}).AttachStatDependency(attackPowerDep)
 
 	// Magic in SpellCategories: the debuff rolls spell hit.
 	debuffConfig := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
@@ -134,7 +115,6 @@ func (paladin *Paladin) applyVindication() {
 
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.Vindication.Rank(paladin.Talents.Vindication), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		debuff.Cast(sim, result.Target)
-		selfAura.Activate(sim)
 	}, spelldata.WeaponSpeedPPM(vindicationPPM))
 	trigger.Name = "Vindication - Trigger" + paladin.Label
 	paladin.MakeProcTriggerAura(trigger)
@@ -148,8 +128,7 @@ func (paladin *Paladin) applyVindication() {
 //
 // The refund is a share of the seal's base cost, and the seal's percent cost cut goes on top of it
 // instead of coming off: Benediction 5/5 makes a 90 mana seal cost 81 and refund 60% of 99, measured
-// in game at Benediction 0, 1, 3 and 5 with Sanctified Judgement 3/3. With Twist of Light as a second
-// cut the two are multiplied before the flip, which no log has checked.
+// in game at Benediction 0, 1, 3 and 5 with Sanctified Judgement 3/3.
 func (paladin *Paladin) applySanctifiedJudgement() {
 	if paladin.Talents.SanctifiedJudgement == 0 {
 		return
@@ -243,8 +222,8 @@ func (paladin *Paladin) applySacredArbiter() {
 	})
 }
 
-// Two-Handed Weapon Specialization - Increases the damage you deal with two-handed melee weapons
-// by 2/4/6%.
+// Two-Handed Weapon Specialization - Increases the physical damage you deal by 2/4/6%, and reduces
+// all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
@@ -297,7 +276,8 @@ func (paladin *Paladin) applyVengeance() {
 	paladin.MakeProcTriggerAura(trigger)
 }
 
-// Champion of the Light - Increases your spell damage by up to 10/20/30% of your Intellect.
+// Champion of the Light - Increases your spell damage by up to 12/24/36/48/60% of your Intellect, and
+// reduces the cast time of your Hammer of Wrath by 0.2/0.4/0.6/0.8/1.0 sec.
 func (paladin *Paladin) applyChampionOfTheLight() {
 	if paladin.Talents.ChampionOfTheLight == 0 {
 		return
@@ -306,74 +286,62 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 	spelldata.ParseStatic(&paladin.Character, spellData.ChampionOfTheLight.Rank(paladin.Talents.ChampionOfTheLight))
 }
 
-// Instrument of Law - Reduces the cast time of your Hammer of Wrath by 0.5/1.0 sec, and raises all
-// threat you generate by 10/20% while Righteous Fury is not active, as the talent curve states (the
-// tooltip says reduces).
-func (paladin *Paladin) applyInstrumentOfLaw() {
-	if paladin.Talents.InstrumentOfLaw == 0 {
+// Unsealed Wrath - Your melee attacks store a copy of your active Seal for 15 sec, stacking up to 3
+// times. Landing an attack with a different Seal consumes all stacks, giving the stored Seal its
+// normal chance to activate once per stack.
+//
+// Each copy is the Echo of its seal, one aura per seal, each read from its own row. A stored seal's
+// effect lands a batch window after the hit that consumes it, as a live seal's does.
+func (paladin *Paladin) applyUnsealedWrath() {
+	if !paladin.Talents.UnsealedWrath {
 		return
 	}
 
-	rank := spellData.InstrumentOfLaw.Rank(paladin.Talents.InstrumentOfLaw)
-	spelldata.ParseStatic(&paladin.Character, rank, spelldata.Effects(1))
+	for _, id := range []int32{echoOfCommandID, echoOfFuryID, echoOfRighteousnessID, echoOfJusticeID} {
+		row := spelldata.MustFind(id)
+		paladin.echoes = append(paladin.echoes, &sealEcho{
+			id: id,
+			aura: paladin.RegisterAura(core.Aura{
+				Label:     fmt.Sprintf("Echo (%d)%s", id, paladin.Label),
+				ActionID:  core.ActionID{SpellID: id},
+				Duration:  row.Duration(),
+				MaxStacks: int32(row.MaxStack),
+			}),
+		})
+	}
 
-	// The threat effect is off while Righteous Fury is up.
-	threat := paladin.RegisterAura(core.Aura{
-		Label:    "Instrument of Law" + paladin.Label,
-		ActionID: core.ActionID{SpellID: rank.ID},
-	})
-	spelldata.ParseEffects(&paladin.Character, threat, rank, spelldata.Effects(2))
-	core.MakePermanent(threat)
-
-	paladin.OnSpellRegistered(func(spell *core.Spell) {
-		if spell.Matches(SpellMaskRighteousFury) {
-			spell.RelatedSelfBuff.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-				threat.Deactivate(sim)
-			}).ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-				threat.Activate(sim)
+	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.UnsealedWrath.Rank(1), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+		seal := paladin.activeSeal()
+		if seal == nil {
+			return
+		}
+		target := result.Target
+		for _, echo := range paladin.echoes {
+			if echo.id == seal.echoID {
+				echo.seal = seal
+				echo.aura.Activate(sim)
+				echo.aura.AddStack(sim)
+				continue
+			}
+			if !echo.aura.IsActive() {
+				continue
+			}
+			stored, stacks := echo.seal, echo.aura.GetStacks()
+			echo.seal = nil
+			echo.aura.Deactivate(sim)
+			if stored == nil || stored.echo == nil {
+				continue
+			}
+			afterBatch(sim, core.ActionPriorityDOT, func(sim *core.Simulation) {
+				for range stacks {
+					stored.echo(sim, target)
+				}
 			})
 		}
 	})
-}
-
-// Twist of Light - Reduces the Mana cost of your Seal spells by 20%, and when you replace your Seal
-// of Command, Seal of Righteousness, Seal of Fury, or Seal of Justice with a different Seal, you
-// gain an Echo of that Seal. Your next melee attack applies the replaced Seal's effects, consuming
-// the Echo.
-func (paladin *Paladin) applyTwistOfLight() {
-	if !paladin.Talents.TwistOfLight {
-		return
-	}
-
-	spelldata.ParseStatic(&paladin.Character, spellData.TwistOfLight.Rank(1))
-
-	paladin.echoes = map[int32]*sealEcho{}
-	for _, id := range []int32{echoOfCommandID, echoOfFuryID, echoOfRighteousnessID, echoOfJusticeID} {
-		echo := &sealEcho{}
-		echo.aura = paladin.RegisterAura(core.Aura{
-			Label:    fmt.Sprintf("Echo (%d)%s", id, paladin.Label),
-			ActionID: core.ActionID{SpellID: id},
-			Duration: core.NeverExpires,
-		})
-		echo.aura.NewExclusiveEffect(EchoCategory, true, core.ExclusiveEffect{})
-		echo.aura.AttachProcTrigger(core.ProcTrigger{
-			Callback:           core.CallbackOnSpellHitDealt,
-			ProcMask:           core.ProcMaskMeleeWhiteHit,
-			Outcome:            core.OutcomeLanded,
-			TriggerImmediately: true,
-			// The hit that lands consumes the Echo at once, so the next hit cannot; the replayed
-			// seal effect resolves a batch window later, as a live seal's does.
-			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-				if seal := echo.seal; seal != nil && seal.echo != nil {
-					target := result.Target
-					afterBatch(sim, core.ActionPriorityDOT, func(sim *core.Simulation) {
-						seal.echo(sim, target)
-					})
-				}
-				echo.seal = nil
-				echo.aura.Deactivate(sim)
-			},
-		})
-		paladin.echoes[id] = echo
-	}
+	trigger.Name = "Unsealed Wrath" + paladin.Label
+	// A copy is stored and spent on a hit that lands.
+	trigger.Outcome = core.OutcomeLanded
+	trigger.TriggerImmediately = true
+	paladin.MakeProcTriggerAura(trigger)
 }

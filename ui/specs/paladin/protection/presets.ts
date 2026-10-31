@@ -20,7 +20,7 @@ export const GEAR_DEFAULT = PresetUtils.makePresetGear('Default', DefaultGear, {
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 
-export const DefaultTalents = PresetUtils.makePresetTalents('Default', SavedTalents.create({ talentsString: '50003-0530313321301531-5022' }));
+export const DefaultTalents = PresetUtils.makePresetTalents('Default', SavedTalents.create({ talentsString: '050050002-05302102213301531-502' }));
 
 export const DefaultOptions = ProtectionPaladinOptions.create({
 	classOptions: {},

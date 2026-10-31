@@ -2404,7 +2404,7 @@
 						"tooltip": "The Judgement the raid assigned you. You cast it before the pull and judge it on your way in, then switch to your own seals. Leave it empty when no Judgement is assigned to you.",
 						"none": "No assigned judgement"
 					},
-					"non_twist_seal": {
+					"seal": {
 						"label": "Seal",
 						"tooltip": "The seal being kept up during the fight."
 					},

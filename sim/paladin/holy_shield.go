@@ -49,6 +49,19 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 		},
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
 
+	// Shieldsworn: a Holy Strike that lands deals the shield's damage and spends no charge.
+	if paladin.Talents.Shieldsworn {
+		holyShieldAura.AttachProcTrigger(core.ProcTrigger{
+			Callback:           core.CallbackOnSpellHitDealt,
+			ClassSpellMask:     SpellMaskHolyStrike,
+			Outcome:            core.OutcomeLanded,
+			TriggerImmediately: true,
+			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+				procSpell.Cast(sim, result.Target)
+			},
+		})
+	}
+
 	// Steadfast Libram: more block value while the shield is up.
 	if paladin.holyShieldBlockValueMultiplier != 1 {
 		holyShieldAura.AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.BlockValueMultiplier, paladin.holyShieldBlockValueMultiplier)

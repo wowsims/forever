@@ -8547,7 +8547,7 @@
 											"additionalProperties": false,
 											"required": ["label", "tooltip", "none"]
 										},
-										"non_twist_seal": {
+										"seal": {
 											"type": "object",
 											"properties": {
 												"label": {
@@ -8588,7 +8588,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["aura", "assigned_judge", "non_twist_seal", "pull_range", "delay_major_cds"]
+									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds"]
 								}
 							},
 							"additionalProperties": false,

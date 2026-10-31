@@ -64,62 +64,6 @@
 		{
 			"action": {
 				"condition": {
-					"and": {
-						"vals": [
-							{
-								"auraIsInactive": {
-									"sourceUnit": { "type": "CurrentTarget" },
-									"auraId": { "spellId": 1311599 },
-									"includeReactionTime": true
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpLt",
-									"lhs": {
-										"autoTimeSinceLast": {
-											"autoType": "AnyAuto"
-										}
-									},
-									"rhs": { "const": { "val": "0.2s" } }
-								}
-							},
-							{
-								"cmp": {
-									"op": "OpGe",
-									"lhs": { "currentMana": {} },
-									"rhs": {
-										"math": {
-											"op": "OpAdd",
-											"lhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 1311595,
-														"rank": 3
-													}
-												}
-											},
-											"rhs": {
-												"spellCurrentCost": {
-													"spellId": {
-														"spellId": 25902,
-														"rank": 4
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						]
-					}
-				},
-				"castSpell": { "spellId": { "spellId": 1311595, "rank": 3 } }
-			}
-		},
-		{
-			"action": {
-				"condition": {
 					"variableRef": { "name": "Should refresh SoR" }
 				},
 				"castSpell": { "spellId": { "spellId": 20293, "rank": 8 } }
@@ -133,30 +77,8 @@
 		{
 			"action": {
 				"condition": {
-					"and": {
-						"vals": [
-							{
-								"spellIsReady": {
-									"spellId": { "spellId": 25902, "rank": 4 }
-								}
-							},
-							{
-								"or": {
-									"vals": [
-										{
-											"variableRef": {
-												"name": "Consecrated Ground check"
-											}
-										},
-										{
-											"variableRef": {
-												"name": "Light's Vigil check"
-											}
-										}
-									]
-								}
-							}
-						]
+					"spellIsReady": {
+						"spellId": { "spellId": 25902, "rank": 4 }
 					}
 				},
 				"castSpell": { "spellId": { "spellId": 20216 } }
@@ -164,18 +86,6 @@
 		},
 		{
 			"action": {
-				"condition": {
-					"or": {
-						"vals": [
-							{
-								"variableRef": {
-									"name": "Consecrated Ground check"
-								}
-							},
-							{ "variableRef": { "name": "Light's Vigil check" } }
-						]
-					}
-				},
 				"castSpell": { "spellId": { "spellId": 25902, "rank": 4 } }
 			}
 		},
@@ -647,60 +557,6 @@
 										}
 									}
 								]
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Consecrated Ground check",
-			"value": {
-				"or": {
-					"vals": [
-						{
-							"not": {
-								"val": {
-									"talentIsKnown": {
-										"talentId": {
-											"spellId": 1310905,
-											"rank": 1
-										}
-									}
-								}
-							}
-						},
-						{
-							"auraIsActive": {
-								"sourceUnit": { "type": "CurrentTarget" },
-								"auraId": { "spellId": 1280353 }
-							}
-						}
-					]
-				}
-			}
-		},
-		{
-			"name": "Light's Vigil check",
-			"value": {
-				"or": {
-					"vals": [
-						{
-							"not": {
-								"val": {
-									"talentIsKnown": {
-										"talentId": {
-											"spellId": 1310911,
-											"rank": 1
-										}
-									}
-								}
-							}
-						},
-						{
-							"auraIsActive": {
-								"sourceUnit": { "type": "CurrentTarget" },
-								"auraId": { "spellId": 1311599 }
 							}
 						}
 					]

@@ -66,7 +66,6 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 			return pendingShield
 		},
 	})
-	paladin.applyImprovedSealOfFury(shield)
 
 	damage := procDamage.Mean()
 	// The damage spells carry the same flags as Seal of Righteousness's: procs themselves, and no

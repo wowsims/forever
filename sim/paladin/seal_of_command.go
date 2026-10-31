@@ -75,7 +75,10 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procSpell := paladin.RegisterSpell(procConfig)
 
 	// The seal and its Echo roll the same chance: an Echo of Command "empowers your next melee
-	// attack with a chance to activate Seal of Command".
+	// attack with a chance to activate Seal of Command". The Echo's stored copies share the seal's 1 sec
+	// ICD, so a spend of several copies procs Seal of Command once at most.
+	// TODO: Ingame test needed -- whether Unsealed Wrath's stored copies skip the ICD, as the tooltip's
+	// "its normal chance to activate once per stack" reads; a log of a spend of several Command stacks decides.
 	dpm := paladin.NewLegacyPPMManager(7, core.ProcMaskMeleeWhiteHit)
 	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: time.Second}
 	tryProc := func(sim *core.Simulation, target *core.Unit) {
