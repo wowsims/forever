@@ -1,8 +1,15 @@
 package database
 
 import (
+	"archive/zip"
+	"bytes"
+	"compress/zlib"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
+	"math"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -10,77 +17,130 @@ import (
 	"github.com/wowsims/forever/tools"
 )
 
-// QuestieDB's Forever data (github.com/Questie/QuestieDB, GPLv3) names each item's quest rewards and vendors, which
-// the game files do not hold.
-const questieDataURL = "https://raw.githubusercontent.com/Questie/QuestieDB/master/data/Forever/"
+// QuestieDB (github.com/Questie/QuestieDB, GPLv3) names each item's quest rewards and vendors, which the game files
+// do not hold. A release's baked Forever data has QuestieDB's Forever corrections applied; the repository's
+// data/Forever Lua files do not.
+const questieRelease = "v1.0.9"
 
 // Every item QuestieDB lists a reward quest or a vendor for, with each as a Quest or SoldBy source.
 func ReadQuestieData() *WowDatabase {
-	db, err := parseQuestieData(
-		tools.ReadWebRequired(questieDataURL+"foreverItemDB.lua"),
-		tools.ReadWebRequired(questieDataURL+"foreverQuestDB.lua"),
-		tools.ReadWebRequired(questieDataURL+"foreverNpcDB.lua"),
-	)
+	archive := tools.ReadWebRequired("https://github.com/Questie/QuestieDB/releases/download/" + questieRelease + "/QuestieDB-Forever.zip")
+	reader, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
+	if err != nil {
+		log.Fatalf("opening the QuestieDB release: %v", err)
+	}
+	files := map[string]string{}
+	for _, name := range []string{"QuestieDB_Forever.toc", "src/meta/itemMeta.lua", "src/meta/questMeta.lua", "src/meta/npcMeta.lua"} {
+		if files[name], err = readZipFile(reader, "QuestieDB/"+name); err != nil {
+			log.Fatalf("reading the QuestieDB release: %v", err)
+		}
+	}
+	db, err := parseQuestieData(files["QuestieDB_Forever.toc"], files["src/meta/itemMeta.lua"], files["src/meta/questMeta.lua"], files["src/meta/npcMeta.lua"])
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
 	return db
 }
 
-func parseQuestieData(itemSrc, questSrc, npcSrc string) (*WowDatabase, error) {
-	itemKeys, items, err := readQuestieFile(itemSrc, "item")
+func readZipFile(reader *zip.Reader, name string) (string, error) {
+	file, err := reader.Open(name)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	data, err := io.ReadAll(file)
+	return string(data), err
+}
+
+// The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
+// names to indexes.
+func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, error) {
+	store := readQuestieStore(toc)
+	items, err := newQuestieEntity(store, "Item", itemMeta)
 	if err != nil {
 		return nil, err
 	}
-	questKeys, quests, err := readQuestieFile(questSrc, "quest")
+	quests, err := newQuestieEntity(store, "Quest", questMeta)
 	if err != nil {
 		return nil, err
 	}
-	npcKeys, npcs, err := readQuestieFile(npcSrc, "npc")
+	npcs, err := newQuestieEntity(store, "Npc", npcMeta)
 	if err != nil {
 		return nil, err
 	}
 	var questRewards, vendors, questName, npcName, npcZone int
 	for _, key := range []struct {
-		keys  map[string]int
-		name  string
-		index *int
+		entity *questieEntity
+		name   string
+		index  *int
 	}{
-		{itemKeys, "questRewards", &questRewards},
-		{itemKeys, "vendors", &vendors},
-		{questKeys, "name", &questName},
-		{npcKeys, "name", &npcName},
-		{npcKeys, "zoneID", &npcZone},
+		{items, "questRewards", &questRewards},
+		{items, "vendors", &vendors},
+		{quests, "name", &questName},
+		{npcs, "name", &npcName},
+		{npcs, "zoneID", &npcZone},
 	} {
-		index, ok := key.keys[key.name]
+		index, ok := key.entity.keys[key.name]
 		if !ok {
-			return nil, fmt.Errorf("no key %q", key.name)
+			return nil, fmt.Errorf("%s has no key %q", key.entity.name, key.name)
 		}
 		*key.index = index
 	}
 
 	db := NewWowDatabase()
-	for id, item := range items {
-		var sources []*proto.UIItemSource
-		for _, questID := range item.ids(questRewards) {
-			if quest, ok := quests[questID]; ok {
-				name, _ := quest.field(questName).(string)
-				sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{
-					Id:   int32(questID),
-					Name: name,
-				}}})
-			}
+	for _, id := range items.ids {
+		item, err := items.row(id)
+		if err != nil {
+			return nil, err
 		}
-		for _, npcID := range item.ids(vendors) {
-			if npc, ok := npcs[npcID]; ok {
-				name, _ := npc.field(npcName).(string)
-				zone, _ := npc.field(npcZone).(float64)
-				sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{
-					NpcId:   int32(npcID),
-					NpcName: name,
-					ZoneId:  int32(zone),
-				}}})
+		questIDs, err := item.ids(questRewards)
+		if err != nil {
+			return nil, err
+		}
+		npcIDs, err := item.ids(vendors)
+		if err != nil {
+			return nil, err
+		}
+
+		var sources []*proto.UIItemSource
+		for _, questID := range questIDs {
+			quest, err := quests.row(questID)
+			if err != nil {
+				return nil, err
 			}
+			if quest == nil {
+				continue
+			}
+			name, err := quest.text(questName)
+			if err != nil {
+				return nil, err
+			}
+			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{
+				Id:   int32(questID),
+				Name: name,
+			}}})
+		}
+		for _, npcID := range npcIDs {
+			npc, err := npcs.row(npcID)
+			if err != nil {
+				return nil, err
+			}
+			if npc == nil {
+				continue
+			}
+			name, err := npc.text(npcName)
+			if err != nil {
+				return nil, err
+			}
+			zone, err := npc.integer(npcZone)
+			if err != nil {
+				return nil, err
+			}
+			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{
+				NpcId:   int32(npcID),
+				NpcName: name,
+				ZoneId:  int32(zone),
+			}}})
 		}
 		if len(sources) > 0 {
 			db.Items[int32(id)] = &proto.UIItem{Id: int32(id), Sources: sources}
@@ -89,85 +149,383 @@ func parseQuestieData(itemSrc, questSrc, npcSrc string) (*WowDatabase, error) {
 	return db, nil
 }
 
-// The field indexes of QuestieDB.<kind>Keys and the rows of QuestieDB.<kind>Data, a Lua chunk in a long string.
-func readQuestieFile(src, kind string) (map[string]int, map[int]*luaTable, error) {
-	keysTable, err := parseLuaAfter(src, "QuestieDB."+kind+"Keys =")
+// The TOC's X- fields by key, without the "X-".
+type questieStore map[string]string
+
+func readQuestieStore(toc string) questieStore {
+	store := questieStore{}
+	for _, line := range strings.Split(toc, "\n") {
+		if key, value, ok := strings.Cut(strings.TrimSuffix(line, "\r"), ": "); ok && strings.HasPrefix(key, "## X-") {
+			store[strings.TrimPrefix(key, "## X-")] = value
+		}
+	}
+	return store
+}
+
+var questieChunkHeader = regexp.MustCompile(`^~(\d+)~$`)
+
+// The base64-decoded value of a key, false when the key is missing. A "~N~" value stands for the values of
+// <key>-1 to <key>-N joined.
+func (s questieStore) base64(key string) ([]byte, bool, error) {
+	value, ok := s[key]
+	if !ok {
+		return nil, false, nil
+	}
+	if header := questieChunkHeader.FindStringSubmatch(value); header != nil {
+		parts, _ := strconv.Atoi(header[1])
+		var joined strings.Builder
+		for i := 1; i <= parts; i++ {
+			part, ok := s[key+"-"+strconv.Itoa(i)]
+			if !ok {
+				return nil, false, fmt.Errorf("%s declares %d parts but part %d is missing", key, parts, i)
+			}
+			joined.WriteString(part)
+		}
+		value = joined.String()
+	}
+	data, err := base64.StdEncoding.DecodeString(value)
 	if err != nil {
-		return nil, nil, err
+		return nil, false, fmt.Errorf("%s: %w", key, err)
 	}
-	keys := map[string]int{}
-	for key, value := range keysTable.keyed {
-		name, isName := key.(string)
-		index, isIndex := value.(float64)
-		if !isName || !isIndex {
-			return nil, nil, fmt.Errorf("QuestieDB.%sKeys: %v = %v is not a name and an index", kind, key, value)
-		}
-		keys[name] = int(index)
-	}
+	return data, true, nil
+}
 
-	dataTable, err := parseLuaAfter(src, "QuestieDB."+kind+"Data = [[return")
+// The CBOR value of a key, nil when the key is missing.
+func (s questieStore) value(key string) (any, error) {
+	data, ok, err := s.base64(key)
+	if err != nil || !ok {
+		return nil, err
+	}
+	value, err := decodeCBOR(data)
 	if err != nil {
-		return nil, nil, fmt.Errorf("QuestieDB.%sData: %w", kind, err)
+		return nil, fmt.Errorf("%s: %w", key, err)
 	}
-	rows := make(map[int]*luaTable, len(dataTable.keyed))
-	for key, value := range dataTable.keyed {
-		id, isID := key.(float64)
-		row, isRow := value.(*luaTable)
-		if !isID || !isRow {
-			return nil, nil, fmt.Errorf("QuestieDB.%sData: %v is not an id and a row", kind, key)
-		}
-		rows[int(id)] = row
-	}
-	return keys, rows, nil
+	return value, nil
 }
 
-// A Lua table constructor: the positional values in order, nil included, and and the [key] = value fields. Numbers are float64 and strings string.
-type luaTable struct {
-	list  []any
-	keyed map[any]any
+type questieEntity struct {
+	name  string
+	store questieStore
+	keys  map[string]int // Field names to indexes, from the keys table of the entity's meta file.
+	ids   []int          // Every id the entity has, from <name>-IDS: a CBOR list, zlib compressed.
+	known map[int]bool
 }
 
-// The positional value at a 1-based index, nil when the table is shorter.
-func (t *luaTable) field(index int) any {
-	if index < 1 || index > len(t.list) {
-		return nil
+func newQuestieEntity(store questieStore, name, meta string) (*questieEntity, error) {
+	keys, err := readQuestieKeys(meta)
+	if err != nil {
+		return nil, fmt.Errorf("%s meta: %w", name, err)
 	}
-	return t.list[index-1]
-}
-
-func (t *luaTable) ids(index int) []int {
-	list, _ := t.field(index).(*luaTable)
-	if list == nil {
-		return nil
-	}
-	ids := make([]int, 0, len(list.list))
-	for _, value := range list.list {
-		if id, ok := value.(float64); ok {
-			ids = append(ids, int(id))
-		}
-	}
-	return ids
-}
-
-func parseLuaAfter(src, marker string) (*luaTable, error) {
-	start := strings.Index(src, marker)
-	if start < 0 {
-		return nil, fmt.Errorf("no %q", marker)
-	}
-	p := &luaParser{src: src, pos: start + len(marker)}
-	value, err := p.value()
+	compressed, ok, err := store.base64(name + "-IDS")
 	if err != nil {
 		return nil, err
 	}
-	table, ok := value.(*luaTable)
 	if !ok {
-		return nil, fmt.Errorf("%q is not followed by a table", marker)
+		return nil, fmt.Errorf("no %s-IDS", name)
 	}
-	return table, nil
+	ids, err := decodeQuestieIDs(compressed)
+	if err != nil {
+		return nil, fmt.Errorf("%s-IDS: %w", name, err)
+	}
+	entity := &questieEntity{name: name, store: store, keys: keys, ids: ids, known: make(map[int]bool, len(ids))}
+	for _, id := range ids {
+		entity.known[id] = true
+	}
+	return entity, nil
 }
 
-// Reads the subset of Lua literals QuestieDB writes: tables, quoted strings, numbers and nil, with -- comments to
-// the end of the line.
+func decodeQuestieIDs(compressed []byte) ([]int, error) {
+	reader, err := zlib.NewReader(bytes.NewReader(compressed))
+	if err != nil {
+		return nil, err
+	}
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	value, err := decodeCBOR(data)
+	if err != nil {
+		return nil, err
+	}
+	return cborIDs(value)
+}
+
+// The scalar row of an id, nil when the entity has no such id. It is stored under <name>-<id>-S, as a map from field
+// index or as a list when the indexes run from 1 without a gap.
+func (e *questieEntity) row(id int) (*questieRow, error) {
+	if !e.known[id] {
+		return nil, nil
+	}
+	key := fmt.Sprintf("%s-%d", e.name, id)
+	value, err := e.store.value(key + "-S")
+	if err != nil {
+		return nil, err
+	}
+	row := &questieRow{entity: e, key: key, fields: map[int64]any{}}
+	switch value := value.(type) {
+	case nil:
+	case []any:
+		for i, field := range value {
+			row.fields[int64(i+1)] = field
+		}
+	case map[any]any:
+		for index, field := range value {
+			switch index := index.(type) {
+			case int64:
+				row.fields[index] = field
+			case string:
+				presence, ok := field.(int64)
+				if index != "p" || !ok {
+					return nil, fmt.Errorf("%s-S: %q = %v is not the presence bits", key, index, field)
+				}
+				row.presence = presence
+			}
+		}
+	default:
+		return nil, fmt.Errorf("%s-S: %v is not a row", key, value)
+	}
+	return row, nil
+}
+
+type questieRow struct {
+	entity   *questieEntity
+	key      string
+	fields   map[int64]any
+	presence int64 // Bit index-1 is set for each table field the row has, each stored under <key>-<index>.
+}
+
+func (r *questieRow) text(index int) (string, error) {
+	switch value := r.fields[int64(index)].(type) {
+	case nil:
+		return "", nil
+	case string:
+		return value, nil
+	default:
+		return "", fmt.Errorf("%s field %d: %v is not a string", r.key, index, value)
+	}
+}
+
+func (r *questieRow) integer(index int) (int64, error) {
+	switch value := r.fields[int64(index)].(type) {
+	case nil:
+		return 0, nil
+	case int64:
+		return value, nil
+	default:
+		return 0, fmt.Errorf("%s field %d: %v is not an integer", r.key, index, value)
+	}
+}
+
+func (r *questieRow) ids(index int) ([]int, error) {
+	if r.presence&(1<<(index-1)) == 0 {
+		return nil, nil
+	}
+	key := fmt.Sprintf("%s-%d", r.key, index)
+	value, err := r.entity.store.value(key)
+	if err != nil {
+		return nil, err
+	}
+	ids, err := cborIDs(value)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", key, err)
+	}
+	return ids, nil
+}
+
+func cborIDs(value any) ([]int, error) {
+	list, ok := value.([]any)
+	if !ok {
+		return nil, fmt.Errorf("%v is not a list", value)
+	}
+	ids := make([]int, len(list))
+	for i, id := range list {
+		number, ok := id.(int64)
+		if !ok {
+			return nil, fmt.Errorf("%v is not an id", id)
+		}
+		ids[i] = int(number)
+	}
+	return ids, nil
+}
+
+// Decodes the CBOR (RFC 8949) the baked data holds: integers as int64, byte and text strings as string, floats as
+// float64, false, true, null, lists as []any and maps as map[any]any with int64 or string keys. Tags and indefinite
+// lengths fail.
+func decodeCBOR(data []byte) (any, error) {
+	decoder := &cborDecoder{data: data}
+	value, err := decoder.value()
+	if err != nil {
+		return nil, err
+	}
+	if decoder.pos != len(data) {
+		return nil, fmt.Errorf("CBOR: %d bytes after the value", len(data)-decoder.pos)
+	}
+	return value, nil
+}
+
+type cborDecoder struct {
+	data []byte
+	pos  int
+}
+
+func (d *cborDecoder) next(n uint64) ([]byte, error) {
+	if n > uint64(len(d.data)-d.pos) {
+		return nil, fmt.Errorf("CBOR: %d bytes past the end at offset %d", n, d.pos)
+	}
+	chunk := d.data[d.pos : d.pos+int(n)]
+	d.pos += int(n)
+	return chunk, nil
+}
+
+func (d *cborDecoder) value() (any, error) {
+	head, err := d.next(1)
+	if err != nil {
+		return nil, err
+	}
+	major, info := head[0]>>5, head[0]&31
+	var arg uint64
+	switch {
+	case info < 24:
+		arg = uint64(info)
+	case info <= 27:
+		chunk, err := d.next(1 << (info - 24))
+		if err != nil {
+			return nil, err
+		}
+		for _, b := range chunk {
+			arg = arg<<8 | uint64(b)
+		}
+	default:
+		return nil, fmt.Errorf("CBOR: additional information %d at offset %d", info, d.pos-1)
+	}
+
+	switch major {
+	case 0, 1:
+		if arg > math.MaxInt64 {
+			return nil, fmt.Errorf("CBOR: integer out of range at offset %d", d.pos)
+		}
+		if major == 1 {
+			return -1 - int64(arg), nil
+		}
+		return int64(arg), nil
+	case 2, 3:
+		chunk, err := d.next(arg)
+		return string(chunk), err
+	case 4:
+		// Every value takes a byte at least, which bounds the length before allocating.
+		if arg > uint64(len(d.data)-d.pos) {
+			return nil, fmt.Errorf("CBOR: list of %d past the end at offset %d", arg, d.pos)
+		}
+		list := make([]any, arg)
+		for i := range list {
+			if list[i], err = d.value(); err != nil {
+				return nil, err
+			}
+		}
+		return list, nil
+	case 5:
+		if arg > uint64(len(d.data)-d.pos)/2 {
+			return nil, fmt.Errorf("CBOR: map of %d past the end at offset %d", arg, d.pos)
+		}
+		table := make(map[any]any, arg)
+		for range arg {
+			key, err := d.value()
+			if err != nil {
+				return nil, err
+			}
+			switch key.(type) {
+			case int64, string:
+			default:
+				return nil, fmt.Errorf("CBOR: map key %v at offset %d", key, d.pos)
+			}
+			if table[key], err = d.value(); err != nil {
+				return nil, err
+			}
+		}
+		return table, nil
+	case 7:
+		switch info {
+		case 20:
+			return false, nil
+		case 21:
+			return true, nil
+		case 22:
+			return nil, nil
+		case 25:
+			return halfFloat(uint16(arg)), nil
+		case 26:
+			return float64(math.Float32frombits(uint32(arg))), nil
+		case 27:
+			return math.Float64frombits(arg), nil
+		}
+	}
+	return nil, fmt.Errorf("CBOR: major type %d, additional information %d at offset %d", major, info, d.pos)
+}
+
+// An IEEE 754 binary16 value.
+func halfFloat(bits uint16) float64 {
+	sign := 1.0
+	if bits&0x8000 != 0 {
+		sign = -1
+	}
+	exponent, fraction := int(bits>>10)&0x1f, float64(bits&0x3ff)
+	switch exponent {
+	case 0:
+		return sign * math.Ldexp(fraction, -24)
+	case 0x1f:
+		if fraction != 0 {
+			return math.NaN()
+		}
+		return math.Inf(int(sign))
+	}
+	return sign * math.Ldexp(fraction+1024, exponent-25)
+}
+
+// The field names and indexes of a meta file's table `keys = { ['name'] = 1, -- comment ... }`.
+func readQuestieKeys(meta string) (map[string]int, error) {
+	start := strings.Index(meta, "keys = {")
+	if start < 0 {
+		return nil, fmt.Errorf("no keys table")
+	}
+	p := &luaParser{src: meta, pos: start + len("keys = {")}
+	keys := map[string]int{}
+	for {
+		p.skipSpace()
+		if p.pos >= len(p.src) {
+			return nil, p.errorf("unclosed table")
+		}
+		if p.src[p.pos] == '}' {
+			return keys, nil
+		}
+		if err := p.expect('['); err != nil {
+			return nil, err
+		}
+		name, err := p.string()
+		if err != nil {
+			return nil, err
+		}
+		if err := p.expect(']'); err != nil {
+			return nil, err
+		}
+		if err := p.expect('='); err != nil {
+			return nil, err
+		}
+		index, err := p.index()
+		if err != nil {
+			return nil, err
+		}
+		keys[name] = index
+		p.skipSpace()
+		if p.pos < len(p.src) && p.src[p.pos] == ',' {
+			p.pos++
+		} else if p.pos >= len(p.src) || p.src[p.pos] != '}' {
+			return nil, p.errorf("expected , or }")
+		}
+	}
+}
+
+// Reads the Lua a keys table holds: quoted strings without escapes, field indexes and -- comments to the end of the
+// line.
 type luaParser struct {
 	src string
 	pos int
@@ -194,76 +552,6 @@ func (p *luaParser) skipSpace() {
 	}
 }
 
-func (p *luaParser) value() (any, error) {
-	p.skipSpace()
-	if p.pos >= len(p.src) {
-		return nil, p.errorf("unexpected end")
-	}
-	switch c := p.src[p.pos]; {
-	case c == '{':
-		return p.table()
-	case c == '\'' || c == '"':
-		return p.string()
-	case c == '-' || c == '.' || (c >= '0' && c <= '9'):
-		return p.number()
-	}
-	if strings.HasPrefix(p.src[p.pos:], "nil") {
-		p.pos += len("nil")
-		return nil, nil
-	}
-	return nil, p.errorf("unexpected %q", p.src[p.pos])
-}
-
-func (p *luaParser) table() (*luaTable, error) {
-	p.pos++
-	table := &luaTable{keyed: map[any]any{}}
-	for {
-		p.skipSpace()
-		if p.pos >= len(p.src) {
-			return nil, p.errorf("unclosed table")
-		}
-		if p.src[p.pos] == '}' {
-			p.pos++
-			return table, nil
-		}
-
-		var key any
-		if p.src[p.pos] == '[' {
-			p.pos++
-			k, err := p.value()
-			if err != nil {
-				return nil, err
-			}
-			p.skipSpace()
-			if !strings.HasPrefix(p.src[p.pos:], "]") {
-				return nil, p.errorf("expected ]")
-			}
-			p.pos++
-			if err := p.expect('='); err != nil {
-				return nil, err
-			}
-			key = k
-		}
-
-		value, err := p.value()
-		if err != nil {
-			return nil, err
-		}
-		if key == nil {
-			table.list = append(table.list, value)
-		} else {
-			table.keyed[key] = value
-		}
-
-		p.skipSpace()
-		if p.pos < len(p.src) && p.src[p.pos] == ',' {
-			p.pos++
-		} else if p.pos >= len(p.src) || p.src[p.pos] != '}' {
-			return nil, p.errorf("expected , or }")
-		}
-	}
-}
-
 func (p *luaParser) expect(c byte) error {
 	p.skipSpace()
 	if p.pos >= len(p.src) || p.src[p.pos] != c {
@@ -274,48 +562,33 @@ func (p *luaParser) expect(c byte) error {
 }
 
 func (p *luaParser) string() (string, error) {
-	quote := p.src[p.pos]
-	p.pos++
-	var text strings.Builder
-	for p.pos < len(p.src) {
-		c := p.src[p.pos]
-		p.pos++
-		switch c {
-		case quote:
-			return text.String(), nil
-		case '\n':
-			return "", p.errorf("newline in string")
-		case '\\':
-			if p.pos >= len(p.src) {
-				return "", p.errorf("unclosed string")
-			}
-			escaped := p.src[p.pos]
-			p.pos++
-			switch escaped {
-			case 'n':
-				text.WriteByte('\n')
-			case 't':
-				text.WriteByte('\t')
-			case '\\', '\'', '"':
-				text.WriteByte(escaped)
-			default:
-				return "", p.errorf("unknown escape \\%c", escaped)
-			}
-		default:
-			text.WriteByte(c)
-		}
+	p.skipSpace()
+	if p.pos >= len(p.src) || (p.src[p.pos] != '\'' && p.src[p.pos] != '"') {
+		return "", p.errorf("expected a string")
 	}
-	return "", p.errorf("unclosed string")
+	quote := p.src[p.pos]
+	end := strings.IndexByte(p.src[p.pos+1:], quote)
+	if end < 0 {
+		return "", p.errorf("unclosed string")
+	}
+	text := p.src[p.pos+1 : p.pos+1+end]
+	if strings.ContainsAny(text, "\\\n") {
+		return "", p.errorf("escape or newline in string %q", text)
+	}
+	p.pos += end + 2
+	return text, nil
 }
 
-func (p *luaParser) number() (float64, error) {
+// A field index, from 1 to 63 so that it has a presence bit.
+func (p *luaParser) index() (int, error) {
+	p.skipSpace()
 	start := p.pos
-	for p.pos < len(p.src) && strings.IndexByte("-.0123456789", p.src[p.pos]) >= 0 {
+	for p.pos < len(p.src) && p.src[p.pos] >= '0' && p.src[p.pos] <= '9' {
 		p.pos++
 	}
-	number, err := strconv.ParseFloat(p.src[start:p.pos], 64)
-	if err != nil {
-		return 0, p.errorf("bad number %q", p.src[start:p.pos])
+	index, err := strconv.Atoi(p.src[start:p.pos])
+	if err != nil || index < 1 || index > 63 {
+		return 0, p.errorf("bad field index %q", p.src[start:p.pos])
 	}
-	return number, nil
+	return index, nil
 }
