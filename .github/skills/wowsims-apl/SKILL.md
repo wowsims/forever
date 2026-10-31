@@ -69,8 +69,8 @@ A value or action reaches the rotation and the kind picker in five places, all i
   back to any spell with the id.
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
-  whose Information validation lists them; a rotation without it never casts them. One marked `Manual` (Innervate,
-  a non-tank's defensive cooldown) goes only at a cooldown timing and is listed only when it has one.
+  whose Information validation lists them; a rotation without it never casts them. One with `DisableAutocast` set
+  (Innervate, a non-tank's defensive cooldown) goes only at a cooldown timing and is listed only when it has one.
 - **With the combat log on, a `Casting` line of a rotation cast ends with ` APL: <path>`.** The path joins segments with
   a spaced `>`, and every number is a 1-based config position that counts hidden rows: `prepull N`, `priority N`,
   `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
