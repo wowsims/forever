@@ -77,6 +77,7 @@ type Druid struct {
 	OmenOfClarityAura        *core.Aura // The proc trigger, whose ICD says when Omen of Clarity can proc again.
 	DireBearFormAura         *core.Aura
 	DashAura                 *core.Aura
+	FeralChargeMovementAura  *core.Aura
 	FrenziedRegenerationAura *core.Aura
 	DemoralizingRoarAuras    core.AuraArray
 	FaerieFireAuras          core.AuraArray
@@ -155,22 +156,16 @@ func (druid *Druid) RegisterBalanceSpells() {
 	druid.registerWrathSpell()
 	druid.registerHurricaneSpell()
 	druid.registerBarkskin()
-	druid.registerThornsSpell()
+	druid.RegisterCasterSpells()
 }
 
-// The feral specs take Thorns from the buff settings, so only restoration and balance register it.
-func (druid *Druid) RegisterRestorationSpells() {
+// The feral specs take Thorns from the buff settings, so only the caster specs register it.
+func (druid *Druid) RegisterCasterSpells() {
 	druid.registerThornsSpell()
 }
 
 func (druid *Druid) RegisterFeralSpells() {
 	druid.registerBarkskin()
-	// A defensive major cooldown goes on its own only for a tank, so a cat spends a GCD on it only at a
-	// cooldown timing or from the APL.
-	druid.AddMajorCooldown(core.MajorCooldown{
-		Spell: druid.Barkskin.Spell,
-		Type:  core.CooldownTypeSurvival,
-	})
 	druid.registerCatFormSpell()
 	druid.registerBearFormSpell()
 	druid.registerClawSpell()

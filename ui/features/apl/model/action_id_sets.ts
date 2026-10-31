@@ -61,38 +61,26 @@ const CATEGORY_SUBMENUS: Array<[ActionCategory, string]> = [
 ];
 
 /**
- * The menu groups in the order they are listed, by a group path's last key. A nested group listed before
- * its parent opens the parent's submenu, and one listed after it closes it. A group not listed follows the
- * listed ones.
- */
-const MENU_GROUP_ORDER = ['forms', 'cat', 'stealth', 'bear', 'utility', 'druid'];
-
-const menuGroupRank = (path: Array<string>) => {
-	const rank = MENU_GROUP_ORDER.indexOf(path[path.length - 1]);
-	return rank < 0 ? MENU_GROUP_ORDER.length : rank;
-};
-
-/**
  * Files `entries` under the menu group the sim names, else under their category's submenu, one
  * category after another, and hands back the uncategorised rest for the caller to place. A menu group
  * is a path of submenu keys joined by dots, such as `spell.cat.stealth`.
  *
- * The groups and categories are emitted in a fixed order because the menu places a submenu where its
- * first option appears, and the metadata arrives sorted by name.
+ * The groups follow `groupOrder`, the unit's order by full path, with a group it does not list after
+ * the listed ones; the categories follow a fixed order. Both matter because the menu places a submenu
+ * where its first option appears, and the metadata arrives sorted by name.
  */
 const categorise = <T extends AuraStats | SpellStats>(
 	entries: Array<T>,
+	groupOrder: Array<string>,
 	toOption: (entry: T, submenu: Array<string | ActionId>) => ActionIdOption,
 	allEntries: Array<T> = entries,
 ) => {
 	const file = (entry: T, path: Array<string>) => toOption(entry, createSpellSubmenu(entry.id, allEntries, path, entries));
+	const rank = (group: string) => (groupOrder.includes(group) ? groupOrder.indexOf(group) : groupOrder.length);
 	const ungrouped = entries.filter(entry => !entry.data.menuGroup);
-	const grouped = entries
-		.filter(entry => entry.data.menuGroup)
-		.map(entry => ({ entry, path: entry.data.menuGroup.split('.') }))
-		.sort((a, b) => menuGroupRank(a.path) - menuGroupRank(b.path));
+	const grouped = entries.filter(entry => entry.data.menuGroup).sort((a, b) => rank(a.data.menuGroup) - rank(b.data.menuGroup));
 	return {
-		grouped: grouped.map(({ entry, path }) => file(entry, path)),
+		grouped: grouped.map(entry => file(entry, entry.data.menuGroup.split('.'))),
 		categorised: CATEGORY_SUBMENUS.flatMap(([category, key]) =>
 			ungrouped.filter(entry => entry.data.category === category).map(entry => file(entry, [key])),
 		),
@@ -101,10 +89,10 @@ const categorise = <T extends AuraStats | SpellStats>(
 };
 
 /** The auras `keep` passes; `allAuras`, the unfiltered list, decides whether an aura has ranks. */
-const auraOptions = (allAuras: Array<AuraStats>, keep: (aura: AuraStats) => boolean = () => true): Array<ActionIdOption> => {
+const auraOptions = (allAuras: Array<AuraStats>, groupOrder: Array<string>, keep: (aura: AuraStats) => boolean = () => true): Array<ActionIdOption> => {
 	const toOption = (aura: AuraStats, submenu: Array<string | ActionId>) => ({ value: aura.id, submenu });
 	const kept = allAuras.filter(keep);
-	const { grouped, categorised, uncategorised } = categorise(kept, toOption, allAuras);
+	const { grouped, categorised, uncategorised } = categorise(kept, groupOrder, toOption, allAuras);
 	return [...grouped, ...categorised, ...uncategorised.map(aura => toOption(aura, createSpellSubmenu(aura.id, allAuras, [], kept)))];
 };
 
@@ -136,11 +124,11 @@ export const actionIdSets: Record<
 > = {
 	auras: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.auras'),
-		getActionIDs: async metadata => auraOptions(metadata.getAuras()),
+		getActionIDs: async metadata => auraOptions(metadata.getAuras(), metadata.getMenuGroupOrder()),
 	},
 	stackable_auras: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.stackable_auras'),
-		getActionIDs: async metadata => auraOptions(metadata.getAuras(), aura => aura.data.maxStacks > 0),
+		getActionIDs: async metadata => auraOptions(metadata.getAuras(), metadata.getMenuGroupOrder(), aura => aura.data.maxStacks > 0),
 	},
 	icd_auras: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.icd_auras'),
@@ -148,12 +136,12 @@ export const actionIdSets: Record<
 			// A trigger listed by the id of the aura it applies is that aura's entry once.
 			const listed = new Set(metadata.getAuras().map(aura => aura.id.toString()));
 			const triggers = metadata.getIcdAuras().filter(aura => !listed.has(aura.id.toString()));
-			return auraOptions([...metadata.getAuras(), ...triggers], aura => aura.data.hasIcd);
+			return auraOptions([...metadata.getAuras(), ...triggers], metadata.getMenuGroupOrder(), aura => aura.data.hasIcd);
 		},
 	},
 	exclusive_effect_auras: {
 		defaultLabel: i18n.t('rotation_tab.apl.helpers.action_id_sets.exclusive_effect_auras'),
-		getActionIDs: async metadata => auraOptions(metadata.getAuras(), aura => aura.data.hasExclusiveEffect),
+		getActionIDs: async metadata => auraOptions(metadata.getAuras(), metadata.getMenuGroupOrder(), aura => aura.data.hasExclusiveEffect),
 	},
 	// Used for non categorized lists
 	spells: {
@@ -173,7 +161,7 @@ export const actionIdSets: Record<
 		getActionIDs: async metadata => {
 			const castableSpells = metadata.getSpells().filter(spell => spell.data.isCastable);
 			const toOption = (spell: SpellStats, submenu: Array<string | ActionId>) => ({ value: spell.id, submenu, listScope: listScopeOf(spell) });
-			const { grouped, categorised, uncategorised } = categorise(castableSpells, toOption);
+			const { grouped, categorised, uncategorised } = categorise(castableSpells, metadata.getMenuGroupOrder(), toOption);
 
 			const placeholders: Array<ActionId> = [
 				OtherAction.OtherActionOffensivePotion,

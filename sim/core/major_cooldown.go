@@ -72,9 +72,9 @@ type MajorCooldown struct {
 	numUsages int
 }
 
-// Whether Autocast Other Cooldowns can cast it: at a timing, or on its own.
+// Whether Autocast Other Cooldowns can still cast it: at a timing not yet used, or on its own.
 func (mcd *MajorCooldown) autocasts() bool {
-	return len(mcd.timings) > 0 || !mcd.DisableAutocast
+	return mcd.numUsages < len(mcd.timings) || !mcd.DisableAutocast
 }
 
 func (mcd *MajorCooldown) ReadyAt() time.Duration {
@@ -237,6 +237,10 @@ func (mcdm *majorCooldownManager) AddMajorCooldown(mcd MajorCooldown) {
 	if mcdm.character.Env.IsFinalized() {
 		panic("Major cooldowns may not be added once finalized!")
 	}
+	// The tank rule below reads the raid's tank slots, which the environment fills during construction.
+	if mcdm.character.Env.State < Constructed {
+		panic("Major cooldowns may not be added before the environment is constructed!")
+	}
 	if mcd.Spell == nil {
 		panic("Major cooldown must have a Spell!")
 	}
@@ -252,14 +256,12 @@ func (mcdm *majorCooldownManager) AddMajorCooldown(mcd MajorCooldown) {
 	}
 
 	// A defensive cooldown that adds no damage or mana goes on its own only for a tank; a timing or an APL
-	// action still uses it for anyone. The tank slots are read before any cooldown is added.
+	// action still uses it for anyone.
 	defensiveOnly := mcd.Type.Matches(CooldownTypeSurvival) && !mcd.Type.Matches(CooldownTypeDPS|CooldownTypeMana)
 	if defensiveOnly && !mcdm.character.isTank {
 		mcd.DisableAutocast = true
 	}
-	if mcd.DisableAutocast {
-		mcd.ShouldActivate = func(_ *Simulation, _ *Character) bool { return false }
-	} else if mcd.ShouldActivate == nil {
+	if mcd.ShouldActivate == nil {
 		mcd.ShouldActivate = func(_ *Simulation, _ *Character) bool { return true }
 	}
 

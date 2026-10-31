@@ -56,6 +56,8 @@ type Unit struct {
 
 	Level int32 // Level of Unit, e.g. Bosses are 83.
 
+	MenuGroupOrder []string // The order of the unit's APL menu groups, by full path; a group not listed follows them.
+
 	MobType        proto.MobType
 	BleedImmune    bool // A bleed misses this unit, and its Dot does not land (SpellFlagBleed).
 	CreatureFamily proto.CreatureFamily
@@ -1025,7 +1027,8 @@ func (unit *Unit) GetMetadata() *proto.UnitMetadata {
 // casters are the units whose spells can cast this unit's auras, which decides an aura's category.
 func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 	metadata := &proto.UnitMetadata{
-		Name: unit.Label,
+		Name:           unit.Label,
+		MenuGroupOrder: unit.MenuGroupOrder,
 	}
 
 	// The rank rides on the id so the UI can group a spell's ranks; the tooltips the UI fetches do not

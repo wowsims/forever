@@ -144,7 +144,7 @@ const bearFormThreatMultiplier = 1.5
 
 func (druid *Druid) RegisterBearFormAura() {
 	druid.BearFormAura = druid.registerBearAura(spellData.BearForm.Highest(), spellData.BearFormTriggered.Highest(), Bear, druid.StartingForm == Bear)
-	// Dire Bear Form replaces Bear Form once learned, at level 40, so the APL offers neither its aura nor its spell.
+	// Out of the APL with its spell, which Dire Bear Form replaces.
 	druid.BearFormAura.HideFromAPL = true
 	druid.DireBearFormAura = druid.registerBearAura(spellData.DireBearForm.Highest(), spellData.DireBearFormTriggered.Highest(), DireBear, druid.StartingForm.Matches(DireBear))
 }
@@ -247,14 +247,14 @@ func (druid *Druid) registerCatFormSpell() {
 
 func (druid *Druid) registerBearFormSpell() {
 	druid.BearForm = druid.registerShapeshiftSpell(spellData.BearForm.Highest(), druid.BearFormAura)
+	// Dire Bear Form replaces Bear Form once learned, at level 40.
+	druid.BearForm.Flags &^= core.SpellFlagAPL
 	druid.DireBearForm = druid.registerShapeshiftSpell(spellData.DireBearForm.Highest(), druid.DireBearFormAura)
 }
 
 func (druid *Druid) registerShapeshiftSpell(rank *spelldata.Spell, aura *core.Aura) *DruidSpell {
 	config := spelldata.SpellConfig(&druid.Unit, rank)
-	if aura == nil || !aura.HideFromAPL {
-		config.Flags |= core.SpellFlagAPL
-	}
+	config.Flags |= core.SpellFlagAPL
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 		return aura != nil && (aura == druid.BearFormAura || aura == druid.DireBearFormAura || !aura.IsActive())
 	}

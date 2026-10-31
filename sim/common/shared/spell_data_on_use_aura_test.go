@@ -55,8 +55,8 @@ func TestOnUseThreatReductionIsNeverUsedOnItsOwn(t *testing.T) {
 	if eye == nil || mcd == nil {
 		t.Fatalf("the eye registered no on-use major cooldown")
 	}
-	if mcd.Type != core.CooldownTypeUnknown || mcd.ShouldActivate(sim, &tester.Character) {
-		t.Errorf("the eye's major cooldown is of type %v and asks to be used: %v; want neither", mcd.Type, mcd.ShouldActivate(sim, &tester.Character))
+	if mcd.Type != core.CooldownTypeUnknown || !mcd.DisableAutocast {
+		t.Errorf("the eye's major cooldown is of type %v and is autocast: %v; want neither", mcd.Type, !mcd.DisableAutocast)
 	}
 
 	if !eye.Cast(sim, sim.Encounter.ActiveTargetUnits[0]) {

@@ -7,24 +7,25 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+// The Bear Form and Cat Form charges: two spells, not ranks of one.
+var feralCharges = spelldata.Ranked(16979, 414924)
+
 func (druid *Druid) registerFeralChargeSpell() {
 	root := spellData.FeralChargeTriggered.Highest()
 	roots := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return target.RegisterAura(spelldata.AuraConfig(root))
 	})
-	for _, id := range []int32{16979, 414924} {
-		rank := spelldata.MustFind(id)
+	feralCharges.Each(func(_ int32, rank *spelldata.Spell) {
 		config := spelldata.SpellConfig(&druid.Unit, rank)
 		config.Flags |= core.SpellFlagAPL | core.SpellFlagMovesToTarget
-		config.MenuGroup = "spell.utility"
 		config.Cast.IgnoreHaste = true
 		config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 			return druid.Talents.FeralCharge
 		}
 		var chargeMovement *core.Aura
-		if id == 16979 {
+		if rank.ID == 16979 {
 			chargeMovement = core.MakeDashAura(&druid.Unit, rank.Name+" Movement", core.ActionID{SpellID: rank.ID, Tag: 1}, 5*time.Second, nil)
-			chargeMovement.MenuGroup = "druid"
+			druid.FeralChargeMovementAura = chargeMovement
 			config.RelatedAuraArrays = roots.ToMap()
 		}
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
@@ -55,8 +56,8 @@ func (druid *Druid) registerFeralChargeSpell() {
 			roots.Get(target).Activate(sim)
 		}
 		charge := druid.RegisterSpell(config)
-		if (id == 414924 && druid.StartingForm == Cat) || (id == 16979 && druid.StartingForm != Cat) {
+		if (rank.ID == 414924 && druid.StartingForm == Cat) || (rank.ID == 16979 && druid.StartingForm != Cat) {
 			druid.FeralCharge = charge
 		}
-	}
+	})
 }

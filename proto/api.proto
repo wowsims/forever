@@ -675,6 +675,8 @@ message UnitMetadata {
 	// Proc triggers with an internal cooldown and no action of their own, by the action they proc from:
 	// the id icd_is_ready finds them by, which no other aura value does.
 	repeated AuraStats icd_auras = 5;
+	// The order of the unit's APL menu groups, by full path; a group not listed follows them.
+	repeated string menu_group_order = 6;
 }
 message PetStats {
 	UnitMetadata metadata = 1;
