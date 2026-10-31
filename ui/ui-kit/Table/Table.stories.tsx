@@ -56,6 +56,8 @@ export const Striped: Story = { args: { striped: true } };
 export const Hover: Story = { args: { hover: true } };
 export const Dense: Story = { args: { dense: true } };
 export const Plain: Story = { args: { variant: 'plain' } };
+export const RowRulesOnly: Story = { args: { variant: 'rows' } };
+export const Small: Story = { args: { size: 'sm' } };
 export const Flush: Story = { args: { variant: 'plain', flush: true } };
 export const WrappingHeader: Story = {
 	args: {

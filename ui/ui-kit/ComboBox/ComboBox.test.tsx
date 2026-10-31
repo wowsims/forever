@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { Button } from '@ui-kit/Button';
+import { Field } from '@ui-kit/Field';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -106,6 +108,16 @@ describe('ComboBox', () => {
 		expect(list().contains(footer)).toBe(false);
 		expect(footer.parentElement).toBe(list().parentElement);
 		expect(list().nextElementSibling).toBe(footer);
+	});
+
+	it('renders a footer button at the default size whatever Field the box sits in', () => {
+		render(
+			<Field size="xs">
+				<ComboBox {...propsFor({ open: true, footer: <Button data-testid="the-footer-button">Add</Button> })} />
+			</Field>,
+		);
+
+		expect(screen.getByTestId('the-footer-button').getAttribute('data-size')).toBe('sm');
 	});
 
 	it('flags the list for multi-column striping only when multiColumn is set', () => {

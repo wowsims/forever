@@ -51,7 +51,7 @@ Reach for a **named utility** first, including its variants and `!`-free forms. 
 - **CSS variables in class names.** Never write `-[var(--x)]`. If `--x` is a `@theme` token, use its
   named utility instead — `--z-index-*` tokens generate `z-<name>` directly (`z-dropdown`,
   `z-modal`), no paren form needed. For a non-token var, use the paren shorthand:
-  `w-(--loader-width,60px)`, `text-(length:--btn-font-size)`. `var()` stays inside a class name only
+  `w-(--loader-width,60px)`, `text-(length:--control-button-font-size)`. `var()` stays inside a class name only
   inside a genuine multi-term `calc()`/`min()`/gradient, or an arbitrary property (`[prop:…]`) that
   has no utility form.
 - **No `clsx` for a static class list, but keep it on a const.** `clsx` is registered under
@@ -65,9 +65,30 @@ Reach for a **named utility** first, including its variants and `!`-free forms. 
   (`ui/features/gear/components/SelectorModal/ItemList.tsx`) must keep its call. Reach for `clsx`
   when an argument is conditional or a variable, never to wrap or line-break a fixed list.
 
+**Form controls share one size scale.** `Input`, `TextArea`, the text fields, `ComboBox`,
+`MultiComboBox`, `ChoiceField`'s select, `BooleanPicker`, `Button`, `ButtonGroup` and `ToggleGroup`
+take `size`: `xs`, `sm` or `md`, 24.75px, 31.75px and 34.38px tall at the 14px root. A size sets
+the height and the checkbox box only. The font belongs to the control's type, at every size:
+`--control-input-font-size` (`text-ui`) for inputs, selects and combo boxes, and
+`--control-button-font-size` (`text-sm`) for buttons. A control without a `size` takes the size of
+the nearest `Field` that sets one (a nested `Field` passes its parent's on, and `xs` also tightens
+the fields themselves), and `sm` outside any. A sized `ButtonGroup` gives its size to every
+`Button` directly in it. A popup's controls take no size from the `Field` it opens from: `Dialog`,
+`Drawer`, `Popover`, `Menu`, `Toast`, the popups of `ComboBox`, `MultiComboBox` and `ChoiceField`'s
+select, and the tour card each reset it. The control renders its size as `data-size`. Each size is
+a pair of tokens in `ui/styles/theme/vars.css` (`--control-<size>-height` and `-padding-x`), beside
+one `--control-gap` for every size. `ui/ui-kit/FormControl/FormControl.css` points a control's
+`--control-height` and `--control-padding-x` at the set its `data-size` names, and derives
+`--control-padding-y` as `(height - font * 1.5 - 2px) / 2` from the font the control's own rule
+sets in `--control-font-size`. The height token is the one source of each height, and a control's
+CSS reads these variables and never a literal padding or box size. A text area keeps its content
+height. A link `Button` is text with no form height: it takes no size from a `Field`, and its own
+`size` changes it only at `xs`, to the input font; `size="none"` has no padding. The
+Design System/Control Sizes page in Storybook shows the scale.
+
 Breakpoints are named tokens in `ui/styles/theme/breakpoints.css`: `sm md lg xl xxl xxxl fhd qhd uhd`
-(`576px` through `3841px`; `fhd` is the 1921px `1080p` cutover, a layout breakpoint only: the root
-font-size does not change there). All breakpoints are px, so they never depend on
+(`576px` through `3841px`; `fhd` is the 1921px `1080p` cutover, where `ui/styles/base.css` raises
+the root font-size from 14px to 16px). All breakpoints are px, so they never depend on
 the root.
 
 **Spec themes are CSS variables, not per-spec CSS.** `ui/styles/theme/specs.css`'s `.sim-ui` block

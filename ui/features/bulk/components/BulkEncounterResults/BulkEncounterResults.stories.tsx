@@ -31,6 +31,7 @@ const meta = {
 			{ label: 'Patchwerk', durationLabel: '5:00 ±30s', bestDps: '798.10', gain: '+30.20 (3.93%)' },
 			{ label: 'Council', durationLabel: '4:00 ±10s', bestDps: '1,104.90', gain: null },
 		],
+		gains: true,
 		selected: 0,
 		onSelect: fn(),
 		footer: (
@@ -54,6 +55,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const ThreeEncounters: Story = {};
+
+export const CurrentBundleUnticked: Story = {
+	args: {
+		rows: [
+			{ label: 'Current', durationLabel: '3:00 ±5s', bestDps: '788.23', gain: null },
+			{ label: 'Patchwerk', durationLabel: '5:00 ±30s', bestDps: '798.10', gain: null },
+		],
+		gains: false,
+	},
+};
 
 export const LongNames: Story = {
 	args: {

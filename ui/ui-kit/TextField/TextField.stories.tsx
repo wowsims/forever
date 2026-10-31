@@ -42,7 +42,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const MediumSize: Story = { args: { inputSize: 'md' } };
+export const Sizes: Story = {
+	render: args => (
+		<div className="flex flex-col gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<TextFieldStory key={size} {...args} id={`text-field-${size}`} label={`Rotation Name (${size})`} size={size} />
+			))}
+		</div>
+	),
+};
 
 const NumberStory = ({ onChange }: { onChange: (next: number) => void }) => (
 	<div className="flex flex-col gap-2">

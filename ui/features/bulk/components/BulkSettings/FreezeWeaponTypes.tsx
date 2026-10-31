@@ -7,7 +7,7 @@ import { BooleanPicker } from '@ui-kit/BooleanPicker';
 
 import { trackEvent } from '../../../../tracking/utils';
 import { useBulkState } from '../../hooks/useBulkState';
-import { setBulkWeaponTypeFilter } from '../../model/settings';
+import { setBulkWeaponTypeFilter } from '../../model/gear/settings';
 
 export interface FreezeWeaponTypesProps {
 	slot: ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand;

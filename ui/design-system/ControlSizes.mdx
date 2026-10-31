@@ -1,0 +1,25 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ControlHeights, ControlPaddings, ControlScale } from './components/ControlScale';
+import { TokenTable } from './components/TokenTable';
+
+<Meta title="Design System/Control Sizes" />
+
+# Control sizes
+
+Every form control (`Input`, `TextArea`, the text fields, `ComboBox`, `MultiComboBox`, `ChoiceField`'s select, `BooleanPicker`, `Button`, `ButtonGroup`, `ToggleGroup`) takes `size`: `xs`, `sm` or `md`. A control without one takes the size of the nearest `Field` that sets one, and `sm` outside any. Controls of one size are the same height, so a row of them shares a top and a bottom.
+
+<ControlHeights />
+
+A size sets the height, and the checkbox is a square of it. The font belongs to the control's type and stays the same at every size: `text-ui` (0.75rem) for inputs, selects and combo boxes, `text-sm` (0.875rem) for buttons. Each control derives its vertical padding so that two paddings, a 1.5 line of its font and a 1px border on each side make the height:
+
+<ControlPaddings />
+
+A text area keeps its content height and takes the size's padding. A link button is text with no form height: it takes no size from a `Field`, and of its own sizes only `xs` changes it, to the input font. `Button`'s `size="none"` has no padding.
+
+<ControlScale />
+
+## Tokens
+
+`ui/styles/theme/vars.css` declares each size's height and horizontal padding, the one gap every size shares, and the two type fonts. `ui/ui-kit/FormControl/FormControl.css` points a control's `--control-height` and `--control-padding-x` at the set its `data-size` names, and derives `--control-padding-y` from `--control-height` and the `--control-font-size` the control's own rule sets.
+
+<TokenTable prefix="control" />

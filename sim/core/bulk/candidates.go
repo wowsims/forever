@@ -33,7 +33,6 @@ func BulkCombinationCount(request *proto.BulkCombinationCountRequest) *proto.Bul
 	return &proto.BulkCombinationCountResult{
 		RawCombinations: int32(rawCombinations),
 		Combinations:    int32(matchingCombinations),
-		Iterations:      float64(estimateBulkSimIterations(matchingCombinations)),
 	}
 }
 

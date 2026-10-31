@@ -54,17 +54,17 @@ export interface DeltaText {
 export const formatSignificance = ({ z, isDiff }: { z: number; isDiff: boolean }): string =>
 	isDiff ? i18n.t('common.significance.significant', { z: z.toFixed(3) }) : i18n.t('common.significance.not_significant', { z: z.toFixed(3) });
 
+/** `value` against `reference`, the percentage of the reference's value either way: 1000 → 800 and 1000 → 1200 are both 20%. */
 export function formatDeltaText(
-	before: number,
-	after: number,
+	reference: number,
+	value: number,
 	precision: number,
 	lowerIsBetter?: boolean,
 	noColor?: boolean,
 	showPercentage?: boolean,
 ): DeltaText {
-	const delta = after - before;
-	const denom = Math.min(before, after);
-	const deltaPct = Math.abs((delta / (denom === 0 ? 1 : denom)) * 100).toFixed(precision);
+	const delta = value - reference;
+	const deltaPct = Math.abs((delta / (reference === 0 ? 1 : reference)) * 100).toFixed(precision);
 	let text = delta.toFixed(precision);
 	if (delta >= 0) {
 		text = `+${text}`;

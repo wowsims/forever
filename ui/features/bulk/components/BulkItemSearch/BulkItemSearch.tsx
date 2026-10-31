@@ -8,8 +8,8 @@ import { ContentBlock } from '@ui-kit/ContentBlock';
 import { NumberField } from '@ui-kit/TextField';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { addBulkItem } from '../../model/items';
-import { type BulkSearchResult, byIlvlDescending, MAX_SEARCH_RESULTS, searchBulkItems } from '../../model/search';
+import { addBulkItem } from '../../model/gear/items';
+import { type BulkSearchResult, byIlvlDescending, MAX_SEARCH_RESULTS, searchBulkItems } from '../../model/gear/search';
 import { BulkItemSearchRow } from './BulkItemSearchRow';
 
 export interface BulkItemSearchProps {
@@ -67,7 +67,7 @@ export const BulkItemSearch = ({ ready }: BulkItemSearchProps) => {
 					onItemSelect={item => addBulkItem(player, ItemSpec.create({ id: item.id }))}
 					clearable
 					clearLabel={i18n.t('bulk_tab.search.clear_search')}
-					clearClassName="z-2 -ml-px flex items-center border border-surface-border bg-surface px-(--input-padding-x) py-(--input-padding-y)"
+					clearClassName="z-2 -ml-px flex items-center border border-surface-border bg-surface p-2"
 					listTestId="bulk-gear-search-results"
 					footer={
 						<>

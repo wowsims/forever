@@ -4,7 +4,7 @@ import i18n from '@i18n/config';
 import { BulkSimItemSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { usePlayer, useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
-import { useUiStore } from '@sim/hooks/useUiStore';
+import { useSimReady } from '@sim/hooks/useSimReady';
 import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
@@ -13,14 +13,18 @@ import { RunCard } from '@ui-kit/RunCard';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
 import { type ReactNode, useEffect } from 'react';
 
+import { useBulkBuildsPlan } from '../../context/BulkBuildsContext';
+import { useBulkMode } from '../../hooks/useBulkMode';
 import { BULK_SETTINGS_GROUP, useBulkSettingsGroups } from '../../hooks/useBulkSettingsGroups';
 import { useBulkState } from '../../hooks/useBulkState';
-import { bulkCombinationsLimit } from '../../model/limits';
-import { frozenItemSlot } from '../../model/picker_groups';
-import { runBulkBatch } from '../../model/run';
-import { canRunBatch } from '../../model/selectors';
-import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/settings';
-import { Encounters } from '../Encounters';
+import type { BulkBuildsCount } from '../../model/builds/builds';
+import { frozenItemSlot } from '../../model/gear/picker_groups';
+import { setBulkFrozenItem, setBulkFrozenWeaponSlot } from '../../model/gear/settings';
+import { bulkCombinationsLimit, bulkIterationsLimit } from '../../model/run/limits';
+import { runBulkBatch } from '../../model/run/run';
+import { bulkTopResults } from '../../model/run/top_results';
+import { canRunBatch, canRunBuildsBatch } from '../../model/selectors';
+import { BulkTopResultsField } from './BulkTopResultsField';
 import { CombinationsCount } from './CombinationsCount';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
 
@@ -31,13 +35,15 @@ export interface BulkWeaponFreeze {
 }
 
 export interface BulkSettingsViewProps {
+	/** The top results control above Simulate Batch; null with power tools off. */
+	topResults: ReactNode;
 	combinationsCount: ReactNode;
 	canRun: boolean;
 	onRun: () => void;
 	openGroups: string[];
 	onOpenGroupsChange: (groups: string[]) => void;
-	/** Null hides the group, as with power tools off. */
-	encounters: ReactNode;
+	/** False leaves the run card alone, as in Builds mode. */
+	groups: boolean;
 	enchants: ReactNode;
 	frozenItems: ReadonlyArray<ChoiceFieldProps<number>>;
 	/** Null for a player who cannot dual wield. */
@@ -46,12 +52,13 @@ export interface BulkSettingsViewProps {
 }
 
 export const BulkSettingsView = ({
+	topResults,
 	combinationsCount,
 	canRun,
 	onRun,
 	openGroups,
 	onOpenGroupsChange,
-	encounters,
+	groups,
 	enchants,
 	frozenItems,
 	weaponFreeze,
@@ -62,6 +69,7 @@ export const BulkSettingsView = ({
 			<Box padding="md" className="grid gap-6 bg-background" testId="bulk-settings-container">
 				<RunCard
 					testId="bulk-run-card"
+					controls={topResults}
 					action={
 						<Button className="w-full" data-testid="bulk-settings-btn" disabled={!canRun} onClick={onRun}>
 							{i18n.t('bulk_tab.actions.simulate_batch')}
@@ -69,48 +77,42 @@ export const BulkSettingsView = ({
 					}>
 					{combinationsCount}
 				</RunCard>
-				<Accordion value={openGroups} onValueChange={onOpenGroupsChange} variant="boxed">
-					{encounters != null && (
+				{groups && (
+					<Accordion value={openGroups} onValueChange={onOpenGroupsChange} variant="boxed">
 						<AccordionItem
-							value={BULK_SETTINGS_GROUP.encounters}
-							title={i18n.t('bulk_tab.settings.groups.encounters')}
-							testId="bulk-settings-group-encounters">
-							{encounters}
+							value={BULK_SETTINGS_GROUP.enchants}
+							title={i18n.t('bulk_tab.settings.groups.enchants')}
+							testId="bulk-settings-group-enchants">
+							{enchants}
 						</AccordionItem>
-					)}
-					<AccordionItem
-						value={BULK_SETTINGS_GROUP.enchants}
-						title={i18n.t('bulk_tab.settings.groups.enchants')}
-						testId="bulk-settings-group-enchants">
-						{enchants}
-					</AccordionItem>
-					<AccordionItem
-						value={BULK_SETTINGS_GROUP.freezes}
-						title={i18n.t('bulk_tab.settings.groups.frozen_slots')}
-						panelClassName="grid gap-4"
-						testId="bulk-settings-group-freezes">
-						{frozenItems.map(props => (
-							<ChoiceField key={props.id} {...props} />
-						))}
-						{weaponFreeze && (
-							<>
-								<ChoiceField
-									id="freeze-weapon"
-									label={i18n.t('bulk_tab.settings.freeze_weapon.label')}
-									labelTooltip={i18n.t('bulk_tab.settings.freeze_weapon.tooltip')}
-									options={[
-										{ value: -1, label: i18n.t('common.none') },
-										{ value: ItemSlot.ItemSlotMainHand, label: i18n.t('slots.main_hand', { ns: 'character' }) },
-										{ value: ItemSlot.ItemSlotOffHand, label: i18n.t('slots.off_hand', { ns: 'character' }) },
-									]}
-									value={weaponFreeze.value}
-									onChange={onFrozenWeaponSlotChange}
-								/>
-								{weaponFreeze.weaponTypes}
-							</>
-						)}
-					</AccordionItem>
-				</Accordion>
+						<AccordionItem
+							value={BULK_SETTINGS_GROUP.freezes}
+							title={i18n.t('bulk_tab.settings.groups.frozen_slots')}
+							panelClassName="grid gap-4"
+							testId="bulk-settings-group-freezes">
+							{frozenItems.map(props => (
+								<ChoiceField key={props.id} {...props} />
+							))}
+							{weaponFreeze && (
+								<>
+									<ChoiceField
+										id="freeze-weapon"
+										label={i18n.t('bulk_tab.settings.freeze_weapon.label')}
+										labelTooltip={i18n.t('bulk_tab.settings.freeze_weapon.tooltip')}
+										options={[
+											{ value: -1, label: i18n.t('common.none') },
+											{ value: ItemSlot.ItemSlotMainHand, label: i18n.t('slots.main_hand', { ns: 'character' }) },
+											{ value: ItemSlot.ItemSlotOffHand, label: i18n.t('slots.off_hand', { ns: 'character' }) },
+										]}
+										value={weaponFreeze.value}
+										onChange={onFrozenWeaponSlotChange}
+									/>
+									{weaponFreeze.weaponTypes}
+								</>
+							)}
+						</AccordionItem>
+					</Accordion>
+				)}
 			</Box>
 		</div>
 	</TabPanelColumns.Right>
@@ -141,14 +143,20 @@ const FROZEN_PAIRS: readonly FrozenPair[] = [
 	},
 ];
 
-export const BulkSettings = () => {
+const BulkSettingsContainer = ({ builds }: { builds: BulkBuildsCount | null }) => {
 	const host = useSimHost();
 	const player = usePlayer();
+	const ready = useSimReady();
 	const frozenItems = useBulkState(slice => slice.frozenItems);
 	const frozenWeaponSlot = useBulkState(slice => slice.frozenWeaponSlot);
-	const canRun = useBulkState(slice => canRunBatch(slice, bulkCombinationsLimit(player.sim.isNative)));
+	const combinationsLimit = bulkCombinationsLimit(player.sim.isNative);
+	const { powerTools } = useBulkMode();
+	// The iterations gate needs power tools, which hold the Top results control that lowers it. Without them Gear gates on
+	// the combinations limit alone, and past the iterations limit the run card only warns.
+	const iterationsLimit = powerTools ? bulkIterationsLimit(player.sim.isNative) : Number.POSITIVE_INFINITY;
+	const canRunGear = useBulkState(slice => canRunBatch(slice, combinationsLimit, iterationsLimit, bulkTopResults(powerTools, slice)));
+	const isRunning = useBulkState(slice => slice.isRunning);
 	const gear = usePlayerStore('gear');
-	const powerTools = useUiStore('showPowerTools');
 	const [openGroups, setOpenGroups] = useBulkSettingsGroups();
 
 	// Clearing a frozen item whose slot no longer holds it writes to the store; that is not safe
@@ -175,12 +183,13 @@ export const BulkSettings = () => {
 
 	return (
 		<BulkSettingsView
-			combinationsCount={<CombinationsCount />}
-			canRun={canRun}
+			topResults={powerTools ? <BulkTopResultsField /> : null}
+			combinationsCount={<CombinationsCount builds={builds} ready={ready} />}
+			canRun={ready && (builds ? canRunBuildsBatch(isRunning, builds, combinationsLimit, iterationsLimit) : canRunGear)}
 			onRun={() => void runBulkBatch(host)}
 			openGroups={openGroups}
 			onOpenGroupsChange={setOpenGroups}
-			encounters={powerTools ? <Encounters /> : null}
+			groups={!builds}
 			enchants={<EnchantPresets />}
 			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
 			weaponFreeze={
@@ -200,3 +209,6 @@ export const BulkSettings = () => {
 		/>
 	);
 };
+
+// In Builds mode the count comes off the plan a `BulkBuildsProvider` above builds.
+export const BulkSettings = () => <BulkSettingsContainer builds={useBulkBuildsPlan()?.count ?? null} />;

@@ -48,6 +48,11 @@ commit.
 `ui/features/gear/components/FiltersMenu/FiltersMenu.test.tsx`) that passes alone. Rerun that file alone, then the
 whole suite once; call the change red only if it fails again.
 
+**A tooltip that never opens in a test may be the debounce.** react-tooltip opens on the leading edge of a 50 ms
+debounce that every `focusin` and `mouseover` on the page feeds, so a test that focuses or hovers two anchors in the
+same tick drops the second and finds no `role="tooltip"`. Wait past the window between the two; real key presses are
+always further apart.
+
 ## The tree-wide gates
 
 The `ui/*.test.ts` files at the root of `ui/` are not component tests: they scan the tree from disk under
