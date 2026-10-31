@@ -1,5 +1,6 @@
 import { ItemSlot } from '@generated/proto/common';
-import { DropSource, DungeonDifficulty, SourceFilterOption, UIItem as Item, UIItemSource } from '@generated/proto/ui';
+import { DropSource, DungeonDifficulty, RaidFilterOption, SourceFilterOption, UIItem as Item, UIItemSource } from '@generated/proto/ui';
+import { Sim } from '@sim/sim';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -65,5 +66,32 @@ describe('Player.filterItemData source filter', () => {
 		const { listed, tick } = await setup();
 		tick(SourceFilterOption.SourceSoldBy, SourceFilterOption.SourceQuest, SourceFilterOption.SourceRaid, SourceFilterOption.SourceDungeon);
 		expect(listed()).toEqual([1, 2, 3, 4, 5, 8]);
+	});
+});
+
+describe('Player.filterItemData raid toggles', () => {
+	const MC_ZONE_ID = 2717;
+	const mcDrop = UIItemSource.create({
+		source: { oneofKind: 'drop', drop: DropSource.create({ difficulty: DungeonDifficulty.DifficultyRaid, zoneId: MC_ZONE_ID }) },
+	});
+	const MC_ONLY = Item.create({ id: 10, sources: [mcDrop] });
+	const MC_AND_QUEST = Item.create({ id: 11, sources: [mcDrop, quest] });
+
+	const setup = async () => {
+		const { sim, player } = await makeIndividualSim();
+		sim.applyDefaults(false, false);
+		const listed = () => player.filterItemData([MC_ONLY, MC_AND_QUEST], item => item, ItemSlot.ItemSlotTrinket1).map(item => item.id);
+		const tickMC = (ticked: boolean) =>
+			sim.setFilters({ ...sim.getFilters(), raids: Sim.ALL_RAIDS.filter(raid => ticked || raid != RaidFilterOption.RaidMC) });
+		return { listed, tickMC };
+	};
+
+	it('hides an item that only drops in an unticked raid and shows it when the raid is ticked', async () => {
+		const { listed, tickMC } = await setup();
+		tickMC(false);
+		expect(listed()).toEqual([11]);
+
+		tickMC(true);
+		expect(listed()).toEqual([10, 11]);
 	});
 });

@@ -100,10 +100,10 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 };
 
 /**
- * The toggle that governs a source, or undefined when none does. An item shows while one of its sources is of a ticked
- * kind. PvP is a tag the PvP check handles rather than a place, so unticking PvP hides every PvP item whatever its
- * other sources, and a PvP source itself is kept when PvP is ticked. An item with no sources, or with a source no toggle
- * covers, always shows.
+ * The toggle that governs a source, or undefined when none does. An item shows while one of its sources counts as ticked:
+ * its kind is ticked and, for a drop in one of the raid zones, that raid is ticked too. PvP is a tag the PvP check
+ * handles rather than a place, so unticking PvP hides every PvP item whatever its other sources, and a PvP source itself
+ * is kept when PvP is ticked. An item with no sources, or with a source no toggle covers, always shows.
  */
 const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined => {
 	switch (source.oneofKind) {
@@ -1289,19 +1289,14 @@ export class Player<SpecType extends Spec> {
 			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
 			return item.sources.some(itemSrc => {
 				const option = sourceOption(itemSrc);
-				return option === undefined || filters.sources.includes(option);
+				if (option !== undefined && !filters.sources.includes(option)) return false;
+				if (itemSrc.source.oneofKind != 'drop') return true;
+				const zoneId = itemSrc.source.drop.zoneId;
+				return !Object.entries(Player.RAID_IDS).some(
+					([raidOption, raidZoneId]) => raidZoneId == zoneId && !filters.raids.includes(parseInt(raidOption)),
+				);
 			});
 		});
-
-		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {
-			const raidOption = parseInt(raidOptionStr) as RaidFilterOption;
-			if (!filters.raids.includes(raidOption)) {
-				itemData = filterItems(
-					itemData,
-					item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.zoneId == zoneId),
-				);
-			}
-		}
 
 		if (Player.ARMOR_SLOTS.includes(slot)) {
 			itemData = filterItems(itemData, item => {
