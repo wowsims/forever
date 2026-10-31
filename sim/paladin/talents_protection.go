@@ -9,34 +9,44 @@ import (
 
 func (paladin *Paladin) registerProtectionTalents() {
 	// Tier 1
-	paladin.applyToughness()
+	paladin.applyDivineIntellect()
 	paladin.applyRedoubt()
 
 	// Tier 2
 	paladin.applyPrecision()
 	// Guardian's Favor changes Blessing of Protection and Blessing of Freedom, which are not modelled.
-	paladin.applyAnticipation()
+	paladin.applySacredDuty()
 
 	// Tier 3
-	// Improved Seal of Fury attaches to the seal's shield in seal_of_fury.go
-	paladin.applyImprovedRighteousFury()
+	// Templar's Bulwark registered in registerTalentSpells
+	// Improved Hammer of Justice shortens a cooldown the sim does not model.
 	paladin.applyShieldSpecialization()
-	paladin.applySacredDuty()
+	paladin.applyToughness()
 
 	// Tier 4
 	// Swift Judgement registered in registerTalentSpells
-	paladin.applyOneHandedWeaponSpecialization()
-	// Improved Hammer of Justice shortens a cooldown the sim does not model.
+	paladin.applyImprovedRighteousFury()
+	paladin.applyAnticipation()
 
 	// Tier 5
-	// Templar's Bulwark registered in registerTalentSpells
+	// Stoicism shortens Stun and Charm effects, which the sim never suffers.
+	// Holy Shield registered in registerTalentSpells
 	paladin.applyReckoning()
 
 	// Tier 6
 	paladin.applyIronCreed()
 
 	// Tier 7
-	// Holy Shield registered in registerTalentSpells
+	paladin.applyShieldsworn()
+}
+
+// Divine Intellect - Increases your total Intellect by 2/4/6/8/10%.
+func (paladin *Paladin) applyDivineIntellect() {
+	if paladin.Talents.DivineIntellect == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&paladin.Character, spellData.DivineIntellect.Rank(paladin.Talents.DivineIntellect))
 }
 
 // Toughness - Increases your armor value from items by 2/4/6/8/10%.
@@ -49,7 +59,7 @@ func (paladin *Paladin) applyToughness() {
 }
 
 // Redoubt - Damaging melee attacks against you have a 10% chance to increase your chance to block
-// by 4/8/12/16/20%. Lasts 10 sec or 5 blocks.
+// by 6/12/18/24/30%. Lasts 10 sec or 5 blocks.
 func (paladin *Paladin) applyRedoubt() {
 	if paladin.Talents.Redoubt == 0 {
 		return
@@ -100,38 +110,14 @@ func (paladin *Paladin) applyAnticipation() {
 	spelldata.ParseStatic(&paladin.Character, spellData.Anticipation.Rank(paladin.Talents.Anticipation))
 }
 
-// Improved Seal of Fury - When Seal of Fury's shield is fully absorbed, restore 60 Mana, increased
-// by 15% per level the attacker is above you, up to 45%.
-func (paladin *Paladin) applyImprovedSealOfFury(shield *core.DamageAbsorptionAura) {
-	if !paladin.Talents.ImprovedSealOfFury {
-		return
-	}
-
-	rank := spellData.ImprovedSealOfFury.Highest()
-	mana := rank.EffectN(1).Average()
-	perLevel := rank.EffectN(2).Percent()
-	maxLevels := rank.EffectN(3).Average()
-	restore := spellData.ImprovedSealOfFuryTriggered.Highest()
-	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: restore.ID})
-	manaMetrics.NoThreat = restore.GeneratesNoThreat()
-
-	shield.AttachOnDamageAbsorbed(func(sim *core.Simulation, aura *core.DamageAbsorptionAura, _ *core.SpellResult, _ float64) {
-		if aura.ShieldStrength > 0 {
-			return
-		}
-		levels := min(maxLevels, max(0, float64(paladin.CurrentTarget.Level-paladin.Level)))
-		paladin.AddMana(sim, mana*(1+perLevel*levels), manaMetrics)
-	})
-}
-
-// Improved Righteous Fury - While Righteous Fury is active, all damage taken is reduced by 2/4/6%.
+// Improved Righteous Fury - While Righteous Fury is active, all damage taken is reduced by 3/6/9%.
 func (paladin *Paladin) applyImprovedRighteousFury() {
 	if paladin.Talents.ImprovedRighteousFury == 0 {
 		return
 	}
 
-	// The game files state this as a negative percentage per rank: -2 / -4 / -6, so MultiplierAt
-	// gives 0.98 / 0.96 / 0.94 and the minus is never written here.
+	// The game files state this as a negative percentage per rank: -3 / -6 / -9, so MultiplierAt
+	// gives 0.97 / 0.94 / 0.91 and the minus is never written here.
 	multiplier := spellData.ImprovedRighteousFury.
 		Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_EFFECT2)).
 		MultiplierAt(paladin.Talents.ImprovedRighteousFury)
@@ -143,9 +129,10 @@ func (paladin *Paladin) applyImprovedRighteousFury() {
 	})
 }
 
-// Shield Specialization - Increases the amount of damage absorbed by your shield by 10/20/30%, and
-// gives your blocks a 33/66/100% chance to restore 4% of your maximum Mana. May only occur once
-// every 3 sec.
+// Shield Specialization - Increases the amount of damage absorbed by your shield by 15/30%, and
+// gives your blocks a 50/100% chance to restore 4% of your maximum Mana. May only occur once
+// every 3 sec. With Shieldsworn, a Holy Strike that lands with a shield rolls the same chance
+// without the cooldown.
 func (paladin *Paladin) applyShieldSpecialization() {
 	if paladin.Talents.ShieldSpecialization == 0 {
 		return
@@ -158,36 +145,43 @@ func (paladin *Paladin) applyShieldSpecialization() {
 	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
 	manaMetrics.NoThreat = rank.GeneratesNoThreat()
 
-	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.ShieldSpecialization.Rank(paladin.Talents.ShieldSpecialization), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+	restoreMana := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		paladin.AddMana(sim, paladin.MaxMana()*manaShare, manaMetrics)
-	})
+	}
+	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.ShieldSpecialization.Rank(paladin.Talents.ShieldSpecialization), restoreMana)
 	trigger.Name = "Shield Specialization" + paladin.Label
 	trigger.Outcome = core.OutcomeBlock
 	// The tooltip's "your blocks" counts a block that stops the whole hit.
 	trigger.RequireDamageDealt = false
 	trigger.TriggerImmediately = true
 	paladin.MakeProcTriggerAura(trigger)
+
+	if paladin.Talents.Shieldsworn {
+		paladin.MakeProcTriggerAura(core.ProcTrigger{
+			Name:               "Shield Specialization - Shieldsworn" + paladin.Label,
+			Callback:           core.CallbackOnSpellHitDealt,
+			ClassSpellMask:     SpellMaskHolyStrike,
+			Outcome:            core.OutcomeLanded,
+			ProcChance:         trigger.ProcChance,
+			ExtraCondition:     paladin.strikesWithShield,
+			TriggerImmediately: true,
+			Handler:            restoreMana,
+		})
+	}
 }
 
-// Sacred Duty - Increases your total Stamina by 2/4% and reduces the cooldown of your Divine
-// Shield, Divine Protection, and Templar's Bulwark spells by 30/60 sec.
+// Sacred Duty - Reduces the cooldown of your Divine Shield, Divine Protection, and Templar's Bulwark
+// spells by 30/60 sec, and reduces the duration of Forbearance by 5/10 sec.
 func (paladin *Paladin) applySacredDuty() {
 	if paladin.Talents.SacredDuty == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&paladin.Character, spellData.SacredDuty.Rank(paladin.Talents.SacredDuty))
-}
-
-// One-Handed Weapon Specialization - Increases the damage you deal with one-handed melee weapons
-// by 3/7/10%.
-func (paladin *Paladin) applyOneHandedWeaponSpecialization() {
-	if paladin.Talents.OneHandedWeaponSpecialization == 0 {
-		return
-	}
-
-	spelldata.ParseStatic(&paladin.Character,
-		spellData.OneHandedWeaponSpecialization.Rank(paladin.Talents.OneHandedWeaponSpecialization))
+	rank := spellData.SacredDuty.Rank(paladin.Talents.SacredDuty)
+	// Forbearance is an aura built by hand, which no spell modifier reaches, so it reads the
+	// duration cut as Initialize registers it. The cooldown cut parses.
+	paladin.forbearanceReduction -= rank.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_DURATION)).TimeValue()
+	spelldata.ParseStatic(&paladin.Character, rank, spelldata.Effects(2))
 }
 
 // Reckoning - Gives you a 8/16/24/32/40% chance after Blocking and a 20/40/60/80/100% chance after
@@ -259,8 +253,11 @@ func (paladin *Paladin) applyReckoning() {
 	})
 }
 
-// Iron Creed - Increases the threat generated by your Holy Strike ability by 5/10/15/20/25%. While
-// Righteous Fury is active, Holy Strike also reduces your damage taken by 2/4/6/8/10% for 6 sec.
+// Iron Creed - Increases the threat generated by your Holy Strike ability by 10/20/30%. While
+// Righteous Fury is active, Holy Strike also reduces your damage taken by 2/4/6% for 6 sec.
+//
+// Righteous Fury has to be up when Holy Strike lands, as the tooltip says. The reduction's own row
+// requires no aura, so it lasts its 6 sec after Righteous Fury drops.
 func (paladin *Paladin) applyIronCreed() {
 	if paladin.Talents.IronCreed == 0 {
 		return
@@ -269,13 +266,14 @@ func (paladin *Paladin) applyIronCreed() {
 	spelldata.ParseStatic(&paladin.Character, spellData.IronCreed.Rank(paladin.Talents.IronCreed), spelldata.Effects(1))
 
 	rank := spellData.IronCreedTriggered.Highest()
-	reduction := spellData.IronCreed.Effect(dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE, 0).FractionAt(paladin.Talents.IronCreed)
+	// The game files state the reduction as -2 / -4 / -6, so MultiplierAt gives 0.98 / 0.96 / 0.94.
+	multiplier := spellData.IronCreed.Effect(dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE, 0).MultiplierAt(paladin.Talents.IronCreed)
 
 	ironCreed := paladin.RegisterAura(core.Aura{
 		Label:    "Iron Creed" + paladin.Label,
 		ActionID: core.ActionID{SpellID: rank.ID},
 		Duration: rank.Duration(),
-	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, 1-reduction)
+	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, multiplier)
 
 	// The row hears any melee special and names its ability only in the tooltip. In game a Holy
 	// Strike that misses or is avoided still grants the reduction, so the trigger hears every outcome.
@@ -290,4 +288,48 @@ func (paladin *Paladin) applyIronCreed() {
 		return paladin.RighteousFuryAura.IsActive()
 	}
 	paladin.MakeProcTriggerAura(trigger)
+}
+
+// Shieldsworn - Reduces the cooldown of your Holy Strike ability by 4 sec. Additionally, Holy Strike
+// now strikes with your shield, triggering your active Holy Shield and Shield Specialization talents
+// without consuming their charges or triggering their cooldowns, and allowing you to Block spells
+// for 6 sec.
+//
+// Holy Shield and Shield Specialization read the talent where they register. All three need a Holy
+// Strike that lands and a shield to strike with. The spell block is the triggered row's
+// A_ALLOW_BLOCKING_SPELLS, which the parser has no kind for. While it is up, a melee swing of any
+// school rolls the paladin's block chance. Magic spells stay unblockable.
+// TODO: Verify in game whether a Holy Strike that misses still triggers Holy Shield and Shield
+// Specialization; both here hear only a hit that lands.
+func (paladin *Paladin) applyShieldsworn() {
+	if !paladin.Talents.Shieldsworn {
+		return
+	}
+
+	spelldata.ParseStatic(&paladin.Character, spellData.Shieldsworn.Rank(1))
+
+	spellBlock := paladin.RegisterAura(spelldata.AuraConfig(spellData.ShieldswornTriggered.Highest()))
+	spellBlock.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+		paladin.PseudoStats.CanBlockSpells = true
+	})
+	spellBlock.ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+		paladin.PseudoStats.CanBlockSpells = false
+	})
+
+	paladin.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Shieldsworn - Trigger" + paladin.Label,
+		Callback:           core.CallbackOnSpellHitDealt,
+		ClassSpellMask:     SpellMaskHolyStrike,
+		Outcome:            core.OutcomeLanded,
+		ExtraCondition:     paladin.strikesWithShield,
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			spellBlock.Activate(sim)
+		},
+	})
+}
+
+// Whether a Shieldsworn Holy Strike strikes with a shield, which is what lets it trigger anything.
+func (paladin *Paladin) strikesWithShield(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+	return paladin.PseudoStats.CanBlock
 }

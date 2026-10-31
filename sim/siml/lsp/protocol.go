@@ -76,8 +76,20 @@ type CompletionItem struct {
 }
 
 type Command struct {
-	Title   string `json:"title"`
-	Command string `json:"command"`
+	Title     string `json:"title"`
+	Command   string `json:"command"`
+	Arguments []any  `json:"arguments,omitempty"`
+}
+
+type CodeLens struct {
+	Range   Range    `json:"range"`
+	Command *Command `json:"command,omitempty"`
+}
+
+type InlayHint struct {
+	Position    Position `json:"position"`
+	Label       string   `json:"label"`
+	PaddingLeft bool     `json:"paddingLeft,omitempty"`
 }
 
 type DocumentSymbol struct {
@@ -106,6 +118,7 @@ type CodeAction struct {
 	Diagnostics []Diagnostic   `json:"diagnostics,omitempty"`
 	IsPreferred bool           `json:"isPreferred,omitempty"`
 	Edit        *WorkspaceEdit `json:"edit,omitempty"`
+	Command     *Command       `json:"command,omitempty"`
 }
 
 type SemanticTokens struct {
@@ -129,6 +142,7 @@ type textDocumentParams struct {
 	Context  struct {
 		IncludeDeclaration bool         `json:"includeDeclaration"`
 		Diagnostics        []Diagnostic `json:"diagnostics"`
+		Only               []string     `json:"only"`
 	} `json:"context"`
 }
 

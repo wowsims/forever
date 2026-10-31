@@ -389,12 +389,6 @@ func driveThorns(char *core.Character, individual *proto.IndividualBuffs) {
 	core.MakePermanent(NewSpellDataThornsAuraWithSpellPower(&char.Unit, false, individual.ThornsSpellPower))
 }
 
-// The blessing does nothing on its own: the paladin's Holy Light and Flash of
-// Light read their bonus off their own rows when the target carries it.
-func driveGreaterBlessingOfLight(char *core.Character, _ *proto.IndividualBuffs) {
-	core.MakePermanent(NewSpellDataGreaterBlessingOfLightAura(&char.Unit, false, 0))
-}
-
 // The staff's aura is worth its amounts once per Atiesh in the party.
 func driveAtieshDruid(char *core.Character, party *proto.PartyBuffs) {
 	core.MakePermanent(NewSpellDataAtieshDruidAura(&char.Unit, false, 0, float64(party.AtieshDruid)))

@@ -291,6 +291,19 @@ func (aa *AutoAttacks) SetReplaceOHSwing(replaceSwing ReplaceMHSwing) {
 	aa.oh.replaceSwing = replaceSwing
 }
 
+// Sets how the unit drops the attack it queued for the next swing (Heroic Strike, Cleave, Maul); nil
+// for a unit that queues none.
+func (aa *AutoAttacks) SetQueuedSwingCanceler(cancel func(sim *Simulation)) {
+	aa.cancelQueuedSwing = cancel
+}
+
+// Drops the attack the unit queued for the next swing, if any.
+func (aa *AutoAttacks) CancelQueuedSwing(sim *Simulation) {
+	if aa.cancelQueuedSwing != nil {
+		aa.cancelQueuedSwing(sim)
+	}
+}
+
 func (aa *AutoAttacks) MHConfig() *SpellConfig {
 	return &aa.mh.config
 }
@@ -495,6 +508,8 @@ type AutoAttacks struct {
 	meleeWeaveWakeup *PendingAction
 
 	meleeAttackOn bool // The melee attack is toggled on, which starting a ranged auto turns off.
+
+	cancelQueuedSwing func(sim *Simulation) // Drops the attack the unit queued for the next swing.
 }
 
 // Options for initializing auto attacks.

@@ -61,7 +61,7 @@ func TestBalance(t *testing.T) {
 }
 
 // The Moonkin preset on the Balance page.
-const DefaultTalents = "5232220115501351--505003"
+const DefaultTalents = "5232220115501351--5053"
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeLeather
 

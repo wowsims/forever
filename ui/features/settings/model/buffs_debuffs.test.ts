@@ -50,8 +50,6 @@ describe('the buff registries', () => {
 			'Prayer of Fortitude',
 			'Greater Blessing of Might',
 			'Greater Blessing of Wisdom',
-			'Mass Salvation',
-			'Greater Blessing of Light',
 			['settings_tab.raid_buffs.shadow_resistance', ['Prayer of Shadow Protection', 'Shadow Resistance Aura']],
 			['settings_tab.raid_buffs.fire_resistance', ['Fire Resistance Aura', 'Fire Resistance Totem']],
 			['settings_tab.raid_buffs.frost_resistance', ['Frost Resistance Aura', 'Frost Resistance Totem']],
@@ -103,10 +101,6 @@ describe('the buff registries', () => {
 		expect(groupWith(BuffDebuffInputs.DEBUFFS_CONFIG, BuffDebuffInputs.SunderArmor)?.stats).toEqual([Stat.StatAttackPower]);
 	});
 
-	it('puts the hand-written inputs themselves at those positions, not lookalikes', () => {
-		expect(BuffDebuffInputs.BUFFS_CONFIG[8].config).toBe(BuffDebuffInputs.GreaterBlessingOfSalvation);
-	});
-
 	// Off, Rank 6, Rank 7 from Manual of Battle Shout VII, and Rank 7 from a warrior wearing three pieces of
 	// Battlegear of Wrath: the manual's icon lights from the second state on, the set spell 23563's on the third.
 	it('offers Battle Shout as one four-state icon whose improved icons are the manual and the set', () => {
@@ -118,6 +112,5 @@ describe('the buff registries', () => {
 
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.FuriousHowl)?.ownerClass).toBe(Class.ClassHunter);
-		expect(BuffDebuffInputs.BUFFS_CONFIG[8].ownerClass).toBeUndefined();
 	});
 });

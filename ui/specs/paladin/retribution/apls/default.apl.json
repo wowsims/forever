@@ -121,28 +121,8 @@
 								}
 							},
 							{
-								"cmp": {
-									"op": "OpLe",
-									"lhs": {
-										"spellTimeToReady": {
-											"spellId": { "spellId": 20271 }
-										}
-									},
-									"rhs": {
-										"math": {
-											"op": "OpSub",
-											"lhs": {
-												"spellFullCooldown": {
-													"spellId": {
-														"spellId": 20271
-													}
-												}
-											},
-											"rhs": {
-												"const": { "val": "0.1s" }
-											}
-										}
-									}
+								"variableRef": {
+									"name": "Judge realism protection"
 								}
 							}
 						]
@@ -216,22 +196,8 @@
 										}
 									},
 									{
-										"or": {
-											"vals": [
-												{
-													"variableRef": {
-														"name": "Use Seal of Command"
-													}
-												},
-												{
-													"talentIsKnown": {
-														"talentId": {
-															"spellId": 1310735,
-															"rank": 1
-														}
-													}
-												}
-											]
+										"variableRef": {
+											"name": "Use Seal of Command"
 										}
 									}
 								]
@@ -289,14 +255,6 @@
 															}
 														}
 													}
-												},
-												{
-													"talentIsKnown": {
-														"talentId": {
-															"spellId": 1310735,
-															"rank": 1
-														}
-													}
 												}
 											]
 										}
@@ -327,131 +285,6 @@
 									{
 										"talentIsKnown": {
 											"talentId": {
-												"spellId": 1310735,
-												"rank": 1
-											}
-										}
-									},
-									{
-										"talentIsKnown": {
-											"talentId": {
-												"spellId": 20375,
-												"rank": 1
-											}
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"sequenceIsComplete": {
-													"sequenceName": "move1"
-												}
-											}
-										}
-									}
-								]
-							}
-						},
-						"sequence": {
-							"name": "move1",
-							"actions": [
-								{
-									"move": {
-										"rangeFromTarget": {
-											"variableRef": {
-												"name": "Prep range"
-											}
-										}
-									}
-								},
-								{
-									"waitUntil": {
-										"condition": {
-											"spellInRange": {
-												"spellId": { "spellId": 20271 }
-											}
-										}
-									}
-								},
-								{
-									"castSpell": {
-										"spellId": { "spellId": 20271 }
-									}
-								},
-								{
-									"wait": { "duration": { "inputDelay": {} } }
-								},
-								{
-									"castSpell": {
-										"spellId": {
-											"spellId": 20920,
-											"rank": 5
-										}
-									}
-								},
-								{
-									"waitUntil": {
-										"condition": { "gcdIsReady": {} }
-									}
-								},
-								{
-									"castSpell": {
-										"spellId": {
-											"spellId": 20293,
-											"rank": 8
-										}
-									}
-								},
-								{
-									"move": {
-										"rangeFromTarget": {
-											"variableRef": {
-												"name": "Melee range"
-											}
-										}
-									}
-								},
-								{
-									"waitUntil": {
-										"condition": {
-											"spellInRange": {
-												"spellId": {
-													"spellId": 10333,
-													"rank": 8
-												}
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"and": {
-								"vals": [
-									{
-										"variableRef": {
-											"name": "Has assigned judgement"
-										}
-									},
-									{
-										"not": {
-											"val": {
-												"talentIsKnown": {
-													"talentId": {
-														"spellId": 1310735,
-														"rank": 1
-													}
-												}
-											}
-										}
-									},
-									{
-										"talentIsKnown": {
-											"talentId": {
 												"spellId": 20375,
 												"rank": 1
 											}
@@ -473,6 +306,14 @@
 															}
 														}
 													}
+												},
+												{
+													"talentIsKnown": {
+														"talentId": {
+															"spellId": 1310735,
+															"rank": 1
+														}
+													}
 												}
 											]
 										}
@@ -481,7 +322,7 @@
 										"not": {
 											"val": {
 												"sequenceIsComplete": {
-													"sequenceName": "move2"
+													"sequenceName": "move1"
 												}
 											}
 										}
@@ -490,7 +331,7 @@
 							}
 						},
 						"sequence": {
-							"name": "move2",
+							"name": "move1",
 							"actions": [
 								{
 									"move": {
@@ -595,7 +436,7 @@
 										"not": {
 											"val": {
 												"sequenceIsComplete": {
-													"sequenceName": "move3"
+													"sequenceName": "move2"
 												}
 											}
 										}
@@ -604,7 +445,7 @@
 							}
 						},
 						"sequence": {
-							"name": "move3",
+							"name": "move2",
 							"actions": [
 								{
 									"move": {
@@ -674,7 +515,7 @@
 										"not": {
 											"val": {
 												"sequenceIsComplete": {
-													"sequenceName": "move4"
+													"sequenceName": "move3"
 												}
 											}
 										}
@@ -683,7 +524,7 @@
 							}
 						},
 						"sequence": {
-							"name": "move4",
+							"name": "move3",
 							"actions": [
 								{
 									"move": {
@@ -864,7 +705,6 @@
 		},
 		{ "name": "Delay Major CDs", "value": { "const": { "val": "0s" } } },
 		{ "name": "Pull range", "value": { "const": { "val": "25" } } },
-		{ "name": "Prep range", "value": { "const": { "val": "6" } } },
 		{ "name": "Melee range", "value": { "const": { "val": "5" } } },
 		{
 			"name": "WF guard",
@@ -934,30 +774,6 @@
 							"or": {
 								"vals": [
 									{
-										"not": {
-											"val": {
-												"talentIsKnown": {
-													"talentId": {
-														"spellId": 1310735,
-														"rank": 1
-													}
-												}
-											}
-										}
-									},
-									{
-										"auraIsInactive": {
-											"auraId": { "spellId": 1311703 },
-											"includeReactionTime": true
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
 										"auraIsInactive": {
 											"auraId": {
 												"spellId": 20920,
@@ -998,6 +814,62 @@
 										}
 									}
 								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"talentIsKnown": {
+													"talentId": {
+														"spellId": 1310735,
+														"rank": 1
+													}
+												}
+											}
+										}
+									},
+									{
+										"and": {
+											"vals": [
+												{
+													"auraIsInactive": {
+														"auraId": {
+															"spellId": 20920,
+															"rank": 5
+														},
+														"includeReactionTime": true
+													}
+												},
+												{
+													"cmp": {
+														"op": "OpGe",
+														"lhs": {
+															"auraNumStacks": {
+																"auraId": {
+																	"spellId": 1311704
+																},
+																"includeReactionTime": true
+															}
+														},
+														"rhs": {
+															"const": {
+																"val": "1"
+															}
+														}
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						{
+							"variableRef": {
+								"name": "Judge realism protection"
 							}
 						}
 					]
@@ -1079,30 +951,6 @@
 							"or": {
 								"vals": [
 									{
-										"not": {
-											"val": {
-												"talentIsKnown": {
-													"talentId": {
-														"spellId": 1310735,
-														"rank": 1
-													}
-												}
-											}
-										}
-									},
-									{
-										"auraIsInactive": {
-											"auraId": { "spellId": 1311704 },
-											"includeReactionTime": true
-										}
-									}
-								]
-							}
-						},
-						{
-							"or": {
-								"vals": [
-									{
 										"auraIsInactive": {
 											"auraId": {
 												"spellId": 20293,
@@ -1144,8 +992,98 @@
 									}
 								]
 							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"talentIsKnown": {
+													"talentId": {
+														"spellId": 1310735,
+														"rank": 1
+													}
+												}
+											}
+										}
+									},
+									{
+										"not": {
+											"val": {
+												"talentIsKnown": {
+													"talentId": {
+														"spellId": 20375,
+														"rank": 1
+													}
+												}
+											}
+										}
+									},
+									{
+										"and": {
+											"vals": [
+												{
+													"auraIsInactive": {
+														"auraId": {
+															"spellId": 20293,
+															"rank": 8
+														},
+														"includeReactionTime": true
+													}
+												},
+												{
+													"cmp": {
+														"op": "OpEq",
+														"lhs": {
+															"auraNumStacks": {
+																"auraId": {
+																	"spellId": 1311703
+																},
+																"includeReactionTime": true
+															}
+														},
+														"rhs": {
+															"const": {
+																"val": "3"
+															}
+														}
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						{
+							"variableRef": {
+								"name": "Judge realism protection"
+							}
 						}
 					]
+				}
+			}
+		},
+		{
+			"name": "Judge realism protection",
+			"value": {
+				"cmp": {
+					"op": "OpLe",
+					"lhs": {
+						"spellTimeToReady": { "spellId": { "spellId": 20271 } }
+					},
+					"rhs": {
+						"math": {
+							"op": "OpSub",
+							"lhs": {
+								"spellFullCooldown": {
+									"spellId": { "spellId": 20271 }
+								}
+							},
+							"rhs": { "inputDelay": {} }
+						}
+					}
 				}
 			}
 		}

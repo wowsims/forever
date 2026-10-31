@@ -2,7 +2,6 @@ package paladin
 
 import (
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -22,8 +21,8 @@ func (paladin *Paladin) registerFlashOfLight(_ int32, rank *spelldata.Spell) {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		amount := heal.Average() + paladin.flashOfLightBonusHealing
-		if target.HasActiveAuraWithTag(buffs.GreaterBlessingOfLightCategory) {
-			amount += blessingOfLightFlashOfLightBonus
+		if paladin.hasOathOfLight(target) {
+			amount += paladin.oathOfLight.flashOfLight
 		}
 		spell.CalcAndDealHealing(sim, target, amount, spell.OutcomeHealingCrit)
 	}

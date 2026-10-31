@@ -1,0 +1,138 @@
+================================================================================
+Setup entries
+================================================================================
+
+settings:
+  race orc
+  distance_from_target 11
+  use_multi, use_arcane, mana_spring_totem=improved
+  healing_model(hps=1200)
+  name "Pre-BiS - Arms"
+consumables:
+  extra goblin_sapper_charge, scroll_of_strength_iv
+encounter:
+  targets(id=31146, name="Dummy", stats(armor=3731), timings=[30, 90])
+sim:
+  min_consumable_lvl `{"6": 50}`
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (section
+    (section_name)
+    (entry
+      (identifier)
+      (identifier))
+    (entry
+      (identifier)
+      (number))
+    (entry
+      (identifier)
+      (flag
+        (identifier))
+      (flag
+        (identifier)
+        (identifier)))
+    (entry
+      (call
+        (identifier)
+        (arguments
+          (named_argument
+            (identifier)
+            (number)))))
+    (entry
+      (identifier)
+      (string)))
+  (section
+    (section_name)
+    (entry
+      (identifier)
+      (identifier)
+      (identifier)))
+  (section
+    (section_name)
+    (entry
+      (call
+        (identifier)
+        (arguments
+          (named_argument
+            (identifier)
+            (number))
+          (named_argument
+            (identifier)
+            (string))
+          (call
+            (identifier)
+            (arguments
+              (named_argument
+                (identifier)
+                (number))))
+          (named_argument
+            (identifier)
+            (list
+              (number)
+              (number)))))))
+  (section
+    (section_name)
+    (entry
+      (identifier)
+      (raw
+        (json)))))
+
+================================================================================
+Slot rows of a gear file
+================================================================================
+
+siml 1
+
+head       beaststalkers_cap
+neck       maelstroms_tendril + necklace_agility
+finger1    band_of_the_eagle of_the_monkey + ring_stats
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (version
+    (number))
+  (entry
+    (identifier)
+    (identifier))
+  (entry
+    (identifier)
+    (identifier)
+    (enchant
+      (identifier)))
+  (entry
+    (identifier)
+    (identifier)
+    (identifier)
+    (enchant
+      (identifier))))
+
+================================================================================
+An implied rotation section
+================================================================================
+
+siml 1
+spec hunter
+-1s cast hunters_mark
+start_attack if in_melee
+# autocast_other_cooldowns
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (version
+    (number))
+  (spec
+    (identifier))
+  (row
+    (negative_number
+      (number))
+    (cast_step
+      (identifier)))
+  (row
+    (identifier)
+    (identifier))
+  (row
+    (identifier)))

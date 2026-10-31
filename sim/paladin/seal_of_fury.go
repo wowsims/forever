@@ -15,7 +15,7 @@ import (
 // Holy damage dealt. Only one Seal can be active on the Paladin at any one time.
 //
 // Unleashing this Seal's energy causes 168 to 182 Holy damage to an enemy and taunts the target to
-// attack you for 4 sec.
+// attack you for 3 sec.
 func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfFuryTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementDamage := judgementRank.DamageEffect()
@@ -66,7 +66,6 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 			return pendingShield
 		},
 	})
-	paladin.applyImprovedSealOfFury(shield)
 
 	damage := procDamage.Mean()
 	// The damage spells carry the same flags as Seal of Righteousness's: procs themselves, and no

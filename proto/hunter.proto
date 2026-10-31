@@ -14,8 +14,8 @@ message HunterTalents {
     int32 endurance_training = 2 [(talent_spell_id) = 19583];
     int32 focused_fire = 3 [(talent_spell_id) = 1223755];
     int32 improved_aspect_of_the_monkey = 4 [(talent_spell_id) = 19549];
-    int32 pathfinding = 5 [(talent_spell_id) = 19559];
-    int32 improved_revive_pet = 6 [(talent_spell_id) = 24443];
+    int32 improved_revive_pet = 5 [(talent_spell_id) = 24443];
+    int32 pathfinding = 6 [(talent_spell_id) = 19559];
     bool bestial_swiftness = 7 [(talent_spell_id) = 19596];
     int32 unleashed_fury = 8 [(talent_spell_id) = 19616];
     int32 improved_mend_pet = 9 [(talent_spell_id) = 19572];

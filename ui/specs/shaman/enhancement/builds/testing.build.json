@@ -134,8 +134,7 @@
     "buffs": {
       "greaterBlessingOfKings": true,
       "greaterBlessingOfMight": true,
-      "greaterBlessingOfWisdom": true,
-      "greaterBlessingOfSalvation": true
+      "greaterBlessingOfWisdom": true
     },
     "enhancementShaman": {
       "options": {

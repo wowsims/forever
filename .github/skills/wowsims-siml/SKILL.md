@@ -24,7 +24,8 @@ protos, so a change to `proto/apl.proto` shows up here once `make siml` runs. Ed
 - `ui/specs/hunter/dps/`: the presets. `defaults.siml`, `apls/*.apl.siml`, `gear_sets/*.gear.siml`,
   `builds/*.siml`.
 - `cmd/wowsimcli/cmd/siml*.go` the CLI, `sim/siml/lsp` the language server, `tools/vscode-apl` the VS Code
-  extension.
+  extension, `tools/zed-siml` the Zed one, `tools/tree-sitter-siml` the tree-sitter grammar Zed colours with. A change
+  to the syntax (`lex.go`, `syntax.go`) changes the grammar too: `npm run check` in `tools/tree-sitter-siml`.
 
 ## CLI
 
@@ -47,7 +48,10 @@ Start `bin/wowsimcli siml lsp` (`make bin/wowsimcli`) with the repository root a
 send `.siml` documents (languageId `siml`). It answers completion, hover, definition, references, rename, document
 symbols, folding, semantic tokens, formatting, code actions (quick fixes) and document links, and publishes
 diagnostics. Names complete from `sim/siml/names.json`, items from the database. In VS Code, `tools/vscode-apl`
-(built into `.vscode/extensions/wowsims-apl`) builds and starts the server itself.
+(built into `.vscode/extensions/wowsims-apl`) builds and starts the server itself; Zed's `tools/zed-siml` runs
+`go run ./sim/siml/lsp/launch`, which builds it and starts it in one command. The initialization option
+`"simCommands": true` adds sims as code actions and lenses (`siml.sim`, `siml.compare`) with each row's runs per fight
+as inlay hints, for an editor with no panel (`sim/siml/lsp/commands.go`).
 
 ## Files
 
@@ -179,6 +183,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `encounter_in_area(forest_grassland|mountainous|snowy|desert|swamp|wasteland|haunted|cavernous|…)`
 - `[unit.]boss_current_target`
 - `target_is_mob_type(beast|demon|dragonkin|elemental|giant|humanoid|mechanical|undead, target_unit: unit)`
+- `[unit.]target_is_bleed_immune`
 - `[unit.]current_health`
 - `[unit.]current_health_percent`
 - `[unit.]current_mana`

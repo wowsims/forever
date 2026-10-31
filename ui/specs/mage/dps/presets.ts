@@ -25,7 +25,8 @@ export const ArcaneTalents = PresetUtils.makePresetTalents('Arcane', SavedTalent
 export const ArcaneFireTalents = PresetUtils.makePresetTalents('Arcane Fire', SavedTalents.create({ talentsString: '050205203100311531-525000012001-003' }));
 export const FFBTalents = PresetUtils.makePresetTalents('FFB', SavedTalents.create({ talentsString: '-5550000123011303-2035010311013002' }));
 export const FireTalents = PresetUtils.makePresetTalents('Fire', SavedTalents.create({ talentsString: '0502052001001-55500001230133031-003' }));
-export const FrostTalents = PresetUtils.makePresetTalents('Frost', SavedTalents.create({ talentsString: '0502052011003--053500021100331251' }));
+export const FrostIncinTalents = PresetUtils.makePresetTalents('Frost Incin', SavedTalents.create({ talentsString: '203205-5-053500011121331251' }));
+export const FrostMedTalents = PresetUtils.makePresetTalents('Frost Med', SavedTalents.create({ talentsString: '2032250100003--053500001121331251' }));
 
 /* export const ArcaneMageSimpleRotation = Mage_Rotation.create({
 	conserveStart: 20,
@@ -75,7 +76,6 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
 	greaterBlessingOfWisdom: true,
 	innervates: 1,
-	greaterBlessingOfSalvation: true,
 });
 
 export const DefaultDebuffs = Debuffs.create({
@@ -133,14 +133,23 @@ export const FireBuild = PresetUtils.makePresetBuild('Fire', {
 export const FrostSettings: PresetSettings = {
 	name: 'Frost',
 	playerOptions: {
-		distanceFromTarget: 30,
+		distanceFromTarget: 28,
 	},
 };
 
-export const FrostBuild = PresetUtils.makePresetBuild('Frost', {
+export const FrostIncinBuild = PresetUtils.makePresetBuild('Frost Incin', {
 	group: 'Frost',
 	gear: P1ArcaneGear,
-	talents: FrostTalents,
+	talents: FrostIncinTalents,
+	//rotationType: APLRotationType.TypeAuto,
+	rotation: FrostAplPreset,
+	settings: FrostSettings,
+});
+
+export const FrostMedBuild = PresetUtils.makePresetBuild('Frost Med', {
+	group: 'Frost',
+	gear: P1ArcaneGear,
+	talents: FrostMedTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FrostAplPreset,
 	settings: FrostSettings,

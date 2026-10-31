@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { FakeSource, filled } from '@testing/inputs';
+import { deferFill } from '@testing/sim/hooks';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
@@ -47,6 +48,18 @@ describe('ConnectedIconPicker', () => {
 		expect(mainAnchor().getAttribute('aria-label')).toBe('Buff');
 		expect(mainAnchor().getAttribute('href')).toBe(ActionId.makeSpellUrl(1));
 		expect(screen.getByTestId('icon-input-improved1').getAttribute('href')).toBe(ActionId.makeSpellUrl(2));
+	});
+
+	it('draws a blank improved badge, never the counter, while the improved icon loads', async () => {
+		const { resolvers } = deferFill();
+		const loadingId = ActionId.fromSpellId(2);
+		render(<ConnectedIconPicker modObject={new Settings(2)} config={configFor({ states: 4, improvedId: loadingId })} />);
+		expect(mainAnchor().textContent).toBe('');
+		expect(screen.getByTestId('icon-input-improved1').style.backgroundImage).not.toContain('improved.jpg');
+
+		await act(async () => resolvers[0](filled(loadingId, 'Improved Buff', 'improved.jpg')));
+		expect(mainAnchor().textContent).toBe('');
+		expect(screen.getByTestId('icon-input-improved1').style.backgroundImage).toContain('improved.jpg');
 	});
 
 	it('reads the source as a number and follows it', () => {

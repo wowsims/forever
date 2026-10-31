@@ -1,0 +1,30 @@
+{
+	"grammars": [
+		{
+			"name": "siml",
+			"camelcase": "Siml",
+			"scope": "source.siml",
+			"path": ".",
+			"file-types": ["siml"]
+		}
+	],
+	"metadata": {
+		"version": "0.1.0",
+		"license": "MIT",
+		"description": "SIML, the text form of WoWSims Forever rotations, gear sets and sim setups",
+		"links": {
+			"repository": "https://github.com/wowsims/forever"
+		}
+	},
+	"bindings": {
+		"c": false,
+		"go": false,
+		"java": false,
+		"kotlin": false,
+		"node": false,
+		"python": false,
+		"rust": false,
+		"swift": false,
+		"zig": false
+	}
+}

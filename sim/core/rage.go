@@ -53,10 +53,10 @@ const (
 	BaseRageHitFactor     = 3.46
 	TwoHandRageHitFactor  = 4.5
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
-	// A critical auto attack adds this share of its rage before the two-hand multiplier, for every rage
-	// user (the game files' Rule of Rage (DND) 1322574 states 100; the spell store does not carry it).
-	// TODO: Ingame test needed -- confirm with a dual-wield combat log that an off-hand crit's bonus is
-	// the off-hand swing's own rage, the off-hand halving included.
+	// A critical auto attack adds this share of its whole rage, the two-hand multiplier and the off-hand
+	// halving included, for every rage user (the game files' Rule of Rage (DND) 1322574 states 100; the
+	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, and an
+	// off-hand crit at twice the off-hand's halved share.
 	CritRageBonus = 1.0
 )
 
@@ -137,14 +137,12 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			}
 
 			// rage is normalized so it only depends on weapon swing speed and some multipliers
-			swingRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
-			generatedRage := swingRage
+			generatedRage := hitFactor * weapon.SwingSpeed * options.BaseRageMultiplier * handMultiplier
 			if options.TwoHandRage || weapon.NormalizedSwingSpeed == TwoHandNormalizedSwingSpeed {
 				generatedRage *= TwoHandRageMultiplier
 			}
-			// The crit bonus scales the swing's rage without the two-hand multiplier; the off-hand factors stay in it.
 			if result.DidCrit() {
-				generatedRage += CritRageBonus * swingRage
+				generatedRage *= 1 + CritRageBonus
 			}
 
 			var metrics *ResourceMetrics

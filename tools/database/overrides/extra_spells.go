@@ -15,6 +15,7 @@ var ExtraSpells = []Extra{
 	{SpellID: 414924, Reason: "Cat form Feral Charge", Source: "game files"},
 	{SpellID: 1293697, Reason: "Demonic Brand's Shadow damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293697 description"},
 	{SpellID: 1293698, Reason: "Demonic Brand's Fire damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293698 description"},
+	{SpellID: 1328570, Reason: "Holy Binding's self heal; nothing links it to the talent", Source: "Spell 1328570"},
 	{SpellID: 1249755, Reason: "Summoning Disorientation, a 6 sec stun; no skill line row reaches it and no summon row triggers it", Source: "Spell 1249755"},
 	// Enchant Weapon - Revelation 8217: its proc spell 1248806 names no trigger, and each class with
 	// spells to crit has a buff of its own, which the sim picks by the wearer's class.
@@ -30,6 +31,11 @@ var ExtraSpells = []Extra{
 	// Rockbiter Weapon Proc, the threat Rockbiter Weapon (Passive) adds to each melee hit: a script
 	// effect of the passive casts it, so no row names it.
 	{SpellID: 20871, Reason: "Rockbiter Weapon Proc, the threat of the shaman's Rockbiter Weapon", Source: "owner decision"},
+	{SpellID: 1311703, Reason: "Seal of Command's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311703"},
+	{SpellID: 1311704, Reason: "Seal of Righteousness's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311704"},
+	{SpellID: 1311705, Reason: "Seal of Justice's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311705"},
+	{SpellID: 1328198, Reason: "Seal of Light's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1328198"},
+	{SpellID: 1328206, Reason: "Seal of Wisdom's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1328206"},
 	// Eureka!, the gnome racial: a row per class, each scoping its mods to that class's abilities,
 	// which the sim picks by the gnome's class.
 	{SpellID: 1259812, Reason: "Eureka!, the rogue row of the gnome racial", Source: "owner decision", SpellDataGroup: "racials"},

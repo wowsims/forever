@@ -69,7 +69,7 @@ var DefaultOptions = &proto.Player_ProtectionPaladin{
 	},
 }
 
-var DefaultProtectionTalents = "50003-0530313321301531-5022"
+var DefaultProtectionTalents = "050050002-05302102213301531-502"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	ConjuredId: 12662, // Demonic Rune

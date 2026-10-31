@@ -65,15 +65,10 @@ func (warrior *Warrior) registerCleave() {
 // attacks included, casts it in the swing's place. One attack is queued at a time, and a swing the
 // rage no longer covers drops the queue.
 func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
-	isQueueQueued := false
-
 	queueAura := warrior.RegisterAura(core.Aura{
 		Label:    "HS/Cleave Queue Aura-" + srcSpell.ActionID.String(),
 		ActionID: srcSpell.ActionID.WithTag(1),
 		Duration: core.NeverExpires,
-		OnReset: func(_ *core.Aura, _ *core.Simulation) {
-			isQueueQueued = false
-		},
 		OnGain: func(aura *core.Aura, _ *core.Simulation) {
 			warrior.curQueueAura = aura
 			warrior.curQueuedAutoSpell = srcSpell
@@ -99,7 +94,7 @@ func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
 
 		ExtraCastCondition: func(sim *core.Simulation, _ *core.Unit) bool {
 			return warrior.curQueueAura == nil &&
-				!isQueueQueued &&
+				warrior.pendingQueue.IsConsumed() &&
 				warrior.CurrentRage() >= srcSpell.Cost.GetCurrentCost() &&
 				warrior.queuedRealismICD.IsReady(sim)
 		},
@@ -110,15 +105,12 @@ func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
 				return
 			}
 
-			isQueueQueued = true
 			warrior.queuedRealismICD.Use(sim)
-			sim.AddPendingAction(&core.PendingAction{
+			warrior.pendingQueue = &core.PendingAction{
 				NextActionAt: sim.CurrentTime + warrior.queuedRealismICD.Duration,
-				OnAction: func(sim *core.Simulation) {
-					queueAura.Activate(sim)
-					isQueueQueued = false
-				},
-			})
+				OnAction:     queueAura.Activate,
+			}
+			sim.AddPendingAction(warrior.pendingQueue)
 		},
 	})
 }
