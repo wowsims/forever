@@ -70,60 +70,6 @@ export function canEquipItem<SpecType extends Spec>(item: Item, playerSpec: Play
 	return playerClass.armorTypes[0] >= item.armorType;
 }
 
-// Honor rank and battleground item name prefixes. "Premier " items are Forever's reissued PvP items and all count.
-const PVP_NAME_PREFIXES = [
-	'Premier ',
-	"Private's ",
-	"Corporal's ",
-	"Sergeant's ",
-	"Master Sergeant's ",
-	"Sergeant Major's ",
-	"Knight-Lieutenant's ",
-	"Knight-Captain's ",
-	"Knight-Champion's ",
-	"Lieutenant Commander's ",
-	"Marshal's ",
-	"Field Marshal's ",
-	"Grand Marshal's ",
-	"Scout's ",
-	"Grunt's ",
-	"Senior Sergeant's ",
-	"First Sergeant's ",
-	"Stone Guard's ",
-	"Blood Guard's ",
-	"Legionnaire's ",
-	"Centurion's ",
-	"Champion's ",
-	"Lieutenant General's ",
-	"General's ",
-	"Warlord's ",
-	"High Warlord's ",
-	"Highlander's ",
-	"Defiler's ",
-	"Sentinel's ",
-	"Outrider's ",
-	'Stormpike ',
-	'Frostwolf ',
-	'Insignia of the ',
-];
-
-// PvE items whose names start with a PvP prefix.
-const PVE_ITEM_NAMES = new Set([
-	"Legionnaire's Leggings",
-	"Sentinel's Guard",
-	"Sentinel's Belt",
-	"Sentinel's Gauntlet",
-	"Sentinel's Plate",
-	"Scout's Dagger",
-	"Champion's Legplates",
-]);
-
-export const isPVPItem = (item: Item) => {
-	const name = item?.name;
-	if (!name || PVE_ITEM_NAMES.has(name)) return false;
-	return PVP_NAME_PREFIXES.some(prefix => name.startsWith(prefix));
-};
-
 export function getEligibleItemSlots(item: Item): Array<ItemSlot> {
 	if (ITEM_TYPE_TO_SLOTS[item.type]) {
 		return ITEM_TYPE_TO_SLOTS[item.type]!;

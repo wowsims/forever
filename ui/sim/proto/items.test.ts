@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@i18n/localization', async () => (await import('@testing/sim/localization')).localizationStub);
 
-import { enchantAppliesToItem, isPVPItem } from './items';
+import { enchantAppliesToItem } from './items';
 
 const offHandEnchant = Enchant.create({ effectId: 7659, type: ItemType.ItemTypeWeapon, enchantType: EnchantType.EnchantTypeOffHand });
 const shieldEnchant = Enchant.create({ effectId: 7663, type: ItemType.ItemTypeWeapon, enchantType: EnchantType.EnchantTypeShield });
@@ -32,16 +32,4 @@ describe('enchantAppliesToItem on the off hand', () => {
 		expect(enchantAppliesToItem(weaponEnchant, shield)).toBe(false);
 		expect(enchantAppliesToItem(weaponEnchant, holdable)).toBe(false);
 	});
-});
-
-describe('isPVPItem', () => {
-	it.each(["Knight-Captain's Plate Helm", "Premier Warlord's Linked Helm", 'Premier Chain Boots', "Highlander's Plate Girdle", 'Insignia of the Horde'])(
-		'counts %s as a PvP item',
-		name => expect(isPVPItem(Item.create({ id: 10, name }))).toBe(true),
-	);
-
-	it.each(['Thunderfury, Blessed Blade of the Windseeker', "Commander's Boots", "Knight's Lance", "Sentinel's Guard"])(
-		'keeps %s out of the PvP items',
-		name => expect(isPVPItem(Item.create({ id: 11, name }))).toBe(false),
-	);
 });

@@ -580,9 +580,6 @@
 				"add_to_batch": "Add to Batch Sim",
 				"remove_from_batch": "Remove from Batch Sim"
 			},
-			"sources": {
-				"world_drop": "World Drop"
-			},
 			"edit_slot": "Edit {{slot}}"
 		},
 		"preset_configurations": {

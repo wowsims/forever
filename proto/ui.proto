@@ -146,6 +146,7 @@ message UIItemSource {
 		QuestSource quest = 3;
 		SoldBySource sold_by = 4;
 		RepSource rep = 5;
+		PvpSource pvp = 6;
 	}
 }
 message CraftedSource {
@@ -173,6 +174,8 @@ message RepSource {
 	RepLevel rep_level = 2;
 	Faction faction_id = 3;
 }
+
+message PvpSource {} // gen_db sets it on an item whose name is an honor rank or battleground name.
 
 message UIEnchant {
 	// All enchants have an effect ID. Some also have an item ID, others have a spell ID,

@@ -48,7 +48,7 @@ import { addPartyBuffItems } from '../proto/buff_items';
 import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem, isPVPItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
@@ -1270,7 +1270,7 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'rep'));
 		}
 		if (!filters.sources.includes(SourceFilterOption.SourcePvp)) {
-			itemData = filterItems(itemData, item => !isPVPItem(item));
+			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp'));
 		}
 
 		const dropsAt = (item: Item, difficulty: DungeonDifficulty) =>

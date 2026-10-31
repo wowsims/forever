@@ -2092,16 +2092,6 @@
 							"required": ["favorite", "compare", "add_favorite", "remove_favorite", "add_to_batch", "remove_from_batch"],
 							"additionalProperties": false
 						},
-						"sources": {
-							"type": "object",
-							"properties": {
-								"world_drop": {
-									"type": "string"
-								}
-							},
-							"required": ["world_drop"],
-							"additionalProperties": false
-						},
 						"edit_slot": {
 							"type": "string"
 						}
@@ -2133,7 +2123,6 @@
 						"min_ranged_speed",
 						"max_ranged_speed",
 						"row_actions",
-						"sources",
 						"edit_slot"
 					]
 				},

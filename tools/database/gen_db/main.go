@@ -305,6 +305,10 @@ func main() {
 		log.Fatal(err)
 	}
 	applyRepSources(db, factionNames)
+	// Source loaders added later must run before this.
+	for _, item := range db.Items {
+		database.InferPvpSource(item)
+	}
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
 }
 
