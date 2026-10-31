@@ -53,8 +53,10 @@ const initialBulkSlice = (): BulkSlice => ({
 	combinationsError: null,
 	combinationsPending: false,
 	isRunning: false,
-	started: false,
-	results: null,
+	gearStarted: false,
+	buildsStarted: false,
+	gearResults: null,
+	buildsResults: null,
 	runGear: null,
 	v: { settings: 0, items: 0 },
 });

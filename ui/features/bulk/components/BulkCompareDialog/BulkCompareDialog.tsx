@@ -7,7 +7,7 @@ import { formatDeltaText, formatToNumber, formatToPercent } from '@sim/utils/for
 import { Dialog } from '@ui-kit/Dialog';
 import { useMemo } from 'react';
 
-import { useBulkState } from '../../hooks/useBulkState';
+import { useBulkResults } from '../../hooks/useBulkResults';
 import { encounterLabel, formatEncounterDuration } from '../../model/builds/encounters';
 import { gearSetupLabel } from '../../model/builds/gear_setups';
 import { rotationLabel } from '../../model/builds/rotations';
@@ -94,7 +94,7 @@ export interface BulkCompareDialogProps {
 }
 
 export const BulkCompareDialog = ({ open, onOpenChange }: BulkCompareDialogProps) => {
-	const entries = useBulkState(slice => slice.results);
+	const entries = useBulkResults();
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} size="full" scrollContents title={t('title')}>

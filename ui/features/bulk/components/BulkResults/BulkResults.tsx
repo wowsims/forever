@@ -1,6 +1,9 @@
 import i18n from '@i18n/config';
 
+import { useBulkMode } from '../../hooks/useBulkMode';
+import { useBulkResults } from '../../hooks/useBulkResults';
 import { useBulkState } from '../../hooks/useBulkState';
+import { bulkModeStarted } from '../../model/mode';
 import { BulkResultRow } from './BulkResultRow';
 import { BulkResultTieGroup } from './BulkResultTieGroup';
 
@@ -11,8 +14,9 @@ export interface BulkResultsProps {
 }
 
 export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
-	const results = useBulkState(slice => slice.results);
-	const started = useBulkState(slice => slice.started);
+	const { builds } = useBulkMode();
+	const results = useBulkResults();
+	const started = useBulkState(slice => bulkModeStarted(builds, slice));
 
 	if (!results) {
 		// Starting a run empties the pane, so the invitation to run one does not come back.

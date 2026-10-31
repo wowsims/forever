@@ -180,8 +180,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   and falling back to an unpaired `zTest` where no paired error exists. Each row's ± is `stDevToConf95`, the
   unpaired error of its own mean, a different quantity from the grouping test.
 - A slot holding the same item with another enchant renders `GearChangeIcon`; a new item renders plainly;
-  unchanged slots stay empty. Starting a run clears the results and returns to the Setup pane; a finished run
-  opens Results.
+  unchanged slots stay empty. Starting a run clears its mode's results and returns to the Setup pane; a finished run
+  opens Results. Switching modes leaves Setup or Results open as it is (`BulkTabBody`).
 - The batch has two modes. Gear crosses the picked items and the enchant presets under the current encounter,
   settings, talents and rotation. Builds has two columns (`BulkBuildsColumns`), Builds and Encounters, the first the
   wider, and runs every ticked bundle on every ticked encounter. Picking one is a power tool (`showPowerTools` in the
@@ -194,9 +194,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   tools being turned off.
 - `bulkRunsBuilds` (`ui/features/bulk/model/mode.ts`, power tools on and mode Builds) is the one gate, read by
   `runBulkBatch` and, through `useBulkMode`, by the Setup pane, which in Builds shows `BulkBuildsColumns` in place of
-  the item picker. Outside Builds the Builds picks stay stored and count again on the way back. Results already on
-  screen stay as they are whatever the mode, and Compare encounters stays tied to power tools and two or more finished
-  encounters.
+  the item picker. Outside Builds the Builds picks stay stored and count again on the way back. Each mode keeps its
+  own last results and started flag (`gearResults`/`buildsResults`, `gearStarted`/`buildsStarted` on the slice): a run
+  writes only the mode it started in, and the Results pane, the encounter list, the CSV export and Compare read the
+  shown mode's through `useBulkResults` (`bulkModeResults`). A mode that never ran shows the hint to run one. Compare
+  encounters stays tied to power tools and two or more finished encounters.
 - The Batch tab waits for the sim (`useSimReady`) before it reads the database, and Simulate stays disabled until then.
 - **Builds column** (`BuildBundles`): a bundle is one gear set, one talents, one rotation and one Settings tab entry,
   and is the unit that runs. The Current bundle (the live gear, talents, rotation and settings) heads the list, ticked

@@ -40,7 +40,7 @@ const mount = (entries: BulkEncounterResults[]) => {
 	const store = createSimStore();
 	const player = { sim: { store, getIterations: () => 100 }, storeKey: STORE_KEY } as unknown as Player<any>;
 	seedBulkSettings(player);
-	patchBulkState(player, { started: true, results: entries });
+	patchBulkState(player, { gearStarted: true, gearResults: entries });
 	const host = { player, sim: player.sim } as never;
 	return render(
 		<SimHostProvider host={host}>

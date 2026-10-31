@@ -342,6 +342,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	// Read before `waitForInit`: Simulate is enabled only once the sim is ready, so the database is loaded.
 	const plan = builds ? buildsModePlan(host, current, topResults) : gearModePlan(host, current, topResults);
 	if (!plan.length) return;
+	const resultsPatch = (results: BulkEncounterResults[] | null) => (builds ? { buildsResults: results } : { gearResults: results });
 
 	trackEvent({
 		action: 'sim',
@@ -362,7 +363,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	};
 	// The progress dialog mounts on `isRunning` and takes the steps from the progress there, before the first stage reports.
 	setCandidateGearProgress(player);
-	patchBulkState(player, { isRunning: true, started: true });
+	patchBulkState(player, { isRunning: true, ...(builds ? { buildsStarted: true } : { gearStarted: true }) });
 	run.abortController = new AbortController();
 	run.abortPromise = null;
 	const abortSignal = run.abortController.signal;
@@ -379,7 +380,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 		await sim.signalManager.abortType(RequestTypes.IndividualSim | RequestTypes.BulkSim);
 		run.simStart = new Date().getTime();
 		const baseGear = player.getGear();
-		patchBulkState(player, { runGear: baseGear, results: null });
+		patchBulkState(player, { runGear: baseGear, ...resultsPatch(null) });
 
 		if (!builds) await refreshBulkCombinations(host);
 
@@ -436,6 +437,6 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			});
 		}
 		run.isCancelling = false;
-		patchBulkState(player, entries.length ? { isRunning: false, results: entries } : { isRunning: false });
+		patchBulkState(player, entries.length ? { isRunning: false, ...resultsPatch(entries) } : { isRunning: false });
 	}
 };

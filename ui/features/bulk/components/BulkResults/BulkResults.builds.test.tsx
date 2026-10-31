@@ -81,7 +81,7 @@ const entry = (settings: BulkPlayerSettingsSetup, build: Partial<Build> = {}): B
 const mount = async (shown: BulkEncounterResults) => {
 	const { sim, player } = await makeIndividualSim();
 	seedBulkSettings(player);
-	patchBulkState(player, { started: true, results: [shown] });
+	patchBulkState(player, { gearStarted: true, gearResults: [shown] });
 	const onActivateTab = vi.fn();
 	renderWithHost(<BulkResults onActivateTab={onActivateTab} selected={0} />, { sim, player });
 	return { sim, player, onActivateTab };

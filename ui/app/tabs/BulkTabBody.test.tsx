@@ -6,12 +6,15 @@ import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
 import { CURRENT_ROTATION_SETUP, CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { BulkTabActionsView, type BulkTabActionsViewProps, BulkTabBody } from './BulkTabBody';
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => false }));
+vi.mock('@features/bulk/components/BulkBuildsColumns', () => ({ BulkBuildsColumns: () => null }));
+vi.mock('@features/bulk/context/BulkBuildsContext', () => ({ BulkBuildsProvider: ({ children }: { children: ReactNode }) => children }));
 vi.mock('@features/bulk/components/BulkItemSearch', () => ({ BulkItemSearch: () => null }));
 vi.mock('@features/bulk/components/BulkPickerGroups', () => ({ BulkPickerGroups: () => null }));
 vi.mock('@features/bulk/components/BulkProgress', () => ({ BulkProgressDialog: () => null }));
@@ -96,7 +99,7 @@ describe('BulkTabBody', () => {
 		const store = createSimStore();
 		const player = { sim: { store, isNative: false }, storeKey: STORE_KEY } as unknown as Player<any>;
 		seedBulkSettings(player);
-		patchBulkState(player, { started: entries !== null, results: entries });
+		patchBulkState(player, { gearStarted: entries !== null, gearResults: entries });
 		const host = { player, sim: player.sim } as never;
 		render(
 			<SimHostProvider host={host}>
@@ -173,10 +176,55 @@ describe('BulkTabBody', () => {
 		const player = mount(THREE);
 		fireEvent.click(sidebarRows()[1]);
 
-		act(() => patchBulkState(player, { results: THREE.slice() }));
+		act(() => patchBulkState(player, { gearResults: THREE.slice() }));
 
 		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
 		expect(shownBest()).toBe('1100');
+	});
+
+	// Builds counts only with power tools on, so the cases turn them on before switching.
+	const switchMode = (player: Player<any>, mode: 'gear' | 'builds') =>
+		act(() => {
+			patchSlice(player.sim.store, 'ui', { showPowerTools: true });
+			patchBulkState(player, { mode });
+		});
+
+	it('stays on the Results pane across a mode switch, showing each mode’s own results there', () => {
+		const player = mount(THREE);
+		fireEvent.click(sidebarRows()[2]);
+
+		switchMode(player, 'builds');
+
+		expect(isShown(screen.getByText('bulk_tab.results.run_simulation'))).toBe(true);
+		expect(sidebar()).toBeNull();
+		expect(isShown(settings())).toBe(false);
+
+		act(() => patchBulkState(player, { buildsStarted: true, buildsResults: [entry('', [180, 5], 1500, true)] }));
+
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true']);
+		expect(shownBest()).toBe('1500');
+
+		switchMode(player, 'gear');
+
+		expect(isShown(sidebar()!)).toBe(true);
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+		expect(shownBest()).toBe('1250');
+	});
+
+	it('stays on the Setup pane when switching to a mode with results, and opens Results once that mode’s run finishes', () => {
+		const player = mount(null);
+		act(() => patchBulkState(player, { buildsStarted: true, buildsResults: THREE }));
+
+		switchMode(player, 'builds');
+
+		expect(isShown(settings())).toBe(true);
+		expect(isShown(sidebar()!)).toBe(false);
+
+		act(() => patchBulkState(player, { buildsResults: null }));
+		act(() => patchBulkState(player, { buildsResults: THREE.slice() }));
+
+		expect(isShown(settings())).toBe(false);
+		expect(isShown(sidebar()!)).toBe(true);
 	});
 
 	it('lists a run with one finished result too, with the export and without Compare encounters', () => {

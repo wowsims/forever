@@ -6,7 +6,7 @@ import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import type { ReactNode } from 'react';
 
-import { useBulkState } from '../../hooks/useBulkState';
+import { useBulkResults } from '../../hooks/useBulkResults';
 import { encounterLabel, formatEncounterDuration } from '../../model/builds/encounters';
 import { formatBulkDps } from '../../model/results/format';
 
@@ -90,7 +90,7 @@ export type BulkEncounterResultsProps = Pick<BulkEncounterResultsViewProps, 'sel
 
 // One row per finished encounter, the current one first; renders nothing before a run has finished one.
 export const BulkEncounterResults = ({ selected, onSelect, footer }: BulkEncounterResultsProps) => {
-	const results = useBulkState(slice => slice.results);
+	const results = useBulkResults();
 	if (!results) return null;
 	return (
 		<BulkEncounterResultsView

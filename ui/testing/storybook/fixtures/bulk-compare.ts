@@ -123,6 +123,6 @@ export const makeBulkCompareHost = (entries: BulkEncounterResults[] = BULK_COMPA
 		getClass: () => Class.ClassUnknown,
 	} as unknown as Player<any>;
 	seedBulkSettings(player);
-	patchBulkState(player, { started: true, results: entries });
+	patchBulkState(player, { gearStarted: true, gearResults: entries });
 	return { player, sim: player.sim } as unknown as IndividualSimHost<any>;
 };

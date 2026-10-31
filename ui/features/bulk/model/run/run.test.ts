@@ -279,7 +279,7 @@ const step = (
 	rotation = 'bulk_tab.results.current_rotation',
 ) => ({ encounter, encounterSummary: ENCOUNTER_SUMMARIES[encounter], settings, talents, rotation });
 
-const rowsOf = (host: IndividualSimHost<any>) => bulkState(host.player).results![0].results.chains.flat();
+const rowsOf = (host: IndividualSimHost<any>) => bulkState(host.player).buildsResults![0].results.chains.flat();
 
 // The sim's rows are the candidates it was sent, each below the reference.
 const echoCandidates = async (_context: unknown, _signal: unknown, _settings: unknown, overrides: BulkSimOverrides) => ({
@@ -309,7 +309,7 @@ describe('runBulkBatch', () => {
 		expect(calls()[0][2].enchants).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY.effectId] })]);
 		expect(host.sim.getBulkCombinationCount).toHaveBeenCalled();
 		expect(steps(host).rows).toEqual([step()]);
-		const [entry] = bulkState(host.player).results!;
+		const [entry] = bulkState(host.player).gearResults!;
 		expect([entry.isCurrent, entry.results.originalGearResults.settings]).toEqual([true, null]);
 		expect(entry.results.originalGearResults.rotation.rotation).toEqual(LIVE_ROTATION);
 		expect(entry.results.originalGearResults.rotation.rotation).not.toBe(LIVE_ROTATION);
@@ -371,7 +371,7 @@ describe('runBulkBatch', () => {
 		expect(specsOf(arms[3].candidates)).toEqual(specsOf([RAID_WITH_AGILITY]));
 		expect(arms[3].settings).toEqual(HEALER);
 		expect(arms[3].build).toEqual({ talentsString: ARMS, rotation: resolvedFor(ARMS), bonusStats: new Stats().toProto() });
-		const results = bulkState(host.player).results!;
+		const results = bulkState(host.player).buildsResults!;
 		const settingsOf = (entry: BulkEncounterResults) => [...new Set(entry.results.chains.flat().map(row => row.settings?.name ?? null))].sort();
 		expect(results.map(entry => [entry.name, entry.isCurrent, settingsOf(entry)])).toEqual([
 			['', true, ['', 'Healer']],
@@ -411,7 +411,7 @@ describe('runBulkBatch', () => {
 
 		await runBulkBatch(host);
 
-		const results = bulkState(host.player).results!;
+		const results = bulkState(host.player).buildsResults!;
 		const reference = ({ results: { originalGearResults, referenceIsCurrent } }: BulkEncounterResults) => [
 			referenceIsCurrent,
 			originalGearResults.gearSetup?.gearSet,
@@ -446,7 +446,7 @@ describe('runBulkBatch', () => {
 
 		expect(sentEncounters()).toEqual([CURRENT, COUNCIL]);
 		expect(calls().map(call => call[3].settings)).toEqual([undefined, undefined]);
-		expect(bulkState(host.player).results!.map(entry => entry.results.originalGearResults.settings?.isCurrent)).toEqual([true, true]);
+		expect(bulkState(host.player).buildsResults!.map(entry => entry.results.originalGearResults.settings?.isCurrent)).toEqual([true, true]);
 	});
 
 	it('skips an encounter that sims like the ticked current one, whatever it is named, and runs it by name while that is unticked', async () => {
@@ -469,7 +469,7 @@ describe('runBulkBatch', () => {
 		// The saved encounters list Council before "Three minutes", and the batch runs them in list order.
 		const unticked = await run([eref('Three minutes'), COUNCIL_REF]);
 		expect(sentEncounters()).toEqual([COUNCIL, CURRENT]);
-		expect(bulkState(unticked.player).results!.map(entry => [entry.name, entry.isCurrent])).toEqual([
+		expect(bulkState(unticked.player).buildsResults!.map(entry => [entry.name, entry.isCurrent])).toEqual([
 			['Council', false],
 			['Three minutes', false],
 		]);
@@ -636,7 +636,7 @@ describe('runBulkBatch', () => {
 			[[null, RING_STAMINA.effectId], null],
 			[[], null],
 		]);
-		const healerRows = compareMatrix(bulkState(host.player).results!).rows.filter(row => row.settings?.name === 'Healer');
+		const healerRows = compareMatrix(bulkState(host.player).buildsResults!).rows.filter(row => row.settings?.name === 'Healer');
 		expect(healerRows.map(row => [row.gearSetup?.gearSet, ringEnchant(row.set?.gear), row.cells.map(cell => cell !== null)])).toEqual([
 			['Raid', null, [true, true]],
 		]);
@@ -766,6 +766,38 @@ describe('runBulkBatch', () => {
 		expect(sentTalents()).toEqual([LIVE, ARMS, LIVE, ARMS]);
 	});
 
+	it('clears and writes only its own mode’s results and started flag, leaving the other mode’s results in place', async () => {
+		const host = batchHost();
+		const gearResults: BulkEncounterResults[] = [];
+		patchBulkState(host.player, { gearResults });
+		let whileRunning = bulkState(host.player);
+		vi.mocked(runCoreBulkSim).mockImplementation(async () => {
+			whileRunning = bulkState(host.player);
+			return CORE_RESULT as never;
+		});
+
+		await runBulkBatch(host);
+		const firstBuildsResults = bulkState(host.player).buildsResults;
+		await runBulkBatch(host);
+
+		expect(whileRunning.gearResults).toBe(gearResults);
+		expect(whileRunning.buildsResults).toBeNull();
+		expect(bulkState(host.player).gearResults).toBe(gearResults);
+		expect(bulkState(host.player).buildsResults).toHaveLength(1);
+		expect(bulkState(host.player).buildsResults).not.toBe(firstBuildsResults);
+		expect([bulkState(host.player).gearStarted, bulkState(host.player).buildsStarted]).toEqual([false, true]);
+
+		const buildsResults = bulkState(host.player).buildsResults;
+		setBulkMode(host.player, 'gear');
+		await runBulkBatch(host);
+
+		expect(whileRunning.buildsResults).toBe(buildsResults);
+		expect(whileRunning.gearResults).toBeNull();
+		expect(bulkState(host.player).buildsResults).toBe(buildsResults);
+		expect(bulkState(host.player).gearResults).toHaveLength(1);
+		expect([bulkState(host.player).gearStarted, bulkState(host.player).buildsStarted]).toEqual([true, true]);
+	});
+
 	it('keeps the finished encounters when cancelled', async () => {
 		const host = batchHost({ encounters: [CURRENT_ENCOUNTER_REF, COUNCIL_REF] });
 		vi.mocked(runCoreBulkSim)
@@ -777,7 +809,7 @@ describe('runBulkBatch', () => {
 
 		await runBulkBatch(host);
 
-		expect(bulkState(host.player).results!.map(entry => entry.isCurrent)).toEqual([true]);
+		expect(bulkState(host.player).buildsResults!.map(entry => entry.isCurrent)).toEqual([true]);
 		expect(bulkState(host.player).isRunning).toBe(false);
 	});
 
@@ -790,7 +822,7 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		expect(consoleError).toHaveBeenCalled();
-		expect(bulkState(host.player).results!.map(entry => entry.isCurrent)).toEqual([true]);
+		expect(bulkState(host.player).buildsResults!.map(entry => entry.isCurrent)).toEqual([true]);
 	});
 
 	it('leaves no results when the first encounter fails', async () => {
@@ -800,7 +832,7 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		expect(consoleError).toHaveBeenCalled();
-		expect(bulkState(host.player).results).toBeNull();
+		expect(bulkState(host.player).buildsResults).toBeNull();
 	});
 
 	it('drops an encounter whose requests did not all finish', async () => {
@@ -817,6 +849,6 @@ describe('runBulkBatch', () => {
 		await runBulkBatch(host);
 
 		expect(calls()).toHaveLength(4);
-		expect(bulkState(host.player).results!.map(entry => entry.isCurrent)).toEqual([true]);
+		expect(bulkState(host.player).buildsResults!.map(entry => entry.isCurrent)).toEqual([true]);
 	});
 });

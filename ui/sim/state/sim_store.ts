@@ -252,9 +252,12 @@ export interface BulkSlice {
 	combinationsError: string | null;
 	combinationsPending: boolean;
 	isRunning: boolean;
-	started: boolean;
-	// One per finished encounter of the last run, the current one first.
-	results: readonly BulkEncounterResults[] | null;
+	// Whether each mode has started a run. Each mode keeps its own, and the Results pane shows those of the mode the batch runs in.
+	gearStarted: boolean;
+	buildsStarted: boolean;
+	// One per finished encounter of each mode's last run, the current one first.
+	gearResults: readonly BulkEncounterResults[] | null;
+	buildsResults: readonly BulkEncounterResults[] | null;
 	// The gear the last batch started from. The set-bonus feasibility check judges against it, not
 	// against the candidate gear a run swaps in and out of the player.
 	runGear: Gear | null;

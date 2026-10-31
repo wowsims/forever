@@ -10,6 +10,7 @@ import { BulkResultsCsvButton } from '@features/bulk/components/BulkResultsCsvBu
 import { BulkSettings } from '@features/bulk/components/BulkSettings';
 import { BulkBuildsProvider } from '@features/bulk/context/BulkBuildsContext';
 import { useBulkMode } from '@features/bulk/hooks/useBulkMode';
+import { useBulkResults } from '@features/bulk/hooks/useBulkResults';
 import { useBulkResultSelection } from '@features/bulk/hooks/useBulkResultSelection';
 import { useBulkState } from '@features/bulk/hooks/useBulkState';
 import { addBulkItems, clearBulkItems } from '@features/bulk/model/gear/items';
@@ -26,7 +27,7 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { TabNav, TabPanel, TabPanels } from '@ui-kit/TabNav';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const PANES = [
 	{ id: 'bulkSetupTab', labelKey: 'bulk_tab.tabs.setup' },
@@ -71,7 +72,7 @@ export const BulkTabBody = () => {
 	const host = useSimHost();
 	const ready = useSimReady();
 	const activateTab = useActivateTab();
-	const results = useBulkState(slice => slice.results);
+	const results = useBulkResults();
 	const isRunning = useBulkState(slice => slice.isRunning);
 	const { builds } = useBulkMode();
 
@@ -79,8 +80,16 @@ export const BulkTabBody = () => {
 	const [importOpen, setImportOpen] = useState(false);
 	const [selectedEncounter, selectEncounter] = useBulkResultSelection();
 	const selector = useSelectorModalState();
-	// Starting a run clears the results and drops back to setup; finishing one opens the results.
-	useEffect(() => setActiveId(results ? 'bulkResultsTab' : 'bulkSetupTab'), [results]);
+	const resultsMode = useRef(builds);
+	// Starting a run clears its mode's results and drops back to setup; finishing one opens the results. Switching modes
+	// swaps the results shown and keeps the pane.
+	useEffect(() => {
+		if (resultsMode.current !== builds) {
+			resultsMode.current = builds;
+			return;
+		}
+		setActiveId(results ? 'bulkResultsTab' : 'bulkSetupTab');
+	}, [results, builds]);
 
 	return (
 		<OpenSelectorModalContext value={selector.openTab}>
