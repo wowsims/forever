@@ -29,13 +29,14 @@ func ReadQuestieData() *WowDatabase {
 	if err != nil {
 		log.Fatalf("opening the QuestieDB release: %v", err)
 	}
-	files := map[string]string{}
-	for _, name := range []string{"QuestieDB_Forever.toc", "src/meta/itemMeta.lua", "src/meta/questMeta.lua", "src/meta/npcMeta.lua"} {
-		if files[name], err = readZipFile(reader, "QuestieDB/"+name); err != nil {
+	read := func(name string) string {
+		text, err := readZipFile(reader, "QuestieDB/"+name)
+		if err != nil {
 			log.Fatalf("reading the QuestieDB release: %v", err)
 		}
+		return text
 	}
-	db, err := parseQuestieData(files["QuestieDB_Forever.toc"], files["src/meta/itemMeta.lua"], files["src/meta/questMeta.lua"], files["src/meta/npcMeta.lua"])
+	db, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"))
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
@@ -481,13 +482,16 @@ func halfFloat(bits uint16) float64 {
 	return sign * math.Ldexp(fraction+1024, exponent-25)
 }
 
+// A line that opens the keys table, so that a name ending in "keys" or a comment quoting it does not match.
+var questieKeysTable = regexp.MustCompile(`(?m)^\s*keys = \{`)
+
 // The field names and indexes of a meta file's table `keys = { ['name'] = 1, -- comment ... }`.
 func readQuestieKeys(meta string) (map[string]int, error) {
-	start := strings.Index(meta, "keys = {")
-	if start < 0 {
+	start := questieKeysTable.FindStringIndex(meta)
+	if start == nil {
 		return nil, fmt.Errorf("no keys table")
 	}
-	p := &luaParser{src: meta, pos: start + len("keys = {")}
+	p := &luaParser{src: meta, pos: start[1]}
 	keys := map[string]int{}
 	for {
 		p.skipSpace()

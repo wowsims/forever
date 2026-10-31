@@ -170,7 +170,7 @@ func TestParseQuestieDataRejectsMalformedData(t *testing.T) {
 		"name is a number":   {strings.Replace(toc, questieTestQuestRow, questieTestQuestRow+questieValue([]any{8561})+"\n## X-Unused: ", 1), questieTestItemMeta},
 		"missing key":        {toc, strings.Replace(questieTestItemMeta, "['vendors'] = 3,", "", 1)},
 		"no IDS":             {strings.Replace(toc, "## X-Npc-IDS: ", "## X-Npc-Ids: ", 1), questieTestItemMeta},
-		"bad field index":    {toc, strings.Replace(questieTestItemMeta, "['name'] = 1,", "['name'] = 1.5,", 1)},
+		"bad field index":    {toc, strings.Replace(questieTestItemMeta, "['name'] = 1,", "['name'] = 64,", 1)},
 	} {
 		if _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta); err == nil {
 			t.Errorf("%s: parsed without an error", name)
