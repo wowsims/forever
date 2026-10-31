@@ -152,6 +152,8 @@ func main() {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
 
+	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
+
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
 
@@ -193,8 +195,6 @@ func main() {
 			db.MergeItem(atlaslootItem)
 		}
 	}
-
-	setDropDifficulties(db, raidZones, areaTableIDs)
 
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
@@ -299,16 +299,8 @@ func main() {
 	database.LoadAndWriteEnchantDescriptions("assets/enchants/descriptions.json", db, instance)
 
 	atlasDBProto := atlaslootDB.ToUIProto()
-	for _, zone := range atlasDBProto.Zones {
-		if areaTableIDs[zone.Id] {
-			db.MergeZone(zone)
-		}
-	}
-	for _, npc := range atlasDBProto.Npcs {
-		if areaTableIDs[npc.ZoneId] && !dropNpcsNotInForever[npc.Id] {
-			db.MergeNpc(npc)
-		}
-	}
+	db.MergeZones(atlasDBProto.Zones)
+	db.MergeNpcs(atlasDBProto.Npcs)
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
@@ -321,11 +313,15 @@ var dropNpcsNotInForever = map[int32]bool{
 	36296: true, // Apothecary Hummel, Shadowfang Keep.
 }
 
-// setDropDifficulties drops the drop sources of zones missing from the game files and of the NPCs in
-// dropNpcsNotInForever, sets the rest to Raid in a raid zone and Dungeon elsewhere, and removes the exact
-// duplicates this leaves.
-func setDropDifficulties(db *database.WowDatabase, raidZones, areaTableIDs map[int32]bool) {
-	for _, item := range db.Items {
+// pruneAtlasLootDrops removes the zones, NPCs and drop sources of AtlasLoot that are not in the game files or
+// are in dropNpcsNotInForever, sets the remaining drops to Raid in a raid zone and Dungeon elsewhere, and
+// removes the exact duplicates this leaves.
+func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs map[int32]bool) {
+	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return !areaTableIDs[id] })
+	maps.DeleteFunc(atlas.Npcs, func(id int32, npc *proto.UINPC) bool {
+		return !areaTableIDs[npc.ZoneId] || dropNpcsNotInForever[id]
+	})
+	for _, item := range atlas.Items {
 		var drops []*proto.DropSource
 		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
 			drop := source.GetDrop()
@@ -335,11 +331,7 @@ func setDropDifficulties(db *database.WowDatabase, raidZones, areaTableIDs map[i
 			if !areaTableIDs[drop.ZoneId] || dropNpcsNotInForever[drop.NpcId] {
 				return false
 			}
-			if raidZones[drop.ZoneId] {
-				drop.Difficulty = proto.DungeonDifficulty_DifficultyRaid
-			} else {
-				drop.Difficulty = proto.DungeonDifficulty_DifficultyDungeon
-			}
+			drop.Difficulty = database.ParseDungeonDifficulty(raidZones[drop.ZoneId])
 			if slices.ContainsFunc(drops, func(seen *proto.DropSource) bool { return googleProto.Equal(seen, drop) }) {
 				return false
 			}

@@ -221,8 +221,8 @@ enum SourceFilterOption {
 	SourceReputation = 3;
 	SourcePvp = 4;
 	SourceDungeon = 5;
-	SourceSoldBy = 6;
 	SourceRaid = 7;
+	SourceSoldBy = 6;
 }
 
 enum RaidFilterOption {

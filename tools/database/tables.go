@@ -2127,14 +2127,12 @@ func LoadAndWriteEnchantDescriptions(outputPath string, db *WowDatabase, instanc
 
 func ScanDropRow(rows *sql.Rows) (itemID int, ds *proto.DropSource, instanceName string, err error) {
 	var (
-		mask         int
 		dropSource   proto.DropSource
 		jiName       string
 		instanceType int
 	)
 	err = rows.Scan(
 		&itemID,
-		&mask,
 		&dropSource.NpcId,
 		&dropSource.ZoneId,
 		&dropSource.OtherName,
@@ -2145,7 +2143,7 @@ func ScanDropRow(rows *sql.Rows) (itemID int, ds *proto.DropSource, instanceName
 		return 0, nil, "", fmt.Errorf("scanning drop row: %w", err)
 	}
 
-	dropSource.Difficulty = parseDungeonDifficulty(instanceType == 2)
+	dropSource.Difficulty = ParseDungeonDifficulty(instanceType == 2)
 	return itemID, &dropSource, jiName, nil
 }
 
@@ -2157,7 +2155,6 @@ func LoadAndWriteDropSources(dbHelper *DBHelper, inputsDir string) (
 	const query = `
 		SELECT DISTINCT
 		jei.ItemID,
-		jei.DifficultyMask,
 		je.ID                               AS NpcId,
 		COALESCE(COALESCE(
 			NULLIF(ji.AreaID, 0),
@@ -2383,42 +2380,34 @@ func tabDisplayName(labels map[[2]int]string, classMask, tabIdx int, fallback st
 	return fallback
 }
 
-// LoadRaidZoneIDs returns the AreaTable ids of the raid zones. A Map with InstanceType 2 names its zone in
-// AreaTableID, or the zone's ContinentID is that Map. Both are needed: Onyxia's Lair has the Kalimdor
-// ContinentID and only Map 249 names it, while Stratholme, Scholomance and the other dungeon maps leave
-// AreaTableID 0 and are found through ContinentID.
+// LoadRaidZoneIDs returns the AreaTable ids of the raid zones: the zone a Map with InstanceType 2 names in
+// AreaTableID, and every area whose ContinentID is such a Map. The first path finds each vanilla raid,
+// Onyxia's Lair included, whose ContinentID is Kalimdor. The second adds the raids' sub-areas, such as
+// Zul'Gurub's and Ruins of Ahn'Qiraj's, and the raid maps that leave AreaTableID 0.
 func LoadRaidZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
-	const query = `
+	return loadIDSet(dbHelper, `
 		SELECT ID FROM AreaTable
 		WHERE ID IN (SELECT AreaTableID FROM Map WHERE InstanceType = 2)
 		OR ContinentID IN (SELECT ID FROM Map WHERE InstanceType = 2)
-	`
+	`, "raid zones")
+}
+
+// LoadAreaTableIDs returns every AreaTable id in the game files.
+func LoadAreaTableIDs(dbHelper *DBHelper) (map[int32]bool, error) {
+	return loadIDSet(dbHelper, `SELECT ID FROM AreaTable`, "AreaTable ids")
+}
+
+func loadIDSet(dbHelper *DBHelper, query, what string) (map[int32]bool, error) {
 	ids, err := LoadRows(dbHelper.db, query, func(rows *sql.Rows) (int32, error) {
 		var id int32
 		return id, rows.Scan(&id)
 	})
 	if err != nil {
-		return nil, fmt.Errorf("loading raid zones: %w", err)
+		return nil, fmt.Errorf("loading %s: %w", what, err)
 	}
-	raidZones := make(map[int32]bool, len(ids))
+	set := make(map[int32]bool, len(ids))
 	for _, id := range ids {
-		raidZones[id] = true
+		set[id] = true
 	}
-	return raidZones, nil
-}
-
-// LoadAreaTableIDs returns every AreaTable id in the game files.
-func LoadAreaTableIDs(dbHelper *DBHelper) (map[int32]bool, error) {
-	ids, err := LoadRows(dbHelper.db, `SELECT ID FROM AreaTable`, func(rows *sql.Rows) (int32, error) {
-		var id int32
-		return id, rows.Scan(&id)
-	})
-	if err != nil {
-		return nil, fmt.Errorf("loading AreaTable ids: %w", err)
-	}
-	areas := make(map[int32]bool, len(ids))
-	for _, id := range ids {
-		areas[id] = true
-	}
-	return areas, nil
+	return set, nil
 }

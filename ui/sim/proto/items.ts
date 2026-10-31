@@ -72,6 +72,7 @@ export function canEquipItem<SpecType extends Spec>(item: Item, playerSpec: Play
 
 // Honor rank and battleground item name prefixes. "Premier " items are Forever's reissued PvP items and all count.
 const PVP_NAME_PREFIXES = [
+	'Premier ',
 	"Private's ",
 	"Corporal's ",
 	"Sergeant's ",
@@ -120,7 +121,7 @@ const PVE_ITEM_NAMES = new Set([
 export const isPVPItem = (item: Item) => {
 	const name = item?.name;
 	if (!name || PVE_ITEM_NAMES.has(name)) return false;
-	return name.startsWith('Premier ') || PVP_NAME_PREFIXES.some(prefix => name.startsWith(prefix));
+	return PVP_NAME_PREFIXES.some(prefix => name.startsWith(prefix));
 };
 
 export function getEligibleItemSlots(item: Item): Array<ItemSlot> {

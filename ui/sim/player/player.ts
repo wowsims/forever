@@ -1215,11 +1215,6 @@ export class Player<SpecType extends Spec> {
 
 	static WEAPON_SLOTS: Array<ItemSlot> = [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand];
 
-	static readonly DIFFICULTY_SRCS: Partial<Record<SourceFilterOption, DungeonDifficulty>> = {
-		[SourceFilterOption.SourceDungeon]: DungeonDifficulty.DifficultyDungeon,
-		[SourceFilterOption.SourceRaid]: DungeonDifficulty.DifficultyRaid,
-	};
-
 	static readonly RAID_IDS: Partial<Record<RaidFilterOption, number>> = {
 		[RaidFilterOption.RaidMC]: 2717,
 		[RaidFilterOption.RaidOny]: 2159,
@@ -1278,15 +1273,13 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => !isPVPItem(item));
 		}
 
-		for (const [srcOptionStr, difficulty] of Object.entries(Player.DIFFICULTY_SRCS)) {
-			const srcOption = parseInt(srcOptionStr) as SourceFilterOption;
-
-			if (!filters.sources.includes(srcOption)) {
-				itemData = filterItems(
-					itemData,
-					item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty),
-				);
-			}
+		const dropsAt = (item: Item, difficulty: DungeonDifficulty) =>
+			item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty);
+		if (!filters.sources.includes(SourceFilterOption.SourceDungeon)) {
+			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyDungeon));
+		}
+		if (!filters.sources.includes(SourceFilterOption.SourceRaid)) {
+			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyRaid));
 		}
 
 		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {

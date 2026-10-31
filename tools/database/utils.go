@@ -95,7 +95,7 @@ func formatStrings(maxLength int, input []string) []string {
 	return result
 }
 
-func parseDungeonDifficulty(isRaid bool) proto.DungeonDifficulty {
+func ParseDungeonDifficulty(isRaid bool) proto.DungeonDifficulty {
 	if isRaid {
 		return proto.DungeonDifficulty_DifficultyRaid
 	}
