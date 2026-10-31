@@ -13,8 +13,9 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   to every class is shared, in `sim/common/forever/items_sets.go` with `agent.GetCharacter()`, and so are the dungeon
   sets; Naxxramas tier 3 armor is class-locked through `ItemSetClasses` and coded in the class folders.**
   `tools/database/overrides.go`, `ApplyItemSetClasses`, PR #316 and PR #539.
-- **Survival cooldowns default to `ShouldActivate` false unless the character sits in a raid Tanks slot; defensive
-  on-use buffs count as Survival and MP5 or Spirit ones as Mana; explicit APL casts are unaffected.**
+- **A survival cooldown that adds no damage or mana is `Manual` unless the character sits in a raid Tanks slot, so
+  Autocast Other Cooldowns uses it only at a cooldown timing; defensive on-use buffs count as Survival and MP5 or
+  Spirit ones as Mana; explicit APL casts are unaffected.**
   `sim/core/major_cooldown.go`, PR #335.
 - **ItemSparse `REDUCED_CASTER_DPS` gives weapon DPS = damage table × 2/3 one-hand or × 29/39 two-hand, with
   QualityModifier an additive offset; the shares are fitted to in-game ranges, not read from the game files.**

@@ -120,6 +120,12 @@ listed first. Nothing sets a group by default, and a spell and its aura are file
 each, and on every rank of a ranked spell. The warrior's stances (`sim/warrior/stances.go`) are filed
 under `Stances` this way.
 
+A group can nest: keys joined by dots form a path, so `spell.cat.stealth` files a spell under
+`Spell » Cat » Stealth`. Groups are listed in the order of `MENU_GROUP_ORDER` in
+`ui/features/apl/model/action_id_sets.ts`, by each path's last key, and a key not listed there follows the
+listed ones. The druid files its feral spells and auras in `sim/druid/menu_groups.go`, and an aura with
+`HideFromAPL` set stays out of the pickers altogether.
+
 ## The three shapes a registration takes
 
 1. **The row, plus what no row states.** `sim/warrior/pummel.go` and `sim/warrior/slam.go`: the

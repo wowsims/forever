@@ -614,6 +614,8 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 			"Bear (#1) does not know spell {ItemID: 9449}":              true,
 			"Bear (#1) picks no potion for {OtherID: 26}":               true,
 			"No aura found on Target 1 for: {SpellID: 440667, Tag: -1}": true,
+			// The autocast line is there for an on-use trinket the list does not name; this set has none.
+			"Autocast Other Cooldowns will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL or never go on their own.": true,
 		}
 		if !consumes {
 			expected["Bear (#1) does not know spell {ItemID: 10646}"] = true

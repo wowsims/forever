@@ -129,6 +129,49 @@ describe('menu groups', () => {
 		expect(menu(await actionIdSets.castable_spells.getActionIDs(metadata([], grouped)))[0]).toBe('Recklessness > my_group');
 	});
 
+	it('files a dotted group as a path of submenus', async () => {
+		const nested = [spell(named(78, 'Ravage'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat.stealth' })];
+		expect(menu(await actionIdSets.castable_spells.getActionIDs(metadata([], nested)))[0]).toBe('Ravage > spell > cat > stealth');
+	});
+
+	it('lists the groups in their fixed order, a nested group after its parent and an unlisted one last', async () => {
+		// Sorted by name, as the metadata arrives.
+		const druid = [
+			spell(named(80, 'Bash'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.utility' }),
+			spell(named(81, 'Battle Stance'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'stances' }),
+			spell(named(82, 'Bear Form'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.forms' }),
+			spell(named(83, 'Claw'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat' }),
+			spell(named(84, 'Maul'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.bear' }),
+			spell(named(85, 'Prowl'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat.stealth' }),
+			spell(named(86, 'Shred'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat' }),
+		];
+		expect(menu(await actionIdSets.castable_spells.getActionIDs(metadata([], druid))).slice(0, 7)).toEqual([
+			'Bear Form > spell > forms',
+			'Claw > spell > cat',
+			'Shred > spell > cat',
+			'Prowl > spell > cat > stealth',
+			'Maul > spell > bear',
+			'Bash > spell > utility',
+			'Battle Stance > stances',
+		]);
+	});
+
+	it('opens a parent group with a nested group listed before it', async () => {
+		// Sorted by name, as the metadata arrives.
+		const auras = [
+			aura(named(90, 'Cat Form'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'druid.forms' }),
+			aura(named(91, 'Clearcasting'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'druid' }),
+			aura(named(92, 'Dire Bear Form'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'druid.forms' }),
+			aura(named(93, 'Moving')),
+		];
+		expect(menu(await actionIdSets.auras.getActionIDs(metadata(auras)))).toEqual([
+			'Cat Form > druid > forms',
+			'Dire Bear Form > druid > forms',
+			'Clearcasting > druid',
+			'Moving',
+		]);
+	});
+
 	it('files every rank of a grouped spell in the group, behind its highest rank', async () => {
 		const ranked = [
 			spell(named(74, 'Cat Form (Rank 1)', 1), ActionCategory.ActionCategoryUnknown, { menuGroup: 'forms' }),

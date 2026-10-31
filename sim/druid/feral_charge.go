@@ -16,6 +16,7 @@ func (druid *Druid) registerFeralChargeSpell() {
 		rank := spelldata.MustFind(id)
 		config := spelldata.SpellConfig(&druid.Unit, rank)
 		config.Flags |= core.SpellFlagAPL | core.SpellFlagMovesToTarget
+		config.MenuGroup = "spell.utility"
 		config.Cast.IgnoreHaste = true
 		config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 			return druid.Talents.FeralCharge
@@ -23,6 +24,7 @@ func (druid *Druid) registerFeralChargeSpell() {
 		var chargeMovement *core.Aura
 		if id == 16979 {
 			chargeMovement = core.MakeDashAura(&druid.Unit, rank.Name+" Movement", core.ActionID{SpellID: rank.ID, Tag: 1}, 5*time.Second, nil)
+			chargeMovement.MenuGroup = "druid"
 			config.RelatedAuraArrays = roots.ToMap()
 		}
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
