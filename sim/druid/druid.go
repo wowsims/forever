@@ -99,6 +99,7 @@ type Druid struct {
 	maulQueueAura  *core.Aura
 	maulQueueSpell *core.Spell
 	maulRealismICD *core.Cooldown
+	maulPending    *core.PendingAction
 }
 
 type SelfBuffs struct {

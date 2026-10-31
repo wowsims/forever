@@ -7,13 +7,16 @@ import (
 )
 
 // Not generated:
+//   Holy Shield: rank 4, spell 1239570, has no SpellMisc row
 //   Judgement of Fury: missing rank 1 of 7
 //   Judgement of the Crusader: missing rank 1 of 6
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Illumination: effect 2, 3 of spell 20210 has no rank curve and is held at its base points
 //   Sacred Arbiter: effect 0 of spell 1311087 has no rank curve and is held at its base points
-//   Twist of Light: effect 0 of spell 1310735 has no rank curve and is held at its base points
+//   Shieldsworn: effect 0 of spell 1328544 has no rank curve and is held at its base points
+//   Turn Evil: effect 2, 3, 4 of spell 1328370 has no rank curve and is held at its base points
+//   Unsealed Wrath: effect 0 of spell 1310735 has no rank curve and is held at its base points
 //   Vindication: effect 1 of spell 9452 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
@@ -21,12 +24,12 @@ type generatedSpellData struct {
 	Benediction                   spelldata.Ladder
 	BlessingOfFreedom             spelldata.Ladder
 	BlessingOfKings               spelldata.Ladder
-	BlessingOfLight               spelldata.Ladder
 	BlessingOfMight               spelldata.Ladder
 	BlessingOfProtection          spelldata.Ladder
 	BlessingOfProtectionTriggered spelldata.Ladder
 	BlessingOfSacrifice           spelldata.Ladder
 	BlessingOfWisdom              spelldata.Ladder
+	BoundlessLight                spelldata.Ladder
 	ChampionOfTheLight            spelldata.Ladder
 	Cleanse                       spelldata.Ladder
 	ConcentrationAura             spelldata.Ladder
@@ -56,7 +59,6 @@ type generatedSpellData struct {
 	FlashOfLight                  spelldata.Ladder
 	FrostResistanceAura           spelldata.Ladder
 	GreaterBlessingOfKings        spelldata.Ladder
-	GreaterBlessingOfLight        spelldata.Ladder
 	GreaterBlessingOfMight        spelldata.Ladder
 	GreaterBlessingOfWisdom       spelldata.Ladder
 	GuardiansFavor                spelldata.Ladder
@@ -83,12 +85,10 @@ type generatedSpellData struct {
 	ImprovedRetributionAura       spelldata.Ladder
 	ImprovedRighteousFury         spelldata.Ladder
 	ImprovedSealOfFury            spelldata.Ladder
-	ImprovedSealOfFuryTriggered   spelldata.Ladder
 	ImprovedSealOfTheCrusader     spelldata.Ladder
 	ImprovedSeals                 spelldata.Ladder
 	InfusionOfLight               spelldata.Ladder
 	InfusionOfLightTriggered      spelldata.Ladder
-	InstrumentOfLaw               spelldata.Ladder
 	IronCreed                     spelldata.Ladder
 	IronCreedTriggered            spelldata.Ladder
 	Judgement                     spelldata.Ladder
@@ -103,8 +103,7 @@ type generatedSpellData struct {
 	LayOnHands                    spelldata.Ladder
 	LightsVigil                   spelldata.Ladder
 	LightsVigilTriggered          spelldata.Ladder
-	MassSalvation                 spelldata.Ladder
-	OneHandedWeaponSpecialization spelldata.Ladder
+	OathOfLight                   spelldata.Ladder
 	Precision                     spelldata.Ladder
 	Purify                        spelldata.Ladder
 	PurifyingPower                spelldata.Ladder
@@ -117,12 +116,9 @@ type generatedSpellData struct {
 	Repentance                    spelldata.Ladder
 	RetributionAura               spelldata.Ladder
 	Reverence                     spelldata.Ladder
-	Revoke                        spelldata.Ladder
-	RevokeTriggered               spelldata.Ladder
 	RighteousFury                 spelldata.Ladder
 	SacredArbiter                 spelldata.Ladder
 	SacredDuty                    spelldata.Ladder
-	Salvation                     spelldata.Ladder
 	SanctifiedJudgement           spelldata.Ladder
 	SanctifiedJudgementTriggered  spelldata.Ladder
 	SealOfCommand                 spelldata.Ladder
@@ -143,14 +139,19 @@ type generatedSpellData struct {
 	ShadowResistanceAura          spelldata.Ladder
 	ShieldSpecialization          spelldata.Ladder
 	ShieldSpecializationTriggered spelldata.Ladder
+	Shieldsworn                   spelldata.Ladder
+	ShieldswornTriggered          spelldata.Ladder
 	SpiritualFocus                spelldata.Ladder
+	Stoicism                      spelldata.Ladder
 	SwiftJudgement                spelldata.Ladder
 	TemplarsBulwark               spelldata.Ladder
 	TemplarsBulwarkTriggered      spelldata.Ladder
 	Toughness                     spelldata.Ladder
+	TurnEvil                      spelldata.Ladder
 	TurnUndead                    spelldata.Ladder
-	TwistOfLight                  spelldata.Ladder
 	TwoHandedWeaponSpecialization spelldata.Ladder
+	UnsealedWrath                 spelldata.Ladder
+	UnsealedWrathTriggered        spelldata.Ladder
 	UnyieldingFaith               spelldata.Ladder
 	Vengeance                     spelldata.Ladder
 	VengeanceTriggered            spelldata.Ladder
@@ -164,27 +165,27 @@ var spellData = generatedSpellData{
 	Benediction:                   spelldata.Talent(20101, 5),
 	BlessingOfFreedom:             spelldata.Ranked(1044),
 	BlessingOfKings:               spelldata.Ranked(20217),
-	BlessingOfLight:               spelldata.Ranked(19977, 19978, 19979),
 	BlessingOfMight:               spelldata.Ranked(19740, 19834, 19835, 19836, 19837, 19838, 25291),
 	BlessingOfProtection:          spelldata.Ranked(1022, 5599, 10278),
 	BlessingOfProtectionTriggered: spelldata.Ranked(25771),
 	BlessingOfSacrifice:           spelldata.Ranked(6940, 20729),
 	BlessingOfWisdom:              spelldata.Ranked(19742, 19850, 19852, 19853, 19854, 25290),
-	ChampionOfTheLight:            spelldata.Talent(1311084, 3),
+	BoundlessLight:                spelldata.Talent(1328550, 2),
+	ChampionOfTheLight:            spelldata.Talent(1311084, 5),
 	Cleanse:                       spelldata.Ranked(4987),
 	ConcentrationAura:             spelldata.Ranked(19746),
 	ConsecratedGround:             spelldata.Talent(1310905, 2),
 	ConsecratedGroundTriggered:    spelldata.Ranked(1280353),
 	Consecration:                  spelldata.Ranked(26573, 20116, 20922, 20923, 20924),
 	ConsecrationTriggered:         spelldata.Ranked(1280345, 1280346, 1280347, 1280348, 1280349),
-	Conviction:                    spelldata.Talent(20117, 5),
+	Conviction:                    spelldata.Talent(20117, 3),
 	Deflection:                    spelldata.Talent(20060, 5),
 	DevotionAura:                  spelldata.Ranked(465, 10290, 643, 10291, 1032, 10292, 10293),
 	DivineFavor:                   spelldata.Ranked(20216),
 	DivineIntellect:               spelldata.Talent(20257, 5),
 	DivineIntervention:            spelldata.Ranked(19752),
 	DivineInterventionTriggered:   spelldata.Ranked(19753),
-	DivinePrecision:               spelldata.Talent(1310904, 3),
+	DivinePrecision:               spelldata.Talent(1310904, 2),
 	DivineProtection:              spelldata.Ranked(498, 5573),
 	DivineProtectionTriggered:     spelldata.Ranked(25771),
 	DivineShield:                  spelldata.Ranked(642, 1020),
@@ -199,7 +200,6 @@ var spellData = generatedSpellData{
 	FlashOfLight:                  spelldata.Ranked(19750, 19939, 19940, 19941, 19942, 19943),
 	FrostResistanceAura:           spelldata.Ranked(19888, 19897, 19898),
 	GreaterBlessingOfKings:        spelldata.Ranked(25898),
-	GreaterBlessingOfLight:        spelldata.Ranked(25890),
 	GreaterBlessingOfMight:        spelldata.Ranked(25782, 25916),
 	GreaterBlessingOfWisdom:       spelldata.Ranked(25894, 25918),
 	GuardiansFavor:                spelldata.Talent(20174, 2),
@@ -226,13 +226,11 @@ var spellData = generatedSpellData{
 	ImprovedRetributionAura:       spelldata.Ranked(20091, 20092),
 	ImprovedRighteousFury:         spelldata.Talent(20468, 3),
 	ImprovedSealOfFury:            spelldata.Ranked(1314103),
-	ImprovedSealOfFuryTriggered:   spelldata.Ranked(1314104),
 	ImprovedSealOfTheCrusader:     spelldata.Ranked(20335, 20336, 20337),
-	ImprovedSeals:                 spelldata.Talent(20224, 3),
+	ImprovedSeals:                 spelldata.Talent(20224, 5),
 	InfusionOfLight:               spelldata.Talent(426065, 2),
 	InfusionOfLightTriggered:      spelldata.Ranked(437063),
-	InstrumentOfLaw:               spelldata.Talent(1311085, 2),
-	IronCreed:                     spelldata.Talent(1311034, 5),
+	IronCreed:                     spelldata.Talent(1311034, 3),
 	IronCreedTriggered:            spelldata.Ranked(1311033),
 	Judgement:                     spelldata.Ranked(20271),
 	JudgementOfCommand:            spelldata.Ranked(20425, 20962, 20961, 20967, 20968),
@@ -245,9 +243,8 @@ var spellData = generatedSpellData{
 	LastingJudgement:              spelldata.Ranked(20359, 20360, 20361),
 	LayOnHands:                    spelldata.Ranked(633, 2800, 10310),
 	LightsVigil:                   spelldata.Ranked(1310911, 1311590, 1311595),
-	LightsVigilTriggered:          spelldata.Ranked(1310909, 1310910, 1310912, 1310914, 1311591, 1311592, 1311593, 1311594, 1311596, 1311597, 1311598, 1311599),
-	MassSalvation:                 spelldata.Ranked(25895),
-	OneHandedWeaponSpecialization: spelldata.Talent(20196, 3),
+	LightsVigilTriggered:          spelldata.Ranked(1310909, 1310912, 1311591, 1311593, 1311596, 1311597),
+	OathOfLight:                   spelldata.Ranked(1328548),
 	Precision:                     spelldata.Talent(20189, 3),
 	Purify:                        spelldata.Ranked(1152),
 	PurifyingPower:                spelldata.Talent(429144, 2),
@@ -259,13 +256,10 @@ var spellData = generatedSpellData{
 	RedoubtTriggered:              spelldata.Ranked(20128),
 	Repentance:                    spelldata.Ranked(20066),
 	RetributionAura:               spelldata.Ranked(7294, 10298, 10299, 10300, 10301),
-	Reverence:                     spelldata.Talent(1310899, 3),
-	Revoke:                        spelldata.Ranked(1325499),
-	RevokeTriggered:               spelldata.Ranked(1038, 25895),
+	Reverence:                     spelldata.Talent(1310899, 2),
 	RighteousFury:                 spelldata.Ranked(25780),
 	SacredArbiter:                 spelldata.Talent(1311087, 1),
 	SacredDuty:                    spelldata.Talent(1224697, 2),
-	Salvation:                     spelldata.Ranked(1038),
 	SanctifiedJudgement:           spelldata.Talent(1311074, 3),
 	SanctifiedJudgementTriggered:  spelldata.Ranked(1311077),
 	SealOfCommand:                 spelldata.Ranked(20375, 20915, 20918, 20919, 20920),
@@ -277,23 +271,28 @@ var spellData = generatedSpellData{
 	SealOfLight:                   spelldata.Ranked(20165, 20347, 20348, 20349),
 	SealOfLightTriggered:          spelldata.Ranked(20167, 20185, 20267, 20333, 20334, 20340, 20341, 20342, 20343, 20344, 20345, 20346),
 	SealOfRighteousness:           spelldata.Ranked(21084, 20287, 20288, 20289, 20290, 20291, 20292, 20293),
-	SealOfRighteousnessTriggered:  spelldata.Ranked(20187, 20224, 20280, 20281, 20282, 20283, 20284, 20285, 20286),
+	SealOfRighteousnessTriggered:  spelldata.Ranked(20187, 20280, 20281, 20282, 20283, 20284, 20285, 20286),
 	SealOfWisdom:                  spelldata.Ranked(20166, 20356, 20357),
 	SealOfWisdomTriggered:         spelldata.Ranked(20168, 20186, 20268, 20350, 20351, 20352, 20353, 20354, 20355),
 	SealOfTheCrusader:             spelldata.Ranked(21082, 20162, 20305, 20306, 20307, 20308),
 	SealOfTheCrusaderTriggered:    spelldata.Ranked(21183, 20188, 20300, 20301, 20302, 20303),
 	SenseUndead:                   spelldata.Ranked(5502),
 	ShadowResistanceAura:          spelldata.Ranked(19876, 19895, 19896),
-	ShieldSpecialization:          spelldata.Talent(20150, 3),
+	ShieldSpecialization:          spelldata.Talent(20150, 2),
 	ShieldSpecializationTriggered: spelldata.Ranked(1310925),
-	SpiritualFocus:                spelldata.Talent(20205, 2),
+	Shieldsworn:                   spelldata.Talent(1328544, 1),
+	ShieldswornTriggered:          spelldata.Ranked(1328551),
+	SpiritualFocus:                spelldata.Talent(20205, 5),
+	Stoicism:                      spelldata.Talent(1328546, 2),
 	SwiftJudgement:                spelldata.Ranked(1310994),
 	TemplarsBulwark:               spelldata.Ranked(1311015),
 	TemplarsBulwarkTriggered:      spelldata.Ranked(25771),
 	Toughness:                     spelldata.Talent(20143, 5),
+	TurnEvil:                      spelldata.Talent(1328370, 2),
 	TurnUndead:                    spelldata.Ranked(2878, 5627, 10326),
-	TwistOfLight:                  spelldata.Talent(1310735, 1),
 	TwoHandedWeaponSpecialization: spelldata.Talent(20111, 3),
+	UnsealedWrath:                 spelldata.Talent(1310735, 1),
+	UnsealedWrathTriggered:        spelldata.Ranked(1311701),
 	UnyieldingFaith:               spelldata.Talent(9453, 2),
 	Vengeance:                     spelldata.Talent(20049, 3),
 	VengeanceTriggered:            spelldata.Ranked(20050),

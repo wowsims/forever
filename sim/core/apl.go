@@ -261,32 +261,37 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 
 		rotation.groups = append(rotation.groups, group)
 
-		// Duplicate the group if it is referenced more than once in the priority list.
+		// Each reference runs its own copy of the group: the group is duplicated for every reference past the first
+		// in the prepull and priority lists, and for every reference in another group's actions. A reference inside
+		// a sequence counts too.
 		foundReference := false
 
-		for _, action := range rotation.priorityList {
-			if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
-				if (groupReferenceAction.groupName == group.name) && !groupReferenceAction.matched {
-					if foundReference {
-						groupsConfig = append(groupsConfig, groupConfig)
-						rotation.groupListValidations = append(rotation.groupListValidations, nil)
-					}
+		for _, entry := range slices.Concat(rotation.prepullActions, rotation.priorityList) {
+			for _, action := range entry.GetAllActions() {
+				if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
+					if (groupReferenceAction.groupName == group.name) && !groupReferenceAction.matched {
+						if foundReference {
+							groupsConfig = append(groupsConfig, groupConfig)
+							rotation.groupListValidations = append(rotation.groupListValidations, nil)
+						}
 
-					foundReference = true
-					groupReferenceAction.matched = true
-					group.referencedBy = groupReferenceAction
+						foundReference = true
+						groupReferenceAction.matched = true
+						group.referencedBy = groupReferenceAction
+					}
 				}
 			}
 		}
 
-		// Duplicate any other groups referenced by this group's actions.
-		for _, action := range group.actions {
-			if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
-				for _, groupConfig := range groupsConfig {
-					if (groupReferenceAction.groupName == groupConfig.Name) && !groupReferenceAction.matched {
-						groupsConfig = append(groupsConfig, groupConfig)
-						rotation.groupListValidations = append(rotation.groupListValidations, nil)
-						groupReferenceAction.matched = true
+		for _, entry := range group.actions {
+			for _, action := range entry.GetAllActions() {
+				if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
+					for _, groupConfig := range groupsConfig {
+						if (groupReferenceAction.groupName == groupConfig.Name) && !groupReferenceAction.matched {
+							groupsConfig = append(groupsConfig, groupConfig)
+							rotation.groupListValidations = append(rotation.groupListValidations, nil)
+							groupReferenceAction.matched = true
+						}
 					}
 				}
 			}

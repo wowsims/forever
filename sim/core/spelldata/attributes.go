@@ -42,6 +42,10 @@ func (s *Spell) IsBleed() bool {
 	return s.Mechanic == dbcenums.MECHANIC_BLEED
 }
 
+func (s *Spell) IsStun() bool {
+	return s.Mechanic == dbcenums.MECHANIC_STUN
+}
+
 // Whether the spell's periodic damage is a bleed: the mechanic sits on the spell, or on the effect
 // alone where the spell also hits directly.
 func (s *Spell) AppliesBleed() bool {

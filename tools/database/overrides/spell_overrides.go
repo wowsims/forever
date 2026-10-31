@@ -274,6 +274,29 @@ var Spells = []Override{
 		Reason:  "Seal of Light Rank 4: Rank 1's measured rate",
 		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
 	},
+	// Seal of Wisdom carries Seal of Light's measured rate until a log measures it. Every source that
+	// gives the two seals a rate gives them the same one.
+	{
+		SpellID: 20166,
+		Field:   PPM,
+		Value:   15, // TODO: Measure Seal of Wisdom Rank 1 in game.
+		Reason:  "Seal of Wisdom Rank 1: Seal of Light Rank 1's measured rate",
+		Source:  "estimate",
+	},
+	{
+		SpellID: 20356,
+		Field:   PPM,
+		Value:   15, // TODO: Measure Seal of Wisdom Rank 2 in game.
+		Reason:  "Seal of Wisdom Rank 2: Seal of Light Rank 1's measured rate",
+		Source:  "estimate",
+	},
+	{
+		SpellID: 20357,
+		Field:   PPM,
+		Value:   15, // TODO: Measure Seal of Wisdom Rank 3 in game.
+		Reason:  "Seal of Wisdom Rank 3: Seal of Light Rank 1's measured rate",
+		Source:  "estimate",
+	},
 	{
 		SpellID: 20185,
 		Field:   ProcChancePct,

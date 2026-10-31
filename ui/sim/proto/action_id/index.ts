@@ -632,10 +632,8 @@ export class ActionId {
 				}
 				break;
 			case 'Vindication':
-				// The paladin's own attack power buff is tagged 1 and the debuff left untagged.
-				if (tag === 1) {
-					name += ` (${i18n.t('common.action_tags.self')})`;
-				} else if (tag === -1) {
+				// The paladin's debuff is left untagged and the raid's tagged -1.
+				if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
 				}
 				break;

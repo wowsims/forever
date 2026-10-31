@@ -75,14 +75,17 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procSpell := paladin.RegisterSpell(procConfig)
 
 	// The seal and its Echo roll the same chance: an Echo of Command "empowers your next melee
-	// attack with a chance to activate Seal of Command".
+	// attack with a chance to activate Seal of Command". The Echo's stored copies ignore the seal's
+	// 1 sec ICD and do not start it, so a spend of three copies rolls three times and can proc three
+	// times.
 	dpm := paladin.NewLegacyPPMManager(7, core.ProcMaskMeleeWhiteHit)
 	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: time.Second}
-	tryProc := func(sim *core.Simulation, target *core.Unit) {
-		if icd.IsReady(sim) && dpm.Proc(sim, core.ProcMaskMeleeMHAuto, "Seal of Command") {
-			icd.Use(sim)
-			procSpell.Cast(sim, target)
+	rollProc := func(sim *core.Simulation, target *core.Unit) bool {
+		if !dpm.Proc(sim, core.ProcMaskMeleeMHAuto, "Seal of Command") {
+			return false
 		}
+		procSpell.Cast(sim, target)
+		return true
 	}
 
 	aura := paladin.makeSealExclusive(paladin.RegisterAura(core.Aura{
@@ -94,7 +97,9 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		ProcMask: core.ProcMaskMeleeWhiteHit,
 		Outcome:  core.OutcomeLanded,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-			tryProc(sim, result.Target)
+			if icd.IsReady(sim) && rollProc(sim, result.Target) {
+				icd.Use(sim)
+			}
 		},
 	}))
 
@@ -104,6 +109,8 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		aura:      aura,
 		judgement: judgement,
 		echoID:    echoOfCommandID,
-		echo:      tryProc,
+		echo: func(sim *core.Simulation, target *core.Unit) {
+			rollProc(sim, target)
+		},
 	})
 }

@@ -12,7 +12,7 @@ var HolyShieldRankMap = spellData.HolyShield
 // Holy Shield (talent)
 // https://www.wowhead.com/forever/spell=20928
 //
-// Increases chance to block by 30% for 10 sec, and deals 221 Holy damage for each attack blocked
+// Increases chance to block by 30% for 10 sec, and deals 153 Holy damage for each attack blocked
 // while active. Damage caused by Holy Shield causes 20% additional threat.
 func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	actionID := core.ActionID{SpellID: rank.ID}
@@ -48,6 +48,20 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 			holyShieldAura.RemoveStack(sim)
 		},
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
+
+	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
+	if paladin.Talents.Shieldsworn {
+		holyShieldAura.AttachProcTrigger(core.ProcTrigger{
+			Callback:           core.CallbackOnSpellHitDealt,
+			ClassSpellMask:     SpellMaskHolyStrike,
+			Outcome:            core.OutcomeLanded,
+			ExtraCondition:     paladin.strikesWithShield,
+			TriggerImmediately: true,
+			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+				procSpell.Cast(sim, result.Target)
+			},
+		})
+	}
 
 	// Steadfast Libram: more block value while the shield is up.
 	if paladin.holyShieldBlockValueMultiplier != 1 {

@@ -150,21 +150,10 @@ func (druid *Druid) RegisterBearFormAura() {
 func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.Spell, kind DruidForm, starting bool) *core.Aura {
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
-	// Armor from items, health, attack power and the Faerie Fire spell mods are parsed.
+	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
-	// The parser leaves A_MOD_BONUS_ARMOR_PCT alone: the items' bonus armor ("+N Armor") scales by the
-	// same 180% or 360% as their base armor ("Armor contribution from items").
-	if e := passive.FindEffect(dbcenums.E_APPLY_AURA, dbcenums.A_MOD_BONUS_ARMOR_PCT, 0); e != spelldata.NilEffect {
-		bonusArmor := 1 + e.Percent()
-		aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-			druid.ApplyDynamicEquipScaling(sim, stats.BonusArmor, bonusArmor)
-		})
-		aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-			druid.RemoveDynamicEquipScaling(sim, stats.BonusArmor, bonusArmor)
-		})
-	}
 	aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
 		druid.pauseCatEnergy(sim)
 		druid.setForm(kind)
@@ -181,9 +170,7 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
 		druid.PseudoStats.ThreatMultiplier /= bearFormThreatMultiplier
 		druid.AutoAttacks.SetReplaceMHSwing(nil)
-		if druid.maulQueueAura != nil {
-			druid.maulQueueAura.Deactivate(sim)
-		}
+		druid.cancelMaulQueue(sim)
 		if druid.HasEnergyBar() && !druid.Env.MeasuringStats {
 			druid.EnergyPerTick = druid.furorEnergyPerTick
 			druid.rememberCatEnergy(sim, druid.furorStoredEnergy)
@@ -360,9 +347,8 @@ func (druid *Druid) RegisterMoonkinFormAura() {
 		return
 	}
 	druid.MoonkinFormAura = druid.registerFormAura(spellData.MoonkinForm.Highest(), druid.StartingForm.Matches(Moonkin))
-	// Moonkin Form (Passive) 24905 states the form's armor from items; its A_MOD_BONUS_ARMOR_PCT has no
-	// sim kind and is reported as skipped. The crit of Moonkin Aura 24907 is the raid buff AddRaidBuffs
-	// turns on.
+	// Moonkin Form (Passive) 24905 states the form's armor from items, base and bonus. The crit of
+	// Moonkin Aura 24907 is the raid buff AddRaidBuffs turns on.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinFormTriggered.ByID(24905))
 	// Of the form's own effects only Omen of Clarity's proc chance and proc cooldown have a sim kind.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinForm.Highest(), spelldata.Effects(5, 6))
