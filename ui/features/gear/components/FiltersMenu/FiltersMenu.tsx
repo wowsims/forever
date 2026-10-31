@@ -64,6 +64,7 @@ export const FiltersMenuView = ({
 			id={id}
 			label={label}
 			layout="inline"
+			size="xs"
 			value={(filters as Record<FilterListField, Array<number>>)[field].includes(value)}
 			onChange={checked =>
 				onFiltersChange(next => {
