@@ -51,10 +51,11 @@ Build `storybook-static` and `dist` in a checkout of each, then:
 node .github/skills/wowsims-dependencies/scripts/compare_builds.mjs --base <master checkout> --head <branch checkout>
 ```
 
-It shoots every story and every tab of every spec page from both builds, retakes a story that differs to tell an
+It shoots every story and every tab of every spec page from both builds, the pages under a preview host so they keep
+their dev-only gear (`isPreviewOrDevMode`; production and localhost show a spec without it), retakes a story that differs to tell an
 unstable one from a changed one, and sims each spec twice on `master` and once on the branch. A sim seeds itself at
 random, so the branch's result is read against the gap between the two `master` runs, and the run fails when it is off by
-more than that noise or 1%. Every changed shot needs an explanation.
+more than that noise or 1%. Every changed shot needs an explanation; antialiasing moves a few dozen pixels by a level or two between two builds.
 
 Once the pull request has a preview, run the same script against it:
 
