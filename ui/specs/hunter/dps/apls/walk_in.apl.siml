@@ -8,7 +8,7 @@ use "common.apl.siml"
 var ${Shoot spot} = 12
 
 group "Walk in":
-  /// Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.
+  /// Walk to my spot, looking again every reaction time. Stop while my Auto Shot's windup is close or running, and react to each shot before walking on.
   move $shoot_spot recheck if not shot_due_here
   /// Standing for my Auto Shot.
   wait input_delay

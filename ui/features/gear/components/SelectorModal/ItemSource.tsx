@@ -1,4 +1,4 @@
-import { UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
@@ -27,15 +27,20 @@ const SourceLink = ({ href, children }: { href: string; children: ReactNode }) =
 export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 	if (!item.sources?.length) return null;
 
-	let source = item.sources[0];
-	if (source.source.oneofKind === 'crafted') {
-		const src = source.source.crafted;
+	// One source shows, by kind: crafted, drop, rep, quest, pvp, then vendor, whatever order the sources come in.
+	const first = <K extends NonNullable<ItemSourceEntry['source']['oneofKind']>>(kind: K) =>
+		item.sources.find(entry => entry.source.oneofKind === kind)?.source as Extract<ItemSourceEntry['source'], { oneofKind: K }> | undefined;
+
+	const crafted = first('crafted');
+	if (crafted) {
+		const src = crafted.crafted;
 		const href = src.spellId ? ActionId.makeSpellUrl(src.spellId) : ActionId.makeItemUrl(item.id);
 		return <SourceLink href={href}>{professionNames.get(src.profession) ?? i18n.t('common.sources.unknown')}</SourceLink>;
 	}
 
-	if (source.source.oneofKind === 'drop') {
-		const src = source.source.drop;
+	const drop = first('drop');
+	if (drop) {
+		const src = drop.drop;
 		const zone = sim.db.getZone(src.zoneId);
 		const npc = sim.db.getNpc(src.npcId);
 		if (!zone) {
@@ -69,8 +74,9 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 		return <SourceLink href={ActionId.makeZoneUrl(zone.id)}>{zone.name}</SourceLink>;
 	}
 
-	if (source.source.oneofKind === 'quest' && source.source.quest.name) {
-		const src = source.source.quest;
+	const quest = item.sources.find(entry => entry.source.oneofKind === 'quest' && entry.source.quest.name)?.source;
+	if (quest?.oneofKind === 'quest') {
+		const src = quest.quest;
 		return (
 			<SourceLink href={ActionId.makeQuestUrl(src.id)}>
 				<span>
@@ -101,8 +107,9 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 	if (item.sources.some(entry => entry.source.oneofKind === 'pvp'))
 		return <SourceLink href={ActionId.makeItemUrl(item.id)}>{i18n.t('common.sources.pvp')}</SourceLink>;
 
-	if (source.source.oneofKind === 'soldBy') {
-		const src = source.source.soldBy;
+	const soldBy = first('soldBy');
+	if (soldBy) {
+		const src = soldBy.soldBy;
 		return (
 			<SourceLink href={ActionId.makeNpcUrl(src.npcId)}>
 				<span>

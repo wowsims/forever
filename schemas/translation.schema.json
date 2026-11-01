@@ -3220,29 +3220,10 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "untrained", "trained"]
-								},
-								"pet_aggression": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										},
-										"untrained": {
-											"type": "string"
-										},
-										"rank": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip", "untrained", "rank"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["cobra_reflexes", "pet_aggression"]
+							"required": ["cobra_reflexes"]
 						},
 						"pet_section": {
 							"type": "object",

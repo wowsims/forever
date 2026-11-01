@@ -31,6 +31,7 @@ import {
 } from '@generated/proto/common';
 import { SimDatabase } from '@generated/proto/db';
 import {
+	DatabaseFilters,
 	DungeonDifficulty,
 	FactionFilter,
 	RaidFilterOption,
@@ -38,6 +39,7 @@ import {
 	UIEnchant as Enchant,
 	UIItem as Item,
 	UIItem_FactionRestriction,
+	UIItemSource as ItemSource,
 } from '@generated/proto/ui';
 
 import * as Mechanics from '../constants/mechanics';
@@ -97,6 +99,32 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 		ranks.get(key)!.add(id.rank);
 	}
 	return entries.map(entry => (entry.id.hasRank && ranks.get(keyOf(entry.id))!.size < 2 ? { ...entry, id: entry.id.withoutRank() } : entry));
+};
+
+/** The toggle that governs a source, or undefined when none does. */
+const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined => {
+	switch (source.oneofKind) {
+		case 'crafted':
+			return SourceFilterOption.SourceCrafting;
+		case 'quest':
+			return SourceFilterOption.SourceQuest;
+		case 'rep':
+			return SourceFilterOption.SourceReputation;
+		case 'soldBy':
+			return SourceFilterOption.SourceSoldBy;
+		case 'drop':
+			if (source.drop.difficulty == DungeonDifficulty.DifficultyRaid) return SourceFilterOption.SourceRaid;
+			if (source.drop.difficulty == DungeonDifficulty.DifficultyDungeon) return SourceFilterOption.SourceDungeon;
+			return undefined;
+		default:
+			return undefined;
+	}
+};
+
+const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRaidZones: Set<number | undefined>): boolean => {
+	const option = sourceOption(itemSrc);
+	if (option !== undefined && !filters.sources.includes(option)) return false;
+	return itemSrc.source.oneofKind != 'drop' || !untickedRaidZones.has(itemSrc.source.drop.zoneId);
 };
 
 export class UnitMetadata {
@@ -1285,40 +1313,20 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => item.factionRestriction == kept || item.factionRestriction == UIItem_FactionRestriction.UNSPECIFIED);
 		}
 
-		if (!filters.sources.includes(SourceFilterOption.SourceSoldBy)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'soldBy'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceCrafting)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'crafted'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceQuest)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'quest'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceReputation)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'rep'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourcePvp)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp'));
-		}
-
-		const dropsAt = (item: Item, difficulty: DungeonDifficulty) =>
-			item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty);
-		if (!filters.sources.includes(SourceFilterOption.SourceDungeon)) {
-			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyDungeon));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceRaid)) {
-			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyRaid));
-		}
-
-		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {
-			const raidOption = parseInt(raidOptionStr) as RaidFilterOption;
-			if (!filters.raids.includes(raidOption)) {
-				itemData = filterItems(
-					itemData,
-					item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.zoneId == zoneId),
-				);
-			}
-		}
+		// An item shows while one of its sources counts as ticked: its kind is ticked and, for a drop in a raid zone, that raid
+		// is ticked too. PvP is a tag rather than a place, so unticking PvP hides every PvP item whatever its other sources.
+		// An item with no sources, or with a source no toggle covers, always shows.
+		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
+		const untickedRaidZones = new Set(
+			Object.entries(Player.RAID_IDS)
+				.filter(([raidOption]) => !filters.raids.includes(parseInt(raidOption)))
+				.map(([, zoneId]) => zoneId),
+		);
+		itemData = filterItems(itemData, item => {
+			if (!item.sources.length) return true;
+			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
+			return item.sources.some(itemSrc => sourceTicked(itemSrc, filters, untickedRaidZones));
+		});
 
 		if (Player.ARMOR_SLOTS.includes(slot)) {
 			itemData = filterItems(itemData, item => {
