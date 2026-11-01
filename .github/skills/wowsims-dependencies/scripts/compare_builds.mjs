@@ -150,13 +150,12 @@ const compareStories = async (base, head) => {
 	await shootStories(origins.base, ids, `${OUT}/stories/base`, 800);
 	await shootStories(origins.head, ids, `${OUT}/stories/head`, 800);
 	const differing = ids.filter(id => !sameFile(`${OUT}/stories/base/${id}.png`, `${OUT}/stories/head/${id}.png`));
-	// A story that differs from its own base on a second shot is unstable, not changed.
+	// A story can need longer than the first pass gives it, so a difference counts on a second, slower shot of both.
 	await shootStories(origins.base, differing, `${OUT}/stories/base2`, 3000);
 	await shootStories(origins.head, differing, `${OUT}/stories/head2`, 3000);
-	const unstable = differing.filter(id => !sameFile(`${OUT}/stories/base/${id}.png`, `${OUT}/stories/base2/${id}.png`));
-	const changed = differing.filter(id => !unstable.includes(id) && !sameFile(`${OUT}/stories/base2/${id}.png`, `${OUT}/stories/head2/${id}.png`));
-	console.log(`stories: ${ids.length}, ${ids.length - differing.length} identical, ${unstable.length} unstable on base, ${changed.length} changed`);
-	for (const id of [...changed, ...unstable]) console.log(`  ${changed.includes(id) ? 'changed ' : 'unstable'} ${id}`);
+	const changed = differing.filter(id => !sameFile(`${OUT}/stories/base2/${id}.png`, `${OUT}/stories/head2/${id}.png`));
+	console.log(`stories: ${ids.length}, ${ids.length - differing.length} identical, ${differing.length - changed.length} settled, ${changed.length} changed`);
+	for (const id of changed) console.log(`  changed ${id}`);
 	return changed.length;
 };
 
@@ -187,6 +186,11 @@ const comparePages = async (base, head) => {
 		}
 		const different = shots.filter(name => !sameFile(`${OUT}/pages/base/${tag}__${name}.png`, `${OUT}/pages/head/${tag}__${name}.png`));
 		changed += different.length;
+		// The floor keeps a spec whose two base runs happened to agree from failing on rounding.
+		if (dps.base !== null && !(Math.abs(dps.base - dps.head) <= Math.max(Math.abs(dps.base - dps.base2) * 3, dps.base * 0.01))) {
+			console.log(`  ${spec} sim is off master by more than its noise`);
+			changed++;
+		}
 		const percent = (a, b) => `${((Math.abs(a - b) / a) * 100).toFixed(2)}%`;
 		const sim =
 			dps.base === null
@@ -197,20 +201,23 @@ const comparePages = async (base, head) => {
 	return changed;
 };
 
-// A link carries the settings through pako, and a bad one fails on the page that opens it.
+// A link carries the settings through pako, and the page that opens a bad one only warns and stays on its defaults.
 const smokeLink = async (page, url, errors) => {
 	await page.getByText('Export', { exact: true }).first().click();
 	await page.getByRole('menuitem', { name: /link/i }).first().click({ timeout: 4000 });
 	const link = await page.locator('textarea:visible').first().inputValue({ timeout: 8000 });
 	if (!link.startsWith(url)) throw new Error(`the link is ${link.slice(0, 80)}`);
 	const opened = await newPage({ origin: new URL(url).origin, errors });
+	opened.on('console', message => {
+		if (message.text().startsWith('Failed to parse link settings')) errors.push(message.text().slice(0, 200));
+	});
 	await openSpec(opened, link);
 	await opened.context().close();
 	await page.keyboard.press('Escape');
 	return 'link';
 };
 
-// The generated `create` reads `this`, so adding a row fails when a list holds it unbound.
+// A rotation list holds the generated `create` apart from its message type, so adding a row proves it still works there.
 const smokeRotation = async page => {
 	await page.locator('[data-testid="sim-tabs"] [role="tab"]', { hasText: 'Rotation' }).click();
 	// Some specs open on the Simple rotation, and its picker offers the action list.

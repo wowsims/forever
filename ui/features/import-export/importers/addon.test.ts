@@ -17,7 +17,7 @@ const fetchStub = vi.hoisted(() => {
 
 import { ADDON_IMPORTER } from './addon';
 
-// `restoreMocks` clears the stub before each test, so the request is read here, as the module has just sent it.
+// Vitest's `clearMocks` default empties the stub before each test, so the request is read here, as the module has just sent it.
 const moduleLoadRequests = fetchStub.mock.calls.map(([url]) => url);
 
 describe('ADDON_IMPORTER', () => {
