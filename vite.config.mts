@@ -164,6 +164,14 @@ export default defineConfig(({ command, mode }) => {
 				},
 			]),
 			serveExternalAssets(),
+			// The commit of this build, which open pages compare with their own (ui/app/new_build.tsx).
+			{
+				name: 'build-version',
+				apply: 'build',
+				generateBundle() {
+					this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ commit: buildInfo.commit }) });
+				},
+			},
 			specPages(BASE_PATH),
 			simlPlugin(),
 			checker({
