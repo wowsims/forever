@@ -32,6 +32,12 @@ with the VS Code version.
 3. **Node.** Node 25 and later have a global `localStorage` that hides happy-dom's, and Vitest 5 keeps the test
    environment's: under Vitest 4 tests fail with `Cannot read properties of undefined (reading 'getItem')`. Vitest 5 also
    turns `clearMocks` on, so a stub's calls from module load are gone by the time a test runs.
+   `node vite.build-workers.mts` runs on Node's own type stripping, which resolves no `.mjs` name for an `.mts` source
+   and keeps an import that is only used as a type: every file it loads, `vite.config.mts` and `tools/vite/*.mts`
+   among them, names its `.mts` imports and marks its type imports with `type`. `util.parseArgs` rejects `--watch=false`
+   on a boolean option, so the makefile passes `--watch` only when `WATCH` is set.
+   After a Go release, `go fix -diff ./sim/... ./cmd/... ./tools/...` lists what its modernizers would rewrite; apply
+   them with `-embedlit=false`, since `embedlit` turns `ActionID: core.ActionID{SpellID: X}` into `SpellID: X`.
 4. **Patch and minor npm packages**, then each major on its own. Bump the packages in `dependencies` apart from those in
    `devDependencies`, so a failure names its group. Check a major is imported at all, since an unused package is removed, and
    read its deprecation notice, since `@types/*` of a package that ships its own types is a stub.
@@ -74,9 +80,11 @@ playwright`, `npm exec --prefix <that folder> playwright install chromium`, and
 
 | Package                   | Held at | What a newer version does                                                                                     |
 | ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
-| `pako`, `@types/pako`     | 2.x     | 3.x has no default export, so `sim_links.ts` and `link.ts` throw when a link is made.                         |
 | `@protobuf-ts/*`          | 2.9.x   | 2.11 builds a message on `this.messagePrototype`, so a `create` passed as a callback (`useListItems`) throws. |
 | `@tanstack/react-virtual` | 3.14.10 | 3.14.24 renders no rows in `VirtualList` under happy-dom, and the real page's behaviour is not yet proved.    |
 | `highs`                   | 1.15.2  | A new version needs a new `ui/worker/highs.wasm`, so it goes through `make update-highs` on its own.          |
 
-A package leaves this table in a change of its own, with its code adapted and the proof above repeated.
+A package leaves this table in a change of its own, with its code adapted and the proof above repeated. `pako` left
+it that way: share links go through the browser's `CompressionStream('deflate')` and `DecompressionStream('deflate')`,
+the zlib-wrapped format every older link has and `wowsimcli decodelink` reads, and `link.test.ts` keeps a link the
+old encoder wrote as the proof that it still decodes.
