@@ -257,7 +257,8 @@ func (rogue *Rogue) registerQuietus() {
 		FloatValue: spellData.Quietus.EffectAt(1).FractionAt(rogue.Talents.Quietus),
 	})
 
-	// The threshold is the target's health, so the bonus follows the target of each cast it reaches.
+	// The threshold is the target's health, and the game files state no buff that would carry the bonus to another
+	// target, so the bonus follows the target of each cast it reaches.
 	if threshold != 35 {
 		panic(fmt.Sprintf("rogue: Quietus %d states a %d%% health threshold, and the sim tracks the 35%% phase only", rank.ID, threshold))
 	}

@@ -604,6 +604,59 @@ func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
 	}
 }
 
+// A Shadow Bolt at a target below 35% health grants Decimation's buff (440873) and a Shadow Bolt at a target above
+// it grants nothing. The buff sits on the warlock, so Soul Fire keeps its bonus against the target above until the
+// buff runs out, and another cast at the low target refreshes it.
+func TestDecimationBuffCarriesToAnotherTarget(t *testing.T) {
+	sim, warlock, low, full := newTwoTargetWarlockSim("-000000000002", &proto.WarlockOptions{SoulShards: 1})
+	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spellData.DecimationTriggered.ByID(440873)
+	buff := warlock.GetAuraByID(core.ActionID{SpellID: row.ID})
+	soulFire := warlock.Soulfire
+	baseCastTime := soulFire.CastTimeMultiplier
+
+	warlock.ShadowBolt.SkipCastAndApplyEffects(sim, &full.Unit)
+	if misses := warlock.ShadowBolt.SpellMetrics[full.UnitIndex].Misses; misses != 0 {
+		t.Fatalf("%d Shadow Bolts missed the full-health target at 100%% spell hit, want it landed", misses)
+	}
+	if buff.IsActive() {
+		t.Fatal("a Shadow Bolt at a full-health target granted Decimation")
+	}
+
+	low.SetHealthCurve(sim, sim.CurrentTime, time.Minute, core.HealthKnot{At: 0, Percent: 30})
+	warlock.ShadowBolt.SkipCastAndApplyEffects(sim, &low.Unit)
+	if !buff.IsActive() {
+		t.Fatal("a Shadow Bolt at a target below 35% health did not grant Decimation")
+	}
+
+	wantCastTime := baseCastTime + spellData.Decimation.Rank(2).EffectN(1).Percent()
+	if got := soulFire.CastTimeMultiplier; math.Abs(got-wantCastTime) > 1e-9 {
+		t.Errorf("Soul Fire's cast time multiplier %.3f under Decimation, want %.3f", got, wantCastTime)
+	}
+	soulFire.SkipCastAndApplyEffects(sim, &full.Unit)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after Soul Fire at the full-health target under Decimation, want 1 and none spent", got)
+	}
+
+	stepFor(sim, row.Duration()/2)
+	warlock.ShadowBolt.SkipCastAndApplyEffects(sim, &low.Unit)
+	if got, want := buff.ExpiresAt(), sim.CurrentTime+row.Duration(); got != want {
+		t.Errorf("Decimation expires at %v after another cast at the low target, want %v", got, want)
+	}
+
+	stepFor(sim, row.Duration()+core.SpellBatchWindow)
+	if buff.IsActive() {
+		t.Fatalf("Decimation is up past its %v", row.Duration())
+	}
+	if got := soulFire.CastTimeMultiplier; math.Abs(got-baseCastTime) > 1e-9 {
+		t.Errorf("Soul Fire's cast time multiplier %.3f after Decimation, want %.3f", got, baseCastTime)
+	}
+	soulFire.SkipCastAndApplyEffects(sim, &full.Unit)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+		t.Errorf("%d Soul Shards after Soul Fire with Decimation gone, want 0", got)
+	}
+}
+
 // The trainer's top ranks of Shadow Bolt, Immolate and Corruption register beside the book ranks, and
 // Conflagrate consumes an Immolate of the trainer's rank.
 func TestTrainerRanksBesideBookRanks(t *testing.T) {

@@ -224,7 +224,9 @@ func (warlock *Warlock) applyMasterSummoner() {
 
 // Effect 2 shortens Soul Fire's cooldown. Against a target below 35% health (effect 3), Shadow Bolt and Searing
 // Pain deal more damage (effect 4), and a cast of either that lands grants Decimation (440873): for 10 sec
-// Soul Fire casts faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard.
+// Soul Fire casts faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard. The buff sits on the warlock,
+// so a cast at a low target carries its Soul Fire bonus to any other target. The buff's row states no damage, so
+// the damage bonus counts per target.
 func (warlock *Warlock) applyDecimation() {
 	if warlock.Talents.Decimation == 0 {
 		return

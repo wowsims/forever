@@ -119,7 +119,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target`, never the
   encounter's first target, and an execute-phase callback names the target. A plain encounter's targets cross 35% and
   20% at the encounter's execute proportions of the fight (`resetExecutePhases`); a design's health curve sets the
-  crossings of its boss and adds.
+  crossings of its boss and adds. A buff row a target's phase grants sits on the caster and carries to the next target
+  (Decimation's 440873); a bonus whose rows state no buff counts per target (Quietus, Early Demise).
 - **An encounter design is a timeline of fractions of the rolled fight duration** (`design_runner.go` and the
   `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
   sim's, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
