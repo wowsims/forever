@@ -194,6 +194,22 @@ func TestTargetReadsBleedImmunity(t *testing.T) {
 	}
 }
 
+func TestDotTickCountKeepsTheAppliedTicks(t *testing.T) {
+	sim := SetupFakeSim()
+	fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)
+
+	fa.Dot.BaseTickLength = 1500 * time.Millisecond // a tick length mod is up when the dot lands
+	fa.Dot.Apply(sim)
+	fa.Dot.BaseTickLength = 3 * time.Second // and drops while it runs
+
+	for want := int32(1); want <= 6; want++ {
+		fa.Dot.periodicTick(sim)
+		if got := fa.Dot.TickCount(); got != want {
+			t.Fatalf("tick count after tick %d = %d, want %d", want, got, want)
+		}
+	}
+}
+
 func TestDotSnapshot(t *testing.T) {
 	sim := SetupFakeSim()
 	fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)

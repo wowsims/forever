@@ -59,6 +59,7 @@ type Dot struct {
 
 	BaseTickCount          int32 // base tick count without haste applied
 	remainingTicks         int32
+	appliedTicks           int32         // The ticks the dot got when applied; a tick length or duration mod that changes later leaves it.
 	tmpExtraTicks          int32         // extra ticks that are added during the runtime of the dot
 	BaseDurationMultiplier float64       // Some effects extend the BaseDuration - i.E. 50% - the DoTs will be subject to normal DoT fitting for base duration extend
 	BaseDurationFlat       time.Duration // Added to the BaseDuration; the DoT fits it into whole extra ticks
@@ -166,6 +167,7 @@ func (dot *Dot) recomputeAuraDuration(_ *Simulation) {
 		dot.remainingTicks = dot.HastedTickCount()
 	}
 
+	dot.appliedTicks = dot.remainingTicks
 	dot.tmpExtraTicks = 0
 	dot.Duration = dot.tickPeriod * time.Duration(dot.remainingTicks)
 }
@@ -212,12 +214,11 @@ func (dot *Dot) RemainingTicks() int32 {
 	return dot.remainingTicks
 }
 
+// The ticks done since the dot was applied. It counts from the ticks the application gave, so a mod
+// that ends mid-dot (Missile Barrage's shorter missile interval drops when Arcane Missiles finishes
+// casting) does not move it.
 func (dot *Dot) TickCount() int32 {
-	if dot.hasteReducesDuration {
-		return dot.BaseTickCount + dot.tmpExtraTicks - dot.remainingTicks
-	}
-
-	return dot.HastedTickCount() + dot.tmpExtraTicks - dot.remainingTicks
+	return dot.appliedTicks + dot.tmpExtraTicks - dot.remainingTicks
 }
 
 func (dot *Dot) OutstandingDmg() float64 {
@@ -250,6 +251,7 @@ func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 
 	dot.tickPeriod = originaldot.tickPeriod
 	dot.remainingTicks = originaldot.remainingTicks
+	dot.appliedTicks = originaldot.appliedTicks + originaldot.tmpExtraTicks
 	dot.tmpExtraTicks = 0
 
 	// must be set before Activate
