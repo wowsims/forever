@@ -687,7 +687,6 @@ func petOptions() []core.SpecOptionsCombo {
 							PetType:        petType,
 							PetUptime:      1,
 							CobraReflexes:  true,
-							PetAggression:  5,
 							PetAttackSpeed: proto.HunterOptions_FasterAttackII,
 						},
 					},

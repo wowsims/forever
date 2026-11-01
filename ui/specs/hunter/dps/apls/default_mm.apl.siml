@@ -1,0 +1,4 @@
+siml 1
+spec hunter
+
+use "default.apl.siml" with $rapid_fire_at_the_pull = true, $walk_to_my_spot_first = false
