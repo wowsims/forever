@@ -194,19 +194,43 @@ func TestTargetReadsBleedImmunity(t *testing.T) {
 	}
 }
 
-func TestDotTickCountKeepsTheAppliedTicks(t *testing.T) {
-	sim := SetupFakeSim()
-	fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)
+func TestChanneledTicksKeepTheTicksTheChannelStartedWith(t *testing.T) {
+	var shorterTicks *SpellMod
+	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+		shorterTicks = char.AddDynamicMod(SpellModConfig{Kind: SpellMod_DotTickLength_Flat, SpellFlag: SpellFlagChanneled, TimeValue: -500 * time.Millisecond})
+		return char.RegisterSpell(manaChannelConfig(5, false))
+	})
+	ticks := ct.rot.newValueSpellChanneledTicks(&proto.APLValueSpellChanneledTicks{SpellId: ct.spell.ActionID.ToProto()}, nil)
 
-	fa.Dot.BaseTickLength = 1500 * time.Millisecond // a tick length mod is up when the dot lands
-	fa.Dot.Apply(sim)
-	fa.Dot.BaseTickLength = 3 * time.Second // and drops while it runs
+	ct.start()
+	shorterTicks.Activate()
+	ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
+	shorterTicks.Deactivate() // the mod drops once the channel has taken its 0.5 s ticks
 
-	for want := int32(1); want <= 6; want++ {
-		fa.Dot.periodicTick(sim)
-		if got := fa.Dot.TickCount(); got != want {
-			t.Fatalf("tick count after tick %d = %d, want %d", want, got, want)
+	for want := int32(1); want <= 4; want++ {
+		ct.runUntil(time.Duration(want) * 500 * time.Millisecond)
+		if got := ticks.GetInt(ct.sim); got != want {
+			t.Fatalf("Channeled Ticks after tick %d = %d, want %d", want, got, want)
 		}
+	}
+}
+
+func TestDotTickCountKeepsTheTicksDoneOnExtend(t *testing.T) {
+	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+		return char.RegisterSpell(fakeWarlockDot(910301, "Dot", ClassFlags{}, 0))
+	})
+	ct.start()
+	ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
+	dot := ct.spell.Dot(ct.fw.CurrentTarget)
+
+	ct.runUntil(3 * time.Second)
+	dot.DurationExtend(ct.sim, 2*time.Second)
+	if got := dot.TickCount(); got != 3 {
+		t.Fatalf("tick count after 3 ticks and an extension = %d, want 3", got)
+	}
+	ct.runUntil(4 * time.Second)
+	if got := dot.TickCount(); got != 4 {
+		t.Fatalf("tick count after the next tick = %d, want 4", got)
 	}
 }
 
