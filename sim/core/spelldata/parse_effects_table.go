@@ -1495,12 +1495,12 @@ func isOneSchool(mask int32) bool {
 }
 
 func statNames(sts []stats.Stat) string {
-	out := ""
+	var out strings.Builder
 	for i, stat := range sts {
 		if i > 0 {
-			out += "+"
+			out.WriteString("+")
 		}
-		out += stat.StatName()
+		out.WriteString(stat.StatName())
 	}
-	return out
+	return out.String()
 }

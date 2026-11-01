@@ -504,7 +504,7 @@ func GenerateEffectsFile(groups []*Group, outFile string, templateString string)
 	}
 
 	var rendered bytes.Buffer
-	if err := tmpl.Execute(&rendered, map[string]interface{}{"Groups": groups, "HasEntries": hasEntries, "HasStacking": hasStacking, "UsesCore": usesCore, "HasLive": hasLive}); err != nil {
+	if err := tmpl.Execute(&rendered, map[string]any{"Groups": groups, "HasEntries": hasEntries, "HasStacking": hasStacking, "UsesCore": usesCore, "HasLive": hasLive}); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 

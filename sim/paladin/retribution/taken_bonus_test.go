@@ -34,7 +34,7 @@ func judgementOfTheCrusaderShare(t *testing.T, find func(*core.Character) *core.
 			t.Fatal("the spell is not registered")
 		}
 		spell.DamageMultiplier *= multiplier
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			spell.SkipCastAndApplyEffects(sim, target)
 			// A seal proc deals its damage a spell batch after the hit.
 			for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {

@@ -24,7 +24,7 @@ func init() {
 		func(char *Character, _ *proto.Player, _ *proto.Raid) Agent {
 			return &fakeCooldownMage{Character: *char, casts: map[int32]int{}}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_Mage)
 		},
 	)

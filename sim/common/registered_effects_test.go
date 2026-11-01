@@ -87,20 +87,20 @@ func registered(shipped []int32, hasEffect func(int32) bool) []int32 {
 // what vanished.
 func changedLines(committed string, registered string) []string {
 	was := map[string]bool{}
-	for _, line := range strings.Split(committed, "\n") {
+	for line := range strings.SplitSeq(committed, "\n") {
 		was[line] = true
 	}
 
 	var changed []string
 	now := map[string]bool{}
-	for _, line := range strings.Split(registered, "\n") {
+	for line := range strings.SplitSeq(registered, "\n") {
 		now[line] = true
 		if !was[line] && line != "" && !strings.HasPrefix(line, "#") {
 			changed = append(changed, "now registered: "+line)
 		}
 	}
 
-	for _, line := range strings.Split(committed, "\n") {
+	for line := range strings.SplitSeq(committed, "\n") {
 		if !now[line] && line != "" && !strings.HasPrefix(line, "#") {
 			changed = append(changed, "no longer registered: "+line)
 		}

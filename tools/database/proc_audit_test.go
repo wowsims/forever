@@ -140,20 +140,20 @@ func triggersAProcEffect(row *spelldata.Spell) bool {
 // one whose reason changed, which shows up as both.
 func changedProcLines(committed string, current string) []string {
 	was := map[string]bool{}
-	for _, line := range strings.Split(committed, "\n") {
+	for line := range strings.SplitSeq(committed, "\n") {
 		was[line] = true
 	}
 
 	var changed []string
 	now := map[string]bool{}
-	for _, line := range strings.Split(current, "\n") {
+	for line := range strings.SplitSeq(current, "\n") {
 		now[line] = true
 		if !was[line] && line != "" {
 			changed = append(changed, "not listed: "+line)
 		}
 	}
 
-	for _, line := range strings.Split(committed, "\n") {
+	for line := range strings.SplitSeq(committed, "\n") {
 		if !now[line] && line != "" && !strings.HasPrefix(line, "#") {
 			changed = append(changed, "listed but supported now: "+line)
 		}
