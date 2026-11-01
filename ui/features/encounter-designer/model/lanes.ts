@@ -16,6 +16,8 @@ import {
 import i18n from '@i18n/config';
 import { Encounter } from '@sim/raid/encounter';
 
+import { clamp } from './time';
+
 export type DesignLaneKind = 'boss' | 'abilities' | 'waves' | 'moves' | 'amps';
 export type DesignEventKind = 'downtime' | 'bossHealth' | 'ability' | 'wave' | 'move' | 'amp';
 
@@ -85,8 +87,8 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K): DesignEvent<K>
 			maxDamage: 0,
 			castTime: 2,
 			weaponPercent: 150,
-			procChance: 0,
-			extraAttacks: 0,
+			procChance: 20,
+			extraAttacks: 1,
 			icd: 0,
 			swingSpeedMultiplier: 1,
 		},
@@ -137,7 +139,13 @@ export const addEvent = (design: EncounterDesign, kind: DesignEventKind): Design
 
 export const removeEvent = (design: EncounterDesign, ref: DesignEventRef): void => {
 	const list = eventsOf(design, ref.kind);
-	if (ref.index >= 0 && ref.index < list.length) list.splice(ref.index, 1);
+	if (ref.index < 0 || ref.index >= list.length) return;
+	list.splice(ref.index, 1);
+	if (ref.kind !== 'wave') return;
+	// Amps name waves by index: a later wave moves down one, and a removed one becomes -1 so validation flags it.
+	for (const amp of design.damageAmps) {
+		if (amp.targets) amp.targets.waveIndices = amp.targets.waveIndices.map(wave => (wave === ref.index ? -1 : wave > ref.index ? wave - 1 : wave));
+	}
 };
 
 const span = (start: DesignTime | undefined, end: DesignTime | undefined): DesignEventWindow => {
@@ -217,11 +225,9 @@ export interface HealthSegment {
 	end: number;
 }
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-
 // The curve's knots as the sim builds them (`bossHealthKnots` in sim/core/design_runner.go): clamped, in time order
 // (stable), never rising.
-const healthKnots = (design: EncounterDesign): Array<{ index: number; at: number; percent: number }> => {
+export const healthKnots = (design: EncounterDesign): Array<{ index: number; at: number; percent: number }> => {
 	const knots = design.bossHealth
 		.map((keyframe, index) => ({ index, at: clamp(keyframe.at, 0, 1), percent: clamp(keyframe.healthPercent, 0, 100) }))
 		.sort((a, b) => a.at - b.at || a.index - b.index);
@@ -323,12 +329,14 @@ export const healthAt = (design: EncounterDesign, at: number): number => {
 	return knots[knots.length - 1].percent;
 };
 
-// The keyframe strictly inside the downtime's window, which a hold across it would cross, if there is one.
+// The keyframe a hold across the downtime would cross, if there is one: inside its window, or on its end and lower than
+// the health held, which the curve then falls to by the end.
 export const holdBlocker = (design: EncounterDesign, downtimeIndex: number): DesignEventRef | undefined => {
 	const downtime = design.downtimes[downtimeIndex];
 	if (!downtime) return undefined;
 	const [from, to] = [downtime.start?.at ?? 0, downtime.end?.at ?? 0];
-	const inside = healthKnots(design).find(knot => knot.at > from && knot.at < to);
+	const held = healthAt(design, from);
+	const inside = healthKnots(design).find(knot => knot.at > from && (knot.at < to || (knot.at === to && knot.percent < held)));
 	return inside && { kind: 'bossHealth', index: inside.index };
 };
 

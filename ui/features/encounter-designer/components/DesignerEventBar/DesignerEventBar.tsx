@@ -160,12 +160,14 @@ export const DesignerEventBar = ({
 	// The window an edit gives, bounded as the commit will bound it.
 	const edit = (from: TimeWindow, mode: AxisDragMode, deltaFraction: number): TimeWindow => {
 		if (startFixed && mode === 'start') return from;
-		const next = editWindow(from, mode, deltaFraction, minWidth, openEnd);
+		// A bar with `adjust` stores only an edge, so its body drags that edge and no fight edge stops the whole bar short.
+		const next = editWindow(from, adjust && mode === 'move' ? 'end' : mode, deltaFraction, minWidth, openEnd);
 		return adjust ? adjust(next, mode, from) : next;
 	};
 	const showPreview = (next: TimeWindow | null) => {
 		setPreview(next);
-		onPreview?.(next);
+		// Neighbours follow the stored event, which a copy being dragged leaves where it is.
+		onPreview?.(duplicating.current ? null : next);
 	};
 
 	const drag = usePointerAxisDrag({

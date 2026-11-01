@@ -4121,6 +4121,18 @@
 										},
 										"no_adds": {
 											"type": "string"
+										},
+										"no_weapon_damage": {
+											"type": "string"
+										},
+										"no_extra_attacks": {
+											"type": "string"
+										},
+										"wave_over_pool": {
+											"type": "string"
+										},
+										"health_stops_short": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4138,7 +4150,11 @@
 										"too_many_adds",
 										"move_goes_nowhere",
 										"execute_order",
-										"no_adds"
+										"no_adds",
+										"no_weapon_damage",
+										"no_extra_attacks",
+										"wave_over_pool",
+										"health_stops_short"
 									]
 								},
 								"event_name": {

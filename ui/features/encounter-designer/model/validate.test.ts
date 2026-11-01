@@ -1,8 +1,8 @@
-import { AddWave, DamageAmpType, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
+import { AddWave, DamageAmpType, DesignBossAbility_Kind, EncounterDesign, HealthKeyframe, Target } from '@generated/proto/common';
 import { addEventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
-import { addEvent } from './lanes';
+import { addEvent, removeEvent } from './lanes';
 import { DESIGN_ISSUE_KEYS, validateDesign } from './validate';
 
 const keys = (design: EncounterDesign, targetCount = 1) =>
@@ -120,24 +120,109 @@ describe('validateDesign', () => {
 		expect(keys(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.healthIncreases}`]);
 	});
 
-	it('flags the boss health keyframes the sim drops past its 16 curve points, its own start and end points included', () => {
-		const tooMany = (design: EncounterDesign) => keys(design).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.tooManyKeyframes));
+	it('flags the boss health keyframes the sim drops past its 16 curve points, and warns when its own end point is what falls off', () => {
+		const curve = (design: EncounterDesign) =>
+			keys(design).filter(k => k.endsWith(DESIGN_ISSUE_KEYS.tooManyKeyframes) || k.endsWith(DESIGN_ISSUE_KEYS.healthStopsShort));
+		const dropped = (index: number) => `bossHealth${index}:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`;
+		const stopsShort = (index: number) => `bossHealth${index}:warning:${DESIGN_ISSUE_KEYS.healthStopsShort}`;
 		// Listed latest first, so list order and time order differ.
 		const design = EncounterDesign.create();
-		for (let step = 16; step >= 1; step--) {
+		for (let step = 14; step >= 1; step--) {
 			addEvent(design, 'bossHealth');
 			Object.assign(design.bossHealth[design.bossHealth.length - 1], { at: step / 20, healthPercent: 100 - step * 5 });
 		}
-		// The first keyframe is after the pull and the last one above 0% before the end, so the sim's own start and end
-		// points take two of the 16.
-		expect(tooMany(design)).toEqual([`bossHealth1:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`, `bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		// 14 keyframes and the sim's own start and end points fill the 16.
+		expect(curve(design)).toEqual([]);
+
+		design.bossHealth.unshift(HealthKeyframe.create({ at: 15 / 20, healthPercent: 25 }));
+		expect(curve(design)).toEqual([stopsShort(0)]);
+
+		design.bossHealth.unshift(HealthKeyframe.create({ at: 16 / 20, healthPercent: 20 }));
+		expect(curve(design)).toEqual([dropped(0), stopsShort(1)]);
+
+		// A first keyframe at the pull leaves the sim no start point to add.
 		design.bossHealth[15].at = 0;
-		expect(tooMany(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		expect(curve(design)).toEqual([stopsShort(0)]);
+
+		// A last keyframe at 0% needs no end point.
 		design.bossHealth[0].healthPercent = 0;
-		expect(tooMany(design)).toEqual([]);
+		expect(curve(design)).toEqual([]);
+
 		addEventAt(design, 'bossHealth', 0.95);
 		design.bossHealth[16].healthPercent = 0;
-		expect(tooMany(design)).toEqual([`bossHealth16:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
+		expect(curve(design)).toEqual([dropped(16)]);
+	});
+
+	it('flags the abilities the sim skips for doing nothing, and accepts a new one of any kind', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'ability');
+		const ability = design.bossAbilities[0];
+		for (const kind of [
+			DesignBossAbility_Kind.SpellHit,
+			DesignBossAbility_Kind.Strike,
+			DesignBossAbility_Kind.Thrash,
+			DesignBossAbility_Kind.SwingTiming,
+		]) {
+			ability.kind = kind;
+			expect(keys(design)).toEqual([]);
+		}
+
+		ability.kind = DesignBossAbility_Kind.Strike;
+		ability.weaponPercent = 0;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.noWeaponDamage}`]);
+
+		ability.kind = DesignBossAbility_Kind.Thrash;
+		expect(keys(design)).toEqual([]);
+		ability.procChance = 0;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.noExtraAttacks}`]);
+		ability.procChance = 20;
+		ability.extraAttacks = 0;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.noExtraAttacks}`]);
+	});
+
+	it('warns about a wave at the very end of the fight, which never spawns', () => {
+		const design = EncounterDesign.create();
+		addEventAt(design, 'wave', 1);
+		expect(keys(design)).toEqual([`wave0:warning:${DESIGN_ISSUE_KEYS.outsideFight}`]);
+	});
+
+	it("warns about a wave whose copies alive at once need more than the sim's 64 slots", () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'wave');
+		// A spawn every 0.1 for a life of 0.25 keeps three copies up.
+		Object.assign(design.addWaves[0], {
+			adds: Array.from({ length: 21 }, () => Target.create()),
+			spawn: { at: 0, jitter: 0 },
+			lifetime: 0.25,
+			repeat: { interval: 0.1, jitter: 0, count: 0 },
+		});
+		expect(keys(design)).toEqual([]);
+
+		design.addWaves[0].adds.push(Target.create());
+		expect(keys(design)).toEqual([`wave0:warning:${DESIGN_ISSUE_KEYS.waveOverPool}`]);
+
+		// Two occurrences are all a count of 1 has, however long they live.
+		design.addWaves[0].repeat!.count = 1;
+		expect(keys(design)).toEqual([]);
+
+		// Jitter on the repeat brings the spawns closer, so a fourth copy overlaps.
+		design.addWaves[0].repeat!.count = 0;
+		design.addWaves[0].adds.pop();
+		design.addWaves[0].repeat!.jitter = 0.01;
+		expect(keys(design)).toEqual([`wave0:warning:${DESIGN_ISSUE_KEYS.waveOverPool}`]);
+	});
+
+	it('flags a debuff amp whose wave was removed, and keeps the wave after it', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'wave');
+		addEvent(design, 'wave');
+		addEvent(design, 'amp');
+		design.damageAmps[0].type = DamageAmpType.DamageAmpTypeTargetDebuff;
+		design.damageAmps[0].targets!.waveIndices = [1];
+		removeEvent(design, { kind: 'wave', index: 0 });
+		expect(keys(design)).toEqual([]);
+		removeEvent(design, { kind: 'wave', index: 0 });
+		expect(keys(design)).toEqual([`amp0:error:${DESIGN_ISSUE_KEYS.waveOutOfRange}`]);
 	});
 
 	it('flags targets out of range, including -1', () => {

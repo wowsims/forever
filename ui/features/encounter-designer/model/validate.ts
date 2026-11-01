@@ -1,9 +1,9 @@
 import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, DesignMove, DesignTime, EncounterDesign } from '@generated/proto/common';
-import { DamageAmpType } from '@generated/proto/common';
+import { DamageAmpType, DesignBossAbility_Kind } from '@generated/proto/common';
 
 import type { DesignEventRef } from './lanes';
-import { firesAtInstants, occurrences } from './lanes';
-import { clamp01, type TimeWindow } from './time';
+import { firesAtInstants, healthKnots, occurrences } from './lanes';
+import { clamp, type TimeWindow } from './time';
 
 export type DesignIssueSeverity = 'error' | 'warning' | 'info';
 /** A stretch of time the issue's text names comes in fractions of the fight. */
@@ -26,17 +26,35 @@ export const DESIGN_ISSUE_KEYS = {
 	noAdds: key('no_adds'),
 	moveGoesNowhere: key('move_goes_nowhere'),
 	executeOrder: key('execute_order'),
+	noWeaponDamage: key('no_weapon_damage'),
+	noExtraAttacks: key('no_extra_attacks'),
+	waveOverPool: key('wave_over_pool'),
+	healthStopsShort: key('health_stops_short'),
 } as const;
 
-// The sim's health curve holds 16 points in time order and drops the latest past them. Besides the keyframes it holds
-// its own start point (0 s, 100%) when the first keyframe is after the pull, and its own end point (the fight's end,
-// 0%) when the last one is before the end and above 0%, so both count against the 16.
+// The sim's health curve holds 16 points in time order and keeps the first 16. Its own start point (0 s, 100%), there
+// when the first keyframe is after the pull, comes first and always stays. Its own end point (the fight's end, 0%),
+// there when the last keyframe is before the end and above 0%, comes last and is the first to go.
 const MAX_HEALTH_POINTS = 16;
 
 // The most adds one wave spawns at once; the sim skips a wave with more.
 const MAX_WAVE_ADDS = 64;
 // The sim's cap on one repeating event's occurrences per iteration (designMaxOccurrences in sim/core/design_runner.go).
 const MAX_OCCURRENCES = 1000;
+
+// The most copies of a wave's adds alive at once, as the sim sizes its pool (maxConcurrentOccurrences in
+// sim/core/design_runner.go). A wave's adds and these copies share MAX_WAVE_ADDS slots, and a spawn with too few free is
+// skipped.
+const concurrentCopies = ({ spawn, repeat, lifetime }: AddWave): number => {
+	const interval = repeat?.interval ?? 0;
+	if (interval <= 0) return 1;
+	const spawnJitter = Math.max(spawn?.jitter ?? 0, 0);
+	const occurrences = repeat!.count > 0 ? Math.min(repeat!.count + 1, MAX_OCCURRENCES) : Math.trunc(clamp((1 - ((spawn?.at ?? 0) - spawnJitter)) / interval, 0, MAX_OCCURRENCES - 1)) + 1;
+	if (occurrences <= 1) return 1;
+	const spacing = interval - 2 * Math.max(repeat!.jitter, 0);
+	if (spacing <= 0) return occurrences;
+	return Math.min(Math.trunc((Math.max(lifetime, 0) + 2 * spawnJitter) / spacing) + 1, occurrences);
+};
 
 const outside = (from: number, to: number, startJitter: number, endJitter = startJitter) => from - startJitter < 0 || to + endJitter > 1;
 
@@ -77,6 +95,9 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 			checkSpan(ref, ability.start, ability.end);
 		}
 		if (badTarget(ability.targetIndex)) add(ref, 'error', DESIGN_ISSUE_KEYS.targetOutOfRange);
+		if (ability.kind === DesignBossAbility_Kind.Strike && ability.weaponPercent <= 0) add(ref, 'error', DESIGN_ISSUE_KEYS.noWeaponDamage);
+		if (ability.kind === DesignBossAbility_Kind.Thrash && (ability.procChance <= 0 || ability.extraAttacks <= 0))
+			add(ref, 'error', DESIGN_ISSUE_KEYS.noExtraAttacks);
 	});
 
 	design.damageAmps.forEach((amp: DesignDamageAmp, index) => {
@@ -93,9 +114,10 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 		const ref: DesignEventRef = { kind: 'wave', index };
 		const from = wave.spawn?.at ?? 0;
 		if (wave.lifetime <= 0) add(ref, 'error', DESIGN_ISSUE_KEYS.endBeforeStart);
-		if (outside(from, from, wave.spawn?.jitter ?? 0)) add(ref, 'warning', DESIGN_ISSUE_KEYS.outsideFight);
+		if (from >= 1 || outside(from, from, wave.spawn?.jitter ?? 0)) add(ref, 'warning', DESIGN_ISSUE_KEYS.outsideFight);
 		if (wave.adds.length === 0) add(ref, 'error', DESIGN_ISSUE_KEYS.noAdds);
 		if (wave.adds.length > MAX_WAVE_ADDS) add(ref, 'error', DESIGN_ISSUE_KEYS.tooManyAdds);
+		else if (wave.adds.length * concurrentCopies(wave) > MAX_WAVE_ADDS) add(ref, 'warning', DESIGN_ISSUE_KEYS.waveOverPool);
 		if (wave.executeProportion20 > wave.executeProportion35) add(ref, 'warning', DESIGN_ISSUE_KEYS.executeOrder);
 	});
 
@@ -116,16 +138,12 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 			.reduce<typeof frame | undefined>((best, other) => (!best || other.at >= best.at ? other : best), undefined);
 		if (previous && frame.healthPercent > previous.healthPercent) add(ref, 'error', DESIGN_ISSUE_KEYS.healthIncreases);
 	});
-	const keyframesByTime = design.bossHealth.map((frame, index) => ({ at: clamp01(frame.at), index })).sort((a, b) => a.at - b.at || a.index - b.index);
-	if (keyframesByTime.length > 0) {
-		// The sim's health only falls, so the last keyframe ends at the lowest health given.
-		const lastHealth = Math.max(0, Math.min(100, ...design.bossHealth.map(frame => frame.healthPercent)));
-		const startPoints = keyframesByTime[0].at > 0 ? 1 : 0;
-		const endPoints = keyframesByTime[keyframesByTime.length - 1].at < 1 && lastHealth > 0 ? 1 : 0;
-		keyframesByTime
-			.slice(MAX_HEALTH_POINTS - startPoints - endPoints)
-			.forEach(({ index }) => add({ kind: 'bossHealth', index }, 'error', DESIGN_ISSUE_KEYS.tooManyKeyframes));
-	}
+	const knots = healthKnots(design);
+	const keptKnots = MAX_HEALTH_POINTS - (knots[0]?.at > 0 ? 1 : 0);
+	knots.slice(keptKnots).forEach(({ index }) => add({ kind: 'bossHealth', index }, 'error', DESIGN_ISSUE_KEYS.tooManyKeyframes));
+	// The curve is full here, so the sim's own end point does not fit after this keyframe.
+	const lastKept = knots[keptKnots - 1];
+	if (lastKept && lastKept.at < 1 && lastKept.percent > 0) add({ kind: 'bossHealth', index: lastKept.index }, 'warning', DESIGN_ISSUE_KEYS.healthStopsShort);
 
 	// The player idles where every target is down and no add is up. An add is up for each occurrence of a wave the sim
 	// spawns, from its spawn for its lifetime, with jitter ignored as the timeline draws it.

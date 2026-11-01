@@ -164,7 +164,7 @@ describe('eventTooltip', () => {
 		const thrash = { ...eventAt('ability', 0.2), kind: DesignBossAbility_Kind.Thrash, procChance: 20 };
 		expect(tip(EncounterDesign.create({ bossAbilities: [thrash] }), 'ability')).toEqual({
 			title: 'thrash',
-			lines: ['proc(20)', 'range(seconds(36),seconds(54))'],
+			lines: ['proc(20)', 'extra_attacks(1)', 'range(seconds(36),seconds(54))'],
 		});
 	});
 

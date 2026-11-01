@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { clamp01, fractionToSeconds, moveWindow, resizeEnd, resizeStart, secondsToFraction, snap } from './time';
+import { clamp, fractionToSeconds, moveWindow, resizeEnd, resizeStart, secondsToFraction, snap } from './time';
 
 describe('time', () => {
 	it('converts between fractions and seconds', () => {
@@ -15,7 +15,7 @@ describe('time', () => {
 	});
 
 	it('clamps to 0..1', () => {
-		expect([clamp01(-0.2), clamp01(0.4), clamp01(1.3)]).toEqual([0, 0.4, 1]);
+		expect([clamp(-0.2, 0, 1), clamp(0.4, 0, 1), clamp(1.3, 0, 1)]).toEqual([0, 0.4, 1]);
 	});
 
 	it('moves a window keeping its width inside the fight', () => {

@@ -1,4 +1,4 @@
-import { DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
+import { DesignBossAbility_Kind, DesignTargets, EncounterDesign } from '@generated/proto/common';
 import { addEventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
@@ -54,6 +54,8 @@ describe('lanes', () => {
 		expect(defaultEvent('amp').percent).toBe(10);
 		expect(defaultEvent('ability').castTime).toBe(2);
 		expect(defaultEvent('ability').weaponPercent).toBe(150);
+		expect(defaultEvent('ability').procChance).toBe(20);
+		expect(defaultEvent('ability').extraAttacks).toBe(1);
 		const downtime = defaultEvent('downtime');
 		expect(downtime.clearDebuffs).toBe(true);
 		expect(downtime.end!.at - downtime.start!.at).toBeCloseTo(0.1);
@@ -72,6 +74,27 @@ describe('lanes', () => {
 		removeEvent(design, { kind: 'move', index: -1 });
 		removeEvent(design, { kind: 'move', index: 5 });
 		expect(design.moves).toHaveLength(1);
+	});
+
+	it('keeps the waves an amp names through a removal, and marks a removed one for validation', () => {
+		const design = EncounterDesign.create();
+		for (let wave = 0; wave < 3; wave++) addEvent(design, 'wave');
+		addEvent(design, 'amp');
+		addEvent(design, 'amp');
+		design.damageAmps[0].targets = DesignTargets.create({ targetIndices: [1], waveIndices: [0, 1, 2] });
+		design.damageAmps[1].targets = undefined;
+
+		removeEvent(design, { kind: 'wave', index: 1 });
+		expect(design.damageAmps[0].targets).toEqual(DesignTargets.create({ targetIndices: [1], waveIndices: [0, -1, 1] }));
+		expect(design.damageAmps[1].targets).toBeUndefined();
+
+		// A copy goes at the end of the list, so no position moves.
+		duplicateEvent(design, { kind: 'wave', index: 0 }, 0.1);
+		expect(design.damageAmps[0].targets!.waveIndices).toEqual([0, -1, 1]);
+
+		removeEvent(design, { kind: 'wave', index: 9 });
+		removeEvent(design, { kind: 'move', index: 0 });
+		expect(design.damageAmps[0].targets!.waveIndices).toEqual([0, -1, 1]);
 	});
 
 	it('draws moves and keyframes as points and waves as spawn to spawn plus lifetime', () => {
@@ -265,8 +288,14 @@ describe('lanes', () => {
 			expect(holdBlocker(blocked, 0)).toEqual({ kind: 'bossHealth', index: 0 });
 			expect(holdDuringDowntime(blocked, 0)).toEqual([]);
 			expect(blocked.bossHealth).toHaveLength(1);
-			const edge = withDowntime(keyframes([0.4, 80], [0.5, 70]), 0.4, 0.5);
-			expect(holdBlocker(edge, 0)).toBeUndefined();
+			const atStart = withDowntime(keyframes([0.4, 80], [0.6, 70]), 0.4, 0.5);
+			expect(holdBlocker(atStart, 0)).toBeUndefined();
+			const heldToEnd = withDowntime(keyframes([0.4, 80], [0.5, 80]), 0.4, 0.5);
+			expect(holdBlocker(heldToEnd, 0)).toBeUndefined();
+			// The curve falls to the keyframe on the downtime's end, whatever a new keyframe beside it says.
+			const fallsToEnd = withDowntime(keyframes([0.4, 80], [0.5, 70]), 0.4, 0.5);
+			expect(holdBlocker(fallsToEnd, 0)).toEqual({ kind: 'bossHealth', index: 1 });
+			expect(holdDuringDowntime(fallsToEnd, 0)).toEqual([]);
 			const other = withDowntime(keyframes([0.9, 80]), 0.4, 0.5, 1);
 			expect(holdDuringDowntime(other, 0)).toEqual([]);
 		});

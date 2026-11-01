@@ -1,6 +1,6 @@
 export type TimeWindow = { start: number; end: number };
 
-export const clamp01 = (fraction: number): number => Math.min(1, Math.max(0, fraction));
+export const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
 
 export const fractionToSeconds = (fraction: number, baseSeconds: number): number => fraction * baseSeconds;
 

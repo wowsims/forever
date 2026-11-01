@@ -4,7 +4,7 @@ import { DesignTime } from '@generated/proto/common';
 import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../model/lanes';
 import { eventsOf, eventWindow, firesAtInstants, getEvent, healthSegments, laneOf, moveSeconds, occurrences, PLAYER_RUN_SPEED } from '../../model/lanes';
 import type { TimeWindow } from '../../model/time';
-import { secondsToFraction } from '../../model/time';
+import { clamp, secondsToFraction } from '../../model/time';
 import { editEvent } from '../EncounterDesigner/utils/configs';
 
 const EVENT_KINDS: ReadonlyArray<DesignEventKind> = ['downtime', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
@@ -24,7 +24,7 @@ export interface LaneEvent {
 	/** The start of every occurrence of a spell hit or a strike, which the lane draws as tick marks inside its bar. */
 	ticks: ReadonlyArray<number>;
 	row: number;
-	/** The window may run past the fight's end, as a wave's lifetime does. */
+	/** The window may run past the fight's end, as a wave's lifetime and a move's walk do. */
 	openEnd: boolean;
 	/** The start edge is the implied 0 s point of the boss health curve, which no drag moves. */
 	startFixed: boolean;
@@ -98,7 +98,7 @@ export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSe
 				repeats: instants ? [] : all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
 				ticks: instants ? all.map(occurrence => occurrence.start) : [],
 				row: 0,
-				openEnd: kind === 'wave',
+				openEnd: kind === 'wave' || kind === 'move',
 				startFixed: kind === 'bossHealth' && segments.find(segment => segment.index === index)?.previous === undefined,
 			};
 		}),
@@ -116,7 +116,6 @@ export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSe
 };
 
 const EPSILON = 1e-9;
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 // A drag on a boss health segment moves the keyframe at its end, and its start handle moves the keyframe before it, the
 // boundary they share; both stay between their neighbours in time.

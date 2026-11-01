@@ -15,6 +15,7 @@ import {
 } from '@generated/proto/common';
 import { IndividualSimSettings, UIDatabase } from '@generated/proto/ui';
 import i18n from '@i18n/config';
+import { CURRENT_API_VERSION } from '@sim/constants/other';
 import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import { Encounter } from '@sim/raid/encounter';
 import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
@@ -301,6 +302,46 @@ describe('EncounterDesigner', () => {
 			expect(text()).toBe(before);
 		});
 
+		const healthKeyframes = (...points: Array<[number, number]>) =>
+			EncounterDesign.create({ bossHealth: points.map(([at, healthPercent]) => HealthKeyframe.create({ at, healthPercent })) });
+
+		it('drags a boss health segment by its body as far left as its neighbour lets its keyframe go', async () => {
+			const { encounter, baseSeconds } = await setup({ design: healthKeyframes([0.5, 50], [0.6, 40]) });
+			await openDesigner();
+
+			// A drag the whole fight to the left, far past the segment's own length.
+			drag(bars()[1], -(baseSeconds * 100));
+			await clickButton('Save');
+			const [before, moved] = encounter.getDesign().bossHealth;
+			expect(moved.at).toBeCloseTo(0.5 + 1 / baseSeconds, 9);
+			expect(before.at).toBe(0.5);
+		});
+
+		it('leaves the neighbour of a boss health segment alone while a copy of the segment is dragged', async () => {
+			await setup({ design: healthKeyframes([0.5, 50], [0.75, 25]) });
+			await openDesigner();
+			const [first, second] = bars();
+			const before = second.getAttribute('aria-valuetext');
+			const pointer = { pointerId: 1, pointerType: 'mouse', button: 0, altKey: true };
+
+			act(() => void fireEvent.pointerDown(first, { ...pointer, clientX: 100 }));
+			act(() => void fireEvent.pointerMove(first, { ...pointer, clientX: 400 }));
+			expect(second.getAttribute('aria-valuetext')).toBe(before);
+			act(() => void fireEvent.pointerUp(first, { ...pointer, clientX: 400 }));
+		});
+
+		it('moves a move whose walk runs past the fight end to the right on Right arrow', async () => {
+			const { baseSeconds } = await setup();
+			await openDesigner();
+			await add('Movement', 'Move');
+			const bar = within(lane('Movement')).getByRole('slider');
+			await commit(screen.getByLabelText('Yards'), String(baseSeconds * 7));
+			const start = Number(bar.getAttribute('aria-valuenow'));
+
+			await press(bar, 'ArrowRight');
+			expect(Number(bar.getAttribute('aria-valuenow'))).toBe(start + 1);
+		});
+
 		it('duplicates on Ctrl+D one step later and focuses the copy', async () => {
 			const { first } = await withDowntime();
 			await press(bars()[0], 'd', false, true);
@@ -584,6 +625,13 @@ describe('My encounters', () => {
 		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
 		expect(within(dialog).getByRole('button', { name: 'Save as copy' })).toBeTruthy();
 		expect(within(dialog).getByRole('button', { name: 'Delete' })).toBeTruthy();
+	});
+
+	it('reads an entry saved at an older api version as unedited', async () => {
+		storeEncounters([{ ...own('Two adds', 200), apiVersion: CURRENT_API_VERSION - 1 }]);
+		await setup();
+		await pick('Two adds');
+		expect(choice().textContent).toBe('Two adds');
 	});
 
 	it('marks the picked entry edited once a field outside the designer changes it', async () => {
