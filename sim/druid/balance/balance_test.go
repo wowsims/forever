@@ -2,6 +2,7 @@ package balance
 
 import (
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
@@ -101,7 +102,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 		{"someone else", true, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, druid := balanceDruid(t, c.gift, 0)
+			sim, druid := balanceDruid(t, c.gift, 0, 1)
 			spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 			if spell == nil {
 				t.Fatal("Innervate is not registered")
@@ -136,7 +137,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	}
 
 	t.Run("someone else with an incoming innervate", func(t *testing.T) {
-		sim, druid := balanceDruid(t, true, 1)
+		sim, druid := balanceDruid(t, true, 1, 1)
 		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 		if spell == nil {
 			t.Fatal("Innervate is not registered")
@@ -169,7 +170,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	})
 
 	t.Run("cast at the dummy", func(t *testing.T) {
-		sim, druid := balanceDruid(t, false, 0)
+		sim, druid := balanceDruid(t, false, 0, 1)
 		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 		if spell == nil {
 			t.Fatal("Innervate is not registered")
@@ -194,7 +195,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	})
 }
 
-func balanceDruid(t *testing.T, gift bool, incoming int32) (*core.Simulation, *core.Character) {
+func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
 	target := &proto.UnitReference{}
 	if gift {
@@ -216,11 +217,48 @@ func balanceDruid(t *testing.T, gift bool, incoming int32) (*core.Simulation, *c
 	})
 	raid := core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
 	raid.TargetDummies = 1
+	encounter := core.MakeSingleTargetEncounter(0)
+	for len(encounter.Targets) < targets {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       raid,
-		Encounter:  core.MakeSingleTargetEncounter(0),
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1, UseLabeledRands: true},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+// One Hurricane tick rolls Omen of Clarity once, however many targets it lands on: three targets proc
+// a little more often than one, since one of them nearly always lands, where a roll per target would
+// nearly triple it.
+func TestHurricaneTickRollsOmenOnce(t *testing.T) {
+	const ticks = 2000
+	procsOn := func(targets int) int {
+		sim, _ := balanceDruid(t, false, 0, targets)
+		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+		if len(sim.Encounter.ActiveTargetUnits) != targets {
+			t.Fatalf("targets = %d, want %d", len(sim.Encounter.ActiveTargetUnits), targets)
+		}
+		procs := 0
+		for range ticks {
+			// The step clears the proc's cooldown. A successful roll starts that cooldown on the spot; the
+			// Clearcasting aura follows a spell batch window later.
+			sim.CurrentTime += time.Minute
+			druid.Hurricane.RelatedDotSpell.Cast(sim, druid.CurrentTarget)
+			if !druid.OmenOfClarityAura.Icd.IsReady(sim) {
+				procs++
+			}
+		}
+		return procs
+	}
+
+	one, three := procsOn(1), procsOn(3)
+	if one < 100 {
+		t.Fatalf("one target procs Omen of Clarity %d of %d ticks, too few to compare", one, ticks)
+	}
+	if float64(three) > float64(one)*1.3 {
+		t.Errorf("three targets proc Omen of Clarity %d of %d ticks, one target %d; want about the same", three, ticks, one)
+	}
 }
