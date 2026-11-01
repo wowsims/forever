@@ -50,7 +50,7 @@ func RegisterHunter() {
 		func(character *core.Character, options *proto.Player, raid *proto.Raid) core.Agent {
 			return NewHunter(character, options, options.GetHunter().Options.ClassOptions, raid)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_Hunter)
 			if !ok {
 				panic("Invalid spec value for Hunter!")

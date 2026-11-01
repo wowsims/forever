@@ -677,9 +677,7 @@ func (f *typedFile) readUses(u *uses) usedFiles {
 		used.explicitType = used.explicitType || file.explicitType
 		declared := declaredBy(rotation)
 		used.declared.variables = append(used.declared.variables, declared.variables...)
-		for group, placeholders := range declared.groups {
-			used.declared.groups[group] = placeholders
-		}
+		maps.Copy(used.declared.groups, declared.groups)
 		sequencesIn(rotation, used.declared.sequences)
 	}
 	return used

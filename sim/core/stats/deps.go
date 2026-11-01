@@ -3,6 +3,7 @@ package stats
 import (
 	"fmt"
 	"math"
+	"slices"
 )
 
 // This stat list is arranged such that evaluating dependencies in this order
@@ -50,12 +51,7 @@ var safeDepsOrder = []Stat{
 }
 
 func isSafeDep(s Stat) bool {
-	for _, v := range safeDepsOrder {
-		if s == v {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(safeDepsOrder, s)
 }
 func isValidDep(src Stat, dst Stat) bool {
 	if !isSafeDep(src) || !isSafeDep(dst) {

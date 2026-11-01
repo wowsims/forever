@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	googleProto "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
@@ -520,12 +519,12 @@ func TestEnumShortNameRules(t *testing.T) {
 	} {
 		values := make([]*descriptorpb.EnumValueDescriptorProto, len(c.values))
 		for i, v := range c.values {
-			values[i] = &descriptorpb.EnumValueDescriptorProto{Name: googleProto.String(v), Number: googleProto.Int32(int32(i))}
+			values[i] = &descriptorpb.EnumValueDescriptorProto{Name: new(v), Number: new(int32(i))}
 		}
 		fd, err := protodesc.NewFile(&descriptorpb.FileDescriptorProto{
-			Name:     googleProto.String(c.enum + ".proto"),
-			Package:  googleProto.String("short_names"),
-			EnumType: []*descriptorpb.EnumDescriptorProto{{Name: googleProto.String(c.enum), Value: values}},
+			Name:     new(c.enum + ".proto"),
+			Package:  new("short_names"),
+			EnumType: []*descriptorpb.EnumDescriptorProto{{Name: new(c.enum), Value: values}},
 		}, nil)
 		if err != nil {
 			t.Fatal(err)

@@ -1,6 +1,7 @@
 package core_test
 
 import (
+	"maps"
 	"math"
 	"testing"
 
@@ -43,9 +44,7 @@ func TestAgilityPerClass(t *testing.T) {
 			if tc.crit {
 				wanted[stats.PhysicalCritPercent] = critPerHundred
 			}
-			for stat, value := range tc.gained {
-				wanted[stat] = value
-			}
+			maps.Copy(wanted, tc.gained)
 			for stat, want := range wanted {
 				if got := gained[stat]; math.Abs(got-want) > 1e-9 {
 					t.Errorf("100 agility gives %v %s, want %v", got, stat.StatName(), want)

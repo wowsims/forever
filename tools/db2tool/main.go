@@ -411,18 +411,18 @@ func run(args []string) error {
 	if own != nil {
 		hotfixPush = own.HighestPush()
 	}
-	var carriedFrom string
+	var carriedFrom strings.Builder
 	for _, r := range carried {
 		if !carriedApplied[r] {
 			fmt.Fprintf(os.Stderr, "db2tool: warning: the cache for build %d applied to no table\n", r.BuildID)
 			continue
 		}
 		hotfixPush = max(hotfixPush, r.HighestPush())
-		carriedFrom += fmt.Sprintf(", carried from build %d", r.BuildID)
+		fmt.Fprintf(&carriedFrom, ", carried from build %d", r.BuildID)
 		applied = true
 	}
 	if applied {
-		fmt.Printf("Hotfixes: build %d up to push %d%s\n", buildNumber, hotfixPush, carriedFrom)
+		fmt.Printf("Hotfixes: build %d up to push %d%s\n", buildNumber, hotfixPush, carriedFrom.String())
 	} else {
 		fmt.Printf("Hotfixes: none applied for build %d\n", buildNumber)
 	}

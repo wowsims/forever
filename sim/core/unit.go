@@ -283,7 +283,7 @@ func (unit *Unit) LogLabel() string {
 	return "[" + unit.Label + "]"
 }
 
-func (unit *Unit) Log(sim *Simulation, message string, vals ...interface{}) {
+func (unit *Unit) Log(sim *Simulation, message string, vals ...any) {
 	sim.Log(unit.LogLabel()+" "+message, vals...)
 }
 

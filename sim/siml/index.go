@@ -370,10 +370,8 @@ func (ix *schemaIndex) unitWordList() []string {
 
 // Whether name is a reserved word, which the name table never holds (SPEC.md §4 note 6).
 func (ix *schemaIndex) isReserved(name string) bool {
-	for _, h := range ix.heads {
-		if h == name {
-			return true
-		}
+	if slices.Contains(ix.heads, name) {
+		return true
 	}
 	return ix.keywords[name] || ix.unitReference(name) != nil
 }

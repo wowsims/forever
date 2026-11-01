@@ -54,7 +54,7 @@ func ensureWeaponTester() {
 				})
 				return wt
 			},
-			func(player *proto.Player, spec interface{}) {
+			func(player *proto.Player, spec any) {
 				player.Spec = spec.(*proto.Player_Rogue)
 			},
 		)

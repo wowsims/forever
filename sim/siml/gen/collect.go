@@ -415,13 +415,11 @@ func run(builds []*build) {
 	work := make(chan *build)
 	var wg sync.WaitGroup
 	for range runtime.GOMAXPROCS(0) {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for b := range work {
 				b.run()
 			}
-		}()
+		})
 	}
 	for _, b := range builds {
 		work <- b

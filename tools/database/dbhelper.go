@@ -33,7 +33,7 @@ func (d *DBHelper) Close() error {
 	return d.db.Close()
 }
 
-func LoadRows[T any](db *sql.DB, query string, scanFunc func(*sql.Rows) (T, error), args ...interface{}) ([]T, error) {
+func LoadRows[T any](db *sql.DB, query string, scanFunc func(*sql.Rows) (T, error), args ...any) ([]T, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("query error: %w", err)

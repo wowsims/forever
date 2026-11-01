@@ -204,7 +204,7 @@ func RaidBenchmark(b *testing.B, rsr *proto.RaidSimRequest) {
 	// Set to false because IsTest adds a lot of computation.
 	rsr.SimOptions.IsTest = false
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		result := RunRaidSim(rsr)
 		if result.Error != nil {
 			b.Fatalf("RaidBenchmark() at iteration %d failed: %v", i, result.Error.Message)
@@ -406,7 +406,7 @@ func GetTestBuildFromJSON(class proto.Class, dir string, file string, itemFilter
 	return config
 }
 
-func getPlayerSpecOptions(player *proto.Player) interface{} {
+func getPlayerSpecOptions(player *proto.Player) any {
 	if playerSpec, ok := player.Spec.(*proto.Player_BalanceDruid); ok {
 		return playerSpec
 	}

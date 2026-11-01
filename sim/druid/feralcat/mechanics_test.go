@@ -374,7 +374,7 @@ func TestFaerieFireFormCooldown(t *testing.T) {
 				t.Fatal("leaving form cleared the active Faerie Fire cooldown")
 			}
 			sim.CurrentTime = expires
-			for cast := 0; cast < 2; cast++ {
+			for cast := range 2 {
 				fillResource(sim, cat)
 				if !cat.FaerieFire.Cast(sim, cat.CurrentTarget) {
 					t.Fatalf("humanoid Faerie Fire cast %d failed", cast+1)
@@ -779,7 +779,7 @@ func TestPrepullClearcastingStartsTheFightClearcasting(t *testing.T) {
 			t.Fatal(result.Error.Message)
 		}
 		got := false
-		for _, line := range strings.Split(result.Logs, "\n") {
+		for line := range strings.SplitSeq(result.Logs, "\n") {
 			got = got || strings.HasPrefix(line, "[-1.50]") && strings.Contains(line, "Aura gained: {SpellID: 16870}")
 		}
 		if got != on {
@@ -892,7 +892,7 @@ func TestFaerieFireOmenEligibilityByForm(t *testing.T) {
 			procs := 0
 			cat.AutoAttacks.CancelAutoSwing(sim)
 			cat.ClearcastingAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { procs++ })
-			for i := 0; i < 400; i++ {
+			for i := range 400 {
 				sim.AddPendingAction(&core.PendingAction{NextActionAt: time.Duration(i+1) * 100 * time.Millisecond, OnAction: func(sim *core.Simulation) {
 					cat.ClearcastingAura.Deactivate(sim)
 					cat.OmenOfClarityAura.Icd.Set(0)
@@ -973,7 +973,7 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 
 func TestCatChargeRunIn(t *testing.T) {
 	sim, cat := newCat(t, withFeralDigit(powershiftTalents, 8, '1'), nil)
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		if i > 0 {
 			sim.Cleanup()
 			sim.Reset()

@@ -105,10 +105,10 @@ func writeInlineRows[T any](b *strings.Builder, field, storeType string, rows []
 
 // The store type each mirror fills, which says how its float fields are printed.
 var storeTypes = map[reflect.Type]reflect.Type{
-	reflect.TypeOf(storeSpell{}):   reflect.TypeOf(spelldata.Spell{}),
-	reflect.TypeOf(storeEffect{}):  reflect.TypeOf(spelldata.Effect{}),
-	reflect.TypeOf(storePower{}):   reflect.TypeOf(spelldata.Power{}),
-	reflect.TypeOf(storeReagent{}): reflect.TypeOf(spelldata.Reagent{}),
+	reflect.TypeFor[storeSpell]():   reflect.TypeFor[spelldata.Spell](),
+	reflect.TypeFor[storeEffect]():  reflect.TypeFor[spelldata.Effect](),
+	reflect.TypeFor[storePower]():   reflect.TypeFor[spelldata.Power](),
+	reflect.TypeFor[storeReagent](): reflect.TypeFor[spelldata.Reagent](),
 }
 
 // The exported fields a row states, as "Name: value". A list of rows (the effects, the powers, the
@@ -216,9 +216,7 @@ func loadStoreInputs(db *sql.DB, classRoots map[string][]int32, trees map[int]in
 		return nil, err
 	}
 	groupRoots := map[string][]int32{groupItems: gear}
-	for class, ids := range classRoots {
-		groupRoots[class] = ids
-	}
+	maps.Copy(groupRoots, classRoots)
 
 	// The extra spells are captured as rows but not as roots: the rendering adds them again from
 	// overrides.ExtraSpells, so what is captured has to be everything that rendering will reach - or an extra

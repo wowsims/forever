@@ -241,7 +241,7 @@ func RegisterRogue() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewRogue(character, options, options.TalentsString)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_Rogue)
 			if !ok {
 				panic("Invalid spec value for Combat Rogue!")

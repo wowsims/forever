@@ -110,7 +110,7 @@ func (ai *MovementAI) ExecuteCustomRotation(sim *core.Simulation) {
 
 	players := sim.Raid.AllPlayerUnits
 
-	for i := 0; i < len(players); i++ {
+	for i := range players {
 		player := players[i]
 		duration := ai.TimeToMove(ai.MoveYards, player)
 		if player.Hardcast.Expires > sim.CurrentTime && !player.Hardcast.CanMove {

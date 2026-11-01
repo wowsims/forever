@@ -136,7 +136,7 @@ func newEntryPathTest(register func(char *Character), config *proto.APLRotation)
 	sim.Reset()
 
 	lt := &entryPathTest{channelTest: &channelTest{sim: sim, fw: fw, rot: fw.Rotation}}
-	sim.Log = func(message string, vals ...interface{}) {
+	sim.Log = func(message string, vals ...any) {
 		lt.logs = append(lt.logs, fmt.Sprintf(message, vals...))
 	}
 	sim.PrePull()

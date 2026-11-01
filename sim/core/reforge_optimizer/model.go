@@ -1,6 +1,8 @@
 package reforgeoptimizer
 
 import (
+	"maps"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -57,9 +59,7 @@ func (o *reforgeOptimizer) updateReforgeScores(variables *lpVariables, weights c
 	updated := newLPVariables()
 	variables.each(func(name string, coeffs map[string]float64) {
 		out := make(map[string]float64, len(coeffs)+2)
-		for key, value := range coeffs {
-			out[key] = value
-		}
+		maps.Copy(out, coeffs)
 		objCoeffs := variables.getObj(name)
 		out[scoreCoeffKey] = computeCoeffScore(objCoeffs, weights)
 		out[objectiveCoeffKey] = out[scoreCoeffKey] + objCoeffs[tieBreakCoeffKey]

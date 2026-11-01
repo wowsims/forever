@@ -13,7 +13,7 @@ func init() {
 		proto.Player_RetributionPaladin{},
 		proto.Spec_SpecRetributionPaladin,
 		NewFakeSwingCaster,
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_RetributionPaladin)
 			if !ok {
 				panic("Invalid spec value for Retribution Paladin!")
