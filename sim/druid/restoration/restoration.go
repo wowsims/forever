@@ -49,6 +49,7 @@ func (resto *RestorationDruid) GetDruid() *druid.Druid {
 
 func (resto *RestorationDruid) Initialize() {
 	resto.Druid.Initialize()
+	resto.Druid.RegisterCasterSpells()
 }
 
 func (resto *RestorationDruid) ApplyTalents() {

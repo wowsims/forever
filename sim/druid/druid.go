@@ -77,6 +77,7 @@ type Druid struct {
 	OmenOfClarityAura        *core.Aura // The proc trigger, whose ICD says when Omen of Clarity can proc again.
 	DireBearFormAura         *core.Aura
 	DashAura                 *core.Aura
+	FeralChargeMovementAura  *core.Aura
 	FrenziedRegenerationAura *core.Aura
 	DemoralizingRoarAuras    core.AuraArray
 	FaerieFireAuras          core.AuraArray
@@ -146,7 +147,6 @@ func (druid *Druid) Initialize() {
 
 func (druid *Druid) RegisterBaselineSpells() {
 	druid.registerInnervateCD()
-	druid.registerThornsSpell()
 	druid.registerFaerieFireSpell()
 	druid.registerOmenOfClarity()
 }
@@ -157,22 +157,15 @@ func (druid *Druid) RegisterBalanceSpells() {
 	druid.registerWrathSpell()
 	druid.registerHurricaneSpell()
 	druid.registerBarkskin()
+	druid.RegisterCasterSpells()
 }
 
-func (druid *Druid) RegisterFeralCatSpells() {
-	druid.registerFeralKit()
+// The feral specs take Thorns from the buff settings, so only the caster specs register it.
+func (druid *Druid) RegisterCasterSpells() {
+	druid.registerThornsSpell()
 }
 
-func (druid *Druid) RegisterFeralTankSpells() {
-	druid.registerFeralKit()
-	// A cat would spend a 1.5s GCD on it whenever it comes off cooldown.
-	druid.AddMajorCooldown(core.MajorCooldown{
-		Spell: druid.Barkskin.Spell,
-		Type:  core.CooldownTypeSurvival,
-	})
-}
-
-func (druid *Druid) registerFeralKit() {
+func (druid *Druid) RegisterFeralSpells() {
 	druid.registerBarkskin()
 	druid.registerCatFormSpell()
 	druid.registerBearFormSpell()
@@ -199,6 +192,7 @@ func (druid *Druid) registerFeralKit() {
 	druid.registerGrowlSpell()
 	druid.registerChallengingRoarSpell()
 	druid.registerFeralChargeSpell()
+	druid.registerFeralMenuGroups()
 }
 
 func (druid *Druid) Reset(_ *core.Simulation) {

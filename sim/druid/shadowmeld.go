@@ -19,9 +19,10 @@ func (druid *Druid) registerShadowmeld() {
 		return
 	}
 	druid.ShadowmeldAura = druid.RegisterAura(core.Aura{
-		Label:    "Shadowmeld",
-		ActionID: core.ActionID{SpellID: shadowmeldSpellID},
-		Duration: core.NeverExpires,
+		Label:       "Shadowmeld",
+		ActionID:    core.ActionID{SpellID: shadowmeldSpellID},
+		Duration:    core.NeverExpires,
+		HideFromAPL: true, // Out of the APL with its spell.
 		OnGain: func(_ *core.Aura, sim *core.Simulation) {
 			druid.AutoAttacks.PauseMeleeBy(sim, core.NeverExpires)
 		},

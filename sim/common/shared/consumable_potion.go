@@ -275,7 +275,7 @@ func registerSpellDataConsumable(itemID int32) {
 			// The spec's conjured item keeps the manager's default, so a healthstone waits for a tank
 			// like any other defensive cooldown; another conjured item never fires on its own.
 			if consumables.ConjuredId != itemID {
-				mcd.ShouldActivate = func(_ *core.Simulation, _ *core.Character) bool { return false }
+				mcd.DisableAutocast = true
 			}
 		}
 		character.AddMajorCooldown(mcd)

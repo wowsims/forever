@@ -2205,7 +2205,13 @@
 				"external_debuffs": "External Debuffs",
 				"variables": "Variables",
 				"groups": "Groups",
-				"stances": "Stances"
+				"stances": "Stances",
+				"forms": "Forms",
+				"cat": "Cat",
+				"stealth": "Stealth",
+				"bear": "Bear",
+				"utility": "Utility",
+				"druid": "Druid"
 			},
 			"item_swap_sets": {
 				"main": "Main",

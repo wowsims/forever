@@ -44,11 +44,8 @@ func (warrior *Warrior) registerRetaliation() {
 	spell := warrior.RegisterSpell(config)
 
 	warrior.AddMajorCooldown(core.MajorCooldown{
-		Spell: spell,
-		Type:  core.CooldownTypeDPS,
-		// Require manual CD usage
-		ShouldActivate: func(sim *core.Simulation, character *core.Character) bool {
-			return false
-		},
+		Spell:           spell,
+		Type:            core.CooldownTypeDPS,
+		DisableAutocast: true,
 	})
 }

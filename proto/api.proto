@@ -623,7 +623,7 @@ message AuraStats {
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
 	ActionCategory category = 5;
-	string menu_group = 6; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
+	string menu_group = 6; // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth); empty for none.
 }
 message SpellStats {
 	ActionID id = 1;
@@ -644,7 +644,7 @@ message SpellStats {
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
 	ActionCategory category = 16;
-	string menu_group = 18; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
+	string menu_group = 18; // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth); empty for none.
 }
 message APLValidation {
 	LogLevel log_level = 1;
@@ -675,6 +675,8 @@ message UnitMetadata {
 	// Proc triggers with an internal cooldown and no action of their own, by the action they proc from:
 	// the id icd_is_ready finds them by, which no other aura value does.
 	repeated AuraStats icd_auras = 5;
+	// The order of the unit's APL menu groups, by full path; a group not listed follows them.
+	repeated string menu_group_order = 6;
 }
 message PetStats {
 	UnitMetadata metadata = 1;

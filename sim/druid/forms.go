@@ -144,6 +144,8 @@ const bearFormThreatMultiplier = 1.5
 
 func (druid *Druid) RegisterBearFormAura() {
 	druid.BearFormAura = druid.registerBearAura(spellData.BearForm.Highest(), spellData.BearFormTriggered.Highest(), Bear, druid.StartingForm == Bear)
+	// Out of the APL with its spell, which Dire Bear Form replaces.
+	druid.BearFormAura.HideFromAPL = true
 	druid.DireBearFormAura = druid.registerBearAura(spellData.DireBearForm.Highest(), spellData.DireBearFormTriggered.Highest(), DireBear, druid.StartingForm.Matches(DireBear))
 }
 
@@ -232,6 +234,8 @@ func (druid *Druid) registerCatFormSpell() {
 
 func (druid *Druid) registerBearFormSpell() {
 	druid.BearForm = druid.registerShapeshiftSpell(spellData.BearForm.Highest(), druid.BearFormAura)
+	// Dire Bear Form replaces Bear Form once learned, at level 40.
+	druid.BearForm.Flags &^= core.SpellFlagAPL
 	druid.DireBearForm = druid.registerShapeshiftSpell(spellData.DireBearForm.Highest(), druid.DireBearFormAura)
 }
 

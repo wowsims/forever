@@ -16,7 +16,7 @@ export interface AplTestPlayer {
 }
 
 export const makePlayer = (rotation: APLRotation, notify: () => void = () => {}): AplTestPlayer => {
-	const metadata = { getSpells: () => [], getAuras: () => [], getName: () => '' };
+	const metadata = { getSpells: () => [], getAuras: () => [], getName: () => '', getMenuGroupOrder: () => [] };
 	const player: AplTestPlayer = {
 		aplRotation: rotation,
 		storeKey: 'p0',

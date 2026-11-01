@@ -64,11 +64,13 @@ A value or action reaches the rotation and the kind picker in five places, all i
   or inside a sequence (`reResolveVariableRefs`).
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
-- **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
-  `sim/core/unit.go`). A preset can still name an unflagged spell: `GetAPLSpell` falls back to any spell with the id.
+- **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID that does not set
+  `HideFromAPL` (`metadata` in `sim/core/unit.go`). A preset can still name an unflagged spell: `GetAPLSpell` falls
+  back to any spell with the id.
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
-  whose Information validation lists them; a rotation without it never casts them.
+  whose Information validation lists them; a rotation without it never casts them. One with `DisableAutocast` set
+  (Innervate, a non-tank's defensive cooldown) goes only at a cooldown timing and is listed only when it has one.
 - **With the combat log on, a `Casting` line of a rotation cast ends with ` APL: <path>`.** The path joins segments with
   a spaced `>`, and every number is a 1-based config position that counts hidden rows: `prepull N`, `priority N`,
   `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
