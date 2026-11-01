@@ -154,8 +154,8 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 }
 
 // Spirit Tap comes with a killing blow or the death of an enemy with the priest's Vampiric Embrace on it, and not
-// with an unafflicted death the raid gets no kill for. An afflicted death rolls once, and each path rolls the
-// rank's chance.
+// with an unafflicted death the raid gets no kill for. An afflicted death always grants it, once; any other killing
+// blow rolls the rank's chance.
 func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	newSim := func(t *testing.T, talents string, points int32) (*core.Simulation, *Priest, *core.Aura) {
 		t.Helper()
@@ -234,7 +234,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 		}
 	})
 
-	t.Run("each path rolls the rank's chance", func(t *testing.T) {
+	t.Run("a killing blow rolls the rank's chance and an afflicted death always grants", func(t *testing.T) {
 		// Spirit Tap 1/5 and Vampiric Embrace in the Shadow tree.
 		const deaths = 1000
 		chance := spellData.SpiritTap.EffectAt(1).FractionAt(1)
@@ -245,9 +245,10 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 			name      string
 			afflicted bool
 			killShare float64
+			want      float64
 		}{
-			{"a killing blow", false, 1},
-			{"an afflicted death", true, 0},
+			{"a killing blow", false, 1, chance},
+			{"an afflicted death", true, 0, 1},
 		} {
 			grants := 0
 			for range deaths {
@@ -261,8 +262,8 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 					grants++
 				}
 			}
-			if got := float64(grants) / deaths; math.Abs(got-chance) > chance/2 {
-				t.Errorf("%s granted Spirit Tap on %v of deaths, want about %v", c.name, got, chance)
+			if got := float64(grants) / deaths; math.Abs(got-c.want) > c.want/2 {
+				t.Errorf("%s granted Spirit Tap on %v of deaths, want about %v", c.name, got, c.want)
 			}
 		}
 	})

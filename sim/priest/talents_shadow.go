@@ -58,7 +58,8 @@ func (priest *Priest) applyBlackout() {}
 // For the duration, 50% of your Mana regeneration will continue while casting.
 // The row hears the killing blow, and every target in the sim counts as non-trivial. The tooltip also grants the
 // buff when the enemy dies with the priest's Vampiric Embrace on it, which the row's proc flags do not state. An
-// afflicted enemy rolls the row's chance once, whether or not the raid gets the kill.
+// afflicted enemy always grants it, once, whether or not the raid gets the kill; any other killing blow rolls the
+// row's chance.
 func (priest *Priest) applySpiritTap() {
 	if priest.Talents.SpiritTap == 0 {
 		return
@@ -87,7 +88,6 @@ func (priest *Priest) applySpiritTap() {
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Spirit Tap - Vampiric Embrace",
 		Callback:           core.CallbackOnTargetDies,
-		ProcChance:         trigger.ProcChance,
 		TriggerImmediately: true,
 		ExtraCondition:     afflicted,
 		Handler:            grant,
