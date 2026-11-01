@@ -60,7 +60,7 @@ const PLAIN_POTION = Consumable.create({ id: 62, name: 'Plain potion', type: Con
 const FLASK = Consumable.create({ id: 63, name: 'Flask', type: ConsumableType.ConsumableTypeFlask });
 
 const ENTRY = SavedSettings.create({
-	raidBuffs: RaidBuffs.create({ arcaneBrilliance: 1 }),
+	raidBuffs: RaidBuffs.create({ arcaneIntellect: true }),
 	partyBuffs: PartyBuffs.create({ darkspear: true, bloodPact: true }),
 	playerBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true }),
 	debuffs: Debuffs.create({ huntersMark: true }),

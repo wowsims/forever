@@ -391,7 +391,7 @@ line whose first word is a slot word is a slot row, and any other line an entry.
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `settings`                                      | `race orc`, `profession1 engineering`, `distance_from_target 11`, the spec options flattened (`quiver_bonus ancient_sinew_wrapped_lamina`, `cobra_reflexes`), `tanks player1`         |
 | `consumables`                                   | `offensive_pot major_frenzy_potion`, `food swiftstrike_steak`, `extra goblin_sapper_charge, scroll_of_strength_iv`                                                                    |
-| `buffs`, `party_buffs`, `raid_buffs`, `debuffs` | flag lists of the buff fields, `mana_spring_totem=improved` for a tristate, `gift_of_the_wild 1` for a rank select, `target_dummies 2` in `raid_buffs`                                |
+| `buffs`, `party_buffs`, `raid_buffs`, `debuffs` | flag lists of the buff fields, `mana_spring_totem=improved` for a tristate, `strength_of_earth_totem 1` for a rank select, `target_dummies 2` in `raid_buffs`                         |
 | `encounter`                                     | `duration 180`, `duration_variation 5`, `execute_proportion_20 0.2`, one `targets(id=…, name="…", level=63, mob_type=mechanical, stats(…), …)` per target, written out field by field |
 | `sim`                                           | `iterations 25000`, `ep_weights_stats(stats(agility=2.1))`, `dps_ref_stat attack_power`                                                                                               |
 | `simple`                                        | the spec's `Rotation` fields (`time_to_weave 400`, `use_multi, use_arcane`, `playstyle weave`) and `cooldowns(hp_percent_for_defensives=0.4)`                                         |
@@ -2079,9 +2079,7 @@ buffs:
   greater_blessing_of_wisdom 1
 
 raid_buffs:
-  arcane_brilliance 1
-  prayer_of_spirit
-  gift_of_the_wild 1
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild
   strength_of_earth_totem 1
   grace_of_air_totem 1
   windfury_totem
@@ -2119,7 +2117,7 @@ encounter:
 
 Some notes on this file:
 
-- **Size.** It is 91 lines and 2.4 KB.
+- **Size.** It is 89 lines and 2.4 KB.
 - **The rotation** is `TypeSimple`, inferred from `simple:`. The section encodes
   `{"timeToWeave":250,"useMulti":true,"useArcane":true,"playstyle":"Weave","pullRange":25}` into
   `spec_rotation_json` (§5.4).
@@ -2127,6 +2125,5 @@ Some notes on this file:
   `spec hunter`.
 - **Buff order.** The fields of `raid_buffs` follow declaration order in `proto/buffs.proto`. `battle_shout` is
   a number, the raid's rank (1 is Rank 6), so it takes a line of its own. So does each rank select, whose number is 0 for
-  off and 1 for the rank no class book teaches: `arcane_brilliance`, `gift_of_the_wild`, `prayer_of_fortitude`,
-  `prayer_of_shadow_protection`, `strength_of_earth_totem` and `grace_of_air_totem` here, and
+  off and 1 for the rank no class book teaches: `strength_of_earth_totem` and `grace_of_air_totem` here, and
   `greater_blessing_of_might` and `greater_blessing_of_wisdom` in `buffs`. A bare name is an error for these.

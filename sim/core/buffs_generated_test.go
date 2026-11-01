@@ -192,7 +192,7 @@ func TestGeneratedFlatStatBuffsAddUp(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
 	core.ApplyBuffEffects(char,
-		&proto.RaidBuffs{PrayerOfFortitude: 1}, &proto.PartyBuffs{BloodPact: true}, &proto.IndividualBuffs{})
+		&proto.RaidBuffs{PowerWordFortitude: true}, &proto.PartyBuffs{BloodPact: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
 	fortitudeStamina, pactStamina := rowAmount(t, 10938, dbcenums.A_MOD_STAT), rowAmount(t, 11767, dbcenums.A_MOD_STAT)
@@ -200,9 +200,9 @@ func TestGeneratedFlatStatBuffsAddUp(t *testing.T) {
 		t.Errorf("Power Word: Fortitude and Blood Pact applied %v stamina, want the game files' %v + %v", got, fortitudeStamina, pactStamina)
 	}
 
-	fortitude := char.GetAura("Power Word: Fortitude Rank 6 (External)")
+	fortitude := char.GetAura("Power Word: Fortitude (External)")
 	if fortitude == nil {
-		t.Fatalf("no aura is labelled %q; the unit has %v", "Power Word: Fortitude Rank 6 (External)", auraLabels(char))
+		t.Fatalf("no aura is labelled %q; the unit has %v", "Power Word: Fortitude (External)", auraLabels(char))
 	}
 	if want := (core.ActionID{SpellID: 10938, Tag: -1}); fortitude.ActionID != want {
 		t.Errorf("the external copy is %v, want %v", fortitude.ActionID, want)
@@ -238,7 +238,7 @@ func TestGeneratedGreaterBlessingOfKingsMultipliesEveryStat(t *testing.T) {
 }
 
 // Two sources of shadow resistance compete for the school, so the stronger one
-// holds it alone, while everything else Gift of the Wild grants is applied outright.
+// holds it alone, while everything else Mark of the Wild grants is applied outright.
 func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 	measure := func(raid *proto.RaidBuffs) (*core.Character, stats.Stats) {
 		char := core.NewGeneratedBuffTestCharacter()
@@ -246,30 +246,30 @@ func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 		char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 		return char, char.GetStats()
 	}
-	_, giftOnly := measure(&proto.RaidBuffs{GiftOfTheWild: 1})
-	_, prayerOnly := measure(&proto.RaidBuffs{PrayerOfShadowProtection: 1})
-	char, both := measure(&proto.RaidBuffs{GiftOfTheWild: 1, PrayerOfShadowProtection: 1})
+	_, markOnly := measure(&proto.RaidBuffs{MarkOfTheWild: true})
+	_, protectionOnly := measure(&proto.RaidBuffs{ShadowProtection: true})
+	char, both := measure(&proto.RaidBuffs{MarkOfTheWild: true, ShadowProtection: true})
 
 	for _, stat := range []stats.Stat{stats.ShadowResistance, stats.FrostResistance, stats.ArmorNoMods, stats.Stamina} {
-		if giftOnly[stat] <= 0 {
-			t.Fatalf("Gift of the Wild alone applied %v %s, want some", giftOnly[stat], stat.StatName())
+		if markOnly[stat] <= 0 {
+			t.Fatalf("Mark of the Wild alone applied %v %s, want some", markOnly[stat], stat.StatName())
 		}
 	}
-	if prayerOnly[stats.ShadowResistance] <= 0 {
-		t.Fatalf("Prayer of Shadow Protection alone applied %v shadow resistance, want some", prayerOnly[stats.ShadowResistance])
+	if protectionOnly[stats.ShadowResistance] <= 0 {
+		t.Fatalf("Shadow Protection alone applied %v shadow resistance, want some", protectionOnly[stats.ShadowResistance])
 	}
-	if got, sum := both[stats.ShadowResistance], giftOnly[stats.ShadowResistance]+prayerOnly[stats.ShadowResistance]; got >= sum {
+	if got, sum := both[stats.ShadowResistance], markOnly[stats.ShadowResistance]+protectionOnly[stats.ShadowResistance]; got >= sum {
 		t.Errorf("shadow resistance is %v, want less than both added up, %v", got, sum)
 	}
-	if got, want := both[stats.ShadowResistance], max(giftOnly[stats.ShadowResistance], prayerOnly[stats.ShadowResistance]); got != want {
+	if got, want := both[stats.ShadowResistance], max(markOnly[stats.ShadowResistance], protectionOnly[stats.ShadowResistance]); got != want {
 		t.Errorf("shadow resistance is %v, want only the stronger of the two, %v", got, want)
 	}
 	for _, stat := range []stats.Stat{stats.FrostResistance, stats.ArmorNoMods, stats.Stamina} {
-		if got, want := both[stat], giftOnly[stat]; got != want {
-			t.Errorf("%s is %v, want Gift of the Wild's %v", stat.StatName(), got, want)
+		if got, want := both[stat], markOnly[stat]; got != want {
+			t.Errorf("%s is %v, want Mark of the Wild's %v", stat.StatName(), got, want)
 		}
 	}
-	for _, label := range []string{"Mark of the Wild Rank 7 (External)", "Shadow Protection Rank 3 (External)"} {
+	for _, label := range []string{"Mark of the Wild (External)", "Shadow Protection (External)"} {
 		if aura := char.GetAura(label); aura == nil || !aura.IsActive() {
 			t.Errorf("%s is not active, want both buffs up with only the shadow resistance held", label)
 		}

@@ -100,7 +100,7 @@ func (priest *Priest) registerSelfBuffSpell(rank *spelldata.Spell, aura *core.Au
 }
 
 // A prayer's own copy on every player in the raid, up once the priest casts it. It bids in the same
-// category as the raid buff of that name, so the two count once. The cast waits until nothing as
+// category as the raid buff of its stat, so the two count once. The cast waits until nothing as
 // strong holds the category, which a raid buff as strong, permanent from the start, always does.
 func (priest *Priest) registerPrayer(rank *spelldata.Spell, newAura func(*core.Unit, bool, int32) *core.Aura) *core.Spell {
 	auras := priest.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {

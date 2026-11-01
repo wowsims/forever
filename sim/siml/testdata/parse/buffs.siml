@@ -9,7 +9,7 @@ party_buffs:
   stoneskin_totem=missing
 
 raid_buffs:
-  arcane_brilliance=1, gift_of_the_wild=1
+  arcane_intellect, mark_of_the_wild
   battle_shout=2, leader_of_the_pack
   target_dummies 3
 

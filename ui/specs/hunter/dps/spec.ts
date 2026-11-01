@@ -99,7 +99,7 @@ export default defineSpec<Spec.SpecHunter>({
 		BuffDebuffInputs.JudgementOfTheCrusader,
 		BuffDebuffInputs.MoonkinAura,
 		BuffDebuffInputs.PowerInfusion,
-		BuffDebuffInputs.PrayerOfFortitude,
+		BuffDebuffInputs.PowerWordFortitude,
 		BuffDebuffInputs.ScorpidSting,
 		BuffDebuffInputs.ThunderClap,
 		BuffDebuffInputs.Thunderfury,

@@ -127,7 +127,7 @@ func catEPRequest(talents string, rotation *proto.APLRotation, duration, variati
 					ManaSpringTotem: proto.TristateEffect_TristateEffectRegular,
 				},
 			}},
-			Buffs: &proto.RaidBuffs{BattleShout: 1, ArcaneBrilliance: 1, PrayerOfSpirit: true, GiftOfTheWild: 1, PrayerOfFortitude: 1,
+			Buffs: &proto.RaidBuffs{BattleShout: 1, ArcaneIntellect: true, PrayerOfSpirit: true, MarkOfTheWild: true, PowerWordFortitude: true,
 				StrengthOfEarthTotem: 1, WindfuryTotem: true},
 			Debuffs: &proto.Debuffs{JudgementOfWisdom: true, FaerieFire: true, SunderArmor: true, GiftOfArthas: true},
 		},

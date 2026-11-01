@@ -238,7 +238,7 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 	bloodPact := row(bloodPactSpell, dbcenums.A_MOD_STAT)
 	darkspear := row(darkspearSpell, dbcenums.A_MOD_CRIT_PCT)
 	admiralsHat := row(admiralsHatSpell, dbcenums.A_MOD_STAT)
-	arcaneBrilliance := row(arcaneBrillianceSpell, dbcenums.A_MOD_STAT)
+	arcaneIntellect := row(arcaneIntellectSpell, dbcenums.A_MOD_STAT)
 	fireResistanceAura := row(fireResistanceAuraSpell, dbcenums.A_MOD_RESISTANCE)
 	concentration := -row(concentrationAuraSpell, dbcenums.A_REDUCE_PUSHBACK) / 100
 	thorns := row(thornsSpell, dbcenums.A_DAMAGE_SHIELD)
@@ -249,14 +249,14 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 	coeResistance := row(curseOfElementsSpell, dbcenums.A_MOD_RESISTANCE)
 	coeTaken := row(curseOfElementsSpell, dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN) / 100
 
-	// Gift of the Wild states its armor, its five stats and each school's resistance as effects of
+	// Mark of the Wild states its armor, its five stats and each school's resistance as effects of
 	// their own, the resistances keyed by the game files' school mask.
-	gotwStat := rowAmount(t, giftOfTheWildSpell.Effect(dbcenums.A_MOD_STAT, -1))
-	gotwAdded := map[stats.Stat]float64{stats.ArmorNoMods: rowAmount(t, armorEffect(t, giftOfTheWildSpell))}
+	motwStat := rowAmount(t, markOfTheWildSpell.Effect(dbcenums.A_MOD_STAT, -1))
+	motwAdded := map[stats.Stat]float64{stats.ArmorNoMods: rowAmount(t, armorEffect(t, markOfTheWildSpell))}
 	for _, stat := range []stats.Stat{stats.Strength, stats.Agility, stats.Stamina, stats.Intellect, stats.Spirit} {
-		gotwAdded[stat] = gotwStat
+		motwAdded[stat] = motwStat
 	}
-	var gotwBids []string
+	var motwBids []string
 	for _, school := range []struct {
 		stat stats.Stat
 		mask int32
@@ -268,9 +268,9 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 		{stats.ShadowResistance, 32, "ResistanceShadowShadowResistanceAdd"},
 		{stats.ArcaneResistance, 64, "ResistanceArcaneArcaneResistanceAdd"},
 	} {
-		resistance := rowAmount(t, giftOfTheWildSpell.Effect(dbcenums.A_MOD_RESISTANCE, school.mask))
-		gotwAdded[school.stat] = resistance
-		gotwBids = append(gotwBids, bid(school.bid, false, resistance))
+		resistance := rowAmount(t, markOfTheWildSpell.Effect(dbcenums.A_MOD_RESISTANCE, school.mask))
+		motwAdded[school.stat] = resistance
+		motwBids = append(motwBids, bid(school.bid, false, resistance))
 	}
 
 	resistances := []string{"ArcaneResistance", "FireResistance", "FrostResistance", "NatureResistance", "ShadowResistance"}
@@ -310,17 +310,17 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 			Bids:   []string{bid("AdmiralsHat", true, math.Abs(admiralsHat))},
 			Stacks: statsOnly(onCharacter(map[stats.Stat]float64{stats.Stamina: admiralsHat})),
 		}},
-		{"ArcaneBrilliance", false, false, NewSpellDataArcaneBrillianceAura, auraShape{
-			Label: "Arcane Brilliance (External)", ActionID: external(23028), Tag: "StatBuff", Duration: ArcaneBrillianceDuration(0),
+		{"ArcaneIntellect", false, false, NewSpellDataArcaneIntellectAura, auraShape{
+			Label: "Arcane Intellect (External)", ActionID: external(10157), Tag: "StatBuff", Duration: ArcaneIntellectDuration(0),
 			BuildPhase: core.CharacterBuildPhaseBuffs,
-			Bids:       []string{bid("StatBuffIntellectAdd", false, arcaneBrilliance)},
-			Stacks:     statsOnly(onCharacter(map[stats.Stat]float64{stats.Intellect: arcaneBrilliance})),
+			Bids:       []string{bid("StatBuffIntellectAdd", false, arcaneIntellect)},
+			Stacks:     statsOnly(onCharacter(map[stats.Stat]float64{stats.Intellect: arcaneIntellect})),
 		}},
-		{"GiftOfTheWild", false, false, NewSpellDataGiftOfTheWildAura, auraShape{
-			Label: "Gift of the Wild (External)", ActionID: external(21850), Duration: GiftOfTheWildDuration(0),
+		{"MarkOfTheWild", false, false, NewSpellDataMarkOfTheWildAura, auraShape{
+			Label: "Mark of the Wild (External)", ActionID: external(9885), Duration: MarkOfTheWildDuration(0),
 			BuildPhase: core.CharacterBuildPhaseBuffs,
-			Bids:       gotwBids,
-			Stacks:     statsOnly(onCharacter(gotwAdded)),
+			Bids:       motwBids,
+			Stacks:     statsOnly(onCharacter(motwAdded)),
 		}},
 		{"FireResistanceAura", false, true, NewSpellDataFireResistanceAura, auraShape{
 			Label: "Fire Resistance Aura (Player)", ActionID: core.ActionID{SpellID: 19900}, Tag: "FireResistanceAura",

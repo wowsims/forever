@@ -3,11 +3,11 @@
 		"iterations": 25000
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": 1,
+		"arcaneIntellect": true,
 		"prayerOfSpirit": true,
-		"giftOfTheWild": 1,
-		"prayerOfFortitude": 1,
-		"prayerOfShadowProtection": 1,
+		"markOfTheWild": true,
+		"powerWordFortitude": true,
+		"shadowProtection": true,
 		"battleShout": 1,
 		"leaderOfThePack": true,
 		"strengthOfEarthTotem": 1,

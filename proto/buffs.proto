@@ -8,11 +8,11 @@ import "common.proto";
 // Buffs that affect the entire raid.
 // Next index: 22
 message RaidBuffs {
-	int32 arcane_brilliance = 1;
+	bool arcane_intellect = 1;
 	bool prayer_of_spirit = 2;
-	int32 gift_of_the_wild = 3;
-	int32 prayer_of_fortitude = 4;
-	int32 prayer_of_shadow_protection = 5;
+	bool mark_of_the_wild = 3;
+	bool power_word_fortitude = 4;
+	bool shadow_protection = 5;
 	bool fire_resistance_aura = 6;
 	bool frost_resistance_aura = 7;
 	bool shadow_resistance_aura = 8;

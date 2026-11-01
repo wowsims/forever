@@ -15,12 +15,12 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 	rows := []ResolvedBuff{
 		{
 			BuffSpec: buffmanifest.BuffSpec{
-				Field: "prayer_of_shadow_protection",
+				Field: "shadow_protection",
 				Stats: []proto.Stat{proto.Stat_StatShadowResistance, proto.Stat_StatStamina},
 			},
-			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoBool, Go: "PrayerOfShadowProtection",
+			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoBool, Go: "ShadowProtection",
 			Owner:   proto.Class_ClassPriest,
-			SpellID: 27683, CastSpellID: 27683, DBName: "Prayer of Shadow Protection",
+			SpellID: 10958, CastSpellID: 10958, DBName: "Shadow Protection",
 		},
 		{
 			BuffSpec: buffmanifest.BuffSpec{
@@ -67,10 +67,10 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 	fieldName: 'greaterBlessingOfMight',
 	label: 'Greater Blessing of Might',
 });`,
-		`export const PrayerOfShadowProtection = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(27683),
-	fieldName: 'prayerOfShadowProtection',
-	label: 'Prayer of Shadow Protection',
+		`export const ShadowProtection = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(10958),
+	fieldName: 'shadowProtection',
+	label: 'Shadow Protection',
 });`,
 		`export const HuntersMark = makeTristateDebuffInput({
 	actionId: ActionId.fromSpellId(14325),
@@ -86,7 +86,7 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 });`,
 		`export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 	{
-		config: PrayerOfShadowProtection,
+		config: ShadowProtection,
 		stats: [Stat.StatShadowResistance, Stat.StatStamina],
 		ownerClass: Class.ClassPriest,
 	},

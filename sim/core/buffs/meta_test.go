@@ -198,14 +198,6 @@ func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 		amount func(*testing.T, *spelldata.Spell) float64
 		set    func(*proto.RaidBuffs, *proto.IndividualBuffs, int32)
 	}{
-		{"ArcaneBrilliance", arcaneBrillianceRanks, stats.Intellect, stated(dbcenums.A_MOD_STAT),
-			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.ArcaneBrilliance = state }},
-		{"GiftOfTheWild", giftOfTheWildRanks, stats.Strength, stated(dbcenums.A_MOD_STAT),
-			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.GiftOfTheWild = state }},
-		{"PrayerOfFortitude", prayerOfFortitudeRanks, stats.Stamina, stated(dbcenums.A_MOD_STAT),
-			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.PrayerOfFortitude = state }},
-		{"PrayerOfShadowProtection", prayerOfShadowProtectionRanks, stats.ShadowResistance, stated(dbcenums.A_MOD_RESISTANCE),
-			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.PrayerOfShadowProtection = state }},
 		{"StrengthOfEarthTotem", strengthOfEarthTotemRanks, stats.Strength, stated(dbcenums.A_MOD_STAT),
 			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.StrengthOfEarthTotem = state }},
 		{"GraceOfAirTotem", graceOfAirTotemRanks, stats.Agility, stated(dbcenums.A_MOD_STAT),
@@ -260,21 +252,41 @@ func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 	}
 }
 
-// A state bids against a class's own copy of the row, whichever spell it reads, so the two count once.
-func TestRankSelectStateBidsAgainstTheOwnCopy(t *testing.T) {
-	statAmount := func(s *spelldata.Spell) float64 { return rowAmount(t, firstAura(t, s, dbcenums.A_MOD_STAT)) }
-	for _, state := range prayerOfFortitudeRanks {
-		char := shapeCharacter()
-		own := NewSpellDataPrayerOfFortitudeAura(&char.Unit, true, 0)
-		external := newBuff(&char.Unit, state, false, 0)
-		before := char.GetStats()[stats.Stamina]
+// A priest's prayer reads its own row and duration, and bids against the raid's copy of its stat, so
+// the two count once.
+func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
+	cases := []struct {
+		label   string
+		prayer  *spelldata.Spell
+		newAura func(*core.Unit, bool, *spelldata.Spell) *core.Aura
+		raid    *Meta
+		stat    stats.Stat
+		aura    dbcenums.EffectAuraType
+	}{
+		{"Prayer of Fortitude", spelldata.MustFind(21564), NewSpellDataPrayerOfFortitudeAura, powerWordFortitudeMeta, stats.Stamina, dbcenums.A_MOD_STAT},
+		{"Prayer of Shadow Protection", spelldata.MustFind(27683), NewSpellDataPrayerOfShadowProtectionAura, shadowProtectionMeta, stats.ShadowResistance, dbcenums.A_MOD_RESISTANCE},
+	}
+	for _, c := range cases {
+		t.Run(c.label, func(t *testing.T) {
+			char := shapeCharacter()
+			own := c.newAura(&char.Unit, true, c.prayer)
+			external := newBuff(&char.Unit, c.raid, false, 0)
+			before := char.GetStats()[c.stat]
 
-		sim := &core.Simulation{}
-		own.Activate(sim)
-		external.Activate(sim)
-		if got, want := char.GetStats()[stats.Stamina]-before, max(statAmount(prayerOfFortitudeSpell), statAmount(state.Spell)); got != want {
-			t.Errorf("%s beside the own copy grants %v stamina, want the stronger's %v", state.Label, got, want)
-		}
+			if want := c.label + " (Player)"; own.Label != want {
+				t.Errorf("the own copy is labelled %q, want %q", own.Label, want)
+			}
+			if want := auraDuration(c.prayer); own.Duration != want {
+				t.Errorf("the own copy lasts %v, want the prayer's %v", own.Duration, want)
+			}
+
+			sim := &core.Simulation{}
+			own.Activate(sim)
+			external.Activate(sim)
+			if got, want := char.GetStats()[c.stat]-before, rowAmount(t, firstAura(t, c.prayer, c.aura)); got != want {
+				t.Errorf("both copies grant %v, want the row's %v counted once", got, want)
+			}
+		})
 	}
 }
 

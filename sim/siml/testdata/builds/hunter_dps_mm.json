@@ -3,9 +3,9 @@
 		"iterations": 25000
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": 1,
+		"arcaneIntellect": true,
 		"prayerOfSpirit": true,
-		"giftOfTheWild": 1,
+		"markOfTheWild": true,
 		"strengthOfEarthTotem": 1,
 		"graceOfAirTotem": 1,
 		"windfuryTotem": true,

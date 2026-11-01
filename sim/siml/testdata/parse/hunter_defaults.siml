@@ -42,11 +42,11 @@ consumables:
 buffs: greater_blessing_of_kings
 
 raid_buffs:
-  arcane_brilliance=1, prayer_of_spirit, gift_of_the_wild=1
-  prayer_of_fortitude 1
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild
+  power_word_fortitude
   strength_of_earth_totem 1
   grace_of_air_totem=1, battle_shout=1, leader_of_the_pack
-  prayer_of_shadow_protection 1
+  shadow_protection
 
 debuffs:
   judgement_of_light, judgement_of_wisdom, curse_of_elements, curse_of_recklessness, faerie_fire

@@ -1,10 +1,10 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": 1,
+    "arcaneIntellect": true,
     "prayerOfSpirit": true,
-    "giftOfTheWild": 1,
-    "prayerOfFortitude": 1,
+    "markOfTheWild": true,
+    "powerWordFortitude": true,
     "moonkinAura": true
   },
   "debuffs": {

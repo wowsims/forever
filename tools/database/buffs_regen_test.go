@@ -77,12 +77,12 @@ func TestResolvedBuffInvariants(t *testing.T) {
 }
 
 // A rank select's state stands in for the row, so the generator refuses a state that attaches other
-// amounts: a stamina row under an intellect field here.
+// amounts: a stamina row under an attack power field here.
 func TestRankStateMustAttachWhatTheRowAttaches(t *testing.T) {
 	inRepositoryRoot(t)
 	in := committedInputs(t)
 	for _, row := range buffmanifest.All() {
-		if row.Field != "arcane_brilliance" {
+		if row.Field != "greater_blessing_of_might" {
 			continue
 		}
 		row.Ranks = []buffmanifest.BuffRank{{SpellID: 10938}, {SpellID: row.SpellID}}
@@ -91,7 +91,7 @@ func TestRankStateMustAttachWhatTheRowAttaches(t *testing.T) {
 		}
 		return
 	}
-	t.Fatal("no arcane_brilliance row")
+	t.Fatal("no greater_blessing_of_might row")
 }
 
 // Every raid and individual row names the group it reaches, so each is checked two ways: that the
@@ -121,7 +121,11 @@ func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 // The rows whose spell the game files target somewhere else than the scope reaches,
 // each with the reason the scope is still what the sim wants.
 var scopeExemptions = map[string]string{
-	"windfury_totem": "10610 is the attack power the proc grants; the totem's aura 10612, which hands the proc out, applies to the raid",
+	"windfury_totem":       "10610 is the attack power the proc grants; the totem's aura 10612, which hands the proc out, applies to the raid",
+	"mark_of_the_wild":     "the raid input reads the single-target spell, whose amounts match Gift of the Wild's top rank",
+	"power_word_fortitude": "the raid input reads the single-target spell, whose amount matches Prayer of Fortitude's top rank",
+	"arcane_intellect":     "the raid input reads the single-target spell, whose amount matches Arcane Brilliance",
+	"shadow_protection":    "the raid input reads the single-target spell, whose amount matches Prayer of Shadow Protection",
 }
 
 // What the game files say against the scope the manifest files the row under, and
@@ -214,14 +218,14 @@ func talentNodeRanks(t *testing.T, talent int32) int32 {
 // has only the slot. Furious Howl holds a category of its own, and the attack
 // power reductions bid in Demoralizing Shout's.
 var pinnedCategories = map[string]string{
-	"frost_resistance_totem":      "",
-	"aspect_of_the_wild":          "",
-	"prayer_of_shadow_protection": "",
-	"frost_resistance_aura":       "FrostResistanceAura",
-	"shadow_resistance_aura":      "ShadowResistanceAura",
-	"devotion_aura":               "DevotionAura",
-	"furious_howl":                "BattleShout",
-	"hex_of_weakness":             "Demoralizing",
-	"demoralizing_screech":        "Demoralizing",
-	"vindication":                 "Demoralizing",
+	"frost_resistance_totem": "",
+	"aspect_of_the_wild":     "",
+	"shadow_protection":      "",
+	"frost_resistance_aura":  "FrostResistanceAura",
+	"shadow_resistance_aura": "ShadowResistanceAura",
+	"devotion_aura":          "DevotionAura",
+	"furious_howl":           "BattleShout",
+	"hex_of_weakness":        "Demoralizing",
+	"demoralizing_screech":   "Demoralizing",
+	"vindication":            "Demoralizing",
 }

@@ -82,7 +82,7 @@ func TestShadowPriest(t *testing.T) {
 }
 
 // The priest's own Prayer of Fortitude bids in the raid buff's category. Alone, the cast adds the
-// row's stamina for the row's mana; Arcane Brilliance lifts the priest's mana pool above the cost. With the raid buff up, the cast is turned away, and the priest's
+// row's stamina for the row's mana; Arcane Intellect lifts the priest's mana pool above the cost. With the raid buff up, the cast is turned away, and the priest's
 // copy, put up anyway as another priest's cast would, adds nothing.
 func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	rank := spellData.PrayerOfFortitude.Highest()
@@ -118,7 +118,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	}
 
 	t.Run("alone the cast adds the row's stamina for the row's mana", func(t *testing.T) {
-		sim, priest, spell := newSim(t, &proto.RaidBuffs{ArcaneBrilliance: 1})
+		sim, priest, spell := newSim(t, &proto.RaidBuffs{ArcaneIntellect: true})
 		stamina, mana := priest.GetStats()[stats.Stamina], priest.CurrentMana()
 
 		if !spell.Cast(sim, &priest.Unit) {
@@ -133,7 +133,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	})
 
 	t.Run("the raid buff holds the category", func(t *testing.T) {
-		sim, priest, spell := newSim(t, &proto.RaidBuffs{PrayerOfFortitude: 1})
+		sim, priest, spell := newSim(t, &proto.RaidBuffs{PowerWordFortitude: true})
 		stamina := priest.GetStats()[stats.Stamina]
 
 		if spell.Cast(sim, &priest.Unit) {

@@ -58,11 +58,11 @@ func FreshDefaultTargetConfig() *proto.Target {
 var DefaultTargetProto = FreshDefaultTargetConfig()
 
 var FullRaidBuffs = &proto.RaidBuffs{
-	ArcaneBrilliance:         1,
-	PrayerOfFortitude:        1,
-	PrayerOfSpirit:           true,
-	GiftOfTheWild:            1,
-	PrayerOfShadowProtection: 1,
+	ArcaneIntellect:    true,
+	PowerWordFortitude: true,
+	PrayerOfSpirit:     true,
+	MarkOfTheWild:      true,
+	ShadowProtection:   true,
 
 	GraceOfAirTotem:      1,
 	StrengthOfEarthTotem: 1,

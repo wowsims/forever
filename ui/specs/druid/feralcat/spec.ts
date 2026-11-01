@@ -87,10 +87,10 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
-			arcaneBrilliance: 1,
+			arcaneIntellect: true,
 			prayerOfSpirit: true,
-			giftOfTheWild: 1,
-			prayerOfFortitude: 1,
+			markOfTheWild: true,
+			powerWordFortitude: true,
 			strengthOfEarthTotem: 1,
 			graceOfAirTotem: 1,
 			windfuryTotem: true,

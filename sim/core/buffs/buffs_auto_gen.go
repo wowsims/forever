@@ -300,27 +300,23 @@ func NewSpellDataDarkInspirationAura(unit *core.Unit, isPlayer bool, talentPoint
 	return newBuff(unit, darkInspirationMeta, isPlayer, talentPoints)
 }
 
-// Arcane Brilliance
-var ArcaneBrillianceCategory = "StatBuff"
-var arcaneBrillianceSpell = spelldata.MustFind(23028)
-var arcaneBrillianceMeta = &Meta{
-	Label:    "Arcane Brilliance",
-	Spell:    arcaneBrillianceSpell,
-	Category: ArcaneBrillianceCategory,
-}
-var arcaneBrillianceRanks = rankStates{
-	arcaneBrillianceMeta.atState(spelldata.MustFind(10157), "Arcane Intellect Rank 5"),
-	arcaneBrillianceMeta.atState(spelldata.MustFind(23028), "Arcane Brilliance"),
+// Arcane Intellect
+var ArcaneIntellectCategory = "StatBuff"
+var arcaneIntellectSpell = spelldata.MustFind(10157)
+var arcaneIntellectMeta = &Meta{
+	Label:    "Arcane Intellect",
+	Spell:    arcaneIntellectSpell,
+	Category: ArcaneIntellectCategory,
 }
 
-func ArcaneBrillianceValue(talentPoints int32) float64 {
-	return arcaneBrillianceMeta.Value(talentPoints)
+func ArcaneIntellectValue(talentPoints int32) float64 {
+	return arcaneIntellectMeta.Value(talentPoints)
 }
-func ArcaneBrillianceDuration(talentPoints int32) time.Duration {
-	return arcaneBrillianceMeta.Duration(talentPoints)
+func ArcaneIntellectDuration(talentPoints int32) time.Duration {
+	return arcaneIntellectMeta.Duration(talentPoints)
 }
-func NewSpellDataArcaneBrillianceAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, arcaneBrillianceMeta, isPlayer, talentPoints)
+func NewSpellDataArcaneIntellectAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, arcaneIntellectMeta, isPlayer, talentPoints)
 }
 
 // Prayer of Spirit
@@ -342,72 +338,58 @@ func NewSpellDataPrayerOfSpiritAura(unit *core.Unit, isPlayer bool, talentPoints
 	return newBuff(unit, prayerOfSpiritMeta, isPlayer, talentPoints)
 }
 
-// Gift of the Wild
+// Mark of the Wild
 // Left out: effect 3 A_MOD_RESISTANCE(22) misc 2
-var giftOfTheWildSpell = spelldata.MustFind(21850)
-var giftOfTheWildMeta = &Meta{
-	Label: "Gift of the Wild",
-	Spell: giftOfTheWildSpell,
-}
-var giftOfTheWildRanks = rankStates{
-	giftOfTheWildMeta.atState(spelldata.MustFind(9885), "Mark of the Wild Rank 7"),
-	giftOfTheWildMeta.atState(spelldata.MustFind(21849), "Gift of the Wild Rank 1"),
-	giftOfTheWildMeta.atState(spelldata.MustFind(21850), "Gift of the Wild Rank 2"),
+var markOfTheWildSpell = spelldata.MustFind(9885)
+var markOfTheWildMeta = &Meta{
+	Label: "Mark of the Wild",
+	Spell: markOfTheWildSpell,
 }
 
-func GiftOfTheWildValue(talentPoints int32) float64 {
-	return giftOfTheWildMeta.Value(talentPoints)
+func MarkOfTheWildValue(talentPoints int32) float64 {
+	return markOfTheWildMeta.Value(talentPoints)
 }
-func GiftOfTheWildDuration(talentPoints int32) time.Duration {
-	return giftOfTheWildMeta.Duration(talentPoints)
+func MarkOfTheWildDuration(talentPoints int32) time.Duration {
+	return markOfTheWildMeta.Duration(talentPoints)
 }
-func NewSpellDataGiftOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, giftOfTheWildMeta, isPlayer, talentPoints)
-}
-
-// Prayer of Fortitude
-var PrayerOfFortitudeCategory = "StatBuff"
-var prayerOfFortitudeSpell = spelldata.MustFind(21564)
-var prayerOfFortitudeMeta = &Meta{
-	Label:    "Prayer of Fortitude",
-	Spell:    prayerOfFortitudeSpell,
-	Category: PrayerOfFortitudeCategory,
-}
-var prayerOfFortitudeRanks = rankStates{
-	prayerOfFortitudeMeta.atState(spelldata.MustFind(10938), "Power Word: Fortitude Rank 6"),
-	prayerOfFortitudeMeta.atState(spelldata.MustFind(21562), "Prayer of Fortitude Rank 1"),
-	prayerOfFortitudeMeta.atState(spelldata.MustFind(21564), "Prayer of Fortitude Rank 2"),
+func NewSpellDataMarkOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, markOfTheWildMeta, isPlayer, talentPoints)
 }
 
-func PrayerOfFortitudeValue(talentPoints int32) float64 {
-	return prayerOfFortitudeMeta.Value(talentPoints)
-}
-func PrayerOfFortitudeDuration(talentPoints int32) time.Duration {
-	return prayerOfFortitudeMeta.Duration(talentPoints)
-}
-func NewSpellDataPrayerOfFortitudeAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, prayerOfFortitudeMeta, isPlayer, talentPoints)
-}
-
-// Prayer of Shadow Protection
-var prayerOfShadowProtectionSpell = spelldata.MustFind(27683)
-var prayerOfShadowProtectionMeta = &Meta{
-	Label: "Prayer of Shadow Protection",
-	Spell: prayerOfShadowProtectionSpell,
-}
-var prayerOfShadowProtectionRanks = rankStates{
-	prayerOfShadowProtectionMeta.atState(spelldata.MustFind(10958), "Shadow Protection Rank 3"),
-	prayerOfShadowProtectionMeta.atState(spelldata.MustFind(27683), "Prayer of Shadow Protection"),
+// Power Word: Fortitude
+var PowerWordFortitudeCategory = "StatBuff"
+var powerWordFortitudeSpell = spelldata.MustFind(10938)
+var powerWordFortitudeMeta = &Meta{
+	Label:    "Power Word: Fortitude",
+	Spell:    powerWordFortitudeSpell,
+	Category: PowerWordFortitudeCategory,
 }
 
-func PrayerOfShadowProtectionValue(talentPoints int32) float64 {
-	return prayerOfShadowProtectionMeta.Value(talentPoints)
+func PowerWordFortitudeValue(talentPoints int32) float64 {
+	return powerWordFortitudeMeta.Value(talentPoints)
 }
-func PrayerOfShadowProtectionDuration(talentPoints int32) time.Duration {
-	return prayerOfShadowProtectionMeta.Duration(talentPoints)
+func PowerWordFortitudeDuration(talentPoints int32) time.Duration {
+	return powerWordFortitudeMeta.Duration(talentPoints)
 }
-func NewSpellDataPrayerOfShadowProtectionAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, prayerOfShadowProtectionMeta, isPlayer, talentPoints)
+func NewSpellDataPowerWordFortitudeAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, powerWordFortitudeMeta, isPlayer, talentPoints)
+}
+
+// Shadow Protection
+var shadowProtectionSpell = spelldata.MustFind(10958)
+var shadowProtectionMeta = &Meta{
+	Label: "Shadow Protection",
+	Spell: shadowProtectionSpell,
+}
+
+func ShadowProtectionValue(talentPoints int32) float64 {
+	return shadowProtectionMeta.Value(talentPoints)
+}
+func ShadowProtectionDuration(talentPoints int32) time.Duration {
+	return shadowProtectionMeta.Duration(talentPoints)
+}
+func NewSpellDataShadowProtectionAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, shadowProtectionMeta, isPlayer, talentPoints)
 }
 
 // Fire Resistance Aura
@@ -895,20 +877,20 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if party.DarkInspiration > 0 {
 		core.MakePermanent(NewSpellDataDarkInspirationAura(&char.Unit, false, min(party.DarkInspiration, 5)))
 	}
-	if raid.ArcaneBrilliance > 0 {
-		core.MakePermanent(newBuff(&char.Unit, arcaneBrillianceRanks.at(raid.ArcaneBrilliance), false, 0))
+	if raid.ArcaneIntellect {
+		core.MakePermanent(NewSpellDataArcaneIntellectAura(&char.Unit, false, 0))
 	}
 	if raid.PrayerOfSpirit {
 		core.MakePermanent(NewSpellDataPrayerOfSpiritAura(&char.Unit, false, 0))
 	}
-	if raid.GiftOfTheWild > 0 {
-		core.MakePermanent(newBuff(&char.Unit, giftOfTheWildRanks.at(raid.GiftOfTheWild), false, 0))
+	if raid.MarkOfTheWild {
+		core.MakePermanent(NewSpellDataMarkOfTheWildAura(&char.Unit, false, 0))
 	}
-	if raid.PrayerOfFortitude > 0 {
-		core.MakePermanent(newBuff(&char.Unit, prayerOfFortitudeRanks.at(raid.PrayerOfFortitude), false, 0))
+	if raid.PowerWordFortitude {
+		core.MakePermanent(NewSpellDataPowerWordFortitudeAura(&char.Unit, false, 0))
 	}
-	if raid.PrayerOfShadowProtection > 0 {
-		core.MakePermanent(newBuff(&char.Unit, prayerOfShadowProtectionRanks.at(raid.PrayerOfShadowProtection), false, 0))
+	if raid.ShadowProtection {
+		core.MakePermanent(NewSpellDataShadowProtectionAura(&char.Unit, false, 0))
 	}
 	if raid.FireResistanceAura {
 		core.MakePermanent(NewSpellDataFireResistanceAura(&char.Unit, false, 0))

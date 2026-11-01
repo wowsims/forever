@@ -90,14 +90,14 @@ export default defineSpec<Spec.SpecRogue>({
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
-			giftOfTheWild: 1,
+			markOfTheWild: true,
 			strengthOfEarthTotem: 1,
 			windfuryTotem: true,
 			battleShout: 1, // Rank 6
 			leaderOfThePack: true,
 			graceOfAirTotem: 1,
 			moonkinAura: true,
-			prayerOfFortitude: 1,
+			powerWordFortitude: true,
 		}),
 		partyBuffs: PartyBuffs.create({}),
 		individualBuffs: IndividualBuffs.create({

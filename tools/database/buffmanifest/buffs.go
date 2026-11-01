@@ -6,16 +6,16 @@ import "github.com/wowsims/forever/sim/core/proto"
 // settings tab lists them, with the fields that have no input after the last one that does. A
 // field's proto number is its position in its slice.
 //
-// A row's Ranks open with the rank no class book teaches. A book teaches the last rank of a totem or a
-// greater blessing, so the list opens with the trainer's top rank, and every rank of a group buff, so
-// the list opens with the single-target spell. Prayer of Spirit stays a bool, since no item teaches it.
+// A row's Ranks open with the rank no class book teaches, and a book teaches the last rank of a totem or
+// a greater blessing, so the list opens with the trainer's top rank. Mark of the Wild, Power Word:
+// Fortitude, Arcane Intellect and Shadow Protection read the single-target spell's top rank, whose
+// amounts match the group spell's top rank.
 
 var Raid = []BuffSpec{
 	{
-		Field:    "arcane_brilliance",
-		SpellID:  23028,
+		Field:    "arcane_intellect",
+		SpellID:  10157,
 		Category: "StatBuff",
-		Ranks:    []BuffRank{{SpellID: 10157}, {SpellID: 23028}},
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
 		},
@@ -29,9 +29,8 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:   "gift_of_the_wild",
-		SpellID: 21850,
-		Ranks:   []BuffRank{{SpellID: 9885}, {SpellID: 21849}, {SpellID: 21850}},
+		Field:   "mark_of_the_wild",
+		SpellID: 9885,
 		Stats: []proto.Stat{
 			proto.Stat_StatArmor,
 			proto.Stat_StatStrength,
@@ -42,18 +41,16 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:    "prayer_of_fortitude",
-		SpellID:  21564,
+		Field:    "power_word_fortitude",
+		SpellID:  10938,
 		Category: "StatBuff",
-		Ranks:    []BuffRank{{SpellID: 10938}, {SpellID: 21562}, {SpellID: 21564}},
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},
 	},
 	{
-		Field:   "prayer_of_shadow_protection",
-		SpellID: 27683,
-		Ranks:   []BuffRank{{SpellID: 10958}, {SpellID: 27683}},
+		Field:   "shadow_protection",
+		SpellID: 10958,
 		Stats: []proto.Stat{
 			proto.Stat_StatShadowResistance,
 		},

@@ -647,7 +647,6 @@
 			"fire_resistance": "Fire Resistance",
 			"frost_resistance": "Frost Resistance",
 			"shadow_resistance": "Shadow Resistance",
-			"shadow_resistance_tooltip": "Prayer of Shadow Protection: click to cycle Shadow Protection Rank 3 (needs no class book), Prayer of Shadow Protection (class book). Shadow Resistance Aura shares its school; the stronger applies.",
 			"nature_resistance": "Nature Resistance",
 			"rank_select_tooltip": "Click to cycle {{ranks}}. The first needs no class book; the others do."
 		},

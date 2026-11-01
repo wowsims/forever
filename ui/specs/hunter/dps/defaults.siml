@@ -35,9 +35,7 @@ buffs:
   greater_blessing_of_wisdom 1
 
 raid_buffs:
-  arcane_brilliance 1
-  prayer_of_spirit
-  gift_of_the_wild 1
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild
   strength_of_earth_totem 1
   grace_of_air_totem 1
   windfury_totem

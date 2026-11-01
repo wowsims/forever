@@ -57,15 +57,16 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   `ui/sim/proto/apl_utils.ts`, `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`,
   `sim/warrior/revenge.go`, `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, `sim/hunter/serpent_sting.go`,
   `sim/hunter/aspects.go`, `sim/shaman/totems.go`, PR #736, PR #746, PR #794.
-- **A raid or individual buff that depends on a class book is a rank select: an int32 where 0 is off and 1 the rank no
-  book teaches, listed in the manifest row's `Ranks`, from which the generators render the proto field, the apply block
-  and the settings input. The totems and greater blessings start at the trainer's top rank; Gift of the Wild, Prayer of
-  Fortitude, Arcane Brilliance and Prayer of Shadow Protection start at their single-target spell, since every rank of the
-  group spell comes from a book. States do not climb in strength: Mark of the Wild outbids Gift of the Wild Rank 1, Power
-  Word: Fortitude outbids Prayer of Fortitude Rank 1, and the first state of Arcane Brilliance and Prayer of Shadow
-  Protection states what the second does. A mage in the raid raises Arcane Brilliance to 1 and never lowers it. A class's
-  own copy still reads the row's `SpellID`. Prayer of Spirit stays a bool, since no item teaches it.**
-  `tools/database/buffmanifest/buffs.go`, `sim/core/buffs/meta.go`, `ui/features/inputs/icon_inputs.ts`, PR #794.
+- **A raid or individual buff that a class book raises is a rank select: an int32 where 0 is off and 1 the trainer's top
+  rank, listed in the manifest row's `Ranks`, from which the generators render the proto field, the apply block and the
+  settings input. The totems and greater blessings take a select. A class's own copy of those still reads the row's
+  `SpellID`. The four group inputs, `mark_of_the_wild`, `power_word_fortitude`, `arcane_intellect` and `shadow_protection`,
+  are bools that read the single-target spell's top rank, since its amounts match the group spell's top rank (Mark of the
+  Wild +16 stats and 385 armor; Power Word: Fortitude 70; Arcane Intellect 31; Shadow Protection 60). A mage in the raid
+  sets `arcane_intellect`. A priest's Prayer of Fortitude and Prayer of Shadow Protection read their own rows and bid
+  against the raid's input of the same stat, so the two count once. Prayer of Spirit stays a bool, since no item teaches it.**
+  `tools/database/buffmanifest/buffs.go`, `sim/core/buffs/meta.go`, `sim/core/buffs/priest.go`,
+  `ui/features/inputs/icon_inputs.ts`, PR #794.
 - **Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is spent
   (`OnExpire` calls `CD.Use`) though the row has no cooldown-on-event bit.** `sim/priest/devouring_plague.go`,
   `sim/priest/talents_discipline.go`, PR #246.

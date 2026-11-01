@@ -32,17 +32,6 @@ func TestFrost(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{frostSuite()}))
 }
 
-// A mage in the raid puts up the buff at its first state when the raid has none, and leaves a higher one alone.
-func TestAddRaidBuffsKeepsTheRaidsArcaneBrillianceState(t *testing.T) {
-	for state, want := range map[int32]int32{0: 1, 1: 1, 2: 2} {
-		raidBuffs := &proto.RaidBuffs{ArcaneBrilliance: state}
-		(&Mage{}).AddRaidBuffs(raidBuffs)
-		if raidBuffs.ArcaneBrilliance != want {
-			t.Errorf("state %d becomes %d, want %d", state, raidBuffs.ArcaneBrilliance, want)
-		}
-	}
-}
-
 func TestFingersOfFrostGivesBlizzardTicksNoShatterBonus(t *testing.T) {
 	const noShatter, shatter = "--000000001000000200", "--000000001000300200"
 	ticksWithout, directWithout, _ := shatterCrits(noShatter)

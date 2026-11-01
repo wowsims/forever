@@ -67,19 +67,15 @@ export const PARTY_BUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_PARTY_BUFFS
 export const BUFFS_CONFIG = inDisplayOrder(
 	[...Generated.GENERATED_RAID_BUFFS_CONFIG, BattleShoutOption, ...Generated.GENERATED_INDIVIDUAL_BUFFS_CONFIG],
 	[
-		Generated.ArcaneBrilliance,
+		Generated.ArcaneIntellect,
 		Generated.GreaterBlessingOfKings,
 		Generated.PrayerOfSpirit,
-		Generated.GiftOfTheWild,
+		Generated.MarkOfTheWild,
 		Generated.Thorns,
-		Generated.PrayerOfFortitude,
+		Generated.PowerWordFortitude,
 		Generated.GreaterBlessingOfMight,
 		Generated.GreaterBlessingOfWisdom,
-		statOptionGroup(
-			i18n.t('settings_tab.raid_buffs.shadow_resistance'),
-			[Generated.PrayerOfShadowProtection, Generated.ShadowResistanceAura],
-			i18n.t('settings_tab.raid_buffs.shadow_resistance_tooltip'),
-		),
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.shadow_resistance'), [Generated.ShadowProtection, Generated.ShadowResistanceAura]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.fire_resistance'), [Generated.FireResistanceAura, Generated.FireResistanceTotem]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.frost_resistance'), [Generated.FrostResistanceAura, Generated.FrostResistanceTotem]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.nature_resistance'), [Generated.NatureResistanceTotem, Generated.AspectOfTheWild]),

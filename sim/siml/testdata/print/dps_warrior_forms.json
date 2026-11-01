@@ -9,7 +9,7 @@
 		}
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": 1,
+		"arcaneIntellect": true,
 		"battleShout": 2,
 		"leaderOfThePack": true,
 		"moonkinAura": true,

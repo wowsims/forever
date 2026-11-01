@@ -89,9 +89,9 @@ export const DefaultConsumables = ConsumesSpec.create({
 export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	prayerOfFortitude: 1,
-	giftOfTheWild: 1,
-	arcaneBrilliance: 1,
+	powerWordFortitude: true,
+	markOfTheWild: true,
+	arcaneIntellect: true,
 	strengthOfEarthTotem: 1,
 	windfuryTotem: true,
 	battleShout: 1, // Rank 6

@@ -1,7 +1,7 @@
 {
 	"raidBuffs": {
-		"arcaneBrilliance": 1,
-		"giftOfTheWild": 1,
+		"arcaneIntellect": true,
+		"markOfTheWild": true,
 		"battleShout": 2,
 		"leaderOfThePack": true
 	},

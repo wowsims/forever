@@ -48,9 +48,9 @@ export const DefaultConsumables = ConsumesSpec.create({
 });
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	arcaneBrilliance: 1,
-	giftOfTheWild: 1,
-	prayerOfFortitude: 1,
+	arcaneIntellect: true,
+	markOfTheWild: true,
+	powerWordFortitude: true,
 	prayerOfSpirit: true,
 	moonkinAura: true,
 });

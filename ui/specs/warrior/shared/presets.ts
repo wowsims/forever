@@ -10,8 +10,8 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	prayerOfFortitude: 1,
-	giftOfTheWild: 1,
+	powerWordFortitude: true,
+	markOfTheWild: true,
 	strengthOfEarthTotem: 1,
 	windfuryTotem: true,
 	graceOfAirTotem: 1,

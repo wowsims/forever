@@ -42,15 +42,15 @@ describe('the buff registries', () => {
 
 	it('shows the raid and individual buffs interleaved in their settled order', () => {
 		expect(labelsOf(BuffDebuffInputs.BUFFS_CONFIG)).toEqual([
-			'Arcane Brilliance',
+			'Arcane Intellect',
 			'Greater Blessing of Kings',
 			'Prayer of Spirit',
-			'Gift of the Wild',
+			'Mark of the Wild',
 			'Thorns',
-			'Prayer of Fortitude',
+			'Power Word: Fortitude',
 			'Greater Blessing of Might',
 			'Greater Blessing of Wisdom',
-			['settings_tab.raid_buffs.shadow_resistance', ['Prayer of Shadow Protection', 'Shadow Resistance Aura']],
+			['settings_tab.raid_buffs.shadow_resistance', ['Shadow Protection', 'Shadow Resistance Aura']],
 			['settings_tab.raid_buffs.fire_resistance', ['Fire Resistance Aura', 'Fire Resistance Totem']],
 			['settings_tab.raid_buffs.frost_resistance', ['Frost Resistance Aura', 'Frost Resistance Totem']],
 			['settings_tab.raid_buffs.nature_resistance', ['Nature Resistance Totem', 'Aspect of the Wild']],
@@ -116,21 +116,11 @@ describe('the buff registries', () => {
 		['Grace of Air Totem', BuffDebuffInputs.GraceOfAirTotem, [10627, 25359]],
 		['Greater Blessing of Might', BuffDebuffInputs.GreaterBlessingOfMight, [25782, 25916]],
 		['Greater Blessing of Wisdom', BuffDebuffInputs.GreaterBlessingOfWisdom, [25894, 25918]],
-		['Gift of the Wild', BuffDebuffInputs.GiftOfTheWild, [9885, 21849, 21850]],
-		['Prayer of Fortitude', BuffDebuffInputs.PrayerOfFortitude, [10938, 21562, 21564]],
-		['Arcane Brilliance', BuffDebuffInputs.ArcaneBrilliance, [10157, 23028]],
-		['Prayer of Shadow Protection', BuffDebuffInputs.PrayerOfShadowProtection, [10958, 27683]],
 	])('offers %s as a rank select', (label, input, ranks) => {
 		expect(input.label).toBe(label);
 		expect(input.states).toBe(ranks.length + 1);
 		expect([input.actionId, input.improvedId, input.improvedId2].filter(id => id !== undefined).map(id => id.spellId)).toEqual(ranks);
 		expect(input.labelTooltip).toBe('settings_tab.raid_buffs.rank_select_tooltip');
-	});
-
-	// A group's member shows no label of its own, so the group carries the tooltip that names the ranks.
-	it('names the ranks of Prayer of Shadow Protection on its group', () => {
-		const shadow = groupWith(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.PrayerOfShadowProtection);
-		expect(shadow && isMultiIconOption(shadow) ? shadow.config.tooltip : undefined).toBe(i18n.t('settings_tab.raid_buffs.shadow_resistance_tooltip'));
 	});
 
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {

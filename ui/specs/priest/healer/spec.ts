@@ -56,7 +56,7 @@ export default defineSpec<Spec.SpecHealerPriest>({
 	playerIconInputs: [PriestInputs.ArmorInput()],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	// Stamina is not an EP stat for healers, but the buff still belongs in the stats panel.
-	includeBuffDebuffInputs: [BuffDebuffInputs.PrayerOfFortitude],
+	includeBuffDebuffInputs: [BuffDebuffInputs.PowerWordFortitude],
 	// These encounter buffs do not affect the healer's current spell model.
 	excludeBuffDebuffInputs: [
 		BuffDebuffInputs.Thorns,

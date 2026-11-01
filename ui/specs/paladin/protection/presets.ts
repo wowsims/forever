@@ -49,10 +49,10 @@ export const DefaultConsumables = ConsumesSpec.create({
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfSpirit: true,
-	arcaneBrilliance: 1,
-	giftOfTheWild: 1,
-	prayerOfFortitude: 1,
-	prayerOfShadowProtection: 1,
+	arcaneIntellect: true,
+	markOfTheWild: true,
+	powerWordFortitude: true,
+	shadowProtection: true,
 	windfuryTotem: true,
 	graceOfAirTotem: 1,
 	battleShout: 1, // Rank 6
