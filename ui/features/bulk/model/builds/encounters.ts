@@ -23,11 +23,7 @@ type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' |
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
 
 // As the results store it: null for both on a health-based encounter, which has no set length.
-export const encounterLength = ({
-	duration,
-	durationVariation,
-	useHealth,
-}: Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth'>): EncounterLength =>
+export const encounterLength = ({ duration, durationVariation, useHealth }: Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth'>): EncounterLength =>
 	useHealth ? { duration: null, durationVariation: null } : { duration, durationVariation };
 
 // "m:ss ±Ns", or "m:ss" alone when the variation is null; a health-based encounter shows how it ends.

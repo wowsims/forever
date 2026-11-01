@@ -1,7 +1,8 @@
 # Agent instructions
 
 WoWSims Forever: a Go simulator (`sim/`) with a React frontend (`ui/`), built on data extracted from the game
-files (`tools/database`, `sim/core/spelldata`).
+files (`tools/database`, `sim/core/spelldata`). It needs Node 26 (`.nvmrc`) and Go 1.27 (`go.mod`); setup is
+`docs/installation.md`, and a different Node or Go is the first thing to rule out when a gate fails.
 
 The hunter's rotations, gear sets and sim setups are SIML files (`*.siml`); the other specs keep theirs as JSON
 until each moves, and the Go suites and the site read either. `sim/siml/SPEC.md` is the language, and the
@@ -40,6 +41,7 @@ copy, and the lockfile records each skill's hash.
 | `wowsims-siml`                | SIML rotations, gear sets and setups: syntax, every action and value, CLI, language server     |
 | `wowsims-bulk-sim`            | Bulk sim, locally, on the server and in the browser                                            |
 | `wowsims-reforge-optimizer`   | The gear optimizer (EP, stat caps, HiGHS)                                                      |
+| `wowsims-dependencies`        | Upgrading Node, Go, npm and Go modules: order, proof, and the packages held back               |
 
 Pull requests:
 
