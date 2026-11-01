@@ -90,7 +90,7 @@ export const minBaseDamageConfig = (): NumberFieldConfig<Encounter> => ({
 		}),
 });
 
-export const CUSTOM_ENCOUNTER = 'custom';
+const CUSTOM_ENCOUNTER = 'custom';
 const presetChoice = (index: number) => `preset:${index}`;
 const ownChoice = (name: string) => `own:${name}`;
 

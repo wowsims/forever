@@ -88,7 +88,7 @@ export const parseTip = (text: string | null | undefined): EventTip | undefined 
 export const occurrenceTip = (tip: EventTip, label: string): EventTip => ({ ...tip, title: designerText('tip.occurrence_title', { label, title: tip.title }) });
 
 // "3 adds (Lvl 60 Beast ×2, Lvl 61 Demon)": the adds grouped by level and mob type, in the order they first appear.
-export const addsSummary = (adds: ReadonlyArray<Target>): string => {
+const addsSummary = (adds: ReadonlyArray<Target>): string => {
 	const groups = new Map<string, { level: number; type: string; count: number }>();
 	for (const add of adds) {
 		const key = `${add.level}:${add.mobType}`;

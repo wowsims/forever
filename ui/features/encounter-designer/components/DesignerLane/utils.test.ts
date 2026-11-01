@@ -1,4 +1,5 @@
 import { DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
+import { eventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
 import { defaultEvent } from '../../model/lanes';
@@ -31,10 +32,10 @@ describe('laneEvents', () => {
 
 	it('draws the boss health keyframes as segments on the first row and the downtimes below them', () => {
 		const design = EncounterDesign.create({
-			downtimes: [defaultEvent('downtime', 0.4)],
+			downtimes: [eventAt('downtime', 0.4)],
 			bossHealth: [
-				{ ...defaultEvent('bossHealth', 0.5), healthPercent: 65 },
-				{ ...defaultEvent('bossHealth', 0.25), healthPercent: 90 },
+				{ ...eventAt('bossHealth', 0.5), healthPercent: 65 },
+				{ ...eventAt('bossHealth', 0.25), healthPercent: 90 },
 			],
 		});
 		const events = laneEvents(design, 'boss', BASE);
@@ -47,8 +48,8 @@ describe('laneEvents', () => {
 	});
 
 	it('draws a move from its start to the end of its walk, in seconds or in yards at the run speed', () => {
-		const seconds = { ...defaultEvent('move', 0.1), yards: 0, seconds: 18 };
-		const yards = { ...defaultEvent('move', 0.5), yards: 70 };
+		const seconds = { ...eventAt('move', 0.1), yards: 0, seconds: 18 };
+		const yards = { ...eventAt('move', 0.5), yards: 70 };
 		const design = EncounterDesign.create({ moves: [seconds, yards] });
 		expect(laneEvents(design, 'moves', BASE).map(event => [event.window.start, event.window.end])).toEqual([
 			[0.1, expect.closeTo(0.2)],
@@ -57,8 +58,8 @@ describe('laneEvents', () => {
 	});
 
 	it('keeps the repeats after the first occurrence at the width of the first and packs around their full reach', () => {
-		const repeating = { ...defaultEvent('move', 0.1), yards: 0, seconds: 18, repeat: { interval: 0.3, jitter: 0, count: 2 } };
-		const design = EncounterDesign.create({ moves: [repeating, defaultEvent('move', 0.5)] });
+		const repeating = { ...eventAt('move', 0.1), yards: 0, seconds: 18, repeat: { interval: 0.3, jitter: 0, count: 2 } };
+		const design = EncounterDesign.create({ moves: [repeating, eventAt('move', 0.5)] });
 		const [first, second] = laneEvents(design, 'moves', BASE);
 		expect(first.repeats.map(repeat => [repeat.start, repeat.end])).toEqual([
 			[expect.closeTo(0.4), expect.closeTo(0.5)],
@@ -69,10 +70,10 @@ describe('laneEvents', () => {
 
 	it('draws every ability from its start to its end, with the occurrences of a spell hit or a strike as ticks and a thrash repeating as ghosts', () => {
 		const repeat = { interval: 0.1, jitter: 0, count: 0 };
-		const ability = (kind: DesignBossAbility_Kind) => ({ ...defaultEvent('ability', 0.2), kind, repeat });
+		const ability = (kind: DesignBossAbility_Kind) => ({ ...eventAt('ability', 0.2), kind, repeat });
 		const design = EncounterDesign.create({
 			bossAbilities: [ability(DesignBossAbility_Kind.SpellHit), ability(DesignBossAbility_Kind.Strike), ability(DesignBossAbility_Kind.Thrash)],
-			addWaves: [defaultEvent('wave', 0.2)],
+			addWaves: [eventAt('wave', 0.2)],
 		});
 		const [hit, strike, thrash] = laneEvents(design, 'abilities', BASE);
 		expect([hit.window.end - hit.window.start, hit.repeats.length, hit.ticks.length]).toEqual([expect.closeTo(0.1), 0, 2]);
@@ -84,7 +85,7 @@ describe('laneEvents', () => {
 
 describe('withWindow', () => {
 	it('writes the window back into the event the kind stores it in, on a copy', () => {
-		const design = EncounterDesign.create({ addWaves: [defaultEvent('wave', 0.2)], moves: [defaultEvent('move', 0.2)] });
+		const design = EncounterDesign.create({ addWaves: [eventAt('wave', 0.2)], moves: [eventAt('move', 0.2)] });
 		const wave = withWindow(design, { kind: 'wave', index: 0 }, { start: 0.3, end: 0.45 }, BASE).addWaves[0];
 		expect(wave.spawn?.at).toBe(0.3);
 		expect(wave.lifetime).toBeCloseTo(0.15);
@@ -94,7 +95,7 @@ describe('withWindow', () => {
 
 	it('sets an ability from the window, a spell hit as well as a thrash', () => {
 		const design = EncounterDesign.create({
-			bossAbilities: [defaultEvent('ability', 0.2), { ...defaultEvent('ability', 0.2), kind: DesignBossAbility_Kind.SwingTiming }],
+			bossAbilities: [eventAt('ability', 0.2), { ...eventAt('ability', 0.2), kind: DesignBossAbility_Kind.SwingTiming }],
 		});
 		for (const index of [0, 1]) {
 			const moved = withWindow(design, { kind: 'ability', index }, { start: 0.5, end: 0.7 }, BASE).bossAbilities[index];
@@ -103,7 +104,7 @@ describe('withWindow', () => {
 	});
 
 	it('stretches the walk of a move through the unit it holds and leaves it alone on a plain move', () => {
-		const design = EncounterDesign.create({ moves: [defaultEvent('move', 0.1), { ...defaultEvent('move', 0.1), yards: 0, seconds: 4 }] });
+		const design = EncounterDesign.create({ moves: [eventAt('move', 0.1), { ...eventAt('move', 0.1), yards: 0, seconds: 4 }] });
 		const length = (seconds: number) => ({ start: 0.1, end: 0.1 + seconds / BASE });
 		const yards = withWindow(design, { kind: 'move', index: 0 }, length(2), BASE).moves[0];
 		expect([yards.yards, yards.seconds]).toEqual([expect.closeTo(14), 0]);

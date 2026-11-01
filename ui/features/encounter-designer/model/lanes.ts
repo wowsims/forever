@@ -65,13 +65,14 @@ const noRepeat = (): DesignRepeat => ({ interval: 0, jitter: 0, count: 0 });
 
 const DEFAULT_WIDTH = 0.1;
 
-// A new event starting at `at`, with its window pulled back inside the fight.
-export const defaultEvent = <K extends DesignEventKind>(kind: K, at = 0.4): DesignEvent<K> => {
-	const start = Math.min(Math.max(0, at), 1 - DEFAULT_WIDTH);
+const DEFAULT_START = 0.4;
+
+export const defaultEvent = <K extends DesignEventKind>(kind: K): DesignEvent<K> => {
+	const start = DEFAULT_START;
 	const end = start + DEFAULT_WIDTH;
 	const events: DesignEventMap = {
 		downtime: { name: '', targetIndex: 0, start: time(start), end: time(end), clearDebuffs: true },
-		bossHealth: { name: '', at: Math.min(Math.max(0, at), 1), healthPercent: 50 },
+		bossHealth: { name: '', at: start, healthPercent: 50 },
 		ability: {
 			name: '',
 			kind: DesignBossAbility_Kind.SpellHit,
@@ -127,10 +128,10 @@ export const eventsOf = <K extends DesignEventKind>(design: EncounterDesign, kin
 
 export const getEvent = (design: EncounterDesign, ref: DesignEventRef): DesignEvent | undefined => eventsOf(design, ref.kind)[ref.index];
 
-// Mutates the design, which is meant to be an immer draft.
-export const addEvent = (design: EncounterDesign, kind: DesignEventKind, at?: number): DesignEventRef => {
+// Mutates the design.
+export const addEvent = (design: EncounterDesign, kind: DesignEventKind): DesignEventRef => {
 	const list: DesignEvent[] = eventsOf(design, kind);
-	list.push(defaultEvent(kind, at));
+	list.push(defaultEvent(kind));
 	return { kind, index: list.length - 1 };
 };
 

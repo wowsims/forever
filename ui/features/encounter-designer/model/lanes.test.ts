@@ -1,4 +1,5 @@
 import { DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
+import { addEventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
 import type { DesignEventKind } from './lanes';
@@ -38,7 +39,7 @@ describe('lanes', () => {
 	it('defaults every kind inside the fight', () => {
 		for (const kind of KINDS) {
 			const design = EncounterDesign.create();
-			const ref = addEvent(design, kind, 0.98);
+			const ref = addEvent(design, kind);
 			const window = eventWindow(design, ref)!;
 			const [from, to] = 'at' in window ? [window.at, window.at] : [window.start, window.end];
 			expect(from).toBeGreaterThanOrEqual(0);
@@ -60,8 +61,8 @@ describe('lanes', () => {
 
 	it('adds, reads and removes events by list and index', () => {
 		const design = EncounterDesign.create();
-		addEvent(design, 'move', 0.1);
-		const ref = addEvent(design, 'move', 0.5);
+		addEventAt(design, 'move', 0.1);
+		const ref = addEventAt(design, 'move', 0.5);
 		expect(ref).toEqual({ kind: 'move', index: 1 });
 		expect(eventsOf(design, 'move')).toHaveLength(2);
 		expect(getEvent(design, ref)).toBe(design.moves[1]);
@@ -75,9 +76,9 @@ describe('lanes', () => {
 
 	it('draws moves and keyframes as points and waves as spawn to spawn plus lifetime', () => {
 		const design = EncounterDesign.create();
-		addEvent(design, 'move', 0.3);
-		addEvent(design, 'bossHealth', 0.6);
-		addEvent(design, 'wave', 0.2);
+		addEventAt(design, 'move', 0.3);
+		addEventAt(design, 'bossHealth', 0.6);
+		addEventAt(design, 'wave', 0.2);
 		expect(eventWindow(design, { kind: 'move', index: 0 })).toEqual({ at: 0.3 });
 		expect(eventWindow(design, { kind: 'bossHealth', index: 0 })).toEqual({ at: 0.6 });
 		expect(eventWindow(design, { kind: 'wave', index: 0 })).toEqual({ start: 0.2, end: 0.30000000000000004 });
@@ -87,20 +88,20 @@ describe('lanes', () => {
 	describe('occurrences', () => {
 		it('returns one window without a repeat', () => {
 			const design = EncounterDesign.create();
-			const ref = addEvent(design, 'amp', 0.2);
+			const ref = addEventAt(design, 'amp', 0.2);
 			expect(occurrences(design, ref, 10)).toEqual([{ start: 0.2, end: 0.30000000000000004 }]);
 		});
 
 		it('repeats count times after the first, ignoring jitter', () => {
 			const design = EncounterDesign.create();
-			const ref = addEvent(design, 'move', 0.1);
+			const ref = addEventAt(design, 'move', 0.1);
 			design.moves[0].repeat = { interval: 0.2, jitter: 0.05, count: 2 };
 			expect(occurrences(design, ref, 10).map(o => o.start)).toEqual([0.1, 0.30000000000000004, 0.5]);
 		});
 
 		it('fires a spell hit or a strike as instants that stop at its end, and a window as spans of its length', () => {
 			const design = EncounterDesign.create();
-			const ref = addEvent(design, 'ability', 0.1);
+			const ref = addEventAt(design, 'ability', 0.1);
 			const ability = design.bossAbilities[0];
 			ability.end!.at = 0.35;
 			ability.repeat = { interval: 0.1, jitter: 0, count: 0 };
@@ -129,7 +130,7 @@ describe('lanes', () => {
 
 		it('runs to the end of the fight with count 0 and caps at maxCount', () => {
 			const design = EncounterDesign.create();
-			const ref = addEvent(design, 'move', 0.1);
+			const ref = addEventAt(design, 'move', 0.1);
 			design.moves[0].repeat = { interval: 0.25, jitter: 0, count: 0 };
 			expect(occurrences(design, ref, 10).map(o => o.start)).toEqual([0.1, 0.35, 0.6, 0.85]);
 			expect(occurrences(design, ref, 2)).toHaveLength(2);
@@ -177,7 +178,7 @@ describe('lanes', () => {
 		it("appends a copy shifted by the delta to the kind's list and returns its ref", () => {
 			for (const kind of KINDS_WITH_NAME) {
 				const design = EncounterDesign.create();
-				const original = addEvent(design, kind, 0.2);
+				const original = addEventAt(design, kind, 0.2);
 				const copy = duplicateEvent(design, original, 0.3);
 				expect(copy).toEqual({ kind, index: 1 });
 				const before = eventWindow(design, original)!;
@@ -190,7 +191,7 @@ describe('lanes', () => {
 
 		it('keeps the copy inside the fight', () => {
 			const design = EncounterDesign.create();
-			const ref = addEvent(design, 'downtime', 0.8);
+			const ref = addEventAt(design, 'downtime', 0.8);
 			const copy = duplicateEvent(design, ref, 0.5);
 			expect(design.downtimes[copy.index].end!.at).toBeCloseTo(1);
 			expect(design.downtimes[copy.index].start!.at).toBeCloseTo(0.9);
@@ -198,13 +199,13 @@ describe('lanes', () => {
 
 		it('names the copy of a named event, and leaves an unnamed one unnamed', () => {
 			const design = EncounterDesign.create();
-			const wave = addEvent(design, 'wave', 0.1);
+			const wave = addEventAt(design, 'wave', 0.1);
 			const plain = duplicateEvent(design, wave, 0.1);
 			expect(design.addWaves[plain.index].name).toBe('');
 			design.addWaves[0].name = 'Add';
 			const named = duplicateEvent(design, wave, 0.1);
 			expect(design.addWaves[named.index].name).toContain('copy_name');
-			const move = addEvent(design, 'move', 0.1);
+			const move = addEventAt(design, 'move', 0.1);
 			design.moves[0].name = 'Run';
 			expect(design.moves[duplicateEvent(design, move, 0.1).index].name).toContain('copy_name');
 			expect(design.addWaves[named.index].adds).toHaveLength(design.addWaves[0].adds.length);

@@ -106,12 +106,6 @@ export class Encounter {
 		if (EncounterDesign.equals(design, this.enc.design)) return;
 		this.set({ design: EncounterDesign.clone(design) });
 	}
-	// Replace-on-write: the callback gets a clone, which becomes the stored design.
-	modifyDesign(modify: (design: EncounterDesign) => void) {
-		const clone = EncounterDesign.clone(this.enc.design);
-		modify(clone);
-		this.set({ design: clone });
-	}
 	hasDesign(): boolean {
 		const d = this.enc.design;
 		return d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length > 0;
@@ -264,7 +258,7 @@ export class Encounter {
 			// saved entry's (or the config default's) own target protos.
 			this.setTargets(proto.targets.map(t => TargetProto.clone(t)));
 			// After the targets, whose reindexing would otherwise rewrite the loaded design.
-			this.setDesign(proto.design ? EncounterDesign.clone(proto.design) : EncounterDesign.create());
+			this.setDesign(proto.design ?? EncounterDesign.create());
 		});
 	}
 

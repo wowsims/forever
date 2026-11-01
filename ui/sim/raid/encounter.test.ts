@@ -216,7 +216,7 @@ describe('Encounter', () => {
 			const encounter = makeEncounter();
 			expect(encounter.hasDesign()).toBe(false);
 
-			encounter.modifyDesign(d => d.bossHealth.push(HealthKeyframe.create()));
+			encounter.setDesign(EncounterDesign.create({ bossHealth: [HealthKeyframe.create()] }));
 			expect(encounter.hasDesign()).toBe(true);
 		});
 
@@ -276,10 +276,10 @@ describe('Encounter', () => {
 
 		it('leaves an empty damage amp target list alone on reorder', () => {
 			const encounter = withThreeTargets();
-			encounter.modifyDesign(d => d.damageAmps.push(DesignDamageAmp.create({ targets: DesignTargets.create() })));
+			encounter.setDesign(EncounterDesign.create({ damageAmps: [DesignDamageAmp.create({ targets: DesignTargets.create() })] }));
 			const [a, b, c] = encounter.getTargets();
 			encounter.setTargets([c, b, a]);
-			expect(encounter.getDesign().damageAmps[1].targets?.targetIndices).toEqual([]);
+			expect(encounter.getDesign().damageAmps[0].targets?.targetIndices).toEqual([]);
 		});
 
 		it('replaces the design with the preset design on applyPreset, and clears it for a preset without one', () => {
@@ -316,23 +316,6 @@ describe('Encounter', () => {
 
 			encounter.setDesign(EncounterDesign.create());
 			expect(writes).toBe(1);
-		});
-
-		it('modifyDesign writes once and replaces the stored design', () => {
-			const encounter = withThreeTargets();
-			const before = encounter.getDesign();
-			let writes = 0;
-			encounter.sim.store.subscribe(() => writes++);
-
-			encounter.modifyDesign(d => {
-				d.downtimes.push(DesignDowntime.create({ targetIndex: 1 }));
-				d.bossHealth.push(HealthKeyframe.create());
-			});
-
-			expect(writes).toBe(1);
-			expect(encounter.getDesign()).not.toBe(before);
-			expect(before.downtimes).toHaveLength(2);
-			expect(encounter.getDesign().downtimes).toHaveLength(3);
 		});
 
 		it('follows a reordered target by identity', () => {

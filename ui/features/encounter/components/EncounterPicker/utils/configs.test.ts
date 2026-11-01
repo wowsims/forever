@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { Encounter } from '../../../../../sim/raid/encounter';
 import type { Sim } from '../../../../../sim/sim';
 import { createSimStore } from '../../../../../sim/state/sim_store';
-import { CUSTOM_ENCOUNTER, encounterChoiceConfig } from './configs';
+import { encounterChoiceConfig } from './configs';
 
 const presetFor = (id: number, design?: EncounterDesign) =>
 	PresetEncounter.create({
@@ -22,6 +22,13 @@ const setup = () => {
 	return { encounter, config: encounterChoiceConfig(encounter, [], { id: 'encounter' }) };
 };
 
+const addKeyframe = (encounter: Encounter, keyframe: HealthKeyframe) => {
+	const design = EncounterDesign.clone(encounter.getDesign());
+	design.bossHealth.push(keyframe);
+	encounter.setDesign(design);
+};
+
+const CUSTOM_ENCOUNTER = 'custom';
 const RAID_TARGET = 'preset:0';
 const DYNAMIC_ADDS = 'preset:1';
 
@@ -37,7 +44,7 @@ describe('encounterChoiceConfig', () => {
 	it('editing the design of a picked preset flips the picker to Custom', () => {
 		const { encounter, config } = setup();
 		config.setValue(encounter, DYNAMIC_ADDS);
-		encounter.modifyDesign(d => d.bossHealth.push(HealthKeyframe.create({ healthPercent: 0.2 })));
+		addKeyframe(encounter, HealthKeyframe.create({ healthPercent: 0.2 }));
 		expect(config.getValue(encounter)).toBe(CUSTOM_ENCOUNTER);
 	});
 
@@ -46,7 +53,7 @@ describe('encounterChoiceConfig', () => {
 		config.setValue(encounter, RAID_TARGET);
 		expect(encounter.hasDesign()).toBe(false);
 		expect(config.getValue(encounter)).toBe(RAID_TARGET);
-		encounter.modifyDesign(d => d.bossHealth.push(HealthKeyframe.create()));
+		addKeyframe(encounter, HealthKeyframe.create());
 		expect(config.getValue(encounter)).toBe(CUSTOM_ENCOUNTER);
 	});
 

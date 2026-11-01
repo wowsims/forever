@@ -1,4 +1,5 @@
 import { AddWave, DamageAmpType, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
+import { addEventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
 import { addEvent } from './lanes';
@@ -34,7 +35,7 @@ describe('validateDesign', () => {
 		downtime(design, 0.2, 0.4);
 		design.downtimes[0].start!.jitter = 0.25;
 		expect(keys(design)).toContain(`downtime0:warning:${DESIGN_ISSUE_KEYS.outsideFight}`);
-		addEvent(design, 'wave', 0.9);
+		addEventAt(design, 'wave', 0.9);
 		design.addWaves[0].spawn!.jitter = 0.15;
 		expect(keys(design)).toContain(`wave0:warning:${DESIGN_ISSUE_KEYS.outsideFight}`);
 	});
@@ -103,16 +104,16 @@ describe('validateDesign', () => {
 
 	it('flags two moves at the same instant', () => {
 		const design = EncounterDesign.create();
-		addEvent(design, 'move', 0.3);
-		addEvent(design, 'move', 0.3);
+		addEventAt(design, 'move', 0.3);
+		addEventAt(design, 'move', 0.3);
 		expect(keys(design)).toEqual([`move1:error:${DESIGN_ISSUE_KEYS.overlap}`]);
 	});
 
 	it('flags boss health that rises over time, in time order not list order', () => {
 		const design = EncounterDesign.create();
-		addEvent(design, 'bossHealth', 0.5);
+		addEventAt(design, 'bossHealth', 0.5);
 		design.bossHealth[0].healthPercent = 40;
-		addEvent(design, 'bossHealth', 0.2);
+		addEventAt(design, 'bossHealth', 0.2);
 		design.bossHealth[1].healthPercent = 80;
 		expect(keys(design)).toEqual([]);
 		design.bossHealth[1].healthPercent = 30;
@@ -134,7 +135,7 @@ describe('validateDesign', () => {
 		expect(tooMany(design)).toEqual([`bossHealth0:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
 		design.bossHealth[0].healthPercent = 0;
 		expect(tooMany(design)).toEqual([]);
-		addEvent(design, 'bossHealth', 0.95);
+		addEventAt(design, 'bossHealth', 0.95);
 		design.bossHealth[16].healthPercent = 0;
 		expect(tooMany(design)).toEqual([`bossHealth16:error:${DESIGN_ISSUE_KEYS.tooManyKeyframes}`]);
 	});
@@ -225,7 +226,7 @@ describe('validateDesign', () => {
 
 	it('flags a wave with no lifetime', () => {
 		const design = EncounterDesign.create();
-		addEvent(design, 'wave', 0.2);
+		addEventAt(design, 'wave', 0.2);
 		design.addWaves[0].lifetime = 0;
 		expect(keys(design)).toEqual([`wave0:error:${DESIGN_ISSUE_KEYS.endBeforeStart}`]);
 	});
