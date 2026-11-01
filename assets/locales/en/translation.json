@@ -904,12 +904,6 @@
 					"tooltip": "Beast Training: the pet attacks 30% faster but each attack does less damage.",
 					"untrained": "Cobra Reflexes untrained",
 					"trained": "Cobra Reflexes trained"
-				},
-				"pet_aggression": {
-					"label": "Pet Aggression",
-					"tooltip": "Beast Training: flat damage added to each of the pet's attacks, by rank.",
-					"untrained": "Pet Aggression untrained",
-					"rank": "Pet Aggression rank {{rank}}"
 				}
 			},
 			"pet_section": {
@@ -1661,7 +1655,7 @@
 				},
 				"spell_is_casting": {
 					"label": "Spell Is Casting",
-					"tooltip": "True if the spell is currently being cast"
+					"tooltip": "True while the spell is hardcast, through the rotation's pick at its end. not(Spell Is Casting X) on a line decides it after X lands, for a line that reads what X's landing may change."
 				},
 				"spell_time_to_ready": {
 					"label": "Spell Time to Ready",
@@ -2380,7 +2374,7 @@
 				},
 				"use_sniper": {
 					"label": "Use Sniper Shot",
-					"tooltip": "Casts Sniper Shot while Rapid Fire or Quick Shots shortens its cast."
+					"tooltip": "Opens the fight with Sniper Shot and casts it whenever no other shot is ready."
 				},
 				"use_hawk": {
 					"label": "Use Summon Hawk",

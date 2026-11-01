@@ -111,8 +111,6 @@
 					"quiverBonus": "AncientSinewWrappedLamina",
 					"ammo": "ThoriumHeadedArrow",
 					"petUptime": 1,
-					"cobraReflexes": true,
-					"petAggression": 5,
 					"petAttackSpeed": "FasterAttackII"
 				}
 			}
@@ -168,6 +166,39 @@
 							"val": "-19s"
 						}
 					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Sniper Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1310786,
+								"rank": 3
+							}
+						}
+					},
+					"doAtValue": {
+						"math": {
+							"op": "OpMul",
+							"lhs": {
+								"spellCastTime": {
+									"spellId": {
+										"spellId": 1310786,
+										"rank": 3
+									}
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "-1"
+								}
+							}
+						}
+					}
 				}
 			],
 			"priorityList": [
@@ -216,21 +247,6 @@
 				{
 					"action": {
 						"condition": {
-							"variableRef": {
-								"name": "Use Aimed Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 20904,
-								"rank": 6
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
 							"not": {
 								"val": {
 									"dotIsActive": {
@@ -246,47 +262,6 @@
 							"spellId": {
 								"spellId": 25295,
 								"rank": 9
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"and": {
-								"vals": [
-									{
-										"variableRef": {
-											"name": "Use Sniper Shot"
-										}
-									},
-									{
-										"or": {
-											"vals": [
-												{
-													"auraIsActive": {
-														"auraId": {
-															"spellId": 3045
-														}
-													}
-												},
-												{
-													"auraIsActive": {
-														"auraId": {
-															"spellId": 6150
-														}
-													}
-												}
-											]
-										}
-									}
-								]
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 1310786,
-								"rank": 3
 							}
 						}
 					}
@@ -438,12 +413,43 @@
 					"action": {
 						"condition": {
 							"variableRef": {
+								"name": "Use Aimed Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 20904,
+								"rank": 6
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
 								"name": "Use Multi-Shot"
 							}
 						},
 						"castSpell": {
 							"spellId": {
 								"spellId": 2643
+							}
+						}
+					}
+				},
+				{
+					"notes": "The least damage per second of casting, so it waits until none of the shots above is ready.",
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Sniper Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1310786,
+								"rank": 3
 							}
 						}
 					}
@@ -479,7 +485,7 @@
 					"name": "Walk in",
 					"actions": [
 						{
-							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.",
+							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot's windup is close or running, and react to each shot before walking on.",
 							"action": {
 								"condition": {
 									"not": {
@@ -499,7 +505,7 @@
 															"vals": [
 																{
 																	"variableRef": {
-																		"name": "Auto Shot due"
+																		"name": "Windup close"
 																	}
 																},
 																{
@@ -543,7 +549,7 @@
 					"name": "Use Aimed Shot",
 					"value": {
 						"const": {
-							"val": "false"
+							"val": "true"
 						}
 					}
 				},
@@ -551,7 +557,7 @@
 					"name": "Use Multi-Shot",
 					"value": {
 						"const": {
-							"val": "true"
+							"val": "false"
 						}
 					}
 				},
@@ -567,7 +573,7 @@
 					"name": "Use Sniper Shot",
 					"value": {
 						"const": {
-							"val": "false"
+							"val": "true"
 						}
 					}
 				},
@@ -596,38 +602,49 @@
 					}
 				},
 				{
-					"name": "Auto Shot due",
+					"name": "Windup close",
 					"value": {
-						"cmp": {
-							"op": "OpGe",
-							"lhs": {
-								"autoTimeSinceLast": {
-									"autoType": "RangedAuto"
-								}
-							},
-							"rhs": {
-								"math": {
-									"op": "OpSub",
-									"lhs": {
-										"math": {
-											"op": "OpSub",
-											"lhs": {
-												"autoSwingTime": {
-													"autoType": "Ranged"
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "500ms"
+						"or": {
+							"vals": [
+								{
+									"cmp": {
+										"op": "OpLe",
+										"lhs": {
+											"autoTimeToNext": {
+												"autoType": "RangedAuto"
+											}
+										},
+										"rhs": {
+											"inputDelay": {}
+										}
+									}
+								},
+								{
+									"cmp": {
+										"op": "OpGe",
+										"lhs": {
+											"autoTimeToNext": {
+												"autoType": "RangedAuto"
+											}
+										},
+										"rhs": {
+											"math": {
+												"op": "OpSub",
+												"lhs": {
+													"autoSwingTime": {
+														"autoType": "Ranged"
+													}
+												},
+												"rhs": {
+													"autoTimeSinceLast": {
+														"autoType": "RangedAuto"
+													}
 												}
 											}
 										}
-									},
-									"rhs": {
-										"inputDelay": {}
 									}
 								}
-							}
+							]
 						}
 					}
 				},

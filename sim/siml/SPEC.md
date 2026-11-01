@@ -1816,8 +1816,9 @@ Some notes on this file:
 - The JSON's `"type": "TypeAPL"` is inferred from the file kind (§6.2).
 - `"true"` and `"false"` consts print bare.
 - The walk times and the weave's conditions come from `apls/weave_common.apl.siml`, which `apls/clean_weave.apl.siml`
-  uses too (§9). It uses `apls/walk_in.apl.siml`, which the turret rotations use as well: the prepull rows and the
-  group `"Walk in"` that the row above `"Weave"` calls, and `Shoot spot`, which `weave_common` sets with `use … with`.
+  uses too (§9). It uses `apls/pull.apl.siml`, the prepull rows, and `apls/walk_in.apl.siml`, which the turret
+  rotations use as well: the group `"Walk in"` that the row above `"Weave"` calls, and `Shoot spot`, which
+  `weave_common` sets with `use … with`.
   `walk_in` in turn takes `in_melee`, `at_range` and `hawk_and_arcane` from `apls/common.apl.siml`. Their variables
   follow this file's in the proto, and `with` sets `Wait at melee` from this file's `$time_to_weave`.
 - `$shoot_spot` folds to `Shoot spot`, which a used file declares, while the proto keeps the exact names that
@@ -2034,7 +2035,6 @@ settings:
   ammo thorium_headed_arrow
   pet_uptime 1
   cobra_reflexes
-  pet_aggression 5
   pet_attack_speed faster_attack_ii
 
 gear:

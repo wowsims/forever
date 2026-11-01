@@ -28,8 +28,8 @@ func BenchmarkRetribution(b *testing.B) {
 
 func shockadinSuite() core.CharacterSuiteConfig {
 	consumables := goproto.Clone(DefaultConsumables).(*proto.ConsumesSpec)
-	consumables.ElixirIds[0] = 8423   // Cerebral Cortex Compound
-	consumables.SwapMhImbueId = 20749 // Brilliant Wizard Oil
+	consumables.ElixirIds[0] = 8423  // Cerebral Cortex Compound
+	consumables.SwapMhImbueId = 3829 // Frost Oil
 
 	return core.CharacterSuiteConfig{
 		Class:            proto.Class_ClassPaladin,
@@ -122,7 +122,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 		12460,  // Juju Might
 	},
 	ExtraIds:       []int32{8410, 10646, 12217, 18269}, // R.O.I.D.S, Goblin Sapper Charge, Dragonbreath Chili, Gordok Green Grog
-	MhImbueId:      20749,                              // Brilliant Wizard Oil
+	MhImbueId:      3824,                               // Shadow Oil
 	OffensivePotId: 250937,                             // Major Spellblasting Potion
 	ResourcePotId:  13444,                              // Major Mana Potion
 }

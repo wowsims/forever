@@ -115,7 +115,8 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 ## Timing
 
 - **The pick at a hardcast end reads the running cast as landed**; what it sees and misses is `docs/rotation.md` §What
-  the pick sees, and the order the landing runs in is `wowsims-core-mechanics` §Cast order.
+  the pick sees, and the order the landing runs in is `wowsims-core-mechanics` §Cast order. `not(Spell Is Casting X)`
+  on a line decides it after X lands; `docs/rotation.md` §Which lines need `Spell Is Casting` says when to use it.
 - **A major cooldown's Cast Spell is ready only at a GCD-ready look** unless it is reactive or inside a sequence
   (`APLActionCastSpell.IsReady`), so an off-GCD cooldown can wait a GCD after its window opens; the first warrior major
   cooldown chance comes about 4.5 s into the fight (PR #653).

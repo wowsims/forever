@@ -2,6 +2,7 @@ package hunter
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -39,15 +40,29 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	hunter.registerLaceratingStrikes()
 }
 
+// The Track spells that track a creature type, each naming it in effect 2's A_MOD_DAMAGE_DONE_VERSUS.
+var trackCreatureSpells = []spelldata.Ladder{
+	spellData.TrackBeasts, spellData.TrackDemons, spellData.TrackDragonkin, spellData.TrackElementals,
+	spellData.TrackGiants, spellData.TrackHumanoids, spellData.TrackUndead,
+}
+
 // The talent raises effect 2 of the Track spells, A_MOD_DAMAGE_DONE_VERSUS the tracked creature
-// type, by 1% a rank. The sim does not track; a hunter is taken to track the target's type, so the
-// bonus is on every damage done.
+// type, by 1% a rank. The sim does not track; a hunter is taken to track the target's type when a
+// Track spell names it, so the bonus is on the damage done to those types only. A mechanical
+// target, which no Track spell names, gets none.
 func (hunter *Hunter) registerImprovedTracking() {
 	if hunter.Talents.ImprovedTracking == 0 {
 		return
 	}
 
-	hunter.PseudoStats.DamageDealtMultiplier *= spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
+	var mobTypes []proto.MobType
+	for _, track := range trackCreatureSpells {
+		mobTypes = append(mobTypes, spelldata.MobTypes(track.Highest().EffectN(2).Misc)...)
+	}
+	mult := spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
+	hunter.Env.RegisterPostFinalizeEffect(func() {
+		hunter.MultiplyDamageVersus(mult, mobTypes...)
+	})
 }
 
 func (hunter *Hunter) registerDeflection() {
