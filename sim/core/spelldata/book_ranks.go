@@ -15,7 +15,9 @@ var bookRanks = map[int32]bool{
 	25295: true, // Guide: Serpent Sting IX
 	25296: true, // Guide: Aspect of the Hawk VII
 	25361: true, // Tablet of Strength of Earth Totem V
+	25362: true, // The buff of that rank
 	25359: true, // Tablet of Grace of Air Totem III
+	25360: true, // The buff of that rank
 	25357: true, // Tablet of Healing Wave X
 	29228: true, // Tablet of Flame Shock VI
 	25304: true, // Tome of Frostbolt XI
@@ -32,6 +34,8 @@ var bookRanks = map[int32]bool{
 	25315: true, // Codex of Renew X
 	25291: true, // Libram: Blessing of Might VII
 	25290: true, // Libram: Blessing of Wisdom VI
+	25916: true, // Greater Blessing of Might rank 2, the raid's book rank; no item teaches it directly
+	25918: true, // Greater Blessing of Wisdom rank 2, the raid's book rank; no item teaches it directly
 	25292: true, // Libram: Holy Light IX
 	25300: true, // Handbook of Backstab IX
 	25302: true, // Handbook of Feint V

@@ -82,3 +82,7 @@ warlock.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 
 warlock.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
 druid.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
 druid.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+shaman.aura.strength_of_earth: was spell 25362, now spell 10441
+shaman.aura.strength_of_earth_external: was spell 10441 tag -1, now nothing
+shaman.aura.grace_of_air: was spell 25360, now spell 10626
+shaman.aura.grace_of_air_external: was spell 10626 tag -1, now nothing

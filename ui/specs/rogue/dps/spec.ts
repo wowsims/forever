@@ -131,6 +131,7 @@ export default defineSpec<Spec.SpecRogue>({
 				fieldName: 'useBackstabRank9',
 				label: i18n.t('rotation_tab.options.rogue.use_backstab_rank_9.label'),
 				labelTooltip: i18n.t('rotation_tab.options.rogue.use_backstab_rank_9.tooltip'),
+				showWhen: (player: Player<Spec.SpecRogue>) => player.getSimpleRotation().useBackstab,
 			}),
 			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
 				fieldName: 'useEviscerateRank9',

@@ -84,7 +84,8 @@ func (c *Collection) addClasses(specs []*specBuild) []*specBuild {
 		for i, variant := range append([]optionVariant{nil}, optionVariants(s.info)...) {
 			for _, race := range core.ClassRaceCapabilities[s.info.Class] {
 				for _, talents := range s.talents {
-					base = append(base, &build{spec: s, player: s.player(race, talents, variant), fallback: true, variant: i})
+					everyState := i == 0 && race == core.ClassRaceCapabilities[s.info.Class][0] && talents == s.talents[len(s.talents)-1]
+					base = append(base, &build{spec: s, player: s.player(race, talents, variant), fallback: true, variant: i, everyState: everyState})
 				}
 			}
 		}
@@ -348,9 +349,9 @@ func setAt(path []protoreflect.FieldDescriptor, v protoreflect.Value) optionVari
 	}
 }
 
-// Turns on everything in a buffs message: every flag, the last value of every enum, one of every count. The auras
+// Turns on everything in a buffs message: every flag, the last value of every enum, every int32 at state. The auras
 // external buffs and debuffs register then show.
-func enableAll(m protoreflect.Message) {
+func enableAll(m protoreflect.Message, state int32) {
 	fields := m.Descriptor().Fields()
 	for i := range fields.Len() {
 		fd := fields.Get(i)
@@ -364,21 +365,22 @@ func enableAll(m protoreflect.Message) {
 			values := fd.Enum().Values()
 			m.Set(fd, protoreflect.ValueOfEnum(values.Get(values.Len()-1).Number()))
 		case protoreflect.Int32Kind:
-			m.Set(fd, protoreflect.ValueOfInt32(1))
+			m.Set(fd, protoreflect.ValueOfInt32(state))
 		case protoreflect.MessageKind:
-			enableAll(m.Mutable(fd).Message())
+			enableAll(m.Mutable(fd).Message(), state)
 		}
 	}
 }
 
 // One ComputeStats run.
 type build struct {
-	spec      *specBuild
-	player    *proto.Player
-	encounter *proto.Encounter // The single default target when nil.
-	source    string           // What the build adds to its spec's source build, for the report; "" for a build with no gear.
-	fallback  bool             // Whether a failure with every buff is retried without the buffs, then without talents.
-	variant   int              // Which option variant a build with no gear has; 0 for the defaults.
+	spec       *specBuild
+	player     *proto.Player
+	encounter  *proto.Encounter // The single default target when nil.
+	source     string           // What the build adds to its spec's source build, for the report; "" for a build with no gear.
+	fallback   bool             // Whether a failure with every buff is retried without the buffs, then without talents.
+	variant    int              // Which option variant a build with no gear has; 0 for the defaults.
+	everyState bool             // Whether the build also runs with every rank select at its higher states.
 
 	found   map[siml.Namespace]map[Identity]Registration // What the build registered.
 	icd     []int32                                      // The items whose effect the build lists only as an internal cooldown trigger.
@@ -439,18 +441,47 @@ func (b *build) run() {
 	}
 	labels := []string{"with every buff", "without buffs", "without buffs or talents"}
 	for i, player := range attempts {
-		result, err := computeStats(player, i == 0, b.encounter)
+		result, err := computeStats(player, core.TernaryInt32(i == 0, 1, 0), b.encounter)
 		if err != nil {
 			b.errors = append(b.errors, fmt.Sprintf("%s: %v", labels[i], err))
 			continue
 		}
 		b.found, b.icd, b.attempt = registrations(result), icdItems(result), i
+		if i == 0 && b.everyState {
+			b.addHigherStates(player)
+		}
 		return
 	}
 	b.attempt = -1
 }
 
-func computeStats(player *proto.Player, buffs bool, encounter *proto.Encounter) (result *proto.ComputeStatsResult, err error) {
+// A rank select registers only the aura of the state it holds, so the higher states run as well.
+func (b *build) addHigherStates(player *proto.Player) {
+	for _, state := range []int32{2, maxBuffState} {
+		result, err := computeStats(player, state, b.encounter)
+		if err != nil {
+			b.errors = append(b.errors, fmt.Sprintf("with every buff at state %d: %v", state, err))
+			continue
+		}
+		for ns, ids := range registrations(result) {
+			if b.found[ns] == nil {
+				b.found[ns] = ids
+				continue
+			}
+			for id, registration := range ids {
+				if _, ok := b.found[ns][id]; !ok {
+					b.found[ns][id] = registration
+				}
+			}
+		}
+	}
+}
+
+// The highest state any rank select counts to.
+const maxBuffState = 3
+
+// With a buffState above 0, every buff is on, with each rank select at that state.
+func computeStats(player *proto.Player, buffState int32, encounter *proto.Encounter) (result *proto.ComputeStatsResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("%v", r)
@@ -458,12 +489,12 @@ func computeStats(player *proto.Player, buffs bool, encounter *proto.Encounter) 
 	}()
 	player = googleClone(player)
 	partyBuffs, raidBuffs, debuffs := &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}
-	if buffs {
-		enableAll(partyBuffs.ProtoReflect())
-		enableAll(raidBuffs.ProtoReflect())
-		enableAll(debuffs.ProtoReflect())
+	if buffState > 0 {
+		enableAll(partyBuffs.ProtoReflect(), buffState)
+		enableAll(raidBuffs.ProtoReflect(), buffState)
+		enableAll(debuffs.ProtoReflect(), buffState)
 		player.Buffs = &proto.IndividualBuffs{}
-		enableAll(player.Buffs.ProtoReflect())
+		enableAll(player.Buffs.ProtoReflect(), buffState)
 	}
 	if encounter == nil {
 		encounter = core.MakeSingleTargetEncounter(0)

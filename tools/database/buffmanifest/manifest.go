@@ -130,8 +130,7 @@ type BuffSpec struct {
 	Proto BuffProtoType // override of the derived type
 	// Reason says what a Flag row is, since no spell does; the shell it renders as carries it.
 	Reason string
-	// A rank select's states: 0 is off and state N applies Ranks[N-1] in place of the row's SpellID,
-	// which still builds a class's own copy.
+	// A rank select's states: 0 is off and state N applies Ranks[N-1] in place of the row's SpellID.
 	Ranks []BuffRank
 }
 

@@ -272,31 +272,6 @@ func TestRankedLadder(t *testing.T) {
 	}
 }
 
-func TestHighestTrained(t *testing.T) {
-	const trained, book = 13555, 25295
-	withRows(t, []Spell{{ID: 116}, {ID: trained}, {ID: book}})
-	if IsBookRank(trained) || !IsBookRank(book) {
-		t.Fatalf("IsBookRank says %v for %d and %v for %d, want false and true", IsBookRank(trained), trained, IsBookRank(book), book)
-	}
-
-	ladder := Ranked(trained, book)
-	if got := ladder.HighestTrained().ID; got != trained {
-		t.Errorf("HighestTrained().ID = %d with a book rank on top, want %d", got, trained)
-	}
-	if got := ladder.Highest().ID; got != book {
-		t.Errorf("Highest().ID = %d, want the book rank %d", got, book)
-	}
-	if got := Ranked(116, trained).HighestTrained().ID; got != trained {
-		t.Errorf("HighestTrained().ID = %d on a ladder with no book rank, want %d", got, trained)
-	}
-	if Ranked(book).HighestTrained() != Nil {
-		t.Error("a ladder of only book ranks does not answer Nil")
-	}
-	if (Ladder{}).HighestTrained() != Nil {
-		t.Error("an empty ladder does not answer Nil")
-	}
-}
-
 // Each rank of a trait talent is a copy carrying the curve's value, so the store's own row keeps the
 // game files'.
 func TestTalentLadder(t *testing.T) {

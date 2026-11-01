@@ -9,6 +9,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
 )
@@ -60,6 +61,9 @@ func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 		bite := cat.GetSpell(core.ActionID{SpellID: id})
 		if bite == nil {
 			t.Fatalf("spell %d is not registered", id)
+		}
+		if coef := spelldata.MustFind(id).DamageEffect().APCoef; coef <= 0 {
+			t.Errorf("spell %d states an attack power share of %v, want both ranks to scale", id, coef)
 		}
 		if !bite.Cast(sim, target) {
 			t.Fatalf("spell %d did not cast", id)

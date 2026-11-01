@@ -104,10 +104,7 @@ func (m *Meta) label(isPlayer bool) string {
 // A rank of a generated buff is its row on the rank's own spell, labelled with the rank so that two ranks on one unit
 // never share an aura. Both bid in the row's category.
 func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
-	ranked := *m
-	ranked.Label += " " + rank.Rank
-	ranked.Spell = rank
-	return &ranked
+	return m.atState(rank, m.Label+" "+rank.Rank)
 }
 
 // A state of a rank select: the row on the state's own spell, which may be another spell's, under the
