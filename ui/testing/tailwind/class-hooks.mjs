@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { collectTokens, findDefaultCss, loadDesignSystemCached } from './canonical-classes.mjs';
+import { cliArgs, collectTokens, findDefaultCss, loadDesignSystemCached } from './canonical-classes.mjs';
 
 function loadAllowlist(root) {
 	const file = path.join(root, 'ui/class_hook_allowlist.json');
@@ -120,17 +120,9 @@ export function findTestidStyling(root) {
 }
 
 async function main() {
-	const args = process.argv.slice(2);
-	let cssArg;
-	let json = false;
-	let root = process.cwd();
-	for (let i = 0; i < args.length; i++) {
-		if (args[i] === '--css') cssArg = args[++i];
-		else if (args[i] === '--json') json = true;
-		else root = path.resolve(args[i]);
-	}
+	const { css, json, root } = cliArgs();
 
-	const hooks = await findClassHooks(root, { css: cssArg ? path.resolve(cssArg) : undefined });
+	const hooks = await findClassHooks(root, { css });
 	const testidHits = findTestidStyling(root);
 
 	if (json) {

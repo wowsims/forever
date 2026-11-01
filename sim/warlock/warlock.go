@@ -109,7 +109,7 @@ func RegisterWarlock() {
 		func(character *core.Character, options *proto.Player, raid *proto.Raid) core.Agent {
 			return NewWarlock(character, options, options.GetWarlock().Options.ClassOptions, raid)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_Warlock)
 			if !ok {
 				panic("Invalid spec value for Warlock!")

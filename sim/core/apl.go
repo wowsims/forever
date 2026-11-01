@@ -100,7 +100,7 @@ type APLValueVariable struct {
 	value *proto.APLValue
 }
 
-func (rot *APLRotation) ValidationMessage(log_level proto.LogLevel, message string, vals ...interface{}) {
+func (rot *APLRotation) ValidationMessage(log_level proto.LogLevel, message string, vals ...any) {
 	formatted_message := fmt.Sprintf(message, vals...)
 	rot.curValidations = append(rot.curValidations, &proto.APLValidation{
 		LogLevel:   log_level,
@@ -108,7 +108,7 @@ func (rot *APLRotation) ValidationMessage(log_level proto.LogLevel, message stri
 	})
 }
 
-func (rot *APLRotation) ValidationMessageByUUID(uuid *proto.UUID, log_level proto.LogLevel, message string, vals ...interface{}) {
+func (rot *APLRotation) ValidationMessageByUUID(uuid *proto.UUID, log_level proto.LogLevel, message string, vals ...any) {
 	if uuid != nil {
 		formatted_message := fmt.Sprintf(message, vals...)
 		rot.uuidValidations[uuid] = append(rot.uuidValidations[uuid], &proto.APLValidation{

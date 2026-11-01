@@ -214,10 +214,8 @@ func (s *Spell) PeriodicEffect() *Effect {
 
 func (s *Spell) firstOfType(types ...dbcenums.SpellEffectType) *Effect {
 	for i := range s.Effects {
-		for _, t := range types {
-			if s.Effects[i].Type == t {
-				return &s.Effects[i]
-			}
+		if slices.Contains(types, s.Effects[i].Type) {
+			return &s.Effects[i]
 		}
 	}
 	return NilEffect

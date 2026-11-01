@@ -180,7 +180,7 @@ func parseProtoMessage(t *testing.T, message string) map[string]protoField {
 
 	fields := map[string]protoField{}
 	inMessage := false
-	for _, line := range strings.Split(string(raw), "\n") {
+	for line := range strings.SplitSeq(string(raw), "\n") {
 		if !inMessage {
 			inMessage = strings.HasPrefix(strings.TrimSpace(line), "message "+message+" {")
 			continue

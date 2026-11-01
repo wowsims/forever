@@ -62,7 +62,7 @@ func init() {
 			})
 			return tester
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_RestorationShaman)
 		},
 	)
@@ -79,7 +79,7 @@ func init() {
 			owner.AddPet(owner.pet)
 			return owner
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_Hunter)
 		},
 	)
@@ -149,7 +149,7 @@ func withAuraItem(id int32, itemType proto.ItemType, effects ...*proto.ItemEffec
 	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{item}})
 }
 
-func auraPlayer(name string, class proto.Class, spec interface{}, slotted map[proto.ItemSlot]int32) *proto.Player {
+func auraPlayer(name string, class proto.Class, spec any, slotted map[proto.ItemSlot]int32) *proto.Player {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}

@@ -13,7 +13,7 @@ func RegisterRestorationDruid() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewRestorationDruid(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_RestorationDruid)
 			if !ok {
 				panic("Invalid spec value for Restoration Druid!")

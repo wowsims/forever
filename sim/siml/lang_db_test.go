@@ -699,8 +699,8 @@ func TestQuickFixDidYouMean(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 	fixed := text
-	for i := len(fixes) - 1; i >= 0; i-- {
-		e := fixes[i].Edits[0]
+	for _, f := range slices.Backward(fixes) {
+		e := f.Edits[0]
 		fixed = fixed[:d.Offset(e.Range.Start)] + e.NewText + fixed[d.Offset(e.Range.End):]
 	}
 	var codes []string

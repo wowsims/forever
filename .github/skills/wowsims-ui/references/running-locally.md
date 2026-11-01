@@ -45,7 +45,7 @@ never resolves, `loadSettings` never runs and the page looks structurally fine b
 error. Build the workers first:
 
 ```
-npx tsx vite.build-workers.mts     # dist/forever/{local,net,sim}_worker.js and highs.wasm
+node vite.build-workers.mts     # dist/forever/{local,net,sim}_worker.js and highs.wasm
 ```
 
 A fresh worktree also needs the generated files (`verification.md`, last section).

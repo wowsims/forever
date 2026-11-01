@@ -80,7 +80,7 @@ List the opt-outs with `/usr/bin/grep -rn "smoke: false" ui --include=*.stories.
 The cheap UI gates run first, so a formatting slip reports in about a minute. `deploy.yml` and `release.yml` reuse the
 workflow through `workflow_call` with `needs: tests`, so every gate also blocks a deploy and a release.
 
-`make dist/forever/.dirstamp` runs `tsc --noEmit`, `npx tsx vite.build-workers.mts` and `npx vite build` through
+`make dist/forever/.dirstamp` runs `tsc --noEmit`, `node vite.build-workers.mts` and `npx vite build` through
 `dist/forever/bundle/.dirstamp`, and also builds `dist/forever/lib.wasm.gz`, `ui/generated/proto/api.ts` and the asset
 copies. Build the site through make rather than by calling `vite build` alone.
 

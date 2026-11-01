@@ -100,10 +100,7 @@ func (e *Effect) levelGain(level int32) float32 {
 		lvl = int32(e.MaxLevel)
 	}
 
-	delta := lvl - int32(e.BaseLevel)
-	if delta < 0 {
-		delta = 0
-	}
+	delta := max(lvl-int32(e.BaseLevel), 0)
 
 	return float32(float32(delta) * float32(e.PPL))
 }

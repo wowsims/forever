@@ -2,26 +2,20 @@ import { IndividualSimSettings } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SIM_CATEGORY_KEYS, SimSettingCategories } from '@sim/constants/sim_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
-import { LINK_CATEGORY_PARAM, LINK_DEFAULT_CATEGORIES } from '@sim/state/sim_links';
+import { encodeLinkHash, LINK_CATEGORY_PARAM, LINK_DEFAULT_CATEGORIES } from '@sim/state/sim_links';
 import { withoutStatFilters } from '@sim/state/stat_filter_sharing';
 import { arrayEquals } from '@sim/utils/collections';
-import { default as pako } from 'pako';
 
 import { selectedCategories } from './categories';
 import type { ExporterDefinition } from './types';
 
-export const createLink = (host: IndividualSimHost<any>, exportCategories?: Array<SimSettingCategories>): string => {
+export const createLink = async (host: IndividualSimHost<any>, exportCategories?: Array<SimSettingCategories>): Promise<string> => {
 	if (!exportCategories) {
 		exportCategories = LINK_DEFAULT_CATEGORIES;
 	}
 
 	const proto = withoutStatFilters(host.toProto(exportCategories));
-
-	const protoBytes = IndividualSimSettings.toBinary(proto);
-	// @ts-ignore Pako did some weird stuff between versions and the @types package doesn't correctly support this syntax for version 2.0.4 but it's completely valid
-	// The syntax was removed in 2.1.0 and there were several complaints but the project seems to be largely abandoned now
-	const deflated = pako.deflate(protoBytes, { to: 'string' });
-	const encoded = btoa(String.fromCharCode(...deflated));
+	const encoded = await encodeLinkHash(IndividualSimSettings.toBinary(proto));
 
 	const linkUrl = new URL(window.location.href);
 	linkUrl.hash = encoded;

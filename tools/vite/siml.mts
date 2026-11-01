@@ -8,12 +8,11 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { normalizePath, type Plugin } from 'vite';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const ROOT = path.resolve(import.meta.dirname, '../..');
 const NAMES = path.join(ROOT, 'sim/siml/names.json');
 const BUILT = path.join(ROOT, 'bin', process.platform === 'win32' ? 'wowsimcli.exe' : 'wowsimcli');
 

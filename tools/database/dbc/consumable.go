@@ -69,8 +69,8 @@ func (t TemporaryEnchant) ToProto() *proto.SimEnchant {
 	return simEnchant
 }
 
-func (c *Consumable) ToMap() map[string]interface{} {
-	return map[string]interface{}{
+func (c *Consumable) ToMap() map[string]any {
+	return map[string]any{
 		"Id":                 c.Id,
 		"Name":               c.Name,
 		"ItemLevel":          c.ItemLevel,

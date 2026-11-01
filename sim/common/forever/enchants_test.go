@@ -23,7 +23,7 @@ func init() {
 		func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
 			return &testDruid{Character: *character}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_BalanceDruid)
 		},
 	)
@@ -33,7 +33,7 @@ func init() {
 		func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
 			return &testHunter{Character: *character}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_Hunter)
 		},
 	)

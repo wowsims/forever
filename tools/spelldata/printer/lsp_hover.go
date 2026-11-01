@@ -325,8 +325,8 @@ func calledFunctionName(call *ast.CallExpr) string {
 }
 
 func enclosingBody(nodes []ast.Node) *ast.BlockStmt {
-	for i := len(nodes) - 1; i >= 0; i-- {
-		switch fn := nodes[i].(type) {
+	for _, node := range slices.Backward(nodes) {
+		switch fn := node.(type) {
 		case *ast.FuncDecl:
 			return fn.Body
 		case *ast.FuncLit:

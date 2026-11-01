@@ -529,7 +529,7 @@ func TestBearChargeMovement(t *testing.T) {
 			player.DistanceFromTarget = distance
 			sim := core.NewSim(req, simsignals.CreateSignals())
 			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
-			for iteration := 0; iteration < 2; iteration++ {
+			for range 2 {
 				sim.Reset()
 				speed := bear.GetMovementSpeed()
 				bear.AddRage(sim, 20, bear.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRefund}))

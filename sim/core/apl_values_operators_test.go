@@ -51,8 +51,7 @@ func BenchmarkAPLValueMath_GetFloat(b *testing.B) {
 		// rhsType:             proto.APLValueType_ValueTypeDuration, // This is the problematic type mismatch!
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = mathOp.GetFloat(sim)
 	}
 }
@@ -81,8 +80,7 @@ func BenchmarkAPLValueCompare_GetBool(b *testing.B) {
 		// rhsType:             proto.APLValueType_ValueTypeFloat,
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = compare.GetBool(sim)
 	}
 }
@@ -103,8 +101,7 @@ func BenchmarkAPLTypeCoercion(b *testing.B) {
 		durationVal:         time.Second * 10,
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _ = rot.coerceToSameType(intVal, durationVal)
 	}
 }
@@ -140,8 +137,7 @@ func BenchmarkAPLWarlockCoercionCase(b *testing.B) {
 		// rhsType:             rhs.Type(),
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = mathOp.GetDuration(sim)
 	}
 }
@@ -170,8 +166,7 @@ func BenchmarkAPLDurationMath(b *testing.B) {
 		// rhsType:             proto.APLValueType_ValueTypeDuration,
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = mathOp.GetDuration(sim)
 	}
 }

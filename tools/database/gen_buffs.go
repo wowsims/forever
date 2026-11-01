@@ -507,10 +507,10 @@ func repoRoot() (string, error) {
 // whose proto field has not been retyped yet would otherwise generate code that
 // cannot compile.
 var buffScopeMessages = map[buffmanifest.BuffScope]reflect.Type{
-	buffmanifest.ScopeRaid:       reflect.TypeOf(proto.RaidBuffs{}),
-	buffmanifest.ScopeParty:      reflect.TypeOf(proto.PartyBuffs{}),
-	buffmanifest.ScopeIndividual: reflect.TypeOf(proto.IndividualBuffs{}),
-	buffmanifest.ScopeDebuff:     reflect.TypeOf(proto.Debuffs{}),
+	buffmanifest.ScopeRaid:       reflect.TypeFor[proto.RaidBuffs](),
+	buffmanifest.ScopeParty:      reflect.TypeFor[proto.PartyBuffs](),
+	buffmanifest.ScopeIndividual: reflect.TypeFor[proto.IndividualBuffs](),
+	buffmanifest.ScopeDebuff:     reflect.TypeFor[proto.Debuffs](),
 }
 
 var buffProtoTypeNames = map[buffmanifest.BuffProtoType]string{

@@ -195,7 +195,7 @@ func TestCastRequirementCastPath(t *testing.T) {
 	sim.CurrentTime = 0
 
 	var logs []string
-	sim.Log = func(message string, vals ...interface{}) {
+	sim.Log = func(message string, vals ...any) {
 		logs = append(logs, message)
 	}
 

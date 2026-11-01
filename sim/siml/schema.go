@@ -553,7 +553,7 @@ func (b *builder) resolvePath(p string, spec SpecInfo) (protoreflect.MessageDesc
 	if p == "" {
 		return md, jsonPath, nil
 	}
-	for _, seg := range strings.Split(p, ".") {
+	for seg := range strings.SplitSeq(p, ".") {
 		fd := md.Fields().ByName(protoreflect.Name(seg))
 		name := ""
 		if seg == "*" {

@@ -354,7 +354,7 @@ func tsString(text string) string {
 func wrapTSComment(text string) []string {
 	var lines []string
 	line := "//"
-	for _, word := range strings.Fields(text) {
+	for word := range strings.FieldsSeq(text) {
 		if len(line)+1+len(word) > tsPrintWidth {
 			lines = append(lines, line)
 			line = "//"

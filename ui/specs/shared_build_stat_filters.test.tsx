@@ -46,7 +46,7 @@ describe('a shared build', () => {
 		sender.sim.raid.setBuffs({ ...sender.sim.raid.getBuffs(), arcaneBrilliance: true });
 		sender.player.setConsumes(ConsumesSpec.create({ elixirIds: [ELIXIR_OF_GREATER_AGILITY.id] }));
 		sender.sim.setFilters({ ...sender.sim.getFilters(), statFilters: StatFilters.create({ buffs: selectionOf(Stat.StatIntellect) }) });
-		const link = new URL(createLink(sender.host, getEnumValues(SimSettingCategories) as Array<SimSettingCategories>));
+		const link = new URL(await createLink(sender.host, getEnumValues(SimSettingCategories) as Array<SimSettingCategories>));
 
 		const autosave = await warriorSim();
 		autosave.sim.setFilters({ ...autosave.sim.getFilters(), statFilters: viewerStatFilters });

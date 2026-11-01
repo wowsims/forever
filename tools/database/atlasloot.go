@@ -35,8 +35,8 @@ func readAtlasLootSourceData(db *WowDatabase, expansion proto.Expansion, srcUrl 
 
 	itemPattern := regexp.MustCompile(`^\[([0-9]+)\] = {(.*)},$`)
 	typePattern := regexp.MustCompile(`\[3\] = (\d+),.*\[4\] = (\d+)`)
-	lines := strings.Split(srcTxt, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(srcTxt, "\n")
+	for line := range lines {
 		match := itemPattern.FindStringSubmatch(line)
 		if match != nil {
 			idStr := match[1]
