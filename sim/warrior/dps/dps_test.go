@@ -30,6 +30,7 @@ func BenchmarkDpsWarrior(b *testing.B) {
 }
 
 func dpsWarriorSuite() core.CharacterSuiteConfig {
+	fury := core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury")
 	return core.CharacterSuiteConfig{
 		Class:      proto.Class_ClassWarrior,
 		Race:       proto.Race_RaceOrc,
@@ -48,11 +49,11 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 		Profession1:      proto.Profession_Engineering,
 		Profession2:      proto.Profession_Blacksmithing,
 
-		Rotation: core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury"),
+		Rotation: fury,
 		OtherRotations: []core.RotationCombo{
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
 			armsStanceDanceRotation(),
-			core.RotationWithSpellIds("fury_trainer_ranks", core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury"), map[int32]int32{25286: 11567, 25289: 11551}),
+			core.RotationWithSpellIds("fury_trainer_ranks", fury, map[int32]int32{25286: 11567, 25289: 11551}),
 		},
 
 		ItemFilter: core.ItemFilter{

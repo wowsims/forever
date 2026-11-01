@@ -54,33 +54,23 @@ func TestTrainerTotemRanksBesideBookRanks(t *testing.T) {
 		{"Strength of Earth Totem", stats.Strength, 10442, 10441, 25361, 25362},
 		{"Grace of Air Totem", stats.Agility, 10627, 10626, 25359, 25360},
 	} {
-		statFrom := func(totem, buff int32) float64 {
+		cast := func(totem, buff, otherBuff int32, wantGain float64) {
 			t.Helper()
 			before := sham.GetStat(tc.stat)
 			sham.GetSpell(core.ActionID{SpellID: totem}).SkipCastAndApplyEffects(sim, &sham.Unit)
-			if !sham.GetAuraByID(core.ActionID{SpellID: buff}).IsActive() {
-				t.Errorf("%s: casting %d left buff %d down", tc.name, totem, buff)
+			if got := sham.GetStat(tc.stat) - before; got != wantGain {
+				t.Errorf("%s: casting %d changes the stat by %v, want %v", tc.name, totem, got, wantGain)
 			}
-			return sham.GetStat(tc.stat) - before
+			if !sham.GetAuraByID(core.ActionID{SpellID: buff}).IsActive() || sham.GetAuraByID(core.ActionID{SpellID: otherBuff}).IsActive() {
+				t.Errorf("%s: casting %d does not leave buff %d alone in the slot", tc.name, totem, buff)
+			}
 		}
 
 		trainerAmount := spelldata.MustFind(tc.trainerBuff).EffectN(1).Average()
 		bookAmount := spelldata.MustFind(tc.bookBuff).EffectN(1).Average()
-		if got := statFrom(tc.trainerTotem, tc.trainerBuff); got != trainerAmount {
-			t.Errorf("%s: the trainer rank grants %v, want %v", tc.name, got, trainerAmount)
-		}
-		if got := statFrom(tc.bookTotem, tc.bookBuff); got != bookAmount-trainerAmount {
-			t.Errorf("%s: the book rank over the trainer's adds %v, want %v", tc.name, got, bookAmount-trainerAmount)
-		}
-		if sham.GetAuraByID(core.ActionID{SpellID: tc.trainerBuff}).IsActive() {
-			t.Errorf("%s: the book rank left the trainer's buff up, want one totem to a slot", tc.name)
-		}
-		if got := statFrom(tc.trainerTotem, tc.trainerBuff); got != trainerAmount-bookAmount {
-			t.Errorf("%s: the trainer rank over the book's adds %v, want %v", tc.name, got, trainerAmount-bookAmount)
-		}
-		if sham.GetAuraByID(core.ActionID{SpellID: tc.bookBuff}).IsActive() {
-			t.Errorf("%s: the trainer rank left the book's buff up, want one totem to a slot", tc.name)
-		}
+		cast(tc.trainerTotem, tc.trainerBuff, tc.bookBuff, trainerAmount)
+		cast(tc.bookTotem, tc.bookBuff, tc.trainerBuff, bookAmount-trainerAmount)
+		cast(tc.trainerTotem, tc.trainerBuff, tc.bookBuff, trainerAmount-bookAmount)
 	}
 }
 

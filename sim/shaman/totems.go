@@ -12,10 +12,8 @@ var windfuryTotemRank = spellData.WindfuryTotem.Highest()
 
 // Strength of Earth's rank 4 and Grace of Air's rank 2 are the last ranks the trainer teaches; the Tablet of
 // Strength of Earth Totem V and Tablet of Grace of Air Totem III books teach the ranks above them.
-var strengthOfEarthTotemTrainerRank = spellData.StrengthOfEarthTotem.ByID(10442)
-var strengthOfEarthTotemBookRank = spellData.StrengthOfEarthTotem.ByID(25361)
-var graceOfAirTotemTrainerRank = spellData.GraceOfAirTotem.ByID(10627)
-var graceOfAirTotemBookRank = spellData.GraceOfAirTotem.ByID(25359)
+var strengthOfEarthTotemRanks = []*spelldata.Spell{spellData.StrengthOfEarthTotem.ByID(10442), spellData.StrengthOfEarthTotem.ByID(25361)}
+var graceOfAirTotemRanks = []*spelldata.Spell{spellData.GraceOfAirTotem.ByID(10627), spellData.GraceOfAirTotem.ByID(25359)}
 
 var manaSpringTotemRank = spellData.ManaSpringTotem.Highest()
 var flametongueTotemRank = spellData.FlametongueTotem.Highest()
@@ -99,14 +97,14 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 func (shaman *Shaman) registerStrengthOfEarthTotemSpell() {
 	// The rows already carry Enhancing Totems: Strength of Earth's and Grace of Air's amounts are its 15%
 	// over their untalented values, so nothing applies the talent.
-	for _, rank := range []*spelldata.Spell{strengthOfEarthTotemTrainerRank, strengthOfEarthTotemBookRank} {
+	for _, rank := range strengthOfEarthTotemRanks {
 		shaman.registerBuffTotem(rank, EarthTotem,
 			buffs.NewSpellDataStrengthOfEarthTotemRankAura(&shaman.Unit, spellData.StrengthOfEarthTotemTriggered.Rank(rank.RankNumber())))
 	}
 }
 
 func (shaman *Shaman) registerGraceOfAirTotemSpell() {
-	for _, rank := range []*spelldata.Spell{graceOfAirTotemTrainerRank, graceOfAirTotemBookRank} {
+	for _, rank := range graceOfAirTotemRanks {
 		shaman.registerBuffTotem(rank, AirTotem,
 			buffs.NewSpellDataGraceOfAirTotemRankAura(&shaman.Unit, spellData.GraceOfAirTotemTriggered.Rank(rank.RankNumber())))
 	}

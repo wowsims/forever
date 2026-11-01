@@ -101,8 +101,9 @@ type ActionRef struct {
 // its number its position there, and its names, owner and left-out auras are read off its spell.
 type BuffSpec struct {
 	Field string // proto field name, snake_case
-	// SpellID is the spell the aura's numbers are read from: the top rank of the castable family, or
-	// the aura that family's cast applies when the cast is a summon or a dummy. CastID is that cast,
+	// SpellID is the spell the aura's numbers are read from: the top rank of the castable family (the
+	// trainer's top rank where only a class book teaches the rank above it), or the aura that family's
+	// cast applies when the cast is a summon or a dummy. CastID is that cast,
 	// the spell the player learns, which names the buff and times an external cooldown. Both are
 	// roots of the spell store.
 	SpellID int32

@@ -42,12 +42,12 @@ var unanchoredBuffs = map[string]string{
 	"dark_inspiration": "the shadow talent 1326159 triggers it, and the trait tree's node grants the talent",
 }
 
-// The rows that pin the trainer's top rank, each with the rank above it that only a class book teaches,
-// which is the one the game files resolve.
-var trainerRankBuffs = map[string]int32{
-	"battle_shout":            25289, // Manual of Battle Shout VII
-	"strength_of_earth_totem": 25362, // Tablet of Strength of Earth Totem V
-	"grace_of_air_totem":      25360, // Tablet of Grace of Air Totem III
+// The rows that pin the trainer's top rank, each with the class book that teaches the rank above it. SkillLineAbility
+// states the book's rank like a trained one, so this list is what tells them apart.
+var trainerRankBuffs = map[string]string{
+	"battle_shout":            "Manual of Battle Shout VII",
+	"strength_of_earth_totem": "Tablet of Strength of Earth Totem V",
+	"grace_of_air_totem":      "Tablet of Grace of Air Totem III",
 }
 
 func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
@@ -85,6 +85,9 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		}
 
 		cast := topRank(cands, classMask)
+		if _, trainerRank := trainerRankBuffs[row.Field]; trainerRank {
+			cast = topRank(slices.DeleteFunc(cands, func(c buffCandidate) bool { return c.Rank == cast.Rank }), classMask)
+		}
 		aura := cast.SpellID
 		if row.AuraName != "" {
 			if aura, err = auraFamilyMember(db, row.AuraName, cast.Subtext); err != nil {
@@ -92,19 +95,11 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 			}
 		}
 
-		resolved := row.SpellID
-		book, trainerRank := trainerRankBuffs[row.Field]
-		if trainerRank {
-			resolved = book
+		if row.SpellID != aura {
+			t.Errorf("%s: the manifest pins spell %d, the game files resolve %d", row.Field, row.SpellID, aura)
 		}
-		if resolved != aura {
-			t.Errorf("%s: the manifest pins spell %d, which stands for %d; the game files resolve %d", row.Field, row.SpellID, resolved, aura)
-		}
-		if !trainerRank && row.CastID != 0 && row.CastID != cast.SpellID {
+		if row.CastID != 0 && row.CastID != cast.SpellID {
 			t.Errorf("%s: the manifest pins cast %d, the game files resolve %d", row.Field, row.CastID, cast.SpellID)
-		}
-		if trainerRank && row.CastID != 0 && !slices.ContainsFunc(cands, func(c buffCandidate) bool { return c.SpellID == row.CastID }) {
-			t.Errorf("%s: the manifest pins cast %d, which no SkillLineAbility row grants under %q", row.Field, row.CastID, row.Name)
 		}
 		if runes[aura] {
 			t.Errorf("%s: spell %d is granted by a rune, which is a class rune and not a raid buff", row.Field, aura)

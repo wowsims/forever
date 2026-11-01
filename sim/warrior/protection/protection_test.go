@@ -23,6 +23,7 @@ func BenchmarkProtectionWarrior(b *testing.B) {
 }
 
 func protectionWarriorSuite() core.CharacterSuiteConfig {
+	preset := core.GetAplRotation("../../../ui/specs/warrior/protection/apls", "default")
 	return core.CharacterSuiteConfig{
 		Class:      proto.Class_ClassWarrior,
 		Race:       proto.Race_RaceOrc,
@@ -39,9 +40,9 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 		Profession1:      proto.Profession_Engineering,
 		Profession2:      proto.Profession_Blacksmithing,
 
-		Rotation: core.GetAplRotation("../../../ui/specs/warrior/protection/apls", "default"),
+		Rotation: preset,
 		OtherRotations: []core.RotationCombo{
-			core.RotationWithSpellIds("default_trainer_ranks", core.GetAplRotation("../../../ui/specs/warrior/protection/apls", "default"), map[int32]int32{25286: 11567, 25289: 11551, 25288: 11601}),
+			core.RotationWithSpellIds("default_trainer_ranks", preset, map[int32]int32{25286: 11567, 25289: 11551, 25288: 11601}),
 		},
 
 		IndividualBuffs: core.FullTankIndividualBuffs,
