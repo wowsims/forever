@@ -1,3 +1,6 @@
+// Runs as `node vite.build-workers.mts`, on Node's own type stripping: it resolves no `.mjs` name for an `.mts`
+// source and keeps an import that is only used as a type, so this file and everything it loads (`vite.config.mts`,
+// `tools/vite/*.mts`) name their `.mts` imports and mark their type imports with `type`.
 import fs from 'node:fs/promises';
 
 import { exec as syncExec } from 'child_process';

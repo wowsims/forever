@@ -45,7 +45,7 @@
     "wowsims-dependencies": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "a8e1b950e9b08b693cad707ea23b24f4b3b69e7f80dc2dac9a5f0631d9da2d17"
+      "computedHash": "d2080ffec3beec15a44bf1c721664e37bd9d540a8ce02a82f29e74844b5c1266"
     },
     "wowsims-procs": {
       "source": "./.github/skills",

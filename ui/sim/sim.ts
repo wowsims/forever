@@ -135,7 +135,7 @@ export class Sim {
 	private db_: Database | null = null;
 	// The settings the page's link carries, decoded before `waitForInit` resolves so that the settings load
 	// at its first callback stays synchronous: callbacks registered after it expect the settings applied.
-	private linkedSettings_: UrlParseData | null = null;
+	linkedSettings: UrlParseData | null = null;
 
 	// The Zustand store backing this sim's state (see state/sim_store.ts).
 	// Declared before the facades that write it.
@@ -196,7 +196,7 @@ export class Sim {
 				await this.resolveIsNative();
 			}),
 			tryParseUrlLocation(this.env.location).then(
-				linked => (this.linkedSettings_ = linked),
+				linked => (this.linkedSettings = linked),
 				(e: unknown) => console.warn('Failed to parse link settings: ' + e),
 			),
 		]);
@@ -267,10 +267,6 @@ export class Sim {
 
 	get db(): Database {
 		return this.db_!;
-	}
-
-	get linkedSettings(): UrlParseData | null {
-		return this.linkedSettings_;
 	}
 
 	setModifyRaidProto(newModFn: (raidProto: RaidProto) => void) {

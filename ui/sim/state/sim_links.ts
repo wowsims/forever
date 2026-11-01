@@ -20,6 +20,32 @@ export interface UrlLocation {
 	readonly search: string;
 }
 
+// Bytes per `String.fromCharCode` call, far below the engines' argument limits.
+const CHAR_CODE_CHUNK = 0x8000;
+
+// A link's hash is the settings' binary form as zlib-wrapped deflate (the 'deflate' format, not 'deflate-raw'),
+// then standard base64. `wowsimcli decodelink` reads the same.
+export async function encodeLinkHash(bytes: Uint8Array): Promise<string> {
+	// `slice()` types the bytes as ArrayBuffer-backed, which a BlobPart needs.
+	const deflatedStream = new Blob([bytes.slice()]).stream().pipeThrough(new CompressionStream('deflate'));
+	const deflated = new Uint8Array(await new Response(deflatedStream).arrayBuffer());
+	let binary = '';
+	for (let i = 0; i < deflated.length; i += CHAR_CODE_CHUNK) {
+		binary += String.fromCharCode(...deflated.subarray(i, i + CHAR_CODE_CHUNK));
+	}
+	return btoa(binary);
+}
+
+export async function decodeLinkHash(hash: string): Promise<Uint8Array> {
+	const binary = atob(hash);
+	const bytes = new Uint8Array(binary.length);
+	for (let i = 0; i < bytes.length; i++) {
+		bytes[i] = binary.charCodeAt(i);
+	}
+	const inflated = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
+	return new Uint8Array(await new Response(inflated).arrayBuffer());
+}
+
 // `loc` is any location-shaped source: `sim.env.location`, `window.location`
 // or a parsed `URL`.
 export async function tryParseUrlLocation(loc: UrlLocation): Promise<UrlParseData | null> {
@@ -30,16 +56,7 @@ export async function tryParseUrlLocation(loc: UrlLocation): Promise<UrlParseDat
 
 	// Remove leading '#'
 	hash = hash.substring(1);
-	const binary = atob(hash);
-	const bytes = new Uint8Array(binary.length);
-	for (let i = 0; i < bytes.length; i++) {
-		bytes[i] = binary.charCodeAt(i);
-	}
-
-	// The hash is zlib-wrapped deflate: the 'deflate' format, not 'deflate-raw'. `wowsimcli decodelink` reads the same.
-	const inflated = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
-	const settingsBytes = new Uint8Array(await new Response(inflated).arrayBuffer());
-	const settings = IndividualSimSettings.fromBinary(settingsBytes);
+	const settings = IndividualSimSettings.fromBinary(await decodeLinkHash(hash));
 
 	let exportCategories = LINK_DEFAULT_CATEGORIES;
 	const urlParams = new URLSearchParams(loc.search);
