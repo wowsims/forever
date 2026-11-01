@@ -67,8 +67,20 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 	const playerMetrics = players[0];
 	const spec = playerMetrics.spec?.specID;
 	const isTank = TANK_SPECS.includes(spec);
+	const isHealer = playerMetrics.spec?.isHealingSpec ?? false;
 
-	if (playerMetrics.getTargetIndex(filter) === null) {
+	const targetIndex = playerMetrics.getTargetIndex(filter);
+	const filteredActions = targetIndex === null ? [] : simResult.getRaidIndexedActionMetrics(filter);
+	const filteredMetric = filteredActions.length ? ActionMetrics.merge(filteredActions) : null;
+
+	const hpsColumn = isTank
+		? null
+		: targetIndex === null
+			? column('hps', playerMetrics.hps.avg, { stdev: playerMetrics.hps.stdev })
+			: column('hps', filteredMetric?.hps ?? 0);
+	if (isHealer && hpsColumn) resultColumns.push(hpsColumn);
+
+	if (targetIndex === null) {
 		const { chanceOfDeath, dps: dpsMetrics, tps: tpsMetrics, dtps: dtpsMetrics, tmi: tmiMetrics } = playerMetrics;
 
 		resultColumns.push(column('dps', dpsMetrics.avg, { stdev: dpsMetrics.stdev }));
@@ -83,9 +95,8 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 			resultColumns.push(column('cod', chanceOfDeath.avg, { stdev: chanceOfDeath.stdev, unit: 'percentage' }));
 		}
 	} else {
-		const actions = simResult.getRaidIndexedActionMetrics(filter);
-		if (!!actions.length) {
-			const { dps, tps } = ActionMetrics.merge(actions);
+		if (filteredMetric) {
+			const { dps, tps } = filteredMetric;
 			resultColumns.push(column('dps', dps));
 			resultColumns.push(column('tps', tps));
 			resultColumns.push(column('apm', playerMetrics.actionsPerMinute(filter)));
@@ -103,8 +114,10 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 	}
 
 	if (!isTank) {
-		resultColumns.push(column('tto', playerMetrics.tto.avg, { stdev: playerMetrics.tto.stdev, unit: 'seconds' }));
-		resultColumns.push(column('hps', playerMetrics.hps.avg, { stdev: playerMetrics.hps.stdev }));
+		if (!isHealer) {
+			resultColumns.push(column('tto', playerMetrics.tto.avg, { stdev: playerMetrics.tto.stdev, unit: 'seconds' }));
+		}
+		if (!isHealer && hpsColumn) resultColumns.push(hpsColumn);
 	}
 
 	if (simResult.request.encounter?.useHealth) {
@@ -119,12 +132,12 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 		resultColumns.push(column('oom', secondsOOM, { unit: 'seconds', extraClass: DANGER_TEXT[dangerLevel] }));
 	}
 
-	if (!displayMetrics) return resultColumns;
-
-	// Threat per second and actions per minute are the metrics every spec shows; the rest follow the setting.
-	return resultColumns.filter(({ metric }) => {
-		if (metric === 'tps' || metric === 'apm') return true;
-		const category = resultMetricCategories[metric];
-		return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
-	});
+	return displayMetrics
+		? resultColumns.filter(({ metric }) => {
+				// Threat per second and actions per minute are the metrics every spec shows; the rest follow the setting.
+				if (metric === 'tps' || metric === 'apm') return true;
+				const category = resultMetricCategories[metric];
+				return category !== 'damage' && category !== 'threat' && category !== 'healing' ? true : displayMetrics[category];
+			})
+		: resultColumns;
 };

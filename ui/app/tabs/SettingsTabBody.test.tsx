@@ -32,7 +32,7 @@ vi.mock('@features/settings', () => ({
 	},
 	ConsumesFilters: () => null,
 	ConsumesPicker: () => null,
-	CustomSection: () => null,
+	CustomSection: ({ section }: { section: { id: string } }) => <section data-custom-section={section.id} />,
 	OtherSettings: () => null,
 	PlayerSettings: () => null,
 	SavedSettings: () => null,
@@ -55,11 +55,11 @@ const SPEC = {
 
 beforeAll(() => serveDatabase());
 
-const setup = async (overrides: Partial<typeof SPEC> = {}) => {
+const setup = async (overrides: Partial<typeof SPEC> & { sections?: Array<{ id: string; title: string }> } = {}, simDisabled = false) => {
 	const config = { ...SPEC, ...overrides };
 	const { sim, player } = await makeIndividualSim({ config });
 	rendered = [];
-	renderWithHost(<SettingsTabBody />, { sim, player, individualConfig: config, getStorageKey: (keyPart: string) => `test${keyPart}` });
+	renderWithHost(<SettingsTabBody />, { sim, player, individualConfig: config, simDisabled, getStorageKey: (keyPart: string) => `test${keyPart}` });
 	return { sim, player };
 };
 
@@ -130,6 +130,27 @@ describe('SettingsTabBody sections', () => {
 
 		act(() => player.getRaid()!.setBuffs(RaidBuffs.create({ arcaneBrilliance: true })));
 		expect(section('raid_buffs')?.getAttribute('data-empty')).toBe('false');
+	});
+});
+
+describe('SettingsTabBody custom sections', () => {
+	const sections = [
+		{ id: 'healing-settings', title: 'Healing Settings' },
+		{ id: 'healing-inputs', title: 'Healing Inputs' },
+	];
+	const customSections = () => [...document.querySelectorAll('[data-custom-section]')].map(node => node.getAttribute('data-custom-section'));
+
+	it("renders the spec's sections in order while the sim runs", async () => {
+		await setup({ sections });
+
+		expect(customSections()).toEqual(['healing-settings', 'healing-inputs']);
+	});
+
+	it('leaves the sections and the debuffs out with simulation disabled', async () => {
+		await setup({ sections }, true);
+
+		expect(customSections()).toEqual([]);
+		expect(section('debuffs')).toBeNull();
 	});
 });
 

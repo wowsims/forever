@@ -457,7 +457,6 @@
 		"title_class": "Forever {{class}} simulator",
 		"description_class": "{{class}} simulations for World of Warcraft® Forever.",
 		"basic_bis_disclaimer": "<p>Preset gear lists are intended as rough approximations of BIS, and will often not be the absolute highest-DPS setup for you. Your optimal gear setup will depend on many factors; that's why we have a sim!</p><p>Items may also be omitted from the presets if they are highly contested and clearly better utilized on other classes, to encourage equitable gearing for the raid as a whole.</p>",
-		"healing_sim_disclaimer": "*** WARNING - USE AT YOUR OWN RISK ***\n\nThe entire concept of a healing sim is EXPERIMENTAL. All results should be taken with an EXTREMELY large grain of salt.\n\nThis tool is currently more similar to a spreadsheet than a true sim. Options for specifying incoming damage profiles in order to have proper reactive rotations have not yet been added.",
 		"notice_native_download": {
 			"title": "Did you know?",
 			"message": "You can download our local sim to speed up your simulations significantly?",
@@ -973,6 +972,19 @@
 				"offensive": "Offensive",
 				"defensive": "Defensive"
 			}
+		},
+		"healing_settings": {
+			"title": "Healing Settings",
+			"assignment": "Healing assignment",
+			"tank_healing": "Tank Healer",
+			"raid_healing": "Raid healing",
+			"group_size": "Group size",
+			"dungeon_group": "Dungeon (5-player group)",
+			"ten_player": "10 player raid",
+			"twenty_player": "20 player raid"
+		},
+		"healing_inputs": {
+			"title": "Healing Inputs"
 		},
 		"encounter": {
 			"title": "Encounter",
@@ -2199,6 +2211,8 @@
 				"external_debuffs": "External Debuffs",
 				"variables": "Variables",
 				"groups": "Groups",
+				"heal_target": "Heal Target",
+				"group": "Group {{group}}",
 				"stances": "Stances"
 			},
 			"item_swap_sets": {
@@ -2245,9 +2259,11 @@
 					"current_target": "Current Target",
 					"previous_target": "Previous Target",
 					"next_target": "Next Target",
+					"random_friendly_target": "Random Friendly Target",
 					"player": "Player",
 					"target": "Target",
-					"pet": "Pet"
+					"pet": "Pet",
+					"heal_target": "Heal Target"
 				},
 				"placeholder_tooltip": "The potion of this class picked in the Consumables, before the pull or in combat.",
 				"select_variable": "Select Variable",
@@ -2455,6 +2471,8 @@
 			"sim_1_death": "Simulate a Death",
 			"all_targets": "All Targets",
 			"target_number": "Target {{number}}",
+			"healer_target": "Healer",
+			"heal_target_number": "Heal Target {{number}}",
 			"group_ranks": "Group ranks",
 			"show_apm_breakdown": "Show APM breakdown",
 			"pets": "Pets",
@@ -2915,11 +2933,13 @@
 			},
 			"feature_toggles": {
 				"show_threat_metrics": "Show threat/tank options",
+				"show_damage_metrics": "Show damage metrics",
 				"show_experimental": "Show experimental",
 				"show_power_tools": "Show power tools",
 				"show_power_tools_tooltip": "Shows more tools for theorycrafting.",
 				"show_quick_swap": "Show quick swap interface",
 				"show_threat_metrics_tooltip": "Shows all options and metrics relevant to tanks, like TPS/DTPS.",
+				"show_damage_metrics_tooltip": "Shows damage options and DPS results for healers who weave in damage.",
 				"show_experimental_tooltip": "Shows experimental options, if there are any active experiments.",
 				"show_quick_swap_tooltip": "Allows you to quickly swap enchants through your favorites. (Disabled on touch devices)"
 			},

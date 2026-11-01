@@ -1,4 +1,5 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
+import { HealingSettingsSection } from '@features/settings/model/healing_inputs';
 import { APLRotation } from '@generated/proto/apl';
 import { Debuffs } from '@generated/proto/buffs';
 import { PseudoStat, Spec, Stat } from '@generated/proto/common';
@@ -63,6 +64,7 @@ export default defineSpec<Spec.SpecHolyPaladin>({
 	otherInputs: {
 		inputs: [],
 	},
+	sections: [HealingSettingsSection],
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
 		showExecuteProportion: false,

@@ -1672,9 +1672,6 @@
 				"basic_bis_disclaimer": {
 					"type": "string"
 				},
-				"healing_sim_disclaimer": {
-					"type": "string"
-				},
 				"notice_native_download": {
 					"type": "object",
 					"properties": {
@@ -1812,7 +1809,6 @@
 				"title_class",
 				"description_class",
 				"basic_bis_disclaimer",
-				"healing_sim_disclaimer",
 				"notice_native_download",
 				"crash_modal",
 				"unlaunched",
@@ -3504,6 +3500,29 @@
 					"additionalProperties": false,
 					"required": ["title", "filters", "potions", "elixirs", "food", "holiday", "engineering", "imbue", "weaponImbue", "scrolls", "miscellaneous"]
 				},
+				"healing_settings": {
+					"type": "object",
+					"properties": {
+						"title": { "type": "string" },
+						"assignment": { "type": "string" },
+						"tank_healing": { "type": "string" },
+						"raid_healing": { "type": "string" },
+						"group_size": { "type": "string" },
+						"dungeon_group": { "type": "string" },
+						"ten_player": { "type": "string" },
+						"twenty_player": { "type": "string" }
+					},
+					"additionalProperties": false,
+					"required": ["title", "assignment", "tank_healing", "raid_healing", "group_size", "dungeon_group", "ten_player", "twenty_player"]
+				},
+				"healing_inputs": {
+					"type": "object",
+					"properties": {
+						"title": { "type": "string" }
+					},
+					"additionalProperties": false,
+					"required": ["title"]
+				},
 				"encounter": {
 					"type": "object",
 					"properties": {
@@ -4088,6 +4107,8 @@
 				"debuffs",
 				"other",
 				"consumables",
+				"healing_settings",
+				"healing_inputs",
 				"encounter",
 				"player",
 				"saved_encounters",
@@ -7761,6 +7782,12 @@
 								"groups": {
 									"type": "string"
 								},
+								"heal_target": {
+									"type": "string"
+								},
+								"group": {
+									"type": "string"
+								},
 								"stances": {
 									"type": "string"
 								}
@@ -7808,6 +7835,8 @@
 								"external_debuffs",
 								"variables",
 								"groups",
+								"heal_target",
+								"group",
 								"stances"
 							]
 						},
@@ -7975,10 +8004,16 @@
 										"next_target": {
 											"type": "string"
 										},
+										"random_friendly_target": {
+											"type": "string"
+										},
 										"player": {
 											"type": "string"
 										},
 										"target": {
+											"type": "string"
+										},
+										"heal_target": {
 											"type": "string"
 										},
 										"pet": {
@@ -7986,7 +8021,17 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["self", "current_target", "previous_target", "next_target", "player", "target", "pet"]
+									"required": [
+										"self",
+										"current_target",
+										"previous_target",
+										"next_target",
+										"random_friendly_target",
+										"player",
+										"target",
+										"heal_target",
+										"pet"
+									]
 								},
 								"placeholder_tooltip": {
 									"type": "string"
@@ -8702,6 +8747,12 @@
 							"type": "string"
 						},
 						"target_number": {
+							"type": "string"
+						},
+						"healer_target": {
+							"type": "string"
+						},
+						"heal_target_number": {
 							"type": "string"
 						},
 						"group_ranks": {
@@ -9694,6 +9745,8 @@
 						"sim_1_death",
 						"all_targets",
 						"target_number",
+						"healer_target",
+						"heal_target_number",
 						"group_ranks",
 						"show_apm_breakdown",
 						"pets",
@@ -10378,6 +10431,9 @@
 								"show_threat_metrics": {
 									"type": "string"
 								},
+								"show_damage_metrics": {
+									"type": "string"
+								},
 								"show_experimental": {
 									"type": "string"
 								},
@@ -10393,6 +10449,9 @@
 								"show_threat_metrics_tooltip": {
 									"type": "string"
 								},
+								"show_damage_metrics_tooltip": {
+									"type": "string"
+								},
 								"show_experimental_tooltip": {
 									"type": "string"
 								},
@@ -10403,11 +10462,13 @@
 							"additionalProperties": false,
 							"required": [
 								"show_threat_metrics",
+								"show_damage_metrics",
 								"show_experimental",
 								"show_power_tools",
 								"show_power_tools_tooltip",
 								"show_quick_swap",
 								"show_threat_metrics_tooltip",
+								"show_damage_metrics_tooltip",
 								"show_experimental_tooltip",
 								"show_quick_swap_tooltip"
 							]

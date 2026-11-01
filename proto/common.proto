@@ -745,6 +745,7 @@ message UnitReference {
 		AllTargets = 7;
 		PreviousTarget = 8;
 		NextTarget = 9;
+		RandomFriendlyTarget = 10;
 	}
 
 	// The type of unit being referenced.

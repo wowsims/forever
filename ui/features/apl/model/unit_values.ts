@@ -2,10 +2,11 @@ import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import { type ActionId, defaultTargetIcon, getPetIconFromName } from '@sim/proto/action_id';
+import { MAX_PARTY_SIZE } from '@sim/raid/party';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
 import type { IconName } from '@ui-kit/Icon';
 
-import { type UNIT_SET, unitSets } from './unit_sets';
+import { healTargetSlots, isRaidHealing, type UNIT_SET, unitSets } from './unit_sets';
 
 const label = (key: string) => i18n.t(`rotation_tab.apl.helpers.unit_labels.${key}`);
 
@@ -29,8 +30,8 @@ export const withIconUrl = (unit: UnitModel, resolved?: ResolvedIcon): UnitValue
 	iconUrl: typeof unit.iconUrl === 'string' ? unit.iconUrl : resolved?.iconUrl,
 });
 
-/** The icon, text and reference one unit shows as. */
-export const refToValue = (ref: UnitReference | undefined, player: Player<any>, targetUI: boolean | undefined): UnitModel => {
+/** The icon, text and reference one unit shows as; a caller labelling many units passes the heal target slots it read once. */
+export const refToValue = (ref: UnitReference | undefined, player: Player<any>, targetUI: boolean | undefined, healTargets?: Array<number>): UnitModel => {
 	if (!ref || ref.type == UnitType.Unknown) {
 		return { value: ref, icon: targetUI ? 'bullseye' : 'user', text: targetUI ? label('current_target') : label('self') };
 	}
@@ -43,9 +44,14 @@ export const refToValue = (ref: UnitReference | undefined, player: Player<any>, 
 			return { value: ref, icon: 'arrow-left', text: label('previous_target') };
 		case UnitType.NextTarget:
 			return { value: ref, icon: 'arrow-right', text: label('next_target') };
+		case UnitType.RandomFriendlyTarget:
+			return { value: ref, icon: 'user', text: label('random_friendly_target') };
 		case UnitType.Player: {
 			const other = player.sim.raid.getPlayer(ref.index);
-			return other ? { value: ref, iconUrl: other.getSpecIcon(), text: `${label('player')} ${ref.index + 1}` } : { value: ref };
+			if (other) return { value: ref, iconUrl: other.getSpecIcon(), text: `${label('player')} ${ref.index + 1}` };
+			const healTargetIndex = (healTargets ?? healTargetSlots(player)).indexOf(ref.index);
+			// Numbered across the whole raid, in the order the results filter numbers the same units.
+			return healTargetIndex >= 0 ? { value: ref, icon: 'user', text: `${label('heal_target')} ${healTargetIndex + 1}` } : { value: ref };
 		}
 		case UnitType.Target: {
 			const targetMetadata = player.sim.encounter.targetsMetadata.asList()[ref.index];
@@ -69,16 +75,31 @@ export const refToValue = (ref: UnitReference | undefined, player: Player<any>, 
 
 export interface UnitOptionModel {
 	unit: UnitModel;
-	/** A pet is filed under its owner (or under the default unit, off the target UI). */
-	submenu?: Array<UnitModel>;
+	/** Pets are filed under their owner, and healing targets under the heal-target submenu. */
+	submenu?: Array<UnitModel | string>;
 }
 
 /** The unit set's options, each with the text, icon and colour it displays with; a pet's icon may still be an `ActionId` to resolve. */
 export const unitOptionModels = (unitSet: UNIT_SET, player: Player<any>): Array<UnitOptionModel> => {
 	const set = unitSets[unitSet];
-	return set.getUnits(player).map(ref => {
-		const unit = refToValue(ref, player, set.targetUI);
+	const includesHealingTargets = unitSet !== 'self_and_pets';
+	const healingTargets = includesHealingTargets ? healTargetSlots(player) : [];
+	const raidHealing = healingTargets.length > 0 && isRaidHealing(player);
+	const models = set.getUnits(player).map(ref => {
+		const unit = refToValue(ref, player, set.targetUI, healingTargets);
+		if (ref?.type === UnitType.Player && healingTargets.includes(ref.index)) {
+			if (!raidHealing) return { unit, submenu: ['heal_target'] };
+			const group = Math.floor(ref.index / MAX_PARTY_SIZE) + 1;
+			return { unit, submenu: ['heal_target', `group_${group}`] };
+		}
 		if (ref?.type != UnitType.Pet) return { unit };
-		return { unit, submenu: [refToValue(set.targetUI ? ref.owner! : undefined, player, set.targetUI)] };
+		return { unit, submenu: [refToValue(set.targetUI ? ref.owner! : undefined, player, set.targetUI, healingTargets)] };
 	});
+	if (raidHealing) {
+		models.push({
+			unit: refToValue(UnitReference.create({ type: UnitType.RandomFriendlyTarget }), player, set.targetUI, healingTargets),
+			submenu: ['heal_target'],
+		});
+	}
+	return models;
 };

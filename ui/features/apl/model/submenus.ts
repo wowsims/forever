@@ -17,6 +17,8 @@ export interface PathOption<V> extends Omit<ChoiceOption<V>, 'submenu'> {
  */
 const submenuLabel = (segment: unknown): string => {
 	if (typeof segment !== 'string') return '';
+	const group = /^group_(\d+)$/.exec(segment);
+	if (group) return `${i18n.t('rotation_tab.apl.submenus.group', { group: group[1] })} »`;
 	if (!/^[a-z_]+$/.test(segment)) return `${segment} »`;
 	const key = `rotation_tab.apl.submenus.${segment}`;
 	const translated = i18n.t(key);

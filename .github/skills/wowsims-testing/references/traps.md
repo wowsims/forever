@@ -19,6 +19,13 @@ Numbers that move or differ for a known reason, and CI behaviour a pull request 
   `inspirationUptime`, and the UI's fallback target in `ui/sim/raid/encounter.ts` carries BlockValue 54 where the
   database Raid Target (`sim/encounters/register_all.go`) has none; the sim does not enforce `LimitCategory`.
 
+## Windows formatting checks
+
+- With `core.autocrlf=true`, both a checkout and `git archive` can produce CRLF files from LF blobs. To check a
+  candidate commit without rewriting unrelated working files, export it with `git -c core.autocrlf=false archive`,
+  copy the changed files into that snapshot with LF endings, and run the formatter there with the repository's
+  dependencies available. Keep local generator and editor settings out of the snapshot.
+
 ## Pull request previews
 
 - Every same-repository pull request gets a Cloudflare Pages preview from `build-ui`. `pull_request` runs the

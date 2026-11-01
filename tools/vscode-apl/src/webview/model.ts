@@ -73,6 +73,7 @@ const player = {
 		className
 			? ((Class as unknown as Record<string, number>)[`Class${className[0].toUpperCase()}${className.slice(1)}`] ?? Class.ClassUnknown)
 			: Class.ClassUnknown,
+	getPlayerSpec: () => ({ isHealingSpec: false }),
 	getPetMetadatas: () => one,
 	sim: { raid: { getActivePlayers: () => [{ getRaidIndex: () => 0 }] }, encounter: { targetsMetadata: one } },
 } as unknown as Player<any>;

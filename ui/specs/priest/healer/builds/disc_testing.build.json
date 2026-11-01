@@ -1,0 +1,93 @@
+{
+  "apiVersion": 2,
+  "raidBuffs": {
+    "arcaneBrilliance": true,
+    "prayerOfSpirit": true,
+    "giftOfTheWild": true,
+    "prayerOfFortitude": true
+  },
+  "debuffs": {
+  },
+  "partyBuffs": {
+    "manaSpringTotem": "TristateEffectRegular"
+  },
+  "player": {
+    "apiVersion": 2,
+    "name": "Player",
+    "race": "RaceUndead",
+    "class": "ClassPriest",
+    "consumables": {
+      "foodId": 249869,
+      "conjuredId": 12662,
+      "mhImbueId": 20748,
+      "elixirIds": [
+        250351,
+        250328,
+        250337,
+        250338,
+        250341,
+        250333
+      ],
+      "resourcePotId": 13444
+    },
+    "buffs": {
+      "greaterBlessingOfKings": true,
+      "greaterBlessingOfWisdom": true,
+      "greaterBlessingOfLight": true
+    },
+    "healerPriest": {
+      "options": {
+        "classOptions": {
+          "armor": "InnerFire"
+        },
+        "prayerOfMendingJumps": 5,
+        "prayerOfMendingDelay": 2.5,
+        "holyNovaHealTargets": 5
+      }
+    },
+    "profession1": "Tailoring",
+    "profession2": "Enchanting",
+    "cooldowns": {
+    },
+    "rotation": {
+      "type": "TypeAPL",
+      "priorityList": [
+        {"action":{"condition":{"auraIsInactive":{"sourceUnit":{"type":"Player","index":1},"auraId":{"spellId":6788},"includeReactionTime":true}},"castSpell":{"spellId":{"spellId":10899,"rank":8},"target":{"type":"Player","index":1}}}},
+        {"action":{"condition":{"auraIsInactive":{"sourceUnit":{"type":"Player","index":1},"auraId":{"spellId":10928,"rank":8},"includeReactionTime":true}},"castSpell":{"spellId":{"spellId":10928,"rank":8},"target":{"type":"Player","index":1}}}},
+        {"action":{"condition":{"spellCanCast":{"spellId":{"spellId":1316991,"tag":1,"rank":4}}},"castSpell":{"spellId":{"spellId":1316991,"tag":1,"rank":4},"target":{"type":"Player","index":1}}}},
+        {"action":{"condition":{"auraIsActive":{"sourceUnit":{"type":"Player","index":1},"auraId":{"spellId":6788},"includeReactionTime":true}},"castSpell":{"spellId":{"spellId":6063,"rank":3},"target":{"type":"Player","index":1}}}}
+      ]
+    },
+    "reactionTimeMs": 100,
+    "distanceFromTarget": 20,
+    "healingModel": {
+      "hps": 325.125,
+      "cadenceSeconds": 0.4,
+      "cadenceVariation": 2.6
+    }
+  },
+  "encounter": {
+    "apiVersion": 2,
+    "duration": 180,
+    "durationVariation": 5,
+    "executeProportion20": 0.2,
+    "executeProportion35": 0.35,
+    "targets": [
+      {
+        "id": 31146,
+        "name": "Raid Target",
+        "level": 63,
+        "mobType": "MobTypeMechanical",
+        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1299000,0,0,0,0,0,0,0,0],
+        "minBaseDamage": 2601,
+        "damageSpread": 0.5,
+        "swingSpeed": 2,
+        "parryHaste": true,
+        "canCrush": true
+      }
+    ]
+  },
+  "healingSettings": {
+    "groupSize": 10
+  }
+}

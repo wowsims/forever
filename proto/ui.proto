@@ -340,6 +340,16 @@ message IndividualSimSettings {
 	UnitStats stat_caps = 16 [deprecated=true];
 	UnitStats breakpoint_limits = 17 [deprecated=true];
 	ReforgeSettings reforge_settings = 18;
+	HealingSimSettings healing_settings = 19;
+}
+
+message HealingSimSettings {
+	enum Assignment {
+		TankHealing = 0;
+		RaidHealing = 1;
+	}
+	Assignment assignment = 1;
+	int32 group_size = 2;
 }
 
 // Local storage data for gear settings.
