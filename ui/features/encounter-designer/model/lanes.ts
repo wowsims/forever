@@ -35,42 +35,28 @@ type DesignEventMap = {
 export type DesignEvent<K extends DesignEventKind = DesignEventKind> = DesignEventMap[K];
 
 // A span, or a point for events that have no duration.
-export type DesignEventWindow = { start: number; end: number } | { at: number };
+type DesignEventWindow = { start: number; end: number } | { at: number };
 
 export const DESIGN_LANES: readonly DesignLaneKind[] = ['boss', 'abilities', 'waves', 'moves', 'amps'];
 
-const LANE_OF: Record<DesignEventKind, DesignLaneKind> = {
-	downtime: 'boss',
-	bossHealth: 'boss',
-	ability: 'abilities',
-	wave: 'waves',
-	move: 'moves',
-	amp: 'amps',
-};
-
-export const laneOf = (kind: DesignEventKind): DesignLaneKind => LANE_OF[kind];
-
-const EVENT_LABEL_KEYS: Record<DesignEventKind, string> = {
-	downtime: 'downtime',
-	bossHealth: 'boss_health',
-	ability: 'ability',
-	wave: 'wave',
-	move: 'move',
-	amp: 'amp',
+export const LANE_EVENT_KINDS: Record<DesignLaneKind, ReadonlyArray<DesignEventKind>> = {
+	boss: ['downtime', 'bossHealth'],
+	abilities: ['ability'],
+	waves: ['wave'],
+	moves: ['move'],
+	amps: ['amp'],
 };
 
 export const laneLabelKey = (lane: DesignLaneKind): string => `settings_tab.encounter.designer.lanes.${lane}`;
-export const eventLabelKey = (kind: DesignEventKind): string => `settings_tab.encounter.designer.events.${EVENT_LABEL_KEYS[kind]}`;
+export const eventLabelKey = (kind: DesignEventKind): string => `settings_tab.encounter.designer.events.${kind === 'bossHealth' ? 'boss_health' : kind}`;
 
 const time = (at: number): DesignTime => ({ at, jitter: 0 });
 const noRepeat = (): DesignRepeat => ({ interval: 0, jitter: 0, count: 0 });
 
 const DEFAULT_WIDTH = 0.1;
 
-const DEFAULT_START = 0.4;
-
 export const defaultEvent = <K extends DesignEventKind>(kind: K): DesignEvent<K> => {
-	const start = DEFAULT_START;
+	const start = 0.4;
 	const end = start + DEFAULT_WIDTH;
 	const events: DesignEventMap = {
 		downtime: { name: '', targetIndex: 0, start: time(start), end: time(end), clearDebuffs: true },
@@ -148,13 +134,6 @@ export const removeEvent = (design: EncounterDesign, ref: DesignEventRef): void 
 	}
 };
 
-const span = (start: DesignTime | undefined, end: DesignTime | undefined): DesignEventWindow => {
-	const from = start?.at ?? 0;
-	return { start: from, end: end?.at ?? from };
-};
-
-const repeatOf = (event: DesignEvent): DesignRepeat | undefined => ('repeat' in event ? event.repeat : undefined);
-
 // A spell hit or a strike fires at its start and at each repeat that begins by its end; a thrash or swing timing
 // window lasts from its start to its end.
 export const firesAtInstants = (ability: DesignBossAbility): boolean =>
@@ -179,13 +158,10 @@ export const eventWindow = (design: EncounterDesign, ref: DesignEventRef): Desig
 			const start = wave.spawn?.at ?? 0;
 			return { start, end: start + wave.lifetime };
 		}
-		case 'ability': {
-			const ability = event as DesignBossAbility;
-			return span(ability.start, ability.end);
-		}
 		default: {
-			const timed = event as DesignDowntime | DesignDamageAmp;
-			return span(timed.start, timed.end);
+			const timed = event as DesignDowntime | DesignDamageAmp | DesignBossAbility;
+			const from = timed.start?.at ?? 0;
+			return { start: from, end: timed.end?.at ?? from };
 		}
 	}
 };
@@ -202,7 +178,7 @@ export const occurrences = (design: EncounterDesign, ref: DesignEventRef, maxCou
 	const instants = ref.kind === 'ability' && firesAtInstants(event as DesignBossAbility);
 	const width = 'at' in window || instants ? 0 : window.end - window.start;
 	const last = instants ? ((event as DesignBossAbility).end?.at ?? start) : Infinity;
-	const repeat = repeatOf(event);
+	const repeat = 'repeat' in event ? event.repeat : undefined;
 	const interval = repeat?.interval ?? 0;
 	const total = interval > 0 ? (repeat!.count > 0 ? repeat!.count + 1 : Infinity) : 1;
 	const result: { start: number; end: number }[] = [];
@@ -257,19 +233,10 @@ const shiftTime = (time: DesignTime | undefined, delta: number) => {
 };
 
 // Appends a copy of the event to its list, shifted by deltaFraction but kept inside the fight, and returns the copy's
-// ref. A named event's copy is named "<name> (copy)". Mutates the design, which is meant to be an immer draft.
+// ref. A named event's copy is named "<name> (copy)". Mutates the design.
 export const duplicateEvent = (design: EncounterDesign, ref: DesignEventRef, deltaFraction: number): DesignEventRef => {
-	const source = getEvent(design, ref);
-	if (!source) return ref;
-	const copies: { [K in DesignEventKind]: (event: DesignEvent<K>) => DesignEvent<K> } = {
-		downtime: event => DesignDowntime.clone(event),
-		bossHealth: event => HealthKeyframe.clone(event),
-		ability: event => DesignBossAbility.clone(event),
-		wave: event => AddWave.clone(event),
-		move: event => DesignMove.clone(event),
-		amp: event => DesignDamageAmp.clone(event),
-	};
-	const copy = copies[ref.kind](source as never) as DesignEvent;
+	const copy = getEvent(EncounterDesign.clone(design), ref);
+	if (!copy) return ref;
 	const window = eventWindow(design, ref)!;
 	const [from, to] = 'at' in window ? [window.at, window.at] : [window.start, ref.kind === 'wave' ? window.start : window.end];
 	const delta = clamp(deltaFraction, -from, 1 - to);
@@ -280,11 +247,9 @@ export const duplicateEvent = (design: EncounterDesign, ref: DesignEventRef, del
 		case 'move':
 			shiftTime((copy as DesignMove).at, delta);
 			break;
-		case 'wave': {
-			const wave = copy as AddWave;
-			shiftTime(wave.spawn, delta);
+		case 'wave':
+			shiftTime((copy as AddWave).spawn, delta);
 			break;
-		}
 		default: {
 			const timed = copy as DesignDowntime | DesignDamageAmp | DesignBossAbility;
 			shiftTime(timed.start, delta);
@@ -301,8 +266,8 @@ export const duplicateEvent = (design: EncounterDesign, ref: DesignEventRef, del
 const HOLD_SECONDS = 10;
 
 // Splits a boss health segment at its start into a flat part, held at the segment's start percent, and the rest, by a
-// keyframe at most HOLD_SECONDS in, or half the segment. Mutates the design, which is meant to be an immer draft.
-// Returns the new keyframe's ref, or undefined for a segment with no length to split.
+// keyframe at most HOLD_SECONDS in, or half the segment. Mutates the design. Returns the new keyframe's ref, or undefined
+// for a segment with no length to split.
 export const holdSegment = (design: EncounterDesign, ref: DesignEventRef, baseSeconds: number): DesignEventRef | undefined => {
 	const segment = healthSegments(design).find(found => found.index === ref.index);
 	if (!segment || segment.end <= segment.start) return undefined;
@@ -341,8 +306,8 @@ export const holdBlocker = (design: EncounterDesign, downtimeIndex: number): Des
 };
 
 // Holds the boss's health at what the curve gives at the downtime's start, by keyframes at its start and its end.
-// Mutates the design, which is meant to be an immer draft. Returns the two new refs, none for a hold a keyframe blocks
-// or a downtime of another target than the boss.
+// Mutates the design. Returns the two new refs, none for a hold a keyframe blocks or a downtime of another target than
+// the boss.
 export const holdDuringDowntime = (design: EncounterDesign, downtimeIndex: number): Array<DesignEventRef> => {
 	const downtime = design.downtimes[downtimeIndex];
 	if (!downtime || downtime.targetIndex !== 0 || holdBlocker(design, downtimeIndex)) return [];

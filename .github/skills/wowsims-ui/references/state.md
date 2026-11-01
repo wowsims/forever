@@ -100,10 +100,10 @@ source each render, and `useStoreSubscribe` re-subscribes whenever the source id
 greppable and cannot capture the wrong object.
 
 **The encounter design** is the store field `encounter:design` (`ui/sim/raid/encounter.ts`: `getDesign`, `setDesign`,
-`modifyDesign`, `hasDesign`), saved in the encounter proto only when it holds an event. The design points at targets by
-index, so `setTargets` runs `remapDesignTargets`, which follows each old target object to its new position and sends a
-removed target's events to -1, where `validateDesign` flags them; a preset matches the encounter by targets and design
-together. The designer dialog is `ui/features/encounter-designer/components/EncounterDesigner/` over the model in
+`hasDesign`), saved in the encounter proto only when it holds an event. The design points at targets by index, so
+`setTargets` runs `remapDesignTargets`, which follows each old target object to its new position and sends a removed
+target's events to -1, where `validateDesign` flags them; `removeEvent` does the same for the waves an amp names; a
+preset matches the encounter by targets and design together. The designer dialog is `ui/features/encounter-designer/components/EncounterDesigner/` over the model in
 `ui/features/encounter-designer/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
 
 **The encounter name** (`encounter:name`) and the mark `encounter:myEncounter` tie the encounter to My encounters, the

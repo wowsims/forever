@@ -3,7 +3,7 @@ import { useRef } from 'react';
 
 export type AxisDragMode = 'move' | 'start' | 'end';
 
-export type UsePointerAxisDragOptions = {
+type UsePointerAxisDragOptions = {
 	pixelsPerSecond: () => number;
 	onStart?: (mode: AxisDragMode) => void;
 	onDelta: (seconds: number, mode: AxisDragMode) => void;

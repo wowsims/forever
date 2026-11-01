@@ -9,6 +9,9 @@ export const secondsToFraction = (seconds: number, baseSeconds: number): number 
 // A step of 0 or less leaves the value as it is.
 export const snap = (seconds: number, step: number): number => (step > 0 ? Math.round(seconds / step) * step : seconds);
 
+// What a key or a menu item moves by: the step, or 1 s when dragging is free of one.
+export const keyStep = (step: number): number => (step > 0 ? step : 1);
+
 // Keeps the width and stops at the fight edges. An open end may run past the fight's end, so only the start stops there.
 export const moveWindow = (start: number, end: number, deltaFraction: number, openEnd = false): TimeWindow => {
 	const width = end - start;

@@ -18,7 +18,6 @@ import {
 	holdDuringDowntime,
 	holdSegment,
 	laneLabelKey,
-	laneOf,
 	moveSeconds,
 	occurrences,
 	removeEvent,
@@ -27,10 +26,6 @@ import {
 const KINDS: DesignEventKind[] = ['downtime', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
 
 describe('lanes', () => {
-	it('places every event kind in a lane', () => {
-		expect(KINDS.map(laneOf)).toEqual(['boss', 'boss', 'abilities', 'waves', 'moves', 'amps']);
-	});
-
 	it('builds label keys under the designer namespace', () => {
 		expect(laneLabelKey('waves')).toBe('settings_tab.encounter.designer.lanes.waves');
 		expect(eventLabelKey('bossHealth')).toBe('settings_tab.encounter.designer.events.boss_health');

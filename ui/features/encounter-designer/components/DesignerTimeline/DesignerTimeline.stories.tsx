@@ -15,7 +15,8 @@ import { expect, fireEvent, fn, userEvent, waitFor, within } from 'storybook/tes
 import type { DesignEventRef } from '../../model/lanes';
 import { addEvent } from '../../model/lanes';
 import { validateDesign } from '../../model/validate';
-import { designerText, eventTooltip } from '../EncounterDesigner/utils/configs';
+import { designerText } from '../EncounterDesigner/utils/configs';
+import { eventTooltip } from '../EncounterDesigner/utils/tips';
 import { DesignerTimeline, type DesignerTimelineProps } from './DesignerTimeline';
 
 // Holds the design the way the dialog does, so a drag, a key press or an add lands in the story.

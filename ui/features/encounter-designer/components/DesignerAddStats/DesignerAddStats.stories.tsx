@@ -16,7 +16,7 @@ const EditableAddStats = ({ target: initial, onModify, ...props }: DesignerAddSt
 				target={target}
 				onModify={edit => {
 					onModify(edit);
-					const next = Target.clone(target!);
+					const next = Target.clone(target);
 					edit(next);
 					setTarget(next);
 				}}

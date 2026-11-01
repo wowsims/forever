@@ -1,12 +1,11 @@
 import { type DesignEventRef, eventsOf, occurrences } from '@features/encounter-designer/model/lanes';
 import type { EncounterDesign } from '@generated/proto/common';
 
-import type { ScheduledKind, ScheduledMarker } from '../../../model/timeline/chart/types';
+import type { ScheduledMarker } from '../../../model/timeline/chart/types';
+import { SCHEDULED_ROWS } from './annotations';
 
 // A repeat with a tiny interval would otherwise draw thousands of windows.
 const MAX_OCCURRENCES = 200;
-
-const KINDS: ReadonlyArray<ScheduledKind> = ['downtime', 'wave', 'amp', 'move'];
 
 /**
  * The design's scheduled windows in seconds: its times are fractions of the fight, so they scale by the logged
@@ -15,7 +14,7 @@ const KINDS: ReadonlyArray<ScheduledKind> = ['downtime', 'wave', 'amp', 'move'];
 export function scheduledMarkers(design: EncounterDesign | undefined, duration: number): Array<ScheduledMarker> {
 	if (!design) return [];
 	const markers: Array<ScheduledMarker> = [];
-	for (const kind of KINDS) {
+	for (const { kind } of SCHEDULED_ROWS) {
 		for (let index = 0; index < eventsOf(design, kind).length; index++) {
 			const ref: DesignEventRef = { kind, index };
 			for (const window of occurrences(design, ref, MAX_OCCURRENCES)) {

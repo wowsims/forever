@@ -5,7 +5,7 @@ import type { DesignEventRef } from './lanes';
 import { firesAtInstants, healthKnots, occurrences } from './lanes';
 import { clamp, type TimeWindow } from './time';
 
-export type DesignIssueSeverity = 'error' | 'warning' | 'info';
+type DesignIssueSeverity = 'error' | 'warning' | 'info';
 /** A stretch of time the issue's text names comes in fractions of the fight. */
 export type DesignIssue = { ref: DesignEventRef; severity: DesignIssueSeverity; key: string; span?: TimeWindow };
 
@@ -49,7 +49,10 @@ const concurrentCopies = ({ spawn, repeat, lifetime }: AddWave): number => {
 	const interval = repeat?.interval ?? 0;
 	if (interval <= 0) return 1;
 	const spawnJitter = Math.max(spawn?.jitter ?? 0, 0);
-	const occurrences = repeat!.count > 0 ? Math.min(repeat!.count + 1, MAX_OCCURRENCES) : Math.trunc(clamp((1 - ((spawn?.at ?? 0) - spawnJitter)) / interval, 0, MAX_OCCURRENCES - 1)) + 1;
+	const occurrences =
+		repeat!.count > 0
+			? Math.min(repeat!.count + 1, MAX_OCCURRENCES)
+			: Math.trunc(clamp((1 - ((spawn?.at ?? 0) - spawnJitter)) / interval, 0, MAX_OCCURRENCES - 1)) + 1;
 	if (occurrences <= 1) return 1;
 	const spacing = interval - 2 * Math.max(repeat!.jitter, 0);
 	if (spacing <= 0) return occurrences;

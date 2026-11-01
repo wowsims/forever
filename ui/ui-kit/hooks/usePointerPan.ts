@@ -1,7 +1,7 @@
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useRef, useState } from 'react';
 
-export type UsePointerPanOptions = {
+type UsePointerPanOptions = {
 	/** The element that scrolls vertically, read when the pointer goes down; `null` is the page. */
 	verticalScroller: () => HTMLElement | null;
 };

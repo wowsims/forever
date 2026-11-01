@@ -3,7 +3,7 @@ import { eventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
 import { defaultEvent } from '../../model/lanes';
-import { laneEventKinds, laneEvents, withWindow } from './utils';
+import { laneEvents, withWindow } from './utils';
 
 const downtime = (start: number, end: number) => ({ ...defaultEvent('downtime'), start: { at: start, jitter: 0 }, end: { at: end, jitter: 0 } });
 const BASE = 180;
@@ -39,7 +39,6 @@ describe('laneEvents', () => {
 			],
 		});
 		const events = laneEvents(design, 'boss', BASE);
-		expect(laneEventKinds('boss')).toEqual(['downtime', 'bossHealth']);
 		expect(events.map(event => [event.ref.kind, event.ref.index, event.window.start, event.window.end, event.row, event.startFixed])).toEqual([
 			['bossHealth', 1, 0, 0.25, 0, true],
 			['bossHealth', 0, 0.25, 0.5, 0, false],

@@ -1,9 +1,14 @@
 import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
+import { cssVars } from '@ui-kit/utils/css';
 
 import type { TimeWindow } from '../../model/time';
 import { moveWindow, resizeEnd, resizeStart } from '../../model/time';
 
-export type BarKeyAction =
+// An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
+export const barVars = (row: number, start: number, duration: number) =>
+	cssVars({ '--row': `${row + 1} / span 1`, '--t': String(start), '--dur': String(duration) });
+
+type BarKeyAction =
 	| { type: 'edit'; mode: AxisDragMode; steps: number }
 	| { type: 'remove' }
 	| { type: 'activate' }

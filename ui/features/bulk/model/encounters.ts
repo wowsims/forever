@@ -35,12 +35,6 @@ const sameRef = (a: BulkEncounterRef, b: BulkEncounterRef) => a.name === b.name 
 
 const isBulkEncounterChecked = (checked: readonly BulkEncounterRef[], ref: BulkEncounterRef) => checked.some(item => sameRef(item, ref));
 
-// As the results store it.
-export const encounterLength = ({ duration, durationVariation }: Pick<Encounter, 'duration' | 'durationVariation'>): EncounterLength => ({
-	duration,
-	durationVariation,
-});
-
 // "m:ss ±Ns", or "m:ss" alone when the variation is null.
 export const formatEncounterDuration = ({ duration, durationVariation }: EncounterLength): string => {
 	const length = formatDurationSeconds(duration, { separatorStyle: 'colon', minimumUnit: 'minutes' });
@@ -48,7 +42,7 @@ export const formatEncounterDuration = ({ duration, durationVariation }: Encount
 };
 
 export const formatEncounterSummary = (encounter: EncounterSummaryFields): string =>
-	`${formatEncounterDuration(encounterLength(encounter))} · ${t('targets', { count: Math.max(1, encounter.targets.length) })}`;
+	`${formatEncounterDuration(encounter)} · ${t('targets', { count: Math.max(1, encounter.targets.length) })}`;
 
 // The current encounter runs unnamed; every view calls it "Current".
 export const encounterLabel = ({ isCurrent, name }: Pick<BulkEncounterResults, 'isCurrent' | 'name'>): string =>

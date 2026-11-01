@@ -6,7 +6,8 @@ import { Notice } from '@ui-kit/Notice';
 import type { DesignEventRef } from '../../model/lanes';
 import { fractionToSeconds } from '../../model/time';
 import type { DesignIssue } from '../../model/validate';
-import { designerText, eventName, formatSeconds } from '../EncounterDesigner/utils/configs';
+import { designerText } from '../EncounterDesigner/utils/configs';
+import { eventName, formatSeconds } from '../EncounterDesigner/utils/tips';
 
 export interface DesignerIssuesProps {
 	design: EncounterDesign;

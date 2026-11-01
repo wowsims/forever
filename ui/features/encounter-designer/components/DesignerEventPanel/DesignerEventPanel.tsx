@@ -13,7 +13,8 @@ import type { DesignEvent, DesignEventRef } from '../../model/lanes';
 import { getEvent, removeEvent } from '../../model/lanes';
 import { DesignerAdds } from '../DesignerAdds';
 import type { DesignFieldConfig, DesignFieldContext } from '../EncounterDesigner/utils/configs';
-import { designerText, designFieldConfigs, editEvent, eventName } from '../EncounterDesigner/utils/configs';
+import { designerText, designFieldConfigs, editEvent } from '../EncounterDesigner/utils/configs';
+import { eventName } from '../EncounterDesigner/utils/tips';
 
 export interface DesignerEventPanelProps {
 	design: EncounterDesign;
@@ -44,7 +45,6 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 	const context: DesignFieldContext = {
 		baseSeconds,
 		targetNames,
-		presetTargets,
 		waveNames: design.addWaves.map((_, index) => eventName(design, { kind: 'wave', index })),
 	};
 	const name = eventName(design, selected);
@@ -83,8 +83,8 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 						key={id}
 						{...frame}
 						options={field.options(context)}
-						value={field.get(event, context)}
-						onChange={value => commit(e => field.set(e, value, context))}
+						value={field.get(event)}
+						onChange={value => commit(e => field.set(e, value))}
 					/>
 				);
 			case 'list':

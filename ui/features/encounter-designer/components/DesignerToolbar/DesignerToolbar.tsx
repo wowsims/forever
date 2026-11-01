@@ -7,9 +7,9 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
 import type { DesignEventKind } from '../../model/lanes';
-import { DESIGN_LANES, eventLabelKey } from '../../model/lanes';
-import { laneEventKinds } from '../DesignerLane/utils';
-import { designerText, formatSeconds } from '../EncounterDesigner/utils/configs';
+import { DESIGN_LANES, eventLabelKey, LANE_EVENT_KINDS } from '../../model/lanes';
+import { designerText } from '../EncounterDesigner/utils/configs';
+import { formatSeconds } from '../EncounterDesigner/utils/tips';
 
 export interface DesignerToolbarProps {
 	snapSeconds: number;
@@ -60,7 +60,7 @@ export const DesignerToolbar = ({ snapSeconds, onSnapChange, onZoomIn, onZoomOut
 					</>
 				}
 				triggerRender={<Button variant="primary" size="sm" />}>
-				{DESIGN_LANES.flatMap(laneEventKinds).map(kind => (
+				{DESIGN_LANES.flatMap(lane => LANE_EVENT_KINDS[lane]).map(kind => (
 					<MenuItem key={kind} layout="block" onClick={() => onAdd(kind)}>
 						{i18n.t(eventLabelKey(kind))}
 					</MenuItem>

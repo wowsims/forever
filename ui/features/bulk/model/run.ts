@@ -14,7 +14,7 @@ import { toastManager } from '@ui-kit/Toast';
 
 import { trackEvent } from '../../../tracking/utils';
 import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
-import { bulkEncounterRuns, encounterLabel, encounterLength, formatEncounterSummary, pickableBulkEncounters } from './encounters';
+import { bulkEncounterRuns, encounterLabel, formatEncounterSummary, pickableBulkEncounters } from './encounters';
 import { BulkProgress, candidateGearProgress, simProgress } from './progress';
 import { createBulkSettingsProto } from './settings';
 import { buildTieChains } from './tie_chains';
@@ -274,7 +274,8 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			entries.push({
 				name: encounterRun.name,
 				isCurrent: encounterRun.isCurrent,
-				...encounterLength(encounterRun.encounter),
+				duration: encounterRun.encounter.duration,
+				durationVariation: encounterRun.encounter.durationVariation,
 				results: rankResults(bulkSimResult, baseGear),
 			});
 		}

@@ -7,9 +7,9 @@ import type { KeyboardEvent as ReactKeyboardEvent, Ref } from 'react';
 import { useRef, useState } from 'react';
 
 import type { TimeWindow } from '../../model/time';
-import { fractionToSeconds, secondsToFraction, snap } from '../../model/time';
+import { fractionToSeconds, keyStep, secondsToFraction, snap } from '../../model/time';
 import { designerText } from '../EncounterDesigner/utils/configs';
-import { barKeyAction, editWindow } from './utils';
+import { barKeyAction, barVars, editWindow } from './utils';
 
 export interface DesignerEventBarProps {
 	name: string;
@@ -67,12 +67,12 @@ const MIN_WIDTH_SECONDS = 1;
 const BAR_CLASSES =
 	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) data-selected:border-white data-invalid:border-dashed data-invalid:not-data-selected:border-danger';
 
-const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' | 'center' }) =>
+const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' }) =>
 	seconds > 0 ? (
 		<span
 			aria-hidden="true"
 			data-at={at}
-			className="pointer-events-none absolute top-1/2 h-px w-timeline-segment -translate-x-1/2 bg-(--designer-jitter-whisker) data-[at=center]:left-1/2 data-[at=end]:left-full data-[at=start]:left-0"
+			className="pointer-events-none absolute top-1/2 h-px w-timeline-segment -translate-x-1/2 bg-(--designer-jitter-whisker) data-[at=end]:left-full data-[at=start]:left-0"
 			style={cssVars({ '--dur': String(2 * seconds) })}
 		/>
 	) : null;
@@ -104,7 +104,7 @@ const RenameInput = ({
 			defaultValue={name}
 			aria-label={designerText('menu.rename_label')}
 			className="absolute top-1 bottom-1 left-designer-pos z-3 col-start-1 row-(--row) w-timeline-segment min-w-32 px-1 text-xs"
-			style={cssVars({ '--row': `${row + 1} / span 1`, '--t': String(start), '--dur': String(duration) })}
+			style={barVars(row, start, duration)}
 			onFocus={event => event.currentTarget.select()}
 			onKeyDown={event => {
 				event.stopPropagation();
@@ -217,8 +217,7 @@ export const DesignerEventBar = ({
 		event.stopPropagation();
 		switch (action.type) {
 			case 'edit': {
-				const step = snapSeconds > 0 ? snapSeconds : 1;
-				const next = edit(window, action.mode, secondsToFraction(step * action.steps, baseSeconds));
+				const next = edit(window, action.mode, secondsToFraction(keyStep(snapSeconds) * action.steps, baseSeconds));
 				if (next.start !== window.start || next.end !== window.end) onChange(next);
 				return;
 			}
@@ -230,7 +229,7 @@ export const DesignerEventBar = ({
 				onActivate();
 				return;
 			case 'duplicate':
-				onDuplicate(secondsToFraction(snapSeconds > 0 ? snapSeconds : 1, baseSeconds));
+				onDuplicate(secondsToFraction(keyStep(snapSeconds), baseSeconds));
 				return;
 			case 'sibling':
 				onSibling(action.direction);
@@ -269,12 +268,7 @@ export const DesignerEventBar = ({
 				data-dragging={preview ? '' : undefined}
 				{...state}
 				className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-flat:opacity-(--designer-hold-opacity) data-selected:z-2 ${BAR_CLASSES}`}
-				style={cssVars({
-					// An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
-					'--row': `${row + 1} / span 1`,
-					'--t': String(start),
-					'--dur': String(duration),
-				})}
+				style={barVars(row, start, duration)}
 				onKeyDown={onKeyDown}
 				onClick={onSelect}
 				onFocus={onFocus}

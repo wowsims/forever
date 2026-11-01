@@ -1,4 +1,4 @@
-import { parseTip } from '../EncounterDesigner/utils/configs';
+import { parseTip } from '../EncounterDesigner/utils/tips';
 
 export interface DesignerTipProps {
 	/** The anchor's `data-tip` text: the title, then one rule per line. */

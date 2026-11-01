@@ -1,15 +1,23 @@
 import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, DesignMove, EncounterDesign, HealthKeyframe } from '@generated/proto/common';
 import { DesignTime } from '@generated/proto/common';
+import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 
-import type { DesignEventKind, DesignEventRef, DesignLaneKind } from '../../model/lanes';
-import { eventsOf, eventWindow, firesAtInstants, getEvent, healthSegments, laneOf, moveSeconds, occurrences, PLAYER_RUN_SPEED } from '../../model/lanes';
+import type { DesignEventRef, DesignLaneKind, HealthSegment } from '../../model/lanes';
+import {
+	eventsOf,
+	eventWindow,
+	firesAtInstants,
+	getEvent,
+	healthSegments,
+	LANE_EVENT_KINDS,
+	moveSeconds,
+	occurrences,
+	PLAYER_RUN_SPEED,
+} from '../../model/lanes';
 import type { TimeWindow } from '../../model/time';
 import { clamp, secondsToFraction } from '../../model/time';
-import { editEvent } from '../EncounterDesigner/utils/configs';
-
-const EVENT_KINDS: ReadonlyArray<DesignEventKind> = ['downtime', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
-
-export const laneEventKinds = (lane: DesignLaneKind): ReadonlyArray<DesignEventKind> => EVENT_KINDS.filter(kind => laneOf(kind) === lane);
+import { designerText, editEvent } from '../EncounterDesigner/utils/configs';
+import { formatPercent } from '../EncounterDesigner/utils/tips';
 
 export const refKey = (ref: DesignEventRef): string => `${ref.kind}:${ref.index}`;
 
@@ -84,7 +92,7 @@ const windowOf = (design: EncounterDesign, ref: DesignEventRef, baseSeconds: num
 // The boss health segments share the lane's first row, which no downtime takes.
 export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSeconds: number): Array<LaneEvent> => {
 	const segments = healthSegments(design);
-	const events = laneEventKinds(lane).flatMap(kind =>
+	const events = LANE_EVENT_KINDS[lane].flatMap(kind =>
 		eventsOf(design, kind).map((_, index) => {
 			const ref: DesignEventRef = { kind, index };
 			const window = windowOf(design, ref, baseSeconds);
@@ -117,20 +125,64 @@ export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSe
 
 const EPSILON = 1e-9;
 
+// Both edges of a boss health segment stay between its neighbours in time.
+const boundedStart = (segments: ReadonlyArray<HealthSegment>, position: number, at: number) =>
+	clamp(at, segments[position - 1]?.start ?? 0, segments[position].end);
+const boundedEnd = (segments: ReadonlyArray<HealthSegment>, position: number, at: number) =>
+	clamp(at, segments[position].start, segments[position + 1]?.end ?? 1);
+
 // A drag on a boss health segment moves the keyframe at its end, and its start handle moves the keyframe before it, the
-// boundary they share; both stay between their neighbours in time.
+// boundary they share.
 const withHealthWindow = (design: EncounterDesign, ref: DesignEventRef, window: TimeWindow): EncounterDesign => {
 	const segments = healthSegments(design);
 	const position = segments.findIndex(segment => segment.index === ref.index);
 	const segment = segments[position];
 	if (!segment) return editEvent(design, ref, () => {});
 	if (Math.abs(window.end - segment.end) > EPSILON) {
-		const at = clamp(window.end, segment.start, segments[position + 1]?.end ?? 1);
+		const at = boundedEnd(segments, position, window.end);
 		return editEvent(design, ref, event => ((event as HealthKeyframe).at = at));
 	}
 	if (segment.previous === undefined || Math.abs(window.start - segment.start) <= EPSILON) return editEvent(design, ref, () => {});
-	const at = clamp(window.start, segments[position - 1]?.start ?? 0, segment.end);
+	const at = boundedStart(segments, position, window.start);
 	return editEvent(design, { kind: 'bossHealth', index: segment.previous }, event => ((event as HealthKeyframe).at = at));
+};
+
+// The window a boss health edit stores: the keyframe at the segment's end between its neighbours, or the one before the segment.
+export const adjustHealth =
+	(segments: ReadonlyArray<HealthSegment>, ref: DesignEventRef) =>
+	(next: TimeWindow, mode: AxisDragMode, from: TimeWindow): TimeWindow => {
+		const position = segments.findIndex(found => found.index === ref.index);
+		const segment = segments[position];
+		if (!segment) return from;
+		if (mode === 'start') return segment.previous === undefined ? from : { start: boundedStart(segments, position, next.start), end: from.end };
+		return { start: from.start, end: boundedEnd(segments, position, next.end) };
+	};
+
+export const healthLabel = (design: EncounterDesign, segments: ReadonlyArray<HealthSegment>, ref: DesignEventRef): string => {
+	const segment = segments.find(found => found.index === ref.index);
+	const [from, to] = [segment?.fromPercent ?? 100, segment?.toPercent ?? 100];
+	const curve =
+		from === to
+			? designerText('health_hold', { percent: formatPercent(from) })
+			: designerText('health_label', { from: formatPercent(from), to: formatPercent(to) });
+	const named = getEvent(design, ref)?.name;
+	return named ? `${named}: ${curve}` : curve;
+};
+
+// A segment dragged by its end, or its start handle, moves the edge it shares with its neighbour, which follows it.
+export const followed = (segments: ReadonlyArray<HealthSegment>, dragging: { index: number; window: TimeWindow } | null, event: LaneEvent): TimeWindow => {
+	if (event.ref.kind !== 'bossHealth' || !dragging) return event.window;
+	const dragged = segments.find(found => found.index === dragging.index);
+	const mine = segments.find(found => found.index === event.ref.index);
+	if (!dragged || !mine || dragged === mine) return event.window;
+	if (mine.previous === dragged.index) return { start: dragging.window.end, end: event.window.end };
+	if (dragged.previous === mine.index) return { start: event.window.start, end: dragging.window.start };
+	return event.window;
+};
+
+export const isHold = (segments: ReadonlyArray<HealthSegment>, ref: DesignEventRef): boolean => {
+	const segment = ref.kind === 'bossHealth' ? segments.find(found => found.index === ref.index) : undefined;
+	return !!segment && segment.fromPercent === segment.toPercent;
 };
 
 export const withWindow = (design: EncounterDesign, ref: DesignEventRef, window: TimeWindow, baseSeconds: number): EncounterDesign => {

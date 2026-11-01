@@ -2,7 +2,6 @@ import { EncounterDesign } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
 import { ContextMenu } from '@ui-kit/ContextMenu';
-import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 import { Icon } from '@ui-kit/Icon';
 import { MenuItem } from '@ui-kit/Menu';
 import { cssVars } from '@ui-kit/utils/css';
@@ -14,21 +13,21 @@ import {
 	duplicateEvent,
 	eventLabelKey,
 	eventsOf,
-	getEvent,
 	healthEndSegment,
 	healthSegments,
 	holdBlocker,
 	holdDuringDowntime,
 	holdSegment,
+	LANE_EVENT_KINDS,
 	laneLabelKey,
 	removeEvent,
 } from '../../model/lanes';
 import type { TimeWindow } from '../../model/time';
-import { fractionToSeconds, secondsToFraction } from '../../model/time';
+import { fractionToSeconds, keyStep, secondsToFraction } from '../../model/time';
 import { DesignerEventBar } from '../DesignerEventBar';
+import { barVars } from '../DesignerEventBar/utils';
+import { designerText, editEvent } from '../EncounterDesigner/utils/configs';
 import {
-	designerText,
-	editEvent,
 	eventName,
 	eventTooltip,
 	eventValueText,
@@ -37,8 +36,8 @@ import {
 	occurrenceName,
 	occurrenceTip,
 	serializeTip,
-} from '../EncounterDesigner/utils/configs';
-import { type LaneEvent, laneEventKinds, laneEvents, refKey, withWindow } from './utils';
+} from '../EncounterDesigner/utils/tips';
+import { adjustHealth, followed, healthLabel, isHold, laneEvents, refKey, withWindow } from './utils';
 
 export interface DesignerLaneProps {
 	lane: DesignLaneKind;
@@ -83,7 +82,7 @@ export const DesignerLane = ({
 	const events = useMemo(() => laneEvents(design, lane, baseSeconds), [design, lane, baseSeconds]);
 	// The DOM keeps kind-then-index order whatever the times are: reordering keyed nodes moves the focused one, and the browser blurs it.
 	const domOrder = useMemo(() => {
-		const kinds = laneEventKinds(lane);
+		const kinds = LANE_EVENT_KINDS[lane];
 		return [...events].sort((a, b) => kinds.indexOf(a.ref.kind) - kinds.indexOf(b.ref.kind) || a.ref.index - b.ref.index);
 	}, [events, lane]);
 	const rowCount = Math.max(1, ...events.map(event => event.row + 1));
@@ -146,12 +145,15 @@ export const DesignerLane = ({
 		onChange(next);
 	};
 
+	const added = (next: EncounterDesign, ref: DesignEventRef) => {
+		focusAfterAdd.current = refKey(ref);
+		onChange(next);
+		onSelect(ref);
+	};
+
 	const duplicate = (ref: DesignEventRef, deltaFraction: number) => {
 		const next = EncounterDesign.clone(design);
-		const copy = duplicateEvent(next, ref, deltaFraction);
-		focusAfterAdd.current = refKey(copy);
-		onChange(next);
-		onSelect(copy);
+		added(next, duplicateEvent(next, ref, deltaFraction));
 	};
 
 	// A key ends the rename with focus on the field about to go, so the bar takes it; a click elsewhere has moved focus already.
@@ -163,6 +165,9 @@ export const DesignerLane = ({
 
 	// The menu opens only on a bar, also for a touch long press, which Base UI opens without a contextmenu event.
 	const barKeyAt = (target: EventTarget) => (target as Element).closest<HTMLElement>('[data-key]')?.dataset.key;
+	const noteMenuKey = (event: ReactPointerEvent<HTMLElement> | ReactTouchEvent<HTMLElement>) => {
+		menuKeyAt.current = barKeyAt(event.target);
+	};
 	const acted = (action: () => void) => () => {
 		menuActed.current = true;
 		action();
@@ -172,10 +177,7 @@ export const DesignerLane = ({
 	const hold = (ref: DesignEventRef) => {
 		const next = EncounterDesign.clone(design);
 		const copy = holdSegment(next, ref, baseSeconds);
-		if (!copy) return;
-		focusAfterAdd.current = refKey(copy);
-		onChange(next);
-		onSelect(copy);
+		if (copy) added(next, copy);
 	};
 	const holdBoss = (ref: DesignEventRef) => {
 		const next = EncounterDesign.clone(design);
@@ -193,45 +195,8 @@ export const DesignerLane = ({
 				at: formatSeconds(fractionToSeconds(design.bossHealth[blocker.index].at, baseSeconds)),
 			})
 		: undefined;
-	const snapFraction = secondsToFraction(snapSeconds > 0 ? snapSeconds : 1, baseSeconds);
+	const snapFraction = secondsToFraction(keyStep(snapSeconds), baseSeconds);
 	const segments = healthSegments(design);
-	const healthLabel = (ref: DesignEventRef) => {
-		const segment = segments.find(found => found.index === ref.index);
-		const [from, to] = [segment?.fromPercent ?? 100, segment?.toPercent ?? 100];
-		const curve =
-			from === to
-				? designerText('health_hold', { percent: formatPercent(from) })
-				: designerText('health_label', { from: formatPercent(from), to: formatPercent(to) });
-		const named = getEvent(design, ref)?.name;
-		return named ? `${named}: ${curve}` : curve;
-	};
-	// A segment dragged by its end, or its start handle, moves the edge it shares with its neighbour, which follows it.
-	const followed = (event: LaneEvent): TimeWindow => {
-		if (event.ref.kind !== 'bossHealth' || !dragging) return event.window;
-		const dragged = segments.find(found => found.index === dragging.index);
-		const mine = segments.find(found => found.index === event.ref.index);
-		if (!dragged || !mine || dragged === mine) return event.window;
-		if (mine.previous === dragged.index) return { start: dragging.window.end, end: event.window.end };
-		if (dragged.previous === mine.index) return { start: event.window.start, end: dragging.window.start };
-		return event.window;
-	};
-	// The window a boss health edit stores: the keyframe at the segment's end between its neighbours, or the one before the segment.
-	const adjustHealth =
-		(ref: DesignEventRef) =>
-		(next: TimeWindow, mode: AxisDragMode, from: TimeWindow): TimeWindow => {
-			const position = segments.findIndex(found => found.index === ref.index);
-			const segment = segments[position];
-			if (!segment) return from;
-			if (mode === 'start') {
-				if (segment.previous === undefined) return from;
-				return { start: Math.min(Math.max(next.start, segments[position - 1]?.start ?? 0), segment.end), end: from.end };
-			}
-			return { start: from.start, end: Math.min(Math.max(next.end, segment.start), segments[position + 1]?.end ?? 1) };
-		};
-	const isHold = (ref: DesignEventRef) => {
-		const segment = ref.kind === 'bossHealth' ? segments.find(found => found.index === ref.index) : undefined;
-		return !!segment && segment.fromPercent === segment.toPercent;
-	};
 	const endSegment = lane === 'boss' ? healthEndSegment(design) : undefined;
 	const endTip = endSegment
 		? {
@@ -253,7 +218,7 @@ export const DesignerLane = ({
 			<div className="sticky left-0 z-3 box-border flex w-(--label-w) shrink-0 grow-0 basis-(--label-w) flex-col justify-center gap-1 border-r border-gray-700 bg-background px-2 py-1">
 				<span className="text-sm font-bold text-white">{label}</span>
 				<div className="flex flex-wrap gap-1">
-					{laneEventKinds(lane).map((kind, index) => {
+					{LANE_EVENT_KINDS[lane].map((kind, index) => {
 						const eventLabel = i18n.t(eventLabelKey(kind));
 						return (
 							<Button
@@ -289,12 +254,8 @@ export const DesignerLane = ({
 				}}
 				finalFocus={() => (menuActed.current ? false : (bars.current.get(menuKey ?? '') ?? true))}
 				triggerProps={{
-					onPointerDownCapture: (event: ReactPointerEvent<HTMLElement>) => {
-						menuKeyAt.current = barKeyAt(event.target);
-					},
-					onTouchStartCapture: (event: ReactTouchEvent<HTMLElement>) => {
-						menuKeyAt.current = barKeyAt(event.target);
-					},
+					onPointerDownCapture: noteMenuKey,
+					onTouchStartCapture: noteMenuKey,
 					// A right click on empty lane keeps the browser's own menu.
 					onContextMenuCapture: (event: ReactMouseEvent<HTMLElement>) => {
 						menuKeyAt.current = barKeyAt(event.target);
@@ -344,11 +305,6 @@ export const DesignerLane = ({
 				))}
 				{domOrder.flatMap(event => {
 					const name = eventName(design, event.ref);
-					const rowStyle = (window: TimeWindow) => ({
-						'--row': `${event.row + 1} / span 1`,
-						'--t': String(fractionToSeconds(window.start, baseSeconds)),
-						'--dur': String(fractionToSeconds(window.end - window.start, baseSeconds)),
-					});
 					const ghosts = event.repeats.map((repeat, index) => {
 						const label = occurrenceName(name, index + 2);
 						return (
@@ -358,7 +314,11 @@ export const DesignerLane = ({
 								data-tooltip-id={tooltipId}
 								data-tip={serializeTip(occurrenceTip(eventTooltip(design, event.ref, baseSeconds, targetNames, repeat), label))}
 								className={`absolute left-designer-pos col-start-1 row-(--row) bg-(--bar)/40 ${GHOST_CLASSES}`}
-								style={cssVars(rowStyle(repeat))}>
+								style={barVars(
+									event.row,
+									fractionToSeconds(repeat.start, baseSeconds),
+									fractionToSeconds(repeat.end - repeat.start, baseSeconds),
+								)}>
 								<span className="min-w-0 truncate pl-1">{name}</span>
 								<span className="shrink-0 px-1">{designerText('occurrence_number', { number: index + 2 })}</span>
 							</div>
@@ -385,11 +345,7 @@ export const DesignerLane = ({
 							lines: [designerText('tip.health', endTip), designerText('tip.range', { start: endTip.start, end: endTip.end })],
 						})}
 						className={`absolute left-designer-pos col-start-1 row-(--row) border border-dashed border-white/50 bg-(--bar)/40 ${GHOST_CLASSES}`}
-						style={cssVars({
-							'--row': '1 / span 1',
-							'--t': String(fractionToSeconds(endSegment.start, baseSeconds)),
-							'--dur': String(fractionToSeconds(endSegment.end - endSegment.start, baseSeconds)),
-						})}>
+						style={barVars(0, fractionToSeconds(endSegment.start, baseSeconds), fractionToSeconds(endSegment.end - endSegment.start, baseSeconds))}>
 						<span className="min-w-0 truncate px-1">{designerText('health_end')}</span>
 					</div>
 				)}
@@ -404,9 +360,9 @@ export const DesignerLane = ({
 								else bars.current.delete(key);
 							}}
 							name={eventName(design, event.ref)}
-							label={event.ref.kind === 'bossHealth' ? healthLabel(event.ref) : undefined}
-							flat={isHold(event.ref)}
-							window={followed(event)}
+							label={event.ref.kind === 'bossHealth' ? healthLabel(design, segments, event.ref) : undefined}
+							flat={isHold(segments, event.ref)}
+							window={followed(segments, dragging, event)}
 							row={event.row}
 							startFixed={event.startFixed}
 							openEnd={event.openEnd}
@@ -428,7 +384,7 @@ export const DesignerLane = ({
 							onDuplicate={delta => duplicate(event.ref, delta)}
 							onRenameStart={() => setRenaming(key)}
 							onRename={(name, refocus) => rename(event.ref, name, refocus)}
-							adjust={event.ref.kind === 'bossHealth' ? adjustHealth(event.ref) : undefined}
+							adjust={event.ref.kind === 'bossHealth' ? adjustHealth(segments, event.ref) : undefined}
 							onPreview={event.ref.kind === 'bossHealth' ? window => setDragging(window && { index: event.ref.index, window }) : undefined}
 							onSibling={direction => focusSibling(key, direction)}
 							onFocus={() => setActive(key)}

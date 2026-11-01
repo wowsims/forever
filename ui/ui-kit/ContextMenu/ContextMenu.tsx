@@ -20,11 +20,7 @@ export interface ContextMenuProps {
 export const ContextMenu = ({ children, menu, open, onOpenChange, onOpenChangeComplete, finalFocus, className, triggerProps }: ContextMenuProps) => {
 	const portalContainer = usePortalContainer();
 	return (
-		<BaseContextMenu.Root
-			open={open}
-			onOpenChange={onOpenChange && (next => onOpenChange(next))}
-			onOpenChangeComplete={onOpenChangeComplete}
-			highlightItemOnHover={false}>
+		<BaseContextMenu.Root open={open} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete} highlightItemOnHover={false}>
 			<BaseContextMenu.Trigger className={className} {...triggerProps}>
 				{children}
 			</BaseContextMenu.Trigger>

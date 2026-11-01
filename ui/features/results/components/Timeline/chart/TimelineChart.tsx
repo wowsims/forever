@@ -28,10 +28,10 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 	// Keyed by the stable series id, not by dataset index or legend label, so a toggle survives both a
 	// dataset rebuild and a UI language change.
 	const seriesVisible = useRef(new Map<string, boolean>());
-	// datasetIndex + dataIndex, which a new result can reuse for a different log, so a rebuild clears it.
 	// Local to the chart like series visibility; the state only re-renders the legend.
 	const hiddenKinds = useRef(new Set<ScheduledKind>());
 	const [, setKindsVersion] = useState(0);
+	// datasetIndex + dataIndex, which a new result can reuse for a different log, so a rebuild clears it.
 	const tipKey = useRef('');
 	const suppressed = useRef(false);
 
