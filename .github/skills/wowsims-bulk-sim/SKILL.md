@@ -249,9 +249,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   encounters and the user's saved ones in the Saved Encounters panel's order; one with no encounter or no target is
   left out. The current encounter is checked by its empty ref in the stored refs, seeded on fresh storage, and runs
   unnamed. While the current encounter is ticked, an entry that sims like it (`bulkEncounterList` compares the
-  encounters without their proto version, zone or target names) is disabled and shown unchecked, "Same as Current
-  encounter", keeps its stored state, and does not run or count; with the current encounter unticked it runs under its
-  own name. A later entry with the content of an earlier checked one is disabled the same way, "Same as <encounter>".
+  encounters without their proto version, name, My encounters mark, zone, target names or an empty design) is disabled
+  and shown unchecked, "Same as Current encounter", keeps its stored state, and does not run or count; with the current
+  encounter unticked it runs under its own name. A later entry with the content of an earlier checked one is disabled the same way, "Same as <encounter>".
   A tick rebuilds the stored refs from every pickable ref (`checkedRefsAfter`), so their order follows the list.
 - The plan (`builds.ts`): `bulkBundleRuns` gives the Current bundle first while it is ticked, then every checked
   bundle the list shows that duplicates none, in list order. An unticked Current bundle does not run, and nothing sims
@@ -343,7 +343,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   `bulk-enchant-presets.v1`) and `bulk-mode.v1`. None of the Builds picks bumps the slice's `settings` counter.
 - With two or more finished encounters and power tools on, the encounter list offers Compare encounters: a table
   (`compareMatrix` in `ui/features/bulk/model/results/compare.ts`) with the current gear's row, then every set's, and a column
-  per encounter by fight length, health-based ones last. Each cell is the set's gain over the current gear (in % of
+  per encounter by fight length. Each cell is the set's gain over the current gear (in % of
   the current gear's DPS), tinted on a diverging scale (`gainTint`, five steps either way, each a fifth of the table's
   largest gain or loss), with the encounter's best outlined and a dashed gap where the encounter did not rank the set;
   its tooltip gives the rank, DPS, fight-to-fight spread and gain. With the Current bundle unticked there is no

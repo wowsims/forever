@@ -11,7 +11,7 @@ import { type BulkSetupKind, BulkSetupLabel } from '../BulkSetupLabel';
 
 export interface BulkCompareTableColumn {
 	label: string;
-	/** The encounter's length as "m:ss", or how a health-based one ends. */
+	/** The encounter's length as "m:ss". */
 	length: string;
 }
 

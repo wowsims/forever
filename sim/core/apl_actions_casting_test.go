@@ -10,6 +10,44 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
+// A multidot counts active targets only: with the boss dotted, the second dot goes to the add that is up, past
+// the idle pool slot of a wave still to come, and a limit of one dot stops at the boss.
+func TestMultidotsCountActiveTargetsOnly(t *testing.T) {
+	const dotID = 910105
+	design := &proto.EncounterDesign{AddWaves: []*proto.AddWave{testAddWave(1, 0.8, 0.1, nil), testAddWave(1, 0.1, 0.5, nil)}}
+	var spell *Spell
+	sim, fw := setupDesignSim(designTestRequest(1, design), func(char *Character) {
+		spell = char.RegisterSpell(fakeWarlockDot(dotID, "Multidot Test", ClassFlags{}, SpellFlagAPL))
+	})
+	spell.finalize()
+	runLifecycleUntil(sim, designAt(0.2))
+	boss, idle, active := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1], sim.Encounter.AllTargets[2]
+	if idle.IsEnabled() || !active.IsEnabled() {
+		t.Fatal("test setup: expected the first wave's slot idle and the second wave's add up")
+	}
+	spell.Dot(&boss.Unit).Apply(sim)
+	spellID := ActionID{SpellID: dotID}.ToProto()
+
+	multidot := fw.Rotation.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 2}).(*APLActionMultidot)
+	if !multidot.IsReady(sim) || multidot.nextTarget != &active.Unit {
+		t.Errorf("Multidot of 2: expected it ready on the add that is up, got %s", unitLabel(multidot.nextTarget))
+	}
+	strict := fw.Rotation.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: spellID, MaxDots: 2}).(*APLActionStrictMultidot)
+	if !strict.IsReady(sim) || len(strict.readyActions) != 1 {
+		t.Fatalf("Strict Multidot of 2: expected one cast ready, got %d", len(strict.readyActions))
+	}
+	if got := strict.readyActions[0].impl.(*APLActionCastSpell).target.Get(); got != &active.Unit {
+		t.Errorf("Strict Multidot of 2: expected its cast on the add that is up, got %s", unitLabel(got))
+	}
+
+	if fw.Rotation.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 1}).IsReady(sim) {
+		t.Error("Multidot of 1: expected nothing to do with the boss dotted")
+	}
+	if fw.Rotation.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: spellID, MaxDots: 1}).IsReady(sim) {
+		t.Error("Strict Multidot of 1: expected nothing to do with the boss dotted")
+	}
+}
+
 // A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on a
 // group reference it sits under at any depth, turns false before the second dot. An outer Sequence's
 // condition only decides whether the sequence starts.

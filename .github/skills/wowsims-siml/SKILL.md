@@ -180,9 +180,17 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `current_time_percent`
 - `remaining_time`
 - `remaining_time_percent`
-- `is_execute_phase(e20|e35)`
+- `is_execute_phase(e20|e35, target_unit: unit)`
 - `number_targets`
 - `encounter_in_area(forest_grassland|mountainous|snowy|desert|swamp|wasteland|haunted|cavernous|…)`
+- `[unit.]target_is_active`
+- `num_active_adds`
+- `[unit.]time_until_target_active`
+- `[unit.]time_until_target_dies`
+- `time_until_next_move`
+- `next_move_duration`
+- `amp_is_active(caster_buff|environment_buff|target_debuff)`
+- `time_until_amp(caster_buff|environment_buff|target_debuff)`
 - `[unit.]boss_current_target`
 - `target_is_mob_type(beast|demon|dragonkin|elemental|giant|humanoid|mechanical|undead, target_unit: unit)`
 - `[unit.]target_is_bleed_immune`

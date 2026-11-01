@@ -1,4 +1,4 @@
-import { Encounter } from '@generated/proto/common';
+import { Encounter, EncounterDesign } from '@generated/proto/common';
 import { BulkEncounterRef, BulkEncounterSelection, SavedEncounter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import type { BulkEncounterResults, BulkEncounterSetup } from '@sim/bulk/types';
@@ -18,28 +18,19 @@ export interface BulkEncounterEntry {
 
 type EncounterLength = Pick<BulkEncounterResults, 'duration' | 'durationVariation'>;
 
-type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth' | 'targets'>;
+type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' | 'targets'>;
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
 
-// As the results store it: null for both on a health-based encounter, which has no set length.
-export const encounterLength = ({
-	duration,
-	durationVariation,
-	useHealth,
-}: Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth'>): EncounterLength =>
-	useHealth ? { duration: null, durationVariation: null } : { duration, durationVariation };
-
-// "m:ss ±Ns", or "m:ss" alone when the variation is null; a health-based encounter shows how it ends.
+// "m:ss ±Ns", or "m:ss" alone when the variation is null.
 export const formatEncounterDuration = ({ duration, durationVariation }: EncounterLength): string => {
-	if (duration === null) return t('health_summary');
 	const length = formatDurationSeconds(duration, { separatorStyle: 'colon', minimumUnit: 'minutes' });
 	return durationVariation === null ? length : `${length} ±${durationVariation}s`;
 };
 
 // "3:00 ±5s · 1 target". An encounter with no target still runs one.
 export const formatEncounterSummary = (encounter: EncounterSummaryFields): string =>
-	`${formatEncounterDuration(encounterLength(encounter))} · ${t('targets', { count: Math.max(1, encounter.targets.length) })}`;
+	`${formatEncounterDuration(encounter)} · ${t('targets', { count: Math.max(1, encounter.targets.length) })}`;
 
 // The current encounter runs unnamed; every view calls it "Current".
 export const encounterLabel = ({ isCurrent, name }: Pick<BulkEncounterResults, 'isCurrent' | 'name'>): string =>
@@ -61,9 +52,18 @@ export const bulkEncounterEntries = (
 export const pickableBulkEncounters = (host: IndividualSimHost<any>): BulkEncounterEntry[] =>
 	bulkEncounterEntries(host.individualConfig.presets.encounters, storedSavedData(host, host.getSavedEncounterStorageKey(), SavedEncounter));
 
-// The proto version, the zone the areas came from and the target names change nothing the sim reads.
+// The proto version, the designer's name and My encounters mark, the zone the areas came from and the target names
+// change nothing the sim reads. Neither does an empty design, which the live encounter holds where a saved one has none.
 const encounterContentKey = keyedOnce((encounter: Encounter) =>
-	Encounter.toJsonString({ ...encounter, apiVersion: 0, zoneId: 0, targets: encounter.targets.map(target => ({ ...target, name: '' })) }),
+	Encounter.toJsonString({
+		...encounter,
+		apiVersion: 0,
+		name: '',
+		myEncounter: false,
+		zoneId: 0,
+		design: EncounterDesign.equals(encounter.design, EncounterDesign.create()) ? undefined : encounter.design,
+		targets: encounter.targets.map(target => ({ ...target, name: '' })),
+	}),
 );
 
 // The current encounter's ref: checked when listed, like every other encounter's.

@@ -1,7 +1,6 @@
 import { SidebarRegistry } from '@app/sidebar_registry';
 import { initBulk } from '@features/bulk/model/init';
 import { watchTargetDummies } from '@features/encounter/model/target_dummies';
-import { repairTargetInputs } from '@features/encounter/model/target_inputs';
 import { registerAreaStatsNotices, registerSetBonusNotices } from '@features/gear/item_notices';
 import { createLink } from '@features/import-export';
 import { ReforgeSidebarGroup } from '@features/reforge/components/ReforgePanel';
@@ -150,7 +149,6 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		});
 
 		this.sim.waitForInit().then(() => {
-			repairTargetInputs(this.sim.encounter);
 			watchTargetDummies(this.player, this.sim);
 		});
 

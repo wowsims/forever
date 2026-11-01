@@ -1,4 +1,4 @@
-import { Encounter, Target } from '@generated/proto/common';
+import { DesignDowntime, Encounter, EncounterDesign, Target } from '@generated/proto/common';
 import { BulkEncounterRef, SavedEncounter } from '@generated/proto/ui';
 import { bulkState, loadStoredBulkEncounters } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -41,7 +41,6 @@ describe('formatEncounterDuration', () => {
 	it.each([
 		[{ duration: 90, durationVariation: 10 }, '1:30 ±10s'],
 		[{ duration: 300, durationVariation: null }, '5:00'],
-		[{ duration: null, durationVariation: null }, 'bulk_tab.settings.encounters.health_summary'],
 	])('formats %#', (length, label) => {
 		expect(formatEncounterDuration(length)).toBe(label);
 	});
@@ -52,7 +51,6 @@ describe('formatEncounterSummary', () => {
 		[encounter(180), '3:00 ±5s · bulk_tab.settings.encounters.targets:1'],
 		[encounter(90, 10, 3), '1:30 ±10s · bulk_tab.settings.encounters.targets:3'],
 		[encounter(600, 30, 0), '10:00 ±30s · bulk_tab.settings.encounters.targets:1'],
-		[{ ...encounter(180, 5, 2), useHealth: true }, 'bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets:2'],
 	])('formats %#', (proto, summary) => {
 		expect(formatEncounterSummary(proto)).toBe(summary);
 	});
@@ -146,11 +144,26 @@ describe('bulkEncounterList', () => {
 		expect(bulkEncounterRuns(CURRENT, entries, unticked)).toEqual([{ name: 'Three minutes', isCurrent: false, encounter: entries[0].encounter }]);
 	});
 
-	it('compares encounters without their proto version, zone and target names', () => {
+	it('compares encounters without their proto version, name, My encounters mark, zone, target names or an empty design', () => {
 		const entries = [
 			entryOf('Raid', Encounter.create({ duration: 300, targets: [Target.create()] })),
-			entryOf('Raid elsewhere', Encounter.create({ duration: 300, apiVersion: 7, zoneId: 5, targets: [Target.create({ name: 'Boss' })] })),
+			entryOf(
+				'Raid elsewhere',
+				Encounter.create({
+					duration: 300,
+					apiVersion: 7,
+					name: 'Mine',
+					myEncounter: true,
+					zoneId: 5,
+					design: EncounterDesign.create(),
+					targets: [Target.create({ name: 'Boss' })],
+				}),
+			),
 			entryOf('Longer raid', Encounter.create({ duration: 301, targets: [Target.create()] })),
+			entryOf(
+				'Raid with a downtime',
+				Encounter.create({ duration: 300, design: EncounterDesign.create({ downtimes: [DesignDowntime.create()] }), targets: [Target.create()] }),
+			),
 		];
 
 		expect(
@@ -159,7 +172,7 @@ describe('bulkEncounterList', () => {
 				entries,
 				entries.map(entry => entry.ref),
 			).map(row => row.duplicateOf),
-		).toEqual([null, 'Raid', null]);
+		).toEqual([null, 'Raid', null, null]);
 	});
 });
 

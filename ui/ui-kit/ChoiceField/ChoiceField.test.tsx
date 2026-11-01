@@ -253,6 +253,36 @@ describe('ChoiceField', () => {
 		});
 	});
 
+	describe('sections', () => {
+		const SECTIONED: Array<ChoiceEntry<number>> = [
+			{ value: -1, label: 'Custom' },
+			{ label: 'Presets', options: MODES.slice(0, 2) },
+			{ label: 'Mine', options: [MODES[2]] },
+		];
+
+		it('lists each section under its heading in the select, and reports the option picked in one', async () => {
+			render(<Harness options={SECTIONED} initial={0} />);
+			await open();
+
+			const [presets, mine] = screen.getAllByRole('group');
+			expect(
+				within(presets)
+					.getAllByRole('option')
+					.map(option => option.textContent),
+			).toEqual(['Passive', 'Aggressive']);
+			expect(presets.getAttribute('aria-labelledby')).toBe(within(presets).getByText('Presets').id);
+			expect(
+				within(mine)
+					.getAllByRole('option')
+					.map(option => option.textContent),
+			).toEqual(['Defensive']);
+
+			await userEvent.click(within(mine).getByRole('option', { name: 'Defensive' }));
+			expect(picks).toHaveBeenLastCalledWith(2);
+			expect(trigger().textContent).toBe('Defensive');
+		});
+	});
+
 	// A picker sitting in an overflow-clipped drawer at the bottom of the page opens upwards and out of flow.
 	describe('side and positionMethod', () => {
 		const positioner = () => screen.getByTestId('choice-field-positioner');

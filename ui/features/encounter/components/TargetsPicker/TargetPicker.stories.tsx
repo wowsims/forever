@@ -15,7 +15,7 @@ const number = (id: string, label: string, value: number, float = false) => <Num
 const IDENTITY = (
 	<>
 		{select('story-target-npc', 'NPC', ['Custom', 'Ragnaros', 'Nefarian'])}
-		{select('story-target-ai', 'AI', ['None'])}
+		{select('story-target-preset-target', 'Preset', ['None'])}
 		{select('story-target-level', 'Level', ['63', '62', '61', '60'])}
 		{select('story-target-mob-type', 'Mob Type', ['Demon', 'Dragonkin', 'Elemental', 'Humanoid'])}
 	</>

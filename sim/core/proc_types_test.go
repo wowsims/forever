@@ -222,6 +222,27 @@ func TestDecodeProcTypeMask(t *testing.T) {
 			requireDamageDealt: true,
 			unsupported:        []string{"bit 34"},
 		},
+		{
+			name:               "Spinal Reaper 21185, a killing blow",
+			mask:               [2]uint32{0x2, 0},
+			callback:           CallbackOnKill,
+			outcome:            OutcomeLanded,
+			requireDamageDealt: true,
+		},
+		{
+			name:               "Lunar Idol 419288, a killing blow and a target dying",
+			mask:               [2]uint32{0x2, 0x1},
+			callback:           CallbackOnKill | CallbackOnTargetDies,
+			outcome:            OutcomeLanded,
+			requireDamageDealt: true,
+		},
+		{
+			name:               "the caster dying",
+			mask:               [2]uint32{0x1000000, 0},
+			outcome:            OutcomeLanded,
+			requireDamageDealt: true,
+			unsupported:        []string{"DEATH"},
+		},
 	}
 
 	for _, tc := range cases {
@@ -244,6 +265,52 @@ func TestDecodeProcTypeMask(t *testing.T) {
 		}
 		if !slices.Equal(info.Unsupported, tc.unsupported) {
 			t.Errorf("%s: Unsupported = %v, want %v", tc.name, info.Unsupported, tc.unsupported)
+		}
+	}
+}
+
+// A trigger built the way spelldata.ProcTrigger builds one from a row: the decoded listener, a stated
+// chance of 1. The kill bit fires on a credited death alone, the target-dies bit on every death, and a
+// mask carrying both fires once for each.
+func TestDecodedDeathFlagsFireOnDie(t *testing.T) {
+	for _, tc := range []struct {
+		name                 string
+		mask                 [2]uint32
+		uncredited, credited int
+	}{
+		{name: "the kill bit", mask: [2]uint32{0x2, 0}, uncredited: 0, credited: 1},
+		{name: "the target-dies bit", mask: [2]uint32{0, 0x1}, uncredited: 1, credited: 1},
+		{name: "both bits", mask: [2]uint32{0x2, 0x1}, uncredited: 1, credited: 2},
+	} {
+		fired := 0
+		var trigger *Aura
+		sim, target := setupTargetDeathSim(func(char *Character) {
+			decoded := DecodeProcTypeMask(tc.mask, 0)
+			trigger = char.MakeProcTriggerAura(ProcTrigger{
+				Name:               "Decoded Death Trigger",
+				Callback:           decoded.Callback,
+				ProcMask:           decoded.ProcMask,
+				Outcome:            decoded.Outcome,
+				RequireDamageDealt: decoded.RequireDamageDealt,
+				ProcChance:         1,
+				TriggerImmediately: true,
+				Handler: func(_ *Simulation, _ *Spell, _ *SpellResult) {
+					fired++
+				},
+			})
+		})
+		trigger.Activate(sim)
+
+		target.Die(sim, 0)
+		if fired != tc.uncredited {
+			t.Errorf("%s: fired %d times on a death with no kill credit, want %d", tc.name, fired, tc.uncredited)
+		}
+
+		fired = 0
+		target.Enable(sim)
+		target.Die(sim, 1)
+		if fired != tc.credited {
+			t.Errorf("%s: fired %d times on a credited kill, want %d", tc.name, fired, tc.credited)
 		}
 	}
 }

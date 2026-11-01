@@ -230,5 +230,5 @@
 	"flag_values": {
 		"proto.TristateEffect": "TristateEffectRegular"
 	},
-	"skip": ["proto.Player.database", "*.api_version", "type:proto.UUID"]
+	"skip": ["proto.Player.database", "proto.Encounter.my_encounter", "*.api_version", "type:proto.UUID"]
 }

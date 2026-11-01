@@ -85,8 +85,10 @@ func (hunter *Hunter) registerCarefulAim() {
 var rapidKillingBuff = spellData.RapidKillingTriggered.Highest()
 
 // Effect 1 shortens Rapid Fire's cooldown. Effect 2 is the damage bonus 415407 gives the next Shot,
-// 10/20% by rank, where the buff row states a flat 20, so the row is scaled by the ranks taken. A
-// kill grants the buff, and no target dies in the sim, so only an APL that activates the aura does.
+// 10/20% by rank, where the buff row states a flat 20, so the row is scaled by the ranks taken. The
+// talent row hears the killing blow, and a credited kill grants the buff. The tooltip also grants it
+// when the enemy dies with the hunter's Serpent Sting on it, which the row's proc flags do not state;
+// a stung enemy grants it once, whether or not the raid gets the kill.
 //
 // The Shots its damage mod names spend its one charge at the cast's result, a miss included.
 func (hunter *Hunter) registerRapidKilling() {
@@ -94,8 +96,8 @@ func (hunter *Hunter) registerRapidKilling() {
 		return
 	}
 
-	spelldata.ParseStatic(&hunter.Character, spellData.RapidKilling.Rank(hunter.Talents.RapidKilling),
-		spelldata.Effects(1))
+	rank := spellData.RapidKilling.Rank(hunter.Talents.RapidKilling)
+	spelldata.ParseStatic(&hunter.Character, rank, spelldata.Effects(1))
 
 	buff := hunter.RegisterAura(spelldata.AuraConfig(rapidKillingBuff))
 	spelldata.ParseEffects(&hunter.Character, buff, rapidKillingBuff,
@@ -118,6 +120,29 @@ func (hunter *Hunter) registerRapidKilling() {
 				hunter.gainRapidRecuperation(sim, hunter.rapidRecuperationSpend)
 			}
 		})
+
+	grant := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		buff.Activate(sim)
+	}
+	// Serpent Sting registers after the talents. Both checks run while the dying target still carries
+	// its dots.
+	stung := func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		return hunter.GetSpell(core.ActionID{SpellID: serpentStingRank.ID}).Dot(result.Target).IsActive()
+	}
+
+	trigger := spelldata.ProcTrigger(&hunter.Character, rank, grant)
+	trigger.Name = "Rapid Killing - Trigger"
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		return !stung(sim, spell, result)
+	}
+	hunter.MakeProcTriggerAura(trigger)
+
+	hunter.MakeProcTriggerAura(core.ProcTrigger{
+		Name:           "Rapid Killing - Serpent Sting",
+		Callback:       core.CallbackOnTargetDies,
+		ExtraCondition: stung,
+		Handler:        grant,
+	})
 }
 
 func (hunter *Hunter) registerImprovedArcaneShot() {

@@ -38,7 +38,7 @@ const C = gearSet(4);
 // current gear's row the parts of a Builds batch's reference.
 const entry = (
 	name: string,
-	duration: number | null,
+	duration: number,
 	ranked: Array<[Gear, number, Partial<BulkRankedResult>?]>,
 	baseBuild: Partial<BulkRankedResult> = {},
 ): BulkEncounterResults => {
@@ -50,7 +50,7 @@ const entry = (
 		name,
 		isCurrent: false,
 		duration,
-		durationVariation: duration === null ? null : 5,
+		durationVariation: 5,
 		results: { chains, originalGearResults: base, referenceIsCurrent: true, currentGear: CURRENT, iterations: 100 },
 	};
 };
@@ -79,7 +79,7 @@ const rankedEntry = (name: string, duration: number, requests: BulkFinishedReque
 });
 
 const ENTRIES = [
-	entry('Patchwerk', null, [
+	entry('Patchwerk', 300, [
 		[C, 1100],
 		[A, 1050],
 	]),
@@ -153,7 +153,7 @@ describe('compareMatrix', () => {
 		]);
 	});
 
-	it('orders the columns by duration, health-based last', () => {
+	it('orders the columns by duration', () => {
 		expect(compareMatrix(ENTRIES).columns.map(column => column.name)).toEqual(['Council', 'Current', 'Patchwerk']);
 	});
 

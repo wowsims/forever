@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 type APLValueCurrentHealth struct {
@@ -18,19 +19,38 @@ func (rot *APLRotation) newValueCurrentHealth(config *proto.APLValueCurrentHealt
 	if resolvedUnit == nil {
 		return nil
 	}
-	if !resolvedUnit.HasHealthBar() {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s does not use Health", resolvedUnit.Label)
+	if !rot.unitHasHealth(resolvedUnit, uuid) {
 		return nil
 	}
 	return &APLValueCurrentHealth{
 		unit: unit,
 	}
 }
+
+// Whether the unit has health to read: an enemy has its target curve, others need a health bar. Warns when not,
+// and for an enemy without a Health stat, which reads 0.
+func (rot *APLRotation) unitHasHealth(unit *Unit, uuid *proto.UUID) bool {
+	if unit.Type != EnemyUnit {
+		if !unit.HasHealthBar() {
+			rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s does not use Health", unit.Label)
+			return false
+		}
+		return true
+	}
+	if unit.stats[stats.Health] == 0 {
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s has no Health stat", unit.Label)
+	}
+	return true
+}
 func (value *APLValueCurrentHealth) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeFloat
 }
 func (value *APLValueCurrentHealth) GetFloat(sim *Simulation) float64 {
-	return value.unit.Get().CurrentHealth()
+	unit := value.unit.Get()
+	if target := enemyTargetOf(unit); target != nil {
+		return target.HealthPercent(sim) / 100 * unit.stats[stats.Health]
+	}
+	return unit.CurrentHealth()
 }
 func (value *APLValueCurrentHealth) String() string {
 	return "Current Health"
@@ -48,8 +68,7 @@ func (rot *APLRotation) newValueCurrentHealthPercent(config *proto.APLValueCurre
 	if resolvedUnit == nil {
 		return nil
 	}
-	if !resolvedUnit.HasHealthBar() {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s does not use Health", resolvedUnit.Label)
+	if resolvedUnit.Type != EnemyUnit && !rot.unitHasHealth(resolvedUnit, uuid) {
 		return nil
 	}
 	return &APLValueCurrentHealthPercent{
@@ -60,7 +79,14 @@ func (value *APLValueCurrentHealthPercent) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeFloat
 }
 func (value *APLValueCurrentHealthPercent) GetFloat(sim *Simulation) float64 {
-	return value.unit.Get().CurrentHealthPercent()
+	unit := value.unit.Get()
+	if target := enemyTargetOf(unit); target != nil {
+		return target.HealthPercent(sim) / 100
+	}
+	if !unit.HasHealthBar() {
+		return 0
+	}
+	return unit.CurrentHealthPercent()
 }
 func (value *APLValueCurrentHealthPercent) String() string {
 	return fmt.Sprintf("Current Health %%")

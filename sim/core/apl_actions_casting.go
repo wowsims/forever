@@ -269,8 +269,16 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 			}
 		}
 	} else {
-		for i := int32(0); i < action.maxDots; i++ {
-			target := sim.Encounter.AllTargetUnits[i]
+		// The first maxDots active targets: a target can be down and a wave's pool slot idle.
+		dots := int32(0)
+		for _, target := range sim.Encounter.AllTargetUnits {
+			if !target.IsEnabled() {
+				continue
+			}
+			if dots == action.maxDots {
+				break
+			}
+			dots++
 			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
@@ -330,7 +338,7 @@ func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMul
 	}
 
 	actions := []*APLAction{}
-	for i := int32(0); i < maxDots; i++ {
+	for i := int32(0); i < numTargets; i++ {
 		if isHeal {
 			actions = append(actions, &APLAction{
 				impl: rot.newActionCastSpell(&proto.APLActionCastSpell{
@@ -378,8 +386,15 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	action.readyActions = []*APLAction{}
 
 	var previousTarget *Unit
-	for i := int32(0); i < action.maxDots; i++ {
-		target := action.targets[i]
+	dots := int32(0)
+	for i, target := range action.targets {
+		if !target.IsEnabled() {
+			continue
+		}
+		if dots == action.maxDots {
+			break
+		}
+		dots++
 		dot := readDot(sim, action.spell.Dot(target))
 		if (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 			action.readyActions = append(action.readyActions, action.actions[i])

@@ -376,6 +376,7 @@
 			"focus_tick": "Focus Tick",
 			"mana_gain": "Mana Gain",
 			"rage_gain": "Rage Gain",
+			"damage_amplifier": "Damage Amplifier",
 			"attack": "Attack",
 			"shoot": "Shoot",
 			"refund": "Refund",
@@ -393,8 +394,9 @@
 			"main_hand": "Main Hand",
 			"off_hand": "Off Hand",
 			"windfury": "Windfury",
-			"boss": "Boss",
-			"add": "Add",
+			"caster_buff": "Caster Buff",
+			"environment_buff": "Environment Buff",
+			"target_debuff": "Target Debuff",
 			"no_stacks": "No Stacks",
 			"one_stack": "1 Stack",
 			"crits": "Crits",
@@ -430,7 +432,6 @@
 			"self": "self",
 			"shield": "Shield",
 			"amplified": "Amplified",
-			"custom_boss": "Custom Boss",
 			"thrash": "Thrash",
 			"stacks": "{{stacks}} Stacks",
 			"ticks": "{{ticks}} Tick",
@@ -976,53 +977,6 @@
 		},
 		"encounter": {
 			"title": "Encounter",
-			"target_inputs": {
-				"label": "Target Input",
-				"frenzy_time": {
-					"label": "Frenzy time",
-					"tooltip": "Simulation time (in seconds) at which to disable tank swaps and enable the boss Frenzy buff"
-				},
-				"spiritual_grasp_frequency": {
-					"label": "Spiritual Grasp frequency",
-					"tooltip": "Average time (in seconds) between Spiritual Grasp hits, following an exponential distribution"
-				},
-				"jalak_death_time": {
-					"label": "Jalak death time",
-					"tooltip": "Simulation time (in seconds) at which to disable War-God Jalak and trigger the Rampage buff on Horridon. If set longer than the simulated fight length, then Jalak will be tanked the entire time and Rampage will never be triggered."
-				},
-				"taunt_swap_for_triple_puncture": {
-					"label": "Taunt swap for Triple Puncture",
-					"tooltip": "If checked, taunt swap upon Jalak's death and on every other Triple Puncture application afterwards in order to limit stack accumulation on a single tank."
-				},
-				"movement_interval": {
-					"label": "Movement Interval",
-					"tooltip": "How often the player will move in seconds"
-				},
-				"reaction_time": {
-					"label": "Reaction Time",
-					"tooltip": "How long the player can wait for casts to finish before moving in seconds"
-				},
-				"yards": {
-					"label": "Yards",
-					"tooltip": "How many yards the player moves"
-				},
-				"adds_respawn_time": {
-					"label": "Add(s) respawn time",
-					"tooltip": "Time for add(s) to respawn after previous died (in seconds)"
-				},
-				"adds_lifetime": {
-					"label": "Add(s) lifetime",
-					"tooltip": "How long the add(s) stay alive (in seconds)"
-				},
-				"adds_spawn_delay": {
-					"label": "Add(s) spawn delay",
-					"tooltip": "Initial delay before the add(s) spawn (in seconds)"
-				},
-				"fear_duration": {
-					"label": "Fear Duration",
-					"tooltip": "Time (in seconds) that Fear keeps players from acting. Fear lasts 8s, but is usually broken after ~3s. Set to 0 to disable."
-				}
-			},
 			"duration": {
 				"label": "Duration",
 				"tooltip": "The fight length for each sim iteration, in seconds."
@@ -1041,8 +995,14 @@
 			},
 			"encounter_preset": {
 				"label": "Encounter",
-				"tooltip": "Selects a preset encounter configuration."
+				"tooltip": "Selects a preset encounter configuration.",
+				"presets": "Presets",
+				"own": "My encounters",
+				"edited": "{{name}} (edited)",
+				"imported": "{{name}} (imported)"
 			},
+			"new_encounter": "New encounter",
+			"unique_name": "{{name}} ({{number}})",
 			"zone": {
 				"label": "Zone",
 				"tooltip": "Picks every kind of area the zone counts as; picking a preset boss fills it in from the boss's zone. Custom means the areas below were set by hand."
@@ -1069,9 +1029,9 @@
 				"label": "NPC",
 				"tooltip": "Selects a preset NPC configuration."
 			},
-			"ai": {
-				"label": "AI",
-				"tooltip": "Determines the target's ability rotation. Note that most rotations are not yet implemented."
+			"preset_target": {
+				"label": "Preset",
+				"tooltip": "Sets the target's NPC id from the presets that share it, which the sim reads the target's identity from. \"None\" leaves the id at 0."
 			},
 			"level": "Level",
 			"mob_type": "Mob Type",
@@ -1117,7 +1077,202 @@
 			},
 			"suppress_dodge": "Suppress Dodge",
 			"second_tank_index": "Second Tank Index",
-			"disabled_at_start": "Disabled at Start"
+			"disabled_at_start": "Disabled at Start",
+			"designer": {
+				"timeline": "Encounter timeline",
+				"lanes": {
+					"boss": "Boss",
+					"abilities": "Boss abilities",
+					"waves": "Add waves",
+					"moves": "Movement",
+					"amps": "Damage amps"
+				},
+				"events": {
+					"downtime": "Downtime",
+					"boss_health": "Boss health",
+					"ability": "Boss ability",
+					"wave": "Wave",
+					"move": "Move",
+					"amp": "Damage amp"
+				},
+				"validation": {
+					"end_before_start": "Ends before it starts.",
+					"outside_fight": "It falls outside the fight, or its jitter can push it there.",
+					"overlap": "Overlaps another event of its kind.",
+					"downtime_overlap": "Overlaps another downtime of its target, which stays down until the last of them ends.",
+					"health_increases": "Boss health rises after an earlier keyframe.",
+					"target_out_of_range": "Names a target the encounter does not have.",
+					"wave_out_of_range": "Names a wave the design does not have.",
+					"all_targets_down": "Every target is down from {{from}} to {{to}}, so the player idles.",
+					"too_many_keyframes": "The sim's boss health curve holds 16 points, its own start point included, so it drops this keyframe.",
+					"amp_not_positive": "Adds no damage, so the sim skips it.",
+					"too_many_adds": "Spawns more than 64 adds at once, so the sim skips the wave.",
+					"move_goes_nowhere": "Moves no yards for no time, so the sim skips it.",
+					"execute_order": "Spends more of its life below 20% than below 35%, so the sim raises the 35% share to match.",
+					"no_adds": "Spawns no adds, so the sim skips the wave.",
+					"no_weapon_damage": "Deals no weapon damage, so the sim skips it.",
+					"no_extra_attacks": "Grants no extra attacks, so the sim skips it.",
+					"wave_over_pool": "Needs more than the sim's 64 slots for one wave at once, so a spawn with too few free is skipped.",
+					"health_stops_short": "The sim's boss health curve holds 16 points and this keyframe is the last that fits, so the boss never falls to 0%."
+				},
+				"event_name": "{{event}} {{number}}",
+				"seconds": "{{value}}s",
+				"span_value": "{{name}}, {{start}} to {{end}}",
+				"point_value": "{{name}}, at {{at}}",
+				"health_value": "{{name}}, {{from}} % to {{to}} % from {{start}} to {{end}}",
+				"state_selected": "selected",
+				"state_invalid": "has issues",
+				"occurrence_name": "{{name}} #{{number}}",
+				"occurrence_number": "#{{number}}",
+				"copy_name": "{{name}} (copy)",
+				"menu": {
+					"duplicate": "Duplicate",
+					"delete": "Delete",
+					"edit": "Edit",
+					"rename": "Rename",
+					"rename_label": "Event name",
+					"hold_health": "Hold health",
+					"hold_boss_health": "Hold boss health here",
+					"hold_blocked": "{{name}} at {{at}} is in the way"
+				},
+				"tip": {
+					"occurrence_title": "{{label}} — {{title}}",
+					"range": "{{start}}–{{end}}",
+					"every": "Every {{interval}}",
+					"every_from": "Every {{interval}} from {{start}} to {{end}}",
+					"at": "At {{at}}",
+					"health": "{{from}} % → {{to}} %",
+					"downtime": "Downtime",
+					"clears_debuffs": "Clears debuffs",
+					"school_damage": "{{school}} {{min}}–{{max}}",
+					"cast": "{{time}} cast",
+					"weapon": "{{percent}} % weapon damage",
+					"proc": "{{chance}} % proc chance",
+					"extra_attacks": "{{count}} extra attacks",
+					"icd": "{{time}} internal cooldown",
+					"swing_speed": "Swing speed ×{{value}}",
+					"wave": "Add wave '{{name}}'",
+					"adds_one": "{{count}} add ({{groups}})",
+					"adds_other": "{{count}} adds ({{groups}})",
+					"add_group": "Lvl {{level}} {{type}}",
+					"add_group_count": "Lvl {{level}} {{type}} ×{{count}}",
+					"spawns": "Spawns {{at}}",
+					"spawns_jitter": "Spawns {{at}} ± {{jitter}}",
+					"lives": "Lives {{time}}",
+					"kill_share": "Kill share {{percent}} %",
+					"move": "Move",
+					"move_yards": "{{yards}} yd ({{time}})",
+					"amp": "Damage amp",
+					"amp_value": "{{type}} +{{percent}} %",
+					"health_hold": "Holds at {{percent}} %",
+					"boss_health": "Boss health",
+					"health_sentence": "Boss health {{from}} % → {{to}} % from {{start}} to {{end}}"
+				},
+				"add": "Add {{event}}",
+				"toolbar": {
+					"zoom_in": "Zoom in",
+					"zoom_out": "Zoom out",
+					"fit": "Fit to width",
+					"snap": "Snap",
+					"snap_off": "Off",
+					"add_event": "Add event"
+				},
+				"panel": {
+					"empty": "Select an event on the timeline to edit it.",
+					"remove": "Remove"
+				},
+				"issues": {
+					"title": "Issues",
+					"empty": "No issues."
+				},
+				"fields": {
+					"target": "Target",
+					"start": "Start (s)",
+					"start_jitter": "Start jitter (s)",
+					"end": "End (s)",
+					"end_jitter": "End jitter (s)",
+					"clear_debuffs": "Clear debuffs",
+					"at": "At (s)",
+					"at_jitter": "Jitter (s)",
+					"health_percent": "Health (%)",
+					"name": "Name",
+					"template": "Add template",
+					"spawn": "Spawn (s)",
+					"spawn_jitter": "Spawn jitter (s)",
+					"lifetime": "Lifetime (s)",
+					"execute_20": "Below 20% (%)",
+					"execute_35": "Below 35% (%)",
+					"kill_share": "Kill share (%)",
+					"yards": "Yards",
+					"seconds": "Seconds",
+					"repeat_interval": "Repeat every (s)",
+					"repeat_jitter": "Repeat jitter (s)",
+					"repeat_count": "Repeats",
+					"amp_type": "Type",
+					"percent": "Damage (%)",
+					"targets": "Targets",
+					"waves": "Waves",
+					"ability_kind": "Kind",
+					"school": "School",
+					"min_damage": "Min damage",
+					"max_damage": "Max damage",
+					"cast_time": "Cast time (s)",
+					"weapon_percent": "Weapon damage (%)",
+					"proc_chance": "Proc chance (%)",
+					"extra_attacks": "Extra attacks",
+					"icd": "Internal cooldown (s)",
+					"swing_speed_multiplier": "Swing speed multiplier"
+				},
+				"tooltips": {
+					"jitter": "Moves the time by up to this much either way, rolled again every iteration.",
+					"clear_debuffs": "Removes every debuff on the target when it goes away.",
+					"template": "The preset target each add of the wave copies.",
+					"lifetime": "How long each add lives before it dies.",
+					"execute_20": "Share of each add's lifetime spent at or below 20% health.",
+					"execute_35": "Share of each add's lifetime spent at or below 35% health.",
+					"kill_share": "Chance the player lands the killing blow on each add, for effects that need a kill.",
+					"seconds": "How long the move takes when Yards is 0.",
+					"repeat_interval": "Time between occurrences. 0 runs the event once.",
+					"repeat_count": "Occurrences after the first. 0 repeats until the fight ends.",
+					"targets": "The encounter targets the debuff lands on.",
+					"waves": "The waves whose adds the debuff lands on.",
+					"swing_speed_multiplier": "0 pauses the boss's swing for the window, above 1 hastes it."
+				},
+				"amp_types": {
+					"caster_buff": "Caster buff",
+					"environment_buff": "Environment buff",
+					"target_debuff": "Target debuff"
+				},
+				"ability_kinds": {
+					"spell_hit": "Spell hit",
+					"strike": "Strike",
+					"thrash": "Thrash",
+					"swing_timing": "Swing timing"
+				},
+				"open": "Designer",
+				"title": "Encounter designer",
+				"targets": "Targets",
+				"target_name": "Target {{number}}",
+				"save": "Save",
+				"save_copy": "Save as copy",
+				"name": "Name",
+				"delete": "Delete",
+				"delete_confirm": "Delete {{name}} from My encounters?",
+				"health_label": "{{from}} % → {{to}} %",
+				"health_end": "→ 0 %",
+				"adds": {
+					"title": "Adds",
+					"add": "Add an add",
+					"duplicate": "Duplicate add",
+					"remove": "Remove add",
+					"add_title": "Add {{number}}",
+					"add_row": "{{name}}, Lvl {{level}} {{type}}",
+					"add_short": "Add",
+					"edit": "Edit add",
+					"done": "Done"
+				},
+				"health_hold": "Hold {{percent}} %"
+			}
 		},
 		"player": {
 			"title": "Player",
@@ -1249,7 +1404,6 @@
 				"saved": "Saved",
 				"empty": "No preset or saved encounters yet. Save one in Encounter to run it too.",
 				"duplicate": "Same as {{encounter}}",
-				"health_summary": "Health",
 				"targets": "{{count}} targets",
 				"targets_one": "{{count}} target",
 				"targets_other": "{{count}} targets"
@@ -1783,6 +1937,38 @@
 				"encounter_in_area": {
 					"label": "In Area",
 					"tooltip": "True if the encounter's areas include the chosen area type"
+				},
+				"target_is_active": {
+					"label": "Target Is Active",
+					"tooltip": "True while the target is in the fight: spawned, alive and not in a downtime"
+				},
+				"num_active_adds": {
+					"label": "Active Adds",
+					"tooltip": "The number of targets other than the boss that are in the fight"
+				},
+				"time_until_target_active": {
+					"label": "Time Until Target Active",
+					"tooltip": "Seconds until the target next spawns or comes back from a downtime"
+				},
+				"time_until_target_dies": {
+					"label": "Time Until Target Dies",
+					"tooltip": "Seconds until the target dies on the encounter design's schedule"
+				},
+				"time_until_next_move": {
+					"label": "Time Until Next Move",
+					"tooltip": "Seconds until the next move in the encounter design starts"
+				},
+				"next_move_duration": {
+					"label": "Next Move Duration",
+					"tooltip": "How long the next move in the encounter design takes, in seconds"
+				},
+				"amp_is_active": {
+					"label": "Damage Amp Is Active",
+					"tooltip": "True while a damage amp of the chosen type is running"
+				},
+				"time_until_amp": {
+					"label": "Time Until Damage Amp",
+					"tooltip": "Seconds until the next damage amp of the chosen type starts"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",
@@ -2565,6 +2751,13 @@
 					"threat": "Threat"
 				},
 				"show_gcd": "Show GCD",
+				"scheduled": {
+					"title": "Scheduled by the encounter design (jitter not shown):",
+					"downtime": "Target downtime",
+					"wave": "Add wave",
+					"amp": "Damage amp",
+					"move": "Move"
+				},
 				"chart_options": {
 					"time_axis": "Time (s)",
 					"waiting_for_data": "Waiting for data...",
@@ -3035,158 +3228,158 @@
 		"native_sim_outdated": "Newer version of simulator available for download",
 		"forever_notice": "Forever sims are still changing rapidly and may have issues. If your results look wrong or your sim won't run, try restoring the default settings."
 	},
-		"onboarding": {
-			"label": "Tour",
-			"progress": "{{position}} / {{total}}",
-			"start": "Show me around",
-			"next": "Next",
-			"previous": "Back",
-			"skip": "Skip tour",
-			"skip_step": "Skip this step",
-			"finish": "Done",
-			"steps": {
-				"welcome": {
-					"title": "Welcome to WoWSims",
-					"body": "A short look around the page, from your gear to a finished sim. Move through it with the left and right arrow keys, or skip it any time; Sim Options can start it again."
-				},
-				"gear_tab": {
-					"title": "Gear",
-					"body": "This tab is your character's equipment: what you wear and the presets to start from."
-				},
-				"import": {
-					"title": "Import",
-					"body": "Bring in your character with the <addon>WoWSims Exporter addon</addon>, or a build from a link someone shared."
-				},
-				"gear_list": {
-					"title": "Your equipment",
-					"body": "Every slot with the item in it, its enchant and gems."
-				},
-				"gear_picker": {
-					"title": "Change an item",
-					"body": "Click a slot to open the gear picker. Choose the item there, then its enchant and gems."
-				},
-				"gear_presets": {
-					"title": "Gear sets",
-					"body": "Load a preset to start from, including sets from the community, or save your own and load it again later."
-				},
-				"enchants": {
-					"title": "Optimize enchants",
-					"body": "Let the sim choose your enchants for the best result. The cog next to it sets what it aims for."
-				},
-				"settings_tab": {
-					"title": "Settings",
-					"body": "Everything around your character for the sim: the fight, your race and professions, consumables, buffs and debuffs."
-				},
-				"encounter": {
-					"title": "Encounter",
-					"body": "The fight: how long it lasts, the target, and how much it varies."
-				},
-				"player": {
-					"title": "Player",
-					"body": "Your race, professions and the other things about your character that change the numbers."
-				},
-				"other": {
-					"title": "Spec settings",
-					"body": "Fight settings only this spec has."
-				},
-				"consumables": {
-					"title": "Consumables",
-					"body": "Potions, flasks, food and the rest you bring to the fight."
-				},
-				"buffs": {
-					"title": "Raid buffs and debuffs",
-					"body": "What your raid or party gives you, and the debuffs on the target."
-				},
-				"settings_presets": {
-					"title": "Save your settings",
-					"body": "Load a preset encounter or settings, or save your own and load them again later."
-				},
-				"talents_tab": {
-					"title": "Talents",
-					"body": "Pick your talents here, load a preset, or save your own build."
-				},
-				"rotation_tab": {
-					"title": "Rotation",
-					"body": "How the sim plays your character in the fight."
-				},
-				"rotation_auto": {
-					"title": "Automatic rotation",
-					"body": "Auto picks the community's best rotation for your talents, so most players can leave it as it is."
-				},
-				"rotation_type": {
-					"title": "Build your own",
-					"body": "Choose APL here to write your own rotation, action by action."
-				},
-				"rotation_presets": {
-					"title": "Preset rotations",
-					"body": "Click a preset to load a ready-made rotation. With APL selected, it shows the preset's full list of actions to read or change, and you can save your own here too."
-				},
-				"simulate": {
-					"title": "Run the sim",
-					"body": "Press Simulate to run the fight with everything you have set. The tour moves on by itself when the run finishes."
-				},
-				"result": {
-					"title": "Your result",
-					"body": "Your DPS from that run, and how much it varies from fight to fight. It updates every time you run the sim."
-				},
-				"results_tab": {
-					"title": "Results",
-					"body": "The details of the last run. Each tab shows one part of it."
-				},
-				"results_damage": {
-					"title": "Damage",
-					"body": "Damage by ability: how much each one did, how often it hit and crit."
-				},
-				"results_threat": {
-					"title": "Threat",
-					"body": "Threat by ability, for keeping the target on you or off you."
-				},
-				"results_healing": {
-					"title": "Healing",
-					"body": "Healing by ability."
-				},
-				"results_damage_taken": {
-					"title": "Damage taken",
-					"body": "What hit you, and how much of it you avoided."
-				},
-				"results_buffs": {
-					"title": "Buffs",
-					"body": "How often each buff was up on you."
-				},
-				"results_debuffs": {
-					"title": "Debuffs",
-					"body": "How often each debuff was up on the target."
-				},
-				"results_casts": {
-					"title": "Casts",
-					"body": "How many times you cast each ability."
-				},
-				"results_resources": {
-					"title": "Resources",
-					"body": "What you spent and gained, such as mana, rage or energy."
-				},
-				"results_timeline": {
-					"title": "Timeline",
-					"body": "One fight laid out over time: casts, buffs and resources."
-				},
-				"results_log": {
-					"title": "Log",
-					"body": "Every event of one fight, line by line."
-				},
-				"bulk_tab": {
-					"title": "Batch sim",
-					"body": "Sim many gear combinations at once to find the best of the items you have."
-				},
-				"stat_weights": {
-					"title": "Stat weights",
-					"body": "Work out how much each stat is worth to you, and set the weights the gear picker and enchant optimizer use."
-				},
-				"finish": {
-					"title": "You're set",
-					"body": "There is more to find on the page as you go. If you have a question or something looks wrong, ask us on <discord>Discord</discord>."
-				}
+	"onboarding": {
+		"label": "Tour",
+		"progress": "{{position}} / {{total}}",
+		"start": "Show me around",
+		"next": "Next",
+		"previous": "Back",
+		"skip": "Skip tour",
+		"skip_step": "Skip this step",
+		"finish": "Done",
+		"steps": {
+			"welcome": {
+				"title": "Welcome to WoWSims",
+				"body": "A short look around the page, from your gear to a finished sim. Move through it with the left and right arrow keys, or skip it any time; Sim Options can start it again."
+			},
+			"gear_tab": {
+				"title": "Gear",
+				"body": "This tab is your character's equipment: what you wear and the presets to start from."
+			},
+			"import": {
+				"title": "Import",
+				"body": "Bring in your character with the <addon>WoWSims Exporter addon</addon>, or a build from a link someone shared."
+			},
+			"gear_list": {
+				"title": "Your equipment",
+				"body": "Every slot with the item in it, its enchant and gems."
+			},
+			"gear_picker": {
+				"title": "Change an item",
+				"body": "Click a slot to open the gear picker. Choose the item there, then its enchant and gems."
+			},
+			"gear_presets": {
+				"title": "Gear sets",
+				"body": "Load a preset to start from, including sets from the community, or save your own and load it again later."
+			},
+			"enchants": {
+				"title": "Optimize enchants",
+				"body": "Let the sim choose your enchants for the best result. The cog next to it sets what it aims for."
+			},
+			"settings_tab": {
+				"title": "Settings",
+				"body": "Everything around your character for the sim: the fight, your race and professions, consumables, buffs and debuffs."
+			},
+			"encounter": {
+				"title": "Encounter",
+				"body": "The fight: how long it lasts, the target, and how much it varies."
+			},
+			"player": {
+				"title": "Player",
+				"body": "Your race, professions and the other things about your character that change the numbers."
+			},
+			"other": {
+				"title": "Spec settings",
+				"body": "Fight settings only this spec has."
+			},
+			"consumables": {
+				"title": "Consumables",
+				"body": "Potions, flasks, food and the rest you bring to the fight."
+			},
+			"buffs": {
+				"title": "Raid buffs and debuffs",
+				"body": "What your raid or party gives you, and the debuffs on the target."
+			},
+			"settings_presets": {
+				"title": "Save your settings",
+				"body": "Load a preset encounter or settings, or save your own and load them again later."
+			},
+			"talents_tab": {
+				"title": "Talents",
+				"body": "Pick your talents here, load a preset, or save your own build."
+			},
+			"rotation_tab": {
+				"title": "Rotation",
+				"body": "How the sim plays your character in the fight."
+			},
+			"rotation_auto": {
+				"title": "Automatic rotation",
+				"body": "Auto picks the community's best rotation for your talents, so most players can leave it as it is."
+			},
+			"rotation_type": {
+				"title": "Build your own",
+				"body": "Choose APL here to write your own rotation, action by action."
+			},
+			"rotation_presets": {
+				"title": "Preset rotations",
+				"body": "Click a preset to load a ready-made rotation. With APL selected, it shows the preset's full list of actions to read or change, and you can save your own here too."
+			},
+			"simulate": {
+				"title": "Run the sim",
+				"body": "Press Simulate to run the fight with everything you have set. The tour moves on by itself when the run finishes."
+			},
+			"result": {
+				"title": "Your result",
+				"body": "Your DPS from that run, and how much it varies from fight to fight. It updates every time you run the sim."
+			},
+			"results_tab": {
+				"title": "Results",
+				"body": "The details of the last run. Each tab shows one part of it."
+			},
+			"results_damage": {
+				"title": "Damage",
+				"body": "Damage by ability: how much each one did, how often it hit and crit."
+			},
+			"results_threat": {
+				"title": "Threat",
+				"body": "Threat by ability, for keeping the target on you or off you."
+			},
+			"results_healing": {
+				"title": "Healing",
+				"body": "Healing by ability."
+			},
+			"results_damage_taken": {
+				"title": "Damage taken",
+				"body": "What hit you, and how much of it you avoided."
+			},
+			"results_buffs": {
+				"title": "Buffs",
+				"body": "How often each buff was up on you."
+			},
+			"results_debuffs": {
+				"title": "Debuffs",
+				"body": "How often each debuff was up on the target."
+			},
+			"results_casts": {
+				"title": "Casts",
+				"body": "How many times you cast each ability."
+			},
+			"results_resources": {
+				"title": "Resources",
+				"body": "What you spent and gained, such as mana, rage or energy."
+			},
+			"results_timeline": {
+				"title": "Timeline",
+				"body": "One fight laid out over time: casts, buffs and resources."
+			},
+			"results_log": {
+				"title": "Log",
+				"body": "Every event of one fight, line by line."
+			},
+			"bulk_tab": {
+				"title": "Batch sim",
+				"body": "Sim many gear combinations at once to find the best of the items you have."
+			},
+			"stat_weights": {
+				"title": "Stat weights",
+				"body": "Work out how much each stat is worth to you, and set the weights the gear picker and enchant optimizer use."
+			},
+			"finish": {
+				"title": "You're set",
+				"body": "There is more to find on the page as you go. If you have a question or something looks wrong, ask us on <discord>Discord</discord>."
 			}
-		},
+		}
+	},
 	"sidebar": {
 		"iterations": "Iterations",
 		"warnings": {
@@ -3460,10 +3653,6 @@
 						"description": "The percentage of iterations in which the player died, based on incoming damage from the enemies and incoming healing (see the Incoming HPS and Healing Cadence options).",
 						"note": "DTPS alone is not a good measure of tankiness because it is not affected by health and ignores damage spikes. Chance of Death attempts to capture overall tankiness."
 					}
-				},
-				"dur": {
-					"label": "DUR",
-					"tooltip": "Average Fight Duration"
 				},
 				"tto": {
 					"label": "TTO",

@@ -1,6 +1,8 @@
 package warlock
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -220,9 +222,11 @@ func (warlock *Warlock) applyMasterSummoner() {
 
 // --- Tier 4 ---
 
-// Effect 2 shortens Soul Fire's cooldown. Below 35% health (effect 3), Shadow Bolt and Searing Pain deal more
-// damage (effect 4), and a cast of either that lands grants Decimation (440873): for 10 sec Soul Fire casts
-// faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard.
+// Effect 2 shortens Soul Fire's cooldown. Against a target below 35% health (effect 3), Shadow Bolt and Searing
+// Pain deal more damage (effect 4), and a cast of either that lands grants Decimation (440873): for 10 sec
+// Soul Fire casts faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard. The buff sits on the warlock,
+// so a cast at a low target carries its Soul Fire bonus to any other target. The buff's row states no damage, so
+// the damage bonus counts per target.
 func (warlock *Warlock) applyDecimation() {
 	if warlock.Talents.Decimation == 0 {
 		return
@@ -231,22 +235,24 @@ func (warlock *Warlock) applyDecimation() {
 	rank := spellData.Decimation.Rank(warlock.Talents.Decimation)
 	spelldata.ParseStatic(&warlock.Character, rank, spelldata.Effects(2))
 
-	// The execute bonus, up from the moment the fight reaches 35%. It has no ActionID, so the rotation editor
-	// lists only the buff (440873) as Decimation's aura.
+	// The execute bonus counts on each target from the moment that target is below effect 3's health percent,
+	// read when the damage is. The sim tracks a target's health as its execute phase, so only a 35% threshold
+	// can be read.
+	if threshold := rank.EffectN(3).BaseValue(); threshold != 35 {
+		panic(fmt.Sprintf("Decimation %d: effect 3 states a %.0f%% health threshold, but only the 35%% execute phase is tracked", rank.ID, threshold))
+	}
 	executeBonus := rank.EffectN(4)
-	executeAura := warlock.RegisterAura(core.Aura{
-		Label:    "Decimation - Execute",
-		Duration: core.NeverExpires,
-	})
-	spelldata.ParseEffects(&warlock.Character, executeAura, rank, spelldata.Effects(4))
-
-	threshold := int32(rank.EffectN(3).BasePoints)
-	warlock.RegisterResetEffect(func(sim *core.Simulation) {
-		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
-			if isExecute <= threshold && !executeAura.IsActive() {
-				executeAura.Activate(sim)
-			}
-		})
+	executeMult := 1 + executeBonus.Percent()
+	againstExecute := func(_ *core.Simulation, spell *core.Spell, attackTable *core.AttackTable) float64 {
+		if attackTable.Defender.IsExecutePhase35() && spell.MatchesFlags(executeBonus.ClassFlags) {
+			return executeMult
+		}
+		return 1
+	}
+	warlock.Env.RegisterPostFinalizeEffect(func() {
+		for _, target := range warlock.Env.Encounter.AllTargetUnits {
+			core.EnableDamageDoneByCaster(DDBC_Decimation, DDBC_Total, warlock.AttackTables[target.UnitIndex], againstExecute)
+		}
 	})
 
 	// The buff's row states the 2/2 value, -40%; the talent's effect 1 prices the rank (-20% at 1/2), so the
@@ -271,8 +277,8 @@ func (warlock *Warlock) applyDecimation() {
 		ClassSpellMask: WarlockSpellShadowBolt | WarlockSpellSearingPain,
 		// In the logs the buff comes in the same batch as the cast.
 		TriggerImmediately: true,
-		ExtraCondition: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
-			return sim.IsExecutePhase35()
+		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+			return result.Target.IsExecutePhase35()
 		},
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			decimationAura.Activate(sim)

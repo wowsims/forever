@@ -772,24 +772,16 @@ func (s *specBuild) consumableBuilds(src *sources) []*build {
 	return builds
 }
 
-// A build for each preset encounter, with its targets' inputs as they are, and again with every bool input on.
+// A build for each preset encounter.
 func (s *specBuild) encounterBuilds() []*build {
 	var builds []*build
 	for _, preset := range core.PresetEncounters {
-		for _, inputs := range []bool{false, true} {
-			encounter := core.MakeSingleTargetEncounter(0)
-			encounter.Targets = nil
-			for _, t := range preset.Targets {
-				target := googleClone(t.Target)
-				for _, input := range target.TargetInputs {
-					if inputs && input.InputType == proto.InputType_Bool {
-						input.BoolValue = true
-					}
-				}
-				encounter.Targets = append(encounter.Targets, target)
-			}
-			builds = append(builds, &build{spec: s, player: googleClone(s.source), encounter: encounter, source: "encounter " + preset.Path})
+		encounter := core.MakeSingleTargetEncounter(0)
+		encounter.Targets = nil
+		for _, t := range preset.Targets {
+			encounter.Targets = append(encounter.Targets, googleClone(t.Target))
 		}
+		builds = append(builds, &build{spec: s, player: googleClone(s.source), encounter: encounter, source: "encounter " + preset.Path})
 	}
 	return builds
 }

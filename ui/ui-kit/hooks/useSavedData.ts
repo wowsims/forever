@@ -18,7 +18,8 @@ export interface SavedDataEntry<T> {
 
 export interface UseSavedDataResult<T> {
 	entries: Array<SavedDataEntry<T>>;
-	save: (name: string, data: T) => void;
+	/** With `replacing`, the entry of that name gives way to this one at its position: a rename. */
+	save: (name: string, data: T, replacing?: string) => void;
 	remove: (name: string) => void;
 }
 
@@ -57,7 +58,17 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 
 	// Both writes patch the stored record rather than rebuilding it from `entries`, which would
 	// silently drop every entry the codec rejected the moment the user saves anything else.
-	const save = useCallback((name: string, data: T) => setStored({ ...(storedRef.current ?? {}), [name]: codecRef.current.toJson(data) }), [setStored]);
+	const save = useCallback(
+		(name: string, data: T, replacing?: string) => {
+			const stored = storedRef.current ?? {};
+			const json = codecRef.current.toJson(data);
+			if (replacing === undefined || replacing === name || !(replacing in stored)) return setStored({ ...stored, [name]: json });
+			setStored(
+				Object.fromEntries(Object.entries(stored).flatMap(([key, value]) => (key === replacing ? [[name, json]] : key === name ? [] : [[key, value]]))),
+			);
+		},
+		[setStored],
+	);
 
 	const remove = useCallback(
 		(name: string) => {

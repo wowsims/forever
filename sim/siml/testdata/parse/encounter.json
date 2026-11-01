@@ -8,7 +8,6 @@
 		"durationVariation": 5,
 		"executeProportion20": 0.2,
 		"executeProportion35": 0.35,
-		"useHealth": true,
 		"targets": [
 			{
 				"id": 31146,
@@ -21,19 +20,7 @@
 				"swingSpeed": 2,
 				"parryHaste": true,
 				"canCrush": true,
-				"spellSchool": "SpellSchoolFire",
-				"targetInputs": [
-					{
-						"label": "Enraged",
-						"boolValue": true
-					},
-					{
-						"inputType": "Enum",
-						"label": "Phase",
-						"enumValue": 1,
-						"enumOptions": ["One", "Two"]
-					}
-				]
+				"spellSchool": "SpellSchoolFire"
 			},
 			{
 				"id": 12435,

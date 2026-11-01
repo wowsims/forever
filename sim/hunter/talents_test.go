@@ -1,7 +1,9 @@
 package hunter
 
 import (
+	"fmt"
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core"
@@ -110,6 +112,57 @@ func TestIntimidationCritsThePetsNextAttack(t *testing.T) {
 	}
 	if got := pet.GetStats()[stats.PhysicalCritPercent]; math.Abs(got-crit) > 1e-9 {
 		t.Errorf("the pet has %v%% crit after Intimidation, want %v%%", got, crit)
+	}
+}
+
+// Rapid Killing comes with a killing blow or the death of an enemy with the hunter's Serpent Sting on
+// it, once per death, and not with an unstung death the raid gets no kill for.
+func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
+	sim, hunter := newTalentSim("-0000002", proto.HunterOptions_PetNone)
+	target := sim.Encounter.AllTargets[0]
+	buff := hunter.GetAuraByID(core.ActionID{SpellID: rapidKillingBuff.ID})
+	sting := hunter.GetSpell(core.ActionID{SpellID: serpentStingRank.ID})
+	grants := 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if strings.Contains(line, buff.ActionID.String()) && (strings.Contains(line, "Aura gained") || strings.Contains(line, "Aura refreshed")) {
+			grants++
+		}
+	}
+	stepPastBatch := func() {
+		at := sim.CurrentTime + core.SpellBatchWindow
+		for sim.CurrentTime <= at {
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+			sim.Step()
+		}
+	}
+
+	for _, c := range []struct {
+		name      string
+		stung     bool
+		killShare float64
+		grants    int
+	}{
+		{"an unstung death with no kill credit", false, 0, 0},
+		{"an unstung killing blow", false, 1, 1},
+		{"a stung death with no kill credit", true, 0, 1},
+		{"a stung killing blow", true, 1, 1},
+	} {
+		buff.Deactivate(sim)
+		target.Enable(sim)
+		if c.stung {
+			sting.Dot(&target.Unit).Apply(sim)
+		}
+		grants = 0
+
+		target.Die(sim, c.killShare)
+		stepPastBatch()
+		if grants != c.grants || buff.IsActive() != (c.grants > 0) {
+			t.Errorf("%s granted Rapid Killing %d times and left it up %v, want %d", c.name, grants, buff.IsActive(), c.grants)
+		}
+		if buff.IsActive() && buff.GetStacks() != buff.MaxStacks {
+			t.Errorf("%s left Rapid Killing at %d charges, want %d", c.name, buff.GetStacks(), buff.MaxStacks)
+		}
 	}
 }
 

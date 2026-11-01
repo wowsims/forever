@@ -6,7 +6,6 @@ encounter:
   duration_variation 5
   execute_proportion_20 0.2
   execute_proportion_35 0.35
-  use_health
   targets(id=31146,
       name="Raid Target",
       level=63,
@@ -17,9 +16,7 @@ encounter:
       swing_speed=2,
       parry_haste,
       can_crush,
-      spell_school=fire,
-      target_inputs(label="Enraged", bool_value),
-      target_inputs(input_type=enum, label="Phase", enum_value=1, enum_options=["One", "Two"]))
+      spell_school=fire)
   targets(id=12435, name="Razorgore the Untamed", level=63, mob_type=dragonkin, disabled_at_start)
   area_types strongholds_cities, cavernous
   zone_id 2677

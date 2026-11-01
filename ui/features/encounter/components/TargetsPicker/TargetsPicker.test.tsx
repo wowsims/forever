@@ -1,6 +1,7 @@
-import { CreatureFamily, InputType, MobType, PresetTarget, Target as TargetProto, TargetInput } from '@generated/proto/common';
+import { CreatureFamily, MobType, PresetTarget, Stat, Target as TargetProto } from '@generated/proto/common';
+import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import type { Encounter } from '@sim/raid/encounter';
-import { act, createEvent, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, createEvent, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -25,8 +26,6 @@ vi.mock('@i18n/localization', () => ({
 	translateMobType: (value: number) => `mob-${value}`,
 	translateSpellSchool: (value: number) => `school-${value}`,
 	translateStat: (value: number) => `stat-${value}`,
-	translateTargetInputLabel: (label: string) => label,
-	translateTargetInputTooltip: (_label: string, tooltip: string) => tooltip,
 }));
 const trackEvent = vi.hoisted(() => vi.fn());
 vi.mock('../../../../tracking/utils', () => ({ trackEvent }));
@@ -179,25 +178,6 @@ describe('TargetsPicker', () => {
 		expect(encounter.targets.map(target => target.level)).toEqual([62, 60, 61]);
 	});
 
-	it('drops a target released over a target input beside the target row holding it, never into the input list', () => {
-		const encounter = new FakeEncounter([
-			TargetProto.create({ level: 60, targetInputs: [TargetInput.create({ label: 'Stacks', inputType: InputType.Number })] }),
-			TargetProto.create({ level: 61 }),
-		]);
-		mount(encounter);
-		const setTargets = vi.spyOn(encounter, 'setTargets');
-		items().forEach(place);
-		const input = document.querySelector<HTMLElement>('[data-testid="target-inputs-picker-item"]')!;
-		place(input, 0);
-
-		grab(1);
-		dragEvent('drop', input, 0);
-
-		expect(setTargets).toHaveBeenCalledTimes(1);
-		expect(encounter.targets.map(target => target.level)).toEqual([61, 60]);
-		expect(encounter.targets.map(target => target.targetInputs.length)).toEqual([0, 1]);
-	});
-
 	it('reads each target row from its own index rather than from the first, and writes a level change back to it', async () => {
 		const encounter = new FakeEncounter([TargetProto.create({ level: 63 }), TargetProto.create({ level: 61 })]);
 		mount(encounter);
@@ -210,6 +190,20 @@ describe('TargetsPicker', () => {
 		await userEvent.click(screen.getByRole('option', { name: '62' }));
 
 		expect(encounter.targets.map(target => target.level)).toEqual([63, 62]);
+	});
+
+	it("sets the armor to the game files' creature armor of the new level, and the armor field shows it", async () => {
+		const target = TargetProto.create({ level: 63 });
+		target.stats[Stat.StatArmor] = 1234;
+		const encounter = new FakeEncounter([target]);
+		mount(encounter);
+
+		await userEvent.click(document.querySelector<HTMLElement>('#target-0-picker-level')!);
+		await userEvent.click(screen.getByRole('option', { name: '60' }));
+
+		expect(CREATURE_ARMOR_BY_LEVEL[60]).toBeGreaterThan(0);
+		expect(encounter.targets[0].stats[Stat.StatArmor]).toBe(CREATURE_ARMOR_BY_LEVEL[60]);
+		expect(document.querySelector<HTMLInputElement>(`#target-0-picker-stats-${Stat.StatArmor}`)!.value).toBe(String(CREATURE_ARMOR_BY_LEVEL[60]));
 	});
 
 	it('disables the dual-wield miss penalty until dual wield is on', () => {
@@ -245,11 +239,11 @@ describe('TargetsPicker', () => {
 	});
 
 	// Encounters register a preset per raid size and difficulty, all sharing one npc id — which is
-	// this picker's value, and all the sim resolves an AI from.
-	describe('AI options', () => {
+	// this picker's value, and all the sim reads the target from.
+	describe('preset target options', () => {
 		const preset = (path: string, id: number) => PresetTarget.create({ path, target: TargetProto.create({ id }) });
 		const aiOptions = async () => {
-			await userEvent.click(document.getElementById('target-0-picker-ai')!);
+			await userEvent.click(document.getElementById('target-0-picker-preset-target')!);
 			return screen.getAllByRole('option').map(option => option.textContent);
 		};
 
@@ -268,54 +262,6 @@ describe('TargetsPicker', () => {
 			mount(new FakeEncounter([defaultTarget()], [preset('first', 71466), preset('second', 71466)]));
 
 			expect(await aiOptions()).toEqual(['common.none', 'first']);
-		});
-	});
-
-	describe('target inputs', () => {
-		const withInputs = () =>
-			new FakeEncounter([
-				TargetProto.create({
-					targetInputs: [
-						TargetInput.create({ label: 'Stacks', inputType: InputType.Number, numberValue: 3 }),
-						TargetInput.create({ label: 'Enraged', inputType: InputType.Bool, boolValue: true }),
-						TargetInput.create({ label: 'Phase', inputType: InputType.Enum, enumValue: 1, enumOptions: ['One', 'Two'] }),
-					],
-				}),
-			]);
-
-		it('renders one picker per input dispatched on its declared type, shows each its own value, offers no list actions, and writes back to its own index', () => {
-			const encounter = withInputs();
-			mount(encounter);
-			const inputRoots = [...document.querySelectorAll('[data-testid="target-input-picker-root"]')];
-
-			expect(inputRoots).toHaveLength(3);
-			const matchesRoot = (node: Element, index: number) =>
-				index === 2
-					? within(node.firstElementChild as HTMLElement).queryByRole('combobox') !== null
-					: node.firstElementChild!.getAttribute('data-testid') === ['number-picker-root', 'boolean-picker-root'][index];
-			expect(inputRoots.map((node, index) => matchesRoot(node, index))).toEqual([true, true, true]);
-
-			// `float: true`, so the number box shows two decimals.
-			expect(inputRoots[0].querySelector('input')!.value).toBe('3.00');
-			expect(inputRoots[1].querySelector('input')!.checked).toBe(true);
-			expect(within(inputRoots[2] as HTMLElement).getByRole('combobox').textContent).toBe('Two');
-
-			const list = document.querySelector('[data-testid="target-inputs-picker"]')!;
-			expect(list.getAttribute('data-density')).toBe('compact');
-			expect(list.querySelector('[data-testid="tree-add"]')).toBeNull();
-			expect(list.querySelector('[data-testid="tree-item-header"]')).toBeNull();
-			expect(list.querySelectorAll('[data-testid="target-inputs-picker-item"]')).toHaveLength(3);
-
-			const numberInput = inputRoots[0].querySelector('input')!;
-			act(() => void fireEvent.change(numberInput, { target: { value: '7' } }));
-
-			expect(encounter.targets[0].targetInputs.map(input => input.numberValue)).toEqual([7, 0, 0]);
-		});
-
-		it('renders no list for a target that declares no input', () => {
-			mount(new FakeEncounter());
-
-			expect(document.querySelector('[data-testid="target-inputs-picker"]')).toBeNull();
 		});
 	});
 });

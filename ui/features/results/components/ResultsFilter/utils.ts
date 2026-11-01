@@ -11,12 +11,12 @@ export const simResultFilter = (target: number): SimResultFilter => ({ target: t
 /** False once a run has fewer targets than the one the filter is pointing at. */
 export const hasTarget = (result: SimResult, target: number): boolean => target === ALL_UNITS || result.getTargets().some(unit => unit.index === target);
 
-/** All targets, then one option per target of the run, each valued by its encounter index. */
+/** All targets, then one option per target of the run, each valued by its encounter index; an add of the design's waves goes by its wave and add. */
 export const targetOptions = (result: SimResult): Array<ChoiceOption<number>> => [
 	{ value: ALL_UNITS, label: i18n.t('results_tab.details.all_targets') },
 	...result.getTargets().map((unit): ChoiceOption<number> => ({
 		value: unit.index,
-		label: i18n.t('results_tab.details.target_number', { number: unit.index + 1 }),
+		label: unit.designAddName ?? i18n.t('results_tab.details.target_number', { number: unit.index + 1 }),
 		icon: unit.iconUrl ? { iconUrl: unit.iconUrl, name: unit.name } : undefined,
 		className: unit.classColor && CLASS_TEXT[unit.classColor],
 	})),

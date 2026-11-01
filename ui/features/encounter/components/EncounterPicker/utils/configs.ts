@@ -1,13 +1,14 @@
 import type { ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
+import type { InputConfig } from '@features/inputs/input';
+import type { Encounter as EncounterProto, PresetEncounter } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import type { Encounter } from '@sim/raid/encounter';
 import type { Raid } from '@sim/raid/raid';
+import type { ChoiceEntry } from '@ui-kit/ChoiceField';
+import type { SavedDataEntry } from '@ui-kit/hooks/useSavedData';
 
 import { trackEvent } from '../../../../../tracking/utils';
-
-// Every field here is off limits while the encounter runs to a health target rather than a clock.
-const whileTimed = (encounter: Encounter) => () => !encounter.getUseHealth();
 
 interface Field {
 	id: string;
@@ -18,7 +19,7 @@ interface Field {
 	set: (encounter: Encounter, value: number) => void;
 }
 
-const field = (encounter: Encounter, spec: Field): NumberFieldConfig<Encounter> => ({
+const field = (spec: Field): NumberFieldConfig<Encounter> => ({
 	id: spec.id,
 	label: i18n.t(`settings_tab.encounter.${spec.key}.label`),
 	labelTooltip: i18n.t(`settings_tab.encounter.${spec.key}.tooltip`),
@@ -28,10 +29,9 @@ const field = (encounter: Encounter, spec: Field): NumberFieldConfig<Encounter> 
 		trackEvent({ action: 'settings', category: spec.category, label: spec.label, value: newValue });
 		spec.set(subject, newValue);
 	},
-	enableWhen: whileTimed(encounter),
 });
 
-export const durationConfigs = (encounter: Encounter): Array<NumberFieldConfig<Encounter>> =>
+export const durationConfigs = (): Array<NumberFieldConfig<Encounter>> =>
 	(
 		[
 			{ id: 'encounter-duration', key: 'duration', label: 'duration', category: 'duration', get: e => e.getDuration(), set: (e, v) => e.setDuration(v) },
@@ -44,7 +44,7 @@ export const durationConfigs = (encounter: Encounter): Array<NumberFieldConfig<E
 				set: (e, v) => e.setDurationVariation(v),
 			},
 		] satisfies Array<Field>
-	).map(spec => field(encounter, spec));
+	).map(field);
 
 // Stored as a proportion, shown as a percentage.
 const EXECUTE_BANDS: Array<Field> = [
@@ -66,7 +66,7 @@ const EXECUTE_BANDS: Array<Field> = [
 	},
 ];
 
-export const executeConfigs = (encounter: Encounter): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(band => field(encounter, band));
+export const executeConfigs = (): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(field);
 
 export const numAlliesConfig = (player: Player<any>): NumberFieldConfig<Raid> => ({
 	id: 'encounter-num-allies',
@@ -90,20 +90,51 @@ export const minBaseDamageConfig = (): NumberFieldConfig<Encounter> => ({
 		}),
 });
 
-export const presetEncounterConfig = (encounter: Encounter): ChoiceFieldConfig<Encounter> => {
+const CUSTOM_ENCOUNTER = 'custom';
+const presetChoice = (index: number) => `preset:${index}`;
+const ownChoice = (name: string) => `own:${name}`;
+
+// The choice reads the store alone, never `own`: the input caches it until the next store write, so a
+// list captured here would answer one write late. An entry of My encounters is the option of its name,
+// listed or not; any other named encounter (an import) is no option, so the field shows its placeholder;
+// an unnamed one is the preset it matches.
+export const encounterChoiceConfig = (
+	encounter: Encounter,
+	own: ReadonlyArray<SavedDataEntry<EncounterProto>>,
+	field: Pick<InputConfig<Encounter, string>, 'extraClassNames'> & { id: string },
+): InputConfig<Encounter, string> & { id: string } => {
 	const presets = encounter.sim.db.getAllPresetEncounters();
 	return {
-		id: 'encounter-preset-encouter',
+		...field,
 		label: i18n.t('settings_tab.encounter.encounter_preset.label'),
-		extraClassNames: ['w-full'],
-		values: [{ name: i18n.t('common.custom'), value: -1 }, ...presets.map((preset, index) => ({ name: preset.path, value: index }))],
 		storeField: 'encounter:*',
-		getValue: (subject: Encounter) => presets.findIndex(preset => subject.matchesPreset(preset)),
-		setValue: (subject: Encounter, newValue: number) => {
-			if (newValue !== -1) subject.applyPreset(presets[newValue]);
+		getValue: (subject: Encounter) => {
+			if (subject.getName()) return subject.isMyEncounter() ? ownChoice(subject.getName()) : '';
+			const index = presets.findIndex(preset => subject.matchesPreset(preset));
+			return index === -1 ? CUSTOM_ENCOUNTER : presetChoice(index);
+		},
+		setValue: (subject: Encounter, choice: string) => {
+			const preset = presets.findIndex((_, index) => presetChoice(index) === choice);
+			if (preset !== -1) {
+				trackEvent({ action: 'settings', category: 'encounter', label: 'preset', value: presets[preset].path });
+				return subject.applyPreset(presets[preset]);
+			}
+			const entry = own.find(entry => ownChoice(entry.name) === choice);
+			if (entry) subject.fromProto({ ...entry.data, myEncounter: true });
 		},
 	};
 };
+
+export const encounterChoices = (presets: ReadonlyArray<PresetEncounter>, own: ReadonlyArray<SavedDataEntry<EncounterProto>>): Array<ChoiceEntry<string>> => [
+	{ value: CUSTOM_ENCOUNTER, label: i18n.t('common.custom') },
+	{
+		label: i18n.t('settings_tab.encounter.encounter_preset.presets'),
+		options: presets.map((preset, index) => ({ value: presetChoice(index), label: preset.path })),
+	},
+	...(own.length
+		? [{ label: i18n.t('settings_tab.encounter.encounter_preset.own'), options: own.map(entry => ({ value: ownChoice(entry.name), label: entry.name })) }]
+		: []),
+];
 
 export const zoneConfig = (encounter: Encounter): ChoiceFieldConfig<Encounter> => {
 	const zones = encounter.sim.db

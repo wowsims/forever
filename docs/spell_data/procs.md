@@ -95,6 +95,23 @@ The decode does not model the last two shapes; it reads past them. A trigger is 
 and for the bits the decoder names as unsupported. Such a listener hears fewer hits than the game files
 state, and that narrower listener is deliberate.
 
+Two bits name a death. `PROC_FLAG_KILL` (word 0, 0x2) decodes to `CallbackOnKill`: the
+owner's side landed the killing blow, which the kill roll in `Target.Die` decides. `PROC_FLAG_2_TARGET_DIES`
+(word 1, 0x1) decodes to `CallbackOnTargetDies`: an enemy died, with no roll. In game the two are separate
+events, so a row carrying both fires twice on a credited kill unless its ICD stops the second. The one
+such row in the game files is Lunar Idol 419288, on an item Forever does not ship. `PROC_FLAG_DEATH`, the wearer dying, stays unsupported.
+
+A death listener gets a nil spell and a result whose `Target` is the dying enemy, so every condition and
+handler a death can reach checks the spell before reading it. `Die` runs the listeners before it disables
+the target, but a handler without `TriggerImmediately` runs one `SpellBatchWindow` later, when the dead
+target's auras have expired. A row that asks for an aura on the dying target ("an enemy afflicted by your
+Vampiric Embrace dies") checks it in `ExtraCondition`, which runs inside `Die`. A proc whose damage or
+debuff a death casts goes to the current target while it is up and is not the one dying, else to the next
+target still up, and casts nothing when none is left (`procDamageTarget`). A rated trigger hears no
+death: in game a death rolls the row's plain chance, which a rated row leaves at 0, so
+`spelldata.ProcTrigger` drops the death callbacks wherever it ends with a procs-per-minute manager, the
+row's or the caller's. A rated row that hears deaths alone is refused by `ItemProcUnsupportedWithRate`.
+
 A class mask naming **another class's** family is dropped. An item every class can wear states the
 filter of the one class it was written for. On anyone else that mask matches nothing, so obeying it
 would silence the listener instead of narrowing it. The empty mask, and a family the game files state

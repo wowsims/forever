@@ -290,8 +290,8 @@ import categories (`SIM_CATEGORY_KEYS`).
 | `priority`       | `Player.rotation.priority_list`                                                                                                                                                                                                                                                                                                                                                                     | r        | rows                  |
 | `group "<name>"` | one `Player.rotation.groups` element                                                                                                                                                                                                                                                                                                                                                                | r        | `var` and rows        |
 
-**Skipped fields.** These are never written or read: `Player.database`, every `api_version`, and every field of
-type `UUID`. `Player.class` comes from `spec`
+**Skipped fields.** These are never written or read: `Player.database`, `Encounter.my_encounter`, every
+`api_version`, and every field of type `UUID`. `Player.class` comes from `spec`
 (§8.4).
 
 **Categories.** A category is **present** when any of its sections is present, including empty, or when its
@@ -353,7 +353,7 @@ An entry line sets fields of the section's message. How each field type is writt
 - **Messages in arguments.** A message field in a kind's or a message's arguments is written as in an entry,
   `field(...)` with the field's own name, or as raw JSON, or as `none` for the empty message. Each message of a
   list of messages is a `field(...)` argument of its own, as it is an entry line of its own in a section
-  (`targets(…, target_inputs(…), target_inputs(…))`). The list may instead be written whole,
+  (`design(…, add_waves(…), add_waves(…))`). The list may instead be written whole,
   `field=[field(…), …]`, but not both ways (`duplicate-field`). An array indexed by an enum is the argument
   `field(<short name>=<number>, …)`.
 - **Field names.** A field is written by its proto name. A proto name that is not lower snake case is written
@@ -1182,7 +1182,7 @@ grammar`).
 | `refs`        | `proto.ItemSpec.id`→item, `proto.ItemSpec.enchant`→enchant, `proto.ItemSpec.random_suffix`→suffix, `proto.ConsumesSpec.*_id`, `*_ids`, `potions` and `conjured_items`→item, `*.stat_type1`, `stat_type2` and `stat_type3`→stat, `proto.ActionID.spell_id` and `item_id`, `proto.Target.id` and `proto.Encounter.zone_id`→number |
 | `indexed`     | `proto.UnitStats.stats`→`proto.Stat`, `proto.UnitStats.pseudo_stats`→`proto.PseudoStat`, `proto.Target.stats`→`proto.Stat`                                                                                                                                                                                                      |
 | `flag_values` | `proto.TristateEffect`→`TristateEffectRegular`                                                                                                                                                                                                                                                                                  |
-| `skip`        | `proto.Player.database`, `*.api_version`, fields of type `proto.UUID`                                                                                                                                                                                                                                                           |
+| `skip`        | `proto.Player.database`, `proto.Encounter.my_encounter`, `*.api_version`, fields of type `proto.UUID`                                                                                                                                                                                                                           |
 
 **The Go tests that guard this table:**
 

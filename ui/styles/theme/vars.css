@@ -33,6 +33,17 @@
 	/* Transition */
 	--transition-fade: opacity 0.15s linear;
 
+	/* Encounter designer */
+	--designer-lane-height: --spacing(8);
+	--designer-lane-boss-bar: var(--color-chart-series-2);
+	--designer-lane-abilities-bar: var(--color-chart-series-4);
+	--designer-lane-waves-bar: var(--color-chart-series-3);
+	--designer-lane-moves-bar: var(--color-chart-series-1);
+	--designer-lane-amps-bar: var(--color-chart-series-5);
+	--designer-axis-gutter: --spacing(6);
+	--designer-hold-opacity: 0.6;
+	--designer-jitter-whisker: var(--color-foreground-disabled);
+
 	/* Table */
 	--table-row-even-bg: var(--color-table-even);
 	--table-row-odd-bg: var(--color-table-odd);

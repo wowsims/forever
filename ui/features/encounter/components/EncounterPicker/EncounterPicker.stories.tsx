@@ -55,17 +55,19 @@ const meta = {
 		preset: (
 			<ChoiceField
 				id="story-preset"
-				label="Encounter Preset"
+				label="Encounter"
 				options={[
 					{ value: -1, label: 'Custom' },
-					{ value: 0, label: 'Molten Core/Ragnaros' },
+					{ label: 'Presets', options: [{ value: 0, label: 'Molten Core/Ragnaros' }] },
+					{ label: 'My encounters', options: [{ value: 10, label: 'Two adds' }] },
 				]}
-				value={0}
+				value={10}
 				onChange={fn()}
 			/>
 		),
-		targetInputs: null,
 		onAdvancedClick: fn(),
+		onDesignClick: fn(),
+		onNewClick: fn(),
 	},
 	argTypes: {
 		duration: { control: false },
@@ -75,7 +77,6 @@ const meta = {
 		preset: { control: false },
 		allies: { control: false },
 		minBaseDamage: { control: false },
-		targetInputs: { control: false },
 	},
 } satisfies Meta<typeof EncounterPickerView>;
 
@@ -88,4 +89,4 @@ export const WithExecuteBands: Story = { args: { execute: EXECUTE } };
 
 export const Tank: Story = { args: { minBaseDamage: number('story-min-base-damage', 'Min Base Damage', 4192) } };
 
-export const WithoutDamageMetrics: Story = { args: { preset: undefined } };
+export const WithoutDamageMetrics: Story = { args: { preset: undefined, onNewClick: undefined } };

@@ -1,6 +1,8 @@
 package priest
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -52,13 +54,44 @@ func (priest *Priest) applyShadowFocus() {
 // The damage sim does not model the stun.
 func (priest *Priest) applyBlackout() {}
 
-// Gives you a X% chance to increase your Spirit by Y% for 15 sec when an enemy afflicted by your Vampiric Embrace dies.
+// Gives you a X% chance to increase your Spirit by Y% for 15 sec after killing a non-trivial target or when an enemy afflicted by your Vampiric Embrace dies.
 // For the duration, 50% of your Mana regeneration will continue while casting.
-// TODO: Procs on a target's death, which the sim does not model.
+// The row hears the killing blow, and every target in the sim counts as non-trivial. The tooltip also grants the
+// buff when the enemy dies with the priest's Vampiric Embrace on it, which the row's proc flags do not state. An
+// afflicted enemy always grants it, once, whether or not the raid gets the kill; any other killing blow rolls the
+// row's chance.
 func (priest *Priest) applySpiritTap() {
 	if priest.Talents.SpiritTap == 0 {
 		return
 	}
+
+	buff := spellData.SpiritTapTriggered.Highest()
+	aura := priest.RegisterAura(spelldata.AuraConfig(buff))
+	spelldata.ParseEffects(&priest.Character, aura, buff)
+
+	grant := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		aura.Activate(sim)
+	}
+	// Vampiric Embrace registers after this talent. Both checks run while the dying target still carries its auras.
+	afflicted := func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		return priest.VampiricEmbrace != nil && priest.VampiricEmbrace.RelatedAuraArrays.AnyActive(result.Target)
+	}
+
+	trigger := spelldata.ProcTrigger(&priest.Character, spellData.SpiritTap.Rank(priest.Talents.SpiritTap), grant)
+	trigger.Name = "Spirit Tap Trigger"
+	trigger.TriggerImmediately = true
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		return !afflicted(sim, spell, result)
+	}
+	priest.MakeProcTriggerAura(trigger)
+
+	priest.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Spirit Tap - Vampiric Embrace",
+		Callback:           core.CallbackOnTargetDies,
+		TriggerImmediately: true,
+		ExtraCondition:     afflicted,
+		Handler:            grant,
+	})
 }
 
 // Increases the duration of your Shadow Word: Pain spell by 6 sec.
@@ -195,23 +228,35 @@ func (priest *Priest) applyEarlyDemise() {
 		return
 	}
 
-	// The sim tracks the target's health as the execute phases 35 and 20.
-	threshold := int32(spellData.EarlyDemise.EffectAt(2).ValueAt(priest.Talents.EarlyDemise))
 	critMod := priest.AddDynamicMod(core.SpellModConfig{
 		Kind:       core.SpellMod_BonusCrit_Percent,
 		FloatValue: spellData.EarlyDemise.EffectAt(1).ValueAt(priest.Talents.EarlyDemise),
 		ClassMask:  PriestSpellShadowWordDeath,
 	})
-
-	onExecutePhase := func(_ *core.Simulation, isExecute int32) {
-		if isExecute <= threshold {
-			critMod.Activate()
-		}
-	}
-	priest.RegisterResetEffect(func(sim *core.Simulation) {
+	priest.RegisterResetEffect(func(_ *core.Simulation) {
 		critMod.Deactivate()
-		sim.RegisterExecutePhaseCallback(onExecutePhase)
 	})
+
+	// The threshold is the target's health, and the game files state no buff that would carry the bonus to another
+	// target, so the bonus follows the target of each Shadow Word: Death. The sim tracks a target's health as its
+	// execute phase, so only a 20% threshold can be read.
+	if threshold := spellData.EarlyDemise.EffectAt(2).ValueAt(priest.Talents.EarlyDemise); threshold != 20 {
+		panic(fmt.Sprintf("priest: Early Demise %d states a %.0f%% health threshold, and the sim tracks the 20%% phase only",
+			spellData.EarlyDemise.Rank(priest.Talents.EarlyDemise).ID, threshold))
+	}
+	core.MakePermanent(priest.RegisterAura(core.Aura{
+		Label: "Early Demise",
+		OnApplyEffects: func(_ *core.Aura, _ *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if !spell.Matches(PriestSpellShadowWordDeath) {
+				return
+			}
+			if target.IsExecutePhase20() {
+				critMod.Activate()
+			} else {
+				critMod.Deactivate()
+			}
+		},
+	}))
 }
 
 // Increases your Shadow damage done by X%

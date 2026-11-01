@@ -1,7 +1,6 @@
 import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
-import { Target as TargetProto } from '@generated/proto/common';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import type { Encounter } from '@sim/raid/encounter';
@@ -10,26 +9,25 @@ import { Field } from '@ui-kit/Field';
 import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo } from 'react';
 
-import { TargetInputsPicker } from './TargetInputsPicker';
 import {
-	aiConfig,
 	ALL_TARGET_STATS,
 	bleedImmuneConfig,
 	booleanConfigs,
 	creatureFamiliesOf,
 	creatureFamilyConfig,
+	encounterTargetContext,
 	levelConfig,
 	mobTypeConfig,
 	npcConfig,
 	numberConfigs,
+	presetTargetConfig,
 	spellSchoolConfig,
 	statConfig,
 	tankIndexConfig,
-	type TargetFieldContext,
 } from './utils/configs';
 
 export interface TargetPickerViewProps {
-	/** Who the target is: NPC preset, AI, level, mob type, creature family, tank, bleed immunity and the target's own inputs. */
+	/** Who the target is: NPC preset, preset target, level, mob type, creature family, tank and bleed immunity. */
 	identity: ReactNode;
 	stats: ReactNode;
 	/** The fields only a threat sim reads; without them an empty column keeps the three-column grid. */
@@ -55,17 +53,10 @@ export interface TargetPickerProps {
 
 export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 	const { threat: showThreatMetrics } = useDisplayMetrics(encounter.sim);
-	const context = useMemo(
-		(): TargetFieldContext => ({
-			encounter,
-			targetIndex,
-			getTarget: () => encounter.getTarget(targetIndex) || TargetProto.create(),
-		}),
-		[encounter, targetIndex],
-	);
+	const context = useMemo(() => encounterTargetContext(encounter, targetIndex), [encounter, targetIndex]);
 
 	const npc = useMemo(() => npcConfig(context), [context]);
-	const ai = useMemo(() => aiConfig(context), [context]);
+	const presetTarget = useMemo(() => presetTargetConfig(context), [context]);
 	const level = useMemo(() => levelConfig(context), [context]);
 	const mobType = useMemo(() => mobTypeConfig(context), [context]);
 	const targetMobType = useStoreSubscribe(subscribeEncounterField(encounter, 'targets'), () => context.getTarget().mobType);
@@ -85,13 +76,12 @@ export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 			identity={
 				<>
 					<ConnectedChoiceField modObject={null} config={npc} />
-					<ConnectedChoiceField modObject={null} config={ai} />
+					<ConnectedChoiceField modObject={null} config={presetTarget} />
 					<ConnectedChoiceField modObject={null} config={mobType} />
 					{creatureFamiliesOf(targetMobType).length > 0 && <ConnectedChoiceField modObject={null} config={creatureFamily} />}
 					<ConnectedChoiceField modObject={null} config={level} />
 					{showThreatMetrics && <ConnectedChoiceField modObject={null} config={tankIndex} />}
 					<ConnectedBooleanPicker modObject={null} config={bleedImmune} />
-					<TargetInputsPicker encounter={encounter} targetIndex={targetIndex} />
 				</>
 			}
 			stats={stats.map(config => (

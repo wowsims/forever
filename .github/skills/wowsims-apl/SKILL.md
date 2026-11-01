@@ -74,7 +74,7 @@ A value or action reaches the rotation and the kind picker in five places, all i
   `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
   Sequence or Strict Sequence). `assignEntryPaths` (`sim/core/apl_entry_path.go`) builds the paths, `aplEntrySuffix`
   (`sim/core/spell_queueing.go`) writes them and `parseAplEntryPath` (`ui/sim/proto/combat_log/apl_entry_path.ts`) reads
-  them. Auto and Simple rotations, pets and boss AI log none. A queued spell and a next-swing attack carry the entry
+  them. Auto and Simple rotations, pets and targets log none. A queued spell and a next-swing attack carry the entry
   path of the press that queued them.
 
 ## Presets
@@ -144,6 +144,17 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   A Change Target to the current target is not ready (`APLActionChangeTarget.IsReady`).
 - **`GCD Is Ready` is true from 400 ms before the GCD ends** (`MaxSpellQueueWindow`, `APLValueGCDIsReady`), so a
   line gated on it fires on every look in that window. `GCD Time To Ready` ≤ `0ms` holds only at the GCD's end.
+
+## Encounter values
+
+The values that read an encounter design are in `sim/core/apl_values_design.go` and `apl_values_encounter.go`:
+`Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
+a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
+`Time Until Amp` (by damage amp type). Without a design the times are never, and `Next Move Duration` is 0.
+
+- **`Is Execute Phase` takes a target**, and `Current Health` and `Current Health %` on an enemy read its health
+  curve, so a design's boss and adds each have their own. Fights are time-based: a fight lasts its rolled duration,
+  whatever the targets' health.
 
 ## Traps
 
