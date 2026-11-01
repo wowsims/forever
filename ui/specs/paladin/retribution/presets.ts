@@ -39,7 +39,7 @@ export const DefaultGearPreset = PresetUtils.makePresetGear('Default', DefaultGe
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 
-// Shin Blade, which the Holy Shock APL swaps in while the Manual Crowd Pummeler is on cooldown.
+// The Manual Crowd Pummeler, which the Holy Shock APL equips before the pull and swaps back in when its cooldown is nearly up.
 export const HolyShockItemSwap = PresetUtils.makePresetItemSwapGear('Holy Shock', HolyShockItemSwapGear);
 
 export const DefaultOptions = RetributionPaladinOptions.create({
@@ -120,8 +120,8 @@ export const DefaultConsumables = ConsumesSpec.create({
 
 export const HolyShockConsumables = ConsumesSpec.create({
 	...DefaultConsumables,
-	mhImbueId: Consumables.FrostOil.id,
-	swapMhImbueId: Consumables.ShadowOil.id,
+	mhImbueId: Consumables.ShadowOil.id,
+	swapMhImbueId: Consumables.FrostOil.id,
 	extraIds: [Consumables.CerebralCortexCompound.id, Consumables.GoblinSapperCharge.id, Consumables.DragonbreathChili.id, Consumables.GordokGreenGrog.id],
 });
 

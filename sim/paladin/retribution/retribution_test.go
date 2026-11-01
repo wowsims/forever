@@ -29,8 +29,7 @@ func BenchmarkRetribution(b *testing.B) {
 func shockadinSuite() core.CharacterSuiteConfig {
 	consumables := goproto.Clone(DefaultConsumables).(*proto.ConsumesSpec)
 	consumables.ElixirIds[0] = 8423  // Cerebral Cortex Compound
-	consumables.MhImbueId = 3829     // Frost Oil
-	consumables.SwapMhImbueId = 3824 // Shadow Oil
+	consumables.SwapMhImbueId = 3829 // Frost Oil
 
 	return core.CharacterSuiteConfig{
 		Class:            proto.Class_ClassPaladin,
