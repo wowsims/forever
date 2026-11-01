@@ -1661,7 +1661,7 @@
 				},
 				"spell_is_casting": {
 					"label": "Spell Is Casting",
-					"tooltip": "True if the spell is currently being cast"
+					"tooltip": "True while the spell is hardcast, through the rotation's pick at its end. not(Spell Is Casting X) on a line decides it after X lands, for a line that reads what X's landing may change."
 				},
 				"spell_time_to_ready": {
 					"label": "Spell Time to Ready",
