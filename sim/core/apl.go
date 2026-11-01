@@ -78,6 +78,7 @@ type APLRotation struct {
 
 	// Maps indices in filtered sim lists to indices in configs.
 	prepullIdxMap      []int
+	prepullDoAt        []time.Duration // When each of prepullActions runs.
 	priorityListIdxMap []int
 	groupListIdxMap    [][]int
 }
@@ -193,6 +194,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 						if action != nil {
 							rotation.prepullActions = append(rotation.prepullActions, action)
 							rotation.prepullIdxMap = append(rotation.prepullIdxMap, prepullIdx)
+							rotation.prepullDoAt = append(rotation.prepullDoAt, doAt)
 							unit.RegisterPrepullAction(doAt, func(sim *Simulation) {
 								// A prepull action at a cast's last instant runs before the cast's own
 								// completion; the cast completes first.
@@ -434,21 +436,34 @@ func (rot *APLRotation) hasMove() bool {
 }
 
 // A set swapped in before the pull stays on into the fight until an Item Swap: Main runs. A prepull swap away from
-// the main set warns when neither the prepull nor the rotation has one.
+// the main set warns when no Item Swap: Main follows it in the prepull or sits in the rotation.
 func (rot *APLRotation) warnOnPrepullSwapWithoutMain() {
-	isSwapTo := func(main bool) func(*APLAction) bool {
+	hasSwapTo := func(main bool) func(*APLAction) bool {
 		return func(action *APLAction) bool {
-			swap, ok := action.impl.(*APLActionItemSwap)
-			return ok && (swap.swapSet == proto.APLActionItemSwap_Main) == main
+			return slices.ContainsFunc(getAllActionsSafe(action), func(inner *APLAction) bool {
+				swap, ok := inner.impl.(*APLActionItemSwap)
+				return ok && (swap.swapSet == proto.APLActionItemSwap_Main) == main
+			})
 		}
 	}
-	// Walked from the prepull and priority lists, so a group only counts where a shown line references it.
-	reachable := Flatten(MapSlice(slices.Concat(rot.prepullActions, rot.priorityList), getAllActionsSafe))
-	if slices.ContainsFunc(reachable, isSwapTo(true)) {
+	// Walked from the priority list, so a group only counts where a shown line references it.
+	if slices.ContainsFunc(rot.priorityList, hasSwapTo(true)) {
 		return
 	}
 	for i, action := range rot.prepullActions {
-		if slices.ContainsFunc(action.GetAllActions(), isSwapTo(false)) {
+		if !hasSwapTo(false)(action) {
+			continue
+		}
+		// Prepull actions run in time order, and in list order at the same time.
+		swappedBack := false
+		for j, other := range rot.prepullActions {
+			runsAfter := rot.prepullDoAt[j] > rot.prepullDoAt[i] || (rot.prepullDoAt[j] == rot.prepullDoAt[i] && j >= i)
+			if runsAfter && hasSwapTo(true)(other) {
+				swappedBack = true
+				break
+			}
+		}
+		if !swappedBack {
 			rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
 				rot.ValidationMessage(proto.LogLevel_Warning, "Nothing swaps back to the main set, so the swapped set stays on for the whole fight. Add an Item Swap: Main to the rotation.")
 			})

@@ -105,18 +105,19 @@ func TestOnUseBuffDropsWhenItsItemIsSwappedOff(t *testing.T) {
 // back.
 func TestPrepullSwapStaysOnIntoTheFight(t *testing.T) {
 	const mainMaceID, swapMaceID int32 = 990921, 990922
-	mace := func(id int32) *proto.SimItem {
+	// The maces differ in speed, so the swings show which one is in hand.
+	mace := func(id int32, speed float64) *proto.SimItem {
 		return &proto.SimItem{
 			Id:             id,
 			Name:           "Test Prepull Swap Mace",
 			Type:           proto.ItemType_ItemTypeWeapon,
 			WeaponType:     proto.WeaponType_WeaponTypeMace,
 			HandType:       proto.HandType_HandTypeTwoHand,
-			WeaponSpeed:    3.5,
+			WeaponSpeed:    speed,
 			ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {WeaponDamageMin: 100, WeaponDamageMax: 150}},
 		}
 	}
-	addToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{mace(mainMaceID), mace(swapMaceID)}})
+	addToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{mace(mainMaceID, 3.5), mace(swapMaceID, 2)}})
 	withMainHand := func(id int32) []*proto.ItemSpec {
 		items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 		for i := range items {
@@ -165,6 +166,12 @@ func TestPrepullSwapStaysOnIntoTheFight(t *testing.T) {
 				prepullSwapTo(proto.APLActionItemSwap_Main, "-1s"),
 			},
 		}, false},
+		{"swap to main before the prepull swap", &proto.APLRotation{
+			PrepullActions: []*proto.APLPrepullAction{
+				prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s"),
+				prepullSwapTo(proto.APLActionItemSwap_Main, "-10s"),
+			},
+		}, true},
 	}
 	for _, tc := range cases {
 		tc.rotation.Type = proto.APLRotation_TypeAPL
@@ -194,12 +201,15 @@ func TestPrepullSwapStaysOnIntoTheFight(t *testing.T) {
 		sim.Reset()
 		sim.PrePull()
 		stepSwingSim(t, sim, 0)
-		wantSwapped := len(tc.rotation.PrepullActions) == 1
+		wantSwapped := tc.wantWarning || len(tc.rotation.PrepullActions) == 1
 		if got := character.ItemSwap.IsSwapped(); got != wantSwapped {
 			t.Errorf("%s: swapped at the pull = %v, want %v", tc.name, got, wantSwapped)
 		}
 		if got, want := character.MainHand().ID, Ternary(wantSwapped, swapMaceID, mainMaceID); got != want {
 			t.Errorf("%s: main hand at the pull = %d, want %d", tc.name, got, want)
+		}
+		if got, want := character.AutoAttacks.MH().SwingSpeed, Ternary(wantSwapped, 2.0, 3.5); got != want {
+			t.Errorf("%s: main-hand swing speed at the pull = %v, want %v", tc.name, got, want)
 		}
 	}
 }
