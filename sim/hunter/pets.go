@@ -29,9 +29,9 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 	proto.HunterOptions_FasterAttackVII: spellData.FasterAttackVII,
 }
 
-// A tamed pet's own armor, health and weapon are the creature values for its level in the game files
-// (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel, core.CreatureAutoAttackDpsMaxLevel), and its own
-// attack power is 30% of the creature dps as attack power, 14 a point of dps, with nothing from Strength:
+// A tamed pet's own armor and health are the creature values for its level in the game files
+// (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel), and its own attack power is 30% of the creature
+// dps (core.CreatureAutoAttackDpsMaxLevel) as attack power, 14 a point of dps, with nothing from Strength:
 // 36, 61 and 103 on the sheets of a level 11 Carrion Bird, a level 17 Cat and a level 30 pet, each the
 // creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it.
 // TODO: Health is one reading, 550 with Great Stamina 2 at 35 owner Stamina, which the creature health
@@ -40,14 +40,18 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 var petBaseStats = stats.Stats{
 	stats.Health:      core.CreatureHealthMaxLevel,
 	stats.Armor:       core.CreatureArmorMaxLevel,
-	stats.AttackPower: 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel,
+	stats.AttackPower: petAttackPower,
 }
 
-// The swing before attack power is the creature dps over the 2.0 s, spanning 20% either side: a level 11
-// Carrion Bird's 20-27 at 44 attack power and 2.0 s, and a level 17 Cat's 28-37 and 27-37 at 75 and 72,
-// swinging at 1.5 s with Faster Attack III, are the creature dps plus attack power over 14, over the swing
-// as sped up, with the Cat's +10%. The sheet leaves happiness out.
-const petSwingAverage = core.CreatureAutoAttackDpsMaxLevel * 2
+const petAttackPower = 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel
+
+// The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
+// attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
+// a level 30 Cat's logged swings before armor, 42-55 and 46-59 at 119 and 146 attack power, swinging at 1.2 s
+// with Unleashed Fury 5/5, are this swing plus attack power over 14, over the swing as sped up, with the Cat's
+// +10% and happiness. The pet sheet shows the whole creature dps as the weapon and leaves happiness out, so
+// its damage range is not the damage the pet deals.
+const petSwingAverage = (core.CreatureAutoAttackDpsMaxLevel - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
 	BaseDamageMin: petSwingAverage * (1 - 0.2),
