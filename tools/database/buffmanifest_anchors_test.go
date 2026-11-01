@@ -103,6 +103,9 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		if !trainerRank && row.CastID != 0 && row.CastID != cast.SpellID {
 			t.Errorf("%s: the manifest pins cast %d, the game files resolve %d", row.Field, row.CastID, cast.SpellID)
 		}
+		if trainerRank && row.CastID != 0 && !slices.ContainsFunc(cands, func(c buffCandidate) bool { return c.SpellID == row.CastID }) {
+			t.Errorf("%s: the manifest pins cast %d, which no SkillLineAbility row grants under %q", row.Field, row.CastID, row.Name)
+		}
 		if runes[aura] {
 			t.Errorf("%s: spell %d is granted by a rune, which is a class rune and not a raid buff", row.Field, aura)
 		}

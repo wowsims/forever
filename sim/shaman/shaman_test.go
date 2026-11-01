@@ -75,6 +75,12 @@ func TestTrainerTotemRanksBesideBookRanks(t *testing.T) {
 		if sham.GetAuraByID(core.ActionID{SpellID: tc.trainerBuff}).IsActive() {
 			t.Errorf("%s: the book rank left the trainer's buff up, want one totem to a slot", tc.name)
 		}
+		if got := statFrom(tc.trainerTotem, tc.trainerBuff); got != trainerAmount-bookAmount {
+			t.Errorf("%s: the trainer rank over the book's adds %v, want %v", tc.name, got, trainerAmount-bookAmount)
+		}
+		if sham.GetAuraByID(core.ActionID{SpellID: tc.bookBuff}).IsActive() {
+			t.Errorf("%s: the trainer rank left the book's buff up, want one totem to a slot", tc.name)
+		}
 	}
 }
 

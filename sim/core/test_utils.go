@@ -270,38 +270,38 @@ func GetAplRotation(dir string, file string) RotationCombo {
 // The rotation with a spell's rank moved to another rank by spell id, so the other rank reaches the results.
 func RotationWithSpellIds(label string, combo RotationCombo, ids map[int32]int32) RotationCombo {
 	rotation := googleProto.Clone(combo.Rotation).(*proto.APLRotation)
-	for from, to := range ids {
-		if swapSpellId(rotation.ProtoReflect(), from, to) == 0 {
+	swapped := map[int32]bool{}
+	swapSpellIds(rotation.ProtoReflect(), ids, swapped)
+	for from := range ids {
+		if !swapped[from] {
 			panic(fmt.Sprintf("the %s rotation does not name spell %d", combo.Label, from))
 		}
 	}
 	return RotationCombo{Label: label, Rotation: rotation}
 }
 
-// Swaps every use of a spell id for another, except an external buff copy (tag -1), and returns how many it swapped.
-// A swapped id drops its rank, which belonged to the old id.
-func swapSpellId(message protoreflect.Message, from int32, to int32) int {
+// Swaps every spell id that ids maps for the id it maps to, except an external buff copy (tag -1), and marks each id
+// it swapped. A swapped id drops its rank, which belonged to the old id.
+func swapSpellIds(message protoreflect.Message, ids map[int32]int32, swapped map[int32]bool) {
 	if id, ok := message.Interface().(*proto.ActionID); ok {
-		if id.GetSpellId() == from && id.Tag != -1 {
+		if to, ok := ids[id.GetSpellId()]; ok && id.Tag != -1 {
+			swapped[id.GetSpellId()] = true
 			id.RawId = &proto.ActionID_SpellId{SpellId: to}
 			id.Rank = 0
-			return 1
 		}
-		return 0
+		return
 	}
-	swapped := 0
 	message.Range(func(field protoreflect.FieldDescriptor, value protoreflect.Value) bool {
 		switch {
 		case field.IsList() && field.Message() != nil:
 			for i := 0; i < value.List().Len(); i++ {
-				swapped += swapSpellId(value.List().Get(i).Message(), from, to)
+				swapSpellIds(value.List().Get(i).Message(), ids, swapped)
 			}
 		case field.Message() != nil && !field.IsMap():
-			swapped += swapSpellId(value.Message(), from, to)
+			swapSpellIds(value.Message(), ids, swapped)
 		}
 		return true
 	})
-	return swapped
 }
 
 func GetGearSet(dir string, file string) GearSetCombo {

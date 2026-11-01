@@ -18,7 +18,5 @@ warlock.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
 warlock.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
 warrior.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
 warrior.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
-shaman.aura.strength_of_earth: was spell 25362, now spell 10441
 shaman.aura.strength_of_earth_external: was spell 25362 tag -1, now spell 10441 tag -1
-shaman.aura.grace_of_air: was spell 25360, now spell 10626
 shaman.aura.grace_of_air_external: was spell 25360 tag -1, now spell 10626 tag -1
