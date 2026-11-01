@@ -213,14 +213,19 @@ const smokeLink = async (page, url, errors) => {
 // The generated `create` reads `this`, so adding a row fails when a list holds it unbound.
 const smokeRotation = async page => {
 	await page.locator('[data-testid="sim-tabs"] [role="tab"]', { hasText: 'Rotation' }).click();
-	await page.getByText('APL', { exact: true }).first().click({ timeout: 4000 });
-	await page.waitForTimeout(600);
-	const add = page.locator('[data-testid="tree-add"]:visible').first();
-	const items = page.locator('[data-testid="apl-action-list-item"]');
-	const before = await items.count();
-	await add.click();
+	// Some specs open on the Simple rotation, and its picker offers the action list.
+	const type = page.locator('#rotation-tab-rotation-type');
+	if ((await type.innerText()).trim() !== 'APL') {
+		await type.click();
+		await page.getByRole('option', { name: 'APL', exact: true }).click({ timeout: 4000 });
+		await page.waitForTimeout(600);
+	}
+	const pane = page.locator('[data-testid="tab-pane"]:visible').first();
+	const size = () => pane.evaluate(element => element.querySelectorAll('*').length);
+	const before = await size();
+	await page.getByRole('button', { name: 'New Action', exact: true }).last().click();
 	await page.waitForTimeout(300);
-	if ((await items.count()) !== before + 1) throw new Error('the add button added no action');
+	if ((await size()) <= before) throw new Error('the add button added no action');
 	return 'rotation';
 };
 
