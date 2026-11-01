@@ -127,7 +127,6 @@ export const getBaseConfig = ({ command, mode }: ConfigEnv) =>
 			outDir: OUT_DIR,
 			minify: mode === 'development' ? false : 'oxc',
 			sourcemap: command === 'serve' ? 'inline' : false,
-			target: ['es2020'],
 		},
 	}) satisfies Partial<UserConfigExport>;
 

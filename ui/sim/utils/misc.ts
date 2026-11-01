@@ -1,6 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
-
-export const randomUUID = () => uuidv4();
+export const randomUUID = () => crypto.randomUUID();
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const noop = () => {};
