@@ -1691,6 +1691,22 @@
 					"additionalProperties": false,
 					"required": ["title", "message", "download_button"]
 				},
+				"new_build": {
+					"type": "object",
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"message": {
+							"type": "string"
+						},
+						"reload_button": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["title", "message", "reload_button"]
+				},
 				"crash_modal": {
 					"type": "object",
 					"properties": {
@@ -1814,6 +1830,7 @@
 				"basic_bis_disclaimer",
 				"healing_sim_disclaimer",
 				"notice_native_download",
+				"new_build",
 				"crash_modal",
 				"unlaunched",
 				"notifications",

@@ -463,6 +463,11 @@
 			"message": "You can download our local sim to speed up your simulations significantly?",
 			"download_button": "Download"
 		},
+		"new_build": {
+			"title": "New version",
+			"message": "A new version of the sim is out. Reload the page to use it.",
+			"reload_button": "Reload"
+		},
 		"crash_modal": {
 			"title": "Extra Crash Information",
 			"header": "Please append the following complete link to the issue you just created. This will simplify debugging the issue."
