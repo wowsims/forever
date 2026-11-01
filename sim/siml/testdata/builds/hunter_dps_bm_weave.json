@@ -171,6 +171,63 @@
 			],
 			"priorityList": [
 				{
+					"notes": "Rapid Fire at range: from the pull, or like the other cooldowns after the first 5 s.",
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"unitDistance": {
+													"sourceUnit": {
+														"type": "Self"
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "5"
+												}
+											}
+										}
+									},
+									{
+										"or": {
+											"vals": [
+												{
+													"variableRef": {
+														"name": "Rapid Fire at the pull"
+													}
+												},
+												{
+													"cmp": {
+														"op": "OpGe",
+														"lhs": {
+															"currentTime": {}
+														},
+														"rhs": {
+															"const": {
+																"val": "5s"
+															}
+														}
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 3045
+							}
+						}
+					}
+				},
+				{
 					"action": {
 						"condition": {
 							"and": {
@@ -587,6 +644,11 @@
 						"condition": {
 							"and": {
 								"vals": [
+									{
+										"variableRef": {
+											"name": "Walk to my spot first"
+										}
+									},
 									{
 										"cmp": {
 											"op": "OpNe",
@@ -1178,6 +1240,22 @@
 				},
 				{
 					"name": "Use Summon Hawk",
+					"value": {
+						"const": {
+							"val": "true"
+						}
+					}
+				},
+				{
+					"name": "Rapid Fire at the pull",
+					"value": {
+						"const": {
+							"val": "false"
+						}
+					}
+				},
+				{
+					"name": "Walk to my spot first",
 					"value": {
 						"const": {
 							"val": "true"

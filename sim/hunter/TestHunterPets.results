@@ -710,8 +710,8 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 663.51123
-  tps: 424.32129
+  dps: 662.84814
+  tps: 423.65938
   dtps: 1.18223
  }
 }
@@ -734,9 +734,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 641.39177
-  tps: 410.22455
-  dtps: 1.35626
+  dps: 640.721
+  tps: 408.10969
+  dtps: 1.0088
  }
 }
 dps_results: {
