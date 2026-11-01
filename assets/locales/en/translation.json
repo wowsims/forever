@@ -2380,7 +2380,7 @@
 				},
 				"use_sniper": {
 					"label": "Use Sniper Shot",
-					"tooltip": "Casts Sniper Shot while Rapid Fire or Quick Shots shortens its cast."
+					"tooltip": "Opens the fight with Sniper Shot and casts it whenever no other shot is ready."
 				},
 				"use_hawk": {
 					"label": "Use Summon Hawk",
