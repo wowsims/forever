@@ -17,11 +17,11 @@ var quickShots = spellData.AspectOfTheHawkTriggered.Highest()
 var quickStrikes = spellData.AspectOfTheBeastTriggered.Highest()
 
 func (hunter *Hunter) registerAspects() {
-	hunter.AspectOfTheHawkAuras = []*core.Aura{hunter.registerAspect(aspectOfTheHawkTrainerRank), hunter.registerAspect(aspectOfTheHawkBookRank)}
+	hawkAuras := []*core.Aura{hunter.registerAspect(aspectOfTheHawkTrainerRank), hunter.registerAspect(aspectOfTheHawkBookRank)}
 	hunter.AspectOfTheBeastAura = hunter.registerAspect(aspectOfTheBeastRank)
 	hunter.registerAspectOfTheCheetah()
 
-	hunter.registerDeadlyAspects()
+	hunter.registerDeadlyAspects(hawkAuras)
 }
 
 // One aspect at a time: a permanent self-buff the row's effects parse onto, and the spell that swaps
@@ -74,7 +74,7 @@ func (hunter *Hunter) registerAspectOfTheCheetah() {
 // trigger and no rate, and the talent adds SPELLMOD_CHANCE_OF_SUCCESS to each - 2% a rank - which
 // the parse has no row for. The tooltip names Auto Shot and melee auto attacks where the rows hear
 // every ranged and melee hit, so each mask is narrowed to the white hits by hand.
-func (hunter *Hunter) registerDeadlyAspects() {
+func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 	rank := hunter.Talents.DeadlyAspects
 	if rank == 0 {
 		return
@@ -97,7 +97,7 @@ func (hunter *Hunter) registerDeadlyAspects() {
 	hawk.Outcome = core.OutcomeEmpty
 	hawk.RequireDamageDealt = false
 	hawk.TriggerImmediately = true
-	for _, aura := range hunter.AspectOfTheHawkAuras {
+	for _, aura := range hawkAuras {
 		aura.AttachProcTrigger(hawk)
 	}
 

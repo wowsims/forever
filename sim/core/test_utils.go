@@ -271,19 +271,20 @@ func GetAplRotation(dir string, file string) RotationCombo {
 func RotationWithSpellIds(label string, combo RotationCombo, ids map[int32]int32) RotationCombo {
 	rotation := googleProto.Clone(combo.Rotation).(*proto.APLRotation)
 	for from, to := range ids {
-		if withSpellIds(rotation.ProtoReflect(), map[int32]int32{from: to}) == 0 {
+		if swapSpellId(rotation.ProtoReflect(), from, to) == 0 {
 			panic(fmt.Sprintf("the %s rotation does not name spell %d", combo.Label, from))
 		}
 	}
 	return RotationCombo{Label: label, Rotation: rotation}
 }
 
-// Swaps every spell id that ids maps for the id it maps to, except an external buff copy (tag -1), and returns
-// how many it swapped.
-func withSpellIds(message protoreflect.Message, ids map[int32]int32) int {
+// Swaps every use of a spell id for another, except an external buff copy (tag -1), and returns how many it swapped.
+// A swapped id drops its rank, which belonged to the old id.
+func swapSpellId(message protoreflect.Message, from int32, to int32) int {
 	if id, ok := message.Interface().(*proto.ActionID); ok {
-		if to, ok := ids[id.GetSpellId()]; ok && id.Tag != -1 {
+		if id.GetSpellId() == from && id.Tag != -1 {
 			id.RawId = &proto.ActionID_SpellId{SpellId: to}
+			id.Rank = 0
 			return 1
 		}
 		return 0
@@ -293,10 +294,10 @@ func withSpellIds(message protoreflect.Message, ids map[int32]int32) int {
 		switch {
 		case field.IsList() && field.Message() != nil:
 			for i := 0; i < value.List().Len(); i++ {
-				swapped += withSpellIds(value.List().Get(i).Message(), ids)
+				swapped += swapSpellId(value.List().Get(i).Message(), from, to)
 			}
 		case field.Message() != nil && !field.IsMap():
-			swapped += withSpellIds(value.Message(), ids)
+			swapped += swapSpellId(value.Message(), from, to)
 		}
 		return true
 	})

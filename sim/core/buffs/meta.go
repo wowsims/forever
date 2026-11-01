@@ -101,6 +101,15 @@ func (m *Meta) label(isPlayer bool) string {
 	return m.Label + " (" + core.Ternary(isPlayer, "Player", "External") + ")"
 }
 
+// A rank of a generated buff is its row on the rank's own spell, labelled with the rank so that two ranks on one unit
+// never share an aura. Both bid in the row's category.
+func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
+	ranked := *m
+	ranked.Label += " " + rank.Rank
+	ranked.Spell = rank
+	return &ranked
+}
+
 func (m *Meta) actionID(isPlayer bool) core.ActionID {
 	return core.ActionID{SpellID: m.Spell.ID}.WithTag(core.TernaryInt32(isPlayer, 0, -1))
 }

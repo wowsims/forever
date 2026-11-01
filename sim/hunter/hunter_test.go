@@ -53,7 +53,7 @@ func TestHunter(t *testing.T) {
 			Rotation: core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default"),
 			OtherRotations: []core.RotationCombo{
 				core.GetAplRotation("../../ui/specs/hunter/dps/apls", "clean_weave"),
-				core.RotationWithSpellIds("default_book_ranks", core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default"), map[int32]int32{13555: 25295, 14322: 25296}),
+				core.RotationWithSpellIds("default_book_ranks", weaveRotation, map[int32]int32{13555: 25295, 14322: 25296}),
 			},
 
 			ItemFilter: core.ItemFilter{

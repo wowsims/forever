@@ -99,17 +99,17 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 func (shaman *Shaman) registerStrengthOfEarthTotemSpell() {
 	// The rows already carry Enhancing Totems: Strength of Earth's and Grace of Air's amounts are its 15%
 	// over their untalented values, so nothing applies the talent.
-	shaman.registerBuffTotem(strengthOfEarthTotemTrainerRank, EarthTotem,
-		buffs.NewStrengthOfEarthTotemRankAura(&shaman.Unit, spellData.StrengthOfEarthTotemTriggered.ByID(10441)))
-	shaman.registerBuffTotem(strengthOfEarthTotemBookRank, EarthTotem,
-		buffs.NewSpellDataStrengthOfEarthTotemAura(&shaman.Unit, true, 0))
+	for _, rank := range []*spelldata.Spell{strengthOfEarthTotemTrainerRank, strengthOfEarthTotemBookRank} {
+		shaman.registerBuffTotem(rank, EarthTotem,
+			buffs.NewSpellDataStrengthOfEarthTotemRankAura(&shaman.Unit, spellData.StrengthOfEarthTotemTriggered.Rank(rank.RankNumber())))
+	}
 }
 
 func (shaman *Shaman) registerGraceOfAirTotemSpell() {
-	shaman.registerBuffTotem(graceOfAirTotemTrainerRank, AirTotem,
-		buffs.NewGraceOfAirTotemRankAura(&shaman.Unit, spellData.GraceOfAirTotemTriggered.ByID(10626)))
-	shaman.registerBuffTotem(graceOfAirTotemBookRank, AirTotem,
-		buffs.NewSpellDataGraceOfAirTotemAura(&shaman.Unit, true, 0))
+	for _, rank := range []*spelldata.Spell{graceOfAirTotemTrainerRank, graceOfAirTotemBookRank} {
+		shaman.registerBuffTotem(rank, AirTotem,
+			buffs.NewSpellDataGraceOfAirTotemRankAura(&shaman.Unit, spellData.GraceOfAirTotemTriggered.Rank(rank.RankNumber())))
+	}
 }
 
 // The aura reads Restorative Totems' first effect, the Mana Spring share, from the talent points.

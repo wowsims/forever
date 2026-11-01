@@ -26,7 +26,6 @@ type Hunter struct {
 	RaptorStrike      *core.Spell
 	raptorStrikeQueue *core.Aura
 
-	AspectOfTheHawkAuras []*core.Aura // One per rank.
 	AspectOfTheBeastAura *core.Aura
 	MongooseBiteAura     *core.Aura
 
