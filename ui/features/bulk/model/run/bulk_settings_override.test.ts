@@ -60,7 +60,7 @@ const PLAIN_POTION = Consumable.create({ id: 62, name: 'Plain potion', type: Con
 const FLASK = Consumable.create({ id: 63, name: 'Flask', type: ConsumableType.ConsumableTypeFlask });
 
 const ENTRY = SavedSettings.create({
-	raidBuffs: RaidBuffs.create({ arcaneBrilliance: true }),
+	raidBuffs: RaidBuffs.create({ arcaneBrilliance: 1 }),
 	partyBuffs: PartyBuffs.create({ darkspear: true, bloodPact: true }),
 	playerBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true }),
 	debuffs: Debuffs.create({ huntersMark: true }),
@@ -237,14 +237,14 @@ describe('Sim.runBulkSim with a saved settings entry', () => {
 	it('sends the live settings when no entry is given', async () => {
 		const { sim, player } = await setup();
 		player.setProfessions([Profession.Tailoring]);
-		player.setBuffs(IndividualBuffs.create({ greaterBlessingOfMight: true }));
+		player.setBuffs(IndividualBuffs.create({ greaterBlessingOfMight: 1 }));
 		player.setConsumes(ConsumesSpec.create({ flaskId: FLASK.id }));
 
 		const sentPlayer = (await run(sim)).parties[0].players[0];
 
 		expect(sentPlayer.race).toBe(Race.RaceHuman);
 		expect([sentPlayer.profession1, sentPlayer.profession2]).toEqual([Profession.Tailoring, Profession.ProfessionUnknown]);
-		expect(sentPlayer.buffs).toEqual(IndividualBuffs.create({ greaterBlessingOfMight: true }));
+		expect(sentPlayer.buffs).toEqual(IndividualBuffs.create({ greaterBlessingOfMight: 1 }));
 		expect(sentPlayer.consumables).toEqual(ConsumesSpec.create({ flaskId: FLASK.id, potions: [PLAIN_POTION.id] }));
 	});
 
