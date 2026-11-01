@@ -335,25 +335,25 @@ func DebugCompareLogs(rsr *proto.RaidSimRequest, showCount int) (bool, string) {
 
 			diffs++
 
-			outLog.WriteString(fmt.Sprintln("===================================================="))
+			fmt.Fprintln(&outLog, "====================================================")
 			fmt.Fprintf(&outLog, "==== Lines %d | %d do not match unexpectedly!\n", str.I+1, mtr.I+1)
 			fmt.Fprintf(&outLog, "ST Iteration: %d\n", str.Iteration)
 			fmt.Fprintf(&outLog, "MT Instance: %d, Iteration: %d\n", mtr.SimInstance, mtr.Iteration)
-			outLog.WriteString(fmt.Sprintln("--- ST log --------------------------------"))
+			fmt.Fprintln(&outLog, "--- ST log --------------------------------")
 			for i := -showBefore; i <= showAfter; i++ {
 				if i == 0 {
 					fmt.Fprintf(&outLog, ">> %s\n", stLine)
 					continue
 				}
-				outLog.WriteString(fmt.Sprintln(str.PeakLine(i)))
+				fmt.Fprintln(&outLog, str.PeakLine(i))
 			}
-			outLog.WriteString(fmt.Sprintln("--- MT log --------------------------------"))
+			fmt.Fprintln(&outLog, "--- MT log --------------------------------")
 			for i := -showBefore; i <= showAfter; i++ {
 				if i == 0 {
 					fmt.Fprintf(&outLog, ">> %s\n", mtLine)
 					continue
 				}
-				outLog.WriteString(fmt.Sprintln(mtr.PeakLine(i)))
+				fmt.Fprintln(&outLog, mtr.PeakLine(i))
 			}
 
 			if str.PeakLine(1) == mtLine {
@@ -376,7 +376,7 @@ func DebugCompareLogs(rsr *proto.RaidSimRequest, showCount int) (bool, string) {
 	}
 
 	if diffs == 0 {
-		outLog.WriteString(fmt.Sprintln("No differences found!"))
+		fmt.Fprintln(&outLog, "No differences found!")
 	}
 
 	//os.WriteFile("st", []byte(st.Logs), 0644)

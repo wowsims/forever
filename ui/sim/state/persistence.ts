@@ -69,7 +69,7 @@ export function loadIndividualSettings(
 					host.fromProto(withViewerStatFilters(urlParseResults.settings, opts.player.sim), urlParseResults.categories);
 				}
 			} catch (e) {
-				console.warn('Failed to parse link settings: ' + e);
+				console.warn('Failed to apply link settings: ' + e);
 			}
 			env.location.setHash('');
 

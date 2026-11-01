@@ -183,9 +183,6 @@ func inserted(t *testing.T, names *siml.Names, apl any, p pattern, values map[st
 	return read
 }
 
-//go:fix inline
-func index(i int) *int { return new(i) }
-
 func TestPatternsAreWellFormed(t *testing.T) {
 	ids := map[string]bool{}
 	for _, p := range patterns {
