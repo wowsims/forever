@@ -30,9 +30,10 @@ export const DesignerIssues = ({ design, issues, baseSeconds, onSelect }: Design
 					{issues.map(issue => (
 						<li key={`${issue.ref.kind}:${issue.ref.index}:${issue.key}:${issue.span?.start ?? ''}`}>
 							<Notice level={issue.severity}>
-								<Button variant="link" size="none" onClick={() => onSelect(issue.ref)}>
+								<Button variant="link" size="none" className="text-[length:inherit]" onClick={() => onSelect(issue.ref)}>
 									{eventName(design, issue.ref)}
-								</Button>{' '}
+								</Button>
+								{': '}
 								{i18n.t(issue.key, issue.span && { from: seconds(issue.span.start), to: seconds(issue.span.end) })}
 							</Notice>
 						</li>

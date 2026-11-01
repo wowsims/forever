@@ -17,6 +17,20 @@ import { DesignerTip } from '../DesignerTip';
 import { DesignerToolbar } from '../DesignerToolbar';
 import { designerText } from '../EncounterDesigner/utils/configs';
 
+// react-tooltip reads the anchor once when it opens, so a bar whose `data-tip` moves during a drag is watched here.
+const AnchorTip = ({ anchor }: { anchor: Element | null }) => {
+	const [text, setText] = useState(() => anchor?.getAttribute('data-tip'));
+	useEffect(() => {
+		if (!anchor) return;
+		const read = () => setText(anchor.getAttribute('data-tip'));
+		read();
+		const observer = new MutationObserver(read);
+		observer.observe(anchor, { attributes: true, attributeFilter: ['data-tip'] });
+		return () => observer.disconnect();
+	}, [anchor]);
+	return <DesignerTip text={text} />;
+};
+
 export interface DesignerTimelineProps {
 	design: EncounterDesign;
 	/** The fight length the fractions in the design are drawn against. */
@@ -186,7 +200,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 					))}
 				</div>
 			</div>
-			<Tooltip id={tooltipId} render={({ activeAnchor }) => <DesignerTip text={activeAnchor?.getAttribute('data-tip')} />} />
+			<Tooltip id={tooltipId} render={({ activeAnchor }) => <AnchorTip anchor={activeAnchor} />} />
 		</div>
 	);
 };
