@@ -270,8 +270,10 @@ func GetAplRotation(dir string, file string) RotationCombo {
 // The rotation with a spell's rank moved to another rank by spell id, so the other rank reaches the results.
 func RotationWithSpellIds(label string, combo RotationCombo, ids map[int32]int32) RotationCombo {
 	rotation := googleProto.Clone(combo.Rotation).(*proto.APLRotation)
-	if withSpellIds(rotation.ProtoReflect(), ids) == 0 {
-		panic(fmt.Sprintf("the %s rotation names none of the ranks to move", combo.Label))
+	for from, to := range ids {
+		if withSpellIds(rotation.ProtoReflect(), map[int32]int32{from: to}) == 0 {
+			panic(fmt.Sprintf("the %s rotation does not name spell %d", combo.Label, from))
+		}
 	}
 	return RotationCombo{Label: label, Rotation: rotation}
 }

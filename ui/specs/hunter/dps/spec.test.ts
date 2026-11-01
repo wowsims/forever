@@ -27,20 +27,23 @@ const hawkBook = 25296;
 const hawkTrainer = 14322;
 
 describe.each([
-	['Turret', Playstyle.Turret],
-	['Weave', Playstyle.Weave],
-	['Melee', Playstyle.Melee],
-])('%s simple rotation', (_, playstyle) => {
+	['Turret', { playstyle: Playstyle.Turret }, Presets.PlaystyleAPLs[Playstyle.Turret], true],
+	['Turret with hawks', { playstyle: Playstyle.Turret, useHawk: true }, Presets.TurretHawkPlaystyleAPL, true],
+	['Weave', { playstyle: Playstyle.Weave }, Presets.PlaystyleAPLs[Playstyle.Weave], true],
+	['Melee', { playstyle: Playstyle.Melee }, Presets.PlaystyleAPLs[Playstyle.Melee], false],
+] as const)('%s simple rotation', (_, simple, priorityList, castsHawk) => {
 	it('names the spells the priority list names by default, the trainer ranks', () => {
-		const rotation = generate({ playstyle });
-		expect(spellIds(rotation)).toEqual(spellIds(Presets.PlaystyleAPLs[playstyle]));
+		const rotation = generate(simple);
+		expect(spellIds(rotation)).toEqual(spellIds(priorityList));
 		expect(count(rotation, serpentStingTrainer)).toBeGreaterThan(0);
+		expect(count(rotation, hawkTrainer)).toBe(castsHawk ? 1 : 0);
 		expect(count(rotation, serpentStingBook) + count(rotation, hawkBook)).toBe(0);
 	});
 
 	it('casts the class book ranks when both toggles are on', () => {
-		const book = generate({ playstyle, useSerpentStingRank9: true, useAspectOfTheHawkRank7: true });
+		const book = generate({ ...simple, useSerpentStingRank9: true, useAspectOfTheHawkRank7: true });
 		expect(count(book, serpentStingBook)).toBeGreaterThan(0);
+		expect(count(book, hawkBook)).toBe(castsHawk ? 1 : 0);
 		expect(count(book, serpentStingTrainer) + count(book, hawkTrainer)).toBe(0);
 	});
 
@@ -48,8 +51,8 @@ describe.each([
 		['useSerpentStingRank9', serpentStingTrainer, serpentStingBook],
 		['useAspectOfTheHawkRank7', hawkTrainer, hawkBook],
 	] as const)('%s moves only its own spell', (field, trainerId, bookId) => {
-		const trainer = generate({ playstyle });
-		const book = generate({ playstyle, [field]: true });
+		const trainer = generate(simple);
+		const book = generate({ ...simple, [field]: true });
 		expect(spellIds(book).map(id => (id === bookId ? trainerId : id))).toEqual(spellIds(trainer));
 	});
 });

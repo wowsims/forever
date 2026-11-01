@@ -661,10 +661,8 @@ func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
 	}
 }
 
-// One combo per pet family, fully trained.
-// The default rotation with its "Melee weave" variable turned off: the hunter stays at range.
 // The trainer's top rank of Aspect of the Hawk takes the book rank's place and procs Quick Shots under Deadly
-// Aspects, and one rank of Serpent Sting drops the other.
+// Aspects. The book rank of Serpent Sting replaces the trainer's, and the trainer's does not land under it.
 func TestTrainerRanksBesideBookRanks(t *testing.T) {
 	sim, hunter := newTalentSim("5", proto.HunterOptions_PetNone)
 	target := hunter.CurrentTarget
@@ -694,15 +692,19 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 
 	trainerSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingTrainerRank.ID}).Dot(target)
 	bookSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}).Dot(target)
-	dropOtherSting(sim, bookSting.Aura)
-	bookSting.Apply(sim)
-	dropOtherSting(sim, trainerSting.Aura)
 	trainerSting.Apply(sim)
-	if bookSting.IsActive() {
-		t.Error("the trainer's Serpent Sting landed beside the book rank, want it dropped")
+	bookSting.Apply(sim)
+	if trainerSting.IsActive() || !bookSting.IsActive() {
+		t.Error("the book rank's Serpent Sting left the trainer's up, want it to replace the trainer's")
+	}
+	trainerSting.Apply(sim)
+	if trainerSting.IsActive() || !bookSting.IsActive() {
+		t.Error("the trainer's Serpent Sting landed under the book rank, want it refused")
 	}
 }
 
+// One combo per pet family, fully trained.
+// The default rotation with its "Melee weave" variable turned off: the hunter stays at range.
 func stopWeaving(rotation *proto.APLRotation) {
 	setVariable(rotation, "Melee weave", "false")
 }

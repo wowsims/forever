@@ -52,7 +52,8 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   teaches nothing here. The raid's `battle_shout` has four states (off, Rank 6, Rank 7, Rank 7 with the tier 2
   set; no Rank 6 with the set), and the warrior's own copies are labelled by rank.** `ui/sim/proto/apl_utils.ts`,
   `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`, `sim/warrior/revenge.go`,
-  `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, PR #736, PR #746.
+  `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, `sim/hunter/serpent_sting.go`, `sim/hunter/aspects.go`,
+  `sim/shaman/totems.go`, PR #736, PR #746, PR #794.
 - **Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is spent
   (`OnExpire` calls `CD.Use`) though the row has no cooldown-on-event bit.** `sim/priest/devouring_plague.go`,
   `sim/priest/talents_discipline.go`, PR #246.

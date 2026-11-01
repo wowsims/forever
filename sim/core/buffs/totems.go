@@ -5,21 +5,21 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A totem's own rank is the generated row on the rank's buff spell, labelled with the rank so that two ranks on
-// one unit never share an aura. Both bid in the row's category.
-func totemRankMeta(generated *Meta, rank *spelldata.Spell) *Meta {
+// A caster's own copy of a lower rank of a totem: the generated row on the rank's buff spell, labelled with the rank
+// so that two ranks on one unit never share an aura. Both bid in the row's category.
+func newTotemRankAura(unit *core.Unit, generated *Meta, rank *spelldata.Spell) *core.Aura {
 	m := *generated
-	m.Label = rank.RankedName()
+	m.Label += " " + rank.Rank
 	m.Spell = rank
-	return &m
+	return newBuff(unit, &m, true, 0)
 }
 
-func NewSpellDataStrengthOfEarthTotemRankAura(unit *core.Unit, isPlayer bool, rank *spelldata.Spell) *core.Aura {
-	return newBuff(unit, totemRankMeta(strengthOfEarthTotemMeta, rank), isPlayer, 0)
+func NewStrengthOfEarthTotemRankAura(unit *core.Unit, rank *spelldata.Spell) *core.Aura {
+	return newTotemRankAura(unit, strengthOfEarthTotemMeta, rank)
 }
 
-func NewSpellDataGraceOfAirTotemRankAura(unit *core.Unit, isPlayer bool, rank *spelldata.Spell) *core.Aura {
-	return newBuff(unit, totemRankMeta(graceOfAirTotemMeta, rank), isPlayer, 0)
+func NewGraceOfAirTotemRankAura(unit *core.Unit, rank *spelldata.Spell) *core.Aura {
+	return newTotemRankAura(unit, graceOfAirTotemMeta, rank)
 }
 
 // A totem stands for the fight, and a true pet stands under each of its owner's totems whose aura a

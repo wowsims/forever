@@ -262,6 +262,7 @@ export const RotationInputs = {
 			fieldName: 'useAspectOfTheHawkRank7',
 			label: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.tooltip'),
+			showWhen: isRanged,
 		}),
 	],
 };
