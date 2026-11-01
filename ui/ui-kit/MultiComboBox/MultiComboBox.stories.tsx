@@ -66,6 +66,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {};
+export const Sizes: Story = {
+	render: args => (
+		<div className="flex flex-col gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<MultiComboBoxStory key={size} {...args} id={`multi-combo-box-${size}`} label={`Area Types (${size})`} size={size} />
+			))}
+		</div>
+	),
+};
 export const WithPicks: Story = {
 	args: { value: [2, 7] },
 	play: async ({ args, canvasElement }) => {

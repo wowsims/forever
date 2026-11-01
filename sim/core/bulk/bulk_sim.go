@@ -81,7 +81,9 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 	}
 
 	topResults := int(request.TopResults)
-	if topResults <= 0 {
+	if request.AllResults {
+		topResults = len(candidates)
+	} else if topResults <= 0 {
 		topResults = BulkSimDefaultTopResults
 	}
 
@@ -107,7 +109,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 	var latestResults []*BulkSimCandidateResult
 
 	var carry *bulkSimStageCarryOver
-	singleStage := shouldUseSingleStageBulkSim(len(candidates))
+	singleStage := shouldUseSingleStageBulkSim(len(candidates), topResults)
 	// Culling intervals are corrected for how many candidates the run started with,
 	// not for how many are left: the survivors were themselves selected by the same
 	// noisy metric, so recomputing the correction on the shrinking set would weaken
@@ -126,7 +128,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 		if singleStage && stageConfig.Stage != proto.BulkSimStage_BulkSimStageHigh {
 			continue
 		}
-		if !shouldRunBulkSimStage(stageConfig, len(candidates)) {
+		if !shouldRunBulkSimStage(stageConfig, len(candidates), topResults) {
 			continue
 		}
 
@@ -149,7 +151,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 		setBulkSimStageTiming(result.Timings, stageConfig.Stage, stageResult.Metrics.DurationSeconds)
 
 		if stageConfig.MaxSurvivors > 0 {
-			candidates = selectBulkSimSurvivors(stageResult.Results, stageResult.Baseline, stageResult.Iterations, stageConfig, originalCandidateCount)
+			candidates = selectBulkSimSurvivors(stageResult.Results, stageResult.Baseline, stageResult.Iterations, stageConfig, originalCandidateCount, topResults)
 			stageResult.Metrics.Survivors = int32(len(candidates))
 		}
 		log.Printf("[Bulk Sim] %s", formatBulkSimStageSummary("Finished", stageResult.Metrics, len(stageResult.Results)))

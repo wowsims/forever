@@ -23,6 +23,7 @@ import {
 	Race,
 	Spec,
 	Stat,
+	Target,
 	UnitReference,
 	UnitStats,
 	WeaponSkill,
@@ -999,6 +1000,29 @@ export class Player<SpecType extends Spec> {
 		}
 	}
 
+	// The rotation for simming `rotation` with `talentsString` and `gear` in place of the player's own. The
+	// generators run on a view whose slice reports those talents and that gear, whose rotation is the given one
+	// and whose parsed-talents cache starts empty, so the player itself is never written.
+	getResolvedAplRotationForBuild({ talentsString, gear, rotation }: { talentsString: string; gear: Gear; rotation: APLRotation }): APLRotation {
+		const view: Player<SpecType> = Object.create(this, {
+			slice: { value: () => ({ ...this.slice(), talentsString, gear }) },
+			aplRotation_: { value: rotation },
+			talents: { value: null, writable: true },
+		});
+		return view.getResolvedAplRotation(true);
+	}
+
+	// The consumables getConsumes(true) gives with `fields` in place of the player's own, worked out on a view whose slice
+	// reports them, so the player itself is never written.
+	getConsumesFor(fields: Pick<PlayerSlice, 'race' | 'profession1' | 'profession2' | 'prof1Rank' | 'prof2Rank' | 'consumables'>): ConsumesSpec {
+		const current = this.slice();
+		const view: Player<SpecType> = Object.create(this, {
+			slice: { value: () => ({ ...current, ...fields }) },
+			relevantConsumablesCache: { value: null, writable: true },
+		});
+		return view.getConsumes(true);
+	}
+
 	getTalents(): SpecTalents<SpecType> {
 		if (this.talents == null) {
 			this.talents = playerTalentStringToProto(this.playerSpec, this.getTalentsString()) as SpecTalents<SpecType>;
@@ -1114,8 +1138,7 @@ export class Player<SpecType extends Spec> {
 		this.setWeaponSkills(value == MAX_WEAPON_SKILL ? others : [...others, WeaponSkillValue.create({ skill, value })]);
 	}
 
-	setDefaultHealingParams(hm: HealingModel) {
-		const boss = this.sim.encounter.primaryTarget;
+	setDefaultHealingParams(hm: HealingModel, boss: Target = this.sim.encounter.primaryTarget) {
 		const dualWield = boss.dualWield;
 		if (hm.cadenceSeconds == 0) {
 			let maxCadence = 1.5 * boss.swingSpeed;
@@ -1147,16 +1170,21 @@ export class Player<SpecType extends Spec> {
 		return HealingModel.clone(this.slice().healingModel);
 	}
 
+	// The healing model setHealingModel stores for `healingModel` when `boss` is the primary target.
+	getHealingModelFor(healingModel: HealingModel, boss: Target): HealingModel {
+		// Make a defensive copy
+		const filled = HealingModel.clone(healingModel);
+		// If we have enabled healing model and try to set 0s cadence or 0 incoming HPS, then set intelligent defaults instead based on boss parameters.
+		if (this.healingEnabled) {
+			this.setDefaultHealingParams(filled, boss);
+		}
+		return filled;
+	}
+
 	setHealingModel(newHealingModel: HealingModel) {
 		if (HealingModel.equals(this.slice().healingModel, newHealingModel)) return;
 
-		// Make a defensive copy
-		const healingModel = HealingModel.clone(newHealingModel);
-		// If we have enabled healing model and try to set 0s cadence or 0 incoming HPS, then set intelligent defaults instead based on boss parameters.
-		if (this.healingEnabled) {
-			this.setDefaultHealingParams(healingModel);
-		}
-		this.patch('healingModel', healingModel);
+		this.patch('healingModel', this.getHealingModelFor(newHealingModel, this.sim.encounter.primaryTarget));
 	}
 
 	computeStatsEP(stats?: Stats): number {

@@ -15,9 +15,9 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { createBulkGearData } from '../../model/gear_data';
-import { removeBulkItemByIndex } from '../../model/items';
-import { frozenItemSlot } from '../../model/picker_groups';
+import { createBulkGearData } from '../../model/gear/gear_data';
+import { removeBulkItemByIndex } from '../../model/gear/items';
+import { frozenItemSlot } from '../../model/gear/picker_groups';
 
 export type BulkItemPickerState = 'frozen' | 'equipped' | 'editable';
 

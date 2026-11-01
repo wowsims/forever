@@ -19,7 +19,6 @@ const TextField = <V,>({
 	placeholder,
 	autoComplete,
 	inputClassName,
-	inputSize,
 	inputTestId,
 	className,
 	testId,
@@ -54,13 +53,13 @@ const TextField = <V,>({
 			ref={attachInput}
 			id={frameProps.id}
 			className={clsx(!rooted && ['ui-text-field', className], inputClassName)}
-			inputSize={inputSize}
+			size={frameProps.size}
 			data-testid={inputTestId ?? (rooted ? undefined : testId)}
 			disabled={disabled}
 			placeholder={placeholder}
 			autoComplete={autoComplete}
 			value={text}
-			size={autosize ? Math.max(3, text.length) : undefined}
+			htmlSize={autosize ? Math.max(3, text.length) : undefined}
 			onChange={event => {
 				// React also reports the native `change` event here, which is the blur/Enter commit above; only a keystroke is a draft.
 				if (event.nativeEvent.type !== 'input') return;

@@ -52,6 +52,16 @@ export const WithStepsBelowBar: Story = {
 	},
 };
 
+export const LongSteps: Story = {
+	args: {
+		hasProgressBar: true,
+		ref: pushSample,
+		onCancel: fn(),
+		belowBar: <ProgressStepList labels={Array.from({ length: 40 }, (_, index) => `Patchwerk · ${index + 1}:00 ±30s · 1 target`)} running={12} />,
+		state: { stage: 'running', message: '1,200 / 4,000 iterations complete' },
+	},
+};
+
 export const WithWarning: Story = {
 	args: {
 		title: 'Optimizing Gear',

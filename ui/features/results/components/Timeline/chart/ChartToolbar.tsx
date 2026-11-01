@@ -28,13 +28,7 @@ export const ChartToolbar = ({ onReset, onZoomIn, onZoomOut, onPanLeft, onPanRig
 			{buttons.map(button => {
 				const label = i18n.t(`results_tab.details.timeline.chart_options.${button.key}`);
 				return (
-					<Button
-						key={button.key}
-						size="sm"
-						variant="outline-primary"
-						aria-label={label}
-						onClick={button.run}
-						{...tooltipAnchorProps(tooltipId, label)}>
+					<Button key={button.key} variant="outline-primary" aria-label={label} onClick={button.run} {...tooltipAnchorProps(tooltipId, label)}>
 						<Icon name={button.icon} />
 					</Button>
 				);
