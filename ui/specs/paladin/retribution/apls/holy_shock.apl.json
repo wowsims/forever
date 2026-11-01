@@ -9,6 +9,13 @@
 		},
 		{
 			"action": {
+				"condition": { "spellIsKnown": { "spellId": { "itemId": 9449 } } },
+				"itemSwap": { "swapSet": "Swap1" }
+			},
+			"doAtValue": { "const": { "val": "-30s" } }
+		},
+		{
+			"action": {
 				"move": {
 					"rangeFromTarget": {
 						"variableRef": { "name": "Pull range" }
@@ -341,7 +348,7 @@
 						"condition": {
 							"variableRef": { "name": "Should swap from MCP" }
 						},
-						"itemSwap": { "swapSet": "Swap1" }
+						"itemSwap": { "swapSet": "Main" }
 					}
 				},
 				{
@@ -349,7 +356,7 @@
 						"condition": {
 							"variableRef": { "name": "Should swap to MCP" }
 						},
-						"itemSwap": { "swapSet": "Main" }
+						"itemSwap": { "swapSet": "Swap1" }
 					}
 				}
 			]
@@ -404,7 +411,7 @@
 				"and": {
 					"vals": [
 						{ "variableRef": { "name": "Should swap" } },
-						{ "activeItemSwapSet": { "swapSet": "Main" } },
+						{ "activeItemSwapSet": { "swapSet": "Swap1" } },
 						{
 							"cmp": {
 								"op": "OpGt",
@@ -426,7 +433,7 @@
 				"and": {
 					"vals": [
 						{ "variableRef": { "name": "Should swap" } },
-						{ "activeItemSwapSet": { "swapSet": "Swap1" } },
+						{ "activeItemSwapSet": { "swapSet": "Main" } },
 						{
 							"cmp": {
 								"op": "OpLe",
