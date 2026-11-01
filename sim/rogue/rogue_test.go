@@ -141,6 +141,52 @@ func TestRemorselessAttacksCritsTheStrikeAfterAKill(t *testing.T) {
 	}
 }
 
+// A miss, dodge or parry of the strike spends Remorseless as a landed one does, and the landed strike
+// still rolls its crit with the bonus.
+func TestRemorselessAttacksSpendsOnAvoidedStrikesAndCritsLandedOnes(t *testing.T) {
+	sim, rogue := newTwoTargetSim("01")
+	target := sim.Encounter.AllTargetUnits[1]
+	buff := rogue.GetAuraByID(core.ActionID{SpellID: remorselessRank.ID})
+	strike := rogue.SinisterStrike
+	table := rogue.AttackTables[target.UnitIndex].Hand(strike)
+	bonus := spellData.RemorselessAttacks.Rank(1).EffectN(1).BaseValue()
+	table.BaseMissChance, table.BaseDodgeChance, table.BaseParryChance, table.BaseBlockChance = 0, 0, 0, 0
+
+	for _, c := range []struct {
+		name string
+		set  func()
+	}{
+		{"a miss", func() { table.BaseMissChance = 1 }},
+		{"a dodge", func() { table.BaseDodgeChance = 1 }},
+		{"a parry", func() { table.BaseParryChance = 1 }},
+	} {
+		c.set()
+		buff.Activate(sim)
+		strike.SkipCastAndApplyEffects(sim, target)
+		if buff.IsActive() || strike.BonusCritPercent != 0 {
+			t.Errorf("after %s Remorseless is up %v at %v crit, want gone and 0", c.name, buff.IsActive(), strike.BonusCritPercent)
+		}
+		table.BaseMissChance, table.BaseDodgeChance, table.BaseParryChance = 0, 0, 0
+	}
+
+	const casts = 2000
+	critRate := func(withBuff bool) float64 {
+		before := strike.SpellMetrics[target.UnitIndex].Crits
+		for range casts {
+			buff.Deactivate(sim)
+			if withBuff {
+				buff.Activate(sim)
+			}
+			strike.SkipCastAndApplyEffects(sim, target)
+		}
+		return float64(strike.SpellMetrics[target.UnitIndex].Crits-before) / casts
+	}
+	with, without := critRate(true), critRate(false)
+	if with-without < bonus/200 {
+		t.Errorf("landed strikes crit %v with Remorseless and %v without, want the bonus of %v points on top", with, without, bonus)
+	}
+}
+
 // Quietus reads the health of each strike's own target: the bonus is on for a strike at a target
 // below its threshold and off for one at a target above it.
 func TestQuietusFollowsTheStrikesTarget(t *testing.T) {

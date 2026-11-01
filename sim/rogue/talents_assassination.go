@@ -66,7 +66,15 @@ func (rogue *Rogue) registerRemorselessAttacks() {
 	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
 		aura.SetStacks(sim, aura.MaxStacks)
 	})
-	spelldata.AttachChargeSpender(&rogue.Character, buff, remorselessRank, "Remorseless Attacks - Spend")
+	// A miss, dodge or parry of a qualifying strike spends the charge as a landed one does.
+	spelldata.AttachChargeSpender(&rogue.Character, buff, remorselessRank, "Remorseless Attacks - Spend",
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnCastResult
+			trigger.Outcome = core.OutcomeEmpty
+			trigger.RequireDamageDealt = false
+			trigger.RequireDamageComponent = false
+			trigger.TriggerImmediately = true
+		})
 
 	rogue.MakeProcTriggerAura(spelldata.ProcTrigger(&rogue.Character,
 		spellData.RemorselessAttacks.Rank(rogue.Talents.RemorselessAttacks),
