@@ -10927,6 +10927,15 @@
 										"copy_icon_description": {
 											"type": "string"
 										},
+										"rating_conversion": {
+											"type": "string"
+										},
+										"rating_tooltip_label": {
+											"type": "string"
+										},
+										"rating_disclaimer": {
+											"type": "string"
+										},
 										"stat": {
 											"type": "string"
 										},
@@ -11195,6 +11204,9 @@
 										"reference_description",
 										"current_ep_description",
 										"copy_icon_description",
+										"rating_conversion",
+										"rating_tooltip_label",
+										"rating_disclaimer",
 										"stat",
 										"update",
 										"ep_ratio",

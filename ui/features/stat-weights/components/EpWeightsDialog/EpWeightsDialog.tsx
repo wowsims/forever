@@ -257,6 +257,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 					</ContentBlock>
 				</DialogColumns.Sidebar>
 			</DialogColumns.Root>
+			<p className="mt-2 mb-0 text-xs text-muted">{i18n.t('sidebar.buttons.stat_weights.modal.rating_disclaimer')}</p>
 			<Tooltip id={EP_TOOLTIP_ID} />
 			{isRunning && (
 				<ProgressTrackerDialog

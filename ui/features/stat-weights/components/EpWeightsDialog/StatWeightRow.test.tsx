@@ -12,6 +12,16 @@ import { describe, expect, it, vi } from 'vitest';
 import { emptyStatWeightsResult } from '../../model/ep_math';
 import { StatWeightRow, StatWeightRowView, type StatWeightRowViewProps } from './StatWeightRow';
 
+vi.mock('@i18n/config', () => ({
+	default: {
+		t: (key: string, options?: { ratingPerPercent?: number; statName?: string }) => {
+			if (key.endsWith('.rating_conversion')) return `${options?.ratingPerPercent} ${options?.statName} = 1%.`;
+			if (key.endsWith('.rating_tooltip_label')) return 'Rating conversion details';
+			return key;
+		},
+	},
+}));
+
 const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
 // The settings are the real class on a real store, so the toggle goes through the same store write
@@ -97,6 +107,12 @@ describe('StatWeightRow', () => {
 });
 
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
+const RATING_STATS = [
+	[Stat.StatHitRating, 'Hit Rating', '10'],
+	[Stat.StatCritRating, 'Crit Rating', '14'],
+	[Stat.StatHasteRating, 'Haste Rating', '10'],
+	[Stat.StatExpertiseRating, 'Expertise Rating', '10'],
+] as const;
 
 const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 	render(
@@ -119,6 +135,20 @@ const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 	);
 
 describe('StatWeightRowView', () => {
+	it.each(RATING_STATS)('shows the Rating conversion tooltip for %s', (stat, name, ratingPerPercent) => {
+		const unitStat = UnitStat.fromStat(stat);
+		const { getByLabelText } = renderRow({ stat: unitStat, fullName: name });
+		const tooltipTrigger = getByLabelText('Rating conversion details');
+
+		expect(tooltipTrigger.getAttribute('data-tooltip-content')).toContain(`${ratingPerPercent} ${name} = 1%.`);
+		expect(tooltipTrigger.getAttribute('data-tooltip-content')).not.toContain('Stat weights');
+	});
+
+	it('does not show a Rating tooltip for non-rating stats', () => {
+		const { queryByLabelText } = renderRow();
+		expect(queryByLabelText('Rating conversion details')).toBeNull();
+	});
+
 	it('names the row, and ids its two inputs from the sanitised names', () => {
 		const onChange = vi.fn();
 		const { container, getByText } = renderRow({ include: { value: true, disabled: false, onChange } });

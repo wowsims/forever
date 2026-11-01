@@ -1,5 +1,6 @@
 import type { StatWeightsResult, StatWeightValues } from '@generated/proto/api';
-import type { Stat } from '@generated/proto/common';
+import { Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import type { DisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import type { Player } from '@sim/player/player';
@@ -9,11 +10,16 @@ import { subscribeStatWeightsChange } from '@sim/state/subscriptions';
 import { sanitizeId } from '@sim/utils/format';
 import { roundFloat } from '@sim/utils/math';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
+import { Icon } from '@ui-kit/Icon';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { NumberField } from '@ui-kit/TextField';
+import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
+import { useId } from 'react';
 
 import { StatWeightCells } from './StatWeightCells';
+
+const RATING_STATS = new Set([Stat.StatHitRating, Stat.StatCritRating, Stat.StatHasteRating, Stat.StatExpertiseRating]);
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
 export interface StatWeightRowMetric {
@@ -61,10 +67,35 @@ export const StatWeightRowView = ({
 }: StatWeightRowViewProps) => {
 	const cellClassName = clsx('ui-ep-weights-table-cell', showThreatMetrics && 'max-lg:pl-0');
 	const ratingScale = stat.epRatingScale();
+	const ratingTooltipId = useId();
+	const ratingStat = stat.isStat() && RATING_STATS.has(stat.getStat());
+	const ratingTooltip = ratingStat
+		? i18n.t('sidebar.buttons.stat_weights.modal.rating_conversion', {
+				ratingPerPercent: stat.convertPercentToRating(1),
+				statName: fullName,
+			})
+		: undefined;
 
 	return (
 		<TableRow>
-			<TableCell className={cellClassName}>{fullName}</TableCell>
+			<TableCell className={cellClassName}>
+				{ratingStat ? (
+					<>
+						<span className="inline-flex items-center gap-1">
+							{fullName}
+							<Icon
+								name="circle-question"
+								style="regular"
+								title={i18n.t('sidebar.buttons.stat_weights.modal.rating_tooltip_label')}
+								{...tooltipAnchorProps(ratingTooltipId, ratingTooltip)}
+							/>
+						</span>
+						<Tooltip id={ratingTooltipId} />
+					</>
+				) : (
+					fullName
+				)}
+			</TableCell>
 			{showUpdateColumn && (
 				<TableCell testId="swcalc-include-toggle" className={cellClassName}>
 					{include && (
