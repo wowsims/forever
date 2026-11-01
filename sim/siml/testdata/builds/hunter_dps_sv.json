@@ -168,6 +168,39 @@
 							"val": "-19s"
 						}
 					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Sniper Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1310786,
+								"rank": 3
+							}
+						}
+					},
+					"doAtValue": {
+						"math": {
+							"op": "OpMul",
+							"lhs": {
+								"spellCastTime": {
+									"spellId": {
+										"spellId": 1310786,
+										"rank": 3
+									}
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "-1"
+								}
+							}
+						}
+					}
 				}
 			],
 			"priorityList": [
@@ -216,21 +249,6 @@
 				{
 					"action": {
 						"condition": {
-							"variableRef": {
-								"name": "Use Aimed Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 20904,
-								"rank": 6
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
 							"not": {
 								"val": {
 									"dotIsActive": {
@@ -246,47 +264,6 @@
 							"spellId": {
 								"spellId": 25295,
 								"rank": 9
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"and": {
-								"vals": [
-									{
-										"variableRef": {
-											"name": "Use Sniper Shot"
-										}
-									},
-									{
-										"or": {
-											"vals": [
-												{
-													"auraIsActive": {
-														"auraId": {
-															"spellId": 3045
-														}
-													}
-												},
-												{
-													"auraIsActive": {
-														"auraId": {
-															"spellId": 6150
-														}
-													}
-												}
-											]
-										}
-									}
-								]
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 1310786,
-								"rank": 3
 							}
 						}
 					}
@@ -438,12 +415,43 @@
 					"action": {
 						"condition": {
 							"variableRef": {
+								"name": "Use Aimed Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 20904,
+								"rank": 6
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
 								"name": "Use Multi-Shot"
 							}
 						},
 						"castSpell": {
 							"spellId": {
 								"spellId": 2643
+							}
+						}
+					}
+				},
+				{
+					"notes": "The least damage per second of casting, so it waits until none of the shots above is ready.",
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Sniper Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1310786,
+								"rank": 3
 							}
 						}
 					}
@@ -567,7 +575,7 @@
 					"name": "Use Sniper Shot",
 					"value": {
 						"const": {
-							"val": "false"
+							"val": "true"
 						}
 					}
 				},
