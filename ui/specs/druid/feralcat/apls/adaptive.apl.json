@@ -197,21 +197,6 @@
       }
     },
     {
-      "notes": "Berserk before a builder; pool energy or use Clearcasting for later uses",
-      "action": {
-        "condition": {
-          "variableRef": {
-            "name": "Ready to use Berserk"
-          }
-        },
-        "castSpell": {
-          "spellId": {
-            "spellId": 417141
-          }
-        }
-      }
-    },
-    {
       "notes": "Prowl is active: open with Ravage",
       "action": {
         "condition": {
@@ -304,7 +289,7 @@
       }
     },
     {
-      "notes": "Elune\u2019s Light is available, outside Berserk and away from its next use",
+      "notes": "Use Elune’s Light when available",
       "action": {
         "condition": {
           "variableRef": {
@@ -319,7 +304,7 @@
       }
     },
     {
-      "notes": "With 2/2 Blood Frenzy, Bite spare combo points while Rip has time remaining",
+      "notes": "With Predatory Discipline, pool for Bite while Rip has time left; use the smaller pool at five combo points",
       "action": {
         "condition": {
           "variableRef": {
@@ -417,16 +402,31 @@
           "and": {
             "vals": [
               {
-                "auraIsActive": {
-                  "auraId": {
-                    "spellId": 768
-                  }
+                "and": {
+                  "vals": [
+                    {
+                      "auraIsActive": {
+                        "auraId": {
+                          "spellId": 768
+                        }
+                      }
+                    },
+                    {
+                      "auraIsActive": {
+                        "auraId": {
+                          "spellId": 16870
+                        }
+                      }
+                    }
+                  ]
                 }
               },
               {
-                "auraIsActive": {
-                  "auraId": {
-                    "spellId": 16870
+                "not": {
+                  "val": {
+                    "variableRef": {
+                      "name": "Pool energy for Bite"
+                    }
                   }
                 }
               }
@@ -497,34 +497,18 @@
       }
     },
     {
-      "notes": "Shred with spare energy outside Berserk, unless pooling for its next use",
+      "notes": "Build combo points when affordable unless pooling for Bite",
       "action": {
         "condition": {
           "and": {
             "vals": [
               {
-                "auraIsActive": {
-                  "auraId": {
-                    "spellId": 768
-                  }
-                }
-              },
-              {
-                "not": {
-                  "val": {
-                    "variableRef": {
-                      "name": "Pool for followup Berserk"
-                    }
-                  }
-                }
-              },
-              {
-                "or": {
+                "and": {
                   "vals": [
                     {
                       "auraIsActive": {
                         "auraId": {
-                          "spellId": 417141
+                          "spellId": 768
                         }
                       }
                     },
@@ -532,7 +516,7 @@
                       "cmp": {
                         "op": "OpGe",
                         "lhs": {
-                          "druidExcessEnergy": {}
+                          "currentEnergy": {}
                         },
                         "rhs": {
                           "spellCurrentCost": {
@@ -544,6 +528,15 @@
                       }
                     }
                   ]
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "variableRef": {
+                      "name": "Pool energy for Bite"
+                    }
+                  }
                 }
               }
             ]
@@ -557,31 +550,24 @@
       }
     },
     {
-      "notes": "Use Claw when Shred cannot land, with the same bleed reserve",
+      "notes": "Use Claw when Shred cannot land, unless pooling for Bite",
       "action": {
         "condition": {
           "and": {
             "vals": [
               {
-                "variableRef": {
-                  "name": "Claw can replace Shred"
-                }
-              },
-              {
-                "or": {
+                "and": {
                   "vals": [
                     {
-                      "auraIsActive": {
-                        "auraId": {
-                          "spellId": 417141
-                        }
+                      "variableRef": {
+                        "name": "Claw can replace Shred"
                       }
                     },
                     {
                       "cmp": {
                         "op": "OpGe",
                         "lhs": {
-                          "druidExcessEnergy": {}
+                          "currentEnergy": {}
                         },
                         "rhs": {
                           "spellCurrentCost": {
@@ -593,6 +579,15 @@
                       }
                     }
                   ]
+                }
+              },
+              {
+                "not": {
+                  "val": {
+                    "variableRef": {
+                      "name": "Pool energy for Bite"
+                    }
+                  }
                 }
               }
             ]
@@ -621,7 +616,6 @@
       }
     }
   ],
-  "groups": [],
   "valueVariables": [
     {
       "name": "Rip target CP",
@@ -643,7 +637,7 @@
       "name": "Rip minimum fight left",
       "value": {
         "const": {
-          "val": "6s"
+          "val": "8s"
         }
       }
     },
@@ -659,7 +653,7 @@
       "name": "Tea energy ceiling",
       "value": {
         "const": {
-          "val": "30"
+          "val": "20"
         }
       }
     },
@@ -692,14 +686,6 @@
       "value": {
         "const": {
           "val": "1s"
-        }
-      }
-    },
-    {
-      "name": "Followup Berserk energy target",
-      "value": {
-        "const": {
-          "val": "90"
         }
       }
     },
@@ -747,15 +733,7 @@
       "name": "Midfight Bite minimum Rip remaining",
       "value": {
         "const": {
-          "val": "5s"
-        }
-      }
-    },
-    {
-      "name": "Midfight Bite energy ceiling",
-      "value": {
-        "const": {
-          "val": "40"
+          "val": "2s"
         }
       }
     },
@@ -764,6 +742,38 @@
       "value": {
         "const": {
           "val": "25"
+        }
+      }
+    },
+    {
+      "name": "Bite energy target",
+      "value": {
+        "const": {
+          "val": "85"
+        }
+      }
+    },
+    {
+      "name": "Bite energy target with Clearcasting",
+      "value": {
+        "const": {
+          "val": "60"
+        }
+      }
+    },
+    {
+      "name": "Five-point Bite energy target",
+      "value": {
+        "const": {
+          "val": "70"
+        }
+      }
+    },
+    {
+      "name": "Five-point Bite energy target with Clearcasting",
+      "value": {
+        "const": {
+          "val": "50"
         }
       }
     },
@@ -937,123 +947,6 @@
       }
     },
     {
-      "name": "A Cat builder is ready",
-      "value": {
-        "and": {
-          "vals": [
-            {
-              "auraIsActive": {
-                "auraId": {
-                  "spellId": 768
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "variableRef": {
-                    "name": "Shifting Power ready"
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "and": {
-                    "vals": [
-                      {
-                        "variableRef": {
-                          "name": "Rip due"
-                        }
-                      },
-                      {
-                        "spellCanCast": {
-                          "spellId": {
-                            "spellId": 9896
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "or": {
-                "vals": [
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "variableRef": {
-                            "name": "Rake due"
-                          }
-                        },
-                        {
-                          "spellCanCast": {
-                            "spellId": {
-                              "spellId": 9904
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "not": {
-                            "val": {
-                              "variableRef": {
-                                "name": "Rake due"
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "or": {
-                            "vals": [
-                              {
-                                "spellCanCast": {
-                                  "spellId": {
-                                    "spellId": 9830
-                                  }
-                                }
-                              },
-                              {
-                                "and": {
-                                  "vals": [
-                                    {
-                                      "variableRef": {
-                                        "name": "Claw can replace Shred"
-                                      }
-                                    },
-                                    {
-                                      "spellCanCast": {
-                                        "spellId": {
-                                          "spellId": 9850
-                                        }
-                                      }
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
       "name": "Final-global Bite",
       "value": {
         "and": {
@@ -1096,113 +989,6 @@
       }
     },
     {
-      "name": "Pool for followup Berserk",
-      "value": {
-        "and": {
-          "vals": [
-            {
-              "spellIsKnown": {
-                "spellId": {
-                  "spellId": 417141
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpGt",
-                "lhs": {
-                  "currentTime": {}
-                },
-                "rhs": {
-                  "const": {
-                    "val": "30s"
-                  }
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "spellTimeToReady": {
-                    "spellId": {
-                      "spellId": 417141
-                    }
-                  }
-                },
-                "rhs": {
-                  "const": {
-                    "val": "0s"
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "auraIsActive": {
-                    "auraId": {
-                      "spellId": 417141
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpGt",
-                "lhs": {
-                  "remainingTime": {}
-                },
-                "rhs": {
-                  "const": {
-                    "val": "15s"
-                  }
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpLt",
-                "lhs": {
-                  "remainingTime": {}
-                },
-                "rhs": {
-                  "const": {
-                    "val": "180s"
-                  }
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpLt",
-                "lhs": {
-                  "currentEnergy": {}
-                },
-                "rhs": {
-                  "variableRef": {
-                    "name": "Followup Berserk energy target"
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "auraIsActive": {
-                    "auraId": {
-                      "spellId": 16870
-                    }
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
       "name": "Ready to return to the main weapon",
       "value": {
         "and": {
@@ -1232,167 +1018,6 @@
                     "auraId": {
                       "spellId": 13494
                     }
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Ready to use Berserk",
-      "value": {
-        "and": {
-          "vals": [
-            {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "gcdTimeToReady": {}
-                },
-                "rhs": {
-                  "const": {
-                    "val": "0s"
-                  }
-                }
-              }
-            },
-            {
-              "spellIsKnown": {
-                "spellId": {
-                  "spellId": 417141
-                }
-              }
-            },
-            {
-              "auraIsActive": {
-                "auraId": {
-                  "spellId": 768
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "spellTimeToReady": {
-                    "spellId": {
-                      "spellId": 417141
-                    }
-                  }
-                },
-                "rhs": {
-                  "const": {
-                    "val": "0s"
-                  }
-                }
-              }
-            },
-            {
-              "spellCanCast": {
-                "spellId": {
-                  "spellId": 417141
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "and": {
-                    "vals": [
-                      {
-                        "variableRef": {
-                          "name": "Final-global Bite"
-                        }
-                      },
-                      {
-                        "spellCanCast": {
-                          "spellId": {
-                            "spellId": 22829
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "or": {
-                "vals": [
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "auraIsActive": {
-                            "auraId": {
-                              "spellId": 9913
-                            }
-                          }
-                        },
-                        {
-                          "spellCanCast": {
-                            "spellId": {
-                              "spellId": 9867
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "not": {
-                            "val": {
-                              "auraIsActive": {
-                                "auraId": {
-                                  "spellId": 9913
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "variableRef": {
-                            "name": "A Cat builder is ready"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "and": {
-                    "vals": [
-                      {
-                        "variableRef": {
-                          "name": "Fight-end Bite is worthwhile"
-                        }
-                      },
-                      {
-                        "spellCanCast": {
-                          "spellId": {
-                            "spellId": 22829
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "variableRef": {
-                    "name": "Pool for followup Berserk"
                   }
                 }
               }
@@ -1614,67 +1239,10 @@
     {
       "name": "Ready to use Elune's Light",
       "value": {
-        "and": {
-          "vals": [
-            {
-              "spellIsKnown": {
-                "spellId": {
-                  "spellId": 1259799
-                }
-              }
-            },
-            {
-              "or": {
-                "vals": [
-                  {
-                    "not": {
-                      "val": {
-                        "spellIsKnown": {
-                          "spellId": {
-                            "spellId": 417141
-                          }
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "and": {
-                      "vals": [
-                        {
-                          "not": {
-                            "val": {
-                              "auraIsActive": {
-                                "auraId": {
-                                  "spellId": 417141
-                                }
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "cmp": {
-                            "op": "OpGt",
-                            "lhs": {
-                              "spellTimeToReady": {
-                                "spellId": {
-                                  "spellId": 417141
-                                }
-                              }
-                            },
-                            "rhs": {
-                              "const": {
-                                "val": "15s"
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+        "spellIsKnown": {
+          "spellId": {
+            "spellId": 1259799
+          }
         }
       }
     },
@@ -1865,16 +1433,27 @@
               }
             },
             {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "currentEnergy": {}
-                },
-                "rhs": {
-                  "variableRef": {
-                    "name": "Fight-end Bite energy ceiling"
+              "or": {
+                "vals": [
+                  {
+                    "variableRef": {
+                      "name": "Predatory Discipline keeps Bite energy"
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "currentEnergy": {}
+                      },
+                      "rhs": {
+                        "variableRef": {
+                          "name": "Fight-end Bite energy ceiling"
+                        }
+                      }
+                    }
                   }
-                }
+                ]
               }
             },
             {
@@ -1928,15 +1507,6 @@
                     "spellId": {
                       "spellId": 9830
                     }
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "variableRef": {
-                    "name": "Pool for followup Berserk"
                   }
                 }
               }
@@ -2064,17 +1634,6 @@
               }
             },
             {
-              "not": {
-                "val": {
-                  "auraIsActive": {
-                    "auraId": {
-                      "spellId": 417141
-                    }
-                  }
-                }
-              }
-            },
-            {
               "cmp": {
                 "op": "OpGe",
                 "lhs": {
@@ -2109,12 +1668,12 @@
             },
             {
               "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
                 "auraId": {
                   "spellId": 9907,
                   "tag": -1
-                },
-                "sourceUnit": {
-                  "type": "CurrentTarget"
                 }
               }
             },
@@ -2383,8 +1942,18 @@
                   "remainingTime": {}
                 },
                 "rhs": {
-                  "const": {
-                    "val": "7s"
+                  "math": {
+                    "op": "OpAdd",
+                    "lhs": {
+                      "variableRef": {
+                        "name": "Rip minimum fight left"
+                      }
+                    },
+                    "rhs": {
+                      "const": {
+                        "val": "1s"
+                      }
+                    }
                   }
                 }
               }
@@ -2437,48 +2006,196 @@
           "vals": [
             {
               "variableRef": {
-                "name": "Two Blood Frenzy points with Shifting Power"
+                "name": "Bite combo points and Rip window"
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "auraIsActive": {
+                                  "auraId": {
+                                    "spellId": 16870
+                                  }
+                                }
+                              },
+                              {
+                                "cmp": {
+                                  "op": "OpGe",
+                                  "lhs": {
+                                    "currentEnergy": {}
+                                  },
+                                  "rhs": {
+                                    "variableRef": {
+                                      "name": "Bite energy target with Clearcasting"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "not": {
+                                  "val": {
+                                    "auraIsActive": {
+                                      "auraId": {
+                                        "spellId": 16870
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "cmp": {
+                                  "op": "OpGe",
+                                  "lhs": {
+                                    "currentEnergy": {}
+                                  },
+                                  "rhs": {
+                                    "variableRef": {
+                                      "name": "Bite energy target"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpGe",
+                            "lhs": {
+                              "currentComboPoints": {}
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "5"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "or": {
+                            "vals": [
+                              {
+                                "and": {
+                                  "vals": [
+                                    {
+                                      "not": {
+                                        "val": {
+                                          "auraIsActive": {
+                                            "auraId": {
+                                              "spellId": 16870
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "cmp": {
+                                        "op": "OpGe",
+                                        "lhs": {
+                                          "currentEnergy": {}
+                                        },
+                                        "rhs": {
+                                          "variableRef": {
+                                            "name": "Five-point Bite energy target"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "and": {
+                                  "vals": [
+                                    {
+                                      "auraIsActive": {
+                                        "auraId": {
+                                          "spellId": 16870
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "cmp": {
+                                        "op": "OpGe",
+                                        "lhs": {
+                                          "currentEnergy": {}
+                                        },
+                                        "rhs": {
+                                          "variableRef": {
+                                            "name": "Five-point Bite energy target with Clearcasting"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "No Blood Frenzy points",
+      "value": {
+        "cmp": {
+          "op": "OpEq",
+          "lhs": {
+            "talentRank": {
+              "talentId": {
+                "spellId": 16958
+              }
+            }
+          },
+          "rhs": {
+            "const": {
+              "val": "0"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Bite combo points and Rip window",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "variableRef": {
+                "name": "Predatory Discipline keeps Bite energy"
               }
             },
             {
               "auraIsActive": {
                 "auraId": {
                   "spellId": 768
-                }
-              }
-            },
-            {
-              "cmp": {
-                "op": "OpGe",
-                "lhs": {
-                  "currentMana": {}
-                },
-                "rhs": {
-                  "spellCurrentCost": {
-                    "spellId": {
-                      "spellId": 1322605
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "variableRef": {
-                    "name": "Pool for followup Berserk"
-                  }
-                }
-              }
-            },
-            {
-              "not": {
-                "val": {
-                  "auraIsActive": {
-                    "auraId": {
-                      "spellId": 16870
-                    }
-                  }
                 }
               }
             },
@@ -2511,16 +2228,26 @@
                   }
                 }
               }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pool energy for Bite",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "variableRef": {
+                "name": "Bite combo points and Rip window"
+              }
             },
             {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "currentEnergy": {}
-                },
-                "rhs": {
+              "not": {
+                "val": {
                   "variableRef": {
-                    "name": "Midfight Bite energy ceiling"
+                    "name": "Midfight Bite is worthwhile"
                   }
                 }
               }
@@ -2530,24 +2257,15 @@
       }
     },
     {
-      "name": "No Blood Frenzy points",
+      "name": "Predatory Discipline keeps Bite energy",
       "value": {
-        "cmp": {
-          "op": "OpEq",
-          "lhs": {
-            "talentRank": {
-              "talentId": {
-                "spellId": 16958
-              }
-            }
-          },
-          "rhs": {
-            "const": {
-              "val": "0"
-            }
+        "talentIsKnown": {
+          "talentId": {
+            "spellId": 1328613
           }
         }
       }
     }
-  ]
+  ],
+  "groups": []
 }

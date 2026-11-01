@@ -3,6 +3,8 @@ import type { IndividualSimHost } from '@sim/sim_host';
 export interface ImporterDefinition {
 	title: string;
 	allowFileUpload?: boolean;
+	/** The text is a link, which a plain box takes; a data file gets the code box. */
+	holdsLink?: boolean;
 	/**
 	 * Throw to report a problem; the shell shows it as the error toast, or an `ImportProblems` as a list under the
 	 * text. `fileName` is the name of the file the text was uploaded from, and none for pasted text. `signal` is

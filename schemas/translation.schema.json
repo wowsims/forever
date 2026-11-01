@@ -405,37 +405,12 @@
 						"dungeon": {
 							"type": "string"
 						},
-						"dungeon_h": {
-							"type": "string"
-						},
 						"raid": {
-							"type": "string"
-						},
-						"raid_h": {
-							"type": "string"
-						},
-						"raid_rf": {
-							"type": "string"
-						},
-						"raid_flex": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": [
-						"unknown",
-						"crafting",
-						"quest",
-						"sold_by",
-						"reputation",
-						"pvp",
-						"dungeon",
-						"dungeon_h",
-						"raid",
-						"raid_h",
-						"raid_rf",
-						"raid_flex"
-					]
+					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid"]
 				},
 				"raids": {
 					"type": "object",
@@ -1100,6 +1075,19 @@
 					"additionalProperties": false,
 					"required": ["default_text", "copied", "manual_copy"]
 				},
+				"code_text_area": {
+					"type": "object",
+					"properties": {
+						"position_one": {
+							"type": "string"
+						},
+						"position_other": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["position_one", "position_other"]
+				},
 				"list_picker": {
 					"type": "object",
 					"properties": {
@@ -1251,46 +1239,14 @@
 						"unknown": {
 							"type": "string"
 						},
-						"normal": {
+						"dungeon": {
 							"type": "string"
 						},
-						"heroic": {
-							"type": "string"
-						},
-						"celestial": {
-							"type": "string"
-						},
-						"raid_10": {
-							"type": "string"
-						},
-						"raid_10_heroic": {
-							"type": "string"
-						},
-						"raid_finder": {
-							"type": "string"
-						},
-						"raid_25": {
-							"type": "string"
-						},
-						"raid_25_heroic": {
-							"type": "string"
-						},
-						"raid_flex": {
+						"raid": {
 							"type": "string"
 						}
 					},
-					"required": [
-						"unknown",
-						"normal",
-						"heroic",
-						"celestial",
-						"raid_10",
-						"raid_10_heroic",
-						"raid_finder",
-						"raid_25",
-						"raid_25_heroic",
-						"raid_flex"
-					],
+					"required": ["unknown", "dungeon", "raid"],
 					"additionalProperties": false
 				},
 				"rep_levels": {
@@ -1700,6 +1656,7 @@
 				"stats",
 				"currency",
 				"copy_button",
+				"code_text_area",
 				"list_picker",
 				"precision",
 				"preset",
@@ -2151,16 +2108,6 @@
 							"required": ["favorite", "compare", "add_favorite", "remove_favorite", "add_to_batch", "remove_from_batch"],
 							"additionalProperties": false
 						},
-						"sources": {
-							"type": "object",
-							"properties": {
-								"world_drop": {
-									"type": "string"
-								}
-							},
-							"required": ["world_drop"],
-							"additionalProperties": false
-						},
 						"edit_slot": {
 							"type": "string"
 						}
@@ -2192,7 +2139,6 @@
 						"min_ranged_speed",
 						"max_ranged_speed",
 						"row_actions",
-						"sources",
 						"edit_slot"
 					]
 				},
@@ -4036,6 +3982,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"bleed_immune": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"can_crush": {
 							"type": "object",
 							"properties": {
@@ -4835,6 +4794,7 @@
 						"dual_wield",
 						"dual_wield_penalty",
 						"parry_haste",
+						"bleed_immune",
 						"can_crush",
 						"spell_school",
 						"damage_spread",
@@ -6768,6 +6728,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"target_is_bleed_immune": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"target_is_mob_type": {
 									"type": "object",
 									"properties": {
@@ -8332,6 +8305,7 @@
 								"boss_cast",
 								"boss_cast_time_to_ready",
 								"boss_current_target",
+								"target_is_bleed_immune",
 								"target_is_mob_type",
 								"encounter_in_area",
 								"target_is_active",
@@ -9421,7 +9395,7 @@
 											"additionalProperties": false,
 											"required": ["label", "tooltip", "none"]
 										},
-										"non_twist_seal": {
+										"seal": {
 											"type": "object",
 											"properties": {
 												"label": {
@@ -9462,7 +9436,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["aura", "assigned_judge", "non_twist_seal", "pull_range", "delay_major_cds"]
+									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds"]
 								}
 							},
 							"additionalProperties": false,

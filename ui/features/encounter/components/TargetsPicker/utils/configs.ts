@@ -323,21 +323,33 @@ const BOOLEAN_FIELDS: Array<BooleanField> = [
 	},
 ];
 
-export const booleanConfigs = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): Array<BooleanPickerConfig<null>> =>
-	BOOLEAN_FIELDS.map(field => ({
-		id: targetId(idPrefix, field.name),
-		label: i18n.t(`settings_tab.encounter.${field.key}.label`),
-		labelTooltip: i18n.t(`settings_tab.encounter.${field.key}.tooltip`),
-		layout: 'inline',
-		reverse: true,
-		storeSubscribe,
-		getValue: () => field.get(getTarget()),
-		setValue: (_: null, newValue: boolean) => {
-			trackEvent({ action: 'settings', category: 'targets', label: field.label, value: newValue });
-			modifyTarget(target => field.set(target, newValue));
+const booleanConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext, field: BooleanField): BooleanPickerConfig<null> => ({
+	id: targetId(idPrefix, field.name),
+	label: i18n.t(`settings_tab.encounter.${field.key}.label`),
+	labelTooltip: i18n.t(`settings_tab.encounter.${field.key}.tooltip`),
+	layout: 'inline',
+	reverse: true,
+	storeSubscribe,
+	getValue: () => field.get(getTarget()),
+	setValue: (_: null, newValue: boolean) => {
+		trackEvent({ action: 'settings', category: 'targets', label: field.label, value: newValue });
+		modifyTarget(target => field.set(target, newValue));
+	},
+	...(field.enabledWhen ? { enableWhen: () => field.enabledWhen!(getTarget()) } : {}),
+});
+
+export const booleanConfigs = (context: TargetFieldContext): Array<BooleanPickerConfig<null>> => BOOLEAN_FIELDS.map(field => booleanConfig(context, field));
+
+export const bleedImmuneConfig = (context: TargetFieldContext): BooleanPickerConfig<null> =>
+	booleanConfig(context, {
+		name: 'bleed-immune',
+		key: 'bleed_immune',
+		label: 'bleed_immune',
+		get: target => target.bleedImmune,
+		set: (target, value) => {
+			target.bleedImmune = value;
 		},
-		...(field.enabledWhen ? { enableWhen: () => field.enabledWhen!(getTarget()) } : {}),
-	}));
+	});
 
 export const spellSchoolConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'spell-school'),

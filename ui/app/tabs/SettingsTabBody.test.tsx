@@ -1,4 +1,4 @@
-import { BUFFS_CONFIG, DEBUFFS_CONFIG, DEBUFFS_MISC_CONFIG, GreaterBlessingOfSalvation, PARTY_BUFFS_CONFIG } from '@features/settings/model/buffs_debuffs';
+import { BUFFS_CONFIG, DEBUFFS_CONFIG, DEBUFFS_MISC_CONFIG, PARTY_BUFFS_CONFIG } from '@features/settings/model/buffs_debuffs';
 import type { RenderableStatOptions } from '@features/settings/model/stat_options';
 import { withSelection } from '@features/stat-filters/model/stat_filters';
 import { APLRotation } from '@generated/proto/apl';
@@ -122,7 +122,7 @@ describe('SettingsTabBody sections', () => {
 	});
 
 	it('collapses the raid buffs body while the filter hides every stat and no raid buff is picked', async () => {
-		const { sim, player } = await setup({ excludeBuffDebuffInputs: [GreaterBlessingOfSalvation] });
+		const { sim, player } = await setup();
 		expect(section('raid_buffs')?.getAttribute('data-empty')).toBe('false');
 
 		act(() => sim.setFilters(withSelection(sim.getFilters(), 'buffs', [])));
@@ -140,7 +140,7 @@ describe('SettingsTabBody offered flags', () => {
 			.filter(config => 'getValue' in config)
 			.map(config => vi.spyOn(config as { getValue: (player: unknown) => unknown }, 'getValue'));
 		const reads = () => spies.reduce((total, spy) => total + spy.mock.calls.length, 0);
-		const { sim, player } = await setup({ excludeBuffDebuffInputs: [GreaterBlessingOfSalvation] });
+		const { sim, player } = await setup();
 		act(() => sim.setFilters(withSelection(sim.getFilters(), 'buffs', [])));
 		expect(section('raid_buffs')?.getAttribute('data-empty')).toBe('true');
 

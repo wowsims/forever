@@ -48,11 +48,11 @@ import { addPartyBuffItems } from '../proto/buff_items';
 import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem, isPVPItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
-import { AL_CATEGORY_HARD_MODE, emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
+import { emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
 import { MAX_PARTY_SIZE, Party } from '../raid/party';
 import { Raid } from '../raid/raid';
 import { ConsumableSlot, isEnchantRelevantFor, relevantConsumableIds } from '../settings/consumables';
@@ -1215,21 +1215,6 @@ export class Player<SpecType extends Spec> {
 
 	static WEAPON_SLOTS: Array<ItemSlot> = [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand];
 
-	static readonly DIFFICULTY_SRCS: Partial<Record<SourceFilterOption, DungeonDifficulty>> = {
-		[SourceFilterOption.SourceDungeon]: DungeonDifficulty.DifficultyNormal,
-		[SourceFilterOption.SourceDungeonH]: DungeonDifficulty.DifficultyHeroic,
-		[SourceFilterOption.SourceRaidRF]: DungeonDifficulty.DifficultyRaid25RF,
-		[SourceFilterOption.SourceRaid]: DungeonDifficulty.DifficultyRaid25,
-		[SourceFilterOption.SourceRaidH]: DungeonDifficulty.DifficultyRaid25H,
-		[SourceFilterOption.SourceRaidFlex]: DungeonDifficulty.DifficultyRaidFlex,
-	};
-
-	static readonly HEROIC_TO_NORMAL: Partial<Record<DungeonDifficulty, DungeonDifficulty>> = {
-		[DungeonDifficulty.DifficultyHeroic]: DungeonDifficulty.DifficultyNormal,
-		[DungeonDifficulty.DifficultyRaid10H]: DungeonDifficulty.DifficultyRaid10,
-		[DungeonDifficulty.DifficultyRaid25H]: DungeonDifficulty.DifficultyRaid25,
-	};
-
 	static readonly RAID_IDS: Partial<Record<RaidFilterOption, number>> = {
 		[RaidFilterOption.RaidMC]: 2717,
 		[RaidFilterOption.RaidOny]: 2159,
@@ -1285,32 +1270,16 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'rep'));
 		}
 		if (!filters.sources.includes(SourceFilterOption.SourcePvp)) {
-			itemData = filterItems(itemData, item => !isPVPItem(item));
+			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp'));
 		}
 
-		for (const [srcOptionStr, difficulty] of Object.entries(Player.DIFFICULTY_SRCS)) {
-			const srcOption = parseInt(srcOptionStr) as SourceFilterOption;
-
-			if (!filters.sources.includes(srcOption)) {
-				itemData = filterItems(
-					itemData,
-					item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty),
-				);
-
-				if (difficulty == DungeonDifficulty.DifficultyRaid10H || difficulty == DungeonDifficulty.DifficultyRaid25H) {
-					const normalDifficulty = Player.HEROIC_TO_NORMAL[difficulty];
-					itemData = filterItems(
-						itemData,
-						item =>
-							!item.sources.some(
-								itemSrc =>
-									itemSrc.source.oneofKind == 'drop' &&
-									itemSrc.source.drop.difficulty == normalDifficulty &&
-									itemSrc.source.drop.category == AL_CATEGORY_HARD_MODE,
-							),
-					);
-				}
-			}
+		const dropsAt = (item: Item, difficulty: DungeonDifficulty) =>
+			item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty);
+		if (!filters.sources.includes(SourceFilterOption.SourceDungeon)) {
+			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyDungeon));
+		}
+		if (!filters.sources.includes(SourceFilterOption.SourceRaid)) {
+			itemData = filterItems(itemData, item => !dropsAt(item, DungeonDifficulty.DifficultyRaid));
 		}
 
 		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {

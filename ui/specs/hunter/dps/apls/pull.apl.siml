@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+use "common.apl.siml"
+
+// The pull of the rotations that open with no shot: the hunter marks the target, takes its aspect and stands at Pull
+// range when the fight starts.
+prepull:
+  -22s cast hunters_mark
+  -20s cast aspect_of_the_hawk
+  -19s move $pull_range

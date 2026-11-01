@@ -113,8 +113,7 @@
     },
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true,
-      "greaterBlessingOfSalvation": true
+      "greaterBlessingOfWisdom": true
     },
     "warlock": {
       "options": {

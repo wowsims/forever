@@ -1,0 +1,113 @@
+================================================================================
+Nested when blocks end where the indentation does
+================================================================================
+
+priority:
+  cast execute if is_execute_phase(e20)
+  when not is_execute_phase(e20):
+    cast rend if dot(rend).remaining_time <= 1.5s
+    # when aura(battle_stance).is_active:
+      cast overpower
+    # cast spearing_strike
+  cast whirlwind
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step
+        (identifier))
+      (call
+        (identifier)
+        (arguments
+          (identifier))))
+    (when_block
+      (not_expression
+        (call
+          (identifier)
+          (arguments
+            (identifier))))
+      (row
+        (cast_step
+          (identifier))
+        (binary_expression
+          (member
+            (call
+              (identifier)
+              (arguments
+                (identifier)))
+            (identifier))
+          (number)))
+      (when_block
+        (member
+          (call
+            (identifier)
+            (arguments
+              (identifier)))
+          (identifier))
+        (row
+          (cast_step
+            (identifier))))
+      (row
+        (cast_step
+          (identifier))))
+    (row
+      (cast_step
+        (identifier)))))
+
+================================================================================
+A when line on several lines, and a body that a header ends
+================================================================================
+
+group "G":
+  when $a
+      and $b:
+    cast x
+group "H":
+  cast y
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (group_section
+    (string)
+    (when_block
+      (binary_expression
+        (variable)
+        (variable))
+      (row
+        (cast_step
+          (identifier)))))
+  (group_section
+    (string)
+    (row
+      (cast_step
+        (identifier)))))
+
+================================================================================
+An empty when body, and one the end of the file ends
+================================================================================
+
+priority:
+  when $a:
+  cast x
+  when $b:
+    cast y
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (when_block
+      (variable))
+    (row
+      (cast_step
+        (identifier)))
+    (when_block
+      (variable)
+      (row
+        (cast_step
+          (identifier))))))

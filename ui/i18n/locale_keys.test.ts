@@ -20,6 +20,9 @@ const bundle = (locale: string, namespace: string): unknown => JSON.parse(readFi
 const resolve = (node: unknown, key: string): unknown =>
 	key.split('.').reduce<unknown>((current, part) => (current && typeof current === 'object' ? (current as Record<string, unknown>)[part] : undefined), node);
 
+/** The key itself, or its plural forms: a key asked for with a `count` lives as `key_one` and `key_other`. */
+const resolveKey = (node: unknown, key: string): unknown => resolve(node, key) ?? resolve(node, `${key}_other`);
+
 /** A literal `i18n.t('a.b')`, with the namespace from an `{ ns: 'x' }` option when one is given. */
 const requests = (): Array<{ key: string; namespace: string; file: string }> => {
 	const pattern = /i18n\.t\(\s*'([^']+)'([^)]*)\)/g;
@@ -41,7 +44,7 @@ describe('locale keys', () => {
 			LOCALES.flatMap(locale => [...new Set(requests().map(r => r.namespace))].map(ns => [`${locale}:${ns}`, bundle(locale, ns)] as const)),
 		);
 		const unresolved = requests()
-			.filter(({ key, namespace }) => LOCALES.some(locale => resolve(bundles.get(`${locale}:${namespace}`), key) === undefined))
+			.filter(({ key, namespace }) => LOCALES.some(locale => resolveKey(bundles.get(`${locale}:${namespace}`), key) === undefined))
 			.map(({ key, namespace, file }) => `${namespace}:${key} (${file})`);
 
 		expect(unresolved).toEqual([]);

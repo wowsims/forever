@@ -437,3 +437,13 @@ tools/vscode-apl/node_modules: tools/vscode-apl/package-lock.json
 vscode-apl: ui/generated/proto/api.ts $(AUTO_GEN_FILES_TS) sim/siml/names.json node_modules tools/vscode-apl/node_modules
 	cd tools/vscode-apl && npm run build
 	go run ./cmd/wowsimcli siml grammar -o .vscode/extensions/wowsims-apl/syntaxes/siml.tmLanguage.json
+
+# The tree-sitter grammar of SIML, which the Zed extension (tools/zed-siml) colours with: regenerates the parser from
+# grammar.js. `cd tools/tree-sitter-siml && npm run check` is CI's check of it.
+tools/tree-sitter-siml/node_modules: tools/tree-sitter-siml/package-lock.json
+	cd tools/tree-sitter-siml && npm ci --no-audit --no-fund
+	touch $@
+
+.PHONY: tree-sitter-siml
+tree-sitter-siml: tools/tree-sitter-siml/node_modules
+	cd tools/tree-sitter-siml && npm run generate

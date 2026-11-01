@@ -1,5 +1,6 @@
 import {
 	ALL_TARGET_STATS,
+	bleedImmuneConfig,
 	booleanConfigs,
 	creatureFamiliesOf,
 	creatureFamilyConfig,
@@ -45,7 +46,7 @@ export const DesignerAddStats = ({ target, onModify, idPrefix }: DesignerAddStat
 	const creatureFamily = creatureFamilyConfig(context, current.mobType);
 	const stats: Array<NumberFieldConfig<null>> = ALL_TARGET_STATS.map(entry => statConfig(context, entry.stat, entry.tooltip));
 	const numbers = numberConfigs(context);
-	const booleans = booleanConfigs(context);
+	const booleans = [...booleanConfigs(context), bleedImmuneConfig(context)];
 	const spellSchool = spellSchoolConfig(context);
 	const tankIndex = tankIndexConfig(context);
 

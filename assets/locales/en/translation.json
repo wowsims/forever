@@ -125,11 +125,7 @@
 			"reputation": "Reputation",
 			"pvp": "PVP",
 			"dungeon": "Dungeon",
-			"dungeon_h": "Dungeon (H)",
-			"raid": "Raid",
-			"raid_h": "Raid (H)",
-			"raid_rf": "Raid (RF)",
-			"raid_flex": "Raid (Flex)"
+			"raid": "Raid"
 		},
 		"raids": {
 			"unknown": "Unknown",
@@ -307,6 +303,10 @@
 			"copied": "Copied",
 			"manual_copy": "The browser blocked the clipboard. Copy the text below by hand."
 		},
+		"code_text_area": {
+			"position_one": "Ln {{line}}, Col {{column}} · {{count}} line",
+			"position_other": "Ln {{line}}, Col {{column}} · {{count}} lines"
+		},
 		"list_picker": {
 			"new_item": "New {{itemLabel}}",
 			"delete_item": "Delete {{itemLabel}}",
@@ -347,15 +347,8 @@
 		},
 		"dungeon_difficulties": {
 			"unknown": "Unknown",
-			"normal": "N",
-			"heroic": "H",
-			"celestial": "CEL",
-			"raid_10": "10N",
-			"raid_10_heroic": "10H",
-			"raid_finder": "RF",
-			"raid_25": "RN",
-			"raid_25_heroic": "RH",
-			"raid_flex": "RFL"
+			"dungeon": "Dungeon",
+			"raid": "Raid"
 		},
 		"rep_levels": {
 			"unknown": "Unknown",
@@ -587,9 +580,6 @@
 				"remove_favorite": "Remove from favorites",
 				"add_to_batch": "Add to Batch Sim",
 				"remove_from_batch": "Remove from Batch Sim"
-			},
-			"sources": {
-				"world_drop": "World Drop"
 			},
 			"edit_slot": "Edit {{slot}}"
 		},
@@ -1121,6 +1111,10 @@
 			"parry_haste": {
 				"label": "Parry Haste",
 				"tooltip": "Whether this enemy will gain parry haste when parrying attacks."
+			},
+			"bleed_immune": {
+				"label": "Immune to Bleeds",
+				"tooltip": "Whether this enemy is immune to bleeds, as many elementals and mechanical units are. The sim does not set this from the enemy's type."
 			},
 			"can_crush": {
 				"label": "Can Crush",
@@ -1890,6 +1884,10 @@
 					"label": "Target Is Mob Type",
 					"tooltip": "True if the target is the chosen creature type"
 				},
+				"target_is_bleed_immune": {
+					"label": "Target Is Bleed Immune",
+					"tooltip": "True if Immune to Bleeds is on for the target in the encounter settings"
+				},
 				"encounter_in_area": {
 					"label": "In Area",
 					"tooltip": "True if the encounter's areas include the chosen area type"
@@ -2611,7 +2609,7 @@
 				},
 				"use_sniper": {
 					"label": "Use Sniper Shot",
-					"tooltip": "Casts Sniper Shot while Rapid Fire or Quick Shots shortens its cast."
+					"tooltip": "Opens the fight with Sniper Shot and casts it whenever no other shot is ready."
 				},
 				"use_hawk": {
 					"label": "Use Summon Hawk",
@@ -2629,7 +2627,7 @@
 						"tooltip": "The Judgement the raid assigned you. You cast it before the pull and judge it on your way in, then switch to your own seals. Leave it empty when no Judgement is assigned to you.",
 						"none": "No assigned judgement"
 					},
-					"non_twist_seal": {
+					"seal": {
 						"label": "Seal",
 						"tooltip": "The seal being kept up during the fight."
 					},

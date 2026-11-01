@@ -597,6 +597,7 @@ message Target {
         bool parry_haste = 12;
         bool suppress_dodge = 16; // Sunwell Radiance
         bool can_crush = 17; // Whether this enemy can land Crushing Blows. Defaults on for level 63 targets.
+        bool bleed_immune = 21; // Whether bleeds fail to land on this enemy.
         SpellSchool spell_school = 13; // Allows elemental attacks.
 
         // Index in Raid.tanks indicating the player tanking this mob at the

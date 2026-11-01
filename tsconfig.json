@@ -39,6 +39,8 @@
 		".vscode/extensions/wowsims-spelldata",
 		"tools/vscode-spelldata",
 		".vscode/extensions/wowsims-apl",
-		"tools/vscode-apl"
+		"tools/vscode-apl",
+		"tools/tree-sitter-siml",
+		"tools/zed-siml"
 	]
 }

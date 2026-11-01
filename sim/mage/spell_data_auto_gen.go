@@ -167,7 +167,7 @@ var spellData = generatedSpellData{
 	ArcaneMissiles:               spelldata.Ranked(5143, 5144, 5145, 8416, 8417, 10211, 10212, 25345),
 	ArcaneMissilesTriggered:      spelldata.Ranked(7268, 7269, 7270, 8419, 8418, 10273, 10274, 25346),
 	ArcanePower:                  spelldata.Ranked(12042),
-	ArcaneResilience:             spelldata.Talent(28574, 2),
+	ArcaneResilience:             spelldata.Talent(28574, 3),
 	ArcaneShielding:              spelldata.Talent(11252, 2),
 	ArcaneSubtlety:               spelldata.Talent(11210, 2),
 	ArcaneWrath:                  spelldata.Ranked(1326079, 1326080, 1326081, 1326082),

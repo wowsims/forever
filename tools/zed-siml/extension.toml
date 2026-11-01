@@ -1,0 +1,20 @@
+id = "wowsims-siml"
+name = "WoWSims SIML"
+version = "0.1.0"
+schema_version = 1
+authors = ["WoWSims"]
+description = "SIML, the text form of WoWSims rotations, gear sets and sim setups: its tree-sitter grammar and the language server of wowsimcli."
+repository = "https://github.com/wowsims/forever"
+snippets = "snippets/siml.json"
+
+[grammars.siml]
+repository = "https://github.com/wowsims/forever"
+rev = "e6c129e3fbf4f3622535a4fc8f4eb3b09bb1cece"
+path = "tools/tree-sitter-siml"
+
+[language_servers.wowsims-siml]
+name = "WoWSims SIML"
+languages = ["SIML"]
+
+[language_servers.wowsims-siml.language_ids]
+"SIML" = "siml"

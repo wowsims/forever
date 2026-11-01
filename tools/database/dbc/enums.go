@@ -234,18 +234,6 @@ const (
 // Power type in EffectMiscValue_0 of A_MOD_INCREASE_ENERGY. Only mana maps to a stat.
 const POWER_TYPE_MANA int = 0
 
-const (
-	NORMAL_DUNGEON = 1 << iota
-	HEROIC_DUNGEON
-	NORMAL_RAID_10_MAN
-	NORMAL_RAID_25_MAN
-	HEROIC_RAID_10_MAN
-	HEROIC_RAID_25_MAN
-	LOOKING_FOR_RAID
-	CHALLENGE_MODE
-	NORMAL_RAID_40_MAN
-)
-
 // https://wowdev.wiki/Stat_Types
 type ItemModType uint
 

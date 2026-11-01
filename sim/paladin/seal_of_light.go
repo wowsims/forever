@@ -64,5 +64,12 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 		classMask: SpellMaskSealOfLight,
 		aura:      aura,
 		judgement: judgement,
+		echoID:    echoOfLightID,
+		// A stored copy rolls the seal's own rate for a main-hand swing.
+		echo: func(sim *core.Simulation, _ *core.Unit) {
+			if trigger.DPM.Proc(sim, core.ProcMaskMeleeMHAuto, "Seal of Light") {
+				procSpell.Cast(sim, &paladin.Unit)
+			}
+		},
 	})
 }

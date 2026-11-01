@@ -13,6 +13,7 @@ import { TargetInputsPicker } from './TargetInputsPicker';
 import {
 	aiConfig,
 	ALL_TARGET_STATS,
+	bleedImmuneConfig,
 	booleanConfigs,
 	creatureFamiliesOf,
 	creatureFamilyConfig,
@@ -27,7 +28,7 @@ import {
 } from './utils/configs';
 
 export interface TargetPickerViewProps {
-	/** Who the target is: NPC preset, AI, level, mob type, creature family, tank and the target's own inputs. */
+	/** Who the target is: NPC preset, AI, level, mob type, creature family, tank, bleed immunity and the target's own inputs. */
 	identity: ReactNode;
 	stats: ReactNode;
 	/** The fields only a threat sim reads; without them an empty column keeps the three-column grid. */
@@ -68,6 +69,7 @@ export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 	);
 	const numbers = useMemo(() => numberConfigs(context), [context]);
 	const booleans = useMemo(() => booleanConfigs(context), [context]);
+	const bleedImmune = useMemo(() => bleedImmuneConfig(context), [context]);
 	const spellSchool = useMemo(() => spellSchoolConfig(context), [context]);
 
 	return (
@@ -80,6 +82,7 @@ export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 					{creatureFamiliesOf(targetMobType).length > 0 && <ConnectedChoiceField modObject={null} config={creatureFamily} />}
 					<ConnectedChoiceField modObject={null} config={level} />
 					{showThreatMetrics && <ConnectedChoiceField modObject={null} config={tankIndex} />}
+					<ConnectedBooleanPicker modObject={null} config={bleedImmune} />
 					<TargetInputsPicker encounter={encounter} targetIndex={targetIndex} />
 				</>
 			}

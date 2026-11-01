@@ -31,7 +31,7 @@ func TestAspectOfTheCheetahSpeedWithPathfindingAndDazed(t *testing.T) {
 		speed   float64
 	}{
 		{"", 0.30},
-		{"00002", 0.36},
+		{"000002", 0.36},
 	} {
 		sim, hunter := newTalentSim(tc.talents, proto.HunterOptions_PetNone)
 		base := hunter.GetMovementSpeed()

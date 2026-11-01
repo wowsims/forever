@@ -28,6 +28,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 		ActionID: hunter.RaptorStrike.ActionID.WithTag(1),
 		Duration: core.NeverExpires,
 	})
+	hunter.AutoAttacks.SetQueuedSwingCanceler(hunter.raptorStrikeQueue.Deactivate)
 
 	hunter.RegisterSpell(core.SpellConfig{
 		ActionID:    hunter.RaptorStrike.ActionID.WithTag(1),

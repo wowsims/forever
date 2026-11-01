@@ -257,7 +257,6 @@ const (
 	PriestSpellLesserHeal
 	PriestSpellHeal
 	PriestSpellGreaterHeal
-	PriestSpellBindingHeal
 	PriestSpellRenew
 	PriestSpellPowerWordShield
 	PriestSpellHolyNova

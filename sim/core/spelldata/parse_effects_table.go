@@ -407,13 +407,16 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statsBuff(sts, v)
 	},
 
-	// The game files state the armor ladder twice, once on base armor and once on bonus armor, and the
-	// tooltip states armor from items, which is the equipment share the sim scales.
+	// The tooltip's "armor from items" is stated twice: this effect scales the items' base armor, and
+	// A_MOD_BONUS_ARMOR_PCT beside it scales their bonus armor ("+N Armor"), a stat of its own.
 	dbcenums.A_MOD_BASE_RESISTANCE_PCT: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc&miscArmor == 0 {
 			return nil
 		}
 		return p.equipScaling(stats.Armor, core.MultiplierFromPercent(v))
+	},
+	dbcenums.A_MOD_BONUS_ARMOR_PCT: func(p *parser, _ *Effect, v float64) *attachment {
+		return p.equipScaling(stats.BonusArmor, core.MultiplierFromPercent(v))
 	},
 	// The resistance percentage multiplies the whole of the stat but the A_MOD_ARMOR_NO_MODS armor,
 	// which it leaves alone. Armor alone is taken: no row states it for a magic resistance.

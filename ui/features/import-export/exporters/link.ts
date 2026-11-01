@@ -38,5 +38,6 @@ export const createLink = (host: IndividualSimHost<any>, exportCategories?: Arra
 export const LINK_EXPORTER: ExporterDefinition = {
 	title: i18n.t('export.link.title'),
 	selectCategories: true,
+	holdsLink: true,
 	getData: (host, categories) => createLink(host, selectedCategories(categories)),
 };

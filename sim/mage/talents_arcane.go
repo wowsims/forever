@@ -137,7 +137,7 @@ func (mage *Mage) registerArcaneConcentration() {
 	mage.MakeProcTriggerAura(trigger)
 }
 
-// "Increases your Armor by an amount equal to 50% of your Intellect."
+// "Increases your Armor by an amount equal to 25/50/75% of your Intellect."
 func (mage *Mage) registerArcaneResilience() {
 	if mage.Talents.ArcaneResilience == 0 {
 		return
