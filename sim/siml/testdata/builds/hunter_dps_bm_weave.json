@@ -112,8 +112,6 @@
 					"ammo": "ThoriumHeadedArrow",
 					"petType": "Raptor",
 					"petUptime": 1,
-					"cobraReflexes": true,
-					"petAggression": 5,
 					"petAttackSpeed": "FasterAttackII"
 				}
 			}
