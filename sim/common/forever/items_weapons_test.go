@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/core/testagent"
+	"github.com/wowsims/forever/sim/druid"
 )
 
 // The caster stand-in's spells: a 2 s cast and an instant, both on the global cooldown.
@@ -391,13 +392,27 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 	for _, tc := range []struct {
 		name  string
 		class proto.Class
+		bear  bool
 		want  float64
 	}{
-		{"mana", proto.Class_ClassWarlock, gain.EffectN(1).BaseValue()},
-		{"rage", proto.Class_ClassWarrior, gain.EffectN(2).Tenths()},
+		{"mana", proto.Class_ClassWarlock, false, gain.EffectN(1).BaseValue()},
+		{"rage", proto.Class_ClassWarrior, false, gain.EffectN(2).Tenths()},
+		{"rage in bear form", proto.Class_ClassDruid, true, gain.EffectN(2).Tenths()},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			sim, character := modWearer(t, tc.class, proto.ItemSlot_ItemSlotMainHand, reaper)
+			var sim *core.Simulation
+			var character *core.Character
+			if tc.bear {
+				items := bearItemSlots()
+				items[proto.ItemSlot_ItemSlotMainHand].Id = reaper
+				var bear *druid.Druid
+				sim, bear = equippedBear(t, items)
+				bear.ClearForm(sim)
+				bear.BearFormAura.Activate(sim)
+				character = bear.GetCharacter()
+			} else {
+				sim, character = modWearer(t, tc.class, proto.ItemSlot_ItemSlotMainHand, reaper)
+			}
 			target := sim.Encounter.AllTargets[0]
 			spent := character.NewManaMetrics(core.ActionID{SpellID: 993105})
 			// The power the death gives. Mana is spent first, which leaves room for the gain and holds

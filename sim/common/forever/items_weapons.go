@@ -7,6 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -248,18 +249,31 @@ func init() {
 	// occur more than once every 10 seconds.
 	//
 	// 21185 hears the killing blow and fires 21186, whose effect 1 states the mana and effect 2 the
-	// rage in tenths. A wearer with a rage bar and no mana bar gains the rage.
+	// rage in tenths. A wearer with a rage bar and no mana bar gains the rage, and so does a druid in
+	// Bear Form or Dire Bear Form at the killing blow; other forms gain the mana.
 	core.NewItemEffect(288901, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(21185)
 		gainID := core.ActionID{SpellID: 21186}
 
 		var gain core.ProcHandler
-		if character.HasRageBar() && !character.HasManaBar() {
+		if character.HasRageBar() {
 			rage := spelldata.MustFind(21186).EffectN(2).Tenths()
 			metrics := character.NewRageMetrics(gainID)
-			gain = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			addRage := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 				character.AddRage(sim, rage, metrics)
+			}
+			if character.HasManaBar() {
+				addMana := shared.FiredSpellHandler(character, gainID, row)
+				gain = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+					if character.ShapeshiftForm == dbcenums.FORM_BEAR_FORM || character.ShapeshiftForm == dbcenums.FORM_DIRE_BEAR_FORM {
+						addRage(sim, spell, result)
+					} else if addMana != nil {
+						addMana(sim, spell, result)
+					}
+				}
+			} else {
+				gain = addRage
 			}
 		} else {
 			gain = shared.FiredSpellHandler(character, gainID, row)
