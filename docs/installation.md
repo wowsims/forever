@@ -1,6 +1,6 @@
 # Local Dev Installation
 
-This project has dependencies on Go >=1.27, protobuf-compiler and the corresponding Go plugins, and node >= 26. `go.mod` and `.nvmrc` name the exact versions..
+This project has dependencies on Go >=1.27, protobuf-compiler and the corresponding Go plugins, and node >= 26. `go.mod` and `.nvmrc` name the exact versions.
 
 ## Ubuntu
 
