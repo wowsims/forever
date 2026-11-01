@@ -11,11 +11,11 @@ var ${Use Summon Hawk} = true
 priority:
   autocast_other_cooldowns if current_time >= 5s
   cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast serpent_sting if not dot(serpent_sting).is_active
   reset_sequence("HHA") if hawk_and_arcane and sequence("HHA").is_complete
   sequence "HHA" [cast summon_hawk, cast summon_hawk, cast arcane_shot] if hawk_and_arcane
   cast summon_hawk if $use_summon_hawk and not $use_arcane_shot
   cast arcane_shot if $use_arcane_shot and not $use_summon_hawk
-  cast serpent_sting if not dot(serpent_sting).is_active
   cast aimed_shot if $use_aimed_shot
   cast multi_shot if $use_multi_shot
   /// Start of the fight: get to my spot without losing an Auto Shot.
