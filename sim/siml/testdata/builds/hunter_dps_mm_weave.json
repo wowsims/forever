@@ -111,8 +111,6 @@
 					"quiverBonus": "AncientSinewWrappedLamina",
 					"ammo": "ThoriumHeadedArrow",
 					"petUptime": 1,
-					"cobraReflexes": true,
-					"petAggression": 5,
 					"petAttackSpeed": "FasterAttackII"
 				}
 			}
@@ -171,6 +169,63 @@
 				}
 			],
 			"priorityList": [
+				{
+					"notes": "Rapid Fire at range: from the pull, or like the other cooldowns after the first 5 s.",
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{
+										"cmp": {
+											"op": "OpGt",
+											"lhs": {
+												"unitDistance": {
+													"sourceUnit": {
+														"type": "Self"
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "5"
+												}
+											}
+										}
+									},
+									{
+										"or": {
+											"vals": [
+												{
+													"variableRef": {
+														"name": "Rapid Fire at the pull"
+													}
+												},
+												{
+													"cmp": {
+														"op": "OpGe",
+														"lhs": {
+															"currentTime": {}
+														},
+														"rhs": {
+															"const": {
+																"val": "5s"
+															}
+														}
+													}
+												}
+											]
+										}
+									}
+								]
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 3045
+							}
+						}
+					}
+				},
 				{
 					"action": {
 						"condition": {
@@ -588,6 +643,11 @@
 						"condition": {
 							"and": {
 								"vals": [
+									{
+										"variableRef": {
+											"name": "Walk to my spot first"
+										}
+									},
 									{
 										"cmp": {
 											"op": "OpNe",
@@ -1077,7 +1137,7 @@
 					"name": "Walk in",
 					"actions": [
 						{
-							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.",
+							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot's windup is close or running, and react to each shot before walking on.",
 							"action": {
 								"condition": {
 									"not": {
@@ -1097,7 +1157,7 @@
 															"vals": [
 																{
 																	"variableRef": {
-																		"name": "Auto Shot due"
+																		"name": "Windup close"
 																	}
 																},
 																{
@@ -1179,6 +1239,22 @@
 				},
 				{
 					"name": "Use Summon Hawk",
+					"value": {
+						"const": {
+							"val": "false"
+						}
+					}
+				},
+				{
+					"name": "Rapid Fire at the pull",
+					"value": {
+						"const": {
+							"val": "true"
+						}
+					}
+				},
+				{
+					"name": "Walk to my spot first",
 					"value": {
 						"const": {
 							"val": "false"
@@ -1536,38 +1612,49 @@
 					}
 				},
 				{
-					"name": "Auto Shot due",
+					"name": "Windup close",
 					"value": {
-						"cmp": {
-							"op": "OpGe",
-							"lhs": {
-								"autoTimeSinceLast": {
-									"autoType": "RangedAuto"
-								}
-							},
-							"rhs": {
-								"math": {
-									"op": "OpSub",
-									"lhs": {
-										"math": {
-											"op": "OpSub",
-											"lhs": {
-												"autoSwingTime": {
-													"autoType": "Ranged"
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "500ms"
+						"or": {
+							"vals": [
+								{
+									"cmp": {
+										"op": "OpLe",
+										"lhs": {
+											"autoTimeToNext": {
+												"autoType": "RangedAuto"
+											}
+										},
+										"rhs": {
+											"inputDelay": {}
+										}
+									}
+								},
+								{
+									"cmp": {
+										"op": "OpGe",
+										"lhs": {
+											"autoTimeToNext": {
+												"autoType": "RangedAuto"
+											}
+										},
+										"rhs": {
+											"math": {
+												"op": "OpSub",
+												"lhs": {
+													"autoSwingTime": {
+														"autoType": "Ranged"
+													}
+												},
+												"rhs": {
+													"autoTimeSinceLast": {
+														"autoType": "RangedAuto"
+													}
 												}
 											}
 										}
-									},
-									"rhs": {
-										"inputDelay": {}
 									}
 								}
-							}
+							]
 						}
 					}
 				},

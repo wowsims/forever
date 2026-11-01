@@ -8,6 +8,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -162,5 +163,40 @@ func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
 		if buff.IsActive() && buff.GetStacks() != buff.MaxStacks {
 			t.Errorf("%s left Rapid Killing at %d charges, want %d", c.name, buff.GetStacks(), buff.MaxStacks)
 		}
+	}
+}
+
+// Improved Tracking raises the damage done to a creature type a Track spell names, and not the damage
+// done to a mechanical target, which none names.
+func TestImprovedTrackingRaisesDamageVersusTrackableTypesOnly(t *testing.T) {
+	const tracking = "-00530501114-550200030050220151"
+	const untrained = "-00530501114-050200030050220151"
+	multiplier := func(talents string, mobType proto.MobType) float64 {
+		target := core.FreshDefaultTargetConfig()
+		target.MobType = mobType
+		player := &proto.Player{
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassHunter,
+			Equipment:     &proto.EquipmentSpec{},
+			TalentsString: talents,
+			Spec:          &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{ClassOptions: &proto.HunterOptions{}}}},
+			Rotation:      &proto.APLRotation{},
+		}
+		sim := core.NewSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{target}},
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+		return hunter.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex].DamageDealtMultiplier
+	}
+
+	want := spellData.ImprovedTracking.MultiplierAt(5)
+	if got := multiplier(tracking, proto.MobType_MobTypeBeast) / multiplier(untrained, proto.MobType_MobTypeBeast); math.Abs(got-want) > 1e-9 {
+		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a beast by %v, want %v", got, want)
+	}
+	if got := multiplier(tracking, proto.MobType_MobTypeMechanical) / multiplier(untrained, proto.MobType_MobTypeMechanical); got != 1 {
+		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a mechanical target by %v, want 1", got)
 	}
 }
