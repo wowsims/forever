@@ -30,7 +30,7 @@ group "Walk in":
   cast serpent_sting if not dot(serpent_sting).is_active
   cast arcane_shot
   cast multi_shot
-  /// Walk into melee, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.
+  /// Walk into melee, looking again every reaction time. Stop while my Auto Shot's windup is close or running, and react to each shot before walking on.
   move $melee_range recheck if not shot_due_here
   /// Standing for my Auto Shot.
   wait input_delay
