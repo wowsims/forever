@@ -1,9 +1,11 @@
+import { Button } from '@ui-kit/Button';
+import type { ControlSize } from '@ui-kit/Field';
 import clsx from 'clsx';
-import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import { Children, cloneElement, type ComponentPropsWithoutRef, forwardRef, isValidElement } from 'react';
 
 export interface ButtonGroupProps extends ComponentPropsWithoutRef<'div'> {
-	/** Pads every direct `Button` child as that `size`. */
-	size?: 'sm' | 'xs';
+	/** Sizes every direct `Button` child as that `size`, over the size the button sets itself. */
+	size?: ControlSize;
 	/** Spaces the buttons apart instead of joining their borders. */
 	gap?: boolean;
 	/** `vertical` stacks the buttons as full-width rows with their content on the left. */
@@ -22,7 +24,11 @@ export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
 			data-testid={testId}
 			className={clsx('ui-button-group', className)}
 			{...props}>
-			{children}
+			{size === undefined
+				? children
+				: Children.map(children, child =>
+						isValidElement<{ size?: ControlSize }>(child) && child.type === Button ? cloneElement(child, { size }) : child,
+					)}
 		</div>
 	),
 );

@@ -1,8 +1,14 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { BooleanPicker } from '@ui-kit/BooleanPicker';
+import { Button } from '@ui-kit/Button';
+import { ChoiceField } from '@ui-kit/ChoiceField';
+import { Dialog } from '@ui-kit/Dialog';
+import { Input } from '@ui-kit/FormControl';
+import { Popover } from '@ui-kit/Popover';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Field } from './Field';
-import type { FieldProps } from './types';
+import type { ControlSize, FieldProps } from './types';
 
 const field = (props: Partial<FieldProps> = {}) =>
 	render(
@@ -191,5 +197,63 @@ describe('Field', () => {
 	it('renders the after slot last', () => {
 		field({ after: <span data-testid="after" /> });
 		expect(root().lastElementChild).toBe(screen.getByTestId('after'));
+	});
+});
+
+describe('control size', () => {
+	const controls = (size?: ControlSize) => (
+		<>
+			<Input data-testid="input" size={size} />
+			<Button size={size}>Run</Button>
+			<BooleanPicker testId="checkbox" size={size} value={false} onChange={() => {}} />
+			<ChoiceField testId="select" ariaLabel="Pick" size={size} options={[{ value: 1, label: 'One' }]} value={1} onChange={() => {}} />
+		</>
+	);
+	const sizes = () => [
+		screen.getByTestId('input').getAttribute('data-size'),
+		screen.getByRole('button', { name: 'Run' }).getAttribute('data-size'),
+		screen.getByTestId('checkbox').getAttribute('data-size'),
+		screen.getByTestId('select').getAttribute('data-size'),
+	];
+
+	it.each([
+		[undefined, 'sm'],
+		['xs', 'xs'],
+		['sm', 'sm'],
+		['md', 'md'],
+	] as const)('gives the input, button, checkbox and select the same size for size %s (%s)', (size, expected) => {
+		render(controls(size));
+		expect(sizes()).toEqual([expected, expected, expected, expected]);
+	});
+
+	it('sizes every control inside a sized field as the field, unless the control sets its own', () => {
+		const { unmount } = render(<Field size="xs">{controls()}</Field>);
+		expect(sizes()).toEqual(['xs', 'xs', 'xs', 'xs']);
+		unmount();
+
+		render(<Field size="xs">{controls('md')}</Field>);
+		expect(sizes()).toEqual(['md', 'md', 'md', 'md']);
+	});
+
+	it('gives a button in a dialog opened from a sized field the default size', async () => {
+		render(
+			<Field size="xs">
+				<Dialog open onOpenChange={() => {}}>
+					<Button>Inside</Button>
+				</Dialog>
+			</Field>,
+		);
+		expect((await screen.findByRole('button', { name: 'Inside' })).getAttribute('data-size')).toBe('sm');
+	});
+
+	it('gives a button in a popover opened from a sized field the default size', async () => {
+		render(
+			<Field size="xs">
+				<Popover trigger="Open" open>
+					<Button>Inside</Button>
+				</Popover>
+			</Field>,
+		);
+		expect((await screen.findByRole('button', { name: 'Inside' })).getAttribute('data-size')).toBe('sm');
 	});
 });

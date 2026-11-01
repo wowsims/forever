@@ -21,4 +21,12 @@ describe('Spinner', () => {
 		const { container } = render(<Spinner testId="bulk-spinner" />);
 		expect((container.firstElementChild as HTMLElement).getAttribute('data-testid')).toBe('bulk-spinner');
 	});
+
+	it('is an image named by its label, and a plain element without one', () => {
+		const { getByRole, container, rerender } = render(<Spinner label="Running" />);
+		expect(getByRole('img', { name: 'Running' })).toBe(container.firstElementChild);
+
+		rerender(<Spinner />);
+		expect((container.firstElementChild as HTMLElement).hasAttribute('role')).toBe(false);
+	});
 });

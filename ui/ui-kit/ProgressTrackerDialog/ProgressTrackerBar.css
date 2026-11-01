@@ -1,6 +1,14 @@
 @layer components {
 	.ui-progress {
 		@apply relative flex w-full max-w-62 flex-col gap-1 self-center;
+
+		&[data-variant='line'] {
+			@apply max-w-none gap-0;
+
+			.ui-progress-track {
+				@apply h-px rounded-none;
+			}
+		}
 	}
 
 	.ui-progress-track {

@@ -7,9 +7,10 @@ const FieldSugar = ({
 	id,
 	label,
 	labelTooltip,
+	labelTooltipPlace,
 	description,
 	layout,
-	density,
+	size,
 	className,
 	testId,
 	disabled,
@@ -35,7 +36,7 @@ const FieldSugar = ({
 		<Root
 			id={id}
 			layout={layout}
-			density={density}
+			size={size}
 			disabled={disabled}
 			grow={grow}
 			reverse={reverse}
@@ -48,7 +49,11 @@ const FieldSugar = ({
 			labelId={labelId}
 			controlRef={controlRef}>
 			{leading}
-			{label && <Label tooltip={labelTooltip}>{label}</Label>}
+			{label && (
+				<Label tooltip={labelTooltip} tooltipPlace={labelTooltipPlace}>
+					{label}
+				</Label>
+			)}
 			{description && <Description>{description}</Description>}
 			{clear ? <Clear {...clear}>{children}</Clear> : children}
 			{after}

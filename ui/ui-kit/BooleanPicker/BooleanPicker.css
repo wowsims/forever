@@ -13,10 +13,19 @@
 		&[data-reverse] {
 			@apply justify-between;
 		}
+
+		/* A disabled field dims as a whole, which would fade the focus ring of a box kept in the tab order. */
+		&[data-disabled]:has(.ui-boolean-picker-input:focus-visible) {
+			@apply filter-none;
+		}
 	}
 
 	.ui-boolean-picker-input {
-		@apply relative size-8 shrink-0 interactive rounded-none border border-surface-border bg-surface;
+		@apply relative size-(--control-height) shrink-0 interactive rounded-none border border-surface-border bg-surface;
+
+		&[data-size='xs'] > .ui-boolean-picker-indicator {
+			@apply text-sm;
+		}
 
 		&:focus-visible {
 			@apply border-input-focus-border shadow-focus-checkbox outline-none;
@@ -28,6 +37,11 @@
 
 		&[data-disabled] {
 			@apply pointer-events-none opacity-50;
+		}
+
+		/* A box kept in the tab order while disabled; the dimming would fade its focus ring with it. */
+		&[data-disabled]:focus-visible {
+			@apply opacity-100;
 		}
 
 		&[aria-invalid='true'],

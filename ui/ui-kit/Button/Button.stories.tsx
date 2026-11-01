@@ -20,7 +20,7 @@ const VARIANTS: Array<ButtonVariant> = [
 	'unstyled',
 ];
 
-const SIZES = ['default', 'sm', 'xs', 'none'] as const;
+const SIZES = ['xs', 'sm', 'md', 'none'] as const;
 
 const meta = {
 	title: 'Kit/Button',
@@ -35,7 +35,7 @@ const meta = {
 	},
 	argTypes: {
 		variant: { control: 'select', options: [...VARIANTS, null] },
-		size: { control: 'select', options: [undefined, 'sm', 'xs', 'none'] },
+		size: { control: 'select', options: [...SIZES] },
 		iconOnly: { control: 'boolean' },
 		loading: { control: 'boolean' },
 		disabled: { control: 'boolean' },
@@ -61,7 +61,18 @@ export const OutlineLight: Story = { args: { variant: 'outline-light' } };
 export const OutlineCancel: Story = { args: { variant: 'outline-cancel' } };
 export const Unstyled: Story = { args: { variant: 'unstyled' } };
 
-export const Small: Story = { args: { size: 'sm' } };
+/** `sm` is the default; a button inside a sized Field takes the field's size. */
+export const Sizes: Story = {
+	render: args => (
+		<span className="inline-flex items-center gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<Button key={size} {...args} size={size}>
+					{size}
+				</Button>
+			))}
+		</span>
+	),
+};
 export const Disabled: Story = { args: { disabled: true } };
 /** Disabled but still focusable and hoverable, so a tooltip on it can say why. */
 export const FocusableWhenDisabled: Story = { args: { variant: 'outline-primary', disabled: true, focusableWhenDisabled: true } };
@@ -101,7 +112,7 @@ export const Matrix: Story = {
 				<Fragment key={variant}>
 					<span>{variant}</span>
 					{SIZES.map(size => (
-						<Button key={size} variant={variant} size={size === 'default' ? undefined : size}>
+						<Button key={size} variant={variant} size={size}>
 							{args.children}
 						</Button>
 					))}

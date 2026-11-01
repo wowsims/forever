@@ -9,6 +9,15 @@ import "buffs.proto";
 import "common.proto";
 import "db.proto";
 import "spell.proto";
+import "druid.proto";
+import "hunter.proto";
+import "mage.proto";
+import "paladin.proto";
+import "priest.proto";
+import "rogue.proto";
+import "shaman.proto";
+import "warlock.proto";
+import "warrior.proto";
 
 // Holds all WoW data for the UI.
 message UIDatabase {
@@ -408,6 +417,37 @@ message SavedSettings {
 	HealingModel healing_model = 13;
 	double dark_intent_uptime = 19;
 	bool challenge_mode = 20;
+
+	// The spec's own options, under the arm Player.spec uses for the spec. An entry with none, or another spec's, keeps
+	// the live ones.
+	oneof spec {
+		BalanceDruid balance_druid = 6;
+		FeralCatDruid feral_cat_druid = 8;
+		FeralBearDruid feral_bear_druid = 15;
+		RestorationDruid restoration_druid = 16;
+
+		Hunter hunter = 21;
+
+		Mage mage = 22;
+
+		HolyPaladin holy_paladin = 23;
+		ProtectionPaladin protection_paladin = 24;
+		RetributionPaladin retribution_paladin = 25;
+
+		DpsPriest dps_priest = 26;
+		HealerPriest healer_priest = 27;
+
+		Rogue rogue = 28;
+
+		ElementalShaman elemental_shaman = 29;
+		EnhancementShaman enhancement_shaman = 30;
+		RestorationShaman restoration_shaman = 31;
+
+		Warlock warlock = 32;
+
+		DpsWarrior dps_warrior = 33;
+		ProtectionWarrior protection_warrior = 34;
+	}
 }
 
 message SavedTalents {
@@ -434,16 +474,70 @@ message BulkEnchantPresets {
 	repeated BulkEnchantPreset presets = 1;
 }
 
-// Local storage data for the saved encounters the bulk sim also runs against. The current encounter always runs first
-// and is not stored here.
+// A spec preset encounter or a user-saved one, by name. An empty name is the current encounter.
+message BulkEncounterRef {
+	string name = 1;
+	bool preset = 2;
+}
+
+// A spec preset talent setup or a user-saved one, by name. An empty name is the current talents.
+message BulkTalentRef {
+	string name = 1;
+	bool preset = 2;
+}
+
+// A spec preset gear set or a user-saved one, by name. An empty name is the current gear.
+message BulkGearSetRef {
+	string name = 1;
+	bool preset = 2;
+	string group = 3; // The preset's group in the Gear tab, empty for an ungrouped preset or a saved set; two presets may share a name across groups.
+}
+
+// Local storage data for the enchant presets the bulk sim runs every gear set with in Builds mode, by name. Separate
+// from BulkEnchantPreset.checked, which picks the enchants Gear mode tries.
+message BulkEnchantPresetSelection {
+	repeated string names = 1;
+}
+
+// A spec preset rotation or a user-saved one, by name. An empty name is the current rotation.
+message BulkRotationRef {
+	string name = 1;
+	bool preset = 2;
+}
+
+// A spec preset Settings entry or a user-saved one, by name. An empty name is the current settings.
+message BulkSettingsRef {
+	string name = 1;
+	bool preset = 2;
+}
+
+// A gear set the bulk sim runs in Builds mode with the talents, rotation and Settings entry it is bundled with. An absent
+// ref, or one with an empty name, is the current part.
+message BulkBuildBundle {
+	BulkGearSetRef gear_set = 1;
+	BulkTalentRef talents = 2;
+	BulkRotationRef rotation = 3;
+	BulkSettingsRef settings = 4;
+	bool checked = 5;
+}
+
+// Local storage data for the bundles the bulk sim runs in Builds mode, in list order. The Current bundle is not stored
+// here; it is ticked unless current_unchecked is set.
+message BulkBuildBundles {
+	repeated BulkBuildBundle bundles = 1;
+	bool current_unchecked = 2;
+}
+
+// Local storage data for the encounters the bulk sim runs in Builds mode: the checked refs in list order, the current
+// encounter by its empty ref.
 message BulkEncounterSelection {
 	repeated BulkEncounterRef encounters = 1;
 }
 
-// A spec preset encounter or a user-saved one, by name.
-message BulkEncounterRef {
-	string name = 1;
-	bool preset = 2;
+// Local storage data for how many results a batch ranks per encounter, per mode, while power tools are on. 0 is All.
+message BulkTopResults {
+	int32 gear = 1;
+	int32 builds = 2;
 }
 
 // Local storage data for a saved encounter.

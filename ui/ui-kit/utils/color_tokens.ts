@@ -118,6 +118,7 @@ const COLOR_TOKENS = [
 	'input-disabled',
 	'scrim',
 	'spinner',
+	'spinner-strong',
 	'cr-scene-glow',
 	'cr-dmg-num',
 	'cr-hp-fill-end',
