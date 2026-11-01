@@ -10032,6 +10032,9 @@
 		"import": {
 			"type": "object",
 			"properties": {
+				"file_too_large": {
+					"type": "string"
+				},
 				"title": {
 					"type": "string"
 				},
@@ -10326,6 +10329,7 @@
 				"wowhead",
 				"addon",
 				"error",
+				"file_too_large",
 				"success",
 				"talents_not_imported",
 				"missing_ids",
@@ -12037,6 +12041,128 @@
 			"additionalProperties": false,
 			"required": ["iterations", "warnings", "buttons", "header", "results", "character_stats"]
 		},
+		"saved_data_transfer": {
+			"type": "object",
+			"properties": {
+				"menu_label": {
+					"type": "string"
+				},
+				"export": {
+					"type": "string"
+				},
+				"import": {
+					"type": "string"
+				},
+				"export_title": {
+					"type": "string"
+				},
+				"import_title": {
+					"type": "string"
+				},
+				"export_empty": {
+					"type": "string"
+				},
+				"import_instructions": {
+					"type": "string"
+				},
+				"import_button": {
+					"type": "string"
+				},
+				"saves_as": {
+					"type": "string"
+				},
+				"already_saved": {
+					"type": "string"
+				},
+				"already_saved_as": {
+					"type": "string"
+				},
+				"unreadable": {
+					"type": "string"
+				},
+				"unreadable_one": {
+					"type": "string"
+				},
+				"unreadable_other": {
+					"type": "string"
+				},
+				"types": {
+					"type": "object",
+					"properties": {
+						"gear": {
+							"type": "string"
+						},
+						"talents": {
+							"type": "string"
+						},
+						"rotation": {
+							"type": "string"
+						},
+						"settings": {
+							"type": "string"
+						},
+						"encounter": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["gear", "talents", "rotation", "settings", "encounter"]
+				},
+				"refused": {
+					"type": "object",
+					"properties": {
+						"unreadable": {
+							"type": "string"
+						},
+						"version": {
+							"type": "string"
+						},
+						"too_large": {
+							"type": "string"
+						},
+						"wrong_type": {
+							"type": "string"
+						},
+						"other_spec": {
+							"type": "string"
+						},
+						"unknown_spec": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"none_readable": {
+							"type": "string"
+						},
+						"storage_full": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["unreadable", "version", "too_large", "wrong_type", "other_spec", "unknown_spec", "empty", "none_readable", "storage_full"]
+				}
+			},
+			"additionalProperties": false,
+			"required": [
+				"menu_label",
+				"export",
+				"import",
+				"export_title",
+				"import_title",
+				"export_empty",
+				"import_instructions",
+				"import_button",
+				"saves_as",
+				"already_saved",
+				"already_saved_as",
+				"unreadable",
+				"unreadable_one",
+				"unreadable_other",
+				"types",
+				"refused"
+			]
+		},
 		"stat_filters": {
 			"type": "object",
 			"properties": {
@@ -12116,6 +12242,7 @@
 		"export",
 		"info",
 		"sidebar",
+		"saved_data_transfer",
 		"stat_filters"
 	],
 	"$schema": "http://json-schema.org/draft-07/schema#",

@@ -1,11 +1,11 @@
 // What this pins is the shell's behaviour, which is everything the four importers share: what gets
 // handed to `onImport`, and what happens to the dialog when it resolves and when it rejects.
 import { renderWithHost } from '@testing/react';
-import { act, fireEvent } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ImportProblems } from '../../importers/types';
+import { type ImporterPreview, ImportProblems } from '../../importers/types';
 import { Importer, type ImporterProps } from './Importer';
 
 const trackPageView = vi.hoisted(() => vi.fn());
@@ -29,7 +29,7 @@ const HOST_PARTS = { rootElem: document.createElement('div') };
 const theHost = expect.objectContaining(HOST_PARTS);
 const aSignal = expect.any(AbortSignal);
 
-const renderImporter = (props: Partial<Parameters<typeof Importer>[0]> = {}) => {
+const renderImporter = (props: Partial<ImporterProps> = {}) => {
 	const onImport = props.onImport ?? vi.fn().mockResolvedValue(undefined);
 	const onOpenChange = props.onOpenChange ?? vi.fn();
 	renderWithHost(
@@ -288,5 +288,195 @@ describe('Importer', () => {
 		const [description, box] = Array.from(body.children);
 		expect(description.textContent).toBe('how to');
 		expect(box.contains(document.querySelector('[data-testid="importer-textarea"]'))).toBe(true);
+	});
+});
+
+const previewOf = (parse: ImporterPreview<string>['parse']): ImporterPreview<string> => ({
+	parse,
+	render: (preview, change) => (
+		<button type="button" data-testid="preview" onClick={() => change(`${preview}!`)}>
+			{preview}
+		</button>
+	),
+	importLabel: preview => `Import ${preview}`,
+	canImport: preview => preview !== 'none',
+	commit: vi.fn().mockResolvedValue(undefined),
+});
+
+const renderWithPreview = (preview: ImporterPreview<string>, maxFileBytes?: number) => {
+	const onOpenChange = vi.fn();
+	renderWithHost(<Importer open title="Preview Import" allowFileUpload maxFileBytes={maxFileBytes} preview={preview} onOpenChange={onOpenChange} />);
+	return { commit: preview.commit, onOpenChange };
+};
+
+const typeText = (text: string) =>
+	act(async () => {
+		fireEvent.change(screen.getByTestId('importer-textarea'), { target: { value: text } });
+	});
+
+const importButton = () => screen.getByTestId<HTMLButtonElement>('import-button');
+
+describe('Importer with a preview', () => {
+	it('keeps Import off until the text has a preview, and labels it from the preview', async () => {
+		renderWithPreview(previewOf(async (_host, text) => text));
+		expect(importButton().disabled).toBe(true);
+
+		await typeText('abc');
+
+		expect(screen.getByTestId('preview').textContent).toBe('abc');
+		expect(importButton().textContent).toBe('Import abc');
+		expect(importButton().disabled).toBe(false);
+	});
+
+	it('commits the preview as last changed, then closes', async () => {
+		const { commit, onOpenChange } = renderWithPreview(previewOf(async (_host, text) => text));
+		await typeText('abc');
+
+		fireEvent.click(screen.getByTestId('preview'));
+		await act(async () => {
+			fireEvent.click(importButton());
+		});
+
+		expect(commit).toHaveBeenCalledWith('abc!');
+		expect(onOpenChange).toHaveBeenCalledWith(false);
+	});
+
+	it('stays open and lists what a commit refuses', async () => {
+		const preview = previewOf(async (_host, text) => text);
+		preview.commit = () => Promise.reject(new ImportProblems('Refused', []));
+		const { onOpenChange } = renderWithPreview(preview);
+		await typeText('abc');
+
+		await act(async () => {
+			fireEvent.click(importButton());
+		});
+
+		expect(screen.getByTestId('importer-problems').textContent).toBe('Refused');
+		expect(onOpenChange).not.toHaveBeenCalled();
+	});
+
+	describe('a refused file', () => {
+		const LIMIT = 10;
+		const pick = (name: string, body: string) =>
+			act(async () => {
+				fireEvent.change(screen.getByTestId('importer-upload-input'), { target: { files: [new File([body], name)] } });
+			});
+		const big = 'x'.repeat(LIMIT + 1);
+		const box = () => screen.getByTestId<HTMLTextAreaElement>('importer-textarea');
+
+		it('clears the text and the preview, so Import is off, and shows its notice', async () => {
+			renderWithPreview(
+				previewOf(async (_host, text) => text),
+				LIMIT,
+			);
+			await typeText('abc');
+			expect(importButton().disabled).toBe(false);
+
+			await pick('big.txt', big);
+
+			expect(box().value).toBe('');
+			expect(screen.queryByTestId('preview')).toBeNull();
+			expect(importButton().disabled).toBe(true);
+			expect(screen.getByTestId('importer-problems').textContent).toBe('import.file_too_large');
+		});
+
+		it('loses its notice to the next upload', async () => {
+			renderWithPreview(
+				previewOf(async (_host, text) => text),
+				LIMIT,
+			);
+			await pick('big.txt', big);
+
+			await pick('small.txt', 'abc');
+
+			expect(screen.queryByTestId('importer-problems')).toBeNull();
+			expect(box().value).toBe('abc');
+		});
+
+		it('loses its notice to the next upload even when that one is empty, which leaves the text as it is', async () => {
+			renderWithPreview(
+				previewOf(async (_host, text) => text),
+				LIMIT,
+			);
+			await pick('big.txt', big);
+
+			await pick('empty.txt', '');
+
+			expect(screen.queryByTestId('importer-problems')).toBeNull();
+		});
+
+		it('loses its notice to the next edit', async () => {
+			renderWithPreview(
+				previewOf(async (_host, text) => text),
+				LIMIT,
+			);
+			await pick('big.txt', big);
+
+			await typeText('abc');
+
+			expect(screen.queryByTestId('importer-problems')).toBeNull();
+			expect(screen.getByTestId('preview').textContent).toBe('abc');
+		});
+	});
+
+	it('keeps Import off for a preview that has nothing to import', async () => {
+		renderWithPreview(previewOf(async () => 'none'));
+
+		await typeText('abc');
+
+		expect(importButton().disabled).toBe(true);
+	});
+
+	it('lands only the newest text, and aborts the read it replaced', async () => {
+		const reads: Array<{ text: string; signal: AbortSignal; finish: (preview: string) => void }> = [];
+		renderWithPreview(previewOf((_host, text, signal) => new Promise(finish => reads.push({ text, signal, finish }))));
+
+		await typeText('old');
+		await typeText('new');
+		await act(async () => {
+			reads[1].finish('new');
+			reads[0].finish('old');
+		});
+
+		expect(reads[0].signal.aborted).toBe(true);
+		expect(screen.getByTestId('preview').textContent).toBe('new');
+	});
+
+	it('lists a refusal under the text and clears it when the text changes', async () => {
+		renderWithPreview(
+			previewOf(async (_host, text) => {
+				if (text === 'bad') throw new ImportProblems('Refused', []);
+				return text;
+			}),
+		);
+
+		await typeText('bad');
+		expect(screen.getByTestId('importer-problems').textContent).toBe('Refused');
+		expect(screen.queryByTestId('preview')).toBeNull();
+		expect(importButton().disabled).toBe(true);
+
+		await typeText('good');
+		expect(screen.queryByTestId('importer-problems')).toBeNull();
+		expect(screen.getByTestId('preview').textContent).toBe('good');
+	});
+
+	it('toasts any other error, as an import does', async () => {
+		toasts.length = 0;
+		renderWithPreview(previewOf(() => Promise.reject(new Error('boom'))));
+
+		await typeText('abc');
+
+		expect(toasts).toHaveLength(1);
+		expect(toasts[0].variant).toBe('error');
+	});
+
+	it('drops the preview with the text', async () => {
+		renderWithPreview(previewOf(async (_host, text) => text));
+		await typeText('abc');
+
+		await typeText('');
+
+		expect(screen.queryByTestId('preview')).toBeNull();
+		expect(importButton().disabled).toBe(true);
 	});
 });

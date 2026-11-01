@@ -2,6 +2,7 @@ import { SavedGear } from '@features/gear/components/SavedGear';
 import { gearSetData, loadGearSet, serializeGearSet } from '@features/gear/components/SavedGear/utils';
 import { useSavedGear } from '@features/gear/hooks/useSavedGear';
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
+import { SavedDataTransfer } from '@features/saved-data-transfer/components/SavedDataTransfer';
 import { applyBuild } from '@features/settings/model/apply_build';
 import { SavedGearSet } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -77,9 +78,10 @@ const GroupedGearPresets = () => {
 	);
 	const current = useStoreSubscribe(subscribePlayerChange(player), () => gearSetData(player));
 
+	const savedGear = useSavedGear();
 	const savedPanel = useSavedPanel({
 		label: i18n.t('gear_tab.gear_sets.gear_set'),
-		storage: useSavedGear(),
+		storage: savedGear,
 		current,
 		serialize: serializeGearSet,
 		load: loadGearSet,
@@ -146,6 +148,7 @@ const GroupedGearPresets = () => {
 					className="mt-4"
 					nameLabel={i18n.t('gear_tab.gear_sets.gear_set_name')}
 					saveButtonText={i18n.t('gear_tab.gear_sets.save_gear_set')}
+					headerChildren={<SavedDataTransfer type="gear" label={savedPanel.label} storage={savedGear} presets={gearPresets} />}
 					{...savedPanel}
 				/>
 			),

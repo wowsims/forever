@@ -1,4 +1,5 @@
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
+import { SavedDataTransfer } from '@features/saved-data-transfer/components/SavedDataTransfer';
 import type { SavedSettings as SavedSettingsProto } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { withLiveSpecOptions } from '@sim/proto/spec_functions';
@@ -12,10 +13,11 @@ import { loadSettings, serializeSettings, settingsPresets } from './utils';
 
 export const SavedSettings = () => {
 	const settings = useCurrentSettings();
+	const storage = useSavedSettings();
 
 	const panel = useSavedPanel({
 		label: i18n.t('settings_tab.saved_settings.settings'),
-		storage: useSavedSettings(),
+		storage,
 		current: settings,
 		serialize: serializeSettings,
 		load: loadSettings,
@@ -35,6 +37,7 @@ export const SavedSettings = () => {
 			nameLabel={i18n.t('settings_tab.saved_settings.settings_name')}
 			saveButtonText={i18n.t('settings_tab.saved_settings.save_settings')}
 			isActive={isActive}
+			headerChildren={<SavedDataTransfer type="settings" label={panel.label} storage={storage} presets={panel.presets} />}
 			{...panel}
 		/>
 	);

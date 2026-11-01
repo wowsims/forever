@@ -73,7 +73,7 @@ const setup = () => {
 	waitForInit = () => Promise.resolve();
 	host = {
 		player,
-		sim: { waitForInit: () => waitForInit() },
+		sim: { store: player.sim.store, waitForInit: () => waitForInit() },
 		get individualConfig() {
 			return { presets: { talents: presets } };
 		},

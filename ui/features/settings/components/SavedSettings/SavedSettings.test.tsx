@@ -2,6 +2,7 @@ import { ItemSpec, ItemSwap, Race, Spec } from '@generated/proto/common';
 import { SavedSettings as SavedSettingsProto } from '@generated/proto/ui';
 import { DpsWarrior, DpsWarrior_Options } from '@generated/proto/warrior';
 import { specTypeFunctions } from '@sim/proto/spec_functions';
+import { createSimStore } from '@sim/state/sim_store';
 import { chipNamed, chips, nameInput, readStored, renderReady, saveButton, source } from '@testing/saved_panel';
 import { act, fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -63,7 +64,7 @@ const setup = () => {
 	let config: { presets: { settings: Array<any>; itemSwaps: Array<any> } } | undefined;
 	host = {
 		player: { getParty: () => ({}), getSpec: () => Spec.SpecDpsWarrior, specTypeFunctions: specTypeFunctions[Spec.SpecDpsWarrior] },
-		sim: { waitForInit: () => Promise.resolve(), raid: {} },
+		sim: { store: createSimStore(), waitForInit: () => Promise.resolve(), raid: {} },
 		get individualConfig() {
 			config ??= { presets: { settings: presets, itemSwaps: itemSwapPresets } };
 			return config;

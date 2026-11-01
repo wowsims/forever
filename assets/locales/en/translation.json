@@ -2872,6 +2872,7 @@
 			"instructions": "To import, upload a .apl.siml file or paste its text below, then click, 'Import'. Only the rotation is replaced."
 		},
 		"error": "Import error:",
+		"file_too_large": "This file is too large to import.",
 		"success": "Import successful!",
 		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
 		"missing_ids": {
@@ -3541,6 +3542,40 @@
 			"points_suffix": "Points",
 			"percent_label": "Percent",
 			"percent_suffix": "%"
+		}
+	},
+	"saved_data_transfer": {
+		"menu_label": "Export or import",
+		"export": "Export",
+		"import": "Import",
+		"export_title": "Export saved {{type}}",
+		"import_title": "Import saved {{type}}",
+		"export_empty": "No saved {{type}} to export",
+		"import_instructions": "Paste the text of an export or upload its file, then tick what to save.",
+		"import_button": "Import {{count}}",
+		"saves_as": "Saves as \"{{name}}\"",
+		"already_saved": "Already saved",
+		"already_saved_as": "Already saved as \"{{name}}\"",
+		"unreadable": "{{count}} entries could not be read and are left out.",
+		"unreadable_one": "{{count}} entry could not be read and is left out.",
+		"unreadable_other": "{{count}} entries could not be read and are left out.",
+		"types": {
+			"gear": "gear sets",
+			"talents": "talents",
+			"rotation": "rotations",
+			"settings": "settings",
+			"encounter": "encounters"
+		},
+		"refused": {
+			"unreadable": "This text is not a saved data export, or part of it is missing. Nothing was saved.",
+			"version": "This export uses a format this site does not know. Nothing was saved.",
+			"too_large": "This export is too large to import. Nothing was saved.",
+			"wrong_type": "This export holds {{found}}, not {{wanted}}.",
+			"other_spec": "This export is for {{spec}}.",
+			"unknown_spec": "This export is for a spec this site does not know.",
+			"empty": "This export holds no entries.",
+			"none_readable": "None of the entries in this export could be read. Nothing was saved.",
+			"storage_full": "The browser refused to store the entries, so nothing was saved. Its storage may be full."
 		}
 	},
 	"stat_filters": {

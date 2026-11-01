@@ -2,6 +2,7 @@ import { EquipmentSpec, ItemSpec } from '@generated/proto/common';
 import { SavedGearSet } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 import { subscribeGated } from '@sim/state/batch';
+import { createSimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
 import { act, fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -88,6 +89,7 @@ const setup = () => {
 	host = {
 		player,
 		sim: {
+			store: createSimStore(),
 			waitForInit: () => Promise.resolve(),
 			db: { lookupEquipmentSpec: (spec: EquipmentSpec) => new FakeGear(spec) },
 		},

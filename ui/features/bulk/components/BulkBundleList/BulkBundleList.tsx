@@ -43,7 +43,8 @@ export const BulkBundleList = ({ current, rows, onCheckedChange, onEdit, onDelet
 							id={`${idPrefix}-${index}`}
 							className="min-w-0 flex-1 wrap-anywhere"
 							label={row.label}
-							labelTooltip={row.disabledReason}
+							// An element, since a string tooltip is read as markup and this one quotes saved names.
+							labelTooltip={row.disabledReason && <>{row.disabledReason}</>}
 							labelTooltipPlace="bottom"
 							layout="inline"
 							size="xs"
