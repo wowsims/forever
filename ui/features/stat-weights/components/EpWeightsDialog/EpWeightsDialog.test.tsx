@@ -303,6 +303,7 @@ describe('EpWeightsDialog', () => {
 	it('builds the column set in order, each metric column tagged with the type its hide rule selects on', () => {
 		host.sim.showThreatMetrics = true;
 		renderDialog();
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.rating_disclaimer');
 		const headers = [...table().querySelectorAll('thead tr:first-child th')];
 		expect(headers.map(th => th.getAttribute('data-column-type'))).toEqual([
 			null,
