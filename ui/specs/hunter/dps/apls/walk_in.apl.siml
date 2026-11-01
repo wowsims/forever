@@ -3,13 +3,9 @@ spec hunter
 use "common.apl.siml"
 
 // The pull of the rotations that shoot from a spot: from Pull range, the hunter walks to Shoot spot between Auto
-// Shots. A rotation sets Shoot spot with use … with.
+// Shots. A rotation sets Shoot spot with use … with. pull.apl.siml or the rotation's own prepull puts the hunter at
+// Pull range.
 var ${Shoot spot} = 12
-
-prepull:
-  -22s cast hunters_mark
-  -20s cast aspect_of_the_hawk
-  -19s move $pull_range
 
 group "Walk in":
   /// Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.

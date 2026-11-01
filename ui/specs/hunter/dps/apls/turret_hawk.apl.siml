@@ -1,6 +1,7 @@
 siml 1
 spec hunter
 use "walk_in.apl.siml"
+use "pull.apl.siml"
 
 var ${Use Aimed Shot} = true
 var ${Use Multi-Shot} = false
