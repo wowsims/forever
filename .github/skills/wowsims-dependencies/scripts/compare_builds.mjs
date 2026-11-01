@@ -19,6 +19,8 @@ const { values: args } = parseArgs({
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : 'playwright');
 
 const OUT = args.out ?? fs.mkdtempSync(path.join(os.tmpdir(), 'compare-builds-'));
+// A spec page keeps its dev-only gear on this host alone (`isPreviewOrDevMode`), and a sim needs that gear to mean anything.
+const PREVIEW_ORIGIN = 'https://compare.wowsims-forever.pages.dev';
 const SIM_TIMEOUT = 180_000;
 const STILL = '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}';
 const MIME = {
@@ -33,11 +35,15 @@ const MIME = {
 	'.woff2': 'font/woff2',
 };
 
+const localFile = (root, url) => {
+	const file = path.join(root, decodeURIComponent(url.split('?')[0]));
+	return fs.existsSync(file) && fs.statSync(file).isDirectory() ? path.join(file, 'index.html') : file;
+};
+
 const serve = root =>
 	new Promise(resolve => {
 		const server = http.createServer((request, response) => {
-			let file = path.join(root, decodeURIComponent(request.url.split('?')[0]));
-			if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
+			const file = localFile(root, request.url);
 			fs.readFile(file, (error, body) => {
 				response.writeHead(error ? 404 : 200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' });
 				response.end(error ? undefined : body);
@@ -59,7 +65,7 @@ const specPages = (root, marker) =>
 
 const browser = await chromium.launch();
 
-const newPage = async ({ origin, errors }) => {
+const newPage = async ({ origin, errors, root }) => {
 	const context = await browser.newContext({
 		viewport: { width: 1600, height: 1000 },
 		reducedMotion: 'reduce',
@@ -71,6 +77,16 @@ const newPage = async ({ origin, errors }) => {
 		url => url.origin !== origin,
 		route => route.abort(),
 	);
+	if (root) {
+		await context.route(
+			url => url.origin === origin,
+			route => {
+				const file = localFile(root, new URL(route.request().url()).pathname);
+				if (!fs.existsSync(file)) return route.fulfill({ status: 404 });
+				return route.fulfill({ path: file, contentType: MIME[path.extname(file)] ?? 'application/octet-stream' });
+			},
+		);
+	}
 	const page = await context.newPage();
 	page.on('pageerror', error => errors.push(String(error).slice(0, 200)));
 	return page;
@@ -160,7 +176,7 @@ const compareStories = async (base, head) => {
 };
 
 const comparePages = async (base, head) => {
-	const origins = { base: await serve(path.join(base, 'dist')), head: await serve(path.join(head, 'dist')) };
+	const roots = { base: path.join(base, 'dist'), head: path.join(head, 'dist') };
 	let changed = 0;
 	for (const spec of specPages(path.join(head, 'dist/forever'), 'index.html')) {
 		const tag = spec.replace('/', '_');
@@ -168,8 +184,8 @@ const comparePages = async (base, head) => {
 		const dps = {};
 		for (const side of ['base', 'head']) {
 			const errors = [];
-			const page = await newPage({ origin: origins[side], errors });
-			await openSpec(page, `${origins[side]}/forever/${spec}/`);
+			const page = await newPage({ origin: PREVIEW_ORIGIN, errors, root: roots[side] });
+			await openSpec(page, `${PREVIEW_ORIGIN}/forever/${spec}/`);
 			await eachTab(page, async name => {
 				if (side === 'base') shots.push(name);
 				await shoot(page, `${OUT}/pages/${side}/${tag}__${name}.png`);
@@ -177,7 +193,7 @@ const comparePages = async (base, head) => {
 			dps[side] = await simulate(page);
 			if (side === 'base' && dps.base !== null) {
 				// A sim seeds itself at random: a second base run is the size of the noise the head run is read against.
-				await openSpec(page, `${origins[side]}/forever/${spec}/`);
+				await openSpec(page, `${PREVIEW_ORIGIN}/forever/${spec}/`);
 				dps.base2 = await simulate(page);
 			}
 			await page.context().close();
