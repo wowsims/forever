@@ -39,15 +39,34 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 			Go: "ManaTideTotems", Owner: proto.Class_ClassShaman,
 			SpellID: 17359, CastSpellID: 17359, DBName: "Mana Tide Totem",
 		},
+		{
+			BuffSpec: buffmanifest.BuffSpec{
+				Field: "greater_blessing_of_might", Stats: []proto.Stat{proto.Stat_StatAttackPower},
+			},
+			Scope: buffmanifest.ScopeIndividual, Proto: buffmanifest.ProtoInt32, Go: "GreaterBlessingOfMight",
+			SpellID: 25916, CastSpellID: 25916, Name: "Greater Blessing of Might",
+			RankStates: []rankState{
+				{SpellID: 25782, CastSpellID: 25782, Label: "Greater Blessing of Might Rank 1"},
+				{SpellID: 25916, CastSpellID: 25916, Label: "Greater Blessing of Might Rank 2"},
+			},
+		},
 	}
 
 	rendered, err := RenderBuffsDebuffsTS(rows)
 	if err != nil {
-		t.Fatalf("rendering three rows: %v", err)
+		t.Fatalf("rendering four rows: %v", err)
 	}
 	out := string(rendered)
 
 	want := []string{
+		`export const GreaterBlessingOfMight = makeRankedIndividualBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(25782), label: 'Greater Blessing of Might Rank 1' },
+		{ actionId: ActionId.fromSpellId(25916), label: 'Greater Blessing of Might Rank 2' },
+	],
+	fieldName: 'greaterBlessingOfMight',
+	label: 'Greater Blessing of Might',
+});`,
 		`export const PrayerOfShadowProtection = makeBooleanRaidBuffInput({
 	actionId: ActionId.fromSpellId(27683),
 	fieldName: 'prayerOfShadowProtection',
@@ -79,7 +98,12 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 		ownerClass: Class.ClassShaman,
 	},
 ];`,
-		`export const GENERATED_INDIVIDUAL_BUFFS_CONFIG: RenderableStatOptions[] = [];`,
+		`export const GENERATED_INDIVIDUAL_BUFFS_CONFIG: RenderableStatOptions[] = [
+	{
+		config: GreaterBlessingOfMight,
+		stats: [Stat.StatAttackPower],
+	},
+];`,
 		`export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: HuntersMark,

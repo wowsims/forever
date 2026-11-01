@@ -3,15 +3,15 @@
 		"iterations": 25000
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": true,
+		"arcaneBrilliance": 1,
 		"prayerOfSpirit": true,
-		"giftOfTheWild": true,
-		"prayerOfFortitude": true,
-		"prayerOfShadowProtection": true,
+		"giftOfTheWild": 1,
+		"prayerOfFortitude": 1,
+		"prayerOfShadowProtection": 1,
 		"battleShout": 1,
 		"leaderOfThePack": true,
-		"strengthOfEarthTotem": true,
-		"graceOfAirTotem": true
+		"strengthOfEarthTotem": 1,
+		"graceOfAirTotem": 1
 	},
 	"debuffs": {
 		"judgementOfLight": true,

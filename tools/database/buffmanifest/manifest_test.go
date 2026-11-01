@@ -49,6 +49,26 @@ func TestResolvableRowsNameASpell(t *testing.T) {
 	}
 }
 
+// The settings input shows a rank select's first state as its icon and the next two as badges, and
+// offers each state once.
+func TestRankSelectsHaveTwoToThreeDistinctStates(t *testing.T) {
+	for _, row := range All() {
+		if len(row.Ranks) == 0 {
+			continue
+		}
+		if len(row.Ranks) < 2 || len(row.Ranks) > 3 {
+			t.Errorf("%s has %d ranks, want two or three", row.Field, len(row.Ranks))
+		}
+		seen := map[int32]bool{}
+		for _, rank := range row.Ranks {
+			if seen[rank.SpellID] {
+				t.Errorf("%s lists spell %d twice", row.Field, rank.SpellID)
+			}
+			seen[rank.SpellID] = true
+		}
+	}
+}
+
 func TestProtoType(t *testing.T) {
 	cases := []struct {
 		spec BuffSpec
@@ -59,6 +79,7 @@ func TestProtoType(t *testing.T) {
 		{BuffSpec{ImpAction: &ActionRef{SpellID: 23563}}, ProtoTristate},
 		{BuffSpec{Kind: KindExternalCD}, ProtoInt32},
 		{BuffSpec{Kind: KindItemCount}, ProtoInt32},
+		{BuffSpec{Ranks: []BuffRank{{SpellID: 1}, {SpellID: 2}}}, ProtoInt32},
 		{BuffSpec{Kind: KindFlag, Proto: ProtoDouble}, ProtoDouble},
 	}
 	for _, c := range cases {

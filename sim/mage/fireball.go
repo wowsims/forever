@@ -5,17 +5,20 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.Fireball lists.
+// Rank 11 is the last rank the trainer teaches; rank 12 comes from the Tome of Fireball XII book.
+var fireballTrainerRank = spellData.Fireball.ByID(10151)
+var fireballBookRank = spellData.Fireball.ByID(25306)
+
 func (mage *Mage) registerFireballSpell() {
-	//Rank 11 is last trainer taught spell
-	mage.registerFireballRank(spellData.Fireball.Len(), spellData.Fireball.Rank(11))
+	mage.registerFireballRank(fireballTrainerRank)
+	mage.registerFireballRank(fireballBookRank)
 }
 
-func (mage *Mage) registerFireballRank(_ int32, rank *spelldata.Spell) {
+func (mage *Mage) registerFireballRank(rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
-	// The DoT is its own spell (MageSpellFireballDot).
+	// The DoT is its own spell (MageSpellFireballDot). Its ranks share one rank group, so a mage keeps one
+	// burn on a target and the higher rank holds it.
 	dotConfig := spelldata.SpellConfig(&mage.Unit, rank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1))
 	dotConfig.ClassSpellMask = MageSpellFireballDot

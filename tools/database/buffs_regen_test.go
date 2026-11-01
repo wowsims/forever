@@ -76,6 +76,24 @@ func TestResolvedBuffInvariants(t *testing.T) {
 	}
 }
 
+// A rank select's state stands in for the row, so the generator refuses a state that attaches other
+// amounts: a stamina row under an intellect field here.
+func TestRankStateMustAttachWhatTheRowAttaches(t *testing.T) {
+	inRepositoryRoot(t)
+	in := committedInputs(t)
+	for _, row := range buffmanifest.All() {
+		if row.Field != "arcane_brilliance" {
+			continue
+		}
+		row.Ranks = []buffmanifest.BuffRank{{SpellID: 10938}, {SpellID: row.SpellID}}
+		if _, err := resolveBuff(in.tables(), in.TraitNodes, row); err == nil {
+			t.Error("the row resolved with a state that attaches another stat")
+		}
+		return
+	}
+	t.Fatal("no arcane_brilliance row")
+}
+
 // Every raid and individual row names the group it reaches, so each is checked two ways: that the
 // game files agree with the scope, and that they state a group at all. A party or debuff row the
 // game files state nothing for is exempt, because its scope is then the sim's grouping rather than

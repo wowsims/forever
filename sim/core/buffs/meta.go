@@ -110,6 +110,23 @@ func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
 	return &ranked
 }
 
+// A state of a rank select: the row on the state's own spell, which may be another spell's, under the
+// state's label. Every state bids in the row's categories.
+func (m *Meta) atState(spell *spelldata.Spell, label string) *Meta {
+	state := *m
+	state.Label = label
+	state.Spell = spell
+	return &state
+}
+
+// The states of a rank select, in the order the proto field counts them from 1.
+type rankStates []*Meta
+
+// A state past the last reads as the last.
+func (r rankStates) at(state int32) *Meta {
+	return r[min(int(state), len(r))-1]
+}
+
 func (m *Meta) actionID(isPlayer bool) core.ActionID {
 	return core.ActionID{SpellID: m.Spell.ID}.WithTag(core.TernaryInt32(isPlayer, 0, -1))
 }

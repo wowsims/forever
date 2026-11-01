@@ -9,6 +9,8 @@ import {
 	makeBooleanRaidBuffInput,
 	makeMultistateIndividualBuffInput,
 	makeMultistatePartyBuffInput,
+	makeRankedIndividualBuffInput,
+	makeRankedRaidBuffInput,
 	makeTristatePartyBuffInput,
 } from '@features/inputs/icon_inputs';
 
@@ -106,8 +108,11 @@ export const DarkInspiration = makeMultistatePartyBuffInput({
 	label: 'Dark Inspiration',
 });
 
-export const ArcaneBrilliance = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(23028),
+export const ArcaneBrilliance = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10157), label: 'Arcane Intellect Rank 5' },
+		{ actionId: ActionId.fromSpellId(23028), label: 'Arcane Brilliance' },
+	],
 	fieldName: 'arcaneBrilliance',
 	label: 'Arcane Brilliance',
 });
@@ -118,20 +123,31 @@ export const PrayerOfSpirit = makeBooleanRaidBuffInput({
 	label: 'Prayer of Spirit',
 });
 
-export const GiftOfTheWild = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(21850),
+export const GiftOfTheWild = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(9885), label: 'Mark of the Wild Rank 7' },
+		{ actionId: ActionId.fromSpellId(21849), label: 'Gift of the Wild Rank 1' },
+		{ actionId: ActionId.fromSpellId(21850), label: 'Gift of the Wild Rank 2' },
+	],
 	fieldName: 'giftOfTheWild',
 	label: 'Gift of the Wild',
 });
 
-export const PrayerOfFortitude = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(21564),
+export const PrayerOfFortitude = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10938), label: 'Power Word: Fortitude Rank 6' },
+		{ actionId: ActionId.fromSpellId(21562), label: 'Prayer of Fortitude Rank 1' },
+		{ actionId: ActionId.fromSpellId(21564), label: 'Prayer of Fortitude Rank 2' },
+	],
 	fieldName: 'prayerOfFortitude',
 	label: 'Prayer of Fortitude',
 });
 
-export const PrayerOfShadowProtection = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(27683),
+export const PrayerOfShadowProtection = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10958), label: 'Shadow Protection Rank 3' },
+		{ actionId: ActionId.fromSpellId(27683), label: 'Prayer of Shadow Protection' },
+	],
 	fieldName: 'prayerOfShadowProtection',
 	label: 'Prayer of Shadow Protection',
 });
@@ -172,14 +188,20 @@ export const NatureResistanceTotem = makeBooleanRaidBuffInput({
 	label: 'Nature Resistance Totem',
 });
 
-export const StrengthOfEarthTotem = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(10442),
+export const StrengthOfEarthTotem = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10442), label: 'Strength of Earth Totem Rank 4' },
+		{ actionId: ActionId.fromSpellId(25361), label: 'Strength of Earth Totem Rank 5' },
+	],
 	fieldName: 'strengthOfEarthTotem',
 	label: 'Strength of Earth Totem',
 });
 
-export const GraceOfAirTotem = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(10627),
+export const GraceOfAirTotem = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10627), label: 'Grace of Air Totem Rank 2' },
+		{ actionId: ActionId.fromSpellId(25359), label: 'Grace of Air Totem Rank 3' },
+	],
 	fieldName: 'graceOfAirTotem',
 	label: 'Grace of Air Totem',
 });
@@ -234,14 +256,20 @@ export const GreaterBlessingOfKings = makeBooleanIndividualBuffInput({
 	label: 'Greater Blessing of Kings',
 });
 
-export const GreaterBlessingOfMight = makeBooleanIndividualBuffInput({
-	actionId: ActionId.fromSpellId(25916),
+export const GreaterBlessingOfMight = makeRankedIndividualBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(25782), label: 'Greater Blessing of Might Rank 1' },
+		{ actionId: ActionId.fromSpellId(25916), label: 'Greater Blessing of Might Rank 2' },
+	],
 	fieldName: 'greaterBlessingOfMight',
 	label: 'Greater Blessing of Might',
 });
 
-export const GreaterBlessingOfWisdom = makeBooleanIndividualBuffInput({
-	actionId: ActionId.fromSpellId(25918),
+export const GreaterBlessingOfWisdom = makeRankedIndividualBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(25894), label: 'Greater Blessing of Wisdom Rank 1' },
+		{ actionId: ActionId.fromSpellId(25918), label: 'Greater Blessing of Wisdom Rank 2' },
+	],
 	fieldName: 'greaterBlessingOfWisdom',
 	label: 'Greater Blessing of Wisdom',
 });

@@ -60,9 +60,9 @@ export const DefaultConsumables = ConsumesSpec.create({
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfSpirit: true,
-	arcaneBrilliance: true,
-	giftOfTheWild: true,
-	prayerOfFortitude: true,
+	arcaneBrilliance: 1,
+	giftOfTheWild: 1,
+	prayerOfFortitude: 1,
 	moonkinAura: true,
 });
 
@@ -74,7 +74,7 @@ export const DefaultPartyBuffs = PartyBuffs.create({
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: true,
+	greaterBlessingOfWisdom: 1,
 	innervates: 1,
 });
 

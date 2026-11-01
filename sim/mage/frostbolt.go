@@ -5,14 +5,16 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.Frostbolt lists.
+// Rank 10 is the last rank the trainer teaches; rank 11 comes from the Tome of Frostbolt XI book.
+var frostboltTrainerRank = spellData.Frostbolt.ByID(10181)
+var frostboltBookRank = spellData.Frostbolt.ByID(25304)
+
 func (mage *Mage) registerFrostboltSpell() {
-	//Rank 10 is last trainer taught spell
-	mage.registerFrostboltRank(spellData.Frostbolt.Len(), spellData.Frostbolt.Rank(10))
+	mage.registerFrostboltRank(frostboltTrainerRank)
+	mage.registerFrostboltRank(frostboltBookRank)
 }
 
-func (mage *Mage) registerFrostboltRank(_ int32, rank *spelldata.Spell) {
+func (mage *Mage) registerFrostboltRank(rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
 	// Binary: a spell with a non-damage effect (the slow) is resisted whole or not at all, which the

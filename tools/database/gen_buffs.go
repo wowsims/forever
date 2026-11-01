@@ -64,6 +64,9 @@ type ResolvedBuff struct {
 	// captured game files rows the store is rendered from.
 	Spell *spelldata.Spell
 
+	// A rank select's states, in the order the proto field counts them from 1.
+	RankStates []rankState
+
 	// SkipAuraTypes are the auras the row states at 0 beside the buff, which the parse leaves out.
 	SkipAuraTypes []dbcenums.EffectAuraType
 	// FullComboPoints says a debuff's amount is stated per combo point, and the
@@ -99,6 +102,13 @@ type ResolvedBuff struct {
 	Supported bool
 	Reason    string
 	Warnings  []string
+}
+
+// One state of a rank select, as its row and its cast state it.
+type rankState struct {
+	SpellID     int32
+	CastSpellID int32
+	Label       string // the cast's name and rank
 }
 
 func (r *ResolvedBuff) warn(format string, args ...any) {
@@ -150,6 +160,9 @@ func resolveBuff(t *spellTables, nodes []traitNode, spec buffmanifest.Row) (Reso
 		row.Kind = buffmanifest.KindDamageShield
 	}
 	parseBuff(&row)
+	if err := resolveRankStates(t, &row); err != nil {
+		return row, err
+	}
 	if err := resolveTalent(t, nodes, &row); err != nil {
 		return row, err
 	}
@@ -316,6 +329,44 @@ func parseBuff(row *ResolvedBuff) {
 		row.unsupported("spell %d states no aura effect the parse attaches: %s", row.SpellID,
 			strings.Join(row.LeftOut, "; "))
 	}
+}
+
+// The rank select's states. Each stands in for the row, so a state must attach the amounts the row
+// attaches, by kind, and a totem's must summon into a totem slot as the row's cast does.
+func resolveRankStates(t *spellTables, row *ResolvedBuff) error {
+	want := appliedKinds(row.Applied)
+	for _, rank := range row.Ranks {
+		state := rankState{SpellID: rank.SpellID, CastSpellID: rank.SpellID}
+		if rank.CastID != 0 {
+			state.CastSpellID = rank.CastID
+		}
+		for _, id := range []int32{state.SpellID, state.CastSpellID} {
+			if _, named := t.Names[id]; !named {
+				return fmt.Errorf("rank spell %d is no spell in the game files", id)
+			}
+		}
+
+		cast := t.row(state.CastSpellID)
+		state.Label = strings.TrimSpace(t.Names[state.CastSpellID] + " " + cast.Rank)
+		if summonsTotem(cast) != row.Totem {
+			return fmt.Errorf("rank spell %d summons a totem where the row's cast %d does not, or the other way round", state.CastSpellID, row.CastSpellID)
+		}
+		got := appliedKinds(spelldata.DryRun(storeRowSpell(t.row(state.SpellID)), row.parseOptions()...).Applied)
+		if !slices.Equal(got, want) {
+			return fmt.Errorf("rank spell %d attaches %v where the row attaches %v", state.SpellID, got, want)
+		}
+		row.RankStates = append(row.RankStates, state)
+	}
+	return nil
+}
+
+func appliedKinds(applied []spelldata.Applied) []string {
+	kinds := make([]string, len(applied))
+	for i, a := range applied {
+		kinds[i] = a.Kind
+	}
+	slices.Sort(kinds)
+	return kinds
 }
 
 // The options buffs.Meta.Options states for the row, less the talent's scaling,
@@ -586,6 +637,8 @@ type buffRow struct {
 	ApplyIf     string
 	ApplyBody   string
 	HasApply    bool
+	RanksVar    string
+	RankStates  []string
 }
 
 // Every file the manifest renders, by the path it is written to: the two Go
@@ -732,6 +785,12 @@ func renderRow(row ResolvedBuff) buffRow {
 	out.HasValue = len(row.Applied) > 0 || row.Kind == buffmanifest.KindDamageShield
 	out.HasCooldown = row.CooldownMs > 0
 	out.Constructor = buffConstructor(row, out)
+	if len(row.RankStates) > 0 {
+		out.RanksVar = lowerFirst(row.Go) + "Ranks"
+		for _, state := range row.RankStates {
+			out.RankStates = append(out.RankStates, fmt.Sprintf("%s.atState(spelldata.MustFind(%d), %q),", out.MetaVar, state.SpellID, state.Label))
+		}
+	}
 	out.ApplyIf, out.ApplyBody, out.HasApply = buffApply(row, out.SpellVar)
 	return out
 }
@@ -820,13 +879,22 @@ func buffConstructor(row ResolvedBuff, rendered buffRow) string {
 // scope message rather than its own field, because a driven buff often reads a
 // second one: Flametongue Totem does nothing under Windfury Totem. Any other totem
 // stands through standTotem, which puts it on the character's true pets too
-// unless the row's spell says only a player can carry it.
+// unless the row's spell says only a player can carry it. A rank select applies
+// the state its field holds in place of the row.
 func buffApply(row ResolvedBuff, spellVar string) (string, string, bool) {
 	unit, field := "char", buffScopeField(row.Scope)
 	if row.Scope == buffmanifest.ScopeDebuff {
 		unit = "target"
 	}
 	access := field + "." + row.GoField()
+
+	if len(row.RankStates) > 0 {
+		state := fmt.Sprintf("%sRanks.at(%s)", lowerFirst(row.Go), access)
+		if row.Totem {
+			return access + " > 0", fmt.Sprintf("standRankedTotem(char, %s)", state), true
+		}
+		return access + " > 0", fmt.Sprintf("core.MakePermanent(newBuff(&char.Unit, %s, false, 0))", state), true
+	}
 
 	var cond, points string
 	switch row.Proto {

@@ -5,11 +5,18 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var feintRank = spellData.Feint.Rank(4)
+// Rank 4 is the last rank the trainer teaches; rank 5 comes from the Handbook of Feint V book.
+var feintTrainerRank = spellData.Feint.ByID(11303)
+var feintBookRank = spellData.Feint.ByID(25302)
 
 // This exists purely to model the DPS loss of having to occasionally feint
 func (rogue *Rogue) registerFeintSpell() {
-	config := spelldata.SpellConfig(&rogue.Unit, feintRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	rogue.registerFeintRank(feintTrainerRank)
+	rogue.registerFeintRank(feintBookRank)
+}
+
+func (rogue *Rogue) registerFeintRank(rank *spelldata.Spell) {
+	config := spelldata.SpellConfig(&rogue.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	// The row lacks No Active Defense, so the target can dodge it and, from the front, parry it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

@@ -72,6 +72,16 @@ func (l Ladder) Highest() *Spell {
 	return l.ranks[len(l.ranks)-1]
 }
 
+// The highest rank that is no class book rank, or Nil when the ladder has none.
+func (l Ladder) HighestTrained() *Spell {
+	for _, s := range slices.Backward(l.ranks) {
+		if !IsBookRank(s.ID) {
+			return s
+		}
+	}
+	return Nil
+}
+
 // The rank with this spell id. Panics on an id the ladder does not carry, the way MustFind does on a
 // spell the store does not carry.
 func (l Ladder) ByID(id int32) *Spell {

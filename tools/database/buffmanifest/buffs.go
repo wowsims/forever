@@ -5,12 +5,17 @@ import "github.com/wowsims/forever/sim/core/proto"
 // One row per proto field of RaidBuffs, PartyBuffs, IndividualBuffs and Debuffs, in the order the
 // settings tab lists them, with the fields that have no input after the last one that does. A
 // field's proto number is its position in its slice.
+//
+// A row's Ranks open with the rank no class book teaches. A book teaches the last rank of a totem or a
+// greater blessing, so the list opens with the trainer's top rank, and every rank of a group buff, so
+// the list opens with the single-target spell. Prayer of Spirit stays a bool, since no item teaches it.
 
 var Raid = []BuffSpec{
 	{
 		Field:    "arcane_brilliance",
 		SpellID:  23028,
 		Category: "StatBuff",
+		Ranks:    []BuffRank{{SpellID: 10157}, {SpellID: 23028}},
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
 		},
@@ -26,6 +31,7 @@ var Raid = []BuffSpec{
 	{
 		Field:   "gift_of_the_wild",
 		SpellID: 21850,
+		Ranks:   []BuffRank{{SpellID: 9885}, {SpellID: 21849}, {SpellID: 21850}},
 		Stats: []proto.Stat{
 			proto.Stat_StatArmor,
 			proto.Stat_StatStrength,
@@ -39,6 +45,7 @@ var Raid = []BuffSpec{
 		Field:    "prayer_of_fortitude",
 		SpellID:  21564,
 		Category: "StatBuff",
+		Ranks:    []BuffRank{{SpellID: 10938}, {SpellID: 21562}, {SpellID: 21564}},
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},
@@ -46,6 +53,7 @@ var Raid = []BuffSpec{
 	{
 		Field:   "prayer_of_shadow_protection",
 		SpellID: 27683,
+		Ranks:   []BuffRank{{SpellID: 10958}, {SpellID: 27683}},
 		Stats: []proto.Stat{
 			proto.Stat_StatShadowResistance,
 		},
@@ -105,21 +113,21 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		// The trainer's top rank; a class book teaches the rank above it (25361, buff 25362).
 		Field:    "strength_of_earth_totem",
 		SpellID:  10441,
 		CastID:   10442,
 		Category: "StrengthOfEarthTotem",
+		Ranks:    []BuffRank{{SpellID: 10441, CastID: 10442}, {SpellID: 25362, CastID: 25361}},
 		Stats: []proto.Stat{
 			proto.Stat_StatStrength,
 		},
 	},
 	{
-		// The trainer's top rank; a class book teaches the rank above it (25359, buff 25360).
 		Field:    "grace_of_air_totem",
 		SpellID:  10626,
 		CastID:   10627,
 		Category: "GraceOfAirTotem",
+		Ranks:    []BuffRank{{SpellID: 10626, CastID: 10627}, {SpellID: 25360, CastID: 25359}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAgility,
 		},
@@ -391,6 +399,7 @@ var Individual = []BuffSpec{
 	{
 		Field:   "greater_blessing_of_might",
 		SpellID: 25916,
+		Ranks:   []BuffRank{{SpellID: 25782}, {SpellID: 25916}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},
@@ -398,6 +407,7 @@ var Individual = []BuffSpec{
 	{
 		Field:   "greater_blessing_of_wisdom",
 		SpellID: 25918,
+		Ranks:   []BuffRank{{SpellID: 25894}, {SpellID: 25918}},
 		Stats: []proto.Stat{
 			proto.Stat_StatMP5,
 		},

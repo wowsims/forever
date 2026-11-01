@@ -53,6 +53,7 @@ export const AURA_AS_RESOURCE: ActionId[] = [
 export const IDS_TO_GROUP_FOR_ROTATION: Array<number> = [
 	6774, // Rogue - Slice and Dice
 	11300, // Rogue - Eviscerate
+	31016, // Rogue - Eviscerate (the rank a class book teaches)
 	11275, // Rogue - Rupture
 	11198, // Rogue - Expose Armor
 	5019, // Wand - Shoot (the channel and its shots)

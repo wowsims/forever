@@ -9,13 +9,13 @@
 		}
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": true,
+		"arcaneBrilliance": 1,
 		"battleShout": 2,
 		"leaderOfThePack": true,
 		"moonkinAura": true,
 		"trueshotAura": true,
-		"strengthOfEarthTotem": true,
-		"graceOfAirTotem": true,
+		"strengthOfEarthTotem": 1,
+		"graceOfAirTotem": 1,
 		"windfuryTotem": true
 	},
 	"partyBuffs": {

@@ -75,7 +75,11 @@ export const BUFFS_CONFIG = inDisplayOrder(
 		Generated.PrayerOfFortitude,
 		Generated.GreaterBlessingOfMight,
 		Generated.GreaterBlessingOfWisdom,
-		statOptionGroup(i18n.t('settings_tab.raid_buffs.shadow_resistance'), [Generated.PrayerOfShadowProtection, Generated.ShadowResistanceAura]),
+		statOptionGroup(
+			i18n.t('settings_tab.raid_buffs.shadow_resistance'),
+			[Generated.PrayerOfShadowProtection, Generated.ShadowResistanceAura],
+			i18n.t('settings_tab.raid_buffs.shadow_resistance_tooltip'),
+		),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.fire_resistance'), [Generated.FireResistanceAura, Generated.FireResistanceTotem]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.frost_resistance'), [Generated.FrostResistanceAura, Generated.FrostResistanceTotem]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.nature_resistance'), [Generated.NatureResistanceTotem, Generated.AspectOfTheWild]),

@@ -21,7 +21,7 @@
 			"spell": {
 				"aimed_shot": { "spellId": 20904, "rank": 6, "registeredBy": ["hunter"] },
 				"arcane_shot": { "spellId": 14287, "rank": 8, "registeredBy": ["hunter"] },
-				"aspect_of_the_hawk": { "spellId": 25296, "rank": 7, "registeredBy": ["hunter"] },
+				"aspect_of_the_hawk": { "spellId": 14322, "rank": 6, "registeredBy": ["hunter"] },
 				"aura_spell": { "spellId": 990201, "registeredBy": ["hunter"] },
 				"hunter_shot": { "spellId": 900010, "registeredBy": ["hunter"] },
 				"hunters_mark": { "spellId": 14325, "rank": 4, "registeredBy": ["hunter"] },
@@ -33,7 +33,7 @@
 				"rapid_fire": { "spellId": 3045, "registeredBy": ["hunter"] },
 				"raptor_strike": { "spellId": 14266, "tag": 1, "registeredBy": ["hunter"] },
 				"raptor_strike_tag0": { "spellId": 14266, "rank": 8, "registeredBy": ["hunter"], "uncastable": true },
-				"serpent_sting": { "spellId": 25295, "rank": 9, "registeredBy": ["hunter"] },
+				"serpent_sting": { "spellId": 13555, "rank": 8, "registeredBy": ["hunter"] },
 				"spell_5_second_rule": { "spellId": 900004, "registeredBy": [] },
 				"steady_shot": { "spellId": 900001, "registeredBy": [] },
 				"steady_shot_900002": { "spellId": 900002, "registeredBy": [] },

@@ -126,7 +126,7 @@ describe('Player.getRandomSuffixes', () => {
 });
 
 describe('UnitMetadata ranks', () => {
-	// 2120 and 2121 are two ranks of Flamestrike, 25304 the only rank of Frostbolt the sim registers.
+	// 2120 and 2121 are two ranks of Flamestrike, and 25304 is the one rank of Frostbolt these tests register.
 	const names: Record<number, string> = { 2120: 'Flamestrike', 2121: 'Flamestrike', 25304: 'Frostbolt' };
 	beforeEach(() => {
 		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async id => ({ id: id.spellId, name: names[id.spellId], icon: '' }) as never);

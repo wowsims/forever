@@ -58,14 +58,14 @@ func FreshDefaultTargetConfig() *proto.Target {
 var DefaultTargetProto = FreshDefaultTargetConfig()
 
 var FullRaidBuffs = &proto.RaidBuffs{
-	ArcaneBrilliance:         true,
-	PrayerOfFortitude:        true,
+	ArcaneBrilliance:         1,
+	PrayerOfFortitude:        1,
 	PrayerOfSpirit:           true,
-	GiftOfTheWild:            true,
-	PrayerOfShadowProtection: true,
+	GiftOfTheWild:            1,
+	PrayerOfShadowProtection: 1,
 
-	GraceOfAirTotem:      true,
-	StrengthOfEarthTotem: true,
+	GraceOfAirTotem:      1,
+	StrengthOfEarthTotem: 1,
 	WindfuryTotem:        true,
 	BattleShout:          1, // Rank 6
 	TrueshotAura:         true,
@@ -89,15 +89,15 @@ var FullPartyBuffs = &proto.PartyBuffs{
 
 var FullIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfKings:  true,
-	GreaterBlessingOfWisdom: true,
-	GreaterBlessingOfMight:  true,
+	GreaterBlessingOfWisdom: 1,
+	GreaterBlessingOfMight:  1,
 	Thorns:                  true,
 }
 
 var FullTankIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfKings:  true,
-	GreaterBlessingOfWisdom: true,
-	GreaterBlessingOfMight:  true,
+	GreaterBlessingOfWisdom: 1,
+	GreaterBlessingOfMight:  1,
 	Thorns:                  true,
 }
 

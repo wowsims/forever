@@ -308,6 +308,10 @@ var arcaneBrillianceMeta = &Meta{
 	Spell:    arcaneBrillianceSpell,
 	Category: ArcaneBrillianceCategory,
 }
+var arcaneBrillianceRanks = rankStates{
+	arcaneBrillianceMeta.atState(spelldata.MustFind(10157), "Arcane Intellect Rank 5"),
+	arcaneBrillianceMeta.atState(spelldata.MustFind(23028), "Arcane Brilliance"),
+}
 
 func ArcaneBrillianceValue(talentPoints int32) float64 {
 	return arcaneBrillianceMeta.Value(talentPoints)
@@ -345,6 +349,11 @@ var giftOfTheWildMeta = &Meta{
 	Label: "Gift of the Wild",
 	Spell: giftOfTheWildSpell,
 }
+var giftOfTheWildRanks = rankStates{
+	giftOfTheWildMeta.atState(spelldata.MustFind(9885), "Mark of the Wild Rank 7"),
+	giftOfTheWildMeta.atState(spelldata.MustFind(21849), "Gift of the Wild Rank 1"),
+	giftOfTheWildMeta.atState(spelldata.MustFind(21850), "Gift of the Wild Rank 2"),
+}
 
 func GiftOfTheWildValue(talentPoints int32) float64 {
 	return giftOfTheWildMeta.Value(talentPoints)
@@ -364,6 +373,11 @@ var prayerOfFortitudeMeta = &Meta{
 	Spell:    prayerOfFortitudeSpell,
 	Category: PrayerOfFortitudeCategory,
 }
+var prayerOfFortitudeRanks = rankStates{
+	prayerOfFortitudeMeta.atState(spelldata.MustFind(10938), "Power Word: Fortitude Rank 6"),
+	prayerOfFortitudeMeta.atState(spelldata.MustFind(21562), "Prayer of Fortitude Rank 1"),
+	prayerOfFortitudeMeta.atState(spelldata.MustFind(21564), "Prayer of Fortitude Rank 2"),
+}
 
 func PrayerOfFortitudeValue(talentPoints int32) float64 {
 	return prayerOfFortitudeMeta.Value(talentPoints)
@@ -380,6 +394,10 @@ var prayerOfShadowProtectionSpell = spelldata.MustFind(27683)
 var prayerOfShadowProtectionMeta = &Meta{
 	Label: "Prayer of Shadow Protection",
 	Spell: prayerOfShadowProtectionSpell,
+}
+var prayerOfShadowProtectionRanks = rankStates{
+	prayerOfShadowProtectionMeta.atState(spelldata.MustFind(10958), "Shadow Protection Rank 3"),
+	prayerOfShadowProtectionMeta.atState(spelldata.MustFind(27683), "Prayer of Shadow Protection"),
 }
 
 func PrayerOfShadowProtectionValue(talentPoints int32) float64 {
@@ -517,6 +535,10 @@ var strengthOfEarthTotemMeta = &Meta{
 	Spell:    strengthOfEarthTotemSpell,
 	Category: StrengthOfEarthTotemCategory,
 }
+var strengthOfEarthTotemRanks = rankStates{
+	strengthOfEarthTotemMeta.atState(spelldata.MustFind(10441), "Strength of Earth Totem Rank 4"),
+	strengthOfEarthTotemMeta.atState(spelldata.MustFind(25362), "Strength of Earth Totem Rank 5"),
+}
 
 func StrengthOfEarthTotemValue(talentPoints int32) float64 {
 	return strengthOfEarthTotemMeta.Value(talentPoints)
@@ -535,6 +557,10 @@ var graceOfAirTotemMeta = &Meta{
 	Label:    "Grace of Air Totem",
 	Spell:    graceOfAirTotemSpell,
 	Category: GraceOfAirTotemCategory,
+}
+var graceOfAirTotemRanks = rankStates{
+	graceOfAirTotemMeta.atState(spelldata.MustFind(10626), "Grace of Air Totem Rank 2"),
+	graceOfAirTotemMeta.atState(spelldata.MustFind(25360), "Grace of Air Totem Rank 3"),
 }
 
 func GraceOfAirTotemValue(talentPoints int32) float64 {
@@ -720,6 +746,10 @@ var greaterBlessingOfMightMeta = &Meta{
 	Label: "Greater Blessing of Might",
 	Spell: greaterBlessingOfMightSpell,
 }
+var greaterBlessingOfMightRanks = rankStates{
+	greaterBlessingOfMightMeta.atState(spelldata.MustFind(25782), "Greater Blessing of Might Rank 1"),
+	greaterBlessingOfMightMeta.atState(spelldata.MustFind(25916), "Greater Blessing of Might Rank 2"),
+}
 
 func GreaterBlessingOfMightValue(talentPoints int32) float64 {
 	return greaterBlessingOfMightMeta.Value(talentPoints)
@@ -736,6 +766,10 @@ var greaterBlessingOfWisdomSpell = spelldata.MustFind(25918)
 var greaterBlessingOfWisdomMeta = &Meta{
 	Label: "Greater Blessing of Wisdom",
 	Spell: greaterBlessingOfWisdomSpell,
+}
+var greaterBlessingOfWisdomRanks = rankStates{
+	greaterBlessingOfWisdomMeta.atState(spelldata.MustFind(25894), "Greater Blessing of Wisdom Rank 1"),
+	greaterBlessingOfWisdomMeta.atState(spelldata.MustFind(25918), "Greater Blessing of Wisdom Rank 2"),
 }
 
 func GreaterBlessingOfWisdomValue(talentPoints int32) float64 {
@@ -861,20 +895,20 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if party.DarkInspiration > 0 {
 		core.MakePermanent(NewSpellDataDarkInspirationAura(&char.Unit, false, min(party.DarkInspiration, 5)))
 	}
-	if raid.ArcaneBrilliance {
-		core.MakePermanent(NewSpellDataArcaneBrillianceAura(&char.Unit, false, 0))
+	if raid.ArcaneBrilliance > 0 {
+		core.MakePermanent(newBuff(&char.Unit, arcaneBrillianceRanks.at(raid.ArcaneBrilliance), false, 0))
 	}
 	if raid.PrayerOfSpirit {
 		core.MakePermanent(NewSpellDataPrayerOfSpiritAura(&char.Unit, false, 0))
 	}
-	if raid.GiftOfTheWild {
-		core.MakePermanent(NewSpellDataGiftOfTheWildAura(&char.Unit, false, 0))
+	if raid.GiftOfTheWild > 0 {
+		core.MakePermanent(newBuff(&char.Unit, giftOfTheWildRanks.at(raid.GiftOfTheWild), false, 0))
 	}
-	if raid.PrayerOfFortitude {
-		core.MakePermanent(NewSpellDataPrayerOfFortitudeAura(&char.Unit, false, 0))
+	if raid.PrayerOfFortitude > 0 {
+		core.MakePermanent(newBuff(&char.Unit, prayerOfFortitudeRanks.at(raid.PrayerOfFortitude), false, 0))
 	}
-	if raid.PrayerOfShadowProtection {
-		core.MakePermanent(NewSpellDataPrayerOfShadowProtectionAura(&char.Unit, false, 0))
+	if raid.PrayerOfShadowProtection > 0 {
+		core.MakePermanent(newBuff(&char.Unit, prayerOfShadowProtectionRanks.at(raid.PrayerOfShadowProtection), false, 0))
 	}
 	if raid.FireResistanceAura {
 		core.MakePermanent(NewSpellDataFireResistanceAura(&char.Unit, false, 0))
@@ -894,11 +928,11 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if raid.NatureResistanceTotem {
 		standTotem(char, natureResistanceTotemSpell, NewSpellDataNatureResistanceTotemAura, 0)
 	}
-	if raid.StrengthOfEarthTotem {
-		standTotem(char, strengthOfEarthTotemSpell, NewSpellDataStrengthOfEarthTotemAura, 0)
+	if raid.StrengthOfEarthTotem > 0 {
+		standRankedTotem(char, strengthOfEarthTotemRanks.at(raid.StrengthOfEarthTotem))
 	}
-	if raid.GraceOfAirTotem {
-		standTotem(char, graceOfAirTotemSpell, NewSpellDataGraceOfAirTotemAura, 0)
+	if raid.GraceOfAirTotem > 0 {
+		standRankedTotem(char, graceOfAirTotemRanks.at(raid.GraceOfAirTotem))
 	}
 	if raid.WindfuryTotem {
 		driveWindfuryTotem(char, raid)
@@ -927,11 +961,11 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	if individual.GreaterBlessingOfKings {
 		core.MakePermanent(NewSpellDataGreaterBlessingOfKingsAura(&char.Unit, false, 0))
 	}
-	if individual.GreaterBlessingOfMight {
-		core.MakePermanent(NewSpellDataGreaterBlessingOfMightAura(&char.Unit, false, 0))
+	if individual.GreaterBlessingOfMight > 0 {
+		core.MakePermanent(newBuff(&char.Unit, greaterBlessingOfMightRanks.at(individual.GreaterBlessingOfMight), false, 0))
 	}
-	if individual.GreaterBlessingOfWisdom {
-		core.MakePermanent(NewSpellDataGreaterBlessingOfWisdomAura(&char.Unit, false, 0))
+	if individual.GreaterBlessingOfWisdom > 0 {
+		core.MakePermanent(newBuff(&char.Unit, greaterBlessingOfWisdomRanks.at(individual.GreaterBlessingOfWisdom), false, 0))
 	}
 	if individual.Innervates > 0 {
 		driveInnervates(char, individual)

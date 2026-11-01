@@ -118,7 +118,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	}
 
 	t.Run("alone the cast adds the row's stamina for the row's mana", func(t *testing.T) {
-		sim, priest, spell := newSim(t, &proto.RaidBuffs{ArcaneBrilliance: true})
+		sim, priest, spell := newSim(t, &proto.RaidBuffs{ArcaneBrilliance: 1})
 		stamina, mana := priest.GetStats()[stats.Stamina], priest.CurrentMana()
 
 		if !spell.Cast(sim, &priest.Unit) {
@@ -133,7 +133,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	})
 
 	t.Run("the raid buff holds the category", func(t *testing.T) {
-		sim, priest, spell := newSim(t, &proto.RaidBuffs{PrayerOfFortitude: true})
+		sim, priest, spell := newSim(t, &proto.RaidBuffs{PrayerOfFortitude: 1})
 		stamina := priest.GetStats()[stats.Stamina]
 
 		if spell.Cast(sim, &priest.Unit) {

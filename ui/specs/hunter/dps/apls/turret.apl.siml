@@ -10,7 +10,7 @@ var ${Use Summon Hawk} = false
 
 prepull:
   -22s cast hunters_mark
-  -20s cast aspect_of_the_hawk_rank6
+  -20s cast aspect_of_the_hawk
   -19s move $pull_range
   // Open with Sniper Shot, started one cast before the pull so it lands as the fight starts.
   (spell(sniper_shot).cast_time * -1) cast sniper_shot if $use_sniper_shot
@@ -18,7 +18,7 @@ prepull:
 priority:
   autocast_other_cooldowns if current_time >= 5s
   cast hunters_mark if not target.aura(hunters_mark).is_active
-  cast serpent_sting_rank8 if not dot(serpent_sting_rank8).is_active
+  cast serpent_sting if not dot(serpent_sting).is_active
   reset_sequence("HHA") if hawk_and_arcane and sequence("HHA").is_complete
   sequence "HHA" [cast summon_hawk, cast summon_hawk, cast arcane_shot] if hawk_and_arcane
   cast summon_hawk if $use_summon_hawk and not $use_arcane_shot

@@ -75,6 +75,8 @@ message Rogue {
 	message Rotation {
 		bool use_backstab = 1;
 		bool use_expose_armor = 2;
+		bool use_backstab_rank_9 = 3;
+		bool use_eviscerate_rank_9 = 4;
 	}
 
 	message Options {

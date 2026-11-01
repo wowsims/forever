@@ -186,25 +186,25 @@ func TestTheStrongerBattleShoutTakesTheCategory(t *testing.T) {
 	}
 }
 
-// Two flat stat rows: Prayer of Fortitude's stamina bids in StatBuff's stamina category and Blood Pact
+// Two flat stat rows: Power Word: Fortitude's stamina bids in StatBuff's stamina category and Blood Pact
 // in BloodPact, so the two sources of stamina add up.
 func TestGeneratedFlatStatBuffsAddUp(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 
 	core.ApplyBuffEffects(char,
-		&proto.RaidBuffs{PrayerOfFortitude: true}, &proto.PartyBuffs{BloodPact: true}, &proto.IndividualBuffs{})
+		&proto.RaidBuffs{PrayerOfFortitude: 1}, &proto.PartyBuffs{BloodPact: true}, &proto.IndividualBuffs{})
 	char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
-	fortitudeStamina, pactStamina := rowAmount(t, 21564, dbcenums.A_MOD_STAT), rowAmount(t, 11767, dbcenums.A_MOD_STAT)
+	fortitudeStamina, pactStamina := rowAmount(t, 10938, dbcenums.A_MOD_STAT), rowAmount(t, 11767, dbcenums.A_MOD_STAT)
 	if got := char.GetStats()[stats.Stamina]; got != fortitudeStamina+pactStamina {
-		t.Errorf("Prayer of Fortitude and Blood Pact applied %v stamina, want the game files' %v + %v", got, fortitudeStamina, pactStamina)
+		t.Errorf("Power Word: Fortitude and Blood Pact applied %v stamina, want the game files' %v + %v", got, fortitudeStamina, pactStamina)
 	}
 
-	fortitude := char.GetAura("Prayer of Fortitude (External)")
+	fortitude := char.GetAura("Power Word: Fortitude Rank 6 (External)")
 	if fortitude == nil {
-		t.Fatalf("no aura is labelled %q; the unit has %v", "Prayer of Fortitude (External)", auraLabels(char))
+		t.Fatalf("no aura is labelled %q; the unit has %v", "Power Word: Fortitude Rank 6 (External)", auraLabels(char))
 	}
-	if want := (core.ActionID{SpellID: 21564, Tag: -1}); fortitude.ActionID != want {
+	if want := (core.ActionID{SpellID: 10938, Tag: -1}); fortitude.ActionID != want {
 		t.Errorf("the external copy is %v, want %v", fortitude.ActionID, want)
 	}
 }
@@ -246,9 +246,9 @@ func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 		char.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 		return char, char.GetStats()
 	}
-	_, giftOnly := measure(&proto.RaidBuffs{GiftOfTheWild: true})
-	_, prayerOnly := measure(&proto.RaidBuffs{PrayerOfShadowProtection: true})
-	char, both := measure(&proto.RaidBuffs{GiftOfTheWild: true, PrayerOfShadowProtection: true})
+	_, giftOnly := measure(&proto.RaidBuffs{GiftOfTheWild: 1})
+	_, prayerOnly := measure(&proto.RaidBuffs{PrayerOfShadowProtection: 1})
+	char, both := measure(&proto.RaidBuffs{GiftOfTheWild: 1, PrayerOfShadowProtection: 1})
 
 	for _, stat := range []stats.Stat{stats.ShadowResistance, stats.FrostResistance, stats.ArmorNoMods, stats.Stamina} {
 		if giftOnly[stat] <= 0 {
@@ -269,7 +269,7 @@ func TestGeneratedResistancesCompeteAcrossBuffs(t *testing.T) {
 			t.Errorf("%s is %v, want Gift of the Wild's %v", stat.StatName(), got, want)
 		}
 	}
-	for _, label := range []string{"Gift of the Wild (External)", "Prayer of Shadow Protection (External)"} {
+	for _, label := range []string{"Mark of the Wild Rank 7 (External)", "Shadow Protection Rank 3 (External)"} {
 		if aura := char.GetAura(label); aura == nil || !aura.IsActive() {
 			t.Errorf("%s is not active, want both buffs up with only the shadow resistance held", label)
 		}
@@ -491,37 +491,37 @@ func measureGeneratedBuffStats(char *core.Character) {
 func TestGeneratedGraceOfAirStacksWithWindfuryTotem(t *testing.T) {
 	standing := core.NewGeneratedBuffTestCharacter()
 	core.ApplyBuffEffects(standing,
-		&proto.RaidBuffs{GraceOfAirTotem: true}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
+		&proto.RaidBuffs{GraceOfAirTotem: 1}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
 	standing.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
 	if got, want := standing.GetStats()[stats.Agility], graceOfAirTotemAgility(t); got != want {
 		t.Errorf("the totem applied %v agility, want the game files' %v", got, want)
 	}
-	aura := standing.GetAura("Grace of Air Totem (External)")
+	aura := standing.GetAura("Grace of Air Totem Rank 2 (External)")
 	if aura == nil {
-		t.Fatalf("no aura is labelled %q; the unit has %v", "Grace of Air Totem (External)", auraLabels(standing))
+		t.Fatalf("no aura is labelled %q; the unit has %v", "Grace of Air Totem Rank 2 (External)", auraLabels(standing))
 	}
 	if aura.Duration != core.NeverExpires {
 		t.Errorf("the totem's aura lasts %v, want it to stand for the fight", aura.Duration)
 	}
 
-	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{GraceOfAirTotem: true},
+	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{GraceOfAirTotem: 1},
 		&proto.PartyBuffs{}, &proto.IndividualBuffs{})
-	permanent := sim.Raid.Parties[0].Players[0].GetCharacter().GetAura("Grace of Air Totem (External)")
+	permanent := sim.Raid.Parties[0].Players[0].GetCharacter().GetAura("Grace of Air Totem Rank 2 (External)")
 	if !permanent.IsActive() {
 		t.Error("the totem is down at the pull, want it up for the fight")
 	}
 
 	underWindfury := core.NewGeneratedBuffTestCharacter()
-	core.ApplyBuffEffects(underWindfury, &proto.RaidBuffs{GraceOfAirTotem: true, WindfuryTotem: true},
+	core.ApplyBuffEffects(underWindfury, &proto.RaidBuffs{GraceOfAirTotem: 1, WindfuryTotem: true},
 		&proto.PartyBuffs{}, &proto.IndividualBuffs{})
 	underWindfury.ApplyBuildPhaseAuras(core.CharacterBuildPhaseBuffs)
 
 	if got, want := underWindfury.GetStats()[stats.Agility], graceOfAirTotemAgility(t); got != want {
 		t.Errorf("under Windfury Totem the totem applied %v agility, want the game files' %v", got, want)
 	}
-	if underWindfury.GetAura("Grace of Air Totem (External)") == nil {
-		t.Errorf("under Windfury Totem no aura is labelled %q; the unit has %v", "Grace of Air Totem (External)", auraLabels(underWindfury))
+	if underWindfury.GetAura("Grace of Air Totem Rank 2 (External)") == nil {
+		t.Errorf("under Windfury Totem no aura is labelled %q; the unit has %v", "Grace of Air Totem Rank 2 (External)", auraLabels(underWindfury))
 	}
 }
 
@@ -1237,10 +1237,10 @@ var graceOfAirAgility = core.ExclusiveStatCategory(buffs.GraceOfAirTotemCategory
 // Grace of Air keeps its agility throughout.
 func TestGeneratedOwnWindfuryTotemHoldsOverThePartysFlametongueTotem(t *testing.T) {
 	var windfury *core.Aura
-	sim, char := newTotemSim(t, &proto.RaidBuffs{GraceOfAirTotem: true, FlametongueTotem: true}, func(c *core.Character) {
+	sim, char := newTotemSim(t, &proto.RaidBuffs{GraceOfAirTotem: 1, FlametongueTotem: true}, func(c *core.Character) {
 		windfury = standWindfuryTotem(c)
 	})
-	graceOfAir := char.GetAura("Grace of Air Totem (External)")
+	graceOfAir := char.GetAura("Grace of Air Totem Rank 2 (External)")
 	flametongue := char.GetAura("Flametongue Totem Trigger")
 	agility := char.ExclusiveEffectManager.GetExclusiveEffectCategory(graceOfAirAgility)
 
@@ -1803,19 +1803,25 @@ func setupPetOwnerSim(raid *proto.RaidBuffs, party *proto.PartyBuffs) (*core.Sim
 // only a player can carry: it has Mana Spring, but never Strength of Earth, Grace of Air or Windfury
 // Totem's proc. A guardian stands under none of them.
 func TestTruePetsStandUnderTheOwnersTotems(t *testing.T) {
+	const trainerEarth, trainerAir = "Strength of Earth Totem Rank 4 (External)", "Grace of Air Totem Rank 2 (External)"
+	const bookEarth, bookAir = "Strength of Earth Totem Rank 5 (External)", "Grace of Air Totem Rank 3 (External)"
 	for _, tc := range []struct {
-		name string
-		raid *proto.RaidBuffs
+		name       string
+		raid       *proto.RaidBuffs
+		earth, air string
 	}{
-		{"grace of air", &proto.RaidBuffs{StrengthOfEarthTotem: true, GraceOfAirTotem: true}},
-		{"windfury", &proto.RaidBuffs{StrengthOfEarthTotem: true, GraceOfAirTotem: true, WindfuryTotem: true}},
+		{"grace of air", &proto.RaidBuffs{StrengthOfEarthTotem: 1, GraceOfAirTotem: 1}, trainerEarth, trainerAir},
+		{"book ranks", &proto.RaidBuffs{StrengthOfEarthTotem: 2, GraceOfAirTotem: 2}, bookEarth, bookAir},
+		{"windfury", &proto.RaidBuffs{StrengthOfEarthTotem: 1, GraceOfAirTotem: 1, WindfuryTotem: true}, trainerEarth, trainerAir},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			_, owner := setupPetOwnerSim(tc.raid, &proto.PartyBuffs{ManaSpringTotem: proto.TristateEffect_TristateEffectRegular})
 			pet := owner.pet
 
-			if aura := owner.GetAura("Strength of Earth Totem (External)"); aura == nil || !aura.IsActive() {
-				t.Fatalf("the owner's Strength of Earth Totem is %v; the owner has %v", aura, auraLabels(&owner.Character))
+			for _, label := range []string{tc.earth, tc.air} {
+				if aura := owner.GetAura(label); aura == nil || !aura.IsActive() {
+					t.Fatalf("the owner's %q is %v; the owner has %v", label, aura, auraLabels(&owner.Character))
+				}
 			}
 			if aura := pet.GetAura("Mana Spring Totem (External)"); aura == nil || !aura.IsActive() {
 				t.Fatalf("the pet's Mana Spring Totem is %v; the pet has %v", aura, auraLabels(&pet.Character))
@@ -1823,7 +1829,7 @@ func TestTruePetsStandUnderTheOwnersTotems(t *testing.T) {
 			if got, want := pet.GetStats()[stats.MP5], buffs.ManaSpringTotemValue(0); got != want {
 				t.Errorf("the pet has %v MP5, want the totem's %v", got, want)
 			}
-			for _, label := range []string{"Strength of Earth Totem (External)", "Grace of Air Totem (External)"} {
+			for _, label := range []string{tc.earth, tc.air} {
 				if pet.GetAura(label) != nil {
 					t.Errorf("the pet carries %q", label)
 				}

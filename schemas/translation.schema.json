@@ -2349,7 +2349,13 @@
 						"shadow_resistance": {
 							"type": "string"
 						},
+						"shadow_resistance_tooltip": {
+							"type": "string"
+						},
 						"nature_resistance": {
+							"type": "string"
+						},
+						"rank_select_tooltip": {
 							"type": "string"
 						}
 					},
@@ -2370,7 +2376,9 @@
 						"fire_resistance",
 						"frost_resistance",
 						"shadow_resistance",
-						"nature_resistance"
+						"shadow_resistance_tooltip",
+						"nature_resistance",
+						"rank_select_tooltip"
 					]
 				},
 				"party_buffs": {
@@ -8193,6 +8201,32 @@
 									"additionalProperties": false,
 									"required": ["label"]
 								},
+								"use_backstab_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_eviscerate_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"apply_poisons_manually": {
 									"type": "object",
 									"properties": {
@@ -8228,7 +8262,14 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["use_backstab", "use_expose_armor", "apply_poisons_manually", "subtlety"]
+							"required": [
+								"use_backstab",
+								"use_expose_armor",
+								"use_backstab_rank_9",
+								"use_eviscerate_rank_9",
+								"apply_poisons_manually",
+								"subtlety"
+							]
 						},
 						"shaman": {
 							"type": "object",

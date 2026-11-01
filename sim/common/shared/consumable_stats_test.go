@@ -154,7 +154,7 @@ func TestScrollIsExclusiveWithTheRaidBuffOfItsStat(t *testing.T) {
 		t.Errorf("Scroll of Intellect IV adds %v Intellect, want some", gain[stats.Intellect])
 	}
 
-	brilliance := &proto.RaidBuffs{ArcaneBrilliance: true}
+	brilliance := &proto.RaidBuffs{ArcaneBrilliance: 1}
 	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfIntellectIVID}}, brilliance); gain[stats.Intellect] != 0 {
 		t.Errorf("Scroll of Intellect IV adds %v Intellect under Arcane Brilliance, want 0", gain[stats.Intellect])
 	}

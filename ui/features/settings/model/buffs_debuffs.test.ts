@@ -110,6 +110,29 @@ describe('the buff registries', () => {
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout)?.ownerClass).toBe(Class.ClassWarrior);
 	});
 
+	// 0 is off and each state above it the next rank: the first is the icon and the others its badges.
+	it.each([
+		['Strength of Earth Totem', BuffDebuffInputs.StrengthOfEarthTotem, [10442, 25361]],
+		['Grace of Air Totem', BuffDebuffInputs.GraceOfAirTotem, [10627, 25359]],
+		['Greater Blessing of Might', BuffDebuffInputs.GreaterBlessingOfMight, [25782, 25916]],
+		['Greater Blessing of Wisdom', BuffDebuffInputs.GreaterBlessingOfWisdom, [25894, 25918]],
+		['Gift of the Wild', BuffDebuffInputs.GiftOfTheWild, [9885, 21849, 21850]],
+		['Prayer of Fortitude', BuffDebuffInputs.PrayerOfFortitude, [10938, 21562, 21564]],
+		['Arcane Brilliance', BuffDebuffInputs.ArcaneBrilliance, [10157, 23028]],
+		['Prayer of Shadow Protection', BuffDebuffInputs.PrayerOfShadowProtection, [10958, 27683]],
+	])('offers %s as a rank select', (label, input, ranks) => {
+		expect(input.label).toBe(label);
+		expect(input.states).toBe(ranks.length + 1);
+		expect([input.actionId, input.improvedId, input.improvedId2].filter(id => id !== undefined).map(id => id.spellId)).toEqual(ranks);
+		expect(input.labelTooltip).toBe('settings_tab.raid_buffs.rank_select_tooltip');
+	});
+
+	// A group's member shows no label of its own, so the group carries the tooltip that names the ranks.
+	it('names the ranks of Prayer of Shadow Protection on its group', () => {
+		const shadow = groupWith(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.PrayerOfShadowProtection);
+		expect(shadow && isMultiIconOption(shadow) ? shadow.config.tooltip : undefined).toBe(i18n.t('settings_tab.raid_buffs.shadow_resistance_tooltip'));
+	});
+
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.FuriousHowl)?.ownerClass).toBe(Class.ClassHunter);
 	});

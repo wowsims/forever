@@ -22,7 +22,8 @@ import warrior from './warrior/dps/spec';
 
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
 
-const ARCANE_BRILLIANCE = 23028;
+// The icon of the Arcane Brilliance input: its first rank, Arcane Intellect.
+const ARCANE_BRILLIANCE_ICON = 10157;
 const ELIXIR_OF_GREATER_AGILITY = Consumable.create({
 	id: 9187,
 	name: 'Elixir of Greater Agility',
@@ -43,7 +44,7 @@ beforeAll(() => serveDatabase(UIDatabase.create({ consumables: [ELIXIR_OF_GREATE
 describe('a shared build', () => {
 	it("arrives picked where the viewer's stat filters hide it, offered as kept, and runs", async () => {
 		const sender = await warriorSim();
-		sender.sim.raid.setBuffs({ ...sender.sim.raid.getBuffs(), arcaneBrilliance: true });
+		sender.sim.raid.setBuffs({ ...sender.sim.raid.getBuffs(), arcaneBrilliance: 1 });
 		sender.player.setConsumes(ConsumesSpec.create({ elixirIds: [ELIXIR_OF_GREATER_AGILITY.id] }));
 		sender.sim.setFilters({ ...sender.sim.getFilters(), statFilters: StatFilters.create({ buffs: selectionOf(Stat.StatIntellect) }) });
 		const link = new URL(createLink(sender.host, getEnumValues(SimSettingCategories) as Array<SimSettingCategories>));
@@ -77,14 +78,14 @@ describe('a shared build', () => {
 				return anchor!;
 			});
 
-		const buff = await swatch(ActionId.makeSpellUrl(ARCANE_BRILLIANCE));
+		const buff = await swatch(ActionId.makeSpellUrl(ARCANE_BRILLIANCE_ICON));
 		expect(buff.hasAttribute('data-active')).toBe(true);
 		expect(buff.parentElement!.hasAttribute('data-kept')).toBe(true);
 		const elixir = await swatch(ActionId.makeItemUrl(ELIXIR_OF_GREATER_AGILITY.id));
 		expect(elixir.parentElement!.hasAttribute('data-kept')).toBe(true);
 
 		const request = viewer.sim.makeRaidSimRequest();
-		expect(request.raid!.buffs!.arcaneBrilliance).toBe(true);
+		expect(request.raid!.buffs!.arcaneBrilliance).toBe(1);
 		expect(request.raid!.parties[0].players[0].consumables!.elixirIds).toEqual([ELIXIR_OF_GREATER_AGILITY.id]);
 	});
 });

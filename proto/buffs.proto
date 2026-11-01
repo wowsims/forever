@@ -8,19 +8,19 @@ import "common.proto";
 // Buffs that affect the entire raid.
 // Next index: 22
 message RaidBuffs {
-	bool arcane_brilliance = 1;
+	int32 arcane_brilliance = 1;
 	bool prayer_of_spirit = 2;
-	bool gift_of_the_wild = 3;
-	bool prayer_of_fortitude = 4;
-	bool prayer_of_shadow_protection = 5;
+	int32 gift_of_the_wild = 3;
+	int32 prayer_of_fortitude = 4;
+	int32 prayer_of_shadow_protection = 5;
 	bool fire_resistance_aura = 6;
 	bool frost_resistance_aura = 7;
 	bool shadow_resistance_aura = 8;
 	bool fire_resistance_totem = 9;
 	bool frost_resistance_totem = 10;
 	bool nature_resistance_totem = 11;
-	bool strength_of_earth_totem = 12;
-	bool grace_of_air_totem = 13;
+	int32 strength_of_earth_totem = 12;
+	int32 grace_of_air_totem = 13;
 	bool windfury_totem = 14;
 	bool flametongue_totem = 15;
 	int32 battle_shout = 16;
@@ -55,8 +55,8 @@ message PartyBuffs {
 // Next index: 10
 message IndividualBuffs {
 	bool greater_blessing_of_kings = 1;
-	bool greater_blessing_of_might = 2;
-	bool greater_blessing_of_wisdom = 3;
+	int32 greater_blessing_of_might = 2;
+	int32 greater_blessing_of_wisdom = 3;
 	bool greater_blessing_of_salvation = 4;
 	bool greater_blessing_of_light = 5;
 	int32 innervates = 6;

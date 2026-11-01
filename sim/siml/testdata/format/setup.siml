@@ -13,7 +13,7 @@ settings:   race  orc  // a header line's body, with more below
 
 buffs:    greater_blessing_of_kings   // kept on the header line
 raid_buffs:
-    arcane_brilliance
+    prayer_of_spirit
 consumables: elixir elixir_of_the_mongoose,greater_mageblood_elixir, flask_of_the_titans, goblin_sapper_charge
 encounter:
   targets(id=1,

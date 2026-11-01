@@ -48,6 +48,31 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	}
 }
 
+// The trainer's top rank and the book rank of Ferocious Bite each register, and either spends the extra energy and
+// the combo points when it lands.
+func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
+	for _, id := range []int32{22829, 31018} {
+		sim, cat := newCat(t, "", nil)
+		target := cat.CurrentTarget
+		target.PseudoStats.BaseDodgeChance = 0
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		bite := cat.GetSpell(core.ActionID{SpellID: id})
+		if bite == nil {
+			t.Fatalf("spell %d is not registered", id)
+		}
+		if !bite.Cast(sim, target) {
+			t.Fatalf("spell %d did not cast", id)
+		}
+		if metrics := bite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
+			t.Fatalf("spell %d did not land", id)
+		}
+		if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
+			t.Errorf("spell %d leaves energy=%g CP=%d, want 0 and 0", id, cat.CurrentEnergy(), cat.ComboPoints())
+		}
+	}
+}
+
 // Predatory Discipline 1328613: a landed bite keeps the extra energy and still deals its damage.
 func TestPredatoryDisciplineBiteKeepsExtraEnergy(t *testing.T) {
 	bite := func(talents string) float64 {

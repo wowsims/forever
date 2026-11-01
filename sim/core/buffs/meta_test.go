@@ -7,7 +7,9 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The generated rows whose first amount is not the number the game files state, at every talent point
@@ -173,6 +175,145 @@ func TestVindicationRankReadsLikeItsTooltip(t *testing.T) {
 			if want := math.Round(a.Effect.AverageAt(level) / float64(vindicationMeta.TalentDivisor)); a.Value != want {
 				t.Errorf("level %d: %s is %v, want %v", level, a.Kind, a.Value, want)
 			}
+		}
+	}
+}
+
+// Each state puts up the external copy of its own row, worth what that row states and bidding in the
+// row's category, whichever spell the state reads. Off puts up nothing, and a state past the last
+// reads as the last.
+func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
+	stated := func(aura dbcenums.EffectAuraType) func(*testing.T, *spelldata.Spell) float64 {
+		return func(t *testing.T, s *spelldata.Spell) float64 { return rowAmount(t, firstAura(t, s, aura)) }
+	}
+	mp5 := func(t *testing.T, s *spelldata.Spell) float64 {
+		e := firstAura(t, s, dbcenums.A_PERIODIC_ENERGIZE)
+		return e.Average() * 5000 / float64(e.PeriodMs)
+	}
+
+	cases := []struct {
+		name   string
+		ranks  rankStates
+		stat   stats.Stat
+		amount func(*testing.T, *spelldata.Spell) float64
+		set    func(*proto.RaidBuffs, *proto.IndividualBuffs, int32)
+	}{
+		{"ArcaneBrilliance", arcaneBrillianceRanks, stats.Intellect, stated(dbcenums.A_MOD_STAT),
+			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.ArcaneBrilliance = state }},
+		{"GiftOfTheWild", giftOfTheWildRanks, stats.Strength, stated(dbcenums.A_MOD_STAT),
+			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.GiftOfTheWild = state }},
+		{"PrayerOfFortitude", prayerOfFortitudeRanks, stats.Stamina, stated(dbcenums.A_MOD_STAT),
+			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.PrayerOfFortitude = state }},
+		{"PrayerOfShadowProtection", prayerOfShadowProtectionRanks, stats.ShadowResistance, stated(dbcenums.A_MOD_RESISTANCE),
+			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.PrayerOfShadowProtection = state }},
+		{"StrengthOfEarthTotem", strengthOfEarthTotemRanks, stats.Strength, stated(dbcenums.A_MOD_STAT),
+			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.StrengthOfEarthTotem = state }},
+		{"GraceOfAirTotem", graceOfAirTotemRanks, stats.Agility, stated(dbcenums.A_MOD_STAT),
+			func(r *proto.RaidBuffs, _ *proto.IndividualBuffs, state int32) { r.GraceOfAirTotem = state }},
+		{"GreaterBlessingOfMight", greaterBlessingOfMightRanks, stats.AttackPower, stated(dbcenums.A_MOD_ATTACK_POWER),
+			func(_ *proto.RaidBuffs, i *proto.IndividualBuffs, state int32) { i.GreaterBlessingOfMight = state }},
+		{"GreaterBlessingOfWisdom", greaterBlessingOfWisdomRanks, stats.MP5, mp5,
+			func(_ *proto.RaidBuffs, i *proto.IndividualBuffs, state int32) { i.GreaterBlessingOfWisdom = state }},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			applied := func(state int32) *core.Character {
+				char := shapeCharacter()
+				raid, individual := &proto.RaidBuffs{}, &proto.IndividualBuffs{}
+				c.set(raid, individual, state)
+				applyGeneratedBuffs(char, raid, &proto.PartyBuffs{}, individual)
+				return char
+			}
+			granted := func(char *core.Character, s *spelldata.Spell) (float64, *core.Aura) {
+				aura := char.GetAuraByID(core.ActionID{SpellID: s.ID, Tag: -1})
+				if aura == nil {
+					t.Fatalf("no external copy of spell %d is up", s.ID)
+				}
+				before := char.GetStats()[c.stat]
+				aura.Activate(&core.Simulation{})
+				return char.GetStats()[c.stat] - before, aura
+			}
+
+			off := applied(0)
+			for _, state := range c.ranks {
+				if aura := off.GetAuraByID(core.ActionID{SpellID: state.Spell.ID, Tag: -1}); aura != nil {
+					t.Errorf("off puts up %s", aura.Label)
+				}
+			}
+
+			for i, state := range c.ranks {
+				got, aura := granted(applied(int32(i+1)), state.Spell)
+				if want := c.amount(t, state.Spell); got != want {
+					t.Errorf("state %d grants %v, want its row's %v", i+1, got, want)
+				}
+				if aura.Tag != state.Category {
+					t.Errorf("state %d bids in %q, want the row's %q", i+1, aura.Tag, state.Category)
+				}
+			}
+
+			last := c.ranks[len(c.ranks)-1].Spell
+			if got, _ := granted(applied(int32(len(c.ranks)+1)), last); got != c.amount(t, last) {
+				t.Errorf("a state past the last grants %v, want the last row's %v", got, c.amount(t, last))
+			}
+		})
+	}
+}
+
+// A state bids against a class's own copy of the row, whichever spell it reads, so the two count once.
+func TestRankSelectStateBidsAgainstTheOwnCopy(t *testing.T) {
+	statAmount := func(s *spelldata.Spell) float64 { return rowAmount(t, firstAura(t, s, dbcenums.A_MOD_STAT)) }
+	for _, state := range prayerOfFortitudeRanks {
+		char := shapeCharacter()
+		own := NewSpellDataPrayerOfFortitudeAura(&char.Unit, true, 0)
+		external := newBuff(&char.Unit, state, false, 0)
+		before := char.GetStats()[stats.Stamina]
+
+		sim := &core.Simulation{}
+		own.Activate(sim)
+		external.Activate(sim)
+		if got, want := char.GetStats()[stats.Stamina]-before, max(statAmount(prayerOfFortitudeSpell), statAmount(state.Spell)); got != want {
+			t.Errorf("%s beside the own copy grants %v stamina, want the stronger's %v", state.Label, got, want)
+		}
+	}
+}
+
+// A totem state stands on a true pet where its row lets a pet carry one, and a state whose row says
+// only a player can carry it stays off the pet. The row copy clears that attribute.
+func TestRankSelectTotemStateOnATruePet(t *testing.T) {
+	petCarries := func(state *Meta) bool {
+		owner := core.NewCharacter(&core.Party{Raid: &core.Raid{}}, 0, &proto.Player{
+			Name:      "Totem Owner",
+			Race:      proto.Race_RaceOrc,
+			Class:     proto.Class_ClassWarrior,
+			Spec:      &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}},
+			Equipment: &proto.EquipmentSpec{Items: []*proto.ItemSpec{}},
+		})
+		pet := core.NewPet(core.PetConfig{
+			Name:            "True Pet",
+			Owner:           &owner,
+			StatInheritance: func(stats.Stats) stats.Stats { return stats.Stats{} },
+			EnabledOnStart:  true,
+		})
+		owner.Pets = append(owner.Pets, &pet)
+		owner.Env = &core.Environment{MeasuringStats: true}
+
+		standRankedTotem(&owner, state)
+		if owner.GetAura(state.label(false)) == nil {
+			t.Fatalf("the owner carries no %s", state.Label)
+		}
+		return pet.GetAura(state.label(false)) != nil
+	}
+
+	for _, state := range strengthOfEarthTotemRanks {
+		row := *state.Spell
+		row.Attr[dbcenums.ATTR_INDEX_EX_3] |= uint32(dbcenums.ATTR_EX_3_ONLY_ON_PLAYER)
+		if petCarries(strengthOfEarthTotemMeta.atState(&row, state.Label)) {
+			t.Errorf("%s stands on the pet with a row only a player can carry", state.Label)
+		}
+		row.Attr[dbcenums.ATTR_INDEX_EX_3] &^= uint32(dbcenums.ATTR_EX_3_ONLY_ON_PLAYER)
+		if !petCarries(strengthOfEarthTotemMeta.atState(&row, state.Label)) {
+			t.Errorf("%s does not stand on the pet", state.Label)
 		}
 	}
 }

@@ -49,12 +49,12 @@ export const DefaultConsumables = ConsumesSpec.create({
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfSpirit: true,
-	arcaneBrilliance: true,
-	giftOfTheWild: true,
-	prayerOfFortitude: true,
-	prayerOfShadowProtection: true,
+	arcaneBrilliance: 1,
+	giftOfTheWild: 1,
+	prayerOfFortitude: 1,
+	prayerOfShadowProtection: 1,
 	windfuryTotem: true,
-	graceOfAirTotem: true,
+	graceOfAirTotem: 1,
 	battleShout: 1, // Rank 6
 	leaderOfThePack: true,
 });
@@ -66,8 +66,8 @@ export const DefaultPartyBuffs = PartyBuffs.create({
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	thorns: true,
 	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: true,
-	greaterBlessingOfMight: true,
+	greaterBlessingOfWisdom: 1,
+	greaterBlessingOfMight: 1,
 });
 
 export const DefaultDebuffs = Debuffs.create({

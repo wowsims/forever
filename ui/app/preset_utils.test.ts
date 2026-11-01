@@ -77,7 +77,7 @@ describe('specDefaultsFromSettings', () => {
 			talentsString: '-005-55',
 			rotation: { type: 'TypeSimple', simple: { specRotationJson: '{"timeToWeave":400,"playstyle":"Weave"}' } },
 		},
-		raidBuffs: { giftOfTheWild: true },
+		raidBuffs: { giftOfTheWild: 1 },
 		settings: { iterations: 25000 },
 	};
 
@@ -92,7 +92,7 @@ describe('specDefaultsFromSettings', () => {
 		expect(defaults.gear).toEqual(EquipmentSpec.fromJson({ items: [{ id: 28275, enchant: 2724 }] }));
 		expect(defaults.talents.talentsString).toBe('-005-55');
 		expect(defaults.specOptions.classOptions?.petUptime).toBe(1);
-		expect(defaults.raidBuffs.giftOfTheWild).toBe(true);
+		expect(defaults.raidBuffs.giftOfTheWild).toBe(1);
 		expect(defaults.rotationType).toBe(APLRotation_Type.TypeSimple);
 		expect(defaults.simpleRotation).toMatchObject({ timeToWeave: 400, playstyle: Hunter_Rotation_Playstyle.Weave });
 		expect(defaults).not.toHaveProperty('aplRotation');

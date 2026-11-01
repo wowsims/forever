@@ -1,7 +1,7 @@
 siml 1
 spec dps_warrior
 
-buffs: greater_blessing_of_kings, greater_blessing_of_might
+buffs: greater_blessing_of_kings, greater_blessing_of_might=1
 
 party_buffs:
   mana_spring_totem
@@ -9,7 +9,7 @@ party_buffs:
   stoneskin_totem=missing
 
 raid_buffs:
-  arcane_brilliance, gift_of_the_wild
+  arcane_brilliance=1, gift_of_the_wild=1
   battle_shout=2, leader_of_the_pack
   target_dummies 3
 

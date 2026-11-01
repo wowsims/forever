@@ -130,6 +130,16 @@ type BuffSpec struct {
 	Proto BuffProtoType // override of the derived type
 	// Reason says what a Flag row is, since no spell does; the shell it renders as carries it.
 	Reason string
+	// A rank select's states: 0 is off and state N applies Ranks[N-1] in place of the row's SpellID,
+	// which still builds a class's own copy.
+	Ranks []BuffRank
+}
+
+// One state of a rank select, whose aura bids in the row's categories. SpellID and CastID mean what
+// they do on the row, and the state's label is the cast's name and rank in the game files.
+type BuffRank struct {
+	SpellID int32
+	CastID  int32
 }
 
 // GoStem is the identifier stem the generated code names the row by: GoField without underscores.
@@ -138,14 +148,14 @@ func (s BuffSpec) GoStem() string {
 }
 
 // ProtoType is the field's proto type: a tristate when a talent or an action prices an improved
-// state, a count for an external cooldown or an item, and a bool otherwise.
+// state, a count for an external cooldown or an item, a state for a rank select, and a bool otherwise.
 func (s BuffSpec) ProtoType() BuffProtoType {
 	switch {
 	case s.Proto != 0:
 		return s.Proto
 	case s.Talent != 0 || s.ImpAction != nil:
 		return ProtoTristate
-	case s.Kind == KindExternalCD || s.Kind == KindItemCount:
+	case s.Kind == KindExternalCD || s.Kind == KindItemCount || len(s.Ranks) > 0:
 		return ProtoInt32
 	}
 	return ProtoBool

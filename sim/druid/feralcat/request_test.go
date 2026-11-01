@@ -53,7 +53,7 @@ func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool,
 					Consumables:    &proto.ConsumesSpec{},
 					Buffs: &proto.IndividualBuffs{
 						GreaterBlessingOfKings: true,
-						GreaterBlessingOfMight: true,
+						GreaterBlessingOfMight: 1,
 					},
 					Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
 						Options: &proto.FeralCatDruid_Options{CannotShredTarget: cannotShred},
@@ -66,13 +66,13 @@ func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool,
 			}},
 			Buffs: &proto.RaidBuffs{
 				BattleShout:              1, // Rank 6
-				ArcaneBrilliance:         true,
+				ArcaneBrilliance:         1,
 				PrayerOfSpirit:           true,
-				GiftOfTheWild:            true,
-				PrayerOfFortitude:        true,
-				PrayerOfShadowProtection: true,
+				GiftOfTheWild:            1,
+				PrayerOfFortitude:        1,
+				PrayerOfShadowProtection: 1,
 				WindfuryTotem:            true,
-				StrengthOfEarthTotem:     true,
+				StrengthOfEarthTotem:     1,
 			},
 			Debuffs: &proto.Debuffs{
 				ExposeArmor:         true,

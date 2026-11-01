@@ -20,3 +20,65 @@ warrior.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
 warrior.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
 shaman.aura.strength_of_earth_external: was spell 25362 tag -1, now spell 10441 tag -1
 shaman.aura.grace_of_air_external: was spell 25360 tag -1, now spell 10626 tag -1
+hunter.spell.serpent_sting: was spell 25295 rank 9, now spell 13555 rank 8
+hunter.spell.aspect_of_the_hawk: was spell 25296 rank 7, now spell 14322 rank 6
+shaman.spell.flame_shock: was spell 29228 rank 6, now spell 10448 rank 5
+shaman.spell.flame_shock_rank5: was spell 10448 rank 5, now nothing
+shaman.spell.grace_of_air_totem: was spell 25359 rank 3, now spell 10627 rank 2
+shaman.spell.strength_of_earth_totem: was spell 25361 rank 5, now spell 10442 rank 4
+warrior.spell.battle_shout: was spell 25289 rank 7, now spell 11551 rank 6
+warrior.spell.battle_shout_rank6: was spell 11551 rank 6, now nothing
+warrior.spell.revenge: was spell 25288 rank 6, now spell 11601 rank 5
+warrior.spell.revenge_rank5: was spell 11601 rank 5, now nothing
+warrior.spell.heroic_strike: was spell 25286 tag 1, now spell 11567 tag 1
+warrior.spell.heroic_strike_11567_tag1: was spell 11567 tag 1, now nothing
+warrior.spell.heroic_strike_tag0: was spell 25286 rank 9, now nothing
+warlock.spell.corruption: was spell 25311 rank 7, now spell 11672 rank 6
+warlock.spell.corruption_rank6: was spell 11672 rank 6, now nothing
+warlock.spell.immolate: was spell 25309 rank 8, now spell 11668 rank 7
+warlock.spell.immolate_rank7: was spell 11668 rank 7, now nothing
+druid.spell.starfire: was spell 25298 rank 7, now spell 9876 rank 6
+druid.spell.starfire_rank6: was spell 9876 rank 6, now nothing
+druid.spell.ferocious_bite: was spell 22829 rank 4, now spell 22829 rank 5
+priest.spell.renew: was spell 25315 rank 10, now spell 10929 rank 9
+priest.spell.renew_rank9: was spell 10929 rank 9, now nothing
+priest.spell.greater_heal: was spell 25314 rank 5, now spell 10965 rank 4
+priest.spell.greater_heal_rank4: was spell 10965 rank 4, now nothing
+priest.spell.prayer_of_healing: was spell 25316 rank 5, now spell 10961 rank 4
+priest.spell.prayer_of_healing_rank4: was spell 10961 rank 4, now nothing
+paladin.spell.holy_light: was spell 25292 rank 9, now spell 10329 rank 8
+paladin.spell.holy_light_rank8: was spell 10329 rank 8, now nothing
+mage.spell.fireball_tag1: was spell 10151 tag 1 rank 11, now nothing
+mage.spell.frost_ward: was spell 28609 rank 5, now spell 10177 rank 4
+hunter.aura.aspect_of_the_hawk: was spell 25296, now spell 14322 rank 6
+hunter.target_aura.serpent_sting: was spell 25295, now spell 13555
+warlock.target_aura.corruption: was spell 25311, now spell 11672
+warlock.target_aura.corruption_11672: was spell 11672, now nothing
+warlock.target_aura.immolate: was spell 25309, now spell 11668
+warlock.target_aura.immolate_11668: was spell 11668, now nothing
+warrior.aura.battle_shout: was spell 25289, now spell 11551 rank 6
+warrior.aura.battle_shout_rank6: was spell 11551 rank 6, now nothing
+warrior.aura.heroic_strike: was spell 25286 tag 1, now spell 11567 tag 1
+warrior.aura.heroic_strike_11567: was spell 11567 tag 1, now nothing
+warrior.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+warrior.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+paladin.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+paladin.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+hunter.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+hunter.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+rogue.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+rogue.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+priest.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+priest.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+priest.aura.prayer_of_fortitude: was spell 21564 tag -1, now spell 21564 rank 2
+priest.aura.prayer_of_fortitude_tag0: was spell 21564 rank 2, now nothing
+priest.aura.prayer_of_shadow_protection: was spell 27683 tag -1, now spell 27683
+priest.aura.prayer_of_shadow_protection_tag0: was spell 27683, now nothing
+shaman.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+shaman.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+mage.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+mage.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+warlock.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+warlock.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1
+druid.aura.greater_blessing_of_might: was spell 25916 tag -1, now spell 25782 tag -1
+druid.aura.greater_blessing_of_wisdom: was spell 25918 tag -1, now spell 25894 tag -1

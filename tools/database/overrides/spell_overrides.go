@@ -497,6 +497,13 @@ var Spells = []Override{
 		Reason:  "Placeholder: Ferocious Bite attack power per combo point; the game files state none",
 		Source:  "classic-carryover",
 	},
+	{
+		SpellID: 31018,
+		Field:   APCoefDirect,
+		Value:   0.03,
+		Reason:  "Placeholder: Ferocious Bite attack power per combo point, as rank 5; the game files state none",
+		Source:  "classic-carryover",
+	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
 	// own 10%, which stays out of these values. Combat logs on Ranks 1 and 2 taken before that tooltip fit 0.28.

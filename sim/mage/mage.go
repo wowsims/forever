@@ -58,7 +58,7 @@ func RegisterMage() {
 }
 
 func (mage *Mage) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
-	raidBuffs.ArcaneBrilliance = true
+	raidBuffs.ArcaneBrilliance = max(raidBuffs.ArcaneBrilliance, 1)
 }
 
 func (mage *Mage) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {

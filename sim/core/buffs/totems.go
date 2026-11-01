@@ -25,6 +25,12 @@ func standTotem(char *core.Character, spell *spelldata.Spell, build func(unit *c
 	})
 }
 
+func standRankedTotem(char *core.Character, state *Meta) {
+	standTotem(char, state.Spell, func(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+		return newBuff(unit, state, isPlayer, talentPoints)
+	}, 0)
+}
+
 // A weapon totem stands for the fight, and its whole chain (totem aura, category bid and proc) stands
 // on each true pet that melees.
 func inheritWeaponTotem(char *core.Character, spell *spelldata.Spell, stand func(char *core.Character) *core.Aura) {

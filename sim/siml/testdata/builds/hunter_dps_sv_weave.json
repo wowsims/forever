@@ -3,11 +3,11 @@
 		"iterations": 25000
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": true,
+		"arcaneBrilliance": 1,
 		"prayerOfSpirit": true,
-		"giftOfTheWild": true,
-		"strengthOfEarthTotem": true,
-		"graceOfAirTotem": true,
+		"giftOfTheWild": 1,
+		"strengthOfEarthTotem": 1,
+		"graceOfAirTotem": 1,
 		"windfuryTotem": true,
 		"battleShout": 1,
 		"leaderOfThePack": true
@@ -102,8 +102,8 @@
 		},
 		"buffs": {
 			"greaterBlessingOfKings": true,
-			"greaterBlessingOfMight": true,
-			"greaterBlessingOfWisdom": true
+			"greaterBlessingOfMight": 1,
+			"greaterBlessingOfWisdom": 1
 		},
 		"hunter": {
 			"options": {

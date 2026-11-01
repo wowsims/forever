@@ -286,7 +286,7 @@ func TestSimReadsAFullSetup(t *testing.T) {
 	if request.SimOptions.Iterations != 25000 || player.GetHunter() == nil || player.Race != proto.Race_RaceOrc || len(request.Encounter.Targets) != 1 {
 		t.Errorf("iterations %d, player %v", request.SimOptions.Iterations, player)
 	}
-	if !request.Raid.Debuffs.SunderArmor || !request.Raid.Buffs.GiftOfTheWild || request.Raid.Buffs.BattleShout == 0 {
+	if !request.Raid.Debuffs.SunderArmor || request.Raid.Buffs.GiftOfTheWild == 0 || request.Raid.Buffs.BattleShout == 0 {
 		t.Errorf("buffs not read: raid %v, party %v, debuffs %v", request.Raid.Buffs, request.Raid.Parties[0].Buffs, request.Raid.Debuffs)
 	}
 	request.SimOptions.Iterations = 20

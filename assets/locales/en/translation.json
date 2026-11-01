@@ -647,7 +647,9 @@
 			"fire_resistance": "Fire Resistance",
 			"frost_resistance": "Frost Resistance",
 			"shadow_resistance": "Shadow Resistance",
-			"nature_resistance": "Nature Resistance"
+			"shadow_resistance_tooltip": "Prayer of Shadow Protection: click to cycle Shadow Protection Rank 3 (needs no class book), Prayer of Shadow Protection (class book). Shadow Resistance Aura shares its school; the stronger applies.",
+			"nature_resistance": "Nature Resistance",
+			"rank_select_tooltip": "Click to cycle {{ranks}}. The first needs no class book; the others do."
 		},
 		"party_buffs": {
 			"title": "Party Buffs",
@@ -2301,6 +2303,14 @@
 				},
 				"use_expose_armor": {
 					"label": "Use Expose Armor"
+				},
+				"use_backstab_rank_9": {
+					"label": "Backstab IX (Handbook)",
+					"tooltip": "Casts Backstab IX, taught by the Handbook of Backstab IX, in place of Backstab VIII from the trainer."
+				},
+				"use_eviscerate_rank_9": {
+					"label": "Eviscerate IX (Manual)",
+					"tooltip": "Casts Eviscerate IX, taught by the Manual of Eviscerate IX, in place of Eviscerate VIII from the trainer."
 				},
 				"apply_poisons_manually": {
 					"label": "Configure poisons manually",

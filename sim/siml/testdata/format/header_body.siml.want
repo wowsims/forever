@@ -4,8 +4,8 @@ spec hunter
 // A body on its header line stays there when it fits, and moves to a line of its own when it does not; format does not
 // take a body up onto its header line.
 raid_buffs:
-  arcane_brilliance, gift_of_the_wild, prayer_of_fortitude, prayer_of_spirit
-  prayer_of_shadow_protection, fire_resistance_aura // kept
+  prayer_of_spirit, fire_resistance_aura, frost_resistance_aura, shadow_resistance_aura
+  fire_resistance_totem, frost_resistance_totem // kept
 
 party_buffs: blood_pact // kept
 

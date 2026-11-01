@@ -23,6 +23,13 @@ var {{.CategoryVar}} = "{{.Category}}"
 var {{.SpellVar}} = spelldata.MustFind({{.SpellID}})
 var {{.MetaVar}} = &Meta{
 {{.MetaFields}}}
+{{- if .RanksVar}}
+var {{.RanksVar}} = rankStates{
+{{- range .RankStates}}
+	{{.}}
+{{- end}}
+}
+{{- end}}
 {{- if .HasValue}}
 func {{.Go}}Value(talentPoints int32) float64 {
 	return {{.MetaVar}}.Value(talentPoints)

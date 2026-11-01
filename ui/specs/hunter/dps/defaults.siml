@@ -29,10 +29,17 @@ consumables:
   resource_pot major_mana_potion
   offensive_pot major_frenzy_potion
 
-buffs: greater_blessing_of_kings, greater_blessing_of_might, greater_blessing_of_wisdom
+buffs:
+  greater_blessing_of_kings
+  greater_blessing_of_might 1
+  greater_blessing_of_wisdom 1
 
 raid_buffs:
-  arcane_brilliance, prayer_of_spirit, gift_of_the_wild, strength_of_earth_totem, grace_of_air_totem
+  arcane_brilliance 1
+  prayer_of_spirit
+  gift_of_the_wild 1
+  strength_of_earth_totem 1
+  grace_of_air_totem 1
   windfury_totem
   battle_shout 1
   leader_of_the_pack

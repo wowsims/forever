@@ -4,17 +4,17 @@ import { ConsumesSpec } from '@generated/proto/common';
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfMight: true,
+	greaterBlessingOfMight: 1,
 });
 
 export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	prayerOfFortitude: true,
-	giftOfTheWild: true,
-	strengthOfEarthTotem: true,
+	prayerOfFortitude: 1,
+	giftOfTheWild: 1,
+	strengthOfEarthTotem: 1,
 	windfuryTotem: true,
-	graceOfAirTotem: true,
+	graceOfAirTotem: 1,
 	leaderOfThePack: true,
 });
 
