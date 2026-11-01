@@ -86,7 +86,7 @@
       "type": "TypeAPL",
       "prepullActions": [
         {"action":{"castSpell":{"spellId":{"spellId":408510}}},"doAtValue":{"const":{"val":"-5.5s"}}},
-        {"action":{"castSpell":{"spellId":{"spellId":25361}}},"doAtValue":{"const":{"val":"-4s"}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10442,"rank":4}}},"doAtValue":{"const":{"val":"-4s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10614}}},"doAtValue":{"const":{"val":"-3s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10497}}},"doAtValue":{"const":{"val":"-2s"}}},
         {"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10438}}},"doAtValue":{"const":{"val":"-1s"}}},

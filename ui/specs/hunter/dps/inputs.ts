@@ -253,5 +253,15 @@ export const RotationInputs = {
 			label: i18n.t('rotation_tab.options.hunter.use_hawk.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.use_hawk.tooltip'),
 		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useSerpentStingRank9',
+			label: i18n.t('rotation_tab.options.hunter.use_serpent_sting_rank_9.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_serpent_sting_rank_9.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useAspectOfTheHawkRank7',
+			label: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.tooltip'),
+		}),
 	],
 };

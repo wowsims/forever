@@ -2379,6 +2379,14 @@
 				"use_hawk": {
 					"label": "Use Summon Hawk",
 					"tooltip": "Sends hawks between Arcane Shots, the two sharing a cooldown."
+				},
+				"use_serpent_sting_rank_9": {
+					"label": "Serpent Sting IX (Guide)",
+					"tooltip": "Casts Serpent Sting IX, taught by the Guide: Serpent Sting IX from Ruins of Ahn'Qiraj, in place of Serpent Sting VIII from the trainer."
+				},
+				"use_aspect_of_the_hawk_rank_7": {
+					"label": "Aspect of the Hawk VII (Guide)",
+					"tooltip": "Casts Aspect of the Hawk VII, taught by the Guide: Aspect of the Hawk VII from Ruins of Ahn'Qiraj, in place of Aspect of the Hawk VI from the trainer."
 				}
 			},
 			"paladin": {

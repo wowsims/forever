@@ -5,16 +5,23 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var serpentStingRank = spellData.SerpentSting.Highest()
+// Rank 8 is the last rank the trainer teaches; rank 9 comes from the Guide: Serpent Sting IX book.
+var serpentStingTrainerRank = spellData.SerpentSting.ByID(13555)
+var serpentStingBookRank = spellData.SerpentSting.ByID(25295)
 
 // The row states no attack power share on the tick. In game each tick adds 0.030 of ranged attack
 // power, read at each tick, and spell power adds nothing.
 const serpentStingTickAPShare = 0.030
 
 func (hunter *Hunter) registerSerpentSting() {
-	tick := serpentStingRank.PeriodicEffect()
+	hunter.registerSerpentStingRank(serpentStingTrainerRank)
+	hunter.registerSerpentStingRank(serpentStingBookRank)
+}
 
-	config := spelldata.SpellConfig(&hunter.Unit, serpentStingRank, spelldata.Flags(core.SpellFlagAPL))
+func (hunter *Hunter) registerSerpentStingRank(rank *spelldata.Spell) {
+	tick := rank.PeriodicEffect()
+
+	config := spelldata.SpellConfig(&hunter.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	// A ranged ability, as the game files' ranged-ability procs (Rapid Recuperation) see it, so the
 	// ticks crit at the ranged crit. The application deals no damage, so the on-hit listeners that
 	// require damage skip it, and the ticks reach only periodic listeners.
@@ -22,11 +29,11 @@ func (hunter *Hunter) registerSerpentSting() {
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 
-	config.Dot = spelldata.DotConfig(serpentStingRank, tick)
+	config.Dot = spelldata.DotConfig(rank, tick)
 	config.Dot.Aura.Tag = hunter.stingTag()
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		baseDamage := tick.Average() + serpentStingTickAPShare*dot.Spell.RangedAttackPower(target)
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, baseDamage, serpentStingRank.TickOutcome(dot))
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, baseDamage, rank.TickOutcome(dot))
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

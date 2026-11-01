@@ -141,8 +141,8 @@
 					"action": {
 						"castSpell": {
 							"spellId": {
-								"spellId": 25296,
-								"rank": 7
+								"spellId": 14322,
+								"rank": 6
 							}
 						}
 					},
@@ -219,8 +219,8 @@
 								"val": {
 									"dotIsActive": {
 										"spellId": {
-											"spellId": 25295,
-											"rank": 9
+											"spellId": 13555,
+											"rank": 8
 										}
 									}
 								}
@@ -228,8 +228,8 @@
 						},
 						"castSpell": {
 							"spellId": {
-								"spellId": 25295,
-								"rank": 9
+								"spellId": 13555,
+								"rank": 8
 							}
 						}
 					}

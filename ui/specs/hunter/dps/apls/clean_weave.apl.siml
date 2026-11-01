@@ -10,7 +10,7 @@ priority:
   cast mongoose_bite
   cast immolation_trap if in_melee
   cast wing_clip if not spell(strider_kick).is_known or spell(strider_kick).time_to_ready > 1.5s
-  cast serpent_sting if not dot(serpent_sting).is_active
+  cast serpent_sting_rank8 if not dot(serpent_sting_rank8).is_active
   cast arcane_shot
   cast multi_shot
   /// Start of the fight, before the first weave: get to my spot without losing an Auto Shot.

@@ -8,6 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/shaman"
 	"github.com/wowsims/forever/sim/shaman/enhancement"
@@ -33,6 +34,48 @@ func enhancementRaid(talents string) *proto.Raid {
 		Rotation:      &proto.APLRotation{},
 	}
 	return core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
+}
+
+// A totem's trainer rank grants its own row's amount and takes the book rank's slot, and the book rank takes it back.
+func TestTrainerTotemRanksBesideBookRanks(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+
+	for _, tc := range []struct {
+		name                                           string
+		stat                                           stats.Stat
+		trainerTotem, trainerBuff, bookTotem, bookBuff int32
+	}{
+		{"Strength of Earth Totem", stats.Strength, 10442, 10441, 25361, 25362},
+		{"Grace of Air Totem", stats.Agility, 10627, 10626, 25359, 25360},
+	} {
+		statFrom := func(totem, buff int32) float64 {
+			t.Helper()
+			before := sham.GetStat(tc.stat)
+			sham.GetSpell(core.ActionID{SpellID: totem}).SkipCastAndApplyEffects(sim, &sham.Unit)
+			if !sham.GetAuraByID(core.ActionID{SpellID: buff}).IsActive() {
+				t.Errorf("%s: casting %d left buff %d down", tc.name, totem, buff)
+			}
+			return sham.GetStat(tc.stat) - before
+		}
+
+		trainerAmount := spelldata.MustFind(tc.trainerBuff).EffectN(1).Average()
+		bookAmount := spelldata.MustFind(tc.bookBuff).EffectN(1).Average()
+		if got := statFrom(tc.trainerTotem, tc.trainerBuff); got != trainerAmount {
+			t.Errorf("%s: the trainer rank grants %v, want %v", tc.name, got, trainerAmount)
+		}
+		if got := statFrom(tc.bookTotem, tc.bookBuff); got != bookAmount-trainerAmount {
+			t.Errorf("%s: the book rank over the trainer's adds %v, want %v", tc.name, got, bookAmount-trainerAmount)
+		}
+		if sham.GetAuraByID(core.ActionID{SpellID: tc.trainerBuff}).IsActive() {
+			t.Errorf("%s: the book rank left the trainer's buff up, want one totem to a slot", tc.name)
+		}
+	}
 }
 
 // The melee crit cap counts the crit Elemental Devastation's buff grants as taken, and a shaman

@@ -9,8 +9,14 @@ import (
 )
 
 var windfuryTotemRank = spellData.WindfuryTotem.Highest()
-var strengthOfEarthTotemRank = spellData.StrengthOfEarthTotem.Highest()
-var graceOfAirTotemRank = spellData.GraceOfAirTotem.ByID(25359)
+
+// Strength of Earth's rank 4 and Grace of Air's rank 2 are the last ranks the trainer teaches; the Tablet of
+// Strength of Earth Totem V and Tablet of Grace of Air Totem III books teach the ranks above them.
+var strengthOfEarthTotemTrainerRank = spellData.StrengthOfEarthTotem.ByID(10442)
+var strengthOfEarthTotemBookRank = spellData.StrengthOfEarthTotem.ByID(25361)
+var graceOfAirTotemTrainerRank = spellData.GraceOfAirTotem.ByID(10627)
+var graceOfAirTotemBookRank = spellData.GraceOfAirTotem.ByID(25359)
+
 var manaSpringTotemRank = spellData.ManaSpringTotem.Highest()
 var flametongueTotemRank = spellData.FlametongueTotem.Highest()
 var frostResistanceTotemRank = spellData.FrostResistanceTotem.Highest()
@@ -93,12 +99,16 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 func (shaman *Shaman) registerStrengthOfEarthTotemSpell() {
 	// The rows already carry Enhancing Totems: Strength of Earth's and Grace of Air's amounts are its 15%
 	// over their untalented values, so nothing applies the talent.
-	shaman.registerBuffTotem(strengthOfEarthTotemRank, EarthTotem,
+	shaman.registerBuffTotem(strengthOfEarthTotemTrainerRank, EarthTotem,
+		buffs.NewSpellDataStrengthOfEarthTotemRankAura(&shaman.Unit, true, spellData.StrengthOfEarthTotemTriggered.ByID(10441)))
+	shaman.registerBuffTotem(strengthOfEarthTotemBookRank, EarthTotem,
 		buffs.NewSpellDataStrengthOfEarthTotemAura(&shaman.Unit, true, 0))
 }
 
 func (shaman *Shaman) registerGraceOfAirTotemSpell() {
-	shaman.registerBuffTotem(graceOfAirTotemRank, AirTotem,
+	shaman.registerBuffTotem(graceOfAirTotemTrainerRank, AirTotem,
+		buffs.NewSpellDataGraceOfAirTotemRankAura(&shaman.Unit, true, spellData.GraceOfAirTotemTriggered.ByID(10626)))
+	shaman.registerBuffTotem(graceOfAirTotemBookRank, AirTotem,
 		buffs.NewSpellDataGraceOfAirTotemAura(&shaman.Unit, true, 0))
 }
 

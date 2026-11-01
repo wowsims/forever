@@ -5,7 +5,9 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var aspectOfTheHawkRank = spellData.AspectOfTheHawk.Highest()
+// Rank 6 is the last rank the trainer teaches; rank 7 comes from the Guide: Aspect of the Hawk VII book.
+var aspectOfTheHawkTrainerRank = spellData.AspectOfTheHawk.ByID(14322)
+var aspectOfTheHawkBookRank = spellData.AspectOfTheHawk.ByID(25296)
 var aspectOfTheBeastRank = spellData.AspectOfTheBeast.Highest()
 var aspectOfTheCheetahRank = spellData.AspectOfTheCheetah.Highest()
 var dazedRank = spellData.AspectOfTheCheetahTriggered.Highest()
@@ -15,7 +17,7 @@ var quickShots = spellData.AspectOfTheHawkTriggered.Highest()
 var quickStrikes = spellData.AspectOfTheBeastTriggered.Highest()
 
 func (hunter *Hunter) registerAspects() {
-	hunter.AspectOfTheHawkAura = hunter.registerAspect(aspectOfTheHawkRank)
+	hunter.AspectOfTheHawkAuras = []*core.Aura{hunter.registerAspect(aspectOfTheHawkTrainerRank), hunter.registerAspect(aspectOfTheHawkBookRank)}
 	hunter.AspectOfTheBeastAura = hunter.registerAspect(aspectOfTheBeastRank)
 	hunter.registerAspectOfTheCheetah()
 
@@ -25,7 +27,7 @@ func (hunter *Hunter) registerAspects() {
 // One aspect at a time: a permanent self-buff the row's effects parse onto, and the spell that swaps
 // to it.
 func (hunter *Hunter) registerAspect(row *spelldata.Spell) *core.Aura {
-	aura := hunter.RegisterAura(spelldata.AuraConfig(row))
+	aura := hunter.RegisterAura(spelldata.AuraConfig(row, spelldata.Label(row.RankedName())))
 	spelldata.ParseEffects(&hunter.Character, aura, row)
 	aura.NewExclusiveEffect("Aspect", true, core.ExclusiveEffect{})
 
@@ -83,7 +85,7 @@ func (hunter *Hunter) registerDeadlyAspects() {
 	quickStrikesAura := hunter.RegisterAura(spelldata.AuraConfig(quickStrikes))
 	spelldata.ParseEffects(&hunter.Character, quickStrikesAura, quickStrikes)
 
-	hawk := spelldata.ProcTrigger(&hunter.Character, aspectOfTheHawkRank,
+	hawk := spelldata.ProcTrigger(&hunter.Character, aspectOfTheHawkBookRank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			quickShotsAura.Activate(sim)
 		},
@@ -95,7 +97,9 @@ func (hunter *Hunter) registerDeadlyAspects() {
 	hawk.Outcome = core.OutcomeEmpty
 	hawk.RequireDamageDealt = false
 	hawk.TriggerImmediately = true
-	hunter.AspectOfTheHawkAura.AttachProcTrigger(hawk)
+	for _, aura := range hunter.AspectOfTheHawkAuras {
+		aura.AttachProcTrigger(hawk)
+	}
 
 	beast := spelldata.ProcTrigger(&hunter.Character, aspectOfTheBeastRank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

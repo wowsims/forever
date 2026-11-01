@@ -41,11 +41,15 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   `spelldata.RankLabel(rank, &owner.Unit)` so ranks never share one aura; category cooldowns already share one timer
   across ranks, so no hand `NewTimer()`.** `sim/core/spelldata/resolve_aura.go`, PR #246.
 - **A rank that only a class book teaches registers beside the trainer's top rank, and the rotation picks the rank by
-  spell id. The presets cast the book rank. Each simple rotation rank toggle defaults off, and a toggle left off swaps
-  the book id for the trainer's top rank through `withSpellIds`, which never swaps a tag -1 id (the raid's copy of a
-  buff); in the rotation editor the spell dropdown lists both ranks. Warrior: Heroic Strike 11567 and 25286 (each with
-  its own queue), Battle Shout 11551 and 25289, Revenge 11601 and 25288 (one window, read by 5302); warlock: Shadow
-  Bolt, Immolate and Corruption. The raid's `battle_shout` has four states (off, Rank 6, Rank 7, Rank 7 with the tier 2
+  spell id. Each simple rotation rank toggle defaults off, which casts the trainer's top rank, and the ids swap through
+  `withSpellIds`, which never swaps a tag -1 id (the raid's copy of a buff); in the rotation editor the spell dropdown
+  lists both ranks. The warrior and warlock presets cast the book rank: Heroic Strike 11567 and 25286 (each with its own
+  queue), Battle Shout 11551 and 25289, Revenge 11601 and 25288 (one window, read by 5302), Shadow Bolt, Immolate and
+  Corruption. The hunter and shaman presets cast the trainer's top rank, because the books may not be there at launch:
+  Serpent Sting 13555 and 25295 (one sting to a hunter), Aspect of the Hawk 14322 and 25296, Strength of Earth Totem
+  10442 and 25361, Grace of Air Totem 10627 and 25359 (one totem to a slot), and shaman has no simple rotation. The raid's
+  Strength of Earth and Grace of Air stay on the book rank's row, and Multi-Shot has the one rank, 2643, so its Guide
+  teaches nothing here. The raid's `battle_shout` has four states (off, Rank 6, Rank 7, Rank 7 with the tier 2
   set; no Rank 6 with the set), and the warrior's own copies are labelled by rank.** `ui/sim/proto/apl_utils.ts`,
   `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`, `sim/warrior/revenge.go`,
   `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, PR #736, PR #746.

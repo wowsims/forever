@@ -8448,10 +8448,47 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
+								},
+								"use_serpent_sting_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_aspect_of_the_hawk_rank_7": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["playstyle", "pull_range", "time_to_weave", "use_aimed", "use_multi", "use_arcane", "use_sniper", "use_hawk"]
+							"required": [
+								"playstyle",
+								"pull_range",
+								"time_to_weave",
+								"use_aimed",
+								"use_multi",
+								"use_arcane",
+								"use_sniper",
+								"use_hawk",
+								"use_serpent_sting_rank_9",
+								"use_aspect_of_the_hawk_rank_7"
+							]
 						},
 						"paladin": {
 							"type": "object",

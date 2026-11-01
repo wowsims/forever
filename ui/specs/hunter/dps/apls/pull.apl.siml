@@ -6,5 +6,5 @@ use "common.apl.siml"
 // range when the fight starts.
 prepull:
   -22s cast hunters_mark
-  -20s cast aspect_of_the_hawk
+  -20s cast aspect_of_the_hawk_rank6
   -19s move $pull_range

@@ -12,6 +12,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/siml"
 	"google.golang.org/protobuf/encoding/protojson"
+	googleProto "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var DefaultSimTestOptions = &proto.SimOptions{
@@ -263,6 +265,40 @@ func GetAplRotation(dir string, file string) RotationCombo {
 	}
 
 	return RotationCombo{Label: file, Rotation: APLRotationFromJsonString(string(data))}
+}
+
+// The rotation with a spell's rank moved to another rank by spell id, so the other rank reaches the results.
+func RotationWithSpellIds(label string, combo RotationCombo, ids map[int32]int32) RotationCombo {
+	rotation := googleProto.Clone(combo.Rotation).(*proto.APLRotation)
+	if withSpellIds(rotation.ProtoReflect(), ids) == 0 {
+		panic(fmt.Sprintf("the %s rotation names none of the ranks to move", combo.Label))
+	}
+	return RotationCombo{Label: label, Rotation: rotation}
+}
+
+// Swaps every spell id that ids maps for the id it maps to, except an external buff copy (tag -1), and returns
+// how many it swapped.
+func withSpellIds(message protoreflect.Message, ids map[int32]int32) int {
+	if id, ok := message.Interface().(*proto.ActionID); ok {
+		if to, ok := ids[id.GetSpellId()]; ok && id.Tag != -1 {
+			id.RawId = &proto.ActionID_SpellId{SpellId: to}
+			return 1
+		}
+		return 0
+	}
+	swapped := 0
+	message.Range(func(field protoreflect.FieldDescriptor, value protoreflect.Value) bool {
+		switch {
+		case field.IsList() && field.Message() != nil:
+			for i := 0; i < value.List().Len(); i++ {
+				swapped += withSpellIds(value.List().Get(i).Message(), ids)
+			}
+		case field.Message() != nil && !field.IsMap():
+			swapped += withSpellIds(value.Message(), ids)
+		}
+		return true
+	})
+	return swapped
 }
 
 func GetGearSet(dir string, file string) GearSetCombo {
