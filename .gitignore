@@ -83,3 +83,4 @@ docs/superpowers/
 .agents/
 .*/skills/
 !.github/skills/
+.vitest/
