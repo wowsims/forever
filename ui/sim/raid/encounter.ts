@@ -8,7 +8,6 @@ import {
 	SpellSchool,
 	Stat,
 	Target as TargetProto,
-	TargetInput,
 } from '@generated/proto/common';
 
 import { ENCOUNTER_DEFAULTS } from '../constants/encounter';
@@ -298,7 +297,6 @@ export class Encounter {
 			dualWield: false,
 			dualWieldPenalty: false,
 			spellSchool: SpellSchool.SpellSchoolPhysical,
-			targetInputs: new Array<TargetInput>(0),
 		});
 	}
 }

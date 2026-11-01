@@ -16,4 +16,4 @@
 23:8 error unknown-field
 26:26 error unknown-enum
 27:26 error duplicate-field
-27:54 error duplicate-field
+28:24 error duplicate-field

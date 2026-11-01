@@ -9,11 +9,9 @@ import {
 	Encounter as EncounterProto,
 	EncounterDesign,
 	HealthKeyframe,
-	InputType,
 	PresetEncounter,
 	PresetTarget,
 	Target as TargetProto,
-	TargetInput,
 } from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
@@ -46,7 +44,7 @@ const presetEncounter = () =>
 					name: 'Preset Boss',
 					level: 93,
 					swingSpeed: 2,
-					targetInputs: [TargetInput.create({ label: 'Adds', inputType: InputType.Number, numberValue: 3 })],
+					stats: [3],
 				}),
 			}),
 		],
@@ -56,7 +54,7 @@ describe('Encounter', () => {
 	it.each([
 		['applyPreset', (encounter: Encounter, preset: PresetEncounter) => encounter.applyPreset(preset)],
 		['applyPresetTarget', (encounter: Encounter, preset: PresetEncounter) => encounter.applyPresetTarget(preset.targets[0], 0)],
-	] as const)('%s stores a copy of the preset target, down to the nested target inputs', (_name, apply) => {
+	] as const)('%s stores a copy of the preset target, down to its stats', (_name, apply) => {
 		const preset = presetEncounter();
 		const dbTarget = preset.targets[0].target!;
 		const encounter = makeEncounter();
@@ -65,7 +63,7 @@ describe('Encounter', () => {
 
 		const stored = encounter.getTarget(0)!;
 		expect(stored).not.toBe(dbTarget);
-		expect(stored.targetInputs[0]).not.toBe(dbTarget.targetInputs[0]);
+		expect(stored.stats).not.toBe(dbTarget.stats);
 		expect(TargetProto.equals(stored, dbTarget)).toBe(true);
 	});
 
@@ -137,10 +135,10 @@ describe('Encounter', () => {
 		encounter.applyPreset(preset);
 		const stored = encounter.getTarget(0)!;
 		stored.level = 88;
-		stored.targetInputs[0].numberValue = 9;
+		stored.stats[0] = 9;
 
 		expect(dbTarget.level).toBe(93);
-		expect(dbTarget.targetInputs[0].numberValue).toBe(3);
+		expect(dbTarget.stats[0]).toBe(3);
 	});
 
 	describe('name', () => {

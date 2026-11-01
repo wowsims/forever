@@ -65,7 +65,6 @@ const meta = {
 				onChange={fn()}
 			/>
 		),
-		targetInputs: null,
 		onAdvancedClick: fn(),
 		onDesignClick: fn(),
 		onNewClick: fn(),
@@ -78,7 +77,6 @@ const meta = {
 		preset: { control: false },
 		allies: { control: false },
 		minBaseDamage: { control: false },
-		targetInputs: { control: false },
 	},
 } satisfies Meta<typeof EncounterPickerView>;
 

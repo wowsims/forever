@@ -560,24 +560,6 @@ enum AreaType {
 	AreaTypeStrongholdsCities = 10;
 }
 
-enum InputType {
-	Bool = 0;
-	Number = 1;
-	Enum = 2;
-}
-
-message TargetInput {
-	InputType input_type = 1;
-	string label = 2;
-	string tooltip = 5;
-
-	bool bool_value = 3;
-	double number_value = 4;
-
-	int32 enum_value = 6;
-	repeated string enum_options = 7;
-}
-
 message Target {
         // The in-game NPC ID.
         int32 id = 14;
@@ -610,9 +592,6 @@ message Target {
 
         // Used in dynamic target AIs.
         bool disabled_at_start = 101;
-
-        // Custom Target AI parameters
-        repeated TargetInput target_inputs = 18;
 }
 
 message Encounter {
@@ -676,7 +655,7 @@ enum DamageAmpType {
 // Times in an encounter design are fractions 0..1 of the rolled fight duration, unless a field says seconds.
 message DesignTime {
 	double at = 1;
-	double jitter = 2; // Plus or minus this fraction, rerolled each iteration and each repeat.
+	double jitter = 2; // Plus or minus this fraction, rerolled each iteration; a damage amp's end rerolls it per window.
 }
 
 message DesignRepeat {

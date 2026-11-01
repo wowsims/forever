@@ -24,4 +24,5 @@ buffs: battle_shout
 
 encounter:
   targets(stats(armor=1, armour=2))
-  targets(stats(armor=1, armor=2), target_inputs=[], target_inputs(label="x"))
+  targets(stats(armor=1, armor=2))
+  design(add_waves=[], add_waves(name="x"))

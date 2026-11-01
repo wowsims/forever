@@ -242,11 +242,6 @@ export const statusI18nKeys: Record<LaunchStatus, string> = {
 	[LaunchStatus.Launched]: 'launched',
 };
 
-export const targetInputI18nKeys: Record<string, string> = {
-	'Frenzy time': 'frenzy_time',
-	'Spiritual Grasp frequency': 'spiritual_grasp_frequency',
-};
-
 export const mobTypeI18nKeys: Record<MobType, string> = {
 	[MobType.MobTypeUnknown]: 'unknown',
 	[MobType.MobTypeBeast]: 'beast',
@@ -441,8 +436,6 @@ export const getClassI18nKey = (classID: Class): string => classI18nKeys[classID
 export const getSpecI18nKey = (specID: Spec): string => specI18nKeys[specID] || Spec[specID].toLowerCase();
 
 export const getStatusI18nKey = (status: LaunchStatus): string => statusI18nKeys[status] || LaunchStatus[status].toLowerCase();
-
-export const getTargetInputI18nKey = (label: string): string => targetInputI18nKeys[label] || label.toLowerCase().replace(/[()]/g, '').replace(/\s+/g, '_');
 
 export const getMobTypeI18nKey = (mobType: MobType): string => mobTypeI18nKeys[mobType] || MobType[mobType].toLowerCase();
 

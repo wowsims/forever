@@ -9,7 +9,6 @@ const renderView = (props: Partial<EncounterPickerViewProps> = {}) =>
 			duration={<span>duration</span>}
 			zone={<span>zone</span>}
 			areaTypes={<span>area types</span>}
-			targetInputs={<span>target inputs</span>}
 			onAdvancedClick={() => {}}
 			onDesignClick={() => {}}
 			{...props}
@@ -28,7 +27,6 @@ describe('EncounterPickerView', () => {
 			'zone',
 			'area types',
 			'allies',
-			'target inputs',
 		]);
 	});
 

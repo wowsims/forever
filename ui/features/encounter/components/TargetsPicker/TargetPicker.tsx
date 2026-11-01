@@ -9,7 +9,6 @@ import { Field } from '@ui-kit/Field';
 import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo } from 'react';
 
-import { TargetInputsPicker } from './TargetInputsPicker';
 import {
 	aiConfig,
 	ALL_TARGET_STATS,
@@ -28,7 +27,7 @@ import {
 } from './utils/configs';
 
 export interface TargetPickerViewProps {
-	/** Who the target is: NPC preset, AI, level, mob type, creature family, tank, bleed immunity and the target's own inputs. */
+	/** Who the target is: NPC preset, AI, level, mob type, creature family, tank and bleed immunity. */
 	identity: ReactNode;
 	stats: ReactNode;
 	/** The fields only a threat sim reads; without them an empty column keeps the three-column grid. */
@@ -83,7 +82,6 @@ export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 					<ConnectedChoiceField modObject={null} config={level} />
 					{showThreatMetrics && <ConnectedChoiceField modObject={null} config={tankIndex} />}
 					<ConnectedBooleanPicker modObject={null} config={bleedImmune} />
-					<TargetInputsPicker encounter={encounter} targetIndex={targetIndex} />
 				</>
 			}
 			stats={stats.map(config => (

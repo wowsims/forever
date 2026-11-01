@@ -1,21 +1,13 @@
 import type { BooleanPickerConfig, ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
-import { CreatureFamily, InputType, MobType, SpellSchool, Stat, Target as TargetProto, TargetInput } from '@generated/proto/common';
+import { CreatureFamily, MobType, SpellSchool, Stat, Target as TargetProto } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import {
-	translateCreatureFamily,
-	translateMobType,
-	translateSpellSchool,
-	translateStat,
-	translateTargetInputLabel,
-	translateTargetInputTooltip,
-} from '@i18n/localization';
+import { translateCreatureFamily, translateMobType, translateSpellSchool, translateStat } from '@i18n/localization';
 import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
 import type { Encounter } from '@sim/raid/encounter';
 import { type StoreSubscribe, subscribeEncounterField } from '@sim/state/subscriptions';
 import { distinct } from '@sim/utils/collections';
-import { randomUUID } from '@sim/utils/misc';
 
-import { trackEvent, type TrackEventProps } from '../../../../../tracking/utils';
+import { trackEvent } from '../../../../../tracking/utils';
 
 export const ALL_TARGET_STATS: Array<{ stat: Stat; tooltip: string; threatMetrics?: boolean }> = [
 	{ stat: Stat.StatHealth, tooltip: '' },
@@ -64,14 +56,6 @@ const spellSchoolValues = [
 
 const targetId = (idPrefix: string, name: string) => `${idPrefix}-picker-${name}`;
 
-const equalTargetsIgnoreInputs = (target1: TargetProto | undefined, target2: TargetProto | undefined): boolean => {
-	if (!!target1 !== !!target2) return false;
-	if (!target1) return true;
-	const modTarget2 = TargetProto.clone(target2!);
-	modTarget2.targetInputs = target1.targetInputs;
-	return TargetProto.equals(target1, modTarget2);
-};
-
 /** What the field configs read and write: one target, wherever it lives. */
 export interface TargetFieldContext {
 	/** Starts every field id, so two pickers on a page never share one. */
@@ -104,7 +88,7 @@ export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget, storeSu
 		labelTooltip: i18n.t('settings_tab.encounter.npc.tooltip'),
 		values: [{ name: i18n.t('common.custom'), value: -1 }].concat(presetTargets.map((preset, index) => ({ name: preset.path, value: index }))),
 		storeSubscribe,
-		getValue: () => presetTargets.findIndex(preset => equalTargetsIgnoreInputs(getTarget(), preset.target)),
+		getValue: () => presetTargets.findIndex(preset => TargetProto.equals(getTarget(), preset.target)),
 		setValue: (_: null, newValue: number) => {
 			if (newValue === -1) return;
 			const preset = presetTargets[newValue];
@@ -128,9 +112,6 @@ export const aiConfig = ({ encounter, idPrefix, getTarget, storeSubscribe, modif
 			modifyTarget(target => {
 				target.id = newValue;
 				trackEvent({ action: 'settings', category: 'targets', label: 'ai', value: target.name });
-				target.targetInputs = (presetTargets.find(preset => target.id === preset.target?.id)?.target?.targetInputs || []).map(input =>
-					TargetInput.clone(input),
-				);
 			});
 		},
 	};
@@ -365,65 +346,3 @@ export const spellSchoolConfig = ({ idPrefix, getTarget, storeSubscribe, modifyT
 		});
 	},
 });
-
-export const targetInputConfig = (encounter: Encounter, targetIndex: number, inputIndex: number, input: TargetInput) => {
-	const getTargetInput = () => encounter.getTarget(targetIndex)!.targetInputs[inputIndex] || TargetInput.create();
-	const tracking: TrackEventProps = { action: 'settings', category: 'targets', label: input.label };
-	const write =
-		<T>(apply: (target: TargetInput, value: T) => void) =>
-		(_: null, newValue: T) => {
-			trackEvent({ ...tracking, value: newValue as string | number | boolean });
-			encounter.modifyTarget(targetIndex, target => {
-				const draft = target.targetInputs[inputIndex];
-				if (draft) apply(draft, newValue);
-			});
-		};
-	const shared = {
-		id: randomUUID(),
-		label: translateTargetInputLabel(input.label),
-		labelTooltip: translateTargetInputTooltip(input.label, input.tooltip),
-		storeSubscribe: () => subscribeEncounterField(encounter, 'targets'),
-	};
-
-	if (input.inputType === InputType.Number) {
-		return {
-			kind: 'number' as const,
-			config: {
-				...shared,
-				float: true,
-				getValue: () => getTargetInput().numberValue,
-				setValue: write<number>((draft, value) => {
-					draft.numberValue = value;
-				}),
-			} satisfies NumberFieldConfig<null>,
-		};
-	}
-	if (input.inputType === InputType.Bool) {
-		return {
-			kind: 'boolean' as const,
-			config: {
-				...shared,
-				layout: 'inline',
-				getValue: () => getTargetInput().boolValue,
-				setValue: write<boolean>((draft, value) => {
-					draft.boolValue = value;
-				}),
-			} satisfies BooleanPickerConfig<null>,
-		};
-	}
-	if (input.inputType === InputType.Enum) {
-		return {
-			kind: 'enum' as const,
-			config: {
-				...shared,
-				labelTooltip: undefined,
-				values: input.enumOptions.map((option, index) => ({ value: index, name: option })),
-				getValue: () => getTargetInput().enumValue,
-				setValue: write<number>((draft, value) => {
-					draft.enumValue = value;
-				}),
-			} satisfies ChoiceFieldConfig<null>,
-		};
-	}
-	return { kind: 'none' as const };
-};

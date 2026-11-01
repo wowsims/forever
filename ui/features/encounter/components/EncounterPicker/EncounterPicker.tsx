@@ -14,7 +14,6 @@ import { type ReactNode, useMemo, useState } from 'react';
 import { useEncounterChoice } from '../../hooks/useEncounterChoice';
 import { newEncounterProto } from '../../model/my_encounters';
 import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
-import { TargetInputsPicker } from '../TargetsPicker';
 import { AreaTypesPicker } from './AreaTypesPicker';
 import { durationConfigs, executeConfigs, minBaseDamageConfig, numAlliesConfig, zoneConfig } from './utils/configs';
 
@@ -26,7 +25,6 @@ export interface EncounterPickerViewProps {
 	preset?: ReactNode;
 	allies?: ReactNode;
 	minBaseDamage?: ReactNode;
-	targetInputs: ReactNode;
 	onAdvancedClick: () => void;
 	onDesignClick: () => void;
 	/** Shows the + beside the title, which starts a new encounter of the player's own. */
@@ -41,7 +39,6 @@ export const EncounterPickerView = ({
 	preset,
 	allies,
 	minBaseDamage,
-	targetInputs,
 	onAdvancedClick,
 	onDesignClick,
 	onNewClick,
@@ -72,7 +69,6 @@ export const EncounterPickerView = ({
 			{areaTypes}
 			{allies}
 			{minBaseDamage}
-			{targetInputs}
 		</div>
 	</ContentBlock>
 );
@@ -122,7 +118,6 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				preset={showDamage && <ConnectedChoiceField {...choice} />}
 				allies={player.canEnableTargetDummies() && <ConnectedNumberField modObject={host.sim.raid} config={allies} />}
 				minBaseDamage={player.getPlayerSpec().isTankSpec && <ConnectedNumberField modObject={encounter} config={minBaseDamage} />}
-				targetInputs={<TargetInputsPicker encounter={encounter} targetIndex={0} />}
 				onAdvancedClick={() => setAdvancedOpen(true)}
 				onDesignClick={() => setDesignerOpen(true)}
 				onNewClick={showDamage ? startNew : undefined}
