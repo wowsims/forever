@@ -125,10 +125,8 @@ message HunterOptions {
 
 	double pet_uptime = 5;
 
-	// Beast Training, the part of it that changes the pet's damage: whether Cobra Reflexes is
-	// taught, and Pet Aggression's rank, 0 for untrained.
+	// Beast Training, the part of it that changes the pet's damage: whether Cobra Reflexes is taught.
 	bool cobra_reflexes = 6;
-	int32 pet_aggression = 7;
 
 	// The Faster Attack or Slower Attack passive the tamed creature carries on top of the 2 s swing
 	// every pet has, named as the hunter's spell store fields the passives.

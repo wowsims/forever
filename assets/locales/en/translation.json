@@ -904,12 +904,6 @@
 					"tooltip": "Beast Training: the pet attacks 30% faster but each attack does less damage.",
 					"untrained": "Cobra Reflexes untrained",
 					"trained": "Cobra Reflexes trained"
-				},
-				"pet_aggression": {
-					"label": "Pet Aggression",
-					"tooltip": "Beast Training: flat damage added to each of the pet's attacks, by rank.",
-					"untrained": "Pet Aggression untrained",
-					"rank": "Pet Aggression rank {{rank}}"
 				}
 			},
 			"pet_section": {

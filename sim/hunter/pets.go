@@ -167,13 +167,13 @@ func (hp *HunterPet) registerStatInheritance() {
 
 // The family's own damage, armor and health, and what Beast Training taught the pet that changes
 // its damage: each is a passive the pet is never without, applied as its effects read. Great
-// Stamina, Natural Armor, Pet Hardiness and Pet Resistance change nothing the sim measures.
+// Stamina, Natural Armor, Pet Hardiness and Pet Resistance change nothing the sim measures, and no
+// Beast Training teaching spell in the game files teaches Pet Aggression.
 func (hp *HunterPet) ApplyTalents() {
 	opts := hp.hunterOwner.Options
 	// The family's armor share is stated on armor from items, which a pet has none of: its armor is
 	// its owner's, inherited, and the second effect is left out.
 	spelldata.ParseStatic(&hp.Character, hp.family.Passive.Highest(), spelldata.SkipEffects(2))
-	spelldata.ParseStatic(&hp.Character, spellData.PetAggression.Rank(opts.PetAggression))
 
 	// An attack speed acts through a Simulation, which a static passive has none of, so these two
 	// are auras the pet is never without.
