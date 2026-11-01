@@ -511,7 +511,7 @@ func NewSpellDataNatureResistanceTotemAura(unit *core.Unit, isPlayer bool, talen
 
 // Strength of Earth Totem
 var StrengthOfEarthTotemCategory = "StrengthOfEarthTotem"
-var strengthOfEarthTotemSpell = spelldata.MustFind(25362)
+var strengthOfEarthTotemSpell = spelldata.MustFind(10441)
 var strengthOfEarthTotemMeta = &Meta{
 	Label:    "Strength of Earth Totem",
 	Spell:    strengthOfEarthTotemSpell,
@@ -530,7 +530,7 @@ func NewSpellDataStrengthOfEarthTotemAura(unit *core.Unit, isPlayer bool, talent
 
 // Grace of Air Totem
 var GraceOfAirTotemCategory = "GraceOfAirTotem"
-var graceOfAirTotemSpell = spelldata.MustFind(25360)
+var graceOfAirTotemSpell = spelldata.MustFind(10626)
 var graceOfAirTotemMeta = &Meta{
 	Label:    "Grace of Air Totem",
 	Spell:    graceOfAirTotemSpell,

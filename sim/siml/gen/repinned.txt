@@ -2,3 +2,23 @@
 # The check against a pull request's base branch accepts a name of the base's table that means something else, or
 # nothing, only when the pull request adds the name's line here. simlnames -w -repin writes the lines; keep them.
 druid.spell.primal_bite: was spell 1238073 rank 4, now spell 1238070 rank 3
+druid.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+druid.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+hunter.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+hunter.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+mage.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+mage.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+paladin.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+paladin.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+priest.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+priest.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+rogue.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+rogue.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+warlock.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+warlock.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+warrior.aura.strength_of_earth: was spell 25362 tag -1, now spell 10441 tag -1
+warrior.aura.grace_of_air: was spell 25360 tag -1, now spell 10626 tag -1
+shaman.aura.strength_of_earth: was spell 25362, now spell 10441
+shaman.aura.strength_of_earth_external: was spell 25362 tag -1, now spell 10441 tag -1
+shaman.aura.grace_of_air: was spell 25360, now spell 10626
+shaman.aura.grace_of_air_external: was spell 25360 tag -1, now spell 10626 tag -1

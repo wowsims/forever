@@ -1,8 +1,8 @@
 character_stats_results: {
  key: "TestAfflictionWrack-CharacterStats-Default"
  value: {
-  final_stats: 128
-  final_stats: 167
+  final_stats: 116
+  final_stats: 154
   final_stats: 390
   final_stats: 315
   final_stats: 442
@@ -15,7 +15,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 1
   final_stats: 277
-  final_stats: 366
+  final_stats: 354
   final_stats: 50
   final_stats: 0
   final_stats: 10
@@ -28,7 +28,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 1998
+  final_stats: 1972
   final_stats: 0
   final_stats: 5134
   final_stats: 5818
@@ -42,12 +42,12 @@ character_stats_results: {
   final_stats: 1120
   final_stats: 6
   final_stats: 6
-  final_stats: 13.85
+  final_stats: 13.2
   final_stats: 13.3975
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 10.35
+  final_stats: 9.7
   final_stats: 0
   final_stats: 0
   final_stats: 0

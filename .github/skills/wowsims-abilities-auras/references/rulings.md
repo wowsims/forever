@@ -48,8 +48,8 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   Corruption. The hunter and shaman presets cast the trainer's top rank, because the books may not be there at launch:
   Serpent Sting 13555 and 25295 (one sting to a hunter), Aspect of the Hawk 14322 and 25296, Strength of Earth Totem
   10442 and 25361, Grace of Air Totem 10627 and 25359 (one totem to a slot), and shaman has no simple rotation. The raid's
-  Strength of Earth and Grace of Air stay on the book rank's row, and Multi-Shot has the one rank, 2643, so its Guide
-  teaches nothing here. The raid's `battle_shout` has four states (off, Rank 6, Rank 7, Rank 7 with the tier 2
+  Strength of Earth and Grace of Air read the trainer rank's row (10441, 10626), and Multi-Shot has the one rank, 2643,
+  so its Guide teaches nothing here. The raid's `battle_shout` has four states (off, Rank 6, Rank 7, Rank 7 with the tier 2
   set; no Rank 6 with the set), and the warrior's own copies are labelled by rank.** `ui/sim/proto/apl_utils.ts`,
   `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`, `sim/warrior/revenge.go`,
   `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, `sim/hunter/serpent_sting.go`, `sim/hunter/aspects.go`,

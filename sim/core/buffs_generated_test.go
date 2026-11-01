@@ -527,7 +527,7 @@ func TestGeneratedGraceOfAirStacksWithWindfuryTotem(t *testing.T) {
 
 func graceOfAirTotemAgility(t *testing.T) float64 {
 	t.Helper()
-	return rowAmount(t, 25360, dbcenums.A_MOD_STAT)
+	return rowAmount(t, 10626, dbcenums.A_MOD_STAT)
 }
 
 // Each staff in the party is worth its own copy of the aura's amounts: MP5 per

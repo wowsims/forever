@@ -1,8 +1,8 @@
 character_stats_results: {
  key: "TestArcane-CharacterStats-Default"
  value: {
-  final_stats: 107
-  final_stats: 155
+  final_stats: 95
+  final_stats: 141
   final_stats: 375
   final_stats: 479
   final_stats: 484
@@ -15,7 +15,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 17
   final_stats: 336
-  final_stats: 345
+  final_stats: 333
   final_stats: 50
   final_stats: 0
   final_stats: 20
@@ -28,7 +28,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 1995
+  final_stats: 1967
   final_stats: 0
   final_stats: 4940
   final_stats: 8118
@@ -42,12 +42,12 @@ character_stats_results: {
   final_stats: 1120
   final_stats: 2
   final_stats: 8
-  final_stats: 24.167
+  final_stats: 23.4474
   final_stats: 24.2472
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 11.167
+  final_stats: 10.4474
   final_stats: 0
   final_stats: 0
   final_stats: 0

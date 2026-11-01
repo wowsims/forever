@@ -173,13 +173,13 @@ export const NatureResistanceTotem = makeBooleanRaidBuffInput({
 });
 
 export const StrengthOfEarthTotem = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(25361),
+	actionId: ActionId.fromSpellId(10442),
 	fieldName: 'strengthOfEarthTotem',
 	label: 'Strength of Earth Totem',
 });
 
 export const GraceOfAirTotem = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(25359),
+	actionId: ActionId.fromSpellId(10627),
 	fieldName: 'graceOfAirTotem',
 	label: 'Grace of Air Totem',
 });

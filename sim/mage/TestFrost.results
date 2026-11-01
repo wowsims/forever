@@ -1,8 +1,8 @@
 character_stats_results: {
  key: "TestFrost-CharacterStats-Default"
  value: {
-  final_stats: 107
-  final_stats: 155
+  final_stats: 95
+  final_stats: 141
   final_stats: 375
   final_stats: 435
   final_stats: 484
@@ -15,7 +15,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 17
   final_stats: 336
-  final_stats: 345
+  final_stats: 333
   final_stats: 50
   final_stats: 0
   final_stats: 20
@@ -28,7 +28,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 2321.25
+  final_stats: 2293.25
   final_stats: 0
   final_stats: 4940
   final_stats: 7458
@@ -42,12 +42,12 @@ character_stats_results: {
   final_stats: 1120
   final_stats: 2
   final_stats: 8
-  final_stats: 21.167
+  final_stats: 20.4474
   final_stats: 20.508
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 11.167
+  final_stats: 10.4474
   final_stats: 0
   final_stats: 0
   final_stats: 0

@@ -105,18 +105,20 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
+		// The trainer's top rank; a class book teaches the rank above it (25361, buff 25362).
 		Field:    "strength_of_earth_totem",
-		SpellID:  25362,
-		CastID:   25361,
+		SpellID:  10441,
+		CastID:   10442,
 		Category: "StrengthOfEarthTotem",
 		Stats: []proto.Stat{
 			proto.Stat_StatStrength,
 		},
 	},
 	{
+		// The trainer's top rank; a class book teaches the rank above it (25359, buff 25360).
 		Field:    "grace_of_air_totem",
-		SpellID:  25360,
-		CastID:   25359,
+		SpellID:  10626,
+		CastID:   10627,
 		Category: "GraceOfAirTotem",
 		Stats: []proto.Stat{
 			proto.Stat_StatAgility,
