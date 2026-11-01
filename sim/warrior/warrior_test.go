@@ -734,3 +734,91 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 	}
 	t.Fatal("the result has no Heroic Strike action")
 }
+
+// An engineer warrior at 100 rage with no swing running, its Cleave queue spell and aura, and the
+// explosive the consumables register.
+func newThrowerSim(t *testing.T, consumes *proto.ConsumesSpec, explosiveID int32, queueDelay int32) (sim *core.Simulation, war *dps.DpsWarrior, queueCleave *core.Spell, queue *core.Aura, explosive *core.Spell) {
+	t.Helper()
+	player := &proto.Player{
+		Name:          "Thrower",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
+		TalentsString: furyTalents,
+		Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
+			ClassOptions: &proto.WarriorOptions{
+				UseBattleShout: true,
+				DefaultStance:  proto.WarriorStance_WarriorStanceBerserker,
+				QueueDelay:     queueDelay,
+			},
+		}}},
+		Profession1: proto.Profession_Engineering,
+		Consumables: consumes,
+		Rotation:    &proto.APLRotation{},
+	}
+	sim = core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	war = sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	war.AddRage(sim, 100, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
+
+	queueCleave = war.GetSpell(war.Cleave.ActionID.WithTag(1))
+	queue = war.GetAura("HS/Cleave Queue Aura-" + war.Cleave.ActionID.String())
+	explosive = war.GetSpell(core.ActionID{ItemID: explosiveID})
+	if queueCleave == nil || queue == nil || explosive == nil {
+		t.Fatalf("queue spell %v, queue aura %v, explosive %v; want all registered", queueCleave, queue, explosive)
+	}
+	return sim, war, queueCleave, queue, explosive
+}
+
+// Throwing an explosive with a cast drops a Heroic Strike or Cleave queued for the next swing; the
+// instant sapper charge keeps it.
+func TestExplosiveDropsTheQueuedCleave(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		itemID     int32
+		consumes   *proto.ConsumesSpec
+		wantQueued bool
+	}{
+		{"Ez-Thro Dynamite II drops it", 18588, &proto.ConsumesSpec{ExplosiveId: 18588}, false},
+		{"Goblin Sapper Charge keeps it", 10646, &proto.ConsumesSpec{ExtraIds: []int32{10646}}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, war, queueCleave, queue, explosive := newThrowerSim(t, tc.consumes, tc.itemID, 0)
+			if !queueCleave.Cast(sim, war.CurrentTarget) || !queue.IsActive() {
+				t.Fatal("Cleave could not be queued")
+			}
+			if !explosive.Cast(sim, war.CurrentTarget) {
+				t.Fatal("the explosive could not be thrown")
+			}
+			if got := queue.IsActive(); got != tc.wantQueued {
+				t.Errorf("Cleave queued after the throw = %v, want %v", got, tc.wantQueued)
+			}
+		})
+	}
+}
+
+// A Cleave press still waiting out the Queue Delay goes with the throw too, and Cleave can be queued
+// again once the throw is done.
+func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
+	sim, war, queueCleave, queue, explosive := newThrowerSim(t, &proto.ConsumesSpec{ExplosiveId: 18588}, 18588, 250)
+	if !queueCleave.Cast(sim, war.CurrentTarget) {
+		t.Fatal("Cleave could not be pressed")
+	}
+	if !explosive.Cast(sim, war.CurrentTarget) {
+		t.Fatal("the explosive could not be thrown")
+	}
+	for sim.CurrentTime < 2*time.Second {
+		sim.Step()
+	}
+	if queue.IsActive() {
+		t.Error("Cleave queued during the throw, want the press inside the Queue Delay dropped")
+	}
+	if !queueCleave.Cast(sim, war.CurrentTarget) {
+		t.Error("Cleave could not be queued again after the throw")
+	}
+}

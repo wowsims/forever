@@ -14,7 +14,7 @@ import (
 )
 
 // Consecrated Ground 2/2 in place of Infusion of Light.
-var consecratedGroundTalents = "55320030005131251-503050002"
+var consecratedGroundTalents = "55320015020121251-503020005001"
 
 // Consecration marks its bonus targets as it is cast, and the mark outlasts the ground by the mark
 // row's duration. A Holy hit on a marked target takes Consecrated Ground's bonus, and a target past

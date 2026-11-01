@@ -1,7 +1,6 @@
 import { type ArmorType, Faction, ItemSlot, type RangedWeaponType, type WeaponType } from '@generated/proto/common';
-import { type DatabaseFilters, FactionFilter, SourceFilterOption } from '@generated/proto/ui';
+import { type DatabaseFilters, FactionFilter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { sourceFilterI18nKeys } from '@i18n/entity_mapping';
 import { translateArmorType, translateRaidFilter, translateRangedWeaponType, translateSourceFilter, translateWeaponType } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
@@ -20,11 +19,6 @@ const factionLabels: Record<Faction, string> = {
 	[Faction.Alliance]: i18n.t('gear_tab.gear_picker.filters.faction_labels.alliance_only'),
 	[Faction.Horde]: i18n.t('gear_tab.gear_picker.filters.faction_labels.horde_only'),
 };
-
-// A sorted copy, since `Sim.ALL_SOURCES` is shared. Both inputs are static, so the order is decided
-// once here instead of on every render.
-const sourceKeys = Object.keys(sourceFilterI18nKeys) as unknown as SourceFilterOption[];
-const SOURCES = [...Sim.ALL_SOURCES].sort((a, b) => sourceKeys.indexOf(a) - sourceKeys.indexOf(b));
 
 type FilterListField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] extends Array<number> ? K : never }[keyof DatabaseFilters];
 type FilterNumberField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] extends number ? K : never }[keyof DatabaseFilters];
@@ -123,7 +117,7 @@ export const FiltersMenuView = ({
 				</div>
 			</MenuSection>
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.source')} className="ui-filters-menu-section-bool-list">
-				{SOURCES.map(source => {
+				{Sim.ALL_SOURCES.map(source => {
 					const label = translateSourceFilter(source);
 					return label ? listToggle('sources', source, `filters-source-${source}`, label) : null;
 				})}

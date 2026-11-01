@@ -196,10 +196,9 @@ the effects the curve covers; an effect the curve has no row for keeps the spell
 `MustFind` every id, so a family that loses a spell fails at startup rather than registering nothing.
 
 The curve's value keeps the sign the game files state, also where the row's base points and the tooltip
-state the opposite. Instrument of Law's threat (effect 2: row -20, curve 10/20) raises the threat the
-paladin generates by 20% at 2/2 while Righteous Fury is off, where the tooltip says it reduces it. Iron
-Will's Stun and Fear duration has the same shape, a positive curve under a reducing tooltip, and reads the
-curve too.
+state the opposite. Iron Will 12962's first mechanic duration mod (effect 0: row -15, curve 3/6/9/12/15)
+lengthens that mechanic's duration by 15% at 5/5, where the tooltip says the talent reduces Stun and
+Fear. Its second effect has no curve row and keeps the row's -15.
 
 |                                          |                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------- |

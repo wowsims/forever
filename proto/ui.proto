@@ -132,18 +132,8 @@ enum Expansion {
 
 enum DungeonDifficulty {
 	DifficultyUnknown = 0;
-	DifficultyNormal = 1;
-	DifficultyHeroic = 2;
-	DifficultyTitanRuneAlpha = 7;
-	DifficultyTitanRuneBeta = 8;
-	DifficultyCelestial = 10;
-	DifficultyRaid10 = 3;
-	DifficultyRaid10H = 4;
-	DifficultyRaid25 = 5;
-	DifficultyRaid25H = 6;
-	DifficultyRaid25RF = 9;
-	DifficultyRaidFlex = 11;
-	DifficultyVendor = 12;
+	DifficultyDungeon = 1;
+	DifficultyRaid = 2;
 }
 
 enum RepLevel {
@@ -165,6 +155,7 @@ message UIItemSource {
 		QuestSource quest = 3;
 		SoldBySource sold_by = 4;
 		RepSource rep = 5;
+		PvpSource pvp = 6;
 	}
 }
 message CraftedSource {
@@ -192,6 +183,8 @@ message RepSource {
 	RepLevel rep_level = 2;
 	Faction faction_id = 3;
 }
+
+message PvpSource {} // gen_db sets it on an item whose name is an honor rank or battleground name.
 
 message UIEnchant {
 	// All enchants have an effect ID. Some also have an item ID, others have a spell ID,
@@ -238,14 +231,10 @@ enum SourceFilterOption {
 	SourceCrafting = 1;
 	SourceQuest = 2;
 	SourceReputation = 3;
-	SourceSoldBy = 11;
 	SourcePvp = 4;
 	SourceDungeon = 5;
-	SourceDungeonH = 6;
 	SourceRaid = 7;
-	SourceRaidH = 8;
-	SourceRaidRF = 9;
-	SourceRaidFlex = 10;
+	SourceSoldBy = 6;
 }
 
 enum RaidFilterOption {

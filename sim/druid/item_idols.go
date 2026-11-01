@@ -3,10 +3,8 @@ package druid
 import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The idols' equip spells reach their spells by class flags.
@@ -23,14 +21,6 @@ func init() {
 		}
 		aura := character.RegisterAura(config)
 		spelldata.ParseEffects(character, aura, row)
-		// Bonus item armor uses a separate stat from the base armor parsed above.
-		bonus := 1 + row.FindEffect(dbcenums.E_APPLY_AURA, dbcenums.A_MOD_BONUS_ARMOR_PCT, 0).Percent()
-		aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-			character.ApplyDynamicEquipScaling(sim, stats.BonusArmor, bonus)
-		})
-		aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-			character.RemoveDynamicEquipScaling(sim, stats.BonusArmor, bonus)
-		})
 		character.ItemSwap.RegisterProc(263435, core.MakePermanent(aura))
 	})
 

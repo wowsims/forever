@@ -1,8 +1,7 @@
 import { Profession } from '@generated/proto/common';
 import { DungeonDifficulty, RepLevel, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
 import { ActionId } from '@sim/proto/action_id';
-import { getPVPSeasonFromItem } from '@sim/proto/items';
-import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
+import { professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -27,24 +26,29 @@ const sim = ({ zones = {}, npcs = {}, factions = {} }: DbStub = {}) =>
 const mount = (item: Item, dbStub: DbStub = {}) => render(<ItemSource item={item} sim={sim(dbStub)} />);
 
 describe('ItemSource', () => {
-	it('links to the world drop page for an item with random suffix options and no sources', () => {
-		const item = Item.create({ id: 100, sources: [], randomSuffixOptions: [1] });
-		const { container, getByRole } = mount(item);
-
-		expect(getByRole('link').getAttribute('href')).toBe(`${ActionId.makeItemUrl(100)}#dropped-by`);
-		expect(container.textContent).toBe('gear_tab.gear_picker.sources.world_drop');
-	});
-
-	it('links to the pvp season for a gladiator item with no sources', () => {
-		const item = Item.create({ id: 200, name: "Wrathful Gladiator's Pauldrons", sources: [], randomSuffixOptions: [] });
+	it('links to the item page for an item with a pvp source', () => {
+		const item = Item.create({ id: 200, sources: [{ source: { oneofKind: 'pvp', pvp: {} } }] });
 		const { container, getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeItemUrl(200));
-		expect(container.textContent).toBe(`${getPVPSeasonFromItem(item)}common.sources.pvp`);
+		expect(container.textContent).toBe('common.sources.pvp');
 	});
 
-	it('renders nothing for a plain item with no sources, no suffixes, and no pvp name', () => {
-		const item = Item.create({ id: 300, name: 'Plain Sword', sources: [], randomSuffixOptions: [] });
+	it('shows the rep source before the pvp source, and the pvp source before the vendor', () => {
+		const rep = { source: { oneofKind: 'rep', rep: { repFactionId: 730, repLevel: RepLevel.RepLevelRevered, factionId: 0 } } } as const;
+		const vendor = { source: { oneofKind: 'soldBy', soldBy: { npcId: 1, npcName: 'Vendor', zoneId: 0 } } } as const;
+		const pvp = { source: { oneofKind: 'pvp', pvp: {} } } as const;
+
+		const withRep = mount(Item.create({ id: 210, sources: [pvp, rep] }), { factions: { 730: { id: 730, name: 'Stormpike Guard' } } });
+		expect(withRep.container.textContent).toContain('Stormpike Guard');
+		withRep.unmount();
+
+		const withVendor = mount(Item.create({ id: 211, sources: [vendor, pvp] }));
+		expect(withVendor.container.textContent).toBe('common.sources.pvp');
+	});
+
+	it('renders nothing for an item with no sources', () => {
+		const item = Item.create({ id: 300, name: 'Plain Sword', sources: [], randomSuffixOptions: [1] });
 		const { container } = mount(item);
 
 		expect(container.innerHTML).toBe('');
@@ -91,7 +95,7 @@ describe('ItemSource', () => {
 				{
 					source: {
 						oneofKind: 'drop',
-						drop: { zoneId: 10, npcId: 20, difficulty: DungeonDifficulty.DifficultyRaid10H, otherName: '', category: 'Hard Mode' },
+						drop: { zoneId: 10, npcId: 20, difficulty: DungeonDifficulty.DifficultyRaid, otherName: '', category: 'Hard Mode' },
 					},
 				},
 			],
@@ -99,7 +103,7 @@ describe('ItemSource', () => {
 		const { container, getByRole } = mount(item, { zones: { 10: { id: 10, name: 'Icecrown Citadel' } }, npcs: { 20: { id: 20, name: 'The Lich King' } } });
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(20));
-		expect(container.textContent).toBe(`Icecrown Citadel (${difficultyNames.get(DungeonDifficulty.DifficultyRaid10H)})The Lich King - Hard Mode`);
+		expect(container.textContent).toBe('Icecrown Citadel (common.dungeon_difficulties.raid)The Lich King - Hard Mode');
 	});
 
 	it.each([
@@ -169,7 +173,7 @@ describe('ItemSource', () => {
 	});
 
 	it('opens external links in a new tab, with noopener and noreferrer', () => {
-		const item = Item.create({ id: 1000, sources: [], randomSuffixOptions: [1] });
+		const item = Item.create({ id: 1000, sources: [{ source: { oneofKind: 'pvp', pvp: {} } }] });
 		const { getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('target')).toBe('_blank');
@@ -177,7 +181,7 @@ describe('ItemSource', () => {
 	});
 
 	it('opts every source anchor out of the wowhead link icon', () => {
-		const item = Item.create({ id: 100, sources: [], randomSuffixOptions: [1] });
+		const item = Item.create({ id: 100, sources: [{ source: { oneofKind: 'pvp', pvp: {} } }] });
 		const { getByRole } = mount(item);
 
 		expect(getByRole('link').getAttribute('data-whtticon')).toBe('false');

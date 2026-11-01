@@ -1150,7 +1150,7 @@ func ItemEffectIsSupported(instance *dbc.DBC, effectID int) bool {
 	return supported && !carriesOnlyAloneIgnoredAuras(instance.SpellEffectsInOrder(effectID))
 }
 
-func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase, itemSources map[int][]*proto.DropSource) {
+func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	groupMapOnUse := map[string]Group{}
 	groupMapProc := map[string]Group{}
 
@@ -1254,7 +1254,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase, itemSources map[int
 					}
 				}
 
-				variant.Name += BuildItemDifficultyPostfix(itemSources, variant.ID, instance)
+				variant.Name += BuildItemNamePostfix(variant.ID, instance)
 			}
 		}
 	}
@@ -1311,30 +1311,24 @@ func GenerateItemEffectRandomPropPoints(instance *dbc.DBC, db *WowDatabase) {
 	}
 }
 
-func BuildItemDifficultyPostfix(itemSources map[int][]*proto.DropSource, itemId int, instance *dbc.DBC) string {
-	difficultyPostfix := ""
-	if sources, ok := itemSources[itemId]; ok {
-		name := DifficultyToShortName(sources[0].Difficulty)
-		if len(name) > 0 {
-			difficultyPostfix += " " + name
-		}
-	}
+func BuildItemNamePostfix(itemId int, instance *dbc.DBC) string {
+	namePostfix := ""
 
 	if item, ok := instance.Items[itemId]; ok {
 		if len(item.NameDescription) > 0 && item.NameDescription != "Heroic" {
-			difficultyPostfix += " (" + item.NameDescription + ")"
+			namePostfix += " (" + item.NameDescription + ")"
 		}
 
 		if item.Flags1.Has(dbc.HORDE_SPECIFIC) {
-			difficultyPostfix += " (Horde)"
+			namePostfix += " (Horde)"
 		}
 
 		if item.Flags1.Has(dbc.ALLIANCE_SPECIFIC) {
-			difficultyPostfix += " (Alliance)"
+			namePostfix += " (Alliance)"
 		}
 	}
 
-	return difficultyPostfix
+	return namePostfix
 }
 
 func TryParseProcEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, instance *dbc.DBC, groupMapProc map[string]Group) EffectParseResult {

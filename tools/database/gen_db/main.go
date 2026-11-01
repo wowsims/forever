@@ -20,6 +20,7 @@ import (
 	"github.com/wowsims/forever/tools"
 	"github.com/wowsims/forever/tools/database"
 	"github.com/wowsims/forever/tools/database/dbc"
+	googleProto "google.golang.org/protobuf/proto"
 )
 
 // To do a full re-scrape, delete the previous output file first.
@@ -109,6 +110,8 @@ func main() {
 		repSources      map[int][]*proto.RepSource
 		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
+		raidZones       map[int32]bool
+		areaTableIDs    map[int32]bool
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -142,10 +145,14 @@ func main() {
 		atlaslootDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/atlasloot_db.json", inputsDir)))
 		return nil
 	})
+	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
+	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
+
+	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -214,13 +221,17 @@ func main() {
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
+	// Source loaders added later must run before this.
+	for _, item := range db.Items {
+		database.InferPvpSource(item)
+	}
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
 	applyRepSources(leftovers, factionNames)
 	leftovers.WriteBinaryAndJson(fmt.Sprintf("%s/leftover_db.bin", dbDir), fmt.Sprintf("%s/leftover_db.json", dbDir))
 	ApplySimmableFilters(db)
 
-	database.GenerateItemEffects(instance, db, dropSources)
+	database.GenerateItemEffects(instance, db)
 	database.GenerateEnchantEffects(instance, db)
 	if err := database.GenerateConsumableRegistrations(instance, db, consumableRoutes); err != nil {
 		log.Fatalf("failed to generate the consumable registrations: %v", err)
@@ -299,6 +310,39 @@ func main() {
 	}
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
+}
+
+// Drop sources from NPCs that are not in Forever although their zone is.
+var dropNpcsNotInForever = map[int32]bool{
+	36296: true, // Apothecary Hummel, Shadowfang Keep.
+}
+
+// pruneAtlasLootDrops removes the zones, NPCs and drop sources of AtlasLoot that are not in the game files or
+// are in dropNpcsNotInForever, sets the remaining drops to Raid in a raid zone and Dungeon elsewhere, and
+// removes the exact duplicates this leaves.
+func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs map[int32]bool) {
+	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return !areaTableIDs[id] })
+	maps.DeleteFunc(atlas.Npcs, func(id int32, npc *proto.UINPC) bool {
+		return !areaTableIDs[npc.ZoneId] || dropNpcsNotInForever[id]
+	})
+	for _, item := range atlas.Items {
+		var drops []*proto.DropSource
+		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
+			drop := source.GetDrop()
+			if drop == nil {
+				return true
+			}
+			if !areaTableIDs[drop.ZoneId] || dropNpcsNotInForever[drop.NpcId] {
+				return false
+			}
+			drop.Difficulty = database.ParseDungeonDifficulty(raidZones[drop.ZoneId])
+			if slices.ContainsFunc(drops, func(seen *proto.DropSource) bool { return googleProto.Equal(seen, drop) }) {
+				return false
+			}
+			drops = append(drops, drop)
+			return true
+		})
+	}
 }
 
 func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {
