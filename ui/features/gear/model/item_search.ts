@@ -22,6 +22,8 @@ const itemSourceSearchNames = <T extends ItemListType>(itemData: ItemDataFields<
 				label = getNpcName(source.drop.npcId) || source.drop.otherName;
 			} else if (source.oneofKind === 'soldBy') {
 				label = source.soldBy.npcName;
+			} else if (source.oneofKind === 'quest') {
+				label = source.quest.name;
 			} else if (source.oneofKind === 'crafted') {
 				label = professionNames.get(source.crafted.profession);
 			} else if (source.oneofKind === 'rep') {
