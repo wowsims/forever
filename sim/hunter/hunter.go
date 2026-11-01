@@ -143,11 +143,18 @@ func (hunter *Hunter) stingTag() string {
 	return "Sting-" + hunter.Label
 }
 
-// One sting per hunter on a target: applying either sting drops the hunter's other one.
+// One sting per hunter on a target: applying either sting drops the hunter's other one. Two ranks of Serpent Sting
+// are the dot's rank group's to settle, which keeps the higher.
 func dropOtherSting(sim *core.Simulation, sting *core.Aura) {
-	if active := sting.Unit.GetActiveAuraWithTag(sting.Tag); active != nil && active != sting {
-		active.Deactivate(sim)
+	active := sting.Unit.GetActiveAuraWithTag(sting.Tag)
+	if active == nil || active == sting || (isSerpentSting(active) && isSerpentSting(sting)) {
+		return
 	}
+	active.Deactivate(sim)
+}
+
+func isSerpentSting(aura *core.Aura) bool {
+	return aura.ActionID.SpellID == serpentStingTrainerRank.ID || aura.ActionID.SpellID == serpentStingBookRank.ID
 }
 
 func (hunter *Hunter) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {

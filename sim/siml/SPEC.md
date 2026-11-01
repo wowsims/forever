@@ -2125,5 +2125,6 @@ Some notes on this file:
   `spec hunter`.
 - **Buff order.** The fields of `raid_buffs` follow declaration order in `proto/buffs.proto`. `battle_shout` is
   a number, the raid's rank (1 is Rank 6), so it takes a line of its own. So does each rank select, whose number is 0 for
-  off and 1 for the rank no class book teaches: `strength_of_earth_totem` and `grace_of_air_totem` here, and
-  `greater_blessing_of_might` and `greater_blessing_of_wisdom` in `buffs`. A bare name is an error for these.
+  off, 1 for the rank no class book teaches and 2 for the rank above it: `strength_of_earth_totem` and
+  `grace_of_air_totem` here, and `greater_blessing_of_might` and `greater_blessing_of_wisdom` in `buffs`. A higher
+  number reads as 2. A bare name is an error for these.

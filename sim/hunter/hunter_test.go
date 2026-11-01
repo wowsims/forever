@@ -697,6 +697,7 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 	if trainerSting.IsActive() || !bookSting.IsActive() {
 		t.Error("the book rank's Serpent Sting left the trainer's up, want it to replace the trainer's")
 	}
+	dropOtherSting(sim, trainerSting.Aura)
 	trainerSting.Apply(sim)
 	if trainerSting.IsActive() || !bookSting.IsActive() {
 		t.Error("the trainer's Serpent Sting landed under the book rank, want it refused")
