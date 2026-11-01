@@ -1,11 +1,11 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": true,
+    "arcaneIntellect": true,
     "prayerOfSpirit": true,
-    "giftOfTheWild": true,
-    "prayerOfFortitude": true,
-    "graceOfAirTotem": true,
+    "markOfTheWild": true,
+    "powerWordFortitude": true,
+    "graceOfAirTotem": 1,
     "battleShout": 1,
     "leaderOfThePack": true,
     "moonkinAura": true
@@ -133,8 +133,8 @@
     "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{"id":250617,"enchant":8211},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfMight": true,
-      "greaterBlessingOfWisdom": true
+      "greaterBlessingOfMight": 1,
+      "greaterBlessingOfWisdom": 1
     },
     "enhancementShaman": {
       "options": {
@@ -155,7 +155,7 @@
         {"action":{"castSpell":{"spellId":{"spellId":408510}}},"doAtValue":{"const":{"val":"-5.5s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10614}}},"doAtValue":{"const":{"val":"-4s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10497}}},"doAtValue":{"const":{"val":"-3s"}}},
-        {"action":{"castSpell":{"spellId":{"spellId":25361}}},"doAtValue":{"const":{"val":"-2s"}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10442,"rank":4}}},"doAtValue":{"const":{"val":"-2s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10587}}},"doAtValue":{"const":{"val":"-1s"}}}
       ],
       "priorityList": [
@@ -163,7 +163,7 @@
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"70%"}}}},"castSpell":{"spellId":{"itemId":12662}}}},
         {"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{},"includeReactionTime":true}}}},"castSpell":{"spellId":{"spellId":408510}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Air"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10614}}}},
-        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Earth"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":25361}}}},
+        {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Earth"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10442,"rank":4}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Water"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10497}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10587}}}},
         {"action":{"autocastOtherCooldowns":{}}},

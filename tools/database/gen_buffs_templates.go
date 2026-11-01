@@ -23,6 +23,13 @@ var {{.CategoryVar}} = "{{.Category}}"
 var {{.SpellVar}} = spelldata.MustFind({{.SpellID}})
 var {{.MetaVar}} = &Meta{
 {{.MetaFields}}}
+{{- if .RanksVar}}
+var {{.RanksVar}} = rankStates{
+{{- range .RankStates}}
+	{{.}}
+{{- end}}
+}
+{{- end}}
 {{- if .HasValue}}
 func {{.Go}}Value(talentPoints int32) float64 {
 	return {{.MetaVar}}.Value(talentPoints)
@@ -36,9 +43,11 @@ func {{.Go}}Cooldown() time.Duration {
 	return {{.MetaVar}}.Cooldown()
 }
 {{- end}}
+{{- if not .RanksVar}}
 func {{.Builder}}(unit *core.Unit, isPlayer bool, talentPoints int32{{.ExtraParams}}) *core.Aura {
 	{{.Constructor}}
 }
+{{- end}}
 {{- else}}
 {{if .HasSpell}}// {{.Label}}
 {{end}}// func {{.Builder}}(unit *core.Unit, isPlayer bool, talentPoints int32{{.ExtraParams}}) *core.Aura // {{.Field}}{{with .Kind}}, {{.}}{{end}}: {{.Reason}}

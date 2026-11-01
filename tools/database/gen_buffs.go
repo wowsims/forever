@@ -15,6 +15,7 @@ package database
 
 import (
 	"bytes"
+	"cmp"
 	"errors"
 	"fmt"
 	"go/format"
@@ -63,6 +64,12 @@ type ResolvedBuff struct {
 	// Spell is the row the store carries for SpellID, built from the same
 	// captured game files rows the store is rendered from.
 	Spell *spelldata.Spell
+	// ScopeSpell is the row whose targeting states who the aura reaches: Spell, or the group spell a
+	// raid input stands for.
+	ScopeSpell *spelldata.Spell
+
+	// A rank select's states, in the order the proto field counts them from 1.
+	RankStates []rankState
 
 	// SkipAuraTypes are the auras the row states at 0 beside the buff, which the parse leaves out.
 	SkipAuraTypes []dbcenums.EffectAuraType
@@ -99,6 +106,13 @@ type ResolvedBuff struct {
 	Supported bool
 	Reason    string
 	Warnings  []string
+}
+
+// One state of a rank select, as its row and its cast state it.
+type rankState struct {
+	SpellID     int32
+	CastSpellID int32
+	Label       string // the cast's name and rank
 }
 
 func (r *ResolvedBuff) warn(format string, args ...any) {
@@ -150,6 +164,9 @@ func resolveBuff(t *spellTables, nodes []traitNode, spec buffmanifest.Row) (Reso
 		row.Kind = buffmanifest.KindDamageShield
 	}
 	parseBuff(&row)
+	if err := resolveRankStates(t, &row); err != nil {
+		return row, err
+	}
 	if err := resolveTalent(t, nodes, &row); err != nil {
 		return row, err
 	}
@@ -172,10 +189,7 @@ func loadBuffSpell(t *spellTables, row *ResolvedBuff) error {
 	if row.SpellID = row.BuffSpec.SpellID; row.SpellID == 0 {
 		return fmt.Errorf("names no spell")
 	}
-	row.CastSpellID = row.SpellID
-	if row.CastID != 0 {
-		row.CastSpellID = row.CastID
-	}
+	row.CastSpellID = cmp.Or(row.CastID, row.SpellID)
 	for _, id := range []int32{row.SpellID, row.CastSpellID} {
 		if _, named := t.Names[id]; !named {
 			return fmt.Errorf("spell %d is no spell in the game files", id)
@@ -184,6 +198,10 @@ func loadBuffSpell(t *spellTables, row *ResolvedBuff) error {
 
 	spell := t.row(row.SpellID)
 	row.Spell = storeRowSpell(spell)
+	row.ScopeSpell = row.Spell
+	if group, ok := groupInputSpells[row.Field]; ok {
+		row.ScopeSpell = storeRowSpell(t.row(group))
+	}
 	row.DBName = spell.Name
 	row.DurationMs = spell.DurationMs
 	row.Totem = summonsTotem(t.row(row.CastSpellID))
@@ -318,6 +336,41 @@ func parseBuff(row *ResolvedBuff) {
 	}
 }
 
+// The rank select's states. Each stands in for the row, so a state must attach the amounts the row
+// attaches, by kind, and a totem's must summon into a totem slot as the row's cast does.
+func resolveRankStates(t *spellTables, row *ResolvedBuff) error {
+	want := appliedKinds(row.Applied)
+	for _, rank := range row.Ranks {
+		state := rankState{SpellID: rank.SpellID, CastSpellID: cmp.Or(rank.CastID, rank.SpellID)}
+		for _, id := range []int32{state.SpellID, state.CastSpellID} {
+			if _, named := t.Names[id]; !named {
+				return fmt.Errorf("rank spell %d is no spell in the game files", id)
+			}
+		}
+
+		cast := t.row(state.CastSpellID)
+		state.Label = strings.TrimSpace(t.Names[state.CastSpellID] + " " + cast.Rank)
+		if summonsTotem(cast) != row.Totem {
+			return fmt.Errorf("rank spell %d summons a totem where the row's cast %d does not, or the other way round", state.CastSpellID, row.CastSpellID)
+		}
+		got := appliedKinds(spelldata.DryRun(storeRowSpell(t.row(state.SpellID)), row.parseOptions()...).Applied)
+		if !slices.Equal(got, want) {
+			return fmt.Errorf("rank spell %d attaches %v where the row attaches %v", state.SpellID, got, want)
+		}
+		row.RankStates = append(row.RankStates, state)
+	}
+	return nil
+}
+
+func appliedKinds(applied []spelldata.Applied) []string {
+	kinds := make([]string, len(applied))
+	for i, a := range applied {
+		kinds[i] = a.Kind
+	}
+	slices.Sort(kinds)
+	return kinds
+}
+
 // The options buffs.Meta.Options states for the row, less the talent's scaling,
 // which prices an amount and never changes what is attached. A damage shield's
 // own effect is left to newDamageShield, and an item-count row counts its
@@ -441,6 +494,14 @@ func raisesValue(misc int32) bool {
 	return false
 }
 
+// The group spell of each raid input that reads the single-target spell's numbers.
+var groupInputSpells = map[string]int32{
+	"mark_of_the_wild":     21850,
+	"power_word_fortitude": 21564,
+	"arcane_intellect":     23028,
+	"shadow_protection":    27683,
+}
+
 // Who the game files say the aura reaches. The manifest wins - the sim's scopes are
 // a UI grouping as much as a game fact - but a disagreement is worth printing.
 func validateScope(row *ResolvedBuff) {
@@ -450,7 +511,7 @@ func validateScope(row *ResolvedBuff) {
 	}
 	row.ScopeFromClient = scope
 	if scope != row.Scope {
-		row.warn("scope mismatch: the manifest says %s, spell %d reads as %s", row.Scope, row.SpellID, scope)
+		row.warn("scope mismatch: the manifest says %s, spell %d reads as %s", row.Scope, row.ScopeSpell.ID, scope)
 	}
 }
 
@@ -458,10 +519,10 @@ func validateScope(row *ResolvedBuff) {
 // effect itself, and an aura the game files apply over an area or on one ally
 // names it in the effect's target.
 func clientScope(row ResolvedBuff) (buffmanifest.BuffScope, bool) {
-	if row.Spell == nil {
+	if row.ScopeSpell == nil {
 		return buffmanifest.ScopeIndividual, false
 	}
-	for _, effect := range row.Spell.Effects {
+	for _, effect := range row.ScopeSpell.Effects {
 		switch effect.Type {
 		case dbcenums.E_APPLY_AREA_AURA_RAID:
 			return buffmanifest.ScopeRaid, true
@@ -586,6 +647,8 @@ type buffRow struct {
 	ApplyIf     string
 	ApplyBody   string
 	HasApply    bool
+	RanksVar    string
+	RankStates  []string
 }
 
 // Every file the manifest renders, by the path it is written to: the two Go
@@ -732,8 +795,18 @@ func renderRow(row ResolvedBuff) buffRow {
 	out.HasValue = len(row.Applied) > 0 || row.Kind == buffmanifest.KindDamageShield
 	out.HasCooldown = row.CooldownMs > 0
 	out.Constructor = buffConstructor(row, out)
+	if len(row.RankStates) > 0 {
+		out.RanksVar = buffRanksVar(row)
+		for _, state := range row.RankStates {
+			out.RankStates = append(out.RankStates, fmt.Sprintf("%s.atRank(spelldata.MustFind(%d)),", out.MetaVar, state.SpellID))
+		}
+	}
 	out.ApplyIf, out.ApplyBody, out.HasApply = buffApply(row, out.SpellVar)
 	return out
+}
+
+func buffRanksVar(row ResolvedBuff) string {
+	return lowerFirst(row.Go) + "Ranks"
 }
 
 // The constructor's name: the stem with the NewSpellData prefix, and Aura after it unless the stem
@@ -820,13 +893,22 @@ func buffConstructor(row ResolvedBuff, rendered buffRow) string {
 // scope message rather than its own field, because a driven buff often reads a
 // second one: Flametongue Totem does nothing under Windfury Totem. Any other totem
 // stands through standTotem, which puts it on the character's true pets too
-// unless the row's spell says only a player can carry it.
+// unless the row's spell says only a player can carry it. A rank select applies
+// the state its field holds in place of the row.
 func buffApply(row ResolvedBuff, spellVar string) (string, string, bool) {
 	unit, field := "char", buffScopeField(row.Scope)
 	if row.Scope == buffmanifest.ScopeDebuff {
 		unit = "target"
 	}
 	access := field + "." + row.GoField()
+
+	if len(row.RankStates) > 0 {
+		state := fmt.Sprintf("%s.at(%s)", buffRanksVar(row), access)
+		if row.Totem {
+			return access + " > 0", fmt.Sprintf("standRankedTotem(char, %s)", state), true
+		}
+		return access + " > 0", fmt.Sprintf("core.MakePermanent(newBuff(&char.Unit, %s, false, 0))", state), true
+	}
 
 	var cond, points string
 	switch row.Proto {

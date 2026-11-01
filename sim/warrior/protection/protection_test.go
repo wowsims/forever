@@ -5,9 +5,7 @@ import (
 	_ "github.com/wowsims/forever/sim/common" // imported to get item effects included.
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"fmt"
 	"testing"
 )
 
@@ -25,6 +23,7 @@ func BenchmarkProtectionWarrior(b *testing.B) {
 }
 
 func protectionWarriorSuite() core.CharacterSuiteConfig {
+	preset := core.GetAplRotation("../../../ui/specs/warrior/protection/apls", "default")
 	return core.CharacterSuiteConfig{
 		Class:      proto.Class_ClassWarrior,
 		Race:       proto.Race_RaceOrc,
@@ -41,9 +40,9 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 		Profession1:      proto.Profession_Engineering,
 		Profession2:      proto.Profession_Blacksmithing,
 
-		Rotation: core.GetAplRotation("../../../ui/specs/warrior/protection/apls", "default"),
+		Rotation: preset,
 		OtherRotations: []core.RotationCombo{
-			trainerRanksRotation("default"),
+			core.RotationWithSpellIds("default_trainer_ranks", preset, map[int32]int32{25286: 11567, 25289: 11551, 25288: 11601}),
 		},
 
 		IndividualBuffs: core.FullTankIndividualBuffs,
@@ -67,41 +66,6 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 			},
 		},
 	}
-}
-
-// The preset with its class book ranks moved to the trainer's top ranks, as a rotation editor user picks them,
-// so the trainer ranks reach the results.
-func trainerRanksRotation(preset string) core.RotationCombo {
-	rotation := core.GetAplRotation("../../../ui/specs/warrior/protection/apls", preset).Rotation
-	if withSpellIds(rotation.ProtoReflect(), map[int32]int32{25286: 11567, 25289: 11551, 25288: 11601}) == 0 {
-		panic(fmt.Sprintf("the %s preset names no book rank", preset))
-	}
-	return core.RotationCombo{Label: preset + "_trainer_ranks", Rotation: rotation}
-}
-
-// Swaps every spell id that ids maps for the id it maps to, except an external buff copy (tag -1), and returns
-// how many it swapped.
-func withSpellIds(message protoreflect.Message, ids map[int32]int32) int {
-	if id, ok := message.Interface().(*proto.ActionID); ok {
-		if to, ok := ids[id.GetSpellId()]; ok && id.Tag != -1 {
-			id.RawId = &proto.ActionID_SpellId{SpellId: to}
-			return 1
-		}
-		return 0
-	}
-	swapped := 0
-	message.Range(func(field protoreflect.FieldDescriptor, value protoreflect.Value) bool {
-		switch {
-		case field.IsList() && field.Message() != nil:
-			for i := 0; i < value.List().Len(); i++ {
-				swapped += withSpellIds(value.List().Get(i).Message(), ids)
-			}
-		case field.Message() != nil && !field.IsMap():
-			swapped += withSpellIds(value.Message(), ids)
-		}
-		return true
-	})
-	return swapped
 }
 
 var DefaultOptions = &proto.Player_ProtectionWarrior{

@@ -484,7 +484,7 @@ func bearRequest(rotation *proto.APLRotation, iterations int32) *proto.RaidSimRe
 					Cooldowns:       &proto.Cooldowns{HpPercentForDefensives: 0.4},
 					Buffs: &proto.IndividualBuffs{
 						GreaterBlessingOfKings: true,
-						GreaterBlessingOfMight: true,
+						GreaterBlessingOfMight: 1,
 						Thorns:                 true,
 					},
 					HealingModel: &proto.HealingModel{
@@ -505,14 +505,14 @@ func bearRequest(rotation *proto.APLRotation, iterations int32) *proto.RaidSimRe
 				},
 			}},
 			Buffs: &proto.RaidBuffs{
-				BattleShout:              1,
-				ArcaneBrilliance:         true,
-				GiftOfTheWild:            true,
-				PrayerOfFortitude:        true,
-				PrayerOfShadowProtection: true,
-				PrayerOfSpirit:           true,
-				WindfuryTotem:            true,
-				StrengthOfEarthTotem:     true,
+				BattleShout:          1,
+				ArcaneIntellect:      true,
+				MarkOfTheWild:        true,
+				PowerWordFortitude:   true,
+				ShadowProtection:     true,
+				PrayerOfSpirit:       true,
+				WindfuryTotem:        true,
+				StrengthOfEarthTotem: 1,
 			},
 			Debuffs: &proto.Debuffs{
 				ExposeArmor:         true,

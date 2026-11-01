@@ -5,10 +5,16 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+// Rank 5 is the last rank the trainer teaches; rank 6 comes from the Book of Ferocious Bite V.
+var ferociousBiteTrainerRank = spellData.FerociousBite.ByID(22829)
+var ferociousBiteBookRank = spellData.FerociousBite.ByID(31018)
+
 func (druid *Druid) registerFerociousBiteSpell() {
-	// Rank 6 (31018) is taught by an item, Book of Ferocious Bite V (24101), not by the trainer.
-	// TODO: Ingame research needed -- whether that book can be obtained.
-	rank := spellData.FerociousBite.ByID(22829)
+	druid.FerociousBite = druid.registerFerociousBiteRank(ferociousBiteTrainerRank)
+	druid.registerFerociousBiteRank(ferociousBiteBookRank)
+}
+
+func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell {
 	damageEffect := rank.DamageEffect()
 	perEnergy := rank.EffectN(2).BaseValue() / 100
 	// Predatory Discipline keeps the extra energy and still adds its damage.
@@ -35,5 +41,5 @@ func (druid *Druid) registerFerociousBiteSpell() {
 		}
 		spell.DealDamage(sim, result)
 	}
-	druid.FerociousBite = druid.RegisterSpell(config)
+	return druid.RegisterSpell(config)
 }

@@ -87,17 +87,17 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
-			arcaneBrilliance: true,
+			arcaneIntellect: true,
 			prayerOfSpirit: true,
-			giftOfTheWild: true,
-			prayerOfFortitude: true,
-			strengthOfEarthTotem: true,
-			graceOfAirTotem: true,
+			markOfTheWild: true,
+			powerWordFortitude: true,
+			strengthOfEarthTotem: 1,
+			graceOfAirTotem: 1,
 			windfuryTotem: true,
 			battleShout: 1, // Rank 6
 		}),
 		partyBuffs: PartyBuffs.create({ manaSpringTotem: TristateEffect.TristateEffectRegular }),
-		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: true }),
+		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: 1 }),
 		debuffs: Debuffs.create({ judgementOfWisdom: true, sunderArmor: true, giftOfArthas: true, vindication: true }),
 	},
 

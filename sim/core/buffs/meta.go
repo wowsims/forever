@@ -101,6 +101,29 @@ func (m *Meta) label(isPlayer bool) string {
 	return m.Label + " (" + core.Ternary(isPlayer, "Player", "External") + ")"
 }
 
+// A rank of a generated buff is its row on the rank's own spell, labelled with the rank so that two ranks on one unit
+// never share an aura. Both bid in the row's category.
+func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
+	return m.atState(rank, m.Label+" "+rank.Rank)
+}
+
+// The row on another spell under the label given, bidding in the row's categories. A priest's prayer
+// reads its own spell this way against the raid's input of its stat.
+func (m *Meta) atState(spell *spelldata.Spell, label string) *Meta {
+	state := *m
+	state.Label = label
+	state.Spell = spell
+	return &state
+}
+
+// The states of a rank select, in the order the proto field counts them from 1.
+type rankStates []*Meta
+
+// A state past the last reads as the last.
+func (r rankStates) at(state int32) *Meta {
+	return r[min(int(state), len(r))-1]
+}
+
 func (m *Meta) actionID(isPlayer bool) core.ActionID {
 	return core.ActionID{SpellID: m.Spell.ID}.WithTag(core.TernaryInt32(isPlayer, 0, -1))
 }

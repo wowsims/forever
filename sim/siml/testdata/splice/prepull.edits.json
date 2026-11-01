@@ -3,7 +3,7 @@
 		"op": "insert",
 		"path": ["prepullActions"],
 		"index": 0,
-		"value": { "action": { "castSpell": { "spellId": { "spellId": 25296 } } }, "doAtValue": { "const": { "val": "-20s" } } }
+		"value": { "action": { "castSpell": { "spellId": { "spellId": 14322 } } }, "doAtValue": { "const": { "val": "-20s" } } }
 	},
 	{
 		"op": "insert",

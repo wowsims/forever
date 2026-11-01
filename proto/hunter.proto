@@ -163,6 +163,9 @@ message Hunter {
 		bool use_hawk = 8;
 		// Where the hunter stands at the pull, in yards; it walks to its spot from there. 0 is 25 yd.
 		int32 pull_range = 9;
+		// The priority lists cast the trainer's top ranks; each use_ rank field set true casts the rank the class book teaches in its place.
+		bool use_serpent_sting_rank_9 = 10;
+		bool use_aspect_of_the_hawk_rank_7 = 11;
 	}
 	message Options {
 		HunterOptions class_options = 1;

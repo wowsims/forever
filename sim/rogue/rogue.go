@@ -36,7 +36,6 @@ type Rogue struct {
 
 	AdditiveEnergyRegenBonus float64
 
-	Backstab       *core.Spell
 	BladeFlurry    *core.Spell
 	DeadlyPoison   *core.Spell
 	Feint          *core.Spell
@@ -57,7 +56,6 @@ type Rogue struct {
 	AdrenalineRush *core.Spell
 	InstantPoison  *core.Spell
 
-	Eviscerate   *core.Spell
 	ExposeArmor  *core.Spell
 	Rupture      *core.Spell
 	SliceAndDice *core.Spell

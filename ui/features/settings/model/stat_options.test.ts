@@ -214,16 +214,16 @@ const playerOf = (playerClass: Class) => ({ getClass: () => playerClass }) as un
 
 const battleShout = ownedOption('Battle Shout', Class.ClassWarrior);
 const demoralizingShout = ownedOption('Demoralizing Shout', Class.ClassWarrior);
-const arcaneBrilliance = ownedOption('Arcane Brilliance', Class.ClassMage);
+const arcaneIntellect = ownedOption('Arcane Intellect', Class.ClassMage);
 const giftOfArthas = ownedOption('Gift of Arthas');
 const unlabelledWarriorRow = { config: {}, stats: [], ownerClass: Class.ClassWarrior } as unknown as RenderableStatOptions;
 
 describe('applyOwnerClassLabels', () => {
 	it('marks the buffs the player casts itself as external, and returns every other row untouched', () => {
-		const shown = applyOwnerClassLabels([battleShout, arcaneBrilliance, giftOfArthas], playerOf(Class.ClassWarrior));
+		const shown = applyOwnerClassLabels([battleShout, arcaneIntellect, giftOfArthas], playerOf(Class.ClassWarrior));
 
-		expect(shown.map(option => option.config.label)).toEqual(['settings_tab.external_label', 'Arcane Brilliance', 'Gift of Arthas']);
-		expect(shown[1]).toBe(arcaneBrilliance);
+		expect(shown.map(option => option.config.label)).toEqual(['settings_tab.external_label', 'Arcane Intellect', 'Gift of Arthas']);
+		expect(shown[1]).toBe(arcaneIntellect);
 		expect(shown[2]).toBe(giftOfArthas);
 	});
 
@@ -236,10 +236,10 @@ describe('applyOwnerClassLabels', () => {
 	});
 
 	it('marks every row the class owns, not just the first', () => {
-		const shown = applyOwnerClassLabels([battleShout, arcaneBrilliance, demoralizingShout], playerOf(Class.ClassWarrior));
+		const shown = applyOwnerClassLabels([battleShout, arcaneIntellect, demoralizingShout], playerOf(Class.ClassWarrior));
 
-		expect(shown.map(option => option.config.label)).toEqual(['settings_tab.external_label', 'Arcane Brilliance', 'settings_tab.external_label']);
-		expect(shown[1]).toBe(arcaneBrilliance);
+		expect(shown.map(option => option.config.label)).toEqual(['settings_tab.external_label', 'Arcane Intellect', 'settings_tab.external_label']);
+		expect(shown[1]).toBe(arcaneIntellect);
 	});
 
 	it('leaves a row with no label alone, since there is nothing to mark', () => {
@@ -250,23 +250,23 @@ describe('applyOwnerClassLabels', () => {
 
 	it("marks a group's owned members, not the group, and returns a group with none untouched", () => {
 		const [attackPower] = inDisplayOrder(
-			[battleShout, arcaneBrilliance],
-			[statOptionGroup('Group', [iconConfig(battleShout), iconConfig(arcaneBrilliance)])],
+			[battleShout, arcaneIntellect],
+			[statOptionGroup('Group', [iconConfig(battleShout), iconConfig(arcaneIntellect)])],
 		);
 		const [shown] = applyOwnerClassLabels([attackPower], playerOf(Class.ClassWarrior));
 
 		expect(shown.config.label).toBe('Group');
-		expect(isMultiIconOption(shown) && shown.config.inputs.map(input => input.label)).toEqual(['settings_tab.external_label', 'Arcane Brilliance']);
+		expect(isMultiIconOption(shown) && shown.config.inputs.map(input => input.label)).toEqual(['settings_tab.external_label', 'Arcane Intellect']);
 		expect(applyOwnerClassLabels([attackPower], playerOf(Class.ClassPriest))[0]).toBe(attackPower);
 	});
 
 	it('runs after relevantStatOptions, so a spec excluding a row by its config still drops it', () => {
 		const shown = applyOwnerClassLabels(
-			relevantStatOptions([battleShout, arcaneBrilliance], lists({ exclude: [battleShout.config] }), new Set()),
+			relevantStatOptions([battleShout, arcaneIntellect], lists({ exclude: [battleShout.config] }), new Set()),
 			playerOf(Class.ClassWarrior),
 		);
 
-		expect(shown.map(option => option.config.label)).toEqual(['Arcane Brilliance']);
+		expect(shown.map(option => option.config.label)).toEqual(['Arcane Intellect']);
 	});
 });
 

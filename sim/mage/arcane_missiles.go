@@ -5,16 +5,18 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.ArcaneMissiles lists.
+// Rank 7 is the last rank the trainer teaches; rank 8 comes from the Tome of Arcane Missiles VIII book.
+var arcaneMissilesTrainerRank = spellData.ArcaneMissiles.ByID(10212)
+var arcaneMissilesBookRank = spellData.ArcaneMissiles.ByID(25345)
+
 func (mage *Mage) registerArcaneMissilesSpell() {
-	//Rank 7 is last trainer taught spell
-	mage.registerArcaneMissilesRank(spellData.ArcaneMissiles.Len(), spellData.ArcaneMissiles.Rank(7))
+	mage.registerArcaneMissilesRank(arcaneMissilesTrainerRank)
+	mage.registerArcaneMissilesRank(arcaneMissilesBookRank)
 }
 
 // The channel's periodic effect names the missile it fires each tick, a rank of
 // spellData.ArcaneMissilesTriggered.
-func (mage *Mage) registerArcaneMissilesRank(_ int32, rank *spelldata.Spell) {
+func (mage *Mage) registerArcaneMissilesRank(rank *spelldata.Spell) {
 	missile := spelldata.MustFind(rank.PeriodicEffect().TriggerID)
 	missileDamage := missile.DamageEffect()
 

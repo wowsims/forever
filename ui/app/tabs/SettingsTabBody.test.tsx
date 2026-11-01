@@ -128,7 +128,7 @@ describe('SettingsTabBody sections', () => {
 		act(() => sim.setFilters(withSelection(sim.getFilters(), 'buffs', [])));
 		expect(section('raid_buffs')?.getAttribute('data-empty')).toBe('true');
 
-		act(() => player.getRaid()!.setBuffs(RaidBuffs.create({ arcaneBrilliance: true })));
+		act(() => player.getRaid()!.setBuffs(RaidBuffs.create({ arcaneIntellect: true })));
 		expect(section('raid_buffs')?.getAttribute('data-empty')).toBe('false');
 	});
 });
@@ -148,7 +148,7 @@ describe('SettingsTabBody offered flags', () => {
 		act(() => patchSlice(sim.store, 'ui', {}));
 		expect(reads()).toBe(before);
 
-		act(() => player.getRaid()!.setBuffs(RaidBuffs.create({ arcaneBrilliance: true })));
+		act(() => player.getRaid()!.setBuffs(RaidBuffs.create({ arcaneIntellect: true })));
 		expect(reads()).toBeGreaterThan(before);
 		expect(section('raid_buffs')?.getAttribute('data-empty')).toBe('false');
 		vi.restoreAllMocks();

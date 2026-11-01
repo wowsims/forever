@@ -9,6 +9,8 @@ import {
 	makeBooleanRaidBuffInput,
 	makeMultistateIndividualBuffInput,
 	makeMultistatePartyBuffInput,
+	makeRankedIndividualBuffInput,
+	makeRankedRaidBuffInput,
 	makeTristatePartyBuffInput,
 } from '@features/inputs/icon_inputs';
 
@@ -106,10 +108,10 @@ export const DarkInspiration = makeMultistatePartyBuffInput({
 	label: 'Dark Inspiration',
 });
 
-export const ArcaneBrilliance = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(23028),
-	fieldName: 'arcaneBrilliance',
-	label: 'Arcane Brilliance',
+export const ArcaneIntellect = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(10157),
+	fieldName: 'arcaneIntellect',
+	label: 'Arcane Intellect',
 });
 
 export const PrayerOfSpirit = makeBooleanRaidBuffInput({
@@ -118,22 +120,22 @@ export const PrayerOfSpirit = makeBooleanRaidBuffInput({
 	label: 'Prayer of Spirit',
 });
 
-export const GiftOfTheWild = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(21850),
-	fieldName: 'giftOfTheWild',
-	label: 'Gift of the Wild',
+export const MarkOfTheWild = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(9885),
+	fieldName: 'markOfTheWild',
+	label: 'Mark of the Wild',
 });
 
-export const PrayerOfFortitude = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(21564),
-	fieldName: 'prayerOfFortitude',
-	label: 'Prayer of Fortitude',
+export const PowerWordFortitude = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(10938),
+	fieldName: 'powerWordFortitude',
+	label: 'Power Word: Fortitude',
 });
 
-export const PrayerOfShadowProtection = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(27683),
-	fieldName: 'prayerOfShadowProtection',
-	label: 'Prayer of Shadow Protection',
+export const ShadowProtection = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(10958),
+	fieldName: 'shadowProtection',
+	label: 'Shadow Protection',
 });
 
 export const FireResistanceAura = makeBooleanRaidBuffInput({
@@ -172,14 +174,20 @@ export const NatureResistanceTotem = makeBooleanRaidBuffInput({
 	label: 'Nature Resistance Totem',
 });
 
-export const StrengthOfEarthTotem = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(25361),
+export const StrengthOfEarthTotem = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10442), label: 'Strength of Earth Totem Rank 4' },
+		{ actionId: ActionId.fromSpellId(25361), label: 'Strength of Earth Totem Rank 5' },
+	],
 	fieldName: 'strengthOfEarthTotem',
 	label: 'Strength of Earth Totem',
 });
 
-export const GraceOfAirTotem = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(25359),
+export const GraceOfAirTotem = makeRankedRaidBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(10627), label: 'Grace of Air Totem Rank 2' },
+		{ actionId: ActionId.fromSpellId(25359), label: 'Grace of Air Totem Rank 3' },
+	],
 	fieldName: 'graceOfAirTotem',
 	label: 'Grace of Air Totem',
 });
@@ -234,14 +242,20 @@ export const GreaterBlessingOfKings = makeBooleanIndividualBuffInput({
 	label: 'Greater Blessing of Kings',
 });
 
-export const GreaterBlessingOfMight = makeBooleanIndividualBuffInput({
-	actionId: ActionId.fromSpellId(25916),
+export const GreaterBlessingOfMight = makeRankedIndividualBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(25782), label: 'Greater Blessing of Might Rank 1' },
+		{ actionId: ActionId.fromSpellId(25916), label: 'Greater Blessing of Might Rank 2' },
+	],
 	fieldName: 'greaterBlessingOfMight',
 	label: 'Greater Blessing of Might',
 });
 
-export const GreaterBlessingOfWisdom = makeBooleanIndividualBuffInput({
-	actionId: ActionId.fromSpellId(25918),
+export const GreaterBlessingOfWisdom = makeRankedIndividualBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(25894), label: 'Greater Blessing of Wisdom Rank 1' },
+		{ actionId: ActionId.fromSpellId(25918), label: 'Greater Blessing of Wisdom Rank 2' },
+	],
 	fieldName: 'greaterBlessingOfWisdom',
 	label: 'Greater Blessing of Wisdom',
 });
@@ -407,7 +421,7 @@ export const Thunderfury = makeBooleanDebuffInput({
 
 export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 	{
-		config: ArcaneBrilliance,
+		config: ArcaneIntellect,
 		stats: [Stat.StatIntellect],
 		ownerClass: Class.ClassMage,
 	},
@@ -417,17 +431,17 @@ export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 		ownerClass: Class.ClassPriest,
 	},
 	{
-		config: GiftOfTheWild,
+		config: MarkOfTheWild,
 		stats: [Stat.StatArmor, Stat.StatStrength, Stat.StatAgility, Stat.StatIntellect, Stat.StatSpirit, Stat.StatStamina],
 		ownerClass: Class.ClassDruid,
 	},
 	{
-		config: PrayerOfFortitude,
+		config: PowerWordFortitude,
 		stats: [Stat.StatStamina],
 		ownerClass: Class.ClassPriest,
 	},
 	{
-		config: PrayerOfShadowProtection,
+		config: ShadowProtection,
 		stats: [Stat.StatShadowResistance],
 		ownerClass: Class.ClassPriest,
 	},

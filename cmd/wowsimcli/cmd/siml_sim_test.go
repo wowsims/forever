@@ -76,7 +76,7 @@ func TestCharacterFromRepoReadsTheSpecDefaults(t *testing.T) {
 	if p.Consumables.GetResourcePotId() == 0 || p.GetHunter().GetOptions().GetClassOptions().GetAmmo() == proto.HunterOptions_AmmoNone {
 		t.Errorf("consumables %v, options %v", p.Consumables, p.GetHunter().GetOptions())
 	}
-	if !c.settings.RaidBuffs.GetGiftOfTheWild() || !c.settings.Debuffs.GetSunderArmor() || !p.Buffs.GetGreaterBlessingOfKings() {
+	if !c.settings.RaidBuffs.GetMarkOfTheWild() || !c.settings.Debuffs.GetSunderArmor() || !p.Buffs.GetGreaterBlessingOfKings() {
 		t.Errorf("buffs not read: raid %v, debuffs %v, individual %v", c.settings.RaidBuffs, c.settings.Debuffs, p.Buffs)
 	}
 	// The defaults write the site's default fight, so the request adds no default target and no warning.

@@ -5,6 +5,16 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+// A caster's own copy of a rank of the totem, on the rank's buff spell.
+func NewSpellDataStrengthOfEarthTotemRankAura(unit *core.Unit, rank *spelldata.Spell) *core.Aura {
+	return newBuff(unit, strengthOfEarthTotemMeta.atRank(rank), true, 0)
+}
+
+// A caster's own copy of a rank of the totem, on the rank's buff spell.
+func NewSpellDataGraceOfAirTotemRankAura(unit *core.Unit, rank *spelldata.Spell) *core.Aura {
+	return newBuff(unit, graceOfAirTotemMeta.atRank(rank), true, 0)
+}
+
 // A totem stands for the fight, and a true pet stands under each of its owner's totems whose aura a
 // pet may carry; a guardian stands under none. The pet's copy is the same aura built on the pet's
 // own unit, so it bids in the same categories there as the owner's copy does on the owner.
@@ -13,6 +23,12 @@ func standTotem(char *core.Character, spell *spelldata.Spell, build func(unit *c
 	inheritTotem(char, spell, totem, func(pet *core.Pet) *core.Aura {
 		return build(&pet.Unit, false, talentPoints)
 	})
+}
+
+func standRankedTotem(char *core.Character, state *Meta) {
+	standTotem(char, state.Spell, func(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+		return newBuff(unit, state, isPlayer, talentPoints)
+	}, 0)
 }
 
 // A weapon totem stands for the fight, and its whole chain (totem aura, category bid and proc) stands

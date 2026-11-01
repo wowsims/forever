@@ -3,11 +3,11 @@
 		"iterations": 25000
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": true,
+		"arcaneIntellect": true,
 		"prayerOfSpirit": true,
-		"giftOfTheWild": true,
-		"strengthOfEarthTotem": true,
-		"graceOfAirTotem": true,
+		"markOfTheWild": true,
+		"strengthOfEarthTotem": 1,
+		"graceOfAirTotem": 1,
 		"windfuryTotem": true,
 		"battleShout": 1,
 		"leaderOfThePack": true
@@ -102,8 +102,8 @@
 		},
 		"buffs": {
 			"greaterBlessingOfKings": true,
-			"greaterBlessingOfMight": true,
-			"greaterBlessingOfWisdom": true
+			"greaterBlessingOfMight": 1,
+			"greaterBlessingOfWisdom": 1
 		},
 		"hunter": {
 			"options": {
@@ -140,8 +140,8 @@
 					"action": {
 						"castSpell": {
 							"spellId": {
-								"spellId": 25296,
-								"rank": 7
+								"spellId": 14322,
+								"rank": 6
 							}
 						}
 					},
@@ -401,8 +401,8 @@
 								"val": {
 									"dotIsActive": {
 										"spellId": {
-											"spellId": 25295,
-											"rank": 9
+											"spellId": 13555,
+											"rank": 8
 										}
 									}
 								}
@@ -410,8 +410,8 @@
 						},
 						"castSpell": {
 							"spellId": {
-								"spellId": 25295,
-								"rank": 9
+								"spellId": 13555,
+								"rank": 8
 							}
 						}
 					}

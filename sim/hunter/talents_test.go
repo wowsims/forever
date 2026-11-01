@@ -43,7 +43,7 @@ func TestAspectOfTheCheetahSpeedWithPathfindingAndDazed(t *testing.T) {
 		assertSpeed(t, "a dazed hunter in Cheetah", hunter.GetMovementSpeed(), base*(1+tc.speed)*0.3)
 		dazed.Deactivate(sim)
 
-		hunter.GetSpell(core.ActionID{SpellID: aspectOfTheHawkRank.ID}).SkipCastAndApplyEffects(sim, hunter.CurrentTarget)
+		hunter.GetSpell(core.ActionID{SpellID: aspectOfTheHawkBookRank.ID}).SkipCastAndApplyEffects(sim, hunter.CurrentTarget)
 		if hunter.GetAura(aspectOfTheCheetahRank.Name).IsActive() {
 			t.Error("Aspect of the Hawk left Aspect of the Cheetah up, want one aspect at a time")
 		}

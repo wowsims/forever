@@ -99,7 +99,7 @@ export default defineSpec<Spec.SpecHunter>({
 		BuffDebuffInputs.JudgementOfTheCrusader,
 		BuffDebuffInputs.MoonkinAura,
 		BuffDebuffInputs.PowerInfusion,
-		BuffDebuffInputs.PrayerOfFortitude,
+		BuffDebuffInputs.PowerWordFortitude,
 		BuffDebuffInputs.ScorpidSting,
 		BuffDebuffInputs.ThunderClap,
 		BuffDebuffInputs.Thunderfury,
@@ -141,11 +141,18 @@ export default defineSpec<Spec.SpecHunter>({
 		return APLRotation.fromJson(Presets.PlaystyleAPLs[twoHander ? Playstyle.Weave : Playstyle.Turret]);
 	},
 
-	// The playstyle picks the priority list, and each toggle sets the list's variable of the same spell.
+	// The playstyle picks the priority list, and each toggle sets the list's variable of the same spell. A rank toggle
+	// turned on casts the book rank in place of the trainer's top rank.
 	simpleRotation: (_player: Player<Spec.SpecHunter>, simple: SpecRotation<Spec.SpecHunter>, cooldowns: Cooldowns): APLRotation => {
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
 		const hawksAtRange = simple.playstyle === Playstyle.Turret && simple.useHawk;
-		const rotation = APLRotation.fromJson(hawksAtRange ? Presets.TurretHawkPlaystyleAPL : Presets.PlaystyleAPLs[simple.playstyle]);
+		const bookRanks = new Map<number, number>();
+		if (simple.useSerpentStingRank9) bookRanks.set(13555, 25295);
+		if (simple.useAspectOfTheHawkRank7) bookRanks.set(14322, 25296);
+		const rotation = AplUtils.withSpellIds(
+			APLRotation.fromJson(hawksAtRange ? Presets.TurretHawkPlaystyleAPL : Presets.PlaystyleAPLs[simple.playstyle]),
+			bookRanks,
+		);
 
 		const values: Record<string, string> = {
 			'Time to weave': `${simple.timeToWeave || 250}ms`,

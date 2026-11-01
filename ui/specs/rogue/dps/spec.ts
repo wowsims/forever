@@ -90,19 +90,19 @@ export default defineSpec<Spec.SpecRogue>({
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
-			giftOfTheWild: true,
-			strengthOfEarthTotem: true,
+			markOfTheWild: true,
+			strengthOfEarthTotem: 1,
 			windfuryTotem: true,
 			battleShout: 1, // Rank 6
 			leaderOfThePack: true,
-			graceOfAirTotem: true,
+			graceOfAirTotem: 1,
 			moonkinAura: true,
-			prayerOfFortitude: true,
+			powerWordFortitude: true,
 		}),
 		partyBuffs: PartyBuffs.create({}),
 		individualBuffs: IndividualBuffs.create({
 			greaterBlessingOfKings: true,
-			greaterBlessingOfMight: true,
+			greaterBlessingOfMight: 1,
 		}),
 		debuffs: Debuffs.create({
 			curseOfRecklessness: true,
@@ -126,6 +126,17 @@ export default defineSpec<Spec.SpecRogue>({
 			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
 				fieldName: 'useExposeArmor',
 				label: i18n.t('rotation_tab.options.rogue.use_expose_armor.label'),
+			}),
+			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
+				fieldName: 'useBackstabRank9',
+				label: i18n.t('rotation_tab.options.rogue.use_backstab_rank_9.label'),
+				labelTooltip: i18n.t('rotation_tab.options.rogue.use_backstab_rank_9.tooltip'),
+				showWhen: (player: Player<Spec.SpecRogue>) => player.getSimpleRotation().useBackstab,
+			}),
+			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
+				fieldName: 'useEviscerateRank9',
+				label: i18n.t('rotation_tab.options.rogue.use_eviscerate_rank_9.label'),
+				labelTooltip: i18n.t('rotation_tab.options.rogue.use_eviscerate_rank_9.tooltip'),
 			}),
 		],
 	},
@@ -173,9 +184,13 @@ export default defineSpec<Spec.SpecRogue>({
 		return Presets.DEFAULT_APL.rotation.rotation!;
 	},
 
+	// A rank toggle turned on casts the book rank in place of the trainer's top rank.
 	simpleRotation: (_player: Player<Spec.SpecRogue>, simple: SpecRotation<Spec.SpecRogue>, cooldowns: Cooldowns): APLRotation => {
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
-		const rotation = APLRotation.clone(Presets.DEFAULT_APL.rotation.rotation!);
+		const bookRanks = new Map<number, number>();
+		if (simple.useBackstabRank9) bookRanks.set(11281, 25300);
+		if (simple.useEviscerateRank9) bookRanks.set(11300, 31016);
+		const rotation = AplUtils.withSpellIds(Presets.DEFAULT_APL.rotation.rotation!, bookRanks);
 		const values: Record<string, string> = {
 			'Use Backstab': String(simple.useBackstab),
 			'Use Expose Armor': String(simple.useExposeArmor),

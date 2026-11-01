@@ -1,10 +1,10 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": true,
+    "arcaneIntellect": true,
     "prayerOfSpirit": true,
-    "giftOfTheWild": true,
-    "prayerOfFortitude": true,
+    "markOfTheWild": true,
+    "powerWordFortitude": true,
     "moonkinAura": true
   },
   "debuffs": {
@@ -65,7 +65,7 @@
     "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true
+      "greaterBlessingOfWisdom": 1
     },
     "dpsPriest": {
       "options": {

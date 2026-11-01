@@ -101,8 +101,9 @@ type ActionRef struct {
 // its number its position there, and its names, owner and left-out auras are read off its spell.
 type BuffSpec struct {
 	Field string // proto field name, snake_case
-	// SpellID is the spell the aura's numbers are read from: the top rank of the castable family, or
-	// the aura that family's cast applies when the cast is a summon or a dummy. CastID is that cast,
+	// SpellID is the spell the aura's numbers are read from: the top rank of the castable family (the
+	// trainer's top rank where only a class book teaches the rank above it), or the aura that family's
+	// cast applies when the cast is a summon or a dummy. CastID is that cast,
 	// the spell the player learns, which names the buff and times an external cooldown. Both are
 	// roots of the spell store.
 	SpellID int32
@@ -129,6 +130,15 @@ type BuffSpec struct {
 	Proto BuffProtoType // override of the derived type
 	// Reason says what a Flag row is, since no spell does; the shell it renders as carries it.
 	Reason string
+	// A rank select's states: 0 is off and state N applies Ranks[N-1] in place of the row's SpellID.
+	Ranks []BuffRank
+}
+
+// One state of a rank select, whose aura bids in the row's categories. SpellID and CastID mean what
+// they do on the row, and the state's label is the cast's name and rank in the game files.
+type BuffRank struct {
+	SpellID int32
+	CastID  int32
 }
 
 // GoStem is the identifier stem the generated code names the row by: GoField without underscores.
@@ -137,14 +147,14 @@ func (s BuffSpec) GoStem() string {
 }
 
 // ProtoType is the field's proto type: a tristate when a talent or an action prices an improved
-// state, a count for an external cooldown or an item, and a bool otherwise.
+// state, a count for an external cooldown or an item, a state for a rank select, and a bool otherwise.
 func (s BuffSpec) ProtoType() BuffProtoType {
 	switch {
 	case s.Proto != 0:
 		return s.Proto
 	case s.Talent != 0 || s.ImpAction != nil:
 		return ProtoTristate
-	case s.Kind == KindExternalCD || s.Kind == KindItemCount:
+	case s.Kind == KindExternalCD || s.Kind == KindItemCount || len(s.Ranks) > 0:
 		return ProtoInt32
 	}
 	return ProtoBool

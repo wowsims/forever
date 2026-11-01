@@ -145,7 +145,7 @@ func TestOnlyOneElixirsCritApplies(t *testing.T) {
 	}
 }
 
-// Scroll of Intellect IV states Intellect, which Arcane Brilliance's larger amount overrides rather
+// Scroll of Intellect IV states Intellect, which Arcane Intellect's larger amount overrides rather
 // than adds to.
 func TestScrollIsExclusiveWithTheRaidBuffOfItsStat(t *testing.T) {
 	registerStatConsumable(t, scrollOfIntellectIVID)
@@ -154,9 +154,9 @@ func TestScrollIsExclusiveWithTheRaidBuffOfItsStat(t *testing.T) {
 		t.Errorf("Scroll of Intellect IV adds %v Intellect, want some", gain[stats.Intellect])
 	}
 
-	brilliance := &proto.RaidBuffs{ArcaneBrilliance: true}
-	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfIntellectIVID}}, brilliance); gain[stats.Intellect] != 0 {
-		t.Errorf("Scroll of Intellect IV adds %v Intellect under Arcane Brilliance, want 0", gain[stats.Intellect])
+	intellect := &proto.RaidBuffs{ArcaneIntellect: true}
+	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfIntellectIVID}}, intellect); gain[stats.Intellect] != 0 {
+		t.Errorf("Scroll of Intellect IV adds %v Intellect under Arcane Intellect, want 0", gain[stats.Intellect])
 	}
 }
 

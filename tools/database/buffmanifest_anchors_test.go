@@ -17,6 +17,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
@@ -42,12 +43,6 @@ var unanchoredBuffs = map[string]string{
 	"dark_inspiration": "the shadow talent 1326159 triggers it, and the trait tree's node grants the talent",
 }
 
-// The rows that pin the trainer's top rank, each with the rank above it that only a class book teaches,
-// which is the one the game files resolve.
-var trainerRankBuffs = map[string]int32{
-	"battle_shout": 25289, // Manual of Battle Shout VII
-}
-
 func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	db := openBuffTestDB(t).db
 
@@ -71,12 +66,14 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		}
 
 		// A totem or dummy whose cast the manifest does not name reads the aura's name, which no
-		// skill line grants, so it fails here.
+		// skill line grants, so it fails here. SkillLineAbility states a book's rank like a trained one,
+		// and a row pins the trainer's top rank.
 		classMask := ownerClassMask(row.Owner)
 		cands, err := anchorCandidates(db, row.Name, classMask)
 		if err != nil {
 			t.Fatalf("%s: %v", row.Field, err)
 		}
+		cands = slices.DeleteFunc(cands, func(c buffCandidate) bool { return spelldata.IsBookRank(c.SpellID) })
 		if len(cands) == 0 {
 			t.Errorf("%s: no SkillLineAbility row grants %q to %s", row.Field, row.Name, row.Owner)
 			continue
@@ -90,12 +87,8 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 			}
 		}
 
-		resolved := row.SpellID
-		if book, ok := trainerRankBuffs[row.Field]; ok {
-			resolved = book
-		}
-		if resolved != aura {
-			t.Errorf("%s: the manifest pins spell %d, which stands for %d; the game files resolve %d", row.Field, row.SpellID, resolved, aura)
+		if row.SpellID != aura {
+			t.Errorf("%s: the manifest pins spell %d, the game files resolve %d", row.Field, row.SpellID, aura)
 		}
 		if row.CastID != 0 && row.CastID != cast.SpellID {
 			t.Errorf("%s: the manifest pins cast %d, the game files resolve %d", row.Field, row.CastID, cast.SpellID)
@@ -107,11 +100,6 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	for field := range unanchoredBuffs {
 		if !fields[field] {
 			t.Errorf("unanchoredBuffs names %q, which is no manifest field", field)
-		}
-	}
-	for field := range trainerRankBuffs {
-		if !fields[field] {
-			t.Errorf("trainerRankBuffs names %q, which is no manifest field", field)
 		}
 	}
 }

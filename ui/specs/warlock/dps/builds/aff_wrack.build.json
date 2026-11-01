@@ -1,9 +1,9 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": true,
-    "giftOfTheWild": true,
-    "prayerOfFortitude": true,
+    "arcaneIntellect": true,
+    "markOfTheWild": true,
+    "powerWordFortitude": true,
     "prayerOfSpirit": true,
     "moonkinAura": true
   },
@@ -28,7 +28,7 @@
     },
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true
+      "greaterBlessingOfWisdom": 1
     },
     "warlock": {
       "options": {
