@@ -96,6 +96,61 @@ describe('useSavedData', () => {
 		expect(read()).toEqual({ stale: { value: 'nope' }, raid: { value: 1 }, solo: { value: 5 } });
 	});
 
+	it('names every stored entry, the unreadable ones included', () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		store({ stale: { value: 'nope' }, raid: { value: 1 } });
+
+		const { result } = renderHook(() => useSavedData(KEY, codec));
+
+		expect(result.current.entries.map(entry => entry.name)).toEqual(['raid']);
+		expect(result.current.storedNames).toEqual(['stale', 'raid']);
+	});
+
+	it('writes several names in one update, keeping what is stored', () => {
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		store({ stale: { value: 'nope' }, raid: { value: 1 } });
+		const { result } = renderHook(() => useSavedData(KEY, codec));
+
+		let written = false;
+		act(() => {
+			written = result.current.saveMany([
+				{ name: 'solo', data: { value: 5 } },
+				{ name: 'duo', data: { value: 6 } },
+				{ name: 'trio', data: { value: 7 } },
+			]);
+		});
+
+		expect(written).toBe(true);
+		expect(read()).toEqual({ stale: { value: 'nope' }, raid: { value: 1 }, solo: { value: 5 }, duo: { value: 6 }, trio: { value: 7 } });
+	});
+
+	it('writes a __proto__ name as an own key, off the prototype chain', () => {
+		const { result } = renderHook(() => useSavedData(KEY, codec));
+
+		act(() => void result.current.saveMany([{ name: '__proto__', data: { value: 5 } }]));
+
+		expect(Object.keys(read())).toEqual(['__proto__']);
+		expect(({} as Record<string, unknown>).value).toBeUndefined();
+	});
+
+	it('answers false when storage refuses the write', () => {
+		const { result } = renderHook(() => useSavedData(KEY, codec));
+		const full = {
+			getItem: () => null,
+			setItem: () => {
+				throw new Error('QuotaExceededError');
+			},
+		};
+		vi.spyOn(window, 'localStorage', 'get').mockReturnValue(full as unknown as Storage);
+
+		let written = true;
+		act(() => {
+			written = result.current.saveMany([{ name: 'solo', data: { value: 5 } }]);
+		});
+
+		expect(written).toBe(false);
+	});
+
 	it('removes one name and leaves the others', () => {
 		store({ raid: { value: 1 }, solo: { value: 2 } });
 		const { result } = renderHook(() => useSavedData(KEY, codec));

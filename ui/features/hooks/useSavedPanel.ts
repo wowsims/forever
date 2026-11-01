@@ -12,7 +12,7 @@ export type SpecPresets = Readonly<IndividualSimUIConfig<any>['presets']>;
 
 export interface SavedPanelOptions<T> {
 	label: string;
-	storage: UseSavedDataResult<T>;
+	storage: Pick<UseSavedDataResult<T>, 'entries' | 'save' | 'remove'>;
 	current: T | null;
 	serialize: (data: T) => string;
 	load: (entry: SavedDataPanelEntry<T>, host: IndividualSimHost<any>) => void;

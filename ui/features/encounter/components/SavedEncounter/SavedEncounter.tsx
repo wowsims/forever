@@ -1,4 +1,5 @@
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
+import { SavedDataTransfer } from '@features/saved-data-transfer/components/SavedDataTransfer';
 import i18n from '@i18n/config';
 import { useSim } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
@@ -10,9 +11,10 @@ import { encounterData, encounterPresets, loadEncounter, serializeEncounter } fr
 
 export const SavedEncounter = () => {
 	const { encounter } = useSim();
+	const storage = useSavedEncounter();
 	const panel = useSavedPanel({
 		label: i18n.t('settings_tab.saved_encounters.encounter'),
-		storage: useSavedEncounter(),
+		storage,
 		current: useStoreSubscribe(subscribeEncounterChange(encounter), () => encounterData(encounter)),
 		serialize: serializeEncounter,
 		load: loadEncounter,
@@ -24,6 +26,7 @@ export const SavedEncounter = () => {
 			title={i18n.t('settings_tab.saved_encounters.title')}
 			nameLabel={i18n.t('settings_tab.saved_encounters.encounter_name')}
 			saveButtonText={i18n.t('settings_tab.saved_encounters.save_encounter')}
+			headerChildren={<SavedDataTransfer type="encounter" label={panel.label} storage={storage} />}
 			{...panel}
 		/>
 	);

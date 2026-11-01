@@ -1,5 +1,6 @@
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { SavedRotation as SavedRotationProto } from '@generated/proto/ui';
+import { createSimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
 import { makeAplRotation } from '@testing/storybook/fixtures/protos';
 import { act, fireEvent } from '@testing-library/react';
@@ -25,7 +26,7 @@ let player: { getResolvedAplRotation: () => APLRotation; setAplRotation: ReturnT
 
 const hostParts = () => ({
 	player,
-	sim: { waitForInit: () => waitForInit() },
+	sim: { store: createSimStore(), waitForInit: () => waitForInit() },
 	individualConfig: { presets: { rotations: presets } },
 	getSavedRotationStorageKey: () => STORAGE_KEY,
 });

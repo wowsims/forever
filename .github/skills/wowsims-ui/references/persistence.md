@@ -68,6 +68,43 @@ defaults it loads keep the viewer's. The autosaved envelope keeps them. There ar
 character stats, buffs, debuffs, consumables), an unset one meaning the spec default; a pick a filter hides stays
 offered, dimmed with a kept badge, and Restore defaults keeps the filters.
 
+## Moving saved entries between browsers
+
+`ui/features/saved-data-transfer/` exports and imports a saved panel's own entries, behind a cog in the panel's header
+that shows with power tools on. The gear, talents, rotation, settings and encounter panels have it. EP weights, enchant
+presets and Builds bundles do not.
+
+The text is `wowsims-saved:v1:` followed by the base64 of zlib-wrapped deflate (`CompressionStream('deflate')`) of the
+JSON `{ type, spec, entries }`. `type` is `gear`, `talents`, `rotation`, `settings` or `encounter`; `spec` is the `Spec`
+enum name; `entries` is `Record<name, toJson(data)>`, the record `useSavedData` stores. A downloaded file holds the same
+text. `model/transfer_text.ts` encodes and decodes it. A format change raises the version, and the import refuses a
+version it does not know.
+
+Both dialogs run on the shells in `ui/features/import-export/components`: `Exporter` with a picker as its children, and
+`Importer` with a `preview`, the step any importer can add between the text and the import. Every refusal is an
+`ImportProblems` under the text.
+
+Names and contents come from other people, so the import treats them as untrusted:
+
+- A name is trimmed, and an empty one, one over `MAX_NAME_LENGTH` or a `__proto__`-style one counts as unreadable.
+- The text, the inflated JSON and the entry count are capped.
+- An entry has to pass the panel's codec and, for gear, encounters and talents, the check in
+  `model/saved_data_types.ts`. Gear with more items than their slots hold throws in `lookupEquipmentSpec`, which the
+  Builds tab calls while it renders. A talents string goes into the Batch CSV as it stands, so it has to be digits and
+  dashes.
+- A saved name never goes into a string that `LocaleHtml` reads. A `FieldLabel` tooltip given as a string goes through
+  `LocaleHtml`, so a tooltip quoting a saved name is passed as an element (`BulkCheckList`, `BulkBundleList`).
+- A saved name in a CSV goes through `csvText` (`ui/sim/utils/csv.ts`), so a spreadsheet reads it as text. The guard is
+  per column because a talents string can open with a dash.
+
+An entry whose contents a saved entry holds, under any name, is unticked and labelled already saved, so importing a file
+twice saves nothing new. Ticking it saves it under a free name. A name in use, a preset's name or the name of a stored
+entry the codec rejects saves under the next free number, so an import never overwrites anything.
+
+Gear and encounters import on any spec. Talents, rotations and settings are refused from another spec, the last because
+they hold spec options. Several entries go in through `saveMany`: `save` reads the record as of the last render, so a
+loop of them keeps only the last.
+
 ## What is gated
 
 No suite pins the serialized shape. The persistence, import-export and shared-build tests go through

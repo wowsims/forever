@@ -18,8 +18,14 @@ export interface SavedDataEntry<T> {
 
 export interface UseSavedDataResult<T> {
 	entries: Array<SavedDataEntry<T>>;
+	// Every name in the slot, the ones the codec rejected included, which `entries` leaves out.
+	storedNames: string[];
 	save: (name: string, data: T) => void;
+	// All in one write, since `save` reads the record as of the last render and a loop of them keeps only the last.
+	// False when storage refused the write.
+	saveMany: (items: ReadonlyArray<{ name: string; data: T }>) => boolean;
 	remove: (name: string) => void;
+	codec: SavedDataCodec<T>;
 }
 
 type StoredRecord = Record<string, JsonValue>;
@@ -54,10 +60,17 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 	storedRef.current = stored;
 
 	const entries = useMemo(() => savedDataEntries(stored, codecRef.current), [stored]);
+	const storedNames = useMemo(() => Object.keys(stored ?? {}), [stored]);
 
 	// Both writes patch the stored record rather than rebuilding it from `entries`, which would
 	// silently drop every entry the codec rejected the moment the user saves anything else.
 	const save = useCallback((name: string, data: T) => setStored({ ...(storedRef.current ?? {}), [name]: codecRef.current.toJson(data) }), [setStored]);
+
+	const saveMany = useCallback(
+		(items: ReadonlyArray<{ name: string; data: T }>) =>
+			setStored({ ...(storedRef.current ?? {}), ...Object.fromEntries(items.map(({ name, data }) => [name, codecRef.current.toJson(data)])) }),
+		[setStored],
+	);
 
 	const remove = useCallback(
 		(name: string) => {
@@ -68,5 +81,5 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 		[setStored],
 	);
 
-	return { entries, save, remove };
+	return { entries, storedNames, save, saveMany, remove, codec };
 };

@@ -63,7 +63,7 @@ const snapshotOf = (key: string) => () => {
 };
 
 /** `initialValue` is returned when the key is absent; it is never written. */
-export const useTypedLocalStorage = <T>(key: string, parse: LocalStorageParser<T>, initialValue?: T): [T | undefined, (value: T) => void, () => void] => {
+export const useTypedLocalStorage = <T>(key: string, parse: LocalStorageParser<T>, initialValue?: T): [T | undefined, (value: T) => boolean, () => void] => {
 	const parseRef = useRef(parse);
 	parseRef.current = parse;
 	const initialRef = useRef(initialValue);
@@ -86,10 +86,14 @@ export const useTypedLocalStorage = <T>(key: string, parse: LocalStorageParser<T
 	// is what leaves every reader on the old value rather than on a value only this tab believes in.
 	const set = useCallback(
 		(next: T) => {
+			let written = true;
 			try {
 				window.localStorage.setItem(key, JSON.stringify(next));
-			} catch {}
+			} catch {
+				written = false;
+			}
 			refresh(key);
+			return written;
 		},
 		[key],
 	);

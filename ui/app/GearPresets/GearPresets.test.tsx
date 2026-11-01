@@ -1,5 +1,6 @@
 import { EquipmentSpec } from '@generated/proto/common';
 import { Stats } from '@sim/proto/stats';
+import { createSimStore, patchSlice } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -10,14 +11,17 @@ vi.mock('../preset_build_state', () => ({ isBuildActive: () => false }));
 
 const { GearPresets } = await import('./GearPresets');
 
-const setup = (presets: { gear: Array<Record<string, unknown>>; builds: Array<Record<string, unknown>> }) =>
-	renderWithHost(<GearPresets />, {
+const setup = (presets: { gear: Array<Record<string, unknown>>; builds: Array<Record<string, unknown>> }, powerTools = false) => {
+	const store = createSimStore();
+	patchSlice(store, 'ui', { showPowerTools: powerTools });
+	return renderWithHost(<GearPresets />, {
 		player: { getGear: () => ({ asSpec: () => EquipmentSpec.create() }), getBonusStats: () => new Stats() },
-		sim: { db: { lookupEquipmentSpec: (spec: EquipmentSpec) => ({ asSpec: () => spec }) } },
+		sim: { store, db: { lookupEquipmentSpec: (spec: EquipmentSpec) => ({ asSpec: () => spec }) } },
 		individualConfig: { presets },
 		getStorageKey: (part: string) => `spec${part}`,
 		getSavedGearStorageKey: () => 'specsavedGearSets',
 	});
+};
 
 const saveInputs = (container: HTMLElement) => container.querySelectorAll('[data-testid="saved-data-save-input"]');
 
@@ -28,5 +32,12 @@ describe('GearPresets', () => {
 
 		expect(container.querySelector('[data-testid="preset-group-picker"]')).not.toBeNull();
 		expect(saveInputs(container)).toHaveLength(1);
+	});
+
+	it('puts the transfer cog in the grouped layout’s untitled saved panel header', () => {
+		const { container } = setup({ gear: [], builds: [{ name: 'Pre-BiS', group: 'Fury', talents: {} }] }, true);
+
+		const cog = container.querySelector('[data-testid="saved-data-transfer-button"]');
+		expect(cog?.closest('[data-testid="content-block-header"]')?.querySelector('[data-testid="content-block-title"]')?.textContent).toBe('');
 	});
 });

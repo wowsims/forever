@@ -8,25 +8,37 @@ import { TextArea } from '@ui-kit/FormControl';
 import { Icon } from '@ui-kit/Icon';
 import { Notice } from '@ui-kit/Notice';
 import { toastManager } from '@ui-kit/Toast';
+import clsx from 'clsx';
 import type { ClipboardEvent, ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { trackPageView } from '../../../../tracking/utils';
 import { type ImporterDefinition, ImportProblems } from '../../importers/types';
 
-export interface ImporterProps extends ImporterDefinition {
+export interface ImporterProps<P = undefined> extends ImporterDefinition<P> {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	children?: ReactNode;
 }
 
-export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, holdsLink = false, onImport, children }: ImporterProps) => {
+export const Importer = <P,>({
+	open,
+	onOpenChange,
+	title,
+	allowFileUpload = false,
+	holdsLink = false,
+	maxFileBytes,
+	preview,
+	onImport,
+	children,
+}: ImporterProps<P>) => {
 	const host = useSimHost();
 	const [text, setText] = useState('');
 	// The name of the file the text was uploaded from. It stays while the text is edited, and goes with the text:
 	// cleared, or pasted over whole.
 	const fileName = useRef<string>(undefined);
 	const [problems, setProblems] = useState<ImportProblems>();
+	const [previewed, setPreviewed] = useState<P>();
 	// The import that has not ended, which the Import button waits on and closing the dialog drops.
 	const running = useRef<AbortController>(undefined);
 	const [pending, setPending] = useState(false);
@@ -70,23 +82,48 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, h
 
 	useEffect(() => () => running.current?.abort(), []);
 
+	const report = useCallback((error: any) => {
+		if (error instanceof ImportProblems) setProblems(error);
+		else toastManager.add({ variant: 'error', body: `${i18n.t('import.error')} ${error?.message || error}` });
+	}, []);
+
+	const parsePreview = preview?.parse;
+	useEffect(() => {
+		if (!parsePreview) return;
+		setPreviewed(undefined);
+		setProblems(undefined);
+		if (!text) return;
+		const run = new AbortController();
+		parsePreview(host, text, run.signal).then(
+			next => {
+				if (!run.signal.aborted) setPreviewed(next);
+			},
+			(error: unknown) => {
+				if (!run.signal.aborted) report(error);
+			},
+		);
+		return () => run.abort();
+	}, [text, parsePreview, host, report]);
+
 	const runImport = async () => {
 		const run = new AbortController();
 		running.current = run;
 		setPending(true);
 		setProblems(undefined);
 		try {
-			await onImport(host, text, fileName.current, run.signal);
+			await (preview ? onImport(host, text, fileName.current, run.signal, previewed) : onImport(host, text, fileName.current, run.signal));
 			if (!run.signal.aborted) changeOpen(false);
 		} catch (error: any) {
 			// A closed dialog cancelled the import, and dropped the text its problems point into.
 			if (run.signal.aborted) return;
-			if (error instanceof ImportProblems) setProblems(error);
-			else toastManager.add({ variant: 'error', body: `${i18n.t('import.error')} ${error?.message || error}` });
+			report(error);
 		} finally {
 			if (running.current === run) dropRunning();
 		}
 	};
+
+	const canImport = !preview || (previewed !== undefined && preview.canImport(previewed));
+	const textHeight = preview ? 'h-[20vh]' : 'h-[40vh]';
 
 	return (
 		<Dialog
@@ -111,6 +148,10 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, h
 						onChange={async event => {
 							const file = event.target.files?.[0];
 							if (!file) return;
+							if (maxFileBytes !== undefined && file.size > maxFileBytes) {
+								setProblems(new ImportProblems(i18n.t('import.file_too_large'), []));
+								return;
+							}
 							const opening = closes.current;
 							// The browser turns a text box's line breaks into line feeds, and the cursor offsets count those.
 							const uploaded = (await file.text()).replace(/\r\n?/g, '\n');
@@ -119,9 +160,9 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, h
 							fileName.current = file.name;
 						}}
 					/>
-					<Button data-testid="import-button" className="w-48" disabled={pending} loading={pending} onClick={runImport}>
+					<Button data-testid="import-button" className="w-48" disabled={pending || !canImport} loading={pending} onClick={runImport}>
 						<Icon name="download" style="base" />
-						{i18n.t('import.json.import_button')}
+						{preview && previewed !== undefined ? preview.importLabel(previewed) : i18n.t('import.json.import_button')}
 					</Button>
 				</div>
 			}>
@@ -132,22 +173,25 @@ export const Importer = ({ open, onOpenChange, title, allowFileUpload = false, h
 					<TextArea
 						spellCheck={false}
 						data-testid="importer-textarea"
-						className="h-[40vh] w-full resize-none"
+						className={clsx(textHeight, 'w-full resize-none')}
 						value={text}
 						onChange={event => editText(event.currentTarget.value)}
 						onPaste={onPaste}
 					/>
 				) : (
-					<CodeTextArea testId="importer-textarea" className="h-[40vh]" value={text} onChange={editText} onPaste={onPaste} />
+					<CodeTextArea testId="importer-textarea" className={textHeight} value={text} onChange={editText} onPaste={onPaste} />
 				)}
+				{preview && previewed !== undefined && preview.render(previewed, setPreviewed)}
 				{problems && (
 					<Notice level="error" className="mt-2" testId="importer-problems">
 						<p>{problems.message}</p>
-						<ul>
-							{problems.problems.map((problem, i) => (
-								<li key={i}>{problem}</li>
-							))}
-						</ul>
+						{problems.problems.length > 0 && (
+							<ul>
+								{problems.problems.map((problem, i) => (
+									<li key={i}>{problem}</li>
+								))}
+							</ul>
+						)}
 					</Notice>
 				)}
 			</div>

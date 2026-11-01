@@ -1,6 +1,7 @@
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 
-import { EXPORT_CATEGORY_OPTIONS, type ExportCategories } from '../../exporters';
+import { EXPORT_CATEGORY_OPTIONS } from '../../exporters/categories';
+import type { ExportCategories } from '../../exporters/types';
 
 export interface ExporterCategoryPickersProps {
 	/** Written in place, so its identity has to hold. */
