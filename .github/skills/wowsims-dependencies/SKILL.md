@@ -44,31 +44,21 @@ The gates in `wowsims-testing` run first, with `make skills-check`. When one fai
 too: a Windows checkout fails some Go and SIML tests there for reasons of its own (CRLF, a space in the path), and only
 a failure `master` does not have belongs to the upgrade.
 
-An upgrade that touches a package the page ships also needs a comparison of two builds, `master` against the branch.
-Build `storybook-static` and `dist` in a checkout of each, then:
+An upgrade that touches a package the page ships also needs a browser comparison of two builds, `master` against the
+branch. Build `storybook-static` and `dist` in a checkout of each and drive both with Playwright, installed outside the
+repository:
 
-```
-node .github/skills/wowsims-dependencies/scripts/compare_builds.mjs --base <master checkout> --head <branch checkout>
-```
+- **Every story and every tab of every spec page**, shot from both builds with animations off. Retake a shot that
+  differs, to tell an unstable one from a changed one. Every changed shot needs an explanation; antialiasing moves a few
+  dozen pixels by a level or two.
+- **A sim per spec**, twice on `master` and once on the branch. A sim seeds itself at random, so the branch's result is read
+  against the gap between the two `master` runs. Wait for the unit on `topline-result-avg`: the number before it is partial.
+- **The pages under a `*.wowsims-forever.pages.dev` host**, by fulfilling requests from `dist`. `isPreviewOrDevMode` keeps
+  dev-only gear on that host alone, so production and localhost show a spec without it and its sim means little.
+- **Skip the welcome tour first**: it blocks every click on a first visit.
 
-It shoots every story and every tab of every spec page from both builds, the pages under a preview host so they keep
-their dev-only gear (`isPreviewOrDevMode`; production and localhost show a spec without it), retakes a story that differs to tell an
-unstable one from a changed one, and sims each spec twice on `master` and once on the branch. A sim seeds itself at
-random, so the branch's result is read against the gap between the two `master` runs, and the run fails when it is off by
-more than that noise or 1%. Every changed shot needs an explanation; antialiasing moves a few dozen pixels by a level or two between two builds.
-
-Once the pull request has a preview, run the same script against it:
-
-```
-node .github/skills/wowsims-dependencies/scripts/compare_builds.mjs --smoke https://<preview>/forever/
-```
-
-Every spec page has to open and switch every tab, and its export link has to open on a new page without a parse warning.
-Every page with a sim has to run one, and its rotation has to take a new action.
-
-The script needs Playwright, which the repository does not depend on: `npm i --prefix <folder outside the repository>
-playwright`, `npm exec --prefix <that folder> playwright install chromium`, and
-`PLAYWRIGHT_MODULE=<that folder>/node_modules/playwright/index.mjs`.
+Once the pull request has a preview, open it too: every spec page opens and switches every tab, its export link opens on
+a new page without a parse warning, and each page with a sim runs one and takes a new rotation action.
 
 ## Held back
 
