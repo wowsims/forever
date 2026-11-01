@@ -110,7 +110,7 @@ func addDynamicAddsEncounter() {
 			Repeat:               &proto.DesignRepeat{Interval: fractionOfFight(30)},
 			ExecuteProportion_20: 0.2,
 			ExecuteProportion_35: 0.35,
-			KillShare:            0,
+			KillShare:            0.2,
 		}},
 	})
 }
