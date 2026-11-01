@@ -17,6 +17,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
@@ -42,14 +43,6 @@ var unanchoredBuffs = map[string]string{
 	"dark_inspiration": "the shadow talent 1326159 triggers it, and the trait tree's node grants the talent",
 }
 
-// The rows that pin the trainer's top rank, each with the class book that teaches the rank above it. SkillLineAbility
-// states the book's rank like a trained one, so this list is what tells them apart.
-var trainerRankBuffs = map[string]string{
-	"battle_shout":            "Manual of Battle Shout VII",
-	"strength_of_earth_totem": "Tablet of Strength of Earth Totem V",
-	"grace_of_air_totem":      "Tablet of Grace of Air Totem III",
-}
-
 func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	db := openBuffTestDB(t).db
 
@@ -73,21 +66,20 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		}
 
 		// A totem or dummy whose cast the manifest does not name reads the aura's name, which no
-		// skill line grants, so it fails here.
+		// skill line grants, so it fails here. SkillLineAbility states a book's rank like a trained one,
+		// and a row pins the trainer's top rank.
 		classMask := ownerClassMask(row.Owner)
 		cands, err := anchorCandidates(db, row.Name, classMask)
 		if err != nil {
 			t.Fatalf("%s: %v", row.Field, err)
 		}
+		cands = slices.DeleteFunc(cands, func(c buffCandidate) bool { return spelldata.IsBookRank(c.SpellID) })
 		if len(cands) == 0 {
 			t.Errorf("%s: no SkillLineAbility row grants %q to %s", row.Field, row.Name, row.Owner)
 			continue
 		}
 
 		cast := topRank(cands, classMask)
-		if _, trainerRank := trainerRankBuffs[row.Field]; trainerRank {
-			cast = topRank(slices.DeleteFunc(cands, func(c buffCandidate) bool { return c.Rank == cast.Rank }), classMask)
-		}
 		aura := cast.SpellID
 		if row.AuraName != "" {
 			if aura, err = auraFamilyMember(db, row.AuraName, cast.Subtext); err != nil {
@@ -108,11 +100,6 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	for field := range unanchoredBuffs {
 		if !fields[field] {
 			t.Errorf("unanchoredBuffs names %q, which is no manifest field", field)
-		}
-	}
-	for field := range trainerRankBuffs {
-		if !fields[field] {
-			t.Errorf("trainerRankBuffs names %q, which is no manifest field", field)
 		}
 	}
 }

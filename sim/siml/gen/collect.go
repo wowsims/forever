@@ -77,33 +77,37 @@ func (c *Collection) specBuilds(root string) ([]*specBuild, error) {
 }
 
 // Builds each spec with no gear, every race with every talent at each rank and every option variant, records what
-// they register as their class's, and gives the specs that built, each with its source configuration.
+// they register as their class's, and gives the specs that built, each with its source configuration. A rank select
+// registers only the aura of the state it holds, so each source configuration runs again at state 2: selects have two
+// states, and Battle Shout's third is the same aura.
 func (c *Collection) addClasses(specs []*specBuild) []*specBuild {
 	var base []*build
 	for _, s := range specs {
 		for i, variant := range append([]optionVariant{nil}, optionVariants(s.info)...) {
 			for _, race := range core.ClassRaceCapabilities[s.info.Class] {
 				for _, talents := range s.talents {
-					everyState := i == 0 && race == core.ClassRaceCapabilities[s.info.Class][0] && talents == s.talents[len(s.talents)-1]
-					base = append(base, &build{spec: s, player: s.player(race, talents, variant), fallback: true, variant: i, everyState: everyState})
+					base = append(base, &build{spec: s, player: s.player(race, talents, variant), fallback: true, variant: i})
 				}
 			}
 		}
 	}
 	run(base)
 	var built []*specBuild
+	var states []*build
 	for _, s := range specs {
 		if s.pickSource(base) {
 			built = append(built, s)
+			states = append(states, &build{spec: s, player: s.source, buffState: 2, source: "at state 2"})
 		}
 	}
+	run(states)
 	for _, s := range specs {
 		if !slices.ContainsFunc(base, func(b *build) bool { return b.spec == s && b.attempt >= 0 }) {
 			i := slices.IndexFunc(base, func(b *build) bool { return b.spec == s })
 			c.Skipped = append(c.Skipped, fmt.Sprintf("%s: %s", s.info.Field.Name(), base[i].errors[0]))
 		}
 	}
-	for _, b := range base {
+	for _, b := range slices.Concat(base, states) {
 		c.add(b)
 		for ns, ids := range b.found {
 			for id := range ids {
@@ -112,6 +116,7 @@ func (c *Collection) addClasses(specs []*specBuild) []*specBuild {
 		}
 	}
 	c.Skipped = append(c.Skipped, fallbacks(base)...)
+	c.Skipped = append(c.Skipped, failures(states)...)
 	return built
 }
 
@@ -374,13 +379,13 @@ func enableAll(m protoreflect.Message, state int32) {
 
 // One ComputeStats run.
 type build struct {
-	spec       *specBuild
-	player     *proto.Player
-	encounter  *proto.Encounter // The single default target when nil.
-	source     string           // What the build adds to its spec's source build, for the report; "" for a build with no gear.
-	fallback   bool             // Whether a failure with every buff is retried without the buffs, then without talents.
-	variant    int              // Which option variant a build with no gear has; 0 for the defaults.
-	everyState bool             // Whether the build also runs with every rank select at its higher states.
+	spec      *specBuild
+	player    *proto.Player
+	encounter *proto.Encounter // The single default target when nil.
+	source    string           // What the build adds to its spec's source build, for the report; "" for a build with no gear.
+	fallback  bool             // Whether a failure with every buff is retried without the buffs, then without talents.
+	variant   int              // Which option variant a build with no gear has; 0 for the defaults.
+	buffState int32            // The state every rank select holds with every buff; 0 reads as 1.
 
 	found   map[siml.Namespace]map[Identity]Registration // What the build registered.
 	icd     []int32                                      // The items whose effect the build lists only as an internal cooldown trigger.
@@ -441,44 +446,16 @@ func (b *build) run() {
 	}
 	labels := []string{"with every buff", "without buffs", "without buffs or talents"}
 	for i, player := range attempts {
-		result, err := computeStats(player, core.TernaryInt32(i == 0, 1, 0), b.encounter)
+		result, err := computeStats(player, core.TernaryInt32(i == 0, cmp.Or(b.buffState, 1), 0), b.encounter)
 		if err != nil {
 			b.errors = append(b.errors, fmt.Sprintf("%s: %v", labels[i], err))
 			continue
 		}
 		b.found, b.icd, b.attempt = registrations(result), icdItems(result), i
-		if i == 0 && b.everyState {
-			b.addHigherStates(player)
-		}
 		return
 	}
 	b.attempt = -1
 }
-
-// A rank select registers only the aura of the state it holds, so the higher states run as well.
-func (b *build) addHigherStates(player *proto.Player) {
-	for _, state := range []int32{2, maxBuffState} {
-		result, err := computeStats(player, state, b.encounter)
-		if err != nil {
-			b.errors = append(b.errors, fmt.Sprintf("with every buff at state %d: %v", state, err))
-			continue
-		}
-		for ns, ids := range registrations(result) {
-			if b.found[ns] == nil {
-				b.found[ns] = ids
-				continue
-			}
-			for id, registration := range ids {
-				if _, ok := b.found[ns][id]; !ok {
-					b.found[ns][id] = registration
-				}
-			}
-		}
-	}
-}
-
-// The highest state any rank select counts to.
-const maxBuffState = 3
 
 // With a buffState above 0, every buff is on, with each rank select at that state.
 func computeStats(player *proto.Player, buffState int32, encounter *proto.Encounter) (result *proto.ComputeStatsResult, err error) {

@@ -180,8 +180,7 @@ func TestVindicationRankReadsLikeItsTooltip(t *testing.T) {
 }
 
 // Each state puts up the external copy of its own row, worth what that row states and bidding in the
-// row's category, whichever spell the state reads. Off puts up nothing, and a state past the last
-// reads as the last.
+// row's category. Off puts up nothing, and a state past the last reads as the last.
 func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 	stated := func(aura dbcenums.EffectAuraType) func(*testing.T, *spelldata.Spell) float64 {
 		return func(t *testing.T, s *spelldata.Spell) float64 { return rowAmount(t, firstAura(t, s, aura)) }
@@ -258,7 +257,7 @@ func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 	cases := []struct {
 		label   string
 		prayer  *spelldata.Spell
-		newAura func(*core.Unit, bool, *spelldata.Spell) *core.Aura
+		newAura func(*core.Unit, bool, int32) *core.Aura
 		raid    *Meta
 		stat    stats.Stat
 		aura    dbcenums.EffectAuraType
@@ -269,7 +268,7 @@ func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.label, func(t *testing.T) {
 			char := shapeCharacter()
-			own := c.newAura(&char.Unit, true, c.prayer)
+			own := c.newAura(&char.Unit, true, 0)
 			external := newBuff(&char.Unit, c.raid, false, 0)
 			before := char.GetStats()[c.stat]
 

@@ -648,7 +648,7 @@
 			"frost_resistance": "Frost Resistance",
 			"shadow_resistance": "Shadow Resistance",
 			"nature_resistance": "Nature Resistance",
-			"rank_select_tooltip": "Click to cycle {{ranks}}. The first needs no class book; the others do."
+			"rank_select_tooltip": "Click to cycle {{ranks}}. The first needs no class book; the second does."
 		},
 		"party_buffs": {
 			"title": "Party Buffs",

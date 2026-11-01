@@ -98,7 +98,8 @@ func TestRankStateMustAttachWhatTheRowAttaches(t *testing.T) {
 // game files agree with the scope, and that they state a group at all. A party or debuff row the
 // game files state nothing for is exempt, because its scope is then the sim's grouping rather than
 // a game fact: the buff Windfury's proc lands on its wielder, a debuff the game files reach by the
-// area around its caster.
+// area around its caster. A raid input that reads the single-target spell is checked on its group
+// spell.
 func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 	for _, row := range resolveCommittedBuffs(t) {
 		if row.SpellID == 0 {
@@ -108,7 +109,7 @@ func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 		if reason, exempt := scopeExemptions[row.Field]; exempt {
 			if complaint == "" {
 				t.Errorf("%s: spell %d now states %s, so the exemption %q is stale",
-					row.Field, row.SpellID, row.Scope, reason)
+					row.Field, row.ScopeSpell.ID, row.Scope, reason)
 			}
 			continue
 		}
@@ -121,11 +122,7 @@ func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 // The rows whose spell the game files target somewhere else than the scope reaches,
 // each with the reason the scope is still what the sim wants.
 var scopeExemptions = map[string]string{
-	"windfury_totem":       "10610 is the attack power the proc grants; the totem's aura 10612, which hands the proc out, applies to the raid",
-	"mark_of_the_wild":     "the raid input reads the single-target spell, whose amounts match Gift of the Wild's top rank",
-	"power_word_fortitude": "the raid input reads the single-target spell, whose amount matches Prayer of Fortitude's top rank",
-	"arcane_intellect":     "the raid input reads the single-target spell, whose amount matches Arcane Brilliance",
-	"shadow_protection":    "the raid input reads the single-target spell, whose amount matches Prayer of Shadow Protection",
+	"windfury_totem": "10610 is the attack power the proc grants; the totem's aura 10612, which hands the proc out, applies to the raid",
 }
 
 // What the game files say against the scope the manifest files the row under, and
@@ -136,11 +133,37 @@ func scopeComplaint(row ResolvedBuff) string {
 	case stated && scope == row.Scope:
 		return ""
 	case stated:
-		return fmt.Sprintf("the manifest says %s, spell %d states %s", row.Scope, row.SpellID, scope)
+		return fmt.Sprintf("the manifest says %s, spell %d states %s", row.Scope, row.ScopeSpell.ID, scope)
 	case row.Scope == buffmanifest.ScopeRaid || row.Scope == buffmanifest.ScopeIndividual:
-		return fmt.Sprintf("the manifest says %s, spell %d states no group it reaches", row.Scope, row.SpellID)
+		return fmt.Sprintf("the manifest says %s, spell %d states no group it reaches", row.Scope, row.ScopeSpell.ID)
 	}
 	return ""
+}
+
+// A raid input that reads the single-target spell stands for the group spell, so both must attach the
+// same amounts: a game files change to one side of a pair fails here.
+func TestGroupInputsAttachWhatTheirGroupSpellAttaches(t *testing.T) {
+	amounts := func(applied []spelldata.Applied) map[string]float64 {
+		out := map[string]float64{}
+		for _, a := range applied {
+			out[a.Kind] = a.Value
+		}
+		return out
+	}
+	found := 0
+	for _, row := range resolveCommittedBuffs(t) {
+		if _, group := groupInputSpells[row.Field]; !group {
+			continue
+		}
+		found++
+		got := amounts(spelldata.DryRun(row.ScopeSpell, row.parseOptions()...).Applied)
+		if want := amounts(row.Applied); len(want) == 0 || !maps.Equal(got, want) {
+			t.Errorf("%s: spell %d attaches %v, the row's spell %d attaches %v", row.Field, row.ScopeSpell.ID, got, row.SpellID, want)
+		}
+	}
+	if found != len(groupInputSpells) {
+		t.Errorf("found %d of the %d group inputs among the manifest's rows", found, len(groupInputSpells))
+	}
 }
 
 // What the parse attaches for a row, by the kind it attaches as. Leader of the

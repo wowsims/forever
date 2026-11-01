@@ -248,29 +248,32 @@ export const makeMultistatePartyBuffInput = <SpecType extends Spec>(
 	);
 };
 
+interface RankedInputRank {
+	actionId: ActionId;
+	label: string;
+}
+
 interface RankedInputConfig<T> {
-	ranks: ReadonlyArray<{ actionId: ActionId; label: string }>;
+	ranks: readonly [RankedInputRank, RankedInputRank];
 	fieldName: keyof T;
 	label: string;
 }
 
-// A field whose number picks the buff's rank: 0 is off, and each state above it the next rank. The first rank is the
-// icon and the later two its improved badges, so the picker takes at most three ranks.
+// A field whose number picks the buff's rank: 0 is off, 1 the first rank, which is the icon, and 2 the second, which is
+// its improved badge.
 const rankedInput = <SpecType extends Spec, Message>(
-	make: (config: MultiStateInputConfig<Message>) => InputHelpers.TypedIconPickerConfig<Player<SpecType>, number>,
+	make: (config: TristateInputConfig<Message>) => InputHelpers.TypedIconPickerConfig<Player<SpecType>, number>,
 	{ ranks, fieldName, label }: RankedInputConfig<Message>,
 ): InputHelpers.TypedIconPickerConfig<Player<SpecType>, number> => ({
-	...make({ actionId: ranks[0].actionId, numStates: ranks.length + 1, fieldName, label }),
-	improvedId: ranks[1]?.actionId,
-	improvedId2: ranks[2]?.actionId,
+	...make({ actionId: ranks[0].actionId, impId: ranks[1].actionId, fieldName, label }),
 	labelTooltip: i18n.t('settings_tab.raid_buffs.rank_select_tooltip', { ranks: ranks.map(rank => rank.label).join(', ') }),
 });
 
 export const makeRankedRaidBuffInput = <SpecType extends Spec>(config: RankedInputConfig<RaidBuffs>) =>
-	rankedInput<SpecType, RaidBuffs>(makeMultistateRaidBuffInput, config);
+	rankedInput<SpecType, RaidBuffs>(makeTristateRaidBuffInput, config);
 
 export const makeRankedIndividualBuffInput = <SpecType extends Spec>(config: RankedInputConfig<IndividualBuffs>) =>
-	rankedInput<SpecType, IndividualBuffs>(makeMultistateIndividualBuffInput, config);
+	rankedInput<SpecType, IndividualBuffs>(makeTristateIndividualBuffInput, config);
 
 // interface EnumInputConfig<ModObject, Message, T> {
 // 	fieldName: keyof Message

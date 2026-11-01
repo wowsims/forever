@@ -43,9 +43,11 @@ func {{.Go}}Cooldown() time.Duration {
 	return {{.MetaVar}}.Cooldown()
 }
 {{- end}}
+{{- if not .RanksVar}}
 func {{.Builder}}(unit *core.Unit, isPlayer bool, talentPoints int32{{.ExtraParams}}) *core.Aura {
 	{{.Constructor}}
 }
+{{- end}}
 {{- else}}
 {{if .HasSpell}}// {{.Label}}
 {{end}}// func {{.Builder}}(unit *core.Unit, isPlayer bool, talentPoints int32{{.ExtraParams}}) *core.Aura // {{.Field}}{{with .Kind}}, {{.}}{{end}}: {{.Reason}}

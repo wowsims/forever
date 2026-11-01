@@ -1274,7 +1274,7 @@ func TestGeneratedOwnWindfuryTotemHoldsOverThePartysFlametongueTotem(t *testing.
 func TestGeneratedPartyWindfuryTotemHoldsOverOwnFlametongueTotem(t *testing.T) {
 	var graceOfAir, flametongue *core.Aura
 	sim, char := newTotemSim(t, &proto.RaidBuffs{WindfuryTotem: true}, func(c *core.Character) {
-		graceOfAir = buffs.NewSpellDataGraceOfAirTotemAura(&c.Unit, true, 0)
+		graceOfAir = buffs.NewSpellDataGraceOfAirTotemRankAura(&c.Unit, spelldata.MustFind(10626))
 		flametongue = standWeaponTotem(c, "Flametongue Totem (Self)", buffs.FlametongueTotemCategory,
 			buffs.FlametongueTotemPriority(), buffs.NewFlametongueTotemProcTrigger(c))
 	})

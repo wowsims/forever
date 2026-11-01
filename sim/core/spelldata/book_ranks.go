@@ -1,9 +1,9 @@
 package spelldata
 
-// The ranks a class book teaches, by spell id, each with the item that teaches it. The game files state a book rank's
-// SkillLineAbility row like a trained one, so this list is kept by hand. The group buffs (Gift of the Wild, Prayer of
-// Fortitude, Arcane Brilliance, Prayer of Shadow Protection) stay out: a book teaches every rank of those, so no
-// trained rank exists to prefer.
+// The ranks a class book teaches, by spell id, each with the item that teaches it, then the buff auras of the totem
+// book ranks and Greater Blessing rank 2. The game files state a book rank's SkillLineAbility row like a trained one,
+// so this list is kept by hand. The group buffs (Gift of the Wild, Prayer of Fortitude, Arcane Brilliance, Prayer of
+// Shadow Protection) stay out: a book teaches every rank of those, so no trained rank exists to prefer.
 var bookRanks = map[int32]bool{
 	25286: true, // Manual of Heroic Strike IX
 	25289: true, // Manual of Battle Shout VII

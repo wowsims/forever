@@ -395,7 +395,7 @@ var Individual = []BuffSpec{
 	},
 	{
 		Field:   "greater_blessing_of_might",
-		SpellID: 25916,
+		SpellID: 25782,
 		Ranks:   []BuffRank{{SpellID: 25782}, {SpellID: 25916}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
@@ -403,7 +403,7 @@ var Individual = []BuffSpec{
 	},
 	{
 		Field:   "greater_blessing_of_wisdom",
-		SpellID: 25918,
+		SpellID: 25894,
 		Ranks:   []BuffRank{{SpellID: 25894}, {SpellID: 25918}},
 		Stats: []proto.Stat{
 			proto.Stat_StatMP5,

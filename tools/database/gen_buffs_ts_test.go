@@ -44,7 +44,7 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 				Field: "greater_blessing_of_might", Stats: []proto.Stat{proto.Stat_StatAttackPower},
 			},
 			Scope: buffmanifest.ScopeIndividual, Proto: buffmanifest.ProtoInt32, Go: "GreaterBlessingOfMight",
-			SpellID: 25916, CastSpellID: 25916, Name: "Greater Blessing of Might",
+			SpellID: 25782, CastSpellID: 25782, Name: "Greater Blessing of Might",
 			RankStates: []rankState{
 				{SpellID: 25782, CastSpellID: 25782, Label: "Greater Blessing of Might Rank 1"},
 				{SpellID: 25916, CastSpellID: 25916, Label: "Greater Blessing of Might Rank 2"},

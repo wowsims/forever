@@ -110,7 +110,7 @@ describe('the buff registries', () => {
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout)?.ownerClass).toBe(Class.ClassWarrior);
 	});
 
-	// 0 is off and each state above it the next rank: the first is the icon and the others its badges.
+	// 0 is off and each state above it the next rank: the first is the icon and the second its badge.
 	it.each([
 		['Strength of Earth Totem', BuffDebuffInputs.StrengthOfEarthTotem, [10442, 25361]],
 		['Grace of Air Totem', BuffDebuffInputs.GraceOfAirTotem, [10627, 25359]],
@@ -119,7 +119,7 @@ describe('the buff registries', () => {
 	])('offers %s as a rank select', (label, input, ranks) => {
 		expect(input.label).toBe(label);
 		expect(input.states).toBe(ranks.length + 1);
-		expect([input.actionId, input.improvedId, input.improvedId2].filter(id => id !== undefined).map(id => id.spellId)).toEqual(ranks);
+		expect([input.actionId, input.improvedId].map(id => id?.spellId)).toEqual(ranks);
 		expect(input.labelTooltip).toBe('settings_tab.raid_buffs.rank_select_tooltip');
 	});
 

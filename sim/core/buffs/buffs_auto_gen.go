@@ -518,8 +518,8 @@ var strengthOfEarthTotemMeta = &Meta{
 	Category: StrengthOfEarthTotemCategory,
 }
 var strengthOfEarthTotemRanks = rankStates{
-	strengthOfEarthTotemMeta.atState(spelldata.MustFind(10441), "Strength of Earth Totem Rank 4"),
-	strengthOfEarthTotemMeta.atState(spelldata.MustFind(25362), "Strength of Earth Totem Rank 5"),
+	strengthOfEarthTotemMeta.atRank(spelldata.MustFind(10441)),
+	strengthOfEarthTotemMeta.atRank(spelldata.MustFind(25362)),
 }
 
 func StrengthOfEarthTotemValue(talentPoints int32) float64 {
@@ -527,9 +527,6 @@ func StrengthOfEarthTotemValue(talentPoints int32) float64 {
 }
 func StrengthOfEarthTotemDuration(talentPoints int32) time.Duration {
 	return strengthOfEarthTotemMeta.Duration(talentPoints)
-}
-func NewSpellDataStrengthOfEarthTotemAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, strengthOfEarthTotemMeta, isPlayer, talentPoints)
 }
 
 // Grace of Air Totem
@@ -541,8 +538,8 @@ var graceOfAirTotemMeta = &Meta{
 	Category: GraceOfAirTotemCategory,
 }
 var graceOfAirTotemRanks = rankStates{
-	graceOfAirTotemMeta.atState(spelldata.MustFind(10626), "Grace of Air Totem Rank 2"),
-	graceOfAirTotemMeta.atState(spelldata.MustFind(25360), "Grace of Air Totem Rank 3"),
+	graceOfAirTotemMeta.atRank(spelldata.MustFind(10626)),
+	graceOfAirTotemMeta.atRank(spelldata.MustFind(25360)),
 }
 
 func GraceOfAirTotemValue(talentPoints int32) float64 {
@@ -550,9 +547,6 @@ func GraceOfAirTotemValue(talentPoints int32) float64 {
 }
 func GraceOfAirTotemDuration(talentPoints int32) time.Duration {
 	return graceOfAirTotemMeta.Duration(talentPoints)
-}
-func NewSpellDataGraceOfAirTotemAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, graceOfAirTotemMeta, isPlayer, talentPoints)
 }
 
 // Windfury Totem
@@ -723,14 +717,14 @@ func NewSpellDataGreaterBlessingOfKingsAura(unit *core.Unit, isPlayer bool, tale
 }
 
 // Greater Blessing of Might
-var greaterBlessingOfMightSpell = spelldata.MustFind(25916)
+var greaterBlessingOfMightSpell = spelldata.MustFind(25782)
 var greaterBlessingOfMightMeta = &Meta{
 	Label: "Greater Blessing of Might",
 	Spell: greaterBlessingOfMightSpell,
 }
 var greaterBlessingOfMightRanks = rankStates{
-	greaterBlessingOfMightMeta.atState(spelldata.MustFind(25782), "Greater Blessing of Might Rank 1"),
-	greaterBlessingOfMightMeta.atState(spelldata.MustFind(25916), "Greater Blessing of Might Rank 2"),
+	greaterBlessingOfMightMeta.atRank(spelldata.MustFind(25782)),
+	greaterBlessingOfMightMeta.atRank(spelldata.MustFind(25916)),
 }
 
 func GreaterBlessingOfMightValue(talentPoints int32) float64 {
@@ -739,19 +733,16 @@ func GreaterBlessingOfMightValue(talentPoints int32) float64 {
 func GreaterBlessingOfMightDuration(talentPoints int32) time.Duration {
 	return greaterBlessingOfMightMeta.Duration(talentPoints)
 }
-func NewSpellDataGreaterBlessingOfMightAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, greaterBlessingOfMightMeta, isPlayer, talentPoints)
-}
 
 // Greater Blessing of Wisdom
-var greaterBlessingOfWisdomSpell = spelldata.MustFind(25918)
+var greaterBlessingOfWisdomSpell = spelldata.MustFind(25894)
 var greaterBlessingOfWisdomMeta = &Meta{
 	Label: "Greater Blessing of Wisdom",
 	Spell: greaterBlessingOfWisdomSpell,
 }
 var greaterBlessingOfWisdomRanks = rankStates{
-	greaterBlessingOfWisdomMeta.atState(spelldata.MustFind(25894), "Greater Blessing of Wisdom Rank 1"),
-	greaterBlessingOfWisdomMeta.atState(spelldata.MustFind(25918), "Greater Blessing of Wisdom Rank 2"),
+	greaterBlessingOfWisdomMeta.atRank(spelldata.MustFind(25894)),
+	greaterBlessingOfWisdomMeta.atRank(spelldata.MustFind(25918)),
 }
 
 func GreaterBlessingOfWisdomValue(talentPoints int32) float64 {
@@ -759,9 +750,6 @@ func GreaterBlessingOfWisdomValue(talentPoints int32) float64 {
 }
 func GreaterBlessingOfWisdomDuration(talentPoints int32) time.Duration {
 	return greaterBlessingOfWisdomMeta.Duration(talentPoints)
-}
-func NewSpellDataGreaterBlessingOfWisdomAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
-	return newBuff(unit, greaterBlessingOfWisdomMeta, isPlayer, talentPoints)
 }
 
 // func NewSpellDataGreaterBlessingOfSalvationAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura // greater_blessing_of_salvation, KindFlag: Greater Blessing of Salvation 25895 is gone from the game files; the field stays for saved settings and applies nothing.

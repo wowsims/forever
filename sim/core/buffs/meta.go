@@ -107,8 +107,8 @@ func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
 	return m.atState(rank, m.Label+" "+rank.Rank)
 }
 
-// A state of a rank select: the row on the state's own spell, which may be another spell's, under the
-// state's label. Every state bids in the row's categories.
+// The row on another spell under the label given, bidding in the row's categories. A priest's prayer
+// reads its own spell this way against the raid's input of its stat.
 func (m *Meta) atState(spell *spelldata.Spell, label string) *Meta {
 	state := *m
 	state.Label = label

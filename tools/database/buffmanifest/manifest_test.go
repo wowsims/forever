@@ -49,22 +49,22 @@ func TestResolvableRowsNameASpell(t *testing.T) {
 	}
 }
 
-// The settings input shows a rank select's first state as its icon and the next two as badges, and
-// offers each state once.
-func TestRankSelectsHaveTwoToThreeDistinctStates(t *testing.T) {
+// The settings input shows a rank select's first state as its icon and the second as its badge, and
+// offers each state once. The first state is the row's own spell, the rank SpellID pins.
+func TestRankSelectsHaveTwoDistinctStatesOpeningOnTheRowsSpell(t *testing.T) {
 	for _, row := range All() {
 		if len(row.Ranks) == 0 {
 			continue
 		}
-		if len(row.Ranks) < 2 || len(row.Ranks) > 3 {
-			t.Errorf("%s has %d ranks, want two or three", row.Field, len(row.Ranks))
+		if len(row.Ranks) != 2 {
+			t.Errorf("%s has %d ranks, want two", row.Field, len(row.Ranks))
+			continue
 		}
-		seen := map[int32]bool{}
-		for _, rank := range row.Ranks {
-			if seen[rank.SpellID] {
-				t.Errorf("%s lists spell %d twice", row.Field, rank.SpellID)
-			}
-			seen[rank.SpellID] = true
+		if row.Ranks[0].SpellID != row.SpellID {
+			t.Errorf("%s opens on spell %d, want the row's %d", row.Field, row.Ranks[0].SpellID, row.SpellID)
+		}
+		if row.Ranks[0].SpellID == row.Ranks[1].SpellID {
+			t.Errorf("%s lists spell %d twice", row.Field, row.Ranks[0].SpellID)
 		}
 	}
 }
