@@ -29,7 +29,7 @@ export const EnchantPresetTileView = ({ name, effect, iconUrl, href, wowhead, ch
 		aria-checked={checked}
 		onActivate={onToggle}
 		{...wowhead}>
-		<span className="ui-boolean-picker-input size-6" data-checked={checked ? '' : undefined} aria-hidden>
+		<span className="ui-boolean-picker-input" data-size="xs" data-checked={checked ? '' : undefined} aria-hidden>
 			{checked && (
 				<span className="ui-boolean-picker-indicator">
 					<Icon name="check" className="text-primary-foreground" />

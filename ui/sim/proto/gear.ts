@@ -180,16 +180,14 @@ export class Gear extends BaseGear {
 		});
 	}
 
-	// Removes enchanting profession bonus.
+	// Removes enchanting profession bonus. The rings are set in place: re-equipping one drops every other item of its
+	// limit category, and gear loaded from a spec can hold two rings of one.
 	withoutEnchanting(): Gear {
-		let curGear: Gear = this;
-
-		[ItemSlot.ItemSlotFinger1, ItemSlot.ItemSlotFinger2].forEach(slot => {
-			const fingerItem = this.getEquippedItem(slot);
-			if (fingerItem?.enchant) curGear = curGear.withEquippedItem(slot, fingerItem.withEnchant(null));
-		});
-
-		return curGear;
+		const rings = [ItemSlot.ItemSlotFinger1, ItemSlot.ItemSlotFinger2].filter(slot => this.getEquippedItem(slot)?.enchant);
+		if (!rings.length) return this;
+		const slots = this.asMap();
+		rings.forEach(slot => (slots[slot] = slots[slot]!.withEnchant(null)));
+		return new Gear(slots);
 	}
 	hasMHWeapon(): boolean {
 		return this.getEquippedItem(ItemSlot.ItemSlotMainHand) != null;

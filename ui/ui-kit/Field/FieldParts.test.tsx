@@ -184,15 +184,25 @@ describe('Field parts', () => {
 		expect((screen.getByRole('textbox') as HTMLInputElement).disabled).toBe(true);
 	});
 
-	it('marks layout and density on the root', () => {
-		const { rerender } = render(<Field.Root layout="split" density="compact" />);
+	it('marks layout and size on the root', () => {
+		const { rerender } = render(<Field.Root layout="split" size="xs" />);
 		const root = screen.getByTestId('input-root');
 		expect(root.getAttribute('data-layout')).toBe('split');
-		expect(root.getAttribute('data-density')).toBe('compact');
+		expect(root.getAttribute('data-size')).toBe('xs');
 
 		rerender(<Field.Root />);
 		expect(root.hasAttribute('data-layout')).toBe(false);
-		expect(root.hasAttribute('data-density')).toBe(false);
+		expect(root.hasAttribute('data-size')).toBe(false);
+	});
+
+	it('gives a nested root the size of its parent unless it sets its own', () => {
+		render(
+			<Field.Root size="xs" testId="outer">
+				<Field.Root testId="inherits" />
+				<Field.Root size="md" testId="own" />
+			</Field.Root>,
+		);
+		expect(['outer', 'inherits', 'own'].map(id => screen.getByTestId(id).getAttribute('data-size'))).toEqual(['xs', 'xs', 'md']);
 	});
 
 	it('renders leading and after where they are composed, as children of the root', () => {
@@ -260,6 +270,20 @@ describe('Field parts', () => {
 
 		fireEvent.mouseEnter(label);
 		expect((await screen.findByText('human')).tagName).toBe('B');
+		expect((await screen.findByRole('tooltip')).className).toContain('react-tooltip__place-top');
+	});
+
+	it('opens a label tooltip on the side it is given', async () => {
+		render(
+			<Field.Root>
+				<Field.Label tooltip="Same as Patchwerk" tooltipPlace="right">
+					Patchwerk copy
+				</Field.Label>
+			</Field.Root>,
+		);
+
+		fireEvent.mouseEnter(screen.getByTestId('form-label'));
+		expect((await screen.findByRole('tooltip')).className).toContain('react-tooltip__place-right');
 	});
 
 	it('refuses a part outside a root', () => {

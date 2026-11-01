@@ -52,7 +52,7 @@ export const AplListItem = <T extends HideableAction>({ player, config, leading,
 			{hidden ? null : (
 				<Field
 					{...frameProps}
-					density="compact"
+					size="xs"
 					className={['m-0 flex flex-row items-baseline gap-2', frameProps.className]}
 					testId="apl-list-item-picker-root"
 					disabled={disabled}>

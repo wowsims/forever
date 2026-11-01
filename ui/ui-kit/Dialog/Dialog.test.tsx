@@ -55,6 +55,34 @@ describe('Dialog', () => {
 		await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'name' })));
 	});
 
+	it('focuses the first tabbable element in finalFocus on close, not the opener', async () => {
+		const Probe = () => {
+			const [open, setOpen] = useState(false);
+			const sectionRef = useRef<HTMLDivElement>(null);
+			return (
+				<>
+					<button type="button" onClick={() => setOpen(true)}>
+						Open
+					</button>
+					<div ref={sectionRef}>
+						<h6>Picks</h6>
+						<button type="button">First pick</button>
+					</div>
+					<Dialog open={open} onOpenChange={setOpen} title="New preset" finalFocus={sectionRef}>
+						body
+					</Dialog>
+				</>
+			);
+		};
+		render(<Probe />);
+		const opener = screen.getByRole('button', { name: 'Open' });
+		opener.focus();
+		fireEvent.click(opener);
+
+		fireEvent.click(await screen.findByRole('button', { name: 'common.close' }));
+		await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'First pick' })));
+	});
+
 	it('closes on the close button and on Escape', () => {
 		const onOpenChange = vi.fn();
 		render(

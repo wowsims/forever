@@ -1,10 +1,12 @@
+import i18n from '@i18n/config';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { CombinationsCountView, type CombinationsCountViewProps } from './CombinationsCount';
 
 const renderCount = (props: Partial<CombinationsCountViewProps> = {}) =>
-	render(<CombinationsCountView pending={false} combinations={12} iterations={24000} iterationsLimit={50000} encounters={1} {...props} />);
+	render(<CombinationsCountView pending={false} ready combinations={12} iterations={24000} iterationsLimit={50000} builds={null} {...props} />);
 
 describe('CombinationsCountView', () => {
 	it('says why the selection gives no combination, once the count is in', () => {
@@ -40,37 +42,6 @@ describe('CombinationsCountView', () => {
 		expect(await screen.findByText('bulk_tab.settings.total_iterations_tooltip')).toBeTruthy();
 	});
 
-	it.each([
-		[1, null],
-		[3, '× 3'],
-	])('shows the encounter multiplier only for more than one encounter (%i encounters)', (encounters, multiplier) => {
-		renderCount({ encounters });
-
-		expect(screen.queryByTestId('bulk-encounters-count')?.textContent ?? null).toBe(multiplier);
-	});
-
-	it('labels the multiplier as the encounter count', () => {
-		renderCount({ encounters: 2 });
-
-		expect(screen.getByTestId('bulk-encounters-count').previousElementSibling!.textContent).toBe('bulk_tab.settings.encounters.count');
-	});
-
-	it('counts the iterations of every encounter', () => {
-		renderCount({ iterations: 100, encounters: 3 });
-
-		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('300');
-	});
-
-	it('judges the warning on the iterations of one encounter', () => {
-		renderCount({ iterations: 50001, encounters: 1 });
-		expect(screen.queryByTestId('warning')).not.toBeNull();
-		cleanup();
-
-		renderCount({ iterations: 49999, encounters: 3 });
-		expect(screen.getByTestId('bulk-total-iterations').textContent).toBe('149,997');
-		expect(screen.queryByTestId('warning')).toBeNull();
-	});
-
 	it('warns once the iterations pass the limit', () => {
 		renderCount({ iterations: 60000 });
 		const warning = screen.getByTestId('warning');
@@ -79,5 +50,38 @@ describe('CombinationsCountView', () => {
 		expect(warning.tagName).toBe('BUTTON');
 		expect(warning.getAttribute('aria-label')).toBe('bulk_tab.warning.iterations_limit');
 		expect(warning.hasAttribute('data-tooltip-id')).toBe(true);
+	});
+
+	it('ends the warning with a hint to lower Top results while the control shows', () => {
+		renderCount({ iterations: 60000, topResultsHint: true });
+
+		expect(screen.getByTestId('warning').getAttribute('aria-label')).toBe('bulk_tab.warning.iterations_limit bulk_tab.warning.lower_top_results');
+	});
+
+	it('names the bundles and encounters a Builds batch runs, and the runs they give', () => {
+		const builds = { setups: 4, bundles: 3, encounters: 2, runs: 6, builds: 12, totalIterations: 120000, largestRequestIterations: 30000 };
+		// The other cases read the keys; this one reads the English copy.
+		i18n.addResourceBundle('en', 'translation', english, true, true);
+		try {
+			renderCount({ builds });
+			expect(screen.getByTestId('bulk-runs-label').textContent).toBe('3 bundles × 2 encounters');
+			expect(screen.getByTestId('bulk-runs-count').textContent).toBe('6 runs');
+			cleanup();
+
+			renderCount({ builds: { ...builds, bundles: 1, encounters: 1, runs: 1 } });
+			expect(screen.getByTestId('bulk-runs-label').textContent).toBe('1 bundle × 1 encounter');
+		} finally {
+			i18n.removeResourceBundle('en', 'translation');
+		}
+	});
+
+	it('asks for a second build while the batch sims one, and drops the hint once it sims two', () => {
+		const builds = { setups: 1, bundles: 1, encounters: 1, runs: 1, builds: 1, totalIterations: 20000, largestRequestIterations: 20000 };
+		renderCount({ builds });
+		expect(screen.getByTestId('bulk-runs-hint').textContent).toBe('bulk_tab.settings.runs.second_build');
+		cleanup();
+
+		renderCount({ builds: { ...builds, encounters: 2, runs: 2, builds: 2 } });
+		expect(screen.queryByTestId('bulk-runs-hint')).toBeNull();
 	});
 });

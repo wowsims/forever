@@ -1,9 +1,9 @@
 import { Field as BaseField } from '@base-ui/react/field';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
-import { LocaleHtml, Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { LocaleHtml, Tooltip, tooltipAnchorProps, type TooltipRefProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
-import { isValidElement, type ReactNode, useCallback, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { isValidElement, type ReactNode, useCallback, useContext, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { FieldContext } from './context/FieldContext';
 import { useField } from './hooks/useField';
@@ -21,7 +21,7 @@ const NATIVE_CONTROLS = new Set(['input', 'select', 'textarea']);
 export const Root = ({
 	id,
 	layout,
-	density,
+	size: ownSize,
 	disabled,
 	grow,
 	className,
@@ -45,9 +45,12 @@ export const Root = ({
 	const labelId = labelIdProp ?? generatedLabelId;
 	const generatedControlRef = useRef<HTMLElement | null>(null);
 	const controlRef = controlRefProp ?? generatedControlRef;
+	const labelTooltip = useRef<{ open: () => void; close: () => void } | null>(null);
+	const parentSize = useContext(FieldContext)?.size;
+	const size = ownSize ?? parentSize;
 	const context = useMemo(
-		() => ({ id, role, layout, density, disabled: !!disabled, grow: grow !== false, describedBy, registerDescription, labelId, controlRef }),
-		[id, role, layout, density, disabled, grow, describedBy, registerDescription, labelId, controlRef],
+		() => ({ id, role, layout, size, disabled: !!disabled, grow: grow !== false, describedBy, registerDescription, labelId, controlRef, labelTooltip }),
+		[id, role, layout, size, disabled, grow, describedBy, registerDescription, labelId, controlRef],
 	);
 
 	return (
@@ -60,19 +63,17 @@ export const Root = ({
 				disabled={disabled}
 				data-disabled={disabled ? '' : undefined}
 				data-layout={layout}
-				data-density={density}
+				data-size={size}
 				data-reverse={reverse ? '' : undefined}
 				data-testid={testId ?? 'input-root'}
-				className={dedupe(
-					clsx(describedBy && 'flex-wrap', 'ui-field', density === 'compact' && 'ui-field-compact', grow === false && 'flex-none', className),
-				)}>
+				className={dedupe(clsx(describedBy && 'flex-wrap', 'ui-field', grow === false && 'flex-none', className))}>
 				{children}
 			</BaseField.Root>
 		</FieldContext.Provider>
 	);
 };
 
-export const Label = ({ as, id, tooltip, className, testId, children }: FieldLabelProps) => {
+export const Label = ({ as, id, tooltip, tooltipPlace, className, testId, children }: FieldLabelProps) => {
 	const field = useField();
 	const renderable = typeof tooltip === 'string' || isValidElement(tooltip);
 	if (tooltip !== undefined && !renderable) {
@@ -80,14 +81,26 @@ export const Label = ({ as, id, tooltip, className, testId, children }: FieldLab
 	}
 	const generatedId = useId();
 	const tooltipId = renderable ? `${field.id ?? generatedId}-tooltip` : undefined;
+	const tooltipRef = useRef<TooltipRefProps>(null);
 	// A string goes through LocaleHtml, as ContentBlock's header tooltip already does: several spec
 	// tooltips carry <b> to mark the option they are talking about, and passed raw those render as
 	// literal tags.
 	const tooltipNode = useMemo(() => {
 		if (!tooltipId) return null;
 		const content = typeof tooltip === 'string' ? <LocaleHtml html={tooltip} /> : (tooltip as ReactNode);
-		return <Tooltip id={tooltipId} content={content} />;
-	}, [tooltipId, tooltip]);
+		return <Tooltip ref={tooltipRef} id={tooltipId} content={content} place={tooltipPlace} />;
+	}, [tooltipId, tooltip, tooltipPlace]);
+	// A control that opens the tooltip on its own focus opens it here, anchored at the label, so a side placement sits
+	// beside the label text rather than over it.
+	const { labelTooltip } = field;
+	useLayoutEffect(() => {
+		if (!tooltipId) return;
+		const anchorSelect = `.ui-field-label[data-tooltip-id="${tooltipId}"]`;
+		labelTooltip.current = { open: () => tooltipRef.current?.open({ anchorSelect }), close: () => tooltipRef.current?.close() };
+		return () => {
+			labelTooltip.current = null;
+		};
+	}, [labelTooltip, tooltipId]);
 
 	// A group's caption and an icon field's label both name a control (or several) they cannot carry a
 	// `for` to, so both fall back to `field.labelId`, which the field's `aria-labelledby` and control
@@ -180,7 +193,6 @@ export const Clear = ({ show, label, className, testId, onClear, children }: Fie
 			{show && (
 				<Button
 					variant="link"
-					size="sm"
 					className={clsx('absolute inset-y-0 right-0 flex items-center', className)}
 					data-testid={testId}
 					aria-label={label}

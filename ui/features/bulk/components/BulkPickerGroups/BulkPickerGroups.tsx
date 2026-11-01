@@ -6,7 +6,7 @@ import { Tooltip } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { bulkGroupItemSlot, createBulkAddGearData } from '../../model/gear_data';
+import { bulkGroupItemSlot, createBulkAddGearData } from '../../model/gear/gear_data';
 import { BulkItemPickerGroup } from './BulkItemPickerGroup';
 
 export const BulkPickerGroups = () => {

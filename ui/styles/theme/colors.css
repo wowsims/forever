@@ -133,6 +133,7 @@
 	--color-input-disabled: color-mix(in srgb, var(--color-background), var(--color-white) 20%);
 	--color-scrim: --alpha(var(--color-black) / 50%);
 	--color-spinner: var(--color-white);
+	--color-spinner-strong: var(--color-foreground);
 
 	--color-cr-scene-glow: color-mix(in srgb, var(--color-background) 65%, var(--color-warning) 35%);
 	--color-cr-dmg-num: color-mix(in srgb, var(--color-warning) 80%, var(--color-white));

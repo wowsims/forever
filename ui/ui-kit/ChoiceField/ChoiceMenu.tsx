@@ -53,9 +53,9 @@ export const ChoiceMenu = <V,>({
 	side,
 	positionMethod,
 }: ChoiceMenuProps<V>) => {
-	// A Select's trigger gets aria-describedby from Base UI's own Field wiring; a Menu's trigger is not one of
-	// its field-aware controls, so it never does.
-	const describedBy = useFieldDescribedBy();
+	// A Select's trigger gets the field's description ids from Base UI's own Field wiring, added to its own; a Menu's
+	// trigger is not one of its field-aware controls, so they are joined here.
+	const describedBy = [triggerProps['aria-describedby'], useFieldDescribedBy()].filter(Boolean).join(' ') || undefined;
 	return (
 		<Menu
 			surface="menu"

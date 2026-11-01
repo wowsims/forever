@@ -78,7 +78,7 @@ export const ItemListToolbarView = ({
 	remove,
 }: ItemListToolbarViewProps) => {
 	return (
-		<div className="ui-selector-modal-filters mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
+		<div className="mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
 			<SearchField
 				value={search}
 				onChange={onSearchChange}
