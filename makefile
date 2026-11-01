@@ -131,7 +131,7 @@ wasm: $(OUT_DIR)/lib.wasm.gz
 WASM_FEATURES := --enable-sign-ext --enable-nontrapping-float-to-int --enable-mutable-globals --enable-bulk-memory
 $(OUT_DIR)/lib.wasm.gz: sim/wasm/* sim/core/proto/api.pb.go sim/siml/forms.json $(filter-out sim/core/items/all_items.go, $(call rwildcard,sim,*.go))
 	@echo "Starting webassembly compile now..."
-	@if GOWASM=satconv,signext GOOS=js GOARCH=wasm go build -ldflags "-w -s" -o ./$(OUT_DIR)/lib.wasm ./sim/wasm/; then \
+	@if GOOS=js GOARCH=wasm go build -ldflags "-w -s" -o ./$(OUT_DIR)/lib.wasm ./sim/wasm/; then \
 		printf "\033[1;32mWASM compile successful.\033[0m\n"; \
 	else \
 		printf "\033[1;31mWASM COMPILE FAILED\033[0m\n"; \
