@@ -1,6 +1,7 @@
 package core
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"time"
@@ -30,13 +31,16 @@ type encounterDesign struct {
 	waves     []*designWave
 	targets   []designTargetState // Indexed by Target.Index, over every target of the encounter.
 
-	bossAbilities []*designBossAbility // Filled by registerBossAbilities, once the targets swing.
+	// Filled by registerLanes, once the raid is initialized.
+	bossAbilities []*designBossAbility
+	moves         []*designMove
+	damageAmps    []*designAmp
+	ampAuras      []*designAmpAura
 
 	// Lookahead the movement and damage amp lanes keep current for the APL.
-	nextMoveAt       time.Duration // The start of the next move not yet started, or NeverExpires.
-	nextMoveDuration time.Duration // How long that move lasts, 0 without one.
-	amps             [numDamageAmpTypes]designAmpLookahead
-	lanes            designLanes // The movement and damage amp lanes' state, built with the environment.
+	nextMoveAt time.Duration // The start of the next move not yet started, or NeverExpires.
+	nextMove   *designMove   // That move, nil without one.
+	amps       [numDamageAmpTypes]designAmpLookahead
 }
 
 type designAmpLookahead struct {
@@ -68,27 +72,82 @@ type designDowntime struct {
 }
 
 const (
-	downtimeEndPriority   = ActionPriorityDOT
-	downtimeStartPriority = ActionPriorityDOT + 1 // A downtime that starts as another ends keeps its target down.
+	designEndPriority   = ActionPriorityDOT
+	designStartPriority = ActionPriorityDOT + 1 // A downtime or window that starts as another ends keeps its effect up.
 )
+
+// An event's occurrences this iteration, run in time order by one action.
+type designOccurrences struct {
+	fractions []float64 // As rolled, of which times holds those the event keeps.
+	times     []time.Duration
+	next      int // The occurrence still to come.
+	action    PendingAction
+}
+
+func newDesignOccurrences(count int, priority ActionPriority, onAction func(*Simulation)) designOccurrences {
+	return designOccurrences{
+		fractions: make([]float64, 0, count),
+		times:     make([]time.Duration, 0, count),
+		action:    PendingAction{Priority: priority, OnAction: onAction},
+	}
+}
+
+// Rolls the iteration's fractions, leaving the event to fill times and queue the first.
+func (occurrences *designOccurrences) roll(sim *Simulation, design *encounterDesign, start *proto.DesignTime, repeat *proto.DesignRepeat) {
+	occurrences.next = 0
+	occurrences.times = occurrences.times[:0]
+	occurrences.fractions = design.rollOccurrences(sim, start, repeat, occurrences.fractions)
+}
+
+// Rolls the iteration's occurrences, keeps those inside the fight and queues the first.
+func (occurrences *designOccurrences) schedule(sim *Simulation, design *encounterDesign, start *proto.DesignTime, repeat *proto.DesignRepeat) {
+	occurrences.roll(sim, design, start, repeat)
+	for _, fraction := range occurrences.fractions {
+		if at := designTime(sim, fraction); at < sim.Duration {
+			occurrences.times = append(occurrences.times, at)
+		}
+	}
+	occurrences.queueFirst(sim)
+}
+
+func (occurrences *designOccurrences) queueFirst(sim *Simulation) {
+	if len(occurrences.times) > 0 {
+		occurrences.action.NextActionAt = occurrences.times[0]
+		sim.AddPendingAction(&occurrences.action)
+	}
+}
+
+// Steps past the occurrence that is running and queues the one after it.
+func (occurrences *designOccurrences) advance(sim *Simulation) {
+	occurrences.next++
+	if occurrences.next < len(occurrences.times) {
+		occurrences.action.NextActionAt = occurrences.times[occurrences.next]
+		sim.AddPendingAction(&occurrences.action)
+	}
+}
+
+// The occurrence still to come, or NeverExpires.
+func (occurrences *designOccurrences) nextAt() time.Duration {
+	if occurrences.next < len(occurrences.times) {
+		return occurrences.times[occurrences.next]
+	}
+	return NeverExpires
+}
 
 // An add wave, whose pool holds, for each of its adds, the most lives of that add alive at once, each built from
 // the add's own template. Each spawn takes, for each add, the free slot of that add with the lowest index; a
 // template TankIndex makes Enable pull that tank onto every add spawned from it. NextActiveAt and DiesAt of an
 // idle pool target report the wave's next spawn, the same for every idle target of the wave.
 type designWave struct {
-	design    *encounterDesign
-	index     int
-	config    *proto.AddWave
-	pool      []*Target // perAdd slots for each add in turn, so add i holds pool[i*perAdd:(i+1)*perAdd].
-	perAdd    int
-	adds      []int32       // The index in config.Adds of add i, which skips the adds without a target.
-	knots     [4]HealthKnot // An add's health over its life, from the wave's execute proportions.
-	fractions []float64     // This iteration's spawns as fractions of the fight, in time order.
-	spawns    []time.Duration
-	next      int // The spawn still to come.
-	capped    bool
-	action    PendingAction
+	design      *encounterDesign
+	index       int
+	config      *proto.AddWave
+	pool        []*Target // perAdd slots for each add in turn, so add i holds pool[i*perAdd:(i+1)*perAdd].
+	perAdd      int
+	adds        []int32           // The index in config.Adds of add i, which skips the adds without a target.
+	knots       [4]HealthKnot     // An add's health over its life, from the wave's execute proportions.
+	occurrences designOccurrences // This iteration's spawns.
+	free        []*Target         // The slots a spawn takes, one per add.
 }
 
 // The design of the encounter, with every wave's targets appended to the encounter, or nil when the design
@@ -110,6 +169,9 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 		downtime := &designDowntime{config: config}
 		if index := int(config.TargetIndex); index >= 0 && index < design.numEncounterTargets {
 			downtime.target = encounter.AllTargets[index]
+		} else {
+			design.constructNotes = append(design.constructNotes, fmt.Sprintf(
+				"downtime %d names target %d, which the encounter does not have; skipped.", len(design.downtimes)+1, config.TargetIndex))
 		}
 		downtime.action = PendingAction{
 			OnAction: func(sim *Simulation) { sim.Encounter.design.runDowntime(sim, downtime) },
@@ -118,42 +180,7 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 	}
 
 	for index, config := range config.AddWaves {
-		wave := &designWave{design: design, index: index, config: config}
-		p20 := Clamp(config.ExecuteProportion_20, 0, 1)
-		p35 := max(Clamp(config.ExecuteProportion_35, 0, 1), p20)
-		wave.knots = [4]HealthKnot{{At: 0, Percent: 100}, {At: 1 - p35, Percent: 35}, {At: 1 - p20, Percent: 20}, {At: 1, Percent: 0}}
-		occurrences := maxOccurrences(config.GetSpawn(), config.Repeat)
-		wave.fractions = make([]float64, 0, occurrences)
-		wave.spawns = make([]time.Duration, 0, occurrences)
-		wave.action = PendingAction{
-			Priority: ActionPriorityDOT,
-			OnAction: wave.spawn,
-		}
-		if skip := wave.skipReason(); skip != "" {
-			design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s %s; skipped.", wave.name(), skip))
-		} else {
-			templates := make([]*proto.Target, 0, len(config.Adds))
-			for addIndex, template := range config.Adds {
-				if template == nil {
-					design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s add %d has no target; skipped.", wave.name(), addIndex+1))
-					continue
-				}
-				templates = append(templates, template)
-				wave.adds = append(wave.adds, int32(addIndex))
-			}
-			if len(templates) > 0 {
-				// The cap splits evenly, so every add keeps the same number of slots.
-				wave.perAdd = maxConcurrentOccurrences(config, occurrences)
-				if len(templates)*wave.perAdd > designMaxPoolTargets {
-					wave.perAdd = designMaxPoolTargets / len(templates)
-					wave.capped = true
-				}
-				for _, template := range templates {
-					wave.pool = append(wave.pool, encounter.allocatePoolTargets(template, wave.perAdd)...)
-				}
-			}
-		}
-		design.waves = append(design.waves, wave)
+		design.waves = append(design.waves, design.newDesignWave(encounter, index, config))
 	}
 
 	design.targets = make([]designTargetState, len(encounter.AllTargets))
@@ -172,6 +199,56 @@ func newEncounterDesign(encounter *Encounter, config *proto.EncounterDesign) *en
 	return design
 }
 
+// The wave with its targets appended to the encounter, none for a wave that skips.
+func (design *encounterDesign) newDesignWave(encounter *Encounter, index int, config *proto.AddWave) *designWave {
+	wave := &designWave{design: design, index: index, config: config}
+	p20 := Clamp(config.ExecuteProportion_20, 0, 1)
+	p35 := max(Clamp(config.ExecuteProportion_35, 0, 1), p20)
+	wave.knots = [4]HealthKnot{{At: 0, Percent: 100}, {At: 1 - p35, Percent: 35}, {At: 1 - p20, Percent: 20}, {At: 1, Percent: 0}}
+	occurrences := maxOccurrences(config.GetSpawn(), config.Repeat)
+	wave.occurrences = newDesignOccurrences(occurrences, ActionPriorityDOT, wave.spawn)
+	if skip := wave.skipReason(); skip != "" {
+		design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s %s; skipped.", wave.name(), skip))
+		return wave
+	}
+
+	templates := make([]*proto.Target, 0, len(config.Adds))
+	for addIndex, template := range config.Adds {
+		if template == nil {
+			design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s add %d has no target; skipped.", wave.name(), addIndex+1))
+			continue
+		}
+		templates = append(templates, template)
+		wave.adds = append(wave.adds, int32(addIndex))
+	}
+	if len(templates) == 0 {
+		return wave
+	}
+
+	// The cap splits evenly, so every add keeps the same number of slots.
+	wave.perAdd = maxConcurrentOccurrences(config, occurrences)
+	if len(templates)*wave.perAdd > designMaxPoolTargets {
+		wave.perAdd = designMaxPoolTargets / len(templates)
+		design.constructNotes = append(design.constructNotes, fmt.Sprintf("wave %s holds at most %d adds at once.", wave.name(), len(templates)*wave.perAdd))
+	}
+	for _, template := range templates {
+		wave.pool = append(wave.pool, encounter.allocatePoolTargets(template, wave.perAdd)...)
+	}
+	wave.free = make([]*Target, 0, len(templates))
+	return wave
+}
+
+// Builds the boss abilities, moves and damage amps, which need the initialized raid: a target's swing and the
+// players' pets exist only then.
+func (design *encounterDesign) registerLanes(env *Environment) {
+	if design == nil {
+		return
+	}
+	design.registerBossAbilities(&env.Encounter)
+	design.registerMoves(env)
+	design.registerAmps(env)
+}
+
 // The boss's curve from the keyframes in time order, each one's time clamped into the fight, its health into
 // 0 to 100 and to at most the keyframe's before it, since health only falls. The boss starts at full health
 // and dies at the fight's end: a first keyframe after the pull gets (0, 100) before it, and a last one before
@@ -188,15 +265,7 @@ func (design *encounterDesign) bossHealthKnots(keyframes []*proto.HealthKeyframe
 		clamped = clamped || knot.At != keyframe.At || knot.Percent != keyframe.HealthPercent
 		knots = append(knots, knot)
 	}
-	slices.SortStableFunc(knots, func(a, b HealthKnot) int {
-		switch {
-		case a.At < b.At:
-			return -1
-		case a.At > b.At:
-			return 1
-		}
-		return 0
-	})
+	slices.SortStableFunc(knots, func(a, b HealthKnot) int { return cmp.Compare(a.At, b.At) })
 	for i := 1; i < len(knots); i++ {
 		if knots[i].Percent > knots[i-1].Percent {
 			knots[i].Percent = knots[i-1].Percent
@@ -325,12 +394,17 @@ func (design *encounterDesign) reset(sim *Simulation) {
 		encounter.AllTargets[0].SetHealthCurve(sim, 0, sim.Duration, design.bossKnots...)
 	}
 
-	for index, downtime := range design.downtimes {
+	design.scheduleDowntimes(sim)
+	design.scheduleWaves(sim)
+	design.scheduleMoves(sim)
+	design.scheduleAmps(sim)
+	design.scheduleBossAbilities(sim)
+}
+
+func (design *encounterDesign) scheduleDowntimes(sim *Simulation) {
+	for _, downtime := range design.downtimes {
 		downtime.down = false
 		if downtime.target == nil {
-			if sim.Log != nil {
-				sim.Log("Encounter design: downtime %d names target %d, which the encounter does not have; skipped.", index+1, downtime.config.TargetIndex)
-			}
 			continue
 		}
 		downtime.start = designTime(sim, design.roll(sim, downtime.config.GetStart().GetAt(), downtime.config.GetStart().GetJitter()))
@@ -339,44 +413,16 @@ func (design *encounterDesign) reset(sim *Simulation) {
 			continue
 		}
 		downtime.action.NextActionAt = downtime.start
-		downtime.action.Priority = downtimeStartPriority
+		downtime.action.Priority = designStartPriority
 		sim.AddPendingAction(&downtime.action)
 	}
+}
 
+func (design *encounterDesign) scheduleWaves(sim *Simulation) {
 	for _, wave := range design.waves {
-		wave.next = 0
-		wave.spawns = wave.spawns[:0]
-		if wave.pool == nil {
-			continue
+		if wave.pool != nil {
+			wave.occurrences.schedule(sim, design, wave.config.GetSpawn(), wave.config.Repeat)
 		}
-		if wave.capped && sim.Log != nil {
-			sim.Log("Encounter design: wave %s holds at most %d adds at once.", wave.name(), len(wave.pool))
-		}
-		wave.fractions = design.rollOccurrences(sim, wave.config.GetSpawn(), wave.config.Repeat, wave.fractions)
-		for _, fraction := range wave.fractions {
-			if at := designTime(sim, fraction); at < sim.Duration {
-				wave.spawns = append(wave.spawns, at)
-			}
-		}
-		if len(wave.spawns) > 0 {
-			wave.action.NextActionAt = wave.spawns[0]
-			sim.AddPendingAction(&wave.action)
-		}
-	}
-
-	design.nextMoveAt = NeverExpires
-	design.nextMoveDuration = 0
-	for i := range design.amps {
-		design.amps[i] = designAmpLookahead{nextStartAt: NeverExpires}
-	}
-	if len(design.config.Moves) > 0 {
-		design.scheduleMoves(sim)
-	}
-	if len(design.config.DamageAmps) > 0 {
-		design.scheduleAmps(sim)
-	}
-	if len(design.config.BossAbilities) > 0 {
-		design.scheduleBossAbilities(sim)
 	}
 }
 
@@ -400,7 +446,6 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 		state.latestEnd = 0
 		if back {
 			target.Enable(sim)
-			design.reapplyAmps(sim, target)
 			design.reapplyBossAbilities(sim, target)
 		}
 		return
@@ -415,7 +460,7 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 	if downtime.end < sim.Duration {
 		end = downtime.end
 		downtime.action.NextActionAt = end
-		downtime.action.Priority = downtimeEndPriority
+		downtime.action.Priority = designEndPriority
 		sim.AddPendingAction(&downtime.action)
 	}
 	state.latestEnd = max(state.latestEnd, end)
@@ -458,25 +503,13 @@ func (wave *designWave) lifetime(sim *Simulation) time.Duration {
 	return time.Duration(max(wave.config.Lifetime, 0) * float64(sim.Duration))
 }
 
-// The next spawn of the wave this iteration, or NeverExpires.
-func (wave *designWave) nextSpawnAt() time.Duration {
-	if wave.next < len(wave.spawns) {
-		return wave.spawns[wave.next]
-	}
-	return NeverExpires
-}
-
 // Brings one free slot of each add in, each on the wave's health curve over its lifetime and dying at its end
 // when that comes before the fight ends. With an add that has no free slot, the spawn is skipped.
 func (wave *designWave) spawn(sim *Simulation) {
-	wave.next++
-	if wave.next < len(wave.spawns) {
-		wave.action.NextActionAt = wave.spawns[wave.next]
-		sim.AddPendingAction(&wave.action)
-	}
+	wave.occurrences.advance(sim)
 
 	numAdds := len(wave.pool) / wave.perAdd
-	free := make([]*Target, 0, numAdds)
+	free := wave.free[:0]
 	for slots := range slices.Chunk(wave.pool, wave.perAdd) {
 		if index := slices.IndexFunc(slots, func(target *Target) bool { return !target.IsEnabled() }); index >= 0 {
 			free = append(free, slots[index])
@@ -506,7 +539,6 @@ func (wave *designWave) spawn(sim *Simulation) {
 
 		target.SetHealthCurve(sim, sim.CurrentTime, lifetime, wave.knots[:]...)
 		target.Enable(sim)
-		wave.design.reapplyAmps(sim, target)
 	}
 	if sim.Log != nil {
 		sim.Log("Encounter design: wave %s spawned %d adds.", wave.name(), numAdds)
@@ -537,7 +569,7 @@ func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
 	}
 	state := &design.targets[target.Index]
 	if state.wave != nil {
-		return state.wave.nextSpawnAt()
+		return state.wave.occurrences.nextAt()
 	}
 	return state.nextActiveAt
 }
@@ -551,7 +583,7 @@ func (target *Target) DiesAt(sim *Simulation) time.Duration {
 			if target.IsEnabled() {
 				return min(state.diesAt, sim.Duration)
 			}
-			if next := state.wave.nextSpawnAt(); next != NeverExpires {
+			if next := state.wave.occurrences.nextAt(); next != NeverExpires {
 				return min(next+state.wave.lifetime(sim), sim.Duration)
 			}
 			return NeverExpires
@@ -591,12 +623,12 @@ func (encounter *Encounter) NextMoveAt(_ *Simulation) time.Duration {
 	return encounter.design.nextMoveAt
 }
 
-// How long the design's next move not yet started lasts, or 0.
-func (encounter *Encounter) NextMoveDuration(_ *Simulation) time.Duration {
-	if encounter.design == nil {
+// How long the design's next move not yet started lasts at the first player's run speed now, or 0.
+func (encounter *Encounter) NextMoveDuration(sim *Simulation) time.Duration {
+	if encounter.design == nil || encounter.design.nextMove == nil {
 		return 0
 	}
-	return encounter.design.nextMoveDuration
+	return designMoveDuration(encounter.design.nextMove.config, sim.Raid.AllPlayerUnits[0])
 }
 
 // Whether a damage amp window of the type is running.

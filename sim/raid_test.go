@@ -107,10 +107,10 @@ func TestFixedRaid(t *testing.T) {
 
 // Every preset target simulates on its own as a plain target, with no design.
 func TestPresetTargetsAlone(t *testing.T) {
-	for _, id := range []int32{31146, 31147, 99999, 99998, 100000} {
-		preset := core.GetPresetTargetWithID(id)
+	for _, path := range []string{"Default/Raid Target", "Default/Movement", "Default/Dynamic Boss", "Default/Dynamic Add", "Default/Boss"} {
+		preset := core.GetPresetTargetWithPath(path)
 		if preset == nil {
-			t.Fatalf("the preset target %d is not registered", id)
+			t.Fatalf("the preset target %s is not registered", path)
 		}
 		t.Run(preset.Config.Name, func(t *testing.T) {
 			result := core.RunRaidSim(&proto.RaidSimRequest{

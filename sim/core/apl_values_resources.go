@@ -19,7 +19,7 @@ func (rot *APLRotation) newValueCurrentHealth(config *proto.APLValueCurrentHealt
 	if resolvedUnit == nil {
 		return nil
 	}
-	if !rot.enemyHasHealth(resolvedUnit, uuid) {
+	if !rot.unitHasHealth(resolvedUnit, uuid) {
 		return nil
 	}
 	return &APLValueCurrentHealth{
@@ -29,7 +29,7 @@ func (rot *APLRotation) newValueCurrentHealth(config *proto.APLValueCurrentHealt
 
 // Whether the unit has health to read: an enemy has its target curve, others need a health bar. Warns when not,
 // and for an enemy without a Health stat, which reads 0.
-func (rot *APLRotation) enemyHasHealth(unit *Unit, uuid *proto.UUID) bool {
+func (rot *APLRotation) unitHasHealth(unit *Unit, uuid *proto.UUID) bool {
 	if unit.Type != EnemyUnit {
 		if !unit.HasHealthBar() {
 			rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s does not use Health", unit.Label)
@@ -68,7 +68,7 @@ func (rot *APLRotation) newValueCurrentHealthPercent(config *proto.APLValueCurre
 	if resolvedUnit == nil {
 		return nil
 	}
-	if !rot.enemyHasHealth(resolvedUnit, uuid) {
+	if resolvedUnit.Type != EnemyUnit && !rot.unitHasHealth(resolvedUnit, uuid) {
 		return nil
 	}
 	return &APLValueCurrentHealthPercent{

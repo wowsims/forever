@@ -66,6 +66,29 @@ func TestDesignMoveWalksYardsAtTheRunSpeed(t *testing.T) {
 	}
 }
 
+// A permanent speed aura comes back after the design's reset, and the lookahead still reads the walk it gives.
+func TestDesignNextMoveDurationReadsTheRunSpeedNow(t *testing.T) {
+	config := &proto.DesignMove{At: &proto.DesignTime{At: 0.5}, Yards: 7}
+	var speed *Aura
+	sim, fw := setupDesignSim(designMoveRequest(config), func(char *Character) {
+		speed = char.NewPassiveMovementSpeedAura("Test Speed", ActionID{SpellID: 993200}, 1.4)
+	})
+	if !speed.IsActive() {
+		t.Fatal("test setup: expected the speed aura up at the pull")
+	}
+	want := DurationFromSeconds(config.Yards / fw.GetMovementSpeed())
+	if got := sim.Encounter.NextMoveDuration(sim); got != want {
+		t.Errorf("next move duration at the pull: expected %s, got %s", want, got)
+	}
+
+	sim.Cleanup()
+	sim.Reset()
+	sim.PrePull()
+	if got := sim.Encounter.NextMoveDuration(sim); got != want {
+		t.Errorf("next move duration in the next iteration: expected %s, got %s", want, got)
+	}
+}
+
 func TestDesignMoveWaitsForACastThatCannotMove(t *testing.T) {
 	sim, fw := setupDesignSim(designMoveRequest(&proto.DesignMove{At: &proto.DesignTime{At: 0.1}, Seconds: 2}), nil)
 

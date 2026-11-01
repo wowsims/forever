@@ -58,7 +58,7 @@ func NewEnvironment(raidProto *proto.Raid, encounterProto *proto.Encounter, runF
 	}
 
 	env.construct(raidProto, encounterProto)
-	raidStats := env.initialize(raidProto, encounterProto)
+	raidStats := env.initialize(raidProto)
 	env.finalize(raidProto, encounterProto, raidStats, runFakePrepull, skipRotation)
 
 	encounterStats := &proto.EncounterStats{}
@@ -130,7 +130,7 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 }
 
 // The initialization phase.
-func (env *Environment) initialize(raidProto *proto.Raid, _ *proto.Encounter) *proto.RaidStats {
+func (env *Environment) initialize(raidProto *proto.Raid) *proto.RaidStats {
 	for _, target := range env.Encounter.AllTargets {
 		target.initialize(env.Encounter.targetConfigs[target.Index])
 	}
@@ -148,8 +148,6 @@ func (env *Environment) initialize(raidProto *proto.Raid, _ *proto.Encounter) *p
 			playerOrPet.Initialize()
 		}
 	}
-	env.Encounter.design.registerBossAbilities(&env.Encounter)
-
 	env.Encounter.design.registerLanes(env)
 
 	env.State = Initialized
@@ -165,9 +163,6 @@ func (env *Environment) finalize(raidProto *proto.Raid, _ *proto.Encounter, raid
 
 	for _, target := range env.Encounter.AllTargets {
 		target.finalize()
-		if target.AI != nil {
-			target.Rotation = target.newCustomRotation()
-		}
 	}
 
 	for _, party := range env.Raid.Parties {
@@ -296,8 +291,6 @@ func (env *Environment) reset(sim *Simulation) {
 	// Targets need to be reset before the raid, so that players can check for
 	// the presence of permanent target auras in their Reset handlers.
 	env.Encounter.strandedSwings = env.Encounter.strandedSwings[:0]
-	env.Encounter.resetting = true
-	defer func() { env.Encounter.resetting = false }()
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}

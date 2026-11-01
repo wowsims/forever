@@ -203,17 +203,21 @@ func TestValueDesignWarnsForUnitsThatAreNotEnemyTargets(t *testing.T) {
 func TestValueDesignWarnsForEnemyWithoutHealthAndUnknownAmp(t *testing.T) {
 	_, fw := setupDesignSim(designTestRequest(1, nil), nil)
 	boss := designTargetRef(0)
-	configs := map[string]*proto.APLValue{
-		"Current Health":   {Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_CurrentHealth{CurrentHealth: &proto.APLValueCurrentHealth{SourceUnit: boss}}},
-		"Current Health %": {Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_CurrentHealthPercent{CurrentHealthPercent: &proto.APLValueCurrentHealthPercent{SourceUnit: boss}}},
+	health := &proto.APLValue{Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_CurrentHealth{CurrentHealth: &proto.APLValueCurrentHealth{SourceUnit: boss}}}
+	if value := fw.Rotation.newAPLValue(health); value == nil {
+		t.Error("Current Health: expected the value to be kept")
 	}
-	for name, config := range configs {
-		if value := fw.Rotation.newAPLValue(config); value == nil {
-			t.Errorf("%s: expected the value to be kept", name)
-		}
-		if warnings := fw.Rotation.uuidValidations[config.Uuid]; len(warnings) != 1 || warnings[0].LogLevel != proto.LogLevel_Warning {
-			t.Errorf("%s: validations = %v, want one warning", name, warnings)
-		}
+	if warnings := fw.Rotation.uuidValidations[health.Uuid]; len(warnings) != 1 || warnings[0].LogLevel != proto.LogLevel_Warning {
+		t.Errorf("Current Health: validations = %v, want one warning", warnings)
+	}
+
+	// The percent reads the target's curve, which needs no Health stat.
+	percent := &proto.APLValue{Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_CurrentHealthPercent{CurrentHealthPercent: &proto.APLValueCurrentHealthPercent{SourceUnit: boss}}}
+	if value := fw.Rotation.newAPLValue(percent); value == nil {
+		t.Error("Current Health %: expected the value to be kept")
+	}
+	if warnings := fw.Rotation.uuidValidations[percent.Uuid]; len(warnings) != 0 {
+		t.Errorf("Current Health %%: validations = %v, want none", warnings)
 	}
 
 	amps := map[string]*proto.APLValue{

@@ -62,7 +62,7 @@ func (rogue *Rogue) registerRemorselessAttacks() {
 
 	buff := rogue.RegisterAura(spelldata.AuraConfig(remorselessRank))
 	spelldata.ParseEffects(&rogue.Character, buff, remorselessRank,
-		spelldata.ScaledByRanks(rogue.Talents.RemorselessAttacks, 2), spelldata.IgnoreStacks())
+		spelldata.ScaledByRanks(rogue.Talents.RemorselessAttacks, spellData.RemorselessAttacks.Len()), spelldata.IgnoreStacks())
 	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
 		aura.SetStacks(sim, aura.MaxStacks)
 	})

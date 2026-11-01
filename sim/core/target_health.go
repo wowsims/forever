@@ -24,10 +24,8 @@ type healthCurve struct {
 }
 
 // Sets the target's health curve, knots sorted by fraction, and puts the target in the phase the curve is in
-// now. A phase the curve is above, the target leaves without a callback; a phase the curve has crossed that
-// the target is not in yet, it enters at once, and the callbacks run at the current time. A phase the target
-// is already in fires nothing again. Set while the sim resets, the curve starts the target above the execute
-// phases, and the first advance moves it into the ones already crossed.
+// now. Set while the sim resets, the curve starts the target above the execute phases, and the first advance
+// moves it into the ones already crossed.
 func (target *Target) SetHealthCurve(sim *Simulation, start, span time.Duration, knots ...HealthKnot) {
 	target.health.set(start, span, knots)
 	if sim.isResetting {
@@ -97,17 +95,6 @@ func (target *Target) HealthPercent(sim *Simulation) float64 {
 	return knots[len(knots)-1].Percent
 }
 
-// The time the target's health curve reaches the 35% or 20% execute phase, or NeverExpires.
-func (target *Target) executeAt(pct int32) time.Duration {
-	switch pct {
-	case 35:
-		return target.health.executeAt35
-	case 20:
-		return target.health.executeAt20
-	}
-	panic(fmt.Sprintf("no execute phase at %d%%", pct))
-}
-
 func (target *Target) nextExecuteAt() time.Duration {
 	switch target.executePhase {
 	case 0:
@@ -143,23 +130,13 @@ func (encounter *Encounter) resetExecutePhases(sim *Simulation) {
 	encounter.updateNextExecuteDuration(sim)
 }
 
-// Moves the target down into each execute phase its curve has crossed, 35% before 20%, and calls the execute
-// phase callbacks for each one it enters. A phase only moves down within one call. A callback may set a curve
-// the target has already crossed, which enters nothing again; callbacks must not alternate a curve that lifts
-// the target above a phase with one that has crossed it, since each crossed curve enters the phase anew and
-// the callbacks recurse without end.
+// Moves the target down into each execute phase its curve has crossed, 35% before 20%.
 func (target *Target) advanceExecutePhase(sim *Simulation) {
 	if target.executePhase == 0 && sim.CurrentTime >= target.health.executeAt35 {
 		target.executePhase = 35
-		for _, callback := range sim.executePhaseCallbacks {
-			callback(sim, &target.Unit, 35)
-		}
 	}
 	if target.executePhase == 35 && sim.CurrentTime >= target.health.executeAt20 {
 		target.executePhase = 20
-		for _, callback := range sim.executePhaseCallbacks {
-			callback(sim, &target.Unit, 20)
-		}
 	}
 }
 

@@ -144,7 +144,6 @@ func TestDesignBossKeyframesDriveHealthAndExecutePhases(t *testing.T) {
 		{At: 0.8, HealthPercent: 20},
 	}}
 	sim, _ := setupDesignSim(designTestRequest(1, design), nil)
-	entries := recordExecutePhases(sim)
 	boss := sim.Encounter.AllTargets[0]
 
 	runLifecycleUntil(sim, designAt(0.25))
@@ -152,10 +151,19 @@ func TestDesignBossKeyframesDriveHealthAndExecutePhases(t *testing.T) {
 		t.Errorf("boss health at a quarter: expected 75, got %v", got)
 	}
 
-	runLifecycleUntil(sim, designAt(0.9))
-	want := []executePhaseEntry{{target: 0, phase: 35, at: designAt(0.65)}, {target: 0, phase: 20, at: designAt(0.8)}}
-	if !slices.Equal(*entries, want) {
-		t.Errorf("execute phases: expected %v, got %v", want, *entries)
+	for _, step := range []struct {
+		at    time.Duration
+		phase int32
+	}{
+		{designAt(0.65) - time.Millisecond, 0},
+		{designAt(0.65), 35},
+		{designAt(0.8) - time.Millisecond, 35},
+		{designAt(0.8), 20},
+	} {
+		runLifecycleUntil(sim, step.at)
+		if boss.executePhase != step.phase {
+			t.Errorf("execute phase at %s: expected %d, got %d", step.at, step.phase, boss.executePhase)
+		}
 	}
 }
 
@@ -186,7 +194,7 @@ func TestDesignBossCurveKeepsTheKeyframesThatFit(t *testing.T) {
 	if len(*notes) != 1 {
 		t.Errorf("too many keyframes: expected one log line, got %d", len(*notes))
 	}
-	if got, want := sim.Encounter.AllTargets[0].executeAt(35), designAt(0.65); got != want {
+	if got, want := sim.Encounter.AllTargets[0].health.executeAt35, designAt(0.65); got != want {
 		t.Errorf("35%% crossing from the kept knots: expected %s, got %s", want, got)
 	}
 }
@@ -218,7 +226,6 @@ func TestDesignWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
 		listener = registerDeathListener(char, "Death Listener", nil, func(_ *Aura, _ *Simulation, _ *Unit) { kills++ })
 	})
 	listener.Activate(sim)
-	entries := recordExecutePhases(sim)
 
 	if got := len(sim.Encounter.AllTargets); got != 3 {
 		t.Fatalf("targets: expected the boss and a pool of 2, got %d", got)
@@ -244,6 +251,23 @@ func TestDesignWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
 		}
 	}
 
+	for _, step := range []struct {
+		at    time.Duration
+		phase int32
+	}{
+		{designAt(0.2) - time.Millisecond, 0},
+		{designAt(0.2), 35},
+		{designAt(0.25) - time.Millisecond, 35},
+		{designAt(0.25), 20},
+	} {
+		runLifecycleUntil(sim, step.at)
+		for i, add := range adds {
+			if add.executePhase != step.phase {
+				t.Errorf("execute phase of add %d at %s: expected %d, got %d", i, step.at, step.phase, add.executePhase)
+			}
+		}
+	}
+
 	runLifecycleUntil(sim, designAt(0.3))
 	if got := sim.Encounter.NumActiveAdds(); got != 0 {
 		t.Fatalf("after the despawn: expected no adds, got %d", got)
@@ -255,20 +279,6 @@ func TestDesignWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
 		if got := add.DiesAt(sim); got != NeverExpires {
 			t.Errorf("death of a dead add with no spawn left: expected never, got %s", got)
 		}
-	}
-
-	var addPhases []executePhaseEntry
-	for _, entry := range *entries {
-		if entry.target != 0 {
-			addPhases = append(addPhases, entry)
-		}
-	}
-	want := []executePhaseEntry{
-		{target: 1, phase: 35, at: designAt(0.2)}, {target: 2, phase: 35, at: designAt(0.2)},
-		{target: 1, phase: 20, at: designAt(0.25)}, {target: 2, phase: 20, at: designAt(0.25)},
-	}
-	if !slices.Equal(addPhases, want) {
-		t.Errorf("add execute phases: expected %v, got %v", want, addPhases)
 	}
 }
 

@@ -20,7 +20,6 @@ type Encounter struct {
 	targetConfigs   []*proto.Target // The config of each target in AllTargets, nil for the stand-in target of an encounter without any.
 	strandedSwings  []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
 	strandedScratch []strandedSwing // The stranded swings being brought back, kept so bringing them back allocates nothing.
-	resetting       bool            // While the environment resets, from its first target to its raid.
 	design          *encounterDesign
 
 	ExecuteProportion_20 float64
@@ -93,13 +92,12 @@ func NewEncounter(options *proto.Encounter) Encounter {
 	return encounter
 }
 
-// n disabled targets built from template, without the AI of a preset with the template's id, appended
-// to the encounter. Only NewEncounter may call it: the construct phase lists the encounter's units and
-// points the raid at them right after.
+// n disabled targets built from template, appended to the encounter. Only NewEncounter may call it: the
+// construct phase lists the encounter's units and points the raid at them right after.
 func (encounter *Encounter) allocatePoolTargets(template *proto.Target, n int) []*Target {
 	pool := make([]*Target, 0, n)
 	for range n {
-		target := newTarget(template, int32(len(encounter.AllTargets)))
+		target := NewTarget(template, int32(len(encounter.AllTargets)))
 		target.enabled = false
 		encounter.AllTargets = append(encounter.AllTargets, target)
 		encounter.AllTargetUnits = append(encounter.AllTargetUnits, &target.Unit)
@@ -109,7 +107,7 @@ func (encounter *Encounter) allocatePoolTargets(template *proto.Target, n int) [
 	return pool
 }
 
-// Target 0 when it is enabled, else the enabled target with the lowest index, else nil.
+// The enabled target with the lowest index, or nil.
 func (encounter *Encounter) preferredActiveTarget() *Target {
 	for _, target := range encounter.AllTargets {
 		if target.IsEnabled() {
@@ -189,23 +187,10 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 type Target struct {
 	Unit
 
-	AI TargetAI
-
 	health healthCurve
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {
-	target := newTarget(options, targetIndex)
-
-	preset := GetPresetTargetWithID(options.Id)
-	if preset != nil && preset.AI != nil {
-		target.AI = preset.AI()
-	}
-
-	return target
-}
-
-func newTarget(options *proto.Target, targetIndex int32) *Target {
 	unitStats := stats.Stats{}
 	if options.Stats != nil {
 		unitStats = stats.FromProtoArray(options.Stats)
@@ -273,10 +258,6 @@ func (target *Target) Reset(sim *Simulation) {
 	}
 
 	target.SetGCDTimer(sim, 0)
-
-	if target.AI != nil {
-		target.AI.Reset(sim)
-	}
 }
 
 func (target *Target) Enable(sim *Simulation) {
@@ -298,14 +279,6 @@ func (target *Target) Enable(sim *Simulation) {
 	}
 }
 
-func (sim *Simulation) EnableTargetUnit(targetUnit *Unit) {
-	if targetUnit.Type != EnemyUnit {
-		panic("Unit is not an enemy target!")
-	}
-
-	sim.Encounter.AllTargets[targetUnit.Index].Enable(sim)
-}
-
 func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 	if !target.IsEnabled() {
 		return
@@ -316,6 +289,15 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 	target.Interrupt(sim)
 	target.CancelGCDTimer(sim)
 	target.AutoAttacks.CancelAutoSwing(sim)
+
+	// A channel on the target ends with no further tick, before the expiry below could land one. A ground
+	// channel lives on its caster and runs on.
+	for _, unit := range sim.Raid.AllUnits {
+		if channel := unit.ChanneledDot; channel != nil && channel.Unit == &target.Unit {
+			channel.stopTicking(sim)
+			channel.Deactivate(sim)
+		}
+	}
 
 	target.enabled = false
 	sim.Encounter.removeInactiveTarget(target)
@@ -348,13 +330,9 @@ type strandedSwing struct {
 }
 
 // Moves every raid unit on the disabled target to the preferred active target and has its rotation look
-// again, since what it waited on is gone. With none left, the unit
-// keeps the disabled target, so its target is never nil, and its auto attacks stop until a target comes.
-// While the environment resets, the raid is left alone: its own reset points it at its first target.
+// again, since what it waited on is gone. With none left, the unit keeps the disabled target, so its target
+// is never nil, and its auto attacks stop until a target comes.
 func (encounter *Encounter) moveRaidOffTarget(sim *Simulation, target *Target) {
-	if encounter.resetting {
-		return
-	}
 	preferred := encounter.preferredActiveTarget()
 	for _, unit := range sim.Raid.AllUnits {
 		if unit.CurrentTarget != &target.Unit {
@@ -378,9 +356,6 @@ func (encounter *Encounter) moveRaidOffTarget(sim *Simulation, target *Target) {
 // disabled enemy moves to the preferred active target, the auto attacks moveRaidOffTarget stopped start
 // again, and each of these units looks at its rotation again.
 func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
-	if encounter.resetting {
-		return
-	}
 	// A rotation woken here may take the new target away again, which records fresh swings, or bring one
 	// back, which runs this again. The swings move into the scratch slice, which this call holds until it
 	// is done, so a nested call works on its own copy and the slices are reused across iterations.
@@ -393,7 +368,7 @@ func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
 			continue
 		}
 		unit.CurrentTarget = &preferred.Unit
-		if !hasStrandedSwing(swings, unit) {
+		if !slices.ContainsFunc(swings, func(swing strandedSwing) bool { return swing.unit == unit }) {
 			wakeRotation(sim, unit)
 		}
 	}
@@ -412,27 +387,10 @@ func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
 	encounter.strandedScratch = swings[:0]
 }
 
-func hasStrandedSwing(swings []strandedSwing, unit *Unit) bool {
-	for _, swing := range swings {
-		if swing.unit == unit {
-			return true
-		}
-	}
-	return false
-}
-
 func wakeRotation(sim *Simulation, unit *Unit) {
 	if unit.IsEnabled() && unit.Rotation != nil && !sim.Options.Interactive {
 		unit.ReactToEvent(sim, false, true)
 	}
-}
-
-func (sim *Simulation) DisableTargetUnit(targetUnit *Unit, expireAuras bool) {
-	if targetUnit.Type != EnemyUnit {
-		panic("Unit is not an enemy target!")
-	}
-
-	sim.Encounter.AllTargets[targetUnit.Index].Disable(sim, expireAuras)
 }
 
 // The first enabled target after this one in index order, wrapping around and ending on this one; nil

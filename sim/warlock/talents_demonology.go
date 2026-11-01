@@ -249,8 +249,8 @@ func (warlock *Warlock) applyDecimation() {
 		}
 		return 1
 	}
-	warlock.RegisterResetEffect(func(sim *core.Simulation) {
-		for _, target := range sim.Encounter.AllTargetUnits {
+	warlock.Env.RegisterPostFinalizeEffect(func() {
+		for _, target := range warlock.Env.Encounter.AllTargetUnits {
 			core.EnableDamageDoneByCaster(DDBC_Decimation, DDBC_Total, warlock.AttackTables[target.UnitIndex], againstExecute)
 		}
 	})

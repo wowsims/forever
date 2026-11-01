@@ -6,12 +6,6 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-type TargetAI interface {
-	Initialize(*Target, *proto.Target)
-	Reset(*Simulation)
-	ExecuteCustomRotation(*Simulation)
-}
-
 func (target *Target) initialize(config *proto.Target) {
 	if config == nil {
 		return
@@ -34,17 +28,6 @@ func (target *Target) initialize(config *proto.Target) {
 		}
 		target.EnableAutoAttacks(target, aaOptions)
 	}
-
-	if target.AI != nil {
-		target.AI.Initialize(target, config)
-
-		target.rotationAction = &PendingAction{
-			Priority: ActionPriorityGCD,
-			OnAction: func(sim *Simulation) {
-				target.Rotation.DoNextAction(sim)
-			},
-		}
-	}
 }
 
 // Empty Agent interface functions.
@@ -55,21 +38,11 @@ func (target *Target) GetCharacter() *Character          { return nil }
 func (target *Target) Initialize()                       {}
 func (target *Target) OnEncounterStart(_ *Simulation)    {}
 
-func (target *Target) ExecuteCustomRotation(sim *Simulation) {
-	if (target.AI != nil) && target.IsEnabled() {
-		target.AI.ExecuteCustomRotation(sim)
-	}
-}
-
-type AIFactory func() TargetAI
-
 type PresetTarget struct {
 	// String in folder-structure format identifying a category for this unit, e.g. "Black Temple/Bosses".
 	PathPrefix string
 
 	Config *proto.Target
-
-	AI AIFactory
 }
 
 func (pt PresetTarget) Path() string {
@@ -98,15 +71,6 @@ func AddPresetTarget(newPreset *PresetTarget) {
 func GetPresetTargetWithPath(path string) *PresetTarget {
 	for _, preset := range presetTargets {
 		if preset.Path() == path {
-			return preset
-		}
-	}
-	return nil
-}
-
-func GetPresetTargetWithID(id int32) *PresetTarget {
-	for _, preset := range presetTargets {
-		if preset.Config.Id == id {
 			return preset
 		}
 	}

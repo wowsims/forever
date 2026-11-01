@@ -1,7 +1,6 @@
 package core
 
 import (
-	"slices"
 	"testing"
 	"time"
 
@@ -26,20 +25,6 @@ func executeTestRequest(duration, p20, p35 float64, numTargets int) *proto.RaidS
 	return request
 }
 
-type executePhaseEntry struct {
-	target int32
-	phase  int32
-	at     time.Duration
-}
-
-func recordExecutePhases(sim *Simulation) *[]executePhaseEntry {
-	entries := &[]executePhaseEntry{}
-	sim.RegisterExecutePhaseCallback(func(sim *Simulation, target *Unit, phase int32) {
-		*entries = append(*entries, executePhaseEntry{target: target.Index, phase: phase, at: sim.CurrentTime})
-	})
-	return entries
-}
-
 func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 	for _, tc := range []struct {
 		duration, p20, p35 float64
@@ -55,10 +40,10 @@ func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 		target := sim.Encounter.AllTargets[0]
 		want35 := time.Duration((1 - tc.p35) * float64(sim.Duration))
 		want20 := time.Duration((1 - tc.p20) * float64(sim.Duration))
-		if got := target.executeAt(35); got != want35 {
+		if got := target.health.executeAt35; got != want35 {
 			t.Errorf("%v s with %v/%v: 35%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want35)
 		}
-		if got := target.executeAt(20); got != want20 {
+		if got := target.health.executeAt20; got != want20 {
 			t.Errorf("%v s with %v/%v: 20%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want20)
 		}
 	}
@@ -88,15 +73,15 @@ func TestHealthPercentInterpolatesAndClamps(t *testing.T) {
 		}
 	}
 
-	if got, want := target.executeAt(35), 78750*time.Millisecond; got != want {
+	if got, want := target.health.executeAt35, 78750*time.Millisecond; got != want {
 		t.Errorf("35%% at %v, want %v", got, want)
 	}
-	if got, want := target.executeAt(20), 97500*time.Millisecond; got != want {
+	if got, want := target.health.executeAt20, 97500*time.Millisecond; got != want {
 		t.Errorf("20%% at %v, want %v", got, want)
 	}
 
 	target.SetHealthCurve(sim, 0, 100*time.Second, HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 1, Percent: 50})
-	if got := target.executeAt(35); got != NeverExpires {
+	if got := target.health.executeAt35; got != NeverExpires {
 		t.Errorf("a curve that stays above 35%% reaches it at %v", got)
 	}
 }
@@ -106,7 +91,6 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 	first, second := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
 	player := &sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Unit
 	rot := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Rotation
-	entries := recordExecutePhases(sim)
 
 	first.SetHealthCurve(sim, 0, 100*time.Second,
 		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.5, Percent: 35}, HealthKnot{At: 0.8, Percent: 20}, HealthKnot{At: 1, Percent: 0})
@@ -144,32 +128,20 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 	if player.IsExecutePhase35() {
 		t.Error("the player is in the execute phase")
 	}
-
-	want := []executePhaseEntry{
-		{1, 35, 17 * time.Second},
-		{1, 20, 20 * time.Second},
-		{0, 35, 50 * time.Second},
-		{0, 20, 80 * time.Second},
-	}
-	if !slices.Equal(*entries, want) {
-		t.Errorf("callbacks ran %v, want %v", *entries, want)
-	}
 }
 
-func TestExecutePhaseCallbacksRunOncePerTargetAndPhase(t *testing.T) {
+func TestExecutePhasesWaitForTheFirstAdvance(t *testing.T) {
 	sim := executeTestSim(180, 1, 1, 2)
-	entries := recordExecutePhases(sim)
+	targets := sim.Encounter.AllTargets
 
-	if sim.Encounter.AllTargets[0].IsExecutePhase35() {
+	if targets[0].IsExecutePhase35() {
 		t.Error("the target is in the execute phase before the first advance")
 	}
 	sim.advance(0)
-	sim.advance(5 * time.Second)
-	sim.advance(sim.Duration)
-
-	want := []executePhaseEntry{{0, 35, 0}, {0, 20, 0}, {1, 35, 0}, {1, 20, 0}}
-	if !slices.Equal(*entries, want) {
-		t.Errorf("callbacks ran %v, want %v", *entries, want)
+	for i, target := range targets {
+		if !target.IsExecutePhase20() {
+			t.Errorf("target %d is in phase %d after the first advance, want 20", i, target.executePhase)
+		}
 	}
 }
 
@@ -178,7 +150,6 @@ func TestHealthCurveSetMidFightMovesThePhaseAtOnce(t *testing.T) {
 	target := sim.Encounter.AllTargets[0]
 	rot := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Rotation
 	isExecute20 := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: proto.APLValueIsExecutePhase_E20}, nil)
-	entries := recordExecutePhases(sim)
 	sim.advance(60 * time.Second)
 
 	crossed := []HealthKnot{{At: 0, Percent: 100}, {At: 0.3, Percent: 20}, {At: 1, Percent: 0}}
@@ -186,68 +157,42 @@ func TestHealthCurveSetMidFightMovesThePhaseAtOnce(t *testing.T) {
 	if !target.IsExecutePhase20() || !isExecute20.GetBool(sim) {
 		t.Error("a curve set at 60 s that crossed 20% at 30 s leaves the target out of the execute phase at 60 s")
 	}
-	want := []executePhaseEntry{{0, 35, 60 * time.Second}, {0, 20, 60 * time.Second}}
-	if !slices.Equal(*entries, want) {
-		t.Errorf("callbacks ran %v, want %v", *entries, want)
-	}
 
 	target.SetHealthCurve(sim, 0, 100*time.Second, crossed...)
 	target.SetHealthCurve(sim, 0, 50*time.Second, HealthKnot{At: 0, Percent: 10})
-	if !target.IsExecutePhase20() || len(*entries) != 2 {
-		t.Errorf("setting a curve again on a target at 20%% ran callbacks %v, want %v", *entries, want)
+	if !target.IsExecutePhase20() {
+		t.Errorf("setting a curve again on a target at 20%% moved it to phase %d", target.executePhase)
 	}
 
 	target.SetHealthCurve(sim, 60*time.Second, 100*time.Second, HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 1, Percent: 0})
-	if target.IsExecutePhase35() || len(*entries) != 2 {
-		t.Errorf("a curve back at full health keeps the target in execute (%d) or runs callbacks %v", target.executePhase, *entries)
+	if target.IsExecutePhase35() {
+		t.Errorf("a curve back at full health keeps the target in execute (%d)", target.executePhase)
 	}
 	sim.advance(125 * time.Second)
-	want = append(want, executePhaseEntry{0, 35, 125 * time.Second})
-	if !slices.Equal(*entries, want) {
-		t.Errorf("callbacks ran %v, want %v", *entries, want)
-	}
-}
-
-func TestExecutePhaseCallbackSettingACrossedCurveEntersEachPhaseOnce(t *testing.T) {
-	sim := executeTestSim(180, 1, 1, 1)
-	target := sim.Encounter.AllTargets[0]
-	entries := recordExecutePhases(sim)
-	sim.RegisterExecutePhaseCallback(func(sim *Simulation, _ *Unit, _ int32) {
-		target.SetHealthCurve(sim, 0, sim.Duration, HealthKnot{At: 0, Percent: 0})
-	})
-
-	sim.advance(0)
-	sim.advance(time.Second)
-
-	want := []executePhaseEntry{{0, 35, 0}, {0, 20, 0}}
-	if !slices.Equal(*entries, want) {
-		t.Errorf("callbacks ran %v, want %v", *entries, want)
+	if target.executePhase != 35 {
+		t.Errorf("at 125 s the curve set back up is at phase %d, want 35", target.executePhase)
 	}
 }
 
 func TestHealthCurveSetInAResetEffectWaitsForTheFirstAdvance(t *testing.T) {
 	sim := NewSim(executeTestRequest(180, 0.2, 0.35, 1), simsignals.CreateSignals())
 	target := sim.Encounter.AllTargets[0]
-	var entries *[]executePhaseEntry
 	sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).RegisterResetEffect(func(sim *Simulation) {
-		entries = recordExecutePhases(sim)
 		target.SetHealthCurve(sim, 0, sim.Duration, HealthKnot{At: 0, Percent: 10})
 	})
 
 	sim.Reset()
-	if len(*entries) != 0 || target.IsExecutePhase35() {
-		t.Errorf("a curve set in a reset effect ran callbacks %v or moved the phase to %d before the first advance", *entries, target.executePhase)
+	if target.IsExecutePhase35() {
+		t.Errorf("a curve set in a reset effect moved the phase to %d before the first advance", target.executePhase)
 	}
 	sim.advance(0)
-	want := []executePhaseEntry{{0, 35, 0}, {0, 20, 0}}
-	if !slices.Equal(*entries, want) {
-		t.Errorf("callbacks ran %v, want %v", *entries, want)
+	if !target.IsExecutePhase20() {
+		t.Errorf("the first advance left a curve at 10%% in phase %d", target.executePhase)
 	}
 }
 
 func TestExecutePhasesAllocateNothing(t *testing.T) {
 	sim := executeTestSim(180, 0.2, 0.35, 3)
-	sim.RegisterExecutePhaseCallback(func(*Simulation, *Unit, int32) {})
 	allocs := testing.AllocsPerRun(100, func() {
 		sim.Encounter.resetExecutePhases(sim)
 		sim.CurrentTime = sim.Duration

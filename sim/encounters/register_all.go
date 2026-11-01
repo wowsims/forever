@@ -27,7 +27,8 @@ func fractionOfFight(seconds float64) float64 {
 	return seconds / designBaseSeconds
 }
 
-// A level-63 boss with the Raid Target's stats and swing.
+// A level-63 boss with a level-63 creature's armor and health from ExpectedStat, the health times 300 for a boss
+// (4763 x 300). The swings hit with Chromaggus's MinBaseDamage.
 func bossTarget(id int32, name string, damageSpread float64) *proto.Target {
 	return &proto.Target{
 		Id:        id,
@@ -48,7 +49,6 @@ func bossTarget(id int32, name string, damageSpread float64) *proto.Target {
 		DamageSpread:  damageSpread,
 		ParryHaste:    true,
 		CanCrush:      true,
-		TargetInputs:  []*proto.TargetInput{},
 	}
 }
 
@@ -86,7 +86,6 @@ func dynamicAddTarget() *proto.Target {
 		SwingSpeed:    1.5,
 		MinBaseDamage: 5240,
 		DamageSpread:  0.4,
-		TargetInputs:  []*proto.TargetInput{},
 	}
 }
 
@@ -127,8 +126,6 @@ func addCustomBossEncounter() {
 }
 
 func AddDefaultPresetEncounter() {
-	// A level-63 creature's armor and health from ExpectedStat, the health times 300 for a boss
-	// (4763 x 300). The swings hit with Chromaggus's MinBaseDamage.
 	core.AddPresetTarget(&core.PresetTarget{
 		PathPrefix: "Default",
 		Config:     bossTarget(31146, "Raid Target", 0.5),

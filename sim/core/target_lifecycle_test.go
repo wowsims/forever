@@ -263,20 +263,101 @@ func TestActiveTargetWalksWithNoTargetEnabled(t *testing.T) {
 	}
 }
 
-type lifecyclePresetAI struct{}
-
-func (ai *lifecyclePresetAI) Initialize(*Target, *proto.Target) {}
-func (ai *lifecyclePresetAI) Reset(*Simulation)                 {}
-func (ai *lifecyclePresetAI) ExecuteCustomRotation(*Simulation) {}
-
-const lifecyclePresetID = 990301
-
-func init() {
-	AddPresetTarget(&PresetTarget{
-		PathPrefix: "Lifecycle Test",
-		Config:     &proto.Target{Id: lifecyclePresetID, Name: "Pool Template"},
-		AI:         func() TargetAI { return &lifecyclePresetAI{} },
+// A sim against two targets with the spell registered, at the pull, and a count of its ticks.
+func setupTickCounter(config SpellConfig) (*Simulation, *FakeFearWarrior, *Spell, *int) {
+	ticks := new(int)
+	config.Dot.OnTick = func(*Simulation, *Unit, *Dot) { *ticks++ }
+	var spell *Spell
+	sim, fw := setupDesignSim(designTestRequest(2, nil), func(char *Character) {
+		spell = char.RegisterSpell(config)
 	})
+	spell.finalize()
+	runLifecycleUntil(sim, 0)
+	return sim, fw, spell, ticks
+}
+
+func TestChannelEndsWhenItsTargetGoesDown(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		goDown func(sim *Simulation, target *Target)
+	}{
+		{"in a downtime that keeps its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, false) }},
+		{"in a downtime that clears its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, true) }},
+		{"by dying", func(sim *Simulation, target *Target) { target.Die(sim, 0) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, fw, spell, ticks := setupTickCounter(manaChannelConfig(5, false))
+			target := sim.Encounter.AllTargets[0]
+			if !spell.Cast(sim, &target.Unit) || !fw.IsChanneling() {
+				t.Fatal("test setup: expected the channel running")
+			}
+
+			// The target goes as a tick comes due, which the downtime's priority runs first.
+			runLifecycleUntil(sim, 3*time.Second-time.Millisecond)
+			sim.advance(3 * time.Second)
+			tc.goDown(sim, target)
+			if fw.IsChanneling() || spell.Dot(&target.Unit).IsActive() {
+				t.Fatal("expected the channel ended with its target gone")
+			}
+			if fw.CurrentTarget != sim.Encounter.AllTargetUnits[1] {
+				t.Errorf("current target: expected the second, got %s", unitLabel(fw.CurrentTarget))
+			}
+
+			runLifecycleUntil(sim, 10*time.Second)
+			if *ticks != 2 {
+				t.Errorf("ticks: expected the 2 before the target went, got %d", *ticks)
+			}
+		})
+	}
+}
+
+func TestShootEndsWhenItsTargetGoesDown(t *testing.T) {
+	ct := newShootTest()
+	ct.start(ct.channelOf(ct.spell, "true", false))
+	ct.runUntil(3 * time.Second)
+	shots := len(ct.shots)
+	if shots == 0 || !ct.wanding() {
+		t.Fatalf("test setup: expected Shoot running with shots fired, got %d", shots)
+	}
+
+	ct.sim.Encounter.AllTargets[0].Disable(ct.sim, false)
+	if ct.wanding() {
+		t.Fatal("expected Shoot ended with its target gone")
+	}
+	ct.runUntil(10 * time.Second)
+	if len(ct.shots) != shots {
+		t.Errorf("shots: expected the %d before the target went, got %d", shots, len(ct.shots))
+	}
+}
+
+// Only the target going down ends anything: a channel on another target, a ground channel and a dot of the
+// target in a downtime that keeps its debuffs all tick on.
+func TestTargetGoingDownLeavesOtherPeriodicsTicking(t *testing.T) {
+	ground := manaChannelConfig(5, false)
+	ground.Dot.IsAOE = true
+	ground.ApplyEffects = func(sim *Simulation, _ *Unit, spell *Spell) { spell.AOEDot().Apply(sim) }
+	for _, tc := range []struct {
+		name   string
+		config SpellConfig
+		target int
+	}{
+		{"a channel on another target", manaChannelConfig(5, false), 1},
+		{"a ground channel", ground, 0},
+		{"a dot on the target", fakeWarlockDot(910310, "Plain Dot", ClassFlags{}, SpellFlagAPL), 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, _, spell, ticks := setupTickCounter(tc.config)
+			if !spell.Cast(sim, sim.Encounter.AllTargetUnits[tc.target]) {
+				t.Fatal("test setup: expected the spell cast")
+			}
+			runLifecycleUntil(sim, 1500*time.Millisecond)
+			sim.Encounter.AllTargets[0].Disable(sim, false)
+			runLifecycleUntil(sim, 10*time.Second)
+			if *ticks != 5 {
+				t.Errorf("ticks: expected all 5, got %d", *ticks)
+			}
+		})
+	}
 }
 
 func TestTargetConfigsLineUpWithTargets(t *testing.T) {
@@ -298,7 +379,7 @@ func TestTargetConfigsLineUpWithTargets(t *testing.T) {
 		t.Fatalf("configs of an encounter without targets: expected one nil config, got %v", empty.targetConfigs)
 	}
 
-	template := &proto.Target{Id: lifecyclePresetID, Name: "Add", Level: 61}
+	template := &proto.Target{Name: "Add", Level: 61}
 	pool := encounter.allocatePoolTargets(template, 2)
 	if len(pool) != 2 || len(encounter.AllTargets) != 5 || len(encounter.AllTargetUnits) != 5 || len(encounter.targetConfigs) != 5 {
 		t.Fatalf("pool: expected 2 targets appended to 3, got %d of %d", len(pool), len(encounter.AllTargets))
@@ -314,17 +395,11 @@ func TestTargetConfigsLineUpWithTargets(t *testing.T) {
 		if target.IsEnabled() {
 			t.Fatalf("pool target %d: expected it disabled", i)
 		}
-		if target.AI != nil {
-			t.Fatalf("pool target %d: expected no AI from the preset with the template's id", i)
-		}
 		if target.Level != template.Level {
 			t.Fatalf("pool target %d: expected the template's level %d, got %d", i, template.Level, target.Level)
 		}
 	}
 	if len(encounter.ActiveTargets) != 2 {
 		t.Fatalf("active targets: expected the pool to add none, got %d", len(encounter.ActiveTargets))
-	}
-	if NewTarget(template, 0).AI == nil {
-		t.Fatal("test setup: the preset with the template's id has no AI")
 	}
 }

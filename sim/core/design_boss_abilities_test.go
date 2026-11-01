@@ -302,6 +302,18 @@ func TestDesignSwingTimingScalesOrPausesTheSwing(t *testing.T) {
 	})
 }
 
+// A pause ending inside another ability's pause leaves the swing stopped until the last one ends.
+func TestDesignOverlappingPausesHoldTheSwing(t *testing.T) {
+	design := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{designSwingTiming(0.2, 0.6, 0), designSwingTiming(0.3, 0.4, 0)}}
+	_, hits := runDesignHitsTaken(t, designTankRequest(design))
+	if got := bossSwingsBetween(hits, designAt(0.2), designAt(0.6)); got != 0 {
+		t.Errorf("expected no swing while either pause runs, got %d", got)
+	}
+	if got := bossSwingsBetween(hits, designAt(0.6)-time.Nanosecond, designAt(0.6)+2*designBossSwingSpeed); got == 0 {
+		t.Error("expected the swing to resume at the last pause's end")
+	}
+}
+
 // A downtime that clears debuffs leaves the window auras, which are permanent, and the boss coming back
 // inside a pause does not swing until the pause ends.
 func TestDesignBossWindowsHoldThroughADowntime(t *testing.T) {

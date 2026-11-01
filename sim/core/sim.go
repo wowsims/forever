@@ -48,8 +48,6 @@ type Simulation struct {
 
 	Log func(string, ...interface{})
 
-	executePhaseCallbacks []func(sim *Simulation, target *Unit, phase int32)
-
 	nextExecuteDuration time.Duration // The earliest execute phase crossing of any target still to come.
 
 	endOfCombatDuration time.Duration
@@ -66,7 +64,7 @@ type Simulation struct {
 	movingUnits []*Unit // Units on a walk, whose position advance keeps current.
 
 	isInPrepull bool
-	isResetting bool // A health curve set now waits for the first advance, after the execute phase callbacks register.
+	isResetting bool // A health curve set now waits for the first advance to move the target's execute phase.
 }
 
 func (sim *Simulation) rescheduleTracker(trackerTime time.Duration) {
@@ -407,8 +405,6 @@ func (sim *Simulation) reset() {
 	sim.pendingActions = sim.pendingActions[:0]
 	sim.pendingActions = append(sim.pendingActions, sentinelPendingAction)
 
-	sim.executePhaseCallbacks = nil
-
 	sim.endOfCombatDuration = sim.Duration
 
 	sim.CurrentTime = 0
@@ -636,11 +632,6 @@ func (sim *Simulation) RunAfterCurrentEvent(action func(*Simulation)) {
 	pa.Priority = ActionPriorityDOT
 	pa.OnAction = action
 	sim.AddPendingAction(pa)
-}
-
-// The callback runs once for each target that enters an execute phase, with the phase it enters.
-func (sim *Simulation) RegisterExecutePhaseCallback(callback func(sim *Simulation, target *Unit, phase int32)) {
-	sim.executePhaseCallbacks = append(sim.executePhaseCallbacks, callback)
 }
 
 func (sim *Simulation) GetRemainingDuration() time.Duration {

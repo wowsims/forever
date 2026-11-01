@@ -11,10 +11,7 @@ import (
 type designMove struct {
 	config        *proto.DesignMove
 	skipped       bool
-	fractions     []float64
-	starts        []time.Duration
-	next          int // The occurrence still to come.
-	action        PendingAction
+	occurrences   designOccurrences
 	delayed       []PendingAction // Per player: the walk that waits for a hardcast.
 	delayedQueued []bool
 }
@@ -28,13 +25,7 @@ func (design *encounterDesign) registerMoves(env *Environment) {
 			move.skipped = true
 			design.constructNotes = append(design.constructNotes, fmt.Sprintf("move %d walks no yards and no seconds; skipped.", index+1))
 		}
-		occurrences := maxOccurrences(config.At, config.Repeat)
-		move.fractions = make([]float64, 0, occurrences)
-		move.starts = make([]time.Duration, 0, occurrences)
-		move.action = PendingAction{
-			Priority: ActionPriorityDOT + 1,
-			OnAction: func(sim *Simulation) { design.runMove(sim, move) },
-		}
+		move.occurrences = newDesignOccurrences(maxOccurrences(config.At, config.Repeat), ActionPriorityDOT+1, func(sim *Simulation) { design.runMove(sim, move) })
 		move.delayed = make([]PendingAction, len(players))
 		move.delayedQueued = make([]bool, len(players))
 		for i, player := range players {
@@ -46,31 +37,18 @@ func (design *encounterDesign) registerMoves(env *Environment) {
 				},
 			}
 		}
-		design.lanes.moves = append(design.lanes.moves, move)
+		design.moves = append(design.moves, move)
 	}
 }
 
 // Schedules the iteration's moves: each one a timed walk of the sim's player, yards over its run speed or the
 // move's seconds when yards is 0, that waits for a running hardcast, with its repeats rolled through
-// rollOccurrences. Keeps nextMoveAt and nextMoveDuration on the next move not yet started. The runner calls it
-// only for a design with moves.
+// rollOccurrences. Keeps nextMoveAt and nextMove on the next move not yet started.
 func (design *encounterDesign) scheduleMoves(sim *Simulation) {
-	for _, move := range design.lanes.moves {
-		move.next = 0
-		move.starts = move.starts[:0]
+	for _, move := range design.moves {
 		clear(move.delayedQueued)
-		if move.skipped {
-			continue
-		}
-		move.fractions = design.rollOccurrences(sim, move.config.At, move.config.Repeat, move.fractions)
-		for _, fraction := range move.fractions {
-			if at := designTime(sim, fraction); at < sim.Duration {
-				move.starts = append(move.starts, at)
-			}
-		}
-		if len(move.starts) > 0 {
-			move.action.NextActionAt = move.starts[0]
-			sim.AddPendingAction(&move.action)
+		if !move.skipped {
+			move.occurrences.schedule(sim, design, move.config.At, move.config.Repeat)
 		}
 	}
 	design.updateMoveLookahead(sim)
@@ -79,11 +57,7 @@ func (design *encounterDesign) scheduleMoves(sim *Simulation) {
 // Walks every player of the raid for the move, and queues the move's next occurrence. A player whose
 // hardcast is still queued from an earlier occurrence takes that walk only.
 func (design *encounterDesign) runMove(sim *Simulation, move *designMove) {
-	move.next++
-	if move.next < len(move.starts) {
-		move.action.NextActionAt = move.starts[move.next]
-		sim.AddPendingAction(&move.action)
-	}
+	move.occurrences.advance(sim)
 	design.updateMoveLookahead(sim)
 
 	for i, player := range sim.Raid.AllPlayerUnits {
@@ -106,18 +80,17 @@ func designMoveDuration(config *proto.DesignMove, player *Unit) time.Duration {
 	return DurationFromSeconds(config.Seconds)
 }
 
-// Points nextMoveAt and nextMoveDuration at the earliest move not yet started. The duration holds the first
-// player's run speed at the time of the last move event, since the runner's getter only reads the field.
+// Points nextMoveAt and nextMove at the earliest move not yet started.
 func (design *encounterDesign) updateMoveLookahead(sim *Simulation) {
 	design.nextMoveAt = NeverExpires
-	design.nextMoveDuration = 0
+	design.nextMove = nil
 	if len(sim.Raid.AllPlayerUnits) == 0 {
 		return
 	}
-	for _, move := range design.lanes.moves {
-		if move.next < len(move.starts) && move.starts[move.next] < design.nextMoveAt {
-			design.nextMoveAt = move.starts[move.next]
-			design.nextMoveDuration = designMoveDuration(move.config, sim.Raid.AllPlayerUnits[0])
+	for _, move := range design.moves {
+		if at := move.occurrences.nextAt(); at < design.nextMoveAt {
+			design.nextMoveAt = at
+			design.nextMove = move
 		}
 	}
 }

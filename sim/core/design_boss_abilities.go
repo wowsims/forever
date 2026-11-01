@@ -16,11 +16,6 @@ const (
 	designStrikeSpellID   int32 = 15284 // Cleave
 )
 
-const (
-	bossAbilityEndPriority   = ActionPriorityDOT
-	bossAbilityStartPriority = ActionPriorityDOT + 1 // A window that starts as another ends keeps its effect up.
-)
-
 // A boss ability of the design. A spell hit or a strike happens at each occurrence that begins by the end, so
 // the end cuts its repeats. For a thrash or swing timing window the end gives only the window's length, from
 // the start to the end, and each repeat opens a window of that length wherever it falls.
@@ -34,17 +29,14 @@ type designBossAbility struct {
 	aura    *Aura  // The thrash or swing timing window's, permanent while a window runs.
 	striker *designStriker
 
-	fractions []float64
-	starts    []time.Duration
-	ends      []time.Duration
-	applied   []bool // Whether each window took effect, which a disabled target's does not.
-	nextStart int
-	nextEnd   int
-	running   int // The windows running at once.
-	armed     bool
+	occurrences designOccurrences // This iteration's starts.
+	ends        []time.Duration
+	applied     []bool // Whether each window took effect, which a disabled target's does not.
+	nextEnd     int
+	running     int // The windows running at once.
+	armed       bool
 
-	startAction PendingAction
-	endAction   PendingAction
+	endAction PendingAction
 }
 
 // The strikes of one target, which replace its next main-hand swing in index order while any is armed.
@@ -56,12 +48,8 @@ type designStriker struct {
 	previous  ReplaceMHSwing // The target's own replacement, back on the swing once no strike is armed.
 }
 
-// Registers the spells and auras of the design's boss abilities on their targets. The environment calls it
-// once the raid is initialized, since a target's swing exists only then.
+// Registers the spells and auras of the design's boss abilities on their targets.
 func (design *encounterDesign) registerBossAbilities(encounter *Encounter) {
-	if design == nil || len(design.config.BossAbilities) == 0 {
-		return
-	}
 	strikers := make(map[*Target]*designStriker)
 	for index, config := range design.config.BossAbilities {
 		ability := &designBossAbility{index: index, config: config}
@@ -69,9 +57,6 @@ func (design *encounterDesign) registerBossAbilities(encounter *Encounter) {
 			ability.target = encounter.AllTargets[targetIndex]
 		}
 		design.bossAbilities = append(design.bossAbilities, ability)
-		if ability.target == nil {
-			continue
-		}
 		if skip := ability.skipReason(); skip != "" {
 			ability.skip = true
 			design.constructNotes = append(design.constructNotes, fmt.Sprintf("boss ability %d %s; skipped.", index+1, skip))
@@ -79,12 +64,10 @@ func (design *encounterDesign) registerBossAbilities(encounter *Encounter) {
 		}
 
 		occurrences := maxOccurrences(config.GetStart(), config.Repeat)
-		ability.fractions = make([]float64, 0, occurrences)
-		ability.starts = make([]time.Duration, 0, occurrences)
+		ability.occurrences = newDesignOccurrences(occurrences, designStartPriority, ability.start)
 		ability.ends = make([]time.Duration, 0, occurrences)
 		ability.applied = make([]bool, 0, occurrences)
-		ability.startAction = PendingAction{Priority: bossAbilityStartPriority, OnAction: ability.start}
-		ability.endAction = PendingAction{Priority: bossAbilityEndPriority, OnAction: ability.end}
+		ability.endAction = PendingAction{Priority: designEndPriority, OnAction: ability.end}
 
 		switch config.Kind {
 		case proto.DesignBossAbility_SpellHit:
@@ -110,6 +93,9 @@ func (design *encounterDesign) registerBossAbilities(encounter *Encounter) {
 // Why the ability does nothing, or "" when it acts.
 func (ability *designBossAbility) skipReason() string {
 	config := ability.config
+	if ability.target == nil {
+		return fmt.Sprintf("names target %d, which the encounter does not have", config.TargetIndex)
+	}
 	if config.Kind != proto.DesignBossAbility_SpellHit && !ability.target.AutoAttacks.AutoSwingMelee {
 		return "is a melee ability of a target that does not swing"
 	}
@@ -216,7 +202,7 @@ func (ability *designBossAbility) registerSwingTiming() {
 			target.AutoAttacks.CancelAutoSwing(sim)
 		}
 		aura.OnExpire = func(_ *Aura, sim *Simulation) {
-			if target.IsEnabled() && sim.CurrentTime < sim.Duration {
+			if target.IsEnabled() && sim.CurrentTime < sim.Duration && !sim.Encounter.design.swingPaused(target) {
 				target.AutoAttacks.EnableAutoSwing(sim)
 			}
 		}
@@ -274,80 +260,72 @@ func (striker *designStriker) uninstall() {
 // Puts back what bringing the target in undoes: a running pause stops the swing Enable has started again.
 // Thrash and speed windows hold through it, their auras being permanent, and an armed strike stays armed.
 func (design *encounterDesign) reapplyBossAbilities(sim *Simulation, target *Target) {
+	if design.swingPaused(target) {
+		target.AutoAttacks.CancelAutoSwing(sim)
+	}
+}
+
+// Whether a swing timing window with a multiplier of 0 runs on the target, of any ability.
+func (design *encounterDesign) swingPaused(target *Target) bool {
 	for _, ability := range design.bossAbilities {
 		if ability.target == target && ability.running > 0 &&
 			ability.config.Kind == proto.DesignBossAbility_SwingTiming && ability.config.SwingSpeedMultiplier == 0 {
-			target.AutoAttacks.CancelAutoSwing(sim)
-			return
+			return true
 		}
 	}
+	return false
 }
 
 // Schedules the iteration's boss abilities on their target: a spell hit with its hardcast, a strike that
 // replaces the next swing, a thrash window of extra attacks, or a swing timing window that scales or pauses
-// the swing, with their repeats rolled through rollOccurrences. The runner calls it only for a design with
-// boss abilities.
+// the swing, with their repeats rolled through rollOccurrences.
 func (design *encounterDesign) scheduleBossAbilities(sim *Simulation) {
 	for _, ability := range design.bossAbilities {
-		ability.nextStart = 0
 		ability.nextEnd = 0
 		ability.running = 0
 		ability.armed = false
-		ability.starts = ability.starts[:0]
 		ability.ends = ability.ends[:0]
 		ability.applied = ability.applied[:0]
 		if ability.striker != nil {
 			ability.striker.uninstall()
-		}
-		if ability.target == nil {
-			if sim.Log != nil {
-				sim.Log("Encounter design: boss ability %d names target %d, which the encounter does not have; skipped.", ability.index+1, ability.config.TargetIndex)
-			}
-			continue
 		}
 		if ability.skip {
 			continue
 		}
 
 		config := ability.config
-		ability.fractions = design.rollOccurrences(sim, config.GetStart(), config.Repeat, ability.fractions)
+		occurrences := &ability.occurrences
+		occurrences.roll(sim, design, config.GetStart(), config.Repeat)
 		end := design.roll(sim, config.GetEnd().GetAt(), config.GetEnd().GetJitter())
 		if ability.isWindow() {
-			length := end - ability.fractions[0]
+			length := end - occurrences.fractions[0]
 			if length <= 0 {
 				if sim.Log != nil {
 					sim.Log("Encounter design: boss ability %d rolled a window that ends by its start; skipped this iteration.", ability.index+1)
 				}
 				continue
 			}
-			for _, fraction := range ability.fractions {
+			for _, fraction := range occurrences.fractions {
 				if at := designTime(sim, fraction); at < sim.Duration {
-					ability.starts = append(ability.starts, at)
+					occurrences.times = append(occurrences.times, at)
 					ability.ends = append(ability.ends, designTime(sim, fraction+length))
 				}
 			}
 		} else {
-			for _, fraction := range ability.fractions {
+			for _, fraction := range occurrences.fractions {
 				if at := designTime(sim, fraction); fraction <= end && at < sim.Duration {
-					ability.starts = append(ability.starts, at)
+					occurrences.times = append(occurrences.times, at)
 				}
 			}
 		}
-		if len(ability.starts) > 0 {
-			ability.startAction.NextActionAt = ability.starts[0]
-			sim.AddPendingAction(&ability.startAction)
-		}
+		occurrences.queueFirst(sim)
 	}
 }
 
 // Runs the ability's next occurrence, which does nothing while its target is not active.
 func (ability *designBossAbility) start(sim *Simulation) {
-	occurrence := ability.nextStart
-	ability.nextStart++
-	if ability.nextStart < len(ability.starts) {
-		ability.startAction.NextActionAt = ability.starts[ability.nextStart]
-		sim.AddPendingAction(&ability.startAction)
-	}
+	occurrence := ability.occurrences.next
+	ability.occurrences.advance(sim)
 
 	target := ability.target
 	enabled := target.IsEnabled()
@@ -390,7 +368,7 @@ func (ability *designBossAbility) start(sim *Simulation) {
 func (ability *designBossAbility) end(sim *Simulation) {
 	occurrence := ability.nextEnd
 	ability.nextEnd++
-	if ability.nextEnd < ability.nextStart && ability.ends[ability.nextEnd] < sim.Duration {
+	if ability.nextEnd < ability.occurrences.next && ability.ends[ability.nextEnd] < sim.Duration {
 		ability.endAction.NextActionAt = ability.ends[ability.nextEnd]
 		sim.AddPendingAction(&ability.endAction)
 	}

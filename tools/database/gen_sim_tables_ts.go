@@ -100,7 +100,7 @@ func simTablesTSData() tsSimTables {
 	return data
 }
 
-// GenerateSimTablesTSFile writes the sim's item slot, weapon and creature armor tables that the UI reads.
+// Writes the sim's item slot, weapon and creature armor tables that the UI reads.
 func GenerateSimTablesTSFile() error {
 	tpl, err := template.New("simTablesTS").Parse(simTablesTSTemplate)
 	if err != nil {

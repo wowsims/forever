@@ -1,6 +1,7 @@
 package core
 
 import (
+	"cmp"
 	"fmt"
 	"math"
 	"slices"
@@ -9,22 +10,14 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// The lanes' state, built once with the environment.
-type designLanes struct {
-	moves       []*designMove
-	amps        []*designAmp
-	ampAuras    []*designAmpAura
-	targetAuras []*designAmpAura // Indexed by Target.Index, nil for a target no target debuff names.
-}
-
 // An amp window starting or ending.
 type designAmpEvent struct {
 	at    time.Duration
 	start bool
 }
 
-// An amp aura with the open windows' percent it carries, in hundredths of a percent. The stacks are set from
-// the sum, never moved by a delta, so an aura a downtime or a death took off comes back with the sum.
+// An amp aura with the open windows' percent it carries, in hundredths of a percent. A target's survives the
+// target's downtimes and deaths, as expireAll skips a NeverExpires aura.
 type designAmpAura struct {
 	aura *Aura
 	sum  int32
@@ -66,19 +59,14 @@ var designAmpLabels = [numDamageAmpTypes]string{
 	proto.DamageAmpType_DamageAmpTypeTargetDebuff:    "Damage Taken % (Target Debuff)",
 }
 
-// Builds the design's lanes once the raid exists: the moves' buffers and each amp's auras and buffers.
-func (design *encounterDesign) registerLanes(env *Environment) {
-	if design == nil {
-		return
-	}
-	design.registerMoves(env)
-
-	design.lanes.targetAuras = make([]*designAmpAura, len(env.Encounter.AllTargets))
+// Builds each amp's auras and buffers once, with the environment.
+func (design *encounterDesign) registerAmps(env *Environment) {
+	targetAuras := make([]*designAmpAura, len(env.Encounter.AllTargets)) // Indexed by Target.Index, nil for a target no target debuff names.
 	var casterAuras [numDamageAmpTypes][]*designAmpAura
 	for index, config := range design.config.DamageAmps {
 		ampType := config.Type
 		amp := &designAmp{config: config, hundredths: int32(math.Round(config.Percent * 100))}
-		design.lanes.amps = append(design.lanes.amps, amp)
+		design.damageAmps = append(design.damageAmps, amp)
 		switch {
 		case int(ampType) < 0 || int(ampType) >= numDamageAmpTypes:
 			amp.skipped = true
@@ -92,10 +80,10 @@ func (design *encounterDesign) registerLanes(env *Environment) {
 
 		if ampType == proto.DamageAmpType_DamageAmpTypeTargetDebuff {
 			for _, target := range design.ampTargets(env, config.Targets) {
-				if design.lanes.targetAuras[target.Index] == nil {
-					design.lanes.targetAuras[target.Index] = design.newAmpAura(registerDesignAmpTargetAura(target))
+				if targetAuras[target.Index] == nil {
+					targetAuras[target.Index] = design.newAmpAura(registerDesignAmpTargetAura(target))
 				}
-				amp.auras = append(amp.auras, design.lanes.targetAuras[target.Index])
+				amp.auras = append(amp.auras, targetAuras[target.Index])
 			}
 			if len(amp.auras) == 0 {
 				amp.skipped = true
@@ -126,7 +114,7 @@ func (design *encounterDesign) registerLanes(env *Environment) {
 
 func (design *encounterDesign) newAmpAura(aura *Aura) *designAmpAura {
 	ampAura := &designAmpAura{aura: aura}
-	design.lanes.ampAuras = append(design.lanes.ampAuras, ampAura)
+	design.ampAuras = append(design.ampAuras, ampAura)
 	return ampAura
 }
 
@@ -151,57 +139,48 @@ func (design *encounterDesign) ampTargets(env *Environment, targets *proto.Desig
 	return slices.Compact(resolved)
 }
 
-func registerDesignAmpCasterAura(character *Character, ampType proto.DamageAmpType) *Aura {
-	return character.GetOrRegisterAura(Aura{
+// The aura of an amp type. A change of its stacks hands multiply the ratio of the new sum to the old.
+func designAmpAuraConfig(ampType proto.DamageAmpType, multiply func(ratio float64)) Aura {
+	return Aura{
 		Label:     designAmpLabels[ampType],
 		ActionID:  ActionID{OtherID: proto.OtherAction_OtherActionDamageAmplifier}.WithTag(int32(ampType)),
 		Duration:  NeverExpires,
 		MaxStacks: math.MaxInt32,
 		OnStacksChange: func(_ *Aura, _ *Simulation, oldStacks int32, newStacks int32) {
-			amount := (1 + float64(newStacks)/10000) / (1 + float64(oldStacks)/10000)
-			character.PseudoStats.DamageDealtMultiplier *= amount
-			for _, pet := range character.Pets {
-				if !pet.isGuardian {
-					pet.PseudoStats.DamageDealtMultiplier *= amount
-				}
-			}
+			multiply((1 + float64(newStacks)/10000) / (1 + float64(oldStacks)/10000))
 		},
-	})
+	}
+}
+
+func registerDesignAmpCasterAura(character *Character, ampType proto.DamageAmpType) *Aura {
+	return character.GetOrRegisterAura(designAmpAuraConfig(ampType, func(ratio float64) {
+		character.PseudoStats.DamageDealtMultiplier *= ratio
+		for _, pet := range character.Pets {
+			if !pet.isGuardian {
+				pet.PseudoStats.DamageDealtMultiplier *= ratio
+			}
+		}
+	}))
 }
 
 func registerDesignAmpTargetAura(target *Target) *Aura {
-	ampType := proto.DamageAmpType_DamageAmpTypeTargetDebuff
-	return target.GetOrRegisterAura(Aura{
-		Label:     designAmpLabels[ampType],
-		ActionID:  ActionID{OtherID: proto.OtherAction_OtherActionDamageAmplifier}.WithTag(int32(ampType)),
-		Duration:  NeverExpires,
-		MaxStacks: math.MaxInt32,
-		OnStacksChange: func(_ *Aura, _ *Simulation, oldStacks int32, newStacks int32) {
-			target.PseudoStats.DamageTakenMultiplier *= (1 + float64(newStacks)/10000) / (1 + float64(oldStacks)/10000)
-		},
-	})
-}
-
-// Puts the target's open target debuff windows back on it, once a spawn or the end of a downtime enabled it.
-func (design *encounterDesign) reapplyAmps(sim *Simulation, target *Target) {
-	if ampAura := design.lanes.targetAuras[target.Index]; ampAura != nil {
-		ampAura.apply(sim)
-	}
+	return target.GetOrRegisterAura(designAmpAuraConfig(proto.DamageAmpType_DamageAmpTypeTargetDebuff, func(ratio float64) {
+		target.PseudoStats.DamageTakenMultiplier *= ratio
+	}))
 }
 
 // Schedules the iteration's damage amp windows: a caster buff, an environment buff, or a target debuff on the
 // design's chosen targets and the adds that spawn inside the window, each raising damage by the window's
 // percent from its start to its end, with its repeats rolled through rollOccurrences. Keeps amps[type] on
-// whether a window of the type runs and when the next one starts. The runner calls it only for a design with
-// damage amps.
+// whether a window of the type runs and when the next one starts.
 //
 // A window's length is the end's time less the start's, moved by the end's jitter per window. A target debuff
 // sits on every pool target of its waves for the whole window, which the adds cannot be hit outside of.
 func (design *encounterDesign) scheduleAmps(sim *Simulation) {
-	for _, ampAura := range design.lanes.ampAuras {
+	for _, ampAura := range design.ampAuras {
 		ampAura.sum = 0
 	}
-	for _, amp := range design.lanes.amps {
+	for _, amp := range design.damageAmps {
 		amp.starts = amp.starts[:0]
 		amp.events = amp.events[:0]
 		amp.nextEvent = 0
@@ -226,17 +205,7 @@ func (design *encounterDesign) scheduleAmps(sim *Simulation) {
 		}
 		// A window that starts as another ends is up before the other leaves, so the aura never fades between them.
 		slices.SortStableFunc(amp.events, func(a, b designAmpEvent) int {
-			switch {
-			case a.at < b.at:
-				return -1
-			case a.at > b.at:
-				return 1
-			case a.start == b.start:
-				return 0
-			case a.start:
-				return -1
-			}
-			return 1
+			return cmp.Or(cmp.Compare(a.at, b.at), cmp.Compare(Ternary(a.start, 0, 1), Ternary(b.start, 0, 1)))
 		})
 		if len(amp.events) > 0 {
 			amp.action.NextActionAt = amp.events[0].at
@@ -278,7 +247,7 @@ func (design *encounterDesign) updateAmpLookahead() {
 	for i := range design.amps {
 		design.amps[i] = designAmpLookahead{nextStartAt: NeverExpires}
 	}
-	for _, amp := range design.lanes.amps {
+	for _, amp := range design.damageAmps {
 		if amp.skipped {
 			continue
 		}

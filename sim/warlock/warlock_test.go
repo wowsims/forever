@@ -668,7 +668,7 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 		}
 	}
 
-	// The dot is applied directly and Conflagrate retried, since every hit roll keeps a 1% miss.
+	// The dot is applied directly and Conflagrate retried, since a warlock with no hit rating can miss.
 	warlock.conflagrateKeepsImmolate = 0
 	immolate := warlock.GetSpell(core.ActionID{SpellID: 11668}).Dot(target)
 	immolate.Apply(sim)
