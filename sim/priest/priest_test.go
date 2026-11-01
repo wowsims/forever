@@ -1,7 +1,9 @@
 package priest
 
 import (
+	"fmt"
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/common"
@@ -151,40 +153,37 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	})
 }
 
-// Spirit Tap hears a credited kill and needs Vampiric Embrace on the dying target. A death without
-// the kill, and a kill of a target the priest has not afflicted, leave the buff off. The talent
-// at full rank rolls 100%.
-func TestSpiritTapProcsOnACreditedKillOfAnAfflictedTarget(t *testing.T) {
-	player := &proto.Player{
-		Name:      "Spirit Tap",
-		Race:      proto.Race_RaceTroll,
-		Class:     proto.Class_ClassPriest,
-		Equipment: shadowTestingBuild.GearSet.GearSet,
-		// Spirit Tap 5/5 and Vampiric Embrace in the Shadow tree.
-		TalentsString: "--00500000001",
-		Spec: &proto.Player_DpsPriest{
-			DpsPriest: &proto.DpsPriest{
-				Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
-			},
-		},
-		Rotation: &proto.APLRotation{},
-	}
-	encounter := core.MakeSingleTargetEncounter(0)
-	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig())
-
-	newSim := func(t *testing.T) (*core.Simulation, *Priest, *core.Aura) {
+// Spirit Tap comes with a killing blow or the death of an enemy with the priest's Vampiric Embrace on it, and not
+// with an unafflicted death the raid gets no kill for. An afflicted death rolls once, and each path rolls the
+// rank's chance.
+func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
+	newSim := func(t *testing.T, talents string, points int32) (*core.Simulation, *Priest, *core.Aura) {
 		t.Helper()
+		encounter := core.MakeSingleTargetEncounter(0)
+		encounter.Targets = []*proto.Target{core.FreshDefaultTargetConfig()}
 		sim := core.NewSim(&proto.RaidSimRequest{
-			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Raid: core.SinglePlayerRaidProto(&proto.Player{
+				Name:          "Spirit Tap",
+				Race:          proto.Race_RaceTroll,
+				Class:         proto.Class_ClassPriest,
+				Equipment:     shadowTestingBuild.GearSet.GearSet,
+				TalentsString: talents,
+				Spec: &proto.Player_DpsPriest{
+					DpsPriest: &proto.DpsPriest{
+						Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+					},
+				},
+				Rotation: &proto.APLRotation{},
+			}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
 			Encounter:  encounter,
 			SimOptions: &proto.SimOptions{RandomSeed: 1},
 		}, simsignals.CreateSignals())
 		sim.Reset()
 
 		priest := sim.Raid.Parties[0].Players[0].(*Priest)
-		if priest.Talents.SpiritTap != 5 || priest.VampiricEmbrace == nil {
-			t.Fatalf("the build has Spirit Tap %d and Vampiric Embrace %v, want 5 and the spell",
-				priest.Talents.SpiritTap, priest.VampiricEmbrace)
+		if priest.Talents.SpiritTap != points || priest.VampiricEmbrace == nil {
+			t.Fatalf("the build has Spirit Tap %d and Vampiric Embrace %v, want %d and the spell",
+				priest.Talents.SpiritTap, priest.VampiricEmbrace, points)
 		}
 		buff := priest.GetAura(spellData.SpiritTapTriggered.Highest().Name)
 		if buff == nil {
@@ -198,30 +197,73 @@ func TestSpiritTapProcsOnACreditedKillOfAnAfflictedTarget(t *testing.T) {
 		}
 	}
 
-	t.Run("a credited kill of an afflicted target", func(t *testing.T) {
-		sim, priest, buff := newSim(t)
+	t.Run("each death grants once at the full rank", func(t *testing.T) {
+		// Spirit Tap 5/5, where the row's chance is certain, and Vampiric Embrace in the Shadow tree.
+		sim, priest, buff := newSim(t, "--00500000001", 5)
 		target := sim.Encounter.AllTargets[0]
-		afflict(sim, priest, target)
-		target.Die(sim, 1)
-		if !buff.IsActive() {
-			t.Error("Spirit Tap is off after a credited kill of a target with Vampiric Embrace")
+		grants := 0
+		sim.Log = func(message string, vals ...any) {
+			line := fmt.Sprintf(message, vals...)
+			if strings.Contains(line, buff.ActionID.String()) && (strings.Contains(line, "Aura gained") || strings.Contains(line, "Aura refreshed")) {
+				grants++
+			}
+		}
+
+		for _, c := range []struct {
+			name      string
+			afflicted bool
+			killShare float64
+			grants    int
+		}{
+			{"an unafflicted death with no kill credit", false, 0, 0},
+			{"an unafflicted killing blow", false, 1, 1},
+			{"an afflicted death with no kill credit", true, 0, 1},
+			{"an afflicted killing blow", true, 1, 1},
+		} {
+			buff.Deactivate(sim)
+			target.Enable(sim)
+			if c.afflicted {
+				afflict(sim, priest, target)
+			}
+			grants = 0
+
+			target.Die(sim, c.killShare)
+			if grants != c.grants || buff.IsActive() != (c.grants > 0) {
+				t.Errorf("%s granted Spirit Tap %d times and left it up %v, want %d", c.name, grants, buff.IsActive(), c.grants)
+			}
 		}
 	})
-	t.Run("a death without the kill", func(t *testing.T) {
-		sim, priest, buff := newSim(t)
+
+	t.Run("each path rolls the rank's chance", func(t *testing.T) {
+		// Spirit Tap 1/5 and Vampiric Embrace in the Shadow tree.
+		const deaths = 1000
+		chance := spellData.SpiritTap.EffectAt(1).FractionAt(1)
+		sim, priest, buff := newSim(t, "--00100000001", 1)
 		target := sim.Encounter.AllTargets[0]
-		afflict(sim, priest, target)
-		target.Die(sim, 0)
-		if buff.IsActive() {
-			t.Error("Spirit Tap is on after a death the raid got no kill for")
-		}
-	})
-	t.Run("a kill of a target without Vampiric Embrace", func(t *testing.T) {
-		sim, priest, buff := newSim(t)
-		afflict(sim, priest, sim.Encounter.AllTargets[1])
-		sim.Encounter.AllTargets[0].Die(sim, 1)
-		if buff.IsActive() {
-			t.Error("Spirit Tap is on after a kill of a target the priest has not afflicted")
+
+		for _, c := range []struct {
+			name      string
+			afflicted bool
+			killShare float64
+		}{
+			{"a killing blow", false, 1},
+			{"an afflicted death", true, 0},
+		} {
+			grants := 0
+			for range deaths {
+				buff.Deactivate(sim)
+				target.Enable(sim)
+				if c.afflicted {
+					afflict(sim, priest, target)
+				}
+				target.Die(sim, c.killShare)
+				if buff.IsActive() {
+					grants++
+				}
+			}
+			if got := float64(grants) / deaths; math.Abs(got-chance) > chance/2 {
+				t.Errorf("%s granted Spirit Tap on %v of deaths, want about %v", c.name, got, chance)
+			}
 		}
 	})
 }
