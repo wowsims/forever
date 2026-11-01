@@ -105,4 +105,12 @@ describe('matchesSearch on item sources', () => {
 		expect(matchesSearch('arathor', entry, noNpc, factionName)).toBe(true);
 		expect(matchesSearch('timbermaw', entry, noNpc, factionName)).toBe(false);
 	});
+
+	it('matches a quest source by its quest name', () => {
+		const entry = row({
+			item: item({ sources: [{ source: { oneofKind: 'quest', quest: { id: 8561, name: "Conqueror's Crown" } } }] }),
+			searchText: 'Some Item',
+		});
+		expect(matchesSearch('conquerors crown', entry, noNpc, noFaction)).toBe(true);
+	});
 });

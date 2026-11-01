@@ -25,10 +25,11 @@ import (
 
 // To do a full re-scrape, delete the previous output file first.
 // go run ./tools/database/gen_db -outDir=assets -gen=atlasloot
+// go run ./tools/database/gen_db -outDir=assets -gen=questie
 // go run ./tools/database/gen_db -outDir=assets -gen=db
 
 var outDir = flag.String("outDir", "assets", "Path to output directory for writing generated .go files.")
-var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'atlasloot' and 'go-to-ts'")
+var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'atlasloot', 'questie' and 'go-to-ts'")
 var dbPath = flag.String("dbPath", "./tools/database/wowsims.db", "Location of the wowsims.db file produced by tools/db2tool")
 var classes = flag.String("classes", "", "Write the talent files of these classes only (comma-separated package names, all or none, as gen_spelldata -classes); the item database is always written")
 
@@ -72,6 +73,9 @@ func main() {
 		db := database.ReadAtlasLootData(helper)
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
+	} else if *genAsset == "questie" {
+		database.ReadQuestieData().WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
 	}
@@ -110,6 +114,7 @@ func main() {
 		repSources      map[int][]*proto.RepSource
 		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
+		questieDB       *database.WowDatabase
 		raidZones       map[int32]bool
 		areaTableIDs    map[int32]bool
 		iconsMap        map[int]string
@@ -145,6 +150,10 @@ func main() {
 		atlaslootDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/atlasloot_db.json", inputsDir)))
 		return nil
 	})
+	g.Go(func() error {
+		questieDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/questie_db.json", inputsDir)))
+		return nil
+	})
 	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
 	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
@@ -153,6 +162,7 @@ func main() {
 	}
 
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
+	pruneQuestieVendors(questieDB, areaTableIDs)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -195,6 +205,7 @@ func main() {
 			db.MergeItem(atlaslootItem)
 		}
 	}
+	appendQuestieSources(db, questieDB)
 
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
@@ -221,7 +232,7 @@ func main() {
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
-	// Source loaders added later must run before this.
+	// The PvP source follows from the item's name, so the names must be final here.
 	for _, item := range db.Items {
 		database.InferPvpSource(item)
 	}
@@ -342,6 +353,25 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 			drops = append(drops, drop)
 			return true
 		})
+	}
+}
+
+// pruneQuestieVendors removes the vendors with no zone or a zone that is not in the game files.
+func pruneQuestieVendors(questie *database.WowDatabase, areaTableIDs map[int32]bool) {
+	for _, item := range questie.Items {
+		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
+			soldBy := source.GetSoldBy()
+			return soldBy == nil || areaTableIDs[soldBy.ZoneId]
+		})
+	}
+}
+
+// appendQuestieSources adds the quest and vendor sources to the items the database has.
+func appendQuestieSources(db, questie *database.WowDatabase) {
+	for id, questieItem := range questie.Items {
+		if item, ok := db.Items[id]; ok {
+			item.Sources = append(slices.Clip(item.Sources), questieItem.Sources...)
+		}
 	}
 }
 
