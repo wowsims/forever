@@ -94,27 +94,6 @@
           "val": "0s"
         }
       }
-    },
-    {
-      "action": {
-        "condition": {
-          "not": {
-            "val": {
-              "activeItemSwapSet": {
-                "swapSet": "Swap1"
-              }
-            }
-          }
-        },
-        "itemSwap": {
-          "swapSet": "Main"
-        }
-      },
-      "doAtValue": {
-        "const": {
-          "val": "-0.01s"
-        }
-      }
     }
   ],
   "valueVariables": [
