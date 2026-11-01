@@ -1,9 +1,8 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import type { StorybookConfig } from '@storybook/react-vite';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
+const here = import.meta.dirname;
 
 const config: StorybookConfig = {
 	framework: {

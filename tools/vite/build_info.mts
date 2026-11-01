@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { gunzipSync } from 'node:zlib';
 
-import { discoverSpecPages } from './spec_pages.mjs';
+import { discoverSpecPages } from './spec_pages.mts';
 
 export interface Change {
 	/** The full hash of the commit. */

@@ -8,10 +8,9 @@
 // script. Nothing per-spec is written into the source tree; in dev the same file is served through
 // `transformIndexHtml` for the same URLs, with the same rewrite.
 import fs from 'node:fs/promises';
-import { readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { glob } from 'glob';
 import type { Plugin } from 'vite';
 
 /** The one spec page, relative to vite's root (`ui/`). Also its build output path. */
@@ -77,8 +76,7 @@ function withSpecMetadata(html: string, meta: SpecPageMetadata): string {
  */
 export function discoverSpecPages(uiRoot: string): string[] {
 	const specsRoot = path.join(uiRoot, 'specs');
-	return glob
-		.sync(path.join(specsRoot, '*/*/spec.{ts,tsx}').replace(/\\/g, '/'))
+	return globSync(path.join(specsRoot, '*/*/spec.{ts,tsx}').replace(/\\/g, '/'))
 		.map(specFile => path.relative(specsRoot, path.dirname(specFile)).split(path.sep).join('/'))
 		.sort();
 }

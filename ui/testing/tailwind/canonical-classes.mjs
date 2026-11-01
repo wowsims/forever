@@ -9,6 +9,7 @@
 import { __unstable__loadDesignSystem } from '@tailwindcss/node';
 import fs from 'node:fs';
 import path from 'node:path';
+import { parseArgs } from 'node:util';
 
 const CLASS_ATTR_RE = /\b([a-zA-Z]+ClassNames?)=/g;
 
@@ -473,17 +474,13 @@ function applyWrite(root, results) {
 }
 
 async function main() {
-	const args = process.argv.slice(2);
-	let cssArg;
-	let write = false;
-	let json = false;
-	let root = process.cwd();
-	for (let i = 0; i < args.length; i++) {
-		if (args[i] === '--css') cssArg = args[++i];
-		else if (args[i] === '--write') write = true;
-		else if (args[i] === '--json') json = true;
-		else root = path.resolve(args[i]);
-	}
+	const { values, positionals } = parseArgs({
+		allowPositionals: true,
+		options: { css: { type: 'string' }, write: { type: 'boolean', default: false }, json: { type: 'boolean', default: false } },
+	});
+	const cssArg = values.css;
+	const { write, json } = values;
+	const root = positionals.length ? path.resolve(positionals.at(-1)) : process.cwd();
 
 	const results = await findNonCanonical(root, { css: cssArg ? path.resolve(cssArg) : undefined });
 
