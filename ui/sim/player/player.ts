@@ -30,6 +30,7 @@ import {
 } from '@generated/proto/common';
 import { SimDatabase } from '@generated/proto/db';
 import {
+	DatabaseFilters,
 	DungeonDifficulty,
 	FactionFilter,
 	RaidFilterOption,
@@ -99,12 +100,7 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 	return entries.map(entry => (entry.id.hasRank && ranks.get(keyOf(entry.id))!.size < 2 ? { ...entry, id: entry.id.withoutRank() } : entry));
 };
 
-/**
- * The toggle that governs a source, or undefined when none does. An item shows while one of its sources counts as ticked:
- * its kind is ticked and, for a drop in one of the raid zones, that raid is ticked too. PvP is a tag the PvP check
- * handles rather than a place, so unticking PvP hides every PvP item whatever its other sources, and a PvP source itself
- * is kept when PvP is ticked. An item with no sources, or with a source no toggle covers, always shows.
- */
+/** The toggle that governs a source, or undefined when none does. */
 const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined => {
 	switch (source.oneofKind) {
 		case 'crafted':
@@ -122,6 +118,12 @@ const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined =>
 		default:
 			return undefined;
 	}
+};
+
+const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRaidZones: Set<number | undefined>): boolean => {
+	const option = sourceOption(itemSrc);
+	if (option !== undefined && !filters.sources.includes(option)) return false;
+	return itemSrc.source.oneofKind != 'drop' || !untickedRaidZones.has(itemSrc.source.drop.zoneId);
 };
 
 export class UnitMetadata {
@@ -1283,19 +1285,19 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => item.factionRestriction == kept || item.factionRestriction == UIItem_FactionRestriction.UNSPECIFIED);
 		}
 
+		// An item shows while one of its sources counts as ticked: its kind is ticked and, for a drop in a raid zone, that raid
+		// is ticked too. PvP is a tag rather than a place, so unticking PvP hides every PvP item whatever its other sources.
+		// An item with no sources, or with a source no toggle covers, always shows.
 		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
+		const untickedRaidZones = new Set(
+			Object.entries(Player.RAID_IDS)
+				.filter(([raidOption]) => !filters.raids.includes(parseInt(raidOption)))
+				.map(([, zoneId]) => zoneId),
+		);
 		itemData = filterItems(itemData, item => {
 			if (!item.sources.length) return true;
 			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
-			return item.sources.some(itemSrc => {
-				const option = sourceOption(itemSrc);
-				if (option !== undefined && !filters.sources.includes(option)) return false;
-				if (itemSrc.source.oneofKind != 'drop') return true;
-				const zoneId = itemSrc.source.drop.zoneId;
-				return !Object.entries(Player.RAID_IDS).some(
-					([raidOption, raidZoneId]) => raidZoneId == zoneId && !filters.raids.includes(parseInt(raidOption)),
-				);
-			});
+			return item.sources.some(itemSrc => sourceTicked(itemSrc, filters, untickedRaidZones));
 		});
 
 		if (Player.ARMOR_SLOTS.includes(slot)) {

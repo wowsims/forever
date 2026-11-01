@@ -4,6 +4,8 @@ import { Sim } from '@sim/sim';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { Player } from './player';
+
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
 
 beforeAll(() => serveDatabase());
@@ -70,20 +72,23 @@ describe('Player.filterItemData source filter', () => {
 });
 
 describe('Player.filterItemData raid toggles', () => {
-	const MC_ZONE_ID = 2717;
+	const MC_ZONE_ID = Player.RAID_IDS[RaidFilterOption.RaidMC];
 	const mcDrop = UIItemSource.create({
 		source: { oneofKind: 'drop', drop: DropSource.create({ difficulty: DungeonDifficulty.DifficultyRaid, zoneId: MC_ZONE_ID }) },
 	});
 	const MC_ONLY = Item.create({ id: 10, sources: [mcDrop] });
 	const MC_AND_QUEST = Item.create({ id: 11, sources: [mcDrop, quest] });
+	const mcZoneDrop = UIItemSource.create({ source: { oneofKind: 'drop', drop: DropSource.create({ zoneId: MC_ZONE_ID }) } });
+	const MC_ZONE_ONLY = Item.create({ id: 12, sources: [mcZoneDrop] });
 
 	const setup = async () => {
 		const { sim, player } = await makeIndividualSim();
 		sim.applyDefaults(false, false);
-		const listed = () => player.filterItemData([MC_ONLY, MC_AND_QUEST], item => item, ItemSlot.ItemSlotTrinket1).map(item => item.id);
+		const listed = () => player.filterItemData([MC_ONLY, MC_AND_QUEST, MC_ZONE_ONLY], item => item, ItemSlot.ItemSlotTrinket1).map(item => item.id);
 		const tickMC = (ticked: boolean) =>
 			sim.setFilters({ ...sim.getFilters(), raids: Sim.ALL_RAIDS.filter(raid => ticked || raid != RaidFilterOption.RaidMC) });
-		return { listed, tickMC };
+		const tick = (sources: SourceFilterOption[], raids: RaidFilterOption[]) => sim.setFilters({ ...sim.getFilters(), sources, raids });
+		return { listed, tickMC, tick };
 	};
 
 	it('hides an item that only drops in an unticked raid and shows it when the raid is ticked', async () => {
@@ -92,6 +97,21 @@ describe('Player.filterItemData raid toggles', () => {
 		expect(listed()).toEqual([11]);
 
 		tickMC(true);
-		expect(listed()).toEqual([10, 11]);
+		expect(listed()).toEqual([10, 11, 12]);
+	});
+
+	it('hides a raid drop while Raid is unticked, though its raid is ticked', async () => {
+		const { listed, tick } = await setup();
+		tick([SourceFilterOption.SourceQuest], [RaidFilterOption.RaidMC]);
+		expect(listed()).toEqual([11, 12]);
+	});
+
+	it('hides a drop with no difficulty in an unticked raid and shows it in a ticked one', async () => {
+		const { listed, tickMC } = await setup();
+		tickMC(false);
+		expect(listed()).toEqual([11]);
+
+		tickMC(true);
+		expect(listed()).toEqual([10, 11, 12]);
 	});
 });
