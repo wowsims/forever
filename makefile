@@ -419,6 +419,7 @@ else
 	./wowsimforever$(BIN_EXT) --usefs=true --launch=false --host=":3333"
 endif
 
+# `--watch` goes only when WATCH is set: util.parseArgs rejects `--watch=false` on a boolean option.
 webworkers:
 	node vite.build-workers.mts $(if $(WATCH),--watch,)
 

@@ -8,9 +8,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseArgs } from 'node:util';
 
-import { collectTokens, findDefaultCss, loadDesignSystemCached } from './canonical-classes.mjs';
+import { cliArgs, collectTokens, findDefaultCss, loadDesignSystemCached } from './canonical-classes.mjs';
 
 function loadAllowlist(root) {
 	const file = path.join(root, 'ui/class_hook_allowlist.json');
@@ -121,15 +120,9 @@ export function findTestidStyling(root) {
 }
 
 async function main() {
-	const { values, positionals } = parseArgs({
-		allowPositionals: true,
-		options: { css: { type: 'string' }, json: { type: 'boolean', default: false } },
-	});
-	const cssArg = values.css;
-	const json = values.json;
-	const root = positionals.length ? path.resolve(positionals.at(-1)) : process.cwd();
+	const { css, json, root } = cliArgs();
 
-	const hooks = await findClassHooks(root, { css: cssArg ? path.resolve(cssArg) : undefined });
+	const hooks = await findClassHooks(root, { css });
 	const testidHits = findTestidStyling(root);
 
 	if (json) {

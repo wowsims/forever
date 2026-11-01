@@ -473,16 +473,18 @@ function applyWrite(root, results) {
 	}
 }
 
-async function main() {
+export function cliArgs(options = {}) {
 	const { values, positionals } = parseArgs({
 		allowPositionals: true,
-		options: { css: { type: 'string' }, write: { type: 'boolean', default: false }, json: { type: 'boolean', default: false } },
+		options: { css: { type: 'string' }, json: { type: 'boolean', default: false }, ...options },
 	});
-	const cssArg = values.css;
-	const { write, json } = values;
-	const root = positionals.length ? path.resolve(positionals.at(-1)) : process.cwd();
+	return { ...values, css: values.css ? path.resolve(values.css) : undefined, root: positionals.length ? path.resolve(positionals.at(-1)) : process.cwd() };
+}
 
-	const results = await findNonCanonical(root, { css: cssArg ? path.resolve(cssArg) : undefined });
+async function main() {
+	const { css, write, json, root } = cliArgs({ write: { type: 'boolean', default: false } });
+
+	const results = await findNonCanonical(root, { css });
 
 	if (write) {
 		applyWrite(root, results);

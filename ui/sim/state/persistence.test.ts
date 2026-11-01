@@ -1,5 +1,6 @@
 import { Spec } from '@generated/proto/common';
 import { DatabaseFilters, IndividualSimSettings, SimSettings, StatFilters } from '@generated/proto/ui';
+import { encodeLinkHash } from '@sim/state/sim_links';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { memoryEnv } from '@testing/sim/memory_env';
 import {
@@ -17,13 +18,10 @@ vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/work
 const savedWith = (statFilters: StatFilters | undefined) => envelope(SimSettings.create({ filters: DatabaseFilters.create(viewerFiltersWith(statFilters)) }));
 
 // A link's hash, and the `i` parameter that names its categories: `u` is the one that carries settings.
-const linkLocation = async (settings: IndividualSimSettings, categories: string | null) => {
-	const deflated = new Blob([IndividualSimSettings.toBinary(settings).slice()]).stream().pipeThrough(new CompressionStream('deflate'));
-	return {
-		hash: '#' + btoa(String.fromCharCode(...new Uint8Array(await new Response(deflated).arrayBuffer()))),
-		search: categories == null ? '' : `?i=${categories}`,
-	};
-};
+const linkLocation = async (settings: IndividualSimSettings, categories: string | null) => ({
+	hash: '#' + (await encodeLinkHash(IndividualSimSettings.toBinary(settings))),
+	search: categories == null ? '' : `?i=${categories}`,
+});
 
 const load = async (location: { hash: string; search: string } = { hash: '', search: '' }, saved = savedWith(savedStatFilters)) => {
 	const env = memoryEnv(location);
