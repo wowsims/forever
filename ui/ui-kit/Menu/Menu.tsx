@@ -1,5 +1,6 @@
 import { Menu as BaseMenu } from '@base-ui/react/menu';
 import { isNativeButtonTrigger } from '@ui-kit/Button';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import clsx from 'clsx';
 import type { ReactElement, ReactNode } from 'react';
@@ -86,24 +87,27 @@ export const Menu = ({
 	// Base UI focuses a hover-opened popup and, with `highlightItemOnHover`, the item under the pointer. Both are script
 	// focus, which Chrome paints as `:focus-visible` until the page has had a mouse focus, so the menu shows focus rings
 	// under the mouse. The pointer highlight is `:hover` in Menu.css instead, and the popup itself draws no outline.
+	// The popup leaves any Field the trigger sits in, so its controls take no size from that field.
 	const popup = (
-		<BaseMenu.Portal container={container ?? portalContainer ?? undefined} keepMounted={keepMounted} {...portalProps}>
-			<BaseMenu.Positioner
-				side={side}
-				align={align}
-				sideOffset={sideOffset}
-				collisionPadding={collisionPadding}
-				positionMethod={positionMethod}
-				className={clsx(POSITIONER_Z_CLASSES[surface], positionerClassName)}
-				{...positionerProps}>
-				<BaseMenu.Popup
-					render={popupRender ?? <ul />}
-					className={clsx('m-0 list-none p-0 outline-none', SURFACE_CLASSES[surface], anchorWidth && 'ui-menu-anchor-width', className)}
-					{...popupProps}>
-					{children}
-				</BaseMenu.Popup>
-			</BaseMenu.Positioner>
-		</BaseMenu.Portal>
+		<FieldContext.Provider value={null}>
+			<BaseMenu.Portal container={container ?? portalContainer ?? undefined} keepMounted={keepMounted} {...portalProps}>
+				<BaseMenu.Positioner
+					side={side}
+					align={align}
+					sideOffset={sideOffset}
+					collisionPadding={collisionPadding}
+					positionMethod={positionMethod}
+					className={clsx(POSITIONER_Z_CLASSES[surface], positionerClassName)}
+					{...positionerProps}>
+					<BaseMenu.Popup
+						render={popupRender ?? <ul />}
+						className={clsx('m-0 list-none p-0 outline-none', SURFACE_CLASSES[surface], anchorWidth && 'ui-menu-anchor-width', className)}
+						{...popupProps}>
+						{children}
+					</BaseMenu.Popup>
+				</BaseMenu.Positioner>
+			</BaseMenu.Portal>
+		</FieldContext.Provider>
 	);
 
 	// The row owns the popup: Base UI leaves focus guards where the portal sits, and they belong inside the `li`, not between the list's rows.

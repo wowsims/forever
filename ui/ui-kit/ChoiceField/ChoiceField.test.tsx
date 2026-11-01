@@ -120,6 +120,15 @@ describe('ChoiceField', () => {
 			expect((trigger() as HTMLButtonElement).disabled).toBe(true);
 			expect(labelled.container.firstElementChild!.hasAttribute('data-disabled')).toBe(true);
 		});
+
+		it('marks the trigger invalid', () => {
+			const { unmount } = render(<Harness options={MODES} initial={0} invalid />);
+			expect(trigger().getAttribute('aria-invalid')).toBe('true');
+			unmount();
+
+			render(<Harness options={MODES} initial={0} />);
+			expect(trigger().hasAttribute('aria-invalid')).toBe(false);
+		});
 	});
 
 	describe('value', () => {

@@ -69,7 +69,7 @@ export const LogSearchGroup = ({ group, suggestions, onChange, onRemove }: LogSe
 			testId="log-search-group"
 			className="flex max-w-62 flex-col gap-2 bg-panel [transition:all_0.2s_ease] hover:border-border hover:bg-panel-hover">
 			<div data-testid="log-search-group-head" className="flex items-center gap-2">
-				<span data-testid="log-search-group-field" className="text-(length:--btn-font-size) leading-normal">
+				<span data-testid="log-search-group-field" className="text-sm leading-normal">
 					{fieldLabel(group.field)}
 				</span>
 				<ToggleGroup

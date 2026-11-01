@@ -50,12 +50,16 @@ export interface ChoiceFieldProps<V> extends FieldFrameProps, ControlledProps<V>
 	/** Two values are the same selection. Defaults to `Object.is`; a caller whose values are messages passes its own. */
 	equals?(a: V, b: V): boolean;
 	variant?: ChoiceVariant;
+	/** Marks the trigger `aria-invalid`; the `select` look draws a danger border. */
+	invalid?: boolean;
 	/** The trigger's content while no option matches `value`. */
 	placeholder?: ReactNode;
 	/** The trigger's content for the selected option, in place of its icon and label. */
 	renderValue?(selected: ChoiceOption<V>): ReactNode;
 	/** Names a trigger that has no `label`. */
 	ariaLabel?: string;
+	/** Ids of extra text that describes the trigger, such as a message under it; a field `description` is added to them. */
+	'aria-describedby'?: string;
 	side?: Select.Positioner.Props['side'];
 	/**
 	 * `'fixed'` takes the list out of flow so an overflow-clipped ancestor cannot cut it off. It only

@@ -2,9 +2,9 @@ import i18n from '@i18n/config';
 import type { CombatLog } from '@sim/proto/combat_log';
 import { Button } from '@ui-kit/Button';
 import type { Chart as ChartJS, ChartData, ChartOptions, Plugin } from 'chart.js';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Chart } from 'react-chartjs-2';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 
+import { Chart } from '../../../../../shared/lazy_charts';
 import { useHoverTooltip } from '../../../hooks/useHoverTooltip';
 import type { AnnotationSpec, ScheduledKind, TimelineChartSpec, TimelineDataset, TimelinePoint, TooltipSpec } from '../../../model/timeline/chart/types';
 import { annotationsPlugin, SCHEDULED_ROWS } from './annotations';
@@ -171,23 +171,25 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 			)}
 			{hasData && (
 				<div data-testid="timeline-chart-canvas" className="relative min-h-0 flex-1">
-					<Chart
-						type="line"
-						ref={chartRef}
-						data={data}
-						options={options}
-						plugins={plugins.current}
-						// react-chartjs-2 otherwise matches a new result's datasets to the old ones by
-						// `label`, which is translated and can collide; `seriesId` is the stable key.
-						datasetIdKey="seriesId"
-						updateMode="none"
-						role="img"
-						aria-label={i18n.t('results_tab.details.timeline.chart_options.chart_label')}
-						onPointerDown={event => zoom.current.down(event)}
-						onPointerMove={event => zoom.current.move(event)}
-						onPointerUp={event => zoom.current.up(event)}
-						onPointerCancel={event => zoom.current.cancel(event)}
-					/>
+					<Suspense>
+						<Chart
+							type="line"
+							ref={chartRef}
+							data={data}
+							options={options}
+							plugins={plugins.current}
+							// react-chartjs-2 otherwise matches a new result's datasets to the old ones by
+							// `label`, which is translated and can collide; `seriesId` is the stable key.
+							datasetIdKey="seriesId"
+							updateMode="none"
+							role="img"
+							aria-label={i18n.t('results_tab.details.timeline.chart_options.chart_label')}
+							onPointerDown={event => zoom.current.down(event)}
+							onPointerMove={event => zoom.current.move(event)}
+							onPointerUp={event => zoom.current.up(event)}
+							onPointerCancel={event => zoom.current.cancel(event)}
+						/>
+					</Suspense>
 				</div>
 			)}
 			{!hasData && (

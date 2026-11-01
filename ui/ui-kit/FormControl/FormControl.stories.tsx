@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Fragment } from 'react';
 
 import * as FormControl from './index';
 
@@ -47,3 +48,16 @@ export const HelpText: Story = {
 	render: () => <FormControl.HelpText>Shown under a field to say what it takes.</FormControl.HelpText>,
 };
 export const Disabled: Story = { args: { disabled: true, defaultValue: 'Thunderfury' } };
+/** The text area keeps its content height and takes the size's padding. */
+export const Sizes: Story = {
+	render: () => (
+		<div className="grid grid-cols-2 gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<Fragment key={size}>
+					<FormControl.Input size={size} aria-label={`Input ${size}`} defaultValue={size} />
+					<FormControl.TextArea size={size} aria-label={`Text area ${size}`} rows={2} defaultValue={size} />
+				</Fragment>
+			))}
+		</div>
+	),
+};

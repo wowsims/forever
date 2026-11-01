@@ -1,4 +1,4 @@
-import type { InputSize } from '@ui-kit/FormControl';
+import type { ControlSize } from '@ui-kit/Field';
 import { NumberField, NumberListField, StringField } from '@ui-kit/TextField';
 import clsx from 'clsx';
 
@@ -9,11 +9,11 @@ export interface ConnectedNumberFieldProps<ModObject> {
 	modObject: ModObject;
 	config: NumberFieldConfig<ModObject>;
 	inputClassName?: string;
-	inputSize?: InputSize;
+	size?: ControlSize;
 	testId?: string;
 }
 
-export const ConnectedNumberField = <ModObject,>({ modObject, config, inputClassName, inputSize, testId }: ConnectedNumberFieldProps<ModObject>) => {
+export const ConnectedNumberField = <ModObject,>({ modObject, config, inputClassName, size, testId }: ConnectedNumberFieldProps<ModObject>) => {
 	const { value, setValue, hidden, disabled, frameProps } = useConnectedField(modObject, config);
 	if (hidden) return null;
 	return (
@@ -28,7 +28,7 @@ export const ConnectedNumberField = <ModObject,>({ modObject, config, inputClass
 			showZeroes={config.showZeroes}
 			maxDecimalDigits={config.maxDecimalDigits}
 			inputClassName={clsx(config.inputClassName, inputClassName)}
-			inputSize={inputSize}
+			size={size}
 		/>
 	);
 };

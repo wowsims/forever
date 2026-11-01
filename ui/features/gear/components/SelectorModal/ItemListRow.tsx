@@ -1,4 +1,4 @@
-import { addBulkItem, hasBulkItem, removeBulkItem } from '@features/bulk/model/items';
+import { addBulkItem, hasBulkItem, removeBulkItem } from '@features/bulk/model/gear/items';
 import { type ItemQuality, ItemSpec } from '@generated/proto/common';
 import type { UIItem as Item } from '@generated/proto/ui';
 import { useSimHost } from '@sim/context/SimHostContext';

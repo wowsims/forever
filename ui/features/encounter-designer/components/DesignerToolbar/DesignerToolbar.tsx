@@ -46,7 +46,7 @@ export const DesignerToolbar = ({ snapSeconds, onSnapChange, onZoomIn, onZoomOut
 				id="encounter-designer-snap"
 				label={designerText('toolbar.snap')}
 				layout="inline"
-				density="compact"
+				size="xs"
 				options={SNAP_STEPS.map(step => ({ value: step, label: step > 0 ? formatSeconds(step) : designerText('toolbar.snap_off') }))}
 				value={snapSeconds}
 				onChange={onSnapChange}

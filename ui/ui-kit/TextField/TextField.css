@@ -3,7 +3,7 @@
 		@apply filter-[opacity(0.5)];
 	}
 
-	.ui-field-compact .ui-text-field {
+	.ui-field[data-size='xs'] .ui-text-field {
 		@apply justify-start;
 	}
 }

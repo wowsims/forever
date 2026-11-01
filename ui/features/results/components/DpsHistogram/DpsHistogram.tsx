@@ -1,8 +1,8 @@
 import i18n from '@i18n/config';
 import type { ChartData, ChartOptions } from 'chart.js';
-import { useMemo } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { Suspense, useMemo } from 'react';
 
+import { Bar } from '../../../../shared/lazy_charts';
 import { useSimResult } from '../../hooks/useSimResult';
 
 const IN_STDEV = '#1E87F0';
@@ -58,7 +58,11 @@ export const DpsHistogram = () => {
 
 	return (
 		<div data-testid="dps-histogram-root" className="mx-auto mt-2 h-64 w-full">
-			{data && <Bar data={data} options={options} />}
+			{data && (
+				<Suspense>
+					<Bar data={data} options={options} />
+				</Suspense>
+			)}
 		</div>
 	);
 };

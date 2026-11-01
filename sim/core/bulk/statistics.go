@@ -49,30 +49,23 @@ func getBulkSimTargetIterations(targetErrorPct float64, metrics *proto.Distribut
 	return int32(math.Ceil(math.Pow((metrics.Stdev*combinationMultiplier)/targetError, 2)))
 }
 
-// Keeps candidates that could still plausibly be the best result after
-// accounting for sim variance. The top MinSurvivors by mean are always
-// retained, then any candidate whose upper interval overlaps the best
-// candidate's lower interval is kept. A soft cap prevents pathological stages
-// from forwarding the entire candidate set when many results are tied.
-func selectBulkSimSurvivors(results []*BulkSimCandidateResult, baseline *BulkSimCandidateResult, iterations int32, config BulkSimStageConfig, originalCandidateCount int) []BulkSimCandidate {
-	maxSurvivors := getBulkSimStageMaxSurvivors(config, len(results))
+// Keeps candidates that could still plausibly reach the run's shown results
+// after accounting for sim variance. The top MinSurvivors by mean, and at least
+// the top topResults, are always retained, then any candidate whose upper
+// interval overlaps the cutoff candidate's lower interval is kept. A soft cap
+// prevents pathological stages from forwarding the entire candidate set when
+// many results are tied.
+func selectBulkSimSurvivors(results []*BulkSimCandidateResult, baseline *BulkSimCandidateResult, iterations int32, config BulkSimStageConfig, originalCandidateCount int, topResults int) []BulkSimCandidate {
+	maxSurvivors := getBulkSimStageMaxSurvivors(config, len(results), topResults)
 	if maxSurvivors == 0 || len(results) <= maxSurvivors {
 		return bulkSimResultsToCandidates(results)
 	}
 
-	bestMetrics := baseline.DpsMetrics
-	for _, result := range results {
-		if result == nil || result.DpsMetrics == nil {
-			continue
-		}
-		if result.DpsMetrics.Avg > bestMetrics.Avg {
-			bestMetrics = result.DpsMetrics
-		}
-	}
+	meanSurvivors := topBulkSimResults(results, max(config.MinSurvivors, topResults))
+	cutoffMetrics := bulkSimCullingCutoff(results, baseline, meanSurvivors, topResults)
 	intervalMultiplier := bulkSimSurvivorIntervalMultiplier(originalCandidateCount, config.CullingCoefficient)
-	bestLowerBound := bestMetrics.Avg - bulkSimDpsError(bestMetrics, iterations)*intervalMultiplier
+	cutoffLowerBound := cutoffMetrics.Avg - bulkSimDpsError(cutoffMetrics, iterations)*intervalMultiplier
 
-	meanSurvivors := topBulkSimResults(results, config.MinSurvivors)
 	survivors := make([]*BulkSimCandidateResult, 0, maxSurvivors)
 	seen := make(map[int32]bool)
 	for _, result := range meanSurvivors {
@@ -84,7 +77,7 @@ func selectBulkSimSurvivors(results []*BulkSimCandidateResult, baseline *BulkSim
 			continue
 		}
 
-		if bulkSimCandidateIsCulled(result.DpsMetrics, bestMetrics, bestLowerBound, iterations, intervalMultiplier) {
+		if bulkSimCandidateIsCulled(result.DpsMetrics, cutoffMetrics, cutoffLowerBound, iterations, intervalMultiplier) {
 			continue
 		}
 		survivors = append(survivors, result)
@@ -99,6 +92,25 @@ func selectBulkSimSurvivors(results []*BulkSimCandidateResult, baseline *BulkSim
 	return bulkSimResultsToCandidates(survivors)
 }
 
+// The candidate a stage culls against. At BulkSimDefaultTopResults or fewer, every stage culls against the leader, the
+// baseline included. Above it, every stage culls against the last shown candidate, the topResults-th best by mean: one
+// that cannot reach it cannot be shown.
+func bulkSimCullingCutoff(results []*BulkSimCandidateResult, baseline *BulkSimCandidateResult, meanSurvivors []*BulkSimCandidateResult, topResults int) *proto.DistributionMetrics {
+	if topResults > BulkSimDefaultTopResults && len(meanSurvivors) > 0 {
+		return meanSurvivors[min(topResults, len(meanSurvivors))-1].DpsMetrics
+	}
+	bestMetrics := baseline.DpsMetrics
+	for _, result := range results {
+		if result == nil || result.DpsMetrics == nil {
+			continue
+		}
+		if result.DpsMetrics.Avg > bestMetrics.Avg {
+			bestMetrics = result.DpsMetrics
+		}
+	}
+	return bestMetrics
+}
+
 // The marginal cull test compares the sum of both candidates' half-widths, which is
 // sqrt(2) wider than the standard error of the difference it is really testing. Keeping
 // that factor when switching to the paired estimate means pairing only removes the
@@ -106,7 +118,8 @@ func selectBulkSimSurvivors(results []*BulkSimCandidateResult, baseline *BulkSim
 // interval.
 const BulkSimPairedIntervalConservatism = math.Sqrt2
 
-// Decides whether a candidate is far enough behind the leader to drop out.
+// Decides whether a candidate is far enough behind the cutoff candidate
+// (bulkSimCullingCutoff) to drop out.
 //
 // Every candidate is simmed on the same seed sequence, so most of the per-iteration
 // noise is shared between any two of them. Comparing marginal standard errors throws

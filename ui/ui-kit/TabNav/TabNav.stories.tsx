@@ -1,5 +1,6 @@
 import { Tabs } from '@base-ui/react/tabs';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Menu, MenuItem } from '@ui-kit/Menu';
 import { expect, fireEvent, within } from 'storybook/test';
 
 import { TabNav, type TabNavProps } from './TabNav';
@@ -61,6 +62,31 @@ export const Wrap: Story = {
 
 export const WithBadge: Story = {
 	args: { tabs: [...TABS, { id: 'story-bulk', label: 'Bulk', badge: 'Beta' }] },
+};
+
+export const SimTabAsMenuTrigger: Story = {
+	args: {
+		variant: 'sim',
+		tabs: [
+			...TABS,
+			{
+				id: 'story-bulk',
+				label: 'Batch',
+				renderTab: tab => (
+					<Menu surface="menu" triggerRender={tab} triggerProps={{ openOnHover: true, delay: 0, nativeButton: true }} align="start">
+						<MenuItem layout="block">Gear</MenuItem>
+						<MenuItem layout="block">Builds</MenuItem>
+					</Menu>
+				),
+			},
+		],
+	},
+	play: async ({ canvasElement }) => {
+		const tab = within(canvasElement).getByRole('tab', { name: 'Batch' });
+		await expect(tab.getAttribute('aria-haspopup')).toBe('menu');
+		await fireEvent.click(tab);
+		await expect(tab.getAttribute('aria-selected')).toBe('true');
+	},
 };
 
 export const Switches: Story = {

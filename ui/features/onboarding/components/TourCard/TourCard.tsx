@@ -1,6 +1,7 @@
 import { Popover as BasePopover } from '@base-ui/react/popover';
 import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import { type KeyboardEventHandler, type ReactNode, useRef } from 'react';
 
@@ -63,59 +64,67 @@ export const TourCard = ({ kind, title, body, media, position, total, anchor, on
 				// A press outside or the focus leaving is the page being used on a waiting step, not a way out.
 				if (!open && (details.reason === 'escape-key' || details.reason === 'close-press')) onSkip();
 			}}>
-			<BasePopover.Portal className="contents" container={portalContainer ?? undefined}>
-				<BasePopover.Positioner
-					className="ui-tour-positioner"
-					anchor={anchor ?? viewportAnchor}
-					side={anchor ? 'right' : 'bottom'}
-					align={anchor ? 'start' : 'center'}
-					sideOffset={anchor ? CARD_GAP + RING_PADDING : centred}
-					collisionPadding={VIEWPORT_MARGIN}
-					collisionAvoidance={anchor ? { side: 'flip', align: 'shift', fallbackAxisSide: 'end' } : { side: 'none', align: 'none' }}
-					data-testid="tour-card-positioner">
-					{/* The card takes the focus, not its primary button: a script focus on a button shows its keyboard ring under the mouse, and the arrow keys move the tour from the card. */}
-					<BasePopover.Popup ref={card} className="ui-tour-card" initialFocus={waiting ? false : card} onKeyDown={onKeyDown} data-testid="tour-card">
-						{media}
-						{kind === 'step' && (
-							<div className="flex items-center justify-between text-xs text-muted" data-testid="tour-card-progress">
-								<span className="font-bold tracking-wide uppercase">{i18n.t('onboarding.label')}</span>
-								<span className="tabular-nums">{i18n.t('onboarding.progress', { position, total })}</span>
-							</div>
-						)}
-						<BasePopover.Title className="mb-0 text-lg leading-snug" data-testid="tour-card-title">
-							{title}
-						</BasePopover.Title>
-						<BasePopover.Description className="mb-0 text-sm leading-relaxed text-muted" data-testid="tour-card-body">
-							{body}
-						</BasePopover.Description>
-						{kind === 'step' && total > 0 && (
-							<div className="h-1 overflow-hidden bg-surface" aria-hidden="true">
-								<div className="h-full bg-primary" style={{ width: `${(position / total) * 100}%` }} />
-							</div>
-						)}
-						<div className="flex items-center gap-2" data-testid="tour-card-actions">
-							{kind !== 'finish' && (
-								<BasePopover.Close render={<Button variant="link" size="sm" className="mr-auto" />} data-testid="tour-card-skip">
-									{i18n.t('onboarding.skip')}
-								</BasePopover.Close>
+			{/* Out of any Field the tour mounts in, so the card's controls take no size from that field. */}
+			<FieldContext.Provider value={null}>
+				<BasePopover.Portal className="contents" container={portalContainer ?? undefined}>
+					<BasePopover.Positioner
+						className="ui-tour-positioner"
+						anchor={anchor ?? viewportAnchor}
+						side={anchor ? 'right' : 'bottom'}
+						align={anchor ? 'start' : 'center'}
+						sideOffset={anchor ? CARD_GAP + RING_PADDING : centred}
+						collisionPadding={VIEWPORT_MARGIN}
+						collisionAvoidance={anchor ? { side: 'flip', align: 'shift', fallbackAxisSide: 'end' } : { side: 'none', align: 'none' }}
+						data-testid="tour-card-positioner">
+						{/* The card takes the focus, not its primary button: a script focus on a button shows its keyboard ring under the mouse, and the arrow keys move the tour from the card. */}
+						<BasePopover.Popup
+							ref={card}
+							className="ui-tour-card"
+							initialFocus={waiting ? false : card}
+							onKeyDown={onKeyDown}
+							data-testid="tour-card">
+							{media}
+							{kind === 'step' && (
+								<div className="flex items-center justify-between text-xs text-muted" data-testid="tour-card-progress">
+									<span className="font-bold tracking-wide uppercase">{i18n.t('onboarding.label')}</span>
+									<span className="tabular-nums">{i18n.t('onboarding.progress', { position, total })}</span>
+								</div>
 							)}
-							{onPrevious && (
-								<Button
-									variant="outline-secondary"
-									size="sm"
-									className={kind === 'finish' ? 'ml-auto' : undefined}
-									onClick={onPrevious}
-									data-testid="tour-card-previous">
-									{i18n.t('onboarding.previous')}
+							<BasePopover.Title className="mb-0 text-lg leading-snug" data-testid="tour-card-title">
+								{title}
+							</BasePopover.Title>
+							<BasePopover.Description className="mb-0 text-sm leading-relaxed text-muted" data-testid="tour-card-body">
+								{body}
+							</BasePopover.Description>
+							{kind === 'step' && total > 0 && (
+								<div className="h-1 overflow-hidden bg-surface" aria-hidden="true">
+									<div className="h-full bg-primary" style={{ width: `${(position / total) * 100}%` }} />
+								</div>
+							)}
+							<div className="flex items-center gap-2" data-testid="tour-card-actions">
+								{kind !== 'finish' && (
+									<BasePopover.Close render={<Button variant="link" className="mr-auto" />} data-testid="tour-card-skip">
+										{i18n.t('onboarding.skip')}
+									</BasePopover.Close>
+								)}
+								{onPrevious && (
+									<Button
+										variant="outline-secondary"
+										size="sm"
+										className={kind === 'finish' ? 'ml-auto' : undefined}
+										onClick={onPrevious}
+										data-testid="tour-card-previous">
+										{i18n.t('onboarding.previous')}
+									</Button>
+								)}
+								<Button variant="primary" size="sm" onClick={kind === 'finish' ? onSkip : onNext} data-testid="tour-card-next">
+									{label}
 								</Button>
-							)}
-							<Button variant="primary" size="sm" onClick={kind === 'finish' ? onSkip : onNext} data-testid="tour-card-next">
-								{label}
-							</Button>
-						</div>
-					</BasePopover.Popup>
-				</BasePopover.Positioner>
-			</BasePopover.Portal>
+							</div>
+						</BasePopover.Popup>
+					</BasePopover.Positioner>
+				</BasePopover.Portal>
+			</FieldContext.Provider>
 		</BasePopover.Root>
 	);
 };
