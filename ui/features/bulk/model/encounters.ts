@@ -36,11 +36,7 @@ const sameRef = (a: BulkEncounterRef, b: BulkEncounterRef) => a.name === b.name 
 const isBulkEncounterChecked = (checked: readonly BulkEncounterRef[], ref: BulkEncounterRef) => checked.some(item => sameRef(item, ref));
 
 // As the results store it: null for both on a health-based encounter, which has no set length.
-export const encounterLength = ({
-	duration,
-	durationVariation,
-	useHealth,
-}: Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth'>): EncounterLength =>
+export const encounterLength = ({ duration, durationVariation, useHealth }: Pick<Encounter, 'duration' | 'durationVariation' | 'useHealth'>): EncounterLength =>
 	useHealth ? { duration: null, durationVariation: null } : { duration, durationVariation };
 
 // "m:ss ±Ns", or "m:ss" alone when the variation is null; a health-based encounter shows how it ends.

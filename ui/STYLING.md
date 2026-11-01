@@ -95,7 +95,7 @@ class in a co-located `.css` file, `@import`ed from `ui/styles/main.css` (see th
 ```css
 @layer components {
 	.ui-chip {
-		@apply rounded-full flex p-0 border border-primary text-white text-ui font-normal …;
+		@apply flex rounded-full border border-primary p-0 text-ui font-normal text-white …;
 
 		&:hover:not([data-active]) {
 			@apply bg-primary-dampened;
@@ -147,7 +147,7 @@ is a `data-*` attribute, never a class — boolean presence (`data-active`) or a
 Style with the matching variant:
 
 ```tsx
-<button data-active={active ? '' : undefined} className="… data-active:bg-primary hover:bg-primary-dampened" />
+<button data-active={active ? '' : undefined} className="hover:bg-primary-dampened data-active:bg-primary …" />
 ```
 
 - `data-active:` (bare-key presence — write it this way, not `data-[active]:`; the canonical-classes

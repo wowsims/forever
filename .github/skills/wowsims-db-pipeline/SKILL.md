@@ -119,7 +119,7 @@ Reading another table once, what the tables hold and how a script reads them: `r
   `ParseEffects` then drops it without a word. When `.results` move after a regeneration, check the changed rows
   for one before taking the change as live; Missile Barrage's tick length is applied by hand for this reason.
 - When a regeneration drops spells from the store, `make db`'s `gen_db` step panics with `spell N is not in the
-store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
+  store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
   ones. Run `go run tools/database/gen_db/*.go -outDir=./assets -gen=db` again; the second run compiles the new files.
 
 ## Keeping this skill true
