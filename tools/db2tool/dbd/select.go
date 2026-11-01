@@ -4,9 +4,10 @@
 
 package dbd
 
-import "slices"
-
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 // SelectVersion returns the LAST versionDefinition (in file order) whose
 // Builds list contains an entry with trailing build number == buildNumber.
