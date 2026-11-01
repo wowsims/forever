@@ -337,22 +337,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 			removeFromMajorCooldowns(impl, character)
 		}
 
-		// If user has Item Swapping enabled and hasn't swapped back to the main set do it here.
-		if character != nil && character.ItemSwap.IsEnabled() {
-			skipItemSwapCheck := true
-			hasMainSwap := false
-			for _, prepullAction := range rotation.allPrepullActions() {
-				if action, ok := prepullAction.impl.(*APLActionItemSwap); ok {
-					hasMainSwap = action.swapSet == proto.APLActionItemSwap_Main
-					skipItemSwapCheck = false
-				}
-			}
-			if !skipItemSwapCheck && !hasMainSwap {
-				unit.RegisterPrepullAction(-1, func(sim *Simulation) {
-					character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
-				})
-			}
-		}
+		rotation.warnOnPrepullSwapWithoutMain()
 	}
 
 	rotation.assignEntryPaths(config)
@@ -446,6 +431,29 @@ func (rot *APLRotation) hasMove() bool {
 		})
 	}
 	return rot.hasMoveValue
+}
+
+// A set swapped in before the pull stays on into the fight until an Item Swap: Main runs. A prepull swap away from
+// the main set warns when neither the prepull nor the rotation has one.
+func (rot *APLRotation) warnOnPrepullSwapWithoutMain() {
+	isSwapTo := func(main bool) func(*APLAction) bool {
+		return func(action *APLAction) bool {
+			swap, ok := action.impl.(*APLActionItemSwap)
+			return ok && (swap.swapSet == proto.APLActionItemSwap_Main) == main
+		}
+	}
+	// Walked from the prepull and priority lists, so a group only counts where a shown line references it.
+	reachable := Flatten(MapSlice(slices.Concat(rot.prepullActions, rot.priorityList), getAllActionsSafe))
+	if slices.ContainsFunc(reachable, isSwapTo(true)) {
+		return
+	}
+	for i, action := range rot.prepullActions {
+		if slices.ContainsFunc(action.GetAllActions(), isSwapTo(false)) {
+			rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
+				rot.ValidationMessage(proto.LogLevel_Warning, "Nothing swaps back to the main set, so the swapped set stays on for the whole fight. Add an Item Swap: Main to the rotation.")
+			})
+		}
+	}
 }
 
 // Returns all action objects from the prepull as an unstructured list. Used for easily finding specific actions.
