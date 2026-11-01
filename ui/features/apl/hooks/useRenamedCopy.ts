@@ -1,8 +1,8 @@
 import type { AplNameDialogProps } from '@features/apl/components/AplNameDialog';
-import { freeName } from '@features/apl/model/clipboard';
 import type { APLRotation } from '@generated/proto/apl';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
+import { freeName } from '@sim/utils/misc';
 import { useState } from 'react';
 
 export interface RenamedCopyOptions<T> {

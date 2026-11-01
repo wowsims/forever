@@ -33,10 +33,3 @@ export const aplClipFromText = (text: string): AplClip | undefined => {
 		return undefined;
 	}
 };
-
-/** `name` when it is free, otherwise the first free `base (2)`, `base (3)`, ..., where `base` is `name` without a ` (n)` it already ends in. */
-export const freeName = (name: string, taken: ReadonlyArray<string>): string => {
-	if (!taken.includes(name)) return name;
-	const base = name.replace(/ \(\d+\)$/, '');
-	for (let n = 2; ; n++) if (!taken.includes(`${base} (${n})`)) return `${base} (${n})`;
-};

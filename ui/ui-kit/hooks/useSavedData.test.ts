@@ -96,6 +96,17 @@ describe('useSavedData', () => {
 		expect(read()).toEqual({ stale: { value: 'nope' }, raid: { value: 1 }, solo: { value: 5 } });
 	});
 
+	it('keeps both entries when two saves run in one handler', () => {
+		const { result } = renderHook(() => useSavedData(KEY, codec));
+
+		act(() => {
+			result.current.save('solo', { value: 5 });
+			result.current.save('duo', { value: 6 });
+		});
+
+		expect(read()).toEqual({ solo: { value: 5 }, duo: { value: 6 } });
+	});
+
 	it('names every stored entry, the unreadable ones included', () => {
 		vi.spyOn(console, 'warn').mockImplementation(() => {});
 		store({ stale: { value: 'nope' }, raid: { value: 1 } });

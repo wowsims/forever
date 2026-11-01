@@ -4,11 +4,11 @@ import { SavedEncounter } from '@features/encounter/components/SavedEncounter';
 import { SavedGear } from '@features/gear/components/SavedGear';
 import { useSavedGear } from '@features/gear/hooks/useSavedGear';
 import { APLRotation } from '@generated/proto/apl';
-import { Encounter, EquipmentSpec, ItemSpec, Spec } from '@generated/proto/common';
+import { Encounter, EquipmentSpec, ItemSpec, Spec, Target } from '@generated/proto/common';
 import { SavedGearSet } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
-import { renderReady } from '@testing/saved_panel';
+import { readStored, renderReady } from '@testing/saved_panel';
 import { fakeHost } from '@testing/sim/fake_host';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import type { ReactElement } from 'react';
@@ -16,6 +16,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 import character from '../../../../../assets/locales/en/character.json';
 import english from '../../../../../assets/locales/en/translation.json';
+import { MAX_NAME_LENGTH } from '../../model/import_plan';
 import { decodeSavedData, encodeSavedData, MAX_TEXT_LENGTH, type SavedDataExport } from '../../model/transfer_text';
 
 vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions());
@@ -85,7 +86,6 @@ const hostParts = ({ powerTools = true } = {}) => {
 
 const gearJson = (itemId: number) => SavedGearSet.toJson(SavedGearSet.create({ gear: EquipmentSpec.create({ items: [ItemSpec.create({ id: itemId })] }) }));
 const store = (key: string, entries: Record<string, unknown>) => window.localStorage.setItem(key, JSON.stringify(entries));
-const stored = (key: string) => JSON.parse(window.localStorage.getItem(key) ?? '{}');
 const exportOf = (entries: SavedDataExport['entries'], extra: Partial<SavedDataExport> = {}) =>
 	encodeSavedData({ type: 'gear', spec: 'SpecDpsWarrior', entries, ...extra });
 
@@ -131,6 +131,15 @@ describe('SavedDataTransfer', () => {
 
 		const header = screen.getByTestId('content-block-header');
 		expect(within(header).getByTestId('saved-data-transfer-button')).toBeTruthy();
+	});
+
+	it('keeps the cog off until the sim is ready, when the preset names an import steps around arrive', async () => {
+		const parts = hostParts();
+		parts.sim.waitForInit = () => new Promise<void>(() => {});
+
+		await renderPanel(<SavedGear />, parts);
+
+		expect(screen.getByTestId<HTMLButtonElement>('saved-data-transfer-button').disabled).toBe(true);
 	});
 
 	describe('export', () => {
@@ -225,7 +234,7 @@ describe('SavedDataTransfer', () => {
 			await importTicked();
 
 			await waitFor(() => expect(screen.queryByTestId('importer')).toBeNull());
-			expect(stored(GEAR_KEY)).toEqual({ Kept: gearJson(9), One: gearJson(1), Two: gearJson(2), Three: gearJson(3) });
+			expect(readStored(GEAR_KEY)).toEqual({ Kept: gearJson(9), One: gearJson(1), Two: gearJson(2), Three: gearJson(3) });
 			const chips = within(screen.getByTestId('saved-data-custom'));
 			expect(['Kept', 'One', 'Two', 'Three'].map(name => chips.getByRole('button', { name }).textContent)).toEqual(['Kept', 'One', 'Two', 'Three']);
 			expect(trackEvent).toHaveBeenCalledWith({ action: 'settings', category: 'import', label: expect.any(String) });
@@ -273,10 +282,10 @@ describe('SavedDataTransfer', () => {
 
 			await importTicked();
 
-			await waitFor(() => expect(stored(GEAR_KEY)['Taken (3)']).toEqual(gearJson(7)));
-			expect(stored(GEAR_KEY).Taken).toEqual(gearJson(1));
-			expect(stored(GEAR_KEY)['Preset Set (2)']).toEqual(gearJson(8));
-			expect(Object.keys(stored(GEAR_KEY))).toHaveLength(5);
+			await waitFor(() => expect(readStored(GEAR_KEY)['Taken (3)']).toEqual(gearJson(7)));
+			expect(readStored(GEAR_KEY).Taken).toEqual(gearJson(1));
+			expect(readStored(GEAR_KEY)['Preset Set (2)']).toEqual(gearJson(8));
+			expect(Object.keys(readStored(GEAR_KEY))).toHaveLength(5);
 		});
 
 		it('saves nothing new when the same file is imported twice, a clash that went to (2) included', async () => {
@@ -286,9 +295,9 @@ describe('SavedDataTransfer', () => {
 			await openFromMenu('import');
 			await pastePreview(text);
 			await importTicked();
-			await waitFor(() => expect(stored(GEAR_KEY)['Taken (2)']).toEqual(gearJson(7)));
+			await waitFor(() => expect(readStored(GEAR_KEY)['Taken (2)']).toEqual(gearJson(7)));
 			await waitFor(() => expect(screen.queryByTestId('importer')).toBeNull());
-			const afterFirst = stored(GEAR_KEY);
+			const afterFirst = readStored(GEAR_KEY);
 
 			await openFromMenu('import');
 			await pastePreview(text);
@@ -297,7 +306,7 @@ describe('SavedDataTransfer', () => {
 			expect([isTicked('Taken'), isTicked('Fresh')]).toEqual([false, false]);
 			expect(importButton().textContent).toBe('Import 0');
 			expect(importButton().disabled).toBe(true);
-			expect(stored(GEAR_KEY)).toEqual(afterFirst);
+			expect(readStored(GEAR_KEY)).toEqual(afterFirst);
 		});
 
 		it('notes the saved name when it differs, and saves a ticked copy under a free name', async () => {
@@ -314,7 +323,7 @@ describe('SavedDataTransfer', () => {
 			expect(screen.getByTestId('saved-data-tick-note').textContent).toBe('Saves as "Crit test"');
 			await importTicked();
 
-			await waitFor(() => expect(Object.keys(stored(GEAR_KEY))).toEqual(['Crit test (2)', 'Crit test']));
+			await waitFor(() => expect(Object.keys(readStored(GEAR_KEY))).toEqual(['Crit test (2)', 'Crit test']));
 		});
 
 		it('keeps both when an entry the codec rejects holds the name', async () => {
@@ -328,8 +337,8 @@ describe('SavedDataTransfer', () => {
 			expect(screen.getByTestId('saved-data-tick-note').textContent).toBe('Saves as "X (2)"');
 			await importTicked();
 
-			await waitFor(() => expect(stored(GEAR_KEY)['X (2)']).toEqual(gearJson(1)));
-			expect(stored(GEAR_KEY).X).toBe('nope');
+			await waitFor(() => expect(readStored(GEAR_KEY)['X (2)']).toEqual(gearJson(1)));
+			expect(readStored(GEAR_KEY).X).toBe('nope');
 		});
 
 		it('saves only the ticked entries and cannot import none', async () => {
@@ -347,7 +356,7 @@ describe('SavedDataTransfer', () => {
 			fireEvent.click(tickBox('Two'));
 			await importTicked();
 
-			await waitFor(() => expect(Object.keys(stored(GEAR_KEY))).toEqual(['Two']));
+			await waitFor(() => expect(Object.keys(readStored(GEAR_KEY))).toEqual(['Two']));
 		});
 
 		it('imports gear and encounters from another spec', async () => {
@@ -360,8 +369,75 @@ describe('SavedDataTransfer', () => {
 
 			await renderPanel(<SavedEncounter />, parts);
 			await openFromMenu('import');
-			await pastePreview(await exportOf({ Boss: { encounter: Encounter.toJson(Encounter.create()) } }, { type: 'encounter', spec: 'SpecMage' }));
+			const boss = Encounter.toJson(Encounter.create({ targets: [Target.create()] }));
+			await pastePreview(await exportOf({ Boss: { encounter: boss } }, { type: 'encounter', spec: 'SpecMage' }));
 			expect(isTicked('Boss')).toBe(true);
+		});
+
+		it('keeps the player’s ticks when another tab writes to the slot', async () => {
+			await renderPanel();
+			await openFromMenu('import');
+			await pastePreview(await exportOf({ One: gearJson(1), Two: gearJson(2) }));
+			fireEvent.click(tickBox('One'));
+			expect(importButton().textContent).toBe('Import 1');
+
+			await act(async () => {
+				window.localStorage.setItem(GEAR_KEY, JSON.stringify({ Two: gearJson(9) }));
+				window.dispatchEvent(new StorageEvent('storage', { key: GEAR_KEY }));
+			});
+
+			await screen.findByTestId('saved-data-tick-list');
+			expect(isTicked('One')).toBe(false);
+			expect(isTicked('Two')).toBe(true);
+			expect(screen.getByTestId('saved-data-tick-note').textContent).toBe('Saves as "Two (2)"');
+			expect(importButton().textContent).toBe('Import 1');
+		});
+
+		it('starts from the plan’s ticks when the same text is pasted after a close', async () => {
+			await renderPanel();
+			const text = await exportOf({ One: gearJson(1) });
+			await openFromMenu('import');
+			await pastePreview(text);
+			fireEvent.click(tickBox('One'));
+			fireEvent.click(screen.getByRole('button', { name: i18n.t('common.close') }));
+			await waitFor(() => expect(screen.queryByTestId('importer')).toBeNull());
+
+			await openFromMenu('import');
+			await pastePreview(text);
+
+			expect(isTicked('One')).toBe(true);
+		});
+
+		it('cuts a name over the cap, saying what it saves as', async () => {
+			const long = 'x'.repeat(MAX_NAME_LENGTH + 5);
+			const capped = 'x'.repeat(MAX_NAME_LENGTH);
+			await renderPanel();
+			await openFromMenu('import');
+
+			await pastePreview(await exportOf({ [long]: gearJson(1) }));
+
+			expect(screen.getByTestId('saved-data-tick-note').textContent).toBe(`Saves as "${capped}"`);
+			await importTicked();
+
+			await waitFor(() => expect(Object.keys(readStored(GEAR_KEY))).toEqual([capped]));
+		});
+
+		it('imports the panel’s own entry saved with a name over the cap', async () => {
+			const long = 'x'.repeat(MAX_NAME_LENGTH + 5);
+			store(GEAR_KEY, { [long]: gearJson(1) });
+			await renderPanel();
+			await openFromMenu('export');
+			await waitFor(() => expect(exportText()).toMatch(/^wowsims-saved:v1:/));
+			const text = exportText();
+			fireEvent.click(screen.getByRole('button', { name: i18n.t('common.close') }));
+			await waitFor(() => expect(screen.queryByTestId('exporter')).toBeNull());
+			window.localStorage.removeItem(GEAR_KEY);
+			window.dispatchEvent(new StorageEvent('storage', { key: GEAR_KEY }));
+
+			await openFromMenu('import');
+			await pastePreview(text);
+
+			expect(isTicked(long)).toBe(true);
 		});
 
 		it('refuses a spec-locked type from another spec, naming the spec', async () => {
@@ -435,11 +511,11 @@ describe('SavedDataTransfer', () => {
 			expect(screen.getByTestId('saved-data-import-unreadable').textContent).toBe('1 entry could not be read and is left out.');
 		});
 
-		it('counts an encounter entry with no encounter as unreadable', async () => {
+		it('counts an encounter entry with no encounter or no target as unreadable', async () => {
 			await renderPanel(<SavedEncounter />);
 			await openFromMenu('import');
 
-			await paste(await exportOf({ Empty: {} }, { type: 'encounter' }));
+			await paste(await exportOf({ Empty: {}, NoTarget: { encounter: Encounter.toJson(Encounter.create()) } }, { type: 'encounter' }));
 
 			expect((await problems()).textContent).toBe('None of the entries in this export could be read. Nothing was saved.');
 		});
@@ -490,7 +566,7 @@ describe('SavedDataTransfer', () => {
 			expect(list.querySelector('img')).toBeNull();
 
 			await importTicked();
-			await waitFor(() => expect(stored(GEAR_KEY)[HOSTILE_NAME]).toBeDefined());
+			await waitFor(() => expect(readStored(GEAR_KEY)[HOSTILE_NAME]).toBeDefined());
 
 			const chip = await within(screen.getByTestId('saved-data-custom')).findByRole('button', { name: HOSTILE_NAME });
 			expect(chip.textContent).toBe(HOSTILE_NAME);
@@ -529,7 +605,7 @@ describe('SavedDataTransfer', () => {
 			expect(screen.getByTestId('saved-data-import-unreadable').textContent).toContain('1 entry');
 			await importTicked();
 
-			await waitFor(() => expect(Object.keys(stored(GEAR_KEY))).toEqual(['Spaced']));
+			await waitFor(() => expect(Object.keys(readStored(GEAR_KEY))).toEqual(['Spaced']));
 			expect(({} as Record<string, unknown>).id).toBeUndefined();
 		});
 	});

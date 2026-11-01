@@ -27,7 +27,7 @@ export const SavedTalents = () => {
 			deleteConfirmMessage={i18n.t('talents_tab.saved_talents.delete.confirm')}
 			chooseNameAlert={i18n.t('talents_tab.saved_talents.alerts.choose_name')}
 			nameExistsAlert={i18n.t('talents_tab.saved_talents.alerts.name_exists')}
-			headerChildren={<SavedDataTransfer type="talents" label={panel.label} storage={storage} />}
+			headerChildren={<SavedDataTransfer type="talents" label={panel.label} storage={storage} presets={panel.presets} />}
 			{...panel}
 		/>
 	);

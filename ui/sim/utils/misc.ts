@@ -7,6 +7,14 @@ export const noop = () => {};
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
+/** `name` when it is free, otherwise the first free `base (2)`, `base (3)`, ..., where `base` is `name` without a ` (n)` it already ends in. */
+export const freeName = (name: string, taken: Iterable<string>): string => {
+	const names = taken instanceof Set ? taken : new Set(taken);
+	if (!names.has(name)) return name;
+	const base = name.replace(/ \(\d+\)$/, '');
+	for (let n = 2; ; n++) if (!names.has(`${base} (${n})`)) return `${base} (${n})`;
+};
+
 /** A one-entry memo: each call returns the last value, or runs `compute` again when one of `deps` changed identity since. */
 export const memoLast = <T>() => {
 	let last: { deps: ReadonlyArray<unknown>; value: T } | undefined;

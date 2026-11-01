@@ -1,7 +1,10 @@
+import { encodeSavedData } from '@features/saved-data-transfer/model/transfer_text';
 import { EquipmentSpec } from '@generated/proto/common';
+import { SavedGearSet } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
@@ -39,5 +42,23 @@ describe('GearPresets', () => {
 
 		const cog = container.querySelector('[data-testid="saved-data-transfer-button"]');
 		expect(cog?.closest('[data-testid="content-block-header"]')?.querySelector('[data-testid="content-block-title"]')?.textContent).toBe('');
+	});
+
+	it('steps an import around the gear presets, which its saved panel does not list', async () => {
+		window.localStorage.clear();
+		setup({ gear: [{ name: 'BiS', group: 'Fury', gear: EquipmentSpec.create() }], builds: [] }, true);
+
+		fireEvent.click(screen.getByTestId('saved-data-transfer-button'));
+		fireEvent.click(await screen.findByTestId('saved-data-transfer-import'));
+		const text = await encodeSavedData({ type: 'gear', spec: 'SpecDpsWarrior', entries: { BiS: SavedGearSet.toJson(SavedGearSet.create()) } });
+		await act(async () => {
+			fireEvent.change(await screen.findByTestId('importer-textarea'), { target: { value: text } });
+		});
+		await screen.findByTestId('saved-data-tick-list');
+		await act(async () => {
+			fireEvent.click(screen.getByTestId('import-button'));
+		});
+
+		await waitFor(() => expect(Object.keys(JSON.parse(window.localStorage.getItem('specsavedGearSets')!))).toEqual(['BiS (2)']));
 	});
 });

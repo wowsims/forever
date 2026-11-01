@@ -1,7 +1,7 @@
 import { APLGroup, APLListItem, APLValueVariable } from '@generated/proto/apl';
 import { describe, expect, it } from 'vitest';
 
-import { aplClipFromText, aplClipToText, freeName } from './clipboard';
+import { aplClipFromText, aplClipToText } from './clipboard';
 
 const row = () =>
 	APLListItem.fromJson({
@@ -50,17 +50,5 @@ describe('APL clipboard text', () => {
 		expect(aplClipFromText('{"kind": "action", "value": {}}')).toBeUndefined();
 		expect(aplClipFromText('{"kind": "group", "value": {"bogus": 1}}')).toBeUndefined();
 		expect(aplClipFromText('{"kind": "toString", "value": {}}')).toBeUndefined();
-	});
-});
-
-describe('freeName', () => {
-	it('keeps a free name and otherwise takes the first free number', () => {
-		expect(freeName('Cooldowns', ['Opener'])).toBe('Cooldowns');
-		expect(freeName('Cooldowns', ['Cooldowns', 'Cooldowns (2)'])).toBe('Cooldowns (3)');
-		expect(freeName('Cooldowns', ['Cooldowns', 'Cooldowns (3)'])).toBe('Cooldowns (2)');
-	});
-
-	it('numbers a numbered name from its base, never nesting the suffix', () => {
-		expect(freeName('Berserk (2)', ['Berserk', 'Berserk (2)'])).toBe('Berserk (3)');
 	});
 });

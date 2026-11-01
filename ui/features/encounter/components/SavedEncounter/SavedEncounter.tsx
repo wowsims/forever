@@ -26,7 +26,7 @@ export const SavedEncounter = () => {
 			title={i18n.t('settings_tab.saved_encounters.title')}
 			nameLabel={i18n.t('settings_tab.saved_encounters.encounter_name')}
 			saveButtonText={i18n.t('settings_tab.saved_encounters.save_encounter')}
-			headerChildren={<SavedDataTransfer type="encounter" label={panel.label} storage={storage} />}
+			headerChildren={<SavedDataTransfer type="encounter" label={panel.label} storage={storage} presets={panel.presets} />}
 			{...panel}
 		/>
 	);

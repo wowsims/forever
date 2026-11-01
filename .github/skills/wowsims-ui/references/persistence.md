@@ -86,12 +86,14 @@ Both dialogs run on the shells in `ui/features/import-export/components`: `Expor
 
 Names and contents come from other people, so the import treats them as untrusted:
 
-- A name is trimmed, and an empty one, one over `MAX_NAME_LENGTH` or a `__proto__`-style one counts as unreadable.
+- A name is trimmed, and an empty or `__proto__`-style one counts as unreadable. One over `MAX_NAME_LENGTH` is cut to the
+  cap and then follows the same rules as any other name, since the panel's save input takes a name of any length.
 - The text, the inflated JSON and the entry count are capped.
 - An entry has to pass the panel's codec and, for gear, encounters and talents, the check in
   `model/saved_data_types.ts`. Gear with more items than their slots hold throws in `lookupEquipmentSpec`, which the
-  Builds tab calls while it renders. A talents string goes into the Batch CSV as it stands, so it has to be digits and
-  dashes.
+  Builds tab calls while it renders. An encounter needs a target, since the encounter picker reads the first one. A
+  talents string has to fit the class's config (`talentsStringFits`): the sim panics on a fourth tree, and the string goes
+  into the Batch CSV as it stands.
 - A saved name never goes into a string that `LocaleHtml` reads. A `FieldLabel` tooltip given as a string goes through
   `LocaleHtml`, so a tooltip quoting a saved name is passed as an element (`BulkCheckList`, `BulkBundleList`).
 - A saved name in a CSV goes through `csvText` (`ui/sim/utils/csv.ts`), so a spreadsheet reads it as text. The guard is
@@ -102,8 +104,7 @@ twice saves nothing new. Ticking it saves it under a free name. A name in use, a
 entry the codec rejects saves under the next free number, so an import never overwrites anything.
 
 Gear and encounters import on any spec. Talents, rotations and settings are refused from another spec, the last because
-they hold spec options. Several entries go in through `saveMany`: `save` reads the record as of the last render, so a
-loop of them keeps only the last.
+they hold spec options. Several entries go in through `saveMany`: one write, and one answer on whether storage took it.
 
 ## What is gated
 

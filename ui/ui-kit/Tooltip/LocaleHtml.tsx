@@ -17,7 +17,8 @@ const componentsIn = (html: string): Record<string, ReactElement> => {
 /**
  * Markup that came out of a locale file: pass `i18n.t(...)` output or a frozen spec config string, never
  * anything else. Each tag becomes a React element carrying the locale's own attributes; a tag that cannot
- * be resolved renders as text, so an interpolated value can never become markup. The markup is already
+ * be resolved renders as text. Interpolation runs before the tags are read and is not escaped, so a value that
+ * holds a tag becomes markup; keep user-chosen text out of the string. The markup is already
  * translated, so `cimode` hands it back as it is instead of looking it up as a key that is never there.
  */
 export const LocaleHtml = ({ html }: LocaleHtmlProps) => (

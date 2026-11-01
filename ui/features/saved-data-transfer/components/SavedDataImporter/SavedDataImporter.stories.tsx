@@ -16,6 +16,7 @@ const meta = {
 		open: true,
 		onOpenChange: fn(),
 		storage: { entries: [], storedNames: [], saveMany: () => true, codec: SavedTalents },
+		presets: [],
 	},
 } satisfies Meta<typeof SavedDataImporter<SavedTalents>>;
 

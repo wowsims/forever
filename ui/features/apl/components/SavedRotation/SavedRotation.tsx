@@ -46,7 +46,7 @@ export const SavedRotation = () => {
 			chooseNameAlert={i18n.t('rotation_tab.saved_rotations.alerts.choose_name')}
 			nameExistsAlert={i18n.t('rotation_tab.saved_rotations.alerts.name_exists')}
 			isActive={isActive}
-			headerChildren={<SavedDataTransfer type="rotation" label={panel.label} storage={storage} />}
+			headerChildren={<SavedDataTransfer type="rotation" label={panel.label} storage={storage} presets={panel.presets} />}
 			{...panel}
 		/>
 	);

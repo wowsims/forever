@@ -21,8 +21,7 @@ export interface UseSavedDataResult<T> {
 	// Every name in the slot, the ones the codec rejected included, which `entries` leaves out.
 	storedNames: string[];
 	save: (name: string, data: T) => void;
-	// All in one write, since `save` reads the record as of the last render and a loop of them keeps only the last.
-	// False when storage refused the write.
+	// All in one write, with one answer: false when storage refused it, and nothing of the batch is kept.
 	saveMany: (items: ReadonlyArray<{ name: string; data: T }>) => boolean;
 	remove: (name: string) => void;
 	codec: SavedDataCodec<T>;
@@ -33,14 +32,19 @@ type StoredRecord = Record<string, JsonValue>;
 const parseStoredRecord = (value: unknown): StoredRecord | undefined =>
 	value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as StoredRecord) : undefined;
 
+// Throws when the codec cannot read the entry.
+export const readSavedDataEntry = <T>(name: string, json: JsonValue, codec: SavedDataCodec<T>): SavedDataEntry<T> => {
+	const data = codec.fromJson(json);
+	return { name, data, json: JSON.stringify(codec.toJson(data)) };
+};
+
 // The entries of a parsed slot, for a reader outside React; anything but a record holds none.
 export const savedDataEntries = <T>(value: unknown, codec: SavedDataCodec<T>): Array<SavedDataEntry<T>> => {
 	const stored = parseStoredRecord(value);
 	const parsed: Array<SavedDataEntry<T>> = [];
 	for (const name in stored) {
 		try {
-			const data = codec.fromJson(stored[name]);
-			parsed.push({ name, data, json: JSON.stringify(codec.toJson(data)) });
+			parsed.push(readSavedDataEntry(name, stored[name], codec));
 		} catch (error) {
 			// One unreadable entry must not cost the user the rest of the slot.
 			console.warn('Failed parsing saved data: ', stored[name], error);
@@ -61,24 +65,41 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 
 	const entries = useMemo(() => savedDataEntries(stored, codecRef.current), [stored]);
 	const storedNames = useMemo(() => Object.keys(stored ?? {}), [stored]);
+	// Every write patches the stored record rather than rebuilding it from `entries`, which would
+	// silently drop every entry the codec rejected the moment the user saves anything else. The ref moves with each
+	// write, so several in one handler keep one another's entries.
+	const write = useCallback(
+		(patch: (record: StoredRecord) => StoredRecord) => {
+			const next = patch(storedRef.current ?? {});
+			const ok = setStored(next);
+			if (ok) storedRef.current = next;
+			return ok;
+		},
+		[setStored],
+	);
 
-	// Both writes patch the stored record rather than rebuilding it from `entries`, which would
-	// silently drop every entry the codec rejected the moment the user saves anything else.
-	const save = useCallback((name: string, data: T) => setStored({ ...(storedRef.current ?? {}), [name]: codecRef.current.toJson(data) }), [setStored]);
+	const save = useCallback(
+		(name: string, data: T) => {
+			write(record => ({ ...record, [name]: codecRef.current.toJson(data) }));
+		},
+		[write],
+	);
 
 	const saveMany = useCallback(
 		(items: ReadonlyArray<{ name: string; data: T }>) =>
-			setStored({ ...(storedRef.current ?? {}), ...Object.fromEntries(items.map(({ name, data }) => [name, codecRef.current.toJson(data)])) }),
-		[setStored],
+			write(record => ({ ...record, ...Object.fromEntries(items.map(({ name, data }) => [name, codecRef.current.toJson(data)])) })),
+		[write],
 	);
 
 	const remove = useCallback(
 		(name: string) => {
-			const next = { ...(storedRef.current ?? {}) };
-			delete next[name];
-			setStored(next);
+			write(record => {
+				const next = { ...record };
+				delete next[name];
+				return next;
+			});
 		},
-		[setStored],
+		[write],
 	);
 
 	return { entries, storedNames, save, saveMany, remove, codec };

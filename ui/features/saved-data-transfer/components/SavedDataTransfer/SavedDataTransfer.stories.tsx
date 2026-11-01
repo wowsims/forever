@@ -25,6 +25,7 @@ const meta = {
 		type: 'talents',
 		label: 'Talents',
 		storage: { entries: [], storedNames: [], save: fn(), saveMany: () => true, remove: fn(), codec: SavedTalents },
+		presets: [],
 	},
 } satisfies Meta<typeof SavedDataTransfer<SavedTalents>>;
 

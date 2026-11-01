@@ -13,13 +13,16 @@ import type { ClipboardEvent, ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { trackPageView } from '../../../../tracking/utils';
-import { type ImporterDefinition, ImportProblems } from '../../importers/types';
+import { type ImporterDefinition, ImportProblems, type PreviewImporterDefinition } from '../../importers/types';
 
-export interface ImporterProps<P = undefined> extends ImporterDefinition<P> {
+interface ImporterDialogState {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	children?: ReactNode;
 }
+
+export type ImporterProps = ImporterDefinition & ImporterDialogState;
+type PreviewImporterProps<P> = PreviewImporterDefinition<P> & ImporterDialogState;
 
 export const Importer = <P,>({
 	open,
@@ -31,13 +34,15 @@ export const Importer = <P,>({
 	preview,
 	onImport,
 	children,
-}: ImporterProps<P>) => {
+}: ImporterProps | PreviewImporterProps<P>) => {
 	const host = useSimHost();
 	const [text, setText] = useState('');
 	// The name of the file the text was uploaded from. It stays while the text is edited, and goes with the text:
 	// cleared, or pasted over whole.
 	const fileName = useRef<string>(undefined);
 	const [problems, setProblems] = useState<ImportProblems>();
+	// Apart from `problems`, which the preview step clears as the text changes: a refused file changes the text too.
+	const [refusedFile, setRefusedFile] = useState<ImportProblems>();
 	const [previewed, setPreviewed] = useState<P>();
 	// The import that has not ended, which the Import button waits on and closing the dialog drops.
 	const running = useRef<AbortController>(undefined);
@@ -58,15 +63,21 @@ export const Importer = <P,>({
 		if (!next) {
 			closes.current++;
 			dropRunning();
-			setText('');
-			fileName.current = undefined;
-			setProblems(undefined);
+			clearText();
+			setRefusedFile(undefined);
 		}
 		onOpenChange(next);
 	};
 
+	const clearText = () => {
+		setText('');
+		fileName.current = undefined;
+		setProblems(undefined);
+	};
+
 	const editText = (next: string) => {
 		if (!next) fileName.current = undefined;
+		setRefusedFile(undefined);
 		setText(next);
 	};
 
@@ -111,7 +122,7 @@ export const Importer = <P,>({
 		setPending(true);
 		setProblems(undefined);
 		try {
-			await (preview ? onImport(host, text, fileName.current, run.signal, previewed) : onImport(host, text, fileName.current, run.signal));
+			await (preview ? preview.commit(previewed!) : onImport(host, text, fileName.current, run.signal));
 			if (!run.signal.aborted) changeOpen(false);
 		} catch (error: any) {
 			// A closed dialog cancelled the import, and dropped the text its problems point into.
@@ -124,6 +135,7 @@ export const Importer = <P,>({
 
 	const canImport = !preview || (previewed !== undefined && preview.canImport(previewed));
 	const textHeight = preview ? 'h-[20vh]' : 'h-[40vh]';
+	const shownProblems = refusedFile ?? problems;
 
 	return (
 		<Dialog
@@ -149,9 +161,11 @@ export const Importer = <P,>({
 							const file = event.target.files?.[0];
 							if (!file) return;
 							if (maxFileBytes !== undefined && file.size > maxFileBytes) {
-								setProblems(new ImportProblems(i18n.t('import.file_too_large'), []));
+								clearText();
+								setRefusedFile(new ImportProblems(i18n.t('import.file_too_large'), []));
 								return;
 							}
+							setRefusedFile(undefined);
 							const opening = closes.current;
 							// The browser turns a text box's line breaks into line feeds, and the cursor offsets count those.
 							const uploaded = (await file.text()).replace(/\r\n?/g, '\n');
@@ -182,12 +196,12 @@ export const Importer = <P,>({
 					<CodeTextArea testId="importer-textarea" className={textHeight} value={text} onChange={editText} onPaste={onPaste} />
 				)}
 				{preview && previewed !== undefined && preview.render(previewed, setPreviewed)}
-				{problems && (
+				{shownProblems && (
 					<Notice level="error" className="mt-2" testId="importer-problems">
-						<p>{problems.message}</p>
-						{problems.problems.length > 0 && (
+						<p>{shownProblems.message}</p>
+						{shownProblems.problems.length > 0 && (
 							<ul>
-								{problems.problems.map((problem, i) => (
+								{shownProblems.problems.map((problem, i) => (
 									<li key={i}>{problem}</li>
 								))}
 							</ul>

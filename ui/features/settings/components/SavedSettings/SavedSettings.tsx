@@ -37,7 +37,7 @@ export const SavedSettings = () => {
 			nameLabel={i18n.t('settings_tab.saved_settings.settings_name')}
 			saveButtonText={i18n.t('settings_tab.saved_settings.save_settings')}
 			isActive={isActive}
-			headerChildren={<SavedDataTransfer type="settings" label={panel.label} storage={storage} />}
+			headerChildren={<SavedDataTransfer type="settings" label={panel.label} storage={storage} presets={panel.presets} />}
 			{...panel}
 		/>
 	);

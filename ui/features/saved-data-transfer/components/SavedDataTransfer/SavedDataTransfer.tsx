@@ -17,11 +17,13 @@ export interface SavedDataTransferProps<T> {
 	type: SavedDataType;
 	label: string;
 	storage: UseSavedDataResult<T>;
+	// The panel's built-in presets, whose names an import steps around. Empty until the sim is ready, as the cog is off till then.
+	presets: ReadonlyArray<{ name: string }>;
 }
 
 type Open = 'export' | 'import' | null;
 
-export const SavedDataTransfer = <T,>({ type, label, storage }: SavedDataTransferProps<T>) => {
+export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDataTransferProps<T>) => {
 	const shown = useUiStore('showPowerTools');
 	// Both dialogs read the player, the presets and the database.
 	const ready = useSimReady();
@@ -29,7 +31,7 @@ export const SavedDataTransfer = <T,>({ type, label, storage }: SavedDataTransfe
 	const [open, setOpen] = useState<Open>(null);
 	if (!shown) return null;
 
-	const openChange = (dialog: Open) => (next: boolean) => setOpen(next ? dialog : null);
+	const close = () => setOpen(null);
 	const menuLabel = i18n.t('saved_data_transfer.menu_label');
 	const nothingSaved = storage.entries.length === 0;
 	const exportLabel = nothingSaved
@@ -61,8 +63,8 @@ export const SavedDataTransfer = <T,>({ type, label, storage }: SavedDataTransfe
 			</Menu>
 			<Tooltip id={tooltipId} content={menuLabel} />
 			{/* Outside `Menu`, not inside its popup: clicking an item closes the menu, which unmounts the popup, and a dialog rendered in there would go with it. */}
-			<SavedDataExporter type={type} storage={storage} open={open === 'export'} onOpenChange={openChange('export')} />
-			<SavedDataImporter type={type} label={label} storage={storage} open={open === 'import'} onOpenChange={openChange('import')} />
+			<SavedDataExporter type={type} storage={storage} open={open === 'export'} onOpenChange={close} />
+			<SavedDataImporter type={type} label={label} storage={storage} presets={presets} open={open === 'import'} onOpenChange={close} />
 		</>
 	);
 };

@@ -1,6 +1,6 @@
 import type { JsonValue } from '@protobuf-ts/runtime';
 
-export const SAVED_DATA_TYPES = ['gear', 'talents', 'rotation', 'settings', 'encounter'] as const;
+const SAVED_DATA_TYPES = ['gear', 'talents', 'rotation', 'settings', 'encounter'] as const;
 export type SavedDataType = (typeof SAVED_DATA_TYPES)[number];
 
 export interface SavedDataExport {
@@ -11,7 +11,7 @@ export interface SavedDataExport {
 	entries: Record<string, JsonValue>;
 }
 
-export type SavedDataTextProblem = 'unreadable' | 'version' | 'too_large';
+type SavedDataTextProblem = 'unreadable' | 'version' | 'too_large';
 
 export class SavedDataTextError extends Error {
 	readonly problem: SavedDataTextProblem;

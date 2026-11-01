@@ -1,8 +1,8 @@
 import { loadRotation } from '@features/apl/components/SavedRotation/utils';
 import { loadGearSet } from '@features/gear/components/SavedGear/utils';
 import { APLRotation } from '@generated/proto/apl';
-import { EquipmentSpec, ItemSlot, ItemSpec, ItemType, Spec } from '@generated/proto/common';
-import { SavedGearSet, SavedRotation, SavedTalents, UIDatabase, UIItem } from '@generated/proto/ui';
+import { Class, Encounter, EquipmentSpec, ItemSlot, ItemSpec, ItemType, Spec, Target } from '@generated/proto/common';
+import { SavedEncounter, SavedGearSet, SavedRotation, SavedTalents, UIDatabase, UIItem } from '@generated/proto/ui';
 import { fromJsonStringLenient } from '@sim/proto/lenient_json';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
@@ -68,14 +68,37 @@ describe('an imported entry naming what this database does not have', () => {
 });
 
 describe('the talents check', () => {
-	const check = (talentsString: string) => SAVED_DATA_TYPE_RULES.talents.check!(SavedTalents.create({ talentsString }), {} as never);
+	const WARRIOR = { player: { getClass: () => Class.ClassWarrior } } as never;
+	const check = (talentsString: string) => SAVED_DATA_TYPE_RULES.talents.check!(SavedTalents.create({ talentsString }), WARRIOR);
 
-	it.each(['', '2305', '-2305', '2500052300030150330125--053500031003001'])('takes %s', talentsString => {
+	// The Fury and Arms presets, and shapes a talents string takes once its zeroes are trimmed.
+	it.each(['', '30305213002-15053105102210501', '30325213132515201-0505-2', '-0505', '3--2'])('takes %s', talentsString => {
 		expect(() => check(talentsString)).not.toThrow();
 	});
 
-	it.each(['=HYPERLINK("x")', '+1', '@A1', '12a'])('refuses %s, which would reach the Batch CSV as it stands', talentsString => {
+	it.each([
+		['a fourth tree, which panics the sim', '1-1-1-1'],
+		['a tree with more digits than talents', '1'.repeat(18)],
+		['a rank above the talent’s maximum', '9'],
+		['a formula', '=HYPERLINK("x")'],
+		['a sign', '+1'],
+		['a letter', '12a'],
+		['a space', '1 1'],
+	])('refuses %s', (_, talentsString) => {
 		expect(() => check(talentsString)).toThrow();
+	});
+});
+
+describe('the encounter check', () => {
+	const check = (encounter?: Encounter) => SAVED_DATA_TYPE_RULES.encounter.check!(SavedEncounter.create({ encounter }), {} as never);
+
+	it('refuses an entry with no encounter, and one with no target, on which the picker throws', () => {
+		expect(() => check()).toThrow();
+		expect(() => check(Encounter.create())).toThrow();
+	});
+
+	it('takes an encounter with a target', () => {
+		expect(() => check(Encounter.create({ targets: [Target.create()] }))).not.toThrow();
 	});
 });
 

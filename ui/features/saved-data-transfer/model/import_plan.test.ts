@@ -2,7 +2,7 @@ import type { JsonValue } from '@protobuf-ts/runtime';
 import type { SavedDataCodec } from '@ui-kit/hooks/useSavedData';
 import { describe, expect, it } from 'vitest';
 
-import { MAX_NAME_LENGTH, planImport, tickedRows, withRowTicked } from './import_plan';
+import { MAX_NAME_LENGTH, planImport, withTicksKept } from './import_plan';
 
 interface Data {
 	value: number;
@@ -34,7 +34,8 @@ const plan = (entries: string | Record<string, JsonValue>, { saved = [], rejecte
 		...sources,
 	});
 
-const shape = (result: ReturnType<typeof plan>) => result.rows.map(({ saveAs, status, ticked }) => [saveAs, status, ticked]);
+const shape = (result: ReturnType<typeof plan>) =>
+	result.rows.map(({ name, saveAs, savedAs, ticked }) => [saveAs, savedAs !== undefined ? 'already_saved' : saveAs === name ? 'new' : 'renamed', ticked]);
 
 describe('planImport', () => {
 	it('ticks a new name and keeps it', () => {
@@ -54,13 +55,13 @@ describe('planImport', () => {
 	it('leaves identical contents under the saved name unticked, and saves it under a free name if ticked', () => {
 		const [row] = plan({ Raid: { value: 1 } }, { saved: [saved('Raid', 1)] }).rows;
 
-		expect(row).toMatchObject({ status: 'already_saved', savedAs: 'Raid', saveAs: 'Raid (2)', ticked: false });
+		expect(row).toMatchObject({ savedAs: 'Raid', saveAs: 'Raid (2)', ticked: false });
 	});
 
 	it('finds identical contents under any saved name', () => {
 		const [row] = plan({ Raid: { value: 1 } }, { saved: [saved('Crit test (2)', 1)] }).rows;
 
-		expect(row).toMatchObject({ status: 'already_saved', savedAs: 'Crit test (2)', saveAs: 'Raid', ticked: false });
+		expect(row).toMatchObject({ savedAs: 'Crit test (2)', saveAs: 'Raid', ticked: false });
 	});
 
 	it('prefers the entry under the same name when several hold the contents', () => {
@@ -72,7 +73,7 @@ describe('planImport', () => {
 	it('takes a saved name for already saved when the contents match another entry, whatever the clash', () => {
 		const [row] = plan({ Raid: { value: 1 } }, { saved: [saved('Raid', 9), saved('Raid (2)', 1)] }).rows;
 
-		expect(row).toMatchObject({ status: 'already_saved', savedAs: 'Raid (2)', saveAs: 'Raid (3)', ticked: false });
+		expect(row).toMatchObject({ savedAs: 'Raid (2)', saveAs: 'Raid (3)', ticked: false });
 	});
 
 	it('leaves a name for a new entry ahead of an already saved row that would only take it if ticked', () => {
@@ -135,7 +136,6 @@ describe('planImport', () => {
 	it.each([
 		['empty', { '': { value: 1 } }],
 		['blank', { '   ': { value: 1 } }],
-		['over the cap', { ['x'.repeat(MAX_NAME_LENGTH + 1)]: { value: 1 } }],
 		['constructor', { constructor: { value: 1 } }],
 		['__proto__', '{"__proto__":{"value":1}}'],
 	])('refuses a name that is %s', (_, entries) => {
@@ -146,19 +146,60 @@ describe('planImport', () => {
 	});
 
 	it('takes a name as long as the cap', () => {
-		expect(plan({ ['x'.repeat(MAX_NAME_LENGTH)]: { value: 1 } }).rows).toHaveLength(1);
+		expect(shape(plan({ ['x'.repeat(MAX_NAME_LENGTH)]: { value: 1 } }))).toEqual([['x'.repeat(MAX_NAME_LENGTH), 'new', true]]);
+	});
+
+	it('cuts a longer name to the cap and marks it as saving under another name', () => {
+		const long = 'x'.repeat(MAX_NAME_LENGTH + 5);
+		const capped = 'x'.repeat(MAX_NAME_LENGTH);
+
+		const [row] = plan({ [long]: { value: 1 } }).rows;
+
+		expect(row).toMatchObject({ name: long, saveAs: capped, ticked: true });
+	});
+
+	it('runs the cut name through the taken and numbering rules', () => {
+		const long = 'x'.repeat(MAX_NAME_LENGTH + 5);
+		const capped = 'x'.repeat(MAX_NAME_LENGTH);
+
+		expect(plan({ [long]: { value: 1 } }, { saved: [saved(capped, 2)] }).rows[0].saveAs).toBe(`${capped} (2)`);
+	});
+
+	it('finds a cut name already saved with the same contents', () => {
+		const long = 'x'.repeat(MAX_NAME_LENGTH + 5);
+		const capped = 'x'.repeat(MAX_NAME_LENGTH);
+
+		const [row] = plan({ [long]: { value: 1 } }, { saved: [saved(capped, 1)] }).rows;
+
+		expect(row).toMatchObject({ savedAs: capped, ticked: false });
+	});
+
+	it('leaves no half of a surrogate pair or a trailing space at the cut', () => {
+		const pair = `${'x'.repeat(MAX_NAME_LENGTH - 1)}😀 tail`;
+		const space = `${'x'.repeat(MAX_NAME_LENGTH - 1)} tail`;
+
+		const rows = plan({ [pair]: { value: 1 }, [space]: { value: 2 } }).rows;
+
+		expect(rows[0].saveAs).toBe('x'.repeat(MAX_NAME_LENGTH - 1));
+		expect(rows[1].saveAs).toBe(`${'x'.repeat(MAX_NAME_LENGTH - 1)} (2)`);
+	});
+
+	it('numbers a numbered name from its base', () => {
+		const result = plan({ 'Raid (2)': { value: 1 } }, { saved: [saved('Raid (2)', 9)] });
+
+		expect(shape(result)).toEqual([['Raid (3)', 'renamed', true]]);
+	});
+
+	it('keeps the ticks the player made, by name, and leaves the other rows as planned', () => {
+		const result = withTicksKept(plan({ A: { value: 1 }, B: { value: 2 } }, { saved: [saved('C', 2)] }), new Map([['A', false]]));
+
+		expect(result.rows.map(({ name, ticked }) => [name, ticked])).toEqual([
+			['A', false],
+			['B', false],
+		]);
 	});
 
 	it('does not see saved names on the prototype chain', () => {
 		expect(shape(plan({ toString: { value: 1 } }))).toEqual([['toString', 'new', true]]);
-	});
-
-	it('ticks a row by index without touching the plan it was given', () => {
-		const before = plan({ A: { value: 1 }, B: { value: 2 } });
-
-		const after = withRowTicked(before, 0, false);
-
-		expect(tickedRows(after).map(row => row.name)).toEqual(['B']);
-		expect(tickedRows(before)).toHaveLength(2);
 	});
 });

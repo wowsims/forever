@@ -29,7 +29,7 @@ export const SavedDataTickList = ({ rows, onChange }: SavedDataTickListProps) =>
 						onChange={next => onChange(index, next)}
 					/>
 					{note && (
-						<span id={`${idPrefix}-${index}-note`} className="text-xs text-gray-400" data-testid="saved-data-tick-note">
+						<span id={`${idPrefix}-${index}-note`} className="min-w-0 text-xs wrap-anywhere text-gray-400" data-testid="saved-data-tick-note">
 							{note}
 						</span>
 					)}

@@ -47,8 +47,7 @@ const LOCALES = join(process.cwd(), 'assets/locales');
 const HTML_TAG = /<[a-zA-Z/][^>]*>/;
 
 // Keys that carry markup *and* interpolate. LocaleHtml and Trans resolve the string before parsing it, so a
-// value that looks like a tag is re-parsed — it renders as text rather than markup, but it still renders
-// wrong. Every value spliced into these is a number, a duration, a stat or resource name or the engine's
+// value that looks like a tag is re-parsed and can become markup. Every value spliced into these is a number, a duration, a stat or resource name or the engine's
 // reason text, none of which carries a tag.
 const INTERPOLATING_HTML_KEYS = [
 	'bulk_tab.progress.iterations_complete',

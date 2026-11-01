@@ -148,7 +148,7 @@ const GroupedGearPresets = () => {
 					className="mt-4"
 					nameLabel={i18n.t('gear_tab.gear_sets.gear_set_name')}
 					saveButtonText={i18n.t('gear_tab.gear_sets.save_gear_set')}
-					headerChildren={<SavedDataTransfer type="gear" label={savedPanel.label} storage={savedGear} />}
+					headerChildren={<SavedDataTransfer type="gear" label={savedPanel.label} storage={savedGear} presets={gearPresets} />}
 					{...savedPanel}
 				/>
 			),
