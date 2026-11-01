@@ -17,11 +17,13 @@ const fetchStub = vi.hoisted(() => {
 
 import { ADDON_IMPORTER } from './addon';
 
+// `restoreMocks` clears the stub before each test, so the request is read here, as the module has just sent it.
+const moduleLoadRequests = fetchStub.mock.calls.map(([url]) => url);
+
 describe('ADDON_IMPORTER', () => {
 	// The failure is swallowed by design: no GitHub, no version warning, and the import still runs.
 	it('asks GitHub for the addon version once, at module load', () => {
-		expect(fetchStub).toHaveBeenCalledTimes(1);
-		expect(fetchStub.mock.calls[0][0]).toBe('https://api.github.com/repos/wowsims/exporter/releases/latest');
+		expect(moduleLoadRequests).toEqual(['https://api.github.com/repos/wowsims/exporter/releases/latest']);
 	});
 
 	it('rejects a payload that is not an addon export', async () => {

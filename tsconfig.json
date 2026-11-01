@@ -4,7 +4,7 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"strict": true,
-		"lib": ["DOM", "es2021", "DOM.Iterable"],
+		"lib": ["DOM", "es2022", "DOM.Iterable"],
 		"outDir": "dist/forever",
 		"pretty": false,
 		"allowJs": true,

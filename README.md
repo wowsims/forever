@@ -24,7 +24,7 @@ Alternatively, you can choose from a specific relase on the [Releases](https://g
 
 ## Documentation
 
-- [Installation Guide](docs/installation.md)
+- [Installation Guide](docs/installation.md): Node 26 (`.nvmrc`), Go 1.27 (`go.mod`), then `npm install` and `make setup`
 - [Development Commands](docs/commands.md)
 - [Adding a New Sim](docs/adding_sim.md)
 - [Consumables](docs/consumables.md)
