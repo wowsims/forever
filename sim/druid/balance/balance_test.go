@@ -224,36 +224,30 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       raid,
 		Encounter:  encounter,
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		SimOptions: &proto.SimOptions{RandomSeed: 1, UseLabeledRands: true},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
 // One Hurricane tick rolls Omen of Clarity once, however many targets it lands on: three targets proc
-// about as often as one, where a roll per target would nearly triple it.
+// a little more often than one, since one of them nearly always lands, where a roll per target would
+// nearly triple it.
 func TestHurricaneTickRollsOmenOnce(t *testing.T) {
-	// A successful roll starts the proc's cooldown on the spot; the Clearcasting aura follows a spell
-	// batch window later.
 	const ticks = 2000
 	procsOn := func(targets int) int {
-		sim, druid := balanceDruid(t, false, 0, targets)
-		omen := druid.GetAura("Omen of Clarity")
-		if omen == nil || omen.Icd == nil {
-			t.Fatal("Omen of Clarity is not registered")
-		}
+		sim, _ := balanceDruid(t, false, 0, targets)
+		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
 		if len(sim.Encounter.ActiveTargetUnits) != targets {
 			t.Fatalf("targets = %d, want %d", len(sim.Encounter.ActiveTargetUnits), targets)
 		}
-		hurricane := druid.GetSpell(core.ActionID{SpellID: 17402})
-		if hurricane == nil || hurricane.RelatedDotSpell == nil {
-			t.Fatal("Hurricane is not registered")
-		}
 		procs := 0
 		for range ticks {
+			// The step clears the proc's cooldown. A successful roll starts that cooldown on the spot; the
+			// Clearcasting aura follows a spell batch window later.
 			sim.CurrentTime += time.Minute
-			hurricane.RelatedDotSpell.Cast(sim, sim.Encounter.ActiveTargetUnits[0])
-			if !omen.Icd.IsReady(sim) {
+			druid.Hurricane.RelatedDotSpell.Cast(sim, druid.CurrentTarget)
+			if !druid.OmenOfClarityAura.Icd.IsReady(sim) {
 				procs++
 			}
 		}
