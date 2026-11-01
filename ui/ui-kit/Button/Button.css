@@ -1,6 +1,7 @@
 @layer components {
 	.ui-button {
-		@apply inline-flex cursor-pointer items-center justify-center gap-(--btn-gap) rounded-none border border-transparent text-center align-middle text-(length:--control-font-size) leading-normal font-normal no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
+		@apply inline-flex cursor-pointer items-center justify-center gap-(--control-gap) rounded-none border border-transparent text-center align-middle text-(length:--control-font-size) leading-normal font-normal no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
+		--control-font-size: var(--control-button-font-size);
 
 		&:focus-visible {
 			@apply outline-none;
@@ -22,13 +23,11 @@
 	}
 
 	.ui-button-link {
-		@apply inline-flex cursor-pointer items-center gap-(--btn-gap) rounded-none border-0 p-0 text-center align-middle text-(length:--control-font-size) leading-normal font-normal text-link no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
+		@apply inline-flex cursor-pointer items-center gap-(--control-gap) rounded-none border-0 p-0 text-center align-middle text-(length:--control-button-font-size) leading-normal font-normal text-link no-underline transition-[color,background-color,border-color] duration-150 ease-in-out select-none;
 
-		/* A link takes the font size of its size class and none of its padding. */
-		&.ui-button-md,
-		&.ui-button-sm,
-		&.ui-button-xs {
-			@apply p-0;
+		/* A link is text with no padding and no form height, so of the sizes only `xs` changes it, to the input font. */
+		&[data-size='xs'] {
+			@apply text-(length:--control-input-font-size);
 		}
 
 		&:where(:not([data-disabled])) {
@@ -265,16 +264,8 @@
 		}
 	}
 
-	.ui-button-md {
+	.ui-button:where([data-size]) {
 		@apply px-(--control-padding-x) py-(--control-padding-y);
-	}
-
-	.ui-button-sm {
-		@apply px-2 py-1;
-	}
-
-	.ui-button-xs {
-		@apply px-2 py-1 text-ui;
 	}
 
 	.ui-button-spinner {

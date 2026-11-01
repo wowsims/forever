@@ -1,4 +1,5 @@
 import { Toast as BaseToast } from '@base-ui/react/toast';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 
 import { DEFAULT_TOAST_DELAY, DEFAULT_TOAST_LIMIT, type ToastManager } from './manager';
@@ -22,10 +23,13 @@ export const ToastArea = ({ manager, inline = false, className, limit = DEFAULT_
 			{inline ? (
 				viewport
 			) : (
-				// Named, because with a `container` the portal renders a wrapper element of its own.
-				<BaseToast.Portal className="contents" data-testid="sim-toast-portal" container={portalContainer ?? undefined}>
-					{viewport}
-				</BaseToast.Portal>
+				// Out of any Field the area sits in, so its controls take no size from that field. Named, because with a
+				// `container` the portal renders a wrapper element of its own.
+				<FieldContext.Provider value={null}>
+					<BaseToast.Portal className="contents" data-testid="sim-toast-portal" container={portalContainer ?? undefined}>
+						{viewport}
+					</BaseToast.Portal>
+				</FieldContext.Provider>
 			)}
 		</BaseToast.Provider>
 	);

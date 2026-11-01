@@ -1,9 +1,10 @@
 import { Popover as BasePopover } from '@base-ui/react/popover';
 import { isNativeButtonTrigger } from '@ui-kit/Button';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import type { ClassValue } from 'clsx';
 import clsx from 'clsx';
-import { type ComponentPropsWithoutRef, type ReactElement, type ReactNode, useState } from 'react';
+import { type ComponentPropsWithoutRef, type ReactElement, type ReactNode, type RefObject, useState } from 'react';
 
 export type PopoverSide = 'top' | 'right' | 'bottom' | 'left';
 export type PopoverAlign = 'start' | 'center' | 'end';
@@ -19,6 +20,8 @@ export interface PopoverProps {
 	triggerTestId?: string;
 	/** Forwarded to the trigger `<button>`: `aria-label` for an icon-only trigger, and `tooltipAnchorProps(id)` for one that also carries a hover tooltip. */
 	triggerProps?: Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
+	/** The element focused on close, or its first tabbable child. Without it Base UI focuses the trigger, or what held focus before. */
+	finalFocus?: RefObject<HTMLElement | null>;
 	/** Omit for an uncontrolled popover — the trigger drives it. `onOpenChange` fires either way. */
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
@@ -51,6 +54,7 @@ export const Popover = ({
 	triggerClassName,
 	triggerTestId,
 	triggerProps,
+	finalFocus,
 	open,
 	onOpenChange,
 	className,
@@ -81,31 +85,35 @@ export const Popover = ({
 					{trigger}
 				</BasePopover.Trigger>
 			)}
-			{/* Named, because with a `container` the portal renders a wrapper element of its own. */}
-			<BasePopover.Portal className="contents" data-testid="sim-popover-portal" container={container ?? portalContainer ?? undefined}>
-				{backdrop && <BasePopover.Backdrop className="ui-popover-backdrop" data-testid="sim-popover-backdrop" />}
-				<BasePopover.Positioner
-					className="ui-popover-positioner"
-					data-testid="sim-popover-positioner"
-					anchor={anchor}
-					side={side}
-					align={align}
-					sideOffset={sideOffset}
-					collisionBoundary={collisionBoundary}>
-					<BasePopover.Popup
-						className={clsx(
-							maxWidthClassName ?? 'max-w-(--available-width)',
-							'ui-popup-surface ui-popover',
-							title != null && 'flex flex-col',
-							className,
-						)}
-						data-testid={testId ?? 'sim-popover-popup'}
-						initialFocus={false}>
-						{title != null && <BasePopover.Title className="ui-popover-title">{title}</BasePopover.Title>}
-						{children}
-					</BasePopover.Popup>
-				</BasePopover.Positioner>
-			</BasePopover.Portal>
+			{/* Out of any Field the trigger sits in, so the popup's controls take no size from that field. */}
+			<FieldContext.Provider value={null}>
+				{/* Named, because with a `container` the portal renders a wrapper element of its own. */}
+				<BasePopover.Portal className="contents" data-testid="sim-popover-portal" container={container ?? portalContainer ?? undefined}>
+					{backdrop && <BasePopover.Backdrop className="ui-popover-backdrop" data-testid="sim-popover-backdrop" />}
+					<BasePopover.Positioner
+						className="ui-popover-positioner"
+						data-testid="sim-popover-positioner"
+						anchor={anchor}
+						side={side}
+						align={align}
+						sideOffset={sideOffset}
+						collisionBoundary={collisionBoundary}>
+						<BasePopover.Popup
+							className={clsx(
+								maxWidthClassName ?? 'max-w-(--available-width)',
+								'ui-popup-surface ui-popover',
+								title != null && 'flex flex-col',
+								className,
+							)}
+							data-testid={testId ?? 'sim-popover-popup'}
+							initialFocus={false}
+							finalFocus={finalFocus}>
+							{title != null && <BasePopover.Title className="ui-popover-title">{title}</BasePopover.Title>}
+							{children}
+						</BasePopover.Popup>
+					</BasePopover.Positioner>
+				</BasePopover.Portal>
+			</FieldContext.Provider>
 		</BasePopover.Root>
 	);
 };

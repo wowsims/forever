@@ -47,6 +47,19 @@ describe('ItemSource', () => {
 		expect(withVendor.container.textContent).toBe('common.sources.pvp');
 	});
 
+	it('shows the quest of an item whose sources list the vendor first', () => {
+		const item = Item.create({
+			id: 212,
+			sources: [
+				{ source: { oneofKind: 'soldBy', soldBy: { npcId: 1, npcName: 'Vendor', zoneId: 0 } } },
+				{ source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty' } } },
+			],
+		});
+		const { container } = mount(item);
+
+		expect(container.textContent).toBe('common.sources.questBounty');
+	});
+
 	it('renders nothing for an item with no sources', () => {
 		const item = Item.create({ id: 300, name: 'Plain Sword', sources: [], randomSuffixOptions: [1] });
 		const { container } = mount(item);

@@ -1173,6 +1173,46 @@
 			"setup": "Setup",
 			"results": "Results"
 		},
+		"modes": {
+			"gear": {
+				"label": "Gear",
+				"description": "Best gear for your current talents and encounter"
+			},
+			"builds": {
+				"label": "Builds",
+				"description": "Best gear and talents across encounters"
+			}
+		},
+		"builds": {
+			"columns": {
+				"builds": {
+					"title": "Builds",
+					"hint": "Each bundle runs its gear set with its own talents, rotation and settings, and also tries each ticked enchant preset's enchants in their slots."
+				},
+				"encounters": {
+					"title": "Encounters",
+					"hint": "Every ticked bundle runs on each encounter, and each encounter gets its own ranking."
+				}
+			},
+			"bundles": {
+				"current": "Current bundle",
+				"new": "New bundle",
+				"dialog_new": "New bundle",
+				"dialog_edit": "Edit bundle",
+				"save": "Save",
+				"edit": "Edit {{bundle}}",
+				"delete": "Delete {{bundle}}",
+				"delete_confirm": "Delete {{bundle}}?",
+				"duplicate": "Same as {{bundle}}"
+			},
+			"parts": {
+				"encounter": "Encounter",
+				"gear_set": "Gear set",
+				"talents": "Talents",
+				"rotation": "Rotation",
+				"settings": "Settings"
+			}
+		},
 		"actions": {
 			"import_bags": "Import From Bags",
 			"import_favorites": "Import Favorites",
@@ -1193,24 +1233,54 @@
 		},
 		"settings": {
 			"combinations": "Combinations",
+			"gear_setups": "Gear setups",
 			"total_iterations": "Minimum iterations",
 			"total_iterations_tooltip": "The batch sims at least this many iterations. The error target adds more as it runs.",
+			"top_results": {
+				"label": "Top results",
+				"tooltip": "How many results each encounter ranks. The batch drops a result early once it cannot reach them. With All, every result gets its full iterations.",
+				"all": "All"
+			},
 			"groups": {
-				"encounters": "Encounters",
 				"enchants": "Enchants",
 				"frozen_slots": "Frozen slots"
 			},
 			"encounters": {
-				"description": "The batch runs once per encounter, and each encounter gets its own results. Save encounters in Settings → Saved Encounters.",
 				"current": "Current encounter",
 				"presets": "Presets",
 				"saved": "Saved",
-				"empty": "No saved encounters yet. Save one in Settings → Saved Encounters to run the batch against it too.",
-				"duplicate": "Same as another encounter, skipped",
-				"count": "Encounters",
+				"empty": "No preset or saved encounters yet. Save one in Encounter to run it too.",
+				"duplicate": "Same as {{encounter}}",
 				"health_summary": "Health",
+				"targets": "{{count}} targets",
 				"targets_one": "{{count}} target",
 				"targets_other": "{{count}} targets"
+			},
+			"talents": {
+				"no_points": "No talent points"
+			},
+			"enchant_picks": {
+				"heading": "Enchant presets",
+				"saved": "Saved",
+				"empty": "No enchant presets yet.",
+				"duplicate": "Same enchants as another preset, skipped",
+				"slots": "{{count}} slots.",
+				"slots_one": "{{count}} slot.",
+				"slots_other": "{{count}} slots."
+			},
+			"runs": {
+				"builds": "{{bundles}} × {{encounters}}",
+				"bundles": "{{count}} bundles",
+				"bundles_one": "{{count}} bundle",
+				"bundles_other": "{{count}} bundles",
+				"encounters": "{{count}} encounters",
+				"encounters_one": "{{count}} encounter",
+				"encounters_other": "{{count}} encounters",
+				"total": "{{runs}} runs",
+				"total_one": "{{runs}} run",
+				"total_other": "{{runs}} runs",
+				"tick": "Tick at least one row under {{column}} to run.",
+				"second_build": "Tick a second build to compare."
 			},
 			"iterations": "Iterations",
 			"freeze_ring": {
@@ -1259,9 +1329,14 @@
 			"high_iteration_rounds": "Running high iteration rounds",
 			"iterations_complete": "{{completed}} / {{total}}<br />iterations complete",
 			"seconds_remaining": "{{seconds}} seconds remaining",
-			"time_remaining": "{{time}} remaining",
 			"finalist_iteration_rounds": "Running finalist tie-breaker rounds",
-			"title": "Bulk Sim"
+			"title": "Bulk Sim",
+			"status": "Status",
+			"done": "Done",
+			"running": "Running",
+			"pending": "Pending",
+			"step_progress": "Run progress: {{encounter}}, {{talents}}",
+			"time_left": "About {{time}} left"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
@@ -1271,7 +1346,8 @@
 			"combinations_failed": "Failed to calculate bulk combinations"
 		},
 		"warning": {
-			"iterations_limit": "Simming over {{limit}} iterations in the sim will take a long time or may not run at all. For larger batch sims we recommend downloading the executable and running on your machine."
+			"iterations_limit": "Simming over {{limit}} iterations in the sim will take a long time or may not run at all. For larger batch sims we recommend downloading the executable and running on your machine.",
+			"lower_top_results": "Lower Top results to sim fewer iterations."
 		},
 		"picker": {
 			"no_items": "No items selected.",
@@ -1286,12 +1362,23 @@
 			"run_simulation": "Run a simulation to view results",
 			"equip_button": "Equip",
 			"gear_equipped": "Batch gear equipped!",
+			"build_equipped": "Batch build equipped!",
+			"gear_unchanged": "No gear changes",
 			"current_gear": "Current gear",
 			"margin_of_error": "95% confidence interval of the mean DPS. Rankings closer than this can change between runs.",
 			"tied_group": "Statistically tied — the order within this group can change between runs",
 			"encounters": "Encounters",
 			"encounters_caption": "The best set's DPS and its gain over your current gear, per encounter. Pick one to see its ranking.",
+			"encounters_caption_best": "The best set's DPS per encounter. Pick one to see its ranking.",
 			"current": "Current",
+			"gear": "Gear:",
+			"grouped_gear_set": "{{name}} ({{group}})",
+			"current_talents": "Current talents",
+			"current_rotation": "Current rotation",
+			"current_settings": "Current settings",
+			"talents": "Talents:",
+			"rotation": "Rotation:",
+			"settings": "Settings:",
 			"export_csv": "Export CSV"
 		},
 		"compare": {
@@ -1302,8 +1389,16 @@
 			"readout_current": "{{dps}} DPS",
 			"readout_spread": "±{{spread}} per fight",
 			"not_ranked": "Not ranked",
+			"enchants_differ": "{{count}} enchants differ",
+			"enchants_differ_one": "{{count}} enchant differs",
+			"enchants_differ_other": "{{count}} enchants differ",
 			"table_caption": "Each set's gain over your current gear in every encounter, its DPS underneath. A dashed cell is an encounter that did not rank the set; point at a cell for its rank and spread.",
+			"table_caption_best": "Each set's loss against the encounter's best set, its DPS underneath. A dashed cell is an encounter that did not rank the set; point at a cell for its rank and spread.",
 			"table_set": "Gear set",
+			"table_build": "Build",
+			"table_legend_loss": "Loss",
+			"table_legend_none": "No change",
+			"table_legend_gain": "Largest gain in the encounter",
 			"table_legend_best": "Best in the encounter",
 			"table_legend_gap": "Not ranked in that encounter"
 		},

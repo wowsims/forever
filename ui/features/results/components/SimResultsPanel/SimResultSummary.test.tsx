@@ -129,8 +129,9 @@ describe('SimResultSummary', () => {
 
 		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-reference-swap"]')!));
 
+		// In percent of the reference, now the 1100 run.
 		const dps = container.querySelector('[data-metric="dps"] [data-testid="results-reference-diff"]')!;
-		expect(dps.textContent).toBe('-100.00 (10.00%)');
+		expect(dps.textContent).toBe('-100.00 (9.09%)');
 		expect(dps.getAttribute('data-sign')).toBe('negative');
 	});
 
