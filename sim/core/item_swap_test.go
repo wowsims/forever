@@ -104,111 +104,70 @@ func TestOnUseBuffDropsWhenItsItemIsSwappedOff(t *testing.T) {
 // A set swapped in before the pull stays on until an Item Swap: Main runs. The prepull swap warns when nothing swaps
 // back.
 func TestPrepullSwapStaysOnIntoTheFight(t *testing.T) {
-	const mainMaceID, swapMaceID int32 = 990921, 990922
-	// The maces differ in speed, so the swings show which one is in hand.
-	mace := func(id int32, speed float64) *proto.SimItem {
-		return &proto.SimItem{
-			Id:             id,
-			Name:           "Test Prepull Swap Mace",
-			Type:           proto.ItemType_ItemTypeWeapon,
-			WeaponType:     proto.WeaponType_WeaponTypeMace,
-			HandType:       proto.HandType_HandTypeTwoHand,
-			WeaponSpeed:    speed,
-			ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {WeaponDamageMin: 100, WeaponDamageMax: 150}},
-		}
-	}
-	addToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{mace(mainMaceID, 3.5), mace(swapMaceID, 2)}})
-	withMainHand := func(id int32) []*proto.ItemSpec {
-		items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
-		for i := range items {
-			items[i] = &proto.ItemSpec{}
-		}
-		items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: id}
-		return items
-	}
 	swapTo := func(set proto.APLActionItemSwap_SwapSet) *proto.APLAction {
 		return &proto.APLAction{Action: &proto.APLAction_ItemSwap{ItemSwap: &proto.APLActionItemSwap{SwapSet: set}}}
 	}
 	prepullSwapTo := func(set proto.APLActionItemSwap_SwapSet, doAt string) *proto.APLPrepullAction {
 		return &proto.APLPrepullAction{DoAtValue: constValue(doAt), Action: swapTo(set)}
 	}
-	const warning = "Nothing swaps back to the main set"
+	swapAway := prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s")
+	swapBackGroup := []*proto.APLGroup{{Name: "swap back", Actions: []*proto.APLListItem{{Action: swapTo(proto.APLActionItemSwap_Main)}}}}
+	swapBackGroupRef := func(hide bool) []*proto.APLListItem {
+		return []*proto.APLListItem{{Hide: hide, Action: &proto.APLAction{Action: &proto.APLAction_GroupReference{
+			GroupReference: &proto.APLActionGroupReference{GroupName: "swap back"},
+		}}}}
+	}
 
 	cases := []struct {
-		name        string
-		rotation    *proto.APLRotation
-		wantWarning bool
+		name                     string
+		rotation                 *proto.APLRotation
+		wantWarning, wantSwapped bool
 	}{
 		{"no swap back", &proto.APLRotation{
-			PrepullActions: []*proto.APLPrepullAction{prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s")},
-		}, true},
+			PrepullActions: []*proto.APLPrepullAction{swapAway},
+		}, true, true},
 		{"swap back in the priority list", &proto.APLRotation{
-			PrepullActions: []*proto.APLPrepullAction{prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s")},
+			PrepullActions: []*proto.APLPrepullAction{swapAway},
 			PriorityList:   []*proto.APLListItem{{Action: swapTo(proto.APLActionItemSwap_Main)}},
-		}, false},
+		}, false, true},
 		{"swap back in a group", &proto.APLRotation{
-			PrepullActions: []*proto.APLPrepullAction{prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s")},
-			PriorityList: []*proto.APLListItem{{Action: &proto.APLAction{Action: &proto.APLAction_GroupReference{
-				GroupReference: &proto.APLActionGroupReference{GroupName: "swap back"},
-			}}}},
-			Groups: []*proto.APLGroup{{Name: "swap back", Actions: []*proto.APLListItem{{Action: swapTo(proto.APLActionItemSwap_Main)}}}},
-		}, false},
+			PrepullActions: []*proto.APLPrepullAction{swapAway},
+			PriorityList:   swapBackGroupRef(false),
+			Groups:         swapBackGroup,
+		}, false, true},
 		{"swap back only in a hidden group", &proto.APLRotation{
-			PrepullActions: []*proto.APLPrepullAction{prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s")},
-			PriorityList: []*proto.APLListItem{{Hide: true, Action: &proto.APLAction{Action: &proto.APLAction_GroupReference{
-				GroupReference: &proto.APLActionGroupReference{GroupName: "swap back"},
-			}}}},
-			Groups: []*proto.APLGroup{{Name: "swap back", Actions: []*proto.APLListItem{{Action: swapTo(proto.APLActionItemSwap_Main)}}}},
-		}, true},
+			PrepullActions: []*proto.APLPrepullAction{swapAway},
+			PriorityList:   swapBackGroupRef(true),
+			Groups:         swapBackGroup,
+		}, true, true},
 		{"swap back in the prepull", &proto.APLRotation{
-			PrepullActions: []*proto.APLPrepullAction{
-				prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s"),
-				prepullSwapTo(proto.APLActionItemSwap_Main, "-1s"),
-			},
-		}, false},
+			PrepullActions: []*proto.APLPrepullAction{swapAway, prepullSwapTo(proto.APLActionItemSwap_Main, "-1s")},
+		}, false, false},
 		{"swap to main before the prepull swap", &proto.APLRotation{
-			PrepullActions: []*proto.APLPrepullAction{
-				prepullSwapTo(proto.APLActionItemSwap_Swap1, "-5s"),
-				prepullSwapTo(proto.APLActionItemSwap_Main, "-10s"),
-			},
-		}, true},
+			PrepullActions: []*proto.APLPrepullAction{swapAway, prepullSwapTo(proto.APLActionItemSwap_Main, "-10s")},
+		}, true, true},
 	}
 	for _, tc := range cases {
 		tc.rotation.Type = proto.APLRotation_TypeAPL
-		sim := NewSim(&proto.RaidSimRequest{
-			Raid: SinglePlayerRaidProto(&proto.Player{
-				Name:           "Prepull Swap Tester",
-				Class:          proto.Class_ClassWarrior,
-				Race:           proto.Race_RaceHuman,
-				Buffs:          &proto.IndividualBuffs{},
-				Spec:           &proto.Player_DpsWarrior{},
-				Equipment:      &proto.EquipmentSpec{Items: withMainHand(mainMaceID)},
-				EnableItemSwap: true,
-				ItemSwap:       &proto.ItemSwap{Items: withMainHand(swapMaceID)},
-				Rotation:       tc.rotation,
-			}, &proto.PartyBuffs{}, nil, nil),
-			Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 63}}, Duration: 180},
-			SimOptions: &proto.SimOptions{RandomSeed: 1},
-		}, simsignals.CreateSignals())
+		// The sword swings slower than the dagger, so the swings show which one is in hand.
+		raid := weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), WeaponTestSlots(WeaponTestDaggerID, 0, 0))
+		raid.Parties[0].Players[0].Rotation = tc.rotation
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1}, Raid: raid, Encounter: weaponTestEncounter()}, simsignals.CreateSignals())
 		character := sim.Raid.Parties[0].Players[0].GetCharacter()
 
-		var want []string
+		var wantMessages []string
 		if tc.wantWarning {
-			want = []string{warning}
+			wantMessages = []string{"Nothing swaps back to the main set"}
 		}
-		wantWarnings(t, tc.name, character.Rotation.prepullValidations[0], want...)
+		wantWarnings(t, tc.name, character.Rotation.prepullValidations[0], wantMessages...)
 
 		sim.Reset()
 		sim.PrePull()
 		stepSwingSim(t, sim, 0)
-		wantSwapped := tc.wantWarning || len(tc.rotation.PrepullActions) == 1
-		if got := character.ItemSwap.IsSwapped(); got != wantSwapped {
-			t.Errorf("%s: swapped at the pull = %v, want %v", tc.name, got, wantSwapped)
+		if got := character.ItemSwap.IsSwapped(); got != tc.wantSwapped {
+			t.Errorf("%s: swapped at the pull = %v, want %v", tc.name, got, tc.wantSwapped)
 		}
-		if got, want := character.MainHand().ID, Ternary(wantSwapped, swapMaceID, mainMaceID); got != want {
-			t.Errorf("%s: main hand at the pull = %d, want %d", tc.name, got, want)
-		}
-		if got, want := character.AutoAttacks.MH().SwingSpeed, Ternary(wantSwapped, 2.0, 3.5); got != want {
+		if got, want := character.AutoAttacks.MH().SwingSpeed, Ternary(tc.wantSwapped, 1.8, 2.6); got != want {
 			t.Errorf("%s: main-hand swing speed at the pull = %v, want %v", tc.name, got, want)
 		}
 	}

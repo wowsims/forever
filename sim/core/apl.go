@@ -438,36 +438,39 @@ func (rot *APLRotation) hasMove() bool {
 // A set swapped in before the pull stays on into the fight until an Item Swap: Main runs. A prepull swap away from
 // the main set warns when no Item Swap: Main follows it in the prepull or sits in the rotation.
 func (rot *APLRotation) warnOnPrepullSwapWithoutMain() {
-	hasSwapTo := func(main bool) func(*APLAction) bool {
-		return func(action *APLAction) bool {
-			return slices.ContainsFunc(getAllActionsSafe(action), func(inner *APLAction) bool {
-				swap, ok := inner.impl.(*APLActionItemSwap)
-				return ok && (swap.swapSet == proto.APLActionItemSwap_Main) == main
-			})
+	swapsTo := func(action *APLAction, main bool) bool {
+		return slices.ContainsFunc(getAllActionsSafe(action), func(inner *APLAction) bool {
+			swap, ok := inner.impl.(*APLActionItemSwap)
+			return ok && (swap.swapSet == proto.APLActionItemSwap_Main) == main
+		})
+	}
+
+	// Prepull actions run in time order, and in list order at the same time.
+	runsNoEarlier := func(j, i int) bool {
+		return rot.prepullDoAt[j] > rot.prepullDoAt[i] || (rot.prepullDoAt[j] == rot.prepullDoAt[i] && j >= i)
+	}
+	lastMain := -1 // The Main swap that runs last.
+	var swapsAway []int
+	for i, action := range rot.prepullActions {
+		if swapsTo(action, true) && (lastMain < 0 || runsNoEarlier(i, lastMain)) {
+			lastMain = i
+		}
+		if swapsTo(action, false) {
+			swapsAway = append(swapsAway, i)
 		}
 	}
 	// Walked from the priority list, so a group only counts where a shown line references it.
-	if slices.ContainsFunc(rot.priorityList, hasSwapTo(true)) {
+	if len(swapsAway) == 0 || slices.ContainsFunc(rot.priorityList, func(action *APLAction) bool { return swapsTo(action, true) }) {
 		return
 	}
-	for i, action := range rot.prepullActions {
-		if !hasSwapTo(false)(action) {
+
+	for _, i := range swapsAway {
+		if lastMain >= 0 && runsNoEarlier(lastMain, i) {
 			continue
 		}
-		// Prepull actions run in time order, and in list order at the same time.
-		swappedBack := false
-		for j, other := range rot.prepullActions {
-			runsAfter := rot.prepullDoAt[j] > rot.prepullDoAt[i] || (rot.prepullDoAt[j] == rot.prepullDoAt[i] && j >= i)
-			if runsAfter && hasSwapTo(true)(other) {
-				swappedBack = true
-				break
-			}
-		}
-		if !swappedBack {
-			rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
-				rot.ValidationMessage(proto.LogLevel_Warning, "Nothing swaps back to the main set, so the swapped set stays on for the whole fight. Add an Item Swap: Main to the rotation.")
-			})
-		}
+		rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
+			rot.ValidationMessage(proto.LogLevel_Warning, "Nothing swaps back to the main set, so the swapped set stays on for the whole fight. Add an Item Swap: Main to the rotation.")
+		})
 	}
 }
 
