@@ -74,7 +74,7 @@ A value or action reaches the rotation and the kind picker in five places, all i
   `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
   Sequence or Strict Sequence). `assignEntryPaths` (`sim/core/apl_entry_path.go`) builds the paths, `aplEntrySuffix`
   (`sim/core/spell_queueing.go`) writes them and `parseAplEntryPath` (`ui/sim/proto/combat_log/apl_entry_path.ts`) reads
-  them. Auto and Simple rotations, pets and boss AI log none. A queued spell and a next-swing attack carry the entry
+  them. Auto and Simple rotations, pets and targets log none. A queued spell and a next-swing attack carry the entry
   path of the press that queued them.
 
 ## Presets

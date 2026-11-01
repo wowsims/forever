@@ -239,11 +239,11 @@ describe('TargetsPicker', () => {
 	});
 
 	// Encounters register a preset per raid size and difficulty, all sharing one npc id — which is
-	// this picker's value, and all the sim resolves an AI from.
-	describe('AI options', () => {
+	// this picker's value, and all the sim reads the target from.
+	describe('preset target options', () => {
 		const preset = (path: string, id: number) => PresetTarget.create({ path, target: TargetProto.create({ id }) });
 		const aiOptions = async () => {
-			await userEvent.click(document.getElementById('target-0-picker-ai')!);
+			await userEvent.click(document.getElementById('target-0-picker-preset-target')!);
 			return screen.getAllByRole('option').map(option => option.textContent);
 		};
 

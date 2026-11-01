@@ -33,7 +33,7 @@ const noSubscribe = (): StoreSubscribe => () => () => {};
 
 /**
  * The fields of an encounter target that describe an add: who it is, its defences and how it attacks. The configs are the targets picker's own. The
- * preset and AI fields stay off: an add's template field picks the preset, and the sim attaches no AI to an add. The tank stays, since the sim reads the
+ * NPC and preset fields stay off: an add's template field picks the preset. The tank stays, since the sim reads the
  * template's tank index to tell who an add attacks.
  */
 export const DesignerAddStats = ({ target, onModify, idPrefix }: DesignerAddStatsProps) => {

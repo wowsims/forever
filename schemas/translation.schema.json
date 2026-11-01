@@ -3700,7 +3700,7 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
-						"ai": {
+						"preset_target": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -4615,7 +4615,7 @@
 						"num_allies",
 						"min_base_damage",
 						"npc",
-						"ai",
+						"preset_target",
 						"level",
 						"mob_type",
 						"creature_family",

@@ -65,7 +65,7 @@ export interface TargetFieldContext {
 	storeSubscribe: () => StoreSubscribe;
 }
 
-/** An encounter's target, which the preset and AI fields also need the encounter for. */
+/** An encounter's target, which the NPC and preset fields also need the encounter for. */
 export interface EncounterTargetFieldContext extends TargetFieldContext {
 	encounter: Encounter;
 	targetIndex: number;
@@ -98,20 +98,20 @@ export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget, storeSu
 	};
 };
 
-export const aiConfig = ({ encounter, idPrefix, getTarget, storeSubscribe, modifyTarget }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
+export const presetTargetConfig = ({ encounter, idPrefix, getTarget, storeSubscribe, modifyTarget }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
 	const presetTargets = encounter.sim.db.getAllPresetTargets();
 	const byNpcId = distinct(presetTargets, (a, b) => a.target?.id === b.target?.id);
 	return {
-		id: targetId(idPrefix, 'ai'),
-		label: i18n.t('settings_tab.encounter.ai.label'),
-		labelTooltip: i18n.t('settings_tab.encounter.ai.tooltip'),
+		id: targetId(idPrefix, 'preset-target'),
+		label: i18n.t('settings_tab.encounter.preset_target.label'),
+		labelTooltip: i18n.t('settings_tab.encounter.preset_target.tooltip'),
 		values: [{ name: i18n.t('common.none'), value: 0 }].concat(byNpcId.map(preset => ({ name: preset.path, value: preset.target!.id }))),
 		storeSubscribe,
 		getValue: () => getTarget().id,
 		setValue: (_: null, newValue: number) => {
 			modifyTarget(target => {
 				target.id = newValue;
-				trackEvent({ action: 'settings', category: 'targets', label: 'ai', value: target.name });
+				trackEvent({ action: 'settings', category: 'targets', label: 'preset_target', value: target.name });
 			});
 		},
 	};

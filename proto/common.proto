@@ -587,10 +587,10 @@ message Target {
         // -1 or invalid index indicates not being tanked.
         int32 tank_index = 6;
 
-        // Used in tank swap AIs.
+        // A second player in Raid.tanks who tanks this mob alongside tank_index.
         int32 second_tank_index = 100;
 
-        // Used in dynamic target AIs.
+        // The target starts the pull disabled; a design's downtime never turns it on.
         bool disabled_at_start = 101;
 }
 
@@ -695,7 +695,7 @@ message HealthKeyframe {
 
 message AddWave {
 	string name = 1;
-	repeated Target adds = 2; // One template per add the wave spawns each time, copied from a preset target; the sim attaches no AI to them.
+	repeated Target adds = 2; // One template per add the wave spawns each time, copied from a preset target; their stats and level come from the template.
 	DesignTime spawn = 4;
 	double lifetime = 5; // Fraction of the fight.
 	DesignRepeat repeat = 6;

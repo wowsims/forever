@@ -10,7 +10,6 @@ import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo } from 'react';
 
 import {
-	aiConfig,
 	ALL_TARGET_STATS,
 	bleedImmuneConfig,
 	booleanConfigs,
@@ -21,13 +20,14 @@ import {
 	mobTypeConfig,
 	npcConfig,
 	numberConfigs,
+	presetTargetConfig,
 	spellSchoolConfig,
 	statConfig,
 	tankIndexConfig,
 } from './utils/configs';
 
 export interface TargetPickerViewProps {
-	/** Who the target is: NPC preset, AI, level, mob type, creature family, tank and bleed immunity. */
+	/** Who the target is: NPC preset, preset target, level, mob type, creature family, tank and bleed immunity. */
 	identity: ReactNode;
 	stats: ReactNode;
 	/** The fields only a threat sim reads; without them an empty column keeps the three-column grid. */
@@ -56,7 +56,7 @@ export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 	const context = useMemo(() => encounterTargetContext(encounter, targetIndex), [encounter, targetIndex]);
 
 	const npc = useMemo(() => npcConfig(context), [context]);
-	const ai = useMemo(() => aiConfig(context), [context]);
+	const presetTarget = useMemo(() => presetTargetConfig(context), [context]);
 	const level = useMemo(() => levelConfig(context), [context]);
 	const mobType = useMemo(() => mobTypeConfig(context), [context]);
 	const targetMobType = useStoreSubscribe(subscribeEncounterField(encounter, 'targets'), () => context.getTarget().mobType);
@@ -76,7 +76,7 @@ export const TargetPicker = ({ encounter, targetIndex }: TargetPickerProps) => {
 			identity={
 				<>
 					<ConnectedChoiceField modObject={null} config={npc} />
-					<ConnectedChoiceField modObject={null} config={ai} />
+					<ConnectedChoiceField modObject={null} config={presetTarget} />
 					<ConnectedChoiceField modObject={null} config={mobType} />
 					{creatureFamiliesOf(targetMobType).length > 0 && <ConnectedChoiceField modObject={null} config={creatureFamily} />}
 					<ConnectedChoiceField modObject={null} config={level} />

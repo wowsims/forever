@@ -1029,9 +1029,9 @@
 				"label": "NPC",
 				"tooltip": "Selects a preset NPC configuration."
 			},
-			"ai": {
-				"label": "AI",
-				"tooltip": "Determines the target's ability rotation. Note that most rotations are not yet implemented."
+			"preset_target": {
+				"label": "Preset",
+				"tooltip": "Sets the target's NPC id from the presets that share it, which the sim reads the target's identity from. \"None\" leaves the id at 0."
 			},
 			"level": "Level",
 			"mob_type": "Mob Type",
