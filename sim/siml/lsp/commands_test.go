@@ -137,6 +137,9 @@ func TestSimCommands(t *testing.T) {
 
 	lines := strings.Split(text, "\n")
 	first := slices.Index(lines, "priority:") + 1
+	for strings.HasPrefix(strings.TrimSpace(lines[first]), "///") {
+		first++
+	}
 	want := []InlayHint{
 		{Position: Position{Line: first, Character: len(lines[first])}, Label: "▸ 12 per fight", PaddingLeft: true},
 		{Position: Position{Line: first + 1, Character: len(lines[first+1])}, Label: "never ran", PaddingLeft: true},

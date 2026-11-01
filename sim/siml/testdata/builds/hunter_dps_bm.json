@@ -112,8 +112,6 @@
 					"ammo": "ThoriumHeadedArrow",
 					"petType": "Raptor",
 					"petUptime": 1,
-					"cobraReflexes": true,
-					"petAggression": 5,
 					"petAttackSpeed": "FasterAttackII"
 				}
 			}
@@ -210,6 +208,28 @@
 							"spellId": {
 								"spellId": 14325,
 								"rank": 4
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
+							"not": {
+								"val": {
+									"dotIsActive": {
+										"spellId": {
+											"spellId": 25295,
+											"rank": 9
+										}
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 25295,
+								"rank": 9
 							}
 						}
 					}
@@ -360,28 +380,6 @@
 				{
 					"action": {
 						"condition": {
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 25295,
-											"rank": 9
-										}
-									}
-								}
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 25295,
-								"rank": 9
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
 							"variableRef": {
 								"name": "Use Aimed Shot"
 							}
@@ -439,7 +437,7 @@
 					"name": "Walk in",
 					"actions": [
 						{
-							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot is due here, and react to each shot before walking on.",
+							"notes": "Walk to my spot, looking again every reaction time. Stop while my Auto Shot's windup is close or running, and react to each shot before walking on.",
 							"action": {
 								"condition": {
 									"not": {
@@ -459,7 +457,7 @@
 															"vals": [
 																{
 																	"variableRef": {
-																		"name": "Auto Shot due"
+																		"name": "Windup close"
 																	}
 																},
 																{
@@ -548,38 +546,49 @@
 					}
 				},
 				{
-					"name": "Auto Shot due",
+					"name": "Windup close",
 					"value": {
-						"cmp": {
-							"op": "OpGe",
-							"lhs": {
-								"autoTimeSinceLast": {
-									"autoType": "RangedAuto"
-								}
-							},
-							"rhs": {
-								"math": {
-									"op": "OpSub",
-									"lhs": {
-										"math": {
-											"op": "OpSub",
-											"lhs": {
-												"autoSwingTime": {
-													"autoType": "Ranged"
-												}
-											},
-											"rhs": {
-												"const": {
-													"val": "500ms"
+						"or": {
+							"vals": [
+								{
+									"cmp": {
+										"op": "OpLe",
+										"lhs": {
+											"autoTimeToNext": {
+												"autoType": "RangedAuto"
+											}
+										},
+										"rhs": {
+											"inputDelay": {}
+										}
+									}
+								},
+								{
+									"cmp": {
+										"op": "OpGe",
+										"lhs": {
+											"autoTimeToNext": {
+												"autoType": "RangedAuto"
+											}
+										},
+										"rhs": {
+											"math": {
+												"op": "OpSub",
+												"lhs": {
+													"autoSwingTime": {
+														"autoType": "Ranged"
+													}
+												},
+												"rhs": {
+													"autoTimeSinceLast": {
+														"autoType": "RangedAuto"
+													}
 												}
 											}
 										}
-									},
-									"rhs": {
-										"inputDelay": {}
 									}
 								}
-							}
+							]
 						}
 					}
 				},

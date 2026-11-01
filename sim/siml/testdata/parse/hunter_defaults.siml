@@ -11,7 +11,6 @@ settings:
   ammo thorium_headed_arrow
   pet_uptime 1
   cobra_reflexes
-  pet_aggression 5
   pet_attack_speed faster_attack_ii
 
 gear:

@@ -8,8 +8,12 @@ var ${Use Aimed Shot} = false
 var ${Use Multi-Shot} = true
 var ${Use Arcane Shot} = true
 var ${Use Summon Hawk} = false
+var ${Rapid Fire at the pull} = false
+var ${Walk to my spot first} = true
 
 priority:
+  /// Rapid Fire at range: from the pull, or like the other cooldowns after the first 5 s.
+  cast rapid_fire if at_range and ($rapid_fire_at_the_pull or current_time >= 5s)
   autocast_other_cooldowns if current_time >= 5s and at_range
   cast hunters_mark if not target.aura(hunters_mark).is_active
   cast raptor_strike
@@ -27,7 +31,10 @@ priority:
       if $use_aimed_shot
       and (spell(aimed_shot).cast_time + $time_to_melee <= auto_time_to_next(main_hand_auto) or not $melee_weave)
   /// Start of the fight, before the first weave: get to my spot without losing an Auto Shot.
-  group "Walk in" if self.unit_distance != $shoot_spot and $not_weaving_yet
+  group "Walk in"
+      if $walk_to_my_spot_first
+      and self.unit_distance != $shoot_spot
+      and $not_weaving_yet
   group "Weave" if $melee_weave
 
 group "Weave":
