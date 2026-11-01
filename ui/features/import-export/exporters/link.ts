@@ -5,12 +5,14 @@ import type { IndividualSimHost } from '@sim/sim_host';
 import { LINK_CATEGORY_PARAM, LINK_DEFAULT_CATEGORIES } from '@sim/state/sim_links';
 import { withoutStatFilters } from '@sim/state/stat_filter_sharing';
 import { arrayEquals } from '@sim/utils/collections';
-import { default as pako } from 'pako';
 
 import { selectedCategories } from './categories';
 import type { ExporterDefinition } from './types';
 
-export const createLink = (host: IndividualSimHost<any>, exportCategories?: Array<SimSettingCategories>): string => {
+// Bytes per `String.fromCharCode` call, far below the engines' argument limits.
+const CHAR_CODE_CHUNK = 0x8000;
+
+export const createLink = async (host: IndividualSimHost<any>, exportCategories?: Array<SimSettingCategories>): Promise<string> => {
 	if (!exportCategories) {
 		exportCategories = LINK_DEFAULT_CATEGORIES;
 	}
@@ -18,10 +20,14 @@ export const createLink = (host: IndividualSimHost<any>, exportCategories?: Arra
 	const proto = withoutStatFilters(host.toProto(exportCategories));
 
 	const protoBytes = IndividualSimSettings.toBinary(proto);
-	// @ts-ignore Pako did some weird stuff between versions and the @types package doesn't correctly support this syntax for version 2.0.4 but it's completely valid
-	// The syntax was removed in 2.1.0 and there were several complaints but the project seems to be largely abandoned now
-	const deflated = pako.deflate(protoBytes, { to: 'string' });
-	const encoded = btoa(String.fromCharCode(...deflated));
+	// `slice()` types the bytes as ArrayBuffer-backed, which a BlobPart needs.
+	const deflatedStream = new Blob([protoBytes.slice()]).stream().pipeThrough(new CompressionStream('deflate'));
+	const deflated = new Uint8Array(await new Response(deflatedStream).arrayBuffer());
+	let binary = '';
+	for (let i = 0; i < deflated.length; i += CHAR_CODE_CHUNK) {
+		binary += String.fromCharCode(...deflated.subarray(i, i + CHAR_CODE_CHUNK));
+	}
+	const encoded = btoa(binary);
 
 	const linkUrl = new URL(window.location.href);
 	linkUrl.hash = encoded;

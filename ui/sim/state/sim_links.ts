@@ -2,7 +2,6 @@
 // IndividualLinkImporter so domain code (reforge_cache) can use it without
 // depending on the view layer.
 import { IndividualSimSettings } from '@generated/proto/ui';
-import pako from 'pako';
 
 import { SIM_CATEGORY_OF_KEY, SimSettingCategories } from '../constants/sim_settings';
 import { getEnumValues } from '../utils/collections';
@@ -23,7 +22,7 @@ export interface UrlLocation {
 
 // `loc` is any location-shaped source: `sim.env.location`, `window.location`
 // or a parsed `URL`.
-export function tryParseUrlLocation(loc: UrlLocation): UrlParseData | null {
+export async function tryParseUrlLocation(loc: UrlLocation): Promise<UrlParseData | null> {
 	let hash = loc.hash;
 	if (hash.length <= 1) {
 		return null;
@@ -37,7 +36,9 @@ export function tryParseUrlLocation(loc: UrlLocation): UrlParseData | null {
 		bytes[i] = binary.charCodeAt(i);
 	}
 
-	const settingsBytes = pako.inflate(bytes);
+	// The hash is zlib-wrapped deflate: the 'deflate' format, not 'deflate-raw'. `wowsimcli decodelink` reads the same.
+	const inflated = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
+	const settingsBytes = new Uint8Array(await new Response(inflated).arrayBuffer());
 	const settings = IndividualSimSettings.fromBinary(settingsBytes);
 
 	let exportCategories = LINK_DEFAULT_CATEGORIES;
