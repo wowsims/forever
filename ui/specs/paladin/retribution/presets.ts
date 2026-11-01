@@ -115,12 +115,13 @@ export const DefaultConsumables = ConsumesSpec.create({
 		Consumables.GreaterMagebloodElixir.id,
 		Consumables.JujuMight.id,
 	],
-	mhImbueId: Consumables.BrilliantWizardOil.id,
-	swapMhImbueId: Consumables.BrilliantWizardOil.id,
+	mhImbueId: Consumables.ShadowOil.id,
 });
 
 export const HolyShockConsumables = ConsumesSpec.create({
 	...DefaultConsumables,
+	mhImbueId: Consumables.FrostOil.id,
+	swapMhImbueId: Consumables.ShadowOil.id,
 	extraIds: [Consumables.CerebralCortexCompound.id, Consumables.GoblinSapperCharge.id, Consumables.DragonbreathChili.id, Consumables.GordokGreenGrog.id],
 });
 
