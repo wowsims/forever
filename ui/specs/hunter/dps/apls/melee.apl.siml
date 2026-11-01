@@ -11,8 +11,6 @@ prepull:
   -19s group "Move to starting range"
 
 priority:
-  /// In melee range: turn on melee.
-  start_attack if self.unit_distance <= $melee_range
   autocast_other_cooldowns if current_time >= 5s
   cast raptor_strike
   cast hunters_mark if not target.aura(hunters_mark).is_active

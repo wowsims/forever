@@ -549,7 +549,7 @@
 					"name": "Use Aimed Shot",
 					"value": {
 						"const": {
-							"val": "false"
+							"val": "true"
 						}
 					}
 				},
@@ -557,7 +557,7 @@
 					"name": "Use Multi-Shot",
 					"value": {
 						"const": {
-							"val": "true"
+							"val": "false"
 						}
 					}
 				},

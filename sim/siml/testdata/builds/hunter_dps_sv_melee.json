@@ -171,29 +171,6 @@
 			],
 			"priorityList": [
 				{
-					"notes": "In melee range: turn on melee.",
-					"action": {
-						"condition": {
-							"cmp": {
-								"op": "OpLe",
-								"lhs": {
-									"unitDistance": {
-										"sourceUnit": {
-											"type": "Self"
-										}
-									}
-								},
-								"rhs": {
-									"variableRef": {
-										"name": "Melee range"
-									}
-								}
-							}
-						},
-						"startAttack": {}
-					}
-				},
-				{
 					"action": {
 						"condition": {
 							"cmp": {

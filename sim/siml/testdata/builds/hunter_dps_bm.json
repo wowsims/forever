@@ -215,6 +215,28 @@
 				{
 					"action": {
 						"condition": {
+							"not": {
+								"val": {
+									"dotIsActive": {
+										"spellId": {
+											"spellId": 25295,
+											"rank": 9
+										}
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 25295,
+								"rank": 9
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"condition": {
 							"and": {
 								"vals": [
 									{
@@ -351,28 +373,6 @@
 							"spellId": {
 								"spellId": 14287,
 								"rank": 8
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 25295,
-											"rank": 9
-										}
-									}
-								}
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 25295,
-								"rank": 9
 							}
 						}
 					}
