@@ -83,6 +83,11 @@ Start the server with stdin held open (`tail -f /dev/null |`, run in the backgro
 and then waits on its command prompt. Pick a free port, since other sessions may run their own server, and stop yours by
 its PID. `pkill -f` or `pkill -x wowsimforever` would also kill other sessions' servers and their stdin holders.
 
+The Go host serves the production bundle, so a spec's `devOnly` gear sets are hidden and a fresh profile sims with no
+gear, as on the live site: a hunter reads 1.73 DPS and 0 EP, and other specs read plausible but gearless numbers. The
+vite dev server and pull request previews keep the gear. For real numbers on the Go host, load a build as §Screenshots
+says.
+
 Without `dist/forever/assets` the page half-renders with JSON parse errors from the database fetch: that is a missing
 asset copy (`make` does it; a plain `vite build` does not), not a broken database. Do not `rm -rf dist`: `vite build`
 restores only the bundles, and the database and assets come from other tooling. Copy `dist` to a scratch directory and
