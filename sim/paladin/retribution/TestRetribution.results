@@ -992,9 +992,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 887.93813
-  tps: 724.2165
-  dtps: 4.34794
+  dps: 894.16822
+  tps: 729.16421
+  dtps: 4.22024
   hps: 25.42734
  }
 }
