@@ -1497,6 +1497,9 @@
 						"shield": {
 							"type": "string"
 						},
+						"shieldsworn": {
+							"type": "string"
+						},
 						"amplified": {
 							"type": "string"
 						},
@@ -1567,6 +1570,7 @@
 						"external",
 						"self",
 						"shield",
+						"shieldsworn",
 						"amplified",
 						"custom_boss",
 						"thrash",
