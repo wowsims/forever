@@ -188,7 +188,6 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 			testId="ep-weights-menu"
 			size="xl"
 			scrollContents
-			bodyClassName="text-sm [&_.ui-field-label]:text-sm"
 			title={i18n.t('sidebar.buttons.stat_weights.modal.title')}
 			footer={
 				// A gear planner keeps the editor and drops the calculation: there is no sim to run it on.
@@ -207,8 +206,6 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 							<>
 								<br />
 								{i18n.t('sidebar.buttons.stat_weights.modal.copy_icon_description')}
-								<br />
-								{i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_description')}
 							</>
 						)}
 					</p>
@@ -231,6 +228,15 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						showUpdateColumn={!editOnly}
 						statAction={<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />}
 					/>
+					<p className="mt-2 mb-0 text-muted">
+						{i18n.t('sidebar.buttons.stat_weights.modal.rating_weights_description')}
+						{!editOnly && (
+							<>
+								<br />
+								{i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_description')}
+							</>
+						)}
+					</p>
 				</DialogColumns.Main>
 				<DialogColumns.Sidebar className="ui-ep-weights-sidebar">
 					<SavedEpWeights />
