@@ -42,15 +42,15 @@ describe('the buff registries', () => {
 
 	it('shows the raid and individual buffs interleaved in their settled order', () => {
 		expect(labelsOf(BuffDebuffInputs.BUFFS_CONFIG)).toEqual([
-			'Arcane Brilliance',
+			'Arcane Intellect',
 			'Greater Blessing of Kings',
 			'Prayer of Spirit',
-			'Gift of the Wild',
+			'Mark of the Wild',
 			'Thorns',
-			'Prayer of Fortitude',
+			'Power Word: Fortitude',
 			'Greater Blessing of Might',
 			'Greater Blessing of Wisdom',
-			['settings_tab.raid_buffs.shadow_resistance', ['Prayer of Shadow Protection', 'Shadow Resistance Aura']],
+			['settings_tab.raid_buffs.shadow_resistance', ['Shadow Protection', 'Shadow Resistance Aura']],
 			['settings_tab.raid_buffs.fire_resistance', ['Fire Resistance Aura', 'Fire Resistance Totem']],
 			['settings_tab.raid_buffs.frost_resistance', ['Frost Resistance Aura', 'Frost Resistance Totem']],
 			['settings_tab.raid_buffs.nature_resistance', ['Nature Resistance Totem', 'Aspect of the Wild']],
@@ -108,6 +108,19 @@ describe('the buff registries', () => {
 		expect(BuffDebuffInputs.BattleShout.improvedId?.equals(ActionId.fromItemId(21298))).toBe(true);
 		expect(BuffDebuffInputs.BattleShout.improvedId2?.equals(ActionId.fromSpellId(23563))).toBe(true);
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout)?.ownerClass).toBe(Class.ClassWarrior);
+	});
+
+	// 0 is off and each state above it the next rank: the first is the icon and the second its badge.
+	it.each([
+		['Strength of Earth Totem', BuffDebuffInputs.StrengthOfEarthTotem, [10442, 25361]],
+		['Grace of Air Totem', BuffDebuffInputs.GraceOfAirTotem, [10627, 25359]],
+		['Greater Blessing of Might', BuffDebuffInputs.GreaterBlessingOfMight, [25782, 25916]],
+		['Greater Blessing of Wisdom', BuffDebuffInputs.GreaterBlessingOfWisdom, [25894, 25918]],
+	])('offers %s as a rank select', (label, input, ranks) => {
+		expect(input.label).toBe(label);
+		expect(input.states).toBe(ranks.length + 1);
+		expect([input.actionId, input.improvedId].map(id => id?.spellId)).toEqual(ranks);
+		expect(input.labelTooltip).toBe('settings_tab.raid_buffs.rank_select_tooltip');
 	});
 
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {

@@ -29,6 +29,6 @@
 			}
 		}
 	},
-	{ "op": "insert", "path": ["priorityList"], "index": 4, "value": { "action": { "castSpell": { "spellId": { "spellId": 25296 } } } } },
+	{ "op": "insert", "path": ["priorityList"], "index": 4, "value": { "action": { "castSpell": { "spellId": { "spellId": 14322 } } } } },
 	{ "op": "insert", "path": ["priorityList"], "index": 7, "value": { "action": { "castSpell": { "spellId": { "spellId": 3045 } } } } }
 ]

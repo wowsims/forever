@@ -31,6 +31,9 @@ func TestEnhancement(t *testing.T) {
 			Profession1: proto.Profession_Engineering,
 			Profession2: proto.Profession_Leatherworking,
 			Rotation:    testingBuild.Rotation,
+			OtherRotations: []core.RotationCombo{
+				core.RotationWithSpellIds("testing_book_ranks", testingBuild.Rotation, map[int32]int32{10442: 25361}),
+			},
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
 					proto.WeaponType_WeaponTypeAxe,
