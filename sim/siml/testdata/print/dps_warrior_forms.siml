@@ -36,7 +36,10 @@ consumables:
 party_buffs: blood_pact, devotion_aura, mana_spring_totem, retribution_aura, concentration_aura
 
 raid_buffs:
-  arcane_brilliance, strength_of_earth_totem, grace_of_air_totem, windfury_totem
+  arcane_intellect
+  strength_of_earth_totem 1
+  grace_of_air_totem 1
+  windfury_totem
   battle_shout 2
   trueshot_aura, leader_of_the_pack, moonkin_aura
 

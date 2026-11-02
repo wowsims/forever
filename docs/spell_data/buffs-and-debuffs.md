@@ -363,7 +363,8 @@ druid registering its own copy of any of them has nothing to decide: the copy jo
 and the two bid. Leader of the Pack and Moonkin Aura each have their own category: one raises melee and
 ranged crit, the other spell crit, so a raid that ticks both gets both. Only `trueshot_aura` is left
 without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
-`sim/priest/priest.go`) bid without `SingleAura`: `prayer_of_fortitude` and `prayer_of_spirit` each
-stat on its own in `StatBuff`, with Arcane Brilliance and the scrolls, and `prayer_of_shadow_protection`
-in the shadow resistance category every buff joins. A priest's own prayer and the raid's count once,
-while Gift of the Wild and Blood Pact still add their Stamina on top.
+`sim/priest/priest.go`) bid without `SingleAura`: Prayer of Fortitude and Prayer of Spirit each stat on
+its own in `StatBuff`, with Arcane Intellect and the scrolls, and Prayer of Shadow Protection in the shadow
+resistance category every buff joins. A priest's own prayer and the raid's `power_word_fortitude`,
+`prayer_of_spirit` or `shadow_protection` count once, while Mark of the Wild and Blood Pact still add
+their Stamina on top.
