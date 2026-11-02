@@ -50,7 +50,11 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
 
 	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
+	// That damage reports as its own copy of the spell, tagged with the talent.
 	if paladin.Talents.Shieldsworn {
+		shieldswornConfig := procConfig
+		shieldswornConfig.ActionID = actionID.WithTag(shieldswornTag())
+		shieldswornSpell := paladin.RegisterSpell(shieldswornConfig)
 		holyShieldAura.AttachProcTrigger(core.ProcTrigger{
 			Callback:           core.CallbackOnSpellHitDealt,
 			ClassSpellMask:     SpellMaskHolyStrike,
@@ -58,7 +62,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 			ExtraCondition:     paladin.strikesWithShield,
 			TriggerImmediately: true,
 			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-				procSpell.Cast(sim, result.Target)
+				shieldswornSpell.Cast(sim, result.Target)
 			},
 		})
 	}
