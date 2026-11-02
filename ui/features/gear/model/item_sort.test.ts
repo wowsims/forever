@@ -4,7 +4,7 @@ import { SortDirection } from '@sim/constants/other';
 import { describe, expect, it } from 'vitest';
 
 import { ItemData, SelectorModalTabs } from '../types';
-import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs, tabHasLevel } from './item_sort';
+import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs, tabHasLevel, tabHasSource } from './item_sort';
 
 const row = (id: number, ilvl: number, scalingIlvl?: number): ItemData<Item> =>
 	({
@@ -61,6 +61,14 @@ describe('tab columns', () => {
 		[SelectorModalTabs.RandomSuffixes, false],
 	])('gives the %s tab a level column: %s', (label, hasLevel) => {
 		expect(tabHasLevel(label)).toBe(hasLevel);
+	});
+
+	it.each([
+		[SelectorModalTabs.Items, true],
+		[SelectorModalTabs.Enchants, true],
+		[SelectorModalTabs.RandomSuffixes, false],
+	])('gives the %s tab a source column: %s', (label, hasSource) => {
+		expect(tabHasSource(label)).toBe(hasSource);
 	});
 });
 

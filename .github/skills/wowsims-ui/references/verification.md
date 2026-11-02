@@ -159,3 +159,7 @@ unit test, so such a test asserts `inert` and the refused focus, and a real brow
 The tracked ones that `go-to-ts` does not write come from the full database generation, which needs the game files
 database that CI does not have, so they are committed. Never hand-edit any of them, and never run two `gen_db`
 processes at once.
+
+`bin/wowsimcli` goes stale without a word. The SIML plugin runs it whenever the file exists and never checks its age, so
+after a change to Go or `sim/siml/names.json`, vitest fails on `.siml` imports with wrong-type and unknown-field errors
+that point at no real fault. Run `make bin/wowsimcli` before vitest (`running-locally.md`).
