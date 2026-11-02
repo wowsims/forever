@@ -57,35 +57,63 @@ describe('StatTooltipBody', () => {
 	describe('on the sheet path, with the real formatter', () => {
 		const MELEE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent);
 		const BLOCK = UnitStat.fromPseudoStat(PseudoStat.PseudoStatBlockPercent);
-		const HIT_RATING_PER_PERCENT = MELEE_HIT.convertPercentToRating(1)!;
-		const BLOCK_RATING_PER_PERCENT = BLOCK.convertPercentToRating(1)!;
 
-		// The back end's gear stage holds the bonus rating and its percent; its bonus stats carry the rating alone.
-		const tooltipRows = (hand: UnitStat, gearWithoutBonus: Stats, bonusStats: Stats, gearPercent: number) => {
-			const gearStage = gearWithoutBonus.add(bonusStats).withPseudoStat(hand.getPseudoStat(), gearPercent);
-			const attribution = computeStatAttribution({ gearStats: gearStage.toProto(), finalStats: gearStage.toProto() }, bonusStats, new Stats(), {});
+		// The back end's cumulative gear stage holds the base, the real gear and the bonus rating's percent in one percent pseudo stat; a gated row holds 0.
+		// The bonus stats carry the rating alone.
+		const tooltipRows = (
+			hand: UnitStat,
+			{ base = 0, realGear = 0, bonusPercent, gated = false }: { base?: number; realGear?: number; bonusPercent: number; gated?: boolean },
+		) => {
+			const bonusStats = new Stats().withStat(hand.getRootStat(), hand.convertPercentToRating(bonusPercent)!);
+			const baseStage = new Stats().withPseudoStat(hand.getPseudoStat(), base);
+			const gearStage = bonusStats.withPseudoStat(hand.getPseudoStat(), gated ? 0 : base + realGear + bonusPercent);
+			const attribution = computeStatAttribution(
+				{ baseStats: baseStage.toProto(), gearStats: gearStage.toProto(), finalStats: gearStage.toProto() },
+				bonusStats,
+				new Stats(),
+				{},
+			);
 			const show = (deltaStats: Stats, unitStat: UnitStat, includeBase?: boolean) => statDisplayString({} as never, deltaStats, unitStat, includeBase);
-			const bonusStatValue = bonusStats.getStat(hand.getRootStat());
-			const { container } = renderBody({ hand, attribution, show, bonusStats, bonusStatValue, total: show(attribution.final, hand, true) });
+			const { container } = renderBody({
+				hand,
+				attribution,
+				show,
+				bonusStats,
+				bonusStatValue: bonusStats.getStat(hand.getRootStat()),
+				total: show(attribution.final, hand, true),
+			});
 			return Object.fromEntries(rows(container).map(([label, value]) => [label!.split('.').at(-1), value]));
 		};
 
 		it('shows a percent bonus on the Bonus line and takes it out of Gear, leaving the total', () => {
-			const bonus = new Stats().withStat(Stat.StatHitRating, HIT_RATING_PER_PERCENT);
-			const lines = tooltipRows(MELEE_HIT, new Stats().withStat(Stat.StatHitRating, 3 * HIT_RATING_PER_PERCENT), bonus, 4);
-			expect(lines).toMatchObject({ gear: '3.00%', bonus: '1.00%', total: '4.00%' });
+			expect(tooltipRows(MELEE_HIT, { realGear: 3, bonusPercent: 1 })).toMatchObject({ gear: '3.00%', bonus: '1.00%', total: '4.00%' });
 		});
 
-		it('shows a negative percent bonus as negative', () => {
-			const bonus = new Stats().withStat(Stat.StatHitRating, -HIT_RATING_PER_PERCENT);
-			const lines = tooltipRows(MELEE_HIT, new Stats().withStat(Stat.StatHitRating, 3 * HIT_RATING_PER_PERCENT), bonus, 2);
-			expect(lines).toMatchObject({ gear: '3.00%', bonus: '-1.00%', total: '2.00%' });
+		it('keeps real gear that a negative bonus cancels out', () => {
+			expect(tooltipRows(MELEE_HIT, { realGear: 3, bonusPercent: -3 })).toMatchObject({ gear: '3.00%', bonus: '-3.00%', total: '0.00%' });
 		});
 
-		it('keeps Gear from going below zero on a block row the back end gates to zero without a shield', () => {
-			const bonus = new Stats().withStat(Stat.StatBlockRating, BLOCK_RATING_PER_PERCENT);
-			const lines = tooltipRows(BLOCK, new Stats(), bonus, 0);
-			expect(lines).toMatchObject({ gear: '0.00%', total: '0.00%' });
+		it('keeps real gear that a larger negative bonus overshoots', () => {
+			expect(tooltipRows(MELEE_HIT, { realGear: 1.5, bonusPercent: -2 })).toMatchObject({ gear: '1.50%', bonus: '-2.00%', total: '-0.50%' });
+		});
+
+		it('lists base, gear and bonus so they sum to the total', () => {
+			expect(tooltipRows(MELEE_HIT, { base: 5, realGear: 1, bonusPercent: -3 })).toMatchObject({
+				base: '5.00%',
+				gear: '1.00%',
+				bonus: '-3.00%',
+				total: '3.00%',
+			});
+		});
+
+		it('never prints a negative zero for Gear when the bonus alone moved the percent', () => {
+			const lines = tooltipRows(MELEE_HIT, { base: 6.3, bonusPercent: -0.33 });
+			expect(lines.gear).toBe('0.00%');
+			expect(Object.values(lines)).not.toContain('-0.00%');
+		});
+
+		it('keeps Gear at zero on a block row the back end gates to zero without a shield', () => {
+			expect(tooltipRows(BLOCK, { bonusPercent: 1, gated: true })).toMatchObject({ gear: '0.00%', bonus: '1.00%', total: '0.00%' });
 		});
 	});
 });

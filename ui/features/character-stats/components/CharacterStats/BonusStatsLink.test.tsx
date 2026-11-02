@@ -1,4 +1,4 @@
-import { Stat } from '@generated/proto/common';
+import { PseudoStat, Stat } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { createSimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
@@ -52,6 +52,25 @@ describe('BonusStatsLink', () => {
 
 		await openPicker(Stat.StatAgility, 14);
 		expect(textbox().labels![0].textContent).not.toContain('percent_suffix');
+	});
+
+	it('takes a school hit row as a percent, labelled with the percent sign and stored as typed', async () => {
+		let bonusStats = new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 2);
+		const setBonusStats = vi.fn((next: Stats) => (bonusStats = next));
+		const player = { storeKey: 0, sim: { store: createSimStore() }, getBonusStats: () => bonusStats, setBonusStats };
+		renderWithHost(<BonusStatsLink unitStat={UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)} />, { player });
+		await act(async () => {
+			fireEvent.click(screen.getByTestId('add-bonus-stats'));
+		});
+		expect(textbox().labels![0].textContent).toMatch(/ \(sidebar\.character_stats\.percent_suffix\)$/);
+		expect(Number(textbox().value)).toBe(2);
+
+		textbox().value = '1.5';
+		await act(async () => {
+			fireEvent.change(textbox());
+		});
+
+		expect(bonusStats.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(1.5);
 	});
 
 	it('has no unit toggle', async () => {

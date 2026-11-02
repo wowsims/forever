@@ -89,7 +89,7 @@ describe('statDisplayString, stats with a composite display', () => {
 		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHitPercent))).toBe('2.00%');
 	});
 
-	it('shows a bonus rating stat as its percent only', () => {
+	it('reads 0.00% for a rating stat whose delta carries no percent', () => {
 		const bonus = new Stats().withStat(Stat.StatCritRating, 14);
 		expect(show(bonus, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('0.00%');
 	});

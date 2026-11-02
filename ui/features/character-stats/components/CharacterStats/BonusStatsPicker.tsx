@@ -19,7 +19,9 @@ export interface BonusStatsPickerProps {
 export const BonusStatsPicker = ({ unitStat, label, onCommit }: BonusStatsPickerProps) => {
 	const player = usePlayer();
 	const rootStat = unitStat.hasRootStat() ? unitStat.getRootStat() : undefined;
-	const percentInput = unitStat.isPercentRating();
+	// A rating stat is stored as the rating its percent costs; a school hit row is stored as the percent itself.
+	const ratingStoredAsPercent = unitStat.isPercentRating();
+	const percentInput = ratingStoredAsPercent || unitStat.isRatingBackedPercent();
 
 	const config = useMemo(
 		(): NumberFieldConfig<Player<any>> => ({
@@ -32,16 +34,16 @@ export const BonusStatsPicker = ({ unitStat, label, onCommit }: BonusStatsPicker
 			getValue: subject => {
 				const bonusStats = subject.getBonusStats();
 				const value = rootStat !== undefined ? bonusStats.getStat(rootStat) : bonusStats.getUnitStat(unitStat);
-				return percentInput ? unitStat.convertRatingToPercent(value)! : value;
+				return ratingStoredAsPercent ? unitStat.convertRatingToPercent(value)! : value;
 			},
 			setValue: (subject, newValue) => {
 				const bonusStats = subject.getBonusStats();
-				const value = percentInput ? unitStat.convertPercentToRating(newValue)! : newValue;
+				const value = ratingStoredAsPercent ? unitStat.convertPercentToRating(newValue)! : newValue;
 				subject.setBonusStats(rootStat !== undefined ? bonusStats.withStat(rootStat, value) : bonusStats.withUnitStat(unitStat, value));
 				onCommit();
 			},
 		}),
-		[unitStat, rootStat, label, percentInput, onCommit],
+		[unitStat, rootStat, label, percentInput, ratingStoredAsPercent, onCommit],
 	);
 
 	return <ConnectedNumberField modObject={player} config={config} />;

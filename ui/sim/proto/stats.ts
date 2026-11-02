@@ -29,13 +29,15 @@ const RATING_PER_PERCENT = new Map<Stat, number>([
 	[Stat.StatBlockRating, Mechanics.BLOCK_RATING_PER_BLOCK_PERCENT],
 ]);
 
+// Rows the back end reads 0 for while the character cannot block or parry, whatever rating it has.
+const GATED_PERCENT_PSEUDO_STATS = [PseudoStat.PseudoStatBlockPercent, PseudoStat.PseudoStatParryPercent];
+
 export class UnitStat {
 	private readonly stat: Stat | null;
 	private readonly pseudoStat: PseudoStat | null;
 
-	// Used to link a "child" PseudoStat like PhysicalHitPercent to a
-	// "parent" Stat like HitRating, so that both values can be displayed
-	// together in the character sheet.
+	// Links a "child" PseudoStat like MeleeHitPercent to its "parent" Stat like HitRating:
+	// the bonus stats store the rating, and the percent follows from it.
 	private readonly rootStat: Stat | null;
 
 	private constructor(stat: Stat | null, pseudoStat: PseudoStat | null, rootStat: Stat | null) {
@@ -827,18 +829,16 @@ export function computeStatAttribution(
 		.subtract(baseStats)
 		.subtract(bonusStats)
 		.add(statMods.gear || new Stats());
-	// The back end's gear stage holds the bonus rating's percent in each percent pseudo stat, which the bonus stats do not carry.
-	// A percent that sits at zero (a gated block or parry) stays there, and no percent crosses zero.
+	// The back end's gear stage holds the bonus rating's percent in each percent pseudo stat, which the bonus stats do not
+	// carry, so Gear is the measured delta minus that percent and Gear plus Bonus still equals the total. A block or parry row
+	// whose cumulative gear stage reads 0 is gated (no shield, cannot parry) and keeps Gear at 0. Haste is multiplicative, so
+	// its Gear line is approximate. A residue under 1e-9 is a float error and reads as 0.
 	for (const pseudoStat of UnitStat.getAllPseudoStats()) {
 		const root = UnitStat.getRootStat(pseudoStat.getPseudoStat());
 		if (root === null || !pseudoStat.isPercentRating()) continue;
-		const bonusPercent = pseudoStat.convertRatingToPercent(bonusStats.getStat(root))!;
-		const gearPercent = gearDelta.getPseudoStat(pseudoStat.getPseudoStat());
-		const remaining = gearPercent - bonusPercent;
-		gearDelta = gearDelta.withPseudoStat(
-			pseudoStat.getPseudoStat(),
-			gearPercent > 0 ? Math.max(0, remaining) : gearPercent < 0 ? Math.min(0, remaining) : 0,
-		);
+		const gated = GATED_PERCENT_PSEUDO_STATS.includes(pseudoStat.getPseudoStat()) && gearStats.getPseudoStat(pseudoStat.getPseudoStat()) === 0;
+		const gearPercent = gated ? 0 : gearDelta.getPseudoStat(pseudoStat.getPseudoStat()) - pseudoStat.convertRatingToPercent(bonusStats.getStat(root))!;
+		gearDelta = gearDelta.withPseudoStat(pseudoStat.getPseudoStat(), Math.abs(gearPercent) < 1e-9 ? 0 : gearPercent);
 	}
 	let talentsDelta = talentsStats.subtract(gearStats).add(statMods.talents || new Stats());
 	let buffsDelta = buffsStats.subtract(talentsStats).add(statMods.buffs || new Stats());

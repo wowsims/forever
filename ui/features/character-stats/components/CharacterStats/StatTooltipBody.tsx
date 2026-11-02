@@ -18,7 +18,7 @@ export interface StatTooltipBodyProps {
 	rangedWeaponSpeed?: number;
 }
 
-// A bonus is a rating typed in, so a percent row reads its percent off that rating: the bonus stats' own percent pseudo stat is 0.
+// A percent row's bonus is typed as a percent and stored as a rating, so the row reads its percent back off that rating: the bonus stats' own percent pseudo stat is 0.
 const bonusDisplayStats = (hand: UnitStat, bonusStats: Stats, bonusStatValue: number): Stats =>
 	hand.isPseudoStat() && hand.isPercentRating() ? bonusStats.withPseudoStat(hand.getPseudoStat(), hand.convertRatingToPercent(bonusStatValue)!) : bonusStats;
 
