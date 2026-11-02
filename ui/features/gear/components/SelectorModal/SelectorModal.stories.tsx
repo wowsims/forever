@@ -24,7 +24,7 @@ const ItemsPane = () => (
 			onSearchChange={fn()}
 			phase={1}
 			onPhaseChange={fn()}
-			toggles={[{ id: 'show-ep-values-selector', testId: 'selector-modal-show-ep-values', label: 'Show EP', value: true, onChange: fn() }]}
+			toggles={[{ id: 'show-ep-values-selector-items', testId: 'selector-modal-show-ep-values', label: 'Show EP', value: true, onChange: fn() }]}
 			remove={{ label: 'Unequip Item', onClick: fn() }}
 		/>
 		<ItemListHeaderRow
@@ -58,9 +58,9 @@ const ItemsPane = () => (
 );
 
 const ENCHANTS = [
-	{ name: 'Crusader', quality: ItemQuality.ItemQualityUncommon, icon: 'spell_holy_holysmite', lvl: 60 },
-	{ name: 'Lifestealing', quality: ItemQuality.ItemQualityUncommon, icon: 'spell_shadow_lifedrain', lvl: 60 },
-	{ name: 'Fiery Weapon', quality: ItemQuality.ItemQualityUncommon, icon: 'spell_fire_flameblades', lvl: 50 },
+	{ name: 'Enchant Weapon - Agility', quality: ItemQuality.ItemQualityUncommon, icon: 'inv_misc_note_01', lvl: 60, ep: 18.4, static: true },
+	{ name: 'Enchant Weapon - Strength', quality: ItemQuality.ItemQualityUncommon, icon: 'inv_misc_note_01', lvl: 60, ep: 15.2, static: true },
+	{ name: 'Crusader', quality: ItemQuality.ItemQualityUncommon, icon: 'spell_holy_holysmite', lvl: 60, ep: 0, static: false },
 ];
 
 const EnchantsPane = () => (
@@ -70,10 +70,19 @@ const EnchantsPane = () => (
 			onSearchChange={fn()}
 			phase={1}
 			onPhaseChange={fn()}
-			toggles={[{ id: 'show-all-enchants-selector', testId: 'selector-modal-show-all-enchants', label: 'Show All', value: false, onChange: fn() }]}
+			toggles={[
+				{ id: 'show-all-enchants-selector', testId: 'selector-modal-show-all-enchants', label: 'Show All', value: false, onChange: fn() },
+				{ id: 'show-ep-values-selector-enchants', testId: 'selector-modal-show-ep-values', label: 'Show EP', value: true, onChange: fn() },
+			]}
 			remove={{ label: 'Remove Enchant', onClick: fn() }}
 		/>
-		<ItemListHeaderRow label={SelectorModalTabs.Enchants} sortBy={ItemListSortBy.ILVL} sortDirection={SortDirection.DESC} onSort={fn()} />
+		<ItemListHeaderRow
+			label={SelectorModalTabs.Enchants}
+			ep={{ showValues: true, tooltipId: 'ep-tooltip' }}
+			sortBy={ItemListSortBy.EP}
+			sortDirection={SortDirection.DESC}
+			onSort={fn()}
+		/>
 		{ENCHANTS.map((row, index) => (
 			<div key={row.name} className="relative flex items-center gap-4 bg-gray-900 p-2">
 				<ItemListRowView
@@ -85,6 +94,7 @@ const EnchantsPane = () => (
 					ilvl={row.lvl}
 					active={index === 0}
 					onEquip={fn()}
+					ep={{ ep: row.ep, equippedEP: row.static ? 18.4 : null }}
 					favourited={index === 1}
 					favouriteTooltipId="favourite-tooltip"
 					onToggleFavourite={fn()}

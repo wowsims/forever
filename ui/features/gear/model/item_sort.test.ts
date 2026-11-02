@@ -4,7 +4,7 @@ import { SortDirection } from '@sim/constants/other';
 import { describe, expect, it } from 'vitest';
 
 import { ItemData, SelectorModalTabs } from '../types';
-import { defaultSortBy, ItemListSortBy, sortItemIdxs, tabHasLevel, tabSortsByEP } from './item_sort';
+import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs, tabHasLevel } from './item_sort';
 
 const row = (id: number, ilvl: number, scalingIlvl?: number): ItemData<Item> =>
 	({
@@ -36,25 +36,23 @@ const sort = <T extends Item | UIEnchant>(rows: ItemData<T>[], over: Partial<Par
 
 describe('defaultSortBy', () => {
 	it.each([
-		[SelectorModalTabs.Items, ItemSlot.ItemSlotHead, ItemListSortBy.EP],
-		[SelectorModalTabs.RandomSuffixes, ItemSlot.ItemSlotHead, ItemListSortBy.EP],
-		[SelectorModalTabs.Items, ItemSlot.ItemSlotTrinket1, ItemListSortBy.ILVL],
-		[SelectorModalTabs.Items, ItemSlot.ItemSlotTrinket2, ItemListSortBy.ILVL],
-		[SelectorModalTabs.Enchants, ItemSlot.ItemSlotHead, ItemListSortBy.ILVL],
-		[SelectorModalTabs.Enchants, ItemSlot.ItemSlotMainHand, ItemListSortBy.ILVL],
-	])('sorts the %s tab of slot %i by %i: level on the trinket slots and the enchants tab, whose EP leaves procs out', (label, slot, sortBy) => {
-		expect(defaultSortBy(label, slot)).toBe(sortBy);
+		[ItemSlot.ItemSlotHead, ItemListSortBy.EP],
+		[ItemSlot.ItemSlotMainHand, ItemListSortBy.EP],
+		[ItemSlot.ItemSlotTrinket1, ItemListSortBy.ILVL],
+		[ItemSlot.ItemSlotTrinket2, ItemListSortBy.ILVL],
+	])('sorts slot %i by %i: level on the trinket slots, whose EP leaves procs out', (slot, sortBy) => {
+		expect(defaultSortBy(slot)).toBe(sortBy);
 	});
 });
 
 describe('tab columns', () => {
 	it.each([
-		[SelectorModalTabs.Items, ItemSlot.ItemSlotChest, true],
-		[SelectorModalTabs.RandomSuffixes, ItemSlot.ItemSlotChest, true],
-		[SelectorModalTabs.Enchants, ItemSlot.ItemSlotChest, false],
-		[SelectorModalTabs.Items, ItemSlot.ItemSlotTrinket2, false],
-	])('gives the %s tab of slot %i an EP column: %s', (label, slot, hasEP) => {
-		expect(tabSortsByEP(label, slot)).toBe(hasEP);
+		[ItemSlot.ItemSlotChest, true],
+		[ItemSlot.ItemSlotMainHand, true],
+		[ItemSlot.ItemSlotTrinket1, false],
+		[ItemSlot.ItemSlotTrinket2, false],
+	])('gives slot %i an EP column: %s', (slot, hasEP) => {
+		expect(slotSortsByEP(slot)).toBe(hasEP);
 	});
 
 	it.each([
