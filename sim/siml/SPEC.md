@@ -391,7 +391,7 @@ line whose first word is a slot word is a slot row, and any other line an entry.
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `settings`                                      | `race orc`, `profession1 engineering`, `distance_from_target 11`, the spec options flattened (`quiver_bonus ancient_sinew_wrapped_lamina`, `cobra_reflexes`), `tanks player1`         |
 | `consumables`                                   | `offensive_pot major_frenzy_potion`, `food swiftstrike_steak`, `extra goblin_sapper_charge, scroll_of_strength_iv`                                                                    |
-| `buffs`, `party_buffs`, `raid_buffs`, `debuffs` | flag lists of the buff fields, `mana_spring_totem=improved` for a tristate, `target_dummies 2` in `raid_buffs`                                                                        |
+| `buffs`, `party_buffs`, `raid_buffs`, `debuffs` | flag lists of the buff fields, `mana_spring_totem=improved` for a tristate, `strength_of_earth_totem 1` for a rank select, `target_dummies 2` in `raid_buffs`                         |
 | `encounter`                                     | `duration 180`, `duration_variation 5`, `execute_proportion_20 0.2`, one `targets(id=…, name="…", level=63, mob_type=mechanical, stats(…), …)` per target, written out field by field |
 | `sim`                                           | `iterations 25000`, `ep_weights_stats(stats(agility=2.1))`, `dps_ref_stat attack_power`                                                                                               |
 | `simple`                                        | the spec's `Rotation` fields (`time_to_weave 400`, `use_multi, use_arcane`, `playstyle weave`) and `cooldowns(hp_percent_for_defensives=0.4)`                                         |
@@ -1053,8 +1053,11 @@ up-to-date check (below) is what catches a table not committed. The generator:
       when another thing of the base has the same spell id.
     - While that name is taken, `_2`, `_3`, … follow it.
 
-    **Preference.** In `spell`, castable first. Then, in every spell-like namespace, tag 0 first, the highest rank, the lowest spell id and
-    the lowest tag. Items: the highest item level, then the lowest id. Enchants: the lowest effect id, then the slots
+    **Preference.** In `spell`, castable first. Then, in every spell-like namespace, tag 0 first, a rank that is no
+    class book rank (`spelldata.IsBookRank`, the hand-kept list in `sim/core/spelldata/book_ranks.go`, since the game
+    files state a book rank like a trained one), the highest rank, the lowest spell id and the lowest tag. So a plain
+    name means the trainer's top rank and a book rank takes a qualifier, unless being castable or tag 0 puts the book
+    rank first or the builds register no trained rank of its base. Items: the highest item level, then the lowest id. Enchants: the lowest effect id, then the slots
     in `ItemSlot` order. Suffixes: the lowest id. The classes are named before the shared entries, so what a class
     casts takes its game name before what gear adds.
 
@@ -1961,7 +1964,7 @@ Some notes on this file:
   `aura(overpower)` is 1282733.
 - **The tagged spells.** `heroic_strike`, `cleave` and `whirlwind` are the tag-1 spells, the queued or main-hand
   versions the sim casts from the APL, since those are castable (§7.4). A bare `cast heroic_strike` therefore
-  queues, and the tag-0 Heroic Strike is `heroic_strike_tag0`.
+  queues the trainer's rank, and the tag-0 Heroic Strikes are `heroic_strike_rank8` and `heroic_strike_rank9`.
 - **The Windfury Totem auras** the warrior reads are all external (tag −1) and share a game name, so the
   generator would tell them apart only by id. Their pinned names say what each does instead:
   `windfury_totem_proc` is 10612, the party aura that rolls the proc; `windfury_totem_buff` is 10610, the attack
@@ -2070,10 +2073,15 @@ consumables:
   resource_pot major_mana_potion
   offensive_pot major_frenzy_potion
 
-buffs: greater_blessing_of_kings, greater_blessing_of_might, greater_blessing_of_wisdom
+buffs:
+  greater_blessing_of_kings
+  greater_blessing_of_might 1
+  greater_blessing_of_wisdom 1
 
 raid_buffs:
-  arcane_brilliance, prayer_of_spirit, gift_of_the_wild, strength_of_earth_totem, grace_of_air_totem
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild
+  strength_of_earth_totem 1
+  grace_of_air_totem 1
   windfury_totem
   battle_shout 1
   leader_of_the_pack
@@ -2109,11 +2117,14 @@ encounter:
 
 Some notes on this file:
 
-- **Size.** It is 85 lines and 2.4 KB.
+- **Size.** It is 89 lines and 2.4 KB.
 - **The rotation** is `TypeSimple`, inferred from `simple:`. The section encodes
   `{"timeToWeave":250,"useMulti":true,"useArcane":true,"playstyle":"Weave","pullRange":25}` into
   `spec_rotation_json` (§5.4).
 - **Left-out fields.** `pet_type pet_none` is the zero value and is not printed. `class` comes from
   `spec hunter`.
 - **Buff order.** The fields of `raid_buffs` follow declaration order in `proto/buffs.proto`. `battle_shout` is
-  a number, the raid's rank (1 is Rank 6), so it takes a line of its own.
+  a number, the raid's rank (1 is Rank 6), so it takes a line of its own. So does each rank select, whose number is 0 for
+  off, 1 for the rank no class book teaches and 2 for the rank above it: `strength_of_earth_totem` and
+  `grace_of_air_totem` here, and `greater_blessing_of_might` and `greater_blessing_of_wisdom` in `buffs`. A higher
+  number reads as 2. A bare name is an error for these.

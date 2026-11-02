@@ -72,7 +72,7 @@ as inlay hints, for an editor with no panel (`sim/siml/lsp/commands.go`).
 An `x.siml` has these sections: `settings:` `consumables:` `buffs:` `party_buffs:` `raid_buffs:` `debuffs:`
 `encounter:` `sim:` `gear:` `item_swap:` `apl:` `simple:` `cooldowns:` `prepull:` `priority:` `group "<name>":`.
 
-Entries are `field value` lines or comma lists of flags (`raid_buffs:` `gift_of_the_wild, windfury_totem`);
+Entries are `field value` lines or comma lists of flags (`raid_buffs:` `prayer_of_spirit, windfury_totem`);
 `sim: iterations 25000` fits one line. Gear rows are `<slot> <item> [<suffix>] [+ <enchant>]`, the slots `head`
 `neck` `shoulder` `back` `chest` `wrist` `hands` `waist` `legs` `feet` `finger1` `finger2` `trinket1` `trinket2`
 `main_hand` `off_hand` `ranged`.
@@ -125,7 +125,8 @@ item, enchant, suffix.
 - Spell-like names are the file's class's, else shared (gear, consumables, encounters).
 - An item in a spell position is `item.<name>` (`cast item.major_mana_potion`); `other.<name>` is an OtherAction
   (`other.offensive_potion`).
-- Ranks and duplicates carry suffixes: `frostbolt_rank10`, `heroic_strike_tag1`, `fireball_18082`.
+- Ranks and duplicates carry suffixes: `serpent_sting_rank9`, `heroic_strike_tag1`, `fireball_18082`. A plain name is
+  the trainer's top rank, and a class book rank takes the suffix.
 - A name the table lacks is `unknown-name` with a did-you-mean; `make siml-names` adds newly registered spells.
 - `$var` where a name goes (`cast $filler`, `aura($curse)`) is `spell-variable`: ActionID has no member to name a
   variable in. A def for a name (`def filler = arcane_shot`, then `cast filler`) picks the spell in one line.

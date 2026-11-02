@@ -136,6 +136,9 @@ func buffSpecIDs(spec buffmanifest.Row) []int32 {
 	if spec.ImpAction != nil {
 		ids = append(ids, spec.ImpAction.SpellID)
 	}
+	for _, rank := range spec.Ranks {
+		ids = append(ids, rank.SpellID, rank.CastID)
+	}
 	return ids
 }
 
