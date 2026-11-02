@@ -755,7 +755,7 @@ message StatWeightsRequest {
 
 // The ± each targeted EP runs extra iterations to reach.
 message StatWeightsTarget {
-	double ep_ci = 1; // The 90% ± of each EP to reach.
+	double ep_ci = 1; // The 90% ± of each EP to reach, per rating point for a percent.
 	int32 max_iteration_multiplier = 2; // Caps each run at this multiple of its first pass's iterations; 0 means no cap.
 	repeated StatWeightsTargetMetric metrics = 3; // The metrics whose EP ± the target applies to; empty means DPS only.
 }
