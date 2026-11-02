@@ -21,7 +21,7 @@ export interface StatSweepPoint {
 	offset: number;
 	/** The bonus the step adds to the stat in the unit it stores: rating for a rating stat, percent for a percent pseudo stat, else points. */
 	bonus: number;
-	/** The swept stat's final total with the step's bonus, as the sim computes it. A rating stat's is in rating and only drops a step below 0, never shown. */
+	/** The swept stat's final total with the step's bonus, as the sim computes it; a step whose total falls below 0 is dropped. Printed only for a stat `sweepHasTotal` holds for. */
 	statValue: number;
 	metrics: Record<StatSweepMetric, MetricSummary>;
 }
@@ -38,7 +38,7 @@ export interface StatSweepRecord {
 	unitStat: object;
 	/** The metric plotted when the run started, which Target ± sizes the steps by. */
 	metric: StatSweepMetric;
-	/** The stat's total as the run started; like `statValue`, a rating stat's is in rating and never shown. */
+	/** The stat's total as the run started, printed under the same rule as a point's `statValue`. */
 	baseStatValue: number;
 	points: StatSweepPoint[];
 	/** The step past which more of the stat left every metric unchanged, so the run skipped the steps above the next one. */

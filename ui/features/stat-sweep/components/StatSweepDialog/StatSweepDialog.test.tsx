@@ -331,6 +331,16 @@ describe('StatSweepDialog', () => {
 			expect(tooltipTitleAt(runDataset('Ranged Hit ±2%'), 1)).toEqual(['Ranged Hit 1% (+1%)']);
 		});
 
+		it('reads defense in the tooltip as the points added with no total, since its own total is gear rating', async () => {
+			const defense = UnitStat.fromStat(Stat.StatDefenseRating);
+			host.individualConfig.epStats = [defense.getStat()];
+			settings.set({ stats: [defense], range: 1, step: 1 });
+			await openDialog();
+			await run();
+
+			expect(tooltipTitleAt(runDataset('Defense ±10'), 1)).toEqual(['Defense +10']);
+		});
+
 		it('lists where a stat capped in its own unit', async () => {
 			history.listRuns.mockResolvedValueOnce([
 				{ ...storedRun('crit', 2, 1, 'sweep', CRIT_RATING), label: 'Crit ±10%', capped: { offset: 2, bonus: 28 } },
@@ -367,6 +377,38 @@ describe('StatSweepDialog', () => {
 			.find(option => option.textContent?.includes(AGILITY.getFullName(Class.ClassWarrior)))!;
 		fireEvent.click(agility);
 		expect(settings.values.stats!.map(stat => stat.getKey())).toEqual([AGILITY.getKey()]);
+	});
+
+	it('takes a decimal range and step, and runs the steps they offer', async () => {
+		await openDialog();
+		const step = screen.getByLabelText<HTMLInputElement>('sidebar.buttons.stat_sweep.step');
+
+		fireEvent.change(screen.getByLabelText('sidebar.buttons.stat_sweep.range'), { target: { value: '2' } });
+		fireEvent.change(step, { target: { value: '0.5' } });
+		expect(settings.values).toMatchObject({ range: 2, step: 0.5 });
+		expect(step.value).toBe('0.50');
+
+		await run();
+
+		expect(strengthSteps()).toEqual([0, 5, 10, 15, 20]);
+		expect(saved().points.map(point => point.offset)).toEqual([0, 0.5, 1, 1.5, 2]);
+	});
+
+	it.each([
+		['step', 'sidebar.buttons.stat_sweep.step'],
+		['range', 'sidebar.buttons.stat_sweep.range'],
+	])('disables Run while the %s is empty or 0, which would run only the current value', async (_field, label) => {
+		await openDialog();
+		expect(runButton().disabled).toBe(false);
+
+		fireEvent.change(screen.getByLabelText(label), { target: { value: '' } });
+		expect(runButton().disabled).toBe(true);
+
+		fireEvent.change(screen.getByLabelText(label), { target: { value: '1' } });
+		expect(runButton().disabled).toBe(false);
+
+		fireEvent.change(screen.getByLabelText(label), { target: { value: '0' } });
+		expect(runButton().disabled).toBe(true);
 	});
 
 	it('locks the setup and the precision options while a run goes', async () => {

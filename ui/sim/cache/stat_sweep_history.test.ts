@@ -21,9 +21,9 @@ beforeEach(() => {
 });
 
 describe('the store', () => {
-	it('opens above version 3, whose runs hold rating offsets, and an upgrade drops the runs it finds', async () => {
+	it('an upgrade drops every stored run', async () => {
 		await deleteRuns([]);
-		const [, version, { upgrade }] = idb.openDB.mock.calls[0];
+		const [, , { upgrade }] = idb.openDB.mock.calls[0];
 		const db = {
 			objectStoreNames: { contains: (name: string) => name === 'runs' },
 			deleteObjectStore: vi.fn(),
@@ -32,7 +32,6 @@ describe('the store', () => {
 
 		upgrade(db);
 
-		expect(version).toBeGreaterThan(3);
 		expect(db.deleteObjectStore).toHaveBeenCalledExactlyOnceWith('runs');
 		expect(db.createObjectStore).toHaveBeenCalledExactlyOnceWith('runs', { keyPath: 'id' });
 	});

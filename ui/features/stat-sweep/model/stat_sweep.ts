@@ -1,4 +1,5 @@
 import type { AggregatorData, DistributionMetrics } from '@generated/proto/api';
+import { Stat } from '@generated/proto/common';
 import type { MetricSummary, StatSweepPoint, StatSweepRecord } from '@sim/cache/stat_sweep_history';
 import type { UnitStat } from '@sim/proto/stats';
 import { precisionRunnable, type PrecisionSettings } from '@sim/settings/precision';
@@ -48,15 +49,16 @@ export const SWEEP_POINTS_PER_PERCENT = 10;
 export const sweepReadsInPercent = (unitStat: UnitStat): boolean => unitStat.isPercentRating() || unitStat.isRatingBackedPercent();
 
 /**
- * Whether `unitStat` has one total to show. A rating stat has none: the back end holds its percent per melee, ranged or spell
- * channel, with talents and flat bonuses that rating divided by rating per percent would miss.
+ * Whether `unitStat` has a total to show. A rating stat's own total is gear rating, without talents and flat bonuses, so it is
+ * not the percent a player has. Defense's is gear rating too, without the base skill the character sheet adds.
  */
-export const sweepHasTotal = (unitStat: UnitStat): boolean => !(unitStat.isStat() && unitStat.isPercentRating());
+export const sweepHasTotal = (unitStat: UnitStat): boolean =>
+	!(unitStat.isStat() && (unitStat.isPercentRating() || unitStat.equalsStat(Stat.StatDefenseRating)));
 
 /** The bonus a step `offset` percent from the current value adds to `unitStat`, in the unit it stores: rating, percent or points. */
 export const sweepBonus = (unitStat: UnitStat, offset: number): number => {
 	if (!sweepReadsInPercent(unitStat)) return roundFloat(offset * SWEEP_POINTS_PER_PERCENT);
-	return unitStat.isStat() ? unitStat.convertPercentToRating(offset)! : offset;
+	return unitStat.isStat() ? roundFloat(unitStat.convertPercentToRating(offset)!) : offset;
 };
 
 /** What a step added to `unitStat` in the unit a player reads: percent for a percent stat, else points. */

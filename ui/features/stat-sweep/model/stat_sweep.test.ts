@@ -94,6 +94,7 @@ describe('buildSweepOffsets', () => {
 
 	it('keeps fractional steps exact', () => {
 		expect(buildSweepOffsets(0.3, 0.1)).toEqual([-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3]);
+		expect(buildSweepOffsets(2, 0.5)).toEqual([-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2]);
 	});
 
 	it('returns only 0 for a step or range that cannot step', () => {
@@ -128,6 +129,13 @@ describe('sweepSteps', () => {
 	it('keeps the percent as the offset, with the bonus in the unit the stat stores', () => {
 		expect(sweepSteps(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), [2], [5])).toEqual([{ offset: 2, bonus: 2, statValue: 5 }]);
 		expect(sweepSteps(CRIT_RATING, [2], [100])).toEqual([{ offset: 2, bonus: 28, statValue: 100 }]);
+	});
+
+	it("drops a rating stat's lower steps by its rating total, so 4% from gear plots down to -4%", () => {
+		expect(sweepSteps(CRIT_RATING, [-5, -4, 0], [-14, 0, 56])).toEqual([
+			{ offset: -4, bonus: -56, statValue: 0 },
+			{ offset: 0, bonus: 0, statValue: 56 },
+		]);
 	});
 });
 
@@ -576,6 +584,21 @@ describe('statSweepCsv', () => {
 
 		expect(csv.split('\n')[1]).toBe('Crit ±10%,"Crit, Strength ±10%",Crit,,2,percent,,1600,200,5,1,3200,400,300,30,9.5,0.25,400');
 	});
+
+	it('leaves the totals of defense empty and writes its points added', () => {
+		const csv = statSweepCsv([
+			{
+				label: 'Defense ±100',
+				unitStat: DEFENSE_RATING,
+				batchLabel: '',
+				statLabel: 'Defense',
+				baseStatValue: 10,
+				points: [{ offset: 1, bonus: 10, statValue: 20, metrics: metrics(1600, 200, 400) }],
+			},
+		]);
+
+		expect(csv.split('\n')[1]).toBe('Defense ±100,,Defense,,10,points,,1600,200,5,1,3200,400,300,30,9.5,0.25,400');
+	});
 });
 
 describe('sweepBonus', () => {
@@ -589,6 +612,13 @@ describe('sweepBonus', () => {
 		expect(sweepBonus(CRIT_RATING, 1)).toBe(14);
 		expect(sweepBonus(CRIT_RATING, -2)).toBe(-28);
 		expect(sweepBonus(HIT_RATING, 1)).toBe(10);
+	});
+
+	it('sends the sim a fractional percent with no float noise', () => {
+		expect(sweepBonus(HIT_RATING, 0.1)).toBe(1);
+		expect(sweepBonus(CRIT_RATING, 0.3)).toBe(4.2);
+		expect(sweepBonus(CRIT_RATING, 0.1)).toBe(1.4);
+		expect(sweepBonus(CRIT_RATING, 0.7)).toBe(9.8);
 	});
 
 	it('moves any other stat 10 points per 1%, defense too, which buys skill and no percent', () => {
@@ -607,10 +637,10 @@ describe('sweepBonus', () => {
 });
 
 describe('sweepHasTotal', () => {
-	it('holds for a stat with one true total, and not for a rating stat, whose percent differs by melee, ranged and spell', () => {
-		for (const stat of [CRIT_RATING, HIT_RATING, UnitStat.fromStat(Stat.StatDodgeRating)]) expect(sweepHasTotal(stat), stat.getKey()).toBe(false);
-		for (const stat of [STRENGTH, DEFENSE_RATING, RANGED_CRIT_PERCENT, SHADOW_HIT_PERCENT, MAIN_HAND_DPS])
-			expect(sweepHasTotal(stat), stat.getKey()).toBe(true);
+	it('holds for a stat whose total is what a player has, and not for a rating stat or defense, whose own total is gear rating', () => {
+		for (const stat of [CRIT_RATING, HIT_RATING, UnitStat.fromStat(Stat.StatDodgeRating), DEFENSE_RATING])
+			expect(sweepHasTotal(stat), stat.getKey()).toBe(false);
+		for (const stat of [STRENGTH, RANGED_CRIT_PERCENT, SHADOW_HIT_PERCENT, MAIN_HAND_DPS]) expect(sweepHasTotal(stat), stat.getKey()).toBe(true);
 	});
 });
 

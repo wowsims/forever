@@ -143,7 +143,7 @@ const shown = (value: number) => formatToNumber(value, { useGrouping: false });
 
 const withUnit = (unitStat: UnitStat, amount: string) => (sweepReadsInPercent(unitStat) ? `${amount}%` : amount);
 
-// What a step added with its sign and unit, as in +2% or -20. The sign shows at 0 too, since a bare 0% reads as the stat's total.
+// What a step added with its sign and unit, as in +2% or -20. The sign shows at 0 too, since a tooltip with no total would read a bare 0% as the total; the other texts share this format.
 const addedText = (unitStat: UnitStat, step: Pick<StatSweepPoint, 'offset' | 'bonus'>) =>
 	withUnit(unitStat, formatToNumber(sweepAddedAmount(unitStat, step), { signDisplay: 'always', useGrouping: false }));
 

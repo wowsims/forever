@@ -94,7 +94,7 @@ export const OverlayOtherStat: Story = {
 
 export const TankDamageTaken: Story = {
 	args: {
-		series: [sweepSeries('defense', DEFENSE_RATING, 'Defense', 300, makeDefenseSweepPoints(300))],
+		series: [sweepSeries('defense', DEFENSE_RATING, 'Defense', 150, makeDefenseSweepPoints(150))],
 		metric: 'dtps',
 		metrics: ['dps', 'tps', 'dtps', 'tmi'],
 	},

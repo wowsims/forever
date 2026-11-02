@@ -66,7 +66,8 @@ const useSweepSetup = (settings: StatSweepSettings) => {
 	}, [unitStats, storedStats]);
 	const selectedKeys = useMemo(() => selectedStats.map(stat => stat.getKey()), [selectedStats]);
 	const labelOf = (key: string) => statOptions.find(option => option.value === key)?.label ?? '';
-	const runnable = selectedStats.length > 0 && precisionRunnable(precision);
+	// A range or step of 0 would run only the current value.
+	const runnable = selectedStats.length > 0 && range > 0 && step > 0 && precisionRunnable(precision);
 	return { player, unitStats, statOptions, metrics, metric, range, step, showSpread, precision, selectedStats, selectedKeys, labelOf, runnable };
 };
 
