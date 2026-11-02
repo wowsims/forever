@@ -194,27 +194,26 @@ describe('ItemList', () => {
 		expect(head.container.querySelector('[data-testid="ep-label"]')).not.toBeNull();
 	});
 
-	it('lists enchants by lvl, highest first with ties in the order given, and offers no EP on the enchants tab', () => {
+	it('lists enchants by EP, highest first, with the EP column and toggle, and sorts by level from its header', () => {
 		const enchants = [
-			Enchant.create({ effectId: 1, name: 'Low', lvl: 20 }),
-			Enchant.create({ effectId: 2, name: 'HighFirst', lvl: 60 }),
+			Enchant.create({ effectId: 1, name: 'Low', lvl: 60 }),
+			Enchant.create({ effectId: 2, name: 'High', lvl: 20 }),
 			Enchant.create({ effectId: 3, name: 'Mid', lvl: 40 }),
-			Enchant.create({ effectId: 4, name: 'HighSecond', lvl: 60 }),
 		];
-		const computeEP = vi.fn((candidate: any) => (candidate.effectId === 1 ? 100 : 0));
+		const eps: Record<number, number> = { 1: 5, 2: 90, 3: 30 };
 		const { container } = setup({
 			label: SelectorModalTabs.Enchants,
 			slot: ItemSlot.ItemSlotMainHand,
-			over: { itemData: enchants.map(enchantRow), computeEP },
+			over: { itemData: enchants.map(enchantRow), computeEP: (candidate: any) => eps[candidate.effectId] },
 		});
-		expect(names(container)).toEqual(['HighFirst', 'HighSecond', 'Mid', 'Low']);
-		expect(computeEP).not.toHaveBeenCalled();
-		expect(container.querySelector('[data-testid="ep-label"]')).toBeNull();
-		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).toBeNull();
+		expect(names(container)).toEqual(['High', 'Mid', 'Low']);
+		expect(container.querySelector('[data-testid="ep-label"]')).not.toBeNull();
+		expect(Array.from(container.querySelectorAll<HTMLElement>('[data-row]')).map(node => node.dataset.ep)).toEqual(['90', '30', '5']);
+		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).not.toBeNull();
 		expect(container.querySelector('[data-testid="selector-modal-show-all-enchants"]')).not.toBeNull();
 
 		act(() => container.querySelector<HTMLElement>('[data-testid="ilvl-label"] button')!.click());
-		expect(names(container)).toEqual(['Low', 'Mid', 'HighFirst', 'HighSecond']);
+		expect(names(container)).toEqual(['Low', 'Mid', 'High']);
 	});
 
 	it('offers the weapon options in a main hand and, for a warrior, an off hand — never in another slot', () => {

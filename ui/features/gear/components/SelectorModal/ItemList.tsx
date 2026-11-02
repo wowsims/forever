@@ -22,7 +22,7 @@ import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import { applyFavourite, isItemFavourited } from '../../model/favourites';
 import { getItemIdByItemType } from '../../model/item_ids';
 import { matchesSearch } from '../../model/item_search';
-import { defaultSortBy, ItemListSortBy, sortItemIdxs, tabSortsByEP } from '../../model/item_sort';
+import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs } from '../../model/item_sort';
 import { type ItemDataFields, type ItemListType, SelectorModalTabs } from '../../types';
 import { FiltersMenu } from '../FiltersMenu';
 import { ItemListHeaderRow } from './ItemListHeaderRow';
@@ -138,7 +138,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 	const { label, itemData, computeEP, equippedToItem, onRemove } = tab;
 
 	const [search, setSearch] = useState('');
-	const [sortBy, setSortBy] = useState(() => defaultSortBy(label, slot));
+	const [sortBy, setSortBy] = useState(() => defaultSortBy(slot));
 	const [sortDirection, setSortDirection] = useState(SortDirection.DESC);
 	const listRef = useRef<HTMLDivElement>(null);
 	const [filtersOpen, setFiltersOpen] = useState(false);
@@ -180,7 +180,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
 	}, [itemData, player, sim, slot, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
 
-	const showEPOptions = tabSortsByEP(label, slot);
+	const showEPOptions = slotSortsByEP(slot);
 	const equipped = equippedToItem(equippedItem);
 	const equippedId = getItemIdByItemType(label, equipped);
 	const equippedEP = showEPOptions && equipped !== null && equipped !== undefined ? computeEP(equipped) : null;

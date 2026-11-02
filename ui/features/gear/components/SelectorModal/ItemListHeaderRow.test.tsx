@@ -31,7 +31,8 @@ describe('ItemListHeaderRow', () => {
 			['ilvl-label', 'item-label', 'source-label', 'ep-label', 'favorite-label', 'compare-label'],
 		],
 		['the random suffix tab', { label: SelectorModalTabs.RandomSuffixes }, ['item-label', 'ep-label', 'favorite-label']],
-		['the enchants tab, without an EP column', { label: SelectorModalTabs.Enchants, ep: undefined }, ['ilvl-label', 'item-label', 'favorite-label']],
+		['the enchants tab, with a level and an EP column', { label: SelectorModalTabs.Enchants }, ['ilvl-label', 'item-label', 'ep-label', 'favorite-label']],
+		['a trinket slot, without an EP column', { ep: undefined }, ['ilvl-label', 'item-label', 'source-label', 'favorite-label', 'compare-label']],
 	] as const)('lays out the headers of %s', (_, props, headers) => {
 		expect(renderRow(props).headers).toEqual(headers);
 	});
