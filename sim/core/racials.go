@@ -204,7 +204,7 @@ func applyRaceEffects(agent Agent) {
 		// takes its place: Read Leyline cannot be cast under it, and an Innervate that lands ends Energized.
 		// TODO: 15 s at +50% (+100% Attuned) is from the 26 October development notes; the game build
 		// states 30 s at +100% for 1270842.
-		energizedAura := registerSkyborneCasts(character, 1259705, time.Second*2, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
+		energizedAura := registerSkyborneCasts(character, 1259705, time.Millisecond*500, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
 			if character.HasManaBar() {
 				character.MultiplyManaRegenSpeed(sim, multiplier)
 			}
