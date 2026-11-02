@@ -1,5 +1,6 @@
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
 import type { NumberFieldConfig } from '@features/inputs/configs';
+import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import type { UnitStat } from '@sim/proto/stats';
@@ -23,7 +24,7 @@ export const BonusStatsPicker = ({ unitStat, label, onCommit }: BonusStatsPicker
 	const config = useMemo(
 		(): NumberFieldConfig<Player<any>> => ({
 			id: `character-bonus-stat-${unitStat.getKey()}`,
-			label,
+			label: percentInput ? `${label} (${i18n.t('sidebar.character_stats.percent_suffix')})` : label,
 			inputClassName: 'm-0 w-32 flex-1',
 			float: percentInput,
 			maxDecimalDigits: percentInput ? 3 : undefined,

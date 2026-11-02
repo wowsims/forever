@@ -2,7 +2,7 @@ import { Stat } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { createSimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { BonusStatsLink } from './BonusStatsLink';
@@ -45,6 +45,15 @@ describe('BonusStatsLink', () => {
 		expect(setBonusStats.mock.calls[0][0].getStat(Stat.StatStrength)).toBe(20);
 	});
 
+	it('marks a percent stat field with the percent sign and a points stat field without', async () => {
+		await openPicker(Stat.StatCritRating, 14);
+		expect(textbox().labels![0].textContent).toMatch(/ \(sidebar\.character_stats\.percent_suffix\)$/);
+		cleanup();
+
+		await openPicker(Stat.StatAgility, 14);
+		expect(textbox().labels![0].textContent).not.toContain('percent_suffix');
+	});
+
 	it('has no unit toggle', async () => {
 		await openPicker(Stat.StatCritRating, 14);
 		expect(screen.queryByTestId('bonus-stats-unit-toggle')).toBeNull();
@@ -64,7 +73,10 @@ describe('BonusStatsLink', () => {
 		expect(Number(textbox().value)).toBeCloseTo(0.33);
 	});
 
-	it.each([Stat.StatDefenseRating, Stat.StatAgility])('takes points for %s', async stat => {
+	it.each([
+		['defense', Stat.StatDefenseRating],
+		['agility', Stat.StatAgility],
+	])('takes points for %s', async (_name, stat) => {
 		const { setBonusStats } = await openPicker(stat, 7);
 		expect(textbox().value).toBe('7');
 

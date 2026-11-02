@@ -37,7 +37,7 @@ describe('statDisplayString, defense rating', () => {
 		expect(show(stats, defense, true)).toBe('310');
 	});
 
-	it('shows the skill level at zero, which the percent-bearing stats hide', () => {
+	it('shows the skill level at zero, and a percent stat 0.00%', () => {
 		expect(show(new Stats(), defense)).toBe('0');
 		expect(show(new Stats(), UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent))).toBe('0.00%');
 	});
@@ -72,7 +72,7 @@ describe('statDisplayString, stats with a composite display', () => {
 		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent))).toBe('0.00%');
 	});
 
-	it('shows each attack its own percent, without a rating', () => {
+	it("shows each attack's own percent, without its rating", () => {
 		const stats = new Stats()
 			.withStat(Stat.StatHitRating, 20)
 			.withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 3)
@@ -105,6 +105,13 @@ describe('statDisplayString, percent stats', () => {
 
 	it('reads a negative delta as a signed percent', () => {
 		expect(show(new Stats().withStat(Stat.StatCritRating, -1.5 * ratingPerPercent), crit)).toBe('-1.50%');
+	});
+});
+
+describe('statDisplayString, a percent pseudo stat as the sheet reads it', () => {
+	it('reads a negative delta as a signed percent', () => {
+		const stats = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeCritPercent, -1.5);
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('-1.50%');
 	});
 });
 

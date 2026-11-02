@@ -287,8 +287,7 @@ export class UnitStat {
 		const pseudoStatName = PseudoStat[pseudoStat];
 
 		if (pseudoStatName.endsWith('Rating')) {
-			// The per-attack hit and crit ratings are already in rating units; the character sheet
-			// pairs each with its percent row.
+			// The per-attack hit and crit ratings are already in rating units.
 			return null;
 		} else if (pseudoStatName.includes('Expertise')) {
 			return Stat.StatExpertiseRating;
@@ -828,6 +827,19 @@ export function computeStatAttribution(
 		.subtract(baseStats)
 		.subtract(bonusStats)
 		.add(statMods.gear || new Stats());
+	// The back end's gear stage holds the bonus rating's percent in each percent pseudo stat, which the bonus stats do not carry.
+	// A percent that sits at zero (a gated block or parry) stays there, and no percent crosses zero.
+	for (const pseudoStat of UnitStat.getAllPseudoStats()) {
+		const root = UnitStat.getRootStat(pseudoStat.getPseudoStat());
+		if (root === null || !pseudoStat.isPercentRating()) continue;
+		const bonusPercent = pseudoStat.convertRatingToPercent(bonusStats.getStat(root))!;
+		const gearPercent = gearDelta.getPseudoStat(pseudoStat.getPseudoStat());
+		const remaining = gearPercent - bonusPercent;
+		gearDelta = gearDelta.withPseudoStat(
+			pseudoStat.getPseudoStat(),
+			gearPercent > 0 ? Math.max(0, remaining) : gearPercent < 0 ? Math.min(0, remaining) : 0,
+		);
+	}
 	let talentsDelta = talentsStats.subtract(gearStats).add(statMods.talents || new Stats());
 	let buffsDelta = buffsStats.subtract(talentsStats).add(statMods.buffs || new Stats());
 	let consumesDelta = consumesStats.subtract(buffsStats).add(statMods.consumes || new Stats());

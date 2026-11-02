@@ -25,8 +25,7 @@ export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitSt
 	let displaySuffix = i18n.t('sidebar.character_stats.percent_suffix');
 
 	if (unitStat.equalsStat(Stat.StatDefenseRating)) {
-		// Defense is a skill level, not a percentage: no suffix, no decimals, and the rating is
-		// always shown even at zero.
+		// Defense is a skill level, not a percentage: no suffix and no decimals.
 		displaySuffix = '';
 		percentDecimals = 0;
 		if (includeBase) {
