@@ -40,7 +40,8 @@ const CURRENT_ENCHANTED: BulkGearSetup = {
 	gearSetGear: compareGearSet(1),
 	bonusStats: new Stats(),
 };
-const ARMS = { name: 'Arms', talentsString: '3030500130', isCurrent: false };
+// Within the warrior's Arms tree: the player keeps a string its trees accept as it is (ui/sim/talents/factory.ts).
+const ARMS = { name: 'Arms', talentsString: '3030500110', isCurrent: false };
 const OPENER = {
 	name: 'Opener',
 	isCurrent: false,
