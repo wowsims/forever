@@ -9,7 +9,7 @@ export interface EpCellProps {
 }
 
 export const EpCell = ({ ep, equippedEP }: EpCellProps) => {
-	const delta = equippedEP !== null && equippedEP !== ep ? formatDeltaText(equippedEP, ep, 0) : null;
+	const delta = equippedEP !== null && equippedEP !== ep ? formatDeltaText(equippedEP, ep, Math.abs(ep - equippedEP) < 9.95 ? 1 : 0) : null;
 	return (
 		<div className="flex w-24 items-center in-data-hide-ep:hidden" data-testid="selector-modal-list-item-ep">
 			<span className="inline-block text-right text-white" data-testid="selector-modal-list-item-ep-value">

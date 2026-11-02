@@ -14,7 +14,7 @@ const (
 )
 
 // Exclusive category for flat stat buffs which don't stack with each other
-// e.g. Arcane Brilliance vs Greater Arcane Elixir.
+// e.g. Arcane Intellect vs Greater Arcane Elixir.
 const StatBuffCategory = "StatBuff"
 
 // The category one stat or pseudo-stat of a buff bids in alone: the buff's category, then the stat's

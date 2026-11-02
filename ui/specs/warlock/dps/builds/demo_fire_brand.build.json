@@ -1,11 +1,11 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": true,
+    "arcaneIntellect": true,
     "prayerOfSpirit": true,
-    "giftOfTheWild": true,
-    "prayerOfFortitude": true,
-    "graceOfAirTotem": true,
+    "markOfTheWild": true,
+    "powerWordFortitude": true,
+    "graceOfAirTotem": 1,
     "windfuryTotem": true,
     "leaderOfThePack": true,
     "moonkinAura": true
@@ -113,7 +113,7 @@
     },
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true
+      "greaterBlessingOfWisdom": 1
     },
     "warlock": {
       "options": {
