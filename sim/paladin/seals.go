@@ -37,7 +37,7 @@ const (
 )
 
 // Unsealed Wrath: the copy of a seal's hit that a spent Echo casts, tagged with the Echo's spell id so
-// its damage reports apart, under the seal's own row. Nil without the talent.
+// its damage reports apart. Nil without the talent.
 func (paladin *Paladin) registerEchoHit(config core.SpellConfig, echoID int32) *core.Spell {
 	if !paladin.Talents.UnsealedWrath {
 		return nil

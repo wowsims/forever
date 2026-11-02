@@ -81,12 +81,8 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	// times.
 	dpm := paladin.NewLegacyPPMManager(7, core.ProcMaskMeleeWhiteHit)
 	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: time.Second}
-	rollProc := func(sim *core.Simulation, target *core.Unit, spell *core.Spell) bool {
-		if !dpm.Proc(sim, core.ProcMaskMeleeMHAuto, "Seal of Command") {
-			return false
-		}
-		spell.Cast(sim, target)
-		return true
+	rollProc := func(sim *core.Simulation) bool {
+		return dpm.Proc(sim, core.ProcMaskMeleeMHAuto, "Seal of Command")
 	}
 
 	aura := paladin.makeSealExclusive(paladin.RegisterAura(core.Aura{
@@ -98,7 +94,8 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		ProcMask: core.ProcMaskMeleeWhiteHit,
 		Outcome:  core.OutcomeLanded,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-			if icd.IsReady(sim) && rollProc(sim, result.Target, procSpell) {
+			if icd.IsReady(sim) && rollProc(sim) {
+				procSpell.Cast(sim, result.Target)
 				icd.Use(sim)
 			}
 		},
@@ -111,7 +108,9 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		judgement: judgement,
 		echoID:    echoOfCommandID,
 		echo: func(sim *core.Simulation, target *core.Unit) {
-			rollProc(sim, target, echoSpell)
+			if rollProc(sim) {
+				echoSpell.Cast(sim, target)
+			}
 		},
 	})
 }
