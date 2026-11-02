@@ -156,7 +156,10 @@ func (paladin *Paladin) applyShieldSpecialization() {
 	trigger.TriggerImmediately = true
 	paladin.MakeProcTriggerAura(trigger)
 
+	// The mana a Shieldsworn Holy Strike restores reports apart, tagged with the talent.
 	if paladin.Talents.Shieldsworn {
+		shieldswornMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID, Tag: shieldswornTag()})
+		shieldswornMetrics.NoThreat = manaMetrics.NoThreat
 		paladin.MakeProcTriggerAura(core.ProcTrigger{
 			Name:               "Shield Specialization - Shieldsworn" + paladin.Label,
 			Callback:           core.CallbackOnSpellHitDealt,
@@ -165,7 +168,9 @@ func (paladin *Paladin) applyShieldSpecialization() {
 			ProcChance:         trigger.ProcChance,
 			ExtraCondition:     paladin.strikesWithShield,
 			TriggerImmediately: true,
-			Handler:            restoreMana,
+			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+				paladin.AddMana(sim, paladin.MaxMana()*manaShare, shieldswornMetrics)
+			},
 		})
 	}
 }
@@ -332,4 +337,10 @@ func (paladin *Paladin) applyShieldsworn() {
 // Whether a Shieldsworn Holy Strike strikes with a shield, which is what lets it trigger anything.
 func (paladin *Paladin) strikesWithShield(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 	return paladin.PseudoStats.CanBlock
+}
+
+// The tag on the Holy Shield damage and Shield Specialization mana a Shieldsworn Holy Strike causes,
+// which the results name apart from a block's.
+func shieldswornTag() int32 {
+	return spellData.Shieldsworn.Rank(1).ID
 }
