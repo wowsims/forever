@@ -63,16 +63,23 @@ const dynamicDepAsShown = (_match: string, prefix: string, stat: string, multipl
 	return `${prefix}${name} += ${translateProtoStatName(source)} * ${amountAsShown(stat, perShownSource, 3)})`;
 };
 
+// A rating conversion is a stat dependency, so one block can hold a rating and its percent. Where the two share a name
+// (Dodge, Parry, Block, Expertise) only the percent is listed; crit and hit keep their distinct names.
+const flatStatsAsShown = (flat: string): string => {
+	const entries = Array.from(flat.matchAll(FLAT_STAT_ENTRY), ([, name, amount]) => ({
+		name,
+		amount: parseFloat(amount),
+		label: translateProtoStatName(name),
+	}));
+	const percentLabels = new Set(entries.filter(({ name }) => name.endsWith('Percent')).map(({ label }) => label));
+	return entries
+		.filter(({ name, label }) => !(name.endsWith('Rating') && percentLabels.has(label)))
+		.map(({ name, amount, label }) => `${amountAsShown(name, amount, 2)} ${label}`)
+		.join(', ');
+};
+
 // Render only: the exporter and search read the line as the sim wrote it.
-const withStatsAsShown = (text: string): string =>
-	text
-		.replace(FLAT_STATS, flat =>
-			Array.from(
-				flat.matchAll(FLAT_STAT_ENTRY),
-				([, name, amount]) => `${amountAsShown(name, parseFloat(amount), 2)} ${translateProtoStatName(name)}`,
-			).join(', '),
-		)
-		.replace(DYNAMIC_DEP, dynamicDepAsShown);
+const withStatsAsShown = (text: string): string => text.replace(FLAT_STATS, flatStatsAsShown).replace(DYNAMIC_DEP, dynamicDepAsShown);
 
 const DefaultLine = ({ log }: { log: CombatLog }) => {
 	// Group 3 only: combat_log's own rawWithoutTimestamp keeps the entity bracket for plain-text

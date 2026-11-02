@@ -108,8 +108,8 @@ describe('parseAll on sim log lines', () => {
 
 	it.each([
 		// unit.go, with the parenthesis from StatDependency.String() and the stats from Stats.FlatString().
-		'[1.00] [Player (#1)] Dynamic stat change: {"CritRating": 14.000,}',
-		'[1.00] [Player (#1)] Dynamic dep enabled (CritRating += Intellect * 0.50): {"CritRating": 14.000,}',
+		'[1.00] [Player (#1)] Dynamic stat change: {"DodgeRating": 12.000,"DodgePercent": 1.000,}',
+		'[1.00] [Player (#1)] Dynamic dep enabled (DodgeRating += Intellect * 0.50): {"DodgeRating": 12.000,"DodgePercent": 1.000,}',
 	])('keeps a stat line as the sim wrote it for the exporter and search: %s', async line => {
 		const log = await parseLine(line);
 		expect(log.kind).toBe('plain');

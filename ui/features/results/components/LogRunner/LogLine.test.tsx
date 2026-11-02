@@ -89,27 +89,54 @@ describe('LogLine', () => {
 
 	// Plain lines as sim/core prints them, with the stats from Stats.FlatString() and the parenthesis from StatDependency.String().
 	it.each([
-		['[1.00] [Warrior 1] Dynamic stat change: {"CritRating": 14.000,}', 'Dynamic stat change: 1% Crit'],
-		['[1.00] [Warrior 1] Dynamic stat change: {"CritRating": -14.000,}', 'Dynamic stat change: -1% Crit'],
-		['[1.00] [Warrior 1] Dynamic stat change: {"Agility": 20.000,}', 'Dynamic stat change: 20 Agility'],
-		['[1.00] [Warrior 1] Pet stats: {"Strength": 20.000,"CritRating": 7.000,}', 'Pet stats: 20 Strength, 0.5% Crit'],
-		['[1.00] [Warrior 1] Pet inherited stats: {"HitRating": 10.000,}', 'Pet inherited stats: 1% Hit'],
-		['[1.00] [Warrior 1] {"DefenseRating": 20.000,}', '20 Defense'],
-		['[1.00] Item Swap - Stats Change: {"HasteRating": -10.000,}', 'Item Swap - Stats Change: -1% Haste'],
+		[
+			'[1.00] [Warrior (#1)] Dynamic stat change: {"CritRating": 14.000,"PhysicalCritPercent": 1.000,"SpellCritPercent": 1.000,}',
+			'Dynamic stat change: 1% Crit, 1% Melee Crit, 1% Spell Crit',
+		],
+		[
+			'[1.00] [Warrior (#1)] Dynamic stat change: {"CritRating": -14.000,"PhysicalCritPercent": -1.000,"SpellCritPercent": -1.000,}',
+			'Dynamic stat change: -1% Crit, -1% Melee Crit, -1% Spell Crit',
+		],
+		['[1.00] [Warrior (#1)] Dynamic stat change: {"HasteRating": 10.000,}', 'Dynamic stat change: 1% Haste'],
+		['[1.00] [Warrior (#1)] Dynamic stat change: {"DodgeRating": 12.000,"DodgePercent": 1.000,}', 'Dynamic stat change: 1% Dodge'],
+		['[1.00] [Warrior (#1)] Dynamic stat change: {"DodgeRating": -12.000,"DodgePercent": -1.000,}', 'Dynamic stat change: -1% Dodge'],
+		['[1.00] [Warrior (#1)] Dynamic stat change: {"ParryRating": 15.000,"ParryPercent": 1.000,}', 'Dynamic stat change: 1% Parry'],
+		['[1.00] [Warrior (#1)] Dynamic stat change: {"BlockRating": 5.000,"BlockPercent": 1.000,}', 'Dynamic stat change: 1% Block'],
+		['[1.00] [Warrior (#1)] Dynamic stat change: {"ExpertiseRating": 10.000,"ExpertisePercent": 1.000,}', 'Dynamic stat change: 1% Expertise'],
+		[
+			'[1.00] [Warrior (#1)] Dynamic stat change: {"DefenseRating": 20.000,"BlockPercent": 0.800,"DodgePercent": 0.800,"ParryPercent": 0.800,"ReducedCritTakenPercent": 0.800,}',
+			'Dynamic stat change: 20 Defense, 0.8% Block, 0.8% Dodge, 0.8% Parry, 0.8% Reduced Crit Taken',
+		],
+		[
+			'[1.00] [Warrior (#1)] Dynamic stat change: {"Agility": 20.000,"Armor": 40.000,"DodgePercent": 1.000,}',
+			'Dynamic stat change: 20 Agility, 40 Armor, 1% Dodge',
+		],
+		[
+			'[1.00] [Warrior (#1)] Pet stats: {"Strength": 20.000,"CritRating": 7.000,"DodgeRating": 12.000,"PhysicalCritPercent": 5.000,"DodgePercent": 6.000,}',
+			'Pet stats: 20 Strength, 0.5% Crit, 5% Melee Crit, 6% Dodge',
+		],
+		[
+			'[1.00] [Warrior (#1)] Pet inherited stats: {"HitRating": 10.000,"PhysicalHitPercent": 1.000,"SpellHitPercent": 1.000,}',
+			'Pet inherited stats: 1% Hit, 1% Melee Hit, 1% Spell Hit',
+		],
+		['[1.00] [Warrior (#1)] {"Strength": 20.000,"DefenseRating": 20.000,}', '20 Strength, 20 Defense'],
+		['[1.00] Item Swap - Stats Change: {"HasteRating": -10.000,"DodgeRating": -12.000,}', 'Item Swap - Stats Change: -1% Haste, -1% Dodge'],
 	])('reads the stats of %s', (raw, shown) => {
-		expect(text(line({ kind: 'plain', raw }))).toContain(shown);
-		expect(text(line({ kind: 'plain', raw }))).not.toContain('{');
+		expect(text(line({ kind: 'plain', raw, source: null }))!.trim()).toBe(shown);
 	});
 
 	it.each([
-		['enabled (CritRating += Intellect * 0.50): {"CritRating": 14.000,}', 'enabled (Crit += Intellect * 0.036%): 1% Crit'],
-		['disabled (CritRating *= 1.10): {"CritRating": -14.000,}', 'disabled (Crit *= 1.10): -1% Crit'],
+		[
+			'enabled (CritRating += Intellect * 0.50): {"CritRating": 14.000,"PhysicalCritPercent": 1.000,"SpellCritPercent": 1.000,}',
+			'enabled (Crit += Intellect * 0.036%): 1% Crit, 1% Melee Crit, 1% Spell Crit',
+		],
+		['disabled (DodgeRating *= 1.10): {"DodgeRating": -12.000,"DodgePercent": -1.000,}', 'disabled (Dodge *= 1.10): -1% Dodge'],
 		['updated (Armor += DefenseRating * 2.00): {"Armor": 40.000,}', 'updated (Armor += Defense * 2): 40 Armor'],
-		['enabled (PhysicalCritPercent += Agility * 0.05): {"Agility": 20.000,}', 'enabled (Melee Crit += Agility * 0.05%): 20 Agility'],
+		['enabled (PhysicalCritPercent += Agility * 0.05): {"PhysicalCritPercent": 1.000,}', 'enabled (Melee Crit += Agility * 0.05%): 1% Melee Crit'],
 		['enabled (AttackPower += CritRating * 0.50): {"AttackPower": 7.000,}', 'enabled (Attack Power += Crit * 7): 7 Attack Power'],
 		['enabled (AttackPower += Strength * 2.00): {"AttackPower": 40.000,}', 'enabled (Attack Power += Strength * 2): 40 Attack Power'],
 	])('reads a stat dependency line: %s', (dep, shown) => {
-		expect(text(line({ kind: 'plain', raw: `[1.00] [Warrior 1] Dynamic dep ${dep}` }))).toContain(`Dynamic dep ${shown}`);
+		expect(text(line({ kind: 'plain', raw: `[1.00] [Warrior (#1)] Dynamic dep ${dep}`, source: null }))!.trim()).toBe(`Dynamic dep ${shown}`);
 	});
 
 	it.each(['Pet summoned', 'Dynamic stat change: {}', 'Casting {SpellID: 11605} (x += y * 1.00)'])('leaves a line with no stat text alone: %s', body => {
