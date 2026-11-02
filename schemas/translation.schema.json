@@ -11013,7 +11013,7 @@
 										"rating_conversion": {
 											"type": "string"
 										},
-										"rating_tooltip_label": {
+										"simulated_step": {
 											"type": "string"
 										},
 										"rating_disclaimer": {
@@ -11291,7 +11291,7 @@
 										"current_ep_description",
 										"copy_icon_description",
 										"rating_conversion",
-										"rating_tooltip_label",
+										"simulated_step",
 										"rating_disclaimer",
 										"stat",
 										"update",

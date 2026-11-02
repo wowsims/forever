@@ -14,7 +14,7 @@ export const EP_TOOLTIP_ID = 'ep-weights-tooltip';
 export const statName = (stat: Stat | undefined): string => (stat !== undefined ? translateStat(stat) : '??');
 
 /** How far the sim moved the stat to measure it, with + for a stat run above the baseline only; undefined without a run. */
-export const simulatedStepText = (stat: UnitStat, result: StatWeightsResult | null): string | undefined => {
+const simulatedStepText = (stat: UnitStat, result: StatWeightsResult | null): string | undefined => {
 	const stepAbove = result?.stepAbove ? stat.getProtoValue(result.stepAbove) : 0;
 	if (stepAbove === 0) return undefined;
 	const sign = result?.stepBelow && stat.getProtoValue(result.stepBelow) !== 0 ? '±' : '+';
@@ -28,6 +28,17 @@ export const simulatedStepText = (stat: UnitStat, result: StatWeightsResult | nu
 	return stat.isPercentRating()
 		? i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_rating', { sign, rating: formatToNumber(stepAbove) })
 		: `${sign}${formatToNumber(stepAbove)}`;
+};
+
+/** A rating stat's conversion, then the step of the last run; undefined for a stat with neither. */
+export const statHelpText = (stat: UnitStat, result: StatWeightsResult | null): string | undefined => {
+	const lines: string[] = [];
+	if (stat.isPercentRating() || stat.isRatingBackedPercent()) {
+		lines.push(i18n.t('sidebar.buttons.stat_weights.modal.rating_conversion', { rating: formatToNumber(stat.convertPercentToRating(1)!) }));
+	}
+	const step = simulatedStepText(stat, result);
+	if (step) lines.push(i18n.t('sidebar.buttons.stat_weights.modal.simulated_step', { step }));
+	return lines.join(' ') || undefined;
 };
 
 /** The reference stat is read at render, so the tooltip follows a change of it. */

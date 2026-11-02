@@ -1,6 +1,7 @@
 import type { StatWeightsResult } from '@generated/proto/api';
 import { Class, PseudoStat, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
+import * as Mechanics from '@sim/constants/mechanics';
 import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
@@ -13,16 +14,6 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import english from '../../../../../assets/locales/en/translation.json';
 import { emptyStatWeightsResult } from '../../model/ep_math';
 import { StatWeightRow, StatWeightRowView, type StatWeightRowViewProps } from './StatWeightRow';
-
-vi.mock('@i18n/config', () => ({
-	default: {
-		t: (key: string, options?: { ratingPerPercent?: number; statName?: string }) => {
-			if (key.endsWith('.rating_conversion')) return `${options?.ratingPerPercent} ${options?.statName} = 1%.`;
-			if (key.endsWith('.rating_tooltip_label')) return 'Rating conversion details';
-			return key;
-		},
-	},
-}));
 
 const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
@@ -100,23 +91,50 @@ describe('StatWeightRow', () => {
 			i18n.removeResourceBundle('en', 'translation');
 		});
 
-		it('shows how far the sim moved the stat under the stat name, and nothing for a stat without runs', () => {
-			const simulatedStep = (stat: UnitStat, stepBelow: number, stepAbove: number) => {
-				const view = setup(result => {
-					result.stepBelow = new Stats().withUnitStat(stat, stepBelow).toProto();
-					result.stepAbove = new Stats().withUnitStat(stat, stepAbove).toProto();
-				}, stat);
-				const text = view.container.querySelector('[data-testid="stat-weight-simulated-step"]')?.textContent;
-				view.unmount();
-				return text;
-			};
+		const helpText = (stat: UnitStat, stepBelow = 0, stepAbove = 0) => {
+			const view = setup(result => {
+				result.stepBelow = new Stats().withUnitStat(stat, stepBelow).toProto();
+				result.stepAbove = new Stats().withUnitStat(stat, stepAbove).toProto();
+			}, stat);
+			const text = view.container.querySelector('[data-testid="stat-weight-help"]')?.getAttribute('aria-label');
+			view.unmount();
+			return text;
+		};
 
-			expect(simulatedStep(AGILITY, 0, 0)).toBeUndefined();
-			expect(simulatedStep(AGILITY, -10, 10)).toBe('±10');
-			expect(simulatedStep(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe('+10 rating');
-			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe('+10 rating (+1%)');
-			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / 14, 10 / 14)).toBe('±10 rating (±0.71%)');
-			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('±5');
+		it.each([
+			['Hit Rating', UnitStat.fromStat(Stat.StatHitRating), Mechanics.HIT_RATING_PER_HIT_PERCENT],
+			['Crit Rating', UnitStat.fromStat(Stat.StatCritRating), Mechanics.CRIT_RATING_PER_CRIT_PERCENT],
+			['Haste Rating', UnitStat.fromStat(Stat.StatHasteRating), Mechanics.HASTE_RATING_PER_HASTE_PERCENT],
+			['Expertise Rating', UnitStat.fromStat(Stat.StatExpertiseRating), Mechanics.EXPERTISE_RATING_PER_EXPERTISE_PERCENT],
+			['Dodge Rating', UnitStat.fromStat(Stat.StatDodgeRating), Mechanics.DODGE_RATING_PER_DODGE_PERCENT],
+			['Melee Crit Percent', UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent), Mechanics.CRIT_RATING_PER_CRIT_PERCENT],
+			['Fire Hit Percent', UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), Mechanics.HIT_RATING_PER_HIT_PERCENT],
+		])('states the rating conversion of %s before a run', (_name, stat, ratingPerPercent) => {
+			expect(helpText(stat)).toBe(`${ratingPerPercent} rating = 1%.`);
+		});
+
+		it('has no help icon for a stat with no conversion and no step', () => {
+			expect(helpText(AGILITY)).toBeUndefined();
+			expect(helpText(UnitStat.fromStat(Stat.StatDefenseRating))).toBeUndefined();
+		});
+
+		it('adds how far the sim moved the stat after a run', () => {
+			const hit = Mechanics.HIT_RATING_PER_HIT_PERCENT;
+			const crit = Mechanics.CRIT_RATING_PER_CRIT_PERCENT;
+			expect(helpText(AGILITY, -10, 10)).toBe('Simulated step: ±10.');
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('Simulated step: ±5.');
+			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe(`${hit} rating = 1%. Simulated step: +10 rating.`);
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe(
+				`${hit} rating = 1%. Simulated step: +10 rating (+1%).`,
+			);
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / crit, 10 / crit)).toBe(
+				`${crit} rating = 1%. Simulated step: ±10 rating (±0.71%).`,
+			);
+		});
+
+		it('adds no text to the first cell, which the row is found by', () => {
+			const { container } = setup(() => {}, UnitStat.fromStat(Stat.StatCritRating));
+			expect(container.querySelector('tr')!.firstElementChild!.textContent).toBe('Crit Rating');
 		});
 	});
 
@@ -137,13 +155,6 @@ describe('StatWeightRow', () => {
 });
 
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
-const RATING_STATS = [
-	[Stat.StatHitRating, 'Hit Rating', '10'],
-	[Stat.StatCritRating, 'Crit Rating', '14'],
-	[Stat.StatHasteRating, 'Haste Rating', '10'],
-	[Stat.StatExpertiseRating, 'Expertise Rating', '10'],
-] as const;
-
 const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 	render(
 		<Table>
@@ -165,18 +176,9 @@ const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 	);
 
 describe('StatWeightRowView', () => {
-	it.each(RATING_STATS)('shows the Rating conversion tooltip for %s', (stat, name, ratingPerPercent) => {
-		const unitStat = UnitStat.fromStat(stat);
-		const { getByLabelText } = renderRow({ stat: unitStat, fullName: name });
-		const tooltipTrigger = getByLabelText('Rating conversion details');
-
-		expect(tooltipTrigger.getAttribute('data-tooltip-content')).toContain(`${ratingPerPercent} ${name} = 1%.`);
-		expect(tooltipTrigger.getAttribute('data-tooltip-content')).not.toContain('Stat weights');
-	});
-
-	it('does not show a Rating tooltip for non-rating stats', () => {
-		const { queryByLabelText } = renderRow();
-		expect(queryByLabelText('Rating conversion details')).toBeNull();
+	it('shows the help icon only with a help text', () => {
+		expect(renderRow().queryByTestId('stat-weight-help')).toBeNull();
+		expect(renderRow({ helpText: '14 rating = 1%.' }).getByLabelText('14 rating = 1%.')).toBeTruthy();
 	});
 
 	it('names the row, and ids its two inputs from the sanitised names', () => {

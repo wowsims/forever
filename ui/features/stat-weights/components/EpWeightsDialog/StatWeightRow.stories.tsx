@@ -48,7 +48,12 @@ export const Default: Story = {};
 
 /** After a calculation the EP cell is coloured by how far it sits from the current EP weight. */
 export const Calculated: Story = {
-	args: { simulatedStep: '±10', metrics: [{ ratioIndex: 0, epRatio: 1, statWeights: RESULT.dps }], epDelta: 0.5, currentEp: 0.29 },
+	args: { helpText: 'Simulated step: ±10.', metrics: [{ ratioIndex: 0, epRatio: 1, statWeights: RESULT.dps }], epDelta: 0.5, currentEp: 0.29 },
+};
+
+/** A rating stat has its conversion on the icon before any calculation. */
+export const RatingStat: Story = {
+	args: { fullName: 'Crit Rating', shortName: 'Crit', helpText: '14 rating = 1%.' },
 };
 
 export const ExcludedFromCalculation: Story = {

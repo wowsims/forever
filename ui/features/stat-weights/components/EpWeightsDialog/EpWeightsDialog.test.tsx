@@ -303,7 +303,6 @@ describe('EpWeightsDialog', () => {
 	it('builds the column set in order, each metric column tagged with the type its hide rule selects on', () => {
 		host.sim.showThreatMetrics = true;
 		renderDialog();
-		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.rating_disclaimer');
 		const headers = [...table().querySelectorAll('thead tr:first-child th')];
 		expect(headers.map(th => th.getAttribute('data-column-type'))).toEqual([
 			null,
@@ -339,6 +338,19 @@ describe('EpWeightsDialog', () => {
 			'sidebar.buttons.stat_weights.modal.death_ep.label',
 			'sidebar.buttons.stat_weights.modal.current_ep.label',
 		]);
+	});
+
+	it('explains the rating weights and the simulated step in a footnote, and a gear planner only the rating weights', () => {
+		const footnote = () => popup().querySelector('[data-testid="ep-weights-footnote"]')!.textContent;
+		const { unmount } = renderDialog();
+		expect(footnote()).toContain('sidebar.buttons.stat_weights.modal.rating_disclaimer');
+		expect(footnote()).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
+		unmount();
+
+		host.simDisabled = true;
+		renderDialog();
+		expect(footnote()).toContain('sidebar.buttons.stat_weights.modal.rating_disclaimer');
+		expect(footnote()).not.toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
 	// A gear planner never computes weights: no Calculate button, no computed columns, no Update

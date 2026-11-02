@@ -207,8 +207,6 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 							<>
 								<br />
 								{i18n.t('sidebar.buttons.stat_weights.modal.copy_icon_description')}
-								<br />
-								{i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_description')}
 							</>
 						)}
 					</p>
@@ -231,6 +229,15 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						showUpdateColumn={!editOnly}
 						statAction={<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />}
 					/>
+					<p data-testid="ep-weights-footnote" className="mt-2 mb-0 text-muted">
+						{i18n.t('sidebar.buttons.stat_weights.modal.rating_disclaimer')}
+						{!editOnly && (
+							<>
+								<br />
+								{i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_description')}
+							</>
+						)}
+					</p>
 				</DialogColumns.Main>
 				<DialogColumns.Sidebar className="ui-ep-weights-sidebar">
 					<SavedEpWeights />
@@ -260,7 +267,6 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 					</ContentBlock>
 				</DialogColumns.Sidebar>
 			</DialogColumns.Root>
-			<p className="mt-2 mb-0 text-xs text-muted">{i18n.t('sidebar.buttons.stat_weights.modal.rating_disclaimer')}</p>
 			<Tooltip id={EP_TOOLTIP_ID} />
 			{isRunning && (
 				<ProgressTrackerDialog
