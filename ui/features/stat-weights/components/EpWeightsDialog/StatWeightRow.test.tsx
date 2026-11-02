@@ -6,6 +6,7 @@ import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import { createSimStore } from '@sim/state/sim_store';
+import { formatToNumber } from '@sim/utils/format';
 import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render } from '@testing-library/react';
 import { Table } from '@ui-kit/Table';
@@ -96,7 +97,7 @@ describe('StatWeightRow', () => {
 				result.stepBelow = new Stats().withUnitStat(stat, stepBelow).toProto();
 				result.stepAbove = new Stats().withUnitStat(stat, stepAbove).toProto();
 			}, stat);
-			const text = view.container.querySelector('[data-testid="stat-weight-help"]')?.getAttribute('aria-label');
+			const text = view.queryByRole('button')?.getAttribute('aria-label');
 			view.unmount();
 			return text;
 		};
@@ -124,15 +125,24 @@ describe('StatWeightRow', () => {
 			expect(helpText(AGILITY, -10, 10)).toBe('Simulated step: ±10');
 			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('Simulated step: ±5');
 			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe(`${hit} rating = 1%, Simulated step: +10 rating`);
-			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe(`${hit} rating = 1%, Simulated step: +10 rating (+1%)`);
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe(
+				`${hit} rating = 1%, Simulated step: +${hit} rating (+1%)`,
+			);
 			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / crit, 10 / crit)).toBe(
-				`${crit} rating = 1%, Simulated step: ±10 rating (±0.71%)`,
+				`${crit} rating = 1%, Simulated step: ±10 rating (±${formatToNumber(10 / crit)}%)`,
 			);
 		});
 
-		it('adds no text to the first cell, which the row is found by', () => {
-			const { container } = setup(() => {}, UnitStat.fromStat(Stat.StatCritRating));
-			expect(container.querySelector('tr')!.firstElementChild!.textContent).toBe('Crit Rating');
+		it('puts the conversion and the step on a tooltip line each', async () => {
+			const stat = UnitStat.fromStat(Stat.StatCritRating);
+			const view = setup(result => {
+				result.stepBelow = new Stats().withUnitStat(stat, -10).toProto();
+				result.stepAbove = new Stats().withUnitStat(stat, 10).toProto();
+			}, stat);
+
+			fireEvent.mouseEnter(view.getByRole('button'));
+			expect((await view.findByText(`${Mechanics.CRIT_RATING_PER_CRIT_PERCENT} rating = 1%`)).tagName).toBe('DIV');
+			expect(view.getByText('Simulated step: ±10 rating').tagName).toBe('DIV');
 		});
 	});
 
@@ -153,6 +163,7 @@ describe('StatWeightRow', () => {
 });
 
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
+
 const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 	render(
 		<Table>
@@ -174,11 +185,6 @@ const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 	);
 
 describe('StatWeightRowView', () => {
-	it('shows the help icon only with a help text', () => {
-		expect(renderRow().queryByTestId('stat-weight-help')).toBeNull();
-		expect(renderRow({ helpLines: ['14 rating = 1%'] }).getByLabelText('14 rating = 1%')).toBeTruthy();
-	});
-
 	it('names the row, and ids its two inputs from the sanitised names', () => {
 		const onChange = vi.fn();
 		const { container, getByText } = renderRow({ include: { value: true, disabled: false, onChange } });

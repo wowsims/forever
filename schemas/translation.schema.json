@@ -11016,7 +11016,7 @@
 										"simulated_step": {
 											"type": "string"
 										},
-										"rating_disclaimer": {
+										"rating_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -11292,7 +11292,7 @@
 										"copy_icon_description",
 										"rating_conversion",
 										"simulated_step",
-										"rating_disclaimer",
+										"rating_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",

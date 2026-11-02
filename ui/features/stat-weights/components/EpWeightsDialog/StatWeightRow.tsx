@@ -78,7 +78,6 @@ export const StatWeightRowView = ({
 								<div key={line}>{line}</div>
 							))}
 							label={helpLines.join(', ')}
-							testId="stat-weight-help"
 						/>
 					)}
 				</span>

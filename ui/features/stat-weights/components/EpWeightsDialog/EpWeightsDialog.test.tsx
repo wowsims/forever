@@ -340,17 +340,10 @@ describe('EpWeightsDialog', () => {
 		]);
 	});
 
-	it('explains the rating weights and the simulated step in a footnote, and a gear planner only the rating weights', () => {
-		const footnote = () => popup().querySelector('[data-testid="ep-weights-footnote"]')!.textContent;
-		const { unmount } = renderDialog();
-		expect(footnote()).toContain('sidebar.buttons.stat_weights.modal.rating_disclaimer');
-		expect(footnote()).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
-		unmount();
-
-		host.simDisabled = true;
+	it('explains the rating weights and the simulated step in a footnote', () => {
 		renderDialog();
-		expect(footnote()).toContain('sidebar.buttons.stat_weights.modal.rating_disclaimer');
-		expect(footnote()).not.toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.rating_weights_description');
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
 	// A gear planner never computes weights: no Calculate button, no computed columns, no Update
@@ -370,6 +363,8 @@ describe('EpWeightsDialog', () => {
 		expect(table().querySelectorAll('thead tr').length).toBe(1);
 		expect(rowFor('Agility').querySelector('[data-testid="swcalc-include-toggle"]')).toBeNull();
 		expect(rowFor('Agility').querySelector('[data-testid="current-ep"] input')).not.toBeNull();
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.rating_weights_description');
+		expect(popup().textContent).not.toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
 	// Vanilla's `.sim-type--tank .ep-weights-menu { display: none }` block is commented out, so a tank
