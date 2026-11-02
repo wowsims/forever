@@ -15,7 +15,7 @@ export interface SavedDataTickListProps {
 export const SavedDataTickList = ({ rows, onChange }: SavedDataTickListProps) => {
 	const idPrefix = useId();
 	return (
-		<div className="mt-2 mb-2 grid max-h-[30vh] gap-1 overflow-y-auto" data-testid="saved-data-tick-list">
+		<div className="mt-2 mb-2 grid max-h-[30vh] grid-cols-auto-fit-220 gap-x-4 gap-y-1 overflow-y-auto" data-testid="saved-data-tick-list">
 			{rows.map(({ name, note, checked }, index) => (
 				<div key={index} className="flex items-center gap-2" data-testid="saved-data-tick-row">
 					<BooleanPicker

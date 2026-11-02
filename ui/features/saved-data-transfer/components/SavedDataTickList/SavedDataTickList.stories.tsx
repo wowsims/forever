@@ -21,3 +21,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const ManyRows: Story = {
+	args: {
+		rows: [60, 90, 120, 180, 240, 300].flatMap(seconds =>
+			['', ' - 2T', ' - 3T', ' - 5T'].map(targets => ({ name: `${seconds}/5${targets}`, checked: true })),
+		),
+	},
+};
