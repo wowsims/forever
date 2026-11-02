@@ -35,7 +35,7 @@ export interface StatFilterPopoverProps extends Omit<StatFilterListProps, 'openG
 }
 
 const groupLabel = (key: FilterGroupKey | 'other') =>
-	key === 'primary' || key === 'ratings' || key === 'other' ? i18n.t(`stat_filters.groups.${key}`) : i18n.t(`sidebar.character_stats.groups.${key}`);
+	key === 'primary' || key === 'gear' || key === 'other' ? i18n.t(`stat_filters.groups.${key}`) : i18n.t(`sidebar.character_stats.groups.${key}`);
 
 /** The popover's body without its trigger, for a popover that holds other filters as well. */
 export const StatFilterList = ({

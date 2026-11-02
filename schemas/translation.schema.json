@@ -12175,7 +12175,7 @@
 						"primary": {
 							"type": "string"
 						},
-						"ratings": {
+						"gear": {
 							"type": "string"
 						},
 						"other": {
@@ -12183,23 +12183,17 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["primary", "ratings", "other"]
+					"required": ["primary", "gear", "other"]
 				},
 				"group_count": {
 					"type": "string"
 				},
 				"kept_tooltip": {
 					"type": "string"
-				},
-				"rating_label": {
-					"type": "string"
-				},
-				"percent_label": {
-					"type": "string"
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip", "rating_label", "percent_label"]
+			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip"]
 		}
 	},
 	"additionalProperties": false,

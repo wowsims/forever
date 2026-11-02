@@ -1,5 +1,4 @@
-import { type Class, PseudoStat, Stat } from '@generated/proto/common';
-import i18n from '@i18n/config';
+import { Class, PseudoStat, Stat } from '@generated/proto/common';
 import { UnitStat } from '@sim/proto/stats';
 
 /** In the character stats panel, `primary` (health and mana) shows without a header and the rest are collapsible. */
@@ -85,7 +84,7 @@ export const STAT_GROUPS: ReadonlyArray<{ key: StatGroupKey; stats: ReadonlyArra
 	},
 ];
 
-export type FilterGroupKey = StatGroupKey | 'ratings';
+export type FilterGroupKey = StatGroupKey | 'gear';
 
 /** The off-hand percent of each melee percent, by the melee stat's key: the character stats panel shows both in one row. */
 export const OFF_HAND_PERCENTS: ReadonlyMap<string, UnitStat> = new Map([
@@ -95,7 +94,7 @@ export const OFF_HAND_PERCENTS: ReadonlyMap<string, UnitStat> = new Map([
 
 /**
  * The groups the stat filter popovers sort stats into, each in display order: the character stats groups with the
- * off-hand hit and crit percents in Physical, then ratings and weapon DPS, which the panel has no rows for.
+ * off-hand hit and crit percents in Physical, then gear-only stats and weapon DPS, which the panel has no rows for.
  */
 const FILTER_GROUPS: ReadonlyArray<{ key: FilterGroupKey; stats: ReadonlyArray<UnitStat> }> = [
 	...STAT_GROUPS.map(({ key, stats }) => ({
@@ -106,7 +105,7 @@ const FILTER_GROUPS: ReadonlyArray<{ key: FilterGroupKey; stats: ReadonlyArray<U
 		}),
 	})),
 	{
-		key: 'ratings',
+		key: 'gear',
 		stats: [
 			UnitStat.fromStat(Stat.StatHitRating),
 			UnitStat.fromStat(Stat.StatCritRating),
@@ -126,28 +125,22 @@ const groupByKey = new Map(FILTER_GROUPS.flatMap(({ key, stats }) => stats.map(s
 
 const statGroupOf = (stat: UnitStat): FilterGroupKey | 'other' => groupByKey.get(stat.getKey()) ?? 'other';
 
-/** The groups a stat filter popover lists for `universe`, each with only its stats in it, Other last and empty groups left out. */
+/**
+ * The groups a stat filter popover lists for `universe`, each with only its stats in it, Other last and empty groups left
+ * out. A gear stat is left out where a percent with its short name is in the universe: the percent row stands for both.
+ */
 export const filterGroupsOf = (universe: ReadonlyArray<UnitStat>): Array<{ key: FilterGroupKey | 'other'; stats: ReadonlyArray<UnitStat> }> => {
 	const inUniverse = new Set(universe.map(stat => stat.getKey()));
-	const grouped = FILTER_GROUPS.map(({ key, stats }) => ({ key, stats: stats.filter(stat => inUniverse.has(stat.getKey())) }));
+	const percentNames = new Set(universe.filter(stat => stat.isPseudoStat()).map(stat => stat.getShortName(Class.ClassUnknown)));
+	const listed = (stat: UnitStat) => inUniverse.has(stat.getKey()) && !(stat.isStat() && percentNames.has(stat.getShortName(Class.ClassUnknown)));
+	const grouped = FILTER_GROUPS.map(({ key, stats }) => ({ key, stats: stats.filter(listed) }));
 	const other = { key: 'other' as const, stats: universe.filter(stat => statGroupOf(stat) === 'other') };
 	return [...grouped, other].filter(group => group.stats.length > 0);
 };
 
-/**
- * Each stat's label in a stat filter popover for `universe`, by stat key: its short name, or, where two stats share
- * one (Dodge rating and Dodge percent), its rating or percent form.
- */
-export const filterLabelsOf = (universe: ReadonlyArray<UnitStat>, playerClass: Class): Map<string, string> => {
-	const shortNames = universe.map(stat => stat.getShortName(playerClass));
-	return new Map(
-		universe.map((stat, index) => {
-			const name = shortNames[index];
-			if (shortNames.indexOf(name) === shortNames.lastIndexOf(name)) return [stat.getKey(), name];
-			return [stat.getKey(), i18n.t(stat.isStat() ? 'stat_filters.rating_label' : 'stat_filters.percent_label', { stat: name })];
-		}),
-	);
-};
+/** Each stat's label in a stat filter popover for `universe`, by stat key: its short name. */
+export const filterLabelsOf = (universe: ReadonlyArray<UnitStat>, playerClass: Class): Map<string, string> =>
+	new Map(universe.map(stat => [stat.getKey(), stat.getShortName(playerClass)]));
 
 /** The groups that hold at least one shown stat: the ones a popover opens with when nothing is stored for its panel. */
 export const defaultOpenFilterGroups = (universe: ReadonlyArray<UnitStat>, shown: ReadonlyArray<UnitStat>): Array<FilterGroupKey | 'other'> => {
