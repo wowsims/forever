@@ -82,6 +82,8 @@ type StatWeightsResult struct {
 	PDeath StatWeightValues
 
 	SampleCounts UnitStats
+	ModLow       UnitStats
+	ModHigh      UnitStats
 }
 
 func NewStatWeightsResult() *StatWeightsResult {
@@ -94,6 +96,8 @@ func NewStatWeightsResult() *StatWeightsResult {
 		PDeath: NewStatWeightValues(),
 
 		SampleCounts: NewUnitStats(),
+		ModLow:       NewUnitStats(),
+		ModHigh:      NewUnitStats(),
 	}
 }
 
@@ -107,7 +111,44 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 		PDeath: swr.PDeath.ToProto(),
 
 		SampleCounts: swr.SampleCounts.ToProto(),
+		ModLow:       swr.ModLow.ToProto(),
+		ModHigh:      swr.ModHigh.ToProto(),
 	}
+}
+
+// The rating a weighed stat counts in and the rating points one of its units costs: the stat itself and 1,
+// or a percent's rating and rating per percent. False for any other pseudo stat, at a cost of 1. A percent's
+// cost matches UnitStat.epRatingScale in the UI; the two are kept in sync by hand.
+func statWeightRating(stat stats.UnitStat) (stats.Stat, float64, bool) {
+	if stat.IsStat() {
+		return stats.Stat(stat.StatIdx()), 1, true
+	}
+	switch proto.PseudoStat(stat.PseudoStatIdx()) {
+	case proto.PseudoStat_PseudoStatMeleeHitPercent,
+		proto.PseudoStat_PseudoStatRangedHitPercent,
+		proto.PseudoStat_PseudoStatSpellHitPercent,
+		proto.PseudoStat_PseudoStatSchoolHitPercentArcane,
+		proto.PseudoStat_PseudoStatSchoolHitPercentFire,
+		proto.PseudoStat_PseudoStatSchoolHitPercentFrost,
+		proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
+		proto.PseudoStat_PseudoStatSchoolHitPercentNature,
+		proto.PseudoStat_PseudoStatSchoolHitPercentShadow:
+		return stats.HitRating, HitRatingPerHitPercent, true
+	case proto.PseudoStat_PseudoStatExpertisePercent:
+		return stats.ExpertiseRating, ExpertiseRatingPerExpertisePercent, true
+	case proto.PseudoStat_PseudoStatMeleeCritPercent,
+		proto.PseudoStat_PseudoStatRangedCritPercent,
+		proto.PseudoStat_PseudoStatSpellCritPercent:
+		return stats.CritRating, CritRatingPerCritPercent, true
+	}
+	return 0, 1, false
+}
+
+// Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
+// player already has and overstates the next ones.
+func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
+	rating, _, ok := statWeightRating(stat)
+	return ok && (rating == stats.HitRating || rating == stats.ExpertiseRating)
 }
 
 func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightRequestsData {
@@ -159,14 +200,13 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	}
 
 	// Do half the iterations with a positive, and half with a negative value for better accuracy.
+	// Hit and expertise keep only the positive half.
 	const defaultStatMod = 10.0
-	statModsLow := make([]float64, stats.UnitStatsLen)
-	statModsHigh := make([]float64, stats.UnitStatsLen)
+	statMods := make([]float64, stats.UnitStatsLen)
 
 	// Make sure the reference stats are included.
 	for _, referenceStat := range []proto.Stat{swr.EpReferenceStat, hpsReferenceStat} {
-		statModsLow[referenceStat] = -defaultStatMod
-		statModsHigh[referenceStat] = defaultStatMod
+		statMods[referenceStat] = defaultStatMod
 	}
 
 	statsToWeigh := stats.ProtoArrayToStatsList(swr.StatsToWeigh)
@@ -181,14 +221,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		if stat.EqualsStat(stats.Armor) || stat.EqualsStat(stats.BonusArmor) || stat.EqualsStat(stats.ArmorNoMods) || stat.EqualsStat(stats.ArmorPenetration) {
 			statMod = defaultStatMod * 10
 		}
-		statModsHigh[stat] = statMod
-		statModsLow[stat] = -statMod
-
-		if stat.EqualsStat(stats.HitRating) {
-			statModsLow[stats.HitRating] = 0
-		} else if stat.EqualsStat(stats.ExpertiseRating) {
-			statModsLow[stats.ExpertiseRating] = 0
-		}
+		statMods[stat] = statMod
 	}
 
 	for _, s := range swr.PseudoStatsToWeigh {
@@ -198,46 +231,39 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatMeleeHitPercent) ||
-			stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatRangedHitPercent) ||
-			stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatSpellHitPercent) {
-			statMod /= HitRatingPerHitPercent
-		} else if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatExpertisePercent) {
-			statMod /= ExpertiseRatingPerExpertisePercent
-		} else if strings.Contains(statName, "SchoolHit") {
-			statMod /= HitRatingPerHitPercent
-		} else if strings.Contains(statName, "Crit") {
-			statMod /= CritRatingPerCritPercent
+		if _, ratingPerUnit, ok := statWeightRating(stat); ok {
+			statMod /= ratingPerUnit
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
 		} else {
 			panic(fmt.Sprintf("Unsupported PseudoStat in stat weights request: %s", statName))
 		}
 
-		statModsHigh[stat] = statMod
-		statModsLow[stat] = -statMod
+		statMods[stat] = statMod
 	}
 
-	for i := range statModsLow {
-		stat := stats.UnitStatFromIdx(i)
-		if statModsLow[stat] == 0 && statModsHigh[stat] == 0 {
+	for i, statMod := range statMods {
+		if statMod == 0 {
 			continue
 		}
+		stat := stats.UnitStatFromIdx(i)
 
+		var modLow float64
 		var lowSimRequest *proto.RaidSimRequest
-		if statModsLow[stat] != 0 {
+		if !weighedAboveBaselineOnly(stat) {
+			modLow = -statMod
 			lowSimRequest = googleProto.Clone(swBaseResponse.BaseRequest).(*proto.RaidSimRequest)
-			stat.AddToStatsProto(lowSimRequest.Raid.Parties[0].Players[0].BonusStats, statModsLow[stat])
+			stat.AddToStatsProto(lowSimRequest.Raid.Parties[0].Players[0].BonusStats, modLow)
 		}
 
 		highSimRequest := googleProto.Clone(swBaseResponse.BaseRequest).(*proto.RaidSimRequest)
-		stat.AddToStatsProto(highSimRequest.Raid.Parties[0].Players[0].BonusStats, statModsHigh[stat])
+		stat.AddToStatsProto(highSimRequest.Raid.Parties[0].Players[0].BonusStats, statMod)
 
 		swBaseResponse.StatSimRequests = append(swBaseResponse.StatSimRequests, &proto.StatWeightsStatRequestData{
 			StatData: &proto.StatWeightsStatData{
 				UnitStat: int32(stat),
-				ModLow:   statModsLow[stat],
-				ModHigh:  statModsHigh[stat],
+				ModLow:   modLow,
+				ModHigh:  statMod,
 			},
 			RequestLow:  lowSimRequest,
 			RequestHigh: highSimRequest,
@@ -341,6 +367,8 @@ func calcStatWeights(swcr *proto.StatWeightsCalcRequest) (*StatWeightsResult, *p
 		}
 
 		modLow, modHigh := statPairs.StatData.ModLow, statPairs.StatData.ModHigh
+		result.ModLow.AddStat(stat, modLow)
+		result.ModHigh.AddStat(stat, modHigh)
 
 		// Check for hard caps. Hard caps will have results identical to the baseline because RNG is fixed.
 		// When we find a hard-capped stat, just skip it (will return 0).
@@ -468,7 +496,9 @@ func planStatWeightTopUp(request *proto.StatWeightsTopUpRequest) *proto.StatWeig
 			if values.Weights.Get(stat) == 0 || refWeight == 0 {
 				continue
 			}
-			metricEpStdev := values.WeightsStdev.Get(stat) / math.Abs(refWeight)
+			// A percent's target applies per rating point, the unit the stat weights dialog shows.
+			_, ratingPerUnit, _ := statWeightRating(stat)
+			metricEpStdev := values.WeightsStdev.Get(stat) / math.Abs(refWeight) / ratingPerUnit
 			if StatWeightZ90*metricEpStdev/math.Sqrt(samples) > target.EpCi {
 				epStdev = max(epStdev, metricEpStdev)
 			}
