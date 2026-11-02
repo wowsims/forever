@@ -19,7 +19,7 @@ func (rogue *Rogue) registerCombatTalents() {
 	rogue.registerPrecision()
 
 	// Tier 3
-	// None in this tier implemented
+	rogue.registerRiposte()
 
 	// Tier 4
 	// Improved Kick NYI

@@ -13,7 +13,7 @@ func (rogue *Rogue) registerSubtletyTalents() {
 	rogue.registerOpportunity()
 
 	// Tier 2
-	// Setup NYI
+	rogue.registerSetup()
 	rogue.registerElusiveness()
 	// Dirty Tricks NYI
 	rogue.registerImprovedAmbush()
@@ -335,4 +335,23 @@ func (rogue *Rogue) registerThousandCuts() {
 			aura.Deactivate(sim)
 		},
 	})
+}
+
+func (rogue *Rogue) registerSetup() {
+	if rogue.Talents.Setup == 0 {
+		return
+	}
+
+	setupRank := spellData.Setup.Rank(rogue.Talents.Setup)
+	setupMetrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: setupRank.ID})
+
+	trigger := spelldata.ProcTrigger(&rogue.Character, setupRank,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			rogue.AddComboPoints(sim, 1, setupMetrics)
+		})
+	// Only the dodge half is modelled. The fully resisted spell half is not.
+	trigger.Outcome = core.OutcomeDodge
+	trigger.RequireDamageDealt = false
+	trigger.TriggerImmediately = true
+	rogue.MakeProcTriggerAura(trigger)
 }
