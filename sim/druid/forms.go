@@ -84,6 +84,7 @@ const feralPawVariance = 0.4
 
 // The paw uses the weapon's table DPS and form variance, with single-precision endpoints
 // rounded before AP and flat enchant or stone damage.
+// TODO: Ingame test needed -- whether the paw also takes the QualityModifier the table DPS leaves out.
 func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	paw := core.Weapon{
 		BaseDamageMin:        1,
