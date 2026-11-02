@@ -5,7 +5,9 @@ import { ActionId } from '@sim/proto/action_id';
 import { professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Dialog } from '@ui-kit/Dialog';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -337,14 +339,19 @@ describe('ItemSource', () => {
 		const quest = { source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty', faction: 0 } } } as const;
 		const db: DbStub = { zones: { 28: { id: 28, name: 'Western Plaguelands' } }, npcs: { 4494: { id: 4494, name: 'Scarlet Spellbinder' } } };
 		const threeSources = () => Item.create({ id: 900, sources: [vendor(5, 'Quartermaster'), quest, drop(4494)] });
+		const moreButton = () => screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
+		const openList = () => {
+			fireEvent.click(moreButton());
+			return screen.findByTestId('sim-popover-popup');
+		};
+		const listGone = () => waitFor(() => expect(screen.queryByTestId('sim-popover-popup')).toBeNull());
 
 		it('shows the first source by kind and a count of the rest, named from the locale', () => {
 			mount(threeSources(), db);
-			const more = screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
 
-			expect(more.textContent).toBe('+2');
+			expect(moreButton().textContent).toBe('+2');
 			expect(screen.getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(4494));
-			expect(screen.queryByRole('tooltip')).toBeNull();
+			expect(screen.queryByTestId('sim-popover-popup')).toBeNull();
 		});
 
 		it('builds the list of others only when it is shown', async () => {
@@ -353,8 +360,7 @@ describe('ItemSource', () => {
 			render(<ItemSource item={Item.create({ id: 904, sources: [drop(1), drop(2)] })} sim={stub} />);
 			expect(getNpc.mock.calls.map(([id]) => id)).not.toContain(2);
 
-			fireEvent.mouseEnter(screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' }));
-			await screen.findByRole('tooltip');
+			await openList();
 			expect(getNpc.mock.calls.map(([id]) => id)).toContain(2);
 		});
 
@@ -377,8 +383,7 @@ describe('ItemSource', () => {
 
 		it('lists the others in the same kind order, each with its own link and the text the cell gives it', async () => {
 			mount(threeSources(), db);
-			fireEvent.mouseEnter(screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' }));
-			const links = within(await screen.findByRole('tooltip')).getAllByRole('link');
+			const links = within(await openList()).getAllByRole('link');
 
 			expect(links.map(link => link.getAttribute('href'))).toEqual([ActionId.makeQuestUrl(7), ActionId.makeNpcUrl(5)]);
 			expect(links.map(link => link.textContent)).toEqual(['common.sources.questBounty', 'common.sources.sold_byQuartermaster']);
@@ -386,20 +391,63 @@ describe('ItemSource', () => {
 
 		it('keeps a name that holds markup as plain text', async () => {
 			mount(Item.create({ id: 903, sources: [quest, vendor(5, '<b>Quartermaster</b>')] }), db);
-			fireEvent.mouseEnter(screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' }));
-			const list = await screen.findByRole('tooltip');
+			const list = await openList();
 
 			expect(list.querySelector('b')).toBeNull();
 			expect(list.textContent).toContain('<b>Quartermaster</b>');
 		});
 
-		it('shows the list on focus, on a real button', async () => {
+		it('shows the list when Tab reaches the count, on a real button', async () => {
 			mount(threeSources(), db);
-			const more = screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
-			expect(more.tagName).toBe('BUTTON');
+			expect(moreButton().tagName).toBe('BUTTON');
 
-			more.focus();
-			expect(await screen.findByRole('tooltip')).toBeTruthy();
+			await userEvent.tab();
+			expect(document.activeElement).toBe(screen.getByRole('link'));
+			expect(screen.queryByTestId('sim-popover-popup')).toBeNull();
+
+			await userEvent.tab();
+			expect(document.activeElement).toBe(moreButton());
+			expect(await screen.findByTestId('sim-popover-popup')).toBeTruthy();
+		});
+
+		it('opens the list on a press that focuses the count first, as a tap does, and closes it on a second press', async () => {
+			mount(threeSources(), db);
+
+			moreButton().focus();
+			await openList();
+
+			fireEvent.click(moreButton());
+			await listGone();
+		});
+
+		it('leaves an open list alone on a mouse click', async () => {
+			mount(threeSources(), db);
+			await openList();
+
+			fireEvent(moreButton(), new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'mouse' }));
+
+			expect(screen.getByTestId('sim-popover-popup').hasAttribute('data-open')).toBe(true);
+		});
+
+		it.each([
+			['the count', () => moreButton()],
+			['elsewhere in the dialog', () => screen.getByRole('textbox')],
+		])('closes only the list on Escape, with focus on %s', async (_, focused) => {
+			const onOpenChange = vi.fn();
+			render(
+				<Dialog open onOpenChange={onOpenChange}>
+					<input aria-label="Search" />
+					<ItemSource item={threeSources()} sim={sim(db)} />
+				</Dialog>,
+			);
+			await openList();
+
+			fireEvent.keyDown(focused(), { key: 'Escape' });
+			await listGone();
+			expect(onOpenChange).not.toHaveBeenCalled();
+
+			fireEvent.keyDown(focused(), { key: 'Escape' });
+			expect(onOpenChange).toHaveBeenCalledOnce();
 		});
 
 		it('equips nothing on a press of the count or a link in the list, and opens no row link', async () => {
@@ -422,11 +470,9 @@ describe('ItemSource', () => {
 				</div>,
 			);
 
-			const more = screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
-			fireEvent.mouseEnter(more);
-			const list = await screen.findByRole('tooltip');
+			const list = await openList();
 			fireEvent.click(within(list).getAllByRole('link')[0]);
-			fireEvent.click(more);
+			fireEvent.click(moreButton());
 
 			expect(onEquip).not.toHaveBeenCalled();
 

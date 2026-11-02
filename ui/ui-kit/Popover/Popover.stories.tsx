@@ -96,6 +96,15 @@ export const ButtonTrigger: Story = {
 	},
 };
 
+export const OpensOnHover: Story = {
+	args: { triggerProps: { openOnHover: true, delay: 0 } },
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await userEvent.hover(canvas.getByRole('button', { name: 'Settings' }));
+		await canvas.findByRole('dialog');
+	},
+};
+
 export const Anchored: Story = {
 	render: () => <AnchoredStory />,
 };

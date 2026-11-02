@@ -90,6 +90,6 @@ export const OtherSources: Story = {
 		const more = within(canvasElement).getByTestId('item-source-more');
 		await expect(more.textContent).toBe('+2');
 		await userEvent.hover(more);
-		await expect(within(canvasElement.ownerDocument.body).findByRole('tooltip')).resolves.toBeTruthy();
+		await expect(within(canvasElement.ownerDocument.body).findByRole('dialog')).resolves.toBeTruthy();
 	},
 };

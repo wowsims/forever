@@ -106,7 +106,7 @@ export const OtherSources: Story = {
 	play: async ({ args, canvasElement }) => {
 		const more = within(canvasElement).getByTestId('item-source-more');
 		await userEvent.hover(more);
-		await within(canvasElement.ownerDocument.body).findByRole('tooltip');
+		await within(canvasElement.ownerDocument.body).findByRole('dialog');
 		await userEvent.click(more);
 		await expect(args.onEquip).not.toHaveBeenCalled();
 	},

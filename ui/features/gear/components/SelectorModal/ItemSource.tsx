@@ -5,9 +5,9 @@ import { ActionId } from '@sim/proto/action_id';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
 import { Button } from '@ui-kit/Button';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { Popover } from '@ui-kit/Popover';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
-import { type ReactNode, useId } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 export interface ItemSourceProps {
 	/** An enchant passes its own item's id and its sources, and has no faction restriction. */
@@ -17,7 +17,7 @@ export interface ItemSourceProps {
 	faction?: Faction;
 }
 
-// The cell shows the first source by kind, whatever order the sources come in, and the tooltip the rest in this order.
+// The cell shows the first source by kind, whatever order the sources come in, and the list behind `+N` the rest in this order.
 const KIND_ORDER = ['crafted', 'drop', 'quest', 'rep', 'pvp', 'soldBy'] as const;
 
 const FactionIcon = ({ restriction }: { restriction?: UIItem_FactionRestriction }) => {
@@ -140,13 +140,56 @@ const OtherSources = ({ entries, ...props }: ItemSourceProps & { entries: ItemSo
 	</ul>
 );
 
+// A popover, because a react-tooltip in hover mode opens on touchstart and closes on the click that follows, so a tap
+// shows nothing. The list is its child, built only when shown: a row with over a hundred vendors re-renders without it.
+// The button sits above the row's click layer, as the link beside it does, so a press equips nothing.
+const MoreSources = ({ entries, ...props }: ItemSourceProps & { entries: ItemSourceEntry[] }) => {
+	const [open, setOpen] = useState(false);
+	// The picker takes Escape first when focus is elsewhere in it and the list is open under the pointer.
+	useEffect(() => {
+		if (!open) return;
+		const closeList = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape') return;
+			event.stopPropagation();
+			setOpen(false);
+		};
+		window.addEventListener('keydown', closeList, true);
+		return () => window.removeEventListener('keydown', closeList, true);
+	}, [open]);
+	return (
+		<Popover
+			open={open}
+			onOpenChange={setOpen}
+			align="start"
+			trigger={`+${entries.length}`}
+			triggerRender={<Button variant="outline-secondary" size="none" className="relative z-1 shrink-0 px-1 text-xs" />}
+			triggerTestId="item-source-more"
+			triggerProps={{
+				'aria-label': i18n.t('gear_tab.gear_picker.more_sources', { count: entries.length }),
+				openOnHover: true,
+				delay: 0,
+				// Tab's release lands here when Tab brought the focus. A focus handler would also fire on a tap, whose click then
+				// closes what it opened, and when Escape hands the focus back from a link in the list.
+				onKeyUp: event => {
+					if (event.key === 'Tab') setOpen(true);
+				},
+				// The pointer already holds the list open. Base UI would close it under the pointer, or within 500 ms of the
+				// hover keep it open after the pointer leaves.
+				onClick: event => {
+					if (open && (event.nativeEvent as PointerEvent).pointerType === 'mouse') event.preventBaseUIHandler();
+				},
+			}}>
+			<OtherSources entries={entries} {...props} />
+		</Popover>
+	);
+};
+
 const isForOtherFaction = ({ source }: ItemSourceEntry, faction: Faction): boolean => {
 	const sourceFaction = source.oneofKind === 'quest' ? source.quest.faction : source.oneofKind === 'soldBy' ? source.soldBy.faction : Faction.Unknown;
 	return faction !== Faction.Unknown && sourceFaction !== Faction.Unknown && sourceFaction !== faction;
 };
 
 export const ItemSource = ({ item, sim, faction = Faction.Unknown }: ItemSourceProps): ReactNode => {
-	const tooltipId = useId();
 	if (!item.sources?.length) return null;
 
 	const named = KIND_ORDER.flatMap(kind => item.sources.filter(entry => entry.source.oneofKind === kind)).filter(entry =>
@@ -161,29 +204,10 @@ export const ItemSource = ({ item, sim, faction = Faction.Unknown }: ItemSourceP
 	if (!first) return null;
 	if (!others.length) return renderSource(first, { item, sim });
 
-	// The list is a component, so it is built when the tooltip opens: react-tooltip calls a render prop even while
-	// hidden, and a row with over a hundred vendors re-renders with the list. The button sits above the row's click layer,
-	// as the link beside it does, so a press equips nothing.
 	return (
 		<div className="flex items-start gap-2">
 			{renderSource(first, { item, sim })}
-			<Button
-				variant="outline-secondary"
-				size="none"
-				className="relative z-1 shrink-0 px-1 text-xs"
-				aria-label={i18n.t('gear_tab.gear_picker.more_sources', { count: others.length })}
-				data-testid="item-source-more"
-				{...tooltipAnchorProps(tooltipId)}>
-				{`+${others.length}`}
-			</Button>
-			<Tooltip
-				id={tooltipId}
-				clickable
-				place="bottom"
-				align="start"
-				className="max-h-[70dvh] overflow-y-auto"
-				content={<OtherSources entries={others} item={item} sim={sim} />}
-			/>
+			<MoreSources entries={others} item={item} sim={sim} />
 		</div>
 	);
 };
