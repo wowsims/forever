@@ -118,8 +118,8 @@ describe('UnitStat', () => {
 				[UnitStat.fromStat(Stat.StatDefenseRating), 1],
 			] as const
 		).map(([unitStat, scale]) => [unitStat.getKey(), scale, unitStat] as const),
-	)('epShownScale of %s is %i', (_key, scale, unitStat) => {
-		expect(unitStat.epShownScale()).toBe(scale);
+	)('shows one stored EP of %s as %i', (_key, scale, unitStat) => {
+		expect(unitStat.storedEpToShown(1)).toBe(scale);
 	});
 
 	it('needs a parentStat to turn ReducedCritTakenPercent back into a rating', () => {

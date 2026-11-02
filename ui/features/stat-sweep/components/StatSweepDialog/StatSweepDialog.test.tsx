@@ -308,7 +308,9 @@ describe('StatSweepDialog', () => {
 		it('titles the percent axis with what other stats move by', async () => {
 			await sweepCritAndStrength();
 
-			expect((lastChart().options.scales!.x as { title: { text: string } }).title.text).toBe('Added (%, other stats 10 points per 1%)');
+			expect((lastChart().options.scales!.x as { title: { text: string } }).title.text).toBe(
+				'Added in % (a stat with no percent moves 10 points per 1%)',
+			);
 		});
 
 		it('reads a rating stat in the tooltip as the percent added with no total, either side of the current value', async () => {

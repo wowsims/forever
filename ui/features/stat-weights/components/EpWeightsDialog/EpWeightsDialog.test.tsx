@@ -82,7 +82,7 @@ vi.mock('@sim/state/subscriptions', () => {
 const STAT_NAMES: Partial<Record<Stat, string>> = {
 	[Stat.StatStrength]: 'Strength',
 	[Stat.StatAgility]: 'Agility',
-	[Stat.StatCritRating]: 'Crit Rating',
+	[Stat.StatCritRating]: 'Crit',
 };
 vi.mock('@i18n/localization', () => ({
 	translateStat: (stat: Stat) => STAT_NAMES[stat] ?? `Stat ${stat}`,
@@ -383,7 +383,7 @@ describe('EpWeightsDialog', () => {
 	it('shows the spec stats, and a stat ticked in the stat filter without an include toggle', async () => {
 		renderDialog();
 		const names = () => [...table().querySelectorAll('tbody tr')].map(row => row.firstElementChild!.textContent);
-		expect(names()).toEqual(['Strength', 'Agility', 'Crit Rating', 'Spell Hit Percent']);
+		expect(names()).toEqual(['Strength', 'Agility', 'Crit', 'Spell Hit Percent']);
 
 		await openStatFilter();
 		act(() => {
@@ -391,7 +391,7 @@ describe('EpWeightsDialog', () => {
 		});
 
 		const unweighted = STAMINA.getFullName(Class.ClassWarrior);
-		expect(names()).toEqual(['Strength', 'Agility', unweighted, 'Crit Rating', 'Spell Hit Percent']);
+		expect(names()).toEqual(['Strength', 'Agility', unweighted, 'Crit', 'Spell Hit Percent']);
 		expect(rowFor(unweighted).querySelector('[data-testid="swcalc-include-toggle"] input')).toBeNull();
 		expect(rowFor('Strength').querySelector('[data-testid="swcalc-include-toggle"] input')).not.toBeNull();
 	});
@@ -459,7 +459,7 @@ describe('EpWeightsDialog', () => {
 	it('sanitises the include-toggle id, and disables the toggle on the reference stat', () => {
 		renderDialog();
 		expect(rowFor('Spell Hit Percent').querySelector('[data-testid="swcalc-include-toggle"] input')!.id).toBe('sw-stat-toggle-spellhitpercent');
-		expect(rowFor('Crit Rating').querySelector('[data-testid="current-ep"] input')!.id).toBe('ep-weight-stat-crit');
+		expect(rowFor('Crit').querySelector('[data-testid="current-ep"] input')!.id).toBe('ep-weight-stat-crit');
 
 		expect(rowFor('Strength').querySelector<HTMLInputElement>('[data-testid="swcalc-include-toggle"] input')!.disabled).toBe(true);
 		expect(rowFor('Agility').querySelector<HTMLInputElement>('[data-testid="swcalc-include-toggle"] input')!.disabled).toBe(false);
@@ -492,7 +492,7 @@ describe('EpWeightsDialog', () => {
 	// translated display string.
 	it('carries the stat enum on each reference option, writes it, and follows it in the column tooltip', async () => {
 		renderDialog();
-		// The options run Strength, Agility, Crit Rating.
+		// The options run Strength, Agility, Crit.
 		await userEvent.click(popup().querySelector<HTMLElement>('#ep-ref-stat-damage')!);
 		expect(screen.getAllByRole('option').map(option => option.getAttribute('aria-selected'))).toEqual(['true', 'false', 'false']);
 		await userEvent.keyboard('{Escape}');
@@ -902,7 +902,7 @@ describe('EpWeightsDialog', () => {
 				expect(shown(rangedHitRow(), columnType)).toBe('9.28');
 				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(50, 1000).toFixed(2)})`);
 				expect(shown(fireHitRow(), columnType)).toBe('23.20');
-				expect(shown(rowFor('Crit Rating'), columnType)).toBe('16.10');
+				expect(shown(rowFor('Crit'), columnType)).toBe('16.10');
 			}
 
 			act(() => {
@@ -926,22 +926,22 @@ describe('EpWeightsDialog', () => {
 
 			expect(currentEpInput(rangedHitRow()).value).toBe('9.28');
 			expect(currentEpInput(fireHitRow()).value).toBe('23.20');
-			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('16.10');
+			expect(currentEpInput(rowFor('Crit')).value).toBe('16.10');
 
 			editCurrentEp(rangedHitRow(), '10.00');
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(10);
 			expect(currentEpInput(rangedHitRow()).value).toBe('10.00');
 
-			editCurrentEp(rowFor('Crit Rating'), '1.40');
+			editCurrentEp(rowFor('Crit'), '1.40');
 			expect(player.epWeights.getStat(Stat.StatCritRating)).toBe(0.1);
-			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.40');
+			expect(currentEpInput(rowFor('Crit')).value).toBe('1.40');
 		});
 
 		it('stores an edit without float noise, and reads it back as typed', () => {
 			renderDialog();
-			editCurrentEp(rowFor('Crit Rating'), '1.23');
+			editCurrentEp(rowFor('Crit'), '1.23');
 			expect(player.epWeights.getStat(Stat.StatCritRating)).toBe(0.087857);
-			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.23');
+			expect(currentEpInput(rowFor('Crit')).value).toBe('1.23');
 		});
 	});
 

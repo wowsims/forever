@@ -94,7 +94,7 @@ export const OFF_HAND_PERCENTS: ReadonlyMap<string, UnitStat> = new Map([
 
 /**
  * The groups the stat filter popovers sort stats into, each in display order: the character stats groups with the
- * off-hand hit and crit percents in Physical, then gear-only stats and weapon DPS, which the panel has no rows for.
+ * off-hand hit and crit percents in Physical, then rating stats and weapon DPS, which the panel has no rows for.
  */
 const FILTER_GROUPS: ReadonlyArray<{ key: FilterGroupKey; stats: ReadonlyArray<UnitStat> }> = [
 	...STAT_GROUPS.map(({ key, stats }) => ({
@@ -131,14 +131,14 @@ const shortNameOf = (stat: UnitStat) => stat.getShortName(Class.ClassUnknown);
  * The rating stats in `universe` that a percent in it takes the row of, by the percent's key: a rating stat and a
  * percent pseudo stat with one short name (Dodge rating and Dodge percent) are one row, the percent's.
  */
-export const ratingsBehindPercents = (universe: ReadonlyArray<UnitStat>): Map<string, UnitStat[]> => {
+export const ratingsByPercentKey = (universe: ReadonlyArray<UnitStat>): Map<string, UnitStat[]> => {
 	const percentByName = new Map(universe.filter(stat => stat.isPseudoStat() && stat.getKey().includes('Percent')).map(stat => [shortNameOf(stat), stat]));
-	const behind = new Map<string, UnitStat[]>();
+	const ratings = new Map<string, UnitStat[]>();
 	for (const stat of universe.filter(stat => stat.isStat())) {
 		const percent = percentByName.get(shortNameOf(stat));
-		if (percent) behind.set(percent.getKey(), [...(behind.get(percent.getKey()) ?? []), stat]);
+		if (percent) ratings.set(percent.getKey(), [...(ratings.get(percent.getKey()) ?? []), stat]);
 	}
-	return behind;
+	return ratings;
 };
 
 /**
@@ -147,15 +147,14 @@ export const ratingsBehindPercents = (universe: ReadonlyArray<UnitStat>): Map<st
  */
 export const filterGroupsOf = (universe: ReadonlyArray<UnitStat>): Array<{ key: FilterGroupKey | 'other'; stats: ReadonlyArray<UnitStat> }> => {
 	const inUniverse = new Set(universe.map(stat => stat.getKey()));
-	const taken = new Set([...ratingsBehindPercents(universe).values()].flat().map(stat => stat.getKey()));
-	const grouped = FILTER_GROUPS.map(({ key, stats }) => ({ key, stats: stats.filter(stat => inUniverse.has(stat.getKey()) && !taken.has(stat.getKey())) }));
+	const ratingKeysInPercentRows = new Set([...ratingsByPercentKey(universe).values()].flat().map(stat => stat.getKey()));
+	const grouped = FILTER_GROUPS.map(({ key, stats }) => ({
+		key,
+		stats: stats.filter(stat => inUniverse.has(stat.getKey()) && !ratingKeysInPercentRows.has(stat.getKey())),
+	}));
 	const other = { key: 'other' as const, stats: universe.filter(stat => statGroupOf(stat) === 'other') };
 	return [...grouped, other].filter(group => group.stats.length > 0);
 };
-
-/** Each stat's label in a stat filter popover for `universe`, by stat key: its short name. */
-export const filterLabelsOf = (universe: ReadonlyArray<UnitStat>, playerClass: Class): Map<string, string> =>
-	new Map(universe.map(stat => [stat.getKey(), stat.getShortName(playerClass)]));
 
 /** The groups that hold at least one shown stat: the ones a popover opens with when nothing is stored for its panel. */
 export const defaultOpenFilterGroups = (universe: ReadonlyArray<UnitStat>, shown: ReadonlyArray<UnitStat>): Array<FilterGroupKey | 'other'> => {

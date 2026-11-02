@@ -108,7 +108,7 @@ export const StatWeightRowView = ({
 				<NumberField
 					id={`ep-weight-stat-${sanitizeId(shortName)}`}
 					float
-					value={roundFloat(stat.storedEpToShown(currentEp))}
+					value={stat.storedEpToShown(currentEp)}
 					onChange={value => onCurrentEpChange(roundFloat(stat.shownEpToStored(value)))}
 					inputClassName={showThreatMetrics ? 'ui-ep-weights-compact-input' : undefined}
 				/>

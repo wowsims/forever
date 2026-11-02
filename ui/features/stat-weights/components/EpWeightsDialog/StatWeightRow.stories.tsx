@@ -7,7 +7,7 @@ import { StatWeightRowView } from './StatWeightRow';
 import { StatsType } from './types';
 
 const RESULT = makeStatWeightsResult();
-const [STRENGTH, AGILITY] = STAT_WEIGHT_STATS;
+const [STRENGTH, AGILITY, , CRIT] = STAT_WEIGHT_STATS;
 
 const meta = {
 	title: 'Features/StatWeights/EpWeightsDialog/Components/StatWeightRow',
@@ -51,9 +51,15 @@ export const Calculated: Story = {
 	args: { helpLines: ['Simulated step: ±10'], metrics: [{ ratioIndex: 0, epRatio: 1, statWeights: RESULT.dps }], epDelta: 0.5, currentEp: 0.29 },
 };
 
-/** A rating stat has its conversion on the icon before any calculation. */
-export const RatingStat: Story = {
-	args: { fullName: 'Crit', shortName: 'Crit', helpLines: ['14 rating = 1%'] },
+/** After a calculation a percent stat's help icon gives its simulated step in percent. */
+export const PercentStat: Story = {
+	args: {
+		stat: CRIT,
+		fullName: 'Crit',
+		shortName: 'Crit',
+		helpLines: ['Simulated step: ±1%'],
+		metrics: [{ ratioIndex: 0, epRatio: 1, statWeights: RESULT.dps }],
+	},
 };
 
 export const ExcludedFromCalculation: Story = {

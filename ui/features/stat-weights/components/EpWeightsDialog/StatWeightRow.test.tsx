@@ -197,7 +197,7 @@ describe('StatWeightRowView', () => {
 				<tbody>
 					<StatWeightRowView
 						stat={crit}
-						fullName="Crit Rating"
+						fullName="Crit"
 						shortName="Crit"
 						metrics={[{ ratioIndex: 0, epRatio: 1 }]}
 						iterations={100}

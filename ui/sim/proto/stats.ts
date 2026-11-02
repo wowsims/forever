@@ -103,7 +103,7 @@ export class UnitStat {
 
 	getShortName(playerClass: Class): string {
 		const fullName = this.getFullName(playerClass);
-		return fullName.replace(' Rating', '').replace(' Percent', '');
+		return fullName.replace(' Percent', '');
 	}
 
 	getKey(): string {
@@ -195,7 +195,7 @@ export class UnitStat {
 	// The stored weight of a rating is per rating point and of a percent pseudo-stat per percentage point; a rating
 	// with a percent (hit, crit, haste, expertise, dodge, parry, block) shows per percentage point, so its shown
 	// weight is the stored one times the rating points one percent takes. Every other stat shows as stored.
-	epShownScale(): number {
+	private epShownScale(): number {
 		return this.isStat() && this.isPercentRating() ? this.convertPercentToRating(1)! : 1;
 	}
 
@@ -830,7 +830,7 @@ export function computeStatAttribution(
 		.subtract(bonusStats)
 		.add(statMods.gear || new Stats());
 	// The back end's gear stage holds the bonus rating's percent in each percent pseudo stat, which the bonus stats do not
-	// carry, so Gear is the measured delta minus that percent and Gear plus Bonus still equals the total. A block or parry row
+	// carry, so Gear is the measured delta minus that percent and the stage lines still sum to the total. A block or parry row
 	// whose cumulative gear stage reads 0 is gated (no shield, cannot parry) and keeps Gear at 0. Haste is multiplicative, so
 	// its Gear line is approximate. A residue under 1e-9 is a float error and reads as 0.
 	for (const pseudoStat of UnitStat.getAllPseudoStats()) {
