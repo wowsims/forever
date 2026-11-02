@@ -7,6 +7,7 @@ import {
 	ItemRandomSuffix,
 	ItemSlot,
 	PseudoStat,
+	Spec,
 	Stat,
 	WeaponSkill,
 	WeaponSkillValue,
@@ -85,6 +86,29 @@ describe('Player.setWeaponSkills', () => {
 		const skills = withSkills([swords(305)]);
 		skills.set([swords(305)]);
 		expect(skills.patch).not.toHaveBeenCalled();
+	});
+});
+
+describe('Player.setTalentsString', () => {
+	// A paladin string saved before the 2026-10-30 rework: five points where Sanctified Judgement now takes three, and three
+	// where Shield Specialization takes two.
+	const STALE = '05-0000000300000000-00005';
+	const setTalents = (talentsString: string) => {
+		const patch = vi.fn();
+		const player = { getTalentsString: () => '', patch, playerSpec: PlayerSpecs.RetributionPaladin, talents: null };
+		Player.prototype.setTalentsString.call(player as unknown as Player<any>, talentsString);
+		return patch;
+	};
+
+	it('caps each talent at its points and drops digits past the tree before storing the string', () => {
+		expect(setTalents(STALE)).toHaveBeenCalledWith('talentsString', '05-00000002-00003');
+	});
+
+	it('writes nothing when the capped string is the one held', () => {
+		const patch = vi.fn();
+		const player = { getTalentsString: () => '05-00000002-00003', patch, playerSpec: PlayerSpecs.RetributionPaladin, talents: null };
+		Player.prototype.setTalentsString.call(player as unknown as Player<any>, STALE);
+		expect(patch).not.toHaveBeenCalled();
 	});
 });
 

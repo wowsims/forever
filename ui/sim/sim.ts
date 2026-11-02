@@ -86,6 +86,7 @@ import { Emitter } from './state/events';
 import { makeReforgeConfigRequestFields } from './state/reforge_request';
 import { createSimStore, patchSlice, SimSettingsSlice, UISlice } from './state/sim_store';
 import { subscribeStatsInputs, subscribeUiField } from './state/subscriptions';
+import { normalizedTalentsString } from './talents/factory';
 import { getEnumValues } from './utils/collections';
 import { environmentOf } from './utils/env';
 import { hashString, noop } from './utils/misc';
@@ -473,7 +474,8 @@ export class Sim {
 			}
 			const player = baseRequest.raid!.parties[0].players[0];
 			if (overrides.build) {
-				player.talentsString = overrides.build.talentsString;
+				// Capped to the class's trees, as the live player's own string is when it is set.
+				player.talentsString = normalizedTalentsString(player.class, overrides.build.talentsString);
 				player.rotation = APLRotation.clone(overrides.build.rotation);
 				player.bonusStats = UnitStats.clone(overrides.build.bonusStats);
 				if (overrides.build.rotation.type == APLRotationType.TypeSimple) {

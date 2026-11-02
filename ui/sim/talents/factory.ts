@@ -12,7 +12,7 @@ import { paladinTalentsConfig } from './paladin';
 import { priestTalentsConfig } from './priest';
 import { rogueTalentsConfig } from './rogue';
 import { shamanTalentsConfig } from './shaman';
-import { parseTalentsString } from './talents_string';
+import { parseTalentsString, serializeTalentsString } from './talents_string';
 import { warlockTalentsConfig } from './warlock';
 import { warriorTalentsConfig } from './warrior';
 
@@ -46,6 +46,21 @@ export function playerTalentStringToProto<SpecType extends Spec>(playerSpec: Pla
 export function playerBrokenTalentNames<SpecType extends Spec>(playerSpec: PlayerSpec<SpecType>, talentString: string): Array<string> {
 	const talentsConfig = classTalentsConfig[playerSpec.classID];
 	return brokenTalentNames(talentsConfig, parseTalentsString(talentsConfig, talentString));
+}
+
+/**
+ * The string as the class's trees read it: each talent's points capped at its maximum, digits past a tree's talents
+ * dropped. A string saved before a tree was reworked can put five points where a talent now takes three; the sim indexes
+ * the talent's ranks by that digit, so it has to be in range before it is sent.
+ */
+export function normalizedTalentsString(classID: Class, talentString: string): string {
+	const talentsConfig = classTalentsConfig[classID];
+	// A class with no trees (a test player) has nothing to cap against.
+	return talentsConfig.length ? serializeTalentsString(parseTalentsString(talentsConfig, talentString)) : talentString;
+}
+
+export function playerNormalizedTalentsString<SpecType extends Spec>(playerSpec: PlayerSpec<SpecType>, talentString: string): string {
+	return normalizedTalentsString(playerSpec.classID, talentString);
 }
 
 function talentStringToProto<TalentsProto>(proto: TalentsProto, talentString: string, talentsConfig: TalentsConfig<TalentsProto>): TalentsProto {
