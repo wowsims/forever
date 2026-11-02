@@ -30,15 +30,15 @@ const simulatedStepText = (stat: UnitStat, result: StatWeightsResult | null): st
 		: `${sign}${formatToNumber(stepAbove)}`;
 };
 
-/** A rating stat's conversion, then the step of the last run; undefined for a stat with neither. */
-export const statHelpText = (stat: UnitStat, result: StatWeightsResult | null): string | undefined => {
+/** A rating stat's conversion, then the step of the last run; empty for a stat with neither. */
+export const statHelpLines = (stat: UnitStat, result: StatWeightsResult | null): string[] => {
 	const lines: string[] = [];
 	if (stat.isPercentRating() || stat.isRatingBackedPercent()) {
 		lines.push(i18n.t('sidebar.buttons.stat_weights.modal.rating_conversion', { rating: formatToNumber(stat.convertPercentToRating(1)!) }));
 	}
 	const step = simulatedStepText(stat, result);
 	if (step) lines.push(i18n.t('sidebar.buttons.stat_weights.modal.simulated_step', { step }));
-	return lines.join(' ') || undefined;
+	return lines;
 };
 
 /** The reference stat is read at render, so the tooltip follows a change of it. */

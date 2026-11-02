@@ -110,7 +110,7 @@ describe('StatWeightRow', () => {
 			['Melee Crit Percent', UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent), Mechanics.CRIT_RATING_PER_CRIT_PERCENT],
 			['Fire Hit Percent', UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), Mechanics.HIT_RATING_PER_HIT_PERCENT],
 		])('states the rating conversion of %s before a run', (_name, stat, ratingPerPercent) => {
-			expect(helpText(stat)).toBe(`${ratingPerPercent} rating = 1%.`);
+			expect(helpText(stat)).toBe(`${ratingPerPercent} rating = 1%`);
 		});
 
 		it('has no help icon for a stat with no conversion and no step', () => {
@@ -121,14 +121,12 @@ describe('StatWeightRow', () => {
 		it('adds how far the sim moved the stat after a run', () => {
 			const hit = Mechanics.HIT_RATING_PER_HIT_PERCENT;
 			const crit = Mechanics.CRIT_RATING_PER_CRIT_PERCENT;
-			expect(helpText(AGILITY, -10, 10)).toBe('Simulated step: ±10.');
-			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('Simulated step: ±5.');
-			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe(`${hit} rating = 1%. Simulated step: +10 rating.`);
-			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe(
-				`${hit} rating = 1%. Simulated step: +10 rating (+1%).`,
-			);
+			expect(helpText(AGILITY, -10, 10)).toBe('Simulated step: ±10');
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('Simulated step: ±5');
+			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe(`${hit} rating = 1%, Simulated step: +10 rating`);
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe(`${hit} rating = 1%, Simulated step: +10 rating (+1%)`);
 			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / crit, 10 / crit)).toBe(
-				`${crit} rating = 1%. Simulated step: ±10 rating (±0.71%).`,
+				`${crit} rating = 1%, Simulated step: ±10 rating (±0.71%)`,
 			);
 		});
 
@@ -178,7 +176,7 @@ const renderRow = (props: Partial<StatWeightRowViewProps> = {}) =>
 describe('StatWeightRowView', () => {
 	it('shows the help icon only with a help text', () => {
 		expect(renderRow().queryByTestId('stat-weight-help')).toBeNull();
-		expect(renderRow({ helpText: '14 rating = 1%.' }).getByLabelText('14 rating = 1%.')).toBeTruthy();
+		expect(renderRow({ helpLines: ['14 rating = 1%'] }).getByLabelText('14 rating = 1%')).toBeTruthy();
 	});
 
 	it('names the row, and ids its two inputs from the sanitised names', () => {

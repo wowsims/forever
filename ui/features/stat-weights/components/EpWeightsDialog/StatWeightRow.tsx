@@ -15,7 +15,7 @@ import { TooltipButton } from '@ui-kit/TooltipButton';
 import clsx from 'clsx';
 
 import { StatWeightCells } from './StatWeightCells';
-import { statHelpText } from './utils';
+import { statHelpLines } from './utils';
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
 export interface StatWeightRowMetric {
@@ -34,8 +34,8 @@ export interface StatWeightRowViewProps {
 	stat: UnitStat;
 	fullName: string;
 	shortName: string;
-	/** The tooltip of the icon next to the stat name; no icon without it. */
-	helpText?: string;
+	/** The tooltip of the icon next to the stat name, one line each; no icon without any. */
+	helpLines?: string[];
 	metrics: StatWeightRowMetric[];
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
@@ -54,7 +54,7 @@ export const StatWeightRowView = ({
 	stat,
 	fullName,
 	shortName,
-	helpText,
+	helpLines = [],
 	metrics,
 	iterations,
 	epDelta,
@@ -72,7 +72,15 @@ export const StatWeightRowView = ({
 			<TableCell className={cellClassName}>
 				<span className="inline-flex items-center gap-1">
 					{fullName}
-					{helpText && <TooltipButton tooltip={helpText} testId="stat-weight-help" />}
+					{helpLines.length > 0 && (
+						<TooltipButton
+							tooltip={helpLines.map(line => (
+								<div key={line}>{line}</div>
+							))}
+							label={helpLines.join(', ')}
+							testId="stat-weight-help"
+						/>
+					)}
 				</span>
 			</TableCell>
 			{showUpdateColumn && (
@@ -162,7 +170,7 @@ export const StatWeightRow = ({
 			stat={stat}
 			fullName={stat.getFullName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
-			helpText={statHelpText(stat, rowResult)}
+			helpLines={statHelpLines(stat, rowResult)}
 			metrics={metrics}
 			iterations={samples}
 			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}
