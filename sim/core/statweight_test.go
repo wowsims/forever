@@ -281,7 +281,7 @@ func TestStatWeightsReportEachStatsSteps(t *testing.T) {
 	}
 }
 
-// A stat with a rating per percent steps by one percent, so its rating steps by that many points; a percent steps by 1.
+// A rating with a percent steps by its rating per percent and a percent pseudo stat by 1; defense, agility, armor penetration and weapon DPS keep their own steps.
 func TestStatWeightsStepEachPercentStatByOnePercent(t *testing.T) {
 	requests := buildStatWeightRequests(&proto.StatWeightsRequest{
 		Player:     &proto.Player{},

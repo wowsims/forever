@@ -116,60 +116,11 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 	}
 }
 
-// The rating behind a stat and how much of it one unit of the stat costs: a stat is its own rating at 1, a
-// percent pseudo stat costs its rating per percent. hasRating is false for any other pseudo stat, which costs 1.
-// A percent's cost matches UnitStat.convertPercentToRating(1) in the UI; the two are kept in sync by hand.
-func ratingBehindStat(stat stats.UnitStat) (rating stats.Stat, ratingPerUnit float64, hasRating bool) {
-	if stat.IsStat() {
-		return stats.Stat(stat.StatIdx()), 1, true
-	}
-	switch proto.PseudoStat(stat.PseudoStatIdx()) {
-	case proto.PseudoStat_PseudoStatMeleeHitPercent,
-		proto.PseudoStat_PseudoStatRangedHitPercent,
-		proto.PseudoStat_PseudoStatSpellHitPercent,
-		proto.PseudoStat_PseudoStatSchoolHitPercentArcane,
-		proto.PseudoStat_PseudoStatSchoolHitPercentFire,
-		proto.PseudoStat_PseudoStatSchoolHitPercentFrost,
-		proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
-		proto.PseudoStat_PseudoStatSchoolHitPercentNature,
-		proto.PseudoStat_PseudoStatSchoolHitPercentShadow:
-		return stats.HitRating, HitRatingPerHitPercent, true
-	case proto.PseudoStat_PseudoStatExpertisePercent:
-		return stats.ExpertiseRating, ExpertiseRatingPerExpertisePercent, true
-	case proto.PseudoStat_PseudoStatMeleeCritPercent,
-		proto.PseudoStat_PseudoStatRangedCritPercent,
-		proto.PseudoStat_PseudoStatSpellCritPercent:
-		return stats.CritRating, CritRatingPerCritPercent, true
-	}
-	return 0, 1, false
-}
-
 // Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
 // player already has and overstates the next ones.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
 	rating, _, hasRating := ratingBehindStat(stat)
 	return hasRating && (rating == stats.HitRating || rating == stats.ExpertiseRating)
-}
-
-// The rating one percent of a rating stat costs. Other stats, defense included, have none.
-func ratingPerPercent(stat stats.Stat) (float64, bool) {
-	switch stat {
-	case stats.HitRating:
-		return HitRatingPerHitPercent, true
-	case stats.CritRating:
-		return CritRatingPerCritPercent, true
-	case stats.HasteRating:
-		return HasteRatingPerHastePercent, true
-	case stats.ExpertiseRating:
-		return ExpertiseRatingPerExpertisePercent, true
-	case stats.DodgeRating:
-		return DodgeRatingPerDodgePercent, true
-	case stats.ParryRating:
-		return ParryRatingPerParryPercent, true
-	case stats.BlockRating:
-		return BlockRatingPerBlockPercent, true
-	}
-	return 0, false
 }
 
 func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightRequestsData {
