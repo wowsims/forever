@@ -474,10 +474,11 @@ message BulkEnchantPresets {
 	repeated BulkEnchantPreset presets = 1;
 }
 
-// A spec preset encounter or a user-saved one, by name. An empty name is the current encounter.
+// A spec preset encounter, a user-saved one or an entry of My encounters, by name. An empty name is the current encounter.
 message BulkEncounterRef {
 	string name = 1;
 	bool preset = 2;
+	bool my_encounter = 3;
 }
 
 // A spec preset talent setup or a user-saved one, by name. An empty name is the current talents.

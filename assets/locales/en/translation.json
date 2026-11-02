@@ -1402,6 +1402,7 @@
 			"encounters": {
 				"current": "Current encounter",
 				"presets": "Presets",
+				"my_encounters": "My encounters",
 				"saved": "Saved",
 				"empty": "No preset or saved encounters yet. Save one in Encounter to run it too.",
 				"duplicate": "Same as {{encounter}}",

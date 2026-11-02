@@ -14,11 +14,12 @@ export interface BulkCheckRow {
 }
 
 export interface BulkCheckListProps {
-	/** `presets` heads the presets and `duplicate` describes a row flagged `duplicate`; a list with no presets, or with no row flagged, leaves the string out. */
-	strings: { presets?: string; saved: string; empty: string; duplicate?: string };
+	/** `presets` and `myEncounters` head their rows and `duplicate` describes a row flagged `duplicate`; a list with no such rows, or with no row flagged, leaves the string out. */
+	strings: { presets?: string; myEncounters?: string; saved: string; empty: string; duplicate?: string };
 	/** The first row; null for a list with no current entry. */
 	current: { label: string; summary: string; checked: boolean; onCheckedChange: (checked: boolean) => void } | null;
 	presets: readonly BulkCheckRow[];
+	myEncounters?: readonly BulkCheckRow[];
 	saved: readonly BulkCheckRow[];
 	onCheckedChange: (ref: SavedRef, checked: boolean) => void;
 	testIds: { list: string; row: string; current?: string };
@@ -73,7 +74,7 @@ const CheckRow = ({ id, label, summary, checked, duplicate = false, duplicateTex
 	</>
 );
 
-export const BulkCheckList = ({ strings, current, presets, saved, onCheckedChange, testIds }: BulkCheckListProps) => {
+export const BulkCheckList = ({ strings, current, presets, myEncounters = [], saved, onCheckedChange, testIds }: BulkCheckListProps) => {
 	const idPrefix = useId();
 	// A labelled group per heading, so two rows of one name under two headings read apart.
 	const group = (key: string, heading: string, rows: readonly BulkCheckRow[]) =>
@@ -112,8 +113,9 @@ export const BulkCheckList = ({ strings, current, presets, saved, onCheckedChang
 				/>
 			)}
 			{group('presets', strings.presets ?? '', presets)}
+			{group('my-encounters', strings.myEncounters ?? '', myEncounters)}
 			{group('saved', strings.saved, saved)}
-			{!presets.length && !saved.length && <p className="mb-0 text-sm text-gray-400">{strings.empty}</p>}
+			{!presets.length && !myEncounters.length && !saved.length && <p className="mb-0 text-sm text-gray-400">{strings.empty}</p>}
 		</div>
 	);
 };

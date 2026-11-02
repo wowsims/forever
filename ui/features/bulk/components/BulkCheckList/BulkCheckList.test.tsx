@@ -24,6 +24,7 @@ describe('the bulk check lists', () => {
 			<EncounterListView
 				current={{ label: 'Current encounter', summary: '3:00 ±5s · 1 target', checked: true, onCheckedChange: vi.fn() }}
 				presets={[row('Patchwerk', '5:00 ±5s · 1 target', true)]}
+				myEncounters={[]}
 				saved={[row('Patchwerk copy', '5:00 ±5s · 1 target', false, { disabledReason: 'Same as Patchwerk' })]}
 				onCheckedChange={vi.fn()}
 			/>,
@@ -75,6 +76,7 @@ describe('the bulk check lists', () => {
 			<EncounterListView
 				current={{ label: 'Current encounter', summary: '3:00 ±5s · 1 target', checked: true, onCheckedChange: vi.fn() }}
 				presets={[row('Patchwerk', '5:00 ±5s · 1 target', true)]}
+				myEncounters={[]}
 				saved={[row('Patchwerk copy', '5:00 ±5s · 1 target', false, { disabledReason: 'Same as Patchwerk' })]}
 				onCheckedChange={onCheckedChange}
 			/>,
