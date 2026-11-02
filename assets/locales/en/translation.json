@@ -3233,14 +3233,12 @@
 					"healing_reference": "Healing reference:",
 					"mitigation_reference": "Mitigation reference:",
 					"reference_description": "The above stat selectors control which reference stat is used for EP normalisation for the different EP columns.",
-					"simulated_step_rating": "{{sign}}{{rating}} rating",
-					"simulated_step_rating_percent": "{{sign}}{{rating}} rating ({{sign}}{{percent}}%)",
+					"simulated_step_percent": "{{sign}}{{percent}}%",
 					"simulated_step": "Simulated step: {{step}}",
 					"simulated_step_description": "After a calculation, the help icon next to each stat name gives the simulated step, how far the sim moved that stat to measure it. ± ran it both lower and higher, + only higher.",
 					"current_ep_description": "The 'Current EP' column displays the values currently used by the item pickers to sort items.",
 					"copy_icon_description": "Use the copy icon above the EPs to use newly calculated EPs.",
-					"rating_conversion": "{{rating}} rating = 1%",
-					"rating_weights_description": "Hit, crit, haste, expertise, dodge, parry and block show their weights per point of rating, because gear gives them as rating, which the game converts to a percentage. The help icon next to the stat name gives the conversion.",
+					"percent_weights_description": "Hit, crit, haste, expertise, dodge, parry and block show their weights per 1%.",
 					"stat": "Stat",
 					"update": "Update",
 					"ep_ratio": "EP Ratio",
@@ -3327,7 +3325,7 @@
 				"precision": {
 					"iterations_tooltip": "Iterations per simulation. Empty uses the sim's iteration setting.",
 					"target_ci": "Target ±",
-					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value.",
+					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value. A stat shown per 1% then reads about 5 to 15 times this value.",
 					"max_multiplier_tooltip": "The most iterations a stat may run, as a multiple of the automatic first pass. Empty sets no cap."
 				}
 			},

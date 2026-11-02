@@ -11014,10 +11014,7 @@
 										"reference_description": {
 											"type": "string"
 										},
-										"simulated_step_rating": {
-											"type": "string"
-										},
-										"simulated_step_rating_percent": {
+										"simulated_step_percent": {
 											"type": "string"
 										},
 										"simulated_step_description": {
@@ -11029,13 +11026,10 @@
 										"copy_icon_description": {
 											"type": "string"
 										},
-										"rating_conversion": {
-											"type": "string"
-										},
 										"simulated_step": {
 											"type": "string"
 										},
-										"rating_weights_description": {
+										"percent_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -11304,14 +11298,12 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
-										"simulated_step_rating",
-										"simulated_step_rating_percent",
+										"simulated_step_percent",
 										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
-										"rating_conversion",
 										"simulated_step",
-										"rating_weights_description",
+										"percent_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",

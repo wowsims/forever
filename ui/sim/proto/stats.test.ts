@@ -89,29 +89,37 @@ describe('UnitStat', () => {
 	});
 
 	// The soft-cap tooltip calls .toFixed() on the result, so a stat with no rating still gets a number.
-	it('falls back to the raw EP value when a stat has no percent conversion', () => {
+	it('shows the raw EP value when a stat has no percent conversion', () => {
 		const unitStat = UnitStat.fromPseudoStat(PseudoStat.PseudoStatReducedCritTakenPercent);
-		expect(unitStat.convertEpToRatingScale(12.5)).toBe(12.5);
-		expect(() => unitStat.convertEpToRatingScale(0).toFixed(2)).not.toThrow();
+		expect(unitStat.storedEpToShown(12.5)).toBe(12.5);
+		expect(() => unitStat.storedEpToShown(0).toFixed(2)).not.toThrow();
+	});
+
+	it.each([
+		['a stored hit rating weight per rating point', UnitStat.fromStat(Stat.StatHitRating), 0.33, 3.3],
+		['a stored crit rating weight per rating point', UnitStat.fromStat(Stat.StatCritRating), 0.2, 2.8],
+		['a stored ranged hit percent weight per percentage point', UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 3.3, 3.3],
+		['a defense rating weight, which has no percent', UnitStat.fromStat(Stat.StatDefenseRating), 0.5, 0.5],
+		['an agility weight', UnitStat.fromStat(Stat.StatAgility), 1.9, 1.9],
+	])('shows %s as EP per shown unit and reads it back', (_name, unitStat, stored, shown) => {
+		expect(unitStat.storedEpToShown(stored)).toBeCloseTo(shown, 10);
+		expect(unitStat.shownEpToStored(shown)).toBeCloseTo(stored, 10);
 	});
 
 	it.each(
 		(
 			[
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 10],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent), 14],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHastePercent), 10],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatExpertisePercent), 10],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent), 12],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatParryPercent), 15],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatBlockPercent), 5],
-				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), 10],
+				[UnitStat.fromStat(Stat.StatHitRating), 10],
+				[UnitStat.fromStat(Stat.StatCritRating), 14],
+				[UnitStat.fromStat(Stat.StatDodgeRating), 12],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent), 1],
+				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), 1],
 				[UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), 1],
-				[UnitStat.fromStat(Stat.StatCritRating), 1],
+				[UnitStat.fromStat(Stat.StatDefenseRating), 1],
 			] as const
-		).map(([unitStat, scale]) => [unitStat.getKey(), unitStat, scale] as const),
-	)('epRatingScale of %s is %i', (_key, unitStat, scale) => {
-		expect(unitStat.epRatingScale()).toBe(scale);
+		).map(([unitStat, scale]) => [unitStat.getKey(), scale, unitStat] as const),
+	)('epShownScale of %s is %i', (_key, scale, unitStat) => {
+		expect(unitStat.epShownScale()).toBe(scale);
 	});
 
 	it('needs a parentStat to turn ReducedCritTakenPercent back into a rating', () => {

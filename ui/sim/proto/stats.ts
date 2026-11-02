@@ -190,15 +190,19 @@ export class UnitStat {
 		}
 	}
 
-	// The rating points one stored EP weight unit of this stat covers. A percent pseudo-stat rooted at a rating
-	// (hit, crit, haste, expertise, dodge, parry, block, in every hand) or a school hit percent is weighted per
-	// percentage point.
-	epRatingScale(): number {
-		return this.isRatingBackedPercent() ? this.convertPercentToRating(1)! : 1;
+	// The stored weight of a rating is per rating point and of a percent pseudo-stat per percentage point; a rating
+	// with a percent (hit, crit, haste, expertise, dodge, parry, block) shows per percentage point, so its shown
+	// weight is the stored one times the rating points one percent takes. Every other stat shows as stored.
+	epShownScale(): number {
+		return this.isStat() && this.isPercentRating() ? this.convertPercentToRating(1)! : 1;
 	}
 
-	convertEpToRatingScale(epValue: number): number {
-		return epValue / this.epRatingScale();
+	storedEpToShown(storedEp: number): number {
+		return storedEp * this.epShownScale();
+	}
+
+	shownEpToStored(shownEp: number): number {
+		return shownEp / this.epShownScale();
 	}
 
 	getProtoValue(proto: UnitStats): number {

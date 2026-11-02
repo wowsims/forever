@@ -229,7 +229,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						statAction={<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />}
 					/>
 					<p className="mt-2 mb-0 text-muted">
-						{i18n.t('sidebar.buttons.stat_weights.modal.rating_weights_description')}
+						{i18n.t('sidebar.buttons.stat_weights.modal.percent_weights_description')}
 						{!editOnly && (
 							<>
 								<br />

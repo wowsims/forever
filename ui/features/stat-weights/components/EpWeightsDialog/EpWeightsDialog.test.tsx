@@ -342,7 +342,7 @@ describe('EpWeightsDialog', () => {
 
 	it('explains the rating weights and the simulated step in a footnote', () => {
 		renderDialog();
-		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.rating_weights_description');
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.percent_weights_description');
 		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
@@ -363,7 +363,7 @@ describe('EpWeightsDialog', () => {
 		expect(table().querySelectorAll('thead tr').length).toBe(1);
 		expect(rowFor('Agility').querySelector('[data-testid="swcalc-include-toggle"]')).toBeNull();
 		expect(rowFor('Agility').querySelector('[data-testid="current-ep"] input')).not.toBeNull();
-		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.rating_weights_description');
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.percent_weights_description');
 		expect(popup().textContent).not.toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
@@ -862,8 +862,8 @@ describe('EpWeightsDialog', () => {
 		});
 	});
 
-	// A percent pseudo-stat's weight, school hit included, is stored per percentage point and shown per rating
-	// point, like the ratings beside it.
+	// A percent pseudo-stat's weight, school hit included, is stored per percentage point, and a rating's per
+	// rating point; both are shown per percentage point.
 	describe('percent pseudo-stats', () => {
 		const RANGED_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
 		const FIRE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire);
@@ -884,7 +884,7 @@ describe('EpWeightsDialog', () => {
 			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatSchoolHitPercentFire];
 		});
 
-		it('shows the computed weight, EP and ± per rating point, and copies the stored unit', async () => {
+		it('shows the computed weight, EP and ± per percentage point, and copies the stored unit', async () => {
 			const result = weightsResult([
 				[RANGED_HIT, 9.28],
 				[FIRE_HIT, 23.2],
@@ -899,10 +899,10 @@ describe('EpWeightsDialog', () => {
 			});
 
 			for (const columnType of ['weight', 'ep'] as const) {
-				expect(shown(rangedHitRow(), columnType)).toBe('0.93');
-				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
-				expect(shown(fireHitRow(), columnType)).toBe('2.32');
-				expect(shown(rowFor('Crit Rating'), columnType)).toBe('1.15');
+				expect(shown(rangedHitRow(), columnType)).toBe('9.28');
+				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(50, 1000).toFixed(2)})`);
+				expect(shown(fireHitRow(), columnType)).toBe('23.20');
+				expect(shown(rowFor('Crit Rating'), columnType)).toBe('16.10');
 			}
 
 			act(() => {
@@ -910,10 +910,10 @@ describe('EpWeightsDialog', () => {
 			});
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(9.28);
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(23.2);
-			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
+			expect(currentEpInput(rangedHitRow()).value).toBe('9.28');
 		});
 
-		it('shows the current EP per rating point, and stores an edit per percentage point', () => {
+		it('shows the current EP per percentage point, and stores an edit in the stored unit', () => {
 			renderDialog();
 			act(() =>
 				player.setEpWeights(
@@ -924,23 +924,24 @@ describe('EpWeightsDialog', () => {
 				),
 			);
 
-			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
-			expect(currentEpInput(fireHitRow()).value).toBe('2.32');
-			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.15');
+			expect(currentEpInput(rangedHitRow()).value).toBe('9.28');
+			expect(currentEpInput(fireHitRow()).value).toBe('23.20');
+			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('16.10');
 
-			editCurrentEp(rangedHitRow(), '1.00');
+			editCurrentEp(rangedHitRow(), '10.00');
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(10);
-			expect(currentEpInput(rangedHitRow()).value).toBe('1.00');
+			expect(currentEpInput(rangedHitRow()).value).toBe('10.00');
 
-			editCurrentEp(fireHitRow(), '2.00');
-			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(20);
+			editCurrentEp(rowFor('Crit Rating'), '1.40');
+			expect(player.epWeights.getStat(Stat.StatCritRating)).toBe(0.1);
+			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.40');
 		});
 
-		it('stores an edit without float noise', () => {
-			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedCritPercent];
+		it('stores an edit without float noise, and reads it back as typed', () => {
 			renderDialog();
-			editCurrentEp(rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent).getFullName(Class.ClassWarrior)), '0.80');
-			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedCritPercent)).toBe(11.2);
+			editCurrentEp(rowFor('Crit Rating'), '1.23');
+			expect(player.epWeights.getStat(Stat.StatCritRating)).toBe(0.087857);
+			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.23');
 		});
 	});
 
