@@ -103,9 +103,9 @@ export const runConcurrentStatWeights = async (
 	let simsTotal = 1;
 	let simsDone = 0;
 
-	// The backend leaves RequestLow unset for the school-split hit/crit stats, whose low-side
-	// modifier is always zero (sim/core/statweight.go). Skip the low sim when it is absent rather
-	// than counting iterations for a request that does not exist.
+	// The backend leaves RequestLow unset for hit and expertise, which it simulates above the
+	// baseline only (sim/core/statweight.go). Skip the low sim when it is absent rather than
+	// counting iterations for a request that does not exist.
 	for (const statReqData of manualResponse.statSimRequests) {
 		if (statReqData.requestLow) {
 			iterationsTotal += statReqData.requestLow.simOptions!.iterations;

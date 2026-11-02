@@ -1,5 +1,6 @@
 import type { StatWeightsResult } from '@generated/proto/api';
-import { Class, Stat } from '@generated/proto/common';
+import { Class, PseudoStat, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
@@ -7,8 +8,9 @@ import { createSimStore } from '@sim/state/sim_store';
 import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render } from '@testing-library/react';
 import { Table } from '@ui-kit/Table';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { emptyStatWeightsResult } from '../../model/ep_math';
 import { StatWeightRow, StatWeightRowView, type StatWeightRowViewProps } from './StatWeightRow';
 
@@ -16,7 +18,7 @@ const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
 // The settings are the real class on a real store, so the toggle goes through the same store write
 // and subscription the dialog uses. The player only answers what the row reads.
-const setup = (editResult: (result: StatWeightsResult) => void = () => {}) => {
+const setup = (editResult: (result: StatWeightsResult) => void = () => {}, stat: UnitStat = AGILITY) => {
 	const store = createSimStore();
 	const storage = new Map<string, string>();
 	const player = {
@@ -41,7 +43,7 @@ const setup = (editResult: (result: StatWeightsResult) => void = () => {}) => {
 		<Table>
 			<tbody>
 				<StatWeightRow
-					stat={AGILITY}
+					stat={stat}
 					result={result}
 					iterations={1000}
 					epRatios={[1, 0, 0, 0, 0, 0]}
@@ -78,6 +80,34 @@ describe('StatWeightRow', () => {
 		expect(settings.isStatExcludedFromCalc(Stat.StatAgility)).toBe(false);
 		expect(container.querySelector('[data-notapplicable]')).toBeNull();
 		expect(epCell().textContent).toBe('0.79');
+	});
+
+	describe('with the locale loaded', () => {
+		beforeAll(() => {
+			i18n.addResourceBundle('en', 'translation', english, true, true);
+		});
+		afterAll(() => {
+			i18n.removeResourceBundle('en', 'translation');
+		});
+
+		it('shows how far the sim moved the stat under the stat name, and nothing for a stat without runs', () => {
+			const simulatedStep = (stat: UnitStat, stepBelow: number, stepAbove: number) => {
+				const view = setup(result => {
+					result.stepBelow = new Stats().withUnitStat(stat, stepBelow).toProto();
+					result.stepAbove = new Stats().withUnitStat(stat, stepAbove).toProto();
+				}, stat);
+				const text = view.container.querySelector('[data-testid="stat-weight-simulated-step"]')?.textContent;
+				view.unmount();
+				return text;
+			};
+
+			expect(simulatedStep(AGILITY, 0, 0)).toBeUndefined();
+			expect(simulatedStep(AGILITY, -10, 10)).toBe('±10');
+			expect(simulatedStep(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe('+10 rating');
+			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe('+10 rating (+1%)');
+			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / 14, 10 / 14)).toBe('±10 rating (±0.71%)');
+			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('±5');
+		});
 	});
 
 	it("sizes the ± by the stat's own sample count, and by the run's iterations when the result has none", () => {
