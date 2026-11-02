@@ -1,34 +1,25 @@
 import * as PresetUtils from '@app/preset_utils';
-import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, PseudoStat, Race, Spec, Stat, TristateEffect } from '@generated/proto/common';
-import {
-	PaladinAura,
-	PaladinJudgement,
-	RetributionPaladin_Options as RetributionPaladinOptions,
-	RetributionPaladin_Rotation as RetributionPaladinRotation,
-} from '@generated/proto/paladin';
-import { SavedTalents } from '@generated/proto/ui';
+import { PseudoStat, Spec, Stat } from '@generated/proto/common';
 import * as Mechanics from '@sim/constants/mechanics';
-import type { PresetSettings } from '@sim/presets/types';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultApl from './apls/default.apl.json';
-import HolyShockApl from './apls/holy_shock.apl.json';
-import DefaultGear from './gear_sets/default.gear.json';
-import HolyShockGear from './gear_sets/holy_shock.gear.json';
-import HolyShockItemSwapGear from './gear_sets/holy_shock_item_swap.gear.json';
+import DefaultApl from './apls/default.apl.siml';
+import HolyShockApl from './apls/holy_shock.apl.siml';
+import HolyShockBuildJson from './builds/holy_shock.siml';
+import UnsealedWrathBuildJson from './builds/unsealed_wrath.siml';
+import DefaultsJson from './defaults.siml';
+import DefaultGear from './gear_sets/default.gear.siml';
+import HolyShockGear from './gear_sets/holy_shock.gear.siml';
+import HolyShockItemSwapGear from './gear_sets/holy_shock_item_swap.gear.siml';
+
+// The spec's defaults, from defaults.siml.
+export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecRetributionPaladin, DefaultsJson);
 
 export const HolyShockAplPreset = PresetUtils.makePresetAPLRotation('Holy Shock', HolyShockApl);
 export const DefaultAplPreset = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
 
-export const DefaultSimpleRotation = RetributionPaladinRotation.create({
-	aura: PaladinAura.RetributionAura,
-	assignedJudgement: PaladinJudgement.JudgementOfTheCrusader,
-	pullRange: 25,
-});
-export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecRetributionPaladin, DefaultSimpleRotation);
+export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecRetributionPaladin, Defaults.simpleRotation!);
 
 export const HolyShockGearPreset = PresetUtils.makePresetGear('Holy Shock', HolyShockGear, {
 	devOnly: true,
@@ -41,13 +32,6 @@ export const DefaultGearPreset = PresetUtils.makePresetGear('Default', DefaultGe
 
 // The Manual Crowd Pummeler, which the Holy Shock APL equips before the pull and swaps back in when its cooldown is nearly up.
 export const HolyShockItemSwap = PresetUtils.makePresetItemSwapGear('Holy Shock', HolyShockItemSwapGear);
-
-export const DefaultOptions = RetributionPaladinOptions.create({
-	classOptions: {},
-});
-
-export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '05025210221021--0523330110130033' }));
-export const UnsealedWrathTalents = PresetUtils.makePresetTalents('Unsealed Wrath', SavedTalents.create({ talentsString: '050250002-501-05233011201301351' }));
 
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	'Holy Shock',
@@ -97,106 +81,24 @@ export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-export const DefaultConsumables = ConsumesSpec.create({
-	offensivePotId: Consumables.MajorSpellblastingPotion.id,
-	resourcePotId: Consumables.MajorManaPotion.id,
-	flaskId: Consumables.FlaskOfSupremePower.id,
-	foodId: Consumables.LobsterStew.id,
-	conjuredId: Consumables.DemonicRune.id,
-	extraIds: [Consumables.ROIDS.id, Consumables.GoblinSapperCharge.id, Consumables.DragonbreathChili.id, Consumables.GordokGreenGrog.id],
-	elixirIds: [
-		Consumables.ElixirOfHolyPower.id,
-		Consumables.ElixirOfSages.id,
-		Consumables.ElixirOfTheMongoose.id,
-		Consumables.ElixirOfTheOwl.id,
-		Consumables.ElixirOfTheGrizzly.id,
-		Consumables.ElixirOfThePhalanx.id,
-		Consumables.GreaterArcaneElixir.id,
-		Consumables.GreaterMagebloodElixir.id,
-		Consumables.JujuMight.id,
-	],
-	mhImbueId: Consumables.ShadowOil.id,
-});
-
-export const HolyShockConsumables = ConsumesSpec.create({
-	...DefaultConsumables,
-	swapMhImbueId: Consumables.FrostOil.id,
-	extraIds: [Consumables.CerebralCortexCompound.id, Consumables.GoblinSapperCharge.id, Consumables.DragonbreathChili.id, Consumables.GordokGreenGrog.id],
-});
-
-export const DefaultRaidBuffs = RaidBuffs.create({
-	prayerOfSpirit: true,
-	arcaneIntellect: true,
-	markOfTheWild: true,
-	powerWordFortitude: true,
-	strengthOfEarthTotem: 1,
-	windfuryTotem: true,
-	graceOfAirTotem: 1,
-	battleShout: 1, // Rank 6
-	leaderOfThePack: true,
-});
-
-export const DefaultPartyBuffs = PartyBuffs.create({
-	manaSpringTotem: TristateEffect.TristateEffectRegular,
-});
-
-export const DefaultIndividualBuffs = IndividualBuffs.create({
-	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: 1,
-	greaterBlessingOfMight: 1,
-});
-
-export const DefaultDebuffs = Debuffs.create({
-	curseOfElements: true,
-	judgementOfLight: true,
-	judgementOfWisdom: true,
-	curseOfRecklessness: true,
-	sunderArmor: true,
-	faerieFire: true,
-	exposeArmor: true,
-});
-
-export const OtherDefaults = {
-	profession1: Profession.Engineering,
-	profession2: Profession.Blacksmithing,
-	distanceFromTarget: 25,
-	reactionTime: 100,
-	iterationCount: 25000,
-	race: Race.RaceHuman,
+// A build from `json` that keeps the page's simple rotation, which picks the Default or the Holy Shock APL from the
+// talents, and leaves "in front of target" as the page has it: a .siml file has no unset bool, so its settings: section
+// turns it off. Item swap is the build's itemSwap, on with it and off without.
+const build = (name: string, json: any, options: PresetUtils.PresetBuildOptions): PresetUtils.PresetBuild => {
+	const preset = PresetUtils.makePresetBuildFromJSON(name, Spec.SpecRetributionPaladin, json, { rotationType: APLRotationType.TypeSimple, ...options });
+	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings!.playerOptions!;
+	return { ...preset, settings: { ...preset.settings!, playerOptions } };
 };
 
-const settings = (name: string, consumables: ConsumesSpec, itemSwap?: PresetUtils.PresetItemSwap): PresetSettings => ({
-	name,
-	race: OtherDefaults.race,
-	consumables,
-	raidBuffs: DefaultRaidBuffs,
-	partyBuffs: DefaultPartyBuffs,
-	buffs: DefaultIndividualBuffs,
-	debuffs: DefaultDebuffs,
-	playerOptions: {
-		profession1: OtherDefaults.profession1,
-		profession2: OtherDefaults.profession2,
-		distanceFromTarget: OtherDefaults.distanceFromTarget,
-		reactionTimeMs: OtherDefaults.reactionTime,
-		enableItemSwap: !!itemSwap,
-		itemSwap: itemSwap?.itemSwap,
-	},
-});
+export const DefaultBuild = build('Unsealed Wrath', UnsealedWrathBuildJson, { gear: DefaultGearPreset });
+export const HolyShockBuild = build('Holy Shock', HolyShockBuildJson, { gear: HolyShockGearPreset, itemSwap: HolyShockItemSwap });
 
-export const DefaultSettings = settings('Default', DefaultConsumables);
-export const HolyShockSettings = settings('Holy Shock', HolyShockConsumables, HolyShockItemSwap);
+export const UnsealedWrathTalents = DefaultBuild.talents!;
+export const HolyShockTalents = HolyShockBuild.talents!;
 
-// The Simple rotation picks the Default or the Holy Shock APL from the talents.
-export const DefaultBuild = PresetUtils.makePresetBuild('Unsealed Wrath', {
-	gear: DefaultGearPreset,
-	talents: UnsealedWrathTalents,
-	rotationType: APLRotationType.TypeSimple,
-	settings: DefaultSettings,
-});
-
-export const HolyShockBuild = PresetUtils.makePresetBuild('Holy Shock', {
-	gear: HolyShockGearPreset,
-	talents: HolyShockTalents,
-	rotationType: APLRotationType.TypeSimple,
-	settings: HolyShockSettings,
-});
+// Each build's consumables, buffs and player settings, the Holy Shock ones with the Manual Crowd Pummeler swap on.
+export const DefaultSettings = { ...DefaultBuild.settings!, name: 'Default' };
+export const HolyShockSettings = {
+	...HolyShockBuild.settings!,
+	playerOptions: { ...HolyShockBuild.settings!.playerOptions, enableItemSwap: true, itemSwap: HolyShockItemSwap.itemSwap },
+};

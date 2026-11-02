@@ -1,0 +1,53 @@
+siml 1
+spec retribution_paladin
+talents "050250002-501-05233011201301351"
+use "gear_sets/default.gear.siml"
+use "buffs.siml"
+
+settings:
+  race human
+  profession1 engineering
+  profession2 blacksmithing
+  reaction_time_ms 100
+  distance_from_target 25
+
+consumables:
+  offensive_pot major_spellblasting_potion
+  resource_pot major_mana_potion
+  flask flask_of_supreme_power
+  food lobster_stew
+  conjured demonic_rune
+  mh_imbue shadow_oil
+  extra r_o_i_d_s, goblin_sapper_charge, dragonbreath_chili, gordok_green_grog
+  elixir elixir_of_holy_power,
+      elixir_of_sages,
+      elixir_of_the_mongoose,
+      elixir_of_the_owl,
+      elixir_of_the_grizzly,
+      elixir_of_the_phalanx,
+      greater_arcane_elixir,
+      greater_mageblood_elixir,
+      juju_might
+
+sim: iterations 25000
+
+simple:
+  aura retribution_aura
+  assigned_judgement judgement_of_the_crusader
+  pull_range 25
+
+encounter:
+  duration 180
+  duration_variation 5
+  execute_proportion_20 0.2
+  execute_proportion_35 0.35
+  targets(id=31146,
+      name="Raid Target",
+      level=63,
+      mob_type=mechanical,
+      stats(attack_power=320, block_value=54, armor=3731, health=1428900),
+      min_base_damage=2601,
+      damage_spread=0.5,
+      swing_speed=2,
+      parry_haste,
+      can_crush)
