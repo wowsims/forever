@@ -3,6 +3,7 @@ package core
 import (
 	"math"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -109,17 +110,17 @@ func syntheticStatWeightCalc(statsToWeigh []proto.Stat, pseudoStatsToWeigh []pro
 }
 
 // Computes the weights with each sub-sim at the DPS dpsGain gives its stat and modifier over the baseline.
-func runSyntheticStatWeightCurve(statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, dpsGain func(stats.UnitStat, float64) float64) (*proto.StatWeightRequestsData, *proto.StatWeightsResult) {
+func runSyntheticStatWeightsWithDpsGain(statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, dpsGain func(stats.UnitStat, float64) float64) (*proto.StatWeightRequestsData, *proto.StatWeightsResult) {
 	requests, calc := syntheticStatWeightCalc(statsToWeigh, pseudoStatsToWeigh, func(stat stats.UnitStat, mod float64) *proto.RaidSimResult {
 		return statWeightResult(syntheticBaselineDps + dpsGain(stat, mod))
 	})
 	return requests, computeStatWeights(calc)
 }
 
-// The same with a linear stat, worth dpsPerPoint for every point.
+// Computes the weights with every stat worth its dpsPerPoint for each point, however many it gains.
 func runSyntheticStatWeights(t *testing.T, statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, dpsPerPoint map[stats.UnitStat]float64) (*proto.StatWeightRequestsData, *proto.StatWeightsResult) {
 	t.Helper()
-	return runSyntheticStatWeightCurve(statsToWeigh, pseudoStatsToWeigh, func(stat stats.UnitStat, mod float64) float64 {
+	return runSyntheticStatWeightsWithDpsGain(statsToWeigh, pseudoStatsToWeigh, func(stat stats.UnitStat, mod float64) float64 {
 		return dpsPerPoint[stat] * mod
 	})
 }
@@ -256,32 +257,32 @@ func TestStatWeightsSimulateHitAndExpertiseAboveTheBaselineOnly(t *testing.T) {
 	}
 }
 
-// The result reports the change each stat's runs made, also for a hard-capped stat that gets no weight.
-func TestStatWeightsReportEachStatsModifiers(t *testing.T) {
+// The result reports how far each stat's runs moved it, also for a hard-capped stat that gets no weight.
+func TestStatWeightsReportEachStatsSteps(t *testing.T) {
 	_, result := runSyntheticStatWeights(t,
 		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
 		nil,
 		map[stats.UnitStat]float64{agilityUnitStat: 1})
 
-	if got := protoUnitStat(result.ModHigh, agilityUnitStat); got != 10 {
-		t.Errorf("agility high modifier = %v, want 10", got)
+	if got := protoUnitStat(result.StepAbove, agilityUnitStat); got != 10 {
+		t.Errorf("agility step above = %v, want 10", got)
 	}
-	if got := protoUnitStat(result.ModLow, agilityUnitStat); got != -10 {
-		t.Errorf("agility low modifier = %v, want -10", got)
+	if got := protoUnitStat(result.StepBelow, agilityUnitStat); got != -10 {
+		t.Errorf("agility step below = %v, want -10", got)
 	}
 	if got := protoUnitStat(result.Dps.Weights, hitRatingUnitStat); got != 0 {
 		t.Fatalf("hit rating weight = %v, want the hard cap's 0", got)
 	}
-	if got := protoUnitStat(result.ModHigh, hitRatingUnitStat); got != 10 {
-		t.Errorf("hit rating high modifier = %v, want 10", got)
+	if got := protoUnitStat(result.StepAbove, hitRatingUnitStat); got != 10 {
+		t.Errorf("hit rating step above = %v, want 10", got)
 	}
-	if got := protoUnitStat(result.ModLow, hitRatingUnitStat); got != 0 {
-		t.Errorf("hit rating low modifier = %v, want 0", got)
+	if got := protoUnitStat(result.StepBelow, hitRatingUnitStat); got != 0 {
+		t.Errorf("hit rating step below = %v, want 0", got)
 	}
 }
 
-// A pseudo stat with no rating or weapon DPS behind it has no step to weigh it by, and a character sheet
-// value the sim never reads back would only weigh 0.
+// Only a stat with a rating per percent or weapon DPS has a step to weigh it by; anything else, like a per-hand
+// value or reduced crit taken, panics.
 func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 	for _, pseudoStat := range []proto.PseudoStat{
 		proto.PseudoStat_PseudoStatMainHandHitRating,
@@ -291,8 +292,9 @@ func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 	} {
 		t.Run(pseudoStat.String(), func(t *testing.T) {
 			defer func() {
-				if recover() == nil {
-					t.Error("no panic")
+				message, _ := recover().(string)
+				if !strings.Contains(message, "Unsupported PseudoStat") {
+					t.Errorf("panic = %q, want the unsupported pseudo stat one", message)
 				}
 			}()
 			buildStatWeightRequests(&proto.StatWeightsRequest{
@@ -309,7 +311,7 @@ func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 func TestStatWeightsAgreeOnAPercentAndItsRatingNearACap(t *testing.T) {
 	const dpsPerRating = 3.0
 	const ratingToCap = 5.0
-	_, result := runSyntheticStatWeightCurve(
+	_, result := runSyntheticStatWeightsWithDpsGain(
 		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
 		[]proto.PseudoStat{proto.PseudoStat_PseudoStatRangedHitPercent},
 		func(stat stats.UnitStat, mod float64) float64 {

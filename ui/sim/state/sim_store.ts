@@ -198,7 +198,7 @@ export interface StatWeightsSlice {
 	excludedPseudoStats: Array<number>;
 	precisionMode: PrecisionMode;
 	iterations: number; // 0 runs the global sim iteration count.
-	targetCi: number; // The 90% ± of each EP to reach, per rating point for a percent.
+	targetCi: number; // The 90% ± of each EP to reach.
 	maxIterationMultiplier: number; // Caps a stat's iterations at this multiple of the probe count; 0 means no cap.
 	v: { settings: number };
 }

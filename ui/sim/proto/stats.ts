@@ -126,6 +126,11 @@ export class UnitStat {
 		return this.rootStat !== null && RATING_PER_PERCENT.has(this.rootStat);
 	}
 
+	// Whether the stat is a percent pseudo-stat that a rating buys, so its EP is stored per percentage point.
+	isRatingBackedPercent(): boolean {
+		return this.isPseudoStat() && (this.isPercentRating() || this.isSchoolHitPercent());
+	}
+
 	// Convert a UnitStat value from its Rating representation to a percentage representation
 	// (0-100). If a percentage representation does not make sense for the stat in question
 	// (Strength for example), then null is returned.
@@ -189,7 +194,7 @@ export class UnitStat {
 	// (hit, crit, haste, expertise, dodge, parry, block, in every hand) or a school hit percent is weighted per
 	// percentage point.
 	epRatingScale(): number {
-		return this.isPseudoStat() && (this.isPercentRating() || this.isSchoolHitPercent()) ? this.convertPercentToRating(1)! : 1;
+		return this.isRatingBackedPercent() ? this.convertPercentToRating(1)! : 1;
 	}
 
 	convertEpToRatingScale(epValue: number): number {
