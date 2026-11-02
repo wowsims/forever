@@ -37,11 +37,11 @@ describe('GearPresets', () => {
 		expect(saveInputs(container)).toHaveLength(1);
 	});
 
-	it('puts the transfer cog in the grouped layout’s untitled saved panel header', () => {
+	it('puts the transfer cog next to the grouped layout’s Gear Sets heading, not in the untitled saved panel below it', () => {
 		const { container } = setup({ gear: [], builds: [{ name: 'Pre-BiS', group: 'Fury', talents: {} }] }, true);
 
 		const cog = container.querySelector('[data-testid="saved-data-transfer-button"]');
-		expect(cog?.closest('[data-testid="content-block-header"]')?.querySelector('[data-testid="content-block-title"]')?.textContent).toBe('');
+		expect(cog?.closest('[data-testid="content-block-header"]')?.querySelector('[data-testid="content-block-title"]')?.textContent).toBe('gear_tab.gear_sets.title');
 	});
 
 	it('steps an import around the gear presets, which its saved panel does not list', async () => {

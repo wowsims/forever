@@ -123,6 +123,7 @@ const GroupedGearPresets = () => {
 		// the footer holds the user's own saved sets.
 		{
 			title: i18n.t('gear_tab.gear_sets.title'),
+			headerChildren: <SavedDataTransfer type="gear" label={savedPanel.label} storage={savedGear} presets={gearPresets} />,
 			items: ready
 				? gearPresets.map((preset, index) => ({
 						key: preset.name,
@@ -148,7 +149,6 @@ const GroupedGearPresets = () => {
 					className="mt-4"
 					nameLabel={i18n.t('gear_tab.gear_sets.gear_set_name')}
 					saveButtonText={i18n.t('gear_tab.gear_sets.save_gear_set')}
-					headerChildren={<SavedDataTransfer type="gear" label={savedPanel.label} storage={savedGear} presets={gearPresets} />}
 					{...savedPanel}
 				/>
 			),
