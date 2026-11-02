@@ -256,6 +256,30 @@ func TestStatWeightsSimulateHitAndExpertiseAboveTheBaselineOnly(t *testing.T) {
 	}
 }
 
+// The result reports the change each stat's runs made, also for a hard-capped stat that gets no weight.
+func TestStatWeightsReportEachStatsModifiers(t *testing.T) {
+	_, result := runSyntheticStatWeights(t,
+		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+		nil,
+		map[stats.UnitStat]float64{agilityUnitStat: 1})
+
+	if got := protoUnitStat(result.ModHigh, agilityUnitStat); got != 10 {
+		t.Errorf("agility high modifier = %v, want 10", got)
+	}
+	if got := protoUnitStat(result.ModLow, agilityUnitStat); got != -10 {
+		t.Errorf("agility low modifier = %v, want -10", got)
+	}
+	if got := protoUnitStat(result.Dps.Weights, hitRatingUnitStat); got != 0 {
+		t.Fatalf("hit rating weight = %v, want the hard cap's 0", got)
+	}
+	if got := protoUnitStat(result.ModHigh, hitRatingUnitStat); got != 10 {
+		t.Errorf("hit rating high modifier = %v, want 10", got)
+	}
+	if got := protoUnitStat(result.ModLow, hitRatingUnitStat); got != 0 {
+		t.Errorf("hit rating low modifier = %v, want 0", got)
+	}
+}
+
 // A pseudo stat with no rating or weapon DPS behind it has no step to weigh it by, and a character sheet
 // value the sim never reads back would only weigh 0.
 func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {

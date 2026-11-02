@@ -3211,6 +3211,8 @@
 					"healing_reference": "Healing reference:",
 					"mitigation_reference": "Mitigation reference:",
 					"reference_description": "The above stat selectors control which reference stat is used for EP normalisation for the different EP columns.",
+					"step_rating": "{{sign}}{{rating}} rating",
+					"step_rating_percent": "{{sign}}{{rating}} rating ({{sign}}{{percent}}%)",
 					"current_ep_description": "The 'Current EP' column displays the values currently used by the item pickers to sort items.",
 					"copy_icon_description": "Use the copy icon above the EPs to use newly calculated EPs.",
 					"stat": "Stat",

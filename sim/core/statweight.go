@@ -82,6 +82,8 @@ type StatWeightsResult struct {
 	PDeath StatWeightValues
 
 	SampleCounts UnitStats
+	ModLow       UnitStats
+	ModHigh      UnitStats
 }
 
 func NewStatWeightsResult() *StatWeightsResult {
@@ -94,6 +96,8 @@ func NewStatWeightsResult() *StatWeightsResult {
 		PDeath: NewStatWeightValues(),
 
 		SampleCounts: NewUnitStats(),
+		ModLow:       NewUnitStats(),
+		ModHigh:      NewUnitStats(),
 	}
 }
 
@@ -107,6 +111,8 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 		PDeath: swr.PDeath.ToProto(),
 
 		SampleCounts: swr.SampleCounts.ToProto(),
+		ModLow:       swr.ModLow.ToProto(),
+		ModHigh:      swr.ModHigh.ToProto(),
 	}
 }
 
@@ -361,6 +367,8 @@ func calcStatWeights(swcr *proto.StatWeightsCalcRequest) (*StatWeightsResult, *p
 		}
 
 		modLow, modHigh := statPairs.StatData.ModLow, statPairs.StatData.ModHigh
+		result.ModLow.AddStat(stat, modLow)
+		result.ModHigh.AddStat(stat, modHigh)
 
 		// Check for hard caps. Hard caps will have results identical to the baseline because RNG is fixed.
 		// When we find a hard-capped stat, just skip it (will return 0).

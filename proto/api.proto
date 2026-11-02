@@ -843,6 +843,8 @@ message StatWeightsResult {
 	StatWeightValues p_death = 6;
 	ErrorOutcome error = 7;
 	UnitStats sample_counts = 8; // Paired samples behind each stat's weight.
+	UnitStats mod_low = 9; // What each stat's run below the baseline changed it by; 0 without such a run.
+	UnitStats mod_high = 10; // What each stat's run above the baseline changed it by.
 }
 message StatWeightValues {
 	UnitStats weights = 1;
