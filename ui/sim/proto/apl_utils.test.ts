@@ -179,4 +179,19 @@ describe('withSpellIds', () => {
 		expect(APLRotation.toJson(swapped)).toEqual(APLRotation.toJson(rotation(200, 100, 300)));
 		expect(APLRotation.toJson(preset)).toEqual(APLRotation.toJson(rotation(100, 100, 300)));
 	});
+
+	it('drops the rank of a swapped id and keeps the rank of an unmapped one', () => {
+		const ranked = (from: number, other: number) =>
+			APLRotation.fromJson({
+				priorityList: [
+					{ action: { castSpell: { spellId: { spellId: from, rank: 8 } } } },
+					{ action: { castSpell: { spellId: { spellId: other, rank: 3 } } } },
+				],
+			});
+		const swapped = APLRotation.toJson(withSpellIds(ranked(100, 300), new Map([[100, 200]])));
+
+		expect(swapped).toEqual({
+			priorityList: [{ action: { castSpell: { spellId: { spellId: 200 } } } }, { action: { castSpell: { spellId: { spellId: 300, rank: 3 } } } }],
+		});
+	});
 });

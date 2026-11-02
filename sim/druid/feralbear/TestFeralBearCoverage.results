@@ -66,6 +66,10 @@ casts_results: {
    value: 0
   }
   casts: {
+   key: "spell_id:31018 rank:6"
+   value: 0
+  }
+  casts: {
    key: "spell_id:414924"
    value: 0
   }

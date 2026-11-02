@@ -12,6 +12,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/siml"
 	"google.golang.org/protobuf/encoding/protojson"
+	googleProto "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 var DefaultSimTestOptions = &proto.SimOptions{
@@ -56,14 +58,14 @@ func FreshDefaultTargetConfig() *proto.Target {
 var DefaultTargetProto = FreshDefaultTargetConfig()
 
 var FullRaidBuffs = &proto.RaidBuffs{
-	ArcaneBrilliance:         true,
-	PrayerOfFortitude:        true,
-	PrayerOfSpirit:           true,
-	GiftOfTheWild:            true,
-	PrayerOfShadowProtection: true,
+	ArcaneIntellect:    true,
+	PowerWordFortitude: true,
+	PrayerOfSpirit:     true,
+	MarkOfTheWild:      true,
+	ShadowProtection:   true,
 
-	GraceOfAirTotem:      true,
-	StrengthOfEarthTotem: true,
+	GraceOfAirTotem:      1,
+	StrengthOfEarthTotem: 1,
 	WindfuryTotem:        true,
 	BattleShout:          1, // Rank 6
 	TrueshotAura:         true,
@@ -87,15 +89,15 @@ var FullPartyBuffs = &proto.PartyBuffs{
 
 var FullIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfKings:  true,
-	GreaterBlessingOfWisdom: true,
-	GreaterBlessingOfMight:  true,
+	GreaterBlessingOfWisdom: 1,
+	GreaterBlessingOfMight:  1,
 	Thorns:                  true,
 }
 
 var FullTankIndividualBuffs = &proto.IndividualBuffs{
 	GreaterBlessingOfKings:  true,
-	GreaterBlessingOfWisdom: true,
-	GreaterBlessingOfMight:  true,
+	GreaterBlessingOfWisdom: 1,
+	GreaterBlessingOfMight:  1,
 	Thorns:                  true,
 }
 
@@ -263,6 +265,43 @@ func GetAplRotation(dir string, file string) RotationCombo {
 	}
 
 	return RotationCombo{Label: file, Rotation: APLRotationFromJsonString(string(data))}
+}
+
+// The rotation with a spell's rank moved to another rank by spell id, so the other rank reaches the results.
+func RotationWithSpellIds(label string, combo RotationCombo, ids map[int32]int32) RotationCombo {
+	rotation := googleProto.Clone(combo.Rotation).(*proto.APLRotation)
+	swapped := map[int32]bool{}
+	swapSpellIds(rotation.ProtoReflect(), ids, swapped)
+	for from := range ids {
+		if !swapped[from] {
+			panic(fmt.Sprintf("the %s rotation does not name spell %d", combo.Label, from))
+		}
+	}
+	return RotationCombo{Label: label, Rotation: rotation}
+}
+
+// Swaps every spell id that ids maps for the id it maps to, except an external buff copy (tag -1), and marks each id
+// it swapped. A swapped id drops its rank, which belonged to the old id.
+func swapSpellIds(message protoreflect.Message, ids map[int32]int32, swapped map[int32]bool) {
+	if id, ok := message.Interface().(*proto.ActionID); ok {
+		if to, ok := ids[id.GetSpellId()]; ok && id.Tag != -1 {
+			swapped[id.GetSpellId()] = true
+			id.RawId = &proto.ActionID_SpellId{SpellId: to}
+			id.Rank = 0
+		}
+		return
+	}
+	message.Range(func(field protoreflect.FieldDescriptor, value protoreflect.Value) bool {
+		switch {
+		case field.IsList() && field.Message() != nil:
+			for i := 0; i < value.List().Len(); i++ {
+				swapSpellIds(value.List().Get(i).Message(), ids, swapped)
+			}
+		case field.Message() != nil && !field.IsMap():
+			swapSpellIds(value.Message(), ids, swapped)
+		}
+		return true
+	})
 }
 
 func GetGearSet(dir string, file string) GearSetCombo {

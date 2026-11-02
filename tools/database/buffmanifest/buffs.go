@@ -5,11 +5,16 @@ import "github.com/wowsims/forever/sim/core/proto"
 // One row per proto field of RaidBuffs, PartyBuffs, IndividualBuffs and Debuffs, in the order the
 // settings tab lists them, with the fields that have no input after the last one that does. A
 // field's proto number is its position in its slice.
+//
+// A row's Ranks open with the rank no class book teaches, and a book teaches the last rank of a totem or
+// a greater blessing, so the list opens with the trainer's top rank. Mark of the Wild, Power Word:
+// Fortitude, Arcane Intellect and Shadow Protection read the single-target spell's top rank, whose
+// amounts match the group spell's top rank.
 
 var Raid = []BuffSpec{
 	{
-		Field:    "arcane_brilliance",
-		SpellID:  23028,
+		Field:    "arcane_intellect",
+		SpellID:  10157,
 		Category: "StatBuff",
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
@@ -24,8 +29,8 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:   "gift_of_the_wild",
-		SpellID: 21850,
+		Field:   "mark_of_the_wild",
+		SpellID: 9885,
 		Stats: []proto.Stat{
 			proto.Stat_StatArmor,
 			proto.Stat_StatStrength,
@@ -36,16 +41,16 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:    "prayer_of_fortitude",
-		SpellID:  21564,
+		Field:    "power_word_fortitude",
+		SpellID:  10938,
 		Category: "StatBuff",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},
 	},
 	{
-		Field:   "prayer_of_shadow_protection",
-		SpellID: 27683,
+		Field:   "shadow_protection",
+		SpellID: 10958,
 		Stats: []proto.Stat{
 			proto.Stat_StatShadowResistance,
 		},
@@ -106,18 +111,20 @@ var Raid = []BuffSpec{
 	},
 	{
 		Field:    "strength_of_earth_totem",
-		SpellID:  25362,
-		CastID:   25361,
+		SpellID:  10441,
+		CastID:   10442,
 		Category: "StrengthOfEarthTotem",
+		Ranks:    []BuffRank{{SpellID: 10441, CastID: 10442}, {SpellID: 25362, CastID: 25361}},
 		Stats: []proto.Stat{
 			proto.Stat_StatStrength,
 		},
 	},
 	{
 		Field:    "grace_of_air_totem",
-		SpellID:  25360,
-		CastID:   25359,
+		SpellID:  10626,
+		CastID:   10627,
 		Category: "GraceOfAirTotem",
+		Ranks:    []BuffRank{{SpellID: 10626, CastID: 10627}, {SpellID: 25360, CastID: 25359}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAgility,
 		},
@@ -388,14 +395,16 @@ var Individual = []BuffSpec{
 	},
 	{
 		Field:   "greater_blessing_of_might",
-		SpellID: 25916,
+		SpellID: 25782,
+		Ranks:   []BuffRank{{SpellID: 25782}, {SpellID: 25916}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},
 	},
 	{
 		Field:   "greater_blessing_of_wisdom",
-		SpellID: 25918,
+		SpellID: 25894,
+		Ranks:   []BuffRank{{SpellID: 25894}, {SpellID: 25918}},
 		Stats: []proto.Stat{
 			proto.Stat_StatMP5,
 		},

@@ -1,5 +1,6 @@
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
 import { Faction, Spec } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
 import { Party } from '@sim/raid/party';
@@ -246,6 +247,33 @@ export const makeMultistatePartyBuffInput = <SpecType extends Spec>(
 		config.label,
 	);
 };
+
+interface RankedInputRank {
+	actionId: ActionId;
+	label: string;
+}
+
+interface RankedInputConfig<T> {
+	ranks: readonly [RankedInputRank, RankedInputRank];
+	fieldName: keyof T;
+	label: string;
+}
+
+// A field whose number picks the buff's rank: 0 is off, 1 the first rank, which is the icon, and 2 the second, which is
+// its improved badge.
+const rankedInput = <SpecType extends Spec, Message>(
+	make: (config: TristateInputConfig<Message>) => InputHelpers.TypedIconPickerConfig<Player<SpecType>, number>,
+	{ ranks, fieldName, label }: RankedInputConfig<Message>,
+): InputHelpers.TypedIconPickerConfig<Player<SpecType>, number> => ({
+	...make({ actionId: ranks[0].actionId, impId: ranks[1].actionId, fieldName, label }),
+	labelTooltip: i18n.t('settings_tab.raid_buffs.rank_select_tooltip', { ranks: ranks.map(rank => rank.label).join(', ') }),
+});
+
+export const makeRankedRaidBuffInput = <SpecType extends Spec>(config: RankedInputConfig<RaidBuffs>) =>
+	rankedInput<SpecType, RaidBuffs>(makeTristateRaidBuffInput, config);
+
+export const makeRankedIndividualBuffInput = <SpecType extends Spec>(config: RankedInputConfig<IndividualBuffs>) =>
+	rankedInput<SpecType, IndividualBuffs>(makeTristateIndividualBuffInput, config);
 
 // interface EnumInputConfig<ModObject, Message, T> {
 // 	fieldName: keyof Message
