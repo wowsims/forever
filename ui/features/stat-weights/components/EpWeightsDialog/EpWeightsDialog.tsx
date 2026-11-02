@@ -188,7 +188,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 			testId="ep-weights-menu"
 			size="xl"
 			scrollContents
-			bodyClassName="text-sm"
+			bodyClassName="text-sm [&_.ui-field-label]:text-sm"
 			title={i18n.t('sidebar.buttons.stat_weights.modal.title')}
 			footer={
 				// A gear planner keeps the editor and drops the calculation: there is no sim to run it on.
@@ -207,6 +207,8 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 							<>
 								<br />
 								{i18n.t('sidebar.buttons.stat_weights.modal.copy_icon_description')}
+								<br />
+								{i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_description')}
 							</>
 						)}
 					</p>

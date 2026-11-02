@@ -82,8 +82,8 @@ type StatWeightsResult struct {
 	PDeath StatWeightValues
 
 	SampleCounts UnitStats
-	ModLow       UnitStats
-	ModHigh      UnitStats
+	StepBelow    UnitStats
+	StepAbove    UnitStats
 }
 
 func NewStatWeightsResult() *StatWeightsResult {
@@ -96,8 +96,8 @@ func NewStatWeightsResult() *StatWeightsResult {
 		PDeath: NewStatWeightValues(),
 
 		SampleCounts: NewUnitStats(),
-		ModLow:       NewUnitStats(),
-		ModHigh:      NewUnitStats(),
+		StepBelow:    NewUnitStats(),
+		StepAbove:    NewUnitStats(),
 	}
 }
 
@@ -111,15 +111,15 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 		PDeath: swr.PDeath.ToProto(),
 
 		SampleCounts: swr.SampleCounts.ToProto(),
-		ModLow:       swr.ModLow.ToProto(),
-		ModHigh:      swr.ModHigh.ToProto(),
+		StepBelow:    swr.StepBelow.ToProto(),
+		StepAbove:    swr.StepAbove.ToProto(),
 	}
 }
 
-// The rating a weighed stat counts in and the rating points one of its units costs: the stat itself and 1,
-// or a percent's rating and rating per percent. False for any other pseudo stat, at a cost of 1. A percent's
-// cost matches UnitStat.epRatingScale in the UI; the two are kept in sync by hand.
-func statWeightRating(stat stats.UnitStat) (stats.Stat, float64, bool) {
+// The rating behind a stat and how much of it one unit of the stat costs: a stat is its own rating at 1, a
+// percent pseudo stat costs its rating per percent. hasRating is false for any other pseudo stat, which costs 1.
+// A percent's cost matches UnitStat.epRatingScale in the UI; the two are kept in sync by hand.
+func ratingBehindStat(stat stats.UnitStat) (rating stats.Stat, ratingPerUnit float64, hasRating bool) {
 	if stat.IsStat() {
 		return stats.Stat(stat.StatIdx()), 1, true
 	}
@@ -147,8 +147,8 @@ func statWeightRating(stat stats.UnitStat) (stats.Stat, float64, bool) {
 // Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
 // player already has and overstates the next ones.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
-	rating, _, ok := statWeightRating(stat)
-	return ok && (rating == stats.HitRating || rating == stats.ExpertiseRating)
+	rating, _, hasRating := ratingBehindStat(stat)
+	return hasRating && (rating == stats.HitRating || rating == stats.ExpertiseRating)
 }
 
 func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightRequestsData {
@@ -231,7 +231,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if _, ratingPerUnit, ok := statWeightRating(stat); ok {
+		if _, ratingPerUnit, hasRating := ratingBehindStat(stat); hasRating {
 			statMod /= ratingPerUnit
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
@@ -367,8 +367,8 @@ func calcStatWeights(swcr *proto.StatWeightsCalcRequest) (*StatWeightsResult, *p
 		}
 
 		modLow, modHigh := statPairs.StatData.ModLow, statPairs.StatData.ModHigh
-		result.ModLow.AddStat(stat, modLow)
-		result.ModHigh.AddStat(stat, modHigh)
+		result.StepBelow.AddStat(stat, modLow)
+		result.StepAbove.AddStat(stat, modHigh)
 
 		// Check for hard caps. Hard caps will have results identical to the baseline because RNG is fixed.
 		// When we find a hard-capped stat, just skip it (will return 0).
@@ -496,8 +496,8 @@ func planStatWeightTopUp(request *proto.StatWeightsTopUpRequest) *proto.StatWeig
 			if values.Weights.Get(stat) == 0 || refWeight == 0 {
 				continue
 			}
-			// A percent's target applies per rating point, the unit the stat weights dialog shows.
-			_, ratingPerUnit, _ := statWeightRating(stat)
+			// A percent pseudo stat's target applies per rating point, the unit the stat weights dialog shows.
+			_, ratingPerUnit, _ := ratingBehindStat(stat)
 			metricEpStdev := values.WeightsStdev.Get(stat) / math.Abs(refWeight) / ratingPerUnit
 			if StatWeightZ90*metricEpStdev/math.Sqrt(samples) > target.EpCi {
 				epStdev = max(epStdev, metricEpStdev)
