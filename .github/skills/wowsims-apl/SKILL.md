@@ -90,6 +90,8 @@ A value or action reaches the rotation and the kind picker in five places, all i
   `sim/warrior/dps/dps_test.go`; a group no suite un-hides never reaches the `.results`.
 - **A line is written against the pick at the cast end** (`docs/rotation.md`). After an edit, dump the validations
   (below) and judge the preset's cast counts from a debug log, not from the line as written.
+- **A rotation the owner hands over goes in as exported.** A review that finds a branch dead reports it and leaves it
+  in, even when dropping it leaves the `.results` unchanged; the preset changes only when the owner agrees.
 
 ## What fails silently
 
