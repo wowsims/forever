@@ -9,7 +9,8 @@ export enum ItemListSortBy {
 	ILVL,
 }
 
-// EP leaves procs out, and procs are much of what trinkets offer, so the trinket slots show no EP and sort by level.
+// Procs are most of what trinkets offer, so the trinket slots show no EP and sort by level. Enchants keep EP and sort by it,
+// so a proc enchant reads 0 and sinks.
 export const slotSortsByEP = (slot: ItemSlot): boolean => ![ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2].includes(slot);
 
 export const tabHasLevel = (label: SelectorModalTabs): boolean => label === SelectorModalTabs.Items || label === SelectorModalTabs.Enchants;

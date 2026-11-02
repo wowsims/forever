@@ -117,8 +117,9 @@ export const ItemListToolbarView = ({
 	);
 };
 
-const toggle = (name: string, label: string, value: boolean, onChange: (value: boolean) => void): ItemListToggle => ({
-	id: `show-${name}-selector`,
+// Both panes stay mounted, so a toggle's id carries its tab.
+const toggle = (tab: SelectorModalTabs, name: string, label: string, value: boolean, onChange: (value: boolean) => void): ItemListToggle => ({
+	id: `show-${name}-selector-${tab.toLowerCase().replace(/\s+/g, '-')}`,
 	testId: `selector-modal-show-${name}`,
 	label,
 	value,
@@ -135,7 +136,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 	const host = useSimHost();
 	const player = host.player;
 	const sim = player.sim;
-	const { label, itemData, computeEP, equippedToItem, onRemove } = tab;
+	const { label, itemData, computeEP, equippedToItem, epComparable, onRemove } = tab;
 
 	const [search, setSearch] = useState('');
 	const [sortBy, setSortBy] = useState(() => defaultSortBy(slot));
@@ -183,7 +184,8 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 	const showEPOptions = slotSortsByEP(slot);
 	const equipped = equippedToItem(equippedItem);
 	const equippedId = getItemIdByItemType(label, equipped);
-	const equippedEP = showEPOptions && equipped !== null && equipped !== undefined ? computeEP(equipped) : null;
+	const comparableEP = (item: ItemListType) => epComparable?.(item) ?? true;
+	const equippedEP = showEPOptions && equipped !== null && equipped !== undefined && comparableEP(equipped) ? computeEP(equipped) : null;
 
 	const sort = (next: ItemListSortBy) => {
 		setSortDirection(current => (sortBy === next ? 1 - current : SortDirection.DESC));
@@ -208,12 +210,12 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 
 	const toggles = [
 		showWeaponOptions &&
-			toggle('1h-weapons', i18n.t('settings_tab.other.show_1h_weapons.label'), filters.oneHandedWeapons, setFilterFlag('oneHandedWeapons')),
+			toggle(label, '1h-weapons', i18n.t('settings_tab.other.show_1h_weapons.label'), filters.oneHandedWeapons, setFilterFlag('oneHandedWeapons')),
 		showWeaponOptions &&
-			toggle('2h-weapons', i18n.t('settings_tab.other.show_2h_weapons.label'), filters.twoHandedWeapons, setFilterFlag('twoHandedWeapons')),
+			toggle(label, '2h-weapons', i18n.t('settings_tab.other.show_2h_weapons.label'), filters.twoHandedWeapons, setFilterFlag('twoHandedWeapons')),
 		label === SelectorModalTabs.Enchants &&
-			toggle('all-enchants', i18n.t('settings_tab.other.show_all_enchants.label'), filters.showAllEnchants, setFilterFlag('showAllEnchants')),
-		showEPOptions && toggle('ep-values', i18n.t('settings_tab.other.show_ep_values.label'), showEPValues, value => sim.setShowEPValues(value)),
+			toggle(label, 'all-enchants', i18n.t('settings_tab.other.show_all_enchants.label'), filters.showAllEnchants, setFilterFlag('showAllEnchants')),
+		showEPOptions && toggle(label, 'ep-values', i18n.t('settings_tab.other.show_ep_values.label'), showEPValues, value => sim.setShowEPValues(value)),
 	].filter((entry): entry is ItemListToggle => !!entry);
 
 	return (
@@ -253,7 +255,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 								itemData={row}
 								label={label}
 								active={row.id === equippedId}
-								ep={showEPOptions ? { ep: computeEP(row.item), equippedEP } : undefined}
+								ep={showEPOptions ? { ep: computeEP(row.item), equippedEP: comparableEP(row.item) ? equippedEP : null } : undefined}
 								favourited={isFavourited(row)}
 								favouriteTooltipId={`${tooltipId}-favourite`}
 								compareTooltipId={`${tooltipId}-compare`}

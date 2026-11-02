@@ -1,6 +1,7 @@
 import type { ItemSlot } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { isStaticEnchant } from '@sim/proto/items';
 import type { ReactNode } from 'react';
 
 import { enchantsTabData, itemsTabData, randomSuffixesTabData } from '../../model/item_data';
@@ -13,6 +14,8 @@ export interface SelectorTab {
 	itemData: ItemData<ItemListType, ReactNode>[];
 	computeEP: (item: ItemListType) => number;
 	equippedToItem: (equippedItem: EquippedItem | null) => ItemListType | null | undefined;
+	/** Whether EP is the whole worth of an item; EP differences show only between two such items. Every item when absent. */
+	epComparable?: (item: ItemListType) => boolean;
 	onRemove?: () => void;
 }
 
@@ -28,6 +31,7 @@ interface TabSpec<T extends ItemListType> {
 	itemData: ItemData<T, ReactNode>[];
 	computeEP: (item: T) => number;
 	equippedToItem: (equippedItem: EquippedItem | null) => T | null | undefined;
+	epComparable?: (item: T) => boolean;
 	onRemove?: () => void;
 }
 
@@ -62,6 +66,7 @@ export const buildSelectorTabs = ({ player, slot, gearData, equippedItem }: Sele
 			itemData: enchantsTabData(gearData, player.getEnchants(slot)),
 			computeEP: enchant => player.computeEnchantEP(enchant, weaponSpeed, epPerWeaponDps),
 			equippedToItem: item => item?.enchant,
+			epComparable: isStaticEnchant,
 			onRemove: () => {
 				const current = gearData.getEquippedItem();
 				if (current) gearData.equipItem(current.withEnchant(null));

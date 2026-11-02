@@ -185,12 +185,12 @@ describe('ItemList', () => {
 	it('withholds the EP option and the EP column from a trinket slot, which it computes no EP for', () => {
 		const { container, unmount } = setup({ slot: ItemSlot.ItemSlotTrinket1 });
 		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).toBeNull();
-		expect(container.querySelector('#show-ep-values-selector')).toBeNull();
+		expect(container.querySelector('#show-ep-values-selector-items')).toBeNull();
 		unmount();
 
 		const head = setup();
 		expect(head.container.querySelector('[data-testid="selector-modal-show-ep-values"]')).not.toBeNull();
-		expect(head.container.querySelector('#show-ep-values-selector')).not.toBeNull();
+		expect(head.container.querySelector('#show-ep-values-selector-items')).not.toBeNull();
 		expect(head.container.querySelector('[data-testid="ep-label"]')).not.toBeNull();
 	});
 
@@ -198,29 +198,64 @@ describe('ItemList', () => {
 		const enchants = [
 			Enchant.create({ effectId: 1, name: 'Low', lvl: 60 }),
 			Enchant.create({ effectId: 2, name: 'High', lvl: 20 }),
-			Enchant.create({ effectId: 3, name: 'Mid', lvl: 40 }),
+			Enchant.create({ effectId: 3, name: 'TieFirst', lvl: 40 }),
+			Enchant.create({ effectId: 4, name: 'TieSecond', lvl: 40 }),
 		];
-		const eps: Record<number, number> = { 1: 5, 2: 90, 3: 30 };
+		const eps: Record<number, number> = { 1: 5, 2: 90, 3: 30, 4: 30 };
 		const { container } = setup({
 			label: SelectorModalTabs.Enchants,
 			slot: ItemSlot.ItemSlotMainHand,
 			over: { itemData: enchants.map(enchantRow), computeEP: (candidate: any) => eps[candidate.effectId] },
 		});
-		expect(names(container)).toEqual(['High', 'Mid', 'Low']);
+		expect(names(container)).toEqual(['High', 'TieFirst', 'TieSecond', 'Low']);
 		expect(container.querySelector('[data-testid="ep-label"]')).not.toBeNull();
-		expect(Array.from(container.querySelectorAll<HTMLElement>('[data-row]')).map(node => node.dataset.ep)).toEqual(['90', '30', '5']);
+		expect(Array.from(container.querySelectorAll<HTMLElement>('[data-row]')).map(node => node.dataset.ep)).toEqual(['90', '30', '30', '5']);
 		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).not.toBeNull();
 		expect(container.querySelector('[data-testid="selector-modal-show-all-enchants"]')).not.toBeNull();
 
 		act(() => container.querySelector<HTMLElement>('[data-testid="ilvl-label"] button')!.click());
-		expect(names(container)).toEqual(['Low', 'Mid', 'High']);
+		expect(names(container)).toEqual(['Low', 'TieFirst', 'TieSecond', 'High']);
+	});
+
+	it('gives the toggles of the items and enchants panes ids of their own, each label pointing into its pane', () => {
+		const items = setup({ slot: ItemSlot.ItemSlotMainHand });
+		const enchants = setup({ label: SelectorModalTabs.Enchants, slot: ItemSlot.ItemSlotMainHand });
+		const ids = Array.from(document.querySelectorAll('[id]')).map(node => node.id);
+		expect(new Set(ids).size).toBe(ids.length);
+
+		for (const [pane, { container }] of [
+			['items', items],
+			['enchants', enchants],
+		] as const) {
+			const toggle = container.querySelector('[data-testid="selector-modal-show-ep-values"]')!;
+			expect(toggle.querySelector('input')!.id).toBe(`show-ep-values-selector-${pane}`);
+			expect(toggle.querySelector('label')!.getAttribute('for')).toBe(`show-ep-values-selector-${pane}`);
+		}
+	});
+
+	it('shows an EP difference only between two rows whose EP is their whole worth', () => {
+		const first = Enchant.create({ effectId: 1, name: 'Static', lvl: 60 });
+		const second = Enchant.create({ effectId: 2, name: 'Proc', lvl: 60 });
+		const comparable = (candidate: any) => candidate.effectId === 1;
+		const equippedEps = (equipped: Enchant) =>
+			Array.from(
+				setup({
+					label: SelectorModalTabs.Enchants,
+					slot: ItemSlot.ItemSlotMainHand,
+					equipped: { enchant: equipped } as unknown as EquippedItem,
+					over: { itemData: [first, second].map(enchantRow), computeEP: () => 10, equippedToItem: (e: any) => e?.enchant, epComparable: comparable },
+				}).container.querySelectorAll<HTMLElement>('[data-row]'),
+			).map(node => node.dataset.equippedEp);
+
+		expect(equippedEps(first)).toEqual(['10', 'null']);
+		expect(equippedEps(second)).toEqual(['null', 'null']);
 	});
 
 	it('offers the weapon options in a main hand and, for a warrior, an off hand — never in another slot', () => {
 		const shown = (slot: ItemSlot, label = SelectorModalTabs.Items) => {
 			const { container, unmount } = setup({ slot, label });
 			const box = !!container.querySelector('[data-testid="selector-modal-show-1h-weapons"]');
-			expect(!!container.querySelector('#show-1h-weapons-selector')).toBe(box);
+			expect(!!container.querySelector('#show-1h-weapons-selector-items')).toBe(box);
 			unmount();
 			return box;
 		};
@@ -332,7 +367,7 @@ describe('ItemList', () => {
 		const { container } = setup({ label: SelectorModalTabs.Enchants, over: { itemData: [relevant, worthless, proc, equipped].map(enchantRow) } });
 		expect(names(container).sort()).toEqual(['Equipped', 'Proc', 'Relevant']);
 
-		act(() => container.querySelector<HTMLElement>('#show-all-enchants-selector')!.click());
+		act(() => container.querySelector<HTMLElement>('#show-all-enchants-selector-enchants')!.click());
 		expect(setFilters.mock.calls[0][0].showAllEnchants).toBe(true);
 		act(() => store.notify());
 		expect(names(container).sort()).toEqual(['Equipped', 'Proc', 'Relevant', 'Worthless']);

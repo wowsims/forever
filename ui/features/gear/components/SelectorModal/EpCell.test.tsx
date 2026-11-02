@@ -26,14 +26,27 @@ describe('EpCell', () => {
 		expect(delta().hasAttribute('data-sign')).toBe(false);
 	});
 
+	it('shows one decimal for a delta below the rounding boundary and a whole number from it', () => {
+		const { unmount } = render(<EpCell ep={4.6} equippedEP={5} />);
+		expect(delta().textContent).toBe('-0.4');
+		unmount();
+
+		const small = render(<EpCell ep={15} equippedEP={5} />);
+		expect(delta().textContent).toBe('+10');
+		small.unmount();
+
+		render(<EpCell ep={14.94} equippedEP={5} />);
+		expect(delta().textContent).toBe('+9.9');
+	});
+
 	it('signs the delta against the equipped EP', () => {
 		const { unmount } = render(<EpCell ep={8} equippedEP={5} />);
-		expect(delta().textContent).toBe('+3');
+		expect(delta().textContent).toBe('+3.0');
 		expect(delta().getAttribute('data-sign')).toBe('positive');
 		unmount();
 
 		render(<EpCell ep={5} equippedEP={8} />);
-		expect(delta().textContent).toBe('-3');
+		expect(delta().textContent).toBe('-3.0');
 		expect(delta().getAttribute('data-sign')).toBe('negative');
 	});
 });
