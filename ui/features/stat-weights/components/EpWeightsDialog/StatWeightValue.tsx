@@ -16,7 +16,7 @@ export const StatWeightValue = ({ value, stdev, iterations, className, sign }: S
 		</span>{' '}
 		<span className="whitespace-nowrap">
 			{'('}
-			<Icon name="plus-minus" size="xs" />
+			<Icon name="plus-minus" />
 			{stDevToConf90(stdev, iterations).toFixed(2)}
 			{')'}
 		</span>

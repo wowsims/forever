@@ -8,7 +8,7 @@ import { createSimStore } from '@sim/state/sim_store';
 import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render } from '@testing-library/react';
 import { Table } from '@ui-kit/Table';
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import english from '../../../../../assets/locales/en/translation.json';
 import { emptyStatWeightsResult } from '../../model/ep_math';
@@ -82,27 +82,32 @@ describe('StatWeightRow', () => {
 		expect(epCell().textContent).toBe('0.79');
 	});
 
-	it('shows the change its runs made under the stat name, once a result has one', () => {
-		i18n.addResourceBundle('en', 'translation', english, true, true);
-		const stepText = (stat: UnitStat, modLow: number, modHigh: number) => {
-			const view = setup(result => {
-				result.modLow = new Stats().toProto();
-				result.modHigh = new Stats().toProto();
-				stat.setProtoValue(result.modLow, modLow);
-				stat.setProtoValue(result.modHigh, modHigh);
-			}, stat);
-			const text = view.container.querySelector('[data-testid="stat-weight-step"]')?.textContent;
-			view.unmount();
-			return text;
-		};
+	describe('with the locale loaded', () => {
+		beforeAll(() => {
+			i18n.addResourceBundle('en', 'translation', english, true, true);
+		});
+		afterAll(() => {
+			i18n.removeResourceBundle('en', 'translation');
+		});
 
-		expect(stepText(AGILITY, 0, 0)).toBeUndefined();
-		expect(stepText(AGILITY, -10, 10)).toBe('±10');
-		expect(stepText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe('+10 rating');
-		expect(stepText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe('+10 rating (+1%)');
-		expect(stepText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / 14, 10 / 14)).toBe('±10 rating (±0.71%)');
-		expect(stepText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('±5');
-		i18n.removeResourceBundle('en', 'translation');
+		it('shows how far the sim moved the stat under the stat name, and nothing for a stat without runs', () => {
+			const simulatedStep = (stat: UnitStat, stepBelow: number, stepAbove: number) => {
+				const view = setup(result => {
+					result.stepBelow = new Stats().withUnitStat(stat, stepBelow).toProto();
+					result.stepAbove = new Stats().withUnitStat(stat, stepAbove).toProto();
+				}, stat);
+				const text = view.container.querySelector('[data-testid="stat-weight-simulated-step"]')?.textContent;
+				view.unmount();
+				return text;
+			};
+
+			expect(simulatedStep(AGILITY, 0, 0)).toBeUndefined();
+			expect(simulatedStep(AGILITY, -10, 10)).toBe('±10');
+			expect(simulatedStep(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe('+10 rating');
+			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe('+10 rating (+1%)');
+			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / 14, 10 / 14)).toBe('±10 rating (±0.71%)');
+			expect(simulatedStep(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('±5');
+		});
 	});
 
 	it("sizes the ± by the stat's own sample count, and by the run's iterations when the result has none", () => {
