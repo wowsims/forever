@@ -10995,6 +10995,12 @@
 										"reference_description": {
 											"type": "string"
 										},
+										"step_rating": {
+											"type": "string"
+										},
+										"step_rating_percent": {
+											"type": "string"
+										},
 										"current_ep_description": {
 											"type": "string"
 										},
@@ -11267,6 +11273,8 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
+										"step_rating",
+										"step_rating_percent",
 										"current_ep_description",
 										"copy_icon_description",
 										"stat",
