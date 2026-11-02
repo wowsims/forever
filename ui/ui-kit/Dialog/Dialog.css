@@ -57,7 +57,11 @@
 	}
 
 	.ui-dialog-body {
-		@apply @container relative flex flex-1 flex-col gap-4 p-4;
+		@apply @container relative flex flex-1 flex-col gap-4 p-4 text-sm;
+
+		.ui-field-label {
+			@apply text-sm;
+		}
 	}
 
 	.ui-dialog-footer {
