@@ -36,6 +36,16 @@ const (
 	echoOfWisdomID        = 1328206
 )
 
+// Unsealed Wrath: the copy of a seal's hit that a spent Echo casts, tagged with the Echo's spell id so
+// its damage reports apart, under the seal's own row. Nil without the talent.
+func (paladin *Paladin) registerEchoHit(config core.SpellConfig, echoID int32) *core.Spell {
+	if !paladin.Talents.UnsealedWrath {
+		return nil
+	}
+	config.ActionID = config.ActionID.WithTag(echoID)
+	return paladin.RegisterSpell(config)
+}
+
 // One Echo: its spell id, its aura on the paladin, and the seal rank whose effect it holds.
 type sealEcho struct {
 	id   int32

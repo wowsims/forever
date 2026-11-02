@@ -88,6 +88,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		}))
 	}
 	procSpell := paladin.RegisterSpell(procConfig)
+	echoSpell := paladin.registerEchoHit(procConfig, echoOfFuryID)
 
 	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:            rank.RankedLabel(&paladin.Unit),
@@ -109,7 +110,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		judgement: judgement,
 		echoID:    echoOfFuryID,
 		echo: func(sim *core.Simulation, target *core.Unit) {
-			procSpell.Cast(sim, target)
+			echoSpell.Cast(sim, target)
 		},
 	})
 }

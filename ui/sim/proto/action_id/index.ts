@@ -11,6 +11,13 @@ import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTo
 
 // Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
 const SHIELDSWORN_TAG = 1328544;
+// The Echo Unsealed Wrath stores of each seal that deals damage. A seal's hit that a spent Echo casts is
+// tagged with the Echo's spell id.
+const UNSEALED_WRATH_ECHO_TAGS: Record<string, number> = {
+	'Seal of Command': 1311703,
+	'Seal of Fury': 1311701,
+	'Seal of Righteousness': 1311704,
+};
 
 type ActionIdOptions = {
 	itemId?: number;
@@ -22,6 +29,8 @@ type ActionIdOptions = {
 	iconUrl?: string;
 	randomSuffixId?: number;
 	rank?: number;
+	// The name is another, unranked spell's: the id keeps its rank, and the name goes without it.
+	unrankedName?: boolean;
 	definitionId?: number;
 	isEmptyPlaceholder?: boolean;
 };
@@ -55,6 +64,7 @@ export class ActionId {
 		iconUrl,
 		randomSuffixId,
 		rank,
+		unrankedName,
 		definitionId,
 		isEmptyPlaceholder,
 	}: ActionIdOptions = {}) {
@@ -174,7 +184,7 @@ export class ActionId {
 		this.baseName = baseName ?? '';
 		this.name = (name || baseName) ?? '';
 		this.iconUrl = iconUrl ?? '';
-		if (this.name) this.name += this.rank ? ` (${i18n.t('common.action_tags.rank', { rank: this.rank })})` : '';
+		if (this.name && !unrankedName) this.name += this.rank ? ` (${i18n.t('common.action_tags.rank', { rank: this.rank })})` : '';
 		this.spellIdTooltipOverride = this.spellTooltipOverride?.spellId || null;
 	}
 
@@ -279,6 +289,7 @@ export class ActionId {
 		let name = baseName;
 
 		let tag = this.tag;
+		let unrankedName = false;
 
 		switch (baseName) {
 			case 'Minor Speed':
@@ -634,7 +645,26 @@ export class ActionId {
 				}
 				break;
 			}
+			case 'Seal of Command':
+			case 'Seal of Righteousness':
 			case 'Seal of Fury':
+				// A seal's hit that Unsealed Wrath's Echo casts takes the Echo's name, and Seal of Fury's
+				// shield is tagged 1.
+				if (tag === UNSEALED_WRATH_ECHO_TAGS[baseName]) {
+					const echoName = await Database.getSpellIconData(tag).then(
+						data => data.name,
+						() => '',
+					);
+					if (echoName) {
+						name = echoName;
+						unrankedName = true;
+					} else {
+						name += ` (${i18n.t('common.action_tags.echo')})`;
+					}
+				} else if (tag === 1 && baseName === 'Seal of Fury') {
+					name += ` (${i18n.t('common.action_tags.shield')})`;
+				}
+				break;
 			case 'Power Word: Shield':
 				// The shield the spell puts up is tagged 1.
 				if (tag === 1) {
@@ -704,6 +734,7 @@ export class ActionId {
 			iconUrl,
 			randomSuffixId: this.randomSuffixId,
 			rank: this.rank || tooltipData['rank'],
+			unrankedName,
 			definitionId: this.definitionId,
 		});
 	}
