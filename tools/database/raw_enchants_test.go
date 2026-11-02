@@ -27,7 +27,7 @@ CREATE TABLE SpellItemEnchantment (
 	EffectArg_1 INTEGER GENERATED ALWAYS AS (json_extract(EffectArg, '$[1]')),
 	EffectArg_2 INTEGER GENERATED ALWAYS AS (json_extract(EffectArg, '$[2]'))
 );
-CREATE TABLE ItemEffect (ID INTEGER PRIMARY KEY, SpellID INTEGER);
+CREATE TABLE ItemEffect (ID INTEGER PRIMARY KEY, SpellID INTEGER, TriggerType INTEGER DEFAULT 0);
 CREATE TABLE ItemXItemEffect (ID INTEGER PRIMARY KEY, ItemID INTEGER, ItemEffectID INTEGER);
 CREATE TABLE SpellEquippedItems (ID INTEGER PRIMARY KEY, SpellID INTEGER, EquippedItemClass INTEGER, EquippedItemInvTypes INTEGER, EquippedItemSubclass INTEGER);
 CREATE TABLE SkillLineAbility (ID INTEGER PRIMARY KEY, Spell INTEGER, ClassMask INTEGER, SkillLine INTEGER);
@@ -85,6 +85,7 @@ INSERT INTO ItemEffect (ID, SpellID) VALUES (12, 24156);
 INSERT INTO ItemXItemEffect (ItemID, ItemEffectID) VALUES (19787, 12);
 INSERT INTO Item (ID, IconFileDataID) VALUES (19787, 136153);
 INSERT INTO ItemSparse (ID, Display_lang, OverallQualityID, ItemLevel, AllowableClass) VALUES (19787, 'Presence of Sight', 3, 60, 128);
+UPDATE ItemEffect SET TriggerType = 6 WHERE ID IN (3, 4, 5, 7, 11);
 `
 
 func loadRawEnchantFixture(t *testing.T) []dbc.Enchant {
@@ -194,6 +195,29 @@ func TestRawEnchantLvl(t *testing.T) {
 	} {
 		if got := byKey[key].Lvl; got != want {
 			t.Errorf("enchant %d %q: lvl %d, want %d", key.id, key.name, got, want)
+		}
+	}
+}
+
+// Two recipes of one effect id stay with their own slots. A scroll casts the spell and teaches nothing, a recipe with
+// no ItemSparse row or in the Season of Discovery range does not count, so a scroll named as the enchant's own item
+// can still have a recipe elsewhere, and an enchant can have none.
+func TestRawEnchantRecipeItems(t *testing.T) {
+	byKey := rawEnchantsByKey(loadRawEnchantFixture(t))
+
+	for key, want := range map[rawEnchantKey]struct {
+		ownItem int
+		recipes []int
+	}{
+		{8203, "Enchant Bracer - Lesser Spirit"}:        {249500, []int{249500}},
+		{8203, "Enchant Boots - Lesser Spirit"}:         {249501, []int{249501}},
+		{7659, "Enchant Off-Hand - Superior Intellect"}: {273598, []int{274391}},
+		{7940, "Enchant Weapon - Grand Crusader"}:       {273607, nil},
+		{247, "Enchant Bracer - Minor Agility"}:         {273470, nil},
+	} {
+		got := byKey[key]
+		if got.ItemId != want.ownItem || !slices.Equal(got.RecipeItemIds, want.recipes) {
+			t.Errorf("enchant %d %q: own item %d, recipes %v; want own item %d, recipes %v", key.id, key.name, got.ItemId, got.RecipeItemIds, want.ownItem, want.recipes)
 		}
 	}
 }

@@ -13,6 +13,9 @@ import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTo
 // Mirrors designBossAbilityTag in sim/core/design_boss_abilities.go.
 const ENCOUNTER_DESIGN_ABILITY_TAG = 2_000_000;
 
+// Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
+const SHIELDSWORN_TAG = 1328544;
+
 type ActionIdOptions = {
 	itemId?: number;
 	spellId?: number;
@@ -562,6 +565,13 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.hit')})`;
 				} else if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
+				} else if (tag === SHIELDSWORN_TAG) {
+					name += ` (${i18n.t('common.action_tags.shieldsworn')})`;
+				}
+				break;
+			case 'Shield Specialization':
+				if (tag === SHIELDSWORN_TAG) {
+					name += ` (${i18n.t('common.action_tags.shieldsworn')})`;
 				}
 				break;
 			case 'Searing Totem':

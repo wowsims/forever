@@ -407,10 +407,13 @@
 						},
 						"raid": {
 							"type": "string"
+						},
+						"world_drop": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid"]
+					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid", "world_drop"]
 				},
 				"raids": {
 					"type": "object",
@@ -1513,6 +1516,9 @@
 						"shield": {
 							"type": "string"
 						},
+						"shieldsworn": {
+							"type": "string"
+						},
 						"amplified": {
 							"type": "string"
 						},
@@ -1581,6 +1587,7 @@
 						"external",
 						"self",
 						"shield",
+						"shieldsworn",
 						"amplified",
 						"thrash",
 						"stacks",
@@ -2047,6 +2054,15 @@
 						"sorted_descending": {
 							"type": "string"
 						},
+						"more_sources": {
+							"type": "string"
+						},
+						"more_sources_one": {
+							"type": "string"
+						},
+						"more_sources_other": {
+							"type": "string"
+						},
 						"show_ep": {
 							"type": "string"
 						},
@@ -2126,6 +2142,9 @@
 						"table_headers",
 						"sorted_ascending",
 						"sorted_descending",
+						"more_sources",
+						"more_sources_one",
+						"more_sources_other",
 						"show_ep",
 						"armor_type",
 						"weapon_type",

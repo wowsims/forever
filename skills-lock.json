@@ -25,7 +25,7 @@
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "23d9919d9b72b367cfa22fc88d4c06124c908e93cea87f1359483a77dcc3cc51"
+      "computedHash": "fa6ab114c1e050d2f97fd8cf91fae1c98169b8c85e189c73a5ccf39ee25a7534"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
@@ -40,7 +40,7 @@
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "01984befe42e9ed5afb5e9221c383da2533e3bd767c4f8c40ef07a475fcd6012"
+      "computedHash": "2c305c1563a37d53ae4ad437da3c728d93c3e06b80cddc40d862d8e54bc558d5"
     },
     "wowsims-procs": {
       "source": "./.github/skills",
@@ -85,7 +85,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "b21084b528069a19577511cc45ba58a80e2b9daee4e4801e86e7153b0110faaf"
+      "computedHash": "fc45d62b24b6d8cc1cdfb16ccaab80838b1505ba5aa44d25c264235a5dd782e6"
     }
   }
 }

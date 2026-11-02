@@ -148,6 +148,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const phase = useSimStore('phase');
 	const race = usePlayerStore('race');
+	const faction = player.getFaction();
 	const showEPValues = useUiStore('showEPValues');
 
 	const isFavourited = useCallback((row: ItemDataFields<ItemListType>) => isItemFavourited(filters, label, row), [filters, label]);
@@ -259,6 +260,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 								favourited={isFavourited(row)}
 								favouriteTooltipId={`${tooltipId}-favourite`}
 								compareTooltipId={`${tooltipId}-compare`}
+								faction={faction}
 								onEquip={() => row.onEquip(row.item)}
 								onToggleFavourite={() => toggleFavourite(row)}
 							/>

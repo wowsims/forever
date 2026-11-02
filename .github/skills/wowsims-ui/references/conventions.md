@@ -98,6 +98,9 @@ in `schemas/<name>.schema.json` (`verification.md`, "Locales"). With no second l
   such options and ask before removing kit API.
 - A container's exported view, the exports the design-system pages use and Popover `container` are settled exceptions
   to the rule that tests and stories add no production code (PR #187).
+- A hover Popover inside a Dialog needs its own Escape handling: the Dialog closes on Escape before the popover hears
+  it, so a consumer that wants Escape to close only the list listens in the capture phase (`MoreSources` in
+  `ui/features/gear/components/SelectorModal/ItemSource.tsx`).
 
 ## Decisions already made
 

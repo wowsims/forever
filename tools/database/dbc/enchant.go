@@ -31,6 +31,7 @@ type Enchant struct {
 	EffectName         string
 	IsLive             bool
 	Lvl                int
+	RecipeItemIds      []int // The items that teach the enchant's spell.
 }
 
 // A spell an enchant slot casts off a hit, or hangs a listener on.
