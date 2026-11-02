@@ -1,4 +1,4 @@
-import { Profession } from '@generated/proto/common';
+import { Faction, Profession } from '@generated/proto/common';
 import { DungeonDifficulty, UIItemSource } from '@generated/proto/ui';
 import type { Sim } from '@sim/sim';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -54,15 +54,29 @@ export const WorldDrop: Story = {
 export const Crafted: Story = { args: { item: withSource({ oneofKind: 'crafted', crafted: { profession: Profession.Blacksmithing, spellId: 16991 } }) } };
 
 export const SoldBy: Story = {
-	args: { item: withSource({ oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584 } }) },
+	args: { item: withSource({ oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584, faction: Faction.Unknown } }) },
+};
+
+export const OwnFactionQuest: Story = {
+	args: {
+		item: makeUIItem({
+			sources: [
+				UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 9004, name: 'Saving the Best for Last', faction: Faction.Alliance } } }),
+				UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 9010, name: 'Saving the Best for Last', faction: Faction.Horde } } }),
+			],
+		}),
+		faction: Faction.Horde,
+	},
 };
 
 export const OtherSources: Story = {
 	args: {
 		item: makeUIItem({
 			sources: [
-				UIItemSource.create({ source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584 } } }),
-				UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core' } } }),
+				UIItemSource.create({
+					source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584, faction: Faction.Unknown } },
+				}),
+				UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core', faction: Faction.Unknown } } }),
 				UIItemSource.create({
 					source: {
 						oneofKind: 'drop',
@@ -75,7 +89,7 @@ export const OtherSources: Story = {
 	play: async ({ canvasElement }) => {
 		const more = within(canvasElement).getByTestId('item-source-more');
 		await expect(more.textContent).toBe('+2');
-		await userEvent.click(more);
-		await expect(within(canvasElement.ownerDocument.body).findByTestId('item-source-more-popup')).resolves.toBeTruthy();
+		await userEvent.hover(more);
+		await expect(within(canvasElement.ownerDocument.body).findByRole('tooltip')).resolves.toBeTruthy();
 	},
 };

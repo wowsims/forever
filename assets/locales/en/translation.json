@@ -125,7 +125,8 @@
 			"reputation": "Reputation",
 			"pvp": "PVP",
 			"dungeon": "Dungeon",
-			"raid": "Raid"
+			"raid": "Raid",
+			"world_drop": "World Drop"
 		},
 		"raids": {
 			"unknown": "Unknown",
@@ -563,7 +564,6 @@
 			"more_sources": "{{count}} more sources",
 			"more_sources_one": "{{count}} more source",
 			"more_sources_other": "{{count}} more sources",
-			"other_sources": "Other sources",
 			"show_ep": "Show EP",
 			"armor_type": "Armor Type",
 			"weapon_type": "Weapon Type",

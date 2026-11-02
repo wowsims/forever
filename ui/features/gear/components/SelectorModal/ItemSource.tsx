@@ -1,20 +1,23 @@
-import { DungeonDifficulty, UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
+import { Faction } from '@generated/proto/common';
+import { type DropSource, DungeonDifficulty, UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
 import { Button } from '@ui-kit/Button';
-import { Popover } from '@ui-kit/Popover';
+import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
-import type { ReactNode } from 'react';
+import { type ReactNode, useId } from 'react';
 
 export interface ItemSourceProps {
 	/** An enchant passes its own item's id and its sources, and has no faction restriction. */
 	item: Pick<Item, 'id' | 'sources'> & Partial<Pick<Item, 'factionRestriction'>>;
 	sim: Sim;
+	/** The character's side, whose quests and vendors show; omit it to show both sides'. */
+	faction?: Faction;
 }
 
-// The cell shows the first source by kind, whatever order the sources come in, and the popup the rest in this order.
+// The cell shows the first source by kind, whatever order the sources come in, and the tooltip the rest in this order.
 const KIND_ORDER = ['crafted', 'drop', 'quest', 'rep', 'pvp', 'soldBy'] as const;
 
 const FactionIcon = ({ restriction }: { restriction?: UIItem_FactionRestriction }) => {
@@ -24,13 +27,23 @@ const FactionIcon = ({ restriction }: { restriction?: UIItem_FactionRestriction 
 	return null;
 };
 
+// A world drop has a name and no zone.
+const isWorldDrop = ({ zoneId, otherName }: DropSource): boolean => !zoneId && !!otherName;
+
 const SourceLink = ({ href, children }: { href: string; children: ReactNode }) => (
 	<WowheadAnchor href={href} target="_blank" className="relative z-1">
 		<small>{children}</small>
 	</WowheadAnchor>
 );
 
-// Null for a source it cannot name: a quest with no name, or a drop in a zone the database lacks.
+// False for a source it cannot name: a quest with no name, or a drop in a zone the database lacks.
+const canShowSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProps): boolean => {
+	if (source.oneofKind === 'quest') return !!source.quest.name;
+	if (source.oneofKind !== 'drop' || isWorldDrop(source.drop) || sim.db.getZone(source.drop.zoneId)) return true;
+	console.error('No zone found for item:', item);
+	return false;
+};
+
 const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProps): ReactNode => {
 	switch (source.oneofKind) {
 		case 'crafted': {
@@ -40,24 +53,23 @@ const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProp
 		}
 		case 'drop': {
 			const src = source.drop;
-			// A world drop has a name and no zone.
-			if (!src.zoneId && src.otherName) return <SourceLink href={ActionId.makeItemUrl(item.id)}>{src.otherName}</SourceLink>;
+			if (isWorldDrop(src)) return <SourceLink href={ActionId.makeItemUrl(item.id)}>{src.otherName}</SourceLink>;
 
-			const zone = sim.db.getZone(src.zoneId);
+			const zone = sim.db.getZone(src.zoneId)!;
 			const npc = sim.db.getNpc(src.npcId);
-			if (!zone) {
-				console.error('No zone found for item:', item);
-				return null;
-			}
+			const zoneText = (
+				<>
+					{zone.name}
+					{src.difficulty !== DungeonDifficulty.DifficultyUnknown && ` (${difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})`}
+				</>
+			);
 
 			const category = src.category ? ` - ${src.category}` : '';
 			if (npc) {
 				return (
 					<SourceLink href={ActionId.makeNpcUrl(npc.id)}>
 						<span>
-							{zone.name}
-							{src.difficulty !== DungeonDifficulty.DifficultyUnknown &&
-								` (${difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})`}
+							{zoneText}
 							<br />
 							{npc.name + category}
 						</span>
@@ -68,7 +80,7 @@ const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProp
 				return (
 					<SourceLink href={ActionId.makeZoneUrl(zone.id)}>
 						<span>
-							{zone.name}
+							{zoneText}
 							<br />
 							{src.otherName}
 						</span>
@@ -79,7 +91,6 @@ const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProp
 		}
 		case 'quest': {
 			const src = source.quest;
-			if (!src.name) return null;
 			return (
 				<SourceLink href={ActionId.makeQuestUrl(src.id)}>
 					<span>
@@ -121,34 +132,58 @@ const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProp
 	}
 };
 
-export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
+const OtherSources = ({ entries, ...props }: ItemSourceProps & { entries: ItemSourceEntry[] }) => (
+	<ul className="m-0 flex list-none flex-col gap-2 p-0">
+		{entries.map((entry, index) => (
+			<li key={index}>{renderSource(entry, props)}</li>
+		))}
+	</ul>
+);
+
+const isForOtherFaction = ({ source }: ItemSourceEntry, faction: Faction): boolean => {
+	const sourceFaction = source.oneofKind === 'quest' ? source.quest.faction : source.oneofKind === 'soldBy' ? source.soldBy.faction : Faction.Unknown;
+	return faction !== Faction.Unknown && sourceFaction !== Faction.Unknown && sourceFaction !== faction;
+};
+
+export const ItemSource = ({ item, sim, faction = Faction.Unknown }: ItemSourceProps): ReactNode => {
+	const tooltipId = useId();
 	if (!item.sources?.length) return null;
 
-	// The database holds some crafted sources twice, and a repeat is not another source to count.
-	const [first, ...others] = KIND_ORDER.flatMap(kind => item.sources.filter(entry => entry.source.oneofKind === kind))
-		.filter((entry, index, all) => all.findIndex(other => ItemSourceEntry.equals(other, entry)) === index)
-		.map(entry => renderSource(entry, { item, sim }))
-		.filter(Boolean);
-	if (!others.length) return first ?? null;
+	const named = KIND_ORDER.flatMap(kind => item.sources.filter(entry => entry.source.oneofKind === kind)).filter(entry =>
+		canShowSource(entry, { item, sim }),
+	);
+	// PvP is for the filter, so it shows only when the item has nothing else. The other side's quests and vendors stay
+	// out, unless they are all the item has: an empty cell would say it comes from nowhere.
+	const withoutPvp = named.filter(entry => entry.source.oneofKind !== 'pvp');
+	const kept = withoutPvp.length ? withoutPvp : named;
+	const own = kept.filter(entry => !isForOtherFaction(entry, faction));
+	const [first, ...others] = own.length ? own : kept;
+	if (!first) return null;
+	if (!others.length) return renderSource(first, { item, sim });
 
-	// A popover and not the hover tooltip other counts use: its links take focus and clicks, and its portal leaves the
-	// virtualised list. The button sits above the row's click layer, as the link beside it does, so a press equips nothing.
+	// The list is a component, so it is built when the tooltip opens: react-tooltip calls a render prop even while
+	// hidden, and a row with over a hundred vendors re-renders with the list. The button sits above the row's click layer,
+	// as the link beside it does, so a press equips nothing.
 	return (
 		<div className="flex items-start gap-2">
-			{first}
-			<Popover
-				trigger={`+${others.length}`}
-				triggerRender={<Button variant="outline-secondary" size="none" className="relative z-1 shrink-0 px-1 text-xs" />}
-				triggerTestId="item-source-more"
-				triggerProps={{ 'aria-label': i18n.t('gear_tab.gear_picker.more_sources', { count: others.length }) }}
-				title={i18n.t('gear_tab.gear_picker.other_sources')}
-				testId="item-source-more-popup">
-				<ul className="ui-popover-body m-0 flex list-none flex-col gap-2 p-0">
-					{others.map((source, index) => (
-						<li key={index}>{source}</li>
-					))}
-				</ul>
-			</Popover>
+			{renderSource(first, { item, sim })}
+			<Button
+				variant="outline-secondary"
+				size="none"
+				className="relative z-1 shrink-0 px-1 text-xs"
+				aria-label={i18n.t('gear_tab.gear_picker.more_sources', { count: others.length })}
+				data-testid="item-source-more"
+				{...tooltipAnchorProps(tooltipId)}>
+				{`+${others.length}`}
+			</Button>
+			<Tooltip
+				id={tooltipId}
+				clickable
+				place="bottom"
+				align="start"
+				className="max-h-[70dvh] overflow-y-auto"
+				content={<OtherSources entries={others} item={item} sim={sim} />}
+			/>
 		</div>
 	);
 };

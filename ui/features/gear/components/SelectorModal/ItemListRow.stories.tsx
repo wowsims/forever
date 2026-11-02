@@ -1,4 +1,4 @@
-import { ItemQuality } from '@generated/proto/common';
+import { Faction, ItemQuality } from '@generated/proto/common';
 import { UIItemSource } from '@generated/proto/ui';
 import type { Sim } from '@sim/sim';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -90,8 +90,10 @@ export const OtherSources: Story = {
 				item={makeUIItem({
 					id: 19019,
 					sources: [
-						UIItemSource.create({ source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584 } } }),
-						UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core' } } }),
+						UIItemSource.create({
+							source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584, faction: Faction.Unknown } },
+						}),
+						UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core', faction: Faction.Unknown } } }),
 						UIItemSource.create({
 							source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 0, zoneId: 0, otherName: 'World Drop', category: '' } },
 						}),
@@ -103,8 +105,9 @@ export const OtherSources: Story = {
 	},
 	play: async ({ args, canvasElement }) => {
 		const more = within(canvasElement).getByTestId('item-source-more');
+		await userEvent.hover(more);
+		await within(canvasElement.ownerDocument.body).findByRole('tooltip');
 		await userEvent.click(more);
-		await within(canvasElement.ownerDocument.body).findByTestId('item-source-more-popup');
 		await expect(args.onEquip).not.toHaveBeenCalled();
 	},
 };

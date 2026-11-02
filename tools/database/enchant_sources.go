@@ -3,6 +3,7 @@ package database
 import (
 	"slices"
 
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	googleProto "google.golang.org/protobuf/proto"
 )
@@ -36,25 +37,32 @@ func AddEnchantSources(enchants map[EnchantDBKey]*proto.UIEnchant, recipes map[E
 	}
 }
 
-// One item's sources in the order an item in the database lists them. AtlasLoot's rep source gives way to the game
-// files'.
+// One item's sources in the order an item in the database lists them.
 func (inputs EnchantSourceInputs) itemSources(itemID int) []*proto.UIItemSource {
 	var sources []*proto.UIItemSource
 	for _, crafted := range inputs.Crafted[itemID] {
 		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Crafted{Crafted: crafted}})
 	}
-	reps := inputs.Rep[itemID]
-	for _, rep := range reps {
+	for _, rep := range inputs.Rep[itemID] {
 		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Rep{Rep: rep}})
 	}
-	if atlasItem := inputs.Atlas.Items[int32(itemID)]; atlasItem != nil {
-		for _, source := range atlasItem.Sources {
-			if source.GetRep() == nil || len(reps) == 0 {
-				sources = append(sources, source)
-			}
-		}
-	}
+	sources = append(sources, AtlasLootSourcesBeside(sources, inputs.Atlas.Items[int32(itemID)].GetSources())...)
 	return append(sources, questieSourcesBeside(sources, inputs.Questie.Items[int32(itemID)])...)
+}
+
+// AtlasLoot's sources for an item that already holds existing from the game files, less the ones they repeat: the
+// crafting spell both state, and a rep source of the faction the game files name.
+func AtlasLootSourcesBeside(existing, atlasLoot []*proto.UIItemSource) []*proto.UIItemSource {
+	firstRepFaction := int32(-1)
+	if i := slices.IndexFunc(existing, func(source *proto.UIItemSource) bool { return source.GetRep() != nil }); i >= 0 {
+		firstRepFaction = existing[i].GetRep().RepFactionId
+	}
+	return core.FilterSlice(atlasLoot, func(source *proto.UIItemSource) bool {
+		if rep := source.GetRep(); rep != nil && rep.RepFactionId == firstRepFaction {
+			return false
+		}
+		return !slices.ContainsFunc(existing, func(held *proto.UIItemSource) bool { return googleProto.Equal(held, source) })
+	})
 }
 
 // The zones and NPCs the drop sources of from's items and enchants name, each only where db lacks it, so a row db holds

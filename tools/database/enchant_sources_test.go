@@ -78,6 +78,27 @@ func TestAddEnchantSources(t *testing.T) {
 	}
 }
 
+func TestAtlasLootSourcesBeside(t *testing.T) {
+	crafted := func(spellID int32) *proto.UIItemSource {
+		return &proto.UIItemSource{Source: &proto.UIItemSource_Crafted{Crafted: &proto.CraftedSource{Profession: proto.Profession_Tailoring, SpellId: spellID}}}
+	}
+	rep := func(factionID int32) *proto.UIItemSource {
+		return &proto.UIItemSource{Source: &proto.UIItemSource_Rep{Rep: &proto.RepSource{RepFactionId: factionID}}}
+	}
+	drop := dropSource(1, 2017)
+
+	got := AtlasLootSourcesBeside([]*proto.UIItemSource{crafted(5), rep(59)}, []*proto.UIItemSource{crafted(5), crafted(6), rep(59), rep(60), drop})
+	want := []*proto.UIItemSource{crafted(6), rep(60), drop}
+	if len(got) != len(want) {
+		t.Fatalf("sources = %v, want %v: the crafting spell the game files state and their rep faction come once", got, want)
+	}
+	for i := range want {
+		if !googleProto.Equal(got[i], want[i]) {
+			t.Errorf("source %d = %v, want %v", i, got[i], want[i])
+		}
+	}
+}
+
 func TestAddSourceZonesAndNpcs(t *testing.T) {
 	db := NewWowDatabase()
 	db.Zones[28] = &proto.UIZone{Id: 28, Name: "Held Zone"}

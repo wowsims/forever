@@ -172,11 +172,13 @@ message DropSource {
 message QuestSource {
 	int32 id = 1;
 	string name = 2;
+	Faction faction = 3; // The side that may take it; Unknown is both.
 }
 message SoldBySource {
 	int32 npc_id = 1;
 	string npc_name = 2;
 	int32 zone_id = 3;
+	Faction faction = 4; // The side the vendor sells to; Unknown is both.
 }
 message RepSource {
 	int32 rep_faction_id = 1; // Faction.ID in the game files; UIDatabase.factions carries its name.
@@ -277,6 +279,8 @@ message DatabaseFilters {
 	repeated WeaponType weapon_types = 2;
 	repeated RangedWeaponType ranged_weapon_types = 16;
 	repeated SourceFilterOption sources = 17;
+	// Hides world drops and open-world NPC drops. A bool and not a SourceFilterOption, so a saved partial sources list leaves them shown.
+	bool hide_world_drops = 28;
 	repeated RaidFilterOption raids = 18;
 	FactionFilter faction_filter = 19;
 	int32 min_ilvl = 20;

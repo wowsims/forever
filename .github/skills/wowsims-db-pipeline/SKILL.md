@@ -75,16 +75,25 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
   left out. Joining through the effect id alone crosses slots, since effect 66 is a bracer, a boots and a shield enchant
   and only the boots has a recipe. The game files hold no trainers, so an enchant a trainer teaches has no source.
 - **QuestieDB's NPC drops reach items and recipes no vendor sells.** Its drop lists hold an item's vendors (Grunnda
-  Wolfheart is both on 19083), so `parseQuestieData` drops the list of a sold item before counting it. An item with an
-  AtlasLoot drop keeps it and skips QuestieDB's, which list every mob where AtlasLoot names the boss or the trash. One to
-  five NPCs are listed, each with its zone. More than five take one `World Drop` source with no zone or NPC, since the
-  lists run to 629 mobs, and only QuestieDB's list makes one: an item with no drop data has no drop source.
-  `PruneQuestieSources` removes an NPC with no zone or a zone with no `AreaTable` row and sets a drop's difficulty from
-  its zone, which stays unknown in the open world.
-- **A drop source moves the picker.** A drop outranks a quest, a rep source, PvP and a vendor in `ItemSource`'s kind
-  order, so an item that gains one leads with it and shows the rest behind `+N`. An open-world drop and a `World Drop`
-  have no source filter toggle, so an item holding one shows with every other toggle off. `questie_db.json` holds every
-  item QuestieDB lists, most of them never shipped, and `-gen=db` picks the ones it has.
+  Wolfheart is both on 19083), so `parseQuestieData` drops the list of a sold item before counting it. An NPC with no
+  zone counts for neither list. An item with an AtlasLoot drop keeps it and skips QuestieDB's, which list every mob where
+  AtlasLoot names the boss or the trash. One to five NPCs are listed, each with its zone. More than five take one source:
+  `Multiple NPCs` in their zone when they share one, else `World Drop` with no zone or NPC, since the lists run to 629
+  mobs. Only QuestieDB's list makes either: an item with no drop data has no drop source. `PruneQuestieSources` removes a
+  drop in a zone with no `AreaTable` row after that decision, so two items (16673, 16713) read World Drop on a row it then
+  prunes, and sets a drop's difficulty from its zone, which stays unknown in the open world.
+- **AtlasLoot repeats the game files' crafting spells.** `AtlasLootSourcesBeside` removes them on both the item and the
+  enchant path, since `MergeItem` concatenates lists.
+- **A drop source moves the picker.** A drop outranks a quest, a rep source and a vendor in `ItemSource`'s kind order,
+  so an item that gains one leads with it and shows the rest behind `+N`. A `pvp` source shows only on an item with
+  nothing else; the filter reads it either way. The World Drop toggle governs a drop of unknown difficulty, a world drop
+  or an open-world NPC's, and Dungeon and Raid the rest. It is the bool `hide_world_drops`, since a saved partial
+  `sources` list would read a new `SourceFilterOption` as off. `questie_db.json` holds every item QuestieDB lists, most of
+  them never shipped, and `-gen=db` picks the ones it has.
+- **Quests and vendors carry a side.** `parseQuestieData` reads a quest's `requiredRaces`, which holds the game's race
+  bits, and a vendor's `friendlyToFaction`; both sides, none or no data is `Unknown`. `ItemSource` leaves the other side's
+  out of the cell and `+N`, unless they are all an item has. The source filter, `factionFilter` and search read every
+  source.
 
 ## Overrides
 

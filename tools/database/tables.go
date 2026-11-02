@@ -2246,7 +2246,7 @@ func LoadCraftedItems(dbHelper *DBHelper) (
 	sourcesByItem map[int][]*proto.CraftedSource,
 ) {
 	const query = `
-		SELECT se.EffectItemType, sla.SkillLine, sla.Spell FROM SkillLineAbility sla
+		SELECT DISTINCT se.EffectItemType, sla.SkillLine, sla.Spell FROM SkillLineAbility sla
 		LEFT JOIN SpellEffect se ON sla.Spell == se.SpellID
 		WHERE se.Effect = 24
     `
@@ -2422,11 +2422,7 @@ func LoadDungeonZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	`, "dungeon zones")
 }
 
-// LoadAreaTableIDs returns every AreaTable id in the game files.
-func LoadAreaTableIDs(dbHelper *DBHelper) (map[int32]bool, error) {
-	return loadIDSet(dbHelper, `SELECT ID FROM AreaTable`, "AreaTable ids")
-}
-
+// Every AreaTable id in the game files, with its name.
 func LoadAreaTableNames(dbHelper *DBHelper) (map[int32]string, error) {
 	areas, err := LoadRows(dbHelper.db, `SELECT ID, AreaName_lang FROM AreaTable`, func(rows *sql.Rows) (*proto.UIZone, error) {
 		zone := &proto.UIZone{}

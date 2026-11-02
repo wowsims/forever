@@ -1,7 +1,7 @@
 import { ItemQuality, type ItemSpec } from '@generated/proto/common';
 import { UIEnchant as Enchant, type UIItem as Item } from '@generated/proto/ui';
 import { renderWithHost } from '@testing/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -28,8 +28,10 @@ const store = vi.hoisted(() => {
 		},
 		getState: () => state,
 		getInitialState: () => state,
+		notify: () => listeners.forEach(listener => listener()),
 	};
 });
+const playerFaction = vi.hoisted(() => ({ current: 1 }));
 
 vi.mock('@sim/hooks/useActionId', () => ({
 	useActionId: () => ({ iconUrl: 'icon-url.png', name: 'item-name', href: 'https://example.com/item', ready: true }),
@@ -42,8 +44,8 @@ vi.mock('@features/bulk/model/gear/items', () => ({
 }));
 vi.mock('../../../../tracking/utils', () => ({ trackEvent: vi.fn() }));
 vi.mock('./ItemSource', () => ({
-	ItemSource: ({ item }: { item: Pick<Item, 'id' | 'sources'> }) => (
-		<div data-testid="item-source-marker" data-item-id={item.id} data-source-count={item.sources?.length} />
+	ItemSource: ({ item, faction }: { item: Pick<Item, 'id' | 'sources'>; faction?: number }) => (
+		<div data-testid="item-source-marker" data-item-id={item.id} data-source-count={item.sources?.length} data-faction={faction} />
 	),
 }));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({
@@ -88,7 +90,7 @@ const renderRow = (
 		...overrides,
 	};
 
-	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store } });
+	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store }, player: { getFaction: () => playerFaction.current } });
 
 	return {
 		container,
@@ -128,6 +130,21 @@ describe('ItemListRow', () => {
 		expect(renderRow({ label: SelectorModalTabs.Items }).container.querySelector(sourceCell)).not.toBeNull();
 		expect(renderRow({ label: SelectorModalTabs.Enchants }).container.querySelector(sourceCell)).not.toBeNull();
 		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(sourceCell)).toBeNull();
+	});
+
+	it.each([
+		['items', SelectorModalTabs.Items],
+		['enchants', SelectorModalTabs.Enchants],
+	])("hands the %s tab's source cell the character's faction, and follows a change", (_tab, label) => {
+		playerFaction.current = 1;
+		const { container } = renderRow({ label, itemData: makeItemData({ item: Enchant.create({ effectId: 1 }) as unknown as ItemListType }) });
+		const marker = () => container.querySelector('[data-testid="item-source-marker"]');
+		expect(marker()?.getAttribute('data-faction')).toBe('1');
+
+		playerFaction.current = 2;
+		act(() => store.notify());
+		expect(marker()?.getAttribute('data-faction')).toBe('2');
+		playerFaction.current = 1;
 	});
 
 	it('shows an enchant row the sources of the enchant, under its own item id', () => {

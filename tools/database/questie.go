@@ -17,6 +17,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools"
+	"github.com/wowsims/forever/tools/database/dbc"
 )
 
 // QuestieDB (github.com/Questie/QuestieDB, GPLv3) names each item's quest rewards, vendors and dropping NPCs, which
@@ -24,11 +25,13 @@ import (
 // repository's data/Forever Lua files do not.
 const questieRelease = "v1.0.9"
 
-// An item with more dropping NPCs than this takes the one WorldDropName source, since a list can run to hundreds of
-// mobs. Only QuestieDB's list says so: an item with no drop data has no drop source.
+// An item with more dropping NPCs than this takes one source in their place, since a list can run to hundreds of mobs:
+// MultipleNpcsName in their zone when they share one, else WorldDropName. Only QuestieDB's list says so: an item with no
+// drop data has no drop source.
 const (
 	questieMaxListedDrops = 5
 	WorldDropName         = "World Drop"
+	MultipleNpcsName      = "Multiple NPCs"
 )
 
 // Every item QuestieDB lists a reward quest, a vendor or a dropping NPC for, as Quest, SoldBy and Drop sources, with
@@ -69,7 +72,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 	if err != nil {
 		return nil, err
 	}
-	var questRewards, vendors, npcDrops, questName, npcName, npcZone int
+	var questRewards, vendors, npcDrops, questName, questRaces, npcName, npcZone, npcFriendlyTo int
 	for _, key := range []struct {
 		entity *questieEntity
 		name   string
@@ -79,14 +82,37 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 		{items, "vendors", &vendors},
 		{items, "npcDrops", &npcDrops},
 		{quests, "name", &questName},
+		{quests, "requiredRaces", &questRaces},
 		{npcs, "name", &npcName},
 		{npcs, "zoneID", &npcZone},
+		{npcs, "friendlyToFaction", &npcFriendlyTo},
 	} {
 		index, ok := key.entity.keys[key.name]
 		if !ok {
 			return nil, fmt.Errorf("%s has no key %q", key.entity.name, key.name)
 		}
 		*key.index = index
+	}
+
+	// Nil for an NPC with no row, with the side it is friendly to.
+	readNpc := func(id int) (*proto.UINPC, proto.Faction, error) {
+		npc, err := npcs.row(id)
+		if err != nil || npc == nil {
+			return nil, proto.Faction_Unknown, err
+		}
+		name, err := npc.text(npcName)
+		if err != nil {
+			return nil, proto.Faction_Unknown, err
+		}
+		zone, err := npc.integer(npcZone)
+		if err != nil {
+			return nil, proto.Faction_Unknown, err
+		}
+		friendlyTo, err := npc.text(npcFriendlyTo)
+		if err != nil {
+			return nil, proto.Faction_Unknown, err
+		}
+		return &proto.UINPC{Id: int32(id), Name: name, ZoneId: int32(zone)}, questieNpcFaction(friendlyTo), nil
 	}
 
 	db := NewWowDatabase()
@@ -117,66 +143,67 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 			if err != nil {
 				return nil, err
 			}
+			races, err := quest.integer(questRaces)
+			if err != nil {
+				return nil, err
+			}
 			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{
-				Id:   int32(questID),
-				Name: name,
+				Id:      int32(questID),
+				Name:    name,
+				Faction: questieRacesFaction(races),
 			}}})
 		}
+		soldInAZone := false
 		for _, npcID := range npcIDs {
-			npc, err := npcs.row(npcID)
+			npc, faction, err := readNpc(npcID)
 			if err != nil {
 				return nil, err
 			}
 			if npc == nil {
 				continue
 			}
-			name, err := npc.text(npcName)
-			if err != nil {
-				return nil, err
-			}
-			zone, err := npc.integer(npcZone)
-			if err != nil {
-				return nil, err
-			}
+			soldInAZone = soldInAZone || npc.ZoneId != 0
 			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{
-				NpcId:   int32(npcID),
-				NpcName: name,
-				ZoneId:  int32(zone),
+				NpcId:   npc.Id,
+				NpcName: npc.Name,
+				ZoneId:  npc.ZoneId,
+				Faction: faction,
 			}}})
 		}
 		dropNpcIDs, err := item.ids(npcDrops)
 		if err != nil {
 			return nil, err
 		}
-		// An item a vendor sells takes no drops, recipes included: QuestieDB's drop lists hold an item's vendors. It comes
-		// before the count, so vendors cannot make a world drop of a list.
-		if len(npcIDs) > 0 {
-			dropNpcIDs = nil
-		}
-		if len(dropNpcIDs) > questieMaxListedDrops {
-			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}})
-			dropNpcIDs = nil
-		}
+		var dropNpcs []*proto.UINPC
 		for _, npcID := range dropNpcIDs {
-			npc, err := npcs.row(npcID)
+			npc, _, err := readNpc(npcID)
 			if err != nil {
 				return nil, err
 			}
-			if npc == nil {
-				continue
+			if npc != nil && npc.ZoneId != 0 {
+				dropNpcs = append(dropNpcs, npc)
 			}
-			name, err := npc.text(npcName)
-			if err != nil {
-				return nil, err
+		}
+		// An item a vendor sells takes no drops, recipes included: QuestieDB's drop lists hold an item's vendors. It comes
+		// before the count, so vendors cannot turn a list into one source. An NPC with no zone counts for neither list,
+		// since it is pruned and an item it alone sells or drops would rest on a source that never ships.
+		if soldInAZone {
+			dropNpcs = nil
+		}
+		if len(dropNpcs) > questieMaxListedDrops {
+			zone := dropNpcs[0].ZoneId
+			drop := &proto.DropSource{OtherName: WorldDropName}
+			if !slices.ContainsFunc(dropNpcs, func(npc *proto.UINPC) bool { return npc.ZoneId != zone }) {
+				drop = &proto.DropSource{OtherName: MultipleNpcsName, ZoneId: zone}
 			}
-			zone, err := npc.integer(npcZone)
-			if err != nil {
-				return nil, err
-			}
-			db.Npcs[int32(npcID)] = &proto.UINPC{Id: int32(npcID), Name: name, ZoneId: int32(zone)}
+			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: drop}})
+			dropNpcs = nil
+		}
+		for _, npc := range dropNpcs {
+			db.Npcs[npc.Id] = npc
 			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{
-				NpcId:  int32(npcID),
-				ZoneId: int32(zone),
+				NpcId:  npc.Id,
+				ZoneId: npc.ZoneId,
 			}}})
 		}
 		if len(sources) > 0 {
@@ -186,16 +213,40 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 	return db, nil
 }
 
-// Removes the vendors and dropping NPCs with no zone or a zone that is not in the game files, and sets each NPC drop's
-// difficulty from its zone, which stays unknown in the open world. A world drop names neither an NPC nor a zone.
-func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones, areaTableIDs map[int32]bool) {
+// The side a quest's requiredRaces mask names, which holds the game's race bits: unknown when it names both sides or
+// none, as 0 does for a quest every race may take.
+func questieRacesFaction(races int64) proto.Faction {
+	alliance, horde := dbc.AlliedRaces.Matches(dbc.Race(races)), dbc.HordeRaces.Matches(dbc.Race(races))
+	if alliance && !horde {
+		return proto.Faction_Alliance
+	}
+	if horde && !alliance {
+		return proto.Faction_Horde
+	}
+	return proto.Faction_Unknown
+}
+
+// The side an NPC's friendlyToFaction holds, "A" or "H": unknown for "AH", and for no value, an NPC hostile to both.
+func questieNpcFaction(friendlyTo string) proto.Faction {
+	switch friendlyTo {
+	case "A":
+		return proto.Faction_Alliance
+	case "H":
+		return proto.Faction_Horde
+	}
+	return proto.Faction_Unknown
+}
+
+// Removes the vendors and drops with no zone or a zone that is not in the game files, and sets each drop's difficulty
+// from its zone, which stays unknown in the open world. A world drop names neither an NPC nor a zone.
+func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones map[int32]bool, areaNames map[int32]string) {
 	for _, item := range questie.Items {
 		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
 			if soldBy := source.GetSoldBy(); soldBy != nil {
-				return areaTableIDs[soldBy.ZoneId]
+				return areaNames[soldBy.ZoneId] != ""
 			}
 			drop := source.GetDrop()
-			if drop == nil || drop.NpcId == 0 {
+			if drop == nil || drop.GetOtherName() == WorldDropName {
 				return true
 			}
 			if raidZones[drop.ZoneId] {
@@ -203,7 +254,7 @@ func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones, areaTabl
 			} else if dungeonZones[drop.ZoneId] {
 				drop.Difficulty = proto.DungeonDifficulty_DifficultyDungeon
 			}
-			return areaTableIDs[drop.ZoneId]
+			return areaNames[drop.ZoneId] != ""
 		})
 	}
 }

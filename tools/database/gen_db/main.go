@@ -117,7 +117,6 @@ func main() {
 		questieDB       *database.WowDatabase
 		raidZones       map[int32]bool
 		dungeonZones    map[int32]bool
-		areaTableIDs    map[int32]bool
 		areaNames       map[int32]string
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
@@ -158,15 +157,14 @@ func main() {
 	})
 	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
 	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
-	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
 	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
 
-	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
-	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaTableIDs)
+	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
+	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -194,20 +192,7 @@ func main() {
 
 	for _, atlaslootItem := range atlaslootDB.Items {
 		if dbItem, ok := db.Items[atlaslootItem.Id]; ok {
-			firstDBRepFaction := int32(-1)
-
-			for _, dbItemSource := range dbItem.Sources {
-				if dbRepSource := dbItemSource.GetRep(); dbRepSource != nil {
-					firstDBRepFaction = dbRepSource.RepFactionId
-					break
-				}
-			}
-
-			atlaslootItem.Sources = core.FilterSlice(atlaslootItem.Sources, func(atlaslootItemSource *proto.UIItemSource) bool {
-				atlaslootRepSource := atlaslootItemSource.GetRep()
-				return (atlaslootRepSource == nil) || (atlaslootRepSource.RepFactionId != firstDBRepFaction)
-			})
-
+			atlaslootItem.Sources = database.AtlasLootSourcesBeside(dbItem.Sources, atlaslootItem.Sources)
 			db.MergeItem(atlaslootItem)
 		}
 	}
@@ -346,10 +331,10 @@ var dropNpcsNotInForever = map[int32]bool{
 // pruneAtlasLootDrops removes the zones, NPCs and drop sources of AtlasLoot that are not in the game files or
 // are in dropNpcsNotInForever, sets the remaining drops to Raid in a raid zone and Dungeon elsewhere, and
 // removes the exact duplicates this leaves.
-func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs map[int32]bool) {
-	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return !areaTableIDs[id] })
+func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones map[int32]bool, areaNames map[int32]string) {
+	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return areaNames[id] == "" })
 	maps.DeleteFunc(atlas.Npcs, func(id int32, npc *proto.UINPC) bool {
-		return !areaTableIDs[npc.ZoneId] || dropNpcsNotInForever[id]
+		return areaNames[npc.ZoneId] == "" || dropNpcsNotInForever[id]
 	})
 	for _, item := range atlas.Items {
 		var drops []*proto.DropSource
@@ -358,7 +343,7 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 			if drop == nil {
 				return true
 			}
-			if !areaTableIDs[drop.ZoneId] || dropNpcsNotInForever[drop.NpcId] {
+			if areaNames[drop.ZoneId] == "" || dropNpcsNotInForever[drop.NpcId] {
 				return false
 			}
 			drop.Difficulty = database.ParseDungeonDifficulty(raidZones[drop.ZoneId])

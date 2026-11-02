@@ -117,6 +117,7 @@ export const ItemListRow = ({
 	// Read through zustand rather than `useStoreSubscribe`: the answer is keyed by a prop, and that
 	// hook re-reads on a notification only, so a recycled row would keep the previous item's flag.
 	const inBatch = useStore(host.sim.store, () => !!batchPlayer && hasBulkItem(batchPlayer, batchSpec));
+	const faction = useStore(host.sim.store, () => batchPlayer?.getFaction());
 
 	const toggleCompare = () => {
 		const present = !!batchPlayer && hasBulkItem(batchPlayer, batchSpec);
@@ -137,9 +138,9 @@ export const ItemListRow = ({
 			notice={<ItemNoticeIcon itemId={isEnchantsTab ? undefined : itemData.id} enchantId={isEnchantsTab ? itemData.id : undefined} />}
 			source={
 				isItemsTab ? (
-					<ItemSource item={itemData.item as unknown as Item} sim={host.sim} />
+					<ItemSource item={itemData.item as unknown as Item} sim={host.sim} faction={faction} />
 				) : isEnchantsTab ? (
-					<ItemSource item={{ id: enchant.itemId, sources: enchant.sources }} sim={host.sim} />
+					<ItemSource item={{ id: enchant.itemId, sources: enchant.sources }} sim={host.sim} faction={faction} />
 				) : undefined
 			}
 			ep={ep}
