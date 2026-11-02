@@ -47,6 +47,9 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 				triggerProps={{ 'aria-label': menuLabel, 'data-testid': 'saved-data-transfer-button', disabled: !ready, ...tooltipAnchorProps(tooltipId) }}
 				side="bottom"
 				align="end">
+				<MenuItem layout="block" testId="saved-data-transfer-import" onClick={() => setOpen('import')}>
+					{i18n.t('saved_data_transfer.import')}
+				</MenuItem>
 				<MenuItem
 					layout="block"
 					testId="saved-data-transfer-export"
@@ -58,9 +61,6 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 						trackEvent({ action: 'settings', category: 'export', label });
 					}}>
 					{i18n.t('saved_data_transfer.export')}
-				</MenuItem>
-				<MenuItem layout="block" testId="saved-data-transfer-import" onClick={() => setOpen('import')}>
-					{i18n.t('saved_data_transfer.import')}
 				</MenuItem>
 			</Menu>
 			<Tooltip id={tooltipId} content={menuLabel} />
