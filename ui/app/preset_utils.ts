@@ -348,8 +348,8 @@ export const makePresetBuildFromJSON = (
 };
 
 /**
- * A build from a .siml file's JSON that leaves "in front of target" and item swap as the page has them: a .siml file
- * has no unset bool, so its settings: section turns both off. A build that turns item swap on says so with `itemSwap`.
+ * A build from a .siml file's JSON that leaves "in front of target" as the page has it: a .siml file has no unset bool,
+ * so its settings: section turns it off. Loading the build turns item swap on with its `itemSwap` and off without one.
  */
 export const makePresetBuildFromSiml = (name: string, spec: Spec, json: any, buildOptions?: PresetBuildOptions): PresetBuild => {
 	const preset = makePresetBuildFromJSON(name, spec, json, buildOptions);
