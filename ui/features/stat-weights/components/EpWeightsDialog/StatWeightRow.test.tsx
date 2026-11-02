@@ -1,5 +1,6 @@
 import type { StatWeightsResult } from '@generated/proto/api';
-import { Class, Stat } from '@generated/proto/common';
+import { Class, PseudoStat, Stat } from '@generated/proto/common';
+import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
@@ -9,6 +10,7 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { Table } from '@ui-kit/Table';
 import { describe, expect, it, vi } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { emptyStatWeightsResult } from '../../model/ep_math';
 import { StatWeightRow, StatWeightRowView, type StatWeightRowViewProps } from './StatWeightRow';
 
@@ -16,7 +18,7 @@ const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
 // The settings are the real class on a real store, so the toggle goes through the same store write
 // and subscription the dialog uses. The player only answers what the row reads.
-const setup = (editResult: (result: StatWeightsResult) => void = () => {}) => {
+const setup = (editResult: (result: StatWeightsResult) => void = () => {}, stat: UnitStat = AGILITY) => {
 	const store = createSimStore();
 	const storage = new Map<string, string>();
 	const player = {
@@ -41,7 +43,7 @@ const setup = (editResult: (result: StatWeightsResult) => void = () => {}) => {
 		<Table>
 			<tbody>
 				<StatWeightRow
-					stat={AGILITY}
+					stat={stat}
 					result={result}
 					iterations={1000}
 					epRatios={[1, 0, 0, 0, 0, 0]}
@@ -78,6 +80,29 @@ describe('StatWeightRow', () => {
 		expect(settings.isStatExcludedFromCalc(Stat.StatAgility)).toBe(false);
 		expect(container.querySelector('[data-notapplicable]')).toBeNull();
 		expect(epCell().textContent).toBe('0.79');
+	});
+
+	it('shows the change its runs made under the stat name, once a result has one', () => {
+		i18n.addResourceBundle('en', 'translation', english, true, true);
+		const stepText = (stat: UnitStat, modLow: number, modHigh: number) => {
+			const view = setup(result => {
+				result.modLow = new Stats().toProto();
+				result.modHigh = new Stats().toProto();
+				stat.setProtoValue(result.modLow, modLow);
+				stat.setProtoValue(result.modHigh, modHigh);
+			}, stat);
+			const text = view.container.querySelector('[data-testid="stat-weight-step"]')?.textContent;
+			view.unmount();
+			return text;
+		};
+
+		expect(stepText(AGILITY, 0, 0)).toBeUndefined();
+		expect(stepText(AGILITY, -10, 10)).toBe('±10');
+		expect(stepText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe('+10 rating');
+		expect(stepText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe('+10 rating (+1%)');
+		expect(stepText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / 14, 10 / 14)).toBe('±10 rating (±0.71%)');
+		expect(stepText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('±5');
+		i18n.removeResourceBundle('en', 'translation');
 	});
 
 	it("sizes the ± by the stat's own sample count, and by the run's iterations when the result has none", () => {
