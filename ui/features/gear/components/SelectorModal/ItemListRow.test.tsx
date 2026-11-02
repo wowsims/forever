@@ -107,7 +107,6 @@ describe('ItemListRow', () => {
 		const { container } = renderRow({
 			label: SelectorModalTabs.Enchants,
 			itemData: makeItemData({ ilvl: lvl, item: Enchant.create({ effectId: 1894, lvl }) as unknown as ItemListType }),
-			ep: undefined,
 		});
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});

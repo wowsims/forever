@@ -11762,6 +11762,15 @@
 										"copy_icon_description": {
 											"type": "string"
 										},
+										"rating_conversion": {
+											"type": "string"
+										},
+										"simulated_step": {
+											"type": "string"
+										},
+										"rating_weights_description": {
+											"type": "string"
+										},
 										"stat": {
 											"type": "string"
 										},
@@ -12033,6 +12042,9 @@
 										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
+										"rating_conversion",
+										"simulated_step",
+										"rating_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",
