@@ -2246,7 +2246,7 @@ func LoadCraftedItems(dbHelper *DBHelper) (
 	sourcesByItem map[int][]*proto.CraftedSource,
 ) {
 	const query = `
-		SELECT DISTINCT se.EffectItemType, sla.SkillLine, sla.Spell FROM SkillLineAbility sla
+		SELECT se.EffectItemType, sla.SkillLine, sla.Spell FROM SkillLineAbility sla
 		LEFT JOIN SpellEffect se ON sla.Spell == se.SpellID
 		WHERE se.Effect = 24
     `
@@ -2293,13 +2293,7 @@ func ScanRepItems(rows *sql.Rows) (itemID int, factionName string, ds *proto.Rep
 
 	// A side's faction names that side's races in its first race mask (the other side starts Hated in the
 	// second); a first mask naming races of both sides is every race's faction.
-	alliance := dbc.AlliedRaces.Matches(reputationRaceMask)
-	horde := dbc.HordeRaces.Matches(reputationRaceMask)
-	if alliance && !horde {
-		rep.FactionId = proto.Faction_Alliance
-	} else if horde && !alliance {
-		rep.FactionId = proto.Faction_Horde
-	}
+	rep.FactionId = factionOfRaceMask(reputationRaceMask)
 
 	rep.RepLevel = dbc.GetRepLevel(minReputation)
 	return itemID, factionName, &rep, nil

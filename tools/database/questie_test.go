@@ -196,10 +196,10 @@ func TestParseQuestieData(t *testing.T) {
 			{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 5, ZoneId: 1519}}},
 			{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 7, ZoneId: 28}}},
 		},
-		105: {{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}}},
+		105: {{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: worldDropName}}}},
 		106: {{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{NpcId: 5, NpcName: `Grizzle "Rings, Bands" O'Hare`, ZoneId: 1519}}}},
 		107: {{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{NpcId: 5, NpcName: `Grizzle "Rings, Bands" O'Hare`, ZoneId: 1519}}}},
-		108: {{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: MultipleNpcsName, ZoneId: 721}}}},
+		108: {{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 721}}}},
 		109: {
 			{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 5, ZoneId: 1519}}},
 			{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 7, ZoneId: 28}}},
@@ -264,20 +264,17 @@ func TestParseQuestieDataRejectsMalformedData(t *testing.T) {
 }
 
 func TestPruneQuestieSources(t *testing.T) {
-	drop := func(npcID, zoneID int32) *proto.UIItemSource {
-		return &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: npcID, ZoneId: zoneID}}}
-	}
 	soldBy := func(zoneID int32) *proto.UIItemSource {
 		return &proto.UIItemSource{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{NpcId: 1, ZoneId: zoneID}}}
 	}
 	quest := &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{Id: 1, Name: "Bounty"}}}
-	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}}
-	vendor, openWorld, inDungeon, inRaid := soldBy(28), drop(1, 28), drop(2, 2057), drop(3, 2717)
-	zoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: MultipleNpcsName, ZoneId: 2057}}}
-	lostZoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: MultipleNpcsName, ZoneId: 1585}}}
+	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: worldDropName}}}
+	vendor, openWorld, inDungeon, inRaid := soldBy(28), dropSource(1, 28), dropSource(2, 2057), dropSource(3, 2717)
+	zoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 2057}}}
+	lostZoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 1585}}}
 
 	questie := NewWowDatabase()
-	questie.Items[1] = &proto.UIItem{Id: 1, Sources: []*proto.UIItemSource{quest, vendor, soldBy(1585), openWorld, inDungeon, inRaid, drop(4, 1585), drop(5, 0), worldDrop, zoneDrop, lostZoneDrop}}
+	questie.Items[1] = &proto.UIItem{Id: 1, Sources: []*proto.UIItemSource{quest, vendor, soldBy(1585), openWorld, inDungeon, inRaid, dropSource(4, 1585), dropSource(5, 0), worldDrop, zoneDrop, lostZoneDrop}}
 	PruneQuestieSources(questie, map[int32]bool{2717: true}, map[int32]bool{2057: true}, map[int32]string{28: "Western Plaguelands", 2057: "Scholomance", 2717: "Molten Core"})
 
 	want := []*proto.UIItemSource{quest, vendor, openWorld, inDungeon, inRaid, worldDrop, zoneDrop}
@@ -308,7 +305,7 @@ func TestPruneQuestieSources(t *testing.T) {
 func TestAppendQuestieSources(t *testing.T) {
 	atlasDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 1, ZoneId: 2017, Difficulty: proto.DungeonDifficulty_DifficultyDungeon}}}
 	questieDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 2, ZoneId: 28}}}
-	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}}
+	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: worldDropName}}}
 	crafted := &proto.UIItemSource{Source: &proto.UIItemSource_Crafted{Crafted: &proto.CraftedSource{SpellId: 5}}}
 	questieVendor := &proto.UIItemSource{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{NpcId: 4}}}
 

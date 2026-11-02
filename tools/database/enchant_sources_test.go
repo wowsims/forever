@@ -108,7 +108,7 @@ func TestAddSourceZonesAndNpcs(t *testing.T) {
 	questie.Npcs[2] = &proto.UINPC{Id: 2, Name: "Scarlet Archmage", ZoneId: 139}
 	questie.Npcs[3] = &proto.UINPC{Id: 3, Name: "No Source Names Me", ZoneId: 139}
 
-	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}}
+	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: worldDropName}}}
 	enchant := &proto.UIEnchant{EffectId: 1, Sources: []*proto.UIItemSource{dropSource(1, 28), dropSource(2, 139), worldDrop, soldBySource(3)}}
 	questie.Npcs[4] = &proto.UINPC{Id: 4, Name: "On A Leftover Item", ZoneId: 28}
 	from := NewWowDatabase()

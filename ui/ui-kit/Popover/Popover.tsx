@@ -18,7 +18,7 @@ export interface PopoverProps {
 	anchor?: BasePopover.Positioner.Props['anchor'];
 	triggerClassName?: ClassValue;
 	triggerTestId?: string;
-	/** Forwarded to the trigger `<button>`: `aria-label` for an icon-only trigger, `tooltipAnchorProps(id)` for one that also carries a hover tooltip, and `openOnHover` with its `delay` for a popover that also opens on hover. */
+	/** Forwarded to the trigger `<button>`: `aria-label` for an icon-only trigger, `tooltipAnchorProps(id)` for one that also carries a hover tooltip, and `openOnHover` with its `delay` for a popover that also opens on hover. A hover popover inside a `Dialog` needs its own Escape handling, because the Dialog closes on Escape before the popover hears it. */
 	triggerProps?: Omit<BasePopover.Trigger.Props, 'className' | 'children' | 'render' | 'nativeButton'>;
 	/** The element focused on close, or its first tabbable child. Without it Base UI focuses the trigger, or what held focus before. */
 	finalFocus?: RefObject<HTMLElement | null>;

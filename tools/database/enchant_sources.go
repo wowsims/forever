@@ -23,8 +23,8 @@ func AddEnchantSources(enchants map[EnchantDBKey]*proto.UIEnchant, recipes map[E
 	for key, enchant := range enchants {
 		itemIDs := append([]int{int(enchant.ItemId)}, recipes[key]...)
 		var sources []*proto.UIItemSource
-		for i, itemID := range itemIDs {
-			if itemID == 0 || slices.Contains(itemIDs[:i], itemID) {
+		for _, itemID := range itemIDs {
+			if itemID == 0 {
 				continue
 			}
 			for _, source := range inputs.itemSources(itemID) {
@@ -47,21 +47,19 @@ func (inputs EnchantSourceInputs) itemSources(itemID int) []*proto.UIItemSource 
 		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Rep{Rep: rep}})
 	}
 	sources = append(sources, AtlasLootSourcesBeside(sources, inputs.Atlas.Items[int32(itemID)].GetSources())...)
-	return append(sources, questieSourcesBeside(sources, inputs.Questie.Items[int32(itemID)])...)
+	return append(sources, questieSourcesBeside(sources, inputs.Questie.Items[int32(itemID)].GetSources())...)
 }
 
 // AtlasLoot's sources for an item that already holds existing from the game files, less the ones they repeat: the
 // crafting spell both state, and a rep source of the faction the game files name.
 func AtlasLootSourcesBeside(existing, atlasLoot []*proto.UIItemSource) []*proto.UIItemSource {
-	firstRepFaction := int32(-1)
-	if i := slices.IndexFunc(existing, func(source *proto.UIItemSource) bool { return source.GetRep() != nil }); i >= 0 {
-		firstRepFaction = existing[i].GetRep().RepFactionId
-	}
 	return core.FilterSlice(atlasLoot, func(source *proto.UIItemSource) bool {
-		if rep := source.GetRep(); rep != nil && rep.RepFactionId == firstRepFaction {
-			return false
-		}
-		return !slices.ContainsFunc(existing, func(held *proto.UIItemSource) bool { return googleProto.Equal(held, source) })
+		return !slices.ContainsFunc(existing, func(held *proto.UIItemSource) bool {
+			if held.GetRep() != nil && source.GetRep() != nil {
+				return held.GetRep().RepFactionId == source.GetRep().RepFactionId
+			}
+			return googleProto.Equal(held, source)
+		})
 	})
 }
 

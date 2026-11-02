@@ -1,7 +1,7 @@
 import { ItemQuality, type ItemSpec } from '@generated/proto/common';
 import { UIEnchant as Enchant, type UIItem as Item } from '@generated/proto/ui';
 import { renderWithHost } from '@testing/react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -31,7 +31,6 @@ const store = vi.hoisted(() => {
 		notify: () => listeners.forEach(listener => listener()),
 	};
 });
-const playerFaction = vi.hoisted(() => ({ current: 1 }));
 
 vi.mock('@sim/hooks/useActionId', () => ({
 	useActionId: () => ({ iconUrl: 'icon-url.png', name: 'item-name', href: 'https://example.com/item', ready: true }),
@@ -90,7 +89,7 @@ const renderRow = (
 		...overrides,
 	};
 
-	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store }, player: { getFaction: () => playerFaction.current } });
+	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store }, player: {} });
 
 	return {
 		container,
@@ -135,16 +134,9 @@ describe('ItemListRow', () => {
 	it.each([
 		['items', SelectorModalTabs.Items],
 		['enchants', SelectorModalTabs.Enchants],
-	])("hands the %s tab's source cell the character's faction, and follows a change", (_tab, label) => {
-		playerFaction.current = 1;
-		const { container } = renderRow({ label, itemData: makeItemData({ item: Enchant.create({ effectId: 1 }) as unknown as ItemListType }) });
-		const marker = () => container.querySelector('[data-testid="item-source-marker"]');
-		expect(marker()?.getAttribute('data-faction')).toBe('1');
-
-		playerFaction.current = 2;
-		act(() => store.notify());
-		expect(marker()?.getAttribute('data-faction')).toBe('2');
-		playerFaction.current = 1;
+	])("hands the %s tab's source cell the faction it is given", (_tab, label) => {
+		const { container } = renderRow({ label, faction: 2, itemData: makeItemData({ item: Enchant.create({ effectId: 1 }) as unknown as ItemListType }) });
+		expect(container.querySelector('[data-testid="item-source-marker"]')?.getAttribute('data-faction')).toBe('2');
 	});
 
 	it('shows an enchant row the sources of the enchant, under its own item id', () => {

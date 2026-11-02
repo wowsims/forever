@@ -1,5 +1,13 @@
-import { Faction, ItemQuality, Profession, Race } from '@generated/proto/common';
-import { DungeonDifficulty, RepLevel, UIEnchant as Enchant, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { Faction, ItemQuality, ItemSlot, Profession, Race } from '@generated/proto/common';
+import {
+	DatabaseFilters,
+	DungeonDifficulty,
+	RepLevel,
+	SourceFilterOption,
+	UIEnchant as Enchant,
+	UIItem as Item,
+	UIItem_FactionRestriction,
+} from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { ActionId } from '@sim/proto/action_id';
 import { professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
@@ -13,10 +21,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
-import { ItemListRow, ItemListRowView } from './ItemListRow';
+import { ItemList } from './ItemList';
+import { ItemListRowView } from './ItemListRow';
 import { ItemSource } from './ItemSource';
 
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
+// Every row, so the test is about the faction the list hands a row rather than what it windowed.
+vi.mock('@ui-kit/VirtualList', () => ({
+	VirtualList: ({ count, renderRow }: any) => Array.from({ length: count }, (_unused, index) => <div key={index}>{renderRow(index)}</div>),
+}));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: '', ready: true }) }));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({ ItemNoticeIcon: () => null }));
 vi.mock('@features/bulk/model/gear/items', () => ({ hasBulkItem: () => false, addBulkItem: vi.fn(), removeBulkItem: vi.fn() }));
@@ -38,6 +51,8 @@ const sim = ({ zones = {}, npcs = {}, factions = {} }: DbStub = {}) =>
 
 const mount = (item: Item, dbStub: DbStub = {}) => render(<ItemSource item={item} sim={sim(dbStub)} />);
 
+const vendor = (npcId: number, npcName: string) => ({ source: { oneofKind: 'soldBy', soldBy: { npcId, npcName, zoneId: 0, faction: 0 } } }) as const;
+
 describe('ItemSource', () => {
 	it('links to the item page for an item with a pvp source', () => {
 		const item = Item.create({ id: 200, sources: [{ source: { oneofKind: 'pvp', pvp: {} } }] });
@@ -49,7 +64,6 @@ describe('ItemSource', () => {
 
 	it('shows no pvp source beside any other, and does not count it', () => {
 		const rep = { source: { oneofKind: 'rep', rep: { repFactionId: 730, repLevel: RepLevel.RepLevelRevered, factionId: 0 } } } as const;
-		const vendor = (npcId: number, npcName: string) => ({ source: { oneofKind: 'soldBy', soldBy: { npcId, npcName, zoneId: 0, faction: 0 } } }) as const;
 		const pvp = { source: { oneofKind: 'pvp', pvp: {} } } as const;
 
 		const withRep = mount(Item.create({ id: 210, sources: [pvp, rep] }), { factions: { 730: { id: 730, name: 'Stormpike Guard' } } });
@@ -108,30 +122,26 @@ describe('ItemSource', () => {
 			expect(getByRole('button').textContent).toBe('+1');
 		});
 
-		it("follows a race change on a real player, in a row of the item's tab", async () => {
+		it('follows a race change on a real player, in a row of the item list', async () => {
 			await serveDatabase();
 			const { player, host } = await makeIndividualSim();
 			player.setRace(Race.RaceHuman);
+			player.sim.setFilters(DatabaseFilters.create({ sources: [SourceFilterOption.SourceQuest] }));
 			const itemData = {
 				id: 22005,
 				item: Item.create({ id: 22005, sources: darkmantleCap }),
 				actionId: {},
 				name: 'Darkmantle Cap',
+				searchText: 'darkmantle cap',
 				quality: ItemQuality.ItemQualityRare,
+				phase: 1,
 				nameDescription: '',
+				onEquip: vi.fn(),
 			} as unknown as ItemData<ItemListType, ReactNode>;
+			const tab = { label: SelectorModalTabs.Items, itemData: [itemData], computeEP: () => 0, equippedToItem: () => null };
 			render(
 				<SimHostProvider host={host}>
-					<ItemListRow
-						itemData={itemData}
-						label={SelectorModalTabs.Items}
-						active={false}
-						favourited={false}
-						favouriteTooltipId="favourite"
-						compareTooltipId="compare"
-						onEquip={vi.fn()}
-						onToggleFavourite={vi.fn()}
-					/>
+					<ItemList tab={tab} slot={ItemSlot.ItemSlotNeck} equippedItem={null} />
 				</SimHostProvider>,
 			);
 			const questHref = () => within(screen.getByTestId('selector-modal-list-item-source-container')).getByRole('link').getAttribute('href');
@@ -334,7 +344,6 @@ describe('ItemSource', () => {
 	});
 
 	describe('the other sources', () => {
-		const vendor = (npcId: number, npcName: string) => ({ source: { oneofKind: 'soldBy', soldBy: { npcId, npcName, zoneId: 0, faction: 0 } } }) as const;
 		const drop = (npcId: number) => ({ source: { oneofKind: 'drop', drop: { zoneId: 28, npcId, difficulty: 0, otherName: '', category: '' } } }) as const;
 		const quest = { source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty', faction: 0 } } } as const;
 		const db: DbStub = { zones: { 28: { id: 28, name: 'Western Plaguelands' } }, npcs: { 4494: { id: 4494, name: 'Scarlet Spellbinder' } } };

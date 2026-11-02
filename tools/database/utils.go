@@ -95,6 +95,18 @@ func formatStrings(maxLength int, input []string) []string {
 	return result
 }
 
+// The side a race mask names: unknown when it names both sides or none, as 0 does.
+func factionOfRaceMask(mask dbc.Race) proto.Faction {
+	alliance, horde := dbc.AlliedRaces.Matches(mask), dbc.HordeRaces.Matches(mask)
+	if alliance && !horde {
+		return proto.Faction_Alliance
+	}
+	if horde && !alliance {
+		return proto.Faction_Horde
+	}
+	return proto.Faction_Unknown
+}
+
 func ParseDungeonDifficulty(isRaid bool) proto.DungeonDifficulty {
 	if isRaid {
 		return proto.DungeonDifficulty_DifficultyRaid

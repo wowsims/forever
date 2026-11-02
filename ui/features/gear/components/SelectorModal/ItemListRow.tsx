@@ -1,5 +1,5 @@
 import { addBulkItem, hasBulkItem, removeBulkItem } from '@features/bulk/model/gear/items';
-import { type ItemQuality, ItemSpec } from '@generated/proto/common';
+import { type Faction, type ItemQuality, ItemSpec } from '@generated/proto/common';
 import type { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useActionId } from '@sim/hooks/useActionId';
@@ -90,6 +90,8 @@ export interface ItemListRowProps {
 	favourited: boolean;
 	favouriteTooltipId: string;
 	compareTooltipId: string;
+	/** The character's side, whose quests and vendors the source column shows. */
+	faction?: Faction;
 	onEquip: () => void;
 	onToggleFavourite: () => void;
 }
@@ -102,6 +104,7 @@ export const ItemListRow = ({
 	favourited,
 	favouriteTooltipId,
 	compareTooltipId,
+	faction,
 	onEquip,
 	onToggleFavourite,
 }: ItemListRowProps) => {
@@ -111,13 +114,13 @@ export const ItemListRow = ({
 	const isEnchantsTab = label === SelectorModalTabs.Enchants;
 	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
+	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
 	const batchSpec = useMemo(() => ItemSpec.create({ id: itemData.id }), [itemData.id]);
 	// Read through zustand rather than `useStoreSubscribe`: the answer is keyed by a prop, and that
 	// hook re-reads on a notification only, so a recycled row would keep the previous item's flag.
 	const inBatch = useStore(host.sim.store, () => !!batchPlayer && hasBulkItem(batchPlayer, batchSpec));
-	const faction = useStore(host.sim.store, () => batchPlayer?.getFaction());
 
 	const toggleCompare = () => {
 		const present = !!batchPlayer && hasBulkItem(batchPlayer, batchSpec);
@@ -136,13 +139,7 @@ export const ItemListRow = ({
 			active={active}
 			onEquip={onEquip}
 			notice={<ItemNoticeIcon itemId={isEnchantsTab ? undefined : itemData.id} enchantId={isEnchantsTab ? itemData.id : undefined} />}
-			source={
-				isItemsTab ? (
-					<ItemSource item={itemData.item as unknown as Item} sim={host.sim} faction={faction} />
-				) : isEnchantsTab ? (
-					<ItemSource item={{ id: enchant.itemId, sources: enchant.sources }} sim={host.sim} faction={faction} />
-				) : undefined
-			}
+			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}
 			favouriteTooltipId={favouriteTooltipId}

@@ -17,6 +17,9 @@ export interface ItemSourceProps {
 	faction?: Faction;
 }
 
+// What the source helpers read: the character's faction only picks which sources show.
+type SourceContext = Pick<ItemSourceProps, 'item' | 'sim'>;
+
 // The cell shows the first source by kind, whatever order the sources come in, and the list behind `+N` the rest in this order.
 const KIND_ORDER = ['crafted', 'drop', 'quest', 'rep', 'pvp', 'soldBy'] as const;
 
@@ -37,14 +40,14 @@ const SourceLink = ({ href, children }: { href: string; children: ReactNode }) =
 );
 
 // False for a source it cannot name: a quest with no name, or a drop in a zone the database lacks.
-const canShowSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProps): boolean => {
+const canShowSource = ({ source }: ItemSourceEntry, { item, sim }: SourceContext): boolean => {
 	if (source.oneofKind === 'quest') return !!source.quest.name;
 	if (source.oneofKind !== 'drop' || isWorldDrop(source.drop) || sim.db.getZone(source.drop.zoneId)) return true;
 	console.error('No zone found for item:', item);
 	return false;
 };
 
-const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProps): ReactNode => {
+const renderSource = ({ source }: ItemSourceEntry, { item, sim }: SourceContext): ReactNode => {
 	switch (source.oneofKind) {
 		case 'crafted': {
 			const src = source.crafted;
@@ -132,7 +135,7 @@ const renderSource = ({ source }: ItemSourceEntry, { item, sim }: ItemSourceProp
 	}
 };
 
-const OtherSources = ({ entries, ...props }: ItemSourceProps & { entries: ItemSourceEntry[] }) => (
+const OtherSources = ({ entries, ...props }: SourceContext & { entries: ItemSourceEntry[] }) => (
 	<ul className="m-0 flex list-none flex-col gap-2 p-0">
 		{entries.map((entry, index) => (
 			<li key={index}>{renderSource(entry, props)}</li>
@@ -143,7 +146,7 @@ const OtherSources = ({ entries, ...props }: ItemSourceProps & { entries: ItemSo
 // A popover, because a react-tooltip in hover mode opens on touchstart and closes on the click that follows, so a tap
 // shows nothing. The list is its child, built only when shown: a row with over a hundred vendors re-renders without it.
 // The button sits above the row's click layer, as the link beside it does, so a press equips nothing.
-const MoreSources = ({ entries, ...props }: ItemSourceProps & { entries: ItemSourceEntry[] }) => {
+const MoreSources = ({ entries, ...props }: SourceContext & { entries: ItemSourceEntry[] }) => {
 	const [open, setOpen] = useState(false);
 	// The picker takes Escape first when focus is elsewhere in it and the list is open under the pointer.
 	useEffect(() => {
@@ -189,25 +192,28 @@ const isForOtherFaction = ({ source }: ItemSourceEntry, faction: Faction): boole
 	return faction !== Faction.Unknown && sourceFaction !== Faction.Unknown && sourceFaction !== faction;
 };
 
-export const ItemSource = ({ item, sim, faction = Faction.Unknown }: ItemSourceProps): ReactNode => {
-	if (!item.sources?.length) return null;
+// The entries that pass keep, or all of them when none does: an empty cell would say the item comes from nowhere.
+const preferring = (entries: ItemSourceEntry[], keep: (entry: ItemSourceEntry) => boolean): ItemSourceEntry[] => {
+	const kept = entries.filter(keep);
+	return kept.length ? kept : entries;
+};
 
-	const named = KIND_ORDER.flatMap(kind => item.sources.filter(entry => entry.source.oneofKind === kind)).filter(entry =>
-		canShowSource(entry, { item, sim }),
+export const ItemSource = ({ item, sim, faction = Faction.Unknown }: ItemSourceProps): ReactNode => {
+	const context = { item, sim };
+	const named = KIND_ORDER.flatMap(kind => item.sources.filter(entry => entry.source.oneofKind === kind)).filter(entry => canShowSource(entry, context));
+	// PvP is for the filter, so it shows only when the item has nothing else. Then the other side's quests and vendors
+	// stay out, unless they are all that is left. PvP goes first, so a PvP source for the other side cannot be the one left.
+	const [first, ...others] = preferring(
+		preferring(named, entry => entry.source.oneofKind !== 'pvp'),
+		entry => !isForOtherFaction(entry, faction),
 	);
-	// PvP is for the filter, so it shows only when the item has nothing else. The other side's quests and vendors stay
-	// out, unless they are all the item has: an empty cell would say it comes from nowhere.
-	const withoutPvp = named.filter(entry => entry.source.oneofKind !== 'pvp');
-	const kept = withoutPvp.length ? withoutPvp : named;
-	const own = kept.filter(entry => !isForOtherFaction(entry, faction));
-	const [first, ...others] = own.length ? own : kept;
 	if (!first) return null;
-	if (!others.length) return renderSource(first, { item, sim });
+	if (!others.length) return renderSource(first, context);
 
 	return (
 		<div className="flex items-start gap-2">
-			{renderSource(first, { item, sim })}
-			<MoreSources entries={others} item={item} sim={sim} />
+			{renderSource(first, context)}
+			<MoreSources entries={others} {...context} />
 		</div>
 	);
 };

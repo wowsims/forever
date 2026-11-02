@@ -3,7 +3,7 @@ import { SortDirection } from '@sim/constants/other';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 
-import { ItemListSortBy, tabHasLevel } from '../../model/item_sort';
+import { ItemListSortBy, tabHasLevel, tabHasSource } from '../../model/item_sort';
 import { getTranslatedTabLabel, SelectorModalTabs } from '../../types';
 import { columnHeaderLabel } from './utils';
 
@@ -38,7 +38,7 @@ export const ItemListHeaderRow = ({ label, ep, sortBy, sortDirection, onSort }: 
 			<h6 className="mr-2 flex-1" data-testid="item-label">
 				{columnHeaderLabel(label, getTranslatedTabLabel)}
 			</h6>
-			{(isItemsTab || label === SelectorModalTabs.Enchants) && (
+			{tabHasSource(label) && (
 				<h6 className="w-64" data-testid="source-label">
 					{i18n.t('gear_tab.gear_picker.table_headers.source')}
 				</h6>

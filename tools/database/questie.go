@@ -26,12 +26,12 @@ import (
 const questieRelease = "v1.0.9"
 
 // An item with more dropping NPCs than this takes one source in their place, since a list can run to hundreds of mobs:
-// MultipleNpcsName in their zone when they share one, else WorldDropName. Only QuestieDB's list says so: an item with no
+// multipleNpcsName in their zone when they share one, else worldDropName. Only QuestieDB's list says so: an item with no
 // drop data has no drop source.
 const (
 	questieMaxListedDrops = 5
-	WorldDropName         = "World Drop"
-	MultipleNpcsName      = "Multiple NPCs"
+	worldDropName         = "World Drop"
+	multipleNpcsName      = "Multiple NPCs"
 )
 
 // Every item QuestieDB lists a reward quest, a vendor or a dropping NPC for, as Quest, SoldBy and Drop sources, with
@@ -150,7 +150,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{
 				Id:      int32(questID),
 				Name:    name,
-				Faction: questieRacesFaction(races),
+				Faction: factionOfRaceMask(dbc.Race(races)),
 			}}})
 		}
 		soldInAZone := false
@@ -170,41 +170,15 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 				Faction: faction,
 			}}})
 		}
-		dropNpcIDs, err := item.ids(npcDrops)
-		if err != nil {
-			return nil, err
-		}
-		var dropNpcs []*proto.UINPC
-		for _, npcID := range dropNpcIDs {
-			npc, _, err := readNpc(npcID)
+		// An item a vendor sells takes no drops, recipes included: QuestieDB's drop lists hold an item's vendors. An NPC
+		// with no zone counts as no vendor, since it is pruned and an item it alone sells would rest on a source that
+		// never ships.
+		if !soldInAZone {
+			drops, err := questieDropSources(db, item, npcDrops, readNpc)
 			if err != nil {
 				return nil, err
 			}
-			if npc != nil && npc.ZoneId != 0 {
-				dropNpcs = append(dropNpcs, npc)
-			}
-		}
-		// An item a vendor sells takes no drops, recipes included: QuestieDB's drop lists hold an item's vendors. It comes
-		// before the count, so vendors cannot turn a list into one source. An NPC with no zone counts for neither list,
-		// since it is pruned and an item it alone sells or drops would rest on a source that never ships.
-		if soldInAZone {
-			dropNpcs = nil
-		}
-		if len(dropNpcs) > questieMaxListedDrops {
-			zone := dropNpcs[0].ZoneId
-			drop := &proto.DropSource{OtherName: WorldDropName}
-			if !slices.ContainsFunc(dropNpcs, func(npc *proto.UINPC) bool { return npc.ZoneId != zone }) {
-				drop = &proto.DropSource{OtherName: MultipleNpcsName, ZoneId: zone}
-			}
-			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: drop}})
-			dropNpcs = nil
-		}
-		for _, npc := range dropNpcs {
-			db.Npcs[npc.Id] = npc
-			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{
-				NpcId:  npc.Id,
-				ZoneId: npc.ZoneId,
-			}}})
+			sources = append(sources, drops...)
 		}
 		if len(sources) > 0 {
 			db.Items[int32(id)] = &proto.UIItem{Id: int32(id), Sources: sources}
@@ -213,17 +187,40 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 	return db, nil
 }
 
-// The side a quest's requiredRaces mask names, which holds the game's race bits: unknown when it names both sides or
-// none, as 0 does for a quest every race may take.
-func questieRacesFaction(races int64) proto.Faction {
-	alliance, horde := dbc.AlliedRaces.Matches(dbc.Race(races)), dbc.HordeRaces.Matches(dbc.Race(races))
-	if alliance && !horde {
-		return proto.Faction_Alliance
+// The drop sources of an item's dropping NPCs, which are added to db.Npcs: one source per NPC in a zone, or one
+// source in their place when over questieMaxListedDrops. An NPC with no zone counts for neither, since it is pruned.
+func questieDropSources(db *WowDatabase, item *questieRow, npcDrops int, readNpc func(int) (*proto.UINPC, proto.Faction, error)) ([]*proto.UIItemSource, error) {
+	dropNpcIDs, err := item.ids(npcDrops)
+	if err != nil {
+		return nil, err
 	}
-	if horde && !alliance {
-		return proto.Faction_Horde
+	var dropNpcs []*proto.UINPC
+	for _, npcID := range dropNpcIDs {
+		npc, _, err := readNpc(npcID)
+		if err != nil {
+			return nil, err
+		}
+		if npc != nil && npc.ZoneId != 0 {
+			dropNpcs = append(dropNpcs, npc)
+		}
 	}
-	return proto.Faction_Unknown
+	if len(dropNpcs) > questieMaxListedDrops {
+		zone := dropNpcs[0].ZoneId
+		drop := &proto.DropSource{OtherName: worldDropName}
+		if !slices.ContainsFunc(dropNpcs, func(npc *proto.UINPC) bool { return npc.ZoneId != zone }) {
+			drop = &proto.DropSource{OtherName: multipleNpcsName, ZoneId: zone}
+		}
+		return []*proto.UIItemSource{{Source: &proto.UIItemSource_Drop{Drop: drop}}}, nil
+	}
+	var sources []*proto.UIItemSource
+	for _, npc := range dropNpcs {
+		db.Npcs[npc.Id] = npc
+		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{
+			NpcId:  npc.Id,
+			ZoneId: npc.ZoneId,
+		}}})
+	}
+	return sources, nil
 }
 
 // The side an NPC's friendlyToFaction holds, "A" or "H": unknown for "AH", and for no value, an NPC hostile to both.
@@ -246,13 +243,11 @@ func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones map[int32
 				return areaNames[soldBy.ZoneId] != ""
 			}
 			drop := source.GetDrop()
-			if drop == nil || drop.GetOtherName() == WorldDropName {
+			if drop == nil || drop.ZoneId == 0 && drop.NpcId == 0 {
 				return true
 			}
-			if raidZones[drop.ZoneId] {
-				drop.Difficulty = proto.DungeonDifficulty_DifficultyRaid
-			} else if dungeonZones[drop.ZoneId] {
-				drop.Difficulty = proto.DungeonDifficulty_DifficultyDungeon
+			if raidZones[drop.ZoneId] || dungeonZones[drop.ZoneId] {
+				drop.Difficulty = ParseDungeonDifficulty(raidZones[drop.ZoneId])
 			}
 			return areaNames[drop.ZoneId] != ""
 		})
@@ -261,18 +256,18 @@ func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones map[int32
 
 // QuestieDB's sources for an item that already holds existing. An AtlasLoot drop stands in for QuestieDB's, since it
 // names the boss or the instance's trash where QuestieDB lists every mob.
-func questieSourcesBeside(existing []*proto.UIItemSource, questieItem *proto.UIItem) []*proto.UIItemSource {
+func questieSourcesBeside(existing []*proto.UIItemSource, questieSources []*proto.UIItemSource) []*proto.UIItemSource {
 	if !slices.ContainsFunc(existing, func(source *proto.UIItemSource) bool { return source.GetDrop() != nil }) {
-		return questieItem.GetSources()
+		return questieSources
 	}
-	return core.FilterSlice(questieItem.GetSources(), func(source *proto.UIItemSource) bool { return source.GetDrop() == nil })
+	return core.FilterSlice(questieSources, func(source *proto.UIItemSource) bool { return source.GetDrop() == nil })
 }
 
 // Adds QuestieDB's sources to the items the database has.
 func AppendQuestieSources(db, questie *WowDatabase) {
 	for id, questieItem := range questie.Items {
 		if item, ok := db.Items[id]; ok {
-			item.Sources = append(slices.Clip(item.Sources), questieSourcesBeside(item.Sources, questieItem)...)
+			item.Sources = append(slices.Clip(item.Sources), questieSourcesBeside(item.Sources, questieItem.GetSources())...)
 		}
 	}
 }
