@@ -14,6 +14,7 @@ import { NumberField } from '@ui-kit/TextField';
 import clsx from 'clsx';
 
 import { StatWeightCells } from './StatWeightCells';
+import { simulatedStepText } from './utils';
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
 export interface StatWeightRowMetric {
@@ -32,6 +33,8 @@ export interface StatWeightRowViewProps {
 	stat: UnitStat;
 	fullName: string;
 	shortName: string;
+	/** How far the sim moved the stat to measure it, shown under its name; absent without a run. */
+	simulatedStep?: string;
 	metrics: StatWeightRowMetric[];
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
@@ -50,6 +53,7 @@ export const StatWeightRowView = ({
 	stat,
 	fullName,
 	shortName,
+	simulatedStep,
 	metrics,
 	iterations,
 	epDelta,
@@ -64,7 +68,14 @@ export const StatWeightRowView = ({
 
 	return (
 		<TableRow>
-			<TableCell className={cellClassName}>{fullName}</TableCell>
+			<TableCell className={cellClassName}>
+				{fullName}
+				{simulatedStep && (
+					<div data-testid="stat-weight-simulated-step" className="text-muted">
+						{simulatedStep}
+					</div>
+				)}
+			</TableCell>
 			{showUpdateColumn && (
 				<TableCell testId="swcalc-include-toggle" className={cellClassName}>
 					{include && (
@@ -152,6 +163,7 @@ export const StatWeightRow = ({
 			stat={stat}
 			fullName={stat.getFullName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
+			simulatedStep={simulatedStepText(stat, rowResult)}
 			metrics={metrics}
 			iterations={samples}
 			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}

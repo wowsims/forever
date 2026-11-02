@@ -13,10 +13,10 @@ export const StatWeightValue = ({ value, stdev, iterations, className, sign }: S
 	<>
 		<span data-testid="results-avg" className={className} data-sign={sign}>
 			{value.toFixed(2)}
-		</span>
-		<span className="text-2xs">
+		</span>{' '}
+		<span className="whitespace-nowrap">
 			{'('}
-			<Icon name="plus-minus" size="xs" />
+			<Icon name="plus-minus" />
 			{stDevToConf90(stdev, iterations).toFixed(2)}
 			{')'}
 		</span>

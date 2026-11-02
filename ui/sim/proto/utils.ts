@@ -144,9 +144,9 @@ export const AL_CATEGORY_TITAN_RUNE = 'Titan Rune';
 // and the blessings. Nothing here depends on the class.
 export const defaultHealerRaidBuffs = (): RaidBuffs =>
 	RaidBuffs.create({
-		arcaneBrilliance: true,
-		giftOfTheWild: true,
-		prayerOfFortitude: true,
+		arcaneIntellect: true,
+		markOfTheWild: true,
+		powerWordFortitude: true,
 		prayerOfSpirit: true,
 	});
 
@@ -158,5 +158,5 @@ export const defaultHealerPartyBuffs = (): PartyBuffs =>
 export const defaultHealerIndividualBuffs = (): IndividualBuffs =>
 	IndividualBuffs.create({
 		greaterBlessingOfKings: true,
-		greaterBlessingOfWisdom: true,
+		greaterBlessingOfWisdom: 1,
 	});

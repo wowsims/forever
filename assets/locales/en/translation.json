@@ -648,7 +648,8 @@
 			"fire_resistance": "Fire Resistance",
 			"frost_resistance": "Frost Resistance",
 			"shadow_resistance": "Shadow Resistance",
-			"nature_resistance": "Nature Resistance"
+			"nature_resistance": "Nature Resistance",
+			"rank_select_tooltip": "Click to cycle {{ranks}}. The first needs no class book; the second does."
 		},
 		"party_buffs": {
 			"title": "Party Buffs",
@@ -2583,6 +2584,14 @@
 				"use_expose_armor": {
 					"label": "Use Expose Armor"
 				},
+				"use_backstab_rank_9": {
+					"label": "Backstab IX (Handbook)",
+					"tooltip": "Casts Backstab IX, taught by the Handbook of Backstab IX, in place of Backstab VIII from the trainer."
+				},
+				"use_eviscerate_rank_9": {
+					"label": "Eviscerate IX (Manual)",
+					"tooltip": "Casts Eviscerate IX, taught by the Manual of Eviscerate IX, in place of Eviscerate VIII from the trainer."
+				},
 				"apply_poisons_manually": {
 					"label": "Configure poisons manually",
 					"tooltip": "Prevent automatic poison configuration that is based on equipped weapons."
@@ -2660,6 +2669,14 @@
 				"use_hawk": {
 					"label": "Use Summon Hawk",
 					"tooltip": "Sends hawks between Arcane Shots, the two sharing a cooldown."
+				},
+				"use_serpent_sting_rank_9": {
+					"label": "Serpent Sting IX (Guide)",
+					"tooltip": "Casts Serpent Sting IX, taught by the Guide: Serpent Sting IX from Ruins of Ahn'Qiraj, in place of Serpent Sting VIII from the trainer."
+				},
+				"use_aspect_of_the_hawk_rank_7": {
+					"label": "Aspect of the Hawk VII (Guide)",
+					"tooltip": "Casts Aspect of the Hawk VII, taught by the Guide: Aspect of the Hawk VII from Ruins of Ahn'Qiraj, in place of Aspect of the Hawk VI from the trainer."
 				}
 			},
 			"paladin": {
@@ -3404,6 +3421,9 @@
 					"healing_reference": "Healing reference:",
 					"mitigation_reference": "Mitigation reference:",
 					"reference_description": "The above stat selectors control which reference stat is used for EP normalisation for the different EP columns.",
+					"simulated_step_rating": "{{sign}}{{rating}} rating",
+					"simulated_step_rating_percent": "{{sign}}{{rating}} rating ({{sign}}{{percent}}%)",
+					"simulated_step_description": "After a calculation, the line under each stat name shows how far the sim moved that stat to measure it: ± ran it both lower and higher, + only higher.",
 					"current_ep_description": "The 'Current EP' column displays the values currently used by the item pickers to sort items.",
 					"copy_icon_description": "Use the copy icon above the EPs to use newly calculated EPs.",
 					"stat": "Stat",

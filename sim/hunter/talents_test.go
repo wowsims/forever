@@ -45,7 +45,7 @@ func TestAspectOfTheCheetahSpeedWithPathfindingAndDazed(t *testing.T) {
 		assertSpeed(t, "a dazed hunter in Cheetah", hunter.GetMovementSpeed(), base*(1+tc.speed)*0.3)
 		dazed.Deactivate(sim)
 
-		hunter.GetSpell(core.ActionID{SpellID: aspectOfTheHawkRank.ID}).SkipCastAndApplyEffects(sim, hunter.CurrentTarget)
+		hunter.GetSpell(core.ActionID{SpellID: aspectOfTheHawkBookRank.ID}).SkipCastAndApplyEffects(sim, hunter.CurrentTarget)
 		if hunter.GetAura(aspectOfTheCheetahRank.Name).IsActive() {
 			t.Error("Aspect of the Hawk left Aspect of the Cheetah up, want one aspect at a time")
 		}
@@ -121,7 +121,8 @@ func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
 	sim, hunter := newTalentSim("-0000002", proto.HunterOptions_PetNone)
 	target := sim.Encounter.AllTargets[0]
 	buff := hunter.GetAuraByID(core.ActionID{SpellID: rapidKillingBuff.ID})
-	sting := hunter.GetSpell(core.ActionID{SpellID: serpentStingRank.ID})
+	trainerSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingTrainerRank.ID})
+	bookSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID})
 	grants := 0
 	sim.Log = func(message string, vals ...any) {
 		line := fmt.Sprintf(message, vals...)
@@ -139,19 +140,20 @@ func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
 
 	for _, c := range []struct {
 		name      string
-		stung     bool
+		sting     *core.Spell
 		killShare float64
 		grants    int
 	}{
-		{"an unstung death with no kill credit", false, 0, 0},
-		{"an unstung killing blow", false, 1, 1},
-		{"a stung death with no kill credit", true, 0, 1},
-		{"a stung killing blow", true, 1, 1},
+		{"an unstung death with no kill credit", nil, 0, 0},
+		{"an unstung killing blow", nil, 1, 1},
+		{"a trainer rank stung death with no kill credit", trainerSting, 0, 1},
+		{"a book rank stung death with no kill credit", bookSting, 0, 1},
+		{"a stung killing blow", bookSting, 1, 1},
 	} {
 		buff.Deactivate(sim)
 		target.Enable(sim)
-		if c.stung {
-			sting.Dot(&target.Unit).Apply(sim)
+		if c.sting != nil {
+			c.sting.Dot(&target.Unit).Apply(sim)
 		}
 		grants = 0
 

@@ -127,7 +127,8 @@ func (hunter *Hunter) registerRapidKilling() {
 	// Serpent Sting registers after the talents. Both checks run while the dying target still carries
 	// its dots.
 	stung := func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-		return hunter.GetSpell(core.ActionID{SpellID: serpentStingRank.ID}).Dot(result.Target).IsActive()
+		return hunter.GetSpell(core.ActionID{SpellID: serpentStingTrainerRank.ID}).Dot(result.Target).IsActive() ||
+			hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}).Dot(result.Target).IsActive()
 	}
 
 	trigger := spelldata.ProcTrigger(&hunter.Character, rank, grant)
@@ -208,7 +209,7 @@ func (hunter *Hunter) registerRapidRecuperation() {
 			hunter.gainRapidRecuperation(sim, hit)
 		})
 	trigger.Name = "Rapid Recuperation - Trigger"
-	trigger.ClassFlags = serpentStingRank.ClassFlags
+	trigger.ClassFlags = serpentStingBookRank.ClassFlags
 	trigger.RequireDamageDealt = false
 
 	hunter.MakeProcTriggerAura(trigger)
