@@ -11,10 +11,11 @@ import { roundFloat } from '@sim/utils/math';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { NumberField } from '@ui-kit/TextField';
+import { TooltipButton } from '@ui-kit/TooltipButton';
 import clsx from 'clsx';
 
 import { StatWeightCells } from './StatWeightCells';
-import { simulatedStepText } from './utils';
+import { statHelpLines } from './utils';
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
 export interface StatWeightRowMetric {
@@ -33,8 +34,8 @@ export interface StatWeightRowViewProps {
 	stat: UnitStat;
 	fullName: string;
 	shortName: string;
-	/** How far the sim moved the stat to measure it, shown under its name; absent without a run. */
-	simulatedStep?: string;
+	/** The tooltip of the icon next to the stat name, one line each; no icon without any. */
+	helpLines?: string[];
 	metrics: StatWeightRowMetric[];
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
@@ -53,7 +54,7 @@ export const StatWeightRowView = ({
 	stat,
 	fullName,
 	shortName,
-	simulatedStep,
+	helpLines = [],
 	metrics,
 	iterations,
 	epDelta,
@@ -69,12 +70,17 @@ export const StatWeightRowView = ({
 	return (
 		<TableRow>
 			<TableCell className={cellClassName}>
-				{fullName}
-				{simulatedStep && (
-					<div data-testid="stat-weight-simulated-step" className="text-muted">
-						{simulatedStep}
-					</div>
-				)}
+				<span className="inline-flex items-center gap-1">
+					{fullName}
+					{helpLines.length > 0 && (
+						<TooltipButton
+							tooltip={helpLines.map(line => (
+								<div key={line}>{line}</div>
+							))}
+							label={helpLines.join(', ')}
+						/>
+					)}
+				</span>
 			</TableCell>
 			{showUpdateColumn && (
 				<TableCell testId="swcalc-include-toggle" className={cellClassName}>
@@ -163,7 +169,7 @@ export const StatWeightRow = ({
 			stat={stat}
 			fullName={stat.getFullName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
-			simulatedStep={simulatedStepText(stat, rowResult)}
+			helpLines={statHelpLines(stat, rowResult)}
 			metrics={metrics}
 			iterations={samples}
 			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}
