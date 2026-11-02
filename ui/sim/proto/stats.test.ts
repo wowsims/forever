@@ -101,7 +101,7 @@ describe('UnitStat', () => {
 		['a stored ranged hit percent weight per percentage point', UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 3.3, 3.3],
 		['a defense rating weight, which has no percent', UnitStat.fromStat(Stat.StatDefenseRating), 0.5, 0.5],
 		['an agility weight', UnitStat.fromStat(Stat.StatAgility), 1.9, 1.9],
-	])('shows %s as EP per shown unit and reads it back', (_name, unitStat, stored, shown) => {
+	])('shows %s as EP per percentage point, or as stored, and reads it back', (_name, unitStat, stored, shown) => {
 		expect(unitStat.storedEpToShown(stored)).toBeCloseTo(shown, 10);
 		expect(unitStat.shownEpToStored(shown)).toBeCloseTo(stored, 10);
 	});

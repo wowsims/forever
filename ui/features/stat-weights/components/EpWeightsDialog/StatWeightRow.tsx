@@ -40,7 +40,7 @@ export interface StatWeightRowViewProps {
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
 	epDelta: number;
-	/** The stored EP weight; the Current EP cell shows it per shown unit. */
+	/** The stored EP weight; the Current EP cell shows it per percentage point for a rating with a percent, as stored otherwise. */
 	currentEp: number;
 	/** Called with the stored unit. */
 	onCurrentEpChange: (value: number) => void;

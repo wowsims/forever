@@ -18,7 +18,7 @@ const simulatedStepText = (stat: UnitStat, result: StatWeightsResult | null): st
 	const stepAbove = result?.stepAbove ? stat.getProtoValue(result.stepAbove) : 0;
 	if (stepAbove === 0) return undefined;
 	const sign = result?.stepBelow && stat.getProtoValue(result.stepBelow) !== 0 ? '±' : '+';
-	if (stat.isPercentRating()) {
+	if (stat.isPercentRating() || stat.isRatingBackedPercent()) {
 		const percent = stat.isStat() ? stat.convertRatingToPercent(stepAbove)! : stepAbove;
 		return i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_percent', { sign, percent: formatToNumber(percent) });
 	}

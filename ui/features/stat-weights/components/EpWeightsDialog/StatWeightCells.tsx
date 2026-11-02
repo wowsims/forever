@@ -12,7 +12,7 @@ export interface StatWeightCellsProps {
 	statWeights?: StatWeightValues;
 	iterations: number;
 	epRatio: number;
-	/** In the stored unit, like the weights; the cells show both per shown unit. */
+	/** In the stored unit, like the weights; the cells show both per percentage point for a rating with a percent, as stored otherwise. */
 	epDelta: number;
 	cellClassName: string;
 }

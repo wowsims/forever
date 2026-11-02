@@ -113,6 +113,7 @@ describe('StatWeightRow', () => {
 			expect(helpText(UnitStat.fromStat(Stat.StatCritRating), -crit, crit)).toBe('Simulated step: ±1%');
 			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, hit)).toBe('Simulated step: +1%');
 			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -1, 1)).toBe('Simulated step: ±1%');
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), -1, 1)).toBe('Simulated step: ±1%');
 			expect(helpText(AGILITY, -10, 10)).toBe('Simulated step: ±10');
 			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('Simulated step: ±5');
 			expect(helpText(UnitStat.fromStat(Stat.StatArmorPenetration), -100, 100)).toBe('Simulated step: ±100');

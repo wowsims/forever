@@ -118,7 +118,7 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 
 // The rating behind a stat and how much of it one unit of the stat costs: a stat is its own rating at 1, a
 // percent pseudo stat costs its rating per percent. hasRating is false for any other pseudo stat, which costs 1.
-// A percent's cost matches UnitStat.epRatingScale in the UI; the two are kept in sync by hand.
+// A percent's cost matches UnitStat.convertPercentToRating(1) in the UI; the two are kept in sync by hand.
 func ratingBehindStat(stat stats.UnitStat) (rating stats.Stat, ratingPerUnit float64, hasRating bool) {
 	if stat.IsStat() {
 		return stats.Stat(stat.StatIdx()), 1, true

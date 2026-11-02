@@ -340,7 +340,7 @@ describe('EpWeightsDialog', () => {
 		]);
 	});
 
-	it('explains the rating weights and the simulated step in a footnote', () => {
+	it('explains the per 1% weights and the simulated step in a footnote', () => {
 		renderDialog();
 		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.percent_weights_description');
 		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');

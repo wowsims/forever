@@ -3247,7 +3247,7 @@
 					"compute_weighted_ep": "Compute Weighted EP",
 					"dps_weight": {
 						"label": "DPS Weight",
-						"tooltip": "Per-point increase in DPS (Damage Per Second) for each stat."
+						"tooltip": "Increase in DPS (Damage Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"dps_ep": {
 						"label": "DPS EP",
@@ -3255,7 +3255,7 @@
 					},
 					"hps_weight": {
 						"label": "HPS Weight",
-						"tooltip": "Per-point increase in HPS (Healing Per Second) for each stat."
+						"tooltip": "Increase in HPS (Healing Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"hps_ep": {
 						"label": "HPS EP",
@@ -3263,7 +3263,7 @@
 					},
 					"tps_weight": {
 						"label": "TPS Weight",
-						"tooltip": "Per-point increase in TPS (Threat Per Second) for each stat."
+						"tooltip": "Increase in TPS (Threat Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"tps_ep": {
 						"label": "TPS EP",
@@ -3271,7 +3271,7 @@
 					},
 					"dtps_weight": {
 						"label": "DTPS Weight",
-						"tooltip": "Per-point increase in DTPS (Damage Taken Per Second) for each stat."
+						"tooltip": "Increase in DTPS (Damage Taken Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"dtps_ep": {
 						"label": "DTPS EP",
@@ -3279,7 +3279,7 @@
 					},
 					"tmi_weight": {
 						"label": "TMI Weight",
-						"tooltip": "Per-point decrease in TMI (Theck-Meloree Index) for each stat."
+						"tooltip": "Decrease in TMI (Theck-Meloree Index) per point of each stat, or per 1% for a percent stat."
 					},
 					"tmi_ep": {
 						"label": "TMI EP",
@@ -3287,7 +3287,7 @@
 					},
 					"death_weight": {
 						"label": "Death Weight",
-						"tooltip": "Per-point decrease in p(death) for each stat."
+						"tooltip": "Decrease in p(death) per point of each stat, or per 1% for a percent stat."
 					},
 					"death_ep": {
 						"label": "Death EP",
