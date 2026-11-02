@@ -61,7 +61,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	judgement := paladin.RegisterSpell(judgementConfig)
 
 	value := perHit.Average()
-	procSpell := paladin.RegisterSpell(core.SpellConfig{
+	procConfig := core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: sealOfRighteousnessProcIDs[rank.RankNumber()]},
 		SpellSchool: core.SpellSchoolHoly,
 		DefenseType: core.DefenseTypeMelee,
@@ -87,7 +87,9 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 			result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 			dealAfterBatch(sim, spell, result)
 		},
-	})
+	}
+	procSpell := paladin.RegisterSpell(procConfig)
+	echoSpell := paladin.registerEchoHit(procConfig, echoOfRighteousnessID)
 
 	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:            rank.RankedLabel(&paladin.Unit),
@@ -109,7 +111,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		judgement: judgement,
 		echoID:    echoOfRighteousnessID,
 		echo: func(sim *core.Simulation, target *core.Unit) {
-			procSpell.Cast(sim, target)
+			echoSpell.Cast(sim, target)
 		},
 	})
 }
