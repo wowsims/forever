@@ -81,14 +81,10 @@ export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// A build from `json` that keeps the page's simple rotation, which picks the Default or the Holy Shock APL from the
-// talents, and leaves "in front of target" as the page has it: a .siml file has no unset bool, so its settings: section
-// turns it off. Item swap is the build's itemSwap, on with it and off without.
-const build = (name: string, json: any, options: PresetUtils.PresetBuildOptions): PresetUtils.PresetBuild => {
-	const preset = PresetUtils.makePresetBuildFromJSON(name, Spec.SpecRetributionPaladin, json, { rotationType: APLRotationType.TypeSimple, ...options });
-	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings!.playerOptions!;
-	return { ...preset, settings: { ...preset.settings!, playerOptions } };
-};
+// A build that keeps the page's simple rotation, which picks the Default or the Holy Shock APL from the talents. Item
+// swap is the build's itemSwap, on with it and off without.
+const build = (name: string, json: any, options: PresetUtils.PresetBuildOptions): PresetUtils.PresetBuild =>
+	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecRetributionPaladin, json, { rotationType: APLRotationType.TypeSimple, ...options });
 
 export const DefaultBuild = build('Unsealed Wrath', UnsealedWrathBuildJson, { gear: DefaultGearPreset });
 export const HolyShockBuild = build('Holy Shock', HolyShockBuildJson, { gear: HolyShockGearPreset, itemSwap: HolyShockItemSwap });

@@ -49,13 +49,18 @@ export function buildCategories(build: PresetBuild): Array<string> {
  * talents the player has not loaded.
  */
 export function isBuildActive(
-	{ gear, rotation, rotationType, talents, epWeights, encounter, settings }: PresetBuild,
+	{ gear, itemSwap, rotation, rotationType, talents, epWeights, encounter, settings }: PresetBuild,
 	simUI: IndividualSimHost<Spec>,
 	categories?: Array<PresetConfigurationCategory>,
 ): boolean {
 	const checks = (category: PresetConfigurationCategory) => !categories || categories.includes(category);
 
 	const hasGear = checks(PresetConfigurationCategory.Gear) && gear ? EquipmentSpec.equals(gear.gear, simUI.player.getGear().asSpec()) : true;
+	// A build's swap set goes with its gear, and loading the build turns item swap on with it.
+	const hasSwapSet =
+		checks(PresetConfigurationCategory.Gear) && itemSwap
+			? simUI.player.itemSwapSettings.getEnableItemSwap() && isEqualItemSwap(simUI.player.itemSwapSettings.toProto(), itemSwap.itemSwap)
+			: true;
 	const hasTalents =
 		checks(PresetConfigurationCategory.Talents) && talents
 			? SavedTalents.equals(talents.data, SavedTalents.create({ talentsString: simUI.player.getTalentsString() }))
@@ -130,6 +135,7 @@ export function isBuildActive(
 		hasDistanceFromTarget &&
 		hasEnableItemSwap &&
 		hasItemSwap &&
+		hasSwapSet &&
 		hasSpecOptions &&
 		hasConsumables &&
 		hasPartyBuffs &&
