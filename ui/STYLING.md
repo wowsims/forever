@@ -233,6 +233,10 @@ job: never add a hand-written `onKeyDown` that swallows Escape, and never portal
 floating tree in a way that breaks topmost-first closing. If Escape or click-outside misbehaves, the
 fix is almost always removing whatever broke the native layering, not adding logic on top of it.
 
+`Dialog`'s body sets `text-sm`, the content size, on its text and field labels. A dialog's text inherits it, so a
+hint or a value takes no size of its own unless it is meant to differ from the content. Controls keep their
+`--control-*-font-size` tokens, and a popup portaled out of the body keeps its own size.
+
 ## 7. The gates
 
 The tree-wide tests at the `ui/` root run in `npm run test:unit`, all under
