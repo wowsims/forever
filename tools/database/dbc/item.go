@@ -99,13 +99,13 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		Ilvl:            int32(item.ItemLevel),
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
-		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
+		// Equipped damage is rounded; a form that swings at its own speed needs the DPS before rounding.
 		dps, _ := dbcInstance.WeaponDPS(item, item.ItemLevel)
-		scalingProperties[0].UnroundedDps = float32(dps)
+		scalingProperties[0].UnroundedDps = item.unroundedDps(dps)
 		if item.hasReducedCasterDpsSuffix() {
 			dps, _ := dbcInstance.ReducedCasterWeaponDPS(item, item.ItemLevel)
 			low, high := item.WeaponDamage(dps)
-			scalingProperties[0].ReducedCasterWeaponDamage = &proto.ReducedCasterWeaponDamage{WeaponDamageMin: low, WeaponDamageMax: high, UnroundedDps: float32(dps)}
+			scalingProperties[0].ReducedCasterWeaponDamage = &proto.ReducedCasterWeaponDamage{WeaponDamageMin: low, WeaponDamageMax: high, UnroundedDps: item.unroundedDps(dps)}
 		}
 	}
 

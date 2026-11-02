@@ -1103,6 +1103,17 @@ var HolidayConsumables = map[int32]string{
 
 // Raid buffs / debuffs
 var SharedSpellsIcons = []int32{
+	// The buffs the raid and individual buff rank selects offer
+	9885,
+	10938,
+	10958,
+	21562,
+	21849,
+	21850,
+	23028,
+	25782,
+	25894,
+
 	// Registered CD's
 	10060,
 	16190,

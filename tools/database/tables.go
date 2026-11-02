@@ -651,6 +651,8 @@ func LoadAndWriteRandomPropAllocations(dbHelper *DBHelper, inputsDir string) (ma
 			proto.ItemQuality_ItemQualityEpic:     [5]int32{r.Allocation.Epic0, r.Allocation.Epic1, r.Allocation.Epic2, r.Allocation.Epic3, r.Allocation.Epic4},
 			proto.ItemQuality_ItemQualityRare:     [5]int32{r.Allocation.Superior0, r.Allocation.Superior1, r.Allocation.Superior2, r.Allocation.Superior3, r.Allocation.Superior4},
 			proto.ItemQuality_ItemQualityUncommon: [5]int32{r.Allocation.Good0, r.Allocation.Good1, r.Allocation.Good2, r.Allocation.Good3, r.Allocation.Good4},
+			// The table has no legendary column. The epic one reproduces the stats on every legendary's tooltip.
+			proto.ItemQuality_ItemQualityLegendary: [5]int32{r.Allocation.Epic0, r.Allocation.Epic1, r.Allocation.Epic2, r.Allocation.Epic3, r.Allocation.Epic4},
 		}
 	}
 	json, _ := json.Marshal(randProps)

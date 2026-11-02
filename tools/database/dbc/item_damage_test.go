@@ -83,6 +83,37 @@ func TestUnroundedDPS(t *testing.T) {
 	}
 }
 
+// QualityModifier moves both ends of the damage range by its value per second, so the DPS before
+// rounding moves with it, on the reduced caster share too, and an item with no table cell stays at none.
+func TestUnroundedDPSCarriesTheQualityModifier(t *testing.T) {
+	once.Do(func() {})
+	previous := dbcInstance
+	dbcInstance = NewDBC()
+	t.Cleanup(func() { dbcInstance = previous })
+	const cell, modifier = 30.0, -6.0
+	dbcInstance.ItemDamageTable["ItemDamageOneHand"] = map[int]ItemDamageTable{22: {Quality: []float64{0, 0, 0, cell, 0, 0, 0}}}
+	dbcInstance.RandomSuffix[1] = RandomSuffix{ReducedCasterDps: true}
+	item := Item{Id: 1, ItemClass: ITEM_CLASS_WEAPON, InventoryType: INVTYPE_WEAPON, ItemDelay: 2000, ItemLevel: 22,
+		OverallQuality: 3, DmgVariance: 0.4, QualityModifier: modifier, RandomSuffixOptions: []int32{1}}
+
+	generated := item.ToUIItem().ScalingOptions[0]
+
+	if got, want := generated.UnroundedDps, float32(cell+modifier); got != want {
+		t.Errorf("unrounded DPS = %v, want %v", got, want)
+	}
+	if got, want := (generated.WeaponDamageMin+generated.WeaponDamageMax)/2/2, float64(generated.UnroundedDps); got != want {
+		t.Errorf("the damage range averages %v DPS, unrounded DPS is %v", got, want)
+	}
+	if got, want := generated.ReducedCasterWeaponDamage.UnroundedDps, float32(cell*casterOneHandDpsShare+modifier); got != want {
+		t.Errorf("reduced caster unrounded DPS = %v, want %v", got, want)
+	}
+
+	item.ItemLevel = 23
+	if got := item.ToUIItem().ScalingOptions[0].UnroundedDps; got != 0 {
+		t.Errorf("no table cell gives unrounded DPS %v, want 0", got)
+	}
+}
+
 func TestWeaponDPSIsZeroWhenSourceTableIsMissing(t *testing.T) {
 	// Given
 	once.Do(func() {})
