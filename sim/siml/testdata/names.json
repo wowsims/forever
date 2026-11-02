@@ -23,6 +23,7 @@
 				"arcane_shot": { "spellId": 14287, "rank": 8, "registeredBy": ["hunter"] },
 				"aspect_of_the_hawk": { "spellId": 14322, "rank": 6, "registeredBy": ["hunter"] },
 				"aura_spell": { "spellId": 990201, "registeredBy": ["hunter"] },
+				"deadly_aspects": { "spellId": 19552, "registeredBy": ["hunter"] },
 				"hunter_shot": { "spellId": 900010, "registeredBy": ["hunter"] },
 				"hunters_mark": { "spellId": 14325, "rank": 4, "registeredBy": ["hunter"] },
 				"item_spell": { "spellId": 990202, "registeredBy": ["hunter"] },
@@ -40,7 +41,7 @@
 				"steady_shot_tag1": { "spellId": 900001, "tag": 1, "registeredBy": [] },
 				"strider_kick": { "spellId": 1317257, "rank": 1, "registeredBy": ["hunter"] },
 				"summon_hawk": { "spellId": 1293527, "rank": 4, "registeredBy": ["hunter"] },
-				"talent_only": { "spellId": 990220, "registeredBy": ["hunter"], "talentOnlyBy": ["hunter"], "uncastable": true },
+				"talent_only": { "spellId": 19583, "registeredBy": ["hunter"], "talentOnlyBy": ["hunter"], "uncastable": true },
 				"target_spell": { "spellId": 990205, "registeredBy": ["hunter"] },
 				"volley": { "spellId": 14295, "registeredBy": [] },
 				"x": { "spellId": 5, "registeredBy": [] }

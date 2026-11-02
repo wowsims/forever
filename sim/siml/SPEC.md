@@ -863,7 +863,7 @@ meaning among the shared entries.
   proto only for the site's labels. So an `ActionID` with a `spellId` prints by the name of its spell id and tag
   whatever its rank, and reads back with the rank of the name's entry. §12.4 compares ranks that way. The one
   exception is the talent of `talent_is_known`, whose rank is the points the player must hold: one with a rank above
-  1 prints as a raw ref (§7.4) and keeps its rank.
+  1 prints as a raw ref and keeps its rank. A committed file writes that test `talent_rank(x) >= N` instead.
 - **Raw refs.** An `ActionID`, item, enchant or suffix that the table does not name prints as raw JSON for its node:
   the ref itself (``cast `{"spellId":123}` ``), or the slot and a raw `ItemSpec` for a slot row (§12.2). It comes
   from a site export of something the generator never saw, or from a `talent_is_known` talent with a rank above 1,
@@ -938,7 +938,11 @@ meaning among the shared entries.
 - `talentOnlyBy`, only on a `spell` entry and left out when empty, lists the specs of `registeredBy` whose builds
   list the spell only as a talent they hold (step 2 of the generator), in byte order. For a file of one of those
   specs the sim finds it in `talent_is_known` and `talent_rank` and in no other spell position, where a name of it is
-  `talent-only` (§13); a cast of it is `talent-only` and not also `not-castable`.
+  `talent-only` (§13); a cast of it is `talent-only` and not also `not-castable`. Those two kinds read a talent's own
+  spell, the `talent_spell_id` option of its field in the class's talents message, which can differ from the spell
+  the talent teaches (`holy_shock` is rank 4 of the spell; the talent is `holy_shock_1311606`), and a name of any
+  other spell there is `not-a-talent` (§13). Editors offer and suggest a talent's own spell only in those two kinds,
+  and a `talentOnlyBy` spell nowhere else.
 - `icdOnlyItems` names the items whose effect the listed specs' builds list only as an internal cooldown trigger, by
   an item name of `items`, with the specs in byte order. It is written again from the builds on each regeneration. For
   a file of one of those specs, `item.<name>` in an aura position outside `icd_is_ready`, `internal_cooldown` and
@@ -1010,11 +1014,11 @@ up-to-date check (below) is what catches a table not committed. The generator:
 2. **Collects** a build's player spells into `spell`, its player auras into `aura`, its pets' auras into
    `pet_aura`, and its targets' auras and spells into `target_aura` and `target_spell`. Each is collected by spell
    id and tag, with the highest rank any build registers it with, and whether a build registers it castable
-   (`SpellStats.is_castable`). The talents a build holds (`UnitMetadata.talents`) go into `spell` too, uncastable
-   and with no rank, since `talent_is_known` and `talent_rank` read a spell name and most talents register no
-   spell: `talent_is_known(unsealed_wrath)` holds at any rank. A talent a spec's builds list as no spell of theirs
-   goes into its `talentOnlyBy`. The printer writes a `talent_is_known` whose talent has a rank above 1 as raw JSON;
-   with a name the same test is `talent_rank(x) >= N`. Item and other ids are no spell-like names. What these builds register is the class's.
+   (`SpellStats.is_castable`). The talents a build holds (`UnitMetadata.talents`) go into `spell` too, since
+   `talent_is_known` and `talent_rank` read a spell name and most talents register no spell; one the build registers
+   as no spell is uncastable and has no rank, so `talent_is_known(unsealed_wrath)` holds at any rank. A talent a
+   spec's builds list as no spell of theirs goes into its `talentOnlyBy`. Item and other ids are no spell-like names.
+   What these builds register is the class's.
 3. **Adds the shared entries.** Each spec is built with its first race, every talent at its highest rank, its
    default options and every buff (or, when that fails, as its first build that succeeded with every buff), and
    one of:
@@ -1073,8 +1077,9 @@ up-to-date check (below) is what catches a table not committed. The generator:
     casts takes its game name before what gear adds.
 
 9. **Keeps every pinned entry.** An entry keeps its name, id, tag, rank and slots whatever the inputs; only
-   `registeredBy`, `icdOnlyBy`, `talentOnlyBy` and `uncastable` are regenerated. An id that no build registers keeps its entry,
-   with an empty `registeredBy`. A spell, item, enchant row or suffix that the game files rename keeps its old name;
+   `registeredBy`, `icdOnlyBy`, `talentOnlyBy` and `uncastable` are regenerated. An id that no build registers
+   keeps its entry, with an empty `registeredBy`. A spell, item, enchant row or suffix that the game files rename
+   keeps its old name;
    the generator adds no alias. The one exception is work in progress: in a git checkout, an entry whose name the table at `HEAD`
    (`git show HEAD:sim/siml/names.json`) does not hold is dropped before step 7 when no build registers it, or, for
    an item, enchant or suffix, the database no longer holds it. So a name added for a spell registered only for a while, or
@@ -1586,7 +1591,7 @@ normalisations:
 - `spec_rotation_json` is compared as the protojson of the spec's `Rotation` it holds, an empty string as `{}`, in
   an `APLRotation` too, whose spec is the one its file's `spec` line names;
 - an `ActionID` with a `spellId` that a spell-like name prints takes the rank of the name's entry (§7.3), which the
-  printer never does for a `talent_is_known` talent with a rank above 1 (§7.4).
+  printer never does for a `talent_is_known` talent with a rank above 1 (§7.3).
 
 The protos are then compared with `proto.Equal`.
 
@@ -1646,6 +1651,7 @@ are errors.
 | `spell-variable`                                                                                              | error    | §7.2; a variable where an `ActionID` goes                                                  |
 | `icd-trigger`                                                                                                 | error    | §7.4; an `icdOnlyBy` aura or an `icdOnlyItems` item outside ICD kinds                      |
 | `talent-only`                                                                                                 | error    | §7.4; a `talentOnlyBy` spell outside `talent_is_known` and `talent_rank`                   |
+| `not-a-talent`                                                                                                | error    | §7.4; a name in `talent_is_known` or `talent_rank` whose spell is no talent's              |
 | `not-castable`                                                                                                | warning  | §7.4; an `uncastable` spell where an action casts it                                       |
 | `ambiguous-variable`                                                                                          | error    | §7.5                                                                                       |
 | `duplicate-group`, `duplicate-variable`, `reference-cycle`                                                    | error    | §6.1, §7.5, §6.10; a variable two files declare, or a `with` list that sets one twice (§9) |

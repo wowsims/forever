@@ -33,9 +33,9 @@ function auraNamespaceOf(type: string | undefined): 'aura' | 'pet_aura' | 'targe
 // What an ActionID field offers, in the namespace the parser reads its name in (SPEC.md §7.2): an aura id among the
 // auras of the unit the field's JSON names (the player's with none), a boss spell's id among the target's spells, and
 // any other id among the spec's spells, with the items with a use where the site's set takes one. An aura known only as
-// an internal cooldown trigger is offered in the ICD kinds alone, a spell known only as a talent in the talent kinds
-// alone, and the spell an action casts, its spellId, among the spells the spec lets a rotation cast (SPEC.md §7.4).
-// Each prints as its name.
+// an internal cooldown trigger is offered in the ICD kinds alone, a talent's own spell in the talent kinds, which take
+// nothing else, a spell known only as a talent there alone, and the spell an action casts, its spellId, among the
+// spells the spec lets a rotation cast (SPEC.md §7.4). Each prints as its name.
 export function offeredFor(
 	registered: Extract<Registered, { status: 'ready' }>,
 	field: { family: Family; kind: string; name: string; set: ACTION_ID_SET },
@@ -50,7 +50,7 @@ export function offeredFor(
 		return field.set === 'icd_auras' ? list : list.filter(entry => !entry.icdOnly);
 	}
 	if (field.kind.startsWith('bossSpell')) return targetSpells;
-	if (field.set === 'talents' || field.set === 'talent_ranks') return spells;
+	if (field.set === 'talents' || field.set === 'talent_ranks') return spells.filter(entry => entry.talent);
 	const known = spells.filter(entry => !entry.talentOnly);
 	const offered = field.family === 'action' && field.name === 'spellId' ? known.filter(entry => !entry.uncastable) : known;
 	return ITEM_SETS.has(field.set) ? [...offered, ...items] : offered;

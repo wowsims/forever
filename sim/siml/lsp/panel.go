@@ -94,6 +94,7 @@ type registeredName struct {
 	ID         actionID `json:"id"`
 	ICDOnly    bool     `json:"icdOnly,omitempty"`    // Known only as an internal cooldown trigger, which only the ICD kinds find.
 	TalentOnly bool     `json:"talentOnly,omitempty"` // Known only as a talent, which only the talent kinds find.
+	Talent     bool     `json:"talent,omitempty"`     // A talent's own spell, the one thing the talent kinds read.
 	Uncastable bool     `json:"uncastable,omitempty"` // A spell no build of the spec lets a rotation cast (the sim's APL flag).
 }
 
@@ -267,6 +268,7 @@ func (s *server) registeredFor(a *analysis, info siml.SpecInfo, c *siml.Database
 			out = append(out, registeredName{
 				Name: n.Name, ID: actionID{SpellID: n.Entry.SpellID, Tag: n.Entry.Tag, Rank: n.Entry.Rank},
 				ICDOnly: slices.Contains(n.Entry.ICDOnlyBy, spec), TalentOnly: slices.Contains(n.Entry.TalentOnlyBy, spec),
+				Talent:     siml.IsTalentSpell(n.Entry.SpellID),
 				Uncastable: n.Entry.Uncastable,
 			})
 		}

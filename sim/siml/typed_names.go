@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
+	googleProto "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
 // Names (SPEC.md §7): what a name means in its position's namespace for the file's class, the namespace an ActionID
@@ -104,13 +107,11 @@ func (t *typer) unknownName(name string, ns Namespace, position string, cast boo
 	}
 	thing, _ := strings.CutPrefix(namespaceThings[ns], "a ")
 	thing, _ = strings.CutPrefix(thing, "an ")
-	candidates := t.names.Visible(t.class, ns)
-	if cast {
-		candidates = slices.DeleteFunc(candidates, func(c string) bool {
-			e, _ := t.names.spellEntry(t.class, ns, c)
-			return e.Uncastable
-		})
-	}
+	talent := t.kind.readsTalent()
+	candidates := slices.DeleteFunc(t.names.Visible(t.class, ns), func(c string) bool {
+		e, _ := t.names.spellEntry(t.class, ns, c)
+		return cast && e.Uncastable || ns == NamespaceSpell && !fitsTalentPosition(e, talent, t.spec)
+	})
 	message := fmt.Sprintf("no %s is named %s%s", thing, name, didYouMean(name, candidates))
 	if ns.SpellLike() && t.class == proto.Class_ClassUnknown {
 		message += "; with no spec, a file reads only the spells and auras every class shares"
@@ -170,6 +171,42 @@ func (s kindScope) readsICD() bool {
 		return true
 	}
 	return false
+}
+
+// The spell ids of every class's talents, the talent_spell_id option on each talent field, which is what the sim
+// reads the points of. A talent's spell can differ from the spell the talent teaches: Holy Shock's talent is 1311606,
+// and holy_shock names rank 4 of the spell, 25902.
+var talentSpellIDs = sync.OnceValue(func() map[int32]bool {
+	ids := map[int32]bool{}
+	var walk func(protoreflect.MessageDescriptors)
+	walk = func(ms protoreflect.MessageDescriptors) {
+		for i := range ms.Len() {
+			fields := ms.Get(i).Fields()
+			for j := range fields.Len() {
+				if id := googleProto.GetExtension(fields.Get(j).Options(), proto.E_TalentSpellId).(int32); id != 0 {
+					ids[id] = true
+				}
+			}
+			walk(ms.Get(i).Messages())
+		}
+	}
+	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
+		walk(fd.Messages())
+		return true
+	})
+	return ids
+})
+
+// Whether id is a talent's own spell, the one a talent kind reads.
+func IsTalentSpell(id int32) bool { return talentSpellIDs()[id] }
+
+// Whether a spell's entry fits a position, talent when a talent kind reads it: there a talent's own spell, elsewhere
+// any spell but one the spec knows only as a talent.
+func fitsTalentPosition(e SpellName, talent bool, spec string) bool {
+	if talent {
+		return IsTalentSpell(e.SpellID)
+	}
+	return !slices.Contains(e.TalentOnlyBy, spec)
 }
 
 // Whether the kind reads a talent: the points the player holds in it.

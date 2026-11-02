@@ -29,7 +29,9 @@ func startsWith(prefix, unless string) form {
 
 var (
 	sampleSpell = &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: 4242}} // testdata/names.json names 4242 sample in every namespace.
-	named       = regexp.MustCompile(`^\w+=`)
+	// A talent kind reads a talent's own spell (SPEC.md §7.4), which testdata/names.json names deadly_aspects.
+	sampleTalent = &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: 19552}}
+	named        = regexp.MustCompile(`^\w+=`)
 	// The keyword or operator each short form starts with, or holds (SPEC.md §6.4, §6.5).
 	shortActionForms = map[string]form{
 		"cast_spell":      startsWith("cast ", ""),
@@ -93,6 +95,9 @@ func setSample(t *testing.T, ix *schemaIndex, m protoreflect.Message, f *field, 
 		case "ref":
 			return intValue(f.desc, 4242)
 		case "action_id":
+			if name := m.Descriptor().FullName(); name == talentIsKnownMessage || name == talentRankMessage {
+				return protoreflect.ValueOfMessage(googleProto.Clone(sampleTalent).ProtoReflect())
+			}
 			return protoreflect.ValueOfMessage(googleProto.Clone(sampleSpell).ProtoReflect())
 		case "unit":
 			return protoreflect.ValueOfMessage((&proto.UnitReference{Type: proto.UnitReference_CurrentTarget}).ProtoReflect())

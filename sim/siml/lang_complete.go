@@ -189,7 +189,7 @@ func (b *completer) offer(w want) {
 			b.add(word, CompletionKeyword, ranked(1).with(insert, ""))
 		}
 	case "ref":
-		b.refs(w.ns, w.cast)
+		b.refs(w.ns, w.cast, w.talent)
 	case "usable":
 		b.usable()
 	case "other":
@@ -473,14 +473,15 @@ func (b *completer) members() {
 
 // --- Names.
 
-// The names of a spell-like namespace the file's spec registers, castable ones only where an action casts (cast): the
-// class's first, then the shared ones.
-func (b *completer) refs(ns Namespace, cast bool) {
+// The names of a spell-like namespace the file's spec registers, castable ones only where an action casts (cast), and
+// talents' own spells only where a talent kind reads one (talent), where no other spell is: the class's first, then the
+// shared ones.
+func (b *completer) refs(ns Namespace, cast, talent bool) {
 	for _, p := range b.ctx.params {
 		b.add(p, CompletionTypeParameter, ranked(0).with("", "parameter"))
 	}
 	for _, n := range b.d.names.Registered(b.d.class(), b.d.specName(), ns) {
-		if cast && n.Entry.Uncastable {
+		if cast && n.Entry.Uncastable || !fitsTalentPosition(n.Entry, talent, b.d.specName()) {
 			continue
 		}
 		game := ""
