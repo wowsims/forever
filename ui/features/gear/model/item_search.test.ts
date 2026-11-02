@@ -90,7 +90,7 @@ describe('matchesSearch on item sources', () => {
 
 	it('folds vendor names the same way as the query, so punctuation cannot block a match', () => {
 		const entry = row({
-			item: item({ sources: [{ source: { oneofKind: 'soldBy', soldBy: { npcId: 2, npcName: "Sha'tari Quartermaster", zoneId: 1 } } }] }),
+			item: item({ sources: [{ source: { oneofKind: 'soldBy', soldBy: { npcId: 2, npcName: "Sha'tari Quartermaster", zoneId: 1, faction: 0 } } }] }),
 		});
 		expect(matchesSearch('shatari quartermaster', entry, noNpc, noFaction)).toBe(true);
 		expect(matchesSearch("sha'tari", entry, noNpc, noFaction)).toBe(true);
@@ -108,7 +108,7 @@ describe('matchesSearch on item sources', () => {
 
 	it('matches a quest source by its quest name', () => {
 		const entry = row({
-			item: item({ sources: [{ source: { oneofKind: 'quest', quest: { id: 8561, name: "Conqueror's Crown" } } }] }),
+			item: item({ sources: [{ source: { oneofKind: 'quest', quest: { id: 8561, name: "Conqueror's Crown", faction: 0 } } }] }),
 			searchText: 'Some Item',
 		});
 		expect(matchesSearch('conquerors crown', entry, noNpc, noFaction)).toBe(true);
