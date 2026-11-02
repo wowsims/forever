@@ -12111,13 +12111,7 @@
 						"bonus_prefix": {
 							"type": "string"
 						},
-						"rating_suffix": {
-							"type": "string"
-						},
 						"points_suffix": {
-							"type": "string"
-						},
-						"percent_label": {
 							"type": "string"
 						},
 						"percent_suffix": {
@@ -12136,9 +12130,7 @@
 						"crit_cap",
 						"tank_caps",
 						"bonus_prefix",
-						"rating_suffix",
 						"points_suffix",
-						"percent_label",
 						"percent_suffix"
 					]
 				}

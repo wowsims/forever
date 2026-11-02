@@ -4,15 +4,6 @@ import type { Player } from '@sim/player/player';
 import type { Stats, UnitStat } from '@sim/proto/stats';
 import { TONE_TEXT } from '@ui-kit/utils/colors';
 
-const PER_ATTACK_RATING = new Map<PseudoStat, PseudoStat>([
-	[PseudoStat.PseudoStatMeleeHitPercent, PseudoStat.PseudoStatMainHandHitRating],
-	[PseudoStat.PseudoStatMeleeCritPercent, PseudoStat.PseudoStatMainHandCritRating],
-	[PseudoStat.PseudoStatOffHandHitPercent, PseudoStat.PseudoStatOffHandHitRating],
-	[PseudoStat.PseudoStatOffHandCritPercent, PseudoStat.PseudoStatOffHandCritRating],
-	[PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatRangedHitRating],
-	[PseudoStat.PseudoStatRangedCritPercent, PseudoStat.PseudoStatRangedCritRating],
-]);
-
 const SCHOOL_DAMAGE_STATS = [
 	Stat.StatArcaneDamage,
 	Stat.StatFireDamage,
@@ -27,12 +18,7 @@ const SPEED_MULTIPLIERS = [PseudoStat.PseudoStatMeleeSpeedMultiplier, PseudoStat
 /** `includeBase` says the delta covers the base stage, which is where the base defense skill and the speed multipliers' 1 belong. */
 export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitStat: UnitStat, includeBase?: boolean): string => {
 	const rootStat = unitStat.hasRootStat() ? unitStat.getRootStat() : null;
-	const perAttackRating = unitStat.isPseudoStat() ? PER_ATTACK_RATING.get(unitStat.getPseudoStat()) : undefined;
 	let rootRatingValue = rootStat !== null ? deltaStats.getStat(rootStat) : null;
-	// Bonus stats carry the rating alone, with no per-attack value to read.
-	if (perAttackRating !== undefined && deltaStats.getPseudoStat(perAttackRating) !== 0) {
-		rootRatingValue = deltaStats.getPseudoStat(perAttackRating);
-	}
 	let percentDecimals = 2;
 	let derivedPercentOrPointsValue = unitStat.convertDefaultUnitsToPercent(deltaStats.getUnitStat(unitStat));
 	let displayPrefix = '';
@@ -70,8 +56,9 @@ export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitSt
 		if (derivedPercentOrPointsValue >= 0) displayPrefix = '+';
 	}
 
-	const hideRootRating =
-		(rootRatingValue === null || (rootRatingValue === 0 && derivedPercentOrPointsValue !== null)) && !unitStat.equalsStat(Stat.StatDefenseRating);
+	const showPercentOnly = unitStat.isPercentRating() && derivedPercentOrPointsValue !== null;
+	const showSkillOnly = unitStat.equalsStat(Stat.StatDefenseRating);
+	const hideRootRating = showPercentOnly || showSkillOnly || rootRatingValue === null || (rootRatingValue === 0 && derivedPercentOrPointsValue !== null);
 	const rootRatingString = hideRootRating ? '' : String(Math.round(rootRatingValue!));
 	const percentOrPointsString =
 		derivedPercentOrPointsValue === null ? '' : displayPrefix + `${derivedPercentOrPointsValue.toFixed(percentDecimals)}` + displaySuffix;

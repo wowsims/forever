@@ -3563,9 +3563,7 @@
 				"with_holy_shield": " (with HS)"
 			},
 			"bonus_prefix": "Bonus",
-			"rating_suffix": "Rating",
 			"points_suffix": "Points",
-			"percent_label": "Percent",
 			"percent_suffix": "%"
 		}
 	},
