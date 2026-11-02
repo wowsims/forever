@@ -53,7 +53,7 @@ export const Calculated: Story = {
 
 /** A rating stat has its conversion on the icon before any calculation. */
 export const RatingStat: Story = {
-	args: { fullName: 'Crit Rating', shortName: 'Crit', helpLines: ['14 rating = 1%'] },
+	args: { fullName: 'Crit', shortName: 'Crit', helpLines: ['14 rating = 1%'] },
 };
 
 export const ExcludedFromCalculation: Story = {

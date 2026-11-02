@@ -80,7 +80,7 @@ describe('StatFilterList', () => {
 		expect(onOpenGroupsChange.mock.lastCall![0]).toEqual(['attributes', 'gear']);
 	});
 
-	it('puts gear-only stats and weapon DPS under Gear', () => {
+	it('puts rating stats with no percent, and weapon DPS, under Gear', () => {
 		mountList();
 
 		const gear = group('gear');
@@ -89,7 +89,7 @@ describe('StatFilterList', () => {
 		expect(within(gear).getAllByRole('checkbox')).toHaveLength(2);
 	});
 
-	it('leaves Gear out when the universe has no gear-only stat or weapon DPS', () => {
+	it('leaves Gear out when the universe has no rating stat or weapon DPS', () => {
 		mountList({ universe: [health, strength, physicalDamage] });
 
 		expect(screen.queryByTestId('test-filter-group-gear')).toBeNull();
@@ -104,7 +104,7 @@ describe('StatFilterList', () => {
 			i18n.removeResourceBundle('en', 'translation');
 		});
 
-		it('lists only the percent where a gear stat and a percent share a short name, and names every stat by its short name', () => {
+		it('lists only the percent where a rating stat and a percent share a short name, and names every stat by its short name', () => {
 			const pairs: Array<[Stat, PseudoStat, string]> = [
 				[Stat.StatDodgeRating, PseudoStat.PseudoStatDodgePercent, 'Dodge'],
 				[Stat.StatParryRating, PseudoStat.PseudoStatParryPercent, 'Parry'],
@@ -123,25 +123,49 @@ describe('StatFilterList', () => {
 			expect(within(group('gear')).getAllByRole('checkbox')).toHaveLength(1);
 		});
 
-		it('keeps the short name of a gear stat whose percent is not in the universe', () => {
+		it('keeps the short name of a rating stat whose percent is not in the universe', () => {
 			mountList({ universe: [UnitStat.fromStat(Stat.StatDodgeRating)], shown: [] });
 
 			expect(within(group('gear')).getByRole('checkbox', { name: 'Dodge' })).toBeTruthy();
 		});
 
-		it('renders a stored selection holding a removed gear row, and leaves the percent row usable', () => {
+		describe('where a percent row stands for the rating stat it hides', () => {
 			const dodgeRating = UnitStat.fromStat(Stat.StatDodgeRating);
 			const dodgePercent = UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent);
-			const { onChange } = mountList({ universe: [dodgeRating, dodgePercent], shown: [dodgeRating] });
+			const pair = [dodgeRating, dodgePercent];
+			const dodgeRow = () => screen.getByRole('checkbox', { name: 'Dodge' });
 
-			expect(groupTrigger('defense').textContent).toBe(groupTitle(i18n.t('sidebar.character_stats.groups.defense'), 0, 1));
-			expect(screen.queryByTestId('test-filter-group-gear')).toBeNull();
-			const dodge = screen.getByRole('checkbox', { name: 'Dodge' });
-			expect(dodge.getAttribute('aria-checked')).toBe('false');
+			it('reads ticked when only the hidden rating stat is shown, and counts it', () => {
+				mountList({ universe: pair, shown: [dodgeRating] });
 
-			fireEvent.click(dodge);
+				expect(screen.queryByTestId('test-filter-group-gear')).toBeNull();
+				expect(groupTrigger('defense').textContent).toBe(groupTitle(i18n.t('sidebar.character_stats.groups.defense'), 1, 1));
+				expect(dodgeRow().getAttribute('aria-checked')).toBe('true');
+			});
 
-			expect(keys(onChange.mock.lastCall![0])).toContain(dodgePercent.getKey());
+			it('shows the rating stat along with the percent when ticked', () => {
+				const { onChange } = mountList({ universe: pair, shown: [] });
+
+				fireEvent.click(dodgeRow());
+
+				expect(keys(onChange.mock.lastCall![0])).toEqual(keys(pair));
+			});
+
+			it('hides the rating stat along with the percent when unticked', () => {
+				const { onChange } = mountList({ universe: pair, shown: pair });
+
+				fireEvent.click(dodgeRow());
+
+				expect(onChange.mock.lastCall![0]).toEqual([]);
+			});
+
+			it('hides a rating stat shown alone when its row is unticked', () => {
+				const { onChange } = mountList({ universe: pair, shown: [dodgeRating] });
+
+				fireEvent.click(dodgeRow());
+
+				expect(onChange.mock.lastCall![0]).toEqual([]);
+			});
 		});
 	});
 

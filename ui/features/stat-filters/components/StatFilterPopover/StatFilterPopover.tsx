@@ -10,7 +10,7 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { type ReactNode, useId, useMemo } from 'react';
 
 import { useOpenFilterGroups } from '../../hooks/useOpenFilterGroups';
-import { type FilterGroupKey, filterGroupsOf, filterLabelsOf } from '../../model/stat_groups';
+import { type FilterGroupKey, filterGroupsOf, filterLabelsOf, ratingsBehindPercents } from '../../model/stat_groups';
 
 export interface StatFilterListProps {
 	universe: ReadonlyArray<UnitStat>;
@@ -50,8 +50,13 @@ export const StatFilterList = ({
 	idPrefix,
 }: StatFilterListProps) => {
 	const shownKeys = new Set(shown.map(stat => stat.getKey()));
-	const isShown = (stat: UnitStat) => shownKeys.has(stat.getKey());
-	const toggle = (stat: UnitStat, checked: boolean) => onChange(universe.filter(other => (other.equals(stat) ? checked : isShown(other))));
+	const behind = useMemo(() => ratingsBehindPercents(universe), [universe]);
+	const rowStats = (stat: UnitStat) => [stat, ...(behind.get(stat.getKey()) ?? [])];
+	const isShown = (stat: UnitStat) => rowStats(stat).some(rowStat => shownKeys.has(rowStat.getKey()));
+	const toggle = (stat: UnitStat, checked: boolean) => {
+		const row = rowStats(stat);
+		onChange(universe.filter(other => (row.some(rowStat => rowStat.equals(other)) ? checked : isShown(other))));
+	};
 	const groups = useMemo(() => filterGroupsOf(universe), [universe]);
 	const labels = useMemo(() => filterLabelsOf(universe, playerClass), [universe, playerClass]);
 

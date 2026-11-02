@@ -125,15 +125,30 @@ const groupByKey = new Map(FILTER_GROUPS.flatMap(({ key, stats }) => stats.map(s
 
 const statGroupOf = (stat: UnitStat): FilterGroupKey | 'other' => groupByKey.get(stat.getKey()) ?? 'other';
 
+const shortNameOf = (stat: UnitStat) => stat.getShortName(Class.ClassUnknown);
+
+/**
+ * The rating stats in `universe` that a percent in it takes the row of, by the percent's key: a rating stat and a
+ * percent pseudo stat with one short name (Dodge rating and Dodge percent) are one row, the percent's.
+ */
+export const ratingsBehindPercents = (universe: ReadonlyArray<UnitStat>): Map<string, UnitStat[]> => {
+	const percentByName = new Map(universe.filter(stat => stat.isPseudoStat() && stat.getKey().includes('Percent')).map(stat => [shortNameOf(stat), stat]));
+	const behind = new Map<string, UnitStat[]>();
+	for (const stat of universe.filter(stat => stat.isStat())) {
+		const percent = percentByName.get(shortNameOf(stat));
+		if (percent) behind.set(percent.getKey(), [...(behind.get(percent.getKey()) ?? []), stat]);
+	}
+	return behind;
+};
+
 /**
  * The groups a stat filter popover lists for `universe`, each with only its stats in it, Other last and empty groups left
- * out. A gear stat is left out where a percent with its short name is in the universe: the percent row stands for both.
+ * out. A rating stat is left out where a percent with its short name is in the universe, as that percent's row stands for it.
  */
 export const filterGroupsOf = (universe: ReadonlyArray<UnitStat>): Array<{ key: FilterGroupKey | 'other'; stats: ReadonlyArray<UnitStat> }> => {
 	const inUniverse = new Set(universe.map(stat => stat.getKey()));
-	const percentNames = new Set(universe.filter(stat => stat.isPseudoStat()).map(stat => stat.getShortName(Class.ClassUnknown)));
-	const listed = (stat: UnitStat) => inUniverse.has(stat.getKey()) && !(stat.isStat() && percentNames.has(stat.getShortName(Class.ClassUnknown)));
-	const grouped = FILTER_GROUPS.map(({ key, stats }) => ({ key, stats: stats.filter(listed) }));
+	const taken = new Set([...ratingsBehindPercents(universe).values()].flat().map(stat => stat.getKey()));
+	const grouped = FILTER_GROUPS.map(({ key, stats }) => ({ key, stats: stats.filter(stat => inUniverse.has(stat.getKey()) && !taken.has(stat.getKey())) }));
 	const other = { key: 'other' as const, stats: universe.filter(stat => statGroupOf(stat) === 'other') };
 	return [...grouped, other].filter(group => group.stats.length > 0);
 };
