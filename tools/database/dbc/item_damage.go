@@ -46,15 +46,6 @@ func (item *Item) WeaponDamage(dps float64) (float64, float64) {
 	return math.Floor(low), math.Floor(high + 0.5)
 }
 
-// What the equipped damage range averages before rounding: a damage table cell plus QualityModifier,
-// which is a per-second offset. An item with no cell has none.
-func (item *Item) unroundedDps(cell float64) float32 {
-	if cell == 0 {
-		return 0
-	}
-	return float32(max(cell+item.QualityModifier, 0))
-}
-
 // The DPS the weapon deals as the game files flag it; false when the game files have no table cell for it.
 func (d *DBC) WeaponDPS(item *Item, itemLevel int) (float64, bool) {
 	dps, present := d.weaponTableDPS(item, itemLevel)

@@ -82,9 +82,9 @@ func (druid *Druid) GetCatWeapon() core.Weapon {
 // SpellShapeshiftForm.DamageVariance is 0.4 for Cat, Bear, and Dire Bear.
 const feralPawVariance = 0.4
 
-// The paw uses the weapon's unrounded DPS, QualityModifier included, and form variance, with
-// single-precision endpoints rounded before AP and flat enchant or stone damage.
-// TODO: Ingame test needed -- whether a form's paw takes the weapon's QualityModifier.
+// The paw uses the weapon's table DPS and form variance, with single-precision endpoints
+// rounded before AP and flat enchant or stone damage.
+// TODO: Ingame test needed -- whether the paw also takes the QualityModifier the table DPS leaves out.
 func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	paw := core.Weapon{
 		BaseDamageMin:        1,

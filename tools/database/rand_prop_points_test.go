@@ -42,8 +42,7 @@ func TestLegendaryItemsSpendTheEpicBudget(t *testing.T) {
 	if err := json.Unmarshal(data, &written); err != nil {
 		t.Fatal(err)
 	}
-	budget := written[60]
-	if got, want := budget[proto.ItemQuality_ItemQualityLegendary], budget[proto.ItemQuality_ItemQualityEpic]; got != want || got == [5]int32{} {
-		t.Errorf("legendary budget = %v, want the epic budget %v", got, want)
+	if got, want := written[60][proto.ItemQuality_ItemQualityLegendary], [5]int32{50, 40, 30, 20, 10}; got != want {
+		t.Errorf("legendary budget = %v, want the fixture's epic budget %v", got, want)
 	}
 }

@@ -1103,17 +1103,6 @@ var HolidayConsumables = map[int32]string{
 
 // Raid buffs / debuffs
 var SharedSpellsIcons = []int32{
-	// The buffs the raid and individual buff rank selects offer
-	9885,
-	10938,
-	10958,
-	21562,
-	21849,
-	21850,
-	23028,
-	25782,
-	25894,
-
 	// Registered CD's
 	10060,
 	16190,
@@ -1189,7 +1178,10 @@ var SharedSpellsIcons = []int32{
 	8024,  // Flametongue Weapon
 	8033,  // Frostbrand Weapon
 	8232,  // Windfury Weapon
+	9885,  // Mark of the Wild
 	10538, // Fire Resistance Totem
+	10938, // Power Word: Fortitude
+	10958, // Shadow Protection
 	12470, // Fire Nova
 	13339, // Fire Blast
 	13376, // Fire Shield
@@ -1207,6 +1199,8 @@ var SharedSpellsIcons = []int32{
 	23563, // Enhanced Battle Shout
 	25076, // Cobra Reflexes
 	21564, // Prayer of Fortitude
+	25782, // Greater Blessing of Might
+	25894, // Greater Blessing of Wisdom
 	25895, // Mass Salvation
 	25916, // Greater Blessing of Might
 	25918, // Greater Blessing of Wisdom
