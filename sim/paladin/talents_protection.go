@@ -142,13 +142,14 @@ func (paladin *Paladin) applyShieldSpecialization() {
 
 	rank := spellData.ShieldSpecializationTriggered.Highest()
 	manaShare := rank.EffectN(1).Percent()
-	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
-	manaMetrics.NoThreat = rank.GeneratesNoThreat()
-
-	restoreMana := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		paladin.AddMana(sim, paladin.MaxMana()*manaShare, manaMetrics)
+	restoreMana := func(tag int32) core.ProcHandler {
+		metrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID, Tag: tag})
+		metrics.NoThreat = rank.GeneratesNoThreat()
+		return func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			paladin.AddMana(sim, paladin.MaxMana()*manaShare, metrics)
+		}
 	}
-	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.ShieldSpecialization.Rank(paladin.Talents.ShieldSpecialization), restoreMana)
+	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.ShieldSpecialization.Rank(paladin.Talents.ShieldSpecialization), restoreMana(0))
 	trigger.Name = "Shield Specialization" + paladin.Label
 	trigger.Outcome = core.OutcomeBlock
 	// The tooltip's "your blocks" counts a block that stops the whole hit.
@@ -158,8 +159,6 @@ func (paladin *Paladin) applyShieldSpecialization() {
 
 	// The mana a Shieldsworn Holy Strike restores reports apart, tagged with the talent.
 	if paladin.Talents.Shieldsworn {
-		shieldswornMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID, Tag: shieldswornTag()})
-		shieldswornMetrics.NoThreat = manaMetrics.NoThreat
 		paladin.MakeProcTriggerAura(core.ProcTrigger{
 			Name:               "Shield Specialization - Shieldsworn" + paladin.Label,
 			Callback:           core.CallbackOnSpellHitDealt,
@@ -168,9 +167,7 @@ func (paladin *Paladin) applyShieldSpecialization() {
 			ProcChance:         trigger.ProcChance,
 			ExtraCondition:     paladin.strikesWithShield,
 			TriggerImmediately: true,
-			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-				paladin.AddMana(sim, paladin.MaxMana()*manaShare, shieldswornMetrics)
-			},
+			Handler:            restoreMana(shieldswornTag()),
 		})
 	}
 }
