@@ -861,10 +861,13 @@ meaning among the shared entries.
   `rank` when they are not 0.
 - **The rank.** The sim finds a spell or an aura by its spell id and tag, whatever the rank; the rank rides on the
   proto only for the site's labels. So an `ActionID` with a `spellId` prints by the name of its spell id and tag
-  whatever its rank, and reads back with the rank of the name's entry. §12.4 compares ranks that way.
+  whatever its rank, and reads back with the rank of the name's entry. §12.4 compares ranks that way. The one
+  exception is the talent of `talent_is_known`, whose rank is the points the player must hold: one with a rank above
+  1 prints as a raw ref (§7.4) and keeps its rank.
 - **Raw refs.** An `ActionID`, item, enchant or suffix that the table does not name prints as raw JSON for its node:
-  the ref itself (``cast `{"spellId":123}` ``), or the slot and a raw `ItemSpec` for a slot row (§12.2). It can only
-  come from a site export of something the generator never saw, and it reads back exactly.
+  the ref itself (``cast `{"spellId":123}` ``), or the slot and a raw `ItemSpec` for a slot row (§12.2). It comes
+  from a site export of something the generator never saw, or from a `talent_is_known` talent with a rank above 1,
+  and it reads back exactly.
 - **`raw-ref`.** A committed file under `ui/specs` holds no raw ref. The repository check (§7.4) reports `raw-ref`
   at each raw token whose JSON holds a spell id, an item id, an enchant effect id or a random suffix id. The parser
   never reports it.
@@ -878,7 +881,7 @@ meaning among the shared entries.
   "classes": {
     "<class>": {
       "<namespace>": {
-        "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "uncastable": true},
+        "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "talentOnlyBy": ["<spec>", …], "uncastable": true},
         …
       },
       …
@@ -899,7 +902,7 @@ meaning among the shared entries.
   },
   "shared": {
     "<namespace>": {
-      "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "uncastable": true},
+      "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "talentOnlyBy": ["<spec>", …], "uncastable": true},
       …
     },
     …
@@ -932,6 +935,10 @@ meaning among the shared entries.
   the aura only as an internal cooldown trigger, in byte order. For a file of one of those specs the sim finds it in
   `icd_is_ready`, `internal_cooldown` and `trigger_icd` and in no other aura position, where a name of it is
   `icd-trigger` (§13).
+- `talentOnlyBy`, only on a `spell` entry and left out when empty, lists the specs of `registeredBy` whose builds
+  list the spell only as a talent they hold (step 2 of the generator), in byte order. For a file of one of those
+  specs the sim finds it in `talent_is_known` and `talent_rank` and in no other spell position, where a name of it is
+  `talent-only` (§13); a cast of it is `talent-only` and not also `not-castable`.
 - `icdOnlyItems` names the items whose effect the listed specs' builds list only as an internal cooldown trigger, by
   an item name of `items`, with the specs in byte order. It is written again from the builds on each regeneration. For
   a file of one of those specs, `item.<name>` in an aura position outside `icd_is_ready`, `internal_cooldown` and
@@ -947,7 +954,8 @@ meaning among the shared entries.
   It refuses a table that breaks any of these:
     - the table, each of its sections, each class and namespace, and each spell-like or enchant entry is an
       object; the table and the entries hold only the keys the form shows; `registeredBy` and `slots` are lists of
-      strings; `icdOnlyBy` is a list of strings on an `aura` entry, each a spec of its `registeredBy`; `uncastable`
+      strings; `icdOnlyBy` is a list of strings on an `aura` entry, each a spec of its `registeredBy`; `talentOnlyBy` is
+      the same on a `spell` entry; `uncastable`
       is `true` on a `spell` entry; each `icdOnlyItems` entry names an item of `items` and is a non-empty list of field
       names of `Player`'s `spec` oneof;
     - every spell id, tag and rank, item id, effect id and random suffix id is a whole number in the range of
@@ -1004,9 +1012,9 @@ up-to-date check (below) is what catches a table not committed. The generator:
    id and tag, with the highest rank any build registers it with, and whether a build registers it castable
    (`SpellStats.is_castable`). The talents a build holds (`UnitMetadata.talents`) go into `spell` too, uncastable
    and with no rank, since `talent_is_known` and `talent_rank` read a spell name and most talents register no
-   spell: `talent_is_known(unsealed_wrath)` holds at any rank. The printer writes a `talent_is_known` whose talent
-   has a rank above 1 as raw JSON, which reads as `talent_rank(x) >= N` with a name. Item and other ids are no
-   spell-like names. What these builds register is the class's.
+   spell: `talent_is_known(unsealed_wrath)` holds at any rank. A talent a spec's builds list as no spell of theirs
+   goes into its `talentOnlyBy`. The printer writes a `talent_is_known` whose talent has a rank above 1 as raw JSON;
+   with a name the same test is `talent_rank(x) >= N`. Item and other ids are no spell-like names. What these builds register is the class's.
 3. **Adds the shared entries.** Each spec is built with its first race, every talent at its highest rank, its
    default options and every buff (or, when that fails, as its first build that succeeded with every buff), and
    one of:
@@ -1065,7 +1073,7 @@ up-to-date check (below) is what catches a table not committed. The generator:
     casts takes its game name before what gear adds.
 
 9. **Keeps every pinned entry.** An entry keeps its name, id, tag, rank and slots whatever the inputs; only
-   `registeredBy`, `icdOnlyBy` and `uncastable` are regenerated. An id that no build registers keeps its entry,
+   `registeredBy`, `icdOnlyBy`, `talentOnlyBy` and `uncastable` are regenerated. An id that no build registers keeps its entry,
    with an empty `registeredBy`. A spell, item, enchant row or suffix that the game files rename keeps its old name;
    the generator adds no alias. The one exception is work in progress: in a git checkout, an entry whose name the table at `HEAD`
    (`git show HEAD:sim/siml/names.json`) does not hold is dropped before step 7 when no build registers it, or, for
@@ -1637,6 +1645,7 @@ are errors.
 | `unknown-name`                                                                                                | error    | §7.2; the message names where the name is, or a did-you-mean                               |
 | `spell-variable`                                                                                              | error    | §7.2; a variable where an `ActionID` goes                                                  |
 | `icd-trigger`                                                                                                 | error    | §7.4; an `icdOnlyBy` aura or an `icdOnlyItems` item outside ICD kinds                      |
+| `talent-only`                                                                                                 | error    | §7.4; a `talentOnlyBy` spell outside `talent_is_known` and `talent_rank`                   |
 | `not-castable`                                                                                                | warning  | §7.4; an `uncastable` spell where an action casts it                                       |
 | `ambiguous-variable`                                                                                          | error    | §7.5                                                                                       |
 | `duplicate-group`, `duplicate-variable`, `reference-cycle`                                                    | error    | §6.1, §7.5, §6.10; a variable two files declare, or a `with` list that sets one twice (§9) |

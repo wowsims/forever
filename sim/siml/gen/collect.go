@@ -206,6 +206,14 @@ func (c *Collection) add(b *build) {
 				reg.ICDSpecs = append(reg.ICDSpecs, spec)
 				slices.Sort(reg.ICDSpecs)
 			}
+			if r.TalentOnly && !slices.Contains(reg.TalentSpecs, spec) {
+				reg.TalentSpecs = append(reg.TalentSpecs, spec)
+				slices.Sort(reg.TalentSpecs)
+			}
+			if !r.TalentOnly && !slices.Contains(reg.ListedSpecs, spec) {
+				reg.ListedSpecs = append(reg.ListedSpecs, spec)
+				slices.Sort(reg.ListedSpecs)
+			}
 			reg.Rank = max(reg.Rank, r.Rank)
 			reg.Castable = reg.Castable || r.Castable
 			if !slices.Contains(reg.Specs, spec) {
@@ -523,8 +531,15 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 	}
 	// talent_is_known and talent_rank read a spell name, and most talents register no spell of their own id. A
 	// talent's rank is the points the build holds, so the entry takes none, and talent_is_known(x) holds at any rank.
+	// A talent the build lists as nothing else is marked, since only those two kinds find it.
 	for _, talent := range player.Metadata.Talents {
+		key := Identity{talent.GetSpellId(), 0}
+		_, listed := found[siml.NamespaceSpell][key]
 		add(siml.NamespaceSpell, &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: talent.GetSpellId()}}, false)
+		if r, ok := found[siml.NamespaceSpell][key]; ok && !listed {
+			r.TalentOnly = true
+			found[siml.NamespaceSpell][key] = r
+		}
 	}
 	for _, aura := range player.Metadata.Auras {
 		add(siml.NamespaceAura, aura.Id, false)

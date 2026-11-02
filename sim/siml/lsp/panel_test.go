@@ -274,6 +274,29 @@ func TestRegisteredMarksICDOnlyAuras(t *testing.T) {
 	}
 }
 
+// A spell the spec knows only as a talent comes marked, so the pickers offer it in the talent kinds alone.
+func TestRegisteredMarksTalentOnlySpells(t *testing.T) {
+	c := started(t)
+	uri := pathURI(filepath.Join(repository, "mage.apl.siml"))
+	c.open(uri, lines("siml 1", "spec mage", ""))
+	var answer struct {
+		Registered struct {
+			Spells []struct {
+				Name       string `json:"name"`
+				TalentOnly bool   `json:"talentOnly"`
+			} `json:"spells"`
+		} `json:"registered"`
+	}
+	c.request("siml/registered", map[string]any{"uri": uri}, &answer)
+	talentOnly := map[string]bool{}
+	for _, n := range answer.Registered.Spells {
+		talentOnly[n.Name] = n.TalentOnly
+	}
+	if !talentOnly["arcane_mind"] || talentOnly["arcane_power"] {
+		t.Errorf("arcane_mind marked %v, arcane_power marked %v; want only the first", talentOnly["arcane_mind"], talentOnly["arcane_power"])
+	}
+}
+
 func TestPickersWriteNamedActionIDs(t *testing.T) {
 	c := started(t)
 	_, uri, text := fixture(t, "default.apl.siml")

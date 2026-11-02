@@ -123,6 +123,7 @@ var (
 	unitMessage     = (&proto.UnitReference{}).ProtoReflect().Descriptor()
 
 	talentIsKnownMessage = (&proto.APLValueTalentIsKnown{}).ProtoReflect().Descriptor().FullName()
+	talentRankMessage    = (&proto.APLValueTalentRank{}).ProtoReflect().Descriptor().FullName()
 )
 
 type builder struct {

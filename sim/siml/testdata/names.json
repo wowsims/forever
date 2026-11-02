@@ -40,6 +40,7 @@
 				"steady_shot_tag1": { "spellId": 900001, "tag": 1, "registeredBy": [] },
 				"strider_kick": { "spellId": 1317257, "rank": 1, "registeredBy": ["hunter"] },
 				"summon_hawk": { "spellId": 1293527, "rank": 4, "registeredBy": ["hunter"] },
+				"talent_only": { "spellId": 990220, "registeredBy": ["hunter"], "talentOnlyBy": ["hunter"], "uncastable": true },
 				"target_spell": { "spellId": 990205, "registeredBy": ["hunter"] },
 				"volley": { "spellId": 14295, "registeredBy": [] },
 				"x": { "spellId": 5, "registeredBy": [] }

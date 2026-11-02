@@ -39,6 +39,11 @@ type Registration struct {
 	Specs    []string // The specs whose builds register it, in byte order.
 	ICDOnly  bool     // In one build: an aura it lists only as an internal cooldown trigger.
 	ICDSpecs []string // The specs whose builds list the aura only as an internal cooldown trigger, in byte order.
+	// In one build: a talent's spell it lists as nothing but the talent.
+	TalentOnly bool
+	// The specs of which some build lists the spell only as a talent, and those of which some build lists it otherwise,
+	// in byte order. The first without the second know it only as a talent.
+	TalentSpecs, ListedSpecs []string
 }
 
 type Item struct {

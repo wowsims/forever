@@ -172,6 +172,18 @@ func (s kindScope) readsICD() bool {
 	return false
 }
 
+// Whether the kind reads a talent: the points the player holds in it.
+func (s kindScope) readsTalent() bool {
+	if s.kind == nil {
+		return false
+	}
+	switch s.kind.message.desc.FullName() {
+	case talentIsKnownMessage, talentRankMessage:
+		return true
+	}
+	return false
+}
+
 var (
 	icdIsReadyMessage       = (&proto.APLValueAuraICDIsReady{}).ProtoReflect().Descriptor()
 	triggerICDMessage       = (&proto.APLActionTriggerICD{}).ProtoReflect().Descriptor()

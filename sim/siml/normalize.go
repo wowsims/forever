@@ -58,9 +58,17 @@ func Normalize(m googleProto.Message, names *Names, spec proto.Spec) googleProto
 		}
 	}
 	pad(out.ProtoReflect())
+	// A talent_is_known talent with a rank above 1 prints raw (§7.3) and reads back with its own rank, which is the
+	// points the test needs.
+	ranked := map[*proto.ActionID]bool{}
+	walkMessages(out.ProtoReflect(), func(m protoreflect.Message) {
+		if v, ok := m.Interface().(*proto.APLValueTalentIsKnown); ok && v.GetTalentId().GetRank() > 1 {
+			ranked[v.TalentId] = true
+		}
+	})
 	walkMessages(out.ProtoReflect(), func(m protoreflect.Message) {
 		id, ok := m.Interface().(*proto.ActionID)
-		if !ok {
+		if !ok || ranked[id] {
 			return
 		}
 		for _, ns := range AllNamespaces() {

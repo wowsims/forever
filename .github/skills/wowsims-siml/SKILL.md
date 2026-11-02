@@ -8,8 +8,8 @@ argument-hint: 'Describe the rotation, gear set, setup, CLI or language server t
 
 SIML is the text format of the rotations (APLs), gear sets and whole sim setups. Each file reads as a proto
 (`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's, Retribution's and Protection
-paladin's presets are SIML; the other specs keep JSON presets until each moves, and the Go suites and the site read either. `sim/siml/SPEC.md` is the full
-language and wins on any doubt.
+paladin's presets are SIML; the other specs keep JSON presets until each moves, and the Go suites and the site read
+either. `sim/siml/SPEC.md` is the full language and wins on any doubt.
 
 `wowsimcli siml llm` writes this skill: the part above "Actions" from `sim/siml/llm_head.txt`, the rest from the
 protos, so a change to `proto/apl.proto` shows up here once `make siml` runs. Edit the head, never this file.
