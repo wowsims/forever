@@ -776,9 +776,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 644.9437
-  tps: 679.12125
-  dtps: 7.16333
+  dps: 649.13622
+  tps: 683.24195
+  dtps: 7.01968
   hps: 30.83889
  }
 }
