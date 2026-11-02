@@ -41,11 +41,31 @@ export function buildSweepOffsets(range: number, step: number): number[] {
 	return offsets.sort((a, b) => a - b);
 }
 
+/** How far a 1% step moves a stat with no percent, such as Strength or defense. */
+export const SWEEP_POINTS_PER_PERCENT = 10;
+
+/** Whether a player reads `unitStat` in percent; any other stat reads in points. */
+export const sweepReadsInPercent = (unitStat: UnitStat): boolean => unitStat.isPercentRating() || unitStat.isRatingBackedPercent();
+
 /**
- * The bonus a step adds to `unitStat`. Range and step are rating, so a % stat moves by the % that rating gives (10 hit rating
- * = 1% hit), as the EP calculation scales them; a stat with no rating form takes the offset as is.
+ * Whether `unitStat` has one total to show. A rating stat has none: the back end holds its percent per melee, ranged or spell
+ * channel, with talents and flat bonuses that rating divided by rating per percent would miss.
  */
-export const sweepBonus = (unitStat: UnitStat, offset: number): number => unitStat.convertRatingToDefaultUnits(offset) ?? offset;
+export const sweepHasTotal = (unitStat: UnitStat): boolean => !(unitStat.isStat() && unitStat.isPercentRating());
+
+/** The bonus a step `offset` percent from the current value adds to `unitStat`, in the unit it stores: rating, percent or points. */
+export const sweepBonus = (unitStat: UnitStat, offset: number): number => {
+	if (!sweepReadsInPercent(unitStat)) return roundFloat(offset * SWEEP_POINTS_PER_PERCENT);
+	return unitStat.isStat() ? unitStat.convertPercentToRating(offset)! : offset;
+};
+
+/** What a step added to `unitStat` in the unit a player reads: percent for a percent stat, else points. */
+export const sweepAddedAmount = (unitStat: UnitStat, { offset, bonus }: Pick<StatSweepPoint, 'offset' | 'bonus'>): number =>
+	sweepReadsInPercent(unitStat) ? offset : bonus;
+
+/** The label text for a `range` given in percent: in percent while one of `unitStats` reads in percent, else in points. */
+export const sweepRangeText = (unitStats: readonly UnitStat[], range: number): string =>
+	unitStats.some(sweepReadsInPercent) ? `${range}%` : `${roundFloat(range * SWEEP_POINTS_PER_PERCENT)}`;
 
 /** Each offset with the bonus it adds to `unitStat` and the stat total it reaches, `totals` in the same order; an offset whose total falls below 0 is dropped. */
 export const sweepSteps = (unitStat: UnitStat, offsets: readonly number[], totals: readonly number[]): StatSweepStep[] =>
@@ -265,6 +285,7 @@ export function displayColorSlots(runs: readonly { id: string; colorSlot: number
 
 export interface StatSweepCsvRun {
 	label: string;
+	unitStat: UnitStat;
 	/** Empty for a run saved with no batch. */
 	batchLabel: string;
 	statLabel: string;
@@ -278,26 +299,28 @@ export const STAT_SWEEP_CSV_COLUMNS = [
 	'stat',
 	'base_total',
 	'added',
-	'bonus',
+	'unit',
 	'total',
 	...STAT_SWEEP_METRICS.flatMap(metric => [metric, `${metric}_stdev`]),
 	'samples',
 ] as const;
 
 export function statSweepCsv(runs: ReadonlyArray<StatSweepCsvRun>): string {
-	const rows = runs.flatMap(run =>
-		run.points.map(point => [
+	const rows = runs.flatMap(run => {
+		const hasTotal = sweepHasTotal(run.unitStat);
+		const unit = sweepReadsInPercent(run.unitStat) ? 'percent' : 'points';
+		return run.points.map(point => [
 			run.label,
 			run.batchLabel,
 			run.statLabel,
-			run.baseStatValue,
-			point.offset,
-			point.bonus,
-			point.statValue,
+			hasTotal ? run.baseStatValue : '',
+			sweepAddedAmount(run.unitStat, point),
+			unit,
+			hasTotal ? point.statValue : '',
 			...STAT_SWEEP_METRICS.flatMap(metric => [point.metrics[metric].avg, point.metrics[metric].stdev]),
 			// Every metric comes from the same iterations.
 			point.metrics.dps.n,
-		]),
-	);
+		]);
+	});
 	return toCsv([STAT_SWEEP_CSV_COLUMNS, ...rows]);
 }

@@ -130,6 +130,7 @@ export const useStatSweep = () => {
 			[...(view.live ? [view.live] : []), ...view.history.filter(run => view.overlaid.includes(run.id))].map(run => ({
 				id: run.id,
 				label: run.label,
+				unitStat: UnitStat.fromJson(run.unitStat),
 				batchLabel: run.batchLabel ?? '',
 				colorSlot: colorSlots[run.id],
 				statLabel: statLabel(run),
@@ -145,7 +146,7 @@ export const useStatSweep = () => {
 				id,
 				runs: runs.map(run => ({
 					id: run.id,
-					label: runLabel(run),
+					label: runLabel({ label: run.label, capped: run.capped, unitStat: UnitStat.fromJson(run.unitStat) }),
 					statLabel: statLabel(run),
 					createdAt: run.createdAt,
 					metric: run.metric,

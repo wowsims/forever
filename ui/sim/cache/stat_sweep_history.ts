@@ -6,7 +6,7 @@ import type { StatSweepMetric } from '../state/sim_store';
 
 const STAT_SWEEP_DB_NAME = `${LOCAL_STORAGE_PREFIX}_stat-sweep`;
 // Every upgrade drops the stored runs, so a change to the record shape never meets runs saved in the old one.
-const STAT_SWEEP_DB_VERSION = 3;
+const STAT_SWEEP_DB_VERSION = 4;
 const RUNS_STORE = 'runs';
 
 export interface MetricSummary {
@@ -17,11 +17,11 @@ export interface MetricSummary {
 }
 
 export interface StatSweepPoint {
-	/** The step's change in rating for a % stat, whose % that rating gives (10 hit rating = 1% hit); bonus points for any other stat. Every stat shares this axis. */
+	/** The step's change in percent, the axis every stat shares; a stat with no percent moves `SWEEP_POINTS_PER_PERCENT` points per 1%. */
 	offset: number;
-	/** The bonus the step adds to the stat in its own units: `offset`, or for a % stat the % that rating gives. */
+	/** The bonus the step adds to the stat in the unit it stores: rating for a rating stat, percent for a percent pseudo stat, else points. */
 	bonus: number;
-	/** The swept stat's final total with the step's bonus, as the sim computes it. */
+	/** The swept stat's final total with the step's bonus, as the sim computes it. A rating stat's is in rating and only drops a step below 0, never shown. */
 	statValue: number;
 	metrics: Record<StatSweepMetric, MetricSummary>;
 }
@@ -38,6 +38,7 @@ export interface StatSweepRecord {
 	unitStat: object;
 	/** The metric plotted when the run started, which Target ± sizes the steps by. */
 	metric: StatSweepMetric;
+	/** The stat's total as the run started; like `statValue`, a rating stat's is in rating and never shown. */
 	baseStatValue: number;
 	points: StatSweepPoint[];
 	/** The step past which more of the stat left every metric unchanged, so the run skipped the steps above the next one. */

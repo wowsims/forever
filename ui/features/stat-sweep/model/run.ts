@@ -45,7 +45,9 @@ export interface StatSweepStatArgs {
 export interface StatSweepArgs {
 	/** Run one after another, each on its own and saved as its own run. */
 	stats: StatSweepStatArgs[];
+	/** In percent. */
 	range: number;
+	/** In percent. */
 	step: number;
 	/** Sizes Target ±. */
 	metric: StatSweepMetric;
