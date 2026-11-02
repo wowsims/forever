@@ -16,7 +16,12 @@
 	}
 
 	.ui-dialog {
-		@apply relative flex flex-col border border-surface-border bg-background bg-clip-padding outline-0 transition-transform duration-300 ease-out motion-reduce:transition-none;
+		@apply relative flex flex-col border border-surface-border bg-background bg-clip-padding text-sm outline-0 transition-transform duration-300 ease-out motion-reduce:transition-none;
+
+		.ui-field-label,
+		.ui-help-text {
+			@apply text-sm;
+		}
 
 		&[data-size='sm'] {
 			@apply max-w-modal-sm max-lg:max-w-modal-inset-w;
@@ -48,7 +53,7 @@
 	}
 
 	.ui-dialog-close {
-		@apply z-modal-close -mt-2 -mr-1 -mb-2 ml-auto box-content flex h-[1em] w-[1em] items-center justify-center px-2 py-2 text-link transition-colors duration-150 ease-in-out;
+		@apply z-modal-close -mt-2 -mr-1 -mb-2 ml-auto box-content flex h-[1em] w-[1em] items-center justify-center px-2 py-2 text-base text-link transition-colors duration-150 ease-in-out;
 		@apply hover:text-white;
 
 		&:focus-visible {
@@ -57,11 +62,7 @@
 	}
 
 	.ui-dialog-body {
-		@apply @container relative flex flex-1 flex-col gap-4 p-4 text-sm;
-
-		.ui-field-label {
-			@apply text-sm;
-		}
+		@apply @container relative flex flex-1 flex-col gap-4 p-4;
 	}
 
 	.ui-dialog-footer {
