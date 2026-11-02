@@ -1002,8 +1002,11 @@ up-to-date check (below) is what catches a table not committed. The generator:
 2. **Collects** a build's player spells into `spell`, its player auras into `aura`, its pets' auras into
    `pet_aura`, and its targets' auras and spells into `target_aura` and `target_spell`. Each is collected by spell
    id and tag, with the highest rank any build registers it with, and whether a build registers it castable
-   (`SpellStats.is_castable`). Item and other ids are no spell-like names. What these builds register is the
-   class's.
+   (`SpellStats.is_castable`). The talents a build holds (`UnitMetadata.talents`) go into `spell` too, uncastable
+   and with no rank, since `talent_is_known` and `talent_rank` read a spell name and most talents register no
+   spell: `talent_is_known(unsealed_wrath)` holds at any rank. The printer writes a `talent_is_known` whose talent
+   has a rank above 1 as raw JSON, which reads as `talent_rank(x) >= N` with a name. Item and other ids are no
+   spell-like names. What these builds register is the class's.
 3. **Adds the shared entries.** Each spec is built with its first race, every talent at its highest rank, its
    default options and every buff (or, when that fails, as its first build that succeeded with every buff), and
    one of:
@@ -1574,7 +1577,8 @@ normalisations:
 - indexed arrays are padded with zeros to their enum's length, an absent one included;
 - `spec_rotation_json` is compared as the protojson of the spec's `Rotation` it holds, an empty string as `{}`, in
   an `APLRotation` too, whose spec is the one its file's `spec` line names;
-- an `ActionID` with a `spellId` that a spell-like name prints takes the rank of the name's entry (§7.3).
+- an `ActionID` with a `spellId` that a spell-like name prints takes the rank of the name's entry (§7.3), which the
+  printer never does for a `talent_is_known` talent with a rank above 1 (§7.4).
 
 The protos are then compared with `proto.Equal`.
 

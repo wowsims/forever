@@ -521,6 +521,11 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 	for _, spell := range player.Metadata.Spells {
 		add(siml.NamespaceSpell, spell.Id, spell.IsCastable)
 	}
+	// talent_is_known and talent_rank read a spell name, and most talents register no spell of their own id. A
+	// talent's rank is the points the build holds, so the entry takes none, and talent_is_known(x) holds at any rank.
+	for _, talent := range player.Metadata.Talents {
+		add(siml.NamespaceSpell, &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: talent.GetSpellId()}}, false)
+	}
 	for _, aura := range player.Metadata.Auras {
 		add(siml.NamespaceAura, aura.Id, false)
 	}

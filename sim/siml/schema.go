@@ -121,6 +121,8 @@ var (
 	valueMessage    = (&proto.APLValue{}).ProtoReflect().Descriptor()
 	actionIDMessage = (&proto.ActionID{}).ProtoReflect().Descriptor()
 	unitMessage     = (&proto.UnitReference{}).ProtoReflect().Descriptor()
+
+	talentIsKnownMessage = (&proto.APLValueTalentIsKnown{}).ProtoReflect().Descriptor().FullName()
 )
 
 type builder struct {
