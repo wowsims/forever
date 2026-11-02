@@ -55,9 +55,27 @@ export const EnchantsTab: Story = {
 		quality: ItemQuality.ItemQualityUncommon,
 		iconUrl: wowheadIconUrl('spell_holy_greaterheal'),
 		ilvl: undefined,
-		source: undefined,
+		source: (
+			<small>
+				Western Plaguelands
+				<br />
+				Scarlet Spellbinder
+			</small>
+		),
 		compare: undefined,
 		ep: { ep: 9.2, equippedEP: 12 },
+	},
+};
+
+export const EnchantWithoutSource: Story = {
+	args: {
+		name: 'Enchant Chest - Inferior Stamina',
+		quality: ItemQuality.ItemQualityCommon,
+		iconUrl: wowheadIconUrl('inv_misc_enchantedscroll'),
+		ilvl: 0,
+		source: null,
+		compare: undefined,
+		ep: { ep: 1.2, equippedEP: 12 },
 	},
 };
 

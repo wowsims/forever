@@ -5,6 +5,9 @@ What the game files' item, enchant, suffix and set rows say, and where they misl
 - **An enchant effect id can carry several rows of different type** (1897 is both 2H Lesser Impact and Superior
   Striking). `core.GetEnchantByEffectID` answers the first, so a fit or slot rule uses `core.FittingEnchantRow` or
   `core.GetEnchantRowsByEffectID` (`sim/core/database.go`), and the request database ships every row.
+- **An enchant's `item_id` is not always its recipe.** It is the lowest item carrying the spell: a recipe (16252) or a
+  level 1 scroll that casts it (273623, whose recipe is 274398). `dbc.Enchant.RecipeItemIds` names the recipes, and
+  `wowsims-db-pipeline` `## Regenerating` the sources built from them.
 - **An enchant's name can point at a dead slot.** Read the description of the `E_ENCHANT_ITEM` spell that grants it
   instead, treat the grant effect's base points as a display magnitude, never a proc chance, and count defense as 1
   rating per skill point. The table is `SpellItemEnchantment` in `tools/database/wowsims.db`.

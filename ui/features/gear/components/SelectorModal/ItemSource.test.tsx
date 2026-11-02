@@ -1,5 +1,5 @@
 import { Profession } from '@generated/proto/common';
-import { DungeonDifficulty, RepLevel, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { DungeonDifficulty, RepLevel, UIEnchant as Enchant, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
 import { ActionId } from '@sim/proto/action_id';
 import { professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
@@ -117,6 +117,52 @@ describe('ItemSource', () => {
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(20));
 		expect(container.textContent).toBe('Icecrown Citadel (common.dungeon_difficulties.raid)The Lich King - Hard Mode');
+	});
+
+	it('shows an open world drop with no difficulty', () => {
+		const item = Item.create({
+			id: 602,
+			sources: [
+				{
+					source: {
+						oneofKind: 'drop',
+						drop: { zoneId: 28, npcId: 4494, difficulty: DungeonDifficulty.DifficultyUnknown, otherName: '', category: '' },
+					},
+				},
+			],
+		});
+		const { container, getByRole } = mount(item, {
+			zones: { 28: { id: 28, name: 'Western Plaguelands' } },
+			npcs: { 4494: { id: 4494, name: 'Scarlet Spellbinder' } },
+		});
+
+		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(4494));
+		expect(container.textContent).toBe('Western PlaguelandsScarlet Spellbinder');
+	});
+
+	it('names a drop with no zone and links to the item, logging nothing', () => {
+		const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+		const item = Item.create({
+			id: 603,
+			sources: [{ source: { oneofKind: 'drop', drop: { zoneId: 0, npcId: 0, difficulty: 0, otherName: 'World Drop', category: '' } } }],
+		});
+		const { container, getByRole } = mount(item);
+
+		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeItemUrl(603));
+		expect(container.textContent).toBe('World Drop');
+		expect(errorSpy).not.toHaveBeenCalled();
+		errorSpy.mockRestore();
+	});
+
+	it('shows an enchant, which passes its own item id, its sources and no faction restriction', () => {
+		const enchant = Enchant.create({
+			itemId: 2304,
+			sources: [{ source: { oneofKind: 'crafted', crafted: { profession: Profession.Leatherworking, spellId: 2152 } } }],
+		});
+		const { container, getByRole } = render(<ItemSource item={{ id: enchant.itemId, sources: enchant.sources }} sim={sim()} />);
+
+		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeSpellUrl(2152));
+		expect(container.textContent).toBe(professionNames.get(Profession.Leatherworking));
 	});
 
 	it.each([

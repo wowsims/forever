@@ -390,6 +390,7 @@ func ScanEnchantsTable(rows *sql.Rows) (dbc.Enchant, error) {
 	var spellItemEnchantmentFlags dbc.SpellItemEnchantmentFlags
 	var spellItemLevel int
 	var itemClassMasks string
+	var recipeItemIds string
 	err := rows.Scan(
 		&raw.EffectId,
 		&raw.Name,
@@ -411,11 +412,23 @@ func ScanEnchantsTable(rows *sql.Rows) (dbc.Enchant, error) {
 		&spellItemEnchantmentFlags,
 		&raw.IsLive,
 		&spellItemLevel,
+		&recipeItemIds,
 	)
 	if err != nil {
 		return raw, fmt.Errorf("scanning enchant data for effect ID %d: %w", raw.EffectId, err)
 	}
 	raw.Lvl = enchantLvl(spellItemLevel)
+
+	if recipeItemIds != "" {
+		for _, field := range strings.Split(recipeItemIds, ",") {
+			id, err := strconv.Atoi(field)
+			if err != nil {
+				return raw, fmt.Errorf("parsing recipe items for enchant %d (%s): %w", raw.EffectId, recipeItemIds, err)
+			}
+			raw.RecipeItemIds = append(raw.RecipeItemIds, id)
+		}
+		slices.Sort(raw.RecipeItemIds)
+	}
 
 	// A class may use the enchant when it may use any item that applies it; AllowableClass -1 is every class.
 	if itemClassMasks != "" {
@@ -500,7 +513,7 @@ func LoadAndWriteRawEnchants(dbHelper *DBHelper, inputsDir string) ([]dbc.Enchan
 				ELSE se.SpellID
 			END AS spellId,
 			-- The lowest item the game files ship (it has an ItemSparse row), else the lowest item, an item in
-			-- the Season of Discovery range last. This is the query's only aggregate, so the bare columns (icon
+			-- the Season of Discovery range last. This is the query's only MIN or MAX, so the bare columns (icon
 			-- and quality among them) come from its row.
 			COALESCE(MIN(
 				CASE WHEN ` + sodItemID("ixie.ItemID") + ` THEN 2000000000 ELSE 0 END
@@ -544,7 +557,15 @@ func LoadAndWriteRawEnchants(dbHelper *DBHelper, inputsDir string) ([]dbc.Enchan
 					JOIN ItemXItemEffect lixie ON lixie.ItemEffectID = lie.ID
 					JOIN ItemSparse lisp ON lisp.ID = lixie.ItemID
 				WHERE lie.SpellID = se.SpellID AND NOT ` + sodItemID("lixie.ItemID") + `
-			), 0) AS SpellItemLevel
+			), 0) AS SpellItemLevel,
+			-- The shipped items that teach this row's spell. Trigger type 6 is a learn effect; an enchant scroll
+			-- casts the spell on use. Joining through the effect id alone would hand a recipe to every slot
+			-- sharing the effect, as a boots recipe to the bracer enchant of the same stat.
+			COALESCE(group_concat(DISTINCT CASE
+				WHEN ie.TriggerType = 6 AND isp.ID IS NOT NULL AND NOT ` + sodItemID("ixie.ItemID") + `
+					AND ` + notPlaceholderItemName("isp.Display_lang") + `
+				THEN ixie.ItemID
+			END), '') AS RecipeItemIds
 		FROM SpellEffect se
 			JOIN Spell s ON se.SpellID = s.ID
 			JOIN SpellName sn ON se.SpellID = sn.ID
@@ -2395,6 +2416,21 @@ func LoadRaidZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 // LoadAreaTableIDs returns every AreaTable id in the game files.
 func LoadAreaTableIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	return loadIDSet(dbHelper, `SELECT ID FROM AreaTable`, "AreaTable ids")
+}
+
+func LoadAreaTableNames(dbHelper *DBHelper) (map[int32]string, error) {
+	areas, err := LoadRows(dbHelper.db, `SELECT ID, AreaName_lang FROM AreaTable`, func(rows *sql.Rows) (*proto.UIZone, error) {
+		zone := &proto.UIZone{}
+		return zone, rows.Scan(&zone.Id, &zone.Name)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("loading AreaTable names: %w", err)
+	}
+	names := make(map[int32]string, len(areas))
+	for _, area := range areas {
+		names[area.Id] = area.Name
+	}
+	return names, nil
 }
 
 func loadIDSet(dbHelper *DBHelper, query, what string) (map[int32]bool, error) {

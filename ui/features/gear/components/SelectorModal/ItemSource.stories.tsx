@@ -32,6 +32,24 @@ type Story = StoryObj<typeof meta>;
 
 export const BossDrop: Story = {};
 
+export const OpenWorldDrop: Story = {
+	args: {
+		item: withSource({
+			oneofKind: 'drop',
+			drop: { difficulty: DungeonDifficulty.DifficultyUnknown, npcId: RAGNAROS.id, zoneId: MOLTEN_CORE.id, otherName: '', category: '' },
+		}),
+	},
+};
+
+export const WorldDrop: Story = {
+	args: {
+		item: withSource({
+			oneofKind: 'drop',
+			drop: { difficulty: DungeonDifficulty.DifficultyUnknown, npcId: 0, zoneId: 0, otherName: 'World Drop', category: '' },
+		}),
+	},
+};
+
 export const Crafted: Story = { args: { item: withSource({ oneofKind: 'crafted', crafted: { profession: Profession.Blacksmithing, spellId: 16991 } }) } };
 
 export const SoldBy: Story = {

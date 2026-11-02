@@ -166,7 +166,7 @@ message DropSource {
 	DungeonDifficulty difficulty = 1;
 	int32 npc_id = 2;
 	int32 zone_id = 3;
-	string other_name = 4; // For drops in zones from things other than NPCs, e.g. "Trash"
+	string other_name = 4; // For drops from things other than NPCs, e.g. "Trash" in a zone or "World Drop" in none
 	string category = 5;   // For conditions/categories of drops, e.g. 'Hard Mode' or 'Titan Rune'
 }
 message QuestSource {
@@ -215,6 +215,7 @@ message UIEnchant {
 	Profession required_profession = 12;
 	repeated ItemEffect enchant_effects = 14;
 	EnchantProcKind proc_kind = 18;
+	repeated UIItemSource sources = 19; // Of the enchant's own item and the items that teach it.
 }
 
 

@@ -38,7 +38,7 @@ export const ItemListHeaderRow = ({ label, ep, sortBy, sortDirection, onSort }: 
 			<h6 className="mr-2 flex-1" data-testid="item-label">
 				{columnHeaderLabel(label, getTranslatedTabLabel)}
 			</h6>
-			{isItemsTab && (
+			{(isItemsTab || label === SelectorModalTabs.Enchants) && (
 				<h6 className="w-64" data-testid="source-label">
 					{i18n.t('gear_tab.gear_picker.table_headers.source')}
 				</h6>

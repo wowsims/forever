@@ -74,7 +74,24 @@ func main() {
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
 	} else if *genAsset == "questie" {
-		database.ReadQuestieData().WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		helper, err := database.NewDBHelper()
+		if err != nil {
+			log.Fatalf("failed to initialize database: %v", err)
+		}
+		defer helper.Close()
+
+		enchants, err := database.LoadAndWriteRawEnchants(helper, inputsDir)
+		if err != nil {
+			log.Fatalf("failed to load the enchants: %v", err)
+		}
+		// NPC drops reach the recipes enchants need alone: every item's would add them across the gear picker.
+		recipeItems := map[int32]bool{}
+		for _, enchant := range enchants {
+			for _, id := range enchant.RecipeItemIds {
+				recipeItems[int32(id)] = true
+			}
+		}
+		database.ReadQuestieData(recipeItems).WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
 		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
@@ -117,6 +134,7 @@ func main() {
 		questieDB       *database.WowDatabase
 		raidZones       map[int32]bool
 		areaTableIDs    map[int32]bool
+		areaNames       map[int32]string
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -156,13 +174,14 @@ func main() {
 	})
 	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
 	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
+	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
 
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
-	pruneQuestieVendors(questieDB, areaTableIDs)
+	pruneQuestieSources(questieDB, areaTableIDs)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -174,6 +193,7 @@ func main() {
 
 	processItems(instance, iconsMap, names, dropSources, craftingSources, repSources, db)
 
+	enchantRecipes := map[database.EnchantDBKey][]int{}
 	for _, enchant := range instance.Enchants {
 		parsed := enchant.ToProto()
 
@@ -183,6 +203,7 @@ func main() {
 		if !enchant.IsLive {
 			nonLiveEnchants[database.EnchantToDBKey(parsed)] = struct{}{}
 		}
+		enchantRecipes[database.EnchantToDBKey(parsed)] = enchant.RecipeItemIds
 		db.MergeEnchant(parsed)
 	}
 
@@ -236,6 +257,12 @@ func main() {
 	for _, item := range db.Items {
 		database.InferPvpSource(item)
 	}
+	database.AddEnchantSources(db.Enchants, enchantRecipes, database.EnchantSourceInputs{
+		Crafted: craftingSources,
+		Rep:     repSources,
+		Atlas:   atlaslootDB,
+		Questie: questieDB,
+	})
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
 	applyRepSources(leftovers, factionNames)
@@ -316,6 +343,9 @@ func main() {
 	atlasDBProto := atlaslootDB.ToUIProto()
 	db.MergeZones(atlasDBProto.Zones)
 	db.MergeNpcs(atlasDBProto.Npcs)
+	// The UI looks up every zone and NPC in db.json, the leftover enchants' as well.
+	database.AddEnchantSourceZonesAndNpcs(db, db.Enchants, areaNames, questieDB)
+	database.AddEnchantSourceZonesAndNpcs(db, leftovers.Enchants, areaNames, questieDB)
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
@@ -356,17 +386,24 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 	}
 }
 
-// pruneQuestieVendors removes the vendors with no zone or a zone that is not in the game files.
-func pruneQuestieVendors(questie *database.WowDatabase, areaTableIDs map[int32]bool) {
+// Removes the vendors and dropping NPCs with no zone or a zone that is not in the game files. A world drop names
+// neither an NPC nor a zone.
+func pruneQuestieSources(questie *database.WowDatabase, areaTableIDs map[int32]bool) {
 	for _, item := range questie.Items {
 		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
-			soldBy := source.GetSoldBy()
-			return soldBy == nil || areaTableIDs[soldBy.ZoneId]
+			if soldBy := source.GetSoldBy(); soldBy != nil {
+				return areaTableIDs[soldBy.ZoneId]
+			}
+			if drop := source.GetDrop(); drop != nil && drop.NpcId != 0 {
+				return areaTableIDs[drop.ZoneId]
+			}
+			return true
 		})
 	}
 }
 
-// appendQuestieSources adds the quest and vendor sources to the items the database has.
+// Adds the quest and vendor sources to the items the database has. QuestieDB's drops sit on recipes, which it does
+// not have.
 func appendQuestieSources(db, questie *database.WowDatabase) {
 	for id, questieItem := range questie.Items {
 		if item, ok := db.Items[id]; ok {
@@ -388,6 +425,13 @@ func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {
 		if len(sides) == 1 && !sides[proto.Faction_Unknown] {
 			for side := range sides {
 				item.FactionRestriction = database.AtlasLootFactionRestrictions[side]
+			}
+		}
+	}
+	for _, enchant := range db.Enchants {
+		for _, source := range enchant.Sources {
+			if rep := source.GetRep(); rep != nil {
+				db.MergeFaction(&proto.UIFaction{Id: rep.RepFactionId, Name: factionNames[rep.RepFactionId]})
 			}
 		}
 	}

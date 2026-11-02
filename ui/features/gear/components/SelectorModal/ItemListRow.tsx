@@ -1,6 +1,6 @@
 import { addBulkItem, hasBulkItem, removeBulkItem } from '@features/bulk/model/gear/items';
 import { type ItemQuality, ItemSpec } from '@generated/proto/common';
-import type { UIItem as Item } from '@generated/proto/ui';
+import type { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useActionId } from '@sim/hooks/useActionId';
 import { isIndividualSimHost } from '@sim/sim_host';
@@ -32,7 +32,7 @@ export interface ItemListRowViewProps extends RowActionsProps {
 	active: boolean;
 	onEquip: () => void;
 	notice?: ReactNode;
-	/** The source column; the items tab alone has one. */
+	/** The source column; the items and enchants tabs have one. */
 	source?: ReactNode;
 	/** Omitted for a slot the list computes no EP for. */
 	ep?: EpCellProps;
@@ -110,6 +110,7 @@ export const ItemListRow = ({
 	const isItemsTab = label === SelectorModalTabs.Items;
 	const isEnchantsTab = label === SelectorModalTabs.Enchants;
 	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
+	const enchant = itemData.item as unknown as Enchant;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
 	const batchSpec = useMemo(() => ItemSpec.create({ id: itemData.id }), [itemData.id]);
@@ -134,7 +135,13 @@ export const ItemListRow = ({
 			active={active}
 			onEquip={onEquip}
 			notice={<ItemNoticeIcon itemId={isEnchantsTab ? undefined : itemData.id} enchantId={isEnchantsTab ? itemData.id : undefined} />}
-			source={isItemsTab ? <ItemSource item={itemData.item as unknown as Item} sim={host.sim} /> : undefined}
+			source={
+				isItemsTab ? (
+					<ItemSource item={itemData.item as unknown as Item} sim={host.sim} />
+				) : isEnchantsTab ? (
+					<ItemSource item={{ id: enchant.itemId, sources: enchant.sources }} sim={host.sim} />
+				) : undefined
+			}
 			ep={ep}
 			favourited={favourited}
 			favouriteTooltipId={favouriteTooltipId}

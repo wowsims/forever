@@ -80,8 +80,9 @@ const questieTestItemMeta = `local meta = {
     -- Quest IDs that reward this item.
     ['questRewards'] = 2,
     ['vendors'] = 3, -- NPC IDs for vendors that sell this item.
+    ['npcDrops'] = 4, -- NPC IDs that can drop this item.
   },
-  types = { [1]='string', [2]='table', [3]='table' },
+  types = { [1]='string', [2]='table', [3]='table', [4]='table' },
 }`
 
 const questieTestQuestMeta = `local meta = {
@@ -103,12 +104,21 @@ const questieTestQuestRewards = "## X-Item-100-2: "
 const questieTestQuestRow = "## X-Quest-8561-S: "
 
 // Item 100 has a quest with no row, item 101's vendors are chunked and sold by a vendor stored as a list row and one
-// with a null zone, item 102 has no table fields, and item 103 has a vendors field its presence bits leave out.
+// with a null zone, item 102 has no table fields, and item 103 has a vendors field its presence bits leave out. Item
+// 104 is dropped by the two NPCs that have rows and one that has none, item 105 by more NPCs than are listed, and item
+// 106 by one NPC though no test asks for its drops.
 func questieTestTOC() string {
 	return strings.Join([]string{
 		"## Interface: 16001",
 		"## X-Flavor: Forever",
-		questieChunks("Item-IDS", questieIDs(100, 101, 102, 103), 3),
+		questieChunks("Item-IDS", questieIDs(100, 101, 102, 103, 104, 105, 106), 3),
+		"## X-Item-104-S: " + questieValue(map[any]any{1: "Formula: Enchant Weapon - Crusader", "p": 1 << 3}),
+		"## X-Item-104-4: " + questieValue([]any{5, 7, 9999}),
+		"## X-Item-105-S: " + questieValue(map[any]any{1: "Formula: World Drop", "p": 1 << 3}),
+		"## X-Item-105-4: " + questieValue([]any{5, 7, 21, 22, 23, 24}),
+		"## X-Item-106-S: " + questieValue(map[any]any{1: "Plain Sword", "p": 1 << 3}),
+		"## X-Item-106-4: " + questieValue([]any{5}),
+		"## X-Npc-7-S: " + questieValue([]any{"Scarlet Spellbinder", nil, 28}),
 		"## X-Item-100-S: " + questieValue(map[any]any{1: "Conqueror's Crown", "p": 1 << 1}),
 		questieTestQuestRewards + questieValue([]any{8561, 9999}),
 		"## X-Item-101-S: " + questieValue(map[any]any{1: "Plain Ring", "p": 1 << 2}),
@@ -125,7 +135,7 @@ func questieTestTOC() string {
 }
 
 func TestParseQuestieData(t *testing.T) {
-	db, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta)
+	db, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta, map[int32]bool{104: true, 105: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,9 +146,17 @@ func TestParseQuestieData(t *testing.T) {
 			{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{NpcId: 5, NpcName: `Grizzle "Rings, Bands" O'Hare`, ZoneId: 1519}}},
 			{Source: &proto.UIItemSource_SoldBy{SoldBy: &proto.SoldBySource{NpcId: 6, NpcName: "Nowhere Vendor"}}},
 		},
+		104: {
+			{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 5, ZoneId: 1519}}},
+			{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 7, ZoneId: 28}}},
+		},
+		105: {{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}}},
 	}
 	if len(db.Items) != len(want) {
-		t.Errorf("got %d items, want %d: an item with neither quests nor vendors is left out, and so is a table field without its presence bit", len(db.Items), len(want))
+		t.Errorf("got %d items, want %d: an item with no quest, vendor or asked-for drop is left out, and so is a table field without its presence bit", len(db.Items), len(want))
+	}
+	if len(db.Npcs) != 2 || db.Npcs[5].GetName() != `Grizzle "Rings, Bands" O'Hare` || db.Npcs[7].GetZoneId() != 28 {
+		t.Errorf("Npcs = %v, want the two NPCs a listed drop names", db.Npcs)
 	}
 	for id, sources := range want {
 		item, ok := db.Items[id]
@@ -171,7 +189,7 @@ func TestParseQuestieDataRejectsMalformedData(t *testing.T) {
 		"no IDS":             {strings.Replace(toc, "## X-Npc-IDS: ", "## X-Npc-Ids: ", 1), questieTestItemMeta},
 		"bad field index":    {toc, strings.Replace(questieTestItemMeta, "['name'] = 1,", "['name'] = 64,", 1)},
 	} {
-		if _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta); err == nil {
+		if _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta, nil); err == nil {
 			t.Errorf("%s: parsed without an error", name)
 		}
 	}

@@ -1,4 +1,4 @@
-import { UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
+import { DungeonDifficulty, UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
@@ -7,11 +7,12 @@ import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
 
 export interface ItemSourceProps {
-	item: Item;
+	/** An enchant passes its own item's id and its sources, and has no faction restriction. */
+	item: Pick<Item, 'id' | 'sources'> & Partial<Pick<Item, 'factionRestriction'>>;
 	sim: Sim;
 }
 
-const FactionIcon = ({ restriction }: { restriction: UIItem_FactionRestriction }) => {
+const FactionIcon = ({ restriction }: { restriction?: UIItem_FactionRestriction }) => {
 	if (restriction === UIItem_FactionRestriction.ALLIANCE_ONLY)
 		return <img src="/forever/assets/img/alliance.png" className="ml-1" width="15" height="15" alt="" />;
 	if (restriction === UIItem_FactionRestriction.HORDE_ONLY) return <img src="/forever/assets/img/horde.png" className="ml-1" width="15" height="15" alt="" />;
@@ -41,6 +42,9 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 	const drop = first('drop');
 	if (drop) {
 		const src = drop.drop;
+		// A world drop has a name and no zone.
+		if (!src.zoneId && src.otherName) return <SourceLink href={ActionId.makeItemUrl(item.id)}>{src.otherName}</SourceLink>;
+
 		const zone = sim.db.getZone(src.zoneId);
 		const npc = sim.db.getNpc(src.npcId);
 		if (!zone) {
@@ -53,7 +57,9 @@ export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
 			return (
 				<SourceLink href={ActionId.makeNpcUrl(npc.id)}>
 					<span>
-						{zone.name} ({difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})
+						{zone.name}
+						{src.difficulty !== DungeonDifficulty.DifficultyUnknown &&
+							` (${difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})`}
 						<br />
 						{npc.name + category}
 					</span>

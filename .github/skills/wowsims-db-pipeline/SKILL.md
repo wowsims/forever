@@ -23,7 +23,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `tools/database/overrides/`                                                 | spell, weapon and enchant rate overrides, hand triggers, extra spells, and the numbered `.sql`                                                                                                                                                                                                        |
 | `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
-| `assets/db_inputs/questie_db.json`                                          | quest and vendor sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`, with QuestieDB's Forever corrections applied; `-gen=db` adds them after an item's drop, craft and reputation sources and before its PvP source |
+| `assets/db_inputs/questie_db.json`                                          | quest, vendor and recipe drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds the first two after an item's drop, craft and reputation sources, before its PvP source, and all three to enchants |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
 
@@ -70,6 +70,15 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
 - **`gen_db` sets every item source; the UI infers none.** The gear picker shows and filters the sources in the
   database and never derives one from an item's name or random suffixes, so a new rule (the PvP name list in
   `InferPvpSource`) goes into the generator. An item with no source shows none; it is not a world drop.
+- **An enchant's sources are its own item's and its recipes'.** `LoadAndWriteRawEnchants` collects the recipes for each
+  enchant row: the shipped items whose `ItemEffect` on the row's spell has `TriggerType` 6, Season of Discovery items
+  left out. Joining through the effect id alone crosses slots, since effect 66 is a bracer, a boots and a shield enchant
+  and only the boots has a recipe. The game files hold no trainers, so an enchant a trainer teaches has no source.
+- **QuestieDB's NPC drops reach enchant recipes alone.** `gen_db -gen=questie` reads the recipes from `wowsims.db`, so it
+  needs the database, and an equippable item takes no drop from it. A recipe with more than five dropping NPCs takes one
+  `World Drop` source with no zone or NPC: the lists run to 5 NPCs in one or two zones, then 13 to 629 in eight or more,
+  and the column shows one source of a kind, so a listed NPC would be one mob of hundreds. An NPC's zone without a
+  difficulty shows no difficulty.
 
 ## Overrides
 

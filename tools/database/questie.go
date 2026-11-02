@@ -17,13 +17,21 @@ import (
 	"github.com/wowsims/forever/tools"
 )
 
-// QuestieDB (github.com/Questie/QuestieDB, GPLv3) names each item's quest rewards and vendors, which the game files
-// do not hold. A release's baked Forever data has QuestieDB's Forever corrections applied; the repository's
-// data/Forever Lua files do not.
+// QuestieDB (github.com/Questie/QuestieDB, GPLv3) names each item's quest rewards, vendors and dropping NPCs, which
+// the game files do not hold. A release's baked Forever data has QuestieDB's Forever corrections applied; the
+// repository's data/Forever Lua files do not.
 const questieRelease = "v1.0.9"
 
-// Every item QuestieDB lists a reward quest or a vendor for, with each as a Quest or SoldBy source.
-func ReadQuestieData() *WowDatabase {
+// A recipe with more dropping NPCs than this takes the one WorldDropName source. The lists run 1 to 5 NPCs in one or
+// two zones, then 13 and up across eight or more zones, to 629, and the gear picker shows one source of a kind.
+const (
+	questieMaxListedDrops = 5
+	WorldDropName         = "World Drop"
+)
+
+// Every item QuestieDB lists a reward quest or a vendor for, with each as a Quest or SoldBy source; the items of
+// dropItems take their NPC drops as well, as Drop sources with the NPCs in Npcs.
+func ReadQuestieData(dropItems map[int32]bool) *WowDatabase {
 	archive := tools.ReadWebRequired("https://github.com/Questie/QuestieDB/releases/download/" + questieRelease + "/QuestieDB-Forever.zip")
 	reader, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
 	if err != nil {
@@ -36,7 +44,7 @@ func ReadQuestieData() *WowDatabase {
 		}
 		return string(data)
 	}
-	db, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"))
+	db, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"), dropItems)
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
@@ -45,7 +53,7 @@ func ReadQuestieData() *WowDatabase {
 
 // The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
 // names to indexes.
-func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, error) {
+func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, dropItems map[int32]bool) (*WowDatabase, error) {
 	store := readQuestieStore(toc)
 	items, err := newQuestieEntity(store, "Item", itemMeta)
 	if err != nil {
@@ -59,7 +67,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 	if err != nil {
 		return nil, err
 	}
-	var questRewards, vendors, questName, npcName, npcZone int
+	var questRewards, vendors, npcDrops, questName, npcName, npcZone int
 	for _, key := range []struct {
 		entity *questieEntity
 		name   string
@@ -67,6 +75,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 	}{
 		{items, "questRewards", &questRewards},
 		{items, "vendors", &vendors},
+		{items, "npcDrops", &npcDrops},
 		{quests, "name", &questName},
 		{npcs, "name", &npcName},
 		{npcs, "zoneID", &npcZone},
@@ -132,6 +141,38 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 				NpcName: name,
 				ZoneId:  int32(zone),
 			}}})
+		}
+		if dropItems[int32(id)] {
+			dropNpcIDs, err := item.ids(npcDrops)
+			if err != nil {
+				return nil, err
+			}
+			if len(dropNpcIDs) > questieMaxListedDrops {
+				sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}})
+				dropNpcIDs = nil
+			}
+			for _, npcID := range dropNpcIDs {
+				npc, err := npcs.row(npcID)
+				if err != nil {
+					return nil, err
+				}
+				if npc == nil {
+					continue
+				}
+				name, err := npc.text(npcName)
+				if err != nil {
+					return nil, err
+				}
+				zone, err := npc.integer(npcZone)
+				if err != nil {
+					return nil, err
+				}
+				db.Npcs[int32(npcID)] = &proto.UINPC{Id: int32(npcID), Name: name, ZoneId: int32(zone)}
+				sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{
+					NpcId:  int32(npcID),
+					ZoneId: int32(zone),
+				}}})
+			}
 		}
 		if len(sources) > 0 {
 			db.Items[int32(id)] = &proto.UIItem{Id: int32(id), Sources: sources}
