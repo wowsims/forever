@@ -28,15 +28,15 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 	// Both dialogs read the player, the presets and the database.
 	const ready = useSimReady();
 	const tooltipId = useId();
+	const reasonId = useId();
 	const [open, setOpen] = useState<Open>(null);
 	if (!shown) return null;
 
 	const close = () => setOpen(null);
 	const menuLabel = i18n.t('saved_data_transfer.menu_label');
 	const nothingSaved = storage.entries.length === 0;
-	const exportLabel = nothingSaved
-		? i18n.t('saved_data_transfer.export_empty', { type: i18n.t(`saved_data_transfer.types.${type}`) })
-		: i18n.t('saved_data_transfer.export');
+	// The item stays, off, and says why on hover and to a screen reader; a disabled menu item keeps its pointer events.
+	const exportEmpty = i18n.t('saved_data_transfer.export_empty', { type: i18n.t(`saved_data_transfer.types.${type}`) });
 
 	return (
 		<>
@@ -51,17 +51,24 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 					layout="block"
 					testId="saved-data-transfer-export"
 					disabled={nothingSaved}
+					aria-describedby={nothingSaved ? reasonId : undefined}
+					{...(nothingSaved ? { ...tooltipAnchorProps(tooltipId, exportEmpty), 'data-tooltip-place': 'left' } : {})}
 					onClick={() => {
 						setOpen('export');
 						trackEvent({ action: 'settings', category: 'export', label });
 					}}>
-					{exportLabel}
+					{i18n.t('saved_data_transfer.export')}
 				</MenuItem>
 				<MenuItem layout="block" testId="saved-data-transfer-import" onClick={() => setOpen('import')}>
 					{i18n.t('saved_data_transfer.import')}
 				</MenuItem>
 			</Menu>
 			<Tooltip id={tooltipId} content={menuLabel} />
+			{nothingSaved && (
+				<span id={reasonId} className="sr-only">
+					{exportEmpty}
+				</span>
+			)}
 			{/* Outside `Menu`, not inside its popup: clicking an item closes the menu, which unmounts the popup, and a dialog rendered in there would go with it. */}
 			<SavedDataExporter type={type} storage={storage} open={open === 'export'} onOpenChange={close} />
 			<SavedDataImporter type={type} label={label} storage={storage} presets={presets} open={open === 'import'} onOpenChange={close} />

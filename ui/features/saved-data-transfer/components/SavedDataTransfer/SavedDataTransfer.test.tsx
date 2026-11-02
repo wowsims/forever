@@ -199,14 +199,16 @@ describe('SavedDataTransfer', () => {
 			expect(isTicked('Raid')).toBe(true);
 		});
 
-		it('turns the menu item off and says why when nothing is saved, so the dialog never opens empty', async () => {
+		it('keeps the Export item, off, with the reason as its tooltip and description when nothing is saved', async () => {
 			await renderPanel();
 
 			fireEvent.click(screen.getByTestId('saved-data-transfer-button'));
 			const item = await screen.findByTestId('saved-data-transfer-export');
 
-			expect(item.textContent).toBe('No saved gear sets to export');
+			expect(item.textContent).toBe('Export');
 			expect(item.hasAttribute('data-disabled')).toBe(true);
+			expect(item.getAttribute('data-tooltip-content')).toBe('No saved gear sets to export');
+			expect(document.getElementById(item.getAttribute('aria-describedby')!)?.textContent).toBe('No saved gear sets to export');
 			fireEvent.click(item);
 			expect(screen.queryByTestId('exporter')).toBeNull();
 			expect(trackEvent).not.toHaveBeenCalled();
