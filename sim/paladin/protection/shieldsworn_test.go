@@ -74,6 +74,17 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 		t.Fatalf("a Holy Strike left Holy Shield at %d of %d charges", holyShield.GetStacks(), holyShield.MaxStacks)
 	}
 
+	// A Holy Strike's shield damage reports under Holy Shield tagged with Shieldsworn, and a block's under tag 2.
+	blockDamage := pally.GetSpell(holyShield.ActionID.WithTag(2))
+	strikeDamage := pally.GetSpell(holyShield.ActionID.WithTag(1328544))
+	if blockDamage == nil || strikeDamage == nil {
+		t.Fatal("Holy Shield's block damage or its Shieldsworn copy is not registered")
+	}
+	if strikeDamage.SpellMetrics[target.UnitIndex].Hits == 0 || blockDamage.SpellMetrics[target.UnitIndex].Hits != 0 {
+		t.Fatalf("a Holy Strike's shield damage hit %d times under Shieldsworn's tag and %d under the block's",
+			strikeDamage.SpellMetrics[target.UnitIndex].Hits, blockDamage.SpellMetrics[target.UnitIndex].Hits)
+	}
+
 	// Mana is drained first so Shield Specialization's restore has room to land.
 	pally.SpendMana(sim, pally.CurrentMana()/2, pally.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionNone}))
 	manaBefore := pally.CurrentMana()
