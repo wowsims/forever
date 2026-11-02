@@ -964,16 +964,16 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-NightElf-testing-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 765.87603
-  tps: 546.99168
+  dps: 766.03248
+  tps: 547.10119
   dtps: 5.26231
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-NightElf-testing-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 780.3622
-  tps: 554.03986
+  dps: 780.83154
+  tps: 554.36839
  }
 }
 dps_results: {
