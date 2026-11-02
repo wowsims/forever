@@ -41,7 +41,9 @@ describe('GearPresets', () => {
 		const { container } = setup({ gear: [], builds: [{ name: 'Pre-BiS', group: 'Fury', talents: {} }] }, true);
 
 		const cog = container.querySelector('[data-testid="saved-data-transfer-button"]');
-		expect(cog?.closest('[data-testid="content-block-header"]')?.querySelector('[data-testid="content-block-title"]')?.textContent).toBe('gear_tab.gear_sets.title');
+		expect(cog?.closest('[data-testid="content-block-header"]')?.querySelector('[data-testid="content-block-title"]')?.textContent).toBe(
+			'gear_tab.gear_sets.title',
+		);
 	});
 
 	it('steps an import around the gear presets, which its saved panel does not list', async () => {

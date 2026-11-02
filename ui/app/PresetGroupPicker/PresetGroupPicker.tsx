@@ -51,7 +51,10 @@ export const PresetGroupPicker = ({ sections, phases, phase, onSelectPhase }: Pr
 				</Tabs.Root>
 			)}
 			{sections.map(section => (
-				<ContentBlock key={section.title} config={{ header: { title: section.title, tooltip: section.tooltip } }} headerChildren={section.headerChildren}>
+				<ContentBlock
+					key={section.title}
+					config={{ header: { title: section.title, tooltip: section.tooltip } }}
+					headerChildren={section.headerChildren}>
 					<div className="flex flex-col gap-2" data-testid="preset-group-section-body">
 						{rowsOf(section.items, phase, groupNames).map(([group, items]) => (
 							<div key={group || UNGROUPED} className="contents">
