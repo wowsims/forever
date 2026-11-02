@@ -37,7 +37,7 @@ func AddEnchantSources(enchants map[EnchantDBKey]*proto.UIEnchant, recipes map[E
 }
 
 // One item's sources in the order an item in the database lists them. AtlasLoot's rep source gives way to the game
-// files' and QuestieDB's drops to AtlasLoot's, which name the instance's NPC with its difficulty.
+// files'.
 func (inputs EnchantSourceInputs) itemSources(itemID int) []*proto.UIItemSource {
 	var sources []*proto.UIItemSource
 	for _, crafted := range inputs.Crafted[itemID] {
@@ -47,32 +47,21 @@ func (inputs EnchantSourceInputs) itemSources(itemID int) []*proto.UIItemSource 
 	for _, rep := range reps {
 		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Rep{Rep: rep}})
 	}
-	hasAtlasDrop := false
 	if atlasItem := inputs.Atlas.Items[int32(itemID)]; atlasItem != nil {
 		for _, source := range atlasItem.Sources {
-			if source.GetRep() != nil && len(reps) > 0 {
-				continue
+			if source.GetRep() == nil || len(reps) == 0 {
+				sources = append(sources, source)
 			}
-			hasAtlasDrop = hasAtlasDrop || source.GetDrop() != nil
-			sources = append(sources, source)
 		}
 	}
-	if questieItem := inputs.Questie.Items[int32(itemID)]; questieItem != nil {
-		for _, source := range questieItem.Sources {
-			if source.GetDrop() != nil && hasAtlasDrop {
-				continue
-			}
-			sources = append(sources, source)
-		}
-	}
-	return sources
+	return append(sources, questieSourcesBeside(sources, inputs.Questie.Items[int32(itemID)])...)
 }
 
-// The zones and NPCs the enchants' drop sources name, each only where db lacks it, so a row db holds stays as it is.
-// A zone takes its AreaTable name and an NPC its QuestieDB row; AtlasLoot's are already in db whole.
-func AddEnchantSourceZonesAndNpcs(db *WowDatabase, enchants map[EnchantDBKey]*proto.UIEnchant, areaNames map[int32]string, questie *WowDatabase) {
-	for _, enchant := range enchants {
-		for _, source := range enchant.Sources {
+// The zones and NPCs the drop sources of from's items and enchants name, each only where db lacks it, so a row db holds
+// stays as it is. A zone takes its AreaTable name and an NPC its QuestieDB row; AtlasLoot's are already in db whole.
+func AddSourceZonesAndNpcs(db, from *WowDatabase, areaNames map[int32]string, questie *WowDatabase) {
+	add := func(sources []*proto.UIItemSource) {
+		for _, source := range sources {
 			drop := source.GetDrop()
 			if drop == nil {
 				continue
@@ -84,5 +73,11 @@ func AddEnchantSourceZonesAndNpcs(db *WowDatabase, enchants map[EnchantDBKey]*pr
 				db.Npcs[drop.NpcId] = npc
 			}
 		}
+	}
+	for _, item := range from.Items {
+		add(item.Sources)
+	}
+	for _, enchant := range from.Enchants {
+		add(enchant.Sources)
 	}
 }

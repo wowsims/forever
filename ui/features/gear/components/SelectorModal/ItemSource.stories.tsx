@@ -3,6 +3,7 @@ import { DungeonDifficulty, UIItemSource } from '@generated/proto/ui';
 import type { Sim } from '@sim/sim';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { makeUIItem } from '@testing/storybook/fixtures/protos';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { ItemSource } from './ItemSource';
 
@@ -54,4 +55,27 @@ export const Crafted: Story = { args: { item: withSource({ oneofKind: 'crafted',
 
 export const SoldBy: Story = {
 	args: { item: withSource({ oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584 } }) },
+};
+
+export const OtherSources: Story = {
+	args: {
+		item: makeUIItem({
+			sources: [
+				UIItemSource.create({ source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584 } } }),
+				UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core' } } }),
+				UIItemSource.create({
+					source: {
+						oneofKind: 'drop',
+						drop: { difficulty: DungeonDifficulty.DifficultyRaid, npcId: RAGNAROS.id, zoneId: MOLTEN_CORE.id, otherName: '', category: '' },
+					},
+				}),
+			],
+		}),
+	},
+	play: async ({ canvasElement }) => {
+		const more = within(canvasElement).getByTestId('item-source-more');
+		await expect(more.textContent).toBe('+2');
+		await userEvent.click(more);
+		await expect(within(canvasElement.ownerDocument.body).findByTestId('item-source-more-popup')).resolves.toBeTruthy();
+	},
 };

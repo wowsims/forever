@@ -74,24 +74,7 @@ func main() {
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
 	} else if *genAsset == "questie" {
-		helper, err := database.NewDBHelper()
-		if err != nil {
-			log.Fatalf("failed to initialize database: %v", err)
-		}
-		defer helper.Close()
-
-		enchants, err := database.LoadAndWriteRawEnchants(helper, inputsDir)
-		if err != nil {
-			log.Fatalf("failed to load the enchants: %v", err)
-		}
-		// NPC drops reach the recipes enchants need alone: every item's would add them across the gear picker.
-		recipeItems := map[int32]bool{}
-		for _, enchant := range enchants {
-			for _, id := range enchant.RecipeItemIds {
-				recipeItems[int32(id)] = true
-			}
-		}
-		database.ReadQuestieData(recipeItems).WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		database.ReadQuestieData().WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
 		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
@@ -133,6 +116,7 @@ func main() {
 		atlaslootDB     *database.WowDatabase
 		questieDB       *database.WowDatabase
 		raidZones       map[int32]bool
+		dungeonZones    map[int32]bool
 		areaTableIDs    map[int32]bool
 		areaNames       map[int32]string
 		iconsMap        map[int]string
@@ -173,6 +157,7 @@ func main() {
 		return nil
 	})
 	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
+	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
 	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
 	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
@@ -181,7 +166,7 @@ func main() {
 	}
 
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
-	pruneQuestieSources(questieDB, areaTableIDs)
+	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaTableIDs)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -226,7 +211,7 @@ func main() {
 			db.MergeItem(atlaslootItem)
 		}
 	}
-	appendQuestieSources(db, questieDB)
+	database.AppendQuestieSources(db, questieDB)
 
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
@@ -343,9 +328,9 @@ func main() {
 	atlasDBProto := atlaslootDB.ToUIProto()
 	db.MergeZones(atlasDBProto.Zones)
 	db.MergeNpcs(atlasDBProto.Npcs)
-	// The UI looks up every zone and NPC in db.json, the leftover enchants' as well.
-	database.AddEnchantSourceZonesAndNpcs(db, db.Enchants, areaNames, questieDB)
-	database.AddEnchantSourceZonesAndNpcs(db, leftovers.Enchants, areaNames, questieDB)
+	// The UI looks up every zone and NPC in db.json, the leftovers' as well.
+	database.AddSourceZonesAndNpcs(db, db, areaNames, questieDB)
+	database.AddSourceZonesAndNpcs(db, leftovers, areaNames, questieDB)
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
@@ -383,32 +368,6 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 			drops = append(drops, drop)
 			return true
 		})
-	}
-}
-
-// Removes the vendors and dropping NPCs with no zone or a zone that is not in the game files. A world drop names
-// neither an NPC nor a zone.
-func pruneQuestieSources(questie *database.WowDatabase, areaTableIDs map[int32]bool) {
-	for _, item := range questie.Items {
-		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
-			if soldBy := source.GetSoldBy(); soldBy != nil {
-				return areaTableIDs[soldBy.ZoneId]
-			}
-			if drop := source.GetDrop(); drop != nil && drop.NpcId != 0 {
-				return areaTableIDs[drop.ZoneId]
-			}
-			return true
-		})
-	}
-}
-
-// Adds the quest and vendor sources to the items the database has. QuestieDB's drops sit on recipes, which it does
-// not have.
-func appendQuestieSources(db, questie *database.WowDatabase) {
-	for id, questieItem := range questie.Items {
-		if item, ok := db.Items[id]; ok {
-			item.Sources = append(slices.Clip(item.Sources), questieItem.Sources...)
-		}
 	}
 }
 

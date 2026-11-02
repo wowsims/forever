@@ -2413,6 +2413,15 @@ func LoadRaidZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	`, "raid zones")
 }
 
+// The dungeons' zones, found the way LoadRaidZoneIDs finds the raids'.
+func LoadDungeonZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
+	return loadIDSet(dbHelper, `
+		SELECT ID FROM AreaTable
+		WHERE ID IN (SELECT AreaTableID FROM Map WHERE InstanceType = 1)
+		OR ContinentID IN (SELECT ID FROM Map WHERE InstanceType = 1)
+	`, "dungeon zones")
+}
+
 // LoadAreaTableIDs returns every AreaTable id in the game files.
 func LoadAreaTableIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	return loadIDSet(dbHelper, `SELECT ID FROM AreaTable`, "AreaTable ids")

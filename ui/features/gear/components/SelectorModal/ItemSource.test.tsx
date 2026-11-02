@@ -1,11 +1,12 @@
-import { Profession } from '@generated/proto/common';
+import { ItemQuality, Profession } from '@generated/proto/common';
 import { DungeonDifficulty, RepLevel, UIEnchant as Enchant, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
 import { ActionId } from '@sim/proto/action_id';
 import { professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { ItemListRowView } from './ItemListRow';
 import { ItemSource } from './ItemSource';
 
 interface DbStub {
@@ -26,6 +27,13 @@ const sim = ({ zones = {}, npcs = {}, factions = {} }: DbStub = {}) =>
 const mount = (item: Item, dbStub: DbStub = {}) => render(<ItemSource item={item} sim={sim(dbStub)} />);
 
 describe('ItemSource', () => {
+	it('counts a repeated source once', () => {
+		const crafted = { source: { oneofKind: 'crafted' as const, crafted: { profession: Profession.Blacksmithing, spellId: 3321 } } };
+		const { getByRole, queryByTestId } = mount(Item.create({ id: 3471, sources: [crafted, crafted] }));
+		expect(queryByTestId('item-source-more')).toBeNull();
+		expect(getByRole('link').textContent).toBe(professionNames.get(Profession.Blacksmithing));
+	});
+
 	it('links to the item page for an item with a pvp source', () => {
 		const item = Item.create({ id: 200, sources: [{ source: { oneofKind: 'pvp', pvp: {} } }] });
 		const { container, getByRole } = mount(item);
@@ -44,7 +52,7 @@ describe('ItemSource', () => {
 		withRep.unmount();
 
 		const withVendor = mount(Item.create({ id: 211, sources: [vendor, pvp] }));
-		expect(withVendor.container.textContent).toBe('common.sources.pvp');
+		expect(withVendor.getAllByRole('link')[0].textContent).toBe('common.sources.pvp');
 	});
 
 	it('shows the quest of an item whose sources list the vendor first', () => {
@@ -55,9 +63,9 @@ describe('ItemSource', () => {
 				{ source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty' } } },
 			],
 		});
-		const { container } = mount(item);
+		const { getByRole } = mount(item);
 
-		expect(container.textContent).toBe('common.sources.questBounty');
+		expect(getByRole('link').textContent).toBe('common.sources.questBounty');
 	});
 
 	it('renders nothing for an item with no sources', () => {
@@ -214,10 +222,107 @@ describe('ItemSource', () => {
 				{ source: { oneofKind: 'rep', rep: { repFactionId: 270, repLevel: RepLevel.RepLevelRevered, factionId: 0 } } },
 			],
 		});
-		const { container, getByRole } = mount(item, { factions: { 270: { id: 270, name: 'Zandalar Tribe' } } });
+		const { getByRole } = mount(item, { factions: { 270: { id: 270, name: 'Zandalar Tribe' } } });
 
 		expect(getByRole('link').getAttribute('href')).toBe(ActionId.makeFactionUrl(270));
-		expect(container.textContent).toBe(`Zandalar Tribe - ${REP_LEVEL_NAMES[RepLevel.RepLevelRevered]}`);
+		expect(getByRole('link').textContent).toBe(`Zandalar Tribe - ${REP_LEVEL_NAMES[RepLevel.RepLevelRevered]}`);
+	});
+
+	describe('the other sources', () => {
+		const vendor = (npcId: number, npcName: string) => ({ source: { oneofKind: 'soldBy', soldBy: { npcId, npcName, zoneId: 0 } } }) as const;
+		const drop = (npcId: number) => ({ source: { oneofKind: 'drop', drop: { zoneId: 28, npcId, difficulty: 0, otherName: '', category: '' } } }) as const;
+		const quest = { source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty' } } } as const;
+		const db: DbStub = { zones: { 28: { id: 28, name: 'Western Plaguelands' } }, npcs: { 4494: { id: 4494, name: 'Scarlet Spellbinder' } } };
+		const threeSources = () => Item.create({ id: 900, sources: [vendor(5, 'Quartermaster'), quest, drop(4494)] });
+
+		it('shows the first source by kind and a count of the rest, named from the locale', () => {
+			mount(threeSources(), db);
+			const more = screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
+
+			expect(more.textContent).toBe('+2');
+			expect(screen.getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(4494));
+			expect(screen.queryByRole('dialog')).toBeNull();
+		});
+
+		it('shows no count for one source', () => {
+			mount(Item.create({ id: 901, sources: [vendor(5, 'Quartermaster')] }));
+
+			expect(screen.queryByRole('button')).toBeNull();
+		});
+
+		it('counts only the sources it can name', () => {
+			const unknownZone = { source: { oneofKind: 'drop', drop: { zoneId: 1, npcId: 1, difficulty: 0, otherName: '', category: '' } } } as const;
+			const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+			mount(Item.create({ id: 902, sources: [unknownZone, vendor(5, 'Quartermaster')] }));
+
+			expect(screen.getByRole('link').getAttribute('href')).toBe(ActionId.makeNpcUrl(5));
+			expect(screen.queryByRole('button')).toBeNull();
+			expect(errorSpy).toHaveBeenCalled();
+			errorSpy.mockRestore();
+		});
+
+		it('lists the others in the same kind order, each with its own link and the text the cell gives it', () => {
+			mount(threeSources(), db);
+			fireEvent.click(screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' }));
+			const links = within(screen.getByRole('dialog')).getAllByRole('link');
+
+			expect(links.map(link => link.getAttribute('href'))).toEqual([ActionId.makeQuestUrl(7), ActionId.makeNpcUrl(5)]);
+			expect(links.map(link => link.textContent)).toEqual(['common.sources.questBounty', 'common.sources.sold_byQuartermaster']);
+		});
+
+		it('keeps a name that holds markup as plain text', () => {
+			mount(Item.create({ id: 903, sources: [quest, vendor(5, '<b>Quartermaster</b>')] }), db);
+			fireEvent.click(screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' }));
+			const popup = screen.getByRole('dialog');
+
+			expect(popup.querySelector('b')).toBeNull();
+			expect(popup.textContent).toContain('<b>Quartermaster</b>');
+		});
+
+		it('opens from the keyboard, as a button, and closes on Escape', async () => {
+			mount(threeSources(), db);
+			const more = screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
+			expect(more.tagName).toBe('BUTTON');
+
+			more.focus();
+			fireEvent.click(more);
+			expect(screen.getByRole('dialog')).toBeTruthy();
+
+			fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+			await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+		});
+
+		it('equips nothing on a press of the count or a link in the popup, and opens no row link', () => {
+			const onEquip = vi.fn();
+			render(
+				<div data-testid="row">
+					<ItemListRowView
+						name="Crusader"
+						quality={ItemQuality.ItemQualityUncommon}
+						nameDescription=""
+						iconUrl="icon.jpg"
+						href="https://example.com/item"
+						active={false}
+						onEquip={onEquip}
+						source={<ItemSource item={threeSources()} sim={sim(db)} />}
+						favourited={false}
+						favouriteTooltipId="favourite"
+						onToggleFavourite={vi.fn()}
+					/>
+				</div>,
+			);
+
+			const more = screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });
+			fireEvent.click(more);
+			const popup = screen.getByRole('dialog');
+			expect(screen.getByTestId('row').contains(popup)).toBe(false);
+			fireEvent.click(within(popup).getAllByRole('link')[0]);
+
+			expect(onEquip).not.toHaveBeenCalled();
+
+			fireEvent.click(screen.getByTestId('selector-modal-list-item-row-link'));
+			expect(onEquip).toHaveBeenCalledOnce();
+		});
 	});
 
 	it('links to the vendor for a soldBy source', () => {

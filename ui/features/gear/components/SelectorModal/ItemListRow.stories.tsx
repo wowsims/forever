@@ -1,9 +1,13 @@
 import { ItemQuality } from '@generated/proto/common';
+import { UIItemSource } from '@generated/proto/ui';
+import type { Sim } from '@sim/sim';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { wowheadIconUrl } from '@testing/storybook/fixtures/gear';
+import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { ItemListRowView } from './ItemListRow';
+import { ItemSource } from './ItemSource';
 
 const meta = {
 	title: 'Features/Gear/SelectorModal/Components/ItemListRow',
@@ -76,6 +80,32 @@ export const EnchantWithoutSource: Story = {
 		source: null,
 		compare: undefined,
 		ep: { ep: 1.2, equippedEP: 12 },
+	},
+};
+
+export const OtherSources: Story = {
+	args: {
+		source: (
+			<ItemSource
+				item={makeUIItem({
+					id: 19019,
+					sources: [
+						UIItemSource.create({ source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584 } } }),
+						UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core' } } }),
+						UIItemSource.create({
+							source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 0, zoneId: 0, otherName: 'World Drop', category: '' } },
+						}),
+					],
+				})}
+				sim={{ db: { getZone: () => null, getNpc: () => null } } as unknown as Sim}
+			/>
+		),
+	},
+	play: async ({ args, canvasElement }) => {
+		const more = within(canvasElement).getByTestId('item-source-more');
+		await userEvent.click(more);
+		await within(canvasElement.ownerDocument.body).findByTestId('item-source-more-popup');
+		await expect(args.onEquip).not.toHaveBeenCalled();
 	},
 };
 

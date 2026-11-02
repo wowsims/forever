@@ -10,9 +10,11 @@ import (
 	"io/fs"
 	"log"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools"
 )
@@ -22,16 +24,16 @@ import (
 // repository's data/Forever Lua files do not.
 const questieRelease = "v1.0.9"
 
-// A recipe with more dropping NPCs than this takes the one WorldDropName source. The lists run 1 to 5 NPCs in one or
-// two zones, then 13 and up across eight or more zones, to 629, and the gear picker shows one source of a kind.
+// An item with more dropping NPCs than this takes the one WorldDropName source, since a list can run to hundreds of
+// mobs. Only QuestieDB's list says so: an item with no drop data has no drop source.
 const (
 	questieMaxListedDrops = 5
 	WorldDropName         = "World Drop"
 )
 
-// Every item QuestieDB lists a reward quest or a vendor for, with each as a Quest or SoldBy source; the items of
-// dropItems take their NPC drops as well, as Drop sources with the NPCs in Npcs.
-func ReadQuestieData(dropItems map[int32]bool) *WowDatabase {
+// Every item QuestieDB lists a reward quest, a vendor or a dropping NPC for, as Quest, SoldBy and Drop sources, with
+// the NPCs of the listed drops in Npcs.
+func ReadQuestieData() *WowDatabase {
 	archive := tools.ReadWebRequired("https://github.com/Questie/QuestieDB/releases/download/" + questieRelease + "/QuestieDB-Forever.zip")
 	reader, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
 	if err != nil {
@@ -44,7 +46,7 @@ func ReadQuestieData(dropItems map[int32]bool) *WowDatabase {
 		}
 		return string(data)
 	}
-	db, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"), dropItems)
+	db, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"))
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
@@ -53,7 +55,7 @@ func ReadQuestieData(dropItems map[int32]bool) *WowDatabase {
 
 // The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
 // names to indexes.
-func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, dropItems map[int32]bool) (*WowDatabase, error) {
+func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, error) {
 	store := readQuestieStore(toc)
 	items, err := newQuestieEntity(store, "Item", itemMeta)
 	if err != nil {
@@ -142,43 +144,86 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, dropItems map[in
 				ZoneId:  int32(zone),
 			}}})
 		}
-		if dropItems[int32(id)] {
-			dropNpcIDs, err := item.ids(npcDrops)
+		dropNpcIDs, err := item.ids(npcDrops)
+		if err != nil {
+			return nil, err
+		}
+		// An item a vendor sells takes no drops, recipes included: QuestieDB's drop lists hold an item's vendors. It comes
+		// before the count, so vendors cannot make a world drop of a list.
+		if len(npcIDs) > 0 {
+			dropNpcIDs = nil
+		}
+		if len(dropNpcIDs) > questieMaxListedDrops {
+			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}})
+			dropNpcIDs = nil
+		}
+		for _, npcID := range dropNpcIDs {
+			npc, err := npcs.row(npcID)
 			if err != nil {
 				return nil, err
 			}
-			if len(dropNpcIDs) > questieMaxListedDrops {
-				sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: WorldDropName}}})
-				dropNpcIDs = nil
+			if npc == nil {
+				continue
 			}
-			for _, npcID := range dropNpcIDs {
-				npc, err := npcs.row(npcID)
-				if err != nil {
-					return nil, err
-				}
-				if npc == nil {
-					continue
-				}
-				name, err := npc.text(npcName)
-				if err != nil {
-					return nil, err
-				}
-				zone, err := npc.integer(npcZone)
-				if err != nil {
-					return nil, err
-				}
-				db.Npcs[int32(npcID)] = &proto.UINPC{Id: int32(npcID), Name: name, ZoneId: int32(zone)}
-				sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{
-					NpcId:  int32(npcID),
-					ZoneId: int32(zone),
-				}}})
+			name, err := npc.text(npcName)
+			if err != nil {
+				return nil, err
 			}
+			zone, err := npc.integer(npcZone)
+			if err != nil {
+				return nil, err
+			}
+			db.Npcs[int32(npcID)] = &proto.UINPC{Id: int32(npcID), Name: name, ZoneId: int32(zone)}
+			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{
+				NpcId:  int32(npcID),
+				ZoneId: int32(zone),
+			}}})
 		}
 		if len(sources) > 0 {
 			db.Items[int32(id)] = &proto.UIItem{Id: int32(id), Sources: sources}
 		}
 	}
 	return db, nil
+}
+
+// Removes the vendors and dropping NPCs with no zone or a zone that is not in the game files, and sets each NPC drop's
+// difficulty from its zone, which stays unknown in the open world. A world drop names neither an NPC nor a zone.
+func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones, areaTableIDs map[int32]bool) {
+	for _, item := range questie.Items {
+		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
+			if soldBy := source.GetSoldBy(); soldBy != nil {
+				return areaTableIDs[soldBy.ZoneId]
+			}
+			drop := source.GetDrop()
+			if drop == nil || drop.NpcId == 0 {
+				return true
+			}
+			if raidZones[drop.ZoneId] {
+				drop.Difficulty = proto.DungeonDifficulty_DifficultyRaid
+			} else if dungeonZones[drop.ZoneId] {
+				drop.Difficulty = proto.DungeonDifficulty_DifficultyDungeon
+			}
+			return areaTableIDs[drop.ZoneId]
+		})
+	}
+}
+
+// QuestieDB's sources for an item that already holds existing. An AtlasLoot drop stands in for QuestieDB's, since it
+// names the boss or the instance's trash where QuestieDB lists every mob.
+func questieSourcesBeside(existing []*proto.UIItemSource, questieItem *proto.UIItem) []*proto.UIItemSource {
+	if !slices.ContainsFunc(existing, func(source *proto.UIItemSource) bool { return source.GetDrop() != nil }) {
+		return questieItem.GetSources()
+	}
+	return core.FilterSlice(questieItem.GetSources(), func(source *proto.UIItemSource) bool { return source.GetDrop() == nil })
+}
+
+// Adds QuestieDB's sources to the items the database has.
+func AppendQuestieSources(db, questie *WowDatabase) {
+	for id, questieItem := range questie.Items {
+		if item, ok := db.Items[id]; ok {
+			item.Sources = append(slices.Clip(item.Sources), questieSourcesBeside(item.Sources, questieItem)...)
+		}
+	}
 }
 
 // The TOC's X- fields by key, without the "X-".
