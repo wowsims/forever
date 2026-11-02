@@ -23,7 +23,7 @@ func (mage *Mage) registerFireBlastRank(_ int32, rank *spelldata.Spell) {
 	config.ClassSpellMask = MageSpellFireBlast
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.Average()/2, spell.OutcomeMagicHitAndCrit)
 	}
 
 	mage.RegisterSpell(config)
