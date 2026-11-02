@@ -7,7 +7,6 @@ import {
 	ItemRandomSuffix,
 	ItemSlot,
 	PseudoStat,
-	Spec,
 	Stat,
 	WeaponSkill,
 	WeaponSkillValue,

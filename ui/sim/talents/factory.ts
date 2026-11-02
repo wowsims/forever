@@ -49,14 +49,21 @@ export function playerBrokenTalentNames<SpecType extends Spec>(playerSpec: Playe
 }
 
 /**
- * The string as the class's trees read it: each talent's points capped at its maximum, digits past a tree's talents
- * dropped. A string saved before a tree was reworked can put five points where a talent now takes three; the sim indexes
- * the talent's ranks by that digit, so it has to be in range before it is sent.
+ * The string as the class's trees read it. A string saved before a tree was reworked can put five points where a talent
+ * now takes three, or name a talent the tree no longer has; the sim indexes the talent's ranks by that digit, so it has
+ * to be in range before it is sent. A string already within its trees comes back as it is, trailing zeros and all.
  */
 export function normalizedTalentsString(classID: Class, talentString: string): string {
 	const talentsConfig = classTalentsConfig[classID];
 	// A class with no trees (a test player) has nothing to cap against.
-	return talentsConfig.length ? serializeTalentsString(parseTalentsString(talentsConfig, talentString)) : talentString;
+	if (!talentsConfig.length) return talentString;
+	const inRange = talentString.split('-').every((treeString, treeIdx) => {
+		const tree = talentsConfig[treeIdx];
+		return (
+			tree !== undefined && treeString.length <= tree.talents.length && [...treeString].every((digit, i) => Number(digit) <= tree.talents[i].maxPoints)
+		);
+	});
+	return inRange ? talentString : serializeTalentsString(parseTalentsString(talentsConfig, talentString));
 }
 
 export function playerNormalizedTalentsString<SpecType extends Spec>(playerSpec: PlayerSpec<SpecType>, talentString: string): string {
