@@ -48,7 +48,7 @@ export const Default: Story = {};
 
 /** After a calculation the EP cell is coloured by how far it sits from the current EP weight. */
 export const Calculated: Story = {
-	args: { metrics: [{ ratioIndex: 0, epRatio: 1, statWeights: RESULT.dps }], epDelta: 0.5, currentEp: 0.29 },
+	args: { simulatedStep: '±10', metrics: [{ ratioIndex: 0, epRatio: 1, statWeights: RESULT.dps }], epDelta: 0.5, currentEp: 0.29 },
 };
 
 export const ExcludedFromCalculation: Story = {

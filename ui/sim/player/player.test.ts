@@ -88,6 +88,29 @@ describe('Player.setWeaponSkills', () => {
 	});
 });
 
+describe('Player.setTalentsString', () => {
+	// A paladin string saved before the 2026-10-30 rework: five points where Sanctified Judgement now takes three, and three
+	// where Shield Specialization takes two.
+	const STALE = '05-0000000300000000-00005';
+	const setTalents = (talentsString: string) => {
+		const patch = vi.fn();
+		const player = { getTalentsString: () => '', patch, playerSpec: PlayerSpecs.RetributionPaladin, talents: null };
+		Player.prototype.setTalentsString.call(player as unknown as Player<any>, talentsString);
+		return patch;
+	};
+
+	it('caps each talent at its points and drops digits past the tree before storing the string', () => {
+		expect(setTalents(STALE)).toHaveBeenCalledWith('talentsString', '05-00000002-00003');
+	});
+
+	it('writes nothing when the capped string is the one held', () => {
+		const patch = vi.fn();
+		const player = { getTalentsString: () => '05-00000002-00003', patch, playerSpec: PlayerSpecs.RetributionPaladin, talents: null };
+		Player.prototype.setTalentsString.call(player as unknown as Player<any>, STALE);
+		expect(patch).not.toHaveBeenCalled();
+	});
+});
+
 describe('Player.getDebuffStats', () => {
 	// Judgement of the Crusader raises Holy damage taken and nothing else: Improved Seal of the
 	// Crusader, the crit half, has no node in any Forever trait tree, so the sheet credits no crit.
@@ -234,7 +257,7 @@ describe('Player.getResolvedAplRotationForBuild', () => {
 });
 
 describe('UnitMetadata ranks', () => {
-	// 2120 and 2121 are two ranks of Flamestrike, 25304 the only rank of Frostbolt the sim registers.
+	// 2120 and 2121 are two ranks of Flamestrike, and 25304 is the one rank of Frostbolt these tests register.
 	const names: Record<number, string> = { 2120: 'Flamestrike', 2121: 'Flamestrike', 25304: 'Frostbolt' };
 	beforeEach(() => {
 		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async id => ({ id: id.spellId, name: names[id.spellId], icon: '' }) as never);

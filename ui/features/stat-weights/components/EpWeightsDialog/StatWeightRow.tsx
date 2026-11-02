@@ -1,6 +1,5 @@
 import type { StatWeightsResult, StatWeightValues } from '@generated/proto/api';
-import { Stat } from '@generated/proto/common';
-import i18n from '@i18n/config';
+import type { Stat } from '@generated/proto/common';
 import type { DisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import type { Player } from '@sim/player/player';
@@ -10,16 +9,12 @@ import { subscribeStatWeightsChange } from '@sim/state/subscriptions';
 import { sanitizeId } from '@sim/utils/format';
 import { roundFloat } from '@sim/utils/math';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
-import { Icon } from '@ui-kit/Icon';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { NumberField } from '@ui-kit/TextField';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
-import { useId } from 'react';
 
 import { StatWeightCells } from './StatWeightCells';
-
-const RATING_STATS = new Set([Stat.StatHitRating, Stat.StatCritRating, Stat.StatHasteRating, Stat.StatExpertiseRating]);
+import { simulatedStepText } from './utils';
 
 /** One shown metric's pair of cells: the weights it computed (none before a run, or for an excluded stat) and its EP ratio. */
 export interface StatWeightRowMetric {
@@ -38,6 +33,8 @@ export interface StatWeightRowViewProps {
 	stat: UnitStat;
 	fullName: string;
 	shortName: string;
+	/** How far the sim moved the stat to measure it, shown under its name; absent without a run. */
+	simulatedStep?: string;
 	metrics: StatWeightRowMetric[];
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
@@ -56,6 +53,7 @@ export const StatWeightRowView = ({
 	stat,
 	fullName,
 	shortName,
+	simulatedStep,
 	metrics,
 	iterations,
 	epDelta,
@@ -67,33 +65,15 @@ export const StatWeightRowView = ({
 }: StatWeightRowViewProps) => {
 	const cellClassName = clsx('ui-ep-weights-table-cell', showThreatMetrics && 'max-lg:pl-0');
 	const ratingScale = stat.epRatingScale();
-	const ratingTooltipId = useId();
-	const ratingStat = stat.isStat() && RATING_STATS.has(stat.getStat());
-	const ratingTooltip = ratingStat
-		? i18n.t('sidebar.buttons.stat_weights.modal.rating_conversion', {
-				ratingPerPercent: stat.convertPercentToRating(1),
-				statName: fullName,
-			})
-		: undefined;
 
 	return (
 		<TableRow>
 			<TableCell className={cellClassName}>
-				{ratingStat ? (
-					<>
-						<span className="inline-flex items-center gap-1">
-							{fullName}
-							<Icon
-								name="circle-question"
-								style="regular"
-								title={i18n.t('sidebar.buttons.stat_weights.modal.rating_tooltip_label')}
-								{...tooltipAnchorProps(ratingTooltipId, ratingTooltip)}
-							/>
-						</span>
-						<Tooltip id={ratingTooltipId} />
-					</>
-				) : (
-					fullName
+				{fullName}
+				{simulatedStep && (
+					<div data-testid="stat-weight-simulated-step" className="text-muted">
+						{simulatedStep}
+					</div>
 				)}
 			</TableCell>
 			{showUpdateColumn && (
@@ -183,6 +163,7 @@ export const StatWeightRow = ({
 			stat={stat}
 			fullName={stat.getFullName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
+			simulatedStep={simulatedStepText(stat, rowResult)}
 			metrics={metrics}
 			iterations={samples}
 			epDelta={scaledEpValue(stat, epRatios, rowResult) - currentEp}

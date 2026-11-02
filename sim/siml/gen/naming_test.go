@@ -239,6 +239,52 @@ func TestPinnedNamesKeepTheirMeaning(t *testing.T) {
 	}
 }
 
+func TestBookRankNames(t *testing.T) {
+	f := newFixture().
+		spell(hunter, "hunter", siml.NamespaceSpell, "Serpent Sting", 25295, 0, 9, true).
+		spell(hunter, "hunter", siml.NamespaceSpell, "Serpent Sting", 13555, 0, 8, true).
+		spell(hunter, "hunter", siml.NamespaceSpell, "Aspect of the Hawk", 25296, 0, 7, true).
+		spell(hunter, "hunter", siml.NamespaceTargetAura, "Serpent Sting", 25295, 0, 0, false).
+		spell(hunter, "hunter", siml.NamespaceTargetAura, "Serpent Sting", 13555, 0, 0, false).
+		spell(warrior, "dps_warrior", siml.NamespaceSpell, "Heroic Strike", 25286, 1, 0, true).
+		spell(warrior, "dps_warrior", siml.NamespaceSpell, "Heroic Strike", 11567, 1, 0, true).
+		spell(warrior, "dps_warrior", siml.NamespaceSpell, "Heroic Strike", 25286, 0, 9, false).
+		spell(warrior, "dps_warrior", siml.NamespaceSpell, "Heroic Strike", 11567, 0, 8, false)
+	names, _ := update(t, nil, f.c, nil)
+
+	want(t, "hunter spells", spellNames(names, hunter, siml.NamespaceSpell), []string{
+		"aspect_of_the_hawk=25296/0", // A book rank alone holds the plain name.
+		"serpent_sting=13555/0",      // The trained rank comes before the book rank above it,
+		"serpent_sting_rank9=25295/0",
+	})
+	want(t, "hunter target auras", spellNames(names, hunter, siml.NamespaceTargetAura), []string{
+		"serpent_sting=13555/0",
+		"serpent_sting_25295=25295/0", // and an entry with no rank takes its id.
+	})
+	want(t, "warrior spells", spellNames(names, warrior, siml.NamespaceSpell), []string{
+		"heroic_strike=11567/1",            // Castable comes first, then the trained rank.
+		"heroic_strike_25286_tag1=25286/1", // The tag is shared and no rank is registered.
+		"heroic_strike_rank8=11567/0",
+		"heroic_strike_rank9=25286/0",
+	})
+
+	// A pinned book rank keeps its name, and a repin hands the name to the trained rank.
+	pinned := newFixture().spell(hunter, "hunter", siml.NamespaceSpell, "Serpent Sting", 25295, 0, 9, true)
+	old, _ := update(t, nil, pinned.c, nil)
+	kept, _ := update(t, old, f.c, nil)
+	want(t, "pinned", spellNames(kept, hunter, siml.NamespaceSpell), []string{
+		"aspect_of_the_hawk=25296/0",
+		"serpent_sting=25295/0",
+		"serpent_sting_rank8=13555/0",
+	})
+	repinned, _ := update(t, kept, f.c, &Pin{hunter, siml.NamespaceSpell, "serpent_sting"})
+	want(t, "repinned", spellNames(repinned, hunter, siml.NamespaceSpell), []string{
+		"aspect_of_the_hawk=25296/0",
+		"serpent_sting=13555/0",
+		"serpent_sting_rank9=25295/0",
+	})
+}
+
 func TestDeterministic(t *testing.T) {
 	build := func() *Collection {
 		f := newFixture()
