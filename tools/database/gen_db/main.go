@@ -116,7 +116,8 @@ func main() {
 		atlaslootDB     *database.WowDatabase
 		questieDB       *database.WowDatabase
 		raidZones       map[int32]bool
-		areaTableIDs    map[int32]bool
+		dungeonZones    map[int32]bool
+		areaNames       map[int32]string
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -155,14 +156,15 @@ func main() {
 		return nil
 	})
 	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
-	g.Go(func() (err error) { areaTableIDs, err = database.LoadAreaTableIDs(helper); return })
+	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
+	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
 
-	pruneAtlasLootDrops(atlaslootDB, raidZones, areaTableIDs)
-	pruneQuestieVendors(questieDB, areaTableIDs)
+	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
+	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -174,6 +176,7 @@ func main() {
 
 	processItems(instance, iconsMap, names, dropSources, craftingSources, repSources, db)
 
+	enchantRecipes := map[database.EnchantDBKey][]int{}
 	for _, enchant := range instance.Enchants {
 		parsed := enchant.ToProto()
 
@@ -183,29 +186,17 @@ func main() {
 		if !enchant.IsLive {
 			nonLiveEnchants[database.EnchantToDBKey(parsed)] = struct{}{}
 		}
+		enchantRecipes[database.EnchantToDBKey(parsed)] = enchant.RecipeItemIds
 		db.MergeEnchant(parsed)
 	}
 
 	for _, atlaslootItem := range atlaslootDB.Items {
 		if dbItem, ok := db.Items[atlaslootItem.Id]; ok {
-			firstDBRepFaction := int32(-1)
-
-			for _, dbItemSource := range dbItem.Sources {
-				if dbRepSource := dbItemSource.GetRep(); dbRepSource != nil {
-					firstDBRepFaction = dbRepSource.RepFactionId
-					break
-				}
-			}
-
-			atlaslootItem.Sources = core.FilterSlice(atlaslootItem.Sources, func(atlaslootItemSource *proto.UIItemSource) bool {
-				atlaslootRepSource := atlaslootItemSource.GetRep()
-				return (atlaslootRepSource == nil) || (atlaslootRepSource.RepFactionId != firstDBRepFaction)
-			})
-
+			atlaslootItem.Sources = database.AtlasLootSourcesBeside(dbItem.Sources, atlaslootItem.Sources)
 			db.MergeItem(atlaslootItem)
 		}
 	}
-	appendQuestieSources(db, questieDB)
+	database.AppendQuestieSources(db, questieDB)
 
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
@@ -236,6 +227,12 @@ func main() {
 	for _, item := range db.Items {
 		database.InferPvpSource(item)
 	}
+	database.AddEnchantSources(db.Enchants, enchantRecipes, database.EnchantSourceInputs{
+		Crafted: craftingSources,
+		Rep:     repSources,
+		Atlas:   atlaslootDB,
+		Questie: questieDB,
+	})
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
 	applyRepSources(leftovers, factionNames)
@@ -316,6 +313,9 @@ func main() {
 	atlasDBProto := atlaslootDB.ToUIProto()
 	db.MergeZones(atlasDBProto.Zones)
 	db.MergeNpcs(atlasDBProto.Npcs)
+	// The UI looks up every zone and NPC in db.json, the leftovers' as well.
+	database.AddSourceZonesAndNpcs(db, db, areaNames, questieDB)
+	database.AddSourceZonesAndNpcs(db, leftovers, areaNames, questieDB)
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
@@ -331,10 +331,10 @@ var dropNpcsNotInForever = map[int32]bool{
 // pruneAtlasLootDrops removes the zones, NPCs and drop sources of AtlasLoot that are not in the game files or
 // are in dropNpcsNotInForever, sets the remaining drops to Raid in a raid zone and Dungeon elsewhere, and
 // removes the exact duplicates this leaves.
-func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs map[int32]bool) {
-	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return !areaTableIDs[id] })
+func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones map[int32]bool, areaNames map[int32]string) {
+	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return areaNames[id] == "" })
 	maps.DeleteFunc(atlas.Npcs, func(id int32, npc *proto.UINPC) bool {
-		return !areaTableIDs[npc.ZoneId] || dropNpcsNotInForever[id]
+		return areaNames[npc.ZoneId] == "" || dropNpcsNotInForever[id]
 	})
 	for _, item := range atlas.Items {
 		var drops []*proto.DropSource
@@ -343,7 +343,7 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 			if drop == nil {
 				return true
 			}
-			if !areaTableIDs[drop.ZoneId] || dropNpcsNotInForever[drop.NpcId] {
+			if areaNames[drop.ZoneId] == "" || dropNpcsNotInForever[drop.NpcId] {
 				return false
 			}
 			drop.Difficulty = database.ParseDungeonDifficulty(raidZones[drop.ZoneId])
@@ -353,25 +353,6 @@ func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones, areaTableIDs ma
 			drops = append(drops, drop)
 			return true
 		})
-	}
-}
-
-// pruneQuestieVendors removes the vendors with no zone or a zone that is not in the game files.
-func pruneQuestieVendors(questie *database.WowDatabase, areaTableIDs map[int32]bool) {
-	for _, item := range questie.Items {
-		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
-			soldBy := source.GetSoldBy()
-			return soldBy == nil || areaTableIDs[soldBy.ZoneId]
-		})
-	}
-}
-
-// appendQuestieSources adds the quest and vendor sources to the items the database has.
-func appendQuestieSources(db, questie *database.WowDatabase) {
-	for id, questieItem := range questie.Items {
-		if item, ok := db.Items[id]; ok {
-			item.Sources = append(slices.Clip(item.Sources), questieItem.Sources...)
-		}
 	}
 }
 
@@ -388,6 +369,13 @@ func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {
 		if len(sides) == 1 && !sides[proto.Faction_Unknown] {
 			for side := range sides {
 				item.FactionRestriction = database.AtlasLootFactionRestrictions[side]
+			}
+		}
+	}
+	for _, enchant := range db.Enchants {
+		for _, source := range enchant.Sources {
+			if rep := source.GetRep(); rep != nil {
+				db.MergeFaction(&proto.UIFaction{Id: rep.RepFactionId, Name: factionNames[rep.RepFactionId]})
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-import { Class, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
+import { Class, Faction, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -33,9 +33,10 @@ vi.mock('@ui-kit/VirtualList', () => ({
 }));
 
 vi.mock('./ItemListRow', () => ({
-	ItemListRow: ({ itemData, active, ep, favourited, onToggleFavourite }: any) => (
+	ItemListRow: ({ itemData, active, ep, favourited, faction, onToggleFavourite }: any) => (
 		<span
 			data-row={itemData.name}
+			data-faction={faction}
 			data-active={active ? '' : undefined}
 			data-ep={ep?.ep}
 			data-equipped-ep={String(ep?.equippedEP)}
@@ -156,6 +157,7 @@ describe('ItemList', () => {
 				getClass: () => Class.ClassWarrior,
 				filterItemData: (idxs: number[]) => idxs,
 				filterEnchantData: (idxs: number[]) => idxs,
+				getFaction: () => (realStore.getState().players[0]?.race == Race.RaceOrc ? Faction.Horde : Faction.Alliance),
 			},
 		});
 	});
@@ -320,6 +322,18 @@ describe('ItemList', () => {
 
 		act(() => patchKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceHuman }, ['race']));
 		expect(names(container)).toEqual(['Beta', 'Gamma', 'Alpha']);
+	});
+
+	it("hands every row the character's faction, and follows a race change", () => {
+		const STORE_KEY = 0;
+		seedKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceOrc, v: zeroVersions(PLAYER_FIELDS) } as never);
+		Object.assign(host.player, { storeKey: STORE_KEY });
+		const { container } = setup();
+		const factions = () => Array.from(container.querySelectorAll('[data-row]')).map(node => (node as HTMLElement).dataset.faction);
+		expect(factions()).toEqual([String(Faction.Horde), String(Faction.Horde), String(Faction.Horde)]);
+
+		act(() => patchKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceHuman }, ['race']));
+		expect(factions()).toEqual([String(Faction.Alliance), String(Faction.Alliance), String(Faction.Alliance)]);
 	});
 
 	it('marks the equipped row active and hands the row its EP against the equipped one', () => {

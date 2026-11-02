@@ -15,6 +15,8 @@ export const slotSortsByEP = (slot: ItemSlot): boolean => ![ItemSlot.ItemSlotTri
 
 export const tabHasLevel = (label: SelectorModalTabs): boolean => label === SelectorModalTabs.Items || label === SelectorModalTabs.Enchants;
 
+export const tabHasSource = (label: SelectorModalTabs): boolean => label === SelectorModalTabs.Items || label === SelectorModalTabs.Enchants;
+
 export const defaultSortBy = (slot: ItemSlot): ItemListSortBy => (slotSortsByEP(slot) ? ItemListSortBy.EP : ItemListSortBy.ILVL);
 
 const baseIlvl = (item: Item | Enchant): number => ('lvl' in item ? item.lvl : item.scalingOptions?.[0].ilvl || item.ilvl);
