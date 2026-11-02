@@ -63,7 +63,7 @@ import { ItemSwapSettings } from '../settings/item_swap_settings';
 import { Sim, type StatWeightsOptions } from '../sim';
 import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
-import { playerBrokenTalentNames, playerTalentStringToProto, playerNormalizedTalentsString } from '../talents/factory';
+import { playerBrokenTalentNames, playerNormalizedTalentsString, playerTalentStringToProto } from '../talents/factory';
 import { arrayEquals, omitDeep, stringComparator } from '../utils/collections';
 import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
