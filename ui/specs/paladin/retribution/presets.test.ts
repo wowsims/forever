@@ -1,14 +1,9 @@
 // The Retribution builds load what their .siml files state: the Holy Shock build turns item swap on with its swap set,
 // the Unsealed Wrath build turns it off, and neither moves "in front of target".
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { isBuildActive } from '@app/preset_build_state';
 import { applyBuild } from '@features/settings/model/apply_build';
 import { ItemSlot, Spec } from '@generated/proto/common';
-import { UIDatabase } from '@generated/proto/ui';
-import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { makeIndividualSim, serveRealDatabase } from '@testing/sim/individual_sim';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { DefaultBuild, HolyShockBuild, HolyShockItemSwap } from './presets';
@@ -16,10 +11,7 @@ import { DefaultBuild, HolyShockBuild, HolyShockItemSwap } from './presets';
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
 
 // The real database, so the gear sets and the swap set find their items.
-beforeAll(() => {
-	const dbPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../assets/database/db.json');
-	serveDatabase(UIDatabase.fromJson(JSON.parse(readFileSync(dbPath, 'utf8'))));
-});
+beforeAll(serveRealDatabase);
 
 describe('a Retribution build', () => {
 	it('turns item swap on with its swap set for Holy Shock and off for Unsealed Wrath', async () => {

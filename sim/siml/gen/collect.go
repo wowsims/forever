@@ -191,10 +191,7 @@ func set(m map[proto.Class]map[siml.Namespace]map[Identity]bool, class proto.Cla
 func (c *Collection) add(b *build) {
 	spec := string(b.spec.info.Field.Name())
 	for _, id := range b.icd {
-		if !slices.Contains(c.ICDItems[id], spec) {
-			c.ICDItems[id] = append(c.ICDItems[id], spec)
-			slices.Sort(c.ICDItems[id])
-		}
+		c.ICDItems[id] = withSpec(c.ICDItems[id], spec)
 	}
 	for ns, ids := range b.found {
 		if c.Registered[ns] == nil {
@@ -202,27 +199,28 @@ func (c *Collection) add(b *build) {
 		}
 		for id, r := range ids {
 			reg := c.Registered[ns][id]
-			if r.ICDOnly && !slices.Contains(reg.ICDSpecs, spec) {
-				reg.ICDSpecs = append(reg.ICDSpecs, spec)
-				slices.Sort(reg.ICDSpecs)
+			if r.ICDOnly {
+				reg.ICDSpecs = withSpec(reg.ICDSpecs, spec)
 			}
-			if r.TalentOnly && !slices.Contains(reg.TalentSpecs, spec) {
-				reg.TalentSpecs = append(reg.TalentSpecs, spec)
-				slices.Sort(reg.TalentSpecs)
-			}
-			if !r.TalentOnly && !slices.Contains(reg.ListedSpecs, spec) {
-				reg.ListedSpecs = append(reg.ListedSpecs, spec)
-				slices.Sort(reg.ListedSpecs)
+			if r.TalentOnly {
+				reg.TalentSpecs = withSpec(reg.TalentSpecs, spec)
+			} else {
+				reg.ListedSpecs = withSpec(reg.ListedSpecs, spec)
 			}
 			reg.Rank = max(reg.Rank, r.Rank)
 			reg.Castable = reg.Castable || r.Castable
-			if !slices.Contains(reg.Specs, spec) {
-				reg.Specs = append(reg.Specs, spec)
-				slices.Sort(reg.Specs)
-			}
+			reg.Specs = withSpec(reg.Specs, spec)
 			c.Registered[ns][id] = reg
 		}
 	}
+}
+
+// specs with spec, kept in byte order.
+func withSpec(specs []string, spec string) []string {
+	if i, found := slices.BinarySearch(specs, spec); !found {
+		specs = slices.Insert(specs, i, spec)
+	}
+	return specs
 }
 
 type specBuild struct {
@@ -525,6 +523,16 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 		r.Castable = r.Castable || castable
 		found[ns][key] = r
 	}
+	// add, marking an id the build had not listed before as known only through this list.
+	addOnly := func(ns siml.Namespace, id *proto.ActionID, mark func(*Registration)) {
+		key := Identity{id.GetSpellId(), id.GetTag()}
+		_, listed := found[ns][key]
+		add(ns, id, false)
+		if r, ok := found[ns][key]; ok && !listed {
+			mark(&r)
+			found[ns][key] = r
+		}
+	}
 	player := result.RaidStats.Parties[0].Players[0]
 	for _, spell := range player.Metadata.Spells {
 		add(siml.NamespaceSpell, spell.Id, spell.IsCastable)
@@ -533,13 +541,8 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 	// talent's rank is the points the build holds, so the entry takes none, and talent_is_known(x) holds at any rank.
 	// A talent the build lists as nothing else is marked, since only those two kinds find it.
 	for _, talent := range player.Metadata.Talents {
-		key := Identity{talent.GetSpellId(), 0}
-		_, listed := found[siml.NamespaceSpell][key]
-		add(siml.NamespaceSpell, &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: talent.GetSpellId()}}, false)
-		if r, ok := found[siml.NamespaceSpell][key]; ok && !listed {
-			r.TalentOnly = true
-			found[siml.NamespaceSpell][key] = r
-		}
+		id := &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: talent.GetSpellId()}}
+		addOnly(siml.NamespaceSpell, id, func(r *Registration) { r.TalentOnly = true })
 	}
 	for _, aura := range player.Metadata.Auras {
 		add(siml.NamespaceAura, aura.Id, false)
@@ -547,13 +550,7 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 	// icd_is_ready and trigger_icd read an aura name too, so the internal cooldown triggers they find are aura names,
 	// marked as triggers when the build lists them as nothing else.
 	for _, aura := range player.Metadata.IcdAuras {
-		key := Identity{aura.Id.GetSpellId(), aura.Id.GetTag()}
-		_, listed := found[siml.NamespaceAura][key]
-		add(siml.NamespaceAura, aura.Id, false)
-		if r, ok := found[siml.NamespaceAura][key]; ok && !listed {
-			r.ICDOnly = true
-			found[siml.NamespaceAura][key] = r
-		}
+		addOnly(siml.NamespaceAura, aura.Id, func(r *Registration) { r.ICDOnly = true })
 	}
 	for _, pet := range player.Pets {
 		for _, aura := range pet.Metadata.Auras {

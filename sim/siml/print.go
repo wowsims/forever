@@ -467,7 +467,7 @@ func (p *printer) single(f *field, v protoreflect.Value, sc scope) text {
 	case "action_id":
 		// talent_is_known reads its talent's rank as the points it needs, and a name reads back with its entry's
 		// rank, which a talent's entry leaves out. A rank above 1 stays raw, to be written talent_rank(x) >= N.
-		if f.desc.ContainingMessage().FullName() == talentIsKnownMessage && v.Message().Interface().(*proto.ActionID).GetRank() > 1 {
+		if keepsTalentRank(f.desc.ContainingMessage().FullName(), v.Message().Interface().(*proto.ActionID)) {
 			return rawWord(p.ix.jsonText(v.Message()))
 		}
 		return p.ref(v.Message(), p.kind.namespace(f), sc)
