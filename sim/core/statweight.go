@@ -151,6 +151,27 @@ func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
 	return hasRating && (rating == stats.HitRating || rating == stats.ExpertiseRating)
 }
 
+// The rating one percent of a rating stat costs. Other stats, defense included, have none.
+func ratingPerPercent(stat stats.Stat) (float64, bool) {
+	switch stat {
+	case stats.HitRating:
+		return HitRatingPerHitPercent, true
+	case stats.CritRating:
+		return CritRatingPerCritPercent, true
+	case stats.HasteRating:
+		return HasteRatingPerHastePercent, true
+	case stats.ExpertiseRating:
+		return ExpertiseRatingPerExpertisePercent, true
+	case stats.DodgeRating:
+		return DodgeRatingPerDodgePercent, true
+	case stats.ParryRating:
+		return ParryRatingPerParryPercent, true
+	case stats.BlockRating:
+		return BlockRatingPerBlockPercent, true
+	}
+	return 0, false
+}
+
 func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightRequestsData {
 	if swr.Player.BonusStats == nil {
 		swr.Player.BonusStats = &proto.UnitStats{}
@@ -220,6 +241,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		statMod := defaultStatMod
 		if stat.EqualsStat(stats.Armor) || stat.EqualsStat(stats.BonusArmor) || stat.EqualsStat(stats.ArmorNoMods) || stat.EqualsStat(stats.ArmorPenetration) {
 			statMod = defaultStatMod * 10
+		} else if perPercent, ok := ratingPerPercent(s); ok {
+			statMod = perPercent
 		}
 		statMods[stat] = statMod
 	}
@@ -231,8 +254,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if _, ratingPerUnit, hasRating := ratingBehindStat(stat); hasRating {
-			statMod /= ratingPerUnit
+		if _, _, hasRating := ratingBehindStat(stat); hasRating {
+			statMod = 1
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
 		} else {

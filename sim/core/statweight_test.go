@@ -281,6 +281,65 @@ func TestStatWeightsReportEachStatsSteps(t *testing.T) {
 	}
 }
 
+// A stat with a rating per percent steps by one percent, so its rating steps by that many points; a percent steps by 1.
+func TestStatWeightsStepEachPercentStatByOnePercent(t *testing.T) {
+	requests := buildStatWeightRequests(&proto.StatWeightsRequest{
+		Player:     &proto.Player{},
+		Encounter:  &proto.Encounter{},
+		SimOptions: &proto.SimOptions{Iterations: 2, RandomSeed: 1},
+		StatsToWeigh: []proto.Stat{
+			proto.Stat_StatCritRating,
+			proto.Stat_StatDodgeRating,
+			proto.Stat_StatParryRating,
+			proto.Stat_StatBlockRating,
+			proto.Stat_StatHitRating,
+			proto.Stat_StatHasteRating,
+			proto.Stat_StatExpertiseRating,
+			proto.Stat_StatDefenseRating,
+			proto.Stat_StatAgility,
+			proto.Stat_StatArmorPenetration,
+		},
+		PseudoStatsToWeigh: []proto.PseudoStat{
+			proto.PseudoStat_PseudoStatRangedCritPercent,
+			proto.PseudoStat_PseudoStatRangedHitPercent,
+			proto.PseudoStat_PseudoStatMainHandDps,
+		},
+		EpReferenceStat:  proto.Stat_StatAgility,
+		HpsReferenceStat: proto.Stat_StatAgility,
+	})
+
+	for _, c := range []struct {
+		name string
+		stat stats.UnitStat
+		want float64
+	}{
+		{"crit rating", stats.UnitStatFromStat(stats.CritRating), CritRatingPerCritPercent},
+		{"dodge rating", stats.UnitStatFromStat(stats.DodgeRating), DodgeRatingPerDodgePercent},
+		{"parry rating", stats.UnitStatFromStat(stats.ParryRating), ParryRatingPerParryPercent},
+		{"block rating", stats.UnitStatFromStat(stats.BlockRating), BlockRatingPerBlockPercent},
+		{"hit rating", hitRatingUnitStat, HitRatingPerHitPercent},
+		{"haste rating", stats.UnitStatFromStat(stats.HasteRating), HasteRatingPerHastePercent},
+		{"expertise rating", stats.UnitStatFromStat(stats.ExpertiseRating), ExpertiseRatingPerExpertisePercent},
+		{"defense rating", stats.UnitStatFromStat(stats.DefenseRating), 10},
+		{"agility", agilityUnitStat, 10},
+		{"armor penetration", stats.UnitStatFromStat(stats.ArmorPenetration), 100},
+		{"ranged crit percent", stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedCritPercent), 1},
+		{"ranged hit percent", rangedHitUnitStat, 1},
+		{"main hand DPS", stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMainHandDps), 5},
+	} {
+		i := slices.IndexFunc(requests.StatSimRequests, func(r *proto.StatWeightsStatRequestData) bool {
+			return r.StatData.UnitStat == int32(c.stat)
+		})
+		if i < 0 {
+			t.Errorf("%s has no sub-sim", c.name)
+			continue
+		}
+		if got := requests.StatSimRequests[i].StatData.ModHigh; got != c.want {
+			t.Errorf("%s steps by %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
 // Only a stat with a rating per percent or weapon DPS has a step to weigh it by; anything else, like a per-hand
 // value or reduced crit taken, panics.
 func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
