@@ -108,13 +108,14 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 ## Targets and encounter designs
 
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
-  target move to the enabled target with the lowest index; with none left they keep the disabled target, their auto
-  attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). A target disabled at start strands the raid at
-  the pull the same way (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code
-  that reads the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it
-  does not land once the target is back, and ends every raid unit's channel on the target with no further tick, for a
-  disable, cleared or not, and a death alike; a ground channel lives on its caster and runs on. A dot keeps ticking on
-  a target disabled without clearing its debuffs, as in a design downtime that keeps them.
+  target, its tank among them, move to the enabled target with the lowest index and look at their rotation again; with
+  none left they keep the disabled target, their auto attacks stop and `Target.Enable` resumes them
+  (`returnStrandedRaid`). A target disabled at start strands the raid at the pull the same way
+  (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code that reads the current
+  target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it does not land once the
+  target is back, and ends every raid unit's channel on the target with no further tick, for a disable, cleared or
+  not, and a death alike; a ground channel lives on its caster and runs on. A dot keeps ticking on a target disabled
+  without clearing its debuffs, as in a design downtime that keeps them.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in
@@ -122,11 +123,13 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   trigger hears no death. Only a design's add dies, at its despawn, with its wave's kill share (0.2 in the Dynamic
   Adds preset).
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
-  target, never the encounter's first target. Each target of a plain encounter follows a health curve that crosses 35%
-  and 20% at the encounter's execute proportions of the fight (`resetExecutePhases`), and `Current Health` on an enemy
-  reads it; a design's health curve sets the crossings of its boss and adds. A buff row a target's phase grants sits on
-  the caster and carries to another target (Decimation's 440873); a bonus whose rows state no buff counts per target
-  (Quietus, Early Demise).
+  target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%: at the
+  encounter's execute proportions of the fight (`resetExecutePhases`), or where a design's health curve for its boss or
+  add crosses them; an enemy has no health bar to read. A buff row a target's phase grants sits on the caster and
+  carries to another target (Decimation's 440873); a bonus whose rows state no buff counts per target (Quietus, Early
+  Demise).
+- **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
+  phases.
 - **An encounter design is a timeline of fractions of the rolled fight duration** (`design_runner.go` and the
   `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
   combat and kill rolls, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
@@ -142,8 +145,6 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.design_add`, copied
   by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from
   them. Every slot is listed, whether or not it spawned in an iteration.
-- **Fights are time-based**: there is no health-based fight length, and a target's health is a curve over the fight,
-  not damage taken.
 
 ## Protos
 

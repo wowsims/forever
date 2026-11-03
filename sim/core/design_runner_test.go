@@ -90,6 +90,33 @@ func logTimes(sim *Simulation, text string) *[]time.Duration {
 	return times
 }
 
+// Checks through Is Execute Phase on the target that it enters 35% at at35 and 20% at at20, fractions of the fight,
+// each to the millisecond.
+func checkExecuteCrossings(t *testing.T, sim *Simulation, rot *APLRotation, targetIndex int32, at35, at20 float64) {
+	t.Helper()
+	phase := func(threshold proto.APLValueIsExecutePhase_ExecutePhaseThreshold) APLValue {
+		return designValue(t, rot, threshold.String(), &proto.APLValue{Value: &proto.APLValue_IsExecutePhase{
+			IsExecutePhase: &proto.APLValueIsExecutePhase{Threshold: threshold, TargetUnit: designTargetRef(targetIndex)},
+		}})
+	}
+	in35, in20 := phase(proto.APLValueIsExecutePhase_E35), phase(proto.APLValueIsExecutePhase_E20)
+	for _, step := range []struct {
+		at     time.Duration
+		want35 bool
+		want20 bool
+	}{
+		{designAt(at35) - time.Millisecond, false, false},
+		{designAt(at35) + time.Millisecond, true, false},
+		{designAt(at20) - time.Millisecond, true, false},
+		{designAt(at20) + time.Millisecond, true, true},
+	} {
+		runLifecycleUntil(sim, step.at)
+		if got35, got20 := in35.GetBool(sim), in20.GetBool(sim); got35 != step.want35 || got20 != step.want20 {
+			t.Errorf("execute phases at %s: expected 35%% %v and 20%% %v, got %v and %v", step.at, step.want35, step.want20, got35, got20)
+		}
+	}
+}
+
 func TestDesignDowntimeTakesTheTargetAwayAndBringsItBack(t *testing.T) {
 	design := &proto.EncounterDesign{Downtimes: []*proto.DesignDowntime{
 		{TargetIndex: 0, Start: &proto.DesignTime{At: 0.25}, End: &proto.DesignTime{At: 0.5}, ClearDebuffs: true},
@@ -146,11 +173,6 @@ func TestDesignBossKeyframesDriveHealthAndExecutePhases(t *testing.T) {
 	sim, _ := setupDesignSim(designTestRequest(1, design), nil)
 	boss := sim.Encounter.AllTargets[0]
 
-	runLifecycleUntil(sim, designAt(0.25))
-	if got := boss.HealthPercent(sim); got != 75 {
-		t.Errorf("boss health at a quarter: expected 75, got %v", got)
-	}
-
 	for _, step := range []struct {
 		at    time.Duration
 		phase int32
@@ -167,18 +189,25 @@ func TestDesignBossKeyframesDriveHealthAndExecutePhases(t *testing.T) {
 	}
 }
 
+// A keyframe below 35% crosses it from full health at the pull, not at the keyframe, and one above it falls on to 0
+// at the fight's end, when the boss dies.
 func TestDesignBossCurveStartsFullAndEndsDead(t *testing.T) {
-	design := &proto.EncounterDesign{BossHealth: []*proto.HealthKeyframe{{At: 0.5, HealthPercent: 50}}}
-	sim, _ := setupDesignSim(designTestRequest(1, design), nil)
-	boss := sim.Encounter.AllTargets[0]
 	for _, tc := range []struct {
-		at   float64
-		want float64
-	}{{0, 100}, {0.25, 75}, {0.5, 50}, {0.75, 25}, {1, 0}} {
-		runLifecycleUntil(sim, designAt(tc.at))
-		if got := boss.HealthPercent(sim); got != tc.want {
-			t.Errorf("boss health at %v of the fight: expected %v, got %v", tc.at, tc.want, got)
+		percent    float64
+		at35, at20 float64
+	}{{20, 0.40625, 0.5}, {40, 0.5625, 0.75}} {
+		design := &proto.EncounterDesign{BossHealth: []*proto.HealthKeyframe{{At: 0.5, HealthPercent: tc.percent}}}
+		sim, fw := setupDesignSim(designTestRequest(1, design), nil)
+		boss := designTargetRef(0)
+		active := designValue(t, fw.Rotation, "active", &proto.APLValue{Value: &proto.APLValue_TargetIsActive{TargetIsActive: &proto.APLValueTargetIsActive{TargetUnit: boss}}})
+		untilDies := designValue(t, fw.Rotation, "untilDies", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetDies{TimeUntilTargetDies: &proto.APLValueTimeUntilTargetDies{TargetUnit: boss}}})
+		if !active.GetBool(sim) {
+			t.Errorf("keyframe at %v%%: expected the boss active at the pull", tc.percent)
 		}
+		if got := untilDies.GetDuration(sim); got != designTestDuration {
+			t.Errorf("keyframe at %v%%: expected the boss to die at the fight's end %s, got %s", tc.percent, designTestDuration, got)
+		}
+		checkExecuteCrossings(t, sim, fw.Rotation, 0, tc.at35, tc.at20)
 	}
 }
 
@@ -204,18 +233,16 @@ func TestDesignBossCurveKeepsTwelveKeyframes(t *testing.T) {
 	for i := range 12 {
 		keyframes = append(keyframes, &proto.HealthKeyframe{At: 0.08 * float64(i+1), HealthPercent: 100 - 8*float64(i+1)})
 	}
-	sim, _ := setupDesignSim(designTestRequest(1, &proto.EncounterDesign{BossHealth: keyframes}), nil)
+	sim, fw := setupDesignSim(designTestRequest(1, &proto.EncounterDesign{BossHealth: keyframes}), nil)
 	sim.Cleanup()
 	notes := logTimes(sim, "are kept")
-	sim.runOnce()
+	sim.reset()
+	sim.PrePull()
 	if len(*notes) != 0 {
 		t.Errorf("12 keyframes fit: expected no log line, got %d", len(*notes))
 	}
-	boss := sim.Encounter.AllTargets[0]
-	runLifecycleUntil(sim, designAt(0.72))
-	if got := boss.HealthPercent(sim); got != 100-8*9 {
-		t.Errorf("boss health at the ninth keyframe: expected %v, got %v", 100-8*9, got)
-	}
+	// 35% falls between the eighth and ninth keyframes, 20% on the tenth.
+	checkExecuteCrossings(t, sim, fw.Rotation, 0, 0.65, 0.8)
 }
 
 func TestDesignWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
@@ -243,9 +270,6 @@ func TestDesignWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
 		t.Fatalf("after the spawn: expected 2 adds, got %d", got)
 	}
 	for _, add := range adds {
-		if got := add.HealthPercent(sim); got != 67.5 {
-			t.Errorf("add health a quarter into its life: expected 67.5, got %v", got)
-		}
 		if got := add.DiesAt(sim); got != designAt(0.3) {
 			t.Errorf("add death: expected %s, got %s", designAt(0.3), got)
 		}
@@ -589,7 +613,7 @@ func TestDesignBossKeyframesAreClampedAndNeverRise(t *testing.T) {
 	design := &proto.EncounterDesign{BossHealth: []*proto.HealthKeyframe{
 		{At: -0.1, HealthPercent: 120}, {At: 0.5, HealthPercent: 60}, {At: 0.7, HealthPercent: 80}, {At: 1.2, HealthPercent: 0},
 	}}
-	sim, _ := setupDesignSim(designTestRequest(1, design), nil)
+	sim, fw := setupDesignSim(designTestRequest(1, design), nil)
 	sim.Cleanup()
 	notes := logTimes(sim, "are clamped")
 	sim.reset()
@@ -597,16 +621,8 @@ func TestDesignBossKeyframesAreClampedAndNeverRise(t *testing.T) {
 	if len(*notes) != 1 {
 		t.Errorf("clamped keyframes: expected one log line, got %d", len(*notes))
 	}
-	boss := sim.Encounter.AllTargets[0]
-	for _, tc := range []struct {
-		at   float64
-		want float64
-	}{{0, 100}, {0.6, 60}, {0.85, 30}, {1, 0}} {
-		runLifecycleUntil(sim, designAt(tc.at))
-		if got := boss.HealthPercent(sim); got != tc.want {
-			t.Errorf("boss health at %v of the fight: expected %v, got %v", tc.at, tc.want, got)
-		}
-	}
+	// Clamped, the boss holds 60% from 0.5 to 0.7 and falls to 0 at the fight's end.
+	checkExecuteCrossings(t, sim, fw.Rotation, 0, 0.825, 0.9)
 }
 
 func TestDesignResetBringsBackATargetTheLastIterationEndedWithout(t *testing.T) {

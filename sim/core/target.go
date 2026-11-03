@@ -306,10 +306,7 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 		target.auraTracker.expireAll(sim)
 	}
 
-	if target.CurrentTarget != nil {
-		target.retargetOwnTarget()
-	}
-
+	target.CurrentTarget = nil
 	sim.Encounter.moveRaidOffTarget(sim, target)
 }
 
@@ -398,7 +395,7 @@ func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
 }
 
 func wakeRotation(sim *Simulation, unit *Unit) {
-	if unit.IsEnabled() && unit.Rotation != nil && !sim.Options.Interactive {
+	if unit.IsEnabled() && !sim.Options.Interactive {
 		unit.ReactToEvent(sim, false, true)
 	}
 }

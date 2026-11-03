@@ -21,7 +21,7 @@ func (warlock *Warlock) registerShadowBurn() {
 		clear(deathItemEnds)
 	})
 	// The window goes with the target that dies, so a later spawn in the same pool slot starts without it.
-	warlock.RegisterAura(*core.MakePermanent(&core.Aura{
+	core.MakePermanent(warlock.RegisterAura(core.Aura{
 		Label: "Shadowburn - Soul Shard",
 		OnTargetDies: func(_ *core.Aura, sim *core.Simulation, target *core.Unit) {
 			if sim.CurrentTime < deathItemEnds[target.UnitIndex] {

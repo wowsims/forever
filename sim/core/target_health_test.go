@@ -49,29 +49,11 @@ func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 	}
 }
 
-func TestHealthPercentInterpolatesAndClamps(t *testing.T) {
+func TestHealthCurveCrossingsInterpolate(t *testing.T) {
 	sim := executeTestSim(180, 0.2, 0.35, 1)
 	target := sim.Encounter.AllTargets[0]
 	target.SetHealthCurve(sim, 10*time.Second, 100*time.Second,
 		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.5, Percent: 50}, HealthKnot{At: 1, Percent: 10})
-
-	for _, tc := range []struct {
-		at   time.Duration
-		want float64
-	}{
-		{0, 100},
-		{10 * time.Second, 100},
-		{35 * time.Second, 75},
-		{60 * time.Second, 50},
-		{85 * time.Second, 30},
-		{110 * time.Second, 10},
-		{200 * time.Second, 10},
-	} {
-		sim.CurrentTime = tc.at
-		if got := target.HealthPercent(sim); got != tc.want {
-			t.Errorf("health at %v = %v%%, want %v%%", tc.at, got, tc.want)
-		}
-	}
 
 	if got, want := target.health.executeAt35, 78750*time.Millisecond; got != want {
 		t.Errorf("35%% at %v, want %v", got, want)

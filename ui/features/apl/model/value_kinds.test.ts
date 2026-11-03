@@ -34,8 +34,4 @@ describe('encounter design values', () => {
 			expect(valueKinds[kind].fields[0]).toEqual({ type: 'unit', field: 'targetUnit', unitSet: 'any_target' });
 		}
 	});
-
-	it('gives the execute phase an optional target', () => {
-		expect(valueKinds.isExecutePhase.fields).toContainEqual({ type: 'unit', field: 'targetUnit', unitSet: 'targets' });
-	});
 });

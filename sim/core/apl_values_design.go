@@ -15,6 +15,14 @@ func timeUntil(sim *Simulation, at time.Duration) time.Duration {
 	return max(at-sim.CurrentTime, 0)
 }
 
+// The enemy target behind a unit, or nil for a unit that is not one.
+func enemyTargetOf(unit *Unit) *Target {
+	if unit == nil || unit.Type != EnemyUnit {
+		return nil
+	}
+	return unit.Env.Encounter.AllTargets[unit.Index]
+}
+
 // Resolves the reference to an enemy target of the encounter, with a warning for a unit that is not one.
 func (rot *APLRotation) getDesignTargetUnit(ref *proto.UnitReference, uuid *proto.UUID) (UnitReference, bool) {
 	unit := rot.GetTargetUnit(ref)

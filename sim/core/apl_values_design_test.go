@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func designTargetRef(index int32) *proto.UnitReference {
@@ -23,14 +22,12 @@ func designValue(t *testing.T, rot *APLRotation, name string, config *proto.APLV
 }
 
 type designValues struct {
-	active0, active1                      APLValue
-	adds                                  APLValue
-	untilActive0, untilActive1            APLValue
-	untilDies0, untilDies1                APLValue
-	untilMove, moveDuration               APLValue
-	ampActive, untilAmp                   APLValue
-	currentPercent0, currentHealth0       APLValue
-	currentPercentAdd1, currentHealthAdd1 APLValue
+	active0, active1           APLValue
+	adds                       APLValue
+	untilActive0, untilActive1 APLValue
+	untilDies0, untilDies1     APLValue
+	untilMove, moveDuration    APLValue
+	ampActive, untilAmp        APLValue
 }
 
 func buildDesignValues(t *testing.T, rot *APLRotation, addIndex int32) *designValues {
@@ -38,48 +35,22 @@ func buildDesignValues(t *testing.T, rot *APLRotation, addIndex int32) *designVa
 	boss, add := designTargetRef(0), designTargetRef(addIndex)
 	amp := proto.DamageAmpType_DamageAmpTypeEnvironmentBuff
 	return &designValues{
-		active0:            designValue(t, rot, "active0", &proto.APLValue{Value: &proto.APLValue_TargetIsActive{TargetIsActive: &proto.APLValueTargetIsActive{TargetUnit: boss}}}),
-		active1:            designValue(t, rot, "active1", &proto.APLValue{Value: &proto.APLValue_TargetIsActive{TargetIsActive: &proto.APLValueTargetIsActive{TargetUnit: add}}}),
-		adds:               designValue(t, rot, "adds", &proto.APLValue{Value: &proto.APLValue_NumActiveAdds{NumActiveAdds: &proto.APLValueNumActiveAdds{}}}),
-		untilActive0:       designValue(t, rot, "untilActive0", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetActive{TimeUntilTargetActive: &proto.APLValueTimeUntilTargetActive{TargetUnit: boss}}}),
-		untilActive1:       designValue(t, rot, "untilActive1", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetActive{TimeUntilTargetActive: &proto.APLValueTimeUntilTargetActive{TargetUnit: add}}}),
-		untilDies0:         designValue(t, rot, "untilDies0", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetDies{TimeUntilTargetDies: &proto.APLValueTimeUntilTargetDies{TargetUnit: boss}}}),
-		untilDies1:         designValue(t, rot, "untilDies1", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetDies{TimeUntilTargetDies: &proto.APLValueTimeUntilTargetDies{TargetUnit: add}}}),
-		untilMove:          designValue(t, rot, "untilMove", &proto.APLValue{Value: &proto.APLValue_TimeUntilNextMove{TimeUntilNextMove: &proto.APLValueTimeUntilNextMove{}}}),
-		moveDuration:       designValue(t, rot, "moveDuration", &proto.APLValue{Value: &proto.APLValue_NextMoveDuration{NextMoveDuration: &proto.APLValueNextMoveDuration{}}}),
-		ampActive:          designValue(t, rot, "ampActive", &proto.APLValue{Value: &proto.APLValue_AmpIsActive{AmpIsActive: &proto.APLValueAmpIsActive{AmpType: amp}}}),
-		untilAmp:           designValue(t, rot, "untilAmp", &proto.APLValue{Value: &proto.APLValue_TimeUntilAmp{TimeUntilAmp: &proto.APLValueTimeUntilAmp{AmpType: amp}}}),
-		currentPercent0:    designValue(t, rot, "percent0", &proto.APLValue{Value: &proto.APLValue_CurrentHealthPercent{CurrentHealthPercent: &proto.APLValueCurrentHealthPercent{SourceUnit: boss}}}),
-		currentHealth0:     designValue(t, rot, "health0", &proto.APLValue{Value: &proto.APLValue_CurrentHealth{CurrentHealth: &proto.APLValueCurrentHealth{SourceUnit: boss}}}),
-		currentPercentAdd1: designValue(t, rot, "percentAdd", &proto.APLValue{Value: &proto.APLValue_CurrentHealthPercent{CurrentHealthPercent: &proto.APLValueCurrentHealthPercent{SourceUnit: add}}}),
-		currentHealthAdd1:  designValue(t, rot, "healthAdd", &proto.APLValue{Value: &proto.APLValue_CurrentHealth{CurrentHealth: &proto.APLValueCurrentHealth{SourceUnit: add}}}),
+		active0:      designValue(t, rot, "active0", &proto.APLValue{Value: &proto.APLValue_TargetIsActive{TargetIsActive: &proto.APLValueTargetIsActive{TargetUnit: boss}}}),
+		active1:      designValue(t, rot, "active1", &proto.APLValue{Value: &proto.APLValue_TargetIsActive{TargetIsActive: &proto.APLValueTargetIsActive{TargetUnit: add}}}),
+		adds:         designValue(t, rot, "adds", &proto.APLValue{Value: &proto.APLValue_NumActiveAdds{NumActiveAdds: &proto.APLValueNumActiveAdds{}}}),
+		untilActive0: designValue(t, rot, "untilActive0", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetActive{TimeUntilTargetActive: &proto.APLValueTimeUntilTargetActive{TargetUnit: boss}}}),
+		untilActive1: designValue(t, rot, "untilActive1", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetActive{TimeUntilTargetActive: &proto.APLValueTimeUntilTargetActive{TargetUnit: add}}}),
+		untilDies0:   designValue(t, rot, "untilDies0", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetDies{TimeUntilTargetDies: &proto.APLValueTimeUntilTargetDies{TargetUnit: boss}}}),
+		untilDies1:   designValue(t, rot, "untilDies1", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetDies{TimeUntilTargetDies: &proto.APLValueTimeUntilTargetDies{TargetUnit: add}}}),
+		untilMove:    designValue(t, rot, "untilMove", &proto.APLValue{Value: &proto.APLValue_TimeUntilNextMove{TimeUntilNextMove: &proto.APLValueTimeUntilNextMove{}}}),
+		moveDuration: designValue(t, rot, "moveDuration", &proto.APLValue{Value: &proto.APLValue_NextMoveDuration{NextMoveDuration: &proto.APLValueNextMoveDuration{}}}),
+		ampActive:    designValue(t, rot, "ampActive", &proto.APLValue{Value: &proto.APLValue_AmpIsActive{AmpIsActive: &proto.APLValueAmpIsActive{AmpType: amp}}}),
+		untilAmp:     designValue(t, rot, "untilAmp", &proto.APLValue{Value: &proto.APLValue_TimeUntilAmp{TimeUntilAmp: &proto.APLValueTimeUntilAmp{AmpType: amp}}}),
 	}
-}
-
-const designTestHealth = 50000
-
-func designHealthStats() []float64 {
-	targetStats := make([]float64, int(stats.Health)+1)
-	targetStats[stats.Health] = designTestHealth
-	return targetStats
-}
-
-// A request whose targets and wave templates carry a Health stat.
-func designHealthRequest(numTargets int, design *proto.EncounterDesign) *proto.RaidSimRequest {
-	request := designTestRequest(numTargets, design)
-	for _, target := range request.Encounter.Targets {
-		target.Stats = designHealthStats()
-	}
-	for _, wave := range design.GetAddWaves() {
-		for _, add := range wave.Adds {
-			add.Stats = designHealthStats()
-		}
-	}
-	return request
 }
 
 func TestValueDesignPlainEncounter(t *testing.T) {
-	sim, fw := setupDesignSim(designHealthRequest(2, nil), nil)
+	sim, fw := setupDesignSim(designTestRequest(2, nil), nil)
 	values := buildDesignValues(t, fw.Rotation, 1)
 
 	if !values.active0.GetBool(sim) || !values.active1.GetBool(sim) {
@@ -111,13 +82,6 @@ func TestValueDesignPlainEncounter(t *testing.T) {
 	if got := values.untilAmp.GetDuration(sim); got != NeverExpires {
 		t.Errorf("time until amp: expected never, got %s", got)
 	}
-	percent := sim.Encounter.AllTargets[0].HealthPercent(sim) / 100
-	if got := values.currentPercent0.GetFloat(sim); got != percent || percent >= 1 {
-		t.Errorf("enemy health %%: expected the curve's %v below 1, got %v", percent, got)
-	}
-	if got, want := values.currentHealth0.GetFloat(sim), percent*designTestHealth; got != want || want == 0 {
-		t.Errorf("enemy health: expected %v, got %v", want, got)
-	}
 }
 
 func TestValueDesignReadsDowntimesAndWaves(t *testing.T) {
@@ -125,7 +89,7 @@ func TestValueDesignReadsDowntimesAndWaves(t *testing.T) {
 		Downtimes: []*proto.DesignDowntime{{TargetIndex: 0, Start: &proto.DesignTime{At: 0.25}, End: &proto.DesignTime{At: 0.5}}},
 		AddWaves:  []*proto.AddWave{testAddWave(1, 0.6, 0.2, nil)},
 	}
-	sim, fw := setupDesignSim(designHealthRequest(1, design), nil)
+	sim, fw := setupDesignSim(designTestRequest(1, design), nil)
 	values := buildDesignValues(t, fw.Rotation, 1)
 
 	type check struct {
@@ -151,7 +115,6 @@ func TestValueDesignReadsDowntimesAndWaves(t *testing.T) {
 		check{"add until active", values.untilActive1.GetDuration(sim), designAt(0.5)},
 		check{"boss until dies", values.untilDies0.GetDuration(sim), designAt(0.9)},
 		check{"add until dies", values.untilDies1.GetDuration(sim), designAt(0.7)},
-		check{"add health %", values.currentPercentAdd1.GetFloat(sim), 1.0},
 	)
 
 	runLifecycleUntil(sim, designAt(0.3))
@@ -162,15 +125,12 @@ func TestValueDesignReadsDowntimesAndWaves(t *testing.T) {
 	)
 
 	runLifecycleUntil(sim, designAt(0.7))
-	addHealthPercent := sim.Encounter.AllTargets[1].HealthPercent(sim) / 100
 	verify("inside the wave",
 		check{"boss active", values.active0.GetBool(sim), true},
 		check{"add active", values.active1.GetBool(sim), true},
 		check{"adds", values.adds.GetInt(sim), int32(1)},
 		check{"add until active", values.untilActive1.GetDuration(sim), time.Duration(0)},
 		check{"add until dies", values.untilDies1.GetDuration(sim), designAt(0.1)},
-		check{"add health %", values.currentPercentAdd1.GetFloat(sim), addHealthPercent},
-		check{"add health", values.currentHealthAdd1.GetFloat(sim), addHealthPercent * designTestHealth},
 	)
 
 	runLifecycleUntil(sim, designAt(0.85))
@@ -570,26 +530,8 @@ func TestValueDesignWarnsForUnitsThatAreNotEnemyTargets(t *testing.T) {
 	}
 }
 
-func TestValueDesignWarnsForEnemyWithoutHealthAndUnknownAmp(t *testing.T) {
+func TestValueDesignWarnsForAnUnknownAmp(t *testing.T) {
 	_, fw := setupDesignSim(designTestRequest(1, nil), nil)
-	boss := designTargetRef(0)
-	health := &proto.APLValue{Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_CurrentHealth{CurrentHealth: &proto.APLValueCurrentHealth{SourceUnit: boss}}}
-	if value := fw.Rotation.newAPLValue(health); value == nil {
-		t.Error("Current Health: expected the value to be kept")
-	}
-	if warnings := fw.Rotation.uuidValidations[health.Uuid]; len(warnings) != 1 || warnings[0].LogLevel != proto.LogLevel_Warning {
-		t.Errorf("Current Health: validations = %v, want one warning", warnings)
-	}
-
-	// The percent reads the target's curve, which needs no Health stat.
-	percent := &proto.APLValue{Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_CurrentHealthPercent{CurrentHealthPercent: &proto.APLValueCurrentHealthPercent{SourceUnit: boss}}}
-	if value := fw.Rotation.newAPLValue(percent); value == nil {
-		t.Error("Current Health %: expected the value to be kept")
-	}
-	if warnings := fw.Rotation.uuidValidations[percent.Uuid]; len(warnings) != 0 {
-		t.Errorf("Current Health %%: validations = %v, want none", warnings)
-	}
-
 	amps := map[string]*proto.APLValue{
 		"Amp Is Active":  {Uuid: &proto.UUID{Value: "c"}, Value: &proto.APLValue_AmpIsActive{AmpIsActive: &proto.APLValueAmpIsActive{AmpType: 7}}},
 		"Time Until Amp": {Uuid: &proto.UUID{Value: "d"}, Value: &proto.APLValue_TimeUntilAmp{TimeUntilAmp: &proto.APLValueTimeUntilAmp{AmpType: -1}}},
@@ -605,14 +547,12 @@ func TestValueDesignWarnsForEnemyWithoutHealthAndUnknownAmp(t *testing.T) {
 }
 
 func TestValueDesignFallsBackWhenTheCurrentTargetIsNotAnEnemy(t *testing.T) {
-	sim, fw := setupDesignSim(designHealthRequest(1, nil), nil)
+	sim, fw := setupDesignSim(designTestRequest(1, nil), nil)
 	rot := fw.Rotation
 	current := &proto.UnitReference{Type: proto.UnitReference_CurrentTarget}
 	active := designValue(t, rot, "active", &proto.APLValue{Value: &proto.APLValue_TargetIsActive{TargetIsActive: &proto.APLValueTargetIsActive{TargetUnit: current}}})
 	untilActive := designValue(t, rot, "untilActive", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetActive{TimeUntilTargetActive: &proto.APLValueTimeUntilTargetActive{TargetUnit: current}}})
 	untilDies := designValue(t, rot, "untilDies", &proto.APLValue{Value: &proto.APLValue_TimeUntilTargetDies{TimeUntilTargetDies: &proto.APLValueTimeUntilTargetDies{TargetUnit: current}}})
-	health := designValue(t, rot, "health", &proto.APLValue{Value: &proto.APLValue_CurrentHealth{CurrentHealth: &proto.APLValueCurrentHealth{SourceUnit: current}}})
-	percent := designValue(t, rot, "percent", &proto.APLValue{Value: &proto.APLValue_CurrentHealthPercent{CurrentHealthPercent: &proto.APLValueCurrentHealthPercent{SourceUnit: current}}})
 
 	fw.CurrentTarget = &fw.Unit
 	if active.GetBool(sim) {
@@ -623,11 +563,5 @@ func TestValueDesignFallsBackWhenTheCurrentTargetIsNotAnEnemy(t *testing.T) {
 	}
 	if got := untilDies.GetDuration(sim); got != NeverExpires {
 		t.Errorf("time until dies for a non-enemy: expected never, got %s", got)
-	}
-	if got := health.GetFloat(sim); got != fw.CurrentHealth() {
-		t.Errorf("health of a non-enemy: expected %v, got %v", fw.CurrentHealth(), got)
-	}
-	if got := percent.GetFloat(sim); got != fw.CurrentHealthPercent() {
-		t.Errorf("health %% of a non-enemy: expected %v, got %v", fw.CurrentHealthPercent(), got)
 	}
 }

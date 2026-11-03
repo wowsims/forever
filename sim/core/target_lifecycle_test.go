@@ -217,6 +217,25 @@ func TestDisablingTheTargetWakesTheRotationOfTheUnitsMoved(t *testing.T) {
 	}
 }
 
+func TestDisablingTheTankedTargetMovesTheTankLikeTheRaid(t *testing.T) {
+	targets := lifecycleTargets(3)
+	for _, target := range targets {
+		target.TankIndex = 0
+	}
+	sim, fw := setupLifecycleSimWithTanks(targets, []*proto.UnitReference{{Type: proto.UnitReference_Player, Index: 0}})
+	runLifecycleUntil(sim, 2*time.Second)
+	fw.CurrentTarget = sim.Encounter.AllTargetUnits[1]
+	fw.SetRotationTimer(sim, sim.CurrentTime+30*time.Second)
+
+	sim.Encounter.AllTargets[1].Disable(sim, false)
+	if want := sim.Encounter.AllTargetUnits[0]; fw.CurrentTarget != want {
+		t.Errorf("tank's target: expected %s, got %s", want.Label, unitLabel(fw.CurrentTarget))
+	}
+	if at, latest := fw.NextRotationActionAt(), sim.CurrentTime+fw.ReactionTime; at > latest {
+		t.Errorf("tank's next rotation look: expected it by %s, got %s", latest, at)
+	}
+}
+
 func TestActiveTargetWalksWithNoTargetEnabled(t *testing.T) {
 	sim, _ := setupLifecycleSim(lifecycleTargets(3))
 	targets := sim.Encounter.AllTargets

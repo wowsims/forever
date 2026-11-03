@@ -70,31 +70,6 @@ func (curve *healthCurve) crossing(pct float64) time.Duration {
 	return NeverExpires
 }
 
-// The target's health in percent at the current time: the first knot's before the curve, the last knot's
-// after it, and the line between the two knots around it in between.
-func (target *Target) HealthPercent(sim *Simulation) float64 {
-	curve := &target.health
-	knots := curve.knots[:curve.numKnots]
-	if curve.span <= 0 {
-		if sim.CurrentTime < curve.start {
-			return knots[0].Percent
-		}
-		return knots[len(knots)-1].Percent
-	}
-
-	at := float64(sim.CurrentTime-curve.start) / float64(curve.span)
-	if at <= knots[0].At {
-		return knots[0].Percent
-	}
-	for i := 1; i < len(knots); i++ {
-		if next := knots[i]; at < next.At {
-			prev := knots[i-1]
-			return prev.Percent + (at-prev.At)/(next.At-prev.At)*(next.Percent-prev.Percent)
-		}
-	}
-	return knots[len(knots)-1].Percent
-}
-
 func (target *Target) nextExecuteAt() time.Duration {
 	switch target.executePhase {
 	case 0:

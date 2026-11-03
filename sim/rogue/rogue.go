@@ -43,6 +43,7 @@ type Rogue struct {
 	Ambush         *core.Spell
 	Hemorrhage     *core.Spell
 	GhostlyStrike  *core.Spell
+	Riposte        *core.Spell
 	WoundPoison    *core.Spell
 	Mutilate       *core.Spell
 	MutilateMH     *core.Spell
@@ -277,6 +278,7 @@ const (
 	RogueSpellColdBlood
 	RogueSpellMutilate
 	RogueSpellMutilateHit
+	RogueSpellRiposte
 	RogueSpellGhostlyStrike
 	RogueSpellInstantPoison
 	RogueSpellWoundPoison

@@ -256,27 +256,18 @@ func init() {
 		row := spelldata.MustFind(21185)
 		gainID := core.ActionID{SpellID: 21186}
 
-		var gain core.ProcHandler
+		addMana := shared.FiredSpellHandler(character, gainID, row)
+		gain := addMana
 		if character.HasRageBar() {
 			rage := spelldata.MustFind(21186).EffectN(2).Tenths()
 			metrics := character.NewRageMetrics(gainID)
-			addRage := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-				character.AddRage(sim, rage, metrics)
-			}
-			if character.HasManaBar() {
-				addMana := shared.FiredSpellHandler(character, gainID, row)
-				gain = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-					if character.ShapeshiftForm == dbcenums.FORM_BEAR_FORM || character.ShapeshiftForm == dbcenums.FORM_DIRE_BEAR_FORM {
-						addRage(sim, spell, result)
-					} else if addMana != nil {
-						addMana(sim, spell, result)
-					}
+			gain = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				if addMana == nil || character.ShapeshiftForm == dbcenums.FORM_BEAR_FORM || character.ShapeshiftForm == dbcenums.FORM_DIRE_BEAR_FORM {
+					character.AddRage(sim, rage, metrics)
+				} else {
+					addMana(sim, spell, result)
 				}
-			} else {
-				gain = addRage
 			}
-		} else {
-			gain = shared.FiredSpellHandler(character, gainID, row)
 		}
 		if gain == nil {
 			return
