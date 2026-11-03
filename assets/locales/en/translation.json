@@ -1800,11 +1800,11 @@
 				},
 				"time_until_target_active": {
 					"label": "Time Until Target Active",
-					"tooltip": "Seconds until the target is in the fight. 0 while it is, never while it is down"
+					"tooltip": "Time until the target is next in the fight, 0 while it is. Never when that is unknown"
 				},
 				"time_until_target_dies": {
 					"label": "Time Until Target Dies",
-					"tooltip": "Seconds until the target dies. The fight's end while the target can be in the fight, never otherwise"
+					"tooltip": "Time until the target leaves the fight or the fight ends, whichever is first. For a target that is down, the end of its next time in the fight. Never when that is unknown"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",

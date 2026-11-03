@@ -12,7 +12,7 @@ func enemyTargetOf(unit *Unit) *Target {
 	if unit == nil || unit.Type != EnemyUnit {
 		return nil
 	}
-	return unit.Env.Encounter.AllTargets[unit.Index]
+	return unit.Env.GetTargetByIndex(unit.Index)
 }
 
 // The time left until an absolute time, NeverExpires for none and 0 for one that has passed.
@@ -23,19 +23,29 @@ func timeUntil(sim *Simulation, at time.Duration) time.Duration {
 	return max(at-sim.CurrentTime, 0)
 }
 
-// The current time while the target is enabled, else NeverExpires: with no encounter design, a target that is down
-// has no known return.
+// The current time while the target is enabled; else its schedule's next spawn, or NeverExpires with none.
 func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
 	if target.IsEnabled() {
 		return sim.CurrentTime
 	}
+	if target.Schedule != nil {
+		return target.Schedule.NextActiveAt(sim)
+	}
 	return NeverExpires
 }
 
-// The fight's end for a target that is or can become active, else NeverExpires.
+// The schedule's despawn, at the latest the fight's end. Without one, the fight's end for a target that is or will be
+// active, else NeverExpires. The fight's end is the one Remaining Time reads, an estimate in a fight that ends at a
+// health.
 func (target *Target) DiesAt(sim *Simulation) time.Duration {
+	fightEnd := sim.CurrentTime + sim.GetRemainingDuration()
+	if target.Schedule != nil {
+		if at := target.Schedule.DiesAt(sim); at != NeverExpires {
+			return min(at, fightEnd)
+		}
+	}
 	if target.NextActiveAt(sim) != NeverExpires {
-		return sim.Duration
+		return fightEnd
 	}
 	return NeverExpires
 }
@@ -78,7 +88,8 @@ func (value *APLValueTargetIsActive) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueTargetIsActive) GetBool(sim *Simulation) bool {
-	return enemyTargetOf(value.target.Get()) != nil && value.target.Get().IsEnabled()
+	target := enemyTargetOf(value.target.Get())
+	return target != nil && target.IsEnabled()
 }
 func (value *APLValueTargetIsActive) String() string {
 	return fmt.Sprintf("Target Is Active(%s)", value.target.Get().Label)
