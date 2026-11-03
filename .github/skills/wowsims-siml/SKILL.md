@@ -215,6 +215,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `auto_swing_time(main_hand|off_hand|ranged|wand)`
 - `auto_time_to_next(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
 - `auto_time_since_last(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
+- `remaining_cast_time`
 - `talent_is_known(name)`
 - `talent_rank(name)`
 - `all_item_stat_procs_active(stat, stat_type2: stat, stat_type3: stat, min_icd_seconds: number)`

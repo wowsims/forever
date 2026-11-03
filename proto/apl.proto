@@ -107,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 147
+// NextIndex: 148
 message APLValue {
 	UUID uuid = 85;
 
@@ -184,6 +184,7 @@ message APLValue {
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
         APLValueSpellIsCasting spell_is_casting = 30;
+        APLValueRemainingCastTime remaining_cast_time = 147;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -658,6 +659,7 @@ message APLValueSpellCPM {
 message APLValueSpellIsCasting {
     ActionID spell_id = 1;
 }
+message APLValueRemainingCastTime {}
 message APLValueSpellIsChanneling {
     ActionID spell_id = 1;
 }
