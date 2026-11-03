@@ -138,7 +138,7 @@ describe('the stat filter popover open groups', () => {
 
 		await togglePopover();
 
-		expect(expandedGroups()).toEqual(['ratings']);
+		expect(expandedGroups()).toEqual(['gear']);
 	});
 
 	it('keeps a group open after its last stat is unticked until the popover closes', async () => {

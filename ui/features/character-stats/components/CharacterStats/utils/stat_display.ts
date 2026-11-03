@@ -4,15 +4,6 @@ import type { Player } from '@sim/player/player';
 import type { Stats, UnitStat } from '@sim/proto/stats';
 import { TONE_TEXT } from '@ui-kit/utils/colors';
 
-const PER_ATTACK_RATING = new Map<PseudoStat, PseudoStat>([
-	[PseudoStat.PseudoStatMeleeHitPercent, PseudoStat.PseudoStatMainHandHitRating],
-	[PseudoStat.PseudoStatMeleeCritPercent, PseudoStat.PseudoStatMainHandCritRating],
-	[PseudoStat.PseudoStatOffHandHitPercent, PseudoStat.PseudoStatOffHandHitRating],
-	[PseudoStat.PseudoStatOffHandCritPercent, PseudoStat.PseudoStatOffHandCritRating],
-	[PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatRangedHitRating],
-	[PseudoStat.PseudoStatRangedCritPercent, PseudoStat.PseudoStatRangedCritRating],
-]);
-
 const SCHOOL_DAMAGE_STATS = [
 	Stat.StatArcaneDamage,
 	Stat.StatFireDamage,
@@ -27,56 +18,34 @@ const SPEED_MULTIPLIERS = [PseudoStat.PseudoStatMeleeSpeedMultiplier, PseudoStat
 /** `includeBase` says the delta covers the base stage, which is where the base defense skill and the speed multipliers' 1 belong. */
 export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitStat: UnitStat, includeBase?: boolean): string => {
 	const rootStat = unitStat.hasRootStat() ? unitStat.getRootStat() : null;
-	const perAttackRating = unitStat.isPseudoStat() ? PER_ATTACK_RATING.get(unitStat.getPseudoStat()) : undefined;
-	let rootRatingValue = rootStat !== null ? deltaStats.getStat(rootStat) : null;
-	// Bonus stats carry the rating alone, with no per-attack value to read.
-	if (perAttackRating !== undefined && deltaStats.getPseudoStat(perAttackRating) !== 0) {
-		rootRatingValue = deltaStats.getPseudoStat(perAttackRating);
-	}
-	let percentDecimals = 2;
-	let derivedPercentOrPointsValue = unitStat.convertDefaultUnitsToPercent(deltaStats.getUnitStat(unitStat));
-	let displayPrefix = '';
-	let displaySuffix = i18n.t('sidebar.character_stats.percent_suffix');
+	let points = rootStat !== null ? deltaStats.getStat(rootStat) : null;
+	const percent = unitStat.convertDefaultUnitsToPercent(deltaStats.getUnitStat(unitStat));
+	const percentSuffix = i18n.t('sidebar.character_stats.percent_suffix');
 
 	if (unitStat.equalsStat(Stat.StatDefenseRating)) {
-		// Defense is a skill level, not a percentage: no suffix, no decimals, and the rating is
-		// always shown even at zero.
-		displaySuffix = '';
-		percentDecimals = 0;
-		if (includeBase) {
-			derivedPercentOrPointsValue! += player.getBaseDefense();
+		// Defense is a skill level, not a percentage: no suffix and no decimals.
+		return (percent! + (includeBase ? player.getBaseDefense() : 0)).toFixed(0);
+	}
+	if (rootStat === Stat.StatBlockValue) {
+		if (points! > 0) {
+			points! *= deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier) || 1;
 		}
-	} else if (rootStat == Stat.StatBlockValue) {
-		if (rootRatingValue !== null) {
-			if (rootRatingValue > 0) {
-				rootRatingValue *= deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier) || 1;
-			}
-			rootRatingValue += Math.max(0, deltaStats.getStat(Stat.StatStrength) * deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValuePerStrength) - 1);
-		}
+		points! += Math.max(0, deltaStats.getStat(Stat.StatStrength) * deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValuePerStrength) - 1);
 	} else if (rootStat && SCHOOL_DAMAGE_STATS.includes(rootStat)) {
-		// School damage reads as "total (+school)": the rating column carries the school's own
-		// value plus generic spell damage, the parenthesised value is the school-only bonus.
-		if (rootRatingValue !== null) {
-			displayPrefix = '+';
-			displaySuffix = '';
-			percentDecimals = 0;
-			derivedPercentOrPointsValue = rootRatingValue;
-			rootRatingValue += deltaStats.getStat(Stat.StatSpellDamage);
-		}
+		// School damage reads as "total (+school)": the total is the school's own value plus
+		// generic spell damage, the parenthesised value is the school-only bonus.
+		const total = points! + deltaStats.getStat(Stat.StatSpellDamage);
+		const school = `+${points!.toFixed(0)}`;
+		return total === 0 ? school : `${Math.round(total)} (${school})`;
 	} else if (unitStat.isPseudoStat() && SPEED_MULTIPLIERS.includes(unitStat.getPseudoStat())) {
 		// A speed multiplier reads as a signed percentage over 1, like the haste rows; a stage delta
 		// without the base stage is already the change.
-		derivedPercentOrPointsValue = (deltaStats.getPseudoStat(unitStat.getPseudoStat()) - (includeBase ? 1 : 0)) * 100;
-		if (derivedPercentOrPointsValue >= 0) displayPrefix = '+';
+		const change = (deltaStats.getPseudoStat(unitStat.getPseudoStat()) - (includeBase ? 1 : 0)) * 100;
+		return (change >= 0 ? '+' : '') + change.toFixed(2) + percentSuffix;
 	}
 
-	const hideRootRating =
-		(rootRatingValue === null || (rootRatingValue === 0 && derivedPercentOrPointsValue !== null)) && !unitStat.equalsStat(Stat.StatDefenseRating);
-	const rootRatingString = hideRootRating ? '' : String(Math.round(rootRatingValue!));
-	const percentOrPointsString =
-		derivedPercentOrPointsValue === null ? '' : displayPrefix + `${derivedPercentOrPointsValue.toFixed(percentDecimals)}` + displaySuffix;
-	const wrappedPercentOrPointsString = hideRootRating || derivedPercentOrPointsValue === null ? percentOrPointsString : ` (${percentOrPointsString})`;
-	return rootRatingString + wrappedPercentOrPointsString;
+	if (percent !== null) return percent.toFixed(2) + percentSuffix;
+	return points === null ? '' : String(Math.round(points));
 };
 
 export const shouldShowMeleeCritCap = (player: Player<any>): boolean => player.getPlayerSpec().isMeleeDpsSpec;

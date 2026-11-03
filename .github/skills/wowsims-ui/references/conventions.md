@@ -89,6 +89,13 @@ Two traps:
 `en` is the only locale. A new user-facing string goes into `assets/locales/en/`, and its key needs a matching property
 in `schemas/<name>.schema.json` (`verification.md`, "Locales"). With no second locale, that is the whole change.
 
+## Stats read as percents
+
+The game never shows a rating, so the UI never does either: no rating value and no word "rating" where a user reads or
+enters a stat. A new stat display goes through the percent conversion on `UnitStat` (`ui/sim/proto/stats.ts`),
+`convertRatingToPercent` for a value and `storedEpToShown` for a weight. Defense rating buys skill, so it shows as a
+skill number with no percent sign.
+
 ## Code that looks dead but is not
 
 - There is no raid sim UI. The individual sim models a one-party raid, which is why `Raid` and `Party` exist in
