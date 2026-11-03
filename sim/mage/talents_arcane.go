@@ -105,7 +105,7 @@ func (mage *Mage) registerArcaneConcentration() {
 		if !spell.MatchesFlags(costEffect.ClassFlags) || spell.Cost == nil || spell.Cost.BaseCost == 0 {
 			return
 		}
-		if spell.Matches(MageSpellArcaneMissilesCast) && mage.MissileBarrageAura != nil && mage.MissileBarrageAura.IsActive() {
+		if spell.Matches(MageSpellArcaneMissilesCast) && mage.MissileBarrageAura.IsActive() {
 			return
 		}
 		aura.Deactivate(sim)
@@ -129,7 +129,7 @@ func (mage *Mage) registerArcaneConcentration() {
 		rolledSpell = nil
 	})
 	// The Arcane Missiles channel lands an outcome with no damage and does not roll; its missiles
-	// roll as they land, although their row marks them as not a proc.
+	// roll as they land, since their row's Not a Proc lets an aura proc hear them.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		if spellData.ArcaneMissiles.Contains(spell) || (spell == rolledSpell && sim.CurrentTime == rolledAt) {
 			return false
