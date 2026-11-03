@@ -1,7 +1,7 @@
 import { PrecisionOptions } from '@features/stat-weights/components/PrecisionOptions';
 import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { makeHitSweepPoints, SWEEP_HISTORY_BATCHES, sweepSeries } from '@testing/storybook/fixtures/stat-sweep';
+import { HIT_RATING, makeHitSweepPoints, SWEEP_HISTORY_BATCHES, sweepSeries } from '@testing/storybook/fixtures/stat-sweep';
 import { fn } from 'storybook/test';
 
 import { StatSweepChart } from '../StatSweepChart';
@@ -16,8 +16,8 @@ const meta = {
 	tags: ['autodocs'],
 	args: {
 		statOptions: [
-			{ value: 'stat-hit', label: 'Hit Rating' },
-			{ value: 'stat-crit', label: 'Crit Rating' },
+			{ value: 'stat-hit', label: 'Hit' },
+			{ value: 'stat-crit', label: 'Crit' },
 			{ value: 'stat-agility', label: 'Agility' },
 		],
 		stats: ['stat-hit', 'stat-crit'],
@@ -57,8 +57,8 @@ export const Running: Story = {
 		chart: (
 			<StatSweepChart
 				series={[
-					sweepSeries('current', 'Hit Rating', 120, makeHitSweepPoints(120).slice(0, 7)),
-					sweepSeries('hit-new', 'Hit Rating', 90, makeHitSweepPoints(90), 1),
+					sweepSeries('current', HIT_RATING, 'Hit', 120, makeHitSweepPoints(120).slice(0, 7)),
+					sweepSeries('hit-new', HIT_RATING, 'Hit', 90, makeHitSweepPoints(90), 1),
 				]}
 				metric="dps"
 				metrics={['dps', 'tps']}

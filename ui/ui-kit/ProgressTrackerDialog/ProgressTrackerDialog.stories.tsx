@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { ProgressStepList } from './ProgressStepList';
 import { ProgressTrackerDialog } from './ProgressTrackerDialog';
+import { TimeLeft } from './TimeLeft';
 import type { ProgressTrackerHandle, ProgressTrackerProgress } from './types';
 
 const SAMPLE: ProgressTrackerProgress = { title: '3 / 12 simulations complete', current: 30, total: 120 };
@@ -24,6 +25,7 @@ const meta = {
 		state: { control: false },
 		warning: { control: false },
 		belowBar: { control: false },
+		afterElapsed: { control: false },
 		ref: { control: false },
 	},
 } satisfies Meta<typeof ProgressTrackerDialog>;
@@ -41,6 +43,11 @@ export const WithProgress: Story = {
 
 export const WithTimeRemaining: Story = {
 	args: { hasProgressBar: true, ref: handle => handle?.setProgress({ ...SAMPLE, secondsRemaining: 95 }) },
+};
+
+// The estimate shows after the first second, then counts down.
+export const WithTimeLeft: Story = {
+	args: { hasProgressBar: true, ref: pushSample, afterElapsed: <TimeLeft secondsRemaining={() => 130} /> },
 };
 
 export const WithStepsBelowBar: Story = {
