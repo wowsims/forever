@@ -17,7 +17,7 @@ const physicalDamage = UnitStat.fromStat(Stat.StatPhysicalDamage);
 
 const universe = [health, strength, agility, meleeHit, hitRating, mainHandDps, physicalDamage];
 
-const EVERY_GROUP = ['primary', 'attributes', 'physical', 'spell', 'defense', 'resistance', 'ratings', 'other'];
+const EVERY_GROUP = ['primary', 'attributes', 'physical', 'spell', 'defense', 'resistance', 'gear', 'other'];
 
 const mountList = (props: { shown?: UnitStat[]; customised?: boolean; universe?: UnitStat[]; openGroups?: string[] } = {}) => {
 	const onChange = vi.fn();
@@ -59,7 +59,7 @@ describe('StatFilterList', () => {
 			groupTitle(i18n.t('stat_filters.groups.primary'), 0, 1),
 			groupTitle(i18n.t('sidebar.character_stats.groups.attributes'), 1, 2),
 			groupTitle(i18n.t('sidebar.character_stats.groups.physical'), 1, 1),
-			groupTitle(i18n.t('stat_filters.groups.ratings'), 0, 2),
+			groupTitle(i18n.t('stat_filters.groups.gear'), 0, 2),
 			groupTitle(i18n.t('stat_filters.groups.other'), 0, 1),
 		]);
 	});
@@ -75,24 +75,24 @@ describe('StatFilterList', () => {
 	it('hands back the new open groups when a header is clicked', () => {
 		const { onOpenGroupsChange } = mountList({ openGroups: ['attributes'] });
 
-		fireEvent.click(groupTrigger('ratings'));
+		fireEvent.click(groupTrigger('gear'));
 
-		expect(onOpenGroupsChange.mock.lastCall![0]).toEqual(['attributes', 'ratings']);
+		expect(onOpenGroupsChange.mock.lastCall![0]).toEqual(['attributes', 'gear']);
 	});
 
-	it('puts ratings and weapon DPS under Ratings', () => {
+	it('puts rating stats with no percent, and weapon DPS, under Gear', () => {
 		mountList();
 
-		const ratings = group('ratings');
-		expect(within(ratings).getByRole('checkbox', { name: hitRating.getShortName(Class.ClassWarrior) })).toBeTruthy();
-		expect(within(ratings).getByRole('checkbox', { name: mainHandDps.getShortName(Class.ClassWarrior) })).toBeTruthy();
-		expect(within(ratings).getAllByRole('checkbox')).toHaveLength(2);
+		const gear = group('gear');
+		expect(within(gear).getByRole('checkbox', { name: hitRating.getShortName(Class.ClassWarrior) })).toBeTruthy();
+		expect(within(gear).getByRole('checkbox', { name: mainHandDps.getShortName(Class.ClassWarrior) })).toBeTruthy();
+		expect(within(gear).getAllByRole('checkbox')).toHaveLength(2);
 	});
 
-	it('leaves Ratings out when the universe has no rating or weapon DPS', () => {
+	it('leaves Gear out when the universe has no rating stat or weapon DPS', () => {
 		mountList({ universe: [health, strength, physicalDamage] });
 
-		expect(screen.queryByTestId('test-filter-group-ratings')).toBeNull();
+		expect(screen.queryByTestId('test-filter-group-gear')).toBeNull();
 	});
 
 	// The test setup loads no locale, so every stat reads as its own key; the real names are what collide.
@@ -104,7 +104,7 @@ describe('StatFilterList', () => {
 			i18n.removeResourceBundle('en', 'translation');
 		});
 
-		it('names a rating and a percent that share a short name by their rating and percent forms, and leaves every other stat short', () => {
+		it('lists only the percent where a rating stat and a percent share a short name, and names every stat by its short name', () => {
 			const pairs: Array<[Stat, PseudoStat, string]> = [
 				[Stat.StatDodgeRating, PseudoStat.PseudoStatDodgePercent, 'Dodge'],
 				[Stat.StatParryRating, PseudoStat.PseudoStatParryPercent, 'Parry'],
@@ -115,18 +115,57 @@ describe('StatFilterList', () => {
 			mountList({ universe: [hitRating, meleeHit, ...paired], shown: [] });
 
 			for (const [, , name] of pairs) {
-				expect(screen.getByRole('checkbox', { name: `${name} Rating` })).toBeTruthy();
-				expect(screen.getByRole('checkbox', { name: `${name} %` })).toBeTruthy();
-				expect(screen.queryByRole('checkbox', { name })).toBeNull();
+				expect(screen.getAllByRole('checkbox', { name })).toHaveLength(1);
 			}
+			expect(screen.queryByRole('checkbox', { name: /Rating|%/ })).toBeNull();
 			expect(screen.getByRole('checkbox', { name: 'Hit' })).toBeTruthy();
 			expect(screen.getByRole('checkbox', { name: 'Melee Hit' })).toBeTruthy();
+			expect(within(group('gear')).getAllByRole('checkbox')).toHaveLength(1);
 		});
 
-		it('keeps the short name of a rating whose percent is not in the universe', () => {
+		it('keeps the short name of a rating stat whose percent is not in the universe', () => {
 			mountList({ universe: [UnitStat.fromStat(Stat.StatDodgeRating)], shown: [] });
 
-			expect(screen.getByRole('checkbox', { name: 'Dodge' })).toBeTruthy();
+			expect(within(group('gear')).getByRole('checkbox', { name: 'Dodge' })).toBeTruthy();
+		});
+
+		describe('where a percent row stands for the rating stat it hides', () => {
+			const dodgeRating = UnitStat.fromStat(Stat.StatDodgeRating);
+			const dodgePercent = UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent);
+			const pair = [dodgeRating, dodgePercent];
+			const dodgeRow = () => screen.getByRole('checkbox', { name: 'Dodge' });
+
+			it('reads ticked when only the hidden rating stat is shown, and counts it', () => {
+				mountList({ universe: pair, shown: [dodgeRating] });
+
+				expect(screen.queryByTestId('test-filter-group-gear')).toBeNull();
+				expect(groupTrigger('defense').textContent).toBe(groupTitle(i18n.t('sidebar.character_stats.groups.defense'), 1, 1));
+				expect(dodgeRow().getAttribute('aria-checked')).toBe('true');
+			});
+
+			it('shows the rating stat along with the percent when ticked', () => {
+				const { onChange } = mountList({ universe: pair, shown: [] });
+
+				fireEvent.click(dodgeRow());
+
+				expect(keys(onChange.mock.lastCall![0])).toEqual(keys(pair));
+			});
+
+			it('hides the rating stat along with the percent when unticked', () => {
+				const { onChange } = mountList({ universe: pair, shown: pair });
+
+				fireEvent.click(dodgeRow());
+
+				expect(onChange.mock.lastCall![0]).toEqual([]);
+			});
+
+			it('hides a rating stat shown alone when its row is unticked', () => {
+				const { onChange } = mountList({ universe: pair, shown: [dodgeRating] });
+
+				fireEvent.click(dodgeRow());
+
+				expect(onChange.mock.lastCall![0]).toEqual([]);
+			});
 		});
 	});
 
@@ -137,7 +176,7 @@ describe('StatFilterList', () => {
 		const spellDamage = UnitStat.fromStat(Stat.StatSpellDamage);
 		mountList({ universe: [mainHandDps, blockRating, dodgeRating, hitRating, healingPower, spellDamage] });
 
-		expectGroupOrder('ratings', [hitRating, dodgeRating, blockRating, mainHandDps]);
+		expectGroupOrder('gear', [hitRating, dodgeRating, blockRating, mainHandDps]);
 		expectGroupOrder('spell', [spellDamage, healingPower]);
 	});
 

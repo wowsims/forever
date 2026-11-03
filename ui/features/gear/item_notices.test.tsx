@@ -1,4 +1,4 @@
-import { Spec } from '@generated/proto/common';
+import { Spec, Stat } from '@generated/proto/common';
 import type { Database } from '@sim/proto/database';
 import { render } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -195,9 +195,19 @@ describe('registerAreaStatsNotices', () => {
 
 		expect(notice(ITEM_INFO_NOTICES.get(RUNE))).toEqual({
 			heading: 'gear_tab.item_notices.area_stats',
-			items: ['area-1: +29 stat-17, +29 stat-18'],
+			items: ['area-1: +2.9% stat-17, +2.07% stat-18'],
 		});
 		expect(ITEM_INFO_NOTICES.has(PLAIN)).toBe(false);
 		expect(ITEM_NOTICES.has(RUNE)).toBe(false);
+	});
+
+	it('writes a rating that has a percent as that percent, and any other stat as its number', () => {
+		const item = {
+			id: RUNE,
+			scalingOptions: { 0: { stats: {}, areaStats: [{ areaType: 1, stats: { [Stat.StatHitRating]: 4, [Stat.StatAgility]: 4 } }] } },
+		};
+		registerAreaStatsNotices({ getAllItems: () => [item] } as unknown as Database);
+
+		expect(notice(ITEM_INFO_NOTICES.get(RUNE)).items).toEqual([`area-1: +4 stat-${Stat.StatAgility}, +0.4% stat-${Stat.StatHitRating}`]);
 	});
 });

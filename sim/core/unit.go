@@ -56,6 +56,8 @@ type Unit struct {
 
 	Level int32 // Level of Unit, e.g. Bosses are 83.
 
+	MenuGroupOrder []string // The order of the unit's APL menu groups, by full path; a group not listed follows them.
+
 	MobType        proto.MobType
 	BleedImmune    bool // A bleed misses this unit, and its Dot does not land (SpellFlagBleed).
 	StunImmune     bool // A stun misses this unit whole (SpellFlagStun), and stun auras do not land: a raid boss.
@@ -813,6 +815,50 @@ func RatingChannelsOf(rating stats.Stat) (RatingChannels, bool) {
 	return RatingChannels{}, false
 }
 
+// The rating behind a stat and how much of it one unit of the stat costs: a stat is its own rating at 1, a
+// percent pseudo stat costs its rating per percent. hasRating is false for any other pseudo stat, which costs 1.
+// A percent's cost matches UnitStat.convertPercentToRating(1) in the UI; the two are kept in sync by hand.
+func ratingBehindStat(stat stats.UnitStat) (rating stats.Stat, ratingPerUnit float64, hasRating bool) {
+	if stat.IsStat() {
+		return stats.Stat(stat.StatIdx()), 1, true
+	}
+	switch proto.PseudoStat(stat.PseudoStatIdx()) {
+	case proto.PseudoStat_PseudoStatMeleeHitPercent,
+		proto.PseudoStat_PseudoStatRangedHitPercent,
+		proto.PseudoStat_PseudoStatSpellHitPercent,
+		proto.PseudoStat_PseudoStatSchoolHitPercentArcane,
+		proto.PseudoStat_PseudoStatSchoolHitPercentFire,
+		proto.PseudoStat_PseudoStatSchoolHitPercentFrost,
+		proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
+		proto.PseudoStat_PseudoStatSchoolHitPercentNature,
+		proto.PseudoStat_PseudoStatSchoolHitPercentShadow:
+		return stats.HitRating, HitRatingPerHitPercent, true
+	case proto.PseudoStat_PseudoStatExpertisePercent:
+		return stats.ExpertiseRating, ExpertiseRatingPerExpertisePercent, true
+	case proto.PseudoStat_PseudoStatMeleeCritPercent,
+		proto.PseudoStat_PseudoStatRangedCritPercent,
+		proto.PseudoStat_PseudoStatSpellCritPercent:
+		return stats.CritRating, CritRatingPerCritPercent, true
+	}
+	return 0, 1, false
+}
+
+// The rating that buys one percent of a stat. Defense rating buys levels, so it has none and takes the default step like any stat without a percent.
+func ratingPerPercent(stat stats.Stat) (float64, bool) {
+	if channels, ok := RatingChannelsOf(stat); ok {
+		return channels.RatingPerPercent, true
+	}
+	if stat == stats.DefenseRating {
+		return 0, false
+	}
+	for _, conversion := range RatingConversions {
+		if conversion.Rating == stat {
+			return conversion.RatingPerPercent, true
+		}
+	}
+	return 0, false
+}
+
 // The pseudo stat each magic school's hit percent travels as. None and Physical have none and hold
 // the zero value, PseudoStatMainHandDps, so read from SchoolIndexArcane on.
 var SchoolHitPseudoStats = [stats.SchoolLen]proto.PseudoStat{
@@ -1028,7 +1074,8 @@ func (unit *Unit) GetMetadata() *proto.UnitMetadata {
 // casters are the units whose spells can cast this unit's auras, which decides an aura's category.
 func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 	metadata := &proto.UnitMetadata{
-		Name: unit.Label,
+		Name:           unit.Label,
+		MenuGroupOrder: unit.MenuGroupOrder,
 	}
 
 	// The rank rides on the id so the UI can group a spell's ranks; the tooltips the UI fetches do not
@@ -1080,7 +1127,7 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 		}
 	}
 	aplAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
-		return !aura.ActionID.IsEmptyAction()
+		return !aura.ActionID.IsEmptyAction() && !aura.HideFromAPL
 	})
 	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
 		return auraStats(aura, aura.ActionID)

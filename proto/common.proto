@@ -330,7 +330,7 @@ enum PseudoStat {
 	// (the tier 1 4P bonuses) and converts into this at 10 rating per percent.
 	PseudoStatExpertisePercent = 27;
 
-	// Character sheet values per attack; the sim never reads them back.
+	// Character sheet values per attack; the sim never reads them back, and the UI does not read the *Rating ones either.
 	PseudoStatOffHandHitPercent = 28;
 	PseudoStatOffHandCritPercent = 29;
 	PseudoStatMainHandHitRating = 30;
