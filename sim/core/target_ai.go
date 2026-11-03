@@ -2,6 +2,7 @@ package core
 
 import (
 	"log"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 )
@@ -10,6 +11,12 @@ type TargetAI interface {
 	Initialize(*Target, *proto.Target)
 	Reset(*Simulation)
 	ExecuteCustomRotation(*Simulation)
+}
+
+// The times an AI spawns and despawns a target, read by Target.NextActiveAt and Target.DiesAt.
+type TargetSchedule interface {
+	NextActiveAt(*Simulation) time.Duration // The next spawn while the target is down, NeverExpires for none.
+	DiesAt(*Simulation) time.Duration       // The despawn that ends the target's current life, or the life its next spawn starts; NeverExpires for none.
 }
 
 func (target *Target) initialize(config *proto.Target) {
