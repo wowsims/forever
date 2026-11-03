@@ -226,14 +226,14 @@ func (value *APLValueRemainingCastTime) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration
 }
 
-// The time to the end of the unit's running hardcast; 0 at the pick at its end, and through a channel,
-// as Spell Is Casting reads it.
+// The time to the end of the unit's running hardcast, and 0 with nothing cast. A channel reads 0, as it
+// reads false for Spell Is Casting; the pick at the cast end reads 0, where Spell Is Casting still reads true.
 func (value *APLValueRemainingCastTime) GetDuration(sim *Simulation) time.Duration {
 	hc := &value.unit.Hardcast
 	if hc.IsChanneled {
 		return 0
 	}
-	return max(0, hc.Expires-sim.CurrentTime)
+	return hc.timeLeft(sim.CurrentTime)
 }
 func (value *APLValueRemainingCastTime) String() string {
 	return "Remaining Cast Time"

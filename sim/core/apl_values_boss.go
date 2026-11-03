@@ -33,10 +33,10 @@ func (value *APLValueBossSpellIsCasting) String() string {
 
 func bossCastTimeRemaining(sim *Simulation, spell *Spell) time.Duration {
 	hc := &spell.Unit.Hardcast
-	if hc.ActionID != spell.ActionID {
+	if !hc.ActionID.SameAction(spell.ActionID) {
 		return 0
 	}
-	return max(0, hc.Expires-sim.CurrentTime)
+	return hc.timeLeft(sim.CurrentTime)
 }
 
 func (rot *APLRotation) newValueBossSpellIsKnown(config *proto.APLValueBossSpellIsKnown, uuid *proto.UUID) APLValue {
@@ -51,14 +51,14 @@ type APLValueBossSpellCastTimeRemaining struct {
 	spell *Spell
 }
 
-func (rot *APLRotation) newValueBossSpellCastTimeRemaining(config *proto.APLValueBossSpellCastTimeRemaining, _ *proto.UUID) APLValue {
+func (rot *APLRotation) newValueBossSpellCastTimeRemaining(config *proto.APLValueBossSpellCastTimeRemaining, uuid *proto.UUID) APLValue {
 	spell := rot.GetTargetAPLSpell(config.SpellId, rot.GetTargetUnit(config.TargetUnit))
 	if spell == nil {
 		return nil
 	}
 	if spell.DefaultCast.CastTime <= 0 {
 		rot.ValidationMessage(proto.LogLevel_Warning, "%s has no cast time, so Boss Spell Cast Time Remaining always reads 0", spell.ActionID)
-		return nil
+		return rot.newValueConst(&proto.APLValueConst{Val: "0ms"}, uuid)
 	}
 	return &APLValueBossSpellCastTimeRemaining{
 		spell: spell,

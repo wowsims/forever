@@ -482,9 +482,11 @@ func TestValueBoss(t *testing.T) {
 	if rot.newValueBossSpellIsKnown(&proto.APLValueBossSpellIsKnown{SpellId: ActionID{SpellID: 424243}.ToProto()}, nil).GetBool(sim) {
 		t.Fatalf("Boss Spell Is Known for a spell the target lacks = true, want false")
 	}
-	if rot.newValueBossSpellCastTimeRemaining(&proto.APLValueBossSpellCastTimeRemaining{SpellId: id}, nil) != nil {
-		t.Fatalf("Boss Spell Cast Time Remaining for an instant boss spell should be dropped")
+	missingTarget := &proto.UnitReference{Type: proto.UnitReference_Target, Index: 5}
+	if rot.newValueBossSpellIsKnown(&proto.APLValueBossSpellIsKnown{TargetUnit: missingTarget, SpellId: id}, nil).GetBool(sim) {
+		t.Fatalf("Boss Spell Is Known on a target the encounter lacks = true, want false")
 	}
+	instant := rot.newValueBossSpellCastTimeRemaining(&proto.APLValueBossSpellCastTimeRemaining{SpellId: id}, nil)
 	bossSpell.DefaultCast.CastTime = 3 * time.Second
 	castTimeRemaining := rot.newValueBossSpellCastTimeRemaining(&proto.APLValueBossSpellCastTimeRemaining{SpellId: id}, nil)
 	if got := castTimeRemaining.GetDuration(sim); got != 0 {
@@ -494,13 +496,19 @@ func TestValueBoss(t *testing.T) {
 	if !isCasting.GetBool(sim) {
 		t.Fatalf("Boss Spell Is Casting during its hardcast = false, want true")
 	}
+	if got := instant.GetDuration(sim); got != 0 {
+		t.Fatalf("Boss Spell Cast Time Remaining built while the spell was instant = %s during a hardcast, want 0s", got)
+	}
 	sim.CurrentTime = time.Second
 	if got := castTimeRemaining.GetDuration(sim); got != 2*time.Second {
 		t.Fatalf("Boss Spell Cast Time Remaining 1 s into the 3 s hardcast = %s, want 2s", got)
 	}
 	sim.CurrentTime = 3 * time.Second
-	if isCasting.GetBool(sim) || castTimeRemaining.GetDuration(sim) != 0 {
-		t.Fatalf("once the hardcast expired: Boss Spell Is Casting = %t, Cast Time Remaining = %s, want false, 0s", isCasting.GetBool(sim), castTimeRemaining.GetDuration(sim))
+	if isCasting.GetBool(sim) {
+		t.Fatalf("Boss Spell Is Casting once the hardcast expired = true, want false")
+	}
+	if got := castTimeRemaining.GetDuration(sim); got != 0 {
+		t.Fatalf("Boss Spell Cast Time Remaining once the hardcast expired = %s, want 0s", got)
 	}
 
 	if got := timeToReady.GetDuration(sim); got != 0 {

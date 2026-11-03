@@ -545,7 +545,7 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 
 // Never ready; each time the rotation looks at it at the end of the hardcast of unit, before the hardcast
 // lands, notes what read says.
-func readAtPick(unit *Unit, read func(sim *Simulation) bool, reads *[]bool) APLActionImpl {
+func readAtPick[T any](unit *Unit, read func(sim *Simulation) T, reads *[]T) APLActionImpl {
 	return &gatedAction{APLActionImpl: &timedStubAction{readyAt: time.Minute}, ready: func(sim *Simulation) bool {
 		if unit.Hardcast.Expires == sim.CurrentTime {
 			*reads = append(*reads, read(sim))
@@ -687,14 +687,8 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			return cb.rot.newValueSpellIsCasting(&proto.APLValueSpellIsCasting{SpellId: spell.ActionID.ToProto()}, nil)
 		}
 		slowCasting, nukeCasting := isCasting(cb.slow), isCasting(cb.nuke)
-		remaining := cb.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil)
 		var atPick []bool
-		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) bool {
-			return len(cb.slowAt) == 0 && slowCasting.GetBool(sim) && remaining.GetDuration(sim) == 0
-		}, &atPick))
-		if got := remaining.GetDuration(cb.sim); got != 0 {
-			t.Fatalf("before any cast Remaining Cast Time should read 0, read %v", got)
-		}
+		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) bool { return len(cb.slowAt) == 0 && slowCasting.GetBool(sim) }, &atPick))
 		cb.runUntil(0)
 		cb.castOf(cb.slow).Execute(cb.sim)
 
@@ -702,12 +696,9 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		if !slowCasting.GetBool(cb.sim) || nukeCasting.GetBool(cb.sim) {
 			t.Fatalf("late in the 2 s cast only the slow cast should be casting")
 		}
-		if got := remaining.GetDuration(cb.sim); got != beforeEnd {
-			t.Fatalf("late in the 2 s cast Remaining Cast Time should read %v, read %v", beforeEnd, got)
-		}
 		cb.runUntil(castEnd)
 		if !slices.Equal(atPick, []bool{true}) {
-			t.Fatalf("the pick at the 2 s cast end should read the slow cast as casting with no cast time left before it lands, read %v", atPick)
+			t.Fatalf("the pick at the 2 s cast end should read the slow cast as casting before it lands, read %v", atPick)
 		}
 		if slowCasting.GetBool(cb.sim) {
 			t.Fatalf("once the cast lands at 2 s it should no longer be casting")
@@ -722,6 +713,37 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		ct.runUntil(time.Second + time.Millisecond)
 		if ct.fw.ChanneledDot == nil || drainCasting.GetBool(ct.sim) {
 			t.Fatalf("a running channel should not read as casting")
+		}
+	})
+
+	t.Run("Remaining Cast Time counts down the hardcast and reads 0 at its pick and through a channel", func(t *testing.T) {
+		cb := newHardcastTest()
+		remaining := cb.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil)
+		var atPick []time.Duration
+		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) time.Duration { return remaining.GetDuration(sim) }, &atPick))
+		if got := remaining.GetDuration(cb.sim); got != 0 {
+			t.Fatalf("before any cast Remaining Cast Time should read 0, read %v", got)
+		}
+		cb.runUntil(0)
+		cb.castOf(cb.slow).Execute(cb.sim)
+
+		cb.runUntil(lateInCast)
+		if got := remaining.GetDuration(cb.sim); got != beforeEnd {
+			t.Fatalf("late in the 2 s cast Remaining Cast Time should read %v, read %v", beforeEnd, got)
+		}
+		cb.runUntil(castEnd)
+		if !slices.Equal(atPick, []time.Duration{0}) {
+			t.Fatalf("the pick at the 2 s cast end should read no cast time left, read %v", atPick)
+		}
+
+		var drainTicks []time.Duration
+		ct, drain := newSpellShootTest(drainConfig(&drainTicks, CastConfig{DefaultCast: Cast{GCD: GCDDefault}}))
+		ct.start(&timedStubAction{readyAt: time.Minute})
+		ct.runUntil(0)
+		ct.channelOf(drain, "false", false).Execute(ct.sim)
+		ct.runUntil(time.Second + time.Millisecond)
+		if ct.fw.ChanneledDot == nil {
+			t.Fatalf("the drain should be channeling at 1 s")
 		}
 		if got := ct.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil).GetDuration(ct.sim); got != 0 {
 			t.Fatalf("a running channel should read no cast time left, read %v", got)
