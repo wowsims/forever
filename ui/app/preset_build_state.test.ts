@@ -46,6 +46,10 @@ describe('buildCategories', () => {
 		expect(buildCategories(build({ reforgeSettings: {} }))).toEqual(['common.preset.reforge_settings']);
 		expect(buildCategories(build({ epWeights: {} }))).toEqual(['common.preset.stat_weights']);
 	});
+
+	it('lists a build swap set under gear', () => {
+		expect(buildCategories(build({ gear: {}, itemSwap: {} }))).toEqual(['category:gear']);
+	});
 });
 
 describe('isBuildActive', () => {

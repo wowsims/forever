@@ -1,4 +1,4 @@
-import { ItemQuality, ScalingItemProperties } from '@generated/proto/common';
+import { EnchantProcKind, ItemQuality, ScalingItemProperties } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
@@ -87,6 +87,16 @@ describe('buildSelectorTabs', () => {
 		expect(built.map(tab => tab.label)).toEqual([SelectorModalTabs.Items]);
 		expect(built[0].onRemove).toBeUndefined();
 		expect(tabs({ player: {}, item: null })[0].onRemove).toBeDefined();
+	});
+});
+
+describe('the enchants tab EP comparison', () => {
+	it('compares only enchants whose EP is their whole worth, not a proc enchant', () => {
+		const comparable = tabs({ player: {}, item: null }).find(tab => tab.label === SelectorModalTabs.Enchants)!.epComparable!;
+		const stat = Enchant.create({ effectId: 1, stats: [0, 25] });
+		const proc = Enchant.create({ effectId: 2, stats: [0, 25], procKind: EnchantProcKind.EnchantProcKindCombat });
+		expect(comparable(stat)).toBe(true);
+		expect(comparable(proc)).toBe(false);
 	});
 });
 

@@ -63,7 +63,7 @@ import { ItemSwapSettings } from '../settings/item_swap_settings';
 import { Sim, type StatWeightsOptions } from '../sim';
 import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
-import { playerBrokenTalentNames, playerTalentStringToProto } from '../talents/factory';
+import { playerBrokenTalentNames, playerNormalizedTalentsString, playerTalentStringToProto } from '../talents/factory';
 import { arrayEquals, omitDeep, stringComparator } from '../utils/collections';
 import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
@@ -124,7 +124,10 @@ const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined =>
 const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRaidZones: Set<number | undefined>): boolean => {
 	const option = sourceOption(itemSrc);
 	if (option !== undefined && !filters.sources.includes(option)) return false;
-	return itemSrc.source.oneofKind != 'drop' || !untickedRaidZones.has(itemSrc.source.drop.zoneId);
+	if (itemSrc.source.oneofKind != 'drop') return true;
+	// A drop with no difficulty is a world drop or an open-world NPC's, which the World Drop toggle governs.
+	if (option === undefined && filters.hideWorldDrops) return false;
+	return !untickedRaidZones.has(itemSrc.source.drop.zoneId);
 };
 
 export class UnitMetadata {
@@ -1035,6 +1038,8 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setTalentsString(newTalentsString: string) {
+		// Capped to the trees, so a build saved before a rework cannot send a rank the talent does not have.
+		newTalentsString = playerNormalizedTalentsString(this.playerSpec, newTalentsString);
 		if (newTalentsString == this.getTalentsString()) return;
 
 		// Invalidate the parsed-talents cache before the emit fires.
@@ -1315,7 +1320,7 @@ export class Player<SpecType extends Spec> {
 
 		// An item shows while one of its sources counts as ticked: its kind is ticked and, for a drop in a raid zone, that raid
 		// is ticked too. PvP is a tag rather than a place, so unticking PvP hides every PvP item whatever its other sources.
-		// An item with no sources, or with a source no toggle covers, always shows.
+		// An item with no sources always shows.
 		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
 		const untickedRaidZones = new Set(
 			Object.entries(Player.RAID_IDS)

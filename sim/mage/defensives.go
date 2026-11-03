@@ -7,13 +7,16 @@ import (
 
 var counterspellRank = spellData.Counterspell.Highest()
 
+// Rank 4 is the last rank the trainer teaches; rank 5 comes from the Tome of Frost Ward V book.
+var frostWardTrainerRank = spellData.FrostWard.ByID(10177)
+var frostWardBookRank = spellData.FrostWard.ByID(28609)
+
 func (mage *Mage) registerDefensiveSpells() {
 	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
 	// spellData.FireWard lists.
 	mage.registerWardSpell(spellData.FireWard.Highest(), nil, nil)
-	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-	// spellData.FrostWard lists.
-	mage.registerFrostWardSpell(spellData.FrostWard.Highest())
+	mage.registerFrostWardSpell(frostWardTrainerRank)
+	mage.registerFrostWardSpell(frostWardBookRank)
 	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
 	// spellData.ManaShield lists.
 	mage.registerManaShieldSpell(spellData.ManaShield.Len(), spellData.ManaShield.Highest())

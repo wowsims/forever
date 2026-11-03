@@ -82,6 +82,8 @@ export interface RegisteredName {
 	name: string;
 	id: ActionIdJson;
 	icdOnly?: boolean; // Known only as an internal cooldown trigger, which only the ICD kinds find.
+	talentOnly?: boolean; // Known only as a talent, which only the talent kinds find.
+	talent?: boolean; // A talent's own spell, the one thing the talent kinds read.
 	uncastable?: boolean; // A spell no build of the spec lets a rotation cast (the sim's APL flag).
 }
 

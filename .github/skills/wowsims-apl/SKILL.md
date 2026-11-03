@@ -65,7 +65,11 @@ A value or action reaches the rotation and the kind picker in five places, all i
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
 - **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
-  `sim/core/unit.go`). A preset can still name an unflagged spell: `GetAPLSpell` falls back to any spell with the id.
+  `sim/core/unit.go`). A hand-written row names only a spell the picker lists, with the tag the picker gives: `GetAPLSpell`
+  falls back to the unflagged spell with that id and tag and the sim casts it. Heroic Strike, Cleave, Maul and Raptor
+  Strike register the swing's own attack and the press the rotation casts as two spells of one id told apart by tag, and
+  a row naming the attack (`spellId: 20569` with no tag, where the press is tag 1) fires it on the spot, off the swing
+  and the GCD, for +57 % Fury DPS on three targets. SIML refuses such a name as "a spell no build lets a rotation cast".
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
   whose Information validation lists them; a rotation without it never casts them.
@@ -79,8 +83,9 @@ A value or action reaches the rotation and the kind picker in five places, all i
 
 ## Presets
 
-- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` is imported by the
-  spec's `presets.ts` and loaded by `core.GetAplRotation` (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
+- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` (`.apl.siml` for
+  the specs on SIML) is imported by the spec's `presets.ts` and loaded by `core.GetAplRotation`
+  (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
   holds it in `player.rotation`, passed to `makePresetAPLRotation` and loaded by `core.GetTestBuildFromJSON`
   (`sim/warlock/warlock_test.go`). Priest, elemental shaman and warlock use builds only, enhancement shaman both.
 - **An option is a hidden group.** The priority list holds a Group Reference with `hide: true`, and the spec's
@@ -90,6 +95,8 @@ A value or action reaches the rotation and the kind picker in five places, all i
   `sim/warrior/dps/dps_test.go`; a group no suite un-hides never reaches the `.results`.
 - **A line is written against the pick at the cast end** (`docs/rotation.md`). After an edit, dump the validations
   (below) and judge the preset's cast counts from a debug log, not from the line as written.
+- **A rotation the owner hands over goes in as exported.** A review that finds a branch dead reports it and leaves it
+  in, even when dropping it leaves the `.results` unchanged; the preset changes only when the owner agrees.
 
 ## What fails silently
 

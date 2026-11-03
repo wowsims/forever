@@ -7,9 +7,9 @@ argument-hint: 'Describe the rotation, gear set, setup, CLI or language server t
 # WoWSims Forever SIML
 
 SIML is the text format of the rotations (APLs), gear sets and whole sim setups. Each file reads as a proto
-(`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's presets are SIML; the other specs
-keep JSON presets until each moves, and the Go suites and the site read either. `sim/siml/SPEC.md` is the full
-language and wins on any doubt.
+(`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's, Retribution's and Protection
+paladin's presets are SIML; the other specs keep JSON presets until each moves, and the Go suites and the site read
+either. `sim/siml/SPEC.md` is the full language and wins on any doubt.
 
 `wowsimcli siml llm` writes this skill: the part above "Actions" from `sim/siml/llm_head.txt`, the rest from the
 protos, so a change to `proto/apl.proto` shows up here once `make siml` runs. Edit the head, never this file.
@@ -72,7 +72,7 @@ as inlay hints, for an editor with no panel (`sim/siml/lsp/commands.go`).
 An `x.siml` has these sections: `settings:` `consumables:` `buffs:` `party_buffs:` `raid_buffs:` `debuffs:`
 `encounter:` `sim:` `gear:` `item_swap:` `apl:` `simple:` `cooldowns:` `prepull:` `priority:` `group "<name>":`.
 
-Entries are `field value` lines or comma lists of flags (`raid_buffs:` `gift_of_the_wild, windfury_totem`);
+Entries are `field value` lines or comma lists of flags (`raid_buffs:` `prayer_of_spirit, windfury_totem`);
 `sim: iterations 25000` fits one line. Gear rows are `<slot> <item> [<suffix>] [+ <enchant>]`, the slots `head`
 `neck` `shoulder` `back` `chest` `wrist` `hands` `waist` `legs` `feet` `finger1` `finger2` `trinket1` `trinket2`
 `main_hand` `off_hand` `ranged`.
@@ -125,7 +125,8 @@ item, enchant, suffix.
 - Spell-like names are the file's class's, else shared (gear, consumables, encounters).
 - An item in a spell position is `item.<name>` (`cast item.major_mana_potion`); `other.<name>` is an OtherAction
   (`other.offensive_potion`).
-- Ranks and duplicates carry suffixes: `frostbolt_rank10`, `heroic_strike_tag1`, `fireball_18082`.
+- Ranks and duplicates carry suffixes: `serpent_sting_rank9`, `heroic_strike_tag1`, `fireball_18082`. A plain name is
+  the trainer's top rank, and a class book rank takes the suffix.
 - A name the table lacks is `unknown-name` with a did-you-mean; `make siml-names` adds newly registered spells.
 - `$var` where a name goes (`cast $filler`, `aura($curse)`) is `spell-variable`: ActionID has no member to name a
   variable in. A def for a name (`def filler = arcane_shot`, then `cast filler`) picks the spell in one line.
@@ -246,11 +247,13 @@ Written from `proto/apl.proto`, but for the accessors below.
 Written `[unit.]head(subject).property(arguments)`; each head with its properties.
 
 - `[unit.]aura(x)`: `is_known`, `is_active(include_reaction_time: bool)`,
-  `is_inactive(include_reaction_time: bool)`, `remaining_time`, `num_stacks(include_reaction_time: bool)`,
-  `internal_cooldown`, `icd_is_ready(include_reaction_time: bool)`, `should_refresh(max_overlap: value)`, `duration`
-- `[unit.]dot(x)`: `is_active`, `is_active_on_all_targets`, `remaining_time`, `lowest_remaining_time`,
-  `tick_frequency`, `time_to_next_tick`, `base_duration`, `percent_increase(use_base_value: bool)`,
-  `tick_rate_percent_increase(use_base_value: bool)`
+  `is_inactive(include_reaction_time: bool)`, `is_active_on_all_targets(include_reaction_time: bool)`,
+  `is_active_on_any_target(include_reaction_time: bool)`, `remaining_time`,
+  `num_stacks(include_reaction_time: bool)`, `internal_cooldown`, `icd_is_ready(include_reaction_time: bool)`,
+  `should_refresh(max_overlap: value)`, `duration`
+- `[unit.]dot(x)`: `is_active`, `is_active_on_all_targets`, `is_active_on_any_target`, `remaining_time`,
+  `lowest_remaining_time`, `tick_frequency`, `time_to_next_tick`, `base_duration`,
+  `percent_increase(use_base_value: bool)`, `tick_rate_percent_increase(use_base_value: bool)`
 - `[unit.]spell(x)`: `is_known`, `can_cast`, `in_range`, `is_ready`, `time_to_ready`, `cast_time`, `travel_time`,
   `cpm`, `is_casting`, `is_channeling`, `channeled_ticks`, `current_cost`, `num_charges`, `time_to_charge`,
   `gcd_hasted_duration`, `full_cooldown`, `in_flight`, `expected_dpet`, `is_hit_capped`, `is_expertise_capped`

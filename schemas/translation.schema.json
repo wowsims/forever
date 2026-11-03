@@ -407,10 +407,13 @@
 						},
 						"raid": {
 							"type": "string"
+						},
+						"world_drop": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid"]
+					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid", "world_drop"]
 				},
 				"raids": {
 					"type": "object",
@@ -1494,6 +1497,9 @@
 						"shield": {
 							"type": "string"
 						},
+						"shieldsworn": {
+							"type": "string"
+						},
 						"amplified": {
 							"type": "string"
 						},
@@ -1564,6 +1570,7 @@
 						"external",
 						"self",
 						"shield",
+						"shieldsworn",
 						"amplified",
 						"custom_boss",
 						"thrash",
@@ -2031,6 +2038,15 @@
 						"sorted_descending": {
 							"type": "string"
 						},
+						"more_sources": {
+							"type": "string"
+						},
+						"more_sources_one": {
+							"type": "string"
+						},
+						"more_sources_other": {
+							"type": "string"
+						},
 						"show_ep": {
 							"type": "string"
 						},
@@ -2110,6 +2126,9 @@
 						"table_headers",
 						"sorted_ascending",
 						"sorted_descending",
+						"more_sources",
+						"more_sources_one",
+						"more_sources_other",
 						"show_ep",
 						"armor_type",
 						"weapon_type",
@@ -2351,6 +2370,9 @@
 						},
 						"nature_resistance": {
 							"type": "string"
+						},
+						"rank_select_tooltip": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -2370,7 +2392,8 @@
 						"fire_resistance",
 						"frost_resistance",
 						"shadow_resistance",
-						"nature_resistance"
+						"nature_resistance",
+						"rank_select_tooltip"
 					]
 				},
 				"party_buffs": {
@@ -7017,6 +7040,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"aura_active_on_all_targets": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"aura_active_on_any_target": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"aura_inactive": {
 									"type": "object",
 									"properties": {
@@ -7260,6 +7309,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"druid_excess_energy": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"dot_is_active_on_any_target": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7779,6 +7841,8 @@
 								"aura_known",
 								"aura_active",
 								"aura_active_with_reaction_time",
+								"aura_active_on_all_targets",
+								"aura_active_on_any_target",
 								"aura_inactive",
 								"aura_inactive_with_reaction_time",
 								"aura_remaining_time",
@@ -7798,6 +7862,7 @@
 								"druid_bleed_is_active",
 								"druid_excess_energy",
 								"dot_is_active_on_all_targets",
+								"dot_is_active_on_any_target",
 								"dot_remaining_time",
 								"dot_lowest_remaining_time",
 								"dot_tick_frequency",
@@ -8508,6 +8573,32 @@
 									"additionalProperties": false,
 									"required": ["label"]
 								},
+								"use_backstab_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_eviscerate_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"apply_poisons_manually": {
 									"type": "object",
 									"properties": {
@@ -8543,7 +8634,14 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["use_backstab", "use_expose_armor", "apply_poisons_manually", "subtlety"]
+							"required": [
+								"use_backstab",
+								"use_expose_armor",
+								"use_backstab_rank_9",
+								"use_eviscerate_rank_9",
+								"apply_poisons_manually",
+								"subtlety"
+							]
 						},
 						"shaman": {
 							"type": "object",
@@ -8763,10 +8861,47 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
+								},
+								"use_serpent_sting_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_aspect_of_the_hawk_rank_7": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["playstyle", "pull_range", "time_to_weave", "use_aimed", "use_multi", "use_arcane", "use_sniper", "use_hawk"]
+							"required": [
+								"playstyle",
+								"pull_range",
+								"time_to_weave",
+								"use_aimed",
+								"use_multi",
+								"use_arcane",
+								"use_sniper",
+								"use_hawk",
+								"use_serpent_sting_rank_9",
+								"use_aspect_of_the_hawk_rank_7"
+							]
 						},
 						"paladin": {
 							"type": "object",
@@ -10921,10 +11056,28 @@
 										"reference_description": {
 											"type": "string"
 										},
+										"simulated_step_rating": {
+											"type": "string"
+										},
+										"simulated_step_rating_percent": {
+											"type": "string"
+										},
+										"simulated_step_description": {
+											"type": "string"
+										},
 										"current_ep_description": {
 											"type": "string"
 										},
 										"copy_icon_description": {
+											"type": "string"
+										},
+										"rating_conversion": {
+											"type": "string"
+										},
+										"simulated_step": {
+											"type": "string"
+										},
+										"rating_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -11193,8 +11346,14 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
+										"simulated_step_rating",
+										"simulated_step_rating_percent",
+										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
+										"rating_conversion",
+										"simulated_step",
+										"rating_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",
