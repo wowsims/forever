@@ -224,6 +224,10 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueAuraIsActive(config.GetAuraIsActive(), config.Uuid)
 	case *proto.APLValue_AuraIsInactive:
 		value = rot.newValueAuraIsInactive(config.GetAuraIsInactive(), config.Uuid)
+	case *proto.APLValue_AuraIsActiveOnAllTargets:
+		value = rot.newValueAuraIsActiveOnAllTargets(config.GetAuraIsActiveOnAllTargets(), config.Uuid)
+	case *proto.APLValue_AuraIsActiveOnAnyTarget:
+		value = rot.newValueAuraIsActiveOnAnyTarget(config.GetAuraIsActiveOnAnyTarget(), config.Uuid)
 	case *proto.APLValue_AuraRemainingTime:
 		value = rot.newValueAuraRemainingTime(config.GetAuraRemainingTime(), config.Uuid)
 	case *proto.APLValue_AuraNumStacks:
@@ -262,6 +266,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueDotIsActive(config.GetDotIsActive(), config.Uuid)
 	case *proto.APLValue_DotIsActiveOnAllTargets:
 		value = rot.newValueDotIsActiveOnAllTargets(config.GetDotIsActiveOnAllTargets(), config.Uuid)
+	case *proto.APLValue_DotIsActiveOnAnyTarget:
+		value = rot.newValueDotIsActiveOnAnyTarget(config.GetDotIsActiveOnAnyTarget(), config.Uuid)
 	case *proto.APLValue_DotRemainingTime:
 		value = rot.newValueDotRemainingTime(config.GetDotRemainingTime(), config.Uuid)
 	case *proto.APLValue_DotLowestRemainingTime:
