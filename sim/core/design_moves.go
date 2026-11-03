@@ -19,6 +19,7 @@ type designMove struct {
 // Builds the moves' occurrence buffers and actions once, with the environment.
 func (design *encounterDesign) registerMoves(env *Environment) {
 	players := env.Raid.AllPlayerUnits
+	design.walkEnds = make([]time.Duration, len(players))
 	for index, config := range design.config.Moves {
 		move := &designMove{config: config}
 		if config.Yards <= 0 && config.Seconds <= 0 {
@@ -33,7 +34,7 @@ func (design *encounterDesign) registerMoves(env *Environment) {
 				Priority: ActionPriorityPrePull + 1,
 				OnAction: func(sim *Simulation) {
 					move.delayedQueued[i] = false
-					player.MoveDurationByHand(designMoveDuration(move.config, player), sim)
+					design.walk(sim, move, i, player)
 				},
 			}
 		}
@@ -45,6 +46,7 @@ func (design *encounterDesign) registerMoves(env *Environment) {
 // move's seconds when yards is 0, that waits for a running hardcast, with its repeats rolled through
 // rollOccurrences. Keeps nextMoveAt and nextMove on the next move not yet started.
 func (design *encounterDesign) scheduleMoves(sim *Simulation) {
+	clear(design.walkEnds)
 	for _, move := range design.moves {
 		clear(move.delayedQueued)
 		if !move.skipped {
@@ -68,9 +70,21 @@ func (design *encounterDesign) runMove(sim *Simulation, move *designMove) {
 				sim.AddPendingAction(&move.delayed[i])
 			}
 		} else {
-			player.MoveDurationByHand(designMoveDuration(move.config, player), sim)
+			design.walk(sim, move, i, player)
 		}
 	}
+}
+
+func (design *encounterDesign) walk(sim *Simulation, move *designMove, playerIndex int, player *Unit) {
+	duration := designMoveDuration(move.config, player)
+	design.walkEnds[playerIndex] = max(design.walkEnds[playerIndex], sim.CurrentTime+duration)
+	player.MoveDurationByHand(duration, sim)
+}
+
+// Whether a design move walks the raid's player of the index now, from the walk's start, after any hardcast it
+// waits for, to its end.
+func (design *encounterDesign) walking(sim *Simulation, playerIndex int) bool {
+	return sim.CurrentTime < design.walkEnds[playerIndex]
 }
 
 func designMoveDuration(config *proto.DesignMove, player *Unit) time.Duration {

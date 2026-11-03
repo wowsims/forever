@@ -138,6 +138,8 @@ message APLValue {
         APLValueNextMoveDuration next_move_duration = 50;
         APLValueAmpIsActive amp_is_active = 51;
         APLValueTimeUntilAmp time_until_amp = 52;
+        APLValueBossAbilityIsActive boss_ability_is_active = 53;
+        APLValueTimeUntilBossAbility time_until_boss_ability = 54;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
@@ -529,6 +531,15 @@ message APLValueAmpIsActive {
 }
 message APLValueTimeUntilAmp {
     DamageAmpType amp_type = 1;
+}
+// True while a window of a Thrash, Swing Timing or Pulse is open on the timeline, its target active or not; always
+// false for Spell Hit, Strike and Area Hit, which have no window.
+message APLValueBossAbilityIsActive {
+    string ability_name = 1; // The boss ability's name; with several of that name, any of them.
+}
+// 0 while a window of the ability is open, else the time until its next window or hit starts, or never with none left.
+message APLValueTimeUntilBossAbility {
+    string ability_name = 1; // The boss ability's name; with several of that name, the soonest of them.
 }
 
 message APLValueBossSpellTimeToReady {

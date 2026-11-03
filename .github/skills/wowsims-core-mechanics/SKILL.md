@@ -109,7 +109,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
   target move to target 0 when it is enabled, else the enabled target with the lowest index; with none left they keep
-  the disabled target, their auto attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). Code that reads
+  the disabled target, their auto attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). A target
+  disabled at start strands the raid at the pull the same way (`moveRaidOffDisabledTargets`). Code that reads
   the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so a boss that
   goes down mid-cast does not land the spell once it is back, and ends every raid unit's channel on the target with no
   further tick, for a downtime, cleared or not, and a death alike; a ground channel lives on its caster and runs on. A
@@ -129,6 +130,11 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
   add waves take targets from a pool allocated at construction. Design input never panics: what construction drops
   is logged at each reset (`constructNotes`).
+- **A design's area damage has no caster in the fight** (`registerArea` in `design_boss_abilities.go`). Pulse ticks and
+  area hits are target 0's spells, for its level and its metrics, applied with `SkipCastAndApplyEffects`, so they land
+  with every target down or dead and nothing interrupts them. They hit every player and every enabled pet and skip
+  target 0's damage dealt modifiers; only a resistible one rolls spell hit and partial resists. An avoidable one skips
+  a player from a design move's walk start to its end (`walkEnds`), not an APL move.
 - **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
   and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.design_add`, copied
   by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from

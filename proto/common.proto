@@ -728,8 +728,12 @@ message DesignBossAbility {
 		Strike = 1;
 		Thrash = 2;
 		SwingTiming = 3;
+		Pulse = 4; // Area damage: a window, as Thrash has, with a tick every tick_interval from its start to its end.
+		AreaHit = 5; // Area damage: one hit at each occurrence, as Spell Hit has.
 	}
 
+	// Pulse and AreaHit come from no target, so they ignore target_index: they land on every player and every active
+	// pet at target 0's level while the boss is down or dead too, with no hardcast and nothing to interrupt.
 	Kind kind = 1;
 	int32 target_index = 2;
 	DesignTime start = 3;
@@ -745,6 +749,10 @@ message DesignBossAbility {
 	double icd = 13; // Seconds.
 	double swing_speed_multiplier = 14; // SwingTiming: 0 pauses the swing, above 1 hastes it.
 	string name = 15;
+	double tick_interval = 16; // Pulse: seconds between ticks, above 0. Each tick deals min_damage to max_damage.
+	double tick_jitter = 17; // Pulse: seconds, plus or minus, rolled for each tick after the first, which lands at the window's start.
+	bool resistible = 18; // Pulse and AreaHit: on, rolls spell hit and partial resists as a spell of its school; off, deals its damage with no roll.
+	bool avoidable = 19; // Pulse and AreaHit: skips the player while a design move walks them; pets still take it.
 }
 
 message ItemRandomSuffix {

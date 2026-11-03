@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -16,25 +17,29 @@ const (
 	designStrikeSpellID   int32 = 15284 // Cleave
 )
 
-// A boss ability of the design. A spell hit or a strike happens at each occurrence that begins by the end, so
-// the end cuts its repeats. For a thrash or swing timing window the end gives only the window's length, from
-// the start to the end, and each repeat opens a window of that length wherever it falls.
+const designMaxTicks = 10_000 // Ticks of one pulse per iteration; past it the pulse ticks no more.
+
+// A boss ability of the design. A spell hit, a strike or an area hit happens at each occurrence that begins by
+// the end, so the end cuts its repeats. For a thrash, swing timing or pulse window the end gives only the
+// window's length, from the start to the end, and each repeat opens a window of that length wherever it falls.
 type designBossAbility struct {
 	index  int
 	config *proto.DesignBossAbility
-	target *Target // nil when the index is not one of the encounter's own targets.
+	target *Target // nil when the index is not one of the encounter's own targets; target 0 for a pulse or an area hit.
 	skip   bool    // Set when construction dropped the ability, with a construct note saying why.
 
-	spell   *Spell // The spell hit's or the strike's.
+	spell   *Spell // The spell hit's, the strike's, the pulse's or the area hit's.
 	aura    *Aura  // The thrash or swing timing window's, permanent while a window runs.
 	striker *designStriker
 
 	occurrences designOccurrences // This iteration's starts.
 	ends        []time.Duration
-	applied     []bool // Whether each window took effect, which a disabled target's does not.
+	applied     []bool // Whether each window took effect, which a disabled target's does not, nor a pulse's, which has no aura.
 	nextEnd     int
 	running     int // The windows running at once.
+	open        int // The windows open on the timeline, the target active or not.
 	armed       bool
+	ticks       designOccurrences // A pulse's ticks this iteration, over all its windows in time order.
 
 	endAction PendingAction
 }
@@ -53,7 +58,9 @@ func (design *encounterDesign) registerBossAbilities(encounter *Encounter) {
 	strikers := make(map[*Target]*designStriker)
 	for index, config := range design.config.BossAbilities {
 		ability := &designBossAbility{index: index, config: config}
-		if targetIndex := int(config.TargetIndex); targetIndex >= 0 && targetIndex < design.numEncounterTargets {
+		if ability.isArea() {
+			ability.target = encounter.AllTargets[0]
+		} else if targetIndex := int(config.TargetIndex); targetIndex >= 0 && targetIndex < design.numEncounterTargets {
 			ability.target = encounter.AllTargets[targetIndex]
 		}
 		design.bossAbilities = append(design.bossAbilities, ability)
@@ -86,8 +93,31 @@ func (design *encounterDesign) registerBossAbilities(encounter *Encounter) {
 			ability.registerThrash()
 		case proto.DesignBossAbility_SwingTiming:
 			ability.registerSwingTiming()
+		case proto.DesignBossAbility_Pulse:
+			ability.registerArea(design)
+			ticks := maxPulseTicks(config, occurrences, encounter.Duration+encounter.DurationVariation)
+			if ticks > designMaxTicks {
+				ticks = designMaxTicks
+				design.constructNotes = append(design.constructNotes, fmt.Sprintf("boss ability %d ticks at most %d times a fight.", index+1, designMaxTicks))
+			}
+			ability.ticks = designOccurrences{
+				times:  make([]time.Duration, 0, ticks),
+				action: PendingAction{Priority: designEndPriority, OnAction: ability.tick},
+			}
+		case proto.DesignBossAbility_AreaHit:
+			ability.registerArea(design)
+			// After a move that starts at the same time, as a pulse's tick is, so an avoidable hit misses its walk.
+			ability.occurrences.action.Priority = designEndPriority
 		}
 	}
+}
+
+// The most ticks a pulse has in one iteration of the longest fight: each of its windows at its longest, with
+// the first tick at the window's start.
+func maxPulseTicks(config *proto.DesignBossAbility, occurrences int, maxDuration time.Duration) int {
+	length := (config.GetEnd().GetAt() + max(config.GetEnd().GetJitter(), 0)) - (config.GetStart().GetAt() - max(config.GetStart().GetJitter(), 0))
+	perWindow := Clamp(length, 0, 1) * maxDuration.Seconds() / config.TickInterval
+	return occurrences * (int(min(perWindow, designMaxTicks)) + 1)
 }
 
 // Why the ability does nothing, or "" when it acts.
@@ -96,13 +126,20 @@ func (ability *designBossAbility) skipReason() string {
 	if ability.target == nil {
 		return fmt.Sprintf("names target %d, which the encounter does not have", config.TargetIndex)
 	}
-	if config.Kind != proto.DesignBossAbility_SpellHit && !ability.target.AutoAttacks.AutoSwingMelee {
+	if config.Kind != proto.DesignBossAbility_SpellHit && !ability.isArea() && !ability.target.AutoAttacks.AutoSwingMelee {
 		return "is a melee ability of a target that does not swing"
 	}
 	if ability.isWindow() && config.GetEnd().GetAt() <= config.GetStart().GetAt() {
 		return "has a window that ends by its start"
 	}
+	if ability.isArea() && config.MaxDamage <= 0 {
+		return "deals no damage"
+	}
 	switch config.Kind {
+	case proto.DesignBossAbility_Pulse:
+		if config.TickInterval <= 0 {
+			return "ticks at no interval"
+		}
 	case proto.DesignBossAbility_Strike:
 		if config.WeaponPercent <= 0 {
 			return "deals no weapon damage"
@@ -124,7 +161,15 @@ func (ability *designBossAbility) tag() int32 {
 }
 
 func (ability *designBossAbility) isWindow() bool {
-	return ability.config.Kind == proto.DesignBossAbility_Thrash || ability.config.Kind == proto.DesignBossAbility_SwingTiming
+	switch ability.config.Kind {
+	case proto.DesignBossAbility_Thrash, proto.DesignBossAbility_SwingTiming, proto.DesignBossAbility_Pulse:
+		return true
+	}
+	return false
+}
+
+func (ability *designBossAbility) isArea() bool {
+	return ability.config.Kind == proto.DesignBossAbility_Pulse || ability.config.Kind == proto.DesignBossAbility_AreaHit
 }
 
 // A hardcast magic spell, binary, whose damage is rolled between the ability's minimum and maximum.
@@ -167,6 +212,59 @@ func (ability *designBossAbility) registerStrike() {
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
 			baseDamage := spell.Unit.AutoAttacks.MH().EnemyWeaponDamage(sim, spell.MeleeAttackPower(target), spell.Unit.PseudoStats.DamageSpread)
 			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeEnemyMeleeWhite)
+		},
+	})
+}
+
+// A pulse's tick or an area hit: damage rolled between the ability's minimum and maximum for every player and
+// every active pet, skipping a player a design move walks when the ability is avoidable. It belongs to target 0,
+// for its level and its metrics, and is applied with no cast, so it lands while target 0 is down or dead; the
+// boss's own damage modifiers leave it alone. A resistible one rolls the spell hit and the partial resist of a
+// spell of its school, armor for a physical one; any other lands in full. Damage taken modifiers and absorbs
+// apply to both, and the damage taken callbacks hear it as a boss spell's.
+func (ability *designBossAbility) registerArea(design *encounterDesign) {
+	config := ability.config
+	label := fmt.Sprintf("Encounter Design Area Damage %d", ability.index+1)
+	flags := SpellFlagIgnoreAttackerModifiers | SpellFlagNoOnCastComplete
+	if !config.Resistible {
+		flags |= SpellFlagIgnoreResists
+	}
+
+	ability.spell = ability.target.RegisterSpell(SpellConfig{
+		ActionID:    ActionID{SpellID: designSpellHitSpellID, Tag: ability.tag()},
+		SpellSchool: SpellSchoolFromProto(config.School),
+		DefenseType: DefenseTypeMagic,
+		ProcMask:    ProcMaskEmpty,
+		Flags:       flags,
+
+		DamageMultiplier: 1,
+
+		ApplyEffects: func(sim *Simulation, _ *Unit, spell *Spell) {
+			outcome := spell.OutcomeAlwaysHit
+			if config.Resistible {
+				outcome = spell.OutcomeMagicHit
+			}
+			hit := func(unit *Unit) {
+				baseDamage := sim.RollWithLabel(config.MinDamage, config.MaxDamage, label)
+				spell.CalcAndDealDamage(sim, unit, baseDamage, outcome)
+			}
+			for i, player := range sim.Raid.AllPlayerUnits {
+				if !player.IsEnabled() {
+					continue
+				}
+				if config.Avoidable && design.walking(sim, i) {
+					if sim.Log != nil {
+						player.Log(sim, "Encounter design: avoids boss ability %d, moving.", ability.index+1)
+					}
+					continue
+				}
+				hit(player)
+			}
+			for _, unit := range sim.Raid.AllUnits {
+				if unit.Type == PetUnit && unit.IsEnabled() {
+					hit(unit)
+				}
+			}
 		},
 	})
 }
@@ -277,15 +375,18 @@ func (design *encounterDesign) swingPaused(target *Target) bool {
 }
 
 // Schedules the iteration's boss abilities on their target: a spell hit with its hardcast, a strike that
-// replaces the next swing, a thrash window of extra attacks, or a swing timing window that scales or pauses
-// the swing, with their repeats rolled through rollOccurrences.
+// replaces the next swing, a thrash window of extra attacks, a swing timing window that scales or pauses
+// the swing, a pulse window of area ticks or an area hit, with their repeats rolled through rollOccurrences.
 func (design *encounterDesign) scheduleBossAbilities(sim *Simulation) {
 	for _, ability := range design.bossAbilities {
 		ability.nextEnd = 0
 		ability.running = 0
+		ability.open = 0
 		ability.armed = false
 		ability.ends = ability.ends[:0]
 		ability.applied = ability.applied[:0]
+		ability.ticks.next = 0
+		ability.ticks.times = ability.ticks.times[:0]
 		if ability.striker != nil {
 			ability.striker.uninstall()
 		}
@@ -319,10 +420,42 @@ func (design *encounterDesign) scheduleBossAbilities(sim *Simulation) {
 			}
 		}
 		occurrences.queueFirst(sim)
+		if config.Kind == proto.DesignBossAbility_Pulse {
+			ability.rollTicks(sim)
+		}
 	}
 }
 
-// Runs the ability's next occurrence, which does nothing while its target is not active.
+// Rolls the pulse's ticks window by window in occurrence order and queues the first: one at the window's
+// start, then tick k at k intervals after it, moved by its own jitter from the design rand. A tick moved out of
+// its window is dropped.
+func (ability *designBossAbility) rollTicks(sim *Simulation) {
+	ticks := &ability.ticks
+	interval := DurationFromSeconds(ability.config.TickInterval)
+	jitter := ability.config.TickJitter
+	for i, start := range ability.occurrences.times {
+		end := ability.ends[i]
+		for k := time.Duration(0); start+k*interval < end && len(ticks.times) < cap(ticks.times); k++ {
+			at := start + k*interval
+			if k > 0 && jitter > 0 {
+				at += DurationFromSeconds(jitter * (2*sim.designRand.NextFloat64() - 1))
+			}
+			if at >= start && at < end {
+				ticks.times = append(ticks.times, at)
+			}
+		}
+	}
+	slices.Sort(ticks.times)
+	ticks.queueFirst(sim)
+}
+
+func (ability *designBossAbility) tick(sim *Simulation) {
+	ability.ticks.advance(sim)
+	ability.spell.SkipCastAndApplyEffects(sim, sim.Raid.AllPlayerUnits[0])
+}
+
+// Runs the ability's next occurrence, which does nothing while its target is not active, except for a pulse's
+// window and an area hit, which come from no target.
 func (ability *designBossAbility) start(sim *Simulation) {
 	occurrence := ability.occurrences.next
 	ability.occurrences.advance(sim)
@@ -330,12 +463,14 @@ func (ability *designBossAbility) start(sim *Simulation) {
 	target := ability.target
 	enabled := target.IsEnabled()
 	if ability.isWindow() {
-		ability.applied = append(ability.applied, enabled)
+		ability.open++
+		applied := enabled && ability.aura != nil
+		ability.applied = append(ability.applied, applied)
 		if end := ability.ends[occurrence]; end < sim.Duration && ability.nextEnd == occurrence {
 			ability.endAction.NextActionAt = end
 			sim.AddPendingAction(&ability.endAction)
 		}
-		if !enabled {
+		if !applied {
 			return
 		}
 		ability.running++
@@ -345,6 +480,10 @@ func (ability *designBossAbility) start(sim *Simulation) {
 		return
 	}
 
+	if ability.config.Kind == proto.DesignBossAbility_AreaHit {
+		ability.spell.SkipCastAndApplyEffects(sim, sim.Raid.AllPlayerUnits[0])
+		return
+	}
 	if !enabled {
 		return
 	}
@@ -373,6 +512,7 @@ func (ability *designBossAbility) end(sim *Simulation) {
 		sim.AddPendingAction(&ability.endAction)
 	}
 
+	ability.open--
 	if !ability.applied[occurrence] {
 		return
 	}
@@ -380,4 +520,13 @@ func (ability *designBossAbility) end(sim *Simulation) {
 	if ability.running == 0 {
 		ability.aura.Deactivate(sim)
 	}
+}
+
+// The current time while a window of the ability is open; else the start of its next window or occurrence, or
+// NeverExpires.
+func (ability *designBossAbility) nextAt(sim *Simulation) time.Duration {
+	if ability.open > 0 {
+		return sim.CurrentTime
+	}
+	return ability.occurrences.nextAt()
 }

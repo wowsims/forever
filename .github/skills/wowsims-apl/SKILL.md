@@ -150,7 +150,9 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 The values that read an encounter design are in `sim/core/apl_values_design.go` and `apl_values_encounter.go`:
 `Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
 a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
-`Time Until Amp` (by damage amp type). Without a design the times are never, and `Next Move Duration` is 0.
+`Time Until Amp` (by damage amp type), `Boss Ability Is Active` and `Time Until Boss Ability` (by the ability's exact
+event name; active only for a window kind: Thrash, Swing Timing, Pulse; an unknown name warns). Without a design the
+times are never, and `Next Move Duration` is 0.
 
 - **`Is Execute Phase` takes a target**, and `Current Health` and `Current Health %` on an enemy read its health
   curve, so a design's boss and adds each have their own. Fights are time-based: a fight lasts its rolled duration,

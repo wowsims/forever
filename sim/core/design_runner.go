@@ -41,6 +41,8 @@ type encounterDesign struct {
 	nextMoveAt time.Duration // The start of the next move not yet started, or NeverExpires.
 	nextMove   *designMove   // That move, nil without one.
 	amps       [numDamageAmpTypes]designAmpLookahead
+
+	walkEnds []time.Duration // Per raid player: the end of the latest design move walk started, which an avoidable area tick reads.
 }
 
 type designAmpLookahead struct {

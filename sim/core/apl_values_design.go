@@ -45,6 +45,22 @@ func (rot *APLRotation) validAmpType(ampType proto.DamageAmpType, uuid *proto.UU
 	return true
 }
 
+// The design's boss abilities of the name, with a warning when it has none. No name names none of them.
+func (rot *APLRotation) designBossAbilities(name string, uuid *proto.UUID) []*designBossAbility {
+	var abilities []*designBossAbility
+	if design := rot.unit.Env.Encounter.design; design != nil && name != "" {
+		for _, ability := range design.bossAbilities {
+			if ability.config.Name == name {
+				abilities = append(abilities, ability)
+			}
+		}
+	}
+	if len(abilities) == 0 {
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q", name)
+	}
+	return abilities
+}
+
 type APLValueTargetIsActive struct {
 	DefaultAPLValueImpl
 	target UnitReference
@@ -210,4 +226,59 @@ func (value *APLValueTimeUntilAmp) GetDuration(sim *Simulation) time.Duration {
 }
 func (value *APLValueTimeUntilAmp) String() string {
 	return fmt.Sprintf("Time Until Amp(%s)", value.ampType)
+}
+
+type APLValueBossAbilityIsActive struct {
+	DefaultAPLValueImpl
+	name      string
+	abilities []*designBossAbility
+}
+
+func (rot *APLRotation) newValueBossAbilityIsActive(config *proto.APLValueBossAbilityIsActive, uuid *proto.UUID) APLValue {
+	abilities := rot.designBossAbilities(config.AbilityName, uuid)
+	if abilities == nil {
+		return nil
+	}
+	return &APLValueBossAbilityIsActive{name: config.AbilityName, abilities: abilities}
+}
+func (value *APLValueBossAbilityIsActive) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueBossAbilityIsActive) GetBool(_ *Simulation) bool {
+	for _, ability := range value.abilities {
+		if ability.open > 0 {
+			return true
+		}
+	}
+	return false
+}
+func (value *APLValueBossAbilityIsActive) String() string {
+	return fmt.Sprintf("Boss Ability Is Active(%s)", value.name)
+}
+
+type APLValueTimeUntilBossAbility struct {
+	DefaultAPLValueImpl
+	name      string
+	abilities []*designBossAbility
+}
+
+func (rot *APLRotation) newValueTimeUntilBossAbility(config *proto.APLValueTimeUntilBossAbility, uuid *proto.UUID) APLValue {
+	abilities := rot.designBossAbilities(config.AbilityName, uuid)
+	if abilities == nil {
+		return nil
+	}
+	return &APLValueTimeUntilBossAbility{name: config.AbilityName, abilities: abilities}
+}
+func (value *APLValueTimeUntilBossAbility) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+func (value *APLValueTimeUntilBossAbility) GetDuration(sim *Simulation) time.Duration {
+	next := NeverExpires
+	for _, ability := range value.abilities {
+		next = min(next, ability.nextAt(sim))
+	}
+	return timeUntil(sim, next)
+}
+func (value *APLValueTimeUntilBossAbility) String() string {
+	return fmt.Sprintf("Time Until Boss Ability(%s)", value.name)
 }

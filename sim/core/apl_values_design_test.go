@@ -182,6 +182,116 @@ func TestValueDesignReadsDowntimesAndWaves(t *testing.T) {
 	)
 }
 
+func designBossAbilityValues(t *testing.T, rot *APLRotation, name string) (APLValue, APLValue) {
+	t.Helper()
+	active := designValue(t, rot, name+" active", &proto.APLValue{Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: name}}})
+	until := designValue(t, rot, name+" until", &proto.APLValue{Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: name}}})
+	return active, until
+}
+
+// A window kind is active while its window is open, the instant kinds never are, and the time until one is the
+// soonest start of the abilities of its name.
+func TestValueDesignReadsBossAbilities(t *testing.T) {
+	named := func(name string, ability *proto.DesignBossAbility) *proto.DesignBossAbility {
+		ability.Name = name
+		return ability
+	}
+	bolt := designBossWindow(proto.DesignBossAbility_SpellHit, 0.7, 1)
+	bolt.MinDamage = 100
+	bolt.MaxDamage = 100
+	design := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{
+		named("Fire", designPulse(0.2, 0.3, 1)),
+		named("Fire", designAreaHit(0.15)),
+		named("Slow", designSwingTiming(0.5, 0.6, 2)),
+		named("Bolt", bolt),
+	}}
+	sim, fw := setupDesignSim(designTankRequest(design), nil)
+	fireActive, untilFire := designBossAbilityValues(t, fw.Rotation, "Fire")
+	slowActive, untilSlow := designBossAbilityValues(t, fw.Rotation, "Slow")
+	boltActive, untilBolt := designBossAbilityValues(t, fw.Rotation, "Bolt")
+
+	type check struct {
+		name string
+		got  any
+		want any
+	}
+	verify := func(checks ...check) {
+		t.Helper()
+		for _, c := range checks {
+			if c.got != c.want {
+				t.Errorf("at %s, %s: expected %v, got %v", sim.CurrentTime, c.name, c.want, c.got)
+			}
+		}
+	}
+	until := func(next float64) time.Duration { return designAt(next) - sim.CurrentTime }
+
+	runLifecycleUntil(sim, designAt(0.1))
+	verify(
+		check{"Fire active", fireActive.GetBool(sim), false},
+		check{"until Fire, the area hit first", untilFire.GetDuration(sim), until(0.15)},
+		check{"Slow active", slowActive.GetBool(sim), false},
+		check{"until Slow", untilSlow.GetDuration(sim), until(0.5)},
+		check{"until Bolt", untilBolt.GetDuration(sim), until(0.7)},
+	)
+	runLifecycleUntil(sim, designAt(0.17))
+	verify(check{"until Fire, the pulse next", untilFire.GetDuration(sim), until(0.2)})
+	runLifecycleUntil(sim, designAt(0.25))
+	verify(
+		check{"Fire active", fireActive.GetBool(sim), true},
+		check{"until Fire", untilFire.GetDuration(sim), time.Duration(0)},
+	)
+	runLifecycleUntil(sim, designAt(0.35))
+	verify(
+		check{"Fire active", fireActive.GetBool(sim), false},
+		check{"until Fire", untilFire.GetDuration(sim), NeverExpires},
+	)
+	runLifecycleUntil(sim, designAt(0.55))
+	verify(
+		check{"Slow active", slowActive.GetBool(sim), true},
+		check{"until Slow", untilSlow.GetDuration(sim), time.Duration(0)},
+	)
+	runLifecycleUntil(sim, designAt(0.65))
+	verify(
+		check{"Slow active", slowActive.GetBool(sim), false},
+		check{"until Slow", untilSlow.GetDuration(sim), NeverExpires},
+		check{"until Bolt", untilBolt.GetDuration(sim), until(0.7)},
+	)
+	runLifecycleUntil(sim, designAt(0.75))
+	verify(
+		check{"Bolt active", boltActive.GetBool(sim), false},
+		check{"until Bolt", untilBolt.GetDuration(sim), NeverExpires},
+	)
+}
+
+// An APL line with no name names no ability, an unnamed one included.
+func TestValueDesignWarnsForAnUnknownBossAbility(t *testing.T) {
+	named := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{designAreaHit(0.1)}}
+	named.BossAbilities[0].Name = "Fire"
+	unnamed := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{designAreaHit(0.1)}}
+	for label, c := range map[string]struct {
+		request *proto.RaidSimRequest
+		name    string
+	}{
+		"another name": {designTestRequest(1, named), "Frost"},
+		"no name":      {designTestRequest(1, unnamed), ""},
+		"no design":    {designTestRequest(1, nil), "Frost"},
+	} {
+		_, fw := setupDesignSim(c.request, nil)
+		configs := map[string]*proto.APLValue{
+			"Boss Ability Is Active":  {Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: c.name}}},
+			"Time Until Boss Ability": {Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: c.name}}},
+		}
+		for name, config := range configs {
+			if value := fw.Rotation.newAPLValue(config); value != nil {
+				t.Errorf("%s, %s: got a value for an unknown ability, want none", label, name)
+			}
+			if warnings := fw.Rotation.uuidValidations[config.Uuid]; len(warnings) != 1 || warnings[0].LogLevel != proto.LogLevel_Warning {
+				t.Errorf("%s, %s: validations = %v, want one warning", label, name, warnings)
+			}
+		}
+	}
+}
+
 func TestValueDesignWarnsForUnitsThatAreNotEnemyTargets(t *testing.T) {
 	_, fw := setupDesignSim(designTestRequest(1, nil), nil)
 	self := &proto.UnitReference{Type: proto.UnitReference_Self}
