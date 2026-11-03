@@ -1,5 +1,6 @@
 import { Button, type ButtonVariant } from '@ui-kit/Button';
 import { ButtonGroup, type ButtonGroupProps } from '@ui-kit/ButtonGroup';
+import type { ControlSize } from '@ui-kit/Field';
 import type { ReactNode } from 'react';
 
 export interface ToggleGroupOption<T extends string> {
@@ -15,7 +16,7 @@ export interface ToggleGroupProps<T extends string> {
 	/** Called with the clicked option; a click on the option already pressed reports nothing. */
 	onChange: (next: T) => void;
 	'aria-label'?: string;
-	size?: 'sm' | 'xs';
+	size?: ControlSize;
 	/** `neutral` draws the buttons in grey, for a switch that should not draw the eye. */
 	tone?: ToggleGroupTone;
 	orientation?: ButtonGroupProps['orientation'];
@@ -45,7 +46,6 @@ export const ToggleGroup = <T extends string>({
 		{options.map(option => (
 			<Button
 				key={option.value}
-				size={size}
 				variant={value === option.value ? VARIANTS[tone].pressed : VARIANTS[tone].unpressed}
 				aria-pressed={value === option.value}
 				disabled={disabled}

@@ -25,7 +25,8 @@ const (
 	SpellMaskSwiftJudgement
 	SpellMaskTemplarsBulwark
 	SpellMaskLightsVigil
-	SpellMaskLightsVigilStrike
+	SpellMaskLightsVigilHeal
+	SpellMaskOathOfLight
 
 	// Seals
 	SpellMaskSealOfRighteousness

@@ -7,8 +7,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Arcane Charges, the buff Arcane Blast stacks (400573): "you gain 15% of your Intellect as Spell
-// Damage and the mana cost of Arcane Blast is increased by 175%". Up to 4 stacks, lasting 15 sec
+// Arcane Charges, the buff Arcane Blast stacks (400573): "you gain 12% of your Intellect as Spell
+// Damage and the mana cost of Arcane Blast is increased by 100%". Up to 4 stacks, lasting 18 sec
 // from the first; nothing spends them.
 var arcaneChargesRank = spellData.ArcaneBlastTriggered.Highest()
 

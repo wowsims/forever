@@ -709,7 +709,12 @@ func (result *SpellResult) applyEnemyAttackTableMiss(spell *Spell, attackTable *
 }
 
 func (result *SpellResult) applyEnemyAttackTableBlock(sim *Simulation, spell *Spell, attackTable *AttackTable, roll float64, chance *float64) bool {
-	if !result.Target.PseudoStats.CanBlock || result.Target.PseudoStats.Stunned || !spell.SpellSchool.Matches(SpellSchoolPhysical) {
+	if !result.Target.PseudoStats.CanBlock || result.Target.PseudoStats.Stunned {
+		return false
+	}
+	// A non-physical swing is blocked only by a target that can block spells, and the block takes the
+	// same block value off.
+	if !spell.SpellSchool.Matches(SpellSchoolPhysical) && !result.Target.PseudoStats.CanBlockSpells {
 		return false
 	}
 

@@ -112,6 +112,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueBossCurrentTarget(config.GetBossCurrentTarget(), config.Uuid)
 	case *proto.APLValue_TargetIsMobType:
 		value = rot.newValueTargetIsMobType(config.GetTargetIsMobType(), config.Uuid)
+	case *proto.APLValue_TargetIsBleedImmune:
+		value = rot.newValueTargetIsBleedImmune(config.GetTargetIsBleedImmune(), config.Uuid)
 
 	// Resources
 	case *proto.APLValue_CurrentHealth:

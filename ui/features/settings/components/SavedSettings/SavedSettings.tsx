@@ -1,40 +1,17 @@
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
-import { readSavedSettings } from '@features/settings/model/saved_settings';
+import type { SavedSettings as SavedSettingsProto } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { useSimHost } from '@sim/context/SimHostContext';
-import { useReadyStoreSubscribe } from '@sim/hooks/useReadyStoreSubscribe';
-import { useSimReady } from '@sim/hooks/useSimReady';
-import { subscribeAll, subscribePartyBuffs, subscribePlayerField, subscribeRaidField } from '@sim/state/subscriptions';
+import { withLiveSpecOptions } from '@sim/proto/spec_functions';
+import type { SavedDataPanelEntry } from '@ui-kit/SavedDataPanel';
 import { SavedDataPanel } from '@ui-kit/SavedDataPanel';
+import { useCallback } from 'react';
 
+import { useCurrentSettings } from '../../hooks/useCurrentSettings';
 import { useSavedSettings } from '../../hooks/useSavedSettings';
 import { loadSettings, serializeSettings, settingsPresets } from './utils';
 
 export const SavedSettings = () => {
-	const host = useSimHost();
-	const ready = useSimReady();
-
-	const settings = useReadyStoreSubscribe(
-		subscribeAll([
-			subscribeRaidField(host.sim.raid, 'buffs'),
-			subscribeRaidField(host.sim.raid, 'debuffs'),
-			subscribePartyBuffs(host.player.getParty()!),
-			subscribePlayerField(host.player, 'buffs'),
-			subscribePlayerField(host.player, 'consumables'),
-			subscribePlayerField(host.player, 'race'),
-			subscribePlayerField(host.player, 'profession1'),
-			subscribePlayerField(host.player, 'profession2'),
-			subscribePlayerField(host.player, 'itemSwap'),
-			subscribePlayerField(host.player, 'reactionTime'),
-			subscribePlayerField(host.player, 'channelClipDelay'),
-			subscribePlayerField(host.player, 'inFrontOfTarget'),
-			subscribePlayerField(host.player, 'distanceFromTarget'),
-			subscribePlayerField(host.player, 'healingModel'),
-		]),
-		// Reaches `player.getConsumes()`, so it dereferences a null `sim.db` before the sim is ready.
-		() => readSavedSettings(host),
-		ready,
-	);
+	const settings = useCurrentSettings();
 
 	const panel = useSavedPanel({
 		label: i18n.t('settings_tab.saved_settings.settings'),
@@ -45,11 +22,19 @@ export const SavedSettings = () => {
 		presets: settingsPresets,
 	});
 
+	// An entry without spec options for the live spec matches on everything else, as loading it keeps the live ones.
+	const { currentJson } = panel;
+	const isActive = useCallback(
+		(entry: SavedDataPanelEntry<SavedSettingsProto>) => settings !== null && serializeSettings(withLiveSpecOptions(entry.data, settings)) === currentJson,
+		[settings, currentJson],
+	);
+
 	return (
 		<SavedDataPanel
 			title={i18n.t('settings_tab.saved_settings.title')}
 			nameLabel={i18n.t('settings_tab.saved_settings.settings_name')}
 			saveButtonText={i18n.t('settings_tab.saved_settings.save_settings')}
+			isActive={isActive}
 			{...panel}
 		/>
 	);

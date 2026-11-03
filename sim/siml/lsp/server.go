@@ -79,6 +79,11 @@ type server struct {
 	shutdown  bool
 	requestID int
 
+	simSettings simSettings
+	simRecords  map[string]simRecord
+	simming     bool
+	clientCaps  struct{ progress, lensRefresh, hintRefresh bool }
+
 	cards *cards
 }
 
@@ -94,6 +99,8 @@ func Serve(in io.Reader, out io.Writer, opts Options) (shutdownRequested bool, e
 		timers:   map[string]*time.Timer{},
 		pending:  map[string]context.CancelFunc{},
 		cards:    newCards(opts.Row),
+
+		simRecords: map[string]simRecord{},
 	}
 	defer s.stop()
 	reader := jsonrpc.NewFrameReader(in)
@@ -211,8 +218,18 @@ func (s *server) lifecycle(method string, params json.RawMessage) (any, *Respons
 				DidChangeWatchedFiles struct {
 					DynamicRegistration bool `json:"dynamicRegistration"`
 				} `json:"didChangeWatchedFiles"`
+				CodeLens struct {
+					RefreshSupport bool `json:"refreshSupport"`
+				} `json:"codeLens"`
+				InlayHint struct {
+					RefreshSupport bool `json:"refreshSupport"`
+				} `json:"inlayHint"`
 			} `json:"workspace"`
+			Window struct {
+				WorkDoneProgress bool `json:"workDoneProgress"`
+			} `json:"window"`
 		} `json:"capabilities"`
+		InitializationOptions json.RawMessage `json:"initializationOptions"`
 	}
 	if err := json.Unmarshal(params, &p); err != nil {
 		return nil, invalidParams(err)
@@ -227,26 +244,34 @@ func (s *server) lifecycle(method string, params json.RawMessage) (any, *Respons
 		s.folders = append(s.folders, path)
 	}
 	s.watches = p.Capabilities.Workspace.DidChangeWatchedFiles.DynamicRegistration
+	s.clientCaps.progress = p.Capabilities.Window.WorkDoneProgress
+	s.clientCaps.lensRefresh = p.Capabilities.Workspace.CodeLens.RefreshSupport
+	s.clientCaps.hintRefresh = p.Capabilities.Workspace.InlayHint.RefreshSupport
+	if len(p.InitializationOptions) > 0 && json.Unmarshal(p.InitializationOptions, &s.simSettings) != nil {
+		s.simSettings = simSettings{}
+	}
 	s.mu.Unlock()
-	return map[string]any{
-		"capabilities": map[string]any{
-			"textDocumentSync":       map[string]any{"openClose": true, "change": 1},
-			"completionProvider":     map[string]any{"triggerCharacters": triggerCharacters},
-			"hoverProvider":          true,
-			"definitionProvider":     true,
-			"referencesProvider":     true,
-			"renameProvider":         map[string]any{"prepareProvider": true},
-			"documentSymbolProvider": true,
-			"foldingRangeProvider":   true,
-			"semanticTokensProvider": map[string]any{
-				"legend": map[string]any{"tokenTypes": nonNil(siml.TokenTypes()), "tokenModifiers": nonNil(siml.TokenModifiers())},
-				"full":   true,
-			},
-			"documentFormattingProvider": true,
-			"codeActionProvider":         map[string]any{"codeActionKinds": []string{"quickfix", "refactor.rewrite"}},
-			"documentLinkProvider":       map[string]any{"resolveProvider": false},
+	capabilities := map[string]any{
+		"textDocumentSync":       map[string]any{"openClose": true, "change": 1},
+		"completionProvider":     map[string]any{"triggerCharacters": triggerCharacters},
+		"hoverProvider":          true,
+		"definitionProvider":     true,
+		"referencesProvider":     true,
+		"renameProvider":         map[string]any{"prepareProvider": true},
+		"documentSymbolProvider": true,
+		"foldingRangeProvider":   true,
+		"semanticTokensProvider": map[string]any{
+			"legend": map[string]any{"tokenTypes": nonNil(siml.TokenTypes()), "tokenModifiers": nonNil(siml.TokenModifiers())},
+			"full":   true,
 		},
-		"serverInfo": map[string]any{"name": "wowsims-siml"},
+		"documentFormattingProvider": true,
+		"codeActionProvider":         map[string]any{"codeActionKinds": []string{"quickfix", "refactor.rewrite"}},
+		"documentLinkProvider":       map[string]any{"resolveProvider": false},
+	}
+	s.simCapabilities(capabilities)
+	return map[string]any{
+		"capabilities": capabilities,
+		"serverInfo":   map[string]any{"name": "wowsims-siml"},
 	}, nil
 }
 

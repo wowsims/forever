@@ -10,7 +10,7 @@ import { itemQualityClassName } from '@ui-kit/utils/css';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 
-import { baseIlvl } from '../../model/search';
+import { baseIlvl } from '../../model/gear/search';
 
 export interface BulkItemSearchRowProps {
 	item: UIItem;

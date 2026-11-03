@@ -33,7 +33,7 @@ export const IterationsPicker = ({ sim }: IterationsPickerProps) => {
 				modObject={sim}
 				testId="iterations-picker"
 				inputClassName="m-0 w-full"
-				inputSize="md"
+				size="md"
 				config={{
 					id: 'simui-iterations',
 					label: i18n.t('sidebar.iterations'),
@@ -46,6 +46,7 @@ export const IterationsPicker = ({ sim }: IterationsPickerProps) => {
 			{PRESETS.map(preset => (
 				<Button
 					key={preset}
+					size="md"
 					variant={iterations === preset ? 'primary' : 'outline-primary'}
 					aria-pressed={iterations === preset}
 					data-testid="iterations-preset"

@@ -239,7 +239,8 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	// one - beside Parry and Block, which have several classes' bits.
 	rows, err := db.Query(`
 		SELECT n.Name_lang, sla.Spell, s.NameSubtext_lang, sla.ClassMask, sla.SkillLine, sla.AcquireMethod,
-		       COALESCE(lv.BaseLevel, 0), (COALESCE(json_extract(sm.Attributes, '$[0]'), 0) & ?) != 0
+		       COALESCE(lv.BaseLevel, 0), (COALESCE(json_extract(sm.Attributes, '$[0]'), 0) & ?) != 0,
+		       sm.SpellID IS NOT NULL
 		FROM SkillLineAbility sla
 		JOIN SpellName n ON n.ID = sla.Spell
 		JOIN Spell s ON s.ID = sla.Spell
@@ -280,12 +281,13 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	// is a class line too.
 	unranked := map[string][]rankCandidate{}
 	trainedUnranked := map[string]bool{}
+	noMisc := map[string][]string{}
 	for rows.Next() {
 		var name, subtext string
 		var c rankCandidate
 		var baseLevel int32
-		var passive bool
-		if err := rows.Scan(&name, &c.SpellID, &subtext, &c.ClassMask, &c.SkillLine, &c.AcquireMethod, &baseLevel, &passive); err != nil {
+		var passive, hasMisc bool
+		if err := rows.Scan(&name, &c.SpellID, &subtext, &c.ClassMask, &c.SkillLine, &c.AcquireMethod, &baseLevel, &passive, &hasMisc); err != nil {
 			return nil, nil, nil, err
 		}
 		m := rankSubtext.FindStringSubmatch(subtext)
@@ -303,6 +305,12 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		}
 		rank, _ := strconv.Atoi(m[1])
 		c.Rank = int32(rank)
+		// A "Rank N" spell with no SpellMisc row states no school, cost, level or range, so it cannot
+		// be cast and is no ladder rank (Holy Shield Rank 4 1239570). The class file names it.
+		if !hasMisc {
+			noMisc[name] = append(noMisc[name], fmt.Sprintf("%s: rank %d, spell %d, has no SpellMisc row", name, c.Rank, c.SpellID))
+			continue
+		}
 		if byName[name] == nil {
 			byName[name] = map[int32][]rankCandidate{}
 		}
@@ -342,7 +350,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 
 	seen := map[string]bool{}
 	var names []string
-	for _, source := range []map[string]bool{keysOf(byName), keysOf(traits), keysOf(traitSkipped)} {
+	for _, source := range []map[string]bool{keysOf(byName), keysOf(traits), keysOf(traitSkipped), keysOf(noMisc)} {
 		for name := range source {
 			if !seen[name] {
 				seen[name] = true
@@ -357,6 +365,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	taken := map[string]string{}
 
 	for _, name := range names {
+		skipped = append(skipped, noMisc[name]...)
 		_, talent := traits[name]
 		_, talentSkipped := traitSkipped[name]
 		if !talent && !talentSkipped && runeOnlyFamily(byName[name], runeOnly) {
@@ -385,8 +394,12 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		// kept its subtext on rank 1 alone, and leaving it as that one rank would let a 3-point
 		// talent be read past its own ladder. Below that the "Rank N" spells win - they state a cost
 		// and a cast time per rank, which the tree does not - and a family the resolver refused
-		// stays refused, since a tree node that grants an ability does not describe its ranks.
-		if t, ok := traits[name]; ok && resolveErr == nil && int(t.MaxRanks) > len(ladder) {
+		// stays refused, since a tree node that grants an ability does not describe its ranks. At an
+		// equal count the tree wins too when no "Rank N" spell is in it: those are a legacy talent's
+		// ranks (Shield Specialization 20148 and 20149 beside the tree's 20150), which state
+		// none of what the tree's spell does.
+		if t, ok := traits[name]; ok && resolveErr == nil &&
+			(int(t.MaxRanks) > len(ladder) || int(t.MaxRanks) == len(ladder) && !anyInTree(ladder, treeSpells)) {
 			ladder, points = map[int32]int32{}, t.Points
 			for rank := int32(1); rank <= t.MaxRanks; rank++ {
 				ladder[rank] = t.SpellID
@@ -412,6 +425,16 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	}
 
 	return ladders, skipped, partial, nil
+}
+
+// Whether any rank of the ladder is a spell the talent tree defines.
+func anyInTree(ladder map[int32]int32, treeSpells map[int32]bool) bool {
+	for _, id := range ladder {
+		if treeSpells[id] {
+			return true
+		}
+	}
+	return false
 }
 
 // A trailing roman numeral on a crafted imbue's name: "Deadly Poison IV", "Occult Poison I".

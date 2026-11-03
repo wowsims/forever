@@ -14,6 +14,9 @@ func (paladin *Paladin) registerTalentSpells() {
 	if paladin.Talents.DivineFavor {
 		paladin.registerDivineFavor()
 	}
+	if paladin.Talents.OathOfLight {
+		paladin.registerOathOfLight()
+	}
 	if paladin.Talents.HolyShock {
 		paladin.registerHolyShock()
 	}

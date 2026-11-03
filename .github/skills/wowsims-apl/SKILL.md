@@ -90,6 +90,8 @@ A value or action reaches the rotation and the kind picker in five places, all i
   `sim/warrior/dps/dps_test.go`; a group no suite un-hides never reaches the `.results`.
 - **A line is written against the pick at the cast end** (`docs/rotation.md`). After an edit, dump the validations
   (below) and judge the preset's cast counts from a debug log, not from the line as written.
+- **A rotation the owner hands over goes in as exported.** A review that finds a branch dead reports it and leaves it
+  in, even when dropping it leaves the `.results` unchanged; the preset changes only when the owner agrees.
 
 ## What fails silently
 
@@ -115,7 +117,8 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 ## Timing
 
 - **The pick at a hardcast end reads the running cast as landed**; what it sees and misses is `docs/rotation.md` §What
-  the pick sees, and the order the landing runs in is `wowsims-core-mechanics` §Cast order.
+  the pick sees, and the order the landing runs in is `wowsims-core-mechanics` §Cast order. `not(Spell Is Casting X)`
+  on a line decides it after X lands; `docs/rotation.md` §Which lines need `Spell Is Casting` says when to use it.
 - **A major cooldown's Cast Spell is ready only at a GCD-ready look** unless it is reactive or inside a sequence
   (`APLActionCastSpell.IsReady`), so an off-GCD cooldown can wait a GCD after its window opens; the first warrior major
   cooldown chance comes about 4.5 s into the fight (PR #653).

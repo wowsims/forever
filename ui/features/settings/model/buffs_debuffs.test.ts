@@ -42,17 +42,15 @@ describe('the buff registries', () => {
 
 	it('shows the raid and individual buffs interleaved in their settled order', () => {
 		expect(labelsOf(BuffDebuffInputs.BUFFS_CONFIG)).toEqual([
-			'Arcane Brilliance',
+			'Arcane Intellect',
 			'Greater Blessing of Kings',
 			'Prayer of Spirit',
-			'Gift of the Wild',
+			'Mark of the Wild',
 			'Thorns',
-			'Prayer of Fortitude',
+			'Power Word: Fortitude',
 			'Greater Blessing of Might',
 			'Greater Blessing of Wisdom',
-			'Mass Salvation',
-			'Greater Blessing of Light',
-			['settings_tab.raid_buffs.shadow_resistance', ['Prayer of Shadow Protection', 'Shadow Resistance Aura']],
+			['settings_tab.raid_buffs.shadow_resistance', ['Shadow Protection', 'Shadow Resistance Aura']],
 			['settings_tab.raid_buffs.fire_resistance', ['Fire Resistance Aura', 'Fire Resistance Totem']],
 			['settings_tab.raid_buffs.frost_resistance', ['Frost Resistance Aura', 'Frost Resistance Totem']],
 			['settings_tab.raid_buffs.nature_resistance', ['Nature Resistance Totem', 'Aspect of the Wild']],
@@ -103,10 +101,6 @@ describe('the buff registries', () => {
 		expect(groupWith(BuffDebuffInputs.DEBUFFS_CONFIG, BuffDebuffInputs.SunderArmor)?.stats).toEqual([Stat.StatAttackPower]);
 	});
 
-	it('puts the hand-written inputs themselves at those positions, not lookalikes', () => {
-		expect(BuffDebuffInputs.BUFFS_CONFIG[8].config).toBe(BuffDebuffInputs.GreaterBlessingOfSalvation);
-	});
-
 	// Off, Rank 6, Rank 7 from Manual of Battle Shout VII, and Rank 7 from a warrior wearing three pieces of
 	// Battlegear of Wrath: the manual's icon lights from the second state on, the set spell 23563's on the third.
 	it('offers Battle Shout as one four-state icon whose improved icons are the manual and the set', () => {
@@ -116,8 +110,20 @@ describe('the buff registries', () => {
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.BattleShout)?.ownerClass).toBe(Class.ClassWarrior);
 	});
 
+	// 0 is off and each state above it the next rank: the first is the icon and the second its badge.
+	it.each([
+		['Strength of Earth Totem', BuffDebuffInputs.StrengthOfEarthTotem, [10442, 25361]],
+		['Grace of Air Totem', BuffDebuffInputs.GraceOfAirTotem, [10627, 25359]],
+		['Greater Blessing of Might', BuffDebuffInputs.GreaterBlessingOfMight, [25782, 25916]],
+		['Greater Blessing of Wisdom', BuffDebuffInputs.GreaterBlessingOfWisdom, [25894, 25918]],
+	])('offers %s as a rank select', (label, input, ranks) => {
+		expect(input.label).toBe(label);
+		expect(input.states).toBe(ranks.length + 1);
+		expect([input.actionId, input.improvedId].map(id => id?.spellId)).toEqual(ranks);
+		expect(input.labelTooltip).toBe('settings_tab.raid_buffs.rank_select_tooltip');
+	});
+
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {
 		expect(memberOf(BuffDebuffInputs.BUFFS_CONFIG, BuffDebuffInputs.FuriousHowl)?.ownerClass).toBe(Class.ClassHunter);
-		expect(BuffDebuffInputs.BUFFS_CONFIG[8].ownerClass).toBeUndefined();
 	});
 });

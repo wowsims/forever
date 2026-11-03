@@ -60,6 +60,11 @@ stack it adds to or takes from an aura with another id, a debuff with another id
 
 ## Which lines need `Spell Is Casting`
 
+`not(Spell Is Casting(X))` on a line means: decide this line after X lands. The pick at X's end sees
+the guard false, so it queues nothing; once X lands, a normal look runs at the same timestamp with the
+outcome visible, and the line decides then at no cost in time. An APL check assumes the cast lands and
+hits: the player cannot see a miss or a resist and queue again in the same tick.
+
 A line that refreshes the cast's own dot needs nothing: `Cast Immolate if not(Dot Is Active(Immolate))`
 and a Strict Multidot read the running Immolate as landed and wait.
 

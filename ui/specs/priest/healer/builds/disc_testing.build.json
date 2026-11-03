@@ -1,10 +1,10 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": true,
+    "arcaneIntellect": true,
     "prayerOfSpirit": true,
-    "giftOfTheWild": true,
-    "prayerOfFortitude": true
+    "markOfTheWild": true,
+    "powerWordFortitude": true
   },
   "debuffs": {
   },
@@ -32,7 +32,7 @@
     },
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true,
+      "greaterBlessingOfWisdom": 1,
       "greaterBlessingOfLight": true
     },
     "healerPriest": {

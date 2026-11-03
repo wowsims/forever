@@ -14,8 +14,8 @@ message HunterTalents {
     int32 endurance_training = 2 [(talent_spell_id) = 19583];
     int32 focused_fire = 3 [(talent_spell_id) = 1223755];
     int32 improved_aspect_of_the_monkey = 4 [(talent_spell_id) = 19549];
-    int32 pathfinding = 5 [(talent_spell_id) = 19559];
-    int32 improved_revive_pet = 6 [(talent_spell_id) = 24443];
+    int32 improved_revive_pet = 5 [(talent_spell_id) = 24443];
+    int32 pathfinding = 6 [(talent_spell_id) = 19559];
     bool bestial_swiftness = 7 [(talent_spell_id) = 19596];
     int32 unleashed_fury = 8 [(talent_spell_id) = 19616];
     int32 improved_mend_pet = 9 [(talent_spell_id) = 19572];
@@ -125,10 +125,8 @@ message HunterOptions {
 
 	double pet_uptime = 5;
 
-	// Beast Training, the part of it that changes the pet's damage: whether Cobra Reflexes is
-	// taught, and Pet Aggression's rank, 0 for untrained.
+	// Beast Training, the part of it that changes the pet's damage: whether Cobra Reflexes is taught.
 	bool cobra_reflexes = 6;
-	int32 pet_aggression = 7;
 
 	// The Faster Attack or Slower Attack passive the tamed creature carries on top of the 2 s swing
 	// every pet has, named as the hunter's spell store fields the passives.
@@ -165,6 +163,9 @@ message Hunter {
 		bool use_hawk = 8;
 		// Where the hunter stands at the pull, in yards; it walks to its spot from there. 0 is 25 yd.
 		int32 pull_range = 9;
+		// The priority lists cast the trainer's top ranks; each use_ rank field set true casts the rank the class book teaches in its place.
+		bool use_serpent_sting_rank_9 = 10;
+		bool use_aspect_of_the_hawk_rank_7 = 11;
 	}
 	message Options {
 		HunterOptions class_options = 1;

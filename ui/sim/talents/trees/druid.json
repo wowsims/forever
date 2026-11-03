@@ -205,13 +205,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "heartOfTheWild",
-        "fancyName": "Heart of the Wild",
+        "fieldName": "furor",
+        "fancyName": "Furor",
         "location": {
           "rowIdx": 0,
           "colIdx": 2
         },
-        "spellId": 17003,
+        "spellId": 17056,
         "definitionId": 134400,
         "maxPoints": 5
       },
@@ -304,28 +304,24 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "shiftingPower",
-        "fancyName": "Shifting Power",
+        "fieldName": "predatoryStrikes",
+        "fancyName": "Predatory Strikes",
         "location": {
           "rowIdx": 3,
           "colIdx": 0
         },
-        "spellId": 1322605,
-        "definitionId": 134412,
-        "maxPoints": 1,
-        "prereqLocation": {
-          "rowIdx": 2,
-          "colIdx": 0
-        }
+        "spellId": 16972,
+        "definitionId": 134413,
+        "maxPoints": 3
       },
       {
-        "fieldName": "primalBite",
-        "fancyName": "Primal Bite",
+        "fieldName": "lacerate",
+        "fancyName": "Lacerate",
         "location": {
           "rowIdx": 3,
           "colIdx": 1
         },
-        "spellId": 407995,
+        "spellId": 1328617,
         "definitionId": 134410,
         "maxPoints": 1,
         "prereqLocation": {
@@ -334,15 +330,15 @@
         }
       },
       {
-        "fieldName": "predatoryStrikes",
-        "fancyName": "Predatory Strikes",
+        "fieldName": "predatoryDiscipline",
+        "fancyName": "Predatory Discipline",
         "location": {
           "rowIdx": 3,
           "colIdx": 2
         },
-        "spellId": 16972,
-        "definitionId": 134413,
-        "maxPoints": 3
+        "spellId": 1328613,
+        "definitionId": 134412,
+        "maxPoints": 1
       },
       {
         "fieldName": "bloodFrenzy",
@@ -357,21 +353,6 @@
         "prereqLocation": {
           "rowIdx": 2,
           "colIdx": 3
-        }
-      },
-      {
-        "fieldName": "improvedShiftingPower",
-        "fancyName": "Improved Shifting Power",
-        "location": {
-          "rowIdx": 4,
-          "colIdx": 0
-        },
-        "spellId": 1322670,
-        "definitionId": 145859,
-        "maxPoints": 2,
-        "prereqLocation": {
-          "rowIdx": 3,
-          "colIdx": 0
         }
       },
       {
@@ -397,44 +378,59 @@
         "maxPoints": 2
       },
       {
-        "fieldName": "naturalReaction",
-        "fancyName": "Natural Reaction",
-        "location": {
-          "rowIdx": 5,
-          "colIdx": 0
-        },
-        "spellId": 417051,
-        "definitionId": 134415,
-        "maxPoints": 5
-      },
-      {
         "fieldName": "rendAndTear",
         "fancyName": "Rend and Tear",
         "location": {
           "rowIdx": 5,
-          "colIdx": 2
+          "colIdx": 0
         },
         "spellId": 1223246,
         "definitionId": 134414,
         "maxPoints": 5,
         "prereqLocation": {
           "rowIdx": 3,
-          "colIdx": 2
+          "colIdx": 0
         }
       },
       {
-        "fieldName": "berserk",
-        "fancyName": "Berserk",
+        "fieldName": "naturalReaction",
+        "fancyName": "Natural Reaction",
+        "location": {
+          "rowIdx": 5,
+          "colIdx": 3
+        },
+        "spellId": 417051,
+        "definitionId": 134415,
+        "maxPoints": 5
+      },
+      {
+        "fieldName": "primalBite",
+        "fancyName": "Primal Bite",
         "location": {
           "rowIdx": 6,
           "colIdx": 1
         },
-        "spellId": 417141,
+        "spellId": 407995,
         "definitionId": 134417,
         "maxPoints": 1,
         "prereqLocation": {
           "rowIdx": 4,
           "colIdx": 1
+        }
+      },
+      {
+        "fieldName": "shiftingPower",
+        "fancyName": "Shifting Power",
+        "location": {
+          "rowIdx": 6,
+          "colIdx": 2
+        },
+        "spellId": 1322605,
+        "definitionId": 145859,
+        "maxPoints": 1,
+        "prereqLocation": {
+          "rowIdx": 3,
+          "colIdx": 2
         }
       }
     ]
@@ -455,13 +451,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "furor",
-        "fancyName": "Furor",
+        "fieldName": "heartOfTheWild",
+        "fancyName": "Heart of the Wild",
         "location": {
           "rowIdx": 0,
           "colIdx": 2
         },
-        "spellId": 17056,
+        "spellId": 17003,
         "definitionId": 134419,
         "maxPoints": 5
       },
@@ -477,13 +473,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "subtlety",
-        "fancyName": "Subtlety",
+        "fieldName": "reflection",
+        "fancyName": "Reflection",
         "location": {
           "rowIdx": 1,
           "colIdx": 1
         },
-        "spellId": 17118,
+        "spellId": 17106,
         "definitionId": 134381,
         "maxPoints": 3
       },
@@ -499,13 +495,13 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "reflection",
-        "fancyName": "Reflection",
+        "fieldName": "subtlety",
+        "fancyName": "Subtlety",
         "location": {
           "rowIdx": 2,
           "colIdx": 1
         },
-        "spellId": 17106,
+        "spellId": 17118,
         "definitionId": 134378,
         "maxPoints": 3
       },
@@ -521,13 +517,13 @@
         "maxPoints": 5
       },
       {
-        "fieldName": "giftOfTheEarthmother",
-        "fancyName": "Gift of the Earthmother",
+        "fieldName": "bloom",
+        "fancyName": "Bloom",
         "location": {
           "rowIdx": 2,
           "colIdx": 3
         },
-        "spellId": 414673,
+        "spellId": 1328621,
         "definitionId": 134379,
         "maxPoints": 1
       },

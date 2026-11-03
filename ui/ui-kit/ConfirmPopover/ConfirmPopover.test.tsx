@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { useState } from 'react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { useRef, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ConfirmPopoverProps } from './ConfirmPopover';
@@ -92,5 +92,29 @@ describe('ConfirmPopover', () => {
 
 		fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 		expect(within(screen.getByRole('dialog')).getByTestId('sim-confirm-popover-message').textContent).toBe('Sure?');
+	});
+
+	it('hands focus to finalFocus once it closes', async () => {
+		const Harness = () => {
+			const [open, setOpen] = useState(false);
+			const newRef = useRef<HTMLButtonElement>(null);
+			return (
+				<>
+					<ConfirmPopover open={open} onOpenChange={setOpen} trigger="Delete" finalFocus={newRef} onConfirm={() => {}}>
+						Sure?
+					</ConfirmPopover>
+					<button ref={newRef} type="button">
+						New
+					</button>
+				</>
+			);
+		};
+		render(<Harness />);
+		const trigger = screen.getByRole('button', { name: 'Delete' });
+		trigger.focus();
+		fireEvent.click(trigger);
+
+		fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'common.confirm' }));
+		await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'New' })));
 	});
 });

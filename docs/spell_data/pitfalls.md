@@ -17,11 +17,10 @@ mage port, it cost 1.2% DPS. Use `ByID`.
 
 **A parsed row doubles the hand line that already states it.** When the paladin parses Shield
 Specialization, the `BlockValueMultiplier` line in `sim/paladin/talents_protection.go` goes, since
-`A_MOD_BLOCK_VALUE_PCT` is a row. Holy Power's crit mods in `talents_holy.go` go the same way. The
-`agiApDep` the druid's Cat Form stub keeps commented out must not come back beside a parsed Cat Form
-(Passive) 3025, which states the same Agility share. Last Stand 12976 is the opposite case: it stays
-hand-read, because its 30 is a percentage and the parse reads `A_MOD_INCREASE_HEALTH` as flat
-health.
+`A_MOD_BLOCK_VALUE_PCT` is a row. The `agiApDep` the druid's Cat Form stub keeps commented out must not
+come back beside a parsed Cat Form (Passive) 3025, which states the same Agility share. Last Stand 12976
+is the opposite case: it stays hand-read, because its 30 is a percentage and the parse reads
+`A_MOD_INCREASE_HEALTH` as flat health.
 
 **A parsed school hit talent shows on the sheet only when asked.** Shadow Focus, Holy Precision and
 Divine Precision state their hit on class flags, so a plain `ParseStatic` raises the hit of their

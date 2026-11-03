@@ -1,16 +1,20 @@
-import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkEncounterResults, BulkRankedResult, TopGearResult } from '@sim/bulk/types';
 import { REPO_RELEASES_URL } from '@sim/constants/other';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
+import { CURRENT_ROTATION_SETUP, CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { BulkTabActionsView, type BulkTabActionsViewProps, BulkTabBody } from './BulkTabBody';
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => false }));
+vi.mock('@features/bulk/components/BulkBuildsColumns', () => ({ BulkBuildsColumns: () => null }));
+vi.mock('@features/bulk/context/BulkBuildsContext', () => ({ BulkBuildsProvider: ({ children }: { children: ReactNode }) => children }));
 vi.mock('@features/bulk/components/BulkItemSearch', () => ({ BulkItemSearch: () => null }));
 vi.mock('@features/bulk/components/BulkPickerGroups', () => ({ BulkPickerGroups: () => null }));
 vi.mock('@features/bulk/components/BulkProgress', () => ({ BulkProgressDialog: () => null }));
@@ -63,7 +67,15 @@ describe('BulkTabBody', () => {
 		const set = { getItemSlots: () => [], getEquippedItem: () => null, equals: (other: unknown) => other === set };
 		return set;
 	};
-	const result = (avg: number) => ({ gear: gear(), dpsMetrics: { avg, stdev: 1 } }) as unknown as TopGearResult;
+	const result = (avg: number) =>
+		({
+			gear: gear(),
+			dpsMetrics: { avg, stdev: 1 },
+			talents: CURRENT_TALENT_SETUP,
+			rotation: CURRENT_ROTATION_SETUP,
+			gearSetup: null,
+			settings: null,
+		}) as unknown as BulkRankedResult;
 
 	// Each encounter's best set beats the current gear by `best - BASELINE_DPS`; a null length is a health-based encounter.
 	const entry = (name: string, length: [duration: number, variation: number] | null, best: number, isCurrent = false): BulkEncounterResults => {
@@ -73,7 +85,13 @@ describe('BulkTabBody', () => {
 			isCurrent,
 			duration: length?.[0] ?? null,
 			durationVariation: length?.[1] ?? null,
-			results: { chains: [[result(best)], [baseline]], originalGearResults: baseline, iterations: 100 },
+			results: {
+				chains: [[result(best)], [baseline]],
+				originalGearResults: baseline,
+				referenceIsCurrent: true,
+				currentGear: baseline.gear,
+				iterations: 100,
+			},
 		};
 	};
 
@@ -81,7 +99,7 @@ describe('BulkTabBody', () => {
 		const store = createSimStore();
 		const player = { sim: { store, isNative: false }, storeKey: STORE_KEY } as unknown as Player<any>;
 		seedBulkSettings(player);
-		patchBulkState(player, { started: entries !== null, results: entries });
+		patchBulkState(player, { gearStarted: entries !== null, gearResults: entries });
 		const host = { player, sim: player.sim } as never;
 		render(
 			<SimHostProvider host={host}>
@@ -134,6 +152,17 @@ describe('BulkTabBody', () => {
 		expect(sidebarRows()[1].textContent).toBe('Patchwerk 5:00 ±30s1,000.00');
 	});
 
+	it('shows each encounter’s best DPS with no gain, and says so, when the batch did not sim the current setup', () => {
+		const againstBest = (shown: BulkEncounterResults): BulkEncounterResults => ({
+			...shown,
+			results: { ...shown.results, originalGearResults: shown.results.chains[0][0], referenceIsCurrent: false },
+		});
+		mount([againstBest(entry('', [180, 5], 1100, true)), againstBest(entry('Patchwerk', [300, 30], 1036.5))]);
+
+		expect(sidebarRows().map(row => row.textContent)).toEqual(['bulk_tab.results.current 3:00 ±5s1,100.00', 'Patchwerk 5:00 ±30s1,036.50']);
+		expect(within(sidebar()!).getByText('bulk_tab.results.encounters_caption_best')).toBeTruthy();
+	});
+
 	it('shows the ranking of the encounter picked in the list', () => {
 		mount(THREE);
 
@@ -147,16 +176,64 @@ describe('BulkTabBody', () => {
 		const player = mount(THREE);
 		fireEvent.click(sidebarRows()[1]);
 
-		act(() => patchBulkState(player, { results: THREE.slice() }));
+		act(() => patchBulkState(player, { gearResults: THREE.slice() }));
 
 		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
 		expect(shownBest()).toBe('1100');
 	});
 
-	it('shows no encounter list for a run with one finished result', () => {
-		mount([entry('', [180, 5], 1100, true)]);
+	// Builds counts only with power tools on, so the cases turn them on before switching.
+	const switchMode = (player: Player<any>, mode: 'gear' | 'builds') =>
+		act(() => {
+			patchSlice(player.sim.store, 'ui', { showPowerTools: true });
+			patchBulkState(player, { mode });
+		});
 
+	it('stays on the Results pane across a mode switch, showing each mode’s own results there', () => {
+		const player = mount(THREE);
+		fireEvent.click(sidebarRows()[2]);
+
+		switchMode(player, 'builds');
+
+		expect(isShown(screen.getByText('bulk_tab.results.run_simulation'))).toBe(true);
 		expect(sidebar()).toBeNull();
+		expect(isShown(settings())).toBe(false);
+
+		act(() => patchBulkState(player, { buildsStarted: true, buildsResults: [entry('', [180, 5], 1500, true)] }));
+
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['true']);
+		expect(shownBest()).toBe('1500');
+
+		switchMode(player, 'gear');
+
+		expect(isShown(sidebar()!)).toBe(true);
+		expect(sidebarRows().map(row => row.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+		expect(shownBest()).toBe('1250');
+	});
+
+	it('stays on the Setup pane when switching to a mode with results, and opens Results once that mode’s run finishes', () => {
+		const player = mount(null);
+		act(() => patchBulkState(player, { buildsStarted: true, buildsResults: THREE }));
+
+		switchMode(player, 'builds');
+
+		expect(isShown(settings())).toBe(true);
+		expect(isShown(sidebar()!)).toBe(false);
+
+		act(() => patchBulkState(player, { buildsResults: null }));
+		act(() => patchBulkState(player, { buildsResults: THREE.slice() }));
+
+		expect(isShown(settings())).toBe(false);
+		expect(isShown(sidebar()!)).toBe(true);
+	});
+
+	it('lists a run with one finished result too, with the export and without Compare encounters', () => {
+		const player = mount([entry('', [180, 5], 1100, true)]);
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+
+		expect(sidebarRows()).toHaveLength(1);
+		expect(within(sidebar()!).getByTestId('bulk-results-export-csv')).toBeTruthy();
+		expect(within(sidebar()!).queryByText('bulk_tab.compare.button')).toBeNull();
 		expect(isShown(settings())).toBe(false);
 		expect(shownBest()).toBe('1100');
 	});

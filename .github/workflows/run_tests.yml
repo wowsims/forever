@@ -104,6 +104,14 @@ jobs:
                   npm run check
                   npm test
 
+            # `check` regenerates the parser with the pinned CLI and fails when the committed one differs, runs the
+            # corpus, parses every committed .siml file, compiles the Zed queries and parses the Zed snippets.
+            - name: Test the SIML tree-sitter grammar
+              run: |
+                  cd tools/tree-sitter-siml
+                  npm ci --no-audit --no-fund
+                  npm run check
+
             - name: Build Storybook 📚
               run: npm run storybook:build
 

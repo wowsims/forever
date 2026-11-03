@@ -215,15 +215,8 @@ export function stringToResourceType(str: string): ResourceType {
 
 export const difficultyNames = translatedNames<DungeonDifficulty>([
 	[DungeonDifficulty.DifficultyUnknown, () => i18n.t('common.dungeon_difficulties.unknown')],
-	[DungeonDifficulty.DifficultyNormal, () => i18n.t('common.dungeon_difficulties.normal')],
-	[DungeonDifficulty.DifficultyHeroic, () => i18n.t('common.dungeon_difficulties.heroic')],
-	[DungeonDifficulty.DifficultyCelestial, () => i18n.t('common.dungeon_difficulties.celestial')],
-	[DungeonDifficulty.DifficultyRaid10, () => i18n.t('common.dungeon_difficulties.raid_10')],
-	[DungeonDifficulty.DifficultyRaid10H, () => i18n.t('common.dungeon_difficulties.raid_10_heroic')],
-	[DungeonDifficulty.DifficultyRaid25RF, () => i18n.t('common.dungeon_difficulties.raid_finder')],
-	[DungeonDifficulty.DifficultyRaid25, () => i18n.t('common.dungeon_difficulties.raid_25')],
-	[DungeonDifficulty.DifficultyRaid25H, () => i18n.t('common.dungeon_difficulties.raid_25_heroic')],
-	[DungeonDifficulty.DifficultyRaidFlex, () => i18n.t('common.dungeon_difficulties.raid_flex')],
+	[DungeonDifficulty.DifficultyDungeon, () => i18n.t('common.dungeon_difficulties.dungeon')],
+	[DungeonDifficulty.DifficultyRaid, () => i18n.t('common.dungeon_difficulties.raid')],
 ]);
 
 export const REP_LEVEL_NAMES: Readonly<Record<RepLevel, string>> = {

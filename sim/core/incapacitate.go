@@ -50,8 +50,9 @@ func (kind *incapacitateKind) refreshImmunity(unit *Unit) {
 }
 
 func (kind *incapacitateKind) registerAura(unit *Unit, label string, actionID ActionID, baseDuration time.Duration) *Aura {
-	// Cache swing from just before the pause.
-	var mhAt, ohAt, rangedAt time.Duration
+	// Save melee swing times and the ranged pause boundary for early recovery.
+	var mhAt, ohAt time.Duration
+	var rangedPauseUntil time.Duration
 	var pausedUntil time.Duration
 
 	return unit.RegisterAura(Aura{
@@ -70,7 +71,8 @@ func (kind *incapacitateKind) registerAura(unit *Unit, label string, actionID Ac
 			aura.Unit.refreshIncapacitateState()
 
 			// The swing timer keeps running while incapacitated
-			mhAt, ohAt, rangedAt = aura.Unit.AutoAttacks.SwingAt()
+			mhAt, ohAt = aura.Unit.AutoAttacks.SwingAt()
+			rangedPauseUntil = aura.Unit.AutoAttacks.ranged.pauseUntil
 			pausedUntil = sim.CurrentTime + aura.Duration
 			aura.Unit.AutoAttacks.PauseMeleeBy(sim, aura.Duration)
 			aura.Unit.AutoAttacks.DelayRangedUntil(sim, pausedUntil)
@@ -82,7 +84,7 @@ func (kind *incapacitateKind) registerAura(unit *Unit, label string, actionID Ac
 			// Restore swing timer early
 			if sim.CurrentTime < pausedUntil && !aura.Unit.PseudoStats.Incapacitated {
 				aura.Unit.AutoAttacks.ResumeMeleeAt(sim, mhAt, ohAt)
-				aura.Unit.AutoAttacks.ResumeRangedAt(sim, rangedAt)
+				aura.Unit.AutoAttacks.ResumeRangedAt(sim, rangedPauseUntil)
 			}
 		},
 	})
@@ -164,9 +166,13 @@ func (unit *Unit) BreakFear(sim *Simulation) {
 	fearKind.breakAll(unit, sim)
 }
 
+func (unit *Unit) stunImmune() bool {
+	return unit.StunImmune || unit.PseudoStats.StunImmune
+}
+
 var stunKind = &incapacitateKind{
 	tag:                StunAuraTag,
-	isImmune:           func(unit *Unit) bool { return unit.PseudoStats.StunImmune },
+	isImmune:           (*Unit).stunImmune,
 	setImmune:          func(unit *Unit, immune bool) { unit.PseudoStats.StunImmune = immune },
 	durationMultiplier: func(unit *Unit) float64 { return unit.PseudoStats.StunDurationMultiplier },
 }

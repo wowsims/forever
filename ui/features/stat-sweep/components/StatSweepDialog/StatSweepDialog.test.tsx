@@ -29,6 +29,8 @@ const history = vi.hoisted(() => ({
 }));
 vi.mock('@sim/cache/stat_sweep_history', () => history);
 vi.mock('chart.js', async () => (await import('@testing/chart-js-mock')).chartJsMock);
+// The chart draws on first render, without waiting on the lazy load the page does.
+vi.mock('../../../../shared/lazy_charts', () => import('react-chartjs-2'));
 const download = vi.hoisted(() => vi.fn());
 vi.mock('@ui-kit/utils/dom', async importOriginal => ({ ...(await importOriginal<typeof import('@ui-kit/utils/dom')>()), downloadString: download }));
 vi.mock('../../../../tracking/utils', () => ({ trackPageView: vi.fn() }));

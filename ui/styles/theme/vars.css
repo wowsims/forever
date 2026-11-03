@@ -4,19 +4,16 @@
 	--dr-filling-pane-min-height: 70vh;
 	--h6-font-size: var(--text-base);
 
-	/* Controls: buttons and inputs read one size scale, so a button sits flush with the field beside it */
-	--control-padding-x: --spacing(2);
-	--control-padding-y: --spacing(2);
-	--control-font-size: var(--text-sm);
-
-	/* Button */
-	--btn-padding-y: var(--control-padding-y);
-	--btn-font-size: var(--control-font-size);
-	--btn-gap: --spacing(1);
-
-	/* Input */
-	--input-padding-y: var(--control-padding-y);
-	--input-padding-x: var(--control-padding-x);
+	/* Controls: a size sets the height, a control's type sets its font, and each control derives its vertical padding from the two */
+	--control-xs-height: calc(1.625rem + 2px);
+	--control-xs-padding-x: --spacing(1);
+	--control-sm-height: calc(2.125rem + 2px);
+	--control-sm-padding-x: --spacing(2);
+	--control-md-height: calc(2.3125rem + 2px);
+	--control-md-padding-x: --spacing(2);
+	--control-gap: --spacing(1);
+	--control-input-font-size: var(--text-ui);
+	--control-button-font-size: var(--text-sm);
 
 	/* Modal */
 	--modal-margin: --spacing(6);

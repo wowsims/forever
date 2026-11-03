@@ -405,37 +405,15 @@
 						"dungeon": {
 							"type": "string"
 						},
-						"dungeon_h": {
-							"type": "string"
-						},
 						"raid": {
 							"type": "string"
 						},
-						"raid_h": {
-							"type": "string"
-						},
-						"raid_rf": {
-							"type": "string"
-						},
-						"raid_flex": {
+						"world_drop": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": [
-						"unknown",
-						"crafting",
-						"quest",
-						"sold_by",
-						"reputation",
-						"pvp",
-						"dungeon",
-						"dungeon_h",
-						"raid",
-						"raid_h",
-						"raid_rf",
-						"raid_flex"
-					]
+					"required": ["unknown", "crafting", "quest", "sold_by", "reputation", "pvp", "dungeon", "raid", "world_drop"]
 				},
 				"raids": {
 					"type": "object",
@@ -1252,46 +1230,14 @@
 						"unknown": {
 							"type": "string"
 						},
-						"normal": {
+						"dungeon": {
 							"type": "string"
 						},
-						"heroic": {
-							"type": "string"
-						},
-						"celestial": {
-							"type": "string"
-						},
-						"raid_10": {
-							"type": "string"
-						},
-						"raid_10_heroic": {
-							"type": "string"
-						},
-						"raid_finder": {
-							"type": "string"
-						},
-						"raid_25": {
-							"type": "string"
-						},
-						"raid_25_heroic": {
-							"type": "string"
-						},
-						"raid_flex": {
+						"raid": {
 							"type": "string"
 						}
 					},
-					"required": [
-						"unknown",
-						"normal",
-						"heroic",
-						"celestial",
-						"raid_10",
-						"raid_10_heroic",
-						"raid_finder",
-						"raid_25",
-						"raid_25_heroic",
-						"raid_flex"
-					],
+					"required": ["unknown", "dungeon", "raid"],
 					"additionalProperties": false
 				},
 				"rep_levels": {
@@ -1551,6 +1497,9 @@
 						"shield": {
 							"type": "string"
 						},
+						"shieldsworn": {
+							"type": "string"
+						},
 						"amplified": {
 							"type": "string"
 						},
@@ -1621,6 +1570,7 @@
 						"external",
 						"self",
 						"shield",
+						"shieldsworn",
 						"amplified",
 						"custom_boss",
 						"thrash",
@@ -2084,6 +2034,15 @@
 						"sorted_descending": {
 							"type": "string"
 						},
+						"more_sources": {
+							"type": "string"
+						},
+						"more_sources_one": {
+							"type": "string"
+						},
+						"more_sources_other": {
+							"type": "string"
+						},
 						"show_ep": {
 							"type": "string"
 						},
@@ -2145,16 +2104,6 @@
 							"required": ["favorite", "compare", "add_favorite", "remove_favorite", "add_to_batch", "remove_from_batch"],
 							"additionalProperties": false
 						},
-						"sources": {
-							"type": "object",
-							"properties": {
-								"world_drop": {
-									"type": "string"
-								}
-							},
-							"required": ["world_drop"],
-							"additionalProperties": false
-						},
 						"edit_slot": {
 							"type": "string"
 						}
@@ -2173,6 +2122,9 @@
 						"table_headers",
 						"sorted_ascending",
 						"sorted_descending",
+						"more_sources",
+						"more_sources_one",
+						"more_sources_other",
 						"show_ep",
 						"armor_type",
 						"weapon_type",
@@ -2186,7 +2138,6 @@
 						"min_ranged_speed",
 						"max_ranged_speed",
 						"row_actions",
-						"sources",
 						"edit_slot"
 					]
 				},
@@ -2415,6 +2366,9 @@
 						},
 						"nature_resistance": {
 							"type": "string"
+						},
+						"rank_select_tooltip": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -2434,7 +2388,8 @@
 						"fire_resistance",
 						"frost_resistance",
 						"shadow_resistance",
-						"nature_resistance"
+						"nature_resistance",
+						"rank_select_tooltip"
 					]
 				},
 				"party_buffs": {
@@ -3284,29 +3239,10 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip", "untrained", "trained"]
-								},
-								"pet_aggression": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										},
-										"untrained": {
-											"type": "string"
-										},
-										"rank": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip", "untrained", "rank"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["cobra_reflexes", "pet_aggression"]
+							"required": ["cobra_reflexes"]
 						},
 						"pet_section": {
 							"type": "object",
@@ -4027,6 +3963,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"bleed_immune": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"can_crush": {
 							"type": "object",
 							"properties": {
@@ -4101,6 +4050,7 @@
 						"dual_wield",
 						"dual_wield_penalty",
 						"parry_haste",
+						"bleed_immune",
 						"can_crush",
 						"spell_school",
 						"damage_spread",
@@ -4292,6 +4242,135 @@
 					"additionalProperties": false,
 					"required": ["setup", "results"]
 				},
+				"modes": {
+					"type": "object",
+					"properties": {
+						"gear": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "description"]
+						},
+						"builds": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "description"]
+						}
+					},
+					"additionalProperties": false,
+					"required": ["gear", "builds"]
+				},
+				"builds": {
+					"type": "object",
+					"properties": {
+						"columns": {
+							"type": "object",
+							"properties": {
+								"builds": {
+									"type": "object",
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"hint": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["title", "hint"]
+								},
+								"encounters": {
+									"type": "object",
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"hint": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["title", "hint"]
+								}
+							},
+							"additionalProperties": false,
+							"required": ["builds", "encounters"]
+						},
+						"bundles": {
+							"type": "object",
+							"properties": {
+								"current": {
+									"type": "string"
+								},
+								"new": {
+									"type": "string"
+								},
+								"dialog_new": {
+									"type": "string"
+								},
+								"dialog_edit": {
+									"type": "string"
+								},
+								"save": {
+									"type": "string"
+								},
+								"edit": {
+									"type": "string"
+								},
+								"delete": {
+									"type": "string"
+								},
+								"delete_confirm": {
+									"type": "string"
+								},
+								"duplicate": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["current", "new", "dialog_new", "dialog_edit", "save", "edit", "delete", "delete_confirm", "duplicate"]
+						},
+						"parts": {
+							"type": "object",
+							"properties": {
+								"encounter": {
+									"type": "string"
+								},
+								"gear_set": {
+									"type": "string"
+								},
+								"talents": {
+									"type": "string"
+								},
+								"rotation": {
+									"type": "string"
+								},
+								"settings": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["encounter", "gear_set", "talents", "rotation", "settings"]
+						}
+					},
+					"additionalProperties": false,
+					"required": ["columns", "bundles", "parts"]
+				},
 				"actions": {
 					"type": "object",
 					"properties": {
@@ -4365,11 +4444,30 @@
 						"combinations": {
 							"type": "string"
 						},
+						"gear_setups": {
+							"type": "string"
+						},
 						"total_iterations": {
 							"type": "string"
 						},
 						"total_iterations_tooltip": {
 							"type": "string"
+						},
+						"top_results": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								},
+								"all": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip", "all"]
 						},
 						"groups": {
 							"type": "object",
@@ -4377,22 +4475,16 @@
 								"enchants": {
 									"type": "string"
 								},
-								"encounters": {
-									"type": "string"
-								},
 								"frozen_slots": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["encounters", "enchants", "frozen_slots"]
+							"required": ["enchants", "frozen_slots"]
 						},
 						"encounters": {
 							"type": "object",
 							"properties": {
-								"description": {
-									"type": "string"
-								},
 								"current": {
 									"type": "string"
 								},
@@ -4408,10 +4500,10 @@
 								"duplicate": {
 									"type": "string"
 								},
-								"count": {
+								"health_summary": {
 									"type": "string"
 								},
-								"health_summary": {
+								"targets": {
 									"type": "string"
 								},
 								"targets_one": {
@@ -4422,17 +4514,100 @@
 								}
 							},
 							"additionalProperties": false,
+							"required": ["current", "presets", "saved", "empty", "duplicate", "health_summary", "targets", "targets_one", "targets_other"]
+						},
+						"talents": {
+							"type": "object",
+							"properties": {
+								"no_points": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["no_points"]
+						},
+						"enchant_picks": {
+							"type": "object",
+							"properties": {
+								"heading": {
+									"type": "string"
+								},
+								"saved": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"duplicate": {
+									"type": "string"
+								},
+								"slots": {
+									"type": "string"
+								},
+								"slots_one": {
+									"type": "string"
+								},
+								"slots_other": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["heading", "saved", "empty", "duplicate", "slots", "slots_one", "slots_other"]
+						},
+						"runs": {
+							"type": "object",
+							"properties": {
+								"builds": {
+									"type": "string"
+								},
+								"bundles": {
+									"type": "string"
+								},
+								"bundles_one": {
+									"type": "string"
+								},
+								"bundles_other": {
+									"type": "string"
+								},
+								"encounters": {
+									"type": "string"
+								},
+								"encounters_one": {
+									"type": "string"
+								},
+								"encounters_other": {
+									"type": "string"
+								},
+								"total": {
+									"type": "string"
+								},
+								"total_one": {
+									"type": "string"
+								},
+								"total_other": {
+									"type": "string"
+								},
+								"tick": {
+									"type": "string"
+								},
+								"second_build": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
 							"required": [
-								"description",
-								"current",
-								"presets",
-								"saved",
-								"empty",
-								"duplicate",
-								"count",
-								"health_summary",
-								"targets_one",
-								"targets_other"
+								"builds",
+								"bundles",
+								"bundles_one",
+								"bundles_other",
+								"encounters",
+								"encounters_one",
+								"encounters_other",
+								"total",
+								"total_one",
+								"total_other",
+								"tick",
+								"second_build"
 							]
 						},
 						"iterations": {
@@ -4569,10 +4744,15 @@
 					"additionalProperties": false,
 					"required": [
 						"combinations",
+						"gear_setups",
 						"total_iterations",
 						"total_iterations_tooltip",
+						"top_results",
 						"groups",
 						"encounters",
+						"talents",
+						"enchant_picks",
+						"runs",
 						"iterations",
 						"freeze_ring",
 						"freeze_trinket",
@@ -4614,10 +4794,25 @@
 						"seconds_remaining": {
 							"type": "string"
 						},
-						"time_remaining": {
+						"title": {
 							"type": "string"
 						},
-						"title": {
+						"status": {
+							"type": "string"
+						},
+						"done": {
+							"type": "string"
+						},
+						"running": {
+							"type": "string"
+						},
+						"pending": {
+							"type": "string"
+						},
+						"step_progress": {
+							"type": "string"
+						},
+						"time_left": {
 							"type": "string"
 						}
 					},
@@ -4633,8 +4828,13 @@
 						"finalist_iteration_rounds",
 						"iterations_complete",
 						"seconds_remaining",
-						"time_remaining",
-						"title"
+						"title",
+						"status",
+						"done",
+						"running",
+						"pending",
+						"step_progress",
+						"time_left"
 					]
 				},
 				"notifications": {
@@ -4664,10 +4864,13 @@
 					"properties": {
 						"iterations_limit": {
 							"type": "string"
+						},
+						"lower_top_results": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["iterations_limit"]
+					"required": ["iterations_limit", "lower_top_results"]
 				},
 				"picker": {
 					"type": "object",
@@ -4709,6 +4912,12 @@
 						"gear_equipped": {
 							"type": "string"
 						},
+						"build_equipped": {
+							"type": "string"
+						},
+						"gear_unchanged": {
+							"type": "string"
+						},
 						"current_gear": {
 							"type": "string"
 						},
@@ -4724,7 +4933,34 @@
 						"encounters_caption": {
 							"type": "string"
 						},
+						"encounters_caption_best": {
+							"type": "string"
+						},
 						"current": {
+							"type": "string"
+						},
+						"gear": {
+							"type": "string"
+						},
+						"grouped_gear_set": {
+							"type": "string"
+						},
+						"current_talents": {
+							"type": "string"
+						},
+						"current_rotation": {
+							"type": "string"
+						},
+						"current_settings": {
+							"type": "string"
+						},
+						"talents": {
+							"type": "string"
+						},
+						"rotation": {
+							"type": "string"
+						},
+						"settings": {
 							"type": "string"
 						},
 						"export_csv": {
@@ -4736,12 +4972,23 @@
 						"run_simulation",
 						"equip_button",
 						"gear_equipped",
+						"build_equipped",
+						"gear_unchanged",
 						"current_gear",
 						"margin_of_error",
 						"tied_group",
 						"encounters",
 						"encounters_caption",
+						"encounters_caption_best",
 						"current",
+						"gear",
+						"grouped_gear_set",
+						"current_talents",
+						"current_rotation",
+						"current_settings",
+						"talents",
+						"rotation",
+						"settings",
 						"export_csv"
 					]
 				},
@@ -4755,8 +5002,16 @@
 						"readout_current": { "type": "string" },
 						"readout_spread": { "type": "string" },
 						"not_ranked": { "type": "string" },
+						"enchants_differ": { "type": "string" },
+						"enchants_differ_one": { "type": "string" },
+						"enchants_differ_other": { "type": "string" },
 						"table_caption": { "type": "string" },
+						"table_caption_best": { "type": "string" },
 						"table_set": { "type": "string" },
+						"table_build": { "type": "string" },
+						"table_legend_loss": { "type": "string" },
+						"table_legend_none": { "type": "string" },
+						"table_legend_gain": { "type": "string" },
 						"table_legend_best": { "type": "string" },
 						"table_legend_gap": { "type": "string" }
 					},
@@ -4769,8 +5024,16 @@
 						"readout_current",
 						"readout_spread",
 						"not_ranked",
+						"enchants_differ",
+						"enchants_differ_one",
+						"enchants_differ_other",
 						"table_caption",
+						"table_caption_best",
 						"table_set",
+						"table_build",
+						"table_legend_loss",
+						"table_legend_none",
+						"table_legend_gain",
 						"table_legend_best",
 						"table_legend_gap"
 					]
@@ -4797,6 +5060,8 @@
 				"title",
 				"download_native",
 				"tabs",
+				"modes",
+				"builds",
 				"actions",
 				"search",
 				"settings",
@@ -6015,6 +6280,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"boss_current_target": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"target_is_bleed_immune": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7487,6 +7765,7 @@
 								"boss_cast",
 								"boss_cast_time_to_ready",
 								"boss_current_target",
+								"target_is_bleed_immune",
 								"target_is_mob_type",
 								"encounter_in_area",
 								"unit_is_moving",
@@ -8297,6 +8576,32 @@
 									"additionalProperties": false,
 									"required": ["label"]
 								},
+								"use_backstab_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_eviscerate_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"apply_poisons_manually": {
 									"type": "object",
 									"properties": {
@@ -8332,7 +8637,14 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["use_backstab", "use_expose_armor", "apply_poisons_manually", "subtlety"]
+							"required": [
+								"use_backstab",
+								"use_expose_armor",
+								"use_backstab_rank_9",
+								"use_eviscerate_rank_9",
+								"apply_poisons_manually",
+								"subtlety"
+							]
 						},
 						"shaman": {
 							"type": "object",
@@ -8552,10 +8864,47 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
+								},
+								"use_serpent_sting_rank_9": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"use_aspect_of_the_hawk_rank_7": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["playstyle", "pull_range", "time_to_weave", "use_aimed", "use_multi", "use_arcane", "use_sniper", "use_hawk"]
+							"required": [
+								"playstyle",
+								"pull_range",
+								"time_to_weave",
+								"use_aimed",
+								"use_multi",
+								"use_arcane",
+								"use_sniper",
+								"use_hawk",
+								"use_serpent_sting_rank_9",
+								"use_aspect_of_the_hawk_rank_7"
+							]
 						},
 						"paladin": {
 							"type": "object",
@@ -8592,7 +8941,7 @@
 											"additionalProperties": false,
 											"required": ["label", "tooltip", "none"]
 										},
-										"non_twist_seal": {
+										"seal": {
 											"type": "object",
 											"properties": {
 												"label": {
@@ -8633,7 +8982,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["aura", "assigned_judge", "non_twist_seal", "pull_range", "delay_major_cds"]
+									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds"]
 								}
 							},
 							"additionalProperties": false,
@@ -10726,10 +11075,28 @@
 										"reference_description": {
 											"type": "string"
 										},
+										"simulated_step_rating": {
+											"type": "string"
+										},
+										"simulated_step_rating_percent": {
+											"type": "string"
+										},
+										"simulated_step_description": {
+											"type": "string"
+										},
 										"current_ep_description": {
 											"type": "string"
 										},
 										"copy_icon_description": {
+											"type": "string"
+										},
+										"rating_conversion": {
+											"type": "string"
+										},
+										"simulated_step": {
+											"type": "string"
+										},
+										"rating_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -10998,8 +11365,14 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
+										"simulated_step_rating",
+										"simulated_step_rating_percent",
+										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
+										"rating_conversion",
+										"simulated_step",
+										"rating_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",

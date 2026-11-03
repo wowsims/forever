@@ -125,11 +125,8 @@
 			"reputation": "Reputation",
 			"pvp": "PVP",
 			"dungeon": "Dungeon",
-			"dungeon_h": "Dungeon (H)",
 			"raid": "Raid",
-			"raid_h": "Raid (H)",
-			"raid_rf": "Raid (RF)",
-			"raid_flex": "Raid (Flex)"
+			"world_drop": "World Drop"
 		},
 		"raids": {
 			"unknown": "Unknown",
@@ -351,15 +348,8 @@
 		},
 		"dungeon_difficulties": {
 			"unknown": "Unknown",
-			"normal": "N",
-			"heroic": "H",
-			"celestial": "CEL",
-			"raid_10": "10N",
-			"raid_10_heroic": "10H",
-			"raid_finder": "RF",
-			"raid_25": "RN",
-			"raid_25_heroic": "RH",
-			"raid_flex": "RFL"
+			"dungeon": "Dungeon",
+			"raid": "Raid"
 		},
 		"rep_levels": {
 			"unknown": "Unknown",
@@ -440,6 +430,7 @@
 			"external": "External",
 			"self": "self",
 			"shield": "Shield",
+			"shieldsworn": "Shieldsworn",
 			"amplified": "Amplified",
 			"custom_boss": "Custom Boss",
 			"thrash": "Thrash",
@@ -570,6 +561,9 @@
 			},
 			"sorted_ascending": "sorted ascending",
 			"sorted_descending": "sorted descending",
+			"more_sources": "{{count}} more sources",
+			"more_sources_one": "{{count}} more source",
+			"more_sources_other": "{{count}} more sources",
 			"show_ep": "Show EP",
 			"armor_type": "Armor Type",
 			"weapon_type": "Weapon Type",
@@ -589,9 +583,6 @@
 				"remove_favorite": "Remove from favorites",
 				"add_to_batch": "Add to Batch Sim",
 				"remove_from_batch": "Remove from Batch Sim"
-			},
-			"sources": {
-				"world_drop": "World Drop"
 			},
 			"edit_slot": "Edit {{slot}}"
 		},
@@ -660,7 +651,8 @@
 			"fire_resistance": "Fire Resistance",
 			"frost_resistance": "Frost Resistance",
 			"shadow_resistance": "Shadow Resistance",
-			"nature_resistance": "Nature Resistance"
+			"nature_resistance": "Nature Resistance",
+			"rank_select_tooltip": "Click to cycle {{ranks}}. The first needs no class book; the second does."
 		},
 		"party_buffs": {
 			"title": "Party Buffs",
@@ -917,12 +909,6 @@
 					"tooltip": "Beast Training: the pet attacks 30% faster but each attack does less damage.",
 					"untrained": "Cobra Reflexes untrained",
 					"trained": "Cobra Reflexes trained"
-				},
-				"pet_aggression": {
-					"label": "Pet Aggression",
-					"tooltip": "Beast Training: flat damage added to each of the pet's attacks, by rank.",
-					"untrained": "Pet Aggression untrained",
-					"rank": "Pet Aggression rank {{rank}}"
 				}
 			},
 			"pet_section": {
@@ -1131,6 +1117,10 @@
 				"label": "Parry Haste",
 				"tooltip": "Whether this enemy will gain parry haste when parrying attacks."
 			},
+			"bleed_immune": {
+				"label": "Immune to Bleeds",
+				"tooltip": "Whether this enemy is immune to bleeds, as many elementals and mechanical units are. The sim does not set this from the enemy's type."
+			},
 			"can_crush": {
 				"label": "Can Crush",
 				"tooltip": "Whether this enemy can land Crushing Blows (150% damage) against players below its level. Enabled by default for level 73 targets."
@@ -1199,6 +1189,46 @@
 			"setup": "Setup",
 			"results": "Results"
 		},
+		"modes": {
+			"gear": {
+				"label": "Gear",
+				"description": "Best gear for your current talents and encounter"
+			},
+			"builds": {
+				"label": "Builds",
+				"description": "Best gear and talents across encounters"
+			}
+		},
+		"builds": {
+			"columns": {
+				"builds": {
+					"title": "Builds",
+					"hint": "Each bundle runs its gear set with its own talents, rotation and settings, and also tries each ticked enchant preset's enchants in their slots."
+				},
+				"encounters": {
+					"title": "Encounters",
+					"hint": "Every ticked bundle runs on each encounter, and each encounter gets its own ranking."
+				}
+			},
+			"bundles": {
+				"current": "Current bundle",
+				"new": "New bundle",
+				"dialog_new": "New bundle",
+				"dialog_edit": "Edit bundle",
+				"save": "Save",
+				"edit": "Edit {{bundle}}",
+				"delete": "Delete {{bundle}}",
+				"delete_confirm": "Delete {{bundle}}?",
+				"duplicate": "Same as {{bundle}}"
+			},
+			"parts": {
+				"encounter": "Encounter",
+				"gear_set": "Gear set",
+				"talents": "Talents",
+				"rotation": "Rotation",
+				"settings": "Settings"
+			}
+		},
 		"actions": {
 			"import_bags": "Import From Bags",
 			"import_favorites": "Import Favorites",
@@ -1219,24 +1249,54 @@
 		},
 		"settings": {
 			"combinations": "Combinations",
+			"gear_setups": "Gear setups",
 			"total_iterations": "Minimum iterations",
 			"total_iterations_tooltip": "The batch sims at least this many iterations. The error target adds more as it runs.",
+			"top_results": {
+				"label": "Top results",
+				"tooltip": "How many results each encounter ranks. The batch drops a result early once it cannot reach them. With All, every result gets its full iterations.",
+				"all": "All"
+			},
 			"groups": {
-				"encounters": "Encounters",
 				"enchants": "Enchants",
 				"frozen_slots": "Frozen slots"
 			},
 			"encounters": {
-				"description": "The batch runs once per encounter, and each encounter gets its own results. Save encounters in Settings → Saved Encounters.",
 				"current": "Current encounter",
 				"presets": "Presets",
 				"saved": "Saved",
-				"empty": "No saved encounters yet. Save one in Settings → Saved Encounters to run the batch against it too.",
-				"duplicate": "Same as another encounter, skipped",
-				"count": "Encounters",
+				"empty": "No preset or saved encounters yet. Save one in Encounter to run it too.",
+				"duplicate": "Same as {{encounter}}",
 				"health_summary": "Health",
+				"targets": "{{count}} targets",
 				"targets_one": "{{count}} target",
 				"targets_other": "{{count}} targets"
+			},
+			"talents": {
+				"no_points": "No talent points"
+			},
+			"enchant_picks": {
+				"heading": "Enchant presets",
+				"saved": "Saved",
+				"empty": "No enchant presets yet.",
+				"duplicate": "Same enchants as another preset, skipped",
+				"slots": "{{count}} slots.",
+				"slots_one": "{{count}} slot.",
+				"slots_other": "{{count}} slots."
+			},
+			"runs": {
+				"builds": "{{bundles}} × {{encounters}}",
+				"bundles": "{{count}} bundles",
+				"bundles_one": "{{count}} bundle",
+				"bundles_other": "{{count}} bundles",
+				"encounters": "{{count}} encounters",
+				"encounters_one": "{{count}} encounter",
+				"encounters_other": "{{count}} encounters",
+				"total": "{{runs}} runs",
+				"total_one": "{{runs}} run",
+				"total_other": "{{runs}} runs",
+				"tick": "Tick at least one row under {{column}} to run.",
+				"second_build": "Tick a second build to compare."
 			},
 			"iterations": "Iterations",
 			"freeze_ring": {
@@ -1285,9 +1345,14 @@
 			"high_iteration_rounds": "Running high iteration rounds",
 			"iterations_complete": "{{completed}} / {{total}}<br />iterations complete",
 			"seconds_remaining": "{{seconds}} seconds remaining",
-			"time_remaining": "{{time}} remaining",
 			"finalist_iteration_rounds": "Running finalist tie-breaker rounds",
-			"title": "Bulk Sim"
+			"title": "Bulk Sim",
+			"status": "Status",
+			"done": "Done",
+			"running": "Running",
+			"pending": "Pending",
+			"step_progress": "Run progress: {{encounter}}, {{talents}}",
+			"time_left": "About {{time}} left"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
@@ -1297,7 +1362,8 @@
 			"combinations_failed": "Failed to calculate bulk combinations"
 		},
 		"warning": {
-			"iterations_limit": "Simming over {{limit}} iterations in the sim will take a long time or may not run at all. For larger batch sims we recommend downloading the executable and running on your machine."
+			"iterations_limit": "Simming over {{limit}} iterations in the sim will take a long time or may not run at all. For larger batch sims we recommend downloading the executable and running on your machine.",
+			"lower_top_results": "Lower Top results to sim fewer iterations."
 		},
 		"picker": {
 			"no_items": "No items selected.",
@@ -1312,12 +1378,23 @@
 			"run_simulation": "Run a simulation to view results",
 			"equip_button": "Equip",
 			"gear_equipped": "Batch gear equipped!",
+			"build_equipped": "Batch build equipped!",
+			"gear_unchanged": "No gear changes",
 			"current_gear": "Current gear",
 			"margin_of_error": "95% confidence interval of the mean DPS. Rankings closer than this can change between runs.",
 			"tied_group": "Statistically tied — the order within this group can change between runs",
 			"encounters": "Encounters",
 			"encounters_caption": "The best set's DPS and its gain over your current gear, per encounter. Pick one to see its ranking.",
+			"encounters_caption_best": "The best set's DPS per encounter. Pick one to see its ranking.",
 			"current": "Current",
+			"gear": "Gear:",
+			"grouped_gear_set": "{{name}} ({{group}})",
+			"current_talents": "Current talents",
+			"current_rotation": "Current rotation",
+			"current_settings": "Current settings",
+			"talents": "Talents:",
+			"rotation": "Rotation:",
+			"settings": "Settings:",
 			"export_csv": "Export CSV"
 		},
 		"compare": {
@@ -1328,8 +1405,16 @@
 			"readout_current": "{{dps}} DPS",
 			"readout_spread": "±{{spread}} per fight",
 			"not_ranked": "Not ranked",
+			"enchants_differ": "{{count}} enchants differ",
+			"enchants_differ_one": "{{count}} enchant differs",
+			"enchants_differ_other": "{{count}} enchants differ",
 			"table_caption": "Each set's gain over your current gear in every encounter, its DPS underneath. A dashed cell is an encounter that did not rank the set; point at a cell for its rank and spread.",
+			"table_caption_best": "Each set's loss against the encounter's best set, its DPS underneath. A dashed cell is an encounter that did not rank the set; point at a cell for its rank and spread.",
 			"table_set": "Gear set",
+			"table_build": "Build",
+			"table_legend_loss": "Loss",
+			"table_legend_none": "No change",
+			"table_legend_gain": "Largest gain in the encounter",
 			"table_legend_best": "Best in the encounter",
 			"table_legend_gap": "Not ranked in that encounter"
 		},
@@ -1683,7 +1768,7 @@
 				},
 				"spell_is_casting": {
 					"label": "Spell Is Casting",
-					"tooltip": "True if the spell is currently being cast"
+					"tooltip": "True while the spell is hardcast, through the rotation's pick at its end. not(Spell Is Casting X) on a line decides it after X lands, for a line that reads what X's landing may change."
 				},
 				"spell_time_to_ready": {
 					"label": "Spell Time to Ready",
@@ -1708,6 +1793,10 @@
 				"target_is_mob_type": {
 					"label": "Target Is Mob Type",
 					"tooltip": "True if the target is the chosen creature type"
+				},
+				"target_is_bleed_immune": {
+					"label": "Target Is Bleed Immune",
+					"tooltip": "True if Immune to Bleeds is on for the target in the encounter settings"
 				},
 				"encounter_in_area": {
 					"label": "In Area",
@@ -2330,6 +2419,14 @@
 				"use_expose_armor": {
 					"label": "Use Expose Armor"
 				},
+				"use_backstab_rank_9": {
+					"label": "Backstab IX (Handbook)",
+					"tooltip": "Casts Backstab IX, taught by the Handbook of Backstab IX, in place of Backstab VIII from the trainer."
+				},
+				"use_eviscerate_rank_9": {
+					"label": "Eviscerate IX (Manual)",
+					"tooltip": "Casts Eviscerate IX, taught by the Manual of Eviscerate IX, in place of Eviscerate VIII from the trainer."
+				},
 				"apply_poisons_manually": {
 					"label": "Configure poisons manually",
 					"tooltip": "Prevent automatic poison configuration that is based on equipped weapons."
@@ -2402,11 +2499,19 @@
 				},
 				"use_sniper": {
 					"label": "Use Sniper Shot",
-					"tooltip": "Casts Sniper Shot while Rapid Fire or Quick Shots shortens its cast."
+					"tooltip": "Opens the fight with Sniper Shot and casts it whenever no other shot is ready."
 				},
 				"use_hawk": {
 					"label": "Use Summon Hawk",
 					"tooltip": "Sends hawks between Arcane Shots, the two sharing a cooldown."
+				},
+				"use_serpent_sting_rank_9": {
+					"label": "Serpent Sting IX (Guide)",
+					"tooltip": "Casts Serpent Sting IX, taught by the Guide: Serpent Sting IX from Ruins of Ahn'Qiraj, in place of Serpent Sting VIII from the trainer."
+				},
+				"use_aspect_of_the_hawk_rank_7": {
+					"label": "Aspect of the Hawk VII (Guide)",
+					"tooltip": "Casts Aspect of the Hawk VII, taught by the Guide: Aspect of the Hawk VII from Ruins of Ahn'Qiraj, in place of Aspect of the Hawk VI from the trainer."
 				}
 			},
 			"paladin": {
@@ -2420,7 +2525,7 @@
 						"tooltip": "The Judgement the raid assigned you. You cast it before the pull and judge it on your way in, then switch to your own seals. Leave it empty when no Judgement is assigned to you.",
 						"none": "No assigned judgement"
 					},
-					"non_twist_seal": {
+					"seal": {
 						"label": "Seal",
 						"tooltip": "The seal being kept up during the fight."
 					},
@@ -3148,8 +3253,14 @@
 					"healing_reference": "Healing reference:",
 					"mitigation_reference": "Mitigation reference:",
 					"reference_description": "The above stat selectors control which reference stat is used for EP normalisation for the different EP columns.",
+					"simulated_step_rating": "{{sign}}{{rating}} rating",
+					"simulated_step_rating_percent": "{{sign}}{{rating}} rating ({{sign}}{{percent}}%)",
+					"simulated_step": "Simulated step: {{step}}",
+					"simulated_step_description": "After a calculation, the help icon next to each stat name gives the simulated step, how far the sim moved that stat to measure it. ± ran it both lower and higher, + only higher.",
 					"current_ep_description": "The 'Current EP' column displays the values currently used by the item pickers to sort items.",
 					"copy_icon_description": "Use the copy icon above the EPs to use newly calculated EPs.",
+					"rating_conversion": "{{rating}} rating = 1%",
+					"rating_weights_description": "Hit, crit, haste, expertise, dodge, parry and block show their weights per point of rating, because gear gives them as rating, which the game converts to a percentage. The help icon next to the stat name gives the conversion.",
 					"stat": "Stat",
 					"update": "Update",
 					"ep_ratio": "EP Ratio",

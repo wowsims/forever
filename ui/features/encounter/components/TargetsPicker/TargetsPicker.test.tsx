@@ -92,6 +92,15 @@ const dragEvent = (type: 'dragOver' | 'drop', target: HTMLElement, y: number) =>
 	return fireEvent(target, event);
 };
 
+it('shows Immune to Bleeds without threat metrics', () => {
+	const encounter = new FakeEncounter();
+	encounter.sim.getShowThreatMetrics = () => false;
+	mount(encounter);
+
+	expect(idsIn(root()).some(id => id.endsWith('bleed-immune'))).toBe(true);
+	expect(idsIn(root()).some(id => id.endsWith('parry-haste'))).toBe(false);
+});
+
 beforeEach(() => {
 	source.listeners.clear();
 	trackEvent.mockClear();

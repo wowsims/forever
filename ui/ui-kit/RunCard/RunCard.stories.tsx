@@ -10,11 +10,11 @@ import { RunCard } from './RunCard';
 
 const Iterations = () => (
 	<div className="flex w-full items-end gap-2">
-		<NumberField id="story-iterations" label="Iterations" inputSize="md" value={12500} onChange={() => {}} className="min-w-0 flex-1" />
-		<Button variant="primary" aria-pressed>
+		<NumberField id="story-iterations" label="Iterations" size="md" value={12500} onChange={() => {}} className="min-w-0 flex-1" />
+		<Button variant="primary" size="md" aria-pressed>
 			12.5K
 		</Button>
-		<Button variant="outline-primary" aria-pressed={false}>
+		<Button variant="outline-primary" size="md" aria-pressed={false}>
 			25K
 		</Button>
 	</div>

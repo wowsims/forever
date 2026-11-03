@@ -89,7 +89,9 @@ check it with `siml verify`, and write the spec's `defaults.siml` as the hunter'
 - Rotations that share variables and defs `use` one file that holds only those, as the hunter's weave rotations use
   `apls/weave_common.apl.siml` (SPEC.md §9): its defs and variables read in each rotation, which adds its own and
   sets a shared variable's value with `use … with`. A used file's prepull rows and groups join the rotation's too, as
-  `apls/walk_in.apl.siml` brings the pull and the walk in to the turret and weave rotations.
+  `apls/walk_in.apl.siml` brings the walk in to the turret and weave rotations. A rotation and a file it uses cannot
+  both hold `prepull:` (`section-conflict`), so the pull sits in `apls/pull.apl.siml`, and the turret rotation, which
+  opens with Sniper Shot, writes its own.
 - `defaults.siml` holds the setup the spec's page starts with, a whole setup in the same form, with what the page
   sets on top of it stated: the race, `reaction_time_ms 100`, the rotation type (`apl: type auto` when the spec has
   no default rotation), for a tank `in_front_of_target` and `tanks player1`, and for a healer `target_dummies 9`.

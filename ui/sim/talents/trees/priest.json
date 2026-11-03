@@ -345,13 +345,13 @@
         }
       },
       {
-        "fieldName": "bindingHeal",
-        "fancyName": "Binding Heal",
+        "fieldName": "holyBinding",
+        "fancyName": "Holy Binding",
         "location": {
           "rowIdx": 3,
           "colIdx": 3
         },
-        "spellId": 401937,
+        "spellId": 1328569,
         "definitionId": 135386,
         "maxPoints": 1
       },

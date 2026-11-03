@@ -133,8 +133,8 @@ func TestPresetTalentsAreLegal(t *testing.T) {
 func TestTalentsLegalPrerequisites(t *testing.T) {
 	trees := druidTrees(t)
 	for _, talents := range []string{
-		"050022-55000032021021212051-055",
-		"050022-55000032021111212051-055",
+		"050022-35200032122010125011-055",
+		"050022-35200032121010125011-055",
 	} {
 		t.Run(talents, func(t *testing.T) {
 			err := talentsLegal(trees, talents)

@@ -43,9 +43,10 @@ export const bulkSimFinalistStageConfig: ConcurrentBulkSimStageConfig = { stage:
 
 // Scales the survivor cap for large candidate sets, mirroring
 // getBulkSimStageMaxSurvivors in sim/core/bulk/stage.go. Returns undefined for
-// uncapped stages.
-export const getBulkSimStageMaxSurvivors = (config: ConcurrentBulkSimStageConfig, candidateCount: number): number | undefined => {
+// uncapped stages. The stage's cap is at least the run's top results.
+export const getBulkSimStageMaxSurvivors = (config: ConcurrentBulkSimStageConfig, candidateCount: number, topResults: number): number | undefined => {
 	if (config.maxSurvivors === undefined) return undefined;
+	const maxSurvivors = Math.max(config.maxSurvivors, topResults);
 
 	let scaleReference: number;
 	switch (config.stage) {
@@ -56,17 +57,17 @@ export const getBulkSimStageMaxSurvivors = (config: ConcurrentBulkSimStageConfig
 			scaleReference = BULK_SIM_MEDIUM_STAGE_SURVIVOR_SCALE_REFERENCE;
 			break;
 		default:
-			return config.maxSurvivors;
+			return maxSurvivors;
 	}
 
-	if (candidateCount <= scaleReference) return config.maxSurvivors;
+	if (candidateCount <= scaleReference) return maxSurvivors;
 
 	const scale = Math.sqrt(candidateCount / scaleReference);
-	return Math.max(config.maxSurvivors, Math.ceil(config.maxSurvivors * scale));
+	return Math.max(maxSurvivors, Math.ceil(config.maxSurvivors * scale));
 };
 
-export const shouldRunBulkSimStage = (config: ConcurrentBulkSimStageConfig, candidateCount: number): boolean => {
-	const maxSurvivors = getBulkSimStageMaxSurvivors(config, candidateCount);
+export const shouldRunBulkSimStage = (config: ConcurrentBulkSimStageConfig, candidateCount: number, topResults: number): boolean => {
+	const maxSurvivors = getBulkSimStageMaxSurvivors(config, candidateCount, topResults);
 	return (
 		maxSurvivors === undefined ||
 		candidateCount > maxSurvivors ||

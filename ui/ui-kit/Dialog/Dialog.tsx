@@ -1,6 +1,7 @@
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import { Icon } from '@ui-kit/Icon';
 import clsx from 'clsx';
@@ -14,6 +15,8 @@ export interface DialogProps {
 	onOpenChange: (open: boolean) => void;
 	/** The element focused on open. Without it Base UI focuses the first tabbable element, the close button. */
 	initialFocus?: RefObject<HTMLElement | null>;
+	/** The element focused on close, or its first tabbable child. Without it Base UI focuses what held focus before the dialog opened. */
+	finalFocus?: RefObject<HTMLElement | null>;
 	className?: string;
 	size?: DialogSize;
 	maxWidthClassName?: string;
@@ -43,6 +46,7 @@ export const Dialog = ({
 	open,
 	onOpenChange,
 	initialFocus,
+	finalFocus,
 	className,
 	size = 'lg',
 	maxWidthClassName,
@@ -72,54 +76,58 @@ export const Dialog = ({
 				}
 				onOpenChange(nextOpen);
 			}}>
-			{/* Named, because with a `container` the portal renders a wrapper element of its own. */}
-			<BaseDialog.Portal data-testid="sim-dialog-portal" container={portalContainer ?? undefined} keepMounted={keepMounted}>
-				{/* Base UI renders no backdrop for a nested dialog (`enabled: forceRender || !nested`), so an elevated one has to ask for its own. */}
-				<BaseDialog.Backdrop className="ui-dialog-backdrop" data-testid="sim-dialog-backdrop" data-elevated={elevated} forceRender={elevated} />
-				<BaseDialog.Viewport className="ui-dialog-viewport" data-testid="sim-dialog-viewport" data-elevated={elevated}>
-					<BaseDialog.Popup
-						className={clsx(
-							'ui-dialog',
-							maxWidthClassName,
-							scrollContents && 'ui-dialog-scroll',
-							verticalAlign === 'center' ? 'ui-dialog-centered' : 'ui-dialog-top',
-							className,
-						)}
-						initialFocus={initialFocus}
-						data-testid={testId ?? 'sim-dialog-popup'}
-						data-size={size}
-						onKeyDown={onKeyDown}>
-						{(title != null || headerChildren != null || !preventClose) && (
-							<div
-								className={clsx('flex shrink-0 items-start', 'ui-dialog-header', headerFlush && 'ui-dialog-header-flush')}
-								data-testid="sim-dialog-header"
-								data-bare={false}>
-								{title != null && (
-									<BaseDialog.Title className="ui-dialog-title" data-testid="sim-dialog-title">
-										{title}
-									</BaseDialog.Title>
-								)}
-								{headerChildren}
-								{!preventClose && (
-									<BaseDialog.Close
-										render={<Button iconOnly aria-label={i18n.t('common.close')} className={clsx('ui-dialog-close', closeClassName)} />}
-										data-testid="sim-dialog-close">
-										<Icon name="xmark" size="2xl" />
-									</BaseDialog.Close>
-								)}
+			{/* Out of any Field the dialog opens from, so its controls take no size from that field. */}
+			<FieldContext.Provider value={null}>
+				{/* Named, because with a `container` the portal renders a wrapper element of its own. */}
+				<BaseDialog.Portal data-testid="sim-dialog-portal" container={portalContainer ?? undefined} keepMounted={keepMounted}>
+					{/* Base UI renders no backdrop for a nested dialog (`enabled: forceRender || !nested`), so an elevated one has to ask for its own. */}
+					<BaseDialog.Backdrop className="ui-dialog-backdrop" data-testid="sim-dialog-backdrop" data-elevated={elevated} forceRender={elevated} />
+					<BaseDialog.Viewport className="ui-dialog-viewport" data-testid="sim-dialog-viewport" data-elevated={elevated}>
+						<BaseDialog.Popup
+							className={clsx(
+								'ui-dialog',
+								maxWidthClassName,
+								scrollContents && 'ui-dialog-scroll',
+								verticalAlign === 'center' ? 'ui-dialog-centered' : 'ui-dialog-top',
+								className,
+							)}
+							initialFocus={initialFocus}
+							finalFocus={finalFocus}
+							data-testid={testId ?? 'sim-dialog-popup'}
+							data-size={size}
+							onKeyDown={onKeyDown}>
+							{(title != null || headerChildren != null || !preventClose) && (
+								<div
+									className={clsx('flex shrink-0 items-start', 'ui-dialog-header', headerFlush && 'ui-dialog-header-flush')}
+									data-testid="sim-dialog-header"
+									data-bare={false}>
+									{title != null && (
+										<BaseDialog.Title className="ui-dialog-title" data-testid="sim-dialog-title">
+											{title}
+										</BaseDialog.Title>
+									)}
+									{headerChildren}
+									{!preventClose && (
+										<BaseDialog.Close
+											render={<Button iconOnly aria-label={i18n.t('common.close')} className={clsx('ui-dialog-close', closeClassName)} />}
+											data-testid="sim-dialog-close">
+											<Icon name="xmark" size="2xl" />
+										</BaseDialog.Close>
+									)}
+								</div>
+							)}
+							<div className={clsx('ui-dialog-body', scrollContents && 'overflow-auto', bodyClassName)} data-testid="sim-dialog-body">
+								{children}
 							</div>
-						)}
-						<div className={clsx('ui-dialog-body', scrollContents && 'overflow-auto', bodyClassName)} data-testid="sim-dialog-body">
-							{children}
-						</div>
-						{footer != null && (
-							<div className="ui-dialog-footer" data-testid="sim-dialog-footer">
-								{footer}
-							</div>
-						)}
-					</BaseDialog.Popup>
-				</BaseDialog.Viewport>
-			</BaseDialog.Portal>
+							{footer != null && (
+								<div className="ui-dialog-footer" data-testid="sim-dialog-footer">
+									{footer}
+								</div>
+							)}
+						</BaseDialog.Popup>
+					</BaseDialog.Viewport>
+				</BaseDialog.Portal>
+			</FieldContext.Provider>
 		</BaseDialog.Root>
 	);
 };

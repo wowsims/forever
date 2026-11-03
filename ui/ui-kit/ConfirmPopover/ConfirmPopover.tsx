@@ -12,6 +12,7 @@ export interface ConfirmPopoverProps {
 	trigger?: ReactNode;
 	triggerClassName?: PopoverProps['triggerClassName'];
 	triggerProps?: PopoverProps['triggerProps'];
+	finalFocus?: PopoverProps['finalFocus'];
 	side?: PopoverProps['side'];
 	backdrop?: PopoverProps['backdrop'];
 	confirmLabel?: string;
@@ -28,6 +29,7 @@ export const ConfirmPopover = ({
 	trigger,
 	triggerClassName,
 	triggerProps,
+	finalFocus,
 	side = 'top',
 	backdrop = true,
 	confirmLabel,
@@ -42,6 +44,7 @@ export const ConfirmPopover = ({
 		trigger={trigger}
 		triggerClassName={triggerClassName}
 		triggerProps={triggerProps}
+		finalFocus={finalFocus}
 		side={side}
 		backdrop={backdrop}
 		testId={testId ?? 'sim-confirm-popover'}

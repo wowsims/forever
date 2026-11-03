@@ -59,7 +59,7 @@ type Dot struct {
 
 	BaseTickCount          int32 // base tick count without haste applied
 	remainingTicks         int32
-	tmpExtraTicks          int32         // extra ticks that are added during the runtime of the dot
+	ticksDone              int32         // The periodic ticks since the dot was applied.
 	BaseDurationMultiplier float64       // Some effects extend the BaseDuration - i.E. 50% - the DoTs will be subject to normal DoT fitting for base duration extend
 	BaseDurationFlat       time.Duration // Added to the BaseDuration; the DoT fits it into whole extra ticks
 
@@ -91,7 +91,7 @@ func (dot *Dot) TakeSnapshot(sim *Simulation) {
 
 // Snapshots and activates the Dot
 func (dot *Dot) Apply(sim *Simulation) {
-	if dot.Spell.Flags&SpellFlagSupressDoTApply > 0 {
+	if dot.Spell.Flags&SpellFlagSupressDoTApply > 0 || dot.isImmuneBleed() {
 		return
 	}
 	if dot.rankGroup != nil && !dot.replaceOtherRanks(sim) {
@@ -102,6 +102,10 @@ func (dot *Dot) Apply(sim *Simulation) {
 	dot.TakeSnapshot(sim)
 	dot.recomputeAuraDuration(sim)
 	dot.Activate(sim)
+}
+
+func (dot *Dot) isImmuneBleed() bool {
+	return dot.Unit.BleedImmune && dot.Spell.Flags.Matches(SpellFlagBleed)
 }
 
 // A rank does not land while a higher rank from the same caster is up on the unit; otherwise it ends
@@ -162,7 +166,7 @@ func (dot *Dot) recomputeAuraDuration(_ *Simulation) {
 		dot.remainingTicks = dot.HastedTickCount()
 	}
 
-	dot.tmpExtraTicks = 0
+	dot.ticksDone = 0
 	dot.Duration = dot.tickPeriod * time.Duration(dot.remainingTicks)
 }
 
@@ -208,12 +212,10 @@ func (dot *Dot) RemainingTicks() int32 {
 	return dot.remainingTicks
 }
 
+// The ticks done since the dot was applied. A tick length or duration mod that changes while the dot
+// runs, an extension or an added tick does not move it.
 func (dot *Dot) TickCount() int32 {
-	if dot.hasteReducesDuration {
-		return dot.BaseTickCount + dot.tmpExtraTicks - dot.remainingTicks
-	}
-
-	return dot.HastedTickCount() + dot.tmpExtraTicks - dot.remainingTicks
+	return dot.ticksDone
 }
 
 func (dot *Dot) OutstandingDmg() float64 {
@@ -230,7 +232,6 @@ func (dot *Dot) AddTick() {
 		return
 	}
 
-	dot.tmpExtraTicks++
 	dot.remainingTicks++
 	dot.UpdateExpires(dot.expires + dot.TickPeriod())
 }
@@ -238,12 +239,15 @@ func (dot *Dot) AddTick() {
 // Copy's the original DoT's period and duration to the current DoT.
 // This is only currently used for Mage's Impact DoT spreading and Enhancement's ImprovedLava Lash.
 func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
+	if dot.isImmuneBleed() {
+		return
+	}
 	dot.TakeSnapshot(sim)
 	dot.SnapshotBaseDamage = originaldot.SnapshotBaseDamage
 
 	dot.tickPeriod = originaldot.tickPeriod
 	dot.remainingTicks = originaldot.remainingTicks
-	dot.tmpExtraTicks = 0
+	dot.ticksDone = originaldot.ticksDone
 
 	// must be set before Activate
 	dot.Duration = originaldot.ExpiresAt() - sim.CurrentTime // originaldot.Duration
@@ -325,6 +329,7 @@ func (dot *Dot) stopTicking(sim *Simulation) {
 
 func (dot *Dot) periodicTick(sim *Simulation) {
 	dot.remainingTicks--
+	dot.ticksDone++
 	dot.TickOnce(sim)
 	if dot.isChanneled {
 		channelDelay := dot.getChannelClipDelay()
@@ -414,6 +419,7 @@ func newDot(config Dot) *Dot {
 		// the core scheduling fails to process ticks first so we need to apply the last tick
 		if dot.tickAction.NextActionAt == sim.CurrentTime {
 			dot.remainingTicks--
+			dot.ticksDone++
 			dot.TickOnce(sim)
 		}
 
@@ -554,7 +560,7 @@ type DotState struct {
 	SnapshotBaseDamage         float64
 	SnapshotAttackerMultiplier float64
 	TicksRemaining             int32
-	ExtraTicks                 int32
+	TicksDone                  int32
 	TickPeriod                 time.Duration
 	NextTickIn                 time.Duration
 }
@@ -566,7 +572,7 @@ func (dot *Dot) SaveState(sim *Simulation) DotState {
 		SnapshotBaseDamage:         dot.SnapshotBaseDamage,
 		SnapshotAttackerMultiplier: dot.SnapshotAttackerMultiplier,
 		TicksRemaining:             dot.remainingTicks,
-		ExtraTicks:                 dot.tmpExtraTicks,
+		TicksDone:                  dot.ticksDone,
 		TickPeriod:                 dot.tickPeriod,
 		NextTickIn:                 dot.NextTickAt() - sim.CurrentTime,
 	}
@@ -575,7 +581,7 @@ func (dot *Dot) SaveState(sim *Simulation) DotState {
 func (dot *Dot) RestoreState(state DotState, sim *Simulation) {
 	dot.tickPeriod = state.TickPeriod
 	dot.remainingTicks = state.TicksRemaining
-	dot.tmpExtraTicks = state.ExtraTicks
+	dot.ticksDone = state.TicksDone
 	dot.SnapshotBaseDamage = state.SnapshotBaseDamage
 	dot.SnapshotAttackerMultiplier = state.SnapshotAttackerMultiplier
 	dot.Aura.RestoreState(state.AuraState, sim)

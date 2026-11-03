@@ -64,8 +64,7 @@ export const HybridEpWeights = PresetUtils.makePresetEpWeights('Hybrid', HybridE
 // Uses Dash for the approach; Sapper can be used without leaving Cat Form.
 export const JVMES_APL = {
 	...PresetUtils.makePresetAPLRotation('Adaptive Cat', AdaptiveApl),
-	tooltip:
-		'Maintains Faerie Fire and bleeds, pools for later Berserks, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',
+	tooltip: 'Maintains Faerie Fire and bleeds, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',
 };
-export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-35200032121130212051-053' }));
-export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-35230332121132212051-' }));
+export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-53200032123012124001-055' }));
+export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-50230332123110121011-055' }));

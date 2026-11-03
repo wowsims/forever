@@ -14,11 +14,4 @@
 	.ui-selector-modal-list-item-name {
 		@apply ml-2 flex cursor-pointer flex-wrap items-baseline gap-x-1 text-md font-normal tracking-normal;
 	}
-
-	.ui-selector-modal-filters {
-		& input,
-		& select {
-			@apply py-(--btn-padding-y) text-(length:--btn-font-size);
-		}
-	}
 }

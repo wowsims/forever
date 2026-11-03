@@ -48,12 +48,14 @@ describe('ActionId.fill', () => {
 			[ActionId.fromSpellId(1290261, 0, 3), 'Weaponmaster', `Weaponmaster (${weapons('sword')})`],
 			[ActionId.fromSpellId(20423, 0, 1), 'Seal of Fury', `Seal of Fury (${tag('shield')})`],
 			[ActionId.fromSpellId(10901, 0, 1), 'Power Word: Shield', `Power Word: Shield (${tag('shield')})`],
-			[ActionId.fromSpellId(440667, 0, 1), 'Vindication', `Vindication (${tag('self')})`],
 			[ActionId.fromSpellId(440667, 0, -1), 'Vindication', `Vindication (${tag('external')})`],
 			[ActionId.fromSpellId(11708, 0, 1), 'Curse of Weakness', `Curse of Weakness (${tag('amplified')})`],
 			[ActionId.fromSpellId(1225228, 0, 1), 'Bane of Havoc', `Bane of Havoc (${tag('damage')})`],
 			[ActionId.fromSpellId(16979, 0, 1), 'Feral Charge (Bear)', `Feral Charge (Bear) (${i18n.t('common.action_names.moving')})`],
 			[ActionId.fromSpellId(23266, 0, 2), 'Fiery Aura', `Fiery Aura (${tag('hit')})`],
+			[ActionId.fromSpellId(20928, 0, 2), 'Holy Shield', `Holy Shield (${tag('hit')})`],
+			[ActionId.fromSpellId(20928, 0, 1328544), 'Holy Shield', `Holy Shield (${tag('shieldsworn')})`],
+			[ActionId.fromSpellId(1310925, 0, 1328544), 'Shield Specialization', `Shield Specialization (${tag('shieldsworn')})`],
 			[ActionId.fromItemId(10646, 1), 'Goblin Sapper Charge', `Goblin Sapper Charge (${tag('self')})`],
 			[ActionId.fromItemId(12662, 1), 'Demonic Rune', `Demonic Rune (${tag('self')})`],
 			[ActionId.fromItemId(250951, 2), 'Caustic Smog Potion', `Caustic Smog Potion (${tag('dot')})`],
@@ -61,6 +63,34 @@ describe('ActionId.fill', () => {
 		for (const [actionId, baseName, name] of cases) {
 			expect(await filledName(actionId, baseName)).toBe(name);
 		}
+	});
+
+	it("names a seal's hit that Unsealed Wrath's Echo casts after the Echo, without the seal's rank", async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(
+			async actionId =>
+				({
+					name: actionId.spellId === 20424 ? 'Seal of Command' : 'Seal of Righteousness',
+					icon: '',
+					rank: actionId.spellId === 20424 ? 0 : 8,
+				}) as never,
+		);
+		const echoNames: Record<number, string> = { 1311703: 'Echo of Command', 1311704: 'Echo of Righteousness' };
+		vi.spyOn(Database, 'getSpellIconData').mockImplementation(async id => ({ name: echoNames[id] ?? '' }) as never);
+		const rank = i18n.t('common.action_tags.rank', { rank: 8 });
+
+		const echoHit = await ActionId.fromSpellId(25713, 0, 1311704).fill();
+		expect(echoHit.name).toBe('Echo of Righteousness');
+		expect(echoHit.rank).toBe(8);
+		expect(echoHit.withoutTag().name).toBe(`Seal of Righteousness (${rank})`);
+		expect((await ActionId.fromSpellId(25713).fill()).name).toBe(`Seal of Righteousness (${rank})`);
+		expect((await ActionId.fromSpellId(20424, 0, 1311703).fill()).name).toBe('Echo of Command');
+	});
+
+	it("names a seal's Echo hit by the seal when the Echo's name does not load", async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Seal of Fury', icon: '', rank: 7 }) as never);
+		vi.spyOn(Database, 'getSpellIconData').mockRejectedValue(new Error('offline'));
+		const rank = i18n.t('common.action_tags.rank', { rank: 7 });
+		expect((await ActionId.fromSpellId(20418, 0, 1311701).fill()).name).toBe(`Seal of Fury (${i18n.t('common.action_tags.echo')}) (${rank})`);
 	});
 
 	it('names the hand of an aura read from the combat log', async () => {

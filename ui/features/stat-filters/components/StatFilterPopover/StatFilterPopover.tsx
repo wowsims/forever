@@ -83,7 +83,7 @@ export const StatFilterList = ({
 									id={`${idPrefix}-${stat.getKey()}`}
 									label={labels.get(stat.getKey())}
 									layout="inline"
-									density="compact"
+									size="xs"
 									value={isShown(stat)}
 									onChange={checked => toggle(stat, checked)}
 								/>

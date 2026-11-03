@@ -9,7 +9,10 @@ def hawk_and_arcane = $use_summon_hawk and $use_arcane_shot
 
 // The walk in at the pull: the hunter starts at Pull range and walks to its spot between Auto Shots.
 var ${Pull range} = 25
-var ${Auto Shot due} =
-    auto_time_since_last(ranged_auto) >= auto_swing_time(ranged) - 500ms - input_delay
+// The swing timer counts to the start of the next Auto Shot's windup, and once the windup runs, to the shot: the windup
+// is close when it starts within a reaction, or is running.
+var ${Windup close} =
+    auto_time_to_next(ranged_auto) <= input_delay
+    or auto_time_to_next(ranged_auto) >= auto_swing_time(ranged) - auto_time_since_last(ranged_auto)
 var ${Just shot} = auto_time_since_last(ranged_auto) < input_delay
-def shot_due_here = spell(arcane_shot).in_range and ($auto_shot_due or $just_shot)
+def shot_due_here = spell(arcane_shot).in_range and ($windup_close or $just_shot)

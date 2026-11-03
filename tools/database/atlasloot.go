@@ -102,7 +102,6 @@ func readAtlasLootDungeonData(db *WowDatabase, expansion proto.Expansion, srcUrl
 			Id:        int32(zoneID),
 			Expansion: expansion,
 		})
-		contentType := dungeonMatch[3]
 
 		npcSplits := strings.Split(dungeonMatch[4], "name = ")[1:]
 		for _, npcSplit := range npcSplits {
@@ -135,15 +134,6 @@ func readAtlasLootDungeonData(db *WowDatabase, expansion proto.Expansion, srcUrl
 			}
 
 			for _, difficultyMatch := range diffItemsPattern.FindAllStringSubmatch(npcSplit, -1) {
-				diffString := difficultyMatch[1]
-				if expansion == proto.Expansion_ExpansionMop && contentType == "RAID_CONTENT" {
-					diffString = AtlasLootDungeonToRaidDifficulty[diffString]
-				}
-				difficulty, ok := AtlasLootDifficulties[diffString]
-				if !ok {
-					log.Fatalf("Invalid difficulty for NPC %s: %s", npcName, diffString)
-				}
-
 				curCategory := ""
 				curLocation := 0
 
@@ -175,8 +165,7 @@ func readAtlasLootDungeonData(db *WowDatabase, expansion proto.Expansion, srcUrl
 							fmt.Printf("Item: %d\n", itemID)
 
 							dropSource := &proto.DropSource{
-								Difficulty: difficulty,
-								ZoneId:     int32(zoneID),
+								ZoneId: int32(zoneID),
 							}
 							if npcID == 0 {
 								dropSource.OtherName = npcName
@@ -393,25 +382,6 @@ var AtlasLootRepLevel = map[string]proto.RepLevel{
 	"Honored":  proto.RepLevel_RepLevelHonored,
 	"Friendly": proto.RepLevel_RepLevelFriendly,
 	"Neutral":  proto.RepLevel_RepLevelNeutral,
-}
-var AtlasLootDifficulties = map[string]proto.DungeonDifficulty{
-	"NORMAL_DIFF":    proto.DungeonDifficulty_DifficultyNormal,
-	"HEROIC_DIFF":    proto.DungeonDifficulty_DifficultyHeroic,
-	"CELESTIAL_DIFF": proto.DungeonDifficulty_DifficultyCelestial,
-	"RAID10_DIFF":    proto.DungeonDifficulty_DifficultyRaid10,
-	"RAID10H_DIFF":   proto.DungeonDifficulty_DifficultyRaid10H,
-	"RAID25RF_DIFF":  proto.DungeonDifficulty_DifficultyRaid25RF,
-	"RAID25_DIFF":    proto.DungeonDifficulty_DifficultyRaid25,
-	"RAID25H_DIFF":   proto.DungeonDifficulty_DifficultyRaid25H,
-	"FLEX_DIFF":      proto.DungeonDifficulty_DifficultyRaidFlex,
-	"VENDOR_DIFF":    proto.DungeonDifficulty_DifficultyVendor,
-}
-var AtlasLootDungeonToRaidDifficulty = map[string]string{
-	"RF_DIFF":        "RAID25RF_DIFF",
-	"NORMAL_DIFF":    "RAID25_DIFF",
-	"HEROIC_DIFF":    "RAID25H_DIFF",
-	"FLEX_DIFF":      "FLEX_DIFF",
-	"CELESTIAL_DIFF": "CELESTIAL_DIFF",
 }
 
 const EndTimeEchoLootString = `{

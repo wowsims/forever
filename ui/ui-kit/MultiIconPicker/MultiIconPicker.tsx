@@ -2,6 +2,7 @@ import i18n from '@i18n/config';
 import { Field } from '@ui-kit/Field';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
 import { IconEnumPickerDirection } from '@ui-kit/IconEnumPicker';
+import { improvedOverlay, type ImprovedState } from '@ui-kit/IconPicker/improvedOverlay';
 import { IconMenu, type IconSwatchProps } from '@ui-kit/IconSwatch';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { isRightClick } from '@ui-kit/utils/dom';
@@ -12,6 +13,11 @@ export interface MultiIconPickerProps extends Pick<IconSwatchProps, 'keptTooltip
 	label?: string;
 	icon?: ResolvedIcon;
 	active: boolean;
+	/**
+	 * The shown input's own state, drawn on the trigger as an `IconPicker` draws it: the improved badges and the
+	 * counter text. Display only, so the trigger keeps its hover and right click. Left out, the trigger carries none.
+	 */
+	state?: ImprovedState;
 	onClear: () => void;
 	/** Horizontal, the default, opens the menu to the right as a row; vertical opens it below, in `numColumns` columns. */
 	direction?: IconEnumPickerDirection;
@@ -27,6 +33,7 @@ export const MultiIconPicker = ({
 	label,
 	icon,
 	active,
+	state,
 	onClear,
 	direction = IconEnumPickerDirection.Horizontal,
 	numColumns,
@@ -39,12 +46,15 @@ export const MultiIconPicker = ({
 	const tooltipId = useId();
 	const horizontal = direction === IconEnumPickerDirection.Horizontal;
 	const controlRef = useRef<HTMLAnchorElement>(null);
+	const overlay = state && improvedOverlay({ ...state, testIdPrefix: 'multi-icon-picker' });
 	const menu = (
 		<IconMenu
 			trigger={{
 				icon,
 				active,
 				keptTooltip,
+				text: overlay?.text,
+				badges: overlay?.badges,
 				className: clsx(!active && 'grayscale'),
 				testId: testId ?? 'multi-icon-picker-root',
 				// The trigger is a bare anchor carrying a background image, so it announces nothing without this. Base UI

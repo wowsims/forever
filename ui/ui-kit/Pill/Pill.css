@@ -22,6 +22,10 @@
 			@apply rounded-full;
 		}
 
+		&[data-rounded='xs'] {
+			@apply rounded-xs;
+		}
+
 		&[data-size='xs'] {
 			@apply px-1 text-ui;
 		}

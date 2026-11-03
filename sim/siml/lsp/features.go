@@ -15,6 +15,9 @@ func (s *server) request(ctx context.Context, method string, params json.RawMess
 	if strings.HasPrefix(method, "siml/") {
 		return s.panelRequest(ctx, method, params)
 	}
+	if method == "workspace/executeCommand" {
+		return s.executeCommand(ctx, params)
+	}
 	var p textDocumentParams
 	if err := json.Unmarshal(params, &p); err != nil {
 		return nil, invalidParams(err)
@@ -93,8 +96,16 @@ func (s *server) request(ctx context.Context, method string, params json.RawMess
 				}
 				out = append(out, action)
 			}
-			return out
+			return append(out, s.simActionsLocked(uri, p.Context.Only)...)
 		})
+	case "textDocument/codeLens":
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		return s.simLensesLocked(uri), nil
+	case "textDocument/inlayHint":
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		return s.simHintsLocked(uri, p.Range), nil
 	}
 	return nil, &ResponseError{Code: codeMethodNotFound, Message: "method not found: " + method}
 }

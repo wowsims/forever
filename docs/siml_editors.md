@@ -1,12 +1,12 @@
 # SIML in another editor
 
-`tools/vscode-apl` is the VS Code client of SIML (`sim/siml/SPEC.md`). Every other editor needs the same three things,
-and none of them is VS Code specific:
+`tools/vscode-apl` is the VS Code client of SIML (`sim/siml/SPEC.md`) and `tools/zed-siml` the Zed one. Every other
+editor needs the same three things, and none of them is specific to either:
 
 | Part                        | What it gives                                                                     | Where it comes from                                                                               |
 | --------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | File type and language data | `.siml` files, `//` comments, brackets, quotes                                    | the table below                                                                                   |
-| Highlighting                | keywords, units, sections, strings, numbers                                       | the TextMate grammar, or the semantic tokens of the server in an editor that applies them         |
+| Highlighting                | keywords, units, sections, strings, numbers                                       | the TextMate grammar, the tree-sitter grammar, or the server's semantic tokens                    |
 | The language server         | diagnostics, completion, hover, navigation, rename, formatting, code actions, ... | `wowsimcli siml lsp` over stdio, which finds the repository above each file and needs no settings |
 
 The server is the only part with logic. Names, items, enchants, did-you-mean and the lints all come from it, so a
@@ -36,6 +36,11 @@ go build --tags=with_db -o wowsimcli ./cmd/wowsimcli   # in the repository root
 ./wowsimcli siml lsp                                  # speaks LSP on stdin and stdout, logs on stderr
 ```
 
+`go run ./sim/siml/lsp/launch` does both in one command, as the Zed extension runs it: it regenerates the protos when
+the `.proto` files are newer, builds `wowsimcli` with the database into a temporary folder and runs `siml lsp` on its
+own stdin and stdout. Where the build fails, a server that only reports the failure answers instead, so the editor
+keeps it and a restart retries.
+
 The server reads the item database at run time, so it checks files, hovers and completes with or without `with_db`;
 only the panel's sim (`siml/sim`) needs the tag, as `siml sim` does. Rebuild after pulling Go changes. The server reads the name table
 (`sim/siml/names.json`) and the database from the repository the file is in, so `make siml-names` or
@@ -63,6 +68,14 @@ watchers dynamically, the server also watches the name table, the database and t
 The panel's `siml/*` requests (`siml/rotation`, `siml/sim`, ...) are custom and optional; a plain editor never sends
 them.
 
+An editor with no panel can sim through the protocol instead. With the initialization option `"simCommands": true`
+the server also offers, on an `.apl.siml` file, two `source` code actions and two code lenses on the first line that run
+the commands `siml.sim` and `siml.compare` (`executeCommandProvider`), as the panel's Sim and Compare run. It reports
+the run as `$/progress` where the client takes it, gives the result as a message, puts it in the lens's title, and
+shows how often each row ran per fight as an inlay hint after the row's line (`inlayHintProvider`) while the text is the
+one simmed. `simIterations` (1000) and `simSettingsFile` set what the panel's settings of those names set. The Zed
+extension turns it on; VS Code's client does not, as its panel sims.
+
 ## Highlighting
 
 An editor colours SIML in one of three ways, from the most to the least that it needs from us:
@@ -74,9 +87,12 @@ An editor colours SIML in one of three ways, from the most to the least that it 
 2. **Semantic tokens.** The server colours what only the schema and the name table know (a spell is not an aura
    is not an item). It works on its own in an editor that applies semantic tokens, and on top of a grammar in one
    that also has one. Map the legend's types to the theme's groups.
-3. **Tree-sitter.** Neovim's built-in highlighting, Helix and Zed colour from a tree-sitter grammar, which this
-   repository does not have. Until one exists, those editors get the server's features, and the colours only from
-   its semantic tokens where the editor applies them.
+3. **Tree-sitter.** Neovim's built-in highlighting, Helix and Zed colour from a tree-sitter grammar:
+   `tools/tree-sitter-siml`, whose README says how to change and check it. It reads the shapes of a file (sections,
+   rows, entries, expressions, `when` blocks) and no names, so it needs no regenerating when the schema grows, and an
+   editor that also applies the server's semantic tokens gets both. Zed's queries are in
+   `tools/zed-siml/languages/siml`; their captures are the common ones (`@keyword`, `@function`, `@property`,
+   `@string`, ...), a starting point for another editor's.
 
 ## Editors
 
@@ -126,52 +142,15 @@ language-servers = ["wowsims-siml"]
 roots = ["go.mod"]
 ```
 
-Helix starts the server in the root it finds for the file. It colours from tree-sitter only, so a SIML file is
-uncoloured until a grammar exists.
+Helix starts the server in the root it finds for the file. It colours from tree-sitter only: add the grammar with
+`[[grammar]] name = "siml"` and `source = { git = "https://github.com/wowsims/forever", rev = "<the rev of
+tools/zed-siml/extension.toml>", subpath = "tools/tree-sitter-siml" }`, run `hx --grammar fetch` and
+`hx --grammar build`, and copy Zed's `highlights.scm` to `runtime/queries/siml/`.
 
 ### Zed
 
-Zed starts a language server only for an extension, so a settings file cannot do it. The shape is the one of
-`tools/zed-spelldata`: a Rust extension that returns the command, and a language directory.
-
-```toml
-# extension.toml
-id = "wowsims-siml"
-name = "WoWSims SIML"
-version = "0.1.0"
-schema_version = 1
-authors = ["WoWSims"]
-description = "SIML files: the language server of wowsimcli."
-repository = "https://github.com/wowsims/forever"
-
-[language_servers.wowsims-siml]
-name = "WoWSims SIML"
-languages = ["SIML"]
-```
-
-```toml
-# languages/siml/config.toml
-name = "SIML"
-path_suffixes = ["siml"]
-line_comments = ["// "]
-brackets = [
-	{ start = "(", end = ")", close = true, newline = false },
-	{ start = "[", end = "]", close = true, newline = false },
-	{ start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
-]
-```
-
-`language_server_command` returns `<root>/wowsimcli siml lsp` (or `go -C <root> run --tags=with_db ./cmd/wowsimcli
-siml lsp`, as the spelldata extension runs `go`). `config.toml` names no `grammar`, because none exists, and the
-colours then come from the server's semantic tokens, which Zed applies when the language asks for them in
-`settings.json`:
-
-```json
-{ "languages": { "SIML": { "semantic_tokens": "full" } } }
-```
-
-Install it with `zed: install dev extension`, which needs Rust through `rustup`. Run _editor: restart language
-server_ after rebuilding `wowsimcli`.
+`tools/zed-siml` is the extension: the tree-sitter grammar with Zed's queries, snippets, and the server started with
+`go run ./sim/siml/lsp/launch`. Its README says how to install it.
 
 ### Emacs (eglot, 29 or later)
 

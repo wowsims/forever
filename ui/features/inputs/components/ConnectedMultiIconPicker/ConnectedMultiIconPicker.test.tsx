@@ -114,14 +114,39 @@ describe('ConnectedMultiIconPicker', () => {
 		expect(backgroundIcon()).toBe('kings.jpg');
 	});
 
-	it('uses the improved id at state 2', () => {
-		const buffs = new Buffs();
-		mount(buffs, configFor({ inputs: [input('kings', kingsId, { states: 3, improvedId })] }));
+	describe('state badges on the trigger', () => {
+		const improved2Id = filled(ActionId.fromSpellId(9001), 'Improved2', 'improved2.jpg');
+		const badge = (n: 1 | 2) => screen.queryByTestId(`multi-icon-picker-improved${n}`);
+		const quad = () => configFor({ inputs: [input('kings', kingsId, { states: 4, improvedId, improvedId2: improved2Id })] });
 
-		act(() => buffs.set('kings', 1));
-		expect(backgroundIcon()).toBe('kings.jpg');
-		act(() => buffs.set('kings', 2));
-		expect(backgroundIcon()).toBe('improved.jpg');
+		it("keeps the active input's own icon and lights its improved badges by its value", () => {
+			const buffs = new Buffs();
+			buffs.set('kings', 2);
+			mount(buffs, quad());
+			expect(backgroundIcon()).toBe('kings.jpg');
+			expect(badge(1)!.style.backgroundImage).toContain('improved.jpg');
+			expect(badge(1)!.hasAttribute('data-active')).toBe(true);
+			expect(badge(2)!.style.backgroundImage).toContain('improved2.jpg');
+			expect(badge(2)!.hasAttribute('data-active')).toBe(false);
+		});
+
+		it('leaves the badges unlinked and still clears on a right click with them on', () => {
+			const buffs = new Buffs();
+			buffs.set('kings', 2);
+			const onClear = vi.fn();
+			mount(buffs, quad(), onClear);
+			expect(badge(1)!.hasAttribute('href')).toBe(false);
+			fireEvent.mouseDown(trigger(), { button: 2 });
+			expect(onClear).toHaveBeenCalledTimes(1);
+		});
+
+		it('carries none under a category icon', () => {
+			const buffs = new Buffs();
+			buffs.set('kings', 2);
+			mount(buffs, { ...quad(), categoryId });
+			expect(badge(1)).toBeNull();
+			expect(backgroundIcon()).toBe('category.jpg');
+		});
 	});
 
 	it('prefers categoryId over the active child, and keeps it while nothing is on', () => {

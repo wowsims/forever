@@ -5,12 +5,21 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+// Rank 5 is the last rank the trainer teaches; rank 6 comes from the Book of Ferocious Bite V.
+var ferociousBiteTrainerRank = spellData.FerociousBite.ByID(22829)
+var ferociousBiteBookRank = spellData.FerociousBite.ByID(31018)
+
 func (druid *Druid) registerFerociousBiteSpell() {
-	// Rank 5 (31018) is taught by an item, Book of Ferocious Bite V (24101), not by the trainer.
-	// TODO: Ingame research needed -- whether that book can be obtained.
-	rank := spellData.FerociousBite.ByID(22829)
+	druid.FerociousBite = druid.registerFerociousBiteRank(ferociousBiteTrainerRank)
+	druid.registerFerociousBiteRank(ferociousBiteBookRank)
+}
+
+func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell {
 	damageEffect := rank.DamageEffect()
 	perEnergy := rank.EffectN(2).BaseValue() / 100
+	// Predatory Discipline keeps the extra energy and still adds its damage.
+	// TODO: Ingame research needed -- what the talent's dummy (base points 20) does; the tooltip names no value.
+	keepsEnergy := druid.Talents.PredatoryDiscipline
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = druid.requiresComboPoints(rank)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -25,12 +34,12 @@ func (druid *Druid) registerFerociousBiteSpell() {
 		// of its base cost; nothing refunds it until that is checked.
 		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMeleeSpecialHitAndCrit)
 		if result.Landed() {
-			if extra > 0 {
+			if extra > 0 && !keepsEnergy {
 				druid.SpendEnergy(sim, extra, spell.EnergyMetrics())
 			}
 			druid.spendComboPoints(sim, spell)
 		}
 		spell.DealDamage(sim, result)
 	}
-	druid.FerociousBite = druid.RegisterSpell(config)
+	return druid.RegisterSpell(config)
 }

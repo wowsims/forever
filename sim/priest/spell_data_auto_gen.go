@@ -11,6 +11,7 @@ import (
 //   Devouring Contagion: effect 2 of spell 1309950 has no rank curve and is held at its base points
 //   Divine Aegis: effect 1 of spell 431622 has no rank curve and is held at its base points
 //   Early Demise: effect 1 of spell 1310076 has no rank curve and is held at its base points
+//   Holy Binding: effect 0 of spell 1328569 has no rank curve and is held at its base points
 //   Soul Warding: effect 0, 1 of spell 402000 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
@@ -51,6 +52,7 @@ type generatedSpellData struct {
 	GreaterHeal                 spelldata.Ladder
 	Heal                        spelldata.Ladder
 	HexOfWeakness               spelldata.Ladder
+	HolyBinding                 spelldata.Ladder
 	HolyFire                    spelldata.Ladder
 	HolyNova                    spelldata.Ladder
 	HolyNovaTriggered           spelldata.Ladder
@@ -180,6 +182,7 @@ var spellData = generatedSpellData{
 	GreaterHeal:                 spelldata.Ranked(2060, 10963, 10964, 10965, 25314),
 	Heal:                        spelldata.Ranked(2054, 2055, 6063, 6064),
 	HexOfWeakness:               spelldata.Ranked(9035, 19281, 19282, 19283, 19284, 19285),
+	HolyBinding:                 spelldata.Talent(1328569, 1),
 	HolyFire:                    spelldata.Ranked(14914, 15262, 15263, 15264, 15265, 15266, 15267, 15261),
 	HolyNova:                    spelldata.Ranked(15237, 15430, 15431, 27799, 27800, 27801),
 	HolyNovaTriggered:           spelldata.Ranked(23455, 23458, 23459, 27803, 27804, 27805),

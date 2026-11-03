@@ -1,6 +1,6 @@
 siml 1
 spec hunter
-talents "5-005355251152205-5"
+talents "5-0053452511522051-5"
 use "../gear_sets/p1.gear.siml"
 use "../apls/turret.apl.siml"
 
@@ -11,6 +11,4 @@ settings:
   quiver_bonus ancient_sinew_wrapped_lamina
   ammo thorium_headed_arrow
   pet_uptime 1
-  cobra_reflexes
-  pet_aggression 5
   pet_attack_speed faster_attack_ii

@@ -70,7 +70,7 @@ func TestReviewCatChargeBreaksProwlWithoutDebuff(t *testing.T) {
 			t.Fatal("Cat Charge applied a bear debuff")
 		}
 	}
-	if mh, _, _ := cat.AutoAttacks.SwingAt(); mh != sim.CurrentTime {
+	if mh, _ := cat.AutoAttacks.SwingAt(); mh != sim.CurrentTime {
 		t.Fatalf("melee resumes at %v, want %v", mh, sim.CurrentTime)
 	}
 	t.Log("Cat Charge ended Prowl, resumed melee, and applied no root or daze")

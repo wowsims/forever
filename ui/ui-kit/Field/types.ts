@@ -1,8 +1,10 @@
+import type { TooltipPlace } from '@ui-kit/Tooltip';
 import type { ClassValue } from 'clsx';
 import type { AriaRole, ReactElement, ReactNode, Ref, RefObject } from 'react';
 
 export type FieldLayout = 'inline' | 'split' | 'icon';
-export type FieldDensity = 'compact';
+/** The one size scale every form control reads: its height and padding; the font follows the control's type. */
+export type ControlSize = 'xs' | 'sm' | 'md';
 export type FieldTooltip = string | ReactElement;
 
 /** What every field renders around its control. */
@@ -10,10 +12,12 @@ export interface FieldFrameProps {
 	id?: string;
 	label?: string;
 	labelTooltip?: FieldTooltip;
+	/** The side of the label the tooltip opens on; above it by default. */
+	labelTooltipPlace?: TooltipPlace;
 	description?: string;
 	layout?: FieldLayout;
-	/** `compact` tightens this field and every field nested inside it. */
-	density?: FieldDensity;
+	/** The size of every control in this field and in the fields nested inside it, unless one sets its own; `xs` also tightens the fields. */
+	size?: ControlSize;
 	className?: ClassValue;
 	testId?: string;
 }
@@ -66,7 +70,8 @@ export interface FieldRootProps {
 	/** The control's id: `Field.Label` points at it and `Field.Control` hands it to a native control. */
 	id?: string;
 	layout?: FieldLayout;
-	density?: FieldDensity;
+	/** Defaults to the size of the root this one is nested in. */
+	size?: ControlSize;
 	disabled?: boolean;
 	/** `false` renders the root and a `Field.Clear` inside it `flex-none`. */
 	grow?: boolean;
@@ -90,6 +95,8 @@ export interface FieldLabelProps {
 	as?: 'label' | 'span';
 	id?: string;
 	tooltip?: FieldTooltip;
+	/** The side of the label the tooltip opens on; above it by default. */
+	tooltipPlace?: TooltipPlace;
 	className?: ClassValue;
 	testId?: string;
 	children: string;

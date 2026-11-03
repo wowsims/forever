@@ -5,8 +5,8 @@ import { StoryBoolean } from '@testing/storybook/fixtures/settings_reforge_bulk'
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import { EncountersView } from '../Encounters';
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
+import { BulkTopResultsFieldView } from './BulkTopResultsField';
 import { CombinationsCountView } from './CombinationsCount';
 
 const pair = (id: string, label: string, first: [string, ItemSlot], second: [string, ItemSlot]) => ({
@@ -52,12 +52,13 @@ const meta = {
 	tags: ['autodocs'],
 	render: args => <StatefulBulkSettings {...args} />,
 	args: {
-		combinationsCount: <CombinationsCountView pending={false} combinations={48} iterations={96000} iterationsLimit={1000000} encounters={1} />,
+		topResults: null,
+		combinationsCount: <CombinationsCountView pending={false} ready combinations={48} iterations={96000} iterationsLimit={1000000} builds={null} />,
 		canRun: true,
 		onRun: fn(),
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
-		encounters: <EncountersView currentSummary="3:00 ±5s · 1 target" presets={[]} saved={[]} onCheckedChange={fn()} />,
+		groups: true,
 		enchants: (
 			<EnchantPresetsView
 				presets={[
@@ -79,8 +80,8 @@ const meta = {
 		onFrozenWeaponSlotChange: fn(),
 	},
 	argTypes: {
+		topResults: { control: false },
 		combinationsCount: { control: false },
-		encounters: { control: false },
 		enchants: { control: false },
 		frozenItems: { control: false },
 		weaponFreeze: { control: false },
@@ -95,3 +96,22 @@ export const Default: Story = {};
 export const DualWield: Story = { args: { weaponFreeze: { value: -1, weaponTypes: WEAPON_TYPES } } };
 
 export const CannotRun: Story = { args: { canRun: false } };
+
+export const PowerTools: Story = { args: { topResults: <BulkTopResultsFieldView value={5} max={5000} onChange={fn()} /> } };
+
+export const Builds: Story = {
+	args: {
+		topResults: <BulkTopResultsFieldView value={0} max={5000} onChange={fn()} />,
+		groups: false,
+		combinationsCount: (
+			<CombinationsCountView
+				pending={false}
+				ready
+				combinations={0}
+				iterations={0}
+				iterationsLimit={1000000}
+				builds={{ setups: 6, bundles: 3, encounters: 2, runs: 6, builds: 12, totalIterations: 240000, largestRequestIterations: 60000 }}
+			/>
+		),
+	},
+};

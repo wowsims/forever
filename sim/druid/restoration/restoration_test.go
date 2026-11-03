@@ -47,7 +47,7 @@ func TestRestorationDruid(t *testing.T) {
 }
 
 // Tree of Life 0/0/61, wowhead's TBC raid build.
-var StandardTalents = "--50353351531522531351"
+var StandardTalents = "--50333551531522531351"
 
 var FullConsumes = &proto.ConsumesSpec{
 	FoodId:        250066, // Soaring Pamplona

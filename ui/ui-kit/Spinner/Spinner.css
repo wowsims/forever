@@ -20,6 +20,12 @@
 			--spinner-size: --spacing(24);
 		}
 
+		&[data-tone='strong'] {
+			@apply border-t-spinner-strong;
+
+			border-width: max(2px, calc(var(--spinner-size) / 6));
+		}
+
 		@media (prefers-reduced-motion: reduce) {
 			animation-duration: 2s;
 		}

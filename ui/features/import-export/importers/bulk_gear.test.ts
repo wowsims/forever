@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const loadLeftovers = vi.hoisted(() => vi.fn());
 const addItems = vi.hoisted(() => vi.fn());
 vi.mock('@sim/proto/database', () => ({ Database: { loadLeftoversIfNecessary: loadLeftovers } }));
-vi.mock('@features/bulk/model/items', () => ({ addBulkItems: addItems }));
+vi.mock('@features/bulk/model/gear/items', () => ({ addBulkItems: addItems }));
 
 import { BULK_GEAR_IMPORTER } from './bulk_gear';
 

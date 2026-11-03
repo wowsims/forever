@@ -1,6 +1,8 @@
 import type { SpecPresets } from '@features/hooks/useSavedPanel';
 import { applySavedSettings, readSavedSettings } from '@features/settings/model/saved_settings';
+import { Player } from '@generated/proto/api';
 import { SavedSettings } from '@generated/proto/ui';
+import { withSpec } from '@sim/proto/spec_functions';
 import type { IndividualSimHost } from '@sim/sim_host';
 import type { SavedDataPanelEntry } from '@ui-kit/SavedDataPanel';
 
@@ -25,11 +27,20 @@ export const settingsPresets = (presets: SpecPresets, host: IndividualSimHost<an
 			inFrontOfTarget: settings.playerOptions?.inFrontOfTarget,
 			enableItemSwap: settings.playerOptions?.enableItemSwap,
 			itemSwap: settings.playerOptions?.itemSwap,
+			spec: settings.specOptions
+				? withSpec(host.player.getSpec(), Player.create(), { ...host.player.specTypeFunctions.optionsCreate(), ...settings.specOptions }).spec
+				: undefined,
 		});
 		return { name: settings.name, data, json: serializeSettings(data), tooltip: settings.tooltip, isPreset: true };
 	});
 	const itemSwapEntries = (presets.itemSwaps ?? []).map(presetItemSwap => {
-		const data = SavedSettings.create({ ...readSavedSettings(host), enableItemSwap: true, itemSwap: presetItemSwap.itemSwap });
+		// Without spec options, so loading one keeps the live ones.
+		const data = SavedSettings.create({
+			...readSavedSettings(host),
+			enableItemSwap: true,
+			itemSwap: presetItemSwap.itemSwap,
+			spec: { oneofKind: undefined },
+		});
 		return { name: presetItemSwap.name, data, json: serializeSettings(data), tooltip: presetItemSwap.tooltip, isPreset: true };
 	});
 	return [...settingsEntries, ...itemSwapEntries];

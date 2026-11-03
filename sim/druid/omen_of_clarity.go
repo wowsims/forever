@@ -22,11 +22,15 @@ func (druid *Druid) registerOmenOfClarity() {
 	}, spelldata.Chance(1))
 	// A landed caster-form debuff can roll it without dealing damage.
 	trigger.RequireDamageComponent = false
+	// One Hurricane tick rolls once however many targets it lands on; the first target to reach the
+	// condition takes the roll.
+	firstHurricaneHit, resetHurricaneHit := core.OncePerCast()
+	druid.RegisterResetEffect(func(_ *core.Simulation) {
+		resetHurricaneHit()
+	})
 	// Chance(1) keeps the resolver from building a procs-per-minute manager and leaves core no roll of
 	// its own. The chance depends on what hit, so it is drawn here, after the ICD check and before the
 	// ICD starts. Only auto attacks and druid spells roll it.
-	// TODO: Ingame research needed -- whether Hurricane's ticks roll it. Each tick is its own instant hit
-	// here and rolls once per target, while the logs show no periodic tick ever proccing it.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		// The 15 October development notes take Faerie Fire cast in Cat, Bear or Dire Bear Form off
 		// Omen of Clarity. No row states it.
@@ -34,6 +38,9 @@ func (druid *Druid) registerOmenOfClarity() {
 			return false
 		}
 		if !spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && spell.ClassFlags.Family != omen.ClassFlags.Family {
+			return false
+		}
+		if spellData.HurricaneTriggered.Contains(spell) && !firstHurricaneHit(sim, spell) {
 			return false
 		}
 		chance := float64(omen.RPPM) * druid.omenSpeed(spell) / 60

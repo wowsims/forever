@@ -78,26 +78,26 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		rotationType: APLRotationType.TypeAPL,
 		aplRotation: Presets.JVMES_APL.rotation.rotation!,
 		encounter: Presets.DefaultEncounter,
-		// Genesis, nature's majesty, nature's reach, ferocity, heart of the wild, shredding attacks,
-		// savage fury, sharpened claws, shifting power, predatory strikes, improved shifting power,
-		// leader of the pack, natural instinct, rend and tear, berserk, furor, naturalist.
+		// Genesis, nature's majesty, nature's reach, ferocity, furor, feral swiftness, shredding attacks,
+		// savage fury, feral charge, sharpened claws, predatory strikes, predatory discipline, blood frenzy, leader of
+		// the pack, natural instinct, rend and tear, shifting power, heart of the wild, naturalist.
 		// Shifting Power is absent until that talent is taken.
 		talents: Presets.CatTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
-			arcaneBrilliance: true,
+			arcaneIntellect: true,
 			prayerOfSpirit: true,
-			giftOfTheWild: true,
-			prayerOfFortitude: true,
-			strengthOfEarthTotem: true,
-			graceOfAirTotem: true,
+			markOfTheWild: true,
+			powerWordFortitude: true,
+			strengthOfEarthTotem: 1,
+			graceOfAirTotem: 1,
 			windfuryTotem: true,
 			battleShout: 1, // Rank 6
 		}),
 		partyBuffs: PartyBuffs.create({ manaSpringTotem: TristateEffect.TristateEffectRegular }),
-		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: true, greaterBlessingOfSalvation: true }),
+		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: 1 }),
 		debuffs: Debuffs.create({ judgementOfWisdom: true, sunderArmor: true, giftOfArthas: true, vindication: true }),
 	},
 

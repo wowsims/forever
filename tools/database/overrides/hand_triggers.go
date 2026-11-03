@@ -21,13 +21,6 @@ var HandTriggers = []HandTrigger{
 		Source: "game-files-rows",
 	},
 	{
-		Spell:    1314103,
-		Triggers: 1314104,
-		Reason: "Improved Seal of Fury's talent aura (three dummies) casts the mana restore 1314104: same name " +
-			"and icon, a mana energize whose tooltip reads its numbers off 1314103 and whose aura text is Restoring Mana",
-		Source: "game-files-rows",
-	},
-	{
 		Spell:    1311074,
 		Triggers: 1311077,
 		Reason: "Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, " +
@@ -43,28 +36,6 @@ var HandTriggers = []HandTrigger{
 			"Holy damage from caster mod whose points the server sets from the talent; the tooltip names the " +
 			"Consecration rank 20924 instead. In the log the mark lands at the cast and drops 0.6 sec after the last tick",
 		Source: "combat log, Consecration Rank 2 with Consecrated Ground 2/2, 2026-10-17",
-	},
-	{
-		Spell:    1310911,
-		Triggers: 1310910,
-		Reason: "Light's Vigil Rank 1 (two dummies on any target) marks an enemy with 1310910: same name, rank and " +
-			"class set, a 30 sec dummy aura on the enemy whose aura text reads Detonates for $1310914s1 Holy damage " +
-			"when struck by the caster's Holy Shock. The rank's references reach only the friendly aura, heal and strike",
-		Source: "game-files-rows",
-	},
-	{
-		Spell:    1311590,
-		Triggers: 1311594,
-		Reason: "Light's Vigil Rank 2 marks an enemy with 1311594, as Rank 1 marks with 1310910; its aura text " +
-			"reads $1311592s1, the rank's strike",
-		Source: "game-files-rows",
-	},
-	{
-		Spell:    1311595,
-		Triggers: 1311599,
-		Reason: "Light's Vigil Rank 3 marks an enemy with 1311599, as Rank 1 marks with 1310910; its aura text " +
-			"reads $1311598s1, the rank's strike, and its aura 231 casts the mana refund 1311601",
-		Source: "game-files-rows",
 	},
 	{
 		Spell:    1323967,

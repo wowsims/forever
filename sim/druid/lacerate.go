@@ -6,6 +6,9 @@ import (
 )
 
 func (druid *Druid) registerLacerateSpell() {
+	if !druid.Talents.Lacerate {
+		return
+	}
 	rank := spellData.Lacerate.Highest()
 	tick := rank.PeriodicDamageEffect()
 	perStack := rank.EffectN(2).Percent()

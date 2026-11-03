@@ -1,10 +1,31 @@
 @layer components {
-	.ui-input {
-		@apply block w-full rounded-none border border-surface-border bg-surface px-(--input-padding-x) py-(--input-padding-y) text-ui leading-normal text-foreground transition-colors duration-150 ease-in-out;
+	.ui-input,
+	.ui-choice-field-trigger,
+	.ui-button,
+	.ui-multi-combo-box-field,
+	.ui-boolean-picker-input {
+		--control-padding-y: calc((var(--control-height) - var(--control-font-size) * 1.5 - 2px) / 2);
+
+		&[data-size='xs'] {
+			--control-height: var(--control-xs-height);
+			--control-padding-x: var(--control-xs-padding-x);
+		}
+
+		&:not([data-size]),
+		&[data-size='sm'] {
+			--control-height: var(--control-sm-height);
+			--control-padding-x: var(--control-sm-padding-x);
+		}
 
 		&[data-size='md'] {
-			@apply text-(length:--control-font-size);
+			--control-height: var(--control-md-height);
+			--control-padding-x: var(--control-md-padding-x);
 		}
+	}
+
+	.ui-input {
+		@apply block w-full rounded-none border border-surface-border bg-surface px-(--control-padding-x) py-(--control-padding-y) text-(length:--control-font-size) leading-normal text-foreground transition-colors duration-150 ease-in-out;
+		--control-font-size: var(--control-input-font-size);
 
 		&::placeholder {
 			@apply text-secondary;

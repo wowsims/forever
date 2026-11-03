@@ -1,7 +1,7 @@
 import { Tabs } from '@base-ui/react/tabs';
 import { TabBadge } from '@ui-kit/TabBadge';
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactElement, type ReactNode } from 'react';
 
 export interface TabNavTab {
 	id: string;
@@ -12,6 +12,8 @@ export interface TabNavTab {
 	ariaControls?: string;
 	dataLabel?: string;
 	buttonClassName?: string;
+	/** The `sim` variant places the built tab through it, e.g. as a menu's trigger; returning it unchanged leaves a plain tab. */
+	renderTab?: (tab: ReactElement) => ReactNode;
 }
 
 export interface TabNavProps {
@@ -24,15 +26,22 @@ export interface TabNavProps {
 	testId?: string;
 }
 
+const placeTab = (tab: TabNavTab, element: ReactElement): ReactNode => (tab.renderTab ? tab.renderTab(element) : element);
+
 export const TabNav = ({ tabs, className, variant = 'nav-tabs', tabItemClassName, bordered = true, wrap = true, testId }: TabNavProps) => {
 	if (variant === 'sim') {
 		return (
 			<Tabs.List className={clsx('ui-tabs-sim font-bold', className)} data-testid={testId} activateOnFocus>
 				{tabs.map(tab => (
-					<Tabs.Tab key={tab.id} value={tab.id} className={clsx(tab.id, 'ui-tab', tab.buttonClassName)} data-testid={tab.id}>
-						{tab.label}
-						<TabBadge label={tab.badge} />
-					</Tabs.Tab>
+					<Fragment key={tab.id}>
+						{placeTab(
+							tab,
+							<Tabs.Tab value={tab.id} className={clsx(tab.id, 'ui-tab', tab.buttonClassName)} data-testid={tab.id}>
+								{tab.label}
+								<TabBadge label={tab.badge} />
+							</Tabs.Tab>,
+						)}
+					</Fragment>
 				))}
 			</Tabs.List>
 		);

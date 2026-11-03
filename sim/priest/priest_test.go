@@ -131,7 +131,7 @@ func TestShadowPriest(t *testing.T) {
 }
 
 // The priest's own Prayer of Fortitude bids in the raid buff's category. Alone, the cast adds the
-// row's stamina for the row's mana; Arcane Brilliance lifts the priest's mana pool above the cost. With the raid buff up, the cast is turned away, and the priest's
+// row's stamina for the row's mana; Arcane Intellect lifts the priest's mana pool above the cost. With the raid buff up, the cast is turned away, and the priest's
 // copy, put up anyway as another priest's cast would, adds nothing.
 func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	rank := spellData.PrayerOfFortitude.Highest()
@@ -167,7 +167,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	}
 
 	t.Run("alone the cast adds the row's stamina for the row's mana", func(t *testing.T) {
-		sim, priest, spell := newSim(t, &proto.RaidBuffs{ArcaneBrilliance: true})
+		sim, priest, spell := newSim(t, &proto.RaidBuffs{ArcaneIntellect: true})
 		stamina, mana := priest.GetStats()[stats.Stamina], priest.CurrentMana()
 
 		if !spell.Cast(sim, &priest.Unit) {
@@ -182,7 +182,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	})
 
 	t.Run("the raid buff holds the category", func(t *testing.T) {
-		sim, priest, spell := newSim(t, &proto.RaidBuffs{PrayerOfFortitude: true})
+		sim, priest, spell := newSim(t, &proto.RaidBuffs{PowerWordFortitude: true})
 		stamina := priest.GetStats()[stats.Stamina]
 
 		if spell.Cast(sim, &priest.Unit) {
@@ -214,13 +214,13 @@ func TestDivineAegisMetricsOnlyRecordDirectCriticalHeals(t *testing.T) {
 		return nil
 	}
 	const divineAegisTriggeredID = 431624
-	bindingHeal := spellForMask(PriestSpellBindingHeal)
-	if bindingHeal == nil {
-		t.Fatal("Binding Heal was not registered")
+	flashHeal := spellForMask(PriestSpellFlashHeal)
+	if flashHeal == nil {
+		t.Fatal("Flash Heal was not registered")
 	}
-	divineAegis := priest.GetSpell(core.ActionID{SpellID: divineAegisTriggeredID, Tag: bindingHeal.ActionID.SpellID})
+	divineAegis := priest.GetSpell(core.ActionID{SpellID: divineAegisTriggeredID, Tag: flashHeal.ActionID.SpellID})
 	if divineAegis == nil {
-		t.Fatal("Divine Aegis metrics were not registered for Binding Heal")
+		t.Fatal("Divine Aegis metrics were not registered for Flash Heal")
 	}
 	penanceBoltAegis := false
 	for _, aegis := range priest.Spellbook {
@@ -242,7 +242,7 @@ func TestDivineAegisMetricsOnlyRecordDirectCriticalHeals(t *testing.T) {
 		t.Error("Divine Aegis metrics were not registered for Penance's healing bolt")
 	}
 
-	priest.OnHealDealt(sim, bindingHeal, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 100})
+	priest.OnHealDealt(sim, flashHeal, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 100})
 	for sim.CurrentTime <= core.SpellBatchWindow && !sim.Step() {
 	}
 	if got := divineAegis.SpellMetrics[target.UnitIndex].TotalShielding; got <= 0 {
@@ -252,7 +252,7 @@ func TestDivineAegisMetricsOnlyRecordDirectCriticalHeals(t *testing.T) {
 		t.Fatalf("Divine Aegis recorded %d hits after one critical heal, want 1", got)
 	}
 	fillShield := func() {
-		priest.OnHealDealt(sim, bindingHeal, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 1e9})
+		priest.OnHealDealt(sim, flashHeal, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 1e9})
 		until := sim.CurrentTime + core.SpellBatchWindow
 		for sim.CurrentTime <= until && !sim.Step() {
 		}

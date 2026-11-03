@@ -136,6 +136,7 @@ message APLValue {
         APLValueBossSpellIsCasting boss_spell_is_casting = 65;
         APLValueBossCurrentTarget boss_current_target = 120;
         APLValueTargetIsMobType target_is_mob_type = 133;
+        APLValueTargetIsBleedImmune target_is_bleed_immune = 143;
 
         // Resource values
         APLValueCurrentHealth current_health = 26;
@@ -517,6 +518,9 @@ message APLValueBossCurrentTarget {
 message APLValueTargetIsMobType {
     UnitReference target_unit = 1;
     MobType mob_type = 2;
+}
+message APLValueTargetIsBleedImmune {
+    UnitReference target_unit = 1;
 }
 message APLValueEncounterInArea {
     AreaType area_type = 1;

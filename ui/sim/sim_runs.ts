@@ -13,7 +13,7 @@ const REQUEST_TYPE: Record<SimRunKind, RequestTypes> = {
 // What a starting run clears first, which is not always its own type. Stat weights fan out across
 // the whole worker pool, so vanilla aborted everything before starting one; leaving a DPS sim
 // running means the two compete for workers and the DPS run finishes behind the modal and
-// overwrites the results panel. Bulk narrows to itself deliberately — see `features/bulk/model/run`.
+// overwrites the results panel. Bulk narrows to itself deliberately — see `features/bulk/model/run/run`.
 const ABORT_SCOPE: Record<SimRunKind, RequestTypes> = {
 	...REQUEST_TYPE,
 	[SimRunKind.StatWeights]: RequestTypes.All,

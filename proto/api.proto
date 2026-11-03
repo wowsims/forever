@@ -483,8 +483,9 @@ message BulkSimRequest {
 	string request_id = 1;
 	RaidSimRequest base_request = 2;
 	repeated BulkGearCandidate candidates = 3;
-	reserved 4;
-	reserved "optimized_candidates";
+	// Ranks and returns every candidate, generated ones too; top_results is not read then.
+	bool all_results = 4;
+	// 0 ranks the sim's default top results.
 	int32 top_results = 5;
 	reserved 6;
 	reserved "high_stage_iterations";
@@ -758,7 +759,7 @@ message StatWeightsRequest {
 
 // The ± each targeted EP runs extra iterations to reach.
 message StatWeightsTarget {
-	double ep_ci = 1; // The 90% ± of each EP to reach.
+	double ep_ci = 1; // The 90% ± of each EP to reach; a percent pseudo stat's ± is per rating point.
 	int32 max_iteration_multiplier = 2; // Caps each run at this multiple of its first pass's iterations; 0 means no cap.
 	repeated StatWeightsTargetMetric metrics = 3; // The metrics whose EP ± the target applies to; empty means DPS only.
 }
@@ -846,6 +847,8 @@ message StatWeightsResult {
 	StatWeightValues p_death = 6;
 	ErrorOutcome error = 7;
 	UnitStats sample_counts = 8; // Paired samples behind each stat's weight.
+	UnitStats step_below = 9; // How far each stat's run below the baseline moved it, as a negative; 0 without such a run.
+	UnitStats step_above = 10; // How far each stat's run above the baseline moved it, in the stat's own unit; 0 for a stat without runs.
 }
 message StatWeightValues {
 	UnitStats weights = 1;
@@ -957,8 +960,7 @@ message BulkCombinationCountRequest {
 message BulkCombinationCountResult {
 	int32 raw_combinations = 1;
 	int32 combinations = 2;
-	double iterations = 3;
-	ErrorOutcome error = 4;
+	ErrorOutcome error = 3;
 }
 
 message BulkCandidatesRequest {

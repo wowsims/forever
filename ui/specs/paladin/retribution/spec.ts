@@ -80,7 +80,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		// Default equipped gear.
 		gear: Presets.DefaultGearPreset.gear,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: Presets.TwistOfLightEpWeights.epWeights,
+		epWeights: Presets.UnsealedWrathEpWeights.epWeights,
 		statCaps: (() => {
 			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8);
 			const expCap = new Stats().withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
@@ -90,7 +90,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,
 		// Default talents.
-		talents: Presets.TwistOfLightTalents.data,
+		talents: Presets.UnsealedWrathTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		other: Presets.OtherDefaults,
@@ -108,7 +108,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	// IconInputs to include in the 'Player' section on the settings tab.
 	playerIconInputs: [],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
-	includeBuffDebuffInputs: [Stat.StatDefenseRating, Stat.StatMP5, Stat.StatHolyDamage],
+	includeBuffDebuffInputs: [Stat.StatDefenseRating, Stat.StatMP5, Stat.StatHolyDamage, Stat.StatSpirit],
 	excludeBuffDebuffInputs: [
 		BuffDebuffInputs.AtieshDruid,
 		BuffDebuffInputs.AtieshMage,
@@ -141,10 +141,10 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	},
 
 	presets: {
-		epWeights: [Presets.TwistOfLightEpWeights, Presets.HolyShockEpWeights],
+		epWeights: [Presets.UnsealedWrathEpWeights, Presets.HolyShockEpWeights],
 		rotations: [Presets.SimpleRotation, Presets.DefaultAplPreset, Presets.HolyShockAplPreset],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.TwistOfLightTalents, Presets.HolyShockTalents, Presets.LightsVigilTalents],
+		talents: [Presets.UnsealedWrathTalents, Presets.HolyShockTalents],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.DefaultGearPreset, Presets.HolyShockGearPreset],
 		settings: [Presets.DefaultSettings, Presets.HolyShockSettings],
@@ -154,10 +154,10 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	autoRotation: aplFor,
 
 	// The talents pick the APL, as for the Auto rotation; the options set its variables and the spells of
-	// its aura and seal groups. With no assigned seal, Has assigned seal is false and the APL never
-	// reaches Cast assigned seal.
+	// its aura and judgement groups. With no assigned judgement, Has assigned judgement is false and the
+	// APL never reaches Cast assigned judgement.
 	simpleRotation: (player: Player<Spec.SpecRetributionPaladin>, simple: SpecRotation<Spec.SpecRetributionPaladin>, cooldowns: Cooldowns): APLRotation => {
-		const { holyShock, twistOfLight, sealOfCommand } = player.getTalents();
+		const { unsealedWrath, sealOfCommand } = player.getTalents();
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
 		const rotation = APLRotation.clone(aplFor(player));
 		const aura = Inputs.AURA_SPELLS[simple.aura];
@@ -169,10 +169,8 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};
 
-		if (!holyShock) {
-			values['Use Seal of Command'] = String(sealOfCommand && (twistOfLight || simple.nonTwistSeal === PaladinSeal.SealOfCommand));
-			values['Use Seal of Righteousness'] = String(twistOfLight || simple.nonTwistSeal === PaladinSeal.SealOfRighteousness);
-		}
+		values['Use Seal of Command'] = String(sealOfCommand && (unsealedWrath || simple.seal === PaladinSeal.SealOfCommand));
+		values['Use Seal of Righteousness'] = String(unsealedWrath || !sealOfCommand || simple.seal === PaladinSeal.SealOfRighteousness);
 
 		rotation.valueVariables = rotation.valueVariables.map(variable =>
 			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,
@@ -193,7 +191,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 	reforge: {
 		getEPDefaults: (player: Player<Spec.SpecRetributionPaladin>): Stats => {
-			return player.getTalents().holyShock ? Presets.HolyShockEpWeights.epWeights : Presets.TwistOfLightEpWeights.epWeights;
+			return player.getTalents().holyShock ? Presets.HolyShockEpWeights.epWeights : Presets.UnsealedWrathEpWeights.epWeights;
 		},
 	},
 });

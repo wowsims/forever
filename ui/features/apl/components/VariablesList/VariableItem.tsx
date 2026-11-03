@@ -70,7 +70,7 @@ export const VariableItem = ({ id, player, config, onCopy, onDelete }: VariableI
 			}
 			testId="apl-variable-root">
 			<Tree.Item.Body>
-				<Field {...frameProps} density="compact" className={[frameProps.className, 'm-0']} testId="apl-list-item-picker-root" disabled={disabled}>
+				<Field {...frameProps} size="xs" className={[frameProps.className, 'm-0']} testId="apl-list-item-picker-root" disabled={disabled}>
 					<AplProvider changeSource={row.changeSource}>
 						<ValuePicker player={player} config={row.value} />
 					</AplProvider>

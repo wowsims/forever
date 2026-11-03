@@ -68,9 +68,10 @@ beforeEach(() => {
 describe('StringField', () => {
 	it.each([
 		[undefined, 'sm'],
+		['xs', 'xs'],
 		['md', 'md'],
-	] as const)('sizes the input as %s by default or as asked (%s)', (inputSize, expected) => {
-		render(<Harness inputSize={inputSize} />);
+	] as const)('sizes the input as %s by default or as asked (%s)', (size, expected) => {
+		render(<Harness size={size} />);
 
 		expect(input().getAttribute('data-size')).toBe(expected);
 	});

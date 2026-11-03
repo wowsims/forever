@@ -15,12 +15,12 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 	rows := []ResolvedBuff{
 		{
 			BuffSpec: buffmanifest.BuffSpec{
-				Field: "prayer_of_shadow_protection",
+				Field: "shadow_protection",
 				Stats: []proto.Stat{proto.Stat_StatShadowResistance, proto.Stat_StatStamina},
 			},
-			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoBool, Go: "PrayerOfShadowProtection",
+			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoBool, Go: "ShadowProtection",
 			Owner:   proto.Class_ClassPriest,
-			SpellID: 27683, CastSpellID: 27683, DBName: "Prayer of Shadow Protection",
+			SpellID: 10958, CastSpellID: 10958, DBName: "Shadow Protection",
 		},
 		{
 			BuffSpec: buffmanifest.BuffSpec{
@@ -39,19 +39,38 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 			Go: "ManaTideTotems", Owner: proto.Class_ClassShaman,
 			SpellID: 17359, CastSpellID: 17359, DBName: "Mana Tide Totem",
 		},
+		{
+			BuffSpec: buffmanifest.BuffSpec{
+				Field: "greater_blessing_of_might", Stats: []proto.Stat{proto.Stat_StatAttackPower},
+			},
+			Scope: buffmanifest.ScopeIndividual, Proto: buffmanifest.ProtoInt32, Go: "GreaterBlessingOfMight",
+			SpellID: 25782, CastSpellID: 25782, Name: "Greater Blessing of Might",
+			RankStates: []rankState{
+				{SpellID: 25782, CastSpellID: 25782, Label: "Greater Blessing of Might Rank 1"},
+				{SpellID: 25916, CastSpellID: 25916, Label: "Greater Blessing of Might Rank 2"},
+			},
+		},
 	}
 
 	rendered, err := RenderBuffsDebuffsTS(rows)
 	if err != nil {
-		t.Fatalf("rendering three rows: %v", err)
+		t.Fatalf("rendering four rows: %v", err)
 	}
 	out := string(rendered)
 
 	want := []string{
-		`export const PrayerOfShadowProtection = makeBooleanRaidBuffInput({
-	actionId: ActionId.fromSpellId(27683),
-	fieldName: 'prayerOfShadowProtection',
-	label: 'Prayer of Shadow Protection',
+		`export const GreaterBlessingOfMight = makeRankedIndividualBuffInput({
+	ranks: [
+		{ actionId: ActionId.fromSpellId(25782), label: 'Greater Blessing of Might Rank 1' },
+		{ actionId: ActionId.fromSpellId(25916), label: 'Greater Blessing of Might Rank 2' },
+	],
+	fieldName: 'greaterBlessingOfMight',
+	label: 'Greater Blessing of Might',
+});`,
+		`export const ShadowProtection = makeBooleanRaidBuffInput({
+	actionId: ActionId.fromSpellId(10958),
+	fieldName: 'shadowProtection',
+	label: 'Shadow Protection',
 });`,
 		`export const HuntersMark = makeTristateDebuffInput({
 	actionId: ActionId.fromSpellId(14325),
@@ -67,7 +86,7 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 });`,
 		`export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 	{
-		config: PrayerOfShadowProtection,
+		config: ShadowProtection,
 		stats: [Stat.StatShadowResistance, Stat.StatStamina],
 		ownerClass: Class.ClassPriest,
 	},
@@ -79,7 +98,12 @@ func TestRenderBuffsDebuffsTSShapes(t *testing.T) {
 		ownerClass: Class.ClassShaman,
 	},
 ];`,
-		`export const GENERATED_INDIVIDUAL_BUFFS_CONFIG: RenderableStatOptions[] = [];`,
+		`export const GENERATED_INDIVIDUAL_BUFFS_CONFIG: RenderableStatOptions[] = [
+	{
+		config: GreaterBlessingOfMight,
+		stats: [Stat.StatAttackPower],
+	},
+];`,
 		`export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: HuntersMark,
@@ -105,10 +129,10 @@ func TestRenderBuffsDebuffsTSSkips(t *testing.T) {
 			Reason: "no SpellName row for Misery.",
 		},
 		{
-			BuffSpec: buffmanifest.BuffSpec{Field: "greater_blessing_of_salvation"},
+			BuffSpec: buffmanifest.BuffSpec{Field: "greater_blessing_of_salvation", Kind: buffmanifest.KindFlag},
 			Scope:    buffmanifest.ScopeIndividual, Proto: buffmanifest.ProtoBool,
 			Go: "GreaterBlessingOfSalvation", Owner: proto.Class_ClassPaladin,
-			SpellID: 25895, DBName: "Greater Blessing of Salvation",
+			Reason: "the spell is gone from the game files.",
 		},
 	}
 
@@ -125,7 +149,7 @@ func TestRenderBuffsDebuffsTSSkips(t *testing.T) {
 	}
 	for _, comment := range []string{
 		"// misery: no SpellName row for Misery.",
-		"// greater_blessing_of_salvation: " + manualBuffInputs["greater_blessing_of_salvation"],
+		"// greater_blessing_of_salvation: the spell is gone from the game files.",
 	} {
 		if !strings.Contains(out, comment) {
 			t.Errorf("the rendered file is missing %q:\n%s", comment, out)

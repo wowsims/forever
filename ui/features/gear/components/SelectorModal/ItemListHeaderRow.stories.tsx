@@ -36,6 +36,6 @@ export const ItemsTab: Story = {
 	},
 };
 
-export const EnchantsTab: Story = { args: { label: SelectorModalTabs.Enchants, ep: undefined, sortBy: ItemListSortBy.ILVL } };
+export const EnchantsTab: Story = { args: { label: SelectorModalTabs.Enchants } };
 
 export const EpHidden: Story = { args: { ep: { showValues: false, tooltipId: 'ep-tooltip' } } };

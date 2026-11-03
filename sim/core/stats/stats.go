@@ -591,9 +591,10 @@ type PseudoStats struct {
 	// Effects that apply when this unit is the target.
 	///////////////////////////////////////////////////
 
-	CanBlock bool
-	CanParry bool
-	CanCrush bool
+	CanBlock       bool
+	CanBlockSpells bool // With CanBlock, non-physical melee attacks roll a block too (A_ALLOW_BLOCKING_SPELLS). Magic spells stay unblockable.
+	CanParry       bool
+	CanCrush       bool
 
 	ParryHaste bool
 

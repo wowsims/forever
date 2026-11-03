@@ -54,6 +54,7 @@ import {
 	RestorationShaman_Rotation,
 	ShamanTalents,
 } from '@generated/proto/shaman';
+import type { SavedSettings } from '@generated/proto/ui';
 import { Warlock, Warlock_Options, Warlock_Rotation, WarlockTalents } from '@generated/proto/warlock';
 import {
 	DpsWarrior,
@@ -504,6 +505,13 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 				: ProtectionWarrior_Options.create(),
 	},
 };
+
+// True when `entry` holds spec options for the spec `live` is; none, or another spec's, holds nothing to apply.
+export const isSameSpecArm = (entry: Player['spec'], live: Player['spec']): boolean => entry.oneofKind !== undefined && entry.oneofKind === live.oneofKind;
+
+// An entry without spec options for the live spec takes the live ones, which loading it keeps.
+export const withLiveSpecOptions = (settings: SavedSettings, live: SavedSettings | null): SavedSettings =>
+	!live || isSameSpecArm(settings.spec, live.spec) ? settings : { ...settings, spec: live.spec };
 
 // Returns a copy of playerOptions, with the class field set.
 export function withSpec<SpecType extends Spec>(spec: Spec, player: Player, specOptions: SpecOptions<SpecType>): Player {

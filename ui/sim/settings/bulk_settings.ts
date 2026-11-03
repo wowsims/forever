@@ -3,18 +3,30 @@
 // is `bulk[player.storeKey]` and the key is the player's spec prefix.
 import { BulkSettings as BulkSettingsProto } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
-import { BulkEnchantPresets, BulkEncounterSelection } from '@generated/proto/ui';
+import {
+	BulkBuildBundles,
+	BulkEnchantPresets,
+	BulkEnchantPresetSelection,
+	BulkEncounterRef,
+	BulkEncounterSelection,
+	BulkTopResults,
+} from '@generated/proto/ui';
 import type { IMessageType } from '@protobuf-ts/runtime';
 
 import { BulkSimItemSlot } from '../bulk/constants_auto_gen';
 import type { Player } from '../player/player';
-import { BulkSlice, patchKeyed, seedKeyed } from '../state/sim_store';
+import { type BulkMode, BulkSlice, patchKeyed, seedKeyed } from '../state/sim_store';
 import { specStorageKey } from '../state/storage_keys';
+import { BULK_SIM_DEFAULT_TOP_RESULTS } from '../wasm/bulk_sim/constants_auto_gen';
 
 const BULK_SETTINGS_STORAGE_KEY = 'bulk-settings.v2';
 const LEGACY_BULK_SETTINGS_STORAGE_KEY = 'bulk-settings.v1';
 const BULK_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-enchant-presets.v1';
+const BULK_BUILD_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-build-enchant-presets.v1';
+const BULK_BUILD_BUNDLES_STORAGE_KEY = 'bulk-build-bundles.v1';
 const BULK_ENCOUNTERS_STORAGE_KEY = 'bulk-encounters.v1';
+const BULK_MODE_STORAGE_KEY = 'bulk-mode.v1';
+const BULK_TOP_RESULTS_STORAGE_KEY = 'bulk-top-results.v1';
 
 const initialBulkSlice = (): BulkSlice => ({
 	items: [],
@@ -29,14 +41,22 @@ const initialBulkSlice = (): BulkSlice => ({
 		[ItemSlot.ItemSlotOffHand, []],
 	]),
 	enchantPresets: [],
-	encounters: [],
+	buildEnchantPresets: [],
+	bundles: [],
+	currentBundleChecked: true,
+	// The current encounter's ref, so it is checked until unticked.
+	encounters: [BulkEncounterRef.create()],
+	mode: 'gear',
+	gearTopResults: BULK_SIM_DEFAULT_TOP_RESULTS,
+	buildsTopResults: 0,
 	combinations: 0,
-	iterations: 0,
 	combinationsError: null,
 	combinationsPending: false,
 	isRunning: false,
-	started: false,
-	results: null,
+	gearStarted: false,
+	buildsStarted: false,
+	gearResults: null,
+	buildsResults: null,
 	runGear: null,
 	v: { settings: 0, items: 0 },
 });
@@ -94,8 +114,46 @@ export const loadStoredEnchantPresets = (player: Player<any>): BulkEnchantPreset
 export const storeEnchantPresets = (player: Player<any>, presets: BulkEnchantPresets) =>
 	storeProto(player, BULK_ENCHANT_PRESETS_STORAGE_KEY, BulkEnchantPresets, presets);
 
+export const loadStoredBulkBuildEnchantPresets = (player: Player<any>): BulkEnchantPresetSelection | null =>
+	loadStoredProto(player, BULK_BUILD_ENCHANT_PRESETS_STORAGE_KEY, BulkEnchantPresetSelection);
+
+export const storeBulkBuildEnchantPresets = (player: Player<any>, selection: BulkEnchantPresetSelection) =>
+	storeProto(player, BULK_BUILD_ENCHANT_PRESETS_STORAGE_KEY, BulkEnchantPresetSelection, selection);
+
+export const loadStoredBulkBundles = (player: Player<any>): BulkBuildBundles | null =>
+	loadStoredProto(player, BULK_BUILD_BUNDLES_STORAGE_KEY, BulkBuildBundles);
+
+export const storeBulkBundles = (player: Player<any>, value: BulkBuildBundles) => storeProto(player, BULK_BUILD_BUNDLES_STORAGE_KEY, BulkBuildBundles, value);
+
 export const loadStoredBulkEncounters = (player: Player<any>): BulkEncounterSelection | null =>
 	loadStoredProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection);
 
-export const storeBulkEncounters = (player: Player<any>, selection: BulkEncounterSelection) =>
-	storeProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection, selection);
+export const storeBulkEncounters = (player: Player<any>, value: BulkEncounterSelection) =>
+	storeProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection, value);
+
+// Null when nothing is stored and when the blob does not parse: an empty message would read as All for both modes. A
+// negative value loads as its mode's default, 5 for Gear and All for Builds.
+export const loadStoredBulkTopResults = (player: Player<any>): BulkTopResults | null => {
+	const stored = player.sim.env.storage.getItem(specStorageKey(player.getPlayerSpec(), BULK_TOP_RESULTS_STORAGE_KEY));
+	if (stored == null) return null;
+	try {
+		const { gear, builds } = BulkTopResults.fromJsonString(stored, { ignoreUnknownFields: true });
+		return BulkTopResults.create({ gear: gear < 0 ? BULK_SIM_DEFAULT_TOP_RESULTS : gear, builds: builds < 0 ? 0 : builds });
+	} catch {
+		return null;
+	}
+};
+
+export const storeBulkTopResults = (player: Player<any>, value: BulkTopResults) => storeProto(player, BULK_TOP_RESULTS_STORAGE_KEY, BulkTopResults, value);
+
+// Null when nothing or an unknown mode is stored.
+export const loadStoredBulkMode = (player: Player<any>): BulkMode | null => {
+	const stored = player.sim.env.storage.getItem(specStorageKey(player.getPlayerSpec(), BULK_MODE_STORAGE_KEY));
+	return stored === 'gear' || stored === 'builds' ? stored : null;
+};
+
+export const storeBulkMode = (player: Player<any>, mode: BulkMode) => {
+	try {
+		player.sim.env.storage.setItem(specStorageKey(player.getPlayerSpec(), BULK_MODE_STORAGE_KEY), mode);
+	} catch {}
+};

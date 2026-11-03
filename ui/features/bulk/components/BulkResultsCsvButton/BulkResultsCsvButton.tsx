@@ -3,8 +3,8 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { downloadString } from '@ui-kit/utils/dom';
 
-import { useBulkState } from '../../hooks/useBulkState';
-import { BULK_RESULTS_CSV_FILE_NAME, bulkResultsCsv } from '../../model/results_csv';
+import { useBulkResults } from '../../hooks/useBulkResults';
+import { BULK_RESULTS_CSV_FILE_NAME, bulkResultsCsv } from '../../model/results/results_csv';
 
 export interface BulkResultsCsvButtonViewProps {
 	onExport: () => void;
@@ -17,9 +17,9 @@ export const BulkResultsCsvButtonView = ({ onExport }: BulkResultsCsvButtonViewP
 	</Button>
 );
 
-// Exports every finished encounter of the last run; renders nothing before a run has finished one.
+// Exports every finished encounter of the shown mode's last run; renders nothing before a run has finished one.
 export const BulkResultsCsvButton = () => {
-	const results = useBulkState(slice => slice.results);
+	const results = useBulkResults();
 	if (!results) return null;
 	return <BulkResultsCsvButtonView onExport={() => downloadString(bulkResultsCsv(results), BULK_RESULTS_CSV_FILE_NAME, 'text/csv')} />;
 };

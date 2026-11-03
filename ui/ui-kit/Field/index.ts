@@ -1,11 +1,11 @@
 export { Field } from './Field';
-export { useFieldDescribedBy } from './hooks/useField';
+export { useControlSize, useFieldDescribedBy } from './hooks/useField';
 export type {
 	ControlledProps,
+	ControlSize,
 	FieldClearPartProps,
 	FieldClearProps,
 	FieldControlProps,
-	FieldDensity,
 	FieldDescriptionProps,
 	FieldFrameProps,
 	FieldLabelProps,

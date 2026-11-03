@@ -23,17 +23,27 @@ func (druid *Druid) registerMaulSpell() {
 	}
 	damage := druid.RegisterSpell(config)
 	druid.Maul = druid.makeMaulQueueSpellAndAura(damage)
+	druid.AutoAttacks.SetQueuedSwingCanceler(druid.cancelMaulQueue)
+}
+
+// Drops the queued Maul, and a press still waiting out the queue delay.
+func (druid *Druid) cancelMaulQueue(sim *core.Simulation) {
+	if !druid.maulPending.IsConsumed() {
+		druid.maulPending.Cancel(sim)
+		druid.maulPending = nil
+	}
+	if druid.maulQueueAura != nil {
+		druid.maulQueueAura.Deactivate(sim)
+	}
 }
 
 func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell {
-	isMaulQueued := false
-
 	druid.maulQueueAura = druid.RegisterAura(core.Aura{
 		Label:    "Maul Queue Aura",
 		ActionID: maulSpell.ActionID,
 		Duration: core.NeverExpires,
 		OnReset: func(_ *core.Aura, _ *core.Simulation) {
-			isMaulQueued = false
+			druid.maulPending = nil
 		},
 		OnGain: func(_ *core.Aura, _ *core.Simulation) {
 			druid.maulQueueSpell = maulSpell.Spell
@@ -65,7 +75,7 @@ func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell
 		ExtraCastCondition: func(sim *core.Simulation, _ *core.Unit) bool {
 			return druid.maulQueueAura != nil &&
 				!druid.maulQueueAura.IsActive() &&
-				!isMaulQueued &&
+				druid.maulPending.IsConsumed() &&
 				druid.CurrentRage() >= maulSpell.Cost.GetCurrentCost() &&
 				druid.maulRealismICD.IsReady(sim)
 		},
@@ -73,17 +83,16 @@ func (druid *Druid) makeMaulQueueSpellAndAura(maulSpell *DruidSpell) *DruidSpell
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
 			maulSpell.CountManualCast(target)
 			if druid.maulRealismICD.IsReady(sim) {
-				isMaulQueued = true
 				druid.maulRealismICD.Use(sim)
-				sim.AddPendingAction(&core.PendingAction{
+				druid.maulPending = &core.PendingAction{
 					NextActionAt: sim.CurrentTime + druid.maulRealismICD.Duration,
 					OnAction: func(sim *core.Simulation) {
 						if druid.InForm(Bear) {
 							druid.maulQueueAura.Activate(sim)
 						}
-						isMaulQueued = false
 					},
-				})
+				}
+				sim.AddPendingAction(druid.maulPending)
 			}
 		},
 	})

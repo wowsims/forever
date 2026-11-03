@@ -17,7 +17,7 @@ import (
 )
 
 func newBear(t *testing.T) (*core.Simulation, *GuardianDruid) {
-	return newBearWithTalents(t, "0000000000000000-00000000000000000000-0000000000000000")
+	return newBearWithTalents(t, "0000000000000000-00000000000100000000-0000000000000000")
 }
 
 func newBearWithTalents(t *testing.T, talents string) (*core.Simulation, *GuardianDruid) {
@@ -96,25 +96,6 @@ func TestDemoralizingRoarIgnoresDodge(t *testing.T) {
 	t.Error("demoralizing roar never landed against a target that dodges every melee attack")
 }
 
-func TestBerserkPrimalBiteStrikesThreeTargets(t *testing.T) {
-	sim, bear := newBearAgainst(t, "0000000000000000-00000000000100000001-0000000000000000", 5)
-	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
-	bear.BerserkAura.Activate(sim)
-	bear.AddRage(sim, 100, metrics)
-	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
-		t.Fatal("primal bite did not cast under berserk")
-	}
-	struck := 0
-	for _, target := range sim.Encounter.ActiveTargetUnits {
-		if m := bear.PrimalBite.SpellMetrics[target.UnitIndex]; m.Hits+m.Crits+m.Misses+m.Dodges+m.Parries+m.Glances+m.Blocks > 0 {
-			struck++
-		}
-	}
-	if struck != 3 {
-		t.Errorf("primal bite under berserk struck %d targets, want 3", struck)
-	}
-}
-
 // Bash 8983 states a melee defense type and a miss refund: a dodged Bash stuns nothing and gives rage back.
 func TestDodgedBashStunsNothingAndRefunds(t *testing.T) {
 	sim, bear := newBear(t)
@@ -135,68 +116,6 @@ func TestDodgedBashStunsNothingAndRefunds(t *testing.T) {
 	if spent := before - bear.CurrentRage(); spent >= bear.Bash.DefaultCast.Cost {
 		t.Errorf("a dodged bash spent %v of its %v rage", spent, bear.Bash.DefaultCast.Cost)
 	}
-}
-
-// Berserk effect 2 is -100% on Primal Bite's 6 s cooldown, while Berserk is up.
-func TestBerserkLiftsPrimalBiteCooldownOnlyWhileUp(t *testing.T) {
-	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
-	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
-	cast := func(when string) {
-		t.Helper()
-		bear.AddRage(sim, 100, metrics)
-		if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
-			t.Fatalf("primal bite did not cast %s", when)
-		}
-		sim.CurrentTime += 2 * time.Second
-	}
-
-	bear.BerserkAura.Activate(sim)
-	cast("under berserk")
-	if !bear.PrimalBite.IsReady(sim) {
-		t.Errorf("primal bite is on cooldown until %v under berserk", bear.PrimalBite.ReadyAt())
-	}
-	bear.BerserkAura.Deactivate(sim)
-	cast("after berserk")
-	if got, want := bear.PrimalBite.ReadyAt(), sim.CurrentTime+4*time.Second; got != want {
-		t.Errorf("primal bite is ready at %v after berserk, want %v", got, want)
-	}
-}
-
-// Berserk's tooltip "removes its cooldown": a Primal Bite cooldown already running when Berserk starts
-// ends with it.
-func TestBerserkClearsARunningPrimalBiteCooldown(t *testing.T) {
-	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
-	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
-	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
-		t.Fatal("primal bite did not cast")
-	}
-	sim.CurrentTime += 2 * time.Second
-	if bear.PrimalBite.IsReady(sim) {
-		t.Fatal("primal bite is ready 2 s after a cast without berserk")
-	}
-	bear.BerserkAura.Activate(sim)
-	if !bear.PrimalBite.IsReady(sim) {
-		t.Errorf("primal bite is on cooldown until %v once berserk starts", bear.PrimalBite.ReadyAt())
-	}
-}
-
-func TestBearBerserkCastLeavesTheAttackGlobalUnchanged(t *testing.T) {
-	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000100000001-0000000000000000")
-	bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
-	if !bear.PrimalBite.Cast(sim, bear.CurrentTarget) {
-		t.Fatal("Primal Bite did not cast")
-	}
-	ready := bear.GCD.ReadyAt()
-	if !bear.Berserk.Cast(sim, bear.CurrentTarget) {
-		t.Fatal("Berserk did not cast during the attack global")
-	}
-	if bear.GCD.ReadyAt() != ready {
-		t.Fatal("Berserk changed the attack global")
-	}
-	if !bear.PrimalBite.IsReady(sim) {
-		t.Fatal("Berserk left Primal Bite on cooldown")
-	}
-	t.Logf("Berserk GCD=%s; attack global ready at %s; Primal Bite ready=%v", bear.Berserk.DefaultCast.GCD, ready, bear.PrimalBite.IsReady(sim))
 }
 
 func TestBearBarkskinReducesPhysicalDamageWithoutLeavingForm(t *testing.T) {
@@ -249,7 +168,7 @@ func TestFrenziedRegenerationSpendsRageForHealth(t *testing.T) {
 }
 
 func TestFurorPreservesEnergyWhenStartingInABearForm(t *testing.T) {
-	sim, bear := newBearWithTalents(t, "0000000000000000-00000000000000000000-0500000000000000")
+	sim, bear := newBearWithTalents(t, "0000000000000000-05000000000000000000-0000000000000000")
 	if !bear.InForm(druid.DireBear) {
 		t.Fatal("the bear did not start in dire bear form")
 	}
@@ -283,6 +202,24 @@ func TestFirstLacerateHitsForNothing(t *testing.T) {
 	}
 	if got := bear.Lacerate.SpellMetrics[target.UnitIndex].TotalDamage; got != 0 {
 		t.Errorf("the first lacerate dealt %v, want 0 with no stack already on the target", got)
+	}
+}
+
+func TestLacerateMissesABleedImmuneTarget(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	target.BleedImmune = true
+	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
+	for range 20 {
+		bear.AddRage(sim, 50, metrics)
+		bear.Lacerate.Cast(sim, target)
+		sim.CurrentTime += 2 * time.Second
+	}
+	if bear.Lacerate.Dot(target).IsActive() {
+		t.Fatal("lacerate left a bleed on a bleed-immune target")
+	}
+	if got := bear.Lacerate.SpellMetrics[target.UnitIndex].TotalDamage; got != 0 {
+		t.Errorf("lacerate dealt %v to a bleed-immune target", got)
 	}
 }
 
@@ -364,12 +301,12 @@ func TestSwipeDoesNotScaleWithAttackPower(t *testing.T) {
 }
 
 // A bear's swing takes the two-hander rage factor: 4.5 rage per second of its 2.5 second swing is 11.25,
-// and a crit adds the swing's one-hand rage, 3.46 * 2.5 = 8.65, for 19.9.
+// and a crit doubles it, for 22.5.
 func TestBearSwingRageTakesTheTwoHandFactor(t *testing.T) {
 	for _, c := range []struct {
 		outcome core.HitOutcome
 		want    float64
-	}{{core.OutcomeHit, 11.25}, {core.OutcomeCrit, 19.9}} {
+	}{{core.OutcomeHit, 11.25}, {core.OutcomeCrit, 22.5}} {
 		sim, bear := newBear(t)
 		bear.SpendRage(sim, bear.CurrentRage(), bear.NewRageMetrics(core.ActionID{SpellID: 1}))
 		result := &core.SpellResult{Target: bear.CurrentTarget, Outcome: c.outcome, Damage: 100}
@@ -398,7 +335,7 @@ func TestBearFormsRaiseThreatByHalf(t *testing.T) {
 }
 
 // Natural Reaction 5/5, which the Bear preset leaves out.
-const naturalReactionTalents = "0500220000000000-55200322120132012551-0000000000000000"
+const naturalReactionTalents = "0500220000000000-50200322123102125510-0500000000000000"
 
 // Natural Reaction 5/5 (417051): every dodge in a bear form grants 417053's 5 rage.
 func TestNaturalReactionGivesRageOnDodges(t *testing.T) {
@@ -587,7 +524,7 @@ func TestBearChargeMovement(t *testing.T) {
 			req := bearNakedRequest()
 			req.Raid.Tanks = nil
 			player := req.Raid.Parties[0].Players[0]
-			player.TalentsString = "000000-000000001001"
+			player.TalentsString = "000000-0000000010000000001"
 			player.Rotation = &proto.APLRotation{}
 			player.DistanceFromTarget = distance
 			sim := core.NewSim(req, simsignals.CreateSignals())
@@ -646,10 +583,10 @@ func TestBearChargeRequiresRangeRageAndTalent(t *testing.T) {
 		distance, rage float64
 		talents        string
 	}{
-		{"too_close", 5, 20, "000000-000000001001"},
-		{"too_far", 26, 20, "000000-000000001001"},
-		{"no_rage", 25, 0, "000000-000000001001"},
-		{"no_talent", 25, 20, "000000-000000000001"},
+		{"too_close", 5, 20, "000000-0000000010000000001"},
+		{"too_far", 26, 20, "000000-0000000010000000001"},
+		{"no_rage", 25, 0, "000000-0000000010000000001"},
+		{"no_talent", 25, 20, "000000-0000000000000000001"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			req := bearNakedRequest()

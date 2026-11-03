@@ -6,7 +6,6 @@ import { ConsumesSpec, Profession, PseudoStat, Race, Spec, Stat, TristateEffect 
 import {
 	PaladinAura,
 	PaladinJudgement,
-	PaladinSeal,
 	RetributionPaladin_Options as RetributionPaladinOptions,
 	RetributionPaladin_Rotation as RetributionPaladinRotation,
 } from '@generated/proto/paladin';
@@ -27,7 +26,6 @@ export const DefaultAplPreset = PresetUtils.makePresetAPLRotation('Default', Def
 export const DefaultSimpleRotation = RetributionPaladinRotation.create({
 	aura: PaladinAura.RetributionAura,
 	assignedJudgement: PaladinJudgement.JudgementOfTheCrusader,
-	nonTwistSeal: PaladinSeal.SealOfCommand,
 	pullRange: 25,
 });
 export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecRetributionPaladin, DefaultSimpleRotation);
@@ -41,16 +39,15 @@ export const DefaultGearPreset = PresetUtils.makePresetGear('Default', DefaultGe
 	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
 });
 
-// Shin Blade, which the Holy Shock APL swaps in while the Manual Crowd Pummeler is on cooldown.
+// The Manual Crowd Pummeler, which the Holy Shock APL equips before the pull and swaps back in when its cooldown is nearly up.
 export const HolyShockItemSwap = PresetUtils.makePresetItemSwapGear('Holy Shock', HolyShockItemSwapGear);
 
 export const DefaultOptions = RetributionPaladinOptions.create({
 	classOptions: {},
 });
 
-export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '550030032101012--052252300012303' }));
-export const LightsVigilTalents = PresetUtils.makePresetTalents("Light's Vigil", SavedTalents.create({ talentsString: '55003003201121251--05225030201' }));
-export const TwistOfLightTalents = PresetUtils.makePresetTalents('Twist of Light', SavedTalents.create({ talentsString: '55003003--05225331101330321' }));
+export const HolyShockTalents = PresetUtils.makePresetTalents('Holy Shock', SavedTalents.create({ talentsString: '05025210221021--0523330110130033' }));
+export const UnsealedWrathTalents = PresetUtils.makePresetTalents('Unsealed Wrath', SavedTalents.create({ talentsString: '050250002-501-05233011201301351' }));
 
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	'Holy Shock',
@@ -76,8 +73,8 @@ export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-export const TwistOfLightEpWeights = PresetUtils.makePresetEpWeights(
-	'Twist of Light',
+export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
+	'Unsealed Wrath',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.4,
@@ -102,6 +99,7 @@ export const TwistOfLightEpWeights = PresetUtils.makePresetEpWeights(
 
 export const DefaultConsumables = ConsumesSpec.create({
 	offensivePotId: Consumables.MajorSpellblastingPotion.id,
+	resourcePotId: Consumables.MajorManaPotion.id,
 	flaskId: Consumables.FlaskOfSupremePower.id,
 	foodId: Consumables.LobsterStew.id,
 	conjuredId: Consumables.DemonicRune.id,
@@ -117,22 +115,23 @@ export const DefaultConsumables = ConsumesSpec.create({
 		Consumables.GreaterMagebloodElixir.id,
 		Consumables.JujuMight.id,
 	],
-	mhImbueId: Consumables.BrilliantWizardOil.id,
-	swapMhImbueId: Consumables.BrilliantWizardOil.id,
+	mhImbueId: Consumables.ShadowOil.id,
 });
 
 export const HolyShockConsumables = ConsumesSpec.create({
 	...DefaultConsumables,
+	swapMhImbueId: Consumables.FrostOil.id,
 	extraIds: [Consumables.CerebralCortexCompound.id, Consumables.GoblinSapperCharge.id, Consumables.DragonbreathChili.id, Consumables.GordokGreenGrog.id],
 });
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfSpirit: true,
-	arcaneBrilliance: true,
-	giftOfTheWild: true,
-	prayerOfFortitude: true,
-	strengthOfEarthTotem: true,
+	arcaneIntellect: true,
+	markOfTheWild: true,
+	powerWordFortitude: true,
+	strengthOfEarthTotem: 1,
 	windfuryTotem: true,
+	graceOfAirTotem: 1,
 	battleShout: 1, // Rank 6
 	leaderOfThePack: true,
 });
@@ -143,9 +142,8 @@ export const DefaultPartyBuffs = PartyBuffs.create({
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: true,
-	greaterBlessingOfMight: true,
-	greaterBlessingOfSalvation: true,
+	greaterBlessingOfWisdom: 1,
+	greaterBlessingOfMight: 1,
 });
 
 export const DefaultDebuffs = Debuffs.create({
@@ -189,9 +187,9 @@ export const DefaultSettings = settings('Default', DefaultConsumables);
 export const HolyShockSettings = settings('Holy Shock', HolyShockConsumables, HolyShockItemSwap);
 
 // The Simple rotation picks the Default or the Holy Shock APL from the talents.
-export const DefaultBuild = PresetUtils.makePresetBuild('Twist of Light', {
+export const DefaultBuild = PresetUtils.makePresetBuild('Unsealed Wrath', {
 	gear: DefaultGearPreset,
-	talents: TwistOfLightTalents,
+	talents: UnsealedWrathTalents,
 	rotationType: APLRotationType.TypeSimple,
 	settings: DefaultSettings,
 });

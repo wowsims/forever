@@ -1,5 +1,6 @@
 import { Autocomplete } from '@base-ui/react/autocomplete';
-import { Field } from '@ui-kit/Field';
+import { type ControlSize, Field, useControlSize } from '@ui-kit/Field';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import clsx from 'clsx';
 import { type Key, type ReactNode, type RefObject } from 'react';
@@ -20,6 +21,7 @@ export interface ComboBoxProps<T> {
 	placeholder?: string;
 	label?: string;
 	id?: string;
+	size?: ControlSize;
 	clearable?: boolean;
 	clearLabel?: string;
 	clearClassName?: string;
@@ -47,6 +49,7 @@ export const ComboBox = <T,>({
 	placeholder,
 	label,
 	id,
+	size,
 	clearable = false,
 	clearLabel,
 	clearClassName,
@@ -58,6 +61,7 @@ export const ComboBox = <T,>({
 	listClassName,
 }: ComboBoxProps<T>) => {
 	const portalContainer = usePortalContainer();
+	const controlSize = useControlSize(size);
 
 	return (
 		<Autocomplete.Root
@@ -77,6 +81,7 @@ export const ComboBox = <T,>({
 			<Field
 				label={label}
 				id={id}
+				size={size}
 				grow={grow}
 				testId="combo-box-root"
 				clear={
@@ -93,35 +98,39 @@ export const ComboBox = <T,>({
 				<Autocomplete.Input
 					id={id}
 					data-testid={inputTestId}
+					data-size={controlSize}
 					className={clsx('ui-input', className)}
 					placeholder={placeholder}
 					autoComplete={autoComplete}
 				/>
 			</Field>
-			<Autocomplete.Portal className="contents" container={portalContainer ?? undefined}>
-				<Autocomplete.Positioner className="ui-combo-box-positioner" align="start" sideOffset={2} anchor={popupAnchor}>
-					<Autocomplete.Popup className="ui-combo-box-popup">
-						<Autocomplete.List
-							className={clsx('ui-combo-box-list', listClassName)}
-							data-testid={listTestId}
-							data-multi-column={multiColumn ? '' : undefined}
-							render={<ul />}>
-							{items.map((item, index) => (
-								<Autocomplete.Item
-									key={itemKey(item)}
-									value={item}
-									index={index}
-									className="ui-combo-box-item"
-									render={<li />}
-									onClick={() => onItemSelect(item)}>
-									{renderItem(item, index)}
-								</Autocomplete.Item>
-							))}
-						</Autocomplete.List>
-						{footer}
-					</Autocomplete.Popup>
-				</Autocomplete.Positioner>
-			</Autocomplete.Portal>
+			{/* Out of any Field the box sits in, so the footer's controls take no size from that field. */}
+			<FieldContext.Provider value={null}>
+				<Autocomplete.Portal className="contents" container={portalContainer ?? undefined}>
+					<Autocomplete.Positioner className="ui-combo-box-positioner" align="start" sideOffset={2} anchor={popupAnchor}>
+						<Autocomplete.Popup className="ui-combo-box-popup">
+							<Autocomplete.List
+								className={clsx('ui-combo-box-list', listClassName)}
+								data-testid={listTestId}
+								data-multi-column={multiColumn ? '' : undefined}
+								render={<ul />}>
+								{items.map((item, index) => (
+									<Autocomplete.Item
+										key={itemKey(item)}
+										value={item}
+										index={index}
+										className="ui-combo-box-item"
+										render={<li />}
+										onClick={() => onItemSelect(item)}>
+										{renderItem(item, index)}
+									</Autocomplete.Item>
+								))}
+							</Autocomplete.List>
+							{footer}
+						</Autocomplete.Popup>
+					</Autocomplete.Positioner>
+				</Autocomplete.Portal>
+			</FieldContext.Provider>
 		</Autocomplete.Root>
 	);
 };

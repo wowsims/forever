@@ -6,6 +6,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -29,7 +30,7 @@ func TestAspectOfTheCheetahSpeedWithPathfindingAndDazed(t *testing.T) {
 		speed   float64
 	}{
 		{"", 0.30},
-		{"00002", 0.36},
+		{"000002", 0.36},
 	} {
 		sim, hunter := newTalentSim(tc.talents, proto.HunterOptions_PetNone)
 		base := hunter.GetMovementSpeed()
@@ -42,7 +43,7 @@ func TestAspectOfTheCheetahSpeedWithPathfindingAndDazed(t *testing.T) {
 		assertSpeed(t, "a dazed hunter in Cheetah", hunter.GetMovementSpeed(), base*(1+tc.speed)*0.3)
 		dazed.Deactivate(sim)
 
-		hunter.GetSpell(core.ActionID{SpellID: aspectOfTheHawkRank.ID}).SkipCastAndApplyEffects(sim, hunter.CurrentTarget)
+		hunter.GetSpell(core.ActionID{SpellID: aspectOfTheHawkBookRank.ID}).SkipCastAndApplyEffects(sim, hunter.CurrentTarget)
 		if hunter.GetAura(aspectOfTheCheetahRank.Name).IsActive() {
 			t.Error("Aspect of the Hawk left Aspect of the Cheetah up, want one aspect at a time")
 		}
@@ -109,5 +110,40 @@ func TestIntimidationCritsThePetsNextAttack(t *testing.T) {
 	}
 	if got := pet.GetStats()[stats.PhysicalCritPercent]; math.Abs(got-crit) > 1e-9 {
 		t.Errorf("the pet has %v%% crit after Intimidation, want %v%%", got, crit)
+	}
+}
+
+// Improved Tracking raises the damage done to a creature type a Track spell names, and not the damage
+// done to a mechanical target, which none names.
+func TestImprovedTrackingRaisesDamageVersusTrackableTypesOnly(t *testing.T) {
+	const tracking = "-00530501114-550200030050220151"
+	const untrained = "-00530501114-050200030050220151"
+	multiplier := func(talents string, mobType proto.MobType) float64 {
+		target := core.FreshDefaultTargetConfig()
+		target.MobType = mobType
+		player := &proto.Player{
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassHunter,
+			Equipment:     &proto.EquipmentSpec{},
+			TalentsString: talents,
+			Spec:          &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{ClassOptions: &proto.HunterOptions{}}}},
+			Rotation:      &proto.APLRotation{},
+		}
+		sim := core.NewSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{target}},
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+		return hunter.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex].DamageDealtMultiplier
+	}
+
+	want := spellData.ImprovedTracking.MultiplierAt(5)
+	if got := multiplier(tracking, proto.MobType_MobTypeBeast) / multiplier(untrained, proto.MobType_MobTypeBeast); math.Abs(got-want) > 1e-9 {
+		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a beast by %v, want %v", got, want)
+	}
+	if got := multiplier(tracking, proto.MobType_MobTypeMechanical) / multiplier(untrained, proto.MobType_MobTypeMechanical); got != 1 {
+		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a mechanical target by %v, want 1", got)
 	}
 }

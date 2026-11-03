@@ -183,7 +183,7 @@ func (hunter *Hunter) registerRapidRecuperation() {
 			hunter.gainRapidRecuperation(sim, hit)
 		})
 	trigger.Name = "Rapid Recuperation - Trigger"
-	trigger.ClassFlags = serpentStingRank.ClassFlags
+	trigger.ClassFlags = serpentStingBookRank.ClassFlags
 	trigger.RequireDamageDealt = false
 
 	hunter.MakeProcTriggerAura(trigger)

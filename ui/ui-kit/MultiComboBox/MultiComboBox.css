@@ -1,6 +1,7 @@
 @layer components {
 	.ui-multi-combo-box-field {
-		@apply relative flex w-full min-w-0 items-center rounded-none border border-surface-border bg-surface pr-8 text-ui leading-normal text-foreground transition-colors duration-150 ease-in-out;
+		@apply relative flex w-full min-w-0 items-center rounded-none border border-surface-border bg-surface pr-8 text-(length:--control-font-size) leading-normal text-foreground transition-colors duration-150 ease-in-out;
+		--control-font-size: var(--control-input-font-size);
 
 		&:focus-within {
 			@apply border-input-focus-border shadow-focus-input;
@@ -8,7 +9,7 @@
 	}
 
 	.ui-multi-combo-box-input {
-		@apply w-full min-w-0 flex-1 border-none bg-transparent px-(--input-padding-x) py-(--input-padding-y) text-ui text-foreground outline-none;
+		@apply w-full min-w-0 flex-1 border-none bg-transparent px-(--control-padding-x) py-(--control-padding-y) text-(length:--control-font-size) text-foreground outline-none;
 
 		&::placeholder {
 			@apply text-secondary;
@@ -49,7 +50,7 @@
 		@apply invisible col-start-1 row-start-1 h-0 overflow-hidden;
 
 		> span {
-			@apply block px-(--input-padding-x) whitespace-nowrap before:content-[attr(data-label)];
+			@apply block px-(--control-padding-x) whitespace-nowrap before:content-[attr(data-label)];
 		}
 	}
 

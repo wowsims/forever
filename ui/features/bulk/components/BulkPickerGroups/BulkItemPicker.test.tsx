@@ -44,8 +44,8 @@ vi.mock('@sim/bulk/utils', async () => {
 
 const { BulkPickerGroups } = await import('./BulkPickerGroups');
 const { BulkItemPickerView } = await import('./BulkItemPicker');
-const { createBulkGearData } = await import('../../model/gear_data');
-const { addBulkItems, hasBulkItem, loadEquippedBulkItems, seedBulkPickerGroups } = await import('../../model/items');
+const { createBulkGearData } = await import('../../model/gear/gear_data');
+const { addBulkItems, hasBulkItem, loadEquippedBulkItems, seedBulkPickerGroups } = await import('../../model/gear/items');
 
 const STORE_KEY = 7;
 

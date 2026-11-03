@@ -1,0 +1,14 @@
+[
+	{ "token_type": "namespace", "style": ["title"] },
+	{ "token_type": "class", "style": ["type"] },
+	{ "token_type": "property", "style": ["property"] },
+	{ "token_type": "function", "token_modifiers": ["defaultLibrary"], "style": ["function"] },
+	{ "token_type": "function", "style": ["function"] },
+	{ "token_type": "method", "style": ["function.method", "function"] },
+	{ "token_type": "variable", "token_modifiers": ["readonly", "defaultLibrary"], "style": ["variable.special", "variable"] },
+	{ "token_type": "variable", "style": ["variable"] },
+	{ "token_type": "parameter", "style": ["variable.parameter", "variable.special", "variable"] },
+	{ "token_type": "enumMember", "style": ["variant", "constant"] },
+	{ "token_type": "type", "token_modifiers": ["readonly"], "style": ["constant"] },
+	{ "token_type": "type", "style": ["type"] }
+]

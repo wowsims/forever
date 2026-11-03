@@ -48,6 +48,11 @@ commit.
 `ui/features/gear/components/FiltersMenu/FiltersMenu.test.tsx`) that passes alone. Rerun that file alone, then the
 whole suite once; call the change red only if it fails again.
 
+**A tooltip that never opens in a test may be the debounce.** react-tooltip opens on the leading edge of a 50 ms
+debounce that every `focusin` and `mouseover` on the page feeds, so a test that focuses or hovers two anchors in the
+same tick drops the second and finds no `role="tooltip"`. Wait past the window between the two; real key presses are
+always further apart.
+
 ## The tree-wide gates
 
 The `ui/*.test.ts` files at the root of `ui/` are not component tests: they scan the tree from disk under
@@ -154,3 +159,7 @@ unit test, so such a test asserts `inert` and the refused focus, and a real brow
 The tracked ones that `go-to-ts` does not write come from the full database generation, which needs the game files
 database that CI does not have, so they are committed. Never hand-edit any of them, and never run two `gen_db`
 processes at once.
+
+`bin/wowsimcli` goes stale without a word. The SIML plugin runs it whenever the file exists and never checks its age, so
+after a change to Go or `sim/siml/names.json`, vitest fails on `.siml` imports with wrong-type and unknown-field errors
+that point at no real fault. Run `make bin/wowsimcli` before vitest (`running-locally.md`).

@@ -18,15 +18,13 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-// 16 balance, 20 feral, 16 restoration. Furor is the second restoration talent.
-const furorTalents = "0000000000000000-00000000000000000000-0500000000000000"
+// 16 balance, 20 feral, 16 restoration. Furor is the second feral talent.
+const furorTalents = "0000000000000000-05000000000000000000-0000000000000000"
 
-// Shifting Power is the 11th feral talent and Improved Shifting Power the 15th. Natural Shapeshifter is
-// the 5th restoration talent.
+// Shifting Power is the 20th feral talent. Natural Shapeshifter is the 5th restoration talent.
 const (
-	shiftingPowerTalents         = "0000000000000000-00000000001000000000-0000000000000000"
-	improvedShiftingPowerTalents = "0000000000000000-00000000001000200000-0000000000000000"
-	shapeshifterTalents          = "0000000000000000-00000000001000000000-0000300000000000"
+	shiftingPowerTalents = "0000000000000000-00000000000000000001-0000000000000000"
+	shapeshifterTalents  = "0000000000000000-00000000000000000001-0000300000000000"
 )
 
 func newCat(t *testing.T, talents string, consumes *proto.ConsumesSpec) (*core.Simulation, *FeralDruid) {
@@ -78,8 +76,8 @@ func fillResource(sim *core.Simulation, cat *FeralDruid) {
 // Ferocity 5/5 and Shredding Attacks 3/3: tooltips 16934 ("5 Rage or Energy") and 16966 ("Shred by 18",
 // "Lacerate by 3").
 func TestFeralCostTalentsLowerEnergyAndRageInTheirOwnUnits(t *testing.T) {
-	_, base := newCat(t, "0000000000000000-00000000000100000000-0000000000000000", nil)
-	_, talented := newCat(t, "0000000000000000-50000030000100000000-0000000000000000", nil)
+	_, base := newCat(t, "0000000000000000-00000000000100000010-0000000000000000", nil)
+	_, talented := newCat(t, "0000000000000000-50000030000100000010-0000000000000000", nil)
 	for _, c := range []struct {
 		name       string
 		base, with *druid.DruidSpell
@@ -159,7 +157,7 @@ func TestProwlHoldsAutoAttacksUntilTheOpener(t *testing.T) {
 	if !cat.Prowl.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("prowl did not cast before the pull")
 	}
-	mh, _, _ := cat.AutoAttacks.SwingAt()
+	mh, _ := cat.AutoAttacks.SwingAt()
 	if mh != core.NeverExpires-time.Second {
 		t.Errorf("main-hand swing while prowling at %v, want held", mh)
 	}
@@ -174,7 +172,7 @@ func TestProwlHoldsAutoAttacksUntilTheOpener(t *testing.T) {
 	if cat.ProwlAura.IsActive() {
 		t.Error("pounce left the druid prowling")
 	}
-	if mh, _, _ := cat.AutoAttacks.SwingAt(); mh != 0 {
+	if mh, _ := cat.AutoAttacks.SwingAt(); mh != 0 {
 		t.Errorf("main-hand swing after the opener at %v, want 0", mh)
 	}
 }
@@ -333,7 +331,7 @@ func TestCowerAndFaerieFireEndProwl(t *testing.T) {
 			if cat.ProwlAura.IsActive() {
 				t.Errorf("%s left the druid prowling", spell.name)
 			}
-			if mh, _, _ := cat.AutoAttacks.SwingAt(); mh != 3*time.Second {
+			if mh, _ := cat.AutoAttacks.SwingAt(); mh != 3*time.Second {
 				t.Errorf("main-hand swing after %s at %v, want 3s", spell.name, mh)
 			}
 		})
@@ -435,9 +433,6 @@ func TestShiftingPowerTradesManaForEnergy(t *testing.T) {
 	if got, want := mana-cat.CurrentMana(), float64(int32(55*cat.BaseMana)/100); got != want {
 		t.Errorf("mana spent = %v, want %v", got, want)
 	}
-	if got := cat.ShiftingPower.ReadyAt(); got != 16*time.Second {
-		t.Errorf("shifting power ready at %v, want 16s", got)
-	}
 }
 
 func TestShiftingPowerNeedsTheTalentAndCatForm(t *testing.T) {
@@ -456,18 +451,6 @@ func TestShiftingPowerNeedsTheTalentAndCatForm(t *testing.T) {
 	emptyEnergy(sim, cat)
 	if cat.ShiftingPower.CanCast(sim, cat.CurrentTarget) {
 		t.Error("shifting power could be cast in dire bear form")
-	}
-}
-
-func TestImprovedShiftingPowerTakesTheCooldownToEightSeconds(t *testing.T) {
-	sim, cat := newCat(t, improvedShiftingPowerTalents, nil)
-	fillResource(sim, cat)
-	emptyEnergy(sim, cat)
-	if !cat.ShiftingPower.Cast(sim, cat.CurrentTarget) {
-		t.Fatal("shifting power did not cast")
-	}
-	if got := cat.ShiftingPower.ReadyAt(); got != 8*time.Second {
-		t.Errorf("shifting power ready at %v, want 8s", got)
 	}
 }
 
@@ -705,10 +688,10 @@ func waitReady(sim *core.Simulation, cat *FeralDruid) {
 	}
 }
 
-// Subtlety 3/3 is the 4th restoration talent. Its mask is Nature and Arcane, so physical threat stays put.
+// Subtlety 3/3 is the 6th restoration talent. Its mask is Nature and Arcane, so physical threat stays put.
 func TestSubtletyThreatIsNatureAndArcane(t *testing.T) {
 	_, plain := newCat(t, "", nil)
-	_, cat := newCat(t, "0000000000000000-00000000000000000000-0003000000000000", nil)
+	_, cat := newCat(t, "0000000000000000-00000000000000000000-0000030000000000", nil)
 	got := cat.PseudoStats.SchoolThreatMultiplier
 	base := plain.PseudoStats.SchoolThreatMultiplier
 	if got[stats.SchoolIndexNature] != 0.7 || got[stats.SchoolIndexArcane] != 0.7 {
@@ -810,7 +793,7 @@ func TestFurorPausesEnergyInBear(t *testing.T) {
 		for _, dire := range []bool{false, true} {
 			for _, elapsed := range []time.Duration{0, 3 * time.Second, 20 * time.Second} {
 				t.Run(fmt.Sprintf("rank%d/dire%t/%v", rank, dire, elapsed), func(t *testing.T) {
-					sim, cat := newCat(t, fmt.Sprintf("0000000000000000-00000000000000000000-0%d00000000000000", rank), nil)
+					sim, cat := newCat(t, fmt.Sprintf("0000000000000000-0%d000000000000000000-0000000000000000", rank), nil)
 					cat.SpendEnergy(sim, 60, cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
 					cat.CatFormAura.Deactivate(sim)
 					sim.CurrentTime += 2 * time.Second

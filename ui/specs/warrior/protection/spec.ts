@@ -102,7 +102,7 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
 			...WarriorPresets.DefaultRaidBuffs,
-			prayerOfShadowProtection: true,
+			shadowProtection: true,
 		}),
 		partyBuffs: WarriorPresets.DefaultPartyBuffs,
 		individualBuffs: WarriorPresets.DefaultIndividualBuffs,

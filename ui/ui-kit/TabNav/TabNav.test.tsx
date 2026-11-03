@@ -15,6 +15,16 @@ describe('TabNav', () => {
 		expect(getByTestId('sim-tabs').contains(getByTestId('a'))).toBe(true);
 	});
 
+	it('places a tab through its renderTab, still as a tab', () => {
+		const { getByTestId } = render(
+			<Tabs.Root defaultValue="a">
+				<TabNav variant="sim" tabs={[{ id: 'a', label: 'A', renderTab: tab => <span data-testid="wrapper">{tab}</span> }]} />
+			</Tabs.Root>,
+		);
+		expect(getByTestId('wrapper').contains(getByTestId('a'))).toBe(true);
+		expect(getByTestId('a').getAttribute('role')).toBe('tab');
+	});
+
 	it('carries per-tab id, aria-controls and data-label', () => {
 		const { getByText } = render(
 			<Tabs.Root defaultValue="a">

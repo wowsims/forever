@@ -196,6 +196,10 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			}
 		}
 
+		if spell.Flags.Matches(SpellFlagDropsQueuedSwing) {
+			spell.Unit.AutoAttacks.CancelQueuedSwing(sim)
+		}
+
 		if unshift {
 			spell.Unit.AutoUnshift(sim)
 		}

@@ -10,9 +10,6 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// The standard talents with 3/3 Reverence.
-const reverenceTalents = "55320033025131051-503050002"
-
 func innervatedPaladin(t *testing.T, talents string) (*core.Simulation, *core.Character) {
 	t.Helper()
 	player := core.WithSpec(&proto.Player{
@@ -33,13 +30,13 @@ func innervatedPaladin(t *testing.T, talents string) (*core.Simulation, *core.Ch
 }
 
 // Innervate lets all of the spirit regen continue while casting and multiplies it by five, whatever
-// share Reverence already lets through: with 3/3 Reverence it is the same regen, and Reverence's 30%
-// is back once the aura falls off. The mana bar's regen follows each change.
+// share Reverence already lets through: with the standard talents' 2/2 Reverence it is the same regen,
+// and Reverence's 30% is back once the aura falls off. The mana bar's regen follows each change.
 func TestInnervateGivesFiveTimesTheFullSpiritRegen(t *testing.T) {
 	for _, c := range []struct {
 		talents string
 		share   float64
-	}{{StandardTalents, 0}, {reverenceTalents, 0.3}} {
+	}{{"", 0}, {StandardTalents, 0.3}} {
 		sim, pally := innervatedPaladin(t, c.talents)
 		if got := pally.PseudoStats.SpiritRegenRateCasting; got != c.share {
 			t.Fatalf("share %v: the talents let %v of the spirit regen through while casting", c.share, got)

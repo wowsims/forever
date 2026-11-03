@@ -1,0 +1,183 @@
+================================================================================
+Prepull rows with times
+================================================================================
+
+prepull:
+  -22s cast trueshot_aura
+  (1s + $x) cast hunters_mark on target
+  # -1s item_swap(swap1)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (negative_number
+        (number))
+      (cast_step
+        (identifier)))
+    (row
+      (parenthesized_expression
+        (binary_expression
+          (number)
+          (variable)))
+      (cast_step
+        (identifier)
+        (identifier)))
+    (row
+      (negative_number
+        (number))
+      (call
+        (identifier)
+        (arguments
+          (identifier))))))
+
+================================================================================
+Action keywords
+================================================================================
+
+priority:
+  channel arcane_missiles on target2 until current_time > 3s recast
+  wait until gcd_is_ready
+  wait (1s + 2s) * 2
+  move 5 recheck
+  move for 2s
+  schedule "0s, 60s" cast bloodlust
+  sequence "S" [group "A" with %p = 1, %q = $v, cast x if $c]
+  cast item.drums_of_battle
+  none
+  `{"castSpell": {"spellId": {"spellId": 5}}}`
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (channel_step
+        (identifier)
+        (identifier)
+        (binary_expression
+          (identifier)
+          (number))))
+    (row
+      (wait_step
+        (identifier)))
+    (row
+      (wait_step
+        (binary_expression
+          (parenthesized_expression
+            (binary_expression
+              (number)
+              (number)))
+          (number))))
+    (row
+      (move_step
+        (number)))
+    (row
+      (move_step
+        (number)))
+    (row
+      (schedule_step
+        (string)
+        (cast_step
+          (identifier))))
+    (row
+      (sequence_step
+        (string)
+        (action
+          (group_step
+            (string)
+            (placeholder_binding
+              (placeholder)
+              (number))
+            (placeholder_binding
+              (placeholder)
+              (variable))))
+        (action
+          (cast_step
+            (identifier))
+          (variable))))
+    (row
+      (cast_step
+        (namespaced_name
+          (identifier))))
+    (row
+      (none))
+    (row
+      (raw
+        (json)))))
+
+================================================================================
+Kinds as steps, notes and hidden rows
+================================================================================
+
+priority:
+  /// Start of the fight.
+  /// Before the first weave.
+  autocast_other_cooldowns if current_time >= 5s
+  strict_sequence(item_swap(swap1), cast shield_wall)
+  # multidot(rend, max_dots=3, max_overlap=2s) // a comment
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (note)
+    (note)
+    (row
+      (identifier)
+      (binary_expression
+        (identifier)
+        (number)))
+    (row
+      (call
+        (identifier)
+        (arguments
+          (call
+            (identifier)
+            (arguments
+              (identifier)))
+          (action
+            (cast_step
+              (identifier))))))
+    (row
+      (call
+        (identifier)
+        (arguments
+          (identifier)
+          (named_argument
+            (identifier)
+            (number))
+          (named_argument
+            (identifier)
+            (number)))))
+    (comment)))
+
+================================================================================
+A row being typed ends at its line
+================================================================================
+
+priority:
+  cast
+  cast x if
+  wait
+  cast y
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (row_section
+    (section_name)
+    (row
+      (cast_step))
+    (row
+      (cast_step
+        (identifier)))
+    (row
+      (wait_step))
+    (row
+      (cast_step
+        (identifier)))))

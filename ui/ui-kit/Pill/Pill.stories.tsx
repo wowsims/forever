@@ -13,6 +13,7 @@ const meta = {
 	argTypes: {
 		tone: { control: 'select', options: TONES },
 		size: { control: 'select', options: SIZES },
+		rounded: { control: 'select', options: ['full', 'xs'] },
 	},
 } satisfies Meta<typeof Pill>;
 
@@ -31,6 +32,10 @@ export const Tones: Story = {
 			))}
 		</div>
 	),
+};
+
+export const Squared: Story = {
+	args: { rounded: 'xs' },
 };
 
 export const Matrix: Story = {

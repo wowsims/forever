@@ -23,7 +23,7 @@ func currentEnergy() *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_CurrentEnergy{CurrentEnergy: &proto.APLValueCurrentEnergy{}}}
 }
 
-// withFeralDigit sets one feral-tree digit. Index 10 is Shifting Power, 11 is Primal Bite.
+// Sets one feral-tree digit. Index 8 is Feral Charge, 12 Predatory Discipline, 19 Shifting Power.
 func withFeralDigit(talents string, index int, digit byte) string {
 	parts := []byte(talents)
 	start := 0
@@ -53,7 +53,7 @@ func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool,
 					Consumables:    &proto.ConsumesSpec{},
 					Buffs: &proto.IndividualBuffs{
 						GreaterBlessingOfKings: true,
-						GreaterBlessingOfMight: true,
+						GreaterBlessingOfMight: 1,
 					},
 					Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
 						Options: &proto.FeralCatDruid_Options{CannotShredTarget: cannotShred},
@@ -65,14 +65,14 @@ func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool,
 				},
 			}},
 			Buffs: &proto.RaidBuffs{
-				BattleShout:              1, // Rank 6
-				ArcaneBrilliance:         true,
-				PrayerOfSpirit:           true,
-				GiftOfTheWild:            true,
-				PrayerOfFortitude:        true,
-				PrayerOfShadowProtection: true,
-				WindfuryTotem:            true,
-				StrengthOfEarthTotem:     true,
+				BattleShout:          1, // Rank 6
+				ArcaneIntellect:      true,
+				PrayerOfSpirit:       true,
+				MarkOfTheWild:        true,
+				PowerWordFortitude:   true,
+				ShadowProtection:     true,
+				WindfuryTotem:        true,
+				StrengthOfEarthTotem: 1,
 			},
 			Debuffs: &proto.Debuffs{
 				ExposeArmor:         true,

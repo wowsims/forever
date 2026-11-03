@@ -14,17 +14,18 @@ pages below hold the detail, and this skill carries the traps and commands they 
 
 ## Where things live
 
-| Path                                                                        | What it is                                                                                                      |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `tools/database/wowsims.db`                                                 | the game files database, gitignored, written by `tools/db2tool/` from `generator-settings.json`                 |
-| `tools/database/generator-settings.json`                                    | the tables `db2tool` extracts; `ptr-generator-settings.json` lists the same tables minus `ItemXItemEffect`      |
-| `tools/database/gen_spelldata/`                                             | the store, form and class ladder generator, a separate binary from `gen_db`                                     |
-| `tools/database/gen_db/main.go`                                             | `gen_db`: the hotfix check, the numbered `.sql`, the item database, registrations, talent files                 |
-| `tools/database/overrides/`                                                 | spell, weapon and enchant rate overrides, hand triggers, extra spells, and the numbered `.sql`                  |
-| `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                  |
-| `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`) |
-| `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                |
-| `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                    |
+| Path                                                                        | What it is                                                                                                                                                                                                                                                                                            |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tools/database/wowsims.db`                                                 | the game files database, gitignored, written by `tools/db2tool/` from `generator-settings.json`                                                                                                                                                                                                       |
+| `tools/database/generator-settings.json`                                    | the tables `db2tool` extracts; `ptr-generator-settings.json` lists the same tables minus `ItemXItemEffect`                                                                                                                                                                                            |
+| `tools/database/gen_spelldata/`                                             | the store, form and class ladder generator, a separate binary from `gen_db`                                                                                                                                                                                                                           |
+| `tools/database/gen_db/main.go`                                             | `gen_db`: the hotfix check, the numbered `.sql`, the item database, registrations, talent files                                                                                                                                                                                                       |
+| `tools/database/overrides/`                                                 | spell, weapon and enchant rate overrides, hand triggers, extra spells, and the numbered `.sql`                                                                                                                                                                                                        |
+| `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
+| `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
+| `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
+| `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
+| `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
 
 | You are…                                                                       | Open                                                               |
 | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
@@ -66,6 +67,33 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
 - **The proc audit list is a gitignored baseline its own test writes.** After new spell rows arrive, rewrite
   `tools/database/unsupported_procs.txt` with `UPDATE_UNSUPPORTED_PROCS=1` on `TestEveryReachableProcIsSupportedOrListed`
   instead of reading its diff as a regression; `UPDATE_UNSUPPORTED_CONSUMABLES` does the same for the consumables.
+- **`gen_db` sets every item source; the UI infers none.** The gear picker shows and filters the sources in the
+  database and never derives one from an item's name or random suffixes, so a new rule (the PvP name list in
+  `InferPvpSource`) goes into the generator. An item with no source shows none; it is not a world drop.
+- **An enchant's sources are its own item's and its recipes'.** `LoadAndWriteRawEnchants` collects the recipes for each
+  enchant row: the shipped items whose `ItemEffect` on the row's spell has `TriggerType` 6, Season of Discovery items
+  left out. Joining through the effect id alone crosses slots, since effect 66 is a bracer, a boots and a shield enchant
+  and only the boots has a recipe. The game files hold no trainers, so an enchant a trainer teaches has no source.
+- **QuestieDB's NPC drops reach items and recipes no vendor sells.** Its drop lists hold an item's vendors (Grunnda
+  Wolfheart is both on 19083), so `parseQuestieData` drops the list of a sold item before counting it. An NPC with no
+  zone counts for neither list. An item with an AtlasLoot drop keeps it and skips QuestieDB's, which list every mob where
+  AtlasLoot names the boss or the trash. One to five NPCs are listed, each with its zone. More than five take one source:
+  `Multiple NPCs` in their zone when they share one, else `World Drop` with no zone or NPC, since the lists run to 629
+  mobs. Only QuestieDB's list makes either: an item with no drop data has no drop source. `PruneQuestieSources` removes a
+  drop in a zone with no `AreaTable` row after that decision, so two items (16673, 16713) read World Drop on a row it then
+  prunes, and sets a drop's difficulty from its zone, which stays unknown in the open world.
+- **AtlasLoot repeats the game files' crafting spells.** `AtlasLootSourcesBeside` removes them on both the item and the
+  enchant path, since `MergeItem` concatenates lists.
+- **A drop source moves the picker.** A drop outranks a quest, a rep source and a vendor in `ItemSource`'s kind order,
+  so an item that gains one leads with it and shows the rest behind `+N`. A `pvp` source shows only on an item with
+  nothing else; the filter reads it either way. The World Drop toggle governs a drop of unknown difficulty, a world drop
+  or an open-world NPC's, and Dungeon and Raid the rest. It is the bool `hide_world_drops`, since a saved partial
+  `sources` list would read a new `SourceFilterOption` as off. `questie_db.json` holds every item QuestieDB lists, most of
+  them never shipped, and `-gen=db` picks the ones it has.
+- **Quests and vendors carry a side.** `parseQuestieData` reads a quest's `requiredRaces`, which holds the game's race
+  bits, and a vendor's `friendlyToFaction`; both sides, none or no data is `Unknown`. `ItemSource` leaves the other side's
+  out of the cell and `+N`, unless they are all an item has. The source filter, `factionFilter` and search read every
+  source.
 
 ## Overrides
 

@@ -1,3 +1,4 @@
+import type { ControlSize } from '@ui-kit/Field';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, LabelHTMLAttributes, ReactNode, Ref } from 'react';
 
 export type ButtonVariant =
@@ -13,11 +14,13 @@ export type ButtonVariant =
 	| 'outline-cancel'
 	| 'unstyled';
 
-export type ButtonSize = 'sm' | 'xs' | 'none';
+/** `none` has no padding and keeps the button font. */
+export type ButtonSize = ControlSize | 'none';
 
 interface ButtonCommonProps {
 	/** `null` emits the bare base bundle — no colour of its own. */
 	variant?: ButtonVariant | null;
+	/** Defaults to the nearest Field's size, else `sm`; an `iconOnly` button has none, and a link takes only its own. */
 	size?: ButtonSize;
 	/** Renders a small spinner before the children, or over them for `iconOnly`, and sets `aria-busy`; it does not disable the button. */
 	loading?: boolean;

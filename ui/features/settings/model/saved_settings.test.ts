@@ -1,12 +1,15 @@
 import { ConsumesSpec, ItemSlot } from '@generated/proto/common';
+import { Mage } from '@generated/proto/mage';
 import { SavedSettings } from '@generated/proto/ui';
+import { DpsWarrior_Options } from '@generated/proto/warrior';
+import { fromJsonLenient } from '@sim/proto/lenient_json';
 import { DENSE_SHARPENING_STONE_ID, DENSE_WEIGHTSTONE_ID } from '@sim/proto/sim_tables_auto_gen';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { MACE, swapSet, swapWeaponIds, SWORD, weaponsDatabase } from '@testing/sim/weapons';
 import { makeEquipmentSpec } from '@testing/storybook/fixtures/protos';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { applySavedSettings } from './saved_settings';
+import { applySavedSettings, readSavedSettings } from './saved_settings';
 
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
 
@@ -47,5 +50,30 @@ describe('applySavedSettings', () => {
 
 		expect(swapWeaponIds(player)).toEqual([MACE, undefined]);
 		expect([player.getConsumes().mhImbueId, player.getConsumes().swapMhImbueId]).toEqual([DENSE_WEIGHTSTONE_ID, DENSE_WEIGHTSTONE_ID]);
+	});
+});
+
+describe('saved settings spec options', () => {
+	const rage = (startingRage: number) => DpsWarrior_Options.create({ classOptions: { startingRage } });
+
+	it('loads the spec options an entry was saved with, through storage', async () => {
+		const { player, host } = await makeIndividualSim();
+		player.setSpecOptions(rage(50));
+		const stored = fromJsonLenient(SavedSettings, SavedSettings.toJson(readSavedSettings(host)));
+		player.setSpecOptions(rage(0));
+
+		applySavedSettings(host, stored);
+
+		expect(player.getSpecOptions()).toEqual(rage(50));
+	});
+
+	it('keeps the live spec options for an entry saved without them, or with another spec’s', async () => {
+		const { player, host } = await makeIndividualSim();
+		player.setSpecOptions(rage(50));
+
+		applySavedSettings(host, SavedSettings.create());
+		applySavedSettings(host, SavedSettings.create({ spec: { oneofKind: 'mage', mage: Mage.create({ options: {} }) } }));
+
+		expect(player.getSpecOptions()).toEqual(rage(50));
 	});
 });

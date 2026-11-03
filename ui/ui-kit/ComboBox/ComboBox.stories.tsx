@@ -77,6 +77,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const Sizes: Story = {
+	render: args => (
+		<div className="flex flex-col gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<ComboBoxStory key={size} {...args} id={`combo-box-${size}`} label={`Name (${size})`} size={size} />
+			))}
+		</div>
+	),
+};
 export const MultiColumn: Story = { args: { value: 'a', open: true, multiColumn: true } };
 export const Clearable: Story = {
 	args: { value: 'Typhoon', clearable: true, clearLabel: 'Clear search' },

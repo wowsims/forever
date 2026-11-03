@@ -1,9 +1,13 @@
+import { Player } from '@generated/proto/api';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
 import { ConsumesSpec, HealingModel, ItemSwap } from '@generated/proto/common';
 import { SavedSettings } from '@generated/proto/ui';
+import { isSameSpecArm, withSpec } from '@sim/proto/spec_functions';
 import { Stats } from '@sim/proto/stats';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { batch } from '@sim/state/batch';
+
+const liveSpec = (host: IndividualSimHost<any>): SavedSettings['spec'] => withSpec(host.player.getSpec(), Player.create(), host.player.getSpecOptions()).spec;
 
 export const readSavedSettings = (host: IndividualSimHost<any>): SavedSettings =>
 	SavedSettings.create({
@@ -21,6 +25,7 @@ export const readSavedSettings = (host: IndividualSimHost<any>): SavedSettings =
 		inFrontOfTarget: host.player.getInFrontOfTarget(),
 		distanceFromTarget: host.player.getDistanceFromTarget(),
 		healingModel: host.player.getHealingModel(),
+		spec: liveSpec(host),
 	});
 
 export const applySavedSettings = (host: IndividualSimHost<any>, settings: SavedSettings): void => {
@@ -42,5 +47,7 @@ export const applySavedSettings = (host: IndividualSimHost<any>, settings: Saved
 		host.player.setInFrontOfTarget(settings.inFrontOfTarget);
 		host.player.setDistanceFromTarget(settings.distanceFromTarget);
 		host.player.setHealingModel(settings.healingModel || HealingModel.create());
+		if (isSameSpecArm(settings.spec, liveSpec(host)))
+			host.player.setSpecOptions(host.player.specTypeFunctions.optionsFromPlayer(Player.create({ spec: settings.spec })));
 	});
 };
