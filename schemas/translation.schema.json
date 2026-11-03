@@ -6310,6 +6310,58 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"target_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"num_active_adds": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_dies": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"unit_is_moving": {
 									"type": "object",
 									"properties": {
@@ -7786,6 +7838,10 @@
 								"target_is_bleed_immune",
 								"target_is_mob_type",
 								"encounter_in_area",
+								"target_is_active",
+								"num_active_adds",
+								"time_until_target_active",
+								"time_until_target_dies",
 								"unit_is_moving",
 								"distance_to_unit",
 								"unit_movement_speed",

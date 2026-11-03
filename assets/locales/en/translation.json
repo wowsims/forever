@@ -1790,6 +1790,22 @@
 					"label": "In Area",
 					"tooltip": "True if the encounter's areas include the chosen area type"
 				},
+				"target_is_active": {
+					"label": "Target Is Active",
+					"tooltip": "True while the target is in the fight: not disabled"
+				},
+				"num_active_adds": {
+					"label": "Active Adds",
+					"tooltip": "The number of targets other than the boss that are in the fight"
+				},
+				"time_until_target_active": {
+					"label": "Time Until Target Active",
+					"tooltip": "Seconds until the target is in the fight. 0 while it is, never while it is down"
+				},
+				"time_until_target_dies": {
+					"label": "Time Until Target Dies",
+					"tooltip": "Seconds until the target dies. The fight's end while the target can be in the fight, never otherwise"
+				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",
 					"tooltip": "True if the unit is moving"
