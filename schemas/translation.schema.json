@@ -6858,6 +6858,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"remaining_cast_time": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"spell_cast_time_remaining": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"is_casting": {
 									"type": "object",
 									"properties": {
@@ -7827,6 +7853,8 @@
 								"cast_time",
 								"travel_time",
 								"cpm",
+								"remaining_cast_time",
+								"spell_cast_time_remaining",
 								"is_casting",
 								"is_channeling",
 								"channeled_ticks",

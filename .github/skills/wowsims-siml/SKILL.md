@@ -211,6 +211,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `auto_swing_time(main_hand|off_hand|ranged|wand)`
 - `auto_time_to_next(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
 - `auto_time_since_last(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
+- `remaining_cast_time`
 - `talent_is_known(name)`
 - `talent_rank(name)`
 - `all_item_stat_procs_active(stat, stat_type2: stat, stat_type3: stat, min_icd_seconds: number)`
@@ -257,5 +258,5 @@ Written `[unit.]head(subject).property(arguments)`; each head with its propertie
 - `[unit.]spell(x)`: `is_known`, `can_cast`, `in_range`, `is_ready`, `time_to_ready`, `cast_time`, `travel_time`,
   `cpm`, `is_casting`, `is_channeling`, `channeled_ticks`, `current_cost`, `num_charges`, `time_to_charge`,
   `gcd_hasted_duration`, `full_cooldown`, `in_flight`, `expected_dpet`, `is_hit_capped`, `is_expertise_capped`
-- `[unit.]boss_spell(x)`: `time_to_ready`, `is_casting`
+- `[unit.]boss_spell(x)`: `time_to_ready`, `is_casting`, `is_known`, `cast_time_remaining`
 - `sequence(x)`: `is_complete`, `is_ready`, `time_to_ready`

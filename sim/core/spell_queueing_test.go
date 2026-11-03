@@ -687,8 +687,14 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			return cb.rot.newValueSpellIsCasting(&proto.APLValueSpellIsCasting{SpellId: spell.ActionID.ToProto()}, nil)
 		}
 		slowCasting, nukeCasting := isCasting(cb.slow), isCasting(cb.nuke)
+		remaining := cb.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil)
 		var atPick []bool
-		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) bool { return len(cb.slowAt) == 0 && slowCasting.GetBool(sim) }, &atPick))
+		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) bool {
+			return len(cb.slowAt) == 0 && slowCasting.GetBool(sim) && remaining.GetDuration(sim) == 0
+		}, &atPick))
+		if got := remaining.GetDuration(cb.sim); got != 0 {
+			t.Fatalf("before any cast Remaining Cast Time should read 0, read %v", got)
+		}
 		cb.runUntil(0)
 		cb.castOf(cb.slow).Execute(cb.sim)
 
@@ -696,9 +702,12 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		if !slowCasting.GetBool(cb.sim) || nukeCasting.GetBool(cb.sim) {
 			t.Fatalf("late in the 2 s cast only the slow cast should be casting")
 		}
+		if got := remaining.GetDuration(cb.sim); got != beforeEnd {
+			t.Fatalf("late in the 2 s cast Remaining Cast Time should read %v, read %v", beforeEnd, got)
+		}
 		cb.runUntil(castEnd)
 		if !slices.Equal(atPick, []bool{true}) {
-			t.Fatalf("the pick at the 2 s cast end should read the slow cast as casting before it lands, read %v", atPick)
+			t.Fatalf("the pick at the 2 s cast end should read the slow cast as casting with no cast time left before it lands, read %v", atPick)
 		}
 		if slowCasting.GetBool(cb.sim) {
 			t.Fatalf("once the cast lands at 2 s it should no longer be casting")
@@ -713,6 +722,9 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		ct.runUntil(time.Second + time.Millisecond)
 		if ct.fw.ChanneledDot == nil || drainCasting.GetBool(ct.sim) {
 			t.Fatalf("a running channel should not read as casting")
+		}
+		if got := ct.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil).GetDuration(ct.sim); got != 0 {
+			t.Fatalf("a running channel should read no cast time left, read %v", got)
 		}
 	})
 

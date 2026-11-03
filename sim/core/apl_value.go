@@ -108,6 +108,10 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueBossSpellIsCasting(config.GetBossSpellIsCasting(), config.Uuid)
 	case *proto.APLValue_BossSpellTimeToReady:
 		value = rot.newValueBossSpellTimeToReady(config.GetBossSpellTimeToReady(), config.Uuid)
+	case *proto.APLValue_BossSpellIsKnown:
+		value = rot.newValueBossSpellIsKnown(config.GetBossSpellIsKnown(), config.Uuid)
+	case *proto.APLValue_BossSpellCastTimeRemaining:
+		value = rot.newValueBossSpellCastTimeRemaining(config.GetBossSpellCastTimeRemaining(), config.Uuid)
 	case *proto.APLValue_BossCurrentTarget:
 		value = rot.newValueBossCurrentTarget(config.GetBossCurrentTarget(), config.Uuid)
 	case *proto.APLValue_TargetIsMobType:
@@ -188,6 +192,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellCPM(config.GetSpellCpm(), config.Uuid)
 	case *proto.APLValue_SpellIsCasting:
 		value = rot.newValueSpellIsCasting(config.GetSpellIsCasting(), config.Uuid)
+	case *proto.APLValue_RemainingCastTime:
+		value = rot.newValueRemainingCastTime(config.GetRemainingCastTime(), config.Uuid)
 	case *proto.APLValue_SpellIsChanneling:
 		value = rot.newValueSpellIsChanneling(config.GetSpellIsChanneling(), config.Uuid)
 	case *proto.APLValue_SpellChanneledTicks:

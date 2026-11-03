@@ -214,6 +214,31 @@ func (value *APLValueSpellIsCasting) String() string {
 	return fmt.Sprintf("IsCasting(%s)", value.spell.ActionID)
 }
 
+type APLValueRemainingCastTime struct {
+	DefaultAPLValueImpl
+	unit *Unit
+}
+
+func (rot *APLRotation) newValueRemainingCastTime(_ *proto.APLValueRemainingCastTime, _ *proto.UUID) APLValue {
+	return &APLValueRemainingCastTime{unit: rot.unit}
+}
+func (value *APLValueRemainingCastTime) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+
+// The time to the end of the unit's running hardcast; 0 at the pick at its end, and through a channel,
+// as Spell Is Casting reads it.
+func (value *APLValueRemainingCastTime) GetDuration(sim *Simulation) time.Duration {
+	hc := &value.unit.Hardcast
+	if hc.IsChanneled {
+		return 0
+	}
+	return max(0, hc.Expires-sim.CurrentTime)
+}
+func (value *APLValueRemainingCastTime) String() string {
+	return "Remaining Cast Time"
+}
+
 type APLValueSpellIsChanneling struct {
 	DefaultAPLValueImpl
 	spell *Spell

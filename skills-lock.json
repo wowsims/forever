@@ -60,7 +60,7 @@
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0a4b75608918e5675d7c79de4a35b5f2fe7626e0fd5cdaefa5dfb68e2452aa9a"
+      "computedHash": "5f3cd80936f5e68b35e748eef29afb052e94d0667678345bb68d96cd577040da"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
