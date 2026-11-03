@@ -505,6 +505,7 @@ message APLValueIsExecutePhase {
         reserved "E25", "E45", "E90";
     }
     ExecutePhaseThreshold threshold = 1;
+    UnitReference target_unit = 2;
 }
 
 message APLValueBossSpellTimeToReady {

@@ -88,6 +88,8 @@ type Unit struct {
 	// A pet its owner set on the target before the pull: its rotation and swings run before 0.
 	engagedBeforePull bool
 
+	executePhase int32 // 35 or 20 for the execute phase a target is in, 0 above them and for players and pets.
+
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
 	// effects from items / abilities.

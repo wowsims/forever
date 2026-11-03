@@ -286,7 +286,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.is_execute_phase.tooltip'),
 		newValue: APLValueIsExecutePhase.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
-		fields: [executePhaseThresholdFieldConfig('threshold')],
+		fields: [executePhaseThresholdFieldConfig('threshold'), unitFieldConfig('targetUnit', 'targets')],
 	}),
 	numberTargets: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.num_targets.label'),
