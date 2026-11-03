@@ -92,3 +92,5 @@ paladin.aura.holy_shield_20927: was spell 20927, now nothing
 paladin.aura.holy_shield_20928: was spell 20928, now nothing
 rogue.spell.death_mark: was spell 1316709, now spell 1325758 rank 4
 rogue.spell.death_mark_rank4: was spell 1325758 rank 4, now nothing
+rogue.spell.venom: was spell 1310703, now spell 1329328
+rogue.spell.venom_1329328: was spell 1329328, now nothing

@@ -1794,8 +1794,7 @@
         "thousand_cuts": {"spellId": 1310721, "registeredBy": []},
         "touch_of_the_grave": {"spellId": 1260198, "registeredBy": ["rogue"], "uncastable": true},
         "vanish": {"spellId": 1857, "rank": 2, "registeredBy": ["rogue"]},
-        "venom": {"spellId": 1310703, "registeredBy": []},
-        "venom_1329328": {"spellId": 1329328, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
+        "venom": {"spellId": 1329328, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
         "vigor": {"spellId": 14983, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
         "vile_poisons": {"spellId": 16513, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
         "weapon_expertise": {"spellId": 30919, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true}
