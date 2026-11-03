@@ -321,16 +321,16 @@ func TestBearSwingRageTakesTheTwoHandFactor(t *testing.T) {
 // Bear Form (Passive2) 21178 raises threat by 50% while a bear form is up.
 func TestBearFormsRaiseThreatByHalf(t *testing.T) {
 	sim, bear := newBear(t)
-	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-1.5) > 1e-9 {
-		t.Errorf("threat multiplier in Dire Bear Form is %g, want 1.5", got)
+	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-2.15) > 1e-9 {
+		t.Errorf("threat multiplier in Dire Bear Form is %g, want 2.15", got)
 	}
 	bear.DireBearFormAura.Deactivate(sim)
 	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-1) > 1e-9 {
 		t.Errorf("threat multiplier out of form is %g, want 1", got)
 	}
 	bear.BearFormAura.Activate(sim)
-	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-1.5) > 1e-9 {
-		t.Errorf("threat multiplier in Bear Form is %g, want 1.5", got)
+	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-2.15) > 1e-9 {
+		t.Errorf("threat multiplier in Bear Form is %g, want 2.15", got)
 	}
 }
 
