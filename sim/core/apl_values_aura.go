@@ -90,69 +90,65 @@ func (value *APLValueAuraIsActive) String() string {
 }
 
 func (unit *Unit) auraReadsActive(sim *Simulation, aura *Aura, reactionTime time.Duration, includeReactionTime bool) bool {
-	if reading := unit.readAura(sim, aura); reading.landing {
+	reading := unit.readAura(sim, aura)
+	if reading.landing || !includeReactionTime {
 		return reading.active
 	}
-	if includeReactionTime {
-		return aura.IsActive() && aura.TimeActive(sim) >= reactionTime
-	}
-	return aura.IsActive()
+	return reading.active && aura.TimeActive(sim) >= reactionTime
 }
 
-// The aura with one id on each target, each read as Aura Is Active reads it. A target that is down is skipped.
-type aurasOnAllTargets struct {
+// The aura with one id on each target, read on the targets that are up, each copy as Aura Is Active reads it.
+// A target that is up without such an aura counts as one without it active.
+type targetAuras struct {
 	unit                *Unit
 	auraID              ActionID
-	auras               []*Aura
-	reactionTime        time.Duration
+	auras               AuraArray
 	includeReactionTime bool
 }
 
-func (rot *APLRotation) newAurasOnAllTargets(auraId *proto.ActionID, includeReactionTime bool) *aurasOnAllTargets {
+func (rot *APLRotation) newTargetAuras(auraId *proto.ActionID, includeReactionTime bool) *targetAuras {
 	if auraId == nil {
 		return nil
 	}
 	actionID := ProtoToActionID(auraId)
-	var auras []*Aura
+	auras := make(AuraArray, len(rot.unit.Env.AllUnits))
 	for _, target := range rot.unit.Env.Encounter.AllTargetUnits {
-		if aura := target.GetAuraByID(actionID); aura != nil {
-			auras = append(auras, aura)
-		}
+		auras[target.UnitIndex] = target.GetAuraByID(actionID)
 	}
-	if len(auras) == 0 {
+	if auras.IsEmpty() {
 		rot.ValidationMessage(proto.LogLevel_Warning, "Could not find an aura for %s on Target(s)", actionID)
 		return nil
 	}
-	return &aurasOnAllTargets{
+	return &targetAuras{
 		unit:                rot.unit,
 		auraID:              actionID,
 		auras:               auras,
-		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: includeReactionTime,
 	}
 }
-func (targets *aurasOnAllTargets) countsAsActive(sim *Simulation, aura *Aura) bool {
-	return targets.unit.auraReadsActive(sim, aura, targets.reactionTime, targets.includeReactionTime)
+func (value *targetAuras) isActiveOn(sim *Simulation, target *Unit) bool {
+	aura := value.auras.Get(target)
+	return aura != nil && value.unit.auraReadsActive(sim, aura, value.unit.ReactionTime, value.includeReactionTime)
 }
 
 type APLValueAuraIsActiveOnAllTargets struct {
 	DefaultAPLValueImpl
-	*aurasOnAllTargets
+	*targetAuras
 }
 
 func (rot *APLRotation) newValueAuraIsActiveOnAllTargets(config *proto.APLValueAuraIsActiveOnAllTargets, _ *proto.UUID) APLValue {
-	targets := rot.newAurasOnAllTargets(config.AuraId, config.IncludeReactionTime)
+	targets := rot.newTargetAuras(config.AuraId, config.IncludeReactionTime)
 	if targets == nil {
 		return nil
 	}
-	return &APLValueAuraIsActiveOnAllTargets{aurasOnAllTargets: targets}
+	return &APLValueAuraIsActiveOnAllTargets{targetAuras: targets}
 }
 func (value *APLValueAuraIsActiveOnAllTargets) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueAuraIsActiveOnAllTargets) GetBool(sim *Simulation) bool {
-	for _, aura := range value.auras {
-		if aura.Unit.IsEnabled() && !value.countsAsActive(sim, aura) {
+	for _, target := range sim.Encounter.ActiveTargetUnits {
+		if !value.isActiveOn(sim, target) {
 			return false
 		}
 	}
@@ -164,22 +160,22 @@ func (value *APLValueAuraIsActiveOnAllTargets) String() string {
 
 type APLValueAuraIsActiveOnAnyTarget struct {
 	DefaultAPLValueImpl
-	*aurasOnAllTargets
+	*targetAuras
 }
 
 func (rot *APLRotation) newValueAuraIsActiveOnAnyTarget(config *proto.APLValueAuraIsActiveOnAnyTarget, _ *proto.UUID) APLValue {
-	targets := rot.newAurasOnAllTargets(config.AuraId, config.IncludeReactionTime)
+	targets := rot.newTargetAuras(config.AuraId, config.IncludeReactionTime)
 	if targets == nil {
 		return nil
 	}
-	return &APLValueAuraIsActiveOnAnyTarget{aurasOnAllTargets: targets}
+	return &APLValueAuraIsActiveOnAnyTarget{targetAuras: targets}
 }
 func (value *APLValueAuraIsActiveOnAnyTarget) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueAuraIsActiveOnAnyTarget) GetBool(sim *Simulation) bool {
-	for _, aura := range value.auras {
-		if aura.Unit.IsEnabled() && value.countsAsActive(sim, aura) {
+	for _, target := range sim.Encounter.ActiveTargetUnits {
+		if value.isActiveOn(sim, target) {
 			return true
 		}
 	}

@@ -32,16 +32,15 @@ func (value *APLValueDotIsActive) String() string {
 	return fmt.Sprintf("Dot Is Active(%s)", value.dot.Get().Spell.ActionID)
 }
 
-type APLValueDotIsActiveOnAllTargets struct {
-	DefaultAPLValueImpl
+type targetDots struct {
 	dots  []*Dot
 	spell *Spell
 }
 
-func (rot *APLRotation) dotsOnAllTargets(spellId *proto.ActionID) (*Spell, []*Dot) {
+func (rot *APLRotation) newTargetDots(spellId *proto.ActionID) *targetDots {
 	spell := rot.GetAPLMultidotSpell(spellId)
 	if spell == nil {
-		return nil, nil
+		return nil
 	}
 
 	units := rot.unit.Env.Encounter.AllTargetUnits
@@ -59,21 +58,22 @@ func (rot *APLRotation) dotsOnAllTargets(spellId *proto.ActionID) (*Spell, []*Do
 
 	if len(dots) == 0 {
 		rot.ValidationMessage(proto.LogLevel_Warning, "Could not find a DoT for %s on Target(s)", ProtoToActionID(spellId))
-		return nil, nil
+		return nil
 	}
-	return spell, dots
+	return &targetDots{dots: dots, spell: spell}
+}
+
+type APLValueDotIsActiveOnAllTargets struct {
+	DefaultAPLValueImpl
+	*targetDots
 }
 
 func (rot *APLRotation) newValueDotIsActiveOnAllTargets(config *proto.APLValueDotIsActiveOnAllTargets, _ *proto.UUID) APLValue {
-	spell, dots := rot.dotsOnAllTargets(config.SpellId)
-	if dots == nil {
+	targets := rot.newTargetDots(config.SpellId)
+	if targets == nil {
 		return nil
 	}
-
-	return &APLValueDotIsActiveOnAllTargets{
-		spell: spell,
-		dots:  dots,
-	}
+	return &APLValueDotIsActiveOnAllTargets{targetDots: targets}
 }
 func (value *APLValueDotIsActiveOnAllTargets) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
@@ -92,20 +92,15 @@ func (value *APLValueDotIsActiveOnAllTargets) String() string {
 
 type APLValueDotIsActiveOnAnyTarget struct {
 	DefaultAPLValueImpl
-	dots  []*Dot
-	spell *Spell
+	*targetDots
 }
 
 func (rot *APLRotation) newValueDotIsActiveOnAnyTarget(config *proto.APLValueDotIsActiveOnAnyTarget, _ *proto.UUID) APLValue {
-	spell, dots := rot.dotsOnAllTargets(config.SpellId)
-	if dots == nil {
+	targets := rot.newTargetDots(config.SpellId)
+	if targets == nil {
 		return nil
 	}
-
-	return &APLValueDotIsActiveOnAnyTarget{
-		spell: spell,
-		dots:  dots,
-	}
+	return &APLValueDotIsActiveOnAnyTarget{targetDots: targets}
 }
 func (value *APLValueDotIsActiveOnAnyTarget) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
@@ -148,41 +143,15 @@ func (value *APLValueDotRemainingTime) String() string {
 
 type APLValueDotLowestRemainingTime struct {
 	DefaultAPLValueImpl
-	dots  []*Dot
-	spell *Spell
+	*targetDots
 }
 
 func (rot *APLRotation) newValueDotLowestRemainingTime(config *proto.APLValueDotLowestRemainingTime, _ *proto.UUID) APLValue {
-	unit := rot.unit
-	spell := rot.GetAPLMultidotSpell(config.SpellId)
-
-	if spell == nil {
+	targets := rot.newTargetDots(config.SpellId)
+	if targets == nil {
 		return nil
 	}
-
-	units := unit.Env.Encounter.AllTargetUnits
-	dots := make([]*Dot, 0, len(units))
-
-	for _, unit := range units {
-		dot := rot.GetAPLDot(rot.GetTargetUnit(&proto.UnitReference{
-			Type:  proto.UnitReference_Target,
-			Index: unit.Index,
-		}), config.SpellId)
-
-		if dot != nil {
-			dots = append(dots, dot)
-		}
-	}
-
-	if len(dots) == 0 {
-		rot.ValidationMessage(proto.LogLevel_Warning, "Could not find a DoT for %s on Target(s)", ProtoToActionID(config.SpellId))
-		return nil
-	}
-
-	return &APLValueDotLowestRemainingTime{
-		spell: spell,
-		dots:  dots,
-	}
+	return &APLValueDotLowestRemainingTime{targetDots: targets}
 }
 func (value *APLValueDotLowestRemainingTime) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration

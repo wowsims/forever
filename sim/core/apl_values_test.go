@@ -1341,6 +1341,7 @@ func TestValueActiveOnAllAndAnyTarget(t *testing.T) {
 	for i, target := range targets {
 		debuffs[i] = target.RegisterAura(Aura{Label: "Debuff", ActionID: ActionID{SpellID: testPlainAuraID}, Duration: 30 * time.Second})
 	}
+	firstOnly := targets[0].RegisterAura(Aura{Label: "First Target Debuff", ActionID: ActionID{SpellID: testStackAuraID}, Duration: 30 * time.Second})
 	sim.Environment.State = Finalized
 	rend := fw.GetSpell(fakeRendActionID)
 
@@ -1394,6 +1395,14 @@ func TestValueActiveOnAllAndAnyTarget(t *testing.T) {
 	rend.Dot(targets[1]).Deactivate(sim)
 	rend.Dot(targets[2]).Apply(sim)
 	check("up on the down target alone", false, false)
+
+	firstOnlyID := ActionID{SpellID: testStackAuraID}.ToProto()
+	firstOnlyOnAll := fw.Rotation.newValueAuraIsActiveOnAllTargets(&proto.APLValueAuraIsActiveOnAllTargets{AuraId: firstOnlyID}, nil)
+	firstOnlyOnAny := fw.Rotation.newValueAuraIsActiveOnAnyTarget(&proto.APLValueAuraIsActiveOnAnyTarget{AuraId: firstOnlyID}, nil)
+	firstOnly.Activate(sim)
+	if firstOnlyOnAll.GetBool(sim) || !firstOnlyOnAny.GetBool(sim) {
+		t.Errorf("aura only the first target has, up there: on all = %t, on any = %t, want false, true", firstOnlyOnAll.GetBool(sim), firstOnlyOnAny.GetBool(sim))
+	}
 }
 
 func TestValueAuraShouldRefresh(t *testing.T) {
