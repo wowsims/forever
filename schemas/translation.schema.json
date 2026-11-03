@@ -136,6 +136,9 @@
 				"elapsed_time": {
 					"type": "string"
 				},
+				"time_left": {
+					"type": "string"
+				},
 				"ok": {
 					"type": "string"
 				},
@@ -1627,6 +1630,7 @@
 				"search",
 				"filter",
 				"elapsed_time",
+				"time_left",
 				"melee",
 				"any",
 				"phases",
@@ -4790,9 +4794,6 @@
 						},
 						"step_progress": {
 							"type": "string"
-						},
-						"time_left": {
-							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -4812,8 +4813,7 @@
 						"done",
 						"running",
 						"pending",
-						"step_progress",
-						"time_left"
+						"step_progress"
 					]
 				},
 				"notifications": {

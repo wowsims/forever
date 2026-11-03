@@ -10,6 +10,7 @@ import type { StatSweepSettings } from '@sim/settings/stat_sweep_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { RequestTypes } from '@sim/sim_signal_manager';
 import { patchSlice, type SimStore } from '@sim/state/sim_store';
+import { formatDurationSeconds } from '@sim/utils/format';
 import { Z_90 } from '@sim/utils/math';
 import { fakeCharts } from '@testing/chart-js-mock';
 import { makeHitSweepPoints, makeStatSweepHost, makeSweepSample, type SweepPass, sweepStepDps } from '@testing/storybook/fixtures/stat-sweep';
@@ -890,7 +891,7 @@ describe('StatSweepDialog', () => {
 	});
 
 	describe('the progress dialog', () => {
-		it('shows the run across every step with the time left, and cancels it there, keeping the finished steps', async () => {
+		it('shows the run across every step, and cancels it there, keeping the finished steps', async () => {
 			const toast = vi.spyOn(toastManager, 'add');
 			let settleSecond!: (result: object) => void;
 			simulatePass.mockResolvedValueOnce(makeSweepSample(1000)).mockImplementationOnce(options => {
@@ -906,7 +907,8 @@ describe('StatSweepDialog', () => {
 			// The second of three steps, a quarter done: the bar reads across the whole run.
 			expect(tracker()!.querySelector('[data-testid="progress-tracker-modal-progress-title"]')!.textContent).toBe('sidebar.buttons.stat_sweep.progress');
 			expect(tracker()!.querySelector('[data-testid="progress-tracker-modal-progress-text"]')!.textContent).toBe('1250/3000');
-			expect(tracker()!.querySelector('[data-testid="progress-tracker-time-remaining"]')!.textContent).toBe('sidebar.results.progress.time_remaining');
+			// The time left reads beside the elapsed time, so the bar has no line of its own for it.
+			expect(tracker()!.querySelector('[data-testid="progress-tracker-time-remaining"]')).toBeNull();
 			expect(runAgain.disabled).toBe(true);
 
 			abortType.mockClear();
@@ -923,6 +925,49 @@ describe('StatSweepDialog', () => {
 			expect(saved().points).toHaveLength(1);
 			expect(toast).not.toHaveBeenCalled();
 			toast.mockRestore();
+		});
+
+		it('shows the time left beside the elapsed time once an iteration is done, and counts it down each second', async () => {
+			let report!: (metrics: object) => void;
+			let settleFirst!: (result: object) => void;
+			simulatePass.mockImplementationOnce(options => {
+				report = options.onProgress as never;
+				return new Promise(resolve => (settleFirst = resolve));
+			});
+			settings.set({ range: 2, step: 1 });
+			i18n.addResourceBundle('en', 'translation', english, true, true);
+			try {
+				await openDialog();
+				vi.useFakeTimers();
+				await run();
+				const elapsedLine = () => tracker()!.querySelector('[data-testid="time-elapsed"]')!.parentElement!.textContent;
+				const shown = (elapsed: number, left?: number) =>
+					`${i18n.t('common.elapsed_time')}: ${formatDurationSeconds(elapsed)}${left === undefined ? '' : ` · ${i18n.t('common.time_left', { time: formatDurationSeconds(left) })}`}`;
+
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(1));
+				act(() => report({ completedIterations: 0, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(2));
+
+				// 2 s for a quarter of the first of three steps: 22 s for the other 2.75.
+				act(() => report({ completedIterations: 250, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(3, 22));
+				act(() => vi.advanceTimersByTime(2000));
+				expect(elapsedLine()).toBe(shown(5, 20));
+
+				await act(async () => {
+					fireEvent.click(tracker()!.querySelector('[data-testid="progress-tracker-modal-cancel-btn"]')!);
+				});
+				await act(async () => {
+					settleFirst({ type: ErrorOutcomeType.ErrorOutcomeAborted, message: '' });
+				});
+				expect(tracker()).toBeNull();
+			} finally {
+				vi.useRealTimers();
+				i18n.removeResourceBundle('en', 'translation');
+			}
 		});
 
 		it("lists the run's stats, done up to the running one, which holds the spinner", async () => {

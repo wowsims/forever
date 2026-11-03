@@ -8,6 +8,7 @@ import { Stats, UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import { SimRuns } from '@sim/sim_runs';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
+import { formatDurationSeconds } from '@sim/utils/format';
 import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -92,10 +93,15 @@ vi.mock('@i18n/localization', () => ({
 vi.mock('../SavedEpWeights', () => ({ SavedEpWeights: () => null }));
 
 // The vitest i18n stub has no resources, so `t` answers with the key and never interpolates — which
-// would make the reference-stat half of a column tooltip invisible. This keeps the key and shows the
-// interpolation beside it.
+// would make the reference-stat half of a column tooltip and the time left invisible. This keeps the
+// key and shows the interpolation beside it.
 vi.mock('@i18n/config', () => ({
-	default: { t: (key: string, options?: Record<string, unknown>) => (options?.refStatName ? `${key}[${options.refStatName}]` : key) },
+	default: {
+		t: (key: string, options?: Record<string, unknown>) => {
+			const shown = options?.refStatName ?? options?.time;
+			return shown ? `${key}[${shown}]` : key;
+		},
+	},
 }));
 
 const toasts = vi.hoisted(() => [] as Array<{ variant: string; body: unknown }>);
@@ -605,6 +611,48 @@ describe('EpWeightsDialog', () => {
 			const stdevCells = [...strength.querySelectorAll('[data-testid="stdev-cell"]')];
 			expect(stdevCells[0].hasAttribute('data-unused')).toBe(false);
 			expect(stdevCells[2].hasAttribute('data-unused')).toBe(true);
+		});
+
+		it('shows the time left beside the elapsed time once an iteration is done, and raises it when Target ± plans more', async () => {
+			let report!: (metrics: object) => void;
+			let finish!: (result: StatWeightsResult) => void;
+			player.computeStatWeights.mockImplementation(
+				(_stats, _pseudo, _ref, onProgress) =>
+					new Promise(resolve => {
+						report = onProgress;
+						finish = resolve;
+					}),
+			);
+			renderDialog();
+			vi.useFakeTimers();
+			try {
+				await act(async () => {
+					fireEvent.click(calculate());
+				});
+				const elapsedLine = () => rootElem.querySelector('[data-testid="time-elapsed"]')!.parentElement!.textContent;
+				const shown = (elapsed: number, left?: number) =>
+					`common.elapsed_time: ${formatDurationSeconds(elapsed)}${left === undefined ? '' : ` · common.time_left[${formatDurationSeconds(left)}]`}`;
+
+				act(() => report({ completedSims: 0, totalSims: 8, completedIterations: 0, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(1));
+
+				// 3 s for 250 of 1000 iterations: 9 s for the other 750.
+				act(() => vi.advanceTimersByTime(1000));
+				act(() => report({ completedSims: 2, totalSims: 8, completedIterations: 250, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(3, 9));
+
+				// A top-up pass brings the total to 4000: 28 s left at that rate, which the shown time climbs toward.
+				act(() => report({ completedSims: 8, totalSims: 14, completedIterations: 500, totalIterations: 4000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(4, 14));
+
+				await act(async () => finish(weightsResult([[STRENGTH, 2]])));
+				expect(rootElem.querySelector('[data-testid="progress-tracker-dialog"]')).toBeNull();
+			} finally {
+				vi.useRealTimers();
+			}
 		});
 
 		// DEFECT FIXED. The delta test was `if (…) epAvgElem;` — an expression statement that does

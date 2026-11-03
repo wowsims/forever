@@ -42,6 +42,7 @@
 		"search": "Search",
 		"filter": "Filter",
 		"elapsed_time": "Elapsed Time",
+		"time_left": "About {{time}} left",
 		"ok": "OK",
 		"cancel": "Cancel",
 		"confirm": "Confirm",
@@ -1339,8 +1340,7 @@
 			"done": "Done",
 			"running": "Running",
 			"pending": "Pending",
-			"step_progress": "Run progress: {{encounter}}, {{talents}}",
-			"time_left": "About {{time}} left"
+			"step_progress": "Run progress: {{encounter}}, {{talents}}"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
