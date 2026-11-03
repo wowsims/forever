@@ -8530,6 +8530,7 @@
 {"id":1238122,"name":"Feral Charge","icon":"ability_hunter_pet_bear","hasBuff":true},
 {"id":1238300,"name":"Lava Burst","icon":"spell_shaman_lavaburst","rank":3},
 {"id":1238931,"name":"Improved Stormstrike","icon":"spell_shaman_improvedstormstrike","hasBuff":true},
+{"id":1239570,"name":"Holy Shield","icon":"spell_holy_blessingofprotection","rank":4,"hasBuff":true},
 {"id":1239700,"name":"Arcane Blast","icon":"spell_arcane_blast","rank":5},
 {"id":1240047,"name":"Ice Lance","icon":"spell_frost_frostblast","rank":6},
 {"id":1240720,"name":"Penance","icon":"spell_holy_penance","rank":2},
