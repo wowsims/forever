@@ -74,6 +74,7 @@ import {
 	APLValueNumStatBuffCooldowns,
 	APLValueOr,
 	APLValueProtectionPaladinDamageTakenLastGlobal,
+	APLValueRemainingCastTime,
 	APLValueRemainingTime,
 	APLValueRemainingTimePercent,
 	APLValueSelectedConjured,
@@ -692,6 +693,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: APLValueSpellIsCasting.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'castable_spells', '')],
+	}),
+	remainingCastTime: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.remaining_cast_time.label'),
+		submenu: ['spell'],
+		shortDescription: i18n.t('rotation_tab.apl.values.remaining_cast_time.tooltip'),
+		newValue: APLValueRemainingCastTime.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [],
 	}),
 	spellIsChanneling: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.is_channeling.label'),
