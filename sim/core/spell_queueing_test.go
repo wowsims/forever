@@ -566,6 +566,9 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		remaining := cb.rot.newValueDotRemainingTime(&proto.APLValueDotRemainingTime{SpellId: spellID}, nil)
 		multidot := cb.rot.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 1})
 		onAllTargets := cb.rot.newValueDotIsActiveOnAllTargets(&proto.APLValueDotIsActiveOnAllTargets{SpellId: spellID}, nil)
+		onAnyTarget := cb.rot.newValueDotIsActiveOnAnyTarget(&proto.APLValueDotIsActiveOnAnyTarget{SpellId: spellID}, nil)
+		auraOnAllTargets := cb.rot.newValueAuraIsActiveOnAllTargets(&proto.APLValueAuraIsActiveOnAllTargets{AuraId: spellID, IncludeReactionTime: true}, nil)
+		auraOnAnyTarget := cb.rot.newValueAuraIsActiveOnAnyTarget(&proto.APLValueAuraIsActiveOnAnyTarget{AuraId: spellID, IncludeReactionTime: true}, nil)
 		lowestRemaining := cb.rot.newValueDotLowestRemainingTime(&proto.APLValueDotLowestRemainingTime{SpellId: spellID}, nil)
 		tickFrequency := cb.rot.newValueDotTickFrequency(&proto.APLValueDotTickFrequency{SpellId: spellID}, nil)
 		timeToNextTick := cb.rot.newValueDotTimeToNextTick(&proto.APLValueDotTimeToNextTick{SpellId: spellID}, nil)
@@ -585,6 +588,10 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			}
 			if !onAllTargets.GetBool(cb.sim) || lowestRemaining.GetDuration(cb.sim) != castEnd+5*time.Second-at {
 				t.Fatalf("at %v the dot should read as up on the one target until 7 s, read %t with %v lowest left", at, onAllTargets.GetBool(cb.sim), lowestRemaining.GetDuration(cb.sim))
+			}
+			if !onAnyTarget.GetBool(cb.sim) || !auraOnAllTargets.GetBool(cb.sim) || !auraOnAnyTarget.GetBool(cb.sim) {
+				t.Fatalf("at %v the dot and its aura should read as up on the one target, read dot on any %t, aura on all %t, aura on any %t",
+					at, onAnyTarget.GetBool(cb.sim), auraOnAllTargets.GetBool(cb.sim), auraOnAnyTarget.GetBool(cb.sim))
 			}
 			if tickFrequency.GetDuration(cb.sim) != time.Second || timeToNextTick.GetDuration(cb.sim) != castEnd+time.Second-at {
 				t.Fatalf("at %v the dot should read as ticking every 1 s from the cast end, read %v with the next tick in %v", at, tickFrequency.GetDuration(cb.sim), timeToNextTick.GetDuration(cb.sim))
