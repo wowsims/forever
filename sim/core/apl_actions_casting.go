@@ -434,7 +434,7 @@ func (rot *APLRotation) newActionMultishield(config *proto.APLActionMultishield)
 	unit := rot.unit
 
 	spell := rot.GetAPLMultishieldSpell(config.SpellId)
-	if spell == nil || !rot.rotationCasts(spell) {
+	if spell == nil {
 		return nil
 	}
 

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -257,12 +258,20 @@ func (rot *APLRotation) GetAPLCastSpell(spellId *proto.ActionID) *Spell {
 
 // Whether a cast action may cast the spell. A spell without SpellFlagAPL is one the sim casts on its own, such as
 // the swing a queued Heroic Strike, Cleave or Maul replaces; a line that cast it would fire it on the spot, off the
-// swing and the GCD, so the cast actions drop the line with this warning. A value may still read such a spell.
+// swing and the GCD, so the cast actions drop the line with this warning, which names the flagged spell of the
+// same id under another tag when there is one. A value may still read such a spell.
 func (rot *APLRotation) rotationCasts(spell *Spell) bool {
 	if spell.Flags.Matches(SpellFlagAPL) {
 		return true
 	}
-	rot.ValidationMessage(proto.LogLevel_Warning, "%s casts %s, a spell no rotation casts", rot.unit.Label, spell.ActionID)
+	hint := ""
+	for _, s := range rot.unit.Spellbook {
+		if spell.ActionID.SpellID != 0 && s.ActionID.SpellID == spell.ActionID.SpellID && s.Flags.Matches(SpellFlagAPL) {
+			hint = fmt.Sprintf("; the rotation casts %s", s.ActionID)
+			break
+		}
+	}
+	rot.ValidationMessage(proto.LogLevel_Warning, "%s casts %s, a spell no rotation casts%s", rot.unit.Label, spell.ActionID, hint)
 	return false
 }
 
@@ -309,7 +318,7 @@ func (rot *APLRotation) GetAPLMultidotSpell(spellId *proto.ActionID) *Spell {
 }
 
 func (rot *APLRotation) GetAPLMultishieldSpell(spellId *proto.ActionID) *Spell {
-	spell := rot.GetAPLSpell(spellId)
+	spell := rot.GetAPLCastSpell(spellId)
 	if spell == nil {
 		return nil
 	} else if spell.Shield(spell.Unit) == nil {
