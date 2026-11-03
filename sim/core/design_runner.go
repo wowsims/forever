@@ -559,44 +559,6 @@ func (wave *designWave) despawn(sim *Simulation, target *Target) {
 	target.SetHealthCurve(sim, 0, 0, HealthKnot{At: 0, Percent: 100})
 }
 
-// The current time while the target is active; else the time a downtime or its wave brings it in next, or
-// NeverExpires.
-func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
-	if target.IsEnabled() {
-		return sim.CurrentTime
-	}
-	design := sim.Encounter.design
-	if design == nil {
-		return NeverExpires
-	}
-	state := &design.targets[target.Index]
-	if state.wave != nil {
-		return state.wave.occurrences.nextAt()
-	}
-	return state.nextActiveAt
-}
-
-// When the target's current life ends: an add's despawn, the fight's end for the encounter's own targets and
-// for an add that outlives it. A target that is not active dies after the life its next activation starts,
-// or at NeverExpires with none.
-func (target *Target) DiesAt(sim *Simulation) time.Duration {
-	if design := sim.Encounter.design; design != nil {
-		if state := &design.targets[target.Index]; state.wave != nil {
-			if target.IsEnabled() {
-				return min(state.diesAt, sim.Duration)
-			}
-			if next := state.wave.occurrences.nextAt(); next != NeverExpires {
-				return min(next+state.wave.lifetime(sim), sim.Duration)
-			}
-			return NeverExpires
-		}
-	}
-	if target.NextActiveAt(sim) != NeverExpires {
-		return sim.Duration
-	}
-	return NeverExpires
-}
-
 // The wave and add a pool target spawns as, nil for the encounter's own targets.
 func (encounter *Encounter) designAdd(target *Target) *proto.DesignAdd {
 	if encounter.design == nil {
@@ -607,14 +569,6 @@ func (encounter *Encounter) designAdd(target *Target) *proto.DesignAdd {
 		return nil
 	}
 	return &proto.DesignAdd{WaveIndex: int32(state.wave.index), AddIndex: state.addIndex}
-}
-
-// The active targets other than the boss, target 0.
-func (encounter *Encounter) NumActiveAdds() int {
-	if encounter.AllTargets[0].IsEnabled() {
-		return len(encounter.ActiveTargets) - 1
-	}
-	return len(encounter.ActiveTargets)
 }
 
 // The start of the design's next move not yet started, or NeverExpires.
