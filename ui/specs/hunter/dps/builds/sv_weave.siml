@@ -1,6 +1,6 @@
 siml 1
 spec hunter
-talents "-00530501114-550200030050220151"
+talents "-00530501114-530200230050220151"
 use "../gear_sets/p1.gear.siml"
 use "../apls/default.apl.siml"
 
