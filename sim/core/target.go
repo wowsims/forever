@@ -296,7 +296,11 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 	}
 
 	if target.CurrentTarget != nil {
-		target.retargetOwnTarget()
+		if sim.isResetting {
+			target.retargetOwnTarget()
+		} else {
+			target.CurrentTarget = nil
+		}
 	}
 
 	if !sim.isResetting {

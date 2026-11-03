@@ -108,13 +108,13 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 ## Targets
 
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
-  target move to the enabled target with the lowest index; with none left they keep the disabled target, their auto
-  attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). A target disabled at start strands the raid at
-  the pull the same way (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code
-  that reads the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it
-  does not land once the target is back, and ends every raid unit's channel on the target with no further tick; a
-  ground channel lives on its caster and runs on. A dot keeps ticking on a target disabled without clearing its
-  debuffs.
+  target, its tank among them, move to the enabled target with the lowest index and look at their rotation again; with
+  none left they keep the disabled target, their auto attacks stop and `Target.Enable` resumes them
+  (`returnStrandedRaid`). A target disabled at start strands the raid at the pull the same way
+  (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code that reads the current
+  target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it does not land once the
+  target is back, and ends every raid unit's channel on the target with no further tick; a ground channel lives on its
+  caster and runs on. A dot keeps ticking on a target disabled without clearing its debuffs.
 - **A target disabled while the sim resets only starts the iteration disabled.** A target AI's `Reset` runs before the
   raid resets, so `Disable` then skips the raid side (channels, moving the raid, waking rotations), and the pull moves
   the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
