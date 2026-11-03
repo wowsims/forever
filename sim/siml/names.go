@@ -53,6 +53,7 @@ type SpellName struct {
 	SpellID, Tag, Rank int32
 	RegisteredBy       []string // The specs that register it, by Player spec field name in byte order; empty when no build does.
 	ICDOnlyBy          []string // The specs of RegisteredBy that know the aura only as an internal cooldown trigger, which only the ICD kinds find.
+	TalentOnlyBy       []string // The specs of RegisteredBy that know the spell only as a talent, which only the talent kinds find.
 	Uncastable         bool     // A spell no build lets a rotation cast (the sim's APL flag), as an inner spell.
 }
 
@@ -437,7 +438,7 @@ func spellNames(scope string, v any) (SpellNames, error) {
 		named := map[spellKey]string{}
 		for name, v := range entries {
 			where := scope + "." + space + "." + name
-			e, err := object(where, v, "spellId", "tag", "rank", "registeredBy", "icdOnlyBy", "uncastable")
+			e, err := object(where, v, "spellId", "tag", "rank", "registeredBy", "icdOnlyBy", "talentOnlyBy", "uncastable")
 			if err != nil {
 				return nil, err
 			}
@@ -471,11 +472,20 @@ func spellNames(scope string, v any) (SpellNames, error) {
 					return nil, fmt.Errorf("names: %s.icdOnlyBy lists %q, which is no spec of registeredBy on an aura", where, spec)
 				}
 			}
+			talentOnly, err := stringList(where+".talentOnlyBy", e["talentOnlyBy"])
+			if err != nil {
+				return nil, err
+			}
+			for _, spec := range talentOnly {
+				if ns != NamespaceSpell || !slices.Contains(specs, spec) {
+					return nil, fmt.Errorf("names: %s.talentOnlyBy lists %q, which is no spec of registeredBy on a spell", where, spec)
+				}
+			}
 			uncastable, ok := e["uncastable"].(bool)
 			if e["uncastable"] != nil && (!ok || ns != NamespaceSpell) {
 				return nil, fmt.Errorf("names: %s.uncastable is true or left out, and only on a spell", where)
 			}
-			entry := SpellName{SpellID: id, Tag: tag, Rank: rank, RegisteredBy: specs, ICDOnlyBy: icdOnly, Uncastable: uncastable}
+			entry := SpellName{SpellID: id, Tag: tag, Rank: rank, RegisteredBy: specs, ICDOnlyBy: icdOnly, TalentOnlyBy: talentOnly, Uncastable: uncastable}
 			key := spellKey{id, tag}
 			if other, ok := named[key]; ok {
 				return nil, fmt.Errorf("names: %s.%s names %s twice, as %s and %s", scope, ns, spellText(entry), min(name, other), max(name, other))
@@ -697,6 +707,9 @@ func writeSpellNames(b *bytes.Buffer, names SpellNames, indent string) {
 			fmt.Fprintf(b, ", \"registeredBy\": [%s]", specList(e.RegisteredBy))
 			if len(e.ICDOnlyBy) > 0 {
 				fmt.Fprintf(b, ", \"icdOnlyBy\": [%s]", specList(e.ICDOnlyBy))
+			}
+			if len(e.TalentOnlyBy) > 0 {
+				fmt.Fprintf(b, ", \"talentOnlyBy\": [%s]", specList(e.TalentOnlyBy))
 			}
 			if e.Uncastable {
 				fmt.Fprintf(b, ", \"uncastable\": true")

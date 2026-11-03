@@ -7,9 +7,9 @@ argument-hint: 'Describe the rotation, gear set, setup, CLI or language server t
 # WoWSims Forever SIML
 
 SIML is the text format of the rotations (APLs), gear sets and whole sim setups. Each file reads as a proto
-(`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's presets are SIML; the other specs
-keep JSON presets until each moves, and the Go suites and the site read either. `sim/siml/SPEC.md` is the full
-language and wins on any doubt.
+(`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's, Retribution's and Protection
+paladin's presets are SIML; the other specs keep JSON presets until each moves, and the Go suites and the site read
+either. `sim/siml/SPEC.md` is the full language and wins on any doubt.
 
 `wowsimcli siml llm` writes this skill: the part above "Actions" from `sim/siml/llm_head.txt`, the rest from the
 protos, so a change to `proto/apl.proto` shows up here once `make siml` runs. Edit the head, never this file.
@@ -247,11 +247,13 @@ Written from `proto/apl.proto`, but for the accessors below.
 Written `[unit.]head(subject).property(arguments)`; each head with its properties.
 
 - `[unit.]aura(x)`: `is_known`, `is_active(include_reaction_time: bool)`,
-  `is_inactive(include_reaction_time: bool)`, `remaining_time`, `num_stacks(include_reaction_time: bool)`,
-  `internal_cooldown`, `icd_is_ready(include_reaction_time: bool)`, `should_refresh(max_overlap: value)`, `duration`
-- `[unit.]dot(x)`: `is_active`, `is_active_on_all_targets`, `remaining_time`, `lowest_remaining_time`,
-  `tick_frequency`, `time_to_next_tick`, `base_duration`, `percent_increase(use_base_value: bool)`,
-  `tick_rate_percent_increase(use_base_value: bool)`
+  `is_inactive(include_reaction_time: bool)`, `is_active_on_all_targets(include_reaction_time: bool)`,
+  `is_active_on_any_target(include_reaction_time: bool)`, `remaining_time`,
+  `num_stacks(include_reaction_time: bool)`, `internal_cooldown`, `icd_is_ready(include_reaction_time: bool)`,
+  `should_refresh(max_overlap: value)`, `duration`
+- `[unit.]dot(x)`: `is_active`, `is_active_on_all_targets`, `is_active_on_any_target`, `remaining_time`,
+  `lowest_remaining_time`, `tick_frequency`, `time_to_next_tick`, `base_duration`,
+  `percent_increase(use_base_value: bool)`, `tick_rate_percent_increase(use_base_value: bool)`
 - `[unit.]spell(x)`: `is_known`, `can_cast`, `in_range`, `is_ready`, `time_to_ready`, `cast_time`, `travel_time`,
   `cpm`, `is_casting`, `is_channeling`, `channeled_ticks`, `current_cost`, `num_charges`, `time_to_charge`,
   `gcd_hasted_duration`, `full_cooldown`, `in_flight`, `expected_dpet`, `is_hit_capped`, `is_expertise_capped`

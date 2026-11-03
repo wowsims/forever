@@ -12,7 +12,7 @@ import type { PresetBuild } from './preset_utils';
 
 // Keys the walk below must not name: `phase`/`group` are grouping metadata rather than settings,
 // and the rest are re-added by their own rules so they read once rather than under two labels.
-const NON_CATEGORY_BUILD_KEYS = ['name', 'encounter', 'settings', 'phase', 'group', 'epWeights', 'reforgeSettings'];
+const NON_CATEGORY_BUILD_KEYS = ['name', 'encounter', 'settings', 'phase', 'group', 'epWeights', 'reforgeSettings', 'itemSwap'];
 
 /** The categories a build touches, as the chip tooltip lists them: de-duplicated and sorted. */
 export function buildCategories(build: PresetBuild): Array<string> {
@@ -24,6 +24,8 @@ export function buildCategories(build: PresetBuild): Array<string> {
 		}
 	});
 
+	// A build's swap set goes with its gear.
+	if (build.itemSwap) categories.push(translatePresetConfigurationCategory(PresetConfigurationCategory.Gear));
 	if (build.encounter?.encounter) categories.push(translatePresetConfigurationCategory(PresetConfigurationCategory.Encounter));
 	if (build.epWeights) categories.push(i18n.t('common.preset.stat_weights'));
 	if (build.reforgeSettings) categories.push(i18n.t('common.preset.reforge_settings'));
@@ -49,13 +51,18 @@ export function buildCategories(build: PresetBuild): Array<string> {
  * talents the player has not loaded.
  */
 export function isBuildActive(
-	{ gear, rotation, rotationType, talents, epWeights, encounter, settings }: PresetBuild,
+	{ gear, itemSwap, rotation, rotationType, talents, epWeights, encounter, settings }: PresetBuild,
 	simUI: IndividualSimHost<Spec>,
 	categories?: Array<PresetConfigurationCategory>,
 ): boolean {
 	const checks = (category: PresetConfigurationCategory) => !categories || categories.includes(category);
 
 	const hasGear = checks(PresetConfigurationCategory.Gear) && gear ? EquipmentSpec.equals(gear.gear, simUI.player.getGear().asSpec()) : true;
+	// A build's swap set goes with its gear, and loading the build turns item swap on with it.
+	const hasSwapSet =
+		checks(PresetConfigurationCategory.Gear) && itemSwap
+			? simUI.player.itemSwapSettings.getEnableItemSwap() && isEqualItemSwap(simUI.player.itemSwapSettings.toProto(), itemSwap.itemSwap)
+			: true;
 	const hasTalents =
 		checks(PresetConfigurationCategory.Talents) && talents
 			? SavedTalents.equals(talents.data, SavedTalents.create({ talentsString: simUI.player.getTalentsString() }))
@@ -130,6 +137,7 @@ export function isBuildActive(
 		hasDistanceFromTarget &&
 		hasEnableItemSwap &&
 		hasItemSwap &&
+		hasSwapSet &&
 		hasSpecOptions &&
 		hasConsumables &&
 		hasPartyBuffs &&

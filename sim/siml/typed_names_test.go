@@ -97,6 +97,37 @@ func TestPrintRanksAndRawRefs(t *testing.T) {
 	}
 }
 
+// A talent's name reads back with no rank, which talent_is_known reads as any points, so a talent_id that needs more
+// than one point prints raw and talent_rank prints by name.
+func TestPrintTalentRanks(t *testing.T) {
+	names := &Names{Classes: map[proto.Class]SpellNames{proto.Class_ClassHunter: {NamespaceSpell: {
+		"some_talent": {SpellID: 900002, RegisteredBy: []string{"hunter"}, Uncastable: true},
+	}}}}
+	talent := func(rank int32) *proto.ActionID {
+		return &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: 900002}, Rank: rank}
+	}
+	known := func(rank int32) *proto.APLValue {
+		return &proto.APLValue{Value: &proto.APLValue_TalentIsKnown{TalentIsKnown: &proto.APLValueTalentIsKnown{TalentId: talent(rank)}}}
+	}
+	waitIf := func(v *proto.APLValue) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{Condition: v, Action: &proto.APLAction_Wait{Wait: &proto.APLActionWait{
+			Duration: &proto.APLValue{Value: &proto.APLValue_Const{Const: &proto.APLValueConst{Val: "1s"}}},
+		}}}}
+	}
+	rank := &proto.APLValue{Value: &proto.APLValue_TalentRank{TalentRank: &proto.APLValueTalentRank{TalentId: talent(3)}}}
+	r := &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PriorityList: []*proto.APLListItem{
+		waitIf(known(1)), waitIf(known(3)), waitIf(&proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
+			Op: proto.APLValueCompare_OpGe, Lhs: rank, Rhs: &proto.APLValue{Value: &proto.APLValue_Const{Const: &proto.APLValueConst{Val: "3"}}},
+		}}}),
+	}}
+	text := string(printRotation(proto.Spec_SpecHunter, r, names))
+	want := rotationText("wait 1s if talent_is_known(some_talent)", "wait 1s if talent_is_known(`{\"spellId\":900002,\"rank\":3}`)",
+		"wait 1s if talent_rank(some_talent) >= 3")
+	if text != want {
+		t.Fatalf("the rotation prints as\n%s\nwant\n%s", text, want)
+	}
+}
+
 // A class's own name comes before a shared one, and a file printed with no spec writes only shared names.
 func TestPrintClassNames(t *testing.T) {
 	names := &Names{
