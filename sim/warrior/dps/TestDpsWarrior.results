@@ -731,10 +731,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-OldGuardRetaliator-208222"
  value: {
-  dps: 503.09797
-  tps: 423.48292
+  dps: 545.4753
+  tps: 472.87225
   dtps: 2.96131
-  hps: 40.05667
+  hps: 42.09
  }
 }
 dps_results: {
