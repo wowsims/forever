@@ -105,8 +105,8 @@ preset names:
 - **An unknown spell.** A Cast Spell, Multidot or value on a spell the unit lacks logs "does not know spell" and the line
   or value is dropped (`GetAPLSpell`). A `spellIsKnown` guard prunes the line, and the warning stays.
 - **A spell no rotation casts.** A Cast Spell, Cast Friendly Spell, Channel, Multidot or Multishield on a spell without
-  `SpellFlagAPL`, such as the attack behind a queued Heroic Strike or Maul, logs "is a spell no rotation casts" and the
-  line is dropped (`GetAPLCastSpell`). A value on the same spell still reads it.
+  `SpellFlagAPL`, such as the attack behind a queued Heroic Strike or Maul, logs "a spell no rotation casts" and the
+  line is dropped (`rotationCasts`). A value on the same spell still reads it.
 - **An aura under another ActionID.** An `auraIsActive` or `auraNumStacks` naming a spell id core registers under
   another ActionID logs "No aura found" and the value is dropped. An And drops that branch with a warning, an Or or a
   Not drops it silently, and a condition with nothing left reads true and the line runs every time it is ready,

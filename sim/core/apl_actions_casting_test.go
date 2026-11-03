@@ -252,7 +252,6 @@ func TestManualCastsCountTheMovesTheRotationStarts(t *testing.T) {
 // line with a warning. A value on the same spell still reads it.
 func TestCastOfASpellNoRotationCastsDropsTheLine(t *testing.T) {
 	const swing, press = 910107, 910108
-	spellID := func(id int32) *proto.ActionID { return &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: id}} }
 	sim := NewSim(fakeSwingCasterRequest(), simsignals.CreateSignals())
 	fc := sim.Raid.Parties[0].Players[0].(*FakeSwingCaster)
 	sim.Environment.State = Constructed
@@ -268,32 +267,16 @@ func TestCastOfASpellNoRotationCastsDropsTheLine(t *testing.T) {
 	}
 	sim.Environment.State = Finalized
 
-	castSwing := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spellID(swing)}}}}
-	pressIfSwingReady := &proto.APLListItem{Action: &proto.APLAction{
-		Condition: &proto.APLValue{Value: &proto.APLValue_SpellIsReady{SpellIsReady: &proto.APLValueSpellIsReady{SpellId: spellID(swing)}}},
-		Action:    &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spellID(press)}},
-	}}
+	pressIfSwingReady := aplCast(press)
+	pressIfSwingReady.Condition = &proto.APLValue{Value: &proto.APLValue_SpellIsReady{SpellIsReady: &proto.APLValueSpellIsReady{SpellId: ActionID{SpellID: swing}.ToProto()}}}
 	rot := fc.newAPLRotation(&proto.APLRotation{
 		Type:         proto.APLRotation_TypeAPL,
-		PriorityList: []*proto.APLListItem{castSwing, pressIfSwingReady},
+		PriorityList: aplItems(aplCast(swing), pressIfSwingReady),
 	})
 
-	if len(rot.priorityList) != 1 || rot.priorityList[0].impl.(*APLActionCastSpell).spell.ActionID.SpellID != press {
-		t.Errorf("the rotation keeps %v, want only the press", rot.priorityList)
+	if len(rot.priorityList) != 1 || rot.priorityList[0].impl.(*APLActionCastSpell).spell.ActionID.SpellID != press || rot.priorityList[0].condition == nil {
+		t.Errorf("the rotation keeps %v, want only the press with its condition", rot.priorityList)
 	}
-	stats := rot.getStats().PriorityList
-	warned := func(i int) bool {
-		for _, v := range stats[i].Validations {
-			if v.LogLevel == proto.LogLevel_Warning && strings.Contains(v.Validation, "no rotation casts") {
-				return true
-			}
-		}
-		return false
-	}
-	if !warned(0) {
-		t.Errorf("the cast of the swing's spell: validations %v, want a warning that no rotation casts it", stats[0].Validations)
-	}
-	if warned(1) {
-		t.Errorf("the value on the swing's spell: validations %v, want no warning", stats[1].Validations)
-	}
+	wantWarnings(t, "the cast of the swing's spell", rot.priorityListValidations[0], "no rotation casts")
+	wantWarnings(t, "the value on the swing's spell", rot.priorityListValidations[1])
 }

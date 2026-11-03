@@ -246,9 +246,7 @@ func (rot *APLRotation) GetAPLSpell(spellId *proto.ActionID) *Spell {
 	return spell
 }
 
-// The spell a cast action casts. A spell without SpellFlagAPL is one the sim casts on its own, such as the
-// swing a queued Heroic Strike, Cleave or Maul replaces; a rotation line that names it would cast it on the
-// spot, off the swing and the GCD, so the line is dropped with a warning. A value may still read such a spell.
+// The spell a cast action casts.
 func (rot *APLRotation) GetAPLCastSpell(spellId *proto.ActionID) *Spell {
 	spell := rot.GetAPLSpell(spellId)
 	if spell == nil || !rot.rotationCasts(spell) {
@@ -257,11 +255,14 @@ func (rot *APLRotation) GetAPLCastSpell(spellId *proto.ActionID) *Spell {
 	return spell
 }
 
+// Whether a cast action may cast the spell. A spell without SpellFlagAPL is one the sim casts on its own, such as
+// the swing a queued Heroic Strike, Cleave or Maul replaces; a line that cast it would fire it on the spot, off the
+// swing and the GCD, so the cast actions drop the line with this warning. A value may still read such a spell.
 func (rot *APLRotation) rotationCasts(spell *Spell) bool {
 	if spell.Flags.Matches(SpellFlagAPL) {
 		return true
 	}
-	rot.ValidationMessage(proto.LogLevel_Warning, "%s is a spell no rotation casts; the line is dropped", spell.ActionID)
+	rot.ValidationMessage(proto.LogLevel_Warning, "%s casts %s, a spell no rotation casts", rot.unit.Label, spell.ActionID)
 	return false
 }
 
