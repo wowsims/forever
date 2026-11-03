@@ -86,8 +86,6 @@ type Shaman struct {
 	// The expiration time of each totem (earth, air, fire, water).
 	TotemExpirations [4]time.Duration
 
-	LavaBurst []*core.Spell // One per rank in castableRanks.
-
 	Stormstrike *core.Spell
 
 	LightningShield     *core.Spell
@@ -130,7 +128,7 @@ func (shaman *Shaman) GetCharacter() *core.Character {
 func (shaman *Shaman) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
 }
 
-// The shocks, Lightning Bolt, Chain Lightning and Lava Burst register every rank in castableRanks; the
+// The shocks, Lightning Bolt and Chain Lightning register every rank in castableRanks; the
 // other spells register their highest rank only.
 func (shaman *Shaman) Initialize() {
 	shaman.registerChainLightningSpell()

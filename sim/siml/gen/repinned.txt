@@ -86,3 +86,6 @@ shaman.aura.strength_of_earth: was spell 25362, now spell 10441
 shaman.aura.strength_of_earth_external: was spell 10441 tag -1, now nothing
 shaman.aura.grace_of_air: was spell 25360, now spell 10626
 shaman.aura.grace_of_air_external: was spell 10626 tag -1, now nothing
+shaman.spell.lava_burst: was spell 1326047 rank 4, now spell 408490
+shaman.spell.lava_burst_408490: was spell 408490, now nothing
+shaman.spell.lava_burst_rank3: was spell 1238300 rank 3, now nothing
