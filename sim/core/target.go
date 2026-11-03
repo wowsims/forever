@@ -17,8 +17,7 @@ type Encounter struct {
 	AllTargetUnits    []*Unit
 	ActiveTargetUnits []*Unit
 
-	strandedSwings  []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
-	strandedScratch []strandedSwing // The stranded swings being brought back, kept so bringing them back allocates nothing.
+	strandedSwings []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
 
 	ExecuteProportion_20 float64
 	ExecuteProportion_35 float64
@@ -369,23 +368,17 @@ func (encounter *Encounter) moveRaidOffDisabledTargets(sim *Simulation) {
 // disabled enemy moves to the preferred active target, the auto attacks moveRaidOffTarget stopped start
 // again, and each of these units looks at its rotation again.
 func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
-	// A rotation woken here may take the new target away again, which records fresh swings, or bring one
-	// back, which runs this again. The swings move into the scratch slice, which this call holds until it
-	// is done, so a nested call works on its own copy and the slices are reused across iterations.
-	swings := append(encounter.strandedScratch[:0], encounter.strandedSwings...)
-	encounter.strandedScratch = nil
-	encounter.strandedSwings = encounter.strandedSwings[:0]
 	preferred := encounter.preferredActiveTarget()
 	for _, unit := range sim.Raid.AllUnits {
 		if unit.CurrentTarget == nil || unit.CurrentTarget.Type != EnemyUnit || unit.CurrentTarget.IsEnabled() {
 			continue
 		}
 		unit.CurrentTarget = &preferred.Unit
-		if !slices.ContainsFunc(swings, func(swing strandedSwing) bool { return swing.unit == unit }) {
+		if !slices.ContainsFunc(encounter.strandedSwings, func(swing strandedSwing) bool { return swing.unit == unit }) {
 			wakeRotation(sim, unit)
 		}
 	}
-	for _, swing := range swings {
+	for _, swing := range encounter.strandedSwings {
 		if !swing.unit.IsEnabled() {
 			continue
 		}
@@ -397,11 +390,11 @@ func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
 		}
 		wakeRotation(sim, swing.unit)
 	}
-	encounter.strandedScratch = swings[:0]
+	encounter.strandedSwings = encounter.strandedSwings[:0]
 }
 
 func wakeRotation(sim *Simulation, unit *Unit) {
-	if unit.IsEnabled() && unit.Rotation != nil && !sim.Options.Interactive {
+	if unit.IsEnabled() && !sim.Options.Interactive {
 		unit.ReactToEvent(sim, false, true)
 	}
 }
