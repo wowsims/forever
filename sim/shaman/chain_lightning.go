@@ -14,17 +14,17 @@ func (shaman *Shaman) registerChainLightningSpell() {
 // The cast, with the overload it may trigger; the overload itself, from its own row, where overload is
 // nil. Both jump alike, so an overload reaches as many targets as the cast, starting on the target that
 // triggered it.
-func (shaman *Shaman) newChainLightningSpellConfig(rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
-	config := shaman.newElectricSpellConfig(rank, overload == nil)
+func (shaman *Shaman) newChainLightningSpellConfig(row, rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
+	config, damage := shaman.newElectricSpellConfig(row, rank)
 	config.ClassSpellMask = SpellMaskChainLightning
 	if overload == nil {
 		config.ClassSpellMask = SpellMaskChainLightningOverload
 	}
 
 	// The effect states the targets the bolt reaches and what each jump keeps.
-	damage := rank.DamageEffect()
-	maxHits := int32(damage.ChainTargets)
-	bounce := float64(damage.ChainAmp)
+	effect := rank.DamageEffect()
+	maxHits := int32(effect.ChainTargets)
+	bounce := float64(effect.ChainAmp)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		numHits := min(maxHits, shaman.Env.ActiveTargetCount())
@@ -34,7 +34,7 @@ func (shaman *Shaman) newChainLightningSpellConfig(rank *spelldata.Spell, overlo
 		// damage of the next.
 		curTarget := target
 		for hitIndex := range numHits {
-			results[hitIndex] = spell.CalcDamage(sim, curTarget, damage.Average(), spell.OutcomeMagicHitAndCrit)
+			results[hitIndex] = spell.CalcDamage(sim, curTarget, damage, spell.OutcomeMagicHitAndCrit)
 			curTarget = sim.Environment.NextActiveTargetUnit(curTarget)
 			spell.DamageMultiplier *= bounce
 		}

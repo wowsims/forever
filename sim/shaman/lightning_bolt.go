@@ -12,16 +12,15 @@ func (shaman *Shaman) registerLightningBoltSpell() {
 }
 
 // The cast, with the overload it may trigger; the overload itself, from its own row, where overload is nil.
-func (shaman *Shaman) newLightningBoltSpellConfig(rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
-	config := shaman.newElectricSpellConfig(rank, overload == nil)
+func (shaman *Shaman) newLightningBoltSpellConfig(row, rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
+	config, damage := shaman.newElectricSpellConfig(row, rank)
 	config.ClassSpellMask = SpellMaskLightningBolt
 	if overload == nil {
 		config.ClassSpellMask = SpellMaskLightningBoltOverload
 	}
 
-	damage := rank.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
+		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		spell.DealCastResult(sim, result)
 
 		// The bolt lands before its overload is priced, so a debuff charge the bolt spends does
