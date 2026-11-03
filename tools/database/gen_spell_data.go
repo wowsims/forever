@@ -307,7 +307,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		rank, _ := strconv.Atoi(m[1])
 		c.Rank = int32(rank)
 		// A "Rank N" spell with no SpellMisc row states no school, cost, level or range, so it cannot
-		// be cast and is no ladder rank (Holy Shield Rank 4 1239570). The class file names it.
+		// be cast and is no ladder rank. The class file names it.
 		if !hasMisc {
 			noMisc[name] = append(noMisc[name], fmt.Sprintf("%s: rank %d, spell %d, has no SpellMisc row", name, c.Rank, c.SpellID))
 			continue

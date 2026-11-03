@@ -86,7 +86,12 @@ func (bear *GuardianDruid) AddPartyBuffs(_ *proto.PartyBuffs) {
 
 func (bear *GuardianDruid) Initialize() {
 	bear.Druid.Initialize()
-	bear.RegisterFeralTankSpells()
+	bear.RegisterFeralSpells()
+	// A cat would spend a 1.5s GCD on it whenever it comes off cooldown.
+	bear.AddMajorCooldown(core.MajorCooldown{
+		Spell: bear.Barkskin.Spell,
+		Type:  core.CooldownTypeSurvival,
+	})
 }
 
 func (bear *GuardianDruid) Reset(sim *core.Simulation) {
