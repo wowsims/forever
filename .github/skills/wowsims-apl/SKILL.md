@@ -83,8 +83,9 @@ A value or action reaches the rotation and the kind picker in five places, all i
 
 ## Presets
 
-- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` is imported by the
-  spec's `presets.ts` and loaded by `core.GetAplRotation` (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
+- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` (`.apl.siml` for
+  the specs on SIML) is imported by the spec's `presets.ts` and loaded by `core.GetAplRotation`
+  (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
   holds it in `player.rotation`, passed to `makePresetAPLRotation` and loaded by `core.GetTestBuildFromJSON`
   (`sim/warlock/warlock_test.go`). Priest, elemental shaman and warlock use builds only, enhancement shaman both.
 - **An option is a hidden group.** The priority list holds a Group Reference with `hide: true`, and the spec's
