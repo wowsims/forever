@@ -559,6 +559,38 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	}
 }
 
+// Poised 1328829 ("reduce the Energy cost of your next ability by $1328827s1", 10): the druid starts
+// out of combat at full energy, so its buff 1328827 is up before the first cat ability and goes with it.
+func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
+	for _, name := range []string{"Claw", "Cower"} {
+		sim, cat := newCat(t, "", nil)
+		spell := map[string]*druid.DruidSpell{"Claw": cat.Claw, "Cower": cat.Cower}[name]
+		poised := cat.GetAuraByID(core.ActionID{SpellID: 1328827})
+		if poised == nil || !poised.IsActive() {
+			t.Fatal("poised is not up at the start")
+		}
+		withPoised := spell.Cost.GetCurrentCost()
+		for range 15 {
+			fillResource(sim, cat)
+			spell.Cast(sim, cat.CurrentTarget)
+			// The charge goes a batch window after the hit lands.
+			until := sim.CurrentTime + 2*time.Second
+			for poised.IsActive() && sim.CurrentTime < until && !sim.Step() {
+			}
+			if !poised.IsActive() {
+				break
+			}
+			sim.CurrentTime = until
+		}
+		if poised.IsActive() {
+			t.Fatalf("no %s spent poised", name)
+		}
+		if got := spell.Cost.GetCurrentCost() - withPoised; got != 10 {
+			t.Errorf("%s costs %v more once poised is spent, want 10", name, got)
+		}
+	}
+}
+
 func TestShredRequiresATargetThatCanBeShredded(t *testing.T) {
 	sim, cat := newCat(t, furorTalents, nil)
 	fillResource(sim, cat)
