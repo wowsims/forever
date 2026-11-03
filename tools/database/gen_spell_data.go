@@ -273,7 +273,8 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 
 	byName := map[string]map[int32][]rankCandidate{}
 	// A spell with no subtext is a single-rank family of its own only where no "Rank N" row carries
-	// its name - Execute's granted 20647 is a sub-spell of the ranked Execute, not a rank - and only
+	// its name, or those rows have no rank 1 (see the loop over unranked below) - Execute's granted
+	// 20647 is a sub-spell of the ranked Execute, not a rank - and only
 	// when a trainer teaches it (Death Wish, Sweeping Strikes and the stance passives all have a
 	// trainer row) or a talent the tree could not describe shares its name. A grant-only one is a
 	// Season of Discovery rune ability or an internal (Quick Strike, Meathook). Skill lines 2851 and
@@ -336,7 +337,10 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		return nil, nil, nil, err
 	}
 	for name, cands := range unranked {
-		if byName[name] != nil {
+		// "Rank N" rows with no rank 1 are a retired talent's leftover ranks, and they give way to the
+		// spell with no subtext: Lightning Mastery 16166 is the talent, beside the old Lightning Mastery's
+		// ranks 2 to 5 (16579-16582), whose rank 1 16578 is Elemental Alacrity now.
+		if byRank := byName[name]; byRank != nil && byRank[1] != nil {
 			continue
 		}
 		if _, talent := traits[name]; talent {

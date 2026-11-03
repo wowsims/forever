@@ -193,7 +193,7 @@ const (
 	SpellMaskFrostShock
 	SpellMaskFlametongueWeapon
 	SpellMaskFrostbrandWeapon
-	SpellMaskElementalMastery
+	SpellMaskLightningMastery
 	SpellMaskShamanisticRage
 	SpellMaskBasicTotem
 
