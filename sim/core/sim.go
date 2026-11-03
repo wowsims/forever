@@ -455,6 +455,7 @@ func (sim *Simulation) PrePull() {
 					unit.startPull(sim)
 				}
 			}
+			sim.Encounter.moveRaidOffDisabledTargets(sim)
 		},
 	})
 }

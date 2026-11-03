@@ -660,3 +660,60 @@ func TestDesignDowntimeOnTheOnlyTargetIdlesThePlayer(t *testing.T) {
 		t.Error("a downtime to the fight's end: expected the target to stay gone")
 	}
 }
+
+func TestDesignOnlyTargetDisabledAtStartIdlesThePlayerUntilATargetComes(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		waves   []*proto.AddWave
+		bringUp func(sim *Simulation) *Target
+	}{
+		{"an add spawns", []*proto.AddWave{testAddWave(1, 0.1, 0.5, nil)}, func(sim *Simulation) *Target { return sim.Encounter.AllTargets[1] }},
+		{"the target is enabled", nil, func(sim *Simulation) *Target {
+			sim.Encounter.AllTargets[0].Enable(sim)
+			return sim.Encounter.AllTargets[0]
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			request := designTestRequest(1, &proto.EncounterDesign{AddWaves: tc.waves})
+			request.Encounter.Targets[0].DisabledAtStart = true
+			sim, fw := setupDesignSim(request, nil)
+			boss := sim.Encounter.AllTargets[0]
+
+			runLifecycleUntil(sim, designAt(0.1)-time.Millisecond)
+			if aa := &fw.AutoAttacks; aa.mh.enabled || aa.oh.enabled {
+				t.Error("auto attacks before a target comes: expected them stopped")
+			}
+			if got := mhSwingsOn(fw, boss); got != 0 {
+				t.Errorf("MH swings at the target disabled at start: expected none, got %d", got)
+			}
+
+			runLifecycleUntil(sim, designAt(0.1))
+			target := tc.bringUp(sim)
+			runLifecycleUntil(sim, designAt(0.15))
+			if fw.CurrentTarget != &target.Unit {
+				t.Errorf("player's target once a target comes: expected %s, got %s", target.Label, unitLabel(fw.CurrentTarget))
+			}
+			if got := mhSwingsOn(fw, target); got == 0 {
+				t.Error("MH swings once a target comes: expected some, got none")
+			}
+		})
+	}
+}
+
+func TestDesignRaidStartsOnTheLowestTargetNotDisabledAtStart(t *testing.T) {
+	request := designTestRequest(3, &proto.EncounterDesign{Downtimes: []*proto.DesignDowntime{downtime(2, 0.5, 0.6, false)}})
+	request.Encounter.Targets[0].DisabledAtStart = true
+	sim, fw := setupDesignSim(request, nil)
+	first := sim.Encounter.AllTargets[1]
+
+	runLifecycleUntil(sim, designAt(0.05))
+	if fw.CurrentTarget != &first.Unit {
+		t.Fatalf("player's target at the pull: expected %s, got %s", first.Label, unitLabel(fw.CurrentTarget))
+	}
+	if got := mhSwingsOn(fw, first); got == 0 {
+		t.Error("MH swings at the first active target: expected some, got none")
+	}
+	if got := mhSwingsOn(fw, sim.Encounter.AllTargets[0]); got != 0 {
+		t.Errorf("MH swings at the target disabled at start: expected none, got %d", got)
+	}
+}

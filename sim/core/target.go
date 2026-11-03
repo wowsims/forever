@@ -352,6 +352,16 @@ func (encounter *Encounter) moveRaidOffTarget(sim *Simulation, target *Target) {
 	}
 }
 
+// Runs at the pull, once the auto attacks have started: a raid unit on a target that starts disabled leaves
+// it as from a Disable at 0, since a target that is never enabled is never disabled either.
+func (encounter *Encounter) moveRaidOffDisabledTargets(sim *Simulation) {
+	for _, target := range encounter.AllTargets {
+		if !target.IsEnabled() {
+			encounter.moveRaidOffTarget(sim, target)
+		}
+	}
+}
+
 // Brings back the raid units a disabled target stranded once a target is active again: a unit on a
 // disabled enemy moves to the preferred active target, the auto attacks moveRaidOffTarget stopped start
 // again, and each of these units looks at its rotation again.
