@@ -63,6 +63,7 @@ type Simulation struct {
 	movingUnits []*Unit // Units on a walk, whose position advance keeps current.
 
 	isInPrepull bool
+	isResetting bool // A target disabled now starts the iteration disabled, with the raid moved off it at the pull.
 }
 
 func (sim *Simulation) rescheduleTracker(trackerTime time.Duration) {
@@ -389,6 +390,9 @@ var (
 // Reset will set sim back and erase all current state.
 // This is automatically called before every 'Run'.
 func (sim *Simulation) reset() {
+	sim.isResetting = true
+	defer func() { sim.isResetting = false }()
+
 	sim.Duration = sim.BaseDuration
 	if sim.DurationVariation != 0 {
 		variation := sim.DurationVariation * 2
@@ -448,6 +452,7 @@ func (sim *Simulation) PrePull() {
 					unit.startPull(sim)
 				}
 			}
+			sim.Encounter.moveRaidOffDisabledTargets(sim)
 		},
 	})
 }
