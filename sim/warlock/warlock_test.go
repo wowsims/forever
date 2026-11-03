@@ -509,6 +509,21 @@ func TestDrainSoulShardWhenTheChannelledTargetDies(t *testing.T) {
 	}
 }
 
+// A warlock carries at most 32 Soul Shards: more carried into the fight count as 32, and a shard returned
+// at 32 is lost.
+func TestSoulShardsCapAt32(t *testing.T) {
+	sim, warlock, first, _ := newTwoTargetWarlockSim("", &proto.WarlockOptions{SoulShards: 40})
+	if got := warlock.SoulShardsAura.GetStacks(); got != 32 {
+		t.Fatalf("%d Soul Shards carried in from 40, want 32", got)
+	}
+	warlock.DrainSoul.Dot(&first.Unit).Apply(sim)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 32 {
+		t.Errorf("%d Soul Shards after a shard returned at 32, want 32", got)
+	}
+}
+
 // A target that dies within Shadowburn's debuff window returns a Soul Shard, whoever gets the kill; once the
 // window has passed, or for a later spawn in the dead target's slot, its death returns none. Shadowburn is the
 // 8th destruction talent.

@@ -1,28 +1,27 @@
 package warlock
 
 import (
-	"math"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 const soulShardItemID = 6265
+const soulShardsMax = 32
 
 // The Soul Shards carried, as the stacks of an aura on the warlock, so the timeline and the APL's aura stack
 // values read them. Of the reagents the warlock's rows name, only the Soul Shard is counted: the Infernal
 // Stone (5565, Inferno) and the Demonic Figurine (16583, Ritual of Doom) belong to spells the sim does not
 // cast. Each iteration starts with the shards carried into the fight. A shard comes back when a target
-// dies under Drain Soul's channel or within 8 sec of Shadowburn, and with Shadow and Flame's refund. Bag
-// space is not modelled, so the count has no cap. With none left the aura falls off, and a shard gained
-// brings it back.
+// dies under Drain Soul's channel or within 8 sec of Shadowburn, and with Shadow and Flame's refund. A
+// warlock carries at most soulShardsMax, so a shard gained at the cap is lost. With none left the aura
+// falls off, and a shard gained brings it back.
 func (warlock *Warlock) registerSoulShards() {
 	carried := warlock.Options.SoulShards
 	warlock.SoulShardsAura = warlock.RegisterAura(core.Aura{
 		Label:     "Soul Shards",
 		ActionID:  core.ActionID{ItemID: soulShardItemID},
 		Duration:  core.NeverExpires,
-		MaxStacks: math.MaxInt32,
+		MaxStacks: soulShardsMax,
 		OnReset: func(aura *core.Aura, sim *core.Simulation) {
 			if carried > 0 {
 				aura.Activate(sim)
