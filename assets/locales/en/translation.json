@@ -3337,7 +3337,7 @@
 				"precision": {
 					"iterations_tooltip": "Iterations per simulation. Empty uses the sim's iteration setting.",
 					"target_ci": "Target ±",
-					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value. A stat shown per 1% stops at a wider ±: about 100 times this value for hit, haste and expertise, and about 200 times for crit.",
+					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value per point. A stat shown per 1% stops at this value times the points in 1%: 10 times for hit, haste and expertise, 14 times for crit.",
 					"max_multiplier_tooltip": "The most iterations a stat may run, as a multiple of the automatic first pass. Empty sets no cap."
 				}
 			},

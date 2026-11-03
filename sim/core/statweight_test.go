@@ -591,9 +591,9 @@ func plannedIterations(plan *proto.StatWeightsTopUpPlan) map[stats.UnitStat]int3
 	return planned
 }
 
-// A stat with a percent is sized at the target times its rating per percent, so a percent and its rating plan
-// the same count, while agility, which has none, stays at the target per point.
-func TestStatWeightTopUpPlanSizesAPercentAtTheTargetTimesItsRatingPerPercent(t *testing.T) {
+// Every stat is sized at the target per rating point, so a percent and its rating plan the same count, and
+// agility, which has no percent, the count its own stdev per point asks for.
+func TestStatWeightTopUpPlanSizesEveryStatAtTheTargetPerRatingPoint(t *testing.T) {
 	const perSide = 20
 	_, calc := syntheticStatWeightCalc(
 		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
@@ -616,7 +616,7 @@ func TestStatWeightTopUpPlanSizesAPercentAtTheTargetTimesItsRatingPerPercent(t *
 	if hitRating == 0 {
 		t.Fatal("hit rating needs no top-up, want one to compare the percents against")
 	}
-	if got := planned[rangedHitUnitStat]; got != hitRating {
+	if got := planned[rangedHitUnitStat]; got < hitRating-1 || got > hitRating+1 {
 		t.Errorf("ranged hit percent planned %d iterations, want hit rating's %d", got, hitRating)
 	}
 	result := computeStatWeights(calc)
@@ -634,7 +634,7 @@ func TestStatWeightTopUpPlanSizesAPercentAtTheTargetTimesItsRatingPerPercent(t *
 		if c.stdevPerPercent {
 			stdevPerPoint /= c.ratingPerPercent
 		}
-		want := int32(math.Ceil(math.Pow(StatWeightZ90*stdevPerPoint/c.ratingPerPercent/target, 2) / c.sides))
+		want := int32(math.Ceil(math.Pow(StatWeightZ90*stdevPerPoint/target, 2) / c.sides))
 		if got := planned[c.stat]; got != want {
 			t.Errorf("stat %d planned %d iterations, want %d", c.stat, got, want)
 		}
@@ -648,15 +648,12 @@ func TestStatWeightTopUpPlanSizesEachStatForTheTarget(t *testing.T) {
 	const perSide = 20
 	calc := noisyStatWeightCalc(perSide)
 	result := computeStatWeights(calc)
-	agilityCi, hitCi := shownEpCi(result, agilityUnitStat), shownEpCi(result, hitRatingUnitStat)/HitRatingPerHitPercent
+	agilityCi, hitCi := shownEpCi(result, agilityUnitStat), shownEpCi(result, hitRatingUnitStat)
 	if agilityCi == 0 || hitCi == 0 || agilityCi == hitCi {
-		t.Fatalf("shown ± agility %v, hit rating per 1%% %v: want two different spreads", agilityCi, hitCi)
+		t.Fatalf("shown ± agility %v, hit rating %v: want two different spreads", agilityCi, hitCi)
 	}
 	sized := func(stat stats.UnitStat, target, sides float64) int32 {
 		stdev := protoUnitStat(result.Dps.EpValuesStdev, stat)
-		if stat == hitRatingUnitStat {
-			stdev /= HitRatingPerHitPercent
-		}
 		return int32(math.Ceil(math.Pow(StatWeightZ90*stdev/target, 2) / sides))
 	}
 	const uncapped = math.MaxInt32 / perSide

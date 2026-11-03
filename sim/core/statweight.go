@@ -470,14 +470,10 @@ func planStatWeightTopUp(request *proto.StatWeightsTopUpRequest) *proto.StatWeig
 			if values.Weights.Get(stat) == 0 || refWeight == 0 {
 				continue
 			}
-			// A stat with a percent meets the target times its rating per percent, per rating point, so the ± the
-			// dialog shows per 1% ends near the target times its rating per percent squared. A stat without one meets it per point.
-			rating, ratingPerUnit, hasRating := ratingBehindStat(stat)
-			targetScale, hasPercent := ratingPerPercent(rating)
-			if !hasRating || !hasPercent {
-				targetScale = 1
-			}
-			metricEpStdev := values.WeightsStdev.Get(stat) / math.Abs(refWeight) / ratingPerUnit / targetScale
+			// Every stat meets the target per rating point, a percent pseudo stat included, so the ± the dialog
+			// shows per 1% is the target times the stat's rating per percent.
+			_, ratingPerUnit, _ := ratingBehindStat(stat)
+			metricEpStdev := values.WeightsStdev.Get(stat) / math.Abs(refWeight) / ratingPerUnit
 			if StatWeightZ90*metricEpStdev/math.Sqrt(samples) > target.EpCi {
 				epStdev = max(epStdev, metricEpStdev)
 			}
