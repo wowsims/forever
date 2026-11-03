@@ -1,7 +1,7 @@
 {
 	"type": "TypeAPL",
 	"prepullActions": [
-		{"action":{"castSpell":{"spellId":{"spellId":1259705}}},"doAtValue":{"math":{"op":"OpMul","lhs":{"math":{"op":"OpAdd","lhs":{"spellCastTime":{"spellId":{"spellId":1326082}}},"rhs":{"spellCastTime":{"spellId":{"spellId":1259705}}}}},"rhs":{"const":{"val":"-1"}}}}},
+		{"action":{"castSpell":{"spellId":{"spellId":1259705}}},"doAtValue":{"math":{"op":"OpMul","lhs":{"math":{"op":"OpAdd","lhs":{"spellCastTime":{"spellId":{"spellId":1326082}}},"rhs":{"spellGcdHastedDuration":{"spellId":{"spellId":1259705}}}}},"rhs":{"const":{"val":"-1"}}}}},
 		{"action":{"castSpell":{"spellId":{"spellId":1326082}}},"doAtValue":{"math":{"op":"OpMul","lhs":{"spellCastTime":{"spellId":{"spellId":1326082}}},"rhs":{"const":{"val":"-1"}}}}}
 	],
 	"priorityList": [
