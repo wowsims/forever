@@ -5,6 +5,7 @@ import type { AriaRole, ReactElement, ReactNode, Ref, RefObject } from 'react';
 export type FieldLayout = 'inline' | 'split' | 'icon';
 /** The one size scale every form control reads: its height and padding; the font follows the control's type. */
 export type ControlSize = 'xs' | 'sm' | 'md';
+/** A string is read as markup, so text holding a user-chosen name goes in as an element. */
 export type FieldTooltip = string | ReactElement;
 
 /** What every field renders around its control. */

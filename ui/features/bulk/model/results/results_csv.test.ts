@@ -168,6 +168,50 @@ describe('bulkResultsCsv', () => {
 		]);
 	});
 
+	it('makes a saved name a spreadsheet would run as a formula read as text, in every name column', () => {
+		const formula = '=HYPERLINK("x")';
+		const quoted = `"'=HYPERLINK(""x"")"`;
+		const talents = { name: formula, talentsString: ARMS, isCurrent: false };
+		const build = {
+			rotation: { name: formula, isCurrent: false, rotation: APLRotation.create() },
+			gearSetup: { gearSet: formula, gear: UPGRADE, gearSetGear: UPGRADE, bonusStats: new Stats() },
+			settings: { name: formula, isCurrent: false, settings: SavedSettings.create() },
+		};
+		const named: BulkEncounterResults = {
+			...entry(formula, false, 1100),
+			results: {
+				chains: [[result(UPGRADE, 1100, 10, talents, build)]],
+				originalGearResults: result(CURRENT_GEAR, 1000, 10),
+				referenceIsCurrent: true,
+				currentGear: CURRENT_GEAR,
+				iterations: 100,
+			},
+		};
+
+		const [, row] = lines(bulkResultsCsv([named]));
+
+		expect(row.startsWith(`${quoted},180,5,1,`)).toBe(true);
+		expect(row).toContain(`,${quoted},${ARMS},${quoted},,${quoted},${quoted},`);
+	});
+
+	it('keeps negative numbers and a talents string that opens with a dash as they are', () => {
+		const talents = { name: 'Fury', talentsString: '-2305', isCurrent: false };
+		const below: BulkEncounterResults = {
+			...entry('Patchwerk', false, 900),
+			results: {
+				chains: [[result(UPGRADE, 900, 10, talents)]],
+				originalGearResults: result(CURRENT_GEAR, 1000, 10),
+				referenceIsCurrent: true,
+				currentGear: CURRENT_GEAR,
+				iterations: 100,
+			},
+		};
+
+		const cells = lines(bulkResultsCsv([below]))[1].split(',');
+
+		expect(cells.slice(7, 11)).toEqual(['-100', '-10', 'Fury', '-2305']);
+	});
+
 	it('leaves all four cells of an empty slot empty', () => {
 		const [, upgrade] = lines(bulkResultsCsv([entry('', true, 1100, true, gear(null, ASHKANDI))]));
 

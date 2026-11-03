@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Button } from '@ui-kit/Button';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
@@ -51,6 +52,7 @@ const meta = {
 		onDelete: fn(),
 	},
 	argTypes: {
+		headerChildren: { control: false },
 		presets: { control: false },
 		userData: { control: false },
 		isActive: { control: false },
@@ -67,6 +69,17 @@ export const Empty: Story = {};
 export const WithPresets: Story = { args: { presets: PRESETS } };
 export const WithUserData: Story = { args: { presets: PRESETS, userData: USER_DATA } };
 export const LoadOnly: Story = { args: { presets: PRESETS, userData: USER_DATA, loadOnly: true } };
+export const WithHeaderChildren: Story = {
+	args: {
+		presets: PRESETS,
+		userData: USER_DATA,
+		headerChildren: (
+			<Button variant="link" size="sm" className="ml-auto">
+				Options
+			</Button>
+		),
+	},
+};
 export const SaveFlow: Story = {
 	args: { presets: PRESETS, userData: USER_DATA },
 	play: async ({ args, canvasElement }) => {

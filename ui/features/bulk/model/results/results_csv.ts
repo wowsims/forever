@@ -4,7 +4,7 @@ import { translateSlotName } from '@i18n/localization';
 import type { BulkEncounterResults } from '@sim/bulk/types';
 import { ActionId } from '@sim/proto/action_id';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { type CsvValue, toCsv } from '@sim/utils/csv';
+import { csvText, type CsvValue, toCsv } from '@sim/utils/csv';
 import { stDevToConf95 } from '@sim/utils/math';
 
 import { encounterLabel } from '../builds/encounters';
@@ -52,7 +52,7 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string
 	const slots: ItemSlot[] = entries[0]?.results.originalGearResults.gear.getItemSlots() ?? [];
 	const rows = entries.flatMap(entry => {
 		const { chains, originalGearResults: base, currentGear, iterations } = entry.results;
-		const encounter = encounterLabel(entry);
+		const encounter = csvText(encounterLabel(entry));
 		return chains.flat().map((result, index): CsvValue[] => {
 			const avg = result.dpsMetrics.avg;
 			const diff = avg - base.dpsMetrics.avg;
@@ -68,13 +68,13 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string
 				stDevToConf95(result.dpsMetrics.stdev, iterations),
 				diff,
 				diffPct,
-				talentsLabel(result.talents),
+				csvText(talentsLabel(result.talents)),
 				result.talents.talentsString,
 				// The Builds reference row wears the current gear, which no gear setup stands for.
-				result.gearSetup ? gearSetupLabel(result.gearSetup) : result.settings ? i18n.t('bulk_tab.results.current_gear') : '',
+				result.gearSetup ? csvText(gearSetupLabel(result.gearSetup)) : result.settings ? i18n.t('bulk_tab.results.current_gear') : '',
 				changedEnchantLabels(result).join('; '),
-				rotationLabel(result.rotation),
-				result.settings ? settingsLabel(result.settings) : '',
+				csvText(rotationLabel(result.rotation)),
+				result.settings ? csvText(settingsLabel(result.settings)) : '',
 				...slots.flatMap(slot => slotCells(result.gear.getEquippedItem(slot))),
 			];
 		});
