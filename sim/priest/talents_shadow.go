@@ -54,13 +54,44 @@ func (priest *Priest) applyShadowFocus() {
 // The damage sim does not model the stun.
 func (priest *Priest) applyBlackout() {}
 
-// Gives you a X% chance to increase your Spirit by Y% for 15 sec when an enemy afflicted by your Vampiric Embrace dies.
+// Gives you a X% chance to increase your Spirit by Y% for 15 sec after killing a non-trivial target or when an enemy afflicted by your Vampiric Embrace dies.
 // For the duration, 50% of your Mana regeneration will continue while casting.
-// TODO: Procs on a target's death, which the sim does not model.
+// The row hears the killing blow, and every target in the sim counts as non-trivial. The tooltip also grants the
+// buff when the enemy dies with the priest's Vampiric Embrace on it, which the row's proc flags do not state. An
+// afflicted enemy always grants it, once, whether or not the raid gets the kill; any other killing blow rolls the
+// row's chance.
 func (priest *Priest) applySpiritTap() {
 	if priest.Talents.SpiritTap == 0 {
 		return
 	}
+
+	buff := spellData.SpiritTapTriggered.Highest()
+	aura := priest.RegisterAura(spelldata.AuraConfig(buff))
+	spelldata.ParseEffects(&priest.Character, aura, buff)
+
+	grant := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		aura.Activate(sim)
+	}
+	// Vampiric Embrace registers after this talent. Both checks run while the dying target still carries its auras.
+	afflicted := func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		return priest.VampiricEmbrace != nil && priest.VampiricEmbrace.RelatedAuraArrays.AnyActive(result.Target)
+	}
+
+	trigger := spelldata.ProcTrigger(&priest.Character, spellData.SpiritTap.Rank(priest.Talents.SpiritTap), grant)
+	trigger.Name = "Spirit Tap Trigger"
+	trigger.TriggerImmediately = true
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		return !afflicted(sim, spell, result)
+	}
+	priest.MakeProcTriggerAura(trigger)
+
+	priest.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Spirit Tap - Vampiric Embrace",
+		Callback:           core.CallbackOnTargetDies,
+		TriggerImmediately: true,
+		ExtraCondition:     afflicted,
+		Handler:            grant,
+	})
 }
 
 // Increases the duration of your Shadow Word: Pain spell by 6 sec.
