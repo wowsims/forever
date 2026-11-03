@@ -245,6 +245,7 @@ export const statusI18nKeys: Record<LaunchStatus, string> = {
 export const targetInputI18nKeys: Record<string, string> = {
 	'Frenzy time': 'frenzy_time',
 	'Spiritual Grasp frequency': 'spiritual_grasp_frequency',
+	'Kill share %': 'kill_share',
 };
 
 export const mobTypeI18nKeys: Record<MobType, string> = {

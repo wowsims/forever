@@ -70,7 +70,7 @@ export const LongNames: Story = {
 	args: {
 		rows: [
 			{ label: 'Current', durationLabel: '3:00 ±5s', bestDps: '788.23', gain: '+13.45 (1.75%)' },
-			{ label: 'Ragnaros, execute phase with adds', durationLabel: 'Health', bestDps: '702.00', gain: '+12.80 (1.86%)' },
+			{ label: 'Ragnaros, execute phase with adds', durationLabel: '10:00', bestDps: '702.00', gain: '+12.80 (1.86%)' },
 		],
 	},
 };

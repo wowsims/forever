@@ -149,7 +149,7 @@ func registerTemporaryEnchantProc(character *core.Character, consumable core.Con
 			enchanted := character.GetDynamicProcMaskForWeaponTempEnchant(enchantID)
 			extraCondition := config.ExtraCondition
 			config.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-				return spell.ProcMask.Matches(*enchanted) && (extraCondition == nil || extraCondition(sim, spell, result))
+				return (spell == nil || spell.ProcMask.Matches(*enchanted)) && (extraCondition == nil || extraCondition(sim, spell, result))
 			}
 		}
 	}

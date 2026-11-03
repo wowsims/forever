@@ -55,7 +55,7 @@ func procRows() []Spell {
 		},
 		{
 			ID: 2600, Name: "Named Ability", ProcChance: 101, ProcChanceSource: ProcChanceAlways,
-			ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_KILL},
+			ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEATH},
 			ProcHint:  core.ProcHintNamedAbility,
 		},
 		{
@@ -255,6 +255,38 @@ func TestProcTriggerMasklessRateFromTheCaller(t *testing.T) {
 
 	if trigger.DPM == nil {
 		t.Error("the caller's manager was dropped")
+	}
+}
+
+// A death rolls the row's plain chance, which a rated trigger does not keep, so a row hearing hits and
+// killing blows keeps the kill only where it states a chance: a rate from the row or the caller drops it.
+func TestRatedTriggerHearsNoDeath(t *testing.T) {
+	rows := procRows()
+	for i := range rows {
+		if rows[i].ID == 2100 || rows[i].ID == 2400 {
+			rows[i].ProcFlags[0] |= dbcenums.PROC_FLAG_KILL
+			rows[i].ProcFlags[1] |= dbcenums.PROC_FLAG_2_TARGET_DIES
+		}
+	}
+	withRows(t, rows)
+	character := testCharacter()
+	deaths := core.CallbackOnKill | core.CallbackOnTargetDies
+
+	for _, tc := range []struct {
+		name      string
+		trigger   core.ProcTrigger
+		hearsDies bool
+	}{
+		{"a stated chance", ProcTrigger(character, Find(2100), noopHandler), true},
+		{"a rate the row states", ProcTrigger(character, Find(2400), noopHandler), false},
+		{"a rate the caller states", ProcTrigger(character, Find(2100), noopHandler, PPM(2)), false},
+	} {
+		if !tc.trigger.Callback.Matches(core.CallbackOnSpellHitDealt) {
+			t.Errorf("%s: callback = %d, want the hit listener kept", tc.name, tc.trigger.Callback)
+		}
+		if got := tc.trigger.Callback&deaths == deaths; got != tc.hearsDies {
+			t.Errorf("%s: hears deaths %v, want %v", tc.name, got, tc.hearsDies)
+		}
 	}
 }
 

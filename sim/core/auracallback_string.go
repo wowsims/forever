@@ -18,10 +18,12 @@ func _() {
 	_ = x[CallbackOnApplyEffects-128]
 	_ = x[CallbackOnPeriodicDamageTaken-256]
 	_ = x[CallbackOnCastResult-512]
-	_ = x[CallbackLast-1024]
+	_ = x[CallbackOnTargetDies-1024]
+	_ = x[CallbackOnKill-2048]
+	_ = x[CallbackLast-4096]
 }
 
-const _AuraCallback_name = "CallbackEmptyCallbackOnSpellHitDealtCallbackOnSpellHitTakenCallbackOnPeriodicDamageDealtCallbackOnHealDealtCallbackOnPeriodicHealDealtCallbackOnCastCompleteCallbackOnApplyEffectsCallbackOnPeriodicDamageTakenCallbackOnCastResultCallbackLast"
+const _AuraCallback_name = "CallbackEmptyCallbackOnSpellHitDealtCallbackOnSpellHitTakenCallbackOnPeriodicDamageDealtCallbackOnHealDealtCallbackOnPeriodicHealDealtCallbackOnCastCompleteCallbackOnApplyEffectsCallbackOnPeriodicDamageTakenCallbackOnCastResultCallbackOnTargetDiesCallbackOnKillCallbackLast"
 
 var _AuraCallback_map = map[AuraCallback]string{
 	0:    _AuraCallback_name[0:13],
@@ -34,7 +36,9 @@ var _AuraCallback_map = map[AuraCallback]string{
 	128:  _AuraCallback_name[156:178],
 	256:  _AuraCallback_name[178:207],
 	512:  _AuraCallback_name[207:227],
-	1024: _AuraCallback_name[227:239],
+	1024: _AuraCallback_name[227:247],
+	2048: _AuraCallback_name[247:261],
+	4096: _AuraCallback_name[261:273],
 }
 
 func (i AuraCallback) String() string {

@@ -29,7 +29,7 @@ func TestItemProcUnsupported(t *testing.T) {
 		{2100, true, []string{"states no rate"},
 			"the 100 sentinel is no rate on a weapon proc: the game casts it off the hit, with no condition to meet"},
 		{2100, false, nil, "the same sentinel on an aura, where the condition is the mask's"},
-		{2600, false, []string{"named ability", "ProcTypeMask KILL"},
+		{2600, false, []string{"named ability", "ProcTypeMask DEATH"},
 			"a trigger restricted to one ability, and a bit the decoder models nothing for"},
 		{2700, false, []string{"the trigger carries a class mask"},
 			"an item worn by every class cannot carry one class's filter"},
@@ -54,7 +54,7 @@ func TestItemProcUnsupportedCoversTheRegistrationsOwnRefusal(t *testing.T) {
 	withRows(t, procRows())
 
 	row := *Find(2000)
-	row.ProcFlags = [2]uint32{0: dbcenums.PROC_FLAG_KILL}
+	row.ProcFlags = [2]uint32{0: dbcenums.PROC_FLAG_DEATH}
 	if core.DecodeProcTypeMask(row.ProcFlags, row.ProcHint).Callback != core.CallbackEmpty {
 		t.Fatal("the row the test is built on states a callback after all")
 	}

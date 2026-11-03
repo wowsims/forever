@@ -153,6 +153,12 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   A Change Target to the current target is not ready (`APLActionChangeTarget.IsReady`).
 - **`GCD Is Ready` is true from 400 ms before the GCD ends** (`MaxSpellQueueWindow`, `APLValueGCDIsReady`), so a
   line gated on it fires on every look in that window. `GCD Time To Ready` ≤ `0ms` holds only at the GCD's end.
+- **`Is Execute Phase` takes a target**, the current target when none is set (`sim/core/apl_values_encounter.go`). An
+  enemy has no health bar, so `Current Health` and `Current Health %` on one warn and do not resolve. Fights are
+  time-based: a fight lasts its rolled duration, and every target of a plain encounter crosses 35% and 20% at the
+  encounter's execute proportions.
+- **Multidot and Strict Multidot count active targets**: a disabled or dead target is skipped, so `max_dots` dots the
+  first targets still up (`sim/core/apl_actions_casting.go`).
 
 ## Traps
 
