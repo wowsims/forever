@@ -34,7 +34,7 @@ func (rogue *Rogue) registerCombatTalents() {
 	rogue.registerHackAndSlash()
 
 	// Tier 6
-	// Flash of Steel NYI: Shank, the ability it raises, is not in the spell store
+	rogue.registerFlashOfSteel()
 
 	// Tier 7
 	rogue.registerAdrenalineRush()
@@ -138,6 +138,16 @@ func (rogue *Rogue) registerFlawlessExecution() {
 
 	spelldata.ParseStatic(&rogue.Character,
 		spellData.FlawlessExecution.Rank(1))
+}
+
+// The cooldown only: the energy is Shank's second effect, which shank.go raises.
+func (rogue *Rogue) registerFlashOfSteel() {
+	if rogue.Talents.FlashOfSteel == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&rogue.Character,
+		spellData.FlashOfSteel.Rank(rogue.Talents.FlashOfSteel), spelldata.Effects(2))
 }
 
 func (rogue *Rogue) registerDualWieldSpecialization() {

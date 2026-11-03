@@ -37310,6 +37310,13 @@ var generatedSpells = []Spell{
 			{ID: 1368709, SpellID: 1329282, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_SPEED, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Type: 3}}},
+	{ID: 1329283, Name: "Shank", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0xc000000, 2: 0x100100, 3: 0x1070000, 4: 0x800000, 15: 0x2000}, SpellLevel: 24, MaxRange: 5, CooldownMs: 10000, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 536870912}}, EquipClass: 2, EquipSubclass: 173555, RefIDs: []int32{1310703, 1329286},
+		Effects: []Effect{
+			{ID: 1368710, SpellID: 1329283, Type: dbcenums.E_WEAPON_PERCENT_DAMAGE, BasePoints: 50, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1368711, SpellID: 1329283, Index: 1, Type: dbcenums.E_ENERGIZE, BasePoints: 15, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1368717, SpellID: 1329283, Index: 2, Type: dbcenums.E_ENERGIZE, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		},
+		Powers: []Power{{Type: 3, Cost: 5}}},
 	{ID: 1329284, Name: "Flash of Steel", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 8}, Labels: []int16{20}, ProcHint: core.ProcHintNamedAbility,
 		Effects: []Effect{
 			{ID: 1368712, SpellID: 1329284, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: 15, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 12, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 536870912}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -37335,6 +37342,13 @@ var generatedSpells = []Spell{
 			{ID: 1368769, SpellID: 1329328, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 100, BaseLevel: 30, SPCoef: 1, PvpMult: 1, TriggerID: 1310703, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Type: 3}}},
+	{ID: 1329549, Name: "Shank", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0xc000000, 2: 0x100100, 3: 0x1070000, 4: 0x800000, 15: 0x2000}, SpellLevel: 44, MaxRange: 5, CooldownMs: 10000, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 536870912}}, EquipClass: 2, EquipSubclass: 173555, RefIDs: []int32{1310703, 1329286},
+		Effects: []Effect{
+			{ID: 1369159, SpellID: 1329549, Type: dbcenums.E_WEAPON_PERCENT_DAMAGE, BasePoints: 50, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1369160, SpellID: 1329549, Index: 1, Type: dbcenums.E_ENERGIZE, BasePoints: 25, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1369161, SpellID: 1329549, Index: 2, Type: dbcenums.E_ENERGIZE, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		},
+		Powers: []Power{{Type: 3, Cost: 5}}},
 }
 
 var generatedCurves = map[int32][][]float64{

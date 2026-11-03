@@ -49,6 +49,7 @@ type Rogue struct {
 	MutilateMH     *core.Spell
 	MutilateOH     *core.Spell
 	SinisterStrike *core.Spell
+	Shank          *core.Spell
 	Shadowstep     *core.Spell
 	Preparation    *core.Spell
 	Premeditation  *core.Spell
@@ -129,6 +130,7 @@ func (rogue *Rogue) Initialize() {
 	rogue.registerGarrote()
 	rogue.registerRupture()
 	rogue.registerSinisterStrikeSpell()
+	rogue.registerShank()
 	rogue.registerSliceAndDice()
 	rogue.registerVanishSpell()
 	rogue.registerStealthAura()

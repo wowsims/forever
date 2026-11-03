@@ -8,6 +8,9 @@ _Source of truth:_ the rows themselves, which `go run ./tools/spelldata <id>` pr
 - **A ladder is never keyed by name alone.** Forever re-issues a rank as a granted copy (`AcquireMethod` 3 beside the
   trained 0 or 2), one name can carry two parallel ladders (Holy Shock damage and heal, Renew), `SupercedesSpell` is 0
   almost everywhere, and `SkillLineAbility` rows come duplicated.
+- **A rankless family with several trained rows is ordered by `SupercedesSpell`.** Shank 1329283 and 1329549 carry no
+  rank subtext; when every row of such a family links into one `SupercedesSpell` chain, `resolveLadder` ranks them
+  along it, as its last rule.
 - **A rank exists in Forever when it has a `SkillLineAbility` row and the Wowhead Forever tooltip names it.** Battle
   Shout 25289 and Heroic Strike 25286, level-60 ranks with high ids, are trained rows.
 - **A book rank's `SkillLineAbility` row looks like a trained one.** Shadow Bolt 25307, Immolate 25309 and Corruption

@@ -6,9 +6,6 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Not generated:
-//   Shank: ambiguous rank 1 between spells 1329283, 1329549
-
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Boot Knife: effect 1 of spell 1329286 has no rank curve and is held at its base points
 //   Improved Expose Armor: effect 2 of spell 14168 has no rank curve and is held at its base points
@@ -109,6 +106,8 @@ type generatedSpellData struct {
 	SerratedBlades               spelldata.Ladder
 	Setup                        spelldata.Ladder
 	SetupTriggered               spelldata.Ladder
+	Shank                        spelldata.Ladder
+	ShankTriggered               spelldata.Ladder
 	SinisterStrike               spelldata.Ladder
 	SliceAndDice                 spelldata.Ladder
 	Sprint                       spelldata.Ladder
@@ -220,6 +219,8 @@ var spellData = generatedSpellData{
 	SerratedBlades:               spelldata.Talent(14171, 3),
 	Setup:                        spelldata.Talent(13983, 3),
 	SetupTriggered:               spelldata.Ranked(15250),
+	Shank:                        spelldata.Ranked(1329283, 1329549),
+	ShankTriggered:               spelldata.Ranked(1310703, 1329286),
 	SinisterStrike:               spelldata.Ranked(1752, 1757, 1758, 1759, 1760, 8621, 11293, 11294),
 	SliceAndDice:                 spelldata.Ranked(5171, 6774),
 	Sprint:                       spelldata.Ranked(2983, 8696, 11305),

@@ -34,7 +34,7 @@ func (rogue *Rogue) registerSubtletyTalents() {
 	rogue.registerHemorrhage()
 
 	// Tier 6
-	// Boot Knife NYI: Shank, the ability it raises, is not in the spell store
+	// Boot Knife modeled in shank.go
 
 	// Tier 7
 	// Death Mark NYI: a script stores the damage, and its rate and cap are stated only in the tooltip

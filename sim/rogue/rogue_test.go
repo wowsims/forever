@@ -358,3 +358,82 @@ func TestGhostlyStrikeBuffsOnlyWhenItLands(t *testing.T) {
 		t.Fatalf("saw a landed strike: %v, an avoided one: %v", landedSeen, avoidedSeen)
 	}
 }
+
+// Venom and Flash of Steel 5/5, under 21 Assassination and 30 Combat points.
+const venomFlashOfSteelTalents = "00530321201301-323303000201232105"
+
+// Boot Knife 5/5, under 30 Subtlety points.
+const bootKnifeTalents = "--32520303130100115"
+
+// Shank is never avoided, restores its row's energy plus Flash of Steel's, cools down for its row's time less Flash
+// of Steel's, puts Venom up with that talent, and adds Boot Knife's points at 5/5, where the rank's chance is 100%.
+func TestShankFollowsItsTalents(t *testing.T) {
+	for _, c := range []struct {
+		name         string
+		talents      string
+		flashOfSteel int32
+		venom        bool
+		bootKnife    bool
+	}{
+		{"untalented", "", 0, false, false},
+		{"Venom and Flash of Steel 5/5", venomFlashOfSteelTalents, 5, true, false},
+		{"Boot Knife 5/5", bootKnifeTalents, 0, false, true},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, rogue, targets := newTankSim(t, c.talents)
+			target := targets[0]
+			waitForGCD := func() {
+				for !rogue.GCD.IsReady(sim) {
+					if sim.Step() {
+						t.Fatal("the sim ended while the GCD was running")
+					}
+				}
+			}
+
+			// Room under the energy cap for what Shank restores.
+			for rogue.CurrentEnergy() >= 40 {
+				waitForGCD()
+				if !rogue.SinisterStrike.Cast(sim, target) {
+					t.Fatal("Sinister Strike did not cast")
+				}
+			}
+			waitForGCD()
+			before := rogue.CurrentEnergy()
+			if !rogue.Shank.Cast(sim, target) {
+				t.Fatal("Shank did not cast")
+			}
+
+			wantEnergy := shankRank.EffectN(2).BaseValue() + spellData.FlashOfSteel.EffectAt(1).ValueAt(c.flashOfSteel) -
+				rogue.Shank.DefaultCast.Cost
+			if got := rogue.CurrentEnergy() - before; got != wantEnergy {
+				t.Errorf("Shank changes energy by %.0f, want %.0f", got, wantEnergy)
+			}
+			wantCooldown := shankRank.Cooldown() + spellData.FlashOfSteel.Rank(c.flashOfSteel).EffectN(2).TimeValue()
+			if got := rogue.Shank.CD.Duration; got != wantCooldown {
+				t.Errorf("Shank cools down for %v, want %v", got, wantCooldown)
+			}
+			if venom := rogue.GetAuraByID(core.ActionID{SpellID: venomBuff.ID}); (venom != nil && venom.IsActive()) != c.venom {
+				t.Errorf("Venom is up after Shank: %v, want %v", venom != nil && venom.IsActive(), c.venom)
+			}
+
+			wantPoints := int32(0)
+			if c.bootKnife {
+				wantPoints = int32(bootKnifePoints.ProcEnergizeEffect().BaseValue())
+			}
+			for range 100 {
+				waitForGCD()
+				rogue.Shank.CD.Reset()
+				rogue.ResetComboPoints(sim, 0)
+				if !rogue.Shank.Cast(sim, target) {
+					t.Fatal("Shank did not cast")
+				}
+				if got := rogue.ComboPoints(); got != wantPoints {
+					t.Fatalf("Shank adds %d combo points, want %d", got, wantPoints)
+				}
+			}
+			if m := rogue.Shank.SpellMetrics[target.UnitIndex]; m.Misses+m.Dodges+m.Parries+m.Blocks > 0 {
+				t.Errorf("Shank was avoided: %d misses, %d dodges, %d parries, %d blocks", m.Misses, m.Dodges, m.Parries, m.Blocks)
+			}
+		})
+	}
+}

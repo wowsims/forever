@@ -29,7 +29,7 @@ func (rogue *Rogue) registerAssassinationTalents() {
 
 	// Tier 5
 	// Relentless Strikes modeled in rogue.go ApplyFinisher
-	// Venom NYI: Shank, the ability that applies its buff, is not in the spell store
+	// Venom modeled in shank.go
 	// Kidney Shot NYI
 
 	// Tier 6

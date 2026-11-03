@@ -70,7 +70,7 @@
     "wowsims-spell-store": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0ffede2b655f4658748c218b1e090b04061f7fcec672e62735031042060a8254"
+      "computedHash": "f35acdcfe369177ee987d0835be7b1b2f6f7748d0c2b9f24c730e925da1644e3"
     },
     "wowsims-spells": {
       "source": "./.github/skills",

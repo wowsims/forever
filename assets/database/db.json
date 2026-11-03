@@ -9246,6 +9246,7 @@
 {"id":1310627,"name":"Predator's Edge","icon":"ability_dualwield"},
 {"id":1310661,"name":"Improved Stings","icon":"ability_hunter_quickshot"},
 {"id":1310687,"name":"Sniper Shot","icon":"hunter_pvp_snipershot","rank":1,"hasBuff":true},
+{"id":1310703,"name":"Venom","icon":"inv_sword_31","hasBuff":true},
 {"id":1310711,"name":"Flawless Execution","icon":"inv_sword_35"},
 {"id":1310726,"name":"Expose Prey","icon":"ability_hunter_swiftstrike","hasBuff":true},
 {"id":1310728,"name":"Quick Getaway","icon":"ability_rogue_blackjack"},
@@ -9334,7 +9335,8 @@
 {"id":1329284,"name":"Flash of Steel","icon":"ability_rogue_restlessblades"},
 {"id":1329286,"name":"Boot Knife","icon":"inv_sword_32"},
 {"id":1329326,"name":"Ghostly Strike","icon":"spell_holy_removecurse","hasBuff":true},
-{"id":1329328,"name":"Venom","icon":"inv_sword_31"}
+{"id":1329328,"name":"Venom","icon":"inv_sword_31"},
+{"id":1329549,"name":"Shank","icon":"ability_theblackarrow"}
 ],
 "encounters":[
 {"path":"Default/Raid Target","targets":[{"path":"Default/Raid Target","target":{"id":31146,"name":"Raid Target","level":63,"mobType":7,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,0,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],"minBaseDamage":2601,"damageSpread":0.5,"swingSpeed":2,"parryHaste":true,"canCrush":true}}]},

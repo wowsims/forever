@@ -1690,7 +1690,7 @@
         "thousand_cuts": {"spellId": 1310721, "registeredBy": []},
         "thousand_cuts_1310723": {"spellId": 1310723, "registeredBy": []},
         "trueshot_aura": {"spellId": 20906, "tag": -1, "registeredBy": ["rogue"]},
-        "venom": {"spellId": 1310703, "registeredBy": []},
+        "venom": {"spellId": 1310703, "registeredBy": ["rogue"]},
         "windfury_totem": {"spellId": 10610, "tag": -1, "registeredBy": ["rogue"]},
         "windfury_totem_10612": {"spellId": 10612, "tag": -1, "registeredBy": ["rogue"]},
         "windfury_totem_10614": {"spellId": 10614, "tag": -1, "registeredBy": ["rogue"]}
@@ -1775,6 +1775,7 @@
         "seal_fate": {"spellId": 14186, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
         "serrated_blades": {"spellId": 14171, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
         "setup": {"spellId": 13983, "registeredBy": ["rogue"], "talentOnlyBy": ["rogue"], "uncastable": true},
+        "shank": {"spellId": 1329549, "registeredBy": ["rogue"]},
         "shatter_curse": {"spellId": 1299026, "registeredBy": ["rogue"]},
         "sinister_strike": {"spellId": 11294, "rank": 8, "registeredBy": ["rogue"]},
         "skysight": {"spellId": 1259686, "registeredBy": ["rogue"]},
