@@ -157,6 +157,9 @@ func (rogue *Rogue) registerPreparation() {
 		if rogue.AdrenalineRush != nil {
 			rogue.AdrenalineRush.CD.Set(0)
 		}
+		if rogue.Riposte != nil {
+			rogue.Riposte.CD.Set(0)
+		}
 	}
 
 	rogue.Preparation = rogue.RegisterSpell(config)
