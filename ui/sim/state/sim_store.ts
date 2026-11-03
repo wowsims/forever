@@ -209,8 +209,8 @@ export type StatSweepMetric = 'dps' | 'hps' | 'tps' | 'dtps' | 'tmi';
 // Stat sweep settings, one slice per player (keyed by storeKey).
 export interface StatSweepSlice {
 	stats: UnitStat[] | null; // null, or only ones the spec does not offer, means the first one offered, and [] means none.
-	range: number;
-	step: number;
+	range: number; // In percent.
+	step: number; // In percent.
 	metric: StatSweepMetric; // Plotted when offered, else DPS; a run's Target ± follows the one plotted when it starts.
 	showSpread: boolean; // Shades ± 1 standard deviation around each line.
 	precisionMode: PrecisionMode;

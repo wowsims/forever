@@ -48,5 +48,3 @@ group "Weave":
   move $melee_spot if walk_in_now
   move $shoot_spot
   wait min($time_to_walk_in, max(gcd_time_to_ready, input_delay))
-      if $time_to_walk_in > 0s
-      and $weave_fits

@@ -18,6 +18,10 @@ export interface StatTooltipBodyProps {
 	rangedWeaponSpeed?: number;
 }
 
+// A percent row's bonus is typed as a percent and stored as a rating, so the row reads its percent back off that rating: the bonus stats' own percent pseudo stat is 0.
+const bonusDisplayStats = (hand: UnitStat, bonusStats: Stats, bonusStatValue: number): Stats =>
+	hand.isPseudoStat() && hand.isPercentRating() ? bonusStats.withPseudoStat(hand.getPseudoStat(), hand.convertRatingToPercent(bonusStatValue)!) : bonusStats;
+
 // One hand's stage breakdown. `handLabel`, given only on a combined row while dual wielding, heads the
 // list so the two tooltips read apart. As a component rather than a plain function, its `show()` calls
 // run only once react-tooltip actually opens it, not on every StatRow render.
@@ -34,7 +38,9 @@ export const StatTooltipBody = ({ hand, handLabel, attribution, show, bonusStats
 		<TooltipRow label={i18n.t('sidebar.character_stats.tooltip.buffs')} value={show(attribution.buffs, hand)} />
 		<TooltipRow label={i18n.t('sidebar.character_stats.tooltip.consumes')} value={show(attribution.consumes, hand)} />
 		<TooltipRow label={i18n.t('sidebar.character_stats.tooltip.debuffs')} value={show(attribution.debuffs, hand)} />
-		{bonusStatValue !== 0 && <TooltipRow label={i18n.t('sidebar.character_stats.tooltip.bonus')} value={show(bonusStats, hand)} />}
+		{bonusStatValue !== 0 && (
+			<TooltipRow label={i18n.t('sidebar.character_stats.tooltip.bonus')} value={show(bonusDisplayStats(hand, bonusStats, bonusStatValue), hand)} />
+		)}
 		<TooltipRow label={i18n.t('sidebar.character_stats.tooltip.total')} value={total} />
 		{rangedWeaponSpeed !== undefined && (
 			<TooltipRow

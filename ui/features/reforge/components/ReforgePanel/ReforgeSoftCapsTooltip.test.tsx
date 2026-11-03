@@ -1,5 +1,5 @@
 import { StatCapType } from '@generated/proto/api';
-import { Class, PseudoStat } from '@generated/proto/common';
+import { Class, PseudoStat, Stat } from '@generated/proto/common';
 import { StatCap } from '@sim/proto/stats';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -22,6 +22,19 @@ describe('ReforgeSoftCapsTooltip', () => {
 
 		expect(container.querySelectorAll('tr').length).toBeGreaterThan(0);
 		expect(container.textContent).toContain('0.00');
+	});
+
+	// A rating's post-cap EP is stored per rating point and the table shows it per 1%.
+	it('shows the post-cap EP of a rating per 1%', () => {
+		const hitRating = StatCap.fromStat(Stat.StatHitRating, {
+			breakpoints: [100],
+			capType: StatCapType.TypeThreshold,
+			postCapEPs: [0.33],
+		});
+
+		const { container } = render(<ReforgeSoftCapsTooltip playerClass={Class.ClassWarrior} softCaps={[hitRating]} additionalInformation={{}} />);
+
+		expect(container.querySelector('tbody tr:last-child td:last-child')!.textContent).toBe('3.30');
 	});
 
 	it('gives each soft-capped stat its own table, with one row per breakpoint', () => {

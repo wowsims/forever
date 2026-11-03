@@ -53,27 +53,6 @@ export const batchSecondsRemaining = ({ groups, weights, seconds, running, progr
 	return left;
 };
 
-const GLIDE_PER_SECOND = 0.3;
-const MIN_RISE_SECONDS = 10;
-const MIN_RISE_SHARE = 0.25;
-const MAX_EXTRA_DROP_PER_SECOND = 2;
-const MIN_SHOWN_SECONDS = 1;
-
-// The raw estimate jumps at step boundaries and stalls between ticks, so the shown value counts down on its own and
-// closes part of the gap to each estimate. It rises only for an estimate well above it, and drops at most 2 s a second
-// faster than the clock, so an estimate that collapses as the last step starts still reads as a countdown.
-/** The time left to show `dt` seconds after `shown`, given the latest raw estimate; `shown` undefined starts at `raw`. */
-export const smoothSecondsRemaining = (shown: number | undefined, raw: number, dt: number): number => {
-	if (shown === undefined) return raw;
-	const counted = Math.max(0, shown - dt);
-	if (raw > counted && raw - shown <= Math.max(MIN_RISE_SECONDS, MIN_RISE_SHARE * shown)) return counted;
-	const glide = (raw - counted) * Math.min(1, GLIDE_PER_SECOND * dt);
-	return Math.max(0, counted + Math.max(glide, -MAX_EXTRA_DROP_PER_SECOND * dt));
-};
-
-/** Whole seconds, so the shown value ticks down every second; never under 1 s while running. */
-export const roundSecondsRemaining = (seconds: number): number => Math.max(MIN_SHOWN_SECONDS, Math.round(seconds));
-
 export interface BulkProgress {
 	stage: string;
 	title: string;
