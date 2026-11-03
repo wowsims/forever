@@ -81,7 +81,10 @@ func (rogue *Rogue) registerGhostlyStrike() {
 	config.ClassSpellMask = RogueSpellGhostlyStrike
 	config.DamageMultiplier = core.TernaryFloat64(rogue.HasDagger(core.MainHand), ghostlyStrikeRank.EffectN(4).Percent(), ghostlyStrikeRank.EffectN(1).Percent())
 
-	// Dodge aura not implemented; maybe if rogue tanking comes back
+	// The dodge buff is the row's own aura: its duration and the dodge its second effect adds.
+	dodgeBuff := rogue.RegisterAura(spelldata.AuraConfig(ghostlyStrikeRank))
+	spelldata.ParseEffects(&rogue.Character, dodgeBuff, ghostlyStrikeRank, spelldata.Effects(2))
+	config.RelatedSelfBuff = dodgeBuff
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
@@ -89,7 +92,9 @@ func (rogue *Rogue) registerGhostlyStrike() {
 
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
+		// A miss grants no buff, as it grants no combo point.
 		if result.Landed() {
+			dodgeBuff.Activate(sim)
 			rogue.AddComboPoints(sim, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)

@@ -11,11 +11,11 @@ func (rogue *Rogue) registerCombatTalents() {
 	// Tier 1
 	rogue.registerImprovedEviscerate()
 	rogue.registerImprovedSinisterStrike()
-	// Lightning Reflexes NYI
+	rogue.registerLightningReflexes()
 
 	// Tier 2
 	rogue.registerPuncturingWounds()
-	// Deflection NYI
+	rogue.registerDeflection()
 	rogue.registerPrecision()
 
 	// Tier 3
@@ -47,6 +47,15 @@ func (rogue *Rogue) registerImprovedSinisterStrike() {
 		spellData.ImprovedSinisterStrike.Rank(rogue.Talents.ImprovedSinisterStrike))
 }
 
+func (rogue *Rogue) registerLightningReflexes() {
+	if rogue.Talents.LightningReflexes == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&rogue.Character,
+		spellData.LightningReflexes.Rank(rogue.Talents.LightningReflexes))
+}
+
 func (rogue *Rogue) registerPuncturingWounds() {
 	if rogue.Talents.PuncturingWounds == 0 {
 		return
@@ -56,6 +65,15 @@ func (rogue *Rogue) registerPuncturingWounds() {
 		spellData.PuncturingWounds.Rank(rogue.Talents.PuncturingWounds))
 
 	rogue.puncturingWoundsComboPointMetrics = rogue.NewComboPointMetrics(core.ActionID{SpellID: spellData.PuncturingWounds.Rank(rogue.Talents.PuncturingWounds).ID})
+}
+
+func (rogue *Rogue) registerDeflection() {
+	if rogue.Talents.Deflection == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&rogue.Character,
+		spellData.Deflection.Rank(rogue.Talents.Deflection))
 }
 
 func (rogue *Rogue) registerPrecision() {
