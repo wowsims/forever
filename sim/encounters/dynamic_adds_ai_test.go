@@ -25,7 +25,7 @@ func TestDynamicAddsSchedule(t *testing.T) {
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassWarrior,
 		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: "30305003-05053035052210501",
+		TalentsString: "30303103-050530355022100031",
 		Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
 			ClassOptions: &proto.WarriorOptions{DefaultStance: proto.WarriorStance_WarriorStanceBerserker},
 		}}},

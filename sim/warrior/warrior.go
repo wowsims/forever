@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{17, 17, 18}
+var TalentTreeSizes = [3]int{17, 18, 18}
 
 type WarriorInputs struct {
 	UseBattleShout bool
