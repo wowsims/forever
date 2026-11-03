@@ -23,13 +23,6 @@ type Encounter struct {
 	// Every kind of area the fight is in, deduplicated.
 	AreaTypes []proto.AreaType
 
-	EndFightAtHealth float64
-	// DamageTaken is used to track health fights instead of duration fights.
-	//  Once primary target has taken its health worth of damage, fight ends.
-	DamageTaken float64
-	// In health fight: set to true until we get something to base on
-	DurationIsEstimate bool
-
 	// Value to multiply by, for damage spells which are subject to the aoe cap.
 	aoeCapMultiplier float64
 }
@@ -87,22 +80,6 @@ func NewEncounter(options *proto.Encounter) Encounter {
 
 	if len(encounter.ActiveTargets) == 0 {
 		panic("At least one target must be active at the start of the simulation!")
-	}
-
-	// If UseHealth is set, we use the sum of targets health. After creating the targets to make sure stat modifications are done
-	if options.UseHealth {
-		for _, t := range options.Targets {
-			encounter.EndFightAtHealth += t.Stats[stats.Health]
-		}
-		if encounter.EndFightAtHealth == 0 {
-			encounter.EndFightAtHealth = 1 // default to something so we don't instantly end without anything.
-		}
-	}
-
-	if encounter.EndFightAtHealth > 0 {
-		// Until we pre-sim set duration to 10m
-		encounter.Duration = time.Minute * 10
-		encounter.DurationIsEstimate = true
 	}
 
 	encounter.updateAOECapMultiplier()

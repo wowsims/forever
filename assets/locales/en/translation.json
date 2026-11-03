@@ -1255,7 +1255,6 @@
 				"saved": "Saved",
 				"empty": "No preset or saved encounters yet. Save one in Encounter to run it too.",
 				"duplicate": "Same as {{encounter}}",
-				"health_summary": "Health",
 				"targets": "{{count}} targets",
 				"targets_one": "{{count}} target",
 				"targets_other": "{{count}} targets"
@@ -3500,10 +3499,6 @@
 						"description": "The percentage of iterations in which the player died, based on incoming damage from the enemies and incoming healing (see the Incoming HPS and Healing Cadence options).",
 						"note": "DTPS alone is not a good measure of tankiness because it is not affected by health and ignores damage spikes. Chance of Death attempts to capture overall tankiness."
 					}
-				},
-				"dur": {
-					"label": "DUR",
-					"tooltip": "Average Fight Duration"
 				},
 				"tto": {
 					"label": "TTO",
