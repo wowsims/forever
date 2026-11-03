@@ -46,22 +46,15 @@ const ASHKANDI = equipped(19364, 'Ashkandi');
 const CURRENT_GEAR = gear(LIONHEART, THUNDERFURY);
 const UPGRADE = gear(BEAR_HELM, ASHKANDI);
 
-// A timed encounter of 180 ±5 seconds, or a health-based one when `timed` is false, whose rows ran under `settings`.
-const entry = (
-	name: string,
-	isCurrent: boolean,
-	best: number,
-	timed = true,
-	upgrade = UPGRADE,
-	settings: BulkPlayerSettingsSetup | null = null,
-): BulkEncounterResults => {
+// An encounter of 180 ±5 seconds whose rows ran under `settings`.
+const entry = (name: string, isCurrent: boolean, best: number, upgrade = UPGRADE, settings: BulkPlayerSettingsSetup | null = null): BulkEncounterResults => {
 	const build = { ...GEAR_MODE, settings };
 	const base = result(CURRENT_GEAR, 1000, 10, CURRENT_TALENT_SETUP, build);
 	return {
 		name,
 		isCurrent,
-		duration: timed ? 180 : null,
-		durationVariation: timed ? 5 : null,
+		duration: 180,
+		durationVariation: 5,
 		results: {
 			chains: [[result(upgrade, best, 10, CURRENT_TALENT_SETUP, build)], [base]],
 			originalGearResults: base,
@@ -86,13 +79,13 @@ describe('bulkResultsCsv', () => {
 	});
 
 	it('writes one row per ranked set of every encounter, in ranked order, with the length in seconds', () => {
-		const rows = lines(bulkResultsCsv([entry('', true, 1100), entry('Patchwerk', false, 1050, false)])).slice(1);
+		const rows = lines(bulkResultsCsv([entry('', true, 1100), entry('Patchwerk', false, 1050)])).slice(1);
 
 		expect(rows.map(row => row.split(',').slice(0, 5))).toEqual([
 			['bulk_tab.results.current', '180', '5', '1', ''],
 			['bulk_tab.results.current', '180', '5', '2', 'yes'],
-			['Patchwerk', '', '', '1', ''],
-			['Patchwerk', '', '', '2', 'yes'],
+			['Patchwerk', '180', '5', '1', ''],
+			['Patchwerk', '180', '5', '2', 'yes'],
 		]);
 	});
 
@@ -169,7 +162,7 @@ describe('bulkResultsCsv', () => {
 	});
 
 	it('leaves all four cells of an empty slot empty', () => {
-		const [, upgrade] = lines(bulkResultsCsv([entry('', true, 1100, true, gear(null, ASHKANDI))]));
+		const [, upgrade] = lines(bulkResultsCsv([entry('', true, 1100, gear(null, ASHKANDI))]));
 
 		expect(upgrade).toContain(`,,,,,Ashkandi,${ActionId.makeItemUrl(19364)},19364,`);
 	});

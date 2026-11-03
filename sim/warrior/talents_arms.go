@@ -459,7 +459,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 			}
 
 			nextTarget := warrior.Env.NextActiveTargetUnit(result.Target)
-			if spellData.Execute.Contains(spell) && sim.IsExecutePhase20() {
+			if spellData.Execute.Contains(spell) && result.Target.IsExecutePhase20() {
 				warrior.SweepingStrikesNormalizedAttack.Cast(sim, nextTarget)
 			} else {
 				copyDamage = result.Damage / result.ArmorAndResistanceMultiplier

@@ -6,7 +6,6 @@ encounter:
   duration_variation 5
   execute_proportion_20 0.2
   execute_proportion_35 0.35
-  use_health
   targets(id=31146,
       name="Raid Target",
       level=63,

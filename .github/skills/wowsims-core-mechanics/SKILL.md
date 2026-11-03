@@ -1,6 +1,6 @@
 ---
 name: wowsims-core-mechanics
-description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
+description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, per-target execute phases, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
 ---
 
 # wowsims-core-mechanics
@@ -104,6 +104,33 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **Within an exclusive category the enabled effect with the highest `Priority` applies**; `YieldsTies` takes the
   category only by outbidding (`exclusive_effect.go`). The `SingleAura` reset is `wowsims-abilities-auras` §Buffs and
   debuffs.
+
+## Targets
+
+- **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
+  target, its tank among them, move to the enabled target with the lowest index and look at their rotation again; with
+  none left they keep the disabled target, their auto attacks stop and `Target.Enable` resumes them
+  (`returnStrandedRaid`). A target disabled at start strands the raid at the pull the same way
+  (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code that reads the current
+  target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it does not land once the
+  target is back, and ends every raid unit's channel on the target with no further tick; a ground channel lives on its
+  caster and runs on. A dot keeps ticking on a target disabled without clearing its debuffs.
+- **A target disabled while the sim resets only starts the iteration disabled.** A target AI's `Reset` runs before the
+  raid resets, so `Disable` then skips the raid side (channels, moving the raid, waking rotations), and the pull moves
+  the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
+- **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
+  stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
+  the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in
+  `ExtraCondition`, which runs inside `Die`. The proc side is `docs/spell_data/procs.md`, which also says why a rated
+  trigger hears no death. In a normal sim only the Dynamic Adds add dies, at the end of its lifetime, with the boss's
+  Kill share % input as the share.
+- **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
+  target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%, at the
+  encounter's execute proportions of the fight (`resetExecutePhases`); an enemy has no health bar to read. A buff row a
+  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose rows
+  state no buff counts per target (Quietus, Early Demise).
+- **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
+  phases.
 
 ## Protos
 
