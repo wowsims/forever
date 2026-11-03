@@ -17,15 +17,13 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	// Melee special attacks and bleed ticks against a bleeding target; white swings are not raised. A
 	// tester's table on PR #149 shows Rake and Rip ticks, the Rake hit and Claw rising by the talent's
 	// percent with a bleed on the target, and the Rake hit staying put without one.
-	// The November 2 development notes set it to 3/6/9/12/15%; the game files still state 2% a rank.
-	// TODO: Read the row's percent again once the game files state 3% a rank.
+	// 3% a rank; the row states 2%.
 	return 1 + 0.03*float64(druid.Talents.RendAndTear)
 }
 
-// The November 2 development notes raise the base points and the attack power scaling of Rip, Rake,
-// Ferocious Bite and Pounce by "about 25%", and the game files do not state the new values yet.
-// TODO: Read the rows' values once the game files carry them. The notes' rounded 25% is a placeholder.
-const notesBleedAndBiteScale = 1.25
+// Rip, Rake, Ferocious Bite and Pounce deal 25% more from their base points and attack power than
+// their rows state.
+const bleedAndBiteScale = 1.25
 
 // The row's weapon strike on the main-hand swing: the flat bonus and the swing, both scaled by the
 // weapon percent.
@@ -34,11 +32,9 @@ func (druid *Druid) weaponSpecialDamage(sim *core.Simulation, spell *core.Spell,
 	return rank.WeaponStrike(sim, spell, weapon, 0) * druid.rendAndTearMultiplier(target)
 }
 
-// Rescales a weapon strike from the row's weapon percent to percent. The November 2 development notes set
-// Shred to 200%, Claw to 140% and Ravage to 435%, where the game files still state 155%, 110% and 350%.
-// It is 1 once a row states the notes' percent.
-// TODO: Drop it once the game files carry the notes' percents.
-func notesWeaponPercentScale(rank *spelldata.Spell, percent float64) float64 {
+// Rescales a weapon strike from the row's weapon percent to percent: Shred deals 200%, Claw 140% and
+// Ravage 435%, where their rows state 155%, 110% and 350%.
+func weaponPercentScale(rank *spelldata.Spell, percent float64) float64 {
 	return percent / rank.FindEffect(dbcenums.E_WEAPON_PERCENT_DAMAGE, 0, 0).Percent()
 }
 

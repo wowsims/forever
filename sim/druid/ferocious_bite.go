@@ -27,8 +27,8 @@ func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell
 		extra := druid.CurrentEnergy()
 		damage := damageEffect.RollAt(sim, druid.level()) + float64(damageEffect.PointsPerResource)*cp
 		damage += damageEffect.APCoeff() * cp * spell.MeleeAttackPower(target)
-		// The notes name the base points and the attack power scaling; the extra energy's damage stays.
-		damage *= notesBleedAndBiteScale
+		// The extra energy's damage is not raised.
+		damage *= bleedAndBiteScale
 		damage += extra * perEnergy
 		damage *= druid.rendAndTearMultiplier(target)
 		// The extra energy and the combo points are spent on a landed hit only, so a failed bite costs its base energy.

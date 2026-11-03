@@ -22,7 +22,7 @@ func (druid *Druid) registerRipSpell() {
 	}
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		apScale := min(comboPoints[target.UnitIndex], 4)
-		damage := (dot.SnapshotBaseDamage + tick.APCoeff()*apScale*dot.Spell.MeleeAttackPower(target)) * notesBleedAndBiteScale * druid.rendAndTearMultiplier(target)
+		damage := (dot.SnapshotBaseDamage + tick.APCoeff()*apScale*dot.Spell.MeleeAttackPower(target)) * bleedAndBiteScale * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, rank.TickOutcome(dot))
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
